@@ -4,7 +4,9 @@ const opendsu = require("opendsu");
 const http = opendsu.loadApi("http");
 
 async function fetchTextResult(relativeUrlPath, skipHistoryState) {
-    if(relativeUrlPath.startsWith("#")) {
+
+    if(relativeUrlPath.startsWith("#"))
+    {
         relativeUrlPath=relativeUrlPath.slice(1);
     }
     const response = await http.fetch(getApihubUrl(relativeUrlPath));
@@ -23,17 +25,14 @@ async function fetchTextResult(relativeUrlPath, skipHistoryState) {
 }
 
 class FrontEndController {
-    getPostsPage(domain, brandId) {
+    getToolPage(domain, brandId) {
         return fetchTextResult(`${domain}/posts/${brandId}`);
     }
 
-    getBrandsPage(domain) {
+    getToolsPage(domain) {
         return fetchTextResult(`${domain}/brands`,true);
     }
 
-    getPostPage (domain, postId) {
-        return fetchTextResult(`${domain}/comments/${postId}`);
-    }
 
     getPage(relativeUrl) {
         return relativeUrl === "" ? "" : fetchTextResult(relativeUrl);
