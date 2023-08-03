@@ -1,0 +1,20 @@
+{
+  "name": "webcardinal-app-starter",
+  "version": "1.0.0",
+  "description": "Application template that combines multiple components of WebCardinal.",
+  "scripts": {
+    "postinstall": "node node_modules/octopus/scripts/run dependencies devmode",
+    "server": "ws --spa ./index.html",
+    "build-all": "node ./node_modules/octopus/scripts/setEnv --file=../../../env.json \"node ./bin/octopusRun.js build\""
+  },
+  "dependencies": {},
+  "devDependencies": {
+    "local-web-server": "^4.2.1",
+    "octopus": "https://github.com/webcardinal/octopus"
+  },
+  "repository": {
+    "type": "git",
+    "url": "git+https://github.com/webcardinal/webcardinal-app-starter.git"
+  },
+  "license": "MIT"
+}

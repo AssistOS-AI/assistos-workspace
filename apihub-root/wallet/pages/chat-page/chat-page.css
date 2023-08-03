@@ -1,0 +1,159 @@
+@import url('https://fonts.googleapis.com/css2?family=Raleway:wght@700&display=swap');
+
+:root {
+    --app-height: 100vh;
+    --height: calc(var(--app-height) - 66px - 80px);
+}
+
+* {
+    box-sizing: border-box;
+    margin: 0;
+    padding: 0;
+}
+
+html,
+body {
+    height: 100%;
+    position: fixed;
+    overflow-y: scroll;
+}
+
+@media not all and (hover: hover) {
+    html,
+    body {
+        height: var(--app-height);
+    }
+
+}
+
+h1,
+h2,
+h3,
+h4,
+h5,
+h6 {
+    margin: 0;
+    padding: 0;
+}
+
+/* html {
+    overflow: hidden;
+    width: 100%;
+}
+
+body {
+    height: 100%;
+    position: fixed;
+    overflow-y: scroll;
+    -webkit-overflow-scrolling: touch;
+} */
+
+
+.chat-page {
+    height: 100vh;
+    background: #ECEFF5;
+    font-family: 'Poppins';
+    overflow: hidden;
+    position: relative;
+}
+
+header {
+    position: relative;
+    height: 64px;
+    padding: 0px;
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    box-shadow: 0px 4px 5px rgba(203, 203, 203, 0.1);
+    background-color: #4CBC79;
+
+}
+
+header::before {
+    content: "";
+    background-image: url("../../assets/icons/background.svg");
+    background-size: cover;
+    position: absolute;
+    top: 0px;
+    right: 0px;
+    bottom: 0px;
+    left: 0px;
+    opacity: 0.25;
+
+}
+
+.left {
+    display: flex;
+    align-items: center;
+    justify-content: start;
+}
+
+.left .back-arrow {
+    margin-left: 9px;
+    width: 30px;
+    height: 30px;
+    margin-right: 5px;
+    z-index: 1;
+}
+
+.left .profile-image {
+    height: 36px;
+    margin-right: 9px;
+    border-radius: 50%;
+}
+
+.left .companion p.name {
+    font-family: 'Raleway', sans-serif;
+    font-weight: 700;
+    font-size: 20px;
+    line-height: 22px;
+    color: #FFFFFF;
+}
+
+.left .companion p.status {
+    font-style: normal;
+    font-weight: 400;
+    font-size: 0.625rem;
+    line-height: 15px;
+    color: #849FAF;
+}
+
+header .three-points {
+    height: 18px;
+    width: 4px;
+    margin-right: 23px;
+}
+
+.three-points img {
+    width: 100%;
+    height: 100%;
+
+}
+
+.main-body {
+    height: calc(var(--app-height) - 66px - 80px);
+    padding-top: 10px;
+    margin-bottom: 20px;
+}
+
+footer {
+    background: #FFFFFF;
+    padding: 5px 0px;
+}
+
+.page-content {
+    background: #EEF0EF url("./../../assets/icons/chat-texture.svg") repeat;
+}
+
+
+/*Changes to color for AgroRobot*/
+
+.three-points img{
+    -webkit-filter: invert(100%);
+    /* Safari/Chrome */
+    filter: invert(100%);
+}
+
+.chat-messages .my-message {
+    background: #E7FFDB !important;
+}

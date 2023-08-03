@@ -1,0 +1,8 @@
+{
+  "PSK_TMP_WORKING_DIR": "tmp",
+  "PSK_CONFIG_LOCATION": "../apihub-root/external-volume/config-worker",
+  "DEV": false,
+  "VAULT_DOMAIN":"vault",
+  "BUILD_SECRET_KEY": "nosecretfordevelopers",
+  "BDNS_ROOT_HOSTS": "http://127.0.0.1:8081"
+}

@@ -1,0 +1,134 @@
+{
+    "default": {
+        "replicas": [],
+        "brickStorages": [
+            "$ORIGIN"
+        ],
+        "anchoringServices": [
+            "$ORIGIN"
+        ],
+        "notifications": [
+            "$ORIGIN"
+        ]
+    },
+    "epi": {
+        "replicas": [],
+        "brickStorages": [
+            "$ORIGIN"
+        ],
+        "anchoringServices": [
+            "$ORIGIN"
+        ],
+        "notifications": [
+            "$ORIGIN"
+        ]
+    },
+    "localhost.epi": {
+        "replicas": [],
+        "brickStorages": [
+            "$ORIGIN"
+        ],
+        "anchoringServices": [
+            "$ORIGIN"
+        ],
+        "notifications": [
+            "$ORIGIN"
+        ]
+    },
+    "dev.epi.axl": {
+        "replicas": [],
+        "brickStorages": [
+            "$ORIGIN"
+        ],
+        "anchoringServices": [
+            "$ORIGIN"
+        ],
+        "notifications": [
+            "$ORIGIN"
+        ]
+    },
+    "predefined": {
+        "replicas": [],
+        "brickStorages": [
+            "$ORIGIN"
+        ],
+        "anchoringServices": [
+            "$ORIGIN"
+        ],
+        "notifications": [
+            "$ORIGIN"
+        ]
+    },
+    "epidev": {
+        "replicas": [],
+        "brickStorages": [
+            "$ORIGIN"
+        ],
+        "anchoringServices": [
+            "$ORIGIN"
+        ],
+        "notifications": [
+            "$ORIGIN"
+        ]
+    },
+    "mah1.epidev": {
+        "replicas": [],
+        "brickStorages": [
+            "$ORIGIN"
+        ],
+        "anchoringServices": [
+            "$ORIGIN"
+        ],
+        "notifications": [
+            "$ORIGIN"
+        ]
+    },
+    "mah2.epidev": {
+        "replicas": [],
+        "brickStorages": [
+            "$ORIGIN"
+        ],
+        "anchoringServices": [
+            "$ORIGIN"
+        ],
+        "notifications": [
+            "$ORIGIN"
+        ]
+    },
+    "epiqa": {
+        "replicas": [],
+        "brickStorages": [
+            "$ORIGIN"
+        ],
+        "anchoringServices": [
+            "$ORIGIN"
+        ],
+        "notifications": [
+            "$ORIGIN"
+        ]
+    },
+    "vault": {
+        "replicas": [],
+        "brickStorages": [
+            "$ORIGIN"
+        ],
+        "anchoringServices": [
+            "$ORIGIN"
+        ],
+        "notifications": [
+            "$ORIGIN"
+        ]
+    },
+    "vault.nvs": {
+        "replicas": [],
+        "brickStorages": [
+            "$ORIGIN"
+        ],
+        "anchoringServices": [
+            "$ORIGIN"
+        ],
+        "notifications": [
+            "$ORIGIN"
+        ]
+    }
+}

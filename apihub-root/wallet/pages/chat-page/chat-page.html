@@ -1,0 +1,31 @@
+<link href="pages/chat-page/chat-page.css" rel="stylesheet" />
+<div class="mobile-container">
+  <webc-container controller="ChatPageController" slot="content-slot">
+    <div class="chat-page">
+      <header>
+        <div class="left">
+          <img src="./assets/icons/arrow-back.svg" class="back-arrow" alt="back" data-tag="go-back">
+          <img data-view-model="@companion.image" class="profile-image">
+          <div class="companion">
+            <p class="name">{{@companion.name}}</p>
+          </div>
+        </div>
+        <div class="three-points" data-tag="three-points">
+          <img src="./assets/icons/3points.svg" alt="three-points">
+        </div>
+      </header>
+
+      <div class="page-content">
+        <main class="main-body">
+          <chat-messages data-view-model="@mainModel"></chat-messages>
+        </main>
+
+
+        <footer>
+          <chat-footer data-view-model="@footerModel"></chat-footer>
+        </footer>
+      </div>
+
+    </div>
+  </webc-container>
+</div>

@@ -1,0 +1,5 @@
+{
+    "vaultDomain": "vault",
+    "didDomain": "vault",
+    "enclaveType": "WalletDBEnclave"
+}
