@@ -9,7 +9,7 @@ class AppManager {
         this.element = document.querySelector(".app-container");
         this.frontEndController = new FrontEndController();
         this.appContent = document.querySelector("#page-content");
-        this.sidebar = document.querySelector('#brands-sidebar');
+        this.sidebar = document.querySelector('#menu-sidebar');//#brands-sidebar
         this.appContent.addEventListener("click", this.interceptAppContentLinks.bind(this));
         this.actionRegistry = {};
         console.log("creating new app manager instance");
