@@ -40,14 +40,8 @@ class AppManager {
         console.log("AppManager init");
         this.registerListeners();
 
-        let url = window.location.href;
-
-
-        let regex=/https*:\/\/[a-z:0-9]*\/#(.*)/;
-        url=url.match(regex)[1];
+        let url = window.location.hash;
         window.appManager.navigateToPage(url);
-
-
     }
 
     async initSidebar(){
