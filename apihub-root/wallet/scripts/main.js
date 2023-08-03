@@ -1,7 +1,7 @@
 import AppManager from "./app-manager.js";
-import {extractFormInformation,checkValidityFormInfo} from "./utils/form-utils.js";
-import {closeModal, showModal} from "./utils/modal-utils.js";
-import {getAppUrl} from "./utils/url-utils.js";
+import { extractFormInformation, checkValidityFormInfo } from "./utils/form-utils.js";
+import { closeModal, showModal } from "./utils/modal-utils.js";
+import { getAppUrl } from "./utils/url-utils.js";
 
 function sanitize(string) {
     const map = {
@@ -32,9 +32,7 @@ const defineComponent = async (componentName, templatePath) => {
                     let textSanitized=sanitize(attr.nodeValue);
                     content=content.replaceAll(`$$${attr.nodeName}`,textSanitized);
                 })
-
-                    this.innerHTML = content;
-
+                this.innerHTML = content;
             }
         }
     );
@@ -42,7 +40,6 @@ const defineComponent = async (componentName, templatePath) => {
 
 const appManager = new AppManager();
 window.appManager = appManager;
-
 
 // Actions that can be used from apihub-components controllers can be defined here
 appManager.registerAction("showInfoModal", async (...params) => {
@@ -81,11 +78,10 @@ appManager.registerAction("submitFormSample", async (formElement,_param) => {
 appManager.registerAction("createBrand", async (formElement,_param) => {
     const formInfo = await extractFormInformation(formElement);
     console.log(formInfo)
-    if(checkValidityFormInfo(formInfo))
-    {
+    if(checkValidityFormInfo(formInfo)) {
         const result = await $$.promisify(appManager.remoteEnclaveClient.callLambda)
         ("addNewBrand", formInfo.data.name, formInfo.data.logo, formInfo.data.description , formInfo.data.url);
-    console.log("Added new brand ", result);
+        console.log("Added new brand ", result);
         closeModal(formElement);
         appManager.currentBrandId = JSON.parse(result).pk;
         appManager.loadSidebar();
@@ -95,12 +91,10 @@ appManager.registerAction("createBrand", async (formElement,_param) => {
         const resultFollow = await $$.promisify(appManager.remoteEnclaveClient.callLambda)
         ("addNewBrandFollow", JSON.parse(result).brand.brandId, userId);
     }
-
 })
 
 appManager.registerAction("createPost", async (formElement,_param) => {
     const formInfo = await extractFormInformation(formElement);
-    //console.log(formInfo)
     if(checkValidityFormInfo(formInfo)) {
         const result = await $$.promisify(appManager.remoteEnclaveClient.callLambda)
         ("addNewPost", appManager.currentBrandId, formInfo.data.title, "noImage", formInfo.data.body, "hardcodedDID", formInfo.data.mintingFee);
@@ -114,21 +108,18 @@ appManager.registerAction("createPost", async (formElement,_param) => {
 appManager.registerAction("createComment", async (formElement,_param) => {
     const formInfo = await extractFormInformation(formElement);
     console.log(formInfo, appManager.currentPost)
-    if(checkValidityFormInfo(formInfo))
-    {
+    if(checkValidityFormInfo(formInfo)) {
         const result = await $$.promisify(appManager.remoteEnclaveClient.callLambda)
         ("addNewComment", appManager.currentBrandId, appManager.currentPost, formInfo.data.title, formInfo.data.comment, "hardcodedDID", formInfo.data.mintingFee);
         console.log("Added new comment ", result);
         location.reload();
     }
-
 })
 
 appManager.registerAction("changeBrand", async (_target,brandId) => {
     console.log(brandId);
     appManager.currentBrandId = brandId;
     appManager.navigateToPostsPage();
-
 })
 
 appManager.registerAction("navigateToPostPage", async (_target,postId) => {
@@ -137,22 +128,16 @@ appManager.registerAction("navigateToPostPage", async (_target,postId) => {
 })
 
 appManager.registerAction("toggleBrandFollow", async (_target,brandId,mode) => {
-
     let userId="1";//static user
-    if(mode==="followed")
-    {
+    if(mode === "followed") {
         const result = await $$.promisify(appManager.remoteEnclaveClient.callLambda)
         ("removeBrandFollow", brandId);
     }
-    else
-    {
+    else {
         const result = await $$.promisify(appManager.remoteEnclaveClient.callLambda)
         ("addNewBrandFollow", brandId, userId);
-
     }
     appManager.loadSidebar();
-
-
 })
 appManager.init();
 

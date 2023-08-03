@@ -1,2 +1,3 @@
     added fast-svd to list of dependencies
     axiologic-pla/dev#406 - refactor of lightDB server and apihub lightDB component
+    axiologic-pla/dev#406 - refactor of lightDB server and apihub lightDB component

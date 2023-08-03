@@ -9,16 +9,16 @@ class AppManager {
         this.element = document.querySelector(".app-container");
         this.frontEndController = new FrontEndController();
         this.appContent = document.querySelector("#page-content");
-        this.sidebar = document.querySelector('#brands-sidebar')
+        this.sidebar = document.querySelector('#brands-sidebar');
         this.appContent.addEventListener("click", this.interceptAppContentLinks.bind(this));
         this.actionRegistry = {};
         console.log("creating new app manager instance");
     }
 
-    set currentPost(currentPost){
+    set currentPost(currentPost) {
         //console.trace(`changing current post from ${this._currentPost} to ${currentPost}`)
         this._currentPost=currentPost; return true;}
-    get currentPost(){ return this._currentPost;}
+    get currentPost() { return this._currentPost; }
     async init() {
         this.initSidebar();
         if (rawDossier) {
@@ -45,7 +45,7 @@ class AppManager {
     }
 
     async initSidebar(){
-        const content =  await this.frontEndController.getBrandsPage(DOMAIN)
+        const content = await this.frontEndController.getBrandsPage(DOMAIN)
         this.sidebar.innerHTML = content;
     }
     async loadSidebar()

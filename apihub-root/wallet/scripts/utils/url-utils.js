@@ -12,7 +12,6 @@ export function getAppUrl(relativePath) {
     if (!relativePath.startsWith("")) {
         relativePath = `${relativePath}`;
     }
-
     return `${relativePath}`;
 }
 

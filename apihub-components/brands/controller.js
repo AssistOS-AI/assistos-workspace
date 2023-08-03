@@ -69,7 +69,7 @@ const getBrandCard = (brand) => {
     {
         isFollowed="followed";
     }
-    return `<brand-card data-id="${brand.brandId}" data-name="${brand.brandName}" 
+    return `<brand-card data-id="${brand.brandId}" data-name="${brand.brandName}"
     data-is-followed="${isFollowed}" data-logo="${brand.brandLogo}"></brand-card>`
 }
 
@@ -101,28 +101,12 @@ async function getBrandsPage(request, response) {
 
     brandPage += `
                     <div class="brands-container">
-                        <div class="add-brand-wrapper">
-                        <div class="add-brand-button" data-action="showAddBrandModal"> 
-                            <div class="plus-button-wrapper">
-                                <img class="plus-icon" src="./assets/icons/plus-icon.svg"
-                        alt="Plus icon">
-                            </div>
-                            <div class="create-community-button">Create a community</div>
-                        </div>
-                        </div> 
                         <div class="followed-container">
                             <div class="title-wrapper">
-                                    <div class="followed-brands-title">Followed brands</div>
-                                    <div class="see-all-button">See All</div> 
+                                    <div class="followed-brands-title">LOGO APP</div>
                             </div>
                             <div class="brands-list">
                                 ${followedBrandsArray}
-                            </div>
-                        </div>
-                        <div class="suggested-container">
-                            <div class="title-wrapper">Suggested brands</div>
-                            <div class="brands-list">
-                               ${suggestedBrandsArray}
                             </div>
                         </div>
                     </div>

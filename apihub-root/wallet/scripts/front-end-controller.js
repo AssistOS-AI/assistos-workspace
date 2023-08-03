@@ -4,9 +4,7 @@ const opendsu = require("opendsu");
 const http = opendsu.loadApi("http");
 
 async function fetchTextResult(relativeUrlPath, skipHistoryState) {
-
-    if(relativeUrlPath.startsWith("#"))
-    {
+    if(relativeUrlPath.startsWith("#")) {
         relativeUrlPath=relativeUrlPath.slice(1);
     }
     const response = await http.fetch(getApihubUrl(relativeUrlPath));
@@ -32,7 +30,6 @@ class FrontEndController {
     getBrandsPage(domain) {
         return fetchTextResult(`${domain}/brands`,true);
     }
-
 
     getPostPage (domain, postId) {
         return fetchTextResult(`${domain}/comments/${postId}`);
