@@ -10,14 +10,8 @@
         },
         "bricking": {},
         "anchoring": {},
-        "posts": {
-            "module": "./../../apihub-components/posts"
-        },
-        "brands": {
-            "module": "./../../apihub-components/brands"
-        },
-        "comments" :{
-            "module": "./../../apihub-components/comments"
+        "tools": {
+            "module": "./../../apihub-components/tools"
         }
     },
     "responseHeaders": {

@@ -1,10 +1,8 @@
-
 const logger = $$.getLogger("brand", "apihub-components");
 const openDSU = require("opendsu");
 
 const getSc = async () => {
     return new Promise((resolve, reject) => {
-
         const sc = openDSU.loadAPI("sc").getSecurityContext();
         if (sc.isInitialised()) {
             resolve(sc);
@@ -32,11 +30,9 @@ const getRemoteEnclaveClient = async () => {
         $$.remoteEnclaveClient = enclaveAPI.initialiseRemoteEnclave(clientDIDDocument.getIdentifier(), remoteDID);
     }
     return $$.remoteEnclaveClient;
-
 }
 
 const getAllBrands = async function () {
-
     try {
         const remoteEnclaveClient = await getRemoteEnclaveClient();
         return await $$.promisify(remoteEnclaveClient.getAllRecords)("", "brands");
@@ -45,10 +41,9 @@ const getAllBrands = async function () {
         logger.error("Error at initialising remote client" + err);
         return undefined;
     }
-
 }
-const getAllBrandsFollow = async function () {
 
+const getAllBrandsFollow = async function () {
     try {
         const remoteEnclaveClient = await getRemoteEnclaveClient();
         return await $$.promisify(remoteEnclaveClient.getAllRecords)("", "brandsFollow");
@@ -57,7 +52,6 @@ const getAllBrandsFollow = async function () {
         logger.error("Error at initialising remote client" + err);
         return undefined;
     }
-
 }
 
 const getBrandCard = (brand) => {
@@ -65,8 +59,7 @@ const getBrandCard = (brand) => {
     //     .reduce((prev, current) => prev += brand.postsOwnership[current].length, 0) : 0;
     let isFollowed="follow";
 
-    if(brand.followed)
-    {
+    if(brand.followed) {
         isFollowed="followed";
     }
     return `<brand-card data-id="${brand.brandId}" data-name="${brand.brandName}"
@@ -100,12 +93,12 @@ async function getBrandsPage(request, response) {
     let brandPage = "";
 
     brandPage += `
-                    <div class="brands-container">
+                    <div class="tools-container">
                         <div class="followed-container">
                             <div class="title-wrapper">
-                                    <div class="followed-brands-title">LOGO APP</div>
+                                    <div class="followed-tools-title">LOGO APP</div>
                             </div>
-                            <div class="brands-list">
+                            <div class="tools-list">
                                 ${followedBrandsArray}
                             </div>
                         </div>

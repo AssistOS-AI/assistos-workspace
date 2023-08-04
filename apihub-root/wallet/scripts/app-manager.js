@@ -1,5 +1,5 @@
 import FrontEndController from "./front-end-controller.js";
-import {isInternalUrl} from "./utils/url-utils.js";
+import { isInternalUrl } from "./utils/url-utils.js";
 
 const DOMAIN = "default";
 const openDSU = require("opendsu");
@@ -9,7 +9,7 @@ class AppManager {
         this.element = document.querySelector(".app-container");
         this.frontEndController = new FrontEndController();
         this.appContent = document.querySelector("#page-content");
-        this.sidebar = document.querySelector('#menu-sidebar');//#brands-sidebar
+        this.sidebar = document.querySelector('#tools-sidebar');//#brands-sidebar
         this.appContent.addEventListener("click", this.interceptAppContentLinks.bind(this));
         this.actionRegistry = {};
         console.log("creating new app manager instance");
@@ -28,7 +28,6 @@ class AppManager {
                 "enclaveType": "MemoryEnclave"
             }));
         }
-
         const sc = openDSU.loadAPI("sc").getSecurityContext();
         if (sc.isInitialised()) {
             await this.initEnclaveClient();
@@ -36,7 +35,6 @@ class AppManager {
         else {
             sc.on("initialised", this.initEnclaveClient.bind(this));
         }
-
         console.log("AppManager init");
         this.registerListeners();
 
@@ -45,14 +43,14 @@ class AppManager {
     }
 
     async initSidebar(){
-        const content = await this.frontEndController.getBrandsPage(DOMAIN)
+        const content = await this.frontEndController.getBrandsPage(DOMAIN);
         this.sidebar.innerHTML = content;
     }
-    async loadSidebar()
-    {
+
+    async loadSidebar(){
         const loading = await this.showLoading();
         try {
-            const content =  await this.frontEndController.getBrandsPage(DOMAIN)
+            const content = await this.frontEndController.getBrandsPage(DOMAIN);
             this.sidebar.innerHTML = content;
         } catch (error) {
             console.log("Failed to load page", error);
@@ -60,7 +58,6 @@ class AppManager {
             loading.close();
             loading.remove();
         }
-
     }
 
     async initEnclaveClient() {
@@ -77,7 +74,6 @@ class AppManager {
         catch (err) {
             console.log("Error at initialising remote client", err);
         }
-
     }
 
     async showLoading() {
@@ -160,7 +156,7 @@ class AppManager {
 
         // register listener for data-action attribute
         this.element.addEventListener("click", (event) => {
-            let target = event.target;
+            let target= event.target;
 
             while (target && target !== this.element) {
                 if (target.hasAttribute("data-action")) {
@@ -196,7 +192,6 @@ class AppManager {
         let thisCall = params && params[0] instanceof HTMLElement ? params[0] : null;
 
         actionHandler.call(thisCall, ...params);
-
     }
 }
 
