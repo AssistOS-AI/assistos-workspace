@@ -57,13 +57,16 @@ const getAllBrandsFollow = async function () {
 const getBrandCard = (brand) => {
     // const postNumbers = brand.postsOwnership ? Object.keys(brand.postsOwnership)
     //     .reduce((prev, current) => prev += brand.postsOwnership[current].length, 0) : 0;
-    let isFollowed="follow";
 
-    if(brand.followed) {
-        isFollowed="followed";
-    }
-    return `<brand-card data-id="${brand.brandId}" data-name="${brand.brandName}"
-    data-is-followed="${isFollowed}" data-logo="${brand.brandLogo}"></brand-card>`
+
+    // let isFollowed="follow";
+    //
+    // if(brand.followed) {
+    //     isFollowed="followed";
+    // }
+
+    return `<tool-card data-id="${brand.brandId}" data-name="${brand.brandName}"
+    data-is-followed="${isFollowed}" data-logo="${brand.brandLogo}">heyoo</tool-card>`
 }
 
 async function getBrandsPage(request, response) {
@@ -79,16 +82,16 @@ async function getBrandsPage(request, response) {
     }
     let followedBrandsArray="";
     let suggestedBrandsArray = "";
-
-        for(let i=0;i<brands.length;i++) {
-            if(brandsId.includes(brands[i].brand.brandId)) {
-                brands[i].brand.followed=true;
-                followedBrandsArray += getBrandCard(brands[i].brand);
-            } else {
-                brands[i].brand.followed=false;
-                suggestedBrandsArray += getBrandCard(brands[i].brand);
-            }
-        }
+    followedBrandsArray += getBrandCard("0");
+        // for(let i=0;i<brands.length;i++) {
+        //     if(brandsId.includes(brands[i].brand.brandId)) {
+        //         brands[i].brand.followed=true;
+        //         followedBrandsArray += getBrandCard(brands[i].brand);
+        //     } else {
+        //         brands[i].brand.followed=false;
+        //         suggestedBrandsArray += getBrandCard(brands[i].brand);
+        //     }
+        // }
         //fix this^^^^
     let brandPage = "";
 

@@ -60,27 +60,32 @@ button{
     padding-top: 10px !important;
     padding-bottom: 10px !important;
 }
-.user-container{
+
+.user-container {
     display:flex;
     align-items:center;
 }
 
-
-.title-container{
-    display: flex;
-    align-items: center;
-    margin-left:14px;
+.title-container {
+    font-weight: 700;
+    font-size: 24px;
+    display: block;
+    /*display: flex;*/
+    /*align-items: center;*/
+    /*margin-left:14px;*/
 }
 
 .logo {
     width: auto;
 }
+
 .header-title {
     font-weight: 700;
     font-size: 24px;
-    display:block;
+    display: block;
 }
-.subtitle{
+
+.subtitle {
     display:block;
 }
 .username-comment-page{
@@ -476,11 +481,12 @@ button{
     flex-shrink: 0;
     margin-right: 10px;
 }
-.followed-container
-{
+
+.followed-container {
     box-sizing:border-box;
     border-bottom: solid rgba(220, 220, 220, 1);
 }
+
 .plus-button-wrapper img {
     align-self: center;
     justify-self: center;
@@ -511,9 +517,11 @@ button{
     justify-content: center;
     padding-left: 11px;
 }
+
 .add-post-text-container:hover{
     cursor:pointer;
 }
+
 .add-post-text-container div {
     color: #8E8E8E;
     text-align: center;
@@ -524,14 +532,12 @@ button{
 }
 
 .comments-container {
-    /*margin-top: 42px 0px 20px 0px;*/
     display: flex;
     flex-direction: column;
     //padding-right:24px;
     //padding-left:24px;
 }
-.comments-container{
-    /*margin-top: 42px 0px 20px 0px;*/
+.comments-container {
     display: flex;
     flex-direction: column;
     padding-top: 0 !important;
@@ -545,7 +551,6 @@ button{
     border-radius: 8px;
     border: 0.5px solid rgba(0, 0, 0, 0.24);
     justify-content: space-between;
-
 }
 
 .add-comment-container .text {
@@ -567,28 +572,33 @@ button{
     padding: 3px 20px;
     margin: 13px;
 }
-.add-comment-wrapper{
+
+.add-comment-wrapper {
     padding:24px;
     border-top: solid 1px rgba(229, 229, 229, 1);
 }
-.add-attachment-btn{
+
+.add-attachment-btn {
     display:flex;
     align-items:center;
 }
-.attachment-btn{
+
+.attachment-btn {
     display:flex;
     align-items:center;
     background:none;
 }
-.comment-container{
+
+.comment-container {
     border-bottom:solid 1px rgba(229, 229, 229, 1);
 }
+
 .comment-wrapper {
      width: 100%;
      display: flex;
      flex-direction: column;
      padding:24px;
- }
+}
 
 .comment-meta-info {
     display: flex;
@@ -602,10 +612,12 @@ button{
     height: 25px;
     margin-right: 10px;
 }
+
 .comment-meta-left{
     display:flex;
     align-items:center;
 }
+
 .comment-meta-info .user-info {
     display: flex;
     flex-direction: row;
@@ -620,13 +632,15 @@ button{
     font-weight: 400;
     max-height:15px !important;
 }
-.user-info-comments{
+
+.user-info-comments {
     display:flex;
     align-items:center;
     color: #848685;
     font-weight: 400;
     //max-height:15px !important;
 }
+
 .brand-name-comments{
     display:flex;
     align-items:center;
@@ -637,8 +651,9 @@ button{
     line-height: 20px;
     max-height:15px;
 }
+
 .text-container-comments{
-display:flex;
+    display:flex;
     align-items:center;
 }
 
@@ -669,16 +684,19 @@ display:flex;
     align-items: center;
     margin-right: 8px;
 }
-.report{
+
+.report {
     margin-right:0;
     border-radius:50%;
     width:24px;
     height:23px;
     padding:2px;
 }
-.comment-button .text{
-    margin: 0px 5px;
+
+.comment-button .text {
+    margin: 0 5px;
 }
+
 .add-comment-msg {
     font-family: Poppins;
     font-size: 14px;
@@ -687,64 +705,85 @@ display:flex;
     letter-spacing: 0;
     color: rgba(66, 158, 157, 1);
 }
-.post-body{
+
+.post-body {
     color: #372B2B;
     text-align:justify;
 }
-.post-button,.comments
-{
+
+.post-button, .comments {
     margin: 0 6px 0 0;
 }
-.see-all-button{
+
+.see-all-button {
     font-weight:600;
     font-size:12px;
     line-height:20px;
     color: #757575;
     margin-right:20px;
 }
-.see-all-button:hover{
+
+.see-all-button:hover {
     cursor:pointer;
 }
-.brands-list{
+
+.brands-list {
     margin-left:13px;
 }
 
-.create-community-button,.followed-brands-title,.title-wrapper,.brand-name{
+.tools-list {
+    margin-left:13px;
+}
+
+.create-community-button, .followed-brands-title, .title-wrapper, .brand-name {
     color:rgba(55, 43, 43, 1);
     font-weight:500;
     font-size:14px;
 }
-.title-wrapper{
+
+.create-community-button, .tools-title, .title-wrapper, .tool-name {
+    color:rgba(55, 43, 43, 1);
+    font-weight:500;
+    font-size:14px;
+}
+
+.title-wrapper {
    margin-top:13px;
     margin-bottom:13px;
     font-weight:500;
 }
-h3{
+
+h3 {
     font-weight:600;
 }
-.brand-name,.user-info{
+
+.brand-name, .user-info {
     max-height:15px;
 }
+
 .flex-item {
     display: flex;
     align-items:center;
     width: max-content;
     margin-right: 6px;
 }
-#sign-up-container{
+
+#sign-up-container {
     display:flex;
     flex-direction:column;
     margin-bottom:22px;
     margin-left:22px;
     margin-right:22px;
 }
-#sign-up-button-container{
+
+#sign-up-button-container {
     display:flex;
     align-items:stretch;
     justify-content:center;
     margin-top:22px;
 }
-h4{
+
+h4 {
     font-family: Poppins;
     font-size: 16px;
     font-weight: 600;
@@ -753,7 +792,6 @@ h4{
     text-align: left;
     color: rgba(55, 43, 43, 1);
 }
-
 
 #sign-up-text-content{
     font-family: Poppins;
@@ -764,26 +802,31 @@ h4{
     text-align: justify;
     color:rgba(55, 43, 43, 1);
 }
-#right-sidebar-not-logged{
+
+#right-sidebar-not-logged {
     display:none;
 }
-.add-comment-lower{
+
+.add-comment-lower {
     display:flex;
     align-items:center;
     justify-content:space-between;
 }
-.reply{
+
+.reply {
     display:flex;
     justify-content:space-evenly;
     align-items:center;
 }
 
-.show-element{
+.show-element {
     display: block;
 }
-.hide-element{
+
+.hide-element {
     display: none;
 }
+
 .spinner {
     outline: none;
     background: none;
@@ -926,6 +969,12 @@ h4{
     background-color:#E0E0E0;
     margin-right:11px;
 }
+
+.tool-item {
+    display: flex;
+    padding: 5px 5px;
+}
+
 .add-post-text-container-skeleton{
         border-radius: 8px;
         border: 0.5px solid rgba(0, 0, 0, 0.06);
@@ -1059,4 +1108,9 @@ h4{
     width:28px;
     background-color:#E0E0E0;
     border-radius:50%;
+}
+
+.tools-title {
+    font-size: 18px;
+    font-weight: bold;
 }

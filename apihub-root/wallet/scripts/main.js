@@ -142,12 +142,14 @@ appManager.registerAction("toggleBrandFollow", async (_target,brandId,mode) => {
 appManager.init();
 
 // Modal components defined here
-defineComponent("info-modal", "/components/info-modal/info-modal.html");
-defineComponent("add-post-modal", "/components/add-post-modal/add-post-modal.html");
-defineComponent("add-brand-modal", "/components/add-brand-modal/add-brand-modal.html");
-defineComponent("add-comment-modal", "/components/add-comment-modal/add-comment-modal.html");
+// defineComponent("info-modal", "/components/info-modal/info-modal.html");
+// defineComponent("add-post-modal", "/components/add-post-modal/add-post-modal.html");
+// defineComponent("add-brand-modal", "/components/add-brand-modal/add-brand-modal.html");
+// defineComponent("add-comment-modal", "/components/add-comment-modal/add-comment-modal.html");
+//
+// defineComponent("post-card", "/components/post-card/post-card.html");
+// defineComponent("comment-card", "/components/comment-card/comment-card.html");
+// defineComponent("brand-card", "/components/brand-card/brand-card.html");
+// defineComponent("add-comment-card", "/components/comment-card/add-comment-card.html");
 
-defineComponent("post-card", "/components/post-card/post-card.html");
-defineComponent("comment-card", "/components/comment-card/comment-card.html");
-defineComponent("brand-card", "/components/brand-card/brand-card.html");
-defineComponent("add-comment-card", "/components/comment-card/add-comment-card.html");
+defineComponent("tool-card", "/components/tool-card/tool-card.html");
