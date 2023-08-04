@@ -76,14 +76,36 @@ async function getToolPage(request, response) {
     let toolPage = "";
 
     toolPage += `
-                    <div class="main-content">
-                       <div class="content-header">
-                        This is the page for tool ${toolId}
-                       </div>
-                       <div class="content-body">
-                       
-                       </div>
-                    </div>
+                   <div class="title-container">LLMS tool ${toolId}</div>
+                            <div class="add-button-section">
+                                <div class="add-button">
+                                    <img src="assets/icons/Vector.png" alt="Add icon" class="add-icon">
+                                    Add LLM
+                                </div>
+                            </div>
+                            <div class="table">
+                                <div class="table-header table-line">
+                                    <div class="header-cell cell">NAME</div>
+                                    <div class="header-cell cell">KEY</div>
+                                    <div class="header-cell cell">URL</div>
+                                </div>
+                                <div class="table-line border-line">
+                                    <div class="cell">Machin1.0</div>
+                                    <div class="cell">Webfdbefudh222</div>
+                                    <div class="cell">www.reddit.com/r...</div>
+                                </div>
+                                <div class="table-line border-line">
+                                    <div class="cell">Machin1.0</div>
+                                    <div class="cell">Webfdbefudh222</div>
+                                    <div class="cell">www.reddit.com/r...</div>
+                                </div>
+                                <div class="table-line">
+                                    <div class="cell">Machin1.0</div>
+                                    <div class="cell">Webfdbefudh222</div>
+                                    <div class="cell">www.reddit.com/r...</div>
+                                </div>
+                            </div>
+                         </div>
                   `
     response.statusCode = 200;
     response.setHeader("Content-Type", "text/html");
