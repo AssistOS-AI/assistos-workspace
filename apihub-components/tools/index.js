@@ -1,7 +1,7 @@
-function Brand(server) {
-    const { getBrandsPage } = require("./controller");
+function Tool(server) {
+    const { getToolPage } = require("./controller");
 
-    server.get("/:domain/brands", getBrandsPage);
+    server.get("/:domain/tool/:toolId", getToolPage);
 }
 
-module.exports = Brand;
+module.exports = Tool;

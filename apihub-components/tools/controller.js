@@ -1,4 +1,4 @@
-const logger = $$.getLogger("brand", "apihub-components");
+const logger = $$.getLogger("tool", "apihub-components");
 const openDSU = require("opendsu");
 
 const getSc = async () => {
@@ -69,50 +69,28 @@ const getBrandCard = (brand) => {
     data-is-followed="${isFollowed}" data-logo="${brand.brandLogo}">heyoo</tool-card>`
 }
 
-async function getBrandsPage(request, response) {
-    const { domain, brandId } = request.params;
-    logger.debug(`Getting page for domain ${domain} and brand ${brandId}...`);
+async function getToolPage(request, response) {
+    const { domain, toolId } = request.params;
+    logger.debug(`Getting page for domain ${domain} and tool ${toolId}...`);
 
-    const brands = await getAllBrands();
-    const brandsFollow = await getAllBrandsFollow();
+    let toolPage = "";
 
-    let brandsId=[];
-    for(let i=0;i<brandsFollow.length;i++) {
-        brandsId[i]=brandsFollow[i].brandFollow.brandId;
-    }
-    let followedBrandsArray="";
-    let suggestedBrandsArray = "";
-    followedBrandsArray += getBrandCard("0");
-        // for(let i=0;i<brands.length;i++) {
-        //     if(brandsId.includes(brands[i].brand.brandId)) {
-        //         brands[i].brand.followed=true;
-        //         followedBrandsArray += getBrandCard(brands[i].brand);
-        //     } else {
-        //         brands[i].brand.followed=false;
-        //         suggestedBrandsArray += getBrandCard(brands[i].brand);
-        //     }
-        // }
-        //fix this^^^^
-    let brandPage = "";
-
-    brandPage += `
-                    <div class="tools-container">
-                        <div class="followed-container">
-                            <div class="title-wrapper">
-                                    <div class="followed-tools-title">LOGO APP</div>
-                            </div>
-                            <div class="tools-list">
-                                ${followedBrandsArray}
-                            </div>
-                        </div>
+    toolPage += `
+                    <div class="main-content">
+                       <div class="content-header">
+                        This is the page for tool ${toolId}
+                       </div>
+                       <div class="content-body">
+                       
+                       </div>
                     </div>
                   `
     response.statusCode = 200;
     response.setHeader("Content-Type", "text/html");
-    response.write(brandPage);
+    response.write(toolPage);
     response.end();
 }
 
 module.exports = {
-    getBrandsPage,
+    getToolPage,
 };

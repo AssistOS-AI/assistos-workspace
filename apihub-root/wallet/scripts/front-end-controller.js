@@ -25,12 +25,12 @@ async function fetchTextResult(relativeUrlPath, skipHistoryState) {
 }
 
 class FrontEndController {
-    getToolPage(domain, brandId) {
-        return fetchTextResult(`${domain}/posts/${brandId}`);
+    getToolPage(domain,toolId) {
+        return fetchTextResult(`${domain}/tool/${toolId}`);
     }
 
     getToolsPage(domain) {
-        return fetchTextResult(`${domain}/brands`,true);
+        return fetchTextResult(`${domain}/tools`,true);
     }
 
 

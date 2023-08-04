@@ -20,7 +20,7 @@ class AppManager {
         this._currentPost=currentPost; return true;}
     get currentPost() { return this._currentPost; }
     async init() {
-        this.initSidebar();
+        //this.initSidebar();
         if (rawDossier) {
             await $$.promisify(rawDossier.writeFile, rawDossier)("/environment.json", JSON.stringify({
                 "vaultDomain": "vault",
@@ -43,22 +43,10 @@ class AppManager {
     }
 
     async initSidebar(){
-        const content = await this.frontEndController.getBrandsPage(DOMAIN);
+        const content = await this.frontEndController.getToolsPage(DOMAIN);
         this.sidebar.innerHTML = content;
     }
 
-    async loadSidebar(){
-        const loading = await this.showLoading();
-        try {
-            const content = await this.frontEndController.getBrandsPage(DOMAIN);
-            this.sidebar.innerHTML = content;
-        } catch (error) {
-            console.log("Failed to load page", error);
-        } finally {
-            loading.close();
-            loading.remove();
-        }
-    }
 
     async initEnclaveClient() {
         const w3cDID = openDSU.loadAPI("w3cdid");
@@ -88,28 +76,19 @@ class AppManager {
         return loading;
     }
 
-    async navigateToPostsPage() {
-        const id = this.currentBrandId.substring(15); 
+    async navigateToToolPage() {
+        const id = this.currentToolId;
         console.log(id);
-        await this.changePage(() => this.frontEndController.getPostsPage(DOMAIN, id));
+        await this.changePage(() => this.frontEndController.getToolPage(DOMAIN, id));
     }
 
-    async navigateToBrandsPage() {
-        await this.changePage(() => this.frontEndController.getBrandsPage(DOMAIN));
+    async navigateToToolsPage() {
+        await this.changePage(() => this.frontEndController.getToolsPage(DOMAIN));
     }
 
-    async navigateToPostPage() {
-        const id= this.currentPost.substring(13);
-        console.log(id);
-        await this.changePage(() => this.frontEndController.getPostPage(DOMAIN, id));
-    }
 
     async navigateToPage(url){
         await this.changePage(() => this.frontEndController.getPage(url));
-    }
-
-    async navigateToTestPage() {
-        await this.changePage(() => this.frontEndController.getTestPage(DOMAIN));
     }
 
     async changePage(getPageContentAsync) {
@@ -165,11 +144,12 @@ class AppManager {
 
                     const action = target.getAttribute("data-action");
                     const [actionName, ...actionParams] = action.split(" ");
-                    // const actionName = action.split(" ")[0];
-                    // let actionParams = action.split(" ")[1];
 
                     if (actionName) {
                         this.callAction(actionName,target,...actionParams);
+                    }
+                    else {
+                        console.error(`${target} : data action attribute value should not be empty!`);
                     }
                     break;
                 }
