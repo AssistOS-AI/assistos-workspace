@@ -69,7 +69,10 @@ button{
 .title-container {
     font-weight: 700;
     font-size: 24px;
+    color: #555555;
     display: block;
+    box-shadow: 2px 3px 2px #e0e0e0;
+    padding: 10px;
     /*display: flex;*/
     /*align-items: center;*/
     /*margin-left:14px;*/
@@ -88,13 +91,6 @@ button{
 .subtitle {
     display:block;
 }
-.username-comment-page{
-    display:inline-block;
-    color:rgba(66, 158, 157, 1);
-}
-.username-comment-page{
-    margin-left:3px;
-}
 #main-content {
     height: 100vh;
 }
@@ -104,9 +100,7 @@ button{
 .page-content {
     display: flex;
     flex-direction: column;
-    background: #ECEDED;
-
-
+    background: #F8FCFF;
 }
 
 #app-content {
@@ -115,7 +109,7 @@ button{
     overflow: hidden !important;
     display: flex;
     flex-direction: row;
-    justify-content: space-between;
+    /*justify-content: space-between;*/
 }
 
 #brands-sidebar,
@@ -132,15 +126,14 @@ button{
 }
 
 #page-content {
-    width:55%;
+    width:80%;
     flex-shrink: 0;
     max-height: 100%;
     display: inline-block;
     overflow: scroll;
-    //background: rgba(246, 248, 248, 1);
+    background-color: #F8FCFF;
     z-index:0;
 }
-
 
 .post-card {
     font-family: Poppins;
@@ -151,7 +144,6 @@ button{
     overflow:scroll;
 }
 .posts-page{
-    //background:rgba(229, 229, 229, 1);
     z-index:1;
 }
 
@@ -183,11 +175,11 @@ button{
     font-size: 14px;
     font-weight: 500;
     line-height: 20px;
-    //padding: 10px;
     display:flex;
     justify-content:space-between;
     margin-left:13px;
 }
+
 .three-dotted-button{
     background-color:rgba(246, 248, 248, 1);
 }
@@ -534,8 +526,6 @@ button{
 .comments-container {
     display: flex;
     flex-direction: column;
-    //padding-right:24px;
-    //padding-left:24px;
 }
 .comments-container {
     display: flex;
@@ -638,7 +628,6 @@ button{
     align-items:center;
     color: #848685;
     font-weight: 400;
-    //max-height:15px !important;
 }
 
 .brand-name-comments{
@@ -950,7 +939,6 @@ h4 {
     color: #E0E0E0;
     font-size: 26px;
     display: inline-block;
-    //transform: scaleX(0.85);
 }
 
 .add-post-card-skeleton{
@@ -1117,4 +1105,51 @@ h4 {
 .tools-title {
     font-size: 18px;
     font-weight: bold;
+}
+
+.add-button-section {
+    padding: 15px 0;
+}
+
+.add-button {
+    background-color: #555555;
+    max-width: max-content;
+    padding: 8px 16px;
+    border-radius: 11px;
+    align-items: center;
+    display: flex;
+    align-content: center;
+    color: #F8FCFF;
+}
+
+.add-icon {
+    margin-right: 5px;
+    width: 16px;
+    color: white;
+}
+
+.table-line {
+    padding-left: 10px;
+    display: flex;
+}
+
+.border-line {
+    border-bottom: 1px solid #cecece;
+
+}
+
+.cell {
+    width: 33%;
+    padding: 7px 10px;
+}
+
+.table-header {
+    background-color: #E9E9E9;
+    font-size: 15px;
+    color: #515151;
+}
+
+.table {
+    margin-right: 10px;
+    background-color: white;
 }

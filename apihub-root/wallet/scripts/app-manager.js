@@ -95,7 +95,7 @@ class AppManager {
         const loading = await this.showLoading();
         try {
             const pageContent = await getPageContentAsync();
-            this.updateAppContent(pageContent);
+            // this.updateAppContent(pageContent);
         } catch (error) {
             console.log("Failed to change page", error);
         } finally {
