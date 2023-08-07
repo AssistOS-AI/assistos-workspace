@@ -80,14 +80,14 @@ class AppManager {
         await this.changePage(() => this.frontEndController.getToolPage(DOMAIN, id));
     }
 
-    showMore(id) {
-        var showMoreContent= document.getElementById(id);
-        console.log(showMoreContent);
-        showMoreContent.style.display = "block";
+    showActionBox(primaryKey) {
+        var showBox= document.getElementById(primaryKey);
+        console.log(showBox);
+        showBox.style.display = "block";
         document.addEventListener("click", (event) => {
-            var showMoreContent = document.querySelectorAll("div.more-content");
-            showMoreContent.forEach((moreWindow) => {
-                moreWindow.style.display = "none";
+            var showBox = document.querySelectorAll("div.action-box");
+            showBox.forEach((actionWindow) => {
+                actionWindow.style.display = "none";
             });
         });
     }

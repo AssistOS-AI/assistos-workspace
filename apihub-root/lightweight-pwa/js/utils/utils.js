@@ -19,7 +19,6 @@ function getDateForDisplay(date) {
   return date;
 }
 
-
 function getExpiryTime(expiry) {
   let normalizedExpiryDate;
   let expiryTime;

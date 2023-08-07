@@ -11,7 +11,6 @@ async function defineNativeComponents() {
     const { default: component } = await import(`../components/${name}/${name}.js`);
     customElements.define(name, component);
   };
-
 }
 
 function defineWebCardinalComponents() {

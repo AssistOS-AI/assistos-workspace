@@ -43,8 +43,8 @@ window.appManager = appManager;
 
 // Actions that can be used from apihub-components controllers can be defined here
 
-appManager.registerAction("showModal", async (...params) => {
-    await showModal(appManager.element, "add-brand-modal", {});
+appManager.registerAction("showAddLLMModal", async (...params) => {
+    await showModal(appManager.element, "add-llm-modal", {});
 })
 
 appManager.registerAction("closeModal", async (modal,_param) => {
@@ -52,34 +52,19 @@ appManager.registerAction("closeModal", async (modal,_param) => {
 });
 
 appManager.registerAction("changeTool", async (_target,toolId) => {
-    console.log(toolId);
+    // console.log(toolId);
     appManager.currentToolId = toolId;
     appManager.navigateToToolPage();
 })
 
-appManager.registerAction("showMore", async (_target, id) => {
-    console.log(id);
-    appManager.showMore(id);
+appManager.registerAction("showActionBox", async (_target, primaryKey) => {
+    // console.log(primaryKey);
+    // console.log(_target);
+    appManager.showActionBox(primaryKey);
 })
-
-appManager.registerAction("hideMore", async (_target, id) => {
-    console.log(id);
-    appManager.showMore(id);
-})
-
-// document.onclick = (args: any) : void => {
-//     var showMoreContent = document.querySelector("div.more-content");
-//     for(moreWindow : showMoreContent) {
-//         moreWindow.style.display = "none";
-//     }
-// }
 
 appManager.init();
 
 // Modal components defined here
-
-defineComponent("add-modal", "/components/add-modal/add-modal.html");
-
-
-
-defineComponent("tool-card", "/components/tool-card/tool-card.html");
+defineComponent("add-llm-modal", "/components/add-llm-modal/add-llm-modal.html");
+defineComponent("table-row", "/components/table-row/table-row.html");

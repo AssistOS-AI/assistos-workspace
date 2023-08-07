@@ -18,13 +18,14 @@ export async function showModal(element, modalComponentName, componentProps) {
     await modal.showModal();
     return modal;
 }
- function createModal(childTagName)
-{
+
+function createModal(childTagName) {
     let modal=document.createElement("dialog");
     modal.innerHTML=`<${childTagName}/>`;
     modal.classList.add("modal");
     return modal;
 }
+
 export function closeModal(element) {
     const existingModal = getClosestParentElement(element, "dialog");
     if (existingModal) {

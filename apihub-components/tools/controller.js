@@ -54,23 +54,9 @@ const getAllBrandsFollow = async function () {
     }
 }
 
-const getBrandCard = (brand) => {
-    // const postNumbers = brand.postsOwnership ? Object.keys(brand.postsOwnership)
-    //     .reduce((prev, current) => prev += brand.postsOwnership[current].length, 0) : 0;
-
-
-    // let isFollowed="follow";
-    //
-    // if(brand.followed) {
-    //     isFollowed="followed";
-    // }
-
-    return `<tool-card data-id="${brand.brandId}" data-name="${brand.brandName}"
-    data-is-followed="${isFollowed}" data-logo="${brand.brandLogo}">...</tool-card>`
-}
-
-function showMore() {
-
+const getTableLLMRow = (llm) => {
+    return `<table-row data-primary-key="${llm.primaryKey}" data-name="${llm.name}"
+    data-key="${llm.key}" data-url="${llm.url}"></table-row>`
 }
 
 async function getToolPage(request, response) {
@@ -79,68 +65,43 @@ async function getToolPage(request, response) {
 
     let toolPage = "";
 
+    let llmsArray = "";
+
+    let llm1 = {
+        "primary-key" : "",
+        "name" : "Machin1.0",
+        "key" : "Webfdbefudh222",
+        "url" : "www.reddit.com/r..."
+    };
+
+    let llms = [];
+
+    for(let iterator= 0; iterator < 3; iterator++) {
+        llms[iterator] = { ...llm1 }; //o copie a obiectului llm1
+        llms[iterator].primaryKey = "key-"+iterator;
+    }
+
+    for(let iterator= 0; iterator < llms.length; iterator++) {
+        llmsArray += getTableLLMRow(llms[iterator]);
+    }
+
     toolPage += `
                    <div class="title-container">LLMS tool ${toolId}</div>
                             <div class="add-button-section">
-                                <div class="add-button">
+                                <div class="add-button" data-action="showAddLLMModal">
                                     <img src="assets/icons/Vector.png" alt="Add icon" class="add-icon">
                                     Add LLM
                                 </div>
                             </div>
                             <div class="table">
-                                <div class="table-header table-line">
+                                <div class="table-header">
                                     <div class="cell">NAME</div>
                                     <div class="cell">KEY</div>
                                     <div class="cell">URL</div>
-                                    <div class="mini-cell"> </div>
+                                    <div class="action-cell"> </div>
                                 </div>
-                                <div class="table-line border-line">
-                                    <div class="cell">Machin1.0</div>
-                                    <div class="cell">Webfdbefudh222</div>
-                                    <div class="cell">www.reddit.com/r...</div>
-                                    <div class="mini-cell" data-action="showMore more1">
-                                        <img src="assets/icons/more.png" class="more" alt="More">
-                                        <div class="more-content" id="more1">
-                                            <div class="more-option op1">
-                                                Edit
-                                            </div>
-                                            <div class="more-option op2">
-                                                Delete
-                                            </div>
-                                        </div>
-                                    </div>
-                                </div>
-                                <div class="table-line border-line">
-                                    <div class="cell">Machin1.0</div>
-                                    <div class="cell">Webfdbefudh222</div>
-                                    <div class="cell">www.reddit.com/r...</div>
-                                    <div class="mini-cell" data-action="showMore more2">
-                                        <img src="assets/icons/more.png" class="more" alt="More">
-                                        <div class="more-content" id="more2">
-                                            <div class="more-option op1">
-                                                Edit
-                                            </div>
-                                            <div class="more-option op2">
-                                                Delete
-                                            </div>
-                                        </div>
-                                    </div>
-                                </div>
-                                <div class="table-line">
-                                    <div class="cell">Machin1.0</div>
-                                    <div class="cell">Webfdbefudh222</div>
-                                    <div class="cell">www.reddit.com/r...</div>
-                                    <div class="mini-cell" data-action="showMore more3">
-                                        <img src="assets/icons/more.png" class="more" alt="More">
-                                        <div class="more-content" id="more3">
-                                            <div class="more-option op1">
-                                                Edit
-                                            </div>
-                                            <div class="more-option op2">
-                                                Delete
-                                            </div>
-                                        </div>
-                                    </div>
+                                <div class="llm-list"> 
+                                    ${llmsArray}
                                 </div>
                             </div>
                          </div>
