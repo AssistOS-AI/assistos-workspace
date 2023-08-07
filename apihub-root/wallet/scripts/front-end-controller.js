@@ -33,7 +33,6 @@ class FrontEndController {
         return fetchTextResult(`${domain}/tools`,true);
     }
 
-
     getPage(relativeUrl) {
         return relativeUrl === "" ? "" : fetchTextResult(relativeUrl);
     }

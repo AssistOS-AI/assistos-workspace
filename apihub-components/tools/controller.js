@@ -66,7 +66,11 @@ const getBrandCard = (brand) => {
     // }
 
     return `<tool-card data-id="${brand.brandId}" data-name="${brand.brandName}"
-    data-is-followed="${isFollowed}" data-logo="${brand.brandLogo}">heyoo</tool-card>`
+    data-is-followed="${isFollowed}" data-logo="${brand.brandLogo}">...</tool-card>`
+}
+
+function showMore() {
+
 }
 
 async function getToolPage(request, response) {
@@ -85,24 +89,58 @@ async function getToolPage(request, response) {
                             </div>
                             <div class="table">
                                 <div class="table-header table-line">
-                                    <div class="header-cell cell">NAME</div>
-                                    <div class="header-cell cell">KEY</div>
-                                    <div class="header-cell cell">URL</div>
+                                    <div class="cell">NAME</div>
+                                    <div class="cell">KEY</div>
+                                    <div class="cell">URL</div>
+                                    <div class="mini-cell"> </div>
                                 </div>
                                 <div class="table-line border-line">
                                     <div class="cell">Machin1.0</div>
                                     <div class="cell">Webfdbefudh222</div>
                                     <div class="cell">www.reddit.com/r...</div>
+                                    <div class="mini-cell" data-action="showMore more1">
+                                        <img src="assets/icons/more.png" class="more" alt="More">
+                                        <div class="more-content" id="more1">
+                                            <div class="more-option op1">
+                                                Edit
+                                            </div>
+                                            <div class="more-option op2">
+                                                Delete
+                                            </div>
+                                        </div>
+                                    </div>
                                 </div>
                                 <div class="table-line border-line">
                                     <div class="cell">Machin1.0</div>
                                     <div class="cell">Webfdbefudh222</div>
                                     <div class="cell">www.reddit.com/r...</div>
+                                    <div class="mini-cell" data-action="showMore more2">
+                                        <img src="assets/icons/more.png" class="more" alt="More">
+                                        <div class="more-content" id="more2">
+                                            <div class="more-option op1">
+                                                Edit
+                                            </div>
+                                            <div class="more-option op2">
+                                                Delete
+                                            </div>
+                                        </div>
+                                    </div>
                                 </div>
                                 <div class="table-line">
                                     <div class="cell">Machin1.0</div>
                                     <div class="cell">Webfdbefudh222</div>
                                     <div class="cell">www.reddit.com/r...</div>
+                                    <div class="mini-cell" data-action="showMore more3">
+                                        <img src="assets/icons/more.png" class="more" alt="More">
+                                        <div class="more-content" id="more3">
+                                            <div class="more-option op1">
+                                                Edit
+                                            </div>
+                                            <div class="more-option op2">
+                                                Delete
+                                            </div>
+                                        </div>
+                                    </div>
                                 </div>
                             </div>
                          </div>

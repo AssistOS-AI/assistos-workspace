@@ -47,7 +47,6 @@ class AppManager {
         this.sidebar.innerHTML = content;
     }
 
-
     async initEnclaveClient() {
         const w3cDID = openDSU.loadAPI("w3cdid");
 
@@ -72,7 +71,6 @@ class AppManager {
 
         document.body.appendChild(loading);
         await loading.showModal();
-
         return loading;
     }
 
@@ -82,10 +80,21 @@ class AppManager {
         await this.changePage(() => this.frontEndController.getToolPage(DOMAIN, id));
     }
 
+    showMore(id) {
+        var showMoreContent= document.getElementById(id);
+        console.log(showMoreContent);
+        showMoreContent.style.display = "block";
+        document.addEventListener("click", (event) => {
+            var showMoreContent = document.querySelectorAll("div.more-content");
+            showMoreContent.forEach((moreWindow) => {
+                moreWindow.style.display = "none";
+            });
+        });
+    }
+
     async navigateToToolsPage() {
         await this.changePage(() => this.frontEndController.getToolsPage(DOMAIN));
     }
-
 
     async navigateToPage(url){
         await this.changePage(() => this.frontEndController.getPage(url));
@@ -153,7 +162,6 @@ class AppManager {
                     }
                     break;
                 }
-
                 target = target.parentElement;
             }
         });

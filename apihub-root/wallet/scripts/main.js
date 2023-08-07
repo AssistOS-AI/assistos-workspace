@@ -43,7 +43,6 @@ window.appManager = appManager;
 
 // Actions that can be used from apihub-components controllers can be defined here
 
-
 appManager.registerAction("showModal", async (...params) => {
     await showModal(appManager.element, "add-brand-modal", {});
 })
@@ -57,6 +56,23 @@ appManager.registerAction("changeTool", async (_target,toolId) => {
     appManager.currentToolId = toolId;
     appManager.navigateToToolPage();
 })
+
+appManager.registerAction("showMore", async (_target, id) => {
+    console.log(id);
+    appManager.showMore(id);
+})
+
+appManager.registerAction("hideMore", async (_target, id) => {
+    console.log(id);
+    appManager.showMore(id);
+})
+
+// document.onclick = (args: any) : void => {
+//     var showMoreContent = document.querySelector("div.more-content");
+//     for(moreWindow : showMoreContent) {
+//         moreWindow.style.display = "none";
+//     }
+// }
 
 appManager.init();
 
