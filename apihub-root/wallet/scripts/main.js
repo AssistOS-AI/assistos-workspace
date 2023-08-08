@@ -52,15 +52,11 @@ appManager.registerAction("closeModal", async (modal,_param) => {
 });
 
 appManager.registerAction("changeTool", async (_target,toolId) => {
-    // console.log(toolId);
     appManager.currentToolId = toolId;
     appManager.navigateToToolPage();
 })
 
 appManager.registerAction("showActionBox", async (_target, primaryKey) => {
-    // console.log(primaryKey);
-    // console.log(_target);
-    debugger;
     appManager.showActionBox(primaryKey);
 })
 

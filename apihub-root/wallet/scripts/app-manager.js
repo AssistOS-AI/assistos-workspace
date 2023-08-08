@@ -15,6 +15,29 @@ class AppManager {
         console.log("creating new app manager instance");
     }
 
+    async init() {
+        //this.initSidebar();
+        if (rawDossier) {
+            await $$.promisify(rawDossier.writeFile, rawDossier)("/environment.json", JSON.stringify({
+                "vaultDomain": "vault",
+                "didDomain": "vault",
+                "enclaveType": "MemoryEnclave"
+            }));
+        }
+        const sc = openDSU.loadAPI("sc").getSecurityContext();
+        if (sc.isInitialised()) {
+            await this.initEnclaveClient();
+        }
+        else {
+            sc.on("initialised", this.initEnclaveClient.bind(this));
+        }
+        console.log("AppManager init");
+        this.registerListeners();
+
+        let url = window.location.hash;
+        window.appManager.navigateToPage(url);
+    }
+
     async initEnclaveClient() {
         const w3cDID = openDSU.loadAPI("w3cdid");
 
@@ -32,6 +55,7 @@ class AppManager {
     }
 
     async showLoading() {
+
         const loading = document.createElement("dialog");
         loading.classList.add("spinner");
         // loading.duration = 2000;
