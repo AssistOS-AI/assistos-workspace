@@ -60,6 +60,7 @@ appManager.registerAction("changeTool", async (_target,toolId) => {
 appManager.registerAction("showActionBox", async (_target, primaryKey) => {
     // console.log(primaryKey);
     // console.log(_target);
+    debugger;
     appManager.showActionBox(primaryKey);
 })
 
@@ -67,4 +68,4 @@ appManager.init();
 
 // Modal components defined here
 defineComponent("add-llm-modal", "/components/add-llm-modal/add-llm-modal.html");
-defineComponent("table-row", "/components/table-row/table-row.html");
+defineComponent("llm-item-renderer", "/components/llm-item-renderer/llm-item-renderer.html");

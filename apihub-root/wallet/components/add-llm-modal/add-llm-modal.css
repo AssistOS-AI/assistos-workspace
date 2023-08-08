@@ -1,8 +1,8 @@
-dialog[class="modal"]
-{
+dialog[class="modal"] {
     padding: 0;
     border:none;
 }
+
 * {
     font-family: Poppins;
 }
@@ -34,15 +34,17 @@ dialog[class="modal"]
     border-radius: 8px;
     border: 0.5px solid rgba(0, 0, 0, 0.24);
     width: 100%;
-    margin: 8px 0 16px;
+    margin: 4px 0 8px;
     padding: 8px;
 }
+
 input::file-selector-button{
     border: none;
     background: #429E9D;
     color: white;
     font-family: Poppins;
 }
+
 .item-has-focus {
     --full-highlight-height: none;
     --inset-highlight-height: none;
@@ -51,7 +53,7 @@ input::file-selector-button{
 .wide-btn {
     width: 100%;
     height: 36px;
-    background: #429E9D;
+    background: #555555;
     color: white;
     border-radius: 16px;
     font-family: Poppins;

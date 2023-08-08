@@ -15,38 +15,6 @@ class AppManager {
         console.log("creating new app manager instance");
     }
 
-    set currentPost(currentPost) {
-        //console.trace(`changing current post from ${this._currentPost} to ${currentPost}`)
-        this._currentPost=currentPost; return true;}
-    get currentPost() { return this._currentPost; }
-    async init() {
-        //this.initSidebar();
-        if (rawDossier) {
-            await $$.promisify(rawDossier.writeFile, rawDossier)("/environment.json", JSON.stringify({
-                "vaultDomain": "vault",
-                "didDomain": "vault",
-                "enclaveType": "MemoryEnclave"
-            }));
-        }
-        const sc = openDSU.loadAPI("sc").getSecurityContext();
-        if (sc.isInitialised()) {
-            await this.initEnclaveClient();
-        }
-        else {
-            sc.on("initialised", this.initEnclaveClient.bind(this));
-        }
-        console.log("AppManager init");
-        this.registerListeners();
-
-        let url = window.location.hash;
-        window.appManager.navigateToPage(url);
-    }
-
-    async initSidebar(){
-        const content = await this.frontEndController.getToolsPage(DOMAIN);
-        this.sidebar.innerHTML = content;
-    }
-
     async initEnclaveClient() {
         const w3cDID = openDSU.loadAPI("w3cdid");
 
@@ -64,7 +32,6 @@ class AppManager {
     }
 
     async showLoading() {
-
         const loading = document.createElement("dialog");
         loading.classList.add("spinner");
         // loading.duration = 2000;
@@ -85,6 +52,7 @@ class AppManager {
         console.log(showBox);
         showBox.style.display = "block";
         document.addEventListener("click", (event) => {
+            debugger;
             var showBox = document.querySelectorAll("div.action-box");
             showBox.forEach((actionWindow) => {
                 actionWindow.style.display = "none";

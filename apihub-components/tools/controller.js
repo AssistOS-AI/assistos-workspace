@@ -55,8 +55,8 @@ const getAllBrandsFollow = async function () {
 }
 
 const getTableLLMRow = (llm) => {
-    return `<table-row data-primary-key="${llm.primaryKey}" data-name="${llm.name}"
-    data-key="${llm.key}" data-url="${llm.url}"></table-row>`
+    return `<llm-item-renderer data-primary-key="${llm.primaryKey}" data-name="${llm.name}"
+    data-key="${llm.key}" data-url="${llm.url}"></llm-item-renderer>`
 }
 
 async function getToolPage(request, response) {
