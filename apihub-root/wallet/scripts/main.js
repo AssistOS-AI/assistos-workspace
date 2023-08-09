@@ -51,7 +51,7 @@ appManager.registerAction("closeModal", async (modal,_param) => {
     closeModal(modal);
 });
 
-appManager.registerAction("changeTool", async (_target,toolId) => {
+appManager.registerAction("changePage", (_target, toolId) => {
     appManager.currentToolId = toolId;
     appManager.navigateToToolPage();
 })
@@ -65,3 +65,5 @@ appManager.init();
 // Modal components defined here
 defineComponent("add-llm-modal", "/components/add-llm-modal/add-llm-modal.html");
 defineComponent("llm-item-renderer", "/components/llm-item-renderer/llm-item-renderer.html");
+defineComponent("llms-page", "/pages/llms-page/llms-page.html");
+defineComponent("page-template", "/pages/page-template/page-template.html");

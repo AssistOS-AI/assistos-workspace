@@ -1,0 +1,29 @@
+.table-header {
+    padding-left: 10px;
+    display: flex;
+    background-color: #E9E9E9;
+    font-size: 15px;
+    color: #515151;
+}
+
+.table {
+    margin-right: 10px;
+    background-color: white;
+}
+
+.add-button {
+    background-color: #555555;
+    max-width: max-content;
+    padding: 8px 16px;
+    border-radius: 11px;
+    align-items: center;
+    display: flex;
+    align-content: center;
+    color: #F8FCFF;
+}
+
+.add-icon {
+    margin-right: 5px;
+    width: 16px;
+    color: white;
+}

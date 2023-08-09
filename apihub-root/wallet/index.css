@@ -1110,20 +1110,3 @@ h4 {
 .add-button-section {
     padding: 20px 0 15px 0;
 }
-
-.add-button {
-    background-color: #555555;
-    max-width: max-content;
-    padding: 8px 16px;
-    border-radius: 11px;
-    align-items: center;
-    display: flex;
-    align-content: center;
-    color: #F8FCFF;
-}
-
-.add-icon {
-    margin-right: 5px;
-    width: 16px;
-    color: white;
-}

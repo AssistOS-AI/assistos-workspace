@@ -1,5 +1,6 @@
 import FrontEndController from "./front-end-controller.js";
 import { isInternalUrl } from "./utils/url-utils.js";
+import { llmsListRenderer } from "./utils/pages-utils.js";
 
 const DOMAIN = "default";
 const openDSU = require("opendsu");
@@ -55,7 +56,6 @@ class AppManager {
     }
 
     async showLoading() {
-
         const loading = document.createElement("dialog");
         loading.classList.add("spinner");
         // loading.duration = 2000;
@@ -66,36 +66,100 @@ class AppManager {
     }
 
     async navigateToToolPage() {
-        const id = this.currentToolId;
-        console.log(id);
-        await this.changePage(() => this.frontEndController.getToolPage(DOMAIN, id));
+        const pageName = this.currentToolId;
+        // this.frontEndController.getToolPage(DOMAIN, pageName);
+        await this.changePage(() => this.frontEndController.getToolPage(DOMAIN, pageName));
+        if(pageName === "llms-page") {
+            llmsListRenderer();
+        }
+    }
+
+    showActionBox1(primaryKey) {
+    //     function showActionBoxWhileMouseOver(target) {
+    //         target.style.display = "block";
+    //     }
+    //
+    //     function hideActionBoxWhileMouseOut(event) {
+    //         event.currentTarget.style.display = "none";
+    //         event.stopPropagation();
+    //     }
+    //
+    //     let showBox = document.getElementById(primaryKey);
+    //
+    //     // Add a mouseover event listener to the parent element
+    //     showBox.parentElement.addEventListener("mouseover", () => {
+    //         // Show the box when the parent is hovered over
+    //         showBox.style.display = "block";
+    //     });
+    //
+    //     // Add a mouseout event listener to the showBox
+    //     showBox.addEventListener("mouseout", (event) => {
+    //         // Hide the box when mouseout occurs on the showBox itself
+    //         event.currentTarget.style.display = "none";
+    //         event.stopPropagation(); // Stop the event from propagating to parent
+    //     }, true);
+    //
+    //     showBox.removeEventListener("mouseover", showActionBoxWhileMouseOver);
+    //     showBox.removeEventListener("mouseout", hideActionBoxWhileMouseOut);
+    //
+    //     // let showBox= document.getElementById(primaryKey);
+    //     // showBox.style.display = "block";
+    //     //
+    //     // showBox.addEventListener("mouseout", (event) => {
+    //     //     console.log(event.currentTarget);
+    //     //     event.currentTarget.style.display = "none";
+    //     // }, true);
+    //
+    //     // let showBoxes = document.querySelectorAll("div.action-box");
+    //     // showBoxes.forEach((actionWindow) => {
+    //     //     actionWindow.addEventListener("mouseout", (event) => {
+    //     //         actionWindow.style.display = "none";
+    //     //     })
+    //     // });
+    //
+    //     // showBox.addEventListener("mouseover", (event) => {
+    //         // debugger;
+    //         // let showBox = document.querySelectorAll("div.action-box");
+    //         // showBox.forEach((actionWindow) => {
+    //         //     actionWindow.style.display = "none";
+    //         // });
+    //         // showBox.style.display = "none";
+    //     // });
     }
 
     showActionBox(primaryKey) {
-        var showBox= document.getElementById(primaryKey);
-        console.log(showBox);
-        showBox.style.display = "block";
-        document.addEventListener("click", (event) => {
-            debugger;
-            var showBox = document.querySelectorAll("div.action-box");
-            showBox.forEach((actionWindow) => {
-                actionWindow.style.display = "none";
-            });
-        });
+        function showActionBoxWhileMouseOver() {
+            showBox.style.display = "block";
+        }
+
+        function hideActionBoxWhileMouseOut(event) {
+            event.currentTarget.style.display = "none";
+            event.stopPropagation();
+        }
+
+        let showBox = document.getElementById(primaryKey);
+
+        showBox.parentElement.addEventListener("mouseover", showActionBoxWhileMouseOver);
+        showBox.addEventListener("mouseout", hideActionBoxWhileMouseOut, true);
+
+        // To remove the event listeners, you should pass the same function references
+        // showBox.parentElement.removeEventListener("mouseover", showActionBoxWhileMouseOver);
+        // showBox.removeEventListener("mouseout", hideActionBoxWhileMouseOut, true);
     }
 
-    async navigateToToolsPage() {
-        await this.changePage(() => this.frontEndController.getToolsPage(DOMAIN));
-    }
+
+    // async navigateToToolsPage() {
+    //     await this.changePage(() => this.frontEndController.getToolsPage(DOMAIN));
+    // }
 
     async navigateToPage(url){
         await this.changePage(() => this.frontEndController.getPage(url));
     }
 
     async changePage(getPageContentAsync) {
-        const loading = await this.showLoading();
+        const loading= await this.showLoading();
         try {
-            const pageContent = await getPageContentAsync();
+            const pageContent = getPageContentAsync();
              this.updateAppContent(pageContent);
         } catch (error) {
             console.log("Failed to change page", error);
@@ -124,7 +188,13 @@ class AppManager {
     }
 
     updateAppContent(content) {
-        this.appContent.innerHTML = content;
+        if(this.appContent.firstChild) {
+            let oldNode = this.appContent.firstChild;
+            this.appContent.replaceChild(content, oldNode);
+        } else {
+            this.appContent.appendChild(content);
+        }
+        // this.appContent.innerHTML = content;
     }
 
     registerListeners() {
