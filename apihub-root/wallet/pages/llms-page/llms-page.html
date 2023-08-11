@@ -1,21 +1,3 @@
 <link href="pages/llms-page/llms-page.css" rel="stylesheet"/>
-<div class="llms-page">
-    <div class="title-container">LLMS</div>
-    <div class="add-button-section">
-        <div class="add-button" data-action="showAddLLMModal">
-            <img src="assets/icons/Vector.png" alt="Add icon" class="add-icon">
-            Add LLM
-        </div>
-    </div>
-    <div class="table">
-        <div class="table-header">
-            <div class="cell">NAME</div>
-            <div class="cell">KEY</div>
-            <div class="cell">URL</div>
-            <div class="action-cell"> </div>
-        </div>
-        <div class="llm-list">
-<!--            ${llmsArray}-->
-        </div>
-    </div>
-</div>
+<page-template data-title="$$title" data-adding-button = "$$$button" data-modal="$$$modal" data-presenter="llms-presenter.js">
+</page-template>

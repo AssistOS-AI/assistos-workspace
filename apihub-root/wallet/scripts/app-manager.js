@@ -1,19 +1,33 @@
 import FrontEndController from "./front-end-controller.js";
 import { isInternalUrl } from "./utils/url-utils.js";
-import { llmsListRenderer } from "./utils/pages-utils.js";
 
 const DOMAIN = "default";
 const openDSU = require("opendsu");
 
 class AppManager {
     constructor() {
+        this.presentersRegistry = {};
         this.element = document.querySelector(".app-container");
         this.frontEndController = new FrontEndController();
         this.appContent = document.querySelector("#page-content");
-        this.sidebar = document.querySelector('#tools-sidebar');//#brands-sidebar
+        this.sidebar = document.querySelector('#tools-sidebar');
         this.appContent.addEventListener("click", this.interceptAppContentLinks.bind(this));
         this.actionRegistry = {};
         console.log("creating new app manager instance");
+    }
+
+    registerPresenter(name, instance) {
+        this.presentersRegistry[name] = instance;
+    }
+
+    initialisePresenter(presenterName) {
+        let presenter;
+        try {
+            presenter = new this.presentersRegistry[presenterName];
+        } catch(e) {
+            console.error(`No presenter ${presenterName} found.`);
+        }
+        return presenter;
     }
 
     async init() {
@@ -68,9 +82,10 @@ class AppManager {
     async navigateToToolPage() {
         const pageName = this.currentToolId;
         // this.frontEndController.getToolPage(DOMAIN, pageName);
-        await this.changePage(() => this.frontEndController.getToolPage(DOMAIN, pageName));
+        // await this.changePage(() => this.frontEndController.getToolPage(DOMAIN, pageName));
         if(pageName === "llms-page") {
-            llmsListRenderer();
+            // llmsListRenderer();
+            await this.changePage(() => this.frontEndController.getToolPage(DOMAIN, pageName));
         }
     }
 
@@ -128,24 +143,36 @@ class AppManager {
     }
 
     showActionBox(primaryKey) {
-        function showActionBoxWhileMouseOver() {
-            showBox.style.display = "block";
-        }
-
-        function hideActionBoxWhileMouseOut(event) {
-            event.currentTarget.style.display = "none";
-            event.stopPropagation();
-        }
-
-        let showBox = document.getElementById(primaryKey);
-
-        showBox.parentElement.addEventListener("mouseover", showActionBoxWhileMouseOver);
-        showBox.addEventListener("mouseout", hideActionBoxWhileMouseOut, true);
-
-        // To remove the event listeners, you should pass the same function references
-        // showBox.parentElement.removeEventListener("mouseover", showActionBoxWhileMouseOver);
-        // showBox.removeEventListener("mouseout", hideActionBoxWhileMouseOut, true);
+        var showBox= document.getElementById(primaryKey);
+        console.log(showBox);
+        showBox.style.display = "block";
+        document.addEventListener("click", (event) => {
+            var showBox = document.querySelectorAll("div.action-box");
+            showBox.forEach((actionWindow) => {
+                actionWindow.style.display = "none";
+            });
+        });
     }
+
+    // showActionBox(primaryKey) {
+    //     function showActionBoxWhileMouseOver() {
+    //         showBox.style.display = "block";
+    //     }
+    //
+    //     function hideActionBoxWhileMouseOut(event) {
+    //         event.currentTarget.style.display = "none";
+    //         event.stopPropagation();
+    //     }
+    //
+    //     let showBox = document.getElementById(primaryKey);
+    //
+    //     showBox.parentElement.addEventListener("mouseover", showActionBoxWhileMouseOver);
+    //     showBox.addEventListener("mouseout", hideActionBoxWhileMouseOut, true);
+    //
+    //     // To remove the event listeners, you should pass the same function references
+    //     // showBox.parentElement.removeEventListener("mouseover", showActionBoxWhileMouseOver);
+    //     // showBox.removeEventListener("mouseout", hideActionBoxWhileMouseOut, true);
+    // }
 
 
     // async navigateToToolsPage() {
@@ -188,13 +215,19 @@ class AppManager {
     }
 
     updateAppContent(content) {
-        if(this.appContent.firstChild) {
-            let oldNode = this.appContent.firstChild;
-            this.appContent.replaceChild(content, oldNode);
-        } else {
-            this.appContent.appendChild(content);
-        }
-        // this.appContent.innerHTML = content;
+
+        /// Varianta in care *content* este un html element (un nod).
+
+        // if(this.appContent.firstChild) {
+        //     let oldNode = this.appContent.firstChild;
+        //     this.appContent.replaceChild(content, oldNode);
+        // } else {
+        //     this.appContent.appendChild(content);
+        // }
+
+        //Pentru cazul curent, in care content este un string:
+
+        this.appContent.innerHTML = content;
     }
 
     registerListeners() {
@@ -246,3 +279,4 @@ class AppManager {
 }
 
 export default AppManager;
+//aici instantiez

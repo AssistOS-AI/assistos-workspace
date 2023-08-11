@@ -2,20 +2,20 @@
 <div class="page-template">
     <div class="title-container">$$data-title</div>
     <div class="add-button-section">
-        <div class="add-button" data-action="$$data-show-modal">
+        <div class="add-button" data-local-action = "$$data-modal">
             <img src="assets/icons/Vector.png" alt="Add icon" class="add-icon">
-            $$data-adding-item
+            $$data-adding-button
         </div>
     </div>
+
     <div class="table">
         <div class="table-header">
-            <div class="cell">NAME</div>
-            <div class="cell">KEY</div>
-            <div class="cell">URL</div>
+            <div class="cell">$$name</div>
+            <div class="cell">$$key</div>
+            <div class="cell">$$url</div>
             <div class="action-cell"> </div>
         </div>
-        <div class="llm-list">
-            <!--            ${llmsArray}-->
-        </div>
+        $$table-rows
     </div>
 </div>
+
