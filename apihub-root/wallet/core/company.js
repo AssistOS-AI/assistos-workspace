@@ -7,6 +7,7 @@ export class Company {
     async load() {
         let response = await fetch('./data.json');
         this.companyState = await response.json();
+        this.notifyObservers();
     }
 
     static getInstance() {
