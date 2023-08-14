@@ -1,8 +1,13 @@
 import { llmsPage } from "./presenters/llms-page.js";
-window.appManager.registerPresenter("llms-page", llmsPage);
 
+import WebSkel from "../../WebSkel/scripts/WebSkel.js";
+const openDSU = require("opendsu");
 
-async initEnclaveClient() {
+let remoteEnclaveClient;
+const manager= new WebSkel();
+window.webSkel=manager;
+
+async function initEnclaveClient() {
     const w3cDID = openDSU.loadAPI("w3cdid");
 
     const enclaveAPI = openDSU.loadAPI("enclave");
@@ -11,15 +16,18 @@ async initEnclaveClient() {
     try {
         const clientDIDDocument = await $$.promisify(w3cDID.resolveNameDID)("vault", "clientEnclave", "topSecret");
         console.log("Client enclave: ", clientDIDDocument.getIdentifier());
-        this.remoteEnclaveClient = enclaveAPI.initialiseRemoteEnclave(clientDIDDocument.getIdentifier(), remoteDID);
+        remoteEnclaveClient = enclaveAPI.initialiseRemoteEnclave(clientDIDDocument.getIdentifier(), remoteDID);
     }
     catch (err) {
         console.log("Error at initialising remote client", err);
     }
 }
 
-async initWallet() {
-    //this.initSidebar();
+function getRemoteEnclaveClient()  {
+    return remoteEnclaveClient;
+}
+
+async function initWallet() {
     if (rawDossier) {
         await $$.promisify(rawDossier.writeFile, rawDossier)("/environment.json", JSON.stringify({
             "vaultDomain": "vault",
@@ -29,19 +37,49 @@ async initWallet() {
     }
     const sc = openDSU.loadAPI("sc").getSecurityContext();
     if (sc.isInitialised()) {
-        await this.initEnclaveClient();
+        await initEnclaveClient();
     }
     else {
-        sc.on("initialised", this.initEnclaveClient.bind(this));
+        sc.on("initialised", initEnclaveClient.bind(this));
     }
-    console.log("AppManager init");
+    console.log("WebSkel init");
     this.registerListeners();
 
     let url = window.location.hash;
-    window.appManager.navigateToPage(url);
+    webSkel.navigateToPage(url);
 }
 
-init();
-initEnclaveClient();
+await initWallet();
+await initEnclaveClient();
+webSkel.setDomElementForPages(document.querySelector("#page-content"));
 
-window.appManager.setDomElementForPages(document.querySelector("#page-content"));
+webSkel.registerPresenter("llms-page", llmsPage);
+
+webSkel.registerAction("showAddLLMModal", async (...params) => {
+    await showModal(webSkel._documentElement, "add-llm-modal", {});
+})
+
+webSkel.registerAction("closeModal", async (modal, _param) => {
+    closeModal(modal);
+});
+
+webSkel.registerAction("changePage", (_target, toolId) => {
+    webSkel.currentToolId = toolId;
+    webSkel.navigateToToolPage();
+})
+webSkel.registerAction("showActionBox", async (_target, primaryKey) => {
+    webSkel.showActionBox(primaryKey);
+})
+
+
+
+// Modal components defined here
+webSkel.defineComponent("add-llm-modal", "/components/add-llm-modal/add-llm-modal.html");
+webSkel.defineComponent("llm-item-renderer","../components/llm-item-renderer/llm-item-renderer.html");
+// defineComponent("llm-item-renderer", "/components/llm-item-renderer/llm-item-renderer.html");
+webSkel.defineComponent("llms-page", "/pages/llms-page/llms-page.html");
+webSkel.defineComponent("page-template", "/pages/page-template/page-template.html");
+
+
+module.exports = getRemoteEnclaveClient;
+
