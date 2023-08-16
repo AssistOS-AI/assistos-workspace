@@ -1,6 +1,6 @@
 import { llmsPage } from "./presenters/llms-page.js";
 
-import WebSkel from "./scripts/WebSkel/WebSkel.js";
+import WebSkel from "./scripts/WebSkel/webSkel.js";
 import {closeModal, showModal} from "./scripts/WebSkel/utils/modal-utils.js";
 const openDSU = require("opendsu");
 

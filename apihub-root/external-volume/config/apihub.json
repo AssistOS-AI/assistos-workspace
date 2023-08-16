@@ -2,17 +2,14 @@
     "storage": "../apihub-root",
     "port": 8080,
     "preventRateLimit": true,
-    "activeComponents": ["bdns", "bricking", "anchoring", "enclave", "mq", "secrets", "versionlessDSU", "tools", "staticServer"],
+    "activeComponents": ["bdns", "bricking", "anchoring", "enclave", "mq", "secrets", "versionlessDSU", "staticServer"],
     "componentsConfig": {
         "staticServer": {
             "excludedFiles": [".*.secret"],
             "root": "../apihub-root/wallet"
         },
         "bricking": {},
-        "anchoring": {},
-        "tools": {
-            "module": "./../../apihub-components/tools"
-        }
+        "anchoring": {}
     },
     "responseHeaders": {
         "X-Frame-Options": "SAMEORIGIN",

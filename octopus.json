@@ -37,7 +37,6 @@
       }
     ],
     "postinstall": [
-
       {
         "name": "copy-bundles",
         "actions": [
@@ -64,6 +63,14 @@
       {
         "name": "build-all",
         "actions": [
+          {
+            "type": "copy",
+            "src": "./opendsu-sdk/builds/output/versionLessBoot.js",
+            "target": "./apihub-root/wallet/bundles/versionLessBoot.js",
+            "options": {
+              "overwrite": true
+            }
+          },
           {
             "type": "copy",
             "src": "./WebSkel/scripts",

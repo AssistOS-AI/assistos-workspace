@@ -16,8 +16,7 @@
     "freeze": "node ./node_modules/octopus/scripts/freeze dependencies",
     "tag-freeze": "node ./node_modules/octopus/scripts/tagFreeze dependencies",
     "enclaves": "node ./opendsu-sdk/psknode/bin/scripts/enclaveLauncher.js \"./brand-remote-enclave-config.json\" ",
-    "build-all": "cd opendsu-sdk && npm run build && cp -f psknode/bundles/versionLessBoot.js ../apihub-root/wallet/bundles && cd .. && node ./node_modules/octopus/scripts/run build devmode",
-    "build-all-win": "cd opendsu-sdk && npm run build && copy .\\psknode\\bundles\\versionLessBoot.js ..\\apihub-root\\wallet\\scripts\\bundles",
+    "build-all": "cd opendsu-sdk && npm run build && cd .. && node ./node_modules/octopus/scripts/run build devmode",
     "delete-enclaves-content-win": "rmdir /s /q SVDS && rmdir /s /q remote-enclave-root-brand && cd .\\apihub-root\\external-volume\\mqs && rmdir /s /q vault"
   },
   "repository": {
