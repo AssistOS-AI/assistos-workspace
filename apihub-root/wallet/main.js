@@ -5,7 +5,7 @@ const openDSU = require("opendsu");
 
 let remoteEnclaveClient;
 const manager= new WebSkel();
-window.webSkel=manager;
+window.webSkel = manager;
 
 async function initEnclaveClient() {
     const w3cDID = openDSU.loadAPI("w3cdid");
@@ -46,7 +46,7 @@ async function initWallet() {
     this.registerListeners();
 
     let url = window.location.hash;
-    webSkel.navigateToPage(url);
+    //webSkel.changeToStaticPage("");
 }
 
 await initWallet();
@@ -72,14 +72,9 @@ webSkel.registerAction("showActionBox", async (_target, primaryKey) => {
 })
 
 
-
 // Modal components defined here
 webSkel.defineComponent("add-llm-modal", "/components/add-llm-modal/add-llm-modal.html");
 webSkel.defineComponent("llm-item-renderer","../components/llm-item-renderer/llm-item-renderer.html");
 // defineComponent("llm-item-renderer", "/components/llm-item-renderer/llm-item-renderer.html");
 webSkel.defineComponent("llms-page", "/pages/llms-page/llms-page.html");
 webSkel.defineComponent("page-template", "/pages/page-template/page-template.html");
-
-
-module.exports = getRemoteEnclaveClient;
-
