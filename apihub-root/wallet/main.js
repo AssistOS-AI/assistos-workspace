@@ -42,8 +42,6 @@ async function initWallet() {
     else {
         sc.on("initialised", initEnclaveClient.bind(this));
     }
-    console.log("WebSkel init");
-    this.registerListeners();
 
     let url = window.location.hash;
     //webSkel.changeToStaticPage("");
@@ -63,7 +61,7 @@ webSkel.registerAction("closeModal", async (modal, _param) => {
     closeModal(modal);
 });
 
-webSkel.registerAction("changePage", (_target, toolId) => {
+webSkel.registerAction("changePage", async (_target, toolId) => {
     webSkel.currentToolId = toolId;
     webSkel.navigateToToolPage();
 })
@@ -76,5 +74,5 @@ webSkel.registerAction("showActionBox", async (_target, primaryKey) => {
 webSkel.defineComponent("add-llm-modal", "/components/add-llm-modal/add-llm-modal.html");
 webSkel.defineComponent("llm-item-renderer","../components/llm-item-renderer/llm-item-renderer.html");
 // defineComponent("llm-item-renderer", "/components/llm-item-renderer/llm-item-renderer.html");
-webSkel.defineComponent("llms-page", "/pages/llms-page/llms-page.html");
+webSkel.defineComponent("llms-page", "../pages/llms-page/llms-page.html");
 webSkel.defineComponent("page-template", "/pages/page-template/page-template.html");
