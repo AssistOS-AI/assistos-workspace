@@ -22,7 +22,7 @@ export class llmsPage {
 
         this.tableRows="";
         this._llmConfigs.forEach((item) => {
-            this.tableRows += `<llm-item-renderer  ></llm-item-renderer>`;
+            this.tableRows += `<llm-item-renderer data-name=${item.name} data-key=${item.key} data-url=${item.url}></llm-item-renderer>`;
         });
     }
 
@@ -30,5 +30,3 @@ export class llmsPage {
 
     }
 }
-
-// export default llmsPage;

@@ -1,11 +1,13 @@
 import { llmsPage } from "./presenters/llms-page.js";
 
-import WebSkel from "./scripts/WebSkel/webSkel.js";
+import WebSkel from "./scripts/WebSkel/WebSkel.js";
 import {closeModal, showModal} from "./scripts/WebSkel/utils/modal-utils.js";
 const openDSU = require("opendsu");
 
 const manager= new WebSkel();
 window.webSkel = manager;
+webSkel.setDomElementForPages(document.querySelector("#page-content"));
+
 
 async function initEnclaveClient() {
     const w3cDID = openDSU.loadAPI("w3cdid");
@@ -46,7 +48,6 @@ async function initWallet() {
 
 await initWallet();
 await initEnclaveClient();
-webSkel.setDomElementForPages(document.querySelector("#page-content"));
 
 webSkel.registerPresenter("llms-page", llmsPage);
 
@@ -58,9 +59,9 @@ webSkel.registerAction("closeModal", async (modal, _param) => {
     closeModal(modal);
 });
 
-webSkel.registerAction("changePage", async (_target, toolId) => {
-    webSkel.currentToolId = toolId;
-    await webSkel.changeToDynamicPage("llms-page");
+webSkel.registerAction("changePage", async (_target, pageId) => {
+    webSkel.currentToolId = pageId;
+    await webSkel.changeToDynamicPage(pageId);
 })
 webSkel.registerAction("showActionBox", async (_target, primaryKey) => {
     webSkel.showActionBox(primaryKey);
