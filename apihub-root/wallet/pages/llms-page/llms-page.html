@@ -1,10 +1,32 @@
 <link href="pages/llms-page/llms-page.css" rel="stylesheet"/>
-<page-template data-title="$$title"
-               data-adding-button = "$$button"
-               data-modal="$$modal"
-               data-header-name="$$name"
-               data-header-url="$$url"
-               data-header-key="$$key"
-               data-table-rows="$$tableRows"
->
-</page-template>
+<!--<page-template data-title="$$title"-->
+<!--               data-adding-button = "$$button"-->
+<!--               data-modal="$$modal"-->
+<!--               data-header-name="$$name"-->
+<!--               data-header-url="$$url"-->
+<!--               data-header-key="$$key"-->
+<!--               data-table-rows="$$tableRows"-->
+<!--&gt;-->
+<!--</page-template>-->
+
+
+<!--<link href="pages/page-template/page-template.css" rel="stylesheet"/>-->
+<div class="llms-page" data-presenter="llms-presenter">
+    <div class="title-container">$$title</div>
+    <div class="add-button-section">
+        <div class="add-button" data-local-action = "$$modal">
+            <img src="assets/icons/Vector.png" alt="Add icon" class="add-icon">
+            $$button
+        </div>
+    </div>
+
+    <div class="table">
+        <div class="table-header">
+            <div class="cell">$$name</div>
+            <div class="cell">$$key</div>
+            <div class="cell">$$url</div>
+            <div class="action-cell"> </div>
+        </div>
+        $$tableRows
+    </div>
+</div>
