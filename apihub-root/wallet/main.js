@@ -1,9 +1,9 @@
 import { llmsPage } from "./presenters/llms-page.js";
 
-import WebSkel from "../../WebSkel/scripts/WebSkel.js";
+import WebSkel from "./scripts/WebSkel/WebSkel.js";
+import {closeModal, showModal} from "./scripts/WebSkel/utils/modal-utils.js";
 const openDSU = require("opendsu");
 
-let remoteEnclaveClient;
 const manager= new WebSkel();
 window.webSkel = manager;
 
@@ -16,16 +16,13 @@ async function initEnclaveClient() {
     try {
         const clientDIDDocument = await $$.promisify(w3cDID.resolveNameDID)("vault", "clientEnclave", "topSecret");
         console.log("Client enclave: ", clientDIDDocument.getIdentifier());
-        remoteEnclaveClient = enclaveAPI.initialiseRemoteEnclave(clientDIDDocument.getIdentifier(), remoteDID);
+        window.remoteEnclaveClient = enclaveAPI.initialiseRemoteEnclave(clientDIDDocument.getIdentifier(), remoteDID);
     }
     catch (err) {
         console.log("Error at initialising remote client", err);
     }
 }
 
-function getRemoteEnclaveClient()  {
-    return remoteEnclaveClient;
-}
 
 async function initWallet() {
     if (rawDossier) {
@@ -63,7 +60,7 @@ webSkel.registerAction("closeModal", async (modal, _param) => {
 
 webSkel.registerAction("changePage", async (_target, toolId) => {
     webSkel.currentToolId = toolId;
-    webSkel.navigateToToolPage();
+    await webSkel.changeToDynamicPage("llms-page");
 })
 webSkel.registerAction("showActionBox", async (_target, primaryKey) => {
     webSkel.showActionBox(primaryKey);
