@@ -35,7 +35,7 @@ async function initWallet() {
     }
 
     let url = window.location.hash;
-    //webSkel.changeToStaticPage("");
+    webSkel.changeToDynamicPage(url.slice(1));
 }
 
 window.webSkel = new WebSkel();
