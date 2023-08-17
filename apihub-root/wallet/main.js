@@ -1,6 +1,5 @@
 import { llmsPage } from "./presenters/llms-page.js";
 import { personalitiesPage } from "./presenters/personalities-page.js";
-import { newsletterPage, showActionBoxNewsletter } from "./presenters/newsletter-page.js";
 import { closeModal, showModal, showActionBox } from "./scripts/WebSkel/utils/modal-utils.js";
 import WebSkel from "./scripts/WebSkel/webSkel.js";
 
@@ -76,7 +75,6 @@ webSkel.defineComponent("add-personality-modal", "../components/add-personality-
 webSkel.defineComponent("llm-item-renderer","../components/llm-item-renderer/llm-item-renderer.html");
 webSkel.defineComponent("personality-item-renderer","../components/personality-item-renderer/personality-item-renderer.html");
 webSkel.defineComponent("llms-page", "../pages/llms-page/llms-page.html");
-webSkel.defineComponent("newsletter-page", "../pages/newsletter-page/newsletter-page.html");
 webSkel.defineComponent("personalities-page", "../pages/personalities-page/personalities-page.html");
 
 (async ()=>{
