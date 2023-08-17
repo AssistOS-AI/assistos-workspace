@@ -1,7 +1,6 @@
 import { Company } from "../core/company.js";
 
 export class llmsPage {
-
     constructor() {
         this.title = "LLMS management";
         this.key = "KEY";
@@ -24,9 +23,7 @@ export class llmsPage {
                 if(actionWindow.style.display === "block")
                     actionWindow.style.display = "none";
             });
-            console.log("Am apasat pe document.")
         }, true);
-
     }
 
     beforeRender() {
@@ -35,7 +32,7 @@ export class llmsPage {
             this._llmConfigs.forEach((item) => {
                 this.tableRows += `<llm-item-renderer data-name=${item.name} data-key=${item.key} data-url=${item.url} data-primary-key=${item.primaryKey}"></llm-item-renderer>`;
             });
-        }else{
+        } else {
             this.tableRows=`<div> No Data Currently </div>`;
         }
     }
@@ -56,7 +53,6 @@ const onClickOutside = (e) => {
 };
 
 export function showActionBox(primaryKey) {
-    console.log("Am apasat action box.")
     let showBox= document.getElementById(primaryKey);
     if(showBox.style.display==="none" || showBox.style.display==="") {
         showBox.style.display = "block";
