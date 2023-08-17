@@ -9,8 +9,12 @@ export class llmsPage {
         this.url = "URL";
         this.button = "Add LLM";
         this.tableRows = "No data loaded";
-
-        Company.getInstance().onChange((companyState) => {
+        let currentCompany= Company.getInstance();
+        setTimeout(()=>{
+                this._llmConfigs = currentCompany.companyState.llms;
+                this.invalidate();},
+            0);
+        currentCompany.onChange((companyState) => {
             this._llmConfigs = companyState.llms;
             this.invalidate();
         });
@@ -18,16 +22,18 @@ export class llmsPage {
 
     beforeRender() {
         this.tableRows="";
-        this._llmConfigs.forEach((item) => {
-            this.tableRows += `<llm-item-renderer data-name=${item.name} data-key=${item.key} data-url=${item.url} data-primary-key=${item.primaryKey}"></llm-item-renderer>`;
-        });
+        if(this._llmConfigs) {
+            this._llmConfigs.forEach((item) => {
+                this.tableRows += `<llm-item-renderer data-name=${item.name} data-key=${item.key} data-url=${item.url} data-primary-key=${item.primaryKey}"></llm-item-renderer>`;
+            });
+        }else{
+            this.tableRows=`<div> No Data Currently </div>`;
+        }
     }
 
     showAddLLMModal() {
 
     }
-
-    // WebSkel.register
 }
 
 const onClickOutside = (e) => {
@@ -37,18 +43,3 @@ const onClickOutside = (e) => {
 };
 
 window.clickListenerDefinedForDocument = false;
-
-export function showActionBox(primaryKey) {
-    let showBox= document.getElementById(primaryKey);
-    showBox.style.display = "block";
-    if(!window.clickListenerDefinedForDocument) {
-        window.clickListenerDefinedForDocument = true;
-        document.addEventListener("click", (event) => {
-            let showBox = document.querySelectorAll("div.action-box");
-            showBox.forEach((actionWindow) => {
-                actionWindow.style.display = "none";
-            });
-        });
-        // document.removeEventListener("click", );
-    }
-}

@@ -1,13 +1,8 @@
-import {llmsPage, showActionBox} from "./presenters/llms-page.js";
-
-import WebSkel from "./scripts/WebSkel/webSkel.js";
+import {llmsPage} from "./presenters/llms-page.js";
 import {closeModal, showModal} from "./scripts/WebSkel/utils/modal-utils.js";
+import WebSkel from "./scripts/WebSkel/webSkel.js";
+
 const openDSU = require("opendsu");
-
-const manager= new WebSkel();
-window.webSkel = manager;
-webSkel.setDomElementForPages(document.querySelector("#page-content"));
-
 async function initEnclaveClient() {
     const w3cDID = openDSU.loadAPI("w3cdid");
 
@@ -23,8 +18,6 @@ async function initEnclaveClient() {
         console.log("Error at initialising remote client", err);
     }
 }
-
-
 async function initWallet() {
     if (rawDossier) {
         await $$.promisify(rawDossier.writeFile, rawDossier)("/environment.json", JSON.stringify({
@@ -45,11 +38,11 @@ async function initWallet() {
     //webSkel.changeToStaticPage("");
 }
 
-await initWallet();
-await initEnclaveClient();
+window.webSkel = new WebSkel();
+
+webSkel.setDomElementForPages(document.querySelector("#page-content"));
 
 webSkel.registerPresenter("llms-page", llmsPage);
-
 webSkel.registerAction("showAddLLMModal", async (...params) => {
     await showModal(webSkel._documentElement, "add-llm-modal", {});
 })
@@ -60,6 +53,7 @@ webSkel.registerAction("closeModal", async (modal, _param) => {
 
 webSkel.registerAction("changePage", async (_target, pageId) => {
     webSkel.currentToolId = pageId;
+    console.log("Page id:",pageId);
     await webSkel.changeToDynamicPage(pageId);
 })
 webSkel.registerAction("showActionBox", async (_target, primaryKey) => {
@@ -67,8 +61,12 @@ webSkel.registerAction("showActionBox", async (_target, primaryKey) => {
 })
 
 
-// Modal components defined here
-webSkel.defineComponent("add-llm-modal", "/components/add-llm-modal/add-llm-modal.html");
+/* Modal components defined here */
+webSkel.defineComponent("add-llm-modal", "../components/add-llm-modal/add-llm-modal.html");
 webSkel.defineComponent("llm-item-renderer","../components/llm-item-renderer/llm-item-renderer.html");
-// defineComponent("llm-item-renderer", "/components/llm-item-renderer/llm-item-renderer.html");
 webSkel.defineComponent("llms-page", "../pages/llms-page/llms-page.html");
+
+(async ()=>{
+    await initWallet();
+    await initEnclaveClient();
+})();
