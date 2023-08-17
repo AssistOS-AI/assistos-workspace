@@ -23,7 +23,6 @@ export class llmsPage {
             showBox.forEach((actionWindow) => {
                 if(actionWindow.style.display === "block")
                     actionWindow.style.display = "none";
-                // console.log(`|||${actionWindow.style.display}|||`);
             });
             console.log("Am apasat pe document.")
         }, true);
