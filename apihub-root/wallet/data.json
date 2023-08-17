@@ -18,5 +18,22 @@
             "key" : "Webfdbefudh222",
             "url" : "www.reddit.com/r..."
         }
+    ],
+    "personalities": [
+        {
+            "primaryKey" : "pkey-1",
+            "shortname" : "James12",
+            "description" : "Lorem Ipsum Dolor Sit Amet, Consectetur Adipiscing Elit. Mauris Vel..."
+        },
+        {
+            "primaryKey" : "pkey-2",
+            "shortname" : "JAMESjj",
+            "description" : "Lorem Ipsum Dolor Sit Amet, Consectetur Adipiscing Elit. Mauris Vel..."
+        },
+        {
+            "primaryKey" : "pkey-3",
+            "shortname" : "JamesJones",
+            "description" : "Lorem Ipsum Dolor Sit Amet, Consectetur Adipiscing Elit. Mauris Vel..."
+        }
     ]
 }

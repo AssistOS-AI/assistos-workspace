@@ -1,4 +1,5 @@
 import { llmsPage, showActionBox } from "./presenters/llms-page.js";
+import { personalitiesPage } from "./presenters/personalities-page.js";
 import { closeModal, showModal } from "./scripts/WebSkel/utils/modal-utils.js";
 import WebSkel from "./scripts/WebSkel/webSkel.js";
 
@@ -43,17 +44,21 @@ window.webSkel = new WebSkel();
 webSkel.setDomElementForPages(document.querySelector("#page-content"));
 
 webSkel.registerPresenter("llms-page", llmsPage);
-webSkel.registerAction("showAddLLMModal", async (...params) => {
-    await showModal(webSkel._documentElement, "add-llm-modal", {});
-})
+webSkel.registerPresenter("personalities-page", personalitiesPage);
+// webSkel.registerAction("showAddLLMModal", async (...params) => {
+//     await showModal(webSkel._documentElement, "add-llm-modal", {});
+// })
 
 webSkel.registerAction("closeModal", async (modal, _param) => {
     closeModal(modal);
 });
 
 webSkel.registerAction("showAddLLMModal", async (...params) => {
-    console.log("Do something");
     await showModal(document.querySelector("body"), "add-llm-modal", {});
+})
+
+webSkel.registerAction("showAddPersonalityModal", async (...params) => {
+    await showModal(document.querySelector("body"), "add-personality-modal", {});
 })
 
 webSkel.registerAction("changePage", async (_target, pageId) => {
@@ -67,7 +72,9 @@ webSkel.registerAction("showActionBox", async (_target, primaryKey) => {
 /* Modal components defined here */
 webSkel.defineComponent("add-llm-modal", "../components/add-llm-modal/add-llm-modal.html");
 webSkel.defineComponent("llm-item-renderer","../components/llm-item-renderer/llm-item-renderer.html");
+webSkel.defineComponent("personality-item-renderer","../components/personality-item-renderer/personality-item-renderer.html");
 webSkel.defineComponent("llms-page", "../pages/llms-page/llms-page.html");
+webSkel.defineComponent("personalities-page", "../pages/personalities-page/personalities-page.html");
 
 (async ()=>{
     await initWallet();
