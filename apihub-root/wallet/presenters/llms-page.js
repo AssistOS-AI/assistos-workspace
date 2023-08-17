@@ -18,6 +18,15 @@ export class llmsPage {
             this._llmConfigs = companyState.llms;
             this.invalidate();
         });
+        document.addEventListener("click", (event) => {
+            let showBox = document.querySelectorAll("div.action-box");
+            showBox.forEach((actionWindow) => {
+                if(actionWindow.style.display === "block")
+                    actionWindow.style.display = "none";
+                // console.log(`|||${actionWindow.style.display}|||`);
+            });
+            console.log("Am apasat pe document.")
+        }, true);
 
     }
 
@@ -43,15 +52,10 @@ const onClickOutside = (e) => {
     }
 };
 
-//window.clickListenerDefinedForDocument = false;
-
 export function showActionBox(primaryKey) {
+    console.log("Am apasat action box.")
     let showBox= document.getElementById(primaryKey);
-    if(showBox.style.display==="none") {
+    if(showBox.style.display==="none" || showBox.style.display==="") {
         showBox.style.display = "block";
     }
-    // if(!window.clickListenerDefinedForDocument) {
-    //     window.clickListenerDefinedForDocument = true;
-
-        // document.removeEventListener("click", );
 }
