@@ -51,9 +51,13 @@ webSkel.registerAction("closeModal", async (modal, _param) => {
     closeModal(modal);
 });
 
+webSkel.registerAction("showAddLLMModal", async (...params) => {
+    console.log("Do something");
+    await showModal(document.querySelector("body"), "add-llm-modal", {});
+})
+
 webSkel.registerAction("changePage", async (_target, pageId) => {
     webSkel.currentToolId = pageId;
-    console.log("Page id:",pageId);
     await webSkel.changeToDynamicPage(pageId);
 })
 webSkel.registerAction("showActionBox", async (_target, primaryKey) => {

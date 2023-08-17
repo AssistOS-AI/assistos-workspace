@@ -6,6 +6,7 @@ export class llmsPage {
         this.key = "KEY";
         this.name = "NAME";
         this.url = "URL";
+        this.modal = "showAddLLMModal";
         this.button = "Add LLM";
         this.tableRows = "No data loaded";
         let currentCompany= Company.getInstance();
@@ -38,10 +39,6 @@ export class llmsPage {
     }
     /* adding event Listeners after the web component has loaded, etc */
     afterRender(){
-
-    }
-
-    showAddLLMModal() {
 
     }
 }
