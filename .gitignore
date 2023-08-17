@@ -2,6 +2,7 @@
 apihub-root/external-volume/domains
 apihub-root/external-volume/fixed-urls
 apihub-root/external-volume/maindsu
+apihub-root/external-volume/lightDB
 apihub-root/external-volume/oba
 apihub-root/external-volume/versionlessdsu
 node_modules
