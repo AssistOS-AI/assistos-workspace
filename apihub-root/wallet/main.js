@@ -1,9 +1,10 @@
-import { llmsPage, showActionBox } from "./presenters/llms-page.js";
+import { llmsPage } from "./presenters/llms-page.js";
 import { personalitiesPage } from "./presenters/personalities-page.js";
 import { newsletterPage, showActionBoxNewsletter } from "./presenters/newsletter-page.js";
 
 import { closeModal, showModal } from "./scripts/WebSkel/utils/modal-utils.js";
 import WebSkel from "./scripts/WebSkel/webSkel.js";
+import { showActionBox } from "../../WebSkel/utils/modal-utils.js";
 
 const openDSU = require("opendsu");
 async function initEnclaveClient() {
