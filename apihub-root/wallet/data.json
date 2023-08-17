@@ -40,5 +40,22 @@
             "description" : "“Love, but be careful what you love,” the Roman African philosopher Saint Augustine wrote in the final years of the fourth century. We are, in some deep sense, what we love — we become it as much as it becomes us, beckoned from our myriad conscious and unconscious longings, despairs, and patterned desires. ",
             "subject" : "Books",
             "status" : "2 days untill post"}
+    ],
+    "personalities": [
+        {
+            "primaryKey" : "pkey-1",
+            "shortname" : "James12",
+            "description" : "Lorem Ipsum Dolor Sit Amet, Consectetur Adipiscing Elit. Mauris Vel..."
+        },
+        {
+            "primaryKey" : "pkey-2",
+            "shortname" : "JAMESjj",
+            "description" : "Lorem Ipsum Dolor Sit Amet, Consectetur Adipiscing Elit. Mauris Vel..."
+        },
+        {
+            "primaryKey" : "pkey-3",
+            "shortname" : "JamesJones",
+            "description" : "Lorem Ipsum Dolor Sit Amet, Consectetur Adipiscing Elit. Mauris Vel..."
+        }
     ]
 }

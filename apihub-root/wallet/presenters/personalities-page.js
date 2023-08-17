@@ -1,21 +1,20 @@
 import { Company } from "../core/company.js";
 
-export class llmsPage {
+export class personalitiesPage {
     constructor() {
-        this.title = "LLMS management";
-        this.key = "KEY";
-        this.name = "NAME";
-        this.url = "URL";
-        this.modal = "showAddLLMModal";
-        this.button = "Add LLM";
+        this.title = "Personalities";
+        this.shortname = "Shortname";
+        this.description = "Description";
+        this.modal = "showAddPersonalityModal";
+        this.button = "Add Personality";
         this.tableRows = "No data loaded";
         let currentCompany= Company.getInstance();
         setTimeout(()=>{
-                this._llmConfigs = currentCompany.companyState.llms;
+                this._personalityConfigs = currentCompany.companyState.personalities;
                 this.invalidate();},
             0);
         currentCompany.onChange((companyState) => {
-            this._llmConfigs = companyState.llms;
+            this._personalityConfigs = companyState.personalities;
             this.invalidate();
         });
         document.addEventListener("click", (event) => {
@@ -29,9 +28,9 @@ export class llmsPage {
 
     beforeRender() {
         this.tableRows="";
-        if(this._llmConfigs) {
-            this._llmConfigs.forEach((item) => {
-                this.tableRows += `<llm-item-renderer data-name=${item.name} data-key=${item.key} data-url=${item.url} data-primary-key=${item.primaryKey}"></llm-item-renderer>`;
+        if(this._personalityConfigs) {
+            this._personalityConfigs.forEach((item) => {
+                this.tableRows += `<personality-item-renderer data-shortname=${item.shortname} data-description="${item.description}" data-primary-key=${item.primaryKey}"></personality-item-renderer>`;
             });
         } else {
             this.tableRows=`<div> No Data Currently </div>`;
