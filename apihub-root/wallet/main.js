@@ -1,5 +1,5 @@
-import {llmsPage} from "./presenters/llms-page.js";
-import {closeModal, showModal} from "./scripts/WebSkel/utils/modal-utils.js";
+import { llmsPage, showActionBox } from "./presenters/llms-page.js";
+import { closeModal, showModal } from "./scripts/WebSkel/utils/modal-utils.js";
 import WebSkel from "./scripts/WebSkel/webSkel.js";
 
 const openDSU = require("opendsu");
@@ -59,7 +59,6 @@ webSkel.registerAction("changePage", async (_target, pageId) => {
 webSkel.registerAction("showActionBox", async (_target, primaryKey) => {
     showActionBox(primaryKey);
 })
-
 
 /* Modal components defined here */
 webSkel.defineComponent("add-llm-modal", "../components/add-llm-modal/add-llm-modal.html");

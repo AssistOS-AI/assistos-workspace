@@ -43,3 +43,18 @@ const onClickOutside = (e) => {
 };
 
 window.clickListenerDefinedForDocument = false;
+
+export function showActionBox(primaryKey) {
+    let showBox= document.getElementById(primaryKey);
+    showBox.style.display = "block";
+    if(!window.clickListenerDefinedForDocument) {
+        window.clickListenerDefinedForDocument = true;
+        document.addEventListener("click", (event) => {
+            let showBox = document.querySelectorAll("div.action-box");
+            showBox.forEach((actionWindow) => {
+                actionWindow.style.display = "none";
+            });
+        });
+        // document.removeEventListener("click", );
+    }
+}
