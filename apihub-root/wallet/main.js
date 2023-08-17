@@ -1,4 +1,6 @@
 import { llmsPage, showActionBox } from "./presenters/llms-page.js";
+import { newsletterPage, showActionBoxNewsletter } from "./presenters/newsletter-page.js";
+
 import { closeModal, showModal } from "./scripts/WebSkel/utils/modal-utils.js";
 import WebSkel from "./scripts/WebSkel/webSkel.js";
 
@@ -43,6 +45,7 @@ window.webSkel = new WebSkel();
 webSkel.setDomElementForPages(document.querySelector("#page-content"));
 
 webSkel.registerPresenter("llms-page", llmsPage);
+webSkel.registerPresenter("newsletter-page", newsletterPage);
 webSkel.registerAction("showAddLLMModal", async (...params) => {
     await showModal(webSkel._documentElement, "add-llm-modal", {});
 })
@@ -64,6 +67,7 @@ webSkel.registerAction("showActionBox", async (_target, primaryKey) => {
 webSkel.defineComponent("add-llm-modal", "../components/add-llm-modal/add-llm-modal.html");
 webSkel.defineComponent("llm-item-renderer","../components/llm-item-renderer/llm-item-renderer.html");
 webSkel.defineComponent("llms-page", "../pages/llms-page/llms-page.html");
+webSkel.defineComponent("newsletter-page", "../pages/newsletter-page/newsletter-page.html");
 
 (async ()=>{
     await initWallet();

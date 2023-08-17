@@ -18,5 +18,27 @@
             "key" : "Webfdbefudh222",
             "url" : "www.reddit.com/r..."
         }
+    ],
+    "newsletters": [
+        {
+            "primaryKey" : "key-1",
+            "name" : "Hannah Arendt on Love and How to Live with the Fundamental Fear of Loss",
+            "description" : "“Love, but be careful what you love,” the Roman African philosopher Saint Augustine wrote in the final years of the fourth century. We are, in some deep sense, what we love — we become it as much as it becomes us, beckoned from our myriad conscious and unconscious longings, despairs, and patterned desires. ",
+            "subject" : "Books",
+            "status" : "Active"
+        },
+        {
+            "primaryKey" : "key-2",
+            "name" : "Hannah Arendt on Love and How to Live with the Fundamental Fear of Loss",
+            "description" : "“Love, but be careful what you love,” the Roman African philosopher Saint Augustine wrote in the final years of the fourth century. We are, in some deep sense, what we love — we become it as much as it becomes us, beckoned from our myriad conscious and unconscious longings, despairs, and patterned desires. ",
+            "subject" : "Books",
+            "status" : "Inactive"
+        },
+        {
+            "primaryKey" : "key-3",
+            "name" : "Hannah Arendt on Love and How to Live with the Fundamental Fear of Loss",
+            "description" : "“Love, but be careful what you love,” the Roman African philosopher Saint Augustine wrote in the final years of the fourth century. We are, in some deep sense, what we love — we become it as much as it becomes us, beckoned from our myriad conscious and unconscious longings, despairs, and patterned desires. ",
+            "subject" : "Books",
+            "status" : "2 days untill post"}
     ]
 }
