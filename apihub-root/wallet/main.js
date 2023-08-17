@@ -1,4 +1,4 @@
-import { llmsPage } from "./presenters/llms-page.js";
+import {llmsPage, showActionBox} from "./presenters/llms-page.js";
 
 import WebSkel from "./scripts/WebSkel/webSkel.js";
 import {closeModal, showModal} from "./scripts/WebSkel/utils/modal-utils.js";
@@ -7,7 +7,6 @@ const openDSU = require("opendsu");
 const manager= new WebSkel();
 window.webSkel = manager;
 webSkel.setDomElementForPages(document.querySelector("#page-content"));
-
 
 async function initEnclaveClient() {
     const w3cDID = openDSU.loadAPI("w3cdid");
@@ -64,7 +63,7 @@ webSkel.registerAction("changePage", async (_target, pageId) => {
     await webSkel.changeToDynamicPage(pageId);
 })
 webSkel.registerAction("showActionBox", async (_target, primaryKey) => {
-    webSkel.showActionBox(primaryKey);
+    showActionBox(primaryKey);
 })
 
 
@@ -73,4 +72,3 @@ webSkel.defineComponent("add-llm-modal", "/components/add-llm-modal/add-llm-moda
 webSkel.defineComponent("llm-item-renderer","../components/llm-item-renderer/llm-item-renderer.html");
 // defineComponent("llm-item-renderer", "/components/llm-item-renderer/llm-item-renderer.html");
 webSkel.defineComponent("llms-page", "../pages/llms-page/llms-page.html");
-webSkel.defineComponent("page-template", "/pages/page-template/page-template.html");
