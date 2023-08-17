@@ -38,6 +38,9 @@ async function initWallet() {
     }
 
     let url = window.location.hash;
+    if(url === "") {
+        url = "#my-organisation-page";
+    }
     webSkel.changeToDynamicPage(url.slice(1));
 }
 
@@ -47,13 +50,6 @@ webSkel.setDomElementForPages(document.querySelector("#page-content"));
 
 webSkel.registerPresenter("llms-page", llmsPage);
 webSkel.registerPresenter("personalities-page", personalitiesPage);
-// webSkel.registerAction("showAddLLMModal", async (...params) => {
-//     await showModal(webSkel._documentElement, "add-llm-modal", {});
-// })
-webSkel.registerPresenter("newsletter-page", newsletterPage);
-webSkel.registerAction("showAddLLMModal", async (...params) => {
-    await showModal(webSkel._documentElement, "add-llm-modal", {});
-})
 
 webSkel.registerAction("closeModal", async (modal, _param) => {
     closeModal(modal);
@@ -77,6 +73,7 @@ webSkel.registerAction("showActionBox", async (_target, primaryKey) => {
 
 /* Modal components defined here */
 webSkel.defineComponent("add-llm-modal", "../components/add-llm-modal/add-llm-modal.html");
+webSkel.defineComponent("add-personality-modal", "../components/add-personality-modal/add-personality-modal.html");
 webSkel.defineComponent("llm-item-renderer","../components/llm-item-renderer/llm-item-renderer.html");
 webSkel.defineComponent("personality-item-renderer","../components/personality-item-renderer/personality-item-renderer.html");
 webSkel.defineComponent("llms-page", "../pages/llms-page/llms-page.html");
