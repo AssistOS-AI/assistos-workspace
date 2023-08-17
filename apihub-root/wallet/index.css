@@ -1,3 +1,5 @@
+@import url('https://fonts.cdnfonts.com/css/poppins');
+
 * {
     box-sizing: border-box;
     -ms-overflow-style: none;
@@ -475,7 +477,8 @@ button {
 
 .followed-container {
     box-sizing:border-box;
-    border-bottom: solid rgba(220, 220, 220, 1);
+    margin-bottom: 10px;
+    /*border-bottom: solid rgba(220, 220, 220, 1);*/
 }
 
 .plus-button-wrapper img {
@@ -723,13 +726,18 @@ button {
     margin-left:13px;
 }
 
+.brands-container {
+    margin-left: 10px;
+    margin-top: 10px;
+}
+
 .create-community-button, .followed-brands-title, .title-wrapper, .brand-name {
     color:rgba(55, 43, 43, 1);
     font-weight:500;
     font-size:14px;
 }
 
-.create-community-button, .tools-title, .title-wrapper, .tool-name {
+.create-community-button, .title-wrapper, .tool-name {
     color:rgba(55, 43, 43, 1);
     font-weight:500;
     font-size:14px;
@@ -959,8 +967,19 @@ h4 {
 
 .tool-item {
     display: flex;
-    padding: 5px 5px;
+    padding: 8px 10px;
+    margin-top: 15px;
 }
+
+.page-name {
+    color: #5B82C1;
+    font-family: Poppins;
+    font-size: 16px;
+    font-style: normal;
+    font-weight: 500;
+    line-height: normal;
+}
+
 .tool-item:hover{
     cursor: pointer;
     background-color: #E0E0E0;
@@ -1102,8 +1121,14 @@ h4 {
 }
 
 .tools-title {
-    font-size: 18px;
-    font-weight: bold;
+    /*font-size: 18px;*/
+    /*font-weight: bold;*/
+    color: #111966;
+    font-family: Poppins;
+    font-size: 28px;
+    font-style: normal;
+    font-weight: 800;
+    line-height: normal;
 }
 
 .add-button-section {
@@ -1112,4 +1137,19 @@ h4 {
 
 .page-menu {
     margin-right: 20px;
+    display: inline;
+}
+
+.tool-item:hover {
+    border-radius: 5px;
+    background: #E8F1FF;
+}
+
+.tool-item:hover > .page-name {
+    color: #0E46A0;
+    font-family: Poppins;
+    font-size: 16px;
+    font-style: normal;
+    font-weight: 600;
+    line-height: normal;
 }
