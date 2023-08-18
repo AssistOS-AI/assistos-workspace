@@ -73,7 +73,7 @@
           },
           {
             "type": "copy",
-            "src": "./WebSkel/scripts",
+            "src": "./WebSkel/utils",
             "target": "./apihub-root/wallet/scripts/WebSkel",
             "options": {
               "overwrite": true
