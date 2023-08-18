@@ -41,16 +41,3 @@ export class personalitiesPage {
 
     }
 }
-
-const onClickOutside = (e) => {
-    if (!e.target.className.includes("action-box")) {
-        e.target.style.display = "none";
-    }
-};
-
-export function showActionBox(primaryKey) {
-    let showBox= document.getElementById(primaryKey);
-    if(showBox.style.display==="none" || showBox.style.display==="") {
-        showBox.style.display = "block";
-    }
-}

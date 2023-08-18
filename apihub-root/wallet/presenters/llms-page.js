@@ -9,11 +9,11 @@ export class llmsPage {
         this.modal = "showAddLLMModal";
         this.button = "Add LLM";
         this.tableRows = "No data loaded";
-        let currentCompany= Company.getInstance();
-        setTimeout(()=>{
-                this._llmConfigs = currentCompany.companyState.llms;
-                this.invalidate();},
-            0);
+        let currentCompany = Company.getInstance();
+        setTimeout(async () => {
+            this._llmConfigs = currentCompany.companyState.llms;
+            this.invalidate();
+        }, 0);
         currentCompany.onChange((companyState) => {
             this._llmConfigs = companyState.llms;
             this.invalidate();
