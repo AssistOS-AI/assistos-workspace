@@ -225,12 +225,14 @@ body {
     max-height: 100%;
 }
 
-.tool-item:hover {
+.tool-item:hover,
+#selected-page {
     border-radius: 5px;
     background: #EBEBEB;
 }
 
-.tool-item:hover > .page-name {
+.tool-item:hover > .page-name,
+#selected-page > .page-name {
     color: #191919;
     font-family: Poppins;
     font-size: 16px;
@@ -239,7 +241,8 @@ body {
     line-height: normal;
 }
 
-.tool-item:hover > .page-logo-section > img {
-    mix-blend-mode: multiply; /* Blend mode to blend the color with the image */
-    pointer-events: none; /* Allow clicks to pass through the overlay */
+.tool-item:hover > .page-logo-section > img
+#selected-page > .page-logo-section > img{
+    mix-blend-mode: multiply;
+    pointer-events: none;
 }
