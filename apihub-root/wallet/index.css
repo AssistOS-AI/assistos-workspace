@@ -194,12 +194,14 @@ body {
     max-height: 100%;
 }
 
-.tool-item:hover {
+.tool-item:hover,
+#selected-page {
     border-radius: 5px;
     background: #EBEBEB;
 }
 
-.tool-item:hover > .page-name {
+.tool-item:hover > .page-name,
+#selected-page > .page-name {
     color: #191919;
     font-family: Poppins;
     font-size: 16px;
@@ -261,4 +263,8 @@ body {
 #tools-sidebar{
     height:100%;
     width:15%;
+.tool-item:hover > .page-logo-section > img
+#selected-page > .page-logo-section > img{
+    mix-blend-mode: multiply;
+    pointer-events: none;
 }

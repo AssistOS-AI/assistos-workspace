@@ -39,6 +39,7 @@ async function initWallet() {
     if(url === "") {
         url = "#my-organisation-page";
     }
+    changeSelectedPageFromSidebar(url);
     webSkel.changeToDynamicPage(url.slice(1));
 }
 
@@ -63,6 +64,7 @@ webSkel.registerAction("showAddPersonalityModal", async (...params) => {
 
 webSkel.registerAction("changePage", async (_target, pageId) => {
     webSkel.currentToolId = pageId;
+    changeSelectedPageFromSidebar(pageId);
     await webSkel.changeToDynamicPage(pageId);
 })
 webSkel.registerAction("showActionBox", async (_target, primaryKey) => {
@@ -81,3 +83,24 @@ webSkel.defineComponent("personalities-page", "./wallet/pages/personalities-page
     await initWallet();
     await initEnclaveClient();
 })();
+
+function changeSelectedPageFromSidebar(url) {
+    let element = document.getElementById('selected-page');
+    if (element) {
+        element.removeAttribute('id');
+    }
+    let divs = document.querySelectorAll('div[data-action]');
+
+    let targetAction = url;
+    if(targetAction.startsWith("#")) {
+        targetAction = url.slice(1);
+    }
+    divs.forEach(div => {
+        let dataAction = div.getAttribute('data-action');
+
+        if (dataAction.includes(targetAction)) {
+            console.log(`Element with data-action '${targetAction}' found.`);
+            div.setAttribute('id', 'selected-page');
+        }
+    });
+}
