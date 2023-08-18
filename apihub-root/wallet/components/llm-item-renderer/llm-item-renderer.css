@@ -1,6 +1,7 @@
 .llm-item-renderer {
     padding-left: 10px;
     display: flex;
+    align-items:center;
     border-top: 1px solid rgba(194, 194, 194, 0.6);
 }
 
@@ -10,8 +11,12 @@
 }
 
 .action-cell {
-    width: 4%;
-    padding: 8px 10px;
+    padding:2px;
+    width: 3px;
+    height:12px;
+    max-width:3px;
+    max-height:12px;
+    margin-right:20px;
     color: #555555;
     display: flex;
     justify-content: right;
@@ -19,15 +24,16 @@
 }
 
 .action-icon {
-    height: 12px;
-    margin-right: 20px;
+    width: 3px;
+    height:12px;
+    max-width:3px;
+    max-height:12px;
 }
 
 .action-box {
     background-color: white;
     position: fixed;
-    margin-top: 35px;
-    margin-right: 10px;
+    margin-top: 40px;
     border-radius: 6px;
     border: 1px solid #dedede;
     display: none;

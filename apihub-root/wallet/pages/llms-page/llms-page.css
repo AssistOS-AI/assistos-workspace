@@ -33,12 +33,3 @@
     overflow: hidden;
     text-overflow: ellipsis;
 }
-
-.action-cell {
-    width: 4%;
-    padding: 8px 10px;
-    color: #555555;
-    display: flex;
-    justify-content: right;
-    align-items: center;
-}
