@@ -81,19 +81,3 @@ webSkel.defineComponent("personalities-page", "./wallet/pages/personalities-page
     await initWallet();
     await initEnclaveClient();
 })();
-
-const toolItems = document.querySelectorAll('.tool-item');
-toolItems.forEach(toolItem => {
-    const img = toolItem.querySelector('img');
-    const hoverSrc = img.getAttribute('data-hover-src');
-    const src = img.getAttribute('src');
-
-    toolItem.addEventListener('mouseover', () => {
-        img.src = hoverSrc;
-    });
-
-    toolItem.addEventListener('mouseout', () => {
-        img.src = src;
-    });
-});
-
