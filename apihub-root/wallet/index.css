@@ -17,7 +17,10 @@ html {
     --default-font:Poppins;
     font-family: var(--default-font);
 }
-
+html,body,.app-container,.page-content,#app-content {
+    width:100%;
+    height:100%;
+}
 body {
     margin: 0;
     overflow: hidden;
@@ -42,11 +45,9 @@ body {
     display: block;
 }
 
-#main-content {
-    height: 100vh;
-}
-
 .page-content {
+    width:100%;
+    height:100%;
     display: flex;
     flex-direction: column;
     background: #F8FCFF;
@@ -57,7 +58,7 @@ body {
     max-height: 100%;
     overflow: hidden !important;
     display: flex;
-    flex-direction: row;
+    flex-direction: column;
 }
 
 #menu-sidebar {
@@ -72,7 +73,7 @@ body {
 }
 
 #page-content {
-    width:80%;
+    width:85%;
     flex-shrink: 0;
     max-height: 100%;
     display: inline-block;
@@ -89,7 +90,8 @@ body {
     line-height: 20px;
     display:flex;
     justify-content:space-between;
-    margin-left:13px;
+    margin-left:24px;
+
 }
 
 .text-container {
@@ -103,7 +105,7 @@ body {
 .inner-page {
     display: flex;
     width:100%;
-    justify-content: space-between;
+    height:100%;
     flex-direction:row;
 }
 
@@ -114,30 +116,6 @@ body {
 .tools-list {
     margin-left:13px;
 }
-
-.brands-container {
-    margin-left: 10px;
-    margin-top: 10px;
-}
-
-.title-wrapper {
-    color:rgba(55, 43, 43, 1);
-    font-weight:500;
-    font-size:14px;
-}
-
-.title-wrapper, .tool-name {
-    color:rgba(55, 43, 43, 1);
-    font-weight:500;
-    font-size:14px;
-}
-
-.title-wrapper {
-   margin-top:13px;
-    margin-bottom:13px;
-    font-weight:500;
-}
-
 .spinner {
     outline: none;
     background: none;
@@ -200,15 +178,6 @@ body {
     background-color: #E0E0E0;
 }
 
-.tools-title {
-    color: #111966;
-    font-family: Poppins;
-    font-size: 28px;
-    font-style: normal;
-    font-weight: 800;
-    line-height: normal;
-}
-
 .add-button-section {
     padding: 20px 0 15px 0;
 }
@@ -240,6 +209,56 @@ body {
 }
 
 .tool-item:hover > .page-logo-section > img {
-    mix-blend-mode: multiply; /* Blend mode to blend the color with the image */
-    pointer-events: none; /* Allow clicks to pass through the overlay */
+    mix-blend-mode: multiply;
+    pointer-events: none;
+}
+#app-header{
+    display:flex;
+    align-items:center;
+    justify-content: space-between;
+    width:100%;
+    height:69px;
+    background-color:#353535;
+}
+.tools-title {
+    color: #FFFFFF;
+    font-family: Poppins;
+    font-size: 28px;
+    font-weight: 800;
+    line-height: 42px;
+    letter-spacing: 0em;
+    text-align: left;
+
+}
+.title-wrapper {
+    color: #372B2B;
+    text-align: left;
+    font-size: 14px;
+    font-weight: 500;
+    line-height: 20px;
+    display:flex;
+    justify-content:space-between;
+    margin-left:24px;
+}
+
+.title-wrapper {
+    color:rgba(55, 43, 43, 1);
+    font-weight:500;
+    font-size:14px;
+}
+
+.title-wrapper, .tool-name {
+    color:rgba(55, 43, 43, 1);
+    font-weight:500;
+    font-size:14px;
+}
+
+.title-wrapper {
+    margin-top:13px;
+    margin-bottom:13px;
+    font-weight:500;
+}
+#tools-sidebar{
+    height:100%;
+    width:15%;
 }
