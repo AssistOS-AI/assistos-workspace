@@ -29,6 +29,13 @@
     max-width: 3px;
     max-height: 12px;
 }
+/*.action-icon path {
+    fill: #494949;
+}
+
+.action-icon:hover path {
+    fill: red;
+}*/
 
 .action-box {
     background-color: white;
