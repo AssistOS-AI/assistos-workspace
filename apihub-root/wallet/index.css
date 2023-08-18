@@ -260,9 +260,10 @@ body {
     margin-bottom:13px;
     font-weight:500;
 }
-#tools-sidebar{
-    height:100%;
-    width:15%;
+#tools-sidebar {
+    height: 100%;
+    width: 15%;
+}
 .tool-item:hover > .page-logo-section > img
 #selected-page > .page-logo-section > img{
     mix-blend-mode: multiply;
