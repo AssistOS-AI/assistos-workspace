@@ -178,13 +178,6 @@ body {
     to {transform: rotate(359deg);}
 }
 
-.tool-item {
-    display: flex;
-    padding: 8px 10px;
-    margin-top: 15px;
-    max-height: 100%;
-}
-
 .page-logo-section {
     padding: 0;
     margin: 0;
@@ -194,7 +187,7 @@ body {
 }
 
 .page-name {
-    color: #5B82C1;
+    color: #7F7F7F;
     font-family: Poppins;
     font-size: 16px;
     font-style: normal;
@@ -225,16 +218,28 @@ body {
     max-height: 100%;
 }
 
+.tool-item {
+    display: flex;
+    padding: 8px 10px;
+    margin-top: 15px;
+    max-height: 100%;
+}
+
 .tool-item:hover {
     border-radius: 5px;
-    background: #E8F1FF;
+    background: #EBEBEB;
 }
 
 .tool-item:hover > .page-name {
-    color: #0E46A0;
+    color: #191919;
     font-family: Poppins;
     font-size: 16px;
     font-style: normal;
     font-weight: 600;
     line-height: normal;
+}
+
+.tool-item:hover > .page-logo-section > img {
+    mix-blend-mode: multiply; /* Blend mode to blend the color with the image */
+    pointer-events: none; /* Allow clicks to pass through the overlay */
 }

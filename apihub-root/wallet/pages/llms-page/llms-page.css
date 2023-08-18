@@ -29,6 +29,9 @@
 .cell {
     width: 32%;
     padding: 8px 10px;
+    white-space: nowrap;
+    overflow: hidden;
+    text-overflow: ellipsis;
 }
 
 .action-cell {

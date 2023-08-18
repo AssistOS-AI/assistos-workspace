@@ -31,7 +31,7 @@ export class llmsPage {
         this.tableRows="";
         if(this._llmConfigs) {
             this._llmConfigs.forEach((item) => {
-                this.tableRows += `<llm-item-renderer data-name=${item.name} data-key=${item.key} data-url=${item.url} data-primary-key=${item.primaryKey}"></llm-item-renderer>`;
+                this.tableRows += `<llm-item-renderer data-name="${item.name}" data-key="${item.key}" data-url=${item.url} data-primary-key=${item.primaryKey}"></llm-item-renderer>`;
             });
         } else {
             this.tableRows=`<div> No Data Currently </div>`;

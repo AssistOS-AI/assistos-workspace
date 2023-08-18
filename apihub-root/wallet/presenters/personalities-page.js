@@ -4,7 +4,7 @@ export class personalitiesPage {
     constructor() {
         this.title = "Personalities";
         this.shortname = "Shortname";
-        this.description = "Description";
+        this.aiPrompt = "AIPrompt";
         this.modal = "showAddPersonalityModal";
         this.button = "Add Personality";
         this.tableRows = "No data loaded";
@@ -30,7 +30,7 @@ export class personalitiesPage {
         this.tableRows="";
         if(this._personalityConfigs) {
             this._personalityConfigs.forEach((item) => {
-                this.tableRows += `<personality-item-renderer data-shortname=${item.shortname} data-description="${item.description}" data-primary-key=${item.primaryKey}"></personality-item-renderer>`;
+                this.tableRows += `<personality-item-renderer data-shortname=${item.shortname} data-ai-prompt="${item.aiPrompt}" data-primary-key=${item.primaryKey}"></personality-item-renderer>`;
             });
         } else {
             this.tableRows=`<div> No Data Currently </div>`;
