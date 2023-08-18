@@ -30,7 +30,7 @@
         "actions": [
           {
             "type": "smartClone",
-            "target": ".",
+            "target": "./apihub-root/",
             "collectLog": false
           }
         ]
@@ -67,14 +67,6 @@
             "type": "copy",
             "src": "./opendsu-sdk/builds/output/versionLessBoot.js",
             "target": "./apihub-root/wallet/bundles/versionLessBoot.js",
-            "options": {
-              "overwrite": true
-            }
-          },
-          {
-            "type": "copy",
-            "src": "./WebSkel/utils",
-            "target": "./apihub-root/wallet/scripts/WebSkel",
             "options": {
               "overwrite": true
             }
