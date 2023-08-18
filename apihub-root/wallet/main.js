@@ -1,7 +1,7 @@
 import { llmsPage } from "./presenters/llms-page.js";
 import { personalitiesPage } from "./presenters/personalities-page.js";
-import { closeModal, showModal, showActionBox } from "./scripts/WebSkel/utils/modal-utils.js";
-import WebSkel from "./scripts/WebSkel/webSkel.js";
+import { closeModal, showModal, showActionBox } from "../WebSkel/utils/modal-utils.js";
+import WebSkel from "../WebSkel/webSkel.js";
 
 const openDSU = require("opendsu");
 async function initEnclaveClient() {
@@ -70,12 +70,12 @@ webSkel.registerAction("showActionBox", async (_target, primaryKey) => {
 })
 
 /* Modal components defined here */
-webSkel.defineComponent("add-llm-modal", "../components/add-llm-modal/add-llm-modal.html");
-webSkel.defineComponent("add-personality-modal", "../components/add-personality-modal/add-personality-modal.html");
-webSkel.defineComponent("llm-item-renderer","../components/llm-item-renderer/llm-item-renderer.html");
-webSkel.defineComponent("personality-item-renderer","../components/personality-item-renderer/personality-item-renderer.html");
-webSkel.defineComponent("llms-page", "../pages/llms-page/llms-page.html");
-webSkel.defineComponent("personalities-page", "../pages/personalities-page/personalities-page.html");
+webSkel.defineComponent("add-llm-modal", "./wallet/components/add-llm-modal/add-llm-modal.html");
+webSkel.defineComponent("add-personality-modal", "./wallet/components/add-personality-modal/add-personality-modal.html");
+webSkel.defineComponent("llm-item-renderer","./wallet/components/llm-item-renderer/llm-item-renderer.html");
+webSkel.defineComponent("personality-item-renderer","./wallet/components/personality-item-renderer/personality-item-renderer.html");
+webSkel.defineComponent("llms-page", "./wallet/pages/llms-page/llms-page.html");
+webSkel.defineComponent("personalities-page", "./wallet/pages/personalities-page/personalities-page.html");
 
 (async ()=>{
     await initWallet();

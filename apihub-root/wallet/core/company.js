@@ -5,7 +5,7 @@ export class Company {
     }
 
     async load() {
-        let response = await fetch('./data.json');
+        let response = await fetch('/wallet/data.json');
         this.companyState = await response.json();
         this.notifyObservers();
     }

@@ -6,7 +6,7 @@
     "componentsConfig": {
         "staticServer": {
             "excludedFiles": [".*.secret"],
-            "root": "../apihub-root/wallet"
+            "root": "../apihub-root/"
         },
         "bricking": {},
         "anchoring": {}
