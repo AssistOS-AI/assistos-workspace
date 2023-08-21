@@ -1,25 +1,25 @@
 {
     "llms": [
         {
-            "primaryKey" : "key-1",
+            "primaryKey" : "lkey-1",
             "name" : "OpenAI",
             "key" : "",
             "url" : "https://openai.com"
         },
         {
-            "primaryKey" : "key-2",
+            "primaryKey" : "lkey-2",
             "name" : "ChatGPT 3.5",
             "key" : "",
             "url" : "https://chat.openai.com"
         },
         {
-            "primaryKey" : "key-3",
+            "primaryKey" : "lkey-3",
             "name" : "ChatGPT 4",
             "key" : "",
             "url" : "https://chat.openai.com/"
         },
         {
-            "primaryKey" : "key-4",
+            "primaryKey" : "lkey-4",
             "name" : "Azure ChatGPT 3.5",
             "key" : "",
             "url" : "https://azure.microsoft.com/en-in/products/cognitive-services/openai-service/"
@@ -40,6 +40,23 @@
             "primaryKey" : "pkey-3",
             "shortname" : "JamesJones",
             "aiPrompt" : "Lorem ipsum dolor sit amet, sit ne dicta molestiae. Eam agam habeo propriae eu. Ei detracto democritum vituperata vis, et qui facete dignissim. Dicta scripserit consequuntur eu sed, at soluta audiam meliore vel."
+        }
+    ],
+    "documents": [
+        {
+            "primaryKey" : "dkey-1",
+            "name" : "The Alchemist",
+            "status" : "In Progress"
+        },
+        {
+            "primaryKey" : "dkey-2",
+            "name" : "Untamed",
+            "status" : "Done"
+        },
+        {
+            "primaryKey" : "dkey-3",
+            "name" : "\"Sapiens: A Brief History of Humankind\" by Yuval Noah Harari",
+            "status" : "In Progress"
         }
     ]
 }
