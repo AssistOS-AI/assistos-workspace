@@ -37,15 +37,6 @@
     fill: red;
 }*/
 
-.action-box {
-    background-color: white;
-    position: fixed;
-    margin-top: 40px;
-    border-radius: 6px;
-    border: 1px solid #dedede;
-    display: none;
-}
-
 .action {
     padding: 3px 8px;
 }

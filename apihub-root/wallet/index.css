@@ -272,6 +272,14 @@ body {
     mix-blend-mode: multiply;
     pointer-events: none;
 }
+.action-box {
+    background-color: white;
+    position: fixed;
+    margin-top: 40px;
+    border-radius: 6px;
+    border: 1px solid #dedede;
+    display: none;
+}
 svg:hover {
     fill:#191919;
 }
