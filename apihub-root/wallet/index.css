@@ -276,3 +276,6 @@ body {
     mix-blend-mode: multiply;
     pointer-events: none;
 }
+svg:hover {
+    fill:#191919;
+}
