@@ -37,7 +37,7 @@ export class documentsPage {
         }
     }
     /* adding event Listeners after the web component has loaded, etc */
-    afterRender(){
+    afterRender() {
 
     }
 }
