@@ -6,12 +6,8 @@
 }
 
 .cell {
-    width: 32%;
+    width: 96%;
     padding: 8px 10px;
-}
-
-.cell2 {
-    width: 64%;
 }
 
 .action-cell {
