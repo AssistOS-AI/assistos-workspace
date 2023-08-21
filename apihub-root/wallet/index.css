@@ -54,6 +54,9 @@ body {
     flex-direction: column;
     background: #F8FCFF;
 }
+#page-content{
+    padding-left:15px;
+}
 
 #app-content {
     width: 100%;
@@ -115,7 +118,7 @@ body {
 }
 
 .tools-list {
-    margin-left: 13px;
+    padding: 0 14px 14px;
 }
 
 .spinner {
@@ -270,6 +273,7 @@ body {
     height: 100%;
     min-width: fit-content;
     width: 15%;
+    border-right: 1px solid #E6E6E6;
 }
 
 .tool-item:hover path,
