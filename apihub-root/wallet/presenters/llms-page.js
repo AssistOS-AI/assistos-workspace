@@ -38,7 +38,7 @@ export class llmsPage {
         }
     }
     /* adding event Listeners after the web component has loaded, etc */
-    afterRender(){
+    afterRender() {
 
     }
 }

@@ -14,13 +14,15 @@
 }
 
 html {
-    --default-font:Poppins;
+    --default-font: Poppins;
     font-family: var(--default-font);
 }
+
 html,body,.app-container,.page-content,#app-content {
-    width:100%;
-    height:100%;
+    width: 100%;
+    height: 100%;
 }
+
 body {
     margin: 0;
     overflow: hidden;
@@ -46,8 +48,8 @@ body {
 }
 
 .page-content {
-    width:100%;
-    height:100%;
+    width: 100%;
+    height: 100%;
     display: flex;
     flex-direction: column;
     background: #F8FCFF;
@@ -73,13 +75,13 @@ body {
 }
 
 #page-content {
-    width:85%;
+    width: 85%;
     flex-shrink: 0;
     max-height: 100%;
     display: inline-block;
     overflow: scroll;
     background-color: #F8FCFF;
-    z-index:0;
+    z-index: 0;
 }
 
 .title-wrapper {
@@ -88,10 +90,9 @@ body {
     font-size: 14px;
     font-weight: 500;
     line-height: 20px;
-    display:flex;
-    justify-content:space-between;
-    margin-left:24px;
-
+    display: flex;
+    justify-content: space-between;
+    margin-left: 24px;
 }
 
 .text-container {
@@ -104,35 +105,36 @@ body {
 
 .inner-page {
     display: flex;
-    width:100%;
-    height:100%;
-    flex-direction:row;
+    width: 100%;
+    height: 100%;
+    flex-direction: row;
 }
 
 #app-content {
-    height:100%;
+    height: 100%;
 }
 
 .tools-list {
-    margin-left:13px;
+    margin-left: 13px;
 }
+
 .spinner {
     outline: none;
     background: none;
     position: absolute;
     top: 50%;
-    height:60px;
-    width:60px;
-    margin:0px auto;
+    height: 60px;
+    width: 60px;
+    margin: 0 auto;
     -webkit-animation: rotation .6s infinite linear;
     -moz-animation: rotation .6s infinite linear;
     -o-animation: rotation .6s infinite linear;
     animation: rotation .6s infinite linear;
-    border-left:6px solid rgba(0,174,239,.15);
-    border-right:6px solid rgba(0,174,239,.15);
-    border-bottom:6px solid rgba(0,174,239,.15);
-    border-top:6px solid rgba(0,174,239,.8);
-    border-radius:100%;
+    border-left: 6px solid rgba(0,174,239,.15);
+    border-right: 6px solid rgba(0,174,239,.15);
+    border-bottom: 6px solid rgba(0,174,239,.15);
+    border-top: 6px solid rgba(0,174,239,.8);
+    border-radius: 100%;
 }
 
 /*spinner style*/
@@ -214,51 +216,53 @@ body {
     mix-blend-mode: multiply;
     pointer-events: none;
 }
-#app-header{
-    display:flex;
-    align-items:center;
+
+#app-header {
+    display: flex;
+    align-items: center;
     justify-content: space-between;
-    width:100%;
-    height:69px;
-    background-color:#353535;
+    width: 100%;
+    height: 69px;
+    background-color: #353535;
 }
+
 .tools-title {
     color: #FFFFFF;
     font-family: Poppins;
     font-size: 28px;
     font-weight: 800;
     line-height: 42px;
-    letter-spacing: 0em;
+    letter-spacing: 0;
     text-align: left;
-
 }
+
 .title-wrapper {
     color: #372B2B;
     text-align: left;
     font-size: 14px;
     font-weight: 500;
     line-height: 20px;
-    display:flex;
-    justify-content:space-between;
-    margin-left:24px;
+    display: flex;
+    justify-content: space-between;
+    margin-left: 24px;
 }
 
 .title-wrapper {
-    color:rgba(55, 43, 43, 1);
-    font-weight:500;
-    font-size:14px;
+    color: rgba(55, 43, 43, 1);
+    font-weight: 500;
+    font-size: 14px;
 }
 
 .title-wrapper, .tool-name {
-    color:rgba(55, 43, 43, 1);
-    font-weight:500;
-    font-size:14px;
+    color: rgba(55, 43, 43, 1);
+    font-weight: 500;
+    font-size: 14px;
 }
 
 .title-wrapper {
-    margin-top:13px;
-    margin-bottom:13px;
-    font-weight:500;
+    margin-top: 13px;
+    margin-bottom: 13px;
+    font-weight: 500;
 }
 
 #tools-sidebar {
@@ -268,7 +272,7 @@ body {
 }
 
 .tool-item:hover > .page-logo-section > img,
-#selected-page > .page-logo-section > img{
+#selected-page > .page-logo-section > img {
     mix-blend-mode: multiply;
     pointer-events: none;
 }
