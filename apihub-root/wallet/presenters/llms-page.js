@@ -11,7 +11,7 @@ export class llmsPage {
         this.tableRows = "No data loaded";
         let currentCompany = Company.getInstance();
         setTimeout(async () => {
-            this._llmConfigs = currentCompany.companyState.llms;
+            this._llmConfigs = await currentCompany.companyState.llms;
             this.invalidate();
         }, 0);
         currentCompany.onChange((companyState) => {

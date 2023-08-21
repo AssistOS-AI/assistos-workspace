@@ -9,8 +9,8 @@ export class documentsPage {
         this.button = "Add new document";
         this.tableRows = "No data loaded";
         let currentCompany= Company.getInstance();
-        setTimeout(()=> {
-                this._documentConfigs = currentCompany.companyState.documents;
+        setTimeout(async ()=> {
+                this._documentConfigs = await currentCompany.companyState.documents;
                 this.invalidate();
         },0);
         currentCompany.onChange((companyState) => {

@@ -9,8 +9,8 @@ export class myOrganisationPage {
         this.button = "Add announce";
         // this.tableRows = "No data loaded";
         let currentCompany= Company.getInstance();
-        setTimeout(()=> {
-            this._announceConfigs = currentCompany.companyState.announces;
+        setTimeout(async ()=> {
+            this._announceConfigs = await currentCompany.companyState.announces;
             this.invalidate();
         },0);
         currentCompany.onChange((companyState) => {

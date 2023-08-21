@@ -9,8 +9,8 @@ export class personalitiesPage {
         this.button = "Add Personality";
         this.tableRows = "No data loaded";
         let currentCompany= Company.getInstance();
-        setTimeout(()=>{
-                this._personalityConfigs = currentCompany.companyState.personalities;
+        setTimeout(async ()=>{
+                this._personalityConfigs = await currentCompany.companyState.personalities;
                 this.invalidate();},
             0);
         currentCompany.onChange((companyState) => {
