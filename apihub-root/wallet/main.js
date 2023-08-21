@@ -1,5 +1,6 @@
 import { llmsPage } from "./presenters/llms-page.js";
 import { personalitiesPage } from "./presenters/personalities-page.js";
+import { documentsPage } from "./presenters/documents-page.js";
 import { closeModal, showModal, showActionBox } from "../WebSkel/utils/modal-utils.js";
 import WebSkel from "../WebSkel/webSkel.js";
 
@@ -49,6 +50,7 @@ webSkel.setDomElementForPages(document.querySelector("#page-content"));
 
 webSkel.registerPresenter("llms-page", llmsPage);
 webSkel.registerPresenter("personalities-page", personalitiesPage);
+webSkel.registerPresenter("documents-page", documentsPage);
 
 webSkel.registerAction("closeModal", async (modal, _param) => {
     closeModal(modal);
@@ -60,6 +62,10 @@ webSkel.registerAction("showAddLLMModal", async (...params) => {
 
 webSkel.registerAction("showAddPersonalityModal", async (...params) => {
     await showModal(document.querySelector("body"), "add-personality-modal", {});
+})
+
+webSkel.registerAction("showAddaNewDocumentModal", async (...params) => {
+    await showModal(document.querySelector("body"), "add-new-document-modal", {});
 })
 
 webSkel.registerAction("changePage", async (_target, pageId) => {
@@ -74,10 +80,13 @@ webSkel.registerAction("showActionBox", async (_target, primaryKey) => {
 /* Modal components defined here */
 webSkel.defineComponent("add-llm-modal", "./wallet/components/add-llm-modal/add-llm-modal.html");
 webSkel.defineComponent("add-personality-modal", "./wallet/components/add-personality-modal/add-personality-modal.html");
+webSkel.defineComponent("add-new-document-modal", "./wallet/components/add-new-document-modal/add-new-document-modal.html");
 webSkel.defineComponent("llm-item-renderer","./wallet/components/llm-item-renderer/llm-item-renderer.html");
 webSkel.defineComponent("personality-item-renderer","./wallet/components/personality-item-renderer/personality-item-renderer.html");
+webSkel.defineComponent("document-item-renderer","./wallet/components/document-item-renderer/document-item-renderer.html");
 webSkel.defineComponent("llms-page", "./wallet/pages/llms-page/llms-page.html");
 webSkel.defineComponent("personalities-page", "./wallet/pages/personalities-page/personalities-page.html");
+webSkel.defineComponent("documents-page", "./wallet/pages/documents-page/documents-page.html");
 
 (async ()=>{
     await initWallet();

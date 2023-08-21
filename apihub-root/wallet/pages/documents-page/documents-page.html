@@ -1,10 +1,18 @@
-<!DOCTYPE html>
-<html lang="en">
-<head>
-    <meta charset="UTF-8">
-    <title>Title</title>
-</head>
-<body>
+<link href="./wallet/pages/documents-page/documents-page.css" rel="stylesheet"/>
+<div class="documents-page" data-presenter="documents-page">
+<!--    <div class="title-container">$$title</div>-->
+    <div class="add-button-section">
+        <div class="add-button" data-action = "$$modal">
+            $$button
+        </div>
+    </div>
 
-</body>
-</html>
+    <div class="table">
+        <div class="table-header">
+            <div class="cell cell2">$$name</div>
+            <div class="cell">$$status</div>
+            <div class="action-cell"> </div>
+        </div>
+        $$tableRows
+    </div>
+</div>
