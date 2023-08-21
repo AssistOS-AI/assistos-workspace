@@ -1,6 +1,7 @@
 import { llmsPage } from "./presenters/llms-page.js";
 import { personalitiesPage } from "./presenters/personalities-page.js";
 import { documentsPage } from "./presenters/documents-page.js";
+import { myOrganisationPage } from "./presenters/my-organisation-page.js";
 import { closeModal, showModal, showActionBox } from "../WebSkel/utils/modal-utils.js";
 import WebSkel from "../WebSkel/webSkel.js";
 
@@ -51,6 +52,7 @@ webSkel.setDomElementForPages(document.querySelector("#page-content"));
 webSkel.registerPresenter("llms-page", llmsPage);
 webSkel.registerPresenter("personalities-page", personalitiesPage);
 webSkel.registerPresenter("documents-page", documentsPage);
+webSkel.registerPresenter("my-organisation-page", myOrganisationPage);
 
 webSkel.registerAction("closeModal", async (modal, _param) => {
     closeModal(modal);
@@ -87,6 +89,7 @@ webSkel.defineComponent("document-item-renderer","./wallet/components/document-i
 webSkel.defineComponent("llms-page", "./wallet/pages/llms-page/llms-page.html");
 webSkel.defineComponent("personalities-page", "./wallet/pages/personalities-page/personalities-page.html");
 webSkel.defineComponent("documents-page", "./wallet/pages/documents-page/documents-page.html");
+webSkel.defineComponent("my-organisation-page", "./wallet/pages/my-organisation-page/my-organisation-page.html");
 
 (async ()=>{
     await initWallet();
