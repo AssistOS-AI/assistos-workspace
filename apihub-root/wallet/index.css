@@ -170,6 +170,7 @@ body {
     color: #7F7F7F;
     font-family: Poppins;
     font-size: 16px;
+    margin-left: 10px;
     font-style: normal;
     font-weight: 500;
     line-height: normal;
@@ -271,11 +272,11 @@ body {
     width: 15%;
 }
 
-.tool-item:hover > .page-logo-section > img,
-#selected-page > .page-logo-section > img {
-    mix-blend-mode: multiply;
-    pointer-events: none;
+.tool-item:hover path,
+#selected-page path {
+    fill: #191919;
 }
+
 .action-box {
     background-color: white;
     position: fixed;
@@ -283,7 +284,4 @@ body {
     border-radius: 6px;
     border: 1px solid #dedede;
     display: none;
-}
-.tool-item:hover path {
-    fill:#191919;
 }
