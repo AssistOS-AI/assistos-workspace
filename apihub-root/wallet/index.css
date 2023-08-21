@@ -284,6 +284,6 @@ body {
     border: 1px solid #dedede;
     display: none;
 }
-svg:hover {
+.tool-item:hover path {
     fill:#191919;
 }
