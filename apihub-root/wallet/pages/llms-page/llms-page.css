@@ -9,6 +9,7 @@
 .table {
     margin-right: 10px;
     background-color: white;
+    max-width: 100%;
 }
 
 .add-icon {

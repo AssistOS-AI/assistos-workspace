@@ -56,8 +56,9 @@ body {
     display: flex;
     flex-direction: column;
 }
-#page-content{
-    padding-left:15px;
+
+#page-content {
+    padding-left: 15px;
 }
 
 #app-content {
@@ -112,6 +113,7 @@ body {
     width: 100%;
     height: 100%;
     flex-direction: row;
+    padding-right: 10px;
 }
 
 #app-content {
@@ -119,7 +121,7 @@ body {
 }
 
 .tools-list {
-    padding: 0 14px 14px;
+    padding: 0 37px 0 14px;
 }
 
 .spinner {

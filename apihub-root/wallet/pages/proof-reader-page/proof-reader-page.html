@@ -1,10 +1,62 @@
-<!DOCTYPE html>
-<html lang="en">
-<head>
-    <meta charset="UTF-8">
-    <title>Title</title>
-</head>
-<body>
+<link href="./wallet/pages/proof-reader-page/proof-reader-page.css" rel="stylesheet"/>
+<div class="proof-reader-page" data-presenter="proof-reader-presenter">
+    <div class="proof-reader-content">
+        <div class="ai-prompt">
+            <label for="ai-prompt" class="ai-prompt">AI Prompt</label> <br>
+            <textarea id="ai-prompt" name="ai-prompt" placeholder="Describe a sunny afternoon in Atlanta."></textarea><br>
+        </div>
+        <div class="dropdown-content">
+            <label for="length" class="length">Choose length of the text</label> <br>
+            <select name="length" id="length">
+                <option value="" disabled selected hidden>Select length</option>
+                <option value="100">100 characters</option>
+                <option value="150">150 characters</option>
+                <option value="200">200 characters</option>
+                <option value="250">250 characters</option>
+            </select>
+        </div>
 
-</body>
-</html>
+        <div class="dropdown-content">
+            <label for="personality" class="personality">Choose personality</label> <br>
+            <select name="personality" id="personality">
+                <option value="" disabled selected hidden>Select personality</option>
+                <option value="pers1">Personality 1</option>
+                <option value="pers2">Personality 2</option>
+                <option value="pers3">Personality 3</option>
+                <option value="pers4">Personality 4</option>
+            </select>
+        </div>
+
+        <div class="dropdown-content">
+            <label for="llm" class="llm">Choose LLM</label> <br>
+            <select name="llm" id="llm">
+                <option value="" disabled selected hidden>Select LLM</option>
+                <option value="llm1">LLM 1</option>
+                <option value="llm2">LLM 2</option>
+                <option value="llm3">LLM 3</option>
+                <option value="llm4">LLM 4</option>
+            </select>
+        </div>
+
+        <div class="dropdown-content">
+            <label for="language" class="language">Choose language</label> <br>
+            <select name="language" id="language">
+                <option value="" disabled selected hidden>Select language</option>
+                <option value="language1">Language 1</option>
+                <option value="language2">Language 2</option>
+                <option value="language3">Language 3</option>
+                <option value="language4">Language 4</option>
+            </select>
+        </div>
+
+        <div class="generate-content">
+            <div>
+                <label for="variants" class="variants-label">Variants</label> <br>
+                <input id="variants" type="number" class="number-input" placeholder="1"  min="0" max="99">
+            </div>
+            <p class="generate-btn">
+                Generate
+            </p>
+        </div>
+    </div>
+</div>
