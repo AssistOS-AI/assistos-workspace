@@ -6,3 +6,5 @@
     enabling the possibility to configure the number of workers for apihub
 
     Merge remote-tracking branch 'origin/master'
+    enabling the possibility to configure the number of workers for apihub
+    added component to presenter constructor + call afterRender

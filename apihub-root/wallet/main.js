@@ -3,7 +3,7 @@ import { personalitiesPage } from "./presenters/personalities-page.js";
 import { documentsPage } from "./presenters/documents-page.js";
 import { proofReaderPage } from "./presenters/proof-reader-page.js";
 import { myOrganisationPage } from "./presenters/my-organisation-page.js";
-import { closeModal, showModal, showActionBox } from "../WebSkel/utils/modal-utils.js";
+import { closeModal, showActionBox } from "../WebSkel/utils/modal-utils.js";
 import WebSkel from "../WebSkel/webSkel.js";
 
 const openDSU = require("opendsu");
@@ -59,25 +59,12 @@ webSkel.registerPresenter("my-organisation-page", myOrganisationPage);
 webSkel.registerAction("closeModal", async (modal, _param) => {
     closeModal(modal);
 });
-
-webSkel.registerAction("showAddLLMModal", async (...params) => {
-    await showModal(document.querySelector("body"), "add-llm-modal", {});
-})
-
-webSkel.registerAction("showAddPersonalityModal", async (...params) => {
-    await showModal(document.querySelector("body"), "add-personality-modal", {});
-})
-
-webSkel.registerAction("showAddaNewDocumentModal", async (...params) => {
-    await showModal(document.querySelector("body"), "add-new-document-modal", {});
-})
-
 webSkel.registerAction("changePage", async (_target, pageId,refreshFlag='0') => {
     /* If we are attempting to click the button to the tool page we're currently on, a refreshFlag with the value 0
         will prevent that page refresh from happening and just exit the function
      */
     if(refreshFlag === '0') {
-        if(pageId===window.location.hash.slice(1)) {
+        if(pageId === window.location.hash.slice(1)) {
             return;
         }
     }
@@ -92,6 +79,7 @@ webSkel.registerAction("showActionBox", async (_target, primaryKey) => {
 /* Modal components defined here */
 webSkel.defineComponent("add-llm-modal", "./wallet/components/add-llm-modal/add-llm-modal.html");
 webSkel.defineComponent("add-personality-modal", "./wallet/components/add-personality-modal/add-personality-modal.html");
+webSkel.defineComponent("add-announce-modal", "./wallet/components/add-announce-modal/add-announce-modal.html");
 webSkel.defineComponent("add-new-document-modal", "./wallet/components/add-new-document-modal/add-new-document-modal.html");
 webSkel.defineComponent("llm-item-renderer","./wallet/components/llm-item-renderer/llm-item-renderer.html");
 webSkel.defineComponent("personality-item-renderer","./wallet/components/personality-item-renderer/personality-item-renderer.html");

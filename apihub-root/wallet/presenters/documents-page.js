@@ -1,4 +1,5 @@
 import { Company } from "../core/company.js";
+import { showModal } from "../../WebSkel/utils/modal-utils.js";
 
 export class documentsPage {
     constructor() {
@@ -35,8 +36,12 @@ export class documentsPage {
             this.tableRows=`<div> No Data Currently </div>`;
         }
     }
+
     /* adding event Listeners after the web component has loaded, etc */
     afterRender() {
-
+        let modalSection = document.querySelector("[data-local-action]");
+        modalSection.addEventListener("click", async (event) => {
+            await showModal(document.querySelector("body"), "add-new-document-modal", {});
+        });
     }
 }

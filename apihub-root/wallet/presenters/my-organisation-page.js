@@ -1,10 +1,8 @@
 import { Company } from "../core/company.js";
+import { showModal } from "../../WebSkel/utils/modal-utils.js";
 
 export class myOrganisationPage {
     constructor() {
-        // this.title = "My Organisation";
-        // this.name = "Name";
-        // this.status = "Status";
         this.modal = "showAddAnnounceModal";
         this.button = "Add announce";
         // this.tableRows = "No data loaded";
@@ -31,6 +29,9 @@ export class myOrganisationPage {
     }
     /* adding event Listeners after the web component has loaded, etc */
     afterRender() {
-
+        let modalSection = document.querySelector("[data-local-action]");
+        modalSection.addEventListener("click", async (event) => {
+            await showModal(document.querySelector("body"), "add-announce-modal", {});
+        });
     }
 }
