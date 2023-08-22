@@ -1,13 +1,32 @@
 <link href="./wallet/pages/doc-page-by-title/doc-page-by-title.css" rel="stylesheet"/>
 <div class="doc-page-by-title" data-presenter="doc-page-by-title">
-  <div class="document-path">
-
-  </div>
   <div class="document-content">
+    <div class="document-path">
+      $$docPath
+    </div>
     <div class="document-title">
       $$title
-      title
     </div>
+    <div class="abstract-section">
+      <div class="abstract-subtitle">
+        Abstract
+      </div>
+      <p class="abstract-content">
+        $$abstractText
+      </p>
+    </div>
+    $$chapters
 
+    <br>
+    <br>
+    <br>
+  </div>
+  <div class="right-sidebar">
+    <div class="item-list">
+      <div class="sidebar-item">Edit Title</div>
+      <div class="sidebar-item">Edit Abstract</div>
+      <div class="sidebar-item">Brainstorming</div>
+      <div class="sidebar-item">Settings</div>
+    </div>
   </div>
 </div>
