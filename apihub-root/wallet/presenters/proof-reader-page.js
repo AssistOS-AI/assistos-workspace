@@ -1,14 +1,13 @@
 import { Company } from "../core/company.js";
-import { showModal } from "../../WebSkel/utils/modal-utils.js";
 
-export class personalitiesPage {
+export class proofReaderPage {
     constructor() {
-        this.title = "Personalities";
-        this.shortname = "Shortname";
-        this.aiPrompt = "AIPrompt";
+        // this.title = "Personalities";
+        // this.shortname = "Shortname";
+        // this.aiPrompt = "AIPrompt";
         this.modal = "showAddPersonalityModal";
         this.button = "Add Personality";
-        this.tableRows = "No data loaded";
+        // this.tableRows = "No data loaded";
         let currentCompany= Company.getInstance();
         setTimeout(async ()=>{
                 this._personalityConfigs = await currentCompany.companyState.personalities;
@@ -31,7 +30,7 @@ export class personalitiesPage {
         this.tableRows="";
         if(this._personalityConfigs) {
             this._personalityConfigs.forEach((item) => {
-                this.tableRows += `<personality-item-renderer data-shortname="${item.shortname}" data-ai-prompt="${item.aiPrompt}" data-primary-key="${item.primaryKey}"></personality-item-renderer>`;
+                this.tableRows += `<personality-item-renderer data-shortname=${item.shortname} data-ai-prompt="${item.aiPrompt}" data-primary-key=${item.primaryKey}"></personality-item-renderer>`;
             });
         } else {
             this.tableRows=`<div> No Data Currently </div>`;
@@ -39,9 +38,6 @@ export class personalitiesPage {
     }
     /* adding event Listeners after the web component has loaded, etc */
     afterRender(){
-        let modalSection = document.querySelector("[data-local-action]");
-        modalSection.addEventListener("click", async (event) => {
-            await showModal(document.querySelector("body"), "add-personality-modal", {});
-        });
+
     }
 }

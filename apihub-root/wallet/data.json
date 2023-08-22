@@ -45,18 +45,18 @@
     "documents": [
         {
             "primaryKey" : "dkey-1",
-            "name" : "The Alchemist",
-            "status" : "In Progress"
+            "name" : "The Alchemist"
         },
         {
             "primaryKey" : "dkey-2",
-            "name" : "Untamed",
-            "status" : "Done"
+            "name" : "Untamed"
         },
         {
             "primaryKey" : "dkey-3",
-            "name" : "\"Sapiens: A Brief History of Humankind\" by Yuval Noah Harari",
-            "status" : "In Progress"
+            "name" : "\"Sapiens: A Brief History of Humankind\" by Yuval Noah Harari"
         }
+    ],
+    "announces": [
+
     ]
 }
