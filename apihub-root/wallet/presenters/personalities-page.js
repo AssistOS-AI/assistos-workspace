@@ -30,7 +30,7 @@ export class personalitiesPage {
         this.tableRows="";
         if(this._personalityConfigs) {
             this._personalityConfigs.forEach((item) => {
-                this.tableRows += `<personality-item-renderer data-shortname=${item.shortname} data-ai-prompt="${item.aiPrompt}" data-primary-key=${item.primaryKey}"></personality-item-renderer>`;
+                this.tableRows += `<personality-item-renderer data-shortname="${item.shortname}" data-ai-prompt="${item.aiPrompt}" data-primary-key="${item.primaryKey}"></personality-item-renderer>`;
             });
         } else {
             this.tableRows=`<div> No Data Currently </div>`;

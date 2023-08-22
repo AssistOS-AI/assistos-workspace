@@ -83,8 +83,8 @@ webSkel.registerAction("changePage", async (_target, pageId,refreshFlag='0') => 
     changeSelectedPageFromSidebar(pageId);
     await webSkel.changeToDynamicPage(pageId);
 })
-webSkel.registerAction("showActionBox", async (_target, primaryKey) => {
-    showActionBox(primaryKey);
+webSkel.registerAction("showActionBox", async (_target, primaryKey,componentName,insertionMode) => {
+    showActionBox(_target,primaryKey,componentName,insertionMode);
 })
 
 /* Modal components defined here */
@@ -94,10 +94,13 @@ webSkel.defineComponent("add-new-document-modal", "./wallet/components/add-new-d
 webSkel.defineComponent("llm-item-renderer","./wallet/components/llm-item-renderer/llm-item-renderer.html");
 webSkel.defineComponent("personality-item-renderer","./wallet/components/personality-item-renderer/personality-item-renderer.html");
 webSkel.defineComponent("document-item-renderer","./wallet/components/document-item-renderer/document-item-renderer.html");
+webSkel.defineComponent("action-box", "./wallet/components/action-box/action-box.html");
+
 webSkel.defineComponent("llms-page", "./wallet/pages/llms-page/llms-page.html");
 webSkel.defineComponent("personalities-page", "./wallet/pages/personalities-page/personalities-page.html");
 webSkel.defineComponent("documents-page", "./wallet/pages/documents-page/documents-page.html");
 webSkel.defineComponent("my-organisation-page", "./wallet/pages/my-organisation-page/my-organisation-page.html");
+
 
 (async ()=>{
     await initWallet();

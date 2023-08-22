@@ -30,7 +30,7 @@ export class documentsPage {
         this.tableRows="";
         if(this._documentConfigs) {
             this._documentConfigs.forEach((item) => {
-                this.tableRows += `<document-item-renderer data-name='${item.name}' data-status="${item.status}" data-primary-key=${item.primaryKey}"></document-item-renderer>`;
+                this.tableRows += `<document-item-renderer data-name="${item.name}" data-status="${item.status}" data-primary-key="${item.primaryKey}"></document-item-renderer>`;
             });
         } else {
             this.tableRows=`<div> No Data Currently </div>`;

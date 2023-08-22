@@ -18,20 +18,13 @@ export class llmsPage {
             this._llmConfigs = companyState.llms;
             this.invalidate();
         });
-        document.addEventListener("click", (event) => {
-            let showBox = document.querySelectorAll("div.action-box");
-            showBox.forEach((actionWindow) => {
-                if(actionWindow.style.display === "block")
-                    actionWindow.style.display = "none";
-            });
-        }, true);
     }
 
     beforeRender() {
         this.tableRows="";
         if(this._llmConfigs) {
             this._llmConfigs.forEach((item) => {
-                this.tableRows += `<llm-item-renderer data-name="${item.name}" data-key="${item.key}" data-url=${item.url} data-primary-key=${item.primaryKey}"></llm-item-renderer>`;
+                this.tableRows += `<llm-item-renderer data-name="${item.name}" data-key="${item.key}" data-url="${item.url}" data-primary-key="${item.primaryKey}"></llm-item-renderer>`;
             });
         } else {
             this.tableRows=`<div> No Data Currently </div>`;

@@ -277,15 +277,6 @@ body {
     fill: #191919;
 }
 
-.action-box {
-    background-color: white;
-    position: fixed;
-    margin-top: 40px;
-    border-radius: 6px;
-    border: 1px solid #dedede;
-    display: none;
-}
-
 .add-button {
     background-color: #fff;
     display: inline-flex;
