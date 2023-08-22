@@ -1,0 +1,20 @@
+.chapter-title {
+    color: #252525;
+    font-family: Poppins;
+    font-size: 18px;
+    font-style: normal;
+    font-weight: 600;
+    line-height: normal;
+}
+
+.arrow {
+    cursor: pointer;
+}
+
+.no-chapter-content {
+    display: none;
+}
+
+.rotate {
+    transform: rotate(-90deg);
+}
