@@ -18,11 +18,8 @@ html {
     font-family: var(--default-font);
 }
 
-html,body,
-.app-container,
-.page-content,
-#app-content {
-    width: 100%;
+html, body,
+.app-container {
     height: 100%;
 }
 
@@ -69,17 +66,6 @@ body {
     flex-direction: column;
 }
 
-#menu-sidebar {
-    width: 15.5%;
-    height: 100%;
-    flex-shrink: 0;
-    background: rgba(246, 248, 248, 1);
-    display: inline-block;
-    font-family: Poppins !important; 
-    font-style: normal !important;
-    line-height: normal !important;
-}
-
 #page-content {
     width: 85%;
     flex-shrink: 0;
@@ -121,7 +107,7 @@ body {
 }
 
 .tools-list {
-    padding: 0 37px 0 14px;
+    padding: 0 30px 0 14px;
 }
 
 .spinner {
