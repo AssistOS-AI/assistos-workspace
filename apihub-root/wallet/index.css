@@ -304,3 +304,36 @@ body {
     border: 1px solid #353535;
     max-width: max-content;
 }
+
+.organization-dropbox {
+    margin-right: 20px;
+    max-width: fit-content;
+    /*height: auto;*/
+    /*border-radius: 5px;*/
+    /*position: relative;*/
+    /*z-index: 0;*/
+    /*overflow: hidden;*/
+}
+
+.organization-dropbox select {
+    background-color: #353535;
+    color: #FFFFFF;
+    font-family: Poppins;
+    font-size: 20px;
+    font-style: normal;
+    font-weight: 500;
+    line-height: normal;
+    outline: none;
+    border: none;
+
+    appearance: none;
+    background-image: url("./assets/icons/arrow.svg");
+    background-repeat: no-repeat;
+    background-position: right 1rem center;
+    background-size: 0.6em;
+}
+
+#organization * {
+    border-radius: 15px;
+    background-color: red;
+}
