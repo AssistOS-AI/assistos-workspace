@@ -43,8 +43,6 @@ export class docPageByTitle {
         } else {
             this.chapters=`<div> No Data Currently </div>`;
         }
-
-
     }
 
     /* adding event Listeners after the web component has loaded, etc */
@@ -64,6 +62,5 @@ export class docPageByTitle {
                 arrow.classList.toggle('rotate');
             });
         });
-
     }
 }
