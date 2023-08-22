@@ -1,6 +1,7 @@
 import { llmsPage } from "./presenters/llms-page.js";
 import { personalitiesPage } from "./presenters/personalities-page.js";
 import { documentsPage } from "./presenters/documents-page.js";
+import { docPageByTitle } from "./presenters/doc-page-by-title.js";
 import { proofReaderPage } from "./presenters/proof-reader-page.js";
 import { myOrganisationPage } from "./presenters/my-organisation-page.js";
 import { closeModal, showActionBox } from "../WebSkel/utils/modal-utils.js";
@@ -40,7 +41,7 @@ async function initWallet() {
 
     let url = window.location.hash;
     if(url === "") {
-        url = "#my-organisation-page";
+        url = "#documents-page";
     }
     changeSelectedPageFromSidebar(url);
     webSkel.changeToDynamicPage(url.slice(1));
@@ -51,6 +52,7 @@ window.webSkel = new WebSkel();
 webSkel.setDomElementForPages(document.querySelector("#page-content"));
 
 webSkel.registerPresenter("llms-page", llmsPage);
+webSkel.registerPresenter("doc-page-by-title", docPageByTitle);
 webSkel.registerPresenter("personalities-page", personalitiesPage);
 webSkel.registerPresenter("documents-page", documentsPage);
 webSkel.registerPresenter("proof-reader-page", proofReaderPage);
@@ -59,6 +61,7 @@ webSkel.registerPresenter("my-organisation-page", myOrganisationPage);
 webSkel.registerAction("closeModal", async (modal, _param) => {
     closeModal(modal);
 });
+
 webSkel.registerAction("changePage", async (_target, pageId,refreshFlag='0') => {
     /* If we are attempting to click the button to the tool page we're currently on, a refreshFlag with the value 0
         will prevent that page refresh from happening and just exit the function
@@ -87,6 +90,7 @@ webSkel.defineComponent("document-item-renderer","./wallet/components/document-i
 webSkel.defineComponent("llms-page", "./wallet/pages/llms-page/llms-page.html");
 webSkel.defineComponent("personalities-page", "./wallet/pages/personalities-page/personalities-page.html");
 webSkel.defineComponent("documents-page", "./wallet/pages/documents-page/documents-page.html");
+webSkel.defineComponent("doc-page-by-title", "./wallet/pages/doc-page-by-title/doc-page-by-title.html");
 webSkel.defineComponent("proof-reader-page", "./wallet/pages/proof-reader-page/proof-reader-page.html");
 webSkel.defineComponent("my-organisation-page", "./wallet/pages/my-organisation-page/my-organisation-page.html");
 

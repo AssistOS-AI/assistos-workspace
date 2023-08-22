@@ -1,7 +1,7 @@
 import { Company } from "../core/company.js";
 import { showModal } from "../../WebSkel/utils/modal-utils.js";
 
-export class documentsPage {
+export class docPageByTitle {
     constructor() {
         // this.title = "Documents";
         this.name = "Name";
@@ -10,11 +10,11 @@ export class documentsPage {
         this.tableRows = "No data loaded";
         let currentCompany= Company.getInstance();
         setTimeout(async ()=> {
-                this._documentConfigs = await currentCompany.companyState.documents;
-                this.invalidate();
+            this._documentConfigs = await currentCompany.companyState.documents;
+            this.invalidate();
         },0);
         currentCompany.onChange((companyState) => {
-            this._documentConfigs = companyState.documents;
+            // this._documentConfigs = companyState.documents;
             this.invalidate();
         });
         document.addEventListener("click", (event) => {
@@ -39,15 +39,15 @@ export class documentsPage {
 
     /* adding event Listeners after the web component has loaded, etc */
     afterRender() {
-        let modalSection = document.querySelector("[data-local-action='showAddNewDocumentModal']");
-        modalSection.addEventListener("click", async (event) => {
-            await showModal(document.querySelector("body"), "add-new-document-modal", {});
-        });
-        let editButton = document.querySelector("[data-local-action='editAction']");
-        console.log(editButton);
-        editButton.addEventListener("click", async (event) => {
-            // await showModal(document.querySelector("body"), "add-new-document-modal", {});
-            webSkel.changeToDynamicPage("doc-page-by-title");
-        });
+        // let modalSection = document.querySelector("[data-local-action='showAddNewDocumentModal']");
+        // modalSection.addEventListener("click", async (event) => {
+        //     await showModal(document.querySelector("body"), "add-new-document-modal", {});
+        // });
+        // let editButton = document.querySelector("[data-local-action='editAction']");
+        // console.log(editButton);
+        // editButton.addEventListener("click", async (event) => {
+        //     // await showModal(document.querySelector("body"), "add-new-document-modal", {});
+        //     webSkel.changeToDynamicPage("doc-page-by-title");
+        // });
     }
 }
