@@ -31,9 +31,6 @@ export class documentsPage {
     }
     /* adding event Listeners after the web component has loaded, etc */
     afterRender() {
-        /*let modalSection = document.querySelector("[data-local-action='showAddNewDocumentModal']");
-        modalSection.addEventListener("click", async (event) => {
-            await showModal(document.querySelector("body"), "add-new-document-modal", {});
-        });
+
     }
 }

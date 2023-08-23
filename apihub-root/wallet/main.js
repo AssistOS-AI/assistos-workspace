@@ -8,8 +8,8 @@ import { closeModal, showActionBox } from "../WebSkel/utils/modal-utils.js";
 import WebSkel from "../WebSkel/webSkel.js";
 
 const openDSU = require("opendsu");
-window.webSkel = new WebSkel();
 
+window.webSkel = new WebSkel();
 async function initEnclaveClient() {
     const w3cDID = openDSU.loadAPI("w3cdid");
 
@@ -55,7 +55,7 @@ async function initWallet() {
         }
         await webSkel.changeToStaticPage(url);
     } else {
-        changeSelectedPageFromSidebar(url.slice(1));
+        changeSelectedPageFromSidebar(url);
         await webSkel.changeToDynamicPage(url.slice(1));
     }
 }
@@ -79,8 +79,6 @@ function changeSelectedPageFromSidebar(url) {
         }
     });
 }
-
-window.webSkel = new WebSkel();
 
 webSkel.setDomElementForPages(document.querySelector("#page-content"));
 
@@ -112,10 +110,10 @@ webSkel.registerAction("changePage", async (_target, pageId,refreshFlag='0') => 
 webSkel.registerAction("showActionBox", async (_target, primaryKey,componentName,insertionMode) => {
     await showActionBox(_target, primaryKey, componentName, insertionMode);
     let editButton = document.querySelector("[data-local-action='editAction']");
-        editButton.addEventListener("click", async (event) => {
-            await webSkel.changeToDynamicPage("doc-page-by-title");
-        });
-
+    editButton.addEventListener("click", async (event) => {
+        console.log(editButton.parentNode.parentNode.id);
+        await webSkel.changeToStaticPage(`documents/${editButton.parentNode.parentNode.id}`);
+    });
 })
 
 /* Modal components defined here */
@@ -141,3 +139,12 @@ webSkel.defineComponent("my-organisation-page", "./wallet/pages/my-organisation-
     await initEnclaveClient();
 })();
 
+function urlForPage(url) {
+    let count = 0;
+    for (let i = 0; i < url.length; i++) {
+        if (url[i] === '/') {
+            count++;
+        }
+    }
+    return !(count > 2 || (count === 2 && url[url.length - 1] !== '/'));
+}
