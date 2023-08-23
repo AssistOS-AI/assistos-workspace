@@ -1,6 +1,5 @@
 import { Company } from "../core/company.js";
 import { showModal } from "../../WebSkel/utils/modal-utils.js";
-import { setSelectedDocument } from "../main.js";
 
 export class documentsPage {
     constructor() {

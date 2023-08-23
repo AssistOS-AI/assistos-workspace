@@ -47,6 +47,26 @@ async function initWallet() {
     changeSelectedPageFromSidebar(url);
     webSkel.changeToDynamicPage(url.slice(1));
 }
+function changeSelectedPageFromSidebar(url) {
+    let element = document.getElementById('selected-page');
+    if (element) {
+        element.removeAttribute('id');
+    }
+    let divs = document.querySelectorAll('div[data-action]');
+
+    let targetAction = url;
+    if(targetAction.startsWith("#")) {
+        targetAction = url.slice(1);
+    }
+    divs.forEach(div => {
+        let dataAction = div.getAttribute('data-action');
+
+        if (dataAction.includes(targetAction)) {
+            console.log(`Element with data-action '${targetAction}' found.`);
+            div.setAttribute('id', 'selected-page');
+        }
+    });
+}
 
 window.webSkel = new WebSkel();
 
@@ -78,7 +98,12 @@ webSkel.registerAction("changePage", async (_target, pageId,refreshFlag='0') => 
 })
 
 webSkel.registerAction("showActionBox", async (_target, primaryKey,componentName,insertionMode) => {
-    showActionBox(_target, primaryKey, componentName, insertionMode);
+    await showActionBox(_target, primaryKey, componentName, insertionMode);
+    let editButton = document.querySelector("[data-local-action='editAction']");
+        editButton.addEventListener("click", async (event) => {
+            await webSkel.changeToDynamicPage("doc-page-by-title");
+        });
+
 })
 
 /* Modal components defined here */
@@ -104,29 +129,3 @@ webSkel.defineComponent("my-organisation-page", "./wallet/pages/my-organisation-
     await initEnclaveClient();
 })();
 
-function changeSelectedPageFromSidebar(url) {
-    let element = document.getElementById('selected-page');
-    if (element) {
-        element.removeAttribute('id');
-    }
-    let divs = document.querySelectorAll('div[data-action]');
-
-    let targetAction = url;
-    if(targetAction.startsWith("#")) {
-        targetAction = url.slice(1);
-    }
-    divs.forEach(div => {
-        let dataAction = div.getAttribute('data-action');
-
-        if (dataAction.includes(targetAction)) {
-            console.log(`Element with data-action '${targetAction}' found.`);
-            div.setAttribute('id', 'selected-page');
-        }
-    });
-}
-
-export function setSelectedDocument(keyOfSelectedDocument) {
-    window.selectedDocument = keyOfSelectedDocument;
-}
-
-window.selectedDocument="dkey-1";
