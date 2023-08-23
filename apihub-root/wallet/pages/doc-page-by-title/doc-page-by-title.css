@@ -17,7 +17,6 @@
 
 .abstract-content {
     color: #252525;
-    text-align: justify;
     font-size: 16px;
     font-style: normal;
     font-weight: 400;
@@ -31,11 +30,11 @@
 
 .right-sidebar {
     height: 100%;
-    width: 15%;
+    width: 12em;
 }
 
 .document-content {
-    width: 80%;
+    margin-right: 12em;
     padding-right: 10px;
 }
 
@@ -46,6 +45,13 @@
     font-weight: 500;
     line-height: normal;
     padding: 10px;
+    margin-right: 10px;
+}
+
+.sidebar-item:hover {
+    border-radius: 5px;
+    background: #EBEBEB;
+    color: #191919;
 }
 
 .item-list {
@@ -59,4 +65,5 @@
     right: 0;
     margin-left: 10px;
     border-left: 1px solid #E6E6E6;
+    margin-top: 10px;
 }

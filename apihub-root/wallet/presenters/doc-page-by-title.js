@@ -58,7 +58,7 @@ export class docPageByTitle {
             const content = chapter.querySelector('.chapter-content');
 
             arrow.addEventListener('click', () => {
-                content.classList.toggle('no-chapter-content');
+                content.classList.toggle('hidden');
                 arrow.classList.toggle('rotate');
             });
         });
