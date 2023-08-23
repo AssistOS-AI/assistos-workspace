@@ -1,5 +1,6 @@
 import { Company } from "../core/company.js";
 import { showModal } from "../../WebSkel/utils/modal-utils.js";
+import { setSelectedDocument } from "../main.js";
 
 export class documentsPage {
     constructor() {
@@ -36,9 +37,8 @@ export class documentsPage {
             await showModal(document.querySelector("body"), "add-new-document-modal", {});
         });
         let editButton = document.querySelector("[data-local-action='editAction']");
-        console.log(editButton);
         editButton.addEventListener("click", async (event) => {
-            // await showModal(document.querySelector("body"), "add-new-document-modal", {});
+            setSelectedDocument(editButton.parentNode.id);
             webSkel.changeToDynamicPage("doc-page-by-title");
         });*/
     }

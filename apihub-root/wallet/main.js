@@ -23,6 +23,7 @@ async function initEnclaveClient() {
         console.log("Error at initialising remote client", err);
     }
 }
+
 async function initWallet() {
     if (rawDossier) {
         await $$.promisify(rawDossier.writeFile, rawDossier)("/environment.json", JSON.stringify({
@@ -75,8 +76,9 @@ webSkel.registerAction("changePage", async (_target, pageId,refreshFlag='0') => 
     changeSelectedPageFromSidebar(pageId);
     await webSkel.changeToDynamicPage(pageId);
 })
+
 webSkel.registerAction("showActionBox", async (_target, primaryKey,componentName,insertionMode) => {
-    showActionBox(_target,primaryKey,componentName,insertionMode);
+    showActionBox(_target, primaryKey, componentName, insertionMode);
 })
 
 /* Modal components defined here */
@@ -85,6 +87,7 @@ webSkel.defineComponent("add-personality-modal", "./wallet/components/add-person
 webSkel.defineComponent("add-announce-modal", "./wallet/components/add-announce-modal/add-announce-modal.html");
 webSkel.defineComponent("add-new-document-modal", "./wallet/components/add-new-document-modal/add-new-document-modal.html");
 webSkel.defineComponent("llm-item-renderer","./wallet/components/llm-item-renderer/llm-item-renderer.html");
+webSkel.defineComponent("new-chapter", "./wallet/components/new-chapter/new-chapter.html");
 webSkel.defineComponent("personality-item-renderer","./wallet/components/personality-item-renderer/personality-item-renderer.html");
 webSkel.defineComponent("document-item-renderer","./wallet/components/document-item-renderer/document-item-renderer.html");
 webSkel.defineComponent("action-box", "./wallet/components/action-box/action-box.html");
@@ -95,7 +98,6 @@ webSkel.defineComponent("documents-page", "./wallet/pages/documents-page/documen
 webSkel.defineComponent("doc-page-by-title", "./wallet/pages/doc-page-by-title/doc-page-by-title.html");
 webSkel.defineComponent("proof-reader-page", "./wallet/pages/proof-reader-page/proof-reader-page.html");
 webSkel.defineComponent("my-organisation-page", "./wallet/pages/my-organisation-page/my-organisation-page.html");
-
 
 (async ()=>{
     await initWallet();
@@ -122,3 +124,9 @@ function changeSelectedPageFromSidebar(url) {
         }
     });
 }
+
+export function setSelectedDocument(keyOfSelectedDocument) {
+    window.selectedDocument = keyOfSelectedDocument;
+}
+
+window.selectedDocument="dkey-1";

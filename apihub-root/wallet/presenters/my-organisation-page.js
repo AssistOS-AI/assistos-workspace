@@ -5,7 +5,6 @@ export class myOrganisationPage {
     constructor() {
         this.modal = "showAddAnnounceModal";
         this.button = "Add announce";
-        // this.tableRows = "No data loaded";
         let currentCompany= Company.getInstance();
         setTimeout(async ()=> {
             this._announceConfigs = await currentCompany.companyState.announces;
@@ -18,14 +17,7 @@ export class myOrganisationPage {
     }
 
     beforeRender() {
-        // this.tableRows="";
-        // if(this._documentConfigs) {
-        //     this._documentConfigs.forEach((item) => {
-        //         this.tableRows += `<document-item-renderer data-name='${item.name}' data-status="${item.status}" data-primary-key=${item.primaryKey}"></document-item-renderer>`;
-        //     });
-        // } else {
-        //     this.tableRows=`<div> No Data Currently </div>`;
-        // }
+
     }
     /* adding event Listeners after the web component has loaded, etc */
     afterRender() {
