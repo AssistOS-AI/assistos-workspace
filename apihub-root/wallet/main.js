@@ -43,7 +43,6 @@ async function initWallet() {
     }
 
     let url = window.location.hash;
-    console.log(`i m here ith url=${url}`);
     if(url === "") {
         url = "#documents-page";
     } else if(!urlForPage(url)) {
@@ -60,6 +59,28 @@ async function initWallet() {
         await webSkel.changeToDynamicPage(url.slice(1));
     }
 }
+function changeSelectedPageFromSidebar(url) {
+    let element = document.getElementById('selected-page');
+    if (element) {
+        element.removeAttribute('id');
+    }
+    let divs = document.querySelectorAll('div[data-action]');
+
+    let targetAction = url;
+    if(targetAction.startsWith("#")) {
+        targetAction = url.slice(1);
+    }
+    divs.forEach(div => {
+        let dataAction = div.getAttribute('data-action');
+
+        if (dataAction.includes(targetAction)) {
+            console.log(`Element with data-action '${targetAction}' found.`);
+            div.setAttribute('id', 'selected-page');
+        }
+    });
+}
+
+window.webSkel = new WebSkel();
 
 webSkel.setDomElementForPages(document.querySelector("#page-content"));
 
@@ -89,14 +110,12 @@ webSkel.registerAction("changePage", async (_target, pageId,refreshFlag='0') => 
 })
 
 webSkel.registerAction("showActionBox", async (_target, primaryKey,componentName,insertionMode) => {
-    showActionBox(_target, primaryKey, componentName, insertionMode);
+    await showActionBox(_target, primaryKey, componentName, insertionMode);
     let editButton = document.querySelector("[data-local-action='editAction']");
-    editButton.addEventListener("click", async (event) => {
-        window.selectedDocument = editButton.parentNode.parentNode.id;
+        editButton.addEventListener("click", async (event) => {
+            await webSkel.changeToDynamicPage("doc-page-by-title");
+        });
 
-        // webSkel.changeToDynamicPage("doc-page-by-title");
-        webSkel.changeToStaticPage(`documents/${window.selectedDocument}`);
-    });
 })
 
 /* Modal components defined here */
@@ -122,36 +141,3 @@ webSkel.defineComponent("my-organisation-page", "./wallet/pages/my-organisation-
     await initEnclaveClient();
 })();
 
-function changeSelectedPageFromSidebar(url) {
-    let element = document.getElementById('selected-page');
-    if (element) {
-        element.removeAttribute('id');
-    }
-    let divs = document.querySelectorAll('div[data-action]');
-
-    let targetAction = url;
-
-    if(targetAction.startsWith("#")) {
-        targetAction = url.slice(1);
-    }
-    divs.forEach(div => {
-        let dataAction = div.getAttribute('data-action');
-
-        if (dataAction.includes(targetAction)) {
-            console.log(`Element with data-action '${targetAction}' found.`);
-            div.setAttribute('id', 'selected-page');
-        }
-    });
-}
-
-function urlForPage(url) {
-    let count = 0;
-    for (let i = 0; i < url.length; i++) {
-        if (url[i] === '/') {
-            count++;
-        }
-    }
-    return !(count > 2 || (count === 2 && url[url.length - 1] !== '/'));
-}
-
-window.selectedDocument="dkey-1";
