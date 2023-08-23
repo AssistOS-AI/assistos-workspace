@@ -10,20 +10,13 @@ export class documentsPage {
         this.tableRows = "No data loaded";
         let currentCompany= Company.getInstance();
         setTimeout(async ()=> {
-                this._documentConfigs = await currentCompany.companyState.documents;
+                this._documentConfigs = currentCompany.companyState.documents;
                 this.invalidate();
         },0);
         currentCompany.onChange((companyState) => {
             this._documentConfigs = companyState.documents;
             this.invalidate();
         });
-        document.addEventListener("click", (event) => {
-            let showBox = document.querySelectorAll("div.action-box");
-            showBox.forEach((actionWindow) => {
-                if(actionWindow.style.display === "block")
-                    actionWindow.style.display = "none";
-            });
-        }, true);
     }
 
     beforeRender() {
@@ -38,7 +31,7 @@ export class documentsPage {
     }
     /* adding event Listeners after the web component has loaded, etc */
     afterRender() {
-        let modalSection = document.querySelector("[data-local-action='showAddNewDocumentModal']");
+        /*let modalSection = document.querySelector("[data-local-action='showAddNewDocumentModal']");
         modalSection.addEventListener("click", async (event) => {
             await showModal(document.querySelector("body"), "add-new-document-modal", {});
         });
@@ -47,6 +40,6 @@ export class documentsPage {
         editButton.addEventListener("click", async (event) => {
             // await showModal(document.querySelector("body"), "add-new-document-modal", {});
             webSkel.changeToDynamicPage("doc-page-by-title");
-        });
+        });*/
     }
 }

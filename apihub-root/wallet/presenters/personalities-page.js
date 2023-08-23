@@ -18,13 +18,6 @@ export class personalitiesPage {
             this._personalityConfigs = companyState.personalities;
             this.invalidate();
         });
-        document.addEventListener("click", (event) => {
-            let showBox = document.querySelectorAll("div.action-box");
-            showBox.forEach((actionWindow) => {
-                if(actionWindow.style.display === "block")
-                    actionWindow.style.display = "none";
-            });
-        }, true);
     }
 
     beforeRender() {
