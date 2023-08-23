@@ -8,6 +8,8 @@ import { closeModal, showActionBox } from "../WebSkel/utils/modal-utils.js";
 import WebSkel from "../WebSkel/webSkel.js";
 
 const openDSU = require("opendsu");
+window.webSkel = new WebSkel();
+
 async function initEnclaveClient() {
     const w3cDID = openDSU.loadAPI("w3cdid");
 
@@ -41,14 +43,23 @@ async function initWallet() {
     }
 
     let url = window.location.hash;
+    console.log(`i m here ith url=${url}`);
     if(url === "") {
         url = "#documents-page";
+    } else if(!urlForPage(url)) {
+        console.log(`i m here ith url=${url}`);
+        switch(url.split('/')[1]) {
+            case "documents-page":
+                webSkel.currentDocumentId = "svd:document:" + url.split('/')[2];
+                changeSelectedPageFromSidebar("documents-page");
+                break;
+        }
+        await webSkel.changeToStaticPage(url);
+    } else {
+        changeSelectedPageFromSidebar(url.slice(1));
+        await webSkel.changeToDynamicPage(url.slice(1));
     }
-    changeSelectedPageFromSidebar(url);
-    webSkel.changeToDynamicPage(url.slice(1));
 }
-
-window.webSkel = new WebSkel();
 
 webSkel.setDomElementForPages(document.querySelector("#page-content"));
 
@@ -79,6 +90,13 @@ webSkel.registerAction("changePage", async (_target, pageId,refreshFlag='0') => 
 
 webSkel.registerAction("showActionBox", async (_target, primaryKey,componentName,insertionMode) => {
     showActionBox(_target, primaryKey, componentName, insertionMode);
+    let editButton = document.querySelector("[data-local-action='editAction']");
+    editButton.addEventListener("click", async (event) => {
+        window.selectedDocument = editButton.parentNode.parentNode.id;
+
+        // webSkel.changeToDynamicPage("doc-page-by-title");
+        webSkel.changeToStaticPage(`documents/${window.selectedDocument}`);
+    });
 })
 
 /* Modal components defined here */
@@ -99,7 +117,7 @@ webSkel.defineComponent("doc-page-by-title", "./wallet/pages/doc-page-by-title/d
 webSkel.defineComponent("proof-reader-page", "./wallet/pages/proof-reader-page/proof-reader-page.html");
 webSkel.defineComponent("my-organisation-page", "./wallet/pages/my-organisation-page/my-organisation-page.html");
 
-(async ()=>{
+(async ()=> {
     await initWallet();
     await initEnclaveClient();
 })();
@@ -112,6 +130,7 @@ function changeSelectedPageFromSidebar(url) {
     let divs = document.querySelectorAll('div[data-action]');
 
     let targetAction = url;
+
     if(targetAction.startsWith("#")) {
         targetAction = url.slice(1);
     }
@@ -125,8 +144,14 @@ function changeSelectedPageFromSidebar(url) {
     });
 }
 
-export function setSelectedDocument(keyOfSelectedDocument) {
-    window.selectedDocument = keyOfSelectedDocument;
+function urlForPage(url) {
+    let count = 0;
+    for (let i = 0; i < url.length; i++) {
+        if (url[i] === '/') {
+            count++;
+        }
+    }
+    return !(count > 2 || (count === 2 && url[url.length - 1] !== '/'));
 }
 
 window.selectedDocument="dkey-1";

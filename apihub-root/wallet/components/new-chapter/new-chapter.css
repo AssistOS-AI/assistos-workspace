@@ -3,17 +3,27 @@
     font-size: 18px;
     font-style: normal;
     font-weight: 600;
+    padding: 10px 0;
     line-height: normal;
 }
 
 .arrow {
     cursor: pointer;
+    transition-duration: 0.5s;
 }
 
-.no-chapter-content {
+.hidden {
     display: none;
 }
 
 .rotate {
     transform: rotate(-90deg);
+}
+
+.new-chapter {
+    min-width: 0;
+}
+
+.chapter-content {
+    min-width: 0;
 }
