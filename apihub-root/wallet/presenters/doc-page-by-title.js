@@ -42,8 +42,12 @@ export class docPageByTitle {
             webSkel.changeToStaticPage(`documents/${this.primaryKey}/edit-title`);
         });
 
-        const chapters = document.querySelectorAll('.new-chapter');
+        const editAbstractButton = document.querySelector('#edit-abstract');
+        editAbstractButton.addEventListener('click', () => {
+            webSkel.changeToStaticPage(`documents/${this.primaryKey}/edit-abstract`);
+        });
 
+        const chapters = document.querySelectorAll('.new-chapter');
         chapters.forEach(chapter => {
             const title = chapter.querySelector('.chapter-title');
             const arrow = title.querySelector('.arrow');

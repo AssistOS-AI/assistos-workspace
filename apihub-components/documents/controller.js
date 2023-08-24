@@ -1,6 +1,19 @@
 const logger = $$.getLogger("brand", "apihub-components");
 const openDSU = require("opendsu");
 
+async function getDocumentAbstractPage(request, response) {
+    const documentId = request.params.documentId;
+    let postsPage = "";
+    postsPage += `
+                <edit-abstract-page data-document-id="${documentId}" data-presenter="edit-abstract-page"></edit-abstract-page>
+                `
+
+    response.statusCode = 200;
+    response.setHeader("Content-Type", "text/html");
+    response.write(postsPage);
+    response.end();
+}
+
 async function getDocumentTitlePage(request, response) {
     const documentId = request.params.documentId;
     let postsPage = "";
@@ -29,5 +42,6 @@ async function getDocumentPage(request, response) {
 
 module.exports = {
     getDocumentPage,
-    getDocumentTitlePage
+    getDocumentTitlePage,
+    getDocumentAbstractPage,
 };

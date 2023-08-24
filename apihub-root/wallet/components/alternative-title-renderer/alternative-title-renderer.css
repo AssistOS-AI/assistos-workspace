@@ -27,10 +27,6 @@
     justify-content: right;
     align-items: center;
 
-
-
-
-
     font-family: Poppins;
     font-size: 16px;
     font-style: normal;
@@ -38,19 +34,10 @@
     align-items: center;
     line-height: 100%;
     letter-spacing: 0;
-
     text-transform: capitalize;
 }
 
-.action-icon {
-    width: 3px;
-    height: 12px;
-    max-width: 3px;
-    max-height: 12px;
-}
-
 .action {
-    /*padding: 3px 8px;*/
     padding: 8px 10px;
 }
 
@@ -67,9 +54,16 @@
     color: white;
 }
 
-.action-box {
+.action-box-with-select {
     background-color: white;
     border-radius: 6px;
     border: 1px solid #dedede;
     line-height: 100%;
+}
+
+.action-icon {
+    width: 3px;
+    height: 12px;
+    max-width: 3px;
+    max-height: 12px;
 }

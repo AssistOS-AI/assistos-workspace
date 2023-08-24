@@ -68,3 +68,23 @@
     border-left: 1px solid #E6E6E6;
     margin-top: 10px;
 }
+
+.document-path {
+    display: flex;
+    align-items: center;
+    margin: 10px 0;
+}
+
+.path-button {
+    color: #121212;
+    font-family: Poppins;
+    font-size: 14px;
+    margin: 0 5px;
+    font-style: normal;
+    font-weight: 500;
+    line-height: normal;
+}
+
+.document-path svg {
+    margin: 5px;
+}
