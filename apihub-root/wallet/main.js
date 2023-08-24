@@ -3,6 +3,7 @@ import { personalitiesPage } from "./presenters/personalities-page.js";
 import { documentsPage } from "./presenters/documents-page.js";
 import { docPageByTitle } from "./presenters/doc-page-by-title.js";
 import { editTitlePage } from "./presenters/edit-title-page.js";
+import { editAbstractPage } from "./presenters/edit-abstract-page.js";
 import { proofReaderPage } from "./presenters/proof-reader-page.js";
 import { myOrganisationPage } from "./presenters/my-organisation-page.js";
 import { closeModal, showActionBox } from "../WebSkel/utils/modal-utils.js";
@@ -85,6 +86,7 @@ webSkel.setDomElementForPages(document.querySelector("#page-content"));
 webSkel.registerPresenter("llms-page", llmsPage);
 webSkel.registerPresenter("doc-page-by-title", docPageByTitle);
 webSkel.registerPresenter("edit-title-page", editTitlePage);
+webSkel.registerPresenter("edit-abstract-page", editAbstractPage);
 webSkel.registerPresenter("personalities-page", personalitiesPage);
 webSkel.registerPresenter("documents-page", documentsPage);
 webSkel.registerPresenter("proof-reader-page", proofReaderPage);
@@ -111,10 +113,12 @@ webSkel.registerAction("changePage", async (_target, pageId,refreshFlag='0') => 
 webSkel.registerAction("showActionBox", async (_target, primaryKey,componentName,insertionMode) => {
     await showActionBox(_target, primaryKey, componentName, insertionMode);
     let editButton = document.querySelector("[data-local-action='editAction']");
-    editButton.addEventListener("click", async (event) => {
-        console.log(editButton.parentNode.parentNode.id);
-        await webSkel.changeToStaticPage(`documents/${editButton.parentNode.parentNode.id}`);
-    });
+    if(editButton) {
+        editButton.addEventListener("click", async (event) => {
+            console.log(editButton.parentNode.parentNode.id);
+            await webSkel.changeToStaticPage(`documents/${editButton.parentNode.parentNode.id}`);
+        });
+    }
 })
 
 /* Modal components defined here */
@@ -127,6 +131,7 @@ webSkel.defineComponent("new-chapter", "./wallet/components/new-chapter/new-chap
 webSkel.defineComponent("personality-item-renderer","./wallet/components/personality-item-renderer/personality-item-renderer.html");
 webSkel.defineComponent("document-item-renderer","./wallet/components/document-item-renderer/document-item-renderer.html");
 webSkel.defineComponent("action-box", "./wallet/components/action-box/action-box.html");
+webSkel.defineComponent("action-box-with-select", "./wallet/components/action-box-with-select/action-box-with-select.html");
 webSkel.defineComponent("alternative-title-renderer", "./wallet/components/alternative-title-renderer/alternative-title-renderer.html");
 
 webSkel.defineComponent("llms-page", "./wallet/pages/llms-page/llms-page.html");
@@ -134,6 +139,7 @@ webSkel.defineComponent("personalities-page", "./wallet/pages/personalities-page
 webSkel.defineComponent("documents-page", "./wallet/pages/documents-page/documents-page.html");
 webSkel.defineComponent("doc-page-by-title", "./wallet/pages/doc-page-by-title/doc-page-by-title.html");
 webSkel.defineComponent("edit-title-page", "./wallet/pages/edit-title-page/edit-title-page.html");
+webSkel.defineComponent("edit-abstract-page", "./wallet/pages/edit-abstract-page/edit-abstract-page.html");
 webSkel.defineComponent("proof-reader-page", "./wallet/pages/proof-reader-page/proof-reader-page.html");
 webSkel.defineComponent("my-organisation-page", "./wallet/pages/my-organisation-page/my-organisation-page.html");
 
