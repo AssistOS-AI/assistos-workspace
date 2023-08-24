@@ -5,31 +5,24 @@ export class docPageByTitle {
         this.title = "Documents";
         this.name = "Name";
         this.abstractText = "Abstract text";
-        if(window.documentSelected !== "undefined") {
-            this.primaryKey = window.documentSelected;
-        }
+        this.primaryKey = "dkey-1";
+        // console.log();
+        // if(window.documentSelected !== "undefined") {
+        //     this.primaryKey = window.documentSelected;
+        // }
         this.button = "Add new document";
         let currentCompany= Company.getInstance();
         setTimeout(async ()=> {
-            if(window.documentSelected !== "undefined") {
-                this.primaryKey = window.documentSelected;
-            }
             this._documentConfigs = await currentCompany.companyState.documents;
             this.invalidate();
         },0);
         currentCompany.onChange(async (companyState) => {
-            if(window.selectedDocument !== "undefined") {
-                this.primaryKey = window.selectedDocument;
-            }
             this._documentConfigs = await companyState.documents;
             this.invalidate();
         });
     }
 
     beforeRender() {
-        if(window.selectedDocument !== "undefined") {
-            this.primaryKey = window.selectedDocument;
-        }
         this.chapters="";
         if(this._documentConfigs) {
             this._doc = this._documentConfigs.find(document => document.primaryKey === this.primaryKey);
@@ -47,9 +40,6 @@ export class docPageByTitle {
 
     /* adding event Listeners after the web component has loaded, etc */
     afterRender() {
-        if(window.selectedDocument !== "undefined") {
-            this.primaryKey = window.selectedDocument;
-        }
         const chapters = document.querySelectorAll('.new-chapter');
 
         chapters.forEach(chapter => {

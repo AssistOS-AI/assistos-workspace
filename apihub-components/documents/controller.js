@@ -2,21 +2,11 @@ const logger = $$.getLogger("brand", "apihub-components");
 const openDSU = require("opendsu");
 
 async function getDocumentPage(request, response) {
-    const documentId = "svd:document:" + request.params.documentId;
-    console.log("sunt in server");
-    // const posts = await getAllPosts(brandId);
+    const documentId = request.params.documentId;
     let postsPage = "";
-    // let postsArray = "";
-    // if (posts) {
-    //     postsArray = posts.map(post => getPostCard(post.post)).join(" ");
-    // }
-    // if(postsArray==="")
-    //     postsArray="<post-card-skeleton></post-card-skeleton><post-card-skeleton></post-card-skeleton><post-card-skeleton></post-card-skeleton><post-card-skeleton></post-card-skeleton>";
     postsPage += `
-                <div class="posts-page">
-                    
-                </div>`
-
+                <doc-page-by-title data-document-id="${documentId}" data-presenter="doc-page-by-title"></doc-page-by-title>
+                `
 
     response.statusCode = 200;
     response.setHeader("Content-Type", "text/html");
