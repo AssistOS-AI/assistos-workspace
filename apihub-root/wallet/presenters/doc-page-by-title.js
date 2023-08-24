@@ -5,12 +5,6 @@ export class docPageByTitle {
         this.title = "Documents";
         this.name = "Name";
         this.abstractText = "Abstract text";
-        this.primaryKey = "dkey-1";
-        console.log(document);
-        // console.log();
-        // if(window.documentSelected !== "undefined") {
-        //     this.primaryKey = window.documentSelected;
-        // }
         this.button = "Add new document";
         let currentCompany= Company.getInstance();
         setTimeout(async ()=> {
@@ -24,7 +18,8 @@ export class docPageByTitle {
     }
 
     beforeRender() {
-
+        let documentContent = document.querySelector("doc-page-by-title");
+        this.primaryKey = documentContent.getAttribute("data-document-id");
         this.chapters="";
         if(this._documentConfigs) {
             this._doc = this._documentConfigs.find(document => document.primaryKey === this.primaryKey);
