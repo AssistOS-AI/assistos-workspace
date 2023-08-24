@@ -1,0 +1,75 @@
+.title-row {
+    color: #000;
+    font-family: Poppins;
+    font-size: 14px;
+    font-style: normal;
+    font-weight: 400;
+    max-height: 40px;
+    align-items: center;
+    line-height: 283%;
+    letter-spacing: -0.56px;
+    border-top: 1px solid #E6E6E6;
+    padding-left: 15px;
+    display: flex;
+    justify-content: space-between;
+}
+
+
+.action-cell {
+    padding: 2px;
+    width: 3px;
+    height: 12px;
+    max-width: 3px;
+    max-height: 12px;
+    margin-right: 20px;
+    color: #555555;
+    display: flex;
+    justify-content: right;
+    align-items: center;
+
+
+
+
+
+    font-family: Poppins;
+    font-size: 16px;
+    font-style: normal;
+    font-weight: 600;
+    align-items: center;
+    line-height: 100%;
+    letter-spacing: 0;
+
+    text-transform: capitalize;
+}
+
+.action-icon {
+    width: 3px;
+    height: 12px;
+    max-width: 3px;
+    max-height: 12px;
+}
+
+.action {
+    /*padding: 3px 8px;*/
+    padding: 8px 10px;
+}
+
+.act1:hover {
+    border-radius: 6px 6px 0 0;
+}
+
+.act2:hover {
+    border-radius: 0 0 6px 6px;
+}
+
+.action:hover {
+    background-color: #007bff;
+    color: white;
+}
+
+.action-box {
+    background-color: white;
+    border-radius: 6px;
+    border: 1px solid #dedede;
+    line-height: 100%;
+}

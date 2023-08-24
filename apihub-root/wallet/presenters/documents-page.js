@@ -3,7 +3,6 @@ import { showModal } from "../../WebSkel/utils/modal-utils.js";
 
 export class documentsPage {
     constructor() {
-        // this.title = "Documents";
         this.name = "Name";
         this.modal = "showAddNewDocumentModal";
         this.button = "Add new document";

@@ -1,6 +1,8 @@
 function Documents(server) {
-    const { getDocumentPage } = require("./controller");
+    const { getDocumentPage, getDocumentTitlePage } = require("./controller");
+
     server.get("/documents/:documentId", getDocumentPage);
+    server.get("/documents/:documentId/edit-title", getDocumentTitlePage);
 }
 
 module.exports = Documents;

@@ -37,6 +37,11 @@ export class docPageByTitle {
 
     /* adding event Listeners after the web component has loaded, etc */
     afterRender() {
+        const editTitleButton = document.querySelector('#edit-title');
+        editTitleButton.addEventListener('click', () => {
+            webSkel.changeToStaticPage(`documents/${this.primaryKey}/edit-title`);
+        });
+
         const chapters = document.querySelectorAll('.new-chapter');
 
         chapters.forEach(chapter => {
