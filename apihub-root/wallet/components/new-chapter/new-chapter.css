@@ -9,7 +9,7 @@
 
 .arrow {
     cursor: pointer;
-    transition-duration: 0.5s;
+    transition-duration: 0.3s;
 }
 
 .hidden {
@@ -26,4 +26,5 @@
 
 .chapter-content {
     min-width: 0;
+    text-align: justify;
 }

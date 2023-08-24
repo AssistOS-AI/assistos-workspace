@@ -6,6 +6,7 @@ export class docPageByTitle {
         this.name = "Name";
         this.abstractText = "Abstract text";
         this.primaryKey = "dkey-1";
+        console.log(document);
         // console.log();
         // if(window.documentSelected !== "undefined") {
         //     this.primaryKey = window.documentSelected;
@@ -23,6 +24,7 @@ export class docPageByTitle {
     }
 
     beforeRender() {
+
         this.chapters="";
         if(this._documentConfigs) {
             this._doc = this._documentConfigs.find(document => document.primaryKey === this.primaryKey);
