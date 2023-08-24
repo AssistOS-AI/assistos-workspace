@@ -46,9 +46,8 @@ async function initWallet() {
         url = "#documents-page";
     }
     if(!urlForPage(url)) {
-        console.log(`i m here with url=${url}`);
         switch(url.split('/')[1]) {
-            case "documents-page":
+            case "#documents":
                 webSkel.currentDocumentId = "svd:document:" + url.split('/')[2];
                 changeSelectedPageFromSidebar("documents-page");
                 break;
@@ -146,5 +145,5 @@ function urlForPage(url) {
             count++;
         }
     }
-    return !(count > 2 || (count === 2 && url[url.length - 1] !== '/'));
+    return !(count > 1 || (count === 1 && url[url.length - 1] !== '/'));
 }
