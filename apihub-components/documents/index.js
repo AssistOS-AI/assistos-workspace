@@ -1,6 +1,6 @@
-function Document(server) {
+function Documents(server) {
     const { getDocumentPage } = require("./controller");
     server.get("/:domain/documents/:documentId", getDocumentPage);
 }
 
-module.exports = Document;
+module.exports = Documents;

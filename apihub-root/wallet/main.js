@@ -8,7 +8,6 @@ import { closeModal, showActionBox } from "../WebSkel/utils/modal-utils.js";
 import WebSkel from "../WebSkel/webSkel.js";
 
 const openDSU = require("opendsu");
-
 window.webSkel = new WebSkel();
 async function initEnclaveClient() {
     const w3cDID = openDSU.loadAPI("w3cdid");
@@ -43,10 +42,11 @@ async function initWallet() {
     }
 
     let url = window.location.hash;
-    if(url === "") {
+    if(url === "" || url === null) {
         url = "#documents-page";
-    } else if(!urlForPage(url)) {
-        console.log(`i m here ith url=${url}`);
+    }
+    if(!urlForPage(url)) {
+        console.log(`i m here with url=${url}`);
         switch(url.split('/')[1]) {
             case "documents-page":
                 webSkel.currentDocumentId = "svd:document:" + url.split('/')[2];
