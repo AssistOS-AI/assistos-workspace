@@ -1,4 +1,5 @@
 .idea
+.env
 
 apihub-root/external-volume/domains
 apihub-root/external-volume/fixed-urls
