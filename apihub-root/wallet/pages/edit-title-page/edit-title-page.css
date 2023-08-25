@@ -1,6 +1,8 @@
 .edit-title-page {
     display: flex;
     width: 100%;
+    height: 100%;
+    justify-content: space-between;
 }
 
 .document-path {
@@ -43,12 +45,16 @@
 .right-sidebar {
     height: 100%;
     width: 12em;
+    display: flex;
+    right: 0;
+    min-width: 12em;
 }
 
 .document-content {
-    margin-right: 12em;
-    padding-right: 10px;
-    width: 85%;
+    /*margin-right: 12em;*/
+    /*padding-right: 10px;*/
+    width: 100%;
+    display: flex;
 }
 
 .sidebar-item {
@@ -68,17 +74,12 @@
 }
 
 .item-list {
-    display: block;
     height: 100%;
-    min-height: 100%;
-    white-space: nowrap;
     padding-left: 10px;
-    width: inherit;
+    width: 12em;
     position: fixed;
-    right: 0;
-    margin-left: 10px;
     border-left: 1px solid #E6E6E6;
-    margin-top: 10px;
+    padding-top: 10px;
 }
 
 .document-path svg {
@@ -88,6 +89,15 @@
 .alternative {
     display: flex;
     justify-content: space-between;
+}
+
+.entire-content {
+    width: 100%;
+    margin-right: 5em;
+}
+
+.alternative-titles {
+    width: 100%;
 }
 
 .alt-title {

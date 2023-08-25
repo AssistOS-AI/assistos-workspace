@@ -16,21 +16,30 @@ export class editAbstractPage {
     beforeRender() {
         let documentContent = document.querySelector("edit-abstract-page");
         this.primaryKey = documentContent.getAttribute("data-document-id");
-        // this.alternativeTitles = "";
+        this.alternativeAbstracts = "";
         if(this._documentConfigs) {
             this._doc = this._documentConfigs.find(document => document.primaryKey === this.primaryKey);
             try {
                 this.title = this._doc.name;
-                // let suggestedTitle = "Bees are nature's little pollination superheroes! Let's protect them and ensure our food chain thrives. #SaveTheBees";
-                // for(let number = 1; number <= 10; number++) {
-                //     this.alternativeTitles += `<alternative-title-renderer nr="${number}" title="${suggestedTitle}"></alternative-title-renderer>`;
-                // }
+                this.abstractText = this._doc.abstract;
+                let suggestedTitle = "Bees are nature's little pollination superheroes! Let's protect them and ensure our food chain thrives. #SaveTheBees";
+                for(let number = 1; number <= 10; number++) {
+                    this.alternativeAbstracts += `<alternative-abstract-renderer nr="${number}" title="${suggestedTitle}"></alternative-abstract-renderer>`;
+                }
             } catch(e) {}
         }
     }
 
     /* adding event Listeners after the web component has loaded, etc */
     afterRender() {
+        const editTitleButton = document.querySelector('#edit-title');
+        editTitleButton.addEventListener('click', () => {
+            webSkel.changeToStaticPage(`documents/${this.primaryKey}/edit-title`);
+        });
 
+        const editAbstractButton = document.querySelector('#edit-abstract');
+        editAbstractButton.addEventListener('click', () => {
+            webSkel.changeToStaticPage(`documents/${this.primaryKey}/edit-abstract`);
+        });
     }
 }
