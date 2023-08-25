@@ -67,6 +67,10 @@ async function initWallet() {
         await webSkel.changeToDynamicPage(url.slice(1));
     }
 }
+async function initLiteUserDatabase(){
+    webSkel.liteUserDB= new liteUserDatabase("liteUser",1);
+    await webSkel.liteUserDB.init();
+}
 function changeSelectedPageFromSidebar(url) {
     let element = document.getElementById('selected-page');
     if (element) {
@@ -165,10 +169,7 @@ webSkel.defineComponent("edit-title-page", "./wallet/pages/edit-title-page/edit-
 webSkel.defineComponent("edit-abstract-page", "./wallet/pages/edit-abstract-page/edit-abstract-page.html");
 webSkel.defineComponent("proof-reader-page", "./wallet/pages/proof-reader-page/proof-reader-page.html");
 webSkel.defineComponent("my-organisation-page", "./wallet/pages/my-organisation-page/my-organisation-page.html");
-async function initLiteUserDatabase(){
-    webSkel.liteUserDB= new liteUserDatabase("liteUser",1);
-    await webSkel.liteUserDB.init();
-}
+
 (async ()=> {
     await initWallet();
     await initEnclaveClient();
