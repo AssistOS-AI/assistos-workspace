@@ -1,5 +1,5 @@
 import { Company } from "../core/company.js";
-import {showModal} from "../../WebSkel/utils/modal-utils.js";
+import { showModal } from "../../WebSkel/utils/modal-utils.js";
 
 export class editAbstractPage {
     constructor() {
