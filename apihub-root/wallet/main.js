@@ -115,10 +115,23 @@ webSkel.registerAction("showActionBox", async (_target, primaryKey,componentName
     let editButton = document.querySelector("[data-local-action='editAction']");
     if(editButton) {
         editButton.addEventListener("click", async (event) => {
-            console.log(editButton.parentNode.parentNode.id);
             await webSkel.changeToStaticPage(`documents/${editButton.parentNode.parentNode.id}`);
         });
     }
+    let deleteButton = document.querySelector("[data-local-action='deleteAction']");
+    if (deleteButton) {
+        deleteButton.addEventListener("click", async (event) => {
+            let currentNode = deleteButton.parentNode;
+            while (!currentNode?.classList.contains('document-item-renderer') && currentNode) {
+                currentNode = currentNode.parentNode;
+            }
+
+            if (currentNode && currentNode.parentNode) {
+                currentNode.parentNode.removeChild(currentNode);
+            }
+        });
+    }
+
 })
 
 /* Modal components defined here */
