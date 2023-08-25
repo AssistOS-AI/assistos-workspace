@@ -7,10 +7,13 @@ import {
     editAbstractPage,
     proofReaderPage,
     myOrganisationPage,
-    WebSkel,
+    urlForPage,
     closeModal,
     showActionBox,
-    getClosestParentElement
+    getClosestParentElement,
+    liteUserDatabase,
+    userDocument,
+    WebSkel
 } from "./imports.js";
 
 const openDSU = require("opendsu");
@@ -64,6 +67,10 @@ async function initWallet() {
         await webSkel.changeToDynamicPage(url.slice(1));
     }
 }
+async function initLiteUserDatabase(){
+    webSkel.liteUserDB= new liteUserDatabase("liteUser",1);
+    await webSkel.liteUserDB.init();
+}
 function changeSelectedPageFromSidebar(url) {
     let element = document.getElementById('selected-page');
     if (element) {
@@ -84,7 +91,6 @@ function changeSelectedPageFromSidebar(url) {
         }
     });
 }
-
 webSkel.setDomElementForPages(document.querySelector("#page-content"));
 
 webSkel.registerPresenter("llms-page", llmsPage);
@@ -99,6 +105,17 @@ webSkel.registerPresenter("my-organisation-page", myOrganisationPage);
 webSkel.registerAction("closeModal", async (modal, _param) => {
     closeModal(modal);
 });
+webSkel.registerAction("addDocument",async(_target)=>{
+    const formData=new FormData(getClosestParentElement(_target,'form'));
+    let documentTitle= formData.get("documentTitle");
+    let documentId= `dkey-${await webSkel.liteUserDB.addDocument(new userDocument(documentTitle))}`;
+    closeModal(_target);
+    const tableDocument=document.querySelector('.table');
+    const newRowNode=document.createElement('document-item-renderer');
+    newRowNode.setAttribute("data-name",documentTitle);
+    newRowNode.setAttribute("data-primary-key",documentId);
+    tableDocument.appendChild(newRowNode);
+})
 
 webSkel.registerAction("changePage", async (_target, pageId,refreshFlag='0') => {
     /* If we are attempting to click the button to the tool page we're currently on, a refreshFlag with the value 0
@@ -157,14 +174,9 @@ webSkel.defineComponent("my-organisation-page", "./wallet/pages/my-organisation-
 (async ()=> {
     await initWallet();
     await initEnclaveClient();
-})();
-
-function urlForPage(url) {
-    let count = 0;
-    for (let i = 0; i < url.length; i++) {
-        if (url[i] === '/') {
-            count++;
-        }
+    if (('indexedDB' in window)) {
+        await initLiteUserDatabase();
+    }else{
+        alert("Your current browser does not support local storage. Please use a different browser, or upgrade to premium");
     }
-    return !(count > 1 || (count === 1 && url[url.length - 1] !== '/'));
-}
+})();
