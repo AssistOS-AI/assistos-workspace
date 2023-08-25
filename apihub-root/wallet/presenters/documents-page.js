@@ -5,7 +5,7 @@ export class documentsPage {
     constructor() {
         this.name = "Name";
         this.modal = "showAddNewDocumentModal";
-        this.button = "Add new document";
+        this.button = "Add document";
         this.tableRows = "No data loaded";
         let currentCompany= Company.getInstance();
         setTimeout(async ()=> {
@@ -30,6 +30,9 @@ export class documentsPage {
     }
     /* adding event Listeners after the web component has loaded, etc */
     afterRender() {
-
+        let modalSection = document.querySelector("[data-local-action]");
+        modalSection.addEventListener("click", async (event) => {
+            await showModal(document.querySelector("body"), "add-new-document-modal", {});
+        });
     }
 }

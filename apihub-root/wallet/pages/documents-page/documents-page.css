@@ -1,9 +1,17 @@
 .table-header {
     padding-left: 10px;
     display: flex;
-    background-color: #E9E9E9;
-    font-size: 15px;
-    color: #515151;
+    /*background-color: #E9E9E9;*/
+    /*font-size: 15px;*/
+    /*color: #515151;*/
+
+    color: #363C44;
+    font-family: Poppins;
+    font-size: 18px;
+    font-style: normal;
+    font-weight: 700;
+    line-height: normal;
+    text-transform: capitalize;
 }
 
 .table {
