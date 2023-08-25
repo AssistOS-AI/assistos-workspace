@@ -7,6 +7,7 @@ import { editAbstractPage } from "./presenters/edit-abstract-page.js";
 import { proofReaderPage } from "./presenters/proof-reader-page.js";
 import { myOrganisationPage } from "./presenters/my-organisation-page.js";
 import { closeModal, showActionBox } from "../WebSkel/utils/modal-utils.js";
+import {getClosestParentElement} from "../WebSkel/utils/dom-utils.js";
 import WebSkel from "../WebSkel/webSkel.js";
 
 export {
@@ -20,5 +21,6 @@ export {
     myOrganisationPage,
     closeModal,
     showActionBox,
+    getClosestParentElement,
     WebSkel
 };
