@@ -1,13 +1,16 @@
-import { llmsPage } from "./presenters/llms-page.js";
-import { personalitiesPage } from "./presenters/personalities-page.js";
-import { documentsPage } from "./presenters/documents-page.js";
-import { docPageByTitle } from "./presenters/doc-page-by-title.js";
-import { editTitlePage } from "./presenters/edit-title-page.js";
-import { editAbstractPage } from "./presenters/edit-abstract-page.js";
-import { proofReaderPage } from "./presenters/proof-reader-page.js";
-import { myOrganisationPage } from "./presenters/my-organisation-page.js";
-import { closeModal, showActionBox } from "../WebSkel/utils/modal-utils.js";
-import WebSkel from "../WebSkel/webSkel.js";
+import {
+    llmsPage,
+    personalitiesPage,
+    documentsPage,
+    docPageByTitle,
+    editTitlePage,
+    editAbstractPage,
+    proofReaderPage,
+    myOrganisationPage,
+    WebSkel,
+    closeModal,
+    showActionBox
+} from "./imports.js";
 
 const openDSU = require("opendsu");
 window.webSkel = new WebSkel();
@@ -115,10 +118,23 @@ webSkel.registerAction("showActionBox", async (_target, primaryKey,componentName
     let editButton = document.querySelector("[data-local-action='editAction']");
     if(editButton) {
         editButton.addEventListener("click", async (event) => {
-            console.log(editButton.parentNode.parentNode.id);
             await webSkel.changeToStaticPage(`documents/${editButton.parentNode.parentNode.id}`);
         });
     }
+    let deleteButton = document.querySelector("[data-local-action='deleteAction']");
+    if (deleteButton) {
+        deleteButton.addEventListener("click", async (event) => {
+            let currentNode = deleteButton.parentNode;
+            while (!currentNode?.classList.contains('document-item-renderer') && currentNode) {
+                currentNode = currentNode.parentNode;
+            }
+
+            if (currentNode && currentNode.parentNode) {
+                currentNode.parentNode.removeChild(currentNode);
+            }
+        });
+    }
+
 })
 
 /* Modal components defined here */
