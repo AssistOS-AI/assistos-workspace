@@ -35,8 +35,8 @@
 }
 
 .document-content {
-    margin-right: 12em;
-    padding-right: 10px;
+    width: 100%;
+    margin-right: 12px;
 }
 
 .sidebar-item {
@@ -56,17 +56,12 @@
 }
 
 .item-list {
-    display: block;
     height: 100%;
-    min-height: 100%;
-    white-space: nowrap;
     padding-left: 10px;
-    width: inherit;
+    width: 12em;
     position: fixed;
-    right: 0;
-    margin-left: 10px;
     border-left: 1px solid #E6E6E6;
-    margin-top: 10px;
+    padding-top: 10px;
 }
 
 .document-path {

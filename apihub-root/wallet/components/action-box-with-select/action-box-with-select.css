@@ -1,5 +1,26 @@
 .action-box-with-select {
+    margin-top: -15px;
+    margin-left: -62px;
     background-color: white;
+    line-height: normal;
     border-radius: 6px;
     border: 1px solid #dedede;
+    position: absolute;
+}
+
+.action {
+    padding: 3px 8px;
+}
+
+.act1:hover {
+    border-radius: 6px 6px 0 0;
+}
+
+.act2:hover {
+    border-radius: 0 0 6px 6px;
+}
+
+.action:hover {
+    background-color: #007bff;
+    color: white;
 }

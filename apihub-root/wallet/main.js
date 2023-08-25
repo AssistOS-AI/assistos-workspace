@@ -134,7 +134,6 @@ webSkel.registerAction("showActionBox", async (_target, primaryKey,componentName
             }
         });
     }
-
 })
 
 /* Modal components defined here */
