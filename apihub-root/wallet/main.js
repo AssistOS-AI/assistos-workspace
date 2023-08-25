@@ -9,7 +9,8 @@ import {
     myOrganisationPage,
     WebSkel,
     closeModal,
-    showActionBox
+    showActionBox,
+    getClosestParentElement
 } from "./imports.js";
 
 const openDSU = require("opendsu");
@@ -124,18 +125,10 @@ webSkel.registerAction("showActionBox", async (_target, primaryKey,componentName
     let deleteButton = document.querySelector("[data-local-action='deleteAction']");
     if (deleteButton) {
         deleteButton.addEventListener("click", async (event) => {
-            let currentNode = deleteButton.parentNode;
-            while (!currentNode?.classList.contains('document-item-renderer') && currentNode) {
-                currentNode = currentNode.parentNode;
-            }
+          getClosestParentElement(deleteButton,".document-item-renderer")?.remove();
+    });
 
-            if (currentNode && currentNode.parentNode) {
-                currentNode.parentNode.removeChild(currentNode);
-            }
-        });
-    }
-
-})
+}});
 
 /* Modal components defined here */
 webSkel.defineComponent("add-llm-modal", "./wallet/components/add-llm-modal/add-llm-modal.html");
