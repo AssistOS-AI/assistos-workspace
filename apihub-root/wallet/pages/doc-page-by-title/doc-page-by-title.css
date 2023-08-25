@@ -32,6 +32,9 @@
 .right-sidebar {
     height: 100%;
     width: 12em;
+    display: flex;
+    right: 0;
+    min-width: 12em;
 }
 
 .document-content {

@@ -31,6 +31,14 @@ export class editTitlePage {
 
     /* adding event Listeners after the web component has loaded, etc */
     afterRender() {
+        const editTitleButton = document.querySelector('#edit-title');
+        editTitleButton.addEventListener('click', () => {
+            webSkel.changeToStaticPage(`documents/${this.primaryKey}/edit-title`);
+        });
 
+        const editAbstractButton = document.querySelector('#edit-abstract');
+        editAbstractButton.addEventListener('click', () => {
+            webSkel.changeToStaticPage(`documents/${this.primaryKey}/edit-abstract`);
+        });
     }
 }
