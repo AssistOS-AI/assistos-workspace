@@ -12,6 +12,13 @@
     padding-left: 15px;
     display: flex;
     justify-content: space-between;
+    /*position: relative;*/
+    z-index: 1;
+}
+
+.number-and-title {
+    overflow: hidden;
+    white-space: nowrap;
 }
 
 
@@ -26,12 +33,10 @@
     display: flex;
     justify-content: right;
     align-items: center;
-
     font-family: Poppins;
     font-size: 16px;
     font-style: normal;
     font-weight: 600;
-    align-items: center;
     line-height: 100%;
     letter-spacing: 0;
     text-transform: capitalize;
@@ -59,6 +64,8 @@
     border-radius: 6px;
     border: 1px solid #dedede;
     line-height: 100%;
+    /*position: absolute;*/
+    z-index: -1;
 }
 
 .action-icon {

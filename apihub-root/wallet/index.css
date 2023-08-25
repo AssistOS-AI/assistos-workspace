@@ -266,20 +266,29 @@ body {
 }
 
 .add-button {
-    background-color: #fff;
-    display: inline-flex;
-    padding: 8px 16px;
-    align-items: center;
-    gap: 10px;
-    color: #353535;
+    /*background-color: #fff;*/
+    /*display: inline-flex;*/
+    /*padding: 8px 16px;*/
+    /*align-items: center;*/
+    /*gap: 10px;*/
+    /*color: #353535;*/
+    /*font-family: Poppins;*/
+    /*font-size: 16px;*/
+    /*font-style: normal;*/
+    /*font-weight: 600;*/
+    /*line-height: normal;*/
+    /*border-radius: 6px;*/
+    /*border: 1px solid #353535;*/
+    /*max-width: max-content;*/
+    min-width: fit-content;
+    color: #0618D1;
     font-family: Poppins;
-    font-size: 16px;
+    font-size: 14px;
     font-style: normal;
-    font-weight: 600;
+    font-weight: 700;
     line-height: normal;
-    border-radius: 6px;
-    border: 1px solid #353535;
-    max-width: max-content;
+    align-items: center;
+    display: flex;
 }
 
 .organization-dropbox {
@@ -302,7 +311,6 @@ body {
     line-height: normal;
     outline: none;
     border: none;
-
     appearance: none;
     background-image: url("./assets/icons/arrow.svg");
     background-repeat: no-repeat;
@@ -313,4 +321,8 @@ body {
 #organization * {
     border-radius: 15px;
     background-color: red;
+}
+
+.add-button svg {
+    margin-right: 9px;
 }
