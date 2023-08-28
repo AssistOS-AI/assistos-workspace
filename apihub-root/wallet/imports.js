@@ -14,6 +14,7 @@ import { closeModal, showActionBox } from "../WebSkel/utils/modal-utils.js";
 import { urlForPage } from "../WebSkel/utils/dom-utils.js"
 import { getClosestParentElement } from "../WebSkel/utils/dom-utils.js";
 import liteUserDatabase from "./liteUserDatabase.js";
+import {Company} from "./core/company.js";
 import WebSkel from "../WebSkel/webSkel.js";
 
 export {
@@ -34,5 +35,6 @@ export {
     getClosestParentElement,
     liteUserDatabase,
     userDocument,
+    Company,
     WebSkel
 };
