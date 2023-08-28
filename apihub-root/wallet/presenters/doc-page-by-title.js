@@ -2,7 +2,6 @@ import { Company } from "../core/company.js";
 
 export class docPageByTitle {
     constructor() {
-        console.log('here is the settings button');
         this.title = "Documents";
         this.name = "Name";
         this.abstractText = "Abstract text";
@@ -49,10 +48,13 @@ export class docPageByTitle {
         });
 
         const settingsButton = document.querySelector('#settings');
-        console.log(settingsButton);
         settingsButton.addEventListener('click', () => {
-            console.log("here");
             webSkel.changeToStaticPage(`documents/${this.primaryKey}/settings`);
+        });
+
+        const brainstormingButton = document.querySelector('#brainstorming');
+        brainstormingButton.addEventListener('click', () => {
+            webSkel.changeToStaticPage(`documents/${this.primaryKey}/brainstorming`);
         });
 
         const chapters = document.querySelectorAll('.new-chapter');

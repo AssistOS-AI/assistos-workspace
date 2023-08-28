@@ -3,7 +3,8 @@ import { showModal } from "../../WebSkel/utils/modal-utils.js";
 
 export class editTitlePage {
     constructor() {
-         let currentCompany = Company.getInstance();
+        this.title = "Current Title";
+        let currentCompany = Company.getInstance();
         setTimeout(async ()=> {
             this._documentConfigs = await currentCompany.companyState.documents;
             this.invalidate();
@@ -14,9 +15,10 @@ export class editTitlePage {
         });
     }
 
+
     beforeRender() {
         let documentContent = document.querySelector("edit-title-page");
-        this.primaryKey = documentContent.getAttribute("data-document-id");
+        // this.primaryKey = documentContent.getAttribute("data-document-id");
         this.alternativeTitles = "";
         if(this._documentConfigs) {
             this._doc = this._documentConfigs.find(document => document.primaryKey === this.primaryKey);
@@ -45,6 +47,11 @@ export class editTitlePage {
         const settingsButton = document.querySelector('#settings');
         settingsButton.addEventListener('click', () => {
             webSkel.changeToStaticPage(`documents/${this.primaryKey}/settings`);
+        });
+
+        const brainstormingButton = document.querySelector('#brainstorming');
+        brainstormingButton.addEventListener('click', () => {
+            webSkel.changeToStaticPage(`documents/${this.primaryKey}/brainstorming`);
         });
 
         let modalSection = document.querySelector("[data-local-action]");

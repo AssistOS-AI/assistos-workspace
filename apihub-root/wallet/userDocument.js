@@ -1,7 +1,7 @@
-export class userDocument{
+export class userDocument {
     constructor(documentTitle){
-        this.name=documentTitle;
-        this.abstract="";
-        this.chapters=[];
+        this.name = documentTitle;
+        this.abstract = "";
+        this.chapters = [];
     }
 }
