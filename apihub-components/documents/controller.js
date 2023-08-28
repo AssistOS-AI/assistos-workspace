@@ -53,9 +53,23 @@ async function getDocumentSettingsPage(request, response) {
     response.end();
 }
 
+async function getDocumentBrainstormingPage(request, response) {
+    const documentId = request.params.documentId;
+    let documentPage = "";
+    documentPage += `
+                <brainstorming-page data-document-id="${documentId}" data-presenter="brainstorming-page"></brainstorming-page>
+                `
+
+    response.statusCode = 200;
+    response.setHeader("Content-Type", "text/html");
+    response.write(documentPage);
+    response.end();
+}
+
 module.exports = {
     getDocumentPage,
     getDocumentTitlePage,
     getDocumentAbstractPage,
     getDocumentSettingsPage,
+    getDocumentBrainstormingPage,
 };

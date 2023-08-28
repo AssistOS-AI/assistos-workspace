@@ -7,6 +7,7 @@ import {
     editAbstractPage,
     proofReaderPage,
     myOrganisationPage,
+    brainstormingPage,
     documentSettingsPage,
     urlForPage,
     closeModal,
@@ -100,6 +101,7 @@ function definePresenters(){
     webSkel.registerPresenter("personalities-page", personalitiesPage);
     webSkel.registerPresenter("documents-page", documentsPage);
     webSkel.registerPresenter("document-settings-page", documentSettingsPage);
+    webSkel.registerPresenter("brainstorming-page", brainstormingPage);
     webSkel.registerPresenter("proof-reader-page", proofReaderPage);
     webSkel.registerPresenter("my-organisation-page", myOrganisationPage);
 }
@@ -124,6 +126,7 @@ function defineComponents() {
     webSkel.defineComponent("personalities-page", "./wallet/pages/personalities-page/personalities-page.html");
     webSkel.defineComponent("documents-page", "./wallet/pages/documents-page/documents-page.html");
     webSkel.defineComponent("document-settings-page", "./wallet/pages/document-settings-page/document-settings-page.html");
+    webSkel.defineComponent("brainstorming-page", "./wallet/pages/brainstorming-page/brainstorming-page.html");
     webSkel.defineComponent("doc-page-by-title", "./wallet/pages/doc-page-by-title/doc-page-by-title.html");
     webSkel.defineComponent("edit-title-page", "./wallet/pages/edit-title-page/edit-title-page.html");
     webSkel.defineComponent("edit-abstract-page", "./wallet/pages/edit-abstract-page/edit-abstract-page.html");
@@ -174,7 +177,7 @@ function defineActions(){
         let deleteButton = document.querySelector("[data-local-action='deleteAction']");
         if (deleteButton) {
             deleteButton.addEventListener("click", async (event) => {
-                const rowElement=getClosestParentElement(deleteButton,"document-item-renderer");
+                const rowElement = getClosestParentElement(deleteButton,"document-item-renderer");
                 await webSkel.liteUserDB.deleteRecord("documents",parseInt(rowElement.getAttribute('data-primary-key')));
                 rowElement.remove();
             });
