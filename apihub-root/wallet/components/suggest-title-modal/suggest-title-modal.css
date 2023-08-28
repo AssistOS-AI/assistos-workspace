@@ -1,0 +1,77 @@
+dialog[class="modal"] {
+    padding: 0;
+    border: none;
+}
+
+* {
+    font-family: Poppins;
+}
+
+.modal-content {
+    padding: 0 30px;
+}
+
+.modal-title {
+    color: #000;
+    font-feature-settings: 'clig' off, 'liga' off;
+    font-family: Poppins;
+    font-size: 18px;
+    font-style: normal;
+    font-weight: 400;
+    line-height: normal;
+}
+
+.close {
+    float: right;
+    background-color: transparent;
+    border: none;
+    outline: none;
+    font-size: 20px;
+}
+
+.item-has-focus {
+    --full-highlight-height: none;
+    --inset-highlight-height: none;
+}
+
+.wide-btn {
+    padding: 8px 52px;
+    border-radius: 16px;
+    margin: 16px 0;
+    border: 0.5px solid #D7D7D7;
+    background: #18203F;
+    color: #FFF;
+    font-feature-settings: 'clig' off, 'liga' off;
+    font-family: Poppins;
+    font-size: 14px;
+    font-style: normal;
+    font-weight: 600;
+    line-height: normal;
+}
+
+form {
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    justify-content: center;
+}
+
+.modal-footer {
+    width: 100%;
+    display: flex;
+    justify-content: center;
+}
+
+.alternative-titles div {
+    display: flex;
+    justify-content: space-between;
+}
+
+input[type="checkbox"] {
+    background-color: #fff;
+    margin: 0;
+}
+
+input[type="checkbox"]:checked {
+    background-color: #000;
+}

@@ -1,4 +1,5 @@
 import { Company } from "../core/company.js";
+import { showModal } from "../../WebSkel/utils/modal-utils.js";
 
 export class editTitlePage {
     constructor() {
@@ -39,6 +40,17 @@ export class editTitlePage {
         const editAbstractButton = document.querySelector('#edit-abstract');
         editAbstractButton.addEventListener('click', () => {
             webSkel.changeToStaticPage(`documents/${this.primaryKey}/edit-abstract`);
+        });
+
+        let modalSection = document.querySelector("[data-local-action]");
+        modalSection.addEventListener("click", async (event) => {
+            console.log(document);
+            let suggestedTitle = "Bees are nature's little pollination superheroes! Let's protect them and ensure our food chain thrives. #SaveTheBees";
+            for(let number = 1; number <= 10; number++) {
+                this.alternativeTitles2 += `<alternative-title-renderer nr="${number}" title="${suggestedTitle}"></alternative-title-renderer>`;
+            }
+            await showModal(document.querySelector("body"), "suggest-title-modal", {});
+            console.log(document);
         });
     }
 }
