@@ -106,15 +106,20 @@ webSkel.registerAction("closeModal", async (modal, _param) => {
     closeModal(modal);
 });
 webSkel.registerAction("addDocument",async(_target)=>{
-    const formData=new FormData(getClosestParentElement(_target,'form'));
-    let documentTitle= formData.get("documentTitle");
+    let documentTitle= new FormData(getClosestParentElement(_target,'form')).get("documentTitle");
     let documentId= `dkey-${await webSkel.liteUserDB.addDocument(new userDocument(documentTitle))}`;
     closeModal(_target);
+
     const tableDocument=document.querySelector('.table');
     const newRowNode=document.createElement('document-item-renderer');
+
     newRowNode.setAttribute("data-name",documentTitle);
     newRowNode.setAttribute("data-primary-key",documentId);
+
     tableDocument.appendChild(newRowNode);
+
+    /* to check indexedDB , to be removed */
+    console.log(await webSkel.liteUserDB.getDocuments());
 })
 
 webSkel.registerAction("changePage", async (_target, pageId,refreshFlag='0') => {
