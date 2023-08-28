@@ -8,10 +8,7 @@ export class documentsPage {
         this.button = "Add document";
         this.tableRows = "No data loaded";
         let currentCompany= Company.getInstance();
-      /*  setTimeout(async ()=> {
-                this._documentConfigs = currentCompany.companyState.documents;
-                this.invalidate();
-        },0);*/
+
         if(currentCompany.companyState){
             this._documentConfigs = currentCompany.companyState.documents;
             console.log(this._documentConfigs.length);

@@ -7,14 +7,20 @@ export class docPageByTitle {
         this.abstractText = "Abstract text";
         this.button = "Add new document";
         let currentCompany= Company.getInstance();
-        setTimeout(async ()=> {
-            this._documentConfigs = await currentCompany.companyState.documents;
+
+        if(currentCompany.companyState){
+            this._documentConfigs = currentCompany.companyState.documents;
+            console.log(this._documentConfigs.length);
+            setTimeout(()=>{
+                this.invalidate()
+            },0);
+        }
+        this.updateState = (companyState)=>{
+            console.log("Update State");
+            this._documentConfigs = companyState.documents;
             this.invalidate();
-        },0);
-        currentCompany.onChange(async (companyState) => {
-            this._documentConfigs = await companyState.documents;
-            this.invalidate();
-        });
+        }
+        currentCompany.onChange(this.updateState);
     }
 
     beforeRender() {
@@ -39,22 +45,23 @@ export class docPageByTitle {
     afterRender() {
         const editTitleButton = document.querySelector('#edit-title');
         editTitleButton.addEventListener('click', () => {
-            webSkel.changeToStaticPage(`documents/${this.primaryKey}/edit-title`);
+            webSkel.changeToStaticPage(`documents/${this.id}/edit-title`);
         });
 
         const editAbstractButton = document.querySelector('#edit-abstract');
         editAbstractButton.addEventListener('click', () => {
-            webSkel.changeToStaticPage(`documents/${this.primaryKey}/edit-abstract`);
+            webSkel.changeToStaticPage(`documents/${this.id}/edit-abstract`);
         });
 
         const settingsButton = document.querySelector('#settings');
         settingsButton.addEventListener('click', () => {
-            webSkel.changeToStaticPage(`documents/${this.primaryKey}/settings`);
+            webSkel.changeToStaticPage(`documents/${this.id}/settings`);
         });
 
         const brainstormingButton = document.querySelector('#brainstorming');
         brainstormingButton.addEventListener('click', () => {
-            webSkel.changeToStaticPage(`documents/${this.primaryKey}/brainstorming`);
+            webSkel.changeToStaticPage(`documents/${this.id
+            }/brainstorming`);
         });
 
         const chapters = document.querySelectorAll('.new-chapter');
