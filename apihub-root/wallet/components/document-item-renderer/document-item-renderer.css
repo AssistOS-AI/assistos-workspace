@@ -3,6 +3,13 @@
     display: flex;
     align-items: center;
     border-top: 1px solid rgba(194, 194, 194, 0.6);
+    color: #494949;
+    font-family: Poppins;
+    font-size: 16px;
+    font-style: normal;
+    font-weight: 500;
+    line-height: normal;
+    text-transform: capitalize;
 }
 
 .cell {
