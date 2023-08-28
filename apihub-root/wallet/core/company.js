@@ -1,18 +1,30 @@
+import {liteUserDatabase} from "../imports.js";
+
 export class Company {
-    constructor() {
-        this.load();
+    constructor(userType) {
+        this.load(userType);
         this.observers=[];
     }
 
-    async load() {
-        let response = await fetch('/wallet/data.json');
-        this.companyState = await response.json();
+    async load(userType) {
+        if(userType!=="lite") {
+            let response = await fetch('/wallet/data.json');
+            this.companyState = await response.json();
+        }else{
+            /* We could load only the data we need for the current page instead? */
+            this.companyState=await this.loadDatabaseData();
+        }
         this.notifyObservers();
     }
 
-    static getInstance() {
+    async loadDatabaseData(){
+            await webSkel.liteUserDB.init();
+            const liteUserData=await webSkel.liteUserDB.getAllRecords();
+            return liteUserData;
+    }
+    static getInstance(userType="lite") {
         if(!this.instance) {
-            this.instance = new Company();
+            this.instance = new Company(userType);
         }
         return this.instance;
     }
