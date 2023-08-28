@@ -1,7 +1,7 @@
 .table-header {
     padding-left: 10px;
     display: flex;
-
+    justify-content: space-between;
     color: #363C44;
     font-family: Poppins;
     font-size: 18px;
