@@ -6,16 +6,16 @@ export class docPageByTitle {
         this.name = "Name";
         this.abstractText = "Abstract text";
         this.button = "Add new document";
-        let currentCompany= Company.getInstance();
+        let currentCompany = Company.getInstance();
 
-        if(currentCompany.companyState){
+        if(currentCompany.companyState) {
             this._documentConfigs = currentCompany.companyState.documents;
             console.log(this._documentConfigs.length);
-            setTimeout(()=>{
+            setTimeout(()=> {
                 this.invalidate()
             },0);
         }
-        this.updateState = (companyState)=>{
+        this.updateState = (companyState)=> {
             console.log("Update State");
             this._documentConfigs = companyState.documents;
             this.invalidate();
@@ -25,7 +25,7 @@ export class docPageByTitle {
 
     beforeRender() {
         let documentContent = document.querySelector("doc-page-by-title");
-        this.id= documentContent.getAttribute("data-document-id");
+        this.id = documentContent.getAttribute("data-document-id");
         this.chapters="";
         if(this._documentConfigs) {
             this._doc = this._documentConfigs.find(document => document.id === this.id);

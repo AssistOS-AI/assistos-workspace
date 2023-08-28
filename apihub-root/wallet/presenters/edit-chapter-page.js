@@ -4,22 +4,28 @@ import { showModal } from "../../WebSkel/utils/modal-utils.js";
 export class editChapterPage {
     constructor() {
         let currentCompany = Company.getInstance();
-        setTimeout(async ()=> {
-            this._documentConfigs = await currentCompany.companyState.documents;
+
+        if(currentCompany.companyState) {
+            this._documentConfigs = currentCompany.companyState.documents;
+            console.log(this._documentConfigs.length);
+            setTimeout(()=> {
+                this.invalidate()
+            },0);
+        }
+        this.updateState = (companyState)=> {
+            console.log("Update State");
+            this._documentConfigs = companyState.documents;
             this.invalidate();
-        },0);
-        currentCompany.onChange(async (companyState) => {
-            this._documentConfigs = await companyState.documents;
-            this.invalidate();
-        });
+        }
+        currentCompany.onChange(this.updateState);
     }
 
     beforeRender() {
         let documentContent = document.querySelector("edit-abstract-page");
-        this.primaryKey = documentContent.getAttribute("data-document-id");
+        this.id = documentContent.getAttribute("data-document-id");
         this.alternativeAbstracts = "";
         if(this._documentConfigs) {
-            this._doc = this._documentConfigs.find(document => document.primaryKey === this.primaryKey);
+            this._doc = this._documentConfigs.find(document => document.id === this.id);
             try {
                 this.title = this._doc.name;
                 this.abstractText = this._doc.abstract;
@@ -35,22 +41,22 @@ export class editChapterPage {
     afterRender() {
         const editTitleButton = document.querySelector('#edit-title');
         editTitleButton.addEventListener('click', () => {
-            webSkel.changeToStaticPage(`documents/${this.primaryKey}/edit-title`);
+            webSkel.changeToStaticPage(`documents/${this.id}/edit-title`);
         });
 
         const editAbstractButton = document.querySelector('#edit-abstract');
         editAbstractButton.addEventListener('click', () => {
-            webSkel.changeToStaticPage(`documents/${this.primaryKey}/edit-abstract`);
+            webSkel.changeToStaticPage(`documents/${this.id}/edit-abstract`);
         });
 
         const settingsButton = document.querySelector('#settings');
         settingsButton.addEventListener('click', () => {
-            webSkel.changeToStaticPage(`documents/${this.primaryKey}/settings`);
+            webSkel.changeToStaticPage(`documents/${this.id}/settings`);
         });
 
         const brainstormingButton = document.querySelector('#brainstorming');
         brainstormingButton.addEventListener('click', () => {
-            webSkel.changeToStaticPage(`documents/${this.primaryKey}/brainstorming`);
+            webSkel.changeToStaticPage(`documents/${this.id}/brainstorming`);
         });
 
         let modalSection = document.querySelector("[data-local-action]");

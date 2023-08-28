@@ -8,15 +8,21 @@ export class proofReaderPage {
         this.modal = "showAddPersonalityModal";
         this.button = "Add Personality";
         // this.tableRows = "No data loaded";
-        let currentCompany= Company.getInstance();
-        setTimeout(async ()=>{
-                this._personalityConfigs = await currentCompany.companyState.personalities;
-                this.invalidate();},
-            0);
-        currentCompany.onChange((companyState) => {
-            this._personalityConfigs = companyState.personalities;
+        let currentCompany = Company.getInstance();
+
+        if(currentCompany.companyState) {
+            this._documentConfigs = currentCompany.companyState.documents;
+            console.log(this._documentConfigs.length);
+            setTimeout(()=> {
+                this.invalidate()
+            },0);
+        }
+        this.updateState = (companyState)=> {
+            console.log("Update State");
+            this._documentConfigs = companyState.documents;
             this.invalidate();
-        });
+        }
+        currentCompany.onChange(this.updateState);
         // document.addEventListener("click", (event) => {
         //     let showBox = document.querySelectorAll("div.action-box");
         //     showBox.forEach((actionWindow) => {

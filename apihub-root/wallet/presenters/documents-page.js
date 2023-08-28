@@ -7,24 +7,22 @@ export class documentsPage {
         this.modal = "showAddNewDocumentModal";
         this.button = "Add document";
         this.tableRows = "No data loaded";
-        let currentCompany= Company.getInstance();
+        let currentCompany = Company.getInstance();
 
-        if(currentCompany.companyState){
+        if(currentCompany.companyState) {
             this._documentConfigs = currentCompany.companyState.documents;
             console.log(this._documentConfigs.length);
-            setTimeout(()=>{
+            setTimeout(()=> {
                 this.invalidate()
             },0);
         }
-        this.updateState = (companyState)=>{
+        this.updateState = (companyState)=> {
             console.log("Update State");
             this._documentConfigs = companyState.documents;
             this.invalidate();
         }
         currentCompany.onChange(this.updateState);
     }
-
-
 
     beforeRender() {
         this.tableRows="";
