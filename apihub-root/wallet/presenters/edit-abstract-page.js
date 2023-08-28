@@ -42,9 +42,10 @@ export class editAbstractPage {
         editAbstractButton.addEventListener('click', () => {
             webSkel.changeToStaticPage(`documents/${this.primaryKey}/edit-abstract`);
         });
-        // let modalSection = document.querySelector("[data-local-action]");
-        // modalSection.addEventListener("click", async (event) => {
-        //     await showModal(document.querySelector("body"), "add-announce-modal", {});
-        // });
+
+        let modalSection = document.querySelector("[data-local-action]");
+        modalSection.addEventListener("click", async (event) => {
+            await showModal(document.querySelector("body"), "suggest-abstract-modal", {});
+        });
     }
 }

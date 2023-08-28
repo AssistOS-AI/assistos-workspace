@@ -44,13 +44,7 @@ export class editTitlePage {
 
         let modalSection = document.querySelector("[data-local-action]");
         modalSection.addEventListener("click", async (event) => {
-            console.log(document);
-            let suggestedTitle = "Bees are nature's little pollination superheroes! Let's protect them and ensure our food chain thrives. #SaveTheBees";
-            for(let number = 1; number <= 10; number++) {
-                this.alternativeTitles2 += `<alternative-title-renderer nr="${number}" title="${suggestedTitle}"></alternative-title-renderer>`;
-            }
             await showModal(document.querySelector("body"), "suggest-title-modal", {});
-            console.log(document);
         });
     }
 }

@@ -161,6 +161,7 @@ webSkel.defineComponent("action-box-with-select", "./wallet/components/action-bo
 webSkel.defineComponent("alternative-title-renderer", "./wallet/components/alternative-title-renderer/alternative-title-renderer.html");
 webSkel.defineComponent("alternative-abstract-renderer", "./wallet/components/alternative-abstract-renderer/alternative-abstract-renderer.html");
 webSkel.defineComponent("suggest-title-modal", "./wallet/components/suggest-title-modal/suggest-title-modal.html");
+webSkel.defineComponent("suggest-abstract-modal", "./wallet/components/suggest-abstract-modal/suggest-abstract-modal.html");
 
 webSkel.defineComponent("llms-page", "./wallet/pages/llms-page/llms-page.html");
 webSkel.defineComponent("personalities-page", "./wallet/pages/personalities-page/personalities-page.html");

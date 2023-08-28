@@ -75,7 +75,8 @@
     line-height: normal;
 }
 
-.summarize {
+.summarize,
+.suggest {
     display: flex;
     align-items: center;
     color: #0618D1;
@@ -88,7 +89,8 @@
     padding-right: 20px;
 }
 
-.summarize svg {
+.summarize svg,
+.suggest svg {
     margin-top: -5px;
     margin-right: 5px;
 }
@@ -109,4 +111,10 @@
 
 .alternative-abstracts {
     margin-right: 50px;
+}
+
+.abstract-subtitle {
+    display: flex;
+    width: 100%;
+    justify-content: space-between;
 }
