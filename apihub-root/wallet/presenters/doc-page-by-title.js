@@ -47,6 +47,16 @@ export class docPageByTitle {
             webSkel.changeToStaticPage(`documents/${this.primaryKey}/edit-abstract`);
         });
 
+        const settingsButton = document.querySelector('#settings');
+        settingsButton.addEventListener('click', () => {
+            webSkel.changeToStaticPage(`documents/${this.primaryKey}/settings`);
+        });
+
+        const brainstormingButton = document.querySelector('#brainstorming');
+        brainstormingButton.addEventListener('click', () => {
+            webSkel.changeToStaticPage(`documents/${this.primaryKey}/brainstorming`);
+        });
+
         const chapters = document.querySelectorAll('.new-chapter');
         chapters.forEach(chapter => {
             const title = chapter.querySelector('.chapter-title');

@@ -1,9 +1,8 @@
 import { Company } from "../core/company.js";
 import { showModal } from "../../WebSkel/utils/modal-utils.js";
 
-export class editAbstractPage {
+export class documentSettingsPage {
     constructor() {
-        this.abstractText = "Lorem ipsum dolor sit amet, id his dolore facilisis, latine recteque vim cu. Mea eu dicant habemus partiendo, ea vidit copiosae mel, vis ne etiam ponderum. Delenit blandit cum no, id vel zril detraxit, etiam salutandi ea eam. Nec an omnis forensibus, eu civibus singulis aliquando est. Augue maluisset pri ut, ut dicat percipitur theophrastus sea. Ne vix debet copiosae, ne persius pertinax delicatissimi mea.";
         let currentCompany = Company.getInstance();
         setTimeout(async ()=> {
             this._documentConfigs = await currentCompany.companyState.documents;
@@ -16,17 +15,16 @@ export class editAbstractPage {
     }
 
     beforeRender() {
-        let documentContent = document.querySelector("edit-abstract-page");
-        // this.primaryKey = documentContent.getAttribute("data-document-id");
-        this.alternativeAbstracts = "";
+        let documentContent = document.querySelector("document-settings-page");
+        this.primaryKey = documentContent.getAttribute("data-document-id");
+        this.alternativeTitles = "";
         if(this._documentConfigs) {
             this._doc = this._documentConfigs.find(document => document.primaryKey === this.primaryKey);
             try {
                 this.title = this._doc.name;
-                // this.abstractText = this._doc.abstract;
                 let suggestedTitle = "Bees are nature's little pollination superheroes! Let's protect them and ensure our food chain thrives. #SaveTheBees";
                 for(let number = 1; number <= 10; number++) {
-                    this.alternativeAbstracts += `<alternative-abstract-renderer nr="${number}" title="${suggestedTitle}"></alternative-abstract-renderer>`;
+                    this.alternativeTitles += `<alternative-title-renderer nr="${number}" title="${suggestedTitle}"></alternative-title-renderer>`;
                 }
             } catch(e) {}
         }
@@ -56,7 +54,7 @@ export class editAbstractPage {
 
         let modalSection = document.querySelector("[data-local-action]");
         modalSection.addEventListener("click", async (event) => {
-            await showModal(document.querySelector("body"), "suggest-abstract-modal", {});
+            await showModal(document.querySelector("body"), "suggest-title-modal", {});
         });
     }
 }

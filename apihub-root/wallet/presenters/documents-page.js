@@ -39,6 +39,7 @@ export class documentsPage {
             this.tableRows=`<div> No Data Currently </div>`;
         }
     }
+
     /* adding event Listeners after the web component has loaded, etc */
     afterRender() {
         let modalSection = document.querySelector("[data-local-action]");

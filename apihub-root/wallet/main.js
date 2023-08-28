@@ -7,6 +7,8 @@ import {
     editAbstractPage,
     proofReaderPage,
     myOrganisationPage,
+    brainstormingPage,
+    documentSettingsPage,
     urlForPage,
     closeModal,
     showActionBox,
@@ -100,6 +102,8 @@ function definePresenters(){
     webSkel.registerPresenter("edit-abstract-page", editAbstractPage);
     webSkel.registerPresenter("personalities-page", personalitiesPage);
     webSkel.registerPresenter("documents-page", documentsPage);
+    webSkel.registerPresenter("document-settings-page", documentSettingsPage);
+    webSkel.registerPresenter("brainstorming-page", brainstormingPage);
     webSkel.registerPresenter("proof-reader-page", proofReaderPage);
     webSkel.registerPresenter("my-organisation-page", myOrganisationPage);
 }
@@ -118,10 +122,13 @@ function defineComponents() {
     webSkel.defineComponent("alternative-title-renderer", "./wallet/components/alternative-title-renderer/alternative-title-renderer.html");
     webSkel.defineComponent("alternative-abstract-renderer", "./wallet/components/alternative-abstract-renderer/alternative-abstract-renderer.html");
     webSkel.defineComponent("suggest-title-modal", "./wallet/components/suggest-title-modal/suggest-title-modal.html");
+    webSkel.defineComponent("suggest-abstract-modal", "./wallet/components/suggest-abstract-modal/suggest-abstract-modal.html");
 
     webSkel.defineComponent("llms-page", "./wallet/pages/llms-page/llms-page.html");
     webSkel.defineComponent("personalities-page", "./wallet/pages/personalities-page/personalities-page.html");
     webSkel.defineComponent("documents-page", "./wallet/pages/documents-page/documents-page.html");
+    webSkel.defineComponent("document-settings-page", "./wallet/pages/document-settings-page/document-settings-page.html");
+    webSkel.defineComponent("brainstorming-page", "./wallet/pages/brainstorming-page/brainstorming-page.html");
     webSkel.defineComponent("doc-page-by-title", "./wallet/pages/doc-page-by-title/doc-page-by-title.html");
     webSkel.defineComponent("edit-title-page", "./wallet/pages/edit-title-page/edit-title-page.html");
     webSkel.defineComponent("edit-abstract-page", "./wallet/pages/edit-abstract-page/edit-abstract-page.html");
