@@ -1,25 +1,25 @@
 {
     "llms": [
         {
-            "primaryKey" : "lkey-1",
+            "id" : "lkey-1",
             "name" : "OpenAI",
             "key" : "",
             "url" : "https://openai.com"
         },
         {
-            "primaryKey" : "lkey-2",
+            "id" : "lkey-2",
             "name" : "ChatGPT 3.5",
             "key" : "",
             "url" : "https://chat.openai.com"
         },
         {
-            "primaryKey" : "lkey-3",
+            "id" : "lkey-3",
             "name" : "ChatGPT 4",
             "key" : "",
             "url" : "https://chat.openai.com/"
         },
         {
-            "primaryKey" : "lkey-4",
+            "id" : "lkey-4",
             "name" : "Azure ChatGPT 3.5",
             "key" : "",
             "url" : "https://azure.microsoft.com/en-in/products/cognitive-services/openai-service/"
@@ -27,24 +27,24 @@
     ],
     "personalities": [
         {
-            "primaryKey" : "pkey-1",
+            "id" : "pkey-1",
             "shortname" : "James12",
             "aiPrompt" : "Lorem ipsum dolor sit amet, his ut dicam mentitum suscipiantur. Epicurei oporteat id vis, sit cu essent eleifend gloriatur. Falli viris ex his, elitr nemore eos ei, odio semper inciderint quo eu. Ea mea porro velit, cum et malis quidam option. Hinc elaboraret ut sit, mea ut doctus apeirian praesent, ne pro idque munere reformidans. Ut rebum corrumpit evertitur his."
         },
         {
-            "primaryKey" : "pkey-2",
+            "id" : "pkey-2",
             "shortname" : "JAMESjj",
             "aiPrompt" : "Lorem ipsum dolor sit amet, ei vix agam fabulas ceteros, et eos quando labore petentium, mel unum debet homero ut. Mea munere vocent at, sit latine dissentiunt eu. Te eum stet summo omnesque, ea consetetur intellegam mel, mentitum mediocrem no duo. Usu ne homero constituto, simul fierent id per. Te impetus malorum alienum vel. Ne ubique appareat erroribus mea, ad eos impetus corrumpit."
         },
         {
-            "primaryKey" : "pkey-3",
+            "id" : "pkey-3",
             "shortname" : "JamesJones",
             "aiPrompt" : "Lorem ipsum dolor sit amet, sit ne dicta molestiae. Eam agam habeo propriae eu. Ei detracto democritum vituperata vis, et qui facete dignissim. Dicta scripserit consequuntur eu sed, at soluta audiam meliore vel."
         }
     ],
     "documents": [
         {
-            "primaryKey" : "dkey-1",
+            "id" : "dkey-1",
             "name" : "The Alchemist",
             "abstract": "Lorem ipsum dolor sit amet, qui civibus intellegat percipitur ei. Sale verterem intellegat ea est, mea ei altera disputando referrentur. Pri ne dicant latine, cu nullam eloquentiam referrentur mea, per dictas omnium impetus ut. Mazim quaeque usu id. Ex quo aeterno scribentur, vis essent oblique an.\n\nCeteros molestie facilisi his in, cu saperet facilisi eum. Est legendos voluptatum ut, duo meis fastidii ea, meliore tibique nominavi sea cu. Inani ludus ullamcorper ne qui, cu purto natum audiam vis, viris ludus electram an his. Idque nonumes vel te, commodo ancillae in eos. Tollit petentium prodesset duo no, odio euripidis cu vis.",
             "chapters": [
@@ -67,7 +67,7 @@
             ]
         },
         {
-            "primaryKey" : "dkey-2",
+            "id" : "dkey-2",
             "name" : "Untamed",
             "abstract": "Lorem ipsum dolor sit amet, qui civibus intellegat percipitur ei. Sale verterem intellegat ea est, mea ei altera disputando referrentur. Pri ne dicant latine, cu nullam eloquentiam referrentur mea, per dictas omnium impetus ut. Mazim quaeque usu id. Ex quo aeterno scribentur, vis essent oblique an.\n\nCeteros molestie facilisi his in, cu saperet facilisi eum. Est legendos voluptatum ut, duo meis fastidii ea, meliore tibique nominavi sea cu. Inani ludus ullamcorper ne qui, cu purto natum audiam vis, viris ludus electram an his. Idque nonumes vel te, commodo ancillae in eos. Tollit petentium prodesset duo no, odio euripidis cu vis.",
             "chapters": [
@@ -90,7 +90,7 @@
             ]
         },
         {
-            "primaryKey" : "dkey-3",
+            "id" : "dkey-3",
             "name" : "&quot;Sapiens: A Brief History of Humankind&quot; by Yuval Noah Harari",
             "abstract": "Lorem ipsum dolor sit amet, qui civibus intellegat percipitur ei. Sale verterem intellegat ea est, mea ei altera disputando referrentur. Pri ne dicant latine, cu nullam eloquentiam referrentur mea, per dictas omnium impetus ut. Mazim quaeque usu id. Ex quo aeterno scribentur, vis essent oblique an.\n\nCeteros molestie facilisi his in, cu saperet facilisi eum. Est legendos voluptatum ut, duo meis fastidii ea, meliore tibique nominavi sea cu. Inani ludus ullamcorper ne qui, cu purto natum audiam vis, viris ludus electram an his. Idque nonumes vel te, commodo ancillae in eos. Tollit petentium prodesset duo no, odio euripidis cu vis.",
             "chapters": [
