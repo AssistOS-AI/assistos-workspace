@@ -42,6 +42,11 @@ export class editTitlePage {
             webSkel.changeToStaticPage(`documents/${this.primaryKey}/edit-abstract`);
         });
 
+        const settingsButton = document.querySelector('#settings');
+        settingsButton.addEventListener('click', () => {
+            webSkel.changeToStaticPage(`documents/${this.primaryKey}/settings`);
+        });
+
         let modalSection = document.querySelector("[data-local-action]");
         modalSection.addEventListener("click", async (event) => {
             await showModal(document.querySelector("body"), "suggest-title-modal", {});

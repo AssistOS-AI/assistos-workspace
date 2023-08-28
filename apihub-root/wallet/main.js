@@ -7,6 +7,7 @@ import {
     editAbstractPage,
     proofReaderPage,
     myOrganisationPage,
+    documentSettingsPage,
     urlForPage,
     closeModal,
     showActionBox,
@@ -99,6 +100,7 @@ webSkel.registerPresenter("edit-title-page", editTitlePage);
 webSkel.registerPresenter("edit-abstract-page", editAbstractPage);
 webSkel.registerPresenter("personalities-page", personalitiesPage);
 webSkel.registerPresenter("documents-page", documentsPage);
+webSkel.registerPresenter("document-settings-page", documentSettingsPage);
 webSkel.registerPresenter("proof-reader-page", proofReaderPage);
 webSkel.registerPresenter("my-organisation-page", myOrganisationPage);
 
@@ -166,6 +168,7 @@ webSkel.defineComponent("suggest-abstract-modal", "./wallet/components/suggest-a
 webSkel.defineComponent("llms-page", "./wallet/pages/llms-page/llms-page.html");
 webSkel.defineComponent("personalities-page", "./wallet/pages/personalities-page/personalities-page.html");
 webSkel.defineComponent("documents-page", "./wallet/pages/documents-page/documents-page.html");
+webSkel.defineComponent("document-settings-page", "./wallet/pages/document-settings-page/document-settings-page.html");
 webSkel.defineComponent("doc-page-by-title", "./wallet/pages/doc-page-by-title/doc-page-by-title.html");
 webSkel.defineComponent("edit-title-page", "./wallet/pages/edit-title-page/edit-title-page.html");
 webSkel.defineComponent("edit-abstract-page", "./wallet/pages/edit-abstract-page/edit-abstract-page.html");
