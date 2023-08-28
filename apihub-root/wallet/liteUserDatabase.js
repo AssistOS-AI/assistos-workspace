@@ -10,6 +10,7 @@ export default class liteUserDatabase {
         }
     }
 
+
     async init() {
         return new Promise((resolve, reject) => {
             const connectionRequest = indexedDB.open(this.dbName, this.version);
@@ -37,7 +38,7 @@ export default class liteUserDatabase {
         });
     }
 
-    async getRecord(storeName) {
+    async getObjectStoreRecords(storeName) {
         return new Promise((resolve, reject) => {
             const transaction = this.db.transaction(storeName, "readonly");
             const objectStore = transaction.objectStore(storeName);
@@ -62,7 +63,7 @@ export default class liteUserDatabase {
 
             try {
                 for (let storeName of objectStoreNames) {
-                    allData[storeName] = await this.getRecord(storeName);
+                    allData[storeName] = await this.getObjectStoreRecords(storeName);
                 }
                 resolve(allData);
             } catch (error) {
@@ -71,29 +72,52 @@ export default class liteUserDatabase {
             }
         });
     }
-    async addRecord(storeName, data) {
+    async getRecord(storeName, key) {
         return new Promise((resolve, reject) => {
-
             if (!this.db.objectStoreNames.contains(storeName)) {
                 reject(`Object store "${storeName}" does not exist.`);
                 return;
             }
-
-            const transaction = this.db.transaction(storeName, "readwrite");
+            const transaction = this.db.transaction(storeName, "readonly");
             const objectStore = transaction.objectStore(storeName);
-
-            const request = objectStore.add(data);
-
+            const request = objectStore.get(key);
             request.onsuccess = (event) => {
-                resolve(event.target.result);
+                resolve(event.target.result || null);
             };
-
             request.onerror = (event) => {
-                console.error(`Encountered IndexDB error: ${event.target.error} while adding data to ${storeName}.`);
+                console.error(`Encountered IndexDB error: ${event.target.error} while fetching record with key ${key} from ${storeName}.`);
                 reject(event.target.error);
             };
         });
     }
+
+    async addRecord(storeName, data) {
+        if (!this.db.objectStoreNames.contains(storeName)) {
+            throw new Error(`Object store "${storeName}" does not exist.`);
+        }
+
+        const existingRecord = await this.getRecord(storeName, data.id);
+
+        if (existingRecord) {
+            return;
+        }
+
+        return new Promise((resolve, reject) => {
+            const transaction = this.db.transaction(storeName, "readwrite");
+            const objectStore = transaction.objectStore(storeName);
+            const addRequest = objectStore.add(data);
+
+            addRequest.onsuccess = () => resolve(addRequest.result);
+            addRequest.onerror = event => reject(new Error(`Encountered IndexDB error: ${event.target.error} while adding data to ${storeName}.`));
+
+            transaction.onerror = event => reject(event.target.error);
+            transaction.onabort = event => reject(new Error('Transaction was aborted'));
+        });
+    }
+
+
+
+
     async deleteRecord(storeName, key) {
         return new Promise((resolve, reject) => {
             // Ensure that the storeName exists
@@ -104,8 +128,12 @@ export default class liteUserDatabase {
 
             const transaction = this.db.transaction(storeName, "readwrite");
             const objectStore = transaction.objectStore(storeName);
-
-            const request = objectStore.delete(key);
+            let request;
+            try{
+               request = objectStore.delete(key);
+            }catch(error){
+                console.log(key,error);
+            }
 
             request.onsuccess = () => {
                 resolve(`Record with key ${key} successfully deleted from ${storeName}.`);

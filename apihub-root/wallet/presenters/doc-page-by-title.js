@@ -19,10 +19,10 @@ export class docPageByTitle {
 
     beforeRender() {
         let documentContent = document.querySelector("doc-page-by-title");
-        this.primaryKey = documentContent.getAttribute("data-document-id");
+        this.id= documentContent.getAttribute("data-document-id");
         this.chapters="";
         if(this._documentConfigs) {
-            this._doc = this._documentConfigs.find(document => document.primaryKey === this.primaryKey);
+            this._doc = this._documentConfigs.find(document => document.id === this.id);
             try {
                 this.title=this._doc.name;
                 this.abstractText = this._doc.abstract;

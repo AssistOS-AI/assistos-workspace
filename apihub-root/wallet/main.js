@@ -13,8 +13,10 @@ import {
     getClosestParentElement,
     liteUserDatabase,
     userDocument,
+    Company,
     WebSkel
 } from "./imports.js";
+
 
 const openDSU = require("opendsu");
 window.webSkel = new WebSkel();
@@ -132,16 +134,14 @@ function defineActions(){
     });
     webSkel.registerAction("addDocument",async(_target)=>{
         let documentTitle= new FormData(getClosestParentElement(_target,'form')).get("documentTitle");
-        let documentId= `${await webSkel.liteUserDB.addRecord("documents",new userDocument(documentTitle))}`;
+        let document=new userDocument(documentTitle);
+        let documentId= `${await webSkel.liteUserDB.addRecord("documents",document)}`;
         closeModal(_target);
 
-        const tableDocument=document.querySelector('.table');
-        const newRowNode=document.createElement('document-item-renderer');
-
-        newRowNode.setAttribute("data-name",documentTitle);
-        newRowNode.setAttribute("data-primary-key",documentId);
-
-        tableDocument.appendChild(newRowNode);
+        let currentCompany= Company.getInstance();
+        document.id=documentId;
+        currentCompany.companyState.documents.push(document);
+        currentCompany.notifyObservers();
 
     })
 
@@ -171,8 +171,19 @@ function defineActions(){
         if (deleteButton) {
             deleteButton.addEventListener("click", async (event) => {
                 const rowElement=getClosestParentElement(deleteButton,"document-item-renderer");
-                await webSkel.liteUserDB.deleteRecord("documents",parseInt(rowElement.getAttribute('data-primary-key')));
-                rowElement.remove();
+                let documentIdToRemove=rowElement.getAttribute('data-primary-key');
+
+                await webSkel.liteUserDB.deleteRecord("documents",parseInt(documentIdToRemove));
+                let currentCompany= Company.getInstance();
+                let length = currentCompany.companyState.documents.length;
+
+                for(let documentIndex = 0; documentIndex < length; documentIndex++) {
+                    if(currentCompany.companyState.documents[documentIndex].id === documentIdToRemove) {
+                        currentCompany.companyState.documents.splice(documentIndex, 1);
+                        break;
+                    }
+                }
+                currentCompany.notifyObservers();
             });
 
         }});

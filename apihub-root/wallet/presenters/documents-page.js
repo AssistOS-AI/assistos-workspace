@@ -8,15 +8,26 @@ export class documentsPage {
         this.button = "Add document";
         this.tableRows = "No data loaded";
         let currentCompany= Company.getInstance();
-        setTimeout(async ()=> {
+      /*  setTimeout(async ()=> {
                 this._documentConfigs = currentCompany.companyState.documents;
                 this.invalidate();
-        },0);
-        currentCompany.onChange((companyState) => {
+        },0);*/
+        if(currentCompany.companyState){
+            this._documentConfigs = currentCompany.companyState.documents;
+            console.log(this._documentConfigs.length);
+            setTimeout(()=>{
+                this.invalidate()
+            },0);
+        }
+        this.updateState = (companyState)=>{
+            console.log("Update State");
             this._documentConfigs = companyState.documents;
             this.invalidate();
-        });
+        }
+        currentCompany.onChange(this.updateState);
     }
+
+
 
     beforeRender() {
         this.tableRows="";
