@@ -70,7 +70,6 @@ async function initWallet() {
 }
 async function initLiteUserDatabase(){
     webSkel.liteUserDB= new liteUserDatabase("liteUser",1);
-    await webSkel.liteUserDB.init();
 }
 function changeSelectedPageFromSidebar(url) {
     let element = document.getElementById('selected-page');
@@ -92,90 +91,99 @@ function changeSelectedPageFromSidebar(url) {
         }
     });
 }
-webSkel.setDomElementForPages(document.querySelector("#page-content"));
 
-webSkel.registerPresenter("llms-page", llmsPage);
-webSkel.registerPresenter("doc-page-by-title", docPageByTitle);
-webSkel.registerPresenter("edit-title-page", editTitlePage);
-webSkel.registerPresenter("edit-abstract-page", editAbstractPage);
-webSkel.registerPresenter("personalities-page", personalitiesPage);
-webSkel.registerPresenter("documents-page", documentsPage);
-webSkel.registerPresenter("document-settings-page", documentSettingsPage);
-webSkel.registerPresenter("proof-reader-page", proofReaderPage);
-webSkel.registerPresenter("my-organisation-page", myOrganisationPage);
+function definePresenters(){
+    webSkel.registerPresenter("llms-page", llmsPage);
+    webSkel.registerPresenter("doc-page-by-title", docPageByTitle);
+    webSkel.registerPresenter("edit-title-page", editTitlePage);
+    webSkel.registerPresenter("edit-abstract-page", editAbstractPage);
+    webSkel.registerPresenter("personalities-page", personalitiesPage);
+    webSkel.registerPresenter("documents-page", documentsPage);
+    webSkel.registerPresenter("document-settings-page", documentSettingsPage);
+    webSkel.registerPresenter("proof-reader-page", proofReaderPage);
+    webSkel.registerPresenter("my-organisation-page", myOrganisationPage);
+}
+function defineComponents() {
+    /* Modal components defined here */
+    webSkel.defineComponent("add-llm-modal", "./wallet/components/add-llm-modal/add-llm-modal.html");
+    webSkel.defineComponent("add-personality-modal", "./wallet/components/add-personality-modal/add-personality-modal.html");
+    webSkel.defineComponent("add-announce-modal", "./wallet/components/add-announce-modal/add-announce-modal.html");
+    webSkel.defineComponent("add-new-document-modal", "./wallet/components/add-new-document-modal/add-new-document-modal.html");
+    webSkel.defineComponent("llm-item-renderer", "./wallet/components/llm-item-renderer/llm-item-renderer.html");
+    webSkel.defineComponent("new-chapter", "./wallet/components/new-chapter/new-chapter.html");
+    webSkel.defineComponent("personality-item-renderer", "./wallet/components/personality-item-renderer/personality-item-renderer.html");
+    webSkel.defineComponent("document-item-renderer", "./wallet/components/document-item-renderer/document-item-renderer.html");
+    webSkel.defineComponent("action-box", "./wallet/components/action-box/action-box.html");
+    webSkel.defineComponent("action-box-with-select", "./wallet/components/action-box-with-select/action-box-with-select.html");
+    webSkel.defineComponent("alternative-title-renderer", "./wallet/components/alternative-title-renderer/alternative-title-renderer.html");
+    webSkel.defineComponent("alternative-abstract-renderer", "./wallet/components/alternative-abstract-renderer/alternative-abstract-renderer.html");
+    webSkel.defineComponent("suggest-title-modal", "./wallet/components/suggest-title-modal/suggest-title-modal.html");
+    webSkel.defineComponent("suggest-abstract-modal", "./wallet/components/suggest-abstract-modal/suggest-abstract-modal.html");
 
-webSkel.registerAction("closeModal", async (modal, _param) => {
-    closeModal(modal);
-});
-webSkel.registerAction("addDocument",async(_target)=>{
-    const formData=new FormData(getClosestParentElement(_target,'form'));
-    let documentTitle= formData.get("documentTitle");
-    let documentId= `dkey-${await webSkel.liteUserDB.addDocument(new userDocument(documentTitle))}`;
-    closeModal(_target);
-    const tableDocument=document.querySelector('.table');
-    const newRowNode=document.createElement('document-item-renderer');
-    newRowNode.setAttribute("data-name",documentTitle);
-    newRowNode.setAttribute("data-primary-key",documentId);
-    tableDocument.appendChild(newRowNode);
-})
-
-webSkel.registerAction("changePage", async (_target, pageId,refreshFlag='0') => {
-    /* If we are attempting to click the button to the tool page we're currently on, a refreshFlag with the value 0
-        will prevent that page refresh from happening and just exit the function
-     */
-    if(refreshFlag === '0') {
-        if(pageId === window.location.hash.slice(1)) {
-            return;
-        }
-    }
-    webSkel.currentToolId = pageId;
-    changeSelectedPageFromSidebar(pageId);
-    await webSkel.changeToDynamicPage(pageId);
-})
-
-webSkel.registerAction("showActionBox", async (_target, primaryKey,componentName,insertionMode) => {
-    await showActionBox(_target, primaryKey, componentName, insertionMode);
-    let editButton = document.querySelector("[data-local-action='editAction']");
-    if(editButton) {
-        editButton.addEventListener("click", async (event) => {
-            await webSkel.changeToStaticPage(`documents/${editButton.parentNode.parentNode.id}`);
-        });
-    }
-    let deleteButton = document.querySelector("[data-local-action='deleteAction']");
-    if (deleteButton) {
-        deleteButton.addEventListener("click", async (event) => {
-          getClosestParentElement(deleteButton,".document-item-renderer")?.remove();
+    webSkel.defineComponent("llms-page", "./wallet/pages/llms-page/llms-page.html");
+    webSkel.defineComponent("personalities-page", "./wallet/pages/personalities-page/personalities-page.html");
+    webSkel.defineComponent("documents-page", "./wallet/pages/documents-page/documents-page.html");
+    webSkel.defineComponent("document-settings-page", "./wallet/pages/document-settings-page/document-settings-page.html");
+    webSkel.defineComponent("doc-page-by-title", "./wallet/pages/doc-page-by-title/doc-page-by-title.html");
+    webSkel.defineComponent("edit-title-page", "./wallet/pages/edit-title-page/edit-title-page.html");
+    webSkel.defineComponent("edit-abstract-page", "./wallet/pages/edit-abstract-page/edit-abstract-page.html");
+    webSkel.defineComponent("proof-reader-page", "./wallet/pages/proof-reader-page/proof-reader-page.html");
+    webSkel.defineComponent("my-organisation-page", "./wallet/pages/my-organisation-page/my-organisation-page.html");
+}
+function defineActions(){
+    webSkel.registerAction("closeModal", async (modal, _param) => {
+        closeModal(modal);
     });
+    webSkel.registerAction("addDocument",async(_target)=>{
+        let documentTitle= new FormData(getClosestParentElement(_target,'form')).get("documentTitle");
+        let documentId= `${await webSkel.liteUserDB.addRecord("documents",new userDocument(documentTitle))}`;
+        closeModal(_target);
 
-}});
+        const tableDocument=document.querySelector('.table');
+        const newRowNode=document.createElement('document-item-renderer');
 
-/* Modal components defined here */
-webSkel.defineComponent("add-llm-modal", "./wallet/components/add-llm-modal/add-llm-modal.html");
-webSkel.defineComponent("add-personality-modal", "./wallet/components/add-personality-modal/add-personality-modal.html");
-webSkel.defineComponent("add-announce-modal", "./wallet/components/add-announce-modal/add-announce-modal.html");
-webSkel.defineComponent("add-new-document-modal", "./wallet/components/add-new-document-modal/add-new-document-modal.html");
-webSkel.defineComponent("llm-item-renderer","./wallet/components/llm-item-renderer/llm-item-renderer.html");
-webSkel.defineComponent("new-chapter", "./wallet/components/new-chapter/new-chapter.html");
-webSkel.defineComponent("personality-item-renderer","./wallet/components/personality-item-renderer/personality-item-renderer.html");
-webSkel.defineComponent("document-item-renderer","./wallet/components/document-item-renderer/document-item-renderer.html");
-webSkel.defineComponent("action-box", "./wallet/components/action-box/action-box.html");
-webSkel.defineComponent("action-box-with-select", "./wallet/components/action-box-with-select/action-box-with-select.html");
-webSkel.defineComponent("alternative-title-renderer", "./wallet/components/alternative-title-renderer/alternative-title-renderer.html");
-webSkel.defineComponent("alternative-abstract-renderer", "./wallet/components/alternative-abstract-renderer/alternative-abstract-renderer.html");
-webSkel.defineComponent("suggest-title-modal", "./wallet/components/suggest-title-modal/suggest-title-modal.html");
-webSkel.defineComponent("suggest-abstract-modal", "./wallet/components/suggest-abstract-modal/suggest-abstract-modal.html");
+        newRowNode.setAttribute("data-name",documentTitle);
+        newRowNode.setAttribute("data-primary-key",documentId);
 
-webSkel.defineComponent("llms-page", "./wallet/pages/llms-page/llms-page.html");
-webSkel.defineComponent("personalities-page", "./wallet/pages/personalities-page/personalities-page.html");
-webSkel.defineComponent("documents-page", "./wallet/pages/documents-page/documents-page.html");
-webSkel.defineComponent("document-settings-page", "./wallet/pages/document-settings-page/document-settings-page.html");
-webSkel.defineComponent("doc-page-by-title", "./wallet/pages/doc-page-by-title/doc-page-by-title.html");
-webSkel.defineComponent("edit-title-page", "./wallet/pages/edit-title-page/edit-title-page.html");
-webSkel.defineComponent("edit-abstract-page", "./wallet/pages/edit-abstract-page/edit-abstract-page.html");
-webSkel.defineComponent("proof-reader-page", "./wallet/pages/proof-reader-page/proof-reader-page.html");
-webSkel.defineComponent("my-organisation-page", "./wallet/pages/my-organisation-page/my-organisation-page.html");
+        tableDocument.appendChild(newRowNode);
+
+    })
+
+    webSkel.registerAction("changePage", async (_target, pageId,refreshFlag='0') => {
+        /* If we are attempting to click the button to the tool page we're currently on, a refreshFlag with the value 0
+            will prevent that page refresh from happening and just exit the function
+         */
+        if(refreshFlag === '0') {
+            if(pageId === window.location.hash.slice(1)) {
+                return;
+            }
+        }
+        webSkel.currentToolId = pageId;
+        changeSelectedPageFromSidebar(pageId);
+        await webSkel.changeToDynamicPage(pageId);
+    })
+
+    webSkel.registerAction("showActionBox", async (_target, primaryKey,componentName,insertionMode) => {
+        await showActionBox(_target, primaryKey, componentName, insertionMode);
+        let editButton = document.querySelector("[data-local-action='editAction']");
+        if(editButton) {
+            editButton.addEventListener("click", async (event) => {
+                await webSkel.changeToStaticPage(`documents/${editButton.parentNode.parentNode.id}`);
+            });
+        }
+        let deleteButton = document.querySelector("[data-local-action='deleteAction']");
+        if (deleteButton) {
+            deleteButton.addEventListener("click", async (event) => {
+                const rowElement=getClosestParentElement(deleteButton,"document-item-renderer");
+                await webSkel.liteUserDB.deleteRecord("documents",parseInt(rowElement.getAttribute('data-primary-key')));
+                rowElement.remove();
+            });
+
+        }});
+}
 
 (async ()=> {
+    webSkel.setDomElementForPages(document.querySelector("#page-content"));
     await initWallet();
     await initEnclaveClient();
     if (('indexedDB' in window)) {
@@ -183,4 +191,7 @@ webSkel.defineComponent("my-organisation-page", "./wallet/pages/my-organisation-
     }else{
         alert("Your current browser does not support local storage. Please use a different browser, or upgrade to premium");
     }
+    defineActions();
+    definePresenters();
+    defineComponents();
 })();
