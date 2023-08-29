@@ -244,7 +244,8 @@ body {
     font-size: 14px;
 }
 
-.title-wrapper, .tool-name {
+.title-wrapper,
+.tool-name {
     color: rgba(55, 43, 43, 1);
     font-weight: 500;
     font-size: 14px;
@@ -300,7 +301,6 @@ body {
 
 #organization * {
     border-radius: 15px;
-    background-color: red;
 }
 
 .add-button svg {
