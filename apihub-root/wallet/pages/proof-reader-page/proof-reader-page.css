@@ -112,18 +112,19 @@ input[type=number]::-webkit-outer-spin-button {
 }
 
 .generate-btn {
-    margin-left: 60px;
-    display: inline-flex;
-    padding: 8px 74px;
-    justify-content: center;
-    align-items: center;
-    border-radius: 16px;
-    background: rgba(9, 1, 49, 0.8);
+    margin-left: 100px;
     color: #FFF;
     font-feature-settings: 'clig' off, 'liga' off;
     font-family: Poppins;
-    font-size: 16px;
+    font-size: 14px;
     font-style: normal;
     font-weight: 600;
     line-height: normal;
+    display: inline-flex;
+    padding: 6px 35px;
+    justify-content: center;
+    align-items: center;
+    gap: 10px;
+    border-radius: 16px;
+    background: #18203F;
 }

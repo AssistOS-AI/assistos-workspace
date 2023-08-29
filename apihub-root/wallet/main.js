@@ -149,7 +149,6 @@ function defineActions(){
         document.id=documentId;
         currentCompany.companyState.documents.push(document);
         currentCompany.notifyObservers();
-
     })
 
     webSkel.registerAction("changePage", async (_target, pageId,refreshFlag='0') => {
@@ -192,17 +191,17 @@ function defineActions(){
                 }
                 currentCompany.notifyObservers();
             });
-
-        }});
+        }
+    });
 }
 
 (async ()=> {
     webSkel.setDomElementForPages(document.querySelector("#page-content"));
-    await initWallet();
-    await initEnclaveClient();
+    // await initWallet();
+    // await initEnclaveClient();
     if (('indexedDB' in window)) {
         await initLiteUserDatabase();
-    }else{
+    } else {
         alert("Your current browser does not support local storage. Please use a different browser, or upgrade to premium");
     }
     defineActions();
