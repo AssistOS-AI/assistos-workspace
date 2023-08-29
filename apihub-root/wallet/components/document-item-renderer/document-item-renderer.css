@@ -18,8 +18,8 @@
 }
 
 .action-cell {
-    width: 28px;
-    max-width: 28px;
+    width: 33px;
+    max-width: 33px;
     max-height: 12px;
     margin-right: 20px;
     color: #555555;
@@ -42,10 +42,10 @@
 }
 
 .action-icon {
-    width: 3px;
-    height: 12px;
-    max-width: 3px;
-    max-height: 12px;
+    /*width: 3px;*/
+    /*height: 12px;*/
+    /*max-width: 3px;*/
+    /*max-height: 12px;*/
 }
 
 .action {
