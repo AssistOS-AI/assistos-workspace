@@ -7,17 +7,16 @@ export class documentsPage {
         this.modal = "showAddNewDocumentModal";
         this.button = "Add document";
         this.tableRows = "No data loaded";
+
         let currentCompany = Company.getInstance();
 
         if(currentCompany.companyState) {
             this._documentConfigs = currentCompany.companyState.documents;
-            console.log(this._documentConfigs.length);
             setTimeout(()=> {
                 this.invalidate()
             },0);
         }
         this.updateState = (companyState)=> {
-            console.log("Update State");
             this._documentConfigs = companyState.documents;
             this.invalidate();
         }
@@ -28,7 +27,7 @@ export class documentsPage {
         this.tableRows="";
         if(this._documentConfigs) {
             this._documentConfigs.forEach((item) => {
-                this.tableRows += `<document-item-renderer data-name="${item.name}" data-primary-key="${item.id}"></document-item-renderer>`;
+                this.tableRows += `<document-item-renderer data-name="${item.name}" data-id="${item.id}"></document-item-renderer>`;
             });
         } else {
             this.tableRows=`<div> No Data Currently </div>`;
