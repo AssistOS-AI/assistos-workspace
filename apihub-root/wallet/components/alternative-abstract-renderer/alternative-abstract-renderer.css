@@ -24,11 +24,8 @@
 .action-cell {
     justify-content: right;
     display: flex;
-    /*background-color: #007bff;*/
     width: 40px;
     padding: 3px;
-    /*width: 3px;*/
-    /*height: 12px;*/
 }
 
 .svg-box {
