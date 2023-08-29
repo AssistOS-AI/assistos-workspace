@@ -1,4 +1,3 @@
-
 export default class liteUserDatabase {
     constructor(dbName, version) {
         if (liteUserDatabase.instance) {
@@ -9,7 +8,6 @@ export default class liteUserDatabase {
             this.version = version;
         }
     }
-
 
     async init() {
         return new Promise((resolve, reject) => {
@@ -95,11 +93,13 @@ export default class liteUserDatabase {
         if (!this.db.objectStoreNames.contains(storeName)) {
             throw new Error(`Object store "${storeName}" does not exist.`);
         }
+        /* Adding a new Document and let indexedDB auto-assign an id */
+        if(data.id!==undefined) {
+            const existingRecord = await this.getRecord(storeName, data.id);
 
-        const existingRecord = await this.getRecord(storeName, data.id);
-
-        if (existingRecord) {
-            return;
+            if (existingRecord) {
+                return;
+            }
         }
 
         return new Promise((resolve, reject) => {
@@ -120,7 +120,7 @@ export default class liteUserDatabase {
 
     async deleteRecord(storeName, key) {
         return new Promise((resolve, reject) => {
-            // Ensure that the storeName exists
+
             if (!this.db.objectStoreNames.contains(storeName)) {
                 reject(`Object store "${storeName}" does not exist.`);
                 return;
@@ -129,11 +129,8 @@ export default class liteUserDatabase {
             const transaction = this.db.transaction(storeName, "readwrite");
             const objectStore = transaction.objectStore(storeName);
             let request;
-            try{
-               request = objectStore.delete(key);
-            }catch(error){
-                console.log(key,error);
-            }
+
+            request = objectStore.delete(key);
 
             request.onsuccess = () => {
                 resolve(`Record with key ${key} successfully deleted from ${storeName}.`);
