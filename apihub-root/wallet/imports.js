@@ -11,7 +11,7 @@ import { editChapterPage } from "./presenters/edit-chapter-page.js";
 import { brainstormingPage } from "./presenters/brainstorming-page.js";
 import { userDocument } from "./userDocument.js";
 import { closeModal, showActionBox } from "../WebSkel/utils/modal-utils.js";
-import { urlForPage } from "../WebSkel/utils/dom-utils.js"
+import { notBasePage } from "../WebSkel/utils/dom-utils.js"
 import { getClosestParentElement } from "../WebSkel/utils/dom-utils.js";
 import liteUserDatabase from "./liteUserDatabase.js";
 import { Company } from "./core/company.js";
@@ -29,7 +29,7 @@ export {
     documentSettingsPage,
     editChapterPage,
     brainstormingPage,
-    urlForPage,
+    notBasePage,
     closeModal,
     showActionBox,
     getClosestParentElement,

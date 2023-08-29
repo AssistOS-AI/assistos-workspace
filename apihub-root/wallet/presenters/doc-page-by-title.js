@@ -17,7 +17,7 @@ export class docPageByTitle {
         }
         this.updateState = (companyState)=> {
             console.log("Update State");
-            this._documentConfigs = companyState.documents;
+            this._documentConfigs = currentCompany.companyState.documents;
             this.invalidate();
         }
         currentCompany.onChange(this.updateState);
@@ -25,10 +25,18 @@ export class docPageByTitle {
 
     beforeRender() {
         let documentContent = document.querySelector("doc-page-by-title");
-        this.id = documentContent.getAttribute("data-document-id");
+        this.id = parseInt(documentContent.getAttribute("data-document-id"));
         this.chapters="";
+        let doc;
         if(this._documentConfigs) {
-            this._doc = this._documentConfigs.find(document => document.id === this.id);
+            /*this._doc = this._documentConfigs.find(document => document.id === this.id);*/
+            for(let document of this._documentConfigs){
+                if(document.id===this.id){
+                    doc=document;
+                    break;
+                }
+            }
+            this._doc=doc;
             try {
                 this.title=this._doc.name;
                 this.abstractText = this._doc.abstract;

@@ -1,5 +1,3 @@
-import {liteUserDatabase} from "../imports.js";
-
 export class Company {
     constructor(userType) {
         this.load(userType);
@@ -21,7 +19,7 @@ export class Company {
             await webSkel.liteUserDB.init();
             /* Static document for testing the UI, to be removed */
             let docObj={
-                id : "0",
+                id : 0,
                 name: "UI Lorem Ipsum Document",
                 abstract: "Lorem ipsum dolor sit amet, qui civibus intellegat percipitur ei. Sale verterem intellegat ea est, mea ei altera disputando referrentur. Pri ne dicant latine, cu nullam eloquentiam referrentur mea, per dictas omnium impetus ut. Mazim quaeque usu id. Ex quo aeterno scribentur, vis essent oblique an.\n\nCeteros molestie facilisi his in, cu saperet facilisi eum. Est legendos voluptatum ut, duo meis fastidii ea, meliore tibique nominavi sea cu. Inani ludus ullamcorper ne qui, cu purto natum audiam vis, viris ludus electram an his. Idque nonumes vel te, commodo ancillae in eos. Tollit petentium prodesset duo no, odio euripidis cu vis.",
                 chapters: [
@@ -57,7 +55,7 @@ export class Company {
     onChange(observerFunction) {
         this.observers.push(new WeakRef(observerFunction));
     }
-
+    //weakset
     notifyObservers() {
         for (const observerRef of this.observers) {
             const observer = observerRef.deref();

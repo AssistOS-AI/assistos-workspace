@@ -9,7 +9,7 @@ import {
     myOrganisationPage,
     brainstormingPage,
     documentSettingsPage,
-    urlForPage,
+    notBasePage,
     closeModal,
     showActionBox,
     getClosestParentElement,
@@ -36,7 +36,6 @@ async function initEnclaveClient() {
         console.log("Error at initialising remote client", err);
     }
 }
-
 async function initWallet() {
     if (rawDossier) {
         await $$.promisify(rawDossier.writeFile, rawDossier)("/environment.json", JSON.stringify({
@@ -57,7 +56,13 @@ async function initWallet() {
     if(url === "" || url === null) {
         url = "#documents-page";
     }
-    if(!urlForPage(url)) {
+
+    if(notBasePage(url)) {
+        /*#proofReader,#documents */
+        changeSelectedPageFromSidebar(url);
+        await webSkel.changeToDynamicPage(url.slice(1));
+    } else {
+        /* #documents/0,/#documents/0/chapters/1 */
         switch(url.split('/')[0]) {
             case "#documents":
                 webSkel.currentDocumentId = "svd:document:" + url.split('/')[2];
@@ -65,16 +70,11 @@ async function initWallet() {
                 break;
         }
         await webSkel.changeToStaticPage(url);
-    } else {
-        changeSelectedPageFromSidebar(url);
-        await webSkel.changeToDynamicPage(url.slice(1));
     }
 }
-
 async function initLiteUserDatabase(){
     webSkel.liteUserDB= new liteUserDatabase("liteUser",1);
 }
-
 function changeSelectedPageFromSidebar(url) {
     let element = document.getElementById('selected-page');
     if (element) {
@@ -144,7 +144,7 @@ function defineActions(){
     webSkel.registerAction("addDocument",async(_target)=>{
         let documentTitle= new FormData(getClosestParentElement(_target,'form')).get("documentTitle");
         let document=new userDocument(documentTitle);
-        let documentId= `${await webSkel.liteUserDB.addRecord("documents",document)}`;
+        let documentId= await webSkel.liteUserDB.addRecord("documents",document);
         closeModal(_target);
 
         let currentCompany= Company.getInstance();
@@ -179,9 +179,9 @@ function defineActions(){
         if (deleteButton) {
             deleteButton.addEventListener("click", async (event) => {
                 const rowElement=getClosestParentElement(deleteButton,"document-item-renderer");
-                let documentIdToRemove= rowElement.getAttribute('data-primary-key');
+                let documentIdToRemove=parseInt(rowElement.getAttribute('data-id'));
 
-                await webSkel.liteUserDB.deleteRecord("documents",parseInt(documentIdToRemove));
+                await webSkel.liteUserDB.deleteRecord("documents",documentIdToRemove);
                 let currentCompany= Company.getInstance();
                 let length = currentCompany.companyState.documents.length;
 
@@ -193,8 +193,8 @@ function defineActions(){
                 }
                 currentCompany.notifyObservers();
             });
-        }
-    });
+
+        }});
 }
 
 (async ()=> {
@@ -203,7 +203,7 @@ function defineActions(){
     await initEnclaveClient();
     if (('indexedDB' in window)) {
         await initLiteUserDatabase();
-    } else {
+    }else{
         alert("Your current browser does not support local storage. Please use a different browser, or upgrade to premium");
     }
     defineActions();
