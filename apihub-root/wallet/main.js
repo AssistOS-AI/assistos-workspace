@@ -19,7 +19,6 @@ import {
     WebSkel
 } from "./imports.js";
 
-
 const openDSU = require("opendsu");
 window.webSkel = new WebSkel();
 async function initEnclaveClient() {
@@ -71,9 +70,11 @@ async function initWallet() {
         await webSkel.changeToDynamicPage(url.slice(1));
     }
 }
+
 async function initLiteUserDatabase(){
     webSkel.liteUserDB= new liteUserDatabase("liteUser",1);
 }
+
 function changeSelectedPageFromSidebar(url) {
     let element = document.getElementById('selected-page');
     if (element) {
@@ -107,6 +108,7 @@ function definePresenters(){
     webSkel.registerPresenter("proof-reader-page", proofReaderPage);
     webSkel.registerPresenter("my-organisation-page", myOrganisationPage);
 }
+
 function defineComponents() {
     /* Modal components defined here */
     webSkel.defineComponent("add-llm-modal", "./wallet/components/add-llm-modal/add-llm-modal.html");
@@ -149,7 +151,6 @@ function defineActions(){
         document.id=documentId;
         currentCompany.companyState.documents.push(document);
         currentCompany.notifyObservers();
-
     })
 
     webSkel.registerAction("changePage", async (_target, pageId,refreshFlag='0') => {
@@ -178,7 +179,7 @@ function defineActions(){
         if (deleteButton) {
             deleteButton.addEventListener("click", async (event) => {
                 const rowElement=getClosestParentElement(deleteButton,"document-item-renderer");
-                let documentIdToRemove=rowElement.getAttribute('data-primary-key');
+                let documentIdToRemove= rowElement.getAttribute('data-primary-key');
 
                 await webSkel.liteUserDB.deleteRecord("documents",parseInt(documentIdToRemove));
                 let currentCompany= Company.getInstance();
@@ -192,8 +193,8 @@ function defineActions(){
                 }
                 currentCompany.notifyObservers();
             });
-
-        }});
+        }
+    });
 }
 
 (async ()=> {
@@ -202,7 +203,7 @@ function defineActions(){
     await initEnclaveClient();
     if (('indexedDB' in window)) {
         await initLiteUserDatabase();
-    }else{
+    } else {
         alert("Your current browser does not support local storage. Please use a different browser, or upgrade to premium");
     }
     defineActions();
