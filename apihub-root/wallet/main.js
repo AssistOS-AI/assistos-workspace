@@ -19,6 +19,7 @@ import {
     WebSkel
 } from "./imports.js";
 
+
 const openDSU = require("opendsu");
 window.webSkel = new WebSkel();
 async function initEnclaveClient() {
