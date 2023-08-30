@@ -8,30 +8,3 @@
     Merge remote-tracking branch 'origin/master'
     enabling the possibility to configure the number of workers for apihub
     added component to presenter constructor + call afterRender
-    enabling the possibility to configure the number of workers for apihub
-    Starting to integrate indexedDB into the project.
-    Created a separated import file to make the main code readable
-    Merge branch 'main' of https://github.com/OutfinityResearch/outfinity-configs
-     removed useless llm-addapter and refactorized the summarizer function factory
-    Starting to integrate indexedDB into the project.
-    Created a separated import file to make the main code readable
-    enabling the possibility to configure the number of workers for apihub
-    Starting to integrate indexedDB into the project.
-    Created a separated import file to make the main code readable
-    Merge branch 'main' of https://github.com/OutfinityResearch/outfinity-configs
-     removed useless llm-addapter and refactorized the summarizer function factory
-    Starting to integrate indexedDB into the project.
-    Created a separated import file to make the main code readable
-    enabling the possibility to configure the number of workers for apihub
-    Starting to integrate indexedDB into the project.
-    Created a separated import file to make the main code readable
-    Merge branch 'main' of https://github.com/OutfinityResearch/outfinity-configs
-     removed useless llm-addapter and refactorized the summarizer function factory
-    Starting to integrate indexedDB into the project.
-    Created a separated import file to make the main code readable
-    enabling the possibility to configure the number of workers for apihub
-    Minor changes
-    Merge branch 'main' of https://github.com/OutfinityResearch/outfinity-configs
-     removed useless llm-addapter and refactorized the summarizer function factory
-    Starting to integrate indexedDB into the project.
-    Created a separated import file to make the main code readable
