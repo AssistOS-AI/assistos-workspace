@@ -116,8 +116,6 @@ export default class liteUserDatabase {
     }
 
 
-
-
     async deleteRecord(storeName, key) {
         return new Promise((resolve, reject) => {
 
