@@ -22,7 +22,10 @@ export class DocumentsRegistry {
         }
         return null;
     }
-    // addDocument with db interaction
+    addDocument(document) {
+        this.documents.push(document);
+        webSkel.localStorage.addDocument(document);
+    }
     static getInstance(documents) {
         if(!this.instance) {
             this.instance = new DocumentsRegistry(documents);
