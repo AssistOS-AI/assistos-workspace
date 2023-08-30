@@ -32,7 +32,7 @@ export class editAbstractPage {
             this._doc = this._documentConfigs.find(document => document.id === this.id);
             try {
                 this.title = this._doc.name;
-                // this.abstractText = this._doc.abstract;
+                this.abstractText = this._doc.abstract;
                 let suggestedTitle = "Bees are nature's little pollination superheroes! Let's protect them and ensure our food chain thrives. #SaveTheBees";
                 for(let number = 1; number <= 10; number++) {
                     this.alternativeAbstracts += `<alternative-abstract-renderer nr="${number}" title="${suggestedTitle}"></alternative-abstract-renderer>`;

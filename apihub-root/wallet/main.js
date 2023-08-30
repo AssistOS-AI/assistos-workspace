@@ -13,11 +13,12 @@ import {
     closeModal,
     showActionBox,
     getClosestParentElement,
-    liteUserDatabase,
-    userDocument,
+    localStorage,
+    Document,
     Company,
     WebSkel
 } from "./imports.js";
+import {showModal} from "../WebSkel/utils/modal-utils.js";
 
 const openDSU = require("opendsu");
 window.webSkel = new WebSkel();
@@ -73,9 +74,8 @@ async function initWallet() {
     }
 }
 async function initLiteUserDatabase(){
-    webSkel.liteUserDB= new liteUserDatabase("liteUser",1);
+    webSkel.liteUserDB= new localStorage("liteUser",1);
 }
-
 function changeSelectedPageFromSidebar(url) {
     let element = document.getElementById('selected-page');
     if (element) {
@@ -126,6 +126,7 @@ function defineComponents() {
     webSkel.defineComponent("alternative-abstract-renderer", "./wallet/components/alternative-abstract-renderer/alternative-abstract-renderer.html");
     webSkel.defineComponent("suggest-title-modal", "./wallet/components/suggest-title-modal/suggest-title-modal.html");
     webSkel.defineComponent("suggest-abstract-modal", "./wallet/components/suggest-abstract-modal/suggest-abstract-modal.html");
+    webSkel.defineComponent("show-error-modal","/wallet/components/show-error-modal/show-error-modal.html")
 
     webSkel.defineComponent("llms-page", "./wallet/pages/llms-page/llms-page.html");
     webSkel.defineComponent("personalities-page", "./wallet/pages/personalities-page/personalities-page.html");
@@ -138,20 +139,24 @@ function defineComponents() {
     webSkel.defineComponent("proof-reader-page", "./wallet/pages/proof-reader-page/proof-reader-page.html");
     webSkel.defineComponent("my-organisation-page", "./wallet/pages/my-organisation-page/my-organisation-page.html");
 }
-
 function defineActions(){
+
     webSkel.registerAction("closeModal", async (modal, _param) => {
         closeModal(modal);
     });
+    webSkel.registerAction("closeErrorModal", (modal)=>{
+        closeModal(modal);
+        window.location="/";
+    });
     webSkel.registerAction("addDocument",async(_target)=>{
         let documentTitle= new FormData(getClosestParentElement(_target,'form')).get("documentTitle");
-        let document=new userDocument(documentTitle);
-        let documentId= await webSkel.liteUserDB.addRecord("documents",document);
+        let documentObj=new Document(documentTitle);
+        let documentId= await webSkel.liteUserDB.addRecord("documents",documentObj);
         closeModal(_target);
 
         let currentCompany= Company.getInstance();
-        document.id=documentId;
-        currentCompany.companyState.documents.push(document);
+        documentObj.id=documentId;
+        currentCompany.companyState.documents.push(documentObj);
         currentCompany.notifyObservers();
     })
 
@@ -169,46 +174,20 @@ function defineActions(){
         await webSkel.changeToDynamicPage(pageId);
     })
 
-    webSkel.registerAction("showActionBox", async (_target, primaryKey, componentName, insertionMode) => {
+    webSkel.registerAction("showActionBox", async (_target, primaryKey,componentName,insertionMode) => {
         await showActionBox(_target, primaryKey, componentName, insertionMode);
-        let editButton = document.querySelector("[data-local-action='editAction']");
-        if(editButton) {
-            editButton.addEventListener("click", async (event) => {
-                let document = getClosestParentElement(editButton, "document-item-renderer");
-                let documentId = document.getAttribute("data-id");
-                await webSkel.changeToStaticPage(`documents/${documentId}`);
-                // await webSkel.changeToStaticPage(`documents/${editButton.parentNode.parentNode.id}`);
-            });
-        }
-        let deleteButton = document.querySelector("[data-local-action='deleteAction']");
-        if (deleteButton) {
-            deleteButton.addEventListener("click", async (event) => {
-                const rowElement=getClosestParentElement(deleteButton,"document-item-renderer");
-                let documentIdToRemove=parseInt(rowElement.getAttribute('data-id'));
 
-                await webSkel.liteUserDB.deleteRecord("documents",documentIdToRemove);
-                let currentCompany= Company.getInstance();
-                let length = currentCompany.companyState.documents.length;
-
-                for(let documentIndex = 0; documentIndex < length; documentIndex++) {
-                    if(currentCompany.companyState.documents[documentIndex].id === documentIdToRemove) {
-                        currentCompany.companyState.documents.splice(documentIndex, 1);
-                        break;
-                    }
-                }
-                currentCompany.notifyObservers();
-            });
-        }
-    });
+       });
 }
 
 (async ()=> {
     webSkel.setDomElementForPages(document.querySelector("#page-content"));
+
     await initWallet();
     await initEnclaveClient();
     if (('indexedDB' in window)) {
         await initLiteUserDatabase();
-    } else {
+    }else{
         alert("Your current browser does not support local storage. Please use a different browser, or upgrade to premium");
     }
     defineActions();

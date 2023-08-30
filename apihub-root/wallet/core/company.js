@@ -1,5 +1,11 @@
+import {DocumentsRegistry} from "../imports.js";
 export class Company {
+    /* pass storage data as constructor parameter */
     constructor(userType) {
+        /* Prevent creating a new Instance with the new keyword */
+        if (Company.instance) {
+            return Company.instance;
+        }
         this.load(userType);
         this.observers=[];
     }
@@ -12,6 +18,7 @@ export class Company {
             /* We could load only the data we need for the current page instead? */
             this.companyState=await this.loadDatabaseData();
         }
+        this.documentsRegistry=DocumentsRegistry.getInstance(this.companyState.documents);
         this.notifyObservers();
     }
 
@@ -55,13 +62,15 @@ export class Company {
     onChange(observerFunction) {
         this.observers.push(new WeakRef(observerFunction));
     }
-    //weakset
+    //weakset instead of array of weakrefs
     notifyObservers() {
-        for (const observerRef of this.observers) {
+        /*for (const observerRef of this.observers) {
             const observer = observerRef.deref();
             if (observer) {
                 observer(this.companyState);
             }
-        }
+        }*/
+        /* Quick Fix - To be removed */
+        this.observers[this.observers.length-1].deref()(this.companyState);
     }
 }

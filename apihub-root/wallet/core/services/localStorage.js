@@ -1,9 +1,9 @@
-export default class liteUserDatabase {
+export class localStorage {
     constructor(dbName, version) {
-        if (liteUserDatabase.instance) {
-            return liteUserDatabase.instance;
+        if (localStorage.instance) {
+            return localStorage.instance;
         } else {
-            liteUserDatabase.instance = this;
+            localStorage.instance = this;
             this.dbName = dbName;
             this.version = version;
         }
@@ -35,8 +35,8 @@ export default class liteUserDatabase {
             };
         });
     }
-
-    async getObjectStoreRecords(storeName) {
+    /*  load documents/users/etc here -> move this code from localStorage to utils class */
+    async getTableRecords(storeName) {
         return new Promise((resolve, reject) => {
             const transaction = this.db.transaction(storeName, "readonly");
             const objectStore = transaction.objectStore(storeName);
@@ -54,6 +54,7 @@ export default class liteUserDatabase {
         });
     }
     async getAllRecords() {
+
         return new Promise(async (resolve, reject) => {
             const objectStoreNames = Array.from(this.db.objectStoreNames);
 
@@ -61,7 +62,7 @@ export default class liteUserDatabase {
 
             try {
                 for (let storeName of objectStoreNames) {
-                    allData[storeName] = await this.getObjectStoreRecords(storeName);
+                    allData[storeName] = await this.getTableRecords(storeName);
                 }
                 resolve(allData);
             } catch (error) {
@@ -93,7 +94,7 @@ export default class liteUserDatabase {
         if (!this.db.objectStoreNames.contains(storeName)) {
             throw new Error(`Object store "${storeName}" does not exist.`);
         }
-        /* Adding a new Document and let indexedDB auto-assign an id */
+        /* Adding a new Document and let indexedDB auto-assign an id*/
         if(data.id!==undefined) {
             const existingRecord = await this.getRecord(storeName, data.id);
 
@@ -114,7 +115,6 @@ export default class liteUserDatabase {
             transaction.onabort = event => reject(new Error('Transaction was aborted'));
         });
     }
-
 
     async deleteRecord(storeName, key) {
         return new Promise((resolve, reject) => {
@@ -142,3 +142,4 @@ export default class liteUserDatabase {
     }
 
 }
+/* */
