@@ -24,7 +24,7 @@ export class documentSettingsPage {
 
     beforeRender() {
         let documentContent = document.querySelector("document-settings-page");
-        this.id = documentContent.getAttribute("data-document-id");
+        this.id = parseInt(documentContent.getAttribute("data-document-id"));
         this.alternativeTitles = "";
         if(this._documentConfigs) {
             this._doc = this._documentConfigs.find(document => document.id === this.id);
