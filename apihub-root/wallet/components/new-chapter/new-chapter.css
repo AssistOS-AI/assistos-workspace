@@ -16,10 +16,6 @@
     display: none;
 }
 
-.rotate {
-    transform: rotate(-90deg);
-}
-
 .new-chapter {
     min-width: 0;
 }

@@ -89,10 +89,46 @@ body {
     font-weight: 500;
     line-height: normal;
     padding: 10px;
+    cursor: default;
+    padding-left: 19px;
     margin-right: 10px;
 }
 
+.sidebar-item svg {
+    margin-left: -14px;
+    width: 9px;
+    cursor: default;
+    /*transform: rotate(-90deg);*/
+    visibility: hidden;
+}
+
 .sidebar-item:hover {
+    border-radius: 5px;
+    background: rgba(175, 168, 186, 0.22);
+}
+
+.sidebar-item:hover svg {
+    visibility: visible;
+}
+
+.sidebar-submenu {
+    color: rgba(9, 1, 49, 0.83);
+    font-size: 15px;
+    font-style: normal;
+    font-weight: 500;
+    line-height: normal;
+    padding: 5px;
+    margin-left: 20px;
+    cursor: default;
+    margin-right: 10px;
+    display: none;
+}
+
+.submenu-item {
+    padding: 8px;
+}
+
+.submenu-item:hover {
     border-radius: 5px;
     background: rgba(175, 168, 186, 0.22);
 }
@@ -305,4 +341,8 @@ body {
 
 .add-button svg {
     margin-right: 9px;
+}
+
+.rotate {
+    transform: rotate(-90deg);
 }
