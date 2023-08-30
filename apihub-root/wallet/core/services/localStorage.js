@@ -1,9 +1,9 @@
-export class liteUserDatabase {
+export class localStorage {
     constructor(dbName, version) {
-        if (liteUserDatabase.instance) {
-            return liteUserDatabase.instance;
+        if (localStorage.instance) {
+            return localStorage.instance;
         } else {
-            liteUserDatabase.instance = this;
+            localStorage.instance = this;
             this.dbName = dbName;
             this.version = version;
         }
@@ -35,6 +35,7 @@ export class liteUserDatabase {
             };
         });
     }
+    /*  load documents/users/etc here -> move this code from localStorage to utils class */
     async getTableRecords(storeName) {
         return new Promise((resolve, reject) => {
             const transaction = this.db.transaction(storeName, "readonly");
@@ -141,3 +142,4 @@ export class liteUserDatabase {
     }
 
 }
+/* */
