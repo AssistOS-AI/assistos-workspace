@@ -9,11 +9,16 @@ import { myOrganisationPage } from "./presenters/my-organisation-page.js";
 import { documentSettingsPage } from "./presenters/document-settings-page.js";
 import { editChapterPage } from "./presenters/edit-chapter-page.js";
 import { brainstormingPage } from "./presenters/brainstorming-page.js";
-import { userDocument } from "./userDocument.js";
 import { closeModal, showActionBox } from "../WebSkel/utils/modal-utils.js";
 import { notBasePage } from "../WebSkel/utils/dom-utils.js"
 import { getClosestParentElement } from "../WebSkel/utils/dom-utils.js";
-import liteUserDatabase from "./liteUserDatabase.js";
+import {liteUserDatabase} from "./core/services/liteUserDatabase.js";
+import {DocumentsRegistry} from "./core/services/documentsRegistry.js"
+import {CurrentCompany} from "./core/services/currentCompany.js"
+import {CurrentDocument} from "./core/services/currentDocument.js"
+import {Chapter} from "./core/services/models/chapter.js";
+import {Document} from "./core/services/models/document.js";
+import {Paragraph} from "./core/services/models/paragraph.js";
 import { Company } from "./core/company.js";
 import WebSkel from "../WebSkel/webSkel.js";
 
@@ -34,7 +39,12 @@ export {
     showActionBox,
     getClosestParentElement,
     liteUserDatabase,
-    userDocument,
     Company,
-    WebSkel
+    WebSkel,
+    DocumentsRegistry,
+    CurrentCompany,
+    CurrentDocument,
+    Chapter,
+    Document,
+    Paragraph
 };

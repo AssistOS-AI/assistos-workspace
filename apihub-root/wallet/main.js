@@ -14,7 +14,7 @@ import {
     showActionBox,
     getClosestParentElement,
     liteUserDatabase,
-    userDocument,
+    Document,
     Company,
     WebSkel
 } from "./imports.js";
@@ -75,7 +75,6 @@ async function initWallet() {
 async function initLiteUserDatabase(){
     webSkel.liteUserDB= new liteUserDatabase("liteUser",1);
 }
-
 function changeSelectedPageFromSidebar(url) {
     let element = document.getElementById('selected-page');
     if (element) {
@@ -138,14 +137,13 @@ function defineComponents() {
     webSkel.defineComponent("proof-reader-page", "./wallet/pages/proof-reader-page/proof-reader-page.html");
     webSkel.defineComponent("my-organisation-page", "./wallet/pages/my-organisation-page/my-organisation-page.html");
 }
-
 function defineActions(){
     webSkel.registerAction("closeModal", async (modal, _param) => {
         closeModal(modal);
     });
     webSkel.registerAction("addDocument",async(_target)=>{
         let documentTitle= new FormData(getClosestParentElement(_target,'form')).get("documentTitle");
-        let document=new userDocument(documentTitle);
+        let document=new document(documentTitle);
         let documentId= await webSkel.liteUserDB.addRecord("documents",document);
         closeModal(_target);
 
@@ -169,15 +167,15 @@ function defineActions(){
         await webSkel.changeToDynamicPage(pageId);
     })
 
-    webSkel.registerAction("showActionBox", async (_target, primaryKey, componentName, insertionMode) => {
+    webSkel.registerAction("showActionBox", async (_target, primaryKey,componentName,insertionMode) => {
         await showActionBox(_target, primaryKey, componentName, insertionMode);
         let editButton = document.querySelector("[data-local-action='editAction']");
         if(editButton) {
             editButton.addEventListener("click", async (event) => {
-                let document = getClosestParentElement(editButton, "document-item-renderer");
-                let documentId = document.getAttribute("data-id");
-                await webSkel.changeToStaticPage(`documents/${documentId}`);
-                // await webSkel.changeToStaticPage(`documents/${editButton.parentNode.parentNode.id}`);
+                let rowElement=getClosestParentElement(editButton,['document-item-renderer']);
+               /* let doc1 = DocumentsRegistry.getDocument(rowElement.getAttribute('data-id'));*/
+
+                await webSkel.changeToStaticPage(`documents/${rowElement.getAttribute('data-id')}`);
             });
         }
         let deleteButton = document.querySelector("[data-local-action='deleteAction']");
@@ -198,8 +196,8 @@ function defineActions(){
                 }
                 currentCompany.notifyObservers();
             });
-        }
-    });
+
+        }});
 }
 
 (async ()=> {
@@ -208,7 +206,7 @@ function defineActions(){
     await initEnclaveClient();
     if (('indexedDB' in window)) {
         await initLiteUserDatabase();
-    } else {
+    }else{
         alert("Your current browser does not support local storage. Please use a different browser, or upgrade to premium");
     }
     defineActions();
