@@ -118,7 +118,7 @@ function defineComponents() {
     webSkel.defineComponent("add-announce-modal", "./wallet/components/add-announce-modal/add-announce-modal.html");
     webSkel.defineComponent("add-new-document-modal", "./wallet/components/add-new-document-modal/add-new-document-modal.html");
     webSkel.defineComponent("llm-item-renderer", "./wallet/components/llm-item-renderer/llm-item-renderer.html");
-    webSkel.defineComponent("new-chapter", "./wallet/components/new-chapter/new-chapter.html");
+    webSkel.defineComponent("chapter-item", "./wallet/components/chapter-item/chapter-item.html");
     webSkel.defineComponent("personality-item-renderer", "./wallet/components/personality-item-renderer/personality-item-renderer.html");
     webSkel.defineComponent("document-item-renderer", "./wallet/components/document-item-renderer/document-item-renderer.html");
     webSkel.defineComponent("action-box", "./wallet/components/action-box/action-box.html");
