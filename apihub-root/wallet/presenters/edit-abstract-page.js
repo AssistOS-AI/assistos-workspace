@@ -44,47 +44,43 @@ export class editAbstractPage {
         }
     }
 
+    openEditTitlePage() {
+        webSkel.changeToStaticPage(`documents/${this.id}/edit-title`);
+    }
+
+    openEditAbstractPage() {
+        webSkel.changeToStaticPage(`documents/${this.id}/edit-abstract`);
+    }
+
+    openDocumentSettingsPage() {
+        webSkel.changeToStaticPage(`documents/${this.id}/settings`);
+    }
+
+    openBrainstormingPage() {
+        webSkel.changeToStaticPage(`documents/${this.id}/brainstorming`);
+    }
+
+    showEditChapterSubmenu() {
+        const chapterSubmenuSection = document.querySelector(".sidebar-submenu");
+        const sidebarArrow = document.querySelector(".arrow-sidebar");
+        if(this.showChaptersInSidebar === 0) {
+            chapterSubmenuSection.style.display = "inherit";
+            sidebarArrow.classList.remove('rotate');
+            this.showChaptersInSidebar = 1;
+        }
+        else {
+            chapterSubmenuSection.style.display = "none";
+            sidebarArrow.classList.toggle('rotate');
+            this.showChaptersInSidebar = 0;
+        }
+    }
+
+    async showSuggestAbstractModal() {
+        await showModal(document.querySelector("body"), "suggest-abstract-modal", {});
+    }
+
     /* adding event Listeners after the web component has loaded, etc */
     afterRender() {
-        const editTitleButton = document.querySelector('#edit-title');
-        editTitleButton.addEventListener('click', () => {
-            webSkel.changeToStaticPage(`documents/${this.id}/edit-title`);
-        });
 
-        const editAbstractButton = document.querySelector('#edit-abstract');
-        editAbstractButton.addEventListener('click', () => {
-            webSkel.changeToStaticPage(`documents/${this.id}/edit-abstract`);
-        });
-
-        const chapterSubmenuSection = document.querySelector(".sidebar-submenu");
-        const editChapterButton = document.querySelector('#edit-chapter');
-        editChapterButton.addEventListener('click', () => {
-            const sidebarArrow = document.querySelector(".arrow-sidebar");
-            if(this.showChaptersInSidebar === 0) {
-                chapterSubmenuSection.style.display = "inherit";
-                sidebarArrow.classList.remove('rotate');
-                this.showChaptersInSidebar = 1;
-            }
-            else {
-                chapterSubmenuSection.style.display = "none";
-                sidebarArrow.classList.toggle('rotate');
-                this.showChaptersInSidebar = 0;
-            }
-        });
-
-        const settingsButton = document.querySelector('#settings');
-        settingsButton.addEventListener('click', () => {
-            webSkel.changeToStaticPage(`documents/${this.id}/settings`);
-        });
-
-        const brainstormingButton = document.querySelector('#brainstorming');
-        brainstormingButton.addEventListener('click', () => {
-            webSkel.changeToStaticPage(`documents/${this.id}/brainstorming`);
-        });
-
-        let modalSection = document.querySelector("[data-local-action]");
-        modalSection.addEventListener("click", async (event) => {
-            await showModal(document.querySelector("body"), "suggest-abstract-modal", {});
-        });
     }
 }

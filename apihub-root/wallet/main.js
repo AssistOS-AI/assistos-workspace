@@ -18,16 +18,14 @@ import {
     Company,
     WebSkel
 } from "./imports.js";
-import {showModal} from "../WebSkel/utils/modal-utils.js";
+import { showModal } from "../WebSkel/utils/modal-utils.js";
 
 const openDSU = require("opendsu");
 window.webSkel = new WebSkel();
 async function initEnclaveClient() {
     const w3cDID = openDSU.loadAPI("w3cdid");
-
     const enclaveAPI = openDSU.loadAPI("enclave");
     const remoteDID = "did:ssi:name:vault:BrandEnclave";
-
     try {
         const clientDIDDocument = await $$.promisify(w3cDID.resolveNameDID)("vault", "clientEnclave", "topSecret");
         console.log("Client enclave: ", clientDIDDocument.getIdentifier());
@@ -37,6 +35,7 @@ async function initEnclaveClient() {
         console.log("Error at initialising remote client", err);
     }
 }
+
 async function initWallet() {
     if (rawDossier) {
         await $$.promisify(rawDossier.writeFile, rawDossier)("/environment.json", JSON.stringify({
@@ -52,18 +51,16 @@ async function initWallet() {
     else {
         sc.on("initialised", initEnclaveClient.bind(this));
     }
-
     let url = window.location.hash;
     if(url === "" || url === null) {
         url = "#documents-page";
     }
-
     if(notBasePage(url)) {
-        /*#proofReader,#documents */
+        /*#proofReader, #documents */
         changeSelectedPageFromSidebar(url);
         await webSkel.changeToDynamicPage(url.slice(1));
     } else {
-        /* #documents/0,/#documents/0/chapters/1 */
+        /* #documents/0, /#documents/0/chapters/1 */
         switch(url.split('/')[0]) {
             case "#documents":
                 webSkel.currentDocumentId = "svd:document:" + url.split('/')[2];
@@ -73,16 +70,17 @@ async function initWallet() {
         await webSkel.changeToStaticPage(url);
     }
 }
+
 async function initLiteUserDatabase(){
-    webSkel.liteUserDB= new localStorage("liteUser",1);
+    webSkel.liteUserDB = new localStorage("liteUser",1);
 }
+
 function changeSelectedPageFromSidebar(url) {
     let element = document.getElementById('selected-page');
     if (element) {
         element.removeAttribute('id');
     }
     let divs = document.querySelectorAll('div[data-action]');
-
     let targetAction = url;
     if(targetAction.startsWith("#")) {
         targetAction = url.slice(1);
@@ -140,22 +138,20 @@ function defineComponents() {
     webSkel.defineComponent("my-organisation-page", "./wallet/pages/my-organisation-page/my-organisation-page.html");
 }
 function defineActions(){
-
     webSkel.registerAction("closeModal", async (modal, _param) => {
         closeModal(modal);
     });
     webSkel.registerAction("closeErrorModal", (modal)=>{
         closeModal(modal);
-        window.location="/";
+        // window.location="/";
     });
     webSkel.registerAction("addDocument",async(_target)=>{
         let documentTitle= new FormData(getClosestParentElement(_target,'form')).get("documentTitle");
-        let documentObj=new Document(documentTitle);
-        let documentId= await webSkel.liteUserDB.addRecord("documents",documentObj);
+        let documentObj= new Document(documentTitle);
+        let documentId = await webSkel.liteUserDB.addRecord("documents",documentObj);
         closeModal(_target);
-
-        let currentCompany= Company.getInstance();
-        documentObj.id=documentId;
+        let currentCompany = Company.getInstance();
+        documentObj.id = documentId;
         currentCompany.companyState.documents.push(documentObj);
         currentCompany.notifyObservers();
     })
@@ -174,20 +170,18 @@ function defineActions(){
         await webSkel.changeToDynamicPage(pageId);
     })
 
-    webSkel.registerAction("showActionBox", async (_target, primaryKey,componentName,insertionMode) => {
+    webSkel.registerAction("showActionBox", async (_target, primaryKey, componentName, insertionMode) => {
         await showActionBox(_target, primaryKey, componentName, insertionMode);
-
-       });
+    });
 }
 
 (async ()=> {
     webSkel.setDomElementForPages(document.querySelector("#page-content"));
-
     await initWallet();
     await initEnclaveClient();
     if (('indexedDB' in window)) {
         await initLiteUserDatabase();
-    }else{
+    } else {
         alert("Your current browser does not support local storage. Please use a different browser, or upgrade to premium");
     }
     defineActions();

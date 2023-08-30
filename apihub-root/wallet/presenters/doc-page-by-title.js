@@ -43,7 +43,7 @@ export class docPageByTitle {
                 this.title = this._doc.name;
                 this.abstractText = this._doc.abstract;
                 this._doc.chapters.forEach((item) => {
-                    this.chapters += `<new-chapter data-chapter-title="${item.name}" data-chapter-content="${item.content}"></new-chapter>`;
+                    this.chapters += `<new-chapter data-chapter-title="${item.name}" chapter-id="${item.name.split(' ')[1]}" data-chapter-content="${item.content}"></new-chapter>`;
                     this.chapterSidebar += `<div class="submenu-item">Edit ${item.name}</div>`;
                 });
             } catch(e) {}
@@ -52,54 +52,45 @@ export class docPageByTitle {
         }
     }
 
+    openEditTitlePage() {
+        webSkel.changeToStaticPage(`documents/${this.id}/edit-title`);
+    }
+
+    openEditAbstractPage() {
+        webSkel.changeToStaticPage(`documents/${this.id}/edit-abstract`);
+    }
+
+    openDocumentSettingsPage() {
+        webSkel.changeToStaticPage(`documents/${this.id}/settings`);
+    }
+
+    openBrainstormingPage() {
+        webSkel.changeToStaticPage(`documents/${this.id}/brainstorming`);
+    }
+
+    showEditChapterSubmenu() {
+        const chapterSubmenuSection = document.querySelector(".sidebar-submenu");
+        const sidebarArrow = document.querySelector(".arrow-sidebar");
+        if(this.showChaptersInSidebar === 0) {
+            chapterSubmenuSection.style.display = "inherit";
+            sidebarArrow.classList.remove('rotate');
+            this.showChaptersInSidebar = 1;
+        }
+        else {
+            chapterSubmenuSection.style.display = "none";
+            sidebarArrow.classList.toggle('rotate');
+            this.showChaptersInSidebar = 0;
+        }
+    }
+
+    showOrHideChapter(chapterId) {
+        let target = document.querySelector(`[data-id="${chapterId}"]`);
+        target.firstElementChild.nextElementSibling.classList.toggle('hidden');
+        target.firstElementChild.firstElementChild.classList.toggle('rotate');
+    }
+
     /* adding event Listeners after the web component has loaded, etc */
     afterRender() {
-        const editTitleButton = document.querySelector('#edit-title');
-        editTitleButton.addEventListener('click', () => {
-            webSkel.changeToStaticPage(`documents/${this.id}/edit-title`);
-        });
 
-        const editAbstractButton = document.querySelector('#edit-abstract');
-        editAbstractButton.addEventListener('click', () => {
-            webSkel.changeToStaticPage(`documents/${this.id}/edit-abstract`);
-        });
-
-        const chapterSubmenuSection = document.querySelector(".sidebar-submenu");
-        const editChapterButton = document.querySelector('#edit-chapter');
-        editChapterButton.addEventListener('click', () => {
-            const sidebarArrow = document.querySelector(".arrow-sidebar");
-            if(this.showChaptersInSidebar === 0) {
-                chapterSubmenuSection.style.display = "inherit";
-                sidebarArrow.classList.remove('rotate');
-                this.showChaptersInSidebar = 1;
-            }
-            else {
-                chapterSubmenuSection.style.display = "none";
-                sidebarArrow.classList.toggle('rotate');
-                this.showChaptersInSidebar = 0;
-            }
-        });
-
-        const brainstormingButton = document.querySelector('#brainstorming');
-        brainstormingButton.addEventListener('click', () => {
-            webSkel.changeToStaticPage(`documents/${this.id}/brainstorming`);
-        });
-
-        const settingsButton = document.querySelector('#settings');
-        settingsButton.addEventListener('click', () => {
-            webSkel.changeToStaticPage(`documents/${this.id}/settings`);
-        });
-
-        const chapters = document.querySelectorAll('.new-chapter');
-        chapters.forEach(chapter => {
-            const title = chapter.querySelector('.chapter-title');
-            const arrow = title.querySelector('.arrow');
-            const content = chapter.querySelector('.chapter-content');
-
-            arrow.addEventListener('click', () => {
-                content.classList.toggle('hidden');
-                arrow.classList.toggle('rotate');
-            });
-        });
     }
 }
