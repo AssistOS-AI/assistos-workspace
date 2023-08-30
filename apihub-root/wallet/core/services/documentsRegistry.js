@@ -1,11 +1,18 @@
 export class DocumentsRegistry {
-    constructor(documents) {
+    constructor(storage) {
         if (DocumentsRegistry.instance) {
             return DocumentsRegistry.instance;
         }
-        this.documents = documents?documents:[];
+        this.documents = storage?storage:[];
         DocumentsRegistry.instance = this;
     }
+
+    listDocuments(){}
+    loadDocument(){}
+    listPersonalities(){}
+    loadPersonality(){}
+    listLlms(){}
+    loadLLMConfig(){}
 
     getDocument(documentId, callback) {
         for(let doc of this.documents) {
@@ -15,7 +22,7 @@ export class DocumentsRegistry {
         }
         return null;
     }
-
+    // addDocument with db interaction
     static getInstance(documents) {
         if(!this.instance) {
             this.instance = new DocumentsRegistry(documents);

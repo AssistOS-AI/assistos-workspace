@@ -1,5 +1,6 @@
 import {DocumentsRegistry} from "../imports.js";
 export class Company {
+    /* pass storage data as constructor parameter */
     constructor(userType) {
         /* Prevent creating a new Instance with the new keyword */
         if (Company.instance) {
