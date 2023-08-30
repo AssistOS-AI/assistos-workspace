@@ -37,7 +37,7 @@ export class documentsPage {
                 const rowElement = getClosestParentElement(deleteButton, "document-item-renderer");
                 let documentIdToRemove = parseInt(rowElement.getAttribute('data-id'));
 
-                await webSkel.liteUserDB.deleteRecord("documents", documentIdToRemove);
+                await webSkel.localStorage.deleteDocument(documentIdToRemove);
                 let currentCompany = Company.getInstance();
                 let length = currentCompany.companyState.documents.length;
                 for (let documentIndex = 0; documentIndex < length; documentIndex++) {

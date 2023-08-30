@@ -16,9 +16,10 @@ import {
     localStorage,
     Document,
     Company,
+    showModal,
     WebSkel
 } from "./imports.js";
-import { showModal } from "../WebSkel/utils/modal-utils.js";
+
 
 const openDSU = require("opendsu");
 window.webSkel = new WebSkel();
@@ -72,7 +73,9 @@ async function initWallet() {
 }
 
 async function initLiteUserDatabase(){
-    webSkel.liteUserDB = new localStorage("liteUser",1);
+    webSkel.liteUserDB = new localStorage("liteUser", 1);
+    webSkel.localStorage= await localStorage.getInstance("liteUserDB",1);
+    await webSkel.localStorage.initDatabase();
 }
 
 function changeSelectedPageFromSidebar(url) {
@@ -148,7 +151,7 @@ function defineActions(){
     webSkel.registerAction("addDocument",async(_target)=>{
         let documentTitle= new FormData(getClosestParentElement(_target,'form')).get("documentTitle");
         let documentObj= new Document(documentTitle);
-        let documentId = await webSkel.liteUserDB.addRecord("documents",documentObj);
+        let documentId = await webSkel.localStorage.addDocument(documentObj);
         closeModal(_target);
         let currentCompany = Company.getInstance();
         documentObj.id = documentId;
@@ -172,7 +175,7 @@ function defineActions(){
 
     webSkel.registerAction("showActionBox", async (_target, primaryKey, componentName, insertionMode) => {
         await showActionBox(_target, primaryKey, componentName, insertionMode);
-    });
+       });
 }
 
 (async ()=> {

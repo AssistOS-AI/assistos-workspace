@@ -9,9 +9,8 @@ import { myOrganisationPage } from "./presenters/my-organisation-page.js";
 import { documentSettingsPage } from "./presenters/document-settings-page.js";
 import { editChapterPage } from "./presenters/edit-chapter-page.js";
 import { brainstormingPage } from "./presenters/brainstorming-page.js";
-import { closeModal, showActionBox } from "../WebSkel/utils/modal-utils.js";
-import { notBasePage } from "../WebSkel/utils/dom-utils.js"
-import { getClosestParentElement } from "../WebSkel/utils/dom-utils.js";
+import { closeModal, showActionBox,showModal} from "../WebSkel/utils/modal-utils.js";
+import { notBasePage,getClosestParentElement } from "../WebSkel/utils/dom-utils.js";
 import {localStorage} from "./core/services/localStorage.js";
 import {DocumentsRegistry} from "./core/services/documentsRegistry.js"
 import {CurrentCompany} from "./core/services/currentCompany.js"
@@ -19,6 +18,7 @@ import {Chapter} from "./core/models/chapter.js";
 import {Document} from "./core/models/document.js";
 import {Paragraph} from "./core/models/paragraph.js";
 import {Company} from "./core/company.js";
+import {addRecord,getRecord,getAllRecords,getTableRecords,deleteRecord} from "./utils/indexDB.js";
 import WebSkel from "../WebSkel/webSkel.js";
 
 export {
@@ -34,6 +34,7 @@ export {
     editChapterPage,
     brainstormingPage,
     notBasePage,
+    showModal,
     closeModal,
     showActionBox,
     getClosestParentElement,
@@ -44,5 +45,10 @@ export {
     CurrentCompany,
     Chapter,
     Document,
-    Paragraph
+    Paragraph,
+    addRecord,
+    getRecord,
+    getAllRecords,
+    getTableRecords,
+    deleteRecord
 };

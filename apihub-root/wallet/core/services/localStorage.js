@@ -1,3 +1,4 @@
+import {addRecord,getRecord,getAllRecords,getTableRecords,deleteRecord} from "../../imports.js";
 export class localStorage {
     constructor(dbName, version) {
         if (localStorage.instance) {
@@ -8,8 +9,13 @@ export class localStorage {
             this.version = version;
         }
     }
-
-    async init() {
+    static getInstance(dbName, version) {
+        if(!this.instance) {
+            this.instance = new localStorage(dbName, version);
+        }
+        return this.instance;
+    }
+    async initDatabase() {
         return new Promise((resolve, reject) => {
             const connectionRequest = indexedDB.open(this.dbName, this.version);
 
@@ -35,111 +41,22 @@ export class localStorage {
             };
         });
     }
-    /*  load documents/users/etc here -> move this code from localStorage to utils class */
-    async getTableRecords(storeName) {
-        return new Promise((resolve, reject) => {
-            const transaction = this.db.transaction(storeName, "readonly");
-            const objectStore = transaction.objectStore(storeName);
-
-            const request = objectStore.getAll();
-
-            request.onsuccess = (event) => {
-                resolve(event.target.result);
-            };
-
-            request.onerror = (event) => {
-                console.error(`Encountered IndexDB error: ${event.target.error} while fetching data from ${storeName}.`);
-                reject(event.target.error);
-            };
-        });
-    }
-    async getAllRecords() {
-
-        return new Promise(async (resolve, reject) => {
-            const objectStoreNames = Array.from(this.db.objectStoreNames);
-
-            let allData = {};
-
-            try {
-                for (let storeName of objectStoreNames) {
-                    allData[storeName] = await this.getTableRecords(storeName);
-                }
-                resolve(allData);
-            } catch (error) {
-                console.error(`Encountered IndexDB error: ${error} while fetching all data.`);
-                reject(error);
-            }
-        });
-    }
-    async getRecord(storeName, key) {
-        return new Promise((resolve, reject) => {
-            if (!this.db.objectStoreNames.contains(storeName)) {
-                reject(`Object store "${storeName}" does not exist.`);
-                return;
-            }
-            const transaction = this.db.transaction(storeName, "readonly");
-            const objectStore = transaction.objectStore(storeName);
-            const request = objectStore.get(key);
-            request.onsuccess = (event) => {
-                resolve(event.target.result || null);
-            };
-            request.onerror = (event) => {
-                console.error(`Encountered IndexDB error: ${event.target.error} while fetching record with key ${key} from ${storeName}.`);
-                reject(event.target.error);
-            };
-        });
+    async addDocument(document) {
+        return await addRecord(this.db, "documents", document);
     }
 
-    async addRecord(storeName, data) {
-        if (!this.db.objectStoreNames.contains(storeName)) {
-            throw new Error(`Object store "${storeName}" does not exist.`);
-        }
-        /* Adding a new Document and let indexedDB auto-assign an id*/
-        if(data.id!==undefined) {
-            const existingRecord = await this.getRecord(storeName, data.id);
-
-            if (existingRecord) {
-                return;
-            }
-        }
-
-        return new Promise((resolve, reject) => {
-            const transaction = this.db.transaction(storeName, "readwrite");
-            const objectStore = transaction.objectStore(storeName);
-            const addRequest = objectStore.add(data);
-
-            addRequest.onsuccess = () => resolve(addRequest.result);
-            addRequest.onerror = event => reject(new Error(`Encountered IndexDB error: ${event.target.error} while adding data to ${storeName}.`));
-
-            transaction.onerror = event => reject(event.target.error);
-            transaction.onabort = event => reject(new Error('Transaction was aborted'));
-        });
+    async getDocument(documentId) {
+        return await getRecord(this.db, "documents", documentId);
     }
 
-    async deleteRecord(storeName, key) {
-        return new Promise((resolve, reject) => {
-
-            if (!this.db.objectStoreNames.contains(storeName)) {
-                reject(`Object store "${storeName}" does not exist.`);
-                return;
-            }
-
-            const transaction = this.db.transaction(storeName, "readwrite");
-            const objectStore = transaction.objectStore(storeName);
-            let request;
-
-            request = objectStore.delete(key);
-
-            request.onsuccess = () => {
-                resolve(`Record with key ${key} successfully deleted from ${storeName}.`);
-            };
-
-            request.onerror = (event) => {
-                console.error(`Encountered IndexDB error: ${event.target.error} while deleting record with key ${key} from ${storeName}.`);
-                reject(event.target.error);
-            };
-        });
+    async getAllDocuments() {
+        return await getTableRecords(this.db, "documents");
     }
 
+    async getAllData() {
+        return await getAllRecords(this.db);
+    }
+    async deleteDocument(documentId) {
+        return await deleteRecord(this.db, "documents", documentId);
+    }
 }
-/* */
