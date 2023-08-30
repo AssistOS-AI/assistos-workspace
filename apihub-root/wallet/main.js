@@ -19,7 +19,6 @@ import {
     WebSkel
 } from "./imports.js";
 
-
 const openDSU = require("opendsu");
 window.webSkel = new WebSkel();
 async function initEnclaveClient() {
@@ -76,6 +75,7 @@ async function initWallet() {
 async function initLiteUserDatabase(){
     webSkel.liteUserDB= new liteUserDatabase("liteUser",1);
 }
+
 function changeSelectedPageFromSidebar(url) {
     let element = document.getElementById('selected-page');
     if (element) {
@@ -138,6 +138,7 @@ function defineComponents() {
     webSkel.defineComponent("proof-reader-page", "./wallet/pages/proof-reader-page/proof-reader-page.html");
     webSkel.defineComponent("my-organisation-page", "./wallet/pages/my-organisation-page/my-organisation-page.html");
 }
+
 function defineActions(){
     webSkel.registerAction("closeModal", async (modal, _param) => {
         closeModal(modal);
@@ -168,12 +169,15 @@ function defineActions(){
         await webSkel.changeToDynamicPage(pageId);
     })
 
-    webSkel.registerAction("showActionBox", async (_target, primaryKey,componentName,insertionMode) => {
+    webSkel.registerAction("showActionBox", async (_target, primaryKey, componentName, insertionMode) => {
         await showActionBox(_target, primaryKey, componentName, insertionMode);
         let editButton = document.querySelector("[data-local-action='editAction']");
         if(editButton) {
             editButton.addEventListener("click", async (event) => {
-                await webSkel.changeToStaticPage(`documents/${editButton.parentNode.parentNode.id}`);
+                let document = getClosestParentElement(editButton, "document-item-renderer");
+                let documentId = document.getAttribute("data-id");
+                await webSkel.changeToStaticPage(`documents/${documentId}`);
+                // await webSkel.changeToStaticPage(`documents/${editButton.parentNode.parentNode.id}`);
             });
         }
         let deleteButton = document.querySelector("[data-local-action='deleteAction']");
@@ -194,8 +198,8 @@ function defineActions(){
                 }
                 currentCompany.notifyObservers();
             });
-
-        }});
+        }
+    });
 }
 
 (async ()=> {
@@ -204,7 +208,7 @@ function defineActions(){
     await initEnclaveClient();
     if (('indexedDB' in window)) {
         await initLiteUserDatabase();
-    }else{
+    } else {
         alert("Your current browser does not support local storage. Please use a different browser, or upgrade to premium");
     }
     defineActions();

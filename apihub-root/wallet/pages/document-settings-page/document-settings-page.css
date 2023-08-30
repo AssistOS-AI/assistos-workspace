@@ -26,6 +26,11 @@
     margin-left: 15px;
 }
 
+.settings-content {
+    display: flex;
+    width: 100%;
+}
+
 .document-content {
     width: 100%;
     margin-right: 10px;
@@ -85,6 +90,10 @@
 .dropdown-content,
 .proceed-content {
     padding: 10px;
+}
+
+.dropdown-content {
+    width: 100%;
 }
 
 .proceed-content {

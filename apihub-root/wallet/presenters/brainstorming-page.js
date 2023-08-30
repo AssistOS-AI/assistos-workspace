@@ -23,13 +23,12 @@ export class brainstormingPage {
 
     beforeRender() {
         let documentContent = document.querySelector("brainstorming-page");
-        this.id = documentContent.getAttribute("data-document-id");
+        this.id = parseInt(documentContent.getAttribute("data-document-id"));
         this.alternativeAbstracts = "";
         if(this._documentConfigs) {
             this._doc = this._documentConfigs.find(document => document.id=== this.id);
             try {
                 this.title = this._doc.name;
-                this.abstractText = this._doc.abstract;
                 let suggestedTitle = "Bees are nature's little pollination superheroes! Let's protect them and ensure our food chain thrives. #SaveTheBees";
                 for(let number = 1; number <= 10; number++) {
                     this.alternativeAbstracts += `<alternative-abstract-renderer nr="${number}" title="${suggestedTitle}"></alternative-abstract-renderer>`;

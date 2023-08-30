@@ -21,10 +21,9 @@ export class editTitlePage {
         currentCompany.onChange(this.updateState);
     }
 
-
     beforeRender() {
         let documentContent = document.querySelector("edit-title-page");
-        this.id = documentContent.getAttribute("data-document-id");
+        this.id = parseInt(documentContent.getAttribute("data-document-id"));
         this.alternativeTitles = "";
         if(this._documentConfigs) {
             this._doc = this._documentConfigs.find(document => document.id === this.id);
