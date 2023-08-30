@@ -6,6 +6,8 @@ export class brainstormingPage {
         this.title = "Titlu document";
         let currentCompany = Company.getInstance();
 
+        this.chapterSidebar = "";
+        this.showChaptersInSidebar = 0;
         if(currentCompany.companyState) {
             this._documentConfigs = currentCompany.companyState.documents;
             console.log(this._documentConfigs.length);
@@ -33,6 +35,9 @@ export class brainstormingPage {
                 for(let number = 1; number <= 10; number++) {
                     this.alternativeAbstracts += `<alternative-abstract-renderer nr="${number}" title="${suggestedTitle}"></alternative-abstract-renderer>`;
                 }
+                this._doc.chapters.forEach((item) => {
+                    this.chapterSidebar += `<div class="submenu-item">Edit ${item.name}</div>`;
+                });
             } catch(e) {}
         }
     }
@@ -47,6 +52,22 @@ export class brainstormingPage {
         const editAbstractButton = document.querySelector('#edit-abstract');
         editAbstractButton.addEventListener('click', () => {
             webSkel.changeToStaticPage(`documents/${this.id}/edit-abstract`);
+        });
+
+        const chapterSubmenuSection = document.querySelector(".sidebar-submenu");
+        const editChapterButton = document.querySelector('#edit-chapter');
+        editChapterButton.addEventListener('click', () => {
+            const sidebarArrow = document.querySelector(".arrow-sidebar");
+            if(this.showChaptersInSidebar === 0) {
+                chapterSubmenuSection.style.display = "inherit";
+                sidebarArrow.classList.remove('rotate');
+                this.showChaptersInSidebar = 1;
+            }
+            else {
+                chapterSubmenuSection.style.display = "none";
+                sidebarArrow.classList.toggle('rotate');
+                this.showChaptersInSidebar = 0;
+            }
         });
 
         const settingsButton = document.querySelector('#settings');
