@@ -48,7 +48,8 @@ input::file-selector-button {
 .wide-btn {
     width: 100%;
     height: 36px;
-    background: #555555;
+    background: #18203F;
+    border: none;
     color: white;
     border-radius: 16px;
     font-family: Poppins;

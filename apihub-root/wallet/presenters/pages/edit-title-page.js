@@ -1,5 +1,5 @@
-import { Company } from "../../core/company.js";
-import { showModal } from "../../../WebSkel/utils/modal-utils.js";
+import {Company} from "../../core/company.js";
+import {showModal} from "../../../WebSkel/utils/modal-utils.js";
 
 export class editTitlePage {
     constructor() {
@@ -25,7 +25,9 @@ export class editTitlePage {
 
     beforeRender() {
         let documentContent = document.querySelector("edit-title-page");
-        this.id = parseInt(documentContent.getAttribute("data-document-id"));
+        if(documentContent) {
+            this.id = parseInt(documentContent.getAttribute("data-document-id"));
+        }
         this.alternativeTitles = "";
         if(this._documentConfigs) {
             this._doc = this._documentConfigs.find(document => document.id === this.id);
@@ -74,7 +76,7 @@ export class editTitlePage {
     }
 
     saveTitle() {
-
+        this.title = document.querySelector("#title").value;
     }
 
     async showSuggestTitleModal() {

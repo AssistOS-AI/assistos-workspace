@@ -24,7 +24,9 @@ export class editChapterPage {
 
     beforeRender() {
         let documentContent = document.querySelector("edit-abstract-page");
-        this.id = documentContent.getAttribute("data-document-id");
+        if(documentContent) {
+            this.id = parseInt(documentContent.getAttribute("data-document-id"));
+        }
         this.alternativeAbstracts = "";
         if(this._documentConfigs) {
             this._doc = this._documentConfigs.find(document => document.id === this.id);

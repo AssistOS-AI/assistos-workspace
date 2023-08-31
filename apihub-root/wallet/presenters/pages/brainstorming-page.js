@@ -25,7 +25,9 @@ export class brainstormingPage {
 
     beforeRender() {
         let documentContent = document.querySelector("brainstorming-page");
-        this.id = parseInt(documentContent.getAttribute("data-document-id"));
+        if(documentContent) {
+            this.id = parseInt(documentContent.getAttribute("data-document-id"));
+        }
         this.alternativeAbstracts = "";
         if(this._documentConfigs) {
             this._doc = this._documentConfigs.find(document => document.id=== this.id);
