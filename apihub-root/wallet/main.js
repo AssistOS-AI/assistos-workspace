@@ -15,8 +15,10 @@ import {
     Document,
     Company,
     showModal,
+    Registry,
     WebSkel
 } from "./imports.js";
+
 
 const openDSU = require("opendsu");
 window.webSkel = new WebSkel();
@@ -70,9 +72,9 @@ async function initWallet() {
 }
 
 async function initLiteUserDatabase(){
-    webSkel.liteUserDB = new localStorage("liteUser", 1);
-    webSkel.localStorage= await localStorage.getInstance("liteUserDB",1);
+    webSkel.localStorage= await localStorage.getInstance("freeUser",1);
     await webSkel.localStorage.initDatabase();
+    webSkel.registry = Registry.getInstance(await webSkel.localStorage.getAllData());
 }
 
 function changeSelectedPageFromSidebar(url) {
@@ -138,6 +140,15 @@ function defineActions(){
         closeModal(modal);
         // window.location="/";
     });
+    webSkel.registerAction("addDocument",async(_target)=>{
+        let documentTitle= new FormData(getClosestParentElement(_target,'form')).get("documentTitle");
+        let documentObj= new Document(documentTitle);
+        documentObj.id=await webSkel.localStorage.addDocument(documentObj);
+        closeModal(_target);
+        let currentCompany = Company.getInstance();
+        currentCompany.companyState.documents.push(documentObj);
+        currentCompany.notifyObservers();
+    })
 
     webSkel.registerAction("changePage", async (_target, pageId,refreshFlag='0') => {
         /* If we are attempting to click the button to the tool page we're currently on, a refreshFlag with the value 0

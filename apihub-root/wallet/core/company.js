@@ -1,4 +1,4 @@
-import {DocumentsRegistry} from "../imports.js";
+import {Registry} from "../imports.js";
 export class Company {
     /* pass storage data as constructor parameter */
     /* both the user and company know of each other */
@@ -21,7 +21,7 @@ export class Company {
             /* We could load only the data we need for the current page instead? */
             this.companyState=await this.loadDatabaseData();
         }
-        this.documentsRegistry=DocumentsRegistry.getInstance(this.companyState.documents);
+        this.documentsRegistry=Registry.getInstance(this.companyState.documents);
         this.notifyObservers();
     }
 
