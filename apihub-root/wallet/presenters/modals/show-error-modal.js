@@ -19,15 +19,8 @@ export class showErrorModal {
         currentCompany.onChange(this.updateState);
     }
 
-    async addDocumentSubmitForm(_target) {
-        let documentTitle= new FormData(getClosestParentElement(_target,'form')).get("documentTitle");
-        let documentObj= new Document(documentTitle);
-        let documentId = await webSkel.localStorage.addDocument(documentObj);
+    closeErrorModal(_target) {
         closeModal(_target);
-        let currentCompany = Company.getInstance();
-        documentObj.id = documentId;
-        currentCompany.companyState.documents.push(documentObj);
-        currentCompany.notifyObservers();
     }
 
     beforeRender() {
