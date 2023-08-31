@@ -61,7 +61,13 @@ async function loadPage(){
         /* URL examples: documents/0, documents/0/chapters/1 */
         switch(url.split('/')[0]) {
             case "#documents":
-                webSkel.registry.currentDocumentId = parseInt(url.split('/')[1]);
+                let documentIdURL=parseInt(url.split('/')[1]);
+                if(webSkel.registry.getDocument(documentIdURL)!==null){
+                    webSkel.registry.observeDocument(documentIdURL);
+                    changeSelectedPageFromSidebar("documents-page");
+                }else{
+                    window.location="/";
+                }
                 changeSelectedPageFromSidebar("documents-page");
                 break;
         }

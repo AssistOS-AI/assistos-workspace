@@ -5,9 +5,9 @@ export class Registry {
         }
         this.storageData = storageData?storageData:[];
         if (storageData.documents && storageData.documents.length > 0) {
-            this.currentDocument = storageData.documents[0].id;
+            this.currentDocumentId = storageData.documents[0].id;
         } else {
-            this.currentDocument = undefined;
+            this.currentDocumentId = undefined;
         }
         Registry.instance = this;
     }
