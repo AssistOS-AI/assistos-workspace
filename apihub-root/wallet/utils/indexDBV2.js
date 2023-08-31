@@ -1,11 +1,12 @@
 let stores = {};
 const config = require("opendsu").loadApi("config");
-const CacheMixin = require("../utils/PendingCallMixin");
+import {PendingCallMixin} from "../imports.js";
+
 const constants = require("../moduleConstants");
 
-function IndexedDBCache(storeName, lifetime) {
+export function IndexedDBCache(storeName, lifetime) {
     const self = this;
-    CacheMixin(self);
+    PendingCallMixin(self);
 
     let db;
     let openRequest = indexedDB.open(storeName);
@@ -143,6 +144,3 @@ function IndexedDBCache(storeName, lifetime) {
         });
     }
 }
-
-
-module.exports.IndexedDBCache  = IndexedDBCache;

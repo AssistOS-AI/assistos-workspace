@@ -17,6 +17,7 @@ import {
     Document,
     Company,
     showModal,
+    Registry,
     WebSkel
 } from "./imports.js";
 
@@ -73,9 +74,9 @@ async function initWallet() {
 }
 
 async function initLiteUserDatabase(){
-    webSkel.liteUserDB = new localStorage("liteUser", 1);
-    webSkel.localStorage= await localStorage.getInstance("liteUserDB",1);
+    webSkel.localStorage= await localStorage.getInstance("freeUser",1);
     await webSkel.localStorage.initDatabase();
+    webSkel.registry = Registry.getInstance(await webSkel.localStorage.getAllData());
 }
 
 function changeSelectedPageFromSidebar(url) {
@@ -151,10 +152,9 @@ function defineActions(){
     webSkel.registerAction("addDocument",async(_target)=>{
         let documentTitle= new FormData(getClosestParentElement(_target,'form')).get("documentTitle");
         let documentObj= new Document(documentTitle);
-        let documentId = await webSkel.localStorage.addDocument(documentObj);
+        documentObj.id=await webSkel.localStorage.addDocument(documentObj);
         closeModal(_target);
         let currentCompany = Company.getInstance();
-        documentObj.id = documentId;
         currentCompany.companyState.documents.push(documentObj);
         currentCompany.notifyObservers();
     })

@@ -12,13 +12,14 @@ import { brainstormingPage } from "./presenters/brainstorming-page.js";
 import { closeModal, showActionBox,showModal} from "../WebSkel/utils/modal-utils.js";
 import { notBasePage,getClosestParentElement } from "../WebSkel/utils/dom-utils.js";
 import {localStorage} from "./core/services/localStorage.js";
-import {DocumentsRegistry} from "./core/services/documentsRegistry.js"
+import {Registry} from "./core/services/registry.js"
 import {CurrentCompany} from "./core/services/currentCompany.js"
 import {Chapter} from "./core/models/chapter.js";
 import {Document} from "./core/models/document.js";
 import {Paragraph} from "./core/models/paragraph.js";
 import {Company} from "./core/company.js";
-import {addRecord,getRecord,getAllRecords,getTableRecords,deleteRecord} from "./utils/indexDB.js";
+import {addRecord,getRecord,getAllRecords,getTableRecords,deleteRecord,openDatabase,updateRecord} from "./utils/indexDB.js";
+import{PendingCallMixin} from "./utils/PendingCallMixin.js";
 import WebSkel from "../WebSkel/webSkel.js";
 
 export {
@@ -41,7 +42,7 @@ export {
     localStorage,
     Company,
     WebSkel,
-    DocumentsRegistry,
+    Registry,
     CurrentCompany,
     Chapter,
     Document,
@@ -50,5 +51,8 @@ export {
     getRecord,
     getAllRecords,
     getTableRecords,
-    deleteRecord
+    deleteRecord,
+    openDatabase,
+    updateRecord,
+    PendingCallMixin
 };
