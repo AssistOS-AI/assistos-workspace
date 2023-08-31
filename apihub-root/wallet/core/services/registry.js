@@ -4,7 +4,11 @@ export class Registry {
             return Registry.instance;
         }
         this.storageData = storageData?storageData:[];
-        this.currentDocument=storageData.documents?storageData.documents[0].id:undefined;
+        if (storageData.documents && storageData.documents.length > 0) {
+            this.currentDocument = storageData.documents[0].id;
+        } else {
+            this.currentDocument = undefined;
+        }
         Registry.instance = this;
     }
     static getInstance(storageData) {
