@@ -1,5 +1,5 @@
 import { Company } from "../../core/company.js";
-import { closeModal, showModal } from "../../../WebSkel/utils/modal-utils.js";
+import { closeModal, showActionBox, showModal } from "../../../WebSkel/utils/modal-utils.js";
 import { getClosestParentElement } from "../../../WebSkel/utils/dom-utils.js";
 import { Document } from "../../core/models/document.js";
 
@@ -9,7 +9,6 @@ export class documentsPage {
         this.modal = "showAddNewDocumentModal";
         this.button = "Add document";
         this.tableRows = "No data loaded";
-
         let currentCompany = Company.getInstance();
 
         if(currentCompany.companyState) {
@@ -24,6 +23,18 @@ export class documentsPage {
         }
         currentCompany.onChange(this.updateState);
     }
+
+    beforeRender() {
+        this.tableRows="";
+        if(this._documentConfigs) {
+            this._documentConfigs.forEach((item) => {
+                this.tableRows += `<document-item-renderer data-name="${item.name}" data-id="${item.id}"></document-item-renderer>`;
+            });
+        } else {
+            this.tableRows=`<div> No Data Currently </div>`;
+        }
+    }
+
     async showAddNewDocumentModal() {
         await showModal(document.querySelector("body"), "add-new-document-modal", {});
     }
@@ -52,15 +63,8 @@ export class documentsPage {
         currentCompany.notifyObservers();
     }
 
-    beforeRender() {
-        this.tableRows="";
-        if(this._documentConfigs) {
-            this._documentConfigs.forEach((item) => {
-                this.tableRows += `<document-item-renderer data-name="${item.name}" data-id="${item.id}"></document-item-renderer>`;
-            });
-        } else {
-            this.tableRows=`<div> No Data Currently </div>`;
-        }
+    async showActionBox(_target, primaryKey, componentName, insertionMode) {
+        await showActionBox(_target, primaryKey, componentName, insertionMode);
     }
 
     /* adding event Listeners after the web component has loaded, etc */

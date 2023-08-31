@@ -1,4 +1,8 @@
 import {
+    addNewDocumentModal,
+    showErrorModal,
+    suggestAbstractModal,
+    suggestTitleModal,
     documentsPage,
     docPageByTitle,
     editTitlePage,
@@ -6,19 +10,11 @@ import {
     proofReaderPage,
     brainstormingPage,
     documentSettingsPage,
-    addNewDocumentModal,
     notBasePage,
-    closeModal,
-    showActionBox,
-    getClosestParentElement,
     localStorage,
-    Document,
-    Company,
-    showModal,
     Registry,
     WebSkel
 } from "./imports.js";
-
 
 const openDSU = require("opendsu");
 window.webSkel = new WebSkel();
@@ -109,6 +105,9 @@ function definePresenters(){
     webSkel.registerPresenter("proof-reader-page", proofReaderPage);
 
     webSkel.registerPresenter("add-new-document-modal", addNewDocumentModal);
+    webSkel.registerPresenter("show-error-modal", showErrorModal);
+    webSkel.registerPresenter("suggest-abstract-modal", suggestAbstractModal);
+    webSkel.registerPresenter("suggest-title-modal", suggestTitleModal);
 }
 
 function defineComponents() {
@@ -119,9 +118,6 @@ function defineComponents() {
     webSkel.defineComponent("action-box-with-select", "./wallet/components/action-box-with-select/action-box-with-select.html");
     webSkel.defineComponent("alternative-title-renderer", "./wallet/components/alternative-title-renderer/alternative-title-renderer.html");
     webSkel.defineComponent("alternative-abstract-renderer", "./wallet/components/alternative-abstract-renderer/alternative-abstract-renderer.html");
-    webSkel.defineComponent("suggest-title-modal", "./wallet/components/suggest-title-modal/suggest-title-modal.html");
-    webSkel.defineComponent("suggest-abstract-modal", "./wallet/components/suggest-abstract-modal/suggest-abstract-modal.html");
-    webSkel.defineComponent("show-error-modal","/wallet/components/show-error-modal/show-error-modal.html")
 
     webSkel.defineComponent("documents-page", "./wallet/pages/documents-page/documents-page.html");
     webSkel.defineComponent("document-settings-page", "./wallet/pages/document-settings-page/document-settings-page.html");
@@ -132,26 +128,12 @@ function defineComponents() {
     webSkel.defineComponent("proof-reader-page", "./wallet/pages/proof-reader-page/proof-reader-page.html");
 
     webSkel.defineComponent("add-new-document-modal", "./wallet/components/add-new-document-modal/add-new-document-modal.html");
+    webSkel.defineComponent("show-error-modal", "./wallet/components/show-error-modal/show-error-modal.html");
+    webSkel.defineComponent("suggest-abstract-modal", "./wallet/components/suggest-abstract-modal/suggest-abstract-modal.html");
+    webSkel.defineComponent("suggest-title-modal", "./wallet/components/suggest-title-modal/suggest-title-modal.html");
 }
+
 function defineActions(){
-    webSkel.registerAction("closeModal", async (modal, _param) => {
-        closeModal(modal);
-    });
-
-    webSkel.registerAction("closeErrorModal", (modal)=>{
-        closeModal(modal);
-        // window.location="/";
-    });
-    webSkel.registerAction("addDocument",async(_target)=>{
-        let documentTitle= new FormData(getClosestParentElement(_target,'form')).get("documentTitle");
-        let documentObj= new Document(documentTitle);
-        documentObj.id=await webSkel.localStorage.addDocument(documentObj);
-        closeModal(_target);
-        let currentCompany = Company.getInstance();
-        currentCompany.companyState.documents.push(documentObj);
-        currentCompany.notifyObservers();
-    })
-
     webSkel.registerAction("changePage", async (_target, pageId,refreshFlag='0') => {
         /* If we are attempting to click the button to the tool page we're currently on, a refreshFlag with the value 0
             will prevent that page refresh from happening and just exit the function
@@ -165,11 +147,6 @@ function defineActions(){
         changeSelectedPageFromSidebar(pageId);
         await webSkel.changeToDynamicPage(pageId);
     })
-
-    ///!!!DE FACUT CU DATA-LOCAL-ACTION
-    webSkel.registerAction("showActionBox", async (_target, primaryKey, componentName, insertionMode) => {
-        await showActionBox(_target, primaryKey, componentName, insertionMode);
-    });
 }
 
 (async ()=> {

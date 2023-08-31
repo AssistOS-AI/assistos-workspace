@@ -1,10 +1,13 @@
+import { addNewDocumentModal } from "./presenters/modals/add-new-document-modal.js";
+import { showErrorModal } from "./presenters/modals/show-error-modal.js";
+import { suggestAbstractModal } from "./presenters/modals/suggest-abstract-modal.js";
+import { suggestTitleModal } from "./presenters/modals/suggest-title-modal.js"
 import { documentsPage } from "./presenters/pages/documents-page.js";
 import { docPageByTitle } from "./presenters/pages/doc-page-by-title.js";
 import { editTitlePage } from "./presenters/pages/edit-title-page.js";
 import { editAbstractPage } from "./presenters/pages/edit-abstract-page.js";
 import { proofReaderPage } from "./presenters/pages/proof-reader-page.js";
 import { documentSettingsPage } from "./presenters/pages/document-settings-page.js";
-import { addNewDocumentModal } from "./presenters/modals/add-new-document-modal.js";
 import { editChapterPage } from "./presenters/pages/edit-chapter-page.js";
 import { brainstormingPage } from "./presenters/pages/brainstorming-page.js";
 import { closeModal, showActionBox, showModal } from "../WebSkel/utils/modal-utils.js";
@@ -21,14 +24,16 @@ import { PendingCallMixin } from "./utils/PendingCallMixin.js";
 import WebSkel from "../WebSkel/webSkel.js";
 
 export {
+    addNewDocumentModal,
+    showErrorModal,
+    suggestAbstractModal,
+    suggestTitleModal,
     documentsPage,
     docPageByTitle,
     editTitlePage,
     editAbstractPage,
     proofReaderPage,
     documentSettingsPage,
-    addNewDocumentModal,
-
     editChapterPage,
     brainstormingPage,
     notBasePage,

@@ -1,5 +1,5 @@
-import {Company} from "../../core/company.js";
-import {showModal} from "../../../WebSkel/utils/modal-utils.js";
+import { Company } from "../../core/company.js";
+import { closeModal, showActionBox, showModal } from "../../../WebSkel/utils/modal-utils.js";
 
 export class editTitlePage {
     constructor() {
@@ -82,6 +82,10 @@ export class editTitlePage {
 
     async showSuggestTitleModal() {
         await showModal(document.querySelector("body"), "suggest-title-modal", {});
+    }
+
+    async showActionBox(_target, primaryKey, componentName, insertionMode) {
+        await showActionBox(_target, primaryKey, componentName, insertionMode);
     }
 
     /* adding event Listeners after the web component has loaded, etc */

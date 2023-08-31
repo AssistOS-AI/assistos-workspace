@@ -1,5 +1,5 @@
 import { Company } from "../../core/company.js";
-import { showModal } from "../../../WebSkel/utils/modal-utils.js";
+import { closeModal, showActionBox, showModal } from "../../../WebSkel/utils/modal-utils.js";
 
 export class editChapterPage {
     constructor() {
@@ -74,6 +74,10 @@ export class editChapterPage {
             sidebarArrow.classList.toggle('rotate');
             this.showChaptersInSidebar = 0;
         }
+    }
+
+    async showActionBox(_target, primaryKey, componentName, insertionMode) {
+        await showActionBox(_target, primaryKey, componentName, insertionMode);
     }
 
     /* adding event Listeners after the web component has loaded, etc */
