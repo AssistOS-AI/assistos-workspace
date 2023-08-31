@@ -9,6 +9,7 @@ import {
     myOrganisationPage,
     brainstormingPage,
     documentSettingsPage,
+    addNewDocumentModal,
     notBasePage,
     closeModal,
     showActionBox,
@@ -19,7 +20,6 @@ import {
     showModal,
     WebSkel
 } from "./imports.js";
-
 
 const openDSU = require("opendsu");
 window.webSkel = new WebSkel();
@@ -109,6 +109,8 @@ function definePresenters(){
     webSkel.registerPresenter("brainstorming-page", brainstormingPage);
     webSkel.registerPresenter("proof-reader-page", proofReaderPage);
     webSkel.registerPresenter("my-organisation-page", myOrganisationPage);
+
+    webSkel.registerPresenter("add-new-document-modal", addNewDocumentModal);
 }
 
 function defineComponents() {
@@ -116,7 +118,6 @@ function defineComponents() {
     webSkel.defineComponent("add-llm-modal", "./wallet/components/add-llm-modal/add-llm-modal.html");
     webSkel.defineComponent("add-personality-modal", "./wallet/components/add-personality-modal/add-personality-modal.html");
     webSkel.defineComponent("add-announce-modal", "./wallet/components/add-announce-modal/add-announce-modal.html");
-    webSkel.defineComponent("add-new-document-modal", "./wallet/components/add-new-document-modal/add-new-document-modal.html");
     webSkel.defineComponent("llm-item-renderer", "./wallet/components/llm-item-renderer/llm-item-renderer.html");
     webSkel.defineComponent("chapter-item", "./wallet/components/chapter-item/chapter-item.html");
     webSkel.defineComponent("personality-item-renderer", "./wallet/components/personality-item-renderer/personality-item-renderer.html");
@@ -139,25 +140,18 @@ function defineComponents() {
     webSkel.defineComponent("edit-abstract-page", "./wallet/pages/edit-abstract-page/edit-abstract-page.html");
     webSkel.defineComponent("proof-reader-page", "./wallet/pages/proof-reader-page/proof-reader-page.html");
     webSkel.defineComponent("my-organisation-page", "./wallet/pages/my-organisation-page/my-organisation-page.html");
+
+    webSkel.defineComponent("add-new-document-modal", "./wallet/components/add-new-document-modal/add-new-document-modal.html");
 }
 function defineActions(){
     webSkel.registerAction("closeModal", async (modal, _param) => {
         closeModal(modal);
     });
+
     webSkel.registerAction("closeErrorModal", (modal)=>{
         closeModal(modal);
         // window.location="/";
     });
-    webSkel.registerAction("addDocument",async(_target)=>{
-        let documentTitle= new FormData(getClosestParentElement(_target,'form')).get("documentTitle");
-        let documentObj= new Document(documentTitle);
-        let documentId = await webSkel.localStorage.addDocument(documentObj);
-        closeModal(_target);
-        let currentCompany = Company.getInstance();
-        documentObj.id = documentId;
-        currentCompany.companyState.documents.push(documentObj);
-        currentCompany.notifyObservers();
-    })
 
     webSkel.registerAction("changePage", async (_target, pageId,refreshFlag='0') => {
         /* If we are attempting to click the button to the tool page we're currently on, a refreshFlag with the value 0
@@ -173,9 +167,10 @@ function defineActions(){
         await webSkel.changeToDynamicPage(pageId);
     })
 
+    ///!!!DE FACUT CU DATA-LOCAL-ACTION
     webSkel.registerAction("showActionBox", async (_target, primaryKey, componentName, insertionMode) => {
         await showActionBox(_target, primaryKey, componentName, insertionMode);
-       });
+    });
 }
 
 (async ()=> {
