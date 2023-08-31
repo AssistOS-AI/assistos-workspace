@@ -178,7 +178,7 @@ function defineActions(){
     if (('indexedDB' in window)) {
         await initLiteUserDatabase();
     } else {
-        alert("Your current browser does not support local storage. Please use a different browser, or upgrade to premium");
+        await showApplicationError("IndexDB not supported","Your current browser does not support local storage. Please use a different browser, or upgrade to premium","IndexDB is not supported by your browser");
     }
     await loadPage();
     await initEnclaveClient();
