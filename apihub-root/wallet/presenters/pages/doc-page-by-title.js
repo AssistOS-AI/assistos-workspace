@@ -4,10 +4,16 @@ export class docPageByTitle {
     constructor() {
         this.title = "Documents";
         this.name = "Name";
-        this.abstractText = "Abstract text";
+        this.abstractText = "Edit your abstract";
         this.button = "Add new document";
         this.chapterSidebar = "";
         this.showChaptersInSidebar = 0;
+        this.chapters = [
+            {
+                name: "Chapter 1",
+                content: "Chapter 1 content",
+            },
+        ];
         let currentCompany = Company.getInstance();
 
         if(currentCompany.companyState) {
@@ -31,7 +37,7 @@ export class docPageByTitle {
         if(documentContent) {
             this.id = parseInt(documentContent.getAttribute("data-document-id"));
         }
-        this.chapters = "";
+        this.chapterDivs = "";
         let doc;
         if(this._documentConfigs) {
             /*this._doc = this._documentConfigs.find(document => document.id === this.id);*/
@@ -44,14 +50,20 @@ export class docPageByTitle {
             this._doc = doc;
             try {
                 this.title = this._doc.name;
-                this.abstractText = this._doc.abstract;
-                this._doc.chapters.forEach((item) => {
-                    this.chapters += `<chapter-item data-chapter-title="${item.name}" chapter-id="${item.name.split(' ')[1]}" data-chapter-content="${item.content}"></chapter-item>`;
+                if(this._doc.abstract) {
+                    this.abstractText = this._doc.abstract;
+                }
+                if(this._doc.chapters.length > 0) {
+                    console.log(this._doc.chapters);
+                    this.chapters = this._doc.chapters;
+                }
+                this.chapters.forEach((item) => {
+                    this.chapterDivs += `<chapter-item data-chapter-title="${item.name}" chapter-id="${item.name.split(' ')[1]}" data-chapter-content="${item.content}"></chapter-item>`;
                     this.chapterSidebar += `<div class="submenu-item">Edit ${item.name}</div>`;
                 });
             } catch(e) {}
         } else {
-            this.chapters=`<div> No Data Currently </div>`;
+            this.chapterDivs=`<div> No Data Currently </div>`;
         }
     }
 
@@ -86,7 +98,7 @@ export class docPageByTitle {
         }
     }
 
-    showOrHideChapter(chapterId) {
+    showOrHideChapter(_target, chapterId) {
         let target = document.querySelector(`[data-id="${chapterId}"]`);
         target.firstElementChild.nextElementSibling.classList.toggle('hidden');
         target.firstElementChild.firstElementChild.classList.toggle('rotate');
