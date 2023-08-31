@@ -24,6 +24,7 @@ export class documentSettingsPage {
 
     beforeRender() {
         let documentContent = document.querySelector("document-settings-page");
+        /* Quick Fix - To be removed */
         if(documentContent) {
             this.id = parseInt(documentContent.getAttribute("data-document-id"));
         }

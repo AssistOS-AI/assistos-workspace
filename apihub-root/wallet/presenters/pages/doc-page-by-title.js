@@ -27,6 +27,7 @@ export class docPageByTitle {
 
     beforeRender() {
         let documentContent = document.querySelector("doc-page-by-title");
+        /* Quick Fix - To be removed */
         if(documentContent) {
             this.id = parseInt(documentContent.getAttribute("data-document-id"));
         }

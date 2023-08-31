@@ -24,6 +24,7 @@ export class editChapterPage {
 
     beforeRender() {
         let documentContent = document.querySelector("edit-abstract-page");
+        /* Quick Fix - To be removed */
         if(documentContent) {
             this.id = parseInt(documentContent.getAttribute("data-document-id"));
         }

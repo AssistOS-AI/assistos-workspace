@@ -42,13 +42,13 @@ export class Company {
 
     //weakset instead of array of weakrefs
     notifyObservers() {
-        for (const observerRef of this.observers) {
+          for (const observerRef of this.observers) {
             const observer = observerRef.deref();
             if (observer) {
                 observer(this.companyState);
             }
         }
         /* Quick Fix - To be removed */
-        // this.observers[this.observers.length-1].deref()(this.companyState);
+        /*this.observers[this.observers.length-1].deref()(this.companyState);*/
     }
 }

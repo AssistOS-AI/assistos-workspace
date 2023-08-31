@@ -31,7 +31,9 @@ export class documentsPage {
     async editAction(_target){
         console.log(_target);
         let rowElement = getClosestParentElement(_target,['document-item-renderer']);
-        await webSkel.changeToStaticPage(`documents/${rowElement.getAttribute('data-id')}`);
+        let documentId=parseInt(rowElement.getAttribute('data-id'));
+        webSkel.registry.currentDocumentId=documentId;
+        await webSkel.changeToStaticPage(`documents/${documentId}`);
     }
 
     async deleteAction(_target){

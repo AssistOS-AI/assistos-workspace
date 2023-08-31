@@ -20,7 +20,7 @@ export class Document {
         }
     }
 
-    observerChapter(chapterId){
+    observeChapter(chapterId){
         this.currentChapter=chapterId;
     }
     updateDocumentTitle(documentTitle){
