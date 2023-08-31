@@ -58,8 +58,8 @@ export class docPageByTitle {
                     this.chapters = this._doc.chapters;
                 }
                 this.chapters.forEach((item) => {
-                    this.chapterDivs += `<chapter-item data-chapter-title="${item.name}" chapter-id="${item.name.split(' ')[1]}" data-chapter-content="${item.content}"></chapter-item>`;
-                    this.chapterSidebar += `<div class="submenu-item">Edit ${item.name}</div>`;
+                    this.chapterDivs += `<chapter-item data-chapter-title="${item.chapterTitle}" chapter-id="${item.id}" data-chapter-content="${item.content}"></chapter-item>`;
+                    this.chapterSidebar += `<div class="submenu-item">Edit ${item.chapterTitle}</div>`;
                 });
             } catch(e) {}
         } else {
