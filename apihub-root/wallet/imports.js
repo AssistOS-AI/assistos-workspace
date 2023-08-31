@@ -7,7 +7,7 @@ import { documentSettingsPage } from "./presenters/pages/document-settings-page.
 import { addNewDocumentModal } from "./presenters/modals/add-new-document-modal.js";
 import { editChapterPage } from "./presenters/pages/edit-chapter-page.js";
 import { brainstormingPage } from "./presenters/pages/brainstorming-page.js";
-import { closeModal, showActionBox,showModal} from "../WebSkel/utils/modal-utils.js";
+import { closeModal, showActionBox, showModal } from "../WebSkel/utils/modal-utils.js";
 import { notBasePage, getClosestParentElement } from "../WebSkel/utils/dom-utils.js";
 import { localStorage } from "./core/services/localStorage.js";
 import { Registry } from "./core/services/registry.js"
@@ -17,7 +17,7 @@ import { Document } from "./core/models/document.js";
 import { Paragraph } from "./core/models/paragraph.js";
 import { Company } from "./core/company.js";
 import { addRecord, getRecord, getAllRecords, getTableRecords, deleteRecord, openDatabase, updateRecord } from "./utils/indexDB.js";
-import{ PendingCallMixin} from "./utils/PendingCallMixin.js";
+import { PendingCallMixin } from "./utils/PendingCallMixin.js";
 import WebSkel from "../WebSkel/webSkel.js";
 
 export {

@@ -3,8 +3,8 @@ export class Registry {
         if (Registry.instance) {
             return Registry.instance;
         }
-        this.storageData = storageData?storageData:[];
         this.currentDocument=storageData.documents?storageData.documents[0].id:undefined;
+        this.storageData = storageData?storageData:[];
         Registry.instance = this;
     }
     static getInstance(storageData) {
