@@ -51,6 +51,8 @@ async function initWallet() {
     else {
         sc.on("initialised", initEnclaveClient.bind(this));
     }
+}
+async function loadPage(){
     let url = window.location.hash;
     if(url === "" || url === null) {
         url = "#documents-page";
@@ -60,10 +62,10 @@ async function initWallet() {
         changeSelectedPageFromSidebar(url);
         await webSkel.changeToDynamicPage(url.slice(1));
     } else {
-        /* #documents/0, /#documents/0/chapters/1 */
+        /* URL examples: documents/0, documents/0/chapters/1 */
         switch(url.split('/')[0]) {
             case "#documents":
-                webSkel.currentDocumentId = "svd:document:" + url.split('/')[2];
+                webSkel.registry.currentDocumentId = parseInt(url.split('/')[1]);
                 changeSelectedPageFromSidebar("documents-page");
                 break;
         }
@@ -173,12 +175,14 @@ function defineActions(){
 (async ()=> {
     webSkel.setDomElementForPages(document.querySelector("#page-content"));
     await initWallet();
-    await initEnclaveClient();
     if (('indexedDB' in window)) {
         await initLiteUserDatabase();
     } else {
         alert("Your current browser does not support local storage. Please use a different browser, or upgrade to premium");
     }
+    await loadPage();
+    await initEnclaveClient();
+
     defineActions();
     definePresenters();
     defineComponents();
