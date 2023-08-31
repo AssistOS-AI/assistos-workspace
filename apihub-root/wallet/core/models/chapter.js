@@ -4,6 +4,7 @@ export class Chapter{
         this.chapterTitle=chapterTitle;
         this.id=chapterId;
         this.paragraphs=paragraphs?paragraphs:[];
+        this.paragraphs = (paragraphs|| []).map(paragraph=> new Paragraph(paragraph.text, paragraph.id));
         this.currentParagraphId=paragraphs[0]?paragraphs[0].id:null;
     }
     createParagraph(paragraphText){
