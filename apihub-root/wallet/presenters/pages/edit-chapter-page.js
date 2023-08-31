@@ -1,10 +1,8 @@
-import { Company } from "../core/company.js";
-import { showModal } from "../../WebSkel/utils/modal-utils.js";
+import { Company } from "../../core/company.js";
+import { showModal } from "../../../WebSkel/utils/modal-utils.js";
 
-export class editAbstractPage {
+export class editChapterPage {
     constructor() {
-        this.abstractText = "Lorem ipsum dolor sit amet, id his dolore facilisis, latine recteque vim cu. Mea eu dicant habemus partiendo, ea vidit copiosae mel, vis ne etiam ponderum. Delenit blandit cum no, id vel zril detraxit, etiam salutandi ea eam. Nec an omnis forensibus, eu civibus singulis aliquando est. Augue maluisset pri ut, ut dicat percipitur theophrastus sea. Ne vix debet copiosae, ne persius pertinax delicatissimi mea.";
-
         let currentCompany = Company.getInstance();
 
         this.chapterSidebar = "";
@@ -26,7 +24,7 @@ export class editAbstractPage {
 
     beforeRender() {
         let documentContent = document.querySelector("edit-abstract-page");
-        this.id = parseInt(documentContent.getAttribute("data-document-id"));
+        this.id = documentContent.getAttribute("data-document-id");
         this.alternativeAbstracts = "";
         if(this._documentConfigs) {
             this._doc = this._documentConfigs.find(document => document.id === this.id);
@@ -73,10 +71,6 @@ export class editAbstractPage {
             sidebarArrow.classList.toggle('rotate');
             this.showChaptersInSidebar = 0;
         }
-    }
-
-    async showSuggestAbstractModal() {
-        await showModal(document.querySelector("body"), "suggest-abstract-modal", {});
     }
 
     /* adding event Listeners after the web component has loaded, etc */

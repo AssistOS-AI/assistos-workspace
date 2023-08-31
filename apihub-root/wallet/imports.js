@@ -1,13 +1,13 @@
-import { documentsPage } from "./presenters/documents-page.js";
-import { docPageByTitle } from "./presenters/doc-page-by-title.js";
-import { editTitlePage } from "./presenters/edit-title-page.js";
-import { editAbstractPage } from "./presenters/edit-abstract-page.js";
-import { proofReaderPage } from "./presenters/proof-reader-page.js";
-import { documentSettingsPage } from "./presenters/document-settings-page.js";
-import { addNewDocumentModal } from "./presenters/add-new-document-modal.js";
-import { editChapterPage } from "./presenters/edit-chapter-page.js";
-import { brainstormingPage } from "./presenters/brainstorming-page.js";
-import { closeModal, showActionBox, showModal} from "../WebSkel/utils/modal-utils.js";
+import { documentsPage } from "./presenters/pages/documents-page.js";
+import { docPageByTitle } from "./presenters/pages/doc-page-by-title.js";
+import { editTitlePage } from "./presenters/pages/edit-title-page.js";
+import { editAbstractPage } from "./presenters/pages/edit-abstract-page.js";
+import { proofReaderPage } from "./presenters/pages/proof-reader-page.js";
+import { documentSettingsPage } from "./presenters/pages/document-settings-page.js";
+import { addNewDocumentModal } from "./presenters/modals/add-new-document-modal.js";
+import { editChapterPage } from "./presenters/pages/edit-chapter-page.js";
+import { brainstormingPage } from "./presenters/pages/brainstorming-page.js";
+import { closeModal, showActionBox, showModal } from "../WebSkel/utils/modal-utils.js";
 import { notBasePage, getClosestParentElement } from "../WebSkel/utils/dom-utils.js";
 import { localStorage } from "./core/services/localStorage.js";
 import { DocumentsRegistry } from "./core/services/documentsRegistry.js"
