@@ -1,5 +1,5 @@
-import { Company } from "../core/company.js";
-import { showModal } from "../../WebSkel/utils/modal-utils.js";
+import { Company } from "../../core/company.js";
+import { showModal } from "../../../WebSkel/utils/modal-utils.js";
 
 export class editTitlePage {
     constructor() {
@@ -71,6 +71,10 @@ export class editTitlePage {
             sidebarArrow.classList.toggle('rotate');
             this.showChaptersInSidebar = 0;
         }
+    }
+
+    saveTitle() {
+
     }
 
     async showSuggestTitleModal() {
