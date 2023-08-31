@@ -1,12 +1,9 @@
 import {
-    llmsPage,
-    personalitiesPage,
     documentsPage,
     docPageByTitle,
     editTitlePage,
     editAbstractPage,
     proofReaderPage,
-    myOrganisationPage,
     brainstormingPage,
     documentSettingsPage,
     addNewDocumentModal,
@@ -99,28 +96,20 @@ function changeSelectedPageFromSidebar(url) {
 }
 
 function definePresenters(){
-    webSkel.registerPresenter("llms-page", llmsPage);
     webSkel.registerPresenter("doc-page-by-title", docPageByTitle);
     webSkel.registerPresenter("edit-title-page", editTitlePage);
     webSkel.registerPresenter("edit-abstract-page", editAbstractPage);
-    webSkel.registerPresenter("personalities-page", personalitiesPage);
     webSkel.registerPresenter("documents-page", documentsPage);
     webSkel.registerPresenter("document-settings-page", documentSettingsPage);
     webSkel.registerPresenter("brainstorming-page", brainstormingPage);
     webSkel.registerPresenter("proof-reader-page", proofReaderPage);
-    webSkel.registerPresenter("my-organisation-page", myOrganisationPage);
 
     webSkel.registerPresenter("add-new-document-modal", addNewDocumentModal);
 }
 
 function defineComponents() {
     /* Modal components defined here */
-    webSkel.defineComponent("add-llm-modal", "./wallet/components/add-llm-modal/add-llm-modal.html");
-    webSkel.defineComponent("add-personality-modal", "./wallet/components/add-personality-modal/add-personality-modal.html");
-    webSkel.defineComponent("add-announce-modal", "./wallet/components/add-announce-modal/add-announce-modal.html");
-    webSkel.defineComponent("llm-item-renderer", "./wallet/components/llm-item-renderer/llm-item-renderer.html");
     webSkel.defineComponent("chapter-item", "./wallet/components/chapter-item/chapter-item.html");
-    webSkel.defineComponent("personality-item-renderer", "./wallet/components/personality-item-renderer/personality-item-renderer.html");
     webSkel.defineComponent("document-item-renderer", "./wallet/components/document-item-renderer/document-item-renderer.html");
     webSkel.defineComponent("action-box", "./wallet/components/action-box/action-box.html");
     webSkel.defineComponent("action-box-with-select", "./wallet/components/action-box-with-select/action-box-with-select.html");
@@ -130,8 +119,6 @@ function defineComponents() {
     webSkel.defineComponent("suggest-abstract-modal", "./wallet/components/suggest-abstract-modal/suggest-abstract-modal.html");
     webSkel.defineComponent("show-error-modal","/wallet/components/show-error-modal/show-error-modal.html")
 
-    webSkel.defineComponent("llms-page", "./wallet/pages/llms-page/llms-page.html");
-    webSkel.defineComponent("personalities-page", "./wallet/pages/personalities-page/personalities-page.html");
     webSkel.defineComponent("documents-page", "./wallet/pages/documents-page/documents-page.html");
     webSkel.defineComponent("document-settings-page", "./wallet/pages/document-settings-page/document-settings-page.html");
     webSkel.defineComponent("brainstorming-page", "./wallet/pages/brainstorming-page/brainstorming-page.html");
@@ -139,7 +126,6 @@ function defineComponents() {
     webSkel.defineComponent("edit-title-page", "./wallet/pages/edit-title-page/edit-title-page.html");
     webSkel.defineComponent("edit-abstract-page", "./wallet/pages/edit-abstract-page/edit-abstract-page.html");
     webSkel.defineComponent("proof-reader-page", "./wallet/pages/proof-reader-page/proof-reader-page.html");
-    webSkel.defineComponent("my-organisation-page", "./wallet/pages/my-organisation-page/my-organisation-page.html");
 
     webSkel.defineComponent("add-new-document-modal", "./wallet/components/add-new-document-modal/add-new-document-modal.html");
 }
