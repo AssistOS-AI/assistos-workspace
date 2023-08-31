@@ -1,7 +1,7 @@
-import { Company } from "../core/company.js";
-import { closeModal } from "../../WebSkel/utils/modal-utils.js";
-import { getClosestParentElement } from "../../WebSkel/utils/dom-utils.js";
-import { Document } from "../core/models/document.js";
+import { Company } from "../../core/company.js";
+import { closeModal } from "../../../WebSkel/utils/modal-utils.js";
+import { getClosestParentElement } from "../../../WebSkel/utils/dom-utils.js";
+import { Document } from "../../core/models/document.js";
 
 export class addNewDocumentModal {
     constructor() {

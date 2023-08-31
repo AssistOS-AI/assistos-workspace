@@ -1,8 +1,9 @@
-import { Company } from "../core/company.js";
-import { showModal } from "../../WebSkel/utils/modal-utils.js";
+import { Company } from "../../core/company.js";
+import { showModal } from "../../../WebSkel/utils/modal-utils.js";
 
-export class editChapterPage {
+export class brainstormingPage {
     constructor() {
+        this.title = "Titlu document";
         let currentCompany = Company.getInstance();
 
         this.chapterSidebar = "";
@@ -23,14 +24,13 @@ export class editChapterPage {
     }
 
     beforeRender() {
-        let documentContent = document.querySelector("edit-abstract-page");
-        this.id = documentContent.getAttribute("data-document-id");
+        let documentContent = document.querySelector("brainstorming-page");
+        this.id = parseInt(documentContent.getAttribute("data-document-id"));
         this.alternativeAbstracts = "";
         if(this._documentConfigs) {
-            this._doc = this._documentConfigs.find(document => document.id === this.id);
+            this._doc = this._documentConfigs.find(document => document.id=== this.id);
             try {
                 this.title = this._doc.name;
-                this.abstractText = this._doc.abstract;
                 let suggestedTitle = "Bees are nature's little pollination superheroes! Let's protect them and ensure our food chain thrives. #SaveTheBees";
                 for(let number = 1; number <= 10; number++) {
                     this.alternativeAbstracts += `<alternative-abstract-renderer nr="${number}" title="${suggestedTitle}"></alternative-abstract-renderer>`;
@@ -71,6 +71,10 @@ export class editChapterPage {
             sidebarArrow.classList.toggle('rotate');
             this.showChaptersInSidebar = 0;
         }
+    }
+
+    async showAddIdeaModal() {
+        await showModal(document.querySelector("body"), "suggest-abstract-modal", {});
     }
 
     /* adding event Listeners after the web component has loaded, etc */

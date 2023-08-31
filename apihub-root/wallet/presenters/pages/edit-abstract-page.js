@@ -1,9 +1,10 @@
-import { Company } from "../core/company.js";
-import { showModal } from "../../WebSkel/utils/modal-utils.js";
+import { Company } from "../../core/company.js";
+import { showModal } from "../../../WebSkel/utils/modal-utils.js";
 
-export class brainstormingPage {
+export class editAbstractPage {
     constructor() {
-        this.title = "Titlu document";
+        this.abstractText = "Lorem ipsum dolor sit amet, id his dolore facilisis, latine recteque vim cu. Mea eu dicant habemus partiendo, ea vidit copiosae mel, vis ne etiam ponderum. Delenit blandit cum no, id vel zril detraxit, etiam salutandi ea eam. Nec an omnis forensibus, eu civibus singulis aliquando est. Augue maluisset pri ut, ut dicat percipitur theophrastus sea. Ne vix debet copiosae, ne persius pertinax delicatissimi mea.";
+
         let currentCompany = Company.getInstance();
 
         this.chapterSidebar = "";
@@ -24,13 +25,14 @@ export class brainstormingPage {
     }
 
     beforeRender() {
-        let documentContent = document.querySelector("brainstorming-page");
+        let documentContent = document.querySelector("edit-abstract-page");
         this.id = parseInt(documentContent.getAttribute("data-document-id"));
         this.alternativeAbstracts = "";
         if(this._documentConfigs) {
-            this._doc = this._documentConfigs.find(document => document.id=== this.id);
+            this._doc = this._documentConfigs.find(document => document.id === this.id);
             try {
                 this.title = this._doc.name;
+                this.abstractText = this._doc.abstract;
                 let suggestedTitle = "Bees are nature's little pollination superheroes! Let's protect them and ensure our food chain thrives. #SaveTheBees";
                 for(let number = 1; number <= 10; number++) {
                     this.alternativeAbstracts += `<alternative-abstract-renderer nr="${number}" title="${suggestedTitle}"></alternative-abstract-renderer>`;
@@ -73,7 +75,7 @@ export class brainstormingPage {
         }
     }
 
-    async showAddIdeaModal() {
+    async showSuggestAbstractModal() {
         await showModal(document.querySelector("body"), "suggest-abstract-modal", {});
     }
 

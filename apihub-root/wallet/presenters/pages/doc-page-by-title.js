@@ -1,13 +1,15 @@
-import { Company } from "../core/company.js";
-import { showModal } from "../../WebSkel/utils/modal-utils.js";
+import { Company } from "../../core/company.js";
 
-export class editTitlePage {
+export class docPageByTitle {
     constructor() {
-        this.title = "Current Title";
-        let currentCompany = Company.getInstance();
-
+        this.title = "Documents";
+        this.name = "Name";
+        this.abstractText = "Abstract text";
+        this.button = "Add new document";
         this.chapterSidebar = "";
         this.showChaptersInSidebar = 0;
+        let currentCompany = Company.getInstance();
+
         if(currentCompany.companyState) {
             this._documentConfigs = currentCompany.companyState.documents;
             console.log(this._documentConfigs.length);
@@ -17,28 +19,36 @@ export class editTitlePage {
         }
         this.updateState = (companyState)=> {
             console.log("Update State");
-            this._documentConfigs = companyState.documents;
+            this._documentConfigs = currentCompany.companyState.documents;
             this.invalidate();
         }
         currentCompany.onChange(this.updateState);
     }
 
     beforeRender() {
-        let documentContent = document.querySelector("edit-title-page");
+        let documentContent = document.querySelector("doc-page-by-title");
         this.id = parseInt(documentContent.getAttribute("data-document-id"));
-        this.alternativeTitles = "";
+        this.chapters = "";
+        let doc;
         if(this._documentConfigs) {
-            this._doc = this._documentConfigs.find(document => document.id === this.id);
+            /*this._doc = this._documentConfigs.find(document => document.id === this.id);*/
+            for(let document of this._documentConfigs) {
+                if(document.id === this.id) {
+                    doc = document;
+                    break;
+                }
+            }
+            this._doc = doc;
             try {
                 this.title = this._doc.name;
-                let suggestedTitle = "Bees are nature's little pollination superheroes! Let's protect them and ensure our food chain thrives. #SaveTheBees";
-                for(let number = 1; number <= 10; number++) {
-                    this.alternativeTitles += `<alternative-title-renderer nr="${number}" title="${suggestedTitle}"></alternative-title-renderer>`;
-                }
+                this.abstractText = this._doc.abstract;
                 this._doc.chapters.forEach((item) => {
+                    this.chapters += `<chapter-item data-chapter-title="${item.name}" chapter-id="${item.name.split(' ')[1]}" data-chapter-content="${item.content}"></chapter-item>`;
                     this.chapterSidebar += `<div class="submenu-item">Edit ${item.name}</div>`;
                 });
             } catch(e) {}
+        } else {
+            this.chapters=`<div> No Data Currently </div>`;
         }
     }
 
@@ -73,8 +83,10 @@ export class editTitlePage {
         }
     }
 
-    async showSuggestTitleModal() {
-        await showModal(document.querySelector("body"), "suggest-title-modal", {});
+    showOrHideChapter(chapterId) {
+        let target = document.querySelector(`[data-id="${chapterId}"]`);
+        target.firstElementChild.nextElementSibling.classList.toggle('hidden');
+        target.firstElementChild.firstElementChild.classList.toggle('rotate');
     }
 
     /* adding event Listeners after the web component has loaded, etc */

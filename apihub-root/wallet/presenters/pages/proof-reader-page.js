@@ -1,4 +1,4 @@
-import { Company } from "../core/company.js";
+import { Company } from "../../core/company.js";
 
 export class proofReaderPage {
     constructor() {

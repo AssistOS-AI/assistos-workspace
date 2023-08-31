@@ -1,15 +1,12 @@
-import { Company } from "../core/company.js";
+import { Company } from "../../core/company.js";
+import { showModal } from "../../../WebSkel/utils/modal-utils.js";
 
-export class docPageByTitle {
+export class editChapterPage {
     constructor() {
-        this.title = "Documents";
-        this.name = "Name";
-        this.abstractText = "Abstract text";
-        this.button = "Add new document";
-        this.chapterSidebar = "";
-        this.showChaptersInSidebar = 0;
         let currentCompany = Company.getInstance();
 
+        this.chapterSidebar = "";
+        this.showChaptersInSidebar = 0;
         if(currentCompany.companyState) {
             this._documentConfigs = currentCompany.companyState.documents;
             console.log(this._documentConfigs.length);
@@ -19,36 +16,29 @@ export class docPageByTitle {
         }
         this.updateState = (companyState)=> {
             console.log("Update State");
-            this._documentConfigs = currentCompany.companyState.documents;
+            this._documentConfigs = companyState.documents;
             this.invalidate();
         }
         currentCompany.onChange(this.updateState);
     }
 
     beforeRender() {
-        let documentContent = document.querySelector("doc-page-by-title");
-        this.id = parseInt(documentContent.getAttribute("data-document-id"));
-        this.chapters = "";
-        let doc;
+        let documentContent = document.querySelector("edit-abstract-page");
+        this.id = documentContent.getAttribute("data-document-id");
+        this.alternativeAbstracts = "";
         if(this._documentConfigs) {
-            /*this._doc = this._documentConfigs.find(document => document.id === this.id);*/
-            for(let document of this._documentConfigs) {
-                if(document.id === this.id) {
-                    doc = document;
-                    break;
-                }
-            }
-            this._doc = doc;
+            this._doc = this._documentConfigs.find(document => document.id === this.id);
             try {
                 this.title = this._doc.name;
                 this.abstractText = this._doc.abstract;
+                let suggestedTitle = "Bees are nature's little pollination superheroes! Let's protect them and ensure our food chain thrives. #SaveTheBees";
+                for(let number = 1; number <= 10; number++) {
+                    this.alternativeAbstracts += `<alternative-abstract-renderer nr="${number}" title="${suggestedTitle}"></alternative-abstract-renderer>`;
+                }
                 this._doc.chapters.forEach((item) => {
-                    this.chapters += `<chapter-item data-chapter-title="${item.name}" chapter-id="${item.name.split(' ')[1]}" data-chapter-content="${item.content}"></chapter-item>`;
                     this.chapterSidebar += `<div class="submenu-item">Edit ${item.name}</div>`;
                 });
             } catch(e) {}
-        } else {
-            this.chapters=`<div> No Data Currently </div>`;
         }
     }
 
@@ -81,12 +71,6 @@ export class docPageByTitle {
             sidebarArrow.classList.toggle('rotate');
             this.showChaptersInSidebar = 0;
         }
-    }
-
-    showOrHideChapter(chapterId) {
-        let target = document.querySelector(`[data-id="${chapterId}"]`);
-        target.firstElementChild.nextElementSibling.classList.toggle('hidden');
-        target.firstElementChild.firstElementChild.classList.toggle('rotate');
     }
 
     /* adding event Listeners after the web component has loaded, etc */
