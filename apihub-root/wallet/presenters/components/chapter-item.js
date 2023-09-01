@@ -26,8 +26,8 @@ export class chapterItem {
         this._document = webSkel.registry.getDocument(this.docId);
         this.chapter = this._document.getCurrentChapter();
         this.chapter.paragraphs.forEach((paragraph) => {
-            // this.chapterContent += `<paragraph-item data-paragraph-id="${paragraph.id}" data-paragraph-content="${paragraph.text}" data-presenter="paragraph-item"></paragraph-item>`;
-            this.chapterContent += `<p>${paragraph.text}</p>`;
+            this.chapterContent += `<paragraph-item data-paragraph-content="${paragraph.text}"></paragraph-item>`;
+            // this.chapterContent += `<p>${paragraph.text}</p>`;
         });
     }
 
