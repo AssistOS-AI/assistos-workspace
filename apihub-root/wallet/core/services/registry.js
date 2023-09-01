@@ -1,9 +1,13 @@
+import {Document} from "../../imports.js";
 export class Registry {
     constructor(storageData) {
         if (Registry.instance) {
             return Registry.instance;
         }
         this.storageData = storageData?storageData:[];
+        this.storageData.documents = (storageData.documents || []).map(docData =>
+            new Document(docData.name, docData.id, docData.abstract, docData.chapters, docData.settings)
+        );
         if (storageData.documents && storageData.documents.length > 0) {
             this.currentDocumentId = storageData.documents[0].id;
         } else {
@@ -46,6 +50,13 @@ export class Registry {
         if (index !== -1) {
             this.storageData.documents.splice(index, 1);
             webSkel.localStorage.deleteDocument(documentId);
+        }
+    }
+    updateDocument(documentId, document) {
+        const index = this.storageData.documents.findIndex(document => document.id === documentId);
+        if (index !== -1) {
+            this.storageData.documents[index] = document;
+            webSkel.localStorage.updateDocument(documentId, document);
         }
     }
     addLLM(llm) {

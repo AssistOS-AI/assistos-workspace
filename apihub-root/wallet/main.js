@@ -13,7 +13,7 @@ import {
     notBasePage,
     localStorage,
     Registry,
-    WebSkel
+    WebSkel, addRecord
 } from "./imports.js";
 
 const openDSU = require("opendsu");
@@ -79,6 +79,13 @@ async function initLiteUserDatabase(){
     webSkel.localStorage= await localStorage.getInstance("freeUser",1);
     await webSkel.localStorage.initDatabase();
     webSkel.registry = Registry.getInstance(await webSkel.localStorage.getAllData());
+    const randomNumber=Math.floor(Math.random() * 1000000);
+    await webSkel.localStorage.addDocument({name:`test${randomNumber}`, abstract: "lorem ipsum",
+        chapters: [
+            {chapterTitle: "test chapter", id: 1, paragraphs: [{text: "lorem ipsum", id: 1}, {text: "lorem ipsum", id: 2}]},
+            {chapterTitle: "test chapter 2", id: 2, paragraphs: [{text: "lorem ipsum", id: 1}, {text: "lorem ipsum", id: 2}]},
+            {chapterTitle: "test chapter 3", id: 3, paragraphs: [{text: "lorem ipsum", id: 1}, {text: "lorem ipsum", id: 2}]}
+        ], settings: {}})
 }
 
 function changeSelectedPageFromSidebar(url) {

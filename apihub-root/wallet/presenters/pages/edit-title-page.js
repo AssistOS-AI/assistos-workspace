@@ -66,7 +66,20 @@ export class editTitlePage {
             } catch(e) {}
         }
     }
+    saveTitle() {
+        const updatedTitle = document.querySelector(".document-title").value;
+        const documentId = webSkel.registry.currentDocumentId;
 
+        const documentIndex = webSkel.registry.storageData.documents.findIndex(doc => doc.id === documentId);
+
+        if (documentIndex !== -1 && updatedTitle !== webSkel.registry.storageData.documents[documentIndex].name) {
+            webSkel.registry.storageData.documents[documentIndex].name=updatedTitle;
+            webSkel.registry.updateDocument(documentId, webSkel.registry.storageData.documents[documentIndex]);
+            const currentCompany=Company.getInstance();
+            currentCompany.companyState.documents[documentIndex].name=updatedTitle;
+            currentCompany.notifyObservers();
+        }
+    }
     openEditTitlePage() {
         webSkel.changeToStaticPage(`documents/${this.id}/edit-title`);
     }
@@ -96,10 +109,6 @@ export class editTitlePage {
             sidebarArrow.classList.toggle('rotate');
             this.showChaptersInSidebar = 0;
         }
-    }
-
-    saveTitle() {
-        this.title = document.querySelector("#title").value;
     }
 
     async showSuggestTitleModal() {

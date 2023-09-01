@@ -11,7 +11,7 @@ export class docPageByTitle {
         this.chapters = [
             {
                 name: "Chapter 1",
-                content: [
+                content: /*[
                     "<p>Chapter 1 content<p>"
                 ],
             },
@@ -21,7 +21,7 @@ export class docPageByTitle {
                     `<p>Lorem ipsum dolor sit amet, ut sed ornatus sapientem vituperata. Diam minim percipit et duo. Ad errem legimus democritum sed, vix ut iuvaret patrioque, ut nec tritani suscipit assentior. Et illud assum atomorum eum. Eam justo quaeque eu, eam ne clita luptatum, modus elaboraret sadipscing has cu. Ne usu adhuc congue graeco.</p>
                     <p>Legere invenire ut eos, no vim habeo dicit signiferumque. Ad agam commune has. Commodo efficiantur pri no, dictas civibus corrumpit ad his. Ea pri alia volumus assentior, eos ut odio inani. Vide integre senserit in eum, inermis complectitur sea ea. Mei adolescens theophrastus ne, an veniam epicuri est.</p>
                     <p>Ei eum quodsi aliquam, utinam aliquam utroque eam no. Ei eum quodsi aliquam, utinam aliquam utroque eam no. Ei eum quodsi aliquam, utinam aliquam utroque eam no. Ei eum quodsi aliquam, utinam aliquam utroque eam no. Ei eum quodsi aliquam, utinam aliquam utroque eam no. Ei eum quodsi aliquam, utinam aliquam utroque eam no.</p>`
-                ],
+                ],*/ "Chapter 1 content",
             },
         ];
         let currentCompany = Company.getInstance();
@@ -67,9 +67,8 @@ export class docPageByTitle {
                     this.chapters = this._doc.chapters;
                 }
                 this.chapters.forEach((item) => {
-                    this.chapterDivs += `<chapter-item data-chapter-title="${item.name}" chapter-id="${item.name.split(' ')[1]}" data-chapter-content="${item.content}"></chapter-item>`;
-                    this.chapterSidebar += `<div class="submenu-item">Edit ${item.name}</div>`;
-
+                    this.chapterDivs += `<chapter-item data-chapter-title="${item.chapterTitle}" chapter-id="${item.id}" data-chapter-content="${item.content}"></chapter-item>`;
+                    this.chapterSidebar += `<div class="submenu-item">Edit ${item.chapterTitle}</div>`;
                 });
             } catch(e) {}
         } else {

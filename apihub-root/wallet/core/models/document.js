@@ -6,6 +6,7 @@ export class Document {
             this.documentId=documentId;
         this.abstract = abstract?abstract:"";
         this.chapters = chapters?chapters:[];
+        this.chapters = (chapters|| []).map(chapter => new Chapter(chapter.chapterTitle, chapter.id, chapter.paragraphs));
         this.settings=settings?settings:{};
         this.currentChapter=chapters?chapters[0].id:undefined;
     }

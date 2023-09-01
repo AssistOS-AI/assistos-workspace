@@ -35,7 +35,6 @@
             return await addRecord(this.db, "documents", document);
         }
         async updateDocument(documentId, docObject) {
-            await this.initDatabase();
             return await updateRecord(this.db, "documents", documentId, docObject);
         }
         async deleteDocument(documentId) {
