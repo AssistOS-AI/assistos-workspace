@@ -14,7 +14,7 @@ export class chapterItem {
             }, 0);
         }
         this.updateState = (companyState)=> {
-            // this._documentConfigs = companyState.documents;
+            this._documentConfigs = companyState.documents;
             this.invalidate();
         }
         currentCompany.onChange(this.updateState);
@@ -27,14 +27,12 @@ export class chapterItem {
         this.chapter = this._document.getCurrentChapter();
         this.chapter.paragraphs.forEach((paragraph) => {
             this.chapterContent += `<paragraph-item data-paragraph-content="${paragraph.text}"></paragraph-item>`;
-            // this.chapterContent += `<p>${paragraph.text}</p>`;
         });
     }
 
     showOrHideChapter(_target, chapterId) {
-        let target = document.querySelector(`[data-id="${chapterId}"]`);
-        target.firstElementChild.nextElementSibling.classList.toggle('hidden');
-        target.firstElementChild.firstElementChild.classList.toggle('rotate');
+        _target.parentNode.nextElementSibling.classList.toggle('hidden');
+        _target.classList.toggle('rotate');
     }
 
     /* adding event Listeners after the web component has loaded, etc */
