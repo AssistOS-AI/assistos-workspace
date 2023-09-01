@@ -3,6 +3,7 @@ import { closeModal, showActionBox, showModal } from "../../../WebSkel/utils/mod
 
 export class editChapterPage {
     constructor() {
+        this.id = webSkel.registry.currentDocumentId;
         let currentCompany = Company.getInstance();
         this.chapterSidebar = "";
         this.showChaptersInSidebar = 0;
@@ -21,11 +22,6 @@ export class editChapterPage {
     }
 
     beforeRender() {
-        let documentContent = document.querySelector("edit-abstract-page");
-        if(documentContent) {
-            this.id = parseInt(documentContent.getAttribute("data-document-id"));
-        }
-        this.alternativeAbstracts = "";
         if(this._documentConfigs) {
             this._doc = this._documentConfigs.find(document => document.id === this.id);
             try {

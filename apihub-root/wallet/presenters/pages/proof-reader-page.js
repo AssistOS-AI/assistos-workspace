@@ -2,8 +2,6 @@ import { Company } from "../../core/company.js";
 
 export class proofReaderPage {
     constructor() {
-        this.modal = "showAddPersonalityModal";
-        this.button = "Add Personality";
         let currentCompany = Company.getInstance();
         if(currentCompany.companyState) {
             this._documentConfigs = currentCompany.companyState.documents;

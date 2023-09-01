@@ -2,6 +2,7 @@ import { Company } from "../../core/company.js";
 
 export class documentSettingsPage {
     constructor() {
+        this.id = webSkel.registry.currentDocumentId;
         let currentCompany = Company.getInstance();
         this.chapterSidebar = "";
         this.showChaptersInSidebar = 0;
@@ -20,10 +21,6 @@ export class documentSettingsPage {
     }
 
     beforeRender() {
-        let documentContent= document.querySelector("document-settings-page");
-        if(documentContent) {
-            this.id = parseInt(documentContent.getAttribute("data-document-id"));
-        }
         this.alternativeTitles = "";
         if(this._documentConfigs) {
             this._doc = this._documentConfigs.find(document => document.id === this.id);

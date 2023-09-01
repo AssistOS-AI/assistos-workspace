@@ -25,9 +25,14 @@ export class documentsPage {
     beforeRender() {
         this.tableRows = "";
         if(this._documentConfigs) {
-            this._documentConfigs.forEach((item) => {
-                this.tableRows += `<document-item-renderer data-name="${item.name}" data-id="${item.id}"></document-item-renderer>`;
-            });
+            if(this._documentConfigs.length === 0) {
+                this.tableRows = `<div> No Data Currently </div>`;
+            }
+            else {
+                this._documentConfigs.forEach((item) => {
+                    this.tableRows += `<document-item-renderer data-name="${item.name}" data-id="${item.id}"></document-item-renderer>`;
+                });
+            }
         } else {
             this.tableRows = `<div> No Data Currently </div>`;
         }

@@ -9,6 +9,7 @@ export class docPageById {
         this.button = "Add new document";
         this.chapterSidebar = "";
         this.showChaptersInSidebar = 0;
+        this.id = webSkel.registry.currentDocumentId;
         let currentCompany = Company.getInstance();
         if(currentCompany.companyState) {
             this._documentConfigs = currentCompany.companyState.documents;
@@ -25,11 +26,6 @@ export class docPageById {
     }
 
     beforeRender() {
-        this.id = webSkel.registry.currentDocumentId;
-        // let documentContent = document.querySelector("doc-page-by-id");
-        // if(documentContent) {
-        //     this.id = parseInt(documentContent.getAttribute("data-document-id"));
-        // }
         if(this._documentConfigs) {
             this._doc = this._documentConfigs.find(document => document.id === this.id);
             try {
@@ -44,7 +40,7 @@ export class docPageById {
                 this._document = webSkel.registry.getDocument(this.id);
                 this.chapters.forEach((item) => {
                     this._document.setCurrentChapter(item.id);
-                    this.chapterDivs += `<chapter-item data-chapter-title="${item.title}" chapter-id="${item.id}" data-presenter="chapter-item" data-chapter-content="${item.paragraphs}"></chapter-item>`;
+                    this.chapterDivs += `<chapter-item data-chapter-title="${item.title}" chapter-id="${item.id}" data-presenter="chapter-item"></chapter-item>`;
                     this.chapterSidebar += `<div class="submenu-item">Edit ${item.title}</div>`;
                 });
             } catch(e) {}

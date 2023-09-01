@@ -3,6 +3,8 @@ import { closeModal, showActionBox, showModal } from "../../../WebSkel/utils/mod
 
 export class brainstormingPage {
     constructor() {
+        this.id = webSkel.registry.currentDocumentId;
+        this.alternativeAbstracts = "";
         this.title = "Titlu document";
         let currentCompany = Company.getInstance();
 
@@ -23,11 +25,6 @@ export class brainstormingPage {
     }
 
     beforeRender() {
-        let documentContent = document.querySelector("brainstorming-page");
-        if(documentContent) {
-            this.id = parseInt(documentContent.getAttribute("data-document-id"));
-        }
-        this.alternativeAbstracts = "";
         if(this._documentConfigs) {
             this._doc = this._documentConfigs.find(document => document.id=== this.id);
             try {

@@ -4,25 +4,9 @@ import { closeModal, showActionBox, showModal } from "../../../WebSkel/utils/mod
 export class editTitlePage {
     constructor() {
         this.title = "Current Title";
+        this.id = webSkel.registry.currentDocumentId;
+        this.alternativeTitles = "";
         let currentCompany = Company.getInstance();
-
-        this.chapters = [
-            {
-                name: "Chapter 1",
-                content: [
-                    "<p>Chapter 1 content<p>"
-                ],
-            },
-            {
-                name: "Chapter 2",
-                content: [
-                    `<p>Lorem ipsum dolor sit amet, ut sed ornatus sapientem vituperata. Diam minim percipit et duo. Ad errem legimus democritum sed, vix ut iuvaret patrioque, ut nec tritani suscipit assentior. Et illud assum atomorum eum. Eam justo quaeque eu, eam ne clita luptatum, modus elaboraret sadipscing has cu. Ne usu adhuc congue graeco.</p>
-                    <p>Legere invenire ut eos, no vim habeo dicit signiferumque. Ad agam commune has. Commodo efficiantur pri no, dictas civibus corrumpit ad his. Ea pri alia volumus assentior, eos ut odio inani. Vide integre senserit in eum, inermis complectitur sea ea. Mei adolescens theophrastus ne, an veniam epicuri est.</p>
-                    <p>Ei eum quodsi aliquam, utinam aliquam utroque eam no. Ei eum quodsi aliquam, utinam aliquam utroque eam no. Ei eum quodsi aliquam, utinam aliquam utroque eam no. Ei eum quodsi aliquam, utinam aliquam utroque eam no. Ei eum quodsi aliquam, utinam aliquam utroque eam no. Ei eum quodsi aliquam, utinam aliquam utroque eam no.</p>`
-                ],
-            },
-        ];
-
         this.chapterSidebar = "";
         this.showChaptersInSidebar = 0;
         if(currentCompany.companyState) {
@@ -40,11 +24,6 @@ export class editTitlePage {
     }
 
     beforeRender() {
-        let documentContent = document.querySelector("edit-title-page");
-        if(documentContent) {
-            this.id = parseInt(documentContent.getAttribute("data-document-id"));
-        }
-        this.alternativeTitles = "";
         if(this._documentConfigs) {
             this._doc = this._documentConfigs.find(document => document.id === this.id);
             try {
