@@ -35,6 +35,7 @@
     line-height: normal;
     border-radius: 18px;
     border: 1px solid #C2C2C2;
+    resize: none;
 }
 
 .document-path,

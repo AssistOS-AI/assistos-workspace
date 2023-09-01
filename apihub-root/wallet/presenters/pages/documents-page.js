@@ -40,7 +40,6 @@ export class documentsPage {
     }
 
     async editAction(_target){
-        console.log(_target);
         let rowElement = getClosestParentElement(_target,['document-item-renderer']);
         let documentId=parseInt(rowElement.getAttribute('data-id'));
         webSkel.registry.currentDocumentId=documentId;

@@ -17,6 +17,7 @@ dialog[class="modal"] {
     background-color: transparent;
     font-size: 20px;
     margin-left: 20px;
+    border: none;
 }
 
 .form-label {

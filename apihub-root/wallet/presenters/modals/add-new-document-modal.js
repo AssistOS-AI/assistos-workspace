@@ -19,6 +19,10 @@ export class addNewDocumentModal {
         currentCompany.onChange(this.updateState);
     }
 
+    closeModal(_target) {
+        closeModal(_target);
+    }
+
     async addDocumentSubmitForm(_target) {
         let documentTitle= new FormData(getClosestParentElement(_target,'form')).get("documentTitle");
         let documentObj= new Document(documentTitle);
