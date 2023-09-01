@@ -48,25 +48,29 @@ async function initWallet() {
         sc.on("initialised", initEnclaveClient.bind(this));
     }
 }
+
 async function loadPage(){
     let url = window.location.hash;
+    console.log(url);
     if(url === "" || url === null) {
         url = "#documents-page";
     }
+
+    console.log(notBasePage(url));
     if(notBasePage(url)) {
+        console.log('Codul a intrat pe notBasePage');
         /*#proofReader, #documents */
         changeSelectedPageFromSidebar(url);
         await webSkel.changeToDynamicPage(url.slice(1));
     } else {
         /* URL examples: documents/0, documents/0/chapters/1 */
+        console.error(url);
         switch(url.split('/')[0]) {
             case "#documents":
-                let documentIdURL=parseInt(url.split('/')[1]);
-                if(webSkel.registry.getDocument(documentIdURL)!==null){
+                let documentIdURL= parseInt(url.split('/')[1]);
+                if(webSkel.registry.getDocument(documentIdURL) !== null) {
                     webSkel.registry.observeDocument(documentIdURL);
                     changeSelectedPageFromSidebar("documents-page");
-                }else{
-                    window.location="/";
                 }
                 changeSelectedPageFromSidebar("documents-page");
                 break;
@@ -174,7 +178,7 @@ function defineComponents() {
 }
 
 function defineActions(){
-    webSkel.registerAction("changePage", async (_target, pageId,refreshFlag='0') => {
+    webSkel.registerAction("changePage", async (_target, pageId, refreshFlag='0') => {
         /* If we are attempting to click the button to the tool page we're currently on, a refreshFlag with the value 0
             will prevent that page refresh from happening and just exit the function
          */
