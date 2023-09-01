@@ -1,8 +1,8 @@
 import { Paragraph } from '../../imports.js';
 
 export class Chapter {
-    constructor(chapterTitle, chapterId, paragraphs) {
-        this.chapterTitle = chapterTitle;
+    constructor(title, chapterId, paragraphs) {
+        this.title = title;
         this.id = chapterId;
         this.paragraphs = paragraphs ? paragraphs : [];
         this.paragraphs = (paragraphs || []).map(paragraph => new Paragraph(paragraph.text, paragraph.id));
@@ -33,8 +33,8 @@ export class Chapter {
         }
     }
 
-    updateChapterTitle(chapterTitle){
-        this.chapterTitle = chapterTitle;
+    updateTitle(title){
+        this.title = title;
     }
 
     observeParagraph(paragraphId){

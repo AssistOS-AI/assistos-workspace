@@ -37,7 +37,7 @@ export class editChapterPage {
                     this.alternativeAbstracts += `<alternative-abstract-renderer nr="${number}" title="${suggestedTitle}"></alternative-abstract-renderer>`;
                 }
                 this._doc.chapters.forEach((item) => {
-                    this.chapterSidebar += `<div class="submenu-item">Edit ${item.name}</div>`;
+                    this.chapterSidebar += `<div class="submenu-item">Edit ${item.title}</div>`;
                 });
             } catch(e) {}
         }

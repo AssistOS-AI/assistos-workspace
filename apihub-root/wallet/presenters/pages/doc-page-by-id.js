@@ -8,22 +8,22 @@ export class docPageById {
         this.button = "Add new document";
         this.chapterSidebar = "";
         this.showChaptersInSidebar = 0;
-        this.chapters = [
-            {
-                name: "Chapter 1",
-                content: /*[
-                    "<p>Chapter 1 content<p>"
-                ],
-            },
-            {
-                name: "Chapter 2",
-                content: [
-                    `<p>Lorem ipsum dolor sit amet, ut sed ornatus sapientem vituperata. Diam minim percipit et duo. Ad errem legimus democritum sed, vix ut iuvaret patrioque, ut nec tritani suscipit assentior. Et illud assum atomorum eum. Eam justo quaeque eu, eam ne clita luptatum, modus elaboraret sadipscing has cu. Ne usu adhuc congue graeco.</p>
-                    <p>Legere invenire ut eos, no vim habeo dicit signiferumque. Ad agam commune has. Commodo efficiantur pri no, dictas civibus corrumpit ad his. Ea pri alia volumus assentior, eos ut odio inani. Vide integre senserit in eum, inermis complectitur sea ea. Mei adolescens theophrastus ne, an veniam epicuri est.</p>
-                    <p>Ei eum quodsi aliquam, utinam aliquam utroque eam no. Ei eum quodsi aliquam, utinam aliquam utroque eam no. Ei eum quodsi aliquam, utinam aliquam utroque eam no. Ei eum quodsi aliquam, utinam aliquam utroque eam no. Ei eum quodsi aliquam, utinam aliquam utroque eam no. Ei eum quodsi aliquam, utinam aliquam utroque eam no.</p>`
-                ],*/ "Chapter 1 content",
-            },
-        ];
+        // this.chapters = [
+        //     {
+        //         name: "Chapter 1",
+        //         content: /*[
+        //             "<p>Chapter 1 content<p>"
+        //         ],
+        //     },
+        //     {
+        //         name: "Chapter 2",
+        //         content: [
+        //             `<p>Lorem ipsum dolor sit amet, ut sed ornatus sapientem vituperata. Diam minim percipit et duo. Ad errem legimus democritum sed, vix ut iuvaret patrioque, ut nec tritani suscipit assentior. Et illud assum atomorum eum. Eam justo quaeque eu, eam ne clita luptatum, modus elaboraret sadipscing has cu. Ne usu adhuc congue graeco.</p>
+        //             <p>Legere invenire ut eos, no vim habeo dicit signiferumque. Ad agam commune has. Commodo efficiantur pri no, dictas civibus corrumpit ad his. Ea pri alia volumus assentior, eos ut odio inani. Vide integre senserit in eum, inermis complectitur sea ea. Mei adolescens theophrastus ne, an veniam epicuri est.</p>
+        //             <p>Ei eum quodsi aliquam, utinam aliquam utroque eam no. Ei eum quodsi aliquam, utinam aliquam utroque eam no. Ei eum quodsi aliquam, utinam aliquam utroque eam no. Ei eum quodsi aliquam, utinam aliquam utroque eam no. Ei eum quodsi aliquam, utinam aliquam utroque eam no. Ei eum quodsi aliquam, utinam aliquam utroque eam no.</p>`
+        //         ],*/ "Chapter 1 content",
+        //     },
+        // ];
         let currentCompany = Company.getInstance();
 
         if(currentCompany.companyState) {
@@ -46,17 +46,8 @@ export class docPageById {
         if(documentContent) {
             this.id = parseInt(documentContent.getAttribute("data-document-id"));
         }
-        this.chapterDivs = "";
-        // let doc;
         if(this._documentConfigs) {
             this._doc = this._documentConfigs.find(document => document.id === this.id);
-            // for(let document of this._documentConfigs) {
-            //     if(document.id === this.id) {
-            //         doc = document;
-            //         break;
-            //     }
-            // }
-            // this._doc = doc;
             try {
                 this.title = this._doc.name;
                 if(this._doc.abstract) {
@@ -65,9 +56,11 @@ export class docPageById {
                 if(this._doc.chapters.length > 0) {
                     this.chapters = this._doc.chapters;
                 }
+                console.log(this.chapters);
+                this.chapterDivs = "";
                 this.chapters.forEach((item) => {
-                    this.chapterDivs += `<chapter-item data-chapter-title="${item.chapterTitle}" chapter-id="${item.id}" data-chapter-content="${item.content}"></chapter-item>`;
-                    this.chapterSidebar += `<div class="submenu-item">Edit ${item.chapterTitle}</div>`;
+                    this.chapterDivs += `<chapter-item data-chapter-title="${item.title}" chapter-id="${item.id}" data-chapter-content="${item.paragraphs}"></chapter-item>`;
+                    this.chapterSidebar += `<div class="submenu-item">Edit ${item.title}</div>`;
                 });
             } catch(e) {}
         } else {

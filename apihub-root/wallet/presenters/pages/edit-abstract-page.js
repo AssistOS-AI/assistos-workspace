@@ -59,7 +59,7 @@ export class editAbstractPage {
                     this.chapters = this._doc.chapters;
                 }
                 this.chapters.forEach((item) => {
-                    this.chapterSidebar += `<div class="submenu-item">Edit ${item.name}</div>`;
+                    this.chapterSidebar += `<div class="submenu-item">Edit ${item.title}</div>`;
                 });
             } catch(e) {}
         }

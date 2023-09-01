@@ -8,13 +8,13 @@ export class Document {
         }
         this.abstract = abstract ? abstract : "";
         this.chapters = chapters ? chapters : [];
-        this.chapters = (chapters|| []).map(chapter => new Chapter(chapter.chapterTitle, chapter.id, chapter.paragraphs));
+        this.chapters = (chapters|| []).map(chapter => new Chapter(chapter.title, chapter.id, chapter.paragraphs));
         this.settings = settings ? settings : {};
         this.currentChapter = null;
     }
 
-    createChapter(chapterTitle) {
-        this.chapters.push(new Chapter(chapterTitle, this.chapters.length + 1, []));
+    createChapter(title) {
+        this.chapters.push(new Chapter(title, this.chapters.length + 1, []));
     }
 
     changeChapterOrder(chapterSourceId, chapterTargetId) {

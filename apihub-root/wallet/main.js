@@ -86,7 +86,7 @@ async function initLiteUserDatabase(){
             abstract: "Lorem ipsum dolor sit amet, usu at facilis mandamus periculis. Ut aeterno forensibus nec, mea animal utamur in. In option regione temporibus sea, duo insolens hendrerit ex. Harum deleniti recusabo mea an, duo dicant deseruisse disputationi te, ei mei quot offendit. Eum vero minim virtute ex, ne tale porro vel. Eum te graecis phaedrum corrumpit, melius facilis perfecto qui te, ut eam iusto disputando. Ne lorem consetetur vim.",
             chapters: [
                 {
-                    chapterTitle: "test chapter",
+                    title: "test chapter",
                     id: 1,
                     paragraphs: [
                         {text: "lorem ipsum", id: 1},
@@ -94,7 +94,7 @@ async function initLiteUserDatabase(){
                     ]
                 },
                 {
-                    chapterTitle: "test chapter 2",
+                    title: "test chapter 2",
                     id: 2,
                     paragraphs: [
                         {text: "lorem ipsum", id: 1},
@@ -102,7 +102,7 @@ async function initLiteUserDatabase(){
                     ]
                 },
                 {
-                    chapterTitle: "test chapter 3",
+                    title: "test chapter 3",
                     id: 3,
                     paragraphs: [
                         {text: "lorem ipsum", id: 1},
