@@ -23,13 +23,13 @@ export class documentsPage {
     }
 
     beforeRender() {
-        this.tableRows="";
+        this.tableRows = "";
         if(this._documentConfigs) {
             this._documentConfigs.forEach((item) => {
                 this.tableRows += `<document-item-renderer data-name="${item.name}" data-id="${item.id}"></document-item-renderer>`;
             });
         } else {
-            this.tableRows=`<div> No Data Currently </div>`;
+            this.tableRows = `<div> No Data Currently </div>`;
         }
     }
 
@@ -39,8 +39,8 @@ export class documentsPage {
 
     async editAction(_target){
         let rowElement = getClosestParentElement(_target,['document-item-renderer']);
-        let documentId=parseInt(rowElement.getAttribute('data-id'));
-        webSkel.registry.currentDocumentId=documentId;
+        let documentId= parseInt(rowElement.getAttribute('data-id'));
+        webSkel.registry.currentDocumentId = documentId;
         await webSkel.changeToStaticPage(`documents/${documentId}`);
     }
 

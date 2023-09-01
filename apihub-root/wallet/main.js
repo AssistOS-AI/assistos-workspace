@@ -1,4 +1,5 @@
 import {
+    chapterItem,
     addNewDocumentModal,
     showErrorModal,
     suggestAbstractModal,
@@ -18,6 +19,7 @@ import {
 
 const openDSU = require("opendsu");
 window.webSkel = new WebSkel();
+
 async function initEnclaveClient() {
     const w3cDID = openDSU.loadAPI("w3cdid");
     const enclaveAPI = openDSU.loadAPI("enclave");
@@ -64,6 +66,7 @@ async function loadPage(){
             case "#documents":
                 let documentIdURL= parseInt(url.split('/')[1]);
                 if(webSkel.registry.getDocument(documentIdURL) !== null) {
+                    webSkel.registry.currentDocumentId = documentIdURL;
                     webSkel.registry.observeDocument(documentIdURL);
                     changeSelectedPageFromSidebar("documents-page");
                 }
@@ -89,24 +92,42 @@ async function initLiteUserDatabase(){
                     title: "test chapter",
                     id: 1,
                     paragraphs: [
-                        {text: "lorem ipsum", id: 1},
-                        {text: "lorem ipsum", id: 2}
+                        {
+                            text: "Lorem ipsum dolor sit amet, usu eu illud oratio, at populo doming usu, error appareat argumentum sit ei. Epicurei pertinax no eam, te enim lucilius est. Sit erat integre lobortis te. In sit integre graecis intellegam. Aperiam nostrud mediocritatem qui no, te duo nulla noluisse.",
+                            id: 1
+                        },
+                        {
+                            text: "Eu quo solum persius persecuti, ei mei hinc iriure voluptaria. Odio definitionem delicatissimi mei te, sed at debet suscipiantur, praesent accusamus consulatu per cu. Soluta posidonium vix ad, ut dolore postea doming vix. Etiam possim periculis at pro, pri case causae expetendis ea.",
+                            id: 2
+                        }
                     ]
                 },
                 {
                     title: "test chapter 2",
                     id: 2,
                     paragraphs: [
-                        {text: "lorem ipsum", id: 1},
-                        {text: "lorem ipsum", id: 2}
+                        {
+                            text: "Has ex omnium referrentur. Audire concludaturque no vel, mundi minimum mea ei, gloriatur disputando vel eu. Nec ei graecis placerat. Enim idque gubergren ex per, sea illum inciderint cu. Et regione percipit adolescens vix.",
+                            id: 1
+                        },
+                        {
+                            text: "At eos saepe torquatos, pro ullum appellantur eu. Semper iisque eam cu, pri an quando epicuri, cu eum eros minim delenit. Est in docendi omnesque, et his quod habeo nonumes, iudico facilis habemus duo cu. Duo justo vituperata ea, pri facete fastidii praesent cu. Cu cum habemus dissentias, iudico equidem nominati eam in.",
+                            id: 2
+                        }
                     ]
                 },
                 {
                     title: "test chapter 3",
                     id: 3,
                     paragraphs: [
-                        {text: "lorem ipsum", id: 1},
-                        {text: "lorem ipsum", id: 2}
+                        {
+                            text: "Ea pro causae bonorum erroribus. Eu est tempor dictas ullamcorper. Et apeirian intellegat vel, in pri percipit scribentur liberavisse. No has sonet detracto albucius, aeque graece minimum mea ut.",
+                            id: 1
+                        },
+                        {
+                            text: "Ea elitr laoreet accusata eum. Partem graecis est in, cu est mazim viderer eloquentiam, at harum democritum qui. Facilisi efficiantur sit ad, vim prima debitis et. Novum perpetua cum id, duo eu porro cetero postulant, et eos congue evertitur.",
+                            id: 2
+                        }
                     ]
                 }
             ], settings: {}
@@ -135,6 +156,8 @@ function changeSelectedPageFromSidebar(url) {
 }
 
 function definePresenters(){
+    webSkel.registerPresenter("chapter-item", chapterItem);
+
     webSkel.registerPresenter("doc-page-by-id", docPageById);
     webSkel.registerPresenter("edit-title-page", editTitlePage);
     webSkel.registerPresenter("edit-abstract-page", editAbstractPage);
@@ -152,6 +175,7 @@ function definePresenters(){
 function defineComponents() {
     /* Modal components defined here */
     webSkel.defineComponent("chapter-item", "./wallet/components/chapter-item/chapter-item.html");
+    webSkel.defineComponent("paragraph-item", "./wallet/components/paragraph-item/paragraph-item.html");
     webSkel.defineComponent("document-item-renderer", "./wallet/components/document-item-renderer/document-item-renderer.html");
     webSkel.defineComponent("action-box", "./wallet/components/action-box/action-box.html");
     webSkel.defineComponent("action-box-with-select", "./wallet/components/action-box-with-select/action-box-with-select.html");

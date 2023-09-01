@@ -24,7 +24,6 @@ export class brainstormingPage {
 
     beforeRender() {
         let documentContent = document.querySelector("brainstorming-page");
-        /* Quick Fix - To be removed */
         if(documentContent) {
             this.id = parseInt(documentContent.getAttribute("data-document-id"));
         }

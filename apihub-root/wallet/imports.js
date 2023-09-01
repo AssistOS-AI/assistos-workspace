@@ -19,6 +19,7 @@ import { Chapter } from "./core/models/chapter.js";
 import { Document } from "./core/models/document.js";
 import { Paragraph } from "./core/models/paragraph.js";
 import { Company } from "./core/company.js";
+import { chapterItem } from "./presenters/components/chapter-item.js";
 import { addRecord, getRecord, getAllRecords, getTableRecords, deleteRecord, openDatabase, updateRecord } from "./utils/indexDB.js";
 import { PendingCallMixin } from "./utils/PendingCallMixin.js";
 import WebSkel from "../WebSkel/webSkel.js";
@@ -35,6 +36,7 @@ export {
     proofReaderPage,
     documentSettingsPage,
     editChapterPage,
+    chapterItem,
     brainstormingPage,
     notBasePage,
     showModal,

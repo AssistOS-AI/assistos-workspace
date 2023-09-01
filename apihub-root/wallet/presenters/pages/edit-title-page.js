@@ -27,7 +27,6 @@ export class editTitlePage {
         this.showChaptersInSidebar = 0;
         if(currentCompany.companyState) {
             this._documentConfigs = currentCompany.companyState.documents;
-            console.log(this._documentConfigs.length);
             setTimeout(()=> {
                 this.invalidate()
             },0);
@@ -42,7 +41,6 @@ export class editTitlePage {
 
     beforeRender() {
         let documentContent = document.querySelector("edit-title-page");
-        /* Quick Fix - To be removed */
         if(documentContent) {
             this.id = parseInt(documentContent.getAttribute("data-document-id"));
         }
@@ -66,6 +64,7 @@ export class editTitlePage {
             } catch(e) {}
         }
     }
+
     saveTitle() {
         const updatedTitle = document.querySelector(".document-title").value;
         const documentId = webSkel.registry.currentDocumentId;
@@ -80,6 +79,7 @@ export class editTitlePage {
             currentCompany.notifyObservers();
         }
     }
+
     openEditTitlePage() {
         webSkel.changeToStaticPage(`documents/${this.id}/edit-title`);
     }

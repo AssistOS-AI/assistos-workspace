@@ -4,7 +4,7 @@ export class Document {
     constructor(documentTitle, documentId, abstract, chapters, settings) {
         this.name = documentTitle;
         if(documentId) {
-            this.documentId = documentId;
+            this.id = documentId;
         }
         this.abstract = abstract ? abstract : "";
         this.chapters = chapters ? chapters : [];
@@ -47,5 +47,13 @@ export class Document {
     getChapter(chapterId) {
         const chapter = this.chapters.find(chapter => chapter.id === chapterId);
         return chapter || null;
+    }
+
+    setCurrentChapter(chapterId) {
+        this.currentChapter = chapterId;
+    }
+
+    getCurrentChapter() {
+        return this.chapters.find(chapter => chapter.id === this.currentChapter);
     }
 }
