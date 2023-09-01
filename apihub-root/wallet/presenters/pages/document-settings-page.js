@@ -3,15 +3,13 @@ import { Company } from "../../core/company.js";
 export class documentSettingsPage {
     constructor() {
         let currentCompany = Company.getInstance();
-
         this.chapterSidebar = "";
         this.showChaptersInSidebar = 0;
         if(currentCompany.companyState) {
             this._documentConfigs = currentCompany.companyState.documents;
-            console.log(this._documentConfigs.length);
             setTimeout(()=> {
                 this.invalidate()
-            },0);
+            }, 0);
         }
         this.updateState = (companyState)=> {
             console.log("Update State");
@@ -22,7 +20,7 @@ export class documentSettingsPage {
     }
 
     beforeRender() {
-        let documentContent = document.querySelector("document-settings-page");
+        let documentContent= document.querySelector("document-settings-page");
         /* Quick Fix - To be removed */
         if(documentContent) {
             this.id = parseInt(documentContent.getAttribute("data-document-id"));

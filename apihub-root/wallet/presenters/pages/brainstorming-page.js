@@ -1,7 +1,6 @@
 import { Company } from "../../core/company.js";
 import { closeModal, showActionBox, showModal } from "../../../WebSkel/utils/modal-utils.js";
 
-
 export class brainstormingPage {
     constructor() {
         this.title = "Titlu document";
@@ -11,10 +10,9 @@ export class brainstormingPage {
         this.showChaptersInSidebar = 0;
         if(currentCompany.companyState) {
             this._documentConfigs = currentCompany.companyState.documents;
-            console.log(this._documentConfigs.length);
             setTimeout(()=> {
                 this.invalidate()
-            },0);
+            }, 0);
         }
         this.updateState = (companyState)=> {
             console.log("Update State");
@@ -60,6 +58,10 @@ export class brainstormingPage {
 
     openBrainstormingPage() {
         webSkel.changeToStaticPage(`documents/${this.id}/brainstorming`);
+    }
+
+    closeModal(_target) {
+        closeModal(_target);
     }
 
     showEditChapterSubmenu() {

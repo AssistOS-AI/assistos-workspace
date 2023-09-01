@@ -111,6 +111,10 @@ export class editTitlePage {
         }
     }
 
+    closeModal(_target) {
+        closeModal(_target);
+    }
+
     async showSuggestTitleModal() {
         await showModal(document.querySelector("body"), "suggest-title-modal", {});
     }

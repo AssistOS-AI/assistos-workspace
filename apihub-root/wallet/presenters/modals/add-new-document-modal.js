@@ -10,13 +10,17 @@ export class addNewDocumentModal {
             this._documentConfigs = currentCompany.companyState.documents;
             setTimeout(()=> {
                 this.invalidate()
-            },0);
+            }, 0);
         }
         this.updateState = (companyState)=> {
             this._documentConfigs = companyState.documents;
             this.invalidate();
         }
         currentCompany.onChange(this.updateState);
+    }
+
+    beforeRender() {
+
     }
 
     closeModal(_target) {
@@ -32,10 +36,6 @@ export class addNewDocumentModal {
         documentObj.id = documentId;
         currentCompany.companyState.documents.push(documentObj);
         currentCompany.notifyObservers();
-    }
-
-    beforeRender() {
-
     }
 
     /* adding event Listeners after the web component has loaded, etc */

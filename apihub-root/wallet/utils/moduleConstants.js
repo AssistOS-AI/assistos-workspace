@@ -2,7 +2,6 @@ const ENVIRONMENT_TYPES = require("../overwrite-require/moduleConstants");
 
 let cachedKeySSIResolver = undefined;
 
-
 module.exports = {
     ENVIRONMENT_TYPES,
     CODE_FOLDER: "/code",

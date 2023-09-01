@@ -25,7 +25,7 @@ export async function addRecord(db, storeName, data) {
         throw new Error(`Object store "${storeName}" does not exist.`);
     }
     /* Adding a new Document and let indexedDB auto-assign an id*/
-    if(data.id!==undefined) {
+    if(data.id !== undefined) {
         const existingRecord = await getRecord(db,storeName, data.id);
         if (existingRecord) {
             return;
@@ -46,7 +46,7 @@ export async function addRecord(db, storeName, data) {
 }
 
 /* get */
-export async function getRecord(db,storeName, key) {
+export async function getRecord(db, storeName, key) {
     return new Promise((resolve, reject) => {
         if (!db.objectStoreNames.contains(storeName)) {
             reject(`Object store "${storeName}" does not exist.`);
@@ -82,13 +82,12 @@ export async function getTableRecords(db,storeName) {
 }
 
 export async function getAllRecords(db) {
-
     return new Promise(async (resolve, reject) => {
         const objectStoreNames = Array.from(db.objectStoreNames);
         let allData = {};
         try {
             for (let storeName of objectStoreNames) {
-                allData[storeName] = await getTableRecords(db,storeName);
+                allData[storeName] = await getTableRecords(db, storeName);
             }
             resolve(allData);
         } catch (error) {
@@ -105,14 +104,12 @@ export async function updateRecord(db, storeName, key, dataObject) {
             reject(`Object store "${storeName}" does not exist.`);
             return;
         }
-
         const transaction = db.transaction(storeName, "readwrite");
         const objectStore = transaction.objectStore(storeName);
         const request = objectStore.put({ ...dataObject, id: key });
         request.onsuccess = () => {
             resolve(request.result);
         };
-
         request.onerror = (event) => {
             console.error(`Encountered IndexDB error: ${event.target.error} while updating record with key ${key} in ${storeName}.`);
             reject(event.target.error);
@@ -127,20 +124,16 @@ export async function deleteRecord(db,storeName, key) {
             reject(`Object store "${storeName}" does not exist.`);
             return;
         }
-
         const transaction = db.transaction(storeName, "readwrite");
         const objectStore = transaction.objectStore(storeName);
         let request;
-
         request = objectStore.delete(key);
         request.onsuccess = () => {
             resolve(`Record with key ${key} successfully deleted from ${storeName}.`);
         };
-
         request.onerror = (event) => {
             console.error(`Encountered IndexDB error: ${event.target.error} while deleting record with key ${key} from ${storeName}.`);
             reject(event.target.error);
         };
     });
 }
-

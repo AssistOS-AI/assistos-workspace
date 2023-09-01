@@ -4,15 +4,13 @@ import { closeModal, showActionBox, showModal } from "../../../WebSkel/utils/mod
 export class editChapterPage {
     constructor() {
         let currentCompany = Company.getInstance();
-
         this.chapterSidebar = "";
         this.showChaptersInSidebar = 0;
         if(currentCompany.companyState) {
             this._documentConfigs = currentCompany.companyState.documents;
-            console.log(this._documentConfigs.length);
             setTimeout(()=> {
                 this.invalidate()
-            },0);
+            }, 0);
         }
         this.updateState = (companyState)=> {
             console.log("Update State");

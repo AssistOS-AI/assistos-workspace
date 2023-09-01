@@ -28,10 +28,9 @@ export class docPageById {
 
         if(currentCompany.companyState) {
             this._documentConfigs = currentCompany.companyState.documents;
-            console.log(this._documentConfigs.length);
             setTimeout(()=> {
                 this.invalidate()
-            },0);
+            }, 0);
         }
         this.updateState = (companyState)=> {
             console.log("Update State");
@@ -48,16 +47,16 @@ export class docPageById {
             this.id = parseInt(documentContent.getAttribute("data-document-id"));
         }
         this.chapterDivs = "";
-        let doc;
+        // let doc;
         if(this._documentConfigs) {
-            /*this._doc = this._documentConfigs.find(document => document.id === this.id);*/
-            for(let document of this._documentConfigs) {
-                if(document.id === this.id) {
-                    doc = document;
-                    break;
-                }
-            }
-            this._doc = doc;
+            this._doc = this._documentConfigs.find(document => document.id === this.id);
+            // for(let document of this._documentConfigs) {
+            //     if(document.id === this.id) {
+            //         doc = document;
+            //         break;
+            //     }
+            // }
+            // this._doc = doc;
             try {
                 this.title = this._doc.name;
                 if(this._doc.abstract) {

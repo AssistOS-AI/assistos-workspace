@@ -1,4 +1,5 @@
-import {Registry} from "../imports.js";
+import { Registry}  from "../imports.js";
+
 export class Company {
     /* pass storage data as constructor parameter */
     /* both the user and company know of each other */
@@ -9,12 +10,12 @@ export class Company {
             return Company.instance;
         }
         this.load(userType);
-        this.observers=[];
+        this.observers = [];
     }
 
     async load(userType) {
         /* refactor into something more abstract, no string checks etc */
-        if(userType!=="lite") {
+        if(userType !== "lite") {
             let response = await fetch('/wallet/data.json');
             this.companyState = await response.json();
         } else {
@@ -30,7 +31,7 @@ export class Company {
         return await webSkel.localStorage.getAllData();
     }
 
-    static getInstance(userType="lite") {
+    static getInstance(userType = "lite") {
         if(!this.instance) {
             this.instance = new Company(userType);
         }
@@ -41,7 +42,7 @@ export class Company {
         this.observers.push(new WeakRef(observerFunction));
     }
 
-    //weakset instead of array of weakrefs
+    //WeakSet instead of array of WeakRefs
     notifyObservers() {
           for (const observerRef of this.observers) {
             const observer = observerRef.deref();

@@ -1,13 +1,11 @@
 let stores = {};
 const config = require("opendsu").loadApi("config");
-import {PendingCallMixin} from "../imports.js";
-
+import { PendingCallMixin } from "../imports.js";
 const constants = require("../moduleConstants");
 
 export function IndexedDBCache(storeName, lifetime) {
     const self = this;
     PendingCallMixin(self);
-
     let db;
     let openRequest = indexedDB.open(storeName);
     openRequest.onsuccess = () => {
@@ -52,11 +50,11 @@ export function IndexedDBCache(storeName, lifetime) {
     self.put = (key, value, callback) => {
         self.addSerialPendingCall((next) => {
             let transaction;
-            let store
+            let store;
             try {
                 transaction = db.transaction(storeName, "readwrite");
                 store = transaction.objectStore(storeName);
-            }catch (e) {
+            } catch (e) {
                 callback(e);
                 return next();
             }
@@ -123,7 +121,7 @@ export function IndexedDBCache(storeName, lifetime) {
             try {
                 transaction = db.transaction(storeName, "readwrite");
                 store = transaction.objectStore(storeName);
-            }catch (e) {
+            } catch (e) {
                 callback(e);
                 next();
                 return;

@@ -1,20 +1,22 @@
-import {Chapter} from "../../imports.js";
-export class Document {
-    constructor(documentTitle,documentId,abstract, chapters,settings){
-        this.name = documentTitle;
-        if(documentId)
-            this.documentId=documentId;
+import { Chapter } from "../../imports.js";
 
-        this.abstract = abstract?abstract:"";
-        this.chapters = chapters?chapters:[];
+export class Document {
+    constructor(documentTitle, documentId, abstract, chapters, settings) {
+        this.name = documentTitle;
+        if(documentId) {
+            this.documentId = documentId;
+        }
+        this.abstract = abstract ? abstract : "";
+        this.chapters = chapters ? chapters : [];
         this.chapters = (chapters|| []).map(chapter => new Chapter(chapter.chapterTitle, chapter.id, chapter.paragraphs));
-        this.settings=settings?settings:{};
-        // this.currentChapter=this.chapters?this.chapters[0].id:undefined;
+        this.settings = settings ? settings : {};
         this.currentChapter = null;
     }
-    createChapter(chapterTitle){
-        this.chapters.push(new Chapter(chapterTitle,this.chapters.length+1,[]));
+
+    createChapter(chapterTitle) {
+        this.chapters.push(new Chapter(chapterTitle, this.chapters.length + 1, []));
     }
+
     changeChapterOrder(chapterSourceId, chapterTargetId) {
         const sourceIndex = this.chapters.findIndex(ch => ch.id === chapterSourceId);
         const targetIndex = this.chapters.findIndex(ch => ch.id === chapterTargetId);
@@ -23,24 +25,27 @@ export class Document {
         }
     }
 
-    observeChapter(chapterId){
-        this.currentChapter=chapterId;
+    observeChapter(chapterId) {
+        this.currentChapter = chapterId;
     }
-    updateDocumentTitle(documentTitle){
-        this.name=documentTitle;
+
+    updateDocumentTitle(documentTitle) {
+        this.name = documentTitle;
     }
+
     updateAbstract(abstractText){
-            this.abstract=abstractText;
+            this.abstract = abstractText;
     }
+
     deleteChapter(chapterId) {
         const index = this.chapters.findIndex(chapter => chapter.id === chapterId);
         if (index !== -1) {
             this.chapters.splice(index, 1);
         }
     }
+
     getChapter(chapterId) {
-        const chapter=this.chapters.find(chapter => chapter.id === chapterId);
+        const chapter = this.chapters.find(chapter => chapter.id === chapterId);
         return chapter || null;
     }
-
 }

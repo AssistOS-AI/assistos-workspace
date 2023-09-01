@@ -4,9 +4,7 @@ import { closeModal, showActionBox, showModal } from "../../../WebSkel/utils/mod
 export class editAbstractPage {
     constructor() {
         this.abstractText = "Lorem ipsum dolor sit amet, id his dolore facilisis, latine recteque vim cu. Mea eu dicant habemus partiendo, ea vidit copiosae mel, vis ne etiam ponderum. Delenit blandit cum no, id vel zril detraxit, etiam salutandi ea eam. Nec an omnis forensibus, eu civibus singulis aliquando est. Augue maluisset pri ut, ut dicat percipitur theophrastus sea. Ne vix debet copiosae, ne persius pertinax delicatissimi mea.";
-
         let currentCompany = Company.getInstance();
-
         this.chapters = [
             {
                 name: "Chapter 1",
@@ -28,7 +26,6 @@ export class editAbstractPage {
         this.showChaptersInSidebar = 0;
         if(currentCompany.companyState) {
             this._documentConfigs = currentCompany.companyState.documents;
-            console.log(this._documentConfigs.length);
             setTimeout(()=> {
                 this.invalidate()
             },0);
@@ -105,6 +102,10 @@ export class editAbstractPage {
 
     async showActionBox(_target, primaryKey, componentName, insertionMode) {
         await showActionBox(_target, primaryKey, componentName, insertionMode);
+    }
+
+    closeModal(_target) {
+        closeModal(_target);
     }
 
     /* adding event Listeners after the web component has loaded, etc */
