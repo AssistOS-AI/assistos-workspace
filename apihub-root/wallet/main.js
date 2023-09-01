@@ -51,20 +51,15 @@ async function initWallet() {
 
 async function loadPage(){
     let url = window.location.hash;
-    console.log(url);
     if(url === "" || url === null) {
         url = "#documents-page";
     }
-
-    console.log(notBasePage(url));
     if(notBasePage(url)) {
-        console.log('Codul a intrat pe notBasePage');
         /*#proofReader, #documents */
         changeSelectedPageFromSidebar(url);
         await webSkel.changeToDynamicPage(url.slice(1));
     } else {
         /* URL examples: documents/0, documents/0/chapters/1 */
-        console.error(url);
         switch(url.split('/')[0]) {
             case "#documents":
                 let documentIdURL= parseInt(url.split('/')[1]);

@@ -20,7 +20,7 @@ export async function openDatabase(dbName, version) {
 }
 
 /* add */
-export async function addRecord(db,storeName, data) {
+export async function addRecord(db, storeName, data) {
     if (!db.objectStoreNames.contains(storeName)) {
         throw new Error(`Object store "${storeName}" does not exist.`);
     }
