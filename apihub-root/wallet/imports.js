@@ -3,7 +3,7 @@ import { showErrorModal } from "./presenters/modals/show-error-modal.js";
 import { suggestAbstractModal } from "./presenters/modals/suggest-abstract-modal.js";
 import { suggestTitleModal } from "./presenters/modals/suggest-title-modal.js"
 import { documentsPage } from "./presenters/pages/documents-page.js";
-import { docPageByTitle } from "./presenters/pages/doc-page-by-title.js";
+import { docPageById } from "./presenters/pages/doc-page-by-id.js";
 import { editTitlePage } from "./presenters/pages/edit-title-page.js";
 import { editAbstractPage } from "./presenters/pages/edit-abstract-page.js";
 import { proofReaderPage } from "./presenters/pages/proof-reader-page.js";
@@ -29,7 +29,7 @@ export {
     suggestAbstractModal,
     suggestTitleModal,
     documentsPage,
-    docPageByTitle,
+    docPageById,
     editTitlePage,
     editAbstractPage,
     proofReaderPage,

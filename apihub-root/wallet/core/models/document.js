@@ -10,7 +10,7 @@ export class Document {
         this.chapters = (chapters|| []).map(chapter => new Chapter(chapter.chapterTitle, chapter.id, chapter.paragraphs));
         this.settings=settings?settings:{};
         // this.currentChapter=this.chapters?this.chapters[0].id:undefined;
-        this.currentChapter = undefined;
+        this.currentChapter = null;
     }
     createChapter(chapterTitle){
         this.chapters.push(new Chapter(chapterTitle,this.chapters.length+1,[]));

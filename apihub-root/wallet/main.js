@@ -4,7 +4,7 @@ import {
     suggestAbstractModal,
     suggestTitleModal,
     documentsPage,
-    docPageByTitle,
+    docPageById,
     editTitlePage,
     editAbstractPage,
     proofReaderPage,
@@ -135,7 +135,7 @@ function changeSelectedPageFromSidebar(url) {
 }
 
 function definePresenters(){
-    webSkel.registerPresenter("doc-page-by-title", docPageByTitle);
+    webSkel.registerPresenter("doc-page-by-id", docPageById);
     webSkel.registerPresenter("edit-title-page", editTitlePage);
     webSkel.registerPresenter("edit-abstract-page", editAbstractPage);
     webSkel.registerPresenter("documents-page", documentsPage);
@@ -161,7 +161,7 @@ function defineComponents() {
     webSkel.defineComponent("documents-page", "./wallet/pages/documents-page/documents-page.html");
     webSkel.defineComponent("document-settings-page", "./wallet/pages/document-settings-page/document-settings-page.html");
     webSkel.defineComponent("brainstorming-page", "./wallet/pages/brainstorming-page/brainstorming-page.html");
-    webSkel.defineComponent("doc-page-by-title", "./wallet/pages/doc-page-by-title/doc-page-by-title.html");
+    webSkel.defineComponent("doc-page-by-id", "./wallet/pages/doc-page-by-id/doc-page-by-id.html");
     webSkel.defineComponent("edit-title-page", "./wallet/pages/edit-title-page/edit-title-page.html");
     webSkel.defineComponent("edit-abstract-page", "./wallet/pages/edit-abstract-page/edit-abstract-page.html");
     webSkel.defineComponent("proof-reader-page", "./wallet/pages/proof-reader-page/proof-reader-page.html");

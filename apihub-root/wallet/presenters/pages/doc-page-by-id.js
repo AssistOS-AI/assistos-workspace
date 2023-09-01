@@ -1,6 +1,6 @@
 import { Company } from "../../core/company.js";
 
-export class docPageByTitle {
+export class docPageById {
     constructor() {
         this.title = "Documents";
         this.name = "Name";
@@ -42,7 +42,7 @@ export class docPageByTitle {
     }
 
     beforeRender() {
-        let documentContent = document.querySelector("doc-page-by-title");
+        let documentContent = document.querySelector("doc-page-by-id");
         /* Quick Fix - To be removed */
         if(documentContent) {
             this.id = parseInt(documentContent.getAttribute("data-document-id"));
