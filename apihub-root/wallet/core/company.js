@@ -17,18 +17,19 @@ export class Company {
         if(userType!=="lite") {
             let response = await fetch('/wallet/data.json');
             this.companyState = await response.json();
-        }else{
+        } else {
             /* We could load only the data we need for the current page instead? */
-            this.companyState=await this.loadDatabaseData();
+            this.companyState = await this.loadDatabaseData();
         }
-        this.documentsRegistry=Registry.getInstance(this.companyState.documents);
+        this.documentsRegistry = Registry.getInstance(this.companyState.documents);
         this.notifyObservers();
     }
 
     async loadDatabaseData(){
-            await webSkel.localStorage.initDatabase();
-            return await webSkel.localStorage.getAllData();
+        await webSkel.localStorage.initDatabase();
+        return await webSkel.localStorage.getAllData();
     }
+
     static getInstance(userType="lite") {
         if(!this.instance) {
             this.instance = new Company(userType);

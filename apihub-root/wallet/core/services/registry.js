@@ -1,4 +1,5 @@
-import {Document} from "../../imports.js";
+import { Document } from "../../imports.js";
+
 export class Registry {
     constructor(storageData) {
         if (Registry.instance) {
@@ -15,36 +16,48 @@ export class Registry {
         }
         Registry.instance = this;
     }
+
     static getInstance(storageData) {
         if(!this.instance) {
             this.instance = new Registry(storageData);
         }
         return this.instance;
     }
+
     setDocSettings(documentId,settings){
-        const document=this.storageData.documents.find(document => document.id === documentId);
-        document.settings=settings;
-        webSkel.localStorage.setDocSettings(documentId,settings);
+        const document = this.storageData.documents.find(document => document.id === documentId);
+        document.settings = settings;
+        webSkel.localStorage.setDocSettings(documentId, settings);
     }
-    getDocSettings(documentId){
-        const documentSettings=this.storageData.documents.find(document => document.id === documentId).settings;
+
+    getDocSettings(documentId) {
+        const documentSettings = this.storageData.documents.find(document => document.id === documentId).settings;
         return documentSettings || null;
     }
+
     listDocuments() {
         return this.storageData.documents||[];
     }
+
     getDocument(documentId) {
-        const document= this.storageData.documents.find(document => document.id === documentId);
-        return document|| null;
+        const document = this.storageData.documents.find(document => document.id === documentId);
+        return document || null;
     }
+
+    getAllDocuments() {
+        return this.storageData.documents;
+    }
+
     observeDocument(documentId){
         if(this.storageData.documents.find(document => document.id === documentId))
-            this.currentDocument=documentId;
+            this.currentDocument = documentId;
     }
+
     addDocument(document) {
         this.storageData.documents.push(document);
         webSkel.localStorage.addDocument(document);
     }
+
     deleteDocument(documentId) {
         const index = this.storageData.documents.findIndex(document => document.id === documentId);
         if (index !== -1) {
@@ -52,6 +65,7 @@ export class Registry {
             webSkel.localStorage.deleteDocument(documentId);
         }
     }
+
     updateDocument(documentId, document) {
         const index = this.storageData.documents.findIndex(document => document.id === documentId);
         if (index !== -1) {
@@ -59,10 +73,12 @@ export class Registry {
             webSkel.localStorage.updateDocument(documentId, document);
         }
     }
+
     addLLM(llm) {
         this.storageData.llms.push(llm);
         webSkel.localStorage.addLLM(llm);
     }
+
     listLLMs() {
         return this.storageData.llms||[];
     }
@@ -71,8 +87,8 @@ export class Registry {
         this.storageData.personalities.push(personality);
         webSkel.localStorage.addPersonality(personality);
     }
+
     listPersonalities() {
         return this.storageData.personalities||[];
     }
-
 }

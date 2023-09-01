@@ -76,16 +76,43 @@ async function loadPage(){
 }
 
 async function initLiteUserDatabase(){
-    webSkel.localStorage= await localStorage.getInstance("freeUser",1);
+    webSkel.localStorage = await localStorage.getInstance("freeUser",1);
     await webSkel.localStorage.initDatabase();
     webSkel.registry = Registry.getInstance(await webSkel.localStorage.getAllData());
-    const randomNumber=Math.floor(Math.random() * 1000000);
-    await webSkel.localStorage.addDocument({name:`test${randomNumber}`, abstract: "lorem ipsum",
-        chapters: [
-            {chapterTitle: "test chapter", id: 1, paragraphs: [{text: "lorem ipsum", id: 1}, {text: "lorem ipsum", id: 2}]},
-            {chapterTitle: "test chapter 2", id: 2, paragraphs: [{text: "lorem ipsum", id: 1}, {text: "lorem ipsum", id: 2}]},
-            {chapterTitle: "test chapter 3", id: 3, paragraphs: [{text: "lorem ipsum", id: 1}, {text: "lorem ipsum", id: 2}]}
-        ], settings: {}})
+    if(webSkel.registry.getAllDocuments().length === 0) {
+        const randomNumber= Math.floor(Math.random() * 1000000);
+        await webSkel.localStorage.addDocument(
+        {
+            name: `test${randomNumber}`,
+            abstract: "Lorem ipsum dolor sit amet, usu at facilis mandamus periculis. Ut aeterno forensibus nec, mea animal utamur in. In option regione temporibus sea, duo insolens hendrerit ex. Harum deleniti recusabo mea an, duo dicant deseruisse disputationi te, ei mei quot offendit. Eum vero minim virtute ex, ne tale porro vel. Eum te graecis phaedrum corrumpit, melius facilis perfecto qui te, ut eam iusto disputando. Ne lorem consetetur vim.",
+            chapters: [
+                {
+                    chapterTitle: "test chapter",
+                    id: 1,
+                    paragraphs: [
+                        {text: "lorem ipsum", id: 1},
+                        {text: "lorem ipsum", id: 2}
+                    ]
+                },
+                {
+                    chapterTitle: "test chapter 2",
+                    id: 2,
+                    paragraphs: [
+                        {text: "lorem ipsum", id: 1},
+                        {text: "lorem ipsum", id: 2}
+                    ]
+                },
+                {
+                    chapterTitle: "test chapter 3",
+                    id: 3,
+                    paragraphs: [
+                        {text: "lorem ipsum", id: 1},
+                        {text: "lorem ipsum", id: 2}
+                    ]
+                }
+            ], settings: {}
+        });
+    }
 }
 
 function changeSelectedPageFromSidebar(url) {
