@@ -61,6 +61,10 @@ export class brainstormingPage {
         webSkel.changeToStaticPage(`documents/${this.id}/brainstorming`);
     }
 
+    openViewPage() {
+        webSkel.changeToStaticPage(`documents/${this.id}`);
+    }
+
     closeModal(_target) {
         closeModal(_target);
     }

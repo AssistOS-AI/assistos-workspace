@@ -90,6 +90,10 @@ export class editTitlePage {
         }
     }
 
+    openViewPage() {
+        webSkel.changeToStaticPage(`documents/${this.id}`);
+    }
+
     closeModal(_target) {
         closeModal(_target);
     }

@@ -59,6 +59,10 @@ export class editAbstractPage {
         webSkel.changeToStaticPage(`documents/${this.id}/brainstorming`);
     }
 
+    openViewPage() {
+        webSkel.changeToStaticPage(`documents/${this.id}`);
+    }
+
     showEditChapterSubmenu() {
         const chapterSubmenuSection = document.querySelector(".sidebar-submenu");
         const sidebarArrow = document.querySelector(".arrow-sidebar");
