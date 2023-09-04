@@ -4,7 +4,6 @@ export class documentSettingsPage {
     constructor() {
         this.id = webSkel.registry.currentDocumentId;
         let currentCompany = Company.getInstance();
-        this.chapterSidebar = "";
         this.showChaptersInSidebar = 0;
         if(currentCompany.companyState) {
             this._documentConfigs = currentCompany.companyState.documents;
@@ -18,22 +17,20 @@ export class documentSettingsPage {
             this.invalidate();
         }
         currentCompany.onChange(this.updateState);
+
+        this._document = webSkel.registry.getDocument(this.id);
+        if(this._document) {
+            this.title = this._document.name;
+            this.chapters = this._document.chapters;
+        }
     }
 
     beforeRender() {
-        this.alternativeTitles = "";
-        if(this._documentConfigs) {
-            this._doc = this._documentConfigs.find(document => document.id === this.id);
-            try {
-                this.title = this._doc.name;
-                let suggestedTitle = "Bees are nature's little pollination superheroes! Let's protect them and ensure our food chain thrives. #SaveTheBees";
-                for(let number = 1; number <= 10; number++) {
-                    this.alternativeTitles += `<alternative-title-renderer nr="${number}" title="${suggestedTitle}"></alternative-title-renderer>`;
-                }
-                this._doc.chapters.forEach((item) => {
-                    this.chapterSidebar += `<div class="submenu-item">Edit ${item.title}</div>`;
-                });
-            } catch(e) {}
+        this.chapterSidebar = "";
+        if(this.chapters) {
+            this._document.chapters.forEach((item) => {
+                this.chapterSidebar += `<div class="submenu-item">Edit ${item.title}</div>`;
+            });
         }
     }
 

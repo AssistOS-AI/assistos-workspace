@@ -9,6 +9,7 @@ export class documentsPage {
         this.button = "Add document";
         this.tableRows = "No data loaded";
         let currentCompany = Company.getInstance();
+        console.log("Current company", currentCompany);
         if(currentCompany.companyState) {
             this._documentConfigs = currentCompany.companyState.documents;
             setTimeout(()=> {
@@ -52,7 +53,6 @@ export class documentsPage {
     async deleteAction(_target){
         const rowElement = getClosestParentElement(_target, "document-item-renderer");
         let documentIdToRemove = parseInt(rowElement.getAttribute('data-id'));
-
         await webSkel.localStorage.deleteDocument(documentIdToRemove);
         let currentCompany = Company.getInstance();
         let length = currentCompany.companyState.documents.length;

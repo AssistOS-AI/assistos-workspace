@@ -3,7 +3,7 @@ import { Registry } from "../../core/services/registry.js";
 
 export class docPageById {
     constructor() {
-        this.title = "Documents";
+        this.docTitle = "Documents";
         this.name = "Name";
         this.abstractText = "Edit your abstract";
         this.button = "Add new document";
@@ -18,34 +18,32 @@ export class docPageById {
             }, 0);
         }
         this.updateState = (companyState)=> {
+            this._document = webSkel.registry.getDocument(this.id);
             console.log("Update State");
             this._documentConfigs = currentCompany.companyState.documents;
             this.invalidate();
         }
         currentCompany.onChange(this.updateState);
+
+        this._document = webSkel.registry.getDocument(this.id);
+        if(this._document) {
+            this.docTitle = this._document.name;
+            if(this._document.abstract) {
+                this.abstractText = this._document.abstract;
+            }
+            this.chapters = this._document.chapters;
+        }
     }
 
     beforeRender() {
-        if(this._documentConfigs) {
-            this._doc = this._documentConfigs.find(document => document.id === this.id);
-            try {
-                this.title = this._doc.name;
-                if(this._doc.abstract) {
-                    this.abstractText = this._doc.abstract;
-                }
-                if(this._doc.chapters.length > 0) {
-                    this.chapters = this._doc.chapters;
-                }
-                this.chapterDivs = "";
-                this._document = webSkel.registry.getDocument(this.id);
-                this.chapters.forEach((item) => {
-                    this._document.setCurrentChapter(item.id);
-                    this.chapterDivs += `<chapter-item data-chapter-title="${item.title}" chapter-id="${item.id}" data-presenter="chapter-item"></chapter-item>`;
-                    this.chapterSidebar += `<div class="submenu-item">Edit ${item.title}</div>`;
-                });
-            } catch(e) {}
-        } else {
-            this.chapterDivs = `<div> No Data Currently </div>`;
+        this.chapterDivs = "";
+        this.title = `<title-view title="${this.docTitle}"></title-view>`;
+        if(this.chapters) {
+            this.chapters.forEach((item) => {
+                this._document.setCurrentChapter(item.id);
+                this.chapterDivs += `<chapter-item data-chapter-title="${item.title}" chapter-id="${item.id}" data-presenter="chapter-item"></chapter-item>`;
+                this.chapterSidebar += `<div class="submenu-item">Edit ${item.title}</div>`;
+            });
         }
     }
 

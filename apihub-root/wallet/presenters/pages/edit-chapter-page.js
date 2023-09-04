@@ -22,20 +22,7 @@ export class editChapterPage {
     }
 
     beforeRender() {
-        if(this._documentConfigs) {
-            this._doc = this._documentConfigs.find(document => document.id === this.id);
-            try {
-                this.title = this._doc.name;
-                this.abstractText = this._doc.abstract;
-                let suggestedTitle = "Bees are nature's little pollination superheroes! Let's protect them and ensure our food chain thrives. #SaveTheBees";
-                for(let number = 1; number <= 10; number++) {
-                    this.alternativeAbstracts += `<alternative-abstract-renderer nr="${number}" title="${suggestedTitle}"></alternative-abstract-renderer>`;
-                }
-                this._doc.chapters.forEach((item) => {
-                    this.chapterSidebar += `<div class="submenu-item">Edit ${item.title}</div>`;
-                });
-            } catch(e) {}
-        }
+
     }
 
     openEditTitlePage() {
@@ -67,10 +54,6 @@ export class editChapterPage {
             sidebarArrow.classList.toggle('rotate');
             this.showChaptersInSidebar = 0;
         }
-    }
-
-    async showActionBox(_target, primaryKey, componentName, insertionMode) {
-        await showActionBox(_target, primaryKey, componentName, insertionMode);
     }
 
     /* adding event Listeners after the web component has loaded, etc */

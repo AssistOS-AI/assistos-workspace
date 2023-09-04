@@ -34,7 +34,7 @@ export class Document {
     }
 
     updateAbstract(abstractText){
-            this.abstract = abstractText;
+        this.abstract = abstractText;
     }
 
     deleteChapter(chapterId) {

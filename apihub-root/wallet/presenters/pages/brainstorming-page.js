@@ -4,11 +4,8 @@ import { closeModal, showActionBox, showModal } from "../../../WebSkel/utils/mod
 export class brainstormingPage {
     constructor() {
         this.id = webSkel.registry.currentDocumentId;
-        this.alternativeAbstracts = "";
-        this.title = "Titlu document";
+        this.docTitle = "Titlu document";
         let currentCompany = Company.getInstance();
-
-        this.chapterSidebar = "";
         this.showChaptersInSidebar = 0;
         if(currentCompany.companyState) {
             this._documentConfigs = currentCompany.companyState.documents;
@@ -22,21 +19,29 @@ export class brainstormingPage {
             this.invalidate();
         }
         currentCompany.onChange(this.updateState);
+
+        this._document = webSkel.registry.getDocument(this.id);
+        if(this._document) {
+            this.docTitle = this._document.name;
+            if(this._document.abstract) {
+                this.abstractText = this._document.abstract;
+            }
+            this.chapters = this._document.chapters;
+        }
     }
 
     beforeRender() {
-        if(this._documentConfigs) {
-            this._doc = this._documentConfigs.find(document => document.id=== this.id);
-            try {
-                this.title = this._doc.name;
-                let suggestedTitle = "Bees are nature's little pollination superheroes! Let's protect them and ensure our food chain thrives. #SaveTheBees";
-                for(let number = 1; number <= 10; number++) {
-                    this.alternativeAbstracts += `<alternative-abstract-renderer nr="${number}" title="${suggestedTitle}"></alternative-abstract-renderer>`;
-                }
-                this._doc.chapters.forEach((item) => {
-                    this.chapterSidebar += `<div class="submenu-item">Edit ${item.title}</div>`;
-                });
-            } catch(e) {}
+        let suggestedTitle = "Bees are nature's little pollination superheroes! Let's protect them and ensure our food chain thrives. #SaveTheBees";
+        this.alternativeAbstracts = "";
+        this.chapterSidebar = "";
+        this.title = `<title-view title="${this.docTitle}"></title-view>`;
+        if(this._document) {
+            for(let number = 1; number <= 10; number++) {
+                this.alternativeAbstracts += `<alternative-abstract-renderer nr="${number}" title="${suggestedTitle}"></alternative-abstract-renderer>`;
+            }
+            this._document.chapters.forEach((item) => {
+                this.chapterSidebar += `<div class="submenu-item">Edit ${item.title}</div>`;
+            });
         }
     }
 

@@ -83,7 +83,7 @@ async function initLiteUserDatabase(){
     webSkel.registry = Registry.getInstance(await webSkel.localStorage.getAllData());
     if(webSkel.registry.getAllDocuments().length === 0) {
         const randomNumber= Math.floor(Math.random() * 1000000);
-        await webSkel.localStorage.addDocument(
+        await webSkel.registry.addDocument(
         {
             name: `test${randomNumber}`,
             abstract: "Lorem ipsum dolor sit amet, usu at facilis mandamus periculis. Ut aeterno forensibus nec, mea animal utamur in. In option regione temporibus sea, duo insolens hendrerit ex. Harum deleniti recusabo mea an, duo dicant deseruisse disputationi te, ei mei quot offendit. Eum vero minim virtute ex, ne tale porro vel. Eum te graecis phaedrum corrumpit, melius facilis perfecto qui te, ut eam iusto disputando. Ne lorem consetetur vim.",
@@ -178,6 +178,8 @@ function defineComponents() {
     webSkel.defineComponent("paragraph-item", "./wallet/components/paragraph-item/paragraph-item.html");
     webSkel.defineComponent("document-item-renderer", "./wallet/components/document-item-renderer/document-item-renderer.html");
     webSkel.defineComponent("action-box", "./wallet/components/action-box/action-box.html");
+    webSkel.defineComponent("title-view", "./wallet/components/title-view/title-view.html");
+    webSkel.defineComponent("title-edit", "./wallet/components/title-edit/title-edit.html");
     webSkel.defineComponent("action-box-with-select", "./wallet/components/action-box-with-select/action-box-with-select.html");
     webSkel.defineComponent("alternative-title-renderer", "./wallet/components/alternative-title-renderer/alternative-title-renderer.html");
     webSkel.defineComponent("alternative-abstract-renderer", "./wallet/components/alternative-abstract-renderer/alternative-abstract-renderer.html");

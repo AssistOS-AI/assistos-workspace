@@ -24,7 +24,7 @@ export class Registry {
         return this.instance;
     }
 
-    setDocSettings(documentId,settings){
+    setDocSettings(documentId, settings){
         const document = this.storageData.documents.find(document => document.id === documentId);
         document.settings = settings;
         webSkel.localStorage.setDocSettings(documentId, settings);
