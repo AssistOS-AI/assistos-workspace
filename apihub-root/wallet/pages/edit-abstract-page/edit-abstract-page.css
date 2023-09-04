@@ -128,3 +128,32 @@
     width: 100%;
     justify-content: space-between;
 }
+
+.abstract-section {
+    display: flex;
+    width: 100%;
+    flex-direction: column;
+}
+
+.save-abstract {
+    margin-top: 5px;
+    justify-self: end;
+    align-self: flex-end;
+    cursor: pointer;
+    color: #FFF;
+    font-feature-settings: 'clig' off, 'liga' off;
+    font-family: Poppins;
+    font-size: 14px;
+    font-style: normal;
+    font-weight: 600;
+    line-height: normal;
+    display: inline-flex;
+    padding: 6px 35px;
+    justify-content: center;
+    align-items: center;
+    gap: 10px;
+    border-radius: 16px;
+    background: #18203F;
+    margin-right: 20px;
+    margin-bottom: 20px;
+}

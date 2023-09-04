@@ -14,7 +14,9 @@ export class editAbstractPage {
         }
         this.updateState = (companyState)=> {
             console.log("Update State");
+            this._document = webSkel.registry.getDocument(this.id);
             this._documentConfigs = companyState.documents;
+            this.abstractText = this._document.abstract;
             this.invalidate();
         }
         currentCompany.onChange(this.updateState);
@@ -61,6 +63,25 @@ export class editAbstractPage {
 
     openViewPage() {
         webSkel.changeToStaticPage(`documents/${this.id}`);
+    }
+
+    saveAbstract() {
+        let updatedAbstract = document.querySelector(".abstract-content").innerText;
+        const documentId = webSkel.registry.currentDocumentId;
+        const documentIndex = webSkel.registry.storageData.documents.findIndex(doc => doc.id === documentId);
+        if (documentIndex !== -1 && updatedAbstract !== webSkel.registry.storageData.documents[documentIndex].abstract) {
+            for(let i = 0; i < updatedAbstract.length; i++) {
+                console.log(updatedAbstract[i]);
+                if(updatedAbstract[i] === '\n') {
+                    updatedAbstract = updatedAbstract.slice(0, i) + "<br>" + updatedAbstract.slice(i+1);
+                }
+            }
+            webSkel.registry.storageData.documents[documentIndex].abstract = updatedAbstract;
+            webSkel.registry.updateDocument(documentId, webSkel.registry.storageData.documents[documentIndex]);
+            const currentCompany = Company.getInstance();
+            currentCompany.companyState.documents[documentIndex].abstract = updatedAbstract;
+            currentCompany.notifyObservers();
+        }
     }
 
     showEditChapterSubmenu() {
