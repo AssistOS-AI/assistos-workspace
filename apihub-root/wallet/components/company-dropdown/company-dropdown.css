@@ -1,0 +1,35 @@
+.organization-list {
+    display: none;
+    flex-direction: column;
+    z-index: 1;
+    position: absolute;
+    background-color: #180e49;
+    min-width: 160px;
+    overflow: auto;
+    margin-left: 20px;
+    border-radius: 15px 0 15px 15px;
+    box-shadow: 0 8px 16px 0 rgba(0, 0, 0, 0.2);
+}
+
+company-item {
+    color: #FFF;
+    padding: 5px 10px;
+}
+
+company-item:hover {
+    background-color: #6559a2;
+}
+
+.organization-dropbox {
+    display: inline-block;
+    font-weight: 600;
+    margin-right: 20px;
+    max-width: fit-content;
+    color: #FFF;
+    font-family: Poppins;
+}
+
+.company-dropdown {
+    position: relative;
+    display: inline-block;
+}

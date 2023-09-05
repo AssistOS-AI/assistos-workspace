@@ -27,9 +27,11 @@ export class Document {
     observeChapter(chapterId) {
         this.currentChapter = chapterId;
     }
+
     setCurrentChapter(chapterId) {
         this.currentChapter = chapterId;
     }
+
     updateDocumentTitle(documentTitle) {
         this.name = documentTitle;
     }
@@ -37,6 +39,7 @@ export class Document {
     updateAbstract(abstractText){
         this.abstract = abstractText;
     }
+
     /* left shift(decrement) the ids to the right of the deleted chapter? */
     deleteChapter(chapterId) {
         const index = this.chapters.findIndex(chapter => chapter.id === chapterId);
@@ -52,5 +55,14 @@ export class Document {
 
     getCurrentChapter() {
         return this.chapters.find(chapter => chapter.id === this.currentChapter);
+    }
+
+    swapChapters(chapterId1, chapterId2) {
+        let chapter1 = this.chapters.find(chapter => chapter.id === chapterId1);
+        let chapter2 = this.chapters.find(chapter => chapter.id === chapterId2);
+        let index1 = this.chapters.indexOf(chapter1);
+        let index2 = this.chapters.indexOf(chapter2);
+        this.chapters[index1] = chapter2;
+        this.chapters[index2] = chapter1;
     }
 }

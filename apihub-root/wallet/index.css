@@ -316,35 +316,6 @@ body {
     display: flex;
 }
 
-.organization-dropbox {
-    font-weight:600;
-    margin-right: 20px;
-    max-width: fit-content;
-    color: #FFFFFF;
-    font-family: Poppins;
-}
-
-.organization-dropbox select {
-    background-color: #090131;
-    color: #FFFFFF;
-    font-family: Poppins;
-    font-size: 20px;
-    font-style: normal;
-    font-weight: 500;
-    line-height: normal;
-    outline: none;
-    border: none;
-    appearance: none;
-    background-image: url("./assets/icons/arrow.svg");
-    background-repeat: no-repeat;
-    background-position: right 1rem center;
-    background-size: 0.6em;
-}
-
-#organization * {
-    border-radius: 15px;
-}
-
 .add-button svg {
     margin-right: 9px;
 }
