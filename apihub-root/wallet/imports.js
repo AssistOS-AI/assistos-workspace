@@ -7,6 +7,7 @@ import { docPageById } from "./presenters/pages/doc-page-by-id.js";
 import { editTitlePage } from "./presenters/pages/edit-title-page.js";
 import { editAbstractPage } from "./presenters/pages/edit-abstract-page.js";
 import { proofReaderPage } from "./presenters/pages/proof-reader-page.js";
+import { settingsPage } from "./presenters/pages/settings-page.js";
 import { documentSettingsPage } from "./presenters/pages/document-settings-page.js";
 import { editChapterPage } from "./presenters/pages/edit-chapter-page.js";
 import { brainstormingPage } from "./presenters/pages/brainstorming-page.js";
@@ -36,6 +37,7 @@ export {
     editTitlePage,
     editAbstractPage,
     proofReaderPage,
+    settingsPage,
     documentSettingsPage,
     editChapterPage,
     chapterItem,
