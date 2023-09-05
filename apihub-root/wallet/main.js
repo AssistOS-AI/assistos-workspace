@@ -14,21 +14,32 @@ import {
     documentSettingsPage,
     notBasePage,
     storageService,
+    WebSkel, addRecord, closeModal,
+    initUser, registerAccountActions,
     Company,
-    WebSkel, addRecord, closeModal
 } from "./imports.js";
 
 const openDSU = require("opendsu");
 window.webSkel = new WebSkel();
-
+window.pageContent= document.querySelector("#page-content");
+window.mainContent= document.querySelector("#main-content");
 async function initEnclaveClient() {
     const w3cDID = openDSU.loadAPI("w3cdid");
     const enclaveAPI = openDSU.loadAPI("enclave");
     const remoteDID = "did:ssi:name:vault:BrandEnclave";
+    const remoteDIDAccounting = "did:ssi:name:vault:AccountingEnclave";
     try {
         const clientDIDDocument = await $$.promisify(w3cDID.resolveNameDID)("vault", "clientEnclave", "topSecret");
         console.log("Client enclave: ", clientDIDDocument.getIdentifier());
         window.remoteEnclaveClient = enclaveAPI.initialiseRemoteEnclave(clientDIDDocument.getIdentifier(), remoteDID);
+    }
+    catch (err) {
+        console.log("Error at initialising remote client", err);
+    }
+    try {
+        const clientDIDDocument = await $$.promisify(w3cDID.resolveNameDID)("vault", "clientEnclave", "topSecret2");
+        console.log("Client enclave: ", clientDIDDocument.getIdentifier());
+        window.remoteEnclaveClientAccounting = enclaveAPI.initialiseRemoteEnclave(clientDIDDocument.getIdentifier(), remoteDIDAccounting);
     }
     catch (err) {
         console.log("Error at initialising remote client", err);
@@ -170,11 +181,13 @@ function defineActions(){
     webSkel.registerAction("closeErrorModal", async (_target) => {
         closeModal(_target);
     });
+    registerAccountActions();
 }
 
 (async ()=> {
     webSkel.setDomElementForPages(document.querySelector("#page-content"));
     await initWallet();
+     initUser();
     if (('indexedDB' in window)) {
         await initLiteUserDatabase();
     } else {

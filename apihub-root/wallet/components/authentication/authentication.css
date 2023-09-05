@@ -1,0 +1,130 @@
+
+* {
+    font-family: Poppins;
+}
+html{
+    height: 100%;
+}
+body{
+    height: 100%;
+}
+.app-container{
+    height: 100%;
+}
+.content-container{
+    height: 100%;
+    display: flex;
+}
+.img-container{
+    background: linear-gradient(180deg, rgba(197, 255, 255, 0.19) 0%, rgba(0, 162, 162, 0.19) 100%);
+    width: 50%;
+    display: flex;
+    justify-content: center;
+    justify-items: center;
+}
+.img-container>img{
+    max-width: 650px;
+}
+.form-container{
+    width: 50%;
+    padding: 80px 100px 80px 100px;
+}
+
+.form-title{
+    padding: 20px 0 20px 0;
+    font-weight: bold;
+}
+.form-label {
+    color: black;
+    font-size: 14px;
+    font-family: Poppins;
+    font-weight: 500;
+}
+
+.form-input {
+    border-radius: 8px;
+    border: 0.5px solid rgba(0, 0, 0, 0.24);
+    width: 100%;
+    margin: 8px 0 16px;
+    padding: 8px;
+}
+.item-has-focus {
+    --full-highlight-height: none;
+    --inset-highlight-height: none;
+}
+.form-footer{
+    display: flex;
+    justify-content: center;
+}
+.wide-btn {
+    width: 70%;
+    height: 36px;
+    background: #5D68FE;
+    color: white;
+    border-radius: 16px;
+    font-family: Poppins;
+    font-size: 14px;
+    font-weight: 600;
+    line-height: 21px;
+    margin: 16px 0;
+    border: none;
+}
+.wide-btn:hover{
+    cursor: pointer;
+}
+.logo-container{
+    display: flex;
+    justify-content: center;
+    color: #000000;
+    font-family: Poppins;
+    font-style: normal;
+    font-size: 28px;
+    font-weight: 800;
+}
+
+/*Login page*/
+.suggest-registration{
+    display: flex;
+    justify-content: center;
+    font-size: 12px;
+    margin-top: -5px;
+}
+
+.forgot-password{
+    display: flex;
+    justify-content: flex-end;
+    font-size: 12px;
+    font-weight: 700;
+    color: #7389FF;
+    padding-bottom: 20px;
+    margin-top: -5px;
+}
+.forgot-password:hover{
+    cursor: pointer;
+}
+.sign-up{
+    padding-left: 3px;
+    font-weight: 700;
+    color: #7389FF;
+}
+.sign-up:hover{
+    cursor: pointer;
+}
+
+/*Register confirmation, Password recovery confirmation */
+.development-mode{
+    display: flex;
+    justify-content: center;
+    font-size: 12px;
+    font-weight: 700;
+    color: #7389FF;
+}
+.development-mode:hover{
+    cursor: pointer;
+}
+
+/*Password recovery*/
+.form-description{
+    margin-top: -10px;
+    padding-bottom: 20px;
+}

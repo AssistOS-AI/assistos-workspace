@@ -14,7 +14,6 @@ import { brainstormingPage } from "./presenters/pages/brainstorming-page.js";
 import { closeModal, showActionBox } from "../WebSkel/utils/modal-utils.js";
 import { notBasePage, getClosestParentElement } from "../WebSkel/utils/dom-utils.js";
 import { storageService } from "./core/services/storageService.js";
-//import { Registry } from "./core/services/registry.js"
 import { Chapter } from "./core/models/chapter.js";
 import { Document } from "./core/models/document.js";
 import { Paragraph } from "./core/models/paragraph.js";
@@ -23,7 +22,7 @@ import { showModal } from "./utils/modal-utils.js";
 import { chapterItem } from "./presenters/components/chapter-item.js";
 import { addRecord, getRecord, getAllRecords, getTableRecords, deleteRecord, openDatabase, updateRecord } from "./utils/indexDB.js";
 import WebSkel from "../WebSkel/webSkel.js";
-
+import {initUser, registerAccountActions} from "./scripts/authentication.js";
 export {
     addNewDocumentModal,
     showErrorModal,
@@ -56,5 +55,7 @@ export {
     getTableRecords,
     deleteRecord,
     openDatabase,
-    updateRecord
+    updateRecord,
+    initUser,
+    registerAccountActions
 };
