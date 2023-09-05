@@ -1,41 +1,31 @@
-import { Registry }  from "../imports.js";
+
+/* pass storage data as constructor parameter */
+/* both the user and company know of each other */
+/* the user has a list of company, and the company has a list of users */
+
+import { Document } from "../imports.js";
 
 export class Company {
-    /* pass storage data as constructor parameter */
-    /* both the user and company know of each other */
-    /* the user has a list of company, and the company has a list of users */
-    constructor(storageService) {
-        /* Prevent creating a new Instance with the new keyword */
+    constructor(companyData) {
         if (Company.instance) {
             return Company.instance;
         }
-        this.companyState = storageService ? storageService : [];
-        this.observers = [];
-    }
-
-/*
-    async load(userType) {
-        /!* refactor into something more abstract, no string checks etc *!/
-        if(userType !== "lite") {
-            let response = await fetch('/wallet/data.json');
-            this.companyState = await response.json();
+        this.companyData = companyData ? companyData: [];
+        this.id= this.companyData.id;
+        this.documents= this.companyData.documents.map(docData =>
+            new Document(docData.name, docData.id, docData.abstract, docData.chapters, docData.settings));
+        if (this.documents && this.documents.length > 0) {
+            this.currentDocumentId = this.documents[0].id;
         } else {
-            /!* We could load only the data we need for the current page instead? *!/
-            this.companyState = await this.loadDatabaseData();
+            this.currentDocumentId = undefined;
         }
-        this.documentsRegistry = Registry.getInstance(this.companyState.documents);
-        this.notifyObservers();
+        this.observers = [];
+        Company.instance=this;
     }
-*/
 
-/*    async loadDatabaseData(){
-        await webSkel.storageService.initDatabase();
-        return await webSkel.storageService.getAllData();
-    }*/
-
-    static getInstance(storageData) {
+    static getInstance(companyData) {
         if(!this.instance) {
-            this.instance = new Company(storageData);
+            this.instance = new Company(companyData);
         }
         return this.instance;
     }
@@ -44,15 +34,72 @@ export class Company {
         this.observers.push(new WeakRef(observerFunction));
     }
 
-    //WeakSet instead of array of WeakRefs
     notifyObservers() {
           for (const observerRef of this.observers) {
             const observer = observerRef.deref();
             if (observer) {
-                observer(this.companyState);
+                observer(this.companyData);
             }
         }
-        /* Quick Fix - To be removed */
-        /*this.observers[this.observers.length-1].deref()(this.companyState);*/
+    }
+    observeDocument(documentId){
+        if(this.companyData.documents.find(document => document.id === documentId))
+            this.currentDocumentId = documentId;
+    }
+    getAllDocuments() {
+        return this.companyData.documents||[];
+    }
+    getDocument(documentId) {
+        const document = this.companyData.documents.find(document => document.id === documentId);
+        return document || null;
+    }
+
+    async addDocument(document) {
+        this.companyData.documents.push(document);
+        await webSkel.localStorage.addDocument(document);
+    }
+
+    async deleteDocument(documentId) {
+        const index = this.companyData.documents.findIndex(document => document.id === documentId);
+        if (index !== -1) {
+            this.companyData.documents.splice(index, 1);
+            await webSkel.localStorage.deleteDocument(this.id,documentId);
+            this.notifyObservers();
+        }
+    }
+
+    async updateDocument(documentId, document) {
+        const index = this.companyData.documents.findIndex(document => document.id === documentId);
+        if (index !== -1) {
+            this.companyData.documents[index] = document;
+            await webSkel.localStorage.updateDocument(documentId, document);
+        }
+    }
+
+    async addLLM(llm) {
+        this.companyData.llms.push(llm);
+        await webSkel.localStorage.addLLM(llm);
+    }
+
+    getLLMs() {
+        return this.companyData.llms||[];
+    }
+
+    getPersonalities() {
+        return this.companyData.personalities||[];
+    }
+    async addPersonality(personality) {
+        await webSkel.localStorage.addPersonality(personality);
+        this.companyData.personalities.push(personality);
+    }
+
+    getDocSettings(documentId) {
+        const documentSettings = this.companyData.documents.find(document => document.id === documentId).settings;
+        return documentSettings || [];
+    }
+    async setDocSettings(documentId, settings){
+        const document = this.companyData.documents.find(document => document.id === documentId);
+        document.settings = settings;
+        await webSkel.localStorage.setDocSettings(documentId, settings);
     }
 }

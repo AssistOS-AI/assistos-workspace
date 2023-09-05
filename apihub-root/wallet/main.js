@@ -15,7 +15,7 @@ import {
     documentSettingsPage,
     notBasePage,
     storageService,
-    Registry,
+    Company,
     WebSkel, addRecord, closeModal
 } from "./imports.js";
 
@@ -82,59 +82,9 @@ async function loadPage(){
 async function initLiteUserDatabase(){
     webSkel.localStorage = await storageService.getInstance("freeUser",1);
     await webSkel.localStorage.initDatabase();
-    webSkel.registry = Registry.getInstance(await webSkel.localStorage.getAllData());
-    if(webSkel.registry.getAllDocuments().length === 0) {
-        const randomNumber= Math.floor(Math.random() * 1000000);
-        await webSkel.registry.addDocument(
-        {
-            name: `test${randomNumber}`,
-            abstract: "Lorem ipsum dolor sit amet, usu at facilis mandamus periculis. Ut aeterno forensibus nec, mea animal utamur in. In option regione temporibus sea, duo insolens hendrerit ex. Harum deleniti recusabo mea an, duo dicant deseruisse disputationi te, ei mei quot offendit. Eum vero minim virtute ex, ne tale porro vel. Eum te graecis phaedrum corrumpit, melius facilis perfecto qui te, ut eam iusto disputando. Ne lorem consetetur vim.",
-            chapters: [
-                {
-                    title: "Chapter 1",
-                    id: 1,
-                    paragraphs: [
-                        {
-                            text: "Lorem ipsum dolor sit amet, usu eu illud oratio, at populo doming usu, error appareat argumentum sit ei. Epicurei pertinax no eam, te enim lucilius est. Sit erat integre lobortis te. In sit integre graecis intellegam. Aperiam nostrud mediocritatem qui no, te duo nulla noluisse.",
-                            id: 1
-                        },
-                        {
-                            text: "Eu quo solum persius persecuti, ei mei hinc iriure voluptaria. Odio definitionem delicatissimi mei te, sed at debet suscipiantur, praesent accusamus consulatu per cu. Soluta posidonium vix ad, ut dolore postea doming vix. Etiam possim periculis at pro, pri case causae expetendis ea.",
-                            id: 2
-                        }
-                    ]
-                },
-                {
-                    title: "Chapter 2",
-                    id: 2,
-                    paragraphs: [
-                        {
-                            text: "Has ex omnium referrentur. Audire concludaturque no vel, mundi minimum mea ei, gloriatur disputando vel eu. Nec ei graecis placerat. Enim idque gubergren ex per, sea illum inciderint cu. Et regione percipit adolescens vix.",
-                            id: 1
-                        },
-                        {
-                            text: "At eos saepe torquatos, pro ullum appellantur eu. Semper iisque eam cu, pri an quando epicuri, cu eum eros minim delenit. Est in docendi omnesque, et his quod habeo nonumes, iudico facilis habemus duo cu. Duo justo vituperata ea, pri facete fastidii praesent cu. Cu cum habemus dissentias, iudico equidem nominati eam in.",
-                            id: 2
-                        }
-                    ]
-                },
-                {
-                    title: "Chapter 3",
-                    id: 3,
-                    paragraphs: [
-                        {
-                            text: "Ea pro causae bonorum erroribus. Eu est tempor dictas ullamcorper. Et apeirian intellegat vel, in pri percipit scribentur liberavisse. No has sonet detracto albucius, aeque graece minimum mea ut.",
-                            id: 1
-                        },
-                        {
-                            text: "Ea elitr laoreet accusata eum. Partem graecis est in, cu est mazim viderer eloquentiam, at harum democritum qui. Facilisi efficiantur sit ad, vim prima debitis et. Novum perpetua cum id, duo eu porro cetero postulant, et eos congue evertitur.",
-                            id: 2
-                        }
-                    ]
-                }
-            ], settings: {}
-        });
-    }
+    /* TBD */
+    window.currentCompanyId=1;
+    window.company= new Company(await webSkel.localStorage.getCompanyData(window.currentCompanyId));
 }
 
 function changeSelectedPageFromSidebar(url) {

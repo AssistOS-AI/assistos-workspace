@@ -2,25 +2,38 @@
 export async function openDatabase(dbName, version) {
     return new Promise((resolve, reject) => {
         const connectionRequest = indexedDB.open(dbName, version);
+
         connectionRequest.onerror = (event) => {
             console.error(`Encountered IndexedDB error: ${event.target.error} while trying to open the database`);
             reject(event.target.error);
         };
+
         connectionRequest.onsuccess = (event) => {
             resolve(event.target.result);
         };
+
         connectionRequest.onupgradeneeded = (event) => {
             const db = event.target.result;
+
             if (!db.objectStoreNames.contains("companies")) {
                 const companyStore = db.createObjectStore("companies", { keyPath: "id", autoIncrement: true });
                 companyStore.createIndex("nameIndex", "name", { unique: true });
+            }
+            /* Add default company */
+            const transaction = event.target.transaction;
+            const companyStore = transaction.objectStore("companies");
 
-                /* Add default company */
-                const defaultCompany = {name: `Onboarding company`,
-                            documents:[{
-                                id: 1,
-                                title:"Onboarding Document",
-                                abstract: "Lorem ipsum dolor sit amet, usu at facilis mandamus periculis. Ut aeterno forensibus nec, mea animal utamur in. In option regione temporibus sea, duo insolens hendrerit ex. Harum deleniti recusabo mea an, duo dicant deseruisse disputationi te, ei mei quot offendit. Eum vero minim virtute ex, ne tale porro vel. Eum te graecis phaedrum corrumpit, melius facilis perfecto qui te, ut eam iusto disputando. Ne lorem consetetur vim.",
+            const getAllRequest = companyStore.getAll();
+
+            getAllRequest.onsuccess = (event) => {
+                const existingCompanies = event.target.result;
+
+                if (existingCompanies.length === 0) {
+                    const defaultCompany = {name: `Onboarding company`,
+                        documents:[{
+                            id: 1,
+                            title:"Onboarding Document",
+                            abstract: "Lorem ipsum dolor sit amet, usu at facilis mandamus periculis. Ut aeterno forensibus nec, mea animal utamur in. In option regione temporibus sea, duo insolens hendrerit ex. Harum deleniti recusabo mea an, duo dicant deseruisse disputationi te, ei mei quot offendit. Eum vero minim virtute ex, ne tale porro vel. Eum te graecis phaedrum corrumpit, melius facilis perfecto qui te, ut eam iusto disputando. Ne lorem consetetur vim.",
                             chapters: [
                                 {
                                     title: "test chapter",
@@ -65,19 +78,35 @@ export async function openDatabase(dbName, version) {
                                     ]
                                 }
                             ],settings: {}}], settings: {},admins: [], users: [],llms:[]
-                        };
-                companyStore.add(defaultCompany);
-            }
+                    };
+
+                    const addRequest = companyStore.add(defaultCompany);
+
+                    addRequest.onsuccess = () => {
+                        console.log("Default company added.");
+                    };
+
+                    addRequest.onerror = (event) => {
+                        console.error("Could not add default company:", event.target.error);
+                    };
+                }
+            };
+
+            getAllRequest.onerror = (event) => {
+                console.error("Error fetching existing companies:", event.target.error);
+            };
         };
-        });
+    });
 }
+
+
 
 /* add */
 export async function addRecord(db, storeName, data) {
     if (!db.objectStoreNames.contains(storeName)) {
         throw new Error(`Object store "${storeName}" does not exist.`);
     }
-    /* Adding a new Document and let indexedDB auto-assign an id*/
+    /* Adding a new Record and let indexedDB auto-assign an id*/
     if(data.id !== undefined) {
         const existingRecord = await getRecord(db,storeName, data.id);
         if (existingRecord) {

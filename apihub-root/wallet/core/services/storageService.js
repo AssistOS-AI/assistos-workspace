@@ -35,37 +35,71 @@ export class storageService {
     async getAllData() {
         return await getAllRecords(this.db);
     }
-    async getAllDataFromCompany(companyId) {
-        return await getRecord(this.db, "companies", companyId);
+
+    /* Companies */
+    async getAllCompaniesData() {
+        return await getTableRecords(this.db, 'companies');
     }
-    async getAllCompanies() {
-        try {
-            const allRecords = await getTableRecords(this.db, "companies");
-            return allRecords.map(company => ({ id: company.id, name: company.name }));
-        } catch (error) {
-            console.error(`Encountered an error while fetching all companies: ${error}`);
-            return [];
-        }
+    async getCompanyData(companyId) {
+        return await getRecord(this.db, 'companies', companyId);
+    }
+    async addCompany(company) {
+        return await addRecord(this.db, 'companies', company);
+    }
+    async deleteCompany(companyId) {
+        return await deleteRecord(this.db, 'companies', companyId);
     }
 
     /* Documents */
-    async getAllDocuments() {
-        return await getTableRecords(this.db, "documents");
+    async getCompanyDocuments(companyId) {
+        const company = await getRecord(this.db, 'companies', companyId);
+        return company ? company.documents : [];
+    }
+    async getDocument(companyId, documentId) {
+        const company = await getRecord(this.db, 'companies', companyId);
+        return company ? company.documents.find(doc => doc.id === documentId) : null;
+    }
+    async addDocument(companyId, newDocument) {
+        const company = await getRecord(this.db, "companies", companyId);
+        if(company) {
+            const existingDocument = company.documents.find(doc => doc.id === newDocument.id);
+            if(existingDocument) {
+                throw new Error('Document already exists within the company');
+            } else {
+                company.documents.push(newDocument);
+                return await updateRecord(this.db, "companies", companyId, company);
+            }
+        } else {
+            throw new Error('Company not found');
+        }
+    }
+    async updateDocument(companyId, documentId, updatedDocument) {
+        const company = await getRecord(this.db, "companies", companyId);
+        if (company) {
+            const existingDocumentIndex = company.documents.findIndex(doc => doc.id === documentId);
+            if (existingDocumentIndex !== -1) {
+                company.documents[existingDocumentIndex] = updatedDocument;
+                return await updateRecord(this.db, "companies", companyId, company);
+            } else {
+                throw new Error('Document does not exist within the company');
+            }
+        } else {
+            throw new Error('Company not found');
+        }
+    }
+    async deleteDocument(companyId, documentId) {
+        const company = await getRecord(this.db, 'companies', companyId);
+        if (company) {
+            const existingDocumentIndex = company.documents.findIndex(doc => doc.id === documentId);
+            if (existingDocumentIndex !== -1) {
+                company.documents.splice(existingDocumentIndex, 1);
+                return await updateRecord(this.db, 'companies', companyId, company);
+            } else {
+                throw new Error('Document does not exist within the company');
+            }
+        } else {
+            throw new Error('Company not found');
+        }
     }
 
-    async getDocument(documentId) {
-        return await getRecord(this.db, "documents", documentId);
-    }
-
-    async addDocument(document) {
-        return await addRecord(this.db, "documents", document);
-    }
-
-    async updateDocument(documentId, docObject) {
-        return await updateRecord(this.db, "documents", documentId, docObject);
-    }
-
-    async deleteDocument(documentId) {
-        return await deleteRecord(this.db, "documents", documentId);
-    }
 }
