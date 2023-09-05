@@ -314,8 +314,11 @@ body {
 }
 
 .organization-dropbox {
+    font-weight:600;
     margin-right: 20px;
     max-width: fit-content;
+    color: #FFFFFF;
+    font-family: Poppins;
 }
 
 .organization-dropbox select {

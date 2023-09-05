@@ -15,6 +15,6 @@ export default {
     "sw": false,
     "pwa": false,
     "storageType": "localStorage",
-    "legenda for properties": " vault:(server, browser) agent:(mobile,  browser)  system:(iOS, Android, any) browser:(Chrome, Firefox, any) mode:(autologin,dev-autologin, secure, dev-secure) sw:(true, false) pwa:(true, false) storageType:(localStorage,maindsu)"
+    "legenda for properties": " vault:(server, browser) agent:(mobile,  browser)  system:(iOS, Android, any) browser:(Chrome, Firefox, any) mode:(autologin,dev-autologin, secure, dev-secure) sw:(true, false) pwa:(true, false) storageType:(storageService,maindsu)"
   }
   

@@ -7,12 +7,12 @@ import { addRecord,
          updateRecord
 } from "../../imports.js";
 
-export class localStorage {
+export class storageService {
     constructor(dbName, version) {
-        if (localStorage.instance) {
-            return localStorage.instance;
+        if (storageService.instance) {
+            return storageService.instance;
         } else {
-            localStorage.instance = this;
+            storageService.instance = this;
             this.dbName = dbName;
             this.version = version;
         }
@@ -20,7 +20,7 @@ export class localStorage {
 
     static getInstance(dbName, version) {
         if(!this.instance) {
-            this.instance = new localStorage(dbName, version);
+            this.instance = new storageService(dbName, version);
         }
         return this.instance;
     }
@@ -34,6 +34,18 @@ export class localStorage {
 
     async getAllData() {
         return await getAllRecords(this.db);
+    }
+    async getAllDataFromCompany(companyId) {
+        return await getRecord(this.db, "companies", companyId);
+    }
+    async getAllCompanies() {
+        try {
+            const allRecords = await getTableRecords(this.db, "companies");
+            return allRecords.map(company => ({ id: company.id, name: company.name }));
+        } catch (error) {
+            console.error(`Encountered an error while fetching all companies: ${error}`);
+            return [];
+        }
     }
 
     /* Documents */
