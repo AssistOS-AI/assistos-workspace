@@ -178,6 +178,7 @@ function defineComponents() {
     /* Modal components defined here */
     webSkel.defineComponent("chapter-item", "./wallet/components/chapter-item/chapter-item.html");
     webSkel.defineComponent("company-dropdown", "./wallet/components/company-dropdown/company-dropdown.html");
+    webSkel.defineComponent("company-item", "./wallet/components/company-item/company-item.html");
     webSkel.defineComponent("paragraph-item", "./wallet/components/paragraph-item/paragraph-item.html");
     webSkel.defineComponent("document-item-renderer", "./wallet/components/document-item-renderer/document-item-renderer.html");
     webSkel.defineComponent("action-box", "./wallet/components/action-box/action-box.html");

@@ -1,5 +1,4 @@
 import { Company } from "../../core/company.js";
-import { getClosestParentElement } from "../../../WebSkel/utils/dom-utils.js";
 
 export class companyDropdown {
     constructor() {
@@ -16,21 +15,23 @@ export class companyDropdown {
         }
         currentCompany.onChange(this.updateState);
         this.companies = ["Outfinity", "AIAuthor", "Pharma Ledger"];
-        // this.docId = webSkel.registry.currentDocumentId;
-        // this._document = webSkel.registry.getDocument(this.docId);
-        // this.chapter = this._document.getCurrentChapter();
     }
 
     beforeRender() {
         this.companiesDiv = "";
-        this.companies.forEach((companyName) => {
-            this.companiesDiv += `<company-item>${companyName}</company-item>`;
+        this.companies.forEach((company) => {
+            this.companiesDiv += `<company-item company-name="${company}"></company-item>`;
         });
     }
 
     showOrganizations(_target) {
         let target = _target.nextElementSibling;
         target.style.display = "flex";
+    }
+
+    changeOrganisation(_target) {
+        let target = _target.parentElement.parentElement;
+        target.style.display = "none";
     }
 
     /* adding event Listeners after the web component has loaded, etc */
