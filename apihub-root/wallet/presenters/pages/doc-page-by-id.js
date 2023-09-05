@@ -1,5 +1,4 @@
 import { Company } from "../../core/company.js";
-import { Registry } from "../../core/services/registry.js";
 
 export class docPageById {
     constructor() {
