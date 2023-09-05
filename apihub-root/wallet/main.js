@@ -12,7 +12,7 @@ import {
     brainstormingPage,
     documentSettingsPage,
     notBasePage,
-    localStorage,
+    storageService,
     Registry,
     WebSkel, addRecord, closeModal
 } from "./imports.js";
@@ -78,7 +78,7 @@ async function loadPage(){
 }
 
 async function initLiteUserDatabase(){
-    webSkel.localStorage = await localStorage.getInstance("freeUser",1);
+    webSkel.localStorage = await storageService.getInstance("freeUser",1);
     await webSkel.localStorage.initDatabase();
     webSkel.registry = Registry.getInstance(await webSkel.localStorage.getAllData());
     if(webSkel.registry.getAllDocuments().length === 0) {

@@ -7,7 +7,6 @@ export class Document {
             this.id = documentId;
         }
         this.abstract = abstract ? abstract : "";
-        this.chapters = chapters ? chapters : [];
         this.chapters = (chapters || []).map(chapter => new Chapter(chapter.title, chapter.id, chapter.paragraphs));
         this.settings = settings ? settings : {};
         this.currentChapter = null;
@@ -29,6 +28,10 @@ export class Document {
         this.currentChapter = chapterId;
     }
 
+    setCurrentChapter(chapterId) {
+        this.currentChapter = chapterId;
+    }
+
     updateDocumentTitle(documentTitle) {
         this.name = documentTitle;
     }
@@ -37,6 +40,7 @@ export class Document {
         this.abstract = abstractText;
     }
 
+    /* left shift(decrement) the ids to the right of the deleted chapter? */
     deleteChapter(chapterId) {
         const index = this.chapters.findIndex(chapter => chapter.id === chapterId);
         if (index !== -1) {
@@ -47,10 +51,6 @@ export class Document {
     getChapter(chapterId) {
         const chapter = this.chapters.find(chapter => chapter.id === chapterId);
         return chapter || null;
-    }
-
-    setCurrentChapter(chapterId) {
-        this.currentChapter = chapterId;
     }
 
     getCurrentChapter() {

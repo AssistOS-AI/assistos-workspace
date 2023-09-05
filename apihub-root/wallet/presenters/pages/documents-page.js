@@ -9,8 +9,7 @@ export class documentsPage {
         this.modal = "showAddNewDocumentModal";
         this.button = "Add document";
         this.tableRows = "No data loaded";
-        let currentCompany = Company.getInstance();
-        console.log("Current company", currentCompany);
+        let currentCompany = Company.getInstance(webSkel.registry.storageData);
         if(currentCompany.companyState) {
             this._documentConfigs = currentCompany.companyState.documents;
             setTimeout(()=> {

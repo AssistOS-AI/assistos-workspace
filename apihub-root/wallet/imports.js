@@ -12,7 +12,7 @@ import { editChapterPage } from "./presenters/pages/edit-chapter-page.js";
 import { brainstormingPage } from "./presenters/pages/brainstorming-page.js";
 import { closeModal, showActionBox } from "../WebSkel/utils/modal-utils.js";
 import { notBasePage, getClosestParentElement } from "../WebSkel/utils/dom-utils.js";
-import { localStorage } from "./core/services/localStorage.js";
+import { storageService } from "./core/services/storageService.js";
 import { Registry } from "./core/services/registry.js"
 import { CurrentCompany } from "./core/services/currentCompany.js"
 import { Chapter } from "./core/models/chapter.js";
@@ -44,7 +44,7 @@ export {
     closeModal,
     showActionBox,
     getClosestParentElement,
-    localStorage,
+    storageService,
     Company,
     WebSkel,
     Registry,

@@ -10,7 +10,7 @@ export class docPageById {
         this.chapterSidebar = "";
         this.showChaptersInSidebar = 0;
         this.id = webSkel.registry.currentDocumentId;
-        let currentCompany = Company.getInstance();
+        let currentCompany = Company.getInstance(webSkel.registry.storageData);
         if(currentCompany.companyState) {
             this._documentConfigs = currentCompany.companyState.documents;
             setTimeout(()=> {
