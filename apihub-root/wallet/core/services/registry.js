@@ -44,6 +44,12 @@ export class Registry {
         return document || null;
     }
 
+    swapChapters(documentId, chapterId1, chapterId2) {
+        const document = this.storageData.documents.find(document => document.id === documentId);
+        document.swapChapters(chapterId1, chapterId2);
+        webSkel.localStorage.updateDocument(documentId, document);
+    }
+
     getAllDocuments() {
         return this.storageData.documents;
     }

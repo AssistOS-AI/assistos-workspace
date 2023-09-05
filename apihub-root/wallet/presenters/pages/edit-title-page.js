@@ -52,10 +52,10 @@ export class editTitlePage {
         const documentIndex = webSkel.registry.storageData.documents.findIndex(doc => doc.id === documentId);
 
         if (documentIndex !== -1 && updatedTitle !== webSkel.registry.storageData.documents[documentIndex].name) {
-            webSkel.registry.storageData.documents[documentIndex].name=updatedTitle;
+            webSkel.registry.storageData.documents[documentIndex].name = updatedTitle;
             webSkel.registry.updateDocument(documentId, webSkel.registry.storageData.documents[documentIndex]);
-            const currentCompany=Company.getInstance();
-            currentCompany.companyState.documents[documentIndex].name=updatedTitle;
+            const currentCompany = Company.getInstance();
+            currentCompany.companyState.documents[documentIndex].name = updatedTitle;
             currentCompany.notifyObservers();
         }
     }

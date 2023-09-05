@@ -20,7 +20,6 @@ import { Document } from "./core/models/document.js";
 import { Paragraph } from "./core/models/paragraph.js";
 import { Company } from "./core/company.js";
 import { showModal } from "./utils/modal-utils.js";
-// import { showModal } from "../WebSkel/utils/modal-utils.js";
 import { chapterItem } from "./presenters/components/chapter-item.js";
 import { addRecord, getRecord, getAllRecords, getTableRecords, deleteRecord, openDatabase, updateRecord } from "./utils/indexDB.js";
 import { PendingCallMixin } from "./utils/PendingCallMixin.js";

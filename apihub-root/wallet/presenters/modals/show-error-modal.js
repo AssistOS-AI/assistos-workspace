@@ -21,10 +21,6 @@ export class showErrorModal {
 
     }
 
-    closeErrorModal(_target) {
-        closeModal(_target);
-    }
-
     /* adding event Listeners after the web component has loaded, etc */
     afterRender() {
 

@@ -73,7 +73,18 @@ export class editAbstractPage {
         if (documentIndex !== -1 && updatedAbstract !== webSkel.registry.storageData.documents[documentIndex].abstract) {
             for(let i = 0; i < updatedAbstract.length; i++) {
                 if(updatedAbstract[i] === '\n') {
-                    updatedAbstract = updatedAbstract.slice(0, i) + "<br>" + updatedAbstract.slice(i+1);
+                    let numberOfNewLines = 0;
+                    let initialIndex = i;
+                    while(updatedAbstract[i] === '\n') {
+                        i++;
+                        numberOfNewLines++;
+                    }
+                    numberOfNewLines = Math.floor(numberOfNewLines / 2) + 1;
+                    let newLineString = "";
+                    for(let j = 0; j < numberOfNewLines; j++) {
+                        newLineString += "<br>";
+                    }
+                    updatedAbstract = updatedAbstract.slice(0, initialIndex) + newLineString + updatedAbstract.slice(i);
                 }
             }
             webSkel.registry.storageData.documents[documentIndex].abstract = updatedAbstract;

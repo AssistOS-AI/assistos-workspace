@@ -14,7 +14,7 @@ import {
     notBasePage,
     localStorage,
     Registry,
-    WebSkel, addRecord
+    WebSkel, addRecord, closeModal
 } from "./imports.js";
 
 const openDSU = require("opendsu");
@@ -211,7 +211,11 @@ function defineActions(){
         webSkel.currentToolId = pageId;
         changeSelectedPageFromSidebar(pageId);
         await webSkel.changeToDynamicPage(pageId);
-    })
+    });
+
+    webSkel.registerAction("closeErrorModal", async (_target) => {
+        closeModal(_target);
+    });
 }
 
 (async ()=> {
