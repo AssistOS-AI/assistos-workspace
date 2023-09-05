@@ -1,4 +1,4 @@
-import {getClosestParentElement, getMainAppContainer} from "../../WebSkel/utils/dom-utils";
+import { getClosestParentElement, getMainAppContainer } from "../../WebSkel/utils/dom-utils.js";
 
 export async function showModal(element, modalComponentName, componentProps) {
     const existingModalContainer = getClosestParentElement(element, "dialog");

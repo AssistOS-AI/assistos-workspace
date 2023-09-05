@@ -10,7 +10,7 @@ import { proofReaderPage } from "./presenters/pages/proof-reader-page.js";
 import { documentSettingsPage } from "./presenters/pages/document-settings-page.js";
 import { editChapterPage } from "./presenters/pages/edit-chapter-page.js";
 import { brainstormingPage } from "./presenters/pages/brainstorming-page.js";
-import { closeModal, showActionBox, showModal } from "../WebSkel/utils/modal-utils.js";
+import { closeModal, showActionBox } from "../WebSkel/utils/modal-utils.js";
 import { notBasePage, getClosestParentElement } from "../WebSkel/utils/dom-utils.js";
 import { localStorage } from "./core/services/localStorage.js";
 import { Registry } from "./core/services/registry.js"
@@ -19,6 +19,8 @@ import { Chapter } from "./core/models/chapter.js";
 import { Document } from "./core/models/document.js";
 import { Paragraph } from "./core/models/paragraph.js";
 import { Company } from "./core/company.js";
+import { showModal } from "./utils/modal-utils.js";
+// import { showModal } from "../WebSkel/utils/modal-utils.js";
 import { chapterItem } from "./presenters/components/chapter-item.js";
 import { addRecord, getRecord, getAllRecords, getTableRecords, deleteRecord, openDatabase, updateRecord } from "./utils/indexDB.js";
 import { PendingCallMixin } from "./utils/PendingCallMixin.js";

@@ -1,5 +1,6 @@
 import { Company } from "../../core/company.js";
-import { closeModal, showActionBox, showModal } from "../../../WebSkel/utils/modal-utils.js";
+import { closeModal, showActionBox } from "../../../WebSkel/utils/modal-utils.js";
+import { showModal } from "../../utils/modal-utils.js";
 
 export class editTitlePage {
     constructor() {
