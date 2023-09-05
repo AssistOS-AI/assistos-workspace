@@ -20,32 +20,6 @@ company-item:hover {
     background-color: #6559a2;
 }
 
-.organization-dropbox {
-    display: inline-block;
-    font-weight: 600;
-    margin-right: 20px;
-    max-width: fit-content;
-    color: #FFF;
-    font-family: Poppins;
-}
-
-.organization-dropbox select {
-    background-color: #090131;
-    color: #FFFFFF;
-    font-family: Poppins;
-    font-size: 20px;
-    font-style: normal;
-    font-weight: 500;
-    line-height: normal;
-    outline: none;
-    border: none;
-    appearance: none;
-}
-
-#organization * {
-    border-radius: 15px;
-}
-
 .company-dropdown {
     position: relative;
     display: inline-block;
