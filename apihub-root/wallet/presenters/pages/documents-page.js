@@ -8,19 +8,17 @@ export class documentsPage {
         this.name = "Name";
         this.modal = "showAddNewDocumentModal";
         this.button = "Add document";
-        this.tableRows = "No data loaded";
-        let currentCompany = Company.getInstance();
-        if(currentCompany.companyData) {
-            this._documentConfigs = currentCompany.companyData.documents;
+        if(company.companyData.documents) {
+            this._documentConfigs = company.companyData.documents;
             setTimeout(()=> {
-                this.invalidate()
+                this.invalidate();
             }, 0);
         }
-        this.updateState = (companyData)=> {
-            this._documentConfigs = currentCompany.companyData.documents;
+        this.updateState = (companyState)=> {
+            this._documentConfigs = company.companyData.documents;
             this.invalidate();
         }
-        currentCompany.onChange(this.updateState);
+        company.onChange(this.updateState);
     }
 
     beforeRender() {
@@ -35,7 +33,7 @@ export class documentsPage {
                 });
             }
         } else {
-            this.tableRows = `<div> No Data Currently </div>`;
+            this.tableRows = `<div> TBD:Encountered an error while trying to load the documents </div>`;
         }
     }
 
@@ -46,14 +44,14 @@ export class documentsPage {
     async editAction(_target){
         let rowElement = getClosestParentElement(_target,['document-item-renderer']);
         let documentId= parseInt(rowElement.getAttribute('data-id'));
-        window.company.observeDocument(documentId);
+        company.observeDocument(documentId);
         await webSkel.changeToStaticPage(`documents/${documentId}`);
     }
 
     async deleteAction(_target){
         const rowElement = getClosestParentElement(_target, "document-item-renderer");
         let documentIdToRemove = parseInt(rowElement.getAttribute('data-id'));
-        await window.company.deleteDocument(documentIdToRemove);
+        await company.deleteDocument(documentIdToRemove);
     }
 
     async showActionBox(_target, primaryKey, componentName, insertionMode) {
