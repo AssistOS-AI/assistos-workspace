@@ -61,4 +61,9 @@ export class documentsPage {
     closeModal(_target) {
         closeModal(_target);
     }
+
+    /* adding event Listeners after the web component has loaded, etc */
+    afterRender() {
+
+    }
 }
