@@ -20,6 +20,15 @@ company-item:hover {
     background-color: #6559a2;
 }
 
+.organization-dropbox {
+    display: inline-block;
+    font-weight: 600;
+    margin-right: 20px;
+    max-width: fit-content;
+    color: #FFF;
+    font-family: Poppins;
+}
+
 .company-dropdown {
     position: relative;
     display: inline-block;
