@@ -1,11 +1,8 @@
 import { Company } from "../../core/company.js";
-import { Registry } from "../../core/services/registry.js";
-import { Document } from "../../core/models/document.js";
 import { getClosestParentElement } from "../../../WebSkel/utils/dom-utils.js";
 
 export class chapterItem {
     constructor() {
-        this.chapterContent = "";
         let currentCompany = Company.getInstance();
         this.chapterContent = "chapter's content";
         if(currentCompany.companyState) {
@@ -32,15 +29,14 @@ export class chapterItem {
     }
 
     showOrHideChapter(_target, chapterId) {
-        //TO DO: use getClosestParentElement in order to get the chapter id
         _target.parentNode.nextElementSibling.firstElementChild.nextElementSibling.classList.toggle('hidden');
         _target.parentNode.nextElementSibling.firstElementChild.classList.toggle('hidden');
         _target.classList.toggle('rotate');
     }
 
     moveUp(_target) {
-        let currentChapter = getClosestParentElement(_target, "chapter-item");//.getAttribute('data-id');
-        let chapterAbove = currentChapter.previousSibling;//getClosestParentElement(_target, ".chapter-item").previousElementSibling.getAttribute('data-id');
+        let currentChapter = getClosestParentElement(_target, "chapter-item");
+        let chapterAbove = currentChapter.previousSibling;
         if(chapterAbove.nodeName === "CHAPTER-ITEM") {
             currentChapter.after(chapterAbove);
             webSkel.registry.swapChapters(this.docId, parseInt(currentChapter.getAttribute('chapter-id')), parseInt(chapterAbove.getAttribute('chapter-id')));

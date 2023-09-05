@@ -120,3 +120,7 @@ textarea {
     background: #18203F;
 }
 
+title-edit {
+    display: flex;
+    width: 100%;
+}
