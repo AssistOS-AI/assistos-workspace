@@ -1,4 +1,4 @@
-import { Registry}  from "../imports.js";
+import { Registry }  from "../imports.js";
 
 export class Company {
     /* pass storage data as constructor parameter */

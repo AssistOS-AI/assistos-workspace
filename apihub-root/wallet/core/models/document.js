@@ -35,7 +35,7 @@ export class Document {
     }
 
     updateAbstract(abstractText){
-            this.abstract = abstractText;
+        this.abstract = abstractText;
     }
     /* left shift(decrement) the ids to the right of the deleted chapter? */
     deleteChapter(chapterId) {

@@ -17,6 +17,8 @@
 }
 
 .chapter-item {
+    display: flex;
+    flex-direction: column;
     min-width: 0;
 }
 
@@ -24,4 +26,21 @@
     margin-top: -10px;
     min-width: 0;
     text-align: justify;
+    justify-content: start;
+    display: flex;
+    flex-direction: row-reverse;
+    align-items: center;
+}
+
+.chapter-arrows {
+    margin-left: 20px;
+}
+
+.up, .down {
+    visibility: hidden;
+}
+
+.chapter-item:hover .up, .chapter-item:hover .down {
+    visibility: visible;
+    cursor: pointer;
 }

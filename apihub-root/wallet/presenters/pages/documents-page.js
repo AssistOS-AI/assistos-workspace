@@ -1,6 +1,7 @@
 import { Company } from "../../core/company.js";
-import { closeModal, showActionBox, showModal } from "../../../WebSkel/utils/modal-utils.js";
+import { closeModal, showActionBox } from "../../../WebSkel/utils/modal-utils.js";
 import { getClosestParentElement } from "../../../WebSkel/utils/dom-utils.js";
+import { showModal } from "../../utils/modal-utils.js";
 
 export class documentsPage {
     constructor() {
@@ -52,7 +53,6 @@ export class documentsPage {
     async deleteAction(_target){
         const rowElement = getClosestParentElement(_target, "document-item-renderer");
         let documentIdToRemove = parseInt(rowElement.getAttribute('data-id'));
-
         await webSkel.localStorage.deleteDocument(documentIdToRemove);
         let currentCompany = Company.getInstance();
         let length = currentCompany.companyState.documents.length;
