@@ -8,14 +8,14 @@ export class documentsPage {
         this.name = "Name";
         this.modal = "showAddNewDocumentModal";
         this.button = "Add document";
-        if(company.companyData.documents) {
-            this._documentConfigs = company.companyData.documents;
+        if(company.documents) {
+            this._documentConfigs = company.documents;
             setTimeout(()=> {
                 this.invalidate();
             }, 0);
         }
         this.updateState = (companyState)=> {
-            this._documentConfigs = company.companyData.documents;
+            this._documentConfigs = company.documents;
             this.invalidate();
         }
         company.onChange(this.updateState);
@@ -60,10 +60,5 @@ export class documentsPage {
 
     closeModal(_target) {
         closeModal(_target);
-    }
-
-    /* adding event Listeners after the web component has loaded, etc */
-    afterRender() {
-
     }
 }

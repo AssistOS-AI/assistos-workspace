@@ -1,31 +1,29 @@
-import { Company } from "../../core/company.js";
 import { closeModal, showActionBox } from "../../../WebSkel/utils/modal-utils.js";
 import { showModal } from "../../utils/modal-utils.js";
 
 export class editTitlePage {
     constructor() {
         this.docTitle = "Current Title";
-        this.id = webSkel.registry.currentDocumentId;
-        let currentCompany = Company.getInstance();
+        this.id = company.currentDocumentId;
+
         this.showChaptersInSidebar = 0;
-        if(currentCompany.companyState) {
-            this._documentConfigs = currentCompany.companyState.documents;
+        if(company.documents) {
+            this._documentConfigs = (company.documents);
             setTimeout(()=> {
                 this.invalidate()
             },0);
         }
-        this.updateState = (companyState)=> {
-            console.log("Update State");
-            this._documentConfigs = companyState.documents;
-            this._document = webSkel.registry.getDocument(this.id);
-            this.docTitle = this._document.name;
+        this.updateState = ()=> {
+            this._documentConfigs = company.documents;
+            this._document = company.getDocument(this.id);
+            this.docTitle = this._document.title;
             this.invalidate();
         }
-        currentCompany.onChange(this.updateState);
+        company.onChange(this.updateState);
 
-        this._document = webSkel.registry.getDocument(this.id);
+        this._document = company.getDocument(this.id);
         if(this._document) {
-            this.docTitle = this._document.name;
+            this.docTitle = this._document.title;
             this.chapters = this._document.chapters;
         }
     }
@@ -47,16 +45,11 @@ export class editTitlePage {
 
     saveTitle() {
         const updatedTitle = document.querySelector(".document-title").value;
-        const documentId = webSkel.registry.currentDocumentId;
-
-        const documentIndex = webSkel.registry.storageData.documents.findIndex(doc => doc.id === documentId);
-
-        if (documentIndex !== -1 && updatedTitle !== webSkel.registry.storageData.documents[documentIndex].name) {
-            webSkel.registry.storageData.documents[documentIndex].name = updatedTitle;
-            webSkel.registry.updateDocument(documentId, webSkel.registry.storageData.documents[documentIndex]);
-            const currentCompany = Company.getInstance();
-            currentCompany.companyState.documents[documentIndex].name = updatedTitle;
-            currentCompany.notifyObservers();
+        const documentId = company.currentDocumentId;
+        const documentIndex = company.documents.findIndex(doc => doc.id === documentId);
+        if (documentIndex !== -1 && updatedTitle !==company.documents[documentIndex].title) {
+            company.documents[documentIndex].updateDocumentTitle(updatedTitle);
+            company.updateDocument(company.currentDocumentId, company.documents[documentIndex]);
         }
     }
 

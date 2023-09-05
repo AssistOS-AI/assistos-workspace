@@ -2,14 +2,15 @@ import { Chapter } from "../../imports.js";
 
 export class Document {
     constructor(documentTitle, documentId, abstract, chapters, settings) {
-        this.name = documentTitle;
+        this.title = documentTitle;
         if(documentId) {
             this.id = documentId;
         }
         this.abstract = abstract ? abstract : "";
         this.chapters = (chapters || []).map(chapter => new Chapter(chapter.title, chapter.id, chapter.paragraphs));
+        this.currentChapterId = this.chapters?this.chapters[0].id:undefined;
         this.settings = settings ? settings : {};
-        this.currentChapter = null;
+
     }
 
     createChapter(title) {
@@ -25,15 +26,15 @@ export class Document {
     }
 
     observeChapter(chapterId) {
-        this.currentChapter = chapterId;
+        this.currentChapterId = chapterId;
     }
 
     setCurrentChapter(chapterId) {
-        this.currentChapter = chapterId;
+        this.currentChapterId = chapterId;
     }
 
     updateDocumentTitle(documentTitle) {
-        this.name = documentTitle;
+        this.title = documentTitle;
     }
 
     updateAbstract(abstractText){
@@ -54,15 +55,10 @@ export class Document {
     }
 
     getCurrentChapter() {
-        return this.chapters.find(chapter => chapter.id === this.currentChapter);
+        return this.chapters.find(chapter => chapter.id === this.currentChapterId);
     }
 
     swapChapters(chapterId1, chapterId2) {
-        let chapter1 = this.chapters.find(chapter => chapter.id === chapterId1);
-        let chapter2 = this.chapters.find(chapter => chapter.id === chapterId2);
-        let index1 = this.chapters.indexOf(chapter1);
-        let index2 = this.chapters.indexOf(chapter2);
-        this.chapters[index1] = chapter2;
-        this.chapters[index2] = chapter1;
+        [this.chapters[chapterId1], this.chapters[chapterId2]] = [this.chapters[chapterId2], this.chapters[chapterId1]];
     }
 }

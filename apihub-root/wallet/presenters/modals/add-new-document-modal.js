@@ -5,41 +5,29 @@ import { Document } from "../../core/models/document.js";
 
 export class addNewDocumentModal {
     constructor() {
-        let currentCompany = Company.getInstance();
-        if(currentCompany.companyState) {
-            this._documentConfigs = currentCompany.companyState.documents;
+        if(company.companyData.documents) {
+            this._documentConfigs = company.companyData.documents;
             setTimeout(()=> {
                 this.invalidate()
             }, 0);
         }
         this.updateState = (companyState)=> {
-            this._documentConfigs = companyState.documents;
+            this._documentConfigs = company.companyData.documents;
             this.invalidate();
         }
-        currentCompany.onChange(this.updateState);
+        company.onChange(this.updateState);
     }
-
     beforeRender() {
 
     }
-
     closeModal(_target) {
         closeModal(_target);
     }
 
     async addDocumentSubmitForm(_target) {
         let documentTitle= new FormData(getClosestParentElement(_target,'form')).get("documentTitle");
-        let documentObj= new Document(documentTitle);
-        let documentId = await webSkel.localStorage.addDocument(documentObj);
+        await company.addDocument(new Document(documentTitle));
         closeModal(_target);
-        let currentCompany = Company.getInstance();
-        documentObj.id = documentId;
-        currentCompany.companyState.documents.push(documentObj);
-        currentCompany.notifyObservers();
     }
 
-    /* adding event Listeners after the web component has loaded, etc */
-    afterRender() {
-
-    }
 }

@@ -10,10 +10,9 @@ export class Company {
         if (Company.instance) {
             return Company.instance;
         }
-        this.companyData = companyData ? companyData: [];
-        this.id= this.companyData.id;
-        this.documents= this.companyData.documents.map(docData =>
-            new Document(docData.name, docData.id, docData.abstract, docData.chapters, docData.settings));
+        this.id= companyData.id||undefined;
+        this.documents= companyData.documents.map(docData =>
+            new Document(docData.title, docData.id, docData.abstract, docData.chapters, docData.settings));
         if (this.documents && this.documents.length > 0) {
             this.currentDocumentId = this.documents[0].id;
         } else {
@@ -43,62 +42,64 @@ export class Company {
         }
     }
     observeDocument(documentId){
-        if(this.companyData.documents.find(document => document.id === documentId))
+        if(this.documents.find(document => document.id === documentId))
             this.currentDocumentId = documentId;
     }
     getAllDocuments() {
-        return this.companyData.documents||[];
+        return this.documents||[];
     }
     getDocument(documentId) {
-        const document = this.companyData.documents.find(document => document.id === documentId);
+        const document = this.documents.find(document => document.id === documentId);
         return document || null;
     }
 
     async addDocument(document) {
-        this.companyData.documents.push(document);
+        this.documents.push(document);
         await webSkel.localStorage.addDocument(document);
     }
 
     async deleteDocument(documentId) {
-        const index = this.companyData.documents.findIndex(document => document.id === documentId);
+        const index = this.documents.findIndex(document => document.id === documentId);
         if (index !== -1) {
-            this.companyData.documents.splice(index, 1);
+            this.documents.splice(index, 1);
             await webSkel.localStorage.deleteDocument(this.id,documentId);
             this.notifyObservers();
         }
     }
 
     async updateDocument(documentId, document) {
-        const index = this.companyData.documents.findIndex(document => document.id === documentId);
+        const index = this.documents.findIndex(document => document.id === documentId);
         if (index !== -1) {
-            this.companyData.documents[index] = document;
-            await webSkel.localStorage.updateDocument(documentId, document);
+            this.documents[index] = document;
+            await webSkel.localStorage.updateDocument(company.id,documentId, document);
+            this.notifyObservers();
         }
     }
 
     async addLLM(llm) {
-        this.companyData.llms.push(llm);
+        this.llms.push(llm);
         await webSkel.localStorage.addLLM(llm);
+        this.notifyObservers();
     }
 
     getLLMs() {
-        return this.companyData.llms||[];
+        return this.llms||[];
     }
 
     getPersonalities() {
-        return this.companyData.personalities||[];
+        return this.personalities||[];
     }
     async addPersonality(personality) {
         await webSkel.localStorage.addPersonality(personality);
-        this.companyData.personalities.push(personality);
+        this.personalities.push(personality);
     }
 
     getDocSettings(documentId) {
-        const documentSettings = this.companyData.documents.find(document => document.id === documentId).settings;
+        const documentSettings = this.documents.find(document => document.id === documentId).settings;
         return documentSettings || [];
     }
     async setDocSettings(documentId, settings){
-        const document = this.companyData.documents.find(document => document.id === documentId);
+        const document = this.documents.find(document => document.id === documentId);
         document.settings = settings;
         await webSkel.localStorage.setDocSettings(documentId, settings);
     }

@@ -21,7 +21,6 @@ import { Paragraph } from "./core/models/paragraph.js";
 import { Company } from "./core/company.js";
 import { showModal } from "./utils/modal-utils.js";
 import { chapterItem } from "./presenters/components/chapter-item.js";
-import { companyDropdown } from "./presenters/components/company-dropdown.js";
 import { addRecord, getRecord, getAllRecords, getTableRecords, deleteRecord, openDatabase, updateRecord } from "./utils/indexDB.js";
 import WebSkel from "../WebSkel/webSkel.js";
 
@@ -39,7 +38,6 @@ export {
     documentSettingsPage,
     editChapterPage,
     chapterItem,
-    companyDropdown,
     brainstormingPage,
     notBasePage,
     showModal,

@@ -8,25 +8,21 @@ export class docPageById {
         this.button = "Add new document";
         this.chapterSidebar = "";
         this.showChaptersInSidebar = 0;
-        this.id = webSkel.registry.currentDocumentId;
-        let currentCompany = Company.getInstance(webSkel.registry.storageData);
-        if(currentCompany.companyState) {
-            this._documentConfigs = currentCompany.companyState.documents;
+        this.id = company.currentDocumentId;
+
+        if(company.documents) {
+            this._document = company.getDocument(this.id);
             setTimeout(()=> {
                 this.invalidate()
             }, 0);
         }
         this.updateState = (companyState)=> {
-            this._document = webSkel.registry.getDocument(this.id);
-            console.log("Update State");
-            this._documentConfigs = currentCompany.companyState.documents;
+            this._document = company.getDocument(this.id);
             this.invalidate();
         }
-        currentCompany.onChange(this.updateState);
-
-        this._document = webSkel.registry.getDocument(this.id);
+        company.onChange(this.updateState);
         if(this._document) {
-            this.docTitle = this._document.name;
+            this.docTitle = this._document.title;
             if(this._document.abstract) {
                 this.abstractText = this._document.abstract;
             }
@@ -38,8 +34,8 @@ export class docPageById {
         this.chapterDivs = "";
         this.title = `<title-view title="${this.docTitle}"></title-view>`;
         if(this.chapters) {
+            this._document.setCurrentChapter(this.chapters[0].id);
             this.chapters.forEach((item) => {
-                this._document.setCurrentChapter(item.id);
                 this.chapterDivs += `<chapter-item data-chapter-title="${item.title}" chapter-id="${item.id}" data-presenter="chapter-item"></chapter-item>`;
                 this.chapterSidebar += `<div class="submenu-item">Edit ${item.title}</div>`;
             });
@@ -79,10 +75,5 @@ export class docPageById {
 
     async showActionBox(_target, primaryKey, componentName, insertionMode) {
         await showActionBox(_target, primaryKey, componentName, insertionMode);
-    }
-
-    /* adding event Listeners after the web component has loaded, etc */
-    afterRender() {
-
     }
 }
