@@ -1,6 +1,7 @@
 import { Company } from "../../core/company.js";
 import { Registry } from "../../core/services/registry.js";
 import { Document } from "../../core/models/document.js";
+import { getClosestParentElement } from "../../../WebSkel/utils/dom-utils.js";
 
 export class chapterItem {
     constructor() {
@@ -31,8 +32,31 @@ export class chapterItem {
     }
 
     showOrHideChapter(_target, chapterId) {
-        _target.parentNode.nextElementSibling.classList.toggle('hidden');
+        //TO DO: use getClosestParentElement in order to get the chapter id
+        _target.parentNode.nextElementSibling.firstElementChild.nextElementSibling.classList.toggle('hidden');
+        _target.parentNode.nextElementSibling.firstElementChild.classList.toggle('hidden');
         _target.classList.toggle('rotate');
+    }
+
+    moveUp(_target) {
+        //TO DO: use getClosestParentElement in order to get the chapters and swap them
+        console.log(getClosestParentElement(_target, ".chapter-item"));
+        let currentChapterId = getClosestParentElement(_target, ".chapter-item").getAttribute('data-id');
+        /*
+        * getCurrentDoc
+        * getChapters
+        * swap current chapter with the one above
+        * */
+    }
+
+    moveDown(_target) {
+        //TO DO: use getClosestParentElement in order to get the chapters and swap them
+        let currentChapterId = _target.parentNode.parentNode.parentNode.parentNode.getAttribute('data-id');
+        /*
+        * getCurrentDoc
+        * getChapters
+        * swap current chapter with the one below
+        * */
     }
 
     /* adding event Listeners after the web component has loaded, etc */

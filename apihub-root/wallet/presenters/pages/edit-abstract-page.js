@@ -71,7 +71,6 @@ export class editAbstractPage {
         const documentIndex = webSkel.registry.storageData.documents.findIndex(doc => doc.id === documentId);
         if (documentIndex !== -1 && updatedAbstract !== webSkel.registry.storageData.documents[documentIndex].abstract) {
             for(let i = 0; i < updatedAbstract.length; i++) {
-                console.log(updatedAbstract[i]);
                 if(updatedAbstract[i] === '\n') {
                     updatedAbstract = updatedAbstract.slice(0, i) + "<br>" + updatedAbstract.slice(i+1);
                 }
