@@ -5,6 +5,7 @@ export class Registry {
         if (Registry.instance) {
             return Registry.instance;
         }
+
         this.storageData = storageData ? storageData : [];
         this.storageData.documents = (storageData.documents || []).map(docData =>
             new Document(docData.name, docData.id, docData.abstract, docData.chapters, docData.settings)
@@ -56,6 +57,7 @@ export class Registry {
     addDocument(document) {
         this.storageData.documents.push(document);
         webSkel.localStorage.addDocument(document);
+
     }
 
     deleteDocument(documentId) {
