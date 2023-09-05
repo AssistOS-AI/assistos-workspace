@@ -5,15 +5,15 @@ export class documentSettingsPage {
         this.id = webSkel.registry.currentDocumentId;
         let currentCompany = Company.getInstance();
         this.showChaptersInSidebar = 0;
-        if(currentCompany.companyState) {
-            this._documentConfigs = currentCompany.companyState.documents;
+        if(currentCompany.companyData) {
+            this._documentConfigs = currentCompany.companyData.documents;
             setTimeout(()=> {
                 this.invalidate()
             }, 0);
         }
-        this.updateState = (companyState)=> {
+        this.updateState = (companyData)=> {
             console.log("Update State");
-            this._documentConfigs = companyState.documents;
+            this._documentConfigs = companyData.documents;
             this.invalidate();
         }
         currentCompany.onChange(this.updateState);

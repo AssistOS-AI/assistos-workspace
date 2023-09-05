@@ -16,7 +16,7 @@ export class documentsPage {
                 this.invalidate()
             }, 0);
         }
-        this.updateState = (companyState)=> {
+        this.updateState = (companyData)=> {
             this._documentConfigs = currentCompany.companyData.documents;
             this.invalidate();
         }
