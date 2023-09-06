@@ -1,5 +1,6 @@
 import {
     chapterItem,
+    companyDropdown,
     addNewDocumentModal,
     showErrorModal,
     suggestAbstractModal,
@@ -118,6 +119,7 @@ function changeSelectedPageFromSidebar(url) {
 
 function definePresenters(){
     webSkel.registerPresenter("chapter-item", chapterItem);
+    webSkel.registerPresenter("company-dropdown", companyDropdown);
 
     webSkel.registerPresenter("doc-page-by-id", docPageById);
     webSkel.registerPresenter("edit-title-page", editTitlePage);
@@ -137,6 +139,7 @@ function definePresenters(){
 function defineComponents() {
     /* Modal components defined here */
     webSkel.defineComponent("chapter-item", "./wallet/components/chapter-item/chapter-item.html");
+    webSkel.defineComponent("company-dropdown", "./wallet/components/company-dropdown/company-dropdown.html");
     webSkel.defineComponent("company-item", "./wallet/components/company-item/company-item.html");
     webSkel.defineComponent("paragraph-item", "./wallet/components/paragraph-item/paragraph-item.html");
     webSkel.defineComponent("document-item-renderer", "./wallet/components/document-item-renderer/document-item-renderer.html");

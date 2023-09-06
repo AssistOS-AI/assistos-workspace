@@ -3,15 +3,14 @@ import { getClosestParentElement } from "../../../WebSkel/utils/dom-utils.js";
 
 export class chapterItem {
     constructor() {
-        let currentCompany = Company.getInstance();
-        this.chapterContent = "chapter's content";
+        this.chapterContent = "Chapter's content";
         if(company.documents) {
             this._documentConfigs = company.documents;
             setTimeout(()=> {
                 this.invalidate();
             }, 0);
         }
-        this.updateState = (companyState)=> {
+        this.updateState = ()=> {
             this._documentConfigs = company.documents;
             this.invalidate();
         }
@@ -36,8 +35,8 @@ export class chapterItem {
     }
 
     async moveUp(_target) {
-        let currentChapter = getClosestParentElement(_target, "chapter-item");//.getAttribute('data-id');
-        let chapterAbove = currentChapter.previousSibling;//getClosestParentElement(_target, ".chapter-item").previousElementSibling.getAttribute('data-id');
+        let currentChapter = getClosestParentElement(_target, "chapter-item");
+        let chapterAbove = currentChapter.previousSibling;
         if(chapterAbove.nodeName === "CHAPTER-ITEM") {
             currentChapter.after(chapterAbove);
             await company.swapChapters(this.docId, parseInt(currentChapter.getAttribute('chapter-id')), parseInt(chapterAbove.getAttribute('chapter-id')));
