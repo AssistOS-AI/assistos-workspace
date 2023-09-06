@@ -1,0 +1,11 @@
+{
+    "domain": "vault",
+    "apihubPort": "8080",
+    "useWorker": true,
+    "config": {
+        "rootFolder": "./remote-enclave-root-accounting",
+        "secret": "superTopSecretAccounting",
+        "lambdas": "./CoreLogic/src/AccountingEnclave/lambdas",
+        "name": "AccountingEnclave"
+    }
+}

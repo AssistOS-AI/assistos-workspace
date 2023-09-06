@@ -1,6 +1,5 @@
 const UserProfileSVD = require("../UserProfileSVD");
 const openDSU =  require("opendsu");
-const w3cDID = openDSU.loadAPI("w3cdid");
 const crypto = openDSU.loadApi("crypto");
 let fsSVDStorage;
 function initSVD(remoteEnclaveServer) {

@@ -36,14 +36,14 @@ async function initEnclaveClient() {
     catch (err) {
         console.log("Error at initialising remote client", err);
     }
-    try {
-        const clientDIDDocument = await $$.promisify(w3cDID.resolveNameDID)("vault", "clientEnclave", "topSecret2");
-        console.log("Client enclave: ", clientDIDDocument.getIdentifier());
-        window.remoteEnclaveClientAccounting = enclaveAPI.initialiseRemoteEnclave(clientDIDDocument.getIdentifier(), remoteDIDAccounting);
-    }
-    catch (err) {
-        console.log("Error at initialising remote client", err);
-    }
+    // try {
+    //     const clientDIDDocument = await $$.promisify(w3cDID.resolveNameDID)("vault", "clientEnclave", "topSecret2");
+    //     console.log("Client enclave: ", clientDIDDocument.getIdentifier());
+    //     window.remoteEnclaveClientAccounting = enclaveAPI.initialiseRemoteEnclave(clientDIDDocument.getIdentifier(), remoteDIDAccounting);
+    // }
+    // catch (err) {
+    //     console.log("Error at initialising remote client", err);
+    // }
 }
 
 async function initWallet() {
@@ -180,13 +180,13 @@ function defineActions(){
     webSkel.registerAction("closeErrorModal", async (_target) => {
         closeModal(_target);
     });
-    registerAccountActions();
+    //registerAccountActions();
 }
 
 (async ()=> {
     webSkel.setDomElementForPages(document.querySelector("#page-content"));
     await initWallet();
-     initUser();
+     //initUser();
     if (('indexedDB' in window)) {
         await initLiteUserDatabase();
     } else {
