@@ -2,23 +2,21 @@ import { Company } from "../../core/company.js";
 
 export class documentSettingsPage {
     constructor() {
-        this.id = webSkel.registry.currentDocumentId;
-        let currentCompany = Company.getInstance();
+        this.id = company.currentDocumentId;
         this.showChaptersInSidebar = 0;
-        if(currentCompany.companyData) {
-            this._documentConfigs = currentCompany.companyData.documents;
+        if(company.documents) {
+            this._documentConfigs = company.documents;
             setTimeout(()=> {
                 this.invalidate()
             }, 0);
         }
         this.updateState = (companyData)=> {
-            console.log("Update State");
-            this._documentConfigs = companyData.documents;
+            this._documentConfigs = company.documents;
             this.invalidate();
         }
-        currentCompany.onChange(this.updateState);
+        company.onChange(this.updateState);
 
-        this._document = webSkel.registry.getDocument(this.id);
+        this._document = company.getDocument(this.id);
         if(this._document) {
             this.title = this._document.name;
             this.chapters = this._document.chapters;
@@ -69,8 +67,4 @@ export class documentSettingsPage {
         }
     }
 
-    /* adding event Listeners after the web component has loaded, etc */
-    afterRender() {
-
-    }
 }

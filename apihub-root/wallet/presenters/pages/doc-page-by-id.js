@@ -31,7 +31,7 @@ export class docPageById {
     beforeRender() {
         this.chapterDivs = "";
         this.title = `<title-view title="${this.docTitle}"></title-view>`;
-        if(this.chapters) {
+        if(this.chapters.length>0) {
             this._document.setCurrentChapter(this.chapters[0].id);
             this.chapters.forEach((item) => {
                 this.chapterDivs += `<chapter-item data-chapter-title="${item.title}" chapter-id="${item.id}" data-presenter="chapter-item"></chapter-item>`;

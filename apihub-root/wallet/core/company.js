@@ -55,8 +55,9 @@ export class Company {
     }
 
     async addDocument(document) {
+        document.id=await webSkel.localStorage.addDocument(document,company.id);
         this.documents.push(document);
-        await webSkel.localStorage.addDocument(document);
+        this.notifyObservers();
     }
 
     async deleteDocument(documentId) {
