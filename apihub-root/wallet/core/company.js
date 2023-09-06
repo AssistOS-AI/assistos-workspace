@@ -1,4 +1,3 @@
-
 /* pass storage data as constructor parameter */
 /* both the user and company know of each other */
 /* the user has a list of company, and the company has a list of users */
@@ -10,16 +9,15 @@ export class Company {
         if (Company.instance) {
             return Company.instance;
         }
-        this.id= companyData.id||undefined;
-        this.documents= companyData.documents.map(docData =>
-            new Document(docData.title, docData.id, docData.abstract, docData.chapters, docData.settings));
+        this.id = companyData.id || undefined;
+        this.documents = companyData.documents.map(docData => new Document(docData.title, docData.id, docData.abstract, docData.chapters, docData.settings));
         if (this.documents && this.documents.length > 0) {
             this.currentDocumentId = this.documents[0].id;
         } else {
             this.currentDocumentId = undefined;
         }
         this.observers = [];
-        Company.instance=this;
+        Company.instance = this;
     }
 
     static getInstance(companyData) {
@@ -41,13 +39,16 @@ export class Company {
             }
         }
     }
+
     observeDocument(documentId){
         if(this.documents.find(document => document.id === documentId))
             this.currentDocumentId = documentId;
     }
+
     getAllDocuments() {
-        return this.documents||[];
+        return this.documents || [];
     }
+
     getDocument(documentId) {
         const document = this.documents.find(document => document.id === documentId);
         return document || null;
@@ -62,7 +63,7 @@ export class Company {
         const index = this.documents.findIndex(document => document.id === documentId);
         if (index !== -1) {
             this.documents.splice(index, 1);
-            await webSkel.localStorage.deleteDocument(this.id,documentId);
+            await webSkel.localStorage.deleteDocument(this.id, documentId);
             this.notifyObservers();
         }
     }
@@ -71,7 +72,7 @@ export class Company {
         const index = this.documents.findIndex(document => document.id === documentId);
         if (index !== -1) {
             this.documents[index] = document;
-            await webSkel.localStorage.updateDocument(company.id,documentId, document);
+            await webSkel.localStorage.updateDocument(company.id, documentId, document);
             this.notifyObservers();
         }
     }
@@ -83,11 +84,11 @@ export class Company {
     }
 
     getLLMs() {
-        return this.llms||[];
+        return this.llms || [];
     }
 
     getPersonalities() {
-        return this.personalities||[];
+        return this.personalities || [];
     }
     async addPersonality(personality) {
         await webSkel.localStorage.addPersonality(personality);

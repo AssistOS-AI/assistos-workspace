@@ -21,8 +21,8 @@ import {
 
 const openDSU = require("opendsu");
 window.webSkel = new WebSkel();
-window.pageContent= document.querySelector("#page-content");
-window.mainContent= document.querySelector("#main-content");
+window.pageContent = document.querySelector("#page-content");
+window.mainContent = document.querySelector("#main-content");
 async function initEnclaveClient() {
     const w3cDID = openDSU.loadAPI("w3cdid");
     const enclaveAPI = openDSU.loadAPI("enclave");
@@ -93,8 +93,8 @@ async function initLiteUserDatabase(){
     webSkel.localStorage = await storageService.getInstance("freeUser",1);
     await webSkel.localStorage.initDatabase();
     /* TBD */
-    window.currentCompanyId=1;
-    window.company= new Company(await webSkel.localStorage.getCompanyData(window.currentCompanyId));
+    window.currentCompanyId = 1;
+    window.company = new Company(await webSkel.localStorage.getCompanyData(window.currentCompanyId));
 }
 
 function changeSelectedPageFromSidebar(url) {
@@ -109,7 +109,6 @@ function changeSelectedPageFromSidebar(url) {
     }
     divs.forEach(div => {
         let dataAction = div.getAttribute('data-action');
-
         if (dataAction.includes(targetAction)) {
             console.log(`Element with data-action '${targetAction}' found.`);
             div.setAttribute('id', 'selected-page');

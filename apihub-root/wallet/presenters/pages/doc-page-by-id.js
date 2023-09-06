@@ -1,5 +1,3 @@
-import { Company } from "../../core/company.js";
-
 export class docPageById {
     constructor() {
         this.docTitle = "Documents";

@@ -15,7 +15,6 @@ export class Document {
             this.currentChapterId = undefined;
         }
         this.settings = settings ? settings : {};
-
     }
 
     createChapter(title) {
