@@ -1,4 +1,4 @@
-export class settingsPage {
+export class myOrganizationPage {
     constructor() {
         this.id = company.currentDocumentId;
         if(company.documents) {

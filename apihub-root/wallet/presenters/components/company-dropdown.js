@@ -28,7 +28,7 @@ export class companyDropdown {
         target.style.display = "flex";
     }
 
-    changeOrganisation(_target) {
+    changeOrganization(_target) {
         let target = _target.parentElement.parentElement;
         target.style.display = "none";
     }

@@ -1,4 +1,3 @@
-import { Company } from "../../core/company.js";
 import { getClosestParentElement } from "../../../WebSkel/utils/dom-utils.js";
 
 export class chapterItem {
