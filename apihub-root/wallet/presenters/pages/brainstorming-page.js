@@ -4,26 +4,24 @@ import { showModal } from "../../utils/modal-utils.js";
 
 export class brainstormingPage {
     constructor() {
-        this.id = webSkel.registry.currentDocumentId;
+        this.id = company.currentDocumentId;
         this.docTitle = "Titlu document";
-        let currentCompany = Company.getInstance();
         this.showChaptersInSidebar = 0;
-        if(currentCompany.companyState) {
-            this._documentConfigs = currentCompany.companyState.documents;
+        if(company.documents) {
+            this._documentConfigs = (company.documents);
             setTimeout(()=> {
                 this.invalidate()
-            }, 0);
+            },0);
         }
-        this.updateState = (companyState)=> {
-            console.log("Update State");
-            this._documentConfigs = companyState.documents;
+        this.updateState = ()=> {
+            this._documentConfigs = company.documents;
             this.invalidate();
         }
-        currentCompany.onChange(this.updateState);
+        company.onChange(this.updateState);
 
-        this._document = webSkel.registry.getDocument(this.id);
+        this._document = company.getDocument(this.id);
         if(this._document) {
-            this.docTitle = this._document.name;
+            this.docTitle = this._document.title;
             if(this._document.abstract) {
                 this.abstractText = this._document.abstract;
             }

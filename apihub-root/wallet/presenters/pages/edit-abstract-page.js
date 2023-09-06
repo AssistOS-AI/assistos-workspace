@@ -4,26 +4,25 @@ import { showModal } from "../../utils/modal-utils.js";
 
 export class editAbstractPage {
     constructor() {
-        this.id = webSkel.registry.currentDocumentId;
-        let currentCompany = Company.getInstance();
+        this.id = company.currentDocumentId;
         this.showChaptersInSidebar = 0;
-        if(currentCompany.companyState) {
-            this._documentConfigs = currentCompany.companyState.documents;
+        if(company.documents) {
+            this._documentConfigs = (company.documents);
+            this._document = company.getDocument(this.id);
             setTimeout(()=> {
                 this.invalidate()
-            },0);
+            }, 0);
         }
-        this.updateState = (companyState)=> {
-            console.log("Update State");
-            this._document = webSkel.registry.getDocument(this.id);
-            this._documentConfigs = companyState.documents;
+        this.updateState = ()=> {
+            this._documentConfigs = company.documents;
+            this._document = company.getDocument(this.id);
             this.abstractText = this._document.abstract;
             this.invalidate();
         }
-        currentCompany.onChange(this.updateState);
-        this._document = webSkel.registry.getDocument(this.id);
+        company.onChange(this.updateState);
+        this._document = company.getDocument(this.id);
         if(this._document) {
-            this.docTitle = this._document.name;
+            this.docTitle = this._document.title;
             if(this._document.abstract) {
                 this.abstractText = this._document.abstract;
             }
@@ -66,11 +65,11 @@ export class editAbstractPage {
         webSkel.changeToStaticPage(`documents/${this.id}`);
     }
 
-    saveAbstract() {
+    async saveAbstract() {
         let updatedAbstract = document.querySelector(".abstract-content").innerText;
-        const documentId = webSkel.registry.currentDocumentId;
-        const documentIndex = webSkel.registry.storageData.documents.findIndex(doc => doc.id === documentId);
-        if (documentIndex !== -1 && updatedAbstract !== webSkel.registry.storageData.documents[documentIndex].abstract) {
+        const documentId = this.id;
+        const documentIndex = company.documents.findIndex(doc => doc.id === documentId);
+        if (documentIndex !== -1 && updatedAbstract !== company.documents[documentIndex].abstract) {
             for(let i = 0; i < updatedAbstract.length; i++) {
                 if(updatedAbstract[i] === '\n') {
                     let numberOfNewLines = 0;
@@ -87,11 +86,8 @@ export class editAbstractPage {
                     updatedAbstract = updatedAbstract.slice(0, initialIndex) + newLineString + updatedAbstract.slice(i);
                 }
             }
-            webSkel.registry.storageData.documents[documentIndex].abstract = updatedAbstract;
-            webSkel.registry.updateDocument(documentId, webSkel.registry.storageData.documents[documentIndex]);
-            const currentCompany = Company.getInstance();
-            currentCompany.companyState.documents[documentIndex].abstract = updatedAbstract;
-            currentCompany.notifyObservers();
+            company.documents[documentIndex].abstract = updatedAbstract;
+            await company.updateDocument(documentId, company.documents[documentIndex]);
         }
     }
 

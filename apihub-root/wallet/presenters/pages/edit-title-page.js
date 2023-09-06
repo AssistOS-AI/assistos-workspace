@@ -5,7 +5,6 @@ export class editTitlePage {
     constructor() {
         this.docTitle = "Current Title";
         this.id = company.currentDocumentId;
-
         this.showChaptersInSidebar = 0;
         if(company.documents) {
             this._documentConfigs = (company.documents);
