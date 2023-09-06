@@ -1,5 +1,4 @@
 const logger = $$.getLogger("accounting", "apihub-components");
-const openDSU = require("opendsu");
 async function getAccountingPage(request, response)
 {
     const action  = request.params;

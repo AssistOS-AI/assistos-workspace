@@ -1,5 +1,4 @@
 const logger = $$.getLogger("brand", "apihub-components");
-const openDSU = require("opendsu");
 
 async function getDocumentAbstractPage(request, response) {
     const documentId = request.params.documentId;

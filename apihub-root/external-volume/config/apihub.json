@@ -2,7 +2,7 @@
     "storage": "../apihub-root",
     "port": 8080,
     "preventRateLimit": true,
-    "activeComponents": ["bdns", "bricking", "anchoring", "enclave", "mq", "secrets", "versionlessDSU", "documents", "accounting", "lightDBEnclave","staticServer"],
+    "activeComponents": ["bdns", "bricking", "anchoring", "enclave", "mq", "secrets", "versionlessDSU", "documents", "accounting", "lightDBEnclave", "staticServer"],
     "componentsConfig": {
         "staticServer": {
             "excludedFiles": [".*.secret"],
