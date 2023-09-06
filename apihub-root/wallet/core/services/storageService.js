@@ -40,12 +40,15 @@ export class storageService {
     async getAllCompaniesData() {
         return await getTableRecords(this.db, 'companies');
     }
+
     async getCompanyData(companyId) {
         return await getRecord(this.db, 'companies', companyId);
     }
+
     async addCompany(company) {
         return await addRecord(this.db, 'companies', company);
     }
+
     async deleteCompany(companyId) {
         return await deleteRecord(this.db, 'companies', companyId);
     }
@@ -55,11 +58,13 @@ export class storageService {
         const company = await getRecord(this.db, 'companies', companyId);
         return company ? company.documents : [];
     }
+
     async getDocument(companyId, documentId) {
         const company = await getRecord(this.db, 'companies', companyId);
         return company ? company.documents.find(doc => doc.id === documentId) : null;
     }
-    async addDocument(companyId, newDocument) {
+
+    async addDocument(newDocument, companyId) {
         const company = await getRecord(this.db, "companies", companyId);
         if(company) {
             const existingDocument = company.documents.find(doc => doc.id === newDocument.id);
@@ -73,6 +78,7 @@ export class storageService {
             throw new Error('Company not found');
         }
     }
+
     async updateDocument(companyId, documentId, updatedDocument) {
         const company = await getRecord(this.db, "companies", companyId);
         if (company) {
@@ -87,6 +93,7 @@ export class storageService {
             throw new Error('Company not found');
         }
     }
+
     async deleteDocument(companyId, documentId) {
         const company = await getRecord(this.db, 'companies', companyId);
         if (company) {
@@ -101,5 +108,4 @@ export class storageService {
             throw new Error('Company not found');
         }
     }
-
 }

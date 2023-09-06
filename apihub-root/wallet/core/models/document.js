@@ -8,7 +8,12 @@ export class Document {
         }
         this.abstract = abstract ? abstract : "";
         this.chapters = (chapters || []).map(chapter => new Chapter(chapter.title, chapter.id, chapter.paragraphs));
-        this.currentChapterId = this.chapters?this.chapters[0].id:undefined;
+        // this.currentChapterId = this.chapters?this.chapters[0].id:undefined;
+        if(this.chapters && this.chapters.length > 0) {
+            this.currentChapterId = this.chapters[0].id;
+        } else {
+            this.currentChapterId = undefined;
+        }
         this.settings = settings ? settings : {};
 
     }

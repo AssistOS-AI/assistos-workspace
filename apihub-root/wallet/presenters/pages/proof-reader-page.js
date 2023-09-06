@@ -14,5 +14,10 @@ export class proofReaderPage {
     }
 
     beforeRender() {
+
+    }
+
+    afterRender() {
+
     }
 }
