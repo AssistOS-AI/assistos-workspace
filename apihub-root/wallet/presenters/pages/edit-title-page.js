@@ -98,9 +98,4 @@ export class editTitlePage {
     async showActionBox(_target, primaryKey, componentName, insertionMode) {
         await showActionBox(_target, primaryKey, componentName, insertionMode);
     }
-
-    /* adding event Listeners after the web component has loaded, etc */
-    afterRender() {
-
-    }
 }

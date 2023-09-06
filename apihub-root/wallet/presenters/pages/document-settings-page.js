@@ -5,12 +5,12 @@ export class documentSettingsPage {
         this.id = company.currentDocumentId;
         this.showChaptersInSidebar = 0;
         if(company.documents) {
-            this._documentConfigs = (company.documents);
+            this._documentConfigs = company.documents;
             setTimeout(()=> {
                 this.invalidate()
             },0);
         }
-        this.updateState = ()=> {
+        this.updateState = (companyData)=> {
             this._documentConfigs = company.documents;
             this.invalidate();
         }

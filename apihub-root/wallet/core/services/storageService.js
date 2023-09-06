@@ -67,10 +67,17 @@ export class storageService {
     async addDocument(newDocument, companyId) {
         const company = await getRecord(this.db, "companies", companyId);
         if(company) {
-            const existingDocument = company.documents.find(doc => doc.id === newDocument.id);
-            if(existingDocument) {
-                throw new Error('Document already exists within the company');
-            } else {
+            if(newDocument.id!==undefined) {
+                const existingDocument = company.documents.find(doc => doc.id === newDocument.id);
+                if (existingDocument) {
+                    throw new Error('Document already exists within the company');
+                } else {
+                    newDocument.id=company.documents.length+1;
+                    company.documents.push(newDocument);
+                    return await updateRecord(this.db, "companies", companyId, company);
+                }
+            }else{
+                newDocument.id=company.documents.length+1;
                 company.documents.push(newDocument);
                 return await updateRecord(this.db, "companies", companyId, company);
             }
