@@ -36,13 +36,11 @@ export class chapterItem {
     }
 
     async moveUp(_target) {
-        let currentChapter = getClosestParentElement(_target, "chapter-item");
-        let chapterAbove = currentChapter.previousSibling;
+        let currentChapter = getClosestParentElement(_target, "chapter-item");//.getAttribute('data-id');
+        let chapterAbove = currentChapter.previousSibling;//getClosestParentElement(_target, ".chapter-item").previousElementSibling.getAttribute('data-id');
         if(chapterAbove.nodeName === "CHAPTER-ITEM") {
             currentChapter.after(chapterAbove);
-            let documentIndex= company.documents.findIndex(doc => doc.id === company.currentDocumentId);
-            company.documents[documentIndex].swapChapters(this.docId, parseInt(currentChapter.getAttribute('chapter-id')), parseInt(chapterAbove.getAttribute('chapter-id')));
-            await company.updateDocument(company.currentDocumentId, company.documents[company.currentDocumentId]);
+            await company.swapChapters(this.docId, parseInt(currentChapter.getAttribute('chapter-id')), parseInt(chapterAbove.getAttribute('chapter-id')));
         }
     }
 
@@ -51,9 +49,7 @@ export class chapterItem {
         let chapterBelow = currentChapter.nextSibling;
         if(chapterBelow.nodeName === "CHAPTER-ITEM") {
             chapterBelow.after(currentChapter);
-            let documentIndex= company.documents.findIndex(doc => doc.id === company.currentDocumentId);
-            company.documents[documentIndex].swapChapters(this.docId, parseInt(currentChapter.getAttribute('chapter-id')), parseInt(chapterBelow.getAttribute('chapter-id')));
-            await company.updateDocument(company.currentDocumentId, company.documents[company.currentDocumentId]);
+            await company.swapChapters(this.docId, parseInt(currentChapter.getAttribute('chapter-id')), parseInt(chapterBelow.getAttribute('chapter-id')));
         }
     }
 }

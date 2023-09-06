@@ -49,13 +49,19 @@ export class Company {
         return this.documents || [];
     }
 
+    swapChapters(documentId, chapterId1, chapterId2) {
+        const document = this.documents.find(document => document.id === documentId);
+        document.swapChapters(chapterId1, chapterId2);
+        webSkel.localStorage.updateDocument(this.id, documentId, document);
+    }
+
     getDocument(documentId) {
         const document = this.documents.find(document => document.id === documentId);
         return document || null;
     }
 
     async addDocument(document) {
-        document.id=await webSkel.localStorage.addDocument(document,company.id);
+        document.id = await webSkel.localStorage.addDocument(document, company.id);
         this.documents.push(document);
         this.notifyObservers();
     }
@@ -91,6 +97,7 @@ export class Company {
     getPersonalities() {
         return this.personalities || [];
     }
+
     async addPersonality(personality) {
         await webSkel.localStorage.addPersonality(personality);
         this.personalities.push(personality);
