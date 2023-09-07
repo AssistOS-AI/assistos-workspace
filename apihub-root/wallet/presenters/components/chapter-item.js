@@ -23,7 +23,7 @@ export class chapterItem {
     }
 
     beforeRender() {
-        this.chapterId = this.element.getAttribute("data-chapter-id");
+        this.chapterId = parseInt(this.element.getAttribute("data-chapter-id"));
         this.chapter = this.documentService.getChapter(this._document,this.chapterId);
         this.chapterContent = "";
         this.chapter.paragraphs.forEach((paragraph) => {
