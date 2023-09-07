@@ -1,5 +1,6 @@
 import {
     chapterItem,
+    companyDropdown,
     addNewDocumentModal,
     showErrorModal,
     suggestAbstractModal,
@@ -9,7 +10,7 @@ import {
     editTitlePage,
     editAbstractPage,
     proofReaderPage,
-    settingsPage,
+    myOrganizationPage,
     brainstormingPage,
     documentSettingsPage,
     notBasePage,
@@ -118,6 +119,7 @@ function changeSelectedPageFromSidebar(url) {
 
 function definePresenters(){
     webSkel.registerPresenter("chapter-item", chapterItem);
+    webSkel.registerPresenter("company-dropdown", companyDropdown);
 
     webSkel.registerPresenter("doc-page-by-id", docPageById);
     webSkel.registerPresenter("edit-title-page", editTitlePage);
@@ -126,7 +128,7 @@ function definePresenters(){
     webSkel.registerPresenter("document-settings-page", documentSettingsPage);
     webSkel.registerPresenter("brainstorming-page", brainstormingPage);
     webSkel.registerPresenter("proof-reader-page", proofReaderPage);
-    webSkel.registerPresenter("settings-page", settingsPage);
+    webSkel.registerPresenter("my-organization-page", myOrganizationPage);
 
     webSkel.registerPresenter("add-new-document-modal", addNewDocumentModal);
     webSkel.registerPresenter("show-error-modal", showErrorModal);
@@ -137,6 +139,7 @@ function definePresenters(){
 function defineComponents() {
     /* Modal components defined here */
     webSkel.defineComponent("chapter-item", "./wallet/components/chapter-item/chapter-item.html");
+    webSkel.defineComponent("company-dropdown", "./wallet/components/company-dropdown/company-dropdown.html");
     webSkel.defineComponent("company-item", "./wallet/components/company-item/company-item.html");
     webSkel.defineComponent("paragraph-item", "./wallet/components/paragraph-item/paragraph-item.html");
     webSkel.defineComponent("document-item-renderer", "./wallet/components/document-item-renderer/document-item-renderer.html");
@@ -154,7 +157,7 @@ function defineComponents() {
     webSkel.defineComponent("edit-title-page", "./wallet/pages/edit-title-page/edit-title-page.html");
     webSkel.defineComponent("edit-abstract-page", "./wallet/pages/edit-abstract-page/edit-abstract-page.html");
     webSkel.defineComponent("proof-reader-page", "./wallet/pages/proof-reader-page/proof-reader-page.html");
-    webSkel.defineComponent("settings-page", "./wallet/pages/settings-page/settings-page.html");
+    webSkel.defineComponent("my-organization-page", "./wallet/pages/my-organization-page/my-organization-page.html");
 
     webSkel.defineComponent("add-new-document-modal", "./wallet/components/add-new-document-modal/add-new-document-modal.html");
     webSkel.defineComponent("show-error-modal", "./wallet/components/show-error-modal/show-error-modal.html");

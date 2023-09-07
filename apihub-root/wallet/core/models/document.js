@@ -1,4 +1,4 @@
-import { Chapter } from "../../imports.js";
+import { Chapter } from "./chapter.js";
 
 export class Document {
     constructor(documentTitle, documentId, abstract, chapters, settings) {
@@ -7,7 +7,15 @@ export class Document {
             this.id = documentId;
         }
         this.abstract = abstract ? abstract : "";
-        this.chapters = (chapters || []).map(chapter => new Chapter(chapter.title, chapter.id, chapter.paragraphs));
+        this.chapters = [];
+        if(chapters !== undefined && chapters !== null) {
+            let i = 0;
+            while(chapters[i] !== undefined && chapters[i] !== null) {
+                this.chapters.push(new Chapter(chapters[i].title, chapters[i].id, chapters[i].paragraphs));
+                i++;
+            }
+        }
+        // this.chapters = (chapters || []).map(chapter => new Chapter(chapter.title, chapter.id, chapter.paragraphs));
         // this.currentChapterId = this.chapters?this.chapters[0].id:undefined;
         if(this.chapters && this.chapters.length > 0) {
             this.currentChapterId = this.chapters[0].id;

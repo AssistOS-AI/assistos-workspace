@@ -6,6 +6,10 @@
     line-height: normal;
 }
 
+.abstract-section {
+    padding: 10px;
+}
+
 .abstract-content {
     text-align: justify;
     /*color: rgba(115, 58, 4, 0.29);*/
@@ -28,7 +32,11 @@
 .document-path {
     display: flex;
     align-items: center;
-    margin: 10px 0;
+    margin: 10px 0 10px 10px;
+}
+
+.document-title {
+    margin-left: 10px;
 }
 
 .path-button {

@@ -8,7 +8,7 @@ export class documentSettingsPage {
             this._documentConfigs = company.documents;
             setTimeout(()=> {
                 this.invalidate()
-            }, 0);
+            },0);
         }
         this.updateState = (companyData)=> {
             this._documentConfigs = company.documents;
@@ -18,7 +18,7 @@ export class documentSettingsPage {
 
         this._document = company.getDocument(this.id);
         if(this._document) {
-            this.title = this._document.name;
+            this.title = this._document.title;
             this.chapters = this._document.chapters;
         }
     }
@@ -67,4 +67,8 @@ export class documentSettingsPage {
         }
     }
 
+    /* adding event Listeners after the web component has loaded, etc */
+    afterRender() {
+
+    }
 }

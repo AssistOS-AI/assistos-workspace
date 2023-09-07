@@ -17,6 +17,8 @@
 }
 
 .chapter-item {
+    padding: 0 10px;
+    border-radius: 10px;
     display: flex;
     flex-direction: column;
     min-width: 0;
@@ -40,7 +42,14 @@
     visibility: hidden;
 }
 
-.chapter-item:hover .up, .chapter-item:hover .down {
+.chapter-item:hover .up,
+.chapter-item:hover .down {
     visibility: visible;
     cursor: pointer;
+}
+
+#selected-chapter .chapter-item {
+    background-color: rgba(148, 174, 227, 0.3);
+    color: #252525;
+    font-weight: 450;
 }

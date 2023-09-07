@@ -1,16 +1,16 @@
-import { Company } from "../../core/company.js";
 import { closeModal, showActionBox } from "../../../WebSkel/utils/modal-utils.js";
 import { showModal } from "../../utils/modal-utils.js";
 
 export class editAbstractPage {
-    constructor() {
+    constructor(element) {
+        this.element = element;
         this.id = company.currentDocumentId;
         this.showChaptersInSidebar = 0;
         if(company.documents) {
             this._documentConfigs = (company.documents);
             this._document = company.getDocument(this.id);
             setTimeout(()=> {
-                this.invalidate()
+                this.invalidate();
             }, 0);
         }
         this.updateState = ()=> {
@@ -42,6 +42,10 @@ export class editAbstractPage {
             this.chapters.forEach((item) => {
                 this.chapterSidebar += `<div class="submenu-item">Edit ${item.title}</div>`;
             });
+        }
+        if(this.editableAbstract) {
+            this.editableAbstract.removeEventListener("click", setEditableAbstract);
+            document.removeEventListener("click", removeEventForDocument, true);
         }
     }
 
@@ -91,6 +95,13 @@ export class editAbstractPage {
         }
     }
 
+    afterRender() {
+        this.editableAbstract = this.element.querySelector("#editable-abstract");
+        this.editableAbstract.addEventListener("click", setEditableAbstract);
+        document.addEventListener("click", removeEventForDocument, true);
+        document.editableAbstract = this.editableAbstract;
+    }
+
     showEditChapterSubmenu() {
         const chapterSubmenuSection = document.querySelector(".sidebar-submenu");
         const sidebarArrow = document.querySelector(".arrow-sidebar");
@@ -119,7 +130,17 @@ export class editAbstractPage {
     }
 
     /* adding event Listeners after the web component has loaded, etc */
-    afterRender() {
+}
 
+
+function removeEventForDocument(event) {
+    if(this.editableAbstract.getAttribute("contenteditable") === "true" && !this.editableAbstract.contains(event.target)) {
+        this.editableAbstract.setAttribute("contenteditable", "false");
     }
+}
+
+function setEditableAbstract(event) {
+    this.setAttribute("contenteditable", "true");
+    event.stopPropagation();
+    event.preventDefault();
 }

@@ -7,7 +7,7 @@ import { docPageById } from "./presenters/pages/doc-page-by-id.js";
 import { editTitlePage } from "./presenters/pages/edit-title-page.js";
 import { editAbstractPage } from "./presenters/pages/edit-abstract-page.js";
 import { proofReaderPage } from "./presenters/pages/proof-reader-page.js";
-import { settingsPage } from "./presenters/pages/settings-page.js";
+import { myOrganizationPage } from "./presenters/pages/my-organization-page.js";
 import { documentSettingsPage } from "./presenters/pages/document-settings-page.js";
 import { editChapterPage } from "./presenters/pages/edit-chapter-page.js";
 import { brainstormingPage } from "./presenters/pages/brainstorming-page.js";
@@ -20,6 +20,7 @@ import { Paragraph } from "./core/models/paragraph.js";
 import { Company } from "./core/company.js";
 import { showModal } from "./utils/modal-utils.js";
 import { chapterItem } from "./presenters/components/chapter-item.js";
+import { companyDropdown } from "./presenters/components/company-dropdown.js";
 import { addRecord, getRecord, getAllRecords, getTableRecords, deleteRecord, openDatabase, updateRecord } from "./utils/indexDB.js";
 import WebSkel from "../WebSkel/webSkel.js";
 import { initUser, registerAccountActions } from "./scripts/authentication.js";
@@ -34,10 +35,11 @@ export {
     editTitlePage,
     editAbstractPage,
     proofReaderPage,
-    settingsPage,
+    myOrganizationPage,
     documentSettingsPage,
     editChapterPage,
     chapterItem,
+    companyDropdown,
     brainstormingPage,
     notBasePage,
     showModal,

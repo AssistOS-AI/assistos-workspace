@@ -1,17 +1,16 @@
-import { Company } from "../../core/company.js";
 import { getClosestParentElement } from "../../../WebSkel/utils/dom-utils.js";
 
 export class chapterItem {
-    constructor() {
-        let currentCompany = Company.getInstance();
-        this.chapterContent = "chapter's content";
+    constructor(element) {
+        this.element = element;
+        this.chapterContent = "Chapter's content";
         if(company.documents) {
             this._documentConfigs = company.documents;
             setTimeout(()=> {
                 this.invalidate();
             }, 0);
         }
-        this.updateState = (companyState)=> {
+        this.updateState = ()=> {
             this._documentConfigs = company.documents;
             this.invalidate();
         }
@@ -23,6 +22,8 @@ export class chapterItem {
     }
 
     beforeRender() {
+        this.chapterId = this.element.getAttribute("data-chapter-id");
+        this.chapter = this._document.getChapter(parseInt(this.chapterId));
         this.chapterContent = "";
         this.chapter.paragraphs.forEach((paragraph) => {
             this.chapterContent += `<paragraph-item data-paragraph-content="${paragraph.text}"></paragraph-item>`;
@@ -40,9 +41,7 @@ export class chapterItem {
         let chapterAbove = currentChapter.previousSibling;
         if(chapterAbove.nodeName === "CHAPTER-ITEM") {
             currentChapter.after(chapterAbove);
-            let documentIndex= company.documents.findIndex(doc => doc.id === company.currentDocumentId);
-            company.documents[documentIndex].swapChapters(this.docId, parseInt(currentChapter.getAttribute('chapter-id')), parseInt(chapterAbove.getAttribute('chapter-id')));
-            await company.updateDocument(company.currentDocumentId, company.documents[company.currentDocumentId]);
+            await company.swapChapters(this.docId, parseInt(currentChapter.getAttribute('chapter-id')), parseInt(chapterAbove.getAttribute('chapter-id')));
         }
     }
 
@@ -51,9 +50,18 @@ export class chapterItem {
         let chapterBelow = currentChapter.nextSibling;
         if(chapterBelow.nodeName === "CHAPTER-ITEM") {
             chapterBelow.after(currentChapter);
-            let documentIndex= company.documents.findIndex(doc => doc.id === company.currentDocumentId);
-            company.documents[documentIndex].swapChapters(this.docId, parseInt(currentChapter.getAttribute('chapter-id')), parseInt(chapterBelow.getAttribute('chapter-id')));
-            await company.updateDocument(company.currentDocumentId, company.documents[company.currentDocumentId]);
+            await company.swapChapters(this.docId, parseInt(currentChapter.getAttribute('chapter-id')), parseInt(chapterBelow.getAttribute('chapter-id')));
+        }
+    }
+
+    selectChapter(_target) {
+        console.log(_target);
+        let selectedChapter = document.getElementById("selected-chapter");
+        if(selectedChapter !== _target) {
+            if(selectedChapter) {
+                selectedChapter.removeAttribute("id");
+            }
+            _target.setAttribute("id", "selected-chapter");
         }
     }
 }

@@ -1,20 +1,18 @@
-import { Company } from "../../core/company.js";
 import { closeModal } from "../../../WebSkel/utils/modal-utils.js";
 
 export class suggestTitleModal {
     constructor() {
-        let currentCompany = Company.getInstance();
-        if(currentCompany.companyState) {
-            this._documentConfigs = currentCompany.companyState.documents;
+        if(company.documents) {
+            this._documentConfigs = company.documents;
             setTimeout(()=> {
                 this.invalidate()
             }, 0);
         }
         this.updateState = (companyState)=> {
-            this._documentConfigs = companyState.documents;
+            this._documentConfigs = company.documents;
             this.invalidate();
         }
-        currentCompany.onChange(this.updateState);
+        company.onChange(this.updateState);
     }
 
     beforeRender() {
