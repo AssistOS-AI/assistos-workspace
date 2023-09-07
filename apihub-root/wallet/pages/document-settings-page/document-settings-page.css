@@ -6,6 +6,7 @@
 }
 
 .document-path {
+    cursor: default;
     display: flex;
     align-items: center;
     margin: 10px 0;

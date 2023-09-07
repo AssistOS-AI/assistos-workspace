@@ -6,6 +6,7 @@
 }
 
 .document-path {
+    cursor: default;
     display: flex;
     align-items: center;
     margin: 10px 0;
@@ -84,6 +85,7 @@
 
 .summarize,
 .suggest {
+    cursor: pointer;
     align-items: center;
     display: flex;
     font-feature-settings: 'clig' off, 'liga' off;
@@ -114,9 +116,9 @@
 }
 
 .abstract-content:focus {
-    outline: none;
-    border: none;
     background-color: rgba(148, 174, 227, 0.3);
+    color: #252525;
+    font-weight: 450;
 }
 
 .alternative-abstracts {

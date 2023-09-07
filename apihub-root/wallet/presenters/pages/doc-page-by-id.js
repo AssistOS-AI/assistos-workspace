@@ -34,7 +34,7 @@ export class docPageById {
         if(this.chapters.length > 0) {
             this._document.setCurrentChapter(this.chapters[0].id);
             this.chapters.forEach((item) => {
-                this.chapterDivs += `<chapter-item data-chapter-title="${item.title}" data-chapter-id="${item.id}" data-presenter="chapter-item" data-local-action="selectChapter"></chapter-item>`;
+                this.chapterDivs += `<chapter-item data-chapter-title="${item.title}" data-chapter-id="${item.id}" data-presenter="chapter-item"></chapter-item>`;
                 this.chapterSidebar += `<div class="submenu-item">Edit ${item.title}</div>`;
             });
         }

@@ -15,7 +15,6 @@ export class chapterItem {
             this.invalidate();
         }
         company.onChange(this.updateState);
-
         this.docId = company.currentDocumentId;
         this._document = company.getDocument(this.docId);
         this.chapter = this._document.getCurrentChapter();
@@ -54,14 +53,47 @@ export class chapterItem {
         }
     }
 
-    selectChapter(_target) {
-        console.log(_target);
-        let selectedChapter = document.getElementById("selected-chapter");
-        if(selectedChapter !== _target) {
-            if(selectedChapter) {
-                selectedChapter.removeAttribute("id");
-            }
-            _target.setAttribute("id", "selected-chapter");
-        }
+    afterRender() {
+        this.selectedChapter = this.element.firstElementChild.nextElementSibling;
+        this.selectedChapter.addEventListener("dblclick", setEditableChapter, true);
+        document.addEventListener("click", removeEventForDocument, true);
+    }
+}
+
+function setEditableChapter(event) {
+    this.setAttribute("id", "selected-chapter");
+    this.setAttribute("contenteditable", "true");
+    this.focus();
+    event.stopPropagation();
+    event.preventDefault();
+}
+
+function removeEventForDocument(event) {
+    this.selectedChapter = document.querySelector("[contenteditable='true']");
+    if(this.selectedChapter && this.selectedChapter.getAttribute("contenteditable") === "true" && !this.selectedChapter.contains(event.target)) {
+        this.selectedChapter.setAttribute("contenteditable", "false");
+        let updatedText = document.querySelector(".chapter-paragraphs").innerText;
+        let updatedTitle = document.querySelector(".chapter-title").innerText;
+        const documentId = this.selectedChapter.getAttribute("data-id");
+        // const documentIndex = company.documents.findIndex(doc => doc.id === documentId);
+        // if (documentIndex !== -1 && updatedAbstract !== company.documents[documentIndex].abstract) {
+        //     for(let i = 0; i < updatedAbstract.length; i++) {
+        //         if(updatedAbstract[i] === '\n') {
+        //             let numberOfNewLines = 0;
+        //             let initialIndex = i;
+        //             while(updatedAbstract[i] === '\n') {
+        //                 i++;
+        //                 numberOfNewLines++;
+        //             }
+        //             numberOfNewLines = Math.floor(numberOfNewLines / 2) + 1;
+        //             let newLineString = "";
+        //             for(let j = 0; j < numberOfNewLines; j++) {
+        //                 newLineString += "<br>";
+        //             }
+        //             updatedAbstract = updatedAbstract.slice(0, initialIndex) + newLineString + updatedAbstract.slice(i);
+        //         }
+        //     }
+        //     company.documents[documentIndex].abstract = updatedAbstract;
+        //     await company.updateDocument(documentId, company.documents[documentIndex]);
     }
 }

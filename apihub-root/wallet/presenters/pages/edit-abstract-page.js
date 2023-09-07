@@ -97,7 +97,7 @@ export class editAbstractPage {
 
     afterRender() {
         this.editableAbstract = this.element.querySelector("#editable-abstract");
-        this.editableAbstract.addEventListener("click", setEditableAbstract);
+        this.editableAbstract.addEventListener("dblclick", setEditableAbstract);
         document.addEventListener("click", removeEventForDocument, true);
         document.editableAbstract = this.editableAbstract;
     }
@@ -132,7 +132,6 @@ export class editAbstractPage {
     /* adding event Listeners after the web component has loaded, etc */
 }
 
-
 function removeEventForDocument(event) {
     if(this.editableAbstract.getAttribute("contenteditable") === "true" && !this.editableAbstract.contains(event.target)) {
         this.editableAbstract.setAttribute("contenteditable", "false");
@@ -141,6 +140,7 @@ function removeEventForDocument(event) {
 
 function setEditableAbstract(event) {
     this.setAttribute("contenteditable", "true");
+    this.focus();
     event.stopPropagation();
     event.preventDefault();
 }

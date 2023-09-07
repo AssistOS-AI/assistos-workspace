@@ -6,6 +6,7 @@
 }
 
 .document-path {
+    cursor: default;
     display: flex;
     align-items: center;
     margin: 10px 0;
@@ -59,6 +60,7 @@
 }
 
 .suggest {
+    cursor: pointer;
     display: flex;
     align-items: center;
     color: #0618D1;

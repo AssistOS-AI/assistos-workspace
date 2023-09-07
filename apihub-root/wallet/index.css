@@ -83,14 +83,13 @@ body {
 }
 
 .sidebar-item {
+    cursor: pointer;
     color: #090131;
     font-size: 16px;
     font-style: normal;
     font-weight: 500;
     line-height: normal;
-    padding: 10px;
-    cursor: default;
-    padding-left: 19px;
+    padding: 10px 10px 10px 19px;
     margin-right: 10px;
 }
 
@@ -305,6 +304,7 @@ body {
 }
 
 .add-button {
+    cursor: pointer;
     min-width: fit-content;
     color: #0618D1;
     font-family: Poppins;

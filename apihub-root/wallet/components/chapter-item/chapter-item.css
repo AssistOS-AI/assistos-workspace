@@ -1,4 +1,4 @@
-.chapter-title {
+.chapter-title-section {
     color: #252525;
     font-size: 18px;
     font-style: normal;
@@ -48,7 +48,8 @@
     cursor: pointer;
 }
 
-#selected-chapter .chapter-item {
+#selected-chapter .chapter-item,
+.chapter-item:focus {
     background-color: rgba(148, 174, 227, 0.3);
     color: #252525;
     font-weight: 450;
