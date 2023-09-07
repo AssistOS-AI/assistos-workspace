@@ -1,6 +1,7 @@
 .navbar {
     display: flex;
-    background-color: rgba(176, 169, 213, 0.42);
+    background-color: rgb(221, 217, 238);
+    padding-top: 6px;
 }
 
 #page-content {
@@ -12,12 +13,92 @@
 }
 
 .navbar-box {
-    padding-top: 5px;
+    background: #FFF;
+    position: relative;
+    display: flex;
+}
+
+.navbar-box::before {
+    position: absolute;
+    content: '';
+    height: 50%;
+    align-self: center;
+    bottom: 10px;
+    border-right: 1px solid rgba(41, 25, 114, 0.25);
+}
+
+.navbar-box::before:first-child {
+    border: none;
+}
+
+.navbar-box:first-child::before {
+    border: none;
 }
 
 .navbar-item {
-    margin: 0 5px;
-    padding: 7px 15px;
-    border-radius: 8px 8px 0 0;
-    background: #FFF;
+    background-color:  rgb(221, 217, 238);
+}
+
+.tab-margin-left {
+    background-color:  rgb(221, 217, 238);
+    height: 100%;
+    width: 12px;
+}
+
+.tab-margin-right {
+    background-color:  rgb(221, 217, 238);
+    height: 100%;
+    width: 12px;
+}
+
+.tab {
+    border-radius: 10px 10px 0 0;
+    width: 100%;
+    height: 100%;
+    padding: 5px 15px;
+    color: rgba(24, 12, 80, 0.68);
+    font-family: Poppins;
+    font-size: 16px;
+    font-style: normal;
+    font-weight: 600;
+    line-height: normal;
+}
+
+.navbar-box:hover {
+    background-color: rgb(231, 229, 241);
+
+    .tab-margin-left {
+        border-bottom-right-radius: 12px;
+    }
+
+    .tab-margin-right {
+        border-bottom-left-radius: 12px;
+    }
+
+    .navbar-item {
+        background-color: rgb(221, 217, 238);
+    }
+
+    .tab {
+        background-color: rgb(231, 229, 241);
+        color: rgba(24, 12, 80, 0.81);
+    }
+}
+
+#selected-tab {
+    background-color: #FFF;
+    .tab-margin-left {
+        border-bottom-right-radius: 12px;
+    }
+
+    .tab-margin-right {
+        border-bottom-left-radius: 12px;
+    }
+
+    .tab {
+        padding: 5px 12px;
+        background-color: #FFF;
+        color: rgba(24, 12, 80, 0.86);
+        letter-spacing: 0.54px;
+    }
 }
