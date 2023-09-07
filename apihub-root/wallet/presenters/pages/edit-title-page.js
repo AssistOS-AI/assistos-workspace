@@ -4,23 +4,23 @@ import { showModal } from "../../utils/modal-utils.js";
 export class editTitlePage {
     constructor() {
         this.docTitle = "Current Title";
-        this.id = company.currentDocumentId;
+        this.id = webSkel.company.currentDocumentId;
         this.showChaptersInSidebar = 0;
-        if(company.documents) {
-            this._documentConfigs = (company.documents);
+        if(webSkel.company.documents) {
+            this._documentConfigs = (webSkel.company.documents);
             setTimeout(()=> {
                 this.invalidate()
             },0);
         }
         this.updateState = ()=> {
-            this._documentConfigs = company.documents;
-            this._document = company.getDocument(this.id);
+            this._documentConfigs = webSkel.company.documents;
+            this._document = webSkel.company.getDocument(this.id);
             this.docTitle = this._document.title;
             this.invalidate();
         }
-        company.onChange(this.updateState);
+        webSkel.company.onChange(this.updateState);
 
-        this._document = company.getDocument(this.id);
+        this._document = webSkel.company.getDocument(this.id);
         if(this._document) {
             this.docTitle = this._document.title;
             this.chapters = this._document.chapters;
@@ -44,11 +44,11 @@ export class editTitlePage {
 
     saveTitle() {
         const updatedTitle = document.querySelector(".document-title").value;
-        const documentId = company.currentDocumentId;
-        const documentIndex = company.documents.findIndex(doc => doc.id === documentId);
-        if (documentIndex !== -1 && updatedTitle !==company.documents[documentIndex].title) {
-            company.documents[documentIndex].updateDocumentTitle(updatedTitle);
-            company.updateDocument(company.currentDocumentId, company.documents[documentIndex]);
+        const documentId = webSkel.company.currentDocumentId;
+        const documentIndex = webSkel.company.documents.findIndex(doc => doc.id === documentId);
+        if (documentIndex !== -1 && updatedTitle !==webSkel.company.documents[documentIndex].title) {
+            webSkel.company.documents[documentIndex].updateDocumentTitle(updatedTitle);
+            webSkel.company.updateDocument(webSkel.company.currentDocumentId, webSkel.company.documents[documentIndex]);
         }
     }
 

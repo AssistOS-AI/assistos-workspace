@@ -7,17 +7,18 @@ export class documentsPage {
         this.name = "Name";
         this.modal = "showAddNewDocumentModal";
         this.button = "Add document";
-        if(company.documents) {
-            this._documentConfigs = company.documents;
+        if(webSkel.company.documents) {
+            this._documentConfigs = webSkel.company.documents;
             setTimeout(()=> {
                 this.invalidate();
             }, 0);
         }
-        this.updateState = (companyState)=> {
-            this._documentConfigs = company.documents;
+        this.updateState = ()=> {
+            this._documentConfigs = webSkel.company.documents;
             this.invalidate();
         }
-        company.onChange(this.updateState);
+        webSkel.company.onChange(this.updateState);
+        this.documentsService= new (webSkel.initialiseService('documentsService'));
     }
 
     beforeRender() {
@@ -43,14 +44,14 @@ export class documentsPage {
     async editAction(_target){
         let rowElement = getClosestParentElement(_target,['document-item-renderer']);
         let documentId= parseInt(rowElement.getAttribute('data-id'));
-        company.observeDocument(documentId);
+        this.documentsService.observeDocument(documentId);
         await webSkel.changeToStaticPage(`documents/${documentId}`);
     }
 
     async deleteAction(_target){
         const rowElement = getClosestParentElement(_target, "document-item-renderer");
         let documentIdToRemove = parseInt(rowElement.getAttribute('data-id'));
-        await company.deleteDocument(documentIdToRemove);
+        await webSkel.company.deleteDocument(documentIdToRemove);
     }
 
     async showActionBox(_target, primaryKey, componentName, insertionMode) {

@@ -1,22 +1,21 @@
-import { Company } from "../../core/company.js";
 
 export class documentSettingsPage {
     constructor() {
-        this.id = company.currentDocumentId;
+        this.id = webSkel.company.currentDocumentId;
         this.showChaptersInSidebar = 0;
-        if(company.documents) {
-            this._documentConfigs = company.documents;
+        if(webSkel.company.documents) {
+            this._documentConfigs = webSkel.company.documents;
             setTimeout(()=> {
                 this.invalidate()
             },0);
         }
         this.updateState = (companyData)=> {
-            this._documentConfigs = company.documents;
+            this._documentConfigs = webSkel.company.documents;
             this.invalidate();
         }
-        company.onChange(this.updateState);
+        webSkel.company.onChange(this.updateState);
 
-        this._document = company.getDocument(this.id);
+        this._document = webSkel.company.getDocument(this.id);
         if(this._document) {
             this.title = this._document.title;
             this.chapters = this._document.chapters;

@@ -93,9 +93,8 @@ async function loadPage(){
 async function initLiteUserDatabase(){
     webSkel.localStorage = await storageService.getInstance("freeUser",1);
     await webSkel.localStorage.initDatabase();
-    /* TBD */
-    window.currentCompanyId = 1;
-    window.company = new Company(await webSkel.localStorage.getCompanyData(window.currentCompanyId));
+    let currentCompanyId=JSON.parse(localStorage.getItem("currentUser")).currentCompanyId;
+    webSkel.company = new Company(await webSkel.localStorage.getCompanyData(currentCompanyId));
 }
 
 function changeSelectedPageFromSidebar(url) {
@@ -134,6 +133,13 @@ function definePresenters(){
     webSkel.registerPresenter("show-error-modal", showErrorModal);
     webSkel.registerPresenter("suggest-abstract-modal", suggestAbstractModal);
     webSkel.registerPresenter("suggest-title-modal", suggestTitleModal);
+}
+function defineServices(){
+    webSkel.registerService("documentsService",documentsService);
+    webSkel.registerService("llmsService",llmsService);
+    webSkel.registerService("personalitiesService",personalitiesService);
+    webSkel.registerService("settingsService",settingsService);
+    webSkel.registerService("currentCompany",Company);
 }
 
 function defineComponents() {
@@ -188,7 +194,8 @@ function defineActions(){
 
 (async ()=> {
     webSkel.setDomElementForPages(document.querySelector("#page-content"));
-    await initWallet();
+    /* only for premium users  initwallet/enclaves*/
+    //await initWallet();
      initUser();
     if (('indexedDB' in window)) {
         await initLiteUserDatabase();
@@ -196,7 +203,6 @@ function defineActions(){
         await showApplicationError("IndexDB not supported","Your current browser does not support local storage. Please use a different browser, or upgrade to premium","IndexDB is not supported by your browser");
     }
     await loadPage();
-    await initEnclaveClient();
 
     defineActions();
     definePresenters();

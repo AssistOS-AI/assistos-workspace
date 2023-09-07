@@ -4,20 +4,20 @@ export class chapterItem {
     constructor(element) {
         this.element = element;
         this.chapterContent = "Chapter's content";
-        if(company.documents) {
-            this._documentConfigs = company.documents;
+        if(webSkel.company.documents) {
+            this._documentConfigs = webSkel.company.documents;
             setTimeout(()=> {
                 this.invalidate();
             }, 0);
         }
         this.updateState = ()=> {
-            this._documentConfigs = company.documents;
+            this._documentConfigs = webSkel.company.documents;
             this.invalidate();
         }
-        company.onChange(this.updateState);
+        webSkel.company.onChange(this.updateState);
 
-        this.docId = company.currentDocumentId;
-        this._document = company.getDocument(this.docId);
+        this.docId = webSkel.company.currentDocumentId;
+        this._document = webSkel.company.getDocument(this.docId);
         this.chapter = this._document.getCurrentChapter();
     }
 
@@ -41,7 +41,7 @@ export class chapterItem {
         let chapterAbove = currentChapter.previousSibling;
         if(chapterAbove.nodeName === "CHAPTER-ITEM") {
             currentChapter.after(chapterAbove);
-            await company.swapChapters(this.docId, parseInt(currentChapter.getAttribute('chapter-id')), parseInt(chapterAbove.getAttribute('chapter-id')));
+            await webSkel.company.swapChapters(this.docId, parseInt(currentChapter.getAttribute('chapter-id')), parseInt(chapterAbove.getAttribute('chapter-id')));
         }
     }
 
@@ -50,7 +50,7 @@ export class chapterItem {
         let chapterBelow = currentChapter.nextSibling;
         if(chapterBelow.nodeName === "CHAPTER-ITEM") {
             chapterBelow.after(currentChapter);
-            await company.swapChapters(this.docId, parseInt(currentChapter.getAttribute('chapter-id')), parseInt(chapterBelow.getAttribute('chapter-id')));
+            await webSkel.company.swapChapters(this.docId, parseInt(currentChapter.getAttribute('chapter-id')), parseInt(chapterBelow.getAttribute('chapter-id')));
         }
     }
 

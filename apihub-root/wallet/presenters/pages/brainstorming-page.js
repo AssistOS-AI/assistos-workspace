@@ -4,22 +4,22 @@ import { showModal } from "../../utils/modal-utils.js";
 
 export class brainstormingPage {
     constructor() {
-        this.id = company.currentDocumentId;
+        this.id = webSkel.company.currentDocumentId;
         this.docTitle = "Titlu document";
         this.showChaptersInSidebar = 0;
-        if(company.documents) {
-            this._documentConfigs = (company.documents);
+        if(webSkel.company.documents) {
+            this._documentConfigs = (webSkel.company.documents);
             setTimeout(()=> {
                 this.invalidate()
             },0);
         }
         this.updateState = ()=> {
-            this._documentConfigs = company.documents;
+            this._documentConfigs = webSkel.company.documents;
             this.invalidate();
         }
-        company.onChange(this.updateState);
+        webSkel.company.onChange(this.updateState);
 
-        this._document = company.getDocument(this.id);
+        this._document = webSkel.company.getDocument(this.id);
         if(this._document) {
             this.docTitle = this._document.title;
             if(this._document.abstract) {

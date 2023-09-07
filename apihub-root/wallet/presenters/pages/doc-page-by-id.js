@@ -6,19 +6,19 @@ export class docPageById {
         this.button = "Add new document";
         this.chapterSidebar = "";
         this.showChaptersInSidebar = 0;
-        this.id = company.currentDocumentId;
+        this.id = webSkel.company.currentDocumentId;
 
-        if(company.documents) {
-            this._document = company.getDocument(this.id);
+        if(webSkel.company.documents) {
+            this._document = webSkel.company.getDocument(this.id);
             setTimeout(()=> {
                 this.invalidate()
             }, 0);
         }
-        this.updateState = (companyState)=> {
-            this._document = company.getDocument(this.id);
+        this.updateState = ()=> {
+            this._document = webSkel.company.getDocument(this.id);
             this.invalidate();
         }
-        company.onChange(this.updateState);
+        webSkel.company.onChange(this.updateState);
         if(this._document) {
             this.docTitle = this._document.title;
             if(this._document.abstract) {
