@@ -22,6 +22,7 @@ export function initUser(){
         }
 
     }else{
+        /* TBD */
         const user = {userId:crypto.getRandomSecret(32),secretToken:"",currentCompanyId:1};
         currentUser.id = user.userId;
         localStorage.setItem("currentUser",JSON.stringify(user));

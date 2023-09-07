@@ -18,12 +18,11 @@ export class chapterItem {
         this.documentService = webSkel.initialiseService('documentService');
         this.docId = webSkel.company.currentDocumentId;
         this._document = this.documentService.getDocument(this.docId);
-        this.chapterId = this.element.getAttribute("data-id");
         this.chapter = this.documentService.getChapter(this._document, this.chapterId);
     }
 
     beforeRender() {
-        this.chapterId = parseInt(this.element.getAttribute("data-id"));
+        this.chapterId = parseInt(this.element.getAttribute("data-chapter-id"));
         this.chapter = this.documentService.getChapter(this._document, this.chapterId);
         this.chapterContent = "";
         this.chapter.paragraphs.forEach((paragraph) => {
@@ -42,7 +41,9 @@ export class chapterItem {
         let chapterAbove = currentChapter.previousSibling;
         if(chapterAbove.nodeName === "CHAPTER-ITEM") {
             currentChapter.after(chapterAbove);
-            await this.documentService.swapChapters(this._document, parseInt(currentChapter.getAttribute('chapter-id')), parseInt(chapterAbove.getAttribute('chapter-id')));
+            let chapter1Index= this._document.chapters.findIndex(chapter=>chapter.id===parseInt(currentChapter.getAttribute('data-chapter-id')));
+            let chapter2Index=this._document.chapters.findIndex(chapter=>chapter.id===parseInt(chapterAbove.getAttribute('data-chapter-id')));
+            await this.documentService.swapChapters(this._document, chapter1Index, chapter2Index);
         }
     }
 
@@ -51,7 +52,9 @@ export class chapterItem {
         let chapterBelow = currentChapter.nextSibling;
         if(chapterBelow.nodeName === "CHAPTER-ITEM") {
             chapterBelow.after(currentChapter);
-            await this.documentService.swapChapters(this._document, parseInt(currentChapter.getAttribute('chapter-id')), parseInt(chapterBelow.getAttribute('chapter-id')));
+            let chapter1Index= this._document.chapters.findIndex(chapter=>chapter.id===parseInt(currentChapter.getAttribute('data-chapter-id')));
+            let chapter2Index=this._document.chapters.findIndex(chapter=>chapter.id===parseInt(chapterBelow.getAttribute('data-chapter-id')));
+            await this.documentService.swapChapters(this._document, chapter1Index, chapter2Index);
         }
     }
 
