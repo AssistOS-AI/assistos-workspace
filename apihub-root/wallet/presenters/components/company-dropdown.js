@@ -1,7 +1,9 @@
 import { Company } from "../../core/company.js";
 
 export class companyDropdown {
-    constructor() {
+    constructor(element) {
+        this.element = element;
+        this.currentCompanyName = "Personal Space";
         if(company.documents) {
             this._documentConfigs = company.documents;
             setTimeout(()=> {
@@ -29,6 +31,8 @@ export class companyDropdown {
     }
 
     changeOrganization(_target) {
+        this.currentCompanyName = _target.innerText;
+        this.element.querySelector(".organization-name").innerText = this.currentCompanyName;
         let target = _target.parentElement.parentElement;
         target.style.display = "none";
     }
