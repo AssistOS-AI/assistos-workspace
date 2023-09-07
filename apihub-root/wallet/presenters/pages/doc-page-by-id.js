@@ -6,19 +6,21 @@ export class docPageById {
         this.button = "Add new document";
         this.chapterSidebar = "";
         this.showChaptersInSidebar = 0;
-        this.id = company.currentDocumentId;
+        this.id = webSkel.company.currentDocumentId;
 
-        if(company.documents) {
-            this._document = company.getDocument(this.id);
+        this.documentService=webSkel.initialiseService('documentService');
+
+        if(webSkel.company.documents) {
+            this._document = this.documentService.getDocument(this.id);
             setTimeout(()=> {
                 this.invalidate()
             }, 0);
         }
-        this.updateState = (companyState)=> {
-            this._document = company.getDocument(this.id);
+        this.updateState = ()=> {
+            this._document = this.documentService.getDocument(this.id);
             this.invalidate();
         }
-        company.onChange(this.updateState);
+        webSkel.company.onChange(this.updateState);
         if(this._document) {
             this.docTitle = this._document.title;
             if(this._document.abstract) {
@@ -32,7 +34,7 @@ export class docPageById {
         this.chapterDivs = "";
         this.title = `<title-view title="${this.docTitle}"></title-view>`;
         if(this.chapters.length > 0) {
-            this._document.setCurrentChapter(this.chapters[0].id);
+            this.documentService.setCurrentChapter(this._document,this.chapters[0].id);
             this.chapters.forEach((item) => {
                 this.chapterDivs += `<chapter-item data-chapter-title="${item.title}" data-chapter-id="${item.id}" data-presenter="chapter-item"></chapter-item>`;
                 this.chapterSidebar += `<div class="submenu-item">Edit ${item.title}</div>`;

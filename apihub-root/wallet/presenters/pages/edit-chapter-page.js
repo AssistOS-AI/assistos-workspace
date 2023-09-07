@@ -1,25 +1,19 @@
-import { Company } from "../../core/company.js";
-import { closeModal, showActionBox } from "../../../WebSkel/utils/modal-utils.js";
-import { showModal } from "../../utils/modal-utils.js";
 
 export class editChapterPage {
     constructor() {
-        this.id = webSkel.registry.currentDocumentId;
-        let currentCompany = Company.getInstance();
+        this.id = webSkel.company.currentDocumentId;
         this.chapterSidebar = "";
         this.showChaptersInSidebar = 0;
-        if(currentCompany.companyState) {
-            this._documentConfigs = currentCompany.companyState.documents;
+        if(webSkel.company.documents) {
+            this._documentConfigs = webSkel.company.documents;
             setTimeout(()=> {
                 this.invalidate()
             }, 0);
         }
-        this.updateState = (companyState)=> {
-            console.log("Update State");
-            this._documentConfigs = companyState.documents;
+        this.updateState = ()=> {
+            this._documentConfigs = webSkel.company.documents;
             this.invalidate();
         }
-        currentCompany.onChange(this.updateState);
     }
 
     beforeRender() {
@@ -59,10 +53,5 @@ export class editChapterPage {
             sidebarArrow.classList.toggle('rotate');
             this.showChaptersInSidebar = 0;
         }
-    }
-
-    /* adding event Listeners after the web component has loaded, etc */
-    afterRender() {
-
     }
 }

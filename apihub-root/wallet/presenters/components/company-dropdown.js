@@ -1,20 +1,17 @@
-import { Company } from "../../core/company.js";
-
 export class companyDropdown {
-    constructor(element) {
-        this.element = element;
-        this.currentCompanyName = "Personal Space";
-        if(company.documents) {
-            this._documentConfigs = company.documents;
+    constructor() {
+        if(webSkel.company.documents) {
+            this._documentConfigs =webSkel.company.documents;
             setTimeout(()=> {
                 this.invalidate();
             }, 0);
         }
-        this.updateState = (companyState)=> {
-            this._documentConfigs = company.documents;
+        this.updateState = ()=> {
+            this._documentConfigs = webSkel.company.documents;
             this.invalidate();
         }
-        company.onChange(this.updateState);
+        webSkel.company.onChange(this.updateState);
+        /* to be removed */
         this.companies = ["Outfinity", "AIAuthor", "Pharma Ledger"];
     }
 
@@ -35,10 +32,5 @@ export class companyDropdown {
         this.element.querySelector(".organization-name").innerText = this.currentCompanyName;
         let target = _target.parentElement.parentElement;
         target.style.display = "none";
-    }
-
-    /* adding event Listeners after the web component has loaded, etc */
-    afterRender() {
-
     }
 }

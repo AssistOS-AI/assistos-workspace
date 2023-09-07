@@ -4,17 +4,18 @@ import { Document } from "../../core/models/document.js";
 
 export class addNewDocumentModal {
     constructor() {
-        if(company.documents) {
-            this._documentConfigs = company.documents;
+        if(webSkel.company.documents) {
+            this._documentConfigs = webSkel.company.documents;
             setTimeout(()=> {
                 this.invalidate()
             }, 0);
         }
         this.updateState = (companyState)=> {
-            this._documentConfigs = company.documents;
+            this._documentConfigs = webSkel.company.documents;
             this.invalidate();
         }
-        company.onChange(this.updateState);
+        this.documentService=webSkel.initialiseService('documentService');
+        webSkel.company.onChange(this.updateState);
     }
 
     beforeRender() {
@@ -29,7 +30,7 @@ export class addNewDocumentModal {
         let documentTitle= new FormData(getClosestParentElement(_target,'form')).get("documentTitle");
         if(documentTitle!==""){
             closeModal(_target);
-            await company.addDocument(new Document(documentTitle));
+            await this.documentService.addDocument(new Document(documentTitle));
         }
         else{
             closeModal(_target);

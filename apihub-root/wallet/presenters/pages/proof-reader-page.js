@@ -1,18 +1,17 @@
 export class proofReaderPage {
     constructor() {
-        if(company.documents) {
-            this._documentConfigs = company.documents;
+        if(webSkel.company.documents) {
+            this._documentConfigs = webSkel.company.documents;
             setTimeout(()=> {
                 this.invalidate()
             },0);
         }
         this.updateState = ()=> {
-            this._documentConfigs = company.documents;
+            this._documentConfigs = webSkel.company.documents;
             this.invalidate();
         }
-        company.onChange(this.updateState);
+        webSkel.company.onChange(this.updateState);
     }
-
     beforeRender() {
 
     }

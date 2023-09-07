@@ -1,18 +1,18 @@
 export class myOrganizationPage {
     constructor(element) {
         this.element = element;
-        this.id = company.currentDocumentId;
-        if(company.documents) {
-            this._documentConfigs = (company.documents);
+        this.id = webSkel.company.currentDocumentId;
+        if(webSkel.company.documents) {
+            this._documentConfigs = (webSkel.company.documents);
             setTimeout(()=> {
                 this.invalidate()
             },0);
         }
         this.updateState = ()=> {
-            this._documentConfigs = company.documents;
+            this._documentConfigs = webSkel.company.documents;
             this.invalidate();
         }
-        company.onChange(this.updateState);
+        webSkel.company.onChange(this.updateState);
     }
 
     beforeRender() {
@@ -27,8 +27,4 @@ export class myOrganizationPage {
         }
     }
 
-    /* adding event Listeners after the web component has loaded, etc */
-    afterRender() {
-
-    }
 }
