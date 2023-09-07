@@ -1,5 +1,3 @@
-import { Company } from "../../core/company.js";
-
 export class companyDropdown {
     constructor() {
         if(webSkel.company.documents) {

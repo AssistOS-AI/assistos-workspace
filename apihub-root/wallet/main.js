@@ -17,7 +17,7 @@ import {
     storageService,
     WebSkel, addRecord, closeModal,
     initUser, registerAccountActions,
-    Company,
+    Company, documentsService, llmsService, personalitiesService, settingsService,
 } from "./imports.js";
 
 const openDSU = require("opendsu");
@@ -206,5 +206,6 @@ function defineActions(){
 
     defineActions();
     definePresenters();
+    defineServices();
     defineComponents();
 })();

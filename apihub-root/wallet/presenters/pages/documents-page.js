@@ -18,7 +18,7 @@ export class documentsPage {
             this.invalidate();
         }
         webSkel.company.onChange(this.updateState);
-        this.documentsService= new (webSkel.initialiseService('documentsService'));
+        this.documentsService= webSkel.initialiseService('documentsService');
     }
 
     beforeRender() {
