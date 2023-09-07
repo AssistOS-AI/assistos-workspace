@@ -4,19 +4,19 @@
 
     <div id="show-error-modal-header">
         <img src="./wallet/components/show-error-modal/error-danger.svg" alt="Error Logo">
-        <span id="error-message">$$title</span>
+        <span id="error-message">$$data-title</span>
     </div>
 
     <div id="show-error-model-content">
         <div id="show-error-model-content-header">
-            $$message
+            $$data-message
         </div>
 
         <div id="show-error-model-content-content">
             <input type="checkbox" class="button" id="details-toggle">
             <label for="details-toggle" class="button" id="details-button">Details</label>
             <div id="detailed-error-message">
-                $$technical
+                $$data-technical
             </div>
             <button id="ok-button" class="button" data-action="closeErrorModal">
                 OK
