@@ -1,4 +1,4 @@
-import { Chapter } from "../../imports.js";
+import { Chapter } from "./chapter.js";
 
 export class Document {
     constructor(documentTitle, documentId, abstract, chapters, settings) {

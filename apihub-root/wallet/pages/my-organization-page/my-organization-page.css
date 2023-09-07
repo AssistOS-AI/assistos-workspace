@@ -1,0 +1,23 @@
+.navbar {
+    display: flex;
+    background-color: rgba(176, 169, 213, 0.42);
+}
+
+#page-content {
+    padding: 0;
+}
+
+.inner-page {
+    padding: 0;
+}
+
+.navbar-box {
+    padding-top: 5px;
+}
+
+.navbar-item {
+    margin: 0 5px;
+    padding: 7px 15px;
+    border-radius: 8px 8px 0 0;
+    background: #FFF;
+}

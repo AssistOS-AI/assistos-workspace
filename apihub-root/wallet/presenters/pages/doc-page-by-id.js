@@ -31,10 +31,10 @@ export class docPageById {
     beforeRender() {
         this.chapterDivs = "";
         this.title = `<title-view title="${this.docTitle}"></title-view>`;
-        if(this.chapters.length>0) {
+        if(this.chapters.length > 0) {
             this._document.setCurrentChapter(this.chapters[0].id);
             this.chapters.forEach((item) => {
-                this.chapterDivs += `<chapter-item data-chapter-title="${item.title}" chapter-id="${item.id}" data-presenter="chapter-item"></chapter-item>`;
+                this.chapterDivs += `<chapter-item data-chapter-title="${item.title}" data-chapter-id="${item.id}" data-presenter="chapter-item" data-local-action="selectChapter"></chapter-item>`;
                 this.chapterSidebar += `<div class="submenu-item">Edit ${item.title}</div>`;
             });
         }
@@ -63,8 +63,7 @@ export class docPageById {
             chapterSubmenuSection.style.display = "inherit";
             sidebarArrow.classList.remove('rotate');
             this.showChaptersInSidebar = 1;
-        }
-        else {
+        } else {
             chapterSubmenuSection.style.display = "none";
             sidebarArrow.classList.toggle('rotate');
             this.showChaptersInSidebar = 0;

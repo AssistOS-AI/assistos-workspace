@@ -1,7 +1,8 @@
 import { getClosestParentElement } from "../../../WebSkel/utils/dom-utils.js";
 
 export class chapterItem {
-    constructor() {
+    constructor(element) {
+        this.element = element;
         this.chapterContent = "Chapter's content";
         if(company.documents) {
             this._documentConfigs = company.documents;
@@ -21,6 +22,8 @@ export class chapterItem {
     }
 
     beforeRender() {
+        this.chapterId = this.element.getAttribute("data-chapter-id");
+        this.chapter = this._document.getChapter(parseInt(this.chapterId));
         this.chapterContent = "";
         this.chapter.paragraphs.forEach((paragraph) => {
             this.chapterContent += `<paragraph-item data-paragraph-content="${paragraph.text}"></paragraph-item>`;
@@ -48,6 +51,17 @@ export class chapterItem {
         if(chapterBelow.nodeName === "CHAPTER-ITEM") {
             chapterBelow.after(currentChapter);
             await company.swapChapters(this.docId, parseInt(currentChapter.getAttribute('chapter-id')), parseInt(chapterBelow.getAttribute('chapter-id')));
+        }
+    }
+
+    selectChapter(_target) {
+        console.log(_target);
+        let selectedChapter = document.getElementById("selected-chapter");
+        if(selectedChapter !== _target) {
+            if(selectedChapter) {
+                selectedChapter.removeAttribute("id");
+            }
+            _target.setAttribute("id", "selected-chapter");
         }
     }
 }

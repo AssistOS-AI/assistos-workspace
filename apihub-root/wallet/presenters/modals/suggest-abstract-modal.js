@@ -1,4 +1,3 @@
-import { Company } from "../../core/company.js";
 import { closeModal } from "../../../WebSkel/utils/modal-utils.js";
 
 export class suggestAbstractModal {
