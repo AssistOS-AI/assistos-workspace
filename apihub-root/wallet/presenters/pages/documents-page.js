@@ -18,7 +18,7 @@ export class documentsPage {
             this.invalidate();
         }
         webSkel.company.onChange(this.updateState);
-        this.documentsService= webSkel.initialiseService('documentsService');
+        this.documentService= webSkel.initialiseService('documentService');
     }
 
     beforeRender() {
@@ -44,14 +44,15 @@ export class documentsPage {
     async editAction(_target){
         let rowElement = getClosestParentElement(_target,['document-item-renderer']);
         let documentId= parseInt(rowElement.getAttribute('data-id'));
-        this.documentsService.observeDocument(documentId);
+        this.documentService.observeDocument(documentId);
         await webSkel.changeToStaticPage(`documents/${documentId}`);
     }
 
     async deleteAction(_target){
         const rowElement = getClosestParentElement(_target, "document-item-renderer");
         let documentIdToRemove = parseInt(rowElement.getAttribute('data-id'));
-        await webSkel.company.deleteDocument(documentIdToRemove);
+        await this.documentService.deleteDocument(documentIdToRemove)
+
     }
 
     async showActionBox(_target, primaryKey, componentName, insertionMode) {

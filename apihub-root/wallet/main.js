@@ -2,7 +2,6 @@ import {
     chapterItem,
     companyDropdown,
     addNewDocumentModal,
-    showErrorModal,
     suggestAbstractModal,
     suggestTitleModal,
     documentsPage,
@@ -17,7 +16,7 @@ import {
     storageService,
     WebSkel, addRecord, closeModal,
     initUser, registerAccountActions,
-    Company, documentsService, llmsService, personalitiesService, settingsService,
+    Company, documentService, llmsService, personalitiesService, settingsService,
 } from "./imports.js";
 
 const openDSU = require("opendsu");
@@ -78,9 +77,9 @@ async function loadPage(){
         switch(url.split('/')[0]) {
             case "#documents":
                 let documentIdURL= parseInt(url.split('/')[1]);
-                if(company.getDocument(documentIdURL) !== null) {
-                    company.currentDocumentId = documentIdURL;
-                    company.observeDocument(documentIdURL);
+                /* To be replaced with company id from URL */
+                if(await webSkel.localStorage.getDocument(1,documentIdURL) !== null) {
+                    webSkel.company.currentDocumentId = documentIdURL;
                     changeSelectedPageFromSidebar("documents-page");
                 }
                 changeSelectedPageFromSidebar("documents-page");
@@ -130,12 +129,11 @@ function definePresenters(){
     webSkel.registerPresenter("my-organization-page", myOrganizationPage);
 
     webSkel.registerPresenter("add-new-document-modal", addNewDocumentModal);
-    webSkel.registerPresenter("show-error-modal", showErrorModal);
     webSkel.registerPresenter("suggest-abstract-modal", suggestAbstractModal);
     webSkel.registerPresenter("suggest-title-modal", suggestTitleModal);
 }
 function defineServices(){
-    webSkel.registerService("documentsService",documentsService);
+    webSkel.registerService("documentService",documentService);
     webSkel.registerService("llmsService",llmsService);
     webSkel.registerService("personalitiesService",personalitiesService);
     webSkel.registerService("settingsService",settingsService);

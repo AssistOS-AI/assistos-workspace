@@ -27,8 +27,4 @@ export class myOrganizationPage {
         }
     }
 
-    /* adding event Listeners after the web component has loaded, etc */
-    afterRender() {
-
-    }
 }

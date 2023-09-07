@@ -1,5 +1,4 @@
 import { addNewDocumentModal } from "./presenters/modals/add-new-document-modal.js";
-import { showErrorModal } from "./presenters/modals/show-error-modal.js";
 import { suggestAbstractModal } from "./presenters/modals/suggest-abstract-modal.js";
 import { suggestTitleModal } from "./presenters/modals/suggest-title-modal.js"
 import { documentsPage } from "./presenters/pages/documents-page.js";
@@ -25,17 +24,16 @@ import { chapterItem } from "./presenters/components/chapter-item.js";
 import { addRecord, getRecord, getAllRecords, getTableRecords, deleteRecord, openDatabase, updateRecord } from "./utils/indexDB.js";
 import WebSkel from "../WebSkel/webSkel.js";
 import { initUser, registerAccountActions } from "./scripts/authentication.js";
-import{ documentsService } from "./core/services/documentsService.js";
+import{ documentService } from "./core/services/documentService.js";
 import{ llmsService} from "./core/services/llmsService.js";
 import{ personalitiesService } from "./core/services/personalitiesService.js";
 import{ settingsService } from "./core/services/settingsService.js";
 export {
-    documentsService,
+    documentService,
     llmsService,
     personalitiesService,
     settingsService,
     addNewDocumentModal,
-    showErrorModal,
     suggestAbstractModal,
     suggestTitleModal,
     documentsPage,

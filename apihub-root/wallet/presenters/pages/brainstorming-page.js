@@ -1,6 +1,5 @@
-import { Company } from "../../core/company.js";
-import { closeModal, showActionBox } from "../../../WebSkel/utils/modal-utils.js";
-import { showModal } from "../../utils/modal-utils.js";
+import { closeModal, showActionBox } from "../../imports.js"
+import { showModal } from "../../imports.js"
 
 export class brainstormingPage {
     constructor() {
@@ -19,13 +18,13 @@ export class brainstormingPage {
         }
         webSkel.company.onChange(this.updateState);
 
-        this._document = webSkel.company.getDocument(this.id);
+        this.documentService=webSkel.initialiseService('documentService');
+        this._document = this.documentService.getDocument(this.id);
         if(this._document) {
             this.docTitle = this._document.title;
             if(this._document.abstract) {
                 this.abstractText = this._document.abstract;
             }
-            this.chapters = this._document.chapters;
         }
     }
 
@@ -91,8 +90,4 @@ export class brainstormingPage {
         await showActionBox(_target, primaryKey, componentName, insertionMode);
     }
 
-    /* adding event Listeners after the web component has loaded, etc */
-    afterRender() {
-
-    }
 }

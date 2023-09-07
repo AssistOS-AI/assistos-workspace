@@ -1,7 +1,7 @@
 
 export class editChapterPage {
     constructor() {
-        this.id = webSkel.company.currentDocumentId;;
+        this.id = webSkel.company.currentDocumentId;
         this.chapterSidebar = "";
         this.showChaptersInSidebar = 0;
         if(webSkel.company.documents) {

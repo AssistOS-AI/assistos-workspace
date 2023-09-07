@@ -2,17 +2,17 @@ import { closeModal } from "../../../WebSkel/utils/modal-utils.js";
 
 export class suggestAbstractModal {
     constructor() {
-        if(company.documents) {
-            this._documentConfigs = company.documents;
+        if(webSkel.company.documents) {
+            this._documentConfigs = webSkel.company.documents;
             setTimeout(()=> {
                 this.invalidate()
             }, 0);
         }
-        this.updateState = (companyState)=> {
-            this._documentConfigs = company.documents;
+        this.updateState = ()=> {
+            this._documentConfigs = webSkel.company.documents;
             this.invalidate();
         }
-        company.onChange(this.updateState);
+        webSkel.company.onChange(this.updateState);
     }
 
     beforeRender() {
@@ -27,8 +27,4 @@ export class suggestAbstractModal {
 
     }
 
-    /* adding event Listeners after the web component has loaded, etc */
-    afterRender() {
-
-    }
 }

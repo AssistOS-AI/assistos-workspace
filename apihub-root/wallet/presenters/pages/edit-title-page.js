@@ -6,21 +6,25 @@ export class editTitlePage {
         this.docTitle = "Current Title";
         this.id = webSkel.company.currentDocumentId;
         this.showChaptersInSidebar = 0;
+
         if(webSkel.company.documents) {
-            this._documentConfigs = (webSkel.company.documents);
+            this._documentConfigs = webSkel.company.documents;
             setTimeout(()=> {
                 this.invalidate()
             },0);
         }
+        this.documentService=webSkel.initialiseService('documentService');
+
         this.updateState = ()=> {
             this._documentConfigs = webSkel.company.documents;
-            this._document = webSkel.company.getDocument(this.id);
+            this._document = this.documentService.getDocument(this.id);
             this.docTitle = this._document.title;
             this.invalidate();
         }
         webSkel.company.onChange(this.updateState);
 
-        this._document = webSkel.company.getDocument(this.id);
+        this._document = this.documentService.getDocument(this.id);
+
         if(this._document) {
             this.docTitle = this._document.title;
             this.chapters = this._document.chapters;
@@ -47,8 +51,8 @@ export class editTitlePage {
         const documentId = webSkel.company.currentDocumentId;
         const documentIndex = webSkel.company.documents.findIndex(doc => doc.id === documentId);
         if (documentIndex !== -1 && updatedTitle !==webSkel.company.documents[documentIndex].title) {
-            webSkel.company.documents[documentIndex].updateDocumentTitle(updatedTitle);
-            webSkel.company.updateDocument(webSkel.company.currentDocumentId, webSkel.company.documents[documentIndex]);
+            this.documentService.updateDocumentTitle(webSkel.company.documents[documentIndex],updatedTitle);
+            this.documentService.updateDocument(webSkel.company.documents[documentIndex],webSkel.company.currentDocumentId);
         }
     }
 

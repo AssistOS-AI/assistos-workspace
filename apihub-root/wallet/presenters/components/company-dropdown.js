@@ -11,6 +11,7 @@ export class companyDropdown {
             this.invalidate();
         }
         webSkel.company.onChange(this.updateState);
+        /* to be removed */
         this.companies = ["Outfinity", "AIAuthor", "Pharma Ledger"];
     }
 

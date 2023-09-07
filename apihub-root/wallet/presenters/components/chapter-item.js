@@ -15,15 +15,16 @@ export class chapterItem {
             this.invalidate();
         }
         webSkel.company.onChange(this.updateState);
-
+        this.documentService=webSkel.initialiseService('documentService');
         this.docId = webSkel.company.currentDocumentId;
-        this._document = webSkel.company.getDocument(this.docId);
-        this.chapter = this._document.getCurrentChapter();
+        this._document = this.documentService.getDocument(this.docId);
+        this.chapterId = this.element.getAttribute("data-chapter-id");
+        this.chapter = this.documentService.getChapter(this._document,this.chapterId);
     }
 
     beforeRender() {
         this.chapterId = this.element.getAttribute("data-chapter-id");
-        this.chapter = this._document.getChapter(parseInt(this.chapterId));
+        this.chapter = this.documentService.getChapter(this._document,this.chapterId);
         this.chapterContent = "";
         this.chapter.paragraphs.forEach((paragraph) => {
             this.chapterContent += `<paragraph-item data-paragraph-content="${paragraph.text}"></paragraph-item>`;
@@ -41,7 +42,7 @@ export class chapterItem {
         let chapterAbove = currentChapter.previousSibling;
         if(chapterAbove.nodeName === "CHAPTER-ITEM") {
             currentChapter.after(chapterAbove);
-            await webSkel.company.swapChapters(this.docId, parseInt(currentChapter.getAttribute('chapter-id')), parseInt(chapterAbove.getAttribute('chapter-id')));
+            await this.documentService.swapChapters(this._document, parseInt(currentChapter.getAttribute('chapter-id')), parseInt(chapterAbove.getAttribute('chapter-id')));
         }
     }
 
@@ -50,10 +51,10 @@ export class chapterItem {
         let chapterBelow = currentChapter.nextSibling;
         if(chapterBelow.nodeName === "CHAPTER-ITEM") {
             chapterBelow.after(currentChapter);
-            await webSkel.company.swapChapters(this.docId, parseInt(currentChapter.getAttribute('chapter-id')), parseInt(chapterBelow.getAttribute('chapter-id')));
+            await this.documentService.swapChapters(this._document, parseInt(currentChapter.getAttribute('chapter-id')), parseInt(chapterBelow.getAttribute('chapter-id')));
         }
     }
-
+    /* undefined chapter? */
     selectChapter(_target) {
         console.log(_target);
         let selectedChapter = document.getElementById("selected-chapter");

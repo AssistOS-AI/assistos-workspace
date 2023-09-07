@@ -14,17 +14,13 @@ export class documentSettingsPage {
             this.invalidate();
         }
         webSkel.company.onChange(this.updateState);
-
-        this._document = webSkel.company.getDocument(this.id);
-        if(this._document) {
-            this.title = this._document.title;
-            this.chapters = this._document.chapters;
-        }
+        this.documentService=webSkel.initialiseService('documentService');
+        this._document = this.documentService.getDocument(this.id);
     }
 
     beforeRender() {
         this.chapterSidebar = "";
-        if(this.chapters) {
+        if(this._document.chapters) {
             this._document.chapters.forEach((item) => {
                 this.chapterSidebar += `<div class="submenu-item">Edit ${item.title}</div>`;
             });
@@ -66,8 +62,4 @@ export class documentSettingsPage {
         }
     }
 
-    /* adding event Listeners after the web component has loaded, etc */
-    afterRender() {
-
-    }
 }

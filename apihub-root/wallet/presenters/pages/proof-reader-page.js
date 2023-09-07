@@ -12,7 +12,6 @@ export class proofReaderPage {
         }
         webSkel.company.onChange(this.updateState);
     }
-
     beforeRender() {
 
     }
