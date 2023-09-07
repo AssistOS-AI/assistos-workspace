@@ -29,12 +29,9 @@ export class companyDropdown {
     }
 
     changeOrganization(_target) {
+        this.currentCompanyName = _target.innerText;
+        this.element.querySelector(".organization-name").innerText = this.currentCompanyName;
         let target = _target.parentElement.parentElement;
         target.style.display = "none";
-    }
-
-    /* adding event Listeners after the web component has loaded, etc */
-    afterRender() {
-
     }
 }
