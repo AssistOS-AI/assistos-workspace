@@ -22,7 +22,7 @@ export function initUser(){
         }
 
     }else{
-        const user = {userId:crypto.getRandomSecret(32),secretToken:""};
+        const user = {userId:crypto.getRandomSecret(32),secretToken:"",currentCompanyId:1};
         currentUser.id = user.userId;
         localStorage.setItem("currentUser",JSON.stringify(user));
         console.log("Instantiated currentUser" + JSON.stringify(user));
