@@ -15,16 +15,16 @@ export class chapterItem {
             this.invalidate();
         }
         webSkel.company.onChange(this.updateState);
-        this.documentService=webSkel.initialiseService('documentService');
+        this.documentService = webSkel.initialiseService('documentService');
         this.docId = webSkel.company.currentDocumentId;
         this._document = this.documentService.getDocument(this.docId);
-        this.chapterId = this.element.getAttribute("data-chapter-id");
-        this.chapter = this.documentService.getChapter(this._document,this.chapterId);
+        this.chapterId = this.element.getAttribute("data-id");
+        this.chapter = this.documentService.getChapter(this._document, this.chapterId);
     }
 
     beforeRender() {
-        this.chapterId = parseInt(this.element.getAttribute("data-chapter-id"));
-        this.chapter = this.documentService.getChapter(this._document,this.chapterId);
+        this.chapterId = parseInt(this.element.getAttribute("data-id"));
+        this.chapter = this.documentService.getChapter(this._document, this.chapterId);
         this.chapterContent = "";
         this.chapter.paragraphs.forEach((paragraph) => {
             this.chapterContent += `<paragraph-item data-paragraph-content="${paragraph.text}"></paragraph-item>`;
@@ -54,15 +54,48 @@ export class chapterItem {
             await this.documentService.swapChapters(this._document, parseInt(currentChapter.getAttribute('chapter-id')), parseInt(chapterBelow.getAttribute('chapter-id')));
         }
     }
-    /* undefined chapter? */
-    selectChapter(_target) {
-        console.log(_target);
-        let selectedChapter = document.getElementById("selected-chapter");
-        if(selectedChapter !== _target) {
-            if(selectedChapter) {
-                selectedChapter.removeAttribute("id");
-            }
-            _target.setAttribute("id", "selected-chapter");
-        }
+
+    afterRender() {
+        this.selectedChapter = this.element.firstElementChild.nextElementSibling;
+        this.selectedChapter.addEventListener("dblclick", setEditableChapter, true);
+        document.addEventListener("click", removeEventForDocument, true);
+    }
+}
+
+function setEditableChapter(event) {
+    this.setAttribute("id", "selected-chapter");
+    this.setAttribute("contenteditable", "true");
+    this.focus();
+    event.stopPropagation();
+    event.preventDefault();
+}
+
+function removeEventForDocument(event) {
+    this.selectedChapter = document.querySelector("[contenteditable='true']");
+    if(this.selectedChapter && this.selectedChapter.getAttribute("contenteditable") === "true" && !this.selectedChapter.contains(event.target)) {
+        this.selectedChapter.setAttribute("contenteditable", "false");
+        let updatedText = document.querySelector(".chapter-paragraphs").innerText;
+        let updatedTitle = document.querySelector(".chapter-title").innerText;
+        const documentId = this.selectedChapter.getAttribute("data-id");
+        // const documentIndex = company.documents.findIndex(doc => doc.id === documentId);
+        // if (documentIndex !== -1 && updatedAbstract !== company.documents[documentIndex].abstract) {
+        //     for(let i = 0; i < updatedAbstract.length; i++) {
+        //         if(updatedAbstract[i] === '\n') {
+        //             let numberOfNewLines = 0;
+        //             let initialIndex = i;
+        //             while(updatedAbstract[i] === '\n') {
+        //                 i++;
+        //                 numberOfNewLines++;
+        //             }
+        //             numberOfNewLines = Math.floor(numberOfNewLines / 2) + 1;
+        //             let newLineString = "";
+        //             for(let j = 0; j < numberOfNewLines; j++) {
+        //                 newLineString += "<br>";
+        //             }
+        //             updatedAbstract = updatedAbstract.slice(0, initialIndex) + newLineString + updatedAbstract.slice(i);
+        //         }
+        //     }
+        //     company.documents[documentIndex].abstract = updatedAbstract;
+        //     await company.updateDocument(documentId, company.documents[documentIndex]);
     }
 }

@@ -80,6 +80,7 @@
     }
 
     .tab {
+        cursor: pointer;
         background-color: rgb(231, 229, 241);
         color: rgba(24, 12, 80, 0.81);
     }
@@ -96,6 +97,7 @@
     }
 
     .tab {
+        cursor: default;
         padding: 5px 12px;
         background-color: #FFF;
         color: rgba(24, 12, 80, 0.86);

@@ -12,7 +12,6 @@
 
 .abstract-content {
     text-align: justify;
-    /*color: rgba(115, 58, 4, 0.29);*/
     font-size: 16px;
     font-style: normal;
     font-weight: 400;
@@ -30,6 +29,7 @@
 }
 
 .document-path {
+    cursor: default;
     display: flex;
     align-items: center;
     margin: 10px 0 10px 10px;

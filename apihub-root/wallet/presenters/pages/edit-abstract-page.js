@@ -84,7 +84,7 @@ export class editAbstractPage {
 
     afterRender() {
         this.editableAbstract = this.element.querySelector("#editable-abstract");
-        this.editableAbstract.addEventListener("click", setEditableAbstract);
+        this.editableAbstract.addEventListener("dblclick", setEditableAbstract);
         document.addEventListener("click", removeEventForDocument, true);
         document.editableAbstract = this.editableAbstract;
     }
@@ -124,6 +124,7 @@ function removeEventForDocument(event) {
 
 function setEditableAbstract(event) {
     this.setAttribute("contenteditable", "true");
+    this.focus();
     event.stopPropagation();
     event.preventDefault();
 }
