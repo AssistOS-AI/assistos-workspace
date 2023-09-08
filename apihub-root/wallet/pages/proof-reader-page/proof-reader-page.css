@@ -30,7 +30,6 @@
 .length,
 .language,
 .personality {
-    padding: 10px;
     color: #3A3A3A;
     font-feature-settings: 'clig' off, 'liga' off;
     font-family: Poppins;
@@ -58,12 +57,12 @@
     border: 0.5px solid rgba(0, 0, 0, 0.24);
 }
 
-.dropdown-content,
-.generate-content {
+.form-item {
     padding: 10px;
 }
 
-.generate-content {
+.modal-footer {
+    padding: 10px;
     display: flex;
     flex-direction: row;
     justify-content: space-evenly;

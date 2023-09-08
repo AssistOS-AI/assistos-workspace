@@ -9,8 +9,8 @@ export class llmsService {
     getLLMs() {
         return webSkel.company.llms || [];
     }
-    getLLM(llmId) {
-        return webskel.company.llms.find(llm => llm.id === llmId);
+    getLLM(llmName) {
+        return webSkel.company.llms.find(llm => llm.name === llmName);
     }
     async summarize(prompt,llmId) {
         let llm=this.getLLM(llmId);
@@ -26,7 +26,7 @@ export class llmsService {
             method: 'POST',
             headers: {
                 'Content-Type': 'application/json',
-                'Authorization': `Bearer ${apiKey.trim()}`
+                'Authorization': `Bearer ${apiKey[0].trim()}`
             },
             body: JSON.stringify({
                 model: 'gpt-3.5-turbo',
