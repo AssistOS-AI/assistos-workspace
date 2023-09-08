@@ -16,7 +16,7 @@ import {
     storageService,
     WebSkel, addRecord, closeModal,
     initUser, registerAccountActions,
-    Company, documentService, llmsService, personalitiesService, settingsService,
+    Company, documentService, llmsService, personalitiesService, settingsService, chapterService,
 } from "./imports.js";
 
 const openDSU = require("opendsu");
@@ -134,6 +134,7 @@ function definePresenters(){
 }
 function defineServices(){
     webSkel.registerService("documentService",documentService);
+    webSkel.registerService("chapterService",chapterService);
     webSkel.registerService("llmsService",llmsService);
     webSkel.registerService("personalitiesService",personalitiesService);
     webSkel.registerService("settingsService",settingsService);

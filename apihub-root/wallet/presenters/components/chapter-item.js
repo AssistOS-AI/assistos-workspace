@@ -1,6 +1,8 @@
-import { getClosestParentElement } from "../../../WebSkel/utils/dom-utils.js";
+import {getClosestParentElement, Paragraph} from "../../imports.js";
 
 export class chapterItem {
+    static docServ;
+    static chapterServ;
     constructor(element) {
         this.element = element;
         this.chapterContent = "Chapter's content";
@@ -14,6 +16,8 @@ export class chapterItem {
             this._documentConfigs = webSkel.company.documents;
             this.invalidate();
         }
+        chapterItem.docServ = webSkel.initialiseService('documentService');
+        chapterItem.chapterServ = webSkel.initialiseService('chapterService');
         webSkel.company.onChange(this.updateState);
         this.documentService = webSkel.initialiseService('documentService');
         this.docId = webSkel.company.currentDocumentId;
@@ -26,8 +30,11 @@ export class chapterItem {
         this.chapter = this.documentService.getChapter(this._document, this.chapterId);
         this.chapterContent = "";
         this.chapter.paragraphs.forEach((paragraph) => {
-            this.chapterContent += `<paragraph-item data-paragraph-content="${paragraph.text}"></paragraph-item>`;
+            this.chapterContent += `<paragraph-item data-paragraph-content="${paragraph.text}" data-paragraph-id="${paragraph.id}"></paragraph-item>`;
         });
+        document.removeEventListener("click", exitEditMode);
+        // document.removeEventListener("click", .bind(this, exitEditMode));
+
     }
 
     showOrHideChapter(_target, chapterId) {
@@ -42,7 +49,7 @@ export class chapterItem {
         if(chapterAbove.nodeName === "CHAPTER-ITEM") {
             currentChapter.after(chapterAbove);
             let chapter1Index= this._document.chapters.findIndex(chapter=>chapter.id===parseInt(currentChapter.getAttribute('data-chapter-id')));
-            let chapter2Index=this._document.chapters.findIndex(chapter=>chapter.id===parseInt(chapterAbove.getAttribute('data-chapter-id')));
+            let chapter2Index= this._document.chapters.findIndex(chapter=>chapter.id===parseInt(chapterAbove.getAttribute('data-chapter-id')));
             await this.documentService.swapChapters(this._document, chapter1Index, chapter2Index);
         }
     }
@@ -53,52 +60,68 @@ export class chapterItem {
         if(chapterBelow.nodeName === "CHAPTER-ITEM") {
             chapterBelow.after(currentChapter);
             let chapter1Index= this._document.chapters.findIndex(chapter=>chapter.id===parseInt(currentChapter.getAttribute('data-chapter-id')));
-            let chapter2Index=this._document.chapters.findIndex(chapter=>chapter.id===parseInt(chapterBelow.getAttribute('data-chapter-id')));
+            let chapter2Index= this._document.chapters.findIndex(chapter=>chapter.id===parseInt(chapterBelow.getAttribute('data-chapter-id')));
             await this.documentService.swapChapters(this._document, chapter1Index, chapter2Index);
         }
     }
 
     afterRender() {
         this.selectedChapter = this.element.firstElementChild.nextElementSibling;
-        this.selectedChapter.addEventListener("dblclick", setEditableChapter, true);
-        document.addEventListener("click", removeEventForDocument, true);
+        this.selectedChapter.addEventListener("dblclick", enterEditMode, true);
     }
 }
 
-function setEditableChapter(event) {
+function enterEditMode(event) {
     this.setAttribute("id", "selected-chapter");
     this.setAttribute("contenteditable", "true");
     this.focus();
     event.stopPropagation();
     event.preventDefault();
+    document.addEventListener("click", exitEditMode, true);
+    document.selectedChapter = this;
 }
 
-function removeEventForDocument(event) {
-    this.selectedChapter = document.querySelector("[contenteditable='true']");
-    if(this.selectedChapter && this.selectedChapter.getAttribute("contenteditable") === "true" && !this.selectedChapter.contains(event.target)) {
+async function exitEditMode(event) {
+    if (this.selectedChapter && this.selectedChapter.getAttribute("contenteditable") === "true" && !this.selectedChapter.contains(event.target)) {
         this.selectedChapter.setAttribute("contenteditable", "false");
-        let updatedText = document.querySelector(".chapter-paragraphs").innerText;
-        let updatedTitle = document.querySelector(".chapter-title").innerText;
-        const documentId = this.selectedChapter.getAttribute("data-id");
-        // const documentIndex = company.documents.findIndex(doc => doc.id === documentId);
-        // if (documentIndex !== -1 && updatedAbstract !== company.documents[documentIndex].abstract) {
-        //     for(let i = 0; i < updatedAbstract.length; i++) {
-        //         if(updatedAbstract[i] === '\n') {
-        //             let numberOfNewLines = 0;
-        //             let initialIndex = i;
-        //             while(updatedAbstract[i] === '\n') {
-        //                 i++;
-        //                 numberOfNewLines++;
-        //             }
-        //             numberOfNewLines = Math.floor(numberOfNewLines / 2) + 1;
-        //             let newLineString = "";
-        //             for(let j = 0; j < numberOfNewLines; j++) {
-        //                 newLineString += "<br>";
-        //             }
-        //             updatedAbstract = updatedAbstract.slice(0, initialIndex) + newLineString + updatedAbstract.slice(i);
-        //         }
-        //     }
-        //     company.documents[documentIndex].abstract = updatedAbstract;
-        //     await company.updateDocument(documentId, company.documents[documentIndex]);
+        let updatedText = this.selectedChapter.querySelector(".chapter-paragraphs").innerText;
+        let updatedTitle = this.selectedChapter.querySelector(".chapter-title").innerText;
+        const documentId = parseInt(getClosestParentElement(this.selectedChapter, "doc-page-by-id").getAttribute("data-document-id"));
+        const documentIndex = chapterItem.docServ.getDocumentIndex(documentId);
+        let doc = chapterItem.docServ.getDocument(documentId);
+        let chapterId = parseInt(this.selectedChapter.getAttribute("data-chapter-id"));
+        let chapterIndex = chapterItem.docServ.getChapterIndex(doc, chapterId);
+        let newParagraphs = [];
+        let lastParagraphStartIndex = 0;
+        if (documentIndex !== -1 && updatedText !== this.chapter) {
+            for (let i = 0; i < updatedText.length; i++) {
+                if (updatedText[i] === '\n' || i === updatedText.length - 1) {
+                    let numberOfNewLines = 0;
+                    let initialIndex = i;
+                    while (updatedText[i] === '\n') {
+                        i++;
+                        numberOfNewLines++;
+                    }
+                    numberOfNewLines = Math.floor(numberOfNewLines / 2) + 1;
+                    let newLineString = "";
+                    for (let j = 0; j < numberOfNewLines; j++) {
+                        newLineString += "<br>";
+                    }
+                    let paragraph;
+                    if(i !== updatedText.length - 1) {
+                        paragraph = new Paragraph(updatedText.slice(lastParagraphStartIndex, initialIndex), newParagraphs.length + 1);
+                        updatedText = updatedText.slice(0, initialIndex) + newLineString + updatedText.slice(i);
+                    }
+                    else {
+                        paragraph = new Paragraph(updatedText.slice(lastParagraphStartIndex, initialIndex + 1), newParagraphs.length + 1);
+                    }
+                    newParagraphs.push(paragraph);
+                    lastParagraphStartIndex = initialIndex + newLineString.length;
+                }
+            }
+            webSkel.company.documents[documentIndex].chapters[chapterIndex].paragraphs = newParagraphs;
+            webSkel.company.documents[documentIndex].chapters[chapterIndex].title = updatedTitle;
+            await chapterItem.docServ.updateDocument(webSkel.company.documents[documentIndex], parseInt(documentId));
+        }
     }
 }
