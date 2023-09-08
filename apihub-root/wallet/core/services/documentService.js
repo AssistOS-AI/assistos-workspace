@@ -15,6 +15,10 @@ export class documentService {
         return document || null;
     }
 
+    getDocumentIndex(documentId) {
+        return webSkel.company.documents.findIndex(document => document.id === documentId);
+    }
+
     async addDocument(document) {
         document.id=await webSkel.localStorage.addDocument(document,webSkel.company.id);
         webSkel.company.documents.push(document);
@@ -88,9 +92,13 @@ export class documentService {
         }
     }
 
-    getChapter(document,chapterId) {
+    getChapter(document, chapterId) {
         const chapter = document.chapters.find(chapter => chapter.id === chapterId);
         return chapter || null;
+    }
+
+    getChapterIndex(document, chapterId) {
+        return document.chapters.findIndex(chapter => chapter.id === chapterId);
     }
 
     getCurrentChapter(document) {

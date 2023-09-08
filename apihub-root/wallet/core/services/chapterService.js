@@ -1,4 +1,4 @@
-import {Paragraph} from "../models/paragraph";
+import {Paragraph} from "../models/paragraph.js";
 export class chapterService{
     constructor(){}
     createParagraph(chapter,paragraphText){

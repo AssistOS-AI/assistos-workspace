@@ -2,6 +2,7 @@ import {getClosestParentElement, Paragraph} from "../../imports.js";
 
 export class chapterItem {
     static docServ;
+    static chapterServ;
     constructor(element) {
         this.element = element;
         this.chapterContent = "Chapter's content";
@@ -16,6 +17,7 @@ export class chapterItem {
             this.invalidate();
         }
         chapterItem.docServ = webSkel.initialiseService('documentService');
+        chapterItem.chapterServ = webSkel.initialiseService('chapterService');
         webSkel.company.onChange(this.updateState);
         this.documentService = webSkel.initialiseService('documentService');
         this.docId = webSkel.company.currentDocumentId;
@@ -47,7 +49,7 @@ export class chapterItem {
         if(chapterAbove.nodeName === "CHAPTER-ITEM") {
             currentChapter.after(chapterAbove);
             let chapter1Index= this._document.chapters.findIndex(chapter=>chapter.id===parseInt(currentChapter.getAttribute('data-chapter-id')));
-            let chapter2Index=this._document.chapters.findIndex(chapter=>chapter.id===parseInt(chapterAbove.getAttribute('data-chapter-id')));
+            let chapter2Index= this._document.chapters.findIndex(chapter=>chapter.id===parseInt(chapterAbove.getAttribute('data-chapter-id')));
             await this.documentService.swapChapters(this._document, chapter1Index, chapter2Index);
         }
     }
@@ -58,7 +60,7 @@ export class chapterItem {
         if(chapterBelow.nodeName === "CHAPTER-ITEM") {
             chapterBelow.after(currentChapter);
             let chapter1Index= this._document.chapters.findIndex(chapter=>chapter.id===parseInt(currentChapter.getAttribute('data-chapter-id')));
-            let chapter2Index=this._document.chapters.findIndex(chapter=>chapter.id===parseInt(chapterBelow.getAttribute('data-chapter-id')));
+            let chapter2Index= this._document.chapters.findIndex(chapter=>chapter.id===parseInt(chapterBelow.getAttribute('data-chapter-id')));
             await this.documentService.swapChapters(this._document, chapter1Index, chapter2Index);
         }
     }
@@ -79,20 +81,17 @@ function enterEditMode(event) {
     document.selectedChapter = this;
 }
 
-// async function exitEditMode(event){
-//     //this.selectedChapter = this.querySelector("[contenteditable='true']");
-//
-// }
 async function exitEditMode(event) {
     if (this.selectedChapter && this.selectedChapter.getAttribute("contenteditable") === "true" && !this.selectedChapter.contains(event.target)) {
         this.selectedChapter.setAttribute("contenteditable", "false");
-        let chapterId = this.selectedChapter.getAttribute("data-chapter-id");
-        let updatedText = document.querySelector(".chapter-paragraphs").innerText;
-        let updatedTitle = document.querySelector(".chapter-title").innerText;
-        const documentId = getClosestParentElement(this.selectedChapter, "doc-page-by-id").getAttribute("data-document-id");
-        const documentIndex = webSkel.company.documents.findIndex(doc => doc.id === parseInt(documentId));
+        let updatedText = this.selectedChapter.querySelector(".chapter-paragraphs").innerText;
+        let updatedTitle = this.selectedChapter.querySelector(".chapter-title").innerText;
+        const documentId = parseInt(getClosestParentElement(this.selectedChapter, "doc-page-by-id").getAttribute("data-document-id"));
+        const documentIndex = chapterItem.docServ.getDocumentIndex(documentId);
+        let doc = chapterItem.docServ.getDocument(documentId);
+        let chapterId = parseInt(this.selectedChapter.getAttribute("data-chapter-id"));
+        let chapterIndex = chapterItem.docServ.getChapterIndex(doc, chapterId);
         let newParagraphs = [];
-        // let currentParagraphId = this.element.getAttribute("data-paragraph-id");
         let lastParagraphStartIndex = 0;
         if (documentIndex !== -1 && updatedText !== this.chapter) {
             for (let i = 0; i < updatedText.length; i++) {
@@ -120,9 +119,8 @@ async function exitEditMode(event) {
                     lastParagraphStartIndex = initialIndex + newLineString.length;
                 }
             }
-            webSkel.company.documents[documentIndex].chapters[chapterId].paragraphs = newParagraphs;
-            webSkel.company.documents[documentIndex].chapters[chapterId].title = updatedTitle;
-            //webSkel.company.documents[documentIndex].chapters[this.chapterId].paragraphs[currentParagraphId].text = updatedText;
+            webSkel.company.documents[documentIndex].chapters[chapterIndex].paragraphs = newParagraphs;
+            webSkel.company.documents[documentIndex].chapters[chapterIndex].title = updatedTitle;
             await chapterItem.docServ.updateDocument(webSkel.company.documents[documentIndex], parseInt(documentId));
         }
     }

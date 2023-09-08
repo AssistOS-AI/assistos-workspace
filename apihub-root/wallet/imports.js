@@ -24,6 +24,7 @@ import { chapterItem } from "./presenters/components/chapter-item.js";
 import { addRecord, getRecord, getAllRecords, getTableRecords, deleteRecord, openDatabase, updateRecord } from "./utils/indexDB.js";
 import { initUser, registerAccountActions } from "./scripts/authentication.js";
 import{ documentService } from "./core/services/documentService.js";
+import{ chapterService } from "./core/services/chapterService.js";
 import{ llmsService} from "./core/services/llmsService.js";
 import{ personalitiesService } from "./core/services/personalitiesService.js";
 import{ settingsService } from "./core/services/settingsService.js";
@@ -31,6 +32,7 @@ import { LLM } from "./core/models/llm.js";
 import WebSkel from "../WebSkel/webSkel.js";
 export {
     documentService,
+    chapterService,
     llmsService,
     personalitiesService,
     settingsService,
