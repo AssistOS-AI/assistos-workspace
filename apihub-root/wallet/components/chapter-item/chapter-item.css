@@ -1,4 +1,6 @@
 .chapter-title-section {
+    display: flex;
+    align-items: center;
     color: #252525;
     font-size: 18px;
     font-style: normal;
@@ -53,4 +55,8 @@
     background-color: rgba(148, 174, 227, 0.3);
     color: #252525;
     font-weight: 450;
+}
+
+.chapter-title {
+    margin-left: 10px;
 }

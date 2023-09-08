@@ -10,12 +10,13 @@ export class editAbstractPage {
             }, 0);
         }
         this.updateState = () => {
-
+            this.abstractText = this._document.abstract;
             this.invalidate();
         }
         webSkel.company.onChange(this.updateState);
         this.documentService = webSkel.initialiseService('documentService');
         this._document = this.documentService.getDocument(this.id);
+        this.abstractText = this._document.abstract;
     }
 
     beforeRender() {

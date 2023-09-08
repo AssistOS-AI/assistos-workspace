@@ -78,6 +78,7 @@
 
 .summarize,
 .chapters-modal {
+    cursor: pointer;
     display: flex;
     align-items: center;
     color: #0618D1;

@@ -113,6 +113,7 @@
 }
 
 .proceed-btn {
+    cursor: pointer;
     color: #FFF;
     font-feature-settings: 'clig' off, 'liga' off;
     font-family: Poppins;

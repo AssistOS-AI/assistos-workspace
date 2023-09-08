@@ -1,7 +1,9 @@
 export class companyDropdown {
-    constructor() {
+    constructor(element) {
+        this.element = element;
+        this.currentCompanyName = "Personal Space";
         if(webSkel.company.documents) {
-            this._documentConfigs =webSkel.company.documents;
+            this._documentConfigs = webSkel.company.documents;
             setTimeout(()=> {
                 this.invalidate();
             }, 0);

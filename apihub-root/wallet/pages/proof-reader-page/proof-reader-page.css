@@ -67,6 +67,7 @@
     display: flex;
     flex-direction: row;
     justify-content: space-evenly;
+    align-items: end;
 }
 
 option {
@@ -114,10 +115,13 @@ option {
 input[type=number]::-webkit-inner-spin-button,
 input[type=number]::-webkit-outer-spin-button {
     opacity: 1;
+    cursor: pointer;
 }
 
 .generate-btn {
+    cursor: pointer;
     margin-top: 20px;
+    margin-bottom: -2px;
     color: #FFF;
     font-feature-settings: 'clig' off, 'liga' off;
     font-family: Poppins;
@@ -165,4 +169,47 @@ input[type=number]::-webkit-outer-spin-button {
 
 .proof-reader-page {
     height: 100%;
+}
+
+.variants-class {
+    display: flex;
+    justify-content: space-evenly;
+    flex-direction: column;
+    margin: 0 auto;
+}
+
+@media screen and (max-width: 768px) {
+    .proof-reader-content {
+        flex-direction: column;
+    }
+
+    .ai-prompt-section {
+        width: 100%;
+    }
+
+    .preferences-setting-section {
+        width: 100%;
+    }
+}
+
+@media screen and (max-width: 1100px) {
+    .generate-content {
+        flex-direction: column;
+        justify-content: center;
+    }
+
+    .variants-class {
+        display: flex;
+        justify-content: center;
+        flex-direction: column;
+        margin: 0 auto;
+    }
+
+    .variants-label {
+        margin: 0 auto;
+    }
+
+    #variants {
+        margin: 0 auto;
+    }
 }

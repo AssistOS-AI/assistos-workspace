@@ -38,6 +38,7 @@ export class documentService {
             webSkel.company.notifyObservers();
         }
     }
+
     getDocSettings(documentId) {
         const documentSettings = webSkel.company.documents.find(document => document.id === documentId).settings;
         return documentSettings || [];
