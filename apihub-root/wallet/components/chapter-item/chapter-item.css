@@ -60,3 +60,15 @@
 .chapter-title {
     margin-left: 10px;
 }
+
+paragraph-item {
+    width: 100%;
+}
+
+.chapter-paragraphs {
+    width: 100%;
+}
+
+.chapter-content {
+    width: 100%;
+}

@@ -79,7 +79,8 @@ export class storageService {
             }else{
                 newDocument.id=company.documents.length+1;
                 company.documents.push(newDocument);
-                return await updateRecord(this.db, "companies", companyId, company);
+                await updateRecord(this.db, "companies", companyId, company);
+                return newDocument.id;
             }
         } else {
             throw new Error('Company not found');

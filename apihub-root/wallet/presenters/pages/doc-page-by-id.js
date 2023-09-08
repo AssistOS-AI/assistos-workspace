@@ -1,19 +1,22 @@
+import { Chapter } from "../../imports.js";
+
 export class docPageById {
     constructor() {
         this.docTitle = "Documents";
         this.name = "Name";
         this.abstractText = "Edit your abstract";
         this.button = "Add new document";
+        this.chapterDivs = "";
         this.chapterSidebar = "";
         this.showChaptersInSidebar = 0;
         this.id = webSkel.company.currentDocumentId;
 
-        this.documentService=webSkel.initialiseService('documentService');
+        this.documentService = webSkel.initialiseService('documentService');
 
         if(webSkel.company.documents) {
             this._document = this.documentService.getDocument(this.id);
             setTimeout(()=> {
-                this.invalidate()
+                this.invalidate();
             }, 0);
         }
         this.updateState = ()=> {
@@ -70,6 +73,12 @@ export class docPageById {
             sidebarArrow.classList.toggle('rotate');
             this.showChaptersInSidebar = 0;
         }
+    }
+
+    addChapter() {
+        this.chapterDivs += `<chapter-item data-chapter-title="New Chapter" data-chapter-id="${this.chapters.length}" data-presenter="chapter-item"></chapter-item>`;
+        this.chapters.push(new Chapter("Edit your title here", this.chapters.length + 1, [{text:"Edit your paragraph here"}]));
+        this.invalidate();
     }
 
     async showActionBox(_target, primaryKey, componentName, insertionMode) {

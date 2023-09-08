@@ -1,5 +1,6 @@
 export class proofReaderPage {
     constructor() {
+        this.generatedText = "AI Generated Text";
         if(webSkel.company.documents) {
             this._documentConfigs = webSkel.company.documents;
             setTimeout(()=> {
@@ -12,6 +13,7 @@ export class proofReaderPage {
         }
         webSkel.company.onChange(this.updateState);
     }
+
     beforeRender() {
 
     }
