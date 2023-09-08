@@ -44,6 +44,7 @@ export class documentsPage {
     async editAction(_target){
         let rowElement = getClosestParentElement(_target,['document-item-renderer']);
         let documentId= parseInt(rowElement.getAttribute('data-id'));
+        // webSkel.company.currentDocumentId = documentId;
         this.documentService.observeDocument(documentId);
         await webSkel.changeToStaticPage(`documents/${documentId}`);
     }

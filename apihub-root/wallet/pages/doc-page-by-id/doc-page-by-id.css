@@ -52,4 +52,10 @@
 .document-path svg {
     margin: 5px;
 }
-
+[contenteditable=true]:empty:before{
+    /*background-color: #5F0808;*/
+    color: #ccc;
+    content: attr(placeholder);
+    pointer-events: none;
+    display: block; /* For Firefox */
+}

@@ -4,7 +4,7 @@ export class documentService {
     constructor(){}
     observeDocument(documentId){
         if(webSkel.company.documents.find(document => document.id === documentId))
-            this.currentDocumentId = documentId;
+            webSkel.company.currentDocumentId = documentId;
     }
     getAllDocuments() {
         return webSkel.company.documents || [];
