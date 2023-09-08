@@ -31,8 +31,7 @@ export async function openDatabase(dbName, version) {
                 if (existingCompanies.length === 0) {
                     const defaultCompany = {name: `Onboarding company`,
                         llms:[
-                            {name:"GPT-3",apiKeys:["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"],url:"https://api.openai.com/v1/engines/davinci/completions",id:1},
-                            {name:"GPT-2",apiKeys:["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"],url:"https://api.openai.com/v1/engines/davinci/completions",id:2},
+                            {name:"GPT-3",apiKeys:["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"],url:"https://api.openai.com/v1/chat/completions",id:1}
                         ],
                         documents:[{
                             id: 1,
