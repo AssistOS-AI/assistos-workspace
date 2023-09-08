@@ -52,10 +52,35 @@
 .document-path svg {
     margin: 5px;
 }
-[contenteditable=true]:empty:before{
+
+[contenteditable=true]:empty:before {
     /*background-color: #5F0808;*/
+    background-color: #5F0808;
     color: #ccc;
     content: attr(placeholder);
     pointer-events: none;
     display: block; /* For Firefox */
+}
+
+.new-chapter-btn {
+    padding: 7px 15px;
+    border-radius: 20px;
+    font-weight: 600;
+    cursor: pointer;
+    color: #FFF;
+    background-color: #350549;
+}
+
+.add-new-chapter-section {
+    display: flex;
+    align-items: center;
+    justify-content: end;
+}
+
+chapter-item:hover {
+    cursor: text;
+}
+
+.chapter-item:hover {
+    cursor: text;
 }
