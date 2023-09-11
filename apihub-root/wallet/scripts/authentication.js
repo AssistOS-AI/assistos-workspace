@@ -4,7 +4,7 @@ import {addUserToLocalStorage} from "../../WebSkel/utils/authentication-utils.js
 const openDSU = require("opendsu");
 const crypto = openDSU.loadApi("crypto");
 const w3cDID = openDSU.loadAPI("w3cdid");
-export function initUser(){
+export async function initUser(){
 
     window.currentUser = {userId:"",isPremium:false};
     const result =localStorage.getItem("currentUser");
@@ -12,15 +12,16 @@ export function initUser(){
     document.querySelector("#login-button").style.display = "block";
     document.querySelector("#register-button").style.display = "block";
     if(result){
+        let user = JSON.parse(result);
+        window.currentCompanyId = user.currentCompanyId;
         if(JSON.parse(result).secretToken!== "")
         {
             currentUser.isPremium = true;
-            currentUser.userId = JSON.parse(result).userId;
+            currentUser.userId = user.userId;
             document.querySelector("#logout-button").style.display = "block";
             document.querySelector("#login-button").style.display = "none";
             document.querySelector("#register-button").style.display = "none";
         }
-
     }else{
         /* TBD */
         const user = {userId:crypto.getRandomSecret(32),secretToken:"",currentCompanyId:1};
@@ -28,6 +29,11 @@ export function initUser(){
         localStorage.setItem("currentUser",JSON.stringify(user));
         console.log("Instantiated currentUser" + JSON.stringify(user));
     }
+
+    currentUser.companies = (await webSkel.localStorage.getAllCompaniesData()).map(company =>{return {name:company.name, id:company.id};});
+    let userObj = JSON.parse(localStorage.getItem("currentUser"));
+    userObj.companies = currentUser.companies;
+    localStorage.setItem("currentUser", JSON.stringify(userObj));
 }
 
 function verifyPassword(secretToken, password){

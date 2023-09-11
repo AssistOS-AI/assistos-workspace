@@ -323,3 +323,7 @@ body {
 .rotate {
     transform: rotate(-90deg);
 }
+.input-invalid {
+    border: 1px solid red !important;
+    border-radius: 8px !important;
+}

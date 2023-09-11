@@ -98,8 +98,15 @@ async function loadPage(){
 async function initLiteUserDatabase(){
     webSkel.localStorage = await storageService.getInstance("freeUser",1);
     await webSkel.localStorage.initDatabase();
-    let currentCompanyId=JSON.parse(localStorage.getItem("currentUser")).currentCompanyId;
+
+    let result = localStorage.getItem("currentUser");
+    if(result){
+        window.currentCompanyId = JSON.parse(result).currentCompanyId;
+    }else {
+        window.currentCompanyId=1;
+    }
     webSkel.company = new Company(await webSkel.localStorage.getCompanyData(currentCompanyId));
+
 }
 
 function changeSelectedPageFromSidebar(url) {
@@ -216,12 +223,19 @@ function defineActions(){
     webSkel.setDomElementForPages(document.querySelector("#page-content"));
     /* only for premium users initWallet/enclaves*/
     //await initWallet();
-     initUser();
+    window.changeCompany = (companyId) =>{
+        window.currentCompanyId=companyId;
+        let user = JSON.parse(localStorage.getItem("currentUser"));
+        user.currentCompanyId = currentCompanyId;
+        localStorage.setItem("currentUser", JSON.stringify(user));
+        window.location = "";
+    }
     if (('indexedDB' in window)) {
         await initLiteUserDatabase();
     } else {
         await showApplicationError("IndexDB not supported","Your current browser does not support local storage. Please use a different browser, or upgrade to premium","IndexDB is not supported by your browser");
     }
+    await initUser();
     await loadPage();
 
     defineActions();
