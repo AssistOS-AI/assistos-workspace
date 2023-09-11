@@ -76,7 +76,7 @@
     line-height: normal;
 }
 
-.summarize,
+.regenerate,
 .chapters-modal {
     cursor: pointer;
     display: flex;
@@ -91,7 +91,7 @@
     padding-right: 20px;
 }
 
-.summarize svg,
+.regenerate svg,
 .chapters-modal svg {
     margin-top: -5px;
     margin-right: 5px;
