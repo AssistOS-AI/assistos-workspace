@@ -77,13 +77,13 @@
     line-height: normal;
 }
 
-.summarize svg,
+.regenerate svg,
 .suggest svg {
     margin-top: -5px;
     margin-right: 5px;
 }
 
-.summarize,
+.regenerate,
 .suggest {
     cursor: pointer;
     align-items: center;
