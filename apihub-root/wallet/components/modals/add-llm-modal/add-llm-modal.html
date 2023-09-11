@@ -1,0 +1,25 @@
+<link rel="stylesheet" href="./wallet/components/modals/add-llm-modal/add-llm-modal.css">
+<div class="modal-dialog" role="document">
+  <div class="modal-content">
+    <div class="modal-header">
+      <h5 class="modal-title">
+        Add LLM key
+        <button type="button" class="close" data-local-action="closeModal" aria-label="Close">
+          <span aria-hidden="true">&times;</span>
+        </button>
+      </h5>
+    </div>
+    <div class="modal-body">
+      <form>
+        <div class="form-item">
+          <label class="form-label" for="llm-key">Key</label>
+          <input class="form-input" name="description" data-id="llm-key" type="text" id="llm-key" required placeholder="Add key">
+        </div>
+
+        <div class="modal-footer">
+          <button class="wide-btn" data-local-action="submitForm">Add key</button>
+        </div>
+      </form>
+    </div>
+  </div>
+</div>

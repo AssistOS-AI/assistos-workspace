@@ -59,8 +59,4 @@ export class documentsPage {
     async showActionBox(_target, primaryKey, componentName, insertionMode) {
         await showActionBox(_target, primaryKey, componentName, insertionMode);
     }
-
-    closeModal(_target) {
-        closeModal(_target);
-    }
 }

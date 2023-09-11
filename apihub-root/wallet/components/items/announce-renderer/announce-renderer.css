@@ -11,7 +11,6 @@
     color: #372B2B;
     font-feature-settings: 'clig' off, 'liga' off;
     text-overflow: ellipsis;
-    whitespace: nowrap;
     font-family: Poppins;
     font-size: 20px;
     font-style: normal;
@@ -29,7 +28,6 @@
     text-align: justify;
     font-feature-settings: 'clig' off, 'liga' off;
     text-overflow: ellipsis;
-    whitespace: nowrap;
     font-family: Poppins;
     font-size: 14px;
     font-style: normal;
