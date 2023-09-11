@@ -30,8 +30,13 @@ export class proofReaderPage {
         if(checkValidityFormInfo(formData))
         {
             const proofReader= new proofReaderService(formData.data.length,formData.data.personality,formData.data.llm,formData.data.language,formData.data.variants,formData.data.prompt);
-            let result= await proofReader.proofRead();
-            console.log(result);
+            let results= await proofReader.proofRead();
+            let generatedTextNode=document.querySelector(".generated-content");
+            let stringHTML="";
+            for(let subResult of results){
+                stringHTML+=`<p>${subResult}</p>`;
+            }
+            generatedTextNode.innerHTML=stringHTML;
         }
     }
 }
