@@ -1,4 +1,5 @@
 import { showModal } from "../../../utils/modal-utils.js";
+import { showActionBox } from "../../../../WebSkel/utils/modal-utils.js";
 
 export class announcesPage {
     constructor(element) {
@@ -37,5 +38,9 @@ export class announcesPage {
 
     async showAddAnnounceModal() {
         await showModal(document.querySelector("body"), "add-announce-modal", {});
+    }
+
+    async showActionBox(_target, primaryKey, componentName, insertionMode) {
+        await showActionBox(_target, primaryKey, componentName, insertionMode);
     }
 }
