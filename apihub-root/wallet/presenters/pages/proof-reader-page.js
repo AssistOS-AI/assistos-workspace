@@ -25,9 +25,16 @@ export class proofReaderPage {
         }
         this.llmsOptions=stringHTML;
     }
+
+    checkPasswordConfirmation(){
+        let password = document.querySelector("#password");
+        let confirmPassword = document.querySelector("#confirm-password");
+        return password.value === confirmPassword.value;
+    }
     async executeProofRead(formElement){
-        const formData= await extractFormInformation(formElement);
-        if(checkValidityFormInfo(formData))
+        const conditions={"checkPasswordConfirmation":this.checkPasswordConfirmation}
+        const formData= await extractFormInformation(formElement, conditions);
+        if(formData.isValid)
         {
             const proofReader= new proofReaderService(formData.data.length,formData.data.personality,formData.data.llm,formData.data.language,formData.data.variants,formData.data.prompt);
             let results= await proofReader.proofRead();
