@@ -1,3 +1,5 @@
+import { showModal } from "../../../utils/modal-utils.js";
+
 export class announcesPage {
     constructor(element) {
         this.announceDivs = "Here are the announces:";
@@ -30,8 +32,10 @@ export class announcesPage {
         this.announceDivs = "";
         announces.forEach((announce)=> {
             this.announceDivs += `<announce-renderer data-title="${announce.title}" data-content="${announce.content}"></announce-renderer>`;
-            // this.announceDivs += `<div>${announce.title}</div>`;
         });
-        // this.announceDivs += `<announce-renderer data-title="Helo"></announce-renderer>`;
+    }
+
+    async showAddAnnounceModal() {
+        await showModal(document.querySelector("body"), "add-announce-modal", {});
     }
 }

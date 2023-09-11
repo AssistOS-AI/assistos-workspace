@@ -4,11 +4,12 @@
 :host {
     font-family: 'Poppins', sans-serif;
 }
-dialog[class="modal"]
-{
+
+dialog[class="modal"] {
     padding: 0;
     border:none;
 }
+
 #show-error-modal {
     width: 500px;
 }
@@ -23,7 +24,7 @@ dialog[class="modal"]
     padding-bottom:10px;
 }
 
-#error-message{
+#error-message {
     font-family: DM Sans;
     font-size: 26px;
     font-weight: 700;
@@ -63,7 +64,6 @@ dialog[class="modal"]
     padding: 10px;
     border-radius: 4px;
     text-align:justify;
-
 }
 
 #details-toggle:checked ~ #detailed-error-message {
@@ -74,7 +74,8 @@ dialog[class="modal"]
     display: none;
 }
 
-#details-button, #ok-button {
+#details-button,
+#ok-button {
     font-family: Poppins;
     font-weight:600;
     padding: 8px 15px;
@@ -84,29 +85,29 @@ dialog[class="modal"]
     cursor: pointer;
     display: inline-flex;
     text-align: center;
-    color:#FFFFFF;
+    color: #FFFFFF;
 }
 
-#ok-button{
+#ok-button {
     background: linear-gradient(0deg, #429E9D, #429E9D),
     linear-gradient(0deg, rgba(66, 158, 157, 0), rgba(66, 158, 157, 0));
 }
 
-#details-button{
-    color:#429E9D;
+#details-button {
+    color: #429E9D;
     background-color: #FFFFFF;
-    border-color:#429E9D;
+    border-color: #429E9D;
 }
 
-.button{
+.button {
     width: 163px;
     height: 37px;
-    display:flex;
-    justify-content:center;
-    align-items:center;
+    display: flex;
+    justify-content: center;
+    align-items: center;
 }
 
-@media (max-width:500px){
+@media (max-width: 500px) {
     #show-error-modal {
         width: 100%;
     }

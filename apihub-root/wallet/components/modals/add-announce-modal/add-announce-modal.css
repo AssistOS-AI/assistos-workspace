@@ -13,12 +13,12 @@ dialog[class="modal"] {
 }
 
 .close {
+    cursor: pointer;
     float: right;
     background-color: transparent;
     font-size: 20px;
     margin-left: 20px;
     border: none;
-    cursor: pointer;
 }
 
 .form-label {
