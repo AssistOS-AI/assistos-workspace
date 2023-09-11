@@ -54,7 +54,6 @@
 }
 
 [contenteditable=true]:empty:before {
-    /*background-color: #5F0808;*/
     background-color: #5F0808;
     color: #ccc;
     content: attr(placeholder);

@@ -1,4 +1,3 @@
-
 export class documentSettingsPage {
     constructor() {
         this.id = webSkel.company.currentDocumentId;
