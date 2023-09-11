@@ -22,6 +22,7 @@ dialog[class="modal"] {
 }
 
 .close {
+    cursor: pointer;
     float: right;
     background-color: transparent;
     border: none;
@@ -35,6 +36,7 @@ dialog[class="modal"] {
 }
 
 .wide-btn {
+    cursor: pointer;
     padding: 8px 52px;
     border-radius: 16px;
     margin: 16px 0;
