@@ -1,27 +1,34 @@
-
 export class llmsService {
-    constructor() {};
+    constructor() {
+
+    }
+
     async addLLM(llm) {
         webSkel.company.llms.push(llm);
         await webSkel.localStorage.addLLM(llm);
         webSkel.company.notifyObservers();
     }
+
     getLLMs() {
         return webSkel.company.llms || [];
     }
+
     getLLM(llmName) {
         return webSkel.company.llms.find(llm => llm.name === llmName);
     }
-    async summarize(prompt,llmId) {
-        let llm=this.getLLM(llmId);
+
+    async summarize(prompt, llmId) {
+        let llm = this.getLLM(llmId);
         const data = await this.llmApiFetch(llm.url, llm.apiKeys, prompt);
     }
-    async proofread(prompt,llmId) {
-        let llm=this.getLLM(llmId);
+
+    async proofread(prompt, llmId) {
+        let llm = this.getLLM(llmId);
         return await this.llmApiFetch(llm.url, llm.apiKeys, prompt);
 
     }
-    async llmApiFetch(url,apiKey,prompt) {
+
+    async llmApiFetch(url, apiKey, prompt) {
         const options = {
             method: 'POST',
             headers: {
@@ -36,8 +43,7 @@ export class llmsService {
                 temperature: 0.7
             })
         };
-
-        try{
+        try {
             const response = await fetch(url, options);
             if (response.status !== 200) {
                 console.log(`Response Status: ${response.status}`);

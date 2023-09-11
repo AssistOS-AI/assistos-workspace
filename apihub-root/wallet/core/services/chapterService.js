@@ -1,7 +1,10 @@
-import {Paragraph} from "../models/paragraph.js";
-export class chapterService{
-    constructor(){}
-    createParagraph(chapter,paragraphText){
+import { Paragraph } from "../models/paragraph.js";
+export class chapterService {
+    constructor() {
+
+    }
+
+    createParagraph(chapter, paragraphText) {
         chapter.paragraphs.push(new Paragraph(paragraphText, chapter.paragraphs.length + 1));
     }
 
@@ -10,14 +13,14 @@ export class chapterService{
         return paragraph || null;
     }
 
-    deleteParagraph(chapter,paragraphId) {
+    deleteParagraph(chapter, paragraphId) {
         const index = chapter.paragraphs.findIndex(paragraph => paragraph.id === paragraphId);
         if (index !== -1) {
             chapter.paragraphs.splice(index, 1);
         }
     }
 
-    changeParagraphOrder(chapter,paragraphSourceId, paragraphTargetId) {
+    changeParagraphOrder(chapter, paragraphSourceId, paragraphTargetId) {
         const sourceIndex = chapter.paragraphs.findIndex(p => p.id === paragraphSourceId);
         const targetIndex = chapter.paragraphs.findIndex(p => p.id === paragraphTargetId);
         if (sourceIndex !== -1 && targetIndex !== -1) {
@@ -25,11 +28,11 @@ export class chapterService{
         }
     }
 
-    updateTitle(chapter,title){
+    updateTitle(chapter, title){
         chapter.title = title;
     }
 
-    observeParagraph(chapter,paragraphId){
+    observeParagraph(chapter, paragraphId){
         chapter.currentParagraphId = paragraphId;
     }
 }
