@@ -2,6 +2,8 @@ import { addNewDocumentModal } from "./presenters/modals/add-new-document-modal.
 import { addAnnounceModal } from "./presenters/modals/add-announce-modal.js";
 import { addIdeaModal } from "./presenters/modals/add-idea-modal.js";
 import { addLLMModal } from "./presenters/modals/add-llm-modal.js";
+import { addPersonalityModal } from "./presenters/modals/add-personality-modal.js";
+import { addUserModal } from "./presenters/modals/add-user-modal.js";
 import { suggestAbstractModal } from "./presenters/modals/suggest-abstract-modal.js";
 import { suggestTitleModal } from "./presenters/modals/suggest-title-modal.js"
 import { documentsPage } from "./presenters/pages/documents-page.js";
@@ -23,6 +25,7 @@ import { storageService } from "./core/services/storageService.js";
 import { Chapter } from "./core/models/chapter.js";
 import { Document} from "./core/models/document.js";
 import { Personality } from "./core/models/personality.js";
+import { User } from "./core/models/user.js";
 import { Paragraph } from "./core/models/paragraph.js";
 import { Company } from "./core/company.js";
 import { companyDropdown }  from "./presenters/components/company-dropdown.js";
@@ -30,11 +33,12 @@ import { showModal } from "./utils/modal-utils.js";
 import { chapterItem } from "./presenters/components/chapter-item.js";
 import { addRecord, getRecord, getAllRecords, getTableRecords, deleteRecord, openDatabase, updateRecord } from "./utils/indexDB.js";
 import { initUser, registerAccountActions } from "./scripts/authentication.js";
-import{ documentService } from "./core/services/documentService.js";
-import{ chapterService } from "./core/services/chapterService.js";
-import{ llmsService} from "./core/services/llmsService.js";
-import{ personalitiesService } from "./core/services/personalitiesService.js";
-import{ settingsService } from "./core/services/settingsService.js";
+import { documentService } from "./core/services/documentService.js";
+import { chapterService } from "./core/services/chapterService.js";
+import { llmsService } from "./core/services/llmsService.js";
+import { personalitiesService } from "./core/services/personalitiesService.js";
+import { usersService } from "./core/services/usersService.js";
+import { settingsService } from "./core/services/settingsService.js";
 import { LLM } from "./core/models/llm.js";
 import WebSkel from "../WebSkel/webSkel.js";
 export {
@@ -42,11 +46,14 @@ export {
     chapterService,
     llmsService,
     personalitiesService,
+    usersService,
     settingsService,
     addNewDocumentModal,
     addAnnounceModal,
     addIdeaModal,
     addLLMModal,
+    addPersonalityModal,
+    addUserModal,
     suggestAbstractModal,
     suggestTitleModal,
     documentsPage,
@@ -75,6 +82,7 @@ export {
     Chapter,
     Document,
     Personality,
+    User,
     Paragraph,
     addRecord,
     getRecord,

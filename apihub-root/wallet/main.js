@@ -5,6 +5,8 @@ import {
     addAnnounceModal,
     addIdeaModal,
     addLLMModal,
+    addPersonalityModal,
+    addUserModal,
     suggestAbstractModal,
     suggestTitleModal,
     documentsPage,
@@ -23,7 +25,7 @@ import {
     storageService,
     WebSkel, addRecord, closeModal,
     initUser, registerAccountActions,
-    Company, documentService, llmsService, personalitiesService, settingsService, chapterService
+    Company, documentService, llmsService, personalitiesService, settingsService, chapterService, usersService
 } from "./imports.js";
 
 const openDSU = require("opendsu");
@@ -97,9 +99,9 @@ async function loadPage(){
 }
 
 async function initLiteUserDatabase(){
-    webSkel.localStorage = await storageService.getInstance("freeUser",1);
+    webSkel.localStorage = await storageService.getInstance("freeUser", 1);
     await webSkel.localStorage.initDatabase();
-    let currentCompanyId=JSON.parse(localStorage.getItem("currentUser")).currentCompanyId;
+    let currentCompanyId = JSON.parse(localStorage.getItem("currentUser")).currentCompanyId;
     webSkel.company = new Company(await webSkel.localStorage.getCompanyData(currentCompanyId));
 }
 
@@ -122,7 +124,7 @@ function changeSelectedPageFromSidebar(url) {
     });
 }
 
-function definePresenters(){
+function definePresenters() {
     webSkel.registerPresenter("chapter-item", chapterItem);
     webSkel.registerPresenter("company-dropdown", companyDropdown);
 
@@ -144,15 +146,18 @@ function definePresenters(){
     webSkel.registerPresenter("add-announce-modal", addAnnounceModal);
     webSkel.registerPresenter("add-idea-modal", addIdeaModal);
     webSkel.registerPresenter("add-llm-modal", addLLMModal);
+    webSkel.registerPresenter("add-personality-modal", addPersonalityModal);
+    webSkel.registerPresenter("add-user-modal", addUserModal);
     webSkel.registerPresenter("suggest-abstract-modal", suggestAbstractModal);
     webSkel.registerPresenter("suggest-title-modal", suggestTitleModal);
 }
 
-function defineServices(){
+function defineServices() {
     webSkel.registerService("documentService", documentService);
     webSkel.registerService("chapterService", chapterService);
     webSkel.registerService("llmsService", llmsService);
     webSkel.registerService("personalitiesService", personalitiesService);
+    webSkel.registerService("usersService", usersService);
     webSkel.registerService("settingsService", settingsService);
     webSkel.registerService("currentCompany", Company);
 }
@@ -165,6 +170,8 @@ function defineComponents() {
     webSkel.defineComponent("paragraph-item", "./wallet/components/items/paragraph-item/paragraph-item.html");
     webSkel.defineComponent("document-item-renderer", "./wallet/components/items/document-item-renderer/document-item-renderer.html");
     webSkel.defineComponent("llm-item-renderer", "./wallet/components/items/llm-item-renderer/llm-item-renderer.html");
+    webSkel.defineComponent("personality-item-renderer", "./wallet/components/items/personality-item-renderer/personality-item-renderer.html");
+    webSkel.defineComponent("user-item-renderer", "./wallet/components/items/user-item-renderer/user-item-renderer.html");
     webSkel.defineComponent("announce-renderer", "./wallet/components/items/announce-renderer/announce-renderer.html");
     webSkel.defineComponent("action-box", "./wallet/components/action-box/action-box.html");
     webSkel.defineComponent("title-view", "./wallet/components/title-view/title-view.html");
@@ -190,6 +197,8 @@ function defineComponents() {
     webSkel.defineComponent("add-announce-modal", "./wallet/components/modals/add-announce-modal/add-announce-modal.html");
     webSkel.defineComponent("add-idea-modal", "./wallet/components/modals/add-idea-modal/add-idea-modal.html");
     webSkel.defineComponent("add-llm-modal", "./wallet/components/modals/add-llm-modal/add-llm-modal.html");
+    webSkel.defineComponent("add-personality-modal", "./wallet/components/modals/add-personality-modal/add-personality-modal.html");
+    webSkel.defineComponent("add-user-modal", "./wallet/components/modals/add-user-modal/add-user-modal.html");
     webSkel.defineComponent("show-error-modal", "./wallet/components/modals/show-error-modal/show-error-modal.html");
     webSkel.defineComponent("suggest-abstract-modal", "./wallet/components/modals/suggest-abstract-modal/suggest-abstract-modal.html");
     webSkel.defineComponent("suggest-title-modal", "./wallet/components/modals/suggest-title-modal/suggest-title-modal.html");

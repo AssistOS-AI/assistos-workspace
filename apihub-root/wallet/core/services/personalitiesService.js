@@ -1,4 +1,4 @@
-export class personalitiesService{
+export class personalitiesService {
     constructor() {
 
     }

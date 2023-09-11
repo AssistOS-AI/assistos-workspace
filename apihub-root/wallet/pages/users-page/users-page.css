@@ -1,0 +1,35 @@
+.table-header {
+    padding-left: 10px;
+    display: flex;
+    justify-content: space-between;
+    color: #363C44;
+    font-family: Poppins;
+    font-size: 18px;
+    font-style: normal;
+    font-weight: 700;
+    line-height: normal;
+    text-transform: capitalize;
+}
+
+.add-icon {
+    margin-right: 5px;
+    margin-bottom: 1px;
+}
+
+.cell {
+    width: 24%;
+    padding: 8px 10px;
+    white-space: nowrap;
+    overflow: hidden;
+    text-overflow: ellipsis;
+}
+
+.modal-section {
+    display: flex;
+    justify-content: flex-end;
+    padding: 10px 20px 0 0;
+}
+
+#page-content {
+    padding: 0;
+}

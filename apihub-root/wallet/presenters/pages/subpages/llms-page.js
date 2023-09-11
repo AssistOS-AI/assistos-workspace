@@ -1,5 +1,6 @@
-import { closeModal, showActionBox } from "../../../../WebSkel/utils/modal-utils.js";
+import { showActionBox } from "../../../../WebSkel/utils/modal-utils.js";
 import { showModal } from "../../../utils/modal-utils.js";
+import { llmsService } from "../../../core/services/llmsService.js";
 
 export class llmsPage {
     constructor(element) {
@@ -10,14 +11,16 @@ export class llmsPage {
         this.button = "Add LLM";
         this.tableRows = "No data loaded";
         this.element = element;
-        if(webSkel.company.documents) {
-            this._documentConfigs = webSkel.company.documents;
+        const llmService = new llmsService();
+        this._llmConfigs = llmService.getLLMs();
+        if(webSkel.company.llms) {
+            this._llmConfigs = webSkel.company.llms;
             setTimeout(()=> {
                 this.invalidate()
-            },0);
+            }, 0);
         }
         this.updateState = ()=> {
-            this._documentConfigs = webSkel.company.documents;
+            this._llmConfigs = webSkel.company.llms;
             this.invalidate();
         }
         webSkel.company.onChange(this.updateState);
@@ -25,7 +28,7 @@ export class llmsPage {
 
     beforeRender() {
         this.tableRows = "";
-        if (this._llmConfigs) {
+        if (this._llmConfigs && this._llmConfigs.length > 0) {
             this._llmConfigs.forEach((item) => {
                 this.tableRows += `<llm-item-renderer data-name="${item.name}" data-key="${item.key}" data-url="${item.url}" data-primary-key="${item.primaryKey}"></llm-item-renderer>`;
             });

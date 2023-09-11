@@ -29,17 +29,49 @@ export async function openDatabase(dbName, version) {
                 const existingCompanies = event.target.result;
 
                 if (existingCompanies.length === 0) {
-                    const defaultCompany = {name: `Onboarding company`,
-                        llms:[
-                            {name:"GPT-3",apiKeys:["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"],url:"https://api.openai.com/v1/chat/completions",id:1}
+                    const defaultCompany = {
+                        name: `Onboarding company`,
+                        llms: [{
+                                name: "GPT-3",
+                                apiKeys: [
+                                    "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"
+                                ],
+                                url: "https://api.openai.com/v1/chat/completions",
+                                id: 1
+                            },
+                            {
+                                name: "GPT-4",
+                                apiKeys: [
+                                    ""
+                                ],
+                                url: "",
+                                id: 2
+                            },
+                            {
+                                name: "OpenAI",
+                                apiKeys: [
+                                    ""
+                                ],
+                                url: "",
+                                id: 3
+                            },
+                            {
+                                name: "Azure GPT-4",
+                                apiKeys: [
+                                    ""
+                                ],
+                                url: "",
+                                id: 3
+                            }
                         ],
-                        documents:[{
+                        documents: [
+                        {
                             id: 1,
-                            title:"Onboarding Document",
+                            title: "Onboarding Document",
                             abstract: "Lorem ipsum dolor sit amet, usu at facilis mandamus periculis. Ut aeterno forensibus nec, mea animal utamur in. In option regione temporibus sea, duo insolens hendrerit ex. Harum deleniti recusabo mea an, duo dicant deseruisse disputationi te, ei mei quot offendit. Eum vero minim virtute ex, ne tale porro vel. Eum te graecis phaedrum corrumpit, melius facilis perfecto qui te, ut eam iusto disputando. Ne lorem consetetur vim.",
                             chapters: [
                                 {
-                                    title: "test chapter",
+                                    title: "Chapter 1",
                                     id: 1,
                                     paragraphs: [
                                         {
@@ -53,7 +85,7 @@ export async function openDatabase(dbName, version) {
                                     ]
                                 },
                                 {
-                                    title: "test chapter 2",
+                                    title: "Chapter 2",
                                     id: 2,
                                     paragraphs: [
                                         {
@@ -67,7 +99,7 @@ export async function openDatabase(dbName, version) {
                                     ]
                                 },
                                 {
-                                    title: "test chapter 3",
+                                    title: "Chapter 3",
                                     id: 3,
                                     paragraphs: [
                                         {
@@ -80,11 +112,33 @@ export async function openDatabase(dbName, version) {
                                         }
                                     ]
                                 }
-                            ],settings: {}}], settings: {},admins: [], users: []
+                            ], settings: {}
+                        }],
+                        settings: {},
+                        admins: [],
+                        users: [{
+                            lastName: "Pinguinescu",
+                            firstName: "Pingu",
+                            email: "pingu@yahoo.com",
+                            phoneNumber: "0722222222"
+                        },
+                        {
+                            lastName: "Pinguinescu",
+                            firstName: "Tux",
+                            email: "tux_pinguinescu@gmail.com",
+                            phoneNumber: "0733333333"
+                        }],
+                        personalities: [{
+                            shortname: "Personality 1",
+                            description: "This is a personality"
+                        },
+                        {
+                            shortname: "Personality 2",
+                            description: "This is another personality"
+                        }]
                     };
 
                     const addRequest = companyStore.add(defaultCompany);
-
                     addRequest.onsuccess = () => {
                         console.log("Default company added.");
                     };
@@ -101,8 +155,6 @@ export async function openDatabase(dbName, version) {
         };
     });
 }
-
-
 
 /* add */
 export async function addRecord(db, storeName, data) {
@@ -150,7 +202,7 @@ export async function getRecord(db, storeName, key) {
     });
 }
 
-export async function getTableRecords(db,storeName) {
+export async function getTableRecords(db, storeName) {
     return new Promise((resolve, reject) => {
         const transaction = db.transaction(storeName, "readonly");
         const objectStore = transaction.objectStore(storeName);
