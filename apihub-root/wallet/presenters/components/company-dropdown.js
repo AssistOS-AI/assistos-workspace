@@ -1,7 +1,8 @@
+import {getClosestParentElement} from "../../imports.js";
 export class companyDropdown {
     constructor(element) {
         this.element = element;
-        this.currentCompanyName = "Personal Space";
+        this.currentCompanyName = (currentUser.companies.find((company)=>company.id===currentCompanyId)).name;
         if(webSkel.company.documents) {
             this._documentConfigs = webSkel.company.documents;
             setTimeout(()=> {
@@ -14,13 +15,13 @@ export class companyDropdown {
         }
         webSkel.company.onChange(this.updateState);
         /* to be removed */
-        this.companies = ["Outfinity", "AIAuthor", "Pharma Ledger"];
+        this.companies = currentUser.companies.filter(company=>company.id!==currentCompanyId);
     }
 
     beforeRender() {
         this.companiesDiv = "";
         this.companies.forEach((company) => {
-            this.companiesDiv += `<company-item company-name="${company}"></company-item>`;
+            this.companiesDiv += `<company-item data-company-name="${company.name}" data-company-id="${company.id}"></company-item>`;
         });
     }
 
@@ -30,9 +31,8 @@ export class companyDropdown {
     }
 
     changeOrganization(_target) {
-        this.currentCompanyName = _target.innerText;
-        this.element.querySelector(".organization-name").innerText = this.currentCompanyName;
-        let target = _target.parentElement.parentElement;
-        target.style.display = "none";
+        let selectedCompany = getClosestParentElement(_target,['company-item']);
+        let selectedCompanyId=parseInt(selectedCompany.getAttribute('data-company-id'));
+        window.changeCompany(selectedCompanyId);
     }
 }
