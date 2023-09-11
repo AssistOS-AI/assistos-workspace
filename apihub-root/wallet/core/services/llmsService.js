@@ -18,7 +18,7 @@ export class llmsService {
     }
     async proofread(prompt,llmId) {
         let llm=this.getLLM(llmId);
-        const data = await this.llmApiFetch(llm.url, llm.apiKeys, prompt);
+        return await this.llmApiFetch(llm.url, llm.apiKeys, prompt);
 
     }
     async llmApiFetch(url,apiKey,prompt) {
@@ -45,7 +45,7 @@ export class llmsService {
                 throw new Error(`Failed to fetch: ${response.status}`);
             }
             const result = await response.json();
-            console.log('API Response:', result.choices[0].message.content);
+            return result.choices[0].message.content;
         } catch (error) {
             console.log('API call failed:', error);
         }

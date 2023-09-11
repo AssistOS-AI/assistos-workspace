@@ -5,7 +5,7 @@ export class proofReaderService{
         this.personality=personality||undefined;
         this.llmId=llmId||undefined;
         this.language=language||undefined;
-        this.variantsCount=variantsCount||undefined;
+        this.variantsCount=variantsCount||1;
         this.prompt=prompt;
     }
     /* to move to summarizer class */
