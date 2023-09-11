@@ -28,13 +28,12 @@ export class addNewDocumentModal {
 
     async addDocumentSubmitForm(_target) {
         let documentTitle= new FormData(getClosestParentElement(_target,'form')).get("documentTitle");
-        if(documentTitle !== ""){
+        if(documentTitle !== "") {
             closeModal(_target);
             await this.documentService.addDocument(new Document(documentTitle));
-        }
-        else{
+        } else {
             closeModal(_target);
-            await showApplicationError("Please enter a title for the document", "Title cannot be null",  `The title "${documentTitle}" is not valid. Please enter a valid title for the document`);
+            await showApplicationError("Please enter a title for the document", "Title cannot be null", `The title "${documentTitle}" is not valid. Please enter a valid title for the document`);
         }
     }
 }

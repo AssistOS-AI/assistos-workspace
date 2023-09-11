@@ -1,8 +1,8 @@
-import {getClosestParentElement} from "../../imports.js";
+import { getClosestParentElement } from "../../imports.js";
 export class companyDropdown {
     constructor(element) {
         this.element = element;
-        this.currentCompanyName = (currentUser.companies.find((company)=>company.id===currentCompanyId)).name;
+        this.currentCompanyName = (currentUser.companies.find((company) => company.id === currentCompanyId)).name;
         if(webSkel.company.documents) {
             this._documentConfigs = webSkel.company.documents;
             setTimeout(()=> {
@@ -15,7 +15,7 @@ export class companyDropdown {
         }
         webSkel.company.onChange(this.updateState);
         /* to be removed */
-        this.companies = currentUser.companies.filter(company=>company.id!==currentCompanyId);
+        this.companies = currentUser.companies.filter(company => company.id !== currentCompanyId);
     }
 
     beforeRender() {
@@ -32,7 +32,7 @@ export class companyDropdown {
 
     changeOrganization(_target) {
         let selectedCompany = getClosestParentElement(_target,['company-item']);
-        let selectedCompanyId=parseInt(selectedCompany.getAttribute('data-company-id'));
+        let selectedCompanyId = parseInt(selectedCompany.getAttribute('data-company-id'));
         window.changeCompany(selectedCompanyId);
     }
 }

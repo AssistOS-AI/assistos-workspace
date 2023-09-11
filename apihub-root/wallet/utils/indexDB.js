@@ -137,17 +137,24 @@ export async function openDatabase(dbName, version) {
                             description: "This is another personality"
                         }]
                     };
-                    const defaultCompany2 = {name: `Onboarding company2`,
-                        llms:[
-                            {name:"GPT-3",apiKeys:["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"],url:"https://api.openai.com/v1/chat/completions",id:1}
+                    const defaultCompany2 = {
+                        name: `Onboarding company2`,
+                        llms: [{
+                                name: "GPT-3",
+                                apiKeys: [
+                                    "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"
+                                ],
+                                url: "https://api.openai.com/v1/chat/completions",
+                                id: 1
+                            }
                         ],
-                        documents:[{
+                        documents: [{
                             id: 1,
-                            title:"Onboarding Document2",
+                            title: "Onboarding Document2",
                             abstract: "Lorem ipsum dolor sit amet, usu at facilis mandamus periculis. Ut aeterno forensibus nec, mea animal utamur in. In option regione temporibus sea, duo insolens hendrerit ex. Harum deleniti recusabo mea an, duo dicant deseruisse disputationi te, ei mei quot offendit. Eum vero minim virtute ex, ne tale porro vel. Eum te graecis phaedrum corrumpit, melius facilis perfecto qui te, ut eam iusto disputando. Ne lorem consetetur vim.",
                             chapters: [
                                 {
-                                    title: "test chapter",
+                                    title: "Chapter 1",
                                     id: 1,
                                     paragraphs: [
                                         {
@@ -161,7 +168,7 @@ export async function openDatabase(dbName, version) {
                                     ]
                                 },
                                 {
-                                    title: "test chapter 2",
+                                    title: "Chapter 2",
                                     id: 2,
                                     paragraphs: [
                                         {
@@ -175,7 +182,7 @@ export async function openDatabase(dbName, version) {
                                     ]
                                 },
                                 {
-                                    title: "test chapter 3",
+                                    title: "Chapter 3",
                                     id: 3,
                                     paragraphs: [
                                         {
@@ -188,7 +195,11 @@ export async function openDatabase(dbName, version) {
                                         }
                                     ]
                                 }
-                            ],settings: {}}], settings: {},admins: [], users: []
+                            ], settings: {}
+                        }],
+                        settings: {},
+                        admins: [],
+                        users: [],
                     };
 
                     const addRequest = companyStore.add(defaultCompany);
@@ -209,7 +220,7 @@ export async function openDatabase(dbName, version) {
                     addRequest2.onerror = (event) => {
                         console.error("Could not add default company:", event.target.error);
                     };
-            }
+                }
             };
 
             getAllRequest.onerror = (event) => {

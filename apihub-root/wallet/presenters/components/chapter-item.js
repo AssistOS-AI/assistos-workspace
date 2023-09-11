@@ -1,4 +1,4 @@
-import {getClosestParentElement, Paragraph} from "../../imports.js";
+import { getClosestParentElement, Paragraph } from "../../imports.js";
 
 export class chapterItem {
     static docServ;
@@ -33,8 +33,6 @@ export class chapterItem {
             this.chapterContent += `<paragraph-item data-paragraph-content="${paragraph.text}" data-paragraph-id="${paragraph.id}"></paragraph-item>`;
         });
         document.removeEventListener("click", exitEditMode);
-        // document.removeEventListener("click", .bind(this, exitEditMode));
-
     }
 
     showOrHideChapter(_target, chapterId) {
@@ -48,8 +46,8 @@ export class chapterItem {
         let chapterAbove = currentChapter.previousSibling;
         if(chapterAbove.nodeName === "CHAPTER-ITEM") {
             currentChapter.after(chapterAbove);
-            let chapter1Index= this._document.chapters.findIndex(chapter=>chapter.id===parseInt(currentChapter.getAttribute('data-chapter-id')));
-            let chapter2Index= this._document.chapters.findIndex(chapter=>chapter.id===parseInt(chapterAbove.getAttribute('data-chapter-id')));
+            let chapter1Index= this._document.chapters.findIndex(chapter => chapter.id === parseInt(currentChapter.getAttribute('data-chapter-id')));
+            let chapter2Index= this._document.chapters.findIndex(chapter => chapter.id === parseInt(chapterAbove.getAttribute('data-chapter-id')));
             await this.documentService.swapChapters(this._document, chapter1Index, chapter2Index);
         }
     }
@@ -59,8 +57,8 @@ export class chapterItem {
         let chapterBelow = currentChapter.nextSibling;
         if(chapterBelow.nodeName === "CHAPTER-ITEM") {
             chapterBelow.after(currentChapter);
-            let chapter1Index= this._document.chapters.findIndex(chapter=>chapter.id===parseInt(currentChapter.getAttribute('data-chapter-id')));
-            let chapter2Index= this._document.chapters.findIndex(chapter=>chapter.id===parseInt(chapterBelow.getAttribute('data-chapter-id')));
+            let chapter1Index= this._document.chapters.findIndex(chapter => chapter.id === parseInt(currentChapter.getAttribute('data-chapter-id')));
+            let chapter2Index= this._document.chapters.findIndex(chapter => chapter.id === parseInt(chapterBelow.getAttribute('data-chapter-id')));
             await this.documentService.swapChapters(this._document, chapter1Index, chapter2Index);
         }
     }
