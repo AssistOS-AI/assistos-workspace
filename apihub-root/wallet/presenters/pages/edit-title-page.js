@@ -13,7 +13,7 @@ export class editTitlePage {
                 this.invalidate()
             },0);
         }
-        this.documentService=webSkel.initialiseService('documentService');
+        this.documentService = webSkel.initialiseService('documentService');
 
         this.updateState = ()=> {
             this._documentConfigs = webSkel.company.documents;

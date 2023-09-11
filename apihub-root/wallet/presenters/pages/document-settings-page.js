@@ -13,7 +13,7 @@ export class documentSettingsPage {
             this.invalidate();
         }
         webSkel.company.onChange(this.updateState);
-        this.documentService=webSkel.initialiseService('documentService');
+        this.documentService = webSkel.initialiseService('documentService');
         this._document = this.documentService.getDocument(this.id);
     }
 
