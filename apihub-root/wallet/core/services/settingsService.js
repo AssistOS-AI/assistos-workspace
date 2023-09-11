@@ -1,4 +1,5 @@
+export class settingsService {
+    constructor() {
 
-export class settingsService{
-    constructor(){}
+    }
 }

@@ -1,6 +1,7 @@
 import { addNewDocumentModal } from "./presenters/modals/add-new-document-modal.js";
 import { addAnnounceModal } from "./presenters/modals/add-announce-modal.js";
 import { addIdeaModal } from "./presenters/modals/add-idea-modal.js";
+import { addLLMModal } from "./presenters/modals/add-llm-modal.js";
 import { suggestAbstractModal } from "./presenters/modals/suggest-abstract-modal.js";
 import { suggestTitleModal } from "./presenters/modals/suggest-title-modal.js"
 import { documentsPage } from "./presenters/pages/documents-page.js";
@@ -45,6 +46,7 @@ export {
     addNewDocumentModal,
     addAnnounceModal,
     addIdeaModal,
+    addLLMModal,
     suggestAbstractModal,
     suggestTitleModal,
     documentsPage,

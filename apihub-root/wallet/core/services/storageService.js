@@ -100,8 +100,7 @@ export class storageService {
         } else {
             throw new Error('Company not found');
         }
-    }"Lorem ipsum dolor sit amet, usu at facilis mandamus periculis. Ut aeterno forensibus nec, mea animal utamur in. In option regione temporibus sea, duo insolens hendrerit ex. Harum deleniti recusabo mea an, duo dicant deseruisse disputationi te, ei mei quot offendit. Eum vero minim virtute ex, ne tale porro vel. Eum te graecis phaedrum corrumpit, melius facilis perfecto qui te, ut eam iusto disputando. Ne lorem consetetur vim.gvjbknl<br>tyguhijlok;<br><br><br><br>fgv thjknlm;,.bgf vcBGFvkj<br><br><br>dv c<br><br>dffb"
-
+    }
 
     async deleteDocument(companyId, documentId) {
         const company = await getRecord(this.db, 'companies', companyId);

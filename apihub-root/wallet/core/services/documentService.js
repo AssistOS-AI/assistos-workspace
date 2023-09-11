@@ -1,11 +1,15 @@
-import {Chapter} from "../../imports.js";
+import { Chapter } from "../../imports.js";
 
 export class documentService {
-    constructor(){}
+    constructor() {
+
+    }
+
     observeDocument(documentId){
         if(webSkel.company.documents.find(document => document.id === documentId))
             webSkel.company.currentDocumentId = documentId;
     }
+
     getAllDocuments() {
         return webSkel.company.documents || [];
     }
@@ -20,7 +24,7 @@ export class documentService {
     }
 
     async addDocument(document) {
-        document.id=await webSkel.localStorage.addDocument(document,webSkel.company.id);
+        document.id = await webSkel.localStorage.addDocument(document,webSkel.company.id);
         webSkel.company.documents.push(document);
         webSkel.company.notifyObservers();
     }
@@ -34,7 +38,7 @@ export class documentService {
         }
     }
 
-    async updateDocument(document,documentId) {
+    async updateDocument(document, documentId) {
         const index = webSkel.company.documents.findIndex(document => document.id === documentId);
         if (index !== -1) {
             webSkel.company.documents[index] = document;
@@ -53,7 +57,7 @@ export class documentService {
         webSkel.company.documents[documentIndex].settings = settings;
         await webSkel.localStorage.setDocSettings(documentId, settings);
     }
-    createChapter(document,title) {
+    createChapter(document, title) {
         document.chapters.push(new Chapter(title, document.chapters.length + 1, []));
     }
 
@@ -65,27 +69,27 @@ export class documentService {
         }
     }
 
-    observeChapter(document,chapterId) {
+    observeChapter(document, chapterId) {
         document.currentChapterId = chapterId;
     }
 
-    setCurrentChapter(document,chapterId) {
+    setCurrentChapter(document, chapterId) {
         document.currentChapterId = chapterId;
     }
 
-    updateDocumentTitle(document,documentTitle) {
+    updateDocumentTitle(document, documentTitle) {
         document.title = documentTitle;
     }
 
-    updateAbstract(document,abstractText){
+    updateAbstract(document, abstractText) {
         document.abstract = abstractText;
     }
-    getAbstract(document){
-        return document.abstract||null;
+    getAbstract(document) {
+        return document.abstract || null;
     }
 
     /* left shift(decrement) the ids to the right of the deleted chapter? */
-    deleteChapter(document,chapterId) {
+    deleteChapter(document, chapterId) {
         const index = document.chapters.findIndex(chapter => chapter.id === chapterId);
         if (index !== -1) {
             document.chapters.splice(index, 1);
@@ -105,9 +109,8 @@ export class documentService {
         return document.chapters.find(chapter => chapter.id === document.currentChapterId);
     }
 
-    async swapChapters(document,chapterId1, chapterId2) {
+    async swapChapters(document, chapterId1, chapterId2) {
         [document.chapters[chapterId1], document.chapters[chapterId2]] = [document.chapters[chapterId2], document.chapters[chapterId1]];
-        await webSkel.localStorage.updateDocument(webSkel.company.id,document.id,document);
+        await webSkel.localStorage.updateDocument(webSkel.company.id, document.id,document);
     }
-
 }
