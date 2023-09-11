@@ -25,6 +25,10 @@ export class addAnnounceModal {
         closeModal(_target);
     }
 
+    addAnnounceSubmitForm(_target) {
+        closeModal(_target);
+    }
+
     // async addDocumentSubmitForm(_target) {
     //     let documentTitle= new FormData(getClosestParentElement(_target, 'form')).get("documentTitle");
     //     if(documentTitle !== ""){

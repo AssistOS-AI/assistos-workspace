@@ -3,6 +3,7 @@ import {
     companyDropdown,
     addNewDocumentModal,
     addAnnounceModal,
+    addIdeaModal,
     suggestAbstractModal,
     suggestTitleModal,
     documentsPage,
@@ -140,6 +141,7 @@ function definePresenters(){
 
     webSkel.registerPresenter("add-new-document-modal", addNewDocumentModal);
     webSkel.registerPresenter("add-announce-modal", addAnnounceModal);
+    webSkel.registerPresenter("add-idea-modal", addIdeaModal);
     webSkel.registerPresenter("suggest-abstract-modal", suggestAbstractModal);
     webSkel.registerPresenter("suggest-title-modal", suggestTitleModal);
 }
@@ -183,6 +185,7 @@ function defineComponents() {
 
     webSkel.defineComponent("add-new-document-modal", "./wallet/components/modals/add-new-document-modal/add-new-document-modal.html");
     webSkel.defineComponent("add-announce-modal", "./wallet/components/modals/add-announce-modal/add-announce-modal.html");
+    webSkel.defineComponent("add-idea-modal", "./wallet/components/modals/add-idea-modal/add-idea-modal.html");
     webSkel.defineComponent("show-error-modal", "./wallet/components/modals/show-error-modal/show-error-modal.html");
     webSkel.defineComponent("suggest-abstract-modal", "./wallet/components/modals/suggest-abstract-modal/suggest-abstract-modal.html");
     webSkel.defineComponent("suggest-title-modal", "./wallet/components/modals/suggest-title-modal/suggest-title-modal.html");
