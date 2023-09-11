@@ -168,7 +168,7 @@ const getPasswordRecoveryPage = function (){
                     </div>
                     <div class="form-item">
                         <label class="form-label" for="user-password-confirm">Confirm new Password</label>
-                        <input class="form-input" name="password-confirm" type="password" data-id="user-password-confirm" id="user-password-confirm" required placeholder="Confirm new password">
+                        <input class="form-input" name="password-confirm" type="password" data-condition="checkPasswordConfirmation" data-id="user-password-confirm" id="user-password-confirm" required placeholder="Confirm new password">
                     </div>
                     <div class="form-footer">
                         <button class="wide-btn" data-action="beginPasswordRecovery">Set New Password</button>

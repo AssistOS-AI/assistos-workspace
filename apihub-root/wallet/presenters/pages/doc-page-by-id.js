@@ -35,6 +35,7 @@ export class docPageById {
 
     beforeRender() {
         this.chapterDivs = "";
+        this.chapterSidebar = "";
         this.title = `<title-view title="${this.docTitle}"></title-view>`;
         if(this.chapters.length > 0) {
             this.documentService.setCurrentChapter(this._document,this.chapters[0].id);

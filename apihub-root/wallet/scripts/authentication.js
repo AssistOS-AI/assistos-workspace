@@ -1,4 +1,4 @@
-import { checkValidityFormInfo, extractFormInformation } from "../../WebSkel/utils/form-utils.js";
+import { extractFormInformation } from "../../WebSkel/utils/form-utils.js";
 import { addUserToLocalStorage } from "../../WebSkel/utils/authentication-utils.js";
 
 const openDSU = require("opendsu");
@@ -58,7 +58,7 @@ export function registerAccountActions() {
     webSkel.registerAction("beginRegistration", async (formElement, _param) => {
         const formInfo = await extractFormInformation(formElement);
         console.log(formInfo)
-        if(checkValidityFormInfo(formInfo)) {
+        if(formInfo.isValid) {
             const randomNr = crypto.generateRandom(32);
             const secretToken = crypto.encrypt(randomNr,crypto.deriveEncryptionKey(formInfo.data.password));
             const didDocument = await $$.promisify(w3cDID.createIdentity)("key", undefined, randomNr);
@@ -86,7 +86,7 @@ export function registerAccountActions() {
     webSkel.registerAction("beginLogin", async (formElement,_param) => {
         const formInfo = await extractFormInformation(formElement);
         //console.log(formInfo)
-        if(checkValidityFormInfo(formInfo)) {
+        if(formInfo.isValid) {
             const userObj = await $$.promisify(remoteEnclaveClientAccounting.callLambda)("getUserIdByEmail", formInfo.data.email);
             if(typeof userObj === "string") {
                 console.error(`Incorrect email: + ${userObj}`);
@@ -129,10 +129,15 @@ export function registerAccountActions() {
     webSkel.registerAction("navigateToPasswordRecoveryPage", async (...params) => {
         webSkel.changeToStaticPage(`accounting/password-recovery`);
     });
-
+    function checkPasswordConfirmation(){
+        let password = document.querySelector("#password");
+        let confirmPassword = document.querySelector("#confirm-password");
+        return password.value === confirmPassword.value;
+    }
     webSkel.registerAction("beginPasswordRecovery", async (formElement, _param) => {
-        const formInfo = await extractFormInformation(formElement);
-        if (checkValidityFormInfo(formInfo)) {
+        const conditions = {"checkPasswordConfirmation": this.checkPasswordConfirmation };
+        const formInfo = await extractFormInformation(formElement, conditions);
+        if (formInfo.isValid) {
             const user = await $$.promisify(remoteEnclaveClientAccounting.callLambda)("getUserIdByEmail", formInfo.data.email);
             if (typeof user === "string") {
                 console.error(`Incorrect email: + ${user}`);
