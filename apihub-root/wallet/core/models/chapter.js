@@ -1,5 +1,4 @@
 import { Paragraph } from '../../imports.js';
-
 export class Chapter {
     constructor(title, chapterId, paragraphs) {
         this.title = title;

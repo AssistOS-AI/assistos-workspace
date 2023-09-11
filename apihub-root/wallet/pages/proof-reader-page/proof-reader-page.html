@@ -1,19 +1,22 @@
 <link href="./wallet/pages/proof-reader-page/proof-reader-page.css" rel="stylesheet"/>
 <div class="proof-reader-page" data-presenter="proof-reader-page">
     <div class="proof-reader-content">
-        <div class="ai-prompt-section">
-            <label for="ai-prompt" class="ai-prompt">AI Prompt</label> <br>
-            <div class="ai-prompt prompt1">
-                <div class="ai-prompt-textarea">
-                    <textarea id="ai-prompt" name="ai-prompt" placeholder="Describe a sunny afternoon in Atlanta."></textarea><br>
+<!--        <div class="ai-prompt-section">-->
+<!--            <label for="ai-prompt" class="ai-prompt">AI Prompt</label> <br>-->
+<!--            <div class="ai-prompt prompt1">-->
+<!--                <div class="ai-prompt-textarea">-->
+<!--                    <textarea id="ai-prompt" name="ai-prompt" placeholder="Describe a sunny afternoon in Atlanta."></textarea><br>-->
+<!--                </div>-->
+<!--            </div>-->
+<!--        </div>-->
+        <form class="preferences-setting-section">
+                <div class="form-item">
+                    <label for="prompt" class="length">Choose length of the text</label>
+                    <textarea id="prompt" name="prompt" placeholder="Describe a sunny afternoon in Atlanta."></textarea><br>
                 </div>
-            </div>
-        </div>
-        <div class="preferences-setting-section">
-            <div class="dropdown-section">
-                <div class="dropdown-content">
+                <div class="form-item">
                     <label for="length" class="length">Choose length of the text</label> <br>
-                    <select name="length" id="length">
+                    <select name="length" id="length" required>
                         <option value="" disabled selected hidden>Select length</option>
                         <option value="100">100 characters</option>
                         <option value="150">150 characters</option>
@@ -22,9 +25,9 @@
                     </select>
                 </div>
 
-                <div class="dropdown-content">
+                <div class="form-item">
                     <label for="personality" class="personality">Choose personality</label> <br>
-                    <select name="personality" id="personality">
+                    <select name="personality" id="personality" required>
                         <option value="" disabled selected hidden>Select personality</option>
                         <option value="pers1">Personality 1</option>
                         <option value="pers2">Personality 2</option>
@@ -33,20 +36,17 @@
                     </select>
                 </div>
 
-                <div class="dropdown-content">
+                <div class="form-item">
                     <label for="llm" class="llm">Choose LLM</label> <br>
-                    <select name="llm" id="llm">
+                    <select name="llm" id="llm" required>
                         <option value="" disabled selected hidden>Select LLM</option>
-                        <option value="llm1">LLM 1</option>
-                        <option value="llm2">LLM 2</option>
-                        <option value="llm3">LLM 3</option>
-                        <option value="llm4">LLM 4</option>
+                        $$llmsOptions
                     </select>
                 </div>
 
-                <div class="dropdown-content">
+                <div class="form-item">
                     <label for="language" class="language">Choose language</label> <br>
-                    <select name="language" id="language">
+                    <select name="language" id="language" required>
                         <option value="" disabled selected hidden>Select language</option>
                         <option value="language1">Language 1</option>
                         <option value="language2">Language 2</option>
@@ -54,18 +54,14 @@
                         <option value="language4">Language 4</option>
                     </select>
                 </div>
-            </div>
-
-            <div class="generate-content">
-                <div class="variants-class">
+                <div class="form-item">
                     <label for="variants" class="variants-label">Variants</label>
-                    <input id="variants" type="number" class="number-input" placeholder="1"  min="0" max="99">
+                    <input id="variants" type="number" name="variants" class="number-input" placeholder="1"  min="0" max="99">
                 </div>
-                <p class="generate-btn">
-                    Generate
-                </p>
+            <div class="modal-footer">
+                <button type="button" class="generate-btn" data-local-action="executeProofRead">Generate</button>
             </div>
-        </div>
+        </form>
     </div>
     <div class="generated-content">
         $$generatedText

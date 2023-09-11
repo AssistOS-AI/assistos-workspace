@@ -20,7 +20,7 @@ import {
     storageService,
     WebSkel, addRecord, closeModal,
     initUser, registerAccountActions,
-    Company, documentService, llmsService, personalitiesService, settingsService,
+    Company, documentService, llmsService, personalitiesService, settingsService, chapterService
 } from "./imports.js";
 
 const openDSU = require("opendsu");
@@ -144,6 +144,7 @@ function definePresenters(){
 
 function defineServices(){
     webSkel.registerService("documentService", documentService);
+    webSkel.registerService("chapterService", chapterService);
     webSkel.registerService("llmsService", llmsService);
     webSkel.registerService("personalitiesService", personalitiesService);
     webSkel.registerService("settingsService", settingsService);
@@ -164,7 +165,6 @@ function defineComponents() {
     webSkel.defineComponent("action-box-with-select", "./wallet/components/action-box-with-select/action-box-with-select.html");
     webSkel.defineComponent("alternative-title-renderer", "./wallet/components/items/alternative-title-renderer/alternative-title-renderer.html");
     webSkel.defineComponent("alternative-abstract-renderer", "./wallet/components/items/alternative-abstract-renderer/alternative-abstract-renderer.html");
-
     webSkel.defineComponent("documents-page", "./wallet/pages/documents-page/documents-page.html");
     webSkel.defineComponent("document-settings-page", "./wallet/pages/document-settings-page/document-settings-page.html");
     webSkel.defineComponent("brainstorming-page", "./wallet/pages/brainstorming-page/brainstorming-page.html");

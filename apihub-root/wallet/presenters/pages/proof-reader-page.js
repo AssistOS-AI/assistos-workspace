@@ -1,5 +1,9 @@
+import {checkValidityFormInfo, extractFormInformation} from "../../../WebSkel/utils/form-utils.js";
+import {proofReaderService} from "../../core/services/proofReaderService.js";
+
 export class proofReaderPage {
-    constructor() {
+    constructor(element) {
+        this.element=element;
         this.generatedText = "AI Generated Text";
         if(webSkel.company.documents) {
             this._documentConfigs = webSkel.company.documents;
@@ -15,6 +19,19 @@ export class proofReaderPage {
     }
 
     beforeRender() {
-
+        let stringHTML="";
+        for(let llm of webSkel.company.llms){
+            stringHTML+=`<option data-llm-name="${llm.name}" data-llm-id="${llm.id}">${llm.name}</option>`;
+        }
+        this.llmsOptions=stringHTML;
+    }
+    async executeProofRead(formElement){
+        const formData= await extractFormInformation(formElement);
+        if(checkValidityFormInfo(formData))
+        {
+            const proofReader= new proofReaderService(formData.data.length,formData.data.personality,formData.data.llm,formData.data.language,formData.data.variants,formData.data.prompt);
+            let result= await proofReader.proofRead();
+            console.log(result);
+        }
     }
 }

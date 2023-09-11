@@ -30,6 +30,9 @@ export async function openDatabase(dbName, version) {
 
                 if (existingCompanies.length === 0) {
                     const defaultCompany = {name: `Onboarding company`,
+                        llms:[
+                            {name:"GPT-3",apiKeys:["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"],url:"https://api.openai.com/v1/chat/completions",id:1}
+                        ],
                         documents:[{
                             id: 1,
                             title:"Onboarding Document",
@@ -77,7 +80,7 @@ export async function openDatabase(dbName, version) {
                                         }
                                     ]
                                 }
-                            ],settings: {}}], settings: {},admins: [], users: [],llms:[]
+                            ],settings: {}}], settings: {},admins: [], users: []
                     };
 
                     const addRequest = companyStore.add(defaultCompany);
