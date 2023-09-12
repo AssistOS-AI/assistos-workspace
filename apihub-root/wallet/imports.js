@@ -41,6 +41,7 @@ import { llmsService } from "./core/services/llmsService.js";
 import { personalitiesService } from "./core/services/personalitiesService.js";
 import { usersService } from "./core/services/usersService.js";
 import { settingsService } from "./core/services/settingsService.js";
+import {brainstormingService}   from "./core/services/brainstormingService.js";
 import { LLM } from "./core/models/llm.js";
 import WebSkel from "../WebSkel/webSkel.js";
 import { extractFormInformation } from "../WebSkel/utils/form-utils.js";
@@ -51,6 +52,7 @@ export {
     llmsService,
     personalitiesService,
     usersService,
+    brainstormingService,
     settingsService,
     addNewDocumentModal,
     addAnnounceModal,

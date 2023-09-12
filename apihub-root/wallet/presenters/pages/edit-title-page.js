@@ -1,6 +1,7 @@
 import { closeModal, showActionBox } from "../../../WebSkel/utils/modal-utils.js";
 import { showModal } from "../../utils/modal-utils.js";
 import {extractFormInformation} from "../../imports.js";
+import {brainstormingService, llmsService} from "../../imports.js";
 
 export class editTitlePage {
     constructor() {
@@ -38,9 +39,8 @@ export class editTitlePage {
         this.alternativeTitles = "";
         // this.chapterSidebar = "";
         if(this._document) {
-            let suggestedTitle = "Bees are nature's little pollination superheroes! Let's protect them and ensure our food chain thrives. #SaveTheBees";
-            for(let number = 1; number <= 10; number++) {
-                this.alternativeTitles += `<alternative-title-renderer nr="${number}" title="${suggestedTitle}"></alternative-title-renderer>`;
+            for(let i=0;i<this._document.alternativeTitles.length;i++) {
+                this.alternativeTitles += `<alternative-title-renderer nr="${i}" title="${this._document.alternativeTitles[i]}"></alternative-title-renderer>`;
             }
             // let iterator = 0;
             // this._document.chapters.forEach((item) => {
@@ -102,7 +102,17 @@ export class editTitlePage {
     }
 
     async showSuggestTitleModal() {
-        await showModal(document.querySelector("body"), "suggest-title-modal", {});
+        async function generateSuggestTitles(){
+            const documentService= webSkel.initialiseService('documentService');
+            const documentText = documentService.getDocument(webSkel.company.currentDocumentId).toString();
+            const defaultPrompt = `Based on the following document:\n"${documentText}"\n\nPlease suggest 10 original titles that are NOT already present as chapter titles in the document. Return the titles as a JSON array.`;
+            const brainstormingSrv= new brainstormingService();
+            const llmId=webSkel.company.llms[0].id;
+            return await brainstormingSrv.suggestTitles(defaultPrompt,llmId);
+        }
+
+        this.suggestedTitles= JSON.parse(await generateSuggestTitles()).titles;
+        await showModal(document.querySelector("body"), "suggest-title-modal");
     }
 
     async showActionBox(_target, primaryKey, componentName, insertionMode) {
