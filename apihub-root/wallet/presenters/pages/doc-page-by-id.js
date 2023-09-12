@@ -1,19 +1,17 @@
 import { Chapter } from "../../imports.js";
 
 export class docPageById {
+    static chapterIdForSidebar;
     constructor() {
         this.docTitle = "Documents";
         this.name = "Name";
         this.abstractText = "Edit your abstract";
         this.button = "Add new document";
-        this.chapterDivs = "";
-        this.chapterSidebar = "";
         this.showChaptersInSidebar = 0;
         this.id = webSkel.company.currentDocumentId;
-
         this.documentService = webSkel.initialiseService('documentService');
 
-        if(webSkel.company.documents) {
+        if (webSkel.company.documents) {
             this._document = this.documentService.getDocument(this.id);
             setTimeout(()=> {
                 this.invalidate();
@@ -64,6 +62,14 @@ export class docPageById {
         webSkel.changeToStaticPage(`documents/${this.id}/brainstorming`);
     }
 
+    openChapterTitlePage() {
+        webSkel.changeToStaticPage(`documents/${this.id}/edit-chapter-title/${docPageById.chapterIdForSidebar}`);
+    }
+
+    openChapterBrainstormingPage() {
+        webSkel.changeToStaticPage(`documents/${this.id}/chapter-brainstorming/${docPageById.chapterIdForSidebar}`);
+    }
+
     showEditChapterSubmenu() {
         const chapterSubmenuSection = document.querySelector(".sidebar-submenu");
         const sidebarArrow = document.querySelector(".arrow-sidebar");
@@ -86,5 +92,22 @@ export class docPageById {
 
     async showActionBox(_target, primaryKey, componentName, insertionMode) {
         await showActionBox(_target, primaryKey, componentName, insertionMode);
+    }
+
+    afterRender() {
+        let chapterSidebar = document.getElementById("chapter-sidebar");
+        if(chapterSidebar) {
+            document.addEventListener("click", (event) => {
+                if(!chapterSidebar.parentElement.contains(event.target)) {
+                    chapterSidebar.style.display = "none";
+                }
+            }, true);
+        }
+    }
+
+    static changeRightSidebar(chapterId) {
+        const chapterSubmenuSection = document.getElementById("chapter-sidebar");
+        chapterSubmenuSection.style.display = "block";
+        docPageById.chapterIdForSidebar = chapterId;
     }
 }

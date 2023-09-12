@@ -67,3 +67,7 @@
     align-items: center;
     justify-content: end;
 }
+
+#chapter-sidebar {
+    display: none;
+}

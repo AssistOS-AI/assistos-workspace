@@ -9,6 +9,8 @@ import { suggestTitleModal } from "./presenters/modals/suggest-title-modal.js"
 import { documentsPage } from "./presenters/pages/documents-page.js";
 import { docPageById } from "./presenters/pages/doc-page-by-id.js";
 import { editTitlePage } from "./presenters/pages/edit-title-page.js";
+import { chapterTitlePage } from "./presenters/pages/subpages/chapter-title-page.js";
+import { chapterBrainstormingPage } from "./presenters/pages/subpages/chapter-brainstorming-page.js";
 import { editAbstractPage } from "./presenters/pages/edit-abstract-page.js";
 import { proofReaderPage } from "./presenters/pages/proof-reader-page.js";
 import { myOrganizationPage } from "./presenters/pages/my-organization-page.js";
@@ -67,6 +69,8 @@ export {
     myOrganizationPage,
     documentSettingsPage,
     editChapterPage,
+    chapterTitlePage,
+    chapterBrainstormingPage,
     chapterItem,
     brainstormingPage,
     llmsPage,

@@ -65,10 +65,40 @@ async function getDocumentBrainstormingPage(request, response) {
     response.end();
 }
 
+async function getChapterTitlePage(request, response) {
+    const documentId = request.params.documentId;
+    const chapterId = request.params.chapterId;
+    let documentPage = "";
+    documentPage += `
+                <chapter-title-page data-document-id="${documentId}" data-chapter-id="${chapterId}" data-presenter="chapter-title-page"></chapter-title-page>
+                `
+
+    response.statusCode = 200;
+    response.setHeader("Content-Type", "text/html");
+    response.write(documentPage);
+    response.end();
+}
+
+async function getChapterBrainstormingPage(request, response) {
+    const documentId = request.params.documentId;
+    const chapterId = request.params.chapterId;
+    let documentPage = "";
+    documentPage += `
+                <chapter-brainstorming-page data-document-id="${documentId}" data-chapter-id="${chapterId}" data-presenter="chapter-brainstorming-page"></chapter-brainstorming-page>
+                `
+
+    response.statusCode = 200;
+    response.setHeader("Content-Type", "text/html");
+    response.write(documentPage);
+    response.end();
+}
+
 module.exports = {
     getDocumentPage,
     getDocumentTitlePage,
     getDocumentAbstractPage,
     getDocumentSettingsPage,
     getDocumentBrainstormingPage,
+    getChapterTitlePage,
+    getChapterBrainstormingPage,
 };

@@ -1,0 +1,104 @@
+.chapter-title-page {
+    display: flex;
+    width: 100%;
+    height: 100%;
+    justify-content: space-between;
+}
+
+.document-path {
+    cursor: default;
+    display: flex;
+    align-items: center;
+    margin: 10px 0;
+}
+
+.path-button {
+    color: #121212;
+    font-family: Poppins;
+    font-size: 14px;
+    margin: 0 5px;
+    font-style: normal;
+    font-weight: 500;
+    line-height: normal;
+}
+
+.document-path,
+.alternative {
+    margin-left: 15px;
+}
+
+.document-content {
+    width: 100%;
+    display: flex;
+}
+
+.document-path svg {
+    margin: 5px;
+}
+
+.alternative {
+    display: flex;
+    justify-content: space-between;
+}
+
+.entire-content {
+    width: 100%;
+    margin-right: 5em;
+}
+
+.alternative-titles {
+    position: relative;
+    width: 100%;
+}
+
+.alt-title {
+    color: #1E1E1E;
+    font-family: Poppins;
+    font-size: 18px;
+    font-style: normal;
+    font-weight: 700;
+    line-height: normal;
+}
+
+.suggest {
+    cursor: pointer;
+    display: flex;
+    align-items: center;
+    color: #0618D1;
+    font-feature-settings: 'clig' off, 'liga' off;
+    font-family: Poppins;
+    font-size: 12px;
+    font-style: normal;
+    font-weight: 600;
+    line-height: normal;
+}
+
+.suggest svg {
+    margin-top: -5px;
+    margin-right: 5px;
+}
+
+#page-content {
+    padding-left: 0;
+}
+
+label {
+    display: flex;
+    width: 100%;
+}
+
+textarea {
+    width: fit-content;
+}
+
+.title-edit-section {
+    width: 100%;
+    display: flex;
+    justify-content: space-between;
+}
+
+
+
+title-edit {
+    width: 100%;
+}
