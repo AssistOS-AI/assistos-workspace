@@ -1,5 +1,6 @@
 import { closeModal, showActionBox } from "../../../WebSkel/utils/modal-utils.js";
 import { showModal } from "../../utils/modal-utils.js";
+import {extractFormInformation} from "../../imports.js";
 import {brainstormingService, llmsService} from "../../imports.js";
 
 export class editTitlePage {
@@ -49,13 +50,15 @@ export class editTitlePage {
         }
     }
 
-    saveTitle() {
-        const updatedTitle = document.querySelector(".document-title").value;
-        const documentId = webSkel.company.currentDocumentId;
-        const documentIndex = webSkel.company.documents.findIndex(doc => doc.id === documentId);
-        if (documentIndex !== -1 && updatedTitle !==webSkel.company.documents[documentIndex].title) {
-            this.documentService.updateDocumentTitle(webSkel.company.documents[documentIndex],updatedTitle);
-            this.documentService.updateDocument(webSkel.company.documents[documentIndex],webSkel.company.currentDocumentId);
+    async saveTitle(_target) {
+        const formInfo = await extractFormInformation(_target);
+        if(formInfo.isValid){
+            const documentId = webSkel.company.currentDocumentId;
+            const documentIndex = webSkel.company.documents.findIndex(doc => doc.id === documentId);
+            if (documentIndex !== -1 && formInfo.data.title !==webSkel.company.documents[documentIndex].title) {
+                this.documentService.updateDocumentTitle(webSkel.company.documents[documentIndex],formInfo.data.title);
+                this.documentService.updateDocument(webSkel.company.documents[documentIndex],webSkel.company.currentDocumentId);
+            }
         }
     }
 
@@ -97,7 +100,6 @@ export class editTitlePage {
     closeModal(_target) {
         closeModal(_target);
     }
-
 
     async showSuggestTitleModal() {
         async function generateSuggestTitles(){

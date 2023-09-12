@@ -23,6 +23,7 @@ export class chapterItem {
         this.docId = webSkel.company.currentDocumentId;
         this._document = this.documentService.getDocument(this.docId);
         this.chapter = this.documentService.getChapter(this._document, this.chapterId);
+
     }
 
     beforeRender() {
@@ -64,7 +65,7 @@ export class chapterItem {
     }
 
     afterRender() {
-        this.selectedChapter = this.element.firstElementChild.nextElementSibling;
+        this.selectedChapter = this.element.firstElementChild.nextElementSibling.firstElementChild.firstElementChild.nextElementSibling.firstElementChild.nextElementSibling;
         this.selectedChapter.addEventListener("dblclick", enterEditMode, true);
     }
 }
@@ -82,12 +83,19 @@ function enterEditMode(event) {
 async function exitEditMode(event) {
     if (this.selectedChapter && this.selectedChapter.getAttribute("contenteditable") === "true" && !this.selectedChapter.contains(event.target)) {
         this.selectedChapter.setAttribute("contenteditable", "false");
-        let updatedText = this.selectedChapter.querySelector(".chapter-paragraphs").innerText;
-        let updatedTitle = this.selectedChapter.querySelector(".chapter-title").innerText;
+        let updatedText;
+        try {
+            updatedText = this.selectedChapter.innerText;
+            if(updatedText === '\n') {
+                updatedText = '';
+            }
+        } catch(e) {
+            updatedText = '';
+        }
         const documentId = parseInt(getClosestParentElement(this.selectedChapter, "doc-page-by-id").getAttribute("data-document-id"));
         const documentIndex = chapterItem.docServ.getDocumentIndex(documentId);
         let doc = chapterItem.docServ.getDocument(documentId);
-        let chapterId = parseInt(this.selectedChapter.getAttribute("data-chapter-id"));
+        let chapterId = parseInt(getClosestParentElement(this.selectedChapter, ".chapter-item").getAttribute("data-chapter-id"));
         let chapterIndex = chapterItem.docServ.getChapterIndex(doc, chapterId);
         let newParagraphs = [];
         let lastParagraphStartIndex = 0;
@@ -117,8 +125,12 @@ async function exitEditMode(event) {
                     lastParagraphStartIndex = initialIndex + newLineString.length;
                 }
             }
-            webSkel.company.documents[documentIndex].chapters[chapterIndex].paragraphs = newParagraphs;
-            webSkel.company.documents[documentIndex].chapters[chapterIndex].title = updatedTitle;
+            if (updatedText === null || updatedText.trim() === '') {
+                await chapterItem.docServ.deleteChapter(doc, chapterId);
+                webSkel.company.documents[documentIndex].chapters.splice(chapterIndex, 1);
+            } else {
+                webSkel.company.documents[documentIndex].chapters[chapterIndex].paragraphs = newParagraphs;
+            }
             await chapterItem.docServ.updateDocument(webSkel.company.documents[documentIndex], parseInt(documentId));
         }
     }
