@@ -5,7 +5,9 @@ import { extractFormInformation } from "../../../imports.js";
 export class chapterTitlePage {
     constructor() {
         this.docTitle = "Current Title";
-        this.id = webSkel.company.currentDocumentId;
+        let url = window.location.hash;
+        this.docId =  parseInt(url.split('/')[1]);
+        this.chapterId = parseInt(url.split('/')[3]);
         this.showChaptersInSidebar = 0;
 
         if(webSkel.company.documents) {
@@ -18,82 +20,58 @@ export class chapterTitlePage {
 
         this.updateState = ()=> {
             this._documentConfigs = webSkel.company.documents;
-            this._document = this.documentService.getDocument(this.id);
-            this.docTitle = this._document.title;
+            this._document = this.documentService.getDocument(this.docId);
+            if(this._document) {
+                this._chapter = this.documentService.getChapter(this._document, this.chapterId);
+                if(this._chapter)
+                    this.chapterTitle = this._chapter.title;
+            }
             this.invalidate();
         }
         webSkel.company.onChange(this.updateState);
 
-        this._document = this.documentService.getDocument(this.id);
-
+        this._document = this.documentService.getDocument(this.docId);
         if(this._document) {
-            this.docTitle = this._document.title;
-            this.chapters = this._document.chapters;
+            this._chapter = this.documentService.getChapter(this._document, this.chapterId);
+            if(this._chapter) {
+                this.chapterTitle = this._chapter.title;
+            }
         }
     }
 
     beforeRender() {
-        this.title = `<title-edit title="${this.docTitle}"></title-edit>`;
+        this.title = `<title-edit title="${this.chapterTitle}"></title-edit>`;
         this.alternativeTitles = "";
-        this.chapterSidebar = "";
         if(this._document) {
             let suggestedTitle = "Bees are nature's little pollination superheroes! Let's protect them and ensure our food chain thrives. #SaveTheBees";
             for(let number = 1; number <= 10; number++) {
                 this.alternativeTitles += `<alternative-title-renderer nr="${number}" title="${suggestedTitle}"></alternative-title-renderer>`;
             }
-            let iterator = 0;
-            this._document.chapters.forEach((item) => {
-                iterator++;
-                this.chapterSidebar += `<div class="submenu-item">Edit Chapter ${iterator}</div>`;
-            });
         }
     }
 
     async saveTitle(_target) {
         const formInfo = await extractFormInformation(_target);
-        if(formInfo.isValid){
-            const documentId = webSkel.company.currentDocumentId;
-            const documentIndex = webSkel.company.documents.findIndex(doc => doc.id === documentId);
-            if (documentIndex !== -1 && formInfo.data.title !==webSkel.company.documents[documentIndex].title) {
-                this.documentService.updateDocumentTitle(webSkel.company.documents[documentIndex],formInfo.data.title);
-                this.documentService.updateDocument(webSkel.company.documents[documentIndex],webSkel.company.currentDocumentId);
+        if(formInfo.isValid) {
+            const documentIndex = webSkel.company.documents.findIndex(doc => doc.id === this.docId);
+            const chapterIndex = webSkel.company.documents[documentIndex].chapters.findIndex(chapter => chapter.id === this.chapterId);
+            if (documentIndex !== -1 && chapterIndex !== -1 && formInfo.data.title !== webSkel.company.documents[documentIndex].chapters[chapterIndex].title) {
+                webSkel.company.documents[documentIndex].chapters[chapterIndex].title = formInfo.data.title;
+                this.documentService.updateDocument(webSkel.company.documents[documentIndex], this.docId);
             }
         }
     }
 
-    openEditTitlePage() {
-        webSkel.changeToStaticPage(`documents/${this.id}/edit-title`);
+    openChapterTitlePage() {
+        webSkel.changeToStaticPage(`documents/${this.docId}/edit-chapter-title/${this.chapterId}`);
     }
 
-    openEditAbstractPage() {
-        webSkel.changeToStaticPage(`documents/${this.id}/edit-abstract`);
-    }
-
-    openDocumentSettingsPage() {
-        webSkel.changeToStaticPage(`documents/${this.id}/settings`);
-    }
-
-    openBrainstormingPage() {
-        webSkel.changeToStaticPage(`documents/${this.id}/brainstorming`);
-    }
-
-    showEditChapterSubmenu() {
-        const chapterSubmenuSection = document.querySelector(".sidebar-submenu");
-        const sidebarArrow = document.querySelector(".arrow-sidebar");
-        if(this.showChaptersInSidebar === 0) {
-            chapterSubmenuSection.style.display = "inherit";
-            sidebarArrow.classList.remove('rotate');
-            this.showChaptersInSidebar = 1;
-        }
-        else {
-            chapterSubmenuSection.style.display = "none";
-            sidebarArrow.classList.toggle('rotate');
-            this.showChaptersInSidebar = 0;
-        }
+    openChapterBrainstormingPage() {
+        webSkel.changeToStaticPage(`documents/${this.docId}/chapter-brainstorming/${this.chapterId}`);
     }
 
     openViewPage() {
-        webSkel.changeToStaticPage(`documents/${this.id}`);
+        webSkel.changeToStaticPage(`documents/${this.docId}`);
     }
 
     closeModal(_target) {

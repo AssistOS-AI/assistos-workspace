@@ -2,7 +2,8 @@ import { closeModal, showActionBox,showModal} from "../../imports.js";
 export class editAbstractPage {
     constructor(element) {
         this.element = element;
-        this.id = webSkel.company.currentDocumentId;
+        let url = window.location.hash;
+        this.id = parseInt(url.split('/')[1]);
         this.showChaptersInSidebar = 0;
         if (webSkel.company.documents) {
             setTimeout(() => {

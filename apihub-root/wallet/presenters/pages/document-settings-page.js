@@ -1,6 +1,7 @@
 export class documentSettingsPage {
     constructor() {
-        this.id = webSkel.company.currentDocumentId;
+        let url = window.location.hash;
+        this.id = parseInt(url.split('/')[1]);
         this.showChaptersInSidebar = 0;
         if(webSkel.company.documents) {
             this._documentConfigs = webSkel.company.documents;

@@ -5,7 +5,8 @@ import {extractFormInformation} from "../../imports.js";
 export class editTitlePage {
     constructor() {
         this.docTitle = "Current Title";
-        this.id = webSkel.company.currentDocumentId;
+        let url = window.location.hash;
+        this.id = parseInt(url.split('/')[1]);
         this.showChaptersInSidebar = 0;
 
         if(webSkel.company.documents) {

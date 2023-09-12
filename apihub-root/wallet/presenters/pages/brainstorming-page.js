@@ -3,7 +3,8 @@ import { showModal } from "../../imports.js"
 
 export class brainstormingPage {
     constructor() {
-        this.id = webSkel.company.currentDocumentId;
+        let url = window.location.hash;
+        this.id = parseInt(url.split('/')[1]);
         this.docTitle = "Titlu document";
         this.showChaptersInSidebar = 0;
         if(webSkel.company.documents) {

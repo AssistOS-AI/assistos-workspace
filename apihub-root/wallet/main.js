@@ -88,9 +88,11 @@ async function loadPage(){
         switch(url.split('/')[0]) {
             case "#documents":
                 let documentIdURL= parseInt(url.split('/')[1]);
+                let chapterIdURL = parseInt(url.split('/')[3]);
                 /* To be replaced with company id from URL */
-                if(await webSkel.localStorage.getDocument(1,documentIdURL) !== null) {
+                if(await webSkel.localStorage.getDocument(1, documentIdURL) !== null) {
                     webSkel.company.currentDocumentId = documentIdURL;
+                    webSkel.company.currentChapterId = chapterIdURL;
                     changeSelectedPageFromSidebar("documents-page");
                 }
                 changeSelectedPageFromSidebar("documents-page");

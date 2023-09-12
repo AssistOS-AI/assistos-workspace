@@ -36,8 +36,8 @@ export class docPageById {
         // this.chapterSidebar = "";
         this.title = `<title-view title="${this.docTitle}"></title-view>`;
         if(this.chapters.length > 0) {
-            this.documentService.setCurrentChapter(this._document,this.chapters[0].id);
-            let iterator = 0;
+            this.documentService.setCurrentChapter(this._document, this.chapters[0].id);
+            // let iterator = 0;
             this.chapters.forEach((item) => {
                 // iterator++;
                 this.chapterDivs += `<chapter-item data-chapter-title="${item.title}" data-chapter-id="${item.id}" data-presenter="chapter-item"></chapter-item>`;
@@ -109,5 +109,6 @@ export class docPageById {
         const chapterSubmenuSection = document.getElementById("chapter-sidebar");
         chapterSubmenuSection.style.display = "block";
         docPageById.chapterIdForSidebar = chapterId;
+        webSkel.company.currentChapterId = chapterId;
     }
 }

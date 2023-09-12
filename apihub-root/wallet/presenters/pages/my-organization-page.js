@@ -7,7 +7,6 @@ export class myOrganizationPage {
         this.id2 = "";
         this.id3 = "";
         this.id4 = "";
-        this.id = webSkel.company.currentDocumentId;
         if(webSkel.company.documents) {
             this._documentConfigs = (webSkel.company.documents);
             setTimeout(()=> {

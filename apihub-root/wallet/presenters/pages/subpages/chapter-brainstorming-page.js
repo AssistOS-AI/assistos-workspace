@@ -3,10 +3,10 @@ import { showModal } from "../../../imports.js"
 
 export class chapterBrainstormingPage {
     constructor() {
-        this.docId = webSkel.company.currentDocumentId;
-        this.chapterId = webSkel.company.currentChapterId;
+        let url = window.location.hash;
+        this.docId =  parseInt(url.split('/')[1]);
+        this.chapterId = parseInt(url.split('/')[3]);
         this.docTitle = "Titlu document";
-        this.showChaptersInSidebar = 0;
         if(webSkel.company.documents) {
             this._documentConfigs = (webSkel.company.documents);
             setTimeout(()=> {
@@ -15,16 +15,23 @@ export class chapterBrainstormingPage {
         }
         this.updateState = ()=> {
             this._documentConfigs = webSkel.company.documents;
+            this._document = this.documentService.getDocument(this.docId);
+            if(this._document) {
+                this._chapter = this.documentService.getChapter(this._document, this.chapterId);
+                if(this._chapter) {
+                    this.chapterTitle = this._chapter.title;
+                }
+            }
             this.invalidate();
         }
         webSkel.company.onChange(this.updateState);
 
         this.documentService = webSkel.initialiseService('documentService');
-        this._document = this.documentService.getDocument(this.id);
+        this._document = this.documentService.getDocument(this.docId);
         if(this._document) {
-            this.docTitle = this._document.title;
-            if(this._document.abstract) {
-                this.abstractText = this._document.abstract;
+            this._chapter = this.documentService.getChapter(this._document, this.chapterId);
+            if(this._chapter) {
+                this.chapterTitle = this._chapter.title;
             }
         }
     }
@@ -32,57 +39,28 @@ export class chapterBrainstormingPage {
     beforeRender() {
         let suggestedTitle = "Bees are nature's little pollination superheroes! Let's protect them and ensure our food chain thrives. #SaveTheBees";
         this.alternativeAbstracts = "";
-        this.chapterSidebar = "";
-        this.title = `<title-view title="${this.docTitle}"></title-view>`;
+        this.title = `<title-view title="${this.chapterTitle}"></title-view>`;
         if(this._document) {
             for(let number = 1; number <= 10; number++) {
                 this.alternativeAbstracts += `<alternative-abstract-renderer nr="${number}" title="${suggestedTitle}"></alternative-abstract-renderer>`;
             }
-            let iterator = 0;
-            this._document.chapters.forEach((item) => {
-                iterator++;
-                this.chapterSidebar += `<div class="submenu-item">Edit Chapter ${iterator}</div>`;
-            });
         }
     }
 
-    openEditTitlePage() {
-        webSkel.changeToStaticPage(`documents/${this.id}/edit-title`);
+    openChapterTitlePage() {
+        webSkel.changeToStaticPage(`documents/${this.docId}/edit-chapter-title/${this.chapterId}`);
     }
 
-    openEditAbstractPage() {
-        webSkel.changeToStaticPage(`documents/${this.id}/edit-abstract`);
-    }
-
-    openDocumentSettingsPage() {
-        webSkel.changeToStaticPage(`documents/${this.id}/settings`);
-    }
-
-    openBrainstormingPage() {
-        webSkel.changeToStaticPage(`documents/${this.id}/brainstorming`);
+    openChapterBrainstormingPage() {
+        webSkel.changeToStaticPage(`documents/${this.docId}/chapter-brainstorming/${this.chapterId}`);
     }
 
     openViewPage() {
-        webSkel.changeToStaticPage(`documents/${this.id}`);
+        webSkel.changeToStaticPage(`documents/${this.docId}`);
     }
 
     closeModal(_target) {
         closeModal(_target);
-    }
-
-    showEditChapterSubmenu() {
-        const chapterSubmenuSection = document.querySelector(".sidebar-submenu");
-        const sidebarArrow = document.querySelector(".arrow-sidebar");
-        if(this.showChaptersInSidebar === 0) {
-            chapterSubmenuSection.style.display = "inherit";
-            sidebarArrow.classList.remove('rotate');
-            this.showChaptersInSidebar = 1;
-        }
-        else {
-            chapterSubmenuSection.style.display = "none";
-            sidebarArrow.classList.toggle('rotate');
-            this.showChaptersInSidebar = 0;
-        }
     }
 
     async showAddIdeaModal() {
