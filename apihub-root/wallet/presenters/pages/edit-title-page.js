@@ -40,8 +40,10 @@ export class editTitlePage {
             for(let number = 1; number <= 10; number++) {
                 this.alternativeTitles += `<alternative-title-renderer nr="${number}" title="${suggestedTitle}"></alternative-title-renderer>`;
             }
-            this.chapters.forEach((item) => {
-                this.chapterSidebar += `<div class="submenu-item">Edit ${item.title}</div>`;
+            let iterator = 0;
+            this._document.chapters.forEach((item) => {
+                iterator++;
+                this.chapterSidebar += `<div class="submenu-item">Edit Chapter ${iterator}</div>`;
             });
         }
     }

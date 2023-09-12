@@ -20,7 +20,7 @@ export class proofReaderPage {
 
     beforeRender() {
         let stringHTML = "";
-        for(let llm of webSkel.company.llms) {
+        for (let llm of webSkel.company.llms) {
             stringHTML += `<option data-llm-name="${llm.name}" data-llm-id="${llm.id}">${llm.name}</option>`;
         }
         this.llmsOptions = stringHTML;

@@ -37,8 +37,10 @@ export class brainstormingPage {
             for(let number = 1; number <= 10; number++) {
                 this.alternativeAbstracts += `<alternative-abstract-renderer nr="${number}" title="${suggestedTitle}"></alternative-abstract-renderer>`;
             }
+            let iterator = 0;
             this._document.chapters.forEach((item) => {
-                this.chapterSidebar += `<div class="submenu-item">Edit ${item.title}</div>`;
+                iterator++;
+                this.chapterSidebar += `<div class="submenu-item">Edit Chapter ${iterator}</div>`;
             });
         }
     }

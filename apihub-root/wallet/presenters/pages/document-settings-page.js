@@ -19,9 +19,11 @@ export class documentSettingsPage {
 
     beforeRender() {
         this.chapterSidebar = "";
-        if(this._document.chapters) {
+        if (this._document.chapters) {
+            let iterator = 0;
             this._document.chapters.forEach((item) => {
-                this.chapterSidebar += `<div class="submenu-item">Edit ${item.title}</div>`;
+                iterator++;
+                this.chapterSidebar += `<div class="submenu-item">Edit Chapter ${iterator}</div>`;
             });
         }
     }
