@@ -1,5 +1,6 @@
 import { closeModal, showActionBox } from "../../../WebSkel/utils/modal-utils.js";
 import { showModal } from "../../utils/modal-utils.js";
+import {brainstormingService, llmsService} from "../../imports.js";
 
 export class editTitlePage {
     constructor() {
@@ -97,8 +98,18 @@ export class editTitlePage {
         closeModal(_target);
     }
 
+
     async showSuggestTitleModal() {
-        await showModal(document.querySelector("body"), "suggest-title-modal", {});
+        async function generateSuggestTitles(){
+            const documentService= webSkel.initialiseService('documentService');
+            const documentText = documentService.getDocument(webSkel.company.currentDocumentId).toString();
+            const defaultPrompt = `Based on the following document:\n"${documentText}"\n\nPlease suggest 10 original titles that are NOT already present as chapter titles in the document. Return the titles as a JSON array.`;
+            const brainstormingSrv= new brainstormingService();
+            const llmId=webSkel.company.llms[0].id;
+            return await brainstormingSrv.suggestTitles(defaultPrompt,llmId);
+        }
+        let suggestedTitles= JSON.parse(await generateSuggestTitles());
+        await showModal(document.querySelector("body"), "suggest-title-modal", suggestedTitles);
     }
 
     async showActionBox(_target, primaryKey, componentName, insertionMode) {
