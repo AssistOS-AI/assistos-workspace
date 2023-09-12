@@ -38,9 +38,8 @@ export class editTitlePage {
         this.alternativeTitles = "";
         this.chapterSidebar = "";
         if(this._document) {
-            let suggestedTitle = "Bees are nature's little pollination superheroes! Let's protect them and ensure our food chain thrives. #SaveTheBees";
-            for(let number = 1; number <= 10; number++) {
-                this.alternativeTitles += `<alternative-title-renderer nr="${number}" title="${suggestedTitle}"></alternative-title-renderer>`;
+            for(let i=0;i<this._document.alternativeTitles.length;i++) {
+                this.alternativeTitles += `<alternative-title-renderer nr="${i}" title="${this._document.alternativeTitles[i]}"></alternative-title-renderer>`;
             }
             let iterator = 0;
             this._document.chapters.forEach((item) => {
@@ -110,8 +109,9 @@ export class editTitlePage {
             const llmId=webSkel.company.llms[0].id;
             return await brainstormingSrv.suggestTitles(defaultPrompt,llmId);
         }
-        let suggestedTitles= JSON.parse(await generateSuggestTitles());
-        await showModal(document.querySelector("body"), "suggest-title-modal", suggestedTitles);
+
+        this.suggestedTitles= JSON.parse(await generateSuggestTitles()).titles;
+        await showModal(document.querySelector("body"), "suggest-title-modal");
     }
 
     async showActionBox(_target, primaryKey, componentName, insertionMode) {

@@ -1,7 +1,7 @@
 import { Chapter } from "./chapter.js";
 
 export class Document {
-    constructor(documentTitle, documentId, abstract, chapters, settings) {
+    constructor(documentTitle, documentId, abstract, chapters, settings, alternativeTitles) {
         this.title = documentTitle;
         if(documentId) {
             this.id = documentId;
@@ -15,6 +15,7 @@ export class Document {
                 i++;
             }
         }
+        this.alternativeTitles = alternativeTitles ? alternativeTitles : [];
         // this.chapters = (chapters || []).map(chapter => new Chapter(chapter.title, chapter.id, chapter.paragraphs));
         // this.currentChapterId = this.chapters?this.chapters[0].id:undefined;
         if(this.chapters && this.chapters.length > 0) {
