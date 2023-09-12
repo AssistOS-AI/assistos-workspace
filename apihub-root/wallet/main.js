@@ -74,7 +74,7 @@ async function initWallet() {
     }
 }
 
-async function loadPage(){
+async function loadPage() {
     let url = window.location.hash;
     if(url === "" || url === null) {
         url = "#documents-page";
@@ -218,7 +218,7 @@ function defineComponents() {
     webSkel.defineComponent("suggest-title-modal", "./wallet/components/modals/suggest-title-modal/suggest-title-modal.html");
 }
 
-function defineActions(){
+function defineActions() {
     webSkel.registerAction("changePage", async (_target, pageId, refreshFlag='0') => {
         /* If we are attempting to click the button to the tool page we're currently on, a refreshFlag with the value 0
             will prevent that page refresh from happening and just exit the function

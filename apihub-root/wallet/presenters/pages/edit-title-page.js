@@ -1,24 +1,24 @@
 import { closeModal, showActionBox } from "../../../WebSkel/utils/modal-utils.js";
 import { showModal } from "../../utils/modal-utils.js";
-import {extractFormInformation} from "../../imports.js";
-import {brainstormingService, llmsService} from "../../imports.js";
+import { extractFormInformation } from "../../imports.js";
+import { brainstormingService, llmsService } from "../../imports.js";
 
 export class editTitlePage {
     constructor() {
         this.docTitle = "Current Title";
         let url = window.location.hash;
         this.id = parseInt(url.split('/')[1]);
-        this.showChaptersInSidebar = 0;
+        // this.showChaptersInSidebar = 0;
 
         if(webSkel.company.documents) {
             this._documentConfigs = webSkel.company.documents;
-            setTimeout(()=> {
-                this.invalidate()
+            setTimeout(() => {
+                this.invalidate();
             }, 0);
         }
         this.documentService = webSkel.initialiseService('documentService');
 
-        this.updateState = ()=> {
+        this.updateState = () => {
             this._documentConfigs = webSkel.company.documents;
             this._document = this.documentService.getDocument(this.id);
             this.docTitle = this._document.title;
@@ -39,7 +39,7 @@ export class editTitlePage {
         this.alternativeTitles = "";
         // this.chapterSidebar = "";
         if(this._document) {
-            for(let i=0;i<this._document.alternativeTitles.length;i++) {
+            for(let i = 0; i < this._document.alternativeTitles.length; i++) {
                 this.alternativeTitles += `<alternative-title-renderer nr="${i}" title="${this._document.alternativeTitles[i]}"></alternative-title-renderer>`;
             }
             // let iterator = 0;
@@ -55,9 +55,9 @@ export class editTitlePage {
         if(formInfo.isValid){
             const documentId = webSkel.company.currentDocumentId;
             const documentIndex = webSkel.company.documents.findIndex(doc => doc.id === documentId);
-            if (documentIndex !== -1 && formInfo.data.title !==webSkel.company.documents[documentIndex].title) {
-                this.documentService.updateDocumentTitle(webSkel.company.documents[documentIndex],formInfo.data.title);
-                this.documentService.updateDocument(webSkel.company.documents[documentIndex],webSkel.company.currentDocumentId);
+            if (documentIndex !== -1 && formInfo.data.title !== webSkel.company.documents[documentIndex].title) {
+                this.documentService.updateDocumentTitle(webSkel.company.documents[documentIndex], formInfo.data.title);
+                this.documentService.updateDocument(webSkel.company.documents[documentIndex], webSkel.company.currentDocumentId);
             }
         }
     }
@@ -103,15 +103,15 @@ export class editTitlePage {
 
     async showSuggestTitleModal() {
         async function generateSuggestTitles(){
-            const documentService= webSkel.initialiseService('documentService');
+            const documentService = webSkel.initialiseService('documentService');
             const documentText = documentService.getDocument(webSkel.company.currentDocumentId).toString();
             const defaultPrompt = `Based on the following document:\n"${documentText}"\n\nPlease suggest 10 original titles that are NOT already present as chapter titles in the document. Return the titles as a JSON array.`;
-            const brainstormingSrv= new brainstormingService();
-            const llmId=webSkel.company.llms[0].id;
-            return await brainstormingSrv.suggestTitles(defaultPrompt,llmId);
+            const brainstormingSrv = new brainstormingService();
+            const llmId = webSkel.company.llms[0].id;
+            return await brainstormingSrv.suggestTitles(defaultPrompt, llmId);
         }
 
-        this.suggestedTitles= JSON.parse(await generateSuggestTitles()).titles;
+        this.suggestedTitles = JSON.parse(await generateSuggestTitles()).titles;
         await showModal(document.querySelector("body"), "suggest-title-modal");
     }
 

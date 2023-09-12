@@ -26,11 +26,11 @@ export class proofReaderPage {
         this.llmsOptions = stringHTML;
     }
 
-    async executeProofRead(formElement){
+    async executeProofRead(formElement) {
         const formData= await extractFormInformation(formElement);
         if(formData.isValid) {
             const proofReader= new proofReaderService(formData.data.length, formData.data.personality, formData.data.llm, formData.data.language, formData.data.variants, formData.data.prompt);
-            let results= await proofReader.proofRead();
+            let results = await proofReader.proofRead();
             let generatedTextNode = document.querySelector(".generated-content");
             let stringHTML = "";
             for(let subResult of results) {

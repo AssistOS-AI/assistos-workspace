@@ -28,11 +28,11 @@ export class chapterService {
         }
     }
 
-    updateTitle(chapter, title){
+    updateTitle(chapter, title) {
         chapter.title = title;
     }
 
-    observeParagraph(chapter, paragraphId){
+    observeParagraph(chapter, paragraphId) {
         chapter.currentParagraphId = paragraphId;
     }
 }

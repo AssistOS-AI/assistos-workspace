@@ -61,7 +61,7 @@ export class documentService {
         document.chapters.push(new Chapter(title, document.chapters.length + 1, []));
     }
 
-    changeChapterOrder(document,chapterSourceId, chapterTargetId) {
+    changeChapterOrder(document, chapterSourceId, chapterTargetId) {
         const sourceIndex = document.chapters.findIndex(ch => ch.id === chapterSourceId);
         const targetIndex = document.chapters.findIndex(ch => ch.id === chapterTargetId);
         if (sourceIndex !== -1 && targetIndex !== -1) {

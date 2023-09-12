@@ -25,7 +25,8 @@ export class Document {
         }
         this.settings = settings ? settings : {};
     }
-    toString(){
+
+    toString() {
         return this.chapters.map(chapter => chapter.toString()).join("\n\n");
     }
 }

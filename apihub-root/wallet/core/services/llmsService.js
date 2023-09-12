@@ -14,7 +14,7 @@ export class llmsService {
     }
 
     getLLM(llmSelector) {
-        return webSkel.company.llms.find(llm => llm.name === llmSelector || llm.id === llmSelector)||null;
+        return webSkel.company.llms.find(llm => llm.name === llmSelector || llm.id === llmSelector) || null;
     }
 
     async summarize(prompt, llmId) {
@@ -26,10 +26,12 @@ export class llmsService {
         let llm = this.getLLM(llmId);
         return await this.llmApiFetch(llm.url, llm.apiKeys, prompt);
     }
+
     async suggestTitles(prompt, llmId) {
         let llm = this.getLLM(llmId);
         return await this.llmApiFetch(llm.url, llm.apiKeys, prompt);
     }
+
     async llmApiFetch(url, apiKey, prompt) {
         const options = {
             method: 'POST',

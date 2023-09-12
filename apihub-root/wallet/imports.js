@@ -15,7 +15,6 @@ import { editAbstractPage } from "./presenters/pages/edit-abstract-page.js";
 import { proofReaderPage } from "./presenters/pages/proof-reader-page.js";
 import { myOrganizationPage } from "./presenters/pages/my-organization-page.js";
 import { documentSettingsPage } from "./presenters/pages/document-settings-page.js";
-import { editChapterPage } from "./presenters/pages/edit-chapter-page.js";
 import { brainstormingPage } from "./presenters/pages/brainstorming-page.js";
 import { llmsPage } from "./presenters/pages/subpages/llms-page.js";
 import { personalitiesPage } from "./presenters/pages/subpages/personalities-page.js";
@@ -41,7 +40,7 @@ import { llmsService } from "./core/services/llmsService.js";
 import { personalitiesService } from "./core/services/personalitiesService.js";
 import { usersService } from "./core/services/usersService.js";
 import { settingsService } from "./core/services/settingsService.js";
-import {brainstormingService}   from "./core/services/brainstormingService.js";
+import { brainstormingService }   from "./core/services/brainstormingService.js";
 import { LLM } from "./core/models/llm.js";
 import WebSkel from "../WebSkel/webSkel.js";
 import { extractFormInformation } from "../WebSkel/utils/form-utils.js";
@@ -70,7 +69,6 @@ export {
     proofReaderPage,
     myOrganizationPage,
     documentSettingsPage,
-    editChapterPage,
     chapterTitlePage,
     chapterBrainstormingPage,
     chapterItem,
