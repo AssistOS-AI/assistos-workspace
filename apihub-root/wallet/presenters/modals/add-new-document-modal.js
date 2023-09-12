@@ -1,6 +1,6 @@
 import { closeModal } from "../../../WebSkel/utils/modal-utils.js";
-import { getClosestParentElement } from "../../../WebSkel/utils/dom-utils.js";
 import { Document } from "../../core/models/document.js";
+import {extractFormInformation} from "../../imports.js";
 
 export class addNewDocumentModal {
     constructor() {
@@ -27,13 +27,10 @@ export class addNewDocumentModal {
     }
 
     async addDocumentSubmitForm(_target) {
-        let documentTitle= new FormData(getClosestParentElement(_target,'form')).get("documentTitle");
-        if(documentTitle !== "") {
+        let formData = await extractFormInformation(_target);
+        if(formData.isValid) {
             closeModal(_target);
-            await this.documentService.addDocument(new Document(documentTitle));
-        } else {
-            closeModal(_target);
-            await showApplicationError("Please enter a title for the document", "Title cannot be null", `The title "${documentTitle}" is not valid. Please enter a valid title for the document`);
+            await this.documentService.addDocument(new Document(formData.data.documentTitle));
         }
     }
 }

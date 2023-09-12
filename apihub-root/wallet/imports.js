@@ -41,6 +41,8 @@ import { usersService } from "./core/services/usersService.js";
 import { settingsService } from "./core/services/settingsService.js";
 import { LLM } from "./core/models/llm.js";
 import WebSkel from "../WebSkel/webSkel.js";
+import { extractFormInformation } from "../WebSkel/utils/form-utils.js";
+
 export {
     documentService,
     chapterService,
@@ -93,5 +95,6 @@ export {
     updateRecord,
     initUser,
     registerAccountActions,
-    LLM
+    LLM,
+    extractFormInformation
 };
