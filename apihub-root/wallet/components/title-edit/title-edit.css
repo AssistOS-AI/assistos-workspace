@@ -1,11 +1,27 @@
-label {
-    width: 100%;
+.title-edit-form{
+    display: flex;
 }
-
-textarea {
-    width: fit-content;
+.save-btn {
+    cursor: pointer;
+    color: #FFF;
+    font-feature-settings: 'clig' off, 'liga' off;
+    font-family: Poppins;
+    font-size: 14px;
+    font-style: normal;
+    font-weight: 600;
+    line-height: normal;
+    display: inline-flex;
+    padding: 6px 35px;
+    justify-content: center;
+    align-items: center;
+    gap: 10px;
+    border-radius: 16px;
+    background: #18203F;
+    margin-left: 15px;
+    margin-top: 20px;
+    margin-bottom: 30px;
+    height: 45px;
 }
-
 .document-title {
     margin-left: 15px;
     padding: 4px 12px;
