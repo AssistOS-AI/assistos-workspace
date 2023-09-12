@@ -1,9 +1,8 @@
-import { closeModal, showActionBox } from "../../../WebSkel/utils/modal-utils.js";
-import { showModal } from "../../utils/modal-utils.js";
-import {extractFormInformation} from "../../imports.js";
-import {brainstormingService, llmsService} from "../../imports.js";
+import { closeModal, showActionBox } from "../../../../WebSkel/utils/modal-utils.js";
+import { showModal } from "../../../utils/modal-utils.js";
+import { extractFormInformation } from "../../../imports.js";
 
-export class editTitlePage {
+export class chapterTitlePage {
     constructor() {
         this.docTitle = "Current Title";
         this.id = webSkel.company.currentDocumentId;
@@ -36,16 +35,17 @@ export class editTitlePage {
     beforeRender() {
         this.title = `<title-edit title="${this.docTitle}"></title-edit>`;
         this.alternativeTitles = "";
-        // this.chapterSidebar = "";
+        this.chapterSidebar = "";
         if(this._document) {
-            for(let i=0;i<this._document.alternativeTitles.length;i++) {
-                this.alternativeTitles += `<alternative-title-renderer nr="${i}" title="${this._document.alternativeTitles[i]}"></alternative-title-renderer>`;
+            let suggestedTitle = "Bees are nature's little pollination superheroes! Let's protect them and ensure our food chain thrives. #SaveTheBees";
+            for(let number = 1; number <= 10; number++) {
+                this.alternativeTitles += `<alternative-title-renderer nr="${number}" title="${suggestedTitle}"></alternative-title-renderer>`;
             }
-            // let iterator = 0;
-            // this._document.chapters.forEach((item) => {
-            //     iterator++;
-            //     this.chapterSidebar += `<div class="submenu-item">Edit Chapter ${iterator}</div>`;
-            // });
+            let iterator = 0;
+            this._document.chapters.forEach((item) => {
+                iterator++;
+                this.chapterSidebar += `<div class="submenu-item">Edit Chapter ${iterator}</div>`;
+            });
         }
     }
 
@@ -77,20 +77,20 @@ export class editTitlePage {
         webSkel.changeToStaticPage(`documents/${this.id}/brainstorming`);
     }
 
-    // showEditChapterSubmenu() {
-    //     const chapterSubmenuSection = document.querySelector(".sidebar-submenu");
-    //     const sidebarArrow = document.querySelector(".arrow-sidebar");
-    //     if(this.showChaptersInSidebar === 0) {
-    //         chapterSubmenuSection.style.display = "inherit";
-    //         sidebarArrow.classList.remove('rotate');
-    //         this.showChaptersInSidebar = 1;
-    //     }
-    //     else {
-    //         chapterSubmenuSection.style.display = "none";
-    //         sidebarArrow.classList.toggle('rotate');
-    //         this.showChaptersInSidebar = 0;
-    //     }
-    // }
+    showEditChapterSubmenu() {
+        const chapterSubmenuSection = document.querySelector(".sidebar-submenu");
+        const sidebarArrow = document.querySelector(".arrow-sidebar");
+        if(this.showChaptersInSidebar === 0) {
+            chapterSubmenuSection.style.display = "inherit";
+            sidebarArrow.classList.remove('rotate');
+            this.showChaptersInSidebar = 1;
+        }
+        else {
+            chapterSubmenuSection.style.display = "none";
+            sidebarArrow.classList.toggle('rotate');
+            this.showChaptersInSidebar = 0;
+        }
+    }
 
     openViewPage() {
         webSkel.changeToStaticPage(`documents/${this.id}`);
@@ -101,17 +101,7 @@ export class editTitlePage {
     }
 
     async showSuggestTitleModal() {
-        async function generateSuggestTitles(){
-            const documentService= webSkel.initialiseService('documentService');
-            const documentText = documentService.getDocument(webSkel.company.currentDocumentId).toString();
-            const defaultPrompt = `Based on the following document:\n"${documentText}"\n\nPlease suggest 10 original titles that are NOT already present as chapter titles in the document. Return the titles as a JSON array.`;
-            const brainstormingSrv= new brainstormingService();
-            const llmId=webSkel.company.llms[0].id;
-            return await brainstormingSrv.suggestTitles(defaultPrompt,llmId);
-        }
-
-        this.suggestedTitles= JSON.parse(await generateSuggestTitles()).titles;
-        await showModal(document.querySelector("body"), "suggest-title-modal");
+        await showModal(document.querySelector("body"), "suggest-title-modal", {});
     }
 
     async showActionBox(_target, primaryKey, componentName, insertionMode) {

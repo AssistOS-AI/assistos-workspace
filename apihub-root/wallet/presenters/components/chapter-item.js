@@ -1,4 +1,4 @@
-import { getClosestParentElement, Paragraph } from "../../imports.js";
+import { docPageById, getClosestParentElement, Paragraph } from "../../imports.js";
 
 export class chapterItem {
     static docServ;
@@ -23,7 +23,6 @@ export class chapterItem {
         this.docId = webSkel.company.currentDocumentId;
         this._document = this.documentService.getDocument(this.docId);
         this.chapter = this.documentService.getChapter(this._document, this.chapterId);
-
     }
 
     beforeRender() {
@@ -62,6 +61,12 @@ export class chapterItem {
             let chapter2Index= this._document.chapters.findIndex(chapter => chapter.id === parseInt(chapterBelow.getAttribute('data-chapter-id')));
             await this.documentService.swapChapters(this._document, chapter1Index, chapter2Index);
         }
+    }
+
+    changeRightSidebar(_target) {
+        let chapterId = _target.getAttribute('data-chapter-id');
+        docPageById.changeRightSidebar(chapterId);
+        webSkel.company.currentChapterId = chapterId;
     }
 
     afterRender() {

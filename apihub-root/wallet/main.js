@@ -13,6 +13,8 @@ import {
     docPageById,
     editTitlePage,
     editAbstractPage,
+    chapterTitlePage,
+    chapterBrainstormingPage,
     proofReaderPage,
     myOrganizationPage,
     brainstormingPage,
@@ -98,14 +100,14 @@ async function loadPage(){
     }
 }
 
-async function initLiteUserDatabase(){
+async function initLiteUserDatabase() {
     webSkel.localStorage = await storageService.getInstance("freeUser", 1);
     await webSkel.localStorage.initDatabase();
     let result = localStorage.getItem("currentUser");
-    if(result){
+    if(result) {
         window.currentCompanyId = JSON.parse(result).currentCompanyId;
-    }else {
-        window.currentCompanyId=1;
+    } else {
+        window.currentCompanyId = 1;
     }
     webSkel.company = new Company(await webSkel.localStorage.getCompanyData(currentCompanyId));
 }
@@ -139,6 +141,8 @@ function definePresenters() {
     webSkel.registerPresenter("documents-page", documentsPage);
     webSkel.registerPresenter("document-settings-page", documentSettingsPage);
     webSkel.registerPresenter("brainstorming-page", brainstormingPage);
+    webSkel.registerPresenter("chapter-brainstorming-page", chapterBrainstormingPage);
+    webSkel.registerPresenter("chapter-title-page", chapterTitlePage);
     webSkel.registerPresenter("proof-reader-page", proofReaderPage);
     webSkel.registerPresenter("my-organization-page", myOrganizationPage);
 
@@ -184,9 +188,12 @@ function defineComponents() {
     webSkel.defineComponent("action-box-with-select", "./wallet/components/action-box-with-select/action-box-with-select.html");
     webSkel.defineComponent("alternative-title-renderer", "./wallet/components/items/alternative-title-renderer/alternative-title-renderer.html");
     webSkel.defineComponent("alternative-abstract-renderer", "./wallet/components/items/alternative-abstract-renderer/alternative-abstract-renderer.html");
+
     webSkel.defineComponent("documents-page", "./wallet/pages/documents-page/documents-page.html");
     webSkel.defineComponent("document-settings-page", "./wallet/pages/document-settings-page/document-settings-page.html");
     webSkel.defineComponent("brainstorming-page", "./wallet/pages/brainstorming-page/brainstorming-page.html");
+    webSkel.defineComponent("chapter-brainstorming-page", "./wallet/pages/chapter-brainstorming-page/chapter-brainstorming-page.html");
+    webSkel.defineComponent("chapter-title-page", "./wallet/pages/chapter-title-page/chapter-title-page.html");
     webSkel.defineComponent("doc-page-by-id", "./wallet/pages/doc-page-by-id/doc-page-by-id.html");
     webSkel.defineComponent("edit-title-page", "./wallet/pages/edit-title-page/edit-title-page.html");
     webSkel.defineComponent("edit-abstract-page", "./wallet/pages/edit-abstract-page/edit-abstract-page.html");

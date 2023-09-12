@@ -76,20 +76,23 @@ body {
 /*inceput sidebar dreapta*/
 .right-sidebar {
     height: 100%;
-    width: 12em;
+    width: 18em;
     display: flex;
     right: 0;
     min-width: 12em;
 }
 
 .sidebar-item {
+    white-space: nowrap;
     cursor: pointer;
     color: #090131;
+    width: 100%;
     font-size: 16px;
     font-style: normal;
     font-weight: 500;
     line-height: normal;
     padding: 10px 10px 10px 19px;
+    background-color: #FFF;
     margin-right: 10px;
 }
 
@@ -132,9 +135,13 @@ body {
 }
 
 .item-list {
+    background-color: #FFF;
     height: 100%;
     padding-left: 10px;
-    width: 12em;
+    padding-right: 10px;
+    /*width: 100%;*/
+    /*width: 12em;*/
+    width: fit-content;
     position: fixed;
     border-left: 1px solid #D9D4EE;
     box-shadow: -3px 0 4px -3px rgba(9, 1, 49, 0.09);

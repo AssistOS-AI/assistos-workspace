@@ -2,7 +2,6 @@
 export class editChapterPage {
     constructor() {
         this.id = webSkel.company.currentDocumentId;
-        this.chapterSidebar = "";
         this.showChaptersInSidebar = 0;
         if(webSkel.company.documents) {
             this._documentConfigs = webSkel.company.documents;
@@ -17,7 +16,14 @@ export class editChapterPage {
     }
 
     beforeRender() {
-
+        // this.chapterSidebar = "";
+        // if (this._document.chapters) {
+        //     let iterator = 0;
+        //     this._document.chapters.forEach((item) => {
+        //         iterator++;
+        //         this.chapterSidebar += `<div class="submenu-item">Edit Chapter ${iterator}</div>`;
+        //     });
+        // }
     }
 
     openEditTitlePage() {
@@ -40,17 +46,17 @@ export class editChapterPage {
         webSkel.changeToStaticPage(`documents/${this.id}`);
     }
 
-    showEditChapterSubmenu() {
-        const chapterSubmenuSection = document.querySelector(".sidebar-submenu");
-        const sidebarArrow = document.querySelector(".arrow-sidebar");
-        if(this.showChaptersInSidebar === 0) {
-            chapterSubmenuSection.style.display = "inherit";
-            sidebarArrow.classList.remove('rotate');
-            this.showChaptersInSidebar = 1;
-        } else {
-            chapterSubmenuSection.style.display = "none";
-            sidebarArrow.classList.toggle('rotate');
-            this.showChaptersInSidebar = 0;
-        }
-    }
+    // showEditChapterSubmenu() {
+    //     const chapterSubmenuSection = document.querySelector(".sidebar-submenu");
+    //     const sidebarArrow = document.querySelector(".arrow-sidebar");
+    //     if(this.showChaptersInSidebar === 0) {
+    //         chapterSubmenuSection.style.display = "inherit";
+    //         sidebarArrow.classList.remove('rotate');
+    //         this.showChaptersInSidebar = 1;
+    //     } else {
+    //         chapterSubmenuSection.style.display = "none";
+    //         sidebarArrow.classList.toggle('rotate');
+    //         this.showChaptersInSidebar = 0;
+    //     }
+    // }
 }
