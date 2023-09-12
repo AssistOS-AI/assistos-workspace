@@ -35,17 +35,17 @@ export class editTitlePage {
     beforeRender() {
         this.title = `<title-edit title="${this.docTitle}"></title-edit>`;
         this.alternativeTitles = "";
-        this.chapterSidebar = "";
+        // this.chapterSidebar = "";
         if(this._document) {
             let suggestedTitle = "Bees are nature's little pollination superheroes! Let's protect them and ensure our food chain thrives. #SaveTheBees";
             for(let number = 1; number <= 10; number++) {
                 this.alternativeTitles += `<alternative-title-renderer nr="${number}" title="${suggestedTitle}"></alternative-title-renderer>`;
             }
-            let iterator = 0;
-            this._document.chapters.forEach((item) => {
-                iterator++;
-                this.chapterSidebar += `<div class="submenu-item">Edit Chapter ${iterator}</div>`;
-            });
+            // let iterator = 0;
+            // this._document.chapters.forEach((item) => {
+            //     iterator++;
+            //     this.chapterSidebar += `<div class="submenu-item">Edit Chapter ${iterator}</div>`;
+            // });
         }
     }
 
@@ -77,20 +77,20 @@ export class editTitlePage {
         webSkel.changeToStaticPage(`documents/${this.id}/brainstorming`);
     }
 
-    showEditChapterSubmenu() {
-        const chapterSubmenuSection = document.querySelector(".sidebar-submenu");
-        const sidebarArrow = document.querySelector(".arrow-sidebar");
-        if(this.showChaptersInSidebar === 0) {
-            chapterSubmenuSection.style.display = "inherit";
-            sidebarArrow.classList.remove('rotate');
-            this.showChaptersInSidebar = 1;
-        }
-        else {
-            chapterSubmenuSection.style.display = "none";
-            sidebarArrow.classList.toggle('rotate');
-            this.showChaptersInSidebar = 0;
-        }
-    }
+    // showEditChapterSubmenu() {
+    //     const chapterSubmenuSection = document.querySelector(".sidebar-submenu");
+    //     const sidebarArrow = document.querySelector(".arrow-sidebar");
+    //     if(this.showChaptersInSidebar === 0) {
+    //         chapterSubmenuSection.style.display = "inherit";
+    //         sidebarArrow.classList.remove('rotate');
+    //         this.showChaptersInSidebar = 1;
+    //     }
+    //     else {
+    //         chapterSubmenuSection.style.display = "none";
+    //         sidebarArrow.classList.toggle('rotate');
+    //         this.showChaptersInSidebar = 0;
+    //     }
+    // }
 
     openViewPage() {
         webSkel.changeToStaticPage(`documents/${this.id}`);

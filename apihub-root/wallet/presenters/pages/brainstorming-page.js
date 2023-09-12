@@ -31,17 +31,17 @@ export class brainstormingPage {
     beforeRender() {
         let suggestedTitle = "Bees are nature's little pollination superheroes! Let's protect them and ensure our food chain thrives. #SaveTheBees";
         this.alternativeAbstracts = "";
-        this.chapterSidebar = "";
+        // this.chapterSidebar = "";
         this.title = `<title-view title="${this.docTitle}"></title-view>`;
         if(this._document) {
             for(let number = 1; number <= 10; number++) {
                 this.alternativeAbstracts += `<alternative-abstract-renderer nr="${number}" title="${suggestedTitle}"></alternative-abstract-renderer>`;
             }
-            let iterator = 0;
-            this._document.chapters.forEach((item) => {
-                iterator++;
-                this.chapterSidebar += `<div class="submenu-item">Edit Chapter ${iterator}</div>`;
-            });
+            // let iterator = 0;
+            // this._document.chapters.forEach((item) => {
+            //     iterator++;
+            //     this.chapterSidebar += `<div class="submenu-item">Edit Chapter ${iterator}</div>`;
+            // });
         }
     }
 
@@ -69,20 +69,20 @@ export class brainstormingPage {
         closeModal(_target);
     }
 
-    showEditChapterSubmenu() {
-        const chapterSubmenuSection = document.querySelector(".sidebar-submenu");
-        const sidebarArrow = document.querySelector(".arrow-sidebar");
-        if(this.showChaptersInSidebar === 0) {
-            chapterSubmenuSection.style.display = "inherit";
-            sidebarArrow.classList.remove('rotate');
-            this.showChaptersInSidebar = 1;
-        }
-        else {
-            chapterSubmenuSection.style.display = "none";
-            sidebarArrow.classList.toggle('rotate');
-            this.showChaptersInSidebar = 0;
-        }
-    }
+    // showEditChapterSubmenu() {
+    //     const chapterSubmenuSection = document.querySelector(".sidebar-submenu");
+    //     const sidebarArrow = document.querySelector(".arrow-sidebar");
+    //     if(this.showChaptersInSidebar === 0) {
+    //         chapterSubmenuSection.style.display = "inherit";
+    //         sidebarArrow.classList.remove('rotate');
+    //         this.showChaptersInSidebar = 1;
+    //     }
+    //     else {
+    //         chapterSubmenuSection.style.display = "none";
+    //         sidebarArrow.classList.toggle('rotate');
+    //         this.showChaptersInSidebar = 0;
+    //     }
+    // }
 
     async showAddIdeaModal() {
         await showModal(document.querySelector("body"), "add-idea-modal", {});

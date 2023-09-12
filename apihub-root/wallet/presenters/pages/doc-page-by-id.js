@@ -33,15 +33,15 @@ export class docPageById {
 
     beforeRender() {
         this.chapterDivs = "";
-        this.chapterSidebar = "";
+        // this.chapterSidebar = "";
         this.title = `<title-view title="${this.docTitle}"></title-view>`;
         if(this.chapters.length > 0) {
             this.documentService.setCurrentChapter(this._document,this.chapters[0].id);
             let iterator = 0;
             this.chapters.forEach((item) => {
-                iterator++;
+                // iterator++;
                 this.chapterDivs += `<chapter-item data-chapter-title="${item.title}" data-chapter-id="${item.id}" data-presenter="chapter-item"></chapter-item>`;
-                this.chapterSidebar += `<div class="submenu-item">Edit Chapter ${iterator}</div>`;
+                // this.chapterSidebar += `<div class="submenu-item">Edit Chapter ${iterator}</div>`;
             });
         }
     }
@@ -70,19 +70,19 @@ export class docPageById {
         webSkel.changeToStaticPage(`documents/${this.id}/chapter-brainstorming/${docPageById.chapterIdForSidebar}`);
     }
 
-    showEditChapterSubmenu() {
-        const chapterSubmenuSection = document.querySelector(".sidebar-submenu");
-        const sidebarArrow = document.querySelector(".arrow-sidebar");
-        if(this.showChaptersInSidebar === 0) {
-            chapterSubmenuSection.style.display = "inherit";
-            sidebarArrow.classList.remove('rotate');
-            this.showChaptersInSidebar = 1;
-        } else {
-            chapterSubmenuSection.style.display = "none";
-            sidebarArrow.classList.toggle('rotate');
-            this.showChaptersInSidebar = 0;
-        }
-    }
+    // showEditChapterSubmenu() {
+    //     const chapterSubmenuSection = document.querySelector(".sidebar-submenu");
+    //     const sidebarArrow = document.querySelector(".arrow-sidebar");
+    //     if(this.showChaptersInSidebar === 0) {
+    //         chapterSubmenuSection.style.display = "inherit";
+    //         sidebarArrow.classList.remove('rotate');
+    //         this.showChaptersInSidebar = 1;
+    //     } else {
+    //         chapterSubmenuSection.style.display = "none";
+    //         sidebarArrow.classList.toggle('rotate');
+    //         this.showChaptersInSidebar = 0;
+    //     }
+    // }
 
     addChapter() {
         this.chapterDivs += `<chapter-item data-chapter-title="New Chapter" data-chapter-id="${this.chapters.length}" data-presenter="chapter-item"></chapter-item>`;
