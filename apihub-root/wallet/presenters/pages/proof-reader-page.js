@@ -9,7 +9,7 @@ export class proofReaderPage {
             this._documentConfigs = webSkel.company.documents;
             setTimeout(()=> {
                 this.invalidate()
-            },0);
+            }, 0);
         }
         this.updateState = ()=> {
             this._documentConfigs = webSkel.company.documents;
@@ -27,7 +27,6 @@ export class proofReaderPage {
     }
 
     async executeProofRead(formElement){
-
         const formData= await extractFormInformation(formElement);
         if(formData.isValid) {
             const proofReader= new proofReaderService(formData.data.length, formData.data.personality, formData.data.llm, formData.data.language, formData.data.variants, formData.data.prompt);

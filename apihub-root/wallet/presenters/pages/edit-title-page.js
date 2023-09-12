@@ -11,7 +11,7 @@ export class editTitlePage {
             this._documentConfigs = webSkel.company.documents;
             setTimeout(()=> {
                 this.invalidate()
-            },0);
+            }, 0);
         }
         this.documentService = webSkel.initialiseService('documentService');
 

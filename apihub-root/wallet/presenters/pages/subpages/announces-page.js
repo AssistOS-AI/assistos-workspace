@@ -10,7 +10,7 @@ export class announcesPage {
             this._documentConfigs = (webSkel.company.documents);
             setTimeout(()=> {
                 this.invalidate()
-            },0);
+            }, 0);
         }
         this.updateState = ()=> {
             this._documentConfigs = webSkel.company.documents;

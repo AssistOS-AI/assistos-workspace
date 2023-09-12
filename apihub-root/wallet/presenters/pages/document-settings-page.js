@@ -6,7 +6,7 @@ export class documentSettingsPage {
             this._documentConfigs = webSkel.company.documents;
             setTimeout(()=> {
                 this.invalidate()
-            },0);
+            }, 0);
         }
         this.updateState = (companyData)=> {
             this._documentConfigs = webSkel.company.documents;

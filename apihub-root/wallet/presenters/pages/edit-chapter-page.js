@@ -47,8 +47,7 @@ export class editChapterPage {
             chapterSubmenuSection.style.display = "inherit";
             sidebarArrow.classList.remove('rotate');
             this.showChaptersInSidebar = 1;
-        }
-        else {
+        } else {
             chapterSubmenuSection.style.display = "none";
             sidebarArrow.classList.toggle('rotate');
             this.showChaptersInSidebar = 0;

@@ -13,7 +13,7 @@ export class personalitiesPage {
             this._personalityConfigs = webSkel.company.personalities;
             setTimeout(()=> {
                 this.invalidate()
-            },0);
+            }, 0);
         }
         this.updateState = ()=> {
             this._personalityConfigs = webSkel.company.personalities;
