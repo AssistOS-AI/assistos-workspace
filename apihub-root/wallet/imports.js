@@ -43,10 +43,13 @@ import { settingsService } from "./core/services/settingsService.js";
 import { brainstormingService }   from "./core/services/brainstormingService.js";
 import { LLM } from "./core/models/llm.js";
 import WebSkel from "../WebSkel/webSkel.js";
+import {companyService} from "./core/services/companyService.js";
 import { extractFormInformation } from "../WebSkel/utils/form-utils.js";
+import { addCompanyModal} from "./presenters/modals/add-company-modal.js";
 
 export {
     documentService,
+    addCompanyModal,
     chapterService,
     llmsService,
     personalitiesService,
@@ -100,5 +103,6 @@ export {
     initUser,
     registerAccountActions,
     LLM,
-    extractFormInformation
+    extractFormInformation,
+    companyService
 };

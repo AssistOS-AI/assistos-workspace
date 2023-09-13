@@ -25,9 +25,20 @@ import {
     llmsPage,
     notBasePage,
     storageService,
-    WebSkel, addRecord, closeModal,
-    initUser, registerAccountActions,
-    Company, documentService, llmsService, personalitiesService, settingsService, chapterService, usersService
+    WebSkel,
+    addRecord,
+    closeModal,
+    addCompanyModal,
+    initUser,
+    registerAccountActions,
+    Company,
+    documentService,
+    llmsService,
+    personalitiesService,
+    settingsService,
+    chapterService,
+    usersService,
+    companyService
 } from "./imports.js";
 
 const openDSU = require("opendsu");
@@ -161,6 +172,7 @@ function definePresenters() {
     webSkel.registerPresenter("add-user-modal", addUserModal);
     webSkel.registerPresenter("suggest-abstract-modal", suggestAbstractModal);
     webSkel.registerPresenter("suggest-title-modal", suggestTitleModal);
+    webSkel.registerPresenter("add-company-modal",addCompanyModal);
 }
 
 function defineServices() {
@@ -171,6 +183,7 @@ function defineServices() {
     webSkel.registerService("usersService", usersService);
     webSkel.registerService("settingsService", settingsService);
     webSkel.registerService("currentCompany", Company);
+    webSkel.registerService("companyService", companyService);
 }
 
 function defineComponents() {
@@ -217,6 +230,7 @@ function defineComponents() {
     webSkel.defineComponent("show-error-modal", "./wallet/components/modals/show-error-modal/show-error-modal.html");
     webSkel.defineComponent("suggest-abstract-modal", "./wallet/components/modals/suggest-abstract-modal/suggest-abstract-modal.html");
     webSkel.defineComponent("suggest-title-modal", "./wallet/components/modals/suggest-title-modal/suggest-title-modal.html");
+    webSkel.defineComponent("add-company-modal","./wallet/components/modals/add-company-modal/add-company-modal.html");
 }
 
 function defineActions() {
