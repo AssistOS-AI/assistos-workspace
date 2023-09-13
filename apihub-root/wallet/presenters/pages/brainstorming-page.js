@@ -1,12 +1,10 @@
-import { closeModal, showActionBox } from "../../imports.js"
-import { showModal } from "../../imports.js"
+import { closeModal, showActionBox, showModal } from "../../imports.js";
 
 export class brainstormingPage {
     constructor() {
         let url = window.location.hash;
         this.id = parseInt(url.split('/')[1]);
         this.docTitle = "Titlu document";
-        // this.showChaptersInSidebar = 0;
         if(webSkel.company.documents) {
             this._documentConfigs = (webSkel.company.documents);
             setTimeout(()=> {
@@ -64,21 +62,6 @@ export class brainstormingPage {
     closeModal(_target) {
         closeModal(_target);
     }
-
-    // showEditChapterSubmenu() {
-    //     const chapterSubmenuSection = document.querySelector(".sidebar-submenu");
-    //     const sidebarArrow = document.querySelector(".arrow-sidebar");
-    //     if(this.showChaptersInSidebar === 0) {
-    //         chapterSubmenuSection.style.display = "inherit";
-    //         sidebarArrow.classList.remove('rotate');
-    //         this.showChaptersInSidebar = 1;
-    //     }
-    //     else {
-    //         chapterSubmenuSection.style.display = "none";
-    //         sidebarArrow.classList.toggle('rotate');
-    //         this.showChaptersInSidebar = 0;
-    //     }
-    // }
 
     async showAddChapterModal() {
         await showModal(document.querySelector("body"), "add-chapter-modal", {});

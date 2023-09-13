@@ -1,5 +1,4 @@
-import { showModal } from "../../../utils/modal-utils.js";
-import { showActionBox } from "../../../../WebSkel/utils/modal-utils.js";
+import { closeModal, showActionBox, showModal } from "../../../imports.js";
 
 export class announcesPage {
     constructor(element) {
@@ -20,7 +19,6 @@ export class announcesPage {
     }
 
     beforeRender() {
-        //THIS IS JUST A PLACEHOLDER!!!
         let announces = [];
         let announce = {
             title: "Glass Menagerie",

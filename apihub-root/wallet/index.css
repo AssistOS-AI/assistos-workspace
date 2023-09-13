@@ -112,19 +112,6 @@ body {
     visibility: visible;
 }
 
-.sidebar-submenu {
-    color: rgba(9, 1, 49, 0.83);
-    font-size: 15px;
-    font-style: normal;
-    font-weight: 500;
-    line-height: normal;
-    padding: 5px;
-    margin-left: 20px;
-    cursor: default;
-    margin-right: 10px;
-    display: none;
-}
-
 .submenu-item {
     padding: 8px;
 }
@@ -139,8 +126,6 @@ body {
     height: 100%;
     padding-left: 10px;
     padding-right: 10px;
-    /*width: 100%;*/
-    /*width: 12em;*/
     width: fit-content;
     position: fixed;
     border-left: 1px solid #D9D4EE;
@@ -180,10 +165,10 @@ body {
     -moz-animation: rotation .6s infinite linear;
     -o-animation: rotation .6s infinite linear;
     animation: rotation .6s infinite linear;
-    border-left: 6px solid rgba(0,174,239,.15);
-    border-right: 6px solid rgba(0,174,239,.15);
-    border-bottom: 6px solid rgba(0,174,239,.15);
-    border-top: 6px solid rgba(0,174,239,.8);
+    border-left: 6px solid rgba(0, 174, 239, .15);
+    border-right: 6px solid rgba(0, 174, 239, .15);
+    border-bottom: 6px solid rgba(0, 174, 239, .15);
+    border-top: 6px solid rgba(0, 174, 239, .8);
     border-radius: 100%;
 }
 
@@ -330,6 +315,7 @@ body {
 .rotate {
     transform: rotate(-90deg);
 }
+
 .input-invalid {
     border: 1px solid red !important;
     border-radius: 8px !important;

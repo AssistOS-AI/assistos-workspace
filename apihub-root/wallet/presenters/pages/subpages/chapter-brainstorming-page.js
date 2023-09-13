@@ -1,5 +1,4 @@
-import { closeModal, showActionBox } from "../../../imports.js"
-import { showModal } from "../../../imports.js"
+import { closeModal, showActionBox } from "../../../imports.js";
 
 export class chapterBrainstormingPage {
     constructor() {

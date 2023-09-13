@@ -1,5 +1,4 @@
-import { showActionBox } from "../../../../WebSkel/utils/modal-utils.js";
-import { showModal } from "../../../utils/modal-utils.js";
+import { showModal, showActionBox } from "../../../imports.js";
 
 export class personalitiesPage {
     constructor(element) {

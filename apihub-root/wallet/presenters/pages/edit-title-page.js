@@ -1,14 +1,10 @@
-import { closeModal, showActionBox } from "../../../WebSkel/utils/modal-utils.js";
-import { showModal } from "../../utils/modal-utils.js";
-import { extractFormInformation, getClosestParentElement } from "../../imports.js";
-import { brainstormingService, llmsService } from "../../imports.js";
+import { brainstormingService, llmsService, extractFormInformation, getClosestParentElement, closeModal, showActionBox, showModal } from "../../imports.js";
 
 export class editTitlePage {
     constructor() {
         this.docTitle = "Current Title";
         let url = window.location.hash;
         this.id = parseInt(url.split('/')[1]);
-        // this.showChaptersInSidebar = 0;
         if(webSkel.company.documents) {
             this._documentConfigs = webSkel.company.documents;
             setTimeout(() => {
@@ -33,16 +29,10 @@ export class editTitlePage {
     beforeRender() {
         this.title = `<title-edit title="${this.docTitle}"></title-edit>`;
         this.alternativeTitles = "";
-        // this.chapterSidebar = "";
         if(this._document) {
             for(let i = 0; i < this._document.alternativeTitles.length; i++) {
                 this.alternativeTitles += `<alternative-title-renderer nr="${i+1}" title="${this._document.alternativeTitles[i]}"></alternative-title-renderer>`;
             }
-            // let iterator = 0;
-            // this._document.chapters.forEach((item) => {
-            //     iterator++;
-            //     this.chapterSidebar += `<div class="submenu-item">Edit Chapter ${iterator}</div>`;
-            // });
         }
     }
 
@@ -73,21 +63,6 @@ export class editTitlePage {
     openBrainstormingPage() {
         webSkel.changeToStaticPage(`documents/${this.id}/brainstorming`);
     }
-
-    // showEditChapterSubmenu() {
-    //     const chapterSubmenuSection = document.querySelector(".sidebar-submenu");
-    //     const sidebarArrow = document.querySelector(".arrow-sidebar");
-    //     if(this.showChaptersInSidebar === 0) {
-    //         chapterSubmenuSection.style.display = "inherit";
-    //         sidebarArrow.classList.remove('rotate');
-    //         this.showChaptersInSidebar = 1;
-    //     }
-    //     else {
-    //         chapterSubmenuSection.style.display = "none";
-    //         sidebarArrow.classList.toggle('rotate');
-    //         this.showChaptersInSidebar = 0;
-    //     }
-    // }
 
     openViewPage() {
         webSkel.changeToStaticPage(`documents/${this.id}`);
