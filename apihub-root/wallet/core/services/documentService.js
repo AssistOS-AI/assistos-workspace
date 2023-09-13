@@ -80,7 +80,9 @@ export class documentService {
     updateDocumentTitle(document, documentTitle) {
         document.title = documentTitle;
     }
-
+    addAlternativeAbstract(document,abstractText){
+        document.alternativeAbstracts.push(abstractText);
+    }
     updateAbstract(document, abstractText) {
         document.abstract = abstractText;
     }

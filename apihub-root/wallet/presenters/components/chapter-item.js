@@ -88,13 +88,8 @@ function enterEditMode(event) {
 async function exitEditMode(event) {
     if (this.selectedChapter && this.selectedChapter.getAttribute("contenteditable") === "true" && !this.selectedChapter.contains(event.target)) {
         this.selectedChapter.setAttribute("contenteditable", "false");
-        let updatedText;
-        try {
-            updatedText = this.selectedChapter.innerText;
-            if(updatedText === '\n') {
-                updatedText = '';
-            }
-        } catch(e) {
+        let updatedText = this.selectedChapter.innerText;
+        if(updatedText === '\n') {
             updatedText = '';
         }
         const documentId = parseInt(getClosestParentElement(this.selectedChapter, "doc-page-by-id").getAttribute("data-document-id"));

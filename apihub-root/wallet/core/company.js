@@ -17,7 +17,7 @@ export class Company {
         this.users = (companyData.users || []).map(user => new User(user.lastName, user.firstName, user.email, user.phoneNumber));
         this.personalities = (companyData.personalities || []).map(personality => new Personality(personality.shortname, personality.description));
         // this.personalities = companyData.personalities.map(personalityData => new Personality(personalityData));
-        this.documents = companyData.documents.map(docData => new Document(docData.title, docData.id, docData.abstract, docData.chapters, docData.settings, docData.alternativeTitles));
+        this.documents = companyData.documents.map(docData => new Document(docData.title, docData.id, docData.abstract, docData.chapters, docData.settings, docData.alternativeTitles,docData.alternativeAbstracts));
         if (this.documents && this.documents.length > 0) {
             this.currentDocumentId = this.documents[0].id;
         } else {
@@ -42,7 +42,7 @@ export class Company {
           for (const observerRef of this.observers) {
             const observer = observerRef.deref();
             if (observer) {
-                observer(this.companyData);
+                observer();
             }
         }
     }

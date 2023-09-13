@@ -35,4 +35,8 @@ export class companyDropdown {
         let selectedCompanyId = parseInt(selectedCompany.getAttribute('data-company-id'));
         window.changeCompany(selectedCompanyId);
     }
+
+    addOrganization(){
+
+    }
 }
