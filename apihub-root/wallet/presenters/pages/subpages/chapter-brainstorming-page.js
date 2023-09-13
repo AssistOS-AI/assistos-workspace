@@ -1,5 +1,4 @@
-import { closeModal, showActionBox } from "../../../imports.js"
-import { showModal } from "../../../imports.js"
+import { closeModal, showActionBox } from "../../../imports.js";
 
 export class chapterBrainstormingPage {
     constructor() {
@@ -61,10 +60,6 @@ export class chapterBrainstormingPage {
 
     closeModal(_target) {
         closeModal(_target);
-    }
-
-    async showAddIdeaModal() {
-        await showModal(document.querySelector("body"), "add-idea-modal", {});
     }
 
     async showActionBox(_target, primaryKey, componentName, insertionMode) {

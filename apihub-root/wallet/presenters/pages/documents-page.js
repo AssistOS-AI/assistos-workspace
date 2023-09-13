@@ -1,6 +1,4 @@
-import { closeModal, showActionBox } from "../../../WebSkel/utils/modal-utils.js";
-import { getClosestParentElement } from "../../../WebSkel/utils/dom-utils.js";
-import { showModal } from "../../utils/modal-utils.js";
+import { getClosestParentElement, closeModal, showActionBox, showModal } from "../../imports.js";
 
 export class documentsPage {
     constructor() {

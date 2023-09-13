@@ -2,7 +2,6 @@ export class documentSettingsPage {
     constructor() {
         let url = window.location.hash;
         this.id = parseInt(url.split('/')[1]);
-        this.showChaptersInSidebar = 0;
         if(webSkel.company.documents) {
             this._documentConfigs = webSkel.company.documents;
             setTimeout(()=> {
@@ -19,14 +18,7 @@ export class documentSettingsPage {
     }
 
     beforeRender() {
-        // this.chapterSidebar = "";
-        // if (this._document.chapters) {
-        //     let iterator = 0;
-        //     this._document.chapters.forEach((item) => {
-        //         iterator++;
-        //         this.chapterSidebar += `<div class="submenu-item">Edit Chapter ${iterator}</div>`;
-        //     });
-        // }
+
     }
 
     openEditTitlePage() {
@@ -48,19 +40,4 @@ export class documentSettingsPage {
     openViewPage() {
         webSkel.changeToStaticPage(`documents/${this.id}`);
     }
-
-    // showEditChapterSubmenu() {
-    //     const chapterSubmenuSection = document.querySelector(".sidebar-submenu");
-    //     const sidebarArrow = document.querySelector(".arrow-sidebar");
-    //     if(this.showChaptersInSidebar === 0) {
-    //         chapterSubmenuSection.style.display = "inherit";
-    //         sidebarArrow.classList.remove('rotate');
-    //         this.showChaptersInSidebar = 1;
-    //     }
-    //     else {
-    //         chapterSubmenuSection.style.display = "none";
-    //         sidebarArrow.classList.toggle('rotate');
-    //         this.showChaptersInSidebar = 0;
-    //     }
-    // }
 }

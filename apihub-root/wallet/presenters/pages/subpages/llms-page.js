@@ -1,6 +1,4 @@
-import { showActionBox } from "../../../../WebSkel/utils/modal-utils.js";
-import { showModal } from "../../../utils/modal-utils.js";
-import { llmsService } from "../../../core/services/llmsService.js";
+import { llmsService, showModal, showActionBox } from "../../../imports.js";
 
 export class llmsPage {
     constructor(element) {

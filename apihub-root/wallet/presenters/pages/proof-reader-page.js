@@ -1,5 +1,7 @@
-import { checkValidityFormInfo, extractFormInformation } from "../../../WebSkel/utils/form-utils.js";
+import { checkValidityFormInfo } from "../../../WebSkel/utils/form-utils.js";
 import { proofReaderService } from "../../core/services/proofReaderService.js";
+import { extractFormInformation } from "../../imports.js";
+
 
 export class proofReaderPage {
     constructor(element) {

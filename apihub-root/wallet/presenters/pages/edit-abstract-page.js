@@ -84,20 +84,6 @@ export class editAbstractPage {
         document.editableAbstract = this.editableAbstract;
     }
 
-    // showEditChapterSubmenu() {
-    //     const chapterSubmenuSection = document.querySelector(".sidebar-submenu");
-    //     const sidebarArrow = document.querySelector(".arrow-sidebar");
-    //     if (this.showChaptersInSidebar === 0) {
-    //         chapterSubmenuSection.style.display = "inherit";
-    //         sidebarArrow.classList.remove('rotate');
-    //         this.showChaptersInSidebar = 1;
-    //     } else {
-    //         chapterSubmenuSection.style.display = "none";
-    //         sidebarArrow.classList.toggle('rotate');
-    //         this.showChaptersInSidebar = 0;
-    //     }
-    // }
-
 
     async showActionBox(_target, primaryKey, componentName, insertionMode) {
         await showActionBox(_target, primaryKey, componentName, insertionMode);

@@ -7,7 +7,6 @@ export class docPageById {
         this.name = "Name";
         this.abstractText = "Edit your abstract";
         this.button = "Add new document";
-        this.showChaptersInSidebar = 0;
         this.id = webSkel.company.currentDocumentId;
         this.documentService = webSkel.initialiseService('documentService');
 
@@ -33,15 +32,13 @@ export class docPageById {
 
     beforeRender() {
         this.chapterDivs = "";
-        // this.chapterSidebar = "";
         this.title = `<title-view title="${this.docTitle}"></title-view>`;
         if(this.chapters.length > 0) {
             this.documentService.setCurrentChapter(this._document, this.chapters[0].id);
-            // let iterator = 0;
+            let iterator = 0;
             this.chapters.forEach((item) => {
-                // iterator++;
-                this.chapterDivs += `<chapter-item data-chapter-title="${item.title}" data-chapter-id="${item.id}" data-presenter="chapter-item"></chapter-item>`;
-                // this.chapterSidebar += `<div class="submenu-item">Edit Chapter ${iterator}</div>`;
+                iterator++;
+                this.chapterDivs += `<chapter-item data-chapter-number="${iterator}" data-chapter-title="${item.title}" data-chapter-id="${item.id}" data-presenter="chapter-item"></chapter-item>`;
             });
         }
     }
@@ -69,20 +66,6 @@ export class docPageById {
     openChapterBrainstormingPage() {
         webSkel.changeToStaticPage(`documents/${this.id}/chapter-brainstorming/${docPageById.chapterIdForSidebar}`);
     }
-
-    // showEditChapterSubmenu() {
-    //     const chapterSubmenuSection = document.querySelector(".sidebar-submenu");
-    //     const sidebarArrow = document.querySelector(".arrow-sidebar");
-    //     if(this.showChaptersInSidebar === 0) {
-    //         chapterSubmenuSection.style.display = "inherit";
-    //         sidebarArrow.classList.remove('rotate');
-    //         this.showChaptersInSidebar = 1;
-    //     } else {
-    //         chapterSubmenuSection.style.display = "none";
-    //         sidebarArrow.classList.toggle('rotate');
-    //         this.showChaptersInSidebar = 0;
-    //     }
-    // }
 
     addChapter() {
         this.chapterDivs += `<chapter-item data-chapter-title="New Chapter" data-chapter-id="${this.chapters.length}" data-presenter="chapter-item"></chapter-item>`;

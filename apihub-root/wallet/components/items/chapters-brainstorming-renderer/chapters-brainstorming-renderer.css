@@ -15,7 +15,6 @@
 
 .number-and-title {
     width: 100%;
-    display: flex;
     justify-content: start;
     align-items: start;
     overflow: hidden;
@@ -41,13 +40,4 @@
 .svg-box:hover {
     background-color: rgba(85, 85, 85, 0.08);
     cursor: pointer;
-}
-
-.suggested-title:focus {
-    background-color: rgba(148, 174, 227, 0.3);
-    color: #252525;
-    outline: none;
-    padding-left: 10px;
-    padding-right: 10px;
-    font-weight: 450;
 }

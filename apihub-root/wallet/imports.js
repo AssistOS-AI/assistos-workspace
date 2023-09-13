@@ -1,6 +1,6 @@
 import { addNewDocumentModal } from "./presenters/modals/add-new-document-modal.js";
 import { addAnnounceModal } from "./presenters/modals/add-announce-modal.js";
-import { addIdeaModal } from "./presenters/modals/add-idea-modal.js";
+import { addChapterModal } from "./presenters/modals/add-chapter-modal.js";
 import { addLLMModal } from "./presenters/modals/add-llm-modal.js";
 import { addPersonalityModal } from "./presenters/modals/add-personality-modal.js";
 import { addUserModal } from "./presenters/modals/add-user-modal.js";
@@ -55,7 +55,7 @@ export {
     settingsService,
     addNewDocumentModal,
     addAnnounceModal,
-    addIdeaModal,
+    addChapterModal,
     addLLMModal,
     addPersonalityModal,
     addUserModal,

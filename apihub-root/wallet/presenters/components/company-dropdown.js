@@ -1,4 +1,5 @@
 import { getClosestParentElement } from "../../imports.js";
+
 export class companyDropdown {
     constructor(element) {
         this.element = element;

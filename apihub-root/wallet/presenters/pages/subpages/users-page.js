@@ -1,6 +1,4 @@
-import { showActionBox } from "../../../../WebSkel/utils/modal-utils.js";
-import { showModal } from "../../../utils/modal-utils.js";
-import { usersService } from "../../../core/services/usersService.js";
+import { usersService, showModal, showActionBox } from "../../../imports.js";
 
 export class usersPage {
     constructor(element) {

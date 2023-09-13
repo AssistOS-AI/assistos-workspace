@@ -1,6 +1,4 @@
-import { closeModal, showActionBox } from "../../../../WebSkel/utils/modal-utils.js";
-import { showModal } from "../../../utils/modal-utils.js";
-import { extractFormInformation } from "../../../imports.js";
+import { extractFormInformation, showModal, closeModal, showActionBox } from "../../../imports.js";
 
 export class chapterTitlePage {
     constructor() {
@@ -8,8 +6,6 @@ export class chapterTitlePage {
         let url = window.location.hash;
         this.docId =  parseInt(url.split('/')[1]);
         this.chapterId = parseInt(url.split('/')[3]);
-        this.showChaptersInSidebar = 0;
-
         if(webSkel.company.documents) {
             this._documentConfigs = webSkel.company.documents;
             setTimeout(()=> {
