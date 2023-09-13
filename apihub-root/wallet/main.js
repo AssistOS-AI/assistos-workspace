@@ -3,7 +3,7 @@ import {
     companyDropdown,
     addNewDocumentModal,
     addAnnounceModal,
-    addIdeaModal,
+    addChapterModal,
     addLLMModal,
     addPersonalityModal,
     addUserModal,
@@ -155,7 +155,7 @@ function definePresenters() {
 
     webSkel.registerPresenter("add-new-document-modal", addNewDocumentModal);
     webSkel.registerPresenter("add-announce-modal", addAnnounceModal);
-    webSkel.registerPresenter("add-idea-modal", addIdeaModal);
+    webSkel.registerPresenter("add-chapter-modal", addChapterModal);
     webSkel.registerPresenter("add-llm-modal", addLLMModal);
     webSkel.registerPresenter("add-personality-modal", addPersonalityModal);
     webSkel.registerPresenter("add-user-modal", addUserModal);
@@ -209,7 +209,7 @@ function defineComponents() {
 
     webSkel.defineComponent("add-new-document-modal", "./wallet/components/modals/add-new-document-modal/add-new-document-modal.html");
     webSkel.defineComponent("add-announce-modal", "./wallet/components/modals/add-announce-modal/add-announce-modal.html");
-    webSkel.defineComponent("add-idea-modal", "./wallet/components/modals/add-idea-modal/add-idea-modal.html");
+    webSkel.defineComponent("add-chapter-modal", "./wallet/components/modals/add-chapter-modal/add-chapter-modal.html");
     webSkel.defineComponent("add-llm-modal", "./wallet/components/modals/add-llm-modal/add-llm-modal.html");
     webSkel.defineComponent("add-personality-modal", "./wallet/components/modals/add-personality-modal/add-personality-modal.html");
     webSkel.defineComponent("add-user-modal", "./wallet/components/modals/add-user-modal/add-user-modal.html");

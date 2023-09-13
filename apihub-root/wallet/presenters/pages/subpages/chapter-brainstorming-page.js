@@ -63,10 +63,6 @@ export class chapterBrainstormingPage {
         closeModal(_target);
     }
 
-    async showAddIdeaModal() {
-        await showModal(document.querySelector("body"), "add-idea-modal", {});
-    }
-
     async showActionBox(_target, primaryKey, componentName, insertionMode) {
         await showActionBox(_target, primaryKey, componentName, insertionMode);
     }

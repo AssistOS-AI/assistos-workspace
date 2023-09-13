@@ -86,7 +86,7 @@ export class brainstormingPage {
     // }
 
     async showAddIdeaModal() {
-        await showModal(document.querySelector("body"), "add-idea-modal", {});
+        await showModal(document.querySelector("body"), "add-chapter-modal", {});
     }
 
     async showActionBox(_target, primaryKey, componentName, insertionMode) {

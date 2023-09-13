@@ -1,6 +1,6 @@
 import { closeModal } from "../../../WebSkel/utils/modal-utils.js";
 
-export class addIdeaModal {
+export class addChapterModal {
     constructor() {
         if(webSkel.company.documents) {
             this._documentConfigs = webSkel.company.documents;
