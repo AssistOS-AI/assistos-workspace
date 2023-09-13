@@ -184,6 +184,7 @@ function defineComponents() {
     webSkel.defineComponent("personality-item-renderer", "./wallet/components/items/personality-item-renderer/personality-item-renderer.html");
     webSkel.defineComponent("user-item-renderer", "./wallet/components/items/user-item-renderer/user-item-renderer.html");
     webSkel.defineComponent("announce-renderer", "./wallet/components/items/announce-renderer/announce-renderer.html");
+    webSkel.defineComponent("chapters-brainstorming-renderer", "./wallet/components/items/chapters-brainstorming-renderer/chapters-brainstorming-renderer.html");
     webSkel.defineComponent("action-box", "./wallet/components/action-box/action-box.html");
     webSkel.defineComponent("title-view", "./wallet/components/title-view/title-view.html");
     webSkel.defineComponent("title-edit", "./wallet/components/title-edit/title-edit.html");
