@@ -106,7 +106,6 @@ export class editTitlePage {
             const llmId = webSkel.company.llms[0].id;
             return await brainstormingSrv.suggestTitles(defaultPrompt, llmId);
         }
-
         this.suggestedTitles = JSON.parse(await generateSuggestTitles()).titles;
         await showModal(document.querySelector("body"), "suggest-title-modal");
     }
@@ -122,24 +121,34 @@ export class editTitlePage {
     }
 
     edit(_target) {
-        console.log("hello from edit");
+        let editableTitle = _target.parentElement.parentElement.previousElementSibling.firstElementChild.nextElementSibling;
+        const documentId = webSkel.company.currentDocumentId;
+        const documentIndex = webSkel.company.documents.findIndex(doc => doc.id === documentId);
+        if (documentIndex !== -1) {
+            let currentTitleId = webSkel.company.documents[documentIndex].alternativeTitles.findIndex(title => title === editableTitle.innerText);
+            if(currentTitleId !== -1) {
+                editableTitle.contentEditable = true;
+                editableTitle.focus();
+                editableTitle.addEventListener('blur', () => {
+                    editableTitle.contentEditable = false;
+                    webSkel.company.documents[documentIndex].alternativeTitles[currentTitleId] = editableTitle.innerText;
+                    this.documentService.updateDocument(webSkel.company.documents[documentIndex], webSkel.company.currentDocumentId);
+                });
+            }
+        }
     }
 
     delete(_target) {
-        console.log(_target.parentElement.parentElement.previousElementSibling.firstElementChild.nextElementSibling.innerText);
         let deletedTitle = _target.parentElement.parentElement.previousElementSibling.firstElementChild.nextElementSibling.innerText;
         const documentId = webSkel.company.currentDocumentId;
         const documentIndex = webSkel.company.documents.findIndex(doc => doc.id === documentId);
         if (documentIndex !== -1) {
             let altTitleId = webSkel.company.documents[documentIndex].alternativeTitles.findIndex(altTitle => altTitle === deletedTitle);
-            console.log(altTitleId);
             if(altTitleId !== -1) {
                 webSkel.company.documents[documentIndex].alternativeTitles.splice(altTitleId, 1);
+                this.documentService.updateDocument(webSkel.company.documents[documentIndex], webSkel.company.currentDocumentId);
             }
-            this.documentService.updateDocument(webSkel.company.documents[documentIndex], webSkel.company.currentDocumentId);
         }
-        // console.log(_target.parentElement.parentElement.parentElement.parentElement.parentElement);
-        // console.log(getClosestParentElement(_target, "alternative-title-renderer"));
     }
 
     async showActionBox(_target, primaryKey, componentName, insertionMode) {
