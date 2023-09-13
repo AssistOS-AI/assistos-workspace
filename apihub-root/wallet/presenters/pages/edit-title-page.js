@@ -1,6 +1,6 @@
 import { closeModal, showActionBox } from "../../../WebSkel/utils/modal-utils.js";
 import { showModal } from "../../utils/modal-utils.js";
-import { extractFormInformation } from "../../imports.js";
+import { extractFormInformation, getClosestParentElement } from "../../imports.js";
 import { brainstormingService, llmsService } from "../../imports.js";
 
 export class editTitlePage {
@@ -112,9 +112,7 @@ export class editTitlePage {
     }
 
     select(_target) {
-        console.log(_target.parentElement.parentElement.previousElementSibling.firstElementChild.nextElementSibling.innerText);
         let newTitle = _target.parentElement.parentElement.previousElementSibling.firstElementChild.nextElementSibling.innerText;
-        // this.documentService.updateDocumentTitle(this._document, newTitle);
         const documentId = webSkel.company.currentDocumentId;
         const documentIndex = webSkel.company.documents.findIndex(doc => doc.id === documentId);
         if (documentIndex !== -1 && newTitle !== webSkel.company.documents[documentIndex].title) {
@@ -128,7 +126,20 @@ export class editTitlePage {
     }
 
     delete(_target) {
-        console.log("hello from delete");
+        console.log(_target.parentElement.parentElement.previousElementSibling.firstElementChild.nextElementSibling.innerText);
+        let deletedTitle = _target.parentElement.parentElement.previousElementSibling.firstElementChild.nextElementSibling.innerText;
+        const documentId = webSkel.company.currentDocumentId;
+        const documentIndex = webSkel.company.documents.findIndex(doc => doc.id === documentId);
+        if (documentIndex !== -1) {
+            let altTitleId = webSkel.company.documents[documentIndex].alternativeTitles.findIndex(altTitle => altTitle === deletedTitle);
+            console.log(altTitleId);
+            if(altTitleId !== -1) {
+                webSkel.company.documents[documentIndex].alternativeTitles.splice(altTitleId, 1);
+            }
+            this.documentService.updateDocument(webSkel.company.documents[documentIndex], webSkel.company.currentDocumentId);
+        }
+        // console.log(_target.parentElement.parentElement.parentElement.parentElement.parentElement);
+        // console.log(getClosestParentElement(_target, "alternative-title-renderer"));
     }
 
     async showActionBox(_target, primaryKey, componentName, insertionMode) {
