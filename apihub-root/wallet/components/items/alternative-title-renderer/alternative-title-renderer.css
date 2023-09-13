@@ -15,6 +15,7 @@
 
 .number-and-title {
     width: 100%;
+    display: flex;
     justify-content: start;
     align-items: start;
     overflow: hidden;

@@ -7,7 +7,7 @@ export class docPageById {
         this.name = "Name";
         this.abstractText = "Edit your abstract";
         this.button = "Add new document";
-        this.showChaptersInSidebar = 0;
+        // this.showChaptersInSidebar = 0;
         this.id = webSkel.company.currentDocumentId;
         this.documentService = webSkel.initialiseService('documentService');
 
