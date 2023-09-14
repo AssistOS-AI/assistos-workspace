@@ -46,22 +46,6 @@ export async function openDatabase(dbName, version) {
                                 ],
                                 url: "",
                                 id: 2
-                            },
-                            {
-                                name: "OpenAI",
-                                apiKeys: [
-                                    ""
-                                ],
-                                url: "",
-                                id: 3
-                            },
-                            {
-                                name: "Azure GPT-4",
-                                apiKeys: [
-                                    ""
-                                ],
-                                url: "",
-                                id: 3
                             }
                         ],
                         documents: [
@@ -146,6 +130,14 @@ export async function openDatabase(dbName, version) {
                                 ],
                                 url: "https://api.openai.com/v1/chat/completions",
                                 id: 1
+                            },
+                            {
+                                name: "GPT-4",
+                                apiKeys: [
+                                    ""
+                                ],
+                                url: "",
+                                id: 2
                             }
                         ],
                         documents: [{
