@@ -114,3 +114,7 @@ paragraph-item {
 .chapter-content {
     width: 100%;
 }
+
+#select-chapter-visualise {
+    background-color: #E4F2FF;
+}
