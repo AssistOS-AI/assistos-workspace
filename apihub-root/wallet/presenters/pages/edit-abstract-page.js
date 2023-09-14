@@ -1,10 +1,10 @@
-import {brainstormingService, closeModal, showActionBox, showModal} from "../../imports.js";
+import { brainstormingService, closeModal, showActionBox, showModal } from "../../imports.js";
+
 export class editAbstractPage {
     constructor(element) {
         this.element = element;
         let url = window.location.hash;
         this.id = parseInt(url.split('/')[1]);
-        this.showChaptersInSidebar = 0;
         if (webSkel.company.documents) {
             setTimeout(() => {
                 this.invalidate();
@@ -22,10 +22,15 @@ export class editAbstractPage {
 
     beforeRender() {
         this.title = `<title-view title="${this._document.title}"></title-view>`;
-        this.alternativeAbstracts="";
-        for (let i=0; i<this._document.alternativeAbstracts.length; i++) {
-                this.alternativeAbstracts += `<alternative-abstract-renderer nr="${i}" title="${this._document.alternativeAbstracts[i]}"></alternative-abstract-renderer>`;
-            }
+        this.alternativeAbstracts = "";
+        for (let i = 0; i < this._document.alternativeAbstracts.length; i++) {
+            this.alternativeAbstracts += `<alternative-abstract-renderer nr="${i}" title="${this._document.alternativeAbstracts[i]}"></alternative-abstract-renderer>`;
+        }
+        if(!this._document.mainIdeas || this._document.mainIdeas.length === 0) {
+            this.generateMainIdeasButtonName = "Summarize";
+        } else {
+            this.generateMainIdeasButtonName = "Regenerate";
+        }
         if (this.editableAbstract) {
             this.editableAbstract.removeEventListener("click", setEditableAbstract);
             document.removeEventListener("click", removeEventForDocument, true);
@@ -92,6 +97,7 @@ export class editAbstractPage {
     closeModal(_target) {
         closeModal(_target);
     }
+
     async generateAbstract(_target){
         const loading= await webSkel.showLoading();
         async function suggestAbstract(){

@@ -36,6 +36,11 @@ export class chapterBrainstormingPage {
     }
 
     beforeRender() {
+        if(!this._document.mainIdeas || this._document.mainIdeas.length === 0) {
+            this.generateMainIdeasButtonName = "Summarize";
+        } else {
+            this.generateMainIdeasButtonName = "Regenerate";
+        }
         let suggestedTitle = "Bees are nature's little pollination superheroes! Let's protect them and ensure our food chain thrives. #SaveTheBees";
         this.alternativeAbstracts = "";
         this.title = `<title-view title="${this.chapterTitle}"></title-view>`;
