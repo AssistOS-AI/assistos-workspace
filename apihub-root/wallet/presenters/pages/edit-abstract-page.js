@@ -6,8 +6,8 @@ import {
     showActionBox,
     showModal
 } from "../../imports.js";
-import {reverseQuerySelector} from "../../../WebSkel/utils/dom-utils.js";
-import {removeActionBox} from "../../../WebSkel/utils/modal-utils.js";
+import { reverseQuerySelector } from "../../../WebSkel/utils/dom-utils.js";
+import { removeActionBox } from "../../../WebSkel/utils/modal-utils.js";
 
 export class editAbstractPage {
     constructor(element) {
@@ -156,14 +156,14 @@ export class editAbstractPage {
         }
 
     async delete(_target) {
-        let abstract = reverseQuerySelector(_target,".content");
-        let documentSrv=new documentService();
-        let alternativeAbstractIndex=this._document.alternativeAbstracts.findIndex(abs=>abs===abstract.innerText);
+        let abstract = reverseQuerySelector(_target, ".content");
+        let documentSrv = new documentService();
+        let alternativeAbstractIndex = this._document.alternativeAbstracts.findIndex(abs => abs === abstract.innerText);
             if(alternativeAbstractIndex !== -1) {
                 this._document.alternativeAbstracts.splice(alternativeAbstractIndex, 1);
-                await documentSrv.updateDocument(this._document,this._document.id);
-            }else {
-                await showApplicationError("Error deleting abstract",`Error deleting abstract for document: ${this._document.title}`,`Error deleting abstract for document: ${this._document.title}`)
+                await documentSrv.updateDocument(this._document, this._document.id);
+            } else {
+                await showApplicationError("Error deleting abstract",`Error deleting abstract for document: ${this._document.title}`, `Error deleting abstract for document: ${this._document.title}`);
             }
     }
 }

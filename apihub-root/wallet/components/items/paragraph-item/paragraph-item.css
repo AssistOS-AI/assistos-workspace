@@ -1,0 +1,36 @@
+.paragraph-item {
+    display: flex;
+    border-radius: 10px;
+}
+
+.paragraph-arrows {
+    cursor: default;
+    min-width: 14px;
+    margin: 0 20px;
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    justify-content: center;
+}
+
+.paragraph-item p {
+    padding-left: 10px;
+}
+
+.paragraph-arrow {
+    display: none;
+    cursor: pointer;
+}
+
+.paragraph-item:hover {
+    background-color: rgba(148, 174, 227, 0.3);
+
+    .paragraph-arrows {
+        min-height: 0;
+    }
+
+    .paragraph-arrow {
+        display: block;
+    }
+}
+
