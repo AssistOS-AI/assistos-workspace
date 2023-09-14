@@ -3,9 +3,8 @@
 /* the user has a list of company, and the company has a list of users */
 
 import { Document } from "../imports.js";
-import { Personality } from "../imports.js";
 import { User } from "../imports.js";
-import { LLM } from "../imports.js";
+import {Settings} from "../imports.js";
 
 export class Company {
     constructor(companyData) {
@@ -14,9 +13,8 @@ export class Company {
         }
         this.name=companyData.name;
         this.id = companyData.id || undefined;
-        this.llms = (companyData.llms || []).map(llm => new LLM(llm.name, llm.apiKeys, llm.url, llm.id));
+        this.settings = new Settings(companyData.llms,companyData.personalities);
         this.users = (companyData.users || []).map(user => new User(user.lastName, user.firstName, user.email, user.phoneNumber));
-        this.personalities = (companyData.personalities || []).map(personality => new Personality(personality.shortname, personality.description));
         this.documents = (companyData.documents||[]).map(docData => new Document(docData.title, docData.id, docData.abstract, docData.chapters, docData.settings, docData.alternativeTitles,docData.alternativeAbstracts));
         if (this.documents && this.documents.length > 0) {
             this.currentDocumentId = this.documents[0].id;

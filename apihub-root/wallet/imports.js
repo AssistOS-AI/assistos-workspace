@@ -46,8 +46,9 @@ import WebSkel from "../WebSkel/webSkel.js";
 import {companyService} from "./core/services/companyService.js";
 import { extractFormInformation } from "../WebSkel/utils/form-utils.js";
 import { addCompanyModal} from "./presenters/modals/add-company-modal.js";
-
+import { Settings } from "./core/models/settings.js";
 export {
+    Settings,
     documentService,
     addCompanyModal,
     chapterService,
