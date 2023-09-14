@@ -1,4 +1,5 @@
 import { Paragraph } from "../models/paragraph.js";
+
 export class chapterService {
     constructor() {
 
@@ -8,7 +9,7 @@ export class chapterService {
         chapter.paragraphs.push(new Paragraph(paragraphText, chapter.paragraphs.length + 1));
     }
 
-    getParagraph(chapter,paragraphId) {
+    getParagraph(chapter, paragraphId) {
         const paragraph = chapter.paragraphs.find(paragraph => paragraph.id === paragraphId);
         return paragraph || null;
     }

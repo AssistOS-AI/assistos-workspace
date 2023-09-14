@@ -115,4 +115,9 @@ export class documentService {
         [document.chapters[chapterId1], document.chapters[chapterId2]] = [document.chapters[chapterId2], document.chapters[chapterId1]];
         await webSkel.localStorage.updateDocument(webSkel.company.id, document.id,document);
     }
+
+    async swapParagraphs(document, chapterIndex, paragraphIndex1, paragraphIndex2) {
+        [document.chapters[chapterIndex].paragraphs[paragraphIndex1], document.chapters[chapterIndex].paragraphs[paragraphIndex2]] = [document.chapters[chapterIndex].paragraphs[paragraphIndex2], document.chapters[chapterIndex].paragraphs[paragraphIndex1]];
+        await webSkel.localStorage.updateDocument(webSkel.company.id, document.id, document);
+    }
 }

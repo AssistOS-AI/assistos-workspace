@@ -6,7 +6,7 @@ import {
     showActionBox,
     showModal
 } from "../../imports.js";
-import {reverseQuerySelector} from "../../../WebSkel/utils/dom-utils.js";
+import { reverseQuerySelector } from "../../../WebSkel/utils/dom-utils.js";
 
 export class editAbstractPage {
     constructor(element) {

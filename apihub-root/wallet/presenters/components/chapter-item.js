@@ -35,11 +35,6 @@ export class chapterItem {
             });
         }
         document.removeEventListener("click", exitEditMode);
-
-        // else {
-        //     this.element.querySelector(".chapter-paragraphs").classList.remove("hidden");
-        //     this.element.querySelector(".arrow").classList.remove("rotate");
-        // }
     }
 
     showOrHideChapter(_target) {
@@ -98,6 +93,34 @@ export class chapterItem {
                 this.element.querySelector(".chapter-paragraphs").classList.add("hidden");
                 this.element.querySelector(".arrow").classList.add("rotate");
             }
+        }
+    }
+
+    async moveParagraphUp(_target) {
+        let currentParagraph = getClosestParentElement(_target, "paragraph-item");
+        let paragraphAbove = currentParagraph.previousSibling;
+        let chapter = getClosestParentElement(currentParagraph, "chapter-item");
+        let chapterId = chapter.getAttribute('data-chapter-id');
+        let chapterIndex = this._document.chapters.findIndex(chapter => chapter.id === parseInt(chapterId));
+        if(paragraphAbove && paragraphAbove.nodeName === "PARAGRAPH-ITEM") {
+            currentParagraph.after(paragraphAbove);
+            let paragraph1Index = this._document.chapters.findIndex(paragraph => paragraph.id === parseInt(currentParagraph.getAttribute('data-paragraph-id')));
+            let paragraph2Index = this._document.chapters.findIndex(paragraph => paragraph.id === parseInt(paragraphAbove.getAttribute('data-paragraph-id')));
+            await this.documentService.swapParagraphs(this._document, chapterIndex, paragraph1Index, paragraph2Index);
+        }
+    }
+
+    async moveParagraphDown(_target) {
+        let currentParagraph = getClosestParentElement(_target, "paragraph-item");
+        let paragraphBelow = currentParagraph.nextSibling;
+        let chapter = getClosestParentElement(currentParagraph, "chapter-item");
+        let chapterId = chapter.getAttribute('data-chapter-id');
+        let chapterIndex = this._document.chapters.findIndex(chapter => chapter.id === parseInt(chapterId));
+        if(paragraphBelow && paragraphBelow.nodeName === "PARAGRAPH-ITEM") {
+            paragraphBelow.after(currentParagraph);
+            let paragraph1Index = this._document.chapters.findIndex(paragraph => paragraph.id === parseInt(currentParagraph.getAttribute('data-paragraph-id')));
+            let paragraph2Index = this._document.chapters.findIndex(paragraph => paragraph.id === parseInt(paragraphBelow.getAttribute('data-paragraph-id')));
+            await this.documentService.swapParagraphs(this._document, chapterIndex, paragraph1Index, paragraph2Index);
         }
     }
 
