@@ -87,7 +87,6 @@
 .regenerate,
 .chapters-modal {
     cursor: pointer;
-    display: flex;
     align-items: center;
     color: #0618D1;
     font-feature-settings: 'clig' off, 'liga' off;
@@ -102,10 +101,16 @@
 
 .chapters-modal {
     padding-right: 20px;
+    display: none;
+}
+
+#selected-modal {
+    display: flex;
 }
 
 .regenerate {
     margin-right: 9px;
+    display: flex;
 }
 
 .regenerate svg,
