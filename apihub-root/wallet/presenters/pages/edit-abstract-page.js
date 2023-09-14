@@ -1,4 +1,12 @@
-import { brainstormingService, closeModal, showActionBox, showModal } from "../../imports.js";
+import {
+    brainstormingService,
+    closeModal,
+    documentService,
+    getClosestParentElement,
+    showActionBox,
+    showModal
+} from "../../imports.js";
+import {reverseQuerySelector} from "../../../WebSkel/utils/dom-utils.js";
 
 export class editAbstractPage {
     constructor(element) {
@@ -91,13 +99,12 @@ export class editAbstractPage {
 
 
     async showActionBox(_target, primaryKey, componentName, insertionMode) {
-        await showActionBox(_target, primaryKey, componentName, insertionMode);
+        this.actionBox=await showActionBox(_target, primaryKey, componentName, insertionMode);
     }
 
     closeModal(_target) {
         closeModal(_target);
     }
-
     async generateAbstract(_target){
         const loading= await webSkel.showLoading();
         async function suggestAbstract(){
@@ -114,6 +121,50 @@ export class editAbstractPage {
         loading.remove();
         await showModal(document.querySelector("body"), "suggest-abstract-modal");
     }
+
+    async select(_target) {
+        let abstract = reverseQuerySelector(_target,".content").innerText;
+        let documentSrv=new documentService();
+        if(abstract!==documentSrv.getAbstract(this._document)) {
+            documentSrv.updateAbstract(this._document, abstract);
+            await documentSrv.updateDocument(this._document,this._document.id);
+        }
+        else {
+            this.actionBox.remove();
+            this.actionBox.removeAEventListener('click',this.clickHandler);
+        }
+    }
+
+    edit(_target) {
+        let editableTitle = _target.parentElement.parentElement.previousElementSibling.firstElementChild.nextElementSibling;
+        const documentId = webSkel.company.currentDocumentId;
+        const documentIndex = webSkel.company.documents.findIndex(doc => doc.id === documentId);
+        if (documentIndex !== -1) {
+            let currentTitleId = webSkel.company.documents[documentIndex].alternativeTitles.findIndex(title => title === editableTitle.innerText);
+            if(currentTitleId !== -1) {
+                editableTitle.contentEditable = true;
+                editableTitle.focus();
+                editableTitle.addEventListener('blur', () => {
+                    editableTitle.contentEditable = false;
+                    webSkel.company.documents[documentIndex].alternativeTitles[currentTitleId] = editableTitle.innerText;
+                    this.documentService.updateDocument(webSkel.company.documents[documentIndex], webSkel.company.currentDocumentId);
+                });
+            }
+        }
+    }
+
+    delete(_target) {
+        let deletedTitle = _target.parentElement.parentElement.previousElementSibling.firstElementChild.nextElementSibling.innerText;
+        const documentId = webSkel.company.currentDocumentId;
+        const documentIndex = webSkel.company.documents.findIndex(doc => doc.id === documentId);
+        if (documentIndex !== -1) {
+            let altTitleId = webSkel.company.documents[documentIndex].alternativeTitles.findIndex(altTitle => altTitle === deletedTitle);
+            if(altTitleId !== -1) {
+                webSkel.company.documents[documentIndex].alternativeTitles.splice(altTitleId, 1);
+                this.documentService.updateDocument(webSkel.company.documents[documentIndex], webSkel.company.currentDocumentId);
+            }
+        }
+    }
 }
 
 function removeEventForDocument(event) {
@@ -128,3 +179,4 @@ function setEditableAbstract(event) {
     event.stopPropagation();
     event.preventDefault();
 }
+
