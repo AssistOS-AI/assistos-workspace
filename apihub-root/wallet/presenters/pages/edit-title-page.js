@@ -1,4 +1,15 @@
-import { brainstormingService, llmsService, extractFormInformation, getClosestParentElement, closeModal, showActionBox, showModal } from "../../imports.js";
+import {
+    brainstormingService,
+    llmsService,
+    extractFormInformation,
+    getClosestParentElement,
+    closeModal,
+    showActionBox,
+    showModal,
+    documentService
+} from "../../imports.js";
+import {reverseQuerySelector} from "../../../WebSkel/utils/dom-utils.js";
+import {removeActionBox} from "../../../WebSkel/utils/modal-utils.js";
 
 export class editTitlePage {
     constructor() {
@@ -88,48 +99,51 @@ export class editTitlePage {
         await showModal(document.querySelector("body"), "suggest-title-modal");
     }
 
-    select(_target) {
-        let newTitle = _target.parentElement.parentElement.previousElementSibling.firstElementChild.nextElementSibling.innerText;
-        const documentId = webSkel.company.currentDocumentId;
-        const documentIndex = webSkel.company.documents.findIndex(doc => doc.id === documentId);
-        if (documentIndex !== -1 && newTitle !== webSkel.company.documents[documentIndex].title) {
-            this.documentService.updateDocumentTitle(webSkel.company.documents[documentIndex], newTitle);
-            this.documentService.updateDocument(webSkel.company.documents[documentIndex], webSkel.company.currentDocumentId);
+    async select(_target) {
+        let selectedTitle = reverseQuerySelector(_target,".suggested-title").innerText;
+        let documentSrv=new documentService();
+        if(selectedTitle!==this._document.title) {
+            this._document.title = selectedTitle;
+            await documentSrv.updateDocument(this._document,this._document.id);
+        }
+        else {
+            removeActionBox(this.actionBox,this);
         }
     }
 
-    edit(_target) {
-        let editableTitle = _target.parentElement.parentElement.previousElementSibling.firstElementChild.nextElementSibling;
-        const documentId = webSkel.company.currentDocumentId;
-        const documentIndex = webSkel.company.documents.findIndex(doc => doc.id === documentId);
-        if (documentIndex !== -1) {
-            let currentTitleId = webSkel.company.documents[documentIndex].alternativeTitles.findIndex(title => title === editableTitle.innerText);
-            if(currentTitleId !== -1) {
-                editableTitle.contentEditable = true;
-                editableTitle.focus();
-                editableTitle.addEventListener('blur', () => {
-                    editableTitle.contentEditable = false;
-                    webSkel.company.documents[documentIndex].alternativeTitles[currentTitleId] = editableTitle.innerText;
-                    this.documentService.updateDocument(webSkel.company.documents[documentIndex], webSkel.company.currentDocumentId);
-                });
-            }
+    async edit(_target) {
+        let  alternativeTitle = reverseQuerySelector(_target,".suggested-title");
+        let documentSrv=new documentService();
+        let alternativeTitleIndex=this._document.alternativeTitles.findIndex(title=>title===alternativeTitle.innerText);
+        if(alternativeTitleIndex!== -1) {
+            removeActionBox(this.actionBox,this);
+            alternativeTitle.contentEditable = true;
+            alternativeTitle.focus();
+            alternativeTitle.addEventListener('blur', async () => {
+                alternativeTitle.contentEditable = false;
+                if(alternativeTitle.innerText !== this._document.alternativeTitles[alternativeTitleIndex]){
+                    this._document.alternativeTitles[alternativeTitleIndex]=alternativeTitle.innerText;
+                    await documentSrv.updateDocument(this._document,this._document.id);
+                }
+            });
+        }else {
+            await showApplicationError("Error editing title",`Error editing title for document: ${this._document.title}`,`Error editing title for document: ${this._document.title}`)
         }
     }
 
-    delete(_target) {
-        let deletedTitle = _target.parentElement.parentElement.previousElementSibling.firstElementChild.nextElementSibling.innerText;
-        const documentId = webSkel.company.currentDocumentId;
-        const documentIndex = webSkel.company.documents.findIndex(doc => doc.id === documentId);
-        if (documentIndex !== -1) {
-            let altTitleId = webSkel.company.documents[documentIndex].alternativeTitles.findIndex(altTitle => altTitle === deletedTitle);
-            if(altTitleId !== -1) {
-                webSkel.company.documents[documentIndex].alternativeTitles.splice(altTitleId, 1);
-                this.documentService.updateDocument(webSkel.company.documents[documentIndex], webSkel.company.currentDocumentId);
-            }
+    async delete(_target) {
+        let alternativeTitle = reverseQuerySelector(_target,".suggested-title");
+        let documentSrv=new documentService();
+        let alternativeTitleIndex=this._document.alternativeTitles.findIndex(title=>title===alternativeTitle.innerText);
+        if(alternativeTitleIndex !== -1) {
+            this._document.alternativeTitles.splice(alternativeTitleIndex, 1);
+            await documentSrv.updateDocument(this._document,this._document.id);
+        }else {
+            await showApplicationError("Error deleting title",`Error deleting title for document: ${this._document.title}`,`Error deleting title for document: ${this._document.title}`)
         }
     }
 
     async showActionBox(_target, primaryKey, componentName, insertionMode) {
-        await showActionBox(_target, primaryKey, componentName, insertionMode);
+        this.actionBox = await showActionBox(_target, primaryKey, componentName, insertionMode);
     }
 }
