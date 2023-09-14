@@ -1,4 +1,5 @@
 import { closeModal } from "../../../WebSkel/utils/modal-utils.js";
+import {documentService} from "../../core/services/documentService.js";
 
 export class suggestAbstractModal {
     constructor() {
@@ -13,6 +14,7 @@ export class suggestAbstractModal {
             this.invalidate();
         }
         webSkel.company.onChange(this.updateState);
+        this.suggestedAbstract = document.querySelector("edit-abstract-page").webSkelPresenter.suggestedAbstract;
     }
 
     beforeRender() {
@@ -23,7 +25,11 @@ export class suggestAbstractModal {
         closeModal(_target);
     }
 
-    addSelectedAbstract() {
+    async addSelectedAbstract(_target) {
 
+        const docService = new documentService();
+        let currentDocument = docService.getDocument(webSkel.company.currentDocumentId);
+        docService.addAlternativeAbstract(currentDocument,this.suggestedAbstract);
+        await docService.updateDocument(currentDocument, currentDocument.id);
     }
 }

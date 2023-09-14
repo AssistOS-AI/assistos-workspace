@@ -13,8 +13,12 @@ export class brainstormingService {
         return await llmService.suggestTitles(prompt, llmId);
     }
 
-    suggestAbstract(llm) {
-
+    async suggestAbstract(prompt, llmId) {
+        const llmService = new llmsService();
+        if (!llmService.getLLM(llmId)) {
+            throw new Error(`LLM with id ${llmId} not found.`);
+        }
+        return await llmService.suggestAbstract(prompt, llmId);
     }
 
     suggestChapterIdeas(llm) {

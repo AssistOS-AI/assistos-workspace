@@ -1,5 +1,4 @@
-import { closeModal, showActionBox, showModal } from "../../imports.js";
-
+import {brainstormingService, closeModal, showActionBox, showModal} from "../../imports.js";
 export class editAbstractPage {
     constructor(element) {
         this.element = element;
@@ -23,13 +22,10 @@ export class editAbstractPage {
 
     beforeRender() {
         this.title = `<title-view title="${this._document.title}"></title-view>`;
-        this.alternativeAbstracts = "";
-        if (this._document.chapters) {
-            let suggestedTitle = "Bees are nature's little pollination superheroes! Let's protect them and ensure our food chain thrives. #SaveTheBees";
-            for (let number = 1; number <= 10; number++) {
-                this.alternativeAbstracts += `<alternative-abstract-renderer nr="${number}" title="${suggestedTitle}"></alternative-abstract-renderer>`;
+        this.alternativeAbstracts="";
+        for (let i=0; i<this._document.alternativeAbstracts.length; i++) {
+                this.alternativeAbstracts += `<alternative-abstract-renderer nr="${i}" title="${this._document.alternativeAbstracts[i]}"></alternative-abstract-renderer>`;
             }
-        }
         if (this.editableAbstract) {
             this.editableAbstract.removeEventListener("click", setEditableAbstract);
             document.removeEventListener("click", removeEventForDocument, true);
@@ -88,9 +84,6 @@ export class editAbstractPage {
         document.editableAbstract = this.editableAbstract;
     }
 
-    async showSuggestAbstractModal() {
-        await showModal(document.querySelector("body"), "suggest-abstract-modal", {});
-    }
 
     async showActionBox(_target, primaryKey, componentName, insertionMode) {
         await showActionBox(_target, primaryKey, componentName, insertionMode);
@@ -98,6 +91,22 @@ export class editAbstractPage {
 
     closeModal(_target) {
         closeModal(_target);
+    }
+    async generateAbstract(_target){
+        const loading= await webSkel.showLoading();
+        async function suggestAbstract(){
+            const documentService = webSkel.initialiseService('documentService');
+            const documentText = documentService.getDocument(webSkel.company.currentDocumentId).toString();
+            const defaultPrompt = `Given the content of the following document: "${documentText}". Please generate a concise and contextually appropriate abstract that accurately reflects the document's key points, themes, and findings. Your response should consist solely of the abstract text.`;
+            const brainstormingSrv = new brainstormingService();
+            const llmId = webSkel.company.llms[0].id;
+            return await brainstormingSrv.suggestAbstract(defaultPrompt, llmId);
+        }
+        this.suggestedAbstract = await suggestAbstract();
+        webSkel.company.notifyObservers();
+        loading.close();
+        loading.remove();
+        await showModal(document.querySelector("body"), "suggest-abstract-modal");
     }
 }
 

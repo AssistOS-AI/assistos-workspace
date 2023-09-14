@@ -19,9 +19,12 @@ export class llmsService {
 
     async summarize(prompt, llmId) {
         let llm = this.getLLM(llmId);
-        const data = await this.llmApiFetch(llm.url, llm.apiKeys, prompt);
+        return await this.llmApiFetch(llm.url, llm.apiKeys, prompt);
     }
-
+    async suggestAbstract(prompt,llmId){
+        let llm = this.getLLM(llmId);
+        return await this.llmApiFetch(llm.url, llm.apiKeys, prompt);
+    }
     async proofread(prompt, llmId) {
         let llm = this.getLLM(llmId);
         return await this.llmApiFetch(llm.url, llm.apiKeys, prompt);
