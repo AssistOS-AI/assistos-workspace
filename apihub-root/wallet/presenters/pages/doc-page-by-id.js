@@ -38,7 +38,7 @@ export class docPageById {
             let iterator = 0;
             this.chapters.forEach((item) => {
                 iterator++;
-                this.chapterDivs += `<chapter-item data-chapter-number="${iterator}" data-chapter-title="${item.title}" data-chapter-id="${item.id}" data-presenter="chapter-item"></chapter-item>`;
+                this.chapterDivs += `<chapter-item data-chapter-number="${iterator}" data-chapter-title="${item.title}" data-chapter-id="${item.id}" data-presenter="chapter-item" chapterVisibility="show"></chapter-item>`;
             });
         }
     }
@@ -68,7 +68,7 @@ export class docPageById {
     }
 
     addChapter() {
-        this.chapterDivs += `<chapter-item data-chapter-title="New Chapter" data-chapter-id="${this.chapters.length}" data-presenter="chapter-item"></chapter-item>`;
+        this.chapterDivs += `<chapter-item data-chapter-title="New Chapter" data-chapter-id="${this.chapters.length}" data-presenter="chapter-item" data-content-visibility="show"></chapter-item>`;
         this.chapters.push(new Chapter("Edit your title here", this.chapters.length + 1, [{text:"Edit your paragraph here"}]));
         this.invalidate();
     }
@@ -83,6 +83,10 @@ export class docPageById {
             document.addEventListener("click", (event) => {
                 if(!chapterSidebar.parentElement.contains(event.target)) {
                     chapterSidebar.style.display = "none";
+                    let selectedChapter = document.getElementById("select-chapter-visualise");
+                    if(selectedChapter) {
+                        document.getElementById("select-chapter-visualise").removeAttribute("id");
+                    }
                 }
             }, true);
         }

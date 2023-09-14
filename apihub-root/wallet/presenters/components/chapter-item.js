@@ -35,10 +35,19 @@ export class chapterItem {
             });
         }
         document.removeEventListener("click", exitEditMode);
+
+        // else {
+        //     this.element.querySelector(".chapter-paragraphs").classList.remove("hidden");
+        //     this.element.querySelector(".arrow").classList.remove("rotate");
+        // }
     }
 
-    showOrHideChapter(_target, chapterId) {
-        _target.parentNode.nextElementSibling.firstElementChild.nextElementSibling.classList.toggle('hidden');
+    showOrHideChapter(_target) {
+        if(this.chapter.visibility === "hide") {
+            this.chapter.visibility = "show";
+        } else {
+            this.chapter.visibility = "hide";
+        }
         _target.parentNode.nextElementSibling.firstElementChild.classList.toggle('hidden');
         _target.classList.toggle('rotate');
     }
@@ -48,9 +57,23 @@ export class chapterItem {
         let chapterAbove = currentChapter.previousSibling;
         if(chapterAbove.nodeName === "CHAPTER-ITEM") {
             currentChapter.after(chapterAbove);
+            let currentChapterNumber = currentChapter.querySelector(".data-chapter-number").innerText.split(".")[0];
+            let chapterAboveNumber = chapterAbove.querySelector(".data-chapter-number").innerText.split(".")[0];
+
             let chapter1Index = this._document.chapters.findIndex(chapter => chapter.id === parseInt(currentChapter.getAttribute('data-chapter-id')));
             let chapter2Index = this._document.chapters.findIndex(chapter => chapter.id === parseInt(chapterAbove.getAttribute('data-chapter-id')));
             await this.documentService.swapChapters(this._document, chapter1Index, chapter2Index);
+
+            currentChapter.setAttribute("data-chapter-number", chapterAboveNumber);
+            currentChapter.querySelector(".data-chapter-number").innerText = chapterAboveNumber + ".";
+            chapterAbove.setAttribute("data-chapter-number", currentChapterNumber);
+            chapterAbove.querySelector(".data-chapter-number").innerText = currentChapterNumber + ".";
+            let chapterAboveId = chapterAbove.getAttribute("data-chapter-id");
+            let chapterAboveIndex = this._document.chapters.findIndex(chp => chp.id === parseInt(chapterAboveId));
+            if(this._document.chapters[chapterAboveIndex].visibility === "hide") {
+                chapterAbove.querySelector(".chapter-paragraphs").classList.add("hidden");
+                chapterAbove.querySelector(".arrow").classList.add("rotate");
+            }
         }
     }
 
@@ -62,18 +85,34 @@ export class chapterItem {
             let chapter1Index = this._document.chapters.findIndex(chapter => chapter.id === parseInt(currentChapter.getAttribute('data-chapter-id')));
             let chapter2Index = this._document.chapters.findIndex(chapter => chapter.id === parseInt(chapterBelow.getAttribute('data-chapter-id')));
             await this.documentService.swapChapters(this._document, chapter1Index, chapter2Index);
+
+            let currentChapterNumber = currentChapter.querySelector(".data-chapter-number").innerText.split(".")[0];
+            let chapterBelowNumber = chapterBelow.querySelector(".data-chapter-number").innerText.split(".")[0];
+
+            chapterBelow.setAttribute("data-chapter-number", currentChapterNumber);
+            chapterBelow.querySelector(".data-chapter-number").innerText = currentChapterNumber + ".";
+            currentChapter.setAttribute("data-chapter-number", chapterBelowNumber);
+            currentChapter.querySelector(".data-chapter-number").innerText = chapterBelowNumber + ".";
+
+            if(this.chapter.visibility === "hide") {
+                this.element.querySelector(".chapter-paragraphs").classList.add("hidden");
+                this.element.querySelector(".arrow").classList.add("rotate");
+            }
         }
     }
 
     changeRightSidebar(_target) {
-        let chapterId = _target.getAttribute('data-chapter-id');
-        docPageById.changeRightSidebar(chapterId);
+        let target = getClosestParentElement(_target, ".chapter-item");
+        let chapterId = target.getAttribute('data-chapter-id');
+        docPageById.changeRightSidebar( chapterId);
+        target.setAttribute("id", "select-chapter-visualise");
         webSkel.company.currentChapterId = chapterId;
     }
 
     afterRender() {
-        this.selectedChapter = this.element.firstElementChild.nextElementSibling.firstElementChild.firstElementChild.nextElementSibling.firstElementChild.nextElementSibling;
-        this.selectedChapter.addEventListener("dblclick", enterEditMode, true);
+        // FUNCTIA CARE INTRA IN MODUL DE EDITARE
+        // this.selectedChapter = this.element.firstElementChild.nextElementSibling.firstElementChild.firstElementChild.nextElementSibling.firstElementChild.nextElementSibling;
+        // this.selectedChapter.addEventListener("dblclick", enterEditMode, true);
     }
 }
 
