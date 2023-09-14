@@ -16,7 +16,7 @@
                 },
                 {
                     "type": "copy",
-                    "src": "./opendsu-sdk/psknode/bundles/iframeBoot.js",
+                    "src": "./opendsu-sdk/builds/output/iframeBoot.js",
                     "target": "./apihub-root/wallet/scripts/bundles/iframeBoot.js",
                     "options": {
                         "overwrite": true
@@ -78,7 +78,7 @@
         "actions": [
           {
             "type": "copy",
-            "src": "./opendsu-sdk/psknode/bundles/webshims.js",
+            "src": "./opendsu-sdk/builds/output/webshims.js",
             "target": "./apihub-root/bundles/webshims.js",
             "options": {
               "overwrite": true
@@ -86,7 +86,7 @@
           },
           {
             "type": "copy",
-            "src": "./opendsu-sdk/psknode/bundles/loaderBoot.js",
+            "src": "./opendsu-sdk/builds/output/loaderBoot.js",
             "target": "./apihub-root/bundles/loaderBoot.js",
             "options": {
               "overwrite": true

@@ -1,4 +1,4 @@
-require("../opendsu-sdk/psknode/bundles/testsRuntime");
+require("../opendsu-sdk/builds/output/testsRuntime");
 async function boot() {
     const args = process.argv;
     let options;

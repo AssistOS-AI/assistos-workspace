@@ -1,4 +1,4 @@
-require("../../opendsu-sdk/psknode/bundles/testsRuntime");
+require("../../opendsu-sdk/builds/output/testsRuntime");
 
 const dc = require("double-check");
 const assert = dc.assert;

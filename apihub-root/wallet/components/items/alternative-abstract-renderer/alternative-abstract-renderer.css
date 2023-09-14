@@ -14,13 +14,15 @@
 }
 
 .number-and-title {
+   display: flex;
+}
+.content{
     width: 100%;
     justify-content: start;
     align-items: start;
     overflow: hidden;
     text-overflow: ellipsis;
 }
-
 .action-cell {
     justify-content: right;
     display: flex;
