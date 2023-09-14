@@ -34,6 +34,11 @@ export class brainstormingPage {
     }
 
     beforeRender() {
+        if(!this._document.mainIdeas || this._document.mainIdeas.length === 0) {
+            this.generateMainIdeasButtonName = "Summarize";
+        } else {
+            this.generateMainIdeasButtonName = "Regenerate";
+        }
         this.pageRender(this.tab);
     }
 

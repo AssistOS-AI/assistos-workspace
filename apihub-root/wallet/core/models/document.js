@@ -1,13 +1,14 @@
 import { Chapter } from "./chapter.js";
 
 export class Document {
-    constructor(documentTitle, documentId, abstract, chapters, settings, alternativeTitles,alternativeAbstracts) {
+    constructor(documentTitle, documentId, abstract, chapters, settings, alternativeTitles, alternativeAbstracts, mainIdeas) {
         this.title = documentTitle;
         if(documentId) {
             this.id = documentId;
         }
         this.abstract = abstract ? abstract : "";
         this.chapters = [];
+        this.mainIdeas = mainIdeas ? mainIdeas : [];
         this.alternativeAbstracts=alternativeAbstracts||[];
         this.alternativeTitles = alternativeTitles ? alternativeTitles : [];
         if(chapters !== undefined && chapters !== null) {
