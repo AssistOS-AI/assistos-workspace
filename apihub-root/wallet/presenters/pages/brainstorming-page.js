@@ -5,6 +5,8 @@ export class brainstormingPage {
         let url = window.location.hash;
         this.id = parseInt(url.split('/')[1]);
         this.docTitle = "Titlu document";
+        this.id1 = "selected-tab";
+        this.id2 = "";
         if(webSkel.company.documents) {
             this._documentConfigs = (webSkel.company.documents);
             setTimeout(()=> {
