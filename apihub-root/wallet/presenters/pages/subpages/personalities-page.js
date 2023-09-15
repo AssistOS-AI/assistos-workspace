@@ -9,7 +9,7 @@ export class personalitiesPage {
         this.tableRows = "No data loaded";
         this.element = element;
         if (webSkel.company.settings.personalities) {
-            this._personalityConfigs = webSkel.company.personalities;
+            this._personalityConfigs = webSkel.company.settings.personalities;
             setTimeout(()=> {
                 this.invalidate()
             }, 0);
