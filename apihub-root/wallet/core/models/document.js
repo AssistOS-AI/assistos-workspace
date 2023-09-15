@@ -1,4 +1,5 @@
 import { Chapter } from "./chapter.js";
+import {LLM, Personality} from "../../imports";
 
 export class Document {
     constructor(documentTitle, documentId, abstract, chapters, settings, alternativeTitles, alternativeAbstracts, mainIdeas) {
@@ -23,7 +24,7 @@ export class Document {
         } else {
             this.currentChapterId = undefined;
         }
-        this.settings = settings ? settings : {};
+        this.settings = settings ? settings : {llm:settings.llm || new LLM(), personality: settings.personality || new Personality()};
     }
 
     toString() {

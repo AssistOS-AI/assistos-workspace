@@ -10,36 +10,31 @@
             </svg>
             <div class="path-button">Settings</div>
         </div>
+        <form>
+            <div class="settings-content">
+                <div class="dropdown-content">
+                    <label for="personality" class="personality">Choose personality</label> <br>
+                    <select name="personality" id="personality" data-id="personality" required>
+                        <option value="" disabled selected hidden>Select personality</option>
+                        $$personalities
+                    </select>
+                </div>
 
-        <div class="settings-content">
-            <div class="dropdown-content">
-                <label for="personality" class="personality">Choose personality</label> <br>
-                <select name="personality" id="personality">
-                    <option value="" disabled selected hidden>Select personality</option>
-                    <option value="pers1">Personality 1</option>
-                    <option value="pers2">Personality 2</option>
-                    <option value="pers3">Personality 3</option>
-                    <option value="pers4">Personality 4</option>
-                </select>
+                <div class="dropdown-content">
+                    <label for="llm" class="llm">Choose LLM</label> <br>
+                    <select name="llm" id="llm" data-id="llm" required>
+                      $$llms
+                    </select>
+                </div>
             </div>
-
-            <div class="dropdown-content">
-                <label for="llm" class="llm">Choose LLM</label> <br>
-                <select name="llm" id="llm">
-                    <option value="" disabled selected hidden>Select LLM</option>
-                    <option value="llm1">LLM 1</option>
-                    <option value="llm2">LLM 2</option>
-                    <option value="llm3">LLM 3</option>
-                    <option value="llm4">LLM 4</option>
-                </select>
+            <div class="proceed-content">
+                <button class="proceed-btn" data-local-action="saveSettings">
+                   Save
+                </button>
             </div>
-        </div>
+        </form>
 
-        <div class="proceed-content">
-            <p class="proceed-btn">
-                Proceed
-            </p>
-        </div>
+
     </div>
     <div class="right-sidebar">
         <div class="item-list">
