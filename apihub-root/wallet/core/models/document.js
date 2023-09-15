@@ -24,7 +24,7 @@ export class Document {
         } else {
             this.currentChapterId = undefined;
         }
-        this.settings = settings ? settings : {llms:null,personalities:null};
+        this.settings = settings ? settings : {llm:null,personality:null};
     }
 
     toString() {
