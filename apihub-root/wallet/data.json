@@ -28,17 +28,17 @@
     "personalities": [
         {
             "id" : "pkey-1",
-            "shortname" : "James12",
+            "name" : "James12",
             "aiPrompt" : "Lorem ipsum dolor sit amet, his ut dicam mentitum suscipiantur. Epicurei oporteat id vis, sit cu essent eleifend gloriatur. Falli viris ex his, elitr nemore eos ei, odio semper inciderint quo eu. Ea mea porro velit, cum et malis quidam option. Hinc elaboraret ut sit, mea ut doctus apeirian praesent, ne pro idque munere reformidans. Ut rebum corrumpit evertitur his."
         },
         {
             "id" : "pkey-2",
-            "shortname" : "JAMESjj",
+            "name" : "JAMESjj",
             "aiPrompt" : "Lorem ipsum dolor sit amet, ei vix agam fabulas ceteros, et eos quando labore petentium, mel unum debet homero ut. Mea munere vocent at, sit latine dissentiunt eu. Te eum stet summo omnesque, ea consetetur intellegam mel, mentitum mediocrem no duo. Usu ne homero constituto, simul fierent id per. Te impetus malorum alienum vel. Ne ubique appareat erroribus mea, ad eos impetus corrumpit."
         },
         {
             "id" : "pkey-3",
-            "shortname" : "JamesJones",
+            "name" : "JamesJones",
             "aiPrompt" : "Lorem ipsum dolor sit amet, sit ne dicta molestiae. Eam agam habeo propriae eu. Ei detracto democritum vituperata vis, et qui facete dignissim. Dicta scripserit consequuntur eu sed, at soluta audiam meliore vel."
         }
     ],
