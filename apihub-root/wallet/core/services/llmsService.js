@@ -4,17 +4,17 @@ export class llmsService {
     }
 
     async addLLM(llm) {
-        webSkel.company.llms.push(llm);
+        webSkel.company.settings.llms.push(llm);
         await webSkel.localStorage.addLLM(llm);
         webSkel.company.notifyObservers();
     }
 
     getLLMs() {
-        return webSkel.company.llms || [];
+        return webSkel.company.settings.llms || [];
     }
 
     getLLM(llmSelector) {
-        return webSkel.company.llms.find(llm => llm.name === llmSelector || llm.id === llmSelector) || null;
+        return webSkel.company.settings.llms.find(llm => llm.name === llmSelector || llm.id === llmSelector) || null;
     }
 
     async summarize(prompt, llmId) {
