@@ -3,6 +3,7 @@
             this.text = textContent;
             this.id = paragraphId;
         }
+
         toString() {
             return this.text;
         }

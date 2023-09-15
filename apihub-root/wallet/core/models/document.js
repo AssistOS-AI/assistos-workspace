@@ -1,5 +1,5 @@
 import { Chapter } from "./chapter.js";
-import {LLM, Personality} from "../../imports";
+import { LLM, Personality } from "../../imports.js";
 
 export class Document {
     constructor(documentTitle, documentId, abstract, chapters, settings, alternativeTitles, alternativeAbstracts, mainIdeas) {
