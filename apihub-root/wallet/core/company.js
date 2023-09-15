@@ -11,11 +11,11 @@ export class Company {
         if (Company.instance) {
             return Company.instance;
         }
-        this.name=companyData.name;
+        this.name = companyData.name;
         this.id = companyData.id || undefined;
-        this.settings = new Settings(companyData.llms,companyData.personalities);
+        this.settings = new Settings(companyData.llms, companyData.personalities);
         this.users = (companyData.users || []).map(user => new User(user.lastName, user.firstName, user.email, user.phoneNumber));
-        this.documents = (companyData.documents||[]).map(docData => new Document(docData.title, docData.id, docData.abstract, docData.chapters, docData.settings, docData.alternativeTitles,docData.alternativeAbstracts));
+        this.documents = (companyData.documents||[]).map(docData => new Document(docData.title, docData.id, docData.abstract, docData.chapters, docData.settings, docData.alternativeTitles, docData.alternativeAbstracts));
         if (this.documents && this.documents.length > 0) {
             this.currentDocumentId = this.documents[0].id;
         } else {

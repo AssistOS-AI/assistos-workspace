@@ -2,7 +2,6 @@ import { checkValidityFormInfo } from "../../../WebSkel/utils/form-utils.js";
 import { proofReaderService } from "../../core/services/proofReaderService.js";
 import { extractFormInformation } from "../../imports.js";
 
-
 export class proofReaderPage {
     constructor(element) {
         this.element = element;
@@ -10,7 +9,7 @@ export class proofReaderPage {
         if(webSkel.company.documents) {
             this._documentConfigs = webSkel.company.documents;
             setTimeout(()=> {
-                this.invalidate()
+                this.invalidate();
             }, 0);
         }
         this.updateState = ()=> {
@@ -22,7 +21,7 @@ export class proofReaderPage {
 
     beforeRender() {
         let stringHTML = "";
-        for (let llm of webSkel.company.llms) {
+        for (let llm of webSkel.company.settings.llms) {
             stringHTML += `<option data-llm-name="${llm.name}" data-llm-id="${llm.id}">${llm.name}</option>`;
         }
         this.llmsOptions = stringHTML;
