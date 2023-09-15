@@ -31,23 +31,6 @@ export async function openDatabase(dbName, version) {
                 if (existingCompanies.length === 0) {
                     const defaultCompany = {
                         name: `Onboarding company`,
-                        llms: [{
-                                name: "GPT-3",
-                                apiKeys: [
-                                    "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"
-                                ],
-                                url: "https://api.openai.com/v1/chat/completions",
-                                id: 1
-                            },
-                            {
-                                name: "GPT-4",
-                                apiKeys: [
-                                    ""
-                                ],
-                                url: "",
-                                id: 2
-                            }
-                        ],
                         documents: [
                         {
                             id: 1,
@@ -96,9 +79,34 @@ export async function openDatabase(dbName, version) {
                                         }
                                     ]
                                 }
-                            ], settings: {llms:null, personalities: null}
+                            ], settings: {llm:null, personality: null}
                         }],
-                        settings: {llms:[], personalities: []},
+                        settings: {llms: [{
+                                name: "GPT-3",
+                                apiKeys: [
+                                    "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"
+                                ],
+                                url: "https://api.openai.com/v1/chat/completions",
+                                id: 1
+                            },
+                                {
+                                    name: "GPT-4",
+                                    apiKeys: [
+                                        ""
+                                    ],
+                                    url: "",
+                                    id: 2
+                                }
+                            ], personalities: [{
+                                name: "Personality 1",
+                                description: "This is a personality",
+                                id:1
+                            },
+                                {
+                                    name: "Personality 2",
+                                    description: "This is another personality",
+                                    id:2
+                                }]},
                         admins: [],
                         users: [{
                             lastName: "Pinguinescu",
@@ -112,34 +120,11 @@ export async function openDatabase(dbName, version) {
                             email: "tux_pinguinescu@gmail.com",
                             phoneNumber: "0733333333"
                         }],
-                        personalities: [{
-                            name: "Personality 1",
-                            description: "This is a personality"
-                        },
-                        {
-                            name: "Personality 2",
-                            description: "This is another personality"
-                        }]
+
                     };
                     const defaultCompany2 = {
                         name: `Onboarding company2`,
-                        llms: [{
-                                name: "GPT-3",
-                                apiKeys: [
-                                    "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"
-                                ],
-                                url: "https://api.openai.com/v1/chat/completions",
-                                id: 1
-                            },
-                            {
-                                name: "GPT-4",
-                                apiKeys: [
-                                    ""
-                                ],
-                                url: "",
-                                id: 2
-                            }
-                        ],
+
                         documents: [{
                             id: 1,
                             title: "Onboarding Document2",
@@ -187,11 +172,38 @@ export async function openDatabase(dbName, version) {
                                         }
                                     ]
                                 }
-                            ], settings: {llms:null, personalities: null}
+                            ], settings: {llm:null, personality: null}
                         }],
-                        settings: {llms:[], personalities: []},
+                        settings: {llms:[{
+                        name: "GPT-3",
+                        apiKeys: [
+                            "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"
+                        ],
+                        url: "https://api.openai.com/v1/chat/completions",
+                        id: 1
+                    },
+                        {
+                            name: "GPT-4",
+                            apiKeys: [
+                                ""
+                            ],
+                            url: "",
+                            id: 2
+                        }
+                    ], personalities: [{
+                                name: "Personality 1",
+                                description: "This is a personality",
+                                id:1
+                            },
+                                {
+                                    name: "Personality 2",
+                                    description: "This is another personality",
+                                    id:2
+                                }]
+                        },
                         admins: [],
                         users: [],
+
                     };
 
                     const addRequest = companyStore.add(defaultCompany);
