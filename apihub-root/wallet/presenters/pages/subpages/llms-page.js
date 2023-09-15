@@ -11,14 +11,14 @@ export class llmsPage {
         this.element = element;
         const llmService = new llmsService();
         this._llmConfigs = llmService.getLLMs();
-        if(webSkel.company.llms) {
-            this._llmConfigs = webSkel.company.llms;
+        if(webSkel.company.settings.llms) {
+            this._llmConfigs = webSkel.company.settings.llms;
             setTimeout(()=> {
                 this.invalidate()
             }, 0);
         }
         this.updateState = ()=> {
-            this._llmConfigs = webSkel.company.llms;
+            this._llmConfigs = webSkel.company.settings.llms;
             this.invalidate();
         }
         webSkel.company.onChange(this.updateState);

@@ -113,7 +113,7 @@ export class editAbstractPage {
             const documentText = documentService.getDocument(webSkel.company.currentDocumentId).toString();
             const defaultPrompt = `Given the content of the following document: "${documentText}". Please generate a concise and contextually appropriate abstract that accurately reflects the document's key points, themes, and findings. Your response should consist solely of the abstract text.`;
             const brainstormingSrv = new brainstormingService();
-            const llmId = webSkel.company.llms[0].id;
+            const llmId = webSkel.company.settings.llms[0].id;
             return await brainstormingSrv.suggestAbstract(defaultPrompt, llmId);
         }
         this.suggestedAbstract = await suggestAbstract();

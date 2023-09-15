@@ -1,5 +1,5 @@
-import {LLM} from "./llm.js";
-import {Personality} from "./personality.js";
+import { LLM } from "./llm.js";
+import { Personality } from "./personality.js";
 
 export class Settings{
 
