@@ -68,6 +68,7 @@
     justify-content: end;
 }
 
-#chapter-sidebar {
+#chapter-sidebar,
+#paragraph-sidebar {
     display: none;
 }
