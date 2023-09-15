@@ -8,6 +8,7 @@ import {Settings} from "../imports.js";
 
 export class Company {
     constructor(companyData) {
+        console.log(companyData);
         if (Company.instance) {
             return Company.instance;
         }

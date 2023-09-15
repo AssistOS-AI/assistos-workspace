@@ -29,6 +29,12 @@ export class chapterItem {
         this.chapterId = parseInt(this.element.getAttribute("data-chapter-id"));
         this.chapter = this.documentService.getChapter(this._document, this.chapterId);
         this.chapterContent = "";
+        if(this.chapter.visibility === "hide") {
+            if(this.element.querySelector(".chapter-paragraphs")) {
+                this.element.querySelector(".chapter-paragraphs").classList.add("hidden");
+                // this.element.querySelector(".arrow").classList.add("rotate");
+            }
+        }
         if(this.chapter.paragraphs) {
             this.chapter.paragraphs.forEach((paragraph) => {
                 this.chapterContent += `<paragraph-item data-paragraph-content="${paragraph.text}" data-paragraph-id="${paragraph.id}"></paragraph-item>`;

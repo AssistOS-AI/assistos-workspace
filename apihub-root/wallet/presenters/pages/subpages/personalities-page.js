@@ -10,7 +10,7 @@ export class personalitiesPage {
         this.element = element;
         if (webSkel.company.settings.personalities) {
             this._personalityConfigs = webSkel.company.settings.personalities;
-            setTimeout(()=> {
+            setTimeout(() => {
                 this.invalidate()
             }, 0);
         }
@@ -25,6 +25,7 @@ export class personalitiesPage {
         this.tableRows = "";
         if (this._personalityConfigs && this._personalityConfigs.length > 0) {
             this._personalityConfigs.forEach((item) => {
+                console.log(item);
                 this.tableRows += `<personality-item-renderer data-name="${item.name}" data-description="${item.description}"></personality-item-renderer>`;
             });
         } else {
