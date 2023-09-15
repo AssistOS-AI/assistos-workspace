@@ -133,6 +133,10 @@ export class chapterItem {
     }
 
     afterRender() {
+        let selectedParagraphs = this.element.querySelectorAll(".paragraph-text");
+        selectedParagraphs.forEach(paragraph => {
+            paragraph.addEventListener("dblclick", enterEditMode, true);
+        });
         // FUNCTIA CARE INTRA IN MODUL DE EDITARE
         // this.selectedChapter = this.element.firstElementChild.nextElementSibling.firstElementChild.firstElementChild.nextElementSibling.firstElementChild.nextElementSibling;
         // this.selectedChapter.addEventListener("dblclick", enterEditMode, true);
@@ -161,39 +165,14 @@ async function exitEditMode(event) {
         let doc = chapterItem.docServ.getDocument(documentId);
         let chapterId = parseInt(getClosestParentElement(this.selectedChapter, ".chapter-item").getAttribute("data-chapter-id"));
         let chapterIndex = chapterItem.docServ.getChapterIndex(doc, chapterId);
-        let newParagraphs = [];
-        let lastParagraphStartIndex = 0;
+        let paragraphId = parseInt(getClosestParentElement(this.selectedChapter, ".paragraph-item").getAttribute("data-paragraph-id"));
+        let paragraphIndex = chapterItem.docServ.getParagraphIndex(doc, chapterIndex, paragraphId);
         if (documentIndex !== -1 && updatedText !== this.chapter) {
-            for (let i = 0; i < updatedText.length; i++) {
-                if (updatedText[i] === '\n' || i === updatedText.length - 1) {
-                    let numberOfNewLines = 0;
-                    let initialIndex = i;
-                    while (updatedText[i] === '\n') {
-                        i++;
-                        numberOfNewLines++;
-                    }
-                    numberOfNewLines = Math.floor(numberOfNewLines / 2) + 1;
-                    let newLineString = "";
-                    for (let j = 0; j < numberOfNewLines; j++) {
-                        newLineString += "<br>";
-                    }
-                    let paragraph;
-                    if(i !== updatedText.length - 1) {
-                        paragraph = new Paragraph(updatedText.slice(lastParagraphStartIndex, initialIndex), newParagraphs.length + 1);
-                        updatedText = updatedText.slice(0, initialIndex) + newLineString + updatedText.slice(i);
-                    }
-                    else {
-                        paragraph = new Paragraph(updatedText.slice(lastParagraphStartIndex, initialIndex + 1), newParagraphs.length + 1);
-                    }
-                    newParagraphs.push(paragraph);
-                    lastParagraphStartIndex = initialIndex + newLineString.length;
-                }
-            }
             if (updatedText === null || updatedText.trim() === '') {
                 await chapterItem.docServ.deleteChapter(doc, chapterId);
                 webSkel.company.documents[documentIndex].chapters.splice(chapterIndex, 1);
             } else {
-                webSkel.company.documents[documentIndex].chapters[chapterIndex].paragraphs = newParagraphs;
+                webSkel.company.documents[documentIndex].chapters[chapterIndex].paragraphs[paragraphIndex].text = updatedText;
             }
             await chapterItem.docServ.updateDocument(webSkel.company.documents[documentIndex], parseInt(documentId));
         }

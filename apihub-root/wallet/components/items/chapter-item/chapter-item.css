@@ -20,7 +20,7 @@
 
 .chapter-item {
     cursor: default;
-    padding: 0 10px;
+    padding: 0 10px 10px 10px;
     border-radius: 10px;
     display: flex;
     flex-direction: column;
@@ -83,6 +83,11 @@
     display: flex;
     flex-direction: column;
     height: min-content;
+}
+
+.paragraph-text:focus {
+    outline: none;
+    background-color: rgba(148, 174, 227, 0.3);
 }
 
 p {

@@ -1,10 +1,11 @@
 .paragraph-item {
+    cursor: default;
     display: flex;
     border-radius: 10px;
+    justify-content: space-between;
 }
 
 .paragraph-arrows {
-    cursor: default;
     min-width: 14px;
     margin: 0 20px;
     display: flex;
@@ -14,7 +15,8 @@
 }
 
 .paragraph-item p {
-    padding-left: 10px;
+    padding: 0 10px;
+    border-radius: 5px;
 }
 
 .paragraph-arrow {
@@ -22,9 +24,11 @@
     cursor: pointer;
 }
 
-.paragraph-item:hover {
-    background-color: rgba(148, 174, 227, 0.3);
+.paragraph-text {
+    cursor: text;
+}
 
+.paragraph-item:hover {
     .paragraph-arrows {
         min-height: 0;
     }

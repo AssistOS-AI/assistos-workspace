@@ -24,7 +24,7 @@ export class documentService {
     }
 
     async addDocument(document) {
-        document.id = await webSkel.localStorage.addDocument(document,webSkel.company.id);
+        document.id = await webSkel.localStorage.addDocument(document, webSkel.company.id);
         webSkel.company.documents.push(document);
         webSkel.company.notifyObservers();
     }
@@ -57,6 +57,7 @@ export class documentService {
         webSkel.company.documents[documentIndex].settings = settings;
         await webSkel.localStorage.setDocSettings(documentId, settings);
     }
+
     createChapter(document, title) {
         document.chapters.push(new Chapter(title, document.chapters.length + 1, []));
     }
@@ -80,18 +81,28 @@ export class documentService {
     updateDocumentTitle(document, documentTitle) {
         document.title = documentTitle;
     }
-    addAlternativeAbstract(document,abstractText){
+
+    addAlternativeAbstract(document, abstractText){
         document.alternativeAbstracts.push(abstractText);
     }
+
     updateAbstract(document, abstractText) {
         document.abstract = abstractText;
     }
+
     getAbstract(document) {
         return document.abstract || null;
     }
 
     /* left shift(decrement) the ids to the right of the deleted chapter? */
     deleteChapter(document, chapterId) {
+        const index = document.chapters.findIndex(chapter => chapter.id === chapterId);
+        if (index !== -1) {
+            document.chapters.splice(index, 1);
+        }
+    }
+
+    deleteParagraph(document, chapterId) {
         const index = document.chapters.findIndex(chapter => chapter.id === chapterId);
         if (index !== -1) {
             document.chapters.splice(index, 1);
@@ -105,6 +116,10 @@ export class documentService {
 
     getChapterIndex(document, chapterId) {
         return document.chapters.findIndex(chapter => chapter.id === chapterId);
+    }
+
+    getParagraphIndex(document, chapterIndex, paragraphId) {
+        return document.chapters[chapterIndex].paragraphs.findIndex(paragraph => paragraph.id === paragraphId);
     }
 
     getCurrentChapter(document) {
