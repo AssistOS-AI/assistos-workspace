@@ -73,10 +73,6 @@ export class docPageById {
         this.invalidate();
     }
 
-    async showActionBox(_target, primaryKey, componentName, insertionMode) {
-        await showActionBox(_target, primaryKey, componentName, insertionMode);
-    }
-
     afterRender() {
         let chapterSidebar = document.getElementById("chapter-sidebar");
         if(chapterSidebar) {
@@ -90,10 +86,15 @@ export class docPageById {
         }
     }
 
-    static changeRightSidebar(chapterId) {
+    static openChapterSidebar(chapterId) {
         const chapterSubmenuSection = document.getElementById("chapter-sidebar");
         chapterSubmenuSection.style.display = "block";
         docPageById.chapterIdForSidebar = chapterId;
         webSkel.company.currentChapterId = chapterId;
+    }
+
+    static openParagraphSidebar(chapterId, paragraphId) {
+        const paragraphSubmenuSection = document.getElementById("paragraph-sidebar");
+        paragraphSubmenuSection.style.display = "block";
     }
 }

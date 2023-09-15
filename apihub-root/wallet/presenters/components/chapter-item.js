@@ -124,10 +124,10 @@ export class chapterItem {
         }
     }
 
-    changeRightSidebar(_target) {
+    openChapterSidebar(_target) {
         let target = getClosestParentElement(_target, ".chapter-item");
         let chapterId = target.getAttribute('data-chapter-id');
-        docPageById.changeRightSidebar( chapterId);
+        docPageById.openChapterSidebar( chapterId);
         target.setAttribute("id", "select-chapter-visualise");
         webSkel.company.currentChapterId = chapterId;
     }
@@ -137,9 +137,6 @@ export class chapterItem {
         selectedParagraphs.forEach(paragraph => {
             paragraph.addEventListener("dblclick", enterEditMode, true);
         });
-        // FUNCTIA CARE INTRA IN MODUL DE EDITARE
-        // this.selectedChapter = this.element.firstElementChild.nextElementSibling.firstElementChild.firstElementChild.nextElementSibling.firstElementChild.nextElementSibling;
-        // this.selectedChapter.addEventListener("dblclick", enterEditMode, true);
     }
 }
 
@@ -151,6 +148,9 @@ function enterEditMode(event) {
     event.preventDefault();
     document.addEventListener("click", exitEditMode, true);
     document.selectedChapter = this;
+    let chapterId = parseInt(getClosestParentElement(this, ".chapter-item").getAttribute("data-chapter-id"));
+    let paragraphId = parseInt(getClosestParentElement(this, ".paragraph-item").getAttribute("data-paragraph-id"));
+    docPageById.openParagraphSidebar(chapterId, paragraphId);
 }
 
 async function exitEditMode(event) {
@@ -167,6 +167,8 @@ async function exitEditMode(event) {
         let chapterIndex = chapterItem.docServ.getChapterIndex(doc, chapterId);
         let paragraphId = parseInt(getClosestParentElement(this.selectedChapter, ".paragraph-item").getAttribute("data-paragraph-id"));
         let paragraphIndex = chapterItem.docServ.getParagraphIndex(doc, chapterIndex, paragraphId);
+        let sidebar = document.getElementById("paragraph-sidebar");
+        sidebar.style.display = "none";
         if (documentIndex !== -1 && updatedText !== this.chapter) {
             if (updatedText === null || updatedText.trim() === '') {
                 await chapterItem.docServ.deleteChapter(doc, chapterId);
