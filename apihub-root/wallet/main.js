@@ -1,16 +1,16 @@
 import {
-    chapterItem,
+    chapterUnit,
     companyDropdown,
-    addNewDocumentModal,
+    addDocumentModal,
     addAnnounceModal,
     addChapterModal,
     addLLMModal,
     addPersonalityModal,
     addUserModal,
     suggestAbstractModal,
-    suggestTitleModal,
+    suggestTitlesModal,
     documentsPage,
-    docPageById,
+    documentViewPage,
     editTitlePage,
     editAbstractPage,
     chapterTitlePage,
@@ -19,7 +19,7 @@ import {
     myOrganizationPage,
     brainstormingPage,
     documentSettingsPage,
-    announcesPage,
+    announcementsPage,
     usersPage,
     personalitiesPage,
     llmsPage,
@@ -145,10 +145,10 @@ function changeSelectedPageFromSidebar(url) {
 }
 
 function definePresenters() {
-    webSkel.registerPresenter("chapter-item", chapterItem);
+    webSkel.registerPresenter("chapter-item", chapterUnit);
     webSkel.registerPresenter("company-dropdown", companyDropdown);
 
-    webSkel.registerPresenter("doc-page-by-id", docPageById);
+    webSkel.registerPresenter("doc-page-by-id", documentViewPage);
     webSkel.registerPresenter("edit-title-page", editTitlePage);
     webSkel.registerPresenter("edit-abstract-page", editAbstractPage);
     webSkel.registerPresenter("documents-page", documentsPage);
@@ -159,19 +159,19 @@ function definePresenters() {
     webSkel.registerPresenter("proof-reader-page", proofReaderPage);
     webSkel.registerPresenter("my-organization-page", myOrganizationPage);
 
-    webSkel.registerPresenter("announces-page", announcesPage);
+    webSkel.registerPresenter("announces-page", announcementsPage);
     webSkel.registerPresenter("llms-page", llmsPage);
     webSkel.registerPresenter("users-page", usersPage);
     webSkel.registerPresenter("personalities-page", personalitiesPage);
 
-    webSkel.registerPresenter("add-new-document-modal", addNewDocumentModal);
+    webSkel.registerPresenter("add-new-document-modal", addDocumentModal);
     webSkel.registerPresenter("add-announce-modal", addAnnounceModal);
     webSkel.registerPresenter("add-chapter-modal", addChapterModal);
     webSkel.registerPresenter("add-llm-modal", addLLMModal);
     webSkel.registerPresenter("add-personality-modal", addPersonalityModal);
     webSkel.registerPresenter("add-user-modal", addUserModal);
     webSkel.registerPresenter("suggest-abstract-modal", suggestAbstractModal);
-    webSkel.registerPresenter("suggest-title-modal", suggestTitleModal);
+    webSkel.registerPresenter("suggest-title-modal", suggestTitlesModal);
     webSkel.registerPresenter("add-company-modal",addCompanyModal);
 }
 
