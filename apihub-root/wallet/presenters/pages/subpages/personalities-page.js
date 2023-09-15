@@ -2,7 +2,7 @@ import { showModal, showActionBox } from "../../../imports.js";
 
 export class personalitiesPage {
     constructor(element) {
-        this.shortname = "Shortname";
+        this.name = "name";
         this.description = "Description";
         this.modal = "showAddPersonalityModal";
         this.button = "Add Personality";
@@ -25,10 +25,10 @@ export class personalitiesPage {
         this.tableRows = "";
         if (this._personalityConfigs && this._personalityConfigs.length > 0) {
             this._personalityConfigs.forEach((item) => {
-                this.tableRows += `<personality-item-renderer data-shortname="${item.shortname}" data-description="${item.description}"></personality-item-renderer>`;
+                this.tableRows += `<personality-item-renderer data-name="${item.name}" data-description="${item.description}"></personality-item-renderer>`;
             });
         } else {
-            this.tableRows = `<personality-item-renderer data-shortname="No data loaded"></personality-item-renderer>`;
+            this.tableRows = `<personality-item-renderer data-name="No data loaded"></personality-item-renderer>`;
         }
     }
 

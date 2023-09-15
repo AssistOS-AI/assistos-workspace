@@ -1,6 +1,6 @@
 export class Personality {
-    constructor(shortname, description) {
-        this.shortname = shortname || undefined;
+    constructor(name, description) {
+        this.name = name || undefined;
         this.description = description || undefined;
     }
 }

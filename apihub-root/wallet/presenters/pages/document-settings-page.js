@@ -28,32 +28,36 @@ export class documentSettingsPage {
         // caz 2 there is a selected llm already
         // caz 3 no selected llm
 
-        // function select (arrayOfComponents){
-        //     let htmlString="";
-        //     if(arrayOfComponents.length===0) {
-        //         htmlString+=`<option selected disabled >No Component </option>`;
-        //     }else {
-        //             if(this._document.settings[arrayOfComponents]){
-        //                 htmlString+=`<option selected data-id="${this._document.settings.llm.id}"> ${this._document.settings.llm.name}</option>`;
-        //             }else{
-        //                 htmlString+=`<option selected disabled">No component selected</option>`;
-        //             }
-        //             for(let llm of webSkel.company.settings.llms){
-        //                 if(this._document.settings[arrayOfComponents].name !== llm.name){
-        //                     htmlString+=`<option data-id="${llm.id}" selected>${llm.name}</option>`;
-        //                 }
-        //             }
-        //         }
-        //     return htmlString;
-        // }
-        //
-        //     llmsHTML+=`<option data-id="${this._document.settings.llm.id}" selected>${this._document.settings.llm.name}</option>`;
-
-            for (let llm of webSkel.company.settings.llms){
-                llmsHTML+=`<option data-id="${llm.id}">${llm.name}</option>`;
+        const renderSettings = (component, selectedItem, itemName)=>{
+            let htmlString="";
+            if(component.length===0) {
+                htmlString+=`<option selected disabled >No ${itemName} in company</option>`;
+                return htmlString;
             }
-            this.llms=llmsHTML;
-            this.personalities=personalitiesHTML;
+
+            if(this._document.settings[component]){
+                htmlString+=`<option selected data-id="${this._document.settings.llm.id}"> ${this._document.settings.llm.name}</option>`;
+            }else{
+                htmlString+=`<option selected disabled">No ${itemName} selected</option>`;
+            }
+            for(let item of webSkel.company.settings[itemName]){
+                if(!selectedItem || selectedItem.name !== item.name){
+                    htmlString+=`<option data-id="${item.id}" selected>${item.name}</option>`;
+                }
+            }
+
+            return htmlString;
+        }
+        for (const [key, value] of Object.entries(webSkel.company.settings)) {
+            this[key] = renderSettings(value, this._document.settings[key], key);
+        }
+        // llmsHTML+=`<option data-id="${this._document.settings.llm.id}" selected>${this._document.settings.llm.name}</option>`;
+        //
+        // for (let llm of webSkel.company.settings.llms){
+        //     llmsHTML+=`<option data-id="${llm.id}">${llm.name}</option>`;
+        // }
+        // this.llms=llmsHTML;
+        // this.personalities=personalitiesHTML;
     }
     async saveSettings(_target){
         let formInfo = await extractFormInformation(_target);

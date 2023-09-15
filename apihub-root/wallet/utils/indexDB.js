@@ -96,9 +96,9 @@ export async function openDatabase(dbName, version) {
                                         }
                                     ]
                                 }
-                            ], settings: {}
+                            ], settings: {llms:null, personalities: null}
                         }],
-                        settings: {},
+                        settings: {llms:[], personalities: []},
                         admins: [],
                         users: [{
                             lastName: "Pinguinescu",
@@ -113,11 +113,11 @@ export async function openDatabase(dbName, version) {
                             phoneNumber: "0733333333"
                         }],
                         personalities: [{
-                            shortname: "Personality 1",
+                            name: "Personality 1",
                             description: "This is a personality"
                         },
                         {
-                            shortname: "Personality 2",
+                            name: "Personality 2",
                             description: "This is another personality"
                         }]
                     };
@@ -187,9 +187,9 @@ export async function openDatabase(dbName, version) {
                                         }
                                     ]
                                 }
-                            ], settings: {}
+                            ], settings: {llms:null, personalities: null}
                         }],
-                        settings: {},
+                        settings: {llms:[], personalities: []},
                         admins: [],
                         users: [],
                     };
