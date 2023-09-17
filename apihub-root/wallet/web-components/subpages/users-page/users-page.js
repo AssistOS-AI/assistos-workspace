@@ -14,7 +14,7 @@ export class usersPage {
         if(webSkel.company.users) {
             this._userConfigs = webSkel.company.users;
             setTimeout(()=> {
-                this.invalidate()
+                this.invalidate();
             }, 0);
         }
         this.updateState = ()=> {
@@ -28,10 +28,10 @@ export class usersPage {
         this.tableRows = "";
         if (this._userConfigs && this._userConfigs.length > 0) {
             this._userConfigs.forEach((item) => {
-                this.tableRows += `<user-item-renderer data-last-name="${item.lastName}" data-first-name="${item.firstName}" data-email="${item.email}" data-phone-number="${item.phoneNumber}"></user-item-renderer>`;
+                this.tableRows += `<user-unit data-last-name="${item.lastName}" data-first-name="${item.firstName}" data-email="${item.email}" data-phone-number="${item.phoneNumber}"></user-unit>`;
             });
         } else {
-            this.tableRows = `<user-item-renderer data-last-name="No data loaded"></user-item-renderer>`;
+            this.tableRows = `<user-unit data-last-name="No data loaded"></user-unit>`;
         }
     }
 

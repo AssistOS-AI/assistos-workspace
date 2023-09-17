@@ -18,7 +18,7 @@
     display: none;
 }
 
-.chapter-item {
+.chapter-unit {
     cursor: default;
     padding: 0 10px 10px 10px;
     border-radius: 10px;
@@ -45,8 +45,8 @@
     visibility: hidden;
 }
 
-.chapter-item:hover .up,
-.chapter-item:hover .down {
+.chapter-unit:hover .up,
+.chapter-unit:hover .down {
     visibility: visible;
     cursor: pointer;
 }

@@ -146,6 +146,7 @@ input[type=number]::-webkit-outer-spin-button {
     align-items: center;
     gap: 10px;
     border-radius: 16px;
+    border: none;
     background: #18203F;
 }
 

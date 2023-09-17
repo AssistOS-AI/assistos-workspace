@@ -3,7 +3,7 @@ import { getClosestParentElement, closeModal, showActionBox, showModal } from ".
 export class documentsPage {
     constructor() {
         this.name = "Name";
-        this.modal = "showAddNewDocumentModal";
+        this.modal = "showAddDocumentModal";
         this.button = "Add document";
         if(webSkel.company.documents) {
             this._documentConfigs = webSkel.company.documents;
@@ -27,7 +27,7 @@ export class documentsPage {
             }
             else {
                 this._documentConfigs.forEach((item) => {
-                    this.tableRows += `<document-item-renderer data-name="${item.title}" data-id="${item.id}"></document-item-renderer>`;
+                    this.tableRows += `<document-unit data-name="${item.title}" data-id="${item.id}"></document-unit>`;
                 });
             }
         } else {
@@ -35,23 +35,22 @@ export class documentsPage {
         }
     }
 
-    async showAddNewDocumentModal() {
-        await showModal(document.querySelector("body"), "add-new-document-modal", {});
+    async showAddDocumentModal() {
+        await showModal(document.querySelector("body"), "add-document-modal", {});
     }
 
-    async editAction(_target){
-        let rowElement = getClosestParentElement(_target,['document-item-renderer']);
-        let documentId= parseInt(rowElement.getAttribute('data-id'));
+    async editAction(_target) {
+        let rowElement = getClosestParentElement(_target,['document-unit']);
+        let documentId = parseInt(rowElement.getAttribute('data-id'));
         // webSkel.company.currentDocumentId = documentId;
         this.documentService.observeDocument(documentId);
         await webSkel.changeToStaticPage(`documents/${documentId}`);
     }
 
     async deleteAction(_target){
-        const rowElement = getClosestParentElement(_target, "document-item-renderer");
+        const rowElement = getClosestParentElement(_target, "document-unit");
         let documentIdToRemove = parseInt(rowElement.getAttribute('data-id'));
-        await this.documentService.deleteDocument(documentIdToRemove)
-
+        await this.documentService.deleteDocument(documentIdToRemove);
     }
 
     async showActionBox(_target, primaryKey, componentName, insertionMode) {

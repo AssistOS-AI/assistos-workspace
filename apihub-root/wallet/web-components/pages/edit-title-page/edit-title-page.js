@@ -8,8 +8,8 @@ import {
     showModal,
     documentService
 } from "../../../imports.js";
-import {reverseQuerySelector} from "../../../../WebSkel/utils/dom-utils.js";
-import {removeActionBox} from "../../../../WebSkel/utils/modal-utils.js";
+import { reverseQuerySelector } from "../../../../WebSkel/utils/dom-utils.js";
+import { removeActionBox } from "../../../../WebSkel/utils/modal-utils.js";
 
 export class editTitlePage {
     constructor() {
@@ -42,7 +42,7 @@ export class editTitlePage {
         this.alternativeTitles = "";
         if(this._document) {
             for(let i = 0; i < this._document.alternativeTitles.length; i++) {
-                this.alternativeTitles += `<alternative-title-renderer nr="${i+1}" title="${this._document.alternativeTitles[i]}"></alternative-title-renderer>`;
+                this.alternativeTitles += `<alternative-title nr="${i+1}" title="${this._document.alternativeTitles[i]}"></alternative-title>`;
             }
         }
     }
@@ -101,45 +101,46 @@ export class editTitlePage {
 
     async select(_target) {
         let selectedTitle = reverseQuerySelector(_target,".suggested-title").innerText;
-        let documentSrv=new documentService();
-        if(selectedTitle!==this._document.title) {
+        let documentSrv = new documentService();
+        if(selectedTitle !== this._document.title) {
             this._document.title = selectedTitle;
-            await documentSrv.updateDocument(this._document,this._document.id);
+            await documentSrv.updateDocument(this._document, this._document.id);
         }
         else {
-            removeActionBox(this.actionBox,this);
+            removeActionBox(this.actionBox, this);
         }
     }
 
     async edit(_target) {
         let  alternativeTitle = reverseQuerySelector(_target,".suggested-title");
-        let documentSrv=new documentService();
-        let alternativeTitleIndex=this._document.alternativeTitles.findIndex(title=>title===alternativeTitle.innerText);
-        if(alternativeTitleIndex!== -1) {
-            removeActionBox(this.actionBox,this);
+        let documentSrv = new documentService();
+        let alternativeTitleIndex = this._document.alternativeTitles.findIndex(title => title === alternativeTitle.innerText);
+        if(alternativeTitleIndex !== -1) {
+            removeActionBox(this.actionBox, this);
             alternativeTitle.contentEditable = true;
             alternativeTitle.focus();
             alternativeTitle.addEventListener('blur', async () => {
                 alternativeTitle.contentEditable = false;
-                if(alternativeTitle.innerText !== this._document.alternativeTitles[alternativeTitleIndex]){
-                    this._document.alternativeTitles[alternativeTitleIndex]=alternativeTitle.innerText;
-                    await documentSrv.updateDocument(this._document,this._document.id);
+                if(alternativeTitle.innerText !== this._document.alternativeTitles[alternativeTitleIndex]) {
+                    this._document.alternativeTitles[alternativeTitleIndex] = alternativeTitle.innerText;
+                    await documentSrv.updateDocument(this._document, this._document.id);
                 }
             });
-        }else {
-            await showApplicationError("Error editing title",`Error editing title for document: ${this._document.title}`,`Error editing title for document: ${this._document.title}`)
+        }
+        else {
+            await showApplicationError("Error editing title", `Error editing title for document: ${this._document.title}`, `Error editing title for document: ${this._document.title}`);
         }
     }
 
     async delete(_target) {
         let alternativeTitle = reverseQuerySelector(_target,".suggested-title");
-        let documentSrv=new documentService();
-        let alternativeTitleIndex=this._document.alternativeTitles.findIndex(title=>title===alternativeTitle.innerText);
+        let documentSrv = new documentService();
+        let alternativeTitleIndex = this._document.alternativeTitles.findIndex(title => title === alternativeTitle.innerText);
         if(alternativeTitleIndex !== -1) {
             this._document.alternativeTitles.splice(alternativeTitleIndex, 1);
-            await documentSrv.updateDocument(this._document,this._document.id);
-        }else {
-            await showApplicationError("Error deleting title",`Error deleting title for document: ${this._document.title}`,`Error deleting title for document: ${this._document.title}`)
+            await documentSrv.updateDocument(this._document, this._document.id);
+        } else {
+            await showApplicationError("Error deleting title", `Error deleting title for document: ${this._document.title}`, `Error deleting title for document: ${this._document.title}`);
         }
     }
 

@@ -31,7 +31,7 @@ export class chapterUnit {
         this.chapterContent = "";
         if(this.chapter.paragraphs) {
             this.chapter.paragraphs.forEach((paragraph) => {
-                this.chapterContent += `<paragraph-item data-paragraph-content="${paragraph.text}" data-paragraph-id="${paragraph.id}"></paragraph-item>`;
+                this.chapterContent += `<paragraph-unit data-paragraph-content="${paragraph.text}" data-paragraph-id="${paragraph.id}"></paragraph-unit>`;
             });
         }
         document.removeEventListener("click", exitEditMode);
@@ -48,9 +48,9 @@ export class chapterUnit {
     }
 
     async moveUp(_target) {
-        let currentChapter = getClosestParentElement(_target, "chapter-item");
+        let currentChapter = getClosestParentElement(_target, "chapter-unit");
         let chapterAbove = currentChapter.previousSibling;
-        if(chapterAbove.nodeName === "CHAPTER-ITEM") {
+        if(chapterAbove.nodeName === "CHAPTER-UNIT") {
             currentChapter.after(chapterAbove);
             let currentChapterNumber = currentChapter.querySelector(".data-chapter-number").innerText.split(".")[0];
             let chapterAboveNumber = chapterAbove.querySelector(".data-chapter-number").innerText.split(".")[0];
@@ -73,9 +73,9 @@ export class chapterUnit {
     }
 
     async moveDown(_target) {
-        let currentChapter = getClosestParentElement(_target, "chapter-item");
+        let currentChapter = getClosestParentElement(_target, "chapter-unit");
         let chapterBelow = currentChapter.nextSibling;
-        if(chapterBelow.nodeName === "CHAPTER-ITEM") {
+        if(chapterBelow.nodeName === "CHAPTER-UNIT") {
             chapterBelow.after(currentChapter);
             let chapter1Index = this._document.chapters.findIndex(chapter => chapter.id === parseInt(currentChapter.getAttribute('data-chapter-id')));
             let chapter2Index = this._document.chapters.findIndex(chapter => chapter.id === parseInt(chapterBelow.getAttribute('data-chapter-id')));
@@ -97,12 +97,12 @@ export class chapterUnit {
     }
 
     async moveParagraphUp(_target) {
-        let currentParagraph = getClosestParentElement(_target, "paragraph-item");
+        let currentParagraph = getClosestParentElement(_target, "paragraph-unit");
         let paragraphAbove = currentParagraph.previousSibling;
-        let chapter = getClosestParentElement(currentParagraph, "chapter-item");
+        let chapter = getClosestParentElement(currentParagraph, "chapter-unit");
         let chapterId = chapter.getAttribute('data-chapter-id');
         let chapterIndex = this._document.chapters.findIndex(chapter => chapter.id === parseInt(chapterId));
-        if(paragraphAbove && paragraphAbove.nodeName === "PARAGRAPH-ITEM") {
+        if(paragraphAbove && paragraphAbove.nodeName === "PARAGRAPH-UNIT") {
             currentParagraph.after(paragraphAbove);
             let paragraph1Index = this._document.chapters.findIndex(paragraph => paragraph.id === parseInt(currentParagraph.getAttribute('data-paragraph-id')));
             let paragraph2Index = this._document.chapters.findIndex(paragraph => paragraph.id === parseInt(paragraphAbove.getAttribute('data-paragraph-id')));
@@ -111,12 +111,12 @@ export class chapterUnit {
     }
 
     async moveParagraphDown(_target) {
-        let currentParagraph = getClosestParentElement(_target, "paragraph-item");
+        let currentParagraph = getClosestParentElement(_target, "paragraph-unit");
         let paragraphBelow = currentParagraph.nextSibling;
-        let chapter = getClosestParentElement(currentParagraph, "chapter-item");
+        let chapter = getClosestParentElement(currentParagraph, "chapter-unit");
         let chapterId = chapter.getAttribute('data-chapter-id');
         let chapterIndex = this._document.chapters.findIndex(chapter => chapter.id === parseInt(chapterId));
-        if(paragraphBelow && paragraphBelow.nodeName === "PARAGRAPH-ITEM") {
+        if(paragraphBelow && paragraphBelow.nodeName === "PARAGRAPH-UNIT") {
             paragraphBelow.after(currentParagraph);
             let paragraph1Index = this._document.chapters.findIndex(paragraph => paragraph.id === parseInt(currentParagraph.getAttribute('data-paragraph-id')));
             let paragraph2Index = this._document.chapters.findIndex(paragraph => paragraph.id === parseInt(paragraphBelow.getAttribute('data-paragraph-id')));
@@ -125,7 +125,7 @@ export class chapterUnit {
     }
 
     openChapterSidebar(_target) {
-        let target = getClosestParentElement(_target, ".chapter-item");
+        let target = getClosestParentElement(_target, ".chapter-unit");
         let chapterId = target.getAttribute('data-chapter-id');
         documentViewPage.openChapterSidebar( chapterId);
         target.setAttribute("id", "select-chapter-visualise");
@@ -148,7 +148,7 @@ function enterEditMode(event) {
     event.preventDefault();
     document.addEventListener("click", exitEditMode, true);
     document.selectedChapter = this;
-    let chapterId = parseInt(getClosestParentElement(this, ".chapter-item").getAttribute("data-chapter-id"));
+    let chapterId = parseInt(getClosestParentElement(this, ".chapter-unit").getAttribute("data-chapter-id"));
     let paragraphId = parseInt(getClosestParentElement(this, ".paragraph-item").getAttribute("data-paragraph-id"));
     documentViewPage.openParagraphSidebar(chapterId, paragraphId);
 }
@@ -160,10 +160,10 @@ async function exitEditMode(event) {
         if(updatedText === '\n') {
             updatedText = '';
         }
-        const documentId = parseInt(getClosestParentElement(this.selectedChapter, "doc-page-by-id").getAttribute("data-document-id"));
+        const documentId = parseInt(getClosestParentElement(this.selectedChapter, "document-view-page").getAttribute("data-document-id"));
         const documentIndex = chapterUnit.docServ.getDocumentIndex(documentId);
         let doc = chapterUnit.docServ.getDocument(documentId);
-        let chapterId = parseInt(getClosestParentElement(this.selectedChapter, ".chapter-item").getAttribute("data-chapter-id"));
+        let chapterId = parseInt(getClosestParentElement(this.selectedChapter, ".chapter-unit").getAttribute("data-chapter-id"));
         let chapterIndex = chapterUnit.docServ.getChapterIndex(doc, chapterId);
         let paragraphId = parseInt(getClosestParentElement(this.selectedChapter, ".paragraph-item").getAttribute("data-paragraph-id"));
         let paragraphIndex = chapterUnit.docServ.getParagraphIndex(doc, chapterIndex, paragraphId);

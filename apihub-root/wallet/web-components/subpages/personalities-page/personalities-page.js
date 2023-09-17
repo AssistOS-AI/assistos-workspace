@@ -11,7 +11,7 @@ export class personalitiesPage {
         if (webSkel.company.settings.personalities) {
             this._personalityConfigs = webSkel.company.settings.personalities;
             setTimeout(()=> {
-                this.invalidate()
+                this.invalidate();
             }, 0);
         }
         this.updateState = ()=> {
@@ -25,10 +25,10 @@ export class personalitiesPage {
         this.tableRows = "";
         if (this._personalityConfigs && this._personalityConfigs.length > 0) {
             this._personalityConfigs.forEach((item) => {
-                this.tableRows += `<personality-item-renderer data-name="${item.name}" data-description="${item.description}"></personality-item-renderer>`;
+                this.tableRows += `<personality-unit data-name="${item.name}" data-description="${item.description}"></personality-unit>`;
             });
         } else {
-            this.tableRows = `<personality-item-renderer data-name="No data loaded"></personality-item-renderer>`;
+            this.tableRows = `<personality-unit data-name="No data loaded"></personality-unit>`;
         }
     }
 

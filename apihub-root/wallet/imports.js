@@ -1,5 +1,5 @@
 import { addDocumentModal } from "./web-components/modals/add-document-modal/add-document-modal.js";
-import { addAnnounceModal } from "./web-components/modals/add-announce-modal/add-announce-modal.js";
+import { addAnnouncementModal } from "./web-components/modals/add-announcement-modal/add-announcement-modal.js";
 import { addChapterModal } from "./web-components/modals/add-chapter-modal/add-chapter-modal.js";
 import { addLLMModal } from "./web-components/modals/add-llm-modal/add-llm-modal.js";
 import { addPersonalityModal } from "./web-components/modals/add-personality-modal/add-personality-modal.js";
@@ -57,7 +57,7 @@ export {
     brainstormingService,
     settingsService,
     addDocumentModal,
-    addAnnounceModal,
+    addAnnouncementModal,
     addChapterModal,
     addLLMModal,
     addPersonalityModal,

@@ -1,4 +1,4 @@
-import {getClosestParentElement, showModal} from "../../../imports.js";
+import { getClosestParentElement, showModal } from "../../../imports.js";
 
 export class companyDropdown {
     constructor(element) {
@@ -37,7 +37,7 @@ export class companyDropdown {
         window.changeCompany(selectedCompanyId);
     }
 
-   async  addOrganization(){
+    async  addOrganization(){
        await showModal(document.querySelector("body"), "add-company-modal");
     }
 }

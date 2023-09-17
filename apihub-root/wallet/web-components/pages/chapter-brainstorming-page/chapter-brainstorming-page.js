@@ -46,7 +46,7 @@ export class chapterBrainstormingPage {
         this.title = `<title-view title="${this.chapterTitle}"></title-view>`;
         if(this._document) {
             for(let number = 1; number <= 10; number++) {
-                this.alternativeAbstracts += `<alternative-abstract-renderer nr="${number}" title="${suggestedTitle}"></alternative-abstract-renderer>`;
+                this.alternativeAbstracts += `<alternative-abstract nr="${number}" title="${suggestedTitle}"></alternative-abstract>`;
             }
         }
     }

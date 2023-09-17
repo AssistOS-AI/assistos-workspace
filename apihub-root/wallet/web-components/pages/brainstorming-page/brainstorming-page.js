@@ -97,7 +97,7 @@ export class brainstormingPage {
                     let number = 0;
                     this._document.chapters.forEach((item) => {
                         number++;
-                        this.chaptersDiv += `<chapters-brainstorming-renderer nr="${number}" title="${item.title}"></chapters-brainstorming-renderer>`;
+                        this.chaptersDiv += `<brainstorming-chapter-unit nr="${number}" title="${item.title}"></brainstorming-chapter-unit>`;
                     });
                 }
                 break;
@@ -108,7 +108,7 @@ export class brainstormingPage {
                 this.idModal2 = "selected-modal";
                 this.chaptersDiv = "";
                 for(let number = 1; number < 4; number++) {
-                    this.chaptersDiv += `<brainstorming-possible-ideas-renderer nr="${number}" title="Idea ${number}"></brainstorming-possible-ideas-renderer>`;
+                    this.chaptersDiv += `<brainstorming-document-idea nr="${number}" title="Idea ${number}"></brainstorming-document-idea>`;
                 }
                 break;
         }

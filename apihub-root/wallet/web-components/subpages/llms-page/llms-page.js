@@ -28,10 +28,10 @@ export class llmsPage {
         this.tableRows = "";
         if (this._llmConfigs && this._llmConfigs.length > 0) {
             this._llmConfigs.forEach((item) => {
-                this.tableRows += `<llm-item-renderer data-name="${item.name}" data-key="${item.key}" data-url="${item.url}" data-primary-key="${item.primaryKey}"></llm-item-renderer>`;
+                this.tableRows += `<llm-unit data-name="${item.name}" data-key="${item.key}" data-url="${item.url}" data-primary-key="${item.primaryKey}"></llm-unit>`;
             });
         } else {
-            this.tableRows = `<llm-item-renderer data-name="No data loaded"></llm-item-renderer>`;
+            this.tableRows = `<llm-unit data-name="No data loaded"></llm-unit>`;
         }
     }
 

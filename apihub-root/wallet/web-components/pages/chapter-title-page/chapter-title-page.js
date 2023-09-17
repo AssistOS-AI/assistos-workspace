@@ -41,7 +41,7 @@ export class chapterTitlePage {
         if(this._document) {
             let suggestedTitle = "Bees are nature's little pollination superheroes! Let's protect them and ensure our food chain thrives. #SaveTheBees";
             for(let number = 1; number <= 10; number++) {
-                this.alternativeTitles += `<alternative-title-renderer nr="${number}" title="${suggestedTitle}"></alternative-title-renderer>`;
+                this.alternativeTitles += `<alternative-title nr="${number}" title="${suggestedTitle}"></alternative-title>`;
             }
         }
     }

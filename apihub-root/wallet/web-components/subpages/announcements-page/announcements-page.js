@@ -2,13 +2,13 @@ import { closeModal, showActionBox, showModal } from "../../../imports.js";
 
 export class announcementsPage {
     constructor(element) {
-        this.announceDivs = "Here are the announces:";
+        this.announcementDivs = "Here are the announcements:";
         this.element = element;
         this.id = webSkel.company.currentDocumentId;
         if(webSkel.company.documents) {
             this._documentConfigs = (webSkel.company.documents);
             setTimeout(()=> {
-                this.invalidate()
+                this.invalidate();
             }, 0);
         }
         this.updateState = ()=> {
@@ -19,23 +19,22 @@ export class announcementsPage {
     }
 
     beforeRender() {
-        let announces = [];
-        let announce = {
+        let announcements = [];
+        let announcement = {
             title: "Glass Menagerie",
             content: "The father-and-son duo Leopold and Rudolf Blaschka crafted thousands of scientifically accurate models of plants and sea creatures as teaching aids.Lorem ipsum dolor sit amet, consectetur adipiscing elit. Praesent eu odio est. Pellentesque habitant morbi tristique senectus et netus et malesuada fames ac turpis egestas. Nullam semper, eros vitae facilisis facilisis, diam odio bibendum magna, at volutpat ligula urna ornare neque. Nam pulvinar enim ut tellus."
         };
         for(let i = 0; i < 10; i++) {
-            announces.push(announce);
+            announcements.push(announcement);
         }
-
-        this.announceDivs = "";
-        announces.forEach((announce)=> {
-            this.announceDivs += `<announce-renderer data-title="${announce.title}" data-content="${announce.content}"></announce-renderer>`;
+        this.announcementDivs = "";
+        announcements.forEach((announce)=> {
+            this.announcementDivs += `<announcement-unit data-title="${announcement.title}" data-content="${announcement.content}"></announcement-unit>`;
         });
     }
 
-    async showAddAnnounceModal() {
-        await showModal(document.querySelector("body"), "add-announce-modal", {});
+    async showAddAnnouncementModal() {
+        await showModal(document.querySelector("body"), "add-announcement-modal", {});
     }
 
     async showActionBox(_target, primaryKey, componentName, insertionMode) {

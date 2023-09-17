@@ -106,9 +106,10 @@ export class editAbstractPage {
     closeModal(_target) {
         closeModal(_target);
     }
+
     async generateAbstract(_target){
         const loading= await webSkel.showLoading();
-        async function suggestAbstract(){
+        async function suggestAbstract() {
             const documentService = webSkel.initialiseService('documentService');
             const documentText = documentService.getDocument(webSkel.company.currentDocumentId).toString();
             const defaultPrompt = `Given the content of the following document: "${documentText}". Please generate a concise and contextually appropriate abstract that accurately reflects the document's key points, themes, and findings. Your response should consist solely of the abstract text.`;
@@ -126,45 +127,46 @@ export class editAbstractPage {
     async select(_target) {
         let abstract = reverseQuerySelector(_target,".content").innerText;
         let documentSrv=new documentService();
-        if(abstract!==documentSrv.getAbstract(this._document)) {
+        if(abstract !== documentSrv.getAbstract(this._document)) {
             documentSrv.updateAbstract(this._document, abstract);
-            await documentSrv.updateDocument(this._document,this._document.id);
+            await documentSrv.updateDocument(this._document, this._document.id);
         }
         else {
-            removeActionBox(this.actionBox,this);
+            removeActionBox(this.actionBox, this);
         }
     }
 
     async edit(_target) {
-        let abstract = reverseQuerySelector(_target,".content");
-        let documentSrv=new documentService();
-        let alternativeAbstractIndex=this._document.alternativeAbstracts.findIndex(abs=>abs===abstract.innerText);
-            if(alternativeAbstractIndex !== -1) {
-                removeActionBox(this.actionBox,this);
-                abstract.contentEditable = true;
-                abstract.focus();
-                abstract.addEventListener('blur', async () => {
-                    abstract.contentEditable = false;
-                    if(abstract.innerText !== this._document.alternativeAbstracts[alternativeAbstractIndex]){
-                        this._document.alternativeAbstracts[alternativeAbstractIndex]=abstract.innerText;
-                        await documentSrv.updateDocument(this._document,this._document.id);
-                    }
-                });
-            }else {
-                await showApplicationError("Error editing abstract",`Error editing abstract for document: ${this._document.title}`,`Error editing abstract for document: ${this._document.title}`)
-            }
+        let abstract = reverseQuerySelector(_target, ".content");
+        let documentSrv = new documentService();
+        let alternativeAbstractIndex = this._document.alternativeAbstracts.findIndex(abs => abs === abstract.innerText);
+        if(alternativeAbstractIndex !== -1) {
+            removeActionBox(this.actionBox, this);
+            abstract.contentEditable = true;
+            abstract.focus();
+            abstract.addEventListener('blur', async () => {
+                abstract.contentEditable = false;
+                if(abstract.innerText !== this._document.alternativeAbstracts[alternativeAbstractIndex]) {
+                    this._document.alternativeAbstracts[alternativeAbstractIndex] = abstract.innerText;
+                    await documentSrv.updateDocument(this._document, this._document.id);
+                }
+            });
         }
+        else {
+            await showApplicationError("Error editing abstract", `Error editing abstract for document: ${this._document.title}`, `Error editing abstract for document: ${this._document.title}`);
+        }
+    }
 
     async delete(_target) {
         let abstract = reverseQuerySelector(_target, ".content");
         let documentSrv = new documentService();
         let alternativeAbstractIndex = this._document.alternativeAbstracts.findIndex(abs => abs === abstract.innerText);
-            if(alternativeAbstractIndex !== -1) {
-                this._document.alternativeAbstracts.splice(alternativeAbstractIndex, 1);
-                await documentSrv.updateDocument(this._document, this._document.id);
-            } else {
-                await showApplicationError("Error deleting abstract",`Error deleting abstract for document: ${this._document.title}`, `Error deleting abstract for document: ${this._document.title}`);
-            }
+        if(alternativeAbstractIndex !== -1) {
+            this._document.alternativeAbstracts.splice(alternativeAbstractIndex, 1);
+            await documentSrv.updateDocument(this._document, this._document.id);
+        } else {
+            await showApplicationError("Error deleting abstract", `Error deleting abstract for document: ${this._document.title}`, `Error deleting abstract for document: ${this._document.title}`);
+        }
     }
 }
 

@@ -1,8 +1,8 @@
 export class myOrganizationPage {
     constructor(element) {
         this.element = element;
-        this.pageContent = `<announces-page data-presenter="announces-page"></announces-page>`;
-        this.tab = "Announces";
+        this.pageContent = `<announcements-page data-presenter="announcements-page"></announcements-page>`;
+        this.tab = "Announcements";
         this.id1 = "selected-tab";
         this.id2 = "";
         this.id3 = "";
@@ -10,7 +10,7 @@ export class myOrganizationPage {
         if(webSkel.company.documents) {
             this._documentConfigs = (webSkel.company.documents);
             setTimeout(()=> {
-                this.invalidate()
+                this.invalidate();
             }, 0);
         }
         this.updateState = ()=> {
@@ -25,7 +25,8 @@ export class myOrganizationPage {
         this.tab = _target.firstElementChild.nextElementSibling.firstElementChild.innerText;
         if(selectedTab !== _target) {
             switch(selectedTab.firstElementChild.nextElementSibling.firstElementChild.innerText) {
-                case "Announces":
+                case "Announcements":
+                    console.log("here");
                     this.id1 = "";
                     break;
                 case "Users":
@@ -40,8 +41,8 @@ export class myOrganizationPage {
             }
 
             switch(this.tab) {
-                case "Announces":
-                    this.pageContent = `<announces-page data-presenter="announces-page"></announces-page>`;
+                case "Announcements":
+                    this.pageContent = `<announcements-page data-presenter="announcements-page"></announcements-page>`;
                     this.id1 = "selected-tab";
                     break;
                 case "Users":

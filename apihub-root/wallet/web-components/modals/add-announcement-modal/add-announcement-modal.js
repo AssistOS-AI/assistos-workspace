@@ -2,7 +2,7 @@ import { closeModal } from "../../../../WebSkel/utils/modal-utils.js";
 import { getClosestParentElement } from "../../../../WebSkel/utils/dom-utils.js";
 import { Document } from "../../../core/models/document.js";
 
-export class addAnnounceModal {
+export class addAnnouncementModal {
     constructor() {
         if(webSkel.company.documents) {
             this._documentConfigs = webSkel.company.documents;

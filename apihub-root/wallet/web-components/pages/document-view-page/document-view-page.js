@@ -38,7 +38,7 @@ export class documentViewPage {
             let iterator = 0;
             this.chapters.forEach((item) => {
                 iterator++;
-                this.chapterDivs += `<chapter-item data-chapter-number="${iterator}" data-chapter-title="${item.title}" data-chapter-id="${item.id}" data-presenter="chapter-item"></chapter-item>`;
+                this.chapterDivs += `<chapter-unit data-chapter-number="${iterator}" data-chapter-title="${item.title}" data-chapter-id="${item.id}" data-presenter="chapter-unit"></chapter-unit>`;
             });
         }
     }
@@ -68,8 +68,8 @@ export class documentViewPage {
     }
 
     addChapter() {
-        this.chapterDivs += `<chapter-item data-chapter-title="New Chapter" data-chapter-id="${this.chapters.length}" data-presenter="chapter-item"></chapter-item>`;
-        this.chapters.push(new Chapter("Edit your title here", this.chapters.length + 1, [{text:"Edit your paragraph here"}]));
+        this.chapterDivs += `<chapter-unit data-chapter-title="New Chapter" data-chapter-id="${this.chapters.length}" data-presenter="chapter-unit"></chapter-unit>`;
+        this.chapters.push(new Chapter("Edit your title here", this.chapters.length + 1, [{text: "Edit your paragraph here"}]));
         this.invalidate();
     }
 

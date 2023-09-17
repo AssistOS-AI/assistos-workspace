@@ -1,6 +1,6 @@
 import { closeModal } from "../../../../WebSkel/utils/modal-utils.js";
 import { Document } from "../../../core/models/document.js";
-import {extractFormInformation} from "../../../imports.js";
+import { extractFormInformation } from "../../../imports.js";
 
 export class addDocumentModal {
     constructor() {
