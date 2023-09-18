@@ -21,7 +21,7 @@ export class documentViewPage {
                 this.abstractText = this._document.abstract;
             }
             this.chapters = this._document.chapters;
-        }else {
+        } else {
             console.log(`this _document doesnt exist: docId: ${this.id}`);
         }
         this.updateState = ()=> {

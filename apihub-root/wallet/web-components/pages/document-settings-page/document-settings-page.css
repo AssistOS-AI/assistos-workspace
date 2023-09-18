@@ -113,6 +113,7 @@
 }
 
 .proceed-btn {
+    border: none;
     cursor: pointer;
     color: #FFF;
     font-feature-settings: 'clig' off, 'liga' off;
@@ -126,6 +127,6 @@
     justify-content: center;
     align-items: center;
     gap: 10px;
-    border-radius: 16px;
+    border-radius: 25px;
     background: #18203F;
 }
