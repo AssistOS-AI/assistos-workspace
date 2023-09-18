@@ -11,9 +11,21 @@
     box-shadow: 0 8px 16px 0 rgba(0, 0, 0, 0.2);
 }
 
+.add-organization-btn {
+    background-color: #39288d;
+    outline: none;
+    border: none;
+    color: #FFF;
+    font-family: 'Poppins', sans-serif;
+    font-size: 17px;
+    cursor: pointer;
+    padding: 0 7px;
+}
+
 company-unit {
     color: #FFF;
     cursor: pointer;
+    border-bottom: 1px solid #423685;
     padding: 5px 10px;
 }
 

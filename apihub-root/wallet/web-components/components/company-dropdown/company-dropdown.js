@@ -33,7 +33,7 @@ export class companyDropdown {
         window.changeCompany(selectedCompanyId);
     }
 
-    async  addOrganization(){
+    async  addOrganization() {
        await showModal(document.querySelector("body"), "add-company-modal", { presenter: "add-company-modal"});
     }
 }
