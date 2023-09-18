@@ -1,5 +1,6 @@
 .title-edit-form {
     display: flex;
+    flex-direction: row;
 }
 
 .save-btn {

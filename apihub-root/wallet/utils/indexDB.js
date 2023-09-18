@@ -115,7 +115,7 @@ export async function openDatabase(dbName, version) {
                         announcements: [{
                             id: 1,
                             title: "Welcome to AIAuthor!",
-                            text: "Company Personal Space2 was successfully created. You can now add documents, users and settings to your company.",
+                            text: "Company Personal Space was successfully created. You can now add documents, users and settings to your company.",
                             date: today
                         }],
                         users: [{
