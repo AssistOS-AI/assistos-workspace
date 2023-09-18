@@ -38,6 +38,7 @@ export class chapterUnit {
             paragraph.removeEventListener("dblclick", enterEditMode, true);
         });
         document.removeEventListener("click", exitEditMode);
+        delete document.selectedChapter;
     }
 
     showOrHideChapter(_target) {
@@ -182,5 +183,4 @@ async function exitEditMode(event) {
             await chapterUnit.docService.updateDocument(webSkel.company.documents[documentIndex], parseInt(documentId));
         }
     }
-    delete this.selectedChapter;
 }
