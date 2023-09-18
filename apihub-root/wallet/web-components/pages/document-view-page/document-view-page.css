@@ -1,0 +1,74 @@
+.abstract-subtitle {
+    color: #121212;
+    font-size: 18px;
+    font-style: normal;
+    font-weight: 600;
+    line-height: normal;
+}
+
+.abstract-section {
+    padding: 10px;
+}
+
+.abstract-content {
+    text-align: justify;
+    font-size: 16px;
+    font-style: normal;
+    font-weight: 400;
+    line-height: normal;
+    margin-top: 0;
+}
+
+.document-view-page {
+    display: flex;
+}
+
+.document-content {
+    width: 100%;
+    margin-right: 12px;
+}
+
+.document-path {
+    cursor: default;
+    display: flex;
+    align-items: center;
+    margin: 10px 0 10px 10px;
+}
+
+.document-title {
+    margin-left: 10px;
+}
+
+.path-button {
+    color: #121212;
+    font-family: Poppins;
+    font-size: 14px;
+    margin: 0 5px;
+    font-style: normal;
+    font-weight: 500;
+    line-height: normal;
+}
+
+.document-path svg {
+    margin: 5px;
+}
+
+.new-chapter-btn {
+    padding: 7px 15px;
+    border-radius: 20px;
+    font-weight: 600;
+    cursor: pointer;
+    color: #FFF;
+    background-color: #350549;
+}
+
+.add-new-chapter-section {
+    display: flex;
+    align-items: center;
+    justify-content: end;
+}
+
+#chapter-sidebar,
+#paragraph-sidebar {
+    display: none;
+}

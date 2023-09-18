@@ -1,0 +1,26 @@
+<link rel="stylesheet" href="./wallet/web-components/modals/show-error-modal/show-error-modal.css">
+<link href='https://fonts.googleapis.com/css?family=Poppins' rel='stylesheet'>
+<div id="show-error-modal">
+
+    <div id="show-error-modal-header">
+        <img src="./wallet/components/modals/show-error-modal/error-danger.svg" alt="Error Logo">
+        <span id="error-message">$$data-title</span>
+    </div>
+
+    <div id="show-error-model-content">
+        <div id="show-error-model-content-header">
+            $$data-message
+        </div>
+
+        <div id="show-error-model-content-content">
+            <input type="checkbox" class="button" id="details-toggle">
+            <label for="details-toggle" class="button" id="details-button">Details</label>
+            <div id="detailed-error-message">
+                $$data-technical
+            </div>
+            <button id="ok-button" class="button" data-action="closeErrorModal">
+                Ok
+            </button>
+        </div>
+    </div>
+</div>

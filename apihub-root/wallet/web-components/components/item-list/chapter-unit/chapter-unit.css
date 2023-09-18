@@ -1,0 +1,125 @@
+.chapter-title-section {
+    display: flex;
+    align-items: center;
+    color: #252525;
+    font-size: 18px;
+    font-style: normal;
+    font-weight: 600;
+    padding: 10px 0;
+    line-height: normal;
+}
+
+.arrow {
+    cursor: pointer;
+    transition-duration: 0.3s;
+}
+
+.hidden {
+    display: none !important;
+}
+
+.chapter-unit {
+    cursor: default;
+    padding: 0 10px 10px 10px;
+    border-radius: 10px;
+    display: flex;
+    flex-direction: column;
+    min-width: 0;
+}
+
+.chapter-content {
+    margin-top: -10px;
+    min-width: 0;
+    text-align: justify;
+    justify-content: start;
+    display: flex;
+    flex-direction: row-reverse;
+    align-items: center;
+}
+
+.chapter-arrows {
+    margin-left: 20px;
+}
+
+.up, .down {
+    visibility: hidden;
+}
+
+.chapter-unit:hover .up,
+.chapter-unit:hover .down {
+    visibility: visible;
+    cursor: pointer;
+}
+
+.chapter-paragraphs:focus {
+    background-color: rgba(148, 174, 227, 0.3);
+    color: #252525;
+    font-weight: 450;
+    padding: 0 20px 0 20px;
+    border-radius: 20px;
+    margin: 0;
+}
+
+.chapter-paragraphs:focus p {
+    margin: 0;
+    padding: 0;
+}
+
+.chapter-paragraphs:focus paragraph-item {
+    margin: 0;
+    padding: 0;
+}
+
+.chapter-paragraphs:focus .paragraph-item {
+    margin: 0;
+    padding: 0;
+}
+
+.chapter-paragraphs:focus .paragraph-item p {
+    margin: 0 !important;
+    margin-block-start: 0;
+    margin-block-end: 0;
+    padding: 0 !important;
+    display: flex;
+    flex-direction: column;
+    height: min-content;
+}
+
+.paragraph-text:focus {
+    outline: none;
+    background-color: rgba(148, 174, 227, 0.3);
+}
+
+p {
+    margin-block-start: 0;
+    margin-block-end: 0;
+    margin-top: 10px;
+    margin-bottom: 10px;
+}
+
+.chapter-title {
+    margin-left: 10px;
+    display: flex;
+    flex-direction: row;
+    align-items: center;
+}
+
+paragraph-item {
+    width: 100%;
+}
+
+.chapter-paragraphs {
+    width: 100%;
+}
+
+.chapter-paragraphs:hover {
+    cursor: text;
+}
+
+.chapter-content {
+    width: 100%;
+}
+
+#select-chapter-visualise {
+    background-color: #E4F2FF;
+}

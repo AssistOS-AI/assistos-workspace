@@ -120,11 +120,9 @@ export async function openDatabase(dbName, version) {
                             email: "tux_pinguinescu@gmail.com",
                             phoneNumber: "0733333333"
                         }],
-
                     };
                     const defaultCompany2 = {
                         name: `Onboarding company2`,
-
                         documents: [{
                             id: 1,
                             title: "Onboarding Document2",
@@ -172,9 +170,9 @@ export async function openDatabase(dbName, version) {
                                         }
                                     ]
                                 }
-                            ], settings: {llm:null, personality: null}
+                            ], settings: { llm: null, personality: null}
                         }],
-                        settings: {llms:[{
+                        settings: { llms: [{
                         name: "GPT-3",
                         apiKeys: [
                             "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"
@@ -203,7 +201,6 @@ export async function openDatabase(dbName, version) {
                         },
                         admins: [],
                         users: [],
-
                     };
 
                     const addRequest = companyStore.add(defaultCompany);

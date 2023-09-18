@@ -30,7 +30,7 @@ async function getDocumentPage(request, response) {
     const documentId = request.params.documentId;
     let documentPage = "";
     documentPage += `
-                <doc-page-by-id data-document-id="${documentId}" data-presenter="doc-page-by-id"></doc-page-by-id>
+                <document-view-page data-document-id="${documentId}" data-presenter="document-view-page"></document-view-page>
                 `
 
     response.statusCode = 200;

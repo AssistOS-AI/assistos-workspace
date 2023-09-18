@@ -1,44 +1,10 @@
 import {
-    chapterItem,
-    companyDropdown,
-    addNewDocumentModal,
-    addAnnounceModal,
-    addChapterModal,
-    addLLMModal,
-    addPersonalityModal,
-    addUserModal,
-    suggestAbstractModal,
-    suggestTitleModal,
-    documentsPage,
-    docPageById,
-    editTitlePage,
-    editAbstractPage,
-    chapterTitlePage,
-    chapterBrainstormingPage,
-    proofReaderPage,
-    myOrganizationPage,
-    brainstormingPage,
-    documentSettingsPage,
-    announcesPage,
-    usersPage,
-    personalitiesPage,
-    llmsPage,
     notBasePage,
     storageService,
     WebSkel,
-    addRecord,
     closeModal,
-    addCompanyModal,
     initUser,
-    registerAccountActions,
     Company,
-    documentService,
-    llmsService,
-    personalitiesService,
-    settingsService,
-    chapterService,
-    usersService,
-    companyService
 } from "./imports.js";
 
 const openDSU = require("opendsu");
@@ -100,10 +66,12 @@ async function loadPage() {
             case "#documents":
                 let documentIdURL= parseInt(url.split('/')[1]);
                 let chapterIdURL = parseInt(url.split('/')[3]);
+                let paragraphIdURL = parseInt(url.split('/')[4]);
                 /* To be replaced with company id from URL */
                 if(await webSkel.localStorage.getDocument(1, documentIdURL) !== null) {
                     webSkel.company.currentDocumentId = documentIdURL;
                     webSkel.company.currentChapterId = chapterIdURL;
+                    webSkel.company.currentParagraphId = paragraphIdURL;
                     changeSelectedPageFromSidebar("documents-page");
                 }
                 changeSelectedPageFromSidebar("documents-page");
@@ -144,96 +112,6 @@ function changeSelectedPageFromSidebar(url) {
     });
 }
 
-function definePresenters() {
-    webSkel.registerPresenter("chapter-item", chapterItem);
-    webSkel.registerPresenter("company-dropdown", companyDropdown);
-
-    webSkel.registerPresenter("doc-page-by-id", docPageById);
-    webSkel.registerPresenter("edit-title-page", editTitlePage);
-    webSkel.registerPresenter("edit-abstract-page", editAbstractPage);
-    webSkel.registerPresenter("documents-page", documentsPage);
-    webSkel.registerPresenter("document-settings-page", documentSettingsPage);
-    webSkel.registerPresenter("brainstorming-page", brainstormingPage);
-    webSkel.registerPresenter("chapter-brainstorming-page", chapterBrainstormingPage);
-    webSkel.registerPresenter("chapter-title-page", chapterTitlePage);
-    webSkel.registerPresenter("proof-reader-page", proofReaderPage);
-    webSkel.registerPresenter("my-organization-page", myOrganizationPage);
-
-    webSkel.registerPresenter("announces-page", announcesPage);
-    webSkel.registerPresenter("llms-page", llmsPage);
-    webSkel.registerPresenter("users-page", usersPage);
-    webSkel.registerPresenter("personalities-page", personalitiesPage);
-
-    webSkel.registerPresenter("add-new-document-modal", addNewDocumentModal);
-    webSkel.registerPresenter("add-announce-modal", addAnnounceModal);
-    webSkel.registerPresenter("add-chapter-modal", addChapterModal);
-    webSkel.registerPresenter("add-llm-modal", addLLMModal);
-    webSkel.registerPresenter("add-personality-modal", addPersonalityModal);
-    webSkel.registerPresenter("add-user-modal", addUserModal);
-    webSkel.registerPresenter("suggest-abstract-modal", suggestAbstractModal);
-    webSkel.registerPresenter("suggest-title-modal", suggestTitleModal);
-    webSkel.registerPresenter("add-company-modal",addCompanyModal);
-}
-
-function defineServices() {
-    webSkel.registerService("documentService", documentService);
-    webSkel.registerService("chapterService", chapterService);
-    webSkel.registerService("llmsService", llmsService);
-    webSkel.registerService("personalitiesService", personalitiesService);
-    webSkel.registerService("usersService", usersService);
-    webSkel.registerService("settingsService", settingsService);
-    webSkel.registerService("currentCompany", Company);
-    webSkel.registerService("companyService", companyService);
-}
-
-function defineComponents() {
-    /* Modal components defined here */
-    webSkel.defineComponent("chapter-item", "./wallet/components/items/chapter-item/chapter-item.html");
-    webSkel.defineComponent("company-dropdown", "./wallet/components/company-dropdown/company-dropdown.html");
-    webSkel.defineComponent("company-item", "./wallet/components/items/company-item/company-item.html");
-    webSkel.defineComponent("paragraph-item", "./wallet/components/items/paragraph-item/paragraph-item.html");
-    webSkel.defineComponent("document-item-renderer", "./wallet/components/items/document-item-renderer/document-item-renderer.html");
-    webSkel.defineComponent("llm-item-renderer", "./wallet/components/items/llm-item-renderer/llm-item-renderer.html");
-    webSkel.defineComponent("personality-item-renderer", "./wallet/components/items/personality-item-renderer/personality-item-renderer.html");
-    webSkel.defineComponent("user-item-renderer", "./wallet/components/items/user-item-renderer/user-item-renderer.html");
-    webSkel.defineComponent("announce-renderer", "./wallet/components/items/announce-renderer/announce-renderer.html");
-    webSkel.defineComponent("chapters-brainstorming-renderer", "./wallet/components/items/chapters-brainstorming-renderer/chapters-brainstorming-renderer.html");
-    webSkel.defineComponent("brainstorming-possible-ideas-renderer", "./wallet/components/items/brainstorming-possible-ideas-renderer/brainstorming-possible-ideas-renderer.html");
-    webSkel.defineComponent("action-box", "./wallet/components/action-box/action-box.html");
-    webSkel.defineComponent("title-view", "./wallet/components/title-view/title-view.html");
-    webSkel.defineComponent("title-edit", "./wallet/components/title-edit/title-edit.html");
-    webSkel.defineComponent("action-box-with-select", "./wallet/components/action-box-with-select/action-box-with-select.html");
-    webSkel.defineComponent("alternative-title-renderer", "./wallet/components/items/alternative-title-renderer/alternative-title-renderer.html");
-    webSkel.defineComponent("alternative-abstract-renderer", "./wallet/components/items/alternative-abstract-renderer/alternative-abstract-renderer.html");
-
-    webSkel.defineComponent("documents-page", "./wallet/pages/documents-page/documents-page.html");
-    webSkel.defineComponent("document-settings-page", "./wallet/pages/document-settings-page/document-settings-page.html");
-    webSkel.defineComponent("brainstorming-page", "./wallet/pages/brainstorming-page/brainstorming-page.html");
-    webSkel.defineComponent("chapter-brainstorming-page", "./wallet/pages/chapter-brainstorming-page/chapter-brainstorming-page.html");
-    webSkel.defineComponent("chapter-title-page", "./wallet/pages/chapter-title-page/chapter-title-page.html");
-    webSkel.defineComponent("doc-page-by-id", "./wallet/pages/doc-page-by-id/doc-page-by-id.html");
-    webSkel.defineComponent("edit-title-page", "./wallet/pages/edit-title-page/edit-title-page.html");
-    webSkel.defineComponent("edit-abstract-page", "./wallet/pages/edit-abstract-page/edit-abstract-page.html");
-    webSkel.defineComponent("proof-reader-page", "./wallet/pages/proof-reader-page/proof-reader-page.html");
-    webSkel.defineComponent("my-organization-page", "./wallet/pages/my-organization-page/my-organization-page.html");
-
-    webSkel.defineComponent("llms-page", "./wallet/pages/llms-page/llms-page.html");
-    webSkel.defineComponent("announces-page", "./wallet/pages/announces-page/announces-page.html");
-    webSkel.defineComponent("users-page", "./wallet/pages/users-page/users-page.html");
-    webSkel.defineComponent("personalities-page", "./wallet/pages/personalities-page/personalities-page.html");
-
-    webSkel.defineComponent("add-new-document-modal", "./wallet/components/modals/add-new-document-modal/add-new-document-modal.html");
-    webSkel.defineComponent("add-announce-modal", "./wallet/components/modals/add-announce-modal/add-announce-modal.html");
-    webSkel.defineComponent("add-chapter-modal", "./wallet/components/modals/add-chapter-modal/add-chapter-modal.html");
-    webSkel.defineComponent("add-llm-modal", "./wallet/components/modals/add-llm-modal/add-llm-modal.html");
-    webSkel.defineComponent("add-personality-modal", "./wallet/components/modals/add-personality-modal/add-personality-modal.html");
-    webSkel.defineComponent("add-user-modal", "./wallet/components/modals/add-user-modal/add-user-modal.html");
-    webSkel.defineComponent("show-error-modal", "./wallet/components/modals/show-error-modal/show-error-modal.html");
-    webSkel.defineComponent("suggest-abstract-modal", "./wallet/components/modals/suggest-abstract-modal/suggest-abstract-modal.html");
-    webSkel.defineComponent("suggest-title-modal", "./wallet/components/modals/suggest-title-modal/suggest-title-modal.html");
-    webSkel.defineComponent("add-company-modal","./wallet/components/modals/add-company-modal/add-company-modal.html");
-}
-
 function defineActions() {
     webSkel.registerAction("changePage", async (_target, pageId, refreshFlag='0') => {
         /* If we are attempting to click the button to the tool page we're currently on, a refreshFlag with the value 0
@@ -254,7 +132,28 @@ function defineActions() {
     });
     //registerAccountActions();
 }
+async function loadConfigs(jsonPath) {
+    try {
+        const response = await fetch(jsonPath);
+        const config = await response.json();
 
+        for (const service of config.services) {
+            const ServiceModule = await import(service.path);
+            webSkel.initialiseService(service.name, ServiceModule[service.name]);
+        }
+        for (const presenter of config.presenters) {
+            const PresenterModule = await import(presenter.path);
+            webSkel.registerPresenter(presenter.name, PresenterModule[presenter.className]);
+        }
+        for (const component of config.components) {
+            await webSkel.defineComponent(component.name, component.path);
+        }
+
+    } catch (error) {
+        showApplicationError("Error loading configs","Error loading configs",`Encountered ${error} while trying loading webSkel configs`);
+    }
+
+}
 (async ()=> {
     webSkel.setDomElementForPages(document.querySelector("#page-content"));
     /* only for premium users initWallet/enclaves*/
@@ -269,13 +168,10 @@ function defineActions() {
     if (('indexedDB' in window)) {
         await initLiteUserDatabase();
     } else {
-        await showApplicationError("IndexDB not supported","Your current browser does not support local storage. Please use a different browser, or upgrade to premium","IndexDB is not supported by your browser");
+        await showApplicationError("IndexDB not supported", "Your current browser does not support local storage. Please use a different browser, or upgrade to premium", "IndexDB is not supported by your browser");
     }
     await initUser();
     await loadPage();
-
     defineActions();
-    definePresenters();
-    defineServices();
-    defineComponents();
+    await loadConfigs("./wallet/webskel-configs.json");
 })();

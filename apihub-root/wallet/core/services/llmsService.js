@@ -1,8 +1,6 @@
 export class llmsService {
     constructor() {
-
     }
-
     async addLLM(llm) {
         webSkel.company.settings.llms.push(llm);
         await webSkel.localStorage.addLLM(llm);

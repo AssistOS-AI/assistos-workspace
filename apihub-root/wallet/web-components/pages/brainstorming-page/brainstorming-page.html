@@ -1,0 +1,102 @@
+<link href="./wallet/web-components/pages/brainstorming-page/brainstorming-page.css" rel="stylesheet"/>
+<div class="brainstorming-page" data-presenter="brainstorming-page">
+    <div class="document-content">
+        <div class="entire-content">
+            <div class="document-path">
+                <div class="path-button pointer" data-local-action="openViewPage">
+                    Document
+                </div>
+                <svg xmlns="http://www.w3.org/2000/svg" width="7" height="12" viewBox="0 0 7 12" fill="none">
+                    <path d="M6.50954 5.62617L0.852201 0.142609C0.757805 0.0510667 0.632394 -2.63781e-07 0.501979 -2.69481e-07C0.371564 -2.75182e-07 0.246154 0.0510667 0.151759 0.142609L0.145667 0.148805C0.0997476 0.193183 0.0631828 0.2466 0.0381966 0.305807C0.0132103 0.365014 0.000325184 0.428773 0.000325181 0.493205C0.000325179 0.557638 0.0132103 0.621397 0.0381965 0.680604C0.0631828 0.739811 0.0997476 0.793228 0.145667 0.837606L5.47309 6.00103L0.145667 11.1624C0.0997472 11.2068 0.0631823 11.2602 0.0381961 11.3194C0.0132098 11.3786 0.000324703 11.4424 0.0003247 11.5068C0.000324697 11.5712 0.0132098 11.635 0.0381961 11.6942C0.0631823 11.7534 0.0997471 11.8068 0.145667 11.8512L0.151758 11.8574C0.246154 11.9489 0.371564 12 0.501979 12C0.632394 12 0.757805 11.9489 0.8522 11.8574L6.50954 6.37383C6.5593 6.32561 6.59891 6.26761 6.62597 6.20335C6.65304 6.13909 6.66699 6.06991 6.66699 6C6.66699 5.93009 6.65304 5.86091 6.62597 5.79665C6.59891 5.73239 6.5593 5.67439 6.50954 5.62617Z" fill="#121212"/>
+                </svg>
+                <div class="path-button">Brainstorming</div>
+            </div>
+
+            $$title
+
+            <div class="ideas">
+                <div class="main-ideas">
+                    Main ideas
+                </div>
+                <div class="regenerate">
+                    <svg xmlns="http://www.w3.org/2000/svg" width="16" height="16" viewBox="0 0 16 16" fill="none">
+                        <path d="M12.8667 5.95016L10.0333 3.15016L10.9667 2.21683C11.2222 1.96127 11.5362 1.8335 11.9087 1.8335C12.2811 1.8335 12.5949 1.96127 12.85 2.21683L13.7833 3.15016C14.0389 3.40572 14.1722 3.71416 14.1833 4.0755C14.1944 4.43683 14.0722 4.74505 13.8167 5.00016L12.8667 5.95016ZM11.9 6.9335L4.83333 14.0002H2V11.1668L9.06667 4.10016L11.9 6.9335Z" fill="#0618D1"/>
+                    </svg>
+                    $$generateMainIdeasButtonName
+                </div>
+            </div>
+            <br>
+            <br>
+
+            <div class="tabs-and-modals">
+                <div class="brainstorming-tabs">
+                    <div class="navbar-box" id="$$id1" data-local-action="openTab">
+                        <div class="tab-margin-left"></div>
+                        <div class="navbar-item">
+                            <div class="tab" id="chapters">
+                                Chapters
+                            </div>
+                        </div>
+                        <div class="tab-margin-right"></div>
+                    </div>
+
+                    <div class="navbar-box" id="$$id2" data-local-action="openTab">
+                        <div class="tab-margin-left"></div>
+                        <div class="navbar-item">
+                            <div class="tab" id="ideas">
+                                Possible Ideas
+                            </div>
+                        </div>
+                        <div class="tab-margin-right"></div>
+                    </div>
+                </div>
+
+                <div class="interior1">
+                    <div class="interior2">
+                    </div>
+                </div>
+                <div class="interior3">
+                    <div class="interior4">
+                    </div>
+                </div>
+
+                <div class="brainstorming-modals">
+                    <div class="modal-buttons-section">
+                        <div class="chapters-modal" id="$$idModal1" data-local-action="showAddChapterModal">
+                            <svg xmlns="http://www.w3.org/2000/svg" width="12" height="13" viewBox="0 0 12 13" fill="none">
+                                <path d="M5.14286 7.44064H0V5.72635H5.14286V0.583496H6.85714V5.72635H12V7.44064H6.85714V12.5835H5.14286V7.44064Z" fill="#0618D1"/>
+                            </svg>
+                            Add Chapter
+                        </div>
+
+                        <div class="chapters-modal brainstorming" id="$$idModal2">
+                            <svg xmlns="http://www.w3.org/2000/svg" width="17" height="16" viewBox="0 0 17 16" fill="none">
+                                <path d="M7.01632 11.8889H10.6509M8.83398 1V1.77778M13.7838 3.05022L13.2339 3.60011M15.834 8H15.0562M2.61176 8H1.83398M4.4341 3.60011L3.88421 3.05022M6.08376 10.7502C5.53999 10.2063 5.16972 9.51338 5.01974 8.75903C4.86977 8.00469 4.94685 7.22282 5.24122 6.51228C5.53559 5.80173 6.03404 5.19443 6.67354 4.76716C7.31304 4.33989 8.06488 4.11184 8.83398 4.11184C9.60309 4.11184 10.3549 4.33989 10.9944 4.76716C11.6339 5.19443 12.1324 5.80173 12.4268 6.51228C12.7211 7.22282 12.7982 8.00469 12.6482 8.75903C12.4983 9.51338 12.128 10.2063 11.5842 10.7502L11.158 11.1757C10.9143 11.4194 10.721 11.7087 10.5892 12.0271C10.4573 12.3455 10.3895 12.6868 10.3895 13.0314V13.4444C10.3895 13.857 10.2257 14.2527 9.93393 14.5444C9.6422 14.8361 9.24654 15 8.83398 15C8.42143 15 8.02576 14.8361 7.73404 14.5444C7.44232 14.2527 7.27843 13.857 7.27843 13.4444V13.0314C7.27843 12.3353 7.00154 11.6672 6.50998 11.1757L6.08376 10.7502Z" stroke="#0618D1" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"/>
+                            </svg>
+                            Brainstorming
+                        </div>
+                    </div>
+                </div>
+
+            </div>
+
+
+
+            <div class="chapters-brainstorming">
+                $$chaptersDiv
+            </div>
+            <br>
+            <br>
+            <br>
+
+        </div>
+    </div>
+    <div class="right-sidebar">
+        <div class="item-list">
+            <div class="sidebar-item" data-local-action="openEditTitlePage">Edit Title</div>
+            <div class="sidebar-item" data-local-action="openEditAbstractPage">Edit Abstract</div>
+            <div class="sidebar-item" data-local-action="openBrainstormingPage">Brainstorming</div>
+            <div class="sidebar-item" data-local-action="openDocumentSettingsPage">Settings</div>
+        </div>
+    </div>
+</div>

@@ -1,0 +1,367 @@
+{
+  "presenters": [
+    {
+      "name": "chapter-unit",
+      "path": "./web-components/components/item-list/chapter-unit/chapter-unit.js",
+      "className": "chapterUnit"
+    },
+    {
+      "name": "company-dropdown",
+      "path": "./web-components/components/company-dropdown/company-dropdown.js",
+      "className": "companyDropdown"
+    },
+    {
+      "name": "document-view-page",
+      "path": "./web-components/pages/document-view-page/document-view-page.js",
+      "className": "documentViewPage"
+    },
+    {
+      "name": "edit-title-page",
+      "path": "./web-components/pages/edit-title-page/edit-title-page.js",
+      "className": "editTitlePage"
+    },
+    {
+      "name": "edit-abstract-page",
+      "path": "./web-components/pages/edit-abstract-page/edit-abstract-page.js",
+      "className": "editAbstractPage"
+    },
+    {
+      "name": "documents-page",
+      "path": "./web-components/pages/documents-page/documents-page.js",
+        "className": "documentsPage"
+    },
+    {
+      "name": "document-settings-page",
+      "path": "./web-components/pages/document-settings-page/document-settings-page.js",
+        "className": "documentSettingsPage"
+    },
+    {
+      "name": "brainstorming-page",
+      "path": "./web-components/pages/brainstorming-page/brainstorming-page.js",
+        "className": "brainstormingPage"
+    },
+    {
+      "name": "chapter-brainstorming-page",
+      "path": "./web-components/pages/chapter-brainstorming-page/chapter-brainstorming-page.js",
+        "className": "chapterBrainstormingPage"
+    },
+    {
+      "name": "paragraph-brainstorming-page",
+      "path": "./web-components/pages/paragraph-brainstorming-page/paragraph-brainstorming-page.js",
+        "className": "paragraphBrainstormingPage"
+    },
+    {
+      "name": "paragraph-proofread-page",
+      "path": "./web-components/pages/paragraph-proofread-page/paragraph-proofread-page.js",
+        "className": "paragraphProofreadPage"
+    },
+    {
+      "name": "chapter-title-page",
+      "path": "./web-components/pages/chapter-title-page/chapter-title-page.js",
+        "className": "chapterTitlePage"
+    },
+    {
+      "name": "proof-reader-page",
+      "path": "./web-components/pages/proof-reader-page/proof-reader-page.js",
+        "className": "proofReaderPage"
+    },
+    {
+      "name": "my-organization-page",
+      "path": "./web-components/pages/my-organization-page/my-organization-page.js",
+        "className": "myOrganizationPage"
+    },
+    {
+      "name": "announcements-page",
+      "path": "./web-components/subpages/announcements-page/announcements-page.js",
+        "className": "announcementsPage"
+    },
+    {
+      "name": "llms-page",
+      "path": "./web-components/subpages/llms-page/llms-page.js",
+        "className": "llmsPage"
+    },
+    {
+      "name": "users-page",
+      "path": "./web-components/subpages/users-page/users-page.js",
+        "className": "usersPage"
+    },
+    {
+      "name": "personalities-page",
+      "path": "./web-components/subpages/personalities-page/personalities-page.js",
+        "className": "personalitiesPage"
+    },
+    {
+      "name": "add-document-modal",
+      "path": "./web-components/modals/add-document-modal/add-document-modal.js",
+        "className": "addDocumentModal"
+    },
+    {
+      "name": "add-announcement-modal",
+      "path": "./web-components/modals/add-announcement-modal/add-announcement-modal.js",
+        "className": "addAnnouncementModal"
+    },
+    {
+      "name": "add-chapter-modal",
+      "path": "./web-components/modals/add-chapter-modal/add-chapter-modal.js",
+        "className": "addChapterModal"
+    },
+    {
+      "name": "add-llm-modal",
+      "path": "./web-components/modals/add-llm-modal/add-llm-modal.js",
+        "className": "addLlmModal"
+    },
+    {
+      "name": "add-personality-modal",
+      "path": "./web-components/modals/add-personality-modal/add-personality-modal.js",
+        "className": "addPersonalityModal"
+    },
+    {
+      "name": "add-user-modal",
+      "path": "./web-components/modals/add-user-modal/add-user-modal.js",
+        "className": "addUserModal"
+    },
+    {
+      "name": "suggest-abstract-modal",
+      "path": "./web-components/modals/suggest-abstract-modal/suggest-abstract-modal.js",
+        "className": "suggestAbstractModal"
+    },
+    {
+      "name": "suggest-titles-modal",
+      "path": "./web-components/modals/suggest-titles-modal/suggest-titles-modal.js",
+        "className": "suggestTitlesModal"
+    },
+    {
+      "name": "add-company-modal",
+      "path": "./web-components/modals/add-company-modal/add-company-modal.js",
+        "className": "addCompanyModal"
+    }
+  ],
+  "services": [
+    {
+      "name": "documentService",
+      "path": "./core/services/documentService.js"
+    },
+    {
+      "name": "chapterService",
+      "path": "./core/services/chapterService.js"
+    },
+    {
+      "name": "llmsService",
+      "path": "./core/services/llmsService.js"
+    },
+    {
+      "name": "personalitiesService",
+      "path": "./core/services/personalitiesService.js"
+    },
+    {
+      "name": "usersService",
+      "path": "./core/services/usersService.js"
+    },
+    {
+      "name": "settingsService",
+      "path": "./core/services/settingsService.js"
+    },
+    {
+      "name": "companyService",
+      "path": "./core/services/companyService.js"
+    },
+    {
+      "name": "brainstormingService",
+      "path": "./core/services/brainstormingService.js"
+    },
+    {
+      "name": "proofReaderService",
+      "path": "./core/services/proofReaderService.js"
+    },
+    {
+      "name": "paragraphService",
+      "path": "./core/services/paragraphService.js"
+    },
+    {
+      "name": "settingsService",
+      "path": "./core/services/settingsService.js"
+    },
+    {
+      "name": "storageService",
+      "path": "./core/services/storageService.js"
+    },
+    {
+      "name": "usersService",
+      "path": "./core/services/usersService.js"
+    }
+  ],
+  "components": [
+    {
+      "name": "chapter-unit",
+      "path": "./wallet/web-components/components/item-list/chapter-unit/chapter-unit.html"
+    },
+    {
+      "name": "company-dropdown",
+      "path": "./wallet/web-components/components/company-dropdown/company-dropdown.html"
+    },
+    {
+      "name": "company-unit",
+      "path": "./wallet/web-components/components/item-list/company-unit/company-unit.html"
+    },
+    {
+      "name": "paragraph-unit",
+      "path": "./wallet/web-components/components/item-list/paragraph-unit/paragraph-unit.html"
+    },
+    {
+      "name": "document-unit",
+      "path": "./wallet/web-components/components/item-list/document-unit/document-unit.html"
+    },
+    {
+      "name": "llm-unit",
+      "path": "./wallet/web-components/components/item-list/llm-unit/llm-unit.html"
+    },
+    {
+      "name": "personality-unit",
+      "path": "./wallet/web-components/components/item-list/personality-unit/personality-unit.html"
+    },
+    {
+      "name": "user-unit",
+      "path": "./wallet/web-components/components/item-list/user-unit/user-unit.html"
+    },
+    {
+      "name": "announcement-unit",
+      "path": "./wallet/web-components/components/item-list/announcement-unit/announcement-unit.html"
+    },
+    {
+      "name": "brainstorming-chapter-unit",
+      "path": "./wallet/web-components/components/item-list/brainstorming-chapter-unit/brainstorming-chapter-unit.html"
+    },
+    {
+      "name": "brainstorming-document-idea",
+      "path": "./wallet/web-components/components/item-list/brainstorming-document-idea/brainstorming-document-idea.html"
+    },
+    {
+      "name": "action-box",
+      "path": "./wallet/web-components/components/action-box/action-box.html"
+    },
+    {
+      "name": "title-view",
+      "path": "./wallet/web-components/components/title-view/title-view.html"
+    },
+    {
+      "name": "title-edit",
+      "path": "./wallet/web-components/components/title-edit/title-edit.html"
+    },
+    {
+      "name": "action-box-with-select",
+      "path": "./wallet/web-components/components/action-box-with-select/action-box-with-select.html"
+    },
+    {
+      "name": "alternative-title",
+      "path": "./wallet/web-components/components/item-list/alternative-title/alternative-title.html"
+    },
+    {
+      "name": "alternative-abstract",
+      "path": "./wallet/web-components/components/item-list/alternative-abstract/alternative-abstract.html"
+    },
+    {
+      "name": "documents-page",
+      "path": "./wallet/web-components/pages/documents-page/documents-page.html"
+    },
+    {
+      "name": "document-settings-page",
+      "path": "./wallet/web-components/pages/document-settings-page/document-settings-page.html"
+    },
+    {
+      "name": "brainstorming-page",
+      "path": "./wallet/web-components/pages/brainstorming-page/brainstorming-page.html"
+    },
+    {
+      "name": "chapter-brainstorming-page",
+      "path": "./wallet/web-components/pages/chapter-brainstorming-page/chapter-brainstorming-page.html"
+    },
+    {
+      "name": "paragraph-brainstorming-page",
+      "path": "./wallet/web-components/pages/paragraph-brainstorming-page/paragraph-brainstorming-page.html"
+    },
+    {
+      "name": "paragraph-proofread-page",
+      "path": "./wallet/web-components/pages/paragraph-proofread-page/paragraph-proofread-page.html"
+    },
+    {
+      "name": "chapter-title-page",
+      "path": "./wallet/web-components/pages/chapter-title-page/chapter-title-page.html"
+    },
+    {
+      "name": "document-view-page",
+      "path": "./wallet/web-components/pages/document-view-page/document-view-page.html"
+    },
+    {
+      "name": "edit-title-page",
+      "path": "./wallet/web-components/pages/edit-title-page/edit-title-page.html"
+    },
+    {
+      "name": "edit-abstract-page",
+      "path": "./wallet/web-components/pages/edit-abstract-page/edit-abstract-page.html"
+    },
+    {
+      "name": "proof-reader-page",
+      "path": "./wallet/web-components/pages/proof-reader-page/proof-reader-page.html"
+    },
+    {
+      "name": "my-organization-page",
+      "path": "./wallet/web-components/pages/my-organization-page/my-organization-page.html"
+    },
+    {
+      "name": "llms-page",
+      "path": "./wallet/web-components/subpages/llms-page/llms-page.html"
+    },
+    {
+      "name": "announcements-page",
+      "path": "./wallet/web-components/subpages/announcements-page/announcements-page.html"
+    },
+    {
+      "name": "users-page",
+      "path": "./wallet/web-components/subpages/users-page/users-page.html"
+    },
+    {
+      "name": "personalities-page",
+      "path": "./wallet/web-components/subpages/personalities-page/personalities-page.html"
+    },
+    {
+      "name": "add-document-modal",
+      "path": "./wallet/web-components/modals/add-document-modal/add-document-modal.html"
+    },
+    {
+      "name": "add-announcement-modal",
+      "path": "./wallet/web-components/modals/add-announcement-modal/add-announcement-modal.html"
+    },
+    {
+      "name": "add-chapter-modal",
+      "path": "./wallet/web-components/modals/add-chapter-modal/add-chapter-modal.html"
+    },
+    {
+      "name": "add-llm-modal",
+      "path": "./wallet/web-components/modals/add-llm-modal/add-llm-modal.html"
+    },
+    {
+      "name": "add-personality-modal",
+      "path": "./wallet/web-components/modals/add-personality-modal/add-personality-modal.html"
+    },
+    {
+      "name": "add-user-modal",
+      "path": "./wallet/web-components/modals/add-user-modal/add-user-modal.html"
+    },
+    {
+      "name": "show-error-modal",
+      "path": "./wallet/web-components/modals/show-error-modal/show-error-modal.html"
+    },
+    {
+      "name": "suggest-abstract-modal",
+      "path": "./wallet/web-components/modals/suggest-abstract-modal/suggest-abstract-modal.html"
+    },
+    {
+      "name": "suggest-titles-modal",
+      "path": "./wallet/web-components/modals/suggest-titles-modal/suggest-titles-modal.html"
+    },
+    {
+      "name": "add-company-modal",
+      "path": "./wallet/web-components/modals/add-company-modal/add-company-modal.html"
+    }
+  ]
+}
