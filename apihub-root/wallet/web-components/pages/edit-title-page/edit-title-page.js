@@ -96,7 +96,7 @@ export class editTitlePage {
         this.suggestedTitles = JSON.parse(await generateSuggestTitles()).titles;
         loading.close();
         loading.remove();
-        await showModal(document.querySelector("body"), "suggest-title-modal");
+        await showModal(document.querySelector("body"), "suggest-title-modal", { presenter: "suggest-title-modal"});
     }
 
     async select(_target) {

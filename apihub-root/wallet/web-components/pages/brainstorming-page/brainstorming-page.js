@@ -67,7 +67,7 @@ export class brainstormingPage {
     }
 
     async showAddChapterModal() {
-        await showModal(document.querySelector("body"), "add-chapter-modal", {});
+        await showModal(document.querySelector("body"), "add-chapter-modal", { presenter: "add-chapter-modal"});
     }
 
     async showActionBox(_target, primaryKey, componentName, insertionMode) {

@@ -121,17 +121,16 @@ export class editAbstractPage {
         webSkel.company.notifyObservers();
         loading.close();
         loading.remove();
-        await showModal(document.querySelector("body"), "suggest-abstract-modal");
+        await showModal(document.querySelector("body"), "suggest-abstract-modal", { presenter: "suggest-abstract-modal"});
     }
 
     async select(_target) {
         let abstract = reverseQuerySelector(_target,".content").innerText;
-        let documentSrv=new documentService();
+        let documentSrv = new documentService();
         if(abstract !== documentSrv.getAbstract(this._document)) {
             documentSrv.updateAbstract(this._document, abstract);
             await documentSrv.updateDocument(this._document, this._document.id);
-        }
-        else {
+        } else {
             removeActionBox(this.actionBox, this);
         }
     }

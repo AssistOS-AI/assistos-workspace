@@ -32,8 +32,8 @@ export class personalitiesPage {
         }
     }
 
-    async showAddPersonalityModal(_target) {
-        await showModal(document.querySelector("body"), "add-personality-modal", {});
+    async showAddPersonalityModal() {
+        await showModal(document.querySelector("body"), "add-personality-modal", { presenter: "add-personality-modal"});
     }
 
     async showActionBox(_target, primaryKey, componentName, insertionMode) {

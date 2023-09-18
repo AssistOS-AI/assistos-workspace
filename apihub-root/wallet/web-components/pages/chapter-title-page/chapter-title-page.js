@@ -75,7 +75,7 @@ export class chapterTitlePage {
     }
 
     async showSuggestTitleModal() {
-        await showModal(document.querySelector("body"), "suggest-title-modal", {});
+        await showModal(document.querySelector("body"), "suggest-title-modal", { presenter: "suggest-title-modal"});
     }
 
     async showActionBox(_target, primaryKey, componentName, insertionMode) {
