@@ -12,7 +12,7 @@ export class chapterTitlePage {
                 this.invalidate()
             }, 0);
         }
-        this.documentService = webSkel.initialiseService('documentService');
+        this.documentService = webSkel.getService('documentService');
 
         this.updateState = ()=> {
             this._documentConfigs = webSkel.company.documents;

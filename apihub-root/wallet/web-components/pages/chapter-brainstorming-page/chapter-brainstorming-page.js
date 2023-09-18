@@ -25,7 +25,7 @@ export class chapterBrainstormingPage {
         }
         webSkel.company.onChange(this.updateState);
 
-        this.documentService = webSkel.initialiseService('documentService');
+        this.documentService = webSkel.getService('documentService');
         this._document = this.documentService.getDocument(this.docId);
         if(this._document) {
             this._chapter = this.documentService.getChapter(this._document, this.chapterId);

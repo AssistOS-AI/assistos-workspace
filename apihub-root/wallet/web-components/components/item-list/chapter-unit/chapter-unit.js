@@ -16,10 +16,10 @@ export class chapterUnit {
             this._documentConfigs = webSkel.company.documents;
             this.invalidate();
         }
-        chapterUnit.docServ = webSkel.initialiseService('documentService');
-        chapterUnit.chapterServ = webSkel.initialiseService('chapterService');
+        chapterUnit.docServ = webSkel.getService('documentService');
+        chapterUnit.chapterServ = webSkel.getService('chapterService');
         webSkel.company.onChange(this.updateState);
-        this.documentService = webSkel.initialiseService('documentService');
+        this.documentService = webSkel.getService('documentService');
         this.docId = webSkel.company.currentDocumentId;
         this._document = this.documentService.getDocument(this.docId);
         this.chapter = this.documentService.getChapter(this._document, this.chapterId);
