@@ -83,8 +83,8 @@ export class editTitlePage {
         closeModal(_target);
     }
 
-    async showSuggestTitleModal() {
-        const loading= await webSkel.showLoading();
+    async showSuggestTitlesModal() {
+        const loading = await webSkel.showLoading();
         async function generateSuggestTitles(){
             const documentService = webSkel.getService('documentService');
             const documentText = documentService.getDocument(webSkel.company.currentDocumentId).toString();
@@ -96,7 +96,7 @@ export class editTitlePage {
         this.suggestedTitles = JSON.parse(await generateSuggestTitles()).titles;
         loading.close();
         loading.remove();
-        await showModal(document.querySelector("body"), "suggest-title-modal", { presenter: "suggest-title-modal"});
+        await showModal(document.querySelector("body"), "suggest-titles-modal", { presenter: "suggest-titles-modal"});
     }
 
     async select(_target) {
