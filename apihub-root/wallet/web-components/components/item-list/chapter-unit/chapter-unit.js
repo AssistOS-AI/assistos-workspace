@@ -175,12 +175,14 @@ async function exitEditMode(event) {
         sidebar.style.display = "none";
         if (documentIndex !== -1 && updatedText !== this.chapter) {
             if (updatedText === null || updatedText.trim() === '') {
-                await chapterUnit.docService.deleteChapter(doc, chapterId);
-                webSkel.company.documents[documentIndex].chapters.splice(chapterIndex, 1);
+                webSkel.company.documents[documentIndex].chapters[chapterIndex].paragraphs.splice(paragraphIndex, 1);
+                if (webSkel.company.documents[documentIndex].chapters[chapterIndex].paragraphs.length === 0) {
+                    webSkel.company.documents[documentIndex].chapters.splice(chapterIndex, 1);
+                }
             } else {
                 webSkel.company.documents[documentIndex].chapters[chapterIndex].paragraphs[paragraphIndex].text = updatedText;
             }
-            await chapterUnit.docService.updateDocument(webSkel.company.documents[documentIndex], parseInt(documentId));
+            await chapterUnit.docService.updateDocument(webSkel.company.documents[documentIndex], documentId);
         }
     }
 }
