@@ -14,7 +14,7 @@ export class addDocumentModal {
             this._documentConfigs = webSkel.company.documents;
             this.invalidate();
         }
-        this.documentService = webSkel.initialiseService('documentService');
+        this.documentService = webSkel.getService('documentService');
         webSkel.company.onChange(this.updateState);
     }
 

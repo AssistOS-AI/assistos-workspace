@@ -182,14 +182,14 @@ function definePresenters() {
 }
 
 function defineServices() {
-    webSkel.registerService("documentService", documentService);
-    webSkel.registerService("chapterService", chapterService);
-    webSkel.registerService("llmsService", llmsService);
-    webSkel.registerService("personalitiesService", personalitiesService);
-    webSkel.registerService("usersService", usersService);
-    webSkel.registerService("settingsService", settingsService);
-    webSkel.registerService("currentCompany", Company);
-    webSkel.registerService("companyService", companyService);
+    webSkel.initialiseService("documentService",  new documentService());
+    webSkel.initialiseService("chapterService", new chapterService());
+    webSkel.initialiseService("llmsService", new llmsService());
+    webSkel.initialiseService("personalitiesService", new personalitiesService());
+    webSkel.initialiseService("usersService", new usersService());
+    webSkel.initialiseService("settingsService", new settingsService());
+    webSkel.initialiseService("currentCompany", new Company());
+    webSkel.initialiseService("companyService", new companyService());
 }
 
 function defineComponents() {

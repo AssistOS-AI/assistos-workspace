@@ -9,7 +9,7 @@ export class documentViewPage {
         this.abstractText = "Edit your abstract";
         this.button = "Add new document";
         this.id = webSkel.company.currentDocumentId;
-        this.documentService = webSkel.initialiseService('documentService');
+        this.documentService = webSkel.getService('documentService');
 
         if (webSkel.company.documents) {
             this._document = this.documentService.getDocument(this.id);

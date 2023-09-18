@@ -24,7 +24,7 @@ export class editAbstractPage {
             this.invalidate();
         }
         webSkel.company.onChange(this.updateState);
-        this.documentService = webSkel.initialiseService('documentService');
+        this.documentService = webSkel.getService('documentService');
         this._document = this.documentService.getDocument(this.id);
         this.abstractText = this._document.abstract;
     }
@@ -110,7 +110,7 @@ export class editAbstractPage {
     async generateAbstract(_target){
         const loading= await webSkel.showLoading();
         async function suggestAbstract() {
-            const documentService = webSkel.initialiseService('documentService');
+            const documentService = webSkel.getService('documentService');
             const documentText = documentService.getDocument(webSkel.company.currentDocumentId).toString();
             const defaultPrompt = `Given the content of the following document: "${documentText}". Please generate a concise and contextually appropriate abstract that accurately reflects the document's key points, themes, and findings. Your response should consist solely of the abstract text.`;
             const brainstormingSrv = new brainstormingService();
