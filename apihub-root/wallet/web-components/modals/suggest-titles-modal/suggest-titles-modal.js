@@ -5,7 +5,7 @@ import { documentService } from "../../../imports.js";
 export class suggestTitlesModal {
     constructor() {
         setTimeout(()=> {
-            this.invalidate()
+            this.invalidate();
         }, 0);
 
         this.updateState = ()=> {

@@ -36,7 +36,7 @@ export class documentsPage {
     }
 
     async showAddDocumentModal() {
-        await showModal(document.querySelector("body"), "add-document-modal", {});
+        await showModal(document.querySelector("body"), "add-document-modal", {presenter: "add-document-modal"});
     }
 
     async editAction(_target) {

@@ -31,7 +31,7 @@ export class announcementsPage {
     }
 
     async showAddAnnouncementModal() {
-        await showModal(document.querySelector("body"), "add-announcement-modal", {});
+        await showModal(document.querySelector("body"), "add-announcement-modal", { presenter: "add-announcement-modal"});
     }
 
     async showActionBox(_target, primaryKey, componentName, insertionMode) {

@@ -36,7 +36,7 @@ export class usersPage {
     }
 
     async showAddUserModal(_target) {
-        await showModal(document.querySelector("body"), "add-user-modal", {});
+        await showModal(document.querySelector("body"), "add-user-modal", { presenter: "add-user-modal"});
     }
 
     async showActionBox(_target, primaryKey, componentName, insertionMode) {

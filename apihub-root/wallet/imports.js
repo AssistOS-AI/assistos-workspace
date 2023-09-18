@@ -34,7 +34,7 @@ import { Company } from "./core/company.js";
 import { companyDropdown }  from "./web-components/components/company-dropdown/company-dropdown.js";
 import { chapterUnit } from "./web-components/components/item-list/chapter-unit/chapter-unit.js";
 import { addRecord, getRecord, getAllRecords, getTableRecords, deleteRecord, openDatabase, updateRecord } from "./utils/indexDB.js";
-import { initUser, registerAccountActions } from "./core/services/authentication.js";
+import { initUser, registerAccountActions } from "./core/services/authenticationService.js";
 import { documentService } from "./core/services/documentService.js";
 import { chapterService } from "./core/services/chapterService.js";
 import { llmsService } from "./core/services/llmsService.js";
