@@ -14,10 +14,13 @@ export class editAbstractPage {
         this.element = element;
         let url = window.location.hash;
         this.id = parseInt(url.split('/')[1]);
-        if (webSkel.company.documents) {
+        this._document = this.documentService.getDocument(this.id);
+        if (this._document) {
             setTimeout(() => {
                 this.invalidate();
             }, 0);
+        }else {
+            console.log(`this _document doesnt exist: docId: ${this.id}`);
         }
         this.updateState = () => {
             this.abstractText = this._document.abstract;
@@ -25,7 +28,6 @@ export class editAbstractPage {
         }
         webSkel.company.onChange(this.updateState);
         this.documentService = webSkel.getService('documentService');
-        this._document = this.documentService.getDocument(this.id);
         this.abstractText = this._document.abstract;
     }
 
