@@ -16,25 +16,24 @@ export class editTitlePage {
         this.docTitle = "Current Title";
         let url = window.location.hash;
         this.id = parseInt(url.split('/')[1]);
-        if(webSkel.company.documents) {
-            this._documentConfigs = webSkel.company.documents;
+        this.documentService = webSkel.getService('documentService');
+        this._document = this.documentService.getDocument(this.id);
+        if(this._document) {
             setTimeout(() => {
                 this.invalidate();
             }, 0);
+            this.docTitle = this._document.title;
+            this.chapters = this._document.chapters;
+        }else {
+            console.log(`this _document doesnt exist: docId: ${this.id}`);
         }
-        this.documentService = webSkel.getService('documentService');
+
         this.updateState = () => {
-            this._documentConfigs = webSkel.company.documents;
             this._document = this.documentService.getDocument(this.id);
             this.docTitle = this._document.title;
             this.invalidate();
         }
         webSkel.company.onChange(this.updateState);
-        this._document = this.documentService.getDocument(this.id);
-        if(this._document) {
-            this.docTitle = this._document.title;
-            this.chapters = this._document.chapters;
-        }
     }
 
     beforeRender() {

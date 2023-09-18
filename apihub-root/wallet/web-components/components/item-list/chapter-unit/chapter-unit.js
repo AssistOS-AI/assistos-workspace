@@ -1,33 +1,26 @@
 import { documentViewPage, getClosestParentElement, Paragraph } from "../../../../imports.js";
 
 export class chapterUnit {
-    static docServ;
-    static chapterServ;
+    static docService;
     constructor(element) {
         this.element = element;
         this.chapterContent = "Chapter's content";
-        if(webSkel.company.documents) {
-            this._documentConfigs = webSkel.company.documents;
             setTimeout(()=> {
                 this.invalidate();
             }, 0);
-        }
         this.updateState = ()=> {
-            this._documentConfigs = webSkel.company.documents;
             this.invalidate();
         }
-        chapterUnit.docServ = webSkel.getService('documentService');
-        chapterUnit.chapterServ = webSkel.getService('chapterService');
+        chapterUnit.docService = webSkel.getService('documentService');
         webSkel.company.onChange(this.updateState);
-        this.documentService = webSkel.getService('documentService');
         this.docId = webSkel.company.currentDocumentId;
-        this._document = this.documentService.getDocument(this.docId);
-        this.chapter = this.documentService.getChapter(this._document, this.chapterId);
+        this._document = chapterUnit.docService.getDocument(this.docId);
+        this.chapter = chapterUnit.docService.getChapter(this._document, this.chapterId);
     }
 
     beforeRender() {
         this.chapterId = parseInt(this.element.getAttribute("data-chapter-id"));
-        this.chapter = this.documentService.getChapter(this._document, this.chapterId);
+        this.chapter = chapterUnit.docService.getChapter(this._document, this.chapterId);
         this.chapterContent = "";
         if(this.chapter.paragraphs) {
             this.chapter.paragraphs.forEach((paragraph) => {
@@ -57,7 +50,7 @@ export class chapterUnit {
 
             let chapter1Index = this._document.chapters.findIndex(chapter => chapter.id === parseInt(currentChapter.getAttribute('data-chapter-id')));
             let chapter2Index = this._document.chapters.findIndex(chapter => chapter.id === parseInt(chapterAbove.getAttribute('data-chapter-id')));
-            await this.documentService.swapChapters(this._document, chapter1Index, chapter2Index);
+            await chapterUnit.docService.swapChapters(this._document, chapter1Index, chapter2Index);
 
             currentChapter.setAttribute("data-chapter-number", chapterAboveNumber);
             currentChapter.querySelector(".data-chapter-number").innerText = chapterAboveNumber + ".";
@@ -79,7 +72,7 @@ export class chapterUnit {
             chapterBelow.after(currentChapter);
             let chapter1Index = this._document.chapters.findIndex(chapter => chapter.id === parseInt(currentChapter.getAttribute('data-chapter-id')));
             let chapter2Index = this._document.chapters.findIndex(chapter => chapter.id === parseInt(chapterBelow.getAttribute('data-chapter-id')));
-            await this.documentService.swapChapters(this._document, chapter1Index, chapter2Index);
+            await chapterUnit.docService.swapChapters(this._document, chapter1Index, chapter2Index);
 
             let currentChapterNumber = currentChapter.querySelector(".data-chapter-number").innerText.split(".")[0];
             let chapterBelowNumber = chapterBelow.querySelector(".data-chapter-number").innerText.split(".")[0];
@@ -106,7 +99,7 @@ export class chapterUnit {
             currentParagraph.after(paragraphAbove);
             let paragraph1Index = this._document.chapters.findIndex(paragraph => paragraph.id === parseInt(currentParagraph.getAttribute('data-paragraph-id')));
             let paragraph2Index = this._document.chapters.findIndex(paragraph => paragraph.id === parseInt(paragraphAbove.getAttribute('data-paragraph-id')));
-            await this.documentService.swapParagraphs(this._document, chapterIndex, paragraph1Index, paragraph2Index);
+            await chapterUnit.docService.swapParagraphs(this._document, chapterIndex, paragraph1Index, paragraph2Index);
         }
     }
 
@@ -120,7 +113,7 @@ export class chapterUnit {
             paragraphBelow.after(currentParagraph);
             let paragraph1Index = this._document.chapters.findIndex(paragraph => paragraph.id === parseInt(currentParagraph.getAttribute('data-paragraph-id')));
             let paragraph2Index = this._document.chapters.findIndex(paragraph => paragraph.id === parseInt(paragraphBelow.getAttribute('data-paragraph-id')));
-            await this.documentService.swapParagraphs(this._document, chapterIndex, paragraph1Index, paragraph2Index);
+            await chapterUnit.docService.swapParagraphs(this._document, chapterIndex, paragraph1Index, paragraph2Index);
         }
     }
 
@@ -161,22 +154,23 @@ async function exitEditMode(event) {
             updatedText = '';
         }
         const documentId = parseInt(getClosestParentElement(this.selectedChapter, "document-view-page").getAttribute("data-document-id"));
-        const documentIndex = chapterUnit.docServ.getDocumentIndex(documentId);
-        let doc = chapterUnit.docServ.getDocument(documentId);
+        const documentIndex = chapterUnit.docService.getDocumentIndex(documentId);
+        let doc = chapterUnit.docService.getDocument(documentId);
         let chapterId = parseInt(getClosestParentElement(this.selectedChapter, ".chapter-unit").getAttribute("data-chapter-id"));
-        let chapterIndex = chapterUnit.docServ.getChapterIndex(doc, chapterId);
+        let chapterIndex = chapterUnit.docService.getChapterIndex(doc, chapterId);
         let paragraphId = parseInt(getClosestParentElement(this.selectedChapter, ".paragraph-item").getAttribute("data-paragraph-id"));
-        let paragraphIndex = chapterUnit.docServ.getParagraphIndex(doc, chapterIndex, paragraphId);
+        let paragraphIndex = chapterUnit.docService.getParagraphIndex(doc, chapterIndex, paragraphId);
         let sidebar = document.getElementById("paragraph-sidebar");
         sidebar.style.display = "none";
         if (documentIndex !== -1 && updatedText !== this.chapter) {
             if (updatedText === null || updatedText.trim() === '') {
-                await chapterUnit.docServ.deleteChapter(doc, chapterId);
+                await chapterUnit.docService.deleteChapter(doc, chapterId);
                 webSkel.company.documents[documentIndex].chapters.splice(chapterIndex, 1);
             } else {
                 webSkel.company.documents[documentIndex].chapters[chapterIndex].paragraphs[paragraphIndex].text = updatedText;
             }
-            await chapterUnit.docServ.updateDocument(webSkel.company.documents[documentIndex], parseInt(documentId));
+            await chapterUnit.docService.updateDocument(webSkel.company.documents[documentIndex], parseInt(documentId));
         }
     }
+    delete this.selectedChapter;
 }

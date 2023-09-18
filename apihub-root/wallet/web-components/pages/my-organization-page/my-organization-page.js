@@ -7,14 +7,11 @@ export class myOrganizationPage {
         this.id2 = "";
         this.id3 = "";
         this.id4 = "";
-        if(webSkel.company.documents) {
-            this._documentConfigs = (webSkel.company.documents);
             setTimeout(()=> {
                 this.invalidate();
             }, 0);
-        }
+
         this.updateState = ()=> {
-            this._documentConfigs = webSkel.company.documents;
             this.invalidate();
         }
         webSkel.company.onChange(this.updateState);
