@@ -29,6 +29,7 @@ import { Chapter } from "./core/models/chapter.js";
 import { Document} from "./core/models/document.js";
 import { Personality } from "./core/models/personality.js";
 import { User } from "./core/models/user.js";
+import { Announcement } from "./core/models/announcement.js";
 import { Paragraph } from "./core/models/paragraph.js";
 import { Company } from "./core/company.js";
 import { companyDropdown }  from "./web-components/components/company-dropdown/company-dropdown.js";
@@ -96,6 +97,7 @@ export {
     Document,
     Personality,
     User,
+    Announcement,
     Paragraph,
     addRecord,
     getRecord,

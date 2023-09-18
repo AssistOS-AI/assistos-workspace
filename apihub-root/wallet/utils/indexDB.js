@@ -25,12 +25,15 @@ export async function openDatabase(dbName, version) {
 
             const getAllRequest = companyStore.getAll();
 
+            let currentDate = new Date();
+            let today = currentDate.toISOString().split('T')[0];
+
             getAllRequest.onsuccess = (event) => {
                 const existingCompanies = event.target.result;
 
                 if (existingCompanies.length === 0) {
                     const defaultCompany = {
-                        name: `Onboarding company`,
+                        name: `Personal Space`,
                         documents: [
                         {
                             id: 1,
@@ -79,9 +82,10 @@ export async function openDatabase(dbName, version) {
                                         }
                                     ]
                                 }
-                            ], settings: {llm:null, personality: null}
+                            ], settings: {llm: null, personality: null}
                         }],
-                        settings: {llms: [{
+                        settings: {
+                            llms: [{
                                 name: "GPT-3",
                                 apiKeys: [
                                     "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"
@@ -108,6 +112,12 @@ export async function openDatabase(dbName, version) {
                                     id:2
                                 }]},
                         admins: [],
+                        announcements: [{
+                            id: 1,
+                            title: "Welcome to AIAuthor!",
+                            text: "Company Personal Space2 was successfully created. You can now add documents, users and settings to your company.",
+                            date: today
+                        }],
                         users: [{
                             lastName: "Pinguinescu",
                             firstName: "Pingu",
@@ -122,7 +132,7 @@ export async function openDatabase(dbName, version) {
                         }],
                     };
                     const defaultCompany2 = {
-                        name: `Onboarding company2`,
+                        name: `Personal Space2`,
                         documents: [{
                             id: 1,
                             title: "Onboarding Document2",
@@ -188,18 +198,25 @@ export async function openDatabase(dbName, version) {
                             url: "",
                             id: 2
                         }
-                    ], personalities: [{
+                    ], personalities: [
+                            {
                                 name: "Personality 1",
                                 description: "This is a personality",
                                 id:1
                             },
-                                {
-                                    name: "Personality 2",
-                                    description: "This is another personality",
-                                    id:2
-                                }]
+                            {
+                                name: "Personality 2",
+                                description: "This is another personality",
+                                id:2
+                            }]
                         },
                         admins: [],
+                        announcements: [{
+                            id: 1,
+                            title: "Welcome to AIAuthor!",
+                            text: "Company Personal Space2 was successfully created. You can now add documents, users and settings to your company.",
+                            date: today
+                        }],
                         users: [],
                     };
 
