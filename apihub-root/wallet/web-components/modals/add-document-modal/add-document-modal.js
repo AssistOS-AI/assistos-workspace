@@ -4,11 +4,9 @@ import { extractFormInformation } from "../../../imports.js";
 
 export class addDocumentModal {
     constructor() {
-
         setTimeout(()=> {
-            this.invalidate()
+            this.invalidate();
         }, 0);
-
         this.updateState = (companyState)=> {
             this.invalidate();
         }
@@ -28,7 +26,9 @@ export class addDocumentModal {
         let formData = await extractFormInformation(_target);
         if(formData.isValid) {
             closeModal(_target);
-            await this.documentService.addDocument(new Document(formData.data.documentTitle));
+            let document = new Document(formData.data.documentTitle);
+            await this.documentService.addDocument(document);
+            await webSkel.changeToStaticPage(`documents/${document.id}/edit-title`);
         }
     }
 }

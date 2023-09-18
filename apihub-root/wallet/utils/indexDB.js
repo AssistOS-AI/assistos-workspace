@@ -236,6 +236,7 @@ export async function addRecord(db, storeName, data) {
     if (!db.objectStoreNames.contains(storeName)) {
         throw new Error(`Object store "${storeName}" does not exist.`);
     }
+
     /* Adding a new Record and let indexedDB auto-assign an id*/
     if(data.id !== undefined) {
         const existingRecord = await getRecord(db,storeName, data.id);

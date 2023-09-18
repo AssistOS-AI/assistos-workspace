@@ -38,10 +38,11 @@ export class chapterUnit {
             paragraph.removeEventListener("dblclick", enterEditMode, true);
         });
         document.removeEventListener("click", exitEditMode);
+        delete document.selectedChapter;
     }
 
     showOrHideChapter(_target) {
-        if(this.chapter.visibility === "hide") {
+        if (this.chapter.visibility === "hide") {
             this.chapter.visibility = "show";
         } else {
             this.chapter.visibility = "hide";
@@ -92,7 +93,7 @@ export class chapterUnit {
             currentChapter.setAttribute("data-chapter-number", chapterBelowNumber);
             currentChapter.querySelector(".data-chapter-number").innerText = chapterBelowNumber + ".";
 
-            if(this.chapter.visibility === "hide") {
+            if (this.chapter.visibility === "hide") {
                 this.element.querySelector(".chapter-paragraphs").classList.add("hidden");
                 this.element.querySelector(".arrow").classList.add("rotate");
             }
@@ -182,5 +183,4 @@ async function exitEditMode(event) {
             await chapterUnit.docService.updateDocument(webSkel.company.documents[documentIndex], parseInt(documentId));
         }
     }
-    delete this.selectedChapter;
 }
