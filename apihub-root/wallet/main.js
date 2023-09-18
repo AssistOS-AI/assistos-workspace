@@ -139,7 +139,7 @@ async function loadConfigs(jsonPath) {
 
         for (const service of config.services) {
             const ServiceModule = await import(service.path);
-            webSkel.registerService(service.name, ServiceModule[service.name]);
+            webSkel.initialiseService(service.name, ServiceModule[service.name]);
         }
         for (const presenter of config.presenters) {
             const PresenterModule = await import(presenter.path);
