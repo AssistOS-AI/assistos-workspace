@@ -14,6 +14,7 @@ export class editAbstractPage {
         this.element = element;
         let url = window.location.hash;
         this.id = parseInt(url.split('/')[1]);
+        this.documentService = webSkel.getService('documentService');
         this._document = this.documentService.getDocument(this.id);
         if (this._document) {
             setTimeout(() => {
@@ -27,7 +28,7 @@ export class editAbstractPage {
             this.invalidate();
         }
         webSkel.company.onChange(this.updateState);
-        this.documentService = webSkel.getService('documentService');
+
         this.abstractText = this._document.abstract;
     }
 
@@ -35,7 +36,7 @@ export class editAbstractPage {
         this.title = `<title-view title="${this._document.title}"></title-view>`;
         this.alternativeAbstracts = "";
         for (let i = 0; i < this._document.alternativeAbstracts.length; i++) {
-            this.alternativeAbstracts += `<alternative-abstract-renderer nr="${i}" title="${this._document.alternativeAbstracts[i]}"></alternative-abstract-renderer>`;
+            this.alternativeAbstracts += `<alternative-abstract nr="${i}" title="${this._document.alternativeAbstracts[i]}"></alternative-abstract>`;
         }
         if(!this._document.mainIdeas || this._document.mainIdeas.length === 0) {
             this.generateMainIdeasButtonName = "Summarize";
