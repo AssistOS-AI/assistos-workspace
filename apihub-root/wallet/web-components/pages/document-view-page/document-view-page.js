@@ -7,28 +7,28 @@ export class documentViewPage {
         this.docTitle = "Documents";
         this.name = "Name";
         this.abstractText = "Edit your abstract";
+        let url = window.location.hash;
         this.button = "Add new document";
-        this.id = webSkel.company.currentDocumentId;
+        this.id = parseInt(url.split('/')[1]);
         this.documentService = webSkel.getService('documentService');
-
-        if (webSkel.company.documents) {
-            this._document = this.documentService.getDocument(this.id);
+        this._document = this.documentService.getDocument(this.id);
+        if (this._document) {
             setTimeout(()=> {
                 this.invalidate();
             }, 0);
+            this.docTitle = this._document.title;
+            if(this._document.abstract) {
+                this.abstractText = this._document.abstract;
+            }
+            this.chapters = this._document.chapters;
+        }else {
+            console.log(`this _document doesnt exist: docId: ${this.id}`);
         }
         this.updateState = ()=> {
             this._document = this.documentService.getDocument(this.id);
             this.invalidate();
         }
         webSkel.company.onChange(this.updateState);
-        if(this._document) {
-            this.docTitle = this._document.title;
-            if(this._document.abstract) {
-                this.abstractText = this._document.abstract;
-            }
-            this.chapters = this._document.chapters;
-        }
     }
 
     beforeRender() {

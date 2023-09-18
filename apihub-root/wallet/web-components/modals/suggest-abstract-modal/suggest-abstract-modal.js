@@ -3,14 +3,11 @@ import {documentService} from "../../../core/services/documentService.js";
 
 export class suggestAbstractModal {
     constructor() {
-        if(webSkel.company.documents) {
-            this._documentConfigs = webSkel.company.documents;
-            setTimeout(()=> {
-                this.invalidate()
-            }, 0);
-        }
+        setTimeout(()=> {
+            this.invalidate()
+        }, 0);
+
         this.updateState = ()=> {
-            this._documentConfigs = webSkel.company.documents;
             this.invalidate();
         }
         webSkel.company.onChange(this.updateState);

@@ -11,18 +11,6 @@ export class brainstormingPage {
         this.id2 = "";
         this.idModal1 = "selected-modal";
         this.idModal2 = "";
-        if(webSkel.company.documents) {
-            this._documentConfigs = (webSkel.company.documents);
-            setTimeout(()=> {
-                this.invalidate()
-            }, 0);
-        }
-        this.updateState = ()=> {
-            this._documentConfigs = webSkel.company.documents;
-            this.invalidate();
-        }
-        webSkel.company.onChange(this.updateState);
-
         this.documentService = webSkel.getService('documentService');
         this._document = this.documentService.getDocument(this.id);
         if(this._document) {
@@ -30,7 +18,14 @@ export class brainstormingPage {
             if(this._document.abstract) {
                 this.abstractText = this._document.abstract;
             }
+            setTimeout(()=> {
+                this.invalidate()
+            }, 0);
         }
+        this.updateState = ()=> {
+            this.invalidate();
+        }
+        webSkel.company.onChange(this.updateState);
     }
 
     beforeRender() {
