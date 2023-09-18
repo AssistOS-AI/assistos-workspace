@@ -93,6 +93,36 @@ async function getChapterBrainstormingPage(request, response) {
     response.end();
 }
 
+async function getParagraphProofreadPage(request, response) {
+    const documentId = request.params.documentId;
+    const chapterId = request.params.chapterId;
+    const paragraphId = request.params.paragraphId;
+    let documentPage = "";
+    documentPage += `
+                <paragraph-proofread-page data-document-id="${documentId}" data-chapter-id="${chapterId}" data-paragraph-id="${paragraphId}" data-presenter="paragraph-proofread-page"></paragraph-proofread-page>
+                `
+
+    response.statusCode = 200;
+    response.setHeader("Content-Type", "text/html");
+    response.write(documentPage);
+    response.end();
+}
+
+async function getParagraphBrainstormingPage(request, response) {
+    const documentId = request.params.documentId;
+    const chapterId = request.params.chapterId;
+    const paragraphId = request.params.paragraphId;
+    let documentPage = "";
+    documentPage += `
+                <paragraph-brainstorming-page data-document-id="${documentId}" data-chapter-id="${chapterId}" data-paragraph-id="${paragraphId}" data-presenter="paragraph-brainstorming-page"></paragraph-brainstorming-page>
+                `
+
+    response.statusCode = 200;
+    response.setHeader("Content-Type", "text/html");
+    response.write(documentPage);
+    response.end();
+}
+
 module.exports = {
     getDocumentPage,
     getDocumentTitlePage,
@@ -101,4 +131,6 @@ module.exports = {
     getDocumentBrainstormingPage,
     getChapterTitlePage,
     getChapterBrainstormingPage,
+    getParagraphProofreadPage,
+    getParagraphBrainstormingPage,
 };

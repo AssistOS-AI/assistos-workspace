@@ -15,6 +15,8 @@ import {
     editAbstractPage,
     chapterTitlePage,
     chapterBrainstormingPage,
+    paragraphBrainstormingPage,
+    paragraphProofreadPage,
     proofReaderPage,
     myOrganizationPage,
     brainstormingPage,
@@ -100,10 +102,12 @@ async function loadPage() {
             case "#documents":
                 let documentIdURL= parseInt(url.split('/')[1]);
                 let chapterIdURL = parseInt(url.split('/')[3]);
+                let paragraphIdURL = parseInt(url.split('/')[4]);
                 /* To be replaced with company id from URL */
                 if(await webSkel.localStorage.getDocument(1, documentIdURL) !== null) {
                     webSkel.company.currentDocumentId = documentIdURL;
                     webSkel.company.currentChapterId = chapterIdURL;
+                    webSkel.company.currentParagraphId = paragraphIdURL;
                     changeSelectedPageFromSidebar("documents-page");
                 }
                 changeSelectedPageFromSidebar("documents-page");
@@ -155,6 +159,8 @@ function definePresenters() {
     webSkel.registerPresenter("document-settings-page", documentSettingsPage);
     webSkel.registerPresenter("brainstorming-page", brainstormingPage);
     webSkel.registerPresenter("chapter-brainstorming-page", chapterBrainstormingPage);
+    webSkel.registerPresenter("paragraph-brainstorming-page", paragraphBrainstormingPage);
+    webSkel.registerPresenter("paragraph-proofread-page", paragraphProofreadPage);
     webSkel.registerPresenter("chapter-title-page", chapterTitlePage);
     webSkel.registerPresenter("proof-reader-page", proofReaderPage);
     webSkel.registerPresenter("my-organization-page", myOrganizationPage);
@@ -210,6 +216,8 @@ function defineComponents() {
     webSkel.defineComponent("document-settings-page", "./wallet/web-components/pages/document-settings-page/document-settings-page.html");
     webSkel.defineComponent("brainstorming-page", "./wallet/web-components/pages/brainstorming-page/brainstorming-page.html");
     webSkel.defineComponent("chapter-brainstorming-page", "./wallet/web-components/pages/chapter-brainstorming-page/chapter-brainstorming-page.html");
+    webSkel.defineComponent("paragraph-brainstorming-page", "./wallet/web-components/pages/paragraph-brainstorming-page/paragraph-brainstorming-page.html");
+    webSkel.defineComponent("paragraph-proofread-page", "./wallet/web-components/pages/paragraph-proofread-page/paragraph-proofread-page.html");
     webSkel.defineComponent("chapter-title-page", "./wallet/web-components/pages/chapter-title-page/chapter-title-page.html");
     webSkel.defineComponent("document-view-page", "./wallet/web-components/pages/document-view-page/document-view-page.html");
     webSkel.defineComponent("edit-title-page", "./wallet/web-components/pages/edit-title-page/edit-title-page.html");

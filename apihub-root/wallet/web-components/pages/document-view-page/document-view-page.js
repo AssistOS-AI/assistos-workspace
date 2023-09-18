@@ -2,6 +2,7 @@ import { Chapter } from "../../../imports.js";
 
 export class documentViewPage {
     static chapterIdForSidebar;
+    static paragraphIdForSidebar;
     constructor() {
         this.docTitle = "Documents";
         this.name = "Name";
@@ -67,6 +68,14 @@ export class documentViewPage {
         webSkel.changeToStaticPage(`documents/${this.id}/chapter-brainstorming/${documentViewPage.chapterIdForSidebar}`);
     }
 
+    openParagraphProofreadPage() {
+        webSkel.changeToStaticPage(`documents/${this.id}/paragraph-proofread/${documentViewPage.chapterIdForSidebar}/${documentViewPage.paragraphIdForSidebar}`);
+    }
+
+    openParagraphBrainstormingPage() {
+        webSkel.changeToStaticPage(`documents/${this.id}/paragraph-brainstorming/${documentViewPage.chapterIdForSidebar}/${documentViewPage.paragraphIdForSidebar}`);
+    }
+
     addChapter() {
         this.chapterDivs += `<chapter-unit data-chapter-title="New Chapter" data-chapter-id="${this.chapters.length}" data-presenter="chapter-unit"></chapter-unit>`;
         this.chapters.push(new Chapter("Edit your title here", this.chapters.length + 1, [{text: "Edit your paragraph here"}]));
@@ -96,5 +105,7 @@ export class documentViewPage {
     static openParagraphSidebar(chapterId, paragraphId) {
         const paragraphSubmenuSection = document.getElementById("paragraph-sidebar");
         paragraphSubmenuSection.style.display = "block";
+        documentViewPage.chapterIdForSidebar = chapterId;
+        documentViewPage.paragraphIdForSidebar = paragraphId;
     }
 }

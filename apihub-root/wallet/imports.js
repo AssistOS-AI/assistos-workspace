@@ -11,6 +11,8 @@ import { documentViewPage } from "./web-components/pages/document-view-page/docu
 import { editTitlePage } from "./web-components/pages/edit-title-page/edit-title-page.js";
 import { chapterTitlePage } from "./web-components/pages/chapter-title-page/chapter-title-page.js";
 import { chapterBrainstormingPage } from "./web-components/pages/chapter-brainstorming-page/chapter-brainstorming-page.js";
+import { paragraphBrainstormingPage } from "./web-components/pages/paragraph-brainstorming-page/paragraph-brainstorming-page.js";
+import { paragraphProofreadPage } from "./web-components/pages/paragraph-proofread-page/paragraph-proofread-page.js";
 import { editAbstractPage } from "./web-components/pages/edit-abstract-page/edit-abstract-page.js";
 import { proofReaderPage } from "./web-components/pages/proof-reader-page/proof-reader-page.js";
 import { myOrganizationPage } from "./web-components/pages/my-organization-page/my-organization-page.js";
@@ -74,6 +76,8 @@ export {
     documentSettingsPage,
     chapterTitlePage,
     chapterBrainstormingPage,
+    paragraphProofreadPage,
+    paragraphBrainstormingPage,
     chapterUnit,
     brainstormingPage,
     llmsPage,
