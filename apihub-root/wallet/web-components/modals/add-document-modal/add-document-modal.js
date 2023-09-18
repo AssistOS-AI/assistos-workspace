@@ -26,7 +26,7 @@ export class addDocumentModal {
         let formData = await extractFormInformation(_target);
         if(formData.isValid) {
             closeModal(_target);
-            let document = new Document(formData.data.documentTitle);
+            let document = new Document(formData.data.documentTitle, undefined, undefined, undefined, undefined, undefined, undefined, [formData.data.documentIdea]);
             await this.documentService.addDocument(document);
             await webSkel.changeToStaticPage(`documents/${document.id}/edit-title`);
         }

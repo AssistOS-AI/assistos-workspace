@@ -76,7 +76,7 @@ body {
 /*inceput sidebar dreapta*/
 .right-sidebar {
     height: 100%;
-    width: 18em;
+    width: 19em;
     display: flex;
     right: 0;
     min-width: 12em;
@@ -91,7 +91,7 @@ body {
     font-style: normal;
     font-weight: 500;
     line-height: normal;
-    padding: 10px 10px 10px 19px;
+    padding: 10px 0 10px 10px;
     background-color: #FFF;
     margin-right: 10px;
 }

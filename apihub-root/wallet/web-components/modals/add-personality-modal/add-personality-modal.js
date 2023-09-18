@@ -5,7 +5,7 @@ export class addPersonalityModal {
         if(webSkel.company.settings.personalities) {
             this._personalityConfigs = webSkel.company.settings.personalities;
             setTimeout(()=> {
-                this.invalidate()
+                this.invalidate();
             }, 0);
         }
         this.updateState = ()=> {

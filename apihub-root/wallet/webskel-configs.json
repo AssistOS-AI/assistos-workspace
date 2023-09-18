@@ -108,7 +108,7 @@
     {
       "name": "add-llm-modal",
       "path": "./web-components/modals/add-llm-modal/add-llm-modal.js",
-        "className": "addLlmModal"
+        "className": "addLLMModal"
     },
     {
       "name": "add-personality-modal",
