@@ -4,10 +4,14 @@ import { Document } from "../../../core/models/document.js";
 
 export class addAnnouncementModal {
     constructor() {
-        setTimeout(()=> {
-            this.invalidate()
-        }, 0);
+        if(webSkel.company.documents) {
+            this._documentConfigs = webSkel.company.documents;
+            setTimeout(()=> {
+                this.invalidate()
+            }, 0);
+        }
         this.updateState = (companyState)=> {
+            this._documentConfigs = webSkel.company.documents;
             this.invalidate();
         }
         webSkel.company.onChange(this.updateState);

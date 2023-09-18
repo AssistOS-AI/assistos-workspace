@@ -6,23 +6,14 @@ export class chapterBrainstormingPage {
         this.docId =  parseInt(url.split('/')[1]);
         this.chapterId = parseInt(url.split('/')[3]);
         this.docTitle = "Titlu document";
-        this.documentService = webSkel.getService('documentService');
-        this._document = this.documentService.getDocument(this.docId);
-        if(this._document) {
+        if(webSkel.company.documents) {
+            this._documentConfigs = (webSkel.company.documents);
             setTimeout(()=> {
-                this.invalidate();
+                this.invalidate()
             }, 0);
-            this._chapter = this.documentService.getChapter(this._document, this.chapterId);
-            if(this._chapter) {
-                this.chapterTitle = this._chapter.title;
-            }
-            else {
-                console.log(`this chapter doesnt exist: chapterId: ${this.chapterId}`);
-            }
-        }else {
-            console.log(`this _document doesnt exist: docId: ${this.docId}`);
         }
         this.updateState = ()=> {
+            this._documentConfigs = webSkel.company.documents;
             this._document = this.documentService.getDocument(this.docId);
             if(this._document) {
                 this._chapter = this.documentService.getChapter(this._document, this.chapterId);
@@ -33,6 +24,15 @@ export class chapterBrainstormingPage {
             this.invalidate();
         }
         webSkel.company.onChange(this.updateState);
+
+        this.documentService = webSkel.getService('documentService');
+        this._document = this.documentService.getDocument(this.docId);
+        if(this._document) {
+            this._chapter = this.documentService.getChapter(this._document, this.chapterId);
+            if(this._chapter) {
+                this.chapterTitle = this._chapter.title;
+            }
+        }
     }
 
     beforeRender() {

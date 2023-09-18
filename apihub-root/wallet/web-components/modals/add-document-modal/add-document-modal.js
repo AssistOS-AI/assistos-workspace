@@ -4,12 +4,14 @@ import { extractFormInformation } from "../../../imports.js";
 
 export class addDocumentModal {
     constructor() {
-
-        setTimeout(()=> {
-            this.invalidate()
-        }, 0);
-
+        if(webSkel.company.documents) {
+            this._documentConfigs = webSkel.company.documents;
+            setTimeout(()=> {
+                this.invalidate()
+            }, 0);
+        }
         this.updateState = (companyState)=> {
+            this._documentConfigs = webSkel.company.documents;
             this.invalidate();
         }
         this.documentService = webSkel.getService('documentService');

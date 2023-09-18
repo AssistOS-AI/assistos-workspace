@@ -1,3 +1,4 @@
+import { checkValidityFormInfo } from "../../../../WebSkel/utils/form-utils.js";
 import { proofReaderService } from "../../../core/services/proofReaderService.js";
 import { extractFormInformation } from "../../../imports.js";
 
@@ -5,11 +6,14 @@ export class proofReaderPage {
     constructor(element) {
         this.element = element;
         this.generatedText = "AI Generated Text";
+        if(webSkel.company.documents) {
+            this._documentConfigs = webSkel.company.documents;
             setTimeout(()=> {
                 this.invalidate();
             }, 0);
-
+        }
         this.updateState = ()=> {
+            this._documentConfigs = webSkel.company.documents;
             this.invalidate();
         }
         webSkel.company.onChange(this.updateState);
