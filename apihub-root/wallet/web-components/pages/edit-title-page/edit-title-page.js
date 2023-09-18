@@ -22,7 +22,7 @@ export class editTitlePage {
                 this.invalidate();
             }, 0);
         }
-        this.documentService = webSkel.initialiseService('documentService');
+        this.documentService = webSkel.getService('documentService');
         this.updateState = () => {
             this._documentConfigs = webSkel.company.documents;
             this._document = this.documentService.getDocument(this.id);
@@ -83,10 +83,10 @@ export class editTitlePage {
         closeModal(_target);
     }
 
-    async showSuggestTitleModal() {
-        const loading= await webSkel.showLoading();
+    async showSuggestTitlesModal() {
+        const loading = await webSkel.showLoading();
         async function generateSuggestTitles(){
-            const documentService = webSkel.initialiseService('documentService');
+            const documentService = webSkel.getService('documentService');
             const documentText = documentService.getDocument(webSkel.company.currentDocumentId).toString();
             const defaultPrompt = `Based on the following document:\n"${documentText}"\n\nPlease suggest 10 original titles that are NOT already present as chapter titles in the document. Return the titles as a JSON array.`;
             const brainstormingSrv = new brainstormingService();
@@ -96,7 +96,7 @@ export class editTitlePage {
         this.suggestedTitles = JSON.parse(await generateSuggestTitles()).titles;
         loading.close();
         loading.remove();
-        await showModal(document.querySelector("body"), "suggest-title-modal");
+        await showModal(document.querySelector("body"), "suggest-titles-modal", { presenter: "suggest-titles-modal"});
     }
 
     async select(_target) {

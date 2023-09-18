@@ -11,13 +11,13 @@
     box-shadow: 0 8px 16px 0 rgba(0, 0, 0, 0.2);
 }
 
-company-item {
+company-unit {
     color: #FFF;
     cursor: pointer;
     padding: 5px 10px;
 }
 
-company-item:hover {
+company-unit:hover {
     background-color: #6559a2;
 }
 

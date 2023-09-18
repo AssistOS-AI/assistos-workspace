@@ -16,7 +16,7 @@ export class documentsPage {
             this.invalidate();
         }
         webSkel.company.onChange(this.updateState);
-        this.documentService = webSkel.initialiseService('documentService');
+        this.documentService = webSkel.getService('documentService');
     }
 
     beforeRender() {
@@ -36,7 +36,7 @@ export class documentsPage {
     }
 
     async showAddDocumentModal() {
-        await showModal(document.querySelector("body"), "add-document-modal", {});
+        await showModal(document.querySelector("body"), "add-document-modal", {presenter: "add-document-modal"});
     }
 
     async editAction(_target) {

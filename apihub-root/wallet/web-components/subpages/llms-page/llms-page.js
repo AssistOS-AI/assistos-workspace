@@ -36,7 +36,7 @@ export class llmsPage {
     }
 
     async showAddLLMModal(_target) {
-        await showModal(document.querySelector("body"), "add-llm-modal", {});
+        await showModal(document.querySelector("body"), "add-llm-modal", { presenter: "add-llm-modal"});
     }
 
     async showActionBox(_target, primaryKey, componentName, insertionMode) {

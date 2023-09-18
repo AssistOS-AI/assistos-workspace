@@ -1,46 +1,10 @@
 import {
-    chapterUnit,
-    companyDropdown,
-    addDocumentModal,
-    addAnnouncementModal,
-    addChapterModal,
-    addLLMModal,
-    addPersonalityModal,
-    addUserModal,
-    suggestAbstractModal,
-    suggestTitlesModal,
-    documentsPage,
-    documentViewPage,
-    editTitlePage,
-    editAbstractPage,
-    chapterTitlePage,
-    chapterBrainstormingPage,
-    paragraphBrainstormingPage,
-    paragraphProofreadPage,
-    proofReaderPage,
-    myOrganizationPage,
-    brainstormingPage,
-    documentSettingsPage,
-    announcementsPage,
-    usersPage,
-    personalitiesPage,
-    llmsPage,
     notBasePage,
     storageService,
     WebSkel,
-    addRecord,
     closeModal,
-    addCompanyModal,
     initUser,
-    registerAccountActions,
     Company,
-    documentService,
-    llmsService,
-    personalitiesService,
-    settingsService,
-    chapterService,
-    usersService,
-    companyService
 } from "./imports.js";
 
 const openDSU = require("opendsu");
@@ -208,10 +172,6 @@ async function loadConfigs(jsonPath) {
     }
     await initUser();
     await loadPage();
-
     defineActions();
     await loadConfigs("./wallet/webskel-configs.json");
-    /*definePresenters();
-    defineServices();
-    defineComponents();*/
 })();

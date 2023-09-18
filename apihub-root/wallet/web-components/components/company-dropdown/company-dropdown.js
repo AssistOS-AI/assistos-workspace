@@ -22,7 +22,7 @@ export class companyDropdown {
     beforeRender() {
         this.companiesDiv = "";
         this.companies.forEach((company) => {
-            this.companiesDiv += `<company-item data-company-name="${company.name}" data-company-id="${company.id}"></company-item>`;
+            this.companiesDiv += `<company-unit data-company-name="${company.name}" data-company-id="${company.id}"></company-unit>`;
         });
     }
 
@@ -32,12 +32,12 @@ export class companyDropdown {
     }
 
     changeOrganization(_target) {
-        let selectedCompany = getClosestParentElement(_target,['company-item']);
+        let selectedCompany = getClosestParentElement(_target,['company-unit']);
         let selectedCompanyId = parseInt(selectedCompany.getAttribute('data-company-id'));
         window.changeCompany(selectedCompanyId);
     }
 
     async  addOrganization(){
-       await showModal(document.querySelector("body"), "add-company-modal");
+       await showModal(document.querySelector("body"), "add-company-modal", { presenter: "add-company-modal"});
     }
 }

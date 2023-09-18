@@ -23,7 +23,7 @@ export class brainstormingPage {
         }
         webSkel.company.onChange(this.updateState);
 
-        this.documentService = webSkel.initialiseService('documentService');
+        this.documentService = webSkel.getService('documentService');
         this._document = this.documentService.getDocument(this.id);
         if(this._document) {
             this.docTitle = this._document.title;
@@ -67,7 +67,7 @@ export class brainstormingPage {
     }
 
     async showAddChapterModal() {
-        await showModal(document.querySelector("body"), "add-chapter-modal", {});
+        await showModal(document.querySelector("body"), "add-chapter-modal", { presenter: "add-chapter-modal"});
     }
 
     async showActionBox(_target, primaryKey, componentName, insertionMode) {
