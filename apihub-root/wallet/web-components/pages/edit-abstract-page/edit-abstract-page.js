@@ -100,7 +100,7 @@ export class editAbstractPage {
 
 
     async showActionBox(_target, primaryKey, componentName, insertionMode) {
-        this.actionBox=await showActionBox(_target, primaryKey, componentName, insertionMode);
+        this.actionBox = await showActionBox(_target, primaryKey, componentName, insertionMode);
     }
 
     closeModal(_target) {
@@ -108,7 +108,7 @@ export class editAbstractPage {
     }
 
     async generateAbstract(_target){
-        const loading= await webSkel.showLoading();
+        const loading = await webSkel.showLoading();
         async function suggestAbstract() {
             const documentService = webSkel.getService('documentService');
             const documentText = documentService.getDocument(webSkel.company.currentDocumentId).toString();
