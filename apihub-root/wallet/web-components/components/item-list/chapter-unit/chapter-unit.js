@@ -27,6 +27,10 @@ export class chapterUnit {
                 this.chapterContent += `<paragraph-unit data-paragraph-content="${paragraph.text}" data-paragraph-id="${paragraph.id}"></paragraph-unit>`;
             });
         }
+        let selectedParagraphs = this.element.querySelectorAll(".paragraph-text");
+        selectedParagraphs.forEach(paragraph => {
+            paragraph.removeEventListener("dblclick", enterEditMode, true);
+        });
         document.removeEventListener("click", exitEditMode);
     }
 
