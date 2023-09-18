@@ -1,5 +1,5 @@
 import { extractFormInformation } from "../../../../WebSkel/utils/form-utils.js";
-import {closeModal, Company} from "../../../imports.js";
+import { closeModal, Company } from "../../../imports.js";
 import { Document } from "../../../core/models/document.js";
 import { companyService } from "../../../imports.js";
 

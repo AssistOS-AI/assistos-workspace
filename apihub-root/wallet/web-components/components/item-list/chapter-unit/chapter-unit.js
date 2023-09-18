@@ -5,9 +5,9 @@ export class chapterUnit {
     constructor(element) {
         this.element = element;
         this.chapterContent = "Chapter's content";
-            setTimeout(()=> {
-                this.invalidate();
-            }, 0);
+        setTimeout(()=> {
+            this.invalidate();
+        }, 0);
         this.updateState = ()=> {
             this.invalidate();
         }
@@ -22,13 +22,12 @@ export class chapterUnit {
         this.chapterId = parseInt(this.element.getAttribute("data-chapter-id"));
         this.chapter = chapterUnit.docService.getChapter(this._document, this.chapterId);
         this.chapterContent = "";
-        if(this.chapter.visibility === "hide") {
+        if(this.chapter && this.chapter.visibility === "hide") {
             if(this.element.querySelector(".chapter-paragraphs")) {
                 this.element.querySelector(".chapter-paragraphs").classList.add("hidden");
-                // this.element.querySelector(".arrow").classList.add("rotate");
             }
         }
-        if(this.chapter.paragraphs) {
+        if(this.chapter && this.chapter.paragraphs) {
             this.chapter.paragraphs.forEach((paragraph) => {
                 this.chapterContent += `<paragraph-unit data-paragraph-content="${paragraph.text}" data-paragraph-id="${paragraph.id}"></paragraph-unit>`;
             });
