@@ -9,16 +9,11 @@ export class addDocumentModal {
             this.invalidate()
         }, 0);
 
-        this.updateState = (companyState)=> {
-            this.invalidate();
-        }
-        this.documentService = webSkel.getService('documentService');
+        this.updateState = (companyState)=> this.invalidate();
         webSkel.company.onChange(this.updateState);
     }
 
-    beforeRender() {
-
-    }
+    beforeRender() {}
 
     closeModal(_target) {
         closeModal(_target);
@@ -28,7 +23,7 @@ export class addDocumentModal {
         let formData = await extractFormInformation(_target);
         if(formData.isValid) {
             closeModal(_target);
-            await this.documentService.addDocument(new Document(formData.data.documentTitle));
+            await webSkel.servicesRegistry.documentService.addDocument(new Document(formData.data.documentTitle));
         }
     }
 }

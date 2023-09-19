@@ -8,7 +8,6 @@ import {Settings} from "../imports.js";
 
 export class Company {
     constructor(companyData) {
-        console.log(companyData);
         if (Company.instance) {
             return Company.instance;
         }
@@ -17,11 +16,6 @@ export class Company {
         this.settings = new Settings(companyData.settings.llms, companyData.settings.personalities);
         this.users = (companyData.users || []).map(user => new User(user.lastName, user.firstName, user.email, user.phoneNumber));
         this.documents = (companyData.documents||[]).map(docData => new Document(docData.title, docData.id, docData.abstract, docData.chapters, docData.settings, docData.alternativeTitles, docData.alternativeAbstracts));
-        if (this.documents && this.documents.length > 0) {
-            this.currentDocumentId = this.documents[0].id;
-        } else {
-            this.currentDocumentId = undefined;
-        }
         this.observers = [];
         Company.instance = this;
     }

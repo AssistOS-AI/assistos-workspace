@@ -3,8 +3,16 @@ export class companyService{
 
     }
     async addCompany(title){
-        window.changeCompany(await webSkel.localStorage.addCompany({name:title,llms:[],documents:[],personalities:[],admins:[],settings:[],users:[]}));
+        this.changeCompany(await webSkel.localStorage.addCompany({name:title,llms:[],documents:[],personalities:[],admins:[],settings:[],users:[]}));
     }
-    deleteCompany(){}
-
+    changeCompany(companyId){
+        window.currentCompanyId = companyId;
+        let user = JSON.parse(localStorage.getItem("currentUser"));
+        user.currentCompanyId = currentCompanyId;
+        localStorage.setItem("currentUser", JSON.stringify(user));
+        window.location = "";
+    }
+    getCompanyNames(){
+        return currentUser.companies.filter(company => company.id !== currentCompanyId)||[];
+    }
 }

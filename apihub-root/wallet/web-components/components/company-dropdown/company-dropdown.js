@@ -1,23 +1,19 @@
 import { getClosestParentElement, showModal } from "../../../imports.js";
 
 export class companyDropdown {
-    constructor(element) {
-        this.element = element;
-        this.currentCompanyName = (currentUser.companies.find((company) => company.id === currentCompanyId)).name;
-            setTimeout(()=> {
-                this.invalidate();
-            }, 0);
-        this.updateState = ()=> {
+    constructor() {
+        setTimeout(()=> {
             this.invalidate();
-        }
+            }, 0);
+        this.updateState = ()=> this.invalidate();
         webSkel.company.onChange(this.updateState);
-        /* to be removed */
-        this.companies = currentUser.companies.filter(company => company.id !== currentCompanyId);
-    }
 
+
+    }
     beforeRender() {
         this.companiesDiv = "";
-        this.companies.forEach((company) => {
+        this.currentCompanyName = webSkel.company.name;
+        webSkel.servicesRegistry.companyService.getCompanyNames().forEach((company) => {
             this.companiesDiv += `<company-unit data-company-name="${company.name}" data-company-id="${company.id}"></company-unit>`;
         });
     }
@@ -30,9 +26,8 @@ export class companyDropdown {
     changeOrganization(_target) {
         let selectedCompany = getClosestParentElement(_target,['company-unit']);
         let selectedCompanyId = parseInt(selectedCompany.getAttribute('data-company-id'));
-        window.changeCompany(selectedCompanyId);
+        webSkel.servicesRegistry.companyService.changeCompany(selectedCompanyId);
     }
-
     async  addOrganization(){
        await showModal(document.querySelector("body"), "add-company-modal", { presenter: "add-company-modal"});
     }
