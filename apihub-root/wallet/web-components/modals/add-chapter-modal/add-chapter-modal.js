@@ -29,7 +29,12 @@ export class addChapterModal {
         if(formData.isValid) {
             let updateDocument = this.documentService.getDocument(this.docId);
             closeModal(_target);
-            let newChapter = new Chapter(formData.data.name, updateDocument.chapters.length + 1, [{id: 1, text: "Edit here your first paragraph."}]);
+            let chapterObj={
+                title:formData.data.name,
+                id:updateDocument.chapters.length + 1,
+                paragraphs:[{id:1,text:"Edit here your first paragraph."}]
+            }
+            let newChapter = new Chapter(chapterObj);
             updateDocument.chapters.push(newChapter);
             await this.documentService.updateDocument(updateDocument, this.docId);
         }

@@ -14,7 +14,7 @@ export class Company {
         }
         this.name = companyData.name;
         this.id = companyData.id || undefined;
-        this.settings = new Settings(companyData.settings.llms, companyData.settings.personalities);
+        this.settings = new Settings(companyData.settings);
         this.announcements = (companyData.announcements || []).map(announcement => new Announcement(announcement.title, announcement.text, announcement.date, announcement.id));
         this.users = (companyData.users || []).map(user => new User(user.lastName, user.firstName, user.email, user.phoneNumber));
         this.documents = (companyData.documents||[]).map(docData => new DocumentModel(docData));

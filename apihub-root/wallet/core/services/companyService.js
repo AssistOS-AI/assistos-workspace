@@ -13,8 +13,9 @@ export class companyService {
             text: textString,
             date: today
         }];
-        window.changeCompany(await webSkel.localStorage.addCompany({ name: title, llms: [], documents: [], personalities: [], admins: [], announcements: newAnnouncements, settings: [], users: []}));
-        this.changeCompany(await webSkel.localStorage.addCompany({name:title,llms:[],documents:[],personalities:[],admins:[],settings:[],users:[]}));
+        this.changeCompany(await webSkel.localStorage.addCompany({
+            name:title,documents:[],personalities:[],admins:[],settings:{llms:[],personalities:[]},announcements: newAnnouncements,users:[]}
+        ));
     }
 
     changeCompany(companyId){

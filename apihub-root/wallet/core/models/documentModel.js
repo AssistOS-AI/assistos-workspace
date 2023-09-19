@@ -1,5 +1,4 @@
 import { Chapter } from "./chapter.js";
-import {Settings} from "./settings.js";
 
 export class DocumentModel {
     constructor(documentData) {
