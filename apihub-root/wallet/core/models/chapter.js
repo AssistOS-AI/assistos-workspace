@@ -1,19 +1,19 @@
 import { Paragraph } from './paragraph.js';
 
 export class Chapter {
-    constructor(title, chapterId, paragraphs) {
-        this.title = title;
-        this.id = chapterId;
+    constructor(chapterData) {
+        this.title = chapterData.title;
+        this.id = chapterData.chapterId;
         this.visibility = "show";
         this.paragraphs = [];
-        if(paragraphs && paragraphs.length > 0) {
-            for(let i = 0; i < paragraphs.length; i++) {
-                if(paragraphs[i] !== undefined) {
-                    this.paragraphs.push(new Paragraph(paragraphs[i].text, paragraphs[i].id));
+        if(chapterData.paragraphs && chapterData.paragraphs.length > 0) {
+            for(let i = 0; i < chapterData.paragraphs.length; i++) {
+                if(chapterData.paragraphs[i] !== undefined) {
+                    this.paragraphs.push(new Paragraph(chapterData.paragraphs[i]));
                 }
             }
         }
-        this.currentParagraphId = paragraphs[0] ? paragraphs[0].id : undefined;
+        this.currentParagraphId = null;
     }
     toString() {
         return `${this.title}\n${this.paragraphs.map(paragraph => paragraph.toString()).join("\n")}`;

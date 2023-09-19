@@ -1,33 +1,28 @@
 import { Chapter } from "./chapter.js";
-import { LLM, Personality } from "../../imports.js";
+import {Settings} from "./settings.js";
 
 export class DocumentModel {
-    constructor(documentTitle, documentId, abstract, chapters, settings, alternativeTitles, alternativeAbstracts, mainIdeas) {
-        this.title = documentTitle;
-        if(documentId) {
-            this.id = documentId;
+    constructor(documentData) {
+
+        for(const key in documentData) {
+            if(key === "chapters") {
+                this[key]=documentData[key].map(chapter => new Chapter(chapter));
+            }else
+            this[key] = documentData[key];
         }
-        this.abstract = abstract ? abstract : "";
-        this.chapters = [];
-        this.mainIdeas = mainIdeas ? mainIdeas : [];
-        this.alternativeAbstracts = alternativeAbstracts || [];
-        this.alternativeTitles = alternativeTitles ? alternativeTitles : [];
-        if(chapters !== undefined && chapters !== null) {
+        this.currentChapterId=null;
+
+      /*  if(chapters !== undefined && chapters !== null) {
             let i = 0;
             while(chapters[i] !== undefined && chapters[i] !== null) {
                 this.chapters.push(new Chapter(chapters[i].title, chapters[i].id, chapters[i].paragraphs));
                 i++;
             }
-        }
-        if(this.chapters && this.chapters.length > 0) {
-            this.currentChapterId = this.chapters[0].id;
-        } else {
-            this.currentChapterId = undefined;
-        }
-        this.settings = settings ? settings : {llm: null, personality: null};
+        }*/
+
     }
 
     toString() {
-        return this.chapters.map(chapter => chapter.toString()).join("\n\n");
+        return this.chapters.map(chapter => chapter.toString()).join("\n\n")||"";
     }
 }
