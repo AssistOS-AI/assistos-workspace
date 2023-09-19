@@ -1,9 +1,9 @@
-<link rel="stylesheet" href="./wallet/web-components/modals/add-personality-modal/add-personality-modal.css">
+<link rel="stylesheet" href="./wallet/web-components/modals/add-script-modal/add-script-modal.css">
 <div class="modal-dialog" role="document">
     <div class="modal-content">
         <div class="modal-header">
             <h5 class="modal-title">
-                Add a new personality
+                Add a new script
                 <button type="button" class="close" data-local-action="closeModal" aria-label="Close">
                     <span aria-hidden="true">&times;</span>
                 </button>
@@ -17,12 +17,12 @@
                 </div>
 
                 <div class="form-item">
-                    <label class="form-label" for="description">Description</label>
-                    <input class="form-input" name="description" data-id="description" type="text" id="description" required placeholder="Add a description">
+                    <label class="form-label" for="content">Code</label>
+                    <textarea class="form-input" name="content" data-id="content" id="content" required placeholder="let response = JSON.parse(botAPI.call());"></textarea>
                 </div>
 
                 <div class="modal-footer">
-                    <button class="wide-btn" data-local-action="submitForm">Add Personality</button>
+                    <button class="wide-btn" data-local-action="addScript">Add Script</button>
                 </div>
             </form>
         </div>

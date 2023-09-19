@@ -1,3 +1,4 @@
+const fs = require('fs');
 async function getScripts(request, response){
     const workspaceId  = request.params.currentCompanyId;
     try {
@@ -16,6 +17,10 @@ async function getScripts(request, response){
         response.end();
     }
 }
+async function addScript(request, response){
+    console.log("entered adding script")
+}
 module.exports = {
     getScripts,
+    addScript
 };
