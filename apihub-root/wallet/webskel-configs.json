@@ -116,6 +116,11 @@
         "className": "addPersonalityModal"
     },
     {
+      "name": "add-script-modal",
+      "path": "./web-components/modals/add-script-modal/add-script-modal.js",
+      "className": "addScriptModal"
+    },
+    {
       "name": "add-user-modal",
       "path": "./web-components/modals/add-user-modal/add-user-modal.js",
         "className": "addUserModal"
@@ -134,16 +139,17 @@
       "name": "add-company-modal",
       "path": "./web-components/modals/add-company-modal/add-company-modal.js",
         "className": "addCompanyModal"
+    },
+    {
+      "name": "scripts-page",
+      "path": "./web-components/subpages/scripts-page/scripts-page.js",
+      "className": "scriptsPage"
     }
   ],
   "services": [
     {
       "name": "documentService",
       "path": "./core/services/documentService.js"
-    },
-    {
-      "name": "chapterService",
-      "path": "./core/services/chapterService.js"
     },
     {
       "name": "llmsService",
@@ -158,10 +164,6 @@
       "path": "./core/services/usersService.js"
     },
     {
-      "name": "settingsService",
-      "path": "./core/services/settingsService.js"
-    },
-    {
       "name": "companyService",
       "path": "./core/services/companyService.js"
     },
@@ -172,14 +174,6 @@
     {
       "name": "proofReaderService",
       "path": "./core/services/proofReaderService.js"
-    },
-    {
-      "name": "paragraphService",
-      "path": "./core/services/paragraphService.js"
-    },
-    {
-      "name": "settingsService",
-      "path": "./core/services/settingsService.js"
     },
     {
       "name": "storageService",
@@ -218,6 +212,10 @@
     {
       "name": "personality-unit",
       "path": "./wallet/web-components/components/item-list/personality-unit/personality-unit.html"
+    },
+    {
+      "name": "script-unit",
+      "path": "./wallet/web-components/components/item-list/script-unit/script-unit.html"
     },
     {
       "name": "user-unit",
@@ -324,6 +322,10 @@
       "path": "./wallet/web-components/subpages/personalities-page/personalities-page.html"
     },
     {
+      "name": "scripts-page",
+      "path": "./wallet/web-components/subpages/scripts-page/scripts-page.html"
+    },
+    {
       "name": "add-document-modal",
       "path": "./wallet/web-components/modals/add-document-modal/add-document-modal.html"
     },
@@ -342,6 +344,10 @@
     {
       "name": "add-personality-modal",
       "path": "./wallet/web-components/modals/add-personality-modal/add-personality-modal.html"
+    },
+    {
+      "name": "add-script-modal",
+      "path": "./wallet/web-components/modals/add-script-modal/add-script-modal.html"
     },
     {
       "name": "add-user-modal",
