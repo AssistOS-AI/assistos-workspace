@@ -2,7 +2,6 @@ import { Chapter } from "../../imports.js";
 
 export class documentService {
     constructor() {
-
     }
 
     observeDocument(documentId){
@@ -34,6 +33,7 @@ export class documentService {
         if (index !== -1) {
             webSkel.company.documents.splice(index, 1);
             await webSkel.localStorage.deleteDocument(webSkel.company.id, documentId);
+            webSkel.currentDocumentId = null;
             webSkel.company.notifyObservers();
         }
     }
@@ -108,13 +108,11 @@ export class documentService {
         }
     }
 
-    getChapter(document, chapterId) {
-        const chapter = document.chapters.find(chapter => chapter.id === chapterId);
-        return chapter || null;
+    getChapter(documentId, chapterId) {
+        return this.getDocument(documentId).chapters.find(chapter => chapter.id === chapterId);
     }
-
-    getChapterIndex(document, chapterId) {
-        return document.chapters.findIndex(chapter => chapter.id === chapterId);
+    getChapterIndex(documentId, chapterId) {
+        return this.getDocument(documentId).chapters.findIndex(chapter => chapter.id === chapterId);
     }
 
     getParagraphIndex(document, chapterIndex, paragraphId) {
@@ -125,9 +123,14 @@ export class documentService {
         return document.chapters.find(chapter => chapter.id === document.currentChapterId);
     }
 
-    async swapChapters(document, chapterId1, chapterId2) {
-        [document.chapters[chapterId1], document.chapters[chapterId2]] = [document.chapters[chapterId2], document.chapters[chapterId1]];
-        await webSkel.localStorage.updateDocument(webSkel.company.id, document.id,document);
+    async swapChapters(documentId, chapterId1, chapterId2) {
+        let document = this.getDocument(documentId);
+        if(document) {
+            [document.chapters[chapterId1], document.chapters[chapterId2]] = [document.chapters[chapterId2], document.chapters[chapterId1]];
+            await webSkel.localStorage.updateDocument(webSkel.company.id, document.id, document);
+        }else{
+            console.error(`Document with id ${documentId} not found! Unable to swap chapters with ids ${chapterId1} and ${chapterId2}.`);
+        }
     }
 
     async swapParagraphs(document, chapterIndex, paragraphIndex1, paragraphIndex2) {

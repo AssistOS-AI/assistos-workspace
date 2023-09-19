@@ -23,10 +23,8 @@ export class suggestAbstractModal {
     }
 
     async addSelectedAbstract(_target) {
-
-        const docService = new documentService();
-        let currentDocument = docService.getDocument(webSkel.company.currentDocumentId);
-        docService.addAlternativeAbstract(currentDocument,this.suggestedAbstract);
-        await docService.updateDocument(currentDocument, currentDocument.id);
+        let currentDocument = webSkel.serviceRegistry.documentService.getDocument(webSkel.company.currentDocumentId);
+        webSkel.serviceRegistry.documentService.addAlternativeAbstract(currentDocument,this.suggestedAbstract);
+        await webSkel.serviceRegistry.documentService.updateDocument(currentDocument, currentDocument.id);
     }
 }
