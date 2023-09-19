@@ -3,7 +3,7 @@ import { showModal, showActionBox } from "../../../imports.js";
 export class scriptsPage {
     constructor(element) {
         this.name = "name";
-        this.description = "Description";
+        this.preview = "Preview";
         this.modal = "showAddPersonalityModal";
         this.button = "Add Script";
         this.tableRows = "No data loaded";

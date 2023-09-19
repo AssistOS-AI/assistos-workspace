@@ -1,6 +1,8 @@
 dialog[class="modal"] {
     padding: 0;
     border:none;
+    height: 80%;
+    width: 50%;
 }
 
 * {
@@ -16,7 +18,10 @@ dialog[class="modal"] {
     font-size: 18px;
     font-family: Poppins;
 }
-
+.modal-footer{
+    display: flex;
+    justify-content: center;
+}
 .close {
     cursor: pointer;
     float: right;
@@ -40,7 +45,10 @@ dialog[class="modal"] {
     margin: 4px 0 8px;
     padding: 8px;
 }
-
+textarea#content{
+    resize: none;
+    height: 240px;
+}
 input::file-selector-button {
     border: none;
     background: #429E9D;
