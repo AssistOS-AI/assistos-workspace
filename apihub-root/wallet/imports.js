@@ -37,7 +37,6 @@ import { chapterUnit } from "./web-components/components/item-list/chapter-unit/
 import { addRecord, getRecord, getAllRecords, getTableRecords, deleteRecord, openDatabase, updateRecord } from "./utils/indexDB.js";
 import { initUser, registerAccountActions } from "./core/services/authenticationService.js";
 import { documentService } from "./core/services/documentService.js";
-import { chapterService } from "./core/services/chapterService.js";
 import { llmsService } from "./core/services/llmsService.js";
 import { personalitiesService } from "./core/services/personalitiesService.js";
 import { usersService } from "./core/services/usersService.js";
@@ -53,7 +52,6 @@ export {
     Settings,
     documentService,
     addCompanyModal,
-    chapterService,
     llmsService,
     personalitiesService,
     usersService,

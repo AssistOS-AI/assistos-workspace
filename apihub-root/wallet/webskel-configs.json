@@ -142,10 +142,6 @@
       "path": "./core/services/documentService.js"
     },
     {
-      "name": "chapterService",
-      "path": "./core/services/chapterService.js"
-    },
-    {
       "name": "llmsService",
       "path": "./core/services/llmsService.js"
     },
@@ -158,8 +154,8 @@
       "path": "./core/services/usersService.js"
     },
     {
-      "name": "settingsService",
-      "path": "./core/services/settingsService.js"
+      "name": "spaceSettingsService",
+      "path": "./core/services/spaceSettingsService.js"
     },
     {
       "name": "companyService",
@@ -172,14 +168,6 @@
     {
       "name": "proofReaderService",
       "path": "./core/services/proofReaderService.js"
-    },
-    {
-      "name": "paragraphService",
-      "path": "./core/services/paragraphService.js"
-    },
-    {
-      "name": "settingsService",
-      "path": "./core/services/settingsService.js"
     },
     {
       "name": "storageService",
