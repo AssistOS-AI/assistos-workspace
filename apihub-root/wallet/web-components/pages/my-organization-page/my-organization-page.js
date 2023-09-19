@@ -24,7 +24,6 @@ export class myOrganizationPage {
         if(selectedTab !== _target) {
             switch(selectedTab.querySelector(".tab").innerText) {
                 case "Announcements":
-                    console.log("here");
                     this.id1 = "";
                     break;
                 case "Users":

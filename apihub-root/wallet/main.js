@@ -171,7 +171,7 @@ async function loadConfigs(jsonPath) {
         await showApplicationError("IndexDB not supported", "Your current browser does not support local storage. Please use a different browser, or upgrade to premium", "IndexDB is not supported by your browser");
     }
     await initUser();
+    await loadConfigs("./wallet/webskel-configs.json");
     await loadPage();
     defineActions();
-    await loadConfigs("./wallet/webskel-configs.json");
 })();

@@ -13,9 +13,11 @@ export class companyService {
             text: textString,
             date: today
         }];
-        window.changeCompany(await webSkel.localStorage.addCompany({ name: title, llms: [], documents: [], personalities: [], admins: [], announcements: newAnnouncements, settings: [], users: []}));
-        this.changeCompany(await webSkel.localStorage.addCompany({name:title,llms:[],documents:[],personalities:[],admins:[],settings:[],users:[]}));
+        this.changeCompany(await webSkel.localStorage.addCompany({
+            name:title,documents:[],personalities:[],admins:[],settings:{llms:[],personalities:[]},announcements: newAnnouncements,users:[]}
+        ));
     }
+
     changeCompany(companyId){
         window.currentCompanyId = companyId;
         let user = JSON.parse(localStorage.getItem("currentUser"));
@@ -23,6 +25,7 @@ export class companyService {
         localStorage.setItem("currentUser", JSON.stringify(user));
         window.location = "";
     }
+
     getCompanyNames(){
         return currentUser.companies.filter(company => company.id !== currentCompanyId)||[];
     }
