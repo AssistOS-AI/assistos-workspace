@@ -41,7 +41,7 @@ import { chapterService } from "./core/services/chapterService.js";
 import { llmsService } from "./core/services/llmsService.js";
 import { personalitiesService } from "./core/services/personalitiesService.js";
 import { usersService } from "./core/services/usersService.js";
-import { settingsService } from "./core/services/settingsService.js";
+import { spaceSettingsService } from "./core/services/spaceSettingsService.js";
 import { brainstormingService }   from "./core/services/brainstormingService.js";
 import { LLM } from "./core/models/llm.js";
 import WebSkel from "../WebSkel/webSkel.js";
@@ -58,7 +58,7 @@ export {
     personalitiesService,
     usersService,
     brainstormingService,
-    settingsService,
+    spaceSettingsService,
     addDocumentModal,
     addAnnouncementModal,
     addChapterModal,

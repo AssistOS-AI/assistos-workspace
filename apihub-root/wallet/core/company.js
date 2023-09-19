@@ -40,7 +40,7 @@ export class Company {
     }
 
     notifyObservers() {
-          for (const observerRef of this.observers) {
+        for (const observerRef of this.observers) {
             const observer = observerRef.deref();
             if (observer) {
                 observer();
