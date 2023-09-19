@@ -152,8 +152,8 @@ async function loadConfigs(jsonPath) {
     } catch (error) {
         showApplicationError("Error loading configs","Error loading configs",`Encountered ${error} while trying loading webSkel configs`);
     }
-
 }
+
 (async ()=> {
     webSkel.setDomElementForPages(document.querySelector("#page-content"));
     /* only for premium users initWallet/enclaves*/

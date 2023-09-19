@@ -2,14 +2,13 @@
 /* both the user and company know of each other */
 /* the user has a list of company, and the company has a list of users */
 
-import { Document } from "../imports.js";
+import { DocumentModel } from "../imports.js";
 import { User } from "../imports.js";
 import { Settings } from "../imports.js";
 import { Announcement } from "../imports.js";
 
 export class Company {
     constructor(companyData) {
-        console.log(companyData);
         if (Company.instance) {
             return Company.instance;
         }
@@ -18,7 +17,7 @@ export class Company {
         this.settings = new Settings(companyData.settings.llms, companyData.settings.personalities);
         this.announcements = (companyData.announcements || []).map(announcement => new Announcement(announcement.title, announcement.text, announcement.date, announcement.id));
         this.users = (companyData.users || []).map(user => new User(user.lastName, user.firstName, user.email, user.phoneNumber));
-        this.documents = (companyData.documents||[]).map(docData => new Document(docData.title, docData.id, docData.abstract, docData.chapters, docData.settings, docData.alternativeTitles, docData.alternativeAbstracts));
+        this.documents = (companyData.documents || []).map(docData => new DocumentModel(docData.title, docData.id, docData.abstract, docData.chapters, docData.settings, docData.alternativeTitles, docData.alternativeAbstracts));
         if (this.documents && this.documents.length > 0) {
             this.currentDocumentId = this.documents[0].id;
         } else {

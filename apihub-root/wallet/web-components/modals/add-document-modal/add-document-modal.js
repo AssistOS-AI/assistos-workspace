@@ -1,5 +1,5 @@
 import { closeModal } from "../../../../WebSkel/utils/modal-utils.js";
-import { Document } from "../../../core/models/document.js";
+import { DocumentModel } from "../../../core/models/documentModel.js";
 import { extractFormInformation } from "../../../imports.js";
 
 export class addDocumentModal {
@@ -26,7 +26,7 @@ export class addDocumentModal {
         let formData = await extractFormInformation(_target);
         if(formData.isValid) {
             closeModal(_target);
-            let document = new Document(formData.data.documentTitle, undefined, undefined, undefined, undefined, undefined, undefined, [formData.data.documentIdea]);
+            let document = new DocumentModel(formData.data.documentTitle, undefined, undefined, undefined, undefined, undefined, undefined, [formData.data.documentIdea]);
             await this.documentService.addDocument(document);
             await webSkel.changeToStaticPage(`documents/${document.id}/edit-title`);
         }
