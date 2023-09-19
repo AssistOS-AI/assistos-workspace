@@ -1,6 +1,6 @@
 import { closeModal } from "../../../../WebSkel/utils/modal-utils.js";
 import {extractFormInformation} from "../../../imports.js";
-export class addScriptModal {
+export class editScriptModal {
     constructor() {
         if(webSkel.company.settings.personalities) {
             this._personalityConfigs = webSkel.company.settings.personalities;
@@ -16,26 +16,14 @@ export class addScriptModal {
     }
 
     beforeRender() {
-
+      this.content = "This is the content of the script";
     }
 
     closeModal(_target) {
         closeModal(_target);
     }
 
-    async addScript(_target) {
-        //how to access req body from apihub?
-        let formInfo = await extractFormInformation(_target);
-        if(formInfo.isValid){
-            let body = formInfo.data;
-            body.id = Math.floor(Math.random() * 100000);
-            let response = await fetch("/add/script", {
-                method: "POST",
-                body: body,
-                headers: {
-                    "Content-type": "application/json; charset=UTF-8"
-                }
-            });
-        }
+    async saveScript(_target) {
+
     }
 }

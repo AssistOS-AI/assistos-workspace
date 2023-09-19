@@ -12,14 +12,6 @@ dialog[class="modal"] {
 .modal-content {
     padding: 20px;
 }
-.script-content{
-    height: 400px;
-}
-.modal-title {
-    color: #000;
-    font-size: 18px;
-    font-family: Poppins;
-}
 .modal-footer{
     display: flex;
     justify-content: center;

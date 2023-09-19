@@ -36,6 +36,13 @@ export class scriptsPage {
         await showModal(document.querySelector("body"), "add-script-modal", { presenter: "add-script-modal"});
     }
 
+    async editAction(_target){
+        await showModal(document.querySelector("body"), "edit-script-modal", { presenter: "edit-script-modal"});
+    }
+    deleteAction(){
+
+    }
+
     async showActionBox(_target, primaryKey, componentName, insertionMode) {
         await showActionBox(_target, primaryKey, componentName, insertionMode);
     }
