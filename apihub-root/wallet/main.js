@@ -54,7 +54,7 @@ async function initWallet() {
 async function loadPage() {
     let url = window.location.hash;
     if(url === "" || url === null) {
-        url = "#documents-page";
+        url = "#my-organization-page";
     }
     if(notBasePage(url)) {
         /*#proofReader, #documents */
@@ -63,12 +63,12 @@ async function loadPage() {
     } else {
         /* URL examples: documents/0, documents/0/chapters/1 */
         switch(url.split('/')[0]) {
-            case "#documents":
-                let documentIdURL= parseInt(url.split('/')[1]);
+            case "#documents": {
+                let documentIdURL = parseInt(url.split('/')[1]);
                 let chapterIdURL = parseInt(url.split('/')[3]);
                 let paragraphIdURL = parseInt(url.split('/')[4]);
                 /* To be replaced with company id from URL */
-                if(await webSkel.localStorage.getDocument(1, documentIdURL) !== null) {
+                if (await webSkel.localStorage.getDocument(1, documentIdURL) !== null) {
                     webSkel.company.currentDocumentId = documentIdURL;
                     webSkel.company.currentChapterId = chapterIdURL;
                     webSkel.company.currentParagraphId = paragraphIdURL;
@@ -76,6 +76,12 @@ async function loadPage() {
                 }
                 changeSelectedPageFromSidebar("documents-page");
                 break;
+            }
+            default:{
+                webSkel.company.currentDocumentId=null;
+                webSkel.company.currentChapterId = null;
+                webSkel.company.currentParagraphId = null;
+            }
         }
         await webSkel.changeToStaticPage(url);
     }
@@ -152,19 +158,13 @@ async function loadConfigs(jsonPath) {
     } catch (error) {
         showApplicationError("Error loading configs","Error loading configs",`Encountered ${error} while trying loading webSkel configs`);
     }
-
 }
+
 (async ()=> {
     webSkel.setDomElementForPages(document.querySelector("#page-content"));
     /* only for premium users initWallet/enclaves*/
     //await initWallet();
-    window.changeCompany = (companyId) => {
-        window.currentCompanyId = companyId;
-        let user = JSON.parse(localStorage.getItem("currentUser"));
-        user.currentCompanyId = currentCompanyId;
-        localStorage.setItem("currentUser", JSON.stringify(user));
-        window.location = "";
-    }
+
     if (('indexedDB' in window)) {
         await initLiteUserDatabase();
     } else {

@@ -15,12 +15,11 @@ export class chapterUnit {
         webSkel.company.onChange(this.updateState);
         this.docId = webSkel.company.currentDocumentId;
         this._document = chapterUnit.docService.getDocument(this.docId);
-        this.chapter = chapterUnit.docService.getChapter(this._document, this.chapterId);
     }
 
     beforeRender() {
         this.chapterId = parseInt(this.element.getAttribute("data-chapter-id"));
-        this.chapter = chapterUnit.docService.getChapter(this._document, this.chapterId);
+        this.chapter = chapterUnit.docService.getChapter(this._document.id, this.chapterId);
         this.chapterContent = "";
         if(this.chapter && this.chapter.visibility === "hide") {
             if(this.element.querySelector(".chapter-paragraphs")) {
@@ -60,7 +59,7 @@ export class chapterUnit {
 
             let chapter1Index = this._document.chapters.findIndex(chapter => chapter.id === parseInt(currentChapter.getAttribute('data-chapter-id')));
             let chapter2Index = this._document.chapters.findIndex(chapter => chapter.id === parseInt(chapterAbove.getAttribute('data-chapter-id')));
-            await chapterUnit.docService.swapChapters(this._document, chapter1Index, chapter2Index);
+            await chapterUnit.docService.swapChapters(this._document.id, chapter1Index, chapter2Index);
 
             currentChapter.setAttribute("data-chapter-number", chapterAboveNumber);
             currentChapter.querySelector(".data-chapter-number").innerText = chapterAboveNumber + ".";
@@ -82,7 +81,7 @@ export class chapterUnit {
             chapterBelow.after(currentChapter);
             let chapter1Index = this._document.chapters.findIndex(chapter => chapter.id === parseInt(currentChapter.getAttribute('data-chapter-id')));
             let chapter2Index = this._document.chapters.findIndex(chapter => chapter.id === parseInt(chapterBelow.getAttribute('data-chapter-id')));
-            await chapterUnit.docService.swapChapters(this._document, chapter1Index, chapter2Index);
+            await chapterUnit.docService.swapChapters(this._document.id, chapter1Index, chapter2Index);
 
             let currentChapterNumber = currentChapter.querySelector(".data-chapter-number").innerText.split(".")[0];
             let chapterBelowNumber = chapterBelow.querySelector(".data-chapter-number").innerText.split(".")[0];

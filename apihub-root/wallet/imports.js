@@ -26,7 +26,7 @@ import { closeModal, showActionBox, showModal } from "../WebSkel/utils/modal-uti
 import { notBasePage, getClosestParentElement } from "../WebSkel/utils/dom-utils.js";
 import { storageService } from "./core/services/storageService.js";
 import { Chapter } from "./core/models/chapter.js";
-import { Document} from "./core/models/document.js";
+import { DocumentModel} from "./core/models/documentModel.js";
 import { Personality } from "./core/models/personality.js";
 import { User } from "./core/models/user.js";
 import { Announcement } from "./core/models/announcement.js";
@@ -92,7 +92,7 @@ export {
     Company,
     WebSkel,
     Chapter,
-    Document,
+    DocumentModel,
     Personality,
     User,
     Announcement,
