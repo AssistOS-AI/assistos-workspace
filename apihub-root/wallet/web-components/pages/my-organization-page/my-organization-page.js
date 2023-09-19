@@ -7,6 +7,7 @@ export class myOrganizationPage {
         this.id2 = "";
         this.id3 = "";
         this.id4 = "";
+        this.id5 = "";
             setTimeout(()=> {
                 this.invalidate();
             }, 0);
@@ -17,11 +18,11 @@ export class myOrganizationPage {
         webSkel.company.onChange(this.updateState);
     }
 
-    openTab(_target) {
+   async openTab(_target) {
         let selectedTab = document.getElementById("selected-tab");
-        this.tab = _target.firstElementChild.nextElementSibling.firstElementChild.innerText;
+        this.tab = _target.querySelector(".tab").innerText;
         if(selectedTab !== _target) {
-            switch(selectedTab.firstElementChild.nextElementSibling.firstElementChild.innerText) {
+            switch(selectedTab.querySelector(".tab").innerText) {
                 case "Announcements":
                     console.log("here");
                     this.id1 = "";
@@ -34,6 +35,9 @@ export class myOrganizationPage {
                     break;
                 case "LLMs":
                     this.id4 = "";
+                    break;
+                case "Scripts":
+                    this.id5 = "";
                     break;
             }
 
@@ -53,6 +57,11 @@ export class myOrganizationPage {
                 case "LLMs":
                     this.pageContent = `<llms-page data-presenter="llms-page"></llms-page>`;
                     this.id4 = "selected-tab";
+                    break;
+                case "Scripts":
+                    this.pageContent = `<scripts-page data-presenter="scripts-page"></scripts-page>`;
+                    this.id5 = "selected-tab";
+                    await webSkel.company.settings.getScripts();
                     break;
             }
             this.invalidate();

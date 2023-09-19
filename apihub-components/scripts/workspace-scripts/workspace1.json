@@ -1,0 +1,14 @@
+{
+"scripts":[
+  {
+    "id": 1,
+    "name": "Parse text",
+    "content": "var myText = ...; // Input text\nvar lines = myText.split(\"\\n\");\nvar numLines = lines.length;\nvar i;\nvar currentSection;\nvar sections = Array();\nvar phrases = Array();\n\n// parse phrases\nfor (i = 0; i < numLines; i++) {\n  var line = lines[i];\n  if (line.indexOf('@') == 1) {\n    // start of e.g. time section, handled in nex loop\n    break;\n  } else {\n    // phrase\n    phrase.push(line);\n  }\n}\n\n// parse sections\nfor ( ; i < numLines; i++) {\n  var line = lines[i];\n  if (line.indexOf('@') == 1) {\n    // start of next section, handled in nex loop\n    currentSection = line;\n    sections[currentSection] = new Array();\n  } else {\n    // add section entry\n    sections[currentSection].push(line);\n  }\n}"
+  },
+  {
+    "id": 2,
+    "name": "Remove semicolon",
+    "content":"str = str.replace(\";\", \"\");"
+  }
+]
+}
