@@ -1,12 +1,12 @@
-import {extractFormInformation} from "../../../../WebSkel/utils/form-utils.js";
-import { closeModal } from "../../../imports.js";
-import {Document} from "../../../core/models/document.js";
-import {companyService} from "../../../imports.js";
+import { extractFormInformation } from "../../../../WebSkel/utils/form-utils.js";
+import { closeModal, Company } from "../../../imports.js";
+import { Document } from "../../../core/models/document.js";
+import { companyService } from "../../../imports.js";
 
 export class addCompanyModal {
     constructor() {
         setTimeout(()=> {
-            this.invalidate()
+            this.invalidate();
         }, 0);
         this.updateState = ()=>this.invalidate();
         webSkel.company.onChange(this.updateState);
@@ -15,6 +15,7 @@ export class addCompanyModal {
         closeModal(_target);
     }
     beforeRender() {
+
     }
     async addCompany(_target){
         let formData = await extractFormInformation(_target);

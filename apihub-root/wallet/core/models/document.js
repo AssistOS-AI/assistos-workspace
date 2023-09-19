@@ -10,7 +10,7 @@ export class Document {
         this.abstract = abstract ? abstract : "";
         this.chapters = [];
         this.mainIdeas = mainIdeas ? mainIdeas : [];
-        this.alternativeAbstracts=alternativeAbstracts||[];
+        this.alternativeAbstracts = alternativeAbstracts || [];
         this.alternativeTitles = alternativeTitles ? alternativeTitles : [];
         if(chapters !== undefined && chapters !== null) {
             let i = 0;
@@ -24,7 +24,7 @@ export class Document {
         } else {
             this.currentChapterId = undefined;
         }
-        this.settings = settings ? settings : {llm:null,personality:null};
+        this.settings = settings ? settings : {llm: null, personality: null};
     }
 
     toString() {

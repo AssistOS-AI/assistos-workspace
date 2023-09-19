@@ -9,7 +9,10 @@ export class addDocumentModal {
             this.invalidate()
         }, 0);
 
-        this.updateState = (companyState)=> this.invalidate();
+        this.updateState = (companyState)=> {
+            this.invalidate();
+        }
+        this.documentService = webSkel.getService('documentService');
         webSkel.company.onChange(this.updateState);
     }
 
@@ -24,6 +27,7 @@ export class addDocumentModal {
         if(formData.isValid) {
             closeModal(_target);
             await webSkel.servicesRegistry.documentService.addDocument(new Document(formData.data.documentTitle));
+            await webSkel.changeToStaticPage(`documents/${document.id}/edit-title`);
         }
     }
 }

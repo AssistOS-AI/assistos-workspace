@@ -49,7 +49,7 @@ export class editTitlePage {
     async saveTitle(_target) {
         const formInfo = await extractFormInformation(_target);
         if(formInfo.isValid) {
-            const documentId = webSkel.company.currentDocumentId;
+            const documentId = this.id;
             const documentIndex = webSkel.company.documents.findIndex(doc => doc.id === documentId);
             if (documentIndex !== -1 && formInfo.data.title !== webSkel.company.documents[documentIndex].title) {
                 this.documentService.updateDocumentTitle(webSkel.company.documents[documentIndex], formInfo.data.title);

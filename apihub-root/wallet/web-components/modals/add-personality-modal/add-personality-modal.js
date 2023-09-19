@@ -4,7 +4,7 @@ export class addPersonalityModal {
     constructor() {
         if(webSkel.company.settings.personalities) {
             setTimeout(()=> {
-                this.invalidate()
+                this.invalidate();
             }, 0);
         }
         this.updateState = ()=> this.invalidate();

@@ -5,17 +5,17 @@ export class paragraphBrainstormingPage {
         let url = window.location.hash;
         this.docId =  parseInt(url.split('/')[1]);
         this.chapterId = parseInt(url.split('/')[3]);
+        this.paragraphId = parseInt(url.split('/')[4]);
         this.documentService = webSkel.getService('documentService');
         this._document = this.documentService.getDocument(this.docId);
-        this.docTitle = "Titlu document";
         if(this._document) {
             setTimeout(()=> {
-                this.invalidate()
+                this.invalidate();
             }, 0);
             this._chapter = this.documentService.getChapter(this._document, this.chapterId);
             if(this._chapter) {
-                this.chapterTitle = this._chapter.title;
-            }else {
+                this.paragraphDiv = this._chapter.paragraphs.find(paragraph => paragraph.id === this.paragraphId);
+            } else {
                 console.log(`this chapter doesnt exist: chapterId: ${this.chapterId}`);
             }
         } else {
@@ -27,7 +27,7 @@ export class paragraphBrainstormingPage {
                 this._chapter = this.documentService.getChapter(this._document, this.chapterId);
                 if(this._chapter) {
                     this.chapterTitle = this._chapter.title;
-                }else {
+                } else {
                     console.log(`this chapter doesnt exist: docId: ${this.chapterId}`);
                 }
             } else {
@@ -36,8 +36,6 @@ export class paragraphBrainstormingPage {
             this.invalidate();
         }
         webSkel.company.onChange(this.updateState);
-
-
     }
 
     beforeRender() {
@@ -65,11 +63,11 @@ export class paragraphBrainstormingPage {
     }
 
     openParagraphProofreadPage() {
-        webSkel.changeToStaticPage(`documents/${this.id}/paragraph-proofread/${documentViewPage.chapterIdForSidebar}/${documentViewPage.paragraphIdForSidebar}`);
+        webSkel.changeToStaticPage(`documents/${this.docId}/paragraph-proofread/${this.chapterId}/${this.paragraphId}`);
     }
 
     openParagraphBrainstormingPage() {
-        webSkel.changeToStaticPage(`documents/${this.id}/paragraph-brainstorming/${documentViewPage.chapterIdForSidebar}/${documentViewPage.paragraphIdForSidebar}`);
+        webSkel.changeToStaticPage(`documents/${this.docId}/paragraph-brainstorming/${this.chapterId}/${this.paragraphId}`);
     }
 
     async showActionBox(_target, primaryKey, componentName, insertionMode) {

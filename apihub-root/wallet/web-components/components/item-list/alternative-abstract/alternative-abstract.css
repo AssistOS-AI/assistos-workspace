@@ -11,22 +11,26 @@
     border-top: 1px solid #E6E6E6;
     padding-left: 15px;
     display: flex;
+    justify-content: space-between;
 }
 
 .number-and-title {
    display: flex;
 }
-.content{
+
+.content {
     width: 100%;
     justify-content: start;
     align-items: start;
     overflow: hidden;
     text-overflow: ellipsis;
 }
+
 .action-cell {
     justify-content: right;
     display: flex;
     width: 40px;
+    min-width: 40px;
     padding: 3px;
 }
 

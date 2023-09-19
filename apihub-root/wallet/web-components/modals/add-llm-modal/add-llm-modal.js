@@ -2,11 +2,14 @@ import { closeModal } from "../../../../WebSkel/utils/modal-utils.js";
 
 export class addLLMModal {
     constructor() {
-        setTimeout(()=> {
-            this.invalidate()
-        }, 0);
-
+        if(webSkel.company.settings.llms) {
+            this._personalityConfigs = webSkel.company.settings.llms;
+            setTimeout(()=> {
+                this.invalidate();
+            }, 0);
+        }
         this.updateState = ()=> {
+            this._personalityConfigs = webSkel.company.settings.llms;
             this.invalidate();
         }
         webSkel.company.onChange(this.updateState);

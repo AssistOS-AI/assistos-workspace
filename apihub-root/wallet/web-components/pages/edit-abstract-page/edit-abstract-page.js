@@ -20,7 +20,7 @@ export class editAbstractPage {
             setTimeout(() => {
                 this.invalidate();
             }, 0);
-        }else {
+        } else {
             console.log(`this _document doesnt exist: docId: ${this.id}`);
         }
         this.updateState = () => {
@@ -28,7 +28,6 @@ export class editAbstractPage {
             this.invalidate();
         }
         webSkel.company.onChange(this.updateState);
-
         this.abstractText = this._document.abstract;
     }
 
@@ -36,7 +35,7 @@ export class editAbstractPage {
         this.title = `<title-view title="${this._document.title}"></title-view>`;
         this.alternativeAbstracts = "";
         for (let i = 0; i < this._document.alternativeAbstracts.length; i++) {
-            this.alternativeAbstracts += `<alternative-abstract nr="${i}" title="${this._document.alternativeAbstracts[i]}"></alternative-abstract>`;
+            this.alternativeAbstracts += `<alternative-abstract nr="${i + 1}" title="${this._document.alternativeAbstracts[i]}"></alternative-abstract>`;
         }
         if(!this._document.mainIdeas || this._document.mainIdeas.length === 0) {
             this.generateMainIdeasButtonName = "Summarize";

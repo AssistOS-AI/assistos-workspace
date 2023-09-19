@@ -78,7 +78,7 @@ export class documentViewPage {
 
     addChapter() {
         this.chapterDivs += `<chapter-unit data-chapter-title="New Chapter" data-chapter-id="${this.chapters.length}" data-presenter="chapter-unit"></chapter-unit>`;
-        this.chapters.push(new Chapter("Edit your title here", this.chapters.length + 1, [{text: "Edit your paragraph here"}]));
+        this.chapters.push(new Chapter("Edit your title here", this.chapters.length + 1, [{id: 1, text: "Edit your paragraph here"}]));
         this.invalidate();
     }
 

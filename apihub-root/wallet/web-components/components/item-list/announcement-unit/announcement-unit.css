@@ -1,5 +1,7 @@
 .announcement-unit {
     display: flex;
+    cursor: default;
+    justify-content: space-between;
     flex-direction: row;
     padding: 20px;
     border-bottom: 0.5px solid rgba(217, 212, 238, 0.85);

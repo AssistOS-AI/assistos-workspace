@@ -29,6 +29,7 @@ import { Chapter } from "./core/models/chapter.js";
 import { Document} from "./core/models/document.js";
 import { Personality } from "./core/models/personality.js";
 import { User } from "./core/models/user.js";
+import { Announcement } from "./core/models/announcement.js";
 import { Paragraph } from "./core/models/paragraph.js";
 import { Company } from "./core/company.js";
 import { companyDropdown }  from "./web-components/components/company-dropdown/company-dropdown.js";
@@ -40,7 +41,7 @@ import { chapterService } from "./core/services/chapterService.js";
 import { llmsService } from "./core/services/llmsService.js";
 import { personalitiesService } from "./core/services/personalitiesService.js";
 import { usersService } from "./core/services/usersService.js";
-import { settingsService } from "./core/services/settingsService.js";
+import { spaceSettingsService } from "./core/services/spaceSettingsService.js";
 import { brainstormingService }   from "./core/services/brainstormingService.js";
 import { LLM } from "./core/models/llm.js";
 import WebSkel from "../WebSkel/webSkel.js";
@@ -57,7 +58,7 @@ export {
     personalitiesService,
     usersService,
     brainstormingService,
-    settingsService,
+    spaceSettingsService,
     addDocumentModal,
     addAnnouncementModal,
     addChapterModal,
@@ -96,6 +97,7 @@ export {
     Document,
     Personality,
     User,
+    Announcement,
     Paragraph,
     addRecord,
     getRecord,

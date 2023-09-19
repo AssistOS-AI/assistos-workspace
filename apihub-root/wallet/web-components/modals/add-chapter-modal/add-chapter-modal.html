@@ -3,7 +3,7 @@
     <div class="modal-content">
         <div class="modal-header">
             <h5 class="modal-chapter">
-                Suggested Chapters
+                Add Chapter
                 <button type="button" class="close" data-local-action="closeModal" aria-label="Close">
                     <span aria-hidden="true">&times;</span>
                 </button>
@@ -11,52 +11,64 @@
         </div>
         <div class="modal-body">
             <form>
-                <div class="suggested-chapters">
-                    <div>
-                        <label for="chapter1">Chapter 1</label>
-                        <input type="checkbox" id="chapter1" name="suggested-chapter" value="Chapter 1" />
-                    </div>
-                    <div>
-                        <label for="chapter2">Chapter 2</label>
-                        <input type="checkbox" id="chapter2" name="suggested-chapter" value="Chapter 2" />
-                    </div>
-                    <div>
-                        <label for="chapter3">Chapter 3</label>
-                        <input type="checkbox" id="chapter3" name="suggested-chapter" value="Chapter 3" />
-                    </div>
-                    <div>
-                        <label for="chapter4">Chapter 4</label>
-                        <input type="checkbox" id="chapter4" name="suggested-chapter" value="Chapter 4" />
-                    </div>
-                    <div>
-                        <label for="chapter5">Chapter 5</label>
-                        <input type="checkbox" id="chapter5" name="suggested-chapter" value="Chapter 5" />
-                    </div>
-                    <div>
-                        <label for="chapter6">Chapter 6</label>
-                        <input type="checkbox" id="chapter6" name="suggested-chapter" value="Chapter 6" />
-                    </div>
-                    <div>
-                        <label for="chapter7">Chapter 7</label>
-                        <input type="checkbox" id="chapter7" name="suggested-chapter" value="Chapter 7" />
-                    </div>
-                    <div>
-                        <label for="chapter8">Chapter 8</label>
-                        <input type="checkbox" id="chapter8" name="suggested-chapter" value="Chapter 8" />
-                    </div>
-                    <div>
-                        <label for="chapter9">Chapter 9</label>
-                        <input type="checkbox" id="chapter9" name="suggested-chapter" value="Chapter 9" />
-                    </div>
-                    <div>
-                        <label for="chapter10">Chapter 10</label>
-                        <input type="checkbox" id="chapter10" name="suggested-chapter" value="Chapter 10" />
-                    </div>
+                <div class="form-item">
+                    <label class="form-label" for="chapter-name">Name</label>
+                    <input class="form-input" name="name" data-id="chapter-name" pattern=".*\S+.*" type="text" id="chapter-name" required placeholder="Add chapter's title">
                 </div>
+
                 <div class="modal-footer">
-                    <button class="wide-btn" data-local-action="addSelectedChapters"> Done </button>
+                    <button type="button" class="wide-btn" data-local-action="addChapter">Add Chapter</button>
                 </div>
             </form>
         </div>
+<!--        <div class="modal-body">-->
+<!--            <form>-->
+<!--                <div class="suggested-chapters">-->
+<!--                    <div>-->
+<!--                        <label for="chapter1">Chapter 1</label>-->
+<!--                        <input type="checkbox" id="chapter1" name="suggested-chapter" value="Chapter 1" />-->
+<!--                    </div>-->
+<!--                    <div>-->
+<!--                        <label for="chapter2">Chapter 2</label>-->
+<!--                        <input type="checkbox" id="chapter2" name="suggested-chapter" value="Chapter 2" />-->
+<!--                    </div>-->
+<!--                    <div>-->
+<!--                        <label for="chapter3">Chapter 3</label>-->
+<!--                        <input type="checkbox" id="chapter3" name="suggested-chapter" value="Chapter 3" />-->
+<!--                    </div>-->
+<!--                    <div>-->
+<!--                        <label for="chapter4">Chapter 4</label>-->
+<!--                        <input type="checkbox" id="chapter4" name="suggested-chapter" value="Chapter 4" />-->
+<!--                    </div>-->
+<!--                    <div>-->
+<!--                        <label for="chapter5">Chapter 5</label>-->
+<!--                        <input type="checkbox" id="chapter5" name="suggested-chapter" value="Chapter 5" />-->
+<!--                    </div>-->
+<!--                    <div>-->
+<!--                        <label for="chapter6">Chapter 6</label>-->
+<!--                        <input type="checkbox" id="chapter6" name="suggested-chapter" value="Chapter 6" />-->
+<!--                    </div>-->
+<!--                    <div>-->
+<!--                        <label for="chapter7">Chapter 7</label>-->
+<!--                        <input type="checkbox" id="chapter7" name="suggested-chapter" value="Chapter 7" />-->
+<!--                    </div>-->
+<!--                    <div>-->
+<!--                        <label for="chapter8">Chapter 8</label>-->
+<!--                        <input type="checkbox" id="chapter8" name="suggested-chapter" value="Chapter 8" />-->
+<!--                    </div>-->
+<!--                    <div>-->
+<!--                        <label for="chapter9">Chapter 9</label>-->
+<!--                        <input type="checkbox" id="chapter9" name="suggested-chapter" value="Chapter 9" />-->
+<!--                    </div>-->
+<!--                    <div>-->
+<!--                        <label for="chapter10">Chapter 10</label>-->
+<!--                        <input type="checkbox" id="chapter10" name="suggested-chapter" value="Chapter 10" />-->
+<!--                    </div>-->
+<!--                </div>-->
+<!--                <div class="modal-footer">-->
+<!--                    <button class="wide-btn" data-local-action="addSelectedChapters"> Done </button>-->
+<!--                </div>-->
+<!--            </form>-->
+<!--        </div>-->
     </div>
 </div>

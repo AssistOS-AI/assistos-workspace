@@ -64,7 +64,7 @@ form {
     justify-content: center;
 }
 
-.alternative-titles div {
+form .alternative-titles div {
     display: flex;
     justify-content: space-between;
 }
