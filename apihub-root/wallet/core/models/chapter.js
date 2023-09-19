@@ -3,7 +3,7 @@ import { Paragraph } from './paragraph.js';
 export class Chapter {
     constructor(chapterData) {
         this.title = chapterData.title;
-        this.id = chapterData.chapterId;
+        this.id = chapterData.id;
         this.visibility = "show";
         this.paragraphs = [];
         if(chapterData.paragraphs && chapterData.paragraphs.length > 0) {

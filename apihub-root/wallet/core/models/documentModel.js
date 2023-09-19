@@ -3,26 +3,17 @@ import {Settings} from "./settings.js";
 
 export class DocumentModel {
     constructor(documentData) {
-
-        for(const key in documentData) {
-            if(key === "chapters") {
-                this[key]=documentData[key].map(chapter => new Chapter(chapter));
-            }else
-            this[key] = documentData[key];
-        }
+        this.title=documentData.title||"";
+        this.abstract=documentData.abstract||"";
+        this.chapters=(documentData.chapters||[]).map(chapterData=>new Chapter(chapterData));
+        this.mainIdeas=documentData.mainIdeas||[];
+        this.alternativeTitles=documentData.alternativeTitles||[];
+        this.alternativeAbstracts=documentData.alternativeAbstracts||[];
+        this.settings=documentData.settings||{llms:null,personality:null};
         this.currentChapterId=null;
-
-      /*  if(chapters !== undefined && chapters !== null) {
-            let i = 0;
-            while(chapters[i] !== undefined && chapters[i] !== null) {
-                this.chapters.push(new Chapter(chapters[i].title, chapters[i].id, chapters[i].paragraphs));
-                i++;
-            }
-        }*/
-
-    }
-
-    toString() {
-        return this.chapters.map(chapter => chapter.toString()).join("\n\n")||"";
-    }
+        this.id=documentData.id||undefined;
+        }
+        toString() {
+            return this.chapters.map(chapter => chapter.toString()).join("\n\n")||"";
+        }
 }

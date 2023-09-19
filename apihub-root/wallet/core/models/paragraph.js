@@ -1,7 +1,7 @@
     export class Paragraph {
         constructor(paragraphData) {
-            this.text = paragraphData.textContent;
-            this.id = paragraphData.paragraphId;
+            this.text = paragraphData.text;
+            this.id = paragraphData.id;
         }
         toString() {
             return this.text;

@@ -5,11 +5,12 @@ export class companyDropdown {
         setTimeout(()=> {
             this.invalidate();
             }, 0);
-        this.updateState = ()=> this.invalidate();
+        this.updateState = ()=> {
+            this.invalidate();
+        }
         webSkel.company.onChange(this.updateState);
-
-
     }
+
     beforeRender() {
         this.companiesDiv = "";
         this.currentCompanyName = webSkel.company.name;
