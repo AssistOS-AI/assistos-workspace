@@ -154,9 +154,8 @@ async function loadConfigs(jsonPath) {
         for (const component of config.components) {
             await webSkel.defineComponent(component.name, component.path);
         }
-
     } catch (error) {
-        showApplicationError("Error loading configs","Error loading configs",`Encountered ${error} while trying loading webSkel configs`);
+        await showApplicationError("Error loading configs", "Error loading configs", `Encountered ${error} while trying loading webSkel configs`);
     }
 }
 
@@ -164,7 +163,6 @@ async function loadConfigs(jsonPath) {
     webSkel.setDomElementForPages(document.querySelector("#page-content"));
     /* only for premium users initWallet/enclaves*/
     //await initWallet();
-
     if (('indexedDB' in window)) {
         await initLiteUserDatabase();
     } else {

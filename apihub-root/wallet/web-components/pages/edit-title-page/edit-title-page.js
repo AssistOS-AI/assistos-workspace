@@ -91,7 +91,7 @@ export class editTitlePage {
             if(webSkel.space.settings.llms.length <= 0) {
                 loading.close();
                 loading.remove();
-                showApplicationError("Space has no LLMs", "Space has no LLMS", "Space has no LLMS");
+                await showApplicationError("Space has no LLMs", "Space has no LLMS", "Space has no LLMS");
                 return;
             }
             const llmId = webSkel.space.settings.llms[0].id;

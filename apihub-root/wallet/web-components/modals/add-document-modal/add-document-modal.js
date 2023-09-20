@@ -10,7 +10,6 @@ export class addDocumentModal {
         this.updateState = (spaceState)=> {
             this.invalidate();
         }
-        this.documentService = webSkel.getService('documentService');
         webSkel.space.onChange(this.updateState);
     }
 
@@ -26,8 +25,9 @@ export class addDocumentModal {
         let formData = await extractFormInformation(_target);
         if(formData.isValid) {
             closeModal(_target);
-            await webSkel.servicesRegistry.documentService.addDocument(new DocumentModel({title: formData.data.documentTitle}));
-            await webSkel.changeToStaticPage(`documents/${document.id}/edit-title`);
+            let newDoc = new DocumentModel({title: formData.data.documentTitle})
+            await webSkel.servicesRegistry.documentService.addDocument(newDoc);
+            await webSkel.changeToStaticPage(`documents/${newDoc.id}/edit-title`);
         }
     }
 }

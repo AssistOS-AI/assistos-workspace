@@ -157,20 +157,12 @@
       "path": "./core/services/documentService.js"
     },
     {
-      "name": "llmsService",
-      "path": "./core/services/llmsService.js"
-    },
-    {
-      "name": "personalitiesService",
-      "path": "./core/services/personalitiesService.js"
+      "name": "spaceSettingsService",
+      "path": "./core/services/spaceSettingsService.js"
     },
     {
       "name": "usersService",
       "path": "./core/services/usersService.js"
-    },
-    {
-      "name": "spaceSettingsService",
-      "path": "./core/services/spaceSettingsService.js"
     },
     {
       "name": "spaceService",

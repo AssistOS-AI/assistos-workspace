@@ -1,14 +1,13 @@
 export class spaceSettingsService {
-    constructor() {
-
+    getPersonalities() {
+        return webSkel.space.settings.personalities || [];
     }
-}
 
-
-
-export class llmsService {
-    constructor() {
+    async addPersonality(personality) {
+        await webSkel.localStorage.addPersonality(personality);
+        webSkel.space.settings.personalities.push(personality);
     }
+
     async addLLM(llm) {
         webSkel.space.settings.llms.push(llm);
         await webSkel.localStorage.addLLM(llm);
@@ -27,10 +26,12 @@ export class llmsService {
         let llm = this.getLLM(llmId);
         return await this.llmApiFetch(llm.url, llm.apiKeys, prompt);
     }
-    async suggestAbstract(prompt,llmId){
+
+    async suggestAbstract(prompt, llmId) {
         let llm = this.getLLM(llmId);
         return await this.llmApiFetch(llm.url, llm.apiKeys, prompt);
     }
+
     async proofread(prompt, llmId) {
         let llm = this.getLLM(llmId);
         return await this.llmApiFetch(llm.url, llm.apiKeys, prompt);
@@ -51,7 +52,10 @@ export class llmsService {
             body: JSON.stringify({
                 model: 'gpt-3.5-turbo',
                 messages: [
-                    { role: 'user', content: `${prompt}` }
+                    {
+                        role: 'user',
+                        content: `${prompt}`
+                    }
                 ],
                 temperature: 0.7
             })
@@ -68,22 +72,5 @@ export class llmsService {
         } catch (error) {
             console.log('API call failed:', error);
         }
-    }
-}
-
-
-
-export class personalitiesService {
-    constructor() {
-
-    }
-
-    getPersonalities() {
-        return webSkel.space.personalities || [];
-    }
-
-    async addPersonality(personality) {
-        await webSkel.localStorage.addPersonality(personality);
-        webSkel.space.personalities.push(personality);
     }
 }

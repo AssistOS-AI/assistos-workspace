@@ -1,4 +1,4 @@
-import { usersService, showModal, showActionBox } from "../../../imports.js";
+import { showModal, showActionBox } from "../../../imports.js";
 
 export class usersPage {
     constructor(element) {
@@ -10,7 +10,6 @@ export class usersPage {
         this.button = "Add User";
         this.tableRows = "No data loaded";
         this.element = element;
-        const userService = new usersService();
         if(webSkel.space.users) {
             this._userConfigs = webSkel.space.users;
             setTimeout(()=> {

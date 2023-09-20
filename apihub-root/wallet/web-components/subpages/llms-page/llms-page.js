@@ -1,4 +1,4 @@
-import { llmsService, showModal, showActionBox } from "../../../imports.js";
+import { showModal, showActionBox } from "../../../imports.js";
 
 export class llmsPage {
     constructor(element) {
@@ -9,8 +9,8 @@ export class llmsPage {
         this.button = "Add LLM";
         this.tableRows = "No data loaded";
         this.element = element;
-        const llmService = new llmsService();
-        this._llmConfigs = llmService.getLLMs();
+        this.spaceSettingsService = webSkel.getService('spaceSettingsService');
+        this._llmConfigs = this.spaceSettingsService.getLLMs();
         if(webSkel.space.settings.llms) {
             this._llmConfigs = webSkel.space.settings.llms;
             setTimeout(()=> {
