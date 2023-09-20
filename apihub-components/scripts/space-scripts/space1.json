@@ -1,3 +1,1 @@
-{"scripts":[{"id":"2","name":"Remove semicolon","content":"str = str.replace(\";\", \"\");"},
-  {"id":"3","name":"ParseText","content":"let prompt = \"PLease provide me with a recipe for a delicious cake\";\nlet content = callAPI(prompt);\n content=content.split(\"SEPARATOR\");"}
-]}
+{"scripts":[{"name":"script 0","content":"adadfadsfasdgfafdg\nadsfgafg\nasadgfafgsd\na\nsd\na\nsd\nasas\n\nd\nas\nd\nasd\na\n\n\nd\nad\nd\nd\nd\nd\ndd","id":"87852"}]}

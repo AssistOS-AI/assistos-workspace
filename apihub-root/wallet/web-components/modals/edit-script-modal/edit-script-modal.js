@@ -4,7 +4,7 @@ import {reverseQuerySelector} from "../../../../WebSkel/utils/dom-utils.js";
 export class editScriptModal {
     constructor(element) {
         this.element=element;
-        if(webSkel.company.settings.scripts) {
+        if(webSkel.space.settings.scripts) {
             this._scriptsConfigs = webSkel.space.settings.scripts;
             setTimeout(()=> {
                 this.invalidate();
@@ -28,11 +28,11 @@ export class editScriptModal {
     }
 
     async saveScript(_target) {
-        let body = reverseQuerySelector(_target,".modal-body").innerHTML;
+        let body = reverseQuerySelector(_target,".modal-body").innerText;
         let scriptId = this.element.getAttribute("data-id");
-        let response = await fetch(`/space/${window.currentCompanyId}/myspace/scripts/edit/${scriptId}`, {
+        let response = await fetch(`/space/${window.currentSpaceId}/myspace/scripts/edit/${scriptId}`, {
             method: "PUT",
-            body: JSON.stringify(body),
+            body: body,
             headers: {
                 "Content-type": "application/json; charset=UTF-8"
             }
@@ -40,5 +40,6 @@ export class editScriptModal {
 
         console.log(response);
         closeModal(_target);
+        webSkel.space.notifyObservers();
     }
 }

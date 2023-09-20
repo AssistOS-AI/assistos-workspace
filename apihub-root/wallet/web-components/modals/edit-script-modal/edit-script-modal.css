@@ -1,7 +1,7 @@
 dialog[class="modal"] {
     padding: 0;
     border:none;
-    height: 80%;
+    max-height: 80%;
     width: 50%;
 }
 

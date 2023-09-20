@@ -29,7 +29,7 @@ export class scriptsPage {
                 this.tableRows += `<script-unit data-name="${item.name}" data-content="${item.content}" data-id="${item.id}"></script-unit>`;
             });
         } else {
-            this.tableRows = `<script-unit data-name="No data loaded"></script-unit>`;
+            this.tableRows = `<div class="no-data-loaded">No data loaded</div>`;
         }
     }
 
@@ -44,9 +44,10 @@ export class scriptsPage {
     async deleteAction(_target){
         let script = reverseQuerySelector(_target, "script-unit");
         let scriptId = script.getAttribute("data-id");
-        let response = await fetch(`/space/${window.currentCompanyId}/myspace/scripts/delete/${scriptId}`, {method: "DELETE"});
+        let response = await fetch(`/space/${window.currentSpaceId}/myspace/scripts/delete/${scriptId}`, {method: "DELETE"});
         console.log(response);
-        webSkel.company.notifyObservers();
+
+        webSkel.space.notifyObservers();
 
     }
 
