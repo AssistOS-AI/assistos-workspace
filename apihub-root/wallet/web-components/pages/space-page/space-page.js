@@ -14,7 +14,7 @@ export class spacePage {
         this.updateState = ()=> {
             this.invalidate();
         }
-        webSkel.space.onChange(this.updateState);
+        // webSkel.space.onChange(this.updateState);
     }
 
     async openTab(_target) {
@@ -25,9 +25,9 @@ export class spacePage {
                 case "Announcements":
                     this.id1 = "";
                     break;
-                case "Users":
-                    this.id2 = "";
-                    break;
+                // case "Users":
+                //     this.id2 = "";
+                //     break;
                 case "Personalities":
                     this.id3 = "";
                     break;
@@ -44,10 +44,10 @@ export class spacePage {
                     this.pageContent = `<announcements-page data-presenter="announcements-page"></announcements-page>`;
                     this.id1 = "selected-tab";
                     break;
-                case "Users":
-                    this.pageContent = `<users-page data-presenter="users-page"></users-page>`;
-                    this.id2 = "selected-tab";
-                    break;
+                // case "Users":
+                //     this.pageContent = `<users-page data-presenter="users-page"></users-page>`;
+                //     this.id2 = "selected-tab";
+                //     break;
                 case "Personalities":
                     this.pageContent = `<personalities-page data-presenter="personalities-page"></personalities-page>`;
                     this.id3 = "selected-tab";

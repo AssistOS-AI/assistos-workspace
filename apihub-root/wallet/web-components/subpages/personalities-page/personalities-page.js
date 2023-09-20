@@ -18,7 +18,7 @@ export class personalitiesPage {
             this._personalityConfigs = webSkel.space.settings.personalities;
             this.invalidate();
         }
-        webSkel.space.onChange(this.updateState);
+        // webSkel.space.onChange(this.updateState);
     }
 
     beforeRender() {

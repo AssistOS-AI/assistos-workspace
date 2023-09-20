@@ -21,7 +21,7 @@ export class llmsPage {
             this._llmConfigs = webSkel.space.settings.llms;
             this.invalidate();
         }
-        webSkel.space.onChange(this.updateState);
+        // webSkel.space.onChange(this.updateState);
     }
 
     beforeRender() {

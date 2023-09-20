@@ -28,14 +28,15 @@ export class documentViewPage {
             this._document = this.documentService.getDocument(this.id);
             this.invalidate();
         }
-        webSkel.space.onChange(this.updateState);
+        // webSkel.space.onChange(this.updateState);
+        this._document.observeChange(this.updateState);
     }
 
     beforeRender() {
         this.chapterDivs = "";
         this.title = `<title-view title="${this.docTitle}"></title-view>`;
         if(this.chapters.length > 0) {
-            this.documentService.setCurrentChapter(this._document, this.chapters[0].id);
+            this._document.setCurrentChapter(this.chapters[0].id);
             let iterator = 0;
             this.chapters.forEach((item) => {
                 iterator++;
@@ -81,7 +82,7 @@ export class documentViewPage {
         let chapterObj= {
             title: "Edit your title here",
             id: this.chapters.length + 1,
-            paragraphs:[{id:1, text:"Edit your paragraph here"}]
+            paragraphs: [{id: 1, text: "Edit your paragraph here"}]
         }
         this.chapters.push(new Chapter(chapterObj));
         this.invalidate();

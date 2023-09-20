@@ -20,7 +20,7 @@ export class usersPage {
             this._userConfigs = webSkel.space.users;
             this.invalidate();
         }
-        webSkel.space.onChange(this.updateState);
+        // webSkel.space.onChange(this.updateState);
     }
 
     beforeRender() {

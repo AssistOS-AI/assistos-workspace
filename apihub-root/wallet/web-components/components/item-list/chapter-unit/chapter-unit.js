@@ -17,7 +17,7 @@ export class chapterUnit {
 
     beforeRender() {
         this.chapterId = parseInt(this.element.getAttribute("data-chapter-id"));
-        this.chapter = webSkel.servicesRegistry.documentService.getChapter(this._document.id, this.chapterId);
+        this.chapter = this._document.getChapter(this.chapterId);
         this.chapterContent = "";
         if(this.chapter && this.chapter.visibility === "hide") {
             if(this.element.querySelector(".chapter-paragraphs")) {
@@ -106,7 +106,7 @@ export class chapterUnit {
             currentParagraph.after(paragraphAbove);
             let paragraph1Index = this._document.chapters.findIndex(paragraph => paragraph.id === parseInt(currentParagraph.getAttribute('data-paragraph-id')));
             let paragraph2Index = this._document.chapters.findIndex(paragraph => paragraph.id === parseInt(paragraphAbove.getAttribute('data-paragraph-id')));
-            await webSkel.servicesRegistry.documentService.swapParagraphs(this._document, chapterIndex, paragraph1Index, paragraph2Index);
+            await this._document.swapParagraphs(chapterIndex, paragraph1Index, paragraph2Index);
         }
     }
 
@@ -160,25 +160,23 @@ async function exitEditMode(event) {
         if(updatedText === '\n') {
             updatedText = '';
         }
-        const documentId = parseInt(getClosestParentElement(this.selectedChapter, "document-view-page").getAttribute("data-document-id"));
-        const documentIndex = webSkel.servicesRegistry.documentService.getDocumentIndex(documentId);
-        let doc = webSkel.servicesRegistry.documentService.getDocument(documentId);
+        let documentId = parseInt(getClosestParentElement(this.selectedChapter, "document-view-page").getAttribute("data-document-id"));
+        let documentIndex = webSkel.space.documents.findIndex(doc => doc.id === documentId);
+        let doc = webSkel.space.documents.find(doc => doc.id === documentId);
         let chapterId = parseInt(getClosestParentElement(this.selectedChapter, ".chapter-unit").getAttribute("data-chapter-id"));
-        let chapterIndex = webSkel.servicesRegistry.documentService.getChapterIndex(doc, chapterId);
         let paragraphId = parseInt(getClosestParentElement(this.selectedChapter, ".paragraph-unit").getAttribute("data-paragraph-id"));
-        let paragraphIndex = webSkel.servicesRegistry.documentService.getParagraphIndex(doc, chapterIndex, paragraphId);
         let sidebar = document.getElementById("paragraph-sidebar");
         sidebar.style.display = "none";
         if (documentIndex !== -1 && updatedText !== this.chapter) {
             if (updatedText === null || updatedText.trim() === '') {
-                webSkel.space.documents[documentIndex].chapters[chapterIndex].paragraphs.splice(paragraphIndex, 1);
-                if (webSkel.space.documents[documentIndex].chapters[chapterIndex].paragraphs.length === 0) {
-                    webSkel.space.documents[documentIndex].chapters.splice(chapterIndex, 1);
+                doc.removeParagraph(chapterId, paragraphId);
+                if (doc.getChapterParagraphs(chapterId).length === 0) {
+                    doc.removeChapter(chapterId);
                 }
             } else {
-                webSkel.space.documents[documentIndex].chapters[chapterIndex].paragraphs[paragraphIndex].text = updatedText;
+                doc.updateParagraphText(chapterId, paragraphId, updatedText);
             }
-            await webSkel.servicesRegistry.documentService.updateDocument(webSkel.space.documents[documentIndex], documentId);
+            await webSkel.servicesRegistry.documentService.updateDocument(doc, documentId);
         }
     }
 }

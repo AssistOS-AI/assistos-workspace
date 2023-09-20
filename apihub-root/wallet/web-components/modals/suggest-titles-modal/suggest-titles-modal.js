@@ -7,7 +7,6 @@ export class suggestTitlesModal {
         setTimeout(()=> {
             this.invalidate();
         }, 0);
-
         this.updateState = ()=> {
             this.invalidate();
         }

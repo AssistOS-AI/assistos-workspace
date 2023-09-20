@@ -16,43 +16,43 @@ export class editTitlePage {
         let url = window.location.hash;
         this.id = parseInt(url.split('/')[1]);
         this.documentService = webSkel.getService('documentService');
+        this.brainstormingService = webSkel.getService('brainstormingService');
         this._document = this.documentService.getDocument(this.id);
         if(this._document) {
             setTimeout(() => {
                 this.invalidate();
             }, 0);
-            this.docTitle = this._document.title;
-            this.chapters = this._document.chapters;
-        }else {
+            this.docTitle = this._document.getTitle();
+            this.chapters = this._document.getAllChapters();
+        } else {
             console.log(`this _document doesnt exist: docId: ${this.id}`);
         }
 
         this.updateState = () => {
             this._document = this.documentService.getDocument(this.id);
-            this.docTitle = this._document.title;
+            this.docTitle = this._document.getTitle();
             this.invalidate();
         }
-        webSkel.space.onChange(this.updateState);
+        this._document.observeChange(this.updateState);
+        // webSkel.space.onChange(this.updateState);
     }
 
     beforeRender() {
         this.title = `<title-edit title="${this.docTitle}"></title-edit>`;
         this.alternativeTitles = "";
         if(this._document) {
-            for(let i = 0; i < this._document.alternativeTitles.length; i++) {
-                this.alternativeTitles += `<alternative-title nr="${i+1}" title="${this._document.alternativeTitles[i]}"></alternative-title>`;
-            }
+            this._document.getAlternativeTitles().forEach((alternativeTitle) => {
+                this.alternativeTitles += `<alternative-title nr="${i+1}" title="${alternativeTitle}"></alternative-title>`;
+            });
         }
     }
 
     async saveTitle(_target) {
         const formInfo = await extractFormInformation(_target);
         if(formInfo.isValid) {
-            const documentId = this.id;
-            const documentIndex = webSkel.space.documents.findIndex(doc => doc.id === documentId);
-            if (documentIndex !== -1 && formInfo.data.title !== webSkel.space.documents[documentIndex].title) {
-                this.documentService.updateDocumentTitle(webSkel.space.documents[documentIndex], formInfo.data.title);
-                this.documentService.updateDocument(webSkel.space.documents[documentIndex], webSkel.space.currentDocumentId);
+            if (formInfo.data.title !== this._document.getTitle()) {
+                this._document.updateDocumentTitle(formInfo.data.title);
+                await this.documentService.updateDocument(this._document, this.id);
             }
         }
     }
@@ -84,10 +84,8 @@ export class editTitlePage {
     async showSuggestTitlesModal() {
         const loading = await webSkel.showLoading();
         async function generateSuggestTitles(){
-            const documentService = webSkel.getService('documentService');
-            const documentText = documentService.getDocument(webSkel.space.currentDocumentId).toString();
+            const documentText = this.documentService.getDocument(this.id).toString();
             const defaultPrompt = `Based on the following document:\n"${documentText}"\n\nPlease suggest 10 original titles that are NOT already present as chapter titles in the document. Return the titles as a JSON array.`;
-            const brainstormingSrv = new brainstormingService();
             if(webSkel.space.settings.llms.length <= 0) {
                 loading.close();
                 loading.remove();
@@ -95,7 +93,7 @@ export class editTitlePage {
                 return;
             }
             const llmId = webSkel.space.settings.llms[0].id;
-            return await brainstormingSrv.suggestTitles(defaultPrompt, llmId);
+            return await this.brainstormingService.suggestTitles(defaultPrompt, llmId);
         }
         this.suggestedTitles = JSON.parse(await generateSuggestTitles()).titles;
         loading.close();
@@ -105,10 +103,9 @@ export class editTitlePage {
 
     async select(_target) {
         let selectedTitle = reverseQuerySelector(_target,".suggested-title").innerText;
-        let documentSrv = new documentService();
-        if(selectedTitle !== this._document.title) {
-            this._document.title = selectedTitle;
-            await documentSrv.updateDocument(this._document, this._document.id);
+        if(selectedTitle !== this._document.getTitle()) {
+            this._document.updateTitle(selectedTitle);
+            await this.documentService.updateDocument(this._document, this._document.id);
         }
         else {
             removeActionBox(this.actionBox, this);
@@ -116,9 +113,8 @@ export class editTitlePage {
     }
 
     async edit(_target) {
-        let  alternativeTitle = reverseQuerySelector(_target, ".suggested-title");
-        let documentSrv = new documentService();
-        let alternativeTitleIndex = this._document.alternativeTitles.findIndex(title => title === alternativeTitle.innerText);
+        let alternativeTitle = reverseQuerySelector(_target, ".suggested-title");
+        let alternativeTitleIndex = this._document.getAlternativeTitles().findIndex(title => title === alternativeTitle.innerText);
         if(alternativeTitleIndex !== -1) {
             removeActionBox(this.actionBox, this);
             alternativeTitle.contentEditable = true;
@@ -126,8 +122,8 @@ export class editTitlePage {
             alternativeTitle.addEventListener('blur', async () => {
                 alternativeTitle.contentEditable = false;
                 if(alternativeTitle.innerText !== this._document.alternativeTitles[alternativeTitleIndex]) {
-                    this._document.alternativeTitles[alternativeTitleIndex] = alternativeTitle.innerText;
-                    await documentSrv.updateDocument(this._document, this._document.id);
+                    this._document.setAlternativeTitle(alternativeTitleIndex, alternativeTitle.innerText);
+                    await this.documentService.updateDocument(this._document, this._document.id);
                 }
             });
         }
@@ -138,11 +134,10 @@ export class editTitlePage {
 
     async delete(_target) {
         let alternativeTitle = reverseQuerySelector(_target, ".suggested-title");
-        let documentSrv = new documentService();
-        let alternativeTitleIndex = this._document.alternativeTitles.findIndex(title => title === alternativeTitle.innerText);
+        let alternativeTitleIndex = this._document.getAlternativeTitles().findIndex(title => title === alternativeTitle.innerText);
         if(alternativeTitleIndex !== -1) {
-            this._document.alternativeTitles.splice(alternativeTitleIndex, 1);
-            await documentSrv.updateDocument(this._document, this._document.id);
+            this._document.deleteAlternativeTitle(alternativeTitleIndex);
+            await this.documentService.updateDocument(this._document, this._document.id);
         } else {
             await showApplicationError("Error deleting title", `Error deleting title for document: ${this._document.title}`, `Error deleting title for document: ${this._document.title}`);
         }

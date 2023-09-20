@@ -7,7 +7,7 @@ export class documentSettingsPage {
         this.id = parseInt(url.split('/')[1]);
         this.documentService = webSkel.getService('documentService');
         this._document = this.documentService.getDocument(this.id);
-        if(this._document){
+        if(this._document) {
             setTimeout(()=> {
                 this.invalidate();
             }, 0);
@@ -17,7 +17,8 @@ export class documentSettingsPage {
         this.updateState = (spaceData)=> {
             this.invalidate();
         }
-        webSkel.space.onChange(this.updateState);
+        // webSkel.space.onChange(this.updateState);
+        this._document.observeChange(this.updateState);
         this.singularToPlural = { personality: "personalities", llm: "llms"};
         this.pluralToSingular = { personalities: "personality", llms: "llm"};
     }

@@ -15,7 +15,7 @@ export class announcementsPage {
             this._announcementConfigs = webSkel.space.announcements;
             this.invalidate();
         }
-        webSkel.space.onChange(this.updateState);
+        // webSkel.space.onChange(this.updateState);
     }
 
     beforeRender() {

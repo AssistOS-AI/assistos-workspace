@@ -12,7 +12,7 @@ export class chapterTitlePage {
             setTimeout(()=> {
                 this.invalidate();
             }, 0);
-            this._chapter = this.documentService.getChapter(this._document.id, this.chapterId);
+            this._chapter = this._document.getChapter(this.chapterId);
             if(this._chapter) {
                 this.chapterTitle = this._chapter.title;
             } else {
@@ -24,13 +24,14 @@ export class chapterTitlePage {
         this.updateState = ()=> {
             this._document = this.documentService.getDocument(this.docId);
             if(this._document) {
-                this._chapter = this.documentService.getChapter(this._document.id, this.chapterId);
+                this._chapter = this._document.getChapter(this.chapterId);
                 if(this._chapter)
                     this.chapterTitle = this._chapter.title;
             }
             this.invalidate();
         }
-        webSkel.space.onChange(this.updateState);
+        // webSkel.space.onChange(this.updateState);
+        this._document.observeChange(this.updateState);
     }
 
     beforeRender() {
@@ -48,10 +49,10 @@ export class chapterTitlePage {
         const formInfo = await extractFormInformation(_target);
         if(formInfo.isValid) {
             const documentIndex = webSkel.space.documents.findIndex(doc => doc.id === this.docId);
-            const chapterIndex = webSkel.space.documents[documentIndex].chapters.findIndex(chapter => chapter.id === this.chapterId);
-            if (documentIndex !== -1 && chapterIndex !== -1 && formInfo.data.title !== webSkel.space.documents[documentIndex].chapters[chapterIndex].title) {
-                webSkel.space.documents[documentIndex].chapters[chapterIndex].title = formInfo.data.title;
-                await this.documentService.updateDocument(webSkel.space.documents[documentIndex], this.docId);
+            const chapterIndex = this._document.getChapterIndex(this.chapterId);
+            if (documentIndex !== -1 && chapterIndex !== -1 && formInfo.data.title !== this._document.getChapterTitle(this.chapterId)) {
+                this._document.updateChapterTitle(this.chapterId, formInfo.data.title);
+                await this.documentService.updateDocument(this._document, this.docId);
             }
         }
     }

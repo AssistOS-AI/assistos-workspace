@@ -1,4 +1,4 @@
-import { closeModal, showActionBox, showModal } from "../../../imports.js";
+import {closeModal, DocumentModel, showActionBox, showModal} from "../../../imports.js";
 
 export class brainstormingPage {
     constructor(element) {
@@ -16,20 +16,21 @@ export class brainstormingPage {
         if(this._document) {
             this.docTitle = this._document.title;
             if(this._document.abstract) {
-                this.abstractText = this._document.abstract;
+                this.abstractText = this._document.getAbstract();
             }
             setTimeout(()=> {
-                this.invalidate()
+                this.invalidate();
             }, 0);
         }
         this.updateState = ()=> {
             this.invalidate();
         }
-        webSkel.space.onChange(this.updateState);
+        // webSkel.space.onChange(this.updateState);
+        this._document.observeChange(this.updateState);
     }
 
     beforeRender() {
-        if(!this._document.mainIdeas || this._document.mainIdeas.length === 0) {
+        if(!this._document.getMainIdeas() || this._document.getMainIdeas().length === 0) {
             this.generateMainIdeasButtonName = "Summarize";
         } else {
             this.generateMainIdeasButtonName = "Regenerate";
@@ -72,7 +73,6 @@ export class brainstormingPage {
     openTab(_target) {
         let selectedTab = document.getElementById("selected-tab");
         this.tab = _target.firstElementChild.nextElementSibling.firstElementChild.innerText;
-        console.log(this.tab);
         this.chaptersDiv = "";
         if(selectedTab !== _target) {
             this.pageRender(this.tab);

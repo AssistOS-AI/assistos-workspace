@@ -2,9 +2,9 @@ import { showModal, showActionBox } from "../../../imports.js";
 
 export class scriptsPage {
     constructor(element) {
-        this.name = "name";
+        this.name = "Name";
         this.preview = "Preview";
-        this.modal = "showAddPersonalityModal";
+        this.modal = "showAddScriptModal";
         this.button = "Add Script";
         this.tableRows = "No data loaded";
         this.element = element;
@@ -18,7 +18,7 @@ export class scriptsPage {
             this._scriptsConfigs = webSkel.space.settings.scripts;
             this.invalidate();
         }
-        webSkel.space.onChange(this.updateState);
+        // webSkel.space.onChange(this.updateState);
     }
 
     beforeRender() {
@@ -39,7 +39,8 @@ export class scriptsPage {
     async editAction(_target){
         await showModal(document.querySelector("body"), "edit-script-modal", { presenter: "edit-script-modal"});
     }
-    deleteAction(){
+
+    deleteAction() {
 
     }
 
