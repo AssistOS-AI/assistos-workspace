@@ -12,7 +12,7 @@ export class paragraphBrainstormingPage {
             setTimeout(()=> {
                 this.invalidate();
             }, 0);
-            this._chapter = this.documentService.getChapter(this._document, this.chapterId);
+            this._chapter = this.documentService.getChapter(this._document.id, this.chapterId);
             if(this._chapter) {
                 this.paragraphDiv = this._chapter.paragraphs.find(paragraph => paragraph.id === this.paragraphId);
             } else {
@@ -24,14 +24,14 @@ export class paragraphBrainstormingPage {
         this.updateState = ()=> {
             this._document = this.documentService.getDocument(this.docId);
             if(this._document) {
-                this._chapter = this.documentService.getChapter(this._document, this.chapterId);
+                this._chapter = this.documentService.getChapter(this._document.id, this.chapterId);
                 if(this._chapter) {
                     this.chapterTitle = this._chapter.title;
                 } else {
-                    console.log(`this chapter doesnt exist: docId: ${this.chapterId}`);
+                    console.log(`this chapter doesnt exist: ${this.chapterId}`);
                 }
             } else {
-                console.log(`this _document doesnt exist: docId: ${this.docId}`);
+                console.log(`this _document doesnt exist: ${this.docId}`);
             }
             this.invalidate();
         }

@@ -12,14 +12,15 @@ export class chapterBrainstormingPage {
             setTimeout(()=> {
                 this.invalidate();
             }, 0);
-            this._chapter = this.documentService.getChapter(this._document, this.chapterId);
+            this._chapter = this.documentService.getChapter(this._document.id, this.chapterId);
             if(this._chapter) {
                 this.chapterTitle = this._chapter.title;
             }
             else {
                 console.log(`this chapter doesnt exist: chapterId: ${this.chapterId}`);
             }
-        }else {
+        }
+        else {
             console.log(`this _document doesnt exist: docId: ${this.docId}`);
         }
         this.updateState = ()=> {

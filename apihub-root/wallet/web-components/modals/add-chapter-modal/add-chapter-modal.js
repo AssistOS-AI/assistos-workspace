@@ -32,7 +32,7 @@ export class addChapterModal {
             let chapterObj={
                 title:formData.data.name,
                 id:updateDocument.chapters.length + 1,
-                paragraphs:[{id:1,text:"Edit here your first paragraph."}]
+                paragraphs: [{id:1, text:"Edit here your first paragraph."}]
             }
             let newChapter = new Chapter(chapterObj);
             updateDocument.chapters.push(newChapter);

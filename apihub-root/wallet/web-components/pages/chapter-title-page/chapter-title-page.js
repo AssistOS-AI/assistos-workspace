@@ -13,7 +13,7 @@ export class chapterTitlePage {
             setTimeout(()=> {
                 this.invalidate();
             }, 0);
-            this._chapter = this.documentService.getChapter(this._document, this.chapterId);
+            this._chapter = this.documentService.getChapter(this._document.id, this.chapterId);
             if(this._chapter) {
                 this.chapterTitle = this._chapter.title;
             } else {
@@ -25,7 +25,7 @@ export class chapterTitlePage {
         this.updateState = ()=> {
             this._document = this.documentService.getDocument(this.docId);
             if(this._document) {
-                this._chapter = this.documentService.getChapter(this._document, this.chapterId);
+                this._chapter = this.documentService.getChapter(this._document.id, this.chapterId);
                 if(this._chapter)
                     this.chapterTitle = this._chapter.title;
             }
