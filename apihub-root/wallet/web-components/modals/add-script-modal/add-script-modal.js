@@ -29,14 +29,16 @@ export class addScriptModal {
         let formInfo = await extractFormInformation(_target);
         if(formInfo.isValid) {
             let body = formInfo.data;
-            body.id = Math.floor(Math.random() * 100000);
-            let response = await fetch("/add/script", {
+            body.id = Math.floor(Math.random() * 100000).toString();
+            let response = await fetch(`/space/${window.currentSpaceId}/myspace/scripts/add`, {
                 method: "POST",
-                body: body,
+                body: JSON.stringify(body),
                 headers: {
                     "Content-type": "application/json; charset=UTF-8"
                 }
             });
+
+            console.log(response);
         }
     }
 }
