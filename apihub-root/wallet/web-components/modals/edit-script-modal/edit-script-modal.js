@@ -1,20 +1,20 @@
 import { closeModal } from "../../../../WebSkel/utils/modal-utils.js";
 import {reverseQuerySelector} from "../../../../WebSkel/utils/dom-utils.js";
-const opendsu = require("opendsu");
+
 export class editScriptModal {
     constructor(element) {
         this.element=element;
         if(webSkel.company.settings.scripts) {
-            this._scriptsConfigs = webSkel.company.settings.scripts;
+            this._scriptsConfigs = webSkel.space.settings.scripts;
             setTimeout(()=> {
                 this.invalidate();
             }, 0);
         }
         this.updateState = ()=> {
-            this._scriptsConfigs = webSkel.company.settings.scripts;
+            this._scriptsConfigs = webSkel.space.settings.scripts;
             this.invalidate();
         }
-        webSkel.company.onChange(this.updateState);
+        webSkel.space.onChange(this.updateState);
     }
 
     beforeRender() {

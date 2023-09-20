@@ -4,11 +4,11 @@ export class usersService {
     }
 
     getPersonalities() {
-        return webSkel.company.users || [];
+        return webSkel.space.users || [];
     }
 
     async addUser(user) {
         await webSkel.localStorage.addUser(user);
-        webSkel.company.users.push(user);
+        webSkel.space.users.push(user);
     }
 }

@@ -11,8 +11,9 @@ export class DocumentModel {
         this.settings=documentData.settings||{llms:null,personality:null};
         this.currentChapterId=null;
         this.id=documentData.id||undefined;
-        }
-        toString() {
-            return this.chapters.map(chapter => chapter.toString()).join("\n\n")||"";
-        }
+    }
+
+    toString() {
+        return this.chapters.map(chapter => chapter.toString()).join("\n\n")||"";
+    }
 }

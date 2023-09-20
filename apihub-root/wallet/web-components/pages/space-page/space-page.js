@@ -1,4 +1,4 @@
-export class myOrganizationPage {
+export class spacePage {
     constructor(element) {
         this.element = element;
         this.pageContent = `<announcements-page data-presenter="announcements-page"></announcements-page>`;
@@ -8,17 +8,16 @@ export class myOrganizationPage {
         this.id3 = "";
         this.id4 = "";
         this.id5 = "";
-            setTimeout(()=> {
-                this.invalidate();
-            }, 0);
-
+        setTimeout(()=> {
+            this.invalidate();
+        }, 0);
         this.updateState = ()=> {
             this.invalidate();
         }
-        webSkel.company.onChange(this.updateState);
+        webSkel.space.onChange(this.updateState);
     }
 
-   async openTab(_target) {
+    async openTab(_target) {
         let selectedTab = document.getElementById("selected-tab");
         this.tab = _target.querySelector(".tab").innerText;
         if(selectedTab !== _target) {
@@ -60,7 +59,7 @@ export class myOrganizationPage {
                 case "Scripts":
                     this.pageContent = `<scripts-page data-presenter="scripts-page"></scripts-page>`;
                     this.id5 = "selected-tab";
-                    await webSkel.company.settings.getScripts();
+                    await webSkel.space.settings.getScripts();
                     break;
             }
             this.invalidate();

@@ -33,7 +33,7 @@ export class chapterBrainstormingPage {
             }
             this.invalidate();
         }
-        webSkel.company.onChange(this.updateState);
+        webSkel.space.onChange(this.updateState);
     }
 
     beforeRender() {

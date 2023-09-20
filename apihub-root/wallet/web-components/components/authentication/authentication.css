@@ -1,39 +1,46 @@
-
 * {
     font-family: Poppins;
 }
-html{
+
+html {
     height: 100%;
 }
-body{
+
+body {
     height: 100%;
 }
-.app-container{
+
+.app-container {
     height: 100%;
 }
-.content-container{
+
+.content-container {
     height: 100%;
     display: flex;
 }
-.img-container{
+
+.img-container {
     background: linear-gradient(180deg, rgba(197, 255, 255, 0.19) 0%, rgba(0, 162, 162, 0.19) 100%);
     width: 50%;
     display: flex;
     justify-content: center;
     justify-items: center;
 }
-.img-container>img{
+
+.img-container > img {
     max-width: 650px;
 }
-.form-container{
+
+.form-container {
     width: 50%;
     padding: 80px 100px 80px 100px;
 }
 
-.form-title{
+.form-title {
     padding: 20px 0 20px 0;
     font-weight: bold;
 }
+
 .form-label {
     color: black;
     font-size: 14px;
@@ -48,14 +55,17 @@ body{
     margin: 8px 0 16px;
     padding: 8px;
 }
+
 .item-has-focus {
     --full-highlight-height: none;
     --inset-highlight-height: none;
 }
-.form-footer{
+
+.form-footer {
     display: flex;
     justify-content: center;
 }
+
 .wide-btn {
     width: 70%;
     height: 36px;
@@ -69,10 +79,12 @@ body{
     margin: 16px 0;
     border: none;
 }
-.wide-btn:hover{
+
+.wide-btn:hover {
     cursor: pointer;
 }
-.logo-container{
+
+.logo-container {
     display: flex;
     justify-content: center;
     color: #000000;
@@ -83,14 +95,14 @@ body{
 }
 
 /*Login page*/
-.suggest-registration{
+.suggest-registration {
     display: flex;
     justify-content: center;
     font-size: 12px;
     margin-top: -5px;
 }
 
-.forgot-password{
+.forgot-password {
     display: flex;
     justify-content: flex-end;
     font-size: 12px;
@@ -99,32 +111,36 @@ body{
     padding-bottom: 20px;
     margin-top: -5px;
 }
-.forgot-password:hover{
+
+.forgot-password:hover {
     cursor: pointer;
 }
-.sign-up{
+
+.sign-up {
     padding-left: 3px;
     font-weight: 700;
     color: #7389FF;
 }
-.sign-up:hover{
+
+.sign-up:hover {
     cursor: pointer;
 }
 
 /*Register confirmation, Password recovery confirmation */
-.development-mode{
+.development-mode {
     display: flex;
     justify-content: center;
     font-size: 12px;
     font-weight: 700;
     color: #7389FF;
 }
-.development-mode:hover{
+
+.development-mode:hover {
     cursor: pointer;
 }
 
 /*Password recovery*/
-.form-description{
+.form-description {
     margin-top: -10px;
     padding-bottom: 20px;
 }

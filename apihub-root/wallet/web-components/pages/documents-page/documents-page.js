@@ -2,21 +2,21 @@ import { getClosestParentElement, showActionBox, showModal } from "../../../impo
 
 export class documentsPage {
     constructor() {
-        if(webSkel.company.documents!==undefined) {
+        if(webSkel.space.documents!==undefined) {
             setTimeout(()=> {
                 this.invalidate();
             }, 0);
         }
         this.updateState = () => this.invalidate();
-        webSkel.company.onChange(this.updateState);
+        webSkel.space.onChange(this.updateState);
     }
     beforeRender() {
         this.tableRows = "";
-            if(webSkel.company.documents.length === 0) {
+            if(webSkel.space.documents.length === 0) {
                 this.tableRows = `<div> There are no documents yet </div>`;
             }
             else {
-                webSkel.company.documents.forEach((document) => {
+                webSkel.space.documents.forEach((document) => {
                     this.tableRows += `<document-unit data-name="${document.title}" data-id="${document.id}"></document-unit>`;
                 });
             }

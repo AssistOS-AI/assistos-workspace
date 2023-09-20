@@ -9,17 +9,17 @@ export class scriptsPage {
         this.button = "Add Script";
         this.tableRows = "No data loaded";
         this.element = element;
-        if (webSkel.company.settings.scripts) {
-            this._scriptsConfigs = webSkel.company.settings.scripts;
+        if (webSkel.space.settings.scripts) {
+            this._scriptsConfigs = webSkel.space.settings.scripts;
             setTimeout(() => {
                 this.invalidate();
             }, 0);
         }
         this.updateState = ()=> {
-            this._scriptsConfigs = webSkel.company.settings.scripts;
+            this._scriptsConfigs = webSkel.space.settings.scripts;
             this.invalidate();
         }
-        webSkel.company.onChange(this.updateState);
+        webSkel.space.onChange(this.updateState);
     }
 
     beforeRender() {

@@ -3,13 +3,12 @@ import { closeModal } from "../../../../WebSkel/utils/modal-utils.js";
 export class addUserModal {
     constructor() {
         setTimeout(()=> {
-            this.invalidate()
+            this.invalidate();
         }, 0);
-
         this.updateState = ()=> {
             this.invalidate();
         }
-        webSkel.company.onChange(this.updateState);
+        webSkel.space.onChange(this.updateState);
     }
 
     beforeRender() {

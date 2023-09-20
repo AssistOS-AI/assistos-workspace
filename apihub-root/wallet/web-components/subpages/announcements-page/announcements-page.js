@@ -4,19 +4,18 @@ export class announcementsPage {
     constructor(element) {
         this.announcementDivs = "Here are the announcements:";
         this.element = element;
-        this.id = webSkel.company.currentDocumentId;
-        if(webSkel.company.announcements) {
-            this._announcementConfigs = webSkel.company.announcements;
+        this.id = webSkel.space.currentDocumentId;
+        if(webSkel.space.announcements) {
+            this._announcementConfigs = webSkel.space.announcements;
             setTimeout(()=> {
                 this.invalidate();
             }, 0);
         }
-
         this.updateState = ()=> {
-            this._announcementConfigs = webSkel.company.announcements;
+            this._announcementConfigs = webSkel.space.announcements;
             this.invalidate();
         }
-        webSkel.company.onChange(this.updateState);
+        webSkel.space.onChange(this.updateState);
     }
 
     beforeRender() {

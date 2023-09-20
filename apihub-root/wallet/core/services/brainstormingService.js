@@ -1,24 +1,16 @@
-import { llmsService } from "../../imports.js";
-
 export class brainstormingService {
-    constructor() {
-
-    }
-
     async suggestTitles(prompt, llmId) {
-        const llmService = new llmsService();
-        if (!llmService.getLLM(llmId)) {
+        if (!webSkel.servicesRegistry.spaceSettingsService.getLLM(llmId)) {
             throw new Error(`LLM with id ${llmId} not found.`);
         }
-        return await llmService.suggestTitles(prompt, llmId);
+        return await webSkel.servicesRegistry.spaceSettingsService.suggestTitles(prompt, llmId);
     }
 
     async suggestAbstract(prompt, llmId) {
-        const llmService = new llmsService();
-        if (!llmService.getLLM(llmId)) {
+        if (!webSkel.servicesRegistry.spaceSettingsService.getLLM(llmId)) {
             throw new Error(`LLM with id ${llmId} not found.`);
         }
-        return await llmService.suggestAbstract(prompt, llmId);
+        return await webSkel.servicesRegistry.spaceSettingsService.suggestAbstract(prompt, llmId);
     }
 
     suggestChapterIdeas(llm) {

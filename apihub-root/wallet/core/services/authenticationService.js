@@ -13,7 +13,7 @@ export async function initUser() {
     document.querySelector("#register-button").style.display = "block";
     if(result) {
         let user = JSON.parse(result);
-        window.currentCompanyId = user.currentCompanyId;
+        window.currentSpaceId = user.currentSpaceId;
         if(JSON.parse(result).secretToken!== "")
         {
             currentUser.isPremium = true;
@@ -25,15 +25,15 @@ export async function initUser() {
     }
     else {
         /* TBD */
-        const user = { userId: crypto.getRandomSecret(32), secretToken:"", currentCompanyId: 1 };
+        const user = { userId: crypto.getRandomSecret(32), secretToken:"", currentSpaceId: 1 };
         currentUser.id = user.userId;
         localStorage.setItem("currentUser",JSON.stringify(user));
         console.log("Instantiated currentUser" + JSON.stringify(user));
     }
 
-    currentUser.companies = (await webSkel.localStorage.getAllCompaniesData()).map(company => { return { name: company.name, id: company.id };});
+    currentUser.spaces = (await webSkel.localStorage.getAllSpacesData()).map(space => { return { name: space.name, id: space.id };});
     let userObj = JSON.parse(localStorage.getItem("currentUser"));
-    userObj.companies = currentUser.companies;
+    userObj.spaces = currentUser.spaces;
     localStorage.setItem("currentUser", JSON.stringify(userObj));
 }
 

@@ -11,7 +11,7 @@ export class suggestTitlesModal {
         this.updateState = ()=> {
             this.invalidate();
         }
-        webSkel.company.onChange(this.updateState);
+        webSkel.space.onChange(this.updateState);
         this.suggestedTitles = document.querySelector("edit-title-page").webSkelPresenter.suggestedTitles;
     }
 
@@ -43,7 +43,7 @@ export class suggestTitlesModal {
     async addAlternativeTitles(_target){
         let formInfo = await extractFormInformation(_target);
         const docService = new documentService();
-        let currentDocument = docService.getDocument(webSkel.company.currentDocumentId);
+        let currentDocument = docService.getDocument(webSkel.space.currentDocumentId);
         for (const [key, value] of Object.entries(formInfo.elements)) {
             if(value.element.checked) {
                 currentDocument.alternativeTitles.push(value.element.value);

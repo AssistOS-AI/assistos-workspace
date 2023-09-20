@@ -1,9 +1,8 @@
 const logger = $$.getLogger("accounting", "apihub-components");
-async function getAccountingPage(request, response)
-{
+async function getAccountingPage(request, response) {
     const action  = request.params;
-    let content=``;
-    switch (action.action){
+    let content = ``;
+    switch (action.action) {
         case "register": content= getRegisterPage();
         break;
         case "register-confirmation" : content = getRegisterConfirmationPage();
@@ -19,7 +18,7 @@ async function getAccountingPage(request, response)
         default : console.error("The page you are trying to access doesn't exist");
         break;
     }
-    let template=`<link rel="stylesheet" href="./wallet/components/authentication/authentication.css">
+    let template = `<link rel="stylesheet" href="./wallet/components/authentication/authentication.css">
           <div class="content-container">
           <div class="img-container"> 
             <img src="./wallet/assets/icons/accounting.svg" alt="">
@@ -35,8 +34,8 @@ async function getAccountingPage(request, response)
     response.end();
 }
 
-const getRegisterPage = function (){
- return `
+const getRegisterPage = function () {
+     return `
            <div>
              <div class="form-title">
              Registration
@@ -86,8 +85,7 @@ const getRegisterConfirmationPage = function (){
                         Log in development mode
                     </div>        
                 </form>
-              </div>
-                
+              </div>    
  `;
 }
 

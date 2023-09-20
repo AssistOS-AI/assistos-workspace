@@ -27,7 +27,7 @@ export class editAbstractPage {
             this.abstractText = this._document.abstract;
             this.invalidate();
         }
-        webSkel.company.onChange(this.updateState);
+        webSkel.space.onChange(this.updateState);
         this.abstractText = this._document.abstract;
     }
 
@@ -70,7 +70,7 @@ export class editAbstractPage {
 
     async saveAbstract() {
         let updatedAbstract = document.querySelector(".abstract-content").innerText;
-        const documentIndex = webSkel.company.documents.findIndex(doc => doc.id === this.id);
+        const documentIndex = webSkel.space.documents.findIndex(doc => doc.id === this.id);
         if (documentIndex !== -1 && updatedAbstract !== this.documentService.getAbstract(this._document)) {
             for (let i = 0; i < updatedAbstract.length; i++) {
                 if (updatedAbstract[i] === '\n') {
@@ -113,14 +113,14 @@ export class editAbstractPage {
         const loading = await webSkel.showLoading();
         async function suggestAbstract() {
             const documentService = webSkel.getService('documentService');
-            const documentText = documentService.getDocument(webSkel.company.currentDocumentId).toString();
+            const documentText = documentService.getDocument(webSkel.space.currentDocumentId).toString();
             const defaultPrompt = `Given the content of the following document: "${documentText}". Please generate a concise and contextually appropriate abstract that accurately reflects the document's key points, themes, and findings. Your response should consist solely of the abstract text.`;
             const brainstormingSrv = new brainstormingService();
-            const llmId = webSkel.company.settings.llms[0].id;
+            const llmId = webSkel.space.settings.llms[0].id;
             return await brainstormingSrv.suggestAbstract(defaultPrompt, llmId);
         }
         this.suggestedAbstract = await suggestAbstract();
-        webSkel.company.notifyObservers();
+        webSkel.space.notifyObservers();
         loading.close();
         loading.remove();
         await showModal(document.querySelector("body"), "suggest-abstract-modal", { presenter: "suggest-abstract-modal"});

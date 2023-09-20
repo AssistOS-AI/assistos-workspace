@@ -13,7 +13,7 @@ export class addChapterModal {
             this.invalidate();
         }
         this.documentService = webSkel.getService('documentService');
-        webSkel.company.onChange(this.updateState);
+        webSkel.space.onChange(this.updateState);
     }
 
     beforeRender() {
@@ -30,9 +30,9 @@ export class addChapterModal {
             let updateDocument = this.documentService.getDocument(this.docId);
             closeModal(_target);
             let chapterObj={
-                title:formData.data.name,
-                id:updateDocument.chapters.length + 1,
-                paragraphs: [{id:1, text:"Edit here your first paragraph."}]
+                title: formData.data.name,
+                id: updateDocument.chapters.length + 1,
+                paragraphs: [{id: 1, text: "Edit here your first paragraph."}]
             }
             let newChapter = new Chapter(chapterObj);
             updateDocument.chapters.push(newChapter);

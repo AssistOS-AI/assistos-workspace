@@ -1,4 +1,3 @@
-import { llmsService } from '../../imports.js';
 export class proofReaderService {
     constructor(textLength, personality, llmId, language, variantsCount, prompt) {
         this.textLength = textLength || undefined;
@@ -11,27 +10,25 @@ export class proofReaderService {
 
     /* to move to summarizer class */
     async summarize() {
-        const llmService = new llmsService();
-        if (!llmService.getLLM(this.llmId)) {
+        if (!webSkel.servicesRegistry.spaceSettingsService.getLLM(this.llmId)) {
             throw new Error(`LLM with id ${this.llmId} not found.`);
         }
 
         const summaryResults = [];
         for (let i = 0; i < this.variantsCount; i++) {
-            const result = await llmService.summarize(this.prompt, this.llmId);
+            const result = await webSkel.servicesRegistry.spaceSettingsService.summarize(this.prompt, this.llmId);
             summaryResults.push(result);
         }
         return summaryResults;
     }
 
     async proofRead() {
-        const llmService = new llmsService();
-        if (!llmService.getLLM(this.llmId)) {
+        if (!webSkel.servicesRegistry.spaceSettingsService.getLLM(this.llmId)) {
             throw new Error(`LLM with id ${this.llmId} not found.`);
         }
         const proofReadResults = [];
         for (let i = 0; i < this.variantsCount; i++) {
-            const result = await llmService.proofread(this.prompt, this.llmId);
+            const result = await webSkel.servicesRegistry.spaceSettingsService.proofread(this.prompt, this.llmId);
             proofReadResults.push(result);
         }
         return proofReadResults;
