@@ -12,10 +12,12 @@ dialog[class="modal"] {
 .modal-content {
     padding: 20px;
 }
-.modal-footer{
+
+.modal-footer {
     display: flex;
     justify-content: center;
 }
+
 .close {
     cursor: pointer;
     float: right;
@@ -39,10 +41,12 @@ dialog[class="modal"] {
     margin: 4px 0 8px;
     padding: 8px;
 }
-textarea#content{
+
+textarea#content {
     resize: none;
     height: 240px;
 }
+
 input::file-selector-button {
     border: none;
     background: #429E9D;

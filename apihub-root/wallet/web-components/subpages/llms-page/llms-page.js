@@ -11,17 +11,17 @@ export class llmsPage {
         this.element = element;
         const llmService = new llmsService();
         this._llmConfigs = llmService.getLLMs();
-        if(webSkel.company.settings.llms) {
-            this._llmConfigs = webSkel.company.settings.llms;
+        if(webSkel.space.settings.llms) {
+            this._llmConfigs = webSkel.space.settings.llms;
             setTimeout(()=> {
                 this.invalidate()
             }, 0);
         }
         this.updateState = ()=> {
-            this._llmConfigs = webSkel.company.settings.llms;
+            this._llmConfigs = webSkel.space.settings.llms;
             this.invalidate();
         }
-        webSkel.company.onChange(this.updateState);
+        webSkel.space.onChange(this.updateState);
     }
 
     beforeRender() {

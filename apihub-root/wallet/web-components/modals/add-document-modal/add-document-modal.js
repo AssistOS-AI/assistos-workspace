@@ -4,16 +4,14 @@ import { extractFormInformation } from "../../../imports.js";
 
 export class addDocumentModal {
     constructor() {
-
         setTimeout(()=> {
             this.invalidate();
         }, 0);
-
-        this.updateState = (companyState)=> {
+        this.updateState = (spaceState)=> {
             this.invalidate();
         }
         this.documentService = webSkel.getService('documentService');
-        webSkel.company.onChange(this.updateState);
+        webSkel.space.onChange(this.updateState);
     }
 
     beforeRender() {
@@ -28,7 +26,7 @@ export class addDocumentModal {
         let formData = await extractFormInformation(_target);
         if(formData.isValid) {
             closeModal(_target);
-            await webSkel.servicesRegistry.documentService.addDocument(new DocumentModel({title:formData.data.documentTitle}));
+            await webSkel.servicesRegistry.documentService.addDocument(new DocumentModel({title: formData.data.documentTitle}));
             await webSkel.changeToStaticPage(`documents/${document.id}/edit-title`);
         }
     }

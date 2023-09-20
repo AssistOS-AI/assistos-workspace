@@ -13,7 +13,7 @@ export class addChapterModal {
             this.invalidate();
         }
         this.documentService = webSkel.getService('documentService');
-        webSkel.company.onChange(this.updateState);
+        webSkel.space.onChange(this.updateState);
     }
 
     beforeRender() {

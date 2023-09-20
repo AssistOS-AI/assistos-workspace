@@ -28,7 +28,7 @@ export class documentViewPage {
             this._document = this.documentService.getDocument(this.id);
             this.invalidate();
         }
-        webSkel.company.onChange(this.updateState);
+        webSkel.space.onChange(this.updateState);
     }
 
     beforeRender() {
@@ -104,7 +104,7 @@ export class documentViewPage {
         const chapterSubmenuSection = document.getElementById("chapter-sidebar");
         chapterSubmenuSection.style.display = "block";
         documentViewPage.chapterIdForSidebar = chapterId;
-        webSkel.company.currentChapterId = chapterId;
+        webSkel.space.currentChapterId = chapterId;
     }
 
     static openParagraphSidebar(chapterId, paragraphId) {

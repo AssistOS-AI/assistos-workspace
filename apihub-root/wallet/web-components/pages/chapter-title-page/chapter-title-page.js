@@ -6,7 +6,6 @@ export class chapterTitlePage {
         let url = window.location.hash;
         this.docId = parseInt(url.split('/')[1]);
         this.chapterId = parseInt(url.split('/')[3]);
-
         this.documentService = webSkel.getService('documentService');
         this._document = this.documentService.getDocument(this.docId);
         if(this._document) {
@@ -31,7 +30,7 @@ export class chapterTitlePage {
             }
             this.invalidate();
         }
-        webSkel.company.onChange(this.updateState);
+        webSkel.space.onChange(this.updateState);
     }
 
     beforeRender() {
@@ -48,11 +47,11 @@ export class chapterTitlePage {
     async saveTitle(_target) {
         const formInfo = await extractFormInformation(_target);
         if(formInfo.isValid) {
-            const documentIndex = webSkel.company.documents.findIndex(doc => doc.id === this.docId);
-            const chapterIndex = webSkel.company.documents[documentIndex].chapters.findIndex(chapter => chapter.id === this.chapterId);
-            if (documentIndex !== -1 && chapterIndex !== -1 && formInfo.data.title !== webSkel.company.documents[documentIndex].chapters[chapterIndex].title) {
-                webSkel.company.documents[documentIndex].chapters[chapterIndex].title = formInfo.data.title;
-                this.documentService.updateDocument(webSkel.company.documents[documentIndex], this.docId);
+            const documentIndex = webSkel.space.documents.findIndex(doc => doc.id === this.docId);
+            const chapterIndex = webSkel.space.documents[documentIndex].chapters.findIndex(chapter => chapter.id === this.chapterId);
+            if (documentIndex !== -1 && chapterIndex !== -1 && formInfo.data.title !== webSkel.space.documents[documentIndex].chapters[chapterIndex].title) {
+                webSkel.space.documents[documentIndex].chapters[chapterIndex].title = formInfo.data.title;
+                await this.documentService.updateDocument(webSkel.space.documents[documentIndex], this.docId);
             }
         }
     }

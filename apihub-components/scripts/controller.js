@@ -1,6 +1,6 @@
 const fs = require('fs');
 async function getScripts(request, response){
-    const workspaceId  = request.params.currentCompanyId;
+    const workspaceId  = request.params.currentSpaceId;
     try {
 
         let data = require(`./workspace-scripts/workspace${workspaceId}.json`);

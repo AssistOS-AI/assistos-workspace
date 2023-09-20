@@ -1,6 +1,5 @@
 import {
     brainstormingService,
-    llmsService,
     extractFormInformation,
     getClosestParentElement,
     closeModal,
@@ -33,7 +32,7 @@ export class editTitlePage {
             this.docTitle = this._document.title;
             this.invalidate();
         }
-        webSkel.company.onChange(this.updateState);
+        webSkel.space.onChange(this.updateState);
     }
 
     beforeRender() {
@@ -50,10 +49,10 @@ export class editTitlePage {
         const formInfo = await extractFormInformation(_target);
         if(formInfo.isValid) {
             const documentId = this.id;
-            const documentIndex = webSkel.company.documents.findIndex(doc => doc.id === documentId);
-            if (documentIndex !== -1 && formInfo.data.title !== webSkel.company.documents[documentIndex].title) {
-                this.documentService.updateDocumentTitle(webSkel.company.documents[documentIndex], formInfo.data.title);
-                this.documentService.updateDocument(webSkel.company.documents[documentIndex], webSkel.company.currentDocumentId);
+            const documentIndex = webSkel.space.documents.findIndex(doc => doc.id === documentId);
+            if (documentIndex !== -1 && formInfo.data.title !== webSkel.space.documents[documentIndex].title) {
+                this.documentService.updateDocumentTitle(webSkel.space.documents[documentIndex], formInfo.data.title);
+                this.documentService.updateDocument(webSkel.space.documents[documentIndex], webSkel.space.currentDocumentId);
             }
         }
     }
@@ -86,16 +85,16 @@ export class editTitlePage {
         const loading = await webSkel.showLoading();
         async function generateSuggestTitles(){
             const documentService = webSkel.getService('documentService');
-            const documentText = documentService.getDocument(webSkel.company.currentDocumentId).toString();
+            const documentText = documentService.getDocument(webSkel.space.currentDocumentId).toString();
             const defaultPrompt = `Based on the following document:\n"${documentText}"\n\nPlease suggest 10 original titles that are NOT already present as chapter titles in the document. Return the titles as a JSON array.`;
             const brainstormingSrv = new brainstormingService();
-            if(webSkel.company.settings.llms.length <= 0) {
+            if(webSkel.space.settings.llms.length <= 0) {
                 loading.close();
                 loading.remove();
-                showApplicationError("Company has no LLMs","Company has no LLMS","Company has no LLMS");
+                showApplicationError("Space has no LLMs", "Space has no LLMS", "Space has no LLMS");
                 return;
             }
-            const llmId = webSkel.company.settings.llms[0].id;
+            const llmId = webSkel.space.settings.llms[0].id;
             return await brainstormingSrv.suggestTitles(defaultPrompt, llmId);
         }
         this.suggestedTitles = JSON.parse(await generateSuggestTitles()).titles;
@@ -117,7 +116,7 @@ export class editTitlePage {
     }
 
     async edit(_target) {
-        let  alternativeTitle = reverseQuerySelector(_target,".suggested-title");
+        let  alternativeTitle = reverseQuerySelector(_target, ".suggested-title");
         let documentSrv = new documentService();
         let alternativeTitleIndex = this._document.alternativeTitles.findIndex(title => title === alternativeTitle.innerText);
         if(alternativeTitleIndex !== -1) {
@@ -138,7 +137,7 @@ export class editTitlePage {
     }
 
     async delete(_target) {
-        let alternativeTitle = reverseQuerySelector(_target,".suggested-title");
+        let alternativeTitle = reverseQuerySelector(_target, ".suggested-title");
         let documentSrv = new documentService();
         let alternativeTitleIndex = this._document.alternativeTitles.findIndex(title => title === alternativeTitle.innerText);
         if(alternativeTitleIndex !== -1) {

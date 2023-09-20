@@ -9,25 +9,23 @@ export class documentSettingsPage {
         this._document = this.documentService.getDocument(this.id);
         if(this._document){
             setTimeout(()=> {
-                this.invalidate()
+                this.invalidate();
             }, 0);
-        }else {
+        } else {
             console.log(`this _document doesnt exist: docId: ${this.id}`);
         }
-        this.updateState = (companyData)=> {
+        this.updateState = (spaceData)=> {
             this.invalidate();
         }
-        webSkel.company.onChange(this.updateState);
-
-
+        webSkel.space.onChange(this.updateState);
         this.singularToPlural = { personality: "personalities", llm: "llms"};
         this.pluralToSingular = { personalities: "personality", llms: "llm"};
     }
 
     beforeRender() {
-        let llmsHTML="";
-        let personalitiesHTML="";
-        let promptsHTML="";
+        let llmsHTML = "";
+        let personalitiesHTML = "";
+        let promptsHTML = "";
 
         // caz 1 no llms
         // caz 2 there is a selected llm already
@@ -37,7 +35,7 @@ export class documentSettingsPage {
         const renderSettings = (component, selectedItem, itemName) => {
             let htmlString = "";
             if(component.length === 0) {
-                htmlString += `<option selected disabled value="" hidden>No ${itemName} in company</option>`;
+                htmlString += `<option selected disabled value="" hidden>No ${itemName} in space</option>`;
                 return htmlString;
             }
             if(this._document.settings[itemName]) {
@@ -52,7 +50,7 @@ export class documentSettingsPage {
             }
             return htmlString;
         }
-        for (const [key, value] of Object.entries(webSkel.company.settings)) {
+        for (const [key, value] of Object.entries(webSkel.space.settings)) {
             this[key] = renderSettings(value, this._document.settings[this.pluralToSingular[key]], this.pluralToSingular[key]);
         }
     }
@@ -63,10 +61,10 @@ export class documentSettingsPage {
                 return true;
             }
             let optionId = parseInt(optionValue);
-            let optionIndex = webSkel.company.settings[optionKey].findIndex(option => option.id === optionId);
+            let optionIndex = webSkel.space.settings[optionKey].findIndex(option => option.id === optionId);
             if(optionIndex !== -1) {
-                if(this._document.settings[this.pluralToSingular[optionKey]] !== webSkel.company.settings[optionKey][optionIndex]) {
-                    this._document.settings[this.pluralToSingular[optionKey]] = webSkel.company.settings[optionKey][optionIndex];
+                if(this._document.settings[this.pluralToSingular[optionKey]] !== webSkel.space.settings[optionKey][optionIndex]) {
+                    this._document.settings[this.pluralToSingular[optionKey]] = webSkel.space.settings[optionKey][optionIndex];
                 }
                 return true;
             }

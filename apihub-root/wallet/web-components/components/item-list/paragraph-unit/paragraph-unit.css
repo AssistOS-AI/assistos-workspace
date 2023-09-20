@@ -1,4 +1,4 @@
-.paragraph-item {
+.paragraph-unit {
     cursor: default;
     display: flex;
     border-radius: 10px;
@@ -14,7 +14,7 @@
     justify-content: center;
 }
 
-.paragraph-item p {
+.paragraph-unit p {
     padding: 0 10px;
     border-radius: 5px;
 }
@@ -28,7 +28,7 @@
     cursor: text;
 }
 
-.paragraph-item:hover {
+.paragraph-unit:hover {
     .paragraph-arrows {
         min-height: 0;
     }

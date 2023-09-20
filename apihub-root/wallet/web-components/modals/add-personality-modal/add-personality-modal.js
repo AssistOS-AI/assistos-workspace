@@ -2,17 +2,18 @@ import { closeModal } from "../../../../WebSkel/utils/modal-utils.js";
 
 export class addPersonalityModal {
     constructor() {
-        if(webSkel.company.settings.personalities) {
+        if(webSkel.space.settings.personalities) {
             setTimeout(()=> {
                 this.invalidate();
             }, 0);
         }
         this.updateState = ()=> this.invalidate();
 
-        webSkel.company.onChange(this.updateState);
+        webSkel.space.onChange(this.updateState);
     }
 
     beforeRender() {
+
     }
 
     closeModal(_target) {

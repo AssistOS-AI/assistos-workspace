@@ -12,8 +12,8 @@ export class chapterUnit {
             this.invalidate();
         }
         chapterUnit.docService = webSkel.getService('documentService');
-        webSkel.company.onChange(this.updateState);
-        this.docId = webSkel.company.currentDocumentId;
+        webSkel.space.onChange(this.updateState);
+        this.docId = webSkel.space.currentDocumentId;
         this._document = chapterUnit.docService.getDocument(this.docId);
     }
 
@@ -131,7 +131,7 @@ export class chapterUnit {
         let chapterId = target.getAttribute('data-chapter-id');
         documentViewPage.openChapterSidebar( chapterId);
         target.setAttribute("id", "select-chapter-visualise");
-        webSkel.company.currentChapterId = chapterId;
+        webSkel.space.currentChapterId = chapterId;
     }
 
     afterRender() {
@@ -173,14 +173,14 @@ async function exitEditMode(event) {
         sidebar.style.display = "none";
         if (documentIndex !== -1 && updatedText !== this.chapter) {
             if (updatedText === null || updatedText.trim() === '') {
-                webSkel.company.documents[documentIndex].chapters[chapterIndex].paragraphs.splice(paragraphIndex, 1);
-                if (webSkel.company.documents[documentIndex].chapters[chapterIndex].paragraphs.length === 0) {
-                    webSkel.company.documents[documentIndex].chapters.splice(chapterIndex, 1);
+                webSkel.space.documents[documentIndex].chapters[chapterIndex].paragraphs.splice(paragraphIndex, 1);
+                if (webSkel.space.documents[documentIndex].chapters[chapterIndex].paragraphs.length === 0) {
+                    webSkel.space.documents[documentIndex].chapters.splice(chapterIndex, 1);
                 }
             } else {
-                webSkel.company.documents[documentIndex].chapters[chapterIndex].paragraphs[paragraphIndex].text = updatedText;
+                webSkel.space.documents[documentIndex].chapters[chapterIndex].paragraphs[paragraphIndex].text = updatedText;
             }
-            await chapterUnit.docService.updateDocument(webSkel.company.documents[documentIndex], documentId);
+            await chapterUnit.docService.updateDocument(webSkel.space.documents[documentIndex], documentId);
         }
     }
 }

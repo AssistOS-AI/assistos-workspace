@@ -15,24 +15,24 @@ export async function openDatabase(dbName, version) {
         connectionRequest.onupgradeneeded = (event) => {
             const db = event.target.result;
 
-            if (!db.objectStoreNames.contains("companies")) {
-                const companyStore = db.createObjectStore("companies", { keyPath: "id", autoIncrement: true });
-                companyStore.createIndex("nameIndex", "name", { unique: true });
+            if (!db.objectStoreNames.contains("spaces")) {
+                const spaceStore = db.createObjectStore("spaces", { keyPath: "id", autoIncrement: true });
+                spaceStore.createIndex("nameIndex", "name", { unique: true });
             }
-            /* Add default company */
+            /* Add default space */
             const transaction = event.target.transaction;
-            const companyStore = transaction.objectStore("companies");
+            const spaceStore = transaction.objectStore("spaces");
 
-            const getAllRequest = companyStore.getAll();
+            const getAllRequest = spaceStore.getAll();
 
             let currentDate = new Date();
             let today = currentDate.toISOString().split('T')[0];
 
             getAllRequest.onsuccess = (event) => {
-                const existingCompanies = event.target.result;
+                const existingSpaces = event.target.result;
 
-                if (existingCompanies.length === 0) {
-                    const defaultCompany = {
+                if (existingSpaces.length === 0) {
+                    const defaultSpace = {
                         name: `Personal Space`,
                         documents: [
                         {
@@ -115,7 +115,7 @@ export async function openDatabase(dbName, version) {
                         announcements: [{
                             id: 1,
                             title: "Welcome to AIAuthor!",
-                            text: "Company Personal Space was successfully created. You can now add documents, users and settings to your company.",
+                            text: "Space Personal Space was successfully created. You can now add documents, users and settings to your space.",
                             date: today
                         }],
                         users: [{
@@ -131,7 +131,7 @@ export async function openDatabase(dbName, version) {
                             phoneNumber: "0733333333"
                         }],
                     };
-                    const defaultCompany2 = {
+                    const defaultSpace2 = {
                         name: `Personal Space2`,
                         documents: [{
                             id: 1,
@@ -214,35 +214,35 @@ export async function openDatabase(dbName, version) {
                         announcements: [{
                             id: 1,
                             title: "Welcome to AIAuthor!",
-                            text: "Company Personal Space2 was successfully created. You can now add documents, users and settings to your company.",
+                            text: "Space Personal Space2 was successfully created. You can now add documents, users and settings to your space.",
                             date: today
                         }],
                         users: [],
                     };
 
-                    const addRequest = companyStore.add(defaultCompany);
+                    const addRequest = spaceStore.add(defaultSpace);
                     addRequest.onsuccess = () => {
-                        console.log("Default company added.");
+                        console.log("Default space added.");
                     };
 
                     addRequest.onerror = (event) => {
-                        console.error("Could not add default company:", event.target.error);
+                        console.error("Could not add default space:", event.target.error);
                     };
 
-                    const addRequest2 = companyStore.add(defaultCompany2);
+                    const addRequest2 = spaceStore.add(defaultSpace2);
 
                     addRequest2.onsuccess = () => {
-                        console.log("Default company added.");
+                        console.log("Default space added.");
                     };
 
                     addRequest2.onerror = (event) => {
-                        console.error("Could not add default company:", event.target.error);
+                        console.error("Could not add default space:", event.target.error);
                     };
                 }
             };
 
             getAllRequest.onerror = (event) => {
-                console.error("Error fetching existing companies:", event.target.error);
+                console.error("Error fetching existing spaces:", event.target.error);
             };
         };
     });

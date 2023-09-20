@@ -25,7 +25,7 @@ export class brainstormingPage {
         this.updateState = ()=> {
             this.invalidate();
         }
-        webSkel.company.onChange(this.updateState);
+        webSkel.space.onChange(this.updateState);
     }
 
     beforeRender() {

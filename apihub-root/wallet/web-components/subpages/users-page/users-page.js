@@ -11,17 +11,17 @@ export class usersPage {
         this.tableRows = "No data loaded";
         this.element = element;
         const userService = new usersService();
-        if(webSkel.company.users) {
-            this._userConfigs = webSkel.company.users;
+        if(webSkel.space.users) {
+            this._userConfigs = webSkel.space.users;
             setTimeout(()=> {
                 this.invalidate();
             }, 0);
         }
         this.updateState = ()=> {
-            this._userConfigs = webSkel.company.users;
+            this._userConfigs = webSkel.space.users;
             this.invalidate();
         }
-        webSkel.company.onChange(this.updateState);
+        webSkel.space.onChange(this.updateState);
     }
 
     beforeRender() {
