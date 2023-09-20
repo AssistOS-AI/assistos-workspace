@@ -1,4 +1,5 @@
 import { showModal, showActionBox } from "../../../imports.js";
+import {reverseQuerySelector} from "../../../../WebSkel/utils/dom-utils.js";
 
 export class scriptsPage {
     constructor(element) {
@@ -37,9 +38,15 @@ export class scriptsPage {
     }
 
     async editAction(_target){
-        await showModal(document.querySelector("body"), "edit-script-modal", { presenter: "edit-script-modal"});
+        let script = reverseQuerySelector(_target, "script-unit");
+        await showModal(document.querySelector("body"), "edit-script-modal", { presenter: "edit-script-modal", id: script.getAttribute("data-id")});
     }
-    deleteAction(){
+    async deleteAction(_target){
+        let script = reverseQuerySelector(_target, "script-unit");
+        let scriptId = script.getAttribute("data-id");
+        let response = await fetch(`/space/${window.currentCompanyId}/myspace/scripts/delete/${scriptId}`, {method: "DELETE"});
+        console.log(response);
+        webSkel.company.notifyObservers();
 
     }
 
