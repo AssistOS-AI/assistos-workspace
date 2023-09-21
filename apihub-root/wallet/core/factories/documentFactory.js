@@ -6,4 +6,7 @@ export class DocumentFactory{
     createDocument(documentData) {
         return new DocumentModel(documentData);
     }
+    loadDocument(documentId){
+        return storageManager.getStorageService("IndexedDBService").loadJSON(webSkel.company.id, documentId);
+    }
 }

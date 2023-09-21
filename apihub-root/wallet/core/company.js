@@ -15,13 +15,12 @@ export class Company {
         this.name = companyData.name;
         this.id = companyData.id || undefined;
         this.settings = new Settings(companyData.settings);
-        this.announcements = (companyData.announcements || []).map(announcement => new Announcement(announcement.title, announcement.text, announcement.date, announcement.id));
-        this.users = (companyData.users || []).map(user => new User(user.lastName, user.firstName, user.email, user.phoneNumber));
+        this.announcements = (companyData.announcements || []).map(announcementData => new Announcement(announcementData));
+        this.users = (companyData.users || []).map(userData => new User(userData));
         this.documents = (companyData.documents||[]).map(docData => new DocumentModel(docData));
         this.observers = [];
         Company.instance = this;
     }
-
     static getInstance(companyData) {
         if(!this.instance) {
             this.instance = new Company(companyData);

@@ -1,8 +1,8 @@
 export class User {
-    constructor(lastName, firstName, email, phoneNumber) {
-        this.lastName = lastName || undefined;
-        this.firstName = firstName || undefined;
-        this.email = email || undefined;
-        this.phoneNumber = phoneNumber || undefined;
+    constructor(userData) {
+        this.lastName = userData.lastName || undefined;
+        this.firstName =  userData.firstName || undefined;
+        this.email =  userData.email || undefined;
+        this.phoneNumber =  userData.phoneNumber || undefined;
     }
 }

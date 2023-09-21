@@ -24,7 +24,6 @@ import { announcementsPage } from "./web-components/subpages/announcements-page/
 import { usersPage } from "./web-components/subpages/users-page/users-page.js";
 import { closeModal, showActionBox, showModal } from "../WebSkel/utils/modal-utils.js";
 import { notBasePage, getClosestParentElement } from "../WebSkel/utils/dom-utils.js";
-import { storageService } from "./core/services/storageService.js";
 import { Chapter } from "./core/models/chapter.js";
 import { DocumentModel} from "./core/models/documentModel.js";
 import { Personality } from "./core/models/personality.js";
@@ -34,7 +33,7 @@ import { Paragraph } from "./core/models/paragraph.js";
 import { Company } from "./core/company.js";
 import { companyDropdown }  from "./web-components/components/company-dropdown/company-dropdown.js";
 import { chapterUnit } from "./web-components/components/item-list/chapter-unit/chapter-unit.js";
-import { addRecord, getRecord, getAllRecords, getTableRecords, deleteRecord, openDatabase, updateRecord } from "./utils/indexDB.js";
+import { addRecord, getRecord, getAllRecords, getTableRecords, deleteRecord, openDatabase, updateRecord } from "./utils/indexDBWrapper_obsolete.js";
 import { initUser, registerAccountActions } from "./core/services/authenticationService.js";
 import { documentService } from "./core/services/documentService.js";
 import { llmsService } from "./core/services/llmsService.js";
@@ -88,7 +87,6 @@ export {
     closeModal,
     showActionBox,
     getClosestParentElement,
-    storageService,
     Company,
     WebSkel,
     Chapter,

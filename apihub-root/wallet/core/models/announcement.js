@@ -1,8 +1,8 @@
 export class Announcement {
-    constructor(title, text, date, id) {
-        this.title = title;
-        this.id = id;
-        this.date = date;
-        this.text = text;
+    constructor(announcementData) {
+        this.title = announcementData.title;
+        this.id = announcementData.id;
+        this.date = announcementData.date;
+        this.text = announcementData.text;
     }
 }

@@ -185,7 +185,7 @@
       "path": "./core/services/proofReaderService.js"
     },
     {
-      "name": "storageService",
+      "name": "StorageService",
       "path": "./core/services/storageService.js"
     },
     {
@@ -381,6 +381,21 @@
     {
       "name": "add-company-modal",
       "path": "./wallet/web-components/modals/add-company-modal/add-company-modal.html"
+    }
+  ],
+  "storageServices": [
+    {
+      "name": "IndexedDBService",
+      "path": "./core/services/indexedDBService.js",
+      "params": {"dbName":"freeUser", "version":1}
+    },
+    {
+        "name": "LocalStorageService",
+        "path": "./core/services/localStorageService.js"
+    },
+    {
+       "name": "JSONService",
+       "path": "./core/services/jsonService.js"
     }
   ]
 }

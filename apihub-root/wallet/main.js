@@ -1,11 +1,12 @@
 import {
     notBasePage,
-    storageService,
     WebSkel,
     closeModal,
     initUser,
     Company,
 } from "./imports.js";
+import {IndexedDBService_obsolete} from "./core/services/indexedDBService_obsolete.js";
+import {StorageManager} from "./storageManager.js";
 
 const openDSU = require("opendsu");
 window.webSkel = new WebSkel();
@@ -88,15 +89,16 @@ async function loadPage() {
 }
 
 async function initLiteUserDatabase() {
-    webSkel.localStorage = await storageService.getInstance("freeUser", 1);
-    await webSkel.localStorage.initDatabase();
+    window.storageManager = new StorageManager();
+
+    debugger;
     let result = localStorage.getItem("currentUser");
     if(result) {
         window.currentCompanyId = JSON.parse(result).currentCompanyId;
     } else {
         window.currentCompanyId = 1;
     }
-    webSkel.company = new Company(await webSkel.localStorage.getCompanyData(currentCompanyId));
+
 }
 
 function changeSelectedPageFromSidebar(url) {
@@ -154,9 +156,17 @@ async function loadConfigs(jsonPath) {
         for (const component of config.components) {
             await webSkel.defineComponent(component.name, component.path);
         }
+        for( const storageService of config.storageServices){
+            const StorageServiceModule=await import(storageService.path);
+            if(storageService.params) {
+                storageManager.addStorageService(storageService.name, new StorageServiceModule[storageService.name](...Object.values(storageService.params)));
+            }else{
+                storageManager.addStorageService(storageService.name, new StorageServiceModule[storageService.name]());
+            }
+        }
 
     } catch (error) {
-        showApplicationError("Error loading configs","Error loading configs",`Encountered ${error} while trying loading webSkel configs`);
+        await showApplicationError("Error loading configs","Error loading configs",`Encountered ${error} while trying loading webSkel configs`);
     }
 }
 
@@ -172,6 +182,7 @@ async function loadConfigs(jsonPath) {
     }
     await initUser();
     await loadConfigs("./wallet/webskel-configs.json");
+    webSkel.company = new Company(await webSkel.storageManeger.loadObject("JSONService",currentCompanyId,"/"));
     await loadPage();
     defineActions();
 })();
