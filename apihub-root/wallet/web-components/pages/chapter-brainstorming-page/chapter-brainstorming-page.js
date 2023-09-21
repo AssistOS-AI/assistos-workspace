@@ -12,31 +12,33 @@ export class chapterBrainstormingPage {
             setTimeout(()=> {
                 this.invalidate();
             }, 0);
-            this._chapter = this.documentService.getChapter(this._document, this.chapterId);
+            this._chapter = this._document.getChapter(this.chapterId);
             if(this._chapter) {
                 this.chapterTitle = this._chapter.title;
             }
             else {
                 console.log(`this chapter doesnt exist: chapterId: ${this.chapterId}`);
             }
-        }else {
+        }
+        else {
             console.log(`this _document doesnt exist: docId: ${this.docId}`);
         }
         this.updateState = ()=> {
             this._document = this.documentService.getDocument(this.docId);
             if(this._document) {
-                this._chapter = this.documentService.getChapter(this._document, this.chapterId);
+                this._chapter = this._document.getChapter(this.chapterId);
                 if(this._chapter) {
                     this.chapterTitle = this._chapter.title;
                 }
             }
             this.invalidate();
         }
-        webSkel.company.onChange(this.updateState);
+        // webSkel.space.onChange(this.updateState);
+        this._document.observeChange(this.updateState);
     }
 
     beforeRender() {
-        if(!this._document.mainIdeas || this._document.mainIdeas.length === 0) {
+        if(!this._document.getMainIdeas() || this._document.getMainIdeas().length === 0) {
             this.generateMainIdeasButtonName = "Summarize";
         } else {
             this.generateMainIdeasButtonName = "Regenerate";

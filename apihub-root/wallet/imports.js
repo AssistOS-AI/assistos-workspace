@@ -15,7 +15,7 @@ import { paragraphBrainstormingPage } from "./web-components/pages/paragraph-bra
 import { paragraphProofreadPage } from "./web-components/pages/paragraph-proofread-page/paragraph-proofread-page.js";
 import { editAbstractPage } from "./web-components/pages/edit-abstract-page/edit-abstract-page.js";
 import { proofReaderPage } from "./web-components/pages/proof-reader-page/proof-reader-page.js";
-import { myOrganizationPage } from "./web-components/pages/my-organization-page/my-organization-page.js";
+import { spacePage } from "./web-components/pages/space-page/space-page.js";
 import { documentSettingsPage } from "./web-components/pages/document-settings-page/document-settings-page.js";
 import { brainstormingPage } from "./web-components/pages/brainstorming-page/brainstorming-page.js";
 import { llmsPage } from "./web-components/subpages/llms-page/llms-page.js";
@@ -24,35 +24,32 @@ import { announcementsPage } from "./web-components/subpages/announcements-page/
 import { usersPage } from "./web-components/subpages/users-page/users-page.js";
 import { closeModal, showActionBox, showModal } from "../WebSkel/utils/modal-utils.js";
 import { notBasePage, getClosestParentElement } from "../WebSkel/utils/dom-utils.js";
+import { storageService } from "./core/services/storageService.js";
 import { Chapter } from "./core/models/chapter.js";
 import { DocumentModel} from "./core/models/documentModel.js";
 import { Personality } from "./core/models/personality.js";
 import { User } from "./core/models/user.js";
 import { Announcement } from "./core/models/announcement.js";
 import { Paragraph } from "./core/models/paragraph.js";
-import { Company } from "./core/company.js";
-import { companyDropdown }  from "./web-components/components/company-dropdown/company-dropdown.js";
+import { Space } from "./core/models/space.js";
+import { spaceDropdown }  from "./web-components/components/space-dropdown/space-dropdown.js";
 import { chapterUnit } from "./web-components/components/item-list/chapter-unit/chapter-unit.js";
-import { addRecord, getRecord, getAllRecords, getTableRecords, deleteRecord, openDatabase, updateRecord } from "./utils/indexDBWrapper_obsolete.js";
+import { addRecord, getRecord, getAllRecords, getTableRecords, deleteRecord, openDatabase, updateRecord } from "./utils/indexDB.js";
 import { initUser, registerAccountActions } from "./core/services/authenticationService.js";
-import { documentService } from "./core/services/documentService.js";
-import { llmsService } from "./core/services/llmsService.js";
-import { personalitiesService } from "./core/services/personalitiesService.js";
-import { usersService } from "./core/services/usersService.js";
+import { documentService } from "./core/_old/documentService.js";
+import { usersService } from "./core/_old/usersService.js";
 import { spaceSettingsService } from "./core/services/spaceSettingsService.js";
-import { brainstormingService }   from "./core/services/brainstormingService.js";
+import { brainstormingService }   from "./core/_old/brainstormingService.js";
 import { LLM } from "./core/models/llm.js";
 import WebSkel from "../WebSkel/webSkel.js";
-import {companyService} from "./core/services/companyService.js";
+import { spaceService } from "./core/_old/spaceService.js";
 import { extractFormInformation } from "../WebSkel/utils/form-utils.js";
-import { addCompanyModal} from "./web-components/modals/add-company-modal/add-company-modal.js";
+import { addSpaceModal} from "./web-components/modals/add-space-modal/add-space-modal.js";
 import { Settings } from "./core/models/settings.js";
 export {
     Settings,
     documentService,
-    addCompanyModal,
-    llmsService,
-    personalitiesService,
+    addSpaceModal,
     usersService,
     brainstormingService,
     spaceSettingsService,
@@ -67,10 +64,10 @@ export {
     documentsPage,
     documentViewPage,
     editTitlePage,
-    companyDropdown,
+    spaceDropdown,
     editAbstractPage,
     proofReaderPage,
-    myOrganizationPage,
+    spacePage,
     documentSettingsPage,
     chapterTitlePage,
     chapterBrainstormingPage,
@@ -87,7 +84,8 @@ export {
     closeModal,
     showActionBox,
     getClosestParentElement,
-    Company,
+    storageService,
+    Space,
     WebSkel,
     Chapter,
     DocumentModel,
@@ -106,5 +104,5 @@ export {
     registerAccountActions,
     LLM,
     extractFormInformation,
-    companyService
+    spaceService
 };

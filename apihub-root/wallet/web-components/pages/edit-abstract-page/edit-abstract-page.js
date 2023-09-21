@@ -1,7 +1,5 @@
 import {
-    brainstormingService,
     closeModal,
-    documentService,
     getClosestParentElement,
     showActionBox,
     showModal
@@ -27,14 +25,15 @@ export class editAbstractPage {
             this.abstractText = this._document.abstract;
             this.invalidate();
         }
-        webSkel.company.onChange(this.updateState);
-        this.abstractText = this._document.abstract;
+        // webSkel.space.onChange(this.updateState);
+        this._document.observeChange(this.updateState);
+        this.abstractText = this._document.getAbstract();
     }
 
     beforeRender() {
-        this.title = `<title-view title="${this._document.title}"></title-view>`;
+        this.title = `<title-view title="${this._document.getTitle()}"></title-view>`;
         this.alternativeAbstracts = "";
-        for (let i = 0; i < this._document.alternativeAbstracts.length; i++) {
+        for (let i = 0; i < this._document.getAlternativeAbstracts().length; i++) {
             this.alternativeAbstracts += `<alternative-abstract nr="${i + 1}" title="${this._document.alternativeAbstracts[i]}"></alternative-abstract>`;
         }
         if(!this._document.mainIdeas || this._document.mainIdeas.length === 0) {
@@ -70,8 +69,8 @@ export class editAbstractPage {
 
     async saveAbstract() {
         let updatedAbstract = document.querySelector(".abstract-content").innerText;
-        const documentIndex = webSkel.company.documents.findIndex(doc => doc.id === this.id);
-        if (documentIndex !== -1 && updatedAbstract !== this.documentService.getAbstract(this._document)) {
+        let documentIndex = webSkel.space.documents.findIndex(doc => doc.id === this.id);
+        if (documentIndex !== -1 && updatedAbstract !== this._document.getAbstract()) {
             for (let i = 0; i < updatedAbstract.length; i++) {
                 if (updatedAbstract[i] === '\n') {
                     let numberOfNewLines = 0;
@@ -88,7 +87,7 @@ export class editAbstractPage {
                     updatedAbstract = updatedAbstract.slice(0, initialIndex) + newLineString + updatedAbstract.slice(i);
                 }
             }
-            this.documentService.updateAbstract(this._document, updatedAbstract)
+            this._document.updateAbstract(updatedAbstract)
             await this.documentService.updateDocument(this._document, this._document.id);
         }
     }
@@ -113,14 +112,15 @@ export class editAbstractPage {
         const loading = await webSkel.showLoading();
         async function suggestAbstract() {
             const documentService = webSkel.getService('documentService');
-            const documentText = documentService.getDocument(webSkel.company.currentDocumentId).toString();
+            const documentText = documentService.getDocument(webSkel.space.currentDocumentId).toString();
             const defaultPrompt = `Given the content of the following document: "${documentText}". Please generate a concise and contextually appropriate abstract that accurately reflects the document's key points, themes, and findings. Your response should consist solely of the abstract text.`;
             const brainstormingSrv = new brainstormingService();
-            const llmId = webSkel.company.settings.llms[0].id;
+            const llmId = webSkel.space.settings.llms[0].id;
             return await brainstormingSrv.suggestAbstract(defaultPrompt, llmId);
         }
         this.suggestedAbstract = await suggestAbstract();
-        webSkel.company.notifyObservers();
+        // webSkel.space.notifyObservers();
+        this._document.observeChange(this.updateState);
         loading.close();
         loading.remove();
         await showModal(document.querySelector("body"), "suggest-abstract-modal", { presenter: "suggest-abstract-modal"});

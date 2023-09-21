@@ -6,9 +6,9 @@
       "className": "chapterUnit"
     },
     {
-      "name": "company-dropdown",
-      "path": "./web-components/components/company-dropdown/company-dropdown.js",
-      "className": "companyDropdown"
+      "name": "space-dropdown",
+      "path": "./web-components/components/space-dropdown/space-dropdown.js",
+      "className": "spaceDropdown"
     },
     {
       "name": "document-view-page",
@@ -28,122 +28,122 @@
     {
       "name": "documents-page",
       "path": "./web-components/pages/documents-page/documents-page.js",
-        "className": "documentsPage"
+      "className": "documentsPage"
     },
     {
       "name": "document-settings-page",
       "path": "./web-components/pages/document-settings-page/document-settings-page.js",
-        "className": "documentSettingsPage"
+      "className": "documentSettingsPage"
     },
     {
       "name": "brainstorming-page",
       "path": "./web-components/pages/brainstorming-page/brainstorming-page.js",
-        "className": "brainstormingPage"
+      "className": "brainstormingPage"
     },
     {
       "name": "chapter-brainstorming-page",
       "path": "./web-components/pages/chapter-brainstorming-page/chapter-brainstorming-page.js",
-        "className": "chapterBrainstormingPage"
+      "className": "chapterBrainstormingPage"
     },
     {
       "name": "paragraph-brainstorming-page",
       "path": "./web-components/pages/paragraph-brainstorming-page/paragraph-brainstorming-page.js",
-        "className": "paragraphBrainstormingPage"
+      "className": "paragraphBrainstormingPage"
     },
     {
       "name": "paragraph-proofread-page",
       "path": "./web-components/pages/paragraph-proofread-page/paragraph-proofread-page.js",
-        "className": "paragraphProofreadPage"
+      "className": "paragraphProofreadPage"
     },
     {
       "name": "chapter-title-page",
       "path": "./web-components/pages/chapter-title-page/chapter-title-page.js",
-        "className": "chapterTitlePage"
+      "className": "chapterTitlePage"
     },
     {
       "name": "proof-reader-page",
       "path": "./web-components/pages/proof-reader-page/proof-reader-page.js",
-        "className": "proofReaderPage"
+      "className": "proofReaderPage"
     },
     {
-      "name": "my-organization-page",
-      "path": "./web-components/pages/my-organization-page/my-organization-page.js",
-        "className": "myOrganizationPage"
+      "name": "space-page",
+      "path": "./web-components/pages/space-page/space-page.js",
+      "className": "spacePage"
     },
     {
       "name": "announcements-page",
       "path": "./web-components/subpages/announcements-page/announcements-page.js",
-        "className": "announcementsPage"
+      "className": "announcementsPage"
     },
     {
       "name": "llms-page",
       "path": "./web-components/subpages/llms-page/llms-page.js",
-        "className": "llmsPage"
+      "className": "llmsPage"
     },
     {
       "name": "users-page",
       "path": "./web-components/subpages/users-page/users-page.js",
-        "className": "usersPage"
+      "className": "usersPage"
     },
     {
       "name": "personalities-page",
       "path": "./web-components/subpages/personalities-page/personalities-page.js",
-        "className": "personalitiesPage"
+      "className": "personalitiesPage"
     },
     {
       "name": "add-document-modal",
       "path": "./web-components/modals/add-document-modal/add-document-modal.js",
-        "className": "addDocumentModal"
+      "className": "addDocumentModal"
     },
     {
       "name": "add-announcement-modal",
       "path": "./web-components/modals/add-announcement-modal/add-announcement-modal.js",
-        "className": "addAnnouncementModal"
+      "className": "addAnnouncementModal"
     },
     {
       "name": "add-chapter-modal",
       "path": "./web-components/modals/add-chapter-modal/add-chapter-modal.js",
-        "className": "addChapterModal"
+      "className": "addChapterModal"
     },
     {
       "name": "add-llm-modal",
       "path": "./web-components/modals/add-llm-modal/add-llm-modal.js",
-        "className": "addLLMModal"
+      "className": "addLLMModal"
     },
     {
       "name": "add-personality-modal",
       "path": "./web-components/modals/add-personality-modal/add-personality-modal.js",
-        "className": "addPersonalityModal"
+      "className": "addPersonalityModal"
     },
     {
       "name": "add-script-modal",
       "path": "./web-components/modals/add-script-modal/add-script-modal.js",
-      "className": "addScriptModal"
+    "className": "addScriptModal"
     },
     {
       "name": "edit-script-modal",
       "path": "./web-components/modals/edit-script-modal/edit-script-modal.js",
-      "className": "editScriptModal"
+    "className": "editScriptModal"
     },
     {
       "name": "add-user-modal",
       "path": "./web-components/modals/add-user-modal/add-user-modal.js",
-        "className": "addUserModal"
+      "className": "addUserModal"
     },
     {
       "name": "suggest-abstract-modal",
       "path": "./web-components/modals/suggest-abstract-modal/suggest-abstract-modal.js",
-        "className": "suggestAbstractModal"
+      "className": "suggestAbstractModal"
     },
     {
       "name": "suggest-titles-modal",
       "path": "./web-components/modals/suggest-titles-modal/suggest-titles-modal.js",
-        "className": "suggestTitlesModal"
+      "className": "suggestTitlesModal"
     },
     {
-      "name": "add-company-modal",
-      "path": "./web-components/modals/add-company-modal/add-company-modal.js",
-        "className": "addCompanyModal"
+      "name": "add-space-modal",
+      "path": "./web-components/modals/add-space-modal/add-space-modal.js",
+      "className": "addSpaceModal"
     },
     {
       "name": "scripts-page",
@@ -157,24 +157,16 @@
       "path": "./core/services/documentService.js"
     },
     {
-      "name": "llmsService",
-      "path": "./core/services/llmsService.js"
-    },
-    {
-      "name": "personalitiesService",
-      "path": "./core/services/personalitiesService.js"
+      "name": "spaceSettingsService",
+      "path": "./core/services/spaceSettingsService.js"
     },
     {
       "name": "usersService",
       "path": "./core/services/usersService.js"
     },
     {
-      "name": "spaceSettingsService",
-      "path": "./core/services/spaceSettingsService.js"
-    },
-    {
-      "name": "companyService",
-      "path": "./core/services/companyService.js"
+      "name": "spaceService",
+      "path": "./core/services/spaceService.js"
     },
     {
       "name": "brainstormingService",
@@ -199,12 +191,12 @@
       "path": "./wallet/web-components/components/item-list/chapter-unit/chapter-unit.html"
     },
     {
-      "name": "company-dropdown",
-      "path": "./wallet/web-components/components/company-dropdown/company-dropdown.html"
+      "name": "space-dropdown",
+      "path": "./wallet/web-components/components/space-dropdown/space-dropdown.html"
     },
     {
-      "name": "company-unit",
-      "path": "./wallet/web-components/components/item-list/company-unit/company-unit.html"
+      "name": "space-unit",
+      "path": "./wallet/web-components/components/item-list/space-unit/space-unit.html"
     },
     {
       "name": "paragraph-unit",
@@ -311,8 +303,8 @@
       "path": "./wallet/web-components/pages/proof-reader-page/proof-reader-page.html"
     },
     {
-      "name": "my-organization-page",
-      "path": "./wallet/web-components/pages/my-organization-page/my-organization-page.html"
+      "name": "space-page",
+      "path": "./wallet/web-components/pages/space-page/space-page.html"
     },
     {
       "name": "llms-page",
@@ -379,8 +371,8 @@
       "path": "./wallet/web-components/modals/suggest-titles-modal/suggest-titles-modal.html"
     },
     {
-      "name": "add-company-modal",
-      "path": "./wallet/web-components/modals/add-company-modal/add-company-modal.html"
+      "name": "add-space-modal",
+      "path": "./wallet/web-components/modals/add-space-modal/add-space-modal.html"
     }
   ],
   "storageServices": [

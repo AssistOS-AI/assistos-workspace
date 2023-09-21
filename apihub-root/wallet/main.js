@@ -3,7 +3,7 @@ import {
     WebSkel,
     closeModal,
     initUser,
-    Company,
+    Space,
 } from "./imports.js";
 import {IndexedDBService_obsolete} from "./core/services/indexedDBService_obsolete.js";
 import {StorageManager} from "./storageManager.js";
@@ -55,7 +55,7 @@ async function initWallet() {
 async function loadPage() {
     let url = window.location.hash;
     if(url === "" || url === null) {
-        url = "#my-organization-page";
+        url = "#space-page";
     }
     if(notBasePage(url)) {
         /*#proofReader, #documents */
@@ -68,20 +68,20 @@ async function loadPage() {
                 let documentIdURL = parseInt(url.split('/')[1]);
                 let chapterIdURL = parseInt(url.split('/')[3]);
                 let paragraphIdURL = parseInt(url.split('/')[4]);
-                /* To be replaced with company id from URL */
+                /* To be replaced with space id from URL */
                 if (await webSkel.localStorage.getDocument(1, documentIdURL) !== null) {
-                    webSkel.company.currentDocumentId = documentIdURL;
-                    webSkel.company.currentChapterId = chapterIdURL;
-                    webSkel.company.currentParagraphId = paragraphIdURL;
+                    webSkel.space.currentDocumentId = documentIdURL;
+                    webSkel.space.currentChapterId = chapterIdURL;
+                    webSkel.space.currentParagraphId = paragraphIdURL;
                     changeSelectedPageFromSidebar("documents-page");
                 }
                 changeSelectedPageFromSidebar("documents-page");
                 break;
             }
-            default:{
-                webSkel.company.currentDocumentId=null;
-                webSkel.company.currentChapterId = null;
-                webSkel.company.currentParagraphId = null;
+            default: {
+                webSkel.space.currentDocumentId = null;
+                webSkel.space.currentChapterId = null;
+                webSkel.space.currentParagraphId = null;
             }
         }
         await webSkel.changeToStaticPage(url);
@@ -94,11 +94,11 @@ async function initLiteUserDatabase() {
     debugger;
     let result = localStorage.getItem("currentUser");
     if(result) {
-        window.currentCompanyId = JSON.parse(result).currentCompanyId;
+        window.currentSpaceId = JSON.parse(result).currentSpaceId;
     } else {
-        window.currentCompanyId = 1;
+        window.currentSpaceId = 1;
     }
-
+    webSkel.company = new Company(await webSkel.localStorage.getCompanyData(currentCompanyId));
 }
 
 function changeSelectedPageFromSidebar(url) {
@@ -166,7 +166,7 @@ async function loadConfigs(jsonPath) {
         }
 
     } catch (error) {
-        await showApplicationError("Error loading configs","Error loading configs",`Encountered ${error} while trying loading webSkel configs`);
+        await showApplicationError("Error loading configs", "Error loading configs", `Encountered ${error} while trying loading webSkel configs`);
     }
 }
 
@@ -174,7 +174,6 @@ async function loadConfigs(jsonPath) {
     webSkel.setDomElementForPages(document.querySelector("#page-content"));
     /* only for premium users initWallet/enclaves*/
     //await initWallet();
-
     if (('indexedDB' in window)) {
         await initLiteUserDatabase();
     } else {

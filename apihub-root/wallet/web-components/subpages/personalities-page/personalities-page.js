@@ -8,17 +8,17 @@ export class personalitiesPage {
         this.button = "Add Personality";
         this.tableRows = "No data loaded";
         this.element = element;
-        if (webSkel.company.settings.personalities) {
-            this._personalityConfigs = webSkel.company.settings.personalities;
+        if (webSkel.space.settings.personalities) {
+            this._personalityConfigs = webSkel.space.settings.personalities;
             setTimeout(() => {
                 this.invalidate();
             }, 0);
         }
         this.updateState = ()=> {
-            this._personalityConfigs = webSkel.company.settings.personalities;
+            this._personalityConfigs = webSkel.space.settings.personalities;
             this.invalidate();
         }
-        webSkel.company.onChange(this.updateState);
+        // webSkel.space.onChange(this.updateState);
     }
 
     beforeRender() {

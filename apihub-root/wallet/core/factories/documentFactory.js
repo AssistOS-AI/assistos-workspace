@@ -1,12 +1,27 @@
-import {DocumentModel} from "../../imports.js";
+import { DocumentModel } from "../../imports.js";
 
-export class DocumentFactory{
+export class DocumentFactory {
     constructor() {
+
     }
-    createDocument(documentData) {
+
+    createDocument() {
+        let openDSU = require("opendsu");
+        let crypto = openDSU.loadApi("crypto");
+        let documentData = { id: crypto.getRandomSecret(16)};
         return new DocumentModel(documentData);
     }
-    loadDocument(documentId){
-        return storageManager.getStorageService("IndexedDBService").loadJSON(webSkel.company.id, documentId);
+
+    async loadDocument(docId) {
+        let documentPath = "documents/" + docId;
+        let docJson = await webSkel.storageService.loadObject(documentPath, docJson);
+        let documentModel = JSON.parse(docJson);
+        return new DocumentModel(documentModel);
+    }
+
+    async saveDocument(documentModel) {
+        let documentPath = "documents/" + documentModel.id;
+        let docJson = JSON.stringify(documentModel);
+        await webSkel.storageService.saveObject(documentPath, docJson);
     }
 }

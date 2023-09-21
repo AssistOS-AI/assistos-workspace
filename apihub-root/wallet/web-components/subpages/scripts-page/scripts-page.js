@@ -1,24 +1,25 @@
 import { showModal, showActionBox } from "../../../imports.js";
+import {reverseQuerySelector} from "../../../../WebSkel/utils/dom-utils.js";
 
 export class scriptsPage {
     constructor(element) {
-        this.name = "name";
+        this.name = "Name";
         this.preview = "Preview";
-        this.modal = "showAddPersonalityModal";
+        this.modal = "showAddScriptModal";
         this.button = "Add Script";
         this.tableRows = "No data loaded";
         this.element = element;
-        if (webSkel.company.settings.scripts) {
-            this._scriptsConfigs = webSkel.company.settings.scripts;
+        if (webSkel.space.settings.scripts) {
+            this._scriptsConfigs = webSkel.space.settings.scripts;
             setTimeout(() => {
                 this.invalidate();
             }, 0);
         }
         this.updateState = ()=> {
-            this._scriptsConfigs = webSkel.company.settings.scripts;
+            this._scriptsConfigs = webSkel.space.settings.scripts;
             this.invalidate();
         }
-        webSkel.company.onChange(this.updateState);
+        // webSkel.space.onChange(this.updateState);
     }
 
     beforeRender() {
@@ -28,7 +29,7 @@ export class scriptsPage {
                 this.tableRows += `<script-unit data-name="${item.name}" data-content="${item.content}" data-id="${item.id}"></script-unit>`;
             });
         } else {
-            this.tableRows = `<script-unit data-name="No data loaded"></script-unit>`;
+            this.tableRows = `<div class="no-data-loaded">No data loaded</div>`;
         }
     }
 
@@ -37,9 +38,16 @@ export class scriptsPage {
     }
 
     async editAction(_target){
-        await showModal(document.querySelector("body"), "edit-script-modal", { presenter: "edit-script-modal"});
+        let script = reverseQuerySelector(_target, "script-unit");
+        await showModal(document.querySelector("body"), "edit-script-modal", { presenter: "edit-script-modal", id: script.getAttribute("data-id")});
     }
-    deleteAction(){
+    async deleteAction(_target){
+        let script = reverseQuerySelector(_target, "script-unit");
+        let scriptId = script.getAttribute("data-id");
+        let response = await fetch(`/space/${window.currentSpaceId}/myspace/scripts/delete/${scriptId}`, {method: "DELETE"});
+        console.log(response);
+
+        webSkel.space.notifyObservers();
 
     }
 

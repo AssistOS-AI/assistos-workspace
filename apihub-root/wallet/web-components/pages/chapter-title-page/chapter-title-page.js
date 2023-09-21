@@ -6,14 +6,13 @@ export class chapterTitlePage {
         let url = window.location.hash;
         this.docId = parseInt(url.split('/')[1]);
         this.chapterId = parseInt(url.split('/')[3]);
-
         this.documentService = webSkel.getService('documentService');
         this._document = this.documentService.getDocument(this.docId);
         if(this._document) {
             setTimeout(()=> {
                 this.invalidate();
             }, 0);
-            this._chapter = this.documentService.getChapter(this._document, this.chapterId);
+            this._chapter = this._document.getChapter(this.chapterId);
             if(this._chapter) {
                 this.chapterTitle = this._chapter.title;
             } else {
@@ -25,13 +24,14 @@ export class chapterTitlePage {
         this.updateState = ()=> {
             this._document = this.documentService.getDocument(this.docId);
             if(this._document) {
-                this._chapter = this.documentService.getChapter(this._document, this.chapterId);
+                this._chapter = this._document.getChapter(this.chapterId);
                 if(this._chapter)
                     this.chapterTitle = this._chapter.title;
             }
             this.invalidate();
         }
-        webSkel.company.onChange(this.updateState);
+        // webSkel.space.onChange(this.updateState);
+        this._document.observeChange(this.updateState);
     }
 
     beforeRender() {
@@ -48,11 +48,11 @@ export class chapterTitlePage {
     async saveTitle(_target) {
         const formInfo = await extractFormInformation(_target);
         if(formInfo.isValid) {
-            const documentIndex = webSkel.company.documents.findIndex(doc => doc.id === this.docId);
-            const chapterIndex = webSkel.company.documents[documentIndex].chapters.findIndex(chapter => chapter.id === this.chapterId);
-            if (documentIndex !== -1 && chapterIndex !== -1 && formInfo.data.title !== webSkel.company.documents[documentIndex].chapters[chapterIndex].title) {
-                webSkel.company.documents[documentIndex].chapters[chapterIndex].title = formInfo.data.title;
-                this.documentService.updateDocument(webSkel.company.documents[documentIndex], this.docId);
+            const documentIndex = webSkel.space.documents.findIndex(doc => doc.id === this.docId);
+            const chapterIndex = this._document.getChapterIndex(this.chapterId);
+            if (documentIndex !== -1 && chapterIndex !== -1 && formInfo.data.title !== this._document.getChapterTitle(this.chapterId)) {
+                this._document.updateChapterTitle(this.chapterId, formInfo.data.title);
+                await this.documentService.updateDocument(this._document, this.docId);
             }
         }
     }

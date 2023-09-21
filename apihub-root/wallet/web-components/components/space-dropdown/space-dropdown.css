@@ -1,4 +1,4 @@
-.organization-list {
+.spaces-list {
     display: none;
     flex-direction: column;
     z-index: 1;
@@ -11,7 +11,7 @@
     box-shadow: 0 8px 16px 0 rgba(0, 0, 0, 0.2);
 }
 
-.add-organization-btn {
+.add-space-btn {
     background-color: #39288d;
     outline: none;
     border: none;
@@ -22,18 +22,18 @@
     padding: 0 7px;
 }
 
-company-unit {
+space-unit {
     color: #FFF;
     cursor: pointer;
     border-bottom: 1px solid #423685;
     padding: 5px 10px;
 }
 
-company-unit:hover {
+space-unit:hover {
     background-color: #6559a2;
 }
 
-.organization-dropbox {
+.current-space-btn {
     display: flex;
     flex-direction: row;
     cursor: pointer;
@@ -44,11 +44,11 @@ company-unit:hover {
     font-family: Poppins;
 }
 
-.organization-name {
+.space-name {
     margin-right: 10px;
 }
 
-.company-dropdown {
+.space-dropdown {
     position: relative;
     display: inline-block;
 }
