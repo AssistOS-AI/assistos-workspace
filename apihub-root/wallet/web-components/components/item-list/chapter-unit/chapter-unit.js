@@ -10,9 +10,11 @@ export class chapterUnit {
         this.updateState = ()=> {
             this.invalidate();
         }
-        webSkel.space.onChange(this.updateState);
+        // webSkel.space.onChange(this.updateState);
+
         this.docId = webSkel.space.currentDocumentId;
         this._document = webSkel.servicesRegistry.documentService.getDocument(this.docId);
+        this._document.observeChange(this.updateState);
     }
 
     beforeRender() {
@@ -57,7 +59,7 @@ export class chapterUnit {
 
             let chapter1Index = this._document.chapters.findIndex(chapter => chapter.id === parseInt(currentChapter.getAttribute('data-chapter-id')));
             let chapter2Index = this._document.chapters.findIndex(chapter => chapter.id === parseInt(chapterAbove.getAttribute('data-chapter-id')));
-            await webSkel.servicesRegistry.documentService.swapChapters(this._document.id, chapter1Index, chapter2Index);
+            await this._document.swapChapters(chapter1Index, chapter2Index);
 
             currentChapter.setAttribute("data-chapter-number", chapterAboveNumber);
             currentChapter.querySelector(".data-chapter-number").innerText = chapterAboveNumber + ".";
@@ -79,7 +81,7 @@ export class chapterUnit {
             chapterBelow.after(currentChapter);
             let chapter1Index = this._document.chapters.findIndex(chapter => chapter.id === parseInt(currentChapter.getAttribute('data-chapter-id')));
             let chapter2Index = this._document.chapters.findIndex(chapter => chapter.id === parseInt(chapterBelow.getAttribute('data-chapter-id')));
-            await webSkel.servicesRegistry.documentService.swapChapters(this._document.id, chapter1Index, chapter2Index);
+            await this._document.swapChapters(chapter1Index, chapter2Index);
 
             let currentChapterNumber = currentChapter.querySelector(".data-chapter-number").innerText.split(".")[0];
             let chapterBelowNumber = chapterBelow.querySelector(".data-chapter-number").innerText.split(".")[0];
@@ -120,7 +122,7 @@ export class chapterUnit {
             paragraphBelow.after(currentParagraph);
             let paragraph1Index = this._document.chapters.findIndex(paragraph => paragraph.id === parseInt(currentParagraph.getAttribute('data-paragraph-id')));
             let paragraph2Index = this._document.chapters.findIndex(paragraph => paragraph.id === parseInt(paragraphBelow.getAttribute('data-paragraph-id')));
-            await webSkel.servicesRegistry.documentService.swapParagraphs(this._document, chapterIndex, paragraph1Index, paragraph2Index);
+            await this._document.swapParagraphs(chapterIndex, paragraph1Index, paragraph2Index);
         }
     }
 

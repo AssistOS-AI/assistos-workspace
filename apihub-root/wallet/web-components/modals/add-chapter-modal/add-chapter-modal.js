@@ -13,7 +13,9 @@ export class addChapterModal {
             this.invalidate();
         }
         this.documentService = webSkel.getService('documentService');
-        webSkel.space.onChange(this.updateState);
+        this._document = this.documentService.getDocument(this.docId);
+        this._document.observeChange(this.updateState);
+        // webSkel.space.onChange(this.updateState);
     }
 
     beforeRender() {
@@ -37,6 +39,7 @@ export class addChapterModal {
             let newChapter = new Chapter(chapterObj);
             updateDocument.chapters.push(newChapter);
             await this.documentService.updateDocument(updateDocument, this.docId);
+            this._document.notifyObservers();
         }
     }
 }

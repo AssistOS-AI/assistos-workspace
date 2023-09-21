@@ -23,7 +23,7 @@ export class DocumentModel {
     }
 
     notifyObservers() {
-        for (const observerRef of this.observers) {
+        for (const observerRef of DocumentModel.observers) {
             const observer = observerRef.deref();
             if (observer) {
                 observer();

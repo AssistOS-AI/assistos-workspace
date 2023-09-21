@@ -29,6 +29,7 @@ export class spaceDropdown {
         let selectedSpaceId = parseInt(selectedSpace.getAttribute('data-space-id'));
         webSkel.servicesRegistry.spaceService.changeSpace(selectedSpaceId);
     }
+
     async  addSpace(){
        await showModal(document.querySelector("body"), "add-space-modal", { presenter: "add-space-modal"});
     }

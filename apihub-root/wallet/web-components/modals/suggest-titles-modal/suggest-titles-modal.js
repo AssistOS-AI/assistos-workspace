@@ -10,7 +10,10 @@ export class suggestTitlesModal {
         this.updateState = ()=> {
             this.invalidate();
         }
-        webSkel.space.onChange(this.updateState);
+        // webSkel.space.onChange(this.updateState);
+        this.id = parseInt(window.location.hash.split('/')[1]);
+        this._document = webSkel.servicesRegistry.documentService.getDocument(this.id);
+        this._document.observeChange(this.updateState);
         this.suggestedTitles = document.querySelector("edit-title-page").webSkelPresenter.suggestedTitles;
     }
 

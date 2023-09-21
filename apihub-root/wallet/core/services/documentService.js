@@ -30,7 +30,7 @@ export class documentService {
         if (index !== -1) {
             webSkel.space.documents.splice(index, 1);
             await webSkel.localStorage.deleteDocument(webSkel.space.id, documentId);
-            webSkel.currentDocumentId = null;
+            webSkel.space.currentDocumentId = null;
             webSkel.space.notifyObservers();
         }
     }

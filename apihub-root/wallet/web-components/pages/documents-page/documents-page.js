@@ -32,6 +32,7 @@ export class documentsPage {
     async editAction(_target) {
         let rowElement = getClosestParentElement(_target,['document-unit']);
         let documentId = parseInt(rowElement.getAttribute('data-id'));
+        webSkel.space.currentDocumentId = documentId;
         await webSkel.changeToStaticPage(`documents/${documentId}`);
     }
 

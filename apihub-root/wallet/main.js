@@ -77,8 +77,8 @@ async function loadPage() {
                 changeSelectedPageFromSidebar("documents-page");
                 break;
             }
-            default:{
-                webSkel.space.currentDocumentId=null;
+            default: {
+                webSkel.space.currentDocumentId = null;
                 webSkel.space.currentChapterId = null;
                 webSkel.space.currentParagraphId = null;
             }

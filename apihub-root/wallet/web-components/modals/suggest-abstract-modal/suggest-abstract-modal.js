@@ -9,7 +9,10 @@ export class suggestAbstractModal {
         this.updateState = ()=> {
             this.invalidate();
         }
-        webSkel.space.onChange(this.updateState);
+        // webSkel.space.onChange(this.updateState);
+        this.id = parseInt(window.location.hash.split('/')[1]);
+        this._document = webSkel.servicesRegistry.documentService.getDocument(this.id);
+        this._document.observeChange(this.updateState);
         this.suggestedAbstract = document.querySelector("edit-abstract-page").webSkelPresenter.suggestedAbstract;
     }
 
@@ -22,8 +25,7 @@ export class suggestAbstractModal {
     }
 
     async addSelectedAbstract(_target) {
-        let currentDocument = webSkel.servicesRegistry.documentService.getDocument(parseInt(window.location.hash.split('/')[1]));
-        webSkel.servicesRegistry.documentService.addAlternativeAbstract(currentDocument, this.suggestedAbstract);
-        await webSkel.servicesRegistry.documentService.updateDocument(currentDocument, currentDocument.id);
+        webSkel.servicesRegistry.documentService.addAlternativeAbstract(this._document, this.suggestedAbstract);
+        await webSkel.servicesRegistry.documentService.updateDocument(this._document, this.id);
     }
 }

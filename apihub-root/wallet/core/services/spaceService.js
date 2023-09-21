@@ -14,20 +14,24 @@ export class spaceService {
             date: today
         }];
         this.changeSpace(await webSkel.localStorage.addSpace({
-            name:title,documents:[],personalities:[],admins:[],settings:{llms:[],personalities:[]},announcements: newAnnouncements,users:[]}
+            name: title, documents: [], personalities: [], admins: [], settings: {llms: [], personalities: []}, announcements: newAnnouncements, users: []}
         ));
     }
 
-    changeSpace(spaceId){
+    changeSpace(spaceId) {
         window.currentSpaceId = spaceId;
         let user = JSON.parse(localStorage.getItem("currentUser"));
         user.currentSpaceId = currentSpaceId;
         localStorage.setItem("currentUser", JSON.stringify(user));
+        // let docService = webSkel.getService('documentService');
+        // docService.getAllDocuments().forEach((doc) => {
+        //     doc.observeChange(()=>{});
+        // });
         window.location = "";
     }
 
-    getSpaceNames(){
-        return currentUser.spaces.filter(space => space.id !== currentSpaceId)||[];
+    getSpaceNames() {
+        return currentUser.spaces.filter(space => space.id !== currentSpaceId) || [];
     }
 
     deleteSpace() {
