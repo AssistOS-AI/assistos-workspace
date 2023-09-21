@@ -129,11 +129,13 @@ export function registerAccountActions() {
     webSkel.registerAction("navigateToPasswordRecoveryPage", async (...params) => {
         webSkel.changeToStaticPage(`accounting/password-recovery`);
     });
+
     function checkPasswordConfirmation(){
         let password = document.querySelector("#password");
         let confirmPassword = document.querySelector("#confirm-password");
         return password.value === confirmPassword.value;
     }
+
     webSkel.registerAction("beginPasswordRecovery", async (formElement, _param) => {
         const conditions = {"checkPasswordConfirmation": this.checkPasswordConfirmation };
         const formInfo = await extractFormInformation(formElement, conditions);

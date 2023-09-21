@@ -5,4 +5,13 @@ export class User {
         this.email = email || undefined;
         this.phoneNumber = phoneNumber || undefined;
     }
+
+    static getUsers() {
+        return webSkel.space.users || [];
+    }
+
+    async static addUser(user) {
+        await webSkel.storageService.addUser(user);
+        webSkel.space.users.push(user);
+    }
 }

@@ -1,7 +1,6 @@
 import { Chapter } from "./chapter.js";
 
 export class DocumentModel {
-    static observers = [];
     constructor(documentData) {
         this.title = documentData.title || "";
         this.abstract = documentData.abstract || "";
@@ -12,27 +11,32 @@ export class DocumentModel {
         this.settings = documentData.settings || {llm: null, personality: null};
         this.currentChapterId = null;
         this.id = documentData.id || undefined;
+        this.observers = [];
     }
 
     toString() {
         return this.chapters.map(chapter => chapter.toString()).join("\n\n") || "";
     }
 
-    observeChange(elementId) {
-        DocumentModel.observers.push(new WeakRef(elementId));
+    observeChange(elementId, callback) {
+        let obj = {elementId: elementId, callback: callback};
+        this.observers.push(new WeakRef(obj));
     }
 
-    notifyObservers() {
-        for (const observerRef of DocumentModel.observers) {
-            const observer = observerRef.deref();
-            if (observer) {
-                observer();
-            }
-        }
-    }
-
-    saveDocument() {
-        webSkel.storageService.saveDocument(this);
+    //doc:childId:paragraphId
+    notifyObservers(prefix) {
+        // let chapterdId = prefix.split(":")[1];
+        // let paragraphId = prefix.split(":")[2];
+        // for (const observerRef of this.observers) {
+        //     if(paragraphId && observerRef.deref().elementId === paragraphId ||
+        //        !paragraphId && chapterId && observerRef.deref().elementId === chapterId ||
+        //        !paragraphId && !chapterId && observerRef.deref().elementId === chapterId) {
+        //         const observer = observerRef.deref();
+        //         if (observer) {
+        //             observer();
+        //         }
+        //     }
+        // }
     }
 
     getDocSettings() {
@@ -45,18 +49,6 @@ export class DocumentModel {
 
     createChapter(title) {
         this.chapters.push(new Chapter(title, this.chapters.length + 1, []));
-    }
-
-    changeChapterOrder(chapterSourceId, chapterTargetId) {
-        const sourceIndex = this.chapters.findIndex(ch => ch.id === chapterSourceId);
-        const targetIndex = this.chapters.findIndex(ch => ch.id === chapterTargetId);
-        if (sourceIndex !== -1 && targetIndex !== -1) {
-            [this.chapters[sourceIndex], this.chapters[targetIndex]] = [this.chapters[targetIndex], this.chapters[sourceIndex]];
-        }
-    }
-
-    observeChapter(chapterId) {
-        this.currentChapterId = chapterId;
     }
 
     setCurrentChapter(chapterId) {
@@ -197,5 +189,23 @@ export class DocumentModel {
 
     deleteAlternativeTitle(index) {
         this.alternativeTitles.splice(index, 1);
+    }
+
+    getDocument(documentId) {
+        const document = webSkel.space.documents.find(document => document.id === documentId);
+        return document || null;
+    }
+
+    getDocumentIndex() {
+        return webSkel.space.documents.findIndex(document => document.id === this.id);
+    }
+
+    async deleteDocument() {
+        await webSkel.localStorage.deleteDocument(webSkel.space.id, this.id);
+        webSkel.space.currentDocumentId = null;
+    }
+
+    async updateDocument() {
+        await webSkel.localStorage.updateDocument(webSkel.space.id, this.id, this);
     }
 }

@@ -1,5 +1,5 @@
 import { closeModal } from "../../../../WebSkel/utils/modal-utils.js";
-import { documentService } from "../../../core/services/documentService.js";
+import { documentService } from "../../../core/_old/documentService.js";
 
 export class suggestAbstractModal {
     constructor() {

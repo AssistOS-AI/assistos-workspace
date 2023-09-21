@@ -49,6 +49,14 @@ export class storageService {
         return await addRecord(this.db, 'spaces', space);
     }
 
+    async getAllObjects(prefix) {
+        return await getAllRecords(this.db, prefix);
+    }
+
+    async getAllDocuments() {
+        return await getAllRecords(this.db, 'documents');
+    }
+
     async deleteSpace(spaceId) {
         return await deleteRecord(this.db, 'spaces', spaceId);
     }
