@@ -16,20 +16,41 @@ spaces is root folder
 
 const fs = require('fs');
 
-async function loadObject(request, response) {
-    const filePath = `../apihub-root/spaces/${request.params.spaceId}.json`;
-    const objectPathId = request.params.objectPathId;
-    let companyData;
+function saveJSON(response, spaceData, filePath){
     try {
-      companyData = require(filePath);
-    } catch (error) {
-        response.statusCode = 404;
-        response.setHeader("Content-Type", "text/html");
-        response.write(error+ ` Error space not found: ${filePath}`);
-        response.end();
+        fs.writeFileSync(filePath, JSON.stringify(spaceData, null, 2), 'utf8');
+    }catch(error){
+        sendResponse(response, 500, "text/html", error+ ` Error at writing space: ${filePath}`);
+        return "";
     }
-    const pathParts = objectPathId.split(':');
-    let currentObject = companyData;
+}
+
+function sendResponse(response,statusCode, contentType, message){
+    response.statusCode = statusCode;
+    response.setHeader("Content-Type", contentType);
+    response.write(message);
+    response.end();
+}
+async function loadObject(request, response) {
+    const path = request.params.filePath.replaceAll(":","/");
+
+    const filePath = `../apihub-root/spaces/${path}.json`;
+    const objectPath = request.params.objectPath;
+    let spaceData;
+    try {
+      spaceData = require(filePath);
+    } catch (error) {
+        sendResponse(response, 404, "text/html", error+ ` Error space not found: ${filePath}`);
+        return "";
+    }
+
+    if(objectPath === ""){
+        sendResponse(response, 200, "text/html", JSON.stringify(spaceData));
+        return "";
+    }
+
+    const pathParts = objectPath.split(':');
+    let currentObject = spaceData;
 
     for (let part of pathParts) {
         if (part in currentObject) {
@@ -39,90 +60,137 @@ async function loadObject(request, response) {
             if (index < currentObject.length && index >= 0) {
                 currentObject = currentObject[index];
             } else {
-                response.statusCode = 422;
-                response.setHeader("Content-Type", "text/html");
-                response.write(` Error space found, but failed to find the object at: ${objectPathId}`);
-                response.end();
+                sendResponse(response, 422, "text/html", ` Error space found, but failed to find the object at: ${objectPath}`);
+                return "";
             }
         } else {
-            response.statusCode = 422;
-            response.setHeader("Content-Type", "text/html");
-            response.write(` Error space found, but failed to find the object at: ${objectPathId}`);
-            response.end();
+            sendResponse(response, 422, "text/html", ` Error space found, but failed to find the object at: ${objectPath}`);
+            return "";
         }
     }
-    response.statusCode = 200;
-    response.setHeader("Content-Type", "text/html");
-    response.write(JSON.stringify(currentObject));
-    response.end();
-
+    sendResponse(response, 200, "text/html", JSON.stringify(currentObject));
+    return "";
 }
-async function storeObject(request,response) {
-    const jsonData = JSON.parse(request.body.toString());
-    const objectPathId = request.params.objectPathId;
-    const filePath = `../apihub-root/spaces/${request.params.spaceId}.json`;
-    let companyData;
-    try {
-        companyData = require(filePath);
-    } catch (error) {
-        response.statusCode = 404;
-        response.setHeader("Content-Type", "text/html");
-        response.write(error+ ` Error space not found: ${filePath}`);
-        response.end();
+
+function deleteObject(request, response){
+
+    const path = request.params.filePath.replaceAll(":","/");
+    const filePath = `../apihub-root/spaces/${path}.json`;
+
+    if(request.params.objectPath===""){
+        try {
+            fs.unlinkSync(filePath);
+        }catch (e){
+            sendResponse(response, 500, "text/html", e + `Error deleting file at: ${filePath}`);
+            return "";
+        }
+        sendResponse(response, 200, "text/html", `Success deleting file at ${filePath}`);
+        return "";
     }
 
-    const pathParts = objectPathId.split(':');
-    let currentObject = companyData;
+    const objectPath = request.params.objectPath;
+    let spaceData;
+    try {
+        spaceData = require(filePath);
+    } catch (error) {
+        sendResponse(response, 404, "text/html", error+ ` Error space not found: ${filePath}`);
+        return;
+    }
+    const pathParts = objectPath.split(':');
+    let currentObject = spaceData;
     let parentObject = null;
     let parentKey = null;
 
     for (let i=0;i<pathParts.length;i++) {
-        parentObject = currentObject;
-        if (pathParts[i] in currentObject) {
-            if(i!==(pathParts.length-1)){
+        /* not last iteration */
+        if(i!==(pathParts.length-1)){
+            if (pathParts[i] in currentObject) {
                 parentKey = pathParts[i];
                 currentObject = currentObject[pathParts[i]];
+                parentObject = currentObject;
             }else{
-                /* update */
-                if(currentObject[pathParts[i]]){
-                    currentObject[pathParts[i]]=jsonData;
-                }
-                /* add */
-                else{
-                    parentObject[pathParts[i]]=jsonData;
-                }
+                sendResponse(response, 422, "text/html", ` Error space found, but failed to find the object at: ${objectPath}`);
+                return "";
             }
+            /* last iteration */
+        }else{
+            if(currentObject[pathParts[i]]){
+                delete currentObject[pathParts[i]];
+                saveJSON(response,spaceData,filePath);
 
-        } else if (Array.isArray(currentObject)) {
-            const index = parseInt(pathParts[i], 10);
-            if (index < currentObject.length) {
-                parentKey = index;
-                currentObject = currentObject[index];
-            } else {
-                response.statusCode = 422;
-                response.setHeader("Content-Type", "text/html");
-                response.write(` Error space found, but failed to find the object at: ${objectPathId}`);
-                response.end();
+                sendResponse(response, 200, "text/html", `Success, ${request.params.objectPath}`);
+                return "";
+            }else{
+                sendResponse(response, 404, "text/html", ` Error space found, but failed to find the object at: ${objectPath}`);
+                return "";
             }
-        } else {
-            response.statusCode = 422;
-            response.setHeader("Content-Type", "text/html");
-            response.write(` Error space found, but failed to find the object at: ${objectPathId}`);
-            response.end();
         }
     }
-    try {
-        fs.writeFileSync(filePath, JSON.stringify(companyData, null, 2), 'utf8');
-    }catch(error){
-        response.statusCode = 500;
-        response.setHeader("Content-Type", "text/html");
-        response.write(error+ ` Error at writing space: ${filePath}`);
-        response.end();
+}
+
+function putObject(request,response){
+    const path = request.params.filePath.replaceAll(":","/");
+    let jsonData = JSON.parse(request.body.toString());
+
+    const filePath = `../apihub-root/spaces/${path}.json`;
+    const objectPath = request.params.objectPath;
+    let spaceData;
+    if(request.params.objectPath === "")
+    {
+        saveJSON(response,JSON.parse(request.body.toString()),filePath);
+        sendResponse(response, 200, "text/html", `Success, ${request.body.toString()}`);
+        return;
     }
-    response.statusCode = 200;
-    response.setHeader("Content-Type", "text/html");
-    response.write(`Success, ${JSON.stringify(jsonData)}`);
-    response.end();
+
+    try {
+        spaceData = require(filePath);
+    } catch (error) {
+        sendResponse(response, 404, "text/html", error+ ` Error space not found: ${filePath}`);
+        return "";
+    }
+    const pathParts = objectPath.split(':');
+    let currentObject = spaceData;
+    let parentObject = null;
+    let parentKey = null;
+
+    for (let i=0;i<pathParts.length;i++) {
+        /* not last iteration */
+        if(i!==(pathParts.length-1)){
+            if (pathParts[i] in currentObject) {
+                parentKey = pathParts[i];
+                currentObject = currentObject[pathParts[i]];
+                parentObject = currentObject;
+            }else{
+                sendResponse(response, 422, "text/html", ` Error space found, but failed to find the object at: ${objectPath}`);
+                return "";
+            }
+            /* last iteration */
+        }else{
+            /* update */
+            if(currentObject[pathParts[i]]){
+                currentObject[pathParts[i]]=jsonData;
+            }else{
+                /* add */
+                parentObject[pathParts[i]]=jsonData;
+            }
+        }
+    }
+
+    saveJSON(response,spaceData,filePath);
+
+    sendResponse(response, 200, "text/html", `Success, ${JSON.stringify(jsonData)}`);
+    return "";
+}
+async function storeObject(request,response) {
+
+    if(request.method==="DELETE"){
+        deleteObject(request,response);
+    }
+    if(request.method==="PUT" )
+    {
+       putObject(request,response);
+    }
+
 }
 module.exports={
     loadObject,

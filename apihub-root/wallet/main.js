@@ -6,6 +6,7 @@ import {
     Space,
 } from "./imports.js";
 import {StorageManager} from "./storageManager.js";
+import {runTests} from "../tests/apihub-storage-test.js";
 
 const openDSU = require("opendsu");
 window.webSkel = new WebSkel();
@@ -170,17 +171,7 @@ async function loadConfigs(jsonPath) {
 }
 
 (async ()=> {
-
-    const result = await fetch("/spaces/1/documents:1:chapters:2:paragraphs:3",
-        {
-            method: "PUT",
-            body: `{"3":{"text":"asdaas","id":"3"}}`,
-            headers: {
-                "Content-type": "application/json; charset=UTF-8"
-            }
-        });
-    console.log(await result.text());
-    debugger;
+    await runTests();
     webSkel.setDomElementForPages(document.querySelector("#page-content"));
     /* only for premium users initWallet/enclaves*/
     //await initWallet();
