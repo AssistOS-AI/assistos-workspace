@@ -5,7 +5,6 @@ import {
     initUser,
     Space,
 } from "./imports.js";
-import {IndexedDBService_obsolete} from "./core/services/indexedDBService_obsolete.js";
 import {StorageManager} from "./storageManager.js";
 
 const openDSU = require("opendsu");
@@ -171,6 +170,13 @@ async function loadConfigs(jsonPath) {
 }
 
 (async ()=> {
+
+    const result = await fetch("/spaces/1/documents/",
+        {
+            method: "GET",
+        });
+    console.log(await result.text());
+    debugger;
     webSkel.setDomElementForPages(document.querySelector("#page-content"));
     /* only for premium users initWallet/enclaves*/
     //await initWallet();

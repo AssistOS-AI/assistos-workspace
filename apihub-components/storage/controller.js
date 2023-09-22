@@ -15,13 +15,20 @@ spaces is root folder
 /{companyId}/users/{userId}*/
 
 const fs = require('fs');
-async function loadObject(companyId, objectPathId) {
-    const filePath = `./${companyId}.json`;
-    if (!fs.existsSync(filePath)) {
-        throw new Error("File not found");
-    }
 
-    const companyData = JSON.parse(fs.readFileSync(filePath, 'utf8'));
+async function loadObject(request, response) {
+    debugger;
+    const filePath = `../apihub-root/spaces/${request.params.spaceId}.json`;
+    const objectPathId = request.params.objectPathid;
+    let companyData;
+    try {
+      companyData = require(filePath);
+    } catch (error) {
+        response.statusCode = 404;
+        response.setHeader("Content-Type", "text/html");
+        response.write(error+ ` Error space not found: ${filePath}`);
+        response.end();
+    }
     const pathParts = objectPathId.split('/');
     let currentObject = companyData;
 
@@ -33,22 +40,38 @@ async function loadObject(companyId, objectPathId) {
             if (index < currentObject.length && index >= 0) {
                 currentObject = currentObject[index];
             } else {
-                throw new Error(`Path not found: ${objectPathId}`);
+                response.statusCode = 422;
+                response.setHeader("Content-Type", "text/html");
+                response.write(` Error space found, but failed to find the object at: ${objectPathId}`);
+                response.end();
             }
         } else {
-            throw new Error(`Path not found: ${objectPathId}`);
+            response.statusCode = 422;
+            response.setHeader("Content-Type", "text/html");
+            response.write(` Error space found, but failed to find the object at: ${objectPathId}`);
+            response.end();
         }
     }
+    response.statusCode = 200;
+    response.setHeader("Content-Type", "text/html");
+    response.write(JSON.stringify(currentObject));
+    response.end();
 
-    return currentObject;
 }
-async function storeObject(companyId, objectPathId, jsonData) {
-    const filePath = `./${companyId}.json`;
-    if (!fs.existsSync(filePath)) {
-        throw new Error("File not found");
+async function storeObject(request,response) {
+    const jsonData = JSON.parse(request.body.toString());
+    const objectPathId = request.params.objectPathid;
+    const filePath = `../apihub-root/spaces/${request.params.spaceId}.json`;
+    let companyData;
+    try {
+        companyData = require(filePath);
+    } catch (error) {
+        response.statusCode = 404;
+        response.setHeader("Content-Type", "text/html");
+        response.write(error+ ` Error space not found: ${filePath}`);
+        response.end();
     }
 
-    const companyData = JSON.parse(fs.readFileSync(filePath, 'utf8'));
     const pathParts = objectPathId.split('/');
     let currentObject = companyData;
     let parentObject = null;
@@ -66,15 +89,31 @@ async function storeObject(companyId, objectPathId, jsonData) {
                 parentKey = index;
                 currentObject = currentObject[index];
             } else {
-                throw new Error(`Path not found: ${objectPathId}`);
+                response.statusCode = 422;
+                response.setHeader("Content-Type", "text/html");
+                response.write(` Error space found, but failed to find the object at: ${objectPathId}`);
+                response.end();
             }
         } else {
-            throw new Error(`Path not found: ${objectPathId}`);
+            response.statusCode = 422;
+            response.setHeader("Content-Type", "text/html");
+            response.write(` Error space found, but failed to find the object at: ${objectPathId}`);
+            response.end();
         }
     }
     parentObject[parentKey] = jsonData;
-
-    fs.writeFileSync(filePath, JSON.stringify(companyData, null, 2), 'utf8');
+    try {
+        fs.writeFileSync(filePath, JSON.stringify(companyData, null, 2), 'utf8');
+    }catch(error){
+        response.statusCode = 500;
+        response.setHeader("Content-Type", "text/html");
+        response.write(error+ ` Error at writing space: ${filePath}`);
+        response.end();
+    }
+    response.statusCode = 200;
+    response.setHeader("Content-Type", "text/html");
+    response.write(`Success, ${JSON.stringify(jsonData)}`);
+    response.end();
 }
 module.exports={
     loadObject,

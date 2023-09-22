@@ -1,5 +1,19 @@
+function bodyReaderMiddleware(req, res, next) {
+    const data = [];
+
+    req.on('data', (chunk) => {
+        data.push(chunk);
+    });
+
+    req.on('end', () => {
+        req.body = Buffer.concat(data);
+        next();
+    });
+}
 function Storage(server){
     const { loadObject,storeObject} = require("./controller");
-    server.get(objectPathid,loadObject);
-    server.put(objectPathid,storeObject);
+    server.get("/spaces/:spaceId/:objectPathid",loadObject);
+    server.use("/spaces/*", bodyReaderMiddleware);
+    server.put("/spaces/:spaceId/:objectPathid",storeObject);
 }
+module.exports=Storage;

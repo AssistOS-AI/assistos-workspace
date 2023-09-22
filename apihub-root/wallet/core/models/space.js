@@ -42,7 +42,7 @@ export class Space {
         }
     }
 
-    async static addSpace(title){
+    async addSpace(title){
         let currentDate = new Date();
         let today = currentDate.toISOString().split('T')[0];
         let textString = "Space " + title + " was successfully created. You can now add documents, users and settings to your space.";

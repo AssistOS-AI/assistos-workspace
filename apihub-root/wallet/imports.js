@@ -24,7 +24,6 @@ import { announcementsPage } from "./web-components/subpages/announcements-page/
 import { usersPage } from "./web-components/subpages/users-page/users-page.js";
 import { closeModal, showActionBox, showModal } from "../WebSkel/utils/modal-utils.js";
 import { notBasePage, getClosestParentElement } from "../WebSkel/utils/dom-utils.js";
-import { storageService } from "./core/services/storageService.js";
 import { Chapter } from "./core/models/chapter.js";
 import { DocumentModel} from "./core/models/documentModel.js";
 import { Personality } from "./core/models/personality.js";
@@ -34,7 +33,6 @@ import { Paragraph } from "./core/models/paragraph.js";
 import { Space } from "./core/models/space.js";
 import { spaceDropdown }  from "./web-components/components/space-dropdown/space-dropdown.js";
 import { chapterUnit } from "./web-components/components/item-list/chapter-unit/chapter-unit.js";
-import { addRecord, getRecord, getAllRecords, getTableRecords, deleteRecord, openDatabase, updateRecord } from "./utils/indexDB.js";
 import { initUser, registerAccountActions } from "./core/services/authenticationService.js";
 import { documentService } from "./core/_old/documentService.js";
 import { usersService } from "./core/_old/usersService.js";
@@ -84,7 +82,6 @@ export {
     closeModal,
     showActionBox,
     getClosestParentElement,
-    storageService,
     Space,
     WebSkel,
     Chapter,
@@ -93,13 +90,6 @@ export {
     User,
     Announcement,
     Paragraph,
-    addRecord,
-    getRecord,
-    getAllRecords,
-    getTableRecords,
-    deleteRecord,
-    openDatabase,
-    updateRecord,
     initUser,
     registerAccountActions,
     LLM,
