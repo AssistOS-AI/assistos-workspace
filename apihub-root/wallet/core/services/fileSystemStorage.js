@@ -2,33 +2,33 @@ import { StorageService } from './storageService.js';
 import fs from 'fs';
 /*
 spaces is root folder
-/{companyId}/name
-/{companyId}/documents/{documentId}
-/{companyId}/documents/{documentId}/title
-/{companyId}/documents/{documentId}/abstract
-/{companyId}/documents/{documentId}/chapters/{chapterId}
-/{companyId}/documents/{documentId}/chapters/{chapterId}/title
-/{companyId}/documents/{documentId}/chapters/{chapterId}/paragraphs/{paragraphId}
-/{companyId}/documents/{documentId}/settings
-/{companyId}/settings/llms/{llmId}
-/{companyId}/settings/personalities/{personalityId}
-/{companyId}/admins/{adminId}
-/{companyId}/announcements/{announcementId}
-/{companyId}/users/{userId}*/
+/{spaceId}/name
+/{spaceId}/documents/{documentId}
+/{spaceId}/documents/{documentId}/title
+/{spaceId}/documents/{documentId}/abstract
+/{spaceId}/documents/{documentId}/chapters/{chapterId}
+/{spaceId}/documents/{documentId}/chapters/{chapterId}/title
+/{spaceId}/documents/{documentId}/chapters/{chapterId}/paragraphs/{paragraphId}
+/{spaceId}/documents/{documentId}/settings
+/{spaceId}/settings/llms/{llmId}
+/{spaceId}/settings/personalities/{personalityId}
+/{spaceId}/admins/{adminId}
+/{spaceId}/announcements/{announcementId}
+/{spaceId}/users/{userId}*/
 export class FileSystemStorage extends StorageService{
     constructor(){
         super();
     }
 
-    async loadObject(companyId, objectPathId) {
-        const filePath = `./${companyId}.json`;
+    async loadObject(spaceId, objectPathId) {
+        const filePath = `./${spaceId}.json`;
         if (!fs.existsSync(filePath)) {
             throw new Error("File not found");
         }
 
-        const companyData = JSON.parse(fs.readFileSync(filePath, 'utf8'));
+        const spaceData = JSON.parse(fs.readFileSync(filePath, 'utf8'));
         const pathParts = objectPathId.split('/');
-        let currentObject = companyData;
+        let currentObject = spaceData;
 
         for (let part of pathParts) {
             if (part in currentObject) {
@@ -47,15 +47,15 @@ export class FileSystemStorage extends StorageService{
 
         return currentObject;
     }
-    async storeObject(companyId, objectPathId, jsonData) {
-        const filePath = `./${companyId}.json`;
+    async storeObject(spaceId, objectPathId, jsonData) {
+        const filePath = `./${spaceId}.json`;
         if (!fs.existsSync(filePath)) {
             throw new Error("File not found");
         }
 
-        const companyData = JSON.parse(fs.readFileSync(filePath, 'utf8'));
+        const spaceData = JSON.parse(fs.readFileSync(filePath, 'utf8'));
         const pathParts = objectPathId.split('/');
-        let currentObject = companyData;
+        let currentObject = spaceData;
         let parentObject = null;
         let parentKey = null;
 
@@ -79,7 +79,7 @@ export class FileSystemStorage extends StorageService{
         }
         parentObject[parentKey] = jsonData;
 
-        fs.writeFileSync(filePath, JSON.stringify(companyData, null, 2), 'utf8');
+        fs.writeFileSync(filePath, JSON.stringify(spaceData, null, 2), 'utf8');
     }
 
 }

@@ -52,16 +52,16 @@
 //     async getAllObjects(prefix) {
 //         return await getAllRecords(this.db, prefix);
 //     }
-// // objectId = path to file //document:id, //company:id:scripts, ...
+// // objectId = path to file //document:id, //space:id:scripts, ...
 // // remove iNDEXEDdb
 // export class StorageService {
 //     constructor(){}
-//     loadObject(companyId, objectPathId) {
+//     loadObject(spaceId, objectPathId) {
 //
 //     async getAllDocuments() {
 //         return await getAllRecords(this.db, 'documents');
 //     }
-//     saveObject(companyId,objectPathId, jsonData) {
+//     saveObject(spaceId,objectPathId, jsonData) {
 //
 //     async deleteSpace(spaceId) {
 //         return await deleteRecord(this.db, 'spaces', spaceId);

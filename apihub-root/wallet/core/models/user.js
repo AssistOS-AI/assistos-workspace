@@ -10,8 +10,8 @@ export class User {
         return webSkel.space.users || [];
     }
 
-   /* async addUser(user) {
+   static async addUser(user) {
         await webSkel.storageService.addUser(user);
         webSkel.space.users.push(user);
-    }*/
+    }
 }
