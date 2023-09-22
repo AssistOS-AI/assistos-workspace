@@ -1,0 +1,116 @@
+{
+    "name": "Personal Space",
+    "documents": [
+        {
+            "id": 1,
+            "title": "Onboarding Document",
+            "abstract": "Lorem ipsum...",
+            "chapters": [
+                {
+                    "title": "Chapter 1",
+                    "id": 1,
+                    "paragraphs": [
+                        {
+                            "text": "Lorem ipsum...",
+                            "id": 1
+                        },
+                        {
+                            "text": "Eu quo solum...",
+                            "id": 2
+                        }
+                    ]
+                },
+                {
+                    "title": "Chapter 2",
+                    "id": 2,
+                    "paragraphs": [
+                        {
+                            "text": "Has ex omnium...",
+                            "id": 1
+                        },
+                        {
+                            "text": "At eos saepe...",
+                            "id": 2
+                        }
+                    ]
+                },
+                {
+                    "title": "Chapter 3",
+                    "id": 3,
+                    "paragraphs": [
+                        {
+                            "text": "Ea pro causae...",
+                            "id": 1
+                        },
+                        {
+                            "text": "Ea elitr laoreet...",
+                            "id": 2
+                        }
+                    ]
+                }
+            ],
+            "settings": {
+                "llm": null,
+                "personality": null
+            },
+            "mainIdeas": [],
+            "alternativeAbstracts": [],
+            "alternativeTitles": []
+        }
+    ],
+    "settings": {
+        "llms": [
+            {
+                "name": "GPT-3",
+                "apiKeys": [
+                    "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"
+                ],
+                "url": "https://api.openai.com/v1/chat/completions",
+                "id": 1
+            },
+            {
+                "name": "GPT-4",
+                "apiKeys": [
+                    ""
+                ],
+                "url": "",
+                "id": 2
+            }
+        ],
+        "personalities": [
+            {
+                "name": "Personality 1",
+                "description": "This is a personality",
+                "id": 1
+            },
+            {
+                "name": "Personality 2",
+                "description": "This is another personality",
+                "id": 2
+            }
+        ]
+    },
+    "admins": [],
+    "announcements": [
+        {
+            "id": 1,
+            "title": "Welcome to AIAuthor!",
+            "text": "Company Personal Space was successfully created. You can now add documents, users and settings to your company.",
+            "date": "today"
+        }
+    ],
+    "users": [
+        {
+            "lastName": "Pinguinescu",
+            "firstName": "Pingu",
+            "email": "pingu@yahoo.com",
+            "phoneNumber": "0722222222"
+        },
+        {
+            "lastName": "Pinguinescu",
+            "firstName": "Tux",
+            "email": "tux_pinguinescu@gmail.com",
+            "phoneNumber": "0733333333"
+        }
+    ]
+}

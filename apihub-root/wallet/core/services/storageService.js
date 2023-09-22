@@ -36,7 +36,7 @@ export class storageService {
         return await getAllRecords(this.db);
     }
 
-    /* Spaces */
+    /* spaces */
     async getAllSpacesData() {
         return await getTableRecords(this.db, 'spaces');
     }

@@ -386,8 +386,8 @@
         "path": "./core/services/localStorageService.js"
     },
     {
-       "name": "JSONService",
-       "path": "./core/services/jsonService.js"
+       "name": "FileSystemStorage",
+       "path": "./core/services/fileSystemStorage.js"
     }
   ]
 }
