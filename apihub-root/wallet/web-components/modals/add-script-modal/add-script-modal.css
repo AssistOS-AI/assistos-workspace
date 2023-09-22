@@ -3,6 +3,7 @@ dialog[class="modal"] {
     border:none;
     height: 80%;
     width: 50%;
+    overflow: hidden;
 }
 
 * {

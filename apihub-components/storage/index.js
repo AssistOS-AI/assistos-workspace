@@ -12,8 +12,8 @@ function bodyReaderMiddleware(req, res, next) {
 }
 function Storage(server){
     const { loadObject,storeObject} = require("./controller");
-    server.get("/spaces/:spaceId/:objectPathid",loadObject);
+    server.get("/spaces/:spaceId/:objectPathId",loadObject);
     server.use("/spaces/*", bodyReaderMiddleware);
-    server.put("/spaces/:spaceId/:objectPathid",storeObject);
+    server.put("/spaces/:spaceId/:objectPathId",storeObject);
 }
 module.exports=Storage;

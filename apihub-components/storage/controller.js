@@ -17,9 +17,8 @@ spaces is root folder
 const fs = require('fs');
 
 async function loadObject(request, response) {
-    debugger;
     const filePath = `../apihub-root/spaces/${request.params.spaceId}.json`;
-    const objectPathId = request.params.objectPathid;
+    const objectPathId = request.params.objectPathId;
     let companyData;
     try {
       companyData = require(filePath);
@@ -29,7 +28,7 @@ async function loadObject(request, response) {
         response.write(error+ ` Error space not found: ${filePath}`);
         response.end();
     }
-    const pathParts = objectPathId.split('/');
+    const pathParts = objectPathId.split(':');
     let currentObject = companyData;
 
     for (let part of pathParts) {
@@ -60,7 +59,7 @@ async function loadObject(request, response) {
 }
 async function storeObject(request,response) {
     const jsonData = JSON.parse(request.body.toString());
-    const objectPathId = request.params.objectPathid;
+    const objectPathId = request.params.objectPathId;
     const filePath = `../apihub-root/spaces/${request.params.spaceId}.json`;
     let companyData;
     try {
@@ -72,19 +71,30 @@ async function storeObject(request,response) {
         response.end();
     }
 
-    const pathParts = objectPathId.split('/');
+    const pathParts = objectPathId.split(':');
     let currentObject = companyData;
     let parentObject = null;
     let parentKey = null;
 
-    for (let part of pathParts) {
+    for (let i=0;i<pathParts.length;i++) {
         parentObject = currentObject;
+        if (pathParts[i] in currentObject) {
+            if(i!==(pathParts.length-1)){
+                parentKey = pathParts[i];
+                currentObject = currentObject[pathParts[i]];
+            }else{
+                /* update */
+                if(currentObject[pathParts[i]]){
+                    currentObject[pathParts[i]]=jsonData;
+                }
+                /* add */
+                else{
+                    parentObject[pathParts[i]]=jsonData;
+                }
+            }
 
-        if (part in currentObject) {
-            parentKey = part;
-            currentObject = currentObject[part];
         } else if (Array.isArray(currentObject)) {
-            const index = parseInt(part, 10);
+            const index = parseInt(pathParts[i], 10);
             if (index < currentObject.length) {
                 parentKey = index;
                 currentObject = currentObject[index];
@@ -101,7 +111,6 @@ async function storeObject(request,response) {
             response.end();
         }
     }
-    parentObject[parentKey] = jsonData;
     try {
         fs.writeFileSync(filePath, JSON.stringify(companyData, null, 2), 'utf8');
     }catch(error){

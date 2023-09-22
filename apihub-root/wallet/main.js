@@ -171,9 +171,13 @@ async function loadConfigs(jsonPath) {
 
 (async ()=> {
 
-    const result = await fetch("/spaces/1/documents/",
+    const result = await fetch("/spaces/1/documents:1:chapters:2:paragraphs:3",
         {
-            method: "GET",
+            method: "PUT",
+            body: `{"3":{"text":"asdaas","id":"3"}}`,
+            headers: {
+                "Content-type": "application/json; charset=UTF-8"
+            }
         });
     console.log(await result.text());
     debugger;
