@@ -1,4 +1,4 @@
-import { closeModal, showActionBox } from "../../../imports.js";
+import { closeModal, DocumentModel, showActionBox } from "../../../imports.js";
 
 export class paragraphProofreadPage {
     constructor() {
@@ -6,15 +6,16 @@ export class paragraphProofreadPage {
         this.docId =  parseInt(url.split('/')[1]);
         this.chapterId = parseInt(url.split('/')[3]);
         this.paragraphId = parseInt(url.split('/')[4]);
-        this.documentService = webSkel.getService('documentService');
-        this._document = this.documentService.getDocument(this.docId);
+        this._document = DocumentModel.getDocument(this.docId);
         if(this._document) {
             setTimeout(()=> {
                 this.invalidate();
             }, 0);
             this._chapter = this._document.getChapter(this.chapterId);
             if(this._chapter) {
-                this.paragraphDiv = this._document.getChapterParagraph(this.chapterId, this.paragraphId);
+                this._paragraph = this._document.getChapterParagraph(this.chapterId, this.paragraphId);
+                this.paragraphDiv = this._paragraph;
+                this._document.observeChange(this._paragraph.getNotifyId(this.chapterId), this.updateState);
             } else {
                 console.log(`this chapter doesnt exist: chapterId: ${this.chapterId}`);
             }
@@ -23,7 +24,7 @@ export class paragraphProofreadPage {
             console.log(`this _document doesnt exist: docId: ${this.docId}`);
         }
         this.updateState = ()=> {
-            this._document = this.documentService.getDocument(this.docId);
+            this._document = DocumentModel.getDocument(this.docId);
             if(this._document) {
                 this._chapter = this._document.getChapter(this.chapterId);
                 if(this._chapter) {
@@ -37,8 +38,6 @@ export class paragraphProofreadPage {
             }
             this.invalidate();
         }
-        // webSkel.space.onChange(this.updateState);
-        this._document.observeChange(this.updateState);
     }
 
     beforeRender() {

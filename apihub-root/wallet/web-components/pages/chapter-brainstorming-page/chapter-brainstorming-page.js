@@ -1,4 +1,4 @@
-import { closeModal, showActionBox } from "../../../imports.js";
+import { closeModal, DocumentModel, showActionBox } from "../../../imports.js";
 
 export class chapterBrainstormingPage {
     constructor() {
@@ -6,8 +6,7 @@ export class chapterBrainstormingPage {
         this.docId =  parseInt(url.split('/')[1]);
         this.chapterId = parseInt(url.split('/')[3]);
         this.docTitle = "Titlu document";
-        this.documentService = webSkel.getService('documentService');
-        this._document = this.documentService.getDocument(this.docId);
+        this._document = DocumentModel.getDocument(this.docId);
         if(this._document) {
             setTimeout(()=> {
                 this.invalidate();
@@ -15,6 +14,7 @@ export class chapterBrainstormingPage {
             this._chapter = this._document.getChapter(this.chapterId);
             if(this._chapter) {
                 this.chapterTitle = this._chapter.title;
+                this._document.observeChange(this._chapter.getNotifyId(), this.updateState);
             }
             else {
                 console.log(`this chapter doesnt exist: chapterId: ${this.chapterId}`);
@@ -24,7 +24,7 @@ export class chapterBrainstormingPage {
             console.log(`this _document doesnt exist: docId: ${this.docId}`);
         }
         this.updateState = ()=> {
-            this._document = this.documentService.getDocument(this.docId);
+            this._document = DocumentModel.getDocument(this.docId);
             if(this._document) {
                 this._chapter = this._document.getChapter(this.chapterId);
                 if(this._chapter) {
@@ -33,8 +33,6 @@ export class chapterBrainstormingPage {
             }
             this.invalidate();
         }
-        // webSkel.space.onChange(this.updateState);
-        this._document.observeChange(this.updateState);
     }
 
     beforeRender() {

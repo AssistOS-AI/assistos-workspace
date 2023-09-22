@@ -1,4 +1,4 @@
-import { documentViewPage, getClosestParentElement, Paragraph } from "../../../../imports.js";
+import {DocumentModel, documentViewPage, getClosestParentElement, Paragraph} from "../../../../imports.js";
 
 export class chapterUnit {
     constructor(element) {
@@ -10,11 +10,9 @@ export class chapterUnit {
         this.updateState = ()=> {
             this.invalidate();
         }
-        // webSkel.space.onChange(this.updateState);
-
         this.docId = webSkel.space.currentDocumentId;
-        this._document = webSkel.servicesRegistry.documentService.getDocument(this.docId);
-        this._document.observeChange(this.updateState);
+        this._document = DocumentModel.getDocument(this.docId);
+        this._document.observeChange(this._document.getNotifyId(), this.updateState);
     }
 
     beforeRender() {
@@ -178,7 +176,7 @@ async function exitEditMode(event) {
             } else {
                 doc.updateParagraphText(chapterId, paragraphId, updatedText);
             }
-            await webSkel.servicesRegistry.documentService.updateDocument(doc, documentId);
+            await doc.updateDocument();
         }
     }
 }

@@ -1,11 +1,8 @@
 import {
-    brainstormingService,
     extractFormInformation,
-    getClosestParentElement,
     closeModal,
     showActionBox,
-    showModal,
-    documentService
+    showModal, DocumentModel, LLM, Space
 } from "../../../imports.js";
 import { reverseQuerySelector } from "../../../../WebSkel/utils/dom-utils.js";
 import { removeActionBox } from "../../../../WebSkel/utils/modal-utils.js";
@@ -15,9 +12,7 @@ export class editTitlePage {
         this.docTitle = "Current Title";
         let url = window.location.hash;
         this.id = parseInt(url.split('/')[1]);
-        this.documentService = webSkel.getService('documentService');
-        this.brainstormingService = webSkel.getService('brainstormingService');
-        this._document = this.documentService.getDocument(this.id);
+        this._document = DocumentModel.getDocument(this.id);
         if(this._document) {
             setTimeout(() => {
                 this.invalidate();
@@ -29,20 +24,21 @@ export class editTitlePage {
         }
 
         this.updateState = () => {
-            this._document = this.documentService.getDocument(this.id);
+            this._document = DocumentModel.getDocument(this.id);
             this.docTitle = this._document.getTitle();
             this.invalidate();
         }
-        this._document.observeChange(this.updateState);
-        // webSkel.space.onChange(this.updateState);
+        this._document.observeChange(this._document.getNotifyId(), this.updateState);
     }
 
     beforeRender() {
         this.title = `<title-edit title="${this.docTitle}"></title-edit>`;
         this.alternativeTitles = "";
         if(this._document) {
+            let i = 1;
             this._document.getAlternativeTitles().forEach((alternativeTitle) => {
-                this.alternativeTitles += `<alternative-title nr="${i+1}" title="${alternativeTitle}"></alternative-title>`;
+                this.alternativeTitles += `<alternative-title nr="${i}" title="${alternativeTitle}"></alternative-title>`;
+                i++;
             });
         }
     }
@@ -52,7 +48,7 @@ export class editTitlePage {
         if(formInfo.isValid) {
             if (formInfo.data.title !== this._document.getTitle()) {
                 this._document.updateDocumentTitle(formInfo.data.title);
-                await this.documentService.updateDocument(this._document, this.id);
+                await this._document.updateDocument();
             }
         }
     }
@@ -83,8 +79,8 @@ export class editTitlePage {
 
     async showSuggestTitlesModal() {
         const loading = await webSkel.showLoading();
+        const documentText = DocumentModel.getDocument(this.id).toString();
         async function generateSuggestTitles(){
-            const documentText = this.documentService.getDocument(this.id).toString();
             const defaultPrompt = `Based on the following document:\n"${documentText}"\n\nPlease suggest 10 original titles that are NOT already present as chapter titles in the document. Return the titles as a JSON array.`;
             if(webSkel.space.settings.llms.length <= 0) {
                 loading.close();
@@ -93,9 +89,15 @@ export class editTitlePage {
                 return;
             }
             const llmId = webSkel.space.settings.llms[0].id;
-            return await this.brainstormingService.suggestTitles(defaultPrompt, llmId);
+            return await Space.suggestTitles(defaultPrompt, llmId);
         }
-        this.suggestedTitles = JSON.parse(await generateSuggestTitles()).titles;
+        while(!this.suggestedTitles) {
+            try {
+                this.suggestedTitles = JSON.parse(await generateSuggestTitles()).titles;
+            } catch (e) {
+                console.error(e);
+            }
+        }
         loading.close();
         loading.remove();
         await showModal(document.querySelector("body"), "suggest-titles-modal", { presenter: "suggest-titles-modal"});
@@ -104,8 +106,9 @@ export class editTitlePage {
     async select(_target) {
         let selectedTitle = reverseQuerySelector(_target,".suggested-title").innerText;
         if(selectedTitle !== this._document.getTitle()) {
-            this._document.updateTitle(selectedTitle);
-            await this.documentService.updateDocument(this._document, this._document.id);
+            this._document.setTitle(selectedTitle);
+            await this._document.updateDocument();
+            this._document.notifyObservers(this._document.getNotifyId());
         }
         else {
             removeActionBox(this.actionBox, this);
@@ -123,7 +126,7 @@ export class editTitlePage {
                 alternativeTitle.contentEditable = false;
                 if(alternativeTitle.innerText !== this._document.alternativeTitles[alternativeTitleIndex]) {
                     this._document.setAlternativeTitle(alternativeTitleIndex, alternativeTitle.innerText);
-                    await this.documentService.updateDocument(this._document, this._document.id);
+                    await this._document.updateDocument();
                 }
             });
         }
@@ -137,7 +140,7 @@ export class editTitlePage {
         let alternativeTitleIndex = this._document.getAlternativeTitles().findIndex(title => title === alternativeTitle.innerText);
         if(alternativeTitleIndex !== -1) {
             this._document.deleteAlternativeTitle(alternativeTitleIndex);
-            await this.documentService.updateDocument(this._document, this._document.id);
+            await this._document.updateDocument();
         } else {
             await showApplicationError("Error deleting title", `Error deleting title for document: ${this._document.title}`, `Error deleting title for document: ${this._document.title}`);
         }

@@ -1,3 +1,5 @@
+import { Space } from "./space.js";
+
 export class LLM {
     constructor(name, apiKeys, url, id) {
         this.name = name || undefined;

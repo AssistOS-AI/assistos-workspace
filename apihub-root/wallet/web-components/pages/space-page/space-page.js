@@ -4,7 +4,7 @@ export class spacePage {
         this.pageContent = `<announcements-page data-presenter="announcements-page"></announcements-page>`;
         this.tab = "Announcements";
         this.id1 = "selected-tab";
-        this.id2 = "";
+        // this.id2 = "";
         this.id3 = "";
         this.id4 = "";
         this.id5 = "";

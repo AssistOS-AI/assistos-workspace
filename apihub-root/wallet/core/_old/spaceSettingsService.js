@@ -1,17 +1,7 @@
 export class spaceSettingsService {
-    getPersonalities() {
-        return webSkel.space.settings.personalities || [];
-    }
-
     async addPersonality(personality) {
         await webSkel.localStorage.addPersonality(personality);
         webSkel.space.settings.personalities.push(personality);
-    }
-
-    async addLLM(llm) {
-        webSkel.space.settings.llms.push(llm);
-        await webSkel.localStorage.addLLM(llm);
-        webSkel.space.notifyObservers();
     }
 
     getLLMs() {

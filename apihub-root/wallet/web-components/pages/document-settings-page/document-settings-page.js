@@ -1,12 +1,11 @@
-import { extractFormInformation } from "../../../imports.js";
+import {DocumentModel, extractFormInformation} from "../../../imports.js";
 
 export class documentSettingsPage {
     constructor(element) {
         this.element = element;
         let url = window.location.hash;
         this.id = parseInt(url.split('/')[1]);
-        this.documentService = webSkel.getService('documentService');
-        this._document = this.documentService.getDocument(this.id);
+        this._document = DocumentModel.getDocument(this.id);
         if(this._document) {
             setTimeout(()=> {
                 this.invalidate();
@@ -17,8 +16,7 @@ export class documentSettingsPage {
         this.updateState = (spaceData)=> {
             this.invalidate();
         }
-        // webSkel.space.onChange(this.updateState);
-        this._document.observeChange(this.updateState);
+        this._document.observeChange(this._document.getNotifyId(), this.updateState);
         this.singularToPlural = { personality: "personalities", llm: "llms"};
         this.pluralToSingular = { personalities: "personality", llms: "llm"};
     }
@@ -32,7 +30,7 @@ export class documentSettingsPage {
         // caz 2 there is a selected llm already
         // caz 3 no selected llm
 
-        const dictionary={llms:"llm",personalities:"personality"};
+        const dictionary = { llms: "llm", personalities: "personality" };
         const renderSettings = (component, selectedItem, itemName) => {
             let htmlString = "";
             if(component.length === 0) {
@@ -78,7 +76,7 @@ export class documentSettingsPage {
                     await showApplicationError(`Error updating option`, `Option ${key} index not found`, `Option ${key}: value ${value}`);
                 }
             }
-            await this.documentService.updateDocument(this._document, this._document.id);
+            await this._document.updateDocument();
         }
         else {
             await showApplicationError(`Error at submitting form`, `Form invalid`, `Form with target: ${_target}`);

@@ -34,23 +34,14 @@ import { Space } from "./core/models/space.js";
 import { spaceDropdown }  from "./web-components/components/space-dropdown/space-dropdown.js";
 import { chapterUnit } from "./web-components/components/item-list/chapter-unit/chapter-unit.js";
 import { initUser, registerAccountActions } from "./core/services/authenticationService.js";
-import { documentService } from "./core/_old/documentService.js";
-import { usersService } from "./core/_old/usersService.js";
-import { spaceSettingsService } from "./core/services/spaceSettingsService.js";
-import { brainstormingService }   from "./core/_old/brainstormingService.js";
 import { LLM } from "./core/models/llm.js";
 import WebSkel from "../WebSkel/webSkel.js";
-import { spaceService } from "./core/_old/spaceService.js";
 import { extractFormInformation } from "../WebSkel/utils/form-utils.js";
 import { addSpaceModal} from "./web-components/modals/add-space-modal/add-space-modal.js";
 import { Settings } from "./core/models/settings.js";
 export {
     Settings,
-    documentService,
     addSpaceModal,
-    usersService,
-    brainstormingService,
-    spaceSettingsService,
     addDocumentModal,
     addAnnouncementModal,
     addChapterModal,
@@ -94,5 +85,4 @@ export {
     registerAccountActions,
     LLM,
     extractFormInformation,
-    spaceService
 };

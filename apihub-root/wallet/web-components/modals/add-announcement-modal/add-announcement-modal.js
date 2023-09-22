@@ -1,6 +1,5 @@
 import { closeModal } from "../../../../WebSkel/utils/modal-utils.js";
 import { getClosestParentElement } from "../../../../WebSkel/utils/dom-utils.js";
-import { DocumentModel } from "../../../core/models/documentModel.js";
 
 export class addAnnouncementModal {
     constructor() {
