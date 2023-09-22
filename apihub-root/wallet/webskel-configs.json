@@ -153,36 +153,12 @@
   ],
   "services": [
     {
-      "name": "documentService",
-      "path": "./core/services/documentService.js"
-    },
-    {
-      "name": "spaceSettingsService",
-      "path": "./core/services/spaceSettingsService.js"
-    },
-    {
-      "name": "usersService",
-      "path": "./core/services/usersService.js"
-    },
-    {
-      "name": "spaceService",
-      "path": "./core/services/spaceService.js"
-    },
-    {
-      "name": "brainstormingService",
-      "path": "./core/services/brainstormingService.js"
-    },
-    {
       "name": "proofReaderService",
       "path": "./core/services/proofReaderService.js"
     },
     {
       "name": "storageService",
       "path": "./core/services/storageService.js"
-    },
-    {
-      "name": "usersService",
-      "path": "./core/services/usersService.js"
     }
   ],
   "components": [

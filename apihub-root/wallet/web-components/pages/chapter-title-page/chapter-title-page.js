@@ -1,4 +1,4 @@
-import { extractFormInformation, showModal, closeModal, showActionBox } from "../../../imports.js";
+import {extractFormInformation, showModal, closeModal, showActionBox, DocumentModel} from "../../../imports.js";
 
 export class chapterTitlePage {
     constructor() {
@@ -6,8 +6,7 @@ export class chapterTitlePage {
         let url = window.location.hash;
         this.docId = parseInt(url.split('/')[1]);
         this.chapterId = parseInt(url.split('/')[3]);
-        this.documentService = webSkel.getService('documentService');
-        this._document = this.documentService.getDocument(this.docId);
+        this._document = DocumentModel.getDocument(this.docId);
         if(this._document) {
             setTimeout(()=> {
                 this.invalidate();
@@ -15,6 +14,7 @@ export class chapterTitlePage {
             this._chapter = this._document.getChapter(this.chapterId);
             if(this._chapter) {
                 this.chapterTitle = this._chapter.title;
+                this._document.observeChange(this._chapter.getNotifyId(), this.updateState);
             } else {
                 console.log(`this chapter doesnt exist: chapterId: ${this.chapterId}`);
             }
@@ -22,7 +22,7 @@ export class chapterTitlePage {
             console.log(`this _document doesnt exist: docId: ${this.docId}`);
         }
         this.updateState = ()=> {
-            this._document = this.documentService.getDocument(this.docId);
+            this._document = DocumentModel.getDocument(this.docId);
             if(this._document) {
                 this._chapter = this._document.getChapter(this.chapterId);
                 if(this._chapter)
@@ -30,8 +30,6 @@ export class chapterTitlePage {
             }
             this.invalidate();
         }
-        // webSkel.space.onChange(this.updateState);
-        this._document.observeChange(this.updateState);
     }
 
     beforeRender() {

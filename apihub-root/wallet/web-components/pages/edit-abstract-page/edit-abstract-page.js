@@ -1,8 +1,7 @@
 import {
-    closeModal,
-    getClosestParentElement,
+    closeModal, DocumentModel,
     showActionBox,
-    showModal
+    showModal, Space
 } from "../../../imports.js";
 import { reverseQuerySelector } from "../../../../WebSkel/utils/dom-utils.js";
 import { removeActionBox } from "../../../../WebSkel/utils/modal-utils.js";
@@ -12,8 +11,7 @@ export class editAbstractPage {
         this.element = element;
         let url = window.location.hash;
         this.id = parseInt(url.split('/')[1]);
-        this.documentService = webSkel.getService('documentService');
-        this._document = this.documentService.getDocument(this.id);
+        this._document = DocumentModel.getDocument(this.id);
         if (this._document) {
             setTimeout(() => {
                 this.invalidate();
@@ -25,8 +23,7 @@ export class editAbstractPage {
             this.abstractText = this._document.abstract;
             this.invalidate();
         }
-        // webSkel.space.onChange(this.updateState);
-        this._document.observeChange(this.updateState);
+        this._document.observeChange(this._document.getNotifyId(), this.updateState);
         this.abstractText = this._document.getAbstract();
     }
 
@@ -88,7 +85,7 @@ export class editAbstractPage {
                 }
             }
             this._document.updateAbstract(updatedAbstract)
-            await this.documentService.updateDocument(this._document, this._document.id);
+            await this._document.updateDocument();
         }
     }
 
@@ -111,16 +108,13 @@ export class editAbstractPage {
     async generateAbstract(_target){
         const loading = await webSkel.showLoading();
         async function suggestAbstract() {
-            const documentService = webSkel.getService('documentService');
-            const documentText = documentService.getDocument(webSkel.space.currentDocumentId).toString();
+            const documentText = DocumentModel.getDocument(webSkel.space.currentDocumentId).toString();
             const defaultPrompt = `Given the content of the following document: "${documentText}". Please generate a concise and contextually appropriate abstract that accurately reflects the document's key points, themes, and findings. Your response should consist solely of the abstract text.`;
-            const brainstormingSrv = new brainstormingService();
             const llmId = webSkel.space.settings.llms[0].id;
-            return await brainstormingSrv.suggestAbstract(defaultPrompt, llmId);
+            return await Space.suggestAbstract(defaultPrompt, llmId);
         }
         this.suggestedAbstract = await suggestAbstract();
-        // webSkel.space.notifyObservers();
-        this._document.observeChange(this.updateState);
+        this._document.observeChange(this._document.getNotifyId(), this.updateState);
         loading.close();
         loading.remove();
         await showModal(document.querySelector("body"), "suggest-abstract-modal", { presenter: "suggest-abstract-modal"});
@@ -128,10 +122,10 @@ export class editAbstractPage {
 
     async select(_target) {
         let abstract = reverseQuerySelector(_target,".content").innerText;
-        let documentSrv = new documentService();
-        if(abstract !== documentSrv.getAbstract(this._document)) {
-            documentSrv.updateAbstract(this._document, abstract);
-            await documentSrv.updateDocument(this._document, this._document.id);
+        if(abstract !== this._document.getAbstract()) {
+            this._document.updateAbstract(abstract);
+            await this._document.updateDocument();
+            this._document.notifyObservers(this._document.getNotifyId());
         } else {
             removeActionBox(this.actionBox, this);
         }
@@ -139,7 +133,6 @@ export class editAbstractPage {
 
     async edit(_target) {
         let abstract = reverseQuerySelector(_target, ".content");
-        let documentSrv = new documentService();
         let alternativeAbstractIndex = this._document.alternativeAbstracts.findIndex(abs => abs === abstract.innerText);
         if(alternativeAbstractIndex !== -1) {
             removeActionBox(this.actionBox, this);
@@ -149,7 +142,7 @@ export class editAbstractPage {
                 abstract.contentEditable = false;
                 if(abstract.innerText !== this._document.alternativeAbstracts[alternativeAbstractIndex]) {
                     this._document.alternativeAbstracts[alternativeAbstractIndex] = abstract.innerText;
-                    await documentSrv.updateDocument(this._document, this._document.id);
+                    await this._document.updateDocument();
                 }
             });
         }
@@ -160,11 +153,10 @@ export class editAbstractPage {
 
     async delete(_target) {
         let abstract = reverseQuerySelector(_target, ".content");
-        let documentSrv = new documentService();
         let alternativeAbstractIndex = this._document.alternativeAbstracts.findIndex(abs => abs === abstract.innerText);
         if(alternativeAbstractIndex !== -1) {
             this._document.alternativeAbstracts.splice(alternativeAbstractIndex, 1);
-            await documentSrv.updateDocument(this._document, this._document.id);
+            await this._document.updateDocument();
         } else {
             await showApplicationError("Error deleting abstract", `Error deleting abstract for document: ${this._document.title}`, `Error deleting abstract for document: ${this._document.title}`);
         }

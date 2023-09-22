@@ -1,4 +1,4 @@
-import { Chapter } from "../../../imports.js";
+import {Chapter, DocumentModel} from "../../../imports.js";
 
 export class documentViewPage {
     static chapterIdForSidebar;
@@ -10,8 +10,7 @@ export class documentViewPage {
         let url = window.location.hash;
         this.button = "Add new document";
         this.id = parseInt(url.split('/')[1]);
-        this.documentService = webSkel.getService('documentService');
-        this._document = this.documentService.getDocument(this.id);
+        this._document = DocumentModel.getDocument(this.id);
         if (this._document) {
             setTimeout(()=> {
                 this.invalidate();
@@ -25,11 +24,10 @@ export class documentViewPage {
             console.log(`this _document doesnt exist: docId: ${this.id}`);
         }
         this.updateState = ()=> {
-            this._document = this.documentService.getDocument(this.id);
+            this._document = DocumentModel.getDocument(this.id);
             this.invalidate();
         }
-        // webSkel.space.onChange(this.updateState);
-        this._document.observeChange(this.updateState);
+        this._document.observeChange(this._document.getNotifyId(), this.updateState);
     }
 
     beforeRender() {

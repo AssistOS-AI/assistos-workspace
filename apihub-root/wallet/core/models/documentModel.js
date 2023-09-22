@@ -24,19 +24,14 @@ export class DocumentModel {
     }
 
     //doc:childId:paragraphId
+    //a child can be not only a chapter, but also a title or abstract or mainIdea
     notifyObservers(prefix) {
-        // let chapterdId = prefix.split(":")[1];
-        // let paragraphId = prefix.split(":")[2];
-        // for (const observerRef of this.observers) {
-        //     if(paragraphId && observerRef.deref().elementId === paragraphId ||
-        //        !paragraphId && chapterId && observerRef.deref().elementId === chapterId ||
-        //        !paragraphId && !chapterId && observerRef.deref().elementId === chapterId) {
-        //         const observer = observerRef.deref();
-        //         if (observer) {
-        //             observer();
-        //         }
-        //     }
-        // }
+        for (const observerRef of this.observers) {
+            const observer = observerRef.deref();
+            if(observer && observer.elementId.startsWith(prefix)) {
+                observer.callback();
+            }
+        }
     }
 
     getDocSettings() {
@@ -135,7 +130,8 @@ export class DocumentModel {
         return this.chapters[chapterIndex].paragraphs;
     }
 
-    getChapterParagraph(chapterIndex, paragraphId) {
+    getChapterParagraph(chapterId, paragraphId) {
+        let chapterIndex = this.chapters.findIndex(chapter => chapter.id === chapterId);
         return this.chapters[chapterIndex].paragraphs.find(paragraph => paragraph.id === paragraphId);
     }
 
@@ -145,12 +141,12 @@ export class DocumentModel {
 
     async swapChapters(chapterId1, chapterId2) {
         [this.chapters[chapterId1], this.chapters[chapterId2]] = [this.chapters[chapterId2], this.chapters[chapterId1]];
-        await webSkel.localStorage.updateDocument(webSkel.space.id, this.id, this);
+        await this.updateDocument();
     }
 
     async swapParagraphs(chapterIndex, paragraphIndex1, paragraphIndex2) {
         [this.chapters[chapterIndex].paragraphs[paragraphIndex1], this.chapters[chapterIndex].paragraphs[paragraphIndex2]] = [this.chapters[chapterIndex].paragraphs[paragraphIndex2], this.chapters[chapterIndex].paragraphs[paragraphIndex1]];
-        await webSkel.localStorage.updateDocument(webSkel.space.id, this.id, this);
+        await this.updateDocument();
     }
 
     updateParagraphText(chapterId, paragraphId, paragraphText) {
@@ -179,7 +175,7 @@ export class DocumentModel {
         return this.alternativeTitles || [];
     }
 
-    updateTitle(title) {
+    setTitle(title) {
         this.title = title;
     }
 
@@ -191,9 +187,13 @@ export class DocumentModel {
         this.alternativeTitles.splice(index, 1);
     }
 
-    getDocument(documentId) {
+    static getDocument(documentId) {
         const document = webSkel.space.documents.find(document => document.id === documentId);
         return document || null;
+    }
+
+    getNotifyId() {
+        return "doc";
     }
 
     getDocumentIndex() {
@@ -206,6 +206,17 @@ export class DocumentModel {
     }
 
     async updateDocument() {
+        let observers = this.observers;
+        this.observers = undefined;
         await webSkel.localStorage.updateDocument(webSkel.space.id, this.id, this);
+        this.observers = observers;
+    }
+
+    static async addDocument(document) {
+        let observers = document.observers;
+        document.observers = undefined;
+        await webSkel.localStorage.addDocument(document, webSkel.space.id);
+        document.observers = observers;
+        webSkel.space.documents.push(document);
     }
 }

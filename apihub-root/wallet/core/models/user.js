@@ -9,9 +9,4 @@ export class User {
     static getUsers() {
         return webSkel.space.users || [];
     }
-
-    async static addUser(user) {
-        await webSkel.storageService.addUser(user);
-        webSkel.space.users.push(user);
-    }
 }

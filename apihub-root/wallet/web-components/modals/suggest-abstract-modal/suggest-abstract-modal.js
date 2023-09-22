@@ -1,5 +1,5 @@
 import { closeModal } from "../../../../WebSkel/utils/modal-utils.js";
-import { documentService } from "../../../core/_old/documentService.js";
+import { DocumentModel } from "../../../imports.js";
 
 export class suggestAbstractModal {
     constructor() {
@@ -11,8 +11,8 @@ export class suggestAbstractModal {
         }
         // webSkel.space.onChange(this.updateState);
         this.id = parseInt(window.location.hash.split('/')[1]);
-        this._document = webSkel.servicesRegistry.documentService.getDocument(this.id);
-        this._document.observeChange(this.updateState);
+        this._document = DocumentModel.getDocument(this.id);
+        this._document.observeChange(this._document.getNotifyId(), this.updateState);
         this.suggestedAbstract = document.querySelector("edit-abstract-page").webSkelPresenter.suggestedAbstract;
     }
 
@@ -25,7 +25,7 @@ export class suggestAbstractModal {
     }
 
     async addSelectedAbstract(_target) {
-        webSkel.servicesRegistry.documentService.addAlternativeAbstract(this._document, this.suggestedAbstract);
-        await webSkel.servicesRegistry.documentService.updateDocument(this._document, this.id);
+        this._document.addAlternativeAbstract(this.suggestedAbstract);
+        await this._document.updateDocument();
     }
 }

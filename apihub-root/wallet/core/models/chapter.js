@@ -15,6 +15,11 @@ export class Chapter {
         }
         this.currentParagraphId = null;
     }
+
+    getNotifyId() {
+        return `doc:${this.id}`;
+    }
+
     toString() {
         return `${this.title}\n${this.paragraphs.map(paragraph => paragraph.toString()).join("\n")}`;
     }

@@ -1,6 +1,6 @@
 import { closeModal } from "../../../../WebSkel/utils/modal-utils.js";
 import { extractFormInformation } from "../../../../WebSkel/utils/form-utils.js";
-import { Chapter } from "../../../imports.js";
+import { brainstormingPage, Chapter, DocumentModel } from "../../../imports.js";
 
 export class addChapterModal {
     constructor() {
@@ -12,10 +12,8 @@ export class addChapterModal {
         this.updateState = ()=> {
             this.invalidate();
         }
-        this.documentService = webSkel.getService('documentService');
-        this._document = this.documentService.getDocument(this.docId);
-        this._document.observeChange(this.updateState);
-        // webSkel.space.onChange(this.updateState);
+        this._document = DocumentModel.getDocument(this.docId);
+        this._document.observeChange(this._document.getNotifyId(), this.updateState);
     }
 
     beforeRender() {
@@ -29,17 +27,17 @@ export class addChapterModal {
     async addChapter(_target) {
         let formData = await extractFormInformation(_target);
         if(formData.isValid) {
-            let updateDocument = this.documentService.getDocument(this.docId);
+            // let updateDocument = DocumentModel.getDocument(this.docId);
             closeModal(_target);
             let chapterObj={
                 title: formData.data.name,
-                id: updateDocument.chapters.length + 1,
+                id: this._document.chapters.length + 1,
                 paragraphs: [{id: 1, text: "Edit here your first paragraph."}]
             }
             let newChapter = new Chapter(chapterObj);
-            updateDocument.chapters.push(newChapter);
-            await this.documentService.updateDocument(updateDocument, this.docId);
-            this._document.notifyObservers();
+            this._document.chapters.push(newChapter);
+            await this._document.updateDocument();
+            this._document.notifyObservers(this._document.getNotifyId());
         }
     }
 }

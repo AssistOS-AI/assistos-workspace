@@ -1,4 +1,4 @@
-import { getClosestParentElement, showModal } from "../../../imports.js";
+import { getClosestParentElement, showModal, Space } from "../../../imports.js";
 
 export class spaceDropdown {
     constructor() {
@@ -8,13 +8,13 @@ export class spaceDropdown {
         this.updateState = ()=> {
             this.invalidate();
         }
-        webSkel.space.onChange(this.updateState);
+        // webSkel.space.onChange(this.updateState);
     }
 
     beforeRender() {
         this.spacesDiv = "";
         this.currentSpaceName = webSkel.space.name;
-        webSkel.servicesRegistry.spaceService.getSpaceNames().forEach((space) => {
+        currentUser.spaces.filter(space => space.id !== currentSpaceId).forEach((space) => {
             this.spacesDiv += `<space-unit data-space-name="${space.name}" data-space-id="${space.id}"></space-unit>`;
         });
     }
@@ -27,7 +27,7 @@ export class spaceDropdown {
     changeSpace(_target) {
         let selectedSpace = getClosestParentElement(_target,['space-unit']);
         let selectedSpaceId = parseInt(selectedSpace.getAttribute('data-space-id'));
-        webSkel.servicesRegistry.spaceService.changeSpace(selectedSpaceId);
+        Space.changeSpace(selectedSpaceId);
     }
 
     async  addSpace(){

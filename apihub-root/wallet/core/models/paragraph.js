@@ -4,6 +4,10 @@ export class Paragraph {
         this.id = paragraphData.id;
     }
 
+    getNotifyId(chapterId) {
+        return `doc:${chapterId}:${this.id}`;
+    }
+
     toString() {
         return this.text;
     }

@@ -1,4 +1,4 @@
-import {closeModal, DocumentModel, showActionBox, showModal} from "../../../imports.js";
+import { closeModal, DocumentModel, showActionBox, showModal } from "../../../imports.js";
 
 export class brainstormingPage {
     constructor(element) {
@@ -11,8 +11,7 @@ export class brainstormingPage {
         this.id2 = "";
         this.idModal1 = "selected-modal";
         this.idModal2 = "";
-        this.documentService = webSkel.getService('documentService');
-        this._document = this.documentService.getDocument(this.id);
+        this._document = DocumentModel.getDocument(this.id);
         if(this._document) {
             this.docTitle = this._document.title;
             if(this._document.abstract) {
@@ -25,8 +24,7 @@ export class brainstormingPage {
         this.updateState = ()=> {
             this.invalidate();
         }
-        // webSkel.space.onChange(this.updateState);
-        this._document.observeChange(this.updateState);
+        this._document.observeChange(this._document.getNotifyId(), this.updateState);
     }
 
     beforeRender() {

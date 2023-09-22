@@ -1,8 +1,8 @@
-import { getClosestParentElement, showActionBox, showModal } from "../../../imports.js";
+import {DocumentModel, getClosestParentElement, showActionBox, showModal} from "../../../imports.js";
 
 export class documentsPage {
     constructor() {
-        this.documentService = webSkel.getService('documentService');
+        // this.documentService = webSkel.getService('documentService');
         if(webSkel.space.documents !== undefined) {
             setTimeout(()=> {
                 this.invalidate();
@@ -14,13 +14,13 @@ export class documentsPage {
 
     beforeRender() {
         this.tableRows = "";
-        if(this.documentService.getAllDocuments().length === 0) {
+        if(webSkel.space.documents.length === 0) {
             this.tableRows = `<div> There are no documents yet </div>`;
         }
         else {
-            this.documentService.getAllDocuments().forEach((document) => {
+            webSkel.space.documents.forEach((document) => {
                 this.tableRows += `<document-unit data-name="${document.title}" data-id="${document.id}"></document-unit>`;
-                document.observeChange(this.updateState);
+                document.observeChange(document.getNotifyId(), this.updateState);
             });
         }
     }
@@ -39,7 +39,7 @@ export class documentsPage {
     async deleteAction(_target){
         const rowElement = getClosestParentElement(_target, "document-unit");
         let documentId = parseInt(rowElement.getAttribute('data-id'));
-        await this.documentService.deleteDocument(documentId);
+        await DocumentModel.deleteDocument(documentId);
     }
 
     async showActionBox(_target, primaryKey, componentName, insertionMode) {
