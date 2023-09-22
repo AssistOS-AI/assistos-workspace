@@ -15,9 +15,9 @@ export class Space {
         this.name = spaceData.name;
         this.id = spaceData.id || undefined;
         this.settings = new Settings(spaceData.settings);
+        this.announcements = (spaceData.announcements || []).map(announcementData => new Announcement(announcementData));
+        this.users = (spaceData.users || []).map(userData => new User(userData));
         this.documents = (spaceData.documents || []).map(documentData => new DocumentModel(documentData));
-        this.announcements = (spaceData.announcements || []).map(announcement => new Announcement(announcement.title, announcement.text, announcement.date, announcement.id));
-        this.users = (spaceData.users || []).map(user => new User(user.lastName, user.firstName, user.email, user.phoneNumber));
         this.observers = [];
         Space.instance = this;
     }
@@ -41,6 +41,15 @@ export class Space {
     //         }
     //     }
     // }
+
+    notifyObservers() {
+        for (const observerRef of this.observers) {
+            const observer = observerRef.deref();
+            if (observer) {
+                observer();
+            }
+        }
+    }
 
     static async addSpace(title){
         let currentDate = new Date();

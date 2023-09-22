@@ -1,11 +1,11 @@
 import {
     notBasePage,
-    storageService,
     WebSkel,
     closeModal,
     initUser,
     Space,
 } from "./imports.js";
+import {StorageManager} from "./storageManager.js";
 
 const openDSU = require("opendsu");
 window.webSkel = new WebSkel();
@@ -88,15 +88,16 @@ async function loadPage() {
 }
 
 async function initLiteUserDatabase() {
-    webSkel.localStorage = await storageService.getInstance("freeUser", 1);
-    await webSkel.localStorage.initDatabase();
+    window.storageManager = new StorageManager();
+
+    debugger;
     let result = localStorage.getItem("currentUser");
     if(result) {
         window.currentSpaceId = JSON.parse(result).currentSpaceId;
     } else {
         window.currentSpaceId = 1;
     }
-    webSkel.space = new Space(await webSkel.localStorage.getSpaceData(currentSpaceId));
+    webSkel.company = new Company(await webSkel.localStorage.getCompanyData(currentCompanyId));
 }
 
 function changeSelectedPageFromSidebar(url) {
@@ -154,12 +155,32 @@ async function loadConfigs(jsonPath) {
         for (const component of config.components) {
             await webSkel.defineComponent(component.name, component.path);
         }
+        for( const storageService of config.storageServices){
+            const StorageServiceModule=await import(storageService.path);
+            if(storageService.params) {
+                storageManager.addStorageService(storageService.name, new StorageServiceModule[storageService.name](...Object.values(storageService.params)));
+            }else{
+                storageManager.addStorageService(storageService.name, new StorageServiceModule[storageService.name]());
+            }
+        }
+
     } catch (error) {
         await showApplicationError("Error loading configs", "Error loading configs", `Encountered ${error} while trying loading webSkel configs`);
     }
 }
 
 (async ()=> {
+
+    const result = await fetch("/spaces/1/documents:1:chapters:2:paragraphs:3",
+        {
+            method: "PUT",
+            body: `{"3":{"text":"asdaas","id":"3"}}`,
+            headers: {
+                "Content-type": "application/json; charset=UTF-8"
+            }
+        });
+    console.log(await result.text());
+    debugger;
     webSkel.setDomElementForPages(document.querySelector("#page-content"));
     /* only for premium users initWallet/enclaves*/
     //await initWallet();
@@ -170,6 +191,7 @@ async function loadConfigs(jsonPath) {
     }
     await initUser();
     await loadConfigs("./wallet/webskel-configs.json");
+    webSkel.company = new Company(await webSkel.storageManeger.loadObject("JSONService",currentCompanyId,"/"));
     await loadPage();
     defineActions();
 })();

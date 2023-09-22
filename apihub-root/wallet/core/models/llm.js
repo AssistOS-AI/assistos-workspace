@@ -9,7 +9,21 @@ export class LLM {
         this.id = id || undefined;
     }
 
-    static async suggestChapterIdeas(llm) {
+    async  suggestTitles(prompt, llmId) {
+        if (!webSkel.servicesRegistry.spaceSettingsService.getLLM(llmId)) {
+            throw new Error(`LLM with id ${llmId} not found.`);
+        }
+        return await webSkel.servicesRegistry.spaceSettingsService.suggestTitles(prompt, llmId);
+    }
+
+    async suggestAbstract(prompt, llmId) {
+        if (!webSkel.servicesRegistry.spaceSettingsService.getLLM(llmId)) {
+            throw new Error(`LLM with id ${llmId} not found.`);
+        }
+        return await webSkel.servicesRegistry.spaceSettingsService.suggestAbstract(prompt, llmId);
+    }
+
+    async suggestChapterIdeas(llm) {
 
     }
 }
