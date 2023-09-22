@@ -31,6 +31,19 @@ function sendResponse(response,statusCode, contentType, message){
     response.write(message);
     response.end();
 }
+async function loadSpace(request, response){
+    const filePath = `../apihub-root/spaces/${request.params.spaceId}/status.json`;
+    let spaceData;
+    try {
+        spaceData = require(filePath);
+    } catch (error) {
+        sendResponse(response, 404, "text/html", error+ ` Error space not found: ${filePath}`);
+        return "";
+    }
+
+    sendResponse(response, 200, "text/html", JSON.stringify(spaceData));
+    return "";
+}
 async function loadObject(request, response) {
     const path = request.params.filePath.replaceAll(":","/");
 
@@ -194,5 +207,6 @@ async function storeObject(request,response) {
 }
 module.exports={
     loadObject,
-    storeObject
+    storeObject,
+    loadSpace
 }

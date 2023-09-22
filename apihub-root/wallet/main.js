@@ -35,22 +35,6 @@ async function initEnclaveClient() {
     }
 }
 
-async function initWallet() {
-    if (rawDossier) {
-        await $$.promisify(rawDossier.writeFile, rawDossier)("/environment.json", JSON.stringify({
-            "vaultDomain": "vault",
-            "didDomain": "vault",
-            "enclaveType": "MemoryEnclave"
-        }));
-    }
-    const sc = openDSU.loadAPI("sc").getSecurityContext();
-    if (sc.isInitialised()) {
-        await initEnclaveClient();
-    }
-    else {
-        sc.on("initialised", initEnclaveClient.bind(this));
-    }
-}
 
 async function loadPage() {
     let url = window.location.hash;
@@ -91,7 +75,6 @@ async function loadPage() {
 async function initLiteUserDatabase() {
     window.storageManager = new StorageManager();
 
-    debugger;
     let result = localStorage.getItem("currentUser");
     if(result) {
         window.currentSpaceId = JSON.parse(result).currentSpaceId;
@@ -171,18 +154,14 @@ async function loadConfigs(jsonPath) {
 }
 
 (async ()=> {
-    await runTests();
+    //await runTests();
     webSkel.setDomElementForPages(document.querySelector("#page-content"));
     /* only for premium users initWallet/enclaves*/
-    //await initWallet();
-    if (('indexedDB' in window)) {
-        await initLiteUserDatabase();
-    } else {
-        await showApplicationError("IndexDB not supported", "Your current browser does not support local storage. Please use a different browser, or upgrade to premium", "IndexDB is not supported by your browser");
-    }
+
     await initUser();
     await loadConfigs("./wallet/webskel-configs.json");
-    webSkel.company = new Company(await webSkel.storageManeger.loadObject("JSONService",currentCompanyId,"/"));
+    const result = await fetch(`/spaces/${currentSpaceId}`);
+    //webSkel.company = new Space( await result.text());
     await loadPage();
     defineActions();
 })();
