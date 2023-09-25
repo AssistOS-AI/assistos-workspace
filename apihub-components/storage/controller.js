@@ -16,10 +16,10 @@ spaces is root folder
 
 const fs = require('fs');
 
-function saveJSON(response, spaceData, filePath){
+function saveJSON(response, spaceData, filePath) {
     try {
         fs.writeFileSync(filePath, JSON.stringify(spaceData, null, 2), 'utf8');
-    }catch(error){
+    } catch(error) {
         sendResponse(response, 500, "text/html", error+ ` Error at writing space: ${filePath}`);
         return "";
     }
@@ -45,22 +45,44 @@ async function loadObject(request, response) {
     return "";
 }
 
-
-async function storeObject(request,response) {
-
+async function storeObject(request, response) {
     let jsonData = JSON.parse(request.body.toString());
     const filePath = `../apihub-root/spaces/${request.params.spaceId}/${request.params.objectType}/${request.params.objectName}.json`;
-
-    saveJSON(response,jsonData,filePath);
+    saveJSON(response, jsonData, filePath);
     sendResponse(response, 200, "text/html", `Success, ${request.body.toString()}`);
     return "";
-
 }
 
-async function loadSpace(){
-
+async function buildSpaceRecursive(filePath) {
+    let localData = [];
+    for (let item of fs.readdirSync(filePath)) {
+        const stat = await fs.promises.stat(`${filePath}/${item}`);
+        if(stat.isDirectory()) {
+            localData.push({item: await buildSpaceRecursive(`${filePath}/${item}`)});
+        }
+        else {
+            let result = require(`${filePath}/${item}`);
+            localData.push(result);
+        }
+    }
+    return localData;
 }
-module.exports={
+
+async function loadSpace(request, response){
+    let spaceId = request.params.spaceId;
+    let filePath = `../apihub-root/spaces/${spaceId}`;
+    let statusJson = require(`${filePath}/status/status.json`);
+
+    for(let item of fs.readdirSync(filePath)) {
+        if(item !== "status") {
+            let spaceData = await buildSpaceRecursive(`${filePath}\/${item}`);
+            statusJson[item] = spaceData;
+        }
+    }
+    sendResponse(response, 200, "text/html", JSON.stringify(statusJson));
+}
+
+module.exports = {
     loadObject,
     storeObject,
     loadSpace
