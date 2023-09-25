@@ -30,8 +30,8 @@ export async function initUser() {
         localStorage.setItem("currentUser",JSON.stringify(user));
         console.log("Instantiated currentUser" + JSON.stringify(user));
     }
-
-    currentUser.spaces = (await webSkel.localStorage.getAllSpacesData()).map(space => { return { name: space.name, id: space.id };});
+    let spaces = await fetch("/spaces/1:status//");
+    currentUser.spaces = JSON.parse(await spaces.text());
     let userObj = JSON.parse(localStorage.getItem("currentUser"));
     userObj.spaces = currentUser.spaces;
     localStorage.setItem("currentUser", JSON.stringify(userObj));
