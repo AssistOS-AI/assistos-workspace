@@ -14,8 +14,7 @@ export async function initUser() {
     if(result) {
         let user = JSON.parse(result);
         window.currentSpaceId = user.currentSpaceId;
-        if(JSON.parse(result).secretToken!== "")
-        {
+        if(JSON.parse(result).secretToken !== "") {
             currentUser.isPremium = true;
             currentUser.userId = user.userId;
             document.querySelector("#logout-button").style.display = "block";
@@ -25,9 +24,9 @@ export async function initUser() {
     }
     else {
         /* TBD */
-        const user = { userId: crypto.getRandomSecret(32), secretToken:"", currentSpaceId: 1 };
+        const user = { userId: crypto.getRandomSecret(32), secretToken: "", currentSpaceId: 1 };
         currentUser.id = user.userId;
-        localStorage.setItem("currentUser",JSON.stringify(user));
+        localStorage.setItem("currentUser", JSON.stringify(user));
         console.log("Instantiated currentUser" + JSON.stringify(user));
     }
     let spaces = await fetch("/spaces/1:status//");
@@ -95,9 +94,9 @@ export function registerAccountActions() {
                 let users = JSON.parse(localStorage.getItem("users"));
                 if(users) {
                     users.forEach((user)=> {
-                        if(user.userId === userId){
+                        if(user.userId === userId) {
                             let secretToken = user.secretToken;
-                            if(verifyPassword(secretToken,formInfo.data.password)) {
+                            if(verifyPassword(secretToken, formInfo.data.password)) {
                                 webSkel.setDomElementForPages(pageContent);
                                 localStorage.setItem("currentUser", JSON.stringify({ userId: userId, secretToken: secretToken }));
                                 window.location = "";
@@ -110,7 +109,7 @@ export function registerAccountActions() {
                 }
                 console.log(`First time logging in on this device userId: ${JSON.stringify(userId)}`);
                 const userSVD = await $$.promisify(remoteEnclaveClientAccounting.callLambda)("getUserSVD", userId);
-                if(verifyPassword(userSVD.secretToken,formInfo.data.password)) {
+                if(verifyPassword(userSVD.secretToken, formInfo.data.password)) {
                     let user = { userId: userId, secretToken: userSVD.secretToken};
                     addUserToLocalStorage(user);
                     localStorage.setItem("currentUser", JSON.stringify(user));

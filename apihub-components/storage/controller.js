@@ -31,6 +31,7 @@ function sendResponse(response,statusCode, contentType, message){
     response.write(message);
     response.end();
 }
+
 async function loadSpace(request, response){
     const filePath = `../apihub-root/spaces/${request.params.spaceId}/status.json`;
     let spaceData;
@@ -57,7 +58,7 @@ async function loadObject(request, response) {
         return "";
     }
 
-    if(objectPath === ""){
+    if(objectPath === "") {
         sendResponse(response, 200, "text/html", JSON.stringify(spaceData));
         return "";
     }
@@ -85,7 +86,7 @@ async function loadObject(request, response) {
     return "";
 }
 
-function deleteObject(request, response){
+async function deleteObject(request, response){
 
     const path = request.params.filePath.replaceAll(":","/");
     const filePath = `../apihub-root/spaces/${path}.json`;
@@ -141,7 +142,7 @@ function deleteObject(request, response){
     }
 }
 
-function putObject(request,response){
+async function putObject(request,response){
     const path = request.params.filePath.replaceAll(":","/");
     let jsonData = JSON.parse(request.body.toString());
 
@@ -150,7 +151,7 @@ function putObject(request,response){
     let spaceData;
     if(request.params.objectPath === "")
     {
-        saveJSON(response,JSON.parse(request.body.toString()),filePath);
+        saveJSON(response, await JSON.parse(request.body.toString()),filePath);
         sendResponse(response, 200, "text/html", `Success, ${request.body.toString()}`);
         return;
     }
@@ -197,11 +198,11 @@ function putObject(request,response){
 async function storeObject(request,response) {
 
     if(request.method==="DELETE"){
-        deleteObject(request,response);
+        await deleteObject(request,response);
     }
     if(request.method==="PUT" )
     {
-       putObject(request,response);
+      await putObject(request,response);
     }
 
 }

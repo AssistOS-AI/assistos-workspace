@@ -28,7 +28,7 @@ export class DocumentModel {
     notifyObservers(prefix) {
         for (const observerRef of this.observers) {
             const observer = observerRef.deref();
-            if(observer && observer.elementId.startsWith(prefix)) {
+            if(observer && observer.elementId === prefix) {
                 observer.callback();
             }
         }

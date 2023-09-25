@@ -140,11 +140,11 @@ async function loadConfigs(jsonPath) {
         for (const component of config.components) {
             await webSkel.defineComponent(component.name, component.path);
         }
-        for( const storageService of config.storageServices){
-            const StorageServiceModule=await import(storageService.path);
+        for( const storageService of config.storageServices) {
+            const StorageServiceModule = await import(storageService.path);
             if(storageService.params) {
                 storageManager.addStorageService(storageService.name, new StorageServiceModule[storageService.name](...Object.values(storageService.params)));
-            }else{
+            } else {
                 storageManager.addStorageService(storageService.name, new StorageServiceModule[storageService.name]());
             }
         }
@@ -155,7 +155,7 @@ async function loadConfigs(jsonPath) {
 }
 
 (async ()=> {
-    //await runTests();
+    // await runTests();
     webSkel.setDomElementForPages(document.querySelector("#page-content"));
     /* only for premium users initWallet/enclaves*/
 
