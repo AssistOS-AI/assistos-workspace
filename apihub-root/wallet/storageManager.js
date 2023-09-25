@@ -17,6 +17,12 @@ export class StorageManager {
         return await service.loadObject(spaceId, objectType, objectName);
     }
 
+    async loadSpace(serviceName, spaceId) {
+        const service = this.getStorageService(serviceName);
+        if (!service) throw new Error("Service not found");
+        return await service.loadSpace(spaceId);
+    }
+
     async storeObject(serviceName, spaceId, objectType, objectName, jsonData) {
         const service = this.getStorageService(serviceName);
         if (!service) throw new Error("Service not found");

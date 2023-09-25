@@ -45,7 +45,7 @@ export class FileSystemStorage extends StorageService{
     }
 
     async loadSpace(spaceId) {
-
+        const result = await fetch(`/load-space/${spaceId}`, {"method": "GET"});
+        return result.text();
     }
-
 }

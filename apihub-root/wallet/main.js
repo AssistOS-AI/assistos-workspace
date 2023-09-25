@@ -141,7 +141,7 @@ async function loadConfigs(jsonPath) {
             }
         }
 
-        let result = await storageManager.loadObject("FileSystemStorage",currentSpaceId,"status","status");
+        let result = await storageManager.loadSpace("FileSystemStorage",currentSpaceId);
         webSkel.space = new Space(JSON.parse(result));
 
         await initUser();
@@ -163,8 +163,6 @@ async function loadConfigs(jsonPath) {
 (async ()=> {
     // await runTests();
     webSkel.setDomElementForPages(document.querySelector("#page-content"));
-    const result = await fetch(`/load-space/1`, {"method": "GET"});
-    console.log(await result.text());
     await initLiteUserDatabase();
 
     await loadConfigs("./wallet/webskel-configs.json");

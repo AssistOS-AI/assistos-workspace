@@ -19,11 +19,11 @@ export class Space {
         Object.keys(spaceData.announcements).forEach((key, index) =>{
             this.announcements.push(new Announcement(spaceData.announcements[key]));
         });
-        this.users = [];
-        //this.users = (spaceData.users || []).map(userData => new User(userData));
-        this.documents = [];
+        // this.users = [];
+        this.users = (spaceData.users || []).map(userData => new User(userData));
+        // this.documents = [];
         this.scripts = [];
-        //this.documents = (spaceData.documents || []).map(documentData => new DocumentModel(documentData));
+        this.documents = (spaceData.documents || []).map(documentData => new DocumentModel(documentData));
         this.observers = [];
         Space.instance = this;
     }
