@@ -1,4 +1,3 @@
-const {storeObject, loadObject, loadSpace} = require("./controller");
 
 function bodyReaderMiddleware(req, res, next) {
     const data = [];
@@ -14,11 +13,12 @@ function bodyReaderMiddleware(req, res, next) {
 }
 function Storage(server){
     const { loadObject,storeObject, loadSpace} = require("./controller");
-    server.get("/spaces/:filePath/:objectPath",loadObject);
-    server.get("/spaces/:spaceId", loadSpace);
-    server.delete("/spaces/:filePath/:objectPath",storeObject);
+    server.get("/spaces/:spaceId/:objectType/:objectName",loadObject);
+    server.get("/spaces/:spaceId///",loadSpace);
+    //server.get("/spaces/:spaceId", loadSpace);
+    server.delete("/spaces/:spaceId/:objectType/:objectName",storeObject);
     server.use("/spaces/*", bodyReaderMiddleware);
-    server.put("/spaces/:filePath/:objectPath",storeObject);
+    server.put("/spaces/:spaceId/:objectType/:objectName",storeObject);
 
 }
 module.exports=Storage;

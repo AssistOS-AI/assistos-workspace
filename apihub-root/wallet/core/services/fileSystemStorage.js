@@ -19,17 +19,17 @@ export class FileSystemStorage extends StorageService{
         super();
     }
 
-    async loadObject(spaceId, objectPathId) {
+    async loadObject(spaceId, objectType, objectName) {
 
-        const result = await fetch(`/spaces/${spaceId}:${objectPathId}/`,
+        const result = await fetch(`/spaces/${spaceId}/${objectType}/${objectName}`,
             {
                 method: "GET"
             });
         return result.text();
     }
-    async storeObject(spaceId, objectPathId, jsonData) {
+    async storeObject(spaceId, objectType, objectName, jsonData) {
 
-        const result = await fetch(`/spaces/${spaceId}:${objectPathId}/`,
+        const result = await fetch(`/spaces/${spaceId}/${objectType}/${objectName}`,
             {
                 method: "PUT",
                 body: JSON.stringify(jsonData),
@@ -38,6 +38,10 @@ export class FileSystemStorage extends StorageService{
                 }
             });
         return result.text();
+    }
+
+    async listObjects(spaceId, objectType){
+
     }
 
 }

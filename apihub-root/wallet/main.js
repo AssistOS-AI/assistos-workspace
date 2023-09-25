@@ -140,9 +140,12 @@ async function loadConfigs(jsonPath) {
                 storageManager.addStorageService(storageService.name, new StorageServiceModule[storageService.name]());
             }
         }
-        let result = await storageManager.getStorageService("FileSystemStorage").loadObject(currentSpaceId,"status/")
+
+        let result = await storageManager.loadObject("FileSystemStorage",currentSpaceId,"status","status");
         webSkel.space = new Space(JSON.parse(result));
+
         await initUser();
+
         for (const presenter of config.presenters) {
             const PresenterModule = await import(presenter.path);
             webSkel.registerPresenter(presenter.name, PresenterModule[presenter.className]);

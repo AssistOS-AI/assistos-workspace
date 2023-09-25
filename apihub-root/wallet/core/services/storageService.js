@@ -1,14 +1,16 @@
 
 export class StorageService {
     constructor(){}
-    loadObject(spaceId, objectPathId) {
+    loadObject(spaceId, objectType, objectName) {
 
     }
 
-    saveObject(spaceId,objectPathId, jsonData) {
+    storeObject(spaceId, objectType, objectName) {
 
     }
-    // listObjects(){
+    listObjects(spaceId, objectType){
+        
+    }
 
 }
 

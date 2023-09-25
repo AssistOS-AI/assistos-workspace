@@ -11,15 +11,21 @@ export class StorageManager {
         return this.services[name];
     }
 
-    async loadObject(serviceName, spaceId, objectID) {
+    async loadObject(serviceName, spaceId, objectType, objectName) {
         const service = this.getStorageService(serviceName);
         if (!service) throw new Error("Service not found");
-        return await service.loadObject(spaceId, objectID);
+        return await service.loadObject(spaceId, objectType, objectName);
     }
 
-    async storeObject(serviceName, spaceId, objectID, jsonData) {
+    async storeObject(serviceName, spaceId, objectType, objectName, jsonData) {
         const service = this.getStorageService(serviceName);
         if (!service) throw new Error("Service not found");
-        await service.storeObject(spaceId, objectID, jsonData);
+        await service.storeObject(spaceId, objectType, objectName, jsonData);
+    }
+
+    async listObjects(serviceName, spaceId, objectType) {
+        const service = this.getStorageService(serviceName);
+        if (!service) throw new Error("Service not found");
+        await service.storeObject(spaceId, objectType);
     }
 }
