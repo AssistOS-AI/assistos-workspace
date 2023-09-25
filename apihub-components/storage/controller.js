@@ -152,7 +152,7 @@ function putObject(request,response){
     {
         saveJSON(response,JSON.parse(request.body.toString()),filePath);
         sendResponse(response, 200, "text/html", `Success, ${request.body.toString()}`);
-        return;
+        return "";
     }
 
     try {

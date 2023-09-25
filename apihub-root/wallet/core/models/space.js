@@ -2,7 +2,7 @@
 /* both the user and space know of each other */
 /* the user has a list of spaces, and the space has a list of users */
 
-import { DocumentModel } from "../../imports.js";
+import {DocumentModel, Personality} from "../../imports.js";
 import { User } from "../../imports.js";
 import { Settings } from "../../imports.js";
 import { Announcement } from "../../imports.js";
@@ -15,9 +15,15 @@ export class Space {
         this.name = spaceData.name;
         this.id = spaceData.id || undefined;
         this.settings = new Settings(spaceData.settings);
-        this.announcements = (spaceData.announcements || []).map(announcementData => new Announcement(announcementData));
-        this.users = (spaceData.users || []).map(userData => new User(userData));
-        this.documents = (spaceData.documents || []).map(documentData => new DocumentModel(documentData));
+        this.announcements = [];
+        Object.keys(spaceData.announcements).forEach((key, index) =>{
+            this.announcements.push(new Announcement(spaceData.announcements[key]));
+        });
+        this.users = [];
+        //this.users = (spaceData.users || []).map(userData => new User(userData));
+        this.documents = [];
+        this.scripts = [];
+        //this.documents = (spaceData.documents || []).map(documentData => new DocumentModel(documentData));
         this.observers = [];
         Space.instance = this;
     }
