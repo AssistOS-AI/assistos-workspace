@@ -34,7 +34,16 @@ export class Space {
         }
         return this.instance;
     }
+    stringifySpace(){
+        function replacer(key,value)
+        {
+            if (key==="observers") return undefined;
+            else if (key==="currentDocumentId") return undefined;
+            else return value;
+        }
 
+        return JSON.stringify(this, replacer);
+    }
     // onChange(observerFunction) {
     //     this.observers.push(new WeakRef(observerFunction));
     // }
@@ -57,7 +66,7 @@ export class Space {
         }
     }
 
-    static async addSpace(title){
+    async addSpace(title){
         let currentDate = new Date();
         let today = currentDate.toISOString().split('T')[0];
         let textString = "Space " + title + " was successfully created. You can now add documents, users and settings to your space.";
@@ -80,29 +89,29 @@ export class Space {
         window.location = "";
     }
 
-    static getSpaceNames() {
+    getSpaceNames() {
         return currentUser.spaces.filter(space => space.id !== currentSpaceId) || [];
     }
 
-    static async addPersonality(personality) {
+   async addPersonality(personality) {
         await webSkel.localStorage.addPersonality(personality);
         webSkel.space.settings.personalities.push(personality);
     }
 
-    static getLLMs() {
+    getLLMs() {
         return webSkel.space.settings.llms || [];
     }
 
-    static getLLM(llmSelector) {
+    getLLM(llmSelector) {
         return webSkel.space.settings.llms.find(llm => llm.name === llmSelector || llm.id === llmSelector) || null;
     }
 
-    static async summarize(prompt, llmId) {
+   async summarize(prompt, llmId) {
         let llm = Space.getLLM(llmId);
         return await Space.llmApiFetch(llm.url, llm.apiKeys, prompt);
     }
 
-   static async suggestAbstract(prompt, llmId) {
+   async suggestAbstract(prompt, llmId) {
         let llm;
         if(!(llm = Space.getLLM(llmId))) {
             throw new Error(`LLM with id ${llmId} not found.`);
@@ -110,12 +119,12 @@ export class Space {
         return await Space.llmApiFetch(llm.url, llm.apiKeys, prompt);
     }
 
-   static async proofread(prompt, llmId) {
+   async proofread(prompt, llmId) {
         let llm = Space.getLLM(llmId);
         return await Space.llmApiFetch(llm.url, llm.apiKeys, prompt);
     }
 
-    static async suggestTitles(prompt, llmId) {
+   async suggestTitles(prompt, llmId) {
         let llm = Space.getLLM(llmId);
         if (!llm) {
             throw new Error(`LLM with id ${llmId} not found.`);
@@ -123,7 +132,7 @@ export class Space {
         return await Space.llmApiFetch(llm.url, llm.apiKeys, prompt);
     }
 
-    static async llmApiFetch(url, apiKey, prompt) {
+   async llmApiFetch(url, apiKey, prompt) {
         const options = {
             method: 'POST',
             headers: {
@@ -153,5 +162,15 @@ export class Space {
         } catch (error) {
             console.log('API call failed:', error);
         }
+    }
+    addDocument(document) {
+        webSkel.space.documents.push(document);
+    }
+    deleteDocument(documentId) {
+        webSkel.space.documents = webSkel.space.documents.filter(obj => obj.id !== documentId);
+    }
+    getDocument(documentId) {
+        const document = webSkel.space.documents.find(document => document.id === documentId);
+        return document || null;
     }
 }

@@ -1,5 +1,3 @@
-const {loadSpace} = require("./controller");
-
 function bodyReaderMiddleware(req, res, next) {
     const data = [];
 

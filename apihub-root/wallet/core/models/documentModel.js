@@ -198,22 +198,12 @@ export class DocumentModel {
         this.alternativeTitles.splice(index, 1);
     }
 
-    static getDocument(documentId) {
-        const document = webSkel.space.documents.find(document => document.id === documentId);
-        return document || null;
-    }
-
     getNotifyId() {
         return "doc";
     }
 
     getDocumentIndex() {
         return webSkel.space.documents.findIndex(document => document.id === this.id);
-    }
-
-    async deleteDocument() {
-        await webSkel.localStorage.deleteDocument(webSkel.space.id, this.id);
-        webSkel.space.currentDocumentId = null;
     }
 
     async updateDocument() {
@@ -223,11 +213,5 @@ export class DocumentModel {
         this.observers = observers;
     }
 
-    static async addDocument(document) {
-        let observers = document.observers;
-        document.observers = undefined;
-        await webSkel.localStorage.addDocument(document, webSkel.space.id);
-        document.observers = observers;
-        webSkel.space.documents.push(document);
-    }
+
 }

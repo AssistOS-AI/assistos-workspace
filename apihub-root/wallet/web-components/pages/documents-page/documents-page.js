@@ -2,14 +2,12 @@ import {DocumentModel, getClosestParentElement, showActionBox, showModal} from "
 
 export class documentsPage {
     constructor() {
-        // this.documentService = webSkel.getService('documentService');
         if(webSkel.space.documents !== undefined) {
             setTimeout(()=> {
                 this.invalidate();
             }, 0);
         }
         this.updateState = () => this.invalidate();
-        // webSkel.space.onChange(this.updateState);
     }
 
     beforeRender() {
@@ -39,7 +37,9 @@ export class documentsPage {
     async deleteAction(_target){
         const rowElement = getClosestParentElement(_target, "document-unit");
         let documentId = parseInt(rowElement.getAttribute('data-id'));
-        await DocumentModel.deleteDocument(documentId);
+
+        webSkel.space.deleteDocument(documentId);
+        await storageManager.storeObject("FileSystemStorage", currentSpaceId, "documents", documentId, "");
     }
 
     async showActionBox(_target, primaryKey, componentName, insertionMode) {
