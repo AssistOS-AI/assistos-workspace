@@ -29,8 +29,15 @@ export async function initUser() {
         localStorage.setItem("currentUser", JSON.stringify(user));
         console.log("Instantiated currentUser" + JSON.stringify(user));
     }
-    let spaces = await fetch("/spaces/1:status//");
-    currentUser.spaces = JSON.parse(await spaces.text());
+    let spaces = await storageManager.getStorageService("FileSystemStorage").loadObject("1","status/");
+    spaces =  JSON.parse(spaces);
+    /* for multiple spaces*/
+    // let spacesArray = [];
+    // Object.keys(spaces).forEach(function(key, index) {
+    //     spacesArray.push({name:spaces[key].name,id:spaces[key].id});
+    // });
+    // currentUser.spaces = spacesArray;
+    currentUser.spaces = {name:spaces.name, id:spaces.id};
     let userObj = JSON.parse(localStorage.getItem("currentUser"));
     userObj.spaces = currentUser.spaces;
     localStorage.setItem("currentUser", JSON.stringify(userObj));

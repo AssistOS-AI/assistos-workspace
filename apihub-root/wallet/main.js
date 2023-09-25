@@ -81,7 +81,6 @@ async function initLiteUserDatabase() {
     } else {
         window.currentSpaceId = 1;
     }
-    webSkel.space = new Space(await webSkel.localStorage.getSpaceData(currentSpaceId));
 }
 
 function changeSelectedPageFromSidebar(url) {
@@ -133,6 +132,17 @@ async function loadConfigs(jsonPath) {
             const ServiceModule = await import(service.path);
             webSkel.initialiseService(service.name, ServiceModule[service.name]);
         }
+        for( const storageService of config.storageServices){
+            const StorageServiceModule=await import(storageService.path);
+            if(storageService.params) {
+                storageManager.addStorageService(storageService.name, new StorageServiceModule[storageService.name](...Object.values(storageService.params)));
+            } else {
+                storageManager.addStorageService(storageService.name, new StorageServiceModule[storageService.name]());
+            }
+        }
+        let result = await storageManager.getStorageService("FileSystemStorage").loadObject(currentSpaceId,"status/")
+        webSkel.space = new Space(JSON.parse(result));
+        await initUser();
         for (const presenter of config.presenters) {
             const PresenterModule = await import(presenter.path);
             webSkel.registerPresenter(presenter.name, PresenterModule[presenter.className]);
@@ -140,14 +150,7 @@ async function loadConfigs(jsonPath) {
         for (const component of config.components) {
             await webSkel.defineComponent(component.name, component.path);
         }
-        for( const storageService of config.storageServices) {
-            const StorageServiceModule = await import(storageService.path);
-            if(storageService.params) {
-                storageManager.addStorageService(storageService.name, new StorageServiceModule[storageService.name](...Object.values(storageService.params)));
-            } else {
-                storageManager.addStorageService(storageService.name, new StorageServiceModule[storageService.name]());
-            }
-        }
+
 
     } catch (error) {
         await showApplicationError("Error loading configs", "Error loading configs", `Encountered ${error} while trying loading webSkel configs`);
@@ -157,12 +160,11 @@ async function loadConfigs(jsonPath) {
 (async ()=> {
     // await runTests();
     webSkel.setDomElementForPages(document.querySelector("#page-content"));
-    /* only for premium users initWallet/enclaves*/
 
-    await initUser();
+    await initLiteUserDatabase();
+
     await loadConfigs("./wallet/webskel-configs.json");
-    const result = await fetch(`/spaces/${currentSpaceId}`);
-    //webSkel.company = new Space( await result.text());
+
     await loadPage();
     defineActions();
 })();
