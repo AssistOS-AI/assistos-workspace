@@ -21,4 +21,5 @@ function Storage(server){
     server.put("/spaces/:spaceId/:objectType/:objectName",storeObject);
 
 }
-module.exports=Storage;
+
+module.exports = Storage;

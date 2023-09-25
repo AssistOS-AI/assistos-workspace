@@ -136,7 +136,7 @@ async function loadConfigs(jsonPath) {
             const StorageServiceModule=await import(storageService.path);
             if(storageService.params) {
                 storageManager.addStorageService(storageService.name, new StorageServiceModule[storageService.name](...Object.values(storageService.params)));
-            }else{
+            } else {
                 storageManager.addStorageService(storageService.name, new StorageServiceModule[storageService.name]());
             }
         }
@@ -161,7 +161,7 @@ async function loadConfigs(jsonPath) {
 }
 
 (async ()=> {
-    //await runTests();
+    // await runTests();
     webSkel.setDomElementForPages(document.querySelector("#page-content"));
 
     await initLiteUserDatabase();
