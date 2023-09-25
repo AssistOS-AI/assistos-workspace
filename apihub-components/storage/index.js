@@ -16,7 +16,7 @@ function Storage(server){
     server.get("/spaces/:spaceId/:objectType/:objectName",loadObject);
     server.get("/spaces/:spaceId///",loadSpace);
     //server.get("/spaces/:spaceId", loadSpace);
-    server.delete("/spaces/:spaceId/:objectType/:objectName",storeObject);
+    server.delete("/spaces/:spaceId/:objectType//",storeObject);
     server.use("/spaces/*", bodyReaderMiddleware);
     server.put("/spaces/:spaceId/:objectType/:objectName",storeObject);
 
