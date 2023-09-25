@@ -1,64 +1,64 @@
 {
-  "id": 1,
-  "title": "Onboarding Document",
-  "abstract": "Lorem ipsum...",
-  "chapters": [
-    {
-      "id": 1,
-      "title": "Chapter 1",
-      "paragraphs": [
+    "id": 1,
+    "title": "Onboarding Document",
+    "abstract": "Lorem ipsum...",
+    "chapters": [
         {
-          "id": 1,
-          "text": "Has ex omnium..."
+            "id": 1,
+            "title": "Chapter 1",
+            "paragraphs": [
+                {
+                    "id": 1,
+                    "text": "Has ex omnium..."
+                },
+                {
+                    "id": 2,
+                    "text": "At eos saepe..."
+                },
+                {
+                    "id": 3,
+                    "text": "TEST"
+                }
+            ]
         },
         {
-          "id": 2,
-          "text": "At eos saepe..."
+            "id": 2,
+            "title": "Chapter 2",
+            "paragraphs": [
+                {
+                    "id": 1,
+                    "text": "Has ex omnium..."
+                },
+                {
+                    "id": 2,
+                    "text": "At eos saepe..."
+                },
+                {
+                    "id": 3,
+                    "text": "TEST"
+                }
+            ]
         },
         {
-          "id": 3,
-          "text": "TEST"
+            "id": 3,
+            "title": "Chapter 3",
+            "paragraphs": [
+                {
+                    "id": 1,
+                    "text": "Ea pro causae..."
+                },
+                {
+                    "id": 2,
+                    "text": "Ea elitr laoreet..."
+                }
+            ]
         }
-      ]
+    ],
+    "settings": {
+        "llm": null,
+        "personality": null
     },
-    {
-      "id": 2,
-      "title": "Chapter 2",
-      "paragraphs": [
-        {
-          "id": 1,
-          "text": "Has ex omnium..."
-        },
-        {
-          "id": 2,
-          "text": "At eos saepe..."
-        },
-        {
-          "id": 3,
-          "text": "TEST"
-        }
-      ]
-    },
-    {
-      "id": 3,
-      "title": "Chapter 3",
-      "paragraphs": [
-        {
-          "id": 1,
-          "text": "Ea pro causae..."
-        },
-        {
-          "id": 2,
-          "text": "Ea elitr laoreet..."
-        }
-      ]
-    }
-  ],
-  "settings": {
-    "llm": null,
-    "personality": null
-  },
-  "mainIdeas": [],
-  "alternativeAbstracts": [],
-  "alternativeTitles": []
+    "mainIdeas": [],
+    "alternativeAbstracts": [],
+    "alternativeTitles": []
 }

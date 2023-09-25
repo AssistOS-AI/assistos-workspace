@@ -18,7 +18,7 @@ const fs = require('fs');
 
 function saveJSON(response, spaceData, filePath) {
     try {
-        fs.writeFileSync(filePath, JSON.stringify(spaceData, null, 2), 'utf8');
+        fs.writeFileSync(filePath, spaceData, 'utf8');
     } catch(error) {
         sendResponse(response, 500, "text/html", error+ ` Error at writing space: ${filePath}`);
         return "";
@@ -46,8 +46,13 @@ async function loadObject(request, response) {
 }
 
 async function storeObject(request, response) {
-    let jsonData = JSON.parse(request.body.toString());
     const filePath = `../apihub-root/spaces/${request.params.spaceId}/${request.params.objectType}/${request.params.objectName}.json`;
+    let jsonData = JSON.parse(request.body.toString());
+    if(jsonData === "") {
+        fs.unlinkSync(filePath);
+        sendResponse(response, 200, "text/html", `Deleted successfully ${request.params.objectName}`);
+        return "";
+    }
     saveJSON(response, jsonData, filePath);
     sendResponse(response, 200, "text/html", `Success, ${request.body.toString()}`);
     return "";

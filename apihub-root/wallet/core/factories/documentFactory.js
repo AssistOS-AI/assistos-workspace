@@ -4,7 +4,7 @@ export class DocumentFactory {
     static createDocument() {
         let openDSU = require("opendsu");
         let crypto = openDSU.loadApi("crypto");
-        let documentData = {id: crypto.getRandomSecret(16)};
+        let documentData = {id: crypto.getRandomSecret(16).toString().split(",").join("")};
         return new DocumentModel(documentData);
     }
 
