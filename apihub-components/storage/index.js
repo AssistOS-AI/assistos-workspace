@@ -15,7 +15,7 @@ function bodyReaderMiddleware(req, res, next) {
 
 function Storage(server){
     const { loadObject, storeObject, loadSpace } = require("./controller");
-    server.get("/:spaceId/:filePath/:objectPath", loadObject);
+    server.get("/:spaces/:filePath/:objectPath", loadObject);
     server.get("/spaces/:spaceId", loadSpace);
     server.delete("/spaces/:filePath/:objectPath", storeObject);
     server.use("/spaces/*", bodyReaderMiddleware);
