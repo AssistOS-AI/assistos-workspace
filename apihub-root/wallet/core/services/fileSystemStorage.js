@@ -44,4 +44,8 @@ export class FileSystemStorage extends StorageService{
 
     }
 
+    async loadSpace(spaceId) {
+
+    }
+
 }

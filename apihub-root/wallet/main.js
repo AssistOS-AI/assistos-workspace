@@ -163,7 +163,8 @@ async function loadConfigs(jsonPath) {
 (async ()=> {
     // await runTests();
     webSkel.setDomElementForPages(document.querySelector("#page-content"));
-
+    const result = await fetch(`/load-space/1`, {"method": "GET"});
+    console.log(await result.text());
     await initLiteUserDatabase();
 
     await loadConfigs("./wallet/webskel-configs.json");
