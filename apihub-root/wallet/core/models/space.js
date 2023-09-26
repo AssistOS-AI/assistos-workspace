@@ -33,14 +33,13 @@ export class Space {
         }
         return this.instance;
     }
+
     stringifySpace(){
-        function replacer(key,value)
-        {
-            if (key==="observers") return undefined;
-            else if (key==="currentDocumentId") return undefined;
+        function replacer(key,value) {
+            if (key === "observers") return undefined;
+            else if (key === "currentDocumentId") return undefined;
             else return value;
         }
-
         return JSON.stringify(this, replacer);
     }
     // onChange(observerFunction) {
@@ -56,14 +55,14 @@ export class Space {
     //     }
     // }
 
-    notifyObservers() {
-        for (const observerRef of this.observers) {
-            const observer = observerRef.deref();
-            if (observer) {
-                observer();
-            }
-        }
-    }
+    // notifyObservers() {
+    //     for (const observerRef of this.observers) {
+    //         const observer = observerRef.deref();
+    //         if (observer) {
+    //             observer();
+    //         }
+    //     }
+    // }
 
     async addSpace(title){
         let currentDate = new Date();
@@ -92,7 +91,7 @@ export class Space {
         return currentUser.spaces.filter(space => space.id !== currentSpaceId) || [];
     }
 
-   async addPersonality(personality) {
+    async addPersonality(personality) {
         await webSkel.localStorage.addPersonality(personality);
         webSkel.space.settings.personalities.push(personality);
     }
@@ -110,7 +109,7 @@ export class Space {
         return await this.llmApiFetch(llm.url, llm.apiKeys, prompt);
     }
 
-   async suggestAbstract(prompt, llmId) {
+    async suggestAbstract(prompt, llmId) {
         let llm;
         if(!(llm = this.getLLM(llmId))) {
             throw new Error(`LLM with id ${llmId} not found.`);
@@ -118,7 +117,7 @@ export class Space {
         return await this.llmApiFetch(llm.url, llm.apiKeys, prompt);
     }
 
-   async proofread(prompt, llmId) {
+    async proofread(prompt, llmId) {
         let llm = this.getLLM(llmId);
         return await this.llmApiFetch(llm.url, llm.apiKeys, prompt);
     }
@@ -162,12 +161,15 @@ export class Space {
             console.log('API call failed:', error);
         }
     }
+
     addDocument(document) {
         webSkel.space.documents.push(document);
     }
+
     deleteDocument(documentId) {
         webSkel.space.documents = webSkel.space.documents.filter(obj => obj.id !== documentId);
     }
+
     getDocument(documentId) {
         const document = webSkel.space.documents.find(document => document.id === documentId);
         return document || null;
