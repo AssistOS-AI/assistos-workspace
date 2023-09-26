@@ -33,7 +33,7 @@ import { Paragraph } from "./core/models/paragraph.js";
 import { Space } from "./core/models/space.js";
 import { spaceDropdown }  from "./web-components/components/space-dropdown/space-dropdown.js";
 import { chapterUnit } from "./web-components/components/item-list/chapter-unit/chapter-unit.js";
-import { initUser, registerAccountActions } from "./core/services/authenticationService.js";
+import { registerAccountActions } from "./core/services/authenticationService.js";
 import { LLM } from "./core/models/llm.js";
 import WebSkel from "../WebSkel/webSkel.js";
 import { extractFormInformation } from "../WebSkel/utils/form-utils.js";
@@ -81,7 +81,6 @@ export {
     User,
     Announcement,
     Paragraph,
-    initUser,
     registerAccountActions,
     LLM,
     extractFormInformation,
