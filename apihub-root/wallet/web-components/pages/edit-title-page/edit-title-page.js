@@ -12,7 +12,7 @@ export class editTitlePage {
         this.docTitle = "Current Title";
         let url = window.location.hash;
         this.id = parseInt(url.split('/')[1]);
-        this._document = DocumentModel.getDocument(this.id);
+        this._document = webSkel.space.getDocument(this.id);
         if(this._document) {
             setTimeout(() => {
                 this.invalidate();
@@ -24,7 +24,7 @@ export class editTitlePage {
         }
 
         this.updateState = () => {
-            this._document = DocumentModel.getDocument(this.id);
+            this._document =  webSkel.space.getDocument(this.id);
             this.docTitle = this._document.getTitle();
             this.invalidate();
         }
@@ -48,7 +48,7 @@ export class editTitlePage {
         if(formInfo.isValid) {
             if (formInfo.data.title !== this._document.getTitle()) {
                 this._document.updateDocumentTitle(formInfo.data.title);
-                await this._document.updateDocument();
+                await storageManager.storeObject("FileSystemStorage", currentSpaceId, "documents", this._document.id, this._document.stringifyDocument());
             }
         }
     }
@@ -79,7 +79,7 @@ export class editTitlePage {
 
     async showSuggestTitlesModal() {
         const loading = await webSkel.showLoading();
-        const documentText = DocumentModel.getDocument(this.id).toString();
+        const documentText = webSkel.space.getDocument(this.id).toString();
         async function generateSuggestTitles(){
             const defaultPrompt = `Based on the following document:\n"${documentText}"\n\nPlease suggest 10 original titles that are NOT already present as chapter titles in the document. Return the titles as a JSON array.`;
             if(webSkel.space.settings.llms.length <= 0) {
@@ -89,7 +89,7 @@ export class editTitlePage {
                 return;
             }
             const llmId = webSkel.space.settings.llms[0].id;
-            return await Space.suggestTitles(defaultPrompt, llmId);
+            return await webSkel.space.suggestTitles(defaultPrompt, llmId);
         }
         while(!this.suggestedTitles) {
             try {
@@ -107,7 +107,8 @@ export class editTitlePage {
         let selectedTitle = reverseQuerySelector(_target,".suggested-title").innerText;
         if(selectedTitle !== this._document.getTitle()) {
             this._document.setTitle(selectedTitle);
-            await this._document.updateDocument();
+            await storageManager.storeObject("FileSystemStorage", currentSpaceId, "documents", this._document.id, this._document.stringifyDocument());
+
             this._document.notifyObservers(this._document.getNotifyId());
         }
         else {
@@ -126,7 +127,7 @@ export class editTitlePage {
                 alternativeTitle.contentEditable = false;
                 if(alternativeTitle.innerText !== this._document.alternativeTitles[alternativeTitleIndex]) {
                     this._document.setAlternativeTitle(alternativeTitleIndex, alternativeTitle.innerText);
-                    await this._document.updateDocument();
+                    await storageManager.storeObject("FileSystemStorage", currentSpaceId, "documents", this._document.id, this._document.stringifyDocument());
                 }
             });
         }
@@ -140,7 +141,7 @@ export class editTitlePage {
         let alternativeTitleIndex = this._document.getAlternativeTitles().findIndex(title => title === alternativeTitle.innerText);
         if(alternativeTitleIndex !== -1) {
             this._document.deleteAlternativeTitle(alternativeTitleIndex);
-            await this._document.updateDocument();
+            await storageManager.storeObject("FileSystemStorage", currentSpaceId, "documents", this._document.id, this._document.stringifyDocument());
         } else {
             await showApplicationError("Error deleting title", `Error deleting title for document: ${this._document.title}`, `Error deleting title for document: ${this._document.title}`);
         }

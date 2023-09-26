@@ -10,7 +10,7 @@ export class documentViewPage {
         let url = window.location.hash;
         this.button = "Add new document";
         this.id = parseInt(url.split('/')[1]);
-        this._document = webskel.space.getDocument(this.id);
+        this._document = webSkel.space.getDocument(this.id);
         if (this._document) {
             setTimeout(()=> {
                 this.invalidate();

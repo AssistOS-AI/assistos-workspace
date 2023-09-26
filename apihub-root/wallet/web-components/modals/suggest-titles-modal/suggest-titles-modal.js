@@ -10,7 +10,7 @@ export class suggestTitlesModal {
             this.invalidate();
         }
         this.id = parseInt(window.location.hash.split('/')[1]);
-        this._document = DocumentModel.getDocument(this.id);
+        this._document = webSkel.space.getDocument(this.id);
         this._document.observeChange(this._document.getNotifyId(), this.updateState);
         this.suggestedTitles = document.querySelector("edit-title-page").webSkelPresenter.suggestedTitles;
     }
@@ -44,9 +44,11 @@ export class suggestTitlesModal {
         let formInfo = await extractFormInformation(_target);
         for (const [key, value] of Object.entries(formInfo.elements)) {
             if(value.element.checked) {
-                this._document.alternativeTitles.push(value.element.value);
+                this._document.addAlternativeTitle(value.element.value);
             }
         }
-        await this._document.updateDocument();
+        await storageManager.storeObject("FileSystemStorage", currentSpaceId, "documents", this._document.id, this._document.stringifyDocument());
+        this._document.notifyObservers(this._document.getNotifyId());
+        closeModal(_target);
     }
 }

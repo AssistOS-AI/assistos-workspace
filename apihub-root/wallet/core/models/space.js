@@ -16,9 +16,8 @@ export class Space {
         this.id = spaceData.id || undefined;
         this.settings = new Settings(spaceData.settings);
         this.announcements = [];
-        Object.keys(spaceData.announcements).forEach((key, index) =>{
-            this.announcements.push(new Announcement(spaceData.announcements[key]));
-        });
+
+        this.announcements = (spaceData.announcements || []).map(announcementData => new Announcement(announcementData));
         // this.users = [];
         this.users = (spaceData.users || []).map(userData => new User(userData));
         // this.documents = [];
@@ -76,12 +75,12 @@ export class Space {
             text: textString,
             date: today
         }];
-        Space.changeSpace(await webSkel.storageService.addSpace({
+        this.changeSpace(await webSkel.storageService.addSpace({
             name: title, documents: [], personalities: [], admins: [], settings: {llms: [], personalities: []}, announcements: newAnnouncements, users: []}
         ));
     }
 
-    static changeSpace(spaceId) {
+    changeSpace(spaceId) {
         window.currentSpaceId = spaceId;
         let user = JSON.parse(localStorage.getItem("currentUser"));
         user.currentSpaceId = currentSpaceId;
@@ -107,29 +106,29 @@ export class Space {
     }
 
    async summarize(prompt, llmId) {
-        let llm = Space.getLLM(llmId);
-        return await Space.llmApiFetch(llm.url, llm.apiKeys, prompt);
+        let llm = this.getLLM(llmId);
+        return await this.llmApiFetch(llm.url, llm.apiKeys, prompt);
     }
 
    async suggestAbstract(prompt, llmId) {
         let llm;
-        if(!(llm = Space.getLLM(llmId))) {
+        if(!(llm = this.getLLM(llmId))) {
             throw new Error(`LLM with id ${llmId} not found.`);
         }
-        return await Space.llmApiFetch(llm.url, llm.apiKeys, prompt);
+        return await this.llmApiFetch(llm.url, llm.apiKeys, prompt);
     }
 
    async proofread(prompt, llmId) {
-        let llm = Space.getLLM(llmId);
-        return await Space.llmApiFetch(llm.url, llm.apiKeys, prompt);
+        let llm = this.getLLM(llmId);
+        return await this.llmApiFetch(llm.url, llm.apiKeys, prompt);
     }
 
    async suggestTitles(prompt, llmId) {
-        let llm = Space.getLLM(llmId);
+        let llm = this.getLLM(llmId);
         if (!llm) {
             throw new Error(`LLM with id ${llmId} not found.`);
         }
-        return await Space.llmApiFetch(llm.url, llm.apiKeys, prompt);
+        return await this.llmApiFetch(llm.url, llm.apiKeys, prompt);
     }
 
    async llmApiFetch(url, apiKey, prompt) {

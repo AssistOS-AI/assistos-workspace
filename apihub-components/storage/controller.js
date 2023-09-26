@@ -53,7 +53,7 @@ async function storeObject(request, response) {
         sendResponse(response, 200, "text/html", `Deleted successfully ${request.params.objectName}`);
         return "";
     }
-    saveJSON(response, jsonData, filePath);
+    saveJSON(response, JSON.stringify(jsonData), filePath);
     sendResponse(response, 200, "text/html", `Success, ${request.body.toString()}`);
     return "";
 }

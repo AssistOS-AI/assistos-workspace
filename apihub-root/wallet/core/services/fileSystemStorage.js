@@ -32,7 +32,7 @@ export class FileSystemStorage extends StorageService{
         const result = await fetch(`/spaces/${spaceId}/${objectType}/${objectName}`,
             {
                 method: "PUT",
-                body: JSON.stringify(jsonData),
+                body: jsonData,
                 headers: {
                     "Content-type": "application/json; charset=UTF-8"
                 }

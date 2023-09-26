@@ -23,6 +23,7 @@ export class DocumentModel {
         {
             if (key==="observers") return undefined;
             else if (key==="currentChapterId") return undefined;
+            else if (key==="currentParagraphId") return undefined;
             else return value;
         }
 
@@ -67,6 +68,10 @@ export class DocumentModel {
 
     addAlternativeAbstract(abstractText){
         this.alternativeAbstracts.push(abstractText);
+    }
+
+    addAlternativeTitle(title){
+        this.alternativeTitles.push(title);
     }
 
     getMainIdeas() {
@@ -152,12 +157,10 @@ export class DocumentModel {
 
     async swapChapters(chapterId1, chapterId2) {
         [this.chapters[chapterId1], this.chapters[chapterId2]] = [this.chapters[chapterId2], this.chapters[chapterId1]];
-        await this.updateDocument();
     }
 
     async swapParagraphs(chapterIndex, paragraphIndex1, paragraphIndex2) {
         [this.chapters[chapterIndex].paragraphs[paragraphIndex1], this.chapters[chapterIndex].paragraphs[paragraphIndex2]] = [this.chapters[chapterIndex].paragraphs[paragraphIndex2], this.chapters[chapterIndex].paragraphs[paragraphIndex1]];
-        await this.updateDocument();
     }
 
     updateParagraphText(chapterId, paragraphId, paragraphText) {

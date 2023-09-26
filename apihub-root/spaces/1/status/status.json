@@ -2,8 +2,8 @@
   "id": 1,
   "name": "Personal Space",
   "settings": {
-    "llms": {
-      "1": {
+    "llms": [
+      {
         "id": 1,
         "name": "GPT-3",
         "apiKeys": [
@@ -11,7 +11,7 @@
         ],
         "url": "https://api.openai.com/v1/chat/completions"
       },
-      "2": {
+      {
         "id": 2,
         "name": "GPT-4",
         "apiKeys": [
@@ -19,27 +19,27 @@
         ],
         "url": ""
       }
-    },
-    "personalities": {
-      "1": {
+    ],
+    "personalities": [
+      {
         "id": 1,
         "name": "Personality 1",
         "description": "This is a personality"
       },
-      "2": {
+      {
         "id": 2,
         "name": "Personality 2",
         "description": "This is another personality"
       }
-    }
+    ]
   },
   "admins": [],
-  "announcements": {
-    "1": {
+  "announcements": [
+    {
       "id": 1,
       "title": "Welcome to AIAuthor!",
       "text": "Space Personal Space was successfully created. You can now add documents, users and settings to your space.",
       "date": "today"
     }
-  }
+  ]
 }

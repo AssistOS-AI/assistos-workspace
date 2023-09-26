@@ -53,7 +53,7 @@ async function loadPage() {
                 let chapterIdURL = parseInt(url.split('/')[3]);
                 let paragraphIdURL = parseInt(url.split('/')[4]);
                 /* To be replaced with space id from URL */
-                if (await webSkel.localStorage.getDocument(1, documentIdURL) !== null) {
+                if (await storageManager.loadObject("FileSystemStorage", currentSpaceId, "documents", documentIdURL) !== null) {
                     webSkel.space.currentDocumentId = documentIdURL;
                     webSkel.space.currentChapterId = chapterIdURL;
                     webSkel.space.currentParagraphId = paragraphIdURL;
