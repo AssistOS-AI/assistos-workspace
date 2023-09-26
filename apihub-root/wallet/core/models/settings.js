@@ -7,12 +7,4 @@ export class Settings {
         this.personalities = (settingsData.personalities || []).map(personality => new Personality(personality.name, personality.description, personality.id));
         this.scripts = settingsData.scripts || [];
     }
-
-    addScript(script){
-        this.scripts.push(script);
-    }
-
-    deleteScript(scriptId){
-        this.scripts = this.scripts.filter( script => script.id !== scriptId);
-    }
 }

@@ -9,14 +9,12 @@ export class scriptsPage {
         this.button = "Add Script";
         this.tableRows = "No data loaded";
         this.element = element;
-        if (webSkel.space.settings.scripts) {
-            this._scriptsConfigs = webSkel.space.settings.scripts;
+        if (webSkel.space.scripts) {
             setTimeout(() => {
                 this.invalidate();
             }, 0);
         }
         this.updateState = ()=> {
-            this._scriptsConfigs = webSkel.space.settings.scripts;
             this.invalidate();
         }
         // webSkel.space.onChange(this.updateState);
@@ -24,9 +22,9 @@ export class scriptsPage {
 
     beforeRender() {
         this.tableRows = "";
-        if (this._scriptsConfigs && this._scriptsConfigs.length > 0) {
-            this._scriptsConfigs.forEach((item) => {
-                this.tableRows += `<script-unit data-name="${item.name}" data-content="${item.content}" data-id="${item.id}"></script-unit>`;
+        if (webSkel.space.scripts && webSkel.space.scripts.length > 0) {
+            webSkel.space.scripts.forEach((item) => {
+                this.tableRows += `<script-unit data-id="${item.id}" data-name="${item.name}" data-content="${item.content}"></script-unit>`;
             });
         } else {
             this.tableRows = `<div class="no-data-loaded">No data loaded</div>`;
@@ -45,10 +43,9 @@ export class scriptsPage {
     async deleteAction(_target){
         let script = reverseQuerySelector(_target, "script-unit");
         let scriptId = script.getAttribute("data-id");
-        this._scriptsConfigs.deleteScript(scriptId);
+        webSkel.space.deleteScript(scriptId);
         await storageManager.storeObject(currentSpaceId, "scripts", scriptId, "");
-        console.log(response);
-        webSkel.space.notifyObservers();
+        //webSkel.space.notifyObservers();
     }
 
     async showActionBox(_target, primaryKey, componentName, insertionMode) {
