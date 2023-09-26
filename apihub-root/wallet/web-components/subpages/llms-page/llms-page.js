@@ -9,11 +9,11 @@ export class llmsPage {
         this.button = "Add LLM";
         this.tableRows = "No data loaded";
         this.element = element;
-        this._llmConfigs = Space.getLLMs();
+        this._llmConfigs = webSkel.space.getLLMs();
         if(webSkel.space.settings.llms) {
             this._llmConfigs = webSkel.space.settings.llms;
             setTimeout(()=> {
-                this.invalidate()
+                this.invalidate();
             }, 0);
         }
         this.updateState = ()=> {
