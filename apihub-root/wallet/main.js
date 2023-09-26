@@ -162,6 +162,7 @@ async function loadConfigs(jsonPath) {
 
 (async ()=> {
     // await runTests();
+    window.currentSpaceId = 1;
     webSkel.setDomElementForPages(document.querySelector("#page-content"));
     await initLiteUserDatabase();
 
