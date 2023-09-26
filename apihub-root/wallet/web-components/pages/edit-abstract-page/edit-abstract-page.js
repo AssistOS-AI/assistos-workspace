@@ -84,8 +84,8 @@ export class editAbstractPage {
                     updatedAbstract = updatedAbstract.slice(0, initialIndex) + newLineString + updatedAbstract.slice(i);
                 }
             }
-            this._document.updateAbstract(updatedAbstract)
-            await this._document.updateDocument();
+            this._document.updateAbstract(updatedAbstract);
+            await storageManager.storeObject("FileSystemStorage", currentSpaceId, "documents", this._document.id, this._document.stringifyDocument());
         }
     }
 
@@ -108,10 +108,10 @@ export class editAbstractPage {
     async generateAbstract(_target){
         const loading = await webSkel.showLoading();
         async function suggestAbstract() {
-            const documentText = DocumentModel.getDocument(webSkel.space.currentDocumentId).toString();
+            const documentText = webSkel.space.getDocument(webSkel.space.currentDocumentId).toString();
             const defaultPrompt = `Given the content of the following document: "${documentText}". Please generate a concise and contextually appropriate abstract that accurately reflects the document's key points, themes, and findings. Your response should consist solely of the abstract text.`;
             const llmId = webSkel.space.settings.llms[0].id;
-            return await Space.suggestAbstract(defaultPrompt, llmId);
+            return await webSkel.space.suggestAbstract(defaultPrompt, llmId);
         }
         this.suggestedAbstract = await suggestAbstract();
         this._document.observeChange(this._document.getNotifyId(), this.updateState);
@@ -124,7 +124,7 @@ export class editAbstractPage {
         let abstract = reverseQuerySelector(_target,".content").innerText;
         if(abstract !== this._document.getAbstract()) {
             this._document.updateAbstract(abstract);
-            await this._document.updateDocument();
+            await storageManager.storeObject("FileSystemStorage", currentSpaceId, "documents", this._document.id, this._document.stringifyDocument());
             this._document.notifyObservers(this._document.getNotifyId());
         } else {
             removeActionBox(this.actionBox, this);
@@ -142,7 +142,8 @@ export class editAbstractPage {
                 abstract.contentEditable = false;
                 if(abstract.innerText !== this._document.alternativeAbstracts[alternativeAbstractIndex]) {
                     this._document.alternativeAbstracts[alternativeAbstractIndex] = abstract.innerText;
-                    await this._document.updateDocument();
+                    await storageManager.storeObject("FileSystemStorage", currentSpaceId, "documents", this._document.id, this._document.stringifyDocument());
+
                 }
             });
         }
@@ -156,7 +157,8 @@ export class editAbstractPage {
         let alternativeAbstractIndex = this._document.alternativeAbstracts.findIndex(abs => abs === abstract.innerText);
         if(alternativeAbstractIndex !== -1) {
             this._document.alternativeAbstracts.splice(alternativeAbstractIndex, 1);
-            await this._document.updateDocument();
+            await storageManager.storeObject("FileSystemStorage", currentSpaceId, "documents", this._document.id, this._document.stringifyDocument());
+
         } else {
             await showApplicationError("Error deleting abstract", `Error deleting abstract for document: ${this._document.title}`, `Error deleting abstract for document: ${this._document.title}`);
         }

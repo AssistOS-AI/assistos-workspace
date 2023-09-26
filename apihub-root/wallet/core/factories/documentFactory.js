@@ -15,9 +15,4 @@ export class DocumentFactory {
         return new DocumentModel(documentModel);
     }
 
-    static async saveDocument(documentModel) {
-        let documentPath = "documents/" + documentModel.id;
-        let docJson = JSON.stringify(documentModel);
-        await webSkel.storageService.saveObject(documentPath, docJson);
-    }
 }

@@ -15,9 +15,4 @@ export class SpaceFactory {
         return new Space(space);
     }
 
-    async saveDocument(space) {
-        let spacePath = "documents/" + space.id;
-        let spaceJson = JSON.stringify(space);
-        await webSkel.storageService.saveObject(spacePath, spaceJson);
-    }
 }
