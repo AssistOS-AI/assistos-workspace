@@ -47,7 +47,7 @@ export class suggestTitlesModal {
                 this._document.addAlternativeTitle(value.element.value);
             }
         }
-        await storageManager.storeObject("FileSystemStorage", currentSpaceId, "documents", this._document.id, this._document.stringifyDocument());
+        await storageManager.storeObject(currentSpaceId, "documents", this._document.id, this._document.stringifyDocument());
         this._document.notifyObservers(this._document.getNotifyId());
         closeModal(_target);
     }

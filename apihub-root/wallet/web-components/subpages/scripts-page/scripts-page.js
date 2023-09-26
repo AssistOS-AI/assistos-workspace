@@ -45,7 +45,8 @@ export class scriptsPage {
     async deleteAction(_target){
         let script = reverseQuerySelector(_target, "script-unit");
         let scriptId = script.getAttribute("data-id");
-        let response = await fetch(`/space/${window.currentSpaceId}/myspace/scripts/delete/${scriptId}`, {method: "DELETE"});
+        this._scriptsConfigs.deleteScript(scriptId);
+        await storageManager.storeObject(currentSpaceId, "scripts", scriptId, "");
         console.log(response);
         webSkel.space.notifyObservers();
     }

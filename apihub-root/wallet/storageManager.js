@@ -2,6 +2,7 @@
 export class StorageManager {
     constructor() {
         this.services = {};
+        this.currentService={};
     }
     addStorageService(name, service) {
         this.services[name] = service;
@@ -11,27 +12,25 @@ export class StorageManager {
         return this.services[name];
     }
 
-    async loadObject(serviceName, spaceId, objectType, objectName) {
-        const service = this.getStorageService(serviceName);
+    setCurrentService(name){
+        const service = this.getStorageService(name);
         if (!service) throw new Error("Service not found");
-        return await service.loadObject(spaceId, objectType, objectName);
+        this.currentService = service;
     }
 
-    async loadSpace(serviceName, spaceId) {
-        const service = this.getStorageService(serviceName);
-        if (!service) throw new Error("Service not found");
-        return await service.loadSpace(spaceId);
+    async loadObject(spaceId, objectType, objectName) {
+        return await this.currentService.loadObject(spaceId, objectType, objectName);
     }
 
-    async storeObject(serviceName, spaceId, objectType, objectName, jsonData) {
-        const service = this.getStorageService(serviceName);
-        if (!service) throw new Error("Service not found");
-        await service.storeObject(spaceId, objectType, objectName, jsonData);
+    async loadSpace(spaceId) {
+        return await this.currentService.loadSpace(spaceId);
     }
 
-    async listObjects(serviceName, spaceId, objectType) {
-        const service = this.getStorageService(serviceName);
-        if (!service) throw new Error("Service not found");
-        await service.storeObject(spaceId, objectType);
+    async storeObject(spaceId, objectType, objectName, jsonData) {
+        await this.currentService.storeObject(spaceId, objectType, objectName, jsonData);
+    }
+
+    async listObjects(spaceId, objectType) {
+        await this.currentService.storeObject(spaceId, objectType);
     }
 }

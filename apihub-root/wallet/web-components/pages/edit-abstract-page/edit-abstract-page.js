@@ -85,7 +85,7 @@ export class editAbstractPage {
                 }
             }
             this._document.updateAbstract(updatedAbstract);
-            await storageManager.storeObject("FileSystemStorage", currentSpaceId, "documents", this._document.id, this._document.stringifyDocument());
+            await storageManager.storeObject(currentSpaceId, "documents", this._document.id, this._document.stringifyDocument());
         }
     }
 
@@ -124,7 +124,7 @@ export class editAbstractPage {
         let abstract = reverseQuerySelector(_target,".content").innerText;
         if(abstract !== this._document.getAbstract()) {
             this._document.updateAbstract(abstract);
-            await storageManager.storeObject("FileSystemStorage", currentSpaceId, "documents", this._document.id, this._document.stringifyDocument());
+            await storageManager.storeObject(currentSpaceId, "documents", this._document.id, this._document.stringifyDocument());
             this._document.notifyObservers(this._document.getNotifyId());
         } else {
             removeActionBox(this.actionBox, this);
@@ -142,7 +142,7 @@ export class editAbstractPage {
                 abstract.contentEditable = false;
                 if(abstract.innerText !== this._document.alternativeAbstracts[alternativeAbstractIndex]) {
                     this._document.alternativeAbstracts[alternativeAbstractIndex] = abstract.innerText;
-                    await storageManager.storeObject("FileSystemStorage", currentSpaceId, "documents", this._document.id, this._document.stringifyDocument());
+                    await storageManager.storeObject(currentSpaceId, "documents", this._document.id, this._document.stringifyDocument());
 
                 }
             });
@@ -157,7 +157,7 @@ export class editAbstractPage {
         let alternativeAbstractIndex = this._document.alternativeAbstracts.findIndex(abs => abs === abstract.innerText);
         if(alternativeAbstractIndex !== -1) {
             this._document.alternativeAbstracts.splice(alternativeAbstractIndex, 1);
-            await storageManager.storeObject("FileSystemStorage", currentSpaceId, "documents", this._document.id, this._document.stringifyDocument());
+            await storageManager.storeObject(currentSpaceId, "documents", this._document.id, this._document.stringifyDocument());
 
         } else {
             await showApplicationError("Error deleting abstract", `Error deleting abstract for document: ${this._document.title}`, `Error deleting abstract for document: ${this._document.title}`);

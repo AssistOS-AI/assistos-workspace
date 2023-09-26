@@ -39,7 +39,7 @@ export class documentsPage {
         let documentId = parseInt(rowElement.getAttribute('data-id'));
 
         webSkel.space.deleteDocument(documentId);
-        await storageManager.storeObject("FileSystemStorage", currentSpaceId, "documents", documentId, "");
+        await storageManager.storeObject(currentSpaceId, "documents", documentId, "");
     }
 
     async showActionBox(_target, primaryKey, componentName, insertionMode) {

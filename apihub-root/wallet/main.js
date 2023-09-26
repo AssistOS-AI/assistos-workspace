@@ -53,7 +53,7 @@ async function loadPage() {
                 let chapterIdURL = parseInt(url.split('/')[3]);
                 let paragraphIdURL = parseInt(url.split('/')[4]);
                 /* To be replaced with space id from URL */
-                if (await storageManager.loadObject("FileSystemStorage", currentSpaceId, "documents", documentIdURL) !== null) {
+                if (await storageManager.loadObject(currentSpaceId, "documents", documentIdURL) !== null) {
                     webSkel.space.currentDocumentId = documentIdURL;
                     webSkel.space.currentChapterId = chapterIdURL;
                     webSkel.space.currentParagraphId = paragraphIdURL;
@@ -140,8 +140,8 @@ async function loadConfigs(jsonPath) {
                 storageManager.addStorageService(storageService.name, new StorageServiceModule[storageService.name]());
             }
         }
-
-        let result = await storageManager.loadSpace("FileSystemStorage",currentSpaceId);
+        storageManager.setCurrentService("FileSystemStorage");
+        let result = await storageManager.loadSpace(currentSpaceId);
         webSkel.space = new Space(JSON.parse(result));
 
         await initUser();

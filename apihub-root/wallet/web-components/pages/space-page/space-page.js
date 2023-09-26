@@ -59,7 +59,6 @@ export class spacePage {
                 case "Scripts":
                     this.pageContent = `<scripts-page data-presenter="scripts-page"></scripts-page>`;
                     this.id5 = "selected-tab";
-                    await webSkel.space.settings.getScripts();
                     break;
             }
             this.invalidate();

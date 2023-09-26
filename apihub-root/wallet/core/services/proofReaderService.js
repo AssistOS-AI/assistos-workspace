@@ -12,24 +12,24 @@ export class proofReaderService {
 
     /* to move to summarizer class */
     async summarize() {
-        if (!Space.getLLM(this.llmId)) {
+        if (!webSkel.space.getLLM(this.llmId)) {
             throw new Error(`LLM with id ${this.llmId} not found.`);
         }
         const summaryResults = [];
         for (let i = 0; i < this.variantsCount; i++) {
-            const result = await Space.summarize(this.prompt, this.llmId);
+            const result = await webSkel.space.summarize(this.prompt, this.llmId);
             summaryResults.push(result);
         }
         return summaryResults;
     }
 
     async proofRead() {
-        if (!Space.getLLM(this.llmId)) {
+        if (!webSkel.space.getLLM(this.llmId)) {
             throw new Error(`LLM with id ${this.llmId} not found.`);
         }
         const proofReadResults = [];
         for (let i = 0; i < this.variantsCount; i++) {
-            const result = await Space.proofread(this.prompt, this.llmId);
+            const result = await webSkel.space.proofread(this.prompt, this.llmId);
             proofReadResults.push(result);
         }
         return proofReadResults;

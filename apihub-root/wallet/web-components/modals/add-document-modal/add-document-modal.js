@@ -30,7 +30,7 @@ export class addDocumentModal {
             newDoc.setTitle(formData.data.documentTitle);
             newDoc.observeChange(newDoc.getNotifyId(), this.updateState);
             webSkel.space.addDocument(newDoc);
-            await storageManager.storeObject("FileSystemStorage", currentSpaceId, "documents", newDoc.id, newDoc.stringifyDocument());
+            await storageManager.storeObject(currentSpaceId, "documents", newDoc.id, newDoc.stringifyDocument());
             await webSkel.changeToStaticPage(`documents/${newDoc.id}/edit-title`);
         }
     }

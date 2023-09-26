@@ -48,7 +48,7 @@ export class editTitlePage {
         if(formInfo.isValid) {
             if (formInfo.data.title !== this._document.getTitle()) {
                 this._document.updateDocumentTitle(formInfo.data.title);
-                await storageManager.storeObject("FileSystemStorage", currentSpaceId, "documents", this._document.id, this._document.stringifyDocument());
+                await storageManager.storeObject(currentSpaceId, "documents", this._document.id, this._document.stringifyDocument());
             }
         }
     }
@@ -107,7 +107,7 @@ export class editTitlePage {
         let selectedTitle = reverseQuerySelector(_target,".suggested-title").innerText;
         if(selectedTitle !== this._document.getTitle()) {
             this._document.setTitle(selectedTitle);
-            await storageManager.storeObject("FileSystemStorage", currentSpaceId, "documents", this._document.id, this._document.stringifyDocument());
+            await storageManager.storeObject(currentSpaceId, "documents", this._document.id, this._document.stringifyDocument());
 
             this._document.notifyObservers(this._document.getNotifyId() + "alternativeTitlesId");
         }
@@ -127,7 +127,7 @@ export class editTitlePage {
                 alternativeTitle.contentEditable = false;
                 if(alternativeTitle.innerText !== this._document.alternativeTitles[alternativeTitleIndex]) {
                     this._document.setAlternativeTitle(alternativeTitleIndex, alternativeTitle.innerText);
-                    await storageManager.storeObject("FileSystemStorage", currentSpaceId, "documents", this._document.id, this._document.stringifyDocument());
+                    await storageManager.storeObject(currentSpaceId, "documents", this._document.id, this._document.stringifyDocument());
                 }
             });
         }
@@ -141,7 +141,7 @@ export class editTitlePage {
         let alternativeTitleIndex = this._document.getAlternativeTitles().findIndex(title => title === alternativeTitle.innerText);
         if(alternativeTitleIndex !== -1) {
             this._document.deleteAlternativeTitle(alternativeTitleIndex);
-            await storageManager.storeObject("FileSystemStorage", currentSpaceId, "documents", this._document.id, this._document.stringifyDocument());
+            await storageManager.storeObject(currentSpaceId, "documents", this._document.id, this._document.stringifyDocument());
         } else {
             await showApplicationError("Error deleting title", `Error deleting title for document: ${this._document.title}`, `Error deleting title for document: ${this._document.title}`);
         }
