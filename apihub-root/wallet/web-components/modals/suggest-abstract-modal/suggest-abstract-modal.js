@@ -11,7 +11,7 @@ export class suggestAbstractModal {
         }
         // webSkel.space.onChange(this.updateState);
         this.id = parseInt(window.location.hash.split('/')[1]);
-        this._document = DocumentModel.getDocument(this.id);
+        this._document = webSkel.space.getDocument(this.id);
         this._document.observeChange(this._document.getNotifyId(), this.updateState);
         this.suggestedAbstract = document.querySelector("edit-abstract-page").webSkelPresenter.suggestedAbstract;
     }

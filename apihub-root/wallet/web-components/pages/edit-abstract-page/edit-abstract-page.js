@@ -11,7 +11,7 @@ export class editAbstractPage {
         this.element = element;
         let url = window.location.hash;
         this.id = parseInt(url.split('/')[1]);
-        this._document = DocumentModel.getDocument(this.id);
+        this._document = webSkel.space.getDocument(this.id);
         if (this._document) {
             setTimeout(() => {
                 this.invalidate();

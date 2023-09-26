@@ -11,7 +11,7 @@ export class brainstormingPage {
         this.id2 = "";
         this.idModal1 = "selected-modal";
         this.idModal2 = "";
-        this._document = DocumentModel.getDocument(this.id);
+        this._document = webSkel.space.getDocument(this.id);
         if(this._document) {
             this.docTitle = this._document.title;
             if(this._document.abstract) {

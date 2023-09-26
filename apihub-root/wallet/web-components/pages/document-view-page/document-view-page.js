@@ -24,7 +24,7 @@ export class documentViewPage {
             console.log(`this _document doesnt exist: docId: ${this.id}`);
         }
         this.updateState = ()=> {
-            this._document = DocumentModel.getDocument(this.id);
+            this._document = webSkel.space.getDocument(this.id);
             this.invalidate();
         }
         this._document.observeChange(this._document.getNotifyId(), this.updateState);
