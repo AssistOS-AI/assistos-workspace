@@ -2,7 +2,7 @@
 export class StorageManager {
     constructor() {
         this.services = {};
-        this.currentService={};
+        this.currentService = {};
     }
     addStorageService(name, service) {
         this.services[name] = service;
@@ -28,6 +28,10 @@ export class StorageManager {
 
     async storeObject(spaceId, objectType, objectName, jsonData) {
         await this.currentService.storeObject(spaceId, objectType, objectName, jsonData);
+    }
+
+    async storeSpace(spaceId, jsonData) {
+        await this.currentService.storeSpace(spaceId, jsonData);
     }
 
     async listObjects(spaceId, objectType) {

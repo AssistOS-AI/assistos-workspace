@@ -2,23 +2,20 @@
 /* both the user and space know of each other */
 /* the user has a list of spaces, and the space has a list of users */
 
-import {DocumentModel, Personality} from "../../imports.js";
+import { DocumentModel } from "../../imports.js";
 import { User } from "../../imports.js";
 import { Settings } from "../../imports.js";
 import { Announcement } from "../../imports.js";
 
 export class Space {
     constructor(spaceData) {
-        if (Space.instance) {
-            return Space.instance;
-        }
-        this.name = spaceData.name;
+        this.name = spaceData.name || "";
         this.id = spaceData.id || undefined;
-        this.settings = new Settings(spaceData.settings);
-        this.scripts = spaceData.scripts || [];
-        this.announcements = [];
+        this.settings = spaceData.settings ? new Settings(spaceData.settings) : {llms:[], personalities:[]};
+        this.admins = [];
         this.announcements = (spaceData.announcements || []).map(announcementData => new Announcement(announcementData));
         this.users = (spaceData.users || []).map(userData => new User(userData));
+        this.scripts = spaceData.scripts || [];
         this.documents = (spaceData.documents || []).map(documentData => new DocumentModel(documentData));
         this.observers = [];
         Space.instance = this;
@@ -31,26 +28,17 @@ export class Space {
         return this.instance;
     }
 
-    stringifySpace(){
-        function replacer(key,value) {
+    stringifySpace() {
+        function replacer(key, value) {
             if (key === "observers") return undefined;
-            else if (key === "currentDocumentId") return undefined;
             else return value;
         }
         return JSON.stringify(this, replacer);
     }
+
     // onChange(observerFunction) {
     //     this.observers.push(new WeakRef(observerFunction));
     // }
-    //
-    // notifyObservers() {
-    //     for (const observerRef of this.observers) {
-    //         const observer = observerRef.deref();
-    //         if (observer) {
-    //             observer();
-    //         }
-    //     }
-    // }
 
     // notifyObservers() {
     //     for (const observerRef of this.observers) {
@@ -60,21 +48,6 @@ export class Space {
     //         }
     //     }
     // }
-
-    async addSpace(title){
-        let currentDate = new Date();
-        let today = currentDate.toISOString().split('T')[0];
-        let textString = "Space " + title + " was successfully created. You can now add documents, users and settings to your space.";
-        let newAnnouncements = [{
-            id: 1,
-            title: "Welcome to AIAuthor!",
-            text: textString,
-            date: today
-        }];
-        this.changeSpace(await webSkel.storageService.addSpace({
-            name: title, documents: [], personalities: [], admins: [], settings: {llms: [], personalities: []}, announcements: newAnnouncements, users: []}
-        ));
-    }
 
     changeSpace(spaceId) {
         window.currentSpaceId = spaceId;
@@ -171,20 +144,21 @@ export class Space {
         const document = webSkel.space.documents.find(document => document.id === documentId);
         return document || null;
     }
-    getScript(scriptId){
+
+    getScript(scriptId) {
         let script = this.scripts.find((script) => script.id = scriptId);
         return script || console.error(`Script not found in Settings, scriptId: ${scriptId}`);
     }
 
-    addScript(script){
+    addScript(script) {
         this.scripts.push(script);
     }
 
-    deleteScript(scriptId){
-        this.scripts = this.scripts.filter( script => script.id !== scriptId);
+    deleteScript(scriptId) {
+        this.scripts = this.scripts.filter(script => script.id !== scriptId);
     }
 
-    updateScript(scriptId, content){
+    updateScript(scriptId, content) {
         let script = this.getScript(scriptId);
         script.content = content;
     }

@@ -27,7 +27,7 @@ export class spaceDropdown {
     changeSpace(_target) {
         let selectedSpace = getClosestParentElement(_target,['space-unit']);
         let selectedSpaceId = parseInt(selectedSpace.getAttribute('data-space-id'));
-        Space.changeSpace(selectedSpaceId);
+        webSkel.space.changeSpace(selectedSpaceId);
     }
 
     async  addSpace(){

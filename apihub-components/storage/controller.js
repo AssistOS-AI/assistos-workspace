@@ -13,7 +13,6 @@ spaces is root folder
 /{spaceId}/admins/{adminId}
 /{spaceId}/announcements/{announcementId}
 /{spaceId}/users/{userId}*/
-
 const fs = require('fs');
 
 function saveJSON(response, spaceData, filePath) {
@@ -59,6 +58,42 @@ async function storeObject(request, response) {
     return "";
 }
 
+function createFolder(spaceId, data, folderName) {
+    if(data) {
+        let folderPath = `../apihub-root/spaces/${spaceId}/${folderName}`;
+        fs.mkdirSync(folderPath);
+        if(folderName !== "status") {
+            for(let item of data) {
+                saveJSON(null, JSON.stringify(item), `${folderPath}/${item.id}.json`);
+            }
+        }
+        else {
+            saveJSON(null, JSON.stringify(data), `${folderPath}/${folderName}.json`);
+        }
+    }
+}
+
+async function storeSpace(request, response) {
+    const folderPath = `../apihub-root/spaces/${request.params.spaceId}`;
+    try {
+        if(!fs.existsSync(folderPath)) {
+            fs.mkdirSync(folderPath);
+            let jsonData = JSON.parse(request.body.toString());
+            createFolder(request.params.spaceId, jsonData.documents, "documents");
+            createFolder(request.params.spaceId, jsonData.users, "users");
+            createFolder(request.params.spaceId, jsonData.scripts, "scripts");
+            delete jsonData.documents;
+            delete jsonData.scripts;
+            delete jsonData.users;
+            createFolder(request.params.spaceId, jsonData, "status");
+            sendResponse(response, 200, "text/html", `Success, ${request.body.toString()}`);
+            return "";
+        }
+    } catch (err) {
+        console.error(err);
+    }
+}
+
 async function buildSpaceRecursive(filePath) {
     let localData = [];
     for (let item of fs.readdirSync(filePath)) {
@@ -93,5 +128,6 @@ async function loadSpace(request, response){
 module.exports = {
     loadObject,
     storeObject,
-    loadSpace
+    loadSpace,
+    storeSpace
 }

@@ -14,8 +14,8 @@ spaces is root folder
 /{spaceId}/admins/{adminId}
 /{spaceId}/announcements/{announcementId}
 /{spaceId}/users/{userId}*/
-export class FileSystemStorage extends StorageService{
-    constructor(){
+export class FileSystemStorage extends StorageService {
+    constructor() {
         super();
     }
 
@@ -27,9 +27,11 @@ export class FileSystemStorage extends StorageService{
             });
         return result.text();
     }
-    async storeObject(spaceId, objectType, objectName, jsonData) {
 
-        const result = await fetch(`/spaces/${spaceId}/${objectType}/${objectName}`,
+    async storeObject(spaceId, objectType, objectName, jsonData) {
+        let result;
+        try {
+            result = await fetch(`/spaces/${spaceId}/${objectType}/${objectName}`,
             {
                 method: "PUT",
                 body: jsonData,
@@ -37,6 +39,9 @@ export class FileSystemStorage extends StorageService{
                     "Content-type": "application/json; charset=UTF-8"
                 }
             });
+        } catch (err) {
+            console.error(err);
+        }
         return result.text();
     }
 
@@ -46,6 +51,23 @@ export class FileSystemStorage extends StorageService{
 
     async loadSpace(spaceId) {
         const result = await fetch(`/load-space/${spaceId}`, {"method": "GET"});
+        return result.text();
+    }
+
+    async storeSpace(spaceId, jsonData) {
+        let result;
+        try {
+            result = await fetch(`/spaces/${spaceId}`,
+            {
+                method: "PUT",
+                body: jsonData,
+                headers: {
+                    "Content-type": "application/json; charset=UTF-8"
+                }
+            });
+        } catch (err) {
+            console.error(err);
+        }
         return result.text();
     }
 }
