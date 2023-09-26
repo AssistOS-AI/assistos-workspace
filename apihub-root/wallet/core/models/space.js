@@ -15,13 +15,10 @@ export class Space {
         this.name = spaceData.name;
         this.id = spaceData.id || undefined;
         this.settings = new Settings(spaceData.settings);
+        this.scripts = spaceData.scripts || [];
         this.announcements = [];
-
         this.announcements = (spaceData.announcements || []).map(announcementData => new Announcement(announcementData));
-        // this.users = [];
         this.users = (spaceData.users || []).map(userData => new User(userData));
-        // this.documents = [];
-        this.scripts = [];
         this.documents = (spaceData.documents || []).map(documentData => new DocumentModel(documentData));
         this.observers = [];
         Space.instance = this;
@@ -173,5 +170,22 @@ export class Space {
     getDocument(documentId) {
         const document = webSkel.space.documents.find(document => document.id === documentId);
         return document || null;
+    }
+    getScript(scriptId){
+        let script = this.scripts.find((script) => script.id = scriptId);
+        return script || console.error(`Script not found in Settings, scriptId: ${scriptId}`);
+    }
+
+    addScript(script){
+        this.scripts.push(script);
+    }
+
+    deleteScript(scriptId){
+        this.scripts = this.scripts.filter( script => script.id !== scriptId);
+    }
+
+    updateScript(scriptId, content){
+        let script = this.getScript(scriptId);
+        script.content = content;
     }
 }
