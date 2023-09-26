@@ -6,12 +6,12 @@ export class suggestTitlesModal {
         setTimeout(()=> {
             this.invalidate();
         }, 0);
-        this.updateState = ()=> {
-            this.invalidate();
-        }
+        // this.updateState = ()=> {
+        //     this.invalidate();
+        // }
         this.id = parseInt(window.location.hash.split('/')[1]);
         this._document = webSkel.space.getDocument(this.id);
-        this._document.observeChange(this._document.getNotifyId(), this.updateState);
+        // this._document.observeChange(this._document.getNotifyId(), this.updateState);
         this.suggestedTitles = document.querySelector("edit-title-page").webSkelPresenter.suggestedTitles;
     }
 

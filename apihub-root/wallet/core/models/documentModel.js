@@ -21,7 +21,7 @@ export class DocumentModel {
     stringifyDocument(){
         function replacer(key,value)
         {
-            if (key==="observers") return undefined;
+            if (key ==="observers") return undefined;
             else if (key==="currentChapterId") return undefined;
             else if (key==="currentParagraphId") return undefined;
             else return value;
@@ -40,7 +40,7 @@ export class DocumentModel {
     notifyObservers(prefix) {
         for (const observerRef of this.observers) {
             const observer = observerRef.deref();
-            if(observer && observer.elementId === prefix) {
+            if(observer && observer.elementId.startsWith(prefix)) {
                 observer.callback();
             }
         }
@@ -215,6 +215,4 @@ export class DocumentModel {
         await webSkel.localStorage.updateDocument(webSkel.space.id, this.id, this);
         this.observers = observers;
     }
-
-
 }

@@ -6,7 +6,7 @@ export class chapterTitlePage {
         let url = window.location.hash;
         this.docId = parseInt(url.split('/')[1]);
         this.chapterId = parseInt(url.split('/')[3]);
-        this._document = DocumentModel.getDocument(this.docId);
+        this._document = webSkel.space.getDocument(this.docId);
         if(this._document) {
             setTimeout(()=> {
                 this.invalidate();
@@ -22,7 +22,7 @@ export class chapterTitlePage {
             console.log(`this _document doesnt exist: docId: ${this.docId}`);
         }
         this.updateState = ()=> {
-            this._document = DocumentModel.getDocument(this.docId);
+            this._document = webSkel.space.getDocument(this.docId);
             if(this._document) {
                 this._chapter = this._document.getChapter(this.chapterId);
                 if(this._chapter)

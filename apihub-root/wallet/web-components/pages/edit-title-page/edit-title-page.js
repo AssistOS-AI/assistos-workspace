@@ -28,7 +28,7 @@ export class editTitlePage {
             this.docTitle = this._document.getTitle();
             this.invalidate();
         }
-        this._document.observeChange(this._document.getNotifyId(), this.updateState);
+        this._document.observeChange(this._document.getNotifyId() + ":edit-title-page", this.updateState);
     }
 
     beforeRender() {
@@ -53,24 +53,24 @@ export class editTitlePage {
         }
     }
 
-    openEditTitlePage() {
-        webSkel.changeToStaticPage(`documents/${this.id}/edit-title`);
+    async openEditTitlePage() {
+        await webSkel.changeToStaticPage(`documents/${this.id}/edit-title`);
     }
 
-    openEditAbstractPage() {
-        webSkel.changeToStaticPage(`documents/${this.id}/edit-abstract`);
+    async openEditAbstractPage() {
+        await webSkel.changeToStaticPage(`documents/${this.id}/edit-abstract`);
     }
 
-    openDocumentSettingsPage() {
-        webSkel.changeToStaticPage(`documents/${this.id}/settings`);
+    async openDocumentSettingsPage() {
+        await webSkel.changeToStaticPage(`documents/${this.id}/settings`);
     }
 
-    openBrainstormingPage() {
-        webSkel.changeToStaticPage(`documents/${this.id}/brainstorming`);
+    async openBrainstormingPage() {
+        await webSkel.changeToStaticPage(`documents/${this.id}/brainstorming`);
     }
 
-    openViewPage() {
-        webSkel.changeToStaticPage(`documents/${this.id}`);
+    async openViewPage() {
+        await webSkel.changeToStaticPage(`documents/${this.id}`);
     }
 
     closeModal(_target) {
@@ -109,7 +109,7 @@ export class editTitlePage {
             this._document.setTitle(selectedTitle);
             await storageManager.storeObject("FileSystemStorage", currentSpaceId, "documents", this._document.id, this._document.stringifyDocument());
 
-            this._document.notifyObservers(this._document.getNotifyId());
+            this._document.notifyObservers(this._document.getNotifyId() + "alternativeTitlesId");
         }
         else {
             removeActionBox(this.actionBox, this);

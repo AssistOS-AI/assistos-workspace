@@ -12,7 +12,7 @@ export class addChapterModal {
         this.updateState = ()=> {
             this.invalidate();
         }
-        this._document = DocumentModel.getDocument(this.docId);
+        this._document = webSkel.space.getDocument(this.docId);
         this._document.observeChange(this._document.getNotifyId(), this.updateState);
     }
 
@@ -27,7 +27,7 @@ export class addChapterModal {
     async addChapter(_target) {
         let formData = await extractFormInformation(_target);
         if(formData.isValid) {
-            // let updateDocument = DocumentModel.getDocument(this.docId);
+            // let updateDocument = webSkel.space.getDocument(this.docId);
             closeModal(_target);
             let chapterObj={
                 title: formData.data.name,

@@ -8,7 +8,7 @@ export class addSpaceModal {
             this.invalidate();
         }, 0);
         this.updateState = () => this.invalidate();
-        webSkel.space.onChange(this.updateState);
+        // webSkel.space.onChange(this.updateState);
     }
 
     closeModal(_target) {
@@ -22,7 +22,7 @@ export class addSpaceModal {
     async addSpace(_target){
         let formData = await extractFormInformation(_target);
         if(formData.isValid) {
-            await Space.addSpace(formData.data.name);
+            await webSkel.space.addSpace(formData.data.name);
         }
     }
 }

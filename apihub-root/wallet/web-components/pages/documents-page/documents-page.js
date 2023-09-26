@@ -1,4 +1,4 @@
-import {DocumentModel, getClosestParentElement, showActionBox, showModal} from "../../../imports.js";
+import { DocumentModel, getClosestParentElement, showActionBox, showModal } from "../../../imports.js";
 
 export class documentsPage {
     constructor() {

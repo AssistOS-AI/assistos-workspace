@@ -6,7 +6,7 @@ export class chapterBrainstormingPage {
         this.docId =  parseInt(url.split('/')[1]);
         this.chapterId = parseInt(url.split('/')[3]);
         this.docTitle = "Titlu document";
-        this._document = DocumentModel.getDocument(this.docId);
+        this._document = webSkel.space.getDocument(this.docId);
         if(this._document) {
             setTimeout(()=> {
                 this.invalidate();
@@ -24,7 +24,7 @@ export class chapterBrainstormingPage {
             console.log(`this _document doesnt exist: docId: ${this.docId}`);
         }
         this.updateState = ()=> {
-            this._document = DocumentModel.getDocument(this.docId);
+            this._document = webSkel.space.getDocument(this.docId);
             if(this._document) {
                 this._chapter = this._document.getChapter(this.chapterId);
                 if(this._chapter) {
