@@ -13,23 +13,15 @@
 <body>
     <div class="page-content" id="main-content">
         <div id="app-content">
-<!--            <header id="app-header">-->
-<!--                <div class="title-wrapper">-->
-<!--                    <div class="tools-title">-->
-<!--                        LOGO APP-->
-<!--                    </div>-->
-<!--                    <div class="menu-item-container" data-action="navigateToRegisterPage">-->
-<!--                        <button id="register-button">Register</button>-->
-<!--                    </div>-->
-<!--                    <div class="menu-item-container" data-action="navigateToLoginPage">-->
-<!--                        <button id="login-button">Login</button>-->
-<!--                    </div>-->
-<!--                    <div class="menu-item-container" data-action="logout">-->
-<!--                        <button id="logout-button">Logout</button>-->
-<!--                    </div>-->
-<!--                </div>-->
-<!--                <space-dropdown data-presenter="space-dropdown"></space-dropdown>-->
-<!--            </header>-->
+            <header id="app-header">
+                <div class="title-wrapper">
+                    <div class="tools-title">
+                        LOGO APP
+                    </div>
+                    <authentication-section data-presenter="authentication-section"></authentication-section>
+                </div>
+                <space-dropdown data-presenter="space-dropdown"></space-dropdown>
+            </header>
             <div part="innerpage" class="inner-page">
                 <div id="tools-sidebar">
                     <div class="tools-list">

@@ -5,61 +5,58 @@ const openDSU = require("opendsu");
 const crypto = openDSU.loadApi("crypto");
 const w3cDID = openDSU.loadAPI("w3cdid");
 
-export async function initUser() {
-    window.currentUser = { userId: "", isPremium: false };
-    const result = localStorage.getItem("currentUser");
-    document.querySelector("#logout-button").style.display = "none";
-    document.querySelector("#login-button").style.display = "block";
-    document.querySelector("#register-button").style.display = "block";
-    if(result) {
-        let user = JSON.parse(result);
-        window.currentSpaceId = user.currentSpaceId;
-        if(JSON.parse(result).secretToken !== "") {
-            currentUser.isPremium = true;
-            currentUser.userId = user.userId;
-            document.querySelector("#logout-button").style.display = "block";
-            document.querySelector("#login-button").style.display = "none";
-            document.querySelector("#register-button").style.display = "none";
+export class AuthenticationService{
+    async initUser() {
+        window.currentUser = { userId: "", isPremium: false };
+        const result = localStorage.getItem("currentUser");
+        document.querySelector("#logout-button").style.display = "none";
+        document.querySelector("#login-button").style.display = "block";
+        document.querySelector("#register-button").style.display = "block";
+        if(result) {
+            let user = JSON.parse(result);
+            window.currentSpaceId = user.currentSpaceId;
+            if(JSON.parse(result).secretToken !== "") {
+                currentUser.isPremium = true;
+                currentUser.userId = user.userId;
+                document.querySelector("#logout-button").style.display = "block";
+                document.querySelector("#login-button").style.display = "none";
+                document.querySelector("#register-button").style.display = "none";
+            }
         }
-    }
-    else {
-        /* TBD */
-        const user = { userId: crypto.getRandomSecret(32), secretToken: "", currentSpaceId: 1 };
-        currentUser.id = user.userId;
-        localStorage.setItem("currentUser", JSON.stringify(user));
-        console.log("Instantiated currentUser" + JSON.stringify(user));
-    }
-    let spaces = await storageManager.loadObject("1","status","status");
-    spaces =  JSON.parse(spaces);
-    /* for multiple spaces*/
-    // let spacesArray = [];
-    // Object.keys(spaces).forEach(function(key, index) {
-    //     spacesArray.push({name:spaces[key].name,id:spaces[key].id});
-    // });
-    // currentUser.spaces = spacesArray;
-    currentUser.spaces = [{name:spaces.name, id:spaces.id}];
-    let userObj = JSON.parse(localStorage.getItem("currentUser"));
-    userObj.spaces = currentUser.spaces;
-    localStorage.setItem("currentUser", JSON.stringify(userObj));
-}
-
-function verifyPassword(secretToken, password) {
-    //secretToken should be an object with type Buffer or an Uint8Array
-    if(secretToken.type === 'Buffer') {
-        const uint8Array = new Uint8Array(secretToken.data.length);
-        for (let i = 0; i < secretToken.data.length; i++) {
-            uint8Array[i] = secretToken.data[i];
+        else {
+            /* TBD */
+            const user = { userId: crypto.getRandomSecret(32), secretToken: "", currentSpaceId: 1 };
+            currentUser.id = user.userId;
+            localStorage.setItem("currentUser", JSON.stringify(user));
+            console.log("Instantiated currentUser" + JSON.stringify(user));
         }
-        return crypto.decrypt(uint8Array, crypto.deriveEncryptionKey(password));
+        let spaces = await storageManager.loadObject("1","status","status");
+        spaces =  JSON.parse(spaces);
+        /* for multiple spaces*/
+        // let spacesArray = [];
+        // Object.keys(spaces).forEach(function(key, index) {
+        //     spacesArray.push({name:spaces[key].name,id:spaces[key].id});
+        // });
+        // currentUser.spaces = spacesArray;
+        currentUser.spaces = [{name:spaces.name, id:spaces.id}];
+        let userObj = JSON.parse(localStorage.getItem("currentUser"));
+        userObj.spaces = currentUser.spaces;
+        localStorage.setItem("currentUser", JSON.stringify(userObj));
     }
-    return crypto.decrypt(secretToken, crypto.deriveEncryptionKey(password));
+    verifyPassword(secretToken, password) {
+        //secretToken should be an object with type Buffer or an Uint8Array
+        if(secretToken.type === 'Buffer') {
+            const uint8Array = new Uint8Array(secretToken.data.length);
+            for (let i = 0; i < secretToken.data.length; i++) {
+                uint8Array[i] = secretToken.data[i];
+            }
+            return crypto.decrypt(uint8Array, crypto.deriveEncryptionKey(password));
+        }
+        return crypto.decrypt(secretToken, crypto.deriveEncryptionKey(password));
+    }
 }
 
 export function registerAccountActions() {
-    webSkel.registerAction("navigateToRegisterPage", async (...params) => {
-        webSkel.setDomElementForPages(mainContent);
-        webSkel.changeToStaticPage(`accounting/register`);
-    });
 
     webSkel.registerAction("beginRegistration", async (formElement, _param) => {
         const formInfo = await extractFormInformation(formElement);
@@ -82,11 +79,6 @@ export function registerAccountActions() {
             }
             webSkel.changeToStaticPage(`accounting/register-confirmation`);
         }
-    });
-
-    webSkel.registerAction("navigateToLoginPage", async (...params) => {
-        webSkel.setDomElementForPages(mainContent);
-        webSkel.changeToStaticPage(`accounting/login`);
     });
 
     webSkel.registerAction("beginLogin", async (formElement,_param) => {
@@ -124,12 +116,6 @@ export function registerAccountActions() {
                 }
             }
         }
-    });
-
-    webSkel.registerAction("logout", async (...params) => {
-        const user = { userId: crypto.getRandomSecret(32), secretToken: "" };
-        localStorage.setItem("currentUser", JSON.stringify(user));
-        window.location = "";
     });
 
     webSkel.registerAction("navigateToPasswordRecoveryPage", async (...params) => {

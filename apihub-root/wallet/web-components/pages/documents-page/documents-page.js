@@ -36,7 +36,7 @@ export class documentsPage {
 
     async deleteAction(_target){
         const rowElement = getClosestParentElement(_target, "document-unit");
-        let documentId = parseInt(rowElement.getAttribute('data-id'));
+        let documentId = rowElement.getAttribute('data-id');
 
         webSkel.space.deleteDocument(documentId);
         await storageManager.storeObject(currentSpaceId, "documents", documentId, "");
