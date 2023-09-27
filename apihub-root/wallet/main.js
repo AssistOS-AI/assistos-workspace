@@ -2,39 +2,14 @@ import {
     notBasePage,
     WebSkel,
     closeModal,
-    initUser,
     Space,
 } from "./imports.js";
 import {StorageManager} from "./storageManager.js";
-import {runTests} from "../tests/apihub-storage-test.js";
 
 const openDSU = require("opendsu");
 window.webSkel = new WebSkel();
 window.pageContent = document.querySelector("#page-content");
 window.mainContent = document.querySelector("#main-content");
-async function initEnclaveClient() {
-    const w3cDID = openDSU.loadAPI("w3cdid");
-    const enclaveAPI = openDSU.loadAPI("enclave");
-    const remoteDID = "did:ssi:name:vault:BrandEnclave";
-    const remoteDIDAccounting = "did:ssi:name:vault:AccountingEnclave";
-    try {
-        const clientDIDDocument = await $$.promisify(w3cDID.resolveNameDID)("vault", "clientEnclave", "topSecret");
-        console.log("Client enclave: ", clientDIDDocument.getIdentifier());
-        window.remoteEnclaveClient = enclaveAPI.initialiseRemoteEnclave(clientDIDDocument.getIdentifier(), remoteDID);
-    }
-    catch (err) {
-        console.log("Error at initialising remote client", err);
-    }
-    try {
-        const clientDIDDocument = await $$.promisify(w3cDID.resolveNameDID)("vault", "clientEnclave", "topSecret2");
-        console.log("Client enclave: ", clientDIDDocument.getIdentifier());
-        window.remoteEnclaveClientAccounting = enclaveAPI.initialiseRemoteEnclave(clientDIDDocument.getIdentifier(), remoteDIDAccounting);
-    }
-    catch (err) {
-        console.log("Error at initialising remote client", err);
-    }
-}
-
 
 async function loadPage() {
     let url = window.location.hash;
@@ -143,8 +118,8 @@ async function loadConfigs(jsonPath) {
         storageManager.setCurrentService("FileSystemStorage");
         let result = await storageManager.loadSpace(currentSpaceId);
         webSkel.space = new Space(JSON.parse(result));
+        await webSkel.getService("AuthenticationService").initUser();
 
-        await initUser();
 
         for (const presenter of config.presenters) {
             const PresenterModule = await import(presenter.path);
@@ -161,7 +136,7 @@ async function loadConfigs(jsonPath) {
 }
 
 (async ()=> {
-    // await runTests();
+
     window.currentSpaceId = 1;
     webSkel.setDomElementForPages(document.querySelector("#page-content"));
     await initLiteUserDatabase();

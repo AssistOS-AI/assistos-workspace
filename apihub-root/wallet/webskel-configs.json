@@ -169,6 +169,10 @@
     {
       "name": "StorageService",
       "path": "./core/services/storageService.js"
+    },
+    {
+      "name": "AuthenticationService",
+      "path": "./core/services/authenticationService.js"
     }
   ],
   "components": [
@@ -362,7 +366,7 @@
     },
     {
       "name": "authentication-section",
-      "path": "./wallet/web-components/pages/authentication-section/authentication-section.html"
+      "path": "./wallet/web-components/components/authentication-section/authentication-section.html"
     },
     {
       "name": "authentication-page",
