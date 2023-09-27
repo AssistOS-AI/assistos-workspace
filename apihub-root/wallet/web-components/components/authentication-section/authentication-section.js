@@ -14,12 +14,12 @@ export class authenticationSection {
 
     navigateToRegisterPage(){
         webSkel.setDomElementForPages(mainContent);
-        webSkel.changeToDynamicPage(`register-page`, {subpage:"register-page"});
+        webSkel.changeToDynamicPage(`authentication-page`, {subpage:"register-page"});
     }
 
     navigateToLoginPage(){
         webSkel.setDomElementForPages(mainContent);
-        webSkel.changeToDynamicPage(`login-page`, {subpage:"login-page"});
+        webSkel.changeToDynamicPage(`authentication-page`, {subpage:"login-page"});
 
     }
 
