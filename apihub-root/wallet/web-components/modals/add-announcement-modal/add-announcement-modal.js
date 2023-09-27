@@ -33,7 +33,6 @@ export class addAnnouncementModal {
             body.date = new Date().toISOString().split('T')[0];
             webSkel.space.addAnnouncement(body);
             await Announcement.storeAnnouncement(currentSpaceId, body);
-            // await storageManager.storeObject(currentSpaceId, "scripts", body.id, JSON.stringify(body));
             webSkel.space.notifyObservers();
         }
     }
