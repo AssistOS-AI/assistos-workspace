@@ -1,4 +1,4 @@
-import {extractFormInformation} from "../../../imports.js";
+import {extractFormInformation, User} from "../../../imports.js";
 
 export class authenticationPage {
     constructor(element) {
@@ -152,26 +152,20 @@ export class authenticationPage {
       }
     }
 
-    async beginRegistration(){
-        const formInfo = await extractFormInformation(formElement);
-        console.log(formInfo)
+    async beginRegistration(_target){
+        const formInfo = await extractFormInformation(_target);
         if(formInfo.isValid) {
-            const randomNr = crypto.generateRandom(32);
-            const secretToken = crypto.encrypt(randomNr,crypto.deriveEncryptionKey(formInfo.data.password));
-            const didDocument = await $$.promisify(w3cDID.createIdentity)("key", undefined, randomNr);
-            const result = await $$.promisify(remoteEnclaveClientAccounting.callLambda)("addNewUser",
-                formInfo.data.name,
-                formInfo.data.email,
-                formInfo.data.phone,
-                "publicDescription",
-                secretToken,
-                didDocument.getIdentifier(),
-                "isPrivate");
-            console.log("Add new user command", result);
-            if(typeof result !== "string") {
-                addUserToLocalStorage(result);
+
+            //const didDocument = await $$.promisify(w3cDID.createIdentity)("key", undefined, randomNr);
+            let result = await User.createUser(formInfo.data);
+            if(result){
+                webSkel.getService("authenticationService").addUserToLocalStorage(result);
+                this.element.setAttribute("data-subpage", "register-confirmation");
+            }else {
+                console.error("Failed to create user");
             }
-            this.element.setAttribute("data-subpage", "register-confirmation");
+        } else {
+            console.error("Form invalid");
         }
     }
     navigateToPasswordRecoveryPage(){
