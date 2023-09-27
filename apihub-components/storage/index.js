@@ -1,4 +1,4 @@
-const {storeSpace} = require("./controller");
+const { storeSpace } = require("./controller");
 
 function bodyReaderMiddleware(req, res, next) {
     const data = [];

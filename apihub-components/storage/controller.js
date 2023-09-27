@@ -45,6 +45,23 @@ async function loadObject(request, response) {
 }
 
 async function storeObject(request, response) {
+    if(request.params.objectType === "status") {
+        const filePath = `../apihub-root/spaces/${request.params.spaceId}/${request.params.objectType}/${request.params.objectType}.json`;
+        let data;
+        try {
+            data = require(filePath);
+        } catch (error) {
+            sendResponse(response, 404, "text/html", error+ ` Error space not found: ${filePath}`);
+            return "";
+        }
+        let jsonData = JSON.parse(request.body.toString());
+        let objectString = request.params.objectName;
+        data[objectString].push(jsonData);
+        saveJSON(response, JSON.stringify(data), filePath);
+        sendResponse(response, 200, "text/html", `Success, ${request.body.toString()}`);
+        return "";
+    }
+
     const filePath = `../apihub-root/spaces/${request.params.spaceId}/${request.params.objectType}/${request.params.objectName}.json`;
 
     if(request.body.toString() === "") {

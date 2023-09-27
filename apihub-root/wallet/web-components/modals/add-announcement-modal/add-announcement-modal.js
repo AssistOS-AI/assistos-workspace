@@ -1,5 +1,7 @@
 import { closeModal } from "../../../../WebSkel/utils/modal-utils.js";
 import { getClosestParentElement } from "../../../../WebSkel/utils/dom-utils.js";
+import { extractFormInformation } from "../../../../WebSkel/utils/form-utils.js";
+import { Announcement } from "../../../imports.js";
 
 export class addAnnouncementModal {
     constructor() {
@@ -20,7 +22,19 @@ export class addAnnouncementModal {
         closeModal(_target);
     }
 
-    addAnnouncementSubmitForm(_target) {
+    async addAnnouncementSubmitForm(_target) {
+        let formInfo = await extractFormInformation(_target);
         closeModal(_target);
+        if(formInfo.isValid) {
+            let body = formInfo.data;
+            let openDSU = require("opendsu");
+            let crypto = openDSU.loadApi("crypto");
+            body.id = crypto.getRandomSecret(16).toString().split(",").join("");
+            body.date = new Date().toISOString().split('T')[0];
+            webSkel.space.addAnnouncement(body);
+            await Announcement.storeAnnouncement(currentSpaceId, body);
+            // await storageManager.storeObject(currentSpaceId, "scripts", body.id, JSON.stringify(body));
+            webSkel.space.notifyObservers();
+        }
     }
 }

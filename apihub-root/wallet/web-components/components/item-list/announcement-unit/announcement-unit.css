@@ -3,7 +3,7 @@
     cursor: default;
     justify-content: space-between;
     flex-direction: row;
-    padding: 20px;
+    padding: 20px 20px 5px 20px;
     border-bottom: 0.5px solid rgba(217, 212, 238, 0.85);
 }
 
@@ -37,6 +37,10 @@
     font-style: normal;
     font-weight: 400;
     line-height: normal;
+}
+
+.announcement {
+    width: 100%;
 }
 
 .modal-section {
@@ -97,4 +101,19 @@
 .action:hover {
     background-color: #007bff;
     color: white;
+}
+
+.announcement-date {
+    margin-top: 10px;
+    width: 100%;
+    text-align: end;
+    color: #504f4f;
+    font-feature-settings: 'clig' off, 'liga' off;
+    text-overflow: ellipsis;
+    font-family: Poppins;
+    font-size: 12px;
+    font-style: normal;
+    font-weight: 400;
+    line-height: normal;
+    padding-right: 30px;
 }

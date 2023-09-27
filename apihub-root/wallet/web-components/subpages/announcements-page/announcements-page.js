@@ -21,6 +21,7 @@ export class announcementsPage {
     beforeRender() {
         this.announcementDivs = "";
         this._announcementConfigs.forEach((announcement)=> {
+            console.log(announcement);
             this.announcementDivs += `<announcement-unit data-title="${announcement.title}" data-content="${announcement.text}" data-date="${announcement.date}"></announcement-unit>`;
         });
     }

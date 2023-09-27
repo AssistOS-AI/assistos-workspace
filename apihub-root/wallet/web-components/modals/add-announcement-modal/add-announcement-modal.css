@@ -1,29 +1,46 @@
 dialog[class="modal"] {
     padding: 0;
-    border: none;
+    border:none;
+    width: 50%;
+    overflow: hidden;
+}
+
+* {
+    font-family: Poppins;
 }
 
 .modal-content {
-    padding: 20px;
+    padding: 0 20px;
+}
+
+.script-content {
+    height: 400px;
 }
 
 .modal-title {
     color: #000;
     font-size: 18px;
+    font-family: Poppins;
+}
+
+.modal-footer {
+    display: flex;
+    justify-content: center;
 }
 
 .close {
     cursor: pointer;
     float: right;
     background-color: transparent;
-    font-size: 20px;
-    margin-left: 20px;
     border: none;
+    outline: none;
+    font-size: 20px;
 }
 
 .form-label {
     color: #3A3A3A;
     font-size: 12px;
+    font-family: Poppins;
     font-weight: 600;
 }
 
@@ -33,6 +50,11 @@ dialog[class="modal"] {
     width: 100%;
     margin: 4px 0 8px;
     padding: 8px;
+}
+
+textarea#text {
+    resize: none;
+    height: 240px;
 }
 
 input::file-selector-button {
@@ -49,15 +71,16 @@ input::file-selector-button {
 
 .wide-btn {
     cursor: pointer;
-    width: 100%;
-    height: 36px;
-    background: #18203F;
-    border: none;
-    color: white;
+    padding: 8px 52px;
     border-radius: 16px;
+    margin: 16px 0;
+    border: 0.5px solid #D7D7D7;
+    background: #18203F;
+    color: #FFF;
+    font-feature-settings: 'clig' off, 'liga' off;
     font-family: Poppins;
     font-size: 14px;
+    font-style: normal;
     font-weight: 600;
-    line-height: 21px;
-    margin: 16px 0;
+    line-height: normal;
 }

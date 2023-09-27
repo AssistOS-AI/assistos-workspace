@@ -1,5 +1,21 @@
+<!--<div class="modal-dialog" role="document" data-presenter="add-new-document-modal">-->
+<!--    <div class="modal-content">-->
+<!--        <div class="modal-header">-->
+<!--            <h5 class="modal-title">-->
+<!--                -->
+<!--                <button type="button" class="close" data-local-action="closeModal" aria-label="Close">-->
+<!--                    <span aria-hidden="true">&times;</span>-->
+<!--                </button>-->
+<!--            </h5>-->
+<!--        </div>-->
+<!--        <div class="modal-body">-->
+<!--
+<!--        </div>-->
+<!--    </div>-->
+<!--</div>-->
+
 <link rel="stylesheet" href="./wallet/web-components/modals/add-announcement-modal/add-announcement-modal.css">
-<div class="modal-dialog" role="document" data-presenter="add-new-document-modal">
+<div class="modal-dialog" role="document">
     <div class="modal-content">
         <div class="modal-header">
             <h5 class="modal-title">
@@ -12,13 +28,13 @@
         <div class="modal-body">
             <form>
                 <div class="form-item">
-                    <label class="form-label" for="announcement-title">Title</label>
-                    <input class="form-input" name="announcement-title" data-id="announcement-title" type="text" id="announcement-title" required placeholder="Add a title for your announcement">
+                    <label class="form-label" for="title">Title</label>
+                    <input class="form-input" name="title" data-id="title" type="text" id="title" required placeholder="Add a title for your announcement">
                 </div>
 
                 <div class="form-item">
-                    <label class="form-label" for="announcement-content">Content</label>
-                    <input class="form-input" name="announcement-content" data-id="announcement-content" type="text" id="announcement-content" required placeholder="Write here your announcement">
+                    <label class="form-label" for="text">Content</label>
+                    <textarea class="form-input" name="text" data-id="text" id="text" required placeholder="Write here your announcement"></textarea>
                 </div>
 
                 <div class="modal-footer">
