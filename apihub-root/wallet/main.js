@@ -140,9 +140,7 @@ async function loadConfigs(jsonPath) {
     window.currentSpaceId = 1;
     webSkel.setDomElementForPages(document.querySelector("#page-content"));
     await initLiteUserDatabase();
-
     await loadConfigs("./wallet/webskel-configs.json");
-
     await loadPage();
     defineActions();
 })();

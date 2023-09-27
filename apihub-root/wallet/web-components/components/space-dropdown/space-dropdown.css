@@ -22,12 +22,12 @@
     padding: 0 7px;
 }
 
-space-unit {
-    color: #FFF;
-    cursor: pointer;
-    border-bottom: 1px solid #423685;
-    padding: 5px 10px;
-}
+/*space-unit {*/
+/*    color: #FFF;*/
+/*    cursor: pointer;*/
+/*    border-bottom: 1px solid #423685;*/
+/*    padding: 5px 10px;*/
+/*}*/
 
 space-unit:hover {
     background-color: #6559a2;
@@ -38,17 +38,15 @@ space-unit:hover {
     flex-direction: row;
     cursor: pointer;
     font-weight: 600;
-    margin-right: 20px;
     max-width: fit-content;
     color: #FFF;
     font-family: Poppins;
 }
 
 .space-name {
-    margin-right: 10px;
+    margin-right: 15px;
 }
 
 .space-dropdown {
     position: relative;
-    display: inline-block;
 }

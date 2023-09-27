@@ -14,13 +14,13 @@ export class spaceDropdown {
     beforeRender() {
         this.spacesDiv = "";
         this.currentSpaceName = webSkel.space.name;
-        currentUser.spaces.filter(space => space.id !== currentSpaceId).forEach((space) => {
-            this.spacesDiv += `<space-unit data-space-name="${space.name}" data-space-id="${space.id}"></space-unit>`;
-        });
+        // currentUser.spaces.filter(space => space.id !== currentSpaceId).forEach((space) => {
+        //     this.spacesDiv += `<space-unit data-space-name="${space.name}" data-space-id="${space.id}"></space-unit>`;
+        // });
     }
 
     showSpaces(_target) {
-        let target = _target.nextElementSibling;
+        let target = _target.parentElement.nextElementSibling;
         target.style.display = "flex";
     }
 

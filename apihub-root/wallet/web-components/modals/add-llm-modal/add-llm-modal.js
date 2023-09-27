@@ -12,7 +12,7 @@ export class addLLMModal {
             this._personalityConfigs = webSkel.space.settings.llms;
             this.invalidate();
         }
-        webSkel.space.onChange(this.updateState);
+        // webSkel.space.onChange(this.updateState);
     }
 
     beforeRender() {

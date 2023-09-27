@@ -9,7 +9,7 @@ export class addAnnouncementModal {
         this.updateState = (spaceState)=> {
             this.invalidate();
         }
-        webSkel.space.onChange(this.updateState);
+        // webSkel.space.onChange(this.updateState);
     }
 
     beforeRender() {

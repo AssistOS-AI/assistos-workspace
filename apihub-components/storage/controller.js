@@ -47,7 +47,7 @@ async function loadObject(request, response) {
 async function storeObject(request, response) {
     const filePath = `../apihub-root/spaces/${request.params.spaceId}/${request.params.objectType}/${request.params.objectName}.json`;
 
-    if(request.body.toString() === ""){
+    if(request.body.toString() === "") {
         fs.unlinkSync(filePath);
         sendResponse(response, 200, "text/html", `Deleted successfully ${request.params.objectName}`);
         return "";
@@ -118,8 +118,7 @@ async function loadSpace(request, response){
 
     for(let item of fs.readdirSync(filePath)) {
         if(item !== "status") {
-            let spaceData = await buildSpaceRecursive(`${filePath}\/${item}`);
-            statusJson[item] = spaceData;
+            statusJson[item] = await buildSpaceRecursive(`${filePath}\/${item}`);
         }
     }
     sendResponse(response, 200, "text/html", JSON.stringify(statusJson));

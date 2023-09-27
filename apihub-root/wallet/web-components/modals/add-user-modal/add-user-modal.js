@@ -8,7 +8,7 @@ export class addUserModal {
         this.updateState = ()=> {
             this.invalidate();
         }
-        webSkel.space.onChange(this.updateState);
+        // webSkel.space.onChange(this.updateState);
     }
 
     beforeRender() {
