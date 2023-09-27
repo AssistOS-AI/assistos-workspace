@@ -14,7 +14,7 @@ export class chapterBrainstormingPage {
             this._chapter = this._document.getChapter(this.chapterId);
             if(this._chapter) {
                 this.chapterTitle = this._chapter.title;
-                this._document.observeChange(this._chapter.getNotifyId(), this.updateState);
+                this._document.observeChange(this._chapter.getNotificationId(), this.updateState);
             }
             else {
                 console.log(`this chapter doesnt exist: chapterId: ${this.chapterId}`);

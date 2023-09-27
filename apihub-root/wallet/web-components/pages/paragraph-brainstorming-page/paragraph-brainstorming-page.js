@@ -15,7 +15,7 @@ export class paragraphBrainstormingPage {
             if(this._chapter) {
                 this._paragraph = this._document.getChapterParagraph(this.chapterId, this.paragraphId);
                 this.paragraphDiv = this._paragraph;
-                this._document.observeChange(this._paragraph.getNotifyId(this.chapterId), this.updateState);
+                this._document.observeChange(this._paragraph.getNotificationId(this.chapterId), this.updateState);
             } else {
                 console.log(`this chapter doesnt exist: chapterId: ${this.chapterId}`);
             }

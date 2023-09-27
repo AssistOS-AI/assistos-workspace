@@ -1,4 +1,5 @@
 import {DocumentModel, extractFormInformation} from "../../../imports.js";
+import {DocumentFactory} from "../../../core/factories/documentFactory";
 
 export class documentSettingsPage {
     constructor(element) {
@@ -16,7 +17,7 @@ export class documentSettingsPage {
         this.updateState = (spaceData)=> {
             this.invalidate();
         }
-        this._document.observeChange(this._document.getNotifyId(), this.updateState);
+        this._document.observeChange(this._document.getNotificationId(), this.updateState);
         this.singularToPlural = { personality: "personalities", llm: "llms"};
         this.pluralToSingular = { personalities: "personality", llms: "llm"};
     }
@@ -76,7 +77,7 @@ export class documentSettingsPage {
                     await showApplicationError(`Error updating option`, `Option ${key} index not found`, `Option ${key}: value ${value}`);
                 }
             }
-            await storageManager.storeObject(currentSpaceId, "documents", this._document.id, this._document.stringifyDocument());
+            await DocumentFactory.storeDocument(currentSpaceId, this._document);
         }
         else {
             await showApplicationError(`Error at submitting form`, `Form invalid`, `Form with target: ${_target}`);

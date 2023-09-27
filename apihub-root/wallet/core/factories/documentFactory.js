@@ -15,4 +15,11 @@ export class DocumentFactory {
         return new DocumentModel(documentModel);
     }
 
+    static async storeDocument(spaceId, documentModel) {
+        await storageManager.storeObject(spaceId, "documents", documentModel.id, documentModel.stringifyDocument());
+    }
+
+    static async deleteDocument(spaceId, documentId) {
+        await storageManager.storeObject(currentSpaceId, "documents", documentId, "");
+    }
 }

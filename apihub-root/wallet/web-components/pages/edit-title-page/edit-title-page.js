@@ -6,6 +6,7 @@ import {
 } from "../../../imports.js";
 import { reverseQuerySelector } from "../../../../WebSkel/utils/dom-utils.js";
 import { removeActionBox } from "../../../../WebSkel/utils/modal-utils.js";
+import {DocumentFactory} from "../../../core/factories/documentFactory";
 
 export class editTitlePage {
     constructor() {
@@ -28,7 +29,7 @@ export class editTitlePage {
             this.docTitle = this._document.getTitle();
             this.invalidate();
         }
-        this._document.observeChange(this._document.getNotifyId() + ":edit-title-page", this.updateState);
+        this._document.observeChange(this._document.getNotificationId() + ":edit-title-page", this.updateState);
     }
 
     beforeRender() {
@@ -48,7 +49,7 @@ export class editTitlePage {
         if(formInfo.isValid) {
             if (formInfo.data.title !== this._document.getTitle()) {
                 this._document.updateDocumentTitle(formInfo.data.title);
-                await storageManager.storeObject(currentSpaceId, "documents", this._document.id, this._document.stringifyDocument());
+                await DocumentFactory.storeDocument(currentSpaceId, this._document);
             }
         }
     }
@@ -107,9 +108,8 @@ export class editTitlePage {
         let selectedTitle = reverseQuerySelector(_target,".suggested-title").innerText;
         if(selectedTitle !== this._document.getTitle()) {
             this._document.setTitle(selectedTitle);
-            await storageManager.storeObject(currentSpaceId, "documents", this._document.id, this._document.stringifyDocument());
-
-            this._document.notifyObservers(this._document.getNotifyId() + "alternativeTitlesId");
+            await DocumentFactory.storeDocument(currentSpaceId, this._document);
+            this._document.notifyObservers(this._document.getNotificationId() + "alternativeTitlesId");
         }
         else {
             removeActionBox(this.actionBox, this);
@@ -127,7 +127,7 @@ export class editTitlePage {
                 alternativeTitle.contentEditable = false;
                 if(alternativeTitle.innerText !== this._document.alternativeTitles[alternativeTitleIndex]) {
                     this._document.setAlternativeTitle(alternativeTitleIndex, alternativeTitle.innerText);
-                    await storageManager.storeObject(currentSpaceId, "documents", this._document.id, this._document.stringifyDocument());
+                    await DocumentFactory.storeDocument(currentSpaceId, this._document);
                 }
             });
         }
@@ -141,7 +141,7 @@ export class editTitlePage {
         let alternativeTitleIndex = this._document.getAlternativeTitles().findIndex(title => title === alternativeTitle.innerText);
         if(alternativeTitleIndex !== -1) {
             this._document.deleteAlternativeTitle(alternativeTitleIndex);
-            await storageManager.storeObject(currentSpaceId, "documents", this._document.id, this._document.stringifyDocument());
+            await DocumentFactory.storeDocument(currentSpaceId, this._document);
         } else {
             await showApplicationError("Error deleting title", `Error deleting title for document: ${this._document.title}`, `Error deleting title for document: ${this._document.title}`);
         }

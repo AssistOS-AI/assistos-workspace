@@ -1,4 +1,5 @@
 import { DocumentModel, getClosestParentElement, showActionBox, showModal } from "../../../imports.js";
+import { DocumentFactory } from "../../../core/factories/documentFactory.js";
 
 export class documentsPage {
     constructor() {
@@ -18,7 +19,7 @@ export class documentsPage {
         else {
             webSkel.space.documents.forEach((document) => {
                 this.tableRows += `<document-unit data-name="${document.title}" data-id="${document.id}"></document-unit>`;
-                document.observeChange(document.getNotifyId(), this.updateState);
+                document.observeChange(document.getNotificationId(), this.updateState);
             });
         }
     }
@@ -39,7 +40,7 @@ export class documentsPage {
         let documentId = rowElement.getAttribute('data-id');
 
         webSkel.space.deleteDocument(documentId);
-        await storageManager.storeObject(currentSpaceId, "documents", documentId, "");
+        await DocumentFactory.deleteDocument(currentSpaceId, documentId);
     }
 
     async showActionBox(_target, primaryKey, componentName, insertionMode) {

@@ -28,7 +28,7 @@ export class addDocumentModal {
             closeModal(_target);
             let newDoc = DocumentFactory.createDocument();
             newDoc.setTitle(formData.data.documentTitle);
-            newDoc.observeChange(newDoc.getNotifyId(), this.updateState);
+            newDoc.observeChange(newDoc.getNotificationId(), this.updateState);
             webSkel.space.addDocument(newDoc);
             await storageManager.storeSpace(currentSpaceId, "documents", newDoc.id, newDoc.stringifyDocument());
             await webSkel.changeToStaticPage(`documents/${newDoc.id}/edit-title`);

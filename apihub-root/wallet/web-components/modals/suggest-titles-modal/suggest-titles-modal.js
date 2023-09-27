@@ -1,5 +1,6 @@
 import { closeModal } from "../../../../WebSkel/utils/modal-utils.js";
 import { DocumentModel, extractFormInformation } from "../../../imports.js";
+import {DocumentFactory} from "../../../core/factories/documentFactory";
 
 export class suggestTitlesModal {
     constructor() {
@@ -11,7 +12,7 @@ export class suggestTitlesModal {
         // }
         this.id = parseInt(window.location.hash.split('/')[1]);
         this._document = webSkel.space.getDocument(this.id);
-        // this._document.observeChange(this._document.getNotifyId(), this.updateState);
+        // this._document.observeChange(this._document.getNotificationId(), this.updateState);
         this.suggestedTitles = document.querySelector("edit-title-page").webSkelPresenter.suggestedTitles;
     }
 
@@ -47,8 +48,8 @@ export class suggestTitlesModal {
                 this._document.addAlternativeTitle(value.element.value);
             }
         }
-        await storageManager.storeObject(currentSpaceId, "documents", this._document.id, this._document.stringifyDocument());
-        this._document.notifyObservers(this._document.getNotifyId());
+        await DocumentFactory.storeDocument(currentSpaceId, this._document);
+        this._document.notifyObservers(this._document.getNotificationId());
         closeModal(_target);
     }
 }
