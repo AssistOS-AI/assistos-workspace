@@ -5,8 +5,8 @@ import {
     initUser,
     Space,
 } from "./imports.js";
-import {StorageManager} from "./storageManager.js";
-import {runTests} from "../tests/apihub-storage-test.js";
+import { StorageManager } from "./storageManager.js";
+import { runTests } from "../tests/apihub-storage-test.js";
 
 const openDSU = require("opendsu");
 window.webSkel = new WebSkel();
@@ -144,7 +144,7 @@ async function loadConfigs(jsonPath) {
         let result = await storageManager.loadSpace(currentSpaceId);
         webSkel.space = new Space(JSON.parse(result));
 
-        await initUser();
+        // await initUser();
 
         for (const presenter of config.presenters) {
             const PresenterModule = await import(presenter.path);
@@ -162,12 +162,9 @@ async function loadConfigs(jsonPath) {
 
 (async ()=> {
     // await runTests();
-    window.currentSpaceId = 1;
     webSkel.setDomElementForPages(document.querySelector("#page-content"));
     await initLiteUserDatabase();
-
     await loadConfigs("./wallet/webskel-configs.json");
-
     await loadPage();
     defineActions();
 })();

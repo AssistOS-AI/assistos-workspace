@@ -1,6 +1,6 @@
 .navbar {
     display: flex;
-    background-color: rgb(221, 217, 238);
+    background-color: #d5c8d6;
     padding-top: 6px;
 }
 
@@ -36,17 +36,17 @@
 }
 
 .navbar-item {
-    background-color: rgb(221, 217, 238);
+    background-color: #d5c8d6;
 }
 
 .tab-margin-left {
-    background-color: rgb(221, 217, 238);
+    background-color: #d5c8d6;
     height: 100%;
     width: 12px;
 }
 
 .tab-margin-right {
-    background-color: rgb(221, 217, 238);
+    background-color: #d5c8d6;
     height: 100%;
     width: 12px;
 }
@@ -56,16 +56,17 @@
     width: 100%;
     height: 100%;
     padding: 5px 15px;
-    color: rgba(24, 12, 80, 0.68);
+    color: #937397;
     font-family: Poppins;
-    font-size: 16px;
+    font-size: 18px;
     font-style: normal;
     font-weight: 600;
     line-height: normal;
+    letter-spacing: 0.54px;
 }
 
 .navbar-box:hover {
-    background-color: rgb(231, 229, 241);
+    background-color: #ebe4ec;
 
     .tab-margin-left {
         border-bottom-right-radius: 12px;
@@ -76,13 +77,18 @@
     }
 
     .navbar-item {
-        background-color: rgb(221, 217, 238);
+        background-color: #d5c8d6;
     }
 
     .tab {
         cursor: pointer;
-        background-color: rgb(231, 229, 241);
-        color: rgba(24, 12, 80, 0.81);
+        background-color: #ebe4ec;
+        color: #511A53;
+        font-family: Poppins;
+        font-size: 18px;
+        font-style: normal;
+        font-weight: 600;
+        line-height: normal;
     }
 }
 
@@ -100,7 +106,11 @@
         cursor: default;
         padding: 5px 12px;
         background-color: #FFF;
-        color: rgba(24, 12, 80, 0.86);
-        letter-spacing: 0.54px;
+        color: #511A53;
+        font-family: Poppins;
+        font-size: 18px;
+        font-style: normal;
+        font-weight: 600;
+        line-height: normal;
     }
 }
