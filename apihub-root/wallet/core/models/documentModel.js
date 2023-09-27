@@ -18,15 +18,13 @@ export class DocumentModel {
         return this.chapters.map(chapter => chapter.toString()).join("\n\n") || "";
     }
 
-    stringifyDocument(){
-        function replacer(key,value)
-        {
-            if (key ==="observers") return undefined;
-            else if (key==="currentChapterId") return undefined;
-            else if (key==="currentParagraphId") return undefined;
+    stringifyDocument() {
+        function replacer(key, value) {
+            if (key === "observers") return undefined;
+            else if (key === "currentChapterId") return undefined;
+            else if (key === "currentParagraphId") return undefined;
             else return value;
         }
-
         return JSON.stringify(this, replacer);
     }
 

@@ -145,6 +145,24 @@ export class Space {
         return document || null;
     }
 
+    addAnnouncement(announcement) {
+        this.scripts.push(announcement);
+    }
+
+    getAnnouncement(announcementId) {
+        let announcement = this.announcements.find((announcement) => announcement.id = announcementId);
+        return announcement || console.error(`Announcement not found, announcementId: ${announcementId}`);
+    }
+
+    deleteAnnouncement(announcementId) {
+        this.announcements.slice(announcementId, 1);
+    }
+
+    updateAnnouncement(announcementId, content) {
+        let announcement = this.getAnnouncement(announcementId);
+        announcement.text = content;
+    }
+
     getScript(scriptId) {
         let script = this.scripts.find((script) => script.id = scriptId);
         return script || console.error(`Script not found in Settings, scriptId: ${scriptId}`);
