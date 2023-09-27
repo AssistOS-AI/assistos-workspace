@@ -49,15 +49,16 @@ async function storeObject(request, response) {
         const filePath = `../apihub-root/spaces/${request.params.spaceId}/${request.params.objectType}/${request.params.objectType}.json`;
         let data;
         try {
-            data = require(filePath);
+            data = await fsPromises.readFile(filePath, { encoding: 'utf8' });
         } catch (error) {
-            sendResponse(response, 404, "text/html", error+ ` Error space not found: ${filePath}`);
+            sendResponse(response, 404, "text/html", error+ ` Error file not found: ${filePath}`);
             return "";
         }
+
         let jsonData = JSON.parse(request.body.toString());
         let objectString = request.params.objectName;
         data[objectString].push(jsonData);
-        saveJSON(response, JSON.stringify(data), filePath);
+        await saveJSON(response, JSON.stringify(data), filePath);
         sendResponse(response, 200, "text/html", `Success, ${request.body.toString()}`);
         return "";
     }
