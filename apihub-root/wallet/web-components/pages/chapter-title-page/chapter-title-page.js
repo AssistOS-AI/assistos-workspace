@@ -1,5 +1,5 @@
 import {extractFormInformation, showModal, closeModal, showActionBox, DocumentModel} from "../../../imports.js";
-import {DocumentFactory} from "../../../core/factories/documentFactory";
+import {DocumentFactory} from "../../../core/factories/documentFactory.js";
 
 export class chapterTitlePage {
     constructor() {

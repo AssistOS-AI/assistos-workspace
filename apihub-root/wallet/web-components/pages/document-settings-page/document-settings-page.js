@@ -1,5 +1,5 @@
 import {DocumentModel, extractFormInformation} from "../../../imports.js";
-import {DocumentFactory} from "../../../core/factories/documentFactory";
+import {DocumentFactory} from "../../../core/factories/documentFactory.js";
 
 export class documentSettingsPage {
     constructor(element) {

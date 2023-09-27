@@ -1,5 +1,5 @@
-import {DocumentModel, documentViewPage, getClosestParentElement, Paragraph} from "../../../../imports.js";
-import {DocumentFactory} from "../../../../core/factories/documentFactory";
+import { DocumentModel, documentViewPage, getClosestParentElement, Paragraph } from "../../../../imports.js";
+import { DocumentFactory } from "../../../../core/factories/documentFactory.js";
 
 export class chapterUnit {
     constructor(element) {
