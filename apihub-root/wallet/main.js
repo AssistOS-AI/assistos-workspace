@@ -2,7 +2,6 @@ import {
     notBasePage,
     WebSkel,
     closeModal,
-    initUser,
     Space,
 } from "./imports.js";
 import { StorageManager } from "./storageManager.js";
