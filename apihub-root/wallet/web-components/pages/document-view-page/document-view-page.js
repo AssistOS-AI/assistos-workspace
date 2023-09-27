@@ -27,7 +27,7 @@ export class documentViewPage {
             this._document = webSkel.space.getDocument(this.id);
             this.invalidate();
         }
-        this._document.observeChange(this._document.getNotifyId(), this.updateState);
+        this._document.observeChange(this._document.getNotificationId(), this.updateState);
     }
 
     beforeRender() {

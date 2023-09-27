@@ -1,4 +1,5 @@
 import {extractFormInformation, showModal, closeModal, showActionBox, DocumentModel} from "../../../imports.js";
+import {DocumentFactory} from "../../../core/factories/documentFactory.js";
 
 export class chapterTitlePage {
     constructor() {
@@ -14,7 +15,7 @@ export class chapterTitlePage {
             this._chapter = this._document.getChapter(this.chapterId);
             if(this._chapter) {
                 this.chapterTitle = this._chapter.title;
-                this._document.observeChange(this._chapter.getNotifyId(), this.updateState);
+                this._document.observeChange(this._chapter.getNotificationId(), this.updateState);
             } else {
                 console.log(`this chapter doesnt exist: chapterId: ${this.chapterId}`);
             }
@@ -50,7 +51,7 @@ export class chapterTitlePage {
             const chapterIndex = this._document.getChapterIndex(this.chapterId);
             if (documentIndex !== -1 && chapterIndex !== -1 && formInfo.data.title !== this._document.getChapterTitle(this.chapterId)) {
                 this._document.updateChapterTitle(this.chapterId, formInfo.data.title);
-                await storageManager.storeObject(currentSpaceId, "documents", this._document.id, this._document.stringifyDocument());
+                await DocumentFactory.storeDocument(currentSpaceId, this._document);
             }
         }
     }

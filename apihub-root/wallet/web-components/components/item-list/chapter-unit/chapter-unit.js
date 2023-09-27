@@ -1,4 +1,5 @@
-import {DocumentModel, documentViewPage, getClosestParentElement, Paragraph} from "../../../../imports.js";
+import { DocumentModel, documentViewPage, getClosestParentElement, Paragraph } from "../../../../imports.js";
+import { DocumentFactory } from "../../../../core/factories/documentFactory.js";
 
 export class chapterUnit {
     constructor(element) {
@@ -12,7 +13,7 @@ export class chapterUnit {
         }
         this.docId = webSkel.space.currentDocumentId;
         this._document = webSkel.space.getDocument(this.docId);
-        this._document.observeChange(this._document.getNotifyId(), this.updateState);
+        this._document.observeChange(this._document.getNotificationId(), this.updateState);
     }
 
     beforeRender() {
@@ -58,7 +59,7 @@ export class chapterUnit {
             let chapter1Index = this._document.chapters.findIndex(chapter => chapter.id === parseInt(currentChapter.getAttribute('data-chapter-id')));
             let chapter2Index = this._document.chapters.findIndex(chapter => chapter.id === parseInt(chapterAbove.getAttribute('data-chapter-id')));
             await this._document.swapChapters(chapter1Index, chapter2Index);
-            await storageManager.storeObject(currentSpaceId, "documents", this._document.id, this._document.stringifyDocument());
+            await DocumentFactory.storeDocument(currentSpaceId, this._document);
 
             currentChapter.setAttribute("data-chapter-number", chapterAboveNumber);
             currentChapter.querySelector(".data-chapter-number").innerText = chapterAboveNumber + ".";
@@ -81,7 +82,7 @@ export class chapterUnit {
             let chapter1Index = this._document.chapters.findIndex(chapter => chapter.id === parseInt(currentChapter.getAttribute('data-chapter-id')));
             let chapter2Index = this._document.chapters.findIndex(chapter => chapter.id === parseInt(chapterBelow.getAttribute('data-chapter-id')));
             await this._document.swapChapters(chapter1Index, chapter2Index);
-            await storageManager.storeObject(currentSpaceId, "documents", this._document.id, this._document.stringifyDocument());
+            await DocumentFactory.storeDocument(currentSpaceId, this._document);
 
             let currentChapterNumber = currentChapter.querySelector(".data-chapter-number").innerText.split(".")[0];
             let chapterBelowNumber = chapterBelow.querySelector(".data-chapter-number").innerText.split(".")[0];
@@ -110,8 +111,7 @@ export class chapterUnit {
             let paragraph2Index = this._document.chapters.findIndex(paragraph => paragraph.id === parseInt(paragraphAbove.getAttribute('data-paragraph-id')));
 
             await this._document.swapParagraphs(chapterIndex, paragraph1Index, paragraph2Index);
-            await storageManager.storeObject(currentSpaceId, "documents", this._document.id, this._document.stringifyDocument());
-
+            await DocumentFactory.storeDocument(currentSpaceId, this._document);
         }
     }
 
@@ -126,8 +126,7 @@ export class chapterUnit {
             let paragraph1Index = this._document.chapters.findIndex(paragraph => paragraph.id === parseInt(currentParagraph.getAttribute('data-paragraph-id')));
             let paragraph2Index = this._document.chapters.findIndex(paragraph => paragraph.id === parseInt(paragraphBelow.getAttribute('data-paragraph-id')));
             await this._document.swapParagraphs(chapterIndex, paragraph1Index, paragraph2Index);
-            await storageManager.storeObject(currentSpaceId, "documents", this._document.id, this._document.stringifyDocument());
-
+            await DocumentFactory.storeDocument(currentSpaceId, this._document);
         }
     }
 
@@ -183,7 +182,7 @@ async function exitEditMode(event) {
             } else {
                 doc.updateParagraphText(chapterId, paragraphId, updatedText);
             }
-            await storageManager.storeObject(currentSpaceId, "documents", doc.id, doc.stringifyDocument());
+            await DocumentFactory.storeDocument(currentSpaceId, doc);
         }
     }
 }

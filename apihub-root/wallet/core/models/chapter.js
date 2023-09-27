@@ -16,7 +16,7 @@ export class Chapter {
         this.currentParagraphId = null;
     }
 
-    getNotifyId() {
+    getNotificationId() {
         return `doc:${this.id}`;
     }
 

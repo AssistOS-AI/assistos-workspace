@@ -4,7 +4,7 @@ export class Paragraph {
         this.id = paragraphData.id;
     }
 
-    getNotifyId(chapterId) {
+    getNotificationId(chapterId) {
         return `doc:${chapterId}:${this.id}`;
     }
 

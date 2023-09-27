@@ -1,6 +1,7 @@
 import { closeModal } from "../../../../WebSkel/utils/modal-utils.js";
 import { extractFormInformation } from "../../../../WebSkel/utils/form-utils.js";
 import { brainstormingPage, Chapter, DocumentModel } from "../../../imports.js";
+import {DocumentFactory} from "../../../core/factories/documentFactory.js";
 
 export class addChapterModal {
     constructor() {
@@ -13,7 +14,7 @@ export class addChapterModal {
             this.invalidate();
         }
         this._document = webSkel.space.getDocument(this.docId);
-        this._document.observeChange(this._document.getNotifyId(), this.updateState);
+        this._document.observeChange(this._document.getNotificationId(), this.updateState);
     }
 
     beforeRender() {
@@ -36,8 +37,8 @@ export class addChapterModal {
             }
             let newChapter = new Chapter(chapterObj);
             this._document.chapters.push(newChapter);
-            await storageManager.storeObject(currentSpaceId, "documents", this._document.id, this._document.stringifyDocument());
-            this._document.notifyObservers(this._document.getNotifyId());
+            await DocumentFactory.storeDocument(currentSpaceId, this._document);
+            this._document.notifyObservers(this._document.getNotificationId());
         }
     }
 }

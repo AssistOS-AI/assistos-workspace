@@ -5,6 +5,7 @@ import {
 } from "../../../imports.js";
 import { reverseQuerySelector } from "../../../../WebSkel/utils/dom-utils.js";
 import { removeActionBox } from "../../../../WebSkel/utils/modal-utils.js";
+import {DocumentFactory} from "../../../core/factories/documentFactory.js";
 
 export class editAbstractPage {
     constructor(element) {
@@ -23,7 +24,7 @@ export class editAbstractPage {
             this.abstractText = this._document.abstract;
             this.invalidate();
         }
-        this._document.observeChange(this._document.getNotifyId(), this.updateState);
+        this._document.observeChange(this._document.getNotificationId(), this.updateState);
         this.abstractText = this._document.getAbstract();
     }
 
@@ -85,7 +86,7 @@ export class editAbstractPage {
                 }
             }
             this._document.updateAbstract(updatedAbstract);
-            await storageManager.storeObject(currentSpaceId, "documents", this._document.id, this._document.stringifyDocument());
+            await DocumentFactory.storeDocument(currentSpaceId, this._document);
         }
     }
 
@@ -114,7 +115,7 @@ export class editAbstractPage {
             return await webSkel.space.suggestAbstract(defaultPrompt, llmId);
         }
         this.suggestedAbstract = await suggestAbstract();
-        this._document.observeChange(this._document.getNotifyId(), this.updateState);
+        this._document.observeChange(this._document.getNotificationId(), this.updateState);
         loading.close();
         loading.remove();
         await showModal(document.querySelector("body"), "suggest-abstract-modal", { presenter: "suggest-abstract-modal"});
@@ -124,8 +125,8 @@ export class editAbstractPage {
         let abstract = reverseQuerySelector(_target,".content").innerText;
         if(abstract !== this._document.getAbstract()) {
             this._document.updateAbstract(abstract);
-            await storageManager.storeObject(currentSpaceId, "documents", this._document.id, this._document.stringifyDocument());
-            this._document.notifyObservers(this._document.getNotifyId());
+            await DocumentFactory.storeDocument(currentSpaceId, this._document);
+            this._document.notifyObservers(this._document.getNotificationId());
         } else {
             removeActionBox(this.actionBox, this);
         }
@@ -142,8 +143,7 @@ export class editAbstractPage {
                 abstract.contentEditable = false;
                 if(abstract.innerText !== this._document.alternativeAbstracts[alternativeAbstractIndex]) {
                     this._document.alternativeAbstracts[alternativeAbstractIndex] = abstract.innerText;
-                    await storageManager.storeObject(currentSpaceId, "documents", this._document.id, this._document.stringifyDocument());
-
+                    await DocumentFactory.storeDocument(currentSpaceId, this._document);
                 }
             });
         }
@@ -157,8 +157,7 @@ export class editAbstractPage {
         let alternativeAbstractIndex = this._document.alternativeAbstracts.findIndex(abs => abs === abstract.innerText);
         if(alternativeAbstractIndex !== -1) {
             this._document.alternativeAbstracts.splice(alternativeAbstractIndex, 1);
-            await storageManager.storeObject(currentSpaceId, "documents", this._document.id, this._document.stringifyDocument());
-
+            await DocumentFactory.storeDocument(currentSpaceId, this._document);
         } else {
             await showApplicationError("Error deleting abstract", `Error deleting abstract for document: ${this._document.title}`, `Error deleting abstract for document: ${this._document.title}`);
         }

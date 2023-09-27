@@ -4,7 +4,7 @@ import {
     closeModal,
     Space,
 } from "./imports.js";
-import {StorageManager} from "./storageManager.js";
+import { StorageManager } from "./storageManager.js";
 
 const openDSU = require("opendsu");
 window.webSkel = new WebSkel();

@@ -201,7 +201,7 @@ export class DocumentModel {
         this.alternativeTitles.splice(index, 1);
     }
 
-    getNotifyId() {
+    getNotificationId() {
         return "doc";
     }
 
