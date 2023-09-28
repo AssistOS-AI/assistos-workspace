@@ -6,13 +6,12 @@ import {
 } from "../../../imports.js";
 import { reverseQuerySelector } from "../../../../WebSkel/utils/dom-utils.js";
 import { removeActionBox } from "../../../../WebSkel/utils/modal-utils.js";
-import {DocumentFactory} from "../../../core/factories/documentFactory.js";
 
 export class editTitlePage {
     constructor() {
         this.docTitle = "Current Title";
         let url = window.location.hash;
-        this.id = parseInt(url.split('/')[1]);
+        this.id = url.split('/')[1];
         this._document = webSkel.space.getDocument(this.id);
         if(this._document) {
             setTimeout(() => {
@@ -49,7 +48,7 @@ export class editTitlePage {
         if(formInfo.isValid) {
             if (formInfo.data.title !== this._document.getTitle()) {
                 this._document.updateDocumentTitle(formInfo.data.title);
-                await DocumentFactory.storeDocument(currentSpaceId, this._document);
+                await documentFactory.storeDocument(currentSpaceId, this._document);
             }
         }
     }
@@ -108,7 +107,7 @@ export class editTitlePage {
         let selectedTitle = reverseQuerySelector(_target,".suggested-title").innerText;
         if(selectedTitle !== this._document.getTitle()) {
             this._document.setTitle(selectedTitle);
-            await DocumentFactory.storeDocument(currentSpaceId, this._document);
+            await documentFactory.storeDocument(currentSpaceId, this._document);
             this._document.notifyObservers(this._document.getNotificationId() + "alternativeTitlesId");
         }
         else {
@@ -127,7 +126,7 @@ export class editTitlePage {
                 alternativeTitle.contentEditable = false;
                 if(alternativeTitle.innerText !== this._document.alternativeTitles[alternativeTitleIndex]) {
                     this._document.setAlternativeTitle(alternativeTitleIndex, alternativeTitle.innerText);
-                    await DocumentFactory.storeDocument(currentSpaceId, this._document);
+                    await documentFactory.storeDocument(currentSpaceId, this._document);
                 }
             });
         }
@@ -141,7 +140,7 @@ export class editTitlePage {
         let alternativeTitleIndex = this._document.getAlternativeTitles().findIndex(title => title === alternativeTitle.innerText);
         if(alternativeTitleIndex !== -1) {
             this._document.deleteAlternativeTitle(alternativeTitleIndex);
-            await DocumentFactory.storeDocument(currentSpaceId, this._document);
+            await documentFactory.storeDocument(currentSpaceId, this._document);
         } else {
             await showApplicationError("Error deleting title", `Error deleting title for document: ${this._document.title}`, `Error deleting title for document: ${this._document.title}`);
         }

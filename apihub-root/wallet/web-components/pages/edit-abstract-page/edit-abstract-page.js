@@ -5,7 +5,6 @@ import {
 } from "../../../imports.js";
 import { reverseQuerySelector } from "../../../../WebSkel/utils/dom-utils.js";
 import { removeActionBox } from "../../../../WebSkel/utils/modal-utils.js";
-import { DocumentFactory } from "../../../core/factories/documentFactory.js";
 
 export class editAbstractPage {
     constructor(element) {
@@ -32,12 +31,7 @@ export class editAbstractPage {
         this.title = `<title-view title="${this._document.getTitle()}"></title-view>`;
         this.alternativeAbstracts = "";
         for (let i = 0; i < this._document.getAlternativeAbstracts().length; i++) {
-            this.alternativeAbstracts += `<alternative-abstract nr="${i + 1}" title="${this._document.alternativeAbstracts[i]}"></alternative-abstract>`;
-        }
-        if(!this._document.mainIdeas || this._document.mainIdeas.length === 0) {
-            this.generateMainIdeasButtonName = "Summarize";
-        } else {
-            this.generateMainIdeasButtonName = "Regenerate";
+            this.alternativeAbstracts += `<alternative-abstract data-id="${i + 1}" data-title="${this._document.alternativeAbstracts[i]}"></alternative-abstract>`;
         }
         if (this.editableAbstract) {
             this.editableAbstract.removeEventListener("click", setEditableAbstract);
@@ -86,7 +80,7 @@ export class editAbstractPage {
                 }
             }
             this._document.updateAbstract(updatedAbstract);
-            await DocumentFactory.storeDocument(currentSpaceId, this._document);
+            await documentFactory.storeDocument(currentSpaceId, this._document);
         }
     }
 
@@ -125,7 +119,7 @@ export class editAbstractPage {
         let abstract = reverseQuerySelector(_target,".content").innerText;
         if(abstract !== this._document.getAbstract()) {
             this._document.updateAbstract(abstract);
-            await DocumentFactory.storeDocument(currentSpaceId, this._document);
+            await documentFactory.storeDocument(currentSpaceId, this._document);
             this._document.notifyObservers(this._document.getNotificationId());
         } else {
             removeActionBox(this.actionBox, this);
@@ -134,7 +128,7 @@ export class editAbstractPage {
 
     async edit(_target) {
         let abstract = reverseQuerySelector(_target, ".content");
-        let alternativeAbstractIndex = this._document.alternativeAbstracts.findIndex(abs => abs === abstract.innerText);
+        let alternativeAbstractIndex = this._document.alternativeAbstracts.findIndex(abs => abs.id === abstract.id);
         if(alternativeAbstractIndex !== -1) {
             removeActionBox(this.actionBox, this);
             abstract.contentEditable = true;
@@ -143,7 +137,7 @@ export class editAbstractPage {
                 abstract.contentEditable = false;
                 if(abstract.innerText !== this._document.alternativeAbstracts[alternativeAbstractIndex]) {
                     this._document.alternativeAbstracts[alternativeAbstractIndex] = abstract.innerText;
-                    await DocumentFactory.storeDocument(currentSpaceId, this._document);
+                    await documentFactory.storeDocument(currentSpaceId, this._document);
                 }
             });
         }
@@ -154,10 +148,10 @@ export class editAbstractPage {
 
     async delete(_target) {
         let abstract = reverseQuerySelector(_target, ".content");
-        let alternativeAbstractIndex = this._document.alternativeAbstracts.findIndex(abs => abs === abstract.innerText);
+        let alternativeAbstractIndex = this._document.alternativeAbstracts.findIndex(abs => abs.id === abstract.id);
         if(alternativeAbstractIndex !== -1) {
             this._document.alternativeAbstracts.splice(alternativeAbstractIndex, 1);
-            await DocumentFactory.storeDocument(currentSpaceId, this._document);
+            await documentFactory.storeDocument(currentSpaceId, this._document);
         } else {
             await showApplicationError("Error deleting abstract", `Error deleting abstract for document: ${this._document.title}`, `Error deleting abstract for document: ${this._document.title}`);
         }

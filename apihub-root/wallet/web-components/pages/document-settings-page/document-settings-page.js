@@ -1,5 +1,4 @@
 import {DocumentModel, extractFormInformation} from "../../../imports.js";
-import {DocumentFactory} from "../../../core/factories/documentFactory.js";
 
 export class documentSettingsPage {
     constructor(element) {
@@ -77,7 +76,7 @@ export class documentSettingsPage {
                     await showApplicationError(`Error updating option`, `Option ${key} index not found`, `Option ${key}: value ${value}`);
                 }
             }
-            await DocumentFactory.storeDocument(currentSpaceId, this._document);
+            await documentFactory.storeDocument(currentSpaceId, this._document);
         }
         else {
             await showApplicationError(`Error at submitting form`, `Form invalid`, `Form with target: ${_target}`);

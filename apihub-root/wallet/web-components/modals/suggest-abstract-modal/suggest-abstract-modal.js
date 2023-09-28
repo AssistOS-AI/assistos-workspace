@@ -1,6 +1,5 @@
 import { closeModal } from "../../../../WebSkel/utils/modal-utils.js";
 import { DocumentModel } from "../../../imports.js";
-import { DocumentFactory } from "../../../core/factories/documentFactory.js";
 
 export class suggestAbstractModal {
     constructor() {
@@ -27,6 +26,6 @@ export class suggestAbstractModal {
 
     async addSelectedAbstract(_target) {
         this._document.addAlternativeAbstract(this.suggestedAbstract);
-        await DocumentFactory.storeDocument(currentSpaceId, this._document);
+        await documentFactory.storeDocument(currentSpaceId, this._document);
     }
 }

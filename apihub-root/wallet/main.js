@@ -5,6 +5,7 @@ import {
     Space,
 } from "./imports.js";
 import { StorageManager } from "./storageManager.js";
+import {DocumentFactory} from "./core/factories/documentFactory.js";
 
 const openDSU = require("opendsu");
 window.webSkel = new WebSkel();
@@ -141,6 +142,7 @@ async function loadConfigs(jsonPath) {
     window.currentSpaceId = 1;
     webSkel.setDomElementForPages(document.querySelector("#page-content"));
     window.storageManager = new StorageManager();
+    window.documentFactory = new DocumentFactory();
     await loadConfigs("./wallet/webskel-configs.json");
     await loadPage();
     defineActions();

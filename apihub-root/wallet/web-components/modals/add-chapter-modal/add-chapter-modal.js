@@ -1,7 +1,6 @@
 import { closeModal } from "../../../../WebSkel/utils/modal-utils.js";
 import { extractFormInformation } from "../../../../WebSkel/utils/form-utils.js";
 import { brainstormingPage, Chapter, DocumentModel } from "../../../imports.js";
-import {DocumentFactory} from "../../../core/factories/documentFactory.js";
 
 export class addChapterModal {
     constructor() {
@@ -37,7 +36,7 @@ export class addChapterModal {
             }
             let newChapter = new Chapter(chapterObj);
             this._document.chapters.push(newChapter);
-            await DocumentFactory.storeDocument(currentSpaceId, this._document);
+            await documentFactory.storeDocument(currentSpaceId, this._document);
             this._document.notifyObservers(this._document.getNotificationId());
         }
     }

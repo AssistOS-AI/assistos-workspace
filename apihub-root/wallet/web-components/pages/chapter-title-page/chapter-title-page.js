@@ -1,5 +1,4 @@
 import {extractFormInformation, showModal, closeModal, showActionBox, DocumentModel} from "../../../imports.js";
-import {DocumentFactory} from "../../../core/factories/documentFactory.js";
 
 export class chapterTitlePage {
     constructor() {
@@ -51,7 +50,7 @@ export class chapterTitlePage {
             const chapterIndex = this._document.getChapterIndex(this.chapterId);
             if (documentIndex !== -1 && chapterIndex !== -1 && formInfo.data.title !== this._document.getChapterTitle(this.chapterId)) {
                 this._document.updateChapterTitle(this.chapterId, formInfo.data.title);
-                await DocumentFactory.storeDocument(currentSpaceId, this._document);
+                await documentFactory.storeDocument(currentSpaceId, this._document);
             }
         }
     }

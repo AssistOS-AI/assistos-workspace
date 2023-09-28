@@ -1,6 +1,5 @@
 import { closeModal } from "../../../../WebSkel/utils/modal-utils.js";
 import { DocumentModel, extractFormInformation } from "../../../imports.js";
-import {DocumentFactory} from "../../../core/factories/documentFactory.js";
 
 export class suggestTitlesModal {
     constructor() {
@@ -48,7 +47,7 @@ export class suggestTitlesModal {
                 this._document.addAlternativeTitle(value.element.value);
             }
         }
-        await DocumentFactory.storeDocument(currentSpaceId, this._document);
+        await documentFactory.storeDocument(currentSpaceId, this._document);
         this._document.notifyObservers(this._document.getNotificationId());
         closeModal(_target);
     }
