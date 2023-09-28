@@ -48,14 +48,9 @@ async function loadPage() {
 }
 
 async function initLiteUserDatabase() {
-    window.storageManager = new StorageManager();
 
-    let result = localStorage.getItem("currentUser");
-    if(result) {
-        window.currentSpaceId = JSON.parse(result).currentSpaceId;
-    } else {
-        window.currentSpaceId = 1;
-    }
+
+
 }
 
 function changeSelectedPageFromSidebar(url) {
@@ -115,11 +110,18 @@ async function loadConfigs(jsonPath) {
                 storageManager.addStorageService(storageService.name, new StorageServiceModule[storageService.name]());
             }
         }
+
         storageManager.setCurrentService("FileSystemStorage");
         let result = await storageManager.loadSpace(currentSpaceId);
         webSkel.space = new Space(JSON.parse(result));
         await webSkel.getService("AuthenticationService").initUser();
 
+        let currentUserString = webSkel.getService("AuthenticationService").getCachedCurrentUser();
+        if(currentUserString) {
+            window.currentSpaceId = JSON.parse(currentUserString).currentSpaceId;
+        } else {
+            window.currentSpaceId = 1;
+        }
 
         for (const presenter of config.presenters) {
             const PresenterModule = await import(presenter.path);
@@ -139,7 +141,7 @@ async function loadConfigs(jsonPath) {
 
     window.currentSpaceId = 1;
     webSkel.setDomElementForPages(document.querySelector("#page-content"));
-    await initLiteUserDatabase();
+    window.storageManager = new StorageManager();
     await loadConfigs("./wallet/webskel-configs.json");
     await loadPage();
     defineActions();
