@@ -68,7 +68,7 @@ async function storeObject(request, response) {
         }
         if(currentObject) {
             let index = currentObject.findIndex((item) => item.id === jsonData.id);
-            if(index > 0) {
+            if(index !== -1) {
                 currentObject[index] = jsonData;
             }
             else {

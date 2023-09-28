@@ -44,9 +44,18 @@ space-unit:hover {
 }
 
 .space-name {
-    margin-right: 15px;
+    margin-right: 10px;
 }
 
 .space-dropdown {
     position: relative;
+}
+
+.arrow-space {
+    padding: 0 5px;
+    border-radius: 5px;
+}
+
+.arrow-space:hover {
+    background: rgba(0, 0, 0, 0.33);
 }
