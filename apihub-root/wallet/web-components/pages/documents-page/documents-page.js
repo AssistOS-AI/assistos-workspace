@@ -1,14 +1,14 @@
 import { DocumentModel, getClosestParentElement, showActionBox, showModal } from "../../../imports.js";
-import { DocumentFactory } from "../../../core/factories/documentFactory.js";
 
 export class documentsPage {
     constructor() {
         if(webSkel.space.documents !== undefined) {
             setTimeout(()=> {
                 this.invalidate();
+                documentFactory.observeChange("docs", this.invalidate);
             }, 0);
         }
-        this.updateState = () => this.invalidate();
+
     }
 
     beforeRender() {
@@ -19,7 +19,6 @@ export class documentsPage {
         else {
             webSkel.space.documents.forEach((document) => {
                 this.tableRows += `<document-unit data-name="${document.title}" data-id="${document.id}"></document-unit>`;
-                document.observeChange(document.getNotificationId(), this.updateState);
             });
         }
     }
@@ -30,7 +29,7 @@ export class documentsPage {
 
     async editAction(_target) {
         let rowElement = getClosestParentElement(_target,['document-unit']);
-        let documentId = parseInt(rowElement.getAttribute('data-id'));
+        let documentId = rowElement.getAttribute('data-id');
         webSkel.space.currentDocumentId = documentId;
         await webSkel.changeToStaticPage(`documents/${documentId}`);
     }
@@ -38,9 +37,8 @@ export class documentsPage {
     async deleteAction(_target){
         const rowElement = getClosestParentElement(_target, "document-unit");
         let documentId = rowElement.getAttribute('data-id');
-
-        webSkel.space.deleteDocument(documentId);
-        await DocumentFactory.deleteDocument(currentSpaceId, documentId);
+        await documentFactory.deleteDocument(currentSpaceId, documentId);
+        documentFactory.notifyObservers("docs");
     }
 
     async showActionBox(_target, primaryKey, componentName, insertionMode) {

@@ -1,17 +1,15 @@
 import { closeModal } from "../../../../WebSkel/utils/modal-utils.js";
 import { DocumentModel } from "../../../core/models/documentModel.js";
 import { extractFormInformation } from "../../../imports.js";
-import { DocumentFactory } from "../../../core/factories/documentFactory.js";
 
 export class addDocumentModal {
     constructor() {
         setTimeout(()=> {
             this.invalidate();
         }, 0);
-        this.updateState = (spaceState)=> {
+        this.updateState = ()=> {
             this.invalidate();
         }
-        // webSkel.space.onChange(this.updateState);
     }
 
     beforeRender() {
@@ -26,11 +24,10 @@ export class addDocumentModal {
         let formData = await extractFormInformation(_target);
         if(formData.isValid) {
             closeModal(_target);
-            let newDoc = DocumentFactory.createDocument();
+            let newDoc = documentFactory.createDocument();
             newDoc.setTitle(formData.data.documentTitle);
-            newDoc.observeChange(newDoc.getNotificationId(), this.updateState);
             webSkel.space.addDocument(newDoc);
-            await storageManager.storeSpace(currentSpaceId, "documents", newDoc.id, newDoc.stringifyDocument());
+            await documentFactory.storeDocument(currentSpaceId, newDoc);
             await webSkel.changeToStaticPage(`documents/${newDoc.id}/edit-title`);
         }
     }
