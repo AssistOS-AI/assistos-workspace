@@ -1,4 +1,4 @@
-import { showModal, showActionBox, Space } from "../../../imports.js";
+import { showModal, showActionBox, Space, getClosestParentElement } from "../../../imports.js";
 
 export class llmsPage {
     constructor(element) {
@@ -26,7 +26,7 @@ export class llmsPage {
         this.tableRows = "";
         if (this._llmConfigs && this._llmConfigs.length > 0) {
             this._llmConfigs.forEach((item) => {
-                this.tableRows += `<llm-unit data-name="${item.name}" data-key="${item.key}" data-url="${item.url}" data-primary-key="${item.primaryKey}"></llm-unit>`;
+                this.tableRows += `<llm-unit data-name="${item.name}" data-key="${item.key}" data-url="${item.url}" data-primary-key="${item.id}"></llm-unit>`;
             });
         } else {
             this.tableRows = `<llm-unit data-name="No data loaded"></llm-unit>`;
@@ -39,5 +39,10 @@ export class llmsPage {
 
     async showActionBox(_target, primaryKey, componentName, insertionMode) {
         await showActionBox(_target, primaryKey, componentName, insertionMode);
+    }
+
+    async editAction(_target) {
+        let id = getClosestParentElement(_target, "action-box").getAttribute("id");
+        await showModal(document.querySelector("body"), "edit-llm-key-modal", { presenter: "edit-llm-key-modal", id: id});
     }
 }

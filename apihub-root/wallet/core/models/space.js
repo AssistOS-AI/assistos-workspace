@@ -177,7 +177,7 @@ export class Space {
     }
 
     getLLM(llmSelector) {
-        return this.settings.llms.find(llm => llm.name === llmSelector || llm.id === llmSelector) || null;
+        return this.settings.llms.find(llm => llm.name === llmSelector || llm.id === parseInt(llmSelector)) || null;
     }
 
     deleteLLM(llmId) {
@@ -186,7 +186,12 @@ export class Space {
 
     addLLMKey(llmSelector, key) {
         let llm = this.getLLM(llmSelector);
-        llm.apiKeys.push(key);
+        if(llm.apiKeys[llm.apiKeys.length - 1] === null) {
+            llm.apiKeys[llm.apiKeys.length - 1] = key;
+        }
+        else {
+            llm.apiKeys.push(key);
+        }
         return llm;
     }
 

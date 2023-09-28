@@ -111,6 +111,11 @@
       "className": "addLLMModal"
     },
     {
+      "name": "edit-llm-key-modal",
+      "path": "./web-components/modals/edit-llm-key-modal/edit-llm-key-modal.js",
+      "className": "editLLMKeyModal"
+    },
+    {
       "name": "add-personality-modal",
       "path": "./web-components/modals/add-personality-modal/add-personality-modal.js",
       "className": "addPersonalityModal"
@@ -331,6 +336,10 @@
     {
       "name": "add-llm-modal",
       "path": "./wallet/web-components/modals/add-llm-modal/add-llm-modal.html"
+    },
+    {
+      "name": "edit-llm-key-modal",
+      "path": "./wallet/web-components/modals/edit-llm-key-modal/edit-llm-key-modal.html"
     },
     {
       "name": "add-personality-modal",
