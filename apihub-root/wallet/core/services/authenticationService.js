@@ -13,18 +13,13 @@ export class AuthenticationService{
         window.currentUser = { userId: "", isPremium: false };
 
         const result = this.getCachedCurrentUser();
-        // document.querySelector("#logout-button").style.display = "none";
-        // document.querySelector("#login-button").style.display = "block";
-        // document.querySelector("#register-button").style.display = "block";
+
         if(result) {
             let user = JSON.parse(result);
             window.currentSpaceId = user.currentSpaceId;
             if(JSON.parse(result).secretToken !== "") {
                 currentUser.isPremium = true;
 
-                // document.querySelector("#logout-button").style.display = "block";
-                // document.querySelector("#login-button").style.display = "none";
-                // document.querySelector("#register-button").style.display = "none";
             }
             currentUser.userId = user.userId;
         }

@@ -1,7 +1,7 @@
 import { getClosestParentElement, showModal, Space } from "../../../imports.js";
 
 export class spaceDropdown {
-    constructor() {
+    constructor(element) {
         setTimeout(()=> {
             this.invalidate();
         }, 0);
@@ -9,6 +9,7 @@ export class spaceDropdown {
             this.invalidate();
         }
         // webSkel.space.onChange(this.updateState);
+        this.element = element;
     }
 
     beforeRender() {
@@ -18,10 +19,15 @@ export class spaceDropdown {
         //     this.spacesDiv += `<space-unit data-space-name="${space.name}" data-space-id="${space.id}"></space-unit>`;
         // });
     }
-
+    hideSpaces = ()=>{
+        let target = this.element.querySelector(".spaces-list");
+        target.style.display = "none";
+        document.removeEventListener("click",this.hideSpaces);
+    };
     showSpaces(_target) {
-        let target = _target.parentElement.nextElementSibling;
+        let target = this.element.querySelector(".spaces-list");
         target.style.display = "flex";
+        document.addEventListener("click",this.hideSpaces);
     }
 
     changeSpace(_target) {

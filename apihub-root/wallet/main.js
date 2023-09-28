@@ -8,7 +8,6 @@ import { StorageManager } from "./storageManager.js";
 
 const openDSU = require("opendsu");
 window.webSkel = new WebSkel();
-window.pageContent = document.querySelector("#page-content");
 window.mainContent = document.querySelector("#main-content");
 
 async function loadPage() {

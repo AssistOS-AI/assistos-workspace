@@ -184,7 +184,7 @@ export class authenticationPage {
                         if(user.userId === userId) {
                             let secretToken = user.secretToken;
                             if(webSkel.getService("AuthenticationService").verifyPassword(secretToken, formInfo.data.password)) {
-                                webSkel.setDomElementForPages(pageContent);
+
                                 webSkel.getService("AuthenticationService").setCachedCurrentUser({ userId: userId, secretToken: secretToken });
 
                                 window.location = "";
@@ -247,11 +247,9 @@ export class authenticationPage {
          if(typeof result === "string") {
              console.error(result);
          }
-         webSkel.setDomElementForPages(pageContent);
          window.location = "";
     }
     navigateToLandingPage(){
-        webSkel.setDomElementForPages(pageContent);
         window.location = "";
     }
 
