@@ -5,7 +5,7 @@ import {
 } from "../../../imports.js";
 import { reverseQuerySelector } from "../../../../WebSkel/utils/dom-utils.js";
 import { removeActionBox } from "../../../../WebSkel/utils/modal-utils.js";
-import {DocumentFactory} from "../../../core/factories/documentFactory.js";
+import { DocumentFactory } from "../../../core/factories/documentFactory.js";
 
 export class editAbstractPage {
     constructor(element) {

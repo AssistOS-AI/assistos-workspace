@@ -184,9 +184,13 @@ export class Space {
         this.announcements.slice(llmId, 1);
     }
 
-    updateLLM(llmName, key) {
-        let llm = this.getLLM(llmName);
+    addLLMKey(llmSelector, key) {
+        let llm = this.getLLM(llmSelector);
         llm.apiKeys.push(key);
         return llm;
+    }
+
+    addLLM(llm) {
+        this.settings.llms.push(llm);
     }
 }

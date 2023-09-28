@@ -30,8 +30,10 @@ export class addLLMModal {
         closeModal(_target);
         if(formInfo.isValid) {
             let body = formInfo.data;
-            let llm = webSkel.space.updateLLM(body.name, body.key);
-            await LLM.storeLLM(currentSpaceId, llm);
+            let openDSU = require("opendsu");
+            let crypto = openDSU.loadApi("crypto");
+            body.id = crypto.getRandomSecret(16).toString().split(",").join("");
+            await LLM.storeLLM(currentSpaceId, body);
             webSkel.space.notifyObservers();
         }
     }
