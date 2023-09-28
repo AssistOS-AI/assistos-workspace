@@ -24,9 +24,9 @@ async function loadPage() {
         /* URL examples: documents/0, documents/0/chapters/1 */
         switch(url.split('/')[0]) {
             case "#documents": {
-                let documentIdURL = parseInt(url.split('/')[1]);
-                let chapterIdURL = parseInt(url.split('/')[3]);
-                let paragraphIdURL = parseInt(url.split('/')[4]);
+                let documentIdURL = url.split('/')[1];
+                let chapterIdURL = url.split('/')[3];
+                let paragraphIdURL = url.split('/')[4];
                 /* To be replaced with space id from URL */
                 if (await storageManager.loadObject(currentSpaceId, "documents", documentIdURL) !== null) {
                     webSkel.space.currentDocumentId = documentIdURL;

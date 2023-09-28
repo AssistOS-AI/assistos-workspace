@@ -4,8 +4,8 @@ export class chapterTitlePage {
     constructor() {
         this.docTitle = "Current Title";
         let url = window.location.hash;
-        this.docId = parseInt(url.split('/')[1]);
-        this.chapterId = parseInt(url.split('/')[3]);
+        this.docId = url.split('/')[1];
+        this.chapterId = url.split('/')[3];
         this._document = webSkel.space.getDocument(this.docId);
         if(this._document) {
             setTimeout(()=> {

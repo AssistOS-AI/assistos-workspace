@@ -52,8 +52,8 @@ export class DocumentModel {
         this.settings = settings;
     }
 
-    createChapter(title) {
-        this.chapters.push(new Chapter(title, this.chapters.length + 1, []));
+    addChapter(chapterObj) {
+        this.chapters.push(new Chapter(chapterObj));
     }
 
     setCurrentChapter(chapterId) {
@@ -207,10 +207,4 @@ export class DocumentModel {
         return webSkel.space.documents.findIndex(document => document.id === this.id);
     }
 
-    async updateDocument() {
-        let observers = this.observers;
-        this.observers = undefined;
-        await webSkel.localStorage.updateDocument(webSkel.space.id, this.id, this);
-        this.observers = observers;
-    }
 }

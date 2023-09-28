@@ -5,7 +5,7 @@ import { brainstormingPage, Chapter, DocumentModel } from "../../../imports.js";
 export class addChapterModal {
     constructor() {
         let url = window.location.hash;
-        this.docId =  parseInt(url.split('/')[1]);
+        this.docId =  url.split('/')[1];
         setTimeout(()=> {
             this.invalidate();
         }, 0);

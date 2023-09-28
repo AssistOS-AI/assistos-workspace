@@ -1,8 +1,4 @@
-import {Chapter, DocumentModel} from "../../../imports.js";
-
 export class documentViewPage {
-    static chapterIdForSidebar;
-    static paragraphIdForSidebar;
     constructor() {
         this.docTitle = "Documents";
         this.name = "Name";
@@ -14,6 +10,7 @@ export class documentViewPage {
         if (this._document) {
             setTimeout(()=> {
                 this.invalidate();
+                this._document.observeChange(this._document.getNotificationId(), this.invalidate);
             }, 0);
             this.docTitle = this._document.title;
             if(this._document.abstract) {
@@ -23,11 +20,12 @@ export class documentViewPage {
         } else {
             console.log(`this _document doesnt exist: docId: ${this.id}`);
         }
-        this.updateState = ()=> {
-            this._document = webSkel.space.getDocument(this.id);
-            this.invalidate();
-        }
-        this._document.observeChange(this._document.getNotificationId(), this.updateState);
+
+        // this.updateState = ()=> {
+        //     this._document = webSkel.space.getDocument(this.id);
+        //     this.invalidate();
+        // }
+
     }
 
     beforeRender() {
@@ -60,29 +58,31 @@ export class documentViewPage {
     }
 
     openChapterTitlePage() {
-        webSkel.changeToStaticPage(`documents/${this.id}/edit-chapter-title/${documentViewPage.chapterIdForSidebar}`);
+        webSkel.changeToStaticPage(`documents/${this.id}/edit-chapter-title/${webSkel.space.currentChapterId}`);
     }
 
     openChapterBrainstormingPage() {
-        webSkel.changeToStaticPage(`documents/${this.id}/chapter-brainstorming/${documentViewPage.chapterIdForSidebar}`);
+        webSkel.changeToStaticPage(`documents/${this.id}/chapter-brainstorming/${webSkel.space.currentChapterId}`);
     }
 
     openParagraphProofreadPage() {
-        webSkel.changeToStaticPage(`documents/${this.id}/paragraph-proofread/${documentViewPage.chapterIdForSidebar}/${documentViewPage.paragraphIdForSidebar}`);
+        webSkel.changeToStaticPage(`documents/${this.id}/paragraph-proofread/${webSkel.space.currentChapterId}/${webSkel.space.currentParagraphId}`);
     }
 
     openParagraphBrainstormingPage() {
-        webSkel.changeToStaticPage(`documents/${this.id}/paragraph-brainstorming/${documentViewPage.chapterIdForSidebar}/${documentViewPage.paragraphIdForSidebar}`);
+        webSkel.changeToStaticPage(`documents/${this.id}/paragraph-brainstorming/${webSkel.space.currentChapterId}/${webSkel.space.currentParagraphId}`);
     }
 
-    addChapter() {
+    async addChapter() {
+        const crypto = require("opendsu").loadAPI("crypto");
         this.chapterDivs += `<chapter-unit data-chapter-title="New Chapter" data-chapter-id="${this.chapters.length}" data-presenter="chapter-unit"></chapter-unit>`;
         let chapterObj= {
-            title: "Edit your title here",
-            id: this.chapters.length + 1,
-            paragraphs: [{id: 1, text: "Edit your paragraph here"}]
+            title: "New Chapter",
+            id: crypto.getRandomSecret(16).toString().split(",").join(""),
+            paragraphs: [{id: crypto.getRandomSecret(16).toString().split(",").join(""), text: "Edit your paragraph here"}]
         }
-        this.chapters.push(new Chapter(chapterObj));
+        this._document.addChapter(chapterObj);
+        await documentFactory.storeDocument(currentSpaceId, this._document);
         this.invalidate();
     }
 
@@ -99,17 +99,4 @@ export class documentViewPage {
         }
     }
 
-    static openChapterSidebar(chapterId) {
-        const chapterSubmenuSection = document.getElementById("chapter-sidebar");
-        chapterSubmenuSection.style.display = "block";
-        documentViewPage.chapterIdForSidebar = chapterId;
-        webSkel.space.currentChapterId = chapterId;
-    }
-
-    static openParagraphSidebar(chapterId, paragraphId) {
-        const paragraphSubmenuSection = document.getElementById("paragraph-sidebar");
-        paragraphSubmenuSection.style.display = "block";
-        documentViewPage.chapterIdForSidebar = chapterId;
-        documentViewPage.paragraphIdForSidebar = paragraphId;
-    }
 }

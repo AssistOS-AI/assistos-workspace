@@ -3,9 +3,9 @@ import { closeModal, DocumentModel, showActionBox } from "../../../imports.js";
 export class paragraphBrainstormingPage {
     constructor() {
         let url = window.location.hash;
-        this.docId =  parseInt(url.split('/')[1]);
-        this.chapterId = parseInt(url.split('/')[3]);
-        this.paragraphId = parseInt(url.split('/')[4]);
+        this.docId =  url.split('/')[1];
+        this.chapterId = url.split('/')[3];
+        this.paragraphId = url.split('/')[4];
         this._document = webSkel.space.getDocument(this.docId);
         if(this._document) {
             setTimeout(()=> {

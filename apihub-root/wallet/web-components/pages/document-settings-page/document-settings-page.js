@@ -4,7 +4,7 @@ export class documentSettingsPage {
     constructor(element) {
         this.element = element;
         let url = window.location.hash;
-        this.id = parseInt(url.split('/')[1]);
+        this.id = url.split('/')[1];
         this._document = webSkel.space.getDocument(this.id);
         if(this._document) {
             setTimeout(()=> {
@@ -13,7 +13,7 @@ export class documentSettingsPage {
         } else {
             console.log(`this _document doesnt exist: docId: ${this.id}`);
         }
-        this.updateState = (spaceData)=> {
+        this.updateState = ()=> {
             this.invalidate();
         }
         this._document.observeChange(this._document.getNotificationId(), this.updateState);

@@ -6,17 +6,14 @@ export class chapterUnit {
         this.chapterContent = "Chapter's content";
         setTimeout(()=> {
             this.invalidate();
+            this._document.observeChange(this._document.getNotificationId(), this.invalidate);
         }, 0);
-        this.updateState = ()=> {
-            this.invalidate();
-        }
         this.docId = webSkel.space.currentDocumentId;
         this._document = webSkel.space.getDocument(this.docId);
-        this._document.observeChange(this._document.getNotificationId(), this.updateState);
     }
 
     beforeRender() {
-        this.chapterId = parseInt(this.element.getAttribute("data-chapter-id"));
+        this.chapterId = this.element.getAttribute("data-chapter-id");
         this.chapter = this._document.getChapter(this.chapterId);
         this.chapterContent = "";
         if(this.chapter && this.chapter.visibility === "hide") {
@@ -55,8 +52,8 @@ export class chapterUnit {
             let currentChapterNumber = currentChapter.querySelector(".data-chapter-number").innerText.split(".")[0];
             let chapterAboveNumber = chapterAbove.querySelector(".data-chapter-number").innerText.split(".")[0];
 
-            let chapter1Index = this._document.chapters.findIndex(chapter => chapter.id === parseInt(currentChapter.getAttribute('data-chapter-id')));
-            let chapter2Index = this._document.chapters.findIndex(chapter => chapter.id === parseInt(chapterAbove.getAttribute('data-chapter-id')));
+            let chapter1Index = this._document.chapters.findIndex(chapter => chapter.id === currentChapter.getAttribute('data-chapter-id'));
+            let chapter2Index = this._document.chapters.findIndex(chapter => chapter.id === chapterAbove.getAttribute('data-chapter-id'));
             await this._document.swapChapters(chapter1Index, chapter2Index);
             await documentFactory.storeDocument(currentSpaceId, this._document);
 
@@ -65,7 +62,7 @@ export class chapterUnit {
             chapterAbove.setAttribute("data-chapter-number", currentChapterNumber);
             chapterAbove.querySelector(".data-chapter-number").innerText = currentChapterNumber + ".";
             let chapterAboveId = chapterAbove.getAttribute("data-chapter-id");
-            let chapterAboveIndex = this._document.chapters.findIndex(chp => chp.id === parseInt(chapterAboveId));
+            let chapterAboveIndex = this._document.chapters.findIndex(chp => chp.id === chapterAboveId);
             if(this._document.chapters[chapterAboveIndex].visibility === "hide") {
                 chapterAbove.querySelector(".chapter-paragraphs").classList.add("hidden");
                 chapterAbove.querySelector(".arrow").classList.add("rotate");
@@ -78,8 +75,8 @@ export class chapterUnit {
         let chapterBelow = currentChapter.nextSibling;
         if(chapterBelow.nodeName === "CHAPTER-UNIT") {
             chapterBelow.after(currentChapter);
-            let chapter1Index = this._document.chapters.findIndex(chapter => chapter.id === parseInt(currentChapter.getAttribute('data-chapter-id')));
-            let chapter2Index = this._document.chapters.findIndex(chapter => chapter.id === parseInt(chapterBelow.getAttribute('data-chapter-id')));
+            let chapter1Index = this._document.chapters.findIndex(chapter => chapter.id === currentChapter.getAttribute('data-chapter-id'));
+            let chapter2Index = this._document.chapters.findIndex(chapter => chapter.id === chapterBelow.getAttribute('data-chapter-id'));
             await this._document.swapChapters(chapter1Index, chapter2Index);
             await documentFactory.storeDocument(currentSpaceId, this._document);
 
@@ -132,7 +129,8 @@ export class chapterUnit {
     openChapterSidebar(_target) {
         let target = getClosestParentElement(_target, ".chapter-unit");
         let chapterId = target.getAttribute('data-chapter-id');
-        documentViewPage.openChapterSidebar( chapterId);
+        const chapterSubmenuSection = document.getElementById("chapter-sidebar");
+        chapterSubmenuSection.style.display = "block";
         target.setAttribute("id", "select-chapter-visualise");
         webSkel.space.currentChapterId = chapterId;
     }
@@ -153,9 +151,13 @@ function enterEditMode(event) {
     event.preventDefault();
     document.addEventListener("click", exitEditMode, true);
     document.selectedChapter = this;
-    let chapterId = parseInt(getClosestParentElement(this, ".chapter-unit").getAttribute("data-chapter-id"));
-    let paragraphId = parseInt(getClosestParentElement(this, ".paragraph-unit").getAttribute("data-paragraph-id"));
-    documentViewPage.openParagraphSidebar(chapterId, paragraphId);
+    let chapterId = getClosestParentElement(this, ".chapter-unit").getAttribute("data-chapter-id");
+    let paragraphId = getClosestParentElement(this, ".paragraph-unit").getAttribute("data-paragraph-id");
+
+    const paragraphSubmenuSection = document.getElementById("paragraph-sidebar");
+    paragraphSubmenuSection.style.display = "block";
+    webSkel.space.currentChapterId = chapterId;
+    webSkel.space.currentParagraphId = paragraphId;
 }
 
 async function exitEditMode(event) {

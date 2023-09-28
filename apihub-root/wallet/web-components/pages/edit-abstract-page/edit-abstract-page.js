@@ -10,7 +10,7 @@ export class editAbstractPage {
     constructor(element) {
         this.element = element;
         let url = window.location.hash;
-        this.id = parseInt(url.split('/')[1]);
+        this.id = url.split('/')[1];
         this._document = webSkel.space.getDocument(this.id);
         if (this._document) {
             setTimeout(() => {

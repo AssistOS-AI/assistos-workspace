@@ -4,7 +4,7 @@ export class brainstormingPage {
     constructor(element) {
         this.element = element;
         let url = window.location.hash;
-        this.id = parseInt(url.split('/')[1]);
+        this.id = url.split('/')[1];
         this.docTitle = "Titlu document";
         this.tab = "Chapters";
         this.id1 = "selected-tab";

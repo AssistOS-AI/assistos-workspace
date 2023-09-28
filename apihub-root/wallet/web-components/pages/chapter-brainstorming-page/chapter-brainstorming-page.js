@@ -3,8 +3,8 @@ import { closeModal, DocumentModel, showActionBox } from "../../../imports.js";
 export class chapterBrainstormingPage {
     constructor() {
         let url = window.location.hash;
-        this.docId =  parseInt(url.split('/')[1]);
-        this.chapterId = parseInt(url.split('/')[3]);
+        this.docId =  url.split('/')[1];
+        this.chapterId = url.split('/')[3];
         this.docTitle = "Titlu document";
         this._document = webSkel.space.getDocument(this.docId);
         if(this._document) {
