@@ -13,7 +13,7 @@ export class paragraphProofreadPage {
             }, 0);
             this._chapter = this._document.getChapter(this.chapterId);
             if(this._chapter) {
-                this._paragraph = this._document.getChapterParagraph(this.chapterId, this.paragraphId);
+                this._paragraph = this._document.getParagraph(this.chapterId, this.paragraphId);
                 this.paragraphDiv = this._paragraph;
                 this._document.observeChange(this._paragraph.getNotificationId(this.chapterId), this.updateState);
             } else {

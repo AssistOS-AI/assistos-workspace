@@ -125,10 +125,6 @@ export class DocumentModel {
         chapter.title = chapterTitle;
     }
 
-    getParagraphIndex(chapterIndex, paragraphId) {
-        return this.chapters[chapterIndex].paragraphs.findIndex(paragraph => paragraph.id === paragraphId);
-    }
-
     removeParagraph(chapterId, paragraphId) {
         let chapter = this.chapters.find(chapter => chapter.id === chapterId);
         let paragraphIndex = chapter.paragraphs.findIndex(paragraph => paragraph.id === paragraphId);
@@ -140,13 +136,13 @@ export class DocumentModel {
         this.chapters.splice(chapterIndex, 1);
     }
 
-    getChapterParagraphs(chapterIndex) {
-        return this.chapters[chapterIndex].paragraphs;
+    getChapterParagraphs(chapterId) {
+        return this.chapters.find(chapter => chapter.id ===chapterId).paragraphs;
     }
 
-    getChapterParagraph(chapterId, paragraphId) {
-        let chapterIndex = this.chapters.findIndex(chapter => chapter.id === chapterId);
-        return this.chapters[chapterIndex].paragraphs.find(paragraph => paragraph.id === paragraphId);
+    getParagraph(chapterId, paragraphId) {
+        let chapter = this.chapters.find(chapter => chapter.id === chapterId);
+        return chapter.paragraphs.find(paragraph => paragraph.id === paragraphId);
     }
 
     getCurrentChapter() {

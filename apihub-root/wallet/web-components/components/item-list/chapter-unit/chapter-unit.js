@@ -26,12 +26,7 @@ export class chapterUnit {
                 this.chapterContent += `<paragraph-unit data-paragraph-content="${paragraph.text}" data-paragraph-id="${paragraph.id}"></paragraph-unit>`;
             });
         }
-        let selectedParagraphs = this.element.querySelectorAll(".paragraph-text");
-        selectedParagraphs.forEach(paragraph => {
-            paragraph.removeEventListener("dblclick", enterEditMode, true);
-        });
-        document.removeEventListener("click", exitEditMode);
-        delete document.selectedChapter;
+        document.removeEventListener("click", this.exitEditMode);
     }
 
     showOrHideChapter(_target) {
@@ -138,52 +133,54 @@ export class chapterUnit {
     afterRender() {
         let selectedParagraphs = this.element.querySelectorAll(".paragraph-text");
         selectedParagraphs.forEach(paragraph => {
-            paragraph.addEventListener("dblclick", enterEditMode, true);
+            paragraph.addEventListener("dblclick", this.enterEditMode.bind(this, paragraph), true);
         });
     }
-}
-
-function enterEditMode(event) {
-    this.setAttribute("id", "selected-chapter");
-    this.setAttribute("contenteditable", "true");
-    this.focus();
-    event.stopPropagation();
-    event.preventDefault();
-    document.addEventListener("click", exitEditMode, true);
-    document.selectedChapter = this;
-    let chapterId = getClosestParentElement(this, ".chapter-unit").getAttribute("data-chapter-id");
-    let paragraphId = getClosestParentElement(this, ".paragraph-unit").getAttribute("data-paragraph-id");
-
-    const paragraphSubmenuSection = document.getElementById("paragraph-sidebar");
-    paragraphSubmenuSection.style.display = "block";
-    webSkel.space.currentChapterId = chapterId;
-    webSkel.space.currentParagraphId = paragraphId;
-}
-
-async function exitEditMode(event) {
-    if (this.selectedChapter && this.selectedChapter.getAttribute("contenteditable") === "true" && !this.selectedChapter.contains(event.target)) {
-        this.selectedChapter.setAttribute("contenteditable", "false");
-        let updatedText = this.selectedChapter.innerText;
-        if(updatedText === '\n') {
-            updatedText = '';
-        }
-        let documentId = parseInt(getClosestParentElement(this.selectedChapter, "document-view-page").getAttribute("data-document-id"));
-        let documentIndex = webSkel.space.documents.findIndex(doc => doc.id === documentId);
-        let doc = webSkel.space.documents.find(doc => doc.id === documentId);
-        let chapterId = parseInt(getClosestParentElement(this.selectedChapter, ".chapter-unit").getAttribute("data-chapter-id"));
-        let paragraphId = parseInt(getClosestParentElement(this.selectedChapter, ".paragraph-unit").getAttribute("data-paragraph-id"));
-        let sidebar = document.getElementById("paragraph-sidebar");
-        sidebar.style.display = "none";
-        if (documentIndex !== -1 && updatedText !== this.chapter) {
-            if (updatedText === null || updatedText.trim() === '') {
-                doc.removeParagraph(chapterId, paragraphId);
-                if (doc.getChapterParagraphs(chapterId).length === 0) {
-                    doc.removeChapter(chapterId);
-                }
-            } else {
-                doc.updateParagraphText(chapterId, paragraphId, updatedText);
+    async exitEditMode ([chapterId, paragraphId],event) {
+        if (this && this.getAttribute("contenteditable") === "true" && !this.contains(event.target)) {
+            this.setAttribute("contenteditable", "false");
+            let updatedText = this.innerText;
+            if(updatedText === '\n') {
+                updatedText = '';
             }
-            await documentFactory.storeDocument(currentSpaceId, doc);
+
+            let documentId = getClosestParentElement(this, "document-view-page").getAttribute("data-document-id");
+            let doc = webSkel.space.getDocument(documentId);
+
+            let sidebar = document.getElementById("paragraph-sidebar");
+            sidebar.style.display = "none";
+            if (doc && updatedText !== doc.getParagraph(chapterId,paragraphId).text) {
+                if (updatedText === null || updatedText.trim() === '') {
+                    doc.removeParagraph(chapterId, paragraphId);
+                    if (doc.getChapterParagraphs(chapterId).length === 0) {
+                        doc.removeChapter(chapterId);
+                    }
+                } else {
+                    doc.updateParagraphText(chapterId, paragraphId, updatedText);
+                }
+                await documentFactory.storeDocument(currentSpaceId, doc);
+                doc.notifyObservers(doc.getNotificationId());
+            }
         }
     }
+
+    enterEditMode(paragraph, event) {
+        paragraph.setAttribute("id", "selected-chapter");
+        paragraph.setAttribute("contenteditable", "true");
+        paragraph.focus();
+        event.stopPropagation();
+        event.preventDefault();
+
+        let chapterId = getClosestParentElement(paragraph, ".chapter-unit").getAttribute("data-chapter-id");
+        let paragraphId = getClosestParentElement(paragraph, ".paragraph-unit").getAttribute("data-paragraph-id");
+        document.addEventListener("click", this.exitEditMode.bind(paragraph, [chapterId, paragraphId]), true);
+
+        const paragraphSubmenuSection = document.getElementById("paragraph-sidebar");
+        paragraphSubmenuSection.style.display = "block";
+        webSkel.space.currentChapterId = chapterId;
+        webSkel.space.currentParagraphId = paragraphId;
+    }
 }
+
+
+
