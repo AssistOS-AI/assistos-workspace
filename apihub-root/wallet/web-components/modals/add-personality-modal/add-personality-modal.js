@@ -1,6 +1,6 @@
 import { closeModal } from "../../../../WebSkel/utils/modal-utils.js";
 import { extractFormInformation } from "../../../../WebSkel/utils/form-utils.js";
-import { Announcement} from "../../../core/models/announcement.js";
+import { Personality } from "../../../imports.js";
 
 export class addPersonalityModal {
     constructor() {
@@ -9,7 +9,7 @@ export class addPersonalityModal {
                 this.invalidate();
             }, 0);
         }
-        this.updateState = ()=> this.invalidate();
+        this.updateState = () => this.invalidate();
         // webSkel.space.onChange(this.updateState);
     }
 

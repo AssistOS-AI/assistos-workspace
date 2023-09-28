@@ -40,14 +40,14 @@ export class Space {
     //     this.observers.push(new WeakRef(observerFunction));
     // }
 
-    // notifyObservers() {
-    //     for (const observerRef of this.observers) {
-    //         const observer = observerRef.deref();
-    //         if (observer) {
-    //             observer();
-    //         }
-    //     }
-    // }
+    notifyObservers() {
+        for (const observerRef of this.observers) {
+            const observer = observerRef.deref();
+            if (observer) {
+                observer();
+            }
+        }
+    }
 
     changeSpace(spaceId) {
         window.currentSpaceId = spaceId;
@@ -62,19 +62,10 @@ export class Space {
     }
 
     async addPersonality(personality) {
-        await webSkel.localStorage.addPersonality(personality);
         webSkel.space.settings.personalities.push(personality);
     }
 
-    getLLMs() {
-        return webSkel.space.settings.llms || [];
-    }
-
-    getLLM(llmSelector) {
-        return webSkel.space.settings.llms.find(llm => llm.name === llmSelector || llm.id === llmSelector) || null;
-    }
-
-   async summarize(prompt, llmId) {
+    async summarize(prompt, llmId) {
         let llm = this.getLLM(llmId);
         return await this.llmApiFetch(llm.url, llm.apiKeys, prompt);
     }
@@ -92,7 +83,7 @@ export class Space {
         return await this.llmApiFetch(llm.url, llm.apiKeys, prompt);
     }
 
-   async suggestTitles(prompt, llmId) {
+    async suggestTitles(prompt, llmId) {
         let llm = this.getLLM(llmId);
         if (!llm) {
             throw new Error(`LLM with id ${llmId} not found.`);
@@ -100,7 +91,7 @@ export class Space {
         return await this.llmApiFetch(llm.url, llm.apiKeys, prompt);
     }
 
-   async llmApiFetch(url, apiKey, prompt) {
+    async llmApiFetch(url, apiKey, prompt) {
         const options = {
             method: 'POST',
             headers: {
@@ -179,5 +170,23 @@ export class Space {
     updateScript(scriptId, content) {
         let script = this.getScript(scriptId);
         script.content = content;
+    }
+
+    getLLMs() {
+        return this.settings.llms || [];
+    }
+
+    getLLM(llmSelector) {
+        return this.settings.llms.find(llm => llm.name === llmSelector || llm.id === llmSelector) || null;
+    }
+
+    deleteLLM(llmId) {
+        this.announcements.slice(llmId, 1);
+    }
+
+    updateLLM(llmName, key) {
+        let llm = this.getLLM(llmName);
+        llm.apiKeys.push(key);
+        return llm;
     }
 }

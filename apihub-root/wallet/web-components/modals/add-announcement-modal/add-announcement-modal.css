@@ -1,6 +1,6 @@
 dialog[class="modal"] {
     padding: 0;
-    border:none;
+    border: none;
     width: 50%;
     overflow: hidden;
 }
@@ -11,10 +11,6 @@ dialog[class="modal"] {
 
 .modal-content {
     padding: 0 20px;
-}
-
-.script-content {
-    height: 400px;
 }
 
 .modal-title {
