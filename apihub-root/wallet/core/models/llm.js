@@ -28,6 +28,8 @@ export class LLM {
     }
 
     static async storeLLM(spaceId, llm) {
+        llm.apiKeys = [llm.key];
+        llm.key = undefined;
         await storageManager.storeObject(spaceId, "status", "settings.llms", JSON.stringify(llm));
     }
 }
