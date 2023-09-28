@@ -1,4 +1,4 @@
-import {extractFormInformation, User} from "../../../imports.js";
+import {extractFormInformation} from "../../../imports.js";
 
 export class authenticationPage {
     constructor(element) {
@@ -90,7 +90,7 @@ export class authenticationPage {
                         <input class="form-input" name="token" type="text" data-email="user-token" id="user-token" required placeholder="Add secret token">
                     </div>
                     <div class="form-footer">
-                        <button class="wide-btn" data-action="createUser">Log in</button>
+                        <button class="wide-btn" data-action="verifyConfirmationLink">Log in</button>
                     </div>
                     <div class="development-mode" data-local-action="navigateToLandingPage">
                         Log in development mode
@@ -140,7 +140,7 @@ export class authenticationPage {
                         <input class="form-input" name="token" type="text" data-id="user-token" id="user-token" required placeholder="Add secret token">
                     </div>
                     <div class="form-footer">
-                        <button class="wide-btn" data-local-action="createUser">Log in</button>
+                        <button class="wide-btn" data-local-action="verifyConfirmationLink">Log in</button>
                     </div>
                     <div class="development-mode" data-local-action="finishPasswordRecovery">
                         Log in development mode
@@ -157,9 +157,9 @@ export class authenticationPage {
         if(formInfo.isValid) {
 
             //const didDocument = await $$.promisify(w3cDID.createIdentity)("key", undefined, randomNr);
-            let result = await User.createUser(formInfo.data);
+            let result = await webSkel.getService("AuthenticationService").createUser(formInfo.data);
             if(result){
-                webSkel.getService("authenticationService").addUserToLocalStorage(result);
+                webSkel.getService("AuthenticationService").addCachedUser(result);
                 this.element.setAttribute("data-subpage", "register-confirmation");
             }else {
                 console.error("Failed to create user");
@@ -168,20 +168,94 @@ export class authenticationPage {
             console.error("Form invalid");
         }
     }
+
+    async beginLogin(_target){
+        const formInfo = await extractFormInformation(_target);
+        if(formInfo.isValid) {
+            const userObj = await webSkel.getService("AuthenticationService").getStoredUserByEmail(formInfo.data.email);
+            if(typeof userObj === "string") {
+                console.error(`Incorrect email: + ${userObj}`);
+            } else {
+                const userId = userObj.userId;
+
+                let users = webSkel.getService("AuthenticationService").getCachedUsers();
+                if(users) {
+                    users.forEach((user)=> {
+                        if(user.userId === userId) {
+                            let secretToken = user.secretToken;
+                            if(webSkel.getService("AuthenticationService").verifyPassword(secretToken, formInfo.data.password)) {
+                                webSkel.setDomElementForPages(pageContent);
+                                webSkel.getService("AuthenticationService").setCachedCurrentUser({ userId: userId, secretToken: secretToken });
+
+                                window.location = "";
+                                return "";
+                            } else {
+                                console.error("Incorrect password");
+                            }
+                        }
+                    });
+                }
+                console.log(`First time logging in on this device userId: ${JSON.stringify(userId)}`);
+
+                const result = await webSkel.getService("AuthenticationService").getStoredUser(userId);
+                if(webSkel.getService("AuthenticationService").verifyPassword(result.secretToken, formInfo.data.password)) {
+                    let user = { userId: userId, secretToken: result.secretToken};
+
+                    webSkel.getService("AuthenticationService").addCachedUser(user);
+                    webSkel.getService("AuthenticationService").setCachedCurrentUser(user);
+                    await webSkel.changeToStaticPage(`accounting/login-new-device`);
+                }
+            }
+        }
+    }
     navigateToPasswordRecoveryPage(){
         this.element.setAttribute("data-subpage", "password-recovery");
     }
-    beginPasswordRecovery(){
-        this.element.setAttribute("data-subpage", "password-recovery-confirmation");
-    }
-    finishPasswordRecovery(){
+    async beginPasswordRecovery(_target){
+        const checkPasswordConfirmation = ()=>{
+            let password = document.querySelector("#password");
+            let confirmPassword = document.querySelector("#confirm-password");
+            return password.value === confirmPassword.value;
+        }
 
+
+        const conditions = {"checkPasswordConfirmation": checkPasswordConfirmation };
+        const formInfo = await extractFormInformation(_target, conditions);
+        if (formInfo.isValid) {
+            const user = await webSkel.getService("AuthenticationService").getStoredUserByEmail(formInfo.data.email);
+            if (typeof user === "string") {
+                console.error(`Incorrect email: + ${user}`);
+            } else {
+                currentUser.userId = user.userId;
+                const randomNr = crypto.generateRandom(32);
+                user.temporarySecretToken = crypto.encrypt(randomNr, crypto.deriveEncryptionKey(formInfo.data.password));
+                const result = await webSkel.getService("AuthenticationService").updateStoredUser(user);
+                if(typeof result === "string") {
+                    console.log(result);
+                } else {
+                    this.element.setAttribute("data-subpage", "password-recovery-confirmation");
+                }
+            }
+        }
+
+    }
+    async finishPasswordRecovery(){
+         const user = await webSkel.getService("AuthenticationService").getStoredUser(currentUser.userId);
+         user.secretToken = user.temporarySecretToken;
+         delete user.temporarySecretToken;
+         const result = await webSkel.getService("AuthenticationService").updateStoredUser(user);
+         if(typeof result === "string") {
+             console.error(result);
+         }
+         webSkel.setDomElementForPages(pageContent);
+         window.location = "";
     }
     navigateToLandingPage(){
         webSkel.setDomElementForPages(pageContent);
         window.location = "";
     }
-    createUser(){
 
+    verifyConfirmationLink(){
+        console.log("link verified!");
     }
 }
