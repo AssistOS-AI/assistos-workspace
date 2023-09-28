@@ -319,14 +319,19 @@ body {
 .add-button {
     cursor: pointer;
     min-width: fit-content;
-    color: #0618D1;
-    font-family: Poppins;
-    font-size: 14px;
-    font-style: normal;
-    font-weight: 700;
-    line-height: normal;
     align-items: center;
     display: flex;
+
+    color: #307AB4;
+    font-family: Poppins, serif;
+    font-size: 16px;
+    font-style: normal;
+    font-weight: 600;
+    line-height: normal;
+    border-radius: 6px;
+    border: 1px solid #307AB4;
+    padding: 6px 11px;
+    gap: 10px;
 }
 
 .add-button svg {
