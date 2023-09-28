@@ -26,8 +26,9 @@
 
 .modal-section {
     display: flex;
-    justify-content: flex-end;
-    padding: 10px 20px 0 0;
+    padding-left: 20px;
+    padding-top: 20px;
+    margin-bottom: 10px;
 }
 
 #page-content {
