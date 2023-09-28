@@ -26,4 +26,8 @@ export class LLM {
     async suggestChapterIdeas(llm) {
 
     }
+
+    static async storeLLM(spaceId, llm) {
+        await storageManager.storeObject(spaceId, "status", "settings.llms", JSON.stringify(llm));
+    }
 }

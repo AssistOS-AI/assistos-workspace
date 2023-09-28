@@ -1,5 +1,5 @@
 import { extractFormInformation } from "../../../WebSkel/utils/form-utils.js";
-import { addUserToLocalStorage } from "../../../WebSkel/utils/authentication-utils.js";
+// import { addUserToLocalStorage } from "../../../WebSkel/utils/authentication-utils.js";
 
 const openDSU = require("opendsu");
 const crypto = openDSU.loadApi("crypto");

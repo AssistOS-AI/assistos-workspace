@@ -1,7 +1,34 @@
 {
   "id": 1,
   "name": "Personal Space",
-  "admins": [],"settings": { "llms": [ { "id": 1, "name": "GPT-3", "apiKeys": [ "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" ], "url": "https://api.openai.com/v1/chat/completions" }, { "id": 2, "name": "GPT-4", "apiKeys": [ "" ], "url": "" } ], "personalities": [ { "id": 1, "name": "Personality 1", "description": "This is a personality" }, { "id": 2, "name": "Personality 2", "description": "This is another personality" } ] },
+  "admins": [],
+  "settings": {
+      "llms": [
+       {
+         "id": 1,
+         "name": "GPT-3",
+         "apiKeys": ["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"],
+         "url": "https://api.openai.com/v1/chat/completions"
+       },
+       {
+         "id": 2,
+         "name": "GPT-4",
+         "apiKeys": [],
+         "url": " "
+       }
+      ],
+  "personalities": [
+     {
+         "id": 1,
+         "name": "Personality 1",
+         "description": "This is a personality"
+     },
+     {
+         "id": 2,
+         "name": "Personality 2",
+         "description": "This is another personality"
+     }
+  ] },
   "announcements": [
     {
       "id": 1,

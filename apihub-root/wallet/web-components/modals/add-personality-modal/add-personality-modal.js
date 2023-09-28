@@ -9,7 +9,7 @@ export class addPersonalityModal {
                 this.invalidate();
             }, 0);
         }
-        this.updateState = ()=> this.invalidate();
+        this.updateState = () => this.invalidate();
         // webSkel.space.onChange(this.updateState);
     }
 
