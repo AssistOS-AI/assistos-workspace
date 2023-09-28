@@ -1,6 +1,8 @@
 dialog[class="modal"] {
     padding: 0;
-    border:none;
+    border: none;
+    width: 50%;
+    overflow: hidden;
 }
 
 * {
@@ -8,13 +10,18 @@ dialog[class="modal"] {
 }
 
 .modal-content {
-    padding: 20px;
+    padding: 0 20px;
 }
 
 .modal-title {
     color: #000;
     font-size: 18px;
     font-family: Poppins;
+}
+
+.modal-footer {
+    display: flex;
+    justify-content: center;
 }
 
 .close {
@@ -39,6 +46,11 @@ dialog[class="modal"] {
     width: 100%;
     margin: 4px 0 8px;
     padding: 8px;
+}
+
+textarea#description {
+    resize: none;
+    height: 240px;
 }
 
 input::file-selector-button {

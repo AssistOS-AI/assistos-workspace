@@ -50,14 +50,30 @@ async function storeObject(request, response) {
         let data;
         try {
             data = await fsPromises.readFile(filePath, { encoding: 'utf8' });
+            data = JSON.parse(data);
         } catch (error) {
             sendResponse(response, 404, "text/html", error+ ` Error file not found: ${filePath}`);
             return "";
         }
 
         let jsonData = JSON.parse(request.body.toString());
-        let objectString = request.params.objectName;
-        data[objectString].push(jsonData);
+        let currentObject = data;
+        let propertyNames = request.params.objectName.split('.');
+        for (let propertyName of propertyNames) {
+            if (currentObject.hasOwnProperty(propertyName)) {
+                currentObject = currentObject[propertyName];
+            } else {
+                currentObject = undefined;
+                break;
+            }
+        }
+        if(currentObject) {
+            currentObject.push(jsonData);
+        }
+        console.log(currentObject);
+        console.log(data);
+
+        // data[objectString].push(jsonData);
         await saveJSON(response, JSON.stringify(data), filePath);
         sendResponse(response, 200, "text/html", `Success, ${request.body.toString()}`);
         return "";

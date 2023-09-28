@@ -1,6 +1,6 @@
 import { closeModal } from "../../../../WebSkel/utils/modal-utils.js";
 import { extractFormInformation } from "../../../../WebSkel/utils/form-utils.js";
-import { Announcement} from "../../../core/models/announcement.js";
+import { Personality } from "../../../imports.js";
 
 export class addPersonalityModal {
     constructor() {

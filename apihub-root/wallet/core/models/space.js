@@ -40,14 +40,14 @@ export class Space {
     //     this.observers.push(new WeakRef(observerFunction));
     // }
 
-    // notifyObservers() {
-    //     for (const observerRef of this.observers) {
-    //         const observer = observerRef.deref();
-    //         if (observer) {
-    //             observer();
-    //         }
-    //     }
-    // }
+    notifyObservers() {
+        for (const observerRef of this.observers) {
+            const observer = observerRef.deref();
+            if (observer) {
+                observer();
+            }
+        }
+    }
 
     changeSpace(spaceId) {
         window.currentSpaceId = spaceId;
@@ -62,7 +62,6 @@ export class Space {
     }
 
     async addPersonality(personality) {
-        await webSkel.localStorage.addPersonality(personality);
         webSkel.space.settings.personalities.push(personality);
     }
 
