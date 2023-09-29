@@ -8,9 +8,6 @@ export class addScriptModal {
                 this.invalidate();
             }, 0);
         }
-        this.updateState = ()=> {
-            this.invalidate();
-        }
     }
 
     beforeRender() {
@@ -24,10 +21,9 @@ export class addScriptModal {
     async addScript(_target) {
         let formInfo = await extractFormInformation(_target);
         if(formInfo.isValid) {
-            let body = formInfo.data;
-            body.id = Math.floor(Math.random() * 100000).toString();
-            webSkel.space.addScript(body);
-            await storageManager.storeObject(currentSpaceId, "scripts", body.id, JSON.stringify(body));
+            let script = formInfo.data;
+            script.id = Math.floor(Math.random() * 100000).toString();
+            await webSkel.space.addScript(script);
             webSkel.space.notifyObservers();
         }
     }

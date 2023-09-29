@@ -4,12 +4,12 @@ export class chapterUnit {
     constructor(element) {
         this.element = element;
         this.chapterContent = "Chapter's content";
+        this.documentId = window.location.hash.split('/')[1];
         setTimeout(()=> {
             this.invalidate();
             this._document.observeChange(this._document.getNotificationId(), this.invalidate);
         }, 0);
-        this.docId = webSkel.space.currentDocumentId;
-        this._document = webSkel.space.getDocument(this.docId);
+        this._document = webSkel.space.getDocument(this.documentId);
     }
 
     beforeRender() {
@@ -95,11 +95,11 @@ export class chapterUnit {
         let paragraphAbove = currentParagraph.previousSibling;
         let chapter = getClosestParentElement(currentParagraph, "chapter-unit");
         let chapterId = chapter.getAttribute('data-chapter-id');
-        let chapterIndex = this._document.chapters.findIndex(chapter => chapter.id === parseInt(chapterId));
+        let chapterIndex = this._document.chapters.findIndex(chapter => chapter.id === chapterId);
         if(paragraphAbove && paragraphAbove.nodeName === "PARAGRAPH-UNIT") {
             currentParagraph.after(paragraphAbove);
-            let paragraph1Index = this._document.chapters.findIndex(paragraph => paragraph.id === parseInt(currentParagraph.getAttribute('data-paragraph-id')));
-            let paragraph2Index = this._document.chapters.findIndex(paragraph => paragraph.id === parseInt(paragraphAbove.getAttribute('data-paragraph-id')));
+            let paragraph1Index = this._document.chapters.findIndex(paragraph => paragraph.id === currentParagraph.getAttribute('data-paragraph-id'));
+            let paragraph2Index = this._document.chapters.findIndex(paragraph => paragraph.id === paragraphAbove.getAttribute('data-paragraph-id'));
 
             await this._document.swapParagraphs(chapterIndex, paragraph1Index, paragraph2Index);
             await documentFactory.storeDocument(currentSpaceId, this._document);
@@ -111,11 +111,11 @@ export class chapterUnit {
         let paragraphBelow = currentParagraph.nextSibling;
         let chapter = getClosestParentElement(currentParagraph, "chapter-unit");
         let chapterId = chapter.getAttribute('data-chapter-id');
-        let chapterIndex = this._document.chapters.findIndex(chapter => chapter.id === parseInt(chapterId));
+        let chapterIndex = this._document.chapters.findIndex(chapter => chapter.id === chapterId);
         if(paragraphBelow && paragraphBelow.nodeName === "PARAGRAPH-UNIT") {
             paragraphBelow.after(currentParagraph);
-            let paragraph1Index = this._document.chapters.findIndex(paragraph => paragraph.id === parseInt(currentParagraph.getAttribute('data-paragraph-id')));
-            let paragraph2Index = this._document.chapters.findIndex(paragraph => paragraph.id === parseInt(paragraphBelow.getAttribute('data-paragraph-id')));
+            let paragraph1Index = this._document.chapters.findIndex(paragraph => paragraph.id === currentParagraph.getAttribute('data-paragraph-id'));
+            let paragraph2Index = this._document.chapters.findIndex(paragraph => paragraph.id === paragraphBelow.getAttribute('data-paragraph-id'));
             await this._document.swapParagraphs(chapterIndex, paragraph1Index, paragraph2Index);
             await documentFactory.storeDocument(currentSpaceId, this._document);
         }
@@ -136,7 +136,7 @@ export class chapterUnit {
             paragraph.addEventListener("dblclick", this.enterEditMode.bind(this, paragraph), true);
         });
     }
-    async exitEditMode ([chapterId, paragraphId],event) {
+    async exitEditMode ([chapterId, paragraphId], event) {
         if (this && this.getAttribute("contenteditable") === "true" && !this.contains(event.target)) {
             this.setAttribute("contenteditable", "false");
             let updatedText = this.innerText;

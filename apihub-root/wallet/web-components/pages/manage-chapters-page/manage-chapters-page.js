@@ -1,6 +1,6 @@
-import { closeModal, DocumentModel, showActionBox, showModal } from "../../../imports.js";
+import { closeModal, showActionBox, showModal } from "../../../imports.js";
 
-export class brainstormingPage {
+export class manageChaptersPage {
     constructor(element) {
         this.element = element;
         let url = window.location.hash;
@@ -48,8 +48,8 @@ export class brainstormingPage {
         webSkel.changeToStaticPage(`documents/${this.id}/settings`);
     }
 
-    openBrainstormingPage() {
-        webSkel.changeToStaticPage(`documents/${this.id}/brainstorming`);
+    openManageChaptersPage() {
+        webSkel.changeToStaticPage(`documents/${this.id}/manage-chapters`);
     }
 
     openViewPage() {

@@ -36,17 +36,22 @@ export class Space {
         return JSON.stringify(this, replacer);
     }
 
-    // onChange(observerFunction) {
-    //     this.observers.push(new WeakRef(observerFunction));
-    // }
+    observeChange(elementId, callback) {
+        let obj = {elementId: elementId, callback: callback};
+        this.observers.push(new WeakRef(obj));
+    }
 
-    notifyObservers() {
+    notifyObservers(prefix) {
         for (const observerRef of this.observers) {
             const observer = observerRef.deref();
-            if (observer) {
-                observer();
+            if(observer && observer.elementId.startsWith(prefix)) {
+                observer.callback();
             }
         }
+    }
+
+    getNotificationId(){
+        return "space";
     }
 
     changeSpace(spaceId) {
@@ -159,17 +164,20 @@ export class Space {
         return script || console.error(`Script not found in Settings, scriptId: ${scriptId}`);
     }
 
-    addScript(script) {
+    async addScript(script) {
         this.scripts.push(script);
+        await storageManager.storeObject(currentSpaceId, "scripts", script.id, JSON.stringify(script));
     }
 
-    deleteScript(scriptId) {
+    async deleteScript(scriptId) {
         this.scripts = this.scripts.filter(script => script.id !== scriptId);
+        await storageManager.storeObject(currentSpaceId, "scripts", scriptId, "");
     }
 
-    updateScript(scriptId, content) {
+    async updateScript(scriptId, content) {
         let script = this.getScript(scriptId);
         script.content = content;
+        await storageManager.storeObject(currentSpaceId, "scripts", script.id, JSON.stringify(script));
     }
 
     getLLMs() {

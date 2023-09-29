@@ -36,19 +36,19 @@
       "className": "documentSettingsPage"
     },
     {
-      "name": "brainstorming-page",
-      "path": "./web-components/pages/brainstorming-page/brainstorming-page.js",
-      "className": "brainstormingPage"
+      "name": "manage-chapters-page",
+      "path": "./web-components/pages/manage-chapters-page/manage-chapters-page.js",
+      "className": "manageChaptersPage"
     },
     {
-      "name": "chapter-brainstorming-page",
-      "path": "./web-components/pages/chapter-brainstorming-page/chapter-brainstorming-page.js",
-      "className": "chapterBrainstormingPage"
+      "name": "manage-paragraphs-page",
+      "path": "./web-components/pages/manage-paragraphs-page/manage-paragraphs-page.js",
+      "className": "manageParagraphsPage"
     },
     {
-      "name": "paragraph-brainstorming-page",
-      "path": "./web-components/pages/paragraph-brainstorming-page/paragraph-brainstorming-page.js",
-      "className": "paragraphBrainstormingPage"
+      "name": "paragraph-edit-page",
+      "path": "./web-components/pages/paragraph-edit-page/paragraph-edit-page.js",
+      "className": "paragraphEditPage"
     },
     {
       "name": "paragraph-proofread-page",
@@ -262,16 +262,16 @@
       "path": "./wallet/web-components/pages/document-settings-page/document-settings-page.html"
     },
     {
-      "name": "brainstorming-page",
-      "path": "./wallet/web-components/pages/brainstorming-page/brainstorming-page.html"
+      "name": "manage-chapters-page",
+      "path": "./wallet/web-components/pages/manage-chapters-page/manage-chapters-page.html"
     },
     {
-      "name": "chapter-brainstorming-page",
-      "path": "./wallet/web-components/pages/chapter-brainstorming-page/chapter-brainstorming-page.html"
+      "name": "manage-paragraphs-page",
+      "path": "./wallet/web-components/pages/manage-paragraphs-page/manage-paragraphs-page.html"
     },
     {
-      "name": "paragraph-brainstorming-page",
-      "path": "./wallet/web-components/pages/paragraph-brainstorming-page/paragraph-brainstorming-page.html"
+      "name": "paragraph-edit-page",
+      "path": "./wallet/web-components/pages/paragraph-edit-page/paragraph-edit-page.html"
     },
     {
       "name": "paragraph-proofread-page",
