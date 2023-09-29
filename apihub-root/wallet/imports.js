@@ -11,14 +11,14 @@ import { documentsPage } from "./web-components/pages/documents-page/documents-p
 import { documentViewPage } from "./web-components/pages/document-view-page/document-view-page.js";
 import { editTitlePage } from "./web-components/pages/edit-title-page/edit-title-page.js";
 import { chapterTitlePage } from "./web-components/pages/chapter-title-page/chapter-title-page.js";
-import { chapterBrainstormingPage } from "./web-components/pages/chapter-brainstorming-page/chapter-brainstorming-page.js";
-import { paragraphBrainstormingPage } from "./web-components/pages/paragraph-brainstorming-page/paragraph-brainstorming-page.js";
+import { manageParagraphsPage } from "./web-components/pages/manage-paragraphs-page/manage-paragraphs-page.js";
+import { paragraphEditPage } from "./web-components/pages/paragraph-edit-page/paragraph-edit-page.js";
 import { paragraphProofreadPage } from "./web-components/pages/paragraph-proofread-page/paragraph-proofread-page.js";
 import { editAbstractPage } from "./web-components/pages/edit-abstract-page/edit-abstract-page.js";
 import { proofReaderPage } from "./web-components/pages/proof-reader-page/proof-reader-page.js";
 import { spacePage } from "./web-components/pages/space-page/space-page.js";
 import { documentSettingsPage } from "./web-components/pages/document-settings-page/document-settings-page.js";
-import { brainstormingPage } from "./web-components/pages/brainstorming-page/brainstorming-page.js";
+import { manageChaptersPage } from "./web-components/pages/manage-chapters-page/manage-chapters-page.js";
 import { llmsPage } from "./web-components/subpages/llms-page/llms-page.js";
 import { personalitiesPage } from "./web-components/subpages/personalities-page/personalities-page.js";
 import { announcementsPage } from "./web-components/subpages/announcements-page/announcements-page.js";
@@ -60,11 +60,11 @@ export {
     spacePage,
     documentSettingsPage,
     chapterTitlePage,
-    chapterBrainstormingPage,
+    manageParagraphsPage,
     paragraphProofreadPage,
-    paragraphBrainstormingPage,
+    paragraphEditPage,
     chapterUnit,
-    brainstormingPage,
+    manageChaptersPage,
     llmsPage,
     personalitiesPage,
     announcementsPage,

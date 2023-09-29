@@ -1,3 +1,5 @@
+import {Chapter} from "../../../imports.js";
+
 export class documentViewPage {
     constructor() {
         this.docTitle = "Documents";
@@ -48,35 +50,38 @@ export class documentViewPage {
         webSkel.changeToStaticPage(`documents/${this.id}/settings`);
     }
 
-    openBrainstormingPage() {
-        webSkel.changeToStaticPage(`documents/${this.id}/brainstorming`);
+    openManageChaptersPage() {
+
+        webSkel.changeToStaticPage(`documents/${this.id}/manage-chapters`);
     }
 
     openChapterTitlePage() {
         webSkel.changeToStaticPage(`documents/${this.id}/edit-chapter-title/${webSkel.space.currentChapterId}`);
     }
 
-    openChapterBrainstormingPage() {
-        webSkel.changeToStaticPage(`documents/${this.id}/chapter-brainstorming/${webSkel.space.currentChapterId}`);
+    openManageParagraphsPage() {
+        webSkel.changeToStaticPage(`documents/${this.id}/manage-paragraphs/${webSkel.space.currentChapterId}`);
     }
 
     openParagraphProofreadPage() {
         webSkel.changeToStaticPage(`documents/${this.id}/paragraph-proofread/${webSkel.space.currentChapterId}/${webSkel.space.currentParagraphId}`);
     }
 
-    openParagraphBrainstormingPage() {
-        webSkel.changeToStaticPage(`documents/${this.id}/paragraph-brainstorming/${webSkel.space.currentChapterId}/${webSkel.space.currentParagraphId}`);
+    openParagraphEditPage() {
+        webSkel.changeToStaticPage(`documents/${this.id}/paragraph-edit/${webSkel.space.currentChapterId}/${webSkel.space.currentParagraphId}`);
     }
 
     async addChapter() {
         const crypto = require("opendsu").loadAPI("crypto");
         this.chapterDivs += `<chapter-unit data-chapter-title="New Chapter" data-chapter-id="${this.chapters.length}" data-presenter="chapter-unit"></chapter-unit>`;
+
         let chapterObj= {
             title: "New Chapter",
             id: crypto.getRandomSecret(16).toString().split(",").join(""),
             paragraphs: [{id: crypto.getRandomSecret(16).toString().split(",").join(""), text: "Edit your paragraph here"}]
         }
-        this._document.addChapter(chapterObj);
+
+        this._document.addChapter(new Chapter(chapterObj));
         await documentFactory.storeDocument(currentSpaceId, this._document);
         this.invalidate();
     }

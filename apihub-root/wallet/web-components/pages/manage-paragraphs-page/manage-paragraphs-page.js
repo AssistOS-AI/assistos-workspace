@@ -1,11 +1,11 @@
-import { closeModal, DocumentModel, showActionBox } from "../../../imports.js";
+import { closeModal, showActionBox } from "../../../imports.js";
 
-export class paragraphBrainstormingPage {
+export class manageParagraphsPage {
     constructor() {
         let url = window.location.hash;
         this.docId =  url.split('/')[1];
         this.chapterId = url.split('/')[3];
-        this.paragraphId = url.split('/')[4];
+        this.docTitle = "Titlu document";
         this._document = webSkel.space.getDocument(this.docId);
         if(this._document) {
             setTimeout(()=> {
@@ -13,13 +13,14 @@ export class paragraphBrainstormingPage {
             }, 0);
             this._chapter = this._document.getChapter(this.chapterId);
             if(this._chapter) {
-                this._paragraph = this._document.getParagraph(this.chapterId, this.paragraphId);
-                this.paragraphDiv = this._paragraph;
-                this._document.observeChange(this._paragraph.getNotificationId(this.chapterId), this.updateState);
-            } else {
+                this.chapterTitle = this._chapter.title;
+                this._document.observeChange(this._chapter.getNotificationId(), this.updateState);
+            }
+            else {
                 console.log(`this chapter doesnt exist: chapterId: ${this.chapterId}`);
             }
-        } else {
+        }
+        else {
             console.log(`this _document doesnt exist: docId: ${this.docId}`);
         }
         this.updateState = ()=> {
@@ -27,12 +28,8 @@ export class paragraphBrainstormingPage {
             if(this._document) {
                 this._chapter = this._document.getChapter(this.chapterId);
                 if(this._chapter) {
-                    this.chapterTitle = this._document.getChapterTitle(this.chapterId);
-                } else {
-                    console.log(`this chapter doesnt exist: ${this.chapterId}`);
+                    this.chapterTitle = this._chapter.title;
                 }
-            } else {
-                console.log(`this _document doesnt exist: ${this.docId}`);
             }
             this.invalidate();
         }
@@ -54,20 +51,20 @@ export class paragraphBrainstormingPage {
         }
     }
 
+    openChapterTitlePage() {
+        webSkel.changeToStaticPage(`documents/${this.docId}/edit-chapter-title/${this.chapterId}`);
+    }
+
+    openManageParagraphsPage() {
+        webSkel.changeToStaticPage(`documents/${this.docId}/manage-paragraphs/${this.chapterId}`);
+    }
+
     openViewPage() {
         webSkel.changeToStaticPage(`documents/${this.docId}`);
     }
 
     closeModal(_target) {
         closeModal(_target);
-    }
-
-    openParagraphProofreadPage() {
-        webSkel.changeToStaticPage(`documents/${this.docId}/paragraph-proofread/${this.chapterId}/${this.paragraphId}`);
-    }
-
-    openParagraphBrainstormingPage() {
-        webSkel.changeToStaticPage(`documents/${this.docId}/paragraph-brainstorming/${this.chapterId}/${this.paragraphId}`);
     }
 
     async showActionBox(_target, primaryKey, componentName, insertionMode) {

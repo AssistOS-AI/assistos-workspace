@@ -12,12 +12,10 @@ export class scriptsPage {
         if (webSkel.space.scripts) {
             setTimeout(() => {
                 this.invalidate();
+                webSkel.space.observeChange(webSkel.space.getNotificationId(),this.invalidate);
             }, 0);
         }
-        this.updateState = ()=> {
-            this.invalidate();
-        }
-        // webSkel.space.onChange(this.updateState);
+
     }
 
     beforeRender() {
@@ -43,9 +41,8 @@ export class scriptsPage {
     async deleteAction(_target){
         let script = reverseQuerySelector(_target, "script-unit");
         let scriptId = script.getAttribute("data-id");
-        webSkel.space.deleteScript(scriptId);
-        await storageManager.storeObject(currentSpaceId, "scripts", scriptId, "");
-        //webSkel.space.notifyObservers();
+        await webSkel.space.deleteScript(scriptId);
+        this.invalidate();
     }
 
     async showActionBox(_target, primaryKey, componentName, insertionMode) {

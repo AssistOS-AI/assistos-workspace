@@ -9,9 +9,6 @@ export class editScriptModal {
                 this.invalidate();
             }, 0);
         }
-        this.updateState = ()=> {
-            this.invalidate();
-        }
     }
 
     beforeRender() {
@@ -27,9 +24,8 @@ export class editScriptModal {
     async saveScript(_target) {
         let body = reverseQuerySelector(_target,".modal-body").innerText;
         let scriptId = this.element.getAttribute("data-id");
-        webSkel.space.updateScript(scriptId, body);
-        await storageManager.storeObject(currentSpaceId, "scripts", scriptId, JSON.stringify(webSkel.space.getScript(scriptId)));
+        await webSkel.space.updateScript(scriptId, body);
         closeModal(_target);
-        //webSkel.space.notifyObservers();
+        webSkel.space.notifyObservers();
     }
 }

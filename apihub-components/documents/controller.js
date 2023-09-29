@@ -52,11 +52,11 @@ async function getDocumentSettingsPage(request, response) {
     response.end();
 }
 
-async function getDocumentBrainstormingPage(request, response) {
+async function getManageChaptersPage(request, response) {
     const documentId = request.params.documentId;
     let documentPage = "";
     documentPage += `
-                <brainstorming-page data-document-id="${documentId}" data-presenter="brainstorming-page"></brainstorming-page>
+                <manage-chapters-page data-document-id="${documentId}" data-presenter="manage-chapters-page"></manage-chapters-page>
                 `
 
     response.statusCode = 200;
@@ -79,13 +79,13 @@ async function getChapterTitlePage(request, response) {
     response.end();
 }
 
-async function getChapterBrainstormingPage(request, response) {
+async function getManageParagraphsPage(request, response) {
     const documentId = request.params.documentId;
     const chapterId = request.params.chapterId;
     let documentPage = "";
     documentPage += `
-                <chapter-brainstorming-page data-document-id="${documentId}" data-chapter-id="${chapterId}" data-presenter="chapter-brainstorming-page"></chapter-brainstorming-page>
-                `
+                <manage-paragraphs-page data-document-id="${documentId}" data-chapter-id="${chapterId}" data-presenter="manage-paragraphs-page"></manage-paragraphs-page>
+                `;
 
     response.statusCode = 200;
     response.setHeader("Content-Type", "text/html");
@@ -108,13 +108,13 @@ async function getParagraphProofreadPage(request, response) {
     response.end();
 }
 
-async function getParagraphBrainstormingPage(request, response) {
+async function getParagraphEditPage(request, response) {
     const documentId = request.params.documentId;
     const chapterId = request.params.chapterId;
     const paragraphId = request.params.paragraphId;
     let documentPage = "";
     documentPage += `
-                <paragraph-brainstorming-page data-document-id="${documentId}" data-chapter-id="${chapterId}" data-paragraph-id="${paragraphId}" data-presenter="paragraph-brainstorming-page"></paragraph-brainstorming-page>
+                <paragraph-edit-page data-document-id="${documentId}" data-chapter-id="${chapterId}" data-paragraph-id="${paragraphId}" data-presenter="paragraph-edit-page"></paragraph-edit-page>
                 `
 
     response.statusCode = 200;
@@ -128,9 +128,9 @@ module.exports = {
     getDocumentTitlePage,
     getDocumentAbstractPage,
     getDocumentSettingsPage,
-    getDocumentBrainstormingPage,
+    getManageChaptersPage,
     getChapterTitlePage,
-    getChapterBrainstormingPage,
+    getManageParagraphsPage,
     getParagraphProofreadPage,
-    getParagraphBrainstormingPage,
+    getParagraphEditPage,
 };

@@ -1,6 +1,6 @@
 import { closeModal } from "../../../../WebSkel/utils/modal-utils.js";
 import { extractFormInformation } from "../../../../WebSkel/utils/form-utils.js";
-import { brainstormingPage, Chapter, DocumentModel } from "../../../imports.js";
+import { Chapter } from "../../../imports.js";
 
 export class addChapterModal {
     constructor() {
