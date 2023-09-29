@@ -26,9 +26,7 @@ export class addScriptModal {
         if(formInfo.isValid) {
             let body = formInfo.data;
             body.id = Math.floor(Math.random() * 100000).toString();
-            webSkel.space.addScript(body);
-            await storageManager.storeObject(currentSpaceId, "scripts", body.id, JSON.stringify(body));
-            webSkel.space.notifyObservers();
+            await webSkel.space.addScript(body);
         }
     }
 }

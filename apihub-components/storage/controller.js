@@ -45,51 +45,15 @@ async function loadObject(request, response) {
 }
 
 async function storeObject(request, response) {
-    if(request.params.objectType === "status") {
-        const filePath = `../apihub-root/spaces/${request.params.spaceId}/${request.params.objectType}/${request.params.objectType}.json`;
-        let data;
-        try {
-            data = await fsPromises.readFile(filePath, { encoding: 'utf8' });
-            data = JSON.parse(data);
-        } catch (error) {
-            sendResponse(response, 404, "text/html", error+ ` Error file not found: ${filePath}`);
-            return "";
-        }
-        let jsonData = JSON.parse(request.body.toString());
-        let currentObject = data;
-        let propertyNames = request.params.objectName.split('.');
-        for (let propertyName of propertyNames) {
-            if (currentObject.hasOwnProperty(propertyName)) {
-                currentObject = currentObject[propertyName];
-            } else {
-                currentObject = undefined;
-                break;
-            }
-        }
-        if(currentObject) {
-            let index = currentObject.findIndex((item) => item.id === jsonData.id);
-            if(index !== -1) {
-                currentObject[index] = jsonData;
-            }
-            else {
-                currentObject.push(jsonData);
-            }
-        }
-        await saveJSON(response, JSON.stringify(data), filePath);
-        sendResponse(response, 200, "text/html", `Success, ${request.body.toString()}`);
-        return "";
-    } else {
         const filePath = `../apihub-root/spaces/${request.params.spaceId}/${request.params.objectType}/${request.params.objectName}.json`;
         if(request.body.toString() === "") {
             await fsPromises.unlink(filePath);
             sendResponse(response, 200, "text/html", `Deleted successfully ${request.params.objectName}`);
-            return "";
+            return;
         }
         let jsonData = JSON.parse(request.body.toString());
         await saveJSON(response, JSON.stringify(jsonData), filePath);
         sendResponse(response, 200, "text/html", `Success, ${request.body.toString()}`);
-        return "";
-    }
 }
 
 async function createFolder(spaceId, data, folderName) {

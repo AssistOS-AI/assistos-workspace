@@ -1,40 +1,77 @@
 {
-    "id": 1,
-    "name": "Personal Space",
-    "admins": [],
-    "settings": {
-        "llms": [
-            {
-                "id": 1,
-                "name": "GPT-3",
-                "apiKeys": ["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"],
-                "url": "https://api.openai.com/v1/chat/completions"
-            },
-            {
-                "id": 2,
-                "name": "GPT-4",
-                "apiKeys": [],
-                "url": " "
-            }
+  "name": "Personal Space",
+  "id": 1,
+  "settings": {
+    "llms": [
+      {
+        "name": "GPT-3",
+        "apiKeys": [
+          "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"
         ],
-        "personalities": [
-            {
-                "id": 1,
-                "name": "Personality 1",
-                "description": "This is a personality"
-            },
-            {
-                "id": 2,
-                "name": "Personality 2",
-                "description": "This is another personality"
-            }
-        ] },
-    "announcements": [
-        {
-            "id": 1,
-            "title": "Welcome to AIAuthor!",
-            "text": "Space Personal Space was successfully created. You can now add documents, users and settings to your space.",
-            "date": "2023-01-31"
-        }
-    ]
+        "key": "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",
+        "url": "https://api.openai.com/v1/chat/completions",
+        "id": 1
+      },
+      {
+        "name": "GPT-4",
+        "apiKeys": [
+          "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"
+        ],
+        "key": "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",
+        "url": "https://api.openai.com/v1/chat/completions",
+        "id": 2
+      },
+      {
+        "name": "dfgsdfg",
+        "apiKeys": [
+          "sdfgsdfgsdg"
+        ],
+        "key": "sdfgsdfgsdg",
+        "url": "sdfgsdfg",
+        "id": 1.7122529101215732e+40
+      },
+      {
+        "name": "test",
+        "apiKeys": [
+          "test"
+        ],
+        "key": "test",
+        "url": "test.com",
+        "id": "1c2ddfd55e1e51340f7725adddd7418b4ccb602bd8813401b9c3fb59ddb9a891"
+      }
+    ],
+    "personalities": [
+      {
+        "name": "Personality 1",
+        "description": "This is a personality",
+        "id": 1
+      },
+      {
+        "name": "Personality 2",
+        "description": "This is another personality",
+        "id": 2
+      },
+      {
+        "name": "asdfasdfasd",
+        "description": "asdfasdf",
+        "id": "2471722269022516854231143235019728196198191"
+      }
+    ],
+    "scripts": []
+  },
+  "admins": [],
+  "announcements": [
+    {
+      "title": "Welcome to AIAuthor!",
+      "id": 1,
+      "date": "2023-01-31",
+      "text": "Space Personal Space was successfully created. You can now add documents, users and settings to your space."
+    },
+    {
+      "title": "asadfasdf",
+      "id": "24518319711720820138362011939523415155235",
+      "date": "2023-09-29",
+      "text": "asdfasdf"
+    }
+  ]
 }

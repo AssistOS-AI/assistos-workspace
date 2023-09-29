@@ -27,14 +27,8 @@ export class addLLMModal {
         let formInfo = await extractFormInformation(_target);
         closeModal(_target);
         if(formInfo.isValid) {
-            let body = formInfo.data;
-            let openDSU = require("opendsu");
-            let crypto = openDSU.loadApi("crypto");
-            body.id = parseInt(crypto.getRandomSecret(16).toString().split(",").join(""));
-            body.apiKeys = [body.key];
-            body.key = undefined;
-            await LLM.storeLLM(currentSpaceId, body);
-            webSkel.space.notifyObservers();
+            let llmData={name:formInfo.data.name,apiKeys:[formInfo.data.key],url:formInfo.data.url, id:webSkel.servicesRegistry.UtilsService.generateRandomHex(32)};
+            await webSkel.space.storeLLM(llmData);
         }
     }
 }
