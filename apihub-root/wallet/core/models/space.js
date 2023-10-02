@@ -200,10 +200,6 @@ export class Space {
         await storageManager.storeObject(currentSpaceId, "scripts", script.id, JSON.stringify(script));
     }
 
-    getLLMs() {
-        return this.settings.llms || [];
-    }
-
     getLLM(llmSelector) {
         return this.settings.llms.find(llm => llm.name === llmSelector || llm.id === parseInt(llmSelector)) || null;
     }

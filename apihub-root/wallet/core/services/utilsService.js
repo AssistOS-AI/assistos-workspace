@@ -8,9 +8,6 @@ export class UtilsService {
     }
 
     generateRandomHex(length) {
-        const randomBytes = this.crypto.generateRandom(length);
-        return Array.from(randomBytes)
-            .map(byte => byte.toString(16).padStart(2, '0'))
-            .join('');
+        return this.crypto.getRandomSecret(length);
     }
 }

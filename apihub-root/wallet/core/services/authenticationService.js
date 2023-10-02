@@ -1,6 +1,3 @@
-import { extractFormInformation } from "../../../WebSkel/utils/form-utils.js";
-import {User} from "../../imports.js";
-
 const openDSU = require("opendsu");
 const crypto = openDSU.loadApi("crypto");
 const w3cDID = openDSU.loadAPI("w3cdid");
@@ -77,7 +74,7 @@ export class AuthenticationService{
         return localStorage.getItem("currentUser");
     }
 
-    async createUser(userData) {
+    async registerUser(userData) {
         const randomNr = crypto.generateRandom(32);
         const secretToken = crypto.encrypt(randomNr,crypto.deriveEncryptionKey(userData.password));
         delete userData.password;
@@ -85,11 +82,59 @@ export class AuthenticationService{
         userData.secretToken = secretToken;
         userData.id = crypto.getRandomSecret(32).toString().split(",").join("");
 
-        let result = await storageManager.storeUser(userData.id, JSON.stringify(userData));
-        return result.text();
+        return await storageManager.storeUser(userData.id, JSON.stringify(userData));
 
     }
 
+    async loginUser(email, password){
+        const userString = await this.getStoredUserByEmail(email);
+        try{
+            let userObj = JSON.parse(userString);
+            const userId = userObj.userId;
+
+            let users = this.getCachedUsers();
+            if(users) {
+                for(let user of users){
+                    if(user.userId === userId) {
+                        let secretToken = user.secretToken;
+                        if(this.verifyPassword(secretToken, password)) {
+                            this.setCachedCurrentUser({ userId: userId, secretToken: secretToken });
+                            return true;
+                        } else {
+                            return false;
+                        }
+                    }
+                }
+            }
+            return false;
+
+        }catch (e) {
+            console.log(e);
+            return false;
+        }
+    }
+    async loginFirstTimeUser(email, password){
+        const userString = await this.getStoredUserByEmail(email);
+        try{
+            let userObj = JSON.parse(userString);
+            const userId = userObj.userId;
+            console.log(`First time logging in on this device userId: ${JSON.stringify(userId)}`);
+            const result = await this.getStoredUser(userId);
+            if(this.verifyPassword(result.secretToken, password)) {
+                let user = { userId: userId, secretToken: result.secretToken};
+
+                this.addCachedUser(user);
+                this.setCachedCurrentUser(user);
+                return true;
+            }else {
+                return false;
+            }
+        }catch (e) {
+            console.log(e);
+            return false;
+        }
+
+    }
     async getStoredUser(userId){
         let result = await storageManager.loadUser(userId);
         return result.text();

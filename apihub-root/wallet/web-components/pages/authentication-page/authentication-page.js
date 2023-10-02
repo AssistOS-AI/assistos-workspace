@@ -38,7 +38,7 @@ export class authenticationPage {
                         <input class="form-input" name="password" type="password" data-id="user-password" id="user-password" required placeholder="Add password">
                     </div>
                     <div class="form-footer">
-                        <button class="wide-btn" data-local-action="beginRegistration">Sign Up</button>
+                        <button type="button" class="wide-btn" data-local-action="beginRegistration">Sign Up</button>
                     </div>
                 </form>
            </div>`;
@@ -63,7 +63,7 @@ export class authenticationPage {
                           Forgot password?
                       </div>
                       <div class="form-footer">
-                          <button class="wide-btn" data-action="beginLogin">Log in</button>
+                          <button type="button" class="wide-btn" data-local-action="beginLogin">Log in</button>
                       </div>
                       <div class="suggest-registration">
                           <div>
@@ -90,7 +90,7 @@ export class authenticationPage {
                         <input class="form-input" name="token" type="text" data-email="user-token" id="user-token" required placeholder="Add secret token">
                     </div>
                     <div class="form-footer">
-                        <button class="wide-btn" data-action="verifyConfirmationLink">Log in</button>
+                        <button class="wide-btn" data-local-action="verifyConfirmationLink">Log in</button>
                     </div>
                     <div class="development-mode" data-local-action="navigateToLandingPage">
                         Log in development mode
@@ -122,7 +122,7 @@ export class authenticationPage {
                         <input class="form-input" name="password-confirm" type="password" data-condition="checkPasswordConfirmation" data-id="user-password-confirm" id="user-password-confirm" required placeholder="Confirm new password">
                     </div>
                     <div class="form-footer">
-                        <button class="wide-btn" data-local-action="beginPasswordRecovery">Set New Password</button>
+                        <button type="button" class="wide-btn" data-local-action="beginPasswordRecovery">Set New Password</button>
                     </div>
                 </form>
               </div>`;
@@ -140,7 +140,7 @@ export class authenticationPage {
                         <input class="form-input" name="token" type="text" data-id="user-token" id="user-token" required placeholder="Add secret token">
                     </div>
                     <div class="form-footer">
-                        <button class="wide-btn" data-local-action="verifyConfirmationLink">Log in</button>
+                        <button type="button" class="wide-btn" data-local-action="verifyConfirmationLink">Log in</button>
                     </div>
                     <div class="development-mode" data-local-action="finishPasswordRecovery">
                         Log in development mode
@@ -157,12 +157,13 @@ export class authenticationPage {
         if(formInfo.isValid) {
 
             //const didDocument = await $$.promisify(w3cDID.createIdentity)("key", undefined, randomNr);
-            let result = await webSkel.getService("AuthenticationService").createUser(formInfo.data);
-            if(result){
-                webSkel.getService("AuthenticationService").addCachedUser(result);
+            let response = await webSkel.getService("AuthenticationService").registerUser(formInfo.data);
+            try{
+                webSkel.getService("AuthenticationService").addCachedUser(JSON.parse(response));
                 this.element.setAttribute("data-subpage", "register-confirmation");
-            }else {
-                console.error("Failed to create user");
+                this.invalidate();
+            }catch (e){
+                console.error(e + " :Failed to create user");
             }
         } else {
             console.error("Form invalid");
@@ -172,44 +173,20 @@ export class authenticationPage {
     async beginLogin(_target){
         const formInfo = await extractFormInformation(_target);
         if(formInfo.isValid) {
-            const userObj = await webSkel.getService("AuthenticationService").getStoredUserByEmail(formInfo.data.email);
-            if(typeof userObj === "string") {
-                console.error(`Incorrect email: + ${userObj}`);
-            } else {
-                const userId = userObj.userId;
-
-                let users = webSkel.getService("AuthenticationService").getCachedUsers();
-                if(users) {
-                    users.forEach((user)=> {
-                        if(user.userId === userId) {
-                            let secretToken = user.secretToken;
-                            if(webSkel.getService("AuthenticationService").verifyPassword(secretToken, formInfo.data.password)) {
-
-                                webSkel.getService("AuthenticationService").setCachedCurrentUser({ userId: userId, secretToken: secretToken });
-
-                                window.location = "";
-                                return "";
-                            } else {
-                                console.error("Incorrect password");
-                            }
-                        }
-                    });
-                }
-                console.log(`First time logging in on this device userId: ${JSON.stringify(userId)}`);
-
-                const result = await webSkel.getService("AuthenticationService").getStoredUser(userId);
-                if(webSkel.getService("AuthenticationService").verifyPassword(result.secretToken, formInfo.data.password)) {
-                    let user = { userId: userId, secretToken: result.secretToken};
-
-                    webSkel.getService("AuthenticationService").addCachedUser(user);
-                    webSkel.getService("AuthenticationService").setCachedCurrentUser(user);
+            if(await webSkel.getService("AuthenticationService").loginUser(formInfo.data.email, formInfo.data.password)){
+                window.location = "";
+            }else {
+                if(await webSkel.getService("AuthenticationService").loginFirstTimeUser(formInfo.data.email, formInfo.data.password)){
                     await webSkel.changeToStaticPage(`accounting/login-new-device`);
+                }else {
+                    alert("incorrect email or password");
                 }
             }
         }
     }
     navigateToPasswordRecoveryPage(){
         this.element.setAttribute("data-subpage", "password-recovery");
+        this.invalidate();
     }
     async beginPasswordRecovery(_target){
         const checkPasswordConfirmation = ()=>{
@@ -234,6 +211,7 @@ export class authenticationPage {
                     console.log(result);
                 } else {
                     this.element.setAttribute("data-subpage", "password-recovery-confirmation");
+                    this.invalidate();
                 }
             }
         }

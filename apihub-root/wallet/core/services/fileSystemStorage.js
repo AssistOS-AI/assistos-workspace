@@ -25,7 +25,7 @@ export class FileSystemStorage extends StorageService {
             {
                 method: "GET"
             });
-        return result.text();
+        return await result.text();
     }
 
     async storeObject(spaceId, objectType, objectName, jsonData) {
@@ -51,7 +51,7 @@ export class FileSystemStorage extends StorageService {
 
     async loadSpace(spaceId) {
         const result = await fetch(`/load-space/${spaceId}`, {"method": "GET"});
-        return result.text();
+        return await result.text();
     }
 
     async storeSpace(spaceId, jsonData) {
@@ -68,7 +68,7 @@ export class FileSystemStorage extends StorageService {
         } catch (err) {
             console.error(err);
         }
-        return result.text();
+        return await result.text();
     }
 
     async loadUser(userId){
@@ -76,13 +76,11 @@ export class FileSystemStorage extends StorageService {
             {
                 method: "GET"
             });
-        return result.text();
+        return await result.text();
     }
 
     async storeUser(userId, jsonData) {
-        let result;
-        try {
-            result = await fetch(`/users/${userId}`,
+        let result = await fetch(`/users/${userId}`,
                 {
                     method: "PUT",
                     body: jsonData,
@@ -90,9 +88,7 @@ export class FileSystemStorage extends StorageService {
                         "Content-type": "application/json; charset=UTF-8"
                     }
                 });
-        } catch (err) {
-            console.error(err);
-        }
-        return result.text();
+
+        return await result.text();
     }
 }

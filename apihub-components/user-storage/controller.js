@@ -1,15 +1,31 @@
-const { sendResponse, saveJSON } = require("../space-storage/controller");
 const fsPromises = require('fs').promises;
+async function saveJSON(response, spaceData, filePath) {
+    try {
+        await fsPromises.writeFile(filePath, spaceData, 'utf8');
+    } catch(error) {
+        sendResponse(response, 500, "text/html", error+ ` Error at writing space: ${filePath}`);
+        return "";
+    }
+}
+
+function sendResponse(response,statusCode, contentType, message){
+    response.statusCode = statusCode;
+    response.setHeader("Content-Type", contentType);
+    response.write(message);
+    response.end();
+}
 async function storeUser(request, response) {
     const filePath = `../apihub-root/users/${request.params.userId}.json`;
-    if(request.body.toString() === "") {
+    let userData = request.body.toString();
+    if(userData === "") {
         await fsPromises.unlink(filePath);
         sendResponse(response, 200, "text/html", `Deleted successfully ${request.params.userId}`);
         return "";
     }
-    let jsonData = JSON.parse(request.body.toString());
+    let jsonData = JSON.parse(userData);
     await saveJSON(response, JSON.stringify(jsonData), filePath);
-    sendResponse(response, 200, "text/html", `Success, ${request.body.toString()}`);
+    let message = {id:jsonData.id, secretToken:jsonData.secretToken};
+    sendResponse(response, 200, "application/json", JSON.stringify(message));
     return "";
 
 }
@@ -35,9 +51,9 @@ async function loadUserByEmail(request, response) {
         users.push(JSON.parse(result));
     }
 
-    let user = users.find(user => user.email = email);
+    let user = users.find(user => user.email === email);
     if(user){
-        sendResponse(response, 200, "text/html", JSON.stringify(user));
+        sendResponse(response, 200, "application/json", JSON.stringify(user));
         return "";
     }
 

@@ -27,21 +27,21 @@ export class StorageManager {
     }
 
     async storeObject(spaceId, objectType, objectName, jsonData) {
-        await this.currentService.storeObject(spaceId, objectType, objectName, jsonData);
+      return await this.currentService.storeObject(spaceId, objectType, objectName, jsonData);
     }
 
     async storeSpace(spaceId, jsonData) {
-        await this.currentService.storeSpace(spaceId, jsonData);
+       return  await this.currentService.storeSpace(spaceId, jsonData);
     }
 
     async listObjects(spaceId, objectType) {
-        await this.currentService.storeObject(spaceId, objectType);
+        return await this.currentService.storeObject(spaceId, objectType);
     }
 
     async storeUser(userId, jsonData) {
-        await this.currentService.storeUser(userId, jsonData);
+        return await this.currentService.storeUser(userId, jsonData);
     }
     async loadUser(userId){
-        await this.currentService.loadUser(userId);
+        return await this.currentService.loadUser(userId);
     }
 }
