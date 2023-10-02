@@ -10,18 +10,15 @@ export class llmsPage {
         this.tableRows = "No data loaded";
         this.element = element;
         this._llmConfigs = webSkel.space.getLLMs();
+        this.notificationId="space:space-page:llms";
         if(webSkel.space.settings.llms) {
             this._llmConfigs = webSkel.space.settings.llms;
             setTimeout(()=> {
+                webSkel.space.observeChange(this.notificationId,this.invalidate)
                 this.invalidate();
             }, 0);
         }
-        this.updateState = ()=> {
-            this._llmConfigs = webSkel.space.settings.llms;
-            this.invalidate();
-        }
     }
-
     beforeRender() {
         this.tableRows = "";
         if (this._llmConfigs && this._llmConfigs.length > 0) {

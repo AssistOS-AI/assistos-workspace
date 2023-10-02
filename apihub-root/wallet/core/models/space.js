@@ -219,8 +219,6 @@ export class Space {
     }
     async storeLLM(llmData) {
         this.settings.llms.push(new LLM(llmData.name, llmData.apiKeys, llmData.url, llmData.id));
-        let spaceStatus=webSkel.space.getSpaceStatus();
-        await storageManager.storeObject(currentSpaceId, "status", "status", JSON.stringify(spaceStatus));
-        webSkel.space.notifyObservers();
+        await storageManager.storeObject(currentSpaceId, "status", "status", JSON.stringify(webSkel.space.getSpaceStatus()));
     }
 }
