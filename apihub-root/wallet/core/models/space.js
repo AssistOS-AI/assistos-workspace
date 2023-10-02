@@ -184,7 +184,10 @@ export class Space {
         this.scripts = this.scripts.filter(script => script.id !== scriptId);
         await storageManager.storeObject(currentSpaceId, "scripts", scriptId, "");
     }
-
+    async deleteLLM(llmId) {
+        this.settings.llms = this.settings.llms.filter(llm=> llm.id !== llmId);
+        await storageManager.storeObject(currentSpaceId, "status", "status", JSON.stringify(webSkel.space.getSpaceStatus()));
+    }
     async updateScript(scriptId, content) {
         let script = this.getScript(scriptId);
         script.content = content;
@@ -199,10 +202,6 @@ export class Space {
         return this.settings.llms.find(llm => llm.name === llmSelector || llm.id === parseInt(llmSelector)) || null;
     }
 
-    deleteLLM(llmId) {
-        this.announcements.slice(llmId, 1);
-    }
-
     addLLMKey(llmSelector, key) {
         let llm = this.getLLM(llmSelector);
         if(llm.apiKeys[llm.apiKeys.length - 1] === null) {
@@ -213,12 +212,15 @@ export class Space {
         }
         return llm;
     }
+    editLLM(){
+
+    }
 
     addLLM(llm) {
         this.settings.llms.push(llm);
     }
     async storeLLM(llmData) {
-        this.settings.llms.push(new LLM(llmData.name, llmData.apiKeys, llmData.url, llmData.id));
+        this.settings.llms.push(new LLM(llmData));
         await storageManager.storeObject(currentSpaceId, "status", "status", JSON.stringify(webSkel.space.getSpaceStatus()));
     }
 }

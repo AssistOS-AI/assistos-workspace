@@ -42,7 +42,7 @@ export class FileSystemStorage extends StorageService {
         } catch (err) {
             console.error(err);
         }
-        return result.text();
+        return await result.text();
     }
 
     async listObjects(spaceId, objectType){

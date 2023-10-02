@@ -1,12 +1,12 @@
 import { Space } from "./space.js";
 
 export class LLM {
-    constructor(name, apiKeys, url, id) {
-        this.name = name || undefined;
-        this.apiKeys = apiKeys || [];
+    constructor(llmData) {
+        this.name = llmData.name || undefined;
+        this.apiKeys = llmData.apiKeys || [];
         this.key = this.apiKeys[0] || undefined;
-        this.url = url || undefined;
-        this.id = id || undefined;
+        this.url = llmData.url || undefined;
+        this.id = llmData.id || undefined;
     }
 
     async  suggestTitles(prompt, llmId) {

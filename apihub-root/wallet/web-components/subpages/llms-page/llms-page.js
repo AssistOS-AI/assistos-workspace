@@ -1,4 +1,5 @@
 import { showModal, showActionBox, Space, getClosestParentElement } from "../../../imports.js";
+import {reverseQuerySelector} from "../../../../WebSkel/utils/dom-utils.js";
 
 export class llmsPage {
     constructor(element) {
@@ -7,12 +8,9 @@ export class llmsPage {
         this.url = "Url";
         this.modal = "showAddLLMModal";
         this.button = "Add LLM";
-        this.tableRows = "No data loaded";
         this.element = element;
-        this._llmConfigs = webSkel.space.getLLMs();
         this.notificationId="space:space-page:llms";
         if(webSkel.space.settings.llms) {
-            this._llmConfigs = webSkel.space.settings.llms;
             setTimeout(()=> {
                 webSkel.space.observeChange(this.notificationId,this.invalidate)
                 this.invalidate();
@@ -21,9 +19,9 @@ export class llmsPage {
     }
     beforeRender() {
         this.tableRows = "";
-        if (this._llmConfigs && this._llmConfigs.length > 0) {
-            this._llmConfigs.forEach((item) => {
-                this.tableRows += `<llm-unit data-name="${item.name}" data-key="${item.key}" data-url="${item.url}" data-primary-key="${item.id}"></llm-unit>`;
+        if (webSkel.space.settings.llms.length > 0) {
+            webSkel.space.settings.llms.forEach((item) => {
+                this.tableRows += `<llm-unit data-name="${item.name}" data-key="${item.key}" data-url="${item.url}" data-id="${item.id}"></llm-unit>`;
             });
         } else {
             this.tableRows = `<llm-unit data-name="No data loaded"></llm-unit>`;
@@ -38,8 +36,14 @@ export class llmsPage {
         await showActionBox(_target, primaryKey, componentName, insertionMode);
     }
 
+    getLLMId(_target){
+       return reverseQuerySelector(_target, "llm-unit").getAttribute("data-id");
+    }
     async editAction(_target) {
-        let id = getClosestParentElement(_target, "action-box").getAttribute("id");
-        await showModal(document.querySelector("body"), "edit-llm-key-modal", { presenter: "edit-llm-key-modal", id: id});
+        await showModal(document.querySelector("body"), "edit-llm-key-modal", {presenter: "edit-llm-key-modal", id: this.getLLMId(_target)});
+    }
+    async deleteAction(_target){
+        await webSkel.space.deleteLLM(this.getLLMId(_target));
+        this.invalidate();
     }
 }
