@@ -70,4 +70,29 @@ export class FileSystemStorage extends StorageService {
         }
         return result.text();
     }
+
+    async loadUser(userId){
+        const result = await fetch(`/users/${userId}`,
+            {
+                method: "GET"
+            });
+        return result.text();
+    }
+
+    async storeUser(userId, jsonData) {
+        let result;
+        try {
+            result = await fetch(`/users/${userId}`,
+                {
+                    method: "PUT",
+                    body: jsonData,
+                    headers: {
+                        "Content-type": "application/json; charset=UTF-8"
+                    }
+                });
+        } catch (err) {
+            console.error(err);
+        }
+        return result.text();
+    }
 }

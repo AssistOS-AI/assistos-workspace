@@ -39,6 +39,7 @@ export class Space {
     observeChange(elementId, callback) {
         let obj = {elementId: elementId, callback: callback};
         this.observers.push(new WeakRef(obj));
+
     }
 
     notifyObservers(prefix) {
@@ -56,9 +57,10 @@ export class Space {
 
     changeSpace(spaceId) {
         window.currentSpaceId = spaceId;
-        let user = JSON.parse(localStorage.getItem("currentUser"));
+
+        let user = JSON.parse(webSkel.getService("AuthenticationService").getCachedCurrentUser());
         user.currentSpaceId = currentSpaceId;
-        localStorage.setItem("currentUser", JSON.stringify(user));
+        webSkel.getService("AuthenticationService").setCachedCurrentUser(user);
         window.location = "";
     }
 

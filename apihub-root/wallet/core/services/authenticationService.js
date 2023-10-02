@@ -84,13 +84,15 @@ export class AuthenticationService{
 
         userData.secretToken = secretToken;
         userData.id = crypto.getRandomSecret(32).toString().split(",").join("");
-        // let result = await storageManager.storeObject(currentSpaceId, "users", userData.id, JSON.stringify(userData));
-        // return result.text();
-        return `user created: ${userData}`;
+
+        let result = await storageManager.storeUser(userData.userId, JSON.stringify(userData));
+        return result.text();
+
     }
 
     async getStoredUser(userId){
-        //call storage service
+        let result = await storageManager.loadUser(userId);
+        return result.text();
     }
 
     async getStoredUserByEmail(email){
@@ -98,6 +100,7 @@ export class AuthenticationService{
     }
 
     async updateStoredUser(updatedUser){
-        //call storage service
+        let result = await storageManager.storeUser(updatedUser.userId, JSON.stringify(updatedUser));
+        return result.text();
     }
 }

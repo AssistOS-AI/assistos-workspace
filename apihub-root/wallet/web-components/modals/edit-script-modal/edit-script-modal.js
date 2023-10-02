@@ -26,6 +26,6 @@ export class editScriptModal {
         let scriptId = this.element.getAttribute("data-id");
         await webSkel.space.updateScript(scriptId, body);
         closeModal(_target);
-        webSkel.space.notifyObservers();
+        webSkel.space.notifyObservers(webSkel.space.getNotificationId());
     }
 }

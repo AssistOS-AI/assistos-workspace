@@ -11,10 +11,6 @@ export class spacePage {
         setTimeout(()=> {
             this.invalidate();
         }, 0);
-        this.updateState = ()=> {
-            this.invalidate();
-        }
-        // webSkel.space.onChange(this.updateState);
     }
 
     async openTab(_target) {

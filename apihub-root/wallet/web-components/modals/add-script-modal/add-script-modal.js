@@ -24,7 +24,8 @@ export class addScriptModal {
             let script = formInfo.data;
             script.id = Math.floor(Math.random() * 100000).toString();
             await webSkel.space.addScript(script);
-            webSkel.space.notifyObservers();
+            webSkel.space.notifyObservers(webSkel.space.getNotificationId());
+            closeModal(_target);
         }
     }
 }

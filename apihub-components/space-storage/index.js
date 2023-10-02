@@ -13,7 +13,7 @@ function bodyReaderMiddleware(req, res, next) {
     });
 }
 
-function Storage(server){
+function SpaceStorage(server){
     const { loadObject, storeObject, loadSpace, storeSpace } = require("./controller");
     server.get("/spaces/:spaceId/:objectType/:objectName", loadObject);
     server.get("/load-space/:spaceId", loadSpace);
@@ -23,4 +23,4 @@ function Storage(server){
     server.put("/spaces/:spaceId", storeSpace);
 }
 
-module.exports = Storage;
+module.exports = SpaceStorage;

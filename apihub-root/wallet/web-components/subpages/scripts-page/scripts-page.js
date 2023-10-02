@@ -11,8 +11,8 @@ export class scriptsPage {
         this.element = element;
         if (webSkel.space.scripts) {
             setTimeout(() => {
-                this.invalidate();
                 webSkel.space.observeChange(webSkel.space.getNotificationId(),this.invalidate);
+                this.invalidate();
             }, 0);
         }
 
