@@ -51,6 +51,12 @@ export class Space {
     }
 
     notifyObservers(prefix) {
+        this.observers = this.observers.reduce((accumulator, item) => {
+            if (item.deref()) {
+                accumulator.push(item);
+            }
+            return accumulator;
+        }, []);
         for (const observerRef of this.observers) {
             const observer = observerRef.deref();
             if(observer && observer.elementId.startsWith(prefix)) {

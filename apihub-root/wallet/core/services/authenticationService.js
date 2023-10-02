@@ -85,7 +85,7 @@ export class AuthenticationService{
         userData.secretToken = secretToken;
         userData.id = crypto.getRandomSecret(32).toString().split(",").join("");
 
-        let result = await storageManager.storeUser(userData.userId, JSON.stringify(userData));
+        let result = await storageManager.storeUser(userData.id, JSON.stringify(userData));
         return result.text();
 
     }

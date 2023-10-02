@@ -1,5 +1,5 @@
 export class spacePage {
-    constructor(element) {
+    constructor(element, invalidate) {
         this.element = element;
         this.pageContent = `<announcements-page data-presenter="announcements-page"></announcements-page>`;
         this.tab = "Announcements";
@@ -8,9 +8,8 @@ export class spacePage {
         this.id3 = "";
         this.id4 = "";
         this.id5 = "";
-        setTimeout(()=> {
-            this.invalidate();
-        }, 0);
+        this.invalidate = invalidate;
+        this.invalidate();
     }
 
     async openTab(_target) {
