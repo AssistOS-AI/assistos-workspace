@@ -178,6 +178,10 @@
     {
       "name": "AuthenticationService",
       "path": "./core/services/authenticationService.js"
+    },
+    {
+      "name": "UtilsService",
+      "path": "./core/services/utilsService.js"
     }
   ],
   "components": [

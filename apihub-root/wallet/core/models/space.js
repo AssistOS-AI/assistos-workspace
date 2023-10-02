@@ -2,7 +2,7 @@
 /* both the user and space know of each other */
 /* the user has a list of spaces, and the space has a list of users */
 
-import { DocumentModel } from "../../imports.js";
+import {DocumentModel, LLM} from "../../imports.js";
 import { User } from "../../imports.js";
 import { Settings } from "../../imports.js";
 import { Announcement } from "../../imports.js";
@@ -27,7 +27,15 @@ export class Space {
         }
         return this.instance;
     }
-
+    getSpaceStatus() {
+        return {
+            name: this.name,
+            id: this.id,
+            settings: this.settings,
+            admins: this.admins,
+            announcements: this.announcements
+        }
+    }
     stringifySpace() {
         function replacer(key, value) {
             if (key === "observers") return undefined;
@@ -167,8 +175,9 @@ export class Space {
     }
 
     async addScript(script) {
-        this.scripts.push(script);
         await storageManager.storeObject(currentSpaceId, "scripts", script.id, JSON.stringify(script));
+        webSkel.space.notifyObservers();
+        this.scripts.push(script);
     }
 
     async deleteScript(scriptId) {
@@ -207,5 +216,11 @@ export class Space {
 
     addLLM(llm) {
         this.settings.llms.push(llm);
+    }
+    async storeLLM(llmData) {
+        this.settings.llms.push(new LLM(llmData.name, llmData.apiKeys, llmData.url, llmData.id));
+        let spaceStatus=webSkel.space.getSpaceStatus();
+        await storageManager.storeObject(currentSpaceId, "status", "status", JSON.stringify(spaceStatus));
+        webSkel.space.notifyObservers();
     }
 }
