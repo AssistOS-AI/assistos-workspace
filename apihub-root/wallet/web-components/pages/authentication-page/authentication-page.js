@@ -155,15 +155,11 @@ export class authenticationPage {
     async beginRegistration(_target){
         const formInfo = await extractFormInformation(_target);
         if(formInfo.isValid) {
-
-            //const didDocument = await $$.promisify(w3cDID.createIdentity)("key", undefined, randomNr);
-            let response = await webSkel.getService("AuthenticationService").registerUser(formInfo.data);
-            try{
-                webSkel.getService("AuthenticationService").addCachedUser(JSON.parse(response));
+            if(await webSkel.getService("AuthenticationService").registerUser(formInfo.data)){
                 this.element.setAttribute("data-subpage", "register-confirmation");
                 this.invalidate();
-            }catch (e){
-                console.error(e + " :Failed to create user");
+            }else{
+                console.error("Failed to create user");
             }
         } else {
             console.error("Form invalid");
@@ -178,6 +174,7 @@ export class authenticationPage {
             }else {
                 if(await webSkel.getService("AuthenticationService").loginFirstTimeUser(formInfo.data.email, formInfo.data.password)){
                     await webSkel.changeToStaticPage(`accounting/login-new-device`);
+                    this.invalidate();
                 }else {
                     alert("incorrect email or password");
                 }
@@ -195,37 +192,26 @@ export class authenticationPage {
             return password.value === confirmPassword.value;
         }
 
-
         const conditions = {"checkPasswordConfirmation": checkPasswordConfirmation };
         const formInfo = await extractFormInformation(_target, conditions);
         if (formInfo.isValid) {
-            const user = await webSkel.getService("AuthenticationService").getStoredUserByEmail(formInfo.data.email);
-            if (typeof user === "string") {
-                console.error(`Incorrect email: + ${user}`);
-            } else {
-                currentUser.userId = user.userId;
-                const randomNr = crypto.generateRandom(32);
-                user.temporarySecretToken = crypto.encrypt(randomNr, crypto.deriveEncryptionKey(formInfo.data.password));
-                const result = await webSkel.getService("AuthenticationService").updateStoredUser(user);
-                if(typeof result === "string") {
-                    console.log(result);
-                } else {
-                    this.element.setAttribute("data-subpage", "password-recovery-confirmation");
-                    this.invalidate();
-                }
+            if(await webSkel.getService("AuthenticationService").recoverPassword(formInfo.data.email, formInfo.data.password)){
+                this.element.setAttribute("data-subpage", "password-recovery-confirmation");
+                this.invalidate();
+            }else {
+                console.log("Failed to recover password");
             }
+        }else {
+            console.log("Form invalid");
         }
 
     }
     async finishPasswordRecovery(){
-         const user = await webSkel.getService("AuthenticationService").getStoredUser(currentUser.userId);
-         user.secretToken = user.temporarySecretToken;
-         delete user.temporarySecretToken;
-         const result = await webSkel.getService("AuthenticationService").updateStoredUser(user);
-         if(typeof result === "string") {
-             console.error(result);
-         }
-         window.location = "";
+        if(await webSkel.getService("AuthenticationService").confirmRecoverPassword(currentUser.userId)){
+            window.location = "";
+        } else{
+            console.error("Failed to confirm password recovery");
+        }
     }
     navigateToLandingPage(){
         window.location = "";

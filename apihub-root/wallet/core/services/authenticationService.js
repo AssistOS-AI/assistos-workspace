@@ -82,8 +82,15 @@ export class AuthenticationService{
         userData.secretToken = secretToken;
         userData.id = crypto.getRandomSecret(32).toString().split(",").join("");
 
-        return await storageManager.storeUser(userData.id, JSON.stringify(userData));
-
+        let response = await storageManager.storeUser(userData.id, JSON.stringify(userData));
+        //const didDocument = await $$.promisify(w3cDID.createIdentity)("key", undefined, randomNr);
+        try{
+            webSkel.getService("AuthenticationService").addCachedUser(JSON.parse(response));
+            return true;
+        }catch (e){
+            console.error(e);
+            return false;
+        }
     }
 
     async loginUser(email, password){
@@ -134,6 +141,41 @@ export class AuthenticationService{
             return false;
         }
 
+    }
+
+    async recoverPassword(email, password){
+        const userString = await this.getStoredUserByEmail(email);
+        try {
+            let userObj = JSON.parse(userString);
+            currentUser.userId = userObj.userId;
+            const randomNr = crypto.generateRandom(32);
+            userObj.temporarySecretToken = crypto.encrypt(randomNr, crypto.deriveEncryptionKey(password));
+            const result = await this.updateStoredUser(userObj);
+            try {
+                console.log(JSON.parse(result));
+                return true;
+            }catch (e){
+                console.error(e);
+                return false;
+            }
+        }catch (e){
+            console.error(e);
+            return false;
+        }
+    }
+
+    async confirmRecoverPassword(userId){
+        const user = await webSkel.getService("AuthenticationService").getStoredUser(userId);
+        user.secretToken = user.temporarySecretToken;
+        delete user.temporarySecretToken;
+        const result = await webSkel.getService("AuthenticationService").updateStoredUser(user);
+        try {
+            console.log(JSON.parse(result));
+            return true;
+        }catch (e){
+            console.error(e);
+            return false;
+        }
     }
     async getStoredUser(userId){
         let result = await storageManager.loadUser(userId);
