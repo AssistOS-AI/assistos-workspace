@@ -9,8 +9,7 @@ export class addAnnouncementModal {
         this.invalidate();
     }
 
-    beforeRender() {
-    }
+    beforeRender() {}
 
     closeModal(_target) {
         closeModal(_target);
@@ -25,9 +24,9 @@ export class addAnnouncementModal {
                 date: new Date().toISOString().split('T')[0],
                 id:webSkel.servicesRegistry.UtilsService.generateRandomHex(16)
             };
-            webSkel.space.addAnnouncement(announcementData);
+            await webSkel.space.addAnnouncement(announcementData);
+            webSkel.space.notifyObservers(webSkel.space.getNotificationId());
+            closeModal(_target);
         }
-        closeModal(_target);
-        webSkel.space.notifyObservers(webSkel.space.getNotificationId());
     }
 }

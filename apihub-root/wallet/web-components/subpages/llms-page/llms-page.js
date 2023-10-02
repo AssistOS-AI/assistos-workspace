@@ -5,6 +5,7 @@ export class llmsPage {
     constructor(element,invalidate) {
         this.modal = "showAddLLMModal";
         this.notificationId="space:space-page:llms";
+        webSkel.space.observeChange(this.notificationId,invalidate);
         this.invalidate=invalidate;
         this.invalidate();
     }

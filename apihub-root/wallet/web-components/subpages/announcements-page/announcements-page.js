@@ -3,6 +3,8 @@ import {reverseQuerySelector} from "../../../../WebSkel/utils/dom-utils.js";
 
 export class announcementsPage {
     constructor(element,invalidate) {
+        this.notificationId="space:space-page:announcements"
+        webSkel.space.observeChange(this.notificationId,invalidate);
         this.invalidate=invalidate;
         this.invalidate();
     }
@@ -13,7 +15,7 @@ export class announcementsPage {
                 this.announcementsContainer += `<announcement-unit data-title="${announcement.title}" data-content="${announcement.text}" data-date="${announcement.date}" data-id="${announcement.id}"></announcement-unit>`;
             });
         }else{
-            this.announcementsContainer="No announcements for now";
+            this.announcementsContainer=`<div class="no-data-loaded">No announcements for now</div>`;
         }
     }
     async showAddAnnouncementModal() {

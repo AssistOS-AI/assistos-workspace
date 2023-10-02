@@ -3,7 +3,6 @@ import { reverseQuerySelector } from "../../../../WebSkel/utils/dom-utils.js";
 
 export class scriptsPage {
     constructor(element, invalidate) {
-        this.modal = "showAddScriptModal";
         this.notificationId = "space:space-page:scripts";
         webSkel.space.observeChange(this.notificationId,invalidate);
         this.invalidate = invalidate;
