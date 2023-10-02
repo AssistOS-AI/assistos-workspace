@@ -2,20 +2,17 @@ import { showModal, showActionBox } from "../../../imports.js";
 import { reverseQuerySelector } from "../../../../WebSkel/utils/dom-utils.js";
 
 export class scriptsPage {
-    constructor(element) {
+    constructor(element, invalidate) {
         this.name = "Name";
         this.preview = "Preview";
         this.modal = "showAddScriptModal";
         this.button = "Add Script";
         this.tableRows = "No data loaded";
         this.element = element;
-        if (webSkel.space.scripts) {
-            setTimeout(() => {
-                webSkel.space.observeChange(webSkel.space.getNotificationId(),this.invalidate);
-                this.invalidate();
-            }, 0);
-        }
-
+        this.notificationId = "space:space-page:scripts";
+        webSkel.space.observeChange(this.notificationId,invalidate);
+        this.invalidate = invalidate;
+        this.invalidate();
     }
 
     beforeRender() {
