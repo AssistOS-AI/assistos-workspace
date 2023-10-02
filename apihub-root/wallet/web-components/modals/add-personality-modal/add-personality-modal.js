@@ -25,13 +25,13 @@ export class addPersonalityModal {
         let formInfo = await extractFormInformation(_target);
         closeModal(_target);
         if(formInfo.isValid) {
-            let body = formInfo.data;
-            let openDSU = require("opendsu");
-            let crypto = openDSU.loadApi("crypto");
-            body.id = crypto.getRandomSecret(16).toString().split(",").join("");
-            webSkel.space.addPersonality(body);
-            await Personality.storePersonality(currentSpaceId, body);
-            webSkel.space.notifyObservers();
+            let personalityData={
+                    name:formInfo.data.name,
+                    description:formInfo.data.description,
+                    id:webSkel.servicesRegistry.UtilsService.generateRandomHex(16)
+            }
+            webSkel.space.addPersonality(personalityData);
+            webSkel.space.notifyObservers(webSkel.space.getNotificationId());
         }
     }
 }

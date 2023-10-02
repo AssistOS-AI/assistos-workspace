@@ -5,6 +5,8 @@ export class personalitiesPage {
     constructor(element,invalidate) {
         this.modal = "showAddPersonalityModal";
         this.element = element;
+        this.notificationId = "space:space-page:personalities-page";
+        webSkel.space.observeChange(this.notificationId,invalidate);
         this.invalidate=invalidate;
         this.invalidate();
     }

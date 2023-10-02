@@ -2,17 +2,12 @@ import { closeModal } from "../../../../WebSkel/utils/modal-utils.js";
 import { extractFormInformation } from "../../../imports.js";
 
 export class addScriptModal {
-    constructor() {
-        if(webSkel.space.scripts) {
-            setTimeout(()=> {
-                this.invalidate();
-            }, 0);
-        }
+    constructor(element,invalidate) {
+       this.invalidate=invalidate;
+       this.invalidate();
     }
 
-    beforeRender() {
-
-    }
+    beforeRender() {}
 
     closeModal(_target) {
         closeModal(_target);

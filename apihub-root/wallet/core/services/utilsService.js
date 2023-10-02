@@ -6,7 +6,6 @@ export class UtilsService {
         this.crypto = crypto;
         this.w3cDID = openDSU.loadAPI("w3cdid");
     }
-
     generateRandomHex(length) {
         return this.crypto.getRandomSecret(length);
     }
