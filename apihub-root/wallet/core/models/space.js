@@ -1,8 +1,4 @@
-/* pass storage data as constructor parameter */
-/* both the user and space know of each other */
-/* the user has a list of spaces, and the space has a list of users */
-
-import {DocumentModel, LLM} from "../../imports.js";
+import {DocumentModel, LLM, Personality} from "../../imports.js";
 import { User } from "../../imports.js";
 import { Settings } from "../../imports.js";
 import { Announcement } from "../../imports.js";
@@ -71,7 +67,6 @@ export class Space {
 
     changeSpace(spaceId) {
         window.currentSpaceId = spaceId;
-
         let user = JSON.parse(webSkel.getService("AuthenticationService").getCachedCurrentUser());
         user.currentSpaceId = currentSpaceId;
         webSkel.getService("AuthenticationService").setCachedCurrentUser(user);
@@ -83,11 +78,11 @@ export class Space {
     }
 
     async addPersonality(personalityData) {
-        this.settings.personalities.push(new LLM(personalityData));
+        this.settings.personalities.push(new Personality(personalityData));
         await storageManager.storeObject(currentSpaceId, "status", "status", JSON.stringify(webSkel.space.getSpaceStatus()));
     }
     async deletePersonality(personalityId){
-        this.settings.personalities = this.settings.personalities.filter(personality=> personality.id !== personalityId);
+        this.settings.personalities = this.settings.personalities.filter(personality => personality.id !== personalityId);
         await storageManager.storeObject(currentSpaceId, "status", "status", JSON.stringify(webSkel.space.getSpaceStatus()));
     }
 

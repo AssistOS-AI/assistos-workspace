@@ -1,15 +1,10 @@
 import { getClosestParentElement, showModal, Space } from "../../../imports.js";
 
 export class spaceDropdown {
-    constructor(element) {
+    constructor(element,invalidate) {
         this.element = element;
-        setTimeout(()=> {
-            this.invalidate();
-        }, 0);
-        this.updateState = ()=> {
-            this.invalidate();
-        }
-        // webSkel.space.onChange(this.updateState);
+        this.invalidate=invalidate;
+        this.invalidate();
     }
 
     beforeRender() {
@@ -38,7 +33,7 @@ export class spaceDropdown {
         webSkel.space.changeSpace(selectedSpaceId);
     }
 
-    async  addSpace(){
+    async addSpace(){
        await showModal(document.querySelector("body"), "add-space-modal", { presenter: "add-space-modal"});
     }
 }

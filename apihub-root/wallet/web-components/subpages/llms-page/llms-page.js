@@ -2,16 +2,11 @@ import { showModal, showActionBox, Space, getClosestParentElement } from "../../
 import {reverseQuerySelector} from "../../../../WebSkel/utils/dom-utils.js";
 
 export class llmsPage {
-    constructor(element) {
+    constructor(element,invalidate) {
         this.modal = "showAddLLMModal";
-        this.element = element;
         this.notificationId="space:space-page:llms";
-        if(webSkel.space.settings.llms) {
-            setTimeout(()=> {
-                webSkel.space.observeChange(this.notificationId,this.invalidate)
-                this.invalidate();
-            }, 0);
-        }
+        this.invalidate=invalidate;
+        this.invalidate();
     }
     beforeRender() {
         this.tableRows = "";
