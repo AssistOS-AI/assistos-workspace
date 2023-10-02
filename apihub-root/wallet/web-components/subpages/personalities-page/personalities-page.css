@@ -38,3 +38,6 @@
 #page-content {
     padding: 0;
 }
+.no-data-loaded{
+    padding-left: 20px;
+}

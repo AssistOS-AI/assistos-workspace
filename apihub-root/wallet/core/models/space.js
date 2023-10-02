@@ -82,8 +82,13 @@ export class Space {
         return currentUser.spaces.filter(space => space.id !== currentSpaceId) || [];
     }
 
-    async addPersonality(personality) {
-        webSkel.space.settings.personalities.push(personality);
+    async addPersonality(personalityData) {
+        this.settings.personalities.push(new LLM(personalityData));
+        await storageManager.storeObject(currentSpaceId, "status", "status", JSON.stringify(webSkel.space.getSpaceStatus()));
+    }
+    async deletePersonality(personalityId){
+        this.settings.personalities = this.settings.personalities.filter(personality=> personality.id !== personalityId);
+        await storageManager.storeObject(currentSpaceId, "status", "status", JSON.stringify(webSkel.space.getSpaceStatus()));
     }
 
     async summarize(prompt, llmId) {
@@ -167,8 +172,9 @@ export class Space {
         return announcement || console.error(`Announcement not found, announcementId: ${announcementId}`);
     }
 
-    deleteAnnouncement(announcementId) {
-        this.announcements.slice(announcementId, 1);
+    async deleteAnnouncement(announcementId) {
+        this.announcements = this.announcements.filter(announcement=> announcement.id !== announcementId);
+        await storageManager.storeObject(currentSpaceId, "status", "status", JSON.stringify(webSkel.space.getSpaceStatus()));
     }
 
     updateAnnouncement(announcementId, content) {
