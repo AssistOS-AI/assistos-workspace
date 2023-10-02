@@ -5,7 +5,6 @@ export class Announcement {
         this.date = announcementData.date;
         this.text = announcementData.text;
     }
-
     static async storeAnnouncement(spaceId, announcement) {
         await storageManager.storeObject(spaceId, "status", "announcements", JSON.stringify(announcement));
     }

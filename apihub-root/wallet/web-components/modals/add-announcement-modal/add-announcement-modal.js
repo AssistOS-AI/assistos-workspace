@@ -31,6 +31,7 @@ export class addAnnouncementModal {
             let crypto = openDSU.loadApi("crypto");
             body.id = crypto.getRandomSecret(16).toString().split(",").join("");
             body.date = new Date().toISOString().split('T')[0];
+
             webSkel.space.addAnnouncement(body);
             await Announcement.storeAnnouncement(currentSpaceId, body);
             webSkel.space.notifyObservers();

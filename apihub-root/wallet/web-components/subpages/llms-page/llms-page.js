@@ -3,11 +3,7 @@ import {reverseQuerySelector} from "../../../../WebSkel/utils/dom-utils.js";
 
 export class llmsPage {
     constructor(element) {
-        this.key = "Key";
-        this.name = "Name";
-        this.url = "Url";
         this.modal = "showAddLLMModal";
-        this.button = "Add LLM";
         this.element = element;
         this.notificationId="space:space-page:llms";
         if(webSkel.space.settings.llms) {
@@ -36,6 +32,9 @@ export class llmsPage {
         await showActionBox(_target, primaryKey, componentName, insertionMode);
     }
 
+    getComponentAttributeValue(_target,compName,attribute){
+        return reverseQuerySelector(_target, `${compName}`).getAttribute(`${attribute}`);
+    }
     getLLMId(_target){
        return reverseQuerySelector(_target, "llm-unit").getAttribute("data-id");
     }

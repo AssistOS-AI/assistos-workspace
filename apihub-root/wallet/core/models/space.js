@@ -151,8 +151,9 @@ export class Space {
         return document || null;
     }
 
-    addAnnouncement(announcement) {
-        this.scripts.push(announcement);
+    async addAnnouncement(announcementData) {
+        this.announcements.push(new Announcement(announcementData));
+        await storageManager.storeObject(currentSpaceId, "status", "status", JSON.stringify(webSkel.space.getSpaceStatus()));
     }
 
     getAnnouncement(announcementId) {
