@@ -4,18 +4,12 @@ import { extractFormInformation } from "../../../../WebSkel/utils/form-utils.js"
 import { Announcement } from "../../../imports.js";
 
 export class addAnnouncementModal {
-    constructor() {
-        setTimeout(()=> {
-            this.invalidate();
-        }, 0);
-        this.updateState = (spaceState)=> {
-            this.invalidate();
-        }
-        // webSkel.space.onChange(this.updateState);
+    constructor(element,invalidate) {
+        this.invalidate=invalidate;
+        this.invalidate();
     }
 
     beforeRender() {
-
     }
 
     closeModal(_target) {
@@ -24,16 +18,16 @@ export class addAnnouncementModal {
 
     async addAnnouncementSubmitForm(_target) {
         let formInfo = await extractFormInformation(_target);
-        closeModal(_target);
         if(formInfo.isValid) {
-            let body = formInfo.data;
-            let openDSU = require("opendsu");
-            let crypto = openDSU.loadApi("crypto");
-            body.id = crypto.getRandomSecret(16).toString().split(",").join("");
-            body.date = new Date().toISOString().split('T')[0];
-            webSkel.space.addAnnouncement(body);
-            await Announcement.storeAnnouncement(currentSpaceId, body);
-            webSkel.space.notifyObservers();
+            let announcementData={
+                title:formInfo.data.title,
+                text:formInfo.data.text,
+                date: new Date().toISOString().split('T')[0],
+                id:webSkel.servicesRegistry.UtilsService.generateRandomHex(16)
+            };
+            webSkel.space.addAnnouncement(announcementData);
         }
+        closeModal(_target);
+        webSkel.space.notifyObservers(webSkel.space.getNotificationId());
     }
 }

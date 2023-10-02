@@ -24,7 +24,6 @@ export class LLM {
     }
 
     async suggestChapterIdeas(llm) {
-
     }
 
     static async storeLLM(spaceId, llm) {
