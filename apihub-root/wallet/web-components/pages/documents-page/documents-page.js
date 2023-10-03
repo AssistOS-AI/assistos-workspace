@@ -1,4 +1,5 @@
-import { DocumentModel, getClosestParentElement, showActionBox, showModal } from "../../../imports.js";
+import {showActionBox, showModal } from "../../../imports.js";
+import {reverseQuerySelector} from "../../../../WebSkel/utils/dom-utils.js";
 
 export class documentsPage {
     constructor() {
@@ -23,21 +24,20 @@ export class documentsPage {
         }
     }
 
+
+    getDocumentId(_target){
+        return reverseQuerySelector(_target, "document-unit").getAttribute("data-id");
+    }
     async showAddDocumentModal() {
         await showModal(document.querySelector("body"), "add-document-modal", { presenter: "add-document-modal"});
     }
-
     async editAction(_target) {
-        let rowElement = getClosestParentElement(_target,['document-unit']);
-        let documentId = rowElement.getAttribute('data-id');
-        webSkel.space.currentDocumentId = documentId;
-        await webSkel.changeToStaticPage(`documents/${documentId}`);
+        webSkel.space.currentDocumentId = this.getDocumentId(_target);
+        await webSkel.changeToStaticPage(`documents/${webSkel.space.currentDocumentId}`);
     }
 
     async deleteAction(_target){
-        const rowElement = getClosestParentElement(_target, "document-unit");
-        let documentId = rowElement.getAttribute('data-id');
-        await documentFactory.deleteDocument(currentSpaceId, documentId);
+        await documentFactory.deleteDocument(currentSpaceId, this.getDocumentId(_target));
         documentFactory.notifyObservers("docs");
     }
 

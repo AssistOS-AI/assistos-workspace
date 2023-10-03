@@ -18,23 +18,22 @@ export class scriptsPage {
             this.tableRows = `<div class="no-data-loaded">No data loaded</div>`;
         }
     }
-    async showAddScriptModal() {
-        await showModal(document.querySelector("body"), "add-script-modal", { presenter: "add-script-modal"});
-    }
 
-    async editAction(_target){
-        let script = reverseQuerySelector(_target, "script-unit");
-        await showModal(document.querySelector("body"), "edit-script-modal", { presenter: "edit-script-modal", id: script.getAttribute("data-id")});
+    async showActionBox(_target, primaryKey, componentName, insertionMode) {
+        await showActionBox(_target, primaryKey, componentName, insertionMode);
     }
     getScriptId(_target){
         return reverseQuerySelector(_target, "script-unit").getAttribute("data-id");
+    }
+    async showAddScriptModal() {
+        await showModal(document.querySelector("body"), "add-script-modal", { presenter: "add-script-modal"});
+    }
+    async editAction(_target){
+        await showModal(document.querySelector("body"), "edit-script-modal", { presenter: "edit-script-modal", id: this.getScriptId(_target)});
     }
     async deleteAction(_target){
         await webSkel.space.deleteScript(this.getScriptId(_target));
         this.invalidate();
     }
 
-    async showActionBox(_target, primaryKey, componentName, insertionMode) {
-        await showActionBox(_target, primaryKey, componentName, insertionMode);
-    }
 }

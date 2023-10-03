@@ -2,19 +2,15 @@ import { closeModal } from "../../../../WebSkel/utils/modal-utils.js";
 import { reverseQuerySelector } from "../../../../WebSkel/utils/dom-utils.js";
 
 export class editScriptModal {
-    constructor(element) {
+    constructor(element,invalidate) {
         this.element=element;
-        if(webSkel.space.settings.scripts) {
-            setTimeout(()=> {
-                this.invalidate();
-            }, 0);
-        }
+        this.invalidate=invalidate;
+        this.invalidate();
     }
 
     beforeRender() {
       let script = webSkel.space.getScript(this.element.getAttribute("data-id"));
-      this.scriptContent = script.content;
-      this.scriptName = script.name;
+      [this.scriptContent,this.scriptName] = [script.content,script.name];
     }
 
     closeModal(_target) {
@@ -25,7 +21,7 @@ export class editScriptModal {
         let body = reverseQuerySelector(_target,".modal-body").innerText;
         let scriptId = this.element.getAttribute("data-id");
         await webSkel.space.updateScript(scriptId, body);
-        closeModal(_target);
         webSkel.space.notifyObservers(webSkel.space.getNotificationId());
+        closeModal(_target);
     }
 }

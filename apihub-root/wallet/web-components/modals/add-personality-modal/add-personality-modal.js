@@ -20,7 +20,7 @@ export class addPersonalityModal {
             let personalityData={
                     name:formInfo.data.name,
                     description:formInfo.data.description,
-                    id:webSkel.servicesRegistry.UtilsService.generateRandomHex(16)
+                    id:webSkel.servicesRegistry.UtilsService.generateId()
             }
             webSkel.space.addPersonality(personalityData);
             webSkel.space.notifyObservers(webSkel.space.getNotificationId());

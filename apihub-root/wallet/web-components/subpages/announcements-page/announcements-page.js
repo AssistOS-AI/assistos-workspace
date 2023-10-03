@@ -1,4 +1,4 @@
-import { closeModal, showActionBox, showModal } from "../../../imports.js";
+import {showActionBox, showModal } from "../../../imports.js";
 import {reverseQuerySelector} from "../../../../WebSkel/utils/dom-utils.js";
 
 export class announcementsPage {
@@ -18,21 +18,21 @@ export class announcementsPage {
             this.announcementsContainer=`<div class="no-data-loaded">No announcements for now</div>`;
         }
     }
-    async showAddAnnouncementModal() {
-        await showModal(document.querySelector("body"), "add-announcement-modal", { presenter: "add-announcement-modal"});
-    }
-
     async showActionBox(_target, primaryKey, componentName, insertionMode) {
         await showActionBox(_target, primaryKey, componentName, insertionMode);
     }
+
     getAnnouncementId(_target){
         return reverseQuerySelector(_target, "announcement-unit").getAttribute("data-id");
+    }
+    async showAddAnnouncementModal() {
+        await showModal(document.querySelector("body"), "add-announcement-modal", { presenter: "add-announcement-modal"});
     }
     async deleteAction(_target){
             await webSkel.space.deleteAnnouncement(this.getAnnouncementId(_target));
             this.invalidate();
     }
     async editAction(_target){
-
+        await showModal(document.querySelector("body"), "edit-announcement-modal", { presenter: "edit-announcement-modal", id: this.getAnnouncementId(_target)});
     }
 }

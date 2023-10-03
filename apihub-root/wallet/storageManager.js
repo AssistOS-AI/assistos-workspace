@@ -30,6 +30,7 @@ export class StorageManager {
       return await this.currentService.storeObject(spaceId, objectType, objectName, jsonData);
     }
 
+    /* creating a new space */
     async storeSpace(spaceId, jsonData) {
        return  await this.currentService.storeSpace(spaceId, jsonData);
     }

@@ -1,18 +1,19 @@
 import {DocumentModel, LLM, Personality} from "../../imports.js";
 import { User } from "../../imports.js";
 import { Settings } from "../../imports.js";
+import { Script } from "../../imports.js";
 import { Announcement } from "../../imports.js";
 
 export class Space {
     constructor(spaceData) {
-        this.name = spaceData.name || "";
+        this.name = spaceData.name||undefined;
         this.id = spaceData.id || undefined;
         this.settings = spaceData.settings ? new Settings(spaceData.settings) : {llms:[], personalities:[]};
-        this.admins = [];
         this.announcements = (spaceData.announcements || []).map(announcementData => new Announcement(announcementData));
         this.users = (spaceData.users || []).map(userData => new User(userData));
-        this.scripts = spaceData.scripts || [];
+        this.scripts = (spaceData.scripts|| []).map(scriptData => new Script(scriptData));
         this.documents = (spaceData.documents || []).map(documentData => new DocumentModel(documentData));
+        this.admins = [];
         this.observers = [];
         Space.instance = this;
     }
@@ -37,12 +38,12 @@ export class Space {
             if (key === "observers") return undefined;
             else return value;
         }
-        return JSON.stringify(this, replacer);
+        return JSON.stringify(this, replacer,2);
     }
 
     observeChange(elementId, callback) {
         let obj = {elementId: elementId, callback: callback};
-        callback.keepReference = obj;
+        callback.refferenceObject = obj;
         this.observers.push(new WeakRef(obj));
 
     }
@@ -76,15 +77,6 @@ export class Space {
 
     getSpaceNames() {
         return currentUser.spaces.filter(space => space.id !== currentSpaceId) || [];
-    }
-
-    async addPersonality(personalityData) {
-        this.settings.personalities.push(new Personality(personalityData));
-        await storageManager.storeObject(currentSpaceId, "status", "status", JSON.stringify(webSkel.space.getSpaceStatus()));
-    }
-    async deletePersonality(personalityId){
-        this.settings.personalities = this.settings.personalities.filter(personality => personality.id !== personalityId);
-        await storageManager.storeObject(currentSpaceId, "status", "status", JSON.stringify(webSkel.space.getSpaceStatus()));
     }
 
     async summarize(prompt, llmId) {
@@ -144,88 +136,91 @@ export class Space {
             console.log('API call failed:', error);
         }
     }
+    getDocument(documentId) {
+        const document = this.documents.find(document => document.id === documentId);
+        return document || null;
+    }
+    getAnnouncement(announcementId) {
+        let announcement = this.announcements.find((announcement) => announcement.id === announcementId);
+        return announcement || console.error(`Announcement not found, announcementId: ${announcementId}`);
+    }
+    getScript(scriptId) {
+        let script = this.scripts.find((script) => script.id === scriptId);
+        return script || console.error(`Script not found in Settings, scriptId: ${scriptId}`);
+    }
+    getLLM(llmSelector) {
+        return this.settings.llms.find(llm => llm.name === llmSelector || llm.id === parseInt(llmSelector)) || null;
+    }
 
-    addDocument(document) {
-        webSkel.space.documents.push(document);
+   async addDocument(documentData) {
+        let newDocument=documentFactory.createDocument(documentData)
+        await documentFactory.storeDocument(currentSpaceId, newDocument);
+        await webSkel.changeToStaticPage(`documents/${newDocument.id}`);
+    }
+    async addPersonality(personalityData) {
+        this.settings.personalities.push(new Personality(personalityData));
+        await storageManager.storeObject(currentSpaceId, "status", "status", JSON.stringify(webSkel.space.getSpaceStatus(),null,2));
+    }
+    async addAnnouncement(announcementData) {
+        this.announcements.unshift(new Announcement(announcementData));
+        await storageManager.storeObject(currentSpaceId, "status", "status", JSON.stringify(webSkel.space.getSpaceStatus(),null,2));
+    }
+    async addScript(scriptData) {
+        let scriptObject= new Script(scriptData);
+        this.scripts.push(scriptObject);
+        await storageManager.storeObject(currentSpaceId, "scripts", scriptObject.id, JSON.stringify(scriptObject,null,2));
+    }
+    async addLLM(llmData) {
+        this.settings.llms.push(new LLM(llmData));
+        await storageManager.storeObject(currentSpaceId, "status", "status", JSON.stringify(webSkel.space.getSpaceStatus(),null,2));
     }
 
     deleteDocument(documentId) {
         webSkel.space.documents = webSkel.space.documents.filter(obj => obj.id !== documentId);
     }
 
-    getDocument(documentId) {
-        const document = webSkel.space.documents.find(document => document.id === documentId);
-        return document || null;
-    }
-
-    async addAnnouncement(announcementData) {
-        this.announcements.push(new Announcement(announcementData));
-        await storageManager.storeObject(currentSpaceId, "status", "status", JSON.stringify(webSkel.space.getSpaceStatus()));
-    }
-
-    getAnnouncement(announcementId) {
-        let announcement = this.announcements.find((announcement) => announcement.id = announcementId);
-        return announcement || console.error(`Announcement not found, announcementId: ${announcementId}`);
-    }
-
     async deleteAnnouncement(announcementId) {
         this.announcements = this.announcements.filter(announcement=> announcement.id !== announcementId);
-        await storageManager.storeObject(currentSpaceId, "status", "status", JSON.stringify(webSkel.space.getSpaceStatus()));
+        await storageManager.storeObject(currentSpaceId, "status", "status", JSON.stringify(webSkel.space.getSpaceStatus(),null,2));
     }
-
-    updateAnnouncement(announcementId, content) {
-        let announcement = this.getAnnouncement(announcementId);
-        announcement.text = content;
-    }
-
-    getScript(scriptId) {
-        let script = this.scripts.find((script) => script.id = scriptId);
-        return script || console.error(`Script not found in Settings, scriptId: ${scriptId}`);
-    }
-
-    async addScript(script) {
-        await storageManager.storeObject(currentSpaceId, "scripts", script.id, JSON.stringify(script));
-        webSkel.space.notifyObservers();
-        this.scripts.push(script);
-    }
-
     async deleteScript(scriptId) {
         this.scripts = this.scripts.filter(script => script.id !== scriptId);
         await storageManager.storeObject(currentSpaceId, "scripts", scriptId, "");
     }
     async deleteLLM(llmId) {
         this.settings.llms = this.settings.llms.filter(llm=> llm.id !== llmId);
-        await storageManager.storeObject(currentSpaceId, "status", "status", JSON.stringify(webSkel.space.getSpaceStatus()));
+        await storageManager.storeObject(currentSpaceId, "status", "status", JSON.stringify(webSkel.space.getSpaceStatus(),null,2));
+    }
+    async deletePersonality(personalityId){
+        this.settings.personalities = this.settings.personalities.filter(personality => personality.id !== personalityId);
+        await storageManager.storeObject(currentSpaceId, "status", "status", JSON.stringify(webSkel.space.getSpaceStatus(),null,2));
+    }
+
+    async updateAnnouncement(announcementId, content) {
+        let announcement = this.getAnnouncement(announcementId);
+        if(announcement!==null) {
+            announcement.text = content;
+            await storageManager.storeObject(currentSpaceId, "status", "status", JSON.stringify(webSkel.space.getSpaceStatus(),null,2));
+        }else{
+            console.error("Failed to update announcement, announcement not found.");
+        }
     }
     async updateScript(scriptId, content) {
         let script = this.getScript(scriptId);
-        script.content = content;
-        await storageManager.storeObject(currentSpaceId, "scripts", script.id, JSON.stringify(script));
-    }
-
-    getLLM(llmSelector) {
-        return this.settings.llms.find(llm => llm.name === llmSelector || llm.id === parseInt(llmSelector)) || null;
-    }
-
-    addLLMKey(llmSelector, key) {
-        let llm = this.getLLM(llmSelector);
-        if(llm.apiKeys[llm.apiKeys.length - 1] === null) {
-            llm.apiKeys[llm.apiKeys.length - 1] = key;
+        if(script!==null) {
+            script.content = content;
+            await storageManager.storeObject(currentSpaceId, "scripts", script.id, JSON.stringify(script,null,2));
+        }else{
+            console.error("Failed to update script, script not found.");
         }
-        else {
-            llm.apiKeys.push(key);
+    }
+    async updateLLM(llmId,content) {
+        let llm = this.getLLM(llmId);
+        if(llm!==null) {
+            llm.url = content;
+            await storageManager.storeObject(currentSpaceId, "status", "status", JSON.stringify(webSkel.space.getSpaceStatus(),null,2));
+        }else{
+            console.error("Failed to update LLM, LLM not found.");
         }
-        return llm;
-    }
-    editLLM(){
-
-    }
-
-    addLLM(llm) {
-        this.settings.llms.push(llm);
-    }
-    async storeLLM(llmData) {
-        this.settings.llms.push(new LLM(llmData));
-        await storageManager.storeObject(currentSpaceId, "status", "status", JSON.stringify(webSkel.space.getSpaceStatus()));
     }
 }

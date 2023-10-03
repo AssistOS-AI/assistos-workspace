@@ -20,7 +20,7 @@ export class addAnnouncementModal {
                 title:formInfo.data.title,
                 text:formInfo.data.text,
                 date: new Date().toISOString().split('T')[0],
-                id:webSkel.servicesRegistry.UtilsService.generateRandomHex(16)
+                id:webSkel.servicesRegistry.UtilsService.generateId()
             };
             await webSkel.space.addAnnouncement(announcementData);
             webSkel.space.notifyObservers(webSkel.space.getNotificationId());
