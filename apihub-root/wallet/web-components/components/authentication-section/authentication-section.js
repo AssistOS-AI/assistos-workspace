@@ -25,7 +25,7 @@ export class authenticationSection {
     }
 
     logout(){
-
+        const crypto = require("opendsu").loadAPI("crypto");
         const user = { userId: crypto.getRandomSecret(32), secretToken: "" };
         webSkel.getService("AuthenticationService").setCachedCurrentUser(user);
         window.location = "";

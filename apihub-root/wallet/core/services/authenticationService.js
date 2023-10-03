@@ -7,7 +7,7 @@ export class AuthenticationService{
     constructor() {
     }
     async initUser() {
-        window.currentUser = { userId: "", isPremium: false };
+        window.currentUser = { id: "", isPremium: false };
 
         const result = this.getCachedCurrentUser();
 
@@ -18,12 +18,12 @@ export class AuthenticationService{
                 currentUser.isPremium = true;
 
             }
-            currentUser.userId = user.userId;
+            currentUser.id = user.id;
         }
         else {
             /* TBD */
-            const user = { userId: crypto.getRandomSecret(32), secretToken: "", currentSpaceId: 1 };
-            currentUser.id = user.userId;
+            const user = { id: crypto.getRandomSecret(32), secretToken: "", currentSpaceId: 1 };
+            currentUser.id = user.id;
             this.setCachedCurrentUser(user);
             console.log("Instantiated currentUser" + JSON.stringify(user));
         }
@@ -97,15 +97,15 @@ export class AuthenticationService{
         const userString = await this.getStoredUserByEmail(email);
         try{
             let userObj = JSON.parse(userString);
-            const userId = userObj.userId;
+            const userId = userObj.id;
 
             let users = this.getCachedUsers();
             if(users) {
                 for(let user of users){
-                    if(user.userId === userId) {
+                    if(user.id === userId) {
                         let secretToken = user.secretToken;
                         if(this.verifyPassword(secretToken, password)) {
-                            this.setCachedCurrentUser({ userId: userId, secretToken: secretToken });
+                            this.setCachedCurrentUser({ id: userId, secretToken: secretToken });
                             return true;
                         } else {
                             return false;
@@ -124,11 +124,11 @@ export class AuthenticationService{
         const userString = await this.getStoredUserByEmail(email);
         try{
             let userObj = JSON.parse(userString);
-            const userId = userObj.userId;
+            const userId = userObj.id;
             console.log(`First time logging in on this device userId: ${JSON.stringify(userId)}`);
             const result = await this.getStoredUser(userId);
-            if(this.verifyPassword(result.secretToken, password)) {
-                let user = { userId: userId, secretToken: result.secretToken};
+            if(this.verifyPassword((JSON.parse(result)).secretToken, password)) {
+                let user = { id: userId, secretToken: result.secretToken};
 
                 this.addCachedUser(user);
                 this.setCachedCurrentUser(user);
@@ -147,7 +147,7 @@ export class AuthenticationService{
         const userString = await this.getStoredUserByEmail(email);
         try {
             let userObj = JSON.parse(userString);
-            currentUser.userId = userObj.userId;
+            currentUser.id = userObj.id;
             const randomNr = crypto.generateRandom(32);
             userObj.temporarySecretToken = crypto.encrypt(randomNr, crypto.deriveEncryptionKey(password));
             const result = await this.updateStoredUser(userObj);
@@ -178,16 +178,15 @@ export class AuthenticationService{
         }
     }
     async getStoredUser(userId){
-        let result = await storageManager.loadUser(userId);
-        return result.text();
+        return await storageManager.loadUser(userId);
+
     }
 
     async getStoredUserByEmail(email){
-        //call storage service
+        return await storageManager.loadUserByEmail(email);
     }
 
     async updateStoredUser(updatedUser){
-        let result = await storageManager.storeUser(updatedUser.userId, JSON.stringify(updatedUser));
-        return result.text();
+        return await storageManager.storeUser(updatedUser.id, JSON.stringify(updatedUser));
     }
 }
