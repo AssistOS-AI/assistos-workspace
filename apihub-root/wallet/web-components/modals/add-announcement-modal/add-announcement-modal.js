@@ -1,7 +1,5 @@
 import { closeModal } from "../../../../WebSkel/utils/modal-utils.js";
-import { getClosestParentElement } from "../../../../WebSkel/utils/dom-utils.js";
 import { extractFormInformation } from "../../../../WebSkel/utils/form-utils.js";
-import { Announcement } from "../../../imports.js";
 
 export class addAnnouncementModal {
     constructor(element,invalidate) {

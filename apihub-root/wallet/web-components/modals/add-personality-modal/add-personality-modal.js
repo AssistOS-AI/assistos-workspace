@@ -1,21 +1,13 @@
 import { closeModal } from "../../../../WebSkel/utils/modal-utils.js";
 import { extractFormInformation } from "../../../../WebSkel/utils/form-utils.js";
-import { Personality } from "../../../imports.js";
 
 export class addPersonalityModal {
-    constructor() {
-        if(webSkel.space.settings.personalities) {
-            setTimeout(()=> {
-                this.invalidate();
-            }, 0);
-        }
-        this.updateState = () => this.invalidate();
-        // webSkel.space.onChange(this.updateState);
+    constructor(element,invalidate) {
+        this.invalidate=invalidate;
+        this.invalidate();
     }
 
-    beforeRender() {
-
-    }
+    beforeRender() {}
 
     closeModal(_target) {
         closeModal(_target);
