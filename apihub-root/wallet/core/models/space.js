@@ -1,8 +1,4 @@
-import {DocumentModel, LLM, Personality} from "../../imports.js";
-import { User } from "../../imports.js";
-import { Settings } from "../../imports.js";
-import { Script } from "../../imports.js";
-import { Announcement } from "../../imports.js";
+import {DocumentModel, LLM, Personality,User,Settings,Script,Announcement} from "../../imports.js";
 
 export class Space {
     constructor(spaceData) {

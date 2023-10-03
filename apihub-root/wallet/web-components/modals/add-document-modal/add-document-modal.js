@@ -1,5 +1,4 @@
 import { closeModal } from "../../../../WebSkel/utils/modal-utils.js";
-import { DocumentModel } from "../../../core/models/documentModel.js";
 import { extractFormInformation } from "../../../imports.js";
 
 export class addDocumentModal {
