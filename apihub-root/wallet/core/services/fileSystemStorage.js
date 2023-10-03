@@ -75,4 +75,16 @@ export class FileSystemStorage extends StorageService {
 
         return await result.text();
     }
+
+    async loadUserByEmail(email){
+        const result = await fetch(`/users/email`,
+            {
+                method: "PUT",
+                body: email,
+                headers: {
+                    "Content-type": "application/json; charset=UTF-8"
+                }
+            });
+        return await result.text();
+    }
 }

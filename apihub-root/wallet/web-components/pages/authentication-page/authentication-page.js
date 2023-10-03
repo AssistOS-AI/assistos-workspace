@@ -78,6 +78,28 @@ export class authenticationPage {
           `;
               break;
           }
+          case "login-new-device":{
+              this.subpage = `
+               <div>
+                  <div class="form-title">
+                   Log in
+                  </div>
+                  <form>
+                   <div class="form-item">
+                        <label class="form-label" for="user-token">Enter the secret token or just click the link we just sent you by email.</label>
+                        <input class="form-input" name="token" type="text" data-id="user-token" id="user-token" required placeholder="Add secret token">
+                    </div>
+                    <div class="form-footer">
+                        <button class="wide-btn" data-local-action="verifyConfirmationLink">Log in</button>
+                    </div>
+                    <div class="development-mode" data-local-action="navigateToLandingPage">
+                        Log in development mode
+                    </div>        
+                </form>
+              </div>
+          `;
+              break;
+          }
           case "register-confirmation":{
               this.subpage = `
               <div>
@@ -173,7 +195,7 @@ export class authenticationPage {
                 window.location = "";
             }else {
                 if(await webSkel.getService("AuthenticationService").loginFirstTimeUser(formInfo.data.email, formInfo.data.password)){
-                    await webSkel.changeToStaticPage(`accounting/login-new-device`);
+                    this.element.setAttribute("data-subpage", "login-new-device");
                     this.invalidate();
                 }else {
                     alert("incorrect email or password");
