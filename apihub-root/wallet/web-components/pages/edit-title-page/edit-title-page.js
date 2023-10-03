@@ -9,11 +9,11 @@ import { removeActionBox } from "../../../../WebSkel/utils/modal-utils.js";
 
 export class editTitlePage {
     constructor(element, invalidate) {
-        this.docTitle = "Current Title";
+
         let url = window.location.hash;
         this.id = url.split('/')[1];
         this._document = webSkel.space.getDocument(this.id);
-
+        this.docTitle = this._document.title;
         this._document.observeChange(this._document.getNotificationId() + ":edit-title-page", invalidate);
         this.invalidate = invalidate;
         this.invalidate();
