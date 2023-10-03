@@ -16,15 +16,12 @@ async function loadPage() {
     if(url === "" || url === null) {
         url = "#space-page";
     }
-    if(notBasePage(url)) {
-        /*#proofReader, #documents */
-        changeSelectedPageFromSidebar(url);
-        await webSkel.changeToDynamicPage(url.slice(1));
-    } else {
+    let presenterName;
         /* URL examples: documents/0, documents/0/chapters/1 */
         switch(url.split('/')[0]) {
             case "#documents": {
                 let documentIdURL = url.split('/')[1];
+                presenterName = url.split('/')[2];
                 let chapterIdURL = url.split('/')[3];
                 let paragraphIdURL = url.split('/')[4];
                 /* To be replaced with space id from URL */
@@ -32,24 +29,20 @@ async function loadPage() {
                     webSkel.space.currentDocumentId = documentIdURL;
                     webSkel.space.currentChapterId = chapterIdURL;
                     webSkel.space.currentParagraphId = paragraphIdURL;
-                    changeSelectedPageFromSidebar("documents-page");
                 }
                 changeSelectedPageFromSidebar("documents-page");
                 break;
             }
             default: {
+                /*#proofReader, #documents */
+                changeSelectedPageFromSidebar(url);
+                presenterName = url.slice(1);
                 webSkel.space.currentDocumentId = null;
                 webSkel.space.currentChapterId = null;
                 webSkel.space.currentParagraphId = null;
             }
         }
-        await webSkel.changeToStaticPage(url);
-    }
-}
-
-async function initLiteUserDatabase() {
-
-
+        await webSkel.changeToDynamicPage(presenterName, url.slice(1));
 
 }
 
@@ -90,7 +83,6 @@ function defineActions() {
     webSkel.registerAction("closeErrorModal", async (_target) => {
         closeModal(_target);
     });
-    //registerAccountActions();
 }
 
 async function loadConfigs(jsonPath) {
@@ -118,7 +110,7 @@ async function loadConfigs(jsonPath) {
 
         let currentUserString = webSkel.getService("AuthenticationService").getCachedCurrentUser();
         if(currentUserString) {
-            window.currentSpaceId = JSON.parse(currentUserString).currentSpaceId;
+            window.currentSpaceId = (JSON.parse(currentUserString)).currentSpaceId;
         } else {
             window.currentSpaceId = 1;
         }

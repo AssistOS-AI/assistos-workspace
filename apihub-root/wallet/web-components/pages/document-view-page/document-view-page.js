@@ -1,7 +1,7 @@
 import {Chapter} from "../../../imports.js";
 
 export class documentViewPage {
-    constructor() {
+    constructor(element, invalidate) {
         this.docTitle = "Documents";
         this.name = "Name";
         this.abstractText = "Edit your abstract";
@@ -9,20 +9,13 @@ export class documentViewPage {
         this.button = "Add new document";
         this.id = url.split('/')[1];
         this._document = webSkel.space.getDocument(this.id);
-        if (this._document) {
-            setTimeout(()=> {
-                this.invalidate();
-                this._document.observeChange(this._document.getNotificationId(), this.invalidate);
-            }, 0);
-            this.docTitle = this._document.title;
-            if(this._document.abstract) {
-                this.abstractText = this._document.abstract;
-            }
-            this.chapters = this._document.chapters;
-        } else {
-            console.log(`this _document doesnt exist: docId: ${this.id}`);
-        }
+        this.docTitle = this._document.title;
+        this.chapters = this._document.chapters;
+        this.abstractText = this._document.abstract;
 
+        this._document.observeChange(this._document.getNotificationId() + ":document-view-page", invalidate);
+        this.invalidate = invalidate;
+        this.invalidate();
     }
 
     beforeRender() {
@@ -38,37 +31,41 @@ export class documentViewPage {
         }
     }
 
-    openEditTitlePage() {
-        webSkel.changeToStaticPage(`documents/${this.id}/edit-title`);
+    async openEditTitlePage() {
+        await webSkel.changeToDynamicPage("edit-title-page", `documents/${this.id}/edit-title-page`);
     }
 
-    openEditAbstractPage() {
-        webSkel.changeToStaticPage(`documents/${this.id}/edit-abstract`);
+    async openEditAbstractPage() {
+        await webSkel.changeToDynamicPage("edit-abstract-page", `documents/${this.id}/edit-abstract-page`);
     }
 
-    openDocumentSettingsPage() {
-        webSkel.changeToStaticPage(`documents/${this.id}/settings`);
+    async openDocumentSettingsPage() {
+        await webSkel.changeToDynamicPage("document-settings-page", `documents/${this.id}/document-settings-page`);
     }
 
-    openManageChaptersPage() {
-
-        webSkel.changeToStaticPage(`documents/${this.id}/manage-chapters`);
+    async openManageChaptersPage() {
+        await webSkel.changeToDynamicPage("manage-chapters-page", `documents/${this.id}/manage-chapters-page`);
     }
 
-    openChapterTitlePage() {
-        webSkel.changeToStaticPage(`documents/${this.id}/edit-chapter-title/${webSkel.space.currentChapterId}`);
+    async openChapterTitlePage() {
+        await webSkel.changeToDynamicPage("chapter-title-page",
+            `documents/${this.id}/chapter-title-page/${webSkel.space.currentChapterId}`);
+
     }
 
-    openManageParagraphsPage() {
-        webSkel.changeToStaticPage(`documents/${this.id}/manage-paragraphs/${webSkel.space.currentChapterId}`);
+    async openManageParagraphsPage() {
+        await webSkel.changeToDynamicPage("manage-paragraphs-page",
+            `documents/${this.id}/manage-paragraphs-page/${webSkel.space.currentChapterId}`);
     }
 
-    openParagraphProofreadPage() {
-        webSkel.changeToStaticPage(`documents/${this.id}/paragraph-proofread/${webSkel.space.currentChapterId}/${webSkel.space.currentParagraphId}`);
+    async openParagraphProofreadPage() {
+        await webSkel.changeToDynamicPage("paragraph-proofread-page",
+            `documents/${this.id}/paragraph-proofread-page/${webSkel.space.currentChapterId}/${webSkel.space.currentParagraphId}`);
     }
 
-    openParagraphEditPage() {
-        webSkel.changeToStaticPage(`documents/${this.id}/paragraph-edit/${webSkel.space.currentChapterId}/${webSkel.space.currentParagraphId}`);
+    async openParagraphEditPage() {
+        await webSkel.changeToDynamicPage("paragraph-edit-page",
+            `documents/${this.id}/paragraph-edit-page/${webSkel.space.currentChapterId}/${webSkel.space.currentParagraphId}`);
     }
 
     async addChapter() {

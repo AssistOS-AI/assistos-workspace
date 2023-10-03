@@ -1,43 +1,19 @@
 import { closeModal, DocumentModel, showActionBox } from "../../../imports.js";
 
 export class paragraphProofreadPage {
-    constructor() {
+    constructor(element, invalidate) {
         let url = window.location.hash;
         this.docId =  url.split('/')[1];
         this.chapterId = url.split('/')[3];
         this.paragraphId = url.split('/')[4];
         this._document = webSkel.space.getDocument(this.docId);
-        if(this._document) {
-            setTimeout(()=> {
-                this.invalidate();
-            }, 0);
-            this._chapter = this._document.getChapter(this.chapterId);
-            if(this._chapter) {
-                this._paragraph = this._document.getParagraph(this.chapterId, this.paragraphId);
-                this.paragraphDiv = this._paragraph;
-                this._document.observeChange(this._paragraph.getNotificationId(this.chapterId), this.updateState);
-            } else {
-                console.log(`this chapter doesnt exist: chapterId: ${this.chapterId}`);
-            }
-        }
-        else {
-            console.log(`this _document doesnt exist: docId: ${this.docId}`);
-        }
-        this.updateState = ()=> {
-            this._document = webSkel.space.getDocument(this.docId);
-            if(this._document) {
-                this._chapter = this._document.getChapter(this.chapterId);
-                if(this._chapter) {
-                    this.chapterTitle = this._document.getChapterTitle(this.chapterId);
-                } else {
-                    console.log(`this chapter doesnt exist: docId: ${this.chapterId}`);
-                }
-            }
-            else {
-                console.log(`this _document doesnt exist: docId: ${this.docId}`);
-            }
-            this.invalidate();
-        }
+        this._chapter = this._document.getChapter(this.chapterId);
+        this._paragraph = this._document.getParagraph(this.chapterId, this.paragraphId);
+        this.paragraphDiv = this._paragraph;
+
+        this._document.observeChange(this._paragraph.getNotificationId(this.chapterId), invalidate);
+        this.invalidate = invalidate;
+        this.invalidate();
     }
 
     beforeRender() {
@@ -56,20 +32,22 @@ export class paragraphProofreadPage {
         }
     }
 
-    openViewPage() {
-        webSkel.changeToStaticPage(`documents/${this.docId}`);
+    async openViewPage() {
+        await webSkel.changeToDynamicPage("document-view-page", `documents/${this.docId}/document-view-page`);
     }
 
     closeModal(_target) {
         closeModal(_target);
     }
 
-    openParagraphProofreadPage() {
-        webSkel.changeToStaticPage(`documents/${this.docId}/paragraph-proofread/${this.chapterId}/${this.paragraphId}`);
+    async openParagraphProofreadPage() {
+        await webSkel.changeToDynamicPage("paragraph-proofread-page",
+            `documents/${this.docId}/paragraph-proofread-page/${this.chapterId}/${this.paragraphId}`);
     }
 
-    openParagraphBrainstormingPage() {
-        webSkel.changeToStaticPage(`documents/${this.docId}/paragraph-brainstorming/${this.chapterId}/${this.paragraphId}`);
+    async openParagraphEditPage() {
+        await webSkel.changeToDynamicPage("paragraph-edit-page",
+            `documents/${this.docId}/paragraph-edit-page/${this.chapterId}/${this.paragraphId}`);
     }
 
     async showActionBox(_target, primaryKey, componentName, insertionMode) {

@@ -7,24 +7,17 @@ import { reverseQuerySelector } from "../../../../WebSkel/utils/dom-utils.js";
 import { removeActionBox } from "../../../../WebSkel/utils/modal-utils.js";
 
 export class editAbstractPage {
-    constructor(element) {
+    constructor(element, invalidate) {
         this.element = element;
         let url = window.location.hash;
         this.id = url.split('/')[1];
         this._document = webSkel.space.getDocument(this.id);
-        if (this._document) {
-            setTimeout(() => {
-                this.invalidate();
-            }, 0);
-        } else {
-            console.log(`this _document doesnt exist: docId: ${this.id}`);
-        }
-        this.updateState = () => {
-            this.abstractText = this._document.abstract;
-            this.invalidate();
-        }
-        this._document.observeChange(this._document.getNotificationId(), this.updateState);
         this.abstractText = this._document.getAbstract();
+
+        this._document.observeChange(this._document.getNotificationId()+ ":edit-abstract-page", invalidate);
+        this.invalidate = invalidate;
+        this.invalidate();
+
     }
 
     beforeRender() {
@@ -39,24 +32,24 @@ export class editAbstractPage {
         }
     }
 
-    openEditTitlePage() {
-        webSkel.changeToStaticPage(`documents/${this.id}/edit-title`);
+    async openEditTitlePage() {
+        await webSkel.changeToDynamicPage("edit-title-page", `documents/${this.id}/edit-title-page`);
     }
 
-    openEditAbstractPage() {
-        webSkel.changeToStaticPage(`documents/${this.id}/edit-abstract`);
+    async openEditAbstractPage() {
+        await webSkel.changeToDynamicPage("edit-abstract-page", `documents/${this.id}/edit-abstract-page`);
     }
 
-    openDocumentSettingsPage() {
-        webSkel.changeToStaticPage(`documents/${this.id}/settings`);
+    async openDocumentSettingsPage() {
+        await webSkel.changeToDynamicPage("document-settings-page", `documents/${this.id}/document-settings-page`);
     }
 
-    openBrainstormingPage() {
-        webSkel.changeToStaticPage(`documents/${this.id}/brainstorming`);
+    async openManageChaptersPage() {
+        await webSkel.changeToDynamicPage("manage-chapters-page", `documents/${this.id}/manage-chapters-page`);
     }
 
-    openViewPage() {
-        webSkel.changeToStaticPage(`documents/${this.id}`);
+    async openViewPage() {
+        await webSkel.changeToDynamicPage("document-view-page", `documents/${this.id}/document-view-page`);
     }
 
     async saveAbstract() {

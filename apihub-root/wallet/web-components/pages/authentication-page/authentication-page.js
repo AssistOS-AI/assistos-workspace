@@ -1,15 +1,10 @@
 import {extractFormInformation} from "../../../imports.js";
 
 export class authenticationPage {
-    constructor(element) {
+    constructor(element, invalidate) {
         this.element = element;
-        setTimeout(()=> {
-            this.invalidate();
-        }, 0);
-        this.updateState = ()=> {
-            this.invalidate();
-        }
-
+        this.invalidate = invalidate;
+        this.invalidate();
     }
 
     beforeRender() {

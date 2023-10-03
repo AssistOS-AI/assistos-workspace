@@ -15,12 +15,12 @@ export class authenticationSection {
 
     async navigateToRegisterPage(){
         webSkel.setDomElementForPages(mainContent);
-        await webSkel.changeToDynamicPage(`authentication-page`, {subpage:"register-page"});
+        await webSkel.changeToDynamicPage(`authentication-page`, null, {subpage:"register-page"});
     }
 
     async navigateToLoginPage(){
         webSkel.setDomElementForPages(mainContent);
-        await webSkel.changeToDynamicPage(`authentication-page`, {subpage:"login-page"});
+        await webSkel.changeToDynamicPage(`authentication-page`, null, {subpage:"login-page"});
 
     }
 

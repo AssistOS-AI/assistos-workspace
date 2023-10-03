@@ -2,14 +2,11 @@ import {showActionBox, showModal } from "../../../imports.js";
 import {reverseQuerySelector} from "../../../../WebSkel/utils/dom-utils.js";
 
 export class documentsPage {
-    constructor() {
-        if(webSkel.space.documents !== undefined) {
-            setTimeout(()=> {
-                this.invalidate();
-                documentFactory.observeChange("docs", this.invalidate);
-            }, 0);
-        }
-
+    constructor(element, invalidate) {
+        this.notificationId = "docs"
+        documentFactory.observeChange(this.notificationId, invalidate);
+        this.invalidate = invalidate;
+        this.invalidate();
     }
 
     beforeRender() {
@@ -33,7 +30,7 @@ export class documentsPage {
     }
     async editAction(_target) {
         webSkel.space.currentDocumentId = this.getDocumentId(_target);
-        await webSkel.changeToStaticPage(`documents/${webSkel.space.currentDocumentId}`);
+        await webSkel.changeToDynamicPage("document-view-page",`documents/${webSkel.space.currentDocumentId}/document-view-page`);
     }
 
     async deleteAction(_target){

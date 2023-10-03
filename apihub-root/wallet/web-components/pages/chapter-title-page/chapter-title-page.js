@@ -1,35 +1,18 @@
 import {extractFormInformation, showModal, closeModal, showActionBox, DocumentModel} from "../../../imports.js";
 
 export class chapterTitlePage {
-    constructor() {
+    constructor(element, invalidate) {
         this.docTitle = "Current Title";
         let url = window.location.hash;
         this.docId = url.split('/')[1];
         this.chapterId = url.split('/')[3];
         this._document = webSkel.space.getDocument(this.docId);
-        if(this._document) {
-            setTimeout(()=> {
-                this.invalidate();
-            }, 0);
-            this._chapter = this._document.getChapter(this.chapterId);
-            if(this._chapter) {
-                this.chapterTitle = this._chapter.title;
-                this._document.observeChange(this._chapter.getNotificationId(), this.updateState);
-            } else {
-                console.log(`this chapter doesnt exist: chapterId: ${this.chapterId}`);
-            }
-        } else {
-            console.log(`this _document doesnt exist: docId: ${this.docId}`);
-        }
-        this.updateState = ()=> {
-            this._document = webSkel.space.getDocument(this.docId);
-            if(this._document) {
-                this._chapter = this._document.getChapter(this.chapterId);
-                if(this._chapter)
-                    this.chapterTitle = this._chapter.title;
-            }
-            this.invalidate();
-        }
+        this._chapter = this._document.getChapter(this.chapterId);
+        this.chapterTitle = this._chapter.title;
+
+        this._document.observeChange(this._chapter.getNotificationId(), invalidate);
+        this.invalidate = invalidate;
+        this.invalidate();
     }
 
     beforeRender() {
@@ -55,16 +38,20 @@ export class chapterTitlePage {
         }
     }
 
-    openChapterTitlePage() {
-        webSkel.changeToStaticPage(`documents/${this.docId}/edit-chapter-title/${this.chapterId}`);
+    async openChapterTitlePage() {
+        await webSkel.changeToDynamicPage("chapter-title-page",
+            `documents/${this.docId}/chapter-title-page/${this.chapterId}`);
+
     }
 
-    openChapterBrainstormingPage() {
-        webSkel.changeToStaticPage(`documents/${this.docId}/chapter-brainstorming/${this.chapterId}`);
+    async openManageParagraphsPage() {
+        await webSkel.changeToDynamicPage("manage-paragraphs-page",
+            `documents/${this.docId}/manage-paragraphs-page/${this.chapterId}`);
     }
 
-    openViewPage() {
-        webSkel.changeToStaticPage(`documents/${this.docId}`);
+
+    async openViewPage() {
+        await webSkel.changeToDynamicPage("document-view-page", `documents/${this.docId}/document-view-page`);
     }
 
     closeModal(_target) {

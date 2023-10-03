@@ -2,16 +2,13 @@ import { proofReaderService } from "../../../core/services/proofReaderService.js
 import { extractFormInformation } from "../../../imports.js";
 
 export class proofReaderPage {
-    constructor(element) {
+    constructor(element, invalidate) {
         this.element = element;
         this.generatedText = "AI Generated Text";
-        setTimeout(()=> {
-            this.invalidate();
-        }, 0);
-        this.updateState = ()=> {
-            this.invalidate();
-        }
-        // webSkel.space.onChange(this.updateState);
+
+        //this._document.observeChange(this._paragraph.getNotificationId(this.chapterId), invalidate);
+        this.invalidate = invalidate;
+        this.invalidate();
     }
 
     beforeRender() {
