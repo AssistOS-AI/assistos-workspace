@@ -53,7 +53,7 @@ export class AuthenticationService{
     }
 
     getCachedUsers(){
-        return JSON.parse(localStorage.getItem("users"));
+        return localStorage.getItem("users");
     }
     addCachedUser(user){
         let usersString = this.getCachedUsers();
@@ -85,7 +85,8 @@ export class AuthenticationService{
         let response = await storageManager.storeUser(userData.id, JSON.stringify(userData));
         //const didDocument = await $$.promisify(w3cDID.createIdentity)("key", undefined, randomNr);
         try{
-            webSkel.getService("AuthenticationService").addCachedUser(JSON.parse(response));
+            this.addCachedUser(JSON.parse(response));
+            this.setCachedCurrentUser(JSON.parse(response));
             return true;
         }catch (e){
             console.error(e);
@@ -101,6 +102,7 @@ export class AuthenticationService{
 
             let users = this.getCachedUsers();
             if(users) {
+                users = JSON.parse(users);
                 for(let user of users){
                     if(user.id === userId) {
                         let secretToken = user.secretToken;
@@ -128,7 +130,7 @@ export class AuthenticationService{
             console.log(`First time logging in on this device userId: ${JSON.stringify(userId)}`);
             const result = await this.getStoredUser(userId);
             if(this.verifyPassword((JSON.parse(result)).secretToken, password)) {
-                let user = { id: userId, secretToken: result.secretToken};
+                let user = { id: userId, secretToken: (JSON.parse(result)).secretToken};
 
                 this.addCachedUser(user);
                 this.setCachedCurrentUser(user);
@@ -152,7 +154,9 @@ export class AuthenticationService{
             userObj.temporarySecretToken = crypto.encrypt(randomNr, crypto.deriveEncryptionKey(password));
             const result = await this.updateStoredUser(userObj);
             try {
+                this.setCachedCurrentUser(JSON.parse(result));
                 console.log(JSON.parse(result));
+
                 return true;
             }catch (e){
                 console.error(e);
@@ -164,13 +168,15 @@ export class AuthenticationService{
         }
     }
 
-    async confirmRecoverPassword(userId){
-        const user = await webSkel.getService("AuthenticationService").getStoredUser(userId);
+    async confirmRecoverPassword(){
+        const currentUser = JSON.parse(this.getCachedCurrentUser());
+        const user = JSON.parse(await this.getStoredUser(currentUser.id));
         user.secretToken = user.temporarySecretToken;
         delete user.temporarySecretToken;
-        const result = await webSkel.getService("AuthenticationService").updateStoredUser(user);
+        const result = await this.updateStoredUser(user);
         try {
             console.log(JSON.parse(result));
+            this.setCachedCurrentUser(JSON.parse(result));
             return true;
         }catch (e){
             console.error(e);
