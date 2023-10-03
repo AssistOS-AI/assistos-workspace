@@ -4,10 +4,8 @@ export class DocumentFactory {
     constructor() {
         this.observers = [];
     }
-    createDocument() {
-        let openDSU = require("opendsu");
-        let crypto = openDSU.loadApi("crypto");
-        let documentData = {id: crypto.getRandomSecret(16).toString().split(",").join("")};
+    createDocument(documentData) {
+        documentData.id=webSkel.servicesRegistry.UtilsService.generateId();
         return new DocumentModel(documentData);
     }
 
@@ -18,8 +16,9 @@ export class DocumentFactory {
         return new DocumentModel(documentModel);
     }
 
-    async storeDocument(spaceId, documentModel) {
-        await storageManager.storeObject(spaceId, "documents", documentModel.id, documentModel.stringifyDocument());
+    async storeDocument(spaceId, documentObj) {
+        webSkel.space.documents.push(documentObj);
+        await storageManager.storeObject(spaceId, "documents", documentObj.id, documentObj.stringifyDocument());
     }
 
     async deleteDocument(spaceId, documentId) {

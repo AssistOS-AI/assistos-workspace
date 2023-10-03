@@ -3,25 +3,25 @@ import { closeModal, Space } from "../../../imports.js";
 import { SpaceFactory } from "../../../core/factories/spaceFactory.js";
 
 export class addSpaceModal {
-    constructor() {
-        setTimeout(()=> {
-            this.invalidate();
-        }, 0);
-        this.updateState = () => this.invalidate();
-        // webSkel.space.onChange(this.updateState);
+    constructor(element,invalidate){
+       this.invalidate=invalidate;
+         this.invalidate();
     }
 
     closeModal(_target) {
         closeModal(_target);
     }
 
-    beforeRender() {
+    beforeRender() {}
+    generateDefaultAnnouncement() {
 
     }
 
     async addSpace(_target){
         let formData = await extractFormInformation(_target);
         if(formData.isValid) {
+
+
             let currentDate = new Date();
             let today = currentDate.toISOString().split('T')[0];
             let textString = "Space " + formData.data.name + " was successfully created. You can now add documents, users and settings to your space.";

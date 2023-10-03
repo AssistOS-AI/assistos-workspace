@@ -1,1 +1,39 @@
-{"name":"Personal Space","id":1,"settings":{"llms":[{"name":"GPT-3","apiKeys":["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"],"key":"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","url":"https://api.openai.com/v1/chat/completions","id":"1"},{"name":"ASD","apiKeys":["ASDA"],"key":"ASDA","url":"ASD","id":"b09cbf3526594a27cc68ba37eb51e90903a57939906aa40a6f3b7a9c9bd5e61a"}],"personalities":[],"scripts":[]},"admins":[],"announcements":[{"title":"Welcome to AIAuthor!","id":"1","date":"2023-01-31","text":"Space Personal Space was successfully created. You can now add documents, users and settings to your space."}]}
+{
+  "name": "Personal Space",
+  "id": "5JSeDFsP5rfe",
+  "settings": {
+    "llms": [
+      {
+        "name": "GPT-3",
+        "apiKeys": [
+          "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"
+        ],
+        "key": "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",
+        "url": "https://api.openai.com/v1/chat/completions",
+        "id": "5JSe1FsP5Pfe"
+      }
+    ],
+    "personalities": [
+      {
+        "name": "sadf",
+        "description": "asdf",
+        "id": "5JSe1F8P5Pfe"
+      },
+      {
+        "name": "sadg",
+        "description": "asdg",
+        "id": "5ZTRB61NGyjr"
+      }
+    ],
+    "scripts": []
+  },
+  "admins": [],
+  "announcements": [
+    {
+      "title": "safsad",
+      "id": "Z3MCjCiJvkos",
+      "date": "2023-10-03",
+      "text": "fsf"
+    }
+  ]
+}

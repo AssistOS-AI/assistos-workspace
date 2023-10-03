@@ -39,6 +39,7 @@ import WebSkel from "../WebSkel/webSkel.js";
 import { extractFormInformation } from "../WebSkel/utils/form-utils.js";
 import { addSpaceModal} from "./web-components/modals/add-space-modal/add-space-modal.js";
 import { Settings } from "./core/models/settings.js";
+import {Script} from "./core/models/script.js";
 export {
     Settings,
     addSpaceModal,
@@ -83,5 +84,6 @@ export {
     Announcement,
     Paragraph,
     LLM,
+    Script,
     extractFormInformation,
 };

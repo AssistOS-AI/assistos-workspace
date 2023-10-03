@@ -1,5 +1,3 @@
-import { Space } from "./space.js";
-
 export class LLM {
     constructor(llmData) {
         this.name = llmData.name || undefined;

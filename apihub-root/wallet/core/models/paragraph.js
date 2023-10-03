@@ -3,11 +3,9 @@ export class Paragraph {
         this.text = paragraphData.text;
         this.id = paragraphData.id;
     }
-
     getNotificationId(chapterId) {
         return `doc:${chapterId}:${this.id}`;
     }
-
     toString() {
         return this.text;
     }

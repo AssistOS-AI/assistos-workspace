@@ -131,6 +131,11 @@
     "className": "editScriptModal"
     },
     {
+      "name": "edit-announcement-modal",
+      "path": "./web-components/modals/edit-announcement-modal/edit-announcement-modal.js",
+      "className": "editAnnouncementModal"
+    },
+    {
       "name": "add-user-modal",
       "path": "./web-components/modals/add-user-modal/add-user-modal.js",
       "className": "addUserModal"
@@ -356,6 +361,10 @@
     {
       "name": "edit-script-modal",
       "path": "./wallet/web-components/modals/edit-script-modal/edit-script-modal.html"
+    },
+    {
+      "name": "edit-announcement-modal",
+      "path": "./wallet/web-components/modals/edit-announcement-modal/edit-announcement-modal.html"
     },
     {
       "name": "add-user-modal",

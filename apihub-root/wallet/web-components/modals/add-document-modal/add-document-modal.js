@@ -3,32 +3,26 @@ import { DocumentModel } from "../../../core/models/documentModel.js";
 import { extractFormInformation } from "../../../imports.js";
 
 export class addDocumentModal {
-    constructor() {
-        setTimeout(()=> {
-            this.invalidate();
-        }, 0);
-        this.updateState = ()=> {
-            this.invalidate();
-        }
+    constructor(element,invalidate) {
+       this.invalidate=invalidate;
+       this.invalidate();
     }
 
-    beforeRender() {
-
-    }
+    beforeRender() {}
 
     closeModal(_target) {
         closeModal(_target);
     }
 
-    async addDocumentSubmitForm(_target) {
+    async addDocument(_target) {
         let formData = await extractFormInformation(_target);
         if(formData.isValid) {
+            let docData={
+                title: formData.data.documentTitle,
+                topic: formData.data.documentIdea
+            }
+            webSkel.space.addDocument(docData);
             closeModal(_target);
-            let newDoc = documentFactory.createDocument();
-            newDoc.setTitle(formData.data.documentTitle);
-            webSkel.space.addDocument(newDoc);
-            await documentFactory.storeDocument(currentSpaceId, newDoc);
-            await webSkel.changeToStaticPage(`documents/${newDoc.id}/edit-title`);
         }
     }
 }

@@ -16,9 +16,12 @@ export class addScriptModal {
     async addScript(_target) {
         let formInfo = await extractFormInformation(_target);
         if(formInfo.isValid) {
-            let script = formInfo.data;
-            script.id = Math.floor(Math.random() * 100000).toString();
-            await webSkel.space.addScript(script);
+            let scriptData = {
+                name:formInfo.data.name,
+                content: formInfo.data.content,
+                id:webSkel.servicesRegistry.UtilsService.generateId()
+            }
+            await webSkel.space.addScript(scriptData);
             webSkel.space.notifyObservers(webSkel.space.getNotificationId());
             closeModal(_target);
         }

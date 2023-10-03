@@ -5,7 +5,7 @@ export class DocumentModel {
         this.title = documentData.title || "";
         this.abstract = documentData.abstract || "";
         this.chapters = (documentData.chapters || []).map(chapterData => new Chapter(chapterData));
-        this.mainIdeas = documentData.mainIdeas || [];
+        this.topic = documentData.topic||"";
         this.alternativeTitles = documentData.alternativeTitles || [];
         this.alternativeAbstracts = documentData.alternativeAbstracts || [];
         this.settings = documentData.settings || {llm: null, personality: null};

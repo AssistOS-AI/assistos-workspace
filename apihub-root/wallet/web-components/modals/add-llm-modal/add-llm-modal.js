@@ -10,13 +10,18 @@ export class addLLMModal {
     closeModal(_target) {
         closeModal(_target);
     }
-    async addLLMSubmitForm(_target) {
+    async addLLM(_target) {
         let formInfo = await extractFormInformation(_target);
-        closeModal(_target);
         if(formInfo.isValid) {
-            let llmData={name:formInfo.data.name,apiKeys:[formInfo.data.key],url:formInfo.data.url, id:webSkel.servicesRegistry.UtilsService.generateRandomHex(32)};
-            await webSkel.space.storeLLM(llmData);
+            let llmData=
+            {
+                name:formInfo.data.name,apiKeys:[formInfo.data.key],
+                url:formInfo.data.url,
+                id:webSkel.servicesRegistry.UtilsService.generateId()
+            };
+            await webSkel.space.addLLM(llmData);
             webSkel.space.notifyObservers(webSkel.space.getNotificationId());
+            closeModal(_target);
         }
     }
 }
