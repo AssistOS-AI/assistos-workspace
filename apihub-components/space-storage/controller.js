@@ -74,7 +74,7 @@ async function createFolder(spaceId, data, folderName) {
 async function storeSpace(request, response) {
     const folderPath = `../apihub-root/spaces/${request.params.spaceId}`;
     try {
-        if(!await fsPromises.exists(folderPath)) {
+        if(!await fsPromises.stat(folderPath)) {
             await fsPromises.mkdir(folderPath);
             let jsonData = JSON.parse(request.body.toString());
             await createFolder(request.params.spaceId, jsonData.documents, "documents");
@@ -88,6 +88,7 @@ async function storeSpace(request, response) {
             return "";
         }
     } catch (err) {
+        sendResponse(response, 500, "text/html", err+ ` Error at creating space: ${folderPath}`)
         console.error(err);
     }
 }
