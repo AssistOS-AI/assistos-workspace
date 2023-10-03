@@ -42,6 +42,7 @@ export class Space {
 
     observeChange(elementId, callback) {
         let obj = {elementId: elementId, callback: callback};
+        callback.keepReference = obj;
         this.observers.push(new WeakRef(obj));
 
     }

@@ -112,7 +112,7 @@ export class authenticationPage {
                         <input class="form-input" name="token" type="text" data-email="user-token" id="user-token" required placeholder="Add secret token">
                     </div>
                     <div class="form-footer">
-                        <button class="wide-btn" data-local-action="verifyConfirmationLink">Log in</button>
+                        <button type="button" class="wide-btn" data-local-action="verifyConfirmationLink">Log in</button>
                     </div>
                     <div class="development-mode" data-local-action="navigateToLandingPage">
                         Log in development mode
@@ -162,7 +162,7 @@ export class authenticationPage {
                         <input class="form-input" name="token" type="text" data-id="user-token" id="user-token" required placeholder="Add secret token">
                     </div>
                     <div class="form-footer">
-                        <button type="button" class="wide-btn" data-local-action="verifyConfirmationLink">Log in</button>
+                        <button type="button" class="wide-btn" data-local-action="finishPasswordRecovery">Log in</button>
                     </div>
                     <div class="development-mode" data-local-action="finishPasswordRecovery">
                         Log in development mode
@@ -209,8 +209,8 @@ export class authenticationPage {
     }
     async beginPasswordRecovery(_target){
         const checkPasswordConfirmation = ()=>{
-            let password = document.querySelector("#password");
-            let confirmPassword = document.querySelector("#confirm-password");
+            let password = document.querySelector("#user-password");
+            let confirmPassword = document.querySelector("#user-password-confirm");
             return password.value === confirmPassword.value;
         }
 
@@ -229,7 +229,7 @@ export class authenticationPage {
 
     }
     async finishPasswordRecovery(){
-        if(await webSkel.getService("AuthenticationService").confirmRecoverPassword(currentUser.userId)){
+        if(await webSkel.getService("AuthenticationService").confirmRecoverPassword()){
             window.location = "";
         } else{
             console.error("Failed to confirm password recovery");
