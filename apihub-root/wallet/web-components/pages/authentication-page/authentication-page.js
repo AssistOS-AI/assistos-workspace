@@ -9,6 +9,21 @@ export class authenticationPage {
 
     beforeRender() {
       switch (this.element.getAttribute("data-subpage")){
+          default:{
+              this.subpage = `
+             <div>
+                <div class="menu-item-container" data-local-action="navigateToRegisterPage">
+                    <button id="register-button">Register</button>
+                </div>
+                <div class="menu-item-container" data-local-action="navigateToLoginPage">
+                    <button id="login-button">Login</button>
+                </div>
+                <div class="development-mode" data-local-action="loginDefaultUser">
+                        Log in development mode
+                </div>    
+             </div>`;
+              break;
+          }
           case "register-page":{
               this.subpage = ` <div>
              <div class="form-title">
@@ -168,7 +183,26 @@ export class authenticationPage {
           }
       }
     }
+    async navigateToRegisterPage(){
+        this.element.setAttribute("data-subpage", "register-page");
+        this.invalidate();
+    }
 
+    async navigateToLoginPage(){
+        this.element.setAttribute("data-subpage", "login-page");
+        this.invalidate();
+    }
+
+    async loginDefaultUser(){
+        await webSkel.getService("AuthenticationService").loginFirstTimeUser("teo@teo", "teo");
+        currentUser.isPremium = true;
+        currentUser.id ="1101522431685742196611723790234240113112996125581292472522231319144225195232444191";
+        currentUser.spaces = (JSON.parse(await storageManager.loadUser(currentUser.id))).spaces;
+        let userObj = JSON.parse(webSkel.getService("AuthenticationService").getCachedCurrentUser());
+        userObj.spaces = currentUser.spaces;
+        webSkel.getService("AuthenticationService").setCachedCurrentUser(userObj);
+        window.location = "";
+    }
     async beginRegistration(_target){
         const formInfo = await extractFormInformation(_target);
         if(formInfo.isValid) {

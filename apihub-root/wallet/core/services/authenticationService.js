@@ -24,14 +24,17 @@ export class AuthenticationService{
         }
         else {
             /* TBD */
+            webSkel.setDomElementForPages(mainContent);
+            await webSkel.changeToDynamicPage("authentication-page", "authentication-page");
+            return;
             // await this.loginFirstTimeUser("teo@teo", "teo");
             // currentUser.isPremium = true;
 
-            const user = { id: crypto.getRandomSecret(32), secretToken: "", currentSpaceId: "1" };
-            currentUser.id = user.id;
-            this.setCachedCurrentUser(user);
-            console.log("Instantiated currentUser" + JSON.stringify(user));
-            currentUser.id ="1101522431685742196611723790234240113112996125581292472522231319144225195232444191";
+            // const user = { id: crypto.getRandomSecret(32), secretToken: "", currentSpaceId: "1" };
+            // currentUser.id = user.id;
+            // this.setCachedCurrentUser(user);
+            // console.log("Instantiated currentUser" + JSON.stringify(user));
+            //currentUser.id ="1101522431685742196611723790234240113112996125581292472522231319144225195232444191";
         }
 
         currentUser.spaces = (JSON.parse(await storageManager.loadUser(currentUser.id))).spaces;
@@ -82,15 +85,16 @@ export class AuthenticationService{
         userData.id = crypto.getRandomSecret(32).toString().split(",").join("");
         let defaultSpace = SpaceFactory.createSpace({name: "Personal Space"});
         await storageManager.storeSpace(defaultSpace.id, defaultSpace.stringifySpace());
-        userData.spaces = [{name:defaultSpace, id:defaultSpace.id}];
+        userData.spaces = [{name: defaultSpace.name, id: defaultSpace.id}];
 
         let response = await storageManager.storeUser(userData.id, JSON.stringify(userData));
         //const didDocument = await $$.promisify(w3cDID.createIdentity)("key", undefined, randomNr);
         try{
-            this.addCachedUser(JSON.parse(response));
-            response.spaces = [{name:defaultSpace, id:defaultSpace.id}];
+            response = JSON.parse(response);
+            this.addCachedUser(response);
+            response.spaces = [{name:defaultSpace.name, id:defaultSpace.id}];
             response.currentSpaceId = defaultSpace.id;
-            this.setCachedCurrentUser(JSON.parse(response));
+            this.setCachedCurrentUser(response);
             return true;
         }catch (e){
             console.error(e);

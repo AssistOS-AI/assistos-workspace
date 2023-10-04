@@ -20,7 +20,7 @@ export class addDocumentModal {
                 title: formData.data.documentTitle,
                 topic: formData.data.documentIdea
             }
-            webSkel.space.addDocument(docData);
+            await webSkel.space.addDocument(docData);
             closeModal(_target);
         }
     }
