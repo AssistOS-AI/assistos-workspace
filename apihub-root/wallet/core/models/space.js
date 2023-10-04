@@ -151,6 +151,7 @@ export class Space {
    async addDocument(documentData) {
         let newDocument=documentFactory.createDocument(documentData)
         await documentFactory.addDocument(currentSpaceId, newDocument);
+        webSkel.space.currentDocumentId = newDocument.id;
         await webSkel.changeToDynamicPage("edit-title-page", `documents/${newDocument.id}/edit-title-page`);
     }
     async addPersonality(personalityData) {
