@@ -36,4 +36,12 @@ export class spaceDropdown {
     async addSpace(){
        await showModal(document.querySelector("body"), "add-space-modal", { presenter: "add-space-modal"});
     }
+
+    async logout(){
+        const crypto = require("opendsu").loadAPI("crypto");
+        const user = { userId: crypto.getRandomSecret(32), secretToken: "", spaces: [{name: "Personal Space"}], currentSpaceId: "1"};
+        webSkel.getService("AuthenticationService").setCachedCurrentUser(user);
+        webSkel.setDomElementForPages(mainContent);
+        await webSkel.changeToDynamicPage("authentication-page", "authentication-page");
+    }
 }

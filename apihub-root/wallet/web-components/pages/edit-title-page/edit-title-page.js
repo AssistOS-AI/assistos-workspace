@@ -51,7 +51,7 @@ export class editTitlePage {
     }
 
     async openViewPage() {
-        await webSkel.changeToDynamicPage("document-view-page", `documents/${this._document.id}/document-view-page`);
+        await webSkel.changeToDynamicPage("document-view-page", `documents/${this._document.id}/document-view-page`, {"document-id": this._document.id});
     }
 
     closeModal(_target) {

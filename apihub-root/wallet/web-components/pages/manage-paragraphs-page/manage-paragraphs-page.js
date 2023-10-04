@@ -44,7 +44,7 @@ export class manageParagraphsPage {
 
 
     async openViewPage() {
-        await webSkel.changeToDynamicPage("document-view-page", `documents/${this.docId}/document-view-page`);
+        await webSkel.changeToDynamicPage("document-view-page", `documents/${this.docId}/document-view-page`, {"document-id": this.docId});
     }
 
     closeModal(_target) {

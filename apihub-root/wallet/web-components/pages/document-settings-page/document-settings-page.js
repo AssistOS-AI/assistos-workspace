@@ -93,6 +93,6 @@ export class documentSettingsPage {
     }
 
     async openViewPage() {
-        await webSkel.changeToDynamicPage("document-view-page", `documents/${this.id}/document-view-page`);
+        await webSkel.changeToDynamicPage("document-view-page", `documents/${this.id}/document-view-page`, {"document-id": this.id});
     }
 }

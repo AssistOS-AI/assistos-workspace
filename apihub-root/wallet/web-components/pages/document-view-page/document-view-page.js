@@ -40,23 +40,23 @@ export class documentViewPage {
 
     async openChapterTitlePage() {
         await webSkel.changeToDynamicPage("chapter-title-page",
-            `documents/${this.id}/chapter-title-page/${webSkel.space.currentChapterId}`);
+            `documents/${this._document.id}/chapter-title-page/${webSkel.space.currentChapterId}`);
 
     }
 
     async openManageParagraphsPage() {
         await webSkel.changeToDynamicPage("manage-paragraphs-page",
-            `documents/${this.id}/manage-paragraphs-page/${webSkel.space.currentChapterId}`);
+            `documents/${this._document.id}/manage-paragraphs-page/${webSkel.space.currentChapterId}`);
     }
 
     async openParagraphProofreadPage() {
         await webSkel.changeToDynamicPage("paragraph-proofread-page",
-            `documents/${this.id}/paragraph-proofread-page/${webSkel.space.currentChapterId}/${webSkel.space.currentParagraphId}`);
+            `documents/${this._document.id}/paragraph-proofread-page/${webSkel.space.currentChapterId}/${webSkel.space.currentParagraphId}`);
     }
 
     async openParagraphEditPage() {
         await webSkel.changeToDynamicPage("paragraph-edit-page",
-            `documents/${this.id}/paragraph-edit-page/${webSkel.space.currentChapterId}/${webSkel.space.currentParagraphId}`);
+            `documents/${this._document.id}/paragraph-edit-page/${webSkel.space.currentChapterId}/${webSkel.space.currentParagraphId}`);
     }
 
     async addChapter() {

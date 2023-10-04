@@ -161,11 +161,6 @@
       "className": "scriptsPage"
     },
     {
-      "name": "authentication-section",
-      "path": "./web-components/components/authentication-section/authentication-section.js",
-      "className": "authenticationSection"
-    },
-    {
       "name": "authentication-page",
       "path": "./web-components/pages/authentication-page/authentication-page.js",
       "className": "authenticationPage"
@@ -385,10 +380,6 @@
     {
       "name": "add-space-modal",
       "path": "./wallet/web-components/modals/add-space-modal/add-space-modal.html"
-    },
-    {
-      "name": "authentication-section",
-      "path": "./wallet/web-components/components/authentication-section/authentication-section.html"
     },
     {
       "name": "authentication-page",
