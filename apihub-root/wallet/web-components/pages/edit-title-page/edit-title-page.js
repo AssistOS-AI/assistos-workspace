@@ -60,7 +60,7 @@ export class editTitlePage {
 
     async showSuggestTitlesModal() {
         const loading = await webSkel.showLoading();
-        const documentText = webSkel.space.getDocument(this.id).toString();
+        const documentText = webSkel.space.getDocument(this._document.id).toString();
         async function generateSuggestTitles(){
             const defaultPrompt = `Based on the following document:\n"${documentText}"\n\nPlease suggest 10 original titles that are NOT already present as chapter titles in the document. Return the titles as a JSON array.`;
             if(webSkel.space.settings.llms.length <= 0) {

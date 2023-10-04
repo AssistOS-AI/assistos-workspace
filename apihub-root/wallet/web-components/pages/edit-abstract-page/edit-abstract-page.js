@@ -1,19 +1,15 @@
 import {
-    closeModal, DocumentModel,
+    closeModal,
     showActionBox,
-    showModal, Space
+    showModal,
 } from "../../../imports.js";
 import { reverseQuerySelector } from "../../../../WebSkel/utils/dom-utils.js";
 import { removeActionBox } from "../../../../WebSkel/utils/modal-utils.js";
 
 export class editAbstractPage {
     constructor(element, invalidate) {
-        this.element = element;
-        let url = window.location.hash;
-        this.id = url.split('/')[1];
-        this._document = webSkel.space.getDocument(this.id);
-        this.abstractText = this._document.getAbstract();
-
+        this.element=element;
+        this._document = webSkel.space.getDocument(webSkel.space.currentDocumentId);
         this._document.observeChange(this._document.getNotificationId()+ ":edit-abstract-page", invalidate);
         this.invalidate = invalidate;
         this.invalidate();
@@ -22,8 +18,10 @@ export class editAbstractPage {
 
     beforeRender() {
         this.title = `<title-view title="${this._document.getTitle()}"></title-view>`;
+        this.abstractText=this._document.getAbstract();
         this.alternativeAbstracts = "";
-        for (let i = 0; i < this._document.getAlternativeAbstracts().length; i++) {
+        let length = this._document.getAlternativeAbstracts().length;
+        for (let i = 0; i < length; i++) {
             this.alternativeAbstracts += `<alternative-abstract data-id="${i + 1}" data-title="${this._document.alternativeAbstracts[i]}"></alternative-abstract>`;
         }
         if (this.editableAbstract) {
@@ -33,28 +31,29 @@ export class editAbstractPage {
     }
 
     async openEditTitlePage() {
-        await webSkel.changeToDynamicPage("edit-title-page", `documents/${this.id}/edit-title-page`);
+        await webSkel.changeToDynamicPage("edit-title-page", `documents/${this._document.id}/edit-title-page`);
     }
 
     async openEditAbstractPage() {
-        await webSkel.changeToDynamicPage("edit-abstract-page", `documents/${this.id}/edit-abstract-page`);
+        await webSkel.changeToDynamicPage("edit-abstract-page", `documents/${this._document.id}/edit-abstract-page`);
     }
 
     async openDocumentSettingsPage() {
-        await webSkel.changeToDynamicPage("document-settings-page", `documents/${this.id}/document-settings-page`);
+        await webSkel.changeToDynamicPage("document-settings-page", `documents/${this._document.id}/document-settings-page`);
     }
 
     async openManageChaptersPage() {
-        await webSkel.changeToDynamicPage("manage-chapters-page", `documents/${this.id}/manage-chapters-page`);
+        await webSkel.changeToDynamicPage("manage-chapters-page", `documents/${this._document.id}/manage-chapters-page`);
     }
 
     async openViewPage() {
-        await webSkel.changeToDynamicPage("document-view-page", `documents/${this.id}/document-view-page`);
+        await webSkel.changeToDynamicPage("document-view-page", `documents/${this._document.id}/document-view-page`);
     }
 
     async saveAbstract() {
         let updatedAbstract = document.querySelector(".abstract-content").innerText;
-        let documentIndex = webSkel.space.documents.findIndex(doc => doc.id === this.id);
+        let documentIndex = webSkel.space.documents.findIndex(doc => doc.id === this._document.id);
+        debugger;
         if (documentIndex !== -1 && updatedAbstract !== this._document.getAbstract()) {
             for (let i = 0; i < updatedAbstract.length; i++) {
                 if (updatedAbstract[i] === '\n') {
@@ -72,8 +71,9 @@ export class editAbstractPage {
                     updatedAbstract = updatedAbstract.slice(0, initialIndex) + newLineString + updatedAbstract.slice(i);
                 }
             }
+
             this._document.updateAbstract(updatedAbstract);
-            await documentFactory.addDocument(currentSpaceId, this._document);
+
         }
     }
 
@@ -102,7 +102,7 @@ export class editAbstractPage {
             return await webSkel.space.suggestAbstract(defaultPrompt, llmId);
         }
         this.suggestedAbstract = await suggestAbstract();
-        this._document.observeChange(this._document.getNotificationId(), this.updateState);
+        this._document.observeChange(this._document.getNotificationId(), this.invalidate);
         loading.close();
         loading.remove();
         await showModal(document.querySelector("body"), "suggest-abstract-modal", { presenter: "suggest-abstract-modal"});

@@ -11,6 +11,7 @@ export class documentViewPage {
     beforeRender() {
         this.chaptersContainer = "";
         this.title = `<title-view title="${this._document.title}"></title-view>`;
+        this.abstractText=this._document.getAbstract();
         if(this._document.chapters.length > 0) {
             this._document.setCurrentChapter(this._document.chapters[0].id);
             let iterator = 0;
