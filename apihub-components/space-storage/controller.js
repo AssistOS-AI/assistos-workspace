@@ -56,10 +56,16 @@ async function storeObject(request, response) {
         sendResponse(response, 200, "text/html", `Success, ${request.body.toString()}`);
 }
 
-async function createFolder(spaceId, data, folderName) {
+async function storeFolder(spaceId, data, folderName) {
     if(data) {
         let folderPath = `../apihub-root/spaces/${spaceId}/${folderName}`;
-        await fsPromises.mkdir(folderPath);
+        try{
+            await fsPromises.access(folderPath);
+        }catch (e){
+            /* the error is that the folder doesn't exist, it needs to be created*/
+            await fsPromises.mkdir(folderPath);
+        }
+
         if(folderName !== "status") {
             for(let item of data) {
                 await saveJSON(null, JSON.stringify(item), `${folderPath}/${item.id}.json`);
@@ -74,23 +80,21 @@ async function createFolder(spaceId, data, folderName) {
 async function storeSpace(request, response) {
     const folderPath = `../apihub-root/spaces/${request.params.spaceId}`;
     try {
-        if(!await fsPromises.stat(folderPath)) {
-            await fsPromises.mkdir(folderPath);
-            let jsonData = JSON.parse(request.body.toString());
-            await createFolder(request.params.spaceId, jsonData.documents, "documents");
-            await createFolder(request.params.spaceId, jsonData.users, "users");
-            await createFolder(request.params.spaceId, jsonData.scripts, "scripts");
-            delete jsonData.documents;
-            delete jsonData.scripts;
-            delete jsonData.users;
-            await createFolder(request.params.spaceId, jsonData, "status");
-            sendResponse(response, 200, "text/html", `Success, ${request.body.toString()}`);
-            return "";
-        }
+        await fsPromises.access(folderPath);
     } catch (err) {
-        sendResponse(response, 500, "text/html", err+ ` Error at creating space: ${folderPath}`)
-        console.error(err);
+        /* the error is that the folder doesn't exist, it needs to be created*/
+        await fsPromises.mkdir(folderPath);
     }
+    let jsonData = JSON.parse(request.body.toString());
+    await storeFolder(request.params.spaceId, jsonData.documents, "documents");
+    await storeFolder(request.params.spaceId, jsonData.users, "users");
+    await storeFolder(request.params.spaceId, jsonData.scripts, "scripts");
+    delete jsonData.documents;
+    delete jsonData.scripts;
+    delete jsonData.users;
+    await storeFolder(request.params.spaceId, jsonData, "status");
+    sendResponse(response, 200, "text/html", `Success, ${request.body.toString()}`);
+    return "";
 }
 
 async function buildSpaceRecursive(filePath) {

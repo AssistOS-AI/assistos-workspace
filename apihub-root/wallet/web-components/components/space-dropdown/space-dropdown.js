@@ -29,7 +29,7 @@ export class spaceDropdown {
 
     changeSpace(_target) {
         let selectedSpace = getClosestParentElement(_target,['space-unit']);
-        let selectedSpaceId = parseInt(selectedSpace.getAttribute('data-space-id'));
+        let selectedSpaceId = selectedSpace.getAttribute('data-space-id');
         webSkel.space.changeSpace(selectedSpaceId);
     }
 

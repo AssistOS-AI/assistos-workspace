@@ -77,7 +77,7 @@ function defineActions() {
         }
         webSkel.currentToolId = pageId;
         changeSelectedPageFromSidebar(pageId);
-        await webSkel.changeToDynamicPage(pageId);
+        await webSkel.changeToDynamicPage(pageId, pageId);
     });
 
     webSkel.registerAction("closeErrorModal", async (_target) => {
@@ -104,16 +104,16 @@ async function loadConfigs(jsonPath) {
         }
 
         storageManager.setCurrentService("FileSystemStorage");
-        let result = await storageManager.loadSpace(currentSpaceId);
-        webSkel.space = new Space(JSON.parse(result));
-        await webSkel.getService("AuthenticationService").initUser();
 
+        await webSkel.getService("AuthenticationService").initUser();
         let currentUserString = webSkel.getService("AuthenticationService").getCachedCurrentUser();
         if(currentUserString) {
             window.currentSpaceId = (JSON.parse(currentUserString)).currentSpaceId;
         } else {
             window.currentSpaceId = 1;
         }
+        let result = await storageManager.loadSpace(currentSpaceId);
+        webSkel.space = new Space(JSON.parse(result));
 
         for (const presenter of config.presenters) {
             const PresenterModule = await import(presenter.path);
@@ -131,7 +131,6 @@ async function loadConfigs(jsonPath) {
 
 (async ()=> {
 
-    window.currentSpaceId = 1;
     webSkel.setDomElementForPages(document.querySelector("#page-content"));
     window.storageManager = new StorageManager();
     window.documentFactory = new DocumentFactory();

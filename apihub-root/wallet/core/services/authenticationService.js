@@ -1,3 +1,5 @@
+import {SpaceFactory} from "../factories/spaceFactory.js";
+
 const openDSU = require("opendsu");
 const crypto = openDSU.loadApi("crypto");
 const w3cDID = openDSU.loadAPI("w3cdid");
@@ -22,23 +24,16 @@ export class AuthenticationService{
         }
         else {
             /* TBD */
-            const user = { id: crypto.getRandomSecret(32), secretToken: "", currentSpaceId: 1 };
+            const user = { id: crypto.getRandomSecret(32), secretToken: "", currentSpaceId: "1" };
             currentUser.id = user.id;
             this.setCachedCurrentUser(user);
             console.log("Instantiated currentUser" + JSON.stringify(user));
         }
-        let spaces = await storageManager.loadObject("1","status","status");
-        spaces =  JSON.parse(spaces);
-        /* for multiple spaces*/
-        // let spacesArray = [];
-        // Object.keys(spaces).forEach(function(key, index) {
-        //     spacesArray.push({name:spaces[key].name,id:spaces[key].id});
-        // });
-        // currentUser.spaces = spacesArray;
-        currentUser.spaces = [{name:spaces.name, id:spaces.id}];
+        currentUser.id ="1101522431685742196611723790234240113112996125581292472522231319144225195232444191";
+        currentUser.spaces = (JSON.parse(await storageManager.loadUser(currentUser.id))).spaces;
         let userObj = JSON.parse(this.getCachedCurrentUser());
         userObj.spaces = currentUser.spaces;
-        this.setCachedCurrentUser(userObj)
+        this.setCachedCurrentUser(userObj);
     }
     verifyPassword(secretToken, password) {
         //secretToken should be an object with type Buffer or an Uint8Array
@@ -81,11 +76,16 @@ export class AuthenticationService{
 
         userData.secretToken = secretToken;
         userData.id = crypto.getRandomSecret(32).toString().split(",").join("");
+        let defaultSpace = SpaceFactory.createSpace("Personal space");
+        await storageManager.storeSpace(defaultSpace.id, defaultSpace.stringifySpace());
+        userData.spaces = [{name:defaultSpace, id:defaultSpace.id}];
 
         let response = await storageManager.storeUser(userData.id, JSON.stringify(userData));
         //const didDocument = await $$.promisify(w3cDID.createIdentity)("key", undefined, randomNr);
         try{
             this.addCachedUser(JSON.parse(response));
+            response.spaces = [{name:defaultSpace, id:defaultSpace.id}];
+            response.currentSpaceId = defaultSpace.id;
             this.setCachedCurrentUser(JSON.parse(response));
             return true;
         }catch (e){
@@ -129,8 +129,9 @@ export class AuthenticationService{
             const userId = userObj.id;
             console.log(`First time logging in on this device userId: ${JSON.stringify(userId)}`);
             const result = await this.getStoredUser(userId);
-            if(this.verifyPassword((JSON.parse(result)).secretToken, password)) {
-                let user = { id: userId, secretToken: (JSON.parse(result)).secretToken};
+            const storedUser = JSON.parse(result);
+            if(this.verifyPassword(storedUser.secretToken, password)) {
+                let user = { id: storedUser.id, secretToken: storedUser.secretToken, spaces: storedUser.spaces, currentSpaceId: storedUser.spaces[0].id};
 
                 this.addCachedUser(user);
                 this.setCachedCurrentUser(user);
