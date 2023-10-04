@@ -24,12 +24,16 @@ export class AuthenticationService{
         }
         else {
             /* TBD */
+            // await this.loginFirstTimeUser("teo@teo", "teo");
+            // currentUser.isPremium = true;
+
             const user = { id: crypto.getRandomSecret(32), secretToken: "", currentSpaceId: "1" };
             currentUser.id = user.id;
             this.setCachedCurrentUser(user);
             console.log("Instantiated currentUser" + JSON.stringify(user));
+            currentUser.id ="1101522431685742196611723790234240113112996125581292472522231319144225195232444191";
         }
-        currentUser.id ="1101522431685742196611723790234240113112996125581292472522231319144225195232444191";
+
         currentUser.spaces = (JSON.parse(await storageManager.loadUser(currentUser.id))).spaces;
         let userObj = JSON.parse(this.getCachedCurrentUser());
         userObj.spaces = currentUser.spaces;
@@ -76,7 +80,7 @@ export class AuthenticationService{
 
         userData.secretToken = secretToken;
         userData.id = crypto.getRandomSecret(32).toString().split(",").join("");
-        let defaultSpace = SpaceFactory.createSpace("Personal space");
+        let defaultSpace = SpaceFactory.createSpace({name: "Personal Space"});
         await storageManager.storeSpace(defaultSpace.id, defaultSpace.stringifySpace());
         userData.spaces = [{name:defaultSpace, id:defaultSpace.id}];
 
