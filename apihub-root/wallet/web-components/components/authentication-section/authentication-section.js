@@ -1,17 +1,11 @@
 export class authenticationSection {
-    constructor(element) {
-        setTimeout(()=> {
-            this.invalidate();
-        }, 0);
-        this.updateState = ()=> {
-            this.invalidate();
-        }
+    constructor(element,invalidate) {
         this.element=element;
+        this.invalidate=invalidate;
+        this.invalidate();
     }
 
-    beforeRender() {
-
-    }
+    beforeRender() {}
 
     async navigateToRegisterPage(){
         webSkel.setDomElementForPages(mainContent);

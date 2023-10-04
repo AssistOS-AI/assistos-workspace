@@ -47,7 +47,7 @@ export class suggestTitlesModal {
                 this._document.addAlternativeTitle(value.element.value);
             }
         }
-        await documentFactory.storeDocument(currentSpaceId, this._document);
+        await documentFactory.addDocument(currentSpaceId, this._document);
         this._document.notifyObservers(this._document.getNotificationId());
         closeModal(_target);
     }

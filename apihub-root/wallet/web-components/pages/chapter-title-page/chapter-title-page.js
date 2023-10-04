@@ -33,7 +33,7 @@ export class chapterTitlePage {
             const chapterIndex = this._document.getChapterIndex(this.chapterId);
             if (documentIndex !== -1 && chapterIndex !== -1 && formInfo.data.title !== this._document.getChapterTitle(this.chapterId)) {
                 this._document.updateChapterTitle(this.chapterId, formInfo.data.title);
-                await documentFactory.storeDocument(currentSpaceId, this._document);
+                await documentFactory.addDocument(currentSpaceId, this._document);
             }
         }
     }

@@ -69,7 +69,7 @@ export class documentSettingsPage {
                     await showApplicationError(`Error updating option`, `Option ${key} index not found`, `Option ${key}: value ${value}`);
                 }
             }
-            await documentFactory.storeDocument(currentSpaceId, this._document);
+            await documentFactory.addDocument(currentSpaceId, this._document);
         }
         else {
             await showApplicationError(`Error at submitting form`, `Form invalid`, `Form with target: ${_target}`);

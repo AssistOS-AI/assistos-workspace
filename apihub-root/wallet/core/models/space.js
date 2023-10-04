@@ -150,7 +150,7 @@ export class Space {
 
    async addDocument(documentData) {
         let newDocument=documentFactory.createDocument(documentData)
-        await documentFactory.storeDocument(currentSpaceId, newDocument);
+        await documentFactory.addDocument(currentSpaceId, newDocument);
         await webSkel.changeToStaticPage(`documents/${newDocument.id}`);
     }
     async addPersonality(personalityData) {

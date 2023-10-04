@@ -36,7 +36,7 @@ export class addChapterModal {
             }
             let newChapter = new Chapter(chapterObj);
             this._document.chapters.push(newChapter);
-            await documentFactory.storeDocument(currentSpaceId, this._document);
+            await documentFactory.addDocument(currentSpaceId, this._document);
             this._document.notifyObservers(this._document.getNotificationId());
         }
     }
