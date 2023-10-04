@@ -30,6 +30,7 @@ export class DocumentModel {
 
     observeChange(elementId, callback) {
         let obj = {elementId: elementId, callback: callback};
+        callback.refferenceObject = obj;
         this.observers.push(new WeakRef(obj));
     }
 
