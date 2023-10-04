@@ -16,9 +16,12 @@ export class DocumentFactory {
         return new DocumentModel(documentModel);
     }
 
-    async storeDocument(spaceId, documentObj) {
+    async addDocument(spaceId, documentObj) {
         webSkel.space.documents.push(documentObj);
         await storageManager.storeObject(spaceId, "documents", documentObj.id, documentObj.stringifyDocument());
+    }
+    async updateDocument(spaceId, documentObj) {
+            await storageManager.storeObject(spaceId, "documents", documentObj.id, documentObj.stringifyDocument());
     }
 
     async deleteDocument(spaceId, documentId) {

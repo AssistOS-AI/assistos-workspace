@@ -2,18 +2,13 @@ import { closeModal, showActionBox, showModal } from "../../../imports.js";
 
 export class manageChaptersPage {
     constructor(element, invalidate) {
-        this.element = element;
-        let url = window.location.hash;
-        this.id = url.split('/')[1];
-        this.docTitle = "Titlu document";
         this.tab = "Chapters";
         this.id1 = "selected-tab";
         this.id2 = "";
         this.idModal1 = "selected-modal";
         this.idModal2 = "";
-        this._document = webSkel.space.getDocument(this.id);
-
-        this._document.observeChange(this._document.getNotificationId()+ ":manage-chapters-page", invalidate);
+        this._document = webSkel.space.getDocument(webSkel.space.currentDocumentId);
+        this._document.observeChange(this._document.getNotificationId() + ":manage-chapters-page", invalidate);
         this.invalidate = invalidate;
         this.invalidate();
     }
@@ -28,23 +23,23 @@ export class manageChaptersPage {
     }
 
     async openEditTitlePage() {
-        await webSkel.changeToDynamicPage("edit-title-page", `documents/${this.id}/edit-title-page`);
+        await webSkel.changeToDynamicPage("edit-title-page", `documents/${this._document.id}/edit-title-page`);
     }
 
     async openEditAbstractPage() {
-        await webSkel.changeToDynamicPage("edit-abstract-page", `documents/${this.id}/edit-abstract-page`);
+        await webSkel.changeToDynamicPage("edit-abstract-page", `documents/${this._document.id}/edit-abstract-page`);
     }
 
     async openDocumentSettingsPage() {
-        await webSkel.changeToDynamicPage("document-settings-page", `documents/${this.id}/document-settings-page`);
+        await webSkel.changeToDynamicPage("document-settings-page", `documents/${this._document.id}/document-settings-page`);
     }
 
     async openManageChaptersPage() {
-        await webSkel.changeToDynamicPage("manage-chapters-page", `documents/${this.id}/manage-chapters-page`);
+        await webSkel.changeToDynamicPage("manage-chapters-page", `documents/${this._document.id}/manage-chapters-page`);
     }
 
     async openViewPage() {
-        await webSkel.changeToDynamicPage("document-view-page", `documents/${this.id}/document-view-page`);
+        await webSkel.changeToDynamicPage("document-view-page", `documents/${this._document.id}/document-view-page`);
     }
 
     closeModal(_target) {

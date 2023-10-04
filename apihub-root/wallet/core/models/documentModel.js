@@ -2,15 +2,15 @@ import { Chapter } from "./chapter.js";
 
 export class DocumentModel {
     constructor(documentData) {
+        this.id = documentData.id || undefined;
         this.title = documentData.title || "";
         this.abstract = documentData.abstract || "";
-        this.chapters = (documentData.chapters || []).map(chapterData => new Chapter(chapterData));
         this.topic = documentData.topic||"";
+        this.chapters = (documentData.chapters || []).map(chapterData => new Chapter(chapterData));
         this.alternativeTitles = documentData.alternativeTitles || [];
         this.alternativeAbstracts = documentData.alternativeAbstracts || [];
         this.settings = documentData.settings || {llm: null, personality: null};
         this.currentChapterId = null;
-        this.id = documentData.id || undefined;
         this.observers = [];
     }
 
@@ -53,16 +53,19 @@ export class DocumentModel {
         this.settings = settings;
     }
 
-    addChapter(chapterObj) {
-        this.chapters.push(new Chapter(chapterObj));
+    async addChapter(chapterData) {
+        this.chapters.push(new Chapter(chapterData));
+        await documentFactory.updateDocument(currentSpaceId, this);
     }
 
     setCurrentChapter(chapterId) {
         this.currentChapterId = chapterId;
     }
 
-    updateDocumentTitle(documentTitle) {
+    async updateDocumentTitle(documentTitle) {
         this.title = documentTitle;
+        await documentFactory.updateDocument(currentSpaceId, this);
+
     }
 
     addAlternativeAbstract(abstractText){
@@ -85,8 +88,9 @@ export class DocumentModel {
         this.mainIdeas.push(mainIdea);
     }
 
-    updateAbstract(abstractText) {
+    async updateAbstract(abstractText) {
         this.abstract = abstractText;
+        await documentFactory.updateDocument(currentSpaceId, this);
     }
 
     getAbstract() {

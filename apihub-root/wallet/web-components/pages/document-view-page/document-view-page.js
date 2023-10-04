@@ -2,49 +2,40 @@ import {Chapter} from "../../../imports.js";
 
 export class documentViewPage {
     constructor(element, invalidate) {
-        this.docTitle = "Documents";
-        this.name = "Name";
-        this.abstractText = "Edit your abstract";
-        let url = window.location.hash;
-        this.button = "Add new document";
-        this.id = url.split('/')[1];
-        this._document = webSkel.space.getDocument(this.id);
-        this.docTitle = this._document.title;
-        this.chapters = this._document.chapters;
-        this.abstractText = this._document.abstract;
-
+        this._document=webSkel.space.getDocument(webSkel.space.currentDocumentId);
         this._document.observeChange(this._document.getNotificationId() + ":document-view-page", invalidate);
         this.invalidate = invalidate;
         this.invalidate();
     }
 
     beforeRender() {
-        this.chapterDivs = "";
-        this.title = `<title-view title="${this.docTitle}"></title-view>`;
-        if(this.chapters.length > 0) {
-            this._document.setCurrentChapter(this.chapters[0].id);
+        this.chaptersContainer = "";
+        this.title = `<title-view title="${this._document.title}"></title-view>`;
+        this.abstractText=this._document.getAbstract();
+        if(this._document.chapters.length > 0) {
+            this._document.setCurrentChapter(this._document.chapters[0].id);
             let iterator = 0;
-            this.chapters.forEach((item) => {
+            this._document.chapters.forEach((item) => {
                 iterator++;
-                this.chapterDivs += `<chapter-unit data-chapter-number="${iterator}" data-chapter-title="${item.title}" data-chapter-id="${item.id}" data-presenter="chapter-unit"></chapter-unit>`;
+                this.chaptersContainer += `<chapter-unit data-chapter-number="${iterator}" data-chapter-title="${item.title}" data-chapter-id="${item.id}" data-presenter="chapter-unit"></chapter-unit>`;
             });
         }
     }
 
     async openEditTitlePage() {
-        await webSkel.changeToDynamicPage("edit-title-page", `documents/${this.id}/edit-title-page`);
+        await webSkel.changeToDynamicPage("edit-title-page", `documents/${this._document.id}/edit-title-page`);
     }
 
     async openEditAbstractPage() {
-        await webSkel.changeToDynamicPage("edit-abstract-page", `documents/${this.id}/edit-abstract-page`);
+        await webSkel.changeToDynamicPage("edit-abstract-page", `documents/${this._document.id}/edit-abstract-page`);
     }
 
     async openDocumentSettingsPage() {
-        await webSkel.changeToDynamicPage("document-settings-page", `documents/${this.id}/document-settings-page`);
+        await webSkel.changeToDynamicPage("document-settings-page", `documents/${this._document.id}/document-settings-page`);
     }
 
     async openManageChaptersPage() {
-        await webSkel.changeToDynamicPage("manage-chapters-page", `documents/${this.id}/manage-chapters-page`);
+        await webSkel.changeToDynamicPage("manage-chapters-page", `documents/${this._document.id}/manage-chapters-page`);
     }
 
     async openChapterTitlePage() {
@@ -69,17 +60,17 @@ export class documentViewPage {
     }
 
     async addChapter() {
-        const crypto = require("opendsu").loadAPI("crypto");
-        this.chapterDivs += `<chapter-unit data-chapter-title="New Chapter" data-chapter-id="${this.chapters.length}" data-presenter="chapter-unit"></chapter-unit>`;
-
-        let chapterObj= {
+        let chapterData= {
             title: "New Chapter",
-            id: crypto.getRandomSecret(16).toString().split(",").join(""),
-            paragraphs: [{id: crypto.getRandomSecret(16).toString().split(",").join(""), text: "Edit your paragraph here"}]
+            id: webSkel.servicesRegistry.UtilsService.generateId(),
+            paragraphs: [
+                {
+                    id:webSkel.servicesRegistry.UtilsService.generateId(),
+                    text: "Edit your paragraph here"
+                }
+            ]
         }
-
-        this._document.addChapter(new Chapter(chapterObj));
-        await documentFactory.storeDocument(currentSpaceId, this._document);
+        await this._document.addChapter(chapterData);
         this.invalidate();
     }
 
