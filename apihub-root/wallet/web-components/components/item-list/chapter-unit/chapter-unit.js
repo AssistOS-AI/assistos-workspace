@@ -158,7 +158,7 @@ export class chapterUnit {
                 } else {
                     doc.updateParagraphText(chapterId, paragraphId, updatedText);
                 }
-                await documentFactory.addDocument(currentSpaceId, doc);
+                await documentFactory.updateDocument(currentSpaceId, doc);
                 doc.notifyObservers(doc.getNotificationId());
             }
         }
