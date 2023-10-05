@@ -49,10 +49,10 @@ export class documentSettingsPage {
 
     async saveSettings(_target) {
         const updateOption = (optionKey, optionValue) => {
-            if(Number.isNaN(parseInt(optionValue))) {
+            if(Number.isNaN(optionValue)) {
                 return true;
             }
-            let optionId = parseInt(optionValue);
+            let optionId = optionValue;
             let optionIndex = webSkel.space.settings[optionKey].findIndex(option => option.id === optionId);
             if(optionIndex !== -1) {
                 if(this._document.settings[this.pluralToSingular[optionKey]] !== webSkel.space.settings[optionKey][optionIndex]) {
@@ -69,7 +69,7 @@ export class documentSettingsPage {
                     await showApplicationError(`Error updating option`, `Option ${key} index not found`, `Option ${key}: value ${value}`);
                 }
             }
-            await documentFactory.addDocument(currentSpaceId, this._document);
+            await documentFactory.updateDocument(currentSpaceId, this._document);
         }
         else {
             await showApplicationError(`Error at submitting form`, `Form invalid`, `Form with target: ${_target}`);
