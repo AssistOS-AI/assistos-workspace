@@ -19,7 +19,7 @@ export class addScriptModal {
             let scriptData = {
                 name:formInfo.data.name,
                 content: formInfo.data.content,
-                id:webSkel.servicesRegistry.UtilsService.generateId()
+                id:webSkel.servicesRegistry.UtilsService.generateId(),
             }
             await webSkel.space.addScript(scriptData);
             webSkel.space.notifyObservers(webSkel.space.getNotificationId());

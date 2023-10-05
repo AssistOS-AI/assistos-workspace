@@ -13,23 +13,16 @@
         <form>
             <div class="settings-content">
                 <div class="dropdown-content">
-                    <label for="personality" class="personality">Choose personality</label> <br>
-                    <select name="personality" id="personality" data-id="personality">
+                    <label for="personalities" class="personalities">Choose personality</label> <br>
+                    <select name="personalities" id="personalities" data-id="personalities">
                         <option value="" disabled selected hidden>Select personality</option>
                         $$personalities
                     </select>
                 </div>
 
                 <div class="dropdown-content">
-                    <label for="llm" class="llm">Choose LLM</label> <br>
-                    <select name="llm" id="llm" data-id="llm">
-                      $$llms
-                    </select>
-                </div>
-
-                <div class="dropdown-content">
                     <label for="document-title" class="document-title">Document Title script</label> <br>
-                    <select name="document-title" id="document-title" data-id="document-title">
+                    <select name="documentTitleScript" id="document-title" data-id="document-title">
                         $$documentTitleScript
                     </select>
                 </div>
@@ -47,7 +40,7 @@
         <div class="item-list">
             <div class="sidebar-item" data-local-action="openEditTitlePage">Edit Title</div>
             <div class="sidebar-item" data-local-action="openEditAbstractPage">Edit Abstract</div>
-            <div class="sidebar-item" data-local-action="openBrainstormingPage">Brainstorming</div>
+            <div class="sidebar-item" data-local-action="openManageChaptersPage">Manage Chapters</div>
             <div class="sidebar-item" data-local-action="openDocumentSettingsPage">Settings</div>
         </div>
     </div>

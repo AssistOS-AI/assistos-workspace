@@ -7,13 +7,20 @@ export class suggestTitlesModal {
         this._document = webSkel.space.getDocument(this.id);
         this._document.observeChange(this._document.getNotificationId(), invalidate);
         this.invalidate = invalidate;
-
+        this.element = element
         setTimeout(async()=>{
             const loading = await webSkel.showLoading();
             const documentText = this._document.toString();
-            const defaultPrompt = `Based on the following document:\n"${documentText}"\n\nPlease suggest 10 original titles that are NOT already present as chapter titles in the document. Return the titles as a string JSON array.`;
-            let response = await webSkel.getService("LlmsService").generateResponse(defaultPrompt);
-            this.suggestedTitles = JSON.parse(response);
+            //const prompt = `Based on the following document:\n"${documentText}"\n\nPlease suggest 10 original titles that are NOT already present as chapter titles in the document. Return the titles as a string JSON array.`;
+            const prompt = this._document.settings.documentTitleScript.content;
+            let response = await webSkel.getService("LlmsService").generateResponse(prompt);
+            try{
+                this.suggestedTitles = JSON.parse(response);
+            }catch (e){
+                await showApplicationError("Error parsing titles", "Error parsing titles "+ response, e);
+                closeModal(this.element);
+            }
+
             loading.close();
             loading.remove();
             this.invalidate();
