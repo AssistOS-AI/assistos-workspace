@@ -333,3 +333,7 @@ gap: 10px;
     border: 1px solid red !important;
     border-radius: 8px !important;
 }
+dialog{
+    padding:0 !important;
+    border:none !important;
+}

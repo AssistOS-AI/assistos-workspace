@@ -110,7 +110,6 @@ async function loadConfigs(jsonPath) {
         } else {
             window.currentSpaceId = 1;
         }
-        //window.currentSpaceId = 1;
         let result = await storageManager.loadSpace(currentSpaceId);
         webSkel.space = new Space(JSON.parse(result));
 

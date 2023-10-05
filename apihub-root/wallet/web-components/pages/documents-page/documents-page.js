@@ -28,6 +28,9 @@ export class documentsPage {
     async showAddDocumentModal() {
         await showModal(document.querySelector("body"), "add-document-modal", { presenter: "add-document-modal"});
     }
+    async showGenerateDocumentModal() {
+        await showModal(document.querySelector("body"), "generate-document-modal", { presenter: "generate-document-modal"});
+    }
     async editAction(_target) {
         webSkel.space.currentDocumentId = this.getDocumentId(_target);
         await webSkel.changeToDynamicPage("document-view-page",`documents/${webSkel.space.currentDocumentId}/document-view-page`, {"document-id": webSkel.space.currentDocumentId});
