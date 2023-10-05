@@ -1,5 +1,3 @@
-import {Chapter} from "../../../imports.js";
-
 export class documentViewPage {
     constructor(element, invalidate) {
         this._document=webSkel.space.getDocument(webSkel.space.currentDocumentId);
