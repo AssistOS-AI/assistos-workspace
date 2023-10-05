@@ -1,5 +1,4 @@
 import {
-    notBasePage,
     WebSkel,
     closeModal,
     Space,
@@ -7,7 +6,6 @@ import {
 import { StorageManager } from "./storageManager.js";
 import {DocumentFactory} from "./core/factories/documentFactory.js";
 
-const openDSU = require("opendsu");
 window.webSkel = new WebSkel();
 window.mainContent = document.querySelector("#main-content");
 
@@ -112,6 +110,7 @@ async function loadConfigs(jsonPath) {
         } else {
             window.currentSpaceId = 1;
         }
+        //window.currentSpaceId = 1;
         let result = await storageManager.loadSpace(currentSpaceId);
         webSkel.space = new Space(JSON.parse(result));
 
@@ -130,7 +129,6 @@ async function loadConfigs(jsonPath) {
 }
 
 (async ()=> {
-
     webSkel.setDomElementForPages(document.querySelector("#page-content"));
     window.storageManager = new StorageManager();
     window.documentFactory = new DocumentFactory();

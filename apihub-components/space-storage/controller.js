@@ -14,6 +14,7 @@ spaces is root folder
 /{spaceId}/announcements/{announcementId}
 /{spaceId}/users/{userId}*/
 const fs = require('fs');
+const path = require('path');
 const fsPromises = require('fs').promises;
 async function saveJSON(response, spaceData, filePath) {
     try {
@@ -95,19 +96,20 @@ async function storeSpace(request, response) {
     return "";
 }
 
-async function buildSpaceRecursive(filePath) {
+async function buildSpace(filePath) {
     let localData = [];
-    for (let item of await fsPromises.readdir(filePath)) {
-        const stat = await fsPromises.stat(`${filePath}/${item}`);
-        if(stat.isDirectory()) {
-            let obj={};
-            obj[item] = await buildSpaceRecursive(`${filePath}/${item}`);
-            localData.push(obj);
-        }
-        else {
-            let result = await fsPromises.readFile(`${filePath}/${item}`);
-            localData.push(JSON.parse(result));
-        }
+    const files = await fsPromises.readdir(filePath);
+
+    const statPromises = files.map(async (file) => {
+        const fullPath = path.join(filePath, file);
+        const stat = await fsPromises.stat(fullPath);
+        return { file, stat };
+    });
+    const fileStats = await Promise.all(statPromises);
+    fileStats.sort((a, b) => a.stat.ctimeMs - b.stat.ctimeMs);
+    for (const { file } of fileStats) {
+        const jsonContent = await fsPromises.readFile(path.join(filePath, file), 'utf8');
+        localData.push(JSON.parse(jsonContent));
     }
     return localData;
 }
@@ -118,8 +120,8 @@ async function loadSpace(request, response){
     let statusJson = await fsPromises.readFile(`${filePath}/status/status.json`);
     statusJson = JSON.parse(statusJson);
     for(let item of await fsPromises.readdir(filePath)) {
-        if(item !== "status") {
-            statusJson[item] = await buildSpaceRecursive(`${filePath}\/${item}`);
+        if(item !== "status"){
+            statusJson[item] = await buildSpace(`${filePath}\/${item}`);
         }
     }
     sendResponse(response, 200, "text/html", JSON.stringify(statusJson));
