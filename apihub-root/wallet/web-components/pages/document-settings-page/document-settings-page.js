@@ -6,24 +6,16 @@ export class documentSettingsPage {
         let url = window.location.hash;
         this.id = url.split('/')[1];
         this._document = webSkel.space.getDocument(this.id);
-        this.singularToPlural = { personality: "personalities", llm: "llms"};
         this.pluralToSingular = { personalities: "personality", llms: "llm"};
-
         this._document.observeChange(this._document.getNotificationId(), invalidate);
         this.invalidate = invalidate;
         this.invalidate();
     }
 
     beforeRender() {
-        let llmsHTML = "";
-        let personalitiesHTML = "";
-        let promptsHTML = "";
-
-        // caz 1 no llms
-        // caz 2 there is a selected llm already
-        // caz 3 no selected llm
-
-        const dictionary = { llms: "llm", personalities: "personality" };
+        // caz 1 no script
+        // caz 2 there is a selected script already
+        // caz 3 no selected script
         const renderSettings = (component, selectedItem, itemName) => {
             let htmlString = "";
             if(component.length === 0) {
@@ -51,30 +43,25 @@ export class documentSettingsPage {
     }
 
     async saveSettings(_target) {
-        const updateOption = (optionKey, optionValue) => {
-            if(Number.isNaN(optionValue)) {
-                return true;
-            }
-            let optionId = optionValue;
-            let optionIndex = webSkel.space.settings[optionKey].findIndex(option => option.id === optionId);
-            if(optionIndex !== -1) {
-                if(this._document.settings[this.pluralToSingular[optionKey]] !== webSkel.space.settings[optionKey][optionIndex]) {
-                    this._document.settings[this.pluralToSingular[optionKey]] = webSkel.space.settings[optionKey][optionIndex];
-                }
-                return true;
-            }
-            else {
-                if(this._document.settings["documentTitleScript"].id !== optionId){
-                    this._document.settings["documentTitleScript"] = webSkel.space.getScript();
+        const updateOption = (optionKey, optionId) => {
+            if(optionKey === "personalities"){
+                let option = webSkel.space.settings[optionKey].find(option => option.id === optionId);
+                if(option) {
+                    if(this._document.settings[this.pluralToSingular[optionKey]] !== option) {
+                        this._document.settings[this.pluralToSingular[optionKey]] = option;
+                    }
                     return true;
                 }
+                return false;
+            } else {
+                this._document.settings[optionKey] = webSkel.space.getScript(optionId);
+                return true;
             }
-            return false;
         }
         let formInfo = await extractFormInformation(_target);
         if(formInfo.isValid) {
             for (const [key, value] of Object.entries(formInfo.data)) {
-                if(!updateOption(this.singularToPlural[key], value)) {
+                if(!updateOption(key, value)) {
                     await showApplicationError(`Error updating option`, `Option ${key} index not found`, `Option ${key}: value ${value}`);
                 }
             }
