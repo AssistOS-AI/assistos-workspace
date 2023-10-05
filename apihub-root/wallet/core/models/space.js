@@ -4,7 +4,7 @@ export class Space {
     constructor(spaceData) {
         this.name = spaceData.name||undefined;
         this.id = spaceData.id || undefined;
-        this.settings = spaceData.settings ? new Settings(spaceData.settings) : {llms:[], personalities:[]};
+        this.settings = spaceData.settings ? new Settings(spaceData.settings) : {personalities:[]};
         this.announcements = (spaceData.announcements || []).map(announcementData => new Announcement(announcementData));
         this.users = (spaceData.users || []).map(userData => new User(userData));
         this.scripts = (spaceData.scripts|| []).map(scriptData => new Script(scriptData));

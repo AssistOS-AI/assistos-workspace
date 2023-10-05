@@ -19,10 +19,8 @@ import { proofReaderPage } from "./web-components/pages/proof-reader-page/proof-
 import { spacePage } from "./web-components/pages/space-page/space-page.js";
 import { documentSettingsPage } from "./web-components/pages/document-settings-page/document-settings-page.js";
 import { manageChaptersPage } from "./web-components/pages/manage-chapters-page/manage-chapters-page.js";
-import { llmsPage } from "./web-components/subpages/llms-page/llms-page.js";
 import { personalitiesPage } from "./web-components/subpages/personalities-page/personalities-page.js";
 import { announcementsPage } from "./web-components/subpages/announcements-page/announcements-page.js";
-import { usersPage } from "./web-components/subpages/users-page/users-page.js";
 import { closeModal, showActionBox, showModal } from "../WebSkel/utils/modal-utils.js";
 import { notBasePage, getClosestParentElement } from "../WebSkel/utils/dom-utils.js";
 import { Chapter } from "./core/models/chapter.js";
@@ -66,10 +64,8 @@ export {
     paragraphEditPage,
     chapterUnit,
     manageChaptersPage,
-    llmsPage,
     personalitiesPage,
     announcementsPage,
-    usersPage,
     notBasePage,
     showModal,
     closeModal,

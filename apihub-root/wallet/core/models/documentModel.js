@@ -9,7 +9,7 @@ export class DocumentModel {
         this.chapters = (documentData.chapters || []).map(chapterData => new Chapter(chapterData));
         this.alternativeTitles = documentData.alternativeTitles || [];
         this.alternativeAbstracts = documentData.alternativeAbstracts || [];
-        this.settings = documentData.settings || {llm: null, personality: null};
+        this.settings = documentData.settings || {llm: null, personality: null, documentTitleScript: {name:"default", id:"default", content:""}};
         this.currentChapterId = null;
         this.observers = [];
     }

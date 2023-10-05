@@ -2,7 +2,7 @@
     "storage": "../apihub-root",
     "port": 8080,
     "preventRateLimit": true,
-    "activeComponents": ["bdns", "bricking", "anchoring", "enclave", "mq", "secrets", "versionlessDSU", "user-storage", "space-storage", "lightDBEnclave", "staticServer"],
+    "activeComponents": ["bdns", "bricking", "anchoring", "enclave", "mq", "secrets", "versionlessDSU", "llms", "user-storage", "space-storage", "lightDBEnclave", "staticServer"],
     "componentsConfig": {
         "staticServer": {
             "excludedFiles": [".*.secret"],
@@ -10,6 +10,9 @@
         },
         "bricking": {},
         "anchoring": {},
+        "llms" :{
+            "module": "./../../apihub-components/llms"
+        },
         "user-storage" :{
             "module": "./../../apihub-components/user-storage"
         },

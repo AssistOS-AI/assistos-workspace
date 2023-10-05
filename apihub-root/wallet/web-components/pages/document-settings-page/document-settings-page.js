@@ -45,6 +45,9 @@ export class documentSettingsPage {
         for (const [key, value] of Object.entries(webSkel.space.settings)) {
             this[key] = renderSettings(value, this._document.settings[this.pluralToSingular[key]], this.pluralToSingular[key]);
         }
+
+        this.documentTitleScript = renderSettings(webSkel.space.scripts, this._document.settings["documentTitleScript"], "documentTitleScript");
+
     }
 
     async saveSettings(_target) {
@@ -59,6 +62,12 @@ export class documentSettingsPage {
                     this._document.settings[this.pluralToSingular[optionKey]] = webSkel.space.settings[optionKey][optionIndex];
                 }
                 return true;
+            }
+            else {
+                if(this._document.settings["documentTitleScript"].id !== optionId){
+                    this._document.settings["documentTitleScript"] = webSkel.space.getScript();
+                    return true;
+                }
             }
             return false;
         }

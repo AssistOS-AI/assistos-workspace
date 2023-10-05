@@ -59,28 +59,7 @@ export class editTitlePage {
     }
 
     async showSuggestTitlesModal() {
-        const loading = await webSkel.showLoading();
-        const documentText = webSkel.space.getDocument(this._document.id).toString();
-        async function generateSuggestTitles(){
-            const defaultPrompt = `Based on the following document:\n"${documentText}"\n\nPlease suggest 10 original titles that are NOT already present as chapter titles in the document. Return the titles as a JSON array.`;
-            if(webSkel.space.settings.llms.length <= 0) {
-                loading.close();
-                loading.remove();
-                await showApplicationError("Space has no LLMs", "Space has no LLMS", "Space has no LLMS");
-                return;
-            }
-            const llmId = webSkel.space.settings.llms[0].id;
-            return await webSkel.space.suggestTitles(defaultPrompt, llmId);
-        }
-        while(!this.suggestedTitles) {
-            try {
-                this.suggestedTitles = JSON.parse(await generateSuggestTitles()).titles;
-            } catch (e) {
-                console.error(e);
-            }
-        }
-        loading.close();
-        loading.remove();
+
         await showModal(document.querySelector("body"), "suggest-titles-modal", { presenter: "suggest-titles-modal"});
     }
 

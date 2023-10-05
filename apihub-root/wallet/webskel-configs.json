@@ -75,16 +75,7 @@
       "path": "./web-components/subpages/announcements-page/announcements-page.js",
       "className": "announcementsPage"
     },
-    {
-      "name": "llms-page",
-      "path": "./web-components/subpages/llms-page/llms-page.js",
-      "className": "llmsPage"
-    },
-    {
-      "name": "users-page",
-      "path": "./web-components/subpages/users-page/users-page.js",
-      "className": "usersPage"
-    },
+
     {
       "name": "personalities-page",
       "path": "./web-components/subpages/personalities-page/personalities-page.js",
@@ -182,6 +173,10 @@
     {
       "name": "UtilsService",
       "path": "./core/services/utilsService.js"
+    },
+    {
+      "name": "LlmsService",
+      "path": "./core/services/llmsService.js"
     }
   ],
   "components": [
@@ -306,16 +301,8 @@
       "path": "./wallet/web-components/pages/space-page/space-page.html"
     },
     {
-      "name": "llms-page",
-      "path": "./wallet/web-components/subpages/llms-page/llms-page.html"
-    },
-    {
       "name": "announcements-page",
       "path": "./wallet/web-components/subpages/announcements-page/announcements-page.html"
-    },
-    {
-      "name": "users-page",
-      "path": "./wallet/web-components/subpages/users-page/users-page.html"
     },
     {
       "name": "personalities-page",
