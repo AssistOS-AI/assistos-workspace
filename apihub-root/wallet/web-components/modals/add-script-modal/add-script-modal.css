@@ -85,3 +85,7 @@ input::file-selector-button {
     font-weight: 600;
     line-height: normal;
 }
+.highlight{
+    color: red;
+    font-weight: bold;
+}

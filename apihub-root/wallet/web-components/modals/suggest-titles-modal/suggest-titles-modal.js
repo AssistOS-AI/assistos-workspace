@@ -11,11 +11,12 @@ export class suggestTitlesModal {
         setTimeout(async()=>{
             const loading = await webSkel.showLoading();
             const documentText = this._document.toString();
-            //const prompt = `Based on the following document:\n"${documentText}"\n\nPlease suggest 10 original titles that are NOT already present as chapter titles in the document. Return the titles as a string JSON array.`;
-            const prompt = this._document.settings.documentTitleScript.content;
-            let response = await webSkel.getService("LlmsService").generateResponse(prompt);
+            let script = webSkel.space.getScript(this._document.settings.documentTitleScriptId);
+            const scriptCode = eval(script.content);
+            let response = await scriptCode();
             try{
                 this.suggestedTitles = JSON.parse(response);
+                this.suggestedTitles.forEach(()=>{});
             }catch (e){
                 await showApplicationError("Error parsing titles", "Error parsing titles "+ response, e);
                 closeModal(this.element);

@@ -211,13 +211,9 @@ export class Space {
             console.error("Failed to update script, script not found.");
         }
     }
-    async updateLLM(llmId,content) {
-        let llm = this.getLLM(llmId);
-        if(llm!==null) {
-            llm.url = content;
-            await storageManager.storeObject(currentSpaceId, "status", "status", JSON.stringify(webSkel.space.getSpaceStatus(),null,2));
-        }else{
-            console.error("Failed to update LLM, LLM not found.");
-        }
+    getComponent(id){
+        let settingsKeys = Object.keys(this.settings);
+        let keys = Object.keys(this);
+        let key = settingsKeys.find(key => this.settings[key].id === id) || keys.find(key => this[key].id === id);
     }
 }

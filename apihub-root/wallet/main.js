@@ -134,4 +134,7 @@ async function loadConfigs(jsonPath) {
     await loadConfigs("./wallet/webskel-configs.json");
     await loadPage();
     defineActions();
+    window.generateResponseLLM = async (prompt)=>{
+       return await webSkel.getService("LlmsService").generateResponse(prompt);
+    }
 })();
