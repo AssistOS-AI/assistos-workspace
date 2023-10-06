@@ -1,15 +1,25 @@
 <link href="./wallet/web-components/pages/documents-page/documents-page.css" rel="stylesheet"/>
 <div class="documents-page" data-presenter="documents-page">
-    <div class="table">
         <div class="table-header">
-            <div class="cell">Name</div>
-            <div class="add-button" data-local-action="showAddDocumentModal">
-                <svg xmlns="http://www.w3.org/2000/svg" width="13" height="12" viewBox="0 0 13 12" fill="none">
-                    <path d="M5.72586 6.85714H0.583008V5.14286H5.72586V0H7.44015V5.14286H12.583V6.85714H7.44015V12H5.72586V6.85714Z" fill="#0618D1"/>
-                </svg>
-                Add document
+            <div class="document-header-wrapper">
+                <div class="documents-cell">Documents</div>
+                <div class="document-buttons-wrapper">
+                    <div class="generate-button" data-local-action="showGenerateDocumentModal">
+                        <svg width="12" height="12" viewBox="0 0 12 12" fill="none" xmlns="http://www.w3.org/2000/svg">
+                            <path d="M5.14286 6.85714H0V5.14286H5.14286V0H6.85714V5.14286H12V6.85714H6.85714V12H5.14286V6.85714Z" fill="white"/>
+                        </svg>
+                        Generate
+                    </div>
+                    <div class="add-button" data-local-action="showAddDocumentModal">
+                        <svg width="12" height="12" viewBox="0 0 12 12" fill="none" xmlns="http://www.w3.org/2000/svg">
+                            <path d="M5.14286 6.85714H0V5.14286H5.14286V0H6.85714V5.14286H12V6.85714H6.85714V12H5.14286V6.85714Z" fill="white"/>
+                        </svg>
+                        Add document
+                    </div>
+                </div>
             </div>
         </div>
-        $$tableRows
-    </div>
+        <div class="table-content">
+            $$tableRows
+        </div>
 </div>

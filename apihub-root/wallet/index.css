@@ -52,10 +52,6 @@ body {
     flex-direction: column;
 }
 
-#page-content {
-    padding-left: 15px;
-}
-
 #app-content {
     width: 100%;
     max-height: 100%;
@@ -66,7 +62,9 @@ body {
 
 #page-content {
     width: 100%;
+    height:100%;
     max-height: 100%;
+    min-height:100%;
     display: inline-block;
     overflow: scroll;
     z-index: 0;
@@ -138,7 +136,7 @@ body {
     border-left: 1px solid #D9D4EE;
     box-shadow: -3px 0 4px -3px rgba(9, 1, 49, 0.09);
     padding-top: 10px;
-}/*terminare sidebar dreapta*/
+}
 
 .pointer {
     cursor: pointer;
@@ -149,17 +147,26 @@ body {
     width: 100%;
     height: 100%;
     flex-direction: row;
-    /*padding-right: 10px;*/
+
 }
 
 #app-content {
     height: 100%;
 }
-
-.tools-list {
-    padding: 0 30px 0 14px;
+documents-page{
+    height:100%;
 }
-
+.tools-list {
+    margin-top:20px;
+    margin-left:24px;
+    margin-right:24px;
+    display:flex;
+    justify-content: center;
+    flex-direction:column;
+}
+.tools-items-wrapper{
+    margin-top:20px;
+}
 .spinner {
     outline: none;
     background: none;
@@ -223,50 +230,52 @@ body {
     background-color: #E0E0E0;
 }
 
-.add-button-section {
-    padding: 20px 0 15px 0;
-}
+
 
 .page-logo-section > img {
     margin-right: 20px;
     max-height: 100%;
 }
-
+.add-button{
+    font-family: Poppins;
+    font-size: 16px;
+    font-weight: 600;
+    line-height: 24px;
+    letter-spacing: 0em;
+    text-align: center;
+    color:#A42E70;
+    width:fit-content;
+height: 36px;
+padding: 6px 11px 6px 11px;
+    border: 1px solid #A42E70;
+border-radius: 17px;
+gap: 10px;
+    cursor:pointer;
+}
 .tool-item {
     display: flex;
     padding: 8px 15px 8px 10px;
+    padding-left:8px;
     margin-top: 15px;
     max-height: 100%;
 }
 
 #selected-page {
     border-radius: 5px;
-    background: #307AB4;
+    background: #A42E70;
     font-size: 16px;
     font-style: normal;
     font-weight: 500;
     line-height: normal;
 }
 
-.logo-image {
-    margin-top: 20px;
-    margin-left: 15px;
-}
-
 .tool-item:hover {
     border-radius: 5px;
     background: rgba(175, 168, 186, 0.22);
 }
-
-/*#app-header {*/
-/*    display: flex;*/
-/*    align-items: center;*/
-/*    justify-content: space-between;*/
-/*    width: 100%;*/
-/*    height: 69px;*/
-/*    background-color: #090131;*/
-/*}*/
-
+.logo-image{
+    margin-left:8px;
+}
 .tools-title {
     color: #FFFFFF;
     font-family: Poppins;
@@ -310,33 +319,11 @@ body {
 #tools-sidebar {
     background-color: #511A53;
     height: 100%;
-    min-width: fit-content;
-    width: 15%;
-    /*border-right: 1px solid #D9D4EE;*/
-    /*box-shadow: 0 1px 4px 0 rgba(9, 1, 49, 0.09);*/
+    min-width: 270px;
+    width: 14%;
 }
 
-.add-button {
-    cursor: pointer;
-    min-width: fit-content;
-    align-items: center;
-    display: flex;
 
-    color: #307AB4;
-    font-family: Poppins, serif;
-    font-size: 16px;
-    font-style: normal;
-    font-weight: 600;
-    line-height: normal;
-    border-radius: 6px;
-    border: 1px solid #307AB4;
-    padding: 6px 11px;
-    gap: 10px;
-}
-
-.add-button svg {
-    margin-right: 9px;
-}
 
 .rotate {
     transform: rotate(-90deg);
@@ -345,4 +332,8 @@ body {
 .input-invalid {
     border: 1px solid red !important;
     border-radius: 8px !important;
+}
+dialog{
+    padding:0 !important;
+    border:none !important;
 }
