@@ -336,4 +336,5 @@ gap: 10px;
 dialog{
     padding:0 !important;
     border:none !important;
+    outline:none !important;
 }
