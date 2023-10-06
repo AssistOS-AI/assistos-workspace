@@ -9,7 +9,7 @@ export class documentViewPage {
     beforeRender() {
         this.chaptersContainer = "";
         this.title = `<title-view title="${this._document.title}"></title-view>`;
-        this.abstractText=this._document.abstract()||"No abstract has been set or generated for this document";
+        this.abstractText=this._document.abstract||"No abstract has been set or generated for this document";
         if(this._document.chapters.length > 0) {
             this._document.setCurrentChapter(this._document.chapters[0].id);
             let iterator = 0;

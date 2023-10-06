@@ -85,7 +85,7 @@ export class editAbstractPage {
 
     async edit(_target) {
         let abstractText = reverseQuerySelector(_target, ".content");
-        let alternativeAbstractId = reverseQuerySelector(_target, "alternative-abstract");
+        let alternativeAbstractId = reverseQuerySelector(_target, "alternative-abstract").getAttribute("data-id");
         let abstract = this._document.getAlternativeAbstract(alternativeAbstractId);
         removeActionBox(this.actionBox, this);
         abstractText.contentEditable = true;
@@ -93,7 +93,7 @@ export class editAbstractPage {
         abstractText.addEventListener('blur', async () => {
             abstractText.contentEditable = false;
             if(abstractText.innerText !== abstract.content) {
-                this._document.updateAlternativeAbstract(alternativeAbstractId, abstractText)
+                this._document.updateAlternativeAbstract(alternativeAbstractId, abstractText.innerText)
                 await documentFactory.updateDocument(currentSpaceId, this._document);
             }
         });
@@ -103,6 +103,7 @@ export class editAbstractPage {
         let abstract = reverseQuerySelector(_target, "alternative-abstract");
         this._document.deleteAlternativeAbstract(abstract.getAttribute("data-id"));
         await documentFactory.updateDocument(currentSpaceId, this._document);
+        this.invalidate();
     }
 
     removeEventForDocument(event) {
