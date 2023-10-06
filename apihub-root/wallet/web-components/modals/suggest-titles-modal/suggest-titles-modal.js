@@ -61,7 +61,7 @@ export class suggestTitlesModal {
         let formInfo = await extractFormInformation(_target);
         for (const [key, value] of Object.entries(formInfo.elements)) {
             if(value.element.checked) {
-                this._document.addAlternativeTitle(value.element.value);
+                this._document.addAlternativeTitle({name:value.element.value, id:value.element.getAttribute("data-id")});
             }
         }
         await documentFactory.updateDocument(currentSpaceId, this._document);

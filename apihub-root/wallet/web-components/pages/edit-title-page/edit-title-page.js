@@ -19,8 +19,8 @@ export class editTitlePage {
         this.title = `<title-edit title="${this._document.title}"></title-edit>`;
         this.alternativeTitles = "";
         let i = 1;
-        this._document.getAlternativeTitles().forEach((alternativeTitle) => {
-            this.alternativeTitles += `<alternative-title nr="${i}" title="${alternativeTitle}"></alternative-title>`;
+        this._document.alternativeTitles.forEach((alternativeTitle) => {
+            this.alternativeTitles += `<alternative-title data-nr="${i}" data-title="${alternativeTitle.name}" data-id="${alternativeTitle.id}"></alternative-title>`;
             i++;
         });
 
@@ -68,7 +68,7 @@ export class editTitlePage {
         if(selectedTitle !== this._document.getTitle()) {
             this._document.setTitle(selectedTitle);
             await documentFactory.updateDocument(currentSpaceId, this._document);
-            this._document.notifyObservers(this._document.getNotificationId() + "alternativeTitlesId");
+            this.invalidate();
         }
         else {
             removeActionBox(this.actionBox, this);
@@ -76,34 +76,29 @@ export class editTitlePage {
     }
 
     async edit(_target) {
-        let alternativeTitle = reverseQuerySelector(_target, ".suggested-title");
-        let alternativeTitleIndex = this._document.getAlternativeTitles().findIndex(title => title === alternativeTitle.innerText);
-        if(alternativeTitleIndex !== -1) {
-            removeActionBox(this.actionBox, this);
-            alternativeTitle.contentEditable = true;
-            alternativeTitle.focus();
-            alternativeTitle.addEventListener('blur', async () => {
-                alternativeTitle.contentEditable = false;
-                if(alternativeTitle.innerText !== this._document.alternativeTitles[alternativeTitleIndex]) {
-                    this._document.setAlternativeTitle(alternativeTitleIndex, alternativeTitle.innerText);
-                    await documentFactory.updateDocument(currentSpaceId, this._document);
-                }
-            });
-        }
-        else {
-            await showApplicationError("Error editing title", `Error editing title for document: ${this._document.title}`, `Error editing title for document: ${this._document.title}`);
-        }
+        let newTitle = reverseQuerySelector(_target, ".suggested-title");
+
+        let component = reverseQuerySelector(_target, "alternative-title")
+        let altTitleObj = this._document.getAlternativeTitle(component.getAttribute("data-id"));
+        removeActionBox(this.actionBox, this);
+        newTitle.contentEditable = true;
+        newTitle.focus();
+
+        newTitle.addEventListener('blur', async () => {
+            newTitle.contentEditable = false;
+
+            if(newTitle.innerText !== altTitleObj.name) {
+                this._document.updateAlternativeTitle(altTitleObj.id, newTitle.innerText);
+                await documentFactory.updateDocument(currentSpaceId, this._document);
+            }
+        });
     }
 
     async delete(_target) {
-        let alternativeTitle = reverseQuerySelector(_target, ".suggested-title");
-        let alternativeTitleIndex = this._document.getAlternativeTitles().findIndex(title => title === alternativeTitle.innerText);
-        if(alternativeTitleIndex !== -1) {
-            this._document.deleteAlternativeTitle(alternativeTitleIndex);
-            await documentFactory.updateDocument(currentSpaceId, this._document);
-        } else {
-            await showApplicationError("Error deleting title", `Error deleting title for document: ${this._document.title}`, `Error deleting title for document: ${this._document.title}`);
-        }
+        let alternativeTitle = reverseQuerySelector(_target, "alternative-title");
+        this._document.deleteAlternativeTitle(alternativeTitle.getAttribute("data-id"));
+        await documentFactory.updateDocument(currentSpaceId, this._document);
+        this.invalidate();
     }
 
     async showActionBox(_target, primaryKey, componentName, insertionMode) {

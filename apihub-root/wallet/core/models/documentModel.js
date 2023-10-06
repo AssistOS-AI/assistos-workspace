@@ -72,16 +72,12 @@ export class DocumentModel {
         this.alternativeAbstracts.push(abstractText);
     }
 
-    addAlternativeTitle(title){
-        this.alternativeTitles.push(title);
+    addAlternativeTitle(obj){
+        this.alternativeTitles.push(obj);
     }
 
     getMainIdeas() {
         return this.mainIdeas || [];
-    }
-
-    setMainIdeas(mainIdeas) {
-        this.mainIdeas = mainIdeas;
     }
 
     addMainIdea(mainIdea) {
@@ -187,17 +183,30 @@ export class DocumentModel {
     getAlternativeTitles() {
         return this.alternativeTitles || [];
     }
+    getAlternativeTitle(id){
+        return this.alternativeTitles.find(title => title.id === id);
+    }
 
     setTitle(title) {
         this.title = title;
     }
 
-    setAlternativeTitle(index, alternativeTitle) {
-        this.alternativeTitles[index] = alternativeTitle;
+    updateAlternativeTitle(id, newName) {
+        let title = this.getAlternativeTitle(id);
+        if(title){
+            title.name = newName;
+        }else {
+            console.error(`Failed to find altTitle with id: ${id}`);
+        }
     }
 
-    deleteAlternativeTitle(index) {
-        this.alternativeTitles.splice(index, 1);
+    deleteAlternativeTitle(id) {
+        const index = this.alternativeTitles.findIndex(title => title.id === id);
+        if (index !== -1) {
+            this.alternativeTitles.splice(index, 1);
+        }else {
+            console.error(`Failed to find altTitle with id: ${id}`);
+        }
     }
 
     getNotificationId() {
