@@ -18,7 +18,7 @@ export class addDocumentModal {
         if(formData.isValid) {
             let docData={
                 title: formData.data.documentTitle,
-                topic: formData.data.documentIdea
+                topic: formData.data.documentTopic
             }
             await webSkel.space.addDocument(docData);
             closeModal(_target);

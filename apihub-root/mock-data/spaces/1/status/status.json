@@ -1,0 +1,34 @@
+{
+  "name": "Mock Space",
+  "id": "111111111111",
+  "settings": {
+    "llms": [
+      {
+        "name": "GPT-3",
+        "apiKeys": [
+          "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"
+        ],
+        "key": "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",
+        "url": "https://api.openai.com/v1/chat/completions",
+        "id": "5JSe1FsP5Pf2"
+      }
+    ],
+    "personalities": [
+      {
+        "name": "Sad",
+        "description": "Depressed and likes to cry",
+        "id": "5JSe1F8P5Pf4"
+      }
+    ],
+    "scripts": []
+  },
+  "admins": [],
+  "announcements": [
+    {
+      "title": "Hello World",
+      "id": "51gfx8uKuMx4",
+      "date": "2023-10-06",
+      "text": "Good Morning"
+    }
+  ]
+}

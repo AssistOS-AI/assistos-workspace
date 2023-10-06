@@ -67,7 +67,7 @@ export class editTitlePage {
         let selectedTitle = reverseQuerySelector(_target,".suggested-title").innerText;
         if(selectedTitle !== this._document.getTitle()) {
             this._document.setTitle(selectedTitle);
-            await documentFactory.addDocument(currentSpaceId, this._document);
+            await documentFactory.updateDocument(currentSpaceId, this._document);
             this._document.notifyObservers(this._document.getNotificationId() + "alternativeTitlesId");
         }
         else {
@@ -86,7 +86,7 @@ export class editTitlePage {
                 alternativeTitle.contentEditable = false;
                 if(alternativeTitle.innerText !== this._document.alternativeTitles[alternativeTitleIndex]) {
                     this._document.setAlternativeTitle(alternativeTitleIndex, alternativeTitle.innerText);
-                    await documentFactory.addDocument(currentSpaceId, this._document);
+                    await documentFactory.updateDocument(currentSpaceId, this._document);
                 }
             });
         }
@@ -100,7 +100,7 @@ export class editTitlePage {
         let alternativeTitleIndex = this._document.getAlternativeTitles().findIndex(title => title === alternativeTitle.innerText);
         if(alternativeTitleIndex !== -1) {
             this._document.deleteAlternativeTitle(alternativeTitleIndex);
-            await documentFactory.addDocument(currentSpaceId, this._document);
+            await documentFactory.updateDocument(currentSpaceId, this._document);
         } else {
             await showApplicationError("Error deleting title", `Error deleting title for document: ${this._document.title}`, `Error deleting title for document: ${this._document.title}`);
         }

@@ -337,3 +337,6 @@ dialog{
     padding:0 !important;
     outline:none !important;
 }
+.modal{
+    border:none;
+}

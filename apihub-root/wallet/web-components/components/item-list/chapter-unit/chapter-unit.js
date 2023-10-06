@@ -1,15 +1,12 @@
-import { DocumentModel, documentViewPage, getClosestParentElement, Paragraph } from "../../../../imports.js";
+import { getClosestParentElement} from "../../../../imports.js";
 
 export class chapterUnit {
-    constructor(element) {
+    constructor(element,invalidate) {
         this.element = element;
-        this.chapterContent = "Chapter's content";
-        this.documentId = window.location.hash.split('/')[1];
-        setTimeout(()=> {
-            this.invalidate();
-            this._document.observeChange(this._document.getNotificationId(), this.invalidate);
-        }, 0);
-        this._document = webSkel.space.getDocument(this.documentId);
+        this._document=webSkel.space.getDocument(webSkel.space.currentDocumentId);
+        this._document.observeChange(this._document.getNotificationId() + ":document-view-page", invalidate);
+        this.invalidate=invalidate;
+        this.invalidate();
     }
 
     beforeRender() {
@@ -49,8 +46,8 @@ export class chapterUnit {
 
             let chapter1Index = this._document.chapters.findIndex(chapter => chapter.id === currentChapter.getAttribute('data-chapter-id'));
             let chapter2Index = this._document.chapters.findIndex(chapter => chapter.id === chapterAbove.getAttribute('data-chapter-id'));
-            await this._document.swapChapters(chapter1Index, chapter2Index);
-            await documentFactory.addDocument(currentSpaceId, this._document);
+            this._document.swapChapters(chapter1Index, chapter2Index);
+            await documentFactory.updateDocument(currentSpaceId, this._document);
 
             currentChapter.setAttribute("data-chapter-number", chapterAboveNumber);
             currentChapter.querySelector(".data-chapter-number").innerText = chapterAboveNumber + ".";
@@ -72,8 +69,8 @@ export class chapterUnit {
             chapterBelow.after(currentChapter);
             let chapter1Index = this._document.chapters.findIndex(chapter => chapter.id === currentChapter.getAttribute('data-chapter-id'));
             let chapter2Index = this._document.chapters.findIndex(chapter => chapter.id === chapterBelow.getAttribute('data-chapter-id'));
-            await this._document.swapChapters(chapter1Index, chapter2Index);
-            await documentFactory.addDocument(currentSpaceId, this._document);
+            this._document.swapChapters(chapter1Index, chapter2Index);
+            await documentFactory.updateDocument(currentSpaceId, this._document);
 
             let currentChapterNumber = currentChapter.querySelector(".data-chapter-number").innerText.split(".")[0];
             let chapterBelowNumber = chapterBelow.querySelector(".data-chapter-number").innerText.split(".")[0];
@@ -101,8 +98,8 @@ export class chapterUnit {
             let paragraph1Index = this._document.chapters.findIndex(paragraph => paragraph.id === currentParagraph.getAttribute('data-paragraph-id'));
             let paragraph2Index = this._document.chapters.findIndex(paragraph => paragraph.id === paragraphAbove.getAttribute('data-paragraph-id'));
 
-            await this._document.swapParagraphs(chapterIndex, paragraph1Index, paragraph2Index);
-            await documentFactory.addDocument(currentSpaceId, this._document);
+            this._document.swapParagraphs(chapterIndex, paragraph1Index, paragraph2Index);
+            await documentFactory.updateDocument(currentSpaceId, this._document);
         }
     }
 
@@ -116,8 +113,8 @@ export class chapterUnit {
             paragraphBelow.after(currentParagraph);
             let paragraph1Index = this._document.chapters.findIndex(paragraph => paragraph.id === currentParagraph.getAttribute('data-paragraph-id'));
             let paragraph2Index = this._document.chapters.findIndex(paragraph => paragraph.id === paragraphBelow.getAttribute('data-paragraph-id'));
-            await this._document.swapParagraphs(chapterIndex, paragraph1Index, paragraph2Index);
-            await documentFactory.addDocument(currentSpaceId, this._document);
+            this._document.swapParagraphs(chapterIndex, paragraph1Index, paragraph2Index);
+            await documentFactory.updateDocument(currentSpaceId, this._document);
         }
     }
 

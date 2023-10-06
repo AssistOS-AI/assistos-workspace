@@ -1,0 +1,44 @@
+{
+  "id": "1aBcDeFgHiJk",
+  "title": "Lorem Ipsum Document",
+  "abstract": "Lorem ipsum dolor sit amet, consectetur adipiscing elit.",
+  "topic": "Lorem Ipsum",
+  "chapters": [
+    {
+      "title": "Chapter 1",
+      "id": "2LmNoPqRsTuV",
+      "visibility": "show",
+      "paragraphs": [
+        {
+          "text": "Lorem ipsum paragraph 1.",
+          "id": "3wXyZaBcDeFg"
+        },
+        {
+          "text": "Lorem ipsum paragraph 2.",
+          "id": "4hIjKlMnOpQr"
+        }
+      ]
+    },
+    {
+      "title": "Chapter 2",
+      "id": "5sTuVwXyZaBc",
+      "visibility": "show",
+      "paragraphs": [
+        {
+          "text": "Lorem ipsum paragraph 3.",
+          "id": "6dEfGhIjKlMn"
+        },
+        {
+          "text": "Lorem ipsum paragraph 4.",
+          "id": "7oPqRsTuVwXy"
+        }
+      ]
+    }
+  ],
+  "alternativeTitles": [],
+  "alternativeAbstracts": [],
+  "settings": {
+    "personality": null,
+    "documentTitleScriptId": null
+  }
+}

@@ -154,11 +154,11 @@ export class DocumentModel {
         return this.chapters.find(chapter => chapter.id === document.currentChapterId);
     }
 
-    async swapChapters(chapterId1, chapterId2) {
+    swapChapters(chapterId1, chapterId2) {
         [this.chapters[chapterId1], this.chapters[chapterId2]] = [this.chapters[chapterId2], this.chapters[chapterId1]];
     }
 
-    async swapParagraphs(chapterIndex, paragraphIndex1, paragraphIndex2) {
+   swapParagraphs(chapterIndex, paragraphIndex1, paragraphIndex2) {
         [this.chapters[chapterIndex].paragraphs[paragraphIndex1], this.chapters[chapterIndex].paragraphs[paragraphIndex2]] = [this.chapters[chapterIndex].paragraphs[paragraphIndex2], this.chapters[chapterIndex].paragraphs[paragraphIndex1]];
     }
 

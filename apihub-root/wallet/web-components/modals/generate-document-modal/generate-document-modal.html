@@ -9,25 +9,25 @@
         </div>
     </div>
     <div class="generate-modal-form-wrapper">
-        <form>
+        <form class="generate-form">
             <div class="generate-form-item">
-                <label class="form-label" for="document-name">Title</label>
-                <input class="form-input" name="documen tTitle" data-id="document-name" pattern=".*\S+.*" type="text" id="document-name" required placeholder="Add name">
+                <label class="form-label" for="documentTitle">Title</label>
+                <input class="form-input" name="documentTitle" data-id="documentTitle" pattern=".*\S+.*" type="text" id="documentTitle" required placeholder="Add name">
             </div>
 
             <div class="generate-form-item">
-                <label class="form-label" for="document-idea1">Topic</label>
-                <input class="form-input" name="documentIdea" data-id="document-idea" pattern=".*\S+.*" type="text" id="document-idea1" required placeholder="Add Topic">
+                <label class="form-label" for="documentTopic">Topic</label>
+                <input class="form-input" name="documentTopic" data-id="documentTopic" pattern=".*\S+.*" type="text" id="documentTopic" required placeholder="Add Topic">
             </div>
 
             <div class="generate-form-item">
-                <label class="form-label" for="document-idea2">Number of Chapters</label>
-                <input class="form-input" name="documentIdea" data-id="document-idea" pattern=".*\S+.*" type="text" id="document-idea2" required placeholder="Select Number of Chapters">
+                <label class="form-label" for="chaptersCount">Number of Chapters</label>
+                <input class="form-input" type="number" id="chaptersCount" name="chaptersCount" min="1" max="100" value="1" placeholder="Choose Number of Chapters">
             </div>
 
             <div class="generate-form-item">
-                <label class="form-label" for="document-idea3">Choose Personality</label>
-                <input class="form-input" name="documentIdea" data-id="document-idea" pattern=".*\S+.*" type="text" id="document-idea3" required placeholder="Select Personality">
+                <label class="form-label" for="documentPersonality">Choose Personality</label>
+                <input class="form-input" name="documentPersonality" data-id="documentPersonality" pattern=".*\S+.*" type="text" id="documentPersonality" required placeholder="Select Personality">
             </div>
 
             <div class="generate-modal-button-wrapper">

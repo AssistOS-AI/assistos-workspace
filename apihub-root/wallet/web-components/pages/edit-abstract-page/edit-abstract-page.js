@@ -53,7 +53,6 @@ export class editAbstractPage {
     async saveAbstract() {
         let updatedAbstract = document.querySelector(".abstract-content").innerText;
         let documentIndex = webSkel.space.documents.findIndex(doc => doc.id === this._document.id);
-        debugger;
         if (documentIndex !== -1 && updatedAbstract !== this._document.getAbstract()) {
             for (let i = 0; i < updatedAbstract.length; i++) {
                 if (updatedAbstract[i] === '\n') {
@@ -112,7 +111,7 @@ export class editAbstractPage {
         let abstract = reverseQuerySelector(_target,".content").innerText;
         if(abstract !== this._document.getAbstract()) {
             this._document.updateAbstract(abstract);
-            await documentFactory.addDocument(currentSpaceId, this._document);
+            await documentFactory.updateDocument(currentSpaceId, this._document);
             this._document.notifyObservers(this._document.getNotificationId());
         } else {
             removeActionBox(this.actionBox, this);
@@ -130,7 +129,7 @@ export class editAbstractPage {
                 abstract.contentEditable = false;
                 if(abstract.innerText !== this._document.alternativeAbstracts[alternativeAbstractIndex]) {
                     this._document.alternativeAbstracts[alternativeAbstractIndex] = abstract.innerText;
-                    await documentFactory.addDocument(currentSpaceId, this._document);
+                    await documentFactory.updateDocument(currentSpaceId, this._document);
                 }
             });
         }
@@ -144,7 +143,7 @@ export class editAbstractPage {
         let alternativeAbstractIndex = this._document.alternativeAbstracts.findIndex(abs => abs.id === abstract.id);
         if(alternativeAbstractIndex !== -1) {
             this._document.alternativeAbstracts.splice(alternativeAbstractIndex, 1);
-            await documentFactory.addDocument(currentSpaceId, this._document);
+            await documentFactory.updateDocument(currentSpaceId, this._document);
         } else {
             await showApplicationError("Error deleting abstract", `Error deleting abstract for document: ${this._document.title}`, `Error deleting abstract for document: ${this._document.title}`);
         }

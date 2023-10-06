@@ -26,6 +26,6 @@ export class suggestAbstractModal {
 
     async addSelectedAbstract(_target) {
         this._document.addAlternativeAbstract(this.suggestedAbstract);
-        await documentFactory.addDocument(currentSpaceId, this._document);
+        await documentFactory.updateDocument(currentSpaceId, this._document);
     }
 }
