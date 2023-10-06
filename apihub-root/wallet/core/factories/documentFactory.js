@@ -21,7 +21,7 @@ export class DocumentFactory {
         await storageManager.storeObject(spaceId, "documents", documentObj.id, documentObj.stringifyDocument());
     }
     async updateDocument(spaceId, documentObj) {
-            await storageManager.storeObject(spaceId, "documents", documentObj.id, documentObj.stringifyDocument());
+        await storageManager.storeObject(spaceId, "documents", documentObj.id, documentObj.stringifyDocument());
     }
 
     async deleteDocument(spaceId, documentId) {

@@ -1,5 +1,4 @@
-import { proofReaderService } from "../../../core/services/proofReaderService.js";
-import { extractFormInformation } from "../../../imports.js";
+import {extractFormInformation} from "../../../imports.js";
 
 export class proofReaderPage {
     constructor(element, invalidate) {
@@ -15,14 +14,12 @@ export class proofReaderPage {
     async executeProofRead(formElement) {
         const formData= await extractFormInformation(formElement);
         if(formData.isValid) {
-            const proofReader= new proofReaderService(formData.data.length, formData.data.personality, formData.data.llm, formData.data.language, formData.data.variants, formData.data.prompt);
-            let results = await proofReader.proofRead();
-            let generatedTextNode = document.querySelector(".generated-content");
-            let stringHTML = "";
-            for(let subResult of results) {
-                stringHTML += `<p>${subResult}</p>`;
-            }
-            generatedTextNode.innerHTML = stringHTML;
+            /*evaluate and recreate prompt using personality, language, length*/
+            const loading = await webSkel.showLoading();
+            this.generatedText = await webSkel.getService("LlmsService").generateResponse(formData.data.prompt);
+            loading.close();
+            loading.remove();
+            this.invalidate();
         }
     }
 }

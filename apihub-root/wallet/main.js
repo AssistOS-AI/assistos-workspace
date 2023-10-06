@@ -3,7 +3,7 @@ import {
     closeModal,
     Space,
 } from "./imports.js";
-import { StorageManager } from "./storageManager.js";
+import { StorageManager } from "./core/services/storageManager.js";
 import {DocumentFactory} from "./core/factories/documentFactory.js";
 
 window.webSkel = new WebSkel();

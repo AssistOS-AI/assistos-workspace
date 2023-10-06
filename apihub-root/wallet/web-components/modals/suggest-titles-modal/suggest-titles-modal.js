@@ -7,10 +7,10 @@ export class suggestTitlesModal {
         this._document = webSkel.space.getDocument(this.id);
         this._document.observeChange(this._document.getNotificationId(), invalidate);
         this.invalidate = invalidate;
-        this.element = element
+        this.element = element;
+
         setTimeout(async()=>{
             const loading = await webSkel.showLoading();
-            const documentText = this._document.toString();
             let script = webSkel.space.getScript(this._document.settings.documentTitleScriptId);
             const scriptCode = eval(script.content);
             let response = await scriptCode();
