@@ -71,7 +71,7 @@ export class editAbstractPage {
                 }
             }
 
-            this._document.updateAbstract(updatedAbstract);
+            await this._document.updateAbstract(updatedAbstract);
 
         }
     }
@@ -93,17 +93,6 @@ export class editAbstractPage {
     }
 
     async generateAbstract(_target){
-        const loading = await webSkel.showLoading();
-        async function suggestAbstract() {
-            const documentText = webSkel.space.getDocument(webSkel.space.currentDocumentId).toString();
-            const defaultPrompt = `Given the content of the following document: "${documentText}". Please generate a concise and contextually appropriate abstract that accurately reflects the document's key points, themes, and findings. Your response should consist solely of the abstract text.`;
-            const llmId = webSkel.space.settings.llms[0].id;
-            return await webSkel.space.suggestAbstract(defaultPrompt, llmId);
-        }
-        this.suggestedAbstract = await suggestAbstract();
-        this._document.observeChange(this._document.getNotificationId(), this.invalidate);
-        loading.close();
-        loading.remove();
         await showModal(document.querySelector("body"), "suggest-abstract-modal", { presenter: "suggest-abstract-modal"});
     }
 
@@ -111,6 +100,8 @@ export class editAbstractPage {
         let abstract = reverseQuerySelector(_target,".content").innerText;
         if(abstract !== this._document.getAbstract()) {
             this._document.updateAbstract(abstract);
+            await documentFactory.updateDocument(currentSpaceId, this._document);
+            await this._document.updateAbstract(abstract);
             await documentFactory.updateDocument(currentSpaceId, this._document);
             this._document.notifyObservers(this._document.getNotificationId());
         } else {

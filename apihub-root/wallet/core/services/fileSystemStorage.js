@@ -1,8 +1,5 @@
-import { StorageService } from './storageService.js';
-
-export class FileSystemStorage extends StorageService {
+export class FileSystemStorage{
     constructor() {
-        super();
     }
     async loadObject(spaceId, objectType, objectName) {
         const result = await fetch(`/spaces/${spaceId}/${objectType}/${objectName}`,
