@@ -1,5 +1,5 @@
 import { closeModal } from "../../../../WebSkel/utils/modal-utils.js";
-import { extractFormInformation } from "../../../imports.js";
+import { extractFormInformation,} from "../../../imports.js";
 export class generateDocumentModal{
     constructor(element, invalidate) {
         this.invalidate = invalidate;

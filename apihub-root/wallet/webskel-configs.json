@@ -87,6 +87,11 @@
       "className": "addDocumentModal"
     },
     {
+      "name": "generate-document-modal",
+      "path": "./web-components/modals/generate-document-modal/generate-document-modal.js",
+      "className": "generateDocumentModal"
+    },
+    {
       "name": "add-announcement-modal",
       "path": "./web-components/modals/add-announcement-modal/add-announcement-modal.js",
       "className": "addAnnouncementModal"
@@ -315,6 +320,10 @@
     {
       "name": "add-document-modal",
       "path": "./wallet/web-components/modals/add-document-modal/add-document-modal.html"
+    },
+    {
+      "name": "generate-document-modal",
+      "path": "./wallet/web-components/modals/generate-document-modal/generate-document-modal.html"
     },
     {
       "name": "add-announcement-modal",

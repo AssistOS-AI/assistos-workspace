@@ -1,6 +1,6 @@
 .generate-modal-header-wrapper{
     width: 978px;
-    height: 443px;
+    height: 460px;
 }
 .generate-modal-header{
     padding-left:20px;
@@ -47,8 +47,8 @@
     border: 0.5px solid #0000006E;
     border-radius:8px;
     padding-left:12px;
-    padding-top:5px;
-    padding-bottom: 5px;
+    padding-top:7px;
+    padding-bottom: 7px;
 }
 .generate-modal-button-wrapper{
     margin-top:40px;
