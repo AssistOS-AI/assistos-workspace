@@ -1,8 +1,6 @@
 import { addDocumentModal } from "./web-components/modals/add-document-modal/add-document-modal.js";
 import { addAnnouncementModal } from "./web-components/modals/add-announcement-modal/add-announcement-modal.js";
 import { addChapterModal } from "./web-components/modals/add-chapter-modal/add-chapter-modal.js";
-import { addLLMModal } from "./web-components/modals/add-llm-modal/add-llm-modal.js";
-import { editLLMKeyModal } from "./web-components/modals/edit-llm-key-modal/edit-llm-key-modal.js";
 import { addPersonalityModal } from "./web-components/modals/add-personality-modal/add-personality-modal.js";
 import { addUserModal } from "./web-components/modals/add-user-modal/add-user-modal.js";
 import { suggestAbstractModal } from "./web-components/modals/suggest-abstract-modal/suggest-abstract-modal.js";
@@ -44,8 +42,6 @@ export {
     addDocumentModal,
     addAnnouncementModal,
     addChapterModal,
-    addLLMModal,
-    editLLMKeyModal,
     addPersonalityModal,
     addUserModal,
     suggestAbstractModal,

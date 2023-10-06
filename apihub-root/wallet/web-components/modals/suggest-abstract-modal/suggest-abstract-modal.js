@@ -29,7 +29,7 @@ export class suggestAbstractModal {
     }
 
     async addSelectedAbstract(_target) {
-        this._document.addAlternativeAbstract(this.suggestedAbstract);
+        this._document.addAlternativeAbstract({content:this.suggestedAbstract, id:webSkel.getService("UtilsService").generateId()});
         await documentFactory.updateDocument(currentSpaceId, this._document);
         this._document.notifyObservers(this._document.getNotificationId());
     }

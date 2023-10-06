@@ -29,7 +29,8 @@ export class editTitlePage {
         const formInfo = await extractFormInformation(_target);
         if(formInfo.isValid) {
             if (formInfo.data.title !== this._document.getTitle()) {
-                await this._document.updateDocumentTitle(formInfo.data.title);
+                this._document.title = formInfo.data.title;
+                await documentFactory.updateDocument(currentSpaceId, this);
             }
         }
     }

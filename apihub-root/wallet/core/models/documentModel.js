@@ -62,14 +62,27 @@ export class DocumentModel {
         this.currentChapterId = chapterId;
     }
 
-    async updateDocumentTitle(documentTitle) {
-        this.title = documentTitle;
-        await documentFactory.updateDocument(currentSpaceId, this);
-
+    getAlternativeAbstract(id){
+        return this.alternativeAbstracts.find(abs=>abs.id === id);
     }
-
-    addAlternativeAbstract(abstractText){
-        this.alternativeAbstracts.push(abstractText);
+    addAlternativeAbstract(abstractObj){
+        this.alternativeAbstracts.push(abstractObj);
+    }
+    deleteAlternativeAbstract(id){
+        const index = this.alternativeAbstracts.findIndex(title => title.id === id);
+        if (index !== -1) {
+            this.alternativeAbstracts.splice(index, 1);
+        }else {
+            console.error(`Failed to find alternative abstract with id: ${id}`);
+        }
+    }
+    updateAlternativeAbstract(id, newContent){
+        let abstract = this.getAlternativeAbstract(id);
+        if(abstract){
+            abstract.content = newContent;
+        }else {
+            console.error(`Failed to find alternative abstract with id: ${id}`);
+        }
     }
 
     addAlternativeTitle(obj){
@@ -86,11 +99,6 @@ export class DocumentModel {
 
     async updateAbstract(abstractText) {
         this.abstract = abstractText;
-        await documentFactory.updateDocument(currentSpaceId, this);
-    }
-
-    getAbstract() {
-        return this.abstract || "";
     }
 
     /* left shift(decrement) the ids to the right of the deleted chapter? */
@@ -172,17 +180,6 @@ export class DocumentModel {
         return this.title || null;
     }
 
-    getAlternativeAbstracts() {
-        return this.alternativeAbstracts || [];
-    }
-
-    getAllChapters() {
-        return this.chapters || [];
-    }
-
-    getAlternativeTitles() {
-        return this.alternativeTitles || [];
-    }
     getAlternativeTitle(id){
         return this.alternativeTitles.find(title => title.id === id);
     }

@@ -18,16 +18,14 @@ export class editAbstractPage {
 
     beforeRender() {
         this.title = `<title-view title="${this._document.getTitle()}"></title-view>`;
-        this.abstractText=this._document.getAbstract();
+        this.abstractText=this._document.abstract;
         this.alternativeAbstracts = "";
-        let length = this._document.getAlternativeAbstracts().length;
-        for (let i = 0; i < length; i++) {
-            this.alternativeAbstracts += `<alternative-abstract data-id="${i + 1}" data-title="${this._document.alternativeAbstracts[i]}"></alternative-abstract>`;
-        }
-        if (this.editableAbstract) {
-            this.editableAbstract.removeEventListener("click", setEditableAbstract);
-            document.removeEventListener("click", removeEventForDocument, true);
-        }
+        let i = 1;
+        this._document.alternativeAbstracts.forEach((abstract)=>{
+            this.alternativeAbstracts += `<alternative-abstract data-nr="${i}" data-id="${abstract.id}" data-title="${abstract.content}"></alternative-abstract>`;
+            i++;
+        });
+        document.removeEventListener("click", this.removeEventForDocument, true);
     }
 
     async openEditTitlePage() {
@@ -51,36 +49,14 @@ export class editAbstractPage {
     }
 
     async saveAbstract() {
-        let updatedAbstract = document.querySelector(".abstract-content").innerText;
-        let documentIndex = webSkel.space.documents.findIndex(doc => doc.id === this._document.id);
-        if (documentIndex !== -1 && updatedAbstract !== this._document.getAbstract()) {
-            for (let i = 0; i < updatedAbstract.length; i++) {
-                if (updatedAbstract[i] === '\n') {
-                    let numberOfNewLines = 0;
-                    let initialIndex = i;
-                    while (updatedAbstract[i] === '\n') {
-                        i++;
-                        numberOfNewLines++;
-                    }
-                    numberOfNewLines = Math.floor(numberOfNewLines / 2) + 1;
-                    let newLineString = "";
-                    for (let j = 0; j < numberOfNewLines; j++) {
-                        newLineString += "<br>";
-                    }
-                    updatedAbstract = updatedAbstract.slice(0, initialIndex) + newLineString + updatedAbstract.slice(i);
-                }
-            }
-
-            await this._document.updateAbstract(updatedAbstract);
-
-        }
+        let updatedAbstract = this.element.querySelector(".abstract-content").innerText;
+        await this._document.updateAbstract(updatedAbstract);
     }
 
     afterRender() {
         this.editableAbstract = this.element.querySelector("#editable-abstract");
-        this.editableAbstract.addEventListener("dblclick", setEditableAbstract);
-        document.addEventListener("click", removeEventForDocument, true);
-        document.editableAbstract = this.editableAbstract;
+        this.editableAbstract.addEventListener("dblclick", this.setEditableAbstract);
+        document.addEventListener("click", this.removeEventForDocument.bind(this), true);
     }
 
 
@@ -98,9 +74,7 @@ export class editAbstractPage {
 
     async select(_target) {
         let abstract = reverseQuerySelector(_target,".content").innerText;
-        if(abstract !== this._document.getAbstract()) {
-            this._document.updateAbstract(abstract);
-            await documentFactory.updateDocument(currentSpaceId, this._document);
+        if(abstract !== this._document.abstract) {
             await this._document.updateAbstract(abstract);
             await documentFactory.updateDocument(currentSpaceId, this._document);
             this._document.notifyObservers(this._document.getNotificationId());
@@ -110,47 +84,40 @@ export class editAbstractPage {
     }
 
     async edit(_target) {
-        let abstract = reverseQuerySelector(_target, ".content");
-        let alternativeAbstractIndex = this._document.alternativeAbstracts.findIndex(abs => abs.id === abstract.id);
-        if(alternativeAbstractIndex !== -1) {
-            removeActionBox(this.actionBox, this);
-            abstract.contentEditable = true;
-            abstract.focus();
-            abstract.addEventListener('blur', async () => {
-                abstract.contentEditable = false;
-                if(abstract.innerText !== this._document.alternativeAbstracts[alternativeAbstractIndex]) {
-                    this._document.alternativeAbstracts[alternativeAbstractIndex] = abstract.innerText;
-                    await documentFactory.updateDocument(currentSpaceId, this._document);
-                }
-            });
-        }
-        else {
-            await showApplicationError("Error editing abstract", `Error editing abstract for document: ${this._document.title}`, `Error editing abstract for document: ${this._document.title}`);
-        }
+        let abstractText = reverseQuerySelector(_target, ".content");
+        let alternativeAbstractId = reverseQuerySelector(_target, "alternative-abstract");
+        let abstract = this._document.getAlternativeAbstract(alternativeAbstractId);
+        removeActionBox(this.actionBox, this);
+        abstractText.contentEditable = true;
+        abstractText.focus();
+        abstractText.addEventListener('blur', async () => {
+            abstractText.contentEditable = false;
+            if(abstractText.innerText !== abstract.content) {
+                this._document.updateAlternativeAbstract(alternativeAbstractId, abstractText)
+                await documentFactory.updateDocument(currentSpaceId, this._document);
+            }
+        });
     }
 
     async delete(_target) {
-        let abstract = reverseQuerySelector(_target, ".content");
-        let alternativeAbstractIndex = this._document.alternativeAbstracts.findIndex(abs => abs.id === abstract.id);
-        if(alternativeAbstractIndex !== -1) {
-            this._document.alternativeAbstracts.splice(alternativeAbstractIndex, 1);
-            await documentFactory.updateDocument(currentSpaceId, this._document);
-        } else {
-            await showApplicationError("Error deleting abstract", `Error deleting abstract for document: ${this._document.title}`, `Error deleting abstract for document: ${this._document.title}`);
+        let abstract = reverseQuerySelector(_target, "alternative-abstract");
+        this._document.deleteAlternativeAbstract(abstract.getAttribute("data-id"));
+        await documentFactory.updateDocument(currentSpaceId, this._document);
+    }
+
+    removeEventForDocument(event) {
+        if(this.editableAbstract.getAttribute("contenteditable") === "true" && !this.editableAbstract.contains(event.target)) {
+            this.editableAbstract.setAttribute("contenteditable", "false");
+            this.editableAbstract.removeEventListener("click", this.setEditableAbstract);
         }
-    }
-}
 
-function removeEventForDocument(event) {
-    if(this.editableAbstract.getAttribute("contenteditable") === "true" && !this.editableAbstract.contains(event.target)) {
-        this.editableAbstract.setAttribute("contenteditable", "false");
     }
-}
 
-function setEditableAbstract(event) {
-    this.setAttribute("contenteditable", "true");
-    this.focus();
-    event.stopPropagation();
-    event.preventDefault();
+    setEditableAbstract(event) {
+        this.setAttribute("contenteditable", "true");
+        this.focus();
+        event.stopPropagation();
+        event.preventDefault();
+    }
 }
 
