@@ -38,7 +38,7 @@ export class documentSettingsPage {
             this[key] = renderSettings(value, this._document.settings[this.pluralToSingular[key]], this.pluralToSingular[key]);
         }
 
-        this.documentTitleScript = renderSettings(webSkel.space.scripts, this._document.settings["documentTitleScript"], "documentTitleScript");
+        this.documentTitleScriptId = renderSettings(webSkel.space.scripts, this._document.settings["documentTitleScriptId"], "documentTitleScriptId");
 
     }
 
@@ -54,7 +54,7 @@ export class documentSettingsPage {
                 }
                 return false;
             } else {
-                this._document.settings[optionKey] = webSkel.space.getScript(optionId);
+                this._document.settings[optionKey] = optionId;
                 return true;
             }
         }

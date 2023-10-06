@@ -32,7 +32,7 @@ async function generateResponse(request, response) {
         if (result.status !== 200) {
             console.log(`Response Status: ${result.status}`);
             console.log(`Response Text: ${await result.text()}`);
-            sendResponse(response, 200, "text/html", await result.text());
+            sendResponse(response, result.status, "text/html", await result.text());
         }
         const generatedText = JSON.parse(await result.text());
         sendResponse(response, 200, "text/html", generatedText.choices[0].message.content);

@@ -9,7 +9,7 @@ export class DocumentModel {
         this.chapters = (documentData.chapters || []).map(chapterData => new Chapter(chapterData));
         this.alternativeTitles = documentData.alternativeTitles || [];
         this.alternativeAbstracts = documentData.alternativeAbstracts || [];
-        this.settings = documentData.settings || {personality: null, documentTitleScript: {name:"default", id:"default", content:""}};
+        this.settings = documentData.settings || {personality: null, documentTitleScriptId: null};
         this.currentChapterId = null;
         this.observers = [];
     }
@@ -202,10 +202,6 @@ export class DocumentModel {
 
     getNotificationId() {
         return "doc";
-    }
-
-    getDocumentIndex() {
-        return webSkel.space.documents.findIndex(document => document.id === this.id);
     }
 
 }
