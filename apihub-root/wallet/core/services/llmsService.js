@@ -13,4 +13,22 @@ export class LlmsService {
             });
         return await result.text();
     }
+    /*scriptId, scriptParams */
+    async callScript(...args){
+        let script =webSkel.space.getScript(args[0]);
+        const scriptCode = eval(script.content);
+        let response="";
+
+        try{
+            response = await scriptCode(args.shift());
+        }catch (e){
+            await showApplicationError("Script execution Error", `Encountered an error while attempting to execute the script ${args[0]}`, e);
+        }
+        try{
+            let responseJson = JSON.parse(response);
+            return {responseString:null,responseJson:responseJson};
+        }catch(e){
+            return {responseString:response,responseJson:null};
+        }
+    }
 }
