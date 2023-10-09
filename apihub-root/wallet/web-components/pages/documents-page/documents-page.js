@@ -33,7 +33,7 @@ export class documentsPage {
     }
     async editAction(_target) {
         webSkel.space.currentDocumentId = this.getDocumentId(_target);
-        await webSkel.changeToDynamicPage("document-view-page",`documents/${webSkel.space.currentDocumentId}/document-view-page`, {"document-id": webSkel.space.currentDocumentId});
+        await webSkel.changeToDynamicPage("document-view-page",`documents/${webSkel.space.currentDocumentId}/document-view-page`);
     }
 
     async deleteAction(_target){

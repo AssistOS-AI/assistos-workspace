@@ -13,16 +13,16 @@ export class chapterUnit {
         this.chapterId = this.element.getAttribute("data-chapter-id");
         this.chapter = this._document.getChapter(this.chapterId);
         this.chapterContent = "";
-        if(this.chapter && this.chapter.visibility === "hide") {
+        if(this.chapter.visibility === "hide") {
             if(this.element.querySelector(".chapter-paragraphs")) {
                 this.element.querySelector(".chapter-paragraphs").classList.add("hidden");
             }
         }
-        if(this.chapter && this.chapter.paragraphs) {
-            this.chapter.paragraphs.forEach((paragraph) => {
-                this.chapterContent += `<paragraph-unit data-paragraph-content="${paragraph.text}" data-paragraph-id="${paragraph.id}"></paragraph-unit>`;
-            });
-        }
+
+        this.chapter.paragraphs.forEach((paragraph) => {
+            this.chapterContent += `<paragraph-unit data-paragraph-content="${paragraph.text}" data-paragraph-id="${paragraph.id}"></paragraph-unit>`;
+        });
+
         document.removeEventListener("click", this.exitEditMode);
     }
 
@@ -32,7 +32,8 @@ export class chapterUnit {
         } else {
             this.chapter.visibility = "hide";
         }
-        _target.parentNode.nextElementSibling.firstElementChild.classList.toggle('hidden');
+        let paragraphs = this.element.querySelector(".chapter-paragraphs");
+        paragraphs.classList.toggle('hidden');
         _target.classList.toggle('rotate');
     }
 
@@ -141,12 +142,12 @@ export class chapterUnit {
                 updatedText = '';
             }
 
-            let documentId = getClosestParentElement(this, "document-view-page").getAttribute("data-document-id");
+            let documentId = window.location.hash.split("/")[1];
             let doc = webSkel.space.getDocument(documentId);
 
             let sidebar = document.getElementById("paragraph-sidebar");
             sidebar.style.display = "none";
-            if (doc && updatedText !== doc.getParagraph(chapterId,paragraphId).text) {
+            if (updatedText !== doc.getParagraph(chapterId,paragraphId).text) {
                 if (updatedText === null || updatedText.trim() === '') {
                     doc.removeParagraph(chapterId, paragraphId);
                     if (doc.getChapterParagraphs(chapterId).length === 0) {

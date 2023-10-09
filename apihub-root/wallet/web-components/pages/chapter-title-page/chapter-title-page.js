@@ -51,7 +51,7 @@ export class chapterTitlePage {
 
 
     async openViewPage() {
-        await webSkel.changeToDynamicPage("document-view-page", `documents/${this.docId}/document-view-page`, {"document-id": this.docId});
+        await webSkel.changeToDynamicPage("document-view-page", `documents/${this.docId}/document-view-page`);
     }
 
     closeModal(_target) {

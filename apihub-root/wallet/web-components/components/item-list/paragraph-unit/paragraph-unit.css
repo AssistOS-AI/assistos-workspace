@@ -26,6 +26,7 @@
 
 .paragraph-text {
     cursor: text;
+    white-space: pre-wrap;
 }
 
 .paragraph-unit:hover {

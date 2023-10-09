@@ -39,7 +39,7 @@ export class manageChaptersPage {
     }
 
     async openViewPage() {
-        await webSkel.changeToDynamicPage("document-view-page", `documents/${this._document.id}/document-view-page`, {"document-id": this._document.id});
+        await webSkel.changeToDynamicPage("document-view-page", `documents/${this._document.id}/document-view-page`);
     }
 
     closeModal(_target) {
