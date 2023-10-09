@@ -20,7 +20,8 @@ export class LlmsService {
         let response="";
 
         try{
-            response = await scriptCode(args.shift());
+            args.shift();
+            response = await scriptCode(args);
         }catch (e){
             await showApplicationError("Script execution Error", `Encountered an error while attempting to execute the script ${args[0]}`, e);
         }

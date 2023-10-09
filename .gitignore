@@ -10,6 +10,7 @@ apihub-root/external-volume/versionlessdsu
 apihub-root/external-volume/mqs/
 apihub-root/external-volume/wallets/
 apihub-root/lightweight-pwa
+apihub-components/llms/keys-secret.json
 
 apihub-root/wallet/scripts/bundles/
 apihub-root/wallet/bundles/
