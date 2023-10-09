@@ -11,17 +11,8 @@ export class suggestTitlesModal {
 
         setTimeout(async()=>{
             const loading = await webSkel.showLoading();
-            let script = webSkel.space.getScript(this._document.settings.documentTitleScriptId);
-            const scriptCode = eval(script.content);
-            let response = await scriptCode();
-            try{
-                this.suggestedTitles = JSON.parse(response);
-                this.suggestedTitles.forEach(()=>{});
-            }catch (e){
-                await showApplicationError("Error parsing titles", "Error parsing titles "+ response, e);
-                closeModal(this.element);
-            }
-
+            let result = await webSkel.getService("LlmsService").callScript(this._document.settings.documentTitleScriptId);
+            this.suggestedTitles = result.responseJson;
             loading.close();
             loading.remove();
             this.invalidate();
