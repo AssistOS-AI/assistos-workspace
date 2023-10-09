@@ -1,4 +1,4 @@
-import {DocumentModel, LLM, Personality,User,Settings,Script,Announcement} from "../../imports.js";
+import {DocumentModel, Personality,User,Settings,Script,Announcement} from "../../imports.js";
 
 export class Space {
     constructor(spaceData) {
@@ -71,67 +71,6 @@ export class Space {
         window.location = "";
     }
 
-    getSpaceNames() {
-        return currentUser.spaces.filter(space => space.id !== currentSpaceId) || [];
-    }
-
-    async summarize(prompt, llmId) {
-        let llm = this.getLLM(llmId);
-        return await this.llmApiFetch(llm.url, llm.apiKeys, prompt);
-    }
-
-    async suggestAbstract(prompt, llmId) {
-        let llm;
-        if(!(llm = this.getLLM(llmId))) {
-            throw new Error(`LLM with id ${llmId} not found.`);
-        }
-        return await this.llmApiFetch(llm.url, llm.apiKeys, prompt);
-    }
-
-    async proofread(prompt, llmId) {
-        let llm = this.getLLM(llmId);
-        return await this.llmApiFetch(llm.url, llm.apiKeys, prompt);
-    }
-
-    async suggestTitles(prompt, llmId) {
-        let llm = this.getLLM(llmId);
-        if (!llm) {
-            throw new Error(`LLM with id ${llmId} not found.`);
-        }
-        return await this.llmApiFetch(llm.url, llm.apiKeys, prompt);
-    }
-
-    async llmApiFetch(url, apiKey, prompt) {
-        const options = {
-            method: 'POST',
-            headers: {
-                'Content-Type': 'application/json',
-                'Authorization': `Bearer ${apiKey[0].trim()}`
-            },
-            body: JSON.stringify({
-                model: 'gpt-3.5-turbo',
-                messages: [
-                    {
-                        role: 'user',
-                        content: `${prompt}`
-                    }
-                ],
-                temperature: 0.7
-            })
-        };
-        try {
-            const response = await fetch(url, options);
-            if (response.status !== 200) {
-                console.log(`Response Status: ${response.status}`);
-                console.log(`Response Text: ${await response.text()}`);
-                throw new Error(`Failed to fetch: ${response.status}`);
-            }
-            const result = await response.json();
-            return result.choices[0].message.content;
-        } catch (error) {
-            console.log('API call failed:', error);
-        }
-    }
     getDocument(documentId) {
         const document = this.documents.find(document => document.id === documentId);
         return document || null;
@@ -143,9 +82,6 @@ export class Space {
     getScript(scriptId) {
         let script = this.scripts.find((script) => script.id === scriptId);
         return script || console.error(`Script not found in Settings, scriptId: ${scriptId}`);
-    }
-    getLLM(llmSelector) {
-        return this.settings.llms.find(llm => llm.name === llmSelector || llm.id === parseInt(llmSelector)) || null;
     }
 
    async addDocument(documentData) {
@@ -167,10 +103,6 @@ export class Space {
         this.scripts.push(scriptObject);
         await storageManager.storeObject(currentSpaceId, "scripts", scriptObject.id, JSON.stringify(scriptObject,null,2));
     }
-    async addLLM(llmData) {
-        this.settings.llms.push(new LLM(llmData));
-        await storageManager.storeObject(currentSpaceId, "status", "status", JSON.stringify(webSkel.space.getSpaceStatus(),null,2));
-    }
 
     deleteDocument(documentId) {
         webSkel.space.documents = webSkel.space.documents.filter(obj => obj.id !== documentId);
@@ -183,10 +115,6 @@ export class Space {
     async deleteScript(scriptId) {
         this.scripts = this.scripts.filter(script => script.id !== scriptId);
         await storageManager.storeObject(currentSpaceId, "scripts", scriptId, "");
-    }
-    async deleteLLM(llmId) {
-        this.settings.llms = this.settings.llms.filter(llm=> llm.id !== llmId);
-        await storageManager.storeObject(currentSpaceId, "status", "status", JSON.stringify(webSkel.space.getSpaceStatus(),null,2));
     }
     async deletePersonality(personalityId){
         this.settings.personalities = this.settings.personalities.filter(personality => personality.id !== personalityId);
@@ -210,10 +138,5 @@ export class Space {
         }else{
             console.error("Failed to update script, script not found.");
         }
-    }
-    getComponent(id){
-        let settingsKeys = Object.keys(this.settings);
-        let keys = Object.keys(this);
-        let key = settingsKeys.find(key => this.settings[key].id === id) || keys.find(key => this[key].id === id);
     }
 }

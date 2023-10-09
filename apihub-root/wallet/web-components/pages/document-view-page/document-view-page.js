@@ -1,6 +1,9 @@
+import {reverseQuerySelector} from "../../../../WebSkel/utils/dom-utils.js";
+
 export class documentViewPage {
     constructor(element, invalidate) {
-        this._document=webSkel.space.getDocument(webSkel.space.currentDocumentId);
+        this._document = webSkel.space.getDocument(webSkel.space.currentDocumentId);
+        this.element = element;
         this._document.observeChange(this._document.getNotificationId() + ":document-view-page", invalidate);
         this.invalidate = invalidate;
         this.invalidate();
@@ -72,17 +75,21 @@ export class documentViewPage {
         this.invalidate();
     }
 
+    async addParagraph(_target){
+        let chapter = this._document.getChapter(webSkel.space.currentChapterId);
+        await chapter.addParagraph({id: webSkel.getService("UtilsService").generateId(), text:"Edit your paragraph here"});
+        this.invalidate();
+    }
+
     afterRender() {
         let chapterSidebar = document.getElementById("chapter-sidebar");
-        if(chapterSidebar) {
-            document.addEventListener("click", (event) => {
-                chapterSidebar.style.display = "none";
-                let selectedChapter = document.getElementById("select-chapter-visualise");
-                if(selectedChapter) {
-                    document.getElementById("select-chapter-visualise").removeAttribute("id");
-                }
-            }, true);
-        }
+        document.addEventListener("click", (event) => {
+            chapterSidebar.style.display = "none";
+            let selectedChapter = document.getElementById("select-chapter-visualise");
+            if(selectedChapter) {
+                document.getElementById("select-chapter-visualise").removeAttribute("id");
+            }
+        }, true);
     }
 
 }

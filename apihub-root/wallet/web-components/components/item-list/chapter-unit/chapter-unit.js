@@ -91,15 +91,15 @@ export class chapterUnit {
     async moveParagraphUp(_target) {
         let currentParagraph = getClosestParentElement(_target, "paragraph-unit");
         let paragraphAbove = currentParagraph.previousSibling;
-        let chapter = getClosestParentElement(currentParagraph, "chapter-unit");
-        let chapterId = chapter.getAttribute('data-chapter-id');
-        let chapterIndex = this._document.chapters.findIndex(chapter => chapter.id === chapterId);
+        let chapterElement = getClosestParentElement(currentParagraph, "chapter-unit");
+        let chapterId = chapterElement.getAttribute('data-chapter-id');
+        let chapter = this._document.getChapter(chapterId);
         if(paragraphAbove && paragraphAbove.nodeName === "PARAGRAPH-UNIT") {
             currentParagraph.after(paragraphAbove);
             let paragraph1Index = this._document.chapters.findIndex(paragraph => paragraph.id === currentParagraph.getAttribute('data-paragraph-id'));
             let paragraph2Index = this._document.chapters.findIndex(paragraph => paragraph.id === paragraphAbove.getAttribute('data-paragraph-id'));
 
-            this._document.swapParagraphs(chapterIndex, paragraph1Index, paragraph2Index);
+            chapter.swapParagraphs(paragraph1Index, paragraph2Index);
             await documentFactory.updateDocument(currentSpaceId, this._document);
         }
     }
@@ -107,14 +107,14 @@ export class chapterUnit {
     async moveParagraphDown(_target) {
         let currentParagraph = getClosestParentElement(_target, "paragraph-unit");
         let paragraphBelow = currentParagraph.nextSibling;
-        let chapter = getClosestParentElement(currentParagraph, "chapter-unit");
-        let chapterId = chapter.getAttribute('data-chapter-id');
-        let chapterIndex = this._document.chapters.findIndex(chapter => chapter.id === chapterId);
+        let chapterElement = getClosestParentElement(currentParagraph, "chapter-unit");
+        let chapterId = chapterElement.getAttribute('data-chapter-id');
+        let chapter = this._document.getChapter(chapterId);
         if(paragraphBelow && paragraphBelow.nodeName === "PARAGRAPH-UNIT") {
             paragraphBelow.after(currentParagraph);
             let paragraph1Index = this._document.chapters.findIndex(paragraph => paragraph.id === currentParagraph.getAttribute('data-paragraph-id'));
             let paragraph2Index = this._document.chapters.findIndex(paragraph => paragraph.id === paragraphBelow.getAttribute('data-paragraph-id'));
-            this._document.swapParagraphs(chapterIndex, paragraph1Index, paragraph2Index);
+            chapter.swapParagraphs(paragraph1Index, paragraph2Index);
             await documentFactory.updateDocument(currentSpaceId, this._document);
         }
     }
@@ -146,15 +146,17 @@ export class chapterUnit {
             let doc = webSkel.space.getDocument(documentId);
 
             let sidebar = document.getElementById("paragraph-sidebar");
+            let chapter = doc.getChapter(chapterId);
             sidebar.style.display = "none";
-            if (updatedText !== doc.getParagraph(chapterId,paragraphId).text) {
+            if (updatedText !== chapter.getParagraph(paragraphId).text) {
                 if (updatedText === null || updatedText.trim() === '') {
-                    doc.removeParagraph(chapterId, paragraphId);
-                    if (doc.getChapterParagraphs(chapterId).length === 0) {
+                    chapter.deleteParagraph(paragraphId);
+                    if (chapter.paragraphs.length === 0) {
                         doc.removeChapter(chapterId);
                     }
                 } else {
-                    doc.updateParagraphText(chapterId, paragraphId, updatedText);
+                    let paragraph = chapter.getParagraph(paragraphId);
+                    paragraph.updateText(updatedText);
                 }
                 await documentFactory.updateDocument(currentSpaceId, doc);
                 doc.notifyObservers(doc.getNotificationId());

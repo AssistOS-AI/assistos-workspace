@@ -30,7 +30,6 @@ import { Paragraph } from "./core/models/paragraph.js";
 import { Space } from "./core/models/space.js";
 import { spaceDropdown }  from "./web-components/components/space-dropdown/space-dropdown.js";
 import { chapterUnit } from "./web-components/components/item-list/chapter-unit/chapter-unit.js";
-import { LLM } from "./core/models/llm.js";
 import WebSkel from "../WebSkel/webSkel.js";
 import { extractFormInformation } from "../WebSkel/utils/form-utils.js";
 import { addSpaceModal} from "./web-components/modals/add-space-modal/add-space-modal.js";
@@ -75,7 +74,6 @@ export {
     User,
     Announcement,
     Paragraph,
-    LLM,
     Script,
     extractFormInformation,
 };

@@ -9,4 +9,8 @@ export class Paragraph {
     toString() {
         return this.text;
     }
+
+    updateText(paragraphText) {
+        this.text = paragraphText;
+    }
 }

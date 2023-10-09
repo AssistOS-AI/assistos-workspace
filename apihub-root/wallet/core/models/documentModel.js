@@ -65,9 +65,11 @@ export class DocumentModel {
     getAlternativeAbstract(id){
         return this.alternativeAbstracts.find(abs=>abs.id === id);
     }
+
     addAlternativeAbstract(abstractObj){
         this.alternativeAbstracts.push(abstractObj);
     }
+
     deleteAlternativeAbstract(id){
         const index = this.alternativeAbstracts.findIndex(title => title.id === id);
         if (index !== -1) {
@@ -109,13 +111,6 @@ export class DocumentModel {
         }
     }
 
-    deleteParagraph(chapterId) {
-        const index = this.chapters.findIndex(chapter => chapter.id === chapterId);
-        if (index !== -1) {
-            this.chapters.splice(index, 1);
-        }
-    }
-
     getChapter(chapterId) {
         return this.chapters.find(chapter => chapter.id === chapterId);
     }
@@ -134,46 +129,13 @@ export class DocumentModel {
         chapter.title = chapterTitle;
     }
 
-    removeParagraph(chapterId, paragraphId) {
-        let chapter = this.chapters.find(chapter => chapter.id === chapterId);
-        let paragraphIndex = chapter.paragraphs.findIndex(paragraph => paragraph.id === paragraphId);
-        chapter.paragraphs.splice(paragraphIndex, 1);
-    }
-
     removeChapter(chapterId) {
         let chapterIndex = this.chapters.findIndex(chapter => chapter.id === chapterId);
         this.chapters.splice(chapterIndex, 1);
     }
 
-    getChapterParagraphs(chapterId) {
-        return this.chapters.find(chapter => chapter.id ===chapterId).paragraphs;
-    }
-
-    getParagraph(chapterId, paragraphId) {
-        let chapter = this.chapters.find(chapter => chapter.id === chapterId);
-        return chapter.paragraphs.find(paragraph => paragraph.id === paragraphId);
-    }
-
-    getCurrentChapter() {
-        return this.chapters.find(chapter => chapter.id === document.currentChapterId);
-    }
-
     swapChapters(chapterId1, chapterId2) {
         [this.chapters[chapterId1], this.chapters[chapterId2]] = [this.chapters[chapterId2], this.chapters[chapterId1]];
-    }
-
-   swapParagraphs(chapterIndex, paragraphIndex1, paragraphIndex2) {
-        [this.chapters[chapterIndex].paragraphs[paragraphIndex1], this.chapters[chapterIndex].paragraphs[paragraphIndex2]] = [this.chapters[chapterIndex].paragraphs[paragraphIndex2], this.chapters[chapterIndex].paragraphs[paragraphIndex1]];
-    }
-
-    updateParagraphText(chapterId, paragraphId, paragraphText) {
-        let chapter = this.chapters.find(chapter => chapter.id === chapterId);
-        let paragraph = chapter.paragraphs.find(paragraph => paragraph.id === paragraphId);
-        paragraph.text = paragraphText;
-    }
-
-    getSettings() {
-        return this.settings || {llm: null, personality: null};
     }
 
     getTitle() {

@@ -8,7 +8,7 @@ export class paragraphEditPage {
         this.paragraphId = url.split('/')[4];
         this._document = webSkel.space.getDocument(this.docId);
         this._chapter = this._document.getChapter(this.chapterId);
-        this._paragraph = this._document.getParagraph(this.chapterId, this.paragraphId);
+        this._paragraph = this._chapter.getParagraph(this.chapterId, this.paragraphId);
         this.paragraphDiv = this._paragraph;
 
         this._document.observeChange(this._paragraph.getNotificationId(this.chapterId), invalidate);

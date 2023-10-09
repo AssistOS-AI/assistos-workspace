@@ -188,10 +188,6 @@
       "path": "./wallet/web-components/components/item-list/document-unit/document-unit.html"
     },
     {
-      "name": "llm-unit",
-      "path": "./wallet/web-components/components/item-list/llm-unit/llm-unit.html"
-    },
-    {
       "name": "personality-unit",
       "path": "./wallet/web-components/components/item-list/personality-unit/personality-unit.html"
     },
