@@ -315,11 +315,17 @@ input[type=number]::-webkit-outer-spin-button {
 }
 .generated-text-container{
     display:flex;
-    padding:40px;
+    padding: 40px 0 40px 40px;
     flex-direction:row;
+    justify-content:space-between;
+    overflow-y: scroll;
 }
 .generated-text-buttons{
+    margin-top:8px;
     margin-left:25px;
     display:flex;
     flex-direction:column;
+    height:60px;
+    justify-content:space-between;
+    cursor:pointer;
 }
