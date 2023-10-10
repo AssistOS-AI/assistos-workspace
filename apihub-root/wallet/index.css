@@ -78,15 +78,13 @@ body {
     height: 30px;
 }
 
-/*inceput sidebar dreapta*/
-.right-sidebar {
-    height: 100%;
-    width: 19em;
-    display: flex;
-    right: 0;
-    min-width: 12em;
+.right-sidebar{
+    display:flex;
+    height:100%;
+    min-height:100%;
+    width:14%;
+    min-width:270px;
 }
-
 .sidebar-item {
     white-space: nowrap;
     cursor: pointer;
