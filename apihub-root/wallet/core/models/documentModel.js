@@ -135,7 +135,9 @@ export class DocumentModel {
     }
 
     swapChapters(chapterId1, chapterId2) {
-        [this.chapters[chapterId1], this.chapters[chapterId2]] = [this.chapters[chapterId2], this.chapters[chapterId1]];
+        let chapter1Index = this.chapters.findIndex(chapter => chapter.id === chapterId1);
+        let chapter2Index = this.chapters.findIndex(chapter => chapter.id === chapterId2);
+        [this.chapters[chapter1Index], this.chapters[chapter2Index]] = [this.chapters[chapter2Index], this.chapters[chapter1Index]];
     }
 
     getTitle() {
