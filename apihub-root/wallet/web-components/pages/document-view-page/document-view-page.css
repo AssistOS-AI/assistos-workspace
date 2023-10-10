@@ -6,10 +6,6 @@
     line-height: normal;
 }
 
-.abstract-section {
-    padding: 10px;
-}
-
 .abstract-content {
     white-space: pre-line;
     text-align: justify;
@@ -17,7 +13,6 @@
     font-style: normal;
     font-weight: 400;
     line-height: normal;
-    margin-top: 0;
 }
 
 .document-view-page {
@@ -26,25 +21,28 @@
 
 .document-content {
     width: 100%;
-    margin-right: 12px;
+    padding-left:50px;
+    padding-right:50px;
 }
 
 .document-path {
     cursor: default;
     display: flex;
     align-items: center;
-    margin: 10px 0 10px 10px;
 }
 
 .document-title {
-    margin-left: 10px;
+        color: #252525;
+        font-size: 26px;
+        font-style: normal;
+        font-weight: 600;
+        line-height: normal;
 }
 
 .path-button {
     color: #121212;
     font-family: Poppins;
     font-size: 14px;
-    margin: 0 5px;
     font-style: normal;
     font-weight: 500;
     line-height: normal;
@@ -68,8 +66,15 @@
     align-items: center;
     justify-content: end;
 }
-
+.paragraph-text{
+    text-align:justify;
+    width:100%;
+}
 #chapter-sidebar,
 #paragraph-sidebar {
     display: none;
+}
+.abstract-section,.document-title,.path-button,.chapter-unit{
+    padding:10px;
+    border:2px solid black;
 }
