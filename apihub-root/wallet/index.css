@@ -78,15 +78,13 @@ body {
     height: 30px;
 }
 
-/*inceput sidebar dreapta*/
-.right-sidebar {
-    height: 100%;
-    width: 19em;
-    display: flex;
-    right: 0;
-    min-width: 12em;
+.right-sidebar{
+    display:flex;
+    height:100%;
+    min-height:100%;
+    width:14%;
+    min-width:270px;
 }
-
 .sidebar-item {
     white-space: nowrap;
     cursor: pointer;
@@ -237,17 +235,15 @@ documents-page{
     max-height: 100%;
 }
 .add-button,.generate-button{
-    font-family: Poppins;
     font-size: 16px;
     font-weight: 600;
     line-height: 24px;
-    letter-spacing: 0em;
     text-align: center;
-    color:#A42E70;
+    color:#FFFFFF;
+    background: #A42E70;
     width:fit-content;
 height: 36px;
 padding: 6px 11px 6px 11px;
-    border: 1px solid #A42E70;
 border-radius: 17px;
 gap: 10px;
     cursor:pointer;

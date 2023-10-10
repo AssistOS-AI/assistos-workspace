@@ -3,6 +3,7 @@ import { extractFormInformation } from "../../../../WebSkel/utils/form-utils.js"
 
 export class addPersonalityModal {
     constructor(element,invalidate) {
+        this.element=element;
         this.invalidate=invalidate;
         this.invalidate();
     }
@@ -13,17 +14,23 @@ export class addPersonalityModal {
         closeModal(_target);
     }
 
+    triggerInputFileOpen(){
+        let input = this.element.querySelector(`input[type="file"]`);
+        input.click();
+    }
+
     async addPersonalitySubmitForm(_target) {
         let formInfo = await extractFormInformation(_target);
-        closeModal(_target);
         if(formInfo.isValid) {
             let personalityData={
                     name:formInfo.data.name,
                     description:formInfo.data.description,
-                    id:webSkel.servicesRegistry.UtilsService.generateId()
+                    id:webSkel.servicesRegistry.UtilsService.generateId(),
+                    image: formInfo.data.photo
             }
-            webSkel.space.addPersonality(personalityData);
+            await webSkel.space.addPersonality(personalityData);
             webSkel.space.notifyObservers(webSkel.space.getNotificationId());
+            closeModal(_target);
         }
     }
 }

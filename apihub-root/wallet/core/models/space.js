@@ -94,6 +94,9 @@ export class Space {
         this.settings.personalities.push(new Personality(personalityData));
         await storageManager.storeObject(currentSpaceId, "status", "status", JSON.stringify(webSkel.space.getSpaceStatus(),null,2));
     }
+    getPersonality(id){
+        return this.settings.personalities.find(pers => pers.id === id);
+    }
     async addAnnouncement(announcementData) {
         this.announcements.unshift(new Announcement(announcementData));
         await storageManager.storeObject(currentSpaceId, "status", "status", JSON.stringify(webSkel.space.getSpaceStatus(),null,2));

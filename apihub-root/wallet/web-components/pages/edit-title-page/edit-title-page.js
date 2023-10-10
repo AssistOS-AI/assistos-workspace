@@ -30,7 +30,7 @@ export class editTitlePage {
         if(formInfo.isValid) {
             if (formInfo.data.title !== this._document.getTitle()) {
                 this._document.title = formInfo.data.title;
-                await documentFactory.updateDocument(currentSpaceId, this);
+                await documentFactory.updateDocument(currentSpaceId, this._document);
             }
         }
     }
