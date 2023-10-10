@@ -1,1 +1,0 @@
-{"name":"suggest titles","content":"\nasync (...args)=>{\nlet prompt = \"Please suggest 10 titles for a book. Return the response as a string JSON array.\";\nlet response = await this.generateResponse(prompt);\n\nconsole.log(response);\nreturn response;\n}\n","id":"3AeXXLeDVgQM","description":"returns 10 titles as a JSON array"}

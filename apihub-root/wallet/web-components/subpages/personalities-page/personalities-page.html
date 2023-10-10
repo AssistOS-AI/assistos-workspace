@@ -1,17 +1,15 @@
 <link href="./wallet/web-components/subpages/personalities-page/personalities-page.css" rel="stylesheet"/>
 <div class="personalities-page">
-    <div class="modal-section">
-        <div class="add-button" data-local-action="showAddPersonalityModal">
-            Add Personality
-        </div>
-    </div>
-
     <div class="table">
-        <div class="table-header">
-            <div class="cell">name</div>
-            <div class="cell cell2">Description</div>
-            <div class="action-cell"> </div>
+        $$personalityBlocks
+        <div class="add-personality-button" data-local-action="showAddPersonalityModal">
+            <div class="square-container">
+                <div class="horizontal-line"></div>
+                <div class="vertical-line"></div>
+            </div>
+            <div class="button-text text">
+                Add New
+            </div>
         </div>
-        $$tableRows
     </div>
 </div>
