@@ -34,42 +34,6 @@
             "collectLog": false
           }
         ]
-      },
-      {
-        "name": "configs",
-        "src": "https://github.com/OutfinityResearch/outfinity-configs.git",
-        "actions": [
-          {
-            "type": "smartClone",
-            "target": ".",
-            "collectLog": false
-          }
-        ]
-      },
-      {
-        "name": "summarizer",
-        "src": "https://github.com/OutfinityResearch/outfinity-summarization.git",
-        "actions": [
-          {
-            "type": "smartClone",
-            "target": ".",
-            "collectLog": false
-          }
-        ]
-      },
-      {
-        "name": "creator-process",
-        "src": "https://github.com/OutfinityResearch/outfinity-creator.git",
-        "actions": [
-          {
-            "type": "smartClone",
-            "target": ".",
-            "collectLog": false
-          },{
-            "type": "execute",
-            "cmd": "cd creator-process && npm install"
-          }
-        ]
       }
     ],
     "postinstall": [
