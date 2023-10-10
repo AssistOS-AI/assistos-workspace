@@ -34,7 +34,7 @@ dialog[class="modal"] {
 
 .close {
     padding: 0;
-    font-weight: lighter;
+    font-weight: 300;
     color: #ffffff;
     cursor: pointer;
     background-color: transparent;
@@ -45,7 +45,6 @@ dialog[class="modal"] {
 .form-label {
     color: #3A3A3A;
     font-size: 12px;
-    font-family: Poppins;
     font-weight: 600;
 }
 
