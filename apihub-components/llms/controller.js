@@ -1,3 +1,4 @@
+const fsPromises = require('fs').promises;
 function sendResponse(response,statusCode, contentType, message){
     response.statusCode = statusCode;
     response.setHeader("Content-Type", contentType);
@@ -9,8 +10,9 @@ async function generateResponse(request, response) {
 
     let prompt = request.body.toString();
     let url = "https://api.openai.com/v1/chat/completions";
-    let keys = require("keys-secret.json");
-    let key = keys[0];
+    let string = await fsPromises.readFile("../apihub-root/keys-secret.json", { encoding: 'utf8' });
+    let keys = JSON.parse(string);
+    let key = keys.keys[0];
     const options = {
         method: 'POST',
         headers: {

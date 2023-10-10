@@ -84,6 +84,7 @@ export class AuthenticationService{
         userData.secretToken = secretToken;
         userData.id = crypto.getRandomSecret(32).toString().split(",").join("");
         let defaultSpace = SpaceFactory.createSpace({name: "Personal Space"});
+        defaultSpace.createDefaultScripts();
         await storageManager.storeSpace(defaultSpace.id, defaultSpace.stringifySpace());
         userData.spaces = [{name: defaultSpace.name, id: defaultSpace.id}];
 

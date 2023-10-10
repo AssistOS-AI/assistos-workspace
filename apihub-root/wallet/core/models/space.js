@@ -139,4 +139,22 @@ export class Space {
             console.error("Failed to update script, script not found.");
         }
     }
+
+    createDefaultScripts(){
+        let scriptData = [
+            {name:"suggest titles",id:"3AeXXLeDVgQM", description:"returns 10 titles as a JSON array",
+                content:"\nasync (...args)=>{\nlet prompt = \"Please suggest 10 titles for a book. Return the response as a string JSON array.\";" +
+                    "\nlet response = await this.generateResponse(prompt);" +
+                    "\n\nconsole.log(response);" +
+                    "\nreturn response;\n}\n"},
+            {name:"suggest abstract",id:"5pPdhqLZsx62", description:"generates an abstract about cats",
+                content:"\nasync (...args)=>{\nlet prompt = \"Please sugest an abstract for a document that is about cats. Return only the abstract text\";" +
+                    "\nlet response = await this.generateResponse(prompt);" +
+                    "\n\nconsole.log(response);" +
+                    "\nreturn response;\n}\n"}
+        ];
+        for(let item of scriptData){
+            this.scripts.push(new Script(item));
+        }
+    }
 }
