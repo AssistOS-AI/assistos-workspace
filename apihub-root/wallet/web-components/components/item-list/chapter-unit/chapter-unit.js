@@ -13,11 +13,14 @@ export class chapterUnit {
         this.chapterId = this.element.getAttribute("data-chapter-id");
         this.chapter = this._document.getChapter(this.chapterId);
         this.chapterContent = "";
-        if(this.chapter.visibility === "hide") {
-            if(this.element.querySelector(".chapter-paragraphs")) {
-                this.element.querySelector(".chapter-paragraphs").classList.add("hidden");
+        if(this.chapter){
+            if(this.chapter.visibility === "hide") {
+                if(this.element.querySelector(".chapter-paragraphs")) {
+                    this.element.querySelector(".chapter-paragraphs").classList.add("hidden");
+                }
             }
         }
+
 
         this.chapter.paragraphs.forEach((paragraph) => {
             this.chapterContent += `<paragraph-unit data-paragraph-content="${paragraph.text}" data-paragraph-id="${paragraph.id}"></paragraph-unit>`;
@@ -96,10 +99,7 @@ export class chapterUnit {
         let chapter = this._document.getChapter(chapterId);
         if(paragraphAbove && paragraphAbove.nodeName === "PARAGRAPH-UNIT") {
             currentParagraph.after(paragraphAbove);
-            let paragraph1Index = this._document.chapters.findIndex(paragraph => paragraph.id === currentParagraph.getAttribute('data-paragraph-id'));
-            let paragraph2Index = this._document.chapters.findIndex(paragraph => paragraph.id === paragraphAbove.getAttribute('data-paragraph-id'));
-
-            chapter.swapParagraphs(paragraph1Index, paragraph2Index);
+            chapter.swapParagraphs(currentParagraph.getAttribute('data-paragraph-id'), paragraphAbove.getAttribute('data-paragraph-id'));
             await documentFactory.updateDocument(currentSpaceId, this._document);
         }
     }
@@ -112,9 +112,7 @@ export class chapterUnit {
         let chapter = this._document.getChapter(chapterId);
         if(paragraphBelow && paragraphBelow.nodeName === "PARAGRAPH-UNIT") {
             paragraphBelow.after(currentParagraph);
-            let paragraph1Index = this._document.chapters.findIndex(paragraph => paragraph.id === currentParagraph.getAttribute('data-paragraph-id'));
-            let paragraph2Index = this._document.chapters.findIndex(paragraph => paragraph.id === paragraphBelow.getAttribute('data-paragraph-id'));
-            chapter.swapParagraphs(paragraph1Index, paragraph2Index);
+            chapter.swapParagraphs(currentParagraph.getAttribute('data-paragraph-id'), paragraphBelow.getAttribute('data-paragraph-id'));
             await documentFactory.updateDocument(currentSpaceId, this._document);
         }
     }
