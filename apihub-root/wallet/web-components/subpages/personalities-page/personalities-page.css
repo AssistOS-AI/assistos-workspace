@@ -12,7 +12,7 @@ personality-unit{
     display: flex;
     flex-direction: column;
     align-items: center;
-    margin: 10px;
+    margin: 15px;
 }
 .square-container{
     border: 6px solid #A42E70;
