@@ -48,9 +48,8 @@ export class chapterUnit {
             let currentChapterNumber = currentChapter.querySelector(".data-chapter-number").innerText.split(".")[0];
             let chapterAboveNumber = chapterAbove.querySelector(".data-chapter-number").innerText.split(".")[0];
 
-            let chapter1Index = this._document.chapters.findIndex(chapter => chapter.id === currentChapter.getAttribute('data-chapter-id'));
-            let chapter2Index = this._document.chapters.findIndex(chapter => chapter.id === chapterAbove.getAttribute('data-chapter-id'));
-            this._document.swapChapters(chapter1Index, chapter2Index);
+            this._document.swapChapters(currentChapter.getAttribute('data-chapter-id'), chapterAbove.getAttribute('data-chapter-id'));
+
             await documentFactory.updateDocument(currentSpaceId, this._document);
 
             currentChapter.setAttribute("data-chapter-number", chapterAboveNumber);
@@ -71,9 +70,7 @@ export class chapterUnit {
         let chapterBelow = currentChapter.nextSibling;
         if(chapterBelow.nodeName === "CHAPTER-UNIT") {
             chapterBelow.after(currentChapter);
-            let chapter1Index = this._document.chapters.findIndex(chapter => chapter.id === currentChapter.getAttribute('data-chapter-id'));
-            let chapter2Index = this._document.chapters.findIndex(chapter => chapter.id === chapterBelow.getAttribute('data-chapter-id'));
-            this._document.swapChapters(chapter1Index, chapter2Index);
+            this._document.swapChapters(currentChapter.getAttribute('data-chapter-id'), chapterBelow.getAttribute('data-chapter-id'));
             await documentFactory.updateDocument(currentSpaceId, this._document);
 
             let currentChapterNumber = currentChapter.querySelector(".data-chapter-number").innerText.split(".")[0];
