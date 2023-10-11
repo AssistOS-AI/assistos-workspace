@@ -45,6 +45,6 @@ export class spacePage {
     }
 
     beforeRender() {
-
+     this.spaceName = webSkel.space.name;
     }
 }
