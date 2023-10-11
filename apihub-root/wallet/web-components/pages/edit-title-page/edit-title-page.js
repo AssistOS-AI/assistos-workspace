@@ -16,22 +16,27 @@ export class editTitlePage {
     }
 
     beforeRender() {
-        this.title = `<title-edit title="${this._document.title}"></title-edit>`;
+        this.title = this._document.title;
         this.alternativeTitles = "";
         let i = 1;
         this._document.alternativeTitles.forEach((alternativeTitle) => {
             this.alternativeTitles += `<alternative-title data-nr="${i}" data-title="${alternativeTitle.name}" data-id="${alternativeTitle.id}"></alternative-title>`;
             i++;
         });
-
+        document.removeEventListener("click", this.exitEditMode);
     }
-    async saveTitle(_target) {
-        const formInfo = await extractFormInformation(_target);
-        if(formInfo.isValid) {
-            if (formInfo.data.title !== this._document.getTitle()) {
-                this._document.title = formInfo.data.title;
-                await documentFactory.updateDocument(currentSpaceId, this._document);
-            }
+    async enterEditMode(_target) {
+        let title = reverseQuerySelector(_target, ".document-title");
+        title.setAttribute("contenteditable", "true");
+        title.focus();
+        document.addEventListener("click", this.exitEditMode.bind(this, title), true);
+    }
+
+    async exitEditMode (title, event) {
+        if (title.getAttribute("contenteditable") && !title.contains(event.target)) {
+            title.setAttribute("contenteditable", "false");
+            this._document.title = title.innerText;
+            await documentFactory.updateDocument(currentSpaceId, this._document);
         }
     }
 

@@ -8,13 +8,12 @@
 .document-path {
     cursor: default;
     display: flex;
-    align-items: center;
+    align-items: baseline;
     margin: 10px 0;
 }
 
 .path-button {
-    color: #121212;
-    font-family: Poppins;
+    color: #A42E70;
     font-size: 14px;
     margin: 0 5px;
     font-style: normal;
@@ -22,12 +21,27 @@
     line-height: normal;
 }
 edit-title-page{
-    display: grid;
-    grid-template-columns: 4fr 1fr;
-    grid-template-rows: 1fr;
+    display: flex;
+    width:calc(100% - 270px);
 }
+.document-title{
+    margin: 20px 15px 10px 15px;
+    color: #1E1E1E;
+    font-size: 24px;
+    font-style: normal;
+    font-weight: 500;
+    line-height: normal;
+    resize: none;
+}
+.action{
+    background: #FEFAFF;
+}
+.document-title:focus{
+    outline: none;
+}
+
 .document-content {
-    grid-area: 1 / 1 / 2 / 2;
+    width: 100%;
     display: flex;
 }
 .document-path,
@@ -42,13 +56,17 @@ edit-title-page{
 }
 
 .alternative {
+    margin-bottom: 10px;
     display: flex;
     justify-content: space-between;
 }
 
 .entire-content {
     width: 100%;
-    margin-right: 5em;
+}
+
+.edit-title-separator{
+ margin:0 0 30px 0;
 }
 
 .alternative-titles {
@@ -58,7 +76,6 @@ edit-title-page{
 
 .alt-title {
     color: #1E1E1E;
-    font-family: Poppins;
     font-size: 18px;
     font-style: normal;
     font-weight: 700;
@@ -71,7 +88,6 @@ edit-title-page{
     align-items: center;
     color: #0618D1;
     font-feature-settings: 'clig' off, 'liga' off;
-    font-family: Poppins;
     font-size: 12px;
     font-style: normal;
     font-weight: 600;
@@ -99,9 +115,9 @@ textarea {
 .title-edit-section {
     width: 100%;
     display: flex;
-    justify-content: space-between;
+    align-items: baseline;
 }
-
-title-edit {
-    width: 100%;
+.action-cell{
+    margin-left: 15px;
+    margin-right: 15px;
 }
