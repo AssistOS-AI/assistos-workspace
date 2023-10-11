@@ -1,4 +1,5 @@
 import { getClosestParentElement} from "../../../../imports.js";
+import {reverseQuerySelector} from "../../../../../WebSkel/utils/dom-utils.js";
 
 export class chapterUnit {
     constructor(element,invalidate) {
@@ -20,7 +21,6 @@ export class chapterUnit {
                 }
             }
         }
-
 
         this.chapter.paragraphs.forEach((paragraph) => {
             this.chapterContent += `<paragraph-unit data-paragraph-content="${paragraph.text}" data-paragraph-id="${paragraph.id}"></paragraph-unit>`;
@@ -137,12 +137,11 @@ export class chapterUnit {
                 updatedText = '';
             }
 
-            let documentId = window.location.hash.split("/")[1];
-            let doc = webSkel.space.getDocument(documentId);
-
+            let doc = webSkel.space.getDocument(webSkel.space.currentDocumentId);
             let sidebar = document.getElementById("paragraph-sidebar");
             let chapter = doc.getChapter(chapterId);
             sidebar.style.display = "none";
+
             if (updatedText !== chapter.getParagraph(paragraphId).text) {
                 if (updatedText === null || updatedText.trim() === '') {
                     chapter.deleteParagraph(paragraphId);
@@ -166,8 +165,8 @@ export class chapterUnit {
         event.stopPropagation();
         event.preventDefault();
 
-        let chapterId = getClosestParentElement(paragraph, ".chapter-unit").getAttribute("data-chapter-id");
-        let paragraphId = getClosestParentElement(paragraph, ".paragraph-unit").getAttribute("data-paragraph-id");
+        let chapterId = reverseQuerySelector(paragraph, ".chapter-unit").getAttribute("data-chapter-id");
+        let paragraphId = reverseQuerySelector(paragraph, ".paragraph-unit").getAttribute("data-paragraph-id");
         document.addEventListener("click", this.exitEditMode.bind(paragraph, [chapterId, paragraphId]), true);
 
         const paragraphSubmenuSection = document.getElementById("paragraph-sidebar");
