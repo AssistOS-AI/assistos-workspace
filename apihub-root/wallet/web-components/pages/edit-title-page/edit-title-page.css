@@ -21,16 +21,21 @@
     font-weight: 500;
     line-height: normal;
 }
-
+edit-title-page{
+    display: grid;
+    grid-template-columns: 4fr 1fr;
+    grid-template-rows: 1fr;
+}
+.document-content {
+    grid-area: 1 / 1 / 2 / 2;
+    display: flex;
+}
 .document-path,
 .alternative {
     margin-left: 15px;
 }
 
-.document-content {
-    width: 100%;
-    display: flex;
-}
+
 
 .document-path svg {
     margin: 5px;
