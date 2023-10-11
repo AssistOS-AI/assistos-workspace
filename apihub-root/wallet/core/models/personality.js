@@ -3,5 +3,6 @@ export class Personality {
         this.name = personalityData.name;
         this.description = personalityData.description;
         this.id = personalityData.id;
+        this.image = personalityData.image;
     }
 }

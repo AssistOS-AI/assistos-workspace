@@ -18,6 +18,7 @@ export class addScriptModal {
         if(formInfo.isValid) {
             let scriptData = {
                 name:formInfo.data.name,
+                description: formInfo.data.description,
                 id:webSkel.servicesRegistry.UtilsService.generateId(),
             }
             scriptData.content = `

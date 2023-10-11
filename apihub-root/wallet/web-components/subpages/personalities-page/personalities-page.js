@@ -11,13 +11,11 @@ export class personalitiesPage {
         this.invalidate();
     }
     beforeRender() {
-        this.tableRows = "";
+        this.personalityBlocks = "";
         if (webSkel.space.settings.personalities.length > 0) {
             webSkel.space.settings.personalities.forEach((item) => {
-                this.tableRows += `<personality-unit data-name="${item.name}" data-description="${item.description}" data-id="${item.id}"></personality-unit>`;
+                this.personalityBlocks += `<personality-unit data-name="${item.name}" data-description="${item.description}" data-id="${item.id}" data-image="${item.image}"></personality-unit>`;
             });
-        } else {
-            this.tableRows = `<div class="no-data-loaded">No data loaded</div>`;
         }
     }
     async showAddPersonalityModal() {
@@ -29,9 +27,6 @@ export class personalitiesPage {
     }
     getPersonalityId(_target){
         return reverseQuerySelector(_target, "personality-unit").getAttribute("data-id");
-    }
-    async editAction(_target) {
-        await showModal(document.querySelector("body"), "edit-llm-key-modal", {presenter: "edit-llm-key-modal", id: this.getLLMId(_target)});
     }
     async deleteAction(_target){
         await webSkel.space.deletePersonality(this.getPersonalityId(_target));

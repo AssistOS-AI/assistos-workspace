@@ -1,43 +1,50 @@
-.table-header {
-    padding-left: 10px;
+.table{
+    display: grid;
+    grid-template-columns: repeat(9, 1fr);
+    grid-template-rows: repeat(9, 1fr);
+    grid-column-gap: 0px;
+    grid-row-gap: 0px;
+}
+personality-unit{
+    padding: 15px;
+}
+.add-personality-button{
     display: flex;
-    justify-content: space-between;
-    color: #363C44;
-    font-family: Poppins;
-    font-size: 18px;
-    font-style: normal;
-    font-weight: 700;
-    line-height: normal;
-    text-transform: capitalize;
+    flex-direction: column;
+    align-items: center;
+    margin: 15px;
+}
+.square-container{
+    border: 6px solid #A42E70;
+    border-radius: 9px;
+    width: 150px;
+    height: 150px;
+    display: grid;
+    place-items: center;
+    grid-template-areas:"inner-div";
 }
 
-.add-icon {
-    margin-right: 5px;
-    margin-bottom: 1px;
+.square-container:hover{
+    cursor: pointer;
 }
-
-.cell {
-    width: 32%;
-    padding: 8px 10px;
-    white-space: nowrap;
-    overflow: hidden;
-    text-overflow: ellipsis;
+.horizontal-line{
+    margin: 35px;
+    background-color: #A42E70;
+    width: 68px;
+    height: 9px;
+    grid-area: inner-div;
 }
-
-.cell2 {
-    width: 64%;
+.vertical-line{
+    margin: 35px;
+    background-color: #A42E70;
+    width: 9px;
+    height: 68px;
+    grid-area: inner-div;
 }
-
-.modal-section {
-    display: flex;
-    padding-top: 20px;
-    padding-left: 20px;
-    margin-bottom: 10px;
+.text{
+    font-weight: 500;
+    font-size: 22px;
 }
-
-#page-content {
-    padding: 0;
-}
-.no-data-loaded{
-    padding-left: 20px;
+.button-text{
+    color: #A42E70;
 }
