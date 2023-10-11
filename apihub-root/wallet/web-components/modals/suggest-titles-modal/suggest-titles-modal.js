@@ -10,12 +10,11 @@ export class suggestTitlesModal {
         this.element = element;
 
         setTimeout(async()=>{
-            // const loading = await webSkel.showLoading();
-            // let result = await webSkel.getService("LlmsService").callScript(this._document.settings.documentTitleScriptId);
-            // this.suggestedTitles = result.responseJson;
-            // loading.close();
-            // loading.remove();
-            this.suggestedTitles = ["aa","aaaaaaaaaaaaaaaaaaaaaaaaaa","aaaaaaaaaaaaaaaaaaaaaaaaaa","aaaaaaaaaa" ,"asdasdasd", "asdasdasd", "asdasdasd", "adsdasd"]
+            const loading = await webSkel.showLoading();
+            let result = await webSkel.getService("LlmsService").callScript(this._document.settings.documentTitleScriptId);
+            this.suggestedTitles = result.responseJson;
+            loading.close();
+            loading.remove();
             this.invalidate();
         },0);
     }
