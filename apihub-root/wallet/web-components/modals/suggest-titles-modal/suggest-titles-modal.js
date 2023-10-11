@@ -1,5 +1,5 @@
 import { closeModal } from "../../../../WebSkel/utils/modal-utils.js";
-import { DocumentModel, extractFormInformation } from "../../../imports.js";
+import { extractFormInformation } from "../../../imports.js";
 
 export class suggestTitlesModal {
     constructor(element, invalidate) {
@@ -10,11 +10,12 @@ export class suggestTitlesModal {
         this.element = element;
 
         setTimeout(async()=>{
-            const loading = await webSkel.showLoading();
-            let result = await webSkel.getService("LlmsService").callScript(this._document.settings.documentTitleScriptId);
-            this.suggestedTitles = result.responseJson;
-            loading.close();
-            loading.remove();
+            // const loading = await webSkel.showLoading();
+            // let result = await webSkel.getService("LlmsService").callScript(this._document.settings.documentTitleScriptId);
+            // this.suggestedTitles = result.responseJson;
+            // loading.close();
+            // loading.remove();
+            this.suggestedTitles = ["aa","aaaaaaaaaaaaaaaaaaaaaaaaaa","aaaaaaaaaaaaaaaaaaaaaaaaaa","aaaaaaaaaa" ,"asdasdasd", "asdasdasd", "asdasdasd", "adsdasd"]
             this.invalidate();
         },0);
     }
@@ -32,14 +33,19 @@ export class suggestTitlesModal {
 
 
         let stringHTML = "";
+        let i = 0;
         for(let altTitle of this.suggestedTitles) {
+            i++;
             altTitle = sanitize(altTitle);
             let id = webSkel.getService("UtilsService").generateId();
             stringHTML += `
-            <div>
-                <label for="${id}">${altTitle}</label>
+            <div class="alt-title-row">
+                <span class="alt-title-span">${i}.</span>
+                <label for="${id}" class="alt-title-label">${altTitle}</label>
                 <input type="checkbox" id="${id}" name="${altTitle}" data-id="${id}" value="${altTitle}">
-            </div>`;
+                
+            </div>
+            <hr class="suggest-titles-modal-hr">`;
         }
         this.suggestedTitles = stringHTML;
     }
