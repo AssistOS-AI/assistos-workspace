@@ -2,11 +2,11 @@
     cursor: default;
     display: flex;
     border-radius: 10px;
-    justify-content: space-between;
 }
 
 .paragraph-arrows {
-    min-width: 4px;
+    width:50px;
+    min-width:50px;
     display: flex;
     flex-direction: column;
     align-items: center;
@@ -19,7 +19,7 @@
 }
 
 .paragraph-arrow {
-    /*display: none; */
+    display: none;
     cursor: pointer;
 }
 
