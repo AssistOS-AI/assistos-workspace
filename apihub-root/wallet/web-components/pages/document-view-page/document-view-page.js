@@ -6,6 +6,7 @@ export class documentViewPage {
         this.element = element;
         this._document.observeChange(this._document.getNotificationId() + ":document-view-page", invalidate);
         this.invalidate = invalidate;
+        debugger;
         this.invalidate();
     }
 
@@ -83,6 +84,7 @@ export class documentViewPage {
 
     afterRender() {
         let chapterSidebar = document.getElementById("chapter-sidebar");
+        debugger;
         document.addEventListener("click", (event) => {
             chapterSidebar.style.display = "none";
             let selectedChapter = document.getElementById("select-chapter-visualise");

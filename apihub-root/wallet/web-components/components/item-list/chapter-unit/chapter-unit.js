@@ -1,4 +1,3 @@
-import { getClosestParentElement} from "../../../../imports.js";
 import {reverseQuerySelector} from "../../../../../WebSkel/utils/dom-utils.js";
 
 export class chapterUnit {
@@ -28,7 +27,40 @@ export class chapterUnit {
 
         document.removeEventListener("click", this.exitEditMode);
     }
-
+    displaySidebar(sidebarID){
+        const hideSidebar = (sidebarID) => {
+            let sidebar = document.getElementById(sidebarID);
+            if(!sidebar){
+                throw("Can`t hide sidebar with id: " + sidebarID +" because it doesn`t exist");
+            }else {
+                sidebar.style.display = "none";
+            }
+        }
+        const displaySidebar = (sidebarID) => {
+            let sidebar = document.getElementById(sidebarID);
+            if(!sidebar){
+                throw("Can`t display sidebar with id: " + sidebarID+" because it doesn`t exist");
+            }
+            sidebar.style.display = "block";
+        }
+        switch(sidebarID){
+            case "document-sidebar":
+                hideSidebar("chapter-sidebar");
+                hideSidebar("paragraph-sidebar");
+                displaySidebar("document-sidebar");
+                break;
+            case "chapter-sidebar":
+                hideSidebar("document-sidebar");
+                hideSidebar("paragraph-sidebar");
+                displaySidebar("chapter-sidebar");
+                break;
+            case "paragraph-sidebar":
+                hideSidebar("document-sidebar");
+                hideSidebar("chapter-sidebar");
+                displaySidebar("paragraph-sidebar");
+                break;
+        }
+    }
     showOrHideChapter(_target) {
         if (this.chapter.visibility === "hide") {
             this.chapter.visibility = "show";
@@ -41,7 +73,7 @@ export class chapterUnit {
     }
 
     async moveUp(_target) {
-        let currentChapter = getClosestParentElement(_target, "chapter-unit");
+        let currentChapter = reverseQuerySelector(_target, "chapter-unit");
         let chapterAbove = currentChapter.previousSibling;
         if(chapterAbove.nodeName === "CHAPTER-UNIT") {
             currentChapter.after(chapterAbove);
@@ -66,7 +98,7 @@ export class chapterUnit {
     }
 
     async moveDown(_target) {
-        let currentChapter = getClosestParentElement(_target, "chapter-unit");
+        let currentChapter = reverseQuerySelector(_target, "chapter-unit");
         let chapterBelow = currentChapter.nextSibling;
         if(chapterBelow.nodeName === "CHAPTER-UNIT") {
             chapterBelow.after(currentChapter);
@@ -89,9 +121,9 @@ export class chapterUnit {
     }
 
     async moveParagraphUp(_target) {
-        let currentParagraph = getClosestParentElement(_target, "paragraph-unit");
+        let currentParagraph = reverseQuerySelector(_target, "paragraph-unit");
         let paragraphAbove = currentParagraph.previousSibling;
-        let chapterElement = getClosestParentElement(currentParagraph, "chapter-unit");
+        let chapterElement = reverseQuerySelector(currentParagraph, "chapter-unit");
         let chapterId = chapterElement.getAttribute('data-chapter-id');
         let chapter = this._document.getChapter(chapterId);
         if(paragraphAbove && paragraphAbove.nodeName === "PARAGRAPH-UNIT") {
@@ -102,9 +134,9 @@ export class chapterUnit {
     }
 
     async moveParagraphDown(_target) {
-        let currentParagraph = getClosestParentElement(_target, "paragraph-unit");
+        let currentParagraph = reverseQuerySelector(_target, "paragraph-unit");
         let paragraphBelow = currentParagraph.nextSibling;
-        let chapterElement = getClosestParentElement(currentParagraph, "chapter-unit");
+        let chapterElement = reverseQuerySelector(currentParagraph, "chapter-unit");
         let chapterId = chapterElement.getAttribute('data-chapter-id');
         let chapter = this._document.getChapter(chapterId);
         if(paragraphBelow && paragraphBelow.nodeName === "PARAGRAPH-UNIT") {
@@ -115,12 +147,10 @@ export class chapterUnit {
     }
 
     openChapterSidebar(_target) {
-        let target = getClosestParentElement(_target, ".chapter-unit");
-        let chapterId = target.getAttribute('data-chapter-id');
-        const chapterSubmenuSection = document.getElementById("chapter-sidebar");
-        chapterSubmenuSection.style.display = "block";
+        let target = reverseQuerySelector(_target, ".chapter-unit");
+        this.displaySidebar("chapter-sidebar");
         target.setAttribute("id", "select-chapter-visualise");
-        webSkel.space.currentChapterId = chapterId;
+        webSkel.space.currentChapterId = target.getAttribute('data-chapter-id');
     }
 
     afterRender() {
@@ -138,10 +168,7 @@ export class chapterUnit {
             }
 
             let doc = webSkel.space.getDocument(webSkel.space.currentDocumentId);
-            let sidebar = document.getElementById("paragraph-sidebar");
             let chapter = doc.getChapter(chapterId);
-            sidebar.style.display = "none";
-
             if (updatedText !== chapter.getParagraph(paragraphId).text) {
                 if (updatedText === null || updatedText.trim() === '') {
                     chapter.deleteParagraph(paragraphId);
@@ -156,6 +183,7 @@ export class chapterUnit {
                 doc.notifyObservers(doc.getNotificationId());
             }
         }
+        this.displaySidebar("document-sidebar");
     }
 
     enterEditMode(paragraph, event) {
@@ -164,15 +192,12 @@ export class chapterUnit {
         paragraph.focus();
         event.stopPropagation();
         event.preventDefault();
-
         let chapterId = reverseQuerySelector(paragraph, ".chapter-unit").getAttribute("data-chapter-id");
         let paragraphId = reverseQuerySelector(paragraph, ".paragraph-unit").getAttribute("data-paragraph-id");
         document.addEventListener("click", this.exitEditMode.bind(paragraph, [chapterId, paragraphId]), true);
-
-        const paragraphSubmenuSection = document.getElementById("paragraph-sidebar");
-        paragraphSubmenuSection.style.display = "block";
         webSkel.space.currentChapterId = chapterId;
         webSkel.space.currentParagraphId = paragraphId;
+        this.displaySidebar("paragraph-sidebar");
     }
 }
 
