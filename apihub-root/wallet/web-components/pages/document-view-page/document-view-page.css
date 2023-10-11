@@ -17,10 +17,12 @@
 
 .document-view-page {
     display: flex;
+    width:100%;
 }
 
 .document-content {
-    width:100%;
+    width:calc(100% - 270px);
+    max-width: calc(100% - 270px);
     padding-left:50px;
     padding-right:50px;
 }
