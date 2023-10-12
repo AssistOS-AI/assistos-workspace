@@ -122,6 +122,7 @@ export class chapterUnit {
             }
             this.displaySidebar('document-sidebar');
             document.removeEventListener('click', this.boundDocumentClickHandler, true);
+            delete this.boundDocumentClickHandler;
         }
     }
     highlightChapter(_target) {

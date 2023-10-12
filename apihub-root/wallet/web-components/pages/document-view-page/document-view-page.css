@@ -4,6 +4,8 @@
     font-style: normal;
     font-weight: 600;
     line-height: normal;
+    padding-left:10px;
+    padding-right:10px;
 }
 
 .abstract-content {
@@ -15,7 +17,9 @@
     font-weight: 400;
     line-height: normal;
 }
-
+.abstract-content-text{
+    padding:10px;
+}
 .document-view-page {
     display: flex;
     width:100%;
@@ -24,7 +28,7 @@
 .document-content {
     width:calc(100% - 270px);
     padding-left:50px;
-    padding-right:50px;
+   /* padding-right:50px;*/
 }
 
 .document-path {
@@ -38,6 +42,8 @@
     letter-spacing: 0em;
     text-align: left;
     color: #440A46;
+    padding-left:10px;
+    padding-right:10px;
 }
 
 .document-title {
@@ -46,6 +52,8 @@
         font-style: normal;
         font-weight: 600;
         line-height: normal;
+    padding-left:20px;
+    padding-right:20px;
 }
 
 
@@ -75,7 +83,7 @@
 #paragraph-sidebar {
     display: none;
 }
-.abstract-section,.document-title,.path-button,.chapter-unit{
+.abstract-section,.path-button,.chapter-unit{
     padding:10px;
 }
 .fifty-px-horizontal-space{
