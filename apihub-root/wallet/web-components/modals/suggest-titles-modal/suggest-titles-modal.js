@@ -11,7 +11,8 @@ export class suggestTitlesModal {
 
         setTimeout(async()=>{
             const loading = await webSkel.showLoading();
-            let result = await webSkel.getService("LlmsService").callScript(this._document.settings.documentTitleScriptId);
+            let scriptId = this._document.getScriptId("documentTitleScriptId");
+            let result = await webSkel.getService("LlmsService").callScript(scriptId);
             this.suggestedTitles = result.responseJson;
             loading.close();
             loading.remove();
