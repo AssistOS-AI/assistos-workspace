@@ -18,6 +18,7 @@ async function loadPage() {
         /* URL examples: documents/0, documents/0/chapters/1 */
         switch(url.split('/')[0]) {
             case "#documents": {
+                /* custom getURlParams func*/
                 let documentIdURL = url.split('/')[1];
                 presenterName = url.split('/')[2];
                 let chapterIdURL = url.split('/')[3];

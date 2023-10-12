@@ -22,6 +22,29 @@ export class documentViewPage {
             });
         }
     }
+    async addChapter() {
+        let chapterData= {
+            title: "New Chapter",
+            id: webSkel.servicesRegistry.UtilsService.generateId(),
+            paragraphs: [
+                {
+                    id:webSkel.servicesRegistry.UtilsService.generateId(),
+                    text: "Edit your paragraph here"
+                }
+            ]
+        }
+        await this._document.addChapter(chapterData);
+        this.invalidate();
+    }
+
+    async addParagraph(_target){
+        let chapter = this._document.getChapter(webSkel.space.currentChapterId);
+        await chapter.addParagraph({id: webSkel.getService("UtilsService").generateId(), text:"Edit your paragraph here"});
+        this.invalidate();
+    }
+
+    afterRender() {
+    }
 
     async openEditTitlePage() {
         await webSkel.changeToDynamicPage("edit-title-page", `documents/${this._document.id}/edit-title-page`);
@@ -59,37 +82,4 @@ export class documentViewPage {
         await webSkel.changeToDynamicPage("paragraph-edit-page",
             `documents/${this._document.id}/paragraph-edit-page/${webSkel.space.currentChapterId}/${webSkel.space.currentParagraphId}`);
     }
-
-    async addChapter() {
-        let chapterData= {
-            title: "New Chapter",
-            id: webSkel.servicesRegistry.UtilsService.generateId(),
-            paragraphs: [
-                {
-                    id:webSkel.servicesRegistry.UtilsService.generateId(),
-                    text: "Edit your paragraph here"
-                }
-            ]
-        }
-        await this._document.addChapter(chapterData);
-        this.invalidate();
-    }
-
-    async addParagraph(_target){
-        let chapter = this._document.getChapter(webSkel.space.currentChapterId);
-        await chapter.addParagraph({id: webSkel.getService("UtilsService").generateId(), text:"Edit your paragraph here"});
-        this.invalidate();
-    }
-
-    afterRender() {
-        let chapterSidebar = document.getElementById("chapter-sidebar");
-        document.addEventListener("click", (event) => {
-            chapterSidebar.style.display = "none";
-            let selectedChapter = document.getElementById("select-chapter-visualise");
-            if(selectedChapter) {
-                document.getElementById("select-chapter-visualise").removeAttribute("id");
-            }
-        }, true);
-    }
-
 }
