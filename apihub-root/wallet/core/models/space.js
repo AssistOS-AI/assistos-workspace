@@ -146,15 +146,24 @@ export class Space {
     createDefaultScripts(){
         let scriptData = [
             {name:"suggest titles",id:"3AeXXLeDVgQM", description:"returns 10 titles as a JSON array",
-                content:"\nasync (...args)=>{\nlet prompt = \"Please suggest 10 titles for a book. Return the response as a string JSON array.\";" +
-                    "\nlet response = await this.generateResponse(prompt);" +
-                    "\n\nconsole.log(response);" +
-                    "\nreturn response;\n}\n"},
+                content: "\n{\nstart: function(prompt){" +
+                    "\nthis.prompt = prompt;" +
+                    "\nthis.prompt = \"Please suggest 10 titles for a book. Return the response as a string JSON array.\";" +
+                    "\nthis.setIntelligenceLevel(3);" +
+                    "\nthis.execute();\n}" +
+                    "\nexecute: async function(){" +
+                    "\n let alternativeTitles = await this.brainstorm(this.prompt, 5);" +
+                    "\n this.return(alternativeTitles);\n}\n}"},
             {name:"suggest abstract",id:"5pPdhqLZsx62", description:"generates an abstract about cats",
-                content:"\nasync (...args)=>{\nlet prompt = \"Please sugest an abstract for a document that is about cats. Return only the abstract text\";" +
-                    "\nlet response = await this.generateResponse(prompt);" +
-                    "\n\nconsole.log(response);" +
-                    "\nreturn response;\n}\n"}
+                content: "\n{\nstart: function(prompt){" +
+                    "\nthis.prompt = prompt;" +
+                    "\nthis.prompt = \"Please suggest an abstract for a book. Return the response as a string.\";" +
+                    "\nthis.setInteligenceLevel(3);" +
+                    "\nthis.execute();\n}" +
+                    "\nexecute: async function(){" +
+                    "\n let alternativeTitles = await this.brainstorm(this.prompt, 1);" +
+                    "\n this.return(alternativeTitles);\n}\n}",
+            }
         ];
         for(let item of scriptData){
             this.scripts.push(new Script(item));
