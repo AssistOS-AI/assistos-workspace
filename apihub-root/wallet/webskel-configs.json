@@ -164,6 +164,10 @@
     {
       "name": "LlmsService",
       "path": "./core/services/llmsService.js"
+    },
+    {
+      "name": "FlowsService",
+      "path": "./core/services/flowsService.js"
     }
   ],
   "components": [

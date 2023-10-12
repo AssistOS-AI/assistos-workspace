@@ -20,19 +20,8 @@ export class addScriptModal {
                 name:formInfo.data.name,
                 description: formInfo.data.description,
                 id:webSkel.servicesRegistry.UtilsService.generateId(),
+                content: formInfo.data.validateCode
             }
-            scriptData.content = `
-             async ()=>{
-             let prompt = "${formInfo.data.prompt}";
-                  let response = await generateResponseLLM(prompt);
-                  try{
-                  ${formInfo.data.validateCode}
-                  return response;
-                  }catch(error){
-                  await showApplicationError(error, error, error);
-                  }   
-              }
-                 `;
             await webSkel.space.addScript(scriptData);
             webSkel.space.notifyObservers(webSkel.space.getNotificationId());
 

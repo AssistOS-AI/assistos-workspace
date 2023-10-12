@@ -35,7 +35,9 @@ import { extractFormInformation } from "../WebSkel/utils/form-utils.js";
 import { addSpaceModal} from "./web-components/modals/add-space-modal/add-space-modal.js";
 import { Settings } from "./core/models/settings.js";
 import {Script} from "./core/models/script.js";
+import {createFlowsFactory} from "../llmFlows/src/llmFlows.js";
 export {
+    createFlowsFactory,
     Settings,
     addSpaceModal,
     addDocumentModal,

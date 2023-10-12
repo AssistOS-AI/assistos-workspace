@@ -1,1 +1,6 @@
-{"name":"suggest abstract","content":"\nasync (...args)=>{\nlet prompt = \"Please sugest an abstract for a document that is about cats. Return only the abstract text\";\nlet response =this.generateResponse(prompt);\n console.log(response);\nreturn response;\n}\n","id":"5pPdhqLZsx62","description":"generates an abstract about cats"}
+{
+  "name": "suggest abstract",
+  "content": "\nasync (...args)=>{\nlet prompt = \"Please sugest an abstract for a document that is about cats. Return only the abstract text\";\nlet response =this.generateResponse(prompt);\n console.log(response);\nreturn response;\n}\n",
+  "id": "5pPdhqLZsx62",
+  "description": "generates an abstract about cats"
+}

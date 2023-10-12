@@ -2,11 +2,11 @@ export class LlmsService {
     constructor() {
     }
 
-    async generateResponse(prompt){
+    async generateResponse(body){
         let result = await fetch("llms/generate",
             {
                 method: "PUT",
-                body: prompt,
+                body: body,
                 headers: {
                     "Content-type": "application/json; charset=UTF-8"
                 }
@@ -16,12 +16,12 @@ export class LlmsService {
     /*scriptId, scriptParams */
     async callScript(...args){
         let script =webSkel.space.getScript(args[0]);
-        const scriptCode = eval(script.content);
+        let scriptCode = eval(script.content);
+        webSkel.getService("FlowsService").registerFlow(script.name, scriptCode);
         let response="";
 
         try{
-            args.shift();
-            response = await scriptCode(args);
+            response = await webSkel.getService("FlowsService").runFlow(script.name);
         }catch (e){
             await showApplicationError("Script execution Error", `Encountered an error while attempting to execute the script ${args[0]}`, e);
         }
