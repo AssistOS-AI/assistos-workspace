@@ -146,23 +146,21 @@ export class Space {
     createDefaultScripts(){
         let scriptData = [
             {name:"suggest titles",id:"3AeXXLeDVgQM", description:"returns 10 titles as a JSON array",
-                content: "\n{\nstart: function(prompt){" +
-                    "\nthis.prompt = prompt;" +
+                content: "\n({\nstart: function(){" +
                     "\nthis.prompt = \"Please suggest 10 titles for a book. Return the response as a string JSON array.\";" +
                     "\nthis.setIntelligenceLevel(3);" +
                     "\nthis.execute();\n}" +
                     "\nexecute: async function(){" +
                     "\n let alternativeTitles = await this.brainstorm(this.prompt, 5);" +
-                    "\n this.return(alternativeTitles);\n}\n}"},
+                    "\n this.return(alternativeTitles);\n}\n})"},
             {name:"suggest abstract",id:"5pPdhqLZsx62", description:"generates an abstract about cats",
-                content: "\n{\nstart: function(prompt){" +
-                    "\nthis.prompt = prompt;" +
-                    "\nthis.prompt = \"Please suggest an abstract for a book. Return the response as a string.\";" +
-                    "\nthis.setInteligenceLevel(3);" +
+                content: "\n({\nstart: function(){" +
+                    "\nthis.prompt = \"Please suggest an abstract for a document that is about cats. Return only the abstract text\";" +
+                    "\nthis.setIntelligenceLevel(3);" +
                     "\nthis.execute();\n}" +
                     "\nexecute: async function(){" +
-                    "\n let alternativeTitles = await this.brainstorm(this.prompt, 1);" +
-                    "\n this.return(alternativeTitles);\n}\n}",
+                    "\n let altAbstract = await this.brainstorm(this.prompt, 1);" +
+                    "\n this.return(altAbstract);\n}\n})",
             }
         ];
         for(let item of scriptData){

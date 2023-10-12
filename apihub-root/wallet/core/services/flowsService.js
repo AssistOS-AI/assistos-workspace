@@ -14,12 +14,14 @@ export class FlowsService{
                 this.body.intelligence = level;
             },
             setCreativityLevel : async function (level){
-                /* send to the remote endpoints*/
-                return options;
+                this.body.creativity = level;
             },
             request : async function (prompt, max_tokens){
-                /* call remote LLM edndpoints*/
-                return "Improved prompt for " + prompt;
+                this.body.max_tokens = max_tokens;
+                return await webSkel.getService("LlmsService").generateResponse(JSON.stringify(this.body));
+            },
+            requestAs : async function (personalityName, prompt, numberOfOptions, max_tokens){
+
             },
             brainstorm : async  function (prompt, number, max_tokens){
                 this.body.prompt = prompt;
@@ -27,6 +29,14 @@ export class FlowsService{
                 this.body.max_tokens = max_tokens;
                 return await webSkel.getService("LlmsService").generateResponse(JSON.stringify(this.body));
             },
+            brainstormAs : async  function (personalityName,prompt, number, max_tokens){
+                //this.body.personality = webSkel.space.getPersonality();
+                this.body.prompt = prompt;
+                this.body.variants = number;
+                this.body.max_tokens = max_tokens;
+                return await webSkel.getService("LlmsService").generateResponse(JSON.stringify(this.body));
+            },
+
             setCostsLevel : async function (level){
 
             },

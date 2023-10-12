@@ -183,4 +183,8 @@ export class DocumentModel {
             return webSkel.space.getScript(this.settings[name]);
         }
     }
+
+    getScriptId(name){
+        return this.settings[name];
+    }
 }
