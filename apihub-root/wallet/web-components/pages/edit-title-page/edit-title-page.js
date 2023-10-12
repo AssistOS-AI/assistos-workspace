@@ -40,22 +40,6 @@ export class editTitlePage {
         }
     }
 
-    async openEditTitlePage() {
-        await webSkel.changeToDynamicPage("edit-title-page", `documents/${this._document.id}/edit-title-page`);
-    }
-
-    async openEditAbstractPage() {
-        await webSkel.changeToDynamicPage("edit-abstract-page", `documents/${this._document.id}/edit-abstract-page`);
-    }
-
-    async openDocumentSettingsPage() {
-        await webSkel.changeToDynamicPage("document-settings-page", `documents/${this._document.id}/document-settings-page`);
-    }
-
-    async openManageChaptersPage() {
-        await webSkel.changeToDynamicPage("manage-chapters-page", `documents/${this._document.id}/manage-chapters-page`);
-    }
-
     async openViewPage() {
         await webSkel.changeToDynamicPage("document-view-page", `documents/${this._document.id}/document-view-page`);
     }

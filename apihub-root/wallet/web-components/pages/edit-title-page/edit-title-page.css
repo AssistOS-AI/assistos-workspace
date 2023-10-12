@@ -18,7 +18,6 @@
     margin: 0 5px;
     font-style: normal;
     font-weight: 500;
-    line-height: normal;
 }
 edit-title-page{
     display: flex;
@@ -33,9 +32,7 @@ edit-title-page{
     line-height: normal;
     resize: none;
 }
-.action{
-    background: #FEFAFF;
-}
+
 .document-title:focus{
     outline: none;
 }

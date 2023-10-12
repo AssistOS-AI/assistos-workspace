@@ -285,6 +285,9 @@ gap: 10px;
     font-weight: 500;
     line-height: normal;
 }
+.action{
+    background: #FEFAFF;
+}
 
 .tool-item:hover {
     border-radius: 5px;

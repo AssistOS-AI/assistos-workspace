@@ -17,7 +17,6 @@ export class editAbstractPage {
     }
 
     beforeRender() {
-        this.title = `<title-view title="${this._document.getTitle()}"></title-view>`;
         this.abstractText=this._document.abstract;
         this.alternativeAbstracts = "";
         let i = 1;
@@ -28,37 +27,29 @@ export class editAbstractPage {
         document.removeEventListener("click", this.removeEventForDocument, true);
     }
 
-    async openEditTitlePage() {
-        await webSkel.changeToDynamicPage("edit-title-page", `documents/${this._document.id}/edit-title-page`);
-    }
-
-    async openEditAbstractPage() {
-        await webSkel.changeToDynamicPage("edit-abstract-page", `documents/${this._document.id}/edit-abstract-page`);
-    }
-
-    async openDocumentSettingsPage() {
-        await webSkel.changeToDynamicPage("document-settings-page", `documents/${this._document.id}/document-settings-page`);
-    }
-
-    async openManageChaptersPage() {
-        await webSkel.changeToDynamicPage("manage-chapters-page", `documents/${this._document.id}/manage-chapters-page`);
-    }
 
     async openViewPage() {
         await webSkel.changeToDynamicPage("document-view-page", `documents/${this._document.id}/document-view-page`);
     }
 
-    async saveAbstract() {
-        let updatedAbstract = this.element.querySelector(".abstract-content").innerText;
-        await this._document.updateAbstract(updatedAbstract);
+    async proofreadAbstract(){
+        console.log("changed page to abstract proofreader");
     }
 
-    afterRender() {
-        this.editableAbstract = this.element.querySelector("#editable-abstract");
-        this.editableAbstract.addEventListener("dblclick", this.setEditableAbstract);
-        document.addEventListener("click", this.removeEventForDocument.bind(this), true);
+    async enterEditMode(_target) {
+        let abstract = this.element.querySelector(".abstract-content");
+        abstract.setAttribute("contenteditable", "true");
+        abstract.focus();
+        document.addEventListener("click", this.exitEditMode.bind(this, abstract), true);
     }
 
+    async exitEditMode (abstract, event) {
+        if (abstract.getAttribute("contenteditable") && !abstract.contains(event.target)) {
+            abstract.setAttribute("contenteditable", "false");
+            this._document.updateAbstract(abstract.innerText);
+            await documentFactory.updateDocument(currentSpaceId, this._document);
+        }
+    }
 
     async showActionBox(_target, primaryKey, componentName, insertionMode) {
         this.actionBox = await showActionBox(_target, primaryKey, componentName, insertionMode);
@@ -68,7 +59,7 @@ export class editAbstractPage {
         closeModal(_target);
     }
 
-    async generateAbstract(_target){
+    async suggestAbstract(_target){
         await showModal(document.querySelector("body"), "suggest-abstract-modal", { presenter: "suggest-abstract-modal"});
     }
 
@@ -104,21 +95,6 @@ export class editAbstractPage {
         this._document.deleteAlternativeAbstract(abstract.getAttribute("data-id"));
         await documentFactory.updateDocument(currentSpaceId, this._document);
         this.invalidate();
-    }
-
-    removeEventForDocument(event) {
-        if(this.editableAbstract.getAttribute("contenteditable") === "true" && !this.editableAbstract.contains(event.target)) {
-            this.editableAbstract.setAttribute("contenteditable", "false");
-            this.editableAbstract.removeEventListener("click", this.setEditableAbstract);
-        }
-
-    }
-
-    setEditableAbstract(event) {
-        this.setAttribute("contenteditable", "true");
-        this.focus();
-        event.stopPropagation();
-        event.preventDefault();
     }
 }
 

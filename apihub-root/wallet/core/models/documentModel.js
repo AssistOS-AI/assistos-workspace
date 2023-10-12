@@ -99,7 +99,7 @@ export class DocumentModel {
         this.mainIdeas.push(mainIdea);
     }
 
-    async updateAbstract(abstractText) {
+    updateAbstract(abstractText) {
         this.abstract = abstractText;
     }
 

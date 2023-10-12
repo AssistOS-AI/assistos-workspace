@@ -1,4 +1,4 @@
-.edit-abstract-page {
+edit-abstract-page {
     display: flex;
     width: 100%;
     height: 100%;
@@ -8,33 +8,35 @@
 .document-path {
     cursor: default;
     display: flex;
-    align-items: center;
+    align-items: baseline;
     margin: 10px 0;
 }
 
+.current-abstract-separator{
+    border: 1px solid #E6E6E6;
+    margin: 0;
+}
+
 .path-button {
-    color: #121212;
-    font-family: Poppins;
+    color: #A42E70;
     font-size: 14px;
     margin: 0 5px;
     font-style: normal;
     font-weight: 500;
-    line-height: normal;
 }
-
-.document-title {
-    margin-top: 20px;
-    margin-bottom: -5px;
+.current-abstract{
+    display: flex;
+    align-items: baseline;
+}
+.current-abstract-title {
+    margin: 20px 15px 0 15px;
     color: #252525;
-    font-family: Poppins;
-    font-size: 26px;
+    font-size: 18px;
     font-style: normal;
     font-weight: 600;
-    line-height: normal;
 }
 
 .document-path,
-.abstract,
 .document-title {
     margin-left: 15px;
 }
@@ -46,59 +48,23 @@
 
 .entire-content {
     width:calc(100% - 270px);
-    display: flex;
-    flex-direction: column;
 }
 
 .document-path svg {
     margin: 5px;
 }
 
-.abstract,
-.abstract-subtitle {
-    display: flex;
-    margin-left: -10px;
-    padding-left: 20px;
-    justify-content: space-between;
-    width: 100%;
-}
-
 .abstract-subtitle {
     border-bottom: none;
 }
 
-.current-abstract {
-    margin-left: 7px;
+.alt-abstracts-title {
+    margin-top: 15px;
+    margin-left: 15px;
     color: #252525;
-    font-family: Poppins;
     font-size: 18px;
     font-style: normal;
     font-weight: 600;
-    line-height: normal;
-}
-
-.suggest svg {
-    margin-top: -5px;
-    margin-right: 5px;
-}
-
-.suggest {
-    cursor: pointer;
-    align-items: center;
-    display: flex;
-    font-feature-settings: 'clig' off, 'liga' off;
-    color: #307AB4;
-    font-family: Poppins;
-    font-size: 12px;
-    font-style: normal;
-    font-weight: 700;
-    line-height: normal;
-    padding-right: 20px;
-}
-
-.regenerate {
-    background-color: #FFF;
-    border: none;
 }
 
 #page-content {
@@ -107,15 +73,13 @@
 
 .abstract-content {
     white-space: pre-line;
-    padding: 10px;
+    padding: 15px;
     border-radius: 10px;
     color: #252525;
     font-size: 16px;
     font-style: normal;
     font-weight: 400;
     line-height: normal;
-    margin-left: 10px;
-    margin-top: 10px;
     margin-right: 10px;
 }
 
@@ -139,28 +103,5 @@
     display: flex;
     width: 100%;
     flex-direction: column;
-}
-
-.save-abstract {
-    margin-top: 5px;
-    justify-self: end;
-    align-self: flex-end;
-    cursor: pointer;
-    color: #FFF;
-    font-feature-settings: 'clig' off, 'liga' off;
-    font-family: Poppins;
-    font-size: 14px;
-    font-style: normal;
-    font-weight: 600;
-    line-height: normal;
-    display: inline-flex;
-    padding: 6px 35px;
-    justify-content: center;
-    align-items: center;
-    gap: 10px;
-    border-radius: 16px;
-    background: #18203F;
-    margin-right: 20px;
-    margin-bottom: 20px;
 }
 
