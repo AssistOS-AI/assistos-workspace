@@ -36,11 +36,11 @@ export class documentViewPage {
         await this._document.addChapter(chapterData);
         this.invalidate();
     }
-
+    /* notify Observers -> notifyChapter(chapterId) ? */
     async addParagraph(_target){
         let chapter = this._document.getChapter(webSkel.space.currentChapterId);
-        await chapter.addParagraph({id: webSkel.getService("UtilsService").generateId(), text:"Edit your paragraph here"});
-        this.invalidate();
+        await chapter.addParagraph({id: webSkel.getService("UtilsService").generateId(), text:"New Paragraph"});
+        this._document.notifyObservers(this._document.getNotificationId()+":document-view-page:"+"chapter:"+`${chapter.id}`);
     }
 
     afterRender() {

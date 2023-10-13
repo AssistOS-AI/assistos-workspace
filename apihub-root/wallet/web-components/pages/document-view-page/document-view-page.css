@@ -18,7 +18,7 @@
     line-height: normal;
 }
 .abstract-content-text{
-    padding:10px;
+    padding: 0 10px 10px;
 }
 .document-view-page {
     display: flex;
@@ -28,7 +28,9 @@
 .document-content {
     width:calc(100% - 270px);
     padding-left:50px;
-   /* padding-right:50px;*/
+   padding-right:20px;
+    height:100%;
+    min-height:100%;
 }
 
 .document-path {
@@ -52,8 +54,10 @@
         font-style: normal;
         font-weight: 600;
         line-height: normal;
-    padding-left:20px;
-    padding-right:20px;
+        padding-left:20px;
+        padding-right:20px;
+        padding-top:20px;
+        padding-bottom:10px;
 }
 
 
@@ -75,10 +79,7 @@
     align-items: center;
     justify-content: end;
 }
-.paragraph-text{
-    text-align:justify;
-    width:100%;
-}
+
 #chapter-sidebar,
 #paragraph-sidebar {
     display: none;
@@ -86,7 +87,7 @@
 .abstract-section,.path-button,.chapter-unit{
     padding:10px;
 }
-.fifty-px-horizontal-space{
-    width:50px;
-    min-width:50px;
+.thirty-px-horizontal-space{
+    width:30px;
+    min-width:30px;
 }

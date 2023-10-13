@@ -4,14 +4,14 @@ export class chapterUnit {
     constructor(element,invalidate) {
         this.element = element;
         this._document=webSkel.space.getDocument(webSkel.space.currentDocumentId);
-        this._document.observeChange(this._document.getNotificationId() + ":document-view-page", invalidate);
+        this.chapterId = this.element.getAttribute("data-chapter-id");
+        this.chapter = this._document.getChapter(this.chapterId);
+        this._document.observeChange(this._document.getNotificationId() + ":document-view-page:"+"chapter:"+`${this.chapterId}`, invalidate);
         this.invalidate=invalidate;
         this.invalidate();
     }
 
     beforeRender() {
-        this.chapterId = this.element.getAttribute("data-chapter-id");
-        this.chapter = this._document.getChapter(this.chapterId);
         this.chapterContent = "";
         if(this.chapter){
             if(this.chapter.visibility === "hide") {
@@ -190,9 +190,9 @@ export class chapterUnit {
                     currentChapter.deleteParagraph(paragraphId);
                 } else {
                     currentParagraph.updateText(updatedText);
-                    await documentFactory.updateDocument(currentSpaceId, currentDocument);
                 }
-                currentDocument.notifyObservers(currentDocument.getNotificationId());
+                await documentFactory.updateDocument(currentSpaceId, currentDocument);
+                currentDocument.notifyObservers(currentDocument.getNotificationId()+":document-view-page:"+"chapter:"+`${chapterId}`);
             }
             if (this.boundExitEditMode) {
                 document.removeEventListener("click", this.boundExitEditMode, true);

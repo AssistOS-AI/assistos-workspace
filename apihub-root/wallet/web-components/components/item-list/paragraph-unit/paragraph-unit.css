@@ -5,8 +5,8 @@
 }
 
 .paragraph-arrows {
-    width:50px;
-    min-width:50px;
+    width:30px;
+    min-width:30px;
     display: flex;
     flex-direction: column;
     align-items: center;
@@ -24,15 +24,23 @@
 }
 
 .paragraph-text {
+    display:flex;
+    align-items:center;
     cursor: text;
+    padding:10px;
     white-space: pre-wrap;
+    min-height:36px;
+    flex-wrap:wrap;
+
+    width:calc(100% - 30px);
+    max-width:calc(100% - 30px);
+    word-wrap: break-word;
+    overflow-wrap: break-word;
+    hyphens: auto;
+    word-break: break-word;
 }
 
 .paragraph-unit:hover {
-    .paragraph-arrows {
-        min-height: 0;
-    }
-
     .paragraph-arrow {
         display: block;
     }

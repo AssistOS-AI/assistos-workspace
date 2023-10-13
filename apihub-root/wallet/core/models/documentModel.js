@@ -34,8 +34,6 @@ export class DocumentModel {
         this.observers.push(new WeakRef(obj));
     }
 
-    //doc:childId:paragraphId
-    //a child can be not only a chapter, but also a title or abstract or mainIdea
     notifyObservers(prefix) {
         for (const observerRef of this.observers) {
             const observer = observerRef.deref();
