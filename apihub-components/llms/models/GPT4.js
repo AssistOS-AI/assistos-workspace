@@ -1,7 +1,5 @@
 class GPT4{
-    constructor(request, response) {
-        this.request = request;
-        this.response = response;
+    constructor() {
 
         this.intelligence = 9;
         this.creativity = 9;

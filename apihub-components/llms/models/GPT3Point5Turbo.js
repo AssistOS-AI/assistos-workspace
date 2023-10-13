@@ -1,7 +1,5 @@
 class GPT3Point5Turbo{
-    constructor(request, response) {
-        this.request = request;
-        this.response = response;
+    constructor() {
 
         this.intelligence = 5;
         this.creativity = 5;

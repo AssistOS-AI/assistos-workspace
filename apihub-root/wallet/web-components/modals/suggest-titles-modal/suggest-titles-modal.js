@@ -13,10 +13,15 @@ export class suggestTitlesModal {
             const loading = await webSkel.showLoading();
             let scriptId = this._document.getScriptId("documentTitleScriptId");
             let result = await webSkel.getService("LlmsService").callScript(scriptId);
-            this.suggestedTitles = result.responseJson;
+            if(result.responseJson){
+                this.suggestedTitles = result.responseJson;
+                this.invalidate();
+            }else {
+                closeModal(this.element);
+            }
             loading.close();
             loading.remove();
-            this.invalidate();
+
         },0);
     }
 
@@ -29,8 +34,6 @@ export class suggestTitlesModal {
                 .replace(/'/g, '&#039;')
                 .replace(/\s/g, '&nbsp;');
         }
-
-
 
         let stringHTML = "";
         let i = 0;

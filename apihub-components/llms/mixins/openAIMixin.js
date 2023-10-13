@@ -25,26 +25,17 @@ function openAIMixin(target){
         target.__messages.push(message);
     }
     target.callLLM = async function(prompt){
-        try {
-            target.setPrompt(prompt);
-            await target.setKey("../apihub-root/keys-secret.json");
-            const result = await fetch(target.__url, target.getOptions());
-            if (result.status !== 200) {
-                console.log(`Response Status: ${result.status}`);
-                console.log(`Response Text: ${await result.text()}`);
-                target.sendResponse(target.response, result.status, "text/html", await result.text());
-            }
-            const generatedText = JSON.parse(await result.text());
-            target.sendResponse(target.response, 200, "text/html", generatedText.choices[0].message.content);
-        } catch (error) {
-            console.log('API call failed:', error);
+        target.setPrompt(prompt);
+        await target.setKey("../apihub-root/keys-secret.json");
+        const result = await fetch(target.__url, target.getOptions());
+        if (result.status !== 200) {
+            console.log(`Response Status: ${result.status}`);
+            console.log(`Response Text: ${await result.text()}`);
+            throw new Error(await result.text());
         }
-    }
-    target.sendResponse = function(response,statusCode, contentType, message){
-        response.statusCode = statusCode;
-        response.setHeader("Content-Type", contentType);
-        response.write(message);
-        response.end();
+        const generatedText = JSON.parse(await result.text());
+        return generatedText.choices[0].message.content;
+
     }
 }
 module.exports = openAIMixin;

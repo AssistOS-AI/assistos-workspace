@@ -11,6 +11,11 @@ export class LlmsService {
                     "Content-type": "application/json; charset=UTF-8"
                 }
             });
+        if(result.status !==200){
+            let err = JSON.parse(await result.text());
+            await showApplicationError("LLM call failed", `An error occurred on the server side`, err.message + " " + err.stack);
+            return;
+        }
         return await result.text();
     }
     /*scriptId, scriptParams */
