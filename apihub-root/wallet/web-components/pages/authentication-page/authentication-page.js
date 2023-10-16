@@ -194,9 +194,21 @@ export class authenticationPage {
     }
 
     async loginDefaultUser(){
-        await webSkel.getService("AuthenticationService").loginFirstTimeUser("teo@teo", "teo");
-        currentUser.isPremium = true;
         currentUser.id ="1101522431685742196611723790234240113112996125581292472522231319144225195232444191";
+        let users = webSkel.getService("AuthenticationService").getCachedUsers();
+        try {
+            users = JSON.parse(users);
+            if(users.find(user => user.id === currentUser.id)){
+                await webSkel.getService("AuthenticationService").loginUser("teo@teo", "teo");
+            }else {
+                await webSkel.getService("AuthenticationService").loginFirstTimeUser("teo@teo", "teo");
+            }
+        }catch (e){
+            //users not in localStorage yet
+            await webSkel.getService("AuthenticationService").loginFirstTimeUser("teo@teo", "teo");
+        }
+
+        currentUser.isPremium = true;
         currentUser.spaces = (JSON.parse(await storageManager.loadUser(currentUser.id))).spaces;
         let userObj = JSON.parse(webSkel.getService("AuthenticationService").getCachedCurrentUser());
         userObj.spaces = currentUser.spaces;

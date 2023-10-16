@@ -85,13 +85,6 @@ body {
 }
 
 .logo-container {
-    display: flex;
-    justify-content: center;
-    color: #000000;
-    font-family: Poppins;
-    font-style: normal;
-    font-size: 28px;
-    font-weight: 800;
 }
 
 /*Login page*/
