@@ -25,6 +25,21 @@ export class chapterUnit {
         });
         document.removeEventListener("click", this.exitEditMode);
     }
+    afterRender() {
+        let selectedParagraphs = this.element.querySelectorAll(".paragraph-text");
+        let currentParagraph="";
+        selectedParagraphs.forEach(paragraph => {
+            paragraph.addEventListener("dblclick", this.enterEditMode.bind(this, paragraph), true);
+            if(reverseQuerySelector(paragraph,'[data-paragraph-id]').getAttribute("data-paragraph-id")===webSkel.space.currentParagraphId){
+                currentParagraph=paragraph;
+            }
+        });
+        if(this.chapter.id===webSkel.space.currentChapterId){
+            this.highlightChapter(currentParagraph);
+            this.enterEditMode(currentParagraph);
+        }
+
+    }
      displaySidebar(sidebarID) {
             document.querySelectorAll(".item-list").forEach(sidebar => sidebar.style.display = "none");
             const desiredSidebar = document.getElementById(sidebarID);
@@ -145,22 +160,15 @@ export class chapterUnit {
         }
     }
 
-
-    afterRender() {
-        let selectedParagraphs = this.element.querySelectorAll(".paragraph-text");
-        selectedParagraphs.forEach(paragraph => {
-            paragraph.addEventListener("dblclick", this.enterEditMode.bind(this, paragraph), true);
-        });
-    }
     enterEditMode(paragraph, event) {
         /* paragraph HTML Element is injected via bind */
-
         paragraph.setAttribute("id", "selected-chapter");
         paragraph.setAttribute("contenteditable", "true");
         paragraph.focus();
-
-        event.stopPropagation();
-        event.preventDefault();
+        if(event) {
+            event.stopPropagation();
+            event.preventDefault();
+        }
 
         let chapterId = reverseQuerySelector(paragraph, ".chapter-unit").getAttribute("data-chapter-id");
         let paragraphId = reverseQuerySelector(paragraph, ".paragraph-unit").getAttribute("data-paragraph-id");
@@ -198,6 +206,8 @@ export class chapterUnit {
                 document.removeEventListener("click", this.boundExitEditMode, true);
                 delete this.boundExitEditMode;
             }
+            webSkel.space.currentChapterId=null;
+            webSkel.space.currentParagraphId=null;
             displaySidebar("document-sidebar");
         }
     }
