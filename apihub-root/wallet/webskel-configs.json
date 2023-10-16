@@ -1,6 +1,11 @@
 {
   "presenters": [
     {
+      "name": "show-error-modal",
+      "path": "./web-components/modals/show-error-modal/show-error-modal.js",
+      "className": "showErrorModal"
+    },
+    {
       "name": "chapter-unit",
       "path": "./web-components/components/item-list/chapter-unit/chapter-unit.js",
       "className": "chapterUnit"

@@ -13,12 +13,11 @@
         </div>
 
         <div id="show-error-model-content-content">
-            <input type="checkbox" class="button" id="details-toggle">
-            <label for="details-toggle" class="button" id="details-button">Details</label>
+            <button class="button" id="details-button" data-local-action="toggleDetails">Details</button>
             <div id="detailed-error-message">
                 $$data-technical
             </div>
-            <button id="ok-button" class="button" data-action="closeErrorModal">
+            <button id="ok-button" class="button" data-local-action="closeModal">
                 Ok
             </button>
         </div>
