@@ -37,8 +37,8 @@ export class FlowsService{
                 return await webSkel.getService("LlmsService").generateResponse(JSON.stringify(this.__body));
             },
 
-            setCostsLevel : async function (level){
-
+            setCostLevel :  function (level){
+                this.__body.cost = level;
             },
             proofread : async function (personalityName, prompt){
 
