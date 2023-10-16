@@ -5,15 +5,14 @@ class GPT4{
         this.creativity = 9;
         this.cost = 9;
         //8,192 tokens
-        this.max_tokens = 0.8;
+        this.context = 0.8;
 
         this.__url = "https://api.openai.com/v1/chat/completions";
-        this.__temperature = 0.7;
-        this.__messages = [];
         this.__body = {
             model: "gpt-4",
-            messages: this.__messages,
-            temperature: this.__temperature
+            messages: [],
+            temperature: 0.7,
+            n: 1
         }
         let openAIMixin = require("../mixins/openAIMixin");
         openAIMixin(this);

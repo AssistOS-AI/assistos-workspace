@@ -17,7 +17,6 @@
     justify-content: start;
     align-items: start;
     overflow: hidden;
-    text-overflow: ellipsis;
 }
 
 .action-cell {
@@ -40,7 +39,9 @@
     background-color: rgba(85, 85, 85, 0.08);
     cursor: pointer;
 }
-
+.suggested-title{
+    text-overflow: ellipsis;
+}
 .suggested-title:focus {
     background-color: rgba(148, 174, 227, 0.3);
     color: #252525;

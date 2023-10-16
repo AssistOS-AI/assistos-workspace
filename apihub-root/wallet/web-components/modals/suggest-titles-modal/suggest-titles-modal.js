@@ -1,5 +1,5 @@
 import { closeModal } from "../../../../WebSkel/utils/modal-utils.js";
-import { extractFormInformation } from "../../../imports.js";
+import {extractFormInformation, sanitize} from "../../../imports.js";
 
 export class suggestTitlesModal {
     constructor(element, invalidate) {
@@ -24,16 +24,8 @@ export class suggestTitlesModal {
 
         },0);
     }
-
     beforeRender() {
-        function sanitize(str) {
-            return str.replace(/&/g, '&amp;')
-                .replace(/</g, '&lt;')
-                .replace(/>/g, '&gt;')
-                .replace(/"/g, '&quot;')
-                .replace(/'/g, '&#039;')
-                .replace(/\s/g, '&nbsp;');
-        }
+
 
         let stringHTML = "";
         let i = 0;
@@ -61,7 +53,7 @@ export class suggestTitlesModal {
         let formInfo = await extractFormInformation(_target);
         for (const [key, value] of Object.entries(formInfo.elements)) {
             if(value.element.checked) {
-                this._document.addAlternativeTitle({name:value.element.value, id:value.element.getAttribute("data-id")});
+                this._document.addAlternativeTitle({name:sanitize(value.element.value), id:value.element.getAttribute("data-id")});
             }
         }
         await documentFactory.updateDocument(currentSpaceId, this._document);

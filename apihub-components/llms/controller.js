@@ -14,16 +14,16 @@ async function initModels(){
     }
     return registry;
 }
-//cost -> intelligence -> creativity -> max_tokens
+//cost -> intelligence -> creativity -> context
  // with weights
 function computeOverallScore(object, weights){
-    if(!object.max_tokens){
-        object.max_tokens = 4000;
+    if(!object.context){
+        object.context = 4000;
     }
-    object.max_tokens = object.max_tokens /10000;
+    object.context = object.context /10000;
     return ((object.intelligence*weights.intelligence +
         object.creativity*weights.creativity +
-        object.max_tokens*weights.max_tokens) - object.cost*weights.cost);
+        object.context*weights.context) - object.cost*weights.cost);
 }
 
 function chooseModel(registry, settings){
@@ -31,7 +31,7 @@ function chooseModel(registry, settings){
         cost: 0.35,
         intelligence: 0.35,
         creativity: 0.2,
-        max_tokens: 0.1
+        context: 0.1
     }
     let requestScore = computeOverallScore(settings, weights);
     let bestModel = {modelName:"", difference:10};
@@ -52,7 +52,7 @@ async function generateResponse(request, response) {
     let registry = await initModels(response);
     let model = chooseModel(registry,settings);
     try{
-        let result = await model.callLLM(settings.prompt);
+        let result = await model.callLLM(settings);
         sendResponse(response, 200, "text/html", result);
     }catch (e){
         console.error(e);
