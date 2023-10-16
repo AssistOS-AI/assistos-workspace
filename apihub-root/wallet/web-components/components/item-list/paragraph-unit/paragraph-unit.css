@@ -25,7 +25,6 @@
 
 .paragraph-text {
     display:flex;
-    align-items:center;
     cursor: text;
     padding:10px;
     white-space: pre-wrap;
@@ -34,7 +33,6 @@
 
     width:calc(100% - 30px);
     max-width:calc(100% - 30px);
-    word-wrap: break-word;
     overflow-wrap: break-word;
     hyphens: auto;
     word-break: break-word;

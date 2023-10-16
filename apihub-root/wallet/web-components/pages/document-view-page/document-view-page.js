@@ -5,6 +5,8 @@ export class documentViewPage {
         this._document = webSkel.space.getDocument(webSkel.space.currentDocumentId);
         this.element = element;
         this._document.observeChange(this._document.getNotificationId() + ":document-view-page", invalidate);
+        this._document.observeChange(this._document.getNotificationId() + ":refresh", invalidate);
+
         this.invalidate = invalidate;
         this.invalidate();
     }

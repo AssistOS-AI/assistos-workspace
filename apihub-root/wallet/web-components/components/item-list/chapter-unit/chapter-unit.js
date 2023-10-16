@@ -35,10 +35,11 @@ export class chapterUnit {
             }
         });
         if(this.chapter.id===webSkel.space.currentChapterId){
-            this.highlightChapter(currentParagraph);
-            this.enterEditMode(currentParagraph);
+            this.highlightChapter(this.element.querySelector(".chapter-text"));
+            if(currentParagraph!=="") {
+                this.enterEditMode(currentParagraph);
+            }
         }
-
     }
      displaySidebar(sidebarID) {
             document.querySelectorAll(".item-list").forEach(sidebar => sidebar.style.display = "none");
@@ -56,79 +57,51 @@ export class chapterUnit {
         _target.classList.toggle('rotate');
     }
 
-    async moveUp(_target) {
+    async moveChapter(_target, direction) {
         let currentChapter = reverseQuerySelector(_target, "chapter-unit");
-        let chapterAbove = currentChapter.previousSibling;
-        if(chapterAbove.nodeName === "CHAPTER-UNIT") {
-            currentChapter.after(chapterAbove);
-            let currentChapterNumber = currentChapter.querySelector(".data-chapter-number").innerText.split(".")[0];
-            let chapterAboveNumber = chapterAbove.querySelector(".data-chapter-number").innerText.split(".")[0];
-
-            this._document.swapChapters(currentChapter.getAttribute('data-chapter-id'), chapterAbove.getAttribute('data-chapter-id'));
-
-            await documentFactory.updateDocument(currentSpaceId, this._document);
-
-            currentChapter.setAttribute("data-chapter-number", chapterAboveNumber);
-            currentChapter.querySelector(".data-chapter-number").innerText = chapterAboveNumber + ".";
-            chapterAbove.setAttribute("data-chapter-number", currentChapterNumber);
-            chapterAbove.querySelector(".data-chapter-number").innerText = currentChapterNumber + ".";
-            let chapterAboveId = chapterAbove.getAttribute("data-chapter-id");
-            let chapterAboveIndex = this._document.chapters.findIndex(chp => chp.id === chapterAboveId);
-            if(this._document.chapters[chapterAboveIndex].visibility === "hide") {
-                chapterAbove.querySelector(".chapter-paragraphs").classList.add("hidden");
-                chapterAbove.querySelector(".arrow").classList.add("rotate");
+        let adjacentChapter;
+        if (direction === "up") {
+            adjacentChapter = currentChapter.previousSibling;
+        } else if (direction === "down") {
+            adjacentChapter = currentChapter.nextSibling;
+        }
+        if (adjacentChapter && adjacentChapter.nodeName === "CHAPTER-UNIT") {
+            if (direction === "up") {
+                adjacentChapter.after(currentChapter);
+            } else {
+                adjacentChapter.before(currentChapter);
             }
+
+            this._document.swapChapters(currentChapter.getAttribute('data-chapter-id'), adjacentChapter.getAttribute('data-chapter-id'));
+            await documentFactory.updateDocument(currentSpaceId, this._document);
+            this._document.notifyObservers(this._document.getNotificationId() + ":refresh");
         }
     }
 
-    async moveDown(_target) {
-        let currentChapter = reverseQuerySelector(_target, "chapter-unit");
-        let chapterBelow = currentChapter.nextSibling;
-        if(chapterBelow.nodeName === "CHAPTER-UNIT") {
-            chapterBelow.after(currentChapter);
-            this._document.swapChapters(currentChapter.getAttribute('data-chapter-id'), chapterBelow.getAttribute('data-chapter-id'));
-            await documentFactory.updateDocument(currentSpaceId, this._document);
 
-            let currentChapterNumber = currentChapter.querySelector(".data-chapter-number").innerText.split(".")[0];
-            let chapterBelowNumber = chapterBelow.querySelector(".data-chapter-number").innerText.split(".")[0];
+    async moveParagraph(_target, direction) {
+        let currentParagraph = reverseQuerySelector(_target, "paragraph-unit");
+        let adjacentParagraph;
 
-            chapterBelow.setAttribute("data-chapter-number", currentChapterNumber);
-            chapterBelow.querySelector(".data-chapter-number").innerText = currentChapterNumber + ".";
-            currentChapter.setAttribute("data-chapter-number", chapterBelowNumber);
-            currentChapter.querySelector(".data-chapter-number").innerText = chapterBelowNumber + ".";
+        if (direction === "up") {
+            adjacentParagraph = currentParagraph.previousSibling;
+        } else if (direction === "down") {
+            adjacentParagraph = currentParagraph.nextSibling;
+        }
 
-            if (this.chapter.visibility === "hide") {
-                this.element.querySelector(".chapter-paragraphs").classList.add("hidden");
-                this.element.querySelector(".arrow").classList.add("rotate");
+        if (adjacentParagraph && adjacentParagraph.nodeName === "PARAGRAPH-UNIT") {
+            if (direction === "up") {
+                currentParagraph.after(adjacentParagraph);
+                this.chapter.swapParagraphs(currentParagraph.getAttribute('data-paragraph-id'), adjacentParagraph.getAttribute('data-paragraph-id'));
+            } else {
+                adjacentParagraph.after(currentParagraph);
+                this.chapter.swapParagraphs(currentParagraph.getAttribute('data-paragraph-id'), adjacentParagraph.getAttribute('data-paragraph-id'));
             }
+            await documentFactory.updateDocument(currentSpaceId, this._document);
+            this._document.notifyObservers(this._document.getNotificationId() + ":document-view-page:"+"chapter:"+`${this.chapterId}`);
         }
     }
 
-    async moveParagraphUp(_target) {
-        let currentParagraph = reverseQuerySelector(_target, "paragraph-unit");
-        let paragraphAbove = currentParagraph.previousSibling;
-        let chapterElement = reverseQuerySelector(currentParagraph, "chapter-unit");
-        let chapterId = chapterElement.getAttribute('data-chapter-id');
-        let chapter = this._document.getChapter(chapterId);
-        if(paragraphAbove && paragraphAbove.nodeName === "PARAGRAPH-UNIT") {
-            currentParagraph.after(paragraphAbove);
-            chapter.swapParagraphs(currentParagraph.getAttribute('data-paragraph-id'), paragraphAbove.getAttribute('data-paragraph-id'));
-            await documentFactory.updateDocument(currentSpaceId, this._document);
-        }
-    }
-
-    async moveParagraphDown(_target) {
-        let currentParagraph = reverseQuerySelector(_target, "paragraph-unit");
-        let paragraphBelow = currentParagraph.nextSibling;
-        let chapterElement = reverseQuerySelector(currentParagraph, "chapter-unit");
-        let chapterId = chapterElement.getAttribute('data-chapter-id');
-        let chapter = this._document.getChapter(chapterId);
-        if(paragraphBelow && paragraphBelow.nodeName === "PARAGRAPH-UNIT") {
-            paragraphBelow.after(currentParagraph);
-            chapter.swapParagraphs(currentParagraph.getAttribute('data-paragraph-id'), paragraphBelow.getAttribute('data-paragraph-id'));
-            await documentFactory.updateDocument(currentSpaceId, this._document);
-        }
-    }
     documentClickHandler(event) {
         if (!event.target.closest('.chapter-unit')) {
             let selectedChapter = document.getElementById("highlighted-chapter");
@@ -193,14 +166,17 @@ export class chapterUnit {
             let currentChapter  = currentDocument.getChapter(chapterId);
             let currentParagraph= currentChapter.getParagraph(paragraphId);
 
-            if (updatedText !== currentParagraph.text) {
-                if (updatedText === null || updatedText.trim() === '') {
-                    currentChapter.deleteParagraph(paragraphId);
-                } else {
-                    currentParagraph.updateText(updatedText);
-                }
+            let updateRequired = false;
+            if (updatedText === null || updatedText.trim() === '') {
+                currentChapter.deleteParagraph(paragraphId);
+                updateRequired = true;
+            } else if (updatedText !== currentParagraph.text) {
+                currentParagraph.updateText(updatedText);
+                updateRequired = true;
+            }
+            if (updateRequired) {
                 await documentFactory.updateDocument(currentSpaceId, currentDocument);
-                currentDocument.notifyObservers(currentDocument.getNotificationId()+":document-view-page:"+"chapter:"+`${chapterId}`);
+                currentDocument.notifyObservers(currentDocument.getNotificationId() + ":document-view-page:" + "chapter:" + `${chapterId}`);
             }
             if (this.boundExitEditMode) {
                 document.removeEventListener("click", this.boundExitEditMode, true);

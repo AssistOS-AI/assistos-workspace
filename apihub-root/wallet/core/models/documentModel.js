@@ -35,9 +35,15 @@ export class DocumentModel {
     }
 
     notifyObservers(prefix) {
+        debugger;
         for (const observerRef of this.observers) {
             const observer = observerRef.deref();
-            if(observer && observer.elementId.startsWith(prefix)) {
+            /* multiple refreshes at the same time( when refreshing a parent the child also refresh causing problems */
+            /* doc:document-view-page:chapter:23SDFAasd4
+              * doc:document-view-page
+              * doc:document-view-page:right-sidebar:chapter-titles:chapter:23SDFAasd4
+            */
+            if(observer &&observer.elementId.startsWith(prefix)) {
                 observer.callback();
             }
         }
