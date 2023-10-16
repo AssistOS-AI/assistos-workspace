@@ -39,7 +39,10 @@ export class documentViewPage {
     /* notify Observers -> notifyChapter(chapterId) ? */
     async addParagraph(_target){
         let chapter = this._document.getChapter(webSkel.space.currentChapterId);
-        await chapter.addParagraph({id: webSkel.getService("UtilsService").generateId(), text:"New Paragraph"});
+        let newParagraphId=webSkel.getService("UtilsService").generateId();
+        await chapter.addParagraph({id: newParagraphId, text:""});
+        webSkel.space.currentChapterId=chapter.id;
+        webSkel.space.currentParagraphId=newParagraphId;
         this._document.notifyObservers(this._document.getNotificationId()+":document-view-page:"+"chapter:"+`${chapter.id}`);
     }
 
@@ -81,5 +84,8 @@ export class documentViewPage {
     async openParagraphEditPage() {
         await webSkel.changeToDynamicPage("paragraph-edit-page",
             `documents/${this._document.id}/paragraph-edit-page/${webSkel.space.currentChapterId}/${webSkel.space.currentParagraphId}`);
+    }
+    async openDocumentViewPage(){
+        await webSkel.changeToDynamicPage("document-view-page", `documents/${this._document.id}/document-view-page`);
     }
 }
