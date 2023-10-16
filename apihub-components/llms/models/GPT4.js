@@ -1,9 +1,11 @@
 class GPT4{
     constructor() {
-
+        this.name = "GPT4";
         this.intelligence = 9;
         this.creativity = 9;
         this.cost = 9;
+        //8,192 tokens
+        this.max_tokens = 0.8;
 
         this.__url = "https://api.openai.com/v1/chat/completions";
         this.__temperature = 0.7;

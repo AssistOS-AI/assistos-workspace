@@ -1,9 +1,11 @@
 class GPT3Point5Turbo{
     constructor() {
-
+        this.name = "GPT3Point5Turbo";
         this.intelligence = 5;
         this.creativity = 5;
         this.cost = 5;
+        //4,097 tokens
+        this.max_tokens = 0.4;
 
         this.__url = "https://api.openai.com/v1/chat/completions";
         this.__temperature = 0.7;
