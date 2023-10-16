@@ -103,6 +103,16 @@ export class chapterUnit {
     }
 
     documentClickHandler(event) {
+        const editableParagraph = document.querySelector('[contenteditable="true"]');
+        if (editableParagraph && (editableParagraph === event.target || editableParagraph.contains(event.target))) {
+            return;
+        }
+
+        const highlightedChapter = document.getElementById("highlighted-chapter");
+        if (highlightedChapter && highlightedChapter.contains(event.target) && !editableParagraph) {
+            return;
+        }
+
         if (!event.target.closest('.chapter-unit')) {
             let selectedChapter = document.getElementById("highlighted-chapter");
             if (selectedChapter) {
@@ -113,15 +123,24 @@ export class chapterUnit {
             delete this.boundDocumentClickHandler;
         }
     }
+
     highlightChapter(_target) {
         let target = reverseQuerySelector(_target, ".chapter-unit");
         let previouslySelected = document.getElementById("highlighted-chapter");
+        if(target && target.id === "highlighted-chapter") {
+            return;
+        }
+        if (target === previouslySelected) {
+            this.displaySidebar("chapter-sidebar");
+            return;
+        }
         if (previouslySelected) {
             previouslySelected.removeAttribute("id");
         }
         if (target) {
             target.setAttribute("id", "highlighted-chapter");
             webSkel.space.currentChapterId = target.getAttribute('data-chapter-id');
+            debugger;
             this.displaySidebar("chapter-sidebar");
 
             if (!this.boundDocumentClickHandler) {
@@ -134,7 +153,6 @@ export class chapterUnit {
     }
 
     enterEditMode(paragraph, event) {
-        /* paragraph HTML Element is injected via bind */
         paragraph.setAttribute("id", "selected-chapter");
         paragraph.setAttribute("contenteditable", "true");
         paragraph.focus();
@@ -146,22 +164,22 @@ export class chapterUnit {
         let chapterId = reverseQuerySelector(paragraph, ".chapter-unit").getAttribute("data-chapter-id");
         let paragraphId = reverseQuerySelector(paragraph, ".paragraph-unit").getAttribute("data-paragraph-id");
 
-        /* storing a reference for removing the event listener in exitEditMode */
-
-        this.boundExitEditMode = this.exitEditMode.bind(paragraph, [chapterId, paragraphId,this.displaySidebar]);
+        this.boundExitEditMode = this.exitEditMode.bind(this, paragraph, chapterId, paragraphId, this.displaySidebar);
         document.addEventListener("click", this.boundExitEditMode, true);
+
         webSkel.space.currentChapterId = chapterId;
         webSkel.space.currentParagraphId = paragraphId;
         this.displaySidebar("paragraph-sidebar");
     }
-    async exitEditMode ([chapterId, paragraphId,displaySidebar], event) {
-        /* Click in afara paragrafului curent selectat */
-        if(this && this.getAttribute("contenteditable") === "true" && !this.contains(event.target)){
-            this.setAttribute("contenteditable", "false");
-            let updatedText = this.innerText;
-            if(updatedText === '\n') {
+
+    async exitEditMode(paragraph, chapterId, paragraphId, displaySidebar, event) {
+        if (paragraph.getAttribute("contenteditable") === "true" && !paragraph.contains(event.target) && paragraph !== event.target){
+            paragraph.setAttribute("contenteditable", "false");
+            let updatedText = paragraph.innerText;
+            if (updatedText === '\n') {
                 updatedText = '';
             }
+
             let currentDocument = webSkel.space.getDocument(webSkel.space.currentDocumentId);
             let currentChapter  = currentDocument.getChapter(chapterId);
             let currentParagraph= currentChapter.getParagraph(paragraphId);
@@ -178,15 +196,18 @@ export class chapterUnit {
                 await documentFactory.updateDocument(currentSpaceId, currentDocument);
                 currentDocument.notifyObservers(currentDocument.getNotificationId() + ":document-view-page:" + "chapter:" + `${chapterId}`);
             }
-            if (this.boundExitEditMode) {
-                document.removeEventListener("click", this.boundExitEditMode, true);
-                delete this.boundExitEditMode;
-            }
-            webSkel.space.currentChapterId=null;
-            webSkel.space.currentParagraphId=null;
+
+            webSkel.space.currentChapterId = null;
+            webSkel.space.currentParagraphId = null;
             displaySidebar("document-sidebar");
         }
+        if (this.boundExitEditMode) {
+            document.removeEventListener("click", this.boundExitEditMode, true);
+            delete this.boundExitEditMode;
+        }
+
     }
+
 
 
 }
