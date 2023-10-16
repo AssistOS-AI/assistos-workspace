@@ -35,7 +35,6 @@ export class DocumentModel {
     }
 
     notifyObservers(prefix) {
-        debugger;
         for (const observerRef of this.observers) {
             const observer = observerRef.deref();
             /* multiple refreshes at the same time( when refreshing a parent the child also refresh causing problems */

@@ -140,7 +140,6 @@ export class chapterUnit {
         if (target) {
             target.setAttribute("id", "highlighted-chapter");
             webSkel.space.currentChapterId = target.getAttribute('data-chapter-id');
-            debugger;
             this.displaySidebar("chapter-sidebar");
 
             if (!this.boundDocumentClickHandler) {
