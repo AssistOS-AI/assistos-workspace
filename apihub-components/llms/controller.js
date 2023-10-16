@@ -18,8 +18,9 @@ async function initModels(){
  // with weights
 function computeOverallScore(object, weights){
     if(!object.max_tokens){
-        object.max_tokens = 0.4;
+        object.max_tokens = 4000;
     }
+    object.max_tokens = object.max_tokens /10000;
     return ((object.intelligence*weights.intelligence +
         object.creativity*weights.creativity +
         object.max_tokens*weights.max_tokens) - object.cost*weights.cost);
@@ -33,12 +34,12 @@ function chooseModel(registry, settings){
         max_tokens: 0.1
     }
     let requestScore = computeOverallScore(settings, weights);
-    let bestModel = {modelName:"", similarity:10};
+    let bestModel = {modelName:"", difference:10};
     for (let modelName of Object.keys(registry)){
-        let similarity = Math.abs(computeOverallScore(registry[modelName], weights) - requestScore);
-        if(similarity < bestModel.similarity){
+        let difference = Math.abs(computeOverallScore(registry[modelName], weights) - requestScore);
+        if(difference < bestModel.difference){
             bestModel.modelName = registry[modelName].name;
-            bestModel.similarity = similarity;
+            bestModel.difference = difference;
         }
     }
 
