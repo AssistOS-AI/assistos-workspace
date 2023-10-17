@@ -31,7 +31,7 @@ export class documentViewPage {
             paragraphs: [
                 {
                     id:webSkel.servicesRegistry.UtilsService.generateId(),
-                    text: "Edit your paragraph here"
+                    text: "New Paragraph"
                 }
             ]
         }
