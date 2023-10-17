@@ -6,6 +6,11 @@
       "className": "showErrorModal"
     },
     {
+      "name": "abstract-proofread-page",
+      "path": "./web-components/pages/abstract-proofread-page/abstract-proofread-page.js",
+      "className": "abstractProofreadPage"
+    },
+    {
       "name": "chapter-unit",
       "path": "./web-components/components/item-list/chapter-unit/chapter-unit.js",
       "className": "chapterUnit"
@@ -176,6 +181,10 @@
     }
   ],
   "components": [
+    {
+      "name": "abstract-proofread-page",
+      "path": "./wallet/web-components/pages/abstract-proofread-page/abstract-proofread-page.html"
+    },
     {
       "name": "chapter-unit",
       "path": "./wallet/web-components/components/item-list/chapter-unit/chapter-unit.html"

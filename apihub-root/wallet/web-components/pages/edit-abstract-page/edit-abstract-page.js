@@ -24,7 +24,7 @@ export class editAbstractPage {
             this.alternativeAbstracts += `<alternative-abstract data-nr="${i}" data-id="${abstract.id}" data-title="${abstract.content}"></alternative-abstract>`;
             i++;
         });
-        document.removeEventListener("click", this.removeEventForDocument, true);
+        document.removeEventListener("click", this.exitEditMode, true);
     }
 
 
@@ -33,7 +33,7 @@ export class editAbstractPage {
     }
 
     async proofreadAbstract(){
-        console.log("changed page to abstract proofreader");
+        await webSkel.changeToDynamicPage("abstract-proofread-page", `documents/${this._document.id}/abstract-proofread-page`);
     }
 
     async enterEditMode(_target) {

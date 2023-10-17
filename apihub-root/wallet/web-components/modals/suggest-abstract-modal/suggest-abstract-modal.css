@@ -7,14 +7,14 @@ dialog[class="modal"] {
     font-family: Poppins;
 }
 
-.modal-content {
+.modal-body{
     padding: 0 30px;
 }
 
-.modal-abstract {
+.suggested-abstract {
+    margin-top: 20px;
     color: #000;
     font-feature-settings: 'clig' off, 'liga' off;
-    font-family: Poppins;
     font-size: 18px;
     font-style: normal;
     font-weight: 400;
@@ -41,10 +41,9 @@ dialog[class="modal"] {
     border-radius: 16px;
     margin: 16px 0;
     border: 0.5px solid #D7D7D7;
-    background: #18203F;
+    background: #A42E70;
     color: #FFF;
     font-feature-settings: 'clig' off, 'liga' off;
-    font-family: Poppins;
     font-size: 14px;
     font-style: normal;
     font-weight: 600;
@@ -79,4 +78,28 @@ input[type="checkbox"] {
 
 input[type="checkbox"]:checked {
     background-color: #000;
+}
+
+.modal-header{
+    padding: 5px 20px 5px 20px;
+    margin-bottom: 5px;
+    background: #A42E70;
+    display: flex;
+    justify-content: space-between;
+}
+.modal-title {
+    color: #ffffff;
+    font-size: 18px;
+    display: flex;
+    flex-direction: column;
+    justify-content: center;
+}
+.close {
+    padding: 0;
+    font-weight: 300;
+    color: #ffffff;
+    cursor: pointer;
+    background-color: transparent;
+    border: none;
+    font-size: 30px;
 }

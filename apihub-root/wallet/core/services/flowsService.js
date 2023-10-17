@@ -42,7 +42,8 @@ export class FlowsService{
                 this.__body.cost = level;
             },
             proofread : async function (personalityName, prompt){
-
+                this.__body.prompt = prompt;
+                return await webSkel.getService("LlmsService").generateResponse(JSON.stringify(this.__body));
             },
             definePersonality: function(personalityName, personalityDescription){
 

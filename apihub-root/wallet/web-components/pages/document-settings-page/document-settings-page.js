@@ -34,12 +34,7 @@ export class documentSettingsPage {
             return htmlString;
         }
         for (const [key, value] of Object.entries(this._document.settings)) {
-            if(key === "personalityId"){
-                this[key] = renderSettings(webSkel.space.settings.personalities,this._document.getSettingsComponent(key), key);
-            }else {
-                this[key] = renderSettings(webSkel.space.scripts, this._document.getSettingsComponent(key), key);
-            }
-
+            this[key] = renderSettings(webSkel.space.scripts, this._document.getSettingsComponent(key), key);
         }
 
     }
