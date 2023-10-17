@@ -10,10 +10,13 @@ export class SpaceFactory {
             date: new Date().toISOString().split('T')[0]
         };
     }
-    static createSpace(spaceData) {
+     static async createSpace(spaceData) {
         spaceData.id=webSkel.servicesRegistry.UtilsService.generateId();
         spaceData.announcements=[this.generateDefaultAnnouncement(spaceData)];
-        return new Space(spaceData);
+        let newSpace = new Space(spaceData);
+        newSpace.createDefaultScripts();
+        await storageManager.storeSpace(newSpace.id, newSpace.stringifySpace());
+        return newSpace;
     }
 
     static async loadSpace(spaceId) {

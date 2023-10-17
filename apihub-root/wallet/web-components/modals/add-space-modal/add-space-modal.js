@@ -16,14 +16,9 @@ export class addSpaceModal {
         let formData = await extractFormInformation(_target);
         if(formData.isValid) {
             let spaceData={name:formData.data.name};
-            let newSpace = SpaceFactory.createSpace(spaceData);
-            newSpace.createDefaultScripts();
-            await storageManager.storeSpace(newSpace.id, newSpace.stringifySpace());
+            let newSpace = await SpaceFactory.createSpace(spaceData);
 
-            let currentUser = JSON.parse(webSkel.getService("AuthenticationService").getCachedCurrentUser());
-            let user = JSON.parse(await storageManager.loadUser(currentUser.id));
-            user.spaces.push({name:newSpace.name, id:newSpace.id});
-            await storageManager.storeUser(currentUser.id,JSON.stringify(user));
+            await webSkel.getService("AuthenticationService").addSpaceToUser(newSpace);
 
             closeModal(_target);
             await webSkel.space.changeSpace(newSpace.id);
