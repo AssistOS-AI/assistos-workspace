@@ -1,7 +1,6 @@
 import {
     WebSkel,
     closeModal,
-    Space,
 } from "./imports.js";
 import { StorageManager } from "./core/services/storageManager.js";
 import {DocumentFactory} from "./core/factories/documentFactory.js";
@@ -32,6 +31,11 @@ async function loadPage() {
                 changeSelectedPageFromSidebar("documents-page");
                 break;
             }
+            case "#authentication-page":{
+                changeSelectedPageFromSidebar(url);
+                presenterName = url.slice(1);
+                break;
+            }
             default: {
                 /*#proofReader, #documents */
                 changeSelectedPageFromSidebar(url);
@@ -39,6 +43,7 @@ async function loadPage() {
                 webSkel.space.currentDocumentId = null;
                 webSkel.space.currentChapterId = null;
                 webSkel.space.currentParagraphId = null;
+                break;
             }
         }
         await webSkel.changeToDynamicPage(presenterName, url.slice(1));
@@ -103,16 +108,7 @@ async function loadConfigs(jsonPath) {
         }
 
         storageManager.setCurrentService("FileSystemStorage");
-
         await webSkel.getService("AuthenticationService").initUser();
-        let currentUserString = webSkel.getService("AuthenticationService").getCachedCurrentUser();
-        if(currentUserString) {
-            window.currentSpaceId = (JSON.parse(currentUserString)).currentSpaceId;
-        } else {
-            window.currentSpaceId = 1;
-        }
-        let result = await storageManager.loadSpace(currentSpaceId);
-        webSkel.space = new Space(JSON.parse(result));
 
         for (const presenter of config.presenters) {
             const PresenterModule = await import(presenter.path);
@@ -122,8 +118,8 @@ async function loadConfigs(jsonPath) {
             await webSkel.defineComponent(component.name, component.path);
         }
 
-
     } catch (error) {
+        console.error(error);
         await showApplicationError("Error loading configs", "Error loading configs", `Encountered ${error} while trying loading webSkel configs`);
     }
 }

@@ -183,7 +183,6 @@ export class authenticationPage {
 
     async loginDefaultUser(){
         currentUser.id ="1101522431685742196611723790234240113112996125581292472522231319144225195232444191";
-        currentUser.isPremium = true;
         currentUser.spaces = (JSON.parse(await storageManager.loadUser(currentUser.id))).spaces;
         let users = webSkel.getService("AuthenticationService").getCachedUsers();
         let userObj;
@@ -195,7 +194,7 @@ export class authenticationPage {
                 userObj.spaces = currentUser.spaces;
                 webSkel.getService("AuthenticationService").setCachedCurrentUser(userObj);
             }else {
-               throw  new Error("user not found");
+               throw new Error("user not found");
             }
         }catch (e){
             //users not in localStorage yet or not found

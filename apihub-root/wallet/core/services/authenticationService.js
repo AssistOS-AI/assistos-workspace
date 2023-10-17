@@ -1,4 +1,5 @@
 import {SpaceFactory} from "../factories/spaceFactory.js";
+import {Space} from "../../imports.js";
 
 const openDSU = require("opendsu");
 const crypto = openDSU.loadApi("crypto");
@@ -9,18 +10,17 @@ export class AuthenticationService{
     constructor() {
     }
     async initUser() {
-        window.currentUser = { id: "", isPremium: false };
+        window.currentUser = { id: "" };
 
         const result = this.getCachedCurrentUser();
 
         if(result) {
             let user = JSON.parse(result);
             window.currentSpaceId = user.currentSpaceId;
-            if(JSON.parse(result).secretToken !== "") {
-                currentUser.isPremium = true;
 
-            }
             currentUser.id = user.id;
+            let spaceData = await storageManager.loadSpace(currentSpaceId);
+            webSkel.space = new Space(JSON.parse(spaceData));
         }
         else {
             /* TBD */
