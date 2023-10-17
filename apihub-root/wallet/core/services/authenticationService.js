@@ -58,6 +58,16 @@ export class AuthenticationService{
         users.push(user);
         localStorage.setItem("users", JSON.stringify(users));
     }
+    deleteCachedUser(id){
+        let usersString = this.getCachedUsers();
+        try{
+            let users = JSON.parse(usersString);
+            users = users.filter(user => user.id !== id);
+            localStorage.setItem("users", JSON.stringify(users));
+        }catch (e){
+            console.log(e);
+        }
+    }
 
     setCachedCurrentUser(userObj){
         localStorage.setItem("currentUser", JSON.stringify(userObj));
@@ -77,24 +87,27 @@ export class AuthenticationService{
 
         userData.secretToken = secretToken;
         userData.id = crypto.getRandomSecret(32).toString().split(",").join("");
-        let defaultSpace = SpaceFactory.createSpace({name: "Personal Space"});
-        defaultSpace.createDefaultScripts();
-        await storageManager.storeSpace(defaultSpace.id, defaultSpace.stringifySpace());
+        let defaultSpace = await SpaceFactory.createSpace({name: "Personal Space"});
         userData.spaces = [{name: defaultSpace.name, id: defaultSpace.id}];
 
         let response = await storageManager.storeUser(userData.id, JSON.stringify(userData));
         //const didDocument = await $$.promisify(w3cDID.createIdentity)("key", undefined, randomNr);
         try{
             response = JSON.parse(response);
-            this.addCachedUser(response);
-            response.spaces = [{name:defaultSpace.name, id:defaultSpace.id}];
             response.currentSpaceId = defaultSpace.id;
-            this.setCachedCurrentUser(response);
+            this.currentUser = response;
+
             return true;
         }catch (e){
             console.error(e);
             return false;
         }
+    }
+
+    verifyConfirmationLink(){
+        this.addCachedUser(this.currentUser);
+        this.setCachedCurrentUser(this.currentUser);
+        delete this.currentUser;
     }
 
     async loginUser(email, password){
@@ -134,10 +147,12 @@ export class AuthenticationService{
             const result = await this.getStoredUser(userId);
             const storedUser = JSON.parse(result);
             if(this.verifyPassword(storedUser.secretToken, password)) {
-                let user = { id: storedUser.id, secretToken: storedUser.secretToken, spaces: storedUser.spaces, currentSpaceId: storedUser.spaces[0].id};
-
-                this.addCachedUser(user);
-                this.setCachedCurrentUser(user);
+                this.currentUser = {
+                    id: storedUser.id,
+                    secretToken: storedUser.secretToken,
+                    spaces: storedUser.spaces,
+                    currentSpaceId: storedUser.spaces[0].id
+                };
                 return true;
             }else {
                 return false;
@@ -156,10 +171,13 @@ export class AuthenticationService{
             currentUser.id = userObj.id;
             const randomNr = crypto.generateRandom(32);
             userObj.temporarySecretToken = crypto.encrypt(randomNr, crypto.deriveEncryptionKey(password));
-            const result = await this.updateStoredUser(userObj);
+            let result = await this.updateStoredUser(userObj);
             try {
-                this.setCachedCurrentUser(JSON.parse(result));
-                console.log(JSON.parse(result));
+                result = JSON.parse(result);
+                result.currentSpaceId = result.spaces[0].id;
+
+                this.currentUser = result;
+                console.log(result);
 
                 return true;
             }catch (e){
@@ -173,19 +191,30 @@ export class AuthenticationService{
     }
 
     async confirmRecoverPassword(){
-        const currentUser = JSON.parse(this.getCachedCurrentUser());
-        const user = JSON.parse(await this.getStoredUser(currentUser.id));
+        const user = JSON.parse(await this.getStoredUser(this.currentUser.id));
         user.secretToken = user.temporarySecretToken;
         delete user.temporarySecretToken;
-        const result = await this.updateStoredUser(user);
+        let result = await this.updateStoredUser(user);
         try {
-            console.log(JSON.parse(result));
-            this.setCachedCurrentUser(JSON.parse(result));
+            result = JSON.parse(result);
+            result.currentSpaceId = this.currentUser.currentSpaceId;
+            delete this.currentUser;
+            console.log(result);
+            this.setCachedCurrentUser(result);
+            this.deleteCachedUser(result.id);
+            this.addCachedUser(result);
             return true;
         }catch (e){
             console.error(e);
             return false;
         }
+    }
+
+    async addSpaceToUser(newSpace){
+        let currentUser = JSON.parse(this.getCachedCurrentUser());
+        let user = JSON.parse(await storageManager.loadUser(currentUser.id));
+        user.spaces.push({name:newSpace.name, id:newSpace.id});
+        await storageManager.storeUser(currentUser.id,JSON.stringify(user));
     }
     async getStoredUser(userId){
         return await storageManager.loadUser(userId);

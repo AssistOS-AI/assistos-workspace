@@ -53,7 +53,7 @@ export class authenticationPage {
                     <div class="form-footer">
                         <button class="wide-btn" data-local-action="verifyConfirmationLink">Log in</button>
                     </div>
-                    <div class="development-mode" data-local-action="navigateToLandingPage">
+                    <div class="development-mode" data-local-action="verifyConfirmationLink">
                         Log in development mode
                     </div>        
                 </form>
@@ -75,7 +75,7 @@ export class authenticationPage {
                     <div class="form-footer">
                         <button type="button" class="wide-btn" data-local-action="verifyConfirmationLink">Log in</button>
                     </div>
-                    <div class="development-mode" data-local-action="navigateToLandingPage">
+                    <div class="development-mode" data-local-action="verifyConfirmationLink">
                         Log in development mode
                     </div>        
                 </form>
@@ -183,24 +183,29 @@ export class authenticationPage {
 
     async loginDefaultUser(){
         currentUser.id ="1101522431685742196611723790234240113112996125581292472522231319144225195232444191";
+        currentUser.isPremium = true;
+        currentUser.spaces = (JSON.parse(await storageManager.loadUser(currentUser.id))).spaces;
         let users = webSkel.getService("AuthenticationService").getCachedUsers();
+        let userObj;
         try {
             users = JSON.parse(users);
             if(users.find(user => user.id === currentUser.id)){
                 await webSkel.getService("AuthenticationService").loginUser("teo@teo", "teo");
+                userObj = JSON.parse(webSkel.getService("AuthenticationService").getCachedCurrentUser());
+                userObj.spaces = currentUser.spaces;
+                webSkel.getService("AuthenticationService").setCachedCurrentUser(userObj);
             }else {
-                await webSkel.getService("AuthenticationService").loginFirstTimeUser("teo@teo", "teo");
+               throw  new Error("user not found");
             }
         }catch (e){
-            //users not in localStorage yet
+            //users not in localStorage yet or not found
             await webSkel.getService("AuthenticationService").loginFirstTimeUser("teo@teo", "teo");
+            userObj = webSkel.getService("AuthenticationService").currentUser;
+            userObj.spaces = currentUser.spaces;
+            webSkel.getService("AuthenticationService").setCachedCurrentUser(userObj);
+            webSkel.getService("AuthenticationService").addCachedUser(userObj);
         }
 
-        currentUser.isPremium = true;
-        currentUser.spaces = (JSON.parse(await storageManager.loadUser(currentUser.id))).spaces;
-        let userObj = JSON.parse(webSkel.getService("AuthenticationService").getCachedCurrentUser());
-        userObj.spaces = currentUser.spaces;
-        webSkel.getService("AuthenticationService").setCachedCurrentUser(userObj);
         window.location = "";
     }
     async beginRegistration(_target){
@@ -216,7 +221,10 @@ export class authenticationPage {
             console.error("Form invalid");
         }
     }
-
+    verifyConfirmationLink(){
+        webSkel.getService("AuthenticationService").verifyConfirmationLink();
+        window.location = "";
+    }
     async beginLogin(_target){
         const formInfo = await extractFormInformation(_target);
         if(formInfo.isValid) {
@@ -264,11 +272,5 @@ export class authenticationPage {
             console.error("Failed to confirm password recovery");
         }
     }
-    navigateToLandingPage(){
-        window.location = "";
-    }
 
-    verifyConfirmationLink(){
-        console.log("link verified!");
-    }
 }
