@@ -7,7 +7,8 @@ export class FlowsService{
                 this.__body = {
                     intelligence:3,
                     creativity:3,
-                    cost:3
+                    cost:3,
+                    variants:1
                 }
             },
             setIntelligenceLevel : function ( level){

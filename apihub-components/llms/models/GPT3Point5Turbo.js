@@ -5,15 +5,14 @@ class GPT3Point5Turbo{
         this.creativity = 5;
         this.cost = 5;
         //4,097 tokens
-        this.max_tokens = 0.4;
+        this.context = 0.4;
 
         this.__url = "https://api.openai.com/v1/chat/completions";
-        this.__temperature = 0.7;
-        this.__messages = [];
         this.__body = {
             model: "gpt-3.5-turbo",
-            messages: this.__messages,
-            temperature: this.__temperature
+            messages: [],
+            temperature: 0.7,
+            n: 1
         }
         let openAIMixin = require("../mixins/openAIMixin");
         openAIMixin(this);

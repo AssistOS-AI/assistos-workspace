@@ -39,8 +39,7 @@ export class spaceDropdown {
 
     async logout(){
         const crypto = require("opendsu").loadAPI("crypto");
-        const user = { userId: crypto.getRandomSecret(32), secretToken: "", spaces: [{name: "Personal Space"}], currentSpaceId: "1"};
-        webSkel.getService("AuthenticationService").setCachedCurrentUser(user);
+        webSkel.getService("AuthenticationService").deleteCachedCurrentUser();
         webSkel.setDomElementForPages(mainContent);
         await webSkel.changeToDynamicPage("authentication-page", "authentication-page");
     }

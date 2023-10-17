@@ -1,5 +1,5 @@
 import { closeModal } from "../../../../WebSkel/utils/modal-utils.js";
-import { DocumentModel } from "../../../imports.js";
+import {DocumentModel, sanitize} from "../../../imports.js";
 
 export class suggestAbstractModal {
     constructor(element, invalidate) {
@@ -29,7 +29,7 @@ export class suggestAbstractModal {
     }
 
     async addSelectedAbstract(_target) {
-        this._document.addAlternativeAbstract({content:this.suggestedAbstract, id:webSkel.getService("UtilsService").generateId()});
+        this._document.addAlternativeAbstract({content:sanitize(this.suggestedAbstract), id:webSkel.getService("UtilsService").generateId()});
         await documentFactory.updateDocument(currentSpaceId, this._document);
         this._document.notifyObservers(this._document.getNotificationId());
     }

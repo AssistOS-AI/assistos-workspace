@@ -9,21 +9,6 @@ export class authenticationPage {
 
     beforeRender() {
       switch (this.element.getAttribute("data-subpage")){
-          default:{
-              this.subpage = `
-             <div>
-                <div class="menu-item-container" data-local-action="navigateToRegisterPage">
-                    <button id="register-button">Register</button>
-                </div>
-                <div class="menu-item-container" data-local-action="navigateToLoginPage">
-                    <button id="login-button">Login</button>
-                </div>
-                <div class="development-mode" data-local-action="loginDefaultUser">
-                        Log in development mode
-                </div>    
-             </div>`;
-              break;
-          }
           case "register-page":{
               this.subpage = ` <div>
              <div class="form-title">
@@ -52,40 +37,6 @@ export class authenticationPage {
                     </div>
                 </form>
            </div>`;
-              break;
-          }
-          case "login-page":{
-              this.subpage = `
-               <div>
-                  <div class="form-title">
-                      Log in
-                  </div>
-                  <form>
-                      <div class="form-item">
-                          <label class="form-label" for="user-email">E-mail</label>
-                          <input class="form-input" name="email" type="email" data-id="user-email" id="user-email" required placeholder="Add e-mail">
-                      </div>
-                      <div class="form-item">
-                          <label class="form-label" for="user-password">Password</label>
-                          <input class="form-input" name="password" type="password" data-id="user-password" id="user-password" required placeholder="Add password">
-                      </div>
-                      <div class="forgot-password" data-local-action="navigateToPasswordRecoveryPage">
-                          Forgot password?
-                      </div>
-                      <div class="form-footer">
-                          <button type="button" class="wide-btn" data-local-action="beginLogin">Log in</button>
-                      </div>
-                      <div class="suggest-registration">
-                          <div>
-                              Don't have an account?
-                          </div>
-                          <div class="sign-up" data-action="navigateToRegisterPage">
-                              Sign Up
-                          </div>
-                      </div>
-                  </form>
-              </div>
-          `;
               break;
           }
           case "login-new-device":{
@@ -181,6 +132,43 @@ export class authenticationPage {
               </div>`;
               break;
           }
+          default:{
+              this.subpage = `
+               <div>
+                  <div class="form-title">
+                      
+                  </div>
+                  <form>
+                      <div class="form-item">
+                          <label class="form-label" for="user-email">E-mail</label>
+                          <input class="form-input" name="email" type="email" data-id="user-email" id="user-email" required placeholder="Add e-mail">
+                      </div>
+                      <div class="form-item">
+                          <label class="form-label" for="user-password">Password</label>
+                          <input class="form-input" name="password" type="password" data-id="user-password" id="user-password" required placeholder="Add password">
+                      </div>
+                      <div class="forgot-password" data-local-action="navigateToPasswordRecoveryPage">
+                          Forgot password?
+                      </div>
+                      <div class="form-footer">
+                          <button type="button" class="wide-btn" data-local-action="beginLogin">Log in</button>
+                      </div>
+                      <div class="suggest-registration">
+                          <div>
+                              Don't have an account?
+                          </div>
+                          <div class="sign-up" data-local-action="navigateToRegisterPage">
+                              Sign Up
+                          </div>
+                      </div>
+                  </form>
+                  <div class="development-mode" data-local-action="loginDefaultUser">
+                        Log in development mode
+                  </div>
+              </div>
+          `;
+              break;
+          }
       }
     }
     async navigateToRegisterPage(){
@@ -194,9 +182,21 @@ export class authenticationPage {
     }
 
     async loginDefaultUser(){
-        await webSkel.getService("AuthenticationService").loginFirstTimeUser("teo@teo", "teo");
-        currentUser.isPremium = true;
         currentUser.id ="1101522431685742196611723790234240113112996125581292472522231319144225195232444191";
+        let users = webSkel.getService("AuthenticationService").getCachedUsers();
+        try {
+            users = JSON.parse(users);
+            if(users.find(user => user.id === currentUser.id)){
+                await webSkel.getService("AuthenticationService").loginUser("teo@teo", "teo");
+            }else {
+                await webSkel.getService("AuthenticationService").loginFirstTimeUser("teo@teo", "teo");
+            }
+        }catch (e){
+            //users not in localStorage yet
+            await webSkel.getService("AuthenticationService").loginFirstTimeUser("teo@teo", "teo");
+        }
+
+        currentUser.isPremium = true;
         currentUser.spaces = (JSON.parse(await storageManager.loadUser(currentUser.id))).spaces;
         let userObj = JSON.parse(webSkel.getService("AuthenticationService").getCachedCurrentUser());
         userObj.spaces = currentUser.spaces;

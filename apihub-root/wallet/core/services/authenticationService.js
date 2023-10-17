@@ -27,14 +27,6 @@ export class AuthenticationService{
             webSkel.setDomElementForPages(mainContent);
             await webSkel.changeToDynamicPage("authentication-page", "authentication-page");
             return;
-            // await this.loginFirstTimeUser("teo@teo", "teo");
-            // currentUser.isPremium = true;
-
-            // const user = { id: crypto.getRandomSecret(32), secretToken: "", currentSpaceId: "1" };
-            // currentUser.id = user.id;
-            // this.setCachedCurrentUser(user);
-            // console.log("Instantiated currentUser" + JSON.stringify(user));
-            //currentUser.id ="1101522431685742196611723790234240113112996125581292472522231319144225195232444191";
         }
 
         currentUser.spaces = (JSON.parse(await storageManager.loadUser(currentUser.id))).spaces;
@@ -70,7 +62,9 @@ export class AuthenticationService{
     setCachedCurrentUser(userObj){
         localStorage.setItem("currentUser", JSON.stringify(userObj));
     }
-
+    deleteCachedCurrentUser(){
+        localStorage.removeItem("currentUser");
+    }
     getCachedCurrentUser(){
         //returns string
         return localStorage.getItem("currentUser");
@@ -116,7 +110,7 @@ export class AuthenticationService{
                     if(user.id === userId) {
                         let secretToken = user.secretToken;
                         if(this.verifyPassword(secretToken, password)) {
-                            this.setCachedCurrentUser({ id: userId, secretToken: secretToken });
+                            this.setCachedCurrentUser({ id: userId, secretToken: secretToken, currentSpaceId: user.currentSpaceId });
                             return true;
                         } else {
                             return false;
