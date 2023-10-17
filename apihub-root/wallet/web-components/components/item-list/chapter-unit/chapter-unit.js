@@ -48,27 +48,7 @@ export class chapterUnit {
             if (editableParagraph === event.target || editableParagraph.contains(event.target)) {
                 return;
             } else {
-                editableParagraph.setAttribute("contenteditable", "false");
-                let updatedText = editableParagraph.innerText;
-                if (updatedText === '\n') {
-                    updatedText = '';
-                }
-                let currentDocument = webSkel.space.getDocument(webSkel.space.currentDocumentId);
-                let currentChapter = currentDocument.getChapter(webSkel.space.currentChapterId);
-                let currentParagraph = currentChapter.getParagraph(webSkel.space.currentParagraphId);
-
-                let updateRequired = false;
-                if (updatedText === null || updatedText.trim() === '') {
-                    currentChapter.deleteParagraph(webSkel.space.currentParagraphId);
-                    updateRequired = true;
-                } else if (updatedText !== currentParagraph.text) {
-                    currentParagraph.updateText(updatedText);
-                    updateRequired = true;
-                }
-                if (updateRequired) {
-                    await documentFactory.updateDocument(currentSpaceId, currentDocument);
-                    currentDocument.notifyObservers(currentDocument.getNotificationId() + ":document-view-page:" + "chapter:" + `${webSkel.space.currentChapterId}`);
-                }
+                await this.saveEditedParagraph(editableParagraph);
                 if (!reverseQuerySelector(event.target, ".chapter-unit")) {
                     webSkel.space.currentChapterId = null;
                     this.displaySidebar("document-sidebar");
@@ -92,6 +72,29 @@ export class chapterUnit {
             document.removeEventListener('click', this.boundDocumentClickHandler, true);
             delete this.boundDocumentClickHandler;
         }
+    }
+    async saveEditedParagraph(editableParagraph) {
+            editableParagraph.setAttribute("contenteditable", "false");
+            let updatedText = editableParagraph.innerText;
+            if (updatedText === '\n') {
+                updatedText = '';
+            }
+            let currentDocument = webSkel.space.getDocument(webSkel.space.currentDocumentId);
+            let currentChapter = currentDocument.getChapter(webSkel.space.currentChapterId);
+            let currentParagraph = currentChapter.getParagraph(webSkel.space.currentParagraphId);
+
+            let updateRequired = false;
+            if (updatedText === null || updatedText.trim() === '') {
+                currentChapter.deleteParagraph(webSkel.space.currentParagraphId);
+                updateRequired = true;
+            } else if (updatedText !== currentParagraph.text) {
+                currentParagraph.updateText(updatedText);
+                updateRequired = true;
+            }
+            if (updateRequired) {
+                await documentFactory.updateDocument(currentSpaceId, currentDocument);
+                currentDocument.notifyObservers(currentDocument.getNotificationId() + ":document-view-page:" + "chapter:" + `${webSkel.space.currentChapterId}`);
+            }
     }
 
     highlightChapter(_target) {
@@ -156,18 +159,11 @@ export class chapterUnit {
     async moveChapter(_target, direction) {
         let currentChapter = reverseQuerySelector(_target, "chapter-unit");
         let adjacentChapter;
-        if (direction === "up") {
-            adjacentChapter = currentChapter.previousSibling;
-        } else if (direction === "down") {
-            adjacentChapter = currentChapter.nextSibling;
-        }
-        if (adjacentChapter && adjacentChapter.nodeName === "CHAPTER-UNIT") {
-            if (direction === "up") {
-                adjacentChapter.after(currentChapter);
-            } else {
-                adjacentChapter.before(currentChapter);
-            }
+        direction === "up"
+            ?adjacentChapter = currentChapter.previousSibling
+            :adjacentChapter = currentChapter.nextSibling
 
+        if (adjacentChapter && adjacentChapter.nodeName === "CHAPTER-UNIT") {
             this._document.swapChapters(currentChapter.getAttribute('data-chapter-id'), adjacentChapter.getAttribute('data-chapter-id'));
             await documentFactory.updateDocument(currentSpaceId, this._document);
             this._document.notifyObservers(this._document.getNotificationId() + ":refresh");
@@ -176,23 +172,18 @@ export class chapterUnit {
 
 
     async moveParagraph(_target, direction) {
+        const editableParagraph = document.querySelector('[contenteditable="true"]');
+        if (editableParagraph) {
+            await this.saveEditedParagraph(editableParagraph);
+        }
         let currentParagraph = reverseQuerySelector(_target, "paragraph-unit");
         let adjacentParagraph;
-
-        if (direction === "up") {
-            adjacentParagraph = currentParagraph.previousSibling;
-        } else if (direction === "down") {
-            adjacentParagraph = currentParagraph.nextSibling;
-        }
+        direction === "up"
+            ? adjacentParagraph = currentParagraph.previousSibling
+            : adjacentParagraph = currentParagraph.nextSibling;
 
         if (adjacentParagraph && adjacentParagraph.nodeName === "PARAGRAPH-UNIT") {
-            if (direction === "up") {
-                currentParagraph.after(adjacentParagraph);
-                this.chapter.swapParagraphs(currentParagraph.getAttribute('data-paragraph-id'), adjacentParagraph.getAttribute('data-paragraph-id'));
-            } else {
-                adjacentParagraph.after(currentParagraph);
-                this.chapter.swapParagraphs(currentParagraph.getAttribute('data-paragraph-id'), adjacentParagraph.getAttribute('data-paragraph-id'));
-            }
+            this.chapter.swapParagraphs(currentParagraph.getAttribute('data-paragraph-id'), adjacentParagraph.getAttribute('data-paragraph-id'));
             await documentFactory.updateDocument(currentSpaceId, this._document);
             this._document.notifyObservers(this._document.getNotificationId() + ":document-view-page:" + "chapter:" + `${this.chapterId}`);
         }

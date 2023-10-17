@@ -29,7 +29,7 @@ export class Chapter {
     }
 
     deleteParagraph(paragraphId) {
-        let paragraphIndex = this.paragraphs.findIndex(chapter => chapter.id === paragraphId);
+        let paragraphIndex = this.paragraphs.findIndex(paragraph => paragraph.id === paragraphId);
         this.paragraphs.splice(paragraphIndex, 1);
     }
 
