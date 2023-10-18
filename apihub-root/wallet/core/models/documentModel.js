@@ -12,6 +12,7 @@ export class DocumentModel {
         this.settings = documentData.settings || null;
         this.currentChapterId = null;
         this.observers = [];
+        this.mainIdeas = documentData.mainIdeas || [];
     }
 
     toString() {
@@ -97,7 +98,10 @@ export class DocumentModel {
     getMainIdeas() {
         return this.mainIdeas || [];
     }
-
+    async setMainIdeas(ideas){
+        this.mainIdeas = ideas;
+        await documentFactory.updateDocument(currentSpaceId, this);
+    }
     addMainIdea(mainIdea) {
         this.mainIdeas.push(mainIdea);
     }
