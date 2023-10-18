@@ -10,10 +10,12 @@ abstract-proofread-page{
     align-items: baseline;
     margin: 10px 0;
 }
+.document-path svg{
+    margin: 5px 10px;
+}
 .path-button {
     color: #A42E70;
     font-size: 14px;
-    margin: 0 5px;
     font-style: normal;
     font-weight: 500;
 }
@@ -54,9 +56,6 @@ abstract-proofread-page{
     width:calc(100% - 270px);
 }
 
-.document-path svg {
-    margin: 5px;
-}
 .improved-abstract,
 .abstract-content {
     white-space: pre-line;

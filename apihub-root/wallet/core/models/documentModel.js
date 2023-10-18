@@ -107,10 +107,11 @@ export class DocumentModel {
     }
 
     /* left shift(decrement) the ids to the right of the deleted chapter? */
-    deleteChapter(chapterId) {
+    async deleteChapter(chapterId) {
         const index = this.chapters.findIndex(chapter => chapter.id === chapterId);
         if (index !== -1) {
             this.chapters.splice(index, 1);
+            await documentFactory.updateDocument(currentSpaceId, this);
         }
     }
 

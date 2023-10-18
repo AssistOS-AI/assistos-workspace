@@ -1,6 +1,5 @@
 .title-row {
     color: #000;
-    font-family: Poppins;
     font-size: 14px;
     width: 100%;
     font-style: normal;
@@ -8,7 +7,7 @@
     max-height: 40px;
     line-height: 283%;
     letter-spacing: -0.56px;
-    border-top: 1px solid #E6E6E6;
+    border-bottom: 1px solid #E6E6E6;
     padding-left: 15px;
     display: flex;
 }
@@ -20,14 +19,25 @@
     overflow: hidden;
     text-overflow: ellipsis;
 }
-
+.action-box{
+    margin-top: 10px;
+    margin-left: -40px;
+    position: absolute;
+}
 .action-cell {
     justify-content: right;
     display: flex;
     width: 40px;
     padding: 3px;
+    margin: 0 15px 0 15px;
 }
-
+.action {
+    line-height: normal;
+    height: 25px;
+    text-align: center;
+    padding: 4px 8px;
+    cursor: pointer;
+}
 .svg-box {
     display: flex;
     align-items: center;

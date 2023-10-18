@@ -1,95 +1,61 @@
-import { closeModal, showActionBox, showModal } from "../../../imports.js";
-
+import {Paragraph, showActionBox, reverseQuerySelector} from "../../../imports.js";
 export class manageChaptersPage {
     constructor(element, invalidate) {
-        this.tab = "Chapters";
-        this.id1 = "selected-tab";
-        this.id2 = "";
-        this.idModal1 = "selected-modal";
-        this.idModal2 = "";
         this._document = webSkel.space.getDocument(webSkel.space.currentDocumentId);
-        this._document.observeChange(this._document.getNotificationId() + ":manage-chapters-page", invalidate);
         this.invalidate = invalidate;
         this.invalidate();
     }
 
     beforeRender() {
         if(!this._document.getMainIdeas() || this._document.getMainIdeas().length === 0) {
-            this.generateMainIdeasButtonName = "Summarize";
+            this.summarizeButtonName = "Summarize";
         } else {
-            this.generateMainIdeasButtonName = "Regenerate";
+            this.summarizeButtonName = "Recreate Summary";
         }
-        this.pageRender(this.tab);
-    }
-
-    async openEditTitlePage() {
-        await webSkel.changeToDynamicPage("edit-title-page", `documents/${this._document.id}/edit-title-page`);
-    }
-
-    async openEditAbstractPage() {
-        await webSkel.changeToDynamicPage("edit-abstract-page", `documents/${this._document.id}/edit-abstract-page`);
-    }
-
-    async openDocumentSettingsPage() {
-        await webSkel.changeToDynamicPage("document-settings-page", `documents/${this._document.id}/document-settings-page`);
-    }
-
-    async openManageChaptersPage() {
-        await webSkel.changeToDynamicPage("manage-chapters-page", `documents/${this._document.id}/manage-chapters-page`);
+        this.chaptersDiv= "";
+        let number = 0;
+        this._document.chapters.forEach((item) => {
+            number++;
+            this.chaptersDiv += `<reduced-chapter-unit nr="${number}" title="${item.title}" data-id="${item.id}"></reduced-chapter-unit>`;
+        });
     }
 
     async openViewPage() {
         await webSkel.changeToDynamicPage("document-view-page", `documents/${this._document.id}/document-view-page`);
     }
-
-    closeModal(_target) {
-        closeModal(_target);
+    async addChapter(){
+        let chapterObj={
+            title: "New chapter",
+            id: webSkel.getService("UtilsService").generateId(),
+            paragraphs: [new Paragraph({id: webSkel.getService("UtilsService").generateId(), text: "Edit here your first paragraph."})]
+        }
+        await this._document.addChapter(chapterObj);
+        this.invalidate();
     }
 
-    async showAddChapterModal() {
-        await showModal(document.querySelector("body"), "add-chapter-modal", { presenter: "add-chapter-modal"});
+    summarize(){
+        this.docMainIdeas = ". idea 1 this is a very good idea yeas " +
+            ". idea 2 this is another good one yes yes idea";
+        this.invalidate();
     }
 
+    generateChapter(){
+        alert("generate chapter not done yet");
+    }
     async showActionBox(_target, primaryKey, componentName, insertionMode) {
         await showActionBox(_target, primaryKey, componentName, insertionMode);
     }
 
-    openTab(_target) {
-        let selectedTab = document.getElementById("selected-tab");
-        this.tab = _target.firstElementChild.nextElementSibling.firstElementChild.innerText;
-        this.chaptersDiv = "";
-        if(selectedTab !== _target) {
-            this.pageRender(this.tab);
-            this.invalidate();
-        }
+    async editAction(_target){
+        let chapter = reverseQuerySelector(_target, "reduced-chapter-unit");
+        let chapterId = chapter.getAttribute("data-id");
+        await webSkel.changeToDynamicPage("manage-paragraphs-page",
+            `documents/${this._document.id}/manage-paragraphs-page/${chapterId}`);
     }
-
-    pageRender(tab) {
-        switch(tab) {
-            case "Chapters":
-                this.id1 = "selected-tab";
-                this.idModal1 = "selected-modal";
-                this.id2 = "";
-                this.idModal2 = "";
-                this.chaptersDiv = "";
-                if(this._document) {
-                    let number = 0;
-                    this._document.chapters.forEach((item) => {
-                        number++;
-                        this.chaptersDiv += `<brainstorming-chapter-unit nr="${number}" title="${item.title}"></brainstorming-chapter-unit>`;
-                    });
-                }
-                break;
-            case "Possible Ideas":
-                this.id1 = "";
-                this.idModal1 = "";
-                this.id2 = "selected-tab";
-                this.idModal2 = "selected-modal";
-                this.chaptersDiv = "";
-                for(let number = 1; number < 4; number++) {
-                    this.chaptersDiv += `<brainstorming-document-idea nr="${number}" title="Idea ${number}"></brainstorming-document-idea>`;
-                }
-                break;
-        }
+    async deleteAction(_target){
+        let chapter = reverseQuerySelector(_target, "reduced-chapter-unit");
+        let chapterId = chapter.getAttribute("data-id");
+        await this._document.deleteChapter(chapterId);
+        this.invalidate();
     }
 }

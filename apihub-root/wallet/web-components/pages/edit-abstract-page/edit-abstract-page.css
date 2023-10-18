@@ -17,10 +17,12 @@ edit-abstract-page {
     margin: 0;
 }
 
+.document-path svg {
+    margin: 5px 10px;
+}
 .path-button {
     color: #A42E70;
     font-size: 14px;
-    margin: 0 5px;
     font-style: normal;
     font-weight: 500;
 }
@@ -50,9 +52,7 @@ edit-abstract-page {
     width:calc(100% - 270px);
 }
 
-.document-path svg {
-    margin: 5px;
-}
+
 
 .alt-abstracts-title {
     margin-top: 15px;

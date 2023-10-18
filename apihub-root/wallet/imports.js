@@ -1,6 +1,5 @@
 import { addDocumentModal } from "./web-components/modals/add-document-modal/add-document-modal.js";
 import { addAnnouncementModal } from "./web-components/modals/add-announcement-modal/add-announcement-modal.js";
-import { addChapterModal } from "./web-components/modals/add-chapter-modal/add-chapter-modal.js";
 import { addPersonalityModal } from "./web-components/modals/add-personality-modal/add-personality-modal.js";
 import { addUserModal } from "./web-components/modals/add-user-modal/add-user-modal.js";
 import { suggestAbstractModal } from "./web-components/modals/suggest-abstract-modal/suggest-abstract-modal.js";
@@ -37,14 +36,15 @@ import { Settings } from "./core/models/settings.js";
 import {Script} from "./core/models/script.js";
 import {createFlowsFactory} from "../llmFlows/src/llmFlows.js";
 import {sanitize} from "../WebSkel/utils/dom-utils.js";
+import {reverseQuerySelector} from "../WebSkel/utils/dom-utils.js"
 export {
+    reverseQuerySelector,
     sanitize,
     createFlowsFactory,
     Settings,
     addSpaceModal,
     addDocumentModal,
     addAnnouncementModal,
-    addChapterModal,
     addPersonalityModal,
     addUserModal,
     suggestAbstractModal,
