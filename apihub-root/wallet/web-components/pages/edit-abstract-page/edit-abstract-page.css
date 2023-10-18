@@ -17,10 +17,12 @@ edit-abstract-page {
     margin: 0;
 }
 
+.document-path svg {
+    margin: 5px 10px;
+}
 .path-button {
     color: #A42E70;
     font-size: 14px;
-    margin: 0 5px;
     font-style: normal;
     font-weight: 500;
 }
@@ -42,16 +44,12 @@ edit-abstract-page {
 }
 
 .document-content {
-    width: 100%;
+    width:calc(100% - 270px);
     display: flex;
 }
 
 .entire-content {
-    width:calc(100% - 270px);
-}
-
-.document-path svg {
-    margin: 5px;
+   width: 100%;
 }
 
 .alt-abstracts-title {
@@ -68,7 +66,10 @@ edit-abstract-page {
 }
 
 .abstract-content {
-    white-space: pre-line;
+    white-space: pre-wrap;
+    overflow-wrap: break-word;
+    hyphens: auto;
+    word-break: break-word;
     padding: 15px;
     border-radius: 10px;
     color: #252525;
@@ -83,9 +84,5 @@ edit-abstract-page {
     background-color: rgba(148, 174, 227, 0.3);
     color: #252525;
     font-weight: 450;
-}
-
-.alternative-abstracts {
-    position: relative;
 }
 

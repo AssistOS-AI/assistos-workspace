@@ -1,28 +1,27 @@
 .title-row {
-    padding-top: 10px;
-    padding-bottom: 10px;
-    font-size: 14px;
-    width: 100%;
+    display: flex;
+    padding: 15px;
+}
+.content{
+    white-space: pre-wrap;
+    overflow-wrap: break-word;
+    hyphens: auto;
+    word-break: break-word;
+    border-radius: 10px;
+    color: #252525;
+    font-size: 16px;
     font-style: normal;
     font-weight: 400;
-    max-height: 100px;
-    letter-spacing: -0.56px;
-    border-bottom: 1px solid #E6E6E6;
-    padding-left: 15px;
-    display: flex;
-    justify-content: space-between;
+    line-height: normal;
+    margin-right: 10px;
 }
-
+.content:focus{
+    background-color: rgba(148, 174, 227, 0.3);
+    color: #252525;
+    font-weight: 450;
+}
 .number-and-title {
-   display: flex;
-}
-
-.content {
-    width: 100%;
-    justify-content: start;
-    align-items: start;
-    overflow: hidden;
-    text-overflow: ellipsis;
+    display: flex;
 }
 
 .action-cell {

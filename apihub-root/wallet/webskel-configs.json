@@ -107,11 +107,6 @@
       "className": "addAnnouncementModal"
     },
     {
-      "name": "add-chapter-modal",
-      "path": "./web-components/modals/add-chapter-modal/add-chapter-modal.js",
-      "className": "addChapterModal"
-    },
-    {
       "name": "add-personality-modal",
       "path": "./web-components/modals/add-personality-modal/add-personality-modal.js",
       "className": "addPersonalityModal"
@@ -222,12 +217,8 @@
       "path": "./wallet/web-components/components/item-list/announcement-unit/announcement-unit.html"
     },
     {
-      "name": "brainstorming-chapter-unit",
-      "path": "./wallet/web-components/components/item-list/brainstorming-chapter-unit/brainstorming-chapter-unit.html"
-    },
-    {
-      "name": "brainstorming-document-idea",
-      "path": "./wallet/web-components/components/item-list/brainstorming-document-idea/brainstorming-document-idea.html"
+      "name": "reduced-chapter-unit",
+      "path": "./wallet/web-components/components/item-list/reduced-chapter-unit/reduced-chapter-unit.html"
     },
     {
       "name": "action-box",
@@ -320,10 +311,6 @@
     {
       "name": "add-announcement-modal",
       "path": "./wallet/web-components/modals/add-announcement-modal/add-announcement-modal.html"
-    },
-    {
-      "name": "add-chapter-modal",
-      "path": "./wallet/web-components/modals/add-chapter-modal/add-chapter-modal.html"
     },
     {
       "name": "add-personality-modal",
