@@ -58,7 +58,10 @@ abstract-proofread-page{
 
 .improved-abstract,
 .abstract-content {
-    white-space: pre-line;
+    white-space: pre-wrap;
+    overflow-wrap: break-word;
+    hyphens: auto;
+    word-break: break-word;
     padding: 15px;
     border-radius: 10px;
     color: #252525;
