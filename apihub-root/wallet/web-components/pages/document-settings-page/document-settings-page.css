@@ -14,7 +14,6 @@
 
 .path-button {
     color: #121212;
-    font-family: Poppins;
     font-size: 14px;
     margin: 0 5px;
     font-style: normal;
@@ -48,7 +47,6 @@
 
 .alt-title {
     color: #1E1E1E;
-    font-family: Poppins;
     font-size: 18px;
     font-style: normal;
     font-weight: 700;
@@ -64,7 +62,6 @@
     padding: 10px;
     color: #3A3A3A;
     font-feature-settings: 'clig' off, 'liga' off;
-    font-family: Poppins;
     font-size: 12px;
     font-style: normal;
     font-weight: 600;
@@ -80,7 +77,6 @@
     outline: none;
     flex-shrink: 0;
     border-radius: 8px;
-    font-family: Poppins;
     font-size: 12px;
     font-style: normal;
     font-weight: 400;
@@ -107,7 +103,6 @@
 #document-title option,
 #document-abstract option,
 #proofread option{
-    font-family: Poppins;
     font-size: 12px;
     font-style: normal;
     font-weight: 400;
@@ -120,7 +115,6 @@
     cursor: pointer;
     color: #FFF;
     font-feature-settings: 'clig' off, 'liga' off;
-    font-family: Poppins;
     font-size: 14px;
     font-style: normal;
     font-weight: 600;

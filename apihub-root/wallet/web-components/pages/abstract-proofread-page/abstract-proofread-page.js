@@ -1,11 +1,3 @@
-import {
-    closeModal,
-    showActionBox,
-    showModal,
-} from "../../../imports.js";
-import { reverseQuerySelector } from "../../../../WebSkel/utils/dom-utils.js";
-import { removeActionBox } from "../../../../WebSkel/utils/modal-utils.js";
-
 export class abstractProofreadPage {
     constructor(element, invalidate) {
         this.element=element;
@@ -19,7 +11,12 @@ export class abstractProofreadPage {
         this.abstractText = this._document.abstract;
         document.removeEventListener("click", this.exitEditMode, true);
     }
-
+    afterRender(){
+        if(this.improvedAbstract){
+            let improvedAbstractSection = this.element.querySelector(".improved-abstract-container");
+            improvedAbstractSection.style.display = "block";
+        }
+    }
 
     async openViewPage() {
         await webSkel.changeToDynamicPage("document-view-page", `documents/${this._document.id}/document-view-page`);
@@ -29,16 +26,10 @@ export class abstractProofreadPage {
         const loading = await webSkel.showLoading();
         let scriptId = this._document.getScriptId("proofreadScriptId");
         let result = await webSkel.getService("LlmsService").callScript(scriptId, this.abstractText);
-        this.improvedAbstract = result.responseString;
-        let improvedAbstractSection = this.element.querySelector(".improved-abstract-container");
-        improvedAbstractSection.style.display = "block";
+        this.improvedAbstract = result.responseString || result.responseJson;
         loading.close();
         loading.remove();
         this.invalidate();
-    }
-
-    async acceptImprovements(){
-
     }
 
     async enterEditMode(_target, field) {
@@ -51,19 +42,23 @@ export class abstractProofreadPage {
     async exitEditMode (abstract, event) {
         if (abstract.getAttribute("contenteditable") && !abstract.contains(event.target)) {
             abstract.setAttribute("contenteditable", "false");
-            this._document.updateAbstract(abstract.innerText);
-            await documentFactory.updateDocument(currentSpaceId, this._document);
+            if(abstract.hasAttribute("abstract-content")){
+                this._document.updateAbstract(abstract.innerText);
+                await documentFactory.updateDocument(currentSpaceId, this._document);
+            }
+            else {
+                this.improvedAbstract = abstract.innerText;
+            }
         }
     }
 
 
-    async select(_target) {
-        let abstract = reverseQuerySelector(_target,".content").innerText;
+    async acceptImprovements(_target) {
+        let abstract = this.element.querySelector(".improved-abstract").innerText;
         if(abstract !== this._document.abstract) {
             await this._document.updateAbstract(abstract);
             await documentFactory.updateDocument(currentSpaceId, this._document);
-            this._document.notifyObservers(this._document.getNotificationId());
-        } else {
+            this.invalidate();
         }
     }
 
