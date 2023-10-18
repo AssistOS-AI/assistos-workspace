@@ -11,7 +11,7 @@ export class suggestAbstractModal {
 
         setTimeout(async()=>{
             const loading = await webSkel.showLoading();
-            let scriptId = this._document.getScriptId("documentAbstractScriptId");
+            let scriptId = webSkel.space.getScriptIdByName("suggest abstract");
             let result = await webSkel.getService("LlmsService").callScript(scriptId);
             this.suggestedAbstract = result.responseString;
             loading.close();

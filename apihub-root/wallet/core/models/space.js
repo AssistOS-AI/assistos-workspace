@@ -81,9 +81,12 @@ export class Space {
     }
     getScript(scriptId) {
         let script = this.scripts.find((script) => script.id === scriptId);
-        return script || console.error(`Script not found in Settings, scriptId: ${scriptId}`);
+        return script || console.error(`Script not found in space, scriptId: ${scriptId}`);
     }
-
+    getScriptIdByName(name){
+        let script = this.scripts.find((script) => script.name === name);
+        return script.id || console.error(`Script not found in space, script name: ${name}`);
+    }
    async addDocument(documentData) {
         let newDocument=documentFactory.createDocument(documentData)
         await documentFactory.addDocument(currentSpaceId, newDocument);
@@ -143,30 +146,11 @@ export class Space {
         }
     }
 
-    createDefaultScripts(){
-        let scriptData = [
-            {name:"suggest titles",id:"3AeXXLeDVgQM", description:"returns 10 titles as a JSON array",
-                content: "\n({\nstart: function(){" +
-                    "\nthis.prompt = \"Please suggest 10 titles for a book. Return the response as a string JSON array.\";" +
-                    "\nthis.setDefaultValues();" +
-                    "\nthis.setIntelligenceLevel(3);" +
-                    "\nthis.execute();\n}" +
-                    "\nexecute: async function(){" +
-                    "\n let alternativeTitles = await this.brainstorm(this.prompt, 1);" +
-                    "\n this.return(alternativeTitles);\n}\n})"},
-            {name:"suggest abstract",id:"5pPdhqLZsx62", description:"generates an abstract about cats",
-                content: "\n({\nstart: function(){" +
-                    "\nthis.prompt = \"Please suggest an abstract for a document that is about cats. Return only the abstract text\";" +
-                    "\nthis.setDefaultValues();" +
-                    "\nthis.setIntelligenceLevel(3);" +
-                    "\nthis.execute();\n}" +
-                    "\nexecute: async function(){" +
-                    "\n let altAbstract = await this.brainstorm(this.prompt, 1);" +
-                    "\n this.return(altAbstract);\n}\n})",
-            }
-        ];
-        for(let item of scriptData){
-            this.scripts.push(new Script(item));
+    async createDefaultScripts(){
+        let scripts = JSON.parse(await storageManager.loadDefaultScripts());
+        for(let script of scripts){
+            script.id = webSkel.getService("UtilsService").generateId();
         }
+        this.scripts = scripts;
     }
 }

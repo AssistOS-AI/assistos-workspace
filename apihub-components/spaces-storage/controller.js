@@ -1,18 +1,3 @@
-/*
-spaces is root folder
-/{spaceId}/name
-/{spaceId}/documents/{documentId}
-/{spaceId}/documents/{documentId}/title
-/{spaceId}/documents/{documentId}/abstract
-/{spaceId}/documents/{documentId}/chapters/{chapterId}
-/{spaceId}/documents/{documentId}/chapters/{chapterId}/title
-/{spaceId}/documents/{documentId}/chapters/{chapterId}/paragraphs/{paragraphId}
-/{spaceId}/documents/{documentId}/settings
-/{spaceId}/settings/llms/{llmId}
-/{spaceId}/settings/personalities/{personalityId}
-/{spaceId}/admins/{adminId}
-/{spaceId}/announcements/{announcementId}
-/{spaceId}/users/{userId}*/
 const fs = require('fs');
 const path = require('path');
 const fsPromises = require('fs').promises;

@@ -14,7 +14,7 @@ export class SpaceFactory {
         spaceData.id=webSkel.servicesRegistry.UtilsService.generateId();
         spaceData.announcements=[this.generateDefaultAnnouncement(spaceData)];
         let newSpace = new Space(spaceData);
-        newSpace.createDefaultScripts();
+        await newSpace.createDefaultScripts();
         await storageManager.storeSpace(newSpace.id, newSpace.stringifySpace());
         return newSpace;
     }

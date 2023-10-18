@@ -9,7 +9,7 @@ export class DocumentModel {
         this.chapters = (documentData.chapters || []).map(chapterData => new Chapter(chapterData));
         this.alternativeTitles = documentData.alternativeTitles || [];
         this.alternativeAbstracts = documentData.alternativeAbstracts || [];
-        this.settings = documentData.settings || {personalityId: null, documentTitleScriptId: null, documentAbstractScriptId:null};
+        this.settings = documentData.settings || null;
         this.currentChapterId = null;
         this.observers = [];
     }
@@ -182,18 +182,5 @@ export class DocumentModel {
     getNotificationId() {
         return "doc";
     }
-    getSettingsComponent(name){
-        if(!this.settings[name]){
-            return null;
-        }
-        if(name === "personalityId"){
-            return webSkel.space.getPersonality(this.settings[name]);
-        }else {
-            return webSkel.space.getScript(this.settings[name]);
-        }
-    }
 
-    getScriptId(name){
-        return this.settings[name];
-    }
 }

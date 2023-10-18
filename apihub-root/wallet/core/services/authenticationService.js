@@ -23,7 +23,10 @@ export class AuthenticationService{
             webSkel.space = new Space(JSON.parse(spaceData));
         }
         else {
-            /* TBD */
+            if(window.location !== "#authentication-page")
+            {
+                window.location.replace("#authentication-page");
+            }
             webSkel.setDomElementForPages(mainContent);
             await webSkel.changeToDynamicPage("authentication-page", "authentication-page");
             return;
