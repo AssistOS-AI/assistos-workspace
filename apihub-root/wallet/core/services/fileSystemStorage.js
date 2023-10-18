@@ -84,4 +84,12 @@ export class FileSystemStorage{
             });
         return await result.text();
     }
+
+    async loadDefaultScripts(){
+        const result = await fetch(`/scripts/default`,
+            {
+                method: "GET"
+            });
+        return await result.text();
+    }
 }

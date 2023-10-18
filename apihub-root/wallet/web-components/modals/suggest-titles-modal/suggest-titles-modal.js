@@ -11,8 +11,8 @@ export class suggestTitlesModal {
 
         setTimeout(async()=>{
             const loading = await webSkel.showLoading();
-            let scriptId = this._document.getScriptId("documentTitleScriptId");
-            let result = await webSkel.getService("LlmsService").callScript(scriptId);
+            let scriptId = webSkel.space.getScriptIdByName("suggest document titles");
+            let result = await webSkel.getService("LlmsService").callScript(scriptId, this._document.topic);
             if(result.responseJson){
                 this.suggestedTitles = result.responseJson;
                 this.invalidate();

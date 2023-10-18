@@ -24,7 +24,7 @@ export class abstractProofreadPage {
 
     async suggestImprovements(_target){
         const loading = await webSkel.showLoading();
-        let scriptId = this._document.getScriptId("proofreadScriptId");
+        let scriptId = webSkel.space.getScriptIdByName("proofread");
         let result = await webSkel.getService("LlmsService").callScript(scriptId, this.abstractText);
         this.improvedAbstract = result.responseString || result.responseJson;
         loading.close();
