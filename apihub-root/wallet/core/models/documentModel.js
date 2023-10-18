@@ -78,7 +78,7 @@ export class DocumentModel {
         if (index !== -1) {
             this.alternativeAbstracts.splice(index, 1);
         }else {
-            console.error(`Failed to find alternative abstract with id: ${id}`);
+            console.warn(`Failed to find alternative abstract with id: ${id}`);
         }
     }
     updateAlternativeAbstract(id, newContent){
@@ -86,7 +86,7 @@ export class DocumentModel {
         if(abstract){
             abstract.content = newContent;
         }else {
-            console.error(`Failed to find alternative abstract with id: ${id}`);
+            console.warn(`Failed to find alternative abstract with id: ${id}`);
         }
     }
 
@@ -140,7 +140,13 @@ export class DocumentModel {
     swapChapters(chapterId1, chapterId2) {
         let chapter1Index = this.chapters.findIndex(chapter => chapter.id === chapterId1);
         let chapter2Index = this.chapters.findIndex(chapter => chapter.id === chapterId2);
-        [this.chapters[chapter1Index], this.chapters[chapter2Index]] = [this.chapters[chapter2Index], this.chapters[chapter1Index]];
+        if (chapter1Index !== -1 && chapter2Index !== -1) {
+            [this.chapters[chapter1Index], this.chapters[chapter2Index]] = [this.chapters[chapter2Index], this.chapters[chapter1Index]];
+            return true;
+        } else {
+            console.warn("Attempting to swap chapters that no longer exist in this document.");
+            return false;
+        }
     }
 
     getTitle() {

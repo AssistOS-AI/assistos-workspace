@@ -80,8 +80,8 @@ export class chapterUnit {
                 updatedText = '';
             }
             let currentDocument = webSkel.space.getDocument(webSkel.space.currentDocumentId);
-            let currentChapter = currentDocument.getChapter(webSkel.space.currentChapterId);
-            let currentParagraph = currentChapter.getParagraph(webSkel.space.currentParagraphId);
+            let currentChapter = currentDocument.getChapter(reverseQuerySelector(editableParagraph, ".chapter-unit").getAttribute("data-chapter-id"));
+            let currentParagraph = currentChapter.getParagraph(reverseQuerySelector(editableParagraph, ".paragraph-unit").getAttribute("data-paragraph-id"));
 
             let updateRequired = false;
             if (updatedText === null || updatedText.trim() === '') {
@@ -93,7 +93,7 @@ export class chapterUnit {
             }
             if (updateRequired) {
                 await documentFactory.updateDocument(currentSpaceId, currentDocument);
-                currentDocument.notifyObservers(currentDocument.getNotificationId() + ":document-view-page:" + "chapter:" + `${webSkel.space.currentChapterId}`);
+                currentDocument.notifyObservers(currentDocument.getNotificationId() + ":document-view-page:" + "chapter:" + `${currentChapter.id}`);
             }
     }
 
@@ -159,14 +159,19 @@ export class chapterUnit {
     async moveChapter(_target, direction) {
         let currentChapter = reverseQuerySelector(_target, "chapter-unit");
         let adjacentChapter;
+
         direction === "up"
             ?adjacentChapter = currentChapter.previousSibling
             :adjacentChapter = currentChapter.nextSibling
 
-        if (adjacentChapter && adjacentChapter.nodeName === "CHAPTER-UNIT") {
-            this._document.swapChapters(currentChapter.getAttribute('data-chapter-id'), adjacentChapter.getAttribute('data-chapter-id'));
-            await documentFactory.updateDocument(currentSpaceId, this._document);
-            this._document.notifyObservers(this._document.getNotificationId() + ":refresh");
+        let currentChapterId= currentChapter.getAttribute('data-chapter-id');
+        let adjacentChapterId= adjacentChapter.getAttribute('data-chapter-id');
+
+        if(adjacentChapter && currentChapter){
+            if(this._document.swapChapters(currentChapterId, adjacentChapterId) === true){
+                await documentFactory.updateDocument(currentSpaceId, this._document);
+                this._document.notifyObservers(this._document.getNotificationId() + ":refresh");
+            }
         }
     }
 
@@ -178,14 +183,20 @@ export class chapterUnit {
         }
         let currentParagraph = reverseQuerySelector(_target, "paragraph-unit");
         let adjacentParagraph;
+
         direction === "up"
             ? adjacentParagraph = currentParagraph.previousSibling
             : adjacentParagraph = currentParagraph.nextSibling;
 
-        if (adjacentParagraph && adjacentParagraph.nodeName === "PARAGRAPH-UNIT") {
-            this.chapter.swapParagraphs(currentParagraph.getAttribute('data-paragraph-id'), adjacentParagraph.getAttribute('data-paragraph-id'));
-            await documentFactory.updateDocument(currentSpaceId, this._document);
-            this._document.notifyObservers(this._document.getNotificationId() + ":document-view-page:" + "chapter:" + `${this.chapterId}`);
+        let currentParagraphId= currentParagraph.getAttribute('data-paragraph-id');
+        let adjacentParagraphId= adjacentParagraph.getAttribute('data-paragraph-id');
+        let chapterId=reverseQuerySelector(_target, "chapter-unit").getAttribute('data-chapter-id');
+
+        if(adjacentParagraph && currentParagraph){
+            if(this.chapter.swapParagraphs(currentParagraphId, adjacentParagraphId)===true) {
+                await documentFactory.updateDocument(currentSpaceId, this._document);
+                this._document.notifyObservers(this._document.getNotificationId() + ":document-view-page:" + "chapter:" + `${chapterId}`);
+            }
         }
     }
 
