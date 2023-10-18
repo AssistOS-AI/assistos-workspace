@@ -172,9 +172,10 @@ export class chapterUnit {
                 await documentFactory.updateDocument(currentSpaceId, this._document);
                 this._document.notifyObservers(this._document.getNotificationId() + ":refresh");
             }
+        }else{
+            console.error(`Unable to swap chapters. ${currentChapterId}, ${adjacentChapterId}`);
         }
     }
-
 
     async moveParagraph(_target, direction) {
         const editableParagraph = document.querySelector('[contenteditable="true"]');
@@ -192,11 +193,13 @@ export class chapterUnit {
         let adjacentParagraphId= adjacentParagraph.getAttribute('data-paragraph-id');
         let chapterId=reverseQuerySelector(_target, "chapter-unit").getAttribute('data-chapter-id');
 
-        if(adjacentParagraph && currentParagraph){
+        if(adjacentParagraph && currentParagraph && chapterId){
             if(this.chapter.swapParagraphs(currentParagraphId, adjacentParagraphId)===true) {
                 await documentFactory.updateDocument(currentSpaceId, this._document);
                 this._document.notifyObservers(this._document.getNotificationId() + ":document-view-page:" + "chapter:" + `${chapterId}`);
             }
+        }else{
+            console.error(`Unable to swap paragraphs. ${currentParagraphId}, ${adjacentParagraphId}, Chapter: ${chapterId}`);
         }
     }
 
