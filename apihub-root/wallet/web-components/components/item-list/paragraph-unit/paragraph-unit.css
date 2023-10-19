@@ -2,6 +2,7 @@
     cursor: default;
     display: flex;
     border-radius: 10px;
+    width: 100%;
 }
 
 .paragraph-arrows {

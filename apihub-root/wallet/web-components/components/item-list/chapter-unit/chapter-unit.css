@@ -104,9 +104,8 @@ p {
     flex-direction: row;
     align-items: center;
 }
-
-.paragraph-unit {
-    width: 100%;
+.chapter-text,.chapter-unit{
+    width:100%;
 }
 
 .chapter-paragraphs {

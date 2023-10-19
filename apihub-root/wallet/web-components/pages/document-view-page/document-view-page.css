@@ -92,6 +92,9 @@
 .abstract-section,.path-button,.chapter-unit{
     padding:10px;
 }
+.abstract-section{
+    width:100%;
+}
 .thirty-px-horizontal-space{
     width:30px;
     min-width:30px;
