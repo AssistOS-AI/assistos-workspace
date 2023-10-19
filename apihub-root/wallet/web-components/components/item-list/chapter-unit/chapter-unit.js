@@ -9,6 +9,9 @@ export class chapterUnit {
         this._document.observeChange(this._document.getNotificationId() + ":document-view-page:" + "chapter:" + `${this.chapterId}`, invalidate);
         this.invalidate = invalidate;
         this.invalidate();
+        this.addParagraphOnCtrlEnter = this.addParagraphOnCtrlEnter.bind(this);
+        this.element.removeEventListener('keydown', this.addParagraphOnCtrlEnter);
+        this.element.addEventListener('keydown', this.addParagraphOnCtrlEnter);
     }
 
     beforeRender() {
@@ -29,10 +32,13 @@ export class chapterUnit {
         let selectedParagraphs = this.element.querySelectorAll(".paragraph-text");
         let currentParagraph = "";
         selectedParagraphs.forEach(paragraph => {
-            paragraph.addEventListener("dblclick", this.enterEditMode.bind(this, paragraph), true);
             if (reverseQuerySelector(paragraph, '[data-paragraph-id]').getAttribute("data-paragraph-id") === webSkel.space.currentParagraphId) {
                 currentParagraph = paragraph;
             }
+            paragraph.addEventListener("click", (event) => {
+                this.enterEditMode(paragraph, event);
+                this.highlightChapter(paragraph.closest(".chapter-unit"));
+            }, true);
         });
         if (this.chapter.id === webSkel.space.currentChapterId) {
             this.highlightChapter(this.element.querySelector(".chapter-text"));
@@ -41,7 +47,31 @@ export class chapterUnit {
             }
         }
     }
+    async addParagraphOnCtrlEnter(event) {
+        if (!event.ctrlKey || event.key !== 'Enter') {
+            return;
+        }
+        const fromParagraph = reverseQuerySelector(event.target, '[data-paragraph-id]');
+        const fromChapter = reverseQuerySelector(event.target, '.chapter-unit');
 
+        if (!fromParagraph && !fromChapter) {
+            return;
+        }
+        const editableParagraph = document.querySelector('[contenteditable="true"]');
+        if (editableParagraph) {
+            await this.saveEditedParagraph(editableParagraph);
+        }
+        await this.addNewParagraph();
+        this._document.notifyObservers(this._document.getNotificationId()+":document-view-page:"+"chapter:"+`${this.chapter.id}`);
+    }
+
+    async addNewParagraph(_target){
+        let newParagraphId=webSkel.getService("UtilsService").generateId();
+        await this.chapter.addParagraph({id: newParagraphId, text:""});
+        webSkel.space.currentChapterId=this.chapter.id;
+        webSkel.space.currentParagraphId=newParagraphId;
+        this._document.notifyObservers(this._document.getNotificationId()+":document-view-page:"+"chapter:"+`${this.chapter.id}`);
+    }
     async documentClickHandler(event) {
         const editableParagraph = document.querySelector('[contenteditable="true"]');
         if (editableParagraph) {

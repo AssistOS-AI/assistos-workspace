@@ -38,7 +38,6 @@ export class documentViewPage {
         await this._document.addChapter(chapterData);
         this.invalidate();
     }
-    /* notify Observers -> notifyChapter(chapterId) ? */
     async addParagraph(_target){
         let chapter = this._document.getChapter(webSkel.space.currentChapterId);
         let newParagraphId=webSkel.getService("UtilsService").generateId();
