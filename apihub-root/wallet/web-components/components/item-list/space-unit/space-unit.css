@@ -1,3 +1,14 @@
 .space-unit {
+    overflow-wrap: break-word;
+    hyphens: auto;
+    word-break: break-word;
+    display: flex;
+    justify-content: center;
     color: #FFF;
+}
+.space-unit:hover{
+    cursor: pointer;
+}
+.space-name-txt{
+    margin-left: 10px;
 }

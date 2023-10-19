@@ -33,10 +33,11 @@ export class documentSettingsPage {
             }
             return htmlString;
         }
-        for (const [key, value] of Object.entries(this._document.settings)) {
-            this[key] = renderSettings(webSkel.space.scripts, this._document.getSettingsComponent(key), key);
+        if(this._document.settings){
+            for (const [key, value] of Object.entries(this._document.settings)) {
+                this[key] = renderSettings(webSkel.space.scripts, this._document.getSettingsComponent(key), key);
+            }
         }
-
     }
 
     async saveSettings(_target) {

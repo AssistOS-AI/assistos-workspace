@@ -1,37 +1,38 @@
+.space-item{
+    margin-top: 0;
+}
 .spaces-list {
     display: none;
     flex-direction: column;
-    z-index: 1;
-    position: absolute;
-    background-color: #180e49;
     min-width: 160px;
     right: 10px;
     overflow: auto;
-    border-radius: 15px 0 15px 15px;
-    box-shadow: 0 8px 16px 0 rgba(0, 0, 0, 0.2);
 }
 
-.add-space-btn {
-    background-color: #39288d;
+.spaces-list > *{
+    padding: 0 0 0 30px;
+    display: flex;
+    justify-content: start;
+    align-items: center;
+    height: 30px;
+}
+
+.add-space-txt,
+.logout-txt{
+    margin-left: 10px;
+}
+
+.add-space-btn,
+#logout-button {
+    background-color: #511A53;
     outline: none;
     border: none;
     color: #FFF;
     font-family: 'Poppins', sans-serif;
     font-size: 17px;
     cursor: pointer;
-    padding: 0 7px;
 }
 
-/*space-unit {*/
-/*    color: #FFF;*/
-/*    cursor: pointer;*/
-/*    border-bottom: 1px solid #423685;*/
-/*    padding: 5px 10px;*/
-/*}*/
-
-space-unit:hover {
-    background-color: #6559a2;
-}
 
 .current-space-btn {
     display: flex;
@@ -40,15 +41,14 @@ space-unit:hover {
     font-weight: 600;
     max-width: fit-content;
     color: #FFF;
-    font-family: Poppins;
 }
 
 .space-name {
+    overflow-wrap: break-word;
+    hyphens: auto;
+    word-break: break-word;
     margin-right: 10px;
-}
-
-.space-dropdown {
-    position: relative;
+    margin-left: 10px;
 }
 
 .arrow-space {
