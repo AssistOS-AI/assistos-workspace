@@ -34,17 +34,18 @@ export class abstractProofreadPage {
 
     async enterEditMode(_target, field) {
         let abstract = this.element.querySelector(`.${field}`);
+        if(!abstract.hasAttribute("contenteditable")){
+            document.addEventListener("click", this.exitEditMode.bind(this, abstract), true);
+        }
         abstract.setAttribute("contenteditable", "true");
         abstract.focus();
-        document.addEventListener("click", this.exitEditMode.bind(this, abstract), true);
     }
 
     async exitEditMode (abstract, event) {
         if (abstract.getAttribute("contenteditable") && !abstract.contains(event.target)) {
             abstract.setAttribute("contenteditable", "false");
-            if(abstract.hasAttribute("abstract-content")){
-                this._document.updateAbstract(abstract.innerText);
-                await documentFactory.updateDocument(currentSpaceId, this._document);
+            if(abstract.classList.contains("abstract-content")){
+                await this._document.updateAbstract(abstract.innerText);
             }
             else {
                 this.improvedAbstract = abstract.innerText;
@@ -57,7 +58,6 @@ export class abstractProofreadPage {
         let abstract = this.element.querySelector(".improved-abstract").innerText;
         if(abstract !== this._document.abstract) {
             await this._document.updateAbstract(abstract);
-            await documentFactory.updateDocument(currentSpaceId, this._document);
             this.invalidate();
         }
     }

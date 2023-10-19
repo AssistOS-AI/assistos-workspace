@@ -18,6 +18,7 @@ export class FlowsService{
                 this.__body.creativity = level;
             },
             request : async function (prompt, max_tokens){
+                this.__body.prompt = prompt;
                 this.__body.max_tokens = max_tokens;
                 return await webSkel.getService("LlmsService").generateResponse(JSON.stringify(this.__body));
             },

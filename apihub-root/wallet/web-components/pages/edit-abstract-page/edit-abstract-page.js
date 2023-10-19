@@ -38,16 +38,17 @@ export class editAbstractPage {
 
     async enterEditMode(_target) {
         let abstract = this.element.querySelector(".abstract-content");
+        if(!abstract.hasAttribute("contenteditable")){
+            document.addEventListener("click", this.exitEditMode.bind(this, abstract), true);
+        }
         abstract.setAttribute("contenteditable", "true");
         abstract.focus();
-        document.addEventListener("click", this.exitEditMode.bind(this, abstract), true);
     }
 
     async exitEditMode (abstract, event) {
         if (abstract.getAttribute("contenteditable") && !abstract.contains(event.target)) {
             abstract.setAttribute("contenteditable", "false");
-            this._document.updateAbstract(abstract.innerText);
-            await documentFactory.updateDocument(currentSpaceId, this._document);
+            await this._document.updateAbstract(abstract.innerText);
         }
     }
 
@@ -67,7 +68,6 @@ export class editAbstractPage {
         let abstract = reverseQuerySelector(_target,".content").innerText;
         if(abstract !== this._document.abstract) {
             await this._document.updateAbstract(abstract);
-            await documentFactory.updateDocument(currentSpaceId, this._document);
             this._document.notifyObservers(this._document.getNotificationId());
         } else {
             removeActionBox(this.actionBox, this);

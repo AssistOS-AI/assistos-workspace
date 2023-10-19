@@ -42,7 +42,14 @@ manage-chapters-page {
     margin-right: 15px;
     margin-bottom: 20px;
 }
-
+.main-ideas-list{
+    padding-left: 15px;
+}
+.main-ideas-list:focus{
+    background-color: rgba(148, 174, 227, 0.3);
+    color: #252525;
+    font-weight: 450;
+}
 .section-title {
     margin: 20px 15px 20px 15px;
     color: #252525;

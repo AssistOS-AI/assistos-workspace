@@ -106,8 +106,9 @@ export class DocumentModel {
         this.mainIdeas.push(mainIdea);
     }
 
-    updateAbstract(abstractText) {
+    async updateAbstract(abstractText) {
         this.abstract = abstractText;
+        await documentFactory.updateDocument(currentSpaceId, this);
     }
 
     /* left shift(decrement) the ids to the right of the deleted chapter? */
