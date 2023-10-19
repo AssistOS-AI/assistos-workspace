@@ -4,6 +4,7 @@ export class manageChaptersPage {
         this._document = webSkel.space.getDocument(webSkel.space.currentDocumentId);
         this.invalidate = invalidate;
         this.invalidate();
+        this.docMainIdeas = "";
     }
 
     beforeRender() {
@@ -33,9 +34,13 @@ export class manageChaptersPage {
         this.invalidate();
     }
 
-    summarize(){
-        this.docMainIdeas = ". idea 1 this is a very good idea yeas " +
-            ". idea 2 this is another good one yes yes idea";
+    async summarize(){
+        let scriptId = webSkel.space.getScriptIdByName("summarize");
+        let result = await webSkel.getService("LlmsService").callScript(scriptId, this._document.stringifyDocument());
+        for(let idea of result.responseJson){
+            this.docMainIdeas += `<li>idea</li>`;
+        }
+        await this._document.setMainIdeas(result.responseJson);
         this.invalidate();
     }
 
