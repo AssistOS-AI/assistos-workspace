@@ -96,5 +96,8 @@ export class editAbstractPage {
         await documentFactory.updateDocument(currentSpaceId, this._document);
         this.invalidate();
     }
+    async openEditAbstractPage() {
+        await webSkel.changeToDynamicPage("edit-abstract-page", `documents/${this._document.id}/edit-abstract-page`);
+    }
 }
 

@@ -61,6 +61,12 @@ export class abstractProofreadPage {
             this.invalidate();
         }
     }
+    async openEditAbstractPage() {
+        await webSkel.changeToDynamicPage("edit-abstract-page", `documents/${this._document.id}/edit-abstract-page`);
+    }
+    async proofreadAbstract(){
+        await webSkel.changeToDynamicPage("abstract-proofread-page", `documents/${this._document.id}/abstract-proofread-page`);
+    }
 
 }
 
