@@ -3,22 +3,33 @@ dialog[class="modal"] {
     border: none;
 }
 
-.modal-content {
-    padding: 20px;
+.modal-body {
+    padding: 0 30px;
 }
 
+.modal-header{
+    padding: 5px 20px 5px 20px;
+    margin-bottom: 5px;
+    background: #A42E70;
+    display: flex;
+    justify-content: space-between;
+}
 .modal-title {
-    color: #000;
+    color: #ffffff;
     font-size: 18px;
+    display: flex;
+    flex-direction: column;
+    justify-content: center;
 }
 
 .close {
-    float: right;
-    background-color: transparent;
-    font-size: 20px;
-    margin-left: 20px;
-    border: none;
+    padding: 0;
+    font-weight: 300;
+    color: #ffffff;
     cursor: pointer;
+    background-color: transparent;
+    border: none;
+    font-size: 30px;
 }
 
 .form-label {
@@ -35,27 +46,14 @@ dialog[class="modal"] {
     padding: 8px;
 }
 
-input::file-selector-button {
-    border: none;
-    background: #429E9D;
-    color: white;
-    font-family: Poppins;
-}
-
-.item-has-focus {
-    --full-highlight-height: none;
-    --inset-highlight-height: none;
-}
-
 .wide-btn {
     cursor: pointer;
     width: 100%;
     height: 36px;
-    background: #18203F;
+    background: #A42E70;
     border: none;
     color: white;
     border-radius: 16px;
-    font-family: Poppins;
     font-size: 14px;
     font-weight: 600;
     line-height: 21px;

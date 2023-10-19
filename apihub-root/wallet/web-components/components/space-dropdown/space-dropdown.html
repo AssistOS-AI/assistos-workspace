@@ -1,13 +1,29 @@
 <link rel="stylesheet" href="./wallet/web-components/components/space-dropdown/space-dropdown.css">
-<div class="space-dropdown" data-presenter="space-dropdown">
+<div class="tool-item space-item" data-action="changePage space-page">
+    <div class="page-logo-section">
+        <svg xmlns="http://www.w3.org/2000/svg" width="26" height="24" viewBox="0 0 26 24" fill="none">
+            <path d="M9.1 21.4001H13V13.5247L7.8 8.9903L2.6 13.5247V21.4001H6.5V16.2001H9.1V21.4001ZM24.7 24.0001H1.3C0.955218 24.0001 0.624558 23.8631 0.380761 23.6193C0.136964 23.3755 7.78314e-09 23.0449 7.78314e-09 22.7001V12.9332C-2.03174e-05 12.7474 0.0397682 12.5638 0.116685 12.3948C0.193602 12.2257 0.305861 12.075 0.4459 11.953L5.2 7.8073V1.9001C5.2 1.55532 5.33696 1.22466 5.58076 0.980859C5.82456 0.737062 6.15522 0.600098 6.5 0.600098H24.7C25.0448 0.600098 25.3754 0.737062 25.6192 0.980859C25.863 1.22466 26 1.55532 26 1.9001V22.7001C26 23.0449 25.863 23.3755 25.6192 23.6193C25.3754 23.8631 25.0448 24.0001 24.7 24.0001ZM18.2 11.0001V13.6001H20.8V11.0001H18.2ZM18.2 16.2001V18.8001H20.8V16.2001H18.2ZM18.2 5.8001V8.4001H20.8V5.8001H18.2ZM13 5.8001V8.4001H15.6V5.8001H13Z" fill="white"/>
+        </svg>
+    </div>
     <div class="current-space-btn">
         <div class="space-name">$$currentSpaceName</div>
         <div class="arrow-space" data-local-action="showSpaces">
             <img src="./wallet/assets/icons/arrow.svg" alt="arrow">
         </div>
     </div>
-    <div class="spaces-list">$$spacesDiv
-        <button class="add-space-btn" data-local-action="addSpace">Add Space</button>
-        <button id="logout-button" data-local-action="logout">Logout</button>
-    </div>
+</div>
+<div class="spaces-list">
+    $$spacesDiv
+    <button class="add-space-btn" data-local-action="addSpace">
+        <svg width="15" height="15" viewBox="0 0 15 15" fill="none" xmlns="http://www.w3.org/2000/svg">
+            <path fill-rule="evenodd" clip-rule="evenodd" d="M8.60645 1.61768C8.60645 1.38147 8.51261 1.15493 8.34559 0.987909C8.17856 0.820884 7.95203 0.727051 7.71582 0.727051C7.47961 0.727051 7.25308 0.820884 7.08605 0.987909C6.91903 1.15493 6.8252 1.38147 6.8252 1.61768V6.96143H1.48145C1.24524 6.96143 1.0187 7.05526 0.851678 7.22228C0.684654 7.38931 0.59082 7.61584 0.59082 7.85205C0.59082 8.08826 0.684654 8.31479 0.851678 8.48182C1.0187 8.64884 1.24524 8.74268 1.48145 8.74268H6.8252V14.0864C6.8252 14.3226 6.91903 14.5492 7.08605 14.7162C7.25308 14.8832 7.47961 14.9771 7.71582 14.9771C7.95203 14.9771 8.17856 14.8832 8.34559 14.7162C8.51261 14.5492 8.60645 14.3226 8.60645 14.0864V8.74268H13.9502C14.1864 8.74268 14.4129 8.64884 14.58 8.48182C14.747 8.31479 14.8408 8.08826 14.8408 7.85205C14.8408 7.61584 14.747 7.38931 14.58 7.22228C14.4129 7.05526 14.1864 6.96143 13.9502 6.96143H8.60645V1.61768Z" fill="white" fill-opacity="0.81"/>
+        </svg>
+        <span class="add-space-txt">Add Space</span>
+    </button>
+    <button id="logout-button" data-local-action="logout">
+        <svg width="16" height="16" viewBox="0 0 16 16" fill="none" xmlns="http://www.w3.org/2000/svg">
+            <path d="M10.8572 11.9999V14.2856C10.8572 14.5887 10.7368 14.8794 10.5225 15.0937C10.3082 15.308 10.0175 15.4284 9.71439 15.4284H1.71439C1.41129 15.4284 1.1206 15.308 0.906268 15.0937C0.691941 14.8794 0.571533 14.5887 0.571533 14.2856V1.71415C0.571533 1.41104 0.691941 1.12035 0.906268 0.906024C1.1206 0.691697 1.41129 0.571289 1.71439 0.571289H9.71439C10.0175 0.571289 10.3082 0.691697 10.5225 0.906024C10.7368 1.12035 10.8572 1.41104 10.8572 1.71415V3.99986M7.42868 7.99986H15.4287M15.4287 7.99986L13.143 5.71415M15.4287 7.99986L13.143 10.2856" stroke="white" stroke-opacity="0.81" stroke-width="1.42857" stroke-linecap="round" stroke-linejoin="round"/>
+        </svg>
+        <span class="logout-txt">Logout</span>
+    </button>
 </div>

@@ -183,9 +183,7 @@ body {
     justify-content: center;
     flex-direction:column;
 }
-.tools-items-wrapper{
-    margin-top:20px;
-}
+
 .spinner {
     outline: none;
     background: none;
@@ -235,7 +233,7 @@ body {
 }
 
 .page-name {
-    margin-left: 10px;
+    margin-left: 14px;
     color: #FFF;
     font-family: Poppins;
     font-size: 16px;
@@ -271,8 +269,7 @@ gap: 10px;
 }
 .tool-item {
     display: flex;
-    padding: 8px 15px 8px 10px;
-    padding-left:8px;
+    padding: 8px 10px 8px 10px;
     margin-top: 15px;
     max-height: 100%;
 }

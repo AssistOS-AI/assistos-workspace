@@ -23,6 +23,8 @@ dialog[class="modal"] {
     justify-content: center;
 }
 .modal-body{
+    overflow-y: auto;
+    overflow-x: hidden;
     white-space: pre-line;
     padding: 20px;
     max-height: 80%;
