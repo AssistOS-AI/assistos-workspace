@@ -94,4 +94,7 @@ export class editTitlePage {
     async showActionBox(_target, primaryKey, componentName, insertionMode) {
         this.actionBox = await showActionBox(_target, primaryKey, componentName, insertionMode);
     }
+    async openEditTitlePage() {
+        await webSkel.changeToDynamicPage("edit-title-page", `documents/${this._document.id}/edit-title-page`);
+    }
 }
