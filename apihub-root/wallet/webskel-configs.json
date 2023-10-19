@@ -1,6 +1,11 @@
 {
   "presenters": [
     {
+      "name": "generate-chapters-page",
+      "path": "./web-components/pages/generate-chapters-page/generate-chapters-page.js",
+      "className": "generateChaptersPage"
+    },
+    {
       "name": "show-error-modal",
       "path": "./web-components/modals/show-error-modal/show-error-modal.js",
       "className": "showErrorModal"
@@ -176,6 +181,10 @@
     }
   ],
   "components": [
+    {
+      "name": "generate-chapters-page",
+      "path": "./wallet/web-components/pages/generate-chapters-page/generate-chapters-page.html"
+    },
     {
       "name": "abstract-proofread-page",
       "path": "./wallet/web-components/pages/abstract-proofread-page/abstract-proofread-page.html"

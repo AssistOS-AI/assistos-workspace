@@ -87,8 +87,8 @@ export class manageChaptersPage {
         this.invalidate();
     }
 
-    generateChapter(){
-        alert("generate chapter not done yet");
+    async generateChapters(){
+        await webSkel.changeToDynamicPage("generate-chapters-page", `documents/${this._document.id}/generate-chapters-page`);
     }
     async showActionBox(_target, primaryKey, componentName, insertionMode) {
         await showActionBox(_target, primaryKey, componentName, insertionMode);
