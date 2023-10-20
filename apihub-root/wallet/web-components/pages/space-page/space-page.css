@@ -84,7 +84,7 @@
     }
 }
 
-#selected-tab {
+.selected-tab {
     background-color: #FFF;
     .tab-margin-left {
         border-bottom-right-radius: 12px;

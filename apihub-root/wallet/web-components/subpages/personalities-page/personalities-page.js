@@ -23,6 +23,6 @@ export class personalitiesPage {
 
     async openEditPersonalityPage(_target){
         let personalityId = reverseQuerySelector(_target, "personality-unit").getAttribute("data-id");
-        await webSkel.changeToDynamicPage("edit-personality-page", `space-pace/edit-personality-page/${personalityId}`);
+        await webSkel.changeToDynamicPage("edit-personality-page", `space-page/edit-personality-page/${personalityId}`);
     }
 }

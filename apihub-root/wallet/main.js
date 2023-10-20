@@ -11,7 +11,7 @@ window.mainContent = document.querySelector("#app-wrapper");
 async function loadPage() {
     let url = window.location.hash;
     if(url === "" || url === null) {
-        url = "#space-page";
+        url = "#space-page/announcements-page";
     }
     let presenterName;
         /* URL examples: documents/0, documents/0/chapters/1 */
@@ -34,6 +34,16 @@ async function loadPage() {
             case "#authentication-page":{
                 changeSelectedPageFromSidebar(url);
                 presenterName = url.slice(1);
+                break;
+            }
+            case "#space-page":{
+                changeSelectedPageFromSidebar(url.split("/")[0]);
+                if(url.split("/")[1] === "edit-personality-page"){
+                    presenterName = url.split("/")[1];
+                }else {
+                    presenterName = url.split("/")[0];
+                    presenterName = presenterName.slice(1);
+                }
                 break;
             }
             default: {
