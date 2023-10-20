@@ -28,6 +28,15 @@ export class Chapter {
         this.paragraphs.push(new Paragraph(paragraphData));
     }
 
+    addParagraphs(paragraphsData){
+        for(let paragraph of paragraphsData){
+            let paragraphData = {
+                id: webSkel.servicesRegistry.UtilsService.generateId(),
+                text:paragraph
+            }
+            this.paragraphs.push(new Paragraph(paragraphData));
+        }
+    }
     deleteParagraph(paragraphId) {
         let paragraphIndex = this.paragraphs.findIndex(paragraph => paragraph.id === paragraphId);
         if(paragraphIndex !== -1) {

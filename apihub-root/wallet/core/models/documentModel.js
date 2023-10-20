@@ -62,6 +62,19 @@ export class DocumentModel {
         await documentFactory.updateDocument(currentSpaceId, this);
     }
 
+    async addChapters(chaptersData){
+        for(let chapter of chaptersData){
+            let chapterData= {
+                title: chapter.title,
+                id: webSkel.servicesRegistry.UtilsService.generateId(),
+                paragraphs: []
+            }
+            let newChapter = new Chapter(chapterData);
+            this.chapters.push(newChapter);
+            newChapter.addParagraphs(chapter.paragraphs);
+        }
+        await documentFactory.updateDocument(currentSpaceId, this);
+    }
     setCurrentChapter(chapterId) {
         this.currentChapterId = chapterId;
     }
@@ -91,8 +104,9 @@ export class DocumentModel {
         }
     }
 
-    addAlternativeTitle(obj){
+    async addAlternativeTitle(obj){
         this.alternativeTitles.push(obj);
+        await documentFactory.updateDocument(currentSpaceId, this);
     }
 
     getMainIdeas() {
