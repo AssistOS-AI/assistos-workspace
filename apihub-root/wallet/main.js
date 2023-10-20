@@ -10,7 +10,7 @@ window.mainContent = document.querySelector("#app-wrapper");
 
 async function loadPage() {
     let url = window.location.hash;
-    if(url === "" || url === null) {
+    if(url === "" || url === null || url === "#space-page") {
         url = "#space-page/announcements-page";
     }
     let presenterName;

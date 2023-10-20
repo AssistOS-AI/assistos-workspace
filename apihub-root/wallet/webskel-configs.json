@@ -2,7 +2,7 @@
   "presenters": [
     {
       "name": "edit-personality-page",
-      "path": "./web-components/subpages/edit-personality-page/edit-personality-page.js",
+      "path": "./web-components/pages/edit-personality-page/edit-personality-page.js",
       "className": "editPersonalityPage"
     },
     {
@@ -188,7 +188,7 @@
   "components": [
     {
       "name": "edit-personality-page",
-      "path": "./wallet/web-components/subpages/edit-personality-page/edit-personality-page.html"
+      "path": "./wallet/web-components/pages/edit-personality-page/edit-personality-page.html"
     },
     {
       "name": "generate-chapters-page",

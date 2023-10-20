@@ -42,6 +42,12 @@ export class spacePage {
              this.pageContent = `<scripts-page data-presenter="scripts-page"></scripts-page>`;
              break;
          }
+         default:{
+             this.pageContent = `<announcements-page data-presenter="announcements-page"></announcements-page>`;
+             window.location.hash = "#space-page/announcements-page";
+             this.tab = "announcements-page";
+             break;
+         }
      }
     }
     afterRender(){
