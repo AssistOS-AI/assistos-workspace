@@ -48,8 +48,8 @@ generate-chapters-page {
 .form-input {
     border-radius: 8px;
     border: 0.5px solid rgba(0, 0, 0, 0.24);
-    width: 100%;
-    margin: 4px 0 8px;
+    width: 400px;
+    margin: 4px 0 4px;
     padding: 8px;
 }
 .form-label {
@@ -84,7 +84,10 @@ generate-chapters-page {
     line-height: normal;
 }
 
-
+.input-ideas-container{
+    display: flex;
+    align-items: center;
+}
 input[type="checkbox"] {
     width: 30px;
     background-color: #fff;
@@ -100,8 +103,13 @@ input[type="checkbox"]:checked {
 .alt-title-span{
     margin-right: 5px;
 }
+.generate-ideas-btn{
+    height: 35px;
+    margin-left: 15px;
+    max-width: 160px;
+    padding: 8px;
+}
 .generated-ideas-hr{
     border-style: solid;
     border-color: #E6E6E6;
-
 }

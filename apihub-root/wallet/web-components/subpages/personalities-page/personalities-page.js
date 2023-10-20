@@ -21,14 +21,8 @@ export class personalitiesPage {
         await showModal(document.querySelector("body"), "add-personality-modal", { presenter: "add-personality-modal"});
     }
 
-    async showActionBox(_target, primaryKey, componentName, insertionMode) {
-        await showActionBox(_target, primaryKey, componentName, insertionMode);
-    }
-    getPersonalityId(_target){
-        return reverseQuerySelector(_target, "personality-unit").getAttribute("data-id");
-    }
-    async deleteAction(_target){
-        await webSkel.space.deletePersonality(this.getPersonalityId(_target));
-        this.invalidate();
+    async openEditPersonalityPage(_target){
+        let personalityId = reverseQuerySelector(_target, "personality-unit").getAttribute("data-id");
+        await webSkel.changeToDynamicPage("edit-personality-page", `space-pace/edit-personality-page/${personalityId}`);
     }
 }

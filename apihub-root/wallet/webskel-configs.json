@@ -1,6 +1,11 @@
 {
   "presenters": [
     {
+      "name": "edit-personality-page",
+      "path": "./web-components/subpages/edit-personality-page/edit-personality-page.js",
+      "className": "editPersonalityPage"
+    },
+    {
       "name": "generate-chapters-page",
       "path": "./web-components/pages/generate-chapters-page/generate-chapters-page.js",
       "className": "generateChaptersPage"
@@ -181,6 +186,10 @@
     }
   ],
   "components": [
+    {
+      "name": "edit-personality-page",
+      "path": "./wallet/web-components/subpages/edit-personality-page/edit-personality-page.html"
+    },
     {
       "name": "generate-chapters-page",
       "path": "./wallet/web-components/pages/generate-chapters-page/generate-chapters-page.html"

@@ -14,7 +14,7 @@ export class spacePage {
         let selectedTab = document.getElementById("selected-tab");
         this.tab = _target.querySelector(".tab").innerText;
         if(selectedTab !== _target) {
-            switch(selectedTab.querySelector(".tab").innerText) {
+            switch(selectedTab.querySelector(".tab").getAttribute("data-name")) {
                 case "Announcements":
                     this.id1 = "";
                     break;
