@@ -61,10 +61,6 @@ edit-abstract-page {
     font-weight: 600;
 }
 
-#page-content {
-    padding-left: 0;
-}
-
 .abstract-content {
     white-space: pre-wrap;
     overflow-wrap: break-word;
