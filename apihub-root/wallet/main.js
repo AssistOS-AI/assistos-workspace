@@ -6,7 +6,7 @@ import { StorageManager } from "./core/services/storageManager.js";
 import {DocumentFactory} from "./core/factories/documentFactory.js";
 
 window.webSkel = new WebSkel();
-window.mainContent = document.querySelector("#main-content");
+window.mainContent = document.querySelector("#app-wrapper");
 
 async function loadPage() {
     let url = window.location.hash;
