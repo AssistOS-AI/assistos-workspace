@@ -1,14 +1,16 @@
-.table-header {
+.documents-page{
+    font-family: Poppins;
+}
+.documents-page-header {
     display: flex;
     justify-content: space-between;
+    width:100%;
     color: #363C44;
-    font-family: Poppins;
     font-size: 18px;
     font-style: normal;
     font-weight: 700;
     line-height: normal;
     text-transform: capitalize;
-    width:100%;
     box-shadow: 0px 2px 4px 0px #00000047;
 }
 .add-icon {
@@ -24,48 +26,45 @@
     text-overflow: ellipsis;
 }
 
-.documents-cell{
+.documents-header-title{
+    width: 32%;
+    color: #511A53;
     font-family: Poppins;
     font-size: 28px;
     font-weight: 700;
     line-height: 42px;
     letter-spacing: 0em;
     text-align: left;
-    color: #511A53;
-    width: 32%;
     white-space: nowrap;
     overflow: hidden;
     text-overflow: ellipsis;
 }
-.cell2 {
-    width: 64%;
-}
-.document-header-wrapper,.table-content{
-    padding-left:40px;
+.documents-header-wrapper,.documents-titles{
     width:100%;
+    padding-left:40px;
 }
-.document-header-wrapper{
+.documents-header-wrapper{
     display:flex;
-    padding-top:20px;
     align-items:center;
-    padding-bottom:20px;
     justify-content: space-between;
+    padding-top:20px;
+    padding-bottom:20px;
     padding-right:40px;
 }
 
 .generate-button,.add-button {
     display: flex;
+    align-items: center;
+    justify-content: center;
+    color: #FFFFFF;
     padding: 6px 12px 6px 12px;
     border-radius: 17px;
     gap: 9px;
     background: #A42E70;
-    color: #FFFFFF;
     min-width: fit-content;
-    align-items: center;
-    justify-content: center;
     cursor: pointer;
 }
-.document-buttons-wrapper{
+.documents-buttons-wrapper{
     display:flex;
     align-items:center;
     justify-content: space-between;
