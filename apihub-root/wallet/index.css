@@ -51,14 +51,15 @@ dialog{
 
 .documents-page{
     height:100%;
+    width:100%;
 }
 
 #page-content {
     display: inline-block;
-    width: 100%;
+    width: calc(100% - 270px);
     height:100%;
     min-height: 100%;
-    min-width:100%;
+    min-width:calc(100% - 270px);
     overflow: scroll;
     z-index: 0;
 }
