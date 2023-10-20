@@ -48,20 +48,11 @@ dialog{
     font-weight: 700;
     font-size: 24px;
 }
-.inner-page {
-    display: flex;
-    width: 100%;
-    height: 100%;
-}
+
 .documents-page{
     height:100%;
 }
-.page-content {
-    display: flex;
-    flex-direction: column;
-    width: 100%;
-    height: 100%;
-}
+
 #page-content {
     display: inline-block;
     width: 100%;
@@ -78,9 +69,8 @@ dialog{
     height: 100%;
 }
 
-#app-content {
+.page-content {
     display: flex;
-    flex-direction: column;
     width: 100%;
     height: 100%;
     max-height: 100%;
