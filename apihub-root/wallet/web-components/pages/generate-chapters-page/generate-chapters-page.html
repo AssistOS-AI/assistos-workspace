@@ -16,29 +16,29 @@
         </div>
 
 
-        <div class="main-ideas-title section">
+        <div class="add-idea-container">
             <div class="section-title">
-                Main ideas of the Document
+                Add Idea
             </div>
-            <svg data-local-action="enterEditMode" width="19" height="19" viewBox="0 0 19 19" fill="none" xmlns="http://www.w3.org/2000/svg">
-                <path d="M16.3 6.175L12.05 1.975L13.45 0.575C13.8333 0.191667 14.3043 0 14.863 0C15.4217 0 15.8923 0.191667 16.275 0.575L17.675 1.975C18.0583 2.35833 18.2583 2.821 18.275 3.363C18.2917 3.905 18.1083 4.36733 17.725 4.75L16.3 6.175ZM14.85 7.65L4.25 18.25H0V14L10.6 3.4L14.85 7.65Z" fill="#A42E70"/>
-            </svg>
-        </div>
-        <div class="main-ideas">
-            <ul class="main-ideas-list">
-                $$docMainIdeas
-            </ul>
+            <form class="generate-ideas-form">
+                <div class="form-item">
+                    <label class="form-label" for="idea">Hint</label>
+                    <input class="form-input" name="idea" data-id="idea" type="text" id="idea" required placeholder="Hot dogs and cats in bee suits">
+                </div>
+            </form>
         </div>
 
-        <hr class="main-ideas-separator">
 
-        <div class="section">
-            <div class="section-title">
-                Chapters
+        <div class="ideas-list-container">
+            <div class="section-title generated-ideas-text">
+                Generated Ideas
             </div>
-            <div class="chapters-list">
-                $$chaptersDiv
-            </div>
+            <form class="ideas-list">
+                $$chaptersIdeas
+                <button type="button" class="wide-btn generate-chapters-btn">
+                    Generate Chapters
+                </button>
+            </form>
         </div>
 
 
@@ -47,6 +47,7 @@
 <div class="right-sidebar">
     <div class="sidebar-item-main">AI Editor</div>
     <div class="item-list">
+        <div class="sidebar-item" data-local-action="generateIdeas">Generate Ideas</div>
     </div>
 </div>
 

@@ -12,6 +12,7 @@ dialog[class="modal"] {
 
 .modal-body {
     padding: 20px;
+    overflow-y: scroll;
 }
 
 .script-content {
