@@ -20,7 +20,11 @@ export class addPersonalityModal {
     }
 
     async addPersonalitySubmitForm(_target) {
-        let formInfo = await extractFormInformation(_target);
+        const verifyPhotoSize = (element) => {
+            return element.files[0].size <= 1048576;
+        };
+        const conditions = {"verifyPhotoSize": {fn:verifyPhotoSize, errorMessage:"Image too large! Image max size: 1MB"} };
+        let formInfo = await extractFormInformation(_target, conditions);
         if(formInfo.isValid) {
             let personalityData={
                     name:formInfo.data.name,

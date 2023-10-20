@@ -244,13 +244,12 @@ export class authenticationPage {
         this.invalidate();
     }
     async beginPasswordRecovery(_target){
-        const checkPasswordConfirmation = ()=>{
+        const checkPasswordConfirmation = (confirmPassword)=>{
             let password = document.querySelector("#user-password");
-            let confirmPassword = document.querySelector("#user-password-confirm");
             return password.value === confirmPassword.value;
         }
 
-        const conditions = {"checkPasswordConfirmation": checkPasswordConfirmation };
+        const conditions = {"checkPasswordConfirmation": {fn:checkPasswordConfirmation, errorMessage:"Passwords do not match!"} };
         const formInfo = await extractFormInformation(_target, conditions);
         if (formInfo.isValid) {
             if(await webSkel.getService("AuthenticationService").recoverPassword(formInfo.data.email, formInfo.data.password)){

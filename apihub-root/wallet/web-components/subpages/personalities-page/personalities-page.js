@@ -1,11 +1,10 @@
-import { showModal, showActionBox } from "../../../imports.js";
-import {reverseQuerySelector} from "../../../../WebSkel/utils/dom-utils.js";
+import { showModal, showActionBox, reverseQuerySelector } from "../../../imports.js";
 
 export class personalitiesPage {
     constructor(element,invalidate) {
         this.modal = "showAddPersonalityModal";
         this.element = element;
-        this.notificationId = "space:space-page:personalities-page";
+        this.notificationId = webSkel.space.getNotificationId() +":space-page:personalities-page";
         webSkel.space.observeChange(this.notificationId,invalidate);
         this.invalidate=invalidate;
         this.invalidate();
