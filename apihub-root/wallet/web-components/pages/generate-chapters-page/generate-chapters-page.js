@@ -1,15 +1,11 @@
-import {extractFormInformation} from "../../../imports.js";
-
+import {Chapter, extractFormInformation, Paragraph, sanitize} from "../../../imports.js";
 export class generateChaptersPage {
     constructor(element, invalidate) {
         this.element = element;
         this._document = webSkel.space.getDocument(webSkel.space.currentDocumentId);
         this.invalidate = invalidate;
         this.invalidate();
-        this.ideas = ["Bees are nature's little pollination superheroes!  Let's protect them and ensure our food chain thrives.  #SaveTheBees,Bees are nature's little pollination superheroes!  Let's protect them and ensure our food chain thrives.  #SaveTheBees",
-            "Bees are nature's little pollination superheroes!  Let's protect them and ensure our food chain thrives.  #SaveTheBees,Bees are nature's little pollination superheroes!  Let's protect them and ensure our food chain thrives.  #SaveTheBees",
-        "Bees are nature's little pollination superheroes!  Let's protect them and ensure our food chain thrives.  #SaveTheBees,Bees are nature's little pollination superheroes!  Let's protect them and ensure our food chain thrives.  #SaveTheBees",
-        "Bees are nature's little pollination superheroes!  Let's protect them and ensure our food chain thrives.  #SaveTheBees,Bees are nature's little pollination superheroes!  Let's protect them and ensure our food chain thrives.  #SaveTheBees"];
+        this.ideas = [];
     }
 
     beforeRender() {
@@ -48,6 +44,27 @@ export class generateChaptersPage {
             this.invalidate();
         }
 
+    }
+
+    async generateChapters(_target){
+        const loading = await webSkel.showLoading();
+        let formInfo = await extractFormInformation(_target);
+        let scriptId = webSkel.space.getScriptIdByName("generate chapters");
+        let selectedIdeas = [];
+        for (const [key, value] of Object.entries(formInfo.elements)) {
+            if(value.element.checked) {
+                selectedIdeas.push(value.element.value);
+            }
+        }
+        let result = await webSkel.getService("LlmsService").callScript(scriptId, JSON.stringify(selectedIdeas));
+        await this._document.addChapters(result.responseJson);
+        loading.close();
+        loading.remove();
+        await webSkel.changeToDynamicPage("document-view-page", `documents/${this._document.id}/document-view-page`);
+    }
+
+    async openMangeChaptersPage() {
+        await webSkel.changeToDynamicPage("manage-chapters-page", `documents/${this._document.id}/manage-chapters-page`);
     }
     async openViewPage() {
         await webSkel.changeToDynamicPage("document-view-page", `documents/${this._document.id}/document-view-page`);
