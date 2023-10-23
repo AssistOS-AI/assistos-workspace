@@ -1,0 +1,36 @@
+reduced-paragraph-unit{
+    display: flex;
+    border-bottom: 1px solid #E6E6E6;
+    padding: 5px 15px;
+    align-items: center;
+}
+.paragraph-text{
+    overflow: hidden;
+    text-overflow: ellipsis;
+    white-space: nowrap;
+    color: #252525;
+    font-size: 16px;
+    font-style: normal;
+    font-weight: 400;
+    line-height: normal;
+}
+
+.action-box{
+    position: fixed;
+    margin-top: 5px;
+    margin-left: -60px;
+}
+
+.svg-box {
+    width: 33px;
+    height: 33px;
+    display: flex;
+    justify-content: center;
+    align-items: center;
+    border-radius: 20px;
+}
+
+.svg-box:hover {
+    background-color: rgba(85, 85, 85, 0.08);
+    cursor: pointer;
+}

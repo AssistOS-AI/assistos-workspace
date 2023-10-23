@@ -14,14 +14,22 @@ export class Chapter {
             }
         }
         this.currentParagraphId = null;
+        this.mainIdeas = chapterData.mainIdeas || [];
     }
 
     getNotificationId() {
         return `doc:${this.id}`;
     }
 
-    toString() {
-        return `${this.title}\n${this.paragraphs.map(paragraph => paragraph.toString()).join("\n")}`;
+    stringifyChapter() {
+        function replacer(key, value) {
+            if (key === "visibility") return undefined;
+            else if (key === "currentParagraphId") return undefined;
+            else if (key === "mainIdeas") return undefined;
+            else if (key === "id") return undefined;
+            else return value;
+        }
+        return JSON.stringify(this, replacer);
     }
 
     addParagraph(paragraphData){
@@ -60,5 +68,13 @@ export class Chapter {
             console.error("Attempting to swap paragraphs that no longer exist in this chapter.");
             return false;
         }
+    }
+
+    getMainIdeas(){
+        return this.mainIdeas;
+    }
+
+    setMainIdeas(ideas){
+        this.mainIdeas = ideas;
     }
 }

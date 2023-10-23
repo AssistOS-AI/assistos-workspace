@@ -1,57 +1,111 @@
-import { closeModal, showActionBox } from "../../../imports.js";
+import {Paragraph, reverseQuerySelector, showActionBox} from "../../../imports.js";
 
 export class manageParagraphsPage {
     constructor(element, invalidate) {
-        let url = window.location.hash;
-        this.docId =  url.split('/')[1];
-        this.chapterId = url.split('/')[3];
-        this.docTitle = "Titlu document";
-        this._document = webSkel.space.getDocument(this.docId);
-        this._chapter = this._document.getChapter(this.chapterId);
-        this.chapterTitle = this._chapter.title;
-
-        this._document.observeChange(this._document.getNotificationId()+ ":manage-chapters-page", invalidate);
+        this.element = element;
+        this._document = webSkel.space.getDocument(webSkel.space.currentDocumentId);
+        this._chapter = this._document.getChapter(webSkel.space.currentChapterId);
         this.invalidate = invalidate;
         this.invalidate();
+        this.mainIdeas = this._chapter.getMainIdeas();
     }
 
     beforeRender() {
-        if(!this._document.getMainIdeas() || this._document.getMainIdeas().length === 0) {
-            this.generateMainIdeasButtonName = "Summarize";
+        if(this.mainIdeas.length === 0) {
+            this.summarizeButtonName = "Summarize";
         } else {
-            this.generateMainIdeasButtonName = "Regenerate";
-        }
-        let suggestedTitle = "Bees are nature's little pollination superheroes! Let's protect them and ensure our food chain thrives. #SaveTheBees";
-        this.alternativeAbstracts = "";
-        this.title = `<title-view title="${this.chapterTitle}"></title-view>`;
-        if(this._document) {
-            for(let number = 1; number <= 10; number++) {
-                this.alternativeAbstracts += `<alternative-abstract nr="${number}" title="${suggestedTitle}"></alternative-abstract>`;
+            this.summarizeButtonName = "Recreate Summary";
+            this.chapterMainIdeas = "";
+            for(let idea of this.mainIdeas){
+                this.chapterMainIdeas += `<li>${idea}</li>`;
             }
         }
+        this.paragraphs= "";
+        let number = 0;
+        this._chapter.paragraphs.forEach((item) => {
+            number++;
+            this.paragraphs += `<reduced-paragraph-unit data-id="${item.id}" data-local-action="editAction"
+            data-nr="${number}" data-text="${item.text}"></reduced-paragraph-unit>`;
+        });
+        document.removeEventListener("click", this.exitEditMode, true);
     }
 
-    async openChapterTitlePage() {
-        await webSkel.changeToDynamicPage("chapter-title-page",
-            `documents/${this.docId}/chapter-title-page/${this.chapterId}`);
+    afterRender(){
+        let mainIdeas = this.element.querySelector(".main-ideas-list");
+        mainIdeas.addEventListener("input", function (event) {
+            if(event.target.tagName === "UL"){
+                for(let child of event.target.children){
+                    if(child.innerHTML === "<br>"){
+                        child.innerHTML = "";
+                    }
+                }
+            }
+            if (event.target.tagName === "LI") {
+                if (event.target.innerText.trim() === "") {
+                    event.target.style.listStyle = "none"; // Remove the marker
+                } else {
+                    event.target.style.listStyle = "initial"; // Restore the marker
+                }
 
+            }
+        });
+    }
+    async enterEditMode(_target) {
+        let mainIdeas = this.element.querySelector(".main-ideas-list");
+        if(!mainIdeas.hasAttribute("contenteditable")){
+            document.addEventListener("click", this.exitEditMode.bind(this, mainIdeas), true);
+        }
+        mainIdeas.setAttribute("contenteditable", "true");
+        mainIdeas.focus();
     }
 
-    async openManageParagraphsPage() {
-        await webSkel.changeToDynamicPage("manage-paragraphs-page",
-            `documents/${this.docId}/manage-paragraphs-page/${this.chapterId}`);
+    async exitEditMode (mainIdeas, event) {
+        if (mainIdeas.getAttribute("contenteditable") && !mainIdeas.contains(event.target)) {
+            mainIdeas.setAttribute("contenteditable", "false");
+            let ideas = mainIdeas.innerText.split("\n");
+            await this._document.setChapterMainIdeas(ideas, this._chapter);
+        }
     }
-
-
     async openViewPage() {
-        await webSkel.changeToDynamicPage("document-view-page", `documents/${this.docId}/document-view-page`);
+        await webSkel.changeToDynamicPage("document-view-page", `documents/${this._document.id}/document-view-page`);
+    }
+    async addParagraph(){
+        let paragraphObj={
+            id: webSkel.getService("UtilsService").generateId(),
+            text: "Edit here your first paragraph."
+        }
+        await this._document.addParagraph(paragraphObj, this._chapter);
+        this.invalidate();
+    }
+    async summarize(){
+        const loading = await webSkel.showLoading();
+        let scriptId = webSkel.space.getScriptIdByName("summarize");
+        let result = await webSkel.getService("LlmsService").callScript(scriptId, this._chapter.stringifyChapter());
+        this.mainIdeas = result.responseJson;
+
+        await this._document.setMainIdeas(result.responseJson);
+        loading.close();
+        loading.remove();
+        this.invalidate();
     }
 
-    closeModal(_target) {
-        closeModal(_target);
+    async generateParagraphs(){
+        await webSkel.changeToDynamicPage("generate-paragraphs-page", `documents/${this._document.id}/generate-paragraphs-page`);
     }
-
     async showActionBox(_target, primaryKey, componentName, insertionMode) {
         await showActionBox(_target, primaryKey, componentName, insertionMode);
+    }
+
+    async editAction(_target){
+        let paragraph = reverseQuerySelector(_target, "reduced-paragraph-unit");
+        let paragraphId = paragraph.getAttribute("data-id");
+        await webSkel.changeToDynamicPage("paragraph-brainstorming-page",
+            `documents/${this._document.id}/chapter-edit-page/${this._chapter.id}/paragraph-brainstorming-page/${paragraphId}`);
+    }
+    async deleteAction(_target){
+        let chapter = reverseQuerySelector(_target, "reduced-chapter-unit");
+        let chapterId = chapter.getAttribute("data-id");
+        await this._document.deleteChapter(chapterId);
+        this.invalidate();
     }
 }
