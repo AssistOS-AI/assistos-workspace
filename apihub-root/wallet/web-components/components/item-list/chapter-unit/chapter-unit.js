@@ -47,6 +47,51 @@ export class chapterUnit {
             }
         }
     }
+    alternateArrowsDisplay(target, type) {
+        let arrowsSelector = [];
+        switch (type) {
+            case "chapter":
+                arrowsSelector = ['.chapter-arrows', '.paragraph-arrows'];
+                break;
+            case "paragraph":
+                arrowsSelector = ['.paragraph-arrows'];
+                break;
+            default:
+                console.warn("No way to treat this type of arrows");
+                return;
+        }
+        for (let selector of arrowsSelector) {
+            let foundElements = [];
+            let Arrows = target.querySelectorAll(selector);
+            if (Arrows.length > 0) {
+                foundElements = Array.from(Arrows);
+            } else {
+                let nextSibling = target.nextElementSibling;
+                while (nextSibling) {
+                    if (nextSibling.matches(selector)) {
+                        foundElements.push(nextSibling);
+                    }
+                    nextSibling = nextSibling.nextElementSibling;
+                }
+            }
+            if (foundElements.length > 0) {
+                if (type === "chapter") {
+                    for (let element of foundElements) {
+                        if (element.matches('.chapter-arrows')) {
+                            element.style.display = element.style.display === "flex" ? "none" : "flex";
+                        } else if (element.matches('.paragraph-arrows')) {
+                            element.style.display = "none";
+                        }
+                    }
+                } else {
+                    foundElements.forEach(arrow => arrow.style.display === "flex" ? arrow.style.display = "none" : arrow.style.display = "flex");
+                }
+            }
+        }
+    }
+
+
+
     async addParagraphOnCtrlEnter(event) {
         if (!event.ctrlKey || event.key !== 'Enter') {
             return;
@@ -85,6 +130,8 @@ export class chapterUnit {
                 } else {
                     this.displaySidebar("chapter-sidebar");
                 }
+                debugger;
+                this.alternateArrowsDisplay(editableParagraph, "paragraph");
                 webSkel.space.currentParagraphId = null;
                 return;
             }
@@ -139,6 +186,7 @@ export class chapterUnit {
         }
         if (previouslySelected) {
             previouslySelected.removeAttribute("id");
+            this.alternateArrowsDisplay(previouslySelected, "chapter");
         }
 
         if (target) {
@@ -151,6 +199,7 @@ export class chapterUnit {
             }
             document.removeEventListener("click", this.boundDocumentClickHandler, true);
             document.addEventListener("click", this.boundDocumentClickHandler, true);
+            this.alternateArrowsDisplay(target, "chapter");
         } else {
             console.error(`Failed highlighting a chapter, click target: ${target}`);
             this.displaySidebar("document-sidebar");
@@ -161,6 +210,7 @@ export class chapterUnit {
         paragraph.setAttribute("id", "selected-chapter");
         paragraph.setAttribute("contenteditable", "true");
         paragraph.focus();
+        this.alternateArrowsDisplay(paragraph, "paragraph");
         if (event) {
             event.stopPropagation();
             event.preventDefault();

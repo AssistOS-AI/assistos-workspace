@@ -8,7 +8,7 @@
 .paragraph-arrows {
     width:30px;
     min-width:30px;
-    display: flex;
+    display: none;
     flex-direction: column;
     align-items: center;
     justify-content: center;
@@ -19,10 +19,7 @@
     border-radius: 5px;
 }
 
-.paragraph-arrow {
-    display: none;
-    cursor: pointer;
-}
+
 
 .paragraph-text {
     display:flex;
@@ -37,12 +34,6 @@
     overflow-wrap: break-word;
     hyphens: auto;
     word-break: break-word;
-}
-
-.paragraph-unit:hover {
-    .paragraph-arrow {
-        display: block;
-    }
 }
 
 .arrow-vertical-spacing-div{

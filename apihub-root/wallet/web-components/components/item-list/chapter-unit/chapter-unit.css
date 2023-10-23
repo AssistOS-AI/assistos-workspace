@@ -14,9 +14,6 @@
     transition-duration: 0.3s;
 }
 
-.hidden {
-    display: none !important;
-}
 
 .chapter-unit {
     cursor: default;
@@ -41,16 +38,12 @@
     margin-left: 20px;
 }
 
-.up, .down {
-    visibility: hidden;
-}
-
-.chapter-unit:hover .up,
-.chapter-unit:hover .down {
-    visibility: visible;
+.chapter-arrows,
+.paragraph-arrows{
     cursor: pointer;
 }
 
+.chapter-arrows{display:none;}
 .chapter-paragraphs:focus {
     background-color: rgba(148, 174, 227, 0.3);
     color: #252525;
