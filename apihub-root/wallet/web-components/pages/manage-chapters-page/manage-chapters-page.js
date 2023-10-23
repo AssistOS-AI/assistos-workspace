@@ -22,7 +22,8 @@ export class manageChaptersPage {
         let number = 0;
         this._document.chapters.forEach((item) => {
             number++;
-            this.chaptersDiv += `<reduced-chapter-unit nr="${number}" title="${item.title}" data-id="${item.id}"></reduced-chapter-unit>`;
+            this.chaptersDiv += `<reduced-chapter-unit nr="${number}" title="${item.title}" 
+            data-id="${item.id}" data-local-action="editAction"></reduced-chapter-unit>`;
         });
         document.removeEventListener("click", this.exitEditMode, true);
     }

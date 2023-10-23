@@ -12,7 +12,9 @@ export class scriptsPage {
         this.tableRows = "";
         if (webSkel.space.scripts.length > 0) {
             webSkel.space.scripts.forEach((item) => {
-                this.tableRows += `<script-unit data-id="${item.id}" data-name="${item.name}" data-content="${item.content}" data-description="${item.description}"></script-unit>`;
+                this.tableRows += `<script-unit data-id="${item.id}" 
+                data-name="${item.name}" data-content="${item.content}" 
+                data-description="${item.description}" data-local-action="editAction"></script-unit>`;
             });
         } else {
             this.tableRows = `<div class="no-data-loaded">No data loaded</div>`;

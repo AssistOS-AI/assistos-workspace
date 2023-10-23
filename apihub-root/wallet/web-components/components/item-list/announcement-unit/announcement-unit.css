@@ -7,6 +7,10 @@
     border-bottom: 0.5px solid rgba(217, 212, 238, 0.85);
 }
 
+.announcement-unit:hover{
+    cursor: pointer;
+}
+
 .announcement-title {
     display: flex;
     flex-direction: column;
@@ -15,7 +19,6 @@
     color: #372B2B;
     font-feature-settings: 'clig' off, 'liga' off;
     text-overflow: ellipsis;
-    font-family: Poppins;
     font-size: 20px;
     font-style: normal;
     font-weight: 600;
@@ -32,7 +35,6 @@
     text-align: justify;
     font-feature-settings: 'clig' off, 'liga' off;
     text-overflow: ellipsis;
-    font-family: Poppins;
     font-size: 14px;
     font-style: normal;
     font-weight: 400;
@@ -109,7 +111,6 @@
     color: #504f4f;
     font-feature-settings: 'clig' off, 'liga' off;
     text-overflow: ellipsis;
-    font-family: Poppins;
     font-size: 12px;
     font-style: normal;
     font-weight: 400;
