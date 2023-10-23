@@ -4,8 +4,8 @@
         $$personalityName
     </div>
 </div>
-
-<form>
+<hr>
+<form class="edit-personality-form">
     <div class="form-item">
         <label class="form-label" for="name">Name</label>
         <input class="form-input" name="name" data-id="name" type="text" id="name" value="$$personalityName">
@@ -26,10 +26,10 @@
         </div>
     </div>
 
-    <button type="button" class="wide-btn" data-local-action="deletePersonality">Delete personality</button>
+    <div class="delete-personality" data-local-action="deletePersonality">Delete personality</div>
 
     <div class="form-footer">
         <button type="button" class="wide-btn" data-local-action="saveChanges">Save</button>
-        <button type="button" class="wide-btn" data-local-action="openPersonalitiesPage">Cancel</button>
+        <button type="button" class="wide-btn cancel-btn" data-local-action="openPersonalitiesPage">Cancel</button>
     </div>
 </form>

@@ -8,7 +8,16 @@ dialog[class="modal"] {
 * {
     font-family: Poppins;
 }
+.personality-name{
+    margin: 15px;
+    font-weight: 700;
+    font-size: 28px;
+    color: #511A53;
+}
 
+hr{
+    border: 1px solid #E6E6E6;
+}
 .modal-body{
     padding: 0 30px;
 }
@@ -62,7 +71,7 @@ dialog[class="modal"] {
     width: 100%;
     margin: 4px 0 8px;
     padding: 8px;
-
+    background: #F7FBFF;
     display: flex;
     flex-direction: column;
     align-items: center;
@@ -78,7 +87,10 @@ textarea#description {
     resize: none;
     height: 150px;
 }
-
+.edit-personality-form{
+    margin-left: 15px;
+    width: 50%;
+}
 input::file-selector-button {
     border: none;
     background: none;
@@ -99,11 +111,20 @@ input[type="file"]{
 .modal-footer{
     padding-bottom: 10px;
 }
+.delete-personality{
+    margin-top: 15px;
+    font-size: 14px;
+    font-weight: 600;
+    color: #C70000;
+}
+.delete-personality:hover{
+    cursor: pointer;
+}
 .wide-btn {
     cursor: pointer;
-    padding: 8px 52px;
+    padding: 8px 35px;
     border-radius: 16px;
-    margin: 16px 0;
+    margin: 16px 10px 16px 0;
     border: 0.5px solid #D7D7D7;
     background: #A42E70;
     color: #FFF;
@@ -112,4 +133,10 @@ input[type="file"]{
     font-style: normal;
     font-weight: 600;
     line-height: normal;
+}
+
+.cancel-btn{
+    background:#FFF;
+    color: #A42E70;
+    border: 2px solid #A42E70;
 }
