@@ -6,7 +6,7 @@
     grid-row-gap: 0px;
 }
 personality-unit{
-    padding: 15px;
+    padding: 25px;
 }
 personality-unit:hover{
     cursor: pointer;
@@ -15,7 +15,7 @@ personality-unit:hover{
     display: flex;
     flex-direction: column;
     align-items: center;
-    margin: 15px;
+    margin: 25px;
 }
 .square-container{
     border: 6px solid #A42E70;
