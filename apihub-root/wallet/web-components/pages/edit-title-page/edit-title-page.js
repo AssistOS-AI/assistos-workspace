@@ -65,12 +65,19 @@ export class editTitlePage {
         }
     }
 
-    async edit(_target) {
-        let newTitle = reverseQuerySelector(_target, ".suggested-title");
+    async edit(_target, querySelect) {
+        let newTitle;
+        if(querySelect){
+            newTitle = _target.querySelector(".suggested-title");
+        }else {
+            newTitle = reverseQuerySelector(_target, ".suggested-title");
+        }
 
         let component = reverseQuerySelector(_target, "alternative-title")
         let altTitleObj = this._document.getAlternativeTitle(component.getAttribute("data-id"));
-        removeActionBox(this.actionBox, this);
+        if(this.actionBox){
+            removeActionBox(this.actionBox, this);
+        }
         newTitle.contentEditable = true;
         newTitle.focus();
 
@@ -78,8 +85,7 @@ export class editTitlePage {
             newTitle.contentEditable = false;
 
             if(newTitle.innerText !== altTitleObj.name) {
-                this._document.updateAlternativeTitle(altTitleObj.id, newTitle.innerText);
-                await documentFactory.updateDocument(currentSpaceId, this._document);
+                await this._document.updateAlternativeTitle(altTitleObj.id, newTitle.innerText);
             }
         });
     }

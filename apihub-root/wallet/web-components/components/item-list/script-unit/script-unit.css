@@ -1,16 +1,21 @@
 .script-unit {
-    padding-left: 10px;
     display: flex;
     align-items: center;
     border-top: 0.5px solid rgba(217, 212, 238, 0.85);
     color: #494949;
-    font-family: Poppins;
     font-size: 16px;
     font-style: normal;
     font-weight: 500;
     line-height: normal;
 }
-
+.cells-container{
+    padding-left: 10px;
+    display: flex;
+    width: 100%;
+}
+.script-unit:hover{
+    cursor: pointer;
+}
 .cell {
     width: 32%;
     padding: 8px 10px;
@@ -35,7 +40,11 @@
     cursor: pointer;
     background-color: rgba(85, 85, 85, 0.08);
 }
-
+action-box{
+    margin-top: 40px;
+    margin-right: 20px;
+    position: fixed;
+}
 .circle-button {
     padding: 7px 0;
     display: flex;
@@ -64,21 +73,4 @@
 
 .name-cell {
     cursor: pointer;
-}
-
-.action {
-    padding: 3px 8px;
-}
-
-.act1:hover {
-    border-radius: 6px 6px 0 0;
-}
-
-.act2:hover {
-    border-radius: 0 0 6px 6px;
-}
-
-.action:hover {
-    background-color: #007bff;
-    color: white;
 }

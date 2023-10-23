@@ -74,11 +74,18 @@ export class editAbstractPage {
         }
     }
 
-    async edit(_target) {
-        let abstractText = reverseQuerySelector(_target, ".content");
+    async edit(_target, querySelect) {
+        let abstractText;
+        if(querySelect){
+            abstractText = _target.querySelector(".content");
+        }else {
+            abstractText = reverseQuerySelector(_target, ".content");
+        }
         let alternativeAbstractId = reverseQuerySelector(_target, "alternative-abstract").getAttribute("data-id");
         let abstract = this._document.getAlternativeAbstract(alternativeAbstractId);
-        removeActionBox(this.actionBox, this);
+        if(this.actionBox){
+            removeActionBox(this.actionBox, this);
+        }
         abstractText.contentEditable = true;
         abstractText.focus();
         abstractText.addEventListener('blur', async () => {

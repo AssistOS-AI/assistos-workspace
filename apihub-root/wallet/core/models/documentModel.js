@@ -181,13 +181,14 @@ export class DocumentModel {
         this.title = title;
     }
 
-    updateAlternativeTitle(id, newName) {
+    async updateAlternativeTitle(id, newName) {
         let title = this.getAlternativeTitle(id);
         if(title){
             title.name = newName;
         }else {
             console.error(`Failed to find altTitle with id: ${id}`);
         }
+        await documentFactory.updateDocument(currentSpaceId, this);
     }
 
     deleteAlternativeTitle(id) {

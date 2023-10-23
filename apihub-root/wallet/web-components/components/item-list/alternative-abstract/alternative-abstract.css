@@ -42,7 +42,10 @@
 
 }
 
-
+.action-box-with-select{
+    margin-top: 0;
+    margin-left: -60px;
+}
 .action-cell {
     min-height:100%;
     margin: 0 10px;

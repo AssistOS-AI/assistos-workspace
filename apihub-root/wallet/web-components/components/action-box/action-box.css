@@ -3,3 +3,19 @@
     border-radius: 6px;
     border: 1px solid #dedede;
 }
+.action {
+    background: #FEFAFF;
+    padding: 4px 8px;
+    cursor: pointer;
+}
+.action:hover {
+    background-color: #A42E70;
+    color: white;
+}
+.act1:hover {
+    border-radius: 6px 6px 0 0;
+}
+
+.act2:hover {
+    border-radius: 0 0 6px 6px;
+}

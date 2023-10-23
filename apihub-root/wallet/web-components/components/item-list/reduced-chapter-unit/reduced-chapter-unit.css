@@ -11,7 +11,9 @@
     padding-left: 15px;
     display: flex;
 }
-
+.title-row:hover{
+    cursor: pointer;
+}
 .number-and-title {
     width: 100%;
     justify-content: start;

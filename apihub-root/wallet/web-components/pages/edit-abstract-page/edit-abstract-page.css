@@ -82,3 +82,6 @@ edit-abstract-page {
     font-weight: 450;
 }
 
+.editIcon:hover{
+    cursor: pointer;
+}
