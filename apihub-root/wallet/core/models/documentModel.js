@@ -200,6 +200,16 @@ export class DocumentModel {
         }
     }
 
+    async setChapterMainIdeas(ideas, chapter){
+        chapter.setMainIdeas(ideas);
+        await documentFactory.updateDocument(currentSpaceId, this);
+    }
+
+    async addParagraph(paragraphData, chapter){
+        chapter.addParagraph(paragraphData);
+        await documentFactory.updateDocument(currentSpaceId, this);
+    }
+
     getNotificationId() {
         return "doc";
     }

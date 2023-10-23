@@ -21,7 +21,8 @@ export class editAbstractPage {
         this.alternativeAbstracts = "";
         let i = 1;
         this._document.alternativeAbstracts.forEach((abstract)=>{
-            this.alternativeAbstracts += `<alternative-abstract data-nr="${i}" data-id="${abstract.id}" data-title="${abstract.content}"></alternative-abstract>`;
+            this.alternativeAbstracts += `<alternative-abstract data-nr="${i}" data-id="${abstract.id}" 
+            data-title="${abstract.content}" data-local-action="edit querySelect"></alternative-abstract>`;
             i++;
         });
         document.removeEventListener("click", this.exitEditMode, true);

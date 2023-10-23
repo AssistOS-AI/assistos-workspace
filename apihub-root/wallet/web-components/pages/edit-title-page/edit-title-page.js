@@ -20,7 +20,8 @@ export class editTitlePage {
         this.alternativeTitles = "";
         let i = 1;
         this._document.alternativeTitles.forEach((alternativeTitle) => {
-            this.alternativeTitles += `<alternative-title data-nr="${i}" data-title="${alternativeTitle.name}" data-id="${alternativeTitle.id}"></alternative-title>`;
+            this.alternativeTitles += `<alternative-title data-nr="${i}" data-title="${alternativeTitle.name}" 
+            data-id="${alternativeTitle.id}" data-local-action="edit querySelect"></alternative-title>`;
             i++;
         });
         document.removeEventListener("click", this.exitEditMode);

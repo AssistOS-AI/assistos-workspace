@@ -187,6 +187,10 @@
   ],
   "components": [
     {
+      "name": "reduced-paragraph-unit",
+      "path": "./wallet/web-components/components/item-list/reduced-paragraph-unit/reduced-paragraph-unit.html"
+    },
+    {
       "name": "edit-personality-page",
       "path": "./wallet/web-components/pages/edit-personality-page/edit-personality-page.html"
     },

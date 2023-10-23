@@ -12,7 +12,9 @@ export class announcementsPage {
         this.announcementsContainer = "";
         if(webSkel.space.announcements.length>0) {
             webSkel.space.announcements.forEach((announcement) => {
-                this.announcementsContainer += `<announcement-unit data-title="${announcement.title}" data-content="${announcement.text}" data-date="${announcement.date}" data-id="${announcement.id}"></announcement-unit>`;
+                this.announcementsContainer += `<announcement-unit data-title="${announcement.title}" 
+                data-content="${announcement.text}" data-date="${announcement.date}" 
+                data-id="${announcement.id}" data-local-action="editAction"></announcement-unit>`;
             });
         }else{
             this.announcementsContainer=`<div class="no-data-loaded">No announcements for now</div>`;

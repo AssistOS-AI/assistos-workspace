@@ -1,4 +1,4 @@
-.document-item-renderer {
+.document-item {
     display: flex;
     align-items: center;
     justify-content: space-between;
@@ -9,6 +9,10 @@
     font-weight: 500;
     line-height: normal;
     padding: 20px 40px 20px 0;
+}
+
+.document-item{
+    cursor: pointer;
 }
 
 .cell {
@@ -40,9 +44,6 @@
     background-color: rgba(85, 85, 85, 0.08);
 }
 
-.name-cell {
-    cursor: pointer;
-}
 
 action-box{
     position: fixed;

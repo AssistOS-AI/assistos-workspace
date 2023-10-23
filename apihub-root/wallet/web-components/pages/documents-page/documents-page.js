@@ -12,7 +12,8 @@ export class documentsPage {
         this.tableRows = "";
         if(webSkel.space.documents.length > 0) {
             webSkel.space.documents.forEach((document) => {
-                this.tableRows += `<document-unit data-name="${document.title}" data-id="${document.id}"></document-unit>`;
+                this.tableRows += `<document-unit data-name="${document.title}" 
+                data-id="${document.id}" data-local-action="editAction"></document-unit>`;
             });
         }
         else {
