@@ -1,5 +1,7 @@
 .space-item{
     margin-top: 0;
+    display: flex;
+    justify-content: space-between;
 }
 .spaces-list {
     display: none;
@@ -8,13 +10,15 @@
     right: 10px;
     overflow: auto;
 }
-
+.page-logo-section{
+    display: flex;
+}
 .spaces-list > *{
-    padding: 0 0 0 30px;
+    padding: 5px 5px 5px 30px;
     display: flex;
     justify-content: start;
     align-items: center;
-    height: 30px;
+
 }
 
 .add-space-txt,

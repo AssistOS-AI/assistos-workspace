@@ -5,6 +5,7 @@
     display: flex;
     justify-content: center;
     color: #FFF;
+    align-items: center;
 }
 .space-unit:hover{
     cursor: pointer;
