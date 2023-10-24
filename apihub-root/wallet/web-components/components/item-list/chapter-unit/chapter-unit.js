@@ -101,7 +101,6 @@ export class chapterUnit {
                 await this.saveEditedParagraph(editableParagraph);
                 this.displaySidebar("chapter-sidebar");
                 this.alternateArrowsDisplay(editableParagraph, "paragraph");
-                webSkel.space.currentParagraphId=null;
             }
         }
         const highlightedChapter = document.getElementById("highlighted-chapter");
@@ -116,6 +115,7 @@ export class chapterUnit {
             }
             this.displaySidebar('document-sidebar');
             webSkel.space.currentChapterId = null;
+            webSkel.space.currentParagraphId=null;
             document.removeEventListener('click', this.boundDocumentClickHandler, true);
             delete this.boundDocumentClickHandler;
         }

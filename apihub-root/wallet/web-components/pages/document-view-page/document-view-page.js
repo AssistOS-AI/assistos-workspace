@@ -41,7 +41,6 @@ export class documentViewPage {
         let chapter = this._document.getChapter(webSkel.space.currentChapterId);
         let newParagraphId=webSkel.getService("UtilsService").generateId();
         await chapter.addParagraph({id: newParagraphId, text:""});
-        webSkel.space.currentChapterId=chapter.id;
         webSkel.space.currentParagraphId=newParagraphId;
         this._document.notifyObservers(this._document.getNotificationId()+":document-view-page:"+"chapter:"+`${chapter.id}`);
     }
