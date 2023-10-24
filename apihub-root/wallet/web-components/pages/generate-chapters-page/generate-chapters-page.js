@@ -60,6 +60,9 @@ export class generateChaptersPage {
         let result = await webSkel.getService("LlmsService").callScript(scriptId, JSON.stringify(selectedIdeas));
         if(result.responseJson){
             await this._document.addChapters(result.responseJson, selectedIdeas);
+        }else {
+            showApplicationError("Script execution error",
+                "Data received from LLM is an incorrect format", `result from LLM: ${result}`);
         }
         loading.close();
         loading.remove();

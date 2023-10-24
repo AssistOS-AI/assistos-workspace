@@ -36,12 +36,12 @@ export class Chapter {
         this.paragraphs.push(new Paragraph(paragraphData));
     }
 
-    addParagraphs(paragraphsData, ideas){
-        for(let i = 0; i < paragraphsData.length; i++){
+    addParagraphs(paragraphsData){
+        for(let paragraph of paragraphsData){
             let paragraphData = {
                 id: webSkel.servicesRegistry.UtilsService.generateId(),
-                text: paragraphsData[i],
-                mainIdea : ideas[i]
+                text: paragraph.text,
+                mainIdea : paragraph.mainIdea
             }
             this.paragraphs.push(new Paragraph(paragraphData));
         }

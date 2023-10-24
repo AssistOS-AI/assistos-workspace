@@ -1,5 +1,5 @@
-import {Chapter, extractFormInformation, Paragraph, sanitize} from "../../../imports.js";
-export class generateChaptersPage {
+import {extractFormInformation} from "../../../imports.js";
+export class generateParagraphsPage {
     constructor(element, invalidate) {
         this.element = element;
         this._document = webSkel.space.getDocument(webSkel.space.currentDocumentId);
@@ -62,6 +62,9 @@ export class generateChaptersPage {
         let result = await webSkel.getService("LlmsService").callScript(scriptId, JSON.stringify(selectedIdeas));
         if(result.responseJson){
             await this._document.addParagraphs(this._chapter, result.responseJson, selectedIdeas);
+        }else {
+            showApplicationError("Script execution error",
+                "Data received from LLM is an incorrect format", `result from LLM: ${result}`);
         }
         loading.close();
         loading.remove();

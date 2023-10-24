@@ -1,0 +1,59 @@
+<link href="./wallet/web-components/pages/paragraph-brainstorming-page/paragraph-brainstorming-page.css" rel="stylesheet"/>
+
+<div class="entire-content">
+    <div class="document-path">
+        <div class="path-button pointer" data-local-action="openViewPage">
+            Document
+        </div>
+        <svg width="7" height="12" viewBox="0 0 7 12" fill="none" xmlns="http://www.w3.org/2000/svg">
+            <path d="M6.50954 5.62617L0.852201 0.142609C0.757805 0.0510667 0.632394 -2.63781e-07 0.501979 -2.69481e-07C0.371564 -2.75182e-07 0.246154 0.0510667 0.151759 0.142609L0.145667 0.148805C0.0997476 0.193183 0.0631828 0.2466 0.0381966 0.305807C0.0132103 0.365014 0.000325184 0.428773 0.000325181 0.493205C0.000325179 0.557638 0.0132103 0.621397 0.0381965 0.680604C0.0631828 0.739811 0.0997476 0.793228 0.145667 0.837606L5.47309 6.00103L0.145667 11.1624C0.0997472 11.2068 0.0631823 11.2602 0.0381961 11.3194C0.0132098 11.3786 0.000324703 11.4424 0.0003247 11.5068C0.000324697 11.5712 0.0132098 11.635 0.0381961 11.6942C0.0631823 11.7534 0.0997471 11.8068 0.145667 11.8512L0.151758 11.8574C0.246154 11.9489 0.371564 12 0.501979 12C0.632394 12 0.757805 11.9489 0.8522 11.8574L6.50954 6.37383C6.5593 6.32561 6.59891 6.26761 6.62597 6.20335C6.65304 6.13909 6.66699 6.06991 6.66699 6C6.66699 5.93009 6.65304 5.86091 6.62597 5.79665C6.59891 5.73239 6.5593 5.67439 6.50954 5.62617Z" fill="#A42E70"/>
+        </svg>
+        <div class="path-button pointer" data-local-action="openEditAbstractPage">
+            Chapter $$chapterNr
+        </div>
+        <svg width="7" height="12" viewBox="0 0 7 12" fill="none" xmlns="http://www.w3.org/2000/svg">
+            <path d="M6.50954 5.62617L0.852201 0.142609C0.757805 0.0510667 0.632394 -2.63781e-07 0.501979 -2.69481e-07C0.371564 -2.75182e-07 0.246154 0.0510667 0.151759 0.142609L0.145667 0.148805C0.0997476 0.193183 0.0631828 0.2466 0.0381966 0.305807C0.0132103 0.365014 0.000325184 0.428773 0.000325181 0.493205C0.000325179 0.557638 0.0132103 0.621397 0.0381965 0.680604C0.0631828 0.739811 0.0997476 0.793228 0.145667 0.837606L5.47309 6.00103L0.145667 11.1624C0.0997472 11.2068 0.0631823 11.2602 0.0381961 11.3194C0.0132098 11.3786 0.000324703 11.4424 0.0003247 11.5068C0.000324697 11.5712 0.0132098 11.635 0.0381961 11.6942C0.0631823 11.7534 0.0997471 11.8068 0.145667 11.8512L0.151758 11.8574C0.246154 11.9489 0.371564 12 0.501979 12C0.632394 12 0.757805 11.9489 0.8522 11.8574L6.50954 6.37383C6.5593 6.32561 6.59891 6.26761 6.62597 6.20335C6.65304 6.13909 6.66699 6.06991 6.66699 6C6.66699 5.93009 6.65304 5.86091 6.62597 5.79665C6.59891 5.73239 6.5593 5.67439 6.50954 5.62617Z" fill="#A42E70"/>
+        </svg>
+        <div class="path-button pointer" data-local-action="openEditAbstractPage">
+            Paragraph $$paragraphNr
+        </div>
+    </div>
+
+    <div class="main-idea-container">
+        <div class="main-idea-title">Main Idea of the Paragraph</div>
+        <svg class="editIcon" data-local-action="enterEditMode mainIdea" width="16" height="16" viewBox="0 0 16 16" fill="none" xmlns="http://www.w3.org/2000/svg">
+            <path d="M14.27 5.40598L10.5493 1.72904L11.775 0.503391C12.1106 0.167797 12.5229 0 13.012 0C13.5011 0 13.9132 0.167797 14.2482 0.503391L15.4738 1.72904C15.8094 2.06463 15.9845 2.46968 15.9991 2.94418C16.0137 3.41868 15.8532 3.82344 15.5176 4.15845L14.27 5.40598ZM13.0006 6.69729L3.72072 15.9772H0V12.2565L9.27991 2.97657L13.0006 6.69729Z" fill="#A42E70"/>
+        </svg>
+    </div>
+
+    <div class="main-idea-content">$$paragraphMainIdea</div>
+
+    <hr class="paragraph-section-separator">
+
+    <div class="current-paragraph">
+        <div class="current-paragraph-title">Current Paragraph</div>
+        <svg class="editIcon" data-local-action="enterEditMode" width="16" height="16" viewBox="0 0 16 16" fill="none" xmlns="http://www.w3.org/2000/svg">
+            <path d="M14.27 5.40598L10.5493 1.72904L11.775 0.503391C12.1106 0.167797 12.5229 0 13.012 0C13.5011 0 13.9132 0.167797 14.2482 0.503391L15.4738 1.72904C15.8094 2.06463 15.9845 2.46968 15.9991 2.94418C16.0137 3.41868 15.8532 3.82344 15.5176 4.15845L14.27 5.40598ZM13.0006 6.69729L3.72072 15.9772H0V12.2565L9.27991 2.97657L13.0006 6.69729Z" fill="#A42E70"/>
+        </svg>
+    </div>
+
+    <div class="paragraph-content">$$paragraphText</div>
+
+    <hr class="paragraph-section-separator">
+
+    <div class="alt-paragraphs-title">
+        Alternatives
+    </div>
+
+    <div class="alternative-paragraphs">$$alternativeParagraphs</div>
+</div>
+
+
+<div class="right-sidebar">
+    <div class="sidebar-item-main">AI Editor</div>
+    <div class="item-list">
+        <div class="sidebar-item" data-local-action="summarize">Summarize</div>
+        <div class="sidebar-item" data-local-action="suggestParagraph">Suggest Alternative</div>
+        <div class="sidebar-item" data-local-action="openParagraphProofreadPage">Paragraph Proofread</div>
+    </div>
+</div>

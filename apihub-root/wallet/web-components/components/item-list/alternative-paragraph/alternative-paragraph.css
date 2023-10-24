@@ -1,0 +1,60 @@
+.title-row {
+    display: flex;
+    padding: 15px;
+}
+.content{
+    white-space: pre-wrap;
+    overflow-wrap: break-word;
+    hyphens: auto;
+    word-break: break-word;
+    border-radius: 10px;
+    color: #252525;
+    font-size: 16px;
+    font-style: normal;
+    font-weight: 400;
+    line-height: normal;
+    margin-right: 10px;
+}
+.content:focus{
+    background-color: rgba(148, 174, 227, 0.3);
+    color: #252525;
+    font-weight: 450;
+}
+.number-and-title {
+    display: flex;
+    width:calc(100% - 40px);
+}
+.alternative-abstract-number{
+    height:100%;
+    min-width:18px;
+    padding-left:1px;
+    padding-right:1px;
+}
+.svg-box{
+    padding: 7px 0;
+    display: flex;
+    justify-content: center;
+    border-radius: 30px;
+    height:33px;
+    width:33px;
+    min-width: 33px;
+    max-width: 33px;
+
+}
+
+.action-box-with-select{
+    margin-top: 0;
+    margin-left: -60px;
+}
+.action-cell {
+    min-height:100%;
+    margin: 0 10px;
+    color: #555555;
+    display: flex;
+    justify-content: right;
+}
+
+.svg-box:hover {
+    background-color: rgba(85, 85, 85, 0.08);
+    cursor: pointer;
+}

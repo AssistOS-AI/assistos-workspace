@@ -84,8 +84,9 @@ export class DocumentModel {
         return this.alternativeAbstracts.find(abs=>abs.id === id);
     }
 
-    addAlternativeAbstract(abstractObj){
+    async addAlternativeAbstract(abstractObj){
         this.alternativeAbstracts.push(abstractObj);
+        await documentFactory.updateDocument(currentSpaceId, this);
     }
 
     deleteAlternativeAbstract(id){
@@ -212,12 +213,34 @@ export class DocumentModel {
     }
 
     async addParagraphs(chapter, paragraphsData, ideas){
-        chapter.addParagraphs(paragraphsData, ideas);
+        let data = []
+        for(let i = 0 ; i < paragraphsData.length; i++){
+            data.push({
+               text: paragraphsData[i],
+                mainIdea: ideas[i]
+            });
+        }
+        chapter.addParagraphs(data);
         await documentFactory.updateDocument(currentSpaceId, this);
     }
 
     async deleteParagraph(chapter, id){
         chapter.deleteParagraph(id);
+        await documentFactory.updateDocument(currentSpaceId, this);
+    }
+
+    async setParagraphMainIdea(paragraph, text){
+        paragraph.setMainIdea(text);
+        await documentFactory.updateDocument(currentSpaceId, this);
+    }
+
+    async updateParagraph(paragraph, text){
+        paragraph.updateText(text);
+        await documentFactory.updateDocument(currentSpaceId, this);
+    }
+
+    async addAlternativeParagraph(paragraph, altParagraphData){
+        paragraph.addAlternativeParagraph(altParagraphData);
         await documentFactory.updateDocument(currentSpaceId, this);
     }
     getNotificationId() {
