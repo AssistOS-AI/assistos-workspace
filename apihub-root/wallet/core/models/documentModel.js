@@ -210,6 +210,10 @@ export class DocumentModel {
         await documentFactory.updateDocument(currentSpaceId, this);
     }
 
+    async deleteParagraph(chapter, id){
+        chapter.deleteParagraph(id);
+        await documentFactory.updateDocument(currentSpaceId, this);
+    }
     getNotificationId() {
         return "doc";
     }

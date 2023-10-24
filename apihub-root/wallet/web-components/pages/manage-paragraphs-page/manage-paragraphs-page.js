@@ -11,15 +11,12 @@ export class manageParagraphsPage {
     }
 
     beforeRender() {
-        if(this.mainIdeas.length === 0) {
-            this.summarizeButtonName = "Summarize";
-        } else {
-            this.summarizeButtonName = "Recreate Summary";
-            this.chapterMainIdeas = "";
-            for(let idea of this.mainIdeas){
-                this.chapterMainIdeas += `<li>${idea}</li>`;
-            }
+        this.chapterNr = this._document.chapters.findIndex(chapter => chapter.id === this._chapter.id) + 1;
+        this.chapterMainIdeas = "";
+        for(let idea of this.mainIdeas){
+            this.chapterMainIdeas += `<li>${idea}</li>`;
         }
+
         this.paragraphs= "";
         let number = 0;
         this._chapter.paragraphs.forEach((item) => {
@@ -90,7 +87,7 @@ export class manageParagraphsPage {
     }
 
     async generateParagraphs(){
-        await webSkel.changeToDynamicPage("generate-paragraphs-page", `documents/${this._document.id}/generate-paragraphs-page`);
+        await webSkel.changeToDynamicPage("generate-paragraphs-page", `documents/${this._document.id}/generate-paragraphs-page/${this._chapter.id}`);
     }
     async showActionBox(_target, primaryKey, componentName, insertionMode) {
         await showActionBox(_target, primaryKey, componentName, insertionMode);
@@ -100,12 +97,12 @@ export class manageParagraphsPage {
         let paragraph = reverseQuerySelector(_target, "reduced-paragraph-unit");
         let paragraphId = paragraph.getAttribute("data-id");
         await webSkel.changeToDynamicPage("paragraph-brainstorming-page",
-            `documents/${this._document.id}/chapter-edit-page/${this._chapter.id}/paragraph-brainstorming-page/${paragraphId}`);
+            `documents/${this._document.id}/paragraph-brainstorming-page/${this._chapter.id}/${paragraphId}`);
     }
     async deleteAction(_target){
-        let chapter = reverseQuerySelector(_target, "reduced-chapter-unit");
-        let chapterId = chapter.getAttribute("data-id");
-        await this._document.deleteChapter(chapterId);
+        let paragraph = reverseQuerySelector(_target, "reduced-paragraph-unit");
+        let paragraphId = paragraph.getAttribute("data-id");
+        await this._document.deleteParagraph(this._chapter, paragraphId);
         this.invalidate();
     }
 }
