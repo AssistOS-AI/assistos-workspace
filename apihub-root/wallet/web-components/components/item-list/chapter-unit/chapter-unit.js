@@ -36,8 +36,10 @@ export class chapterUnit {
                 currentParagraph = paragraph;
             }
             paragraph.addEventListener("click", (event) => {
-                this.enterEditMode(paragraph, event);
-                this.highlightChapter(paragraph.closest(".chapter-unit"));
+                if (paragraph.getAttribute("contenteditable") !== "true") {
+                    this.enterEditMode(paragraph, event);
+                    this.highlightChapter(paragraph.closest(".chapter-unit"));
+                }
             }, true);
         });
         if (this.chapter.id === webSkel.space.currentChapterId) {
@@ -48,47 +50,24 @@ export class chapterUnit {
         }
     }
     alternateArrowsDisplay(target, type) {
-        let arrowsSelector = [];
-        switch (type) {
-            case "chapter":
-                arrowsSelector = ['.chapter-arrows', '.paragraph-arrows'];
-                break;
-            case "paragraph":
-                arrowsSelector = ['.paragraph-arrows'];
-                break;
-            default:
-                console.warn("No way to treat this type of arrows");
-                return;
+        const arrowsSelector = type === "chapter" ? '.chapter-arrows' : '.paragraph-arrows';
+        let foundElement = target.querySelector(arrowsSelector);
+        if (!foundElement) {
+            let nextSibling = target.nextElementSibling;
+            while (nextSibling) {
+                if (nextSibling.matches(arrowsSelector)) {
+                    foundElement = nextSibling;
+                    break;
+                }
+                nextSibling = nextSibling.nextElementSibling;
+            }
         }
-        for (let selector of arrowsSelector) {
-            let foundElements = [];
-            let Arrows = target.querySelectorAll(selector);
-            if (Arrows.length > 0) {
-                foundElements = Array.from(Arrows);
-            } else {
-                let nextSibling = target.nextElementSibling;
-                while (nextSibling) {
-                    if (nextSibling.matches(selector)) {
-                        foundElements.push(nextSibling);
-                    }
-                    nextSibling = nextSibling.nextElementSibling;
-                }
-            }
-            if (foundElements.length > 0) {
-                if (type === "chapter") {
-                    for (let element of foundElements) {
-                        if (element.matches('.chapter-arrows')) {
-                            element.style.display = element.style.display === "flex" ? "none" : "flex";
-                        } else if (element.matches('.paragraph-arrows')) {
-                            element.style.display = "none";
-                        }
-                    }
-                } else {
-                    foundElements.forEach(arrow => arrow.style.display === "flex" ? arrow.style.display = "none" : arrow.style.display = "flex");
-                }
-            }
+
+        if (foundElement) {
+            foundElement.style.display = foundElement.style.display === "flex" ? "none" : "flex";
         }
     }
+
 
 
 
