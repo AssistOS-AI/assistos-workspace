@@ -3,6 +3,17 @@ reduced-paragraph-unit{
     border-bottom: 1px solid #E6E6E6;
     padding: 5px 15px;
     align-items: center;
+    justify-content: space-between;
+}
+
+.row-nr{
+    margin-right: 5px;
+}
+
+.paragraph-text-container{
+    width: 94%;
+    display: flex;
+    align-items: center;
 }
 .paragraph-text{
     overflow: hidden;
