@@ -60,7 +60,9 @@ export class generateChaptersPage {
             }
         }
         let result = await webSkel.getService("LlmsService").callScript(scriptId, JSON.stringify(selectedIdeas));
-        await this._document.addParagraphs(this._chapter, result.responseJson);
+        if(result.responseJson){
+            await this._document.addParagraphs(this._chapter, result.responseJson, selectedIdeas);
+        }
         loading.close();
         loading.remove();
         await webSkel.changeToDynamicPage("document-view-page", `documents/${this._document.id}/document-view-page`);
