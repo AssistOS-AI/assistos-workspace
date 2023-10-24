@@ -1,6 +1,11 @@
 {
   "presenters": [
     {
+      "name": "generate-paragraphs-page",
+      "path": "./web-components/pages/generate-paragraphs-page/generate-paragraphs-page.js",
+      "className": "generateChaptersPage"
+    },
+    {
       "name": "edit-personality-page",
       "path": "./web-components/pages/edit-personality-page/edit-personality-page.js",
       "className": "editPersonalityPage"
@@ -186,6 +191,10 @@
     }
   ],
   "components": [
+    {
+      "name": "generate-paragraphs-page",
+      "path": "./wallet/web-components/pages/generate-paragraphs-page/generate-paragraphs-page.html"
+    },
     {
       "name": "reduced-paragraph-unit",
       "path": "./wallet/web-components/components/item-list/reduced-paragraph-unit/reduced-paragraph-unit.html"

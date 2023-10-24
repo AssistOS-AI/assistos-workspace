@@ -200,13 +200,18 @@ export class DocumentModel {
         }
     }
 
-    async setChapterMainIdeas(ideas, chapter){
+    async setChapterMainIdeas(chapter, ideas){
         chapter.setMainIdeas(ideas);
         await documentFactory.updateDocument(currentSpaceId, this);
     }
 
-    async addParagraph(paragraphData, chapter){
+    async addParagraph(chapter, paragraphData){
         chapter.addParagraph(paragraphData);
+        await documentFactory.updateDocument(currentSpaceId, this);
+    }
+
+    async addParagraphs(chapter, paragraphsData){
+        chapter.addParagraphs(paragraphsData);
         await documentFactory.updateDocument(currentSpaceId, this);
     }
 

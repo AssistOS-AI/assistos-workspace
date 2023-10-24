@@ -130,7 +130,6 @@ export class chapterUnit {
                 } else {
                     this.displaySidebar("chapter-sidebar");
                 }
-                debugger;
                 this.alternateArrowsDisplay(editableParagraph, "paragraph");
                 webSkel.space.currentParagraphId = null;
                 return;

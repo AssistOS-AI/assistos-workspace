@@ -60,7 +60,7 @@ export class manageParagraphsPage {
         if (mainIdeas.getAttribute("contenteditable") && !mainIdeas.contains(event.target)) {
             mainIdeas.setAttribute("contenteditable", "false");
             let ideas = mainIdeas.innerText.split("\n");
-            await this._document.setChapterMainIdeas(ideas, this._chapter);
+            await this._document.setChapterMainIdeas(this._chapter, ideas);
         }
     }
     async openViewPage() {
@@ -71,7 +71,7 @@ export class manageParagraphsPage {
             id: webSkel.getService("UtilsService").generateId(),
             text: "Edit here your first paragraph."
         }
-        await this._document.addParagraph(paragraphObj, this._chapter);
+        await this._document.addParagraph(this._chapter, paragraphObj);
         this.invalidate();
     }
     async summarize(){
