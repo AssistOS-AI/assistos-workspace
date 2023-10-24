@@ -1,19 +1,21 @@
-import {Chapter, extractFormInformation, Paragraph, sanitize} from "../../../imports.js";
-export class generateChaptersPage {
+import {extractFormInformation} from "../../../imports.js";
+export class generateParagraphsPage {
     constructor(element, invalidate) {
         this.element = element;
         this._document = webSkel.space.getDocument(webSkel.space.currentDocumentId);
+        this._chapter = this._document.getChapter(webSkel.space.currentChapterId);
         this.invalidate = invalidate;
         this.invalidate();
         this.ideas = [];
     }
 
     beforeRender() {
-      let stringHMTL = "";
+        this.chapterNr = this._document.chapters.findIndex(chapter => chapter.id === this._chapter.id) + 1;
+        let stringHMTL = "";
         let i = 0;
         for(let idea of this.ideas){
-          i++;
-          stringHMTL+=`<div class="generated-idea">
+            i++;
+            stringHMTL+=`<div class="generated-idea">
                 <div class="idea-container">
                   <span class="alt-title-span">${i}.</span>
                   <label for="${i}" class="alt-title-label">${idea}</label>
@@ -22,7 +24,7 @@ export class generateChaptersPage {
             </div>
             <hr class="generated-ideas-hr">`;
         }
-        this.chaptersIdeas = stringHMTL;
+        this.paragraphsIdeas = stringHMTL;
     }
 
     afterRender(){
@@ -47,10 +49,10 @@ export class generateChaptersPage {
 
     }
 
-    async generateChapters(_target){
+    async generateParagraphs(_target){
         const loading = await webSkel.showLoading();
         let formInfo = await extractFormInformation(_target);
-        let scriptId = webSkel.space.getScriptIdByName("generate chapters");
+        let scriptId = webSkel.space.getScriptIdByName("generate paragraphs");
         let selectedIdeas = [];
         for (const [key, value] of Object.entries(formInfo.elements)) {
             if(value.element.checked) {
@@ -59,7 +61,7 @@ export class generateChaptersPage {
         }
         let result = await webSkel.getService("LlmsService").callScript(scriptId, JSON.stringify(selectedIdeas));
         if(result.responseJson){
-            await this._document.addChapters(result.responseJson, selectedIdeas);
+            await this._document.addParagraphs(this._chapter, result.responseJson, selectedIdeas);
         }else {
             showApplicationError("Script execution error",
                 "Data received from LLM is an incorrect format", `result from LLM: ${result}`);
@@ -69,8 +71,8 @@ export class generateChaptersPage {
         await webSkel.changeToDynamicPage("document-view-page", `documents/${this._document.id}/document-view-page`);
     }
 
-    async openMangeChaptersPage() {
-        await webSkel.changeToDynamicPage("manage-chapters-page", `documents/${this._document.id}/manage-chapters-page`);
+    async openChapterBrainstormingPage() {
+        await webSkel.changeToDynamicPage("chapter-brainstorming-page", `documents/${this._document.id}/chapter-brainstorming-page/${this._chapter.id}`);
     }
     async openViewPage() {
         await webSkel.changeToDynamicPage("document-view-page", `documents/${this._document.id}/document-view-page`);

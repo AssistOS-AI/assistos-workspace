@@ -81,9 +81,9 @@ export class documentViewPage {
             `documents/${this._document.id}/paragraph-proofread-page/${webSkel.space.currentChapterId}/${webSkel.space.currentParagraphId}`);
     }
 
-    async openParagraphEditPage() {
-        await webSkel.changeToDynamicPage("paragraph-edit-page",
-            `documents/${this._document.id}/paragraph-edit-page/${webSkel.space.currentChapterId}/${webSkel.space.currentParagraphId}`);
+    async openParagraphBrainstormingPage() {
+        await webSkel.changeToDynamicPage("paragraph-brainstorming-page",
+            `documents/${this._document.id}/paragraph-brainstorming-page/${webSkel.space.currentChapterId}/${webSkel.space.currentParagraphId}`);
     }
     async openDocumentViewPage(){
         await webSkel.changeToDynamicPage("document-view-page", `documents/${this._document.id}/document-view-page`);

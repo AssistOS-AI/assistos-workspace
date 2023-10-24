@@ -9,7 +9,6 @@ import { documentViewPage } from "./web-components/pages/document-view-page/docu
 import { editTitlePage } from "./web-components/pages/edit-title-page/edit-title-page.js";
 import { chapterTitlePage } from "./web-components/pages/chapter-title-page/chapter-title-page.js";
 import { manageParagraphsPage } from "./web-components/pages/manage-paragraphs-page/manage-paragraphs-page.js";
-import { paragraphEditPage } from "./web-components/pages/paragraph-edit-page/paragraph-edit-page.js";
 import { paragraphProofreadPage } from "./web-components/pages/paragraph-proofread-page/paragraph-proofread-page.js";
 import { editAbstractPage } from "./web-components/pages/edit-abstract-page/edit-abstract-page.js";
 import { proofReaderPage } from "./web-components/pages/proof-reader-page/proof-reader-page.js";
@@ -18,7 +17,7 @@ import { documentSettingsPage } from "./web-components/pages/document-settings-p
 import { manageChaptersPage } from "./web-components/pages/manage-chapters-page/manage-chapters-page.js";
 import { personalitiesPage } from "./web-components/subpages/personalities-page/personalities-page.js";
 import { announcementsPage } from "./web-components/subpages/announcements-page/announcements-page.js";
-import { closeModal, showActionBox, showModal } from "../WebSkel/utils/modal-utils.js";
+import { closeModal, showActionBox, showModal, removeActionBox } from "../WebSkel/utils/modal-utils.js";
 import { notBasePage, getClosestParentElement } from "../WebSkel/utils/dom-utils.js";
 import { Chapter } from "./core/models/chapter.js";
 import { DocumentModel} from "./core/models/documentModel.js";
@@ -38,6 +37,7 @@ import {createFlowsFactory} from "../llmFlows/src/llmFlows.js";
 import {sanitize} from "../WebSkel/utils/dom-utils.js";
 import {reverseQuerySelector} from "../WebSkel/utils/dom-utils.js"
 export {
+    removeActionBox,
     reverseQuerySelector,
     sanitize,
     createFlowsFactory,
@@ -60,7 +60,6 @@ export {
     chapterTitlePage,
     manageParagraphsPage,
     paragraphProofreadPage,
-    paragraphEditPage,
     chapterUnit,
     manageChaptersPage,
     personalitiesPage,

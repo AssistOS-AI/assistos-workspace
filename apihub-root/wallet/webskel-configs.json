@@ -1,6 +1,21 @@
 {
   "presenters": [
     {
+      "name": "suggest-paragraph-modal",
+      "path": "./web-components/modals/suggest-paragraph-modal/suggest-paragraph-modal.js",
+      "className": "suggestParagraphModal"
+    },
+    {
+      "name": "paragraph-brainstorming-page",
+      "path": "./web-components/pages/paragraph-brainstorming-page/paragraph-brainstorming-page.js",
+      "className": "paragraphBrainstormingPage"
+    },
+    {
+      "name": "generate-paragraphs-page",
+      "path": "./web-components/pages/generate-paragraphs-page/generate-paragraphs-page.js",
+      "className": "generateParagraphsPage"
+    },
+    {
       "name": "edit-personality-page",
       "path": "./web-components/pages/edit-personality-page/edit-personality-page.js",
       "className": "editPersonalityPage"
@@ -64,11 +79,6 @@
       "name": "manage-paragraphs-page",
       "path": "./web-components/pages/manage-paragraphs-page/manage-paragraphs-page.js",
       "className": "manageParagraphsPage"
-    },
-    {
-      "name": "paragraph-edit-page",
-      "path": "./web-components/pages/paragraph-edit-page/paragraph-edit-page.js",
-      "className": "paragraphEditPage"
     },
     {
       "name": "paragraph-proofread-page",
@@ -187,6 +197,22 @@
   ],
   "components": [
     {
+      "name": "suggest-paragraph-modal",
+      "path": "./wallet/web-components/modals/suggest-paragraph-modal/suggest-paragraph-modal.html"
+    },
+    {
+      "name": "alternative-paragraph",
+      "path": "./wallet/web-components/components/item-list/alternative-paragraph/alternative-paragraph.html"
+    },
+    {
+      "name": "paragraph-brainstorming-page",
+      "path": "./wallet/web-components/pages/paragraph-brainstorming-page/paragraph-brainstorming-page.html"
+    },
+    {
+      "name": "generate-paragraphs-page",
+      "path": "./wallet/web-components/pages/generate-paragraphs-page/generate-paragraphs-page.html"
+    },
+    {
       "name": "reduced-paragraph-unit",
       "path": "./wallet/web-components/components/item-list/reduced-paragraph-unit/reduced-paragraph-unit.html"
     },
@@ -277,10 +303,6 @@
     {
       "name": "manage-paragraphs-page",
       "path": "./wallet/web-components/pages/manage-paragraphs-page/manage-paragraphs-page.html"
-    },
-    {
-      "name": "paragraph-edit-page",
-      "path": "./wallet/web-components/pages/paragraph-edit-page/paragraph-edit-page.html"
     },
     {
       "name": "paragraph-proofread-page",

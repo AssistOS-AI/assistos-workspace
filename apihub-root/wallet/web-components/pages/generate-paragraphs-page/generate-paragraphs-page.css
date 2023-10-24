@@ -1,4 +1,4 @@
-generate-chapters-page {
+generate-paragraphs-page {
     display: flex;
     width: 100%;
     height: 100%;
@@ -25,7 +25,7 @@ generate-chapters-page {
 .add-idea-container,
 .generated-idea,
 .generated-ideas-text,
-.generate-chapters-btn{
+.generate-paragraphs-btn{
     margin-left: 15px;
     margin-right: 15px;
 }
@@ -66,7 +66,7 @@ generate-chapters-page {
     width:calc(100% - 270px);
 }
 
-.generate-chapters-btn{
+.generate-paragraphs-btn{
     margin-top: 10px;
     margin-bottom: 20px;
 }

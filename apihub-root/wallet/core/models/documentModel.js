@@ -62,16 +62,17 @@ export class DocumentModel {
         await documentFactory.updateDocument(currentSpaceId, this);
     }
 
-    async addChapters(chaptersData){
-        for(let chapter of chaptersData){
+    async addChapters(chaptersData, ideas){
+        for(let i= 0; i<chaptersData.length; i++){
             let chapterData= {
-                title: chapter.title,
+                title: chaptersData[i].title,
                 id: webSkel.servicesRegistry.UtilsService.generateId(),
-                paragraphs: []
+                paragraphs: [],
+                mainIdeas: [ideas[i]]
             }
             let newChapter = new Chapter(chapterData);
             this.chapters.push(newChapter);
-            newChapter.addParagraphs(chapter.paragraphs);
+            newChapter.addParagraphs(chaptersData[i].paragraphs);
         }
         await documentFactory.updateDocument(currentSpaceId, this);
     }
@@ -83,8 +84,9 @@ export class DocumentModel {
         return this.alternativeAbstracts.find(abs=>abs.id === id);
     }
 
-    addAlternativeAbstract(abstractObj){
+    async addAlternativeAbstract(abstractObj){
         this.alternativeAbstracts.push(abstractObj);
+        await documentFactory.updateDocument(currentSpaceId, this);
     }
 
     deleteAlternativeAbstract(id){
@@ -95,10 +97,11 @@ export class DocumentModel {
             console.warn(`Failed to find alternative abstract with id: ${id}`);
         }
     }
-    updateAlternativeAbstract(id, newContent){
+   async updateAlternativeAbstract(id, newContent){
         let abstract = this.getAlternativeAbstract(id);
         if(abstract){
             abstract.content = newContent;
+            await documentFactory.updateDocument(currentSpaceId, this);
         }else {
             console.warn(`Failed to find alternative abstract with id: ${id}`);
         }
@@ -200,13 +203,25 @@ export class DocumentModel {
         }
     }
 
-    async setChapterMainIdeas(ideas, chapter){
+    async setChapterMainIdeas(chapter, ideas){
         chapter.setMainIdeas(ideas);
         await documentFactory.updateDocument(currentSpaceId, this);
     }
 
-    async addParagraph(paragraphData, chapter){
+    async addParagraph(chapter, paragraphData){
         chapter.addParagraph(paragraphData);
+        await documentFactory.updateDocument(currentSpaceId, this);
+    }
+
+    async addParagraphs(chapter, paragraphsData, ideas){
+        let data = []
+        for(let i = 0 ; i < paragraphsData.length; i++){
+            data.push({
+               text: paragraphsData[i],
+                mainIdea: ideas[i]
+            });
+        }
+        chapter.addParagraphs(data);
         await documentFactory.updateDocument(currentSpaceId, this);
     }
 
@@ -214,6 +229,32 @@ export class DocumentModel {
         chapter.deleteParagraph(id);
         await documentFactory.updateDocument(currentSpaceId, this);
     }
+
+    async setParagraphMainIdea(paragraph, text){
+        paragraph.setMainIdea(text);
+        await documentFactory.updateDocument(currentSpaceId, this);
+    }
+
+    async updateParagraph(paragraph, text){
+        paragraph.updateText(text);
+        await documentFactory.updateDocument(currentSpaceId, this);
+    }
+
+    async addAlternativeParagraph(paragraph, altParagraphData){
+        paragraph.addAlternativeParagraph(altParagraphData);
+        await documentFactory.updateDocument(currentSpaceId, this);
+    }
+
+    async updateAlternativeParagraph(paragraph, altParagraphId, text){
+        paragraph.updateAlternativeParagraph(altParagraphId, text);
+        await documentFactory.updateDocument(currentSpaceId, this);
+    }
+
+    async deleteAlternativeParagraph(paragraph, altParagraphId){
+        paragraph.deleteAlternativeParagraph(altParagraphId);
+        await documentFactory.updateDocument(currentSpaceId, this);
+    }
+
     getNotificationId() {
         return "doc";
     }
