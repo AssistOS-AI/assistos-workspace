@@ -27,4 +27,26 @@ export class Paragraph {
     addAlternativeParagraph(altParagraphData){
         this.alternativeParagraphs.push(altParagraphData);
     }
+
+    getAlternativeParagraph(id){
+        return this.alternativeParagraphs.find(paragraph => paragraph.id === id);
+    }
+
+    updateAlternativeParagraph(id, text){
+        let paragraph = this.getAlternativeParagraph(id);
+        if(paragraph){
+            paragraph.text = text;
+        }else {
+            console.error(`Failed to find alternative paragraph with id: ${id}`);
+        }
+    }
+
+    deleteAlternativeParagraph(id){
+        const index = this.alternativeParagraphs.findIndex(paragraph => paragraph.id === id);
+        if (index !== -1) {
+            this.alternativeParagraphs.splice(index, 1);
+        }else {
+            console.warn(`Failed to find alternative paragraph with id: ${id}`);
+        }
+    }
 }

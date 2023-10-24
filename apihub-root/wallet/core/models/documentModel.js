@@ -97,10 +97,11 @@ export class DocumentModel {
             console.warn(`Failed to find alternative abstract with id: ${id}`);
         }
     }
-    updateAlternativeAbstract(id, newContent){
+   async updateAlternativeAbstract(id, newContent){
         let abstract = this.getAlternativeAbstract(id);
         if(abstract){
             abstract.content = newContent;
+            await documentFactory.updateDocument(currentSpaceId, this);
         }else {
             console.warn(`Failed to find alternative abstract with id: ${id}`);
         }
@@ -243,6 +244,17 @@ export class DocumentModel {
         paragraph.addAlternativeParagraph(altParagraphData);
         await documentFactory.updateDocument(currentSpaceId, this);
     }
+
+    async updateAlternativeParagraph(paragraph, altParagraphId, text){
+        paragraph.updateAlternativeParagraph(altParagraphId, text);
+        await documentFactory.updateDocument(currentSpaceId, this);
+    }
+
+    async deleteAlternativeParagraph(paragraph, altParagraphId){
+        paragraph.deleteAlternativeParagraph(altParagraphId);
+        await documentFactory.updateDocument(currentSpaceId, this);
+    }
+
     getNotificationId() {
         return "doc";
     }

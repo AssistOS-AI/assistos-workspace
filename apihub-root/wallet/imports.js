@@ -17,7 +17,7 @@ import { documentSettingsPage } from "./web-components/pages/document-settings-p
 import { manageChaptersPage } from "./web-components/pages/manage-chapters-page/manage-chapters-page.js";
 import { personalitiesPage } from "./web-components/subpages/personalities-page/personalities-page.js";
 import { announcementsPage } from "./web-components/subpages/announcements-page/announcements-page.js";
-import { closeModal, showActionBox, showModal } from "../WebSkel/utils/modal-utils.js";
+import { closeModal, showActionBox, showModal, removeActionBox } from "../WebSkel/utils/modal-utils.js";
 import { notBasePage, getClosestParentElement } from "../WebSkel/utils/dom-utils.js";
 import { Chapter } from "./core/models/chapter.js";
 import { DocumentModel} from "./core/models/documentModel.js";
@@ -37,6 +37,7 @@ import {createFlowsFactory} from "../llmFlows/src/llmFlows.js";
 import {sanitize} from "../WebSkel/utils/dom-utils.js";
 import {reverseQuerySelector} from "../WebSkel/utils/dom-utils.js"
 export {
+    removeActionBox,
     reverseQuerySelector,
     sanitize,
     createFlowsFactory,

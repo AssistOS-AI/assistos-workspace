@@ -45,13 +45,8 @@ paragraph-brainstorming-page {
     margin-left: 15px;
 }
 
-.document-content {
-    width:calc(100% - 270px);
-    display: flex;
-}
-
 .entire-content {
-    width: 100%;
+    width:calc(100% - 270px);
 }
 
 .alt-paragraphs-title {
@@ -79,7 +74,8 @@ paragraph-brainstorming-page {
     margin-right: 10px;
 }
 
-.paragraph-content:focus {
+.paragraph-content:focus,
+.main-idea-content:focus{
     background-color: rgba(148, 174, 227, 0.3);
     color: #252525;
     font-weight: 450;

@@ -31,5 +31,6 @@ export class suggestAbstractModal {
     async addSelectedAbstract(_target) {
         await this._document.addAlternativeAbstract({content:sanitize(this.suggestedAbstract), id:webSkel.getService("UtilsService").generateId()});
         this._document.notifyObservers(this._document.getNotificationId());
+        closeModal(_target);
     }
 }

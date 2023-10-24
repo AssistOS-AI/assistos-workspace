@@ -2,10 +2,9 @@ import {
     closeModal,
     showActionBox,
     showModal,
+    removeActionBox
 } from "../../../imports.js";
 import { reverseQuerySelector } from "../../../../WebSkel/utils/dom-utils.js";
-import { removeActionBox } from "../../../../WebSkel/utils/modal-utils.js";
-
 export class editAbstractPage {
     constructor(element, invalidate) {
         this.element=element;
@@ -92,8 +91,7 @@ export class editAbstractPage {
         abstractText.addEventListener('blur', async () => {
             abstractText.contentEditable = false;
             if(abstractText.innerText !== abstract.content) {
-                this._document.updateAlternativeAbstract(alternativeAbstractId, abstractText.innerText)
-                await documentFactory.updateDocument(currentSpaceId, this._document);
+                await this._document.updateAlternativeAbstract(alternativeAbstractId, abstractText.innerText)
             }
         });
     }

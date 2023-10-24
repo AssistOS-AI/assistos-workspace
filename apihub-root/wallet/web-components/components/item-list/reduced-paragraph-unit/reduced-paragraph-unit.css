@@ -5,7 +5,9 @@ reduced-paragraph-unit{
     align-items: center;
     justify-content: space-between;
 }
-
+reduced-paragraph-unit:hover{
+    cursor: pointer;
+}
 .row-nr{
     margin-right: 5px;
 }

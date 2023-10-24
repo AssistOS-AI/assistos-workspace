@@ -1,5 +1,6 @@
 .title-row {
     display: flex;
+    justify-content: space-between;
     padding: 15px;
 }
 .content{
@@ -48,7 +49,6 @@
 }
 .action-cell {
     min-height:100%;
-    margin: 0 10px;
     color: #555555;
     display: flex;
     justify-content: right;
