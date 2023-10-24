@@ -1,4 +1,4 @@
-import {reverseQuerySelector} from "../../../../../WebSkel/utils/dom-utils.js";
+import {getClosestParentElement, reverseQuerySelector} from "../../../../../WebSkel/utils/dom-utils.js";
 
 export class chapterUnit {
     constructor(element, invalidate) {
@@ -37,8 +37,8 @@ export class chapterUnit {
             }
             paragraph.addEventListener("click", (event) => {
                 if (paragraph.getAttribute("contenteditable") !== "true") {
-                    this.enterEditMode(paragraph, event);
                     this.highlightChapter(paragraph.closest(".chapter-unit"));
+                    this.enterEditMode(paragraph, event);
                 }
             }, true);
         });
@@ -62,14 +62,10 @@ export class chapterUnit {
                 nextSibling = nextSibling.nextElementSibling;
             }
         }
-
         if (foundElement) {
             foundElement.style.display = foundElement.style.display === "flex" ? "none" : "flex";
         }
     }
-
-
-
 
     async addParagraphOnCtrlEnter(event) {
         if (!event.ctrlKey || event.key !== 'Enter') {
@@ -103,28 +99,23 @@ export class chapterUnit {
                 return;
             } else {
                 await this.saveEditedParagraph(editableParagraph);
-                if (!reverseQuerySelector(event.target, ".chapter-unit")) {
-                    webSkel.space.currentChapterId = null;
-                    this.displaySidebar("document-sidebar");
-                } else {
-                    this.displaySidebar("chapter-sidebar");
-                }
-                debugger;
+                this.displaySidebar("chapter-sidebar");
                 this.alternateArrowsDisplay(editableParagraph, "paragraph");
-                webSkel.space.currentParagraphId = null;
-                return;
+                webSkel.space.currentParagraphId=null;
             }
         }
         const highlightedChapter = document.getElementById("highlighted-chapter");
         if (highlightedChapter && highlightedChapter.contains(event.target)) {
             return;
         }
-        if (!event.target.closest('.chapter-unit')) {
+        if (!event.target.closest('.chapter-unit') && !getClosestParentElement(event.target,'.sidebar-item')) {
             let selectedChapter = document.getElementById("highlighted-chapter");
             if (selectedChapter) {
                 selectedChapter.removeAttribute("id");
+                this.alternateArrowsDisplay(selectedChapter, "chapter");
             }
             this.displaySidebar('document-sidebar');
+            webSkel.space.currentChapterId = null;
             document.removeEventListener('click', this.boundDocumentClickHandler, true);
             delete this.boundDocumentClickHandler;
         }
@@ -160,7 +151,6 @@ export class chapterUnit {
             return;
         }
         if (target && previouslySelected && target === previouslySelected) {
-            this.displaySidebar("chapter-sidebar");
             return;
         }
         if (previouslySelected) {
@@ -256,6 +246,7 @@ export class chapterUnit {
             if(this.chapter.swapParagraphs(currentParagraphId, adjacentParagraphId)===true) {
                 await documentFactory.updateDocument(currentSpaceId, this._document);
                 this._document.notifyObservers(this._document.getNotificationId() + ":document-view-page:" + "chapter:" + `${chapterId}`);
+                webSkel.space.currentParagraphId=currentParagraphId;
             }
         }else{
             console.error(`Unable to swap paragraphs. ${currentParagraphId}, ${adjacentParagraphId}, Chapter: ${chapterId}`);
