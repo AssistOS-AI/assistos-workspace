@@ -1,6 +1,11 @@
 {
   "presenters": [
     {
+      "name": "prompt-animation",
+      "path": "./web-components/components/prompt-animation/prompt-animation.js",
+      "className": "promptAnimation"
+    },
+    {
       "name": "suggest-paragraph-modal",
       "path": "./web-components/modals/suggest-paragraph-modal/suggest-paragraph-modal.js",
       "className": "suggestParagraphModal"
@@ -196,6 +201,10 @@
     }
   ],
   "components": [
+    {
+      "name": "prompt-animation",
+      "path": "./wallet/web-components/components/prompt-animation/prompt-animation.html"
+    },
     {
       "name": "suggest-paragraph-modal",
       "path": "./wallet/web-components/modals/suggest-paragraph-modal/suggest-paragraph-modal.html"
