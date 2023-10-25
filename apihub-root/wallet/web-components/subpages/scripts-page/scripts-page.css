@@ -1,9 +1,7 @@
 .table-header {
-    padding-left: 10px;
+    padding-left: 15px;
     display: flex;
-    justify-content: space-between;
     color: #363C44;
-    font-family: Poppins;
     font-size: 18px;
     font-style: normal;
     font-weight: 700;
@@ -15,19 +13,13 @@
     margin-right: 5px;
     margin-bottom: 1px;
 }
-
-.cell {
-    width: 32%;
-    padding: 8px 10px;
-    white-space: nowrap;
-    overflow: hidden;
-    text-overflow: ellipsis;
+.table-name{
+    width: 31.5%;
+    margin-bottom: 10px;
 }
-
-.cell2 {
-    width: 64%;
+.table-description{
+    margin-bottom: 10px;
 }
-
 .modal-section {
     display: flex;
     padding-top: 20px;
@@ -36,5 +28,5 @@
 }
 
 .no-data-loaded{
-    padding-left: 20px;
+    padding-left: 15px;
 }

@@ -1,6 +1,9 @@
+action-box-with-select{
+    position: sticky;
+}
 .action-box-with-select {
-    margin-top: -15px;
-    margin-left: -40px;
+    margin-top: 0;
+    margin-left: -60px;
     background-color: white;
     line-height: normal;
     border-radius: 6px;
