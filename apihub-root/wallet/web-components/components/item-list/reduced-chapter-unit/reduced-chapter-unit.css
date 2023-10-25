@@ -6,10 +6,10 @@
     font-weight: 400;
     max-height: 40px;
     line-height: 283%;
-    letter-spacing: -0.56px;
     border-bottom: 1px solid #E6E6E6;
     padding-left: 15px;
     display: flex;
+    overflow:hidden;
 }
 .title-row:hover{
     cursor: pointer;
