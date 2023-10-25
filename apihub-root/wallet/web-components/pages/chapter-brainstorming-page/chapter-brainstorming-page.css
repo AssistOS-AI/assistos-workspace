@@ -61,7 +61,6 @@ paragraph-brainstorming-page {
     font-style: normal;
     font-weight: 600;
 }
-
 .paragraph-content,
 .main-idea-content{
     white-space: pre-wrap;
@@ -78,11 +77,12 @@ paragraph-brainstorming-page {
     margin-right: 10px;
 }
 
-.paragraph-content:focus,
-.main-idea-content:focus{
+.main-idea-title:focus{
     background-color: rgba(148, 174, 227, 0.3);
     color: #252525;
     font-weight: 450;
+    border:none !important;
+
 }
 
 .editIcon:hover{
