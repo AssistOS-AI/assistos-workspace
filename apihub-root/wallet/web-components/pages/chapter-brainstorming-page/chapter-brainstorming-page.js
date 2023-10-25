@@ -3,16 +3,15 @@ import {reverseQuerySelector, showActionBox, showModal, removeActionBox} from ".
 export class chapterBrainstormingPage {
     constructor(element, invalidate) {
         this.element = element;
+        let chapterId=window.location.hash.split("/")[3];
         this._document = webSkel.space.getDocument(webSkel.space.currentDocumentId);
-        this._chapter = this._document.getChapter(webSkel.space.currentChapterId);
+        this._chapter = this._document.getChapter(chapterId);
         this._document.observeChange(this._document.getNotificationId(), invalidate);
         this.invalidate = invalidate;
         this.invalidate();
     }
 
     beforeRender() {
-        this.chapterNr = this._document.chapters.findIndex(chapter => chapter.id === this._chapter.id) + 1;
-        this.alternativeParagraphs= "";
         this.chapterTitle=this._chapter.title;
         this.chapterContent="";
         this.alternativeChapters = "";
@@ -23,7 +22,7 @@ export class chapterBrainstormingPage {
             this.chapterContent += `<reduced-paragraph-unit data-id="${item.id}" data-local-action="editAction"
             data-nr="${number}" data-text="${item.text}"></reduced-paragraph-unit>`;
         });
-        this._document.alternativeChapters.forEach((item) => {
+        this._chapter.alternativeChapters.forEach((item) => {
             alternativeChapterText = "";
             item.paragraphs.forEach((paragraph) => {
                 alternativeChapterText+=paragraph.text;

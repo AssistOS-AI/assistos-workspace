@@ -6,7 +6,14 @@ export class Chapter {
         this.id = chapterData.id;
         this.visibility = "show";
         this.paragraphs = [];
-        if(chapterData.paragraphs && chapterData.paragraphs.length > 0) {
+        this.alternativeChapters=[]
+        if(chapterData.alternativeChapters && chapterData.alternativeChapters.length>0) {
+            this.alternativeChapters = chapterData.alternativeChapters.map((alternativeChapterData) =>
+                new Chapter(alternativeChapterData)
+            );
+
+        }
+            if(chapterData.paragraphs && chapterData.paragraphs.length > 0) {
             for(let i = 0; i < chapterData.paragraphs.length; i++) {
                 if(chapterData.paragraphs[i] !== undefined) {
                     this.paragraphs.push(new Paragraph(chapterData.paragraphs[i]));
