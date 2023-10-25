@@ -1,4 +1,5 @@
 .script-unit {
+    padding: 8px 15px;
     display: flex;
     align-items: center;
     border-top: 0.5px solid rgba(217, 212, 238, 0.85);
@@ -9,27 +10,31 @@
     line-height: normal;
 }
 .cells-container{
-    padding-left: 10px;
     display: flex;
     width: 100%;
 }
 .script-unit:hover{
     cursor: pointer;
 }
-.cell {
+.name {
+    margin-right: 10px;
     width: 32%;
-    padding: 8px 10px;
+    overflow: hidden;
+    text-overflow: ellipsis;
+    white-space: nowrap;
 }
-
-.cell2 {
+.content{
+    margin-right: 10px;
     width: 64%;
+    overflow: hidden;
+    text-overflow: ellipsis;
+    white-space: nowrap;
 }
 
 .action-cell {
     width: 33px;
     max-width: 33px;
     max-height: 12px;
-    margin-right: 20px;
     color: #555555;
     display: flex;
     justify-content: right;
@@ -40,11 +45,7 @@
     cursor: pointer;
     background-color: rgba(85, 85, 85, 0.08);
 }
-action-box{
-    margin-top: 40px;
-    margin-right: 20px;
-    position: fixed;
-}
+
 .circle-button {
     padding: 7px 0;
     display: flex;
@@ -52,23 +53,6 @@ action-box{
     border-radius: 30px;
     width: 100%;
     height: 100%;
-}
-
-.action {
-    padding: 3px 8px;
-}
-
-.act1:hover {
-    border-radius: 6px 6px 0 0;
-}
-
-.act2:hover {
-    border-radius: 0 0 6px 6px;
-}
-
-.action:hover {
-    background-color: #007bff;
-    color: white;
 }
 
 .name-cell {

@@ -43,10 +43,3 @@
     cursor: pointer;
     background-color: rgba(85, 85, 85, 0.08);
 }
-
-
-action-box{
-    position: fixed;
-    margin-right: 25px;
-    margin-top: 40px;
-}

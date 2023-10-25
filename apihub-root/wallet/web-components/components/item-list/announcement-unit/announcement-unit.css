@@ -87,23 +87,6 @@
     height: 100%;
 }
 
-.action {
-    padding: 3px 8px;
-}
-
-.act1:hover {
-    border-radius: 6px 6px 0 0;
-}
-
-.act2:hover {
-    border-radius: 0 0 6px 6px;
-}
-
-.action:hover {
-    background-color: #007bff;
-    color: white;
-}
-
 .announcement-date {
     margin-top: 10px;
     width: 100%;
