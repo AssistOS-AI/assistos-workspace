@@ -64,9 +64,9 @@ export class documentViewPage {
         await webSkel.changeToDynamicPage("manage-chapters-page", `documents/${this._document.id}/manage-chapters-page`);
     }
 
-    async openChapterTitlePage() {
-        await webSkel.changeToDynamicPage("chapter-title-page",
-            `documents/${this._document.id}/chapter-title-page/${webSkel.space.currentChapterId}`);
+    async openChapterBrainstormingPage() {
+        await webSkel.changeToDynamicPage("chapter-brainstorming-page",
+            `documents/${this._document.id}/chapter-brainstorming-page/${webSkel.space.currentChapterId}`);
 
     }
 
