@@ -1,56 +1,76 @@
-import { closeModal, DocumentModel, showActionBox } from "../../../imports.js";
-
 export class paragraphProofreadPage {
     constructor(element, invalidate) {
-        let url = window.location.hash;
-        this.docId =  url.split('/')[1];
-        this.chapterId = url.split('/')[3];
-        this.paragraphId = url.split('/')[4];
-        this._document = webSkel.space.getDocument(this.docId);
-        this._chapter = this._document.getChapter(this.chapterId);
-        this._paragraph = this._chapter.getParagraph(this.chapterId, this.paragraphId);
-        this.paragraphDiv = this._paragraph;
-
-        this._document.observeChange(this._paragraph.getNotificationId(this.chapterId), invalidate);
+        this.element=element;
+        this._document = webSkel.space.getDocument(webSkel.space.currentDocumentId);
+        this._chapter = this._document.getChapter(webSkel.space.currentChapterId);
+        this._paragraph = this._chapter.getParagraph(webSkel.space.currentParagraphId);
         this.invalidate = invalidate;
         this.invalidate();
+
     }
 
     beforeRender() {
-        if(!this._document.getMainIdeas() || this._document.getMainIdeas().length === 0) {
-            this.generateMainIdeasButtonName = "Summarize";
-        } else {
-            this.generateMainIdeasButtonName = "Regenerate";
-        }
-        let suggestedTitle = "Bees are nature's little pollination superheroes! Let's protect them and ensure our food chain thrives. #SaveTheBees";
-        this.alternativeAbstracts = "";
-        this.title = `<title-view title="${this.chapterTitle}"></title-view>`;
-        if(this._document) {
-            for(let number = 1; number <= 10; number++) {
-                this.alternativeAbstracts += `<alternative-abstract nr="${number}" title="${suggestedTitle}"></alternative-abstract>`;
-            }
+        this.chapterNr = this._document.chapters.findIndex(chapter => chapter.id === this._chapter.id) + 1;
+        this.paragraphNr = this._chapter.paragraphs.findIndex(paragraph => paragraph.id === this._paragraph.id) + 1;
+        this.paragraphText = this._paragraph.text;
+        document.removeEventListener("click", this.exitEditMode, true);
+    }
+    afterRender(){
+        if(this.improvedParagraph){
+            let improvedParagraphSection = this.element.querySelector(".improved-paragraph-container");
+            improvedParagraphSection.style.display = "block";
         }
     }
 
     async openViewPage() {
-        await webSkel.changeToDynamicPage("document-view-page", `documents/${this.docId}/document-view-page`);
+        await webSkel.changeToDynamicPage("document-view-page", `documents/${this._document.id}/document-view-page`);
+    }
+    async openChapterBrainstormingPage() {
+        await webSkel.changeToDynamicPage("chapter-brainstorming-page", `documents/${this._document.id}/chapter-brainstorming-page/${this._chapter.id}`);
     }
 
-    closeModal(_target) {
-        closeModal(_target);
+    async openParagraphBrainstormingPage() {
+        await webSkel.changeToDynamicPage("paragraph-brainstorming-page", `documents/${this._document.id}/paragraph-brainstorming-page/${this._chapter.id}/${this._paragraph.id}`);
     }
 
-    async openParagraphProofreadPage() {
-        await webSkel.changeToDynamicPage("paragraph-proofread-page",
-            `documents/${this.docId}/paragraph-proofread-page/${this.chapterId}/${this.paragraphId}`);
+    async suggestImprovements(_target){
+        const loading = await webSkel.showLoading();
+        let scriptId = webSkel.space.getScriptIdByName("proofread");
+        let result = await webSkel.getService("LlmsService").callScript(scriptId, this.paragraphText);
+        this.improvedParagraph = result.responseString || result.responseJson;
+        loading.close();
+        loading.remove();
+        this.invalidate();
     }
 
-    async openParagraphEditPage() {
-        await webSkel.changeToDynamicPage("paragraph-edit-page",
-            `documents/${this.docId}/paragraph-edit-page/${this.chapterId}/${this.paragraphId}`);
+    async enterEditMode(_target, field) {
+        let paragraph = this.element.querySelector(`.${field}`);
+        if(!paragraph.hasAttribute("contenteditable")){
+            document.addEventListener("click", this.exitEditMode.bind(this, paragraph), true);
+        }
+        paragraph.setAttribute("contenteditable", "true");
+        paragraph.focus();
     }
 
-    async showActionBox(_target, primaryKey, componentName, insertionMode) {
-        await showActionBox(_target, primaryKey, componentName, insertionMode);
+    async exitEditMode (paragraph, event) {
+        if (paragraph.getAttribute("contenteditable") && !paragraph.contains(event.target)) {
+            paragraph.setAttribute("contenteditable", "false");
+            if(paragraph.classList.contains("paragraph-content")){
+                await this._document.updateParagraph(this._paragraph, paragraph.innerText);
+            }
+            else {
+                this.improvedParagraph = paragraph.innerText;
+            }
+        }
+    }
+
+
+    async acceptImprovements(_target) {
+        let paragraph = this.element.querySelector(".improved-paragraph").innerText;
+        if(paragraph !== this._paragraph.text) {
+            await this._document.updateParagraph(this._paragraph, paragraph);
+            this.invalidate();
+        }
     }
 }
+
