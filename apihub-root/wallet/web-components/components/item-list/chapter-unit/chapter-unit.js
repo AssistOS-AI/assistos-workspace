@@ -116,9 +116,9 @@ export class chapterUnit {
             this.displaySidebar('document-sidebar');
             webSkel.space.currentChapterId = null;
             webSkel.space.currentParagraphId=null;
-            document.removeEventListener('click', this.boundDocumentClickHandler, true);
-            delete this.boundDocumentClickHandler;
         }
+        document.removeEventListener('click', this.boundDocumentClickHandler, true);
+        delete this.boundDocumentClickHandler;
     }
     async saveEditedParagraph(editableParagraph) {
             editableParagraph.setAttribute("contenteditable", "false");
