@@ -1,7 +1,7 @@
 .title-row {
     display: flex;
     justify-content: space-between;
-    padding: 15px;
+    padding: 10px 15px;
     border-bottom: 1px solid #E6E6E6;
 }
 .content{

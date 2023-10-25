@@ -98,8 +98,8 @@ export class manageChaptersPage {
     async editAction(_target){
         let chapter = reverseQuerySelector(_target, "reduced-chapter-unit");
         let chapterId = chapter.getAttribute("data-id");
-        await webSkel.changeToDynamicPage("manage-paragraphs-page",
-            `documents/${this._document.id}/manage-paragraphs-page/${chapterId}`);
+        await webSkel.changeToDynamicPage("chapter-brainstorming-page",
+            `documents/${this._document.id}/chapter-brainstorming-page/${chapterId}`);
     }
     async deleteAction(_target){
         let chapter = reverseQuerySelector(_target, "reduced-chapter-unit");
