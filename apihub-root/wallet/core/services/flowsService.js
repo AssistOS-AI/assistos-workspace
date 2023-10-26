@@ -4,12 +4,13 @@ export class FlowsService{
     constructor() {
         this.standardLLMApis ={
             setDefaultValues :  function (){
+                this.__think = "Thinking...";
                 this.__body = {
                     intelligence:3,
                     creativity:3,
                     cost:3,
                     variants:1
-                }
+                };
             },
             setIntelligenceLevel : function ( level){
                 this.__body.intelligence = level;
@@ -20,23 +21,25 @@ export class FlowsService{
             request : async function (prompt, max_tokens){
                 this.__body.prompt = prompt;
                 this.__body.max_tokens = max_tokens;
-                return await webSkel.getService("LlmsService").generateResponse(JSON.stringify(this.__body));
+                return await this.callLLM();
             },
             requestAs : async function (personalityName, prompt, numberOfOptions, max_tokens){
 
             },
             brainstorm : async  function (prompt, number, max_tokens){
+                this.setThink(prompt);
                 this.__body.prompt = prompt;
                 this.__body.variants = number;
                 this.__body.max_tokens = max_tokens;
-                return await webSkel.getService("LlmsService").generateResponse(JSON.stringify(this.__body));
+                return await this.callLLM();
             },
             brainstormAs : async  function (personalityName,prompt, number, max_tokens){
                 //this.body.personality = webSkel.space.getPersonality();
+                this.setThink(prompt);
                 this.__body.prompt = prompt;
                 this.__body.variants = number;
                 this.__body.max_tokens = max_tokens;
-                return await webSkel.getService("LlmsService").generateResponse(JSON.stringify(this.__body));
+                return await this.callLLM();
             },
 
             setCostLevel :  function (level){
@@ -44,7 +47,7 @@ export class FlowsService{
             },
             proofread : async function (personalityName, prompt){
                 this.__body.prompt = prompt;
-                return await webSkel.getService("LlmsService").generateResponse(JSON.stringify(this.__body));
+                return await this.callLLM();
             },
             definePersonality: function(personalityName, personalityDescription){
 
@@ -57,6 +60,15 @@ export class FlowsService{
             },
             filterLLMText: function(text){
 
+            },
+            setThink: function (prompt){
+                this.__think = prompt;
+            },
+            callLLM: async function(){
+                await webSkel.getService("PromptAnimationService").displayThink(this.__think);
+                let result = await webSkel.getService("LlmsService").generateResponse(JSON.stringify(this.__body));
+                webSkel.getService("PromptAnimationService").closeThink();
+                return result;
             }
         }
         this.flows = createFlowsFactory(this.standardLLMApis);

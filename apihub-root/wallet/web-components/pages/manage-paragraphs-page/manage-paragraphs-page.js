@@ -75,14 +75,11 @@ export class manageParagraphsPage {
         this.invalidate();
     }
     async summarize(){
-        const loading = await webSkel.showLoading();
         let scriptId = webSkel.space.getScriptIdByName("summarize");
         let result = await webSkel.getService("LlmsService").callScript(scriptId, this._chapter.stringifyChapter());
         this.mainIdeas = result.responseJson;
 
         await this._document.setMainIdeas(result.responseJson);
-        loading.close();
-        loading.remove();
         this.invalidate();
     }
 

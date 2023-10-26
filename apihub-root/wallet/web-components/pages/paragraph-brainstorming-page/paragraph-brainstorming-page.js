@@ -71,14 +71,10 @@ export class paragraphBrainstormingPage {
     }
 
     async summarize(){
-        const loading = await webSkel.showLoading();
         let scriptId = webSkel.space.getScriptIdByName("summarize");
         let result = await webSkel.getService("LlmsService").callScript(scriptId, this._paragraph.toString());
         this.paragraphMainIdea = result.responseJson[0];
-
         await this._document.setParagraphMainIdea(this._paragraph, result.responseJson);
-        loading.close();
-        loading.remove();
         this.invalidate();
     }
 

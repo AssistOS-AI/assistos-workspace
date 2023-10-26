@@ -184,8 +184,8 @@
   ],
   "services": [
     {
-      "name": "EvalScriptService",
-      "path": "./core/services/evalScriptService.js"
+      "name": "PromptAnimationService",
+      "path": "./core/services/promptAnimationService.js"
     },
     {
       "name": "AuthenticationService",

@@ -34,12 +34,9 @@ export class paragraphProofreadPage {
     }
 
     async suggestImprovements(_target){
-        const loading = await webSkel.showLoading();
         let scriptId = webSkel.space.getScriptIdByName("proofread");
         let result = await webSkel.getService("LlmsService").callScript(scriptId, this.paragraphText);
         this.improvedParagraph = result.responseString || result.responseJson;
-        loading.close();
-        loading.remove();
         this.invalidate();
     }
 

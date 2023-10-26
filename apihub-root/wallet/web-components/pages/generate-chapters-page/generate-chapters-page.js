@@ -36,19 +36,15 @@ export class generateChaptersPage {
         let form = this.element.querySelector(".generate-ideas-form");
         let formInfo = await extractFormInformation(form);
         if(formInfo.isValid) {
-            const loading = await webSkel.showLoading();
             let scriptId = webSkel.space.getScriptIdByName("generate ideas");
             let result = await webSkel.getService("LlmsService").callScript(scriptId, formInfo.data.idea);
             this.ideas= result.responseJson;
-            loading.close();
-            loading.remove();
             this.invalidate();
         }
 
     }
 
     async generateChapters(_target){
-        const loading = await webSkel.showLoading();
         let formInfo = await extractFormInformation(_target);
         let scriptId = webSkel.space.getScriptIdByName("generate chapters");
         let selectedIdeas = [];
@@ -64,8 +60,6 @@ export class generateChaptersPage {
             showApplicationError("Script execution error",
                 "Data received from LLM is an incorrect format", `result from LLM: ${result}`);
         }
-        loading.close();
-        loading.remove();
         await webSkel.changeToDynamicPage("document-view-page", `documents/${this._document.id}/document-view-page`);
     }
 
