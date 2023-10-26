@@ -1,4 +1,5 @@
 dialog[class="modal"] {
+    overflow: hidden;
     padding: 0;
     border:none;
     height: 90%;
@@ -11,7 +12,6 @@ dialog[class="modal"] {
 
 .modal-body {
     padding: 20px;
-    overflow-y: scroll;
 }
 
 .script-content {

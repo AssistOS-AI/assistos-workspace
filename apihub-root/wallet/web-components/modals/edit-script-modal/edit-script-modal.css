@@ -1,11 +1,10 @@
 dialog[class="modal"] {
     padding: 0;
     border:none;
-    max-height: 80%;
+    height: 80%;
     width: 70%;
 }
-
-* {
+*{
     font-family: Poppins;
 }
 .modal-header{
@@ -23,14 +22,20 @@ dialog[class="modal"] {
     justify-content: center;
 }
 .modal-body{
-    overflow-y: auto;
-    overflow-x: hidden;
-    white-space: pre-line;
     padding: 20px;
-    max-height: 80%;
-}.modal-footer{
-    overflow: hidden;
-    padding: 20px;
+}
+.form-label{
+    display: none;
+}
+.form-input {
+    border-radius: 8px;
+    border: 0.5px solid rgba(0, 0, 0, 0.24);
+    width: 100%;
+    padding: 8px;
+}
+textarea#scriptCode {
+    resize: none;
+    height: 390px;
 }
 .modal-footer{
     display: flex;
@@ -51,12 +56,10 @@ dialog[class="modal"] {
     cursor: pointer;
     padding: 8px 52px;
     border-radius: 16px;
-    margin: 16px 0;
     border: 0.5px solid #D7D7D7;
     background: #A42E70;
     color: #FFF;
     font-feature-settings: 'clig' off, 'liga' off;
-    font-family: Poppins;
     font-size: 14px;
     font-style: normal;
     font-weight: 600;
