@@ -12,6 +12,7 @@ export class chapterBrainstormingPage {
     }
 
     beforeRender() {
+        this.chapterNr=this._document.getChapterIndex(this._chapter.id)+1;
         this.chapterTitle=this._chapter.title;
         this.chapterContent="";
         this.alternativeChapters = "";
@@ -19,7 +20,7 @@ export class chapterBrainstormingPage {
         let number = 0;
         this._chapter.paragraphs.forEach((item) => {
             number++;
-            this.chapterContent += `<reduced-paragraph-unit data-id="${item.id}" data-local-action="editAction"
+            this.chapterContent += `<reduced-paragraph-unit data-local-action="openParagraphBrainstormingPage" data-id="${item.id}" data-local-action="editAction"
             data-nr="${number}" data-text="${item.text}"></reduced-paragraph-unit>`;
         });
         this._chapter.alternativeChapters.forEach((item) => {
@@ -56,7 +57,12 @@ export class chapterBrainstormingPage {
     async openChapterBrainStormingPage(){
         await webSkel.changeToDynamicPage("chapter-brainstorming-page", `documents/${this._document.id}/chapter-brainstorming-page/${this._chapter.id}`);
     }
-
+    async openParagraphBrainstormingPage(_target) {
+        let paragraphId = reverseQuerySelector(_target, "reduced-paragraph-unit").getAttribute("data-id");
+        webSkel.space.currentParagraphId = paragraphId;
+        await webSkel.changeToDynamicPage("paragraph-brainstorming-page",
+            `documents/${this._document.id}/paragraph-brainstorming-page/${webSkel.space.currentChapterId}/${webSkel.space.currentParagraphId}`);
+    }
     async openParagraphProofreadPage(){
         await webSkel.changeToDynamicPage("paragraph-proofread-page", `documents/${this._document.id}/paragraph-proofread-page/${this._chapter.id}/${this._paragraph.id}`);
     }
@@ -77,7 +83,7 @@ export class chapterBrainstormingPage {
         this.actionBox = await showActionBox(_target, primaryKey, componentName, insertionMode);
     }
 
-    async edit(_target, querySelect){
+    async editAction(_target, querySelect){
         let paragraph;
         if(querySelect){
             paragraph = _target.querySelector(".content");
@@ -99,10 +105,10 @@ export class chapterBrainstormingPage {
             }
         });
     }
-    async delete(_target){
-        let paragraph = reverseQuerySelector(_target, "alternative-paragraph");
+    async deleteAction(_target){
+        let paragraph = reverseQuerySelector(_target, "reduced-paragraph-unit");
         let paragraphId = paragraph.getAttribute("data-id");
-        await this._document.deleteAlternativeParagraph(this._paragraph, paragraphId);
+        await this._document.deleteParagraph(this._chapter, paragraphId);
         this.invalidate();
     }
 
