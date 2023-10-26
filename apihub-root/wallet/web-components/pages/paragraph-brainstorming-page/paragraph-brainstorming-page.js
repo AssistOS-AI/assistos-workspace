@@ -10,13 +10,13 @@ export class paragraphBrainstormingPage {
         this._document.observeChange(this._document.getNotificationId(), invalidate);
         this.invalidate = invalidate;
         this.invalidate();
-        this.paragraphMainIdea = this._paragraph.getMainIdea();
     }
 
     beforeRender() {
         this.chapterNr = this._document.chapters.findIndex(chapter => chapter.id === this._chapter.id) + 1;
         this.paragraphNr = this._chapter.paragraphs.findIndex(paragraph => paragraph.id === this._paragraph.id) + 1;
         this.paragraphText = this._paragraph.text;
+        this.paragraphMainIdea = this._paragraph.getMainIdea();
 
         this.alternativeParagraphs= "";
         let number = 0;
@@ -112,9 +112,11 @@ export class paragraphBrainstormingPage {
     }
 
     async select(_target){
-        let paragraphText = reverseQuerySelector(_target,".content").innerText;
-        if(paragraphText !== this._paragraph.text) {
-            await this._document.updateParagraph(this._paragraph, paragraphText);
+        let paragraphElement = reverseQuerySelector(_target,"alternative-paragraph");
+        let paragraphId = paragraphElement.getAttribute("data-id");
+        let paragraphObj = this._paragraph.getAlternativeParagraph(paragraphId);
+        if(paragraphObj.text !== this._paragraph.text ||  paragraphObj.text!==this._paragraph.getMainIdea() ) {
+            await this._document.updateParagraph(this._paragraph, paragraphObj);
             this.invalidate();
         } else {
             removeActionBox(this.actionBox, this);

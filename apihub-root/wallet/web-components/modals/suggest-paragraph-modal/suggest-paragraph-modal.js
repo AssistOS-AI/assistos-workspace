@@ -11,7 +11,8 @@ export class suggestParagraphModal {
         setTimeout(async()=>{
             let scriptId = webSkel.space.getScriptIdByName("suggest paragraph");
             let result = await webSkel.getService("LlmsService").callScript(scriptId, this._paragraph.toString());
-            this.suggestedParagraph = result.responseString;
+            this.suggestedParagraph = result.responseJson.text;
+            this.suggestedParagraphIdea = result.responseJson.mainIdea;
             this.invalidate();
         },0);
     }
@@ -26,7 +27,7 @@ export class suggestParagraphModal {
 
     async addSelectedParagraph(_target) {
         let altParagraphData = {text:sanitize(this.suggestedParagraph),
-            id:webSkel.getService("UtilsService").generateId()};
+            id:webSkel.getService("UtilsService").generateId(), mainIdea:sanitize(this.suggestedParagraphIdea) };
         await this._document.addAlternativeParagraph(this._paragraph, altParagraphData);
         this._document.notifyObservers(this._document.getNotificationId());
         closeModal(_target);

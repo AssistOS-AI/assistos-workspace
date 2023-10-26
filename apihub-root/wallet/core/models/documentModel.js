@@ -235,8 +235,9 @@ export class DocumentModel {
         await documentFactory.updateDocument(currentSpaceId, this);
     }
 
-    async updateParagraph(paragraph, text){
-        paragraph.updateText(text);
+    async updateParagraph(paragraph, alternativeParagraph){
+        paragraph.updateText(alternativeParagraph.text);
+        paragraph.setMainIdea(alternativeParagraph.mainIdea);
         await documentFactory.updateDocument(currentSpaceId, this);
     }
 
