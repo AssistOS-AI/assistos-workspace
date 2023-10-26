@@ -56,7 +56,13 @@ export class chapterBrainstormingPage {
     async suggestChapter(){
         let scriptId = webSkel.space.getScriptIdByName("suggest chapter");
         let result = await webSkel.getService("LlmsService").callScript(scriptId, JSON.stringify(this._chapter.mainIdeas));
-        this._chapter.alternativeChapters.push(new Chapter(result.responseJson));
+        let chapterObj=result.responseJson;
+        chapterObj.id=webSkel.servicesRegistry.UtilsService.generateId();
+        for(let paragraph of chapterObj.paragraphs){
+            paragraph.id=webSkel.servicesRegistry.UtilsService.generateId();
+        }
+
+        this._chapter.alternativeChapters.push(new Chapter(chapterObj));
         await documentFactory.updateDocument(currentSpaceId, this._document);
         this.invalidate();
     }
