@@ -1,11 +1,6 @@
 {
   "presenters": [
     {
-      "name": "prompt-animation",
-      "path": "./web-components/components/prompt-animation/prompt-animation.js",
-      "className": "promptAnimation"
-    },
-    {
       "name": "suggest-paragraph-modal",
       "path": "./web-components/modals/suggest-paragraph-modal/suggest-paragraph-modal.js",
       "className": "suggestParagraphModal"
@@ -183,6 +178,10 @@
     }
   ],
   "services": [
+    {
+      "name": "EvalScriptService",
+      "path": "./core/services/evalScriptService.js"
+    },
     {
       "name": "AuthenticationService",
       "path": "./core/services/authenticationService.js"

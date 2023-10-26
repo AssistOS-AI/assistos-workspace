@@ -19,14 +19,11 @@ export class LlmsService {
         return await result.text();
     }
     /*scriptId, scriptParams */
-    async callScript(...args){
-        let script =webSkel.space.getScript(args[0]);
-        let scriptCode = eval(script.content);
-        webSkel.getService("FlowsService").registerFlow(script.name, scriptCode);
+    async callScript(scriptName, scriptCode, args){
+        webSkel.getService("FlowsService").registerFlow(scriptName, scriptCode);
         let response="";
-        args.shift();
         try{
-            response = await webSkel.getService("FlowsService").runFlow(script.name, args);
+            response = await webSkel.getService("FlowsService").runFlow(scriptName, args);
         }catch (e){
             await showApplicationError("Script execution Error", `Encountered an error while attempting to execute the script ${args[0]}`, e);
         }

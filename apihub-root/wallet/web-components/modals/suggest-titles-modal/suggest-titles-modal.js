@@ -1,4 +1,4 @@
-import { closeModal } from "../../../../WebSkel/utils/modal-utils.js";
+import {closeModal, showModal} from "../../../../WebSkel/utils/modal-utils.js";
 import {extractFormInformation, sanitize} from "../../../imports.js";
 
 export class suggestTitlesModal {
@@ -10,17 +10,17 @@ export class suggestTitlesModal {
         this.element = element;
 
         setTimeout(async()=>{
-            const loading = await webSkel.showLoading();
+            //const loading = await webSkel.showLoading();
             let scriptId = webSkel.space.getScriptIdByName("suggest document titles");
-            let result = await webSkel.getService("LlmsService").callScript(scriptId, this._document.topic);
+            let result = await webSkel.getService("PromptAnimationService").evalAndExecScript(scriptId, this._document.topic);
             if(result.responseJson){
                 this.suggestedTitles = result.responseJson;
                 this.invalidate();
             }else {
                 closeModal(this.element);
             }
-            loading.close();
-            loading.remove();
+            //loading.close();
+            //loading.remove();
 
         },0);
     }
