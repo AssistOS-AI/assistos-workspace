@@ -11,10 +11,7 @@ export class showErrorModal{
     }
     async toggleDetails(_target) {
        let details = this.element.querySelector("#detailed-error-message");
-       if(!details.style.display || details.style.display === "none"){
-           details.style.display = "block";
-       }else {
-           details.style.display = "none";
-       }
+       details.style.display = "block";
+       _target.style.display = "none";
     }
 }

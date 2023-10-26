@@ -76,7 +76,6 @@ dialog[class="modal"] {
 
 #details-button,
 #ok-button {
-    font-family: Poppins;
     font-weight:600;
     padding: 8px 15px;
     margin: 5px;
@@ -89,14 +88,13 @@ dialog[class="modal"] {
 }
 
 #ok-button {
-    background: linear-gradient(0deg, #429E9D, #429E9D),
-    linear-gradient(0deg, rgba(66, 158, 157, 0), rgba(66, 158, 157, 0));
+    background: #A42E70;
 }
 
 #details-button {
-    color: #429E9D;
+    color: #A42E70;
     background-color: #FFFFFF;
-    border-color: #429E9D;
+    border-color: #A42E70;
 }
 
 .button {
