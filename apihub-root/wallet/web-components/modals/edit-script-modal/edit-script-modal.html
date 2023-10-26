@@ -8,7 +8,10 @@
                 <span aria-hidden="true">&times;</span>
             </button>
         </div>
-        <div class="modal-body" contenteditable="true">$$scriptContent</div>
+        <form class="modal-body">
+            <label class="form-label" for="scriptCode">Code</label>
+            <textarea class="form-input" name="scriptCode" data-id="scriptCode" id="scriptCode"></textarea>
+        </form>
         <div class="modal-footer">
             <button class="wide-btn" data-local-action="saveScript">Save</button>
         </div>

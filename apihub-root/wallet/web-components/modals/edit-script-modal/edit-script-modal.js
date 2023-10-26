@@ -1,5 +1,5 @@
 import { closeModal } from "../../../../WebSkel/utils/modal-utils.js";
-import { reverseQuerySelector } from "../../../../WebSkel/utils/dom-utils.js";
+import {extractFormInformation} from "../../../../WebSkel/utils/form-utils.js";
 
 export class editScriptModal {
     constructor(element,invalidate) {
@@ -10,7 +10,12 @@ export class editScriptModal {
 
     beforeRender() {
       let script = webSkel.space.getScript(this.element.getAttribute("data-id"));
-      [this.scriptContent,this.scriptName] = [script.content,script.name];
+      this.scriptContent = script.content;
+      this.scriptName = script.name;
+    }
+    afterRender(){
+        let scriptCode = this.element.querySelector("textarea");
+        scriptCode.value = this.scriptContent;
     }
 
     closeModal(_target) {
@@ -18,10 +23,13 @@ export class editScriptModal {
     }
 
     async saveScript(_target) {
-        let body = reverseQuerySelector(_target,".modal-body").innerText;
-        let scriptId = this.element.getAttribute("data-id");
-        await webSkel.space.updateScript(scriptId, body);
-        webSkel.space.notifyObservers(webSkel.space.getNotificationId());
-        closeModal(_target);
+        let form = this.element.querySelector("form")
+        let formInfo = await extractFormInformation(form);
+        if(formInfo.isValid) {
+            let scriptId = this.element.getAttribute("data-id");
+            await webSkel.space.updateScript(scriptId, formInfo.data.scriptCode);
+            webSkel.space.notifyObservers(webSkel.space.getNotificationId());
+            closeModal(_target);
+        }
     }
 }
