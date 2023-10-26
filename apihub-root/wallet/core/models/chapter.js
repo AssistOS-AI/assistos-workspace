@@ -77,6 +77,19 @@ export class Chapter {
             return false;
         }
     }
+    getAlternativeChapterIndex(alternativeChapterId) {
+        return this.alternativeChapters.findIndex(alternativeChapter => alternativeChapter.id === alternativeChapterId);
+    }
+    deleteAlternativeChapter(alternativeChapterId) {
+        let index = this.getAlternativeChapterIndex(alternativeChapterId);
+        if(index !== -1) {
+            this.alternativeChapters.splice(index, 1);
+            return true;
+        }else{
+            console.error("Attempting to delete alternative chapter that doesn't exist in this chapter.");
+            return false;
+        }
+    }
 
     getMainIdeas(){
         return this.mainIdeas;

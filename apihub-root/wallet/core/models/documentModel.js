@@ -254,6 +254,26 @@ export class DocumentModel {
         paragraph.deleteAlternativeParagraph(altParagraphId);
         await documentFactory.updateDocument(currentSpaceId, this);
     }
+    async deleteAlternativeChapter(chapter,alternativeChapterId){
+        chapter.deleteAlternativeChapter(alternativeChapterId);
+        await documentFactory.updateDocument(currentSpaceId,this);
+    }
+
+    async selectAlternativeChapter(currentChapter, alternativeChapterId) {
+        let currentChapterIndex = this.getChapterIndex(currentChapter.id);
+        let alternativeChapterIndex = currentChapter.getAlternativeChapterIndex(alternativeChapterId);
+
+        let backupAlternativeChapters = [...this.chapters[currentChapterIndex].alternativeChapters];
+        this.chapters[currentChapterIndex] = backupAlternativeChapters[alternativeChapterIndex];
+
+        backupAlternativeChapters.splice(alternativeChapterIndex, 1);
+        delete currentChapter.alternativeChapters;
+        backupAlternativeChapters.push(currentChapter);
+
+        this.chapters[currentChapterIndex].alternativeChapters = backupAlternativeChapters;
+
+        await documentFactory.updateDocument(currentSpaceId, this);
+    }
 
     getNotificationId() {
         return "doc";
