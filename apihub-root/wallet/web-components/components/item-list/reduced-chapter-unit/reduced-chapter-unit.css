@@ -9,7 +9,6 @@ reduced-chapter-unit{
     width: 100%;
     font-style: normal;
     font-weight: 400;
-    max-height: 40px;
     letter-spacing: -0.56px;
     display: flex;
     align-items: center;
@@ -20,11 +19,15 @@ reduced-chapter-unit{
 .number-and-title {
     display: flex;
     width: 100%;
+    height: fit-content;
     justify-content: start;
     align-items: start;
     overflow: hidden;
     text-overflow: ellipsis;
+    hyphens: auto;
+    word-break: break-word;
 }
+
 
 .action-cell {
     width: 33px;

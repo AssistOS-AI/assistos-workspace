@@ -11,6 +11,11 @@
       "className": "paragraphBrainstormingPage"
     },
     {
+      "name": "chapter-brainstorming-page",
+      "path": "./web-components/pages/chapter-brainstorming-page/chapter-brainstorming-page.js",
+      "className": "chapterBrainstormingPage"
+    },
+    {
       "name": "generate-paragraphs-page",
       "path": "./web-components/pages/generate-paragraphs-page/generate-paragraphs-page.js",
       "className": "generateParagraphsPage"
@@ -215,6 +220,10 @@
     {
       "name": "paragraph-brainstorming-page",
       "path": "./wallet/web-components/pages/paragraph-brainstorming-page/paragraph-brainstorming-page.html"
+    },
+    {
+      "name": "chapter-brainstorming-page",
+      "path": "./wallet/web-components/pages/chapter-brainstorming-page/chapter-brainstorming-page.html"
     },
     {
       "name": "generate-paragraphs-page",

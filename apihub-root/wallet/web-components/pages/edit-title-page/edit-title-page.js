@@ -1,5 +1,4 @@
 import {
-    extractFormInformation,
     closeModal,
     showActionBox,
     showModal

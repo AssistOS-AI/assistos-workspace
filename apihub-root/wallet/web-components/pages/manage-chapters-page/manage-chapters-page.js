@@ -22,7 +22,7 @@ export class manageChaptersPage {
         let number = 0;
         this._document.chapters.forEach((item) => {
             number++;
-            this.chaptersDiv += `<reduced-chapter-unit nr="${number}" title="${item.title}" 
+            this.chaptersDiv += `<reduced-chapter-unit nr="${number}." title="${item.title}" 
             data-id="${item.id}" data-local-action="editAction"></reduced-chapter-unit>`;
         });
         document.removeEventListener("click", this.exitEditMode, true);
@@ -98,6 +98,7 @@ export class manageChaptersPage {
     async editAction(_target){
         let chapter = reverseQuerySelector(_target, "reduced-chapter-unit");
         let chapterId = chapter.getAttribute("data-id");
+        debugger;
         await webSkel.changeToDynamicPage("chapter-brainstorming-page",
             `documents/${this._document.id}/chapter-brainstorming-page/${chapterId}`);
     }
