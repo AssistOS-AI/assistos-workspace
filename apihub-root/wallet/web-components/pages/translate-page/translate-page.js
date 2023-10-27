@@ -1,5 +1,5 @@
 import {extractFormInformation, reverseQuerySelector} from "../../../imports.js";
-export class proofReaderPage {
+export class translatePage {
     constructor(element, invalidate) {
         this.element = element;
         this.invalidate = invalidate;
@@ -33,6 +33,8 @@ export class proofReaderPage {
         }
         let promptElement = this.element.querySelector("#prompt");
         promptElement.value = this.prompt;
+        let languageElement = this.element.querySelector("#language");
+        languageElement.value = this.language;
         if(this.generatedText){
            let aiText = this.element.querySelector(".generated-text-container");
            aiText.style.display = "flex";
@@ -43,12 +45,12 @@ export class proofReaderPage {
         const addressLLMRequest = async (formData)=>{
             if(formData){
                 this.prompt = formData.data.prompt;
+                this.language = formData.data.language;
                 this.personality = webSkel.space.settings.getPersonality(formData.data.personality);
             }
-            let scriptId = webSkel.space.getScriptIdByName("proofreader script");
-            let result = await webSkel.getService("LlmsService").callScript(scriptId, this.prompt, this.personality.name, this.personality.description);
-            this.observations = result.responseJson.observations;
-            this.generatedText = result.responseJson.improvedText;
+            let scriptId = webSkel.space.getScriptIdByName("translate");
+            let result = await webSkel.getService("LlmsService").callScript(scriptId, this.prompt, this.personality.name, this.personality.description, this.language);
+            this.generatedText = result.responseString;
             this.invalidate();
         }
         if(cached){

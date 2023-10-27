@@ -47,6 +47,7 @@ export class FlowsService{
                 this.__body.cost = level;
             },
             proofread : async function (personalityName, prompt){
+                this.setThink(prompt);
                 this.__body.prompt = prompt;
                 return await this.callLLM();
             },
