@@ -39,8 +39,8 @@ export class Chapter {
         return JSON.stringify(this, replacer);
     }
 
-    addParagraph(paragraphData){
-        this.paragraphs.push(new Paragraph(paragraphData));
+    addParagraph(paragraphData,paragraphPosition){
+        this.paragraphs.splice(paragraphPosition,0,new Paragraph(paragraphData));
     }
 
     addParagraphs(paragraphsData){
@@ -65,7 +65,9 @@ export class Chapter {
     getParagraph(paragraphId) {
         return this.paragraphs.find(paragraph => paragraph.id === paragraphId)||null;
     }
-
+    getParagraphIndex(paragraphId) {
+        return this.paragraphs.findIndex(paragraph => paragraph.id === paragraphId);
+    }
     swapParagraphs(paragraphId1, paragraphId2) {
         let index1 = this.paragraphs.findIndex(paragraph => paragraph.id === paragraphId1);
         let index2 = this.paragraphs.findIndex(paragraph => paragraph.id === paragraphId2);
@@ -74,6 +76,19 @@ export class Chapter {
             return true;
         }else{
             console.error("Attempting to swap paragraphs that no longer exist in this chapter.");
+            return false;
+        }
+    }
+    getAlternativeChapterIndex(alternativeChapterId) {
+        return this.alternativeChapters.findIndex(alternativeChapter => alternativeChapter.id === alternativeChapterId);
+    }
+    deleteAlternativeChapter(alternativeChapterId) {
+        let index = this.getAlternativeChapterIndex(alternativeChapterId);
+        if(index !== -1) {
+            this.alternativeChapters.splice(index, 1);
+            return true;
+        }else{
+            console.error("Attempting to delete alternative chapter that doesn't exist in this chapter.");
             return false;
         }
     }
