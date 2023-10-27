@@ -118,6 +118,7 @@ export class chapterBrainstormingPage {
         let alternativeChapterId = alternativeChapter.getAttribute("data-id");
         await this._document.selectAlternativeChapter(this._chapter, alternativeChapterId);
         removeActionBox(this.actionBox, this);
+        webSkel.space.currentChapterId = alternativeChapterId;
         await webSkel.changeToDynamicPage("chapter-brainstorming-page", `documents/${this._document.id}/chapter-brainstorming-page/${alternativeChapterId}`);
     }
 }

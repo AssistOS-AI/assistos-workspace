@@ -71,7 +71,7 @@ export class chapterUnit {
         if (!event.ctrlKey || event.key !== 'Enter') {
             return;
         }
-        const fromParagraph = reverseQuerySelector(event.target, '[data-paragraph-id]');
+        const fromParagraph = reverseQuerySelector(event.target, '[data-paragraph-id]','chapter-unit');
         const fromChapter = reverseQuerySelector(event.target, '.chapter-unit');
 
         if (!fromParagraph && !fromChapter) {
@@ -81,13 +81,19 @@ export class chapterUnit {
         if (editableParagraph) {
             await this.saveEditedParagraph(editableParagraph);
         }
-        await this.addNewParagraph();
+        let paragraphPosition=null;
+        if(fromParagraph){
+                paragraphPosition=this.chapter.getParagraphIndex(fromParagraph.getAttribute("data-paragraph-id"))+1;
+        }else{
+                paragraphPosition=this.chapter.paragraphs.length;
+        }
+        await this.addNewParagraph(paragraphPosition);
         this._document.notifyObservers(this._document.getNotificationId()+":document-view-page:"+"chapter:"+`${this.chapter.id}`);
     }
 
-    async addNewParagraph(_target){
+    async addNewParagraph(paragraphPosition){
         let newParagraphId=webSkel.getService("UtilsService").generateId();
-        await this.chapter.addParagraph({id: newParagraphId, text:""});
+        await this.chapter.addParagraph({id: newParagraphId, text:""},paragraphPosition);
         webSkel.space.currentChapterId=this.chapter.id;
         webSkel.space.currentParagraphId=newParagraphId;
         this._document.notifyObservers(this._document.getNotificationId()+":document-view-page:"+"chapter:"+`${this.chapter.id}`);

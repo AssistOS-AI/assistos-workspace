@@ -39,8 +39,8 @@ export class Chapter {
         return JSON.stringify(this, replacer);
     }
 
-    addParagraph(paragraphData){
-        this.paragraphs.push(new Paragraph(paragraphData));
+    addParagraph(paragraphData,paragraphPosition){
+        this.paragraphs.splice(paragraphPosition,0,new Paragraph(paragraphData));
     }
 
     addParagraphs(paragraphsData){
@@ -65,7 +65,9 @@ export class Chapter {
     getParagraph(paragraphId) {
         return this.paragraphs.find(paragraph => paragraph.id === paragraphId)||null;
     }
-
+    getParagraphIndex(paragraphId) {
+        return this.paragraphs.findIndex(paragraph => paragraph.id === paragraphId)||null  ;
+    }
     swapParagraphs(paragraphId1, paragraphId2) {
         let index1 = this.paragraphs.findIndex(paragraph => paragraph.id === paragraphId1);
         let index2 = this.paragraphs.findIndex(paragraph => paragraph.id === paragraphId2);
