@@ -19,6 +19,7 @@ export class FlowsService{
                 this.__body.creativity = level;
             },
             request : async function (prompt, max_tokens){
+                this.setThink(prompt);
                 this.__body.prompt = prompt;
                 this.__body.max_tokens = max_tokens;
                 return await this.callLLM();
@@ -67,7 +68,7 @@ export class FlowsService{
             callLLM: async function(){
                 await webSkel.getService("PromptAnimationService").displayThink(this.__think);
                 let result = await webSkel.getService("LlmsService").generateResponse(JSON.stringify(this.__body));
-                webSkel.getService("PromptAnimationService").closeThink();
+                await webSkel.getService("PromptAnimationService").closeThink();
                 return result;
             }
         }
