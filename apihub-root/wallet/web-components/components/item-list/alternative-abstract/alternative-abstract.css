@@ -16,6 +16,7 @@
     line-height: normal;
     margin-right: 10px;
 }
+
 .content:focus{
     background-color: rgba(148, 174, 227, 0.3);
     color: #252525;

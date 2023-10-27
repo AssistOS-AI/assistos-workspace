@@ -14,7 +14,20 @@
     transition-duration: 0.3s;
 }
 
-
+.edit-chapter-title-button{
+    display:none;
+}
+.chapter-title:focus{
+    outline:none;
+    background-color:#FFFFFF;
+    border-radius:3px;
+}
+.edit-chapter-title-button:hover{
+    cursor:pointer;
+}
+.ten-px-margin-left{
+    margin-left:10px;
+}
 .chapter-unit {
     cursor: default;
     border-radius: 10px;

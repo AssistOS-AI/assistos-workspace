@@ -35,6 +35,7 @@ export class documentViewPage {
             ]
         }
         await this._document.addChapter(chapterData);
+        webSkel.space.currentChapterId=chapterData.id;
         this.invalidate();
     }
     async addParagraph(_target){

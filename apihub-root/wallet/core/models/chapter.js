@@ -61,7 +61,9 @@ export class Chapter {
             console.error("Attempting to delete paragraph that no longer exists in this chapter.");
         }
     }
-
+    updateTitle(newTitle) {
+        this.title = newTitle;
+    }
     getParagraph(paragraphId) {
         return this.paragraphs.find(paragraph => paragraph.id === paragraphId)||null;
     }
