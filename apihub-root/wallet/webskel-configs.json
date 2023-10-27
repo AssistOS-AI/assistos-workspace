@@ -306,6 +306,10 @@
       "path": "./wallet/web-components/components/item-list/alternative-abstract/alternative-abstract.html"
     },
     {
+      "name": "alternative-chapter",
+      "path": "./wallet/web-components/components/item-list/alternative-chapter/alternative-chapter.html"
+    },
+    {
       "name": "documents-page",
       "path": "./wallet/web-components/pages/documents-page/documents-page.html"
     },

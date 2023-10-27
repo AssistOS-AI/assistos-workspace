@@ -66,7 +66,7 @@ export class Chapter {
         return this.paragraphs.find(paragraph => paragraph.id === paragraphId)||null;
     }
     getParagraphIndex(paragraphId) {
-        return this.paragraphs.findIndex(paragraph => paragraph.id === paragraphId)||null  ;
+        return this.paragraphs.findIndex(paragraph => paragraph.id === paragraphId);
     }
     swapParagraphs(paragraphId1, paragraphId2) {
         let index1 = this.paragraphs.findIndex(paragraph => paragraph.id === paragraphId1);
