@@ -14,9 +14,11 @@ export class addPersonalityModal {
         closeModal(_target);
     }
 
-    triggerInputFileOpen(){
+    triggerInputFileOpen(_target){
+        _target.removeAttribute("data-local-action");
         let input = this.element.querySelector(`input[type="file"]`);
         input.click();
+        _target.setAttribute("data-local-action", "triggerInputFileOpen");
     }
 
     async addPersonalitySubmitForm(_target) {

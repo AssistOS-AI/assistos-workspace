@@ -81,6 +81,6 @@ export class FlowsService{
     async runFlow(...args){
         let name = args[0];
         args.shift();
-        return await this.flows.callAsync(name, args);
+        return await this.flows.callAsync(name, ...args);
     }
 }

@@ -26,7 +26,7 @@ export class LlmsService {
         webSkel.getService("FlowsService").registerFlow(script.name, scriptCode);
         let response="";
         try{
-            response = await webSkel.getService("FlowsService").runFlow(script.name, args);
+            response = await webSkel.getService("FlowsService").runFlow(script.name, ...args);
         }catch (e){
             await showApplicationError("Script execution Error", `Encountered an error while attempting to execute the script ${script.name}`, e);
         }
