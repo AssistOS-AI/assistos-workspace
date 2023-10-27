@@ -6,6 +6,9 @@ export class PromptAnimationService {
     }
 
     async displayThink(prompt){
+        if(prompt.length > 800){
+            this.delay = 10;
+        }
         await showModal(document.querySelector("body"),"prompt-animation");
         this.animateThink(document.querySelector("prompt-animation"), prompt);
     }
@@ -33,7 +36,6 @@ export class PromptAnimationService {
                 setTimeout(() => {
                     let usedWord = prompt.shift();
                     prompt.push(usedWord);
-                    x = 1;
                     letterCount += x;
                     waiting = false;
                 }, this.delay);
