@@ -1,14 +1,24 @@
-import {extractFormInformation} from "../../../imports.js";
-import {reverseQuerySelector} from "../../../../WebSkel/utils/dom-utils.js";
-
+import {extractFormInformation, reverseQuerySelector} from "../../../imports.js";
 export class proofReaderPage {
     constructor(element, invalidate) {
         this.element = element;
         this.invalidate = invalidate;
         this.invalidate();
+        this.prompt = "";
     }
 
-    beforeRender() {}
+    beforeRender() {
+        if(!this.selectedPersonality){
+            this.selectedPersonality = `<option value="" disabled selected hidden>Select personality</option>`;
+        }else {
+            this.selectedPersonality = `<option value="${this.personality.id}" selected>${this.personality.name}</option>`
+        }
+        let stringHTML = "";
+        for(let personality of webSkel.space.settings.personalities){
+            stringHTML+=`<option value=${personality.id}>${personality.name}</option>`;
+        }
+        this.personalitiesOptions = stringHTML;
+    }
 
     afterRender(){
         if(this.generatedText!==undefined){
@@ -21,17 +31,27 @@ export class proofReaderPage {
                 console.error("Error trying to change the display of the buttons"+e);
             }
         }
+        let promptElement = this.element.querySelector("#prompt");
+        promptElement.value = this.prompt;
+        // let languageElement = this.element.querySelector("#language");
+        // languageElement.value = this.language;
+        if(this.generatedText){
+           let aiText = this.element.querySelector(".generated-text-container");
+           aiText.style.display = "flex";
+        }
     }
 
     async executeProofRead(formElement,cached) {
         const addressLLMRequest = async (formData)=>{
-            const loading = await webSkel.showLoading();
             if(formData){
-                this.prompt=formData.data.prompt;
+                this.prompt = formData.data.prompt;
+                this.language = formData.data.language;
+                this.personality = webSkel.space.settings.getPersonality(formData.data.personality);
             }
-            this.generatedText = await webSkel.getService("LlmsService").generateResponse(this.prompt);
-            loading.close();
-            loading.remove();
+            let scriptId = webSkel.space.getScriptIdByName("proofreader script");
+            let result = await webSkel.getService("LlmsService").callScript(scriptId, this.prompt, this.personality.name, this.personality.description);
+            this.observations = result.responseJson.observations;
+            this.generatedText = result.responseJson.improvedText;
             this.invalidate();
         }
         if(cached){
