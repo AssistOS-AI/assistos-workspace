@@ -3,7 +3,7 @@ import { Paragraph } from './paragraph.js';
 export class Chapter {
     constructor(chapterData) {
         this.title = chapterData.title;
-        this.id = chapterData.id;
+        this.id = chapterData.id || webSkel.getService("UtilsService").generateId();
         this.visibility = "show";
         this.paragraphs = [];
         this.alternativeChapters=[]

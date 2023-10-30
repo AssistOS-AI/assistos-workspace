@@ -1,7 +1,7 @@
 export class Paragraph {
     constructor(paragraphData) {
         this.text = paragraphData.text;
-        this.id = paragraphData.id;
+        this.id = paragraphData.id || webSkel.getService("UtilsService").generateId();
         this.mainIdea = paragraphData.mainIdea || "";
         this.alternativeParagraphs = paragraphData.alternativeParagraphs || [];
     }

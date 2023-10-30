@@ -2,7 +2,7 @@ import { Chapter } from "./chapter.js";
 
 export class DocumentModel {
     constructor(documentData) {
-        this.id = documentData.id || undefined;
+        this.id = documentData.id || webSkel.getService("UtilsService").generateId();
         this.title = documentData.title || "";
         this.abstract = documentData.abstract || "";
         this.topic = documentData.topic||"";

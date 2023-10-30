@@ -22,16 +22,18 @@
 
             <div class="generate-form-item">
                 <label class="form-label" for="chaptersCount">Number of Chapters</label>
-                <input class="form-input" type="number" id="chaptersCount" name="chaptersCount" min="1" max="100" value="1" placeholder="Choose Number of Chapters">
+                <input class="form-input" type="number" id="chaptersCount" data-id="chaptersCount" name="chaptersCount" min="1" max="10" value="1" placeholder="Choose Number of Chapters">
             </div>
 
             <div class="generate-form-item">
                 <label class="form-label" for="documentPersonality">Choose Personality</label>
-                <input class="form-input" name="documentPersonality" data-id="documentPersonality" pattern=".*\S+.*" type="text" id="documentPersonality" required placeholder="Select Personality">
+                <select class="form-input" name="documentPersonality" id="documentPersonality" data-id="documentPersonality" required>
+                    $$personalitiesOptions
+                </select>
             </div>
 
             <div class="generate-button-wrapper">
-                <button type="button" class="generate-button" data-local-action="addDocument">Create</button>
+                <button type="button" class="generate-btn" data-local-action="generateDocument">Create</button>
             </div>
         </form>
     </div>

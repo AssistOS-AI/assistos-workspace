@@ -1,7 +1,5 @@
-.generate-modal-header-wrapper{
-    font-family: Poppins;
-    width: 978px;
-    height: 460px;
+dialog[class="modal"]{
+    width: 50%;
 }
 .generate-modal-header{
     display:flex;
@@ -41,7 +39,13 @@
     letter-spacing: 0px;
     color:#3A3A3A;
 }
-
+#chaptersCount{
+width: 10%;
+}
+#documentPersonality{
+    width: 50%;
+    background:none;
+}
 .form-input{
     margin-top:4px;
     font-size: 12px;
@@ -68,23 +72,19 @@
     align-items:center;
     height:fit-content;
 }
-.generate-button{
+.generate-btn{
     display: flex;
     align-items: center;
     justify-content: center;
-    text-align: left;
     padding: 6px 12px 6px 12px;
     border:none;
     width:117px;
     height:39px;
     border-radius: 17px;
-    gap: 9px;
     background: #A42E70;
     color: #FFFFFF;
     min-width: fit-content;
     cursor: pointer;
     font-size: 14px;
     font-weight: 600;
-    line-height: 21px;
-    letter-spacing: 0px;
 }
