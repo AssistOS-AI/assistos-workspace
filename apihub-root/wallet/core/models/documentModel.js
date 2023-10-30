@@ -260,6 +260,21 @@ export class DocumentModel {
         await documentFactory.updateDocument(currentSpaceId,this);
     }
 
+    getAlternativeTitleIndex(alternativeTitleId) {
+        return this.alternativeTitles.findIndex(title => title.id === alternativeTitleId);
+    }
+    async selectAlternativeTitle(alternativeTitleId) {
+        let alternativeTitleIndex=this.getAlternativeTitleIndex(alternativeTitleId);
+        if(alternativeTitleIndex!==-1) {
+            let currentTitle = this.title;
+            this.title = this.alternativeTitles[alternativeTitleIndex].name;
+            this.alternativeTitles.splice(alternativeTitleIndex, 1);
+            this.alternativeTitles.splice(alternativeTitleIndex,0,{id: webSkel.servicesRegistry.UtilsService.generateId(), name: currentTitle});
+            await documentFactory.updateDocument(currentSpaceId, this);
+        }else{
+            console.warn("Attempting to select alternative title that doesn't exist in this document.");
+        }
+    }
     async selectAlternativeChapter(currentChapter, alternativeChapterId) {
         let currentChapterIndex = this.getChapterIndex(currentChapter.id);
         let alternativeChapterIndex = currentChapter.getAlternativeChapterIndex(alternativeChapterId);
