@@ -176,6 +176,7 @@ export class chapterUnit {
         let updateRequired = false;
         if (updatedTitle === null || updatedTitle.trim() === '') {
             updateRequired=false;
+            editableUnit.innerText=currentChapter.title;
         } else if (updatedTitle !== currentChapter.title) {
             currentChapter.updateTitle(updatedTitle);
             updateRequired = true;
