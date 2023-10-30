@@ -96,7 +96,13 @@ export class editTitlePage {
         await documentFactory.updateDocument(currentSpaceId, this._document);
         this.invalidate();
     }
-
+    async select(_target){
+        let suggestedTitle = reverseQuerySelector(_target, "alternative-title");
+        let suggestedTitleId = suggestedTitle.getAttribute("data-id");
+        await this._document.selectAlternativeTitle(suggestedTitleId);
+        removeActionBox(this.actionBox, this);
+        this.invalidate();
+    }
     async showActionBox(_target, primaryKey, componentName, insertionMode) {
         this.actionBox = await showActionBox(_target, primaryKey, componentName, insertionMode);
     }

@@ -74,6 +74,13 @@ export class editAbstractPage {
         }
     }
 
+    async select(_target){
+        let suggestedAbstract=reverseQuerySelector(_target,"alternative-abstract");
+        let suggestedAbstractId = suggestedAbstract.getAttribute("data-id");
+        await this._document.selectAlternativeAbstract(suggestedAbstractId);
+        removeActionBox(this.actionBox, this);
+        this.invalidate();
+    }
     async edit(_target, querySelect) {
         let abstractText;
         if(querySelect){

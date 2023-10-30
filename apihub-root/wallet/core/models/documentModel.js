@@ -273,6 +273,36 @@ export class DocumentModel {
         await documentFactory.updateDocument(currentSpaceId,this);
     }
 
+    getAlternativeTitleIndex(alternativeTitleId) {
+        return this.alternativeTitles.findIndex(title => title.id === alternativeTitleId);
+    }
+    getAlternativeAbstractIndex(alternativeAbstractId) {
+        return this.alternativeAbstracts.findIndex(abstract => abstract.id === alternativeAbstractId);
+    }
+    async selectAlternativeTitle(alternativeTitleId) {
+        let alternativeTitleIndex=this.getAlternativeTitleIndex(alternativeTitleId);
+        if(alternativeTitleIndex!==-1) {
+            let currentTitle = this.title;
+            this.title = this.alternativeTitles[alternativeTitleIndex].name;
+            this.alternativeTitles.splice(alternativeTitleIndex, 1);
+            this.alternativeTitles.splice(alternativeTitleIndex,0,{id: webSkel.servicesRegistry.UtilsService.generateId(), name: currentTitle});
+            await documentFactory.updateDocument(currentSpaceId, this);
+        }else{
+            console.warn("Attempting to select alternative title that doesn't exist in this document.");
+        }
+    }
+    async selectAlternativeAbstract(alternativeAbstractId) {
+        let alternativeAbstractIndex=this.getAlternativeAbstractIndex(alternativeAbstractId);
+        if(alternativeAbstractIndex!==-1) {
+            let currentAbstract = this.abstract;
+            this.abstract = this.alternativeAbstracts[alternativeAbstractIndex].content;
+            this.alternativeAbstracts.splice(alternativeAbstractIndex, 1);
+            this.alternativeAbstracts.splice(alternativeAbstractIndex,0,{id: webSkel.servicesRegistry.UtilsService.generateId(), content: currentAbstract});
+            await documentFactory.updateDocument(currentSpaceId, this);
+        }else{
+            console.warn("Attempting to select alternative abstract that doesn't exist in this document.");
+        }
+    }
     async selectAlternativeChapter(currentChapter, alternativeChapterId) {
         let currentChapterIndex = this.getChapterIndex(currentChapter.id);
         let alternativeChapterIndex = currentChapter.getAlternativeChapterIndex(alternativeChapterId);

@@ -23,6 +23,13 @@ export class documentViewPage {
             });
         }
     }
+    async enterAbstractEditMode(_target){
+        let abstractText = reverseQuerySelector(_target, ".abstract-content-text");
+        let abstractContainer = reverseQuerySelector(_target, ".abstract-section");
+        abstractContainer.setAttribute("id", "highlighted-chapter");
+        abstractText.setAttribute("contenteditable", "true");
+        abstractText.focus();
+    }
     async addChapter() {
         let chapterData= {
             title: "New Chapter",
