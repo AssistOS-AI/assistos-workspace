@@ -6,21 +6,21 @@ export class PromptAnimationService {
     }
 
     async displayThink(prompt){
-        if(prompt.length > 800){
-            this.delay = 10;
-        }
         await showModal(document.querySelector("body"),"prompt-animation");
         this.animateThink(document.querySelector("prompt-animation"), prompt);
     }
 
     async closeThink(){
 
-        while (this.interval){
+        let interval = setInterval(async()=>{
+            if(!this.intervalId){
+                const delay = ms => new Promise(res => setTimeout(res, ms));
+                await delay(3000);
+                closeModal(document.querySelector(".console-container"));
+                clearInterval(interval);
+            }
+        },1000);
 
-        }
-        const delay = ms => new Promise(res => setTimeout(res, ms));
-        await delay(3000);
-        closeModal(document.querySelector(".console-container"));
     }
     animateThink(element,prompt) {
         let visible = true;
@@ -48,7 +48,10 @@ export class PromptAnimationService {
                 letterCount += x;
             }
         }, this.delay);
-        window.setInterval(()=> {
+        let underscoreInterval = window.setInterval(()=> {
+            if(!this.intervalId){
+                clearInterval(underscoreInterval);
+            }
             if (visible === true) {
                 con.className = 'console-underscore hidden'
                 visible = false;
