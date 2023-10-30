@@ -67,9 +67,9 @@ export class FlowsService{
                 this.__think = prompt;
             },
             callLLM: async function(){
-                await webSkel.getService("PromptAnimationService").displayThink(this.__think);
+                let promise = webSkel.getService("PromptAnimationService").displayThink(this.__think);
                 let result = await webSkel.getService("LlmsService").generateResponse(JSON.stringify(this.__body));
-                await webSkel.getService("PromptAnimationService").closeThink();
+                await promise;
                 return result;
             }
         }
