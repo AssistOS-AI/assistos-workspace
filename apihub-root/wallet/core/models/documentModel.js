@@ -63,7 +63,7 @@ export class DocumentModel {
     }
 
     async addChapters(chaptersData, ideas){
-        for(let i= 0; i<chaptersData.length; i++){
+        for(let i= 0; i < chaptersData.length; i++){
             let chapterData= {
                 title: chaptersData[i].title,
                 id: webSkel.servicesRegistry.UtilsService.generateId(),
@@ -73,6 +73,19 @@ export class DocumentModel {
             let newChapter = new Chapter(chapterData);
             this.chapters.push(newChapter);
             newChapter.addParagraphs(chaptersData[i].paragraphs);
+        }
+        await documentFactory.updateDocument(currentSpaceId, this);
+    }
+    async addEmptyChapters(chaptersData, ideas){
+        for(let i= 0; i < chaptersData.titles.length; i++){
+            let chapterData= {
+                title: chaptersData.titles[i],
+                id: webSkel.servicesRegistry.UtilsService.generateId(),
+                paragraphs: [],
+                mainIdeas: [ideas[i]]
+            }
+            let newChapter = new Chapter(chapterData);
+            this.chapters.push(newChapter);
         }
         await documentFactory.updateDocument(currentSpaceId, this);
     }

@@ -44,6 +44,25 @@ export class generateChaptersPage {
 
     }
 
+    async generateEmptyChapters(_target){
+        let formInfo = await extractFormInformation(_target);
+        let scriptId = webSkel.space.getScriptIdByName("generate empty chapters");
+        let selectedIdeas = [];
+        for (const [key, value] of Object.entries(formInfo.elements)) {
+            if(value.element.checked) {
+                selectedIdeas.push(value.element.value);
+            }
+        }
+        let result = await webSkel.getService("LlmsService").callScript(scriptId, JSON.stringify(selectedIdeas));
+        if(result.responseJson){
+            await this._document.addEmptyChapters(result.responseJson, selectedIdeas);
+        }else {
+            await showApplicationError("Script execution error",
+                "Data received from LLM is an incorrect format", `result from LLM: ${result}`);
+        }
+        await webSkel.changeToDynamicPage("document-view-page", `documents/${this._document.id}/document-view-page`);
+    }
+
     async generateChapters(_target){
         let formInfo = await extractFormInformation(_target);
         let scriptId = webSkel.space.getScriptIdByName("generate chapters");
@@ -57,7 +76,7 @@ export class generateChaptersPage {
         if(result.responseJson){
             await this._document.addChapters(result.responseJson, selectedIdeas);
         }else {
-            showApplicationError("Script execution error",
+           await showApplicationError("Script execution error",
                 "Data received from LLM is an incorrect format", `result from LLM: ${result}`);
         }
         await webSkel.changeToDynamicPage("document-view-page", `documents/${this._document.id}/document-view-page`);
