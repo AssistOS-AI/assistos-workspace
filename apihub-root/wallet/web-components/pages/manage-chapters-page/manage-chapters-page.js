@@ -70,8 +70,7 @@ export class manageChaptersPage {
     async addChapter(){
         let chapterObj={
             title: "New chapter",
-            id: webSkel.getService("UtilsService").generateId(),
-            paragraphs: [new Paragraph({id: webSkel.getService("UtilsService").generateId(), text: "Edit here your first paragraph."})]
+            paragraphs: [new Paragraph({text: "Edit here your first paragraph."})]
         }
         await this._document.addChapter(chapterObj);
         this.invalidate();

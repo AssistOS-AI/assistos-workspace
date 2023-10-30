@@ -68,7 +68,6 @@ export class manageParagraphsPage {
     }
     async addParagraph(){
         let paragraphObj={
-            id: webSkel.getService("UtilsService").generateId(),
             text: "Edit here your first paragraph."
         }
         await this._document.addParagraph(this._chapter, paragraphObj);

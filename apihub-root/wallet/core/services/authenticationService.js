@@ -89,7 +89,7 @@ export class AuthenticationService{
         delete userData.password;
 
         userData.secretToken = secretToken;
-        userData.id = crypto.getRandomSecret(32).toString().split(",").join("");
+        userData.id = webSkel.getService("UtilsService").generateId();
         let defaultSpace = await SpaceFactory.createSpace({name: "Personal Space"});
         userData.spaces = [{name: defaultSpace.name, id: defaultSpace.id}];
 

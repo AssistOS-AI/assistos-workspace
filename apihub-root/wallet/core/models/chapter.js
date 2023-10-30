@@ -46,7 +46,6 @@ export class Chapter {
     addParagraphs(paragraphsData){
         for(let paragraph of paragraphsData){
             let paragraphData = {
-                id: webSkel.servicesRegistry.UtilsService.generateId(),
                 text: paragraph.text,
                 mainIdea : paragraph.mainIdea
             }

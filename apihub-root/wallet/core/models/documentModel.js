@@ -66,7 +66,6 @@ export class DocumentModel {
         for(let i= 0; i < chaptersData.length; i++){
             let chapterData= {
                 title: chaptersData[i].title,
-                id: webSkel.servicesRegistry.UtilsService.generateId(),
                 paragraphs: [],
                 mainIdeas: [ideas[i]]
             }
@@ -80,7 +79,6 @@ export class DocumentModel {
         for(let i= 0; i < chaptersData.titles.length; i++){
             let chapterData= {
                 title: chaptersData.titles[i],
-                id: webSkel.servicesRegistry.UtilsService.generateId(),
                 paragraphs: [],
                 mainIdeas: [ideas[i]]
             }

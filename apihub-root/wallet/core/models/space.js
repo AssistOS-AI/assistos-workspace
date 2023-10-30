@@ -156,8 +156,7 @@ export class Space {
     async createDefaultScripts(){
         let scripts = JSON.parse(await storageManager.loadDefaultScripts());
         for(let script of scripts){
-            script.id = webSkel.getService("UtilsService").generateId();
+            this.scripts.push(new Script(script));
         }
-        this.scripts = scripts;
     }
 }

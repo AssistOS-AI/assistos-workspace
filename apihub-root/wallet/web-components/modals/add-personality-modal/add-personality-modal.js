@@ -31,7 +31,6 @@ export class addPersonalityModal {
             let personalityData={
                     name:formInfo.data.name,
                     description:formInfo.data.description,
-                    id:webSkel.servicesRegistry.UtilsService.generateId(),
                     image: formInfo.data.photo
             }
             await webSkel.space.addPersonality(personalityData);

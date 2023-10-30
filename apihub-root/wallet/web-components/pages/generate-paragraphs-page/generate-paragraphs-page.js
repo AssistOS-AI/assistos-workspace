@@ -59,7 +59,7 @@ export class generateParagraphsPage {
         if(result.responseJson){
             await this._document.addParagraphs(this._chapter, result.responseJson, selectedIdeas);
         }else {
-            showApplicationError("Script execution error",
+            await showApplicationError("Script execution error",
                 "Data received from LLM is an incorrect format", `result from LLM: ${result}`);
         }
         await webSkel.changeToDynamicPage("document-view-page", `documents/${this._document.id}/document-view-page`);
