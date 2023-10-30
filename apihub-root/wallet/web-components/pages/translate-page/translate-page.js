@@ -33,8 +33,12 @@ export class translatePage {
         }
         let promptElement = this.element.querySelector("#prompt");
         promptElement.value = this.prompt;
-        let languageElement = this.element.querySelector("#language");
-        languageElement.value = this.language;
+
+        if(this.language){
+            let languageElement = this.element.querySelector("#language");
+            languageElement.value = this.language;
+        }
+
         if(this.generatedText){
            let aiText = this.element.querySelector(".generated-text-container");
            aiText.style.display = "flex";
