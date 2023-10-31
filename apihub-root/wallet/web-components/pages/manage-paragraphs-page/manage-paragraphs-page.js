@@ -29,21 +29,25 @@ export class manageParagraphsPage {
 
     afterRender(){
         let mainIdeas = this.element.querySelector(".main-ideas-list");
+        const maxLength = 80;
         mainIdeas.addEventListener("input", function (event) {
-            if(event.target.tagName === "UL"){
-                for(let child of event.target.children){
-                    if(child.innerHTML === "<br>"){
-                        child.innerHTML = "";
-                    }
+            for(let child of event.target.children){
+                if(child.innerHTML === "<br>"){
+                    child.innerHTML = "";
                 }
-            }
-            if (event.target.tagName === "LI") {
-                if (event.target.innerText.trim() === "") {
-                    event.target.style.listStyle = "none"; // Remove the marker
-                } else {
-                    event.target.style.listStyle = "initial"; // Restore the marker
-                }
+                if (child.innerText.length > maxLength) {
+                    const selection = window.getSelection();
+                    const range = document.createRange();
 
+                    // Truncate the text and update the element
+                    child.innerText = child.innerText.substring(0, maxLength);
+
+                    // Restore the cursor position to the end of the text
+                    range.setStart(child.firstChild, child.innerText.length);
+                    range.setEnd(child.firstChild, child.innerText.length);
+                    selection.removeAllRanges();
+                    selection.addRange(range);
+                }
             }
         });
     }

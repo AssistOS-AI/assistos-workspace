@@ -28,10 +28,27 @@ export class paragraphBrainstormingPage {
         document.removeEventListener("click", this.exitEditMode, true);
     }
 
+    limitMainIdeaText(event){
+        let maxLength = 80;
+        if (event.target.innerText.length > maxLength) {
+            const selection = window.getSelection();
+            const range = document.createRange();
+
+            // Truncate the text and update the element
+            event.target.innerText = event.target.innerText.substring(0, maxLength);
+
+            // Restore the cursor position to the end of the text
+            range.setStart(event.target.firstChild, event.target.innerText.length);
+            range.setEnd(event.target.firstChild, event.target.innerText.length);
+            selection.removeAllRanges();
+            selection.addRange(range);
+        }
+    }
     async enterEditMode(_target, itemName) {
         let item;
         if(itemName === "mainIdea"){
             item = this.element.querySelector(".main-idea-content");
+            item.addEventListener("input", this.limitMainIdeaText);
         }else {
             item = this.element.querySelector(".paragraph-content");
         }
@@ -47,6 +64,7 @@ export class paragraphBrainstormingPage {
             item.setAttribute("contenteditable", "false");
             let text = item.innerText;
             if(itemName === "mainIdea"){
+                item.removeEventListener("input",this.limitMainIdeaText);
                 await this._document.setParagraphMainIdea(this._paragraph, text);
             }else {
                 await this._document.updateParagraph(this._paragraph, text);
