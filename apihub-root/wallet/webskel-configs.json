@@ -1,6 +1,11 @@
 {
   "presenters": [
     {
+      "name": "confirmation-popup",
+      "path": "./web-components/components/confirmation-popup/confirmation-popup.js",
+      "className": "confirmationPopup"
+    },
+    {
       "name": "translate-page",
       "path": "./web-components/pages/translate-page/translate-page.js",
       "className": "translatePage"
@@ -205,6 +210,10 @@
     }
   ],
   "components": [
+    {
+      "name": "confirmation-popup",
+      "path": "./wallet/web-components/components/confirmation-popup/confirmation-popup.html"
+    },
     {
       "name": "translate-page",
       "path": "./wallet/web-components/pages/translate-page/translate-page.html"

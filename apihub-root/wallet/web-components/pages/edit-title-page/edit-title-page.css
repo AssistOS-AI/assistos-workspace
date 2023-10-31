@@ -26,6 +26,7 @@ edit-title-page{
     width:calc(100% - 270px);
 }
 .document-title{
+    position: relative;
     margin: 20px 15px 10px 15px;
     color: #1E1E1E;
     font-size: 24px;

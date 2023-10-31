@@ -23,20 +23,23 @@ export class editTitlePage {
             data-id="${alternativeTitle.id}" data-local-action="edit querySelect"></alternative-title>`;
             i++;
         });
-        document.removeEventListener("click", this.exitEditMode);
     }
     async enterEditMode(_target) {
         let title = reverseQuerySelector(_target, ".document-title");
         title.setAttribute("contenteditable", "true");
         title.focus();
-        document.addEventListener("click", this.exitEditMode.bind(this, title), true);
+        const controller = new AbortController();
+        document.addEventListener("click", this.exitEditMode.bind(this, title, controller),{signal:controller.signal});
     }
 
-    async exitEditMode (title, event) {
-        if (title.getAttribute("contenteditable") && !title.contains(event.target)) {
+    async exitEditMode (title, controller, event) {
+        if (title.getAttribute("contenteditable") === "true" && title !== event.target && !title.contains(event.target)) {
+            title.insertAdjacentHTML("afterbegin", `<confirmation-popup data-presenter="confirmation-popup" 
+            data-message="Saved!" data-left="${title.offsetWidth}"></confirmation-popup>`);
             title.setAttribute("contenteditable", "false");
             this._document.title = title.innerText;
             await documentFactory.updateDocument(currentSpaceId, this._document);
+            controller.abort();
         }
     }
 
@@ -86,6 +89,8 @@ export class editTitlePage {
 
             if(newTitle.innerText !== altTitleObj.name) {
                 await this._document.updateAlternativeTitle(altTitleObj.id, newTitle.innerText);
+                newTitle.insertAdjacentHTML("afterbegin", `<confirmation-popup data-presenter="confirmation-popup" 
+                data-message="Saved!" data-left="${newTitle.offsetWidth}"></confirmation-popup>`);
             }
         });
     }
