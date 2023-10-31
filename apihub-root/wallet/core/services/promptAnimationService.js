@@ -6,6 +6,10 @@ export class PromptAnimationService {
     }
 
     async displayThink(prompt){
+        if(prompt.length > 500){
+            prompt = prompt.substring(0, 500);
+            prompt+= "...";
+        }
         await showModal(document.querySelector("body"),"prompt-animation");
         return this.animateThink(document.querySelector("prompt-animation"), prompt);
     }
