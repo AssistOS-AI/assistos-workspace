@@ -57,23 +57,25 @@ export class paragraphBrainstormingPage {
         }else {
             item = this.element.querySelector(".paragraph-content");
         }
-        if(!item.hasAttribute("contenteditable")){
-            document.addEventListener("click", this.exitEditMode.bind(this, item, itemName), true);
-        }
+        const controller = new AbortController();
+        document.addEventListener("click", this.exitEditMode.bind(this, item, itemName, controller), {signal:controller.signal});
         item.setAttribute("contenteditable", "true");
         item.focus();
     }
 
-    async exitEditMode (item, itemName, event) {
-        if (item.getAttribute("contenteditable") && !item.contains(event.target)) {
+    async exitEditMode (item, itemName, controller, event) {
+        if (item.getAttribute("contenteditable") === "true" && item !== event.target && !item.contains(event.target)) {
             item.setAttribute("contenteditable", "false");
             let text = item.innerText;
             if(itemName === "mainIdea"){
                 item.removeEventListener("input",this.limitMainIdeaText);
                 await this._document.setParagraphMainIdea(this._paragraph, text);
             }else {
-                await this._document.updateParagraph(this._paragraph, text);
+                await this._document.updateParagraphText(this._paragraph, text);
             }
+            item.insertAdjacentHTML("afterbegin", `<confirmation-popup data-presenter="confirmation-popup" 
+            data-message="Saved!" data-left="${item.offsetWidth/2}"></confirmation-popup>`);
+            controller.abort();
         }
     }
 
@@ -123,9 +125,11 @@ export class paragraphBrainstormingPage {
         paragraph.addEventListener('blur', async () => {
             paragraph.contentEditable = false;
             if(paragraph.innerText !== alternativeParagraph.text) {
-               await this._document.updateAlternativeParagraph(this._paragraph, paragraphId, paragraph.innerText)
+               await this._document.updateAlternativeParagraph(this._paragraph, paragraphId, paragraph.innerText);
             }
-        });
+            paragraph.insertAdjacentHTML("afterbegin", `<confirmation-popup data-presenter="confirmation-popup" 
+                data-message="Saved!" data-left="${paragraph.offsetWidth/2}"></confirmation-popup>`);
+        }, {once:true});
     }
     async delete(_target){
         let paragraph = reverseQuerySelector(_target, "alternative-paragraph");

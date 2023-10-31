@@ -42,6 +42,7 @@ manage-chapters-page {
     margin-bottom: 20px;
 }
 .main-ideas-list{
+    position: relative;
     padding-left: 15px;
 }
 .main-ideas-list:focus{

@@ -58,6 +58,7 @@ paragraph-proofread-page{
 
 .improved-paragraph,
 .paragraph-content {
+    position: relative;
     white-space: pre-wrap;
     overflow-wrap: break-word;
     hyphens: auto;

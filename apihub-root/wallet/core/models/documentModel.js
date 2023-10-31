@@ -156,20 +156,7 @@ export class DocumentModel {
         return this.chapters.findIndex(chapter => chapter.id === chapterId);
     }
 
-    getChapterTitle(chapterId) {
-        let chapter = this.chapters.find(chapter => chapter.id === chapterId);
-        return chapter.title || null;
-    }
 
-    updateChapterTitle(chapterId, chapterTitle) {
-        let chapter = this.chapters.find(chapter => chapter.id === chapterId);
-        chapter.title = chapterTitle;
-    }
-
-    removeChapter(chapterId) {
-        let chapterIndex = this.chapters.findIndex(chapter => chapter.id === chapterId);
-        this.chapters.splice(chapterIndex, 1);
-    }
 
     swapChapters(chapterId1, chapterId2) {
         let chapter1Index = this.chapters.findIndex(chapter => chapter.id === chapterId1);
@@ -252,6 +239,10 @@ export class DocumentModel {
         await documentFactory.updateDocument(currentSpaceId, this);
     }
 
+    async updateParagraphText(paragraph, text){
+        paragraph.updateText(text);
+        await documentFactory.updateDocument(currentSpaceId, this);
+    }
     async addAlternativeParagraph(paragraph, altParagraphData){
         paragraph.addAlternativeParagraph(altParagraphData);
         await documentFactory.updateDocument(currentSpaceId, this);
@@ -314,6 +305,11 @@ export class DocumentModel {
 
         this.chapters[currentChapterIndex].alternativeChapters = backupAlternativeChapters;
 
+        await documentFactory.updateDocument(currentSpaceId, this);
+    }
+
+    async updateChapterTitle(chapter, newTitle){
+        chapter.updateTitle(newTitle);
         await documentFactory.updateDocument(currentSpaceId, this);
     }
 

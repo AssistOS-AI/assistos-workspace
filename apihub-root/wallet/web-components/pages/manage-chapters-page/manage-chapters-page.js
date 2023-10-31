@@ -58,18 +58,20 @@ export class manageChaptersPage {
     }
     async enterEditMode(_target) {
         let mainIdeas = this.element.querySelector(".main-ideas-list");
-        if(!mainIdeas.hasAttribute("contenteditable")){
-            document.addEventListener("click", this.exitEditMode.bind(this, mainIdeas), true);
-        }
+        const controller = new AbortController();
+        document.addEventListener("click", this.exitEditMode.bind(this, mainIdeas, controller), {signal:controller.signal});
         mainIdeas.setAttribute("contenteditable", "true");
         mainIdeas.focus();
     }
 
-    async exitEditMode (mainIdeas, event) {
-        if (mainIdeas.getAttribute("contenteditable") && !mainIdeas.contains(event.target)) {
+    async exitEditMode (mainIdeas, controller, event) {
+        if (mainIdeas.getAttribute("contenteditable") === "true" && mainIdeas !== event.target && !mainIdeas.contains(event.target)) {
             mainIdeas.setAttribute("contenteditable", "false");
             let ideas = mainIdeas.innerText.split("\n");
             await this._document.setMainIdeas(ideas);
+            mainIdeas.insertAdjacentHTML("afterbegin", `<confirmation-popup data-presenter="confirmation-popup" 
+            data-message="Saved!" data-left="${mainIdeas.offsetWidth/2}"></confirmation-popup>`);
+            controller.abort();
         }
     }
     async openViewPage() {

@@ -62,6 +62,8 @@ edit-abstract-page {
 }
 
 .abstract-content {
+    display: inline-block;
+    position: relative;
     white-space: pre-wrap;
     overflow-wrap: break-word;
     hyphens: auto;

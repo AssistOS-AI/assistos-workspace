@@ -6,7 +6,6 @@ export class paragraphProofreadPage {
         this._paragraph = this._chapter.getParagraph(webSkel.space.currentParagraphId);
         this.invalidate = invalidate;
         this.invalidate();
-
     }
 
     beforeRender() {
@@ -42,22 +41,24 @@ export class paragraphProofreadPage {
 
     async enterEditMode(_target, field) {
         let paragraph = this.element.querySelector(`.${field}`);
-        if(!paragraph.hasAttribute("contenteditable")){
-            document.addEventListener("click", this.exitEditMode.bind(this, paragraph), true);
-        }
+        const controller = new AbortController();
+        document.addEventListener("click", this.exitEditMode.bind(this, paragraph, controller), {signal:controller.signal});
         paragraph.setAttribute("contenteditable", "true");
         paragraph.focus();
     }
 
-    async exitEditMode (paragraph, event) {
-        if (paragraph.getAttribute("contenteditable") && !paragraph.contains(event.target)) {
+    async exitEditMode (paragraph, controller, event) {
+        if (paragraph.getAttribute("contenteditable") === "true" && paragraph !== event.target && !paragraph.contains(event.target)) {
             paragraph.setAttribute("contenteditable", "false");
             if(paragraph.classList.contains("paragraph-content")){
-                await this._document.updateParagraph(this._paragraph, paragraph.innerText);
+                await this._document.updateParagraphText(this._paragraph, paragraph.innerText);
+                paragraph.insertAdjacentHTML("afterbegin", `<confirmation-popup data-presenter="confirmation-popup" 
+                data-message="Saved!" data-left="${paragraph.offsetWidth/2}"></confirmation-popup>`);
             }
             else {
                 this.improvedParagraph = paragraph.innerText;
             }
+            controller.abort();
         }
     }
 
@@ -65,7 +66,7 @@ export class paragraphProofreadPage {
     async acceptImprovements(_target) {
         let paragraph = this.element.querySelector(".improved-paragraph").innerText;
         if(paragraph !== this._paragraph.text) {
-            await this._document.updateParagraph(this._paragraph, paragraph);
+            await this._document.updateParagraphText(this._paragraph, paragraph);
             this.invalidate();
         }
     }

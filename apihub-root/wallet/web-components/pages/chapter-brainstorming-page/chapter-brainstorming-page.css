@@ -33,6 +33,7 @@ paragraph-brainstorming-page {
 }
 .current-paragraph-title,
 .main-idea-title{
+    position: relative;
     margin: 20px 15px 0 15px;
     color: #252525;
     font-size: 18px;
