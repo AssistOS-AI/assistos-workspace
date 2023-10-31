@@ -3,7 +3,7 @@ import {
     showActionBox,
     showModal,
     reverseQuerySelector,
-    removeActionBox
+    removeActionBox, sanitize
 } from "../../../imports.js";
 
 export class editTitlePage {
@@ -76,11 +76,11 @@ export class editTitlePage {
             newTitle.contentEditable = false;
 
             if(newTitle.innerText !== altTitleObj.name) {
-                await this._document.updateAlternativeTitle(altTitleObj.id, newTitle.innerText);
+                await this._document.updateAlternativeTitle(altTitleObj.id, sanitize(newTitle.innerText));
             }
             newTitle.insertAdjacentHTML("afterbegin", `<confirmation-popup data-presenter="confirmation-popup" 
                 data-message="Saved!" data-left="${newTitle.offsetWidth/2}"></confirmation-popup>`);
-        });
+        }, {once:true});
     }
 
     async delete(_target) {

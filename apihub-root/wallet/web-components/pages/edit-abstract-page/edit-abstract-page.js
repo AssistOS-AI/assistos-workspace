@@ -95,7 +95,7 @@ export class editAbstractPage {
             }
             abstractText.insertAdjacentHTML("afterbegin", `<confirmation-popup data-presenter="confirmation-popup" 
                 data-message="Saved!" data-left="${abstractText.offsetWidth/2}"></confirmation-popup>`);
-        });
+        }, {once:true});
     }
 
     async delete(_target) {

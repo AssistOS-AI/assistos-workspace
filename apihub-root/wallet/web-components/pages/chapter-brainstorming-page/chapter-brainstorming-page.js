@@ -108,7 +108,7 @@ export class chapterBrainstormingPage {
             if(paragraph.innerText !== alternativeParagraph.text) {
                 await this._document.updateAlternativeParagraph(this._paragraph, paragraphId, paragraph.innerText)
             }
-        });
+        }, {once:true});
     }
     async deleteAction(_target){
         let paragraph = reverseQuerySelector(_target, "reduced-paragraph-unit");

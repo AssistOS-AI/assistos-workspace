@@ -129,7 +129,7 @@ export class paragraphBrainstormingPage {
             }
             paragraph.insertAdjacentHTML("afterbegin", `<confirmation-popup data-presenter="confirmation-popup" 
                 data-message="Saved!" data-left="${paragraph.offsetWidth/2}"></confirmation-popup>`);
-        });
+        }, {once:true});
     }
     async delete(_target){
         let paragraph = reverseQuerySelector(_target, "alternative-paragraph");
