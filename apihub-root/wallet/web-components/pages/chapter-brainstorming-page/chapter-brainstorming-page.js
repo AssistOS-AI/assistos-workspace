@@ -42,13 +42,16 @@ export class chapterBrainstormingPage {
         let title = reverseQuerySelector(_target, ".main-idea-title");
         title.setAttribute("contenteditable", "true");
         title.focus();
-        document.addEventListener("click", this.exitEditMode.bind(this, title), true);
+        const controller = new AbortController();
+        document.addEventListener("click", this.exitEditMode.bind(this, title, controller), {signal:controller.signal});
     }
-    async exitEditMode (title, event) {
-        if (title.getAttribute("contenteditable") && !title.contains(event.target)) {
+    async exitEditMode (title, controller, event) {
+        if (title.getAttribute("contenteditable") === "true" && title !== event.target && !title.contains(event.target)) {
             title.setAttribute("contenteditable", "false");
-            this._chapter.title = title.innerText;
-            await documentFactory.updateDocument(currentSpaceId, this._document);
+            await this._document.updateChapterTitle(this._chapter, title.innerText)
+            title.insertAdjacentHTML("afterbegin", `<confirmation-popup data-presenter="confirmation-popup" 
+            data-message="Saved!" data-left="${title.offsetWidth/2}"></confirmation-popup>`);
+            controller.abort();
         }
     }
 

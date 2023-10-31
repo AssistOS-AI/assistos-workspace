@@ -34,11 +34,11 @@ export class editTitlePage {
 
     async exitEditMode (title, controller, event) {
         if (title.getAttribute("contenteditable") === "true" && title !== event.target && !title.contains(event.target)) {
-            title.insertAdjacentHTML("afterbegin", `<confirmation-popup data-presenter="confirmation-popup" 
-            data-message="Saved!" data-left="${title.offsetWidth}"></confirmation-popup>`);
             title.setAttribute("contenteditable", "false");
             this._document.title = title.innerText;
             await documentFactory.updateDocument(currentSpaceId, this._document);
+            title.insertAdjacentHTML("afterbegin", `<confirmation-popup data-presenter="confirmation-popup" 
+            data-message="Saved!" data-left="${title.offsetWidth/2}"></confirmation-popup>`);
             controller.abort();
         }
     }
@@ -54,18 +54,6 @@ export class editTitlePage {
     async showSuggestTitlesModal() {
 
         await showModal(document.querySelector("body"), "suggest-titles-modal", { presenter: "suggest-titles-modal"});
-    }
-
-    async select(_target) {
-        let selectedTitle = reverseQuerySelector(_target,".suggested-title").innerText;
-        if(selectedTitle !== this._document.getTitle()) {
-            this._document.setTitle(selectedTitle);
-            await documentFactory.updateDocument(currentSpaceId, this._document);
-            this.invalidate();
-        }
-        else {
-            removeActionBox(this.actionBox, this);
-        }
     }
 
     async edit(_target, querySelect) {
@@ -89,9 +77,9 @@ export class editTitlePage {
 
             if(newTitle.innerText !== altTitleObj.name) {
                 await this._document.updateAlternativeTitle(altTitleObj.id, newTitle.innerText);
-                newTitle.insertAdjacentHTML("afterbegin", `<confirmation-popup data-presenter="confirmation-popup" 
-                data-message="Saved!" data-left="${newTitle.offsetWidth}"></confirmation-popup>`);
             }
+            newTitle.insertAdjacentHTML("afterbegin", `<confirmation-popup data-presenter="confirmation-popup" 
+                data-message="Saved!" data-left="${newTitle.offsetWidth/2}"></confirmation-popup>`);
         });
     }
 

@@ -4,6 +4,7 @@
     padding: 15px;
 }
 .content{
+    position: relative;
     white-space: pre-wrap;
     overflow-wrap: break-word;
     hyphens: auto;

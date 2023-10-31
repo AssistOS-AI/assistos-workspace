@@ -31,22 +31,24 @@ export class abstractProofreadPage {
 
     async enterEditMode(_target, field) {
         let abstract = this.element.querySelector(`.${field}`);
-        if(!abstract.hasAttribute("contenteditable")){
-            document.addEventListener("click", this.exitEditMode.bind(this, abstract), true);
-        }
+        const controller = new AbortController();
+        document.addEventListener("click", this.exitEditMode.bind(this, abstract, controller), {signal:controller.signal});
         abstract.setAttribute("contenteditable", "true");
         abstract.focus();
     }
 
-    async exitEditMode (abstract, event) {
-        if (abstract.getAttribute("contenteditable") && !abstract.contains(event.target)) {
+    async exitEditMode (abstract, controller, event) {
+        if (abstract.getAttribute("contenteditable") === "true" && abstract !== event.target && !abstract.contains(event.target)) {
             abstract.setAttribute("contenteditable", "false");
-            if(abstract.classList.contains("abstract-content")){
+            if(abstract.classList.contains("abstract-content") && abstract.innerText!==this._document.abstract){
                 await this._document.updateAbstract(abstract.innerText);
+                abstract.insertAdjacentHTML("afterbegin", `<confirmation-popup data-presenter="confirmation-popup" 
+                data-message="Saved!" data-left="${abstract.offsetWidth/2}"></confirmation-popup>`);
             }
             else {
                 this.improvedAbstract = abstract.innerText;
             }
+            controller.abort();
         }
     }
 

@@ -58,6 +58,7 @@ abstract-proofread-page{
 
 .improved-abstract,
 .abstract-content {
+    position: relative;
     white-space: pre-wrap;
     overflow-wrap: break-word;
     hyphens: auto;

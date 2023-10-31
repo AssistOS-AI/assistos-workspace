@@ -60,6 +60,7 @@ paragraph-brainstorming-page {
 
 .paragraph-content,
 .main-idea-content{
+    position: relative;
     white-space: pre-wrap;
     overflow-wrap: break-word;
     hyphens: auto;
