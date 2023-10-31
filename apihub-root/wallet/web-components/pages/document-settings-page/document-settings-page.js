@@ -1,4 +1,4 @@
-import {DocumentModel, extractFormInformation} from "../../../imports.js";
+import {extractFormInformation} from "../../../imports.js";
 
 export class documentSettingsPage {
     constructor(element, invalidate) {

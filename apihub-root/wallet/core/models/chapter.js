@@ -1,4 +1,4 @@
-import { Paragraph } from './paragraph.js';
+import { Paragraph } from "../../imports.js";
 
 export class Chapter {
     constructor(chapterData) {

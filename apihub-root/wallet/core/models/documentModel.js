@@ -1,4 +1,4 @@
-import { Chapter } from "./chapter.js";
+import { Chapter } from "../../imports.js"
 
 export class DocumentModel {
     constructor(documentData) {

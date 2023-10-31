@@ -1,5 +1,8 @@
-import { closeModal } from "../../../../WebSkel/utils/modal-utils.js";
-import { reverseQuerySelector } from "../../../../WebSkel/utils/dom-utils.js";
+import {
+    closeModal,
+    reverseQuerySelector
+} from "../../../imports.js";
+
 
 export class editAnnouncementModal {
     constructor(element,invalidate) {

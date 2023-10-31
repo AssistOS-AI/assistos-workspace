@@ -1,4 +1,4 @@
-import {Chapter, extractFormInformation, Paragraph, sanitize} from "../../../imports.js";
+import {extractFormInformation} from "../../../imports.js";
 export class generateChaptersPage {
     constructor(element, invalidate) {
         this.element = element;

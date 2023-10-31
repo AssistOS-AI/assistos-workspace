@@ -21,6 +21,22 @@ export {
     Script
 };
 
+// Services
+import { StorageManager } from "./core/services/storageManager.js";
+
+export{
+    StorageManager
+}
+// Factories
+import {DocumentFactory} from "./core/factories/documentFactory.js";
+import {SpaceFactory} from "./core/factories/spaceFactory.js";
+
+export {
+    DocumentFactory,
+    SpaceFactory
+}
+
+
 // Others
 import WebSkel from "../WebSkel/webSkel.js";
 import { createFlowsFactory } from "../llmFlows/src/llmFlows.js";

@@ -2,9 +2,9 @@ import {
     closeModal,
     showActionBox,
     showModal,
-    removeActionBox
+    removeActionBox,
+    reverseQuerySelector
 } from "../../../imports.js";
-import { reverseQuerySelector } from "../../../../WebSkel/utils/dom-utils.js";
 export class editAbstractPage {
     constructor(element, invalidate) {
         this.element=element;

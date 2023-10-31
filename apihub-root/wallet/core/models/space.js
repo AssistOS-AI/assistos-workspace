@@ -1,4 +1,11 @@
-import {DocumentModel, Personality,User,Settings,Script,Announcement} from "../../imports.js";
+import {
+    DocumentModel,
+    Personality,
+    User,
+    Settings,
+    Script,
+    Announcement
+} from "../../imports.js";
 
 export class Space {
     constructor(spaceData) {

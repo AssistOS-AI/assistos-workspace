@@ -1,9 +1,9 @@
 import {
     WebSkel,
     closeModal,
+    StorageManager,
+    DocumentFactory
 } from "./imports.js";
-import { StorageManager } from "./core/services/storageManager.js";
-import {DocumentFactory} from "./core/factories/documentFactory.js";
 
 window.webSkel = new WebSkel();
 window.mainContent = document.querySelector("#app-wrapper");

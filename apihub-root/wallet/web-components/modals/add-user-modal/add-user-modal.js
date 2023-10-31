@@ -1,4 +1,4 @@
-import { closeModal } from "../../../../WebSkel/utils/modal-utils.js";
+import { closeModal } from "../../../imports.js";
 
 export class addUserModal {
     constructor() {

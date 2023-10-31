@@ -1,4 +1,7 @@
-import {extractFormInformation, reverseQuerySelector} from "../../../imports.js";
+import {
+    extractFormInformation,
+    reverseQuerySelector
+} from "../../../imports.js";
 export class translatePage {
     constructor(element, invalidate) {
         this.element = element;

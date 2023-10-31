@@ -1,4 +1,4 @@
-import {getClosestParentElement, reverseQuerySelector} from "../../../../../WebSkel/utils/dom-utils.js";
+import {getClosestParentElement, reverseQuerySelector} from "../../../../imports.js";
 
 export class chapterUnit {
     constructor(element, invalidate) {

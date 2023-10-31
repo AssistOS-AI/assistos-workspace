@@ -1,4 +1,9 @@
-import {extractFormInformation, showModal, closeModal, showActionBox, DocumentModel} from "../../../imports.js";
+import {
+    extractFormInformation,
+    showModal,
+    closeModal,
+    showActionBox
+} from "../../../imports.js";
 
 export class chapterTitlePage {
     constructor(element, invalidate) {

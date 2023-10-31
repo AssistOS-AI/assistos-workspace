@@ -1,4 +1,9 @@
-import {reverseQuerySelector, showActionBox, showModal, removeActionBox} from "../../../imports.js";
+import {
+    reverseQuerySelector,
+    showActionBox,
+    showModal,
+    removeActionBox
+} from "../../../imports.js";
 
 export class paragraphBrainstormingPage {
     constructor(element, invalidate) {

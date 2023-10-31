@@ -1,5 +1,7 @@
-import { closeModal } from "../../../../WebSkel/utils/modal-utils.js";
-import {extractFormInformation} from "../../../../WebSkel/utils/form-utils.js";
+import {
+    closeModal,
+    extractFormInformation
+} from "../../../imports.js";
 
 export class editScriptModal {
     constructor(element,invalidate) {

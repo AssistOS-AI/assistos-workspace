@@ -1,4 +1,8 @@
-import {Paragraph, showActionBox, reverseQuerySelector} from "../../../imports.js";
+import {
+    Paragraph,
+    showActionBox,
+    reverseQuerySelector
+} from "../../../imports.js";
 export class manageChaptersPage {
     constructor(element, invalidate) {
         this.element = element;

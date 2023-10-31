@@ -1,4 +1,7 @@
-import { getClosestParentElement, showModal, Space } from "../../../imports.js";
+import {
+    getClosestParentElement,
+    showModal
+} from "../../../imports.js";
 
 export class spaceDropdown {
     constructor(element,invalidate) {

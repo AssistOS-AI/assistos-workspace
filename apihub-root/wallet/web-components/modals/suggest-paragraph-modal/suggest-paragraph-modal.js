@@ -1,4 +1,7 @@
-import {sanitize, closeModal} from "../../../imports.js";
+import {
+    sanitize,
+    closeModal
+} from "../../../imports.js";
 
 export class suggestParagraphModal {
     constructor(element, invalidate) {

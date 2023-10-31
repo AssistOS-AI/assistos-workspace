@@ -1,5 +1,8 @@
-import {SpaceFactory} from "../factories/spaceFactory.js";
-import {Space} from "../../imports.js";
+import {
+    Space,
+    SpaceFactory
+} from "../../imports.js";
+
 
 const openDSU = require("opendsu");
 const crypto = openDSU.loadApi("crypto");

@@ -1,5 +1,8 @@
-import { showModal, showActionBox } from "../../../imports.js";
-import { reverseQuerySelector } from "../../../../WebSkel/utils/dom-utils.js";
+import {
+    showModal,
+    showActionBox,
+    reverseQuerySelector
+} from "../../../imports.js";
 
 export class scriptsPage {
     constructor(element, invalidate) {

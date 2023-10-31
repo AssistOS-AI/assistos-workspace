@@ -1,4 +1,7 @@
-import { showModal, showActionBox, reverseQuerySelector } from "../../../imports.js";
+import {
+    showModal,
+    reverseQuerySelector
+} from "../../../imports.js";
 
 export class personalitiesPage {
     constructor(element,invalidate) {

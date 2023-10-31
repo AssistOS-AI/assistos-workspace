@@ -1,6 +1,8 @@
-import { extractFormInformation } from "../../../../WebSkel/utils/form-utils.js";
-import { closeModal } from "../../../imports.js";
-import { SpaceFactory } from "../../../core/factories/spaceFactory.js";
+import {
+    closeModal,
+    SpaceFactory,
+    extractFormInformation
+} from "../../../imports.js";
 
 export class addSpaceModal {
     constructor(element,invalidate){

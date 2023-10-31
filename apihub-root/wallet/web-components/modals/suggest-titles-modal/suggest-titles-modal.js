@@ -1,5 +1,8 @@
-import {closeModal, showModal} from "../../../../WebSkel/utils/modal-utils.js";
-import {extractFormInformation, sanitize} from "../../../imports.js";
+import {
+    closeModal,
+    extractFormInformation,
+    sanitize
+} from "../../../imports.js";
 
 export class suggestTitlesModal {
     constructor(element, invalidate) {

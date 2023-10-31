@@ -1,4 +1,4 @@
-import {reverseQuerySelector} from "../../../../WebSkel/utils/dom-utils.js";
+import {reverseQuerySelector} from "../../../imports.js";
 
 export class documentViewPage {
     constructor(element, invalidate) {

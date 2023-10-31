@@ -1,5 +1,7 @@
-import { closeModal } from "../../../../WebSkel/utils/modal-utils.js";
-import {DocumentModel, sanitize} from "../../../imports.js";
+import {
+    closeModal,
+    sanitize
+} from "../../../imports.js";
 
 export class suggestAbstractModal {
     constructor(element, invalidate) {

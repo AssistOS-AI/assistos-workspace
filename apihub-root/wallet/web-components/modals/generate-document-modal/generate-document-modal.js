@@ -1,4 +1,7 @@
-import { extractFormInformation, closeModal} from "../../../imports.js";
+import {
+    extractFormInformation,
+    closeModal
+} from "../../../imports.js";
 export class generateDocumentModal{
     constructor(element, invalidate) {
         this.invalidate = invalidate;

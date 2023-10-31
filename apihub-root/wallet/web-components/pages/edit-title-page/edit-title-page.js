@@ -1,10 +1,10 @@
 import {
     closeModal,
     showActionBox,
-    showModal
+    showModal,
+    reverseQuerySelector,
+    removeActionBox
 } from "../../../imports.js";
-import { reverseQuerySelector } from "../../../../WebSkel/utils/dom-utils.js";
-import { removeActionBox } from "../../../../WebSkel/utils/modal-utils.js";
 
 export class editTitlePage {
     constructor(element, invalidate) {

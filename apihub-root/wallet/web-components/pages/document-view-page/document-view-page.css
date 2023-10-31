@@ -112,3 +112,6 @@
 .path-button:hover{
     cursor:pointer;
 }
+#highlighted-abstract{
+    background-color:#F3EBF3;
+}
