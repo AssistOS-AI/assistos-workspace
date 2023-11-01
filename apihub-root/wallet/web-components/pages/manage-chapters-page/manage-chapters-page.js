@@ -57,6 +57,10 @@ export class manageChaptersPage {
         });
     }
     async enterEditMode(_target) {
+        let confirmationPopup = this.element.querySelector("confirmation-popup");
+        if(confirmationPopup){
+            confirmationPopup.remove();
+        }
         let mainIdeas = this.element.querySelector(".main-ideas-list");
         const controller = new AbortController();
         document.addEventListener("click", this.exitEditMode.bind(this, mainIdeas, controller), {signal:controller.signal});

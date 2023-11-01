@@ -50,6 +50,10 @@ export class paragraphBrainstormingPage {
         }
     }
     async enterEditMode(_target, itemName) {
+        let confirmationPopup = this.element.querySelector("confirmation-popup");
+        if(confirmationPopup){
+            confirmationPopup.remove();
+        }
         let item;
         if(itemName === "mainIdea"){
             item = this.element.querySelector(".main-idea-content");

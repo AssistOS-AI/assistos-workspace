@@ -8,6 +8,7 @@ import {
 
 export class editTitlePage {
     constructor(element, invalidate) {
+        this.element = element;
         this._document = webSkel.space.getDocument(webSkel.space.currentDocumentId);
         this._document.observeChange(this._document.getNotificationId() + ":edit-title-page", invalidate);
         this.invalidate = invalidate;
@@ -57,6 +58,10 @@ export class editTitlePage {
     }
 
     async edit(_target, querySelect) {
+        let confirmationPopup = this.element.querySelector("confirmation-popup");
+        if(confirmationPopup){
+            confirmationPopup.remove();
+        }
         let newTitle;
         if(querySelect){
             newTitle = _target.querySelector(".suggested-title");

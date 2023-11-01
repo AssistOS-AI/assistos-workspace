@@ -40,6 +40,10 @@ export class paragraphProofreadPage {
     }
 
     async enterEditMode(_target, field) {
+        let confirmationPopup = this.element.querySelector("confirmation-popup");
+        if(confirmationPopup){
+            confirmationPopup.remove();
+        }
         let paragraph = this.element.querySelector(`.${field}`);
         const controller = new AbortController();
         document.addEventListener("click", this.exitEditMode.bind(this, paragraph, controller), {signal:controller.signal});
