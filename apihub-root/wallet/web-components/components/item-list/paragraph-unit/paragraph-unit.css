@@ -19,7 +19,11 @@
     border-radius: 5px;
 }
 
-
+.paragraph-text:focus {
+    outline: none;
+    background-color:#FFFFFF;
+    border-radius:3px;
+}
 
 .paragraph-text {
     display:flex;

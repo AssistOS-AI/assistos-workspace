@@ -206,8 +206,8 @@ export class DocumentModel {
         await documentFactory.updateDocument(currentSpaceId, this);
     }
 
-    async addParagraph(chapter, paragraphData){
-        chapter.addParagraph(paragraphData);
+    async addParagraph(chapter, paragraphData, position){
+        chapter.addParagraph(paragraphData, position);
         await documentFactory.updateDocument(currentSpaceId, this);
     }
 

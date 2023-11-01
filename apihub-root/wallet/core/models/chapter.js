@@ -40,6 +40,7 @@ export class Chapter {
     }
 
     addParagraph(paragraphData,paragraphPosition){
+        //if position is not specified splice converts undefined to 0
         this.paragraphs.splice(paragraphPosition,0,new Paragraph(paragraphData));
     }
 

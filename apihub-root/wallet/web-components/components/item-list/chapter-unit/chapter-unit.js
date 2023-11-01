@@ -1,4 +1,4 @@
-import {getClosestParentElement, reverseQuerySelector} from "../../../../imports.js";
+import {getClosestParentElement, reverseQuerySelector, sanitize} from "../../../../imports.js";
 
 export class chapterUnit {
     constructor(element, invalidate) {
@@ -35,17 +35,11 @@ export class chapterUnit {
             if (reverseQuerySelector(paragraph, '[data-paragraph-id]').getAttribute("data-paragraph-id") === webSkel.space.currentParagraphId) {
                 currentParagraph = paragraph;
             }
-            paragraph.addEventListener("click", (event) => {
-                if (paragraph.getAttribute("contenteditable") !== "true") {
-                    this.highlightChapter(paragraph.closest(".chapter-unit"));
-                    this.enterEditMode(paragraph, event);
-                }
-            }, true);
         });
         if (this.chapter.id === webSkel.space.currentChapterId) {
             this.highlightChapter(this.element.querySelector(".chapter-text"));
             if (currentParagraph !== "") {
-                this.enterEditMode(currentParagraph);
+                this.editParagraph(currentParagraph);
             }
         }
     }
@@ -109,10 +103,6 @@ export class chapterUnit {
         if (!fromParagraph && !fromChapter) {
             return;
         }
-        const editableParagraph = document.querySelector('[contenteditable="true"]');
-        if (editableParagraph) {
-            await this.saveEditedParagraph(editableParagraph);
-        }
         let paragraphPosition=null;
         if(fromParagraph){
                 paragraphPosition=this.chapter.getParagraphIndex(fromParagraph.getAttribute("data-paragraph-id"))+1;
@@ -120,15 +110,14 @@ export class chapterUnit {
                 paragraphPosition=this.chapter.paragraphs.length;
         }
         await this.addNewParagraph(paragraphPosition);
-        this._document.notifyObservers(this._document.getNotificationId()+":document-view-page:"+"chapter:"+`${this.chapter.id}`);
     }
 
     async addNewParagraph(paragraphPosition){
         let newParagraphId=webSkel.getService("UtilsService").generateId();
-        await this.chapter.addParagraph({id: newParagraphId, text:""},paragraphPosition);
+        await this._document.addParagraph(this.chapter, {id: newParagraphId, text:""}, paragraphPosition);
         webSkel.space.currentChapterId=this.chapter.id;
         webSkel.space.currentParagraphId=newParagraphId;
-        this._document.notifyObservers(this._document.getNotificationId()+":document-view-page:"+"chapter:"+`${this.chapter.id}`);
+        this.invalidate();
     }
     async documentClickHandler(event) {
         const editableUnit = document.querySelector('[contenteditable="true"]');
@@ -138,12 +127,6 @@ export class chapterUnit {
             } else {
                 if(editableUnit.classList.contains("chapter-title")) {
                         await this.saveEditedChapterTitle(editableUnit);
-                }else{
-                    if(editableUnit.classList.contains("paragraph-text")){
-                        await this.saveEditedParagraph(editableUnit);
-                        this.displaySidebar("chapter-sidebar");
-                        this.alternateArrowsDisplay(editableUnit, "paragraph");
-                    }
                 }
             }
         }
@@ -186,29 +169,6 @@ export class chapterUnit {
             this._document.notifyObservers(`${this._document.getNotificationId()}:refresh`);
         }
     }
-    async saveEditedParagraph(editableParagraph) {
-            editableParagraph.setAttribute("contenteditable", "false");
-            let updatedText = editableParagraph.innerText;
-            if (updatedText === '\n') {
-                updatedText = '';
-            }
-            let currentDocument = webSkel.space.getDocument(webSkel.space.currentDocumentId);
-            let currentChapter = currentDocument.getChapter(reverseQuerySelector(editableParagraph, ".chapter-unit").getAttribute("data-chapter-id"));
-            let currentParagraph = currentChapter.getParagraph(reverseQuerySelector(editableParagraph, ".paragraph-unit").getAttribute("data-paragraph-id"));
-
-            let updateRequired = false;
-            if (updatedText === null || updatedText.trim() === '') {
-                currentChapter.deleteParagraph(webSkel.space.currentParagraphId);
-                updateRequired = true;
-            } else if (updatedText !== currentParagraph.text) {
-                currentParagraph.updateText(updatedText);
-                updateRequired = true;
-            }
-            if (updateRequired) {
-                await documentFactory.updateDocument(currentSpaceId, currentDocument);
-                currentDocument.notifyObservers(currentDocument.getNotificationId() + ":document-view-page:" + "chapter:" + `${currentChapter.id}`);
-            }
-    }
 
     highlightChapter(_target) {
         let target = reverseQuerySelector(_target, ".chapter-unit");
@@ -244,17 +204,58 @@ export class chapterUnit {
         }
     }
 
-    enterEditMode(paragraph, event) {
-        paragraph.setAttribute("id", "selected-chapter");
-        paragraph.setAttribute("contenteditable", "true");
-        paragraph.focus();
-        this.alternateArrowsDisplay(paragraph, "paragraph");
-        if (event) {
-            event.stopPropagation();
-            event.preventDefault();
+    editParagraph(paragraph) {
+        if (paragraph.getAttribute("contenteditable") === "false") {
+
+            this.highlightChapter(paragraph.closest(".chapter-unit"));
+            paragraph.setAttribute("id", "selected-chapter");
+            paragraph.setAttribute("contenteditable", "true");
+            let paragraphUnit = reverseQuerySelector(paragraph, ".paragraph-unit");
+            let paragraphArrows = paragraphUnit.querySelector(".paragraph-arrows");
+            paragraph.focus();
+
+            const keepFocus = (event)=>{
+                let paragraph = paragraphUnit.querySelector(".paragraph-text");
+                paragraph.focus();
+            };
+            paragraphArrows.addEventListener("click",keepFocus);
+            this.alternateArrowsDisplay(paragraph, "paragraph");
+
+            let currentParagraphId = paragraphUnit.getAttribute("data-paragraph-id");
+            webSkel.space.currentParagraphId = currentParagraphId;
+            this.displaySidebar("paragraph-sidebar");
+            let currentParagraph = this.chapter.getParagraph(currentParagraphId);
+            let timer = new Timer(async () => {
+                if (!currentParagraph) {
+                    timer.stop();
+                    return;
+                }
+                let updatedText = paragraph.innerText;
+                if (updatedText !== currentParagraph.text) {
+                    await this._document.updateParagraphText(currentParagraph, updatedText);
+                }
+            }, 1000);
+            paragraph.addEventListener("blur", async () => {
+                this.displaySidebar("chapter-sidebar");
+                this.alternateArrowsDisplay(paragraph, "paragraph");
+                paragraph.removeEventListener("keydown", resetTimer);
+                await timer.forceExec();
+                timer.stop();
+                paragraph.setAttribute("contenteditable", "false");
+            }, {once: true});
+            const resetTimer = async (event) => {
+                if (paragraph.innerText.trim() === "" && event.key === "Backspace") {
+                    if (currentParagraph) {
+                        await this._document.deleteParagraph(this.chapter, currentParagraphId);
+                        this.invalidate();
+                    }
+                    timer.stop();
+                } else {
+                    timer.reset(1000);
+                }
+            };
+            paragraph.addEventListener("keydown", resetTimer);
         }
-        webSkel.space.currentParagraphId = reverseQuerySelector(paragraph, ".paragraph-unit").getAttribute("data-paragraph-id");
-        this.displaySidebar("paragraph-sidebar");
     }
 
     displaySidebar(sidebarID) {
@@ -314,7 +315,7 @@ export class chapterUnit {
 
         if (this.chapter.swapParagraphs(currentParagraphId, adjacentParagraphId)) {
             await documentFactory.updateDocument(currentSpaceId, this._document);
-            this._document.notifyObservers(`${this._document.getNotificationId()}:document-view-page:chapter:${chapterId}`);
+            this.invalidate();
             webSkel.space.currentParagraphId = currentParagraphId;
         } else {
             console.error(`Unable to swap paragraphs. ${currentParagraphId}, ${adjacentParagraphId}, Chapter: ${chapterId}`);
@@ -323,6 +324,35 @@ export class chapterUnit {
 
 
 }
+function Timer(fn, t) {
+    let timerObj = setInterval(fn, t);
 
+    this.stop = function() {
+        if (timerObj) {
+            clearInterval(timerObj);
+            timerObj = null;
+        }
+        return this;
+    }
+
+    // start timer using current settings (if it's not already running)
+    this.start = function() {
+        if (!timerObj) {
+            this.stop();
+            timerObj = setInterval(fn, t);
+        }
+        return this;
+    }
+
+    // start with new or original interval, stop current interval
+    this.reset = function(newT = t) {
+        t = newT;
+        return this.stop().start();
+    }
+
+    this.forceExec = async function (){
+       await fn();
+    }
+}
 
 

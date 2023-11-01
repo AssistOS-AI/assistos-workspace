@@ -91,11 +91,7 @@
     height: min-content;
 }
 
-.paragraph-text:focus {
-    outline: none;
-    background-color:#FFFFFF;
-    border-radius:3px;
-}
+
 
 p {
     margin-block-start: 0;
