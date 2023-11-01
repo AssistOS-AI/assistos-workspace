@@ -21,7 +21,7 @@ export class editAbstractPage {
         let i = 1;
         this._document.alternativeAbstracts.forEach((abstract)=>{
             this.alternativeAbstracts += `<alternative-abstract data-nr="${i}" data-id="${abstract.id}" 
-            data-title="${abstract.content}" data-local-action="edit querySelect"></alternative-abstract>`;
+            data-title="${abstract.content}" ></alternative-abstract>`;
             i++;
         });
         document.removeEventListener("click", this.exitEditMode, true);
@@ -45,11 +45,12 @@ export class editAbstractPage {
     }
 
     async exitEditMode (abstract, controller, event) {
+        debugger;
         if (abstract.getAttribute("contenteditable") === "true" && abstract !== event.target && !abstract.contains(event.target)) {
             abstract.setAttribute("contenteditable", "false");
 
             await this._document.updateAbstract(abstract.innerText);
-            abstract.insertAdjacentHTML("afterbegin", `<confirmation-popup data-presenter="confirmation-popup" 
+            abstract.insertAdjacentHTML("afterbegin", `<confirmation-popup data-presenter="confirmation-popup"
             data-message="Saved!" data-left="${abstract.offsetWidth/2}"></confirmation-popup>`);
             controller.abort();
         }
@@ -75,9 +76,13 @@ export class editAbstractPage {
         this.invalidate();
     }
     async edit(_target, querySelect) {
+        let confirmationPopup = this.element.querySelector("confirmation-popup");
+        if(confirmationPopup){
+            confirmationPopup.remove();
+        }
         let abstractText;
         if(querySelect){
-            abstractText = _target.querySelector(".content");
+            abstractText = _target
         }else {
             abstractText = reverseQuerySelector(_target, ".content");
         }

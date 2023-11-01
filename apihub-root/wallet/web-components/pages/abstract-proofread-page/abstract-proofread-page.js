@@ -30,6 +30,10 @@ export class abstractProofreadPage {
     }
 
     async enterEditMode(_target, field) {
+        let confirmationPopup = this.element.querySelector("confirmation-popup");
+        if(confirmationPopup){
+            confirmationPopup.remove();
+        }
         let abstract = this.element.querySelector(`.${field}`);
         const controller = new AbortController();
         document.addEventListener("click", this.exitEditMode.bind(this, abstract, controller), {signal:controller.signal});

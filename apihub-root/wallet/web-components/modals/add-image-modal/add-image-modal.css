@@ -1,0 +1,46 @@
+.square-image-container {
+    min-width: 400px;
+    min-height: 400px;
+    border-style: dashed;
+    border-radius: 2px;
+    border-color: #511A53;
+    display: flex;
+    justify-content: center;
+    align-items: center;
+}
+.close {
+    padding: 0;
+    font-weight: 300;
+    color: #ffffff;
+    cursor: pointer;
+    background-color: transparent;
+    border: none;
+    font-size: 30px;
+}
+.modal-header{
+    padding: 5px 20px 5px 20px;
+    margin-bottom: 5px;
+    background: #A42E70;
+    display: flex;
+    justify-content: space-between;
+}
+.icon-container {
+    text-align: center;
+}
+
+.icon-container p {
+    margin-top: 10px;
+    color: gray;
+}
+
+.file-info {
+    margin-top: 20px;
+    font-size: 14px;
+    color: red;
+}
+.image-upload-form-header {
+    width: 100%;
+    display: flex;
+    justify-content: space-between;
+}
+.image-upload-form{padding:20px;}
