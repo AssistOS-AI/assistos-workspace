@@ -1,4 +1,4 @@
-import {reverseQuerySelector} from "../../../imports.js";
+import {reverseQuerySelector, Timer} from "../../../imports.js";
 
 export class documentViewPage {
     constructor(element, invalidate) {
@@ -12,7 +12,7 @@ export class documentViewPage {
 
     beforeRender() {
         this.chaptersContainer = "";
-        this.title = `<title-view title="${this._document.title}"></title-view>`;
+        this.docTitle = this._document.title;
         this.abstractText=this._document.abstract||"No abstract has been set or generated for this document";
         if(this._document.chapters.length > 0) {
             this._document.setCurrentChapter(this._document.chapters[0].id);
@@ -54,6 +54,28 @@ export class documentViewPage {
     }
 
     afterRender() {
+    }
+
+    editTitle(title){
+        if (title.getAttribute("contenteditable") === "false") {
+            title.setAttribute("contenteditable", "true");
+
+            let timer = new Timer(async () => {
+                if (title.innerText !== this._document.title) {
+                    await this._document.updateTitle(title.innerText);
+                }
+            }, 1000);
+            title.addEventListener("blur", async () => {
+                title.removeEventListener("keydown", resetTimer);
+                await timer.forceExec();
+                timer.stop();
+                title.setAttribute("contenteditable", "false");
+            }, {once: true});
+            const resetTimer = async () => {
+                timer.reset(1000);
+            };
+            title.addEventListener("keydown", resetTimer);
+        }
     }
 
     async openEditTitlePage() {

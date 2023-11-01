@@ -68,9 +68,13 @@
     font-style: normal;
     font-weight: 600;
     line-height: normal;
-    padding: 20px 20px 10px;
+    margin: 20px 20px 10px 10px;
+    padding-left: 10px;
 }
-
+.document-title:focus{
+    outline: none;
+    background-color: #F3EBF3;
+}
 
 .document-path svg {
     margin: 5px;
@@ -111,3 +115,20 @@
 #highlighted-abstract{
     background-color:#F3EBF3;
 }
+
+
+
+/*display: inline-block;*/
+/*position: relative;*/
+/*white-space: pre-wrap;*/
+/*overflow-wrap: break-word;*/
+/*hyphens: auto;*/
+/*word-break: break-word;*/
+/*padding: 15px;*/
+/*border-radius: 10px;*/
+/*color: #252525;*/
+/*font-size: 16px;*/
+/*font-style: normal;*/
+/*font-weight: 400;*/
+/*line-height: normal;*/
+/*margin-right: 10px;*/

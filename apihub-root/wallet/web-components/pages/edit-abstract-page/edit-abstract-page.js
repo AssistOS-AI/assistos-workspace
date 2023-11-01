@@ -45,7 +45,6 @@ export class editAbstractPage {
     }
 
     async exitEditMode (abstract, controller, event) {
-        debugger;
         if (abstract.getAttribute("contenteditable") === "true" && abstract !== event.target && !abstract.contains(event.target)) {
             abstract.setAttribute("contenteditable", "false");
 

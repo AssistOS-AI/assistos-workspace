@@ -170,16 +170,13 @@ export class DocumentModel {
         }
     }
 
-    getTitle() {
-        return this.title || null;
-    }
-
     getAlternativeTitle(id){
         return this.alternativeTitles.find(title => title.id === id);
     }
 
-    setTitle(title) {
+    async updateTitle(title) {
         this.title = title;
+        await documentFactory.updateDocument(currentSpaceId, this);
     }
 
     async updateAlternativeTitle(id, newName) {

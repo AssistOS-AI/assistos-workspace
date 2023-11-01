@@ -318,10 +318,6 @@
       "path": "./wallet/web-components/components/action-box/action-box.html"
     },
     {
-      "name": "title-view",
-      "path": "./wallet/web-components/components/title-view/title-view.html"
-    },
-    {
       "name": "action-box-with-select",
       "path": "./wallet/web-components/components/action-box-with-select/action-box-with-select.html"
     },

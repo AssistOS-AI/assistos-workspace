@@ -1,4 +1,4 @@
-import {getClosestParentElement, reverseQuerySelector, sanitize} from "../../../../imports.js";
+import {getClosestParentElement, reverseQuerySelector, Timer} from "../../../../imports.js";
 
 export class chapterUnit {
     constructor(element, invalidate) {
@@ -211,14 +211,17 @@ export class chapterUnit {
             paragraph.setAttribute("id", "selected-chapter");
             paragraph.setAttribute("contenteditable", "true");
             let paragraphUnit = reverseQuerySelector(paragraph, ".paragraph-unit");
-            let paragraphArrows = paragraphUnit.querySelector(".paragraph-arrows");
             paragraph.focus();
 
-            const keepFocus = (event)=>{
-                let paragraph = paragraphUnit.querySelector(".paragraph-text");
-                paragraph.focus();
-            };
-            paragraphArrows.addEventListener("click",keepFocus);
+            // const keepFocus = (event)=>{
+            //     if(getClosestParentElement(event.target,".paragraph-arrows")){
+            //         paragraph.focus();
+            //     }
+            //     else {
+            //         this.alternateArrowsDisplay(paragraph, "paragraph");
+            //     }
+            // };
+            // document.addEventListener("click",keepFocus);
             this.alternateArrowsDisplay(paragraph, "paragraph");
 
             let currentParagraphId = paragraphUnit.getAttribute("data-paragraph-id");
@@ -321,38 +324,7 @@ export class chapterUnit {
             console.error(`Unable to swap paragraphs. ${currentParagraphId}, ${adjacentParagraphId}, Chapter: ${chapterId}`);
         }
     }
-
-
 }
-function Timer(fn, t) {
-    let timerObj = setInterval(fn, t);
 
-    this.stop = function() {
-        if (timerObj) {
-            clearInterval(timerObj);
-            timerObj = null;
-        }
-        return this;
-    }
-
-    // start timer using current settings (if it's not already running)
-    this.start = function() {
-        if (!timerObj) {
-            this.stop();
-            timerObj = setInterval(fn, t);
-        }
-        return this;
-    }
-
-    // start with new or original interval, stop current interval
-    this.reset = function(newT = t) {
-        t = newT;
-        return this.stop().start();
-    }
-
-    this.forceExec = async function (){
-       await fn();
-    }
-}
 
 
