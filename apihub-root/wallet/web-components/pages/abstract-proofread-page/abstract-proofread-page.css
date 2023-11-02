@@ -27,18 +27,28 @@ abstract-proofread-page{
 .improved-abstract-container{
     display: none;
 }
-.current-abstract,
+
 .improved-abstract-title-container{
     display: flex;
     align-items: baseline;
 }
+.current-abstract{
+        margin-top:20px;
+        padding-right:20px;
+        display: flex;
+        align-items: center;
+        justify-content:space-between;
+}
 .current-abstract-title,
 .improved-abstract-title{
-    margin: 20px 15px 0 15px;
+    margin: 0 15px 0;
     color: #252525;
     font-size: 18px;
     font-style: normal;
     font-weight: 600;
+}
+.improved-abstract-title{
+    margin-top:20px;
 }
 
 .document-path,
@@ -89,4 +99,9 @@ abstract-proofread-page{
     font-style: normal;
     font-weight: 600;
     line-height: normal;
+}
+.current-abstract-left, .current-abstract-right{
+    display:flex;
+    align-items:center;
+    justify-content: space-between;
 }

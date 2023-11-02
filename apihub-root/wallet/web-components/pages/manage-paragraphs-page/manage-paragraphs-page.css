@@ -11,7 +11,24 @@ manage-paragraphs-page {
     align-items: baseline;
     margin: 10px 0;
 }
-
+.add-paragraph-button{
+    margin-left:4px;
+    display: flex;
+    justify-content: center;
+    align-items: center;
+    font-size: 16px;
+    font-weight: 600;
+    line-height: 24px;
+    text-align: center;
+    color: #FFFFFF;
+    background: #A42E70;
+    width: fit-content;
+    height: 22px;
+    padding: 6px 9px;
+    border-radius: 17px;
+    gap: 8px;
+    cursor: pointer;
+}
 .path-button {
     color: #A42E70;
     font-size: 14px;
@@ -57,13 +74,21 @@ manage-paragraphs-page {
     font-style: normal;
     font-weight: 600;
     line-height: normal;
+    display:flex;
+    align-items:center;
 }
 
 .main-ideas-title{
     display: flex;
     align-items: baseline;
+    padding-right:20px;
+    justify-content: space-between;
 }
 
 .main-ideas-separator{
     border: 1px solid #E6E6E6;
+}
+.section-title-left, .section-title-right{
+    display: flex;
+    align-items: baseline;
 }

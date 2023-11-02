@@ -57,9 +57,34 @@ manage-chapters-page {
     font-style: normal;
     font-weight: 600;
     line-height: normal;
+    display:flex;
+    align-items:center;
 }
-
+.add-chapter-button{
+    margin-left:4px;
+    display: flex;
+    justify-content: center;
+    align-items: center;
+    font-size: 16px;
+    font-weight: 600;
+    line-height: 24px;
+    text-align: center;
+    color: #FFFFFF;
+    background: #A42E70;
+    width: fit-content;
+    height: 22px;
+    padding: 6px 9px;
+    border-radius: 17px;
+    gap: 8px;
+    cursor: pointer;
+}
 .main-ideas-title{
+    display: flex;
+    justify-content: space-between;
+    align-items: baseline;
+    padding-right:20px;
+}
+.section-title-left, .section-title-right{
     display: flex;
     align-items: baseline;
 }
