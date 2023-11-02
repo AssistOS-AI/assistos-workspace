@@ -8,9 +8,6 @@ export class documentViewPage {
         this._document.observeChange(this._document.getNotificationId() + ":refresh", invalidate);
         this.invalidate = invalidate;
         this.invalidate();
-
-
-
     }
 
     beforeRender() {
@@ -25,18 +22,106 @@ export class documentViewPage {
                 this.chaptersContainer += `<chapter-unit data-chapter-number="${iterator}" data-chapter-title="${item.title}" data-chapter-id="${item.id}" data-presenter="chapter-unit"></chapter-unit>`;
             });
         }
-        //document.removeEventListener("click",this.highlightElement);
+        document.removeEventListener("click",this.highlightElement.bind(this));
     }
 
-    // afterRender() {
-    //     document.addEventListener("click",this.highlightElement);
-    // }
-    //
-    // highlightElement(event){
-    //     if(getClosestParentElement(event.target, "paragraph-unit")){
-    //
-    //     }
-    // }
+    afterRender() {
+        this.chapterSidebar = this.element.querySelector("#chapter-sidebar");
+        this.paragraphSidebar = this.element.querySelector("#paragraph-sidebar");
+        document.addEventListener("click",this.highlightElement.bind(this));
+    }
+
+    highlightElement(event){
+        this.chapterUnit = getClosestParentElement(event.target, ".chapter-unit");
+        this.paragraphUnit = getClosestParentElement(event.target, "paragraph-unit");
+        this.deselectPreviousParagraph();
+        this.deselectPreviousChapter();
+        if(this.paragraphUnit){
+            this.previouslySelectedParagraph = this.paragraphUnit;
+            this.previouslySelectedChapter = this.chapterUnit;
+            this.displaySidebar("paragraph-sidebar");
+            webSkel.space.currentParagraphId = this.paragraphUnit.getAttribute("data-paragraph-id");
+            this.switchArrowsDisplay(this.paragraphUnit, "paragraph", "on");
+            this.highlightChapter();
+        }else if(this.chapterUnit){
+            this.displaySidebar("chapter-sidebar");
+            this.previouslySelectedChapter = this.chapterUnit;
+            this.switchArrowsDisplay(this.chapterUnit, "chapter", "on");
+            this.highlightChapter();
+        }else {
+            this.displaySidebar("document-sidebar");
+        }
+    }
+
+    deselectPreviousParagraph(){
+        if(this.previouslySelectedParagraph){
+            webSkel.space.currentParagraphId = null;
+            this.switchArrowsDisplay(this.previouslySelectedParagraph, "paragraph");
+            delete this.previouslySelectedParagraph;
+        }
+    }
+
+    deselectPreviousChapter(){
+        if(this.previouslySelectedChapter){
+            this.switchArrowsDisplay(this.previouslySelectedChapter, "chapter");
+            this.previouslySelectedChapter.removeAttribute("id");
+            webSkel.space.currentChapterId = null;
+            delete this.previouslySelectedChapter;
+        }
+    }
+    highlightChapter(){
+        this.chapterUnit.setAttribute("id", "highlighted-chapter");
+        this.switchArrowsDisplay(this.chapterUnit, "chapter", "on");
+        webSkel.space.currentChapterId = this.chapterUnit.getAttribute("data-chapter-id");
+    }
+
+    switchArrowsDisplay(target, type, mode) {
+        if(type==="chapter"){
+            if(this._document.chapters.length===1){
+                return;
+            }
+        }
+        if(type==="paragraph"){
+            let chapter = this._document.getChapter(this.previouslySelectedChapter.getAttribute("data-chapter-id"));
+            if(chapter.paragraphs.length===1){
+                return;
+            }
+        }
+        const arrowsSelector = type === "chapter" ? '.chapter-arrows' : '.paragraph-arrows';
+        let foundElement = target.querySelector(arrowsSelector);
+        if (!foundElement) {
+            let nextSibling = target.nextElementSibling;
+            while (nextSibling) {
+                if (nextSibling.matches(arrowsSelector)) {
+                    foundElement = nextSibling;
+                    break;
+                }
+                nextSibling = nextSibling.nextElementSibling;
+            }
+        }
+        if(mode === "on"){
+            foundElement.style.display = "flex";
+        }else{
+            foundElement.style.display = "none";
+        }
+    }
+
+    displaySidebar(sidebarID) {
+        setTimeout(()=>{
+            if(sidebarID === "paragraph-sidebar"){
+                this.chapterSidebar.style.display = "block";
+                this.paragraphSidebar.style.display = "block";}
+            else if(sidebarID === "chapter-sidebar")
+            {
+                this.chapterSidebar.style.display = "block";
+                this.paragraphSidebar.style.display = "none";
+            }
+            else {
+                this.chapterSidebar.style.display = "none";
+                this.paragraphSidebar.style.display = "none";
+            }
+        },100);
+    }
     async editAbstract(abstract){
         if (abstract.getAttribute("contenteditable") === "false") {
             let abstractSection = reverseQuerySelector(abstract,".abstract-section");
