@@ -116,9 +116,10 @@ textarea {
     align-items: center;
     justify-content:space-between;
 }
-.title-edit-section-left{
+.title-edit-section-left, .title-edit-section-right{
     display:flex;
     align-items:center;
+    justify-content: space-between;
 }
 /*.title-edit-section-left{
     margin-right:30px;
