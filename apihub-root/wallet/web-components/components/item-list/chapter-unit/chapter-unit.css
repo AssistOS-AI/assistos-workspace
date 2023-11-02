@@ -14,17 +14,12 @@
     transition-duration: 0.3s;
 }
 
-.edit-chapter-title-button{
-    display:none;
-}
 .chapter-title:focus{
     outline:none;
     background-color:#FFFFFF;
     border-radius:3px;
 }
-.edit-chapter-title-button:hover{
-    cursor:pointer;
-}
+
 .ten-px-margin-left{
     margin-left:10px;
 }
@@ -51,8 +46,7 @@
     margin-left: 20px;
 }
 
-.chapter-arrows,
-.paragraph-arrows{
+.chapter-arrows{
     cursor: pointer;
 }
 
@@ -91,6 +85,9 @@
     height: min-content;
 }
 
+.hidden{
+    display: none;
+}
 
 
 p {
@@ -101,10 +98,8 @@ p {
 }
 
 .chapter-title {
-    margin-left: 10px;
-    display: flex;
-    flex-direction: row;
-    align-items: center;
+    padding: 5px 5px 5px 10px;
+    display: inline-block;
 }
 .chapter-text,.chapter-unit{
     width:100%;

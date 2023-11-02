@@ -4,7 +4,10 @@
     border-radius: 10px;
     width: 100%;
 }
-
+.paragraph-arrow{
+    margin-left: 8px;
+    cursor: pointer;
+}
 .paragraph-arrows {
     width:30px;
     min-width:30px;
@@ -13,7 +16,10 @@
     align-items: center;
     justify-content: center;
 }
-
+.paragraph-arrow-container{
+    width: 100%;
+    height: 100%;
+}
 .paragraph-unit p {
     padding: 0 10px;
     border-radius: 5px;
@@ -26,6 +32,7 @@
 }
 
 .paragraph-text {
+    border-radius: 3px;
     display:inline-block;
     cursor: text;
     padding:10px;

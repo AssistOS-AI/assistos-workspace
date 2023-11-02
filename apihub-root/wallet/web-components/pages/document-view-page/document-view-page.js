@@ -1,4 +1,4 @@
-import {reverseQuerySelector, Timer} from "../../../imports.js";
+import {reverseQuerySelector, SaveElementTimer} from "../../../imports.js";
 
 export class documentViewPage {
     constructor(element, invalidate) {
@@ -23,12 +23,28 @@ export class documentViewPage {
             });
         }
     }
-    async enterAbstractEditMode(_target){
-        let abstractText = reverseQuerySelector(_target, ".abstract-content-text");
-        let abstractContainer = reverseQuerySelector(_target, ".abstract-section");
-        abstractContainer.setAttribute("id", "highlighted-chapter");
-        abstractText.setAttribute("contenteditable", "true");
-        abstractText.focus();
+    async editAbstract(abstract){
+        if (abstract.getAttribute("contenteditable") === "false") {
+            let abstractSection = reverseQuerySelector(abstract,".abstract-section");
+            abstract.setAttribute("contenteditable", "true");
+            abstract.focus();
+            abstractSection.setAttribute("id", "highlighted-chapter");
+            let timer = new SaveElementTimer(async () => {
+                if (abstract.innerText !== this._document.abstract) {
+                    await this._document.updateAbstract(abstract.innerText);
+                }
+            }, 1000);
+            abstract.addEventListener("blur", async () => {
+                abstract.removeEventListener("keydown", resetTimer);
+                await timer.stop(true);
+                abstract.setAttribute("contenteditable", "false");
+                abstractSection.removeAttribute("id");
+            }, {once: true});
+            const resetTimer = async () => {
+                await timer.reset(1000);
+            };
+            abstract.addEventListener("keydown", resetTimer);
+        }
     }
     async addChapter() {
         let chapterData= {
@@ -59,20 +75,21 @@ export class documentViewPage {
     editTitle(title){
         if (title.getAttribute("contenteditable") === "false") {
             title.setAttribute("contenteditable", "true");
-
-            let timer = new Timer(async () => {
+            title.focus();
+            title.parentElement.setAttribute("id", "highlighted-chapter");
+            let timer = new SaveElementTimer(async () => {
                 if (title.innerText !== this._document.title) {
                     await this._document.updateTitle(title.innerText);
                 }
             }, 1000);
             title.addEventListener("blur", async () => {
                 title.removeEventListener("keydown", resetTimer);
-                await timer.forceExec();
-                timer.stop();
+                await timer.stop(true);
                 title.setAttribute("contenteditable", "false");
+                title.parentElement.removeAttribute("id");
             }, {once: true});
             const resetTimer = async () => {
-                timer.reset(1000);
+                await timer.reset(1000);
             };
             title.addEventListener("keydown", resetTimer);
         }
