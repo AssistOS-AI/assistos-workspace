@@ -29,66 +29,23 @@ export class chapterUnit {
     }
 
     afterRender() {
+        this.chapterUnit = this.element.querySelector(".chapter-unit");
         let selectedParagraphs = this.element.querySelectorAll(".paragraph-text");
         let currentParagraph = "";
         selectedParagraphs.forEach(paragraph => {
             if (reverseQuerySelector(paragraph, '[data-paragraph-id]').getAttribute("data-paragraph-id") === webSkel.space.currentParagraphId) {
                 currentParagraph = paragraph;
+                currentParagraph.click();
             }
         });
         if (this.chapter.id === webSkel.space.currentChapterId) {
-            this.highlightChapter(this.element.querySelector(".chapter-text"));
-            if (currentParagraph !== "") {
-                this.editParagraph(currentParagraph);
-            }
+            this.highlightChapter();
         }
         if(this.chapter.visibility === "hide"){
             let paragraphsContainer = this.element.querySelector(".chapter-paragraphs");
             paragraphsContainer.classList.toggle('hidden');
             let arrow = this.element.querySelector(".arrow");
             arrow.classList.toggle('rotate');
-        }
-    }
-
-    alternateArrowsDisplay(target, type) {
-        if(type==="chapter"){
-            if(this._document.chapters.length===1){
-                return;
-            }
-        }
-        if(type==="paragraph"){
-            if(this.chapter.paragraphs.length===1){
-                return;
-            }
-        }
-        const arrowsSelector = type === "chapter" ? '.chapter-arrows' : '.paragraph-arrows';
-        let foundElement = target.querySelector(arrowsSelector);
-        if (!foundElement) {
-            let nextSibling = target.nextElementSibling;
-            while (nextSibling) {
-                if (nextSibling.matches(arrowsSelector)) {
-                    foundElement = nextSibling;
-                    break;
-                }
-                nextSibling = nextSibling.nextElementSibling;
-            }
-        }
-        if (foundElement) {
-            foundElement.style.display = foundElement.style.display === "flex" ? "none" : "flex";
-        }
-    }
-
-    alternateChapterEditButtons(_target,documentClick) {
-        if(documentClick){
-            document.querySelectorAll(".edit-chapter-title-button").forEach((editTitleButton)=>editTitleButton.style.display = "none");
-            return;
-        }
-        let chapterEditButton=_target.querySelector(".edit-chapter-title-button");
-        if(!chapterEditButton) {
-            chapterEditButton = reverseQuerySelector(_target, ".edit-chapter-title-button", 'chapter-unit');
-        }
-         if(chapterEditButton) {
-            window.getComputedStyle(chapterEditButton).getPropertyValue("display") === "none" ? chapterEditButton.style.display = "flex" : chapterEditButton.style.display = "none";
         }
     }
 
@@ -120,7 +77,7 @@ export class chapterUnit {
     }
 
     async editChapterTitle(title){
-            this.highlightChapter(title);
+
             title.setAttribute("contenteditable", "true");
             title.focus();
             let timer = new SaveElementTimer(async () => {
@@ -140,48 +97,25 @@ export class chapterUnit {
 
     }
 
-    highlightChapter(_target) {
-        let target = reverseQuerySelector(_target, ".chapter-unit");
-        let previouslySelected = document.getElementById("highlighted-chapter");
-        if (target && target.id === "highlighted-chapter") {
+    highlightChapter(){
+        this.chapterUnit.setAttribute("id", "highlighted-chapter");
+        webSkel.space.currentChapterId = this.chapter.id;
+        if(this._document.chapters.length===1){
             return;
         }
-        if (target && previouslySelected && target === previouslySelected) {
-            return;
-        }
-        if (previouslySelected) {
-            previouslySelected.removeAttribute("id");
-            this.alternateArrowsDisplay(previouslySelected, "chapter");
-        }
+        let foundElement = this.chapterUnit.querySelector('.chapter-arrows');
+        foundElement.style.display = "flex";
 
-        if (target) {
-            target.setAttribute("id", "highlighted-chapter");
-            webSkel.space.currentChapterId = target.getAttribute('data-chapter-id');
-            this.displaySidebar("chapter-sidebar");
-
-            this.alternateArrowsDisplay(target, "chapter")
-            this.alternateChapterEditButtons(target);
-
-        } else {
-            console.error(`Failed highlighting a chapter, click target: ${target}`);
-            this.displaySidebar("document-sidebar");
-        }
     }
-
     editParagraph(paragraph) {
         if (paragraph.getAttribute("contenteditable") === "false") {
 
-            this.highlightChapter(paragraph.closest(".chapter-unit"));
-            paragraph.setAttribute("id", "selected-chapter");
             paragraph.setAttribute("contenteditable", "true");
             let paragraphUnit = reverseQuerySelector(paragraph, ".paragraph-unit");
             paragraph.focus();
 
-            this.alternateArrowsDisplay(paragraph, "paragraph");
-
             let currentParagraphId = paragraphUnit.getAttribute("data-paragraph-id");
             webSkel.space.currentParagraphId = currentParagraphId;
-            this.displaySidebar("paragraph-sidebar");
             let currentParagraph = this.chapter.getParagraph(currentParagraphId);
             let timer = new SaveElementTimer(async () => {
                 if (!currentParagraph) {
@@ -194,10 +128,6 @@ export class chapterUnit {
                 }
             }, 1000);
             paragraph.addEventListener("blur", async () => {
-                this.displaySidebar("chapter-sidebar");
-                setTimeout(()=>{
-                    this.alternateArrowsDisplay(paragraph, "paragraph");
-                },100);
                 paragraph.removeEventListener("keydown", resetTimer);
                 await timer.stop(true);
                 paragraph.setAttribute("contenteditable", "false");
@@ -218,15 +148,7 @@ export class chapterUnit {
         }
     }
 
-    displaySidebar(sidebarID) {
-        document.querySelectorAll(".item-list").forEach(sidebar => sidebar.style.display = "none");
-        const desiredSidebar = document.getElementById(sidebarID);
-        if (desiredSidebar) {
-            desiredSidebar.style.display = "block";
-        } else {
-            console.error("Can't find sidebar with id:", sidebarID);
-        }
-    }
+
 
     changeChapterDisplay(_target) {
         this.chapter.visibility === "hide" ? this.chapter.visibility = "show" : this.chapter.visibility = "hide";
