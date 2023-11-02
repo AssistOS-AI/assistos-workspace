@@ -7,26 +7,21 @@ import {
 
 export class chapterTitlePage {
     constructor(element, invalidate) {
-        this.docTitle = "Current Title";
-        let url = window.location.hash;
-        this.docId = url.split('/')[1];
-        this.chapterId = url.split('/')[3];
-        this._document = webSkel.space.getDocument(this.docId);
-        this._chapter = this._document.getChapter(this.chapterId);
-        this.chapterTitle = this._chapter.title;
-
-        this._document.observeChange(this._chapter.getNotificationId(), invalidate);
+        this.element = element;
+        this._document = webSkel.space.getDocument(webSkel.space.currentDocumentId);
+        this._chapter= this._document.getChapter(webSkel.space.currentChapterId);
+        this._document.observeChange(this._document.getNotificationId() + "chapter-title-page", invalidate);
         this.invalidate = invalidate;
         this.invalidate();
     }
 
     beforeRender() {
-        this.title = `<title-edit title="${this.chapterTitle}"></title-edit>`;
+        this.title = this._chapter.title;
         this.alternativeTitles = "";
-        if(this._document) {
-            let suggestedTitle = "Bees are nature's little pollination superheroes! Let's protect them and ensure our food chain thrives. #SaveTheBees";
-            for(let number = 1; number <= 10; number++) {
-                this.alternativeTitles += `<alternative-title nr="${number}" title="${suggestedTitle}"></alternative-title>`;
+        if (this._chapter.alternativeTitles) {
+            for (let i = 0; i < this._chapter.alternativeTitles.length; i++) {
+                this.alternativeTitles += `<alternative-title data-nr="${i + 1}" data-title="${this._chapter.alternativeTitles[i]}" 
+                data-id="${this._chapter.alternativeTitles[i]}" data-local-action="edit querySelect"></alternative-title>`;
             }
         }
     }
@@ -45,15 +40,9 @@ export class chapterTitlePage {
 
     async openChapterTitlePage() {
         await webSkel.changeToDynamicPage("chapter-title-page",
-            `documents/${this.docId}/chapter-title-page/${this.chapterId}`);
+            `documents/${this.docId}/chapter-title-page/${this._chapter.id}`);
 
     }
-
-    async openManageParagraphsPage() {
-        await webSkel.changeToDynamicPage("manage-paragraphs-page",
-            `documents/${this.docId}/manage-paragraphs-page/${this.chapterId}`);
-    }
-
 
     async openViewPage() {
         await webSkel.changeToDynamicPage("document-view-page", `documents/${this.docId}/document-view-page`);
@@ -63,7 +52,7 @@ export class chapterTitlePage {
         closeModal(_target);
     }
 
-    async showSuggestTitlesModal() {
+    async showSuggestChapterTitlesModal() {
         await showModal(document.querySelector("body"), "suggest-titles-modal", { presenter: "suggest-titles-modal"});
     }
 

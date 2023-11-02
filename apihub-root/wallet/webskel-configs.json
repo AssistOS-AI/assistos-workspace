@@ -183,6 +183,11 @@
       "className": "suggestTitlesModal"
     },
     {
+      "name": "suggest-chapter-titles-modal",
+      "path": "./web-components/modals/suggest-chapter-titles-modal/suggest-chapter-titles-modal.js",
+      "className": "suggestChapterTitlesModal"
+    },
+    {
       "name": "add-space-modal",
       "path": "./web-components/modals/add-space-modal/add-space-modal.js",
       "className": "addSpaceModal"
@@ -432,6 +437,10 @@
     {
       "name": "suggest-titles-modal",
       "path": "./wallet/web-components/modals/suggest-titles-modal/suggest-titles-modal.html"
+    },
+    {
+      "name": "suggest-chapter-titles-modal",
+      "path": "./wallet/web-components/modals/suggest-chapter-titles-modal/suggest-chapter-titles-modal.html"
     },
     {
       "name": "add-space-modal",

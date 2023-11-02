@@ -131,6 +131,10 @@ export class documentViewPage {
         await webSkel.changeToDynamicPage("paragraph-brainstorming-page",
             `documents/${this._document.id}/paragraph-brainstorming-page/${webSkel.space.currentChapterId}/${webSkel.space.currentParagraphId}`);
     }
+    async openEditChapterTitlePage() {
+        await webSkel.changeToDynamicPage("chapter-title-page",
+            `documents/${this._document.id}/chapter-title-page/${webSkel.space.currentChapterId}`);
+    }
     async openDocumentViewPage(){
         await webSkel.changeToDynamicPage("document-view-page", `documents/${this._document.id}/document-view-page`);
     }

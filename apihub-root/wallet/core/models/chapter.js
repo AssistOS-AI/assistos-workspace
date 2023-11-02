@@ -7,6 +7,7 @@ export class Chapter {
         this.visibility = "show";
         this.paragraphs = [];
         this.alternativeChapters=[]
+        this.alternativeTitles = chapterData.alternativeTitles || [];
         if(chapterData.alternativeChapters && chapterData.alternativeChapters.length>0) {
             this.alternativeChapters = chapterData.alternativeChapters.map((alternativeChapterData) =>
                 new Chapter(alternativeChapterData)
@@ -63,6 +64,11 @@ export class Chapter {
     }
     updateTitle(newTitle) {
         this.title = newTitle;
+    }
+    addAlternativeTitle(alternativeTitle) {
+        alternativeTitle.id=webSkel.getService("UtilsService").generateId();
+        this.alternativeChapters.push(alternativeTitle);
+
     }
     getParagraph(paragraphId) {
         return this.paragraphs.find(paragraph => paragraph.id === paragraphId)||null;
