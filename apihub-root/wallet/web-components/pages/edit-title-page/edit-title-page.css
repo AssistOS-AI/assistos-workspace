@@ -111,10 +111,18 @@ textarea {
 }
 
 .title-edit-section {
-    width: 100%;
+    width: 98%;
     display: flex;
-    align-items: baseline;
+    align-items: center;
+    justify-content:space-between;
 }
+.title-edit-section-left{
+    display:flex;
+    align-items:center;
+}
+/*.title-edit-section-left{
+    margin-right:30px;
+}*/
 .action-cell{
     margin-right: 15px;
 }
