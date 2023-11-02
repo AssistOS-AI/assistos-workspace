@@ -1,4 +1,4 @@
-import {reverseQuerySelector, SaveElementTimer} from "../../../imports.js";
+import {getClosestParentElement, reverseQuerySelector, SaveElementTimer} from "../../../imports.js";
 
 export class documentViewPage {
     constructor(element, invalidate) {
@@ -8,6 +8,9 @@ export class documentViewPage {
         this._document.observeChange(this._document.getNotificationId() + ":refresh", invalidate);
         this.invalidate = invalidate;
         this.invalidate();
+
+
+
     }
 
     beforeRender() {
@@ -22,7 +25,18 @@ export class documentViewPage {
                 this.chaptersContainer += `<chapter-unit data-chapter-number="${iterator}" data-chapter-title="${item.title}" data-chapter-id="${item.id}" data-presenter="chapter-unit"></chapter-unit>`;
             });
         }
+        //document.removeEventListener("click",this.highlightElement);
     }
+
+    // afterRender() {
+    //     document.addEventListener("click",this.highlightElement);
+    // }
+    //
+    // highlightElement(event){
+    //     if(getClosestParentElement(event.target, "paragraph-unit")){
+    //
+    //     }
+    // }
     async editAbstract(abstract){
         if (abstract.getAttribute("contenteditable") === "false") {
             let abstractSection = reverseQuerySelector(abstract,".abstract-section");
@@ -49,10 +63,8 @@ export class documentViewPage {
     async addChapter() {
         let chapterData= {
             title: "New Chapter",
-            id: webSkel.servicesRegistry.UtilsService.generateId(),
             paragraphs: [
                 {
-                    id:webSkel.servicesRegistry.UtilsService.generateId(),
                     text: "New Paragraph"
                 }
             ]
@@ -69,8 +81,7 @@ export class documentViewPage {
         this._document.notifyObservers(this._document.getNotificationId()+":document-view-page:"+"chapter:"+`${chapter.id}`);
     }
 
-    afterRender() {
-    }
+
 
     editTitle(title){
         if (title.getAttribute("contenteditable") === "false") {

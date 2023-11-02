@@ -123,20 +123,6 @@
 #highlighted-abstract{
     background-color:#F3EBF3;
 }
-
-
-
-/*display: inline-block;*/
-/*position: relative;*/
-/*white-space: pre-wrap;*/
-/*overflow-wrap: break-word;*/
-/*hyphens: auto;*/
-/*word-break: break-word;*/
-/*padding: 15px;*/
-/*border-radius: 10px;*/
-/*color: #252525;*/
-/*font-size: 16px;*/
-/*font-style: normal;*/
-/*font-weight: 400;*/
-/*line-height: normal;*/
-/*margin-right: 10px;*/
+.item-list{
+    margin-bottom: 50px;
+}
