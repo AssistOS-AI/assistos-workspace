@@ -1,12 +1,12 @@
-import {getClosestParentElement, reverseQuerySelector, Timer} from "../../../../imports.js";
+import {getClosestParentElement, reverseQuerySelector, SaveElementTimer} from "../../../../imports.js";
 
 export class chapterUnit {
     constructor(element, invalidate) {
         this.element = element;
         this._document = webSkel.space.getDocument(webSkel.space.currentDocumentId);
-        this.chapterId = this.element.getAttribute("data-chapter-id");
-        this.chapter = this._document.getChapter(this.chapterId);
-        this._document.observeChange(this._document.getNotificationId() + ":document-view-page:" + "chapter:" + `${this.chapterId}`, invalidate);
+        let chapterId = this.element.getAttribute("data-chapter-id");
+        this.chapter = this._document.getChapter(chapterId);
+        this._document.observeChange(this._document.getNotificationId() + ":document-view-page:" + "chapter:" + `${chapterId}`, invalidate);
         this.invalidate = invalidate;
         this.invalidate();
         this.addParagraphOnCtrlEnter = this.addParagraphOnCtrlEnter.bind(this);
@@ -42,7 +42,14 @@ export class chapterUnit {
                 this.editParagraph(currentParagraph);
             }
         }
+        if(this.chapter.visibility === "hide"){
+            let paragraphsContainer = this.element.querySelector(".chapter-paragraphs");
+            paragraphsContainer.classList.toggle('hidden');
+            let arrow = this.element.querySelector(".arrow");
+            arrow.classList.toggle('rotate');
+        }
     }
+
     alternateArrowsDisplay(target, type) {
         if(type==="chapter"){
             if(this._document.chapters.length===1){
@@ -70,6 +77,7 @@ export class chapterUnit {
             foundElement.style.display = foundElement.style.display === "flex" ? "none" : "flex";
         }
     }
+
     alternateChapterEditButtons(_target,documentClick) {
         if(documentClick){
             document.querySelectorAll(".edit-chapter-title-button").forEach((editTitleButton)=>editTitleButton.style.display = "none");
@@ -83,16 +91,7 @@ export class chapterUnit {
             window.getComputedStyle(chapterEditButton).getPropertyValue("display") === "none" ? chapterEditButton.style.display = "flex" : chapterEditButton.style.display = "none";
         }
     }
-    async enterChapterTitleEditMode(_target){
-        let chapterTitle=_target.querySelector(".chapter-title");
-        if(!chapterTitle) {
-            chapterTitle = reverseQuerySelector(_target, ".chapter-title", 'chapter-unit');
-        }
-        if(chapterTitle) {
-            chapterTitle.setAttribute("contenteditable", "true");
-            chapterTitle.focus();
-        }
-    }
+
     async addParagraphOnCtrlEnter(event) {
         if (!event.ctrlKey || event.key !== 'Enter') {
             return;
@@ -119,55 +118,26 @@ export class chapterUnit {
         webSkel.space.currentParagraphId=newParagraphId;
         this.invalidate();
     }
-    async documentClickHandler(event) {
-        const editableUnit = document.querySelector('[contenteditable="true"]');
-        if (editableUnit) {
-            if (editableUnit === event.target || editableUnit.contains(event.target)) {
-                return;
-            } else {
-                if(editableUnit.classList.contains("chapter-title")) {
-                        await this.saveEditedChapterTitle(editableUnit);
+
+    async editChapterTitle(title){
+            this.highlightChapter(title);
+            title.setAttribute("contenteditable", "true");
+            title.focus();
+            let timer = new SaveElementTimer(async () => {
+                if (title.innerText !== this.chapter.title) {
+                    await this._document.updateChapterTitle(this.chapter, title.innerText);
                 }
-            }
-        }
-        const highlightedChapter = document.getElementById("highlighted-chapter");
-        if (highlightedChapter && highlightedChapter.contains(event.target)) {
-            return;
-        }
-        if (!event.target.closest('.chapter-unit') && !getClosestParentElement(event.target,'.sidebar-item')) {
-            let selectedChapter = document.getElementById("highlighted-chapter");
-            if (selectedChapter) {
-                selectedChapter.removeAttribute("id");
-                this.alternateArrowsDisplay(selectedChapter, "chapter");
-                this.alternateChapterEditButtons(event.target,"document-click");
-            }
-            this.displaySidebar('document-sidebar');
-            webSkel.space.currentChapterId = null;
-            webSkel.space.currentParagraphId=null;
-        }
-        document.removeEventListener('click', this.boundDocumentClickHandler, true);
-        delete this.boundDocumentClickHandler;
-    }
-    async saveEditedChapterTitle(editableUnit){
-        editableUnit.setAttribute("contenteditable", "false");
-        let updatedTitle = editableUnit.innerText;
-        if (updatedTitle === '\n') {
-            updatedTitle = '';
-        }
-        let currentDocument = webSkel.space.getDocument(webSkel.space.currentDocumentId);
-        let currentChapter = currentDocument.getChapter(reverseQuerySelector(editableUnit, ".chapter-unit").getAttribute("data-chapter-id"));
-        let updateRequired = false;
-        if (updatedTitle === null || updatedTitle.trim() === '') {
-            updateRequired=false;
-            editableUnit.innerText=currentChapter.title;
-        } else if (updatedTitle !== currentChapter.title) {
-            currentChapter.updateTitle(updatedTitle);
-            updateRequired = true;
-        }
-        if (updateRequired) {
-            await documentFactory.updateDocument(currentSpaceId, currentDocument);
-            this._document.notifyObservers(`${this._document.getNotificationId()}:refresh`);
-        }
+            }, 1000);
+            title.addEventListener("blur", async () => {
+                title.removeEventListener("keydown", resetTimer);
+                await timer.stop(true);
+                title.setAttribute("contenteditable", "false");
+            }, {once: true});
+            const resetTimer = async () => {
+                await timer.reset(1000);
+            };
+            title.addEventListener("keydown", resetTimer);
+
     }
 
     highlightChapter(_target) {
@@ -182,7 +152,6 @@ export class chapterUnit {
         if (previouslySelected) {
             previouslySelected.removeAttribute("id");
             this.alternateArrowsDisplay(previouslySelected, "chapter");
-            this.alternateChapterEditButtons(previouslySelected.querySelector('.edit-chapter-title-button'));
         }
 
         if (target) {
@@ -190,11 +159,6 @@ export class chapterUnit {
             webSkel.space.currentChapterId = target.getAttribute('data-chapter-id');
             this.displaySidebar("chapter-sidebar");
 
-            if (!this.boundDocumentClickHandler) {
-                this.boundDocumentClickHandler = this.documentClickHandler.bind(this);
-            }
-            document.removeEventListener("click", this.boundDocumentClickHandler, true);
-            document.addEventListener("click", this.boundDocumentClickHandler, true);
             this.alternateArrowsDisplay(target, "chapter")
             this.alternateChapterEditButtons(target);
 
@@ -213,24 +177,15 @@ export class chapterUnit {
             let paragraphUnit = reverseQuerySelector(paragraph, ".paragraph-unit");
             paragraph.focus();
 
-            // const keepFocus = (event)=>{
-            //     if(getClosestParentElement(event.target,".paragraph-arrows")){
-            //         paragraph.focus();
-            //     }
-            //     else {
-            //         this.alternateArrowsDisplay(paragraph, "paragraph");
-            //     }
-            // };
-            // document.addEventListener("click",keepFocus);
             this.alternateArrowsDisplay(paragraph, "paragraph");
 
             let currentParagraphId = paragraphUnit.getAttribute("data-paragraph-id");
             webSkel.space.currentParagraphId = currentParagraphId;
             this.displaySidebar("paragraph-sidebar");
             let currentParagraph = this.chapter.getParagraph(currentParagraphId);
-            let timer = new Timer(async () => {
+            let timer = new SaveElementTimer(async () => {
                 if (!currentParagraph) {
-                    timer.stop();
+                    await timer.stop();
                     return;
                 }
                 let updatedText = paragraph.innerText;
@@ -240,11 +195,13 @@ export class chapterUnit {
             }, 1000);
             paragraph.addEventListener("blur", async () => {
                 this.displaySidebar("chapter-sidebar");
-                this.alternateArrowsDisplay(paragraph, "paragraph");
+                setTimeout(()=>{
+                    this.alternateArrowsDisplay(paragraph, "paragraph");
+                },100);
                 paragraph.removeEventListener("keydown", resetTimer);
-                await timer.forceExec();
-                timer.stop();
+                await timer.stop(true);
                 paragraph.setAttribute("contenteditable", "false");
+                webSkel.space.currentParagraph = null;
             }, {once: true});
             const resetTimer = async (event) => {
                 if (paragraph.innerText.trim() === "" && event.key === "Backspace") {
@@ -252,9 +209,9 @@ export class chapterUnit {
                         await this._document.deleteParagraph(this.chapter, currentParagraphId);
                         this.invalidate();
                     }
-                    timer.stop();
+                    await timer.stop();
                 } else {
-                    timer.reset(1000);
+                   await timer.reset(1000);
                 }
             };
             paragraph.addEventListener("keydown", resetTimer);

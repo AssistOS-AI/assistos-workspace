@@ -38,12 +38,12 @@ export {
 
 
 // Others
-import {Timer} from "./utils/timer.js";
+import {SaveElementTimer} from "./utils/saveElementTimer.js";
 import WebSkel from "../WebSkel/webSkel.js";
 import { createFlowsFactory } from "../llmFlows/src/llmFlows.js";
 
 export {
-    Timer,
+    SaveElementTimer,
     WebSkel,
     createFlowsFactory
 };

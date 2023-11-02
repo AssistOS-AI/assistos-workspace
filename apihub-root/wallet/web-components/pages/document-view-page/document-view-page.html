@@ -4,13 +4,16 @@
     <div class="document-path">
       <div class="path-button" data-local-action="openDocumentViewPage">Document</div>
     </div>
-    <div class="document-title" data-local-action="editTitle" contenteditable="false">$$docTitle</div>
+    <div class="document-title-container">
+      <div class="document-title" data-local-action="editTitle" contenteditable="false">$$docTitle</div>
+      <div class="thirty-px-horizontal-space"></div>
+    </div>
     <div class="abstract-section">
       <div class="abstract-subtitle">
         Abstract
       </div>
       <div class="abstract-content">
-        <div class="abstract-content-text" data-local-action="enterAbstractEditMode">$$abstractText</div>
+        <div class="abstract-content-text" data-local-action="editAbstract" contenteditable="false">$$abstractText</div>
         <div class="thirty-px-horizontal-space"></div></div>
     </div>
     $$chaptersContainer
