@@ -80,7 +80,7 @@ export class Chapter {
             return false;
         }
     }
-    async updateAlternativeTitle(alternativeTitleId, newTitle) {
+    updateAlternativeTitle(alternativeTitleId, newTitle) {
         let index = this.alternativeTitles.findIndex(alternativeTitle => alternativeTitle.id === alternativeTitleId);
         if(index !== -1) {
             this.alternativeTitles[index].title = newTitle;
@@ -89,7 +89,6 @@ export class Chapter {
             console.warn("Attempting to update alternative title that doesn't exist in this chapter.");
             return false;
         }
-
     }
     getAlternativeTitle(alternativeTitleId) {
         return this.alternativeTitles.find(alternativeTitle => alternativeTitle.id === alternativeTitleId)||null;

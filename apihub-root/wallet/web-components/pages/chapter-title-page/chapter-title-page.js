@@ -2,7 +2,9 @@ import {
     extractFormInformation,
     showModal,
     closeModal,
-    showActionBox, reverseQuerySelector, removeActionBox, sanitize
+    showActionBox,
+    reverseQuerySelector,
+    sanitize
 } from "../../../imports.js";
 
 export class chapterTitlePage {
@@ -32,7 +34,7 @@ export class chapterTitlePage {
             const documentIndex = webSkel.space.documents.findIndex(doc => doc.id === this.docId);
             const chapterIndex = this._document.getChapterIndex(this.chapterId);
             if (documentIndex !== -1 && chapterIndex !== -1 && formInfo.data.title !== this._document.getChapterTitle(this.chapterId)) {
-                this._document.updateChapterTitle(this.chapterId, formInfo.data.title);
+                await this._document.updateChapterTitle(this.chapterId, formInfo.data.title);
                 await documentFactory.updateDocument(currentSpaceId, this._document);
             }
         }
@@ -64,7 +66,8 @@ export class chapterTitlePage {
             newTitle.contentEditable = false;
 
             if(newTitle.innerText !== altTitleObj.name) {
-                await this._chapter.updateAlternativeTitle(altTitleObj.id, sanitize(newTitle.innerText));
+                this._chapter.updateAlternativeTitle(altTitleObj.id, sanitize(newTitle.innerText));
+                await documentFactory.updateDocument(currentSpaceId, this._document);
             }
             newTitle.insertAdjacentHTML("afterbegin", `<confirmation-popup data-presenter="confirmation-popup" 
                 data-message="Saved!" data-left="${newTitle.offsetWidth/2}"></confirmation-popup>`);
