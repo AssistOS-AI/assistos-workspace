@@ -128,6 +128,6 @@ export class chapterTitlePage {
     }
 
     async showActionBox(_target, primaryKey, componentName, insertionMode) {
-        await showActionBox(_target, primaryKey, componentName, insertionMode);
+        this.actionBox = await showActionBox(_target, primaryKey, componentName, insertionMode);
     }
 }
