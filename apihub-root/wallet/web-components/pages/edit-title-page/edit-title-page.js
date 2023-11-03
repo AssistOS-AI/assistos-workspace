@@ -33,7 +33,7 @@ export class editTitlePage {
             let timer = new SaveElementTimer(async () => {
                 let confirmationPopup = this.element.querySelector("confirmation-popup");
                 let sanitizedText = sanitize(title.innerText);
-                if (title.innerText !== this._document.title && !confirmationPopup) {
+                if (sanitizedText !== this._document.title && !confirmationPopup) {
                     await this._document.updateTitle(sanitizedText);
                     title.insertAdjacentHTML("afterbegin", `<confirmation-popup data-presenter="confirmation-popup" 
                     data-message="Saved!" data-left="${title.offsetWidth/2}"></confirmation-popup>`);

@@ -25,7 +25,7 @@ edit-title-page{
     display: flex;
     width:calc(100% - 270px);
 }
-.document-title{
+.chapter-title{
     position: relative;
     margin: 20px 15px 10px 15px;
     color: #1E1E1E;
@@ -36,8 +36,11 @@ edit-title-page{
     resize: none;
 }
 
-.document-title:focus{
+.chapter-title:focus{
     outline: none;
+    background-color: rgba(148, 174, 227, 0.3);
+    color: #252525;
+    font-weight: 450;
 }
 
 .document-content {
@@ -47,12 +50,6 @@ edit-title-page{
 .document-path,
 .alternative {
     margin-left: 15px;
-}
-
-.document-title:focus {
-    background-color: rgba(148, 174, 227, 0.3);
-    color: #252525;
-    font-weight: 450;
 }
 
 

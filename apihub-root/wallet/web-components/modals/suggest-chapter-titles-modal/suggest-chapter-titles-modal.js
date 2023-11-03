@@ -8,9 +8,8 @@ export class suggestChapterTitlesModal {
     constructor(element, invalidate) {
         this.element = element;
         this.documentId = webSkel.space.currentDocumentId
-        this.chapterId= webSkel.space.currentChapterId;
         this._document = webSkel.space.getDocument(this.documentId);
-        this._chapter= this._document.getChapter(this.chapterId);
+        this._chapter = this._document.getChapter(window.location.hash.split("/")[3]);
         this._document.observeChange(this._document.getNotificationId(), invalidate);
         this.invalidate = invalidate;
         this.suggestedTitles = "";
