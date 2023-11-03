@@ -22,16 +22,17 @@ export class documentViewPage {
                 this.chaptersContainer += `<chapter-unit data-chapter-number="${iterator}" data-chapter-title="${item.title}" data-chapter-id="${item.id}" data-presenter="chapter-unit"></chapter-unit>`;
             });
         }
-        document.removeEventListener("click",this.highlightElement.bind(this));
+        document.removeEventListener("click",this.highlightElement);
     }
 
     afterRender() {
         this.chapterSidebar = this.element.querySelector("#chapter-sidebar");
         this.paragraphSidebar = this.element.querySelector("#paragraph-sidebar");
-        document.addEventListener("click",this.highlightElement.bind(this));
+        let controller = new AbortController();
+        document.addEventListener("click",this.highlightElement.bind(this, controller), {signal:controller.signal});
     }
 
-    highlightElement(event){
+    highlightElement(controller, event){
         this.chapterUnit = getClosestParentElement(event.target, ".chapter-unit");
         this.paragraphUnit = getClosestParentElement(event.target, "paragraph-unit");
         this.deselectPreviousParagraph();
@@ -49,7 +50,13 @@ export class documentViewPage {
             this.switchArrowsDisplay(this.chapterUnit, "chapter", "on");
             this.highlightChapter();
         }else {
-            this.displaySidebar("document-sidebar");
+            let rightSideBarItem = getClosestParentElement(event.target, ".sidebar-item");
+            let leftSideBarItem = getClosestParentElement(event.target, ".feature");
+            if(rightSideBarItem || leftSideBarItem){
+                controller.abort();
+            }else {
+                this.displaySidebar("document-sidebar");
+            }
         }
     }
 
