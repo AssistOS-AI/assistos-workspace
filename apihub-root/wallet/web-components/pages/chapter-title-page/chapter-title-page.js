@@ -2,7 +2,7 @@ import {
     extractFormInformation,
     showModal,
     closeModal,
-    showActionBox, reverseQuerySelector, removeActionBox
+    showActionBox, reverseQuerySelector, removeActionBox, sanitize
 } from "../../../imports.js";
 
 export class chapterTitlePage {
@@ -42,6 +42,33 @@ export class chapterTitlePage {
         await webSkel.changeToDynamicPage("chapter-title-page",
             `documents/${this.docId}/chapter-title-page/${this._chapter.id}`);
 
+    }
+    async edit(_target, querySelect) {
+        let confirmationPopup = this.element.querySelector("confirmation-popup");
+        if(confirmationPopup){
+            confirmationPopup.remove();
+        }
+        let newTitle;
+        if(querySelect){
+            newTitle = _target.querySelector(".suggested-title");
+        }else {
+            newTitle = reverseQuerySelector(_target, ".suggested-title");
+        }
+
+        let component = reverseQuerySelector(_target, "alternative-title")
+        let altTitleObj = this._chapter.getAlternativeTitle(component.getAttribute("data-id"));
+        newTitle.contentEditable = true;
+        newTitle.focus();
+
+        newTitle.addEventListener('blur', async () => {
+            newTitle.contentEditable = false;
+
+            if(newTitle.innerText !== altTitleObj.name) {
+                await this._chapter.updateAlternativeTitle(altTitleObj.id, sanitize(newTitle.innerText));
+            }
+            newTitle.insertAdjacentHTML("afterbegin", `<confirmation-popup data-presenter="confirmation-popup" 
+                data-message="Saved!" data-left="${newTitle.offsetWidth/2}"></confirmation-popup>`);
+        }, {once:true});
     }
     async delete(_target) {
         let alternativeTitle = reverseQuerySelector(_target, "alternative-title");
