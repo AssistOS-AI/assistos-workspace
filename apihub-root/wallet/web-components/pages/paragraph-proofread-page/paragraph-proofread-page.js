@@ -1,3 +1,5 @@
+import {SaveElementTimer, sanitize} from "../../../imports.js";
+
 export class paragraphProofreadPage {
     constructor(element, invalidate) {
         this.element=element;
@@ -12,7 +14,6 @@ export class paragraphProofreadPage {
         this.chapterNr = this._document.chapters.findIndex(chapter => chapter.id === this._chapter.id) + 1;
         this.paragraphNr = this._chapter.paragraphs.findIndex(paragraph => paragraph.id === this._paragraph.id) + 1;
         this.paragraphText = this._paragraph.text;
-        document.removeEventListener("click", this.exitEditMode, true);
     }
     afterRender(){
         if(this.improvedParagraph){
@@ -39,12 +40,37 @@ export class paragraphProofreadPage {
         this.invalidate();
     }
 
-    async enterEditMode(_target, field) {
+    editCurrentParagraph(){
+        let paragraph = this.element.querySelector(".paragraph-content");
+        if (paragraph.getAttribute("contenteditable") === "false") {
+            paragraph.setAttribute("contenteditable", "true");
+            paragraph.focus();
+            let timer = new SaveElementTimer(async () => {
+                let confirmationPopup = this.element.querySelector("confirmation-popup");
+                let sanitizedText = sanitize(paragraph.innerText);
+                if (sanitizedText !== this._paragraph.text && !confirmationPopup) {
+                    await this._document.updateParagraphText(this._paragraph, sanitizedText);
+                    paragraph.insertAdjacentHTML("afterbegin", `<confirmation-popup data-presenter="confirmation-popup" 
+                    data-message="Saved!" data-left="${paragraph.offsetWidth/2}"></confirmation-popup>`);
+                }
+            }, 1000);
+            paragraph.addEventListener("blur", async () => {
+                paragraph.removeEventListener("keydown", resetTimer);
+                await timer.stop(true);
+                paragraph.setAttribute("contenteditable", "false");
+            }, {once: true});
+            const resetTimer = async () => {
+                await timer.reset(1000);
+            };
+            paragraph.addEventListener("keydown", resetTimer);
+        }
+    }
+    async enterEditMode(_target) {
         let confirmationPopup = this.element.querySelector("confirmation-popup");
         if(confirmationPopup){
             confirmationPopup.remove();
         }
-        let paragraph = this.element.querySelector(`.${field}`);
+        let paragraph = this.element.querySelector(".improved-paragraph");
         const controller = new AbortController();
         document.addEventListener("click", this.exitEditMode.bind(this, paragraph, controller), {signal:controller.signal});
         paragraph.setAttribute("contenteditable", "true");
@@ -54,14 +80,7 @@ export class paragraphProofreadPage {
     async exitEditMode (paragraph, controller, event) {
         if (paragraph.getAttribute("contenteditable") === "true" && paragraph !== event.target && !paragraph.contains(event.target)) {
             paragraph.setAttribute("contenteditable", "false");
-            if(paragraph.classList.contains("paragraph-content")){
-                await this._document.updateParagraphText(this._paragraph, paragraph.innerText);
-                paragraph.insertAdjacentHTML("afterbegin", `<confirmation-popup data-presenter="confirmation-popup" 
-                data-message="Saved!" data-left="${paragraph.offsetWidth/2}"></confirmation-popup>`);
-            }
-            else {
-                this.improvedParagraph = paragraph.innerText;
-            }
+            this.improvedParagraph = paragraph.innerText;
             controller.abort();
         }
     }

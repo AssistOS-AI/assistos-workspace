@@ -33,27 +33,33 @@ export class manageChaptersPage {
 
     afterRender(){
         let mainIdeas = this.element.querySelector(".main-ideas-list");
+        mainIdeas.removeEventListener("input", this.manageList);
+        mainIdeas.addEventListener("input", this.manageList);
+    }
+
+    manageList(event){
         const maxLength = 80;
-        mainIdeas.addEventListener("input", function (event) {
-            for(let child of event.target.children){
-                if(child.innerHTML === "<br>"){
-                    child.innerHTML = "";
-                }
-                if (child.innerText.length > maxLength) {
-                    const selection = window.getSelection();
-                    const range = document.createRange();
-
-                    // Truncate the text and update the element
-                    child.innerText = child.innerText.substring(0, maxLength);
-
-                    // Restore the cursor position to the end of the text
-                    range.setStart(child.firstChild, child.innerText.length);
-                    range.setEnd(child.firstChild, child.innerText.length);
-                    selection.removeAllRanges();
-                    selection.addRange(range);
-                }
+        for(let child of event.target.children){
+            if(event.target.children.length === 1 && event.target.firstChild.innerText === ""){
+                event.target.firstChild.textContent = `<li>${event.target.firstChild.innerText}</li>`;
             }
-        });
+            if(child.innerHTML === "<br>"){
+                child.innerHTML = "";
+            }
+            if (child.innerText.length > maxLength) {
+                const selection = window.getSelection();
+                const range = document.createRange();
+
+                // Truncate the text and update the element
+                child.innerText = child.innerText.substring(0, maxLength);
+
+                // Restore the cursor position to the end of the text
+                range.setStart(child.firstChild, child.innerText.length);
+                range.setEnd(child.firstChild, child.innerText.length);
+                selection.removeAllRanges();
+                selection.addRange(range);
+            }
+        }
     }
     async editMainIdeas(_target) {
         let mainIdeas = this.element.querySelector(".main-ideas-list");

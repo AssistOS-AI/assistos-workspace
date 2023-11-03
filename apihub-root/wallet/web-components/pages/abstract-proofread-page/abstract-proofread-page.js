@@ -11,7 +11,6 @@ export class abstractProofreadPage {
 
     beforeRender() {
         this.abstractText = this._document.abstract;
-        document.removeEventListener("click", this.exitEditMode, true);
     }
     afterRender(){
         if(this.improvedAbstract){
