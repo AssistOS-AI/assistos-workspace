@@ -67,8 +67,31 @@ export class Chapter {
     }
     addAlternativeTitle(alternativeTitle) {
         alternativeTitle.id=webSkel.getService("UtilsService").generateId();
-        this.alternativeChapters.push(alternativeTitle);
+        this.alternativeTitles.push(alternativeTitle);
 
+    }
+    deleteAlternativeTitle(alternativeTitleId) {
+        let index = this.alternativeTitles.findIndex(alternativeTitle => alternativeTitle.id === alternativeTitleId);
+        if(index !== -1) {
+            this.alternativeTitles.splice(index, 1);
+            return true;
+        }else{
+            console.warn("Attempting to delete alternative title that doesn't exist in this chapter.");
+            return false;
+        }
+    }
+    getAlternativeTitleIndex(alternativeTitleId) {
+        return this.alternativeTitles.findIndex(alternativeTitle => alternativeTitle.id === alternativeTitleId);
+    }
+    selectAlternativeTitle(alternativeTitleId) {
+        let alternativeTitleIndex= this.getAlternativeTitleIndex(alternativeTitleId);
+        if(alternativeTitleIndex !== -1) {
+            let currentTitle = {title:this.title,id:webSkel.getService("UtilsService").generateId()};
+            this.title = this.alternativeTitles[alternativeTitleIndex].title;
+            this.alternativeTitles[alternativeTitleIndex] = currentTitle;
+        }else{
+            console.warn("Attempting to select alternative title that doesn't exist in this chapter.");
+        }
     }
     getParagraph(paragraphId) {
         return this.paragraphs.find(paragraph => paragraph.id === paragraphId)||null;

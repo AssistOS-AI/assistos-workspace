@@ -2,7 +2,7 @@ import {
     extractFormInformation,
     showModal,
     closeModal,
-    showActionBox
+    showActionBox, reverseQuerySelector, removeActionBox
 } from "../../../imports.js";
 
 export class chapterTitlePage {
@@ -20,8 +20,8 @@ export class chapterTitlePage {
         this.alternativeTitles = "";
         if (this._chapter.alternativeTitles) {
             for (let i = 0; i < this._chapter.alternativeTitles.length; i++) {
-                this.alternativeTitles += `<alternative-title data-nr="${i + 1}" data-title="${this._chapter.alternativeTitles[i]}" 
-                data-id="${this._chapter.alternativeTitles[i]}" data-local-action="edit querySelect"></alternative-title>`;
+                this.alternativeTitles += `<alternative-title data-nr="${i + 1}" data-title="${this._chapter.alternativeTitles[i].title}" 
+                data-id="${this._chapter.alternativeTitles[i].id}" data-local-action="edit querySelect"></alternative-title>`;
             }
         }
     }
@@ -43,9 +43,21 @@ export class chapterTitlePage {
             `documents/${this.docId}/chapter-title-page/${this._chapter.id}`);
 
     }
-
+    async delete(_target) {
+        let alternativeTitle = reverseQuerySelector(_target, "alternative-title");
+        this._chapter.deleteAlternativeTitle(alternativeTitle.getAttribute("data-id"));
+        await documentFactory.updateDocument(currentSpaceId, this._document);
+        this.invalidate();
+    }
+    async select(_target){
+        let suggestedTitle = reverseQuerySelector(_target, "alternative-title");
+        let suggestedTitleId = suggestedTitle.getAttribute("data-id");
+        await this._chapter.selectAlternativeTitle(suggestedTitleId);
+        await documentFactory.updateDocument(currentSpaceId, this._document);
+        this.invalidate();
+    }
     async openViewPage() {
-        await webSkel.changeToDynamicPage("document-view-page", `documents/${this.docId}/document-view-page`);
+        await webSkel.changeToDynamicPage("document-view-page", `documents/${this._document.id}/document-view-page`);
     }
 
     closeModal(_target) {
@@ -53,7 +65,7 @@ export class chapterTitlePage {
     }
 
     async showSuggestChapterTitlesModal() {
-        await showModal(document.querySelector("body"), "suggest-titles-modal", { presenter: "suggest-titles-modal"});
+        await showModal(document.querySelector("body"), "suggest-chapter-titles-modal", { presenter: "suggest-chapter-titles-modal"});
     }
 
     async showActionBox(_target, primaryKey, componentName, insertionMode) {
