@@ -39,7 +39,10 @@ export class documentsPage {
         webSkel.space.currentDocumentId = this.getDocumentId(_target);
         await webSkel.changeToDynamicPage("document-view-page",`documents/${webSkel.space.currentDocumentId}/document-view-page`);
     }
-
+    async cloneAction(_target){
+        webSkel.space.currentDocumentId = this.getDocumentId(_target);
+        await showModal(document.querySelector("body"), "clone-document-modal", { presenter: "clone-document-modal"});
+    }
     async deleteAction(_target){
         await documentFactory.deleteDocument(currentSpaceId, this.getDocumentId(_target));
         documentFactory.notifyObservers("docs");

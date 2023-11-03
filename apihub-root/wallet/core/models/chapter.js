@@ -24,7 +24,13 @@ export class Chapter {
         this.currentParagraphId = null;
         this.mainIdeas = chapterData.mainIdeas || [];
     }
-
+    simplifyChapter() {
+        return {
+            title: this.title,
+            paragraphs: this.paragraphs.map((paragraph) => paragraph.simplifyParagraph()),
+            mainIdeas: this.mainIdeas
+        }
+    }
     getNotificationId() {
         return `doc:${this.id}`;
     }
