@@ -3,7 +3,7 @@ import {
     showActionBox,
     showModal,
     reverseQuerySelector,
-    removeActionBox, sanitize
+    removeActionBox, sanitize, SaveElementTimer, getClosestParentElement
 } from "../../../imports.js";
 
 export class editTitlePage {
@@ -21,26 +21,33 @@ export class editTitlePage {
         let i = 1;
         this._document.alternativeTitles.forEach((alternativeTitle) => {
             this.alternativeTitles += `<alternative-title data-nr="${i}" data-title="${alternativeTitle.name}" 
-            data-id="${alternativeTitle.id}" data-local-action="edit querySelect"></alternative-title>`;
+            data-id="${alternativeTitle.id}" ></alternative-title>`;
             i++;
         });
     }
-    async enterEditMode(_target) {
-        let title = reverseQuerySelector(_target, ".document-title");
-        title.setAttribute("contenteditable", "true");
-        title.focus();
-        const controller = new AbortController();
-        document.addEventListener("click", this.exitEditMode.bind(this, title, controller),{signal:controller.signal});
-    }
-
-    async exitEditMode (title, controller, event) {
-        if (title.getAttribute("contenteditable") === "true" && title !== event.target && !title.contains(event.target)) {
-            title.setAttribute("contenteditable", "false");
-            this._document.title = title.innerText;
-            await documentFactory.updateDocument(currentSpaceId, this._document);
-            title.insertAdjacentHTML("afterbegin", `<confirmation-popup data-presenter="confirmation-popup" 
-            data-message="Saved!" data-left="${title.offsetWidth/2}"></confirmation-popup>`);
-            controller.abort();
+    async editTitle(button) {
+        let title = this.element.querySelector(".document-title");
+        if (title.getAttribute("contenteditable") === "false") {
+            title.setAttribute("contenteditable", "true");
+            title.focus();
+            let timer = new SaveElementTimer(async () => {
+                let confirmationPopup = this.element.querySelector("confirmation-popup");
+                let sanitizedText = sanitize(title.innerText);
+                if (title.innerText !== this._document.title && !confirmationPopup) {
+                    await this._document.updateTitle(sanitizedText);
+                    title.insertAdjacentHTML("afterbegin", `<confirmation-popup data-presenter="confirmation-popup" 
+                    data-message="Saved!" data-left="${title.offsetWidth/2}"></confirmation-popup>`);
+                }
+            }, 1000);
+            title.addEventListener("blur", async () => {
+                title.removeEventListener("keydown", resetTimer);
+                await timer.stop(true);
+                title.setAttribute("contenteditable", "false");
+            }, {once: true});
+            const resetTimer = async () => {
+                await timer.reset(1000);
+            };
+            title.addEventListener("keydown", resetTimer);
         }
     }
 
@@ -57,35 +64,38 @@ export class editTitlePage {
         await showModal(document.querySelector("body"), "suggest-titles-modal", { presenter: "suggest-titles-modal"});
     }
 
-    async edit(_target, querySelect) {
-        let confirmationPopup = this.element.querySelector("confirmation-popup");
-        if(confirmationPopup){
-            confirmationPopup.remove();
-        }
-        let newTitle;
-        if(querySelect){
-            newTitle = _target.querySelector(".suggested-title");
-        }else {
-            newTitle = reverseQuerySelector(_target, ".suggested-title");
-        }
+    async edit(_target) {
 
-        let component = reverseQuerySelector(_target, "alternative-title")
-        let altTitleObj = this._document.getAlternativeTitle(component.getAttribute("data-id"));
+        let component = reverseQuerySelector(_target, "alternative-title");
+        let newTitle = component.querySelector(".suggested-title");
+
         if(this.actionBox){
             removeActionBox(this.actionBox, this);
         }
-        newTitle.contentEditable = true;
-        newTitle.focus();
+        if (newTitle.getAttribute("contenteditable") === "false") {
 
-        newTitle.addEventListener('blur', async () => {
-            newTitle.contentEditable = false;
-
-            if(newTitle.innerText !== altTitleObj.name) {
-                await this._document.updateAlternativeTitle(altTitleObj.id, sanitize(newTitle.innerText));
-            }
-            newTitle.insertAdjacentHTML("afterbegin", `<confirmation-popup data-presenter="confirmation-popup" 
-                data-message="Saved!" data-left="${newTitle.offsetWidth/2}"></confirmation-popup>`);
-        }, {once:true});
+            let altTitleObj = this._document.getAlternativeTitle(component.getAttribute("data-id"));
+            newTitle.setAttribute("contenteditable", "true");
+            newTitle.focus();
+            let timer = new SaveElementTimer(async () => {
+                let confirmationPopup = this.element.querySelector("confirmation-popup");
+                let sanitizedText = sanitize(newTitle.innerText);
+                if (sanitizedText !== altTitleObj.name && !confirmationPopup) {
+                    await this._document.updateAlternativeTitle(altTitleObj.id, sanitizedText);
+                    newTitle.insertAdjacentHTML("afterbegin", `<confirmation-popup data-presenter="confirmation-popup" 
+                    data-message="Saved!" data-left="${newTitle.offsetWidth/2}"></confirmation-popup>`);
+                }
+            }, 1000);
+            newTitle.addEventListener("blur", async () => {
+                newTitle.removeEventListener("keydown", resetTimer);
+                await timer.stop(true);
+                newTitle.setAttribute("contenteditable", "false");
+            }, {once: true});
+            const resetTimer = async () => {
+                await timer.reset(1000);
+            };
+            newTitle.addEventListener("keydown", resetTimer);
+        }
     }
 
     async delete(_target) {
