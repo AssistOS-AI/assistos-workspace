@@ -1,4 +1,4 @@
-import { Chapter } from "../../imports.js"
+import {Chapter, Paragraph} from "../../imports.js"
 
 export class DocumentModel {
     constructor(documentData) {
@@ -57,8 +57,9 @@ export class DocumentModel {
         this.settings = settings;
     }
 
-    async addChapter(chapterData) {
-        this.chapters.push(new Chapter(chapterData));
+    async addChapter(chapterData, position) {
+        //if position is not specified splice converts undefined to 0
+        this.chapters.splice(position,0,new Chapter(chapterData));
         await documentFactory.updateDocument(currentSpaceId, this);
     }
 

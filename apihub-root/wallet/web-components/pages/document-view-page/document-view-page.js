@@ -155,22 +155,36 @@ export class documentViewPage {
     async addChapter() {
         let chapterData= {
             title: "New Chapter",
+            id: webSkel.getService("UtilsService").generateId(),
             paragraphs: [
                 {
-                    text: "New Paragraph"
+                    text: "New Paragraph",
+                    id: webSkel.getService("UtilsService").generateId()
                 }
             ]
         }
-        await this._document.addChapter(chapterData);
-        webSkel.space.currentChapterId=chapterData.id;
+        let position = this._document.chapters.length;
+        if(webSkel.space.currentChapterId){
+            position = this._document.chapters.findIndex(chapter => chapter.id === webSkel.space.currentChapterId) + 1;
+        }
+        await this._document.addChapter(chapterData, position);
+        webSkel.space.currentChapterId = chapterData.id;
+        webSkel.space.currentParagraphId = chapterData.paragraphs[0].id;
         this.invalidate();
     }
     async addParagraph(_target){
         let chapter = this._document.getChapter(webSkel.space.currentChapterId);
-        let newParagraphId=webSkel.getService("UtilsService").generateId();
-        await chapter.addParagraph({id: newParagraphId, text:""},chapter.paragraphs.length);
-        webSkel.space.currentParagraphId=newParagraphId;
-        this._document.notifyObservers(this._document.getNotificationId()+":document-view-page:"+"chapter:"+`${chapter.id}`);
+        let newParagraphId= webSkel.getService("UtilsService").generateId();
+        let position = chapter.paragraphs.length;
+        if(webSkel.space.currentParagraphId){
+            position = chapter.getParagraphIndex(webSkel.space.currentParagraphId) + 1;
+        }
+        await this._document.addParagraph(chapter, {id: newParagraphId, text:""}, position);
+        webSkel.space.currentParagraphId = newParagraphId;
+        webSkel.space.currentChapterId = chapter.id;
+        this._document.notifyObservers(this._document.getNotificationId() + ":document-view-page:" + "chapter:" + `${chapter.id}`);
+        let controller = new AbortController();
+        document.addEventListener("click",this.highlightElement.bind(this, controller), {signal:controller.signal});
     }
 
 
