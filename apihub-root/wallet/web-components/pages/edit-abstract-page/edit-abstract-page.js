@@ -3,7 +3,7 @@ import {
     showActionBox,
     showModal,
     removeActionBox,
-    reverseQuerySelector
+    reverseQuerySelector, SaveElementTimer, sanitize
 } from "../../../imports.js";
 export class editAbstractPage {
     constructor(element, invalidate) {
@@ -24,7 +24,6 @@ export class editAbstractPage {
             data-title="${abstract.content}" ></alternative-abstract>`;
             i++;
         });
-        document.removeEventListener("click", this.exitEditMode, true);
     }
 
 
@@ -36,22 +35,29 @@ export class editAbstractPage {
         await webSkel.changeToDynamicPage("abstract-proofread-page", `documents/${this._document.id}/abstract-proofread-page`);
     }
 
-    async enterEditMode(_target) {
+    async editAbstract(_target) {
         let abstract = this.element.querySelector(".abstract-content");
-        const controller = new AbortController();
-        document.addEventListener("click", this.exitEditMode.bind(this, abstract, controller), {signal:controller.signal});
-        abstract.setAttribute("contenteditable", "true");
-        abstract.focus();
-    }
-
-    async exitEditMode (abstract, controller, event) {
-        if (abstract.getAttribute("contenteditable") === "true" && abstract !== event.target && !abstract.contains(event.target)) {
-            abstract.setAttribute("contenteditable", "false");
-
-            await this._document.updateAbstract(abstract.innerText);
-            abstract.insertAdjacentHTML("afterbegin", `<confirmation-popup data-presenter="confirmation-popup"
-            data-message="Saved!" data-left="${abstract.offsetWidth/2}"></confirmation-popup>`);
-            controller.abort();
+        if (abstract.getAttribute("contenteditable") === "false") {
+            abstract.setAttribute("contenteditable", "true");
+            abstract.focus();
+            let timer = new SaveElementTimer(async () => {
+                let confirmationPopup = this.element.querySelector("confirmation-popup");
+                let sanitizedText = sanitize(abstract.innerText);
+                if (sanitizedText !== this._document.abstract && !confirmationPopup) {
+                    await this._document.updateAbstract(sanitizedText);
+                    abstract.insertAdjacentHTML("afterbegin", `<confirmation-popup data-presenter="confirmation-popup" 
+                    data-message="Saved!" data-left="${abstract.offsetWidth/2}"></confirmation-popup>`);
+                }
+            }, 1000);
+            abstract.addEventListener("blur", async () => {
+                abstract.removeEventListener("keydown", resetTimer);
+                await timer.stop(true);
+                abstract.setAttribute("contenteditable", "false");
+            }, {once: true});
+            const resetTimer = async () => {
+                await timer.reset(1000);
+            };
+            abstract.addEventListener("keydown", resetTimer);
         }
     }
 
@@ -74,32 +80,37 @@ export class editAbstractPage {
         removeActionBox(this.actionBox, this);
         this.invalidate();
     }
-    async edit(_target, querySelect) {
-        let confirmationPopup = this.element.querySelector("confirmation-popup");
-        if(confirmationPopup){
-            confirmationPopup.remove();
-        }
-        let abstractText;
-        if(querySelect){
-            abstractText = _target
-        }else {
-            abstractText = reverseQuerySelector(_target, ".content");
-        }
-        let alternativeAbstractId = reverseQuerySelector(_target, "alternative-abstract").getAttribute("data-id");
-        let abstract = this._document.getAlternativeAbstract(alternativeAbstractId);
+    async edit(_target) {
+
+        let component = reverseQuerySelector(_target, "alternative-abstract");
+        let abstractText = component.querySelector(".content");
         if(this.actionBox){
             removeActionBox(this.actionBox, this);
         }
-        abstractText.contentEditable = true;
-        abstractText.focus();
-        abstractText.addEventListener('blur', async () => {
-            abstractText.contentEditable = false;
-            if(abstractText.innerText !== abstract.content) {
-                await this._document.updateAlternativeAbstract(alternativeAbstractId, abstractText.innerText);
-            }
-            abstractText.insertAdjacentHTML("afterbegin", `<confirmation-popup data-presenter="confirmation-popup" 
-                data-message="Saved!" data-left="${abstractText.offsetWidth/2}"></confirmation-popup>`);
-        }, {once:true});
+        if (abstractText.getAttribute("contenteditable") === "false") {
+            let alternativeAbstractId = component.getAttribute("data-id");
+            let abstract = this._document.getAlternativeAbstract(alternativeAbstractId);
+            abstractText.setAttribute("contenteditable", "true");
+            abstractText.focus();
+            let timer = new SaveElementTimer(async () => {
+                let confirmationPopup = this.element.querySelector("confirmation-popup");
+                let sanitizedText = sanitize(abstractText.innerText);
+                if (sanitizedText !== abstract.content && !confirmationPopup) {
+                    await this._document.updateAlternativeAbstract(abstract.id, sanitizedText);
+                    abstractText.insertAdjacentHTML("afterbegin", `<confirmation-popup data-presenter="confirmation-popup" 
+                    data-message="Saved!" data-left="${abstractText.offsetWidth/2}"></confirmation-popup>`);
+                }
+            }, 1000);
+            abstractText.addEventListener("blur", async () => {
+                abstractText.removeEventListener("keydown", resetTimer);
+                await timer.stop(true);
+                abstractText.setAttribute("contenteditable", "false");
+            }, {once: true});
+            const resetTimer = async () => {
+                await timer.reset(1000);
+            };
+            abstractText.addEventListener("keydown", resetTimer);
+        }
     }
 
     async delete(_target) {

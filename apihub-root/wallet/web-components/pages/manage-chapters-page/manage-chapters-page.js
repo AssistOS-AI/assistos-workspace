@@ -1,7 +1,7 @@
 import {
     Paragraph,
     showActionBox,
-    reverseQuerySelector
+    reverseQuerySelector, SaveElementTimer, sanitize
 } from "../../../imports.js";
 export class manageChaptersPage {
     constructor(element, invalidate) {
@@ -29,55 +29,66 @@ export class manageChaptersPage {
             this.chaptersDiv += `<reduced-chapter-unit nr="${number}." title="${item.title}" 
             data-id="${item.id}" data-local-action="editAction"></reduced-chapter-unit>`;
         });
-        document.removeEventListener("click", this.exitEditMode, true);
     }
 
     afterRender(){
         let mainIdeas = this.element.querySelector(".main-ideas-list");
+        mainIdeas.removeEventListener("input", this.manageList);
+        mainIdeas.addEventListener("input", this.manageList);
+    }
+
+    manageList(event){
         const maxLength = 80;
-        mainIdeas.addEventListener("input", function (event) {
-            for(let child of event.target.children){
-                if(child.innerHTML === "<br>"){
-                    child.innerHTML = "";
-                }
-                if (child.innerText.length > maxLength) {
-                    const selection = window.getSelection();
-                    const range = document.createRange();
-
-                    // Truncate the text and update the element
-                    child.innerText = child.innerText.substring(0, maxLength);
-
-                    // Restore the cursor position to the end of the text
-                    range.setStart(child.firstChild, child.innerText.length);
-                    range.setEnd(child.firstChild, child.innerText.length);
-                    selection.removeAllRanges();
-                    selection.addRange(range);
-                }
+        for(let child of event.target.children){
+            if(event.target.children.length === 1 && event.target.firstChild.innerText === ""){
+                event.target.firstChild.textContent = `<li>${event.target.firstChild.innerText}</li>`;
             }
-        });
-    }
-    async enterEditMode(_target) {
-        let confirmationPopup = this.element.querySelector("confirmation-popup");
-        if(confirmationPopup){
-            confirmationPopup.remove();
+            if(child.innerHTML === "<br>"){
+                child.innerHTML = "";
+            }
+            if (child.innerText.length > maxLength) {
+                const selection = window.getSelection();
+                const range = document.createRange();
+
+                // Truncate the text and update the element
+                child.innerText = child.innerText.substring(0, maxLength);
+
+                // Restore the cursor position to the end of the text
+                range.setStart(child.firstChild, child.innerText.length);
+                range.setEnd(child.firstChild, child.innerText.length);
+                selection.removeAllRanges();
+                selection.addRange(range);
+            }
         }
+    }
+    async editMainIdeas(_target) {
         let mainIdeas = this.element.querySelector(".main-ideas-list");
-        const controller = new AbortController();
-        document.addEventListener("click", this.exitEditMode.bind(this, mainIdeas, controller), {signal:controller.signal});
-        mainIdeas.setAttribute("contenteditable", "true");
-        mainIdeas.focus();
+        if (mainIdeas.getAttribute("contenteditable") === "false") {
+            mainIdeas.setAttribute("contenteditable", "true");
+            mainIdeas.focus();
+            let timer = new SaveElementTimer(async () => {
+                let confirmationPopup = this.element.querySelector("confirmation-popup");
+                let ideas = mainIdeas.innerText.split("\n");
+                let ideasString = ideas.join("");
+                let currentIdeas = this._document.mainIdeas.join("");
+                if (!confirmationPopup && ideasString !== currentIdeas) {
+                    await this._document.setMainIdeas(ideas);
+                    mainIdeas.insertAdjacentHTML("afterbegin", `<confirmation-popup data-presenter="confirmation-popup" 
+                    data-message="Saved!" data-left="${mainIdeas.offsetWidth/2}"></confirmation-popup>`);
+                }
+            }, 1000);
+            mainIdeas.addEventListener("blur", async () => {
+                mainIdeas.removeEventListener("keydown", resetTimer);
+                await timer.stop(true);
+                mainIdeas.setAttribute("contenteditable", "false");
+            }, {once: true});
+            const resetTimer = async () => {
+                await timer.reset(1000);
+            };
+            mainIdeas.addEventListener("keydown", resetTimer);
+        }
     }
 
-    async exitEditMode (mainIdeas, controller, event) {
-        if (mainIdeas.getAttribute("contenteditable") === "true" && mainIdeas !== event.target && !mainIdeas.contains(event.target)) {
-            mainIdeas.setAttribute("contenteditable", "false");
-            let ideas = mainIdeas.innerText.split("\n");
-            await this._document.setMainIdeas(ideas);
-            mainIdeas.insertAdjacentHTML("afterbegin", `<confirmation-popup data-presenter="confirmation-popup" 
-            data-message="Saved!" data-left="${mainIdeas.offsetWidth/2}"></confirmation-popup>`);
-            controller.abort();
-        }
-    }
     async openViewPage() {
         await webSkel.changeToDynamicPage("document-view-page", `documents/${this._document.id}/document-view-page`);
     }

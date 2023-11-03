@@ -2,7 +2,7 @@ import {
     reverseQuerySelector,
     showActionBox,
     showModal,
-    removeActionBox
+    removeActionBox, SaveElementTimer, sanitize
 } from "../../../imports.js";
 
 export class paragraphBrainstormingPage {
@@ -27,10 +27,9 @@ export class paragraphBrainstormingPage {
         let number = 0;
         this._paragraph.alternativeParagraphs.forEach((item) => {
             number++;
-            this.alternativeParagraphs += `<alternative-paragraph data-id="${item.id}" data-local-action="edit querySelect"
+            this.alternativeParagraphs += `<alternative-paragraph data-id="${item.id}"
             data-nr="${number}" data-text="${item.text}"></alternative-paragraph>`;
         });
-        document.removeEventListener("click", this.exitEditMode, true);
     }
 
     limitMainIdeaText(event){
@@ -49,11 +48,7 @@ export class paragraphBrainstormingPage {
             selection.addRange(range);
         }
     }
-    async enterEditMode(_target, itemName) {
-        let confirmationPopup = this.element.querySelector("confirmation-popup");
-        if(confirmationPopup){
-            confirmationPopup.remove();
-        }
+    async editItem(_target, itemName) {
         let item;
         if(itemName === "mainIdea"){
             item = this.element.querySelector(".main-idea-content");
@@ -61,25 +56,36 @@ export class paragraphBrainstormingPage {
         }else {
             item = this.element.querySelector(".paragraph-content");
         }
-        const controller = new AbortController();
-        document.addEventListener("click", this.exitEditMode.bind(this, item, itemName, controller), {signal:controller.signal});
-        item.setAttribute("contenteditable", "true");
-        item.focus();
-    }
+        if (item.getAttribute("contenteditable") === "false") {
+            item.setAttribute("contenteditable", "true");
+            item.focus();
+            let timer = new SaveElementTimer(async () => {
+                let confirmationPopup = this.element.querySelector("confirmation-popup");
+                let sanitizedText = sanitize(item.innerText);
+                if(itemName === "mainIdea"){
+                    if (sanitizedText !== this._paragraph.mainIdea && !confirmationPopup) {
+                        await this._document.setParagraphMainIdea(this._paragraph, sanitizedText);
+                        item.insertAdjacentHTML("afterbegin", `<confirmation-popup data-presenter="confirmation-popup" 
+                        data-message="Saved!" data-left="${item.offsetWidth/2}"></confirmation-popup>`);
+                    }
+                }else {
+                    if(sanitizedText !== this._paragraph.text && !confirmationPopup){
+                        await this._document.updateParagraphText(this._paragraph, sanitizedText);
+                        item.insertAdjacentHTML("afterbegin", `<confirmation-popup data-presenter="confirmation-popup" 
+                        data-message="Saved!" data-left="${item.offsetWidth/2}"></confirmation-popup>`);
+                    }
+                }
 
-    async exitEditMode (item, itemName, controller, event) {
-        if (item.getAttribute("contenteditable") === "true" && item !== event.target && !item.contains(event.target)) {
-            item.setAttribute("contenteditable", "false");
-            let text = item.innerText;
-            if(itemName === "mainIdea"){
-                item.removeEventListener("input",this.limitMainIdeaText);
-                await this._document.setParagraphMainIdea(this._paragraph, text);
-            }else {
-                await this._document.updateParagraphText(this._paragraph, text);
-            }
-            item.insertAdjacentHTML("afterbegin", `<confirmation-popup data-presenter="confirmation-popup" 
-            data-message="Saved!" data-left="${item.offsetWidth/2}"></confirmation-popup>`);
-            controller.abort();
+            }, 1000);
+            item.addEventListener("blur", async () => {
+                item.removeEventListener("keydown", resetTimer);
+                await timer.stop(true);
+                item.setAttribute("contenteditable", "false");
+            }, {once: true});
+            const resetTimer = async () => {
+                await timer.reset(1000);
+            };
+            item.addEventListener("keydown", resetTimer);
         }
     }
 
@@ -111,29 +117,36 @@ export class paragraphBrainstormingPage {
         this.actionBox = await showActionBox(_target, primaryKey, componentName, insertionMode);
     }
 
-    async edit(_target, querySelect){
-        let paragraph;
-        if(querySelect){
-            paragraph = _target.querySelector(".content");
-        }else {
-            paragraph = reverseQuerySelector(_target, ".content");
-        }
-        let paragraphComponent = reverseQuerySelector(_target, "alternative-paragraph");
-        let paragraphId = paragraphComponent.getAttribute("data-id");
-        let alternativeParagraph = this._paragraph.getAlternativeParagraph(paragraphId);
+    async edit(_target){
+        let component = reverseQuerySelector(_target, "alternative-paragraph");
+        let paragraph = component.querySelector(".content");
         if(this.actionBox){
             removeActionBox(this.actionBox, this);
         }
-        paragraph.contentEditable = true;
-        paragraph.focus();
-        paragraph.addEventListener('blur', async () => {
-            paragraph.contentEditable = false;
-            if(paragraph.innerText !== alternativeParagraph.text) {
-               await this._document.updateAlternativeParagraph(this._paragraph, paragraphId, paragraph.innerText);
-            }
-            paragraph.insertAdjacentHTML("afterbegin", `<confirmation-popup data-presenter="confirmation-popup" 
-                data-message="Saved!" data-left="${paragraph.offsetWidth/2}"></confirmation-popup>`);
-        }, {once:true});
+        if (paragraph.getAttribute("contenteditable") === "false") {
+            let paragraphId = component.getAttribute("data-id");
+            let currentAltParagraph = this._paragraph.getAlternativeParagraph(paragraphId);
+            paragraph.setAttribute("contenteditable", "true");
+            paragraph.focus();
+            let timer = new SaveElementTimer(async () => {
+                let confirmationPopup = this.element.querySelector("confirmation-popup");
+                let sanitizedText = sanitize(paragraph.innerText);
+                if (sanitizedText !== currentAltParagraph.text && !confirmationPopup) {
+                    await this._document.updateAlternativeParagraph(this._paragraph, currentAltParagraph.id, sanitizedText);
+                    paragraph.insertAdjacentHTML("afterbegin", `<confirmation-popup data-presenter="confirmation-popup" 
+                    data-message="Saved!" data-left="${paragraph.offsetWidth/2}"></confirmation-popup>`);
+                }
+            }, 1000);
+            paragraph.addEventListener("blur", async () => {
+                paragraph.removeEventListener("keydown", resetTimer);
+                await timer.stop(true);
+                paragraph.setAttribute("contenteditable", "false");
+            }, {once: true});
+            const resetTimer = async () => {
+                await timer.reset(1000);
+            };
+            paragraph.addEventListener("keydown", resetTimer);
+        }
     }
     async delete(_target){
         let paragraph = reverseQuerySelector(_target, "alternative-paragraph");
