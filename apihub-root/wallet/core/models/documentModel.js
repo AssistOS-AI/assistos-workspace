@@ -18,7 +18,14 @@ export class DocumentModel {
     toString() {
         return this.chapters.map(chapter => chapter.toString()).join("\n\n") || "";
     }
-
+    simplifyDocument(){
+        return {
+            title: this.title,
+            abstract: this.abstract,
+            chapters: this.chapters.map(chapter => chapter.simplifyChapter()),
+            mainIdeas: this.mainIdeas
+        }
+    }
     stringifyDocument() {
         function replacer(key, value) {
             if (key === "observers") return undefined;

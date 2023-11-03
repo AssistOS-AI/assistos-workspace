@@ -5,6 +5,12 @@ export class Paragraph {
         this.mainIdea = paragraphData.mainIdea || "";
         this.alternativeParagraphs = paragraphData.alternativeParagraphs || [];
     }
+    simplifyParagraph() {
+        return {
+            text:this.text,
+            mainIdea:this.mainIdea
+        }
+    }
     getNotificationId(chapterId) {
         return `doc:${chapterId}:${this.id}`;
     }

@@ -183,6 +183,11 @@
       "className": "suggestTitlesModal"
     },
     {
+      "name": "clone-document-modal",
+      "path": "./web-components/modals/clone-document-modal/clone-document-modal.js",
+      "className": "cloneDocumentModal"
+    },
+    {
       "name": "suggest-chapter-titles-modal",
       "path": "./web-components/modals/suggest-chapter-titles-modal/suggest-chapter-titles-modal.js",
       "className": "suggestChapterTitlesModal"
@@ -327,6 +332,10 @@
       "path": "./wallet/web-components/components/action-box-with-select/action-box-with-select.html"
     },
     {
+      "name": "action-box-with-clone",
+      "path": "./wallet/web-components/components/action-box-with-clone/action-box-with-clone.html"
+    },
+    {
       "name": "alternative-title",
       "path": "./wallet/web-components/components/item-list/alternative-title/alternative-title.html"
     },
@@ -421,6 +430,10 @@
     {
       "name": "edit-script-modal",
       "path": "./wallet/web-components/modals/edit-script-modal/edit-script-modal.html"
+    },
+    {
+      "name": "clone-document-modal",
+      "path": "./wallet/web-components/modals/clone-document-modal/clone-document-modal.html"
     },
     {
       "name": "edit-announcement-modal",
