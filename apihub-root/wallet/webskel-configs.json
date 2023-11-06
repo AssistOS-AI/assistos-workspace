@@ -1,6 +1,16 @@
 {
   "presenters": [
     {
+      "name": "chatbots-select-personality-page",
+      "path": "./web-components/pages/chatbots-select-personality-page/chatbots-select-personality-page.js",
+      "className": "chatbotsSelectPersonalityPage"
+    },
+    {
+      "name": "chatbots-page",
+      "path": "./web-components/pages/chatbots-page/chatbots-page.js",
+      "className": "chatbotsPage"
+    },
+    {
       "name": "confirmation-popup",
       "path": "./web-components/components/confirmation-popup/confirmation-popup.js",
       "className": "confirmationPopup"
@@ -231,6 +241,14 @@
     }
   ],
   "components": [
+    {
+      "name": "chatbots-select-personality-page",
+      "path": "./wallet/web-components/pages/chatbots-select-personality-page/chatbots-select-personality-page.html"
+    },
+    {
+      "name": "chatbots-page",
+      "path": "./wallet/web-components/pages/chatbots-page/chatbots-page.html"
+    },
     {
       "name": "confirmation-popup",
       "path": "./wallet/web-components/components/confirmation-popup/confirmation-popup.html"

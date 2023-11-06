@@ -24,7 +24,7 @@ export class personalitiesPage {
         await showModal(document.querySelector("body"), "add-personality-modal", { presenter: "add-personality-modal"});
     }
 
-    async openEditPersonalityPage(_target){
+    async selectPersonality(_target){
         let personalityId = reverseQuerySelector(_target, "personality-unit").getAttribute("data-id");
         await webSkel.changeToDynamicPage("edit-personality-page", `space-page/edit-personality-page/${personalityId}`);
     }

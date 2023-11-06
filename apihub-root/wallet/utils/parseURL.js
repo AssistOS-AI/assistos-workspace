@@ -18,5 +18,11 @@ export function parseURL(){
             }
             break;
         }
+        case "#chatbots-page":{
+            return url.split("/")[2];
+        }
+        default:{
+            console.error("shouldn't have gotten here");
+        }
     }
 }

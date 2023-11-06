@@ -1,0 +1,32 @@
+
+chatbots-page{
+    display: flex;
+}
+.chat-container{
+    width: calc(100% - 270px);
+}
+.chat-log{
+    height: 60%;
+}
+#chatbots-background{
+    width: 100%;
+    height: 100%;
+    object-fit: cover;
+    opacity: 0.1;
+}
+.chat-input-container{
+    padding: 10px;
+    justify-content: space-between;
+    display: flex;
+    align-items: center;
+}
+#user-input{
+    width: 93%;
+    border-radius: 24px;
+    border: none;
+    background: #F5E6EF;
+    height: 60px;
+    padding-left: 20px;
+    font-weight: 400;
+    font-size: 16px;
+}
