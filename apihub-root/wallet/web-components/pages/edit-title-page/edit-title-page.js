@@ -3,13 +3,13 @@ import {
     showActionBox,
     showModal,
     reverseQuerySelector,
-    removeActionBox, sanitize, SaveElementTimer, getClosestParentElement
+    removeActionBox, sanitize, SaveElementTimer, getClosestParentElement, parseURL
 } from "../../../imports.js";
 
 export class editTitlePage {
     constructor(element, invalidate) {
         this.element = element;
-        this._document = webSkel.space.getDocument(webSkel.space.currentDocumentId);
+        this._document = webSkel.space.getDocument(parseURL());
         this._document.observeChange(this._document.getNotificationId() + ":edit-title-page", invalidate);
         this.invalidate = invalidate;
         this.invalidate();

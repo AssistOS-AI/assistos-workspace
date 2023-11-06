@@ -312,10 +312,6 @@
       "path": "./wallet/web-components/components/item-list/script-unit/script-unit.html"
     },
     {
-      "name": "user-unit",
-      "path": "./wallet/web-components/components/item-list/user-unit/user-unit.html"
-    },
-    {
       "name": "announcement-unit",
       "path": "./wallet/web-components/components/item-list/announcement-unit/announcement-unit.html"
     },

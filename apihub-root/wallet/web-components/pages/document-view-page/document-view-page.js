@@ -1,9 +1,9 @@
-import {getClosestParentElement, reverseQuerySelector, SaveElementTimer} from "../../../imports.js";
+import {getClosestParentElement, parseURL, reverseQuerySelector, SaveElementTimer} from "../../../imports.js";
 
 export class documentViewPage {
     constructor(element, invalidate) {
         this.element = element;
-        this._document = webSkel.space.getDocument(webSkel.space.currentDocumentId);
+        this._document = webSkel.space.getDocument(parseURL());
         this._document.observeChange(this._document.getNotificationId() + ":document-view-page", invalidate);
         this._document.observeChange(this._document.getNotificationId() + ":refresh", invalidate);
         this.invalidate = invalidate;

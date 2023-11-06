@@ -1,9 +1,9 @@
-import {getClosestParentElement, reverseQuerySelector, SaveElementTimer} from "../../../../imports.js";
+import {parseURL, reverseQuerySelector, SaveElementTimer} from "../../../../imports.js";
 
 export class chapterUnit {
     constructor(element, invalidate) {
         this.element = element;
-        this._document = webSkel.space.getDocument(webSkel.space.currentDocumentId);
+        this._document = webSkel.space.getDocument(parseURL());
         let chapterId = this.element.getAttribute("data-chapter-id");
         this.chapter = this._document.getChapter(chapterId);
         this._document.observeChange(this._document.getNotificationId() + ":document-view-page:" + "chapter:" + `${chapterId}`, invalidate);

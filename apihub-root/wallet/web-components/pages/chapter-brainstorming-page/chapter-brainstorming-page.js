@@ -3,14 +3,15 @@ import {
     showActionBox,
     showModal,
     removeActionBox,
-    Chapter
+    Chapter, parseURL
 } from "../../../imports.js";
 
 export class chapterBrainstormingPage {
     constructor(element, invalidate) {
         this.element = element;
-        let chapterId=window.location.hash.split("/")[3];
-        this._document = webSkel.space.getDocument(webSkel.space.currentDocumentId);
+        let documentId, chapterId;
+        [documentId,chapterId] = parseURL();
+        this._document = webSkel.space.getDocument(documentId);
         this._chapter = this._document.getChapter(chapterId);
         this._document.observeChange(this._document.getNotificationId(), invalidate);
         this.invalidate = invalidate;

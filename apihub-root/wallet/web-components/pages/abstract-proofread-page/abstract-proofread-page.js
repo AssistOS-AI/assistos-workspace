@@ -1,9 +1,9 @@
-import {SaveElementTimer, sanitize} from "../../../imports.js";
+import {SaveElementTimer, sanitize, parseURL} from "../../../imports.js";
 
 export class abstractProofreadPage {
     constructor(element, invalidate) {
         this.element=element;
-        this._document = webSkel.space.getDocument(webSkel.space.currentDocumentId);
+        this._document = webSkel.space.getDocument(parseURL());
         this.invalidate = invalidate;
         this.invalidate();
 

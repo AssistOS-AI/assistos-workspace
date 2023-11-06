@@ -1,12 +1,12 @@
 import {
     Paragraph,
     showActionBox,
-    reverseQuerySelector, SaveElementTimer, sanitize
+    reverseQuerySelector, SaveElementTimer, sanitize, parseURL
 } from "../../../imports.js";
 export class manageChaptersPage {
     constructor(element, invalidate) {
         this.element = element;
-        this._document = webSkel.space.getDocument(webSkel.space.currentDocumentId);
+        this._document = webSkel.space.getDocument(parseURL());
         this.invalidate = invalidate;
         this.invalidate();
         this.mainIdeas = this._document.getMainIdeas();
