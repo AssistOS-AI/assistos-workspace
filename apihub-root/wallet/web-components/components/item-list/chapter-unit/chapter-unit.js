@@ -36,10 +36,12 @@ export class chapterUnit {
             if (reverseQuerySelector(paragraph, '[data-paragraph-id]').getAttribute("data-paragraph-id") === webSkel.space.currentParagraphId) {
                 currentParagraph = paragraph;
                 currentParagraph.click();
+                currentParagraph.scrollIntoView({behavior: "smooth", block: "center", inline: "nearest"});
             }
         });
         if (this.chapter.id === webSkel.space.currentChapterId) {
             this.highlightChapter();
+            this.element.scrollIntoView({behavior: "smooth", block: "center", inline: "nearest"});
         }
         if(this.chapter.visibility === "hide"){
             let paragraphsContainer = this.element.querySelector(".chapter-paragraphs");

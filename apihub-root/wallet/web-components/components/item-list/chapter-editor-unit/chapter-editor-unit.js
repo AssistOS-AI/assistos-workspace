@@ -128,8 +128,7 @@ export class chapterEditorUnit{
                 paragraph.removeEventListener("keydown", resetTimer);
                 await timer.stop(true);
                 paragraph.setAttribute("contenteditable", "false");
-                webSkel.space.currentParagraph = null;
-                this.switchParagraphArrowsDisplay(paragraph,"off");
+                webSkel.space.currentParagraphId = null;
             }, {once: true});
             const resetTimer = async (event) => {
                 if (paragraph.innerText.trim() === "" && event.key === "Backspace") {
@@ -160,7 +159,7 @@ export class chapterEditorUnit{
         };
 
         const adjacentParagraphId = getAdjacentParagraphId(currentParagraphIndex, this.chapter.paragraphs);
-        const chapterId = reverseQuerySelector(_target, "chapter-unit").getAttribute('data-chapter-id');
+        const chapterId = reverseQuerySelector(_target, "chapter-editor-unit").getAttribute('data-chapter-id');
 
         if (this.chapter.swapParagraphs(currentParagraphId, adjacentParagraphId)) {
             await documentFactory.updateDocument(currentSpaceId, this._document);
