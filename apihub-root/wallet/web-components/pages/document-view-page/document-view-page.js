@@ -255,4 +255,7 @@ export class documentViewPage {
     async openDocumentViewPage(){
         await webSkel.changeToDynamicPage("document-view-page", `documents/${this._document.id}/document-view-page`);
     }
+    async openChapterEditor(){
+        await webSkel.changeToDynamicPage("chapter-editor-page", `documents/${this._document.id}/chapter-editor-page/${webSkel.space.currentChapterId}`);
+    }
 }
