@@ -1,20 +1,41 @@
 
 chatbots-page{
     display: flex;
+    height: 100%;
 }
 .chat-container{
     width: calc(100% - 270px);
 }
 .chat-log{
-    height: 60%;
+    height: 90%;
+    position: relative;
 }
-#chatbots-background{
-    width: 100%;
-    height: 100%;
-    object-fit: cover;
+.chat-log::before {
+    content: "";
+    background-image: url('chatbots-background.png');
+    background-size: cover;
+    position: absolute;
+    top: 0;
+    right: 0;
+    bottom: 0;
+    left: 0;
     opacity: 0.1;
 }
+.chat-log::before {
+    content: "";
+    position: absolute;
+    top: 0;
+    left: 0;
+    width: 100%;
+    height: 100%;
+    background-color: rgba(157, 1, 157, 0.5);
+}
+.conversation{
+
+ position: relative;
+}
 .chat-input-container{
+    height: 10%;
     padding: 10px;
     justify-content: space-between;
     display: flex;
@@ -29,4 +50,82 @@ chatbots-page{
     padding-left: 20px;
     font-weight: 400;
     font-size: 16px;
+}
+#user-input:focus{
+    outline: none;
+}
+.send-message-btn{
+    cursor: pointer;
+    background: none;
+    border: none;
+}
+.conversation{
+    padding:15px;
+}
+
+.right-sidebar{
+    padding: 20px;
+}
+
+
+.emotion{
+    display: flex;
+    height: 50px;
+    border-bottom: 1px solid #E6E6E6;
+    justify-content: center;
+    align-items: center;
+}
+.emotion-name{
+    margin-left: 5px;
+    font-weight: 600;
+    line-height: 24px;
+}
+
+
+
+.chat-box-container{
+    position: relative;
+    display: flex;
+    margin-bottom: 15px;
+    align-items: center;
+}
+.user:before {
+    content: "";
+    position: absolute;
+    bottom: 0;
+    left: -22px;
+    height: 27px;
+    width: 24px;
+    border-bottom-right-radius: 68%;
+    box-shadow: 11px 0 0 0 white;
+}
+.chat-box{
+    padding: 5px 5px 5px 12px;
+    width: 100%;
+    white-space: pre-wrap;
+    overflow-wrap: break-word;
+    hyphens: auto;
+    word-break: break-word;
+    font-weight: 400;
+    font-size: 16px;
+}
+.user-box{
+    border-radius: 16px 16px 16px 0;
+    background: white;
+}
+
+.robot:after{
+    position: absolute;
+    content: "";
+    bottom: 0;
+    right: -22px;
+    height: 27px;
+    width: 24px;
+    border-bottom-left-radius: 68%;
+    box-shadow: -11px 0 0 0 #E0C9E1;
+}
+
+.robot-box{
+    border-radius: 16px 16px 0 16px;
+    background: #E0C9E1;
 }
