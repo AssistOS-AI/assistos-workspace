@@ -1,5 +1,7 @@
-
-.action-box-with-select {
+action-box-with-clone{
+    position:relative;
+}
+.action-box-with-clone{
     margin-top: 0;
     margin-left: -60px;
     background-color: white;
