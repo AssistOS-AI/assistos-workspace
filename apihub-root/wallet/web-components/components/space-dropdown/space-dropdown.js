@@ -12,22 +12,26 @@ export class spaceDropdown {
 
     beforeRender() {
         this.spacesDiv = "";
-        this.currentSpaceName = webSkel.space.name;
-        currentUser.spaces.filter(space => space.id !== currentSpaceId).forEach((space) => {
-            this.spacesDiv += `<space-unit data-space-name="${space.name}" data-space-id="${space.id}"></space-unit>`;
-        });
+        if(webSkel.space){
+            this.currentSpaceName = webSkel.space.name;
+            currentUser.spaces.filter(space => space.id !== currentSpaceId).forEach((space) => {
+                this.spacesDiv += `<space-unit data-space-name="${space.name}" data-space-id="${space.id}"></space-unit>`;
+            });
+        }
+
     }
 
-    hideSpaces = () => {
+    hideSpaces(controller, event) {
         let target = this.element.querySelector(".spaces-list");
         target.style.display = "none";
-        document.removeEventListener("click",this.hideSpaces);
+        controller.abort();
     };
 
     showSpaces(_target) {
         let target = this.element.querySelector(".spaces-list");
         target.style.display = "flex";
-        document.addEventListener("click",this.hideSpaces);
+        let controller = new AbortController();
+        document.addEventListener("click",this.hideSpaces.bind(this,controller), {signal:controller.signal});
     }
 
     changeSpace(_target) {

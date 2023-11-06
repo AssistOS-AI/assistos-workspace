@@ -172,13 +172,11 @@ export class authenticationPage {
       }
     }
     async navigateToRegisterPage(){
-        this.element.setAttribute("data-subpage", "register-page");
-        this.invalidate();
+        await webSkel.changeToDynamicPage("authentication-page", "authentication-page",{subpage:"register-page"});
     }
 
     async navigateToLoginPage(){
-        this.element.setAttribute("data-subpage", "login-page");
-        this.invalidate();
+        await webSkel.changeToDynamicPage("authentication-page", "authentication-page",{subpage:"login-page"});
     }
 
     async loginDefaultUser(){
@@ -211,8 +209,7 @@ export class authenticationPage {
         const formInfo = await extractFormInformation(_target);
         if(formInfo.isValid) {
             if(await webSkel.getService("AuthenticationService").registerUser(formInfo.data)){
-                this.element.setAttribute("data-subpage", "register-confirmation");
-                this.invalidate();
+                await webSkel.changeToDynamicPage("authentication-page", "authentication-page",{subpage:"register-confirmation"});
             }else{
                 console.error("Failed to create user");
             }
@@ -231,17 +228,15 @@ export class authenticationPage {
                 window.location = "";
             }else {
                 if(await webSkel.getService("AuthenticationService").loginFirstTimeUser(formInfo.data.email, formInfo.data.password)){
-                    this.element.setAttribute("data-subpage", "login-new-device");
-                    this.invalidate();
+                    await webSkel.changeToDynamicPage("authentication-page", "authentication-page",{subpage:"login-new-device"});
                 }else {
                     alert("incorrect email or password");
                 }
             }
         }
     }
-    navigateToPasswordRecoveryPage(){
-        this.element.setAttribute("data-subpage", "password-recovery");
-        this.invalidate();
+    async navigateToPasswordRecoveryPage(){
+        await webSkel.changeToDynamicPage("authentication-page", "authentication-page",{subpage:"password-recovery"});
     }
     async beginPasswordRecovery(_target){
         const checkPasswordConfirmation = (confirmPassword)=>{
@@ -253,8 +248,7 @@ export class authenticationPage {
         const formInfo = await extractFormInformation(_target, conditions);
         if (formInfo.isValid) {
             if(await webSkel.getService("AuthenticationService").recoverPassword(formInfo.data.email, formInfo.data.password)){
-                this.element.setAttribute("data-subpage", "password-recovery-confirmation");
-                this.invalidate();
+                await webSkel.changeToDynamicPage("authentication-page", "authentication-page",{subpage:"password-recovery-confirmation"});
             }else {
                 console.log("Failed to recover password");
             }
