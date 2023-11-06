@@ -1,0 +1,34 @@
+.chatbots-header{
+    padding: 15px 15px 15px 25px;
+    font-weight: 700;
+    font-size: 28px;
+    color: #511A53;
+    box-shadow: 0 2px 4px 0 #00000047;
+}
+.choose-personality{
+    margin: 25px 25px 0 25px;
+    font-size: 20px;
+    font-weight: 600;
+}
+.table{
+    display: grid;
+    grid-template-columns: repeat(9, 1fr);
+    grid-template-rows: repeat(9, 1fr);
+    grid-column-gap: 0px;
+    grid-row-gap: 0px;
+}
+personality-unit{
+    padding: 25px;
+}
+personality-unit:hover{
+    cursor: pointer;
+}
+.text{
+    font-weight: 500;
+    font-size: 22px;
+}
+.no-personality{
+    margin: 25px;
+    color: red;
+    width: 200px;
+}
