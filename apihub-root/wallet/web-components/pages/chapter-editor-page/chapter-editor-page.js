@@ -8,6 +8,8 @@ export class chapterEditorPage{
         this.element = element;
         let documentId, chapterId;
         [documentId, chapterId] = parseURL();
+        webSkel.space.currentDocumentId = documentId;
+        webSkel.space.currentChapterId = chapterId;
         this._document = webSkel.space.getDocument(documentId);
         this._chapter = this._document.getChapter(chapterId);
         this.invalidate = invalidate;
@@ -41,6 +43,7 @@ export class chapterEditorPage{
         await webSkel.changeToDynamicPage("chapter-editor-page", `documents/${this._document.id}/chapter-editor-page/${webSkel.space.currentChapterId}`);
     }
     async openEditChapterTitlePage() {
+        debugger;
         await webSkel.changeToDynamicPage("chapter-title-page",
             `documents/${this._document.id}/chapter-title-page/${webSkel.space.currentChapterId}`);
     }
