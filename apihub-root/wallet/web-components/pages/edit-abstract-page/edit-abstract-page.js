@@ -3,12 +3,12 @@ import {
     showActionBox,
     showModal,
     removeActionBox,
-    reverseQuerySelector, SaveElementTimer, sanitize
+    reverseQuerySelector, SaveElementTimer, sanitize, parseURL
 } from "../../../imports.js";
 export class editAbstractPage {
     constructor(element, invalidate) {
         this.element=element;
-        this._document = webSkel.space.getDocument(webSkel.space.currentDocumentId);
+        this._document = webSkel.space.getDocument(parseURL());
         this._document.observeChange(this._document.getNotificationId()+ ":edit-abstract-page", invalidate);
         this.invalidate = invalidate;
         this.invalidate();

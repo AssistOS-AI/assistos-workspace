@@ -1,9 +1,8 @@
-import {extractFormInformation} from "../../../imports.js";
+import {extractFormInformation, parseURL} from "../../../imports.js";
 
 export class editPersonalityPage{
     constructor(element,invalidate) {
-        let id = window.location.hash.split("/")[2];
-        this.personality = webSkel.space.getPersonality(id);
+        this.personality = webSkel.space.getPersonality(parseURL());
         this.element = element;
         this.invalidate=invalidate;
         this.invalidate();

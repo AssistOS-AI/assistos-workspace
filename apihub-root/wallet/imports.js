@@ -39,10 +39,12 @@ export {
 
 // Others
 import {SaveElementTimer} from "./utils/saveElementTimer.js";
+import {parseURL} from "./utils/parseURL.js";
 import WebSkel from "../WebSkel/webSkel.js";
 import { createFlowsFactory } from "../llmFlows/src/llmFlows.js";
 
 export {
+    parseURL,
     SaveElementTimer,
     WebSkel,
     createFlowsFactory

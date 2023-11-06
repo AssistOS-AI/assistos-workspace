@@ -1,9 +1,11 @@
-import {extractFormInformation} from "../../../imports.js";
+import {extractFormInformation, parseURL} from "../../../imports.js";
 export class generateParagraphsPage {
     constructor(element, invalidate) {
         this.element = element;
-        this._document = webSkel.space.getDocument(webSkel.space.currentDocumentId);
-        this._chapter = this._document.getChapter(webSkel.space.currentChapterId);
+        let documentId, chapterId;
+        [documentId, chapterId] = parseURL();
+        this._document = webSkel.space.getDocument(documentId);
+        this._chapter = this._document.getChapter(chapterId);
         this.invalidate = invalidate;
         this.invalidate();
         this.ideas = [];

@@ -1,11 +1,13 @@
-import {SaveElementTimer, sanitize} from "../../../imports.js";
+import {SaveElementTimer, sanitize, parseURL} from "../../../imports.js";
 
 export class paragraphProofreadPage {
     constructor(element, invalidate) {
         this.element=element;
-        this._document = webSkel.space.getDocument(webSkel.space.currentDocumentId);
-        this._chapter = this._document.getChapter(webSkel.space.currentChapterId);
-        this._paragraph = this._chapter.getParagraph(webSkel.space.currentParagraphId);
+        let documentId, chapterId, paragraphId;
+        [documentId, chapterId, paragraphId] = parseURL();
+        this._document = webSkel.space.getDocument(documentId);
+        this._chapter = this._document.getChapter(chapterId);
+        this._paragraph = this._chapter.getParagraph(paragraphId);
         this.invalidate = invalidate;
         this.invalidate();
     }

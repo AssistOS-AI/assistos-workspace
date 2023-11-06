@@ -4,14 +4,16 @@ import {
     closeModal,
     showActionBox,
     reverseQuerySelector,
-    sanitize, SaveElementTimer, removeActionBox
+    sanitize, SaveElementTimer, removeActionBox, parseURL
 } from "../../../imports.js";
 
 export class chapterTitlePage {
     constructor(element, invalidate) {
         this.element = element;
-        this._document = webSkel.space.getDocument(webSkel.space.currentDocumentId);
-        this._chapter = this._document.getChapter(window.location.hash.split("/")[3]);
+        let documentId, chapterId;
+        [documentId,chapterId] = parseURL();
+        this._document = webSkel.space.getDocument(documentId);
+        this._chapter = this._document.getChapter(chapterId);
         this._document.observeChange(this._document.getNotificationId() + "chapter-title-page", invalidate);
         this.invalidate = invalidate;
         this.invalidate();

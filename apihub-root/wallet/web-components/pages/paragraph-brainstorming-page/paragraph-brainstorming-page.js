@@ -2,16 +2,17 @@ import {
     reverseQuerySelector,
     showActionBox,
     showModal,
-    removeActionBox, SaveElementTimer, sanitize
+    removeActionBox, SaveElementTimer, sanitize, parseURL
 } from "../../../imports.js";
 
 export class paragraphBrainstormingPage {
     constructor(element, invalidate) {
         this.element = element;
-        let url = window.location.hash;
-        this._document = webSkel.space.getDocument(webSkel.space.currentDocumentId);
-        this._chapter = this._document.getChapter(webSkel.space.currentChapterId);
-        this._paragraph = this._chapter.getParagraph(url.split("/")[4]);
+        let documentId, chapterId, paragraphId;
+        [documentId, chapterId, paragraphId] = parseURL();
+        this._document = webSkel.space.getDocument(documentId);
+        this._chapter = this._document.getChapter(chapterId);
+        this._paragraph = this._chapter.getParagraph(paragraphId);
         this._document.observeChange(this._document.getNotificationId(), invalidate);
         this.invalidate = invalidate;
         this.invalidate();
