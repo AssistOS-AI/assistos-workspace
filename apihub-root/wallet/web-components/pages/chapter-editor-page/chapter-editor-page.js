@@ -1,4 +1,5 @@
 import {
+    getClosestParentElement,
     parseURL,
     reverseQuerySelector,
     SaveElementTimer,
@@ -12,8 +13,8 @@ export class chapterEditorPage{
         webSkel.space.currentChapterId = chapterId;
         this._document = webSkel.space.getDocument(documentId);
         this._chapter = this._document.getChapter(chapterId);
-        this.element.removeEventListener('keydown', this.addParagraphOnCtrlEnter);
-        this.element.addEventListener('keydown', this.addParagraphOnCtrlEnter);
+        this.element.addEventListener('keydown', (event) => this.addParagraphOnCtrlEnter(event));
+        document.addEventListener("click", (event) => this.checkParagraphClick(event));
         this.invalidate = invalidate;
         this.invalidate();
     }
@@ -26,6 +27,7 @@ export class chapterEditorPage{
         this._chapter.paragraphs.forEach((paragraph) => {
             this.chapterContent += `<paragraph-unit data-paragraph-content="${paragraph.text}" data-paragraph-id="${paragraph.id}"></paragraph-unit>`;
         });
+
     }
 
     afterRender() {
@@ -33,13 +35,14 @@ export class chapterEditorPage{
         let currentParagraph = null;
         selectedParagraphs.forEach(paragraph => {
             if (reverseQuerySelector(paragraph, '[data-paragraph-id]').getAttribute("data-paragraph-id") === webSkel.space.currentParagraphId) {
-                currentParagraph = paragraph;
+                this.currentParagraph = paragraph;
             }
         });
-        if(currentParagraph){
-            currentParagraph.click();
-            currentParagraph.scrollIntoView({behavior: "smooth", block: "center", inline: "nearest"});
+        if(this.currentParagraph){
+            this.currentParagraph.click();
+            this.currentParagraph.scrollIntoView({behavior: "smooth", block: "center", inline: "nearest"});
         }
+        let controller = new AbortController();
     }
     async editChapterTitle(title){
         title.setAttribute("contenteditable", "true");
@@ -60,24 +63,48 @@ export class chapterEditorPage{
         title.addEventListener("keydown", resetTimer);
 
     }
+    checkParagraphClick(event){
+        this.paragraphUnit = getClosestParentElement(event.target, "paragraph-unit");
+        if(this.paragraphUnit){
+            if(this.currentParagraph!==this.paragraphUnit) {
+                this.deselectPreviousParagraph();
+                this.currentParagraph = this.paragraphUnit;
+                webSkel.space.currentParagraphId = this.paragraphUnit.getAttribute("data-paragraph-id");
+                this.switchParagraphArrowsDisplay(this.paragraphUnit, "on");
+            }
+        } else {
+           let rightSidebarItems= document.querySelector(".item-list");
+           let leftSidebarItems= document.querySelector(".features-list");
+              if(!rightSidebarItems.contains(event.target) || !leftSidebarItems.contains(event.target)){
+                  this.deselectPreviousParagraph();
+              }
+        }
+    }
     async addParagraphOnCtrlEnter(event) {
         if (!event.ctrlKey || event.key !== 'Enter') {
             return;
         }
         debugger;
         const fromParagraph = reverseQuerySelector(event.target, '[data-paragraph-id]', 'chapter-unit');
-        const fromChapter = reverseQuerySelector(event.target, 'chapter-editor-unit');
+        const fromChapter = reverseQuerySelector(event.target, 'chapter-editor-page');
 
         if (!fromParagraph && !fromChapter) {
             return;
         }
-        let paragraphPosition = null;
-        if (fromParagraph) {
-            paragraphPosition = this._chapter.getParagraphIndex(fromParagraph.getAttribute("data-paragraph-id")) + 1;
-        } else {
-            paragraphPosition = this._chapter.paragraphs.length;
+        await this.addParagraph(event.target);
+    }
+    async addParagraph(_target){
+        let chapter = this._document.getChapter(webSkel.space.currentChapterId);
+        let newParagraphId= webSkel.getService("UtilsService").generateId();
+        let position = chapter.paragraphs.length;
+        debugger;
+        if(webSkel.space.currentParagraphId){
+            position = chapter.getParagraphIndex(webSkel.space.currentParagraphId) + 1;
         }
-        await this.addNewParagraph(paragraphPosition);
+        await this._document.addParagraph(chapter, {id: newParagraphId, text:""}, position);
+        webSkel.space.currentParagraphId = newParagraphId;
+        webSkel.space.currentChapterId = chapter.id;
+        this.invalidate();
     }
     switchParagraphArrowsDisplay(target, mode) {
         let chapter = this._document.getChapter(this.chapterId);
@@ -102,18 +129,7 @@ export class chapterEditorPage{
             foundElement.style.display = "none";
         }
     }
-    async addParagraph(_target){
-        let chapter = this._document.getChapter(webSkel.space.currentChapterId);
-        let newParagraphId= webSkel.getService("UtilsService").generateId();
-        let position = chapter.paragraphs.length;
-        if(webSkel.space.currentParagraphId){
-            position = chapter.getParagraphIndex(webSkel.space.currentParagraphId) + 1;
-        }
-        await this._document.addParagraph(chapter, {id: newParagraphId, text:""}, position);
-        webSkel.space.currentParagraphId = newParagraphId;
-        webSkel.space.currentChapterId = chapter.id;
-        this.invalidate();
-    }
+
     editParagraph(paragraph) {
         if(this.currentParagraph){
             this.switchParagraphArrowsDisplay(this.currentParagraph,"off");
@@ -139,10 +155,10 @@ export class chapterEditorPage{
                 }
             }, 1000);
             paragraph.addEventListener("blur", async () => {
+                debugger;
                 paragraph.removeEventListener("keydown", resetTimer);
                 await timer.stop(true);
                 paragraph.setAttribute("contenteditable", "false");
-                webSkel.space.currentParagraphId = null;
             }, {once: true});
             const resetTimer = async (event) => {
                 if (paragraph.innerText.trim() === "" && event.key === "Backspace") {
@@ -158,9 +174,15 @@ export class chapterEditorPage{
             paragraph.addEventListener("keydown", resetTimer);
         }
     }
-
+    deselectPreviousParagraph(){
+        if(this.currentParagraph){
+            webSkel.space.currentParagraphId = null;
+            this.switchParagraphArrowsDisplay(this.currentParagraph, "off");
+            delete this.currentParagraph;
+        }
+    }
     async moveParagraph(_target, direction) {
-        debugger;
+        this.switchParagraphArrowsDisplay(this.currentParagraph,"off");
         const currentParagraph = reverseQuerySelector(_target, "paragraph-unit");
         const currentParagraphId = currentParagraph.getAttribute('data-paragraph-id');
         const currentParagraphIndex = this._chapter.getParagraphIndex(currentParagraphId);
