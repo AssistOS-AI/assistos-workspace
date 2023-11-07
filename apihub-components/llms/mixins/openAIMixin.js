@@ -35,21 +35,18 @@ function openAIMixin(target){
         target.__body.messages.push(message);
     }
     target.callLLM = async function(settings){
-        target.setPrompt(settings.prompt);
         target.setVariants(settings.variants);
         target.setMaxTokens(settings.max_tokens);
         if(settings.history){
-            let user = true;
            for(let reply of settings.history){
-               if(user){
-                   target.addMessage({role: "user", content: reply});
-                   user = false;
+               if(reply.role === "user"){
+                   target.addMessage({role: "user", content: reply.content});
                }else {
-                   target.addMessage({role: "assistant", content: reply});
-                   user = true;
+                   target.addMessage({role: "assistant", content: reply.content});
                }
            }
         }
+        target.setPrompt(settings.prompt);
         await target.setKey("../apihub-root/keys-secret.json");
         const result = await fetch(target.__url, target.getOptions());
         if (result.status !== 200) {

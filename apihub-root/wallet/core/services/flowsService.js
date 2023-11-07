@@ -19,6 +19,7 @@ export class FlowsService{
                 this.__body.creativity = level;
             },
             chatbot : async function(prompt, max_tokens, replyHistory){
+                //replyHistory: array of these {"role": "user", content:"text"}
                 this.__body.history = replyHistory;
                 this.__body.prompt = prompt;
                 this.__body.max_tokens = max_tokens;
@@ -73,10 +74,11 @@ export class FlowsService{
                 this.__think = prompt;
             },
             callLLM: async function(){
-                let promise = webSkel.getService("PromptAnimationService").displayThink(this.__think);
-                let result = await webSkel.getService("LlmsService").generateResponse(JSON.stringify(this.__body));
-                await promise;
-                return result;
+                let promise1 = webSkel.getService("PromptAnimationService").displayThink(this.__think);
+                let promise2 =  webSkel.getService("LlmsService").generateResponse(JSON.stringify(this.__body));
+                return await Promise.all([promise1, promise2]).then(values => {
+                    return values[1];
+                });
             }
         }
         this.flows = createFlowsFactory(this.standardLLMApis);
