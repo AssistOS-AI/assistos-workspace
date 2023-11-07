@@ -26,7 +26,8 @@ export class generateDocumentModal{
 
             let docData= result.responseJson;
             closeModal(_target);
-            await webSkel.space.addDocument(docData);
+            const locationRedirect='document-view-page'
+            await webSkel.space.addDocument(docData,locationRedirect);
         }
     }
 }
