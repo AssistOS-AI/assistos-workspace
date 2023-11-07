@@ -20,7 +20,11 @@ function openAIMixin(target){
         target.__body.n = number;
     }
     target.setMaxTokens = function (number){
-        target.__body.max_tokens = number;
+        if(typeof number === "string" || typeof number === "undefined"){
+            target.__body.max_tokens = null;
+        }else {
+            target.__body.max_tokens = number;
+        }
     }
     target.setKey = async function(path){
         let secret = await fsPromises.readFile(path, { encoding: 'utf8' });
@@ -34,6 +38,18 @@ function openAIMixin(target){
         target.setPrompt(settings.prompt);
         target.setVariants(settings.variants);
         target.setMaxTokens(settings.max_tokens);
+        if(settings.history){
+            let user = true;
+           for(let reply of settings.history){
+               if(user){
+                   target.addMessage({role: "user", content: reply});
+                   user = false;
+               }else {
+                   target.addMessage({role: "assistant", content: reply});
+                   user = true;
+               }
+           }
+        }
         await target.setKey("../apihub-root/keys-secret.json");
         const result = await fetch(target.__url, target.getOptions());
         if (result.status !== 200) {

@@ -46,6 +46,11 @@ async function loadPage() {
                 }
                 break;
             }
+            case "#chatbots-page":{
+                presenterName = url.split("/")[0];
+                presenterName = presenterName.slice(1);
+                break;
+            }
             default: {
                 /*#proofReader, #documents */
                 changeSelectedPageFromSidebar(url);

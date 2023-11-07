@@ -19,6 +19,7 @@ export class chatbotsSelectPersonalityPage {
 
     async selectPersonality(_target){
         let personality = reverseQuerySelector(_target,"personality-unit");
-        await webSkel.changeToDynamicPage("chatbots-page", "chatbots-page",{personality:`${personality.getAttribute("data-id")}`});
+        let personalityId = personality.getAttribute("data-id");
+        await webSkel.changeToDynamicPage("chatbots-page", `chatbots-page/${personalityId}`);
     }
 }

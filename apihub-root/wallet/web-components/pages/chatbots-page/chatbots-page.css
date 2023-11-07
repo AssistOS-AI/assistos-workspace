@@ -31,8 +31,9 @@ chatbots-page{
     background-color: rgba(157, 1, 157, 0.5);
 }
 .conversation{
-
- position: relative;
+    position: relative;
+    overflow-y: scroll;
+    height: 100%;
 }
 .chat-input-container{
     height: 10%;
@@ -41,7 +42,7 @@ chatbots-page{
     display: flex;
     align-items: center;
 }
-#user-input{
+#input{
     width: 93%;
     border-radius: 24px;
     border: none;
@@ -51,7 +52,7 @@ chatbots-page{
     font-weight: 400;
     font-size: 16px;
 }
-#user-input:focus{
+#input:focus{
     outline: none;
 }
 .send-message-btn{

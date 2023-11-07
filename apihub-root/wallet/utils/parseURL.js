@@ -19,7 +19,7 @@ export function parseURL(){
             break;
         }
         case "#chatbots-page":{
-            return url.split("/")[2];
+            return url.split("/")[1];
         }
         default:{
             console.error("shouldn't have gotten here");
