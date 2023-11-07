@@ -72,11 +72,6 @@
       "className": "chapterUnit"
     },
     {
-      "name": "chapter-editor-unit",
-      "path": "./web-components/components/item-list/chapter-editor-unit/chapter-editor-unit.js",
-      "className": "chapterEditorUnit"
-    },
-    {
       "name": "space-dropdown",
       "path": "./web-components/components/space-dropdown/space-dropdown.js",
       "className": "spaceDropdown"
@@ -314,10 +309,6 @@
     {
       "name": "chapter-unit",
       "path": "./wallet/web-components/components/item-list/chapter-unit/chapter-unit.html"
-    },
-    {
-      "name": "chapter-editor-unit",
-      "path": "./wallet/web-components/components/item-list/chapter-editor-unit/chapter-editor-unit.html"
     },
     {
       "name": "chapter-editor-page",
