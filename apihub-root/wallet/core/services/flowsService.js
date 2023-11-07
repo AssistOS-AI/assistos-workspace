@@ -18,6 +18,12 @@ export class FlowsService{
             setCreativityLevel : async function (level){
                 this.__body.creativity = level;
             },
+            chatbot : async function(prompt, max_tokens, replyHistory){
+                this.__body.history = replyHistory;
+                this.__body.prompt = prompt;
+                this.__body.max_tokens = max_tokens;
+                return await this.callLLM();
+            },
             request : async function (prompt, max_tokens){
                 this.setThink(prompt);
                 this.__body.prompt = prompt;
