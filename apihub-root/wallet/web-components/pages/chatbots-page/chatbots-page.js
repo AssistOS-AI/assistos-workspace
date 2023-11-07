@@ -7,11 +7,12 @@ export class chatbotsPage {
         this.invalidate();
         let personalityId = parseURL();
         this.personality = webSkel.space.getPersonality(personalityId);
+        this.cachedHistory = [];
         this.history = [];
     }
     beforeRender() {
         let stringHTML = "";
-        for(let reply of this.history){
+        for(let reply of this.cachedHistory){
             if(reply.role === "user"){
                 stringHTML += `
                 <div class="chat-box-container user">
@@ -40,8 +41,9 @@ export class chatbotsPage {
         this.conversation = this.element.querySelector(".conversation");
         this.emotionsList = this.element.querySelector(".right-sidebar");
     }
-    displayMessage(text, role){
+    displayMessage(role, text){
         let reply;
+        this.cachedHistory.push({role:role,content: text})
         if(role === "user"){
             reply = `
                 <div class="chat-box-container user">
@@ -69,23 +71,27 @@ export class chatbotsPage {
         }
         this.emotionsList.insertAdjacentHTML("beforeend", emotions);
     }
-    summarizeConversation(){
-
+    async summarizeConversation(){
+      let scriptId = webSkel.space.getScriptIdByName("summarize conversation");
+      let response = await webSkel.getService("LlmsService").callScript(scriptId, this.history);
+      this.history = [];
+      this.history.push(response.responseJson.summary[0]);
+      this.history.push(response.responseJson.summary[1]);
     }
     async sendMessage(_target){
         let formInfo = await extractFormInformation(_target);
         let input = formInfo.data.input;
         formInfo.elements.input.element.value = "";
-        this.displayMessage(input, "user");
+        this.displayMessage("user",input);
         let scriptId = webSkel.space.getScriptIdByName("chatbots");
         if(this.history.length > 6){
-          this.summarizeConversation();
+          //await this.summarizeConversation();
         }
         let response = await webSkel.getService("LlmsService").callScript(scriptId, formInfo.data.input, this.personality.name, this.personality.description, this.history.toSpliced(0,1));
 
         this.history.push({role:"user",content:input});
         this.history.push({role:"assistant",content:response.responseJson.reply});
-        this.displayMessage(response.responseJson.reply, "assistant");
+        this.displayMessage("assistant", response.responseJson.reply);
         this.displayEmotions(response.responseJson.emotions);
     }
 }
