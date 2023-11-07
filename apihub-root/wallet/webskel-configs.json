@@ -37,6 +37,11 @@
       "className": "chapterBrainstormingPage"
     },
     {
+      "name": "chapter-editor-page",
+      "path": "./web-components/pages/chapter-editor-page/chapter-editor-page.js",
+      "className": "chapterEditorPage"
+    },
+    {
       "name": "generate-paragraphs-page",
       "path": "./web-components/pages/generate-paragraphs-page/generate-paragraphs-page.js",
       "className": "generateParagraphsPage"
@@ -65,6 +70,11 @@
       "name": "chapter-unit",
       "path": "./web-components/components/item-list/chapter-unit/chapter-unit.js",
       "className": "chapterUnit"
+    },
+    {
+      "name": "chapter-editor-unit",
+      "path": "./web-components/components/item-list/chapter-editor-unit/chapter-editor-unit.js",
+      "className": "chapterEditorUnit"
     },
     {
       "name": "space-dropdown",
@@ -304,6 +314,14 @@
     {
       "name": "chapter-unit",
       "path": "./wallet/web-components/components/item-list/chapter-unit/chapter-unit.html"
+    },
+    {
+      "name": "chapter-editor-unit",
+      "path": "./wallet/web-components/components/item-list/chapter-editor-unit/chapter-editor-unit.html"
+    },
+    {
+      "name": "chapter-editor-page",
+      "path": "./wallet/web-components/pages/chapter-editor-page/chapter-editor-page.html"
     },
     {
       "name": "space-dropdown",
