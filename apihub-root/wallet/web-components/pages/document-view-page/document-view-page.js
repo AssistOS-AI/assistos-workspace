@@ -8,6 +8,9 @@ export class documentViewPage {
         this._document.observeChange(this._document.getNotificationId() + ":refresh", invalidate);
         this.invalidate = invalidate;
         this.invalidate();
+        document.removeEventListener("click",this.highlightElement);
+        let controller = new AbortController();
+        document.addEventListener("click",this.highlightElement.bind(this, controller), {signal:controller.signal});
     }
 
     beforeRender() {
@@ -22,14 +25,11 @@ export class documentViewPage {
                 this.chaptersContainer += `<chapter-unit data-chapter-number="${iterator}" data-chapter-title="${item.title}" data-chapter-id="${item.id}" data-presenter="chapter-unit"></chapter-unit>`;
             });
         }
-        document.removeEventListener("click",this.highlightElement);
     }
 
     afterRender() {
         this.chapterSidebar = this.element.querySelector("#chapter-sidebar");
         this.paragraphSidebar = this.element.querySelector("#paragraph-sidebar");
-        let controller = new AbortController();
-        document.addEventListener("click",this.highlightElement.bind(this, controller), {signal:controller.signal});
     }
 
     highlightElement(controller, event){
@@ -84,13 +84,13 @@ export class documentViewPage {
 
     switchArrowsDisplay(target, type, mode) {
         if(type==="chapter"){
-            if(this._document.chapters.length===1){
+            if(this._document.chapters.length <= 1){
                 return;
             }
         }
         if(type==="paragraph"){
             let chapter = this._document.getChapter(this.previouslySelectedChapter.getAttribute("data-chapter-id"));
-            if(chapter.paragraphs.length===1){
+            if(chapter.paragraphs.length <= 1){
                 return;
             }
         }

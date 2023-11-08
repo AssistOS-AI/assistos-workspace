@@ -40,7 +40,7 @@ export class chapterUnit {
             }
         });
         if (this.chapter.id === webSkel.space.currentChapterId) {
-            this.highlightChapter();
+            this.chapterUnit.click();
             this.element.scrollIntoView({behavior: "smooth", block: "center", inline: "nearest"});
         }
         if(this.chapter.visibility === "hide"){
@@ -139,6 +139,7 @@ export class chapterUnit {
                 if (paragraph.innerText.trim() === "" && event.key === "Backspace") {
                     if (currentParagraph) {
                         await this._document.deleteParagraph(this.chapter, currentParagraphId);
+                        webSkel.space.currentParagraphId = null;
                         this.invalidate();
                     }
                     await timer.stop();
