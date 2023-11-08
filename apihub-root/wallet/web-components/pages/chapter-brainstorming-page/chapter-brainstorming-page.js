@@ -13,7 +13,7 @@ export class chapterBrainstormingPage {
         [documentId,chapterId] = parseURL();
         this._document = webSkel.space.getDocument(documentId);
         this._chapter = this._document.getChapter(chapterId);
-        this._document.observeChange(this._document.getNotificationId(), invalidate);
+        this._document.observeChange("chapter-brainstorming-page", invalidate);
         this.invalidate = invalidate;
         this.invalidate();
     }
@@ -75,6 +75,10 @@ export class chapterBrainstormingPage {
         this._chapter.alternativeChapters.push(new Chapter(chapterObj));
         await documentFactory.updateDocument(currentSpaceId, this._document);
         this.invalidate();
+    }
+    async openCloneChapterModal(){
+        await showModal(document.querySelector("body"), "clone-chapter-modal", { presenter: "clone-chapter-modal"});
+
     }
     async openChapterBrainStormingPage(){
         await webSkel.changeToDynamicPage("chapter-brainstorming-page", `documents/${this._document.id}/chapter-brainstorming-page/${this._chapter.id}`);

@@ -132,6 +132,10 @@ export class Chapter {
     getAlternativeChapterIndex(alternativeChapterId) {
         return this.alternativeChapters.findIndex(alternativeChapter => alternativeChapter.id === alternativeChapterId);
     }
+    async addAlternativeChapter(chapterData){
+        let chapterObj=new Chapter(chapterData);
+        this.alternativeChapters.push(chapterObj);
+    }
     deleteAlternativeChapter(alternativeChapterId) {
         let index = this.getAlternativeChapterIndex(alternativeChapterId);
         if(index !== -1) {
