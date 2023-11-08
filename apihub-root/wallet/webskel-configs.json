@@ -203,6 +203,11 @@
       "className": "cloneDocumentModal"
     },
     {
+      "name": "clone-chapter-modal",
+      "path": "./web-components/modals/clone-chapter-modal/clone-chapter-modal.js",
+      "className": "cloneChapterModal"
+    },
+    {
       "name": "suggest-chapter-titles-modal",
       "path": "./web-components/modals/suggest-chapter-titles-modal/suggest-chapter-titles-modal.js",
       "className": "suggestChapterTitlesModal"
@@ -457,6 +462,10 @@
     {
       "name": "clone-document-modal",
       "path": "./wallet/web-components/modals/clone-document-modal/clone-document-modal.html"
+    },
+    {
+      "name": "clone-chapter-modal",
+      "path": "./wallet/web-components/modals/clone-chapter-modal/clone-chapter-modal.html"
     },
     {
       "name": "edit-announcement-modal",
