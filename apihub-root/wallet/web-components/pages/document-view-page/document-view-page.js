@@ -8,9 +8,10 @@ export class documentViewPage {
         this._document.observeChange(this._document.getNotificationId() + ":refresh", invalidate);
         this.invalidate = invalidate;
         this.invalidate();
-        document.removeEventListener("click",this.highlightElement);
-        let controller = new AbortController();
-        document.addEventListener("click",this.highlightElement.bind(this, controller), {signal:controller.signal});
+        this.controller = new AbortController();
+        this.boundedFn = this.highlightElement.bind(this, this.controller);
+        document.removeEventListener("click",this.boundedFn);
+        document.addEventListener("click", this.boundedFn, {signal:this.controller.signal});
     }
 
     beforeRender() {
@@ -52,9 +53,15 @@ export class documentViewPage {
         }else {
             let rightSideBarItem = getClosestParentElement(event.target, ".sidebar-item");
             let leftSideBarItem = getClosestParentElement(event.target, ".feature");
-            if(rightSideBarItem || leftSideBarItem){
-                controller.abort();
-            }else {
+            if(rightSideBarItem) {
+                if (!rightSideBarItem.getAttribute("data-keep-page")) {
+                    controller.abort();
+                }
+            }
+            else if(leftSideBarItem){
+                    controller.abort();
+                }
+            else {
                 this.displaySidebar("document-sidebar");
             }
         }
@@ -183,8 +190,6 @@ export class documentViewPage {
         webSkel.space.currentParagraphId = newParagraphId;
         webSkel.space.currentChapterId = chapter.id;
         this._document.notifyObservers(this._document.getNotificationId() + ":document-view-page:" + "chapter:" + `${chapter.id}`);
-        let controller = new AbortController();
-        document.addEventListener("click",this.highlightElement.bind(this, controller), {signal:controller.signal});
     }
 
 
