@@ -15,7 +15,8 @@ export class Space {
         this.announcements = (spaceData.announcements || []).map(announcementData => new Announcement(announcementData));
         this.users = (spaceData.users || []).map(userData => new User(userData));
         this.scripts = (spaceData.scripts|| []).map(scriptData => new Script(scriptData));
-        this.documents = (spaceData.documents || []).map(documentData => new DocumentModel(documentData));
+
+        this.documents = (spaceData.documents || []).map(documentData => new DocumentModel(documentData)).reverse();
         this.admins = [];
         this.observers = [];
         Space.instance = this;
