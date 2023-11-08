@@ -14,7 +14,9 @@ export class chapterEditorPage{
         this._document = webSkel.space.getDocument(documentId);
         this._chapter = this._document.getChapter(chapterId);
         this.element.addEventListener('keydown', (event) => this.addParagraphOnCtrlEnter(event));
-        document.addEventListener("click", (event) => this.checkParagraphClick(event));
+        let controller = new AbortController();
+        document.addEventListener("click",this.checkParagraphClick.bind(this, controller), {signal:controller.signal});
+
         this.invalidate = invalidate;
         this.invalidate();
     }
@@ -42,7 +44,6 @@ export class chapterEditorPage{
             this.currentParagraph.click();
             this.currentParagraph.scrollIntoView({behavior: "smooth", block: "center", inline: "nearest"});
         }
-        let controller = new AbortController();
     }
     async editChapterTitle(title){
         title.setAttribute("contenteditable", "true");
@@ -63,7 +64,7 @@ export class chapterEditorPage{
         title.addEventListener("keydown", resetTimer);
 
     }
-    checkParagraphClick(event){
+    checkParagraphClick(controller,event){
         this.paragraphUnit = getClosestParentElement(event.target, "paragraph-unit");
         if(this.paragraphUnit){
             if(this.currentParagraph!==this.paragraphUnit) {
@@ -73,9 +74,12 @@ export class chapterEditorPage{
                 this.switchParagraphArrowsDisplay(this.paragraphUnit, "on");
             }
         } else {
-           let rightSidebarItems= document.querySelector(".item-list");
-           let leftSidebarItems= document.querySelector(".features-list");
-              if(!rightSidebarItems.contains(event.target) || !leftSidebarItems.contains(event.target)){
+            let rightSideBarItem = getClosestParentElement(event.target, ".sidebar-item");
+            let leftSideBarItem = getClosestParentElement(event.target, ".feature");
+            if(rightSideBarItem || leftSideBarItem){
+                  controller.abort();
+              }
+              else{
                   this.deselectPreviousParagraph();
               }
         }
@@ -94,7 +98,7 @@ export class chapterEditorPage{
         await this.addParagraph(event.target);
     }
     async addParagraph(_target){
-        let chapter = this._document.getChapter(webSkel.space.currentChapterId);
+        let chapter = this._document.getChapter(this.chapterId);
         let newParagraphId= webSkel.getService("UtilsService").generateId();
         let position = chapter.paragraphs.length;
         debugger;
@@ -103,7 +107,8 @@ export class chapterEditorPage{
         }
         await this._document.addParagraph(chapter, {id: newParagraphId, text:""}, position);
         webSkel.space.currentParagraphId = newParagraphId;
-        webSkel.space.currentChapterId = chapter.id;
+        let controller = new AbortController();
+        document.addEventListener("click",this.checkParagraphClick.bind(this, controller), {signal:controller.signal});
         this.invalidate();
     }
     switchParagraphArrowsDisplay(target, mode) {
@@ -155,7 +160,6 @@ export class chapterEditorPage{
                 }
             }, 1000);
             paragraph.addEventListener("blur", async () => {
-                debugger;
                 paragraph.removeEventListener("keydown", resetTimer);
                 await timer.stop(true);
                 paragraph.setAttribute("contenteditable", "false");
@@ -213,21 +217,20 @@ export class chapterEditorPage{
         await webSkel.changeToDynamicPage("chapter-edit-page", `documents/${this._document.id}/chapter-edit-page/${this._chapter.id}`);
     }
     async openChapterEditor(){
-        await webSkel.changeToDynamicPage("chapter-editor-page", `documents/${this._document.id}/chapter-editor-page/${webSkel.space.currentChapterId}`);
+        await webSkel.changeToDynamicPage("chapter-editor-page", `documents/${this._document.id}/chapter-editor-page/${this.chapterId}`);
     }
     async openEditChapterTitlePage() {
-        debugger;
         await webSkel.changeToDynamicPage("chapter-title-page",
-            `documents/${this._document.id}/chapter-title-page/${webSkel.space.currentChapterId}`);
+            `documents/${this._document.id}/chapter-title-page/${this.chapterId}`);
     }
     async openChapterBrainstormingPage() {
         await webSkel.changeToDynamicPage("chapter-brainstorming-page",
-            `documents/${this._document.id}/chapter-brainstorming-page/${webSkel.space.currentChapterId}`);
+            `documents/${this._document.id}/chapter-brainstorming-page/${this.chapterId}`);
 
     }
     async openManageParagraphsPage() {
         await webSkel.changeToDynamicPage("manage-paragraphs-page",
-            `documents/${this._document.id}/manage-paragraphs-page/${webSkel.space.currentChapterId}`);
+            `documents/${this._document.id}/manage-paragraphs-page/${this.chapterId}`);
     }
     async generateParagraphs(){
         await webSkel.changeToDynamicPage("generate-paragraphs-page", `documents/${this._document.id}/generate-paragraphs-page/${this._chapter.id}`);
