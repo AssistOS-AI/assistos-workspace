@@ -18,6 +18,11 @@ export class FlowsService{
             setCreativityLevel : async function (level){
                 this.__body.creativity = level;
             },
+            summarize : async function (prompt, max_tokens){
+                this.__body.prompt = prompt;
+                this.__body.max_tokens = max_tokens;
+                return await webSkel.getService("LlmsService").generateResponse(JSON.stringify(this.__body));
+            },
             chatbot : async function(prompt, max_tokens, replyHistory){
                 //replyHistory: array of these {"role": "user", content:"text"}
                 this.__body.history = replyHistory;
