@@ -21,7 +21,7 @@ export class PromptAnimationService {
             let x = 1;
             let waiting = false;
             let target = element.querySelector(".animation-space");
-            this.intervalId = setInterval(async () => {
+            let intervalId = setInterval(async () => {
                 if (letterCount === 0 && waiting === false) {
                     waiting = true;
                     target.innerHTML = prompt.substring(0, letterCount);
@@ -35,8 +35,7 @@ export class PromptAnimationService {
                     const delay = ms => new Promise(res => setTimeout(res, ms));
                     await delay(3000);
                     closeModal(document.querySelector(".console-container"));
-                    clearInterval(this.intervalId);
-                    delete this.intervalId;
+                    clearInterval(intervalId);
                     resolve();
                 }else if (waiting === false) {
                     target.innerHTML = prompt.substring(0, letterCount);
@@ -44,7 +43,7 @@ export class PromptAnimationService {
                 }
             }, this.delay);
             let underscoreInterval = window.setInterval(async ()=> {
-                if(!this.intervalId){
+                if(!intervalId){
                     clearInterval(underscoreInterval);
                 }
                 if (visible === true) {

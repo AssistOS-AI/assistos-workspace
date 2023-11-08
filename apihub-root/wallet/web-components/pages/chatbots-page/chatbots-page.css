@@ -43,6 +43,8 @@ chatbots-page{
     align-items: center;
 }
 #input{
+    padding-top: 10px;
+    resize: none;
     width: 93%;
     border-radius: 24px;
     border: none;

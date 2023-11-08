@@ -8,6 +8,10 @@ export class documentViewPage {
         this._document.observeChange(this._document.getNotificationId() + ":refresh", invalidate);
         this.invalidate = invalidate;
         this.invalidate();
+        this.controller = new AbortController();
+        this.boundedFn = this.highlightElement.bind(this, this.controller);
+        document.removeEventListener("click",this.boundedFn);
+        document.addEventListener("click", this.boundedFn, {signal:this.controller.signal});
     }
 
     beforeRender() {
@@ -22,14 +26,11 @@ export class documentViewPage {
                 this.chaptersContainer += `<chapter-unit data-chapter-number="${iterator}" data-chapter-title="${item.title}" data-chapter-id="${item.id}" data-presenter="chapter-unit"></chapter-unit>`;
             });
         }
-        document.removeEventListener("click",this.highlightElement);
     }
 
     afterRender() {
         this.chapterSidebar = this.element.querySelector("#chapter-sidebar");
         this.paragraphSidebar = this.element.querySelector("#paragraph-sidebar");
-        let controller = new AbortController();
-        document.addEventListener("click",this.highlightElement.bind(this, controller), {signal:controller.signal});
     }
 
     highlightElement(controller, event){
@@ -52,9 +53,15 @@ export class documentViewPage {
         }else {
             let rightSideBarItem = getClosestParentElement(event.target, ".sidebar-item");
             let leftSideBarItem = getClosestParentElement(event.target, ".feature");
-            if(rightSideBarItem || leftSideBarItem){
-                controller.abort();
-            }else {
+            if(rightSideBarItem) {
+                if (!rightSideBarItem.getAttribute("data-keep-page")) {
+                    controller.abort();
+                }
+            }
+            else if(leftSideBarItem){
+                    controller.abort();
+                }
+            else {
                 this.displaySidebar("document-sidebar");
             }
         }
@@ -84,13 +91,13 @@ export class documentViewPage {
 
     switchArrowsDisplay(target, type, mode) {
         if(type==="chapter"){
-            if(this._document.chapters.length===1){
+            if(this._document.chapters.length <= 1){
                 return;
             }
         }
         if(type==="paragraph"){
             let chapter = this._document.getChapter(this.previouslySelectedChapter.getAttribute("data-chapter-id"));
-            if(chapter.paragraphs.length===1){
+            if(chapter.paragraphs.length <= 1){
                 return;
             }
         }
@@ -183,8 +190,6 @@ export class documentViewPage {
         webSkel.space.currentParagraphId = newParagraphId;
         webSkel.space.currentChapterId = chapter.id;
         this._document.notifyObservers(this._document.getNotificationId() + ":document-view-page:" + "chapter:" + `${chapter.id}`);
-        let controller = new AbortController();
-        document.addEventListener("click",this.highlightElement.bind(this, controller), {signal:controller.signal});
     }
 
 
