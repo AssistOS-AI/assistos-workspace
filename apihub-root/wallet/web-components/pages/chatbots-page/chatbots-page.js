@@ -48,9 +48,22 @@ export class chatbotsPage {
         }
         this.savedEmotions = emotions;
     }
+    preventRefreshOnEnter(event){
+      if(event.key === "Enter" && !event.ctrlKey){
+          event.preventDefault();
+          this.element.querySelector(".send-message-btn").click();
+      }
+      if(event.key === "Enter" && event.ctrlKey){
+          this.userInput.value += '\n';
+      }
+    }
     afterRender(){
         this.conversation = this.element.querySelector(".conversation");
         this.emotionsList = this.element.querySelector(".right-sidebar");
+        this.userInput = this.element.querySelector("#input");
+        let boundFn = this.preventRefreshOnEnter.bind(this);
+        this.userInput.removeEventListener("keypress", boundFn);
+        this.userInput.addEventListener("keypress", boundFn);
     }
     displayMessage(role, text){
         let reply;

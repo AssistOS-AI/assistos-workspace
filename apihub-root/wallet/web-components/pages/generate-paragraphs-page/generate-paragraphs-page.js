@@ -29,11 +29,22 @@ export class generateParagraphsPage {
         this.paragraphsIdeas = stringHMTL;
     }
 
+    preventRefreshOnEnter(event){
+        if(event.key === "Enter"){
+            event.preventDefault();
+            this.element.querySelector(".generate-ideas-btn").click();
+        }
+    }
+
     afterRender(){
         if(this.ideas.length !== 0){
             let ideasListContainer = this.element.querySelector(".ideas-list-container");
             ideasListContainer.style.display = "block";
         }
+        this.ideaInput = this.element.querySelector("#idea");
+        let boundFn = this.preventRefreshOnEnter.bind(this);
+        this.ideaInput.removeEventListener("keypress", boundFn);
+        this.ideaInput.addEventListener("keypress", boundFn);
     }
 
     async generateIdeas(){
