@@ -19,29 +19,58 @@ authentication-page{
     height: 100%;
     display: flex;
     width:100%;
-
+    position: relative;
 }
 
 .slideshow-container {
-    width: 66%;
+    position: absolute;
 }
 
 .images {
     height: 100%;
     position: relative;
-    margin: auto;
+    /*display: flex;*/
 }
 
 /* Hide the images by default */
-.slides {
-    width: 100%;
-    display: none;
+.slide {
+    position: relative;
+    height: 100%;
+    display: flex;
+    align-items: flex-end;
+    justify-content: center;
+
 }
 
+.background{
+    position: absolute;
+    top: 0;
+    left: 0;
+    width: 100%;
+    height: 100%;
+    background-color: #511A53;
+}
+.img-front{
+    position: relative;
+    width: 100%;
+    max-width: 700px;
+}
+.img-text{
+    color: white;
+    position: absolute;
+    text-align: center;
+    width: 80%;
+    top: 5%;
+    font-size: 40px;
+    font-weight: 600;
+}
+.highlighted-text{
+    color: #A42E70;
+}
 .controls{
+    width: 100%;
     position: absolute;
     bottom: 0;
-    left: 50%;
     display: flex;
     justify-content: center;
 }
@@ -59,35 +88,24 @@ authentication-page{
     user-select: none;
 }
 
-/* On hover, add a black background color with a little bit see-through */
-.prev:hover, .next:hover {
-    background-color: rgba(0,0,0,0.8);
-}
-
 .dot {
     cursor: pointer;
-    height: 15px;
-    width: 15px;
+    height: 8px;
+    width: 8px;
     margin: 0 2px;
-    background-color: #bbb;
+    background-color: #6B574E;
     border-radius: 50%;
     display: inline-block;
     transition: background-color 0.6s ease;
 }
 
-.active, .dot:hover {
-    background-color: #717171;
+.active{
+    width: 27px;
+    background-color: white;
+    border-radius: 5px;
 }
 
-.fade {
-    animation-name: fade;
-    animation-duration: 1.5s;
-}
 
-@keyframes fade {
-    from {opacity: .4}
-    to {opacity: 1}
-}
 
 /*.slideshow-container > img {*/
 /*    max-width: 650px;*/
@@ -95,7 +113,11 @@ authentication-page{
 
 .form-container {
     width: 34%;
+    position: absolute;
+    right: 0;
     padding: 80px 100px 80px 100px;
+    background-color: white;
+    height: 100%;
 }
 
 .form-title {
@@ -106,7 +128,6 @@ authentication-page{
 .form-label {
     color: black;
     font-size: 14px;
-    font-family: Poppins;
     font-weight: 500;
 }
 
@@ -134,7 +155,6 @@ authentication-page{
     background: #A42E70;
     color: white;
     border-radius: 16px;
-    font-family: Poppins;
     font-size: 14px;
     font-weight: 600;
     line-height: 21px;
