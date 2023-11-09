@@ -199,6 +199,11 @@
       "className": "summarizeParagraphModal"
     },
     {
+      "name": "summarize-chapter-modal",
+      "path": "./web-components/modals/summarize-chapter-modal/summarize-chapter-modal.js",
+      "className": "summarizeChapterModal"
+    },
+    {
       "name": "suggest-titles-modal",
       "path": "./web-components/modals/suggest-titles-modal/suggest-titles-modal.js",
       "className": "suggestTitlesModal"
@@ -488,6 +493,10 @@
     {
       "name": "summarize-paragraph-modal",
       "path": "./wallet/web-components/modals/summarize-paragraph-modal/summarize-paragraph-modal.html"
+    },
+    {
+      "name": "summarize-chapter-modal",
+      "path": "./wallet/web-components/modals/summarize-chapter-modal/summarize-chapter-modal.html"
     },
     {
       "name": "suggest-titles-modal",

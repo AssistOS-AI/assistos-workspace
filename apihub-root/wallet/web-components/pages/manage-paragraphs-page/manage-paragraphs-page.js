@@ -1,7 +1,7 @@
 import {
     parseURL,
     reverseQuerySelector, SaveElementTimer,
-    showActionBox
+    showActionBox, showModal
 } from "../../../imports.js";
 
 export class manageParagraphsPage {
@@ -11,14 +11,16 @@ export class manageParagraphsPage {
         [documentId, chapterId] = parseURL();
         this._document = webSkel.space.getDocument(documentId);
         this._chapter = this._document.getChapter(chapterId);
+        this._document.observeChange(this._document.getNotificationId() + ":manage-paragraphs-page", invalidate);
         this.invalidate = invalidate;
         this.invalidate();
-        this.mainIdeas = this._chapter.getMainIdeas();
+
     }
 
     beforeRender() {
         this.chapterNr = this._document.chapters.findIndex(chapter => chapter.id === this._chapter.id) + 1;
         this.chapterMainIdeas = "";
+        this.mainIdeas = this._chapter.getMainIdeas();
         for(let idea of this.mainIdeas){
             this.chapterMainIdeas += `<li>${idea}</li>`;
         }
@@ -105,12 +107,7 @@ export class manageParagraphsPage {
         this.invalidate();
     }
     async summarize(){
-        let scriptId = webSkel.space.getScriptIdByName("summarize");
-        let result = await webSkel.getService("LlmsService").callScript(scriptId, this._chapter.stringifyChapter());
-        this.mainIdeas = result.responseJson;
-
-        await this._document.setMainIdeas(result.responseJson);
-        this.invalidate();
+        await showModal(document.querySelector("body"), "summarize-chapter-modal", { presenter: "summarize-chapter-modal"});
     }
 
     async generateParagraphs(){
