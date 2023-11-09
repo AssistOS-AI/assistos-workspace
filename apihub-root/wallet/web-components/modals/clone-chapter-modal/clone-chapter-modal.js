@@ -41,7 +41,7 @@ export class cloneChapterModal {
 
         webSkel.space.getDocument(this.documentId).getChapter(this.chapterId).addAlternativeChapter(chapterData);
         await documentFactory.updateDocument(currentSpaceId, webSkel.space.getDocument(this.documentId));
-        await documentFactory.notifyObservers("chapter-brainstorming-page");
+        webSkel.space.getDocument(this.documentId).notifyObservers("doc:chapter-brainstorming-page");
         closeModal(_target);
     }
 }

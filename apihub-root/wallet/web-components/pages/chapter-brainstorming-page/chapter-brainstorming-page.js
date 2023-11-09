@@ -13,7 +13,7 @@ export class chapterBrainstormingPage {
         [documentId,chapterId] = parseURL();
         this._document = webSkel.space.getDocument(documentId);
         this._chapter = this._document.getChapter(chapterId);
-        this._document.observeChange("chapter-brainstorming-page", invalidate);
+        this._document.observeChange(this._document.getNotificationId() + ":chapter-brainstorming-page", invalidate);
         this.invalidate = invalidate;
         this.invalidate();
     }

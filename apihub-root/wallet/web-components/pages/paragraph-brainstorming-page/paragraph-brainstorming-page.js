@@ -107,11 +107,7 @@ export class paragraphBrainstormingPage {
     }
 
     async summarize(){
-        let scriptId = webSkel.space.getScriptIdByName("summarize");
-        let result = await webSkel.getService("LlmsService").callScript(scriptId, this._paragraph.toString());
-        this.paragraphMainIdea = result.responseJson[0];
-        await this._document.setParagraphMainIdea(this._paragraph, result.responseJson);
-        this.invalidate();
+        await showModal(document.querySelector("body"), "summarize-paragraph-modal", { presenter: "summarize-paragraph-modal"});
     }
 
     async showActionBox(_target, primaryKey, componentName, insertionMode) {
