@@ -2,31 +2,36 @@
 <div class="content-container">
     <div class="slideshow-container">
         <div class="images">
-<!--            <div class="slides fade">-->
-<!--                <img class="background" alt="woman-background" src="img1.jpg">-->
-<!--                <img alt="woman" src="woman.jpg">-->
-<!--            </div>-->
+            <div class="background"></div>
+            <div class="slide">
+                <div class="img-text">Write faster with the power of <span class="highlighted-text">AI</span></div>
+                <img alt="woman" class="img-front" src="./wallet/web-components/pages/authentication-page/assets/woman.png">
+            </div>
 
-<!--            <div class="slides fade">-->
-<!--                <img class="background" alt="chat-background" src="img1.jpg">-->
-<!--                <img alt="chat" src="chat.jpg">-->
-<!--            </div>-->
+            <div class="slide">
+                <img alt="chat" class="img-front" src="./wallet/web-components/pages/authentication-page/assets/chat.png">
+            </div>
 
-<!--            <div class="slides fade">-->
-<!--                <img class="background" alt="laptop-background" src="img1.jpg">-->
-<!--                <img alt="laptop" src="laptop.jpg">-->
-<!--            </div>-->
+            <div class="slide">
+                <img alt="laptop" class="img-front" src="./wallet/web-components/pages/authentication-page/assets/laptop.png">
+            </div>
         </div>
-        <br>
+    </div>
+    <div class="controls">
+        <div class="prev" data-local-action="nextImage -1">
+            <svg width="17" height="19" viewBox="0 0 17 19" fill="none" xmlns="http://www.w3.org/2000/svg">
+                <path d="M15.2109 9.64706L15.2109 12.6574C15.2109 16.3892 12.5614 17.9225 9.32564 16.051L6.72123 14.5402L4.11682 13.0294C0.881037 11.1578 0.881037 8.10245 4.11682 6.23088L6.72123 4.7201L9.32564 3.20932C12.5614 1.37157 15.2109 2.89363 15.2109 6.63676L15.2109 9.64706Z" stroke="white" stroke-opacity="0.33" stroke-width="3" stroke-miterlimit="10" stroke-linecap="round" stroke-linejoin="round"/>
+            </svg>
+        </div>
 
-        <div class="controls">
-            <div class="prev" data-local-action="nextImage -1">&#10094;</div>
+        <span class="dot" data-local-action="setCurrentImage 1"></span>
+        <span class="dot" data-local-action="setCurrentImage 2"></span>
+        <span class="dot" data-local-action="setCurrentImage 3"></span>
 
-            <span class="dot" data-local-action="setCurrentImage 1"></span>
-            <span class="dot" data-local-action="setCurrentImage 2"></span>
-            <span class="dot" data-local-action="setCurrentImage 3"></span>
-
-            <div class="next" data-local-action="nextImage 1">&#10095;</div>
+        <div class="next" data-local-action="nextImage 1">
+            <svg width="17" height="19" viewBox="0 0 17 19" fill="none" xmlns="http://www.w3.org/2000/svg">
+                <path d="M1.69141 9.64689V6.63659C1.69141 2.90473 4.34092 1.3714 7.5767 3.24297L10.1811 4.75375L12.7855 6.26453C16.0213 8.1361 16.0213 11.1915 12.7855 13.0631L10.1811 14.5738L7.5767 16.0846C4.34092 17.9224 1.69141 16.4003 1.69141 12.6572V9.64689Z" stroke="white" stroke-opacity="0.33" stroke-width="3" stroke-miterlimit="10" stroke-linecap="round" stroke-linejoin="round"/>
+            </svg>
         </div>
     </div>
     <div class="form-container">
