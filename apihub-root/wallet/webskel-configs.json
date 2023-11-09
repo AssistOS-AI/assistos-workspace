@@ -192,6 +192,12 @@
       "path": "./web-components/modals/suggest-abstract-modal/suggest-abstract-modal.js",
       "className": "suggestAbstractModal"
     },
+    
+    {
+      "name": "summarize-paragraph-modal",
+      "path": "./web-components/modals/summarize-paragraph-modal/summarize-paragraph-modal.js",
+      "className": "summarizeParagraphModal"
+    },
     {
       "name": "suggest-titles-modal",
       "path": "./web-components/modals/suggest-titles-modal/suggest-titles-modal.js",
@@ -478,6 +484,10 @@
     {
       "name": "suggest-abstract-modal",
       "path": "./wallet/web-components/modals/suggest-abstract-modal/suggest-abstract-modal.html"
+    },
+    {
+      "name": "summarize-paragraph-modal",
+      "path": "./wallet/web-components/modals/summarize-paragraph-modal/summarize-paragraph-modal.html"
     },
     {
       "name": "suggest-titles-modal",
