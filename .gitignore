@@ -11,6 +11,7 @@ apihub-root/keys-secret.json
 
 apihub-root/wallet/scripts/bundles/
 apihub-root/wallet/bundles/
+apihub-root/spaces
 apihub-root/users
 
 node_modules
