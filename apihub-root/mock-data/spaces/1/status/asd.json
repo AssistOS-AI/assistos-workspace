@@ -1,0 +1,91 @@
+{
+  "id": "317dJ15pL72f",
+  "title": "Dummy Document",
+  "abstract": "Business Requirement corresponds to Business User Requirements. Those requirements describe new features of the Lightweight or mobile app, master data requirements and can be tested by business users in an OQ and / or PQ.\nNon-Functional Requirement corresponds to User Requirements in area of access management, security, availability etc. Those requirements are essential for the system security, performance, operation. Generally those requirements are tested against OQs by team members with those special knowledge and not by business team.\nFunctional Requirement correspond to Functional Specification. Each Business Requirement and Non-Functional Requirement needs to have at a minimum one Functional Requirement.",
+  "topic": "test",
+  "chapters": [
+    {
+      "title": "Chapter 1 - Introduction to Concepts",
+      "id": "JHt45Tht67GH",
+      "visibility": "show",
+      "paragraphs": [
+        {
+          "text": "The digital age has transformed the way we think, work, and communicate. With the rise of artificial intelligence and machine learning, our world is reshaping at an unprecedented pace.",
+          "id": "hg76GH4hTg54"
+        }
+      ]
+    },
+    {
+      "title": "Chapter 2 - Evolution of Technology",
+      "id": "lkU45Yhd23LK",
+      "visibility": "show",
+      "paragraphs": [
+        {
+          "text": "The 20th century saw immense growth in technology, starting with simple inventions and culminating with the digital revolution.",
+          "id": "yu74LKj2Hj53"
+        },
+        {
+          "text": "One of the key milestones was the creation of the internet. It began as a military project but soon expanded to academic circles, and now it's an integral part of our daily lives.",
+          "id": "hd63LJgd47KU"
+        }
+      ]
+    },
+    {
+      "title": "Chapter 3 - Impact on Society",
+      "id": "ut34MBfj35GH",
+      "visibility": "show",
+      "paragraphs": [
+        {
+          "text": "Technology has drastically impacted society. The ease of access to information has empowered people, bridging gaps in education and opportunity.",
+          "id": "mj53HGj7Lf34"
+        },
+        {
+          "text": "However, it's also posed challenges. Cybersecurity threats, misinformation, and the digital divide are some of the concerns the modern world faces.",
+          "id": "nj25GJh6Kh42"
+        }
+      ]
+    },
+    {
+      "title": "Chapter 4 - Future Perspectives",
+      "id": "iy54YHj3Gf62",
+      "visibility": "show",
+      "paragraphs": [
+        {
+          "text": "Looking ahead, the technological landscape promises innovations like quantum computing, augmented reality, and further advancements in AI. These will again reshape our society, economy, and personal lives in ways we can't fully anticipate.",
+          "id": "kg46JKh5Lf23"
+        }
+      ]
+    }
+  ],
+  "alternativeTitles": [
+    {
+      "name": "The Silent Witness",
+      "id": "5HGPkYXDPEfk"
+    },
+    {
+      "name": "Shadows of the Past",
+      "id": "28xVb9mThrXo"
+    },
+    {
+      "name": "The Forgotten Path",
+      "id": "5MQEDFJqRCLb"
+    },
+    {
+      "name": "Threads of Fate",
+      "id": "4KXv1aznyd8P"
+    },
+    {
+      "name": "The Art of Living",
+      "id": "PTbgHagpYVMJ"
+    },
+    {
+      "name": "Thinking, Fast and Slow",
+      "id": "2KZMB66dEnQq"
+    }
+  ],
+  "alternativeAbstracts": [],
+  "settings": {
+    "personalityId": "LFRrUn5U1Qbd",
+    "documentTitleScriptId": "3AeXXLeDVgQM"
+  }
+}
