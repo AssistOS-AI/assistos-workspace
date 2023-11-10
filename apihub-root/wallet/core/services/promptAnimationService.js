@@ -11,17 +11,35 @@ export class PromptAnimationService {
             prompt+= "...";
         }
         await showModal(document.querySelector("body"),"prompt-animation");
-        return this.animateThink(document.querySelector("prompt-animation"), prompt);
+        this.animateThink(document.querySelector("prompt-animation"), prompt);
+    }
+
+     closeThink(prompt){
+        return new Promise((resolve, reject)=>{
+            let intervalId = setInterval(async ()=>{
+                if(this.stop){
+                    clearInterval(intervalId);
+                    if(prompt !== "Thinking..."){
+                        const delay = ms => new Promise(res => setTimeout(res, ms));
+                        await delay(3000);
+                    }
+                    closeModal(document.querySelector(".console-container"));
+                    clearInterval(this.intervalId);
+                    resolve();
+                    this.stop = false;
+                }
+            },1000);
+        });
+
     }
     animateThink(element,prompt) {
-        return new Promise((resolve, reject)=>{
             let visible = true;
             let con = element.querySelector("#console");
             let letterCount = 1;
             let x = 1;
             let waiting = false;
             let target = element.querySelector(".animation-space");
-            let intervalId = setInterval(async () => {
+            this.intervalId = setInterval(async () => {
                 if (letterCount === 0 && waiting === false) {
                     waiting = true;
                     target.innerHTML = prompt.substring(0, letterCount);
@@ -32,18 +50,15 @@ export class PromptAnimationService {
                         waiting = false;
                     }, this.delay);
                 } else if(letterCount === prompt.length + 1 && waiting === false){
-                    const delay = ms => new Promise(res => setTimeout(res, ms));
-                    await delay(3000);
-                    closeModal(document.querySelector(".console-container"));
-                    clearInterval(intervalId);
-                    resolve();
+                    this.stop = true;
+                    return;
                 }else if (waiting === false) {
                     target.innerHTML = prompt.substring(0, letterCount);
                     letterCount += x;
                 }
             }, this.delay);
             let underscoreInterval = window.setInterval(async ()=> {
-                if(!intervalId){
+                if(!this.intervalId){
                     clearInterval(underscoreInterval);
                 }
                 if (visible === true) {
@@ -54,7 +69,5 @@ export class PromptAnimationService {
                     visible = true;
                 }
             }, 400);
-        });
-
     }
 }
