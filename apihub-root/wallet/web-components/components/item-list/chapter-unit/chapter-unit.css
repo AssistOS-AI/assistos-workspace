@@ -43,12 +43,14 @@
 }
 
 .chapter-arrows {
-    margin-left: 20px;
-}
-
-.chapter-arrows{
+    display:flex;
+    width:42px;
+    min-width:42px;
+    justify-content: space-between;
+    margin-left: 10px;
     cursor: pointer;
 }
+
 
 .chapter-arrows{display:none;}
 .chapter-paragraphs:focus {
@@ -98,7 +100,9 @@ p {
 }
 
 .chapter-title {
-    padding: 5px 5px 5px 10px;
+    width: calc(100% - 52px);
+    padding: 5px 5px 5px 5px;
+    margin-left:3px;
     display: inline-block;
 }
 .chapter-text,.chapter-unit{

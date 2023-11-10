@@ -1,7 +1,7 @@
 import {
     Paragraph,
     showActionBox,
-    reverseQuerySelector, SaveElementTimer, sanitize, parseURL
+    reverseQuerySelector, SaveElementTimer, sanitize, parseURL, showModal
 } from "../../../imports.js";
 export class manageChaptersPage {
     constructor(element, invalidate) {
@@ -9,6 +9,7 @@ export class manageChaptersPage {
         this._document = webSkel.space.getDocument(parseURL());
         this.invalidate = invalidate;
         this.invalidate();
+        this._document.observeChange(this._document.getNotificationId() + ":manage-chapters-page", invalidate);
         this.mainIdeas = this._document.getMainIdeas();
     }
 
@@ -101,12 +102,7 @@ export class manageChaptersPage {
         this.invalidate();
     }
     async summarize(){
-        let scriptId = webSkel.space.getScriptIdByName("summarize");
-        let result = await webSkel.getService("LlmsService").callScript(scriptId, this._document.stringifyDocument());
-        this.mainIdeas = result.responseJson;
-
-        await this._document.setMainIdeas(result.responseJson);
-        this.invalidate();
+        await showModal(document.querySelector("body"), "summarize-document-modal", { presenter: "summarize-document-modal"});
     }
 
     async generateChapters(){
