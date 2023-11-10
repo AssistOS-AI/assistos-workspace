@@ -95,7 +95,7 @@ export class Space {
         let script = this.scripts.find((script) => script.name === name);
         return script.id || console.error(`Script not found in space, script name: ${name}`);
     }
-   async addDocument(documentData,locationRedirect="edit-title-page") {
+   async addDocument(documentData,locationRedirect="document-view-page") {
         let newDocument=documentFactory.createDocument(documentData)
         await documentFactory.addDocument(currentSpaceId, newDocument);
         webSkel.space.currentDocumentId = newDocument.id;
