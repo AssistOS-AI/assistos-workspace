@@ -1,39 +1,40 @@
 <link rel="stylesheet" href="./wallet/web-components/pages/authentication-page/authentication-page.css">
 <div class="content-container">
     <div class="slideshow-container">
+        <div class="background"></div>
         <div class="images">
-            <div class="background"></div>
             <div class="slide">
                 <div class="img-text">Write faster with the power of <span class="highlighted-text">AI</span></div>
-                <img alt="woman" class="img-front" src="./wallet/web-components/pages/authentication-page/assets/woman.png">
+                <img alt="woman" class="img-front woman" src="./wallet/web-components/pages/authentication-page/assets/woman.png">
             </div>
 
             <div class="slide">
-                <img alt="chat" class="img-front" src="./wallet/web-components/pages/authentication-page/assets/chat.png">
+                <img alt="chat" class="img-front chat" src="./wallet/web-components/pages/authentication-page/assets/chat.png">
             </div>
 
             <div class="slide">
-                <img alt="laptop" class="img-front" src="./wallet/web-components/pages/authentication-page/assets/laptop.png">
+                <img alt="laptop" class="img-front laptop" src="./wallet/web-components/pages/authentication-page/assets/laptop.png">
+            </div>
+        </div>
+        <div class="controls">
+            <div class="prev" data-local-action="nextImage 1 stop">
+                <svg width="17" height="19" viewBox="0 0 17 19" fill="none" xmlns="http://www.w3.org/2000/svg">
+                    <path d="M15.2109 9.64706L15.2109 12.6574C15.2109 16.3892 12.5614 17.9225 9.32564 16.051L6.72123 14.5402L4.11682 13.0294C0.881037 11.1578 0.881037 8.10245 4.11682 6.23088L6.72123 4.7201L9.32564 3.20932C12.5614 1.37157 15.2109 2.89363 15.2109 6.63676L15.2109 9.64706Z" stroke="white" stroke-opacity="0.33" stroke-width="3" stroke-miterlimit="10" stroke-linecap="round" stroke-linejoin="round"/>
+                </svg>
+            </div>
+
+            <span class="dot active" data-local-action="setCurrentImage 1"></span>
+            <span class="dot" data-local-action="setCurrentImage 2"></span>
+            <span class="dot" data-local-action="setCurrentImage 3"></span>
+
+            <div class="next" data-local-action="nextImage -1 stop">
+                <svg width="17" height="19" viewBox="0 0 17 19" fill="none" xmlns="http://www.w3.org/2000/svg">
+                    <path d="M1.69141 9.64689V6.63659C1.69141 2.90473 4.34092 1.3714 7.5767 3.24297L10.1811 4.75375L12.7855 6.26453C16.0213 8.1361 16.0213 11.1915 12.7855 13.0631L10.1811 14.5738L7.5767 16.0846C4.34092 17.9224 1.69141 16.4003 1.69141 12.6572V9.64689Z" stroke="white" stroke-opacity="0.33" stroke-width="3" stroke-miterlimit="10" stroke-linecap="round" stroke-linejoin="round"/>
+                </svg>
             </div>
         </div>
     </div>
-    <div class="controls">
-        <div class="prev" data-local-action="nextImage -1">
-            <svg width="17" height="19" viewBox="0 0 17 19" fill="none" xmlns="http://www.w3.org/2000/svg">
-                <path d="M15.2109 9.64706L15.2109 12.6574C15.2109 16.3892 12.5614 17.9225 9.32564 16.051L6.72123 14.5402L4.11682 13.0294C0.881037 11.1578 0.881037 8.10245 4.11682 6.23088L6.72123 4.7201L9.32564 3.20932C12.5614 1.37157 15.2109 2.89363 15.2109 6.63676L15.2109 9.64706Z" stroke="white" stroke-opacity="0.33" stroke-width="3" stroke-miterlimit="10" stroke-linecap="round" stroke-linejoin="round"/>
-            </svg>
-        </div>
 
-        <span class="dot" data-local-action="setCurrentImage 1"></span>
-        <span class="dot" data-local-action="setCurrentImage 2"></span>
-        <span class="dot" data-local-action="setCurrentImage 3"></span>
-
-        <div class="next" data-local-action="nextImage 1">
-            <svg width="17" height="19" viewBox="0 0 17 19" fill="none" xmlns="http://www.w3.org/2000/svg">
-                <path d="M1.69141 9.64689V6.63659C1.69141 2.90473 4.34092 1.3714 7.5767 3.24297L10.1811 4.75375L12.7855 6.26453C16.0213 8.1361 16.0213 11.1915 12.7855 13.0631L10.1811 14.5738L7.5767 16.0846C4.34092 17.9224 1.69141 16.4003 1.69141 12.6572V9.64689Z" stroke="white" stroke-opacity="0.33" stroke-width="3" stroke-miterlimit="10" stroke-linecap="round" stroke-linejoin="round"/>
-            </svg>
-        </div>
-    </div>
     <div class="form-container">
         <div class="logo-container"><svg width="238" height="43" viewBox="0 0 238 43" fill="none" xmlns="http://www.w3.org/2000/svg">
             <path d="M18.0606 2.1725C17.4688 3.28218 13.252 12.5295 8.66528 22.7386C4.07859 32.8737 0.231692 41.4553 0.00975535 41.7512C-0.138202 42.1211 1.41535 42.343 3.41278 42.343H7.1857L9.03517 38.6441L10.8846 34.9451H19.3922C24.0529 34.9451 27.8998 34.7972 27.8998 34.5752C27.8998 34.3533 27.234 32.8737 26.4202 31.2462C24.7187 27.9171 23.2391 27.2513 18.7264 27.9171C16.8769 28.2131 15.1014 28.2131 14.7315 27.9911C14.0657 27.5472 21.8335 9.05253 22.7213 9.05253C22.9432 9.05253 26.4202 16.5244 30.489 25.6978L37.8869 42.343H41.7338H45.5067L39.5884 29.1748C36.3334 21.9988 32.1166 12.6035 30.1931 8.31274L26.7161 0.544964L22.9432 0.323029C19.3922 0.101089 19.0223 0.24905 18.0606 2.1725Z" fill="#7A2153"/>

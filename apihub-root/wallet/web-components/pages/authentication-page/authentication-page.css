@@ -23,21 +23,24 @@ authentication-page{
 }
 
 .slideshow-container {
-    position: absolute;
+    width: 66%;
+    position: relative;
 }
 
 .images {
     height: 100%;
-    position: relative;
-    /*display: flex;*/
+    width: 300%;
+    position: absolute;
+    display: flex;
+    transition: 0.3s ease-in-out;
+    -webkit-transition: 0.3s ease-in-out;
 }
 
-/* Hide the images by default */
 .slide {
     position: relative;
     height: 100%;
     display: flex;
-    align-items: flex-end;
+    width: 50%;
     justify-content: center;
 
 }
@@ -51,9 +54,21 @@ authentication-page{
     background-color: #511A53;
 }
 .img-front{
-    position: relative;
-    width: 100%;
-    max-width: 700px;
+    position: absolute;
+}
+.woman{
+    bottom: -213px;
+   width: 1250px;
+}
+.chat{
+    width: 1440px;
+    bottom: -141px;
+    right: -142px;
+}
+.laptop{
+    width: 1250px;
+    right: 20px;
+    bottom: -170px;
 }
 .img-text{
     color: white;
@@ -105,11 +120,6 @@ authentication-page{
     border-radius: 5px;
 }
 
-
-
-/*.slideshow-container > img {*/
-/*    max-width: 650px;*/
-/*}*/
 
 .form-container {
     width: 34%;
