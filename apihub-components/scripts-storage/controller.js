@@ -6,7 +6,7 @@ function sendResponse(response,statusCode, contentType, message){
     response.write(message);
     response.end();
 }
-async function getDefaultScripts(filePath) {
+async function getDefaultItems(filePath) {
     let localData = [];
     const files = await fsPromises.readdir(filePath);
 
@@ -25,9 +25,15 @@ async function getDefaultScripts(filePath) {
 }
 async function loadDefaultScripts(request, response){
     const filePath = `../apihub-root/default-scripts`;
-    let data =  await getDefaultScripts(filePath);
+    let data =  await getDefaultItems(filePath);
     sendResponse(response, 200, "text/html", JSON.stringify(data));
 }
+async function loadDefaultPersonalities(request,response){
+    const filePath=`../apihub-root/default-personalities`;
+    let data=await getDefaultItems(filePath);
+    sendResponse(response,200,"text/html",JSON.stringify(data));
+}
 module.exports = {
-    loadDefaultScripts
+    loadDefaultScripts,
+    loadDefaultPersonalities
 }

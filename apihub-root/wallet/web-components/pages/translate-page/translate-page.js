@@ -17,7 +17,7 @@ export class translatePage {
             this.selectedPersonality = `<option value="${this.personality.id}" selected>${this.personality.name}</option>`
         }
         let stringHTML = "";
-        for(let personality of webSkel.space.settings.personalities){
+        for(let personality of webSkel.space.personalities){
             stringHTML+=`<option value=${personality.id}>${personality.name}</option>`;
         }
         this.personalitiesOptions = stringHTML;
@@ -53,7 +53,7 @@ export class translatePage {
             if(formData){
                 this.prompt = formData.data.prompt;
                 this.language = formData.data.language;
-                this.personality = webSkel.space.settings.getPersonality(formData.data.personality);
+                this.personality = webSkel.space.getPersonality(formData.data.personality);
             }
             let scriptId = webSkel.space.getScriptIdByName("translate");
             let result = await webSkel.getService("LlmsService").callScript(scriptId, this.prompt, this.personality.name, this.personality.description, this.language);

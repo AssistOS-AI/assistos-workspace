@@ -53,4 +53,7 @@ export class StorageManager {
     async loadDefaultScripts(){
         return await this.currentService.loadDefaultScripts();
     }
+    async loadDefaultPersonalities(){
+        return await this.currentService.loadDefaultPersonalities();
+    }
 }

@@ -12,7 +12,7 @@ export class cloneDocumentModal {
 
     beforeRender() {
         let stringHTML = `<option value="copy" selected>Copy</option>`;
-        for (let personality of webSkel.space.settings.personalities) {
+        for (let personality of webSkel.space.personalities) {
             stringHTML += `<option value=${personality.id}>${personality.name}</option>`;
         }
         this.personalitiesOptions = stringHTML;
@@ -42,7 +42,7 @@ export class cloneDocumentModal {
         let proofread = formData.data.proofread === "on";
         let personalityDescription="copy";
         if(personalityId!=="copy"){
-            personalityDescription=webSkel.space.settings.personalities.find(personality=>personality.id===personalityId).description;
+            personalityDescription=webSkel.space.personalities.find(personality=>personality.id===personalityId).description;
         }
         let simplifiedDocumentJson= JSON.stringify(webSkel.space.getDocument(webSkel.space.currentDocumentId).simplifyDocument());
         let scriptId = webSkel.space.getScriptIdByName("clone document");

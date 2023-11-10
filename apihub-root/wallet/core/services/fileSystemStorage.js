@@ -92,4 +92,11 @@ export class FileSystemStorage{
             });
         return await result.text();
     }
+    async loadDefaultPersonalities(){
+        const result=await fetch(`/personalities/default`,
+            {
+                method: "GET"
+            });
+        return await result.text();
+    }
 }

@@ -73,7 +73,9 @@ async function storeSpace(request, response) {
     }
     let jsonData = JSON.parse(request.body.toString());
     await storeFolder(request.params.spaceId, jsonData.documents, "documents");
+    await storeFolder(request.params.spaceId, jsonData.personalities, "personalities");
     await storeFolder(request.params.spaceId, jsonData.scripts, "scripts");
+    delete jsonData.personalities
     delete jsonData.documents;
     delete jsonData.scripts;
     await storeFolder(request.params.spaceId, jsonData, "status");

@@ -17,9 +17,11 @@ export class editPersonalityPage{
         description.value = this.personality.description;
     }
 
-    triggerInputFileOpen(){
+    triggerInputFileOpen(_target){
+        _target.removeAttribute("data-local-action");
         let input = this.element.querySelector(`input[type="file"]`);
         input.click();
+        _target.setAttribute("data-local-action", "triggerInputFileOpen");
     }
 
     async saveChanges(_target){

@@ -15,6 +15,7 @@ export class SpaceFactory {
         spaceData.announcements=[this.generateDefaultAnnouncement(spaceData)];
         let newSpace = new Space(spaceData);
         await newSpace.createDefaultScripts();
+        await newSpace.createDefaultPersonalities();
         await storageManager.storeSpace(newSpace.id, newSpace.stringifySpace());
         return newSpace;
     }

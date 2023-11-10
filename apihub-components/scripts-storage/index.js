@@ -14,8 +14,9 @@ function bodyReaderMiddleware(req, res, next) {
 }
 
 function SpaceStorage(server){
-    const { loadDefaultScripts, loadScript, storeScript } = require("./controller");
+    const { loadDefaultScripts,loadDefaultPersonalities,loadScript, storeScript, } = require("./controller");
     server.get("/scripts/default", loadDefaultScripts);
+    server.get("/personalities/default", loadDefaultPersonalities);
     //server.get("/scripts/:spaceId/:scriptId", loadScript);
     //server.delete("/scripts/:spaceId/:scriptId", storeScript);
     server.use("/spaces/*", bodyReaderMiddleware);

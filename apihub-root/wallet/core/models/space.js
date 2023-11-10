@@ -11,7 +11,9 @@ export class Space {
     constructor(spaceData) {
         this.name = spaceData.name||undefined;
         this.id = spaceData.id || undefined;
-        this.settings = spaceData.settings ? new Settings(spaceData.settings) : {personalities:[]};
+        this.personalities = (spaceData.personalities || []).map(personalityData => new Personality(personalityData));
+
+        this.settings = spaceData.settings ? new Settings(spaceData.settings) : {};
         this.announcements = (spaceData.announcements || []).map(announcementData => new Announcement(announcementData));
         this.users = (spaceData.users || []).map(userData => new User(userData));
         this.scripts = (spaceData.scripts|| []).map(scriptData => new Script(scriptData));
@@ -32,7 +34,6 @@ export class Space {
         return {
             name: this.name,
             id: this.id,
-            settings: this.settings,
             admins: this.admins,
             announcements: this.announcements
         }
@@ -102,18 +103,20 @@ export class Space {
         await webSkel.changeToDynamicPage(`${locationRedirect}`, `documents/${newDocument.id}/${locationRedirect}`);
     }
     async addPersonality(personalityData) {
-        this.settings.personalities.push(new Personality(personalityData));
-        await storageManager.storeObject(currentSpaceId, "status", "status", JSON.stringify(webSkel.space.getSpaceStatus(),null,2));
+        let personalityObj = new Personality(personalityData);
+        this.personalities.push(personalityObj);
+        await storageManager.storeObject(currentSpaceId, "personalities", personalityObj.id, JSON.stringify(personalityObj,null,2));
+        //await storageManager.storeObject(currentSpaceId, "status", "status", JSON.stringify(webSkel.space.getSpaceStatus(),null,2));
     }
 
     async updatePersonality(personalityData, id){
         let personality = this.getPersonality(id);
         personality.update(personalityData);
-        await storageManager.storeObject(currentSpaceId, "status", "status", JSON.stringify(webSkel.space.getSpaceStatus(),null,2));
+        await storageManager.storeObject(currentSpaceId, "personalities", id, JSON.stringify(personality,null,2));
     }
 
     getPersonality(id){
-        return this.settings.personalities.find(pers => pers.id === id);
+        return this.personalities.find(pers => pers.id === id);
     }
     async addAnnouncement(announcementData) {
         this.announcements.unshift(new Announcement(announcementData));
@@ -138,8 +141,8 @@ export class Space {
         await storageManager.storeObject(currentSpaceId, "scripts", scriptId, "");
     }
     async deletePersonality(personalityId){
-        this.settings.personalities = this.settings.personalities.filter(personality => personality.id !== personalityId);
-        await storageManager.storeObject(currentSpaceId, "status", "status", JSON.stringify(webSkel.space.getSpaceStatus(),null,2));
+        this.personalities = this.personalities.filter(personality => personality.id !== personalityId);
+        await storageManager.storeObject(currentSpaceId, "personalities", personalityId, "");
     }
 
     async updateAnnouncement(announcementId, content) {
@@ -165,6 +168,12 @@ export class Space {
         let scripts = JSON.parse(await storageManager.loadDefaultScripts());
         for(let script of scripts){
             this.scripts.push(new Script(script));
+        }
+    }
+    async createDefaultPersonalities(){
+        let personalities = JSON.parse(await storageManager.loadDefaultPersonalities());
+        for(let personality of personalities){
+            this.personalities.push(new Personality(personality));
         }
     }
 }

@@ -12,7 +12,7 @@ export class cloneChapterModal {
 
     beforeRender() {
         let stringHTML = `<option value="copy" selected>Copy</option>`;
-        for (let personality of webSkel.space.settings.personalities) {
+        for (let personality of webSkel.space.personalities) {
             stringHTML += `<option value=${personality.id}>${personality.name}</option>`;
         }
         this.personalitiesOptions = stringHTML;
@@ -31,7 +31,7 @@ export class cloneChapterModal {
         let proofread = formData.data.proofread === "on";
         let personalityDescription="copy";
         if(personalityId!=="copy"){
-            personalityDescription=webSkel.space.settings.personalities.find(personality=>personality.id===personalityId).description;
+            personalityDescription=webSkel.space.personalities.find(personality=>personality.id===personalityId).description;
         }
         let simplifiedChapterJson= JSON.stringify(webSkel.space.getDocument(this.documentId).getChapter(this.chapterId).simplifyChapter());
         let scriptId = webSkel.space.getScriptIdByName("clone chapter");

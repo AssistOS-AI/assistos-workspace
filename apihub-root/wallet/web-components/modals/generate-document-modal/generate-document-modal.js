@@ -9,7 +9,7 @@ export class generateDocumentModal{
     }
     beforeRender(){
         let stringHTML = "";
-        for(let personality of webSkel.space.settings.personalities){
+        for(let personality of webSkel.space.personalities){
             stringHTML+=`<option value=${personality.id}>${personality.name}</option>`;
         }
         this.personalitiesOptions = stringHTML;
