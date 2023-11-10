@@ -78,26 +78,38 @@ export class chapterUnit {
         this.invalidate();
     }
 
-    async editChapterTitle(title){
+    async editChapterTitle(title) {
+        title.setAttribute("contenteditable", "true");
 
-            title.setAttribute("contenteditable", "true");
-            title.focus();
-            let timer = new SaveElementTimer(async () => {
-                if (title.innerText !== this.chapter.title) {
-                    await this._document.updateChapterTitle(this.chapter, title.innerText);
-                }
-            }, 1000);
-            title.addEventListener("blur", async () => {
-                title.removeEventListener("keydown", resetTimer);
-                await timer.stop(true);
-                title.setAttribute("contenteditable", "false");
-            }, {once: true});
-            const resetTimer = async () => {
-                await timer.reset(1000);
-            };
-            title.addEventListener("keydown", resetTimer);
+        const titleEnterHandler = async (event) => {
+            if (event.key === 'Enter') {
+                event.preventDefault();
+            }
+        };
+        title.addEventListener('keydown', titleEnterHandler);
+        title.focus();
 
+        let timer = new SaveElementTimer(async () => {
+            let titleText = title.innerText.replace(/^[\u00A0\s]+|[\u00A0\s]+$/g, '').trim();
+            if (titleText !== this.chapter.title) {
+                await this._document.updateChapterTitle(this.chapter, titleText);
+            }
+        }, 1000);
+
+        const resetTimer = async () => {
+            await timer.reset(1000);
+        };
+        title.addEventListener("keydown", resetTimer);
+
+        title.addEventListener("blur", async () => {
+            title.innerText = title.innerText.replace(/^[\u00A0\s]+|[\u00A0\s]+$/g, '').trim();
+            await timer.stop(true);
+            title.removeAttribute("contenteditable");
+            title.removeEventListener('keydown', titleEnterHandler);
+            title.removeEventListener("keydown", resetTimer);
+        }, {once: true});
     }
+
 
     highlightChapter(){
         this.chapterUnit.setAttribute("id", "highlighted-chapter");
