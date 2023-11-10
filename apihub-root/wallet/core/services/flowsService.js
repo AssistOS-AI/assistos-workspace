@@ -79,11 +79,10 @@ export class FlowsService{
                 this.__think = prompt;
             },
             callLLM: async function(){
-                let promise1 = webSkel.getService("PromptAnimationService").displayThink(this.__think);
-                let promise2 =  webSkel.getService("LlmsService").generateResponse(JSON.stringify(this.__body));
-                return await Promise.all([promise1, promise2]).then(values => {
-                    return values[1];
-                });
+                await webSkel.getService("PromptAnimationService").displayThink(this.__think);
+                let result = await webSkel.getService("LlmsService").generateResponse(JSON.stringify(this.__body));
+                await webSkel.getService("PromptAnimationService").closeThink(this.__think);
+                return result;
             }
         }
         this.flows = createFlowsFactory(this.standardLLMApis);
