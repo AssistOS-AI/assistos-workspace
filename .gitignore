@@ -7,24 +7,18 @@ apihub-root/external-volume/maindsu
 apihub-root/external-volume/lightDB
 apihub-root/external-volume/oba
 apihub-root/external-volume/versionlessdsu
-apihub-root/external-volume/mqs/
-apihub-root/external-volume/wallets/
-apihub-root/lightweight-pwa
 apihub-root/keys-secret.json
 
 apihub-root/wallet/scripts/bundles/
 apihub-root/wallet/bundles/
-
+apihub-root/spaces
+apihub-root/users
 
 node_modules
 opendsu-sdk/
 package-lock.json
 env.json.devel
 initialEncryptionTest
-mq_JWT_Auth_Seeder
 
 **/.DS_Store
-SVDS
-remote-enclave-root-brand
-remote-enclave-root-accounting
 
