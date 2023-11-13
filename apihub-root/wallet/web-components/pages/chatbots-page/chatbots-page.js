@@ -81,6 +81,8 @@ export class chatbotsPage {
                 </div>`;
         }
         this.conversation.insertAdjacentHTML("beforeend", reply);
+        const lastReplyElement = this.conversation.lastElementChild;
+        lastReplyElement.scrollIntoView({behavior: "smooth", block: "start", inline: "nearest"});
     }
 
     displayEmotions(currentEmotions){
@@ -100,13 +102,12 @@ export class chatbotsPage {
         for(let reply of this.history){
             count+= reply.content.length;
         }
-        if(count < 800){
+        if(count < 500){
             return;
         }
       let scriptId = webSkel.space.getScriptIdByName("summarize conversation");
       let response = await webSkel.getService("LlmsService").callScript(scriptId, JSON.stringify(this.history));
       this.history = [];
-      this.history.push({role:"", content: ""});
       this.history.push(response.responseJson.summary[0]);
       this.history.push(response.responseJson.summary[1]);
     }
@@ -118,8 +119,15 @@ export class chatbotsPage {
         let scriptId = webSkel.space.getScriptIdByName("chatbots");
         await this.summarizeConversation();
 
-        let response = await webSkel.getService("LlmsService").callScript(scriptId, formInfo.data.input, this.personality.name, this.personality.description, this.history.toSpliced(0,1));
+        let response = await webSkel.getService("LlmsService").callScript(scriptId, formInfo.data.input, this.personality.name, this.personality.description, this.history);
+
         this.history.push({role:"user",content:input});
+        if(!response.responseJson){
+            response.responseJson = {
+                reply:"I'm sorry, I didn't understand what you said. Please repeat.",
+                emotions:[{name:"Confused",emoji:"&#128533;"}]
+            };
+        }
         this.history.push({role:"assistant",content:response.responseJson.reply});
         this.displayMessage("assistant", response.responseJson.reply);
         this.displayEmotions(response.responseJson.emotions);
