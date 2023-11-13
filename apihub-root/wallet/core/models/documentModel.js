@@ -64,7 +64,7 @@ export class DocumentModel {
         this.settings = settings;
     }
 
-    async addChapter(chapterData, position) {
+    async addChapter(chapterData, position=0) {
         //if position is not specified splice converts undefined to 0
         this.chapters.splice(position,0,new Chapter(chapterData));
         await documentFactory.updateDocument(currentSpaceId, this);

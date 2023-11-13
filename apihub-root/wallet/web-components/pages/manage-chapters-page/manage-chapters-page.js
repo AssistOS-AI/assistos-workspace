@@ -98,7 +98,7 @@ export class manageChaptersPage {
             title: "New chapter",
             paragraphs: [new Paragraph({text: "Edit here your first paragraph."})]
         }
-        await this._document.addChapter(chapterObj);
+        await this._document.addChapter(chapterObj,this._document.chapters.length);
         this.invalidate();
     }
     async summarize(){
