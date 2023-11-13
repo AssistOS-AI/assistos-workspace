@@ -60,7 +60,6 @@ export class editTitlePage {
     }
 
     async showSuggestTitlesModal() {
-
         await showModal(document.querySelector("body"), "suggest-titles-modal", { presenter: "suggest-titles-modal"});
     }
 
