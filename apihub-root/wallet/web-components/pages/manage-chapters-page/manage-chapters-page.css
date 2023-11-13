@@ -22,8 +22,7 @@ manage-chapters-page {
     margin: 5px 10px;
 }
 
-.document-path,
-.main-ideas-container {
+.document-path{
     margin-left: 15px;
 }
 
@@ -105,5 +104,17 @@ manage-chapters-page {
 .main-ideas-separator{
     border: 1px solid #E6E6E6;
 }
-
-
+li{list-style-position: inside;}
+@media screen and (max-width: 900px) {
+    .main-ideas-title-section{
+        flex-direction:column;
+        align-items:flex-start;
+    }
+    .main-ideas-section-title-left{
+        width:100%;
+        max-width:100%;
+    }
+    .recreate-summary-button{
+        margin-left:15px;
+    }
+}
