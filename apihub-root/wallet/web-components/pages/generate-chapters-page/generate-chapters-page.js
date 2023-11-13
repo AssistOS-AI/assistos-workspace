@@ -70,7 +70,7 @@ export class generateChaptersPage {
             await showApplicationError("Script execution error",
                 "Data received from LLM is an incorrect format", `result from LLM: ${result}`);
         }
-        await webSkel.changeToDynamicPage("document-view-page", `documents/${this._document.id}/document-view-page`);
+        await webSkel.changeToDynamicPage("manage-chapters-page", `documents/${this._document.id}/manage-chapters-page`);
     }
 
     async generateChapters(_target){
@@ -89,7 +89,7 @@ export class generateChaptersPage {
            await showApplicationError("Script execution error",
                 "Data received from LLM is an incorrect format", `result from LLM: ${result}`);
         }
-        await webSkel.changeToDynamicPage("document-view-page", `documents/${this._document.id}/document-view-page`);
+        await webSkel.changeToDynamicPage("manage-chapters-page", `documents/${this._document.id}/manage-chapters-page`);
     }
 
     async openMangeChaptersPage() {
