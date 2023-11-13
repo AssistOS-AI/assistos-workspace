@@ -28,16 +28,24 @@ edit-title-page{
 .document-title{
     position: relative;
     margin: 20px 15px 10px 15px;
+    margin-left:5px;
     color: #1E1E1E;
     font-size: 24px;
     font-style: normal;
     font-weight: 500;
     line-height: normal;
-    resize: none;
+    letter-spacing: 0em;
+    padding:6px;
+    padding-left:10px;
+    padding-right:10px;
+    width:100%;
 }
 
 .document-title:focus{
     outline: none;
+    border: 1px solid #A42E70;
+    border-radius: 7px;
+    box-shadow: 0px 1px 4px 0px #0000001C;
 }
 
 .document-content {
@@ -49,15 +57,9 @@ edit-title-page{
     margin-left: 15px;
 }
 
-.document-title:focus {
-    background-color: rgba(148, 174, 227, 0.3);
-    color: #252525;
-    font-weight: 450;
-}
-
-
 .alternative {
     margin-bottom: 10px;
+    padding-right:20px;
     display: flex;
     justify-content: space-between;
 }
@@ -111,7 +113,7 @@ textarea {
 }
 
 .title-edit-section {
-    padding-right:20px;
+     margin-right:20px;
     display: flex;
     align-items: center;
     justify-content:space-between;
@@ -121,9 +123,12 @@ textarea {
     align-items:center;
     justify-content: space-between;
 }
+.title-edit-section-left{
+    width: 100%;
+}
 /*.title-edit-section-left{
     margin-right:30px;
 }*/
 .action-cell{
-    margin-right: 15px;
+    margin-right: 10px;
 }
