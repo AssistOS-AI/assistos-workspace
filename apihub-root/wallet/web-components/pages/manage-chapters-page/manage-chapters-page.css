@@ -22,8 +22,7 @@ manage-chapters-page {
     margin: 5px 10px;
 }
 
-.document-path,
-.main-ideas {
+.document-path{
     margin-left: 15px;
 }
 
@@ -37,7 +36,7 @@ manage-chapters-page {
 }
 
 
-.main-ideas{
+.main-ideas-container{
     margin-right: 15px;
     margin-bottom: 20px;
 }
@@ -50,15 +49,21 @@ manage-chapters-page {
     color: #252525;
     font-weight: 450;
 }
-.section-title {
-    margin: 20px 15px 20px 15px;
+.section-title,.section-content {
+    display:flex;
+    justify-content: space-between;
+    align-items:center;
+    margin: 20px 22px 20px 15px;
     color: #252525;
     font-size: 18px;
     font-style: normal;
     font-weight: 600;
     line-height: normal;
-    display:flex;
-    align-items:center;
+    word-break: break-word;
+}
+.section-title{
+    width:calc( 100% - 19px);
+    max-width:calc( 100% - 19px);
 }
 .add-chapter-button{
     margin-left:4px;
@@ -78,19 +83,38 @@ manage-chapters-page {
     gap: 8px;
     cursor: pointer;
 }
-.main-ideas-title{
+.main-ideas-title-section{
     display: flex;
     justify-content: space-between;
-    align-items: baseline;
+    align-items: center;
     padding-right:20px;
 }
-.section-title-left, .section-title-right{
+.main-ideas-section-title-left, .main-ideas-section-title-right{
     display: flex;
-    align-items: baseline;
+    align-items: center;
 }
-
+.main-ideas-section-title-right {
+    display:flex;
+    align-items:center;
+    height:100%;
+}
+.main-ideas-section-title-left{
+    max-width:calc(100% - 182px);
+}
 .main-ideas-separator{
     border: 1px solid #E6E6E6;
 }
-
-
+li{list-style-position: inside;}
+@media screen and (max-width: 900px) {
+    .main-ideas-title-section{
+        flex-direction:column;
+        align-items:flex-start;
+    }
+    .main-ideas-section-title-left{
+        width:100%;
+        max-width:100%;
+    }
+    .recreate-summary-button{
+        margin-left:15px;
+    }
+}
