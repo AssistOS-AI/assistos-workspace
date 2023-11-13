@@ -8,9 +8,7 @@
 personality-unit{
     padding: 25px;
 }
-personality-unit:hover{
-    cursor: pointer;
-}
+
 .add-personality-button{
     display: flex;
     flex-direction: column;
