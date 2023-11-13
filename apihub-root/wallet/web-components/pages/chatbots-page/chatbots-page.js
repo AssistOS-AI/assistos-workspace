@@ -14,13 +14,11 @@ export class chatbotsPage {
         // {role: 'user', content: 'do you know the band tool?'},
         // {role: 'assistant', content: 'Yes, I am familiar with the band Tool. They are a …r your thoughts and experiences with their music!'}];
         // this.cachedHistory = this.history;
-        // this.cachedEmotions = [
-        //     {name:"Excitement",emoji:"🎉"},
-        //     {name:"Curiosity",emoji:"🤔"},
-        //     {name:"Passion",emoji:"🔥"}
-        // ];
+        // this.cachedEmotion = {name:"Excitement",emoji:"🎉"}
         this.history = [];
-        this.cachedEmotions = [];
+        this.defaultEmotion = {name:". . .",emoji:"&#128578;"}
+        this.storedEmotion = null || this.defaultEmotion;
+
     }
     beforeRender() {
         let stringHTML = "";
@@ -38,15 +36,9 @@ export class chatbotsPage {
             }
         }
         this.conversationHistory = stringHTML;
-        let emotions = "";
-        for(let emotion of this.cachedEmotions){
-            emotions += `
-            <div class="emotion">
-             <div class="emotion-emoticon">${emotion.emoji}</div>
-             <div class="emotion-name">${emotion.name}</div>
-           </div>`;
-        }
-        this.savedEmotions = emotions;
+        this.savedEmotion = `
+             <div class="emotion-emoticon">${this.storedEmotion.emoji}</div>
+             <div class="emotion-name">${this.storedEmotion.name}</div>`;
     }
     preventRefreshOnEnter(event){
       if(event.key === "Enter" && !event.ctrlKey){
@@ -59,7 +51,7 @@ export class chatbotsPage {
     }
     afterRender(){
         this.conversation = this.element.querySelector(".conversation");
-        this.emotionsList = this.element.querySelector(".right-sidebar");
+        this.emotionContainer = this.element.querySelector(".emotion");
         this.userInput = this.element.querySelector("#input");
         let boundFn = this.preventRefreshOnEnter.bind(this);
         this.userInput.removeEventListener("keypress", boundFn);
@@ -85,17 +77,19 @@ export class chatbotsPage {
         lastReplyElement.scrollIntoView({behavior: "smooth", block: "start", inline: "nearest"});
     }
 
-    displayEmotions(currentEmotions){
-        this.emotionsList.textContent = "";
-        let emotions = "";
-        for(let emotion of currentEmotions){
-            emotions += `
-            <div class="emotion">
-             <div class="emotion-emoticon">${emotion.emoji}</div>
-             <div class="emotion-name">${emotion.name}</div>
-           </div>`;
-        }
-        this.emotionsList.insertAdjacentHTML("beforeend", emotions);
+    displayEmotion(currentEmotion){
+        this.emotionContainer.classList.remove("fade-in");
+        this.emotionContainer.classList.add("fade-out");
+        setTimeout(()=>{
+            this.emotionContainer.textContent = "";
+            let emotion = `
+         <div class="emotion-emoticon">${currentEmotion.emoji}</div>
+         <div class="emotion-name">${currentEmotion.name}</div>`;
+            this.emotionContainer.insertAdjacentHTML("beforeend", emotion);
+
+            this.emotionContainer.classList.remove("fade-out");
+            this.emotionContainer.classList.add("fade-in");
+        },500);
     }
     async summarizeConversation(){
         let count = 0;
@@ -116,20 +110,20 @@ export class chatbotsPage {
         let input = formInfo.data.input;
         formInfo.elements.input.element.value = "";
         this.displayMessage("user",input);
+        this.displayEmotion(this.defaultEmotion);
         let scriptId = webSkel.space.getScriptIdByName("chatbots");
         await this.summarizeConversation();
-
         let response = await webSkel.getService("LlmsService").callScript(scriptId, formInfo.data.input, this.personality.name, this.personality.description, this.history);
 
         this.history.push({role:"user",content:input});
         if(!response.responseJson){
             response.responseJson = {
                 reply:"I'm sorry, I didn't understand what you said. Please repeat.",
-                emotions:[{name:"Confused",emoji:"&#128533;"}]
+                emotion:{name:"Confused",emoji:"&#128533;"}
             };
         }
         this.history.push({role:"assistant",content:response.responseJson.reply});
         this.displayMessage("assistant", response.responseJson.reply);
-        this.displayEmotions(response.responseJson.emotions);
+        this.displayEmotion(response.responseJson.emotion);
     }
 }

@@ -73,18 +73,45 @@ chatbots-page{
 
 .emotion{
     display: flex;
-    height: 50px;
-    border-bottom: 1px solid #E6E6E6;
+    flex-direction: column;
     justify-content: center;
     align-items: center;
 }
-.emotion-name{
-    text-align: center;
-    margin-left: 5px;
-    font-weight: 600;
-    line-height: 24px;
+.fade-out{
+    -webkit-animation: fadeout 0.5s;
+    animation: fadeout 0.5s;
+}
+@-webkit-keyframes fadeout {
+    0% { opacity: 1; }
+    100% { opacity: 0; }
 }
 
+@keyframes fadeout {
+    0% { opacity: 1; }
+    100% { opacity: 0; }
+}
+.fade-in{
+    -webkit-animation: fadein 0.5s;
+    animation: fadein 0.5s;
+}
+@-webkit-keyframes fadein {
+    0% { opacity: 0; }
+    100% { opacity: 1; }
+}
+
+@keyframes fadein {
+    0% { opacity: 0; }
+    100% { opacity: 1; }
+}
+.emotion-name{
+    line-height: 24px;
+    text-align: center;
+    font-weight: 600;
+    font-size: 32px;
+}
+.emotion-emoticon{
+    font-size: 90px;
+}
 
 
 .chat-box-container{
