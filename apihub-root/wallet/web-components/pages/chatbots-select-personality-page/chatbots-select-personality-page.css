@@ -20,9 +20,6 @@
 personality-unit{
     padding: 25px;
 }
-personality-unit:hover{
-    cursor: pointer;
-}
 .text{
     font-weight: 500;
     font-size: 22px;
