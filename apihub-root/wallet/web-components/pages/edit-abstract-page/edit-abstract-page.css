@@ -14,7 +14,7 @@ edit-abstract-page {
 
 .current-abstract-separator{
     border: 1px solid #E6E6E6;
-    margin: 0;
+    margin-top:20px;
 }
 
 .document-path svg {
@@ -53,8 +53,12 @@ edit-abstract-page {
 }
 
 .alt-abstracts-title {
+    display:flex;
+    align-items:center;
+    justify-content: space-between;
     margin-top: 15px;
     margin-left: 15px;
+    margin-right: 22px;
     color: #252525;
     font-size: 18px;
     font-style: normal;
@@ -63,12 +67,15 @@ edit-abstract-page {
 
 .abstract-content {
     display: inline-block;
+    width:100%;
     position: relative;
     white-space: pre-wrap;
     overflow-wrap: break-word;
     hyphens: auto;
     word-break: break-word;
     padding: 15px;
+    padding-left:10px;
+    margin-left:5px;
     border-radius: 10px;
     color: #252525;
     font-size: 16px;
@@ -76,12 +83,14 @@ edit-abstract-page {
     font-weight: 400;
     line-height: normal;
     margin-right: 10px;
+
 }
 
 .abstract-content:focus {
-    background-color: rgba(148, 174, 227, 0.3);
-    color: #252525;
-    font-weight: 450;
+    outline: none;
+    border: 1px solid #A42E70;
+    border-radius: 7px;
+    box-shadow: 0px 1px 4px 0px #0000001C;
 }
 
 .editIcon:hover{
@@ -98,4 +107,9 @@ edit-abstract-page {
     display: flex;
     align-items: center;
     justify-content:space-between;
+}
+@media screen and (max-width: 900px) {
+    .alt-abstracts-title{
+        flex-direction:column;
+    }
 }
