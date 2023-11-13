@@ -15,6 +15,10 @@ export class editTitlePage {
         this.invalidate();
     }
 
+    async animatePen(){
+        await showModal(document.querySelector("body"),"llm-call-animation");
+    }
+
     beforeRender() {
         this.title = this._document.title;
         this.alternativeTitles = "";
