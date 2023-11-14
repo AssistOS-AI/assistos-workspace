@@ -143,11 +143,14 @@ export class documentViewPage {
             abstract.focus();
             abstractSection.setAttribute("id", "highlighted-chapter");
             let timer = new SaveElementTimer(async () => {
-                if (abstract.innerText !== this._document.abstract) {
+                let abstractText = sanitize(customTrim(abstract.innerText));
+                if (abstractText !== this._document.abstract && abstractText !== "") {
                     await this._document.updateAbstract(abstract.innerText);
                 }
             }, 1000);
+
             abstract.addEventListener("blur", async () => {
+                abstract.innerText = customTrim(abstract.innerText)||unsanitize(this._document.abstract);
                 abstract.removeEventListener("keydown", resetTimer);
                 await timer.stop(true);
                 abstract.setAttribute("contenteditable", "false");
