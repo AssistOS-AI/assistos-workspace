@@ -7,14 +7,14 @@ import {
 export class announcementsPage {
     constructor(element,invalidate) {
         this.notificationId="space:space-page:announcements"
-        webSkel.space.observeChange(this.notificationId,invalidate);
+        webSkel.currentUser.space.observeChange(this.notificationId,invalidate);
         this.invalidate=invalidate;
         this.invalidate();
     }
     beforeRender() {
         this.announcementsContainer = "";
-        if(webSkel.space.announcements.length>0) {
-            webSkel.space.announcements.forEach((announcement) => {
+        if(webSkel.currentUser.space.announcements.length>0) {
+            webSkel.currentUser.space.announcements.forEach((announcement) => {
                 this.announcementsContainer += `<announcement-unit data-title="${announcement.title}" 
                 data-content="${announcement.text}" data-date="${announcement.date}" 
                 data-id="${announcement.id}" data-local-action="editAction"></announcement-unit>`;
@@ -34,7 +34,7 @@ export class announcementsPage {
         await showModal(document.querySelector("body"), "add-announcement-modal", { presenter: "add-announcement-modal"});
     }
     async deleteAction(_target){
-            await webSkel.space.deleteAnnouncement(this.getAnnouncementId(_target));
+            await webSkel.currentUser.space.deleteAnnouncement(this.getAnnouncementId(_target));
             this.invalidate();
     }
     async editAction(_target){

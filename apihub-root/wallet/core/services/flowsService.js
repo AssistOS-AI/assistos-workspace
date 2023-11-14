@@ -47,7 +47,7 @@ export class FlowsService{
                 return await this.callLLM();
             },
             brainstormAs : async  function (personalityName,prompt, number, max_tokens){
-                //this.body.personality = webSkel.space.getPersonality();
+                //this.body.personality = webSkel.currentUser.space.getPersonality();
                 this.setThink(prompt);
                 this.__body.prompt = prompt;
                 this.__body.variants = number;

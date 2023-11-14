@@ -5,7 +5,7 @@ export class documentSettingsPage {
         this.element = element;
         let url = window.location.hash;
         this.id = url.split('/')[1];
-        this._document = webSkel.space.getDocument(this.id);
+        this._document = webSkel.currentUser.space.getDocument(this.id);
         this._document.observeChange(this._document.getNotificationId(), invalidate);
         this.invalidate = invalidate;
         this.invalidate();
@@ -35,7 +35,7 @@ export class documentSettingsPage {
         }
         if(this._document.settings){
             for (const [key, value] of Object.entries(this._document.settings)) {
-                this[key] = renderSettings(webSkel.space.scripts, this._document.getSettingsComponent(key), key);
+                this[key] = renderSettings(webSkel.currentUser.space.scripts, this._document.getSettingsComponent(key), key);
             }
         }
     }
@@ -46,7 +46,7 @@ export class documentSettingsPage {
             for (const [key, value] of Object.entries(formInfo.data)) {
                 this._document.settings[key] = value;
             }
-            await documentFactory.updateDocument(currentSpaceId, this._document);
+            await documentFactory.updateDocument(webSkel.currentUser.space.id, this._document);
         }
         else {
             await showApplicationError(`Error at submitting form`, `Form invalid`, `Form with target: ${_target}`);

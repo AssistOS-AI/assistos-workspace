@@ -10,7 +10,7 @@ export class paragraphBrainstormingPage {
         this.element = element;
         let documentId, chapterId, paragraphId;
         [documentId, chapterId, paragraphId] = parseURL();
-        this._document = webSkel.space.getDocument(documentId);
+        this._document = webSkel.currentUser.space.getDocument(documentId);
         this._chapter = this._document.getChapter(chapterId);
         this._paragraph = this._chapter.getParagraph(paragraphId);
         this._document.observeChange(this._document.getNotificationId(), invalidate);

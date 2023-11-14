@@ -5,14 +5,14 @@ import {
 
 export class suggestParagraphModal {
     constructor(element, invalidate) {
-        this._document = webSkel.space.getDocument(webSkel.space.currentDocumentId);
-        this._chapter = this._document.getChapter(webSkel.space.currentChapterId);
-        this._paragraph = this._chapter.getParagraph(webSkel.space.currentParagraphId);
+        this._document = webSkel.currentUser.space.getDocument(webSkel.currentUser.space.currentDocumentId);
+        this._chapter = this._document.getChapter(webSkel.currentUser.space.currentChapterId);
+        this._paragraph = this._chapter.getParagraph(webSkel.currentUser.space.currentParagraphId);
         this.invalidate = invalidate;
         this.element = element;
 
         setTimeout(async()=>{
-            let scriptId = webSkel.space.getScriptIdByName("suggest paragraph");
+            let scriptId = webSkel.currentUser.space.getScriptIdByName("suggest paragraph");
             let result = await webSkel.getService("LlmsService").callScript(scriptId, this._paragraph.toString());
             this.suggestedParagraph = result.responseJson.text;
             this.suggestedParagraphIdea = result.responseJson.mainIdea;

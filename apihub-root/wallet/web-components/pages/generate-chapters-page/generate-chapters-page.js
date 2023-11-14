@@ -2,7 +2,7 @@ import {extractFormInformation, parseURL} from "../../../imports.js";
 export class generateChaptersPage {
     constructor(element, invalidate) {
         this.element = element;
-        this._document = webSkel.space.getDocument(parseURL());
+        this._document = webSkel.currentUser.space.getDocument(parseURL());
         this.invalidate = invalidate;
         this.invalidate();
         this.ideas = [];
@@ -46,7 +46,7 @@ export class generateChaptersPage {
         let form = this.element.querySelector(".generate-ideas-form");
         let formInfo = await extractFormInformation(form);
         if(formInfo.isValid) {
-            let scriptId = webSkel.space.getScriptIdByName("generate ideas");
+            let scriptId = webSkel.currentUser.space.getScriptIdByName("generate ideas");
             let result = await webSkel.getService("LlmsService").callScript(scriptId, formInfo.data.idea);
             this.ideas= result.responseJson;
             this.invalidate();
@@ -56,7 +56,7 @@ export class generateChaptersPage {
 
     async generateEmptyChapters(_target){
         let formInfo = await extractFormInformation(_target);
-        let scriptId = webSkel.space.getScriptIdByName("generate empty chapters");
+        let scriptId = webSkel.currentUser.space.getScriptIdByName("generate empty chapters");
         let selectedIdeas = [];
         for (const [key, value] of Object.entries(formInfo.elements)) {
             if(value.element.checked) {
@@ -75,7 +75,7 @@ export class generateChaptersPage {
 
     async generateChapters(_target){
         let formInfo = await extractFormInformation(_target);
-        let scriptId = webSkel.space.getScriptIdByName("generate chapters");
+        let scriptId = webSkel.currentUser.space.getScriptIdByName("generate chapters");
         let selectedIdeas = [];
         for (const [key, value] of Object.entries(formInfo.elements)) {
             if(value.element.checked) {

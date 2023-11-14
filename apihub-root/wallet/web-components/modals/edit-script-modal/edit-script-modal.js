@@ -11,7 +11,7 @@ export class editScriptModal {
     }
 
     beforeRender() {
-      let script = webSkel.space.getScript(this.element.getAttribute("data-id"));
+      let script = webSkel.currentUser.space.getScript(this.element.getAttribute("data-id"));
       this.scriptContent = script.content;
       this.scriptName = script.name;
     }
@@ -29,8 +29,8 @@ export class editScriptModal {
         let formInfo = await extractFormInformation(form);
         if(formInfo.isValid) {
             let scriptId = this.element.getAttribute("data-id");
-            await webSkel.space.updateScript(scriptId, formInfo.data.scriptCode);
-            webSkel.space.notifyObservers(webSkel.space.getNotificationId());
+            await webSkel.currentUser.space.updateScript(scriptId, formInfo.data.scriptCode);
+            webSkel.currentUser.space.notifyObservers(webSkel.currentUser.space.getNotificationId());
             closeModal(_target);
         }
     }

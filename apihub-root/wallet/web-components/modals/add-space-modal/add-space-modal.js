@@ -21,9 +21,8 @@ export class addSpaceModal {
             let newSpace = await SpaceFactory.createSpace(spaceData);
 
             await webSkel.getService("AuthenticationService").addSpaceToUser(newSpace);
-
             closeModal(_target);
-            await webSkel.space.changeSpace(newSpace.id);
+            window.location = "";
         }
     }
 }

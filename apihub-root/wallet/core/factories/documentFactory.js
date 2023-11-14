@@ -17,7 +17,7 @@ export class DocumentFactory {
     }
 
     async addDocument(spaceId, documentObj) {
-        webSkel.space.documents.unshift(documentObj);
+        webSkel.currentUser.space.documents.unshift(documentObj);
         await storageManager.storeObject(spaceId, "documents", documentObj.id, documentObj.stringifyDocument());
     }
     async updateDocument(spaceId, documentObj) {
@@ -25,8 +25,8 @@ export class DocumentFactory {
     }
 
     async deleteDocument(spaceId, documentId) {
-        webSkel.space.deleteDocument(documentId);
-        await storageManager.storeObject(currentSpaceId, "documents", documentId, "");
+        webSkel.currentUser.space.deleteDocument(documentId);
+        await storageManager.storeObject(webSkel.currentUser.space.id, "documents", documentId, "");
     }
 
     observeChange(elementId, callback) {

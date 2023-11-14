@@ -25,8 +25,8 @@ export class addScriptModal {
                 id:webSkel.servicesRegistry.UtilsService.generateId(),
                 content: formInfo.data.validateCode
             }
-            await webSkel.space.addScript(scriptData);
-            webSkel.space.notifyObservers(webSkel.space.getNotificationId());
+            await webSkel.currentUser.space.addScript(scriptData);
+            webSkel.currentUser.space.notifyObservers(webSkel.currentUser.space.getNotificationId());
 
 
             closeModal(_target);

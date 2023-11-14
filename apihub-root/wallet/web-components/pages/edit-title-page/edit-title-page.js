@@ -9,7 +9,7 @@ import {
 export class editTitlePage {
     constructor(element, invalidate) {
         this.element = element;
-        this._document = webSkel.space.getDocument(parseURL());
+        this._document = webSkel.currentUser.space.getDocument(parseURL());
         this._document.observeChange(this._document.getNotificationId() + ":edit-title-page", invalidate);
         this.invalidate = invalidate;
         this.invalidate();
@@ -104,7 +104,7 @@ export class editTitlePage {
     async delete(_target) {
         let alternativeTitle = reverseQuerySelector(_target, "alternative-title");
         this._document.deleteAlternativeTitle(alternativeTitle.getAttribute("data-id"));
-        await documentFactory.updateDocument(currentSpaceId, this._document);
+        await documentFactory.updateDocument(webSkel.currentUser.space.id, this._document);
         this.invalidate();
     }
     async select(_target){

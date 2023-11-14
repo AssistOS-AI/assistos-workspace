@@ -2,7 +2,7 @@ import {extractFormInformation, parseURL} from "../../../imports.js";
 
 export class editPersonalityPage{
     constructor(element,invalidate) {
-        this.personality = webSkel.space.getPersonality(parseURL());
+        this.personality = webSkel.currentUser.space.getPersonality(parseURL());
         this.element = element;
         this.invalidate=invalidate;
         this.invalidate();
@@ -39,13 +39,13 @@ export class editPersonalityPage{
                 description:formInfo.data.description,
                 image: formInfo.data.photo
             }
-            await webSkel.space.updatePersonality(personalityData, this.personality.id);
+            await webSkel.currentUser.space.updatePersonality(personalityData, this.personality.id);
             await this.openPersonalitiesPage();
         }
     }
 
     async deletePersonality(){
-        await webSkel.space.deletePersonality(this.personality.id);
+        await webSkel.currentUser.space.deletePersonality(this.personality.id);
         await this.openPersonalitiesPage();
     }
 

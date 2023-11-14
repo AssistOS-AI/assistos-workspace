@@ -12,7 +12,7 @@ export class chapterTitlePage {
         this.element = element;
         let documentId, chapterId;
         [documentId,chapterId] = parseURL();
-        this._document = webSkel.space.getDocument(documentId);
+        this._document = webSkel.currentUser.space.getDocument(documentId);
         this._chapter = this._document.getChapter(chapterId);
         this._document.observeChange(this._document.getNotificationId() + "chapter-title-page", invalidate);
         this.invalidate = invalidate;
@@ -33,11 +33,11 @@ export class chapterTitlePage {
     async saveTitle(_target) {
         const formInfo = await extractFormInformation(_target);
         if(formInfo.isValid) {
-            const documentIndex = webSkel.space.documents.findIndex(doc => doc.id === this.docId);
+            const documentIndex = webSkel.currentUser.space.documents.findIndex(doc => doc.id === this.docId);
             const chapterIndex = this._document.getChapterIndex(this.chapterId);
             if (documentIndex !== -1 && chapterIndex !== -1 && formInfo.data.title !== this._document.getChapterTitle(this.chapterId)) {
                 await this._document.updateChapterTitle(this.chapterId, formInfo.data.title);
-                await documentFactory.updateDocument(currentSpaceId, this._document);
+                await documentFactory.updateDocument(webSkel.currentUser.space.id, this._document);
             }
         }
     }
@@ -107,14 +107,14 @@ export class chapterTitlePage {
     async delete(_target) {
         let alternativeTitle = reverseQuerySelector(_target, "alternative-title");
         this._chapter.deleteAlternativeTitle(alternativeTitle.getAttribute("data-id"));
-        await documentFactory.updateDocument(currentSpaceId, this._document);
+        await documentFactory.updateDocument(webSkel.currentUser.space.id, this._document);
         this.invalidate();
     }
     async select(_target){
         let suggestedTitle = reverseQuerySelector(_target, "alternative-title");
         let suggestedTitleId = suggestedTitle.getAttribute("data-id");
         await this._chapter.selectAlternativeTitle(suggestedTitleId);
-        await documentFactory.updateDocument(currentSpaceId, this._document);
+        await documentFactory.updateDocument(webSkel.currentUser.space.id, this._document);
         this.invalidate();
     }
     async openViewPage() {

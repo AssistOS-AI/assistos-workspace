@@ -3,7 +3,7 @@ import {SaveElementTimer, sanitize, parseURL} from "../../../imports.js";
 export class abstractProofreadPage {
     constructor(element, invalidate) {
         this.element=element;
-        this._document = webSkel.space.getDocument(parseURL());
+        this._document = webSkel.currentUser.space.getDocument(parseURL());
         this.invalidate = invalidate;
         this.invalidate();
 
@@ -24,7 +24,7 @@ export class abstractProofreadPage {
     }
 
     async suggestImprovements(_target){
-        let scriptId = webSkel.space.getScriptIdByName("proofread");
+        let scriptId = webSkel.currentUser.space.getScriptIdByName("proofread");
         let result = await webSkel.getService("LlmsService").callScript(scriptId, this.abstractText);
         this.improvedAbstract = result.responseString || result.responseJson;
         this.invalidate();

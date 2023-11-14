@@ -7,13 +7,13 @@ import {
 export class suggestTitlesModal {
     constructor(element, invalidate) {
         this.id = window.location.hash.split('/')[1];
-        this._document = webSkel.space.getDocument(this.id);
+        this._document = webSkel.currentUser.space.getDocument(this.id);
         this._document.observeChange(this._document.getNotificationId(), invalidate);
         this.invalidate = invalidate;
         this.element = element;
 
         setTimeout(async()=>{
-            let scriptId = webSkel.space.getScriptIdByName("suggest document titles");
+            let scriptId = webSkel.currentUser.space.getScriptIdByName("suggest document titles");
             let result = await webSkel.getService("LlmsService").callScript(scriptId, this._document.topic);
             if(result.responseJson){
                 this.suggestedTitles = result.responseJson;

@@ -9,7 +9,7 @@ export class generateDocumentModal{
     }
     beforeRender(){
         let stringHTML = "";
-        for(let personality of webSkel.space.personalities){
+        for(let personality of webSkel.currentUser.space.personalities){
             stringHTML+=`<option value=${personality.id}>${personality.name}</option>`;
         }
         this.personalitiesOptions = stringHTML;
@@ -20,13 +20,13 @@ export class generateDocumentModal{
     async generateDocument(_target) {
         let formData = await extractFormInformation(_target);
         if(formData.isValid) {
-            let scriptId = webSkel.space.getScriptIdByName("generate document");
+            let scriptId = webSkel.currentUser.space.getScriptIdByName("generate document");
             let result = await  webSkel.getService("LlmsService").callScript(scriptId,
                 formData.data.documentTitle, formData.data.documentTopic,formData.data.chaptersCount);
 
             let docData= result.responseJson;
             closeModal(_target);
-            await webSkel.space.addDocument(docData);
+            await webSkel.currentUser.space.addDocument(docData);
         }
     }
 }
