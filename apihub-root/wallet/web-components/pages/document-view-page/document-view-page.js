@@ -1,4 +1,4 @@
-import {getClosestParentElement, parseURL, reverseQuerySelector, SaveElementTimer} from "../../../imports.js";
+import {getClosestParentElement, parseURL, reverseQuerySelector, SaveElementTimer,sanitize,unsanitize,customTrim} from "../../../imports.js";
 
 export class documentViewPage {
     constructor(element, invalidate) {
@@ -23,7 +23,7 @@ export class documentViewPage {
             let iterator = 0;
             this._document.chapters.forEach((item) => {
                 iterator++;
-                this.chaptersContainer += `<chapter-unit data-chapter-number="${iterator}" data-chapter-title="${item.title}" data-chapter-id="${item.id}" data-presenter="chapter-unit"></chapter-unit>`;
+                this.chaptersContainer += `<chapter-unit data-chapter-number="${iterator}" data-chapter-id="${item.id}" data-presenter="chapter-unit"></chapter-unit>`;
             });
         }
     }
@@ -143,11 +143,14 @@ export class documentViewPage {
             abstract.focus();
             abstractSection.setAttribute("id", "highlighted-chapter");
             let timer = new SaveElementTimer(async () => {
-                if (abstract.innerText !== this._document.abstract) {
+                let abstractText = sanitize(customTrim(abstract.innerText));
+                if (abstractText !== this._document.abstract && abstractText !== "") {
                     await this._document.updateAbstract(abstract.innerText);
                 }
             }, 1000);
+
             abstract.addEventListener("blur", async () => {
+                abstract.innerText = customTrim(abstract.innerText)||unsanitize(this._document.abstract);
                 abstract.removeEventListener("keydown", resetTimer);
                 await timer.stop(true);
                 abstract.setAttribute("contenteditable", "false");
@@ -195,19 +198,28 @@ export class documentViewPage {
 
 
     editTitle(title){
+        const titleEnterHandler = async (event) => {
+            if (event.key === 'Enter') {
+                event.preventDefault();
+            }
+        };
         if (title.getAttribute("contenteditable") === "false") {
             title.setAttribute("contenteditable", "true");
+            title.addEventListener('keydown', titleEnterHandler);
             title.focus();
             title.parentElement.setAttribute("id", "highlighted-chapter");
             let timer = new SaveElementTimer(async () => {
-                if (title.innerText !== this._document.title) {
-                    await this._document.updateTitle(title.innerText);
+                let titleText = sanitize(customTrim(title.innerText));
+                if (titleText !== this._document.title && titleText !== "") {
+                    await this._document.updateTitle(titleText);
                 }
             }, 1000);
             title.addEventListener("blur", async () => {
-                title.removeEventListener("keydown", resetTimer);
+                title.innerText = customTrim(title.innerText)||unsanitize(this._document.title);
                 await timer.stop(true);
                 title.setAttribute("contenteditable", "false");
+                title.removeEventListener('keydown', titleEnterHandler);
+                title.removeEventListener("keydown", resetTimer);
                 title.parentElement.removeAttribute("id");
             }, {once: true});
             const resetTimer = async () => {

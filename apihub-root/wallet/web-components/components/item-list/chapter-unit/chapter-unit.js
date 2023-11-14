@@ -1,4 +1,4 @@
-import {parseURL, reverseQuerySelector, SaveElementTimer} from "../../../../imports.js";
+import {customTrim, parseURL, reverseQuerySelector, sanitize,unsanitize, SaveElementTimer} from "../../../../imports.js";
 
 export class chapterUnit {
     constructor(element, invalidate) {
@@ -15,6 +15,7 @@ export class chapterUnit {
     }
 
     beforeRender() {
+        this.chapterTitle=this.chapter.title;
         this.chapterContent = "";
         if (this.chapter) {
             if (this.chapter.visibility === "hide") {
@@ -90,24 +91,23 @@ export class chapterUnit {
         title.focus();
 
         let timer = new SaveElementTimer(async () => {
-            let titleText = title.innerText.replace(/^[\u00A0\s]+|[\u00A0\s]+$/g, '').trim();
-            if (titleText !== this.chapter.title) {
+            let titleText = sanitize(customTrim(title.innerText))
+            if (titleText !== this.chapter.title && titleText !== "") {
                 await this._document.updateChapterTitle(this.chapter, titleText);
             }
-        }, 1000);
-
-        const resetTimer = async () => {
-            await timer.reset(1000);
-        };
-        title.addEventListener("keydown", resetTimer);
+        }, 3000);
 
         title.addEventListener("blur", async () => {
-            title.innerText = title.innerText.replace(/^[\u00A0\s]+|[\u00A0\s]+$/g, '').trim();
+            title.innerText = customTrim(title.innerText)||unsanitize(this.chapter.title);
             await timer.stop(true);
             title.removeAttribute("contenteditable");
             title.removeEventListener('keydown', titleEnterHandler);
             title.removeEventListener("keydown", resetTimer);
         }, {once: true});
+        const resetTimer = async () => {
+            await timer.reset(1000);
+        };
+        title.addEventListener("keydown", resetTimer);
     }
 
 
