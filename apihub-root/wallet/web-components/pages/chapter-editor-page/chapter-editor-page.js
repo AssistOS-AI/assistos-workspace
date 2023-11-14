@@ -9,9 +9,9 @@ export class chapterEditorPage{
         this.element = element;
         let documentId, chapterId;
         [documentId, chapterId] = parseURL();
-        webSkel.space.currentDocumentId = documentId;
-        webSkel.space.currentChapterId = chapterId;
-        this._document = webSkel.space.getDocument(documentId);
+        webSkel.currentUser.space.currentDocumentId = documentId;
+        webSkel.currentUser.space.currentChapterId = chapterId;
+        this._document = webSkel.currentUser.space.getDocument(documentId);
         this._chapter = this._document.getChapter(chapterId);
         this.element.addEventListener('keydown', (event) => this.addParagraphOnCtrlEnter(event));
         let controller = new AbortController();
@@ -36,7 +36,7 @@ export class chapterEditorPage{
         let selectedParagraphs = this.element.querySelectorAll(".paragraph-text");
         let currentParagraph = null;
         selectedParagraphs.forEach(paragraph => {
-            if (reverseQuerySelector(paragraph, '[data-paragraph-id]').getAttribute("data-paragraph-id") === webSkel.space.currentParagraphId) {
+            if (reverseQuerySelector(paragraph, '[data-paragraph-id]').getAttribute("data-paragraph-id") === webSkel.currentUser.space.currentParagraphId) {
                 this.currentParagraph = paragraph;
             }
         });
@@ -70,7 +70,7 @@ export class chapterEditorPage{
             if(this.currentParagraph!==this.paragraphUnit) {
                 this.deselectPreviousParagraph();
                 this.currentParagraph = this.paragraphUnit;
-                webSkel.space.currentParagraphId = this.paragraphUnit.getAttribute("data-paragraph-id");
+                webSkel.currentUser.space.currentParagraphId = this.paragraphUnit.getAttribute("data-paragraph-id");
                 this.switchParagraphArrowsDisplay(this.paragraphUnit, "on");
             }
         } else {
@@ -102,11 +102,11 @@ export class chapterEditorPage{
         let newParagraphId= webSkel.getService("UtilsService").generateId();
         let position = chapter.paragraphs.length;
         debugger;
-        if(webSkel.space.currentParagraphId){
-            position = chapter.getParagraphIndex(webSkel.space.currentParagraphId) + 1;
+        if(webSkel.currentUser.space.currentParagraphId){
+            position = chapter.getParagraphIndex(webSkel.currentUser.space.currentParagraphId) + 1;
         }
         await this._document.addParagraph(chapter, {id: newParagraphId, text:""}, position);
-        webSkel.space.currentParagraphId = newParagraphId;
+        webSkel.currentUser.space.currentParagraphId = newParagraphId;
         let controller = new AbortController();
         document.addEventListener("click",this.checkParagraphClick.bind(this, controller), {signal:controller.signal});
         this.invalidate();
@@ -147,7 +147,7 @@ export class chapterEditorPage{
             paragraph.focus();
             this.currentParagraph=paragraph;
             let currentParagraphId = paragraphUnit.getAttribute("data-paragraph-id");
-            webSkel.space.currentParagraphId = currentParagraphId;
+            webSkel.currentUser.space.currentParagraphId = currentParagraphId;
             let currentParagraph = this._chapter.getParagraph(currentParagraphId);
             let timer = new SaveElementTimer(async () => {
                 if (!currentParagraph) {
@@ -180,7 +180,7 @@ export class chapterEditorPage{
     }
     deselectPreviousParagraph(){
         if(this.currentParagraph){
-            webSkel.space.currentParagraphId = null;
+            webSkel.currentUser.space.currentParagraphId = null;
             this.switchParagraphArrowsDisplay(this.currentParagraph, "off");
             delete this.currentParagraph;
         }
@@ -202,9 +202,9 @@ export class chapterEditorPage{
         const chapterId = this.chapterId;
 
         if (this._chapter.swapParagraphs(currentParagraphId, adjacentParagraphId)) {
-            await documentFactory.updateDocument(currentSpaceId, this._document);
+            await documentFactory.updateDocument(webSkel.currentUser.space.id, this._document);
             this.invalidate();
-            webSkel.space.currentParagraphId = currentParagraphId;
+            webSkel.currentUser.space.currentParagraphId = currentParagraphId;
         } else {
             console.error(`Unable to swap paragraphs. ${currentParagraphId}, ${adjacentParagraphId}, Chapter: ${chapterId}`);
         }

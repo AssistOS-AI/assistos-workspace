@@ -3,7 +3,7 @@ import {getClosestParentElement, parseURL, reverseQuerySelector, SaveElementTime
 export class documentViewPage {
     constructor(element, invalidate) {
         this.element = element;
-        this._document = webSkel.space.getDocument(parseURL());
+        this._document = webSkel.currentUser.space.getDocument(parseURL());
         this._document.observeChange(this._document.getNotificationId() + ":document-view-page", invalidate);
         this._document.observeChange(this._document.getNotificationId() + ":refresh", invalidate);
         this.invalidate = invalidate;
@@ -42,7 +42,7 @@ export class documentViewPage {
             this.previouslySelectedParagraph = this.paragraphUnit;
             this.previouslySelectedChapter = this.chapterUnit;
             this.displaySidebar("paragraph-sidebar");
-            webSkel.space.currentParagraphId = this.paragraphUnit.getAttribute("data-paragraph-id");
+            webSkel.currentUser.space.currentParagraphId = this.paragraphUnit.getAttribute("data-paragraph-id");
             this.switchArrowsDisplay(this.paragraphUnit, "paragraph", "on");
             this.highlightChapter();
         }else if(this.chapterUnit){
@@ -69,7 +69,7 @@ export class documentViewPage {
 
     deselectPreviousParagraph(){
         if(this.previouslySelectedParagraph){
-            webSkel.space.currentParagraphId = null;
+            webSkel.currentUser.space.currentParagraphId = null;
             this.switchArrowsDisplay(this.previouslySelectedParagraph, "paragraph");
             delete this.previouslySelectedParagraph;
         }
@@ -79,14 +79,14 @@ export class documentViewPage {
         if(this.previouslySelectedChapter){
             this.switchArrowsDisplay(this.previouslySelectedChapter, "chapter");
             this.previouslySelectedChapter.removeAttribute("id");
-            webSkel.space.currentChapterId = null;
+            webSkel.currentUser.space.currentChapterId = null;
             delete this.previouslySelectedChapter;
         }
     }
     highlightChapter(){
         this.chapterUnit.setAttribute("id", "highlighted-chapter");
         this.switchArrowsDisplay(this.chapterUnit, "chapter", "on");
-        webSkel.space.currentChapterId = this.chapterUnit.getAttribute("data-chapter-id");
+        webSkel.currentUser.space.currentChapterId = this.chapterUnit.getAttribute("data-chapter-id");
     }
 
     switchArrowsDisplay(target, type, mode) {
@@ -171,24 +171,24 @@ export class documentViewPage {
             ]
         }
         let position = this._document.chapters.length;
-        if(webSkel.space.currentChapterId){
-            position = this._document.chapters.findIndex(chapter => chapter.id === webSkel.space.currentChapterId) + 1;
+        if(webSkel.currentUser.space.currentChapterId){
+            position = this._document.chapters.findIndex(chapter => chapter.id === webSkel.currentUser.space.currentChapterId) + 1;
         }
         await this._document.addChapter(chapterData, position);
-        webSkel.space.currentChapterId = chapterData.id;
-        webSkel.space.currentParagraphId = chapterData.paragraphs[0].id;
+        webSkel.currentUser.space.currentChapterId = chapterData.id;
+        webSkel.currentUser.space.currentParagraphId = chapterData.paragraphs[0].id;
         this.invalidate();
     }
     async addParagraph(_target){
-        let chapter = this._document.getChapter(webSkel.space.currentChapterId);
+        let chapter = this._document.getChapter(webSkel.currentUser.space.currentChapterId);
         let newParagraphId= webSkel.getService("UtilsService").generateId();
         let position = chapter.paragraphs.length;
-        if(webSkel.space.currentParagraphId){
-            position = chapter.getParagraphIndex(webSkel.space.currentParagraphId) + 1;
+        if(webSkel.currentUser.space.currentParagraphId){
+            position = chapter.getParagraphIndex(webSkel.currentUser.space.currentParagraphId) + 1;
         }
         await this._document.addParagraph(chapter, {id: newParagraphId, text:""}, position);
-        webSkel.space.currentParagraphId = newParagraphId;
-        webSkel.space.currentChapterId = chapter.id;
+        webSkel.currentUser.space.currentParagraphId = newParagraphId;
+        webSkel.currentUser.space.currentChapterId = chapter.id;
         this._document.notifyObservers(this._document.getNotificationId() + ":document-view-page:" + "chapter:" + `${chapter.id}`);
     }
 
@@ -235,32 +235,32 @@ export class documentViewPage {
 
     async openChapterBrainstormingPage() {
         await webSkel.changeToDynamicPage("chapter-brainstorming-page",
-            `documents/${this._document.id}/chapter-brainstorming-page/${webSkel.space.currentChapterId}`);
+            `documents/${this._document.id}/chapter-brainstorming-page/${webSkel.currentUser.space.currentChapterId}`);
 
     }
 
     async openManageParagraphsPage() {
         await webSkel.changeToDynamicPage("manage-paragraphs-page",
-            `documents/${this._document.id}/manage-paragraphs-page/${webSkel.space.currentChapterId}`);
+            `documents/${this._document.id}/manage-paragraphs-page/${webSkel.currentUser.space.currentChapterId}`);
     }
 
     async openParagraphProofreadPage() {
         await webSkel.changeToDynamicPage("paragraph-proofread-page",
-            `documents/${this._document.id}/paragraph-proofread-page/${webSkel.space.currentChapterId}/${webSkel.space.currentParagraphId}`);
+            `documents/${this._document.id}/paragraph-proofread-page/${webSkel.currentUser.space.currentChapterId}/${webSkel.currentUser.space.currentParagraphId}`);
     }
 
     async openParagraphBrainstormingPage() {
         await webSkel.changeToDynamicPage("paragraph-brainstorming-page",
-            `documents/${this._document.id}/paragraph-brainstorming-page/${webSkel.space.currentChapterId}/${webSkel.space.currentParagraphId}`);
+            `documents/${this._document.id}/paragraph-brainstorming-page/${webSkel.currentUser.space.currentChapterId}/${webSkel.currentUser.space.currentParagraphId}`);
     }
     async openEditChapterTitlePage() {
         await webSkel.changeToDynamicPage("chapter-title-page",
-            `documents/${this._document.id}/chapter-title-page/${webSkel.space.currentChapterId}`);
+            `documents/${this._document.id}/chapter-title-page/${webSkel.currentUser.space.currentChapterId}`);
     }
     async openDocumentViewPage(){
         await webSkel.changeToDynamicPage("document-view-page", `documents/${this._document.id}/document-view-page`);
     }
     async openChapterEditor(){
-        await webSkel.changeToDynamicPage("chapter-editor-page", `documents/${this._document.id}/chapter-editor-page/${webSkel.space.currentChapterId}`);
+        await webSkel.changeToDynamicPage("chapter-editor-page", `documents/${this._document.id}/chapter-editor-page/${webSkel.currentUser.space.currentChapterId}`);
     }
 }

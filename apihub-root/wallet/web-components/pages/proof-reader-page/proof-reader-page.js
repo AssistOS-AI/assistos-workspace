@@ -17,7 +17,7 @@ export class proofReaderPage {
             this.selectedPersonality = `<option value="${this.personality.id}" selected>${this.personality.name}</option>`
         }
         let stringHTML = "";
-        for(let personality of webSkel.space.personalities){
+        for(let personality of webSkel.currentUser.space.personalities){
             stringHTML+=`<option value=${personality.id}>${personality.name}</option>`;
         }
         this.personalitiesOptions = stringHTML;
@@ -46,9 +46,9 @@ export class proofReaderPage {
         const addressLLMRequest = async (formData)=>{
             if(formData){
                 this.prompt = formData.data.prompt;
-                this.personality = webSkel.space.getPersonality(formData.data.personality);
+                this.personality = webSkel.currentUser.space.getPersonality(formData.data.personality);
             }
-            let scriptId = webSkel.space.getScriptIdByName("proofreader script");
+            let scriptId = webSkel.currentUser.space.getScriptIdByName("proofreader script");
             let result = await webSkel.getService("LlmsService").callScript(scriptId, this.prompt, this.personality.name, this.personality.description);
             this.observations = result.responseJson.observations;
             this.generatedText = result.responseJson.improvedText;

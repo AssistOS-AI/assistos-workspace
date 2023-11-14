@@ -13,20 +13,20 @@ async function loadPage() {
     if(url === "" || url === null || url === "#space-page") {
         url = "#space-page/announcements-page";
     }
+    let leftSidebar = document.querySelector("#app-left-sidebar");
     let presenterName;
         /* URL examples: documents/0, documents/0/chapters/1 */
         switch(url.split('/')[0]) {
             case "#documents": {
-                /* custom getURlParams func*/
+                leftSidebar.style.visibility = "visible";
                 let documentIdURL = url.split('/')[1];
                 presenterName = url.split('/')[2];
                 let chapterIdURL = url.split('/')[3];
                 let paragraphIdURL = url.split('/')[4];
-                /* To be replaced with space id from URL */
-                if (await storageManager.loadObject(currentSpaceId, "documents", documentIdURL) !== null) {
-                    webSkel.space.currentDocumentId = documentIdURL;
-                    webSkel.space.currentChapterId = chapterIdURL;
-                    webSkel.space.currentParagraphId = paragraphIdURL;
+                if (await storageManager.loadObject(webSkel.currentUser.space.id, "documents", documentIdURL) !== null) {
+                    webSkel.currentUser.space.currentDocumentId = documentIdURL;
+                    webSkel.currentUser.space.currentChapterId = chapterIdURL;
+                    webSkel.currentUser.space.currentParagraphId = paragraphIdURL;
                 }
                 changeSelectedPageFromSidebar("documents-page");
                 break;
@@ -37,7 +37,8 @@ async function loadPage() {
                 break;
             }
             case "#space-page":{
-                changeSelectedPageFromSidebar(url.split("/")[0]);
+                leftSidebar.style.visibility = "visible";
+                changeSelectedPageFromSidebar("space-page");
                 if(url.split("/")[1] === "edit-personality-page"){
                     presenterName = url.split("/")[1];
                 }else {
@@ -47,17 +48,20 @@ async function loadPage() {
                 break;
             }
             case "#chatbots-page":{
+                leftSidebar.style.visibility = "visible";
+                changeSelectedPageFromSidebar("chatbots-page");
                 presenterName = url.split("/")[0];
                 presenterName = presenterName.slice(1);
                 break;
             }
             default: {
                 /*#proofReader, #documents */
+                leftSidebar.style.visibility = "visible";
                 changeSelectedPageFromSidebar(url);
                 presenterName = url.slice(1);
-                webSkel.space.currentDocumentId = null;
-                webSkel.space.currentChapterId = null;
-                webSkel.space.currentParagraphId = null;
+                webSkel.currentUser.space.currentDocumentId = null;
+                webSkel.currentUser.space.currentChapterId = null;
+                webSkel.currentUser.space.currentParagraphId = null;
                 break;
             }
         }

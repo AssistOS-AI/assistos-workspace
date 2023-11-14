@@ -9,7 +9,7 @@ export class manageParagraphsPage {
         this.element = element;
         let documentId, chapterId;
         [documentId, chapterId] = parseURL();
-        this._document = webSkel.space.getDocument(documentId);
+        this._document = webSkel.currentUser.space.getDocument(documentId);
         this._chapter = this._document.getChapter(chapterId);
         this._document.observeChange(this._document.getNotificationId() + ":manage-paragraphs-page", invalidate);
         this.invalidate = invalidate;

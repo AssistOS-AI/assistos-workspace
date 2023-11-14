@@ -72,11 +72,10 @@ export class Space {
         return "space";
     }
 
-    changeSpace(spaceId) {
-        window.currentSpaceId = spaceId;
-        let user = JSON.parse(webSkel.getService("AuthenticationService").getCachedCurrentUser());
-        user.currentSpaceId = currentSpaceId;
-        webSkel.getService("AuthenticationService").setCachedCurrentUser(user);
+    async changeSpace(spaceId) {
+        let user = JSON.parse(await storageManager.loadUser(webSkel.currentUser.id));
+        user.currentSpaceId = spaceId;
+        await storageManager.storeUser(user.id,JSON.stringify(user));
         window.location = "";
     }
 
@@ -98,21 +97,21 @@ export class Space {
     }
    async addDocument(documentData,locationRedirect="document-view-page") {
         let newDocument=documentFactory.createDocument(documentData)
-        await documentFactory.addDocument(currentSpaceId, newDocument);
-        webSkel.space.currentDocumentId = newDocument.id;
+        await documentFactory.addDocument(webSkel.currentUser.space.id, newDocument);
+        webSkel.currentUser.space.currentDocumentId = newDocument.id;
         await webSkel.changeToDynamicPage(`${locationRedirect}`, `documents/${newDocument.id}/${locationRedirect}`);
     }
     async addPersonality(personalityData) {
         let personalityObj = new Personality(personalityData);
         this.personalities.push(personalityObj);
-        await storageManager.storeObject(currentSpaceId, "personalities", personalityObj.id, JSON.stringify(personalityObj,null,2));
-        //await storageManager.storeObject(currentSpaceId, "status", "status", JSON.stringify(webSkel.space.getSpaceStatus(),null,2));
+        await storageManager.storeObject(webSkel.currentUser.space.id, "personalities", personalityObj.id, JSON.stringify(personalityObj,null,2));
+        //await storageManager.storeObject(webSkel.currentUser.space.id, "status", "status", JSON.stringify(webSkel.currentUser.space.getSpaceStatus(),null,2));
     }
 
     async updatePersonality(personalityData, id){
         let personality = this.getPersonality(id);
         personality.update(personalityData);
-        await storageManager.storeObject(currentSpaceId, "personalities", id, JSON.stringify(personality,null,2));
+        await storageManager.storeObject(webSkel.currentUser.space.id, "personalities", id, JSON.stringify(personality,null,2));
     }
 
     getPersonality(id){
@@ -120,36 +119,36 @@ export class Space {
     }
     async addAnnouncement(announcementData) {
         this.announcements.unshift(new Announcement(announcementData));
-        await storageManager.storeObject(currentSpaceId, "status", "status", JSON.stringify(webSkel.space.getSpaceStatus(),null,2));
+        await storageManager.storeObject(webSkel.currentUser.space.id, "status", "status", JSON.stringify(webSkel.currentUser.space.getSpaceStatus(),null,2));
     }
     async addScript(scriptData) {
         let scriptObject= new Script(scriptData);
         this.scripts.push(scriptObject);
-        await storageManager.storeObject(currentSpaceId, "scripts", scriptObject.id, JSON.stringify(scriptObject,null,2));
+        await storageManager.storeObject(webSkel.currentUser.space.id, "scripts", scriptObject.id, JSON.stringify(scriptObject,null,2));
     }
 
     deleteDocument(documentId) {
-        webSkel.space.documents = webSkel.space.documents.filter(obj => obj.id !== documentId);
+        webSkel.currentUser.space.documents = webSkel.currentUser.space.documents.filter(obj => obj.id !== documentId);
     }
 
     async deleteAnnouncement(announcementId) {
         this.announcements = this.announcements.filter(announcement=> announcement.id !== announcementId);
-        await storageManager.storeObject(currentSpaceId, "status", "status", JSON.stringify(webSkel.space.getSpaceStatus(),null,2));
+        await storageManager.storeObject(webSkel.currentUser.space.id, "status", "status", JSON.stringify(webSkel.currentUser.space.getSpaceStatus(),null,2));
     }
     async deleteScript(scriptId) {
         this.scripts = this.scripts.filter(script => script.id !== scriptId);
-        await storageManager.storeObject(currentSpaceId, "scripts", scriptId, "");
+        await storageManager.storeObject(webSkel.currentUser.space.id, "scripts", scriptId, "");
     }
     async deletePersonality(personalityId){
         this.personalities = this.personalities.filter(personality => personality.id !== personalityId);
-        await storageManager.storeObject(currentSpaceId, "personalities", personalityId, "");
+        await storageManager.storeObject(webSkel.currentUser.space.id, "personalities", personalityId, "");
     }
 
     async updateAnnouncement(announcementId, content) {
         let announcement = this.getAnnouncement(announcementId);
         if(announcement!==null) {
             announcement.text = content;
-            await storageManager.storeObject(currentSpaceId, "status", "status", JSON.stringify(webSkel.space.getSpaceStatus(),null,2));
+            await storageManager.storeObject(webSkel.currentUser.space.id, "status", "status", JSON.stringify(webSkel.currentUser.space.getSpaceStatus(),null,2));
         }else{
             console.error("Failed to update announcement, announcement not found.");
         }
@@ -158,7 +157,7 @@ export class Space {
         let script = this.getScript(scriptId);
         if(script!==null) {
             script.content = content;
-            await storageManager.storeObject(currentSpaceId, "scripts", script.id, JSON.stringify(script,null,2));
+            await storageManager.storeObject(webSkel.currentUser.space.id, "scripts", script.id, JSON.stringify(script,null,2));
         }else{
             console.error("Failed to update script, script not found.");
         }

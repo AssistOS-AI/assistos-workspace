@@ -27,7 +27,7 @@ export class spacePage {
     }
 
     beforeRender() {
-     this.spaceName = webSkel.space.name;
+     this.spaceName = webSkel.currentUser.space.name;
 
      switch (this.tab){
          case "announcements-page":{

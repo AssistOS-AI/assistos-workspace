@@ -8,17 +8,31 @@ export class spaceDropdown {
         this.element = element;
         this.invalidate=invalidate;
         this.invalidate();
+        this.user = JSON.parse(webSkel.getService("AuthenticationService").getCachedCurrentUser());
     }
 
     beforeRender() {
-        this.spacesDiv = "";
-        if(webSkel.space){
-            this.currentSpaceName = webSkel.space.name;
-            currentUser.spaces.filter(space => space.id !== currentSpaceId).forEach((space) => {
-                this.spacesDiv += `<space-unit data-space-name="${space.name}" data-space-id="${space.id}"></space-unit>`;
-            });
+        if(this.user)
+        {
+            this.currentSpaceName = webSkel.currentUser.space.name;
         }
+    }
+    afterRender(){
+        let spacesList = this.element.querySelector(".spaces-list");
+        setTimeout(async ()=>{
+            if(this.user)
+            {
+                let userId = this.user.id;
+                this.userSpaces = JSON.parse(await webSkel.getService("AuthenticationService").getStoredUser(userId)).spaces;
+                this.spacesDiv = "";
 
+                this.userSpaces.filter(space => space.id !== webSkel.currentUser.space.id).forEach((space) => {
+                    this.spacesDiv += `<space-unit data-space-name="${space.name}" data-space-id="${space.id}"></space-unit>`;
+                });
+                spacesList.insertAdjacentHTML("afterbegin",this.spacesDiv);
+            }
+            //else will be redirected to auth page
+        },0);
     }
 
     hideSpaces(controller, event) {
@@ -37,7 +51,7 @@ export class spaceDropdown {
     changeSpace(_target) {
         let selectedSpace = getClosestParentElement(_target,['space-unit']);
         let selectedSpaceId = selectedSpace.getAttribute('data-space-id');
-        webSkel.space.changeSpace(selectedSpaceId);
+        webSkel.currentUser.space.changeSpace(selectedSpaceId);
     }
 
     async addSpace(){

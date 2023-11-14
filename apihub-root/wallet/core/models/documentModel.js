@@ -67,7 +67,7 @@ export class DocumentModel {
     async addChapter(chapterData, position=0) {
         //if position is not specified splice converts undefined to 0
         this.chapters.splice(position,0,new Chapter(chapterData));
-        await documentFactory.updateDocument(currentSpaceId, this);
+        await documentFactory.updateDocument(webSkel.currentUser.space.id, this);
     }
 
     async addChapters(chaptersData, ideas){
@@ -81,7 +81,7 @@ export class DocumentModel {
             this.chapters.push(newChapter);
             newChapter.addParagraphs(chaptersData[i].paragraphs);
         }
-        await documentFactory.updateDocument(currentSpaceId, this);
+        await documentFactory.updateDocument(webSkel.currentUser.space.id, this);
     }
     async addEmptyChapters(chaptersData, ideas){
         for(let i= 0; i < chaptersData.titles.length; i++){
@@ -93,7 +93,7 @@ export class DocumentModel {
             let newChapter = new Chapter(chapterData);
             this.chapters.push(newChapter);
         }
-        await documentFactory.updateDocument(currentSpaceId, this);
+        await documentFactory.updateDocument(webSkel.currentUser.space.id, this);
     }
     setCurrentChapter(chapterId) {
         this.currentChapterId = chapterId;
@@ -105,7 +105,7 @@ export class DocumentModel {
 
     async addAlternativeAbstract(abstractObj){
         this.alternativeAbstracts.push(abstractObj);
-        await documentFactory.updateDocument(currentSpaceId, this);
+        await documentFactory.updateDocument(webSkel.currentUser.space.id, this);
     }
 
     deleteAlternativeAbstract(id){
@@ -120,7 +120,7 @@ export class DocumentModel {
         let abstract = this.getAlternativeAbstract(id);
         if(abstract){
             abstract.content = newContent;
-            await documentFactory.updateDocument(currentSpaceId, this);
+            await documentFactory.updateDocument(webSkel.currentUser.space.id, this);
         }else {
             console.warn(`Failed to find alternative abstract with id: ${id}`);
         }
@@ -128,7 +128,7 @@ export class DocumentModel {
 
     async addAlternativeTitle(obj){
         this.alternativeTitles.push(obj);
-        await documentFactory.updateDocument(currentSpaceId, this);
+        await documentFactory.updateDocument(webSkel.currentUser.space.id, this);
     }
 
     getMainIdeas() {
@@ -136,7 +136,7 @@ export class DocumentModel {
     }
     async setMainIdeas(ideas){
         this.mainIdeas = ideas;
-        await documentFactory.updateDocument(currentSpaceId, this);
+        await documentFactory.updateDocument(webSkel.currentUser.space.id, this);
     }
     addMainIdea(mainIdea) {
         this.mainIdeas.push(mainIdea);
@@ -144,7 +144,7 @@ export class DocumentModel {
 
     async updateAbstract(abstractText) {
         this.abstract = abstractText;
-        await documentFactory.updateDocument(currentSpaceId, this);
+        await documentFactory.updateDocument(webSkel.currentUser.space.id, this);
     }
 
     /* left shift(decrement) the ids to the right of the deleted chapter? */
@@ -152,7 +152,7 @@ export class DocumentModel {
         const index = this.chapters.findIndex(chapter => chapter.id === chapterId);
         if (index !== -1) {
             this.chapters.splice(index, 1);
-            await documentFactory.updateDocument(currentSpaceId, this);
+            await documentFactory.updateDocument(webSkel.currentUser.space.id, this);
         }
     }
 
@@ -184,7 +184,7 @@ export class DocumentModel {
 
     async updateTitle(title) {
         this.title = title;
-        await documentFactory.updateDocument(currentSpaceId, this);
+        await documentFactory.updateDocument(webSkel.currentUser.space.id, this);
     }
 
     async updateAlternativeTitle(id, newName) {
@@ -194,7 +194,7 @@ export class DocumentModel {
         }else {
             console.error(`Failed to find altTitle with id: ${id}`);
         }
-        await documentFactory.updateDocument(currentSpaceId, this);
+        await documentFactory.updateDocument(webSkel.currentUser.space.id, this);
     }
 
     deleteAlternativeTitle(id) {
@@ -208,17 +208,17 @@ export class DocumentModel {
 
     async setChapterMainIdeas(chapter, ideas){
         chapter.setMainIdeas(ideas);
-        await documentFactory.updateDocument(currentSpaceId, this);
+        await documentFactory.updateDocument(webSkel.currentUser.space.id, this);
     }
 
     async updateChapterAlternativeTitle(chapter, altTileId, title){
         chapter.updateAlternativeTitle(altTileId, title);
-        await documentFactory.updateDocument(currentSpaceId, this);
+        await documentFactory.updateDocument(webSkel.currentUser.space.id, this);
     }
 
     async addParagraph(chapter, paragraphData, position){
         chapter.addParagraph(paragraphData, position);
-        await documentFactory.updateDocument(currentSpaceId, this);
+        await documentFactory.updateDocument(webSkel.currentUser.space.id, this);
     }
 
     async addParagraphs(chapter, paragraphsData, ideas){
@@ -230,46 +230,46 @@ export class DocumentModel {
             });
         }
         chapter.addParagraphs(data);
-        await documentFactory.updateDocument(currentSpaceId, this);
+        await documentFactory.updateDocument(webSkel.currentUser.space.id, this);
     }
 
     async deleteParagraph(chapter, id){
         chapter.deleteParagraph(id);
-        await documentFactory.updateDocument(currentSpaceId, this);
+        await documentFactory.updateDocument(webSkel.currentUser.space.id, this);
     }
 
     async setParagraphMainIdea(paragraph, text){
         paragraph.setMainIdea(text);
-        await documentFactory.updateDocument(currentSpaceId, this);
+        await documentFactory.updateDocument(webSkel.currentUser.space.id, this);
     }
 
     async updateParagraph(paragraph, alternativeParagraph){
         paragraph.updateText(alternativeParagraph.text);
         paragraph.setMainIdea(alternativeParagraph.mainIdea);
-        await documentFactory.updateDocument(currentSpaceId, this);
+        await documentFactory.updateDocument(webSkel.currentUser.space.id, this);
     }
 
     async updateParagraphText(paragraph, text){
         paragraph.updateText(text);
-        await documentFactory.updateDocument(currentSpaceId, this);
+        await documentFactory.updateDocument(webSkel.currentUser.space.id, this);
     }
     async addAlternativeParagraph(paragraph, altParagraphData){
         paragraph.addAlternativeParagraph(altParagraphData);
-        await documentFactory.updateDocument(currentSpaceId, this);
+        await documentFactory.updateDocument(webSkel.currentUser.space.id, this);
     }
 
     async updateAlternativeParagraph(paragraph, altParagraphId, text){
         paragraph.updateAlternativeParagraph(altParagraphId, text);
-        await documentFactory.updateDocument(currentSpaceId, this);
+        await documentFactory.updateDocument(webSkel.currentUser.space.id, this);
     }
 
     async deleteAlternativeParagraph(paragraph, altParagraphId){
         paragraph.deleteAlternativeParagraph(altParagraphId);
-        await documentFactory.updateDocument(currentSpaceId, this);
+        await documentFactory.updateDocument(webSkel.currentUser.space.id, this);
     }
     async deleteAlternativeChapter(chapter,alternativeChapterId){
         chapter.deleteAlternativeChapter(alternativeChapterId);
-        await documentFactory.updateDocument(currentSpaceId,this);
+        await documentFactory.updateDocument(webSkel.currentUser.space.id,this);
     }
 
     getAlternativeTitleIndex(alternativeTitleId) {
@@ -285,7 +285,7 @@ export class DocumentModel {
             this.title = this.alternativeTitles[alternativeTitleIndex].name;
             this.alternativeTitles.splice(alternativeTitleIndex, 1);
             this.alternativeTitles.splice(alternativeTitleIndex,0,{id: webSkel.servicesRegistry.UtilsService.generateId(), name: currentTitle});
-            await documentFactory.updateDocument(currentSpaceId, this);
+            await documentFactory.updateDocument(webSkel.currentUser.space.id, this);
         }else{
             console.warn("Attempting to select alternative title that doesn't exist in this document.");
         }
@@ -297,7 +297,7 @@ export class DocumentModel {
             this.abstract = this.alternativeAbstracts[alternativeAbstractIndex].content;
             this.alternativeAbstracts.splice(alternativeAbstractIndex, 1);
             this.alternativeAbstracts.splice(alternativeAbstractIndex,0,{id: webSkel.servicesRegistry.UtilsService.generateId(), content: currentAbstract});
-            await documentFactory.updateDocument(currentSpaceId, this);
+            await documentFactory.updateDocument(webSkel.currentUser.space.id, this);
         }else{
             console.warn("Attempting to select alternative abstract that doesn't exist in this document.");
         }
@@ -315,12 +315,12 @@ export class DocumentModel {
 
         this.chapters[currentChapterIndex].alternativeChapters = backupAlternativeChapters;
 
-        await documentFactory.updateDocument(currentSpaceId, this);
+        await documentFactory.updateDocument(webSkel.currentUser.space.id, this);
     }
 
     async updateChapterTitle(chapter, newTitle){
         chapter.updateTitle(newTitle);
-        await documentFactory.updateDocument(currentSpaceId, this);
+        await documentFactory.updateDocument(webSkel.currentUser.space.id, this);
     }
 
     getNotificationId() {

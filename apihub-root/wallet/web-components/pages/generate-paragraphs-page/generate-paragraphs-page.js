@@ -4,7 +4,7 @@ export class generateParagraphsPage {
         this.element = element;
         let documentId, chapterId;
         [documentId, chapterId] = parseURL();
-        this._document = webSkel.space.getDocument(documentId);
+        this._document = webSkel.currentUser.space.getDocument(documentId);
         this._chapter = this._document.getChapter(chapterId);
         this.invalidate = invalidate;
         this.invalidate();
@@ -51,7 +51,7 @@ export class generateParagraphsPage {
         let form = this.element.querySelector(".generate-ideas-form");
         let formInfo = await extractFormInformation(form);
         if(formInfo.isValid) {
-            let scriptId = webSkel.space.getScriptIdByName("generate ideas");
+            let scriptId = webSkel.currentUser.space.getScriptIdByName("generate ideas");
             let result = await webSkel.getService("LlmsService").callScript(scriptId, formInfo.data.idea);
             this.ideas= result.responseJson;
             this.invalidate();
@@ -61,7 +61,7 @@ export class generateParagraphsPage {
 
     async generateParagraphs(_target){
         let formInfo = await extractFormInformation(_target);
-        let scriptId = webSkel.space.getScriptIdByName("generate paragraphs");
+        let scriptId = webSkel.currentUser.space.getScriptIdByName("generate paragraphs");
         let selectedIdeas = [];
         for (const [key, value] of Object.entries(formInfo.elements)) {
             if(value.element.checked) {

@@ -6,13 +6,13 @@ import {
 export class summarizeDocumentModal{
     constructor(element,invalidate){
         this.documentId=parseURL();
-        this._document = webSkel.space.getDocument(this.documentId);
+        this._document = webSkel.currentUser.space.getDocument(this.documentId);
         this._document.observeChange(this._document.getNotificationId(), invalidate);
         this.invalidate = invalidate;
         this.element = element;
 
         setTimeout(async()=>{
-            let scriptId = webSkel.space.getScriptIdByName("summarize");
+            let scriptId = webSkel.currentUser.space.getScriptIdByName("summarize");
             let result = await webSkel.getService("LlmsService").callScript(scriptId, this._document.stringifyDocument());
             this.documentMainIdeas = result.responseJson;
             this.invalidate();

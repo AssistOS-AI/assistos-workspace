@@ -23,8 +23,8 @@ export class addAnnouncementModal {
                 text:formInfo.data.text,
                 date: new Date().toISOString().split('T')[0],
             };
-            await webSkel.space.addAnnouncement(announcementData);
-            webSkel.space.notifyObservers(webSkel.space.getNotificationId());
+            await webSkel.currentUser.space.addAnnouncement(announcementData);
+            webSkel.currentUser.space.notifyObservers(webSkel.currentUser.space.getNotificationId());
             closeModal(_target);
         }
     }

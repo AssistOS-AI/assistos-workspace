@@ -6,7 +6,7 @@ export class chatbotsPage {
         this.invalidate=invalidate;
         this.invalidate();
         let personalityId = parseURL();
-        this.personality = webSkel.space.getPersonality(personalityId);
+        this.personality = webSkel.currentUser.space.getPersonality(personalityId);
         this.cachedHistory = [];
         // this.history = [
         // {role: 'user', content: 'hello'},
@@ -53,9 +53,9 @@ export class chatbotsPage {
         this.conversation = this.element.querySelector(".conversation");
         this.emotionContainer = this.element.querySelector(".emotion");
         this.userInput = this.element.querySelector("#input");
-        let boundFn = this.preventRefreshOnEnter.bind(this);
-        this.userInput.removeEventListener("keypress", boundFn);
-        this.userInput.addEventListener("keypress", boundFn);
+        this.userInput.removeEventListener("keypress", this.boundFn);
+        this.boundFn = this.preventRefreshOnEnter.bind(this);
+        this.userInput.addEventListener("keypress", this.boundFn);
     }
     displayMessage(role, text){
         let reply;
@@ -99,7 +99,7 @@ export class chatbotsPage {
         if(count < 500){
             return;
         }
-      let scriptId = webSkel.space.getScriptIdByName("summarize conversation");
+      let scriptId = webSkel.currentUser.space.getScriptIdByName("summarize conversation");
       let response = await webSkel.getService("LlmsService").callScript(scriptId, JSON.stringify(this.history));
       this.history = [];
       this.history.push(response.responseJson.summary[0]);
@@ -111,7 +111,7 @@ export class chatbotsPage {
         formInfo.elements.input.element.value = "";
         this.displayMessage("user",input);
         this.displayEmotion(this.defaultEmotion);
-        let scriptId = webSkel.space.getScriptIdByName("chatbots");
+        let scriptId = webSkel.currentUser.space.getScriptIdByName("chatbots");
         await this.summarizeConversation();
         let response = await webSkel.getService("LlmsService").callScript(scriptId, formInfo.data.input, this.personality.name, this.personality.description, this.history);
 

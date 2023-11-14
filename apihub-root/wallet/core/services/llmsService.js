@@ -20,7 +20,7 @@ export class LlmsService {
     }
     /*scriptId, scriptParams */
     async callScript(...args){
-        let script =webSkel.space.getScript(args[0]);
+        let script =webSkel.currentUser.space.getScript(args[0]);
         let scriptCode = eval(script.content);
         args.shift();
         webSkel.getService("FlowsService").registerFlow(script.name, scriptCode);

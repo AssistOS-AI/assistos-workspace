@@ -36,8 +36,8 @@ export class addPersonalityModal {
                     description:formInfo.data.description,
                     image: formInfo.data.photo
             }
-            await webSkel.space.addPersonality(personalityData);
-            webSkel.space.notifyObservers(webSkel.space.getNotificationId());
+            await webSkel.currentUser.space.addPersonality(personalityData);
+            webSkel.currentUser.space.notifyObservers(webSkel.currentUser.space.getNotificationId());
             closeModal(_target);
         }
     }

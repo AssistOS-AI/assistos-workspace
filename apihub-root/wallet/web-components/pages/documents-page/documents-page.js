@@ -13,8 +13,8 @@ export class documentsPage {
     }
     beforeRender() {
         this.tableRows = "";
-        if(webSkel.space.documents.length > 0) {
-            webSkel.space.documents.forEach((document) => {
+        if(webSkel.currentUser.space.documents.length > 0) {
+            webSkel.currentUser.space.documents.forEach((document) => {
                 this.tableRows += `<document-unit data-name="${document.title}" 
                 data-id="${document.id}" data-local-action="editAction"></document-unit>`;
             });
@@ -36,15 +36,15 @@ export class documentsPage {
         await showModal(document.querySelector("body"), "generate-document-modal", { presenter: "generate-document-modal"});
     }
     async editAction(_target) {
-        webSkel.space.currentDocumentId = this.getDocumentId(_target);
-        await webSkel.changeToDynamicPage("document-view-page",`documents/${webSkel.space.currentDocumentId}/document-view-page`);
+        webSkel.currentUser.space.currentDocumentId = this.getDocumentId(_target);
+        await webSkel.changeToDynamicPage("document-view-page",`documents/${webSkel.currentUser.space.currentDocumentId}/document-view-page`);
     }
     async cloneAction(_target){
-        webSkel.space.currentDocumentId = this.getDocumentId(_target);
+        webSkel.currentUser.space.currentDocumentId = this.getDocumentId(_target);
         await showModal(document.querySelector("body"), "clone-document-modal", { presenter: "clone-document-modal"});
     }
     async deleteAction(_target){
-        await documentFactory.deleteDocument(currentSpaceId, this.getDocumentId(_target));
+        await documentFactory.deleteDocument(webSkel.currentUser.space.id, this.getDocumentId(_target));
         documentFactory.notifyObservers("docs");
     }
 }

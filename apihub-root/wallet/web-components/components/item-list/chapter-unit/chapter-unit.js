@@ -3,7 +3,7 @@ import {parseURL, reverseQuerySelector, SaveElementTimer} from "../../../../impo
 export class chapterUnit {
     constructor(element, invalidate) {
         this.element = element;
-        this._document = webSkel.space.getDocument(parseURL());
+        this._document = webSkel.currentUser.space.getDocument(parseURL());
         let chapterId = this.element.getAttribute("data-chapter-id");
         this.chapter = this._document.getChapter(chapterId);
         this._document.observeChange(this._document.getNotificationId() + ":document-view-page:" + "chapter:" + `${chapterId}`, invalidate);
@@ -33,13 +33,13 @@ export class chapterUnit {
         let selectedParagraphs = this.element.querySelectorAll(".paragraph-text");
         let currentParagraph = "";
         selectedParagraphs.forEach(paragraph => {
-            if (reverseQuerySelector(paragraph, '[data-paragraph-id]').getAttribute("data-paragraph-id") === webSkel.space.currentParagraphId) {
+            if (reverseQuerySelector(paragraph, '[data-paragraph-id]').getAttribute("data-paragraph-id") === webSkel.currentUser.space.currentParagraphId) {
                 currentParagraph = paragraph;
                 currentParagraph.click();
                 currentParagraph.scrollIntoView({behavior: "smooth", block: "center", inline: "nearest"});
             }
         });
-        if (this.chapter.id === webSkel.space.currentChapterId) {
+        if (this.chapter.id === webSkel.currentUser.space.currentChapterId) {
             this.chapterUnit.click();
             this.element.scrollIntoView({behavior: "smooth", block: "center", inline: "nearest"});
         }
@@ -73,8 +73,8 @@ export class chapterUnit {
     async addNewParagraph(paragraphPosition){
         let newParagraphId=webSkel.getService("UtilsService").generateId();
         await this._document.addParagraph(this.chapter, {id: newParagraphId, text:""}, paragraphPosition);
-        webSkel.space.currentChapterId=this.chapter.id;
-        webSkel.space.currentParagraphId=newParagraphId;
+        webSkel.currentUser.space.currentChapterId=this.chapter.id;
+        webSkel.currentUser.space.currentParagraphId=newParagraphId;
         this.invalidate();
     }
 
@@ -113,7 +113,7 @@ export class chapterUnit {
 
     highlightChapter(){
         this.chapterUnit.setAttribute("id", "highlighted-chapter");
-        webSkel.space.currentChapterId = this.chapter.id;
+        webSkel.currentUser.space.currentChapterId = this.chapter.id;
         if(this._document.chapters.length===1){
             return;
         }
@@ -129,7 +129,7 @@ export class chapterUnit {
             paragraph.focus();
 
             let currentParagraphId = paragraphUnit.getAttribute("data-paragraph-id");
-            webSkel.space.currentParagraphId = currentParagraphId;
+            webSkel.currentUser.space.currentParagraphId = currentParagraphId;
             let currentParagraph = this.chapter.getParagraph(currentParagraphId);
             let timer = new SaveElementTimer(async () => {
                 if (!currentParagraph) {
@@ -145,13 +145,13 @@ export class chapterUnit {
                 paragraph.removeEventListener("keydown", resetTimer);
                 await timer.stop(true);
                 paragraph.setAttribute("contenteditable", "false");
-                webSkel.space.currentParagraph = null;
+                webSkel.currentUser.space.currentParagraph = null;
             }, {once: true});
             const resetTimer = async (event) => {
                 if (paragraph.innerText.trim() === "" && event.key === "Backspace") {
                     if (currentParagraph) {
                         await this._document.deleteParagraph(this.chapter, currentParagraphId);
-                        webSkel.space.currentParagraphId = null;
+                        webSkel.currentUser.space.currentParagraphId = null;
                         this.invalidate();
                     }
                     await timer.stop();
@@ -187,7 +187,7 @@ export class chapterUnit {
         const adjacentChapterId = getAdjacentChapterId(currentChapterIndex, this._document.chapters);
 
         if (this._document.swapChapters(currentChapterId, adjacentChapterId)) {
-            await documentFactory.updateDocument(currentSpaceId, this._document);
+            await documentFactory.updateDocument(webSkel.currentUser.space.id, this._document);
             this._document.notifyObservers(`${this._document.getNotificationId()}:refresh`);
         } else {
             console.error(`Unable to swap chapters. ${currentChapterId}, ${adjacentChapterId}`);
@@ -211,9 +211,9 @@ export class chapterUnit {
         const chapterId = reverseQuerySelector(_target, "chapter-unit").getAttribute('data-chapter-id');
 
         if (this.chapter.swapParagraphs(currentParagraphId, adjacentParagraphId)) {
-            await documentFactory.updateDocument(currentSpaceId, this._document);
+            await documentFactory.updateDocument(webSkel.currentUser.space.id, this._document);
             this.invalidate();
-            webSkel.space.currentParagraphId = currentParagraphId;
+            webSkel.currentUser.space.currentParagraphId = currentParagraphId;
         } else {
             console.error(`Unable to swap paragraphs. ${currentParagraphId}, ${adjacentParagraphId}, Chapter: ${chapterId}`);
         }

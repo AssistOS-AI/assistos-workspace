@@ -8,8 +8,8 @@ export class chatbotsSelectPersonalityPage {
     }
     beforeRender() {
         this.personalityBlocks = "";
-        if (webSkel.space.personalities.length > 0) {
-            webSkel.space.personalities.forEach((item) => {
+        if (webSkel.currentUser.space.personalities.length > 0) {
+            webSkel.currentUser.space.personalities.forEach((item) => {
                 this.personalityBlocks += `<personality-unit data-name="${item.name}" data-description="${item.description}" data-id="${item.id}" data-image="${item.image}"></personality-unit>`;
             });
         }else {

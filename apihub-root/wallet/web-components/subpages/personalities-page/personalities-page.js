@@ -7,15 +7,15 @@ export class personalitiesPage {
     constructor(element,invalidate) {
         this.modal = "showAddPersonalityModal";
         this.element = element;
-        this.notificationId = webSkel.space.getNotificationId() +":space-page:personalities-page";
-        webSkel.space.observeChange(this.notificationId,invalidate);
+        this.notificationId = webSkel.currentUser.space.getNotificationId() +":space-page:personalities-page";
+        webSkel.currentUser.space.observeChange(this.notificationId,invalidate);
         this.invalidate=invalidate;
         this.invalidate();
     }
     beforeRender() {
         this.personalityBlocks = "";
-        if (webSkel.space.personalities.length > 0) {
-            webSkel.space.personalities.forEach((item) => {
+        if (webSkel.currentUser.space.personalities.length > 0) {
+            webSkel.currentUser.space.personalities.forEach((item) => {
                 this.personalityBlocks += `<personality-unit data-name="${item.name}" data-description="${item.description}" data-id="${item.id}" data-image="${item.image}"></personality-unit>`;
             });
         }

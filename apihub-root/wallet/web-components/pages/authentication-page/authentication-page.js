@@ -174,12 +174,23 @@ export class authenticationPage {
       }
     }
 
+    sendFormOnEnter(event){
+        if(event.key === "Enter"){
+            event.preventDefault();
+            this.element.querySelector(".wide-btn").click();
+        }
+    }
     afterRender(){
         this.carousel = this.element.querySelector(".images");
         this.dots = this.element.querySelectorAll(".dot");
         setTimeout(async()=>{
            await this.startSlideshow(0);
         });
+        let inputs = this.element.querySelectorAll("input");
+        this.lastInput = inputs[inputs.length-1];
+        this.lastInput.removeEventListener("keypress", this.boundFn);
+        this.boundFn = this.sendFormOnEnter.bind(this);
+        this.lastInput.addEventListener("keypress", this.boundFn);
     }
 
     async startSlideshow(milliseconds){
@@ -238,29 +249,23 @@ export class authenticationPage {
     }
 
     async loginDefaultUser(){
-        currentUser.id ="1101522431685742196611723790234240113112996125581292472522231319144225195232444191";
-        currentUser.spaces = (JSON.parse(await storageManager.loadUser(currentUser.id))).spaces;
+        let currentUserId = "1101522431685742196611723790234240113112996125581292472522231319144225195232444191";
+        let currentUser = JSON.parse(await storageManager.loadUser(currentUserId));
         let users = webSkel.getService("AuthenticationService").getCachedUsers();
         let userObj;
         try {
             users = JSON.parse(users);
             if(users.find(user => user.id === currentUser.id)){
                 await webSkel.getService("AuthenticationService").loginUser("teo@teo", "teo");
-                userObj = JSON.parse(webSkel.getService("AuthenticationService").getCachedCurrentUser());
-                userObj.spaces = currentUser.spaces;
-                webSkel.getService("AuthenticationService").setCachedCurrentUser(userObj);
             }else {
                throw new Error("user not found");
             }
         }catch (e){
             //users not in localStorage yet or not found
             await webSkel.getService("AuthenticationService").loginFirstTimeUser("teo@teo", "teo");
-            userObj = webSkel.getService("AuthenticationService").currentUser;
-            userObj.spaces = currentUser.spaces;
-            webSkel.getService("AuthenticationService").setCachedCurrentUser(userObj);
-            webSkel.getService("AuthenticationService").addCachedUser(userObj);
+            webSkel.getService("AuthenticationService").setCachedCurrentUser({id:currentUser.id,secretToken:currentUser.secretToken});
+            webSkel.getService("AuthenticationService").addCachedUser({id:currentUser.id,secretToken:currentUser.secretToken});
         }
-
         window.location = "";
     }
     async beginRegistration(_target){

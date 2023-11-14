@@ -6,7 +6,7 @@ import {
 export class manageChaptersPage {
     constructor(element, invalidate) {
         this.element = element;
-        this._document = webSkel.space.getDocument(parseURL());
+        this._document = webSkel.currentUser.space.getDocument(parseURL());
         this.invalidate = invalidate;
         this.invalidate();
         this._document.observeChange(this._document.getNotificationId() + ":manage-chapters-page", invalidate);

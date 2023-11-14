@@ -12,7 +12,7 @@ export class editAnnouncementModal {
     }
 
     beforeRender() {
-        let announcement = webSkel.space.getAnnouncement(this.element.getAttribute("data-id"));
+        let announcement = webSkel.currentUser.space.getAnnouncement(this.element.getAttribute("data-id"));
         [this.announcementContent,this.announcementTitle]=[announcement.text,announcement.title];
     }
     closeModal(_target) {
@@ -22,8 +22,8 @@ export class editAnnouncementModal {
     async saveAnnouncement(_target) {
         let textContent = reverseQuerySelector(_target,".modal-body").innerText;
         let announcementId = this.element.getAttribute("data-id");
-        await webSkel.space.updateAnnouncement(announcementId, textContent);
-        webSkel.space.notifyObservers(webSkel.space.getNotificationId());
+        await webSkel.currentUser.space.updateAnnouncement(announcementId, textContent);
+        webSkel.currentUser.space.notifyObservers(webSkel.currentUser.space.getNotificationId());
         closeModal(_target);
     }
 }

@@ -11,7 +11,7 @@ export class chapterBrainstormingPage {
         this.element = element;
         let documentId, chapterId;
         [documentId,chapterId] = parseURL();
-        this._document = webSkel.space.getDocument(documentId);
+        this._document = webSkel.currentUser.space.getDocument(documentId);
         this._chapter = this._document.getChapter(chapterId);
         this._document.observeChange(this._document.getNotificationId() + ":chapter-brainstorming-page", invalidate);
         this.invalidate = invalidate;
@@ -64,7 +64,7 @@ export class chapterBrainstormingPage {
         await webSkel.changeToDynamicPage("document-view-page", `documents/${this._document.id}/document-view-page`);
     }
     async suggestChapter(){
-        let scriptId = webSkel.space.getScriptIdByName("suggest chapter");
+        let scriptId = webSkel.currentUser.space.getScriptIdByName("suggest chapter");
         let result = await webSkel.getService("LlmsService").callScript(scriptId, JSON.stringify(this._chapter.mainIdeas));
         let chapterObj=result.responseJson;
         chapterObj.id=webSkel.servicesRegistry.UtilsService.generateId();
@@ -73,7 +73,7 @@ export class chapterBrainstormingPage {
         }
 
         this._chapter.alternativeChapters.push(new Chapter(chapterObj));
-        await documentFactory.updateDocument(currentSpaceId, this._document);
+        await documentFactory.updateDocument(webSkel.currentUser.space.id, this._document);
         this.invalidate();
     }
     async openCloneChapterModal(){
@@ -85,9 +85,9 @@ export class chapterBrainstormingPage {
     }
     async openParagraphBrainstormingPage(_target) {
         let paragraphId = reverseQuerySelector(_target, "reduced-paragraph-unit").getAttribute("data-id");
-        webSkel.space.currentParagraphId = paragraphId;
+        webSkel.currentUser.space.currentParagraphId = paragraphId;
         await webSkel.changeToDynamicPage("paragraph-brainstorming-page",
-            `documents/${this._document.id}/paragraph-brainstorming-page/${webSkel.space.currentChapterId}/${webSkel.space.currentParagraphId}`);
+            `documents/${this._document.id}/paragraph-brainstorming-page/${webSkel.currentUser.space.currentChapterId}/${webSkel.currentUser.space.currentParagraphId}`);
     }
     async showActionBox(_target, primaryKey, componentName, insertionMode) {
         this.actionBox = await showActionBox(_target, primaryKey, componentName, insertionMode);
@@ -132,7 +132,7 @@ export class chapterBrainstormingPage {
         let alternativeChapterId = alternativeChapter.getAttribute("data-id");
         await this._document.selectAlternativeChapter(this._chapter, alternativeChapterId);
         removeActionBox(this.actionBox, this);
-        webSkel.space.currentChapterId = alternativeChapterId;
+        webSkel.currentUser.space.currentChapterId = alternativeChapterId;
         await webSkel.changeToDynamicPage("chapter-brainstorming-page", `documents/${this._document.id}/chapter-brainstorming-page/${alternativeChapterId}`);
     }
 }

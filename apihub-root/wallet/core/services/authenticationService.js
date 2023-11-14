@@ -13,17 +13,18 @@ export class AuthenticationService{
     constructor() {
     }
     async initUser() {
-        window.currentUser = { id: "" };
-
         const result = this.getCachedCurrentUser();
-
         if(result) {
             let user = JSON.parse(result);
-            window.currentSpaceId = user.currentSpaceId;
+            let currentUser = JSON.parse(await storageManager.loadUser(user.id));
+            webSkel.currentUser = {
+                id:currentUser.id,
+                secretToken: currentUser.secretToken,
+                spaces: currentUser.spaces,
+            }
 
-            currentUser.id = user.id;
-            let spaceData = await storageManager.loadSpace(currentSpaceId);
-            webSkel.space = new Space(JSON.parse(spaceData));
+            let spaceData = await storageManager.loadSpace(currentUser.currentSpaceId || currentUser.spaces[0].id);
+            webSkel.currentUser.space = new Space(JSON.parse(spaceData));
         }
         else {
             if(window.location !== "#authentication-page")
@@ -31,14 +32,8 @@ export class AuthenticationService{
                 window.location.replace("#authentication-page");
             }
             webSkel.setDomElementForPages(mainContent);
-            await webSkel.changeToDynamicPage("authentication-page", "authentication-page");
-            return;
+            //await webSkel.changeToDynamicPage("authentication-page", "authentication-page");
         }
-
-        currentUser.spaces = (JSON.parse(await storageManager.loadUser(currentUser.id))).spaces;
-        let userObj = JSON.parse(this.getCachedCurrentUser());
-        userObj.spaces = currentUser.spaces;
-        this.setCachedCurrentUser(userObj);
     }
     verifyPassword(secretToken, password) {
         //secretToken should be an object with type Buffer or an Uint8Array
@@ -95,14 +90,11 @@ export class AuthenticationService{
         userData.id = webSkel.getService("UtilsService").generateId();
         let defaultSpace = await SpaceFactory.createSpace({name: "Personal Space"});
         userData.spaces = [{name: defaultSpace.name, id: defaultSpace.id}];
-
-        let response = await storageManager.storeUser(userData.id, JSON.stringify(userData));
+        userData.currentSpaceId = defaultSpace.id;
         //const didDocument = await $$.promisify(w3cDID.createIdentity)("key", undefined, randomNr);
         try{
-            response = JSON.parse(response);
-            response.currentSpaceId = defaultSpace.id;
-            this.currentUser = response;
-
+            let result = await storageManager.storeUser(userData.id, JSON.stringify(userData));
+            webSkel.currentUser = JSON.parse(result);
             return true;
         }catch (e){
             console.error(e);
@@ -111,9 +103,9 @@ export class AuthenticationService{
     }
 
     verifyConfirmationLink(){
-        this.addCachedUser(this.currentUser);
-        this.setCachedCurrentUser(this.currentUser);
-        delete this.currentUser;
+        let user = {id:webSkel.currentUser.id, secretToken:webSkel.currentUser.secretToken};
+        this.addCachedUser(user);
+        this.setCachedCurrentUser(user);
     }
 
     async loginUser(email, password){
@@ -129,7 +121,7 @@ export class AuthenticationService{
                     if(user.id === userId) {
                         let secretToken = user.secretToken;
                         if(this.verifyPassword(secretToken, password)) {
-                            this.setCachedCurrentUser({ id: userId, secretToken: secretToken, currentSpaceId: user.currentSpaceId });
+                            this.setCachedCurrentUser({ id: userId, secretToken: secretToken});
                             return true;
                         } else {
                             return false;
@@ -138,7 +130,6 @@ export class AuthenticationService{
                 }
             }
             return false;
-
         }catch (e) {
             console.log(e);
             return false;
@@ -153,7 +144,7 @@ export class AuthenticationService{
             const result = await this.getStoredUser(userId);
             const storedUser = JSON.parse(result);
             if(this.verifyPassword(storedUser.secretToken, password)) {
-                this.currentUser = {
+                webSkel.currentUser = {
                     id: storedUser.id,
                     secretToken: storedUser.secretToken,
                     spaces: storedUser.spaces,
@@ -174,15 +165,12 @@ export class AuthenticationService{
         const userString = await this.getStoredUserByEmail(email);
         try {
             let userObj = JSON.parse(userString);
-            currentUser.id = userObj.id;
             const randomNr = crypto.generateRandom(32);
             userObj.temporarySecretToken = crypto.encrypt(randomNr, crypto.deriveEncryptionKey(password));
             let result = await this.updateStoredUser(userObj);
             try {
                 result = JSON.parse(result);
-                result.currentSpaceId = result.spaces[0].id;
-
-                this.currentUser = result;
+                webSkel.currentUser = result;
                 console.log(result);
 
                 return true;
@@ -197,15 +185,16 @@ export class AuthenticationService{
     }
 
     async confirmRecoverPassword(){
-        const user = JSON.parse(await this.getStoredUser(this.currentUser.id));
+        const user = JSON.parse(await this.getStoredUser(webSkel.currentUser.id));
         user.secretToken = user.temporarySecretToken;
         delete user.temporarySecretToken;
         let result = await this.updateStoredUser(user);
         try {
             result = JSON.parse(result);
-            result.currentSpaceId = this.currentUser.currentSpaceId;
-            delete this.currentUser;
             console.log(result);
+
+            delete result.spaces;
+            delete result.currentSpaceId;
             this.setCachedCurrentUser(result);
             this.deleteCachedUser(result.id);
             this.addCachedUser(result);
@@ -220,11 +209,11 @@ export class AuthenticationService{
         let currentUser = JSON.parse(this.getCachedCurrentUser());
         let user = JSON.parse(await storageManager.loadUser(currentUser.id));
         user.spaces.push({name:newSpace.name, id:newSpace.id});
+        user.currentSpaceId = newSpace.id;
         await storageManager.storeUser(currentUser.id,JSON.stringify(user));
     }
     async getStoredUser(userId){
         return await storageManager.loadUser(userId);
-
     }
 
     async getStoredUserByEmail(email){

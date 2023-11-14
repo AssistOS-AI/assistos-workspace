@@ -12,11 +12,11 @@ export class cloneChapterModal {
 
     beforeRender() {
         let stringHTML = `<option value="copy" selected>Copy</option>`;
-        for (let personality of webSkel.space.personalities) {
+        for (let personality of webSkel.currentUser.space.personalities) {
             stringHTML += `<option value=${personality.id}>${personality.name}</option>`;
         }
         this.personalitiesOptions = stringHTML;
-        this.currentChapterTitle = `[Clone] ${webSkel.space.getDocument(this.documentId).getChapter(this.chapterId).title}`;
+        this.currentChapterTitle = `[Clone] ${webSkel.currentUser.space.getDocument(this.documentId).getChapter(this.chapterId).title}`;
     }
 
     closeModal(_target) {
@@ -31,17 +31,17 @@ export class cloneChapterModal {
         let proofread = formData.data.proofread === "on";
         let personalityDescription="copy";
         if(personalityId!=="copy"){
-            personalityDescription=webSkel.space.personalities.find(personality=>personality.id===personalityId).description;
+            personalityDescription=webSkel.currentUser.space.personalities.find(personality=>personality.id===personalityId).description;
         }
-        let simplifiedChapterJson= JSON.stringify(webSkel.space.getDocument(this.documentId).getChapter(this.chapterId).simplifyChapter());
-        let scriptId = webSkel.space.getScriptIdByName("clone chapter");
+        let simplifiedChapterJson= JSON.stringify(webSkel.currentUser.space.getDocument(this.documentId).getChapter(this.chapterId).simplifyChapter());
+        let scriptId = webSkel.currentUser.space.getScriptIdByName("clone chapter");
         let result = await webSkel.getService("LlmsService").callScript(scriptId,simplifiedChapterJson,personalityDescription, proofread);
         let chapterData = result.responseJson;
         chapterData.title = chapterTitle;
 
-        webSkel.space.getDocument(this.documentId).getChapter(this.chapterId).addAlternativeChapter(chapterData);
-        await documentFactory.updateDocument(currentSpaceId, webSkel.space.getDocument(this.documentId));
-        webSkel.space.getDocument(this.documentId).notifyObservers("doc:chapter-brainstorming-page");
+        webSkel.currentUser.space.getDocument(this.documentId).getChapter(this.chapterId).addAlternativeChapter(chapterData);
+        await documentFactory.updateDocument(webSkel.currentUser.space.id, webSkel.currentUser.space.getDocument(this.documentId));
+        webSkel.currentUser.space.getDocument(this.documentId).notifyObservers("doc:chapter-brainstorming-page");
         closeModal(_target);
     }
 }

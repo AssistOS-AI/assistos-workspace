@@ -7,14 +7,14 @@ import {
 export class suggestChapterTitlesModal {
     constructor(element, invalidate) {
         this.element = element;
-        this.documentId = webSkel.space.currentDocumentId
-        this._document = webSkel.space.getDocument(this.documentId);
+        this.documentId = webSkel.currentUser.space.currentDocumentId
+        this._document = webSkel.currentUser.space.getDocument(this.documentId);
         this._chapter = this._document.getChapter(window.location.hash.split("/")[3]);
         this._document.observeChange(this._document.getNotificationId(), invalidate);
         this.invalidate = invalidate;
         this.suggestedTitles = "";
         setTimeout(async()=>{
-            let scriptId = webSkel.space.getScriptIdByName("suggest chapter titles");
+            let scriptId = webSkel.currentUser.space.getScriptIdByName("suggest chapter titles");
             let result = await webSkel.getService("LlmsService").callScript(scriptId, this._document.topic);
             if(result.responseJson){
                 this.suggestedTitles = result.responseJson;
@@ -54,7 +54,7 @@ export class suggestChapterTitlesModal {
                 await this._chapter.addAlternativeTitle({title:sanitize(value.element.value)});
             }
         }
-        await documentFactory.updateDocument(currentSpaceId, this._document);
+        await documentFactory.updateDocument(webSkel.currentUser.space.id, this._document);
         await this._document.notifyObservers(this._document.getNotificationId());
         closeModal(_target);
     }

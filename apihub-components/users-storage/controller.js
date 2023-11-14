@@ -24,7 +24,7 @@ async function storeUser(request, response) {
     }
     let jsonData = JSON.parse(userData);
     await saveJSON(response, JSON.stringify(jsonData), filePath);
-    let message = {id:jsonData.id, secretToken:jsonData.secretToken, spaces:jsonData.spaces};
+    let message = {id:jsonData.id, secretToken:jsonData.secretToken, spaces:jsonData.spaces, currentSpaceId: jsonData.currentSpaceId};
     sendResponse(response, 200, "application/json", JSON.stringify(message));
     return "";
 

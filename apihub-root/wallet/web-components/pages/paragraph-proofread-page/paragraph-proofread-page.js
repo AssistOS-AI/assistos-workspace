@@ -5,7 +5,7 @@ export class paragraphProofreadPage {
         this.element=element;
         let documentId, chapterId, paragraphId;
         [documentId, chapterId, paragraphId] = parseURL();
-        this._document = webSkel.space.getDocument(documentId);
+        this._document = webSkel.currentUser.space.getDocument(documentId);
         this._chapter = this._document.getChapter(chapterId);
         this._paragraph = this._chapter.getParagraph(paragraphId);
         this.invalidate = invalidate;
@@ -36,7 +36,7 @@ export class paragraphProofreadPage {
     }
 
     async suggestImprovements(_target){
-        let scriptId = webSkel.space.getScriptIdByName("proofread");
+        let scriptId = webSkel.currentUser.space.getScriptIdByName("proofread");
         let result = await webSkel.getService("LlmsService").callScript(scriptId, this.paragraphText);
         this.improvedParagraph = result.responseString || result.responseJson;
         this.invalidate();
