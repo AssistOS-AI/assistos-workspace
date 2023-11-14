@@ -107,34 +107,6 @@ dialog{
     text-align: left;
     border-bottom: 1px solid #E6E6E6;
 }
-.item-list {
-    background-color: #FFF;
-    height: 100%;
-    width:100%;
-    min-width:270px;
-}
-.sidebar-item {
-    white-space: nowrap;
-    cursor: pointer;
-    width: 100%;
-    font-style: normal;
-    padding:10px 15px 10px 15px;
-    background-color: #FFF;
-    margin-right: 10px;
-    font-size: 16px;
-    font-weight: 500;
-    line-height: 24px;
-    letter-spacing: 0em;
-    text-align: left;
-    border-bottom: 1px solid #E6E6E6;
-    color: #511A53;
-}
-
-.sidebar-item:hover {
-    border-radius: 5px;
-    background: rgba(175, 168, 186, 0.22);
-}
-
 .pointer {
     cursor: pointer;
 }
@@ -269,4 +241,6 @@ dialog{
 .rotate {
     transform: rotate(-90deg);
 }
-
+.page-static-title{
+    margin-left:33px;
+}
