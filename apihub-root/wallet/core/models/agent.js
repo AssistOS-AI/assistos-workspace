@@ -11,4 +11,8 @@ export class Agent{
     getTasks(){
 
     }
+
+    addTask(description, date){
+       this.tasks.push({description:description, date:date});
+    }
 }

@@ -82,6 +82,11 @@ export class FlowsService{
                 await webSkel.getService("PromptAnimationService").displayThink(this.__think);
                 let result = await webSkel.getService("LlmsService").generateResponse(JSON.stringify(this.__body));
                 await webSkel.getService("PromptAnimationService").closeThink(this.__think);
+                // setTimeout(async ()=>{
+                //     const date = new Date();
+                //     await webSkel.currentUser.space.agent.addTask(`${callLLM.caller.name}: ${this.__body.prompt}`, date);
+                // },0);
+
                 return result;
             }
         }
