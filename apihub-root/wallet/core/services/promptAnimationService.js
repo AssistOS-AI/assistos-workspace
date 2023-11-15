@@ -70,4 +70,30 @@ export class PromptAnimationService {
                 }
             }, 400);
     }
+
+    async animateCall(){
+        let pencil = document.querySelector(".pencil");
+        let paper  = document.querySelector(".paper");
+        let firstLine = "<div class='line first'></div>";
+        paper.insertAdjacentHTML("beforeend", firstLine);
+        const delay = ms => new Promise(res => setTimeout(res, ms));
+        await delay(5000);
+        let line = "<div class='line'></div>";
+        for(let i = 0; i<4;i++){
+            paper.insertAdjacentHTML("beforeend", line);
+            const delay = ms => new Promise(res => setTimeout(res, ms));
+            await delay(5000);
+        }
+
+        let lines = paper.querySelectorAll(".line");
+        pencil.classList.remove("pencil-write");
+        pencil.classList.add("pencil-erase");
+        for( let i = lines.length-1; i>=0; i--){
+            lines[i].style.transform = "scaleX(1)";
+            lines[i].style.animation = "line-erase 5s forwards";
+            const delay = ms => new Promise(res => setTimeout(res, ms));
+            await delay(5000);
+            lines[i].remove();
+        }
+    }
 }

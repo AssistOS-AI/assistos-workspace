@@ -17,6 +17,7 @@ export class editTitlePage {
 
     async animatePen(){
         await showModal(document.querySelector("body"),"llm-call-animation");
+        await webSkel.getService("PromptAnimationService").animateCall();
     }
 
     beforeRender() {
