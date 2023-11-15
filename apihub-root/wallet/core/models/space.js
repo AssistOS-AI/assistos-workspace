@@ -4,7 +4,8 @@ import {
     User,
     Settings,
     Script,
-    Announcement
+    Announcement,
+    Agent
 } from "../../imports.js";
 
 export class Space {
@@ -20,6 +21,7 @@ export class Space {
 
         this.documents = (spaceData.documents || []).map(documentData => new DocumentModel(documentData)).reverse();
         this.admins = [];
+        this.agent = new Agent(spaceData.agent);
         this.observers = [];
         Space.instance = this;
     }
