@@ -8,6 +8,7 @@ import { Paragraph } from "./core/models/paragraph.js";
 import { Space } from "./core/models/space.js";
 import { Settings } from "./core/models/settings.js";
 import { Script } from "./core/models/script.js";
+import { Agent } from "./core/models/agent.js";
 
 export {
     Chapter,
@@ -18,7 +19,8 @@ export {
     Paragraph,
     Space,
     Settings,
-    Script
+    Script,
+    Agent
 };
 
 // Services

@@ -6,8 +6,9 @@ async function saveJSON(response, spaceData, filePath) {
         await fsPromises.writeFile(filePath, spaceData, 'utf8');
     } catch(error) {
         sendResponse(response, 500, "text/html", error+ ` Error at writing space: ${filePath}`);
-        return "";
+        return false;
     }
+    return true;
 }
 
 function sendResponse(response,statusCode, contentType, message){
@@ -38,8 +39,9 @@ async function storeObject(request, response) {
             return;
         }
         let jsonData = JSON.parse(request.body.toString());
-        await saveJSON(response, JSON.stringify(jsonData), filePath);
-        sendResponse(response, 200, "text/html", `Success, ${request.body.toString()}`);
+        if(await saveJSON(response, JSON.stringify(jsonData), filePath)){
+            sendResponse(response, 200, "text/html", `Success, ${request.body.toString()}`);
+        }
 }
 
 async function storeFolder(spaceId, data, folderName) {

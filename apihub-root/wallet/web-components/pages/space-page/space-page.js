@@ -22,6 +22,10 @@ export class spacePage {
                 this.tab = "scripts-page";
                 window.location.hash = "#space-page/scripts-page";
                 break;
+            case "tasks-page":
+                this.tab = "tasks-page";
+                window.location.hash = "#space-page/tasks-page";
+                break;
         }
         this.invalidate();
     }
@@ -40,6 +44,10 @@ export class spacePage {
          }
          case "scripts-page":{
              this.pageContent = `<scripts-page data-presenter="scripts-page"></scripts-page>`;
+             break;
+         }
+         case "tasks-page":{
+             this.pageContent = `<tasks-page data-presenter="tasks-page"></tasks-page>`;
              break;
          }
          default:{
