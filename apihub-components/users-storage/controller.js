@@ -4,8 +4,9 @@ async function saveJSON(response, spaceData, filePath) {
         await fsPromises.writeFile(filePath, spaceData, 'utf8');
     } catch(error) {
         sendResponse(response, 500, "text/html", error+ ` Error at writing space: ${filePath}`);
-        return "";
+        return false;
     }
+    return true;
 }
 
 function sendResponse(response,statusCode, contentType, message){
@@ -23,11 +24,10 @@ async function storeUser(request, response) {
         return "";
     }
     let jsonData = JSON.parse(userData);
-    await saveJSON(response, JSON.stringify(jsonData), filePath);
-    let message = {id:jsonData.id, secretToken:jsonData.secretToken, spaces:jsonData.spaces, currentSpaceId: jsonData.currentSpaceId};
-    sendResponse(response, 200, "application/json", JSON.stringify(message));
-    return "";
-
+    if(await saveJSON(response, JSON.stringify(jsonData), filePath)){
+        let message = {id:jsonData.id, secretToken:jsonData.secretToken, spaces:jsonData.spaces, currentSpaceId: jsonData.currentSpaceId};
+        sendResponse(response, 200, "application/json", JSON.stringify(message));
+    }
 }
 async function loadUser(request, response) {
     const filePath = `../apihub-root/users/${request.params.userId}.json`;

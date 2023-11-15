@@ -17,7 +17,7 @@ export class tasksPage {
     }
 
     search(){
-
+     alert("to be done");
     }
 
     async showActionBox(_target, primaryKey, componentName, insertionMode) {
