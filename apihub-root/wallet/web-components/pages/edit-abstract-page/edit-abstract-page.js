@@ -21,7 +21,7 @@ export class editAbstractPage {
         let i = 1;
         this._document.alternativeAbstracts.forEach((abstract)=>{
             this.alternativeAbstracts += `<alternative-abstract data-nr="${i}" data-id="${abstract.id}" 
-            data-title="${abstract.content}" ></alternative-abstract>`;
+            data-title="${sanitize(abstract.content)}" ></alternative-abstract>`;
             i++;
         });
     }

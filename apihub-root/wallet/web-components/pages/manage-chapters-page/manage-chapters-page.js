@@ -20,14 +20,14 @@ export class manageChaptersPage {
             this.summarizeButtonName = "Recreate Summary";
             this.docMainIdeas = "";
             for(let idea of this.mainIdeas){
-                this.docMainIdeas += `<li>${idea}</li>`;
+                this.docMainIdeas += `<li>${sanitize(idea)}</li>`;
             }
         }
         this.chaptersDiv= "";
         let number = 0;
         this._document.chapters.forEach((item) => {
             number++;
-            this.chaptersDiv += `<reduced-chapter-unit nr="${number}." title="${item.title}" 
+            this.chaptersDiv += `<reduced-chapter-unit nr="${number}." title="${sanitize(item.title)}" 
             data-id="${item.id}" data-local-action="editAction"></reduced-chapter-unit>`;
         });
     }

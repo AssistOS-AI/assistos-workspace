@@ -24,7 +24,7 @@ export class editTitlePage {
         this.alternativeTitles = "";
         let i = 1;
         this._document.alternativeTitles.forEach((alternativeTitle) => {
-            this.alternativeTitles += `<alternative-title data-nr="${i}" data-title="${alternativeTitle.name}" 
+            this.alternativeTitles += `<alternative-title data-nr="${i}" data-title="${sanitize(alternativeTitle.name)}" 
             data-id="${alternativeTitle.id}" ></alternative-title>`;
             i++;
         });

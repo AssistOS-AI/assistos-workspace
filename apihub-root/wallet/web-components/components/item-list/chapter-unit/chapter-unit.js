@@ -109,18 +109,6 @@ export class chapterUnit {
         };
         title.addEventListener("keydown", resetTimer);
     }
-
-
-    highlightChapter(){
-        this.chapterUnit.setAttribute("id", "highlighted-chapter");
-        webSkel.currentUser.space.currentChapterId = this.chapter.id;
-        if(this._document.chapters.length===1){
-            return;
-        }
-        let foundElement = this.chapterUnit.querySelector('.chapter-arrows');
-        foundElement.style.display = "flex";
-
-    }
     editParagraph(paragraph) {
         if (paragraph.getAttribute("contenteditable") === "false") {
 
@@ -136,9 +124,9 @@ export class chapterUnit {
                     await timer.stop();
                     return;
                 }
-                let updatedText = paragraph.innerText;
-                if (updatedText !== currentParagraph.text) {
-                    await this._document.updateParagraphText(currentParagraph, updatedText);
+                let paragraphText = sanitize(customTrim(paragraph.innerText));
+                if (paragraphText !== currentParagraph.text) {
+                    await this._document.updateParagraphText(currentParagraph, paragraphText);
                 }
             }, 1000);
             paragraph.addEventListener("blur", async () => {
@@ -156,14 +144,23 @@ export class chapterUnit {
                     }
                     await timer.stop();
                 } else {
-                   await timer.reset(1000);
+                    await timer.reset(1000);
                 }
             };
             paragraph.addEventListener("keydown", resetTimer);
         }
     }
 
+    highlightChapter(){
+        this.chapterUnit.setAttribute("id", "highlighted-chapter");
+        webSkel.currentUser.space.currentChapterId = this.chapter.id;
+        if(this._document.chapters.length===1){
+            return;
+        }
+        let foundElement = this.chapterUnit.querySelector('.chapter-arrows');
+        foundElement.style.display = "flex";
 
+    }
 
     changeChapterDisplay(_target) {
         this.chapter.visibility === "hide" ? this.chapter.visibility = "show" : this.chapter.visibility = "hide";

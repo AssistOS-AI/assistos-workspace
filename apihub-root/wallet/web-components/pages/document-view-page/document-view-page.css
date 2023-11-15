@@ -22,6 +22,7 @@
 
 }
 .abstract-content-text{
+    display:inline-block;
     border-radius: 3px;
     padding: 10px;
     width: calc(100% - 30px);
