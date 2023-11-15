@@ -1,6 +1,11 @@
 {
   "presenters": [
     {
+      "name": "tasks-page",
+      "path": "./web-components/subpages/tasks-page/tasks-page.js",
+      "className": "tasksPage"
+    },
+    {
       "name": "chatbots-select-personality-page",
       "path": "./web-components/pages/chatbots-select-personality-page/chatbots-select-personality-page.js",
       "className": "chatbotsSelectPersonalityPage"
@@ -267,6 +272,10 @@
     }
   ],
   "components": [
+    {
+      "name": "tasks-page",
+      "path": "./wallet/web-components/subpages/tasks-page/tasks-page.html"
+    },
     {
       "name": "llm-call-animation",
       "path": "./wallet/web-components/components/llm-call-animation/llm-call-animation.html"
