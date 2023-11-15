@@ -10,6 +10,10 @@ export class spacePage {
         let tabName = _target.getAttribute("data-name");
 
         switch(tabName) {
+            case "agents-page":
+                this.tab = "agents-page";
+                window.location.hash = "#space-page/agents-page";
+                break;
             case "announcements-page":
                 this.tab = "announcements-page";
                 window.location.hash = "#space-page/announcements-page";
@@ -34,6 +38,10 @@ export class spacePage {
      this.spaceName = webSkel.currentUser.space.name;
 
      switch (this.tab){
+         case "agents-page":{
+             this.pageContent = `<agents-page data-presenter="agents-page"></agents-page>`;
+             break;
+         }
          case "announcements-page":{
              this.pageContent = `<announcements-page data-presenter="announcements-page"></announcements-page>`;
              break;
