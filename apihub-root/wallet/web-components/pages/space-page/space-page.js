@@ -30,6 +30,10 @@ export class spacePage {
                 this.tab = "tasks-page";
                 window.location.hash = "#space-page/tasks-page";
                 break;
+            case "knowledge-page":
+                this.tab = "knowledge-page";
+                window.location.hash = "#space-page/knowledge-page";
+                break;
         }
         this.invalidate();
     }
@@ -56,6 +60,10 @@ export class spacePage {
          }
          case "tasks-page":{
              this.pageContent = `<tasks-page data-presenter="tasks-page"></tasks-page>`;
+             break;
+         }
+         case "knowledge-page":{
+             this.pageContent = `<knowledge-page data-presenter="knowledge-page"></knowledge-page>`;
              break;
          }
          default:{

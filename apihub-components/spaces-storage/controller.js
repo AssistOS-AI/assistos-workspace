@@ -109,7 +109,7 @@ async function loadSpace(request, response){
     let statusJson = await fsPromises.readFile(`${filePath}/status/status.json`);
     statusJson = JSON.parse(statusJson);
     for(let item of await fsPromises.readdir(filePath)) {
-        if(item !== "status"){
+        if(item !== "status" && item!== "agents"){
             statusJson[item] = await buildSpace(`${filePath}\/${item}`);
         }
     }

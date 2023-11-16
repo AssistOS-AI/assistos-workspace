@@ -1,6 +1,11 @@
 {
   "presenters": [
     {
+      "name": "knowledge-page",
+      "path": "./web-components/subpages/knowledge-page/knowledge-page.js",
+      "className": "knowledgePage"
+    },
+    {
       "name": "tasks-page",
       "path": "./web-components/subpages/tasks-page/tasks-page.js",
       "className": "tasksPage"
@@ -277,6 +282,10 @@
     }
   ],
   "components": [
+    {
+      "name": "knowledge-page",
+      "path": "./wallet/web-components/subpages/knowledge-page/knowledge-page.html"
+    },
     {
       "name": "tasks-page",
       "path": "./wallet/web-components/subpages/tasks-page/tasks-page.html"
