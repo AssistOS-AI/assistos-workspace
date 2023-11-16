@@ -35,17 +35,21 @@ export class spaceDropdown {
         },0);
     }
 
-    hideSpaces(controller, event) {
+    hideSpaces(controller, arrow, event) {
+        arrow.setAttribute("data-local-action", "showSpaces off");
         let target = this.element.querySelector(".spaces-list");
         target.style.display = "none";
         controller.abort();
     };
 
-    showSpaces(_target) {
-        let target = this.element.querySelector(".spaces-list");
-        target.style.display = "flex";
-        let controller = new AbortController();
-        document.addEventListener("click",this.hideSpaces.bind(this,controller), {signal:controller.signal});
+    showSpaces(_target, mode) {
+        if(mode === "off"){
+            let target = this.element.querySelector(".spaces-list");
+            target.style.display = "flex";
+            let controller = new AbortController();
+            document.addEventListener("click",this.hideSpaces.bind(this,controller, _target), {signal:controller.signal});
+            _target.setAttribute("data-local-action", "showSpaces on");
+        }
     }
 
     changeSpace(_target) {
