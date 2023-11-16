@@ -16,13 +16,16 @@ async function saveJSON(response, spaceData, filePath) {
     return true;
 }
 async function loadFilteredKnowledge(request, response){
-    let queryParams = request.params.query.param1;
+    let queryParams = request.query.param1;
     let searchedWords = queryParams.split(" ");
     const filePath = `../apihub-root/spaces/${request.params.spaceId}/agents/${request.params.agentId}/knowledge.json`;
     let knowledge =  JSON.parse(await fsPromises.readFile(filePath, 'utf8'));
     const regexPattern = new RegExp(searchedWords.join("|"), "gim"); // "i" flag for case-insensitive matching
 
-    const filteredKnowledge = knowledge.filter((str) => regexPattern.test(str));
+    const filteredKnowledge = knowledge.knowledge.filter((obj) => {
+        regexPattern.lastIndex = 0; // Reset lastIndex before each test
+        return regexPattern.test(obj.details);
+    });
     sendResponse(response, 200, "text/html", JSON.stringify(filteredKnowledge));
 }
 async function addKnowledge(request, response){

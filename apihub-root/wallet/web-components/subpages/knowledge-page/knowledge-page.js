@@ -1,23 +1,44 @@
 import {
     showModal,
     showActionBox,
-    reverseQuerySelector
+    reverseQuerySelector, extractFormInformation
 } from "../../../imports.js";
 
 export class knowledgePage {
     constructor(element, invalidate) {
-        this.notificationId = "space:space-page:tasks";
-        webSkel.currentUser.space.observeChange(this.notificationId,invalidate);
+        this.element = element;
         this.invalidate = invalidate;
         this.invalidate();
+        this.knowledgeArray = [];
     }
     beforeRender() {
-        this.tableRows = "";
-
+        let string = "";
+        for(let fact of this.knowledgeArray){
+            string+= `<div class="fact">${fact.details}</div>`;
+        }
+        this.filteredKnowledge = string;
+    }
+    preventRefreshOnEnter(event){
+        if(event.key === "Enter"){
+            event.preventDefault();
+            this.element.querySelector(".magnifier-container").click();
+        }
+    }
+    afterRender(){
+        this.userInput = this.element.querySelector("#search");
+        this.userInput.removeEventListener("keypress", this.boundFn);
+        this.boundFn = this.preventRefreshOnEnter.bind(this);
+        this.userInput.addEventListener("keypress", this.boundFn);
     }
 
-    search(){
-     alert("to be done");
+    async search(_target){
+     let form = this.element.querySelector("form");
+     let formInfo = await extractFormInformation(form);
+     this.knowledgeArray = JSON.parse(await webSkel.currentUser.space.agent.loadFilteredKnowledge(formInfo.data.search));
+     if(this.knowledgeArray.length === 0){
+         this.knowledgeArray = [{details:"Nothing found"}];
+     }
+     this.invalidate();
     }
 
     async showActionBox(_target, primaryKey, componentName, insertionMode) {
