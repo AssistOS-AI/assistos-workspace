@@ -1,9 +1,76 @@
 {
-  "knowledge": [
-    {"details": "You will use only the English language."},
-    {"details": "You will use short answers to my questions."},
-    {"details": "You will be focused only on the domain of physics."},
-    {"details": "You will use information that is at most 100 years old."},
-    {"details": "You will mention exceptions to the questions I give you."}
+  "agent-configs":[
+    {
+      "languages": [
+        "en",
+        "es"
+      ],
+      "default-language": "en",
+      "answer-format": "text"
+    }
+  ],
+  "agent-intent": [
+    "Navigate The User To A Page In The Application",
+    "Help The User Do Any Task In The Application",
+    "Help The User To Create Other Agents"
+  ],
+  "user-intents": [
+    {
+      "user-intent": "generate a document",
+      "description": "User wants to generate a document",
+      "actionScript": {
+        "scriptName": "generateDocument",
+        "requiredPermissions": ["document.create"],
+        "tags": ["document", "creation"]
+      },
+      "requiredScriptParameters": [
+        {
+          "parameter-name": "documentTopic",
+          "meaning": "The topic of the document",
+          "parameter-type": "String",
+          "validation": {
+            "regex": "^[a-zA-Z0-9_ ]*$",
+            "error_message": "Document topic can only contain alphanumeric characters and underscores."
+          },
+          "LLMResponse": {
+            "en": "Ask the user to specify the topic of the document",
+            "es": "Pida al usuario que especifique el tema del documento"
+          }
+        },
+        {
+          "parameter-name": "documentTitle",
+          "meaning": "The name of the document",
+          "parameter-type": "String",
+          "validation": {
+            "regex": "^[a-zA-Z0-9_ ]*$",
+            "error_message": "Document title can only contain alphanumeric characters and underscores."
+          },
+          "LLMResponse": {
+            "en": "Ask the user to specify the name of the document",
+            "es": "Pida al usuario que especifique el nombre del documento"
+          }
+        }
+      ],
+      "asyncActions": {
+        "inProgressMessage": {
+          "en": "Your document is being created, this might take a minute.",
+          "es": "Su documento está siendo creado, esto puede tardar un minuto."
+        },
+        "completionMessage": {
+          "en": "Your document is ready!",
+          "es": "¡Su documento está listo!"
+        }
+      },
+      "fallbacks": {
+        "unrecognizedIntent": {
+          "en": "I'm not sure how to help with that. Can you rephrase?",
+          "es": "No estoy seguro de cómo ayudar con eso. ¿Puede reformular?"
+        },
+        "actionFailed": {
+          "en": "I'm sorry, but I couldn't complete that action. Please try again.",
+          "es": "Lo siento, pero no pude completar esa acción. Por favor, inténtelo de nuevo."
+        }
+      }
+    }
   ]
 }
