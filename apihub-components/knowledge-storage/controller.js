@@ -55,9 +55,17 @@ async function storeKnowledge(request, response){
         sendResponse(response, 200, "text/html", `Success, ${request.body.toString()}`);
     }
 }
+
+async function loadDefaultAgent(request,response) {
+    const filePath=`../apihub-root/default-agents/default-agent.json`;
+    const jsonContent = await fsPromises.readFile(filePath, 'utf8');
+    sendResponse(response, 200, "text/html", jsonContent);
+}
+
 module.exports = {
     loadKnowledge,
     loadFilteredKnowledge,
     addKnowledge,
-    storeKnowledge
+    storeKnowledge,
+    loadDefaultAgent
 }

@@ -1,9 +1,10 @@
 
 export class Agent{
     constructor(agentData) {
-        //this.personalityId = agentData.personalityId || "no id set";
-        //this.tasks = agentData.tasks || [];
-        this.id = "default";
+        this.agentConfigs=agentData.agentConfigs;
+        this.agentIntent=agentData.agentIntent;
+        this.userIntents=agentData.userIntents;
+        this.id = agentData.id||"default";
     }
 
     setPersonality(id){
@@ -20,5 +21,13 @@ export class Agent{
     async loadFilteredKnowledge(words){
         words = words.trim();
         return await storageManager.loadFilteredKnowledge(words, this.id);
+    }
+    loadKnowledge() {
+        const knowledge = {
+            agentConfigs: this.agentConfigs,
+            agentIntent: this.agentIntent,
+            userIntents: this.userIntents
+        };
+        return JSON.stringify(knowledge, null, 2);
     }
 }

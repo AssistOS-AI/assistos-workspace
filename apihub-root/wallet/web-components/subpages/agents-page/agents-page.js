@@ -1,15 +1,82 @@
-import {parseURL,sanitize} from "../../../imports.js";
+import {customTrim, extractFormInformation, parseURL, sanitize} from "../../../imports.js";
 
 export class agentsPage{
     constructor(element, invalidate) {
         this.element = element;
         this.invalidate = invalidate;
+        this.cachedHistory = [];
+        this.agent=webSkel.currentUser.space.getDefaultAgent();
         this.invalidate();
     }
-    beforeRender(){
-        this.agents = "";
-        webSkel.currentUser.space.agents.forEach((agent)=>{
-            this.agents += `<agent-unit data-name="${sanitize(agent.name)}" data-id="${agent.id}" data-local-action="editAgent"></agent-unit>`;
-        });
+    beforeRender() {
+        let stringHTML = "";
+        for(let reply of this.cachedHistory){
+            if(reply.role === "user"){
+                stringHTML += `
+                <div class="chat-box-container user">
+                 <div class="chat-box user-box">${reply.content}</div>
+                </div>`;
+            }else {
+                stringHTML += `
+                <div class="chat-box-container robot">
+                 <div class="chat-box robot-box">${reply.content}</div>
+                </div>`;
+            }
+        }
+        this.conversationHistory = stringHTML;
     }
+    afterRender(){
+        this.conversation = this.element.querySelector(".conversation");
+        this.userInput = this.element.querySelector("#input");
+        this.userInput.removeEventListener("keypress", this.boundFn);
+        this.boundFn = this.preventRefreshOnEnter.bind(this);
+        this.userInput.addEventListener("keypress", this.boundFn);
+    }
+    displayMessage(role, text){
+        let reply;
+        this.cachedHistory.push({role:role,content: text})
+        if(role === "user"){
+            reply = `
+                <div class="chat-box-container user">
+                 <div class="chat-box user-box">${text}</div>
+                </div>`;
+
+        }else {
+            reply = `
+                <div class="chat-box-container robot">
+                 <div class="chat-box robot-box">${text}</div>
+                </div>`;
+        }
+        this.conversation.insertAdjacentHTML("beforeend", reply);
+        const lastReplyElement = this.conversation.lastElementChild;
+        lastReplyElement.scrollIntoView({behavior: "smooth", block: "start", inline: "nearest"});
+    }
+    preventRefreshOnEnter(event){
+        if(event.key === "Enter" && !event.ctrlKey){
+            event.preventDefault();
+            this.element.querySelector(".send-message-btn").click();
+        }
+        if(event.key === "Enter" && event.ctrlKey){
+            this.userInput.value += '\n';
+        }
+    }
+    async sendMessage(_target){
+        let formInfo = await extractFormInformation(_target);
+        let userPrompt = sanitize(customTrim(formInfo.data.input));
+        formInfo.elements.input.element.value = "";
+        if(userPrompt==="") {
+            return;
+        }
+        this.displayMessage("user", userPrompt);
+        let scriptId = webSkel.currentUser.space.getScriptIdByName("default agent");
+        let defaultAgent= webSkel.currentUser.space.getDefaultAgent();
+        let response = await webSkel.getService("LlmsService").callScript(scriptId, userPrompt, defaultAgent.loadKnowledge());
+        this.cachedHistory.push({role:"user",content:userPrompt});
+
+        let agentMessage=response.responseJson?response.responseJson:response.responseString;
+        this.cachedHistory.push({role:"assistant",content:agentMessage});
+        this.displayMessage("assistant", agentMessage);
+
+    }
+
 }

@@ -21,7 +21,7 @@ export class Space {
 
         this.documents = (spaceData.documents || []).map(documentData => new DocumentModel(documentData)).reverse();
         this.admins = [];
-        this.agents = (spaceData.agents || []).map(agentData=>new Agent(spaceData.agent));
+        this.createDefaultAgent();
         this.observers = [];
         Space.instance = this;
     }
@@ -96,6 +96,9 @@ export class Space {
     getScriptIdByName(name){
         let script = this.scripts.find((script) => script.name === name);
         return script.id || console.error(`Script not found in space, script name: ${name}`);
+    }
+    getDefaultAgent(){
+        return this.agent;
     }
    async addDocument(documentData,locationRedirect="document-view-page") {
         let newDocument=documentFactory.createDocument(documentData)
@@ -176,5 +179,8 @@ export class Space {
         for(let personality of personalities){
             this.personalities.push(new Personality(personality));
         }
+    }
+    async createDefaultAgent(){
+        this.agent=new Agent(JSON.parse(await storageManager.loadDefaultAgent()));
     }
 }

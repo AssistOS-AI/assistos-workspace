@@ -16,6 +16,7 @@ export class SpaceFactory {
         let newSpace = new Space(spaceData);
         await newSpace.createDefaultScripts();
         await newSpace.createDefaultPersonalities();
+        await newSpace.createDefaultAgent();
         await storageManager.storeSpace(newSpace.id, newSpace.stringifySpace());
         return newSpace;
     }

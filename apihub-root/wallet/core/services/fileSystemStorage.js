@@ -99,6 +99,13 @@ export class FileSystemStorage{
             });
         return await result.text();
     }
+    async loadDefaultAgent(){
+        const result=await fetch(`/agents/default`,
+            {
+                method: "GET"
+            });
+        return await result.text();
+    }
 
     async loadFilteredKnowledge(words, agentId){
         const result=await fetch(`/agents/${webSkel.currentUser.space.id}/${agentId}/search?param1=${words}`,

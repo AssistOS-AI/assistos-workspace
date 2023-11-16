@@ -1,3 +1,12 @@
+space-page{
+    display:flex;
+    height:100%;
+    width:100%;
+}
+.space-page{
+    height:100%;
+    width:100%;
+}
 .navbar {
     display: flex;
     background-color: #d5c8d6;
