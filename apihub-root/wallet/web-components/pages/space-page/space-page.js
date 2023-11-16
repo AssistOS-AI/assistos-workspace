@@ -34,6 +34,10 @@ export class spacePage {
                 this.tab = "knowledge-page";
                 window.location.hash = "#space-page/knowledge-page";
                 break;
+            case "collaborators-page":
+                this.tab = "collaborators-page";
+                window.location.hash = "#space-page/collaborators-page";
+                break;
         }
         this.invalidate();
     }
@@ -64,6 +68,10 @@ export class spacePage {
          }
          case "knowledge-page":{
              this.pageContent = `<knowledge-page data-presenter="knowledge-page"></knowledge-page>`;
+             break;
+         }
+         case "collaborators-page":{
+             this.pageContent = `<collaborators-page data-presenter="collaborators-page"></collaborators-page>`;
              break;
          }
          default:{
