@@ -6,6 +6,11 @@
       "className": "tasksPage"
     },
     {
+      "name": "agents-page",
+      "path": "./web-components/subpages/agents-page/agents-page.js",
+      "className": "agentsPage"
+    },
+    {
       "name": "chatbots-select-personality-page",
       "path": "./web-components/pages/chatbots-select-personality-page/chatbots-select-personality-page.js",
       "className": "chatbotsSelectPersonalityPage"
@@ -275,6 +280,10 @@
     {
       "name": "tasks-page",
       "path": "./wallet/web-components/subpages/tasks-page/tasks-page.html"
+    },
+    {
+      "name": "agents-page",
+      "path": "./wallet/web-components/subpages/agents-page/agents-page.html"
     },
     {
       "name": "llm-call-animation",

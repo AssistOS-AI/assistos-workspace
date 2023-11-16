@@ -26,7 +26,7 @@ export class abstractProofreadPage {
     async suggestImprovements(_target){
         let scriptId = webSkel.currentUser.space.getScriptIdByName("proofread");
         let result = await webSkel.getService("LlmsService").callScript(scriptId, this.abstractText);
-        this.improvedAbstract = result.responseString || result.responseJson;
+        this.improvedAbstract = sanitize(result.responseString) || sanitize(result.responseJson);
         this.invalidate();
     }
 

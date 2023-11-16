@@ -136,6 +136,37 @@ export class documentViewPage {
             }
         },100);
     }
+    editTitle(title){
+        const titleEnterHandler = async (event) => {
+            if (event.key === 'Enter') {
+                event.preventDefault();
+            }
+        };
+        if (title.getAttribute("contenteditable") === "false") {
+            title.setAttribute("contenteditable", "true");
+            title.addEventListener('keydown', titleEnterHandler);
+            title.focus();
+            title.parentElement.setAttribute("id", "highlighted-chapter");
+            let timer = new SaveElementTimer(async () => {
+                let titleText = sanitize(customTrim(title.innerText));
+                if (titleText !== this._document.title && titleText !== "") {
+                    await this._document.updateTitle(titleText);
+                }
+            }, 1000);
+            title.addEventListener("blur", async () => {
+                title.innerText = customTrim(title.innerText)||unsanitize(this._document.title);
+                await timer.stop(true);
+                title.setAttribute("contenteditable", "false");
+                title.removeEventListener('keydown', titleEnterHandler);
+                title.removeEventListener("keydown", resetTimer);
+                title.parentElement.removeAttribute("id");
+            }, {once: true});
+            const resetTimer = async () => {
+                await timer.reset(1000);
+            };
+            title.addEventListener("keydown", resetTimer);
+        }
+    }
     async editAbstract(abstract){
         if (abstract.getAttribute("contenteditable") === "false") {
             let abstractSection = reverseQuerySelector(abstract,".abstract-section");
@@ -145,7 +176,7 @@ export class documentViewPage {
             let timer = new SaveElementTimer(async () => {
                 let abstractText = sanitize(customTrim(abstract.innerText));
                 if (abstractText !== this._document.abstract && abstractText !== "") {
-                    await this._document.updateAbstract(abstract.innerText);
+                    await this._document.updateAbstract(abstractText);
                 }
             }, 1000);
 
@@ -196,38 +227,6 @@ export class documentViewPage {
     }
 
 
-
-    editTitle(title){
-        const titleEnterHandler = async (event) => {
-            if (event.key === 'Enter') {
-                event.preventDefault();
-            }
-        };
-        if (title.getAttribute("contenteditable") === "false") {
-            title.setAttribute("contenteditable", "true");
-            title.addEventListener('keydown', titleEnterHandler);
-            title.focus();
-            title.parentElement.setAttribute("id", "highlighted-chapter");
-            let timer = new SaveElementTimer(async () => {
-                let titleText = sanitize(customTrim(title.innerText));
-                if (titleText !== this._document.title && titleText !== "") {
-                    await this._document.updateTitle(titleText);
-                }
-            }, 1000);
-            title.addEventListener("blur", async () => {
-                title.innerText = customTrim(title.innerText)||unsanitize(this._document.title);
-                await timer.stop(true);
-                title.setAttribute("contenteditable", "false");
-                title.removeEventListener('keydown', titleEnterHandler);
-                title.removeEventListener("keydown", resetTimer);
-                title.parentElement.removeAttribute("id");
-            }, {once: true});
-            const resetTimer = async () => {
-                await timer.reset(1000);
-            };
-            title.addEventListener("keydown", resetTimer);
-        }
-    }
 
     async openEditTitlePage() {
         await webSkel.changeToDynamicPage("edit-title-page", `documents/${this._document.id}/edit-title-page`);

@@ -1,7 +1,8 @@
 import {
     showActionBox,
     showModal,
-    reverseQuerySelector
+    reverseQuerySelector,
+    sanitize
 } from "../../../imports.js";
 
 export class documentsPage {
@@ -15,7 +16,7 @@ export class documentsPage {
         this.tableRows = "";
         if(webSkel.currentUser.space.documents.length > 0) {
             webSkel.currentUser.space.documents.forEach((document) => {
-                this.tableRows += `<document-unit data-name="${document.title}" 
+                this.tableRows += `<document-unit data-name="${sanitize(document.title)}" 
                 data-id="${document.id}" data-local-action="editAction"></document-unit>`;
             });
         }
