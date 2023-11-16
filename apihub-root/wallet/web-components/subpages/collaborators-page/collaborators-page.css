@@ -1,15 +1,9 @@
-.total-tasks{
-    margin-top:20px;
-    margin-bottom:20px;
-    margin-left: 15px;
-    font-size: 16px;
-    font-weight: 600;
-}
+
 .table-header {
     padding-left: 15px;
     padding-right: 15px;
     display: flex;
-    justify-content: space-between;
+    justify-content: flex-start;
     color: #363C44;
     font-size: 18px;
     font-style: normal;
@@ -17,11 +11,12 @@
     line-height: normal;
     text-transform: capitalize;
 }
+
 .table-name{
     width: 31.5%;
     margin-bottom: 10px;
 }
-.table-description{
+.table-permissions{
     margin-bottom: 10px;
 }
 

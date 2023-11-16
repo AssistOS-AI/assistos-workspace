@@ -1,10 +1,8 @@
 import {
-    showModal,
     showActionBox,
-    reverseQuerySelector
 } from "../../../imports.js";
 
-export class tasksPage {
+export class collaboratorsPage {
     constructor(element, invalidate) {
         this.element = element;
         this.invalidate = invalidate;

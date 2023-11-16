@@ -14,7 +14,7 @@ export class knowledgePage {
     beforeRender() {
         let string = "";
         for(let fact of this.knowledgeArray){
-            string+= `<div class="fact">${fact.details}</div>`;
+            string+= `<div class="fact">${fact}</div>`;
         }
         this.filteredKnowledge = string;
     }
@@ -36,7 +36,7 @@ export class knowledgePage {
      let formInfo = await extractFormInformation(form);
      this.knowledgeArray = JSON.parse(await webSkel.currentUser.space.agent.loadFilteredKnowledge(formInfo.data.search));
      if(this.knowledgeArray.length === 0){
-         this.knowledgeArray = [{details:"Nothing found"}];
+         this.knowledgeArray = ["Nothing found"];
      }
      this.invalidate();
     }

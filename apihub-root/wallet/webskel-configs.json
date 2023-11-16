@@ -1,6 +1,11 @@
 {
   "presenters": [
     {
+      "name": "collaborators-page",
+      "path": "./web-components/subpages/collaborators-page/collaborators-page.js",
+      "className": "collaboratorsPage"
+    },
+    {
       "name": "knowledge-page",
       "path": "./web-components/subpages/knowledge-page/knowledge-page.js",
       "className": "knowledgePage"
@@ -282,6 +287,10 @@
     }
   ],
   "components": [
+    {
+      "name": "collaborators-page",
+      "path": "./wallet/web-components/subpages/collaborators-page/collaborators-page.html"
+    },
     {
       "name": "knowledge-page",
       "path": "./wallet/web-components/subpages/knowledge-page/knowledge-page.html"
