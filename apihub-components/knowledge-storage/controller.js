@@ -22,9 +22,9 @@ async function loadFilteredKnowledge(request, response){
     let knowledge =  JSON.parse(await fsPromises.readFile(filePath, 'utf8'));
     const regexPattern = new RegExp(searchedWords.join("|"), "gim"); // "i" flag for case-insensitive matching
 
-    const filteredKnowledge = knowledge.knowledge.filter((obj) => {
+    const filteredKnowledge = knowledge.agentIntent.filter((text) => {
         regexPattern.lastIndex = 0; // Reset lastIndex before each test
-        return regexPattern.test(obj.details);
+        return regexPattern.test(text);
     });
     sendResponse(response, 200, "text/html", JSON.stringify(filteredKnowledge));
 }

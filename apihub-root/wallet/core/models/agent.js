@@ -3,6 +3,7 @@ export class Agent{
     constructor(agentData) {
         //this.personalityId = agentData.personalityId || "no id set";
         //this.tasks = agentData.tasks || [];
+        this.tasks = [];
         this.id = "default";
     }
 

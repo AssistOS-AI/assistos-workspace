@@ -6,14 +6,20 @@ import {
 
 export class tasksPage {
     constructor(element, invalidate) {
-        this.notificationId = "space:space-page:tasks";
-        webSkel.currentUser.space.observeChange(this.notificationId,invalidate);
+        this.element = element;
         this.invalidate = invalidate;
         this.invalidate();
     }
     beforeRender() {
-        this.tableRows = "";
-
+        let string = "";
+        this.tasksNr = webSkel.currentUser.space.agent.tasks.length;
+        for(let task of webSkel.currentUser.space.agent.tasks){
+            string+= `<div class="task">
+                       <div class="description">${task.description}</div> 
+                       <div class="date">${task.date}</div>
+                      </div>`;
+        }
+        this.tasks = string;
     }
 
     search(){
