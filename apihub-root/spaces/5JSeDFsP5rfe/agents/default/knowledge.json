@@ -32,10 +32,7 @@
             "regex": "^[a-zA-Z0-9_ ]*$",
             "error_message": "Document topic can only contain alphanumeric characters and underscores."
           },
-          "LLMResponse": {
-            "en": "Ask the user to specify the topic of the document",
-            "es": "Pida al usuario que especifique el tema del documento"
-          }
+          "LLMResponse":"Ask the user to specify the topic of the document"
         },
         {
           "parameter-name": "documentTitle",
@@ -45,32 +42,17 @@
             "regex": "^[a-zA-Z0-9_ ]*$",
             "error_message": "Document title can only contain alphanumeric characters and underscores."
           },
-          "LLMResponse": {
-            "en": "Ask the user to specify the name of the document",
-            "es": "Pida al usuario que especifique el nombre del documento"
-          }
+          "LLMResponse":"Ask the user to specify the name of the document"
         }
       ],
       "asyncActions": {
-        "inProgressMessage": {
-          "en": "Your document is being created, this might take a minute.",
-          "es": "Su documento está siendo creado, esto puede tardar un minuto."
+        "inProgressMessage": "Your document is being created, this might take a minute.",
+        "completionMessage": "Your document is ready!"
         },
-        "completionMessage": {
-          "en": "Your document is ready!",
-          "es": "¡Su documento está listo!"
-        }
-      },
       "fallbacks": {
-        "unrecognizedIntent": {
-          "en": "I'm not sure how to help with that. Can you rephrase?",
-          "es": "No estoy seguro de cómo ayudar con eso. ¿Puede reformular?"
-        },
-        "actionFailed": {
-          "en": "I'm sorry, but I couldn't complete that action. Please try again.",
-          "es": "Lo siento, pero no pude completar esa acción. Por favor, inténtelo de nuevo."
+        "unrecognizedIntent": "I'm not sure how to help with that. Can you rephrase?",
+        "actionFailed":  "I'm sorry, but I couldn't complete that action. Please try again."
         }
       }
-    }
   ]
 }
