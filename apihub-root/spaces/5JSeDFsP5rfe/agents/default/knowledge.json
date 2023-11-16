@@ -1,22 +1,22 @@
 {
-  "agent-configs":[
+  "agentConfigs":[
     {
       "languages": [
         "en",
         "es"
       ],
-      "default-language": "en",
-      "answer-format": "text"
+      "defaultLanguage": "en",
+      "answerFormat": "text"
     }
   ],
-  "agent-intent": [
+  "agentIntent": [
     "Navigate The User To A Page In The Application",
     "Help The User Do Any Task In The Application",
     "Help The User To Create Other Agents"
   ],
-  "user-intents": [
+  "userIntents": [
     {
-      "user-intent": "generate a document",
+      "userIntent": "generate a document",
       "description": "User wants to generate a document",
       "actionScript": {
         "scriptName": "generateDocument",
@@ -25,22 +25,22 @@
       },
       "requiredScriptParameters": [
         {
-          "parameter-name": "documentTopic",
+          "parameterName": "documentTopic",
           "meaning": "The topic of the document",
-          "parameter-type": "String",
+          "parameterType": "String",
           "validation": {
             "regex": "^[a-zA-Z0-9_ ]*$",
-            "error_message": "Document topic can only contain alphanumeric characters and underscores."
+            "errorMessage": "Document topic can only contain alphanumeric characters and underscores."
           },
           "LLMResponse":"Ask the user to specify the topic of the document"
         },
         {
-          "parameter-name": "documentTitle",
+          "parameterName": "documentTitle",
           "meaning": "The name of the document",
-          "parameter-type": "String",
+          "parameterType": "String",
           "validation": {
             "regex": "^[a-zA-Z0-9_ ]*$",
-            "error_message": "Document title can only contain alphanumeric characters and underscores."
+            "errorMessage": "Document title can only contain alphanumeric characters and underscores."
           },
           "LLMResponse":"Ask the user to specify the name of the document"
         }
