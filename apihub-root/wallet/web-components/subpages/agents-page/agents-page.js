@@ -8,8 +8,8 @@ export class agentsPage{
     }
     beforeRender(){
         this.agents = "";
-       /* this._document.agents.forEach((agent)=>{
+        webSkel.currentUser.space.agents.forEach((agent)=>{
             this.agents += `<agent-unit data-name="${sanitize(agent.name)}" data-id="${agent.id}" data-local-action="editAgent"></agent-unit>`;
-        });*/
+        });
     }
 }
