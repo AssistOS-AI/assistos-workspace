@@ -5,8 +5,7 @@ export class chatbotsPage {
         this.element = element;
         this.invalidate=invalidate;
         this.invalidate();
-        let personalityId = parseURL();
-        this.personality = webSkel.currentUser.space.getPersonality(personalityId);
+        this.personalityId = parseURL();
         this.cachedHistory = [];
         // this.history = [
         // {role: 'user', content: 'hello'},
@@ -113,7 +112,7 @@ export class chatbotsPage {
         this.displayEmotion(this.defaultEmotion);
         let flowId = webSkel.currentUser.space.getFlowIdByName("chatbots");
         await this.summarizeConversation();
-        let response = await webSkel.getService("LlmsService").callFlow(flowId, formInfo.data.input, this.personality.name, this.personality.description, this.history);
+        let response = await webSkel.getService("LlmsService").callFlow(flowId, formInfo.data.input, this.personalityId, this.history);
 
         this.history.push({role:"user",content:input});
         if(!response.responseJson){
