@@ -56,7 +56,9 @@ export class StorageManager {
     async loadDefaultPersonalities(){
         return await this.currentService.loadDefaultPersonalities();
     }
-
+    async loadDefaultAgent(){
+        return await this.currentService.loadDefaultAgent();
+    }
     async loadFilteredKnowledge(words, agentId){
         return await this.currentService.loadFilteredKnowledge(words, agentId);
     }
