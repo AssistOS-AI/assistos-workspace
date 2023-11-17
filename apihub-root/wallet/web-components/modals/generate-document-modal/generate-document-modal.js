@@ -20,13 +20,8 @@ export class generateDocumentModal{
     async generateDocument(_target) {
         let formData = await extractFormInformation(_target);
         if(formData.isValid) {
-            let flowId = webSkel.currentUser.space.getFlowIdByName("generate document");
-            let result = await  webSkel.getService("LlmsService").callFlow(flowId,
-                formData.data.documentTitle, formData.data.documentTopic,formData.data.chaptersCount);
-
-            let docData= result.responseJson;
+            await webSkel.getService("globalFlowsService").documentFlows.generateDocument(formData.data);
             closeModal(_target);
-            await webSkel.currentUser.space.addDocument(docData);
         }
     }
 }

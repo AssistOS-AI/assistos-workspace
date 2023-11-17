@@ -106,11 +106,16 @@ export class Space {
         webSkel.currentUser.space.currentDocumentId = newDocument.id;
         await webSkel.changeToDynamicPage(`${locationRedirect}`, `documents/${newDocument.id}/${locationRedirect}`);
     }
+    async deleteDocument(documentId) {
+        this.documents = this.documents.filter(document => document.id !== documentId);
+        await storageManager.storeObject(webSkel.currentUser.space.id, "documents", documentId, "");
+
+    }
+
     async addPersonality(personalityData) {
         let personalityObj = new Personality(personalityData);
         this.personalities.push(personalityObj);
         await storageManager.storeObject(webSkel.currentUser.space.id, "personalities", personalityObj.id, JSON.stringify(personalityObj,null,2));
-        //await storageManager.storeObject(webSkel.currentUser.space.id, "status", "status", JSON.stringify(webSkel.currentUser.space.getSpaceStatus(),null,2));
     }
 
     async updatePersonality(personalityData, id){
@@ -132,9 +137,6 @@ export class Space {
         await storageManager.storeObject(webSkel.currentUser.space.id, "flows", flowObject.id, JSON.stringify(flowObject,null,2));
     }
 
-    deleteDocument(documentId) {
-        webSkel.currentUser.space.documents = webSkel.currentUser.space.documents.filter(obj => obj.id !== documentId);
-    }
 
     async deleteAnnouncement(announcementId) {
         this.announcements = this.announcements.filter(announcement=> announcement.id !== announcementId);
