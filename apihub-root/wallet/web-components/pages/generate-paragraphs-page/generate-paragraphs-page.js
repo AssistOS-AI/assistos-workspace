@@ -52,7 +52,7 @@ export class generateParagraphsPage {
         let formInfo = await extractFormInformation(form);
         if(formInfo.isValid) {
             let flowId = webSkel.currentUser.space.getFlowIdByName("generate ideas");
-            let result = await webSkel.getService("LlmsService").callFlow(flowId, formInfo.data.idea);
+            let result = await webSkel.getService("LlmsService").callFlow(flowId, formInfo.data.idea, "", 5);
             this.ideas= result.responseJson;
             this.invalidate();
         }
