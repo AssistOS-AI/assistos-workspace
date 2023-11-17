@@ -5,6 +5,7 @@ export class Agent{
         this.agentIntent=agentData.agentIntent;
         this.userIntents=agentData.userIntents;
         this.id = agentData.id||"default";
+        this.tasks = [];
     }
 
     setPersonality(id){
