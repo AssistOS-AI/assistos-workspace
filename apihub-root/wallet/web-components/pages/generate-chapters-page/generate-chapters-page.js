@@ -1,4 +1,4 @@
-import {extractFormInformation, parseURL} from "../../../imports.js";
+import {extractFormInformation, parseURL, showModal} from "../../../imports.js";
 export class generateChaptersPage {
     constructor(element, invalidate) {
         this.element = element;
@@ -75,21 +75,16 @@ export class generateChaptersPage {
 
     async generateChapters(_target){
         let formInfo = await extractFormInformation(_target);
-        let flowId = webSkel.currentUser.space.getFlowIdByName("generate chapters");
+
         let selectedIdeas = [];
         for (const [key, value] of Object.entries(formInfo.elements)) {
             if(value.element.checked) {
                 selectedIdeas.push(value.element.value);
             }
         }
-        let result = await webSkel.getService("LlmsService").callFlow(flowId, JSON.stringify(selectedIdeas));
-        if(result.responseJson){
-            await this._document.addChapters(result.responseJson, selectedIdeas);
-        }else {
-           await showApplicationError("Flow execution error",
-                "Data received from LLM is an incorrect format", `result from LLM: ${result}`);
-        }
-        await webSkel.changeToDynamicPage("manage-chapters-page", `documents/${this._document.id}/manage-chapters-page`);
+        await showModal(document.querySelector("body"), "user-prompt-modal", {ideas:JSON.stringify(selectedIdeas), docId: this._document.id});
+
+
     }
 
     async openMangeChaptersPage() {
@@ -98,5 +93,4 @@ export class generateChaptersPage {
     async openViewPage() {
         await webSkel.changeToDynamicPage("document-view-page", `documents/${this._document.id}/document-view-page`);
     }
-
 }

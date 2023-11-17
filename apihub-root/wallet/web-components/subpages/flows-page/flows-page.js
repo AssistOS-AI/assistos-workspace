@@ -14,6 +14,9 @@ export class flowsPage {
     beforeRender() {
         this.tableRows = "";
         if (webSkel.currentUser.space.flows.length > 0) {
+            webSkel.currentUser.space.flows.sort(function(a, b) {
+                return a.name.toLowerCase().localeCompare(b.name.toLowerCase());
+            });
             webSkel.currentUser.space.flows.forEach((item) => {
                 this.tableRows += `<flow-unit data-id="${item.id}" 
                 data-name="${item.name}" data-content="${item.content}" 

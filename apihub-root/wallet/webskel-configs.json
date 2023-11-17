@@ -1,6 +1,11 @@
 {
   "presenters": [
     {
+      "name": "user-prompt-modal",
+      "path": "./web-components/modals/user-prompt-modal/user-prompt-modal.js",
+      "className": "userPromptModal"
+    },
+    {
       "name": "collaborators-page",
       "path": "./web-components/subpages/collaborators-page/collaborators-page.js",
       "className": "collaboratorsPage"
@@ -291,6 +296,10 @@
     }
   ],
   "components": [
+    {
+      "name": "user-prompt-modal",
+      "path": "./wallet/web-components/modals/user-prompt-modal/user-prompt-modal.html"
+    },
     {
       "name": "collaborators-page",
       "path": "./wallet/web-components/subpages/collaborators-page/collaborators-page.html"
