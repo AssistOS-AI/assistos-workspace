@@ -55,8 +55,8 @@ export class translatePage {
                 this.language = formData.data.language;
                 this.personality = webSkel.currentUser.space.getPersonality(formData.data.personality);
             }
-            let scriptId = webSkel.currentUser.space.getScriptIdByName("translate");
-            let result = await webSkel.getService("LlmsService").callScript(scriptId, this.prompt, this.personality.name, this.personality.description, this.language);
+            let flowId = webSkel.currentUser.space.getFlowIdByName("translate");
+            let result = await webSkel.getService("LlmsService").callFlow(flowId, this.prompt, this.personality.name, this.personality.description, this.language);
             this.generatedText = result.responseString;
             this.invalidate();
         }

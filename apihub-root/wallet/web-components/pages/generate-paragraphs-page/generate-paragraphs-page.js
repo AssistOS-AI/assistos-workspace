@@ -51,8 +51,8 @@ export class generateParagraphsPage {
         let form = this.element.querySelector(".generate-ideas-form");
         let formInfo = await extractFormInformation(form);
         if(formInfo.isValid) {
-            let scriptId = webSkel.currentUser.space.getScriptIdByName("generate ideas");
-            let result = await webSkel.getService("LlmsService").callScript(scriptId, formInfo.data.idea);
+            let flowId = webSkel.currentUser.space.getFlowIdByName("generate ideas");
+            let result = await webSkel.getService("LlmsService").callFlow(flowId, formInfo.data.idea);
             this.ideas= result.responseJson;
             this.invalidate();
         }
@@ -61,18 +61,18 @@ export class generateParagraphsPage {
 
     async generateParagraphs(_target){
         let formInfo = await extractFormInformation(_target);
-        let scriptId = webSkel.currentUser.space.getScriptIdByName("generate paragraphs");
+        let flowId = webSkel.currentUser.space.getFlowIdByName("generate paragraphs");
         let selectedIdeas = [];
         for (const [key, value] of Object.entries(formInfo.elements)) {
             if(value.element.checked) {
                 selectedIdeas.push(value.element.value);
             }
         }
-        let result = await webSkel.getService("LlmsService").callScript(scriptId, JSON.stringify(selectedIdeas));
+        let result = await webSkel.getService("LlmsService").callFlow(flowId, JSON.stringify(selectedIdeas));
         if(result.responseJson){
             await this._document.addParagraphs(this._chapter, result.responseJson, selectedIdeas);
         }else {
-            await showApplicationError("Script execution error",
+            await showApplicationError("Flow execution error",
                 "Data received from LLM is an incorrect format", `result from LLM: ${result}`);
         }
         await webSkel.changeToDynamicPage("document-view-page", `documents/${this._document.id}/document-view-page`);

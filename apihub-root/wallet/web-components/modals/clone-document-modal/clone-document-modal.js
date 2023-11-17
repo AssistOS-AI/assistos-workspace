@@ -25,8 +25,8 @@ export class cloneDocumentModal {
 
     async generateDocument(_target) {
 
-        let scriptId = webSkel.currentUser.space.getScriptIdByName("generate document");
-        let result = await webSkel.getService("LlmsService").callScript(scriptId,
+        let flowId = webSkel.currentUser.space.getFlowIdByName("generate document");
+        let result = await webSkel.getService("LlmsService").callFlow(flowId,
             formData.data.documentTitle, formData.data.documentTopic, formData.data.chaptersCount);
 
         let docData = result.responseJson;
@@ -45,8 +45,8 @@ export class cloneDocumentModal {
             personalityDescription=webSkel.currentUser.space.personalities.find(personality=>personality.id===personalityId).description;
         }
         let simplifiedDocumentJson= JSON.stringify(webSkel.currentUser.space.getDocument(webSkel.currentUser.space.currentDocumentId).simplifyDocument());
-        let scriptId = webSkel.currentUser.space.getScriptIdByName("clone document");
-        let result = await webSkel.getService("LlmsService").callScript(scriptId,simplifiedDocumentJson,personalityDescription, proofread);
+        let flowId = webSkel.currentUser.space.getFlowIdByName("clone document");
+        let result = await webSkel.getService("LlmsService").callFlow(flowId,simplifiedDocumentJson,personalityDescription, proofread);
         let docData = result.responseJson;
         docData.title = documentTitle;
         await documentFactory.addDocument(window.webSkel.currentUser.space.id, new DocumentModel(docData));

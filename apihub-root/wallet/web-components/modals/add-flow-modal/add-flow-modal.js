@@ -4,7 +4,7 @@ import {
 } from "../../../imports.js";
 
 
-export class addScriptModal {
+export class addFlowModal {
     constructor(element,invalidate) {
        this.invalidate=invalidate;
        this.invalidate();
@@ -19,13 +19,13 @@ export class addScriptModal {
     async addScript(_target) {
         let formInfo = await extractFormInformation(_target);
         if(formInfo.isValid) {
-            let scriptData = {
+            let flowData = {
                 name:formInfo.data.name,
                 description: formInfo.data.description,
                 id:webSkel.servicesRegistry.UtilsService.generateId(),
                 content: formInfo.data.validateCode
             }
-            await webSkel.currentUser.space.addScript(scriptData);
+            await webSkel.currentUser.space.addFlow(flowData);
             webSkel.currentUser.space.notifyObservers(webSkel.currentUser.space.getNotificationId());
 
 

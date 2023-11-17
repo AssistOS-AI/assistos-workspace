@@ -85,8 +85,8 @@ export class FileSystemStorage{
         return await result.text();
     }
 
-    async loadDefaultScripts(){
-        const result = await fetch(`/scripts/default`,
+    async loadDefaultFlows(){
+        const result = await fetch(`/flows/default`,
             {
                 method: "GET"
             });

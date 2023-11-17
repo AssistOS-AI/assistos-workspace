@@ -22,9 +22,9 @@ export class spacePage {
                 this.tab = "personalities-page";
                 window.location.hash = "#space-page/personalities-page";
                 break;
-            case "scripts-page":
-                this.tab = "scripts-page";
-                window.location.hash = "#space-page/scripts-page";
+            case "flows-page":
+                this.tab = "flows-page";
+                window.location.hash = "#space-page/flows-page";
                 break;
             case "tasks-page":
                 this.tab = "tasks-page";
@@ -58,8 +58,8 @@ export class spacePage {
              this.pageContent = `<personalities-page data-presenter="personalities-page"></personalities-page>`;
              break;
          }
-         case "scripts-page":{
-             this.pageContent = `<scripts-page data-presenter="scripts-page"></scripts-page>`;
+         case "flows-page":{
+             this.pageContent = `<flows-page data-presenter="flows-page"></flows-page>`;
              break;
          }
          case "tasks-page":{

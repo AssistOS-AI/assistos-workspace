@@ -50,8 +50,8 @@ export class StorageManager {
         return await this.currentService.loadUserByEmail(email);
     }
 
-    async loadDefaultScripts(){
-        return await this.currentService.loadDefaultScripts();
+    async loadDefaultFlows(){
+        return await this.currentService.loadDefaultFlows();
     }
     async loadDefaultPersonalities(){
         return await this.currentService.loadDefaultPersonalities();

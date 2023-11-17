@@ -23,8 +23,8 @@ async function getDefaultItems(filePath) {
     }
     return localData;
 }
-async function loadDefaultScripts(request, response){
-    const filePath = `../apihub-root/default-scripts`;
+async function loadDefaultFlows(request, response){
+    const filePath = `../apihub-root/default-flows`;
     let data =  await getDefaultItems(filePath);
     sendResponse(response, 200, "text/html", JSON.stringify(data));
 }
@@ -34,6 +34,6 @@ async function loadDefaultPersonalities(request,response){
     sendResponse(response,200,"text/html",JSON.stringify(data));
 }
 module.exports = {
-    loadDefaultScripts,
+    loadDefaultFlows,
     loadDefaultPersonalities
 }

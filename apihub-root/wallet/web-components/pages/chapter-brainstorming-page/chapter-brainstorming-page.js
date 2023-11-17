@@ -64,8 +64,8 @@ export class chapterBrainstormingPage {
         await webSkel.changeToDynamicPage("document-view-page", `documents/${this._document.id}/document-view-page`);
     }
     async suggestChapter(){
-        let scriptId = webSkel.currentUser.space.getScriptIdByName("suggest chapter");
-        let result = await webSkel.getService("LlmsService").callScript(scriptId, JSON.stringify(this._chapter.mainIdeas));
+        let flowId = webSkel.currentUser.space.getFlowIdByName("suggest chapter");
+        let result = await webSkel.getService("LlmsService").callFlow(flowId, JSON.stringify(this._chapter.mainIdeas));
         let chapterObj=result.responseJson;
         chapterObj.id=webSkel.servicesRegistry.UtilsService.generateId();
         for(let paragraph of chapterObj.paragraphs){

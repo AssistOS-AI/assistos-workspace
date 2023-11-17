@@ -7,7 +7,7 @@ import { Announcement } from "./core/models/announcement.js";
 import { Paragraph } from "./core/models/paragraph.js";
 import { Space } from "./core/models/space.js";
 import { Settings } from "./core/models/settings.js";
-import { Script } from "./core/models/script.js";
+import { Flow } from "./core/models/flow.js";
 import { Agent } from "./core/models/agent.js";
 
 export {
@@ -19,7 +19,7 @@ export {
     Paragraph,
     Space,
     Settings,
-    Script,
+    Flow,
     Agent
 };
 

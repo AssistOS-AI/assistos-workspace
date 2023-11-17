@@ -188,9 +188,9 @@
       "className": "addPersonalityModal"
     },
     {
-      "name": "add-script-modal",
-      "path": "./web-components/modals/add-script-modal/add-script-modal.js",
-    "className": "addScriptModal"
+      "name": "add-flow-modal",
+      "path": "./web-components/modals/add-flow-modal/add-flow-modal.js",
+    "className": "addFlowModal"
     },
     {
       "name": "add-image-modal",
@@ -198,9 +198,9 @@
       "className": "addImageModal"
     },
     {
-      "name": "edit-script-modal",
-      "path": "./web-components/modals/edit-script-modal/edit-script-modal.js",
-    "className": "editScriptModal"
+      "name": "edit-flow-modal",
+      "path": "./web-components/modals/edit-flow-modal/edit-flow-modal.js",
+    "className": "editFlowModal"
     },
     {
       "name": "edit-announcement-modal",
@@ -254,9 +254,9 @@
       "className": "addSpaceModal"
     },
     {
-      "name": "scripts-page",
-      "path": "./web-components/subpages/scripts-page/scripts-page.js",
-      "className": "scriptsPage"
+      "name": "flows-page",
+      "path": "./web-components/subpages/flows-page/flows-page.js",
+      "className": "flowsPage"
     },
     {
       "name": "authentication-page",
@@ -396,8 +396,8 @@
       "path": "./wallet/web-components/components/item-list/personality-unit/personality-unit.html"
     },
     {
-      "name": "script-unit",
-      "path": "./wallet/web-components/components/item-list/script-unit/script-unit.html"
+      "name": "flow-unit",
+      "path": "./wallet/web-components/components/item-list/flow-unit/flow-unit.html"
     },
     {
       "name": "announcement-unit",
@@ -484,8 +484,8 @@
       "path": "./wallet/web-components/subpages/personalities-page/personalities-page.html"
     },
     {
-      "name": "scripts-page",
-      "path": "./wallet/web-components/subpages/scripts-page/scripts-page.html"
+      "name": "flows-page",
+      "path": "./wallet/web-components/subpages/flows-page/flows-page.html"
     },
     {
       "name": "add-document-modal",
@@ -504,16 +504,16 @@
       "path": "./wallet/web-components/modals/add-personality-modal/add-personality-modal.html"
     },
     {
-      "name": "add-script-modal",
-      "path": "./wallet/web-components/modals/add-script-modal/add-script-modal.html"
+      "name": "add-flow-modal",
+      "path": "./wallet/web-components/modals/add-flow-modal/add-flow-modal.html"
     },
     {
       "name": "add-image-modal",
       "path": "./wallet/web-components/modals/add-image-modal/add-image-modal.html"
     },
     {
-      "name": "edit-script-modal",
-      "path": "./wallet/web-components/modals/edit-script-modal/edit-script-modal.html"
+      "name": "edit-flow-modal",
+      "path": "./wallet/web-components/modals/edit-flow-modal/edit-flow-modal.html"
     },
     {
       "name": "clone-document-modal",

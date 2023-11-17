@@ -20,8 +20,8 @@ export class generateDocumentModal{
     async generateDocument(_target) {
         let formData = await extractFormInformation(_target);
         if(formData.isValid) {
-            let scriptId = webSkel.currentUser.space.getScriptIdByName("generate document");
-            let result = await  webSkel.getService("LlmsService").callScript(scriptId,
+            let flowId = webSkel.currentUser.space.getFlowIdByName("generate document");
+            let result = await  webSkel.getService("LlmsService").callFlow(flowId,
                 formData.data.documentTitle, formData.data.documentTopic,formData.data.chaptersCount);
 
             let docData= result.responseJson;

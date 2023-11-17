@@ -34,8 +34,8 @@ export class cloneChapterModal {
             personalityDescription=webSkel.currentUser.space.personalities.find(personality=>personality.id===personalityId).description;
         }
         let simplifiedChapterJson= JSON.stringify(webSkel.currentUser.space.getDocument(this.documentId).getChapter(this.chapterId).simplifyChapter());
-        let scriptId = webSkel.currentUser.space.getScriptIdByName("clone chapter");
-        let result = await webSkel.getService("LlmsService").callScript(scriptId,simplifiedChapterJson,personalityDescription, proofread);
+        let flowId = webSkel.currentUser.space.getFlowIdByName("clone chapter");
+        let result = await webSkel.getService("LlmsService").callFlow(flowId, simplifiedChapterJson,personalityDescription, proofread);
         let chapterData = result.responseJson;
         chapterData.title = chapterTitle;
 

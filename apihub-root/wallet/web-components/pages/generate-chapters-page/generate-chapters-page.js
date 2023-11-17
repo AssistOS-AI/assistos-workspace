@@ -46,8 +46,8 @@ export class generateChaptersPage {
         let form = this.element.querySelector(".generate-ideas-form");
         let formInfo = await extractFormInformation(form);
         if(formInfo.isValid) {
-            let scriptId = webSkel.currentUser.space.getScriptIdByName("generate ideas");
-            let result = await webSkel.getService("LlmsService").callScript(scriptId, formInfo.data.idea);
+            let flowId = webSkel.currentUser.space.getFlowIdByName("generate ideas");
+            let result = await webSkel.getService("LlmsService").callFlow(flowId, formInfo.data.idea, "", 5);
             this.ideas= result.responseJson;
             this.invalidate();
         }
@@ -56,18 +56,18 @@ export class generateChaptersPage {
 
     async generateEmptyChapters(_target){
         let formInfo = await extractFormInformation(_target);
-        let scriptId = webSkel.currentUser.space.getScriptIdByName("generate empty chapters");
+        let flowId = webSkel.currentUser.space.getFlowIdByName("generate empty chapters");
         let selectedIdeas = [];
         for (const [key, value] of Object.entries(formInfo.elements)) {
             if(value.element.checked) {
                 selectedIdeas.push(value.element.value);
             }
         }
-        let result = await webSkel.getService("LlmsService").callScript(scriptId, JSON.stringify(selectedIdeas));
+        let result = await webSkel.getService("LlmsService").callFlow(flowId, JSON.stringify(selectedIdeas));
         if(result.responseJson){
             await this._document.addEmptyChapters(result.responseJson, selectedIdeas);
         }else {
-            await showApplicationError("Script execution error",
+            await showApplicationError("flow execution error",
                 "Data received from LLM is an incorrect format", `result from LLM: ${result}`);
         }
         await webSkel.changeToDynamicPage("manage-chapters-page", `documents/${this._document.id}/manage-chapters-page`);
@@ -75,18 +75,18 @@ export class generateChaptersPage {
 
     async generateChapters(_target){
         let formInfo = await extractFormInformation(_target);
-        let scriptId = webSkel.currentUser.space.getScriptIdByName("generate chapters");
+        let flowId = webSkel.currentUser.space.getFlowIdByName("generate chapters");
         let selectedIdeas = [];
         for (const [key, value] of Object.entries(formInfo.elements)) {
             if(value.element.checked) {
                 selectedIdeas.push(value.element.value);
             }
         }
-        let result = await webSkel.getService("LlmsService").callScript(scriptId, JSON.stringify(selectedIdeas));
+        let result = await webSkel.getService("LlmsService").callFlow(flowId, JSON.stringify(selectedIdeas));
         if(result.responseJson){
             await this._document.addChapters(result.responseJson, selectedIdeas);
         }else {
-           await showApplicationError("Script execution error",
+           await showApplicationError("Flow execution error",
                 "Data received from LLM is an incorrect format", `result from LLM: ${result}`);
         }
         await webSkel.changeToDynamicPage("manage-chapters-page", `documents/${this._document.id}/manage-chapters-page`);

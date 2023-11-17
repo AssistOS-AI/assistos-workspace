@@ -3,7 +3,7 @@ import {
     extractFormInformation
 } from "../../../imports.js";
 
-export class editScriptModal {
+export class editFlowModal {
     constructor(element,invalidate) {
         this.element=element;
         this.invalidate=invalidate;
@@ -11,7 +11,7 @@ export class editScriptModal {
     }
 
     beforeRender() {
-      let script = webSkel.currentUser.space.getScript(this.element.getAttribute("data-id"));
+      let script = webSkel.currentUser.space.getFlow(this.element.getAttribute("data-id"));
       this.scriptContent = script.content;
       this.scriptName = script.name;
     }
@@ -28,8 +28,8 @@ export class editScriptModal {
         let form = this.element.querySelector("form")
         let formInfo = await extractFormInformation(form);
         if(formInfo.isValid) {
-            let scriptId = this.element.getAttribute("data-id");
-            await webSkel.currentUser.space.updateScript(scriptId, formInfo.data.scriptCode);
+            let flowId = this.element.getAttribute("data-id");
+            await webSkel.currentUser.space.updateFlow(flowId, formInfo.data.scriptCode);
             webSkel.currentUser.space.notifyObservers(webSkel.currentUser.space.getNotificationId());
             closeModal(_target);
         }

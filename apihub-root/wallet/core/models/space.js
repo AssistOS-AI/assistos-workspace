@@ -3,7 +3,7 @@ import {
     Personality,
     User,
     Settings,
-    Script,
+    Flow,
     Announcement,
     Agent
 } from "../../imports.js";
@@ -17,7 +17,7 @@ export class Space {
         this.settings = spaceData.settings ? new Settings(spaceData.settings) : {};
         this.announcements = (spaceData.announcements || []).map(announcementData => new Announcement(announcementData));
         this.users = (spaceData.users || []).map(userData => new User(userData));
-        this.scripts = (spaceData.scripts|| []).map(scriptData => new Script(scriptData));
+        this.flows = (spaceData.flows|| []).map(flowData => new Flow(flowData));
 
         this.documents = (spaceData.documents || []).map(documentData => new DocumentModel(documentData)).reverse();
         this.admins = [];
@@ -89,13 +89,13 @@ export class Space {
         let announcement = this.announcements.find((announcement) => announcement.id === announcementId);
         return announcement || console.error(`Announcement not found, announcementId: ${announcementId}`);
     }
-    getScript(scriptId) {
-        let script = this.scripts.find((script) => script.id === scriptId);
-        return script || console.error(`Script not found in space, scriptId: ${scriptId}`);
+    getFlow(flowId) {
+        let flow = this.flows.find((flow) => flow.id === flowId);
+        return flow || console.error(`Flow not found in space, flowId: ${flowId}`);
     }
-    getScriptIdByName(name){
-        let script = this.scripts.find((script) => script.name === name);
-        return script.id || console.error(`Script not found in space, script name: ${name}`);
+    getFlowIdByName(name){
+        let flow = this.flows.find((flow) => flow.name === name);
+        return flow.id || console.error(`Flow not found in space, flow name: ${name}`);
     }
     getDefaultAgent(){
         return this.agent;
@@ -126,10 +126,10 @@ export class Space {
         this.announcements.unshift(new Announcement(announcementData));
         await storageManager.storeObject(webSkel.currentUser.space.id, "status", "status", JSON.stringify(webSkel.currentUser.space.getSpaceStatus(),null,2));
     }
-    async addScript(scriptData) {
-        let scriptObject= new Script(scriptData);
-        this.scripts.push(scriptObject);
-        await storageManager.storeObject(webSkel.currentUser.space.id, "scripts", scriptObject.id, JSON.stringify(scriptObject,null,2));
+    async addFlow(flowData) {
+        let flowObject= new Flow(flowData);
+        this.flows.push(flowObject);
+        await storageManager.storeObject(webSkel.currentUser.space.id, "flows", flowObject.id, JSON.stringify(flowObject,null,2));
     }
 
     deleteDocument(documentId) {
@@ -140,9 +140,9 @@ export class Space {
         this.announcements = this.announcements.filter(announcement=> announcement.id !== announcementId);
         await storageManager.storeObject(webSkel.currentUser.space.id, "status", "status", JSON.stringify(webSkel.currentUser.space.getSpaceStatus(),null,2));
     }
-    async deleteScript(scriptId) {
-        this.scripts = this.scripts.filter(script => script.id !== scriptId);
-        await storageManager.storeObject(webSkel.currentUser.space.id, "scripts", scriptId, "");
+    async deleteFlow(flowId) {
+        this.flows = this.flows.filter(flow => flow.id !== flowId);
+        await storageManager.storeObject(webSkel.currentUser.space.id, "flows", flowId, "");
     }
     async deletePersonality(personalityId){
         this.personalities = this.personalities.filter(personality => personality.id !== personalityId);
@@ -158,20 +158,20 @@ export class Space {
             console.error("Failed to update announcement, announcement not found.");
         }
     }
-    async updateScript(scriptId, content) {
-        let script = this.getScript(scriptId);
-        if(script!==null) {
-            script.content = content;
-            await storageManager.storeObject(webSkel.currentUser.space.id, "scripts", script.id, JSON.stringify(script,null,2));
+    async updateFlow(flowId, content) {
+        let flow = this.getFlow(flowId);
+        if(flow!==null) {
+            flow.content = content;
+            await storageManager.storeObject(webSkel.currentUser.space.id, "flows", flow.id, JSON.stringify(flow,null,2));
         }else{
-            console.error("Failed to update script, script not found.");
+            console.error("Failed to update flow, flow not found.");
         }
     }
 
-    async createDefaultScripts(){
-        let scripts = JSON.parse(await storageManager.loadDefaultScripts());
-        for(let script of scripts){
-            this.scripts.push(new Script(script));
+    async createDefaultFlows(){
+        let flows = JSON.parse(await storageManager.loadDefaultFlows());
+        for(let flow of flows){
+            this.flows.push(new Flow(flow));
         }
     }
     async createDefaultPersonalities(){

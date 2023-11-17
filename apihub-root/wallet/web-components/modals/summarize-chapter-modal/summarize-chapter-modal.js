@@ -12,8 +12,8 @@ export class summarizeChapterModal{
         this.invalidate = invalidate;
         this.element = element;
         setTimeout(async()=>{
-            let scriptId = webSkel.currentUser.space.getScriptIdByName("summarize");
-            let result = await webSkel.getService("LlmsService").callScript(scriptId, this._chapter.stringifyChapter());
+            let flowId = webSkel.currentUser.space.getFlowIdByName("summarize");
+            let result = await webSkel.getService("LlmsService").callFlow(flowId, this._chapter.stringifyChapter());
             this.chapterMainIdeas = result.responseJson;
             this.invalidate();
         },0)

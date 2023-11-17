@@ -12,8 +12,8 @@ export class summarizeDocumentModal{
         this.element = element;
 
         setTimeout(async()=>{
-            let scriptId = webSkel.currentUser.space.getScriptIdByName("summarize");
-            let result = await webSkel.getService("LlmsService").callScript(scriptId, this._document.stringifyDocument());
+            let flowId = webSkel.currentUser.space.getFlowIdByName("summarize");
+            let result = await webSkel.getService("LlmsService").callFlow(flowId, this._document.stringifyDocument());
             this.documentMainIdeas = result.responseJson;
             this.invalidate();
         },0)

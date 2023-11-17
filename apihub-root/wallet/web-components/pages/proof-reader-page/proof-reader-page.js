@@ -48,8 +48,8 @@ export class proofReaderPage {
                 this.prompt = formData.data.prompt;
                 this.personality = webSkel.currentUser.space.getPersonality(formData.data.personality);
             }
-            let scriptId = webSkel.currentUser.space.getScriptIdByName("proofreader script");
-            let result = await webSkel.getService("LlmsService").callScript(scriptId, this.prompt, this.personality.name, this.personality.description);
+            let flowId = webSkel.currentUser.space.getFlowIdByName("proofreader script");
+            let result = await webSkel.getService("LlmsService").callFlow(flowId, this.prompt, this.personality.name, this.personality.description);
             this.observations = result.responseJson.observations;
             this.generatedText = result.responseJson.improvedText;
             this.invalidate();

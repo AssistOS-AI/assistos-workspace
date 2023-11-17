@@ -12,8 +12,8 @@ export class suggestParagraphModal {
         this.element = element;
 
         setTimeout(async()=>{
-            let scriptId = webSkel.currentUser.space.getScriptIdByName("suggest paragraph");
-            let result = await webSkel.getService("LlmsService").callScript(scriptId, this._paragraph.toString());
+            let flowId = webSkel.currentUser.space.getFlowIdByName("suggest paragraph");
+            let result = await webSkel.getService("LlmsService").callFlow(flowId, this._paragraph.toString());
             this.suggestedParagraph = result.responseJson.text;
             this.suggestedParagraphIdea = result.responseJson.mainIdea;
             this.invalidate();

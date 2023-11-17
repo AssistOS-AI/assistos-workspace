@@ -13,8 +13,8 @@ export class summarizeParagraphModal{
         this.invalidate = invalidate;
         this.element = element;
         setTimeout(async()=>{
-            let scriptId = webSkel.currentUser.space.getScriptIdByName("summarize paragraph");
-            let result = await webSkel.getService("LlmsService").callScript(scriptId,this._paragraph.toString());
+            let flowId = webSkel.currentUser.space.getFlowIdByName("summarize paragraph");
+            let result = await webSkel.getService("LlmsService").callFlow(flowId,this._paragraph.toString());
             this.paragraphMainIdea = result.responseString;
             this.invalidate();
         },0)

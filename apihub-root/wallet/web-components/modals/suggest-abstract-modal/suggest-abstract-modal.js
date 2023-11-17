@@ -12,8 +12,8 @@ export class suggestAbstractModal {
         this.element = element;
 
         setTimeout(async()=>{
-            let scriptId = webSkel.currentUser.space.getScriptIdByName("suggest abstract");
-            let result = await webSkel.getService("LlmsService").callScript(scriptId, this._document.stringifyDocument());
+            let flowId = webSkel.currentUser.space.getFlowIdByName("suggest abstract");
+            let result = await webSkel.getService("LlmsService").callFlow(flowId, this._document.stringifyDocument());
             this.suggestedAbstract = result.responseString;
             this.invalidate();
         },0);

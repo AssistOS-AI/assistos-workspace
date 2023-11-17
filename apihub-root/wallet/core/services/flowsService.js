@@ -46,14 +46,6 @@ export class FlowsService{
                 this.__body.max_tokens = max_tokens;
                 return await this.callLLM();
             },
-            brainstormAs : async  function (personalityName,prompt, number, max_tokens){
-                //this.body.personality = webSkel.currentUser.space.getPersonality();
-                this.setThink(prompt);
-                this.__body.prompt = prompt;
-                this.__body.variants = number;
-                this.__body.max_tokens = max_tokens;
-                return await this.callLLM();
-            },
 
             setCostLevel :  function (level){
                 this.__body.cost = level;

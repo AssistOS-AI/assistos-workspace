@@ -13,8 +13,8 @@ export class suggestTitlesModal {
         this.element = element;
 
         setTimeout(async()=>{
-            let scriptId = webSkel.currentUser.space.getScriptIdByName("suggest document titles");
-            let result = await webSkel.getService("LlmsService").callScript(scriptId, this._document.topic);
+            let flowId = webSkel.currentUser.space.getFlowIdByName("suggest document titles");
+            let result = await webSkel.getService("LlmsService").callFlow(flowId, this._document.topic);
             if(result.responseJson){
                 this.suggestedTitles = result.responseJson;
                 this.invalidate();

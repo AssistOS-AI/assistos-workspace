@@ -68,9 +68,9 @@ export class agentsPage{
             return;
         }
         this.displayMessage("user", userPrompt);
-        let scriptId = webSkel.currentUser.space.getScriptIdByName("default agent");
+        let flowId = webSkel.currentUser.space.getFlowIdByName("default agent");
         let defaultAgent= webSkel.currentUser.space.getDefaultAgent();
-        let response = await webSkel.getService("LlmsService").callScript(scriptId, userPrompt, defaultAgent.loadKnowledge());
+        let response = await webSkel.getService("LlmsService").callFlow(flowId, userPrompt, defaultAgent.loadKnowledge());
         this.cachedHistory.push({role:"user",content:userPrompt});
 
         let agentMessage=response.responseJson?response.responseJson:response.responseString;

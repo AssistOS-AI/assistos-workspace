@@ -36,8 +36,8 @@ export class paragraphProofreadPage {
     }
 
     async suggestImprovements(_target){
-        let scriptId = webSkel.currentUser.space.getScriptIdByName("proofread");
-        let result = await webSkel.getService("LlmsService").callScript(scriptId, this.paragraphText);
+        let flowId = webSkel.currentUser.space.getFlowIdByName("proofread");
+        let result = await webSkel.getService("LlmsService").callFlow(flowId, this.paragraphText);
         this.improvedParagraph = result.responseString || result.responseJson;
         this.invalidate();
     }

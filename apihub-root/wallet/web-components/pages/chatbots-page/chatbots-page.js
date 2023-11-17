@@ -99,8 +99,8 @@ export class chatbotsPage {
         if(count < 500){
             return;
         }
-      let scriptId = webSkel.currentUser.space.getScriptIdByName("summarize conversation");
-      let response = await webSkel.getService("LlmsService").callScript(scriptId, JSON.stringify(this.history));
+      let flowId = webSkel.currentUser.space.getFlowIdByName("summarize conversation");
+      let response = await webSkel.getService("LlmsService").callFlow(flowId, JSON.stringify(this.history));
       this.history = [];
       this.history.push(response.responseJson.summary[0]);
       this.history.push(response.responseJson.summary[1]);
@@ -111,9 +111,9 @@ export class chatbotsPage {
         formInfo.elements.input.element.value = "";
         this.displayMessage("user",input);
         this.displayEmotion(this.defaultEmotion);
-        let scriptId = webSkel.currentUser.space.getScriptIdByName("chatbots");
+        let flowId = webSkel.currentUser.space.getFlowIdByName("chatbots");
         await this.summarizeConversation();
-        let response = await webSkel.getService("LlmsService").callScript(scriptId, formInfo.data.input, this.personality.name, this.personality.description, this.history);
+        let response = await webSkel.getService("LlmsService").callFlow(flowId, formInfo.data.input, this.personality.name, this.personality.description, this.history);
 
         this.history.push({role:"user",content:input});
         if(!response.responseJson){
