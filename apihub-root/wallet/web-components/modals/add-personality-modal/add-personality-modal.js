@@ -36,7 +36,7 @@ export class addPersonalityModal {
                     description:formInfo.data.description,
                     image: formInfo.data.photo
             }
-            await webSkel.currentUser.space.addPersonality(personalityData);
+            await webSkel.getService("globalFlowsService").spaceFlows.addPersonality(personalityData);
             webSkel.currentUser.space.notifyObservers(webSkel.currentUser.space.getNotificationId());
             closeModal(_target);
         }

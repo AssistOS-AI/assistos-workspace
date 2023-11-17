@@ -30,6 +30,18 @@ export class globalFlowsService{
                 await webSkel.currentUser.space.getDocument(documentId).updateTitle(titleText);
             }
         }
+        this.spaceFlows={
+            addSpace: async function(spaceId, ...args) {},
+            addAnnouncement: async function(announcementData, ...args) {
+                await webSkel.currentUser.space.addAnnouncement(announcementData);
+            },
+            addPersonality: async function(personalityData, ...args) {
+                await webSkel.currentUser.space.addPersonality(personalityData);
+            },
+            addFlow: async function(flowData, ...args) {
+                await webSkel.currentUser.space.addFlow(flowData);
+            }
+        }
     }
 
 }
