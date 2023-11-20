@@ -1,33 +1,7 @@
 #page-content{
     overflow:hidden;
 }
-.ai-prompt {
-    padding: 10px;
-    color: #3A3A3A;
-    font-feature-settings: 'clig' off, 'liga' off;
-    font-size: 12px;
-    font-style: normal;
-    font-weight: 600;
-    line-height: normal;
-}
-.prompt1 {
-    display: flex;
-    min-height: 100%;
-    min-width: 100%;
-}
-#ai-prompt {
-    position: absolute;
-    top: 0;
-    left: 0;
-    right: 0;
-    bottom: 0;
-    border-radius: 8px;
-    align-items: flex-start;
-    text-align: start;
-    resize: none;
-    outline: none;
-    border: 0.5px solid rgba(0, 0, 0, 0.24);
-}
+
 .language,
 .personality {
     color: #3A3A3A;
@@ -96,7 +70,7 @@ option {
 .proof-reader-page {
     height: 100%;
 }
-#prompt-textarea {
+#text-textarea {
     height: 80%;
     width: 100%;
 }
@@ -183,6 +157,9 @@ option {
 .form-item{
     width:100%;
     margin-bottom: 15px;
+}
+.details{
+    margin-top: 15px;
 }
 .generated-text-title{
     display: flex;

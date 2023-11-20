@@ -104,6 +104,11 @@ export class paragraphBrainstormingPage {
 
     async openParagraphProofreadPage(){
         await webSkel.changeToDynamicPage("paragraph-proofread-page", `documents/${this._document.id}/paragraph-proofread-page/${this._chapter.id}/${this._paragraph.id}`);
+        let flowId = webSkel.currentUser.space.getFlowIdByName("proofread");
+        let userDetails = {textarea:"Custom prompt (Optional)", select:{label:"Select personality", options:"personalities"}};
+        await showModal(document.querySelector("body"), "user-details-modal",
+            {presenter:"user-details-modal", inputs:sanitize(JSON.stringify(userDetails)),
+                flowId: flowId, text: this._paragraph.text, docId: this._document.id, chapterId: this._chapter.id});
     }
 
     async summarize(){

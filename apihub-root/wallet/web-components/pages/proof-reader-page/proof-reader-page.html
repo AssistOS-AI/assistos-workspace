@@ -19,9 +19,13 @@
                   </div>
 
                   <div class="proof-reader-content-right">
-                      <div class="form-item" id="prompt-textarea">
-                          <label for="prompt" class="length">AI prompt</label>
-                          <textarea name="prompt" required data-id="prompt" id="prompt" placeholder="Describe a sunny afternoon in Atlanta."></textarea><br>
+                      <div class="form-item" id="text-textarea">
+                          <label for="text" class="length">Text to be corrected</label>
+                          <textarea name="text" required data-id="text" id="text" placeholder="There was a sunny afternoon in Atlanta."></textarea><br>
+                      </div>
+                      <div class="form-item details" >
+                          <label for="details" class="length">Details</label>
+                          <textarea name="details" data-id="details" id="details" placeholder="Don't use synonyms for the words in the text"></textarea><br>
                       </div>
                       <div class="form-button">
                           <button type="button" class="generate-button" data-local-action="executeProofRead">Generate</button>

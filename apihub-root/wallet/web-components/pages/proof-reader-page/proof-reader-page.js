@@ -7,7 +7,7 @@ export class proofReaderPage {
         this.element = element;
         this.invalidate = invalidate;
         this.invalidate();
-        this.prompt = "";
+        this.text = "";
     }
 
     beforeRender() {
@@ -34,22 +34,27 @@ export class proofReaderPage {
                 console.error("Error trying to change the display of the buttons"+e);
             }
         }
-        let promptElement = this.element.querySelector("#prompt");
-        promptElement.value = this.prompt;
+        let textElement = this.element.querySelector("#text");
+        textElement.value = this.text;
         if(this.generatedText){
            let aiText = this.element.querySelector(".generated-text-container");
            aiText.style.display = "flex";
+        }
+        let detailsElement = this.element.querySelector("#details");
+        if(this.details){
+            detailsElement.value = this.details.prompt;
         }
     }
 
     async executeProofRead(formElement,cached) {
         const addressLLMRequest = async (formData)=>{
             if(formData){
-                this.prompt = formData.data.prompt;
+                this.text = formData.data.text;
                 this.personality = webSkel.currentUser.space.getPersonality(formData.data.personality);
+                this.details = {prompt:formData.data.details};
             }
-            let flowId = webSkel.currentUser.space.getFlowIdByName("proofreader script");
-            let result = await webSkel.getService("LlmsService").callFlow(flowId, this.prompt, this.personality.name, this.personality.description);
+            let flowId = webSkel.currentUser.space.getFlowIdByName("proofread");
+            let result = await webSkel.getService("LlmsService").callFlow(flowId, this.text, this.personality.id, this.details);
             this.observations = result.responseJson.observations;
             this.generatedText = result.responseJson.improvedText;
             this.invalidate();
@@ -65,7 +70,7 @@ export class proofReaderPage {
     }
     /* To be Refactored with Session Storage or something better in the future if necessary */
     async regenerate(_target){
-            if(this.prompt!==undefined){
+            if(this.text!==undefined){
                 await this.executeProofRead(_target,"cached");
             }
     }
@@ -73,6 +78,8 @@ export class proofReaderPage {
         let text=reverseQuerySelector(_target,".generated-text")?.innerText;
         if(text){
             await navigator.clipboard.writeText(text);
+            text.insertAdjacentHTML("afterbegin", `<confirmation-popup data-presenter="confirmation-popup" 
+                    data-message="Copied!" data-left="${text.innerText.offsetWidth/2}"></confirmation-popup>`);
         }
     }
 }

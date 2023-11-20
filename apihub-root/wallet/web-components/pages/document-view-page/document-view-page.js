@@ -1,4 +1,13 @@
-import {getClosestParentElement, parseURL, reverseQuerySelector, SaveElementTimer,sanitize,unsanitize,customTrim} from "../../../imports.js";
+import {
+    getClosestParentElement,
+    parseURL,
+    reverseQuerySelector,
+    SaveElementTimer,
+    sanitize,
+    unsanitize,
+    customTrim,
+    showModal
+} from "../../../imports.js";
 
 export class documentViewPage {
     constructor(element, invalidate) {
@@ -256,8 +265,14 @@ export class documentViewPage {
     }
 
     async openParagraphProofreadPage() {
-        await webSkel.changeToDynamicPage("paragraph-proofread-page",
-            `documents/${this._document.id}/paragraph-proofread-page/${webSkel.currentUser.space.currentChapterId}/${webSkel.currentUser.space.currentParagraphId}`);
+        let chapter = this._document.getChapter(webSkel.currentUser.space.currentChapterId);
+        let paragraph = chapter.getParagraph(webSkel.currentUser.space.currentParagraphId);
+        await webSkel.changeToDynamicPage("paragraph-proofread-page", `documents/${this._document.id}/paragraph-proofread-page/${chapter.id}/${paragraph.id}`);
+        let flowId = webSkel.currentUser.space.getFlowIdByName("proofread");
+        let userDetails = {textarea:"Custom prompt (Optional)", select:{label:"Select personality", options:"personalities"}};
+        await showModal(document.querySelector("body"), "user-details-modal",
+            {presenter:"user-details-modal", inputs:sanitize(JSON.stringify(userDetails)),
+                flowId: flowId, text: paragraph.text, docId: this._document.id, chapterId: chapter.id});
     }
 
     async openParagraphBrainstormingPage() {
