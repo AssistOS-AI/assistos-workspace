@@ -1,4 +1,4 @@
-import {extractFormInformation, parseURL, showModal} from "../../../imports.js";
+import {extractFormInformation, parseURL, sanitize, showModal} from "../../../imports.js";
 export class generateChaptersPage {
     constructor(element, invalidate) {
         this.element = element;
@@ -82,9 +82,9 @@ export class generateChaptersPage {
                 selectedIdeas.push(value.element.value);
             }
         }
-        await showModal(document.querySelector("body"), "user-prompt-modal", {ideas:JSON.stringify(selectedIdeas), docId: this._document.id});
-
-
+        let flowId = webSkel.currentUser.space.getFlowIdByName("generate chapters");
+        await showModal(document.querySelector("body"), "user-details-modal",
+            {presenter:"user-details-modal", flowId: flowId, ideas:sanitize(JSON.stringify(selectedIdeas)), docId: this._document.id});
     }
 
     async openMangeChaptersPage() {

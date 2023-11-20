@@ -70,12 +70,12 @@ export class DocumentModel {
         await documentFactory.updateDocument(webSkel.currentUser.space.id, this);
     }
 
-    async addChapters(chaptersData, ideas){
+    async addChapters(chaptersData){
         for(let i= 0; i < chaptersData.length; i++){
             let chapterData= {
                 title: chaptersData[i].title,
                 paragraphs: [],
-                mainIdeas: [ideas[i]]
+                mainIdeas: chaptersData[i].mainIdeas
             }
             let newChapter = new Chapter(chapterData);
             this.chapters.push(newChapter);

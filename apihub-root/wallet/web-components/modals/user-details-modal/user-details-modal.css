@@ -1,6 +1,7 @@
 dialog[class="modal"] {
     padding: 0;
     border: none;
+    width: 50%;
 }
 
 .modal-body {
@@ -38,17 +39,29 @@ dialog[class="modal"] {
     font-weight: 600;
 }
 
-.form-input {
+#prompt{
     border-radius: 8px;
     border: 0.5px solid rgba(0, 0, 0, 0.24);
     width: 100%;
     margin: 4px 0 8px;
     padding: 8px;
+    height: 200px;
+    resize: none;
 }
-
-.wide-btn {
+#chaptersNr{
+    border-radius: 8px;
+    border: 0.5px solid rgba(0, 0, 0, 0.24);
+    width: 50px;
+    margin: 4px 0 8px;
+    padding: 8px;
+}
+.modal-footer{
+    display: flex;
+    justify-content: center;
+}
+.wide-btn-modal {
     cursor: pointer;
-    width: 100%;
+    width: 100px;
     height: 36px;
     background: #A42E70;
     border: none;

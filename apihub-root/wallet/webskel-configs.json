@@ -1,9 +1,9 @@
 {
   "presenters": [
     {
-      "name": "user-prompt-modal",
-      "path": "./web-components/modals/user-prompt-modal/user-prompt-modal.js",
-      "className": "userPromptModal"
+      "name": "user-details-modal",
+      "path": "./web-components/modals/user-details-modal/user-details-modal.js",
+      "className": "userDetailsModal"
     },
     {
       "name": "collaborators-page",
@@ -297,8 +297,8 @@
   ],
   "components": [
     {
-      "name": "user-prompt-modal",
-      "path": "./wallet/web-components/modals/user-prompt-modal/user-prompt-modal.html"
+      "name": "user-details-modal",
+      "path": "./wallet/web-components/modals/user-details-modal/user-details-modal.html"
     },
     {
       "name": "collaborators-page",
