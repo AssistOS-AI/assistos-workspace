@@ -48,12 +48,22 @@ dialog[class="modal"] {
     height: 200px;
     resize: none;
 }
-#chaptersNr{
+#nr{
     border-radius: 8px;
     border: 0.5px solid rgba(0, 0, 0, 0.24);
     width: 50px;
     margin: 4px 0 8px;
     padding: 8px;
+}
+dialog[class="modal"] select{
+    height: 32px;
+    border-radius: 8px;
+    font-size: 12px;
+    font-weight: 400;
+    color: #6b6b6b;
+    border: 0.5px solid rgba(0, 0, 0, 0.24);
+    background:none;
+    padding-left:10px;
 }
 .modal-footer{
     display: flex;

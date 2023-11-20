@@ -1,4 +1,4 @@
-import {extractFormInformation, parseURL} from "../../../imports.js";
+import {extractFormInformation, parseURL, sanitize, showModal} from "../../../imports.js";
 export class generateParagraphsPage {
     constructor(element, invalidate) {
         this.element = element;
@@ -61,21 +61,17 @@ export class generateParagraphsPage {
 
     async generateParagraphs(_target){
         let formInfo = await extractFormInformation(_target);
-        let flowId = webSkel.currentUser.space.getFlowIdByName("generate paragraphs");
         let selectedIdeas = [];
         for (const [key, value] of Object.entries(formInfo.elements)) {
             if(value.element.checked) {
                 selectedIdeas.push(value.element.value);
             }
         }
-        let result = await webSkel.getService("LlmsService").callFlow(flowId, JSON.stringify(selectedIdeas));
-        if(result.responseJson){
-            await this._document.addParagraphs(this._chapter, result.responseJson, selectedIdeas);
-        }else {
-            await showApplicationError("Flow execution error",
-                "Data received from LLM is an incorrect format", `result from LLM: ${result}`);
-        }
-        await webSkel.changeToDynamicPage("document-view-page", `documents/${this._document.id}/document-view-page`);
+        let flowId = webSkel.currentUser.space.getFlowIdByName("generate paragraphs");
+        let userDetails = {textarea:"Custom prompt (Optional)", number: "Number of paragraphs (optional)"};
+        await showModal(document.querySelector("body"), "user-details-modal",
+            {presenter:"user-details-modal", inputs:sanitize(JSON.stringify(userDetails)),
+                flowId: flowId, ideas:sanitize(JSON.stringify(selectedIdeas)), docId: this._document.id, chapterId: this._chapter.id});
     }
 
     async openChapterBrainstormingPage() {

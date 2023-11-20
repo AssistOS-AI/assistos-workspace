@@ -56,21 +56,17 @@ export class generateChaptersPage {
 
     async generateEmptyChapters(_target){
         let formInfo = await extractFormInformation(_target);
-        let flowId = webSkel.currentUser.space.getFlowIdByName("generate empty chapters");
         let selectedIdeas = [];
         for (const [key, value] of Object.entries(formInfo.elements)) {
             if(value.element.checked) {
                 selectedIdeas.push(value.element.value);
             }
         }
-        let result = await webSkel.getService("LlmsService").callFlow(flowId, JSON.stringify(selectedIdeas));
-        if(result.responseJson){
-            await this._document.addEmptyChapters(result.responseJson, selectedIdeas);
-        }else {
-            await showApplicationError("flow execution error",
-                "Data received from LLM is an incorrect format", `result from LLM: ${result}`);
-        }
-        await webSkel.changeToDynamicPage("manage-chapters-page", `documents/${this._document.id}/manage-chapters-page`);
+        let flowId = webSkel.currentUser.space.getFlowIdByName("generate empty chapters");
+        let userDetails = {textarea:"Custom prompt (Optional)", number: "Number of chapters (optional)"};
+        await showModal(document.querySelector("body"), "user-details-modal",
+            {presenter:"user-details-modal", inputs:sanitize(JSON.stringify(userDetails)),
+                flowId: flowId, ideas:sanitize(JSON.stringify(selectedIdeas)), docId: this._document.id});
     }
 
     async generateChapters(_target){
@@ -83,8 +79,10 @@ export class generateChaptersPage {
             }
         }
         let flowId = webSkel.currentUser.space.getFlowIdByName("generate chapters");
+        let userDetails = {textarea:"Custom prompt (Optional)", number: "Number of chapters (optional)"};
         await showModal(document.querySelector("body"), "user-details-modal",
-            {presenter:"user-details-modal", flowId: flowId, ideas:sanitize(JSON.stringify(selectedIdeas)), docId: this._document.id});
+            {presenter:"user-details-modal", inputs:sanitize(JSON.stringify(userDetails)),
+                flowId: flowId, ideas:sanitize(JSON.stringify(selectedIdeas)), docId: this._document.id});
     }
 
     async openMangeChaptersPage() {

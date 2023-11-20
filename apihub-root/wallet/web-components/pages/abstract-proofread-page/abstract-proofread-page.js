@@ -20,6 +20,7 @@ export class abstractProofreadPage {
     }
 
     async openViewPage() {
+
         await webSkel.changeToDynamicPage("document-view-page", `documents/${this._document.id}/document-view-page`);
     }
 
