@@ -20,7 +20,7 @@ export class generateDocumentModal{
     async generateDocument(_target) {
         let formData = await extractFormInformation(_target);
         if(formData.isValid) {
-            await webSkel.getService("globalFlowsService").documentFlows.generateDocument(formData.data);
+            await webSkel.getService("GlobalFlowsService").documentFlows.generateDocument(formData.data);
             closeModal(_target);
         }
     }

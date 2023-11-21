@@ -22,6 +22,10 @@ export class summarizeChapterModal{
     closeModal(_target) {
         closeModal(_target);
     }
+
+    generate(){
+
+    }
     async addSelectedIdea(_target) {
         await this._chapter.setMainIdeas(this.chapterMainIdeas.map((chapterIdea)=>{return sanitize(chapterIdea)}))
         await documentFactory.updateDocument(webSkel.currentUser.space.id,this._document);

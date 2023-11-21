@@ -22,7 +22,7 @@ export class addDocumentModal {
                 title: formData.data.documentTitle,
                 topic: formData.data.documentTopic
             }
-            await webSkel.getService("globalFlowsService").documentFlows.addDocument(docData);
+            await webSkel.getService("GlobalFlowsService").documentFlows.addDocument(docData);
             closeModal(_target);
         }
     }

@@ -25,7 +25,7 @@ export class addFlowModal {
                 id:webSkel.servicesRegistry.UtilsService.generateId(),
                 content: formInfo.data.validateCode
             }
-            await webSkel.getService("globalFlowsService").spaceFlows.addFlow(flowData);
+            await webSkel.getService("GlobalFlowsService").spaceFlows.addFlow(flowData);
             webSkel.currentUser.space.notifyObservers(webSkel.currentUser.space.getNotificationId());
             closeModal(_target);
         }
