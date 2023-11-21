@@ -291,7 +291,7 @@
       "path": "./core/services/flowsService.js"
     },
     {
-      "name": "globalFlowsService",
+      "name": "GlobalFlowsService",
       "path": "./core/services/globalFlowsService.js"
     }
   ],

@@ -11,7 +11,7 @@ export class proofReaderPage {
     }
 
     beforeRender() {
-        if(!this.selectedPersonality){
+        if(!this.personality){
             this.selectedPersonality = `<option value="" disabled selected hidden>Select personality</option>`;
         }else {
             this.selectedPersonality = `<option value="${this.personality.id}" selected>${this.personality.name}</option>`
@@ -46,32 +46,22 @@ export class proofReaderPage {
         }
     }
 
-    async executeProofRead(formElement,cached) {
-        const addressLLMRequest = async (formData)=>{
-            if(formData){
-                this.text = formData.data.text;
-                this.personality = webSkel.currentUser.space.getPersonality(formData.data.personality);
-                this.details = {prompt:formData.data.details};
-            }
-            let flowId = webSkel.currentUser.space.getFlowIdByName("proofread");
-            let result = await webSkel.getService("LlmsService").callFlow(flowId, this.text, this.personality.id, this.details);
+    async executeProofRead(formElement) {
+
+            const formData= await extractFormInformation(formElement);
+
+            this.text = formData.data.text;
+            this.personality = webSkel.currentUser.space.getPersonality(formData.data.personality);
+            this.details = {prompt:formData.data.details};
+            let result = await webSkel.getService("GlobalFlowsService").proofreadFlows.proofread(this.text, formData.data.personality, this.details);
             this.observations = result.responseJson.observations;
             this.generatedText = result.responseJson.improvedText;
             this.invalidate();
-        }
-        if(cached){
-            await addressLLMRequest();
-            return;
-        }
-        const formData= await extractFormInformation(formElement);
-        if(formData.isValid) {
-            await addressLLMRequest(formData);
-        }
     }
-    /* To be Refactored with Session Storage or something better in the future if necessary */
+
     async regenerate(_target){
             if(this.text!==undefined){
-                await this.executeProofRead(_target,"cached");
+                await this.executeProofRead(_target);
             }
     }
     async copyText(_target){

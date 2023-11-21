@@ -34,7 +34,19 @@
         </div>
 
         <div class="paragraph-content" contenteditable="false">$$paragraphText</div>
-
+        <form class="proofread-form">
+            <div class="form-item">
+                <label for="personality" class="personality">Choose personality</label>
+                <select name="personality" id="personality" data-id="personality">
+                    $$selectedPersonality
+                    $$personalitiesOptions
+                </select>
+            </div>
+            <div class="form-item details" >
+                <label for="details" class="length">Details</label>
+                <textarea name="details" data-id="details" id="details" placeholder="Don't use synonyms for the words in the text"></textarea><br>
+            </div>
+        </form>
         <hr class="current-paragraph-separator">
 
         <div class="improved-paragraph-container">
@@ -50,6 +62,13 @@
             </div>
 
             <div class="improved-paragraph">$$improvedParagraph</div>
+            <hr class="current-abstract-separator">
+            <div class="observations-container">
+                <div class="observations-title">
+                    Observations
+                </div>
+                <div class="observations">$$observations</div>
+            </div>
             <button class="accept-improvements wide-btn" data-local-action="acceptImprovements">
                 Accept Improvements
             </button>
@@ -66,7 +85,7 @@
         </div>
         <div class="item-list-container remove-border">
             <div class="item-list">
-                <div class="sidebar-item" data-local-action="suggestImprovements">
+                <div class="sidebar-item" data-local-action="executeProofRead">
                     <div class="svg-container">
                         <svg width="17" height="13" viewBox="0 0 17 13" fill="none"
                              xmlns="http://www.w3.org/2000/svg">

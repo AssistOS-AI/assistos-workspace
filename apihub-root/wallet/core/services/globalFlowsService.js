@@ -1,6 +1,7 @@
 import {DocumentModel} from "../models/documentModel.js";
+import {sanitize} from "../../imports.js";
 
-export class globalFlowsService{
+export class GlobalFlowsService{
     constructor() {
         this.documentFlows={
             generateDocument : async function (docData,...args) {
@@ -28,6 +29,15 @@ export class globalFlowsService{
             },
             renameDocument: async function(documentId,titleText, ...args) {
                 await webSkel.currentUser.space.getDocument(documentId).updateTitle(titleText);
+            },
+            suggestAbstract : async function(documentId, prompt){
+                let flowId = webSkel.currentUser.space.getFlowIdByName("suggest abstract");
+                let userDetails = {prompt:prompt};
+                return await webSkel.getService("LlmsService").callFlow(flowId, documentId, userDetails);
+            },
+            acceptSuggestedAbstract: async function(documentId, abstract){
+                let document = webSkel.currentUser.space.getDocument(documentId);
+                await document.addAlternativeAbstract({content:sanitize(abstract), id:webSkel.getService("UtilsService").generateId()});
             }
         }
         this.spaceFlows={
@@ -40,6 +50,12 @@ export class globalFlowsService{
             },
             addFlow: async function(flowData, ...args) {
                 await webSkel.currentUser.space.addFlow(flowData);
+            }
+        }
+        this.proofreadFlows = {
+            proofread: async function(text, personalityId, details){
+                let flowId = webSkel.currentUser.space.getFlowIdByName("proofread");
+                return await webSkel.getService("LlmsService").callFlow(flowId, text, personalityId, details);
             }
         }
     }

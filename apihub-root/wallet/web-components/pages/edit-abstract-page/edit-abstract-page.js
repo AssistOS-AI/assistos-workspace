@@ -32,12 +32,7 @@ export class editAbstractPage {
     }
 
     async proofreadAbstract(){
-        let flowId = webSkel.currentUser.space.getFlowIdByName("proofread");
         await webSkel.changeToDynamicPage("abstract-proofread-page", `documents/${this._document.id}/abstract-proofread-page`);
-        let userDetails = {textarea:"Custom prompt (Optional)", select:{label:"Select personality", options:"personalities"}};
-        await showModal(document.querySelector("body"), "user-details-modal",
-            {presenter:"user-details-modal", inputs:sanitize(JSON.stringify(userDetails)),
-                flowId: flowId, text: this._document.abstract, docId: this._document.id});
     }
 
     async editAbstract(_target) {

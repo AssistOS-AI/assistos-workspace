@@ -34,7 +34,15 @@ dialog[class="modal"] {
     --full-highlight-height: none;
     --inset-highlight-height: none;
 }
-
+#prompt{
+    border-radius: 8px;
+    border: 0.5px solid rgba(0, 0, 0, 0.24);
+    width: 100%;
+    margin: 4px 0 8px;
+    padding: 8px;
+    height: 200px;
+    resize: none;
+}
 .wide-btn {
     cursor: pointer;
     padding: 8px 52px;
@@ -53,9 +61,11 @@ dialog[class="modal"] {
 form {
     display: flex;
     flex-direction: column;
-    align-items: center;
 }
-
+.form-footer{
+    display: flex;
+    justify-content: center;
+}
 .modal-footer {
     width: 100%;
     display: flex;

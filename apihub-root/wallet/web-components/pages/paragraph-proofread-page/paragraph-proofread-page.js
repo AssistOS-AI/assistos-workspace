@@ -1,4 +1,4 @@
-import {SaveElementTimer, sanitize, parseURL} from "../../../imports.js";
+import {SaveElementTimer, sanitize, parseURL, extractFormInformation} from "../../../imports.js";
 
 export class paragraphProofreadPage {
     constructor(element, invalidate) {
@@ -16,11 +16,25 @@ export class paragraphProofreadPage {
         this.chapterNr = this._document.chapters.findIndex(chapter => chapter.id === this._chapter.id) + 1;
         this.paragraphNr = this._chapter.paragraphs.findIndex(paragraph => paragraph.id === this._paragraph.id) + 1;
         this.paragraphText = this._paragraph.text;
+        if(!this.personality){
+            this.selectedPersonality = `<option value="" disabled selected hidden>Select personality</option>`;
+        }else {
+            this.selectedPersonality = `<option value="${this.personality.id}" selected>${this.personality.name}</option>`
+        }
+        let stringHTML = "";
+        for(let personality of webSkel.currentUser.space.personalities){
+            stringHTML+=`<option value=${personality.id}>${personality.name}</option>`;
+        }
+        this.personalitiesOptions = stringHTML;
     }
     afterRender(){
         if(this.improvedParagraph){
             let improvedParagraphSection = this.element.querySelector(".improved-paragraph-container");
             improvedParagraphSection.style.display = "block";
+        }
+        let detailsElement = this.element.querySelector("#details");
+        if(this.details){
+            detailsElement.value = this.details.prompt;
         }
     }
 
@@ -35,10 +49,19 @@ export class paragraphProofreadPage {
         await webSkel.changeToDynamicPage("paragraph-brainstorming-page", `documents/${this._document.id}/paragraph-brainstorming-page/${this._chapter.id}/${this._paragraph.id}`);
     }
 
-    async suggestImprovements(_target){
-        let flowId = webSkel.currentUser.space.getFlowIdByName("proofread");
-        let result = await webSkel.getService("LlmsService").callFlow(flowId, this.paragraphText);
-        this.improvedParagraph = result.responseString || result.responseJson;
+    async executeProofRead() {
+        let form = this.element.querySelector(".proofread-form");
+        const formData = await extractFormInformation(form);
+
+        this.text = formData.data.text;
+        if(formData.data.personality){
+            this.personality = webSkel.currentUser.space.getPersonality(formData.data.personality);
+        }
+        this.details = {prompt:formData.data.details};
+
+        let result = await webSkel.getService("GlobalFlowsService").proofreadFlows.proofread(this.paragraphText, formData.data.personality, this.details);
+        this.observations = sanitize(result.responseJson.observations);
+        this.improvedParagraph = sanitize(result.responseJson.improvedText);
         this.invalidate();
     }
 
