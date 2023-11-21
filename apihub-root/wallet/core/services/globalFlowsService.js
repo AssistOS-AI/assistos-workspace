@@ -38,7 +38,23 @@ export class GlobalFlowsService{
             acceptSuggestedAbstract: async function(documentId, abstract){
                 let document = webSkel.currentUser.space.getDocument(documentId);
                 await document.addAlternativeAbstract({content:sanitize(abstract), id:webSkel.getService("UtilsService").generateId()});
-            }
+            },
+            generateIdeas: async function(hint, personalityId, variants, maxTokens){
+                let flowId = webSkel.currentUser.space.getFlowIdByName("generate ideas");
+                return await webSkel.getService("LlmsService").callFlow(flowId, hint, personalityId, variants, maxTokens);
+            },
+            generateChapters: async function(ideas, documentId, details){
+                let flowId = webSkel.currentUser.space.getFlowIdByName("generate chapters");
+                return await webSkel.getService("LlmsService").callFlow(flowId, ideas, documentId, details);
+            },
+            generateEmptyChapters: async function(ideas, documentId, details){
+                let flowId = webSkel.currentUser.space.getFlowIdByName("generate empty chapters");
+                return await webSkel.getService("LlmsService").callFlow(flowId, ideas, documentId, details);
+            },
+            generateParagraphs: async function(ideas, documentId, chapterId, details){
+                let flowId = webSkel.currentUser.space.getFlowIdByName("generate empty chapters");
+                return await webSkel.getService("LlmsService").callFlow(flowId, ideas, documentId, chapterId, details);
+            },
         }
         this.spaceFlows={
             addSpace: async function(spaceId, ...args) {},

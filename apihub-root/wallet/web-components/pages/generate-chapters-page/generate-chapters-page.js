@@ -46,8 +46,7 @@ export class generateChaptersPage {
         let form = this.element.querySelector(".generate-ideas-form");
         let formInfo = await extractFormInformation(form);
         if(formInfo.isValid) {
-            let flowId = webSkel.currentUser.space.getFlowIdByName("generate ideas");
-            let result = await webSkel.getService("LlmsService").callFlow(flowId, formInfo.data.idea, "", 5);
+            let result = await webSkel.getService("GlobalFlowsService").documentFlows.generateIdeas(formInfo.data.idea, "", 5, "");
             this.ideas= result.responseJson;
             this.invalidate();
         }
