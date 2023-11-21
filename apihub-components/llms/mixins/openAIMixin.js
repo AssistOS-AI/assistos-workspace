@@ -35,7 +35,7 @@ function openAIMixin(target){
         target.__body.messages.push(message);
     }
     target.callLLM = async function(settings){
-        target.setVariants(settings.variants);
+        target.setVariants(parseInt(settings.variants));
         target.setMaxTokens(settings.max_tokens);
         if(settings.history){
            for(let reply of settings.history){

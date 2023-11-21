@@ -40,7 +40,19 @@ dialog[class="modal"] {
     font-style: normal;
     font-weight: 600;
 }
-
+#prompt{
+    border-radius: 8px;
+    border: 0.5px solid rgba(0, 0, 0, 0.24);
+    width: 100%;
+    margin: 4px 0 8px;
+    padding: 8px;
+    height: 200px;
+    resize: none;
+}
+.form-footer{
+    display: flex;
+    justify-content: center;
+}
 .alt-paragraph-section-separator{
     border: 1px solid #E6E6E6;
 }

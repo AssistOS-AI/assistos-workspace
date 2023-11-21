@@ -21,6 +21,7 @@ export class DocumentModel {
     simplifyDocument(){
         return {
             title: this.title,
+            topic: this.topic,
             abstract: this.abstract,
             chapters: this.chapters.map(chapter => chapter.simplifyChapter()),
             mainIdeas: this.mainIdeas
@@ -126,13 +127,16 @@ export class DocumentModel {
         }
     }
 
-    async addAlternativeTitle(obj){
-        this.alternativeTitles.push(obj);
+    async addAlternativeTitles(alternativeTitles){
+        for(let title of alternativeTitles){
+            title.id=webSkel.getService("UtilsService").generateId();
+        }
+        this.alternativeTitles.push(...alternativeTitles);
         await documentFactory.updateDocument(webSkel.currentUser.space.id, this);
     }
 
     getMainIdeas() {
-        return this.mainIdeas || [];
+        return this.mainIdeas;
     }
     async setMainIdeas(ideas){
         this.mainIdeas = ideas;
@@ -190,7 +194,7 @@ export class DocumentModel {
     async updateAlternativeTitle(id, newName) {
         let title = this.getAlternativeTitle(id);
         if(title){
-            title.name = newName;
+            title.title = newName;
         }else {
             console.error(`Failed to find altTitle with id: ${id}`);
         }
@@ -241,10 +245,6 @@ export class DocumentModel {
         paragraph.updateText(text);
         await documentFactory.updateDocument(webSkel.currentUser.space.id, this);
     }
-    async addAlternativeParagraph(paragraph, altParagraphData){
-        paragraph.addAlternativeParagraph(altParagraphData);
-        await documentFactory.updateDocument(webSkel.currentUser.space.id, this);
-    }
 
     async updateAlternativeParagraph(paragraph, altParagraphId, text){
         paragraph.updateAlternativeParagraph(altParagraphId, text);
@@ -259,20 +259,16 @@ export class DocumentModel {
         chapter.deleteAlternativeChapter(alternativeChapterId);
         await documentFactory.updateDocument(webSkel.currentUser.space.id,this);
     }
-
-    getAlternativeTitleIndex(alternativeTitleId) {
-        return this.alternativeTitles.findIndex(title => title.id === alternativeTitleId);
-    }
     getAlternativeAbstractIndex(alternativeAbstractId) {
         return this.alternativeAbstracts.findIndex(abstract => abstract.id === alternativeAbstractId);
     }
     async selectAlternativeTitle(alternativeTitleId) {
-        let alternativeTitleIndex=this.getAlternativeTitleIndex(alternativeTitleId);
+        let alternativeTitleIndex=this.alternativeTitles.findIndex(title => title.id === alternativeTitleId);
         if(alternativeTitleIndex!==-1) {
             let currentTitle = this.title;
-            this.title = this.alternativeTitles[alternativeTitleIndex].name;
+            this.title = this.alternativeTitles[alternativeTitleIndex].title;
             this.alternativeTitles.splice(alternativeTitleIndex, 1);
-            this.alternativeTitles.splice(alternativeTitleIndex,0,{id: webSkel.servicesRegistry.UtilsService.generateId(), name: currentTitle});
+            this.alternativeTitles.splice(alternativeTitleIndex,0,{id: webSkel.servicesRegistry.UtilsService.generateId(), title: currentTitle});
             await documentFactory.updateDocument(webSkel.currentUser.space.id, this);
         }else{
             console.warn("Attempting to select alternative title that doesn't exist in this document.");

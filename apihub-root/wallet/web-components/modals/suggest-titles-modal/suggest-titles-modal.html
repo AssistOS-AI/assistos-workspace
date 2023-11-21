@@ -10,7 +10,20 @@
             </button>
         </div>
         <div class="modal-body">
-            <form>
+            <form class="details">
+                <div class="form-item">
+                    <label class="form-label" for="prompt">Custom prompt (optional)</label>
+                    <textarea name="prompt" data-id="prompt" id="prompt" maxlength="200"  placeholder="Please suggest a title for a document, take into consideration these aspects of the document"></textarea>
+                </div>
+                <div class="form-item">
+                    <label class="form-label" for="nr">Number of titles</label>
+                    <input type="number" name="nr" data-id="nr" id="nr" min="1" value="5" max="9" >
+                </div>
+                <div class="form-footer">
+                    <button class="wide-btn" data-local-action="generate"> Generate </button>
+                </div>
+            </form>
+            <form class="suggested-titles-form">
                 <div class="alternative-titles">
                     $$suggestedTitles
                 </div>

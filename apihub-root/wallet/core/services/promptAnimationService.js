@@ -6,7 +6,7 @@ export class PromptAnimationService {
     }
 
     async displayThink(prompt){
-        if(prompt.length > 500){
+        if(prompt.length > 100){
             prompt = prompt.substring(0, 500);
             prompt+= "...";
         }

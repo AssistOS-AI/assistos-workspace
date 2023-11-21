@@ -36,7 +36,21 @@ dialog[class="modal"] {
     --full-highlight-height: none;
     --inset-highlight-height: none;
 }
-
+#prompt{
+    border-radius: 8px;
+    border: 0.5px solid rgba(0, 0, 0, 0.24);
+    width: 100%;
+    margin: 4px 0 8px;
+    padding: 8px;
+    height: 200px;
+    resize: none;
+}
+#nr{
+    border-radius: 8px;
+    border: 0.5px solid rgba(0, 0, 0, 0.24);
+    padding: 8px;
+    width: 50px;
+}
 .wide-btn {
     cursor: pointer;
     padding: 8px 40px;
@@ -51,8 +65,15 @@ dialog[class="modal"] {
     font-weight: 600;
     line-height: normal;
 }
-
-form {
+.details{
+    margin-left: 15px;
+    margin-right: 15px;
+}
+.form-footer{
+    display: flex;
+    justify-content: center;
+}
+.suggested-titles-modal {
     display: flex;
     flex-direction: column;
     align-items: center;

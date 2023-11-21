@@ -52,7 +52,7 @@ dialog[class="modal"] {
     line-height: normal;
 }
 
-form {
+.suggested-titles-form {
     display: flex;
     flex-direction: column;
     align-items: center;
@@ -74,7 +74,29 @@ input[type="checkbox"] {
     background-color: #fff;
     margin: 0;
 }
-
+#prompt{
+    border-radius: 8px;
+    border: 0.5px solid rgba(0, 0, 0, 0.24);
+    width: 100%;
+    margin: 4px 0 8px;
+    padding: 8px;
+    height: 200px;
+    resize: none;
+}
+#nr{
+    border-radius: 8px;
+    border: 0.5px solid rgba(0, 0, 0, 0.24);
+    padding: 8px;
+    width: 50px;
+}
+.details{
+    margin-left: 15px;
+    margin-right: 15px;
+}
+.form-footer{
+    display: flex;
+    justify-content: center;
+}
 input[type="checkbox"]:checked {
     background-color: #000;
 }

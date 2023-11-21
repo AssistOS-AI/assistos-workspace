@@ -13,16 +13,7 @@ export class suggestChapterTitlesModal {
         this._document.observeChange(this._document.getNotificationId(), invalidate);
         this.invalidate = invalidate;
         this.suggestedTitles = "";
-        setTimeout(async()=>{
-            let flowId = webSkel.currentUser.space.getFlowIdByName("suggest chapter titles");
-            let result = await webSkel.getService("LlmsService").callFlow(flowId, this._document.topic);
-            if(result.responseJson){
-                this.suggestedTitles = result.responseJson;
-                this.invalidate();
-            }else {
-                closeModal(this.element);
-            }
-        },0);
+        this.invalidate();
     }
     beforeRender() {
         let stringHTML = "";
@@ -35,26 +26,54 @@ export class suggestChapterTitlesModal {
             <div class="alt-title-row">
                 <span class="alt-title-span">${i}.</span>
                 <label for="${id}" class="alt-title-label">${altTitle}</label>
-                <input type="checkbox" id="${id}" name="${altTitle}" data-id="${id}" value="${altTitle}">
+                <input type="checkbox" id="${id}" name="${i+altTitle}" data-id="${id}" value="${altTitle}">
                 
             </div>
             <hr class="suggest-titles-modal-hr">`;
         }
         this.suggestedTitles = stringHTML;
     }
+    afterRender(){
+        this.suggestedTitlesForm = this.element.querySelector(".suggested-titles-form");
+        if(!this.suggestedTitles){
+            this.suggestedTitlesForm.style.display = "none";
+        }
+        let textBox = this.element.querySelector("#prompt");
+        if(this.prompt){
+            textBox.value = this.prompt;
+        }
+        let inputNr = this.element.querySelector("#nr");
+        if(this.titlesNr){
+            inputNr.value = this.titlesNr;
+        }
+    }
 
     closeModal(_target) {
         closeModal(_target);
     }
 
+    async generate(_target){
+        let formInfo = await extractFormInformation(_target);
+        this.prompt = formInfo.data.prompt;
+        this.titlesNr = formInfo.data.nr;
+        let result = await webSkel.getService("GlobalFlowsService").documentFlows.suggestChapterTitles(this._document.id, this._chapter.id, this.prompt, this.titlesNr);
+        if(result.responseJson){
+            this.suggestedTitles = result.responseJson;
+            this.invalidate();
+        }else {
+            closeModal(this.element);
+            await showApplicationError("Titles invalid format", "", "");
+        }
+    }
     async addAlternativeTitles(_target){
         let formInfo = await extractFormInformation(_target);
+        let selectedTitles = [];
         for (const [key, value] of Object.entries(formInfo.elements)) {
             if(value.element.checked) {
-                await this._chapter.addAlternativeTitle({title:sanitize(value.element.value)});
+                selectedTitles.push({title:sanitize(value.element.value)});
             }
         }
-        await documentFactory.updateDocument(webSkel.currentUser.space.id, this._document);
+        await webSkel.getService("GlobalFlowsService").documentFlows.addAlternativeChapterTitles(this._document.id, this._chapter.id, selectedTitles);
         await this._document.notifyObservers(this._document.getNotificationId());
         closeModal(_target);
     }

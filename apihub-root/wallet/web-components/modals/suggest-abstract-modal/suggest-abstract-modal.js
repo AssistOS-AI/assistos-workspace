@@ -17,10 +17,13 @@ export class suggestAbstractModal {
 
     }
     afterRender(){
-        this.detailsForm = this.element.querySelector(".details");
         this.suggestedAbstractForm = this.element.querySelector(".suggested-abstract-form");
         if(!this.suggestedAbstract){
             this.suggestedAbstractForm.style.display = "none";
+        }
+        let textBox = this.element.querySelector("#prompt");
+        if(this.prompt){
+            textBox.value = this.prompt;
         }
     }
     closeModal(_target) {
@@ -29,7 +32,8 @@ export class suggestAbstractModal {
 
     async generate(_target){
         let formInfo = await extractFormInformation(_target);
-        let result = await webSkel.getService("GlobalFlowsService").documentFlows.suggestAbstract(this.id, formInfo.data.prompt);
+        this.prompt = formInfo.data.prompt;
+        let result = await webSkel.getService("GlobalFlowsService").documentFlows.suggestAbstract(this.id, this.prompt);
         this.suggestedAbstract = result.responseString;
         this.invalidate();
     }

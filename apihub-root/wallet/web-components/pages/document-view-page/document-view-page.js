@@ -265,7 +265,7 @@ export class documentViewPage {
     }
 
     async openParagraphProofreadPage() {
-        await webSkel.changeToDynamicPage("paragraph-proofread-page", `documents/${this._document.id}/paragraph-proofread-page/${chapter.id}/${paragraph.id}`);
+        await webSkel.changeToDynamicPage("paragraph-proofread-page", `documents/${this._document.id}/paragraph-proofread-page/${webSkel.currentUser.space.currentChapterId}/${webSkel.currentUser.space.currentParagraphId}`);
     }
 
     async openParagraphBrainstormingPage() {

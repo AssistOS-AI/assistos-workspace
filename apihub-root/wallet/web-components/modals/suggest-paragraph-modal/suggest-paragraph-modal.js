@@ -1,27 +1,41 @@
 import {
     sanitize,
-    closeModal
+    closeModal, extractFormInformation, parseURL
 } from "../../../imports.js";
 
 export class suggestParagraphModal {
     constructor(element, invalidate) {
-        this._document = webSkel.currentUser.space.getDocument(webSkel.currentUser.space.currentDocumentId);
-        this._chapter = this._document.getChapter(webSkel.currentUser.space.currentChapterId);
-        this._paragraph = this._chapter.getParagraph(webSkel.currentUser.space.currentParagraphId);
+        let documentId, chapterId, paragraphId;
+        [documentId, chapterId, paragraphId] = parseURL();
+        this._document = webSkel.currentUser.space.getDocument(documentId);
+        this._chapter = this._document.getChapter(chapterId);
+        this._paragraph = this._chapter.getParagraph(paragraphId);
         this.invalidate = invalidate;
         this.element = element;
-
-        setTimeout(async()=>{
-            let flowId = webSkel.currentUser.space.getFlowIdByName("suggest paragraph");
-            let result = await webSkel.getService("LlmsService").callFlow(flowId, this._paragraph.toString());
-            this.suggestedParagraph = result.responseJson.text;
-            this.suggestedParagraphIdea = result.responseJson.mainIdea;
-            this.invalidate();
-        },0);
+        this.invalidate();
     }
 
     beforeRender() {
 
+    }
+    afterRender(){
+        this.suggestedParagraphForm = this.element.querySelector(".suggested-paragraph-form");
+        if(!this.suggestedParagraph){
+            this.suggestedParagraphForm.style.display = "none";
+        }
+        let textBox = this.element.querySelector("#prompt");
+        if(this.prompt){
+            textBox.value = this.prompt;
+        }
+    }
+
+    async generate(_target){
+        let formInfo = await extractFormInformation(_target);
+        this.prompt = formInfo.data.prompt;
+        let result = await webSkel.getService("GlobalFlowsService").documentFlows.suggestParagraph(this._document.id, this._chapter.id, this._paragraph.id, this.prompt);
+        this.suggestedParagraph = result.responseJson.text;
+        this.suggestedParagraphIdea = result.responseJson.mainIdea;
+        this.invalidate();
     }
 
     closeModal(_target) {
@@ -31,7 +45,7 @@ export class suggestParagraphModal {
     async addSelectedParagraph(_target) {
         let altParagraphData = {text:sanitize(this.suggestedParagraph),
             id:webSkel.getService("UtilsService").generateId(), mainIdea:sanitize(this.suggestedParagraphIdea) };
-        await this._document.addAlternativeParagraph(this._paragraph, altParagraphData);
+        await webSkel.getService("GlobalFlowsService").documentFlows.acceptSuggestedParagraph(this._document.id, this._chapter.id, this._paragraph.id, altParagraphData);
         this._document.notifyObservers(this._document.getNotificationId());
         closeModal(_target);
     }

@@ -71,10 +71,11 @@ export class Chapter {
     updateTitle(newTitle) {
         this.title = newTitle;
     }
-    addAlternativeTitle(alternativeTitle) {
-        alternativeTitle.id=webSkel.getService("UtilsService").generateId();
-        this.alternativeTitles.push(alternativeTitle);
-
+    addAlternativeTitles(alternativeTitles) {
+        for(let title of alternativeTitles){
+            title.id=webSkel.getService("UtilsService").generateId();
+        }
+        this.alternativeTitles.push(...alternativeTitles);
     }
     deleteAlternativeTitle(alternativeTitleId) {
         let index = this.alternativeTitles.findIndex(alternativeTitle => alternativeTitle.id === alternativeTitleId);

@@ -25,7 +25,7 @@ export class editTitlePage {
         this.alternativeTitles = "";
         let i = 1;
         this._document.alternativeTitles.forEach((alternativeTitle) => {
-            this.alternativeTitles += `<alternative-title data-nr="${i}" data-title="${sanitize(alternativeTitle.name)}" 
+            this.alternativeTitles += `<alternative-title data-nr="${i}" data-title="${sanitize(alternativeTitle.title)}" 
             data-id="${alternativeTitle.id}" ></alternative-title>`;
             i++;
         });
@@ -84,7 +84,7 @@ export class editTitlePage {
             let timer = new SaveElementTimer(async () => {
                 let confirmationPopup = this.element.querySelector("confirmation-popup");
                 let sanitizedText = sanitize(newTitle.innerText);
-                if (sanitizedText !== altTitleObj.name && !confirmationPopup) {
+                if (sanitizedText !== altTitleObj.title && !confirmationPopup) {
                     await this._document.updateAlternativeTitle(altTitleObj.id, sanitizedText);
                     newTitle.insertAdjacentHTML("afterbegin", `<confirmation-popup data-presenter="confirmation-popup" 
                     data-message="Saved!" data-left="${newTitle.offsetWidth/2}"></confirmation-popup>`);
