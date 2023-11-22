@@ -20,7 +20,7 @@ export class addSpaceModal {
             let spaceData={name:formData.data.name};
             let newSpace = await SpaceFactory.createSpace(spaceData);
 
-            await webSkel.getService("AuthenticationService").addSpaceToUser(newSpace);
+            await webSkel.getService("AuthenticationService").addSpaceToUser(webSkel.currentUser.id,newSpace);
             closeModal(_target);
             window.location = "";
         }
