@@ -4,16 +4,13 @@ import {sanitize} from "../../imports.js";
 export class GlobalFlowsService{
     constructor() {
         this.documentFlows={
-            generateDocument : async function (docData,...args) {
+            generateDocument : async function (docData, maxTokens) {
                 const validateParams = (docData) => {
 
                 }
-                let scriptId = webSkel.currentUser.space.getFlowIdByName("generate document");
-                let result = await  webSkel.getService("LlmsService").callFlow(scriptId,
-                   docData.documentTitle, docData.documentTopic,docData.chaptersCount);
-
-                let generatedDocJson= result.responseJson;
-                await webSkel.currentUser.space.addDocument(generatedDocJson);
+                let flowId = webSkel.currentUser.space.getFlowIdByName("generate document");
+                return await  webSkel.getService("LlmsService").callFlow(flowId,
+                   docData.documentTitle, docData.documentTopic, docData.chaptersCount, docData.documentPersonality, maxTokens);
             },
             addDocument : async function (docData, ...args) {
                 await webSkel.currentUser.space.addDocument(docData);
