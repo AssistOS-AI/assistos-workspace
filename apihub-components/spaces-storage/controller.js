@@ -76,10 +76,10 @@ async function storeSpace(request, response) {
     let jsonData = JSON.parse(request.body.toString());
     await storeFolder(request.params.spaceId, jsonData.documents, "documents");
     await storeFolder(request.params.spaceId, jsonData.personalities, "personalities");
-    await storeFolder(request.params.spaceId, jsonData.scripts, "flows");
+    await storeFolder(request.params.spaceId, jsonData.flows, "flows");
     delete jsonData.personalities
     delete jsonData.documents;
-    delete jsonData.scripts;
+    delete jsonData.flows;
     await storeFolder(request.params.spaceId, jsonData, "status");
     sendResponse(response, 200, "text/html", `Success, ${request.body.toString()}`);
     return "";
