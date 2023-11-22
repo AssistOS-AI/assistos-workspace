@@ -317,10 +317,6 @@
       "path": "./wallet/web-components/subpages/agents-page/agents-page.html"
     },
     {
-      "name": "llm-call-animation",
-      "path": "./wallet/web-components/components/llm-call-animation/llm-call-animation.html"
-    },
-    {
       "name": "chatbots-select-personality-page",
       "path": "./wallet/web-components/pages/chatbots-select-personality-page/chatbots-select-personality-page.html"
     },

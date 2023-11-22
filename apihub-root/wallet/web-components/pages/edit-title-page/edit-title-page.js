@@ -14,12 +14,6 @@ export class editTitlePage {
         this.invalidate = invalidate;
         this.invalidate();
     }
-
-    // async animatePen(){
-    //     await showModal(document.querySelector("body"),"llm-call-animation");
-    //     await webSkel.getService("PromptAnimationService").animateCall();
-    // }
-
     beforeRender() {
         this.title = this._document.title;
         this.alternativeTitles = "";
