@@ -5,6 +5,9 @@ export class GlobalFlowsService{
     constructor() {
         this.documentFlows={
             generateDocument : async function (docData,...args) {
+                const validateParams = (docData) => {
+
+                }
                 let scriptId = webSkel.currentUser.space.getFlowIdByName("generate document");
                 let result = await  webSkel.getService("LlmsService").callFlow(scriptId,
                    docData.documentTitle, docData.documentTopic,docData.chaptersCount);
@@ -35,7 +38,10 @@ export class GlobalFlowsService{
                 let userDetails = {prompt:prompt};
                 return await webSkel.getService("LlmsService").callFlow(flowId, documentId, userDetails);
             },
-            acceptSuggestedAbstract: async function(documentId, abstract){
+            acceptSuggestedAbstract: async function(documentId, abstract,validityCallback){
+                if (typeof validityCallback === 'function' && !validityCallback()) {
+                    return;
+                }
                 let document = webSkel.currentUser.space.getDocument(documentId);
                 await document.addAlternativeAbstract({content:sanitize(abstract), id:webSkel.getService("UtilsService").generateId()});
             },
