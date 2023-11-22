@@ -251,17 +251,21 @@ export class authenticationPage {
     async loginDefaultUser(){
         let currentUserId = "1101522431685742196611723790234240113112996125581292472522231319144225195232444191";
         let currentUser = JSON.parse(await storageManager.loadUser(currentUserId));
+        /* incarcare json user de pe server*/
         let users = webSkel.getService("AuthenticationService").getCachedUsers();
+        /* incarcare users din localstorage */
         let userObj;
         try {
+            //* users present in local storage -> default login
             users = JSON.parse(users);
+            /* daca se gaseste id-ul userului default */
             if(users.find(user => user.id === currentUser.id)){
                 await webSkel.getService("AuthenticationService").loginUser("teo@teo", "teo");
             }else {
                throw new Error("user not found");
             }
         }catch (e){
-            //users not in localStorage yet or not found
+            //users not present in localStorage yet or not found - > default login
             await webSkel.getService("AuthenticationService").loginFirstTimeUser("teo@teo", "teo");
             webSkel.getService("AuthenticationService").setCachedCurrentUser({id:currentUser.id,secretToken:currentUser.secretToken});
             webSkel.getService("AuthenticationService").addCachedUser({id:currentUser.id,secretToken:currentUser.secretToken});

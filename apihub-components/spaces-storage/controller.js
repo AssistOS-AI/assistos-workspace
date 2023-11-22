@@ -106,8 +106,14 @@ async function buildSpace(filePath) {
 async function loadSpace(request, response){
     let spaceId = request.params.spaceId;
     let filePath = `../apihub-root/spaces/${spaceId}`;
-    let statusJson = await fsPromises.readFile(`${filePath}/status/status.json`);
-    statusJson = JSON.parse(statusJson);
+    let statusJson
+    try{
+        statusJson = await fsPromises.readFile(`${filePath}/status/status.json`);
+        statusJson = JSON.parse(statusJson);
+    }catch (e){
+        sendResponse(response, 404, "text/html", e+ ` Error space not found: ${filePath}`);
+        return;
+    }
     for(let item of await fsPromises.readdir(filePath)) {
         if(item !== "status" && item!== "agents"){
             statusJson[item] = await buildSpace(`${filePath}\/${item}`);
