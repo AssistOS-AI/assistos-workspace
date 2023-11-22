@@ -138,6 +138,9 @@ export class GlobalFlowsService{
             },
             addFlow: async function(flowData, ...args) {
                 await webSkel.currentUser.space.addFlow(flowData);
+            },
+            deleteSpace: async function(spaceId, ...args) {
+              await storageManager.storeSpace(spaceId, "");
             }
         }
         this.proofreadFlows = {
