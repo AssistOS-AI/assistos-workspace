@@ -1,6 +1,6 @@
 import {
     parseURL,
-    closeModal, sanitize
+    closeModal, sanitize, extractFormInformation
 } from "../../../imports.js";
 
 export class summarizeChapterModal{
@@ -11,24 +11,39 @@ export class summarizeChapterModal{
         this._document.observeChange(this._document.getNotificationId(), invalidate);
         this.invalidate = invalidate;
         this.element = element;
-        setTimeout(async()=>{
-            let flowId = webSkel.currentUser.space.getFlowIdByName("summarize");
-            let result = await webSkel.getService("LlmsService").callFlow(flowId, this._chapter.stringifyChapter());
-            this.chapterMainIdeas = result.responseJson;
-            this.invalidate();
-        },0)
+        this.invalidate();
+        this.chapterMainIdeas = [];
     }
-    beforeRender(){}
+    beforeRender(){
+        let string = "";
+        for(let idea of this.chapterMainIdeas){
+            string += `<li>${sanitize(idea)}</li>`;
+        }
+        this.mainIdeas = string;
+    }
+    afterRender(){
+        this.suggestedIdeasForm = this.element.querySelector(".suggested-ideas-form");
+        if(this.chapterMainIdeas.length === 0){
+            this.suggestedIdeasForm.style.display = "none";
+        }
+        let textBox = this.element.querySelector("#prompt");
+        if(this.prompt){
+            textBox.value = this.prompt;
+        }
+    }
     closeModal(_target) {
         closeModal(_target);
     }
 
-    generate(){
-
+    async generate(_target){
+        let formInfo = await extractFormInformation(_target);
+        this.prompt = formInfo.data.prompt;
+        let result = await webSkel.getService("GlobalFlowsService").documentFlows.summarizeChapter(this._document.id, this._chapter.id, this.prompt, "");
+        this.chapterMainIdeas = result.responseJson;
+        this.invalidate();
     }
-    async addSelectedIdea(_target) {
-        await this._chapter.setMainIdeas(this.chapterMainIdeas.map((chapterIdea)=>{return sanitize(chapterIdea)}))
-        await documentFactory.updateDocument(webSkel.currentUser.space.id,this._document);
+    async addSelectedIdeas(_target) {
+        await webSkel.getService("GlobalFlowsService").documentFlows.acceptChapterIdeas(this._document.id, this._chapter.id, this.chapterMainIdeas);
         this._document.notifyObservers(this._document.getNotificationId()+":manage-paragraphs-page");
         closeModal(_target);
     }

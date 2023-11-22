@@ -20,7 +20,15 @@ dialog[class="modal"] {
     font-weight: 400;
     line-height: normal;
 }
-
+#prompt{
+    border-radius: 8px;
+    border: 0.5px solid rgba(0, 0, 0, 0.24);
+    width: 100%;
+    margin: 4px 0 8px;
+    padding: 8px;
+    height: 200px;
+    resize: none;
+}
 .close {
     cursor: pointer;
     float: right;
@@ -50,12 +58,15 @@ dialog[class="modal"] {
     line-height: normal;
 }
 
-form {
+.suggested-idea-form {
     display: flex;
     flex-direction: column;
     align-items: center;
 }
-
+.form-footer{
+    display: flex;
+    justify-content: center;
+}
 .modal-footer {
     width: 100%;
     display: flex;

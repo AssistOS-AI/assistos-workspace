@@ -1,6 +1,6 @@
 import {
     parseURL,
-    closeModal, sanitize
+    closeModal, sanitize, extractFormInformation
 } from "../../../imports.js";
 
 export class summarizeParagraphModal{
@@ -12,20 +12,31 @@ export class summarizeParagraphModal{
         this._document.observeChange(this._document.getNotificationId(), invalidate);
         this.invalidate = invalidate;
         this.element = element;
-        setTimeout(async()=>{
-            let flowId = webSkel.currentUser.space.getFlowIdByName("summarize paragraph");
-            let result = await webSkel.getService("LlmsService").callFlow(flowId,this._paragraph.toString());
-            this.paragraphMainIdea = result.responseString;
-            this.invalidate();
-        },0)
+        this.invalidate();
     }
     beforeRender(){}
+    afterRender(){
+        this.suggestedIdeaForm = this.element.querySelector(".suggested-idea-form");
+        if(!this.paragraphMainIdea){
+            this.suggestedIdeaForm.style.display = "none";
+        }
+        let textBox = this.element.querySelector("#prompt");
+        if(this.prompt){
+            textBox.value = this.prompt;
+        }
+    }
+    async generate(_target){
+        let formInfo = await extractFormInformation(_target);
+        this.prompt = formInfo.data.prompt;
+        let result = await webSkel.getService("GlobalFlowsService").documentFlows.summarizeParagraph(this._document.id, this._chapter.id, this._paragraph.id, this.prompt, "");
+        this.paragraphMainIdea = result.responseString;
+        this.invalidate();
+    }
     closeModal(_target) {
         closeModal(_target);
     }
-    async addSelectedIdea(_target) {
-        await this._paragraph.setMainIdea(sanitize(this.paragraphMainIdea));
-        await documentFactory.updateDocument(webSkel.currentUser.space.id,this._document);
+    async addSelectedMainIdea(_target) {
+        await webSkel.getService("GlobalFlowsService").documentFlows.acceptParagraphIdea(this._document.id, this._chapter.id, this._paragraph.id, this.paragraphMainIdea);
         this._document.notifyObservers(this._document.getNotificationId());
         closeModal(_target);
     }

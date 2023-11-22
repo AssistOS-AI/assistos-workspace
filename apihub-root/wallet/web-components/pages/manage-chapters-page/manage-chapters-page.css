@@ -38,6 +38,7 @@ manage-chapters-page {
 
 .main-ideas-container{
     margin-right: 15px;
+    margin-left: 15px;
     margin-bottom: 20px;
 }
 .main-ideas-list{
@@ -104,7 +105,6 @@ manage-chapters-page {
 .main-ideas-separator{
     border: 1px solid #E6E6E6;
 }
-li{list-style-position: inside;}
 @media screen and (max-width: 900px) {
     .main-ideas-title-section{
         flex-direction:column;

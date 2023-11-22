@@ -1,5 +1,4 @@
 import {createFlowsFactory} from "../../imports.js";
-
 export class FlowsService{
     constructor() {
         this.standardLLMApis ={
@@ -36,9 +35,6 @@ export class FlowsService{
                 this.__body.max_tokens = max_tokens;
                 return await this.callLLM();
             },
-            requestAs : async function (personalityName, prompt, numberOfOptions, max_tokens){
-
-            },
             brainstorm : async  function (prompt, number, max_tokens){
                 this.setThink(prompt);
                 this.__body.prompt = prompt;
@@ -54,12 +50,6 @@ export class FlowsService{
                 this.setThink(prompt);
                 this.__body.prompt = prompt;
                 return await this.callLLM();
-            },
-            definePersonality: function(personalityName, personalityDescription){
-
-            },
-            emotions: function(listOfPersonalities, prompt){
-
             },
             isLLMText: function(text){
 

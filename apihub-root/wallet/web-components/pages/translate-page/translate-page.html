@@ -11,7 +11,7 @@
                   <div class="translate-content-left">
                       <div class="form-item">
                           <label for="personality" class="personality">Choose personality</label> <br>
-                          <select name="personality" id="personality" data-id="personality" required>
+                          <select name="personality" id="personality" data-id="personality">
                               $$selectedPersonality
                               $$personalitiesOptions
                           </select>
@@ -28,12 +28,16 @@
                   </div>
 
                   <div class="translate-content-right">
-                      <div class="form-item" id="prompt-textarea">
-                          <label for="prompt" class="length">AI prompt</label>
-                          <textarea name="prompt" required data-id="prompt" id="prompt" placeholder="Describe a sunny afternoon in Atlanta."></textarea><br>
+                      <div class="form-item" id="text-textarea">
+                          <label for="text" class="length">Text to be translated</label>
+                          <textarea name="text" required data-id="text" id="text" placeholder="Describe a sunny afternoon in Atlanta."></textarea><br>
+                      </div>
+                      <div class="form-item details" >
+                          <label for="details" class="length">Details</label>
+                          <textarea name="details" data-id="details" id="details" placeholder="Give me the literal translation of these words"></textarea><br>
                       </div>
                       <div class="form-button">
-                          <button type="button" class="generate-button" data-local-action="executeProofRead">Generate</button>
+                          <button type="button" class="generate-button" data-local-action="translate">Generate</button>
                       </div>
                   </div>
                 </form>

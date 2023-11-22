@@ -20,7 +20,7 @@ export class manageChaptersPage {
             this.summarizeButtonName = "Recreate Summary";
             this.docMainIdeas = "";
             for(let idea of this.mainIdeas){
-                this.docMainIdeas += `<li>${sanitize(idea)}</li>`;
+                this.docMainIdeas += `<li>${idea}</li>`;
             }
         }
         this.chaptersDiv= "";

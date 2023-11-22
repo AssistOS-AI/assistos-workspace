@@ -90,6 +90,39 @@ export class GlobalFlowsService{
 
                 paragraph.addAlternativeParagraph(alternativeParagraph);
                 await documentFactory.updateDocument(webSkel.currentUser.space.id, document);
+            },
+            summarizeChapter: async function(documentId, chapterId, prompt, maxTokens){
+                let flowId = webSkel.currentUser.space.getFlowIdByName("summarize chapter");
+                let details = {prompt:prompt};
+                return await webSkel.getService("LlmsService").callFlow(flowId, documentId, chapterId, details, maxTokens);
+            },
+            acceptChapterIdeas: async function(documentId, chapterId, ideas){
+                let document = webSkel.currentUser.space.getDocument(documentId);
+                let chapter = document.getChapter(chapterId);
+                await chapter.setMainIdeas(ideas.map((chapterIdea)=>{return sanitize(chapterIdea)}))
+                await documentFactory.updateDocument(webSkel.currentUser.space.id, document);
+            },
+            summarizeDocument: async function(documentId, prompt, maxTokens){
+                let flowId = webSkel.currentUser.space.getFlowIdByName("summarize document");
+                let details = {prompt:prompt};
+                return await webSkel.getService("LlmsService").callFlow(flowId, documentId, details, maxTokens);
+            },
+            acceptDocumentIdeas: async function(documentId, ideas){
+                let document = webSkel.currentUser.space.getDocument(documentId);
+                await document.setMainIdeas(ideas.map((documentIdea)=>{return sanitize(documentIdea)}))
+                await documentFactory.updateDocument(webSkel.currentUser.space.id, document);
+            },
+            summarizeParagraph: async function(documentId, chapterId, paragraphId, prompt, maxTokens){
+                let flowId = webSkel.currentUser.space.getFlowIdByName("summarize paragraph");
+                let details = {prompt:prompt};
+                return await webSkel.getService("LlmsService").callFlow(flowId, documentId, chapterId, paragraphId, details, maxTokens);
+            },
+            acceptParagraphIdea: async function(documentId, chapterId, paragraphId, idea){
+                let document = webSkel.currentUser.space.getDocument(documentId);
+                let chapter = document.getChapter(chapterId);
+                let paragraph = chapter.getParagraph(paragraphId);
+                await paragraph.setMainIdea(sanitize(idea));
+                await documentFactory.updateDocument(webSkel.currentUser.space.id, document);
             }
         }
         this.spaceFlows={
@@ -107,8 +140,16 @@ export class GlobalFlowsService{
         this.proofreadFlows = {
             proofread: async function(text, personalityId, details){
                 let flowId = webSkel.currentUser.space.getFlowIdByName("proofread");
-                return await webSkel.getService("LlmsService").callFlow(flowId, text, personalityId, details);
+                let additionalDetails = {prompt:details};
+                return await webSkel.getService("LlmsService").callFlow(flowId, text, personalityId, additionalDetails);
             }
+        }
+        this.translateFlows = {
+         translate: async function(text, personalityId, language, details){
+             let flowId = webSkel.currentUser.space.getFlowIdByName("translate");
+             let additionalDetails = {prompt:details};
+             return await webSkel.getService("LlmsService").callFlow(flowId, text, personalityId, language, additionalDetails);
+         }
         }
     }
 

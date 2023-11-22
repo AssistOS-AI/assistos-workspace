@@ -7,11 +7,11 @@ export class translatePage {
         this.element = element;
         this.invalidate = invalidate;
         this.invalidate();
-        this.prompt = "";
+        this.text = "";
     }
 
     beforeRender() {
-        if(!this.selectedPersonality){
+        if(!this.personality){
             this.selectedPersonality = `<option value="" disabled selected hidden>Select personality</option>`;
         }else {
             this.selectedPersonality = `<option value="${this.personality.id}" selected>${this.personality.name}</option>`
@@ -34,8 +34,8 @@ export class translatePage {
                 console.error("Error trying to change the display of the buttons"+e);
             }
         }
-        let promptElement = this.element.querySelector("#prompt");
-        promptElement.value = this.prompt;
+        let textElement = this.element.querySelector("#text");
+        textElement.value = this.text;
 
         if(this.language){
             let languageElement = this.element.querySelector("#language");
@@ -46,33 +46,28 @@ export class translatePage {
            let aiText = this.element.querySelector(".generated-text-container");
            aiText.style.display = "flex";
         }
+
+        if(this.details){
+            let details = this.element.querySelector("#details");
+            details.value = this.details;
+        }
     }
 
-    async executeProofRead(formElement,cached) {
-        const addressLLMRequest = async (formData)=>{
-            if(formData){
-                this.prompt = formData.data.prompt;
-                this.language = formData.data.language;
-                this.personality = webSkel.currentUser.space.getPersonality(formData.data.personality);
-            }
-            let flowId = webSkel.currentUser.space.getFlowIdByName("translate");
-            let result = await webSkel.getService("LlmsService").callFlow(flowId, this.prompt, this.personality.name, this.personality.description, this.language);
-            this.generatedText = result.responseString;
-            this.invalidate();
-        }
-        if(cached){
-            await addressLLMRequest();
-            return;
-        }
+    async translate(formElement) {
         const formData= await extractFormInformation(formElement);
-        if(formData.isValid) {
-            await addressLLMRequest(formData);
-        }
+
+        this.text = formData.data.text;
+        this.language = formData.data.language;
+        this.personality = webSkel.currentUser.space.getPersonality(formData.data.personality);
+        this.details = formData.data.details;
+        let result = await webSkel.getService("GlobalFlowsService").translateFlows.translate(this.text, formData.data.personality, this.language, this.details);
+        this.generatedText = result.responseString;
+        this.invalidate();
+
     }
-    /* To be Refactored with Session Storage or something better in the future if necessary */
     async regenerate(_target){
-            if(this.prompt!==undefined){
-                await this.executeProofRead(_target,"cached");
+            if(this.text!==undefined){
+                await this.translate(this.element.querySelector("form"));
             }
     }
     async copyText(_target){

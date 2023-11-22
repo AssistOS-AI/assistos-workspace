@@ -34,7 +34,7 @@ export class paragraphProofreadPage {
         }
         let detailsElement = this.element.querySelector("#details");
         if(this.details){
-            detailsElement.value = this.details.prompt;
+            detailsElement.value = this.details;
         }
     }
 
@@ -57,7 +57,7 @@ export class paragraphProofreadPage {
         if(formData.data.personality){
             this.personality = webSkel.currentUser.space.getPersonality(formData.data.personality);
         }
-        this.details = {prompt:formData.data.details};
+        this.details = formData.data.details;
 
         let result = await webSkel.getService("GlobalFlowsService").proofreadFlows.proofread(this.paragraphText, formData.data.personality, this.details);
         this.observations = sanitize(result.responseJson.observations);

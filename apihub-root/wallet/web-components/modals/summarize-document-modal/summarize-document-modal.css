@@ -10,8 +10,17 @@ dialog[class="modal"] {
 .modal-body{
     padding: 0 30px;
 }
-
-.summarized-paragraph {
+#prompt{
+    border-radius: 8px;
+    border: 0.5px solid rgba(0, 0, 0, 0.24);
+    width: 100%;
+    margin: 4px 0 8px;
+    padding: 8px;
+    height: 200px;
+    resize: none;
+}
+.summarized-document{
+    width: 100%;
     margin-top: 20px;
     color: #000;
     font-feature-settings: 'clig' off, 'liga' off;
@@ -20,7 +29,9 @@ dialog[class="modal"] {
     font-weight: 400;
     line-height: normal;
 }
-
+.summarized-document li{
+    list-style-position: initial;
+}
 .close {
     cursor: pointer;
     float: right;
@@ -50,12 +61,15 @@ dialog[class="modal"] {
     line-height: normal;
 }
 
-form {
+.suggested-ideas-form {
     display: flex;
     flex-direction: column;
     align-items: center;
 }
-
+.form-footer{
+    display: flex;
+    justify-content: center;
+}
 .modal-footer {
     width: 100%;
     display: flex;

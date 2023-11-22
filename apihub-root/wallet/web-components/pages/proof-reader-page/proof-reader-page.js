@@ -42,7 +42,7 @@ export class proofReaderPage {
         }
         let detailsElement = this.element.querySelector("#details");
         if(this.details){
-            detailsElement.value = this.details.prompt;
+            detailsElement.value = this.details;
         }
     }
 
@@ -52,7 +52,7 @@ export class proofReaderPage {
 
             this.text = formData.data.text;
             this.personality = webSkel.currentUser.space.getPersonality(formData.data.personality);
-            this.details = {prompt:formData.data.details};
+            this.details = formData.data.details;
             let result = await webSkel.getService("GlobalFlowsService").proofreadFlows.proofread(this.text, formData.data.personality, this.details);
             this.observations = result.responseJson.observations;
             this.generatedText = result.responseJson.improvedText;
@@ -61,7 +61,7 @@ export class proofReaderPage {
 
     async regenerate(_target){
             if(this.text!==undefined){
-                await this.executeProofRead(_target);
+                await this.executeProofRead(this.element.querySelector("form"));
             }
     }
     async copyText(_target){
