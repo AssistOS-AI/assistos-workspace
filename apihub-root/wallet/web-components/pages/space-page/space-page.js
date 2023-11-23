@@ -38,6 +38,10 @@ export class spacePage {
                 this.tab = "collaborators-page";
                 window.location.hash = "#space-page/collaborators-page";
                 break;
+            case "settings-page":
+                this.tab = "settings-page";
+                window.location.hash = "#space-page/settings-page";
+                break;
         }
         this.invalidate();
     }
@@ -72,6 +76,10 @@ export class spacePage {
          }
          case "collaborators-page":{
              this.pageContent = `<collaborators-page data-presenter="collaborators-page"></collaborators-page>`;
+             break;
+         }
+         case "settings-page":{
+             this.pageContent = `<settings-page data-presenter="settings-page"></settings-page>`;
              break;
          }
          default:{

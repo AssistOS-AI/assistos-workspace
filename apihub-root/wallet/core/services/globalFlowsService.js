@@ -5,9 +5,6 @@ export class GlobalFlowsService{
     constructor() {
         this.documentFlows={
             generateDocument : async function (docData, maxTokens) {
-                const validateParams = (docData) => {
-
-                }
                 let flowId = webSkel.currentUser.space.getFlowIdByName("generate document");
                 return await  webSkel.getService("LlmsService").callFlow(flowId,
                    docData.documentTitle, docData.documentTopic, docData.chaptersCount, docData.documentPersonality, maxTokens);
@@ -138,6 +135,11 @@ export class GlobalFlowsService{
             },
             addFlow: async function(flowData, ...args) {
                 await webSkel.currentUser.space.addFlow(flowData);
+            },
+            deleteSpace: async function(spaceId, ...args) {
+              await storageManager.storeSpace(spaceId, "");
+              await webSkel.getService("AuthenticationService").removeSpaceFromUser(webSkel.currentUser.id,spaceId);
+              await webSkel.currentUser.space.changeSpace(webSkel.currentUser.id);
             }
         }
         this.proofreadFlows = {

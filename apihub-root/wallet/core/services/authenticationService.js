@@ -23,7 +23,7 @@ export class AuthenticationService{
                 spaces: currentUser.spaces,
             }
            if(!currentUser.spaces){
-                let defaultSpace=await this.createDefaultSpace();
+                let defaultSpace=await this.createDefaultSpace(currentUser.id);
                 await this.addSpaceToUser(currentUser.id,defaultSpace);
                currentUser.spaces=webSkel.currentUser.spaces=[{name: defaultSpace.name, id: defaultSpace.id}];
                currentUser.currentSpaceId=webSkel.currentUser.currentSpaceId=defaultSpace.id;
@@ -97,8 +97,21 @@ export class AuthenticationService{
         //returns string
         return localStorage.getItem("currentUser");
     }
-    async createDefaultSpace(){
-        return await SpaceFactory.createSpace({name: "Personal Space"});
+    async createDefaultSpace(currentUserId){
+        return await SpaceFactory.createSpace({name: "Personal Space",id:currentUserId});
+    }
+    async removeSpaceFromUser(userId,spaceId){
+           let user = JSON.parse(await storageManager.loadUser(userId));
+           user.spaces = user.spaces.filter(space => space.id !== spaceId);
+           await storageManager.storeUser(userId,JSON.stringify(user));
+    }
+    async removeSpaceFromUsers(spaceId) {
+        let promises = [];
+        /* we assume the current User has delete rights for now*/
+        for (let userId of webSkel.currentUser.space.users) {
+            promises.push(this.removeSpaceFromUser(userId, spaceId));
+        }
+        await Promise.all(promises);
     }
     async registerUser(userData) {
         const randomNr = crypto.generateRandom(32);
@@ -108,7 +121,7 @@ export class AuthenticationService{
         userData.secretToken = secretToken;
         userData.id = webSkel.getService("UtilsService").generateId();
 
-        let defaultSpace = this.createDefaultSpace();
+        let defaultSpace = this.createDefaultSpace(userData.id);
         userData.spaces = [{name: defaultSpace.name, id: defaultSpace.id}];
         userData.currentSpaceId = defaultSpace.id;
         //const didDocument = await $$.promisify(w3cDID.createIdentity)("key", undefined, randomNr);
@@ -172,7 +185,7 @@ export class AuthenticationService{
                         currentSpaceId: storedUser.spaces[0].id
                     }
                 }else{
-                    let defaultSpace=await this.createDefaultSpace();
+                    let defaultSpace=await this.createDefaultSpace(storedUser.id);
                     webSkel.currentUser = {
                         id: storedUser.id,
                         secretToken: storedUser.secretToken,

@@ -73,6 +73,21 @@ async function storeSpace(request, response) {
         /* the error is that the folder doesn't exist, it needs to be created*/
         await fsPromises.mkdir(folderPath);
     }
+    if (request.body.toString().trim() === "") {
+        try {
+            if (fsPromises.rm) {
+                await fsPromises.rm(folderPath, { recursive: true, force: true });
+            }
+            else if (fsPromises.rmdir) {
+                await fsPromises.rmdir(folderPath, { recursive: true });
+            }
+        } catch (err) {
+            sendResponse(response, 500, "text/html", "Error deleting the folder");
+            return;
+        }
+        sendResponse(response, 200, "text/html", "Space deleted successfully");
+        return;
+    }
     let jsonData = JSON.parse(request.body.toString());
     await storeFolder(request.params.spaceId, jsonData.documents, "documents");
     await storeFolder(request.params.spaceId, jsonData.personalities, "personalities");

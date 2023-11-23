@@ -26,6 +26,11 @@
       "className": "agentsPage"
     },
     {
+      "name": "settings-page",
+      "path": "./web-components/subpages/settings-page/settings-page.js",
+      "className": "settingsPage"
+    },
+    {
       "name": "chatbots-select-personality-page",
       "path": "./web-components/pages/chatbots-select-personality-page/chatbots-select-personality-page.js",
       "className": "chatbotsSelectPersonalityPage"
@@ -315,6 +320,10 @@
     {
       "name": "agents-page",
       "path": "./wallet/web-components/subpages/agents-page/agents-page.html"
+    },
+    {
+      "name": "settings-page",
+      "path": "./wallet/web-components/subpages/settings-page/settings-page.html"
     },
     {
       "name": "chatbots-select-personality-page",

@@ -11,7 +11,9 @@ export class SpaceFactory {
         };
     }
      static async createSpace(spaceData) {
-        spaceData.id=webSkel.servicesRegistry.UtilsService.generateId();
+        if(!spaceData.id) {
+            spaceData.id = webSkel.servicesRegistry.UtilsService.generateId();
+        }
         spaceData.announcements=[this.generateDefaultAnnouncement(spaceData)];
         let newSpace = new Space(spaceData);
         await newSpace.createDefaultFlows();
