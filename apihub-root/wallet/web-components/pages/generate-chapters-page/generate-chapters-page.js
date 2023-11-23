@@ -61,7 +61,7 @@ export class generateChaptersPage {
                 selectedIdeas.push(value.element.value);
             }
         }
-        let flowId = webSkel.currentUser.space.getFlowIdByName("generate empty chapters");
+        let flowId = webSkel.currentUser.space.getFlowIdByName("GenerateEmptyChapters");
         let userDetails = {textarea:"Custom prompt (Optional)", number: "Number of chapters (optional)"};
         await showModal(document.querySelector("body"), "user-details-modal",
             {presenter:"user-details-modal", inputs:sanitize(JSON.stringify(userDetails)),
@@ -77,7 +77,7 @@ export class generateChaptersPage {
                 selectedIdeas.push(value.element.value);
             }
         }
-        let flowId = webSkel.currentUser.space.getFlowIdByName("generate chapters");
+        let flowId = webSkel.currentUser.space.getFlowIdByName("GenerateChapters");
         let userDetails = {textarea:"Custom prompt (Optional)", number: "Number of chapters (optional)"};
         await showModal(document.querySelector("body"), "user-details-modal",
             {presenter:"user-details-modal", inputs:sanitize(JSON.stringify(userDetails)),

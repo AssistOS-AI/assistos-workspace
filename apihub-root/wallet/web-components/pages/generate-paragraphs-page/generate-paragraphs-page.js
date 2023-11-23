@@ -66,7 +66,7 @@ export class generateParagraphsPage {
                 selectedIdeas.push(value.element.value);
             }
         }
-        let flowId = webSkel.currentUser.space.getFlowIdByName("generate paragraphs");
+        let flowId = webSkel.currentUser.space.getFlowIdByName("GenerateParagraphs");
         let userDetails = {textarea:"Custom prompt (Optional)", number: "Number of paragraphs (optional)"};
         await showModal(document.querySelector("body"), "user-details-modal",
             {presenter:"user-details-modal", inputs:sanitize(JSON.stringify(userDetails)),
