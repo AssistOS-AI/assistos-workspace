@@ -5,7 +5,7 @@ export class GlobalFlowsService{
     constructor() {
         this.documentFlows={
             generateDocument : async function (docData, maxTokens) {
-                let flowId = webSkel.currentUser.space.getFlowIdByName("generate document");
+                let flowId = webSkel.currentUser.space.getFlowIdByName("GenerateDocument");
                 return await  webSkel.getService("LlmsService").callFlow(flowId,
                    docData.documentTitle, docData.documentTopic, docData.chaptersCount, docData.documentPersonality, maxTokens);
             },
@@ -16,7 +16,7 @@ export class GlobalFlowsService{
                 await webSkel.currentUser.space.deleteDocument(documentId);
             },
             cloneDocument: async function(documentId,documentTitle,personalityId="copy", proofread=false, ...args){
-                let scriptId = webSkel.currentUser.space.getFlowIdByName("clone document");
+                let scriptId = webSkel.currentUser.space.getFlowIdByName("CloneDocument");
                 let clonedDocJson = await webSkel.getService("LlmsService").callFlow(scriptId,documentId,personalityId,proofread,documentTitle);
 
                 let docData = clonedDocJson.responseJson;
@@ -28,7 +28,7 @@ export class GlobalFlowsService{
                 await webSkel.currentUser.space.getDocument(documentId).updateTitle(titleText);
             },
             suggestAbstract : async function(documentId, prompt){
-                let flowId = webSkel.currentUser.space.getFlowIdByName("suggest abstract");
+                let flowId = webSkel.currentUser.space.getFlowIdByName("SuggestAbstract");
                 return await webSkel.getService("LlmsService").callFlow(flowId, documentId, prompt);
             },
             acceptSuggestedAbstract: async function(documentId, abstract, validityCallback){
@@ -39,23 +39,23 @@ export class GlobalFlowsService{
                 await webSkel.getService("LlmsService").callFlow(flowId, documentId, abstract);
             },
             generateIdeas: async function(hint, personalityId, variants, maxTokens){
-                let flowId = webSkel.currentUser.space.getFlowIdByName("generate ideas");
+                let flowId = webSkel.currentUser.space.getFlowIdByName("GenerateIdeas");
                 return await webSkel.getService("LlmsService").callFlow(flowId, hint, personalityId, variants, maxTokens);
             },
             generateChapters: async function(ideas, documentId, prompt, chaptersNr){
-                let flowId = webSkel.currentUser.space.getFlowIdByName("generate chapters");
+                let flowId = webSkel.currentUser.space.getFlowIdByName("GenerateChapters");
                 return await webSkel.getService("LlmsService").callFlow(flowId, ideas, documentId, prompt, chaptersNr);
             },
             generateEmptyChapters: async function(ideas, documentId, prompt, chaptersNr){
-                let flowId = webSkel.currentUser.space.getFlowIdByName("generate empty chapters");
+                let flowId = webSkel.currentUser.space.getFlowIdByName("GenerateEmptyChapters");
                 return await webSkel.getService("LlmsService").callFlow(flowId, ideas, prompt, chaptersNr);
             },
             generateParagraphs: async function(ideas, documentId, chapterId, prompt, paragraphsNr){
-                let flowId = webSkel.currentUser.space.getFlowIdByName("generate empty chapters");
+                let flowId = webSkel.currentUser.space.getFlowIdByName("GenerateEmptyChapters");
                 return await webSkel.getService("LlmsService").callFlow(flowId, ideas, documentId, chapterId, prompt, paragraphsNr);
             },
             suggestChapterTitles:  async function(documentId, chapterId, prompt, titlesNr, maxTokens){
-                let flowId = webSkel.currentUser.space.getFlowIdByName("suggest chapter titles");
+                let flowId = webSkel.currentUser.space.getFlowIdByName("GuggestChapterTitles");
                 let details = {prompt:prompt, nr:titlesNr};
                 return await webSkel.getService("LlmsService").callFlow(flowId, documentId, chapterId, details, maxTokens);
             },
@@ -66,7 +66,7 @@ export class GlobalFlowsService{
                 await documentFactory.updateDocument(webSkel.currentUser.space.id, document);
             },
             suggestDocumentTitles: async function(documentId, prompt, titlesNr, maxTokens){
-                let flowId = webSkel.currentUser.space.getFlowIdByName("suggest document titles");
+                let flowId = webSkel.currentUser.space.getFlowIdByName("SuggestDocumentTitles");
                 let details = {prompt:prompt, nr:titlesNr};
                 return await webSkel.getService("LlmsService").callFlow(flowId, documentId, details, maxTokens);
             },
@@ -75,7 +75,7 @@ export class GlobalFlowsService{
                 await document.addAlternativeTitles(selectedTitles);
             },
             suggestParagraph : async function(documentId, chapterId, paragraphId, prompt){
-                let flowId = webSkel.currentUser.space.getFlowIdByName("suggest paragraph");
+                let flowId = webSkel.currentUser.space.getFlowIdByName("SuggestParagraph");
                 let details = {prompt:prompt};
                 return await webSkel.getService("LlmsService").callFlow(flowId, documentId, chapterId, paragraphId, details);
             },
@@ -88,7 +88,7 @@ export class GlobalFlowsService{
                 await documentFactory.updateDocument(webSkel.currentUser.space.id, document);
             },
             summarizeChapter: async function(documentId, chapterId, prompt, maxTokens){
-                let flowId = webSkel.currentUser.space.getFlowIdByName("summarize chapter");
+                let flowId = webSkel.currentUser.space.getFlowIdByName("SummarizeChapter");
                 let details = {prompt:prompt};
                 return await webSkel.getService("LlmsService").callFlow(flowId, documentId, chapterId, details, maxTokens);
             },
@@ -99,7 +99,7 @@ export class GlobalFlowsService{
                 await documentFactory.updateDocument(webSkel.currentUser.space.id, document);
             },
             summarizeDocument: async function(documentId, prompt, maxTokens){
-                let flowId = webSkel.currentUser.space.getFlowIdByName("summarize document");
+                let flowId = webSkel.currentUser.space.getFlowIdByName("SummarizeDocument");
                 let details = {prompt:prompt};
                 return await webSkel.getService("LlmsService").callFlow(flowId, documentId, details, maxTokens);
             },
@@ -109,7 +109,7 @@ export class GlobalFlowsService{
                 await documentFactory.updateDocument(webSkel.currentUser.space.id, document);
             },
             summarizeParagraph: async function(documentId, chapterId, paragraphId, prompt, maxTokens){
-                let flowId = webSkel.currentUser.space.getFlowIdByName("summarize paragraph");
+                let flowId = webSkel.currentUser.space.getFlowIdByName("SummarizeParagraph");
                 let details = {prompt:prompt};
                 return await webSkel.getService("LlmsService").callFlow(flowId, documentId, chapterId, paragraphId, details, maxTokens);
             },
@@ -140,14 +140,14 @@ export class GlobalFlowsService{
         }
         this.proofreadFlows = {
             proofread: async function(text, personalityId, details){
-                let flowId = webSkel.currentUser.space.getFlowIdByName("proofread");
+                let flowId = webSkel.currentUser.space.getFlowIdByName("Proofread");
                 let additionalDetails = {prompt:details};
                 return await webSkel.getService("LlmsService").callFlow(flowId, text, personalityId, additionalDetails);
             }
         }
         this.translateFlows = {
          translate: async function(text, personalityId, language, details){
-             let flowId = webSkel.currentUser.space.getFlowIdByName("translate");
+             let flowId = webSkel.currentUser.space.getFlowIdByName("Translate");
              let additionalDetails = {prompt:details};
              return await webSkel.getService("LlmsService").callFlow(flowId, text, personalityId, language, additionalDetails);
          }

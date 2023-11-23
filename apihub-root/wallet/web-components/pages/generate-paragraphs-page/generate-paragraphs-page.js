@@ -90,7 +90,7 @@ export class generateParagraphsPage {
                     selectedIdeas.push(value.element.value);
                 }
             }
-            let flowId = webSkel.currentUser.space.getFlowIdByName("generate paragraphs");
+            let flowId = webSkel.currentUser.space.getFlowIdByName("GenerateParagraphs");
             let result = await webSkel.getService("LlmsService").callFlow(flowId, selectedIdeas, this._document.id, this._chapter.id,formInfo.data.prompt, selectedIdeas.length);
             if(result){
                 await webSkel.changeToDynamicPage("manage-paragraphs-page",`documents/${this._document.id}/manage-paragraphs-page/${this._chapter.id}`);

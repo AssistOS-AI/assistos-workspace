@@ -73,7 +73,7 @@ export class generateChaptersPage {
                 selectedIdeas.push(value.element.value);
             }
         }
-        let flowId = webSkel.currentUser.space.getFlowIdByName("generate empty chapters");
+        let flowId = webSkel.currentUser.space.getFlowIdByName("GenerateEmptyChapters");
         let result = await webSkel.getService("LlmsService").callFlow(flowId, selectedIdeas, this._document.id, formInfo.data.prompt, selectedIdeas.length);
         if(result){
             await webSkel.changeToDynamicPage("manage-chapters-page", `documents/${this._document.id}/manage-chapters-page`);
@@ -102,7 +102,7 @@ export class generateChaptersPage {
                     selectedIdeas.push(value.element.value);
                 }
             }
-            let flowId = webSkel.currentUser.space.getFlowIdByName("generate chapters");
+            let flowId = webSkel.currentUser.space.getFlowIdByName("GenerateChapters");
             let result = await webSkel.getService("LlmsService").callFlow(flowId, selectedIdeas, this._document.id, formInfo.data.prompt, selectedIdeas.length);
             if(result){
                 await webSkel.changeToDynamicPage("manage-chapters-page", `documents/${this._document.id}/manage-chapters-page`);
