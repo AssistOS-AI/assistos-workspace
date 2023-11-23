@@ -1,8 +1,11 @@
 dialog[class="modal"] {
     padding: 0;
     border:none;
-    height: 80%;
-    width: 70%;
+    height: 90%;
+    width: 90%;
+}
+.dialog-modal{
+    height: 100%;
 }
 *{
     font-family: Poppins;
@@ -22,6 +25,7 @@ dialog[class="modal"] {
     justify-content: center;
 }
 .modal-body{
+    height: 82%;
     padding: 20px;
 }
 .form-label{
@@ -35,7 +39,8 @@ dialog[class="modal"] {
 }
 textarea#scriptCode {
     resize: none;
-    height: 390px;
+    height:100%;
+    white-space: pre-wrap;
 }
 .modal-footer{
     display: flex;
