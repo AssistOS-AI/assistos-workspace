@@ -13,14 +13,25 @@ export class generateChaptersPage {
         let i = 0;
         for(let idea of this.ideas){
           i++;
-          stringHMTL+=`<div class="generated-idea">
+          if(i === this.ideas.length){
+              stringHMTL+=`<div class="generated-idea" data-id="${i+idea}">
+                <div class="idea-container">
+                  <span class="alt-title-span">${i}.</span>
+                  <label for="${i+idea}" class="alt-title-label">${idea}</label>
+                </div>
+                <input type="checkbox" id="${i+idea}" name="${i+idea}" value="${idea}" data-condition="verifyCheckedIdeas">
+            </div>
+            <hr class="generated-ideas-hr">`;
+          }else {
+              stringHMTL+=`<div class="generated-idea" data-id="${i}">
                 <div class="idea-container">
                   <span class="alt-title-span">${i}.</span>
                   <label for="${i}" class="alt-title-label">${idea}</label>
                 </div>
-                <input type="checkbox" id="${i}" name="${idea}" data-id="${i}" value="${idea}">
+                <input type="checkbox" id="${i}" name="${idea}" value="${idea}">
             </div>
             <hr class="generated-ideas-hr">`;
+          }
         }
         this.chaptersIdeas = stringHMTL;
     }
@@ -46,7 +57,7 @@ export class generateChaptersPage {
         let form = this.element.querySelector(".generate-ideas-form");
         let formInfo = await extractFormInformation(form);
         if(formInfo.isValid) {
-            let result = await webSkel.getService("GlobalFlowsService").documentFlows.generateIdeas(formInfo.data.idea, "", 5, "");
+            let result = await webSkel.getService("GlobalFlowsService").documentFlows.generateIdeas(formInfo.data.idea, "", formInfo.data.nr, "");
             this.ideas= result.responseJson;
             this.invalidate();
         }
@@ -54,7 +65,8 @@ export class generateChaptersPage {
     }
 
     async generateEmptyChapters(_target){
-        let formInfo = await extractFormInformation(_target);
+        const conditions = {"verifyCheckedIdeas": {fn:this.verifyCheckedIdeas, errorMessage:"Select at least one idea!"} };
+        let formInfo = await extractFormInformation(_target, conditions);
         let selectedIdeas = [];
         for (const [key, value] of Object.entries(formInfo.elements)) {
             if(value.element.checked) {
@@ -62,26 +74,40 @@ export class generateChaptersPage {
             }
         }
         let flowId = webSkel.currentUser.space.getFlowIdByName("generate empty chapters");
-        let userDetails = {textarea:"Custom prompt (Optional)", number: "Number of chapters (optional)"};
-        await showModal(document.querySelector("body"), "user-details-modal",
-            {presenter:"user-details-modal", inputs:sanitize(JSON.stringify(userDetails)),
-                flowId: flowId, ideas:sanitize(JSON.stringify(selectedIdeas)), docId: this._document.id});
+        let result = await webSkel.getService("LlmsService").callFlow(flowId, selectedIdeas, this._document.id, formInfo.data.prompt, selectedIdeas.length);
+        if(result){
+            await webSkel.changeToDynamicPage("manage-chapters-page", `documents/${this._document.id}/manage-chapters-page`);
+        }
     }
 
-    async generateChapters(_target){
-        let formInfo = await extractFormInformation(_target);
-
-        let selectedIdeas = [];
-        for (const [key, value] of Object.entries(formInfo.elements)) {
-            if(value.element.checked) {
-                selectedIdeas.push(value.element.value);
+    verifyCheckedIdeas(element, formData) {
+        let checkedIdeas = [];
+        for (const [key, value] of Object.entries(formData.elements)) {
+        if(value.element.checked) {
+            checkedIdeas.push(value.element.value);
             }
         }
-        let flowId = webSkel.currentUser.space.getFlowIdByName("generate chapters");
-        let userDetails = {textarea:"Custom prompt (Optional)", number: "Number of chapters (optional)"};
-        await showModal(document.querySelector("body"), "user-details-modal",
-            {presenter:"user-details-modal", inputs:sanitize(JSON.stringify(userDetails)),
-                flowId: flowId, ideas:sanitize(JSON.stringify(selectedIdeas)), docId: this._document.id});
+        if(element.checked){
+            checkedIdeas.push(element.value);
+        }
+        return checkedIdeas.length !== 0;
+    }
+    async generateChapters(_target){
+        const conditions = {"verifyCheckedIdeas": {fn:this.verifyCheckedIdeas, errorMessage:"Select at least one idea!"} };
+        let formInfo = await extractFormInformation(_target, conditions);
+        if(formInfo.isValid){
+            let selectedIdeas = [];
+            for (const [key, value] of Object.entries(formInfo.elements)) {
+                if(value.element.checked) {
+                    selectedIdeas.push(value.element.value);
+                }
+            }
+            let flowId = webSkel.currentUser.space.getFlowIdByName("generate chapters");
+            let result = await webSkel.getService("LlmsService").callFlow(flowId, selectedIdeas, this._document.id, formInfo.data.prompt, selectedIdeas.length);
+            if(result){
+                await webSkel.changeToDynamicPage("manage-chapters-page", `documents/${this._document.id}/manage-chapters-page`);
+            }
+        }
     }
 
     async openMangeChaptersPage() {

@@ -42,6 +42,7 @@ generate-chapters-page {
     line-height: normal;
 }
 .form-item{
+    margin-top: 10px;
     display: flex;
     flex-direction: column;
 }
@@ -61,7 +62,26 @@ generate-chapters-page {
     width: 100%;
     display: flex;
 }
-
+#prompt{
+    border-radius: 8px;
+    border: 0.5px solid rgba(0, 0, 0, 0.24);
+    width: 100%;
+    margin: 4px 0 8px;
+    padding: 8px;
+    height: 200px;
+    resize: none;
+}
+#nr{
+    border-radius: 8px;
+    border: 0.5px solid rgba(0, 0, 0, 0.24);
+    width: 50px;
+    margin: 4px 0 8px;
+    padding: 8px;
+}
+.prompt{
+    margin-left: 15px;
+    margin-right: 15px;
+}
 .entire-content {
     width:calc(100% - 270px);
 }
@@ -84,10 +104,6 @@ generate-chapters-page {
     line-height: normal;
 }
 
-.input-ideas-container{
-    display: flex;
-    align-items: center;
-}
 input[type="checkbox"] {
     background-color: #fff;
     margin: 0;
@@ -107,8 +123,8 @@ input[type="checkbox"]:checked {
     margin-right: 5px;
 }
 .generate-ideas-btn{
+    margin-top:10px;
     height: 35px;
-    margin-left: 15px;
     max-width: 160px;
     padding: 8px;
 }

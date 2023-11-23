@@ -23,12 +23,16 @@
             <form class="generate-ideas-form">
                 <div class="form-item">
                     <label class="form-label" for="idea">Hint</label>
-                    <div class="input-ideas-container">
-                        <input class="form-input" name="idea" data-id="idea" type="text" id="idea" required placeholder="Hot dogs">
-                        <button type="button" class="wide-btn generate-ideas-btn" data-local-action="generateIdeas">
-                            Generate Ideas
-                        </button>
-                    </div>
+                    <input class="form-input" name="idea" data-id="idea" type="text" id="idea" required placeholder="Hot dogs">
+                </div>
+                <div class="form-item">
+                    <label class="form-label" for="nr">Number of Ideas</label>
+                    <input type="number" name="nr" data-id="nr" id="nr" min="1" max="9" value="3">
+                </div>
+                <div class="form-footer">
+                    <button type="button" class="wide-btn generate-ideas-btn" data-local-action="generateIdeas">
+                        Generate Ideas
+                    </button>
                 </div>
             </form>
         </div>
@@ -40,6 +44,10 @@
             </div>
             <form class="ideas-list">
                 $$chaptersIdeas
+                <div class="form-item prompt">
+                    <label class="form-label" for="prompt">Custom prompt (prompt)</label>
+                    <textarea name="prompt" data-id="prompt" id="prompt" maxlength="150"  placeholder="Please generate chapters/chapter titles based on the following array of ideas:"></textarea>
+                </div>
                 <button type="button" class="wide-btn generate-chapters-btn" data-local-action="generateEmptyChapters">
                     Generate Chapters (partial)
                 </button>

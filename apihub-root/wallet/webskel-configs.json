@@ -1,11 +1,6 @@
 {
   "presenters": [
     {
-      "name": "user-details-modal",
-      "path": "./web-components/modals/user-details-modal/user-details-modal.js",
-      "className": "userDetailsModal"
-    },
-    {
       "name": "collaborators-page",
       "path": "./web-components/subpages/collaborators-page/collaborators-page.js",
       "className": "collaboratorsPage"
@@ -301,10 +296,6 @@
     }
   ],
   "components": [
-    {
-      "name": "user-details-modal",
-      "path": "./wallet/web-components/modals/user-details-modal/user-details-modal.html"
-    },
     {
       "name": "collaborators-page",
       "path": "./wallet/web-components/subpages/collaborators-page/collaborators-page.html"

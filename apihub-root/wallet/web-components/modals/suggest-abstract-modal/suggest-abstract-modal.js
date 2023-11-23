@@ -33,12 +33,14 @@ export class suggestAbstractModal {
     async generate(_target){
         let formInfo = await extractFormInformation(_target);
         this.prompt = formInfo.data.prompt;
-        let result = await webSkel.getService("GlobalFlowsService").documentFlows.suggestAbstract(this.id, this.prompt);
+        let flowId = webSkel.currentUser.space.getFlowIdByName("suggest abstract");
+        let result = await webSkel.getService("LlmsService").callFlow(flowId, this._document.id, this.prompt, "");
         this.suggestedAbstract = result.responseString;
         this.invalidate();
     }
     async addSelectedAbstract(_target) {
-        await webSkel.getService("GlobalFlowsService").documentFlows.acceptSuggestedAbstract(this.id, this.suggestedAbstract);
+        let flowId = webSkel.currentUser.space.getFlowIdByName("acceptSuggestedAbstract");
+        await webSkel.getService("LlmsService").callFlow(flowId, this._document.id, this.suggestedAbstract);
         this._document.notifyObservers(this._document.getNotificationId());
         closeModal(_target);
     }

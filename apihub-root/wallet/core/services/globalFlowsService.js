@@ -29,15 +29,14 @@ export class GlobalFlowsService{
             },
             suggestAbstract : async function(documentId, prompt){
                 let flowId = webSkel.currentUser.space.getFlowIdByName("suggest abstract");
-                let userDetails = {prompt:prompt};
-                return await webSkel.getService("LlmsService").callFlow(flowId, documentId, userDetails);
+                return await webSkel.getService("LlmsService").callFlow(flowId, documentId, prompt);
             },
-            acceptSuggestedAbstract: async function(documentId, abstract,validityCallback){
+            acceptSuggestedAbstract: async function(documentId, abstract, validityCallback){
                 if (typeof validityCallback === 'function' && !validityCallback()) {
                     return;
                 }
-                let document = webSkel.currentUser.space.getDocument(documentId);
-                await document.addAlternativeAbstract({content:sanitize(abstract), id:webSkel.getService("UtilsService").generateId()});
+                let flowId = webSkel.currentUser.space.getFlowIdByName("acceptSuggestedAbstract");
+                await webSkel.getService("LlmsService").callFlow(flowId, documentId, abstract);
             },
             generateIdeas: async function(hint, personalityId, variants, maxTokens){
                 let flowId = webSkel.currentUser.space.getFlowIdByName("generate ideas");
@@ -45,18 +44,15 @@ export class GlobalFlowsService{
             },
             generateChapters: async function(ideas, documentId, prompt, chaptersNr){
                 let flowId = webSkel.currentUser.space.getFlowIdByName("generate chapters");
-                let details = {prompt:prompt, nr:chaptersNr};
-                return await webSkel.getService("LlmsService").callFlow(flowId, ideas, documentId, details);
+                return await webSkel.getService("LlmsService").callFlow(flowId, ideas, documentId, prompt, chaptersNr);
             },
             generateEmptyChapters: async function(ideas, documentId, prompt, chaptersNr){
                 let flowId = webSkel.currentUser.space.getFlowIdByName("generate empty chapters");
-                let details = {prompt:prompt, nr:chaptersNr};
-                return await webSkel.getService("LlmsService").callFlow(flowId, ideas, documentId, details);
+                return await webSkel.getService("LlmsService").callFlow(flowId, ideas, prompt, chaptersNr);
             },
             generateParagraphs: async function(ideas, documentId, chapterId, prompt, paragraphsNr){
                 let flowId = webSkel.currentUser.space.getFlowIdByName("generate empty chapters");
-                let details = {prompt:prompt, nr:paragraphsNr};
-                return await webSkel.getService("LlmsService").callFlow(flowId, ideas, documentId, chapterId, details);
+                return await webSkel.getService("LlmsService").callFlow(flowId, ideas, documentId, chapterId, prompt, paragraphsNr);
             },
             suggestChapterTitles:  async function(documentId, chapterId, prompt, titlesNr, maxTokens){
                 let flowId = webSkel.currentUser.space.getFlowIdByName("suggest chapter titles");
