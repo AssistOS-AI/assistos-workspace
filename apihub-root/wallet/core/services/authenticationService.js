@@ -100,6 +100,19 @@ export class AuthenticationService{
     async createDefaultSpace(currentUserId){
         return await SpaceFactory.createSpace({name: "Personal Space",id:currentUserId});
     }
+    async removeSpaceFromUser(userId,spaceId){
+           let user = JSON.parse(await storageManager.loadUser(userId));
+           user.spaces = user.spaces.filter(space => space.id !== spaceId);
+           await storageManager.storeUser(userId,JSON.stringify(user));
+    }
+    async removeSpaceFromUsers(spaceId) {
+        let promises = [];
+        /* we assume the current User has delete rights for now*/
+        for (let userId of webSkel.currentUser.space.users) {
+            promises.push(this.removeSpaceFromUser(userId, spaceId));
+        }
+        await Promise.all(promises);
+    }
     async registerUser(userData) {
         const randomNr = crypto.generateRandom(32);
         const secretToken = crypto.encrypt(randomNr,crypto.deriveEncryptionKey(userData.password));
