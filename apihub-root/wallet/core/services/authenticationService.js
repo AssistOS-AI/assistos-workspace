@@ -30,11 +30,24 @@ export class AuthenticationService{
            }
            let spaceData;
            try {
-               let spaceData = await storageManager.loadSpace(currentUser.currentSpaceId || currentUser.spaces[0].id);
+               /* Attempting to load the last space the user was logged on */
+               let spaceData = await storageManager.loadSpace(currentUser.currentSpaceId);
                webSkel.currentUser.space = new Space(JSON.parse(spaceData));
            }catch (e){
-               await this.resetUser(currentUser.id);
-               window.location="";
+               try{
+                   /* To be replaced with better logic */
+                   // Handle the case when the space with the currentSpaceId has been deleted manually from the disk for development
+                   await this.removeSpaceFromUser(currentUser.id,currentUser.currentSpaceId);
+                   console.warn("Space with id "+currentUser.currentSpaceId+" not found");
+                   /*Attempting to load the Default Space if the currentSpaceId is not valid or the space with that id has been deleted */
+                     spaceData = await storageManager.loadSpace(currentUser.id);
+                     webSkel.currentUser.space = new Space(JSON.parse(spaceData));
+               }catch(e){
+                   console.warn("Couldn't load the default space for user "+currentUser.id+"");
+                   /* Attempting to load any space from the User's spaces array and removing the invalid ones */
+                   await this.resetUser(currentUser.id);
+                   window.location="";
+               }
            }
         }
         else {
