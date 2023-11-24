@@ -68,9 +68,9 @@ export class editFlowModal {
     }
 
     formatCode(){
-        alert("To be implemented");
+        alert("To be implemented.");
     }
     loadFlow(){
-        alert("To be implemented");
+        alert("To be implemented.");
     }
 }

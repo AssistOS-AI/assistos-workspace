@@ -179,7 +179,10 @@ dialog{
 }
 
 
-.add-button,.generate-button{
+.general-button{
+    border: none;
+    display: flex;
+    align-items: center;
     font-size: 16px;
     font-weight: 600;
     line-height: 24px;
@@ -190,7 +193,7 @@ dialog{
     height: 36px;
     padding: 6px 11px 6px 11px;
     border-radius: 17px;
-    gap: 10px;
+    gap: 5px;
     cursor:pointer;
 }
 .feature {

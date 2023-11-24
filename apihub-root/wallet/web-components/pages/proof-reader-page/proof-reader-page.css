@@ -111,19 +111,6 @@ option {
     text-transform: capitalize;
     box-shadow: 0 2px 4px 0 #00000047;
 }
-.generate-button {
-    border: none;
-    display: flex;
-    padding: 6px 12px 6px 12px;
-    border-radius: 17px;
-    gap: 9px;
-    background: #A42E70;
-    color: #FFFFFF;
-    min-width: fit-content;
-    align-items: center;
-    justify-content: center;
-    cursor: pointer;
-}
 .proof-reader-form{
     display:flex;
     flex-direction:row;

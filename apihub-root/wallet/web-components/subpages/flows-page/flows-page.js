@@ -44,4 +44,11 @@ export class flowsPage {
         this.invalidate();
     }
 
+    importFlows(){
+        alert("To be implemented.");
+    }
+    exportFlows(){
+        alert("To be implemented.");
+    }
+
 }

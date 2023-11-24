@@ -47,15 +47,3 @@
     justify-content: space-between;
     width:325px;
 }
-.generate-button,.add-button {
-    display: flex;
-    align-items: center;
-    justify-content: center;
-    color: #FFFFFF;
-    padding: 6px 12px 6px 12px;
-    border-radius: 17px;
-    gap: 9px;
-    background: #A42E70;
-    min-width: fit-content;
-    cursor: pointer;
-}
