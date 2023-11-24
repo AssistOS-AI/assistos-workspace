@@ -10,6 +10,7 @@ export class flowsPage {
         webSkel.currentUser.space.observeChange(this.notificationId,invalidate);
         this.invalidate = invalidate;
         this.invalidate();
+        this.element = element;
     }
     beforeRender() {
         this.tableRows = "";
@@ -27,6 +28,9 @@ export class flowsPage {
         }
     }
 
+    afterRender(){
+        this.filters = this.element.querySelector(".filters");
+    }
     async showActionBox(_target, primaryKey, componentName, insertionMode) {
         await showActionBox(_target, primaryKey, componentName, insertionMode);
     }
@@ -49,6 +53,10 @@ export class flowsPage {
     }
     exportFlows(){
         alert("To be implemented.");
+    }
+
+    openFilter(){
+      this.filters.style.display = "flex"
     }
 
 }

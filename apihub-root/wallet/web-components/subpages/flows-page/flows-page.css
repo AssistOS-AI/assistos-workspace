@@ -35,3 +35,23 @@
 .no-data-loaded{
     padding-left: 15px;
 }
+.filters-button{
+    position: relative;
+}
+.filters{
+    border-radius: 5px;
+    padding-top: 10px;
+    padding-bottom: 10px;
+    background: #A42E70;
+    display: flex;
+    position: absolute;
+    top:0;
+    left: 70px;
+    flex-direction: column;
+}
+.filter{
+    padding: 0 10px 0 10px;
+    width: 150px;
+    display: flex;
+    justify-content: space-between;
+}
