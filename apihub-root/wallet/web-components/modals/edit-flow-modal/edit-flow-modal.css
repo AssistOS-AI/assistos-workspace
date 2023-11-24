@@ -11,8 +11,8 @@ dialog[class="modal"] {
     font-family: Poppins;
 }
 .modal-header{
+    height: 8%;
     padding: 5px 20px 5px 20px;
-    margin-bottom: 5px;
     background: #A42E70;
     display: flex;
     justify-content: space-between;
@@ -24,9 +24,30 @@ dialog[class="modal"] {
     flex-direction: column;
     justify-content: center;
 }
+.title{
+    font-size: 18px;
+    font-weight: 400;
+}
 .modal-body{
-    height: 82%;
+    height: 72%;
     padding: 20px;
+}
+.actions-container,
+.marketplace{
+    padding:10px;
+    background: #F3EBF366;
+    width: 49%;
+    display: flex;
+    flex-direction: column;
+    justify-content: space-between;
+    margin-bottom: 20px;
+}
+.modal-footer{
+    height: 20%;
+    margin-left: 20px;
+    margin-right: 20px;
+    display: flex;
+    justify-content: space-between;
 }
 .form-label{
     display: none;
@@ -42,10 +63,6 @@ textarea#scriptCode {
     height:100%;
     white-space: pre-wrap;
 }
-.modal-footer{
-    display: flex;
-    justify-content: center;
-}
 .close {
     padding: 0;
     font-weight: 300;
@@ -57,9 +74,10 @@ textarea#scriptCode {
 }
 
 
-.wide-btn {
+.modal-wide-btn {
+    margin-right: 10px;
     cursor: pointer;
-    padding: 8px 52px;
+    padding: 8px 40px;
     border-radius: 16px;
     border: 0.5px solid #D7D7D7;
     background: #A42E70;

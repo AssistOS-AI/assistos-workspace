@@ -66,4 +66,11 @@ export class editFlowModal {
             closeModal(_target);
         }
     }
+
+    formatCode(){
+        alert("To be implemented");
+    }
+    loadFlow(){
+        alert("To be implemented");
+    }
 }
