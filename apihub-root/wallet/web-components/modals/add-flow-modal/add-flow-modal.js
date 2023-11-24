@@ -59,7 +59,8 @@ export class addFlowModal {
                 name: formInfo.data.name,
                 description: formInfo.data.description,
                 id: webSkel.servicesRegistry.UtilsService.generateId(),
-                content: formInfo.data.validateCode
+                content: formInfo.data.validateCode,
+                tags: formInfo.data.tags
             }
 
             await webSkel.getService("GlobalFlowsService").spaceFlows.addFlow(flowData);

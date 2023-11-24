@@ -56,7 +56,8 @@ export class suggestChapterTitlesModal {
         let formInfo = await extractFormInformation(_target);
         this.prompt = formInfo.data.prompt;
         this.titlesNr = formInfo.data.nr;
-        let result = await webSkel.getService("GlobalFlowsService").documentFlows.suggestChapterTitles(this._document.id, this._chapter.id, this.prompt, this.titlesNr);
+        let flowId = webSkel.currentUser.space.getFlowIdByName("SuggestChapterTitles");
+        let result = await webSkel.getService("LlmsService").callFlow(flowId, this._document.id, this._chapter.id, this.prompt, this.titlesNr, "");
         if(result.responseJson){
             this.suggestedTitles = result.responseJson;
             this.invalidate();

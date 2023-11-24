@@ -1,11 +1,12 @@
 dialog[class="modal"] {
-    overflow: hidden;
     padding: 0;
     border:none;
     height: 90%;
     width: 50%;
 }
-
+add-flow-modal{
+    overflow-y: scroll;
+}
 * {
     font-family: Poppins;
 }
@@ -53,7 +54,15 @@ dialog[class="modal"] {
     font-size: 12px;
     font-weight: 600;
 }
-
+.form-item{
+    display: flex;
+    flex-direction: column;
+}
+#tags{
+    width: 50%;
+    margin-top: 5px;
+    margin-bottom: 5px;
+}
 .form-input {
     border-radius: 8px;
     border: 0.5px solid rgba(0, 0, 0, 0.24);

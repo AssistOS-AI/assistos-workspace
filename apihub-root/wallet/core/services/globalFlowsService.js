@@ -55,9 +55,8 @@ export class GlobalFlowsService{
                 return await webSkel.getService("LlmsService").callFlow(flowId, ideas, documentId, chapterId, prompt, paragraphsNr);
             },
             suggestChapterTitles:  async function(documentId, chapterId, prompt, titlesNr, maxTokens){
-                let flowId = webSkel.currentUser.space.getFlowIdByName("GuggestChapterTitles");
-                let details = {prompt:prompt, nr:titlesNr};
-                return await webSkel.getService("LlmsService").callFlow(flowId, documentId, chapterId, details, maxTokens);
+                let flowId = webSkel.currentUser.space.getFlowIdByName("SuggestChapterTitles");
+                return await webSkel.getService("LlmsService").callFlow(flowId, documentId, chapterId, prompt, titlesNr, maxTokens);
             },
             addAlternativeChapterTitles: async function(documentId, chapterId, selectedTitles){
                 let document = webSkel.currentUser.space.getDocument(documentId);
