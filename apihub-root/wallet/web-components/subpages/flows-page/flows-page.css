@@ -35,23 +35,26 @@
 .no-data-loaded{
     padding-left: 15px;
 }
-.filters-button{
+.filters-container{
     position: relative;
 }
 .filters{
+    display: none;
     border-radius: 5px;
     padding-top: 10px;
     padding-bottom: 10px;
     background: #A42E70;
-    display: flex;
     position: absolute;
     top:0;
-    left: 70px;
+    left: 95px;
     flex-direction: column;
 }
 .filter{
+    display: flex;
     padding: 0 10px 0 10px;
     width: 150px;
-    display: flex;
     justify-content: space-between;
+    font-size: 16px;
+    font-weight: 600;
+    color: #FFFFFF;
 }

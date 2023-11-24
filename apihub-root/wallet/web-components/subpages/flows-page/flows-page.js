@@ -1,24 +1,27 @@
 import {
     showModal,
     showActionBox,
-    reverseQuerySelector
+    reverseQuerySelector, extractFormInformation
 } from "../../../imports.js";
 
 export class flowsPage {
     constructor(element, invalidate) {
         this.notificationId = "space:space-page:flows";
         webSkel.currentUser.space.observeChange(this.notificationId,invalidate);
+        this.element = element;
+        this.filteredFlows =  webSkel.currentUser.space.flows;
+        this.selectedTypes = [];
+        this.filtersOpen = false;
         this.invalidate = invalidate;
         this.invalidate();
-        this.element = element;
     }
     beforeRender() {
         this.tableRows = "";
-        if (webSkel.currentUser.space.flows.length > 0) {
-            webSkel.currentUser.space.flows.sort(function(a, b) {
+        if (this.filteredFlows.length > 0) {
+            this.filteredFlows.sort(function(a, b) {
                 return a.name.toLowerCase().localeCompare(b.name.toLowerCase());
             });
-            webSkel.currentUser.space.flows.forEach((item) => {
+            this.filteredFlows.forEach((item) => {
                 this.tableRows += `<flow-unit data-id="${item.id}" 
                 data-name="${item.name}" data-content="${item.content}" 
                 data-description="${item.description}" data-local-action="editAction"></flow-unit>`;
@@ -30,6 +33,15 @@ export class flowsPage {
 
     afterRender(){
         this.filters = this.element.querySelector(".filters");
+        if(this.filtersOpen){
+            this.openFilters();
+        }
+        for(let filter of this.filters.children){
+            let checkbox = filter.children[1];
+            if(this.selectedTypes.includes(checkbox.getAttribute("name"))){
+                checkbox.checked = true;
+            }
+        }
     }
     async showActionBox(_target, primaryKey, componentName, insertionMode) {
         await showActionBox(_target, primaryKey, componentName, insertionMode);
@@ -55,8 +67,36 @@ export class flowsPage {
         alert("To be implemented.");
     }
 
-    openFilter(){
-      this.filters.style.display = "flex"
+    openFilters(_target){
+      this.filters.style.display = "flex";
+      let controller = new AbortController();
+      document.addEventListener("click",this.manageFilters.bind(this,controller), {signal:controller.signal});
+    }
+
+    async manageFilters(controller, event){
+        if(this.filters.contains(event.target)){
+            let formInfo = await extractFormInformation(event.target);
+            let selectedTypes = [];
+            for (const [key, value] of Object.entries(formInfo.elements)) {
+                if(value.element.checked) {
+                    selectedTypes.push(value.element.value);
+                }
+            }
+
+            this.selectedTypes = selectedTypes;
+            this.filtersOpen = true;
+            this.filteredFlows = webSkel.currentUser.space.flows.filter(flow => selectedTypes.every(type => flow.tags.includes(type)));
+            if(selectedTypes.length === 0){
+                this.filteredFlows = webSkel.currentUser.space.flows;
+            }
+            this.invalidate();
+            controller.abort();
+        }
+        else {
+            this.filters.style.display = "none";
+            this.filtersOpen = false;
+            controller.abort();
+        }
     }
 
 }
