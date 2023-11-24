@@ -8,39 +8,38 @@ export class spacePage {
 
     async openTab(_target) {
         let tabName = _target.getAttribute("data-name");
-
         switch(tabName) {
             case "agents-page":
                 this.tab = "agents-page";
-                window.location.hash = "#space-page/agents-page";
+                //window.location.hash = "#space-page/agents-page";
                 break;
             case "announcements-page":
                 this.tab = "announcements-page";
-                window.location.hash = "#space-page/announcements-page";
+                //window.location.hash = "#space-page/announcements-page";
                 break;
             case "personalities-page":
                 this.tab = "personalities-page";
-                window.location.hash = "#space-page/personalities-page";
+                //window.location.hash = "#space-page/personalities-page";
                 break;
             case "flows-page":
                 this.tab = "flows-page";
-                window.location.hash = "#space-page/flows-page";
+               // window.location.hash = "#space-page/flows-page";
                 break;
             case "tasks-page":
                 this.tab = "tasks-page";
-                window.location.hash = "#space-page/tasks-page";
+                //window.location.hash = "#space-page/tasks-page";
                 break;
             case "knowledge-page":
                 this.tab = "knowledge-page";
-                window.location.hash = "#space-page/knowledge-page";
+                //window.location.hash = "#space-page/knowledge-page";
                 break;
             case "collaborators-page":
                 this.tab = "collaborators-page";
-                window.location.hash = "#space-page/collaborators-page";
+               //window.location.hash = "#space-page/collaborators-page";
                 break;
             case "settings-page":
                 this.tab = "settings-page";
-                window.location.hash = "#space-page/settings-page";
+                //window.location.hash = "#space-page/settings-page";
                 break;
         }
         this.invalidate();
