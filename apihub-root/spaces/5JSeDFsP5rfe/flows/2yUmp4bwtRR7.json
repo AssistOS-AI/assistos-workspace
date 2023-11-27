@@ -1,0 +1,11 @@
+{
+  "name": "AcceptChapterIdeas",
+  "content": "({\nstart: async function(documentId, chapterId, ideas){\n       try{\n             let document = webSkel.currentUser.space.getDocument(documentId);\n             let chapter = document.getChapter(chapterId);\n             await chapter.setMainIdeas(ideas.map((chapterIdea)=>{return sanitize(chapterIdea)}))\n             await documentFactory.updateDocument(webSkel.currentUser.space.id, document);\n             this.return(ideas);\n        }catch(e){\n            this.fail(e);\n            }\n    }\n})",
+  "id": "2yUmp4bwtRR7",
+  "description": "Replaces the current main ideas with the generated ones",
+  "tags": [
+    "presenters",
+    "agents",
+    "documents"
+  ]
+}

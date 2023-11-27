@@ -19,7 +19,8 @@ export class suggestTitlesModal {
         let formInfo = await extractFormInformation(_target);
         this.prompt = formInfo.data.prompt;
         this.titlesNr = formInfo.data.nr;
-        let result = await webSkel.getService("GlobalFlowsService").documentFlows.suggestDocumentTitles(this._document.id, this.prompt, this.titlesNr);
+        let flowId = webSkel.currentUser.space.getFlowIdByName("SuggestDocumentTitles");
+        let result = await webSkel.getService("LlmsService").callFlow(flowId, this._document.id, this.prompt, this.titlesNr, "");
         if(result.responseJson){
             this.suggestedTitles = result.responseJson;
             this.invalidate();
@@ -73,7 +74,8 @@ export class suggestTitlesModal {
                 selectedTitles.push({title:sanitize(value.element.value)});
             }
         }
-        await webSkel.getService("GlobalFlowsService").documentFlows.addAlternativeDocumentTitles(this._document.id, selectedTitles);
+        let flowId = webSkel.currentUser.space.getFlowIdByName("AddAlternativeDocumentTitles");
+        let result = await webSkel.getService("LlmsService").callFlow(flowId, this._document.id, selectedTitles);
         this._document.notifyObservers(this._document.getNotificationId());
         closeModal(_target);
     }

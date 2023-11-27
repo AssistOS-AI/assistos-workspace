@@ -74,7 +74,8 @@ export class suggestChapterTitlesModal {
                 selectedTitles.push({title:sanitize(value.element.value)});
             }
         }
-        await webSkel.getService("GlobalFlowsService").documentFlows.addAlternativeChapterTitles(this._document.id, this._chapter.id, selectedTitles);
+        let flowId = webSkel.currentUser.space.getFlowIdByName("AddAlternativeChapterTitles");
+        let result = await webSkel.getService("LlmsService").callFlow(flowId, this._document.id, this._chapter.id, selectedTitles);
         await this._document.notifyObservers(this._document.getNotificationId());
         closeModal(_target);
     }

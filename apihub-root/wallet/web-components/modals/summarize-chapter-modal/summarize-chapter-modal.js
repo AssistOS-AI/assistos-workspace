@@ -38,12 +38,14 @@ export class summarizeChapterModal{
     async generate(_target){
         let formInfo = await extractFormInformation(_target);
         this.prompt = formInfo.data.prompt;
-        let result = await webSkel.getService("GlobalFlowsService").documentFlows.summarizeChapter(this._document.id, this._chapter.id, this.prompt, "");
+        let flowId = webSkel.currentUser.space.getFlowIdByName("SummarizeChapter");
+        let result = await webSkel.getService("LlmsService").callFlow(flowId, this._document.id, this._chapter.id, this.prompt, "");
         this.chapterMainIdeas = result.responseJson;
         this.invalidate();
     }
     async addSelectedIdeas(_target) {
-        await webSkel.getService("GlobalFlowsService").documentFlows.acceptChapterIdeas(this._document.id, this._chapter.id, this.chapterMainIdeas);
+        let flowId = webSkel.currentUser.space.getFlowIdByName("AcceptChapterIdeas");
+        let result = await webSkel.getService("LlmsService").callFlow(flowId, this._document.id, this._chapter.id, this.chapterMainIdeas);
         this._document.notifyObservers(this._document.getNotificationId()+":manage-paragraphs-page");
         closeModal(_target);
     }

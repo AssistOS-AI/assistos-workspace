@@ -37,19 +37,9 @@ export class cloneDocumentModal {
 
     async cloneDocument(_target) {
         let formData = await extractFormInformation(_target);
-        let personalityId = formData.data.documentPersonality;
-        let documentTitle = formData.data.documentTitle;
         let proofread = formData.data.proofread === "on";
-        let personalityDescription="copy";
-        if(personalityId!=="copy"){
-            personalityDescription=webSkel.currentUser.space.personalities.find(personality=>personality.id===personalityId).description;
-        }
-        let simplifiedDocumentJson= JSON.stringify(webSkel.currentUser.space.getDocument(webSkel.currentUser.space.currentDocumentId).simplifyDocument());
         let flowId = webSkel.currentUser.space.getFlowIdByName("CloneDocument");
-        let result = await webSkel.getService("LlmsService").callFlow(flowId,simplifiedDocumentJson,personalityDescription, proofread);
-        let docData = result.responseJson;
-        docData.title = documentTitle;
-        await documentFactory.addDocument(window.webSkel.currentUser.space.id, new DocumentModel(docData));
+        let result = await webSkel.getService("LlmsService").callFlow(flowId, webSkel.currentUser.space.currentDocumentId, formData.data.documentPersonality, formData.data.documentTitle, proofread);
         await documentFactory.notifyObservers("docs");
         closeModal(_target);
     }

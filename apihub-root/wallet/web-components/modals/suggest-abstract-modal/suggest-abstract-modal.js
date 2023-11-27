@@ -39,7 +39,7 @@ export class suggestAbstractModal {
         this.invalidate();
     }
     async addSelectedAbstract(_target) {
-        let flowId = webSkel.currentUser.space.getFlowIdByName("acceptSuggestedAbstract");
+        let flowId = webSkel.currentUser.space.getFlowIdByName("AcceptSuggestedAbstract");
         await webSkel.getService("LlmsService").callFlow(flowId, this._document.id, this.suggestedAbstract);
         this._document.notifyObservers(this._document.getNotificationId());
         closeModal(_target);
