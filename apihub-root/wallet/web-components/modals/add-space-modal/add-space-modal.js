@@ -1,6 +1,5 @@
 import {
     closeModal,
-    SpaceFactory,
     extractFormInformation
 } from "../../../imports.js";
 
@@ -18,9 +17,9 @@ export class addSpaceModal {
         let formData = await extractFormInformation(_target);
         if(formData.isValid) {
             let spaceData={name:formData.data.name};
-            let newSpace = await SpaceFactory.createSpace(spaceData);
-
-            await webSkel.getService("AuthenticationService").addSpaceToUser(webSkel.currentUser.id,newSpace);
+            let flowId = webSkel.currentUser.space.getFlowIdByName("AddSpace");
+            let result = await webSkel.getService("LlmsService").callFlow(flowId, spaceData);
+            console.log(result);
             closeModal(_target);
             window.location = "";
         }
