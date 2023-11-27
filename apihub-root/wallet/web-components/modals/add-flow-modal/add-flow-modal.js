@@ -81,7 +81,7 @@ export class addFlowModal {
         closeModal(_target);
     }
 
-    async addScript(_target) {
+    async addFlow(_target) {
         const isValidPascalCase=(nameInput)=> {
             return /^[A-Z][^\s]*$/.test(nameInput.value);
         }
@@ -95,8 +95,9 @@ export class addFlowModal {
                 content: formInfo.data.code,
                 tags: formInfo.data.tags
             }
-
-            await webSkel.getService("GlobalFlowsService").spaceFlows.addFlow(flowData);
+            let flowId = webSkel.currentUser.space.getFlowIdByName("AddFlow");
+            let result = await webSkel.getService("LlmsService").callFlow(flowId, flowData);
+            console.log(result);
             webSkel.currentUser.space.notifyObservers(webSkel.currentUser.space.getNotificationId());
             closeModal(_target);
         }
