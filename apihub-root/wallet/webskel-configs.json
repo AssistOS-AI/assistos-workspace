@@ -298,279 +298,522 @@
   "components": [
     {
       "name": "collaborators-page",
-      "path": "./wallet/web-components/subpages/collaborators-page/collaborators-page.html"
+      "path": "./wallet/web-components/subpages/collaborators-page/collaborators-page.html",
+      "cssPaths": [
+        "./wallet/web-components/subpages/collaborators-page/collaborators-page.css"
+      ]
     },
     {
       "name": "knowledge-page",
-      "path": "./wallet/web-components/subpages/knowledge-page/knowledge-page.html"
+      "path": "./wallet/web-components/subpages/knowledge-page/knowledge-page.html",
+      "cssPaths": [
+            "./wallet/web-components/subpages/knowledge-page/knowledge-page.css"
+      ]
     },
     {
       "name": "tasks-page",
-      "path": "./wallet/web-components/subpages/tasks-page/tasks-page.html"
+      "path": "./wallet/web-components/subpages/tasks-page/tasks-page.html",
+        "cssPaths": [
+            "./wallet/web-components/subpages/tasks-page/tasks-page.css"
+        ]
     },
     {
       "name": "agents-page",
-      "path": "./wallet/web-components/subpages/agents-page/agents-page.html"
+      "path": "./wallet/web-components/subpages/agents-page/agents-page.html",
+      "cssPaths": [
+            "./wallet/web-components/subpages/agents-page/agents-page.css"
+        ]
     },
     {
       "name": "settings-page",
-      "path": "./wallet/web-components/subpages/settings-page/settings-page.html"
+      "path": "./wallet/web-components/subpages/settings-page/settings-page.html",
+      "cssPaths": [
+            "./wallet/web-components/subpages/settings-page/settings-page.css"
+        ]
     },
     {
       "name": "chatbots-select-personality-page",
-      "path": "./wallet/web-components/pages/chatbots-select-personality-page/chatbots-select-personality-page.html"
+      "path": "./wallet/web-components/pages/chatbots-select-personality-page/chatbots-select-personality-page.html",
+        "cssPaths": [
+                "./wallet/web-components/pages/chatbots-select-personality-page/chatbots-select-personality-page.css",
+                "./wallet/web-components/components/item-list/personality-unit/personality-unit.css"
+            ]
     },
     {
       "name": "chatbots-page",
-      "path": "./wallet/web-components/pages/chatbots-page/chatbots-page.html"
+      "path": "./wallet/web-components/pages/chatbots-page/chatbots-page.html",
+        "cssPaths": [
+            "./wallet/web-components/pages/chatbots-page/chatbots-page.css"
+        ]
     },
     {
       "name": "confirmation-popup",
-      "path": "./wallet/web-components/components/confirmation-popup/confirmation-popup.html"
+      "path": "./wallet/web-components/components/confirmation-popup/confirmation-popup.html",
+        "cssPaths": [
+            "./wallet/web-components/components/confirmation-popup/confirmation-popup.css"
+        ]
     },
     {
       "name": "translate-page",
-      "path": "./wallet/web-components/pages/translate-page/translate-page.html"
+      "path": "./wallet/web-components/pages/translate-page/translate-page.html",
+        "cssPaths": [
+            "./wallet/web-components/pages/translate-page/translate-page.css"
+        ]
     },
     {
       "name": "image-brainstorming-page",
-      "path": "./wallet/web-components/pages/image-brainstorming-page/image-brainstorming-page.html"
+      "path": "./wallet/web-components/pages/image-brainstorming-page/image-brainstorming-page.html",
+        "cssPaths": [
+            "./wallet/web-components/pages/image-brainstorming-page/image-brainstorming-page.css"
+        ]
     },
     {
       "name": "prompt-animation",
-      "path": "./wallet/web-components/components/prompt-animation/prompt-animation.html"
+      "path": "./wallet/web-components/components/prompt-animation/prompt-animation.html",
+        "cssPaths": [
+            "./wallet/web-components/components/prompt-animation/prompt-animation.css"
+        ]
     },
     {
       "name": "suggest-paragraph-modal",
-      "path": "./wallet/web-components/modals/suggest-paragraph-modal/suggest-paragraph-modal.html"
+      "path": "./wallet/web-components/modals/suggest-paragraph-modal/suggest-paragraph-modal.html",
+        "cssPaths": [
+            "./wallet/web-components/modals/suggest-paragraph-modal/suggest-paragraph-modal.css"
+        ]
     },
     {
       "name": "alternative-paragraph",
-      "path": "./wallet/web-components/components/item-list/alternative-paragraph/alternative-paragraph.html"
+      "path": "./wallet/web-components/components/item-list/alternative-paragraph/alternative-paragraph.html",
+        "cssPaths": [
+            "./wallet/web-components/components/item-list/alternative-paragraph/alternative-paragraph.css"
+        ]
     },
     {
       "name": "paragraph-brainstorming-page",
-      "path": "./wallet/web-components/pages/paragraph-brainstorming-page/paragraph-brainstorming-page.html"
+      "path": "./wallet/web-components/pages/paragraph-brainstorming-page/paragraph-brainstorming-page.html",
+        "cssPaths": [
+            "./wallet/web-components/pages/paragraph-brainstorming-page/paragraph-brainstorming-page.css",
+            "./wallet/web-components/components/item-list/alternative-paragraph/alternative-paragraph.css"
+        ]
     },
     {
       "name": "chapter-brainstorming-page",
-      "path": "./wallet/web-components/pages/chapter-brainstorming-page/chapter-brainstorming-page.html"
+      "path": "./wallet/web-components/pages/chapter-brainstorming-page/chapter-brainstorming-page.html",
+        "cssPaths": [
+            "./wallet/web-components/pages/chapter-brainstorming-page/chapter-brainstorming-page.css",
+              "./wallet/web-components/components/item-list/alternative-chapter/alternative-chapter.css",
+          "./wallet/web-components/components/item-list/reduced-paragraph-unit/reduced-paragraph-unit.css",
+          "./wallet/web-components/components/confirmation-popup/confirmation-popup.css"
+        ]
     },
     {
       "name": "generate-paragraphs-page",
-      "path": "./wallet/web-components/pages/generate-paragraphs-page/generate-paragraphs-page.html"
+      "path": "./wallet/web-components/pages/generate-paragraphs-page/generate-paragraphs-page.html",
+        "cssPaths": [
+            "./wallet/web-components/pages/generate-paragraphs-page/generate-paragraphs-page.css"
+        ]
     },
     {
       "name": "reduced-paragraph-unit",
-      "path": "./wallet/web-components/components/item-list/reduced-paragraph-unit/reduced-paragraph-unit.html"
+      "path": "./wallet/web-components/components/item-list/reduced-paragraph-unit/reduced-paragraph-unit.html",
+        "cssPaths": [
+            "./wallet/web-components/components/item-list/reduced-paragraph-unit/reduced-paragraph-unit.css"
+        ]
     },
     {
       "name": "edit-personality-page",
-      "path": "./wallet/web-components/pages/edit-personality-page/edit-personality-page.html"
+      "path": "./wallet/web-components/pages/edit-personality-page/edit-personality-page.html",
+        "cssPaths": [
+            "./wallet/web-components/pages/edit-personality-page/edit-personality-page.css"
+        ]
     },
     {
       "name": "generate-chapters-page",
-      "path": "./wallet/web-components/pages/generate-chapters-page/generate-chapters-page.html"
+      "path": "./wallet/web-components/pages/generate-chapters-page/generate-chapters-page.html",
+        "cssPaths": [
+            "./wallet/web-components/pages/generate-chapters-page/generate-chapters-page.css"
+        ]
     },
     {
       "name": "abstract-proofread-page",
-      "path": "./wallet/web-components/pages/abstract-proofread-page/abstract-proofread-page.html"
+      "path": "./wallet/web-components/pages/abstract-proofread-page/abstract-proofread-page.html",
+        "cssPaths": [
+            "./wallet/web-components/pages/abstract-proofread-page/abstract-proofread-page.css",
+          "./wallet/web-components/components/confirmation-popup/confirmation-popup.css"
+        ]
     },
     {
       "name": "chapter-unit",
-      "path": "./wallet/web-components/components/item-list/chapter-unit/chapter-unit.html"
+      "path": "./wallet/web-components/components/item-list/chapter-unit/chapter-unit.html",
+        "cssPaths": [
+            "./wallet/web-components/components/item-list/chapter-unit/chapter-unit.css",
+          "./wallet/web-components/components/item-list/paragraph-unit/paragraph-unit.css"
+        ]
     },
     {
       "name": "chapter-editor-page",
-      "path": "./wallet/web-components/pages/chapter-editor-page/chapter-editor-page.html"
+      "path": "./wallet/web-components/pages/chapter-editor-page/chapter-editor-page.html",
+        "cssPaths": [
+            "./wallet/web-components/pages/chapter-editor-page/chapter-editor-page.css",
+          "./wallet/web-components/components/item-list/paragraph-unit/paragraph-unit.css"
+        ]
     },
     {
       "name": "space-dropdown",
-      "path": "./wallet/web-components/components/space-dropdown/space-dropdown.html"
+      "path": "./wallet/web-components/components/space-dropdown/space-dropdown.html",
+        "cssPaths": [
+            "./wallet/web-components/components/space-dropdown/space-dropdown.css",
+          "./wallet/web-components/components/item-list/space-unit/space-unit.css"
+          
+        ]
     },
     {
       "name": "space-unit",
-      "path": "./wallet/web-components/components/item-list/space-unit/space-unit.html"
+      "path": "./wallet/web-components/components/item-list/space-unit/space-unit.html",
+        "cssPaths": [
+            "./wallet/web-components/components/item-list/space-unit/space-unit.css"
+        ]
     },
     {
       "name": "paragraph-unit",
-      "path": "./wallet/web-components/components/item-list/paragraph-unit/paragraph-unit.html"
+      "path": "./wallet/web-components/components/item-list/paragraph-unit/paragraph-unit.html",
+        "cssPaths": [
+            "./wallet/web-components/components/item-list/paragraph-unit/paragraph-unit.css"
+        ]
     },
     {
       "name": "document-unit",
-      "path": "./wallet/web-components/components/item-list/document-unit/document-unit.html"
+      "path": "./wallet/web-components/components/item-list/document-unit/document-unit.html",
+        "cssPaths": [
+            "./wallet/web-components/components/item-list/document-unit/document-unit.css"
+        ]
     },
     {
       "name": "personality-unit",
-      "path": "./wallet/web-components/components/item-list/personality-unit/personality-unit.html"
+      "path": "./wallet/web-components/components/item-list/personality-unit/personality-unit.html",
+        "cssPaths": [
+            "./wallet/web-components/components/item-list/personality-unit/personality-unit.css"
+        ]
     },
     {
       "name": "flow-unit",
-      "path": "./wallet/web-components/components/item-list/flow-unit/flow-unit.html"
+      "path": "./wallet/web-components/components/item-list/flow-unit/flow-unit.html",
+        "cssPaths": [
+            "./wallet/web-components/components/item-list/flow-unit/flow-unit.css"
+        ]
     },
     {
       "name": "announcement-unit",
-      "path": "./wallet/web-components/components/item-list/announcement-unit/announcement-unit.html"
+      "path": "./wallet/web-components/components/item-list/announcement-unit/announcement-unit.html",
+        "cssPaths": [
+            "./wallet/web-components/components/item-list/announcement-unit/announcement-unit.css"
+        ]
     },
     {
       "name": "reduced-chapter-unit",
-      "path": "./wallet/web-components/components/item-list/reduced-chapter-unit/reduced-chapter-unit.html"
+      "path": "./wallet/web-components/components/item-list/reduced-chapter-unit/reduced-chapter-unit.html",
+        "cssPaths": [
+            "./wallet/web-components/components/item-list/reduced-chapter-unit/reduced-chapter-unit.css"
+        ]
     },
     {
       "name": "action-box",
-      "path": "./wallet/web-components/components/action-box/action-box.html"
+      "path": "./wallet/web-components/components/action-box/action-box.html",
+        "cssPaths": [
+            "./wallet/web-components/components/action-box/action-box.css"
+        ]
     },
     {
       "name": "action-box-with-select",
-      "path": "./wallet/web-components/components/action-box-with-select/action-box-with-select.html"
+      "path": "./wallet/web-components/components/action-box-with-select/action-box-with-select.html",
+        "cssPaths": [
+            "./wallet/web-components/components/action-box-with-select/action-box-with-select.css"
+        ]
     },
     {
       "name": "action-box-with-clone",
-      "path": "./wallet/web-components/components/action-box-with-clone/action-box-with-clone.html"
+      "path": "./wallet/web-components/components/action-box-with-clone/action-box-with-clone.html",
+        "cssPaths": [
+            "./wallet/web-components/components/action-box-with-clone/action-box-with-clone.css"
+        ]
     },
     {
       "name": "alternative-title",
-      "path": "./wallet/web-components/components/item-list/alternative-title/alternative-title.html"
+      "path": "./wallet/web-components/components/item-list/alternative-title/alternative-title.html",
+        "cssPaths": [
+            "./wallet/web-components/components/item-list/alternative-title/alternative-title.css"
+        ]
     },
     {
       "name": "alternative-abstract",
-      "path": "./wallet/web-components/components/item-list/alternative-abstract/alternative-abstract.html"
+      "path": "./wallet/web-components/components/item-list/alternative-abstract/alternative-abstract.html",
+        "cssPaths": [
+            "./wallet/web-components/components/item-list/alternative-abstract/alternative-abstract.css"
+        ]
     },
     {
       "name": "alternative-chapter",
-      "path": "./wallet/web-components/components/item-list/alternative-chapter/alternative-chapter.html"
+      "path": "./wallet/web-components/components/item-list/alternative-chapter/alternative-chapter.html",
+        "cssPaths": [
+            "./wallet/web-components/components/item-list/alternative-chapter/alternative-chapter.css"
+        ]
     },
     {
       "name": "documents-page",
-      "path": "./wallet/web-components/pages/documents-page/documents-page.html"
+      "path": "./wallet/web-components/pages/documents-page/documents-page.html",
+        "cssPaths": [
+            "./wallet/web-components/pages/documents-page/documents-page.css",
+            "./wallet/web-components/components/item-list/document-unit/document-unit.css"
+        ]
     },
     {
       "name": "document-settings-page",
-      "path": "./wallet/web-components/pages/document-settings-page/document-settings-page.html"
+      "path": "./wallet/web-components/pages/document-settings-page/document-settings-page.html",
+        "cssPaths": [
+            "./wallet/web-components/pages/document-settings-page/document-settings-page.css"
+        ]
     },
     {
       "name": "manage-chapters-page",
-      "path": "./wallet/web-components/pages/manage-chapters-page/manage-chapters-page.html"
+      "path": "./wallet/web-components/pages/manage-chapters-page/manage-chapters-page.html",
+        "cssPaths": [
+            "./wallet/web-components/pages/manage-chapters-page/manage-chapters-page.css",
+            "./wallet/web-components/components/item-list/reduced-chapter-unit/reduced-chapter-unit.css"
+        ]
     },
     {
       "name": "manage-paragraphs-page",
-      "path": "./wallet/web-components/pages/manage-paragraphs-page/manage-paragraphs-page.html"
+      "path": "./wallet/web-components/pages/manage-paragraphs-page/manage-paragraphs-page.html",
+        "cssPaths": [
+            "./wallet/web-components/pages/manage-paragraphs-page/manage-paragraphs-page.css",
+            "./wallet/web-components/components/item-list/reduced-paragraph-unit/reduced-paragraph-unit.css"
+        ]
     },
     {
       "name": "paragraph-proofread-page",
-      "path": "./wallet/web-components/pages/paragraph-proofread-page/paragraph-proofread-page.html"
+      "path": "./wallet/web-components/pages/paragraph-proofread-page/paragraph-proofread-page.html",
+        "cssPaths": [
+            "./wallet/web-components/pages/paragraph-proofread-page/paragraph-proofread-page.css",
+          "./wallet/web-components/components/confirmation-popup/confirmation-popup.css"
+        ]
     },
     {
       "name": "chapter-title-page",
-      "path": "./wallet/web-components/pages/chapter-title-page/chapter-title-page.html"
+      "path": "./wallet/web-components/pages/chapter-title-page/chapter-title-page.html",
+        "cssPaths": [
+            "./wallet/web-components/pages/chapter-title-page/chapter-title-page.css",
+            "./wallet/web-components/components/item-list/alternative-title/alternative-title.css",
+          "./wallet/web-components/components/confirmation-popup/confirmation-popup.css"
+        ]
     },
     {
       "name": "document-view-page",
-      "path": "./wallet/web-components/pages/document-view-page/document-view-page.html"
+      "path": "./wallet/web-components/pages/document-view-page/document-view-page.html",
+      "cssPaths": [
+        "./wallet/web-components/pages/document-view-page/document-view-page.css",
+        "./wallet/web-components/components/item-list/paragraph-unit/paragraph-unit.css",
+        "./wallet/web-components/components/item-list/chapter-unit/chapter-unit.css"
+      ]
     },
     {
       "name": "edit-title-page",
-      "path": "./wallet/web-components/pages/edit-title-page/edit-title-page.html"
+      "path": "./wallet/web-components/pages/edit-title-page/edit-title-page.html",
+        "cssPaths": [
+            "./wallet/web-components/pages/edit-title-page/edit-title-page.css",
+            "./wallet/web-components/components/item-list/alternative-title/alternative-title.css",
+            "./wallet/web-components/components/confirmation-popup/confirmation-popup.css"
+        ]
     },
     {
       "name": "edit-abstract-page",
-      "path": "./wallet/web-components/pages/edit-abstract-page/edit-abstract-page.html"
+      "path": "./wallet/web-components/pages/edit-abstract-page/edit-abstract-page.html",
+        "cssPaths": [
+            "./wallet/web-components/pages/edit-abstract-page/edit-abstract-page.css",
+            "./wallet/web-components/components/item-list/alternative-abstract/alternative-abstract.css",
+            "./wallet/web-components/components/confirmation-popup/confirmation-popup.css"
+        ]
     },
     {
       "name": "proof-reader-page",
-      "path": "./wallet/web-components/pages/proof-reader-page/proof-reader-page.html"
+      "path": "./wallet/web-components/pages/proof-reader-page/proof-reader-page.html",
+        "cssPaths": [
+            "./wallet/web-components/pages/proof-reader-page/proof-reader-page.css",
+            "./wallet/web-components/components/confirmation-popup/confirmation-popup.css"
+        ]
     },
     {
       "name": "space-page",
-      "path": "./wallet/web-components/pages/space-page/space-page.html"
+      "path": "./wallet/web-components/pages/space-page/space-page.html",
+        "cssPaths": [
+            "./wallet/web-components/pages/space-page/space-page.css",
+            "./wallet/web-components/subpages/announcements-page/announcements-page.css",
+          "./wallet/web-components/components/item-list/announcement-unit/announcement-unit.css",
+            "./wallet/web-components/subpages/personalities-page/personalities-page.css",
+          "./wallet/web-components/components/item-list/personality-unit/personality-unit.css",
+            "./wallet/web-components/subpages/flows-page/flows-page.css",
+            "./wallet/web-components/components/item-list/flow-unit/flow-unit.css",
+          "./wallet/web-components/subpages/knowledge-page/knowledge-page.css",
+          "./wallet/web-components/subpages/tasks-page/tasks-page.css",
+            "./wallet/web-components/subpages/agents-page/agents-page.css",
+            "./wallet/web-components/subpages/settings-page/settings-page.css"
+        ]
     },
     {
       "name": "announcements-page",
-      "path": "./wallet/web-components/subpages/announcements-page/announcements-page.html"
+      "path": "./wallet/web-components/subpages/announcements-page/announcements-page.html",
+        "cssPaths": [
+            "./wallet/web-components/subpages/announcements-page/announcements-page.css",
+          "./wallet/web-components/components/item-list/announcement-unit/announcement-unit.css"
+        ]
     },
     {
       "name": "personalities-page",
-      "path": "./wallet/web-components/subpages/personalities-page/personalities-page.html"
+      "path": "./wallet/web-components/subpages/personalities-page/personalities-page.html",
+        "cssPaths": [
+            "./wallet/web-components/subpages/personalities-page/personalities-page.css",
+          "./wallet/web-components/components/item-list/personality-unit/personality-unit.css"
+        ]
     },
     {
       "name": "flows-page",
-      "path": "./wallet/web-components/subpages/flows-page/flows-page.html"
+      "path": "./wallet/web-components/subpages/flows-page/flows-page.html",
+      "cssPaths": [
+        "./wallet/web-components/subpages/flows-page/flows-page.css",
+        "./wallet/web-components/components/item-list/flow-unit/flow-unit.css"
+      ]
     },
     {
       "name": "add-document-modal",
-      "path": "./wallet/web-components/modals/add-document-modal/add-document-modal.html"
+      "path": "./wallet/web-components/modals/add-document-modal/add-document-modal.html",
+        "cssPaths": [
+            "./wallet/web-components/modals/add-document-modal/add-document-modal.css"
+        ]
     },
     {
       "name": "generate-document-modal",
-      "path": "./wallet/web-components/modals/generate-document-modal/generate-document-modal.html"
+      "path": "./wallet/web-components/modals/generate-document-modal/generate-document-modal.html",
+        "cssPaths": [
+            "./wallet/web-components/modals/generate-document-modal/generate-document-modal.css"
+        ]
     },
     {
       "name": "add-announcement-modal",
-      "path": "./wallet/web-components/modals/add-announcement-modal/add-announcement-modal.html"
+      "path": "./wallet/web-components/modals/add-announcement-modal/add-announcement-modal.html",
+        "cssPaths": [
+            "./wallet/web-components/modals/add-announcement-modal/add-announcement-modal.css"
+        ]
     },
     {
       "name": "add-personality-modal",
-      "path": "./wallet/web-components/modals/add-personality-modal/add-personality-modal.html"
+      "path": "./wallet/web-components/modals/add-personality-modal/add-personality-modal.html",
+        "cssPaths": [
+            "./wallet/web-components/modals/add-personality-modal/add-personality-modal.css"
+        ]
     },
     {
       "name": "add-flow-modal",
-      "path": "./wallet/web-components/modals/add-flow-modal/add-flow-modal.html"
+      "path": "./wallet/web-components/modals/add-flow-modal/add-flow-modal.html",
+        "cssPaths": [
+            "./wallet/web-components/modals/add-flow-modal/add-flow-modal.css"
+        ]
     },
     {
       "name": "add-image-modal",
-      "path": "./wallet/web-components/modals/add-image-modal/add-image-modal.html"
+      "path": "./wallet/web-components/modals/add-image-modal/add-image-modal.html",
+        "cssPaths": [
+            "./wallet/web-components/modals/add-image-modal/add-image-modal.css"
+        ]
     },
     {
       "name": "edit-flow-modal",
-      "path": "./wallet/web-components/modals/edit-flow-modal/edit-flow-modal.html"
+      "path": "./wallet/web-components/modals/edit-flow-modal/edit-flow-modal.html",
+        "cssPaths": [
+            "./wallet/web-components/modals/edit-flow-modal/edit-flow-modal.css"
+        ]
     },
     {
       "name": "clone-document-modal",
-      "path": "./wallet/web-components/modals/clone-document-modal/clone-document-modal.html"
+      "path": "./wallet/web-components/modals/clone-document-modal/clone-document-modal.html",
+        "cssPaths": [
+            "./wallet/web-components/modals/clone-document-modal/clone-document-modal.css"
+        ]
     },
     {
       "name": "clone-chapter-modal",
-      "path": "./wallet/web-components/modals/clone-chapter-modal/clone-chapter-modal.html"
+      "path": "./wallet/web-components/modals/clone-chapter-modal/clone-chapter-modal.html",
+        "cssPaths": [
+            "./wallet/web-components/modals/clone-chapter-modal/clone-chapter-modal.css"
+        ]
     },
     {
       "name": "edit-announcement-modal",
-      "path": "./wallet/web-components/modals/edit-announcement-modal/edit-announcement-modal.html"
+      "path": "./wallet/web-components/modals/edit-announcement-modal/edit-announcement-modal.html",
+        "cssPaths": [
+            "./wallet/web-components/modals/edit-announcement-modal/edit-announcement-modal.css"
+        ]
     },
     {
       "name": "show-error-modal",
-      "path": "./wallet/web-components/modals/show-error-modal/show-error-modal.html"
+      "path": "./wallet/web-components/modals/show-error-modal/show-error-modal.html",
+        "cssPaths": [
+            "./wallet/web-components/modals/show-error-modal/show-error-modal.css"
+        ]
     },
     {
       "name": "suggest-abstract-modal",
-      "path": "./wallet/web-components/modals/suggest-abstract-modal/suggest-abstract-modal.html"
+      "path": "./wallet/web-components/modals/suggest-abstract-modal/suggest-abstract-modal.html",
+        "cssPaths": [
+            "./wallet/web-components/modals/suggest-abstract-modal/suggest-abstract-modal.css"
+        ]
     },
     {
       "name": "summarize-paragraph-modal",
-      "path": "./wallet/web-components/modals/summarize-paragraph-modal/summarize-paragraph-modal.html"
+      "path": "./wallet/web-components/modals/summarize-paragraph-modal/summarize-paragraph-modal.html",
+        "cssPaths": [
+            "./wallet/web-components/modals/summarize-paragraph-modal/summarize-paragraph-modal.css"
+        ]
     },
     {
       "name": "summarize-chapter-modal",
-      "path": "./wallet/web-components/modals/summarize-chapter-modal/summarize-chapter-modal.html"
+      "path": "./wallet/web-components/modals/summarize-chapter-modal/summarize-chapter-modal.html",
+        "cssPaths": [
+            "./wallet/web-components/modals/summarize-chapter-modal/summarize-chapter-modal.css"
+        ]
     },
     {
       "name": "summarize-document-modal",
-      "path": "./wallet/web-components/modals/summarize-document-modal/summarize-document-modal.html"
+      "path": "./wallet/web-components/modals/summarize-document-modal/summarize-document-modal.html",
+        "cssPaths": [
+            "./wallet/web-components/modals/summarize-document-modal/summarize-document-modal.css"
+        ]
     },
     {
       "name": "suggest-titles-modal",
-      "path": "./wallet/web-components/modals/suggest-titles-modal/suggest-titles-modal.html"
+      "path": "./wallet/web-components/modals/suggest-titles-modal/suggest-titles-modal.html",
+        "cssPaths": [
+            "./wallet/web-components/modals/suggest-titles-modal/suggest-titles-modal.css"
+        ]
     },
     {
       "name": "suggest-chapter-titles-modal",
-      "path": "./wallet/web-components/modals/suggest-chapter-titles-modal/suggest-chapter-titles-modal.html"
+      "path": "./wallet/web-components/modals/suggest-chapter-titles-modal/suggest-chapter-titles-modal.html",
+        "cssPaths": [
+            "./wallet/web-components/modals/suggest-chapter-titles-modal/suggest-chapter-titles-modal.css"
+        ]
     },
     {
       "name": "add-space-modal",
-      "path": "./wallet/web-components/modals/add-space-modal/add-space-modal.html"
+      "path": "./wallet/web-components/modals/add-space-modal/add-space-modal.html",
+        "cssPaths": [
+            "./wallet/web-components/modals/add-space-modal/add-space-modal.css"
+        ]
     },
     {
       "name": "authentication-page",
-      "path": "./wallet/web-components/pages/authentication-page/authentication-page.html"
+      "path": "./wallet/web-components/pages/authentication-page/authentication-page.html",
+        "cssPaths": [
+            "./wallet/web-components/pages/authentication-page/authentication-page.css"
+        ]
     }
   ],
   "storageServices": [
