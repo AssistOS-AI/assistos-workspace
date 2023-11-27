@@ -11,7 +11,9 @@ export class PromptAnimationService {
             prompt+= "...";
         }
         await showModal(document.querySelector("body"),"prompt-animation");
-        this.animateThink(document.querySelector("prompt-animation"), prompt);
+        setTimeout(()=> {
+            this.animateThink(document.querySelector("prompt-animation"), prompt);
+        }, 500);
     }
 
      closeThink(prompt){
