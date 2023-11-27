@@ -32,7 +32,8 @@ export class suggestParagraphModal {
     async generate(_target){
         let formInfo = await extractFormInformation(_target);
         this.prompt = formInfo.data.prompt;
-        let result = await webSkel.getService("GlobalFlowsService").documentFlows.suggestParagraph(this._document.id, this._chapter.id, this._paragraph.id, this.prompt);
+        let flowId = webSkel.currentUser.space.getFlowIdByName("SuggestParagraph");
+        let result = await webSkel.getService("LlmsService").callFlow(flowId, this._document.id, this._chapter.id, this._paragraph.id, this.prompt);
         this.suggestedParagraph = result.responseJson.text;
         this.suggestedParagraphIdea = result.responseJson.mainIdea;
         this.invalidate();
@@ -45,7 +46,8 @@ export class suggestParagraphModal {
     async addSelectedParagraph(_target) {
         let altParagraphData = {text:sanitize(this.suggestedParagraph),
             id:webSkel.getService("UtilsService").generateId(), mainIdea:sanitize(this.suggestedParagraphIdea) };
-        await webSkel.getService("GlobalFlowsService").documentFlows.acceptSuggestedParagraph(this._document.id, this._chapter.id, this._paragraph.id, altParagraphData);
+        let flowId = webSkel.currentUser.space.getFlowIdByName("AcceptSuggestedParagraph");
+        let result = await webSkel.getService("LlmsService").callFlow(flowId, this._document.id, this._chapter.id, this._paragraph.id, altParagraphData);
         this._document.notifyObservers(this._document.getNotificationId());
         closeModal(_target);
     }

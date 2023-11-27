@@ -1,4 +1,5 @@
 import {sanitize} from "../../imports.js";
+import {DocumentModel} from "../models/documentModel.js";
 export class LlmsService {
     constructor() {
     }

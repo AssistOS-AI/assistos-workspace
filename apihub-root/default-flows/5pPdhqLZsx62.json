@@ -2,6 +2,6 @@
   "name": "SuggestAbstract",
   "content": "\n({\nstart: function(documentId, prompt, maxTokens){\nlet document = webSkel.currentUser.space.getDocument(documentId);\nthis.prompt = `${prompt || \"Please suggest an abstract for this document \"}: ${JSON.stringify(document.simplifyDocument())} . Return only the abstract text`;\nthis.setDefaultValues();\nthis.setIntelligenceLevel(3);\nthis.execute(document, maxTokens);\n},\nexecute: async function(document, maxTokens){\n  let altAbstract = await this.request(this.prompt, maxTokens);\n  this.return(altAbstract);\n}\n})\n",
   "id": "5pPdhqLZsx62",
-  "description": "suggests an abstract based on the current document",
+  "description": "Suggests an abstract based on the current document",
   "tags": ["documents", "agents", "presenters"]
 }

@@ -22,7 +22,8 @@ export class addDocumentModal {
                 title: formData.data.documentTitle,
                 topic: formData.data.documentTopic
             }
-            await webSkel.getService("GlobalFlowsService").documentFlows.addDocument(docData);
+            let flowId = webSkel.currentUser.space.getFlowIdByName("AddDocument");
+            let result = await webSkel.getService("LlmsService").callFlow(flowId, docData);
             closeModal(_target);
         }
     }

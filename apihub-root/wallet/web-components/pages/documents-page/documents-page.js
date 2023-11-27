@@ -45,7 +45,8 @@ export class documentsPage {
         await showModal(document.querySelector("body"), "clone-document-modal", { presenter: "clone-document-modal"});
     }
     async deleteAction(_target){
-        await webSkel.getService("GlobalFlowsService").documentFlows.deleteDocument(this.getDocumentId(_target));
+        let flowId = webSkel.currentUser.space.getFlowIdByName("DeleteDocument");
+        let result = await webSkel.getService("LlmsService").callFlow(flowId, this.getDocumentId(_target));
         documentFactory.notifyObservers("docs");
     }
 }

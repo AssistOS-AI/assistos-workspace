@@ -7,7 +7,6 @@ export class summarizeDocumentModal{
     constructor(element,invalidate){
         let documentId = parseURL();
         this._document = webSkel.currentUser.space.getDocument(documentId);
-        this._document.observeChange(this._document.getNotificationId() + ":manage-chapters-page", invalidate);
         this.invalidate = invalidate;
         this.element = element;
         this.invalidate();
@@ -33,7 +32,8 @@ export class summarizeDocumentModal{
     async generate(_target){
         let formInfo = await extractFormInformation(_target);
         this.prompt = formInfo.data.prompt;
-        let result = await webSkel.getService("GlobalFlowsService").documentFlows.summarizeDocument(this._document.id, this.prompt, "");
+        let flowId = webSkel.currentUser.space.getFlowIdByName("SummarizeDocument");
+        let result = await webSkel.getService("LlmsService").callFlow(flowId, this._document.id, this.prompt, "");
         this.documentMainIdeas = result.responseJson;
         this.invalidate();
     }
@@ -41,7 +41,8 @@ export class summarizeDocumentModal{
         closeModal(_target);
     }
     async addSelectedIdeas(_target) {
-        await webSkel.getService("GlobalFlowsService").documentFlows.acceptDocumentIdeas(this._document.id, this.documentMainIdeas);
+        let flowId = webSkel.currentUser.space.getFlowIdByName("AcceptDocumentIdeas");
+        let result = await webSkel.getService("LlmsService").callFlow(flowId, this._document.id, this.documentMainIdeas);
         this._document.notifyObservers(this._document.getNotificationId() + ":manage-chapters-page");
         closeModal(_target);
 
