@@ -67,27 +67,33 @@ async function storeFolder(spaceId, data, folderName) {
 
 async function storeSpace(request, response) {
     const folderPath = `../apihub-root/spaces/${request.params.spaceId}`;
-    try {
-        await fsPromises.access(folderPath);
-    } catch (err) {
-        /* the error is that the folder doesn't exist, it needs to be created*/
-        await fsPromises.mkdir(folderPath);
-    }
+
+    // Request to delete the space
     if (request.body.toString().trim() === "") {
         try {
             if (fsPromises.rm) {
                 await fsPromises.rm(folderPath, { recursive: true, force: true });
-            }
-            else if (fsPromises.rmdir) {
+            } else if (fsPromises.rmdir) {
                 await fsPromises.rmdir(folderPath, { recursive: true });
             }
+            sendResponse(response, 200, "text/html", "Space deleted successfully");
         } catch (err) {
-            sendResponse(response, 500, "text/html", "Error deleting the folder");
-            return;
+            sendResponse(response, 500, "text/html", "Error deleting Space");
         }
-        sendResponse(response, 200, "text/html", "Space deleted successfully");
         return;
     }
+
+    try {
+        await fsPromises.access(folderPath);
+    } catch (err) {
+        if (err.code === 'ENOENT') {
+            await fsPromises.mkdir(folderPath);
+        }else{
+            sendResponse(response, 500, "text/html", err+ ` Error creating Space: ${request.params.spaceId}`);
+            return;
+        }
+    }
+
     let jsonData = JSON.parse(request.body.toString());
     await storeFolder(request.params.spaceId, jsonData.documents, "documents");
     await storeFolder(request.params.spaceId, jsonData.personalities, "personalities");

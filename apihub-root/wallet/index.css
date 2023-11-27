@@ -1,5 +1,20 @@
 @import url('https://fonts.cdnfonts.com/css/poppins');
 
+:root{
+    --form-input-error: red;
+    --right-sidebar-border: #D9D4EE;
+    --semi-bold-text: #3C3C3D;
+    --gray-border: #E6E6E6;
+    --spinner-l-r-b: rgba(0, 174, 239, .15);
+    --spinner-t:rgba(0, 174, 239, .8);
+    --white-text: #FFFFFF;
+    --button-purple: #A42E70;
+    --feature-hover: rgba(175, 168, 186, 0.22);
+    --left-sidebar: #511A53;
+    --action-box-border: #dedede;
+    --action-box-background:#FEFAFF;
+
+}
 * {
     box-sizing: border-box;
     -ms-overflow-style: none;
@@ -40,7 +55,7 @@ body {
     text-size-adjust: none;
 }
 .input-invalid {
-    border: 1px solid red !important;
+    border: 1px solid var(--form-input-error) !important;
     border-radius: 8px !important;
 }
 dialog{
@@ -97,23 +112,22 @@ dialog{
     width:270px;
     min-width:270px;
     min-height:100%;
-    border-left: 1px solid #D9D4EE;
+    border-left: 1px solid var(--right-sidebar-border);
 }
 
 .sidebar-item-main{
-    color: #3C3C3DF5;
+    color: var(--semi-bold-text);
     white-space: nowrap;
     cursor: pointer;
     width: 100%;
     padding:10px 15px 10px 15px;
-    background-color: #FFF;
     margin-right: 10px;
     font-size: 16px;
     font-weight: 600;
     line-height: 24px;
     letter-spacing: 0em;
     text-align: left;
-    border-bottom: 1px solid #E6E6E6;
+    border-bottom: 1px solid var(--gray-border);
 }
 .pointer {
     cursor: pointer;
@@ -140,10 +154,10 @@ dialog{
     -moz-animation: rotation .6s infinite linear;
     -o-animation: rotation .6s infinite linear;
     animation: rotation .6s infinite linear;
-    border-left: 6px solid rgba(0, 174, 239, .15);
-    border-right: 6px solid rgba(0, 174, 239, .15);
-    border-bottom: 6px solid rgba(0, 174, 239, .15);
-    border-top: 6px solid rgba(0, 174, 239, .8);
+    border-left: 6px solid var(--spinner-l-r-b);
+    border-right: 6px solid var(--spinner-l-r-b);
+    border-bottom: 6px solid var(--spinner-l-r-b);
+    border-top: 6px solid var(--spinner-t);
     border-radius: 100%;
 }
 
@@ -178,7 +192,7 @@ dialog{
 
 .page-name {
     margin-left: 14px;
-    color: #FFF;
+    color: var(--white-text);
     font-family: Poppins;
     font-size: 16px;
     font-style: normal;
@@ -195,8 +209,8 @@ dialog{
     font-weight: 600;
     line-height: 24px;
     text-align: center;
-    color:#FFFFFF;
-    background: #A42E70;
+    color:var(--white-text);
+    background: var(--button-purple);
     width:fit-content;
     height: 36px;
     padding: 6px 11px 6px 11px;
@@ -214,10 +228,10 @@ dialog{
 .feature:hover {
     cursor: pointer;
     border-radius: 5px;
-    background: rgba(175, 168, 186, 0.22);
+    background: var(--feature-hover);
 }
 #selected-page {
-    background: #A42E70;
+    background: var(--button-purple);
     border-radius: 5px;
     font-size: 16px;
     font-style: normal;
@@ -228,22 +242,8 @@ dialog{
     margin-left:8px;
 }
 
-.tool-name {
-    color: rgba(55, 43, 43, 1);
-    font-weight: 500;
-    font-size: 14px;
-}
-.tools-title {
-    color: #FFFFFF;
-    font-family: Poppins;
-    font-style: normal;
-    font-size: 28px;
-    font-weight: 800;
-    line-height: normal;
-    text-align: left;
-}
 #app-left-sidebar {
-    background-color: #511A53;
+    background-color: var(--left-sidebar);
     height: 100%;
     min-width: 270px;
     width: 14%;
@@ -263,8 +263,8 @@ dialog{
     white-space: nowrap;
     cursor: pointer;
     font-style: normal;
-    background-color: #FFF;
-    color: #511A53;
+    background-color: var(--white-text);
+    color: var(--left-sidebar);
     font-size: 14px;
     font-weight: 400;
     line-height: 21px;
@@ -273,10 +273,10 @@ dialog{
 }
 .sidebar-item:hover {
     border-radius: 5px;
-    background: rgba(175, 168, 186, 0.22);
+    background: var(--feature-hover);
 }
 .sidebar-name-container,.item-list-container{
-    border: 1px solid #E6E6E6;
+    border: 1px solid  var(--gray-border);
     padding:20px;
 }
 .item-list-container{
@@ -287,7 +287,7 @@ dialog{
     border:none;
 }
 .item-list {
-    background-color: #FFF;
+    background-color: var(--white-text);
     height: 100%;
     width:100%;
 }
