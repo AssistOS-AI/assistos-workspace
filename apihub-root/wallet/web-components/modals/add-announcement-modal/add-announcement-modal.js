@@ -23,7 +23,8 @@ export class addAnnouncementModal {
                 text:formInfo.data.text,
                 date: new Date().toISOString().split('T')[0],
             };
-            await webSkel.getService("GlobalFlowsService").spaceFlows.addAnnouncement(announcementData);
+            let flowId = webSkel.currentUser.space.getFlowIdByName("AddAnnouncement");
+            let result = await webSkel.getService("LlmsService").callFlow(flowId, announcementData);
             webSkel.currentUser.space.notifyObservers(webSkel.currentUser.space.getNotificationId());
             closeModal(_target);
         }

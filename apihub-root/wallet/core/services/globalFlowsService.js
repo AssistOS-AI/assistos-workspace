@@ -101,12 +101,25 @@ export class GlobalFlowsService{
             }
         }
         this.spaceFlows={
-            addSpace: async function(spaceId, ...args) {},
-            addAnnouncement: async function(announcementData, ...args) {
-                await webSkel.currentUser.space.addAnnouncement(announcementData);
+            addSpace: async function(spaceData) {
+                let flowId = webSkel.currentUser.space.getFlowIdByName("AddSpace");
+                return await webSkel.getService("LlmsService").callFlow(flowId, spaceData);
             },
-            addPersonality: async function(personalityData, ...args) {
-                await webSkel.currentUser.space.addPersonality(personalityData);
+            addAnnouncement: async function(announcementData) {
+                let flowId = webSkel.currentUser.space.getFlowIdByName("AddAnnouncement");
+                return await webSkel.getService("LlmsService").callFlow(flowId, announcementData);
+            },
+            addPersonality: async function(personalityData) {
+                let flowId = webSkel.currentUser.space.getFlowIdByName("AddPersonality");
+                return await webSkel.getService("LlmsService").callFlow(flowId, personalityData);
+            },
+            updatePersonality: async function(personalityData, personalityId) {
+                let flowId = webSkel.currentUser.space.getFlowIdByName("UpdatePersonality");
+                return await webSkel.getService("LlmsService").callFlow(flowId, personalityData, personalityId);
+            },
+            deletePersonality: async function(personalityId) {
+                let flowId = webSkel.currentUser.space.getFlowIdByName("DeletePersonality");
+                return await webSkel.getService("LlmsService").callFlow(flowId, personalityId);
             },
             addFlow: async function(flowData, ...args) {
                 await webSkel.currentUser.space.addFlow(flowData);

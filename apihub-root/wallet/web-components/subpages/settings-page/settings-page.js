@@ -17,6 +17,7 @@ export class settingsPage{
         }
     }
     async deleteSpace(){
-        await webSkel.getService("GlobalFlowsService").spaceFlows.deleteSpace(webSkel.currentUser.space.id);
+        let flowId = webSkel.currentUser.space.getFlowIdByName("DeleteSpace");
+        return await webSkel.getService("LlmsService").callFlow(flowId, webSkel.currentUser.space.id);
     }
 }

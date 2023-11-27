@@ -1,5 +1,9 @@
-import {sanitize} from "../../imports.js";
-import {DocumentModel} from "../models/documentModel.js";
+import {
+    sanitize,
+    SpaceFactory,
+    DocumentModel
+} from "../../imports.js";
+
 export class LlmsService {
     constructor() {
     }

@@ -75,22 +75,30 @@ export class flowsPage {
 
     async manageFilters(controller, event){
         if(this.filters.contains(event.target)){
-            let formInfo = await extractFormInformation(event.target);
-            let selectedTypes = [];
-            for (const [key, value] of Object.entries(formInfo.elements)) {
-                if(value.element.checked) {
-                    selectedTypes.push(value.element.value);
+            event.preventDefault();
+            event.stopPropagation();
+            if(event.target.tagName === "LABEL"){
+                let checkbox = this.filters.querySelector(`#${event.target.getAttribute("for")}`);
+                checkbox.checked = !checkbox.checked;
+            }
+            if(!event.target.classList.contains("filter")){
+                let formInfo = await extractFormInformation(event.target);
+                let selectedTypes = [];
+                for (const [key, value] of Object.entries(formInfo.elements)) {
+                    if(value.element.checked) {
+                        selectedTypes.push(value.element.value);
+                    }
                 }
-            }
 
-            this.selectedTypes = selectedTypes;
-            this.filtersOpen = true;
-            this.filteredFlows = webSkel.currentUser.space.flows.filter(flow => selectedTypes.every(type => flow.tags.includes(type)));
-            if(selectedTypes.length === 0){
-                this.filteredFlows = webSkel.currentUser.space.flows;
+                this.selectedTypes = selectedTypes;
+                this.filtersOpen = true;
+                this.filteredFlows = webSkel.currentUser.space.flows.filter(flow => selectedTypes.every(type => flow.tags.includes(type)));
+                if(selectedTypes.length === 0){
+                    this.filteredFlows = webSkel.currentUser.space.flows;
+                }
+                this.invalidate();
+                controller.abort();
             }
-            this.invalidate();
-            controller.abort();
         }
         else {
             this.filters.style.display = "none";

@@ -40,15 +40,48 @@ export class addFlowModal {
                 lastCharWasSpace = false;
             }
         });
+        let flowCode = this.element.querySelector("#code");
+        flowCode.addEventListener("keydown", this.insertSpacesOnTab);
     }
 
+    insertSpacesOnTab(event){
+        if (event.key === 'Tab' && !event.shiftKey) {
+            event.preventDefault();
+            let start = this.selectionStart;
+            let end = this.selectionEnd;
+            const selectedText = this.value.substring(start, end);
+            const indentedText = selectedText.replace(/^/gm, '    ');
+            this.value = this.value.substring(0, start) + indentedText + this.value.substring(end);
+            this.selectionStart = start + indentedText.length;
+            this.selectionEnd = start + indentedText.length;
+            this.setSelectionRange(this.selectionStart, this.selectionEnd);
+
+        }else if(event.key === 'Tab' && event.shiftKey){
+            event.preventDefault();
+            let start = this.selectionStart;
+            let beginningOfLine = start;
+            while (beginningOfLine > 0 && this.value[beginningOfLine - 1] !== '\n') {
+                beginningOfLine--;
+            }
+            this.selectionStart = beginningOfLine;
+            start = this.selectionStart;
+            let end = this.selectionEnd;
+            const selectedText = this.value.substring(start, end);
+            const unindentedText = selectedText.replace(/^    /gm, '');
+            this.value = this.value.substring(0, start) + unindentedText + this.value.substring(end);
+            const newStart = start;
+            const newEnd = newStart + selectedText.length - unindentedText.length;
+            this.setSelectionRange(newStart, newEnd);
+        }
+
+    }
 
 
     closeModal(_target) {
         closeModal(_target);
     }
 
-    async addScript(_target) {
+    async addFlow(_target) {
         const isValidPascalCase=(nameInput)=> {
             return /^[A-Z][^\s]*$/.test(nameInput.value);
         }
@@ -59,11 +92,12 @@ export class addFlowModal {
                 name: formInfo.data.name,
                 description: formInfo.data.description,
                 id: webSkel.servicesRegistry.UtilsService.generateId(),
-                content: formInfo.data.validateCode,
+                content: formInfo.data.code,
                 tags: formInfo.data.tags
             }
-
-            await webSkel.getService("GlobalFlowsService").spaceFlows.addFlow(flowData);
+            let flowId = webSkel.currentUser.space.getFlowIdByName("AddFlow");
+            let result = await webSkel.getService("LlmsService").callFlow(flowId, flowData);
+            console.log(result);
             webSkel.currentUser.space.notifyObservers(webSkel.currentUser.space.getNotificationId());
             closeModal(_target);
         }

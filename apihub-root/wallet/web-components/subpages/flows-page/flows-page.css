@@ -58,3 +58,6 @@
     font-weight: 600;
     color: #FFFFFF;
 }
+.filter label{
+    cursor: pointer;
+}

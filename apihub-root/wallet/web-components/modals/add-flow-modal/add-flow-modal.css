@@ -73,7 +73,7 @@ add-flow-modal{
 textarea{
     resize: none;
 }
-textarea#validateCode {
+textarea#code {
 
     height: 250px;
 }

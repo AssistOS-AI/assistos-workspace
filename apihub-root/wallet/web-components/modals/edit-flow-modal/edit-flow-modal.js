@@ -16,9 +16,9 @@ export class editFlowModal {
       this.scriptName = script.name;
     }
     afterRender(){
-        let scriptCode = this.element.querySelector("textarea");
-        scriptCode.value = this.scriptContent;
-        scriptCode.addEventListener("keydown", this.insertSpacesOnTab);
+        let flowCode = this.element.querySelector("textarea");
+        flowCode.value = this.scriptContent;
+        flowCode.addEventListener("keydown", this.insertSpacesOnTab);
     }
 
     closeModal(_target) {
