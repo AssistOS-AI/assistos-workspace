@@ -13,12 +13,12 @@ dialog[class="modal"] {
 .modal-header{
     height: 8%;
     padding: 5px 20px 5px 20px;
-    background: #A42E70;
+    background: var(--button-purple);
     display: flex;
     justify-content: space-between;
 }
 .modal-title {
-    color: #ffffff;
+    color: var(--white-text);
     font-size: 18px;
     display: flex;
     flex-direction: column;
@@ -35,7 +35,7 @@ dialog[class="modal"] {
 .actions-container,
 .marketplace{
     padding:10px;
-    background: #F3EBF366;
+    background: var(--flow-marketplace);
     width: 49%;
     display: flex;
     flex-direction: column;
@@ -54,7 +54,7 @@ dialog[class="modal"] {
 }
 .form-input {
     border-radius: 8px;
-    border: 0.5px solid rgba(0, 0, 0, 0.24);
+    border: 0.5px solid  var(--lighter-black);
     width: 100%;
     padding: 8px;
 }
@@ -66,7 +66,7 @@ textarea#scriptCode {
 .close {
     padding: 0;
     font-weight: 300;
-    color: #ffffff;
+    color: var(--white-text);
     cursor: pointer;
     background-color: transparent;
     border: none;
@@ -79,9 +79,9 @@ textarea#scriptCode {
     cursor: pointer;
     padding: 8px 40px;
     border-radius: 16px;
-    border: 0.5px solid #D7D7D7;
-    background: #A42E70;
-    color: #FFF;
+    border: 0.5px solid var(--pink-white);
+    background:  var(--button-purple);
+    color:  var(--white-text);
     font-feature-settings: 'clig' off, 'liga' off;
     font-size: 14px;
     font-style: normal;

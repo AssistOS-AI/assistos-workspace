@@ -13,7 +13,7 @@ chapter-editor-page {
 }
 
 .path-button {
-    color: #A42E70;
+    color: var(--button-purple);
     font-size: 14px;
     font-style: normal;
     font-weight: 500;
@@ -45,7 +45,7 @@ chapter-editor-page {
     display: flex;
     align-items: center;
     justify-content: center;
-    color: #252525;
+    color: var(--light-black);
     font-size: 18px;
     font-style: normal;
     font-weight: 600;
@@ -60,7 +60,7 @@ chapter-editor-page {
 
 .chapter-title:focus{
     outline:none;
-    background-color:#FFFFFF;
+    background-color:var(--white-text);
     border-radius:3px;
 }
 
@@ -97,7 +97,7 @@ chapter-editor-page {
 
 .chapter-arrows{display:none;}
 .chapter-paragraphs:focus {
-    background-color: rgba(148, 174, 227, 0.3);
+    background-color: var(--harsh-gray);
     color: #252525;
     font-weight: 450;
     padding: 0 20px 0 20px;
@@ -163,5 +163,5 @@ p {
 }
 
 #highlighted-chapter{
-    background-color:#F3EBF3;
+    background-color:var(--medium-white);
 }

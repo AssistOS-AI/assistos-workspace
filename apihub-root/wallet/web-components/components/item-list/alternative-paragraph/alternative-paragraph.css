@@ -2,7 +2,7 @@
     display: flex;
     justify-content: space-between;
     padding: 10px 15px;
-    border-bottom: 1px solid #E6E6E6;
+    border-bottom: 1px solid var(--gray-border);
 }
 .content{
     position: relative;
@@ -11,7 +11,7 @@
     hyphens: auto;
     word-break: break-word;
     border-radius: 10px;
-    color: #252525;
+    color: var(--light-black);
     font-size: 16px;
     font-style: normal;
     font-weight: 400;
@@ -19,8 +19,8 @@
     margin-right: 10px;
 }
 .content:focus{
-    background-color: rgba(148, 174, 227, 0.3);
-    color: #252525;
+    background-color:  var(--harsh-gray);
+    color: var(--light-black);
     font-weight: 450;
 }
 .number-and-title {
@@ -51,12 +51,12 @@
 }
 .action-cell {
     min-height:100%;
-    color: #555555;
+    color:  var(--brown-gray);
     display: flex;
     justify-content: right;
 }
 
 .svg-box:hover {
-    background-color: rgba(85, 85, 85, 0.08);
+    background-color: var(--medium-black);
     cursor: pointer;
 }

@@ -4,7 +4,7 @@
     justify-content: space-between;
     flex-direction: row;
     padding: 20px 20px 5px 20px;
-    border-bottom: 0.5px solid rgba(217, 212, 238, 0.85);
+    border-bottom: 0.5px solid var(--pink-white);
 }
 
 .announcement-unit:hover{
@@ -16,7 +16,7 @@
     flex-direction: column;
     justify-content: center;
     overflow: hidden;
-    color: #372B2B;
+    color: var(--light-brown);;
     font-feature-settings: 'clig' off, 'liga' off;
     text-overflow: ellipsis;
     font-size: 20px;
@@ -31,7 +31,7 @@
     flex-direction: column;
     justify-content: center;
     overflow: hidden;
-    color: #372B2B;
+    color: var(--light-brown);
     text-align: justify;
     font-feature-settings: 'clig' off, 'liga' off;
     text-overflow: ellipsis;
@@ -67,7 +67,7 @@
     max-width: 33px;
     max-height: 12px;
     margin: 0 10px;
-    color: #555555;
+    color: var(--brown-gray);
     display: flex;
     justify-content: right;
     align-items: center;
@@ -75,7 +75,7 @@
 
 .circle-button:hover {
     cursor: pointer;
-    background-color: rgba(85, 85, 85, 0.08);
+    background-color: var(--medium-black);
 }
 
 .circle-button {
@@ -91,7 +91,7 @@
     margin-top: 10px;
     width: 100%;
     text-align: end;
-    color: #504f4f;
+    color: var(--light-brown-gray);
     font-feature-settings: 'clig' off, 'liga' off;
     text-overflow: ellipsis;
     font-size: 12px;

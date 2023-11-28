@@ -51,7 +51,7 @@ authentication-page{
     left: 0;
     width: 100%;
     height: 100%;
-    background-color: #511A53;
+    background-color: var(--left-sidebar);
 }
 .img-front{
     position: absolute;
@@ -71,7 +71,7 @@ authentication-page{
     bottom: -210px;
 }
 .img-text{
-    color: white;
+    color: var(--white-text);
     position: absolute;
     text-align: center;
     width: 80%;
@@ -80,7 +80,7 @@ authentication-page{
     font-weight: 600;
 }
 .highlighted-text{
-    color: #A42E70;
+    color: var(--button-purple);
 }
 .controls{
     width: 100%;
@@ -95,7 +95,7 @@ authentication-page{
     width: auto;
     margin-top: -22px;
     padding: 16px;
-    color: white;
+    color: var(--white-text);
     font-weight: bold;
     font-size: 18px;
     transition: 0.6s ease;
@@ -108,7 +108,7 @@ authentication-page{
     height: 8px;
     width: 8px;
     margin: 0 2px;
-    background-color: #6B574E;
+    background-color: var(--lighter-brown);
     border-radius: 50%;
     display: inline-block;
     transition: background-color 0.6s ease;
@@ -116,7 +116,7 @@ authentication-page{
 
 .active{
     width: 27px;
-    background-color: white;
+    background-color: var(--white-text);
     border-radius: 5px;
 }
 
@@ -126,7 +126,7 @@ authentication-page{
     position: absolute;
     right: 0;
     padding: 80px 100px 80px 100px;
-    background-color: white;
+    background-color: var(--white-text);
     height: 100%;
 }
 
@@ -136,14 +136,14 @@ authentication-page{
 }
 
 .form-label {
-    color: black;
+    color: var(--black);
     font-size: 14px;
     font-weight: 500;
 }
 
 .form-input {
     border-radius: 8px;
-    border: 0.5px solid rgba(0, 0, 0, 0.24);
+    border: 0.5px solid var(--lighter-black);
     width: 100%;
     margin: 8px 0 16px;
     padding: 8px;
@@ -162,8 +162,8 @@ authentication-page{
 .wide-btn {
     width: 70%;
     height: 36px;
-    background: #A42E70;
-    color: white;
+    background:  var(--button-purple);
+    color: var(--white-text);
     border-radius: 16px;
     font-size: 14px;
     font-weight: 600;
@@ -195,7 +195,7 @@ authentication-page{
     justify-content: flex-end;
     font-size: 12px;
     font-weight: 700;
-    color: #004A8D;
+    color: var(--medium-blue);
     padding-bottom: 20px;
     margin-top: -5px;
 }
@@ -207,7 +207,7 @@ authentication-page{
 .sign-up {
     padding-left: 3px;
     font-weight: 700;
-    color: #004A8D;
+    color: var(--medium-blue);
 }
 
 .sign-up:hover {
@@ -220,7 +220,7 @@ authentication-page{
     justify-content: center;
     font-size: 12px;
     font-weight: 700;
-    color: #004A8D;
+    color: var(--medium-blue);
 }
 
 .development-mode:hover {

@@ -1,7 +1,7 @@
 .chapter-title-section {
     display: flex;
     align-items: center;
-    color: #252525;
+    color: var(--light-black);
     font-size: 18px;
     font-style: normal;
     font-weight: 600;
@@ -16,7 +16,7 @@
 
 .chapter-title:focus{
     outline:none;
-    background-color:#FFFFFF;
+    background-color:var(--white-text);
     border-radius:3px;
 }
 
@@ -54,8 +54,8 @@
 
 .chapter-arrows{display:none;}
 .chapter-paragraphs:focus {
-    background-color: rgba(148, 174, 227, 0.3);
-    color: #252525;
+    background-color: var(--harsh-gray);
+    color: var(--light-black);
     font-weight: 450;
     padding: 0 20px 0 20px;
     border-radius: 20px;
@@ -122,5 +122,5 @@ p {
 }
 
 #highlighted-chapter{
-    background-color:#F3EBF3;
+    background-color:var(--medium-white);
 }

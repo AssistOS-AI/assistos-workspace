@@ -9,7 +9,7 @@ confirmation-popup {
     height: 25px;
     transform: translate(-50%, -50%);
     padding-top: 6px;
-    background-color: black;
+    background-color: var(--black);
     border-radius: 5px;
     opacity: 0;
     transition: opacity 0.5s;
@@ -18,7 +18,7 @@ confirmation-popup {
     line-height: initial;
     letter-spacing: normal;
     white-space: unset;
-    color: #fff;
+    color: var(--white-text);
     font-size: 10px;
 }
 .triangle-down {
@@ -27,5 +27,5 @@ confirmation-popup {
     height: 0;
     border-left: 10px solid transparent;
     border-right: 10px solid transparent;
-    border-top: 10px solid black;
+    border-top: 10px solid var(--black);
 }

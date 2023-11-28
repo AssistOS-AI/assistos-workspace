@@ -16,7 +16,7 @@ chapter-title-page {
     margin: 5px 10px;
 }
 .path-button {
-    color: #A42E70;
+    color: var(--button-purple);
     font-size: 14px;
     font-style: normal;
     font-weight: 500;
@@ -28,7 +28,7 @@ edit-title-page{
 .chapter-title{
     position: relative;
     margin: 20px 15px 10px 15px;
-    color: #1E1E1E;
+    color: var(--chapter-title);
     font-size: 24px;
     font-style: normal;
     font-weight: 500;
@@ -38,8 +38,8 @@ edit-title-page{
 
 .chapter-title:focus{
     outline: none;
-    background-color: rgba(148, 174, 227, 0.3);
-    color: #252525;
+    background-color: var(--harsh-gray);
+    color: var(--light-black);
     font-weight: 450;
 }
 
@@ -65,7 +65,7 @@ edit-title-page{
 
 .edit-title-separator{
     margin-bottom:30px;
-    border: 1px solid #E6E6E6;
+    border: 1px solid var(--gray-border);
 }
 
 .alternative-titles {
@@ -74,7 +74,7 @@ edit-title-page{
 }
 
 .alt-title {
-    color: #1E1E1E;
+    color: var(--chapter-title);
     font-size: 18px;
     font-style: normal;
     font-weight: 700;
@@ -85,7 +85,7 @@ edit-title-page{
     cursor: pointer;
     display: flex;
     align-items: center;
-    color: #0618D1;
+    color: var(--suggest);
     font-feature-settings: 'clig' off, 'liga' off;
     font-size: 12px;
     font-style: normal;

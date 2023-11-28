@@ -8,18 +8,18 @@ action-box{
 .action-box {
     margin-top: 0;
     margin-left: -60px;
-    background-color: white;
+    background-color:  var(--white-text);
     border-radius: 6px;
-    border: 1px solid #dedede;
+    border: 1px solid var(--action-box-border);
 }
 .action {
-    background: #FEFAFF;
+    background: var(--action-box-background);
     padding: 4px 8px;
     cursor: pointer;
 }
 .action:hover {
-    background-color: #A42E70;
-    color: white;
+    background-color: var(--button-purple);
+    color: var(--white-text);
 }
 .act1:hover {
     border-radius: 6px 6px 0 0;

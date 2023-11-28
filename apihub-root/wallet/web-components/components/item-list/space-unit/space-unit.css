@@ -4,7 +4,7 @@
     word-break: break-word;
     display: flex;
     justify-content: center;
-    color: #FFF;
+    color:   var(--white-text);
     align-items: center;
 }
 .space-unit:hover{

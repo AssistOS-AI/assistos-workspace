@@ -16,7 +16,7 @@
     margin: 5px 10px;
 }
 .path-button {
-    color: #A42E70;
+    color: var(--button-purple);
     font-size: 14px;
     font-style: normal;
     font-weight: 500;
@@ -43,7 +43,7 @@ edit-title-page{
 
 .document-title:focus{
     outline: none;
-    border: 1px solid #A42E70;
+    border: 1px solid var(--button-purple);
     border-radius: 7px;
     box-shadow: 0px 1px 4px 0px #0000001C;
 }
@@ -70,7 +70,7 @@ edit-title-page{
 
 .edit-title-separator{
     margin-bottom:30px;
-    border: 1px solid #E6E6E6;
+    border: 1px solid var(--gray-border);
 }
 
 .alternative-titles {
@@ -79,7 +79,7 @@ edit-title-page{
 }
 
 .alt-title {
-    color: #1E1E1E;
+    color: var(--chapter-title);
     font-size: 18px;
     font-style: normal;
     font-weight: 700;
@@ -90,7 +90,7 @@ edit-title-page{
     cursor: pointer;
     display: flex;
     align-items: center;
-    color: #0618D1;
+    color: var(--suggest);
     font-feature-settings: 'clig' off, 'liga' off;
     font-size: 12px;
     font-style: normal;

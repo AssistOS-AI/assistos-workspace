@@ -5,17 +5,17 @@
     display: flex;
     justify-content: space-between;
     width:100%;
-    color: #363C44;
+    color: var(--documents-page-header);
     font-size: 18px;
     font-style: normal;
     font-weight: 700;
     line-height: normal;
     text-transform: capitalize;
-    box-shadow: 0px 2px 4px 0px #00000047;
+    box-shadow: 0px 2px 4px 0px var(--chatbots-shadow);
 }
 .documents-header-title{
     width: 32%;
-    color: #511A53;
+    color:  var(--left-sidebar);
     font-family: Poppins;
     font-size: 28px;
     font-weight: 700;

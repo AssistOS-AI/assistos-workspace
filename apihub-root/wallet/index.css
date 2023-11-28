@@ -1,18 +1,65 @@
 @import url('https://fonts.cdnfonts.com/css/poppins');
 
 :root{
-    --form-input-error: red;
-    --right-sidebar-border: #D9D4EE;
-    --semi-bold-text: #3C3C3D;
-    --gray-border: #E6E6E6;
-    --spinner-l-r-b: rgba(0, 174, 239, .15);
-    --spinner-t:rgba(0, 174, 239, .8);
-    --white-text: #FFFFFF;
-    --button-purple: #A42E70;
-    --feature-hover: rgba(175, 168, 186, 0.22);
-    --left-sidebar: #511A53;
-    --action-box-border: #dedede;
-    --action-box-background:#FEFAFF;
+    --form-input-error: #ff0000; /* var(--form-input-error); */
+    --right-sidebar-border: #D9D4EE; /* var(--right-sidebar-border); */
+    --semi-bold-text: #3C3C3D; /* var(--semi-bold-text); */
+    --gray-border: #E6E6E6; /* var(--gray-border); */
+    --spinner-l-r-b: #00aeef26; /* var(--spinner-l-r-b); */
+    --spinner-t:#00aeefcc; /* var(--spinner-t); */
+    --strong-blue: #007bff; /* var(--strong-blue); */
+    --medium-blue:#004A8D; /* var(--medium-blue); */
+    --blue-black:#18203F; /* var(--blue-black); */
+    --green-blue: #429E9D; /* var(--green-blue); */
+    --white-text: #FFFFFF; /* var(--white-text); */
+    --medium-white: #F3EBF3; /* var(--medium-white); */
+    --button-purple: #A42E70; /* var(--button-purple); */
+    --feature-hover: #afa8ba38; /* var(--feature-hover); */
+    --left-sidebar: #511A53; /* var(--left-sidebar); */
+    --action-box-border: #dedede; /* var(--action-box-border); */
+    --action-box-background:#FEFAFF; /* var(--action-box-background); */
+    --black: #000000; /* var(--black); */
+    --light-black: #252525; /* var(--light-black); */
+    --harsh-gray: #94aee34d; /* var(--harsh-gray); */
+    --medium-gray:#494949; /* var(--medium-gray); */
+    --medium-black: #55555514; /* var(--medium-black); */
+    --brown-gray: #555555; /* var(--brown-gray); */
+    --light-brown-gray:#504f4f; /* var(--light-brown-gray); */
+    --gray-black: #3A3A3A; /* var(--gray-black); */
+    --form-input: #8B8B8B; /* var(--form-input); */
+    --very-light-gray:#c2c2c299; /* var(--very-light-gray); */
+    --pink-white: #d9d4eed9; /* var(--pink-white); */
+    --light-brown: #372B2B; /* var(--light-brown); */
+    --space-hover: #00000054; /* var(--space-hover); */
+    --form-border: #0000006E; /* var(--form-border); */
+    --lighter-black:#0000003d; /* var(--lighter-black); */
+    --flow-marketplace: #F3EBF366; /* var(--flow-marketplace); */
+    --error-modal-border: #E5E5E5; /* var(--error-modal-border); */
+    --lighter-brown:#6B574E; /* var(--lighter-brown); */
+    --chapter-title:#1E1E1E; /* var(--chapter-title); */
+    --suggest:#0618D1; /* var(--suggest); */
+    --chat-log-background: #9d019d80; /* var(--chat-log-background); */
+    --chatbots-input: #F5E6EF; /* var(--chatbots-input); */
+    --robot-shadow: #E0C9E1; /* var(--robot-shadow); */
+    --chatbots-shadow: #00000047; /* var(--chatbots-shadow); */
+    --path-button: #121212; /* var(--path-button); */
+    --settings-page-theme: #6b6b6b; /* var(--settings-page-theme); */
+    --document-path: #440A46; /* var(--document-path); */
+    --new-chapter-btn: #350549; /* var(--new-chapter-btn); */
+    --documents-page-header: #363C44; /* var(--documents-page-header); */
+    --abstract-content-focus: #0000001C; /* var(--abstract-content-focus); */
+    --input-file-background: #F7FBFF; /* var(--input-file-background); */
+    --input-file-selector: #2B64E1; /* var(--input-file-selector); */
+    --delete-personality: #C70000; /* var(--delete-personality); */
+    --proof-reader-content: #CCC; /* var(--proof-reader-content); */
+    --prompt-shadow: #00000057; /* var(--prompt-shadow); */
+    --prompt-text: #222222; /* var(--prompt-text); */
+    --generated-text-title: #232023; /* var(--generated-text-title); */
+    --proofreader-generated-content: #2E2C2E; /* var(--proofreader-generated-content); */
+    --navbackground: #d5c8d6; /* var(--navbackground); */
+    --navbarbox: #A283A3; /* var(--navbarbox); */
+    --space-tab: #937397; /* var(--space-tab); */
+    --tab-hover: #ebe4ec; /* var(--tab-hover); */
 
 }
 * {

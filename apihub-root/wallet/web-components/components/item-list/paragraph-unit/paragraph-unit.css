@@ -41,7 +41,7 @@
 
 .paragraph-text:focus {
     outline: none;
-    background-color:#FFFFFF;
+    background-color:var(--white-text);
     border-radius:3px;
 }
 

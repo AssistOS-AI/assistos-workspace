@@ -12,7 +12,7 @@ generate-paragraphs-page {
 }
 
 .path-button {
-    color: #A42E70;
+    color:  var(--button-purple);
     font-size: 14px;
     font-style: normal;
     font-weight: 500;
@@ -35,7 +35,7 @@ generate-paragraphs-page {
 .section-title{
     margin-bottom: 10px;
     margin-top: 20px;
-    color: #252525;
+    color: var(--light-black);
     font-size: 18px;
     font-style: normal;
     font-weight: 600;
@@ -47,13 +47,13 @@ generate-paragraphs-page {
 }
 .form-input {
     border-radius: 8px;
-    border: 0.5px solid rgba(0, 0, 0, 0.24);
+    border: 0.5px solid  var(--lighter-black);
     width: 400px;
     margin: 4px 0 4px;
     padding: 8px;
 }
 .form-label {
-    color: #3A3A3A;
+    color: var(--gray-black);
     font-size: 12px;
     font-weight: 600;
 }
@@ -64,7 +64,7 @@ generate-paragraphs-page {
 }
 #prompt{
     border-radius: 8px;
-    border: 0.5px solid rgba(0, 0, 0, 0.24);
+    border: 0.5px solid var(--lighter-black);
     width: 100%;
     margin: 4px 0 8px;
     padding: 8px;
@@ -73,7 +73,7 @@ generate-paragraphs-page {
 }
 #nr{
     border-radius: 8px;
-    border: 0.5px solid rgba(0, 0, 0, 0.24);
+    border: 0.5px solid var(--lighter-black);
     width: 50px;
     margin: 4px 0 8px;
     padding: 8px;
@@ -95,9 +95,9 @@ generate-paragraphs-page {
     cursor: pointer;
     padding: 8px 10px;
     border-radius: 10px;
-    border: 0.5px solid #D7D7D7;
-    background: #A42E70;
-    color: #FFF;
+    border: 0.5px solid var(--pink-white);
+    background: var(--button-purple);
+    color: var(--white-text);
     font-feature-settings: 'clig' off, 'liga' off;
     font-size: 13px;
     font-style: normal;
@@ -110,12 +110,12 @@ generate-paragraphs-page {
     align-items: center;
 }
 input[type="checkbox"] {
-    background-color: #fff;
+    background-color: var(--white-text);
     margin: 0;
 }
 
 input[type="checkbox"]:checked {
-    background-color: #000;
+    background-color: var(--black);
 }
 .generated-idea{
     display: flex;
@@ -135,5 +135,5 @@ input[type="checkbox"]:checked {
 }
 .generated-ideas-hr{
     border-style: solid;
-    border-color: #E6E6E6;
+    border-color: var(--gray-border);
 }

@@ -13,7 +13,7 @@ paragraph-brainstorming-page {
 }
 
 .paragraph-section-separator{
-    border: 1px solid #E6E6E6;
+    border: 1px solid var(--gray-border);
     margin: 0;
 }
 
@@ -21,7 +21,7 @@ paragraph-brainstorming-page {
     margin: 5px 10px;
 }
 .path-button {
-    color: #A42E70;
+    color: var(--button-purple);
     font-size: 14px;
     font-style: normal;
     font-weight: 500;
@@ -34,7 +34,7 @@ paragraph-brainstorming-page {
 .current-paragraph-title,
 .main-idea-title{
     margin: 20px 15px 0 15px;
-    color: #252525;
+    color: var(--light-black);
     font-size: 18px;
     font-style: normal;
     font-weight: 600;
@@ -52,7 +52,7 @@ paragraph-brainstorming-page {
 .alt-paragraphs-title {
     margin-top: 15px;
     margin-left: 15px;
-    color: #252525;
+    color: var(--light-black);
     font-size: 18px;
     font-style: normal;
     font-weight: 600;
@@ -67,7 +67,7 @@ paragraph-brainstorming-page {
     word-break: break-word;
     padding: 15px;
     border-radius: 10px;
-    color: #252525;
+    color: var(--light-black);
     font-size: 16px;
     font-style: normal;
     font-weight: 400;
@@ -77,8 +77,8 @@ paragraph-brainstorming-page {
 
 .paragraph-content:focus,
 .main-idea-content:focus{
-    background-color: rgba(148, 174, 227, 0.3);
-    color: #252525;
+    background-color: var(--harsh-gray);
+    color: var(--light-black);
     font-weight: 450;
 }
 

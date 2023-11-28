@@ -13,7 +13,7 @@ manage-chapters-page {
 }
 
 .path-button {
-    color: #A42E70;
+    color: var(--button-purple);
     font-size: 14px;
     font-style: normal;
     font-weight: 500;
@@ -46,8 +46,8 @@ manage-chapters-page {
     padding-left: 15px;
 }
 .main-ideas-list:focus{
-    background-color: rgba(148, 174, 227, 0.3);
-    color: #252525;
+    background-color: var(--harsh-gray);
+    color: var(--light-black);
     font-weight: 450;
 }
 .section-title,.section-content {
@@ -55,7 +55,7 @@ manage-chapters-page {
     justify-content: space-between;
     align-items:center;
     margin: 20px 22px 20px 15px;
-    color: #252525;
+    color: var(--light-black);
     font-size: 18px;
     font-style: normal;
     font-weight: 600;
@@ -75,8 +75,8 @@ manage-chapters-page {
     font-weight: 600;
     line-height: 24px;
     text-align: center;
-    color: #FFFFFF;
-    background: #A42E70;
+    color: var(--white-text);
+    background: var(--button-purple);
     width: fit-content;
     height: 22px;
     padding: 6px 9px;
@@ -103,7 +103,7 @@ manage-chapters-page {
     max-width:calc(100% - 182px);
 }
 .main-ideas-separator{
-    border: 1px solid #E6E6E6;
+    border: 1px solid var(--gray-border);
 }
 @media screen and (max-width: 900px) {
     .main-ideas-title-section{

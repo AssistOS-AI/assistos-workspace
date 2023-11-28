@@ -1,7 +1,7 @@
 .table-header-flows {
     padding-left: 15px;
     display: flex;
-    color: #363C44;
+    color: var(--documents-page-header);
     font-size: 18px;
     font-style: normal;
     font-weight: 700;
@@ -43,7 +43,7 @@
     border-radius: 5px;
     padding-top: 10px;
     padding-bottom: 10px;
-    background: #A42E70;
+    background: var(--button-purple);
     position: absolute;
     top:0;
     left: 95px;
@@ -56,7 +56,7 @@
     justify-content: space-between;
     font-size: 16px;
     font-weight: 600;
-    color: #FFFFFF;
+    color: var(--white-text);
 }
 .filter label{
     cursor: pointer;
