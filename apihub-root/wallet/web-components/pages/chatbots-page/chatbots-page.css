@@ -38,7 +38,7 @@ chatbots-page{
 .chat-input-container{
     height: 10%;
     padding: 10px;
-    justify-content: space-between;
+    justify-content: space-around;
     display: flex;
     align-items: center;
 }
