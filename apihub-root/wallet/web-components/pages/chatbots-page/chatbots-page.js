@@ -110,7 +110,7 @@ export class chatbotsPage {
         formInfo.elements.input.element.value = "";
         this.displayMessage("user",input);
         this.displayEmotion(this.defaultEmotion);
-        let flowId = webSkel.currentUser.space.getFlowIdByName("ChatBot");
+        let flowId = webSkel.currentUser.space.getFlowIdByName("Chatbots");
         await this.summarizeConversation();
         let response = await webSkel.getService("LlmsService").callFlow(flowId, formInfo.data.input, this.personalityId, this.history);
 
