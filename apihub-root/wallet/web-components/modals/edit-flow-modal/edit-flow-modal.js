@@ -11,14 +11,14 @@ export class editFlowModal {
     }
 
     beforeRender() {
-      let script = webSkel.currentUser.space.getFlow(this.element.getAttribute("data-id"));
-      this.scriptContent = script.content;
-      this.scriptName = script.name;
+      let flow = webSkel.currentUser.space.getFlow(this.element.getAttribute("data-id"));
+      this.flowContent = flow.content;
+      this.flowName = flow.name;
     }
     afterRender(){
-        let flowCode = this.element.querySelector("textarea");
-        flowCode.value = this.scriptContent;
-        flowCode.addEventListener("keydown", this.insertSpacesOnTab);
+        this.flowCode = this.element.querySelector("textarea");
+        this.flowCode.value = this.flowContent;
+        this.flowCode.addEventListener("keydown", this.insertSpacesOnTab);
     }
 
     closeModal(_target) {
@@ -31,7 +31,7 @@ export class editFlowModal {
             let start = this.selectionStart;
             let end = this.selectionEnd;
             const selectedText = this.value.substring(start, end);
-            const indentedText = selectedText.replace(/^/gm, '    ');
+            const indentedText = selectedText.replace(/^/gm, '\t');
             this.value = this.value.substring(0, start) + indentedText + this.value.substring(end);
             this.selectionStart = start + indentedText.length;
             this.selectionEnd = start + indentedText.length;
@@ -48,7 +48,7 @@ export class editFlowModal {
             start = this.selectionStart;
             let end = this.selectionEnd;
             const selectedText = this.value.substring(start, end);
-            const unindentedText = selectedText.replace(/^    /gm, '');
+            const unindentedText = selectedText.replace(new RegExp(`^[ ]?\\t`, 'gm'), '');
             this.value = this.value.substring(0, start) + unindentedText + this.value.substring(end);
             const newStart = start;
             const newEnd = newStart + selectedText.length - unindentedText.length;
@@ -56,19 +56,61 @@ export class editFlowModal {
         }
 
     }
-    async saveScript(_target) {
+    async saveFlow(_target) {
         let form = this.element.querySelector("form")
         let formInfo = await extractFormInformation(form);
         if(formInfo.isValid) {
             let flowId = this.element.getAttribute("data-id");
-            await webSkel.currentUser.space.updateFlow(flowId, formInfo.data.scriptCode);
+                let execFlowId = webSkel.currentUser.space.getFlowIdByName("UpdateFlow");
+            let result = await webSkel.getService("LlmsService").callFlow(execFlowId, flowId, formInfo.data.flowCode);
+            console.log(result);
             webSkel.currentUser.space.notifyObservers(webSkel.currentUser.space.getNotificationId());
             closeModal(_target);
         }
     }
+    countTabs(blocks) {
+        let tabCount = 0;
+        let necessaryTabs = {};
 
+        for (let i = 0; i < blocks.length; i++) {
+            let block = blocks[i];
+            if (block === '{') {
+                necessaryTabs[i] = tabCount;
+                tabCount++;
+            } else if (block === '}') {
+                tabCount--;
+                necessaryTabs[i] = tabCount;
+            } else {
+                // Calculate necessary tabs based on the current tab count
+                necessaryTabs[i] = tabCount;
+            }
+        }
+
+        return necessaryTabs-1;
+    }
     formatCode(){
-        alert("To be implemented.");
+        let tabCount = 0;
+        let formattedCode = '';
+
+        // Split the code on '{' or '}'
+        let blocks = this.flowCode.value.split(/({|}|;)/);
+
+        // Count the necessary tabs for each block
+        let necessaryTabs = this.countTabs(blocks);
+
+        // Iterate through each block
+        blocks.forEach(function(block, index) {
+            if (block === '{' || block === '}') {
+                // Add or remove tabs based on the necessary tabs and include the bracket
+                let tabs = '\t'.repeat(necessaryTabs[index]);
+                formattedCode += tabs + block + '\n';
+            }else {
+                // Add or remove tabs based on the necessary tabs
+                let tabs = '\t'.repeat(necessaryTabs[index]);
+                formattedCode += tabs + block;
+            }
+        });
+        this.flowCode.value = formattedCode;
     }
     loadFlow(){
         alert("To be implemented.");
