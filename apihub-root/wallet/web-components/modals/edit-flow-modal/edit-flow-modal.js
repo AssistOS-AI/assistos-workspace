@@ -68,50 +68,75 @@ export class editFlowModal {
             closeModal(_target);
         }
     }
-    countTabs(blocks) {
-        let tabCount = 0;
-        let necessaryTabs = {};
+    formatCode() {
 
-        for (let i = 0; i < blocks.length; i++) {
-            let block = blocks[i];
-            if (block === '{') {
-                necessaryTabs[i] = tabCount;
-                tabCount++;
-            } else if (block === '}') {
-                tabCount--;
-                necessaryTabs[i] = tabCount;
+        let code = this.flowCode.value;
+        // Helper functions:
+        const isWhitespace = (char) => /\s/.test(char);
+        const isLineTerminator = (char) => /\n|\r/.test(char);
+        const isNewStatement = (char) => char === ';';
+
+        let formattedCode = '';  // Stores the final formatted code
+        let indentationStack = []; // Stack to keep indentation levels
+        let currentIndent = ''; // Holds the current indentation string
+        let inString = false; // Flag to indicate if we're inside a string
+        let stringChar = ''; // Keeps track of the type of string delimiter
+        let lastNonWhiteSpaceChar = ''; // Tracks the previous non-whitespace character
+
+        const increaseIndentation = () => {
+            indentationStack.push(currentIndent);
+            currentIndent += '\t';
+        };
+
+        const decreaseIndentation = () => {
+            if (indentationStack.length > 0) {
+                currentIndent = indentationStack.pop();
+            }
+        };
+
+        for (let i = 0; i < code.length; i++) {
+            const char = code[i];
+            const prevChar = i > 0 ? code[i - 1] : '';
+
+            if (inString) {
+                formattedCode += char;
+                if (char === stringChar && prevChar !== '\\') { // Check for unescaped string delimiter
+                    inString = false;
+                }
+            } else if (char === '"' || char === "'" || char === '`') { // String start
+                formattedCode += char;
+                inString = true;
+                stringChar = char;
+            } else if (char === '{') {
+                if(lastNonWhiteSpaceChar && !isLineTerminator(lastNonWhiteSpaceChar) && !isNewStatement(lastNonWhiteSpaceChar)) {
+                    formattedCode = formattedCode.trimEnd() + ' ';
+                }
+                formattedCode += char + '\n';
+                increaseIndentation();
+                formattedCode += currentIndent;
+                lastNonWhiteSpaceChar = char;
+            } else if (char === '}') {
+                formattedCode = formattedCode.trimEnd() + '\n';
+                decreaseIndentation();
+                formattedCode += currentIndent + char;
+                lastNonWhiteSpaceChar = char;
+            } else if (isNewStatement(char) || isLineTerminator(char)) {
+                if (!isLineTerminator(lastNonWhiteSpaceChar)) {
+                    formattedCode += char + '\n' + currentIndent;
+                    lastNonWhiteSpaceChar = char;
+                }
             } else {
-                // Calculate necessary tabs based on the current tab count
-                necessaryTabs[i] = tabCount;
+                if (!isWhitespace(char) || !isWhitespace(lastNonWhiteSpaceChar)) {
+                    formattedCode += char;
+                    if (!isWhitespace(char)) {
+                        lastNonWhiteSpaceChar = char;
+                    }
+                }
             }
         }
-
-        return necessaryTabs-1;
+        this.flowCode.value = formattedCode.trim();
     }
-    formatCode(){
-        let tabCount = 0;
-        let formattedCode = '';
 
-        // Split the code on '{' or '}'
-        let blocks = this.flowCode.value.split(/({|}|;)/);
-
-        // Count the necessary tabs for each block
-        let necessaryTabs = this.countTabs(blocks);
-
-        // Iterate through each block
-        blocks.forEach(function(block, index) {
-            if (block === '{' || block === '}') {
-                // Add or remove tabs based on the necessary tabs and include the bracket
-                let tabs = '\t'.repeat(necessaryTabs[index]);
-                formattedCode += tabs + block + '\n';
-            }else {
-                // Add or remove tabs based on the necessary tabs
-                let tabs = '\t'.repeat(necessaryTabs[index]);
-                formattedCode += tabs + block;
-            }
-        });
-        this.flowCode.value = formattedCode;
-    }
     loadFlow(){
         alert("To be implemented.");
     }
