@@ -14,13 +14,13 @@ paragraph-proofread-page{
     margin: 5px 10px;
 }
 .path-button {
-    color: #A42E70;
+    color: var(--button-purple);
     font-size: 14px;
     font-style: normal;
     font-weight: 500;
 }
 .current-paragraph-separator{
-    border: 1px solid #E6E6E6;
+    border: 1px solid var(--gray-border);
     margin: 0;
 }
 
@@ -36,7 +36,7 @@ paragraph-proofread-page{
 .improved-paragraph-title,
 .observations-title{
     margin: 20px 15px 0 15px;
-    color: #252525;
+    color: var(--light-black);
     font-size: 18px;
     font-style: normal;
     font-weight: 600;
@@ -66,7 +66,7 @@ paragraph-proofread-page{
     word-break: break-word;
     padding: 15px;
     border-radius: 10px;
-    color: #252525;
+    color: var(--light-black);
     font-size: 16px;
     font-style: normal;
     font-weight: 400;
@@ -74,8 +74,8 @@ paragraph-proofread-page{
 }
 .improved-paragraph:focus,
 .paragraph-content:focus {
-    background-color: rgba(148, 174, 227, 0.3);
-    color: #252525;
+    background-color: var(--harsh-gray);
+    color: var(--light-black);
     font-weight: 450;
 }
 .form-item{
@@ -87,7 +87,7 @@ paragraph-proofread-page{
 .form-item select{
     width: 200px;
     border-radius: 8px;
-    border: 0.5px solid rgba(0, 0, 0, 0.24);
+    border: 0.5px solid var(--lighter-black);
     margin: 4px 0 8px;
     padding: 8px;
 }
@@ -95,7 +95,7 @@ paragraph-proofread-page{
     height: 150px;
     resize: none;
     border-radius: 8px;
-    border: 0.5px solid rgba(0, 0, 0, 0.24);
+    border: 0.5px solid var(--lighter-black);
     width: 100%;
     margin: 4px 0 8px;
     padding: 8px;
@@ -107,7 +107,7 @@ paragraph-proofread-page{
     word-break: break-word;
     padding: 15px;
     border-radius: 10px;
-    color: #252525;
+    color: var(--light-black);
     font-size: 16px;
     font-style: normal;
     font-weight: 400;
@@ -117,9 +117,9 @@ paragraph-proofread-page{
     cursor: pointer;
     padding: 8px 10px;
     border-radius: 10px;
-    border: 0.5px solid #D7D7D7;
-    background: #A42E70;
-    color: #FFF;
+    border: 0.5px solid var(--pink-white);
+    background: var(--button-purple);
+    color: var(--white-text);
     font-feature-settings: 'clig' off, 'liga' off;
     font-size: 13px;
     font-style: normal;

@@ -15,12 +15,12 @@ dialog[class="modal"] {
 .modal-header{
     padding: 5px 20px 5px 20px;
     margin-bottom: 5px;
-    background: #A42E70;
+    background: var(--button-purple);
     display: flex;
     justify-content: space-between;
 }
 .modal-title {
-    color: #ffffff;
+    color: var(--white-text);
     font-size: 18px;
     display: flex;
     flex-direction: column;
@@ -35,7 +35,7 @@ dialog[class="modal"] {
 .close {
     padding: 0;
     font-weight: 300;
-    color: #ffffff;
+    color: var(--white-text);
     cursor: pointer;
     background-color: transparent;
     border: none;
@@ -43,14 +43,14 @@ dialog[class="modal"] {
 }
 
 .form-label {
-    color: #3A3A3A;
+    color:  var(--gray-black);
     font-size: 12px;
     font-weight: 600;
 }
 
 .form-input {
     border-radius: 8px;
-    border: 0.5px solid rgba(0, 0, 0, 0.24);
+    border: 0.5px solid var(--lighter-black);
     width: 100%;
     margin: 4px 0 8px;
     padding: 8px;
@@ -58,11 +58,11 @@ dialog[class="modal"] {
 
 .input-file-container{
     border-radius: 8px;
-    border: 0.5px dashed rgba(0, 0, 0, 0.24);
+    border: 0.5px dashed var(--lighter-black);
     width: 100%;
     margin: 4px 0 8px;
     padding: 8px;
-    background: #F7FBFF;
+    background: var(--medium-white);
     display: flex;
     flex-direction: column;
     align-items: center;
@@ -82,7 +82,7 @@ textarea#description {
 input::file-selector-button {
     border: none;
     background: none;
-    color: #2B64E1;
+    color: var(--strong-blue);
     text-decoration: underline;
     font-size: 16px;
     font-weight: 500;
@@ -104,9 +104,9 @@ input[type="file"]{
     padding: 8px 52px;
     border-radius: 16px;
     margin: 16px 0;
-    border: 0.5px solid #D7D7D7;
-    background: #A42E70;
-    color: #FFF;
+    border: 0.5px solid var(--pink-white);
+    background: var(--button-purple);
+    color: var(--white-text);
     font-feature-settings: 'clig' off, 'liga' off;
     font-size: 14px;
     font-style: normal;

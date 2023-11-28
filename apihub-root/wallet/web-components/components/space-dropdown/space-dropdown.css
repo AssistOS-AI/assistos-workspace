@@ -28,10 +28,10 @@
 
 .add-space-btn,
 #logout-button {
-    background-color: #511A53;
+    background-color: var(--left-sidebar);
     outline: none;
     border: none;
-    color: #FFF;
+    color: var(--white-text);
     font-family: 'Poppins', sans-serif;
     font-size: 17px;
     cursor: pointer;
@@ -44,7 +44,7 @@
     cursor: pointer;
     font-weight: 600;
     max-width: fit-content;
-    color: #FFF;
+    color: var(--white-text);
 }
 
 .space-name {
@@ -61,5 +61,5 @@
 }
 
 .arrow-space:hover {
-    background: rgba(0, 0, 0, 0.33);
+    background: var(--space-hover);
 }

@@ -128,7 +128,7 @@ agents-page{
     height: 27px;
     width: 24px;
     border-bottom-right-radius: 68%;
-    box-shadow: 11px 0 0 0 white;
+    box-shadow: 11px 0 0 0 var(--white-text);
 }
 .chat-box{
     padding: 5px 5px 5px 12px;
@@ -142,7 +142,7 @@ agents-page{
 }
 .user-box{
     border-radius: 16px 16px 16px 0;
-    background: white;
+    background: var(--white-text);
 }
 
 .robot:after{
@@ -153,10 +153,10 @@ agents-page{
     height: 27px;
     width: 24px;
     border-bottom-left-radius: 68%;
-    box-shadow: -11px 0 0 0 #E0C9E1;
+    box-shadow: -11px 0 0 0 var(--robot-shadow);
 }
 
 .robot-box{
     border-radius: 16px 16px 0 16px;
-    background: #E0C9E1;
+    background: var(--robot-shadow);
 }

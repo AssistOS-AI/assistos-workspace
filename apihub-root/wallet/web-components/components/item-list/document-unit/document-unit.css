@@ -2,8 +2,8 @@
     display: flex;
     align-items: center;
     justify-content: space-between;
-    border-top: 1px solid rgba(194, 194, 194, 0.6);
-    color: #494949;
+    border-top: 1px solid var(--very-light-gray);
+    color: var(--medium-gray);
     font-size: 16px;
     font-style: normal;
     font-weight: 500;
@@ -24,7 +24,7 @@
     width: 100%;
     max-width: 33px;
     max-height: 12px;
-    color: #555555;
+    color:  var(--brown-gray);
     display: flex;
     justify-content: right;
     align-items: center;

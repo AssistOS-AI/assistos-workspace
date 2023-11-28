@@ -1,10 +1,10 @@
 reduced-chapter-unit{
     display: flex;
     padding: 10px 15px;
-    border-bottom: 1px solid #E6E6E6;
+    border-bottom: 1px solid var(--gray-border);
 }
 .title-row {
-    color: #000;
+    color: var(--black);
     font-size: 14px;
     width: 100%;
     font-style: normal;
@@ -33,7 +33,7 @@ reduced-chapter-unit{
     width: 33px;
     max-width: 33px;
     max-height: 12px;
-    color: #555555;
+    color: var(--brown-gray);
     display: flex;
     justify-content: right;
     align-items: center;
@@ -50,6 +50,6 @@ reduced-chapter-unit{
 }
 
 .svg-box:hover {
-    background-color: rgba(85, 85, 85, 0.08);
+    background-color: var(--medium-black);
     cursor: pointer;
 }

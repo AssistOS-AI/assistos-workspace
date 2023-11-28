@@ -16,7 +16,7 @@ personality-unit{
     margin: 25px;
 }
 .square-container{
-    border: 6px solid #A42E70;
+    border: 6px solid  var(--button-purple);
     border-radius: 9px;
     width: 150px;
     height: 150px;
@@ -30,14 +30,14 @@ personality-unit{
 }
 .horizontal-line{
     margin: 35px;
-    background-color: #A42E70;
+    background-color:  var(--button-purple);
     width: 68px;
     height: 9px;
     grid-area: inner-div;
 }
 .vertical-line{
     margin: 35px;
-    background-color: #A42E70;
+    background-color:  var(--button-purple);
     width: 9px;
     height: 68px;
     grid-area: inner-div;
@@ -47,5 +47,5 @@ personality-unit{
     font-size: 22px;
 }
 .button-text{
-    color: #A42E70;
+    color:  var(--button-purple);
 }

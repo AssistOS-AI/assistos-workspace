@@ -4,16 +4,16 @@ action-box-with-clone{
 .action-box-with-clone{
     margin-top: 0;
     margin-left: -60px;
-    background-color: white;
+    background-color:  var(--white-text);
     line-height: normal;
     border-radius: 6px;
-    border: 1px solid #dedede;
+    border: 1px solid   var(--action-box-border);
     position: absolute;
     z-index:9999;
 }
 
 .action {
-    background: #FEFAFF;
+    background: var(--action-box-background);
     padding: 4px 8px;
     cursor: pointer;
 }
@@ -27,6 +27,6 @@ action-box-with-clone{
 }
 
 .action:hover {
-    background-color: #A42E70;
-    color: white;
+   background-color: var(--button-purple);
+    color: var(--white-text)
 }

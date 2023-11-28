@@ -10,7 +10,7 @@
     padding-right: 15px;
     display: flex;
     justify-content: space-between;
-    color: #363C44;
+    color: var(--documents-page-header);
     font-size: 18px;
     font-style: normal;
     font-weight: 700;
@@ -30,8 +30,8 @@
     display: flex;
     align-items: center;
     justify-content: space-between;
-    border-top: 0.5px solid rgba(217, 212, 238, 0.85);
-    color: #494949;
+    border-top: 0.5px solid var(--pink-white);
+    color: var(--medium-gray);
     font-size: 16px;
     font-style: normal;
     font-weight: 500;

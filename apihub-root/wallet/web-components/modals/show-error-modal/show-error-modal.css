@@ -20,7 +20,7 @@ dialog[class="modal"] {
     align-items:center;
     justify-content:center;
     margin-top:30px;
-    border-bottom:1px solid #E5E5E5;
+    border-bottom:1px solid var(--error-modal-border);
     padding-bottom:10px;
 }
 
@@ -31,7 +31,7 @@ dialog[class="modal"] {
     line-height: 39px;
     letter-spacing: 0px;
     text-align: center;
-    color: #191C32;
+    color: var(--blue-black);
 }
 
 #show-error-modal-header img {
@@ -60,7 +60,7 @@ dialog[class="modal"] {
     margin-bottom: 10px;
     overflow-y: auto;
     max-height: 150px;
-    border: 1px solid #E5E5E5;
+    border: 1px solid var(--error-modal-border);
     padding: 10px;
     border-radius: 4px;
     text-align:justify;
@@ -84,17 +84,17 @@ dialog[class="modal"] {
     cursor: pointer;
     display: inline-flex;
     text-align: center;
-    color: #FFFFFF;
+    color: var(--white-text);
 }
 
 #ok-button {
-    background: #A42E70;
+    background: var(--button-purple);
 }
 
 #details-button {
-    color: #A42E70;
-    background-color: #FFFFFF;
-    border-color: #A42E70;
+    color: var(--button-purple);
+    background-color: var(--white-text);
+    border-color: var(--button-purple);
 }
 
 .button {

@@ -2,8 +2,8 @@
     padding: 15px 15px 15px 25px;
     font-weight: 700;
     font-size: 28px;
-    color: #511A53;
-    box-shadow: 0 2px 4px 0 #00000047;
+    color:  var(--left-sidebar);
+    box-shadow: 0 2px 4px 0 var(--chatbots-shadow);
 }
 .choose-personality{
     margin: 25px 25px 0 25px;
@@ -26,6 +26,6 @@ personality-unit{
 }
 .no-personality{
     margin: 25px;
-    color: red;
+    color: var(--form-input-error);
     width: 200px;
 }

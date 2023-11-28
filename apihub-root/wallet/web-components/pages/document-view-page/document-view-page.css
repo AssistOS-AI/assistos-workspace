@@ -1,5 +1,5 @@
 .abstract-subtitle {
-    color: #121212;
+    color: var(--path-button);
     font-size: 18px;
     font-style: normal;
     font-weight: 600;
@@ -34,7 +34,7 @@
 }
 .abstract-content-text:focus{
     outline:none;
-    background: #FFFFFF;
+    background: var(--white-text);
 }
 .document-view-page {
     display: flex;
@@ -58,7 +58,7 @@
     line-height: 21px;
     letter-spacing: 0em;
     text-align: left;
-    color: #440A46;
+    color: var(--document-path);
     padding-left:10px;
     padding-right:10px;
 }
@@ -66,7 +66,7 @@
 .document-title {
     width: calc(100% - 30px);
     display: inline-block;
-    color: #252525;
+    color: var(--light-black);
     font-size: 26px;
     font-style: normal;
     font-weight: 600;
@@ -82,7 +82,7 @@
 
 .document-title:focus{
     outline: none;
-    background: white;
+    background: var(--white-text);
 }
 
 .document-path svg {
@@ -94,8 +94,8 @@
     border-radius: 20px;
     font-weight: 600;
     cursor: pointer;
-    color: #FFF;
-    background-color: #350549;
+    color: var(--white-text);
+    background-color: var(--new-chapter-btn);
 }
 
 .add-new-chapter-section {
@@ -122,5 +122,5 @@
     cursor:pointer;
 }
 #highlighted-abstract{
-    background-color:#F3EBF3;
+    background-color:var(--medium-white);
 }

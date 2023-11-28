@@ -5,7 +5,7 @@
     font-weight: 400;
     line-height: 283%;
     letter-spacing: -0.56px;
-    border-top: 1px solid #E6E6E6;
+    border-top: 1px solid var(--gray-border);
     padding-left: 15px;
     display: flex;
 }
@@ -37,7 +37,7 @@
 }
 
 .svg-box:hover {
-    background-color: rgba(85, 85, 85, 0.08);
+    background-color: var(--medium-black);
     cursor: pointer;
 }
 .suggested-title{
@@ -48,8 +48,8 @@
     word-break: break-word;
 }
 .suggested-title:focus {
-    background-color: rgba(148, 174, 227, 0.3);
-    color: #252525;
+    background-color: var(--harsh-gray);
+    color: var(--light-black);
     outline: none;
     padding-left: 10px;
     padding-right: 10px;

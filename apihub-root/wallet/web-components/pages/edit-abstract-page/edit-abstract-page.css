@@ -13,7 +13,7 @@ edit-abstract-page {
 }
 
 .current-abstract-separator{
-    border: 1px solid #E6E6E6;
+    border: 1px solid var(--gray-border);
     margin-top:20px;
 }
 
@@ -21,7 +21,7 @@ edit-abstract-page {
     margin: 5px 10px;
 }
 .path-button {
-    color: #A42E70;
+    color: var(--button-purple);
     font-size: 14px;
     font-style: normal;
     font-weight: 500;
@@ -32,7 +32,7 @@ edit-abstract-page {
 }
 .current-abstract-title {
     margin: 0 15px 0;
-    color: #252525;
+    color: var(--light-black);
     font-size: 18px;
     font-style: normal;
     font-weight: 600;
@@ -59,7 +59,7 @@ edit-abstract-page {
     margin-top: 15px;
     margin-left: 15px;
     margin-right: 22px;
-    color: #252525;
+    color: var(--light-black);
     font-size: 18px;
     font-style: normal;
     font-weight: 600;
@@ -77,7 +77,7 @@ edit-abstract-page {
     padding-left:10px;
     margin-left:5px;
     border-radius: 10px;
-    color: #252525;
+    color: var(--light-black);
     font-size: 16px;
     font-style: normal;
     font-weight: 400;
@@ -88,9 +88,9 @@ edit-abstract-page {
 
 .abstract-content:focus {
     outline: none;
-    border: 1px solid #A42E70;
+    border: 1px solid var(--button-purple);
     border-radius: 7px;
-    box-shadow: 0px 1px 4px 0px #0000001C;
+    box-shadow: 0px 1px 4px 0px var(--abstract-content-focus);
 }
 
 .editIcon:hover{

@@ -20,8 +20,8 @@ manage-paragraphs-page {
     font-weight: 600;
     line-height: 24px;
     text-align: center;
-    color: #FFFFFF;
-    background: #A42E70;
+    color: var(--white-text);
+    background: var(--button-purple);
     width: fit-content;
     height: 22px;
     padding: 6px 9px;
@@ -30,7 +30,7 @@ manage-paragraphs-page {
     cursor: pointer;
 }
 .path-button {
-    color: #A42E70;
+    color: var(--button-purple);
     font-size: 14px;
     font-style: normal;
     font-weight: 500;
@@ -63,13 +63,13 @@ manage-paragraphs-page {
     padding-left: 15px;
 }
 .main-ideas-list:focus{
-    background-color: rgba(148, 174, 227, 0.3);
-    color: #252525;
+    background-color: var(--harsh-gray);
+    color: var(--light-black);
     font-weight: 450;
 }
 .section-title {
     margin: 20px 15px 20px 15px;
-    color: #252525;
+    color: var(--light-black);
     font-size: 18px;
     font-style: normal;
     font-weight: 600;
@@ -86,7 +86,7 @@ manage-paragraphs-page {
 }
 
 .main-ideas-separator{
-    border: 1px solid #E6E6E6;
+    border: 1px solid var(--gray-border);
 }
 .section-title-left, .section-title-right{
     display: flex;
