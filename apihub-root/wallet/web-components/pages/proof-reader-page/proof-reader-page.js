@@ -55,7 +55,6 @@ export class proofReaderPage {
             this.details = formData.data.details;
             let flowId = webSkel.currentUser.space.getFlowIdByName("Proofread");
             let result = await webSkel.getService("LlmsService").callFlow(flowId, this.text, formData.data.personality, this.details);
-            console.log(result);
             this.observations = result.responseJson.observations;
             this.generatedText = result.responseJson.improvedText;
             this.invalidate();

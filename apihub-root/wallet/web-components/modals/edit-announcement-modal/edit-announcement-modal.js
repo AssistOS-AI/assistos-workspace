@@ -23,8 +23,7 @@ export class editAnnouncementModal {
         let textContent = reverseQuerySelector(_target,".modal-body").innerText;
         let announcementId = this.element.getAttribute("data-id");
         let flowId = webSkel.currentUser.space.getFlowIdByName("UpdateAnnouncement");
-        let result = await webSkel.getService("LlmsService").callFlow(flowId, announcementId, textContent);
-        console.log(result);
+        await webSkel.getService("LlmsService").callFlow(flowId, announcementId, textContent);
         webSkel.currentUser.space.notifyObservers(webSkel.currentUser.space.getNotificationId());
         closeModal(_target);
     }

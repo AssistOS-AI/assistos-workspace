@@ -62,7 +62,6 @@ export class translatePage {
         this.details = formData.data.details;
         let flowId = webSkel.currentUser.space.getFlowIdByName("Translate");
         let result = await webSkel.getService("LlmsService").callFlow(flowId, this.text, formData.data.personality, this.language, this.details);
-        console.log(result);
         this.generatedText = result.responseString;
         this.invalidate();
 

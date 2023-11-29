@@ -156,10 +156,11 @@ export class documentViewPage {
             title.addEventListener('keydown', titleEnterHandler);
             title.focus();
             title.parentElement.setAttribute("id", "highlighted-chapter");
+            let flowId = webSkel.currentUser.space.getFlowIdByName("UpdateDocumentTitle");
             let timer = new SaveElementTimer(async () => {
                 let titleText = sanitize(customTrim(title.innerText));
                 if (titleText !== this._document.title && titleText !== "") {
-                    await this._document.updateTitle(titleText);
+                    await webSkel.getService("LlmsService").callFlow(flowId, this._document.id, titleText);
                 }
             }, 1000);
             title.addEventListener("blur", async () => {
@@ -182,10 +183,11 @@ export class documentViewPage {
             abstract.setAttribute("contenteditable", "true");
             abstract.focus();
             abstractSection.setAttribute("id", "highlighted-chapter");
+            let flowId = webSkel.currentUser.space.getFlowIdByName("UpdateAbstract");
             let timer = new SaveElementTimer(async () => {
                 let abstractText = sanitize(customTrim(abstract.innerText));
                 if (abstractText !== this._document.abstract && abstractText !== "") {
-                    await this._document.updateAbstract(abstractText);
+                    await webSkel.getService("LlmsService").callFlow(flowId, this._document.id, abstractText);
                 }
             }, 1000);
 
@@ -204,14 +206,12 @@ export class documentViewPage {
     }
     async addChapter() {
         let flowId = webSkel.currentUser.space.getFlowIdByName("AddChapter");
-        let result = await webSkel.getService("LlmsService").callFlow(flowId, this._document.id, "");
-        console.log(result);
+        await webSkel.getService("LlmsService").callFlow(flowId, this._document.id, "");
         this.invalidate();
     }
     async addParagraph(_target){
         let flowId = webSkel.currentUser.space.getFlowIdByName("AddParagraph");
-        let result = await webSkel.getService("LlmsService").callFlow(flowId, this._document.id, webSkel.currentUser.space.currentChapterId);
-        console.log(result);
+        await webSkel.getService("LlmsService").callFlow(flowId, this._document.id, webSkel.currentUser.space.currentChapterId);
         this._document.notifyObservers(this._document.getNotificationId() + ":document-view-page:" + "chapter:" + `${webSkel.currentUser.space.currentChapterId}`);
     }
 

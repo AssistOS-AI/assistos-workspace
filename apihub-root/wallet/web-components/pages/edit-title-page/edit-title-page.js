@@ -29,11 +29,12 @@ export class editTitlePage {
         if (title.getAttribute("contenteditable") === "false") {
             title.setAttribute("contenteditable", "true");
             title.focus();
+            let flowId = webSkel.currentUser.space.getFlowIdByName("UpdateDocumentTitle");
             let timer = new SaveElementTimer(async () => {
                 let confirmationPopup = this.element.querySelector("confirmation-popup");
                 let sanitizedText = sanitize(title.innerText);
                 if (sanitizedText !== this._document.title && !confirmationPopup) {
-                    await this._document.updateTitle(sanitizedText);
+                    await webSkel.getService("LlmsService").callFlow(flowId, this._document.id, sanitizedText);
                     title.insertAdjacentHTML("afterbegin", `<confirmation-popup data-presenter="confirmation-popup" 
                     data-message="Saved!" data-left="${title.offsetWidth/2}"></confirmation-popup>`);
                 }
@@ -79,7 +80,8 @@ export class editTitlePage {
                 let confirmationPopup = this.element.querySelector("confirmation-popup");
                 let sanitizedText = sanitize(newTitle.innerText);
                 if (sanitizedText !== altTitleObj.title && !confirmationPopup) {
-                    await this._document.updateAlternativeTitle(altTitleObj.id, sanitizedText);
+                    let flowId = webSkel.currentUser.space.getFlowIdByName("UpdateAlternativeDocumentTitle");
+                    await webSkel.getService("LlmsService").callFlow(flowId, this._document.id, altTitleObj.id, sanitizedText);
                     newTitle.insertAdjacentHTML("afterbegin", `<confirmation-popup data-presenter="confirmation-popup" 
                     data-message="Saved!" data-left="${newTitle.offsetWidth/2}"></confirmation-popup>`);
                 }
@@ -98,8 +100,8 @@ export class editTitlePage {
 
     async delete(_target) {
         let alternativeTitle = reverseQuerySelector(_target, "alternative-title");
-        this._document.deleteAlternativeTitle(alternativeTitle.getAttribute("data-id"));
-        await documentFactory.updateDocument(webSkel.currentUser.space.id, this._document);
+        let flowId = webSkel.currentUser.space.getFlowIdByName("DeleteAlternativeDocumentTitle");
+        await webSkel.getService("LlmsService").callFlow(flowId, this._document.id, alternativeTitle.getAttribute("data-id"));
         this.invalidate();
     }
     async select(_target){

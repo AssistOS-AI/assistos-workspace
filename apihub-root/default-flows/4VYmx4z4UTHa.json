@@ -1,0 +1,11 @@
+{
+  "name": "AddFlow",
+  "content": "({\nstart: async function(flowData){\n       try{\n            await webSkel.currentUser.space.addFlow(flowData);\n            this.return(flowData);\n        }catch(e){\n            this.fail(e);\n            }\n    }\n})",
+  "id": "4VYmx4z4UTHa",
+  "description": "Adds a new flow",
+  "tags": [
+    "presenters",
+    "agents",
+    "space"
+  ]
+}

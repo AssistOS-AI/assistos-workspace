@@ -18,8 +18,7 @@ export class addSpaceModal {
         if(formData.isValid) {
             let spaceData={name:formData.data.name};
             let flowId = webSkel.currentUser.space.getFlowIdByName("AddSpace");
-            let result = await webSkel.getService("LlmsService").callFlow(flowId, spaceData);
-            console.log(result);
+            await webSkel.getService("LlmsService").callFlow(flowId, spaceData);
             closeModal(_target);
             window.location = "";
         }

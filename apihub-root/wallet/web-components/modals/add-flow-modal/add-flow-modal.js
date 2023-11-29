@@ -165,8 +165,7 @@ export class addFlowModal {
                 tags: formInfo.data.tags
             }
             let flowId = webSkel.currentUser.space.getFlowIdByName("AddFlow");
-            let result = await webSkel.getService("LlmsService").callFlow(flowId, flowData);
-            console.log(result);
+            await webSkel.getService("LlmsService").callFlow(flowId, flowData);
             webSkel.currentUser.space.notifyObservers(webSkel.currentUser.space.getNotificationId());
             closeModal(_target);
         }

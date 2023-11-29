@@ -65,22 +65,11 @@ export class chapterUnit {
         if (!fromParagraph && !fromChapter) {
             return;
         }
-        let paragraphPosition=null;
-        if(fromParagraph){
-                paragraphPosition=this.chapter.getParagraphIndex(fromParagraph.getAttribute("data-paragraph-id"))+1;
-        }else{
-                paragraphPosition=this.chapter.paragraphs.length;
-        }
-        await this.addNewParagraph(paragraphPosition);
-    }
-
-    async addNewParagraph(paragraphPosition){
-        let newParagraphId=webSkel.getService("UtilsService").generateId();
-        await this._document.addParagraph(this.chapter, {id: newParagraphId, text:""}, paragraphPosition);
-        webSkel.currentUser.space.currentChapterId=this.chapter.id;
-        webSkel.currentUser.space.currentParagraphId=newParagraphId;
+        let flowId = webSkel.currentUser.space.getFlowIdByName("AddParagraph");
+        await webSkel.getService("LlmsService").callFlow(flowId, this._document.id, this.chapter.id);
         this.invalidate();
     }
+
     switchParagraphArrows(target, mode) {
         if(this.chapter.paragraphs.length <= 1){
             return;
@@ -207,12 +196,9 @@ export class chapterUnit {
 
         const adjacentChapterId = getAdjacentChapterId(currentChapterIndex, this._document.chapters);
 
-        if (this._document.swapChapters(currentChapterId, adjacentChapterId)) {
-            await documentFactory.updateDocument(webSkel.currentUser.space.id, this._document);
-            this._document.notifyObservers(`${this._document.getNotificationId()}:refresh`);
-        } else {
-            console.error(`Unable to swap chapters. ${currentChapterId}, ${adjacentChapterId}`);
-        }
+        let flowId = webSkel.currentUser.space.getFlowIdByName("SwapChapters");
+        await webSkel.getService("LlmsService").callFlow(flowId, this._document.id, currentChapterId, adjacentChapterId);
+        this._document.notifyObservers(`${this._document.getNotificationId()}:refresh`);
     }
 
 
