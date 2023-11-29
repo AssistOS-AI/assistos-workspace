@@ -72,7 +72,11 @@ async function loadPage() {
             }
         }
         await webSkel.changeToDynamicPage(presenterName, url.slice(1));
-        document.querySelector("#page-placeholder").style.display = "none";
+        let pagePlaceholder = document.querySelector("#page-placeholder");
+        if(pagePlaceholder){
+            pagePlaceholder.style.display = "none";
+        }
+
 }
 
 function changeSelectedPageFromSidebar(url) {
