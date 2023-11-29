@@ -203,36 +203,16 @@ export class documentViewPage {
         }
     }
     async addChapter() {
-        let chapterData= {
-            title: "New Chapter",
-            id: webSkel.getService("UtilsService").generateId(),
-            paragraphs: [
-                {
-                    text: "New Paragraph",
-                    id: webSkel.getService("UtilsService").generateId()
-                }
-            ]
-        }
-        let position = this._document.chapters.length;
-        if(webSkel.currentUser.space.currentChapterId){
-            position = this._document.chapters.findIndex(chapter => chapter.id === webSkel.currentUser.space.currentChapterId) + 1;
-        }
-        await this._document.addChapter(chapterData, position);
-        webSkel.currentUser.space.currentChapterId = chapterData.id;
-        webSkel.currentUser.space.currentParagraphId = chapterData.paragraphs[0].id;
+        let flowId = webSkel.currentUser.space.getFlowIdByName("AddChapter");
+        let result = await webSkel.getService("LlmsService").callFlow(flowId, this._document.id, "");
+        console.log(result);
         this.invalidate();
     }
     async addParagraph(_target){
-        let chapter = this._document.getChapter(webSkel.currentUser.space.currentChapterId);
-        let newParagraphId= webSkel.getService("UtilsService").generateId();
-        let position = chapter.paragraphs.length;
-        if(webSkel.currentUser.space.currentParagraphId){
-            position = chapter.getParagraphIndex(webSkel.currentUser.space.currentParagraphId) + 1;
-        }
-        await this._document.addParagraph(chapter, {id: newParagraphId, text:""}, position);
-        webSkel.currentUser.space.currentParagraphId = newParagraphId;
-        webSkel.currentUser.space.currentChapterId = chapter.id;
-        this._document.notifyObservers(this._document.getNotificationId() + ":document-view-page:" + "chapter:" + `${chapter.id}`);
+        let flowId = webSkel.currentUser.space.getFlowIdByName("AddParagraph");
+        let result = await webSkel.getService("LlmsService").callFlow(flowId, this._document.id, webSkel.currentUser.space.currentChapterId);
+        console.log(result);
+        this._document.notifyObservers(this._document.getNotificationId() + ":document-view-page:" + "chapter:" + `${webSkel.currentUser.space.currentChapterId}`);
     }
 
 
