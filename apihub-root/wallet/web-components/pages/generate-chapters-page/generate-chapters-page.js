@@ -68,16 +68,18 @@ export class generateChaptersPage {
     async generateEmptyChapters(_target){
         const conditions = {"verifyCheckedIdeas": {fn:this.verifyCheckedIdeas, errorMessage:"Select at least one idea!"} };
         let formInfo = await extractFormInformation(_target, conditions);
-        let selectedIdeas = [];
-        for (const [key, value] of Object.entries(formInfo.elements)) {
-            if(value.element.checked) {
-                selectedIdeas.push(value.element.value);
+        if(formInfo.isValid){
+            let selectedIdeas = [];
+            for (const [key, value] of Object.entries(formInfo.elements)) {
+                if(value.element.checked) {
+                    selectedIdeas.push(value.element.value);
+                }
             }
-        }
-        let flowId = webSkel.currentUser.space.getFlowIdByName("GenerateEmptyChapters");
-        let result = await webSkel.getService("LlmsService").callFlow(flowId, selectedIdeas, this._document.id, formInfo.data.prompt, selectedIdeas.length);
-        if(result){
-            await webSkel.changeToDynamicPage("manage-chapters-page", `documents/${this._document.id}/manage-chapters-page`);
+            let flowId = webSkel.currentUser.space.getFlowIdByName("GenerateEmptyChapters");
+            let result = await webSkel.getService("LlmsService").callFlow(flowId, selectedIdeas, this._document.id, formInfo.data.prompt, selectedIdeas.length);
+            if(result){
+                await webSkel.changeToDynamicPage("manage-chapters-page", `documents/${this._document.id}/manage-chapters-page`);
+            }
         }
     }
 

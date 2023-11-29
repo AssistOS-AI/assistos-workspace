@@ -289,10 +289,6 @@
     {
       "name": "FlowsService",
       "path": "./core/services/flowsService.js"
-    },
-    {
-      "name": "GlobalFlowsService",
-      "path": "./core/services/globalFlowsService.js"
     }
   ],
   "components": [

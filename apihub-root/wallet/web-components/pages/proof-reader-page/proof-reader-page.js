@@ -53,7 +53,9 @@ export class proofReaderPage {
             this.text = formData.data.text;
             this.personality = webSkel.currentUser.space.getPersonality(formData.data.personality);
             this.details = formData.data.details;
-            let result = await webSkel.getService("GlobalFlowsService").proofreadFlows.proofread(this.text, formData.data.personality, this.details);
+            let flowId = webSkel.currentUser.space.getFlowIdByName("Proofread");
+            let result = await webSkel.getService("LlmsService").callFlow(flowId, this.text, formData.data.personality, this.details);
+            console.log(result);
             this.observations = result.responseJson.observations;
             this.generatedText = result.responseJson.improvedText;
             this.invalidate();
