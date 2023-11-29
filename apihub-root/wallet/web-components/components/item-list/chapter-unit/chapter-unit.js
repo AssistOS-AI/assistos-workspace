@@ -15,6 +15,8 @@ export class chapterUnit {
     }
 
     beforeRender() {
+        let chapterId = this.element.getAttribute("data-chapter-id");
+        this.chapter = this._document.getChapter(chapterId);
         this.chapterTitle=this.chapter.title;
         this.chapterContent = "";
         if (this.chapter) {
@@ -37,6 +39,7 @@ export class chapterUnit {
             if (reverseQuerySelector(paragraph, '[data-paragraph-id]').getAttribute("data-paragraph-id") === webSkel.currentUser.space.currentParagraphId) {
                 currentParagraph = paragraph;
                 currentParagraph.click();
+                this.switchParagraphArrows(currentParagraph, "on");
                 currentParagraph.scrollIntoView({behavior: "smooth", block: "center", inline: "nearest"});
             }
         });
@@ -77,6 +80,27 @@ export class chapterUnit {
         webSkel.currentUser.space.currentChapterId=this.chapter.id;
         webSkel.currentUser.space.currentParagraphId=newParagraphId;
         this.invalidate();
+    }
+    switchParagraphArrows(target, mode) {
+        if(this.chapter.paragraphs.length <= 1){
+            return;
+        }
+        let foundElement = target.querySelector('.paragraph-arrows');
+        if (!foundElement) {
+            let nextSibling = target.nextElementSibling;
+            while (nextSibling) {
+                if (nextSibling.matches('.paragraph-arrows')) {
+                    foundElement = nextSibling;
+                    break;
+                }
+                nextSibling = nextSibling.nextElementSibling;
+            }
+        }
+        if(mode === "on"){
+            foundElement.style.display = "flex";
+        }else{
+            foundElement.style.display = "none";
+        }
     }
 
     async editChapterTitle(title) {
@@ -209,8 +233,10 @@ export class chapterUnit {
 
         if (this.chapter.swapParagraphs(currentParagraphId, adjacentParagraphId)) {
             await documentFactory.updateDocument(webSkel.currentUser.space.id, this._document);
-            this.invalidate();
             webSkel.currentUser.space.currentParagraphId = currentParagraphId;
+            debugger;
+            this.invalidate();
+
         } else {
             console.error(`Unable to swap paragraphs. ${currentParagraphId}, ${adjacentParagraphId}, Chapter: ${chapterId}`);
         }
