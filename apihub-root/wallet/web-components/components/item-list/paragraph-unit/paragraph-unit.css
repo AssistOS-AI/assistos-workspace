@@ -3,12 +3,14 @@
     display: flex;
     border-radius: 10px;
     width: 100%;
+    align-items:center;
 }
 .paragraph-arrow{
     margin-left: 8px;
     cursor: pointer;
 }
 .paragraph-arrows {
+    height:38px;
     width:30px;
     min-width:30px;
     display: none;
@@ -51,7 +53,8 @@
     cursor: text;
     padding:10px;
     white-space: pre-wrap;
-    min-height:36px;
+    min-height:38px;
+    height:38px;
     flex-wrap:wrap;
 
     width:calc(100% - 30px);
