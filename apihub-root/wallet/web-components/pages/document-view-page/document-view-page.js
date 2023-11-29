@@ -183,10 +183,11 @@ export class documentViewPage {
             abstract.setAttribute("contenteditable", "true");
             abstract.focus();
             abstractSection.setAttribute("id", "highlighted-chapter");
+            let flowId = webSkel.currentUser.space.getFlowIdByName("UpdateAbstract");
             let timer = new SaveElementTimer(async () => {
                 let abstractText = sanitize(customTrim(abstract.innerText));
                 if (abstractText !== this._document.abstract && abstractText !== "") {
-                    await this._document.updateAbstract(abstractText);
+                    await webSkel.getService("LlmsService").callFlow(flowId, this._document.id, abstractText);
                 }
             }, 1000);
 

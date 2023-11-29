@@ -80,7 +80,8 @@ export class editTitlePage {
                 let confirmationPopup = this.element.querySelector("confirmation-popup");
                 let sanitizedText = sanitize(newTitle.innerText);
                 if (sanitizedText !== altTitleObj.title && !confirmationPopup) {
-                    await this._document.updateAlternativeTitle(altTitleObj.id, sanitizedText);
+                    let flowId = webSkel.currentUser.space.getFlowIdByName("UpdateAlternativeDocumentTitle");
+                    await webSkel.getService("LlmsService").callFlow(flowId, this._document.id, altTitleObj.id, sanitizedText);
                     newTitle.insertAdjacentHTML("afterbegin", `<confirmation-popup data-presenter="confirmation-popup" 
                     data-message="Saved!" data-left="${newTitle.offsetWidth/2}"></confirmation-popup>`);
                 }

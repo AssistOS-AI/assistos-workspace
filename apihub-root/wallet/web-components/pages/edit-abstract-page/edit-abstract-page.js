@@ -40,11 +40,12 @@ export class editAbstractPage {
         if (abstract.getAttribute("contenteditable") === "false") {
             abstract.setAttribute("contenteditable", "true");
             abstract.focus();
+            let flowId = webSkel.currentUser.space.getFlowIdByName("UpdateAbstract");
             let timer = new SaveElementTimer(async () => {
                 let confirmationPopup = this.element.querySelector("confirmation-popup");
                 let sanitizedText = sanitize(abstract.innerText);
                 if (sanitizedText !== this._document.abstract && !confirmationPopup) {
-                    await this._document.updateAbstract(sanitizedText);
+                    await webSkel.getService("LlmsService").callFlow(flowId, this._document.id, sanitizedText);
                     abstract.insertAdjacentHTML("afterbegin", `<confirmation-popup data-presenter="confirmation-popup" 
                     data-message="Saved!" data-left="${abstract.offsetWidth/2}"></confirmation-popup>`);
                 }
@@ -95,8 +96,9 @@ export class editAbstractPage {
             let timer = new SaveElementTimer(async () => {
                 let confirmationPopup = this.element.querySelector("confirmation-popup");
                 let sanitizedText = sanitize(abstractText.innerText);
+                let flowId = webSkel.currentUser.space.getFlowIdByName("UpdateAlternativeAbstract");
                 if (sanitizedText !== abstract.content && !confirmationPopup) {
-                    await this._document.updateAlternativeAbstract(abstract.id, sanitizedText);
+                    await webSkel.getService("LlmsService").callFlow(flowId, this._document.id, abstract.id, sanitizedText);
                     abstractText.insertAdjacentHTML("afterbegin", `<confirmation-popup data-presenter="confirmation-popup" 
                     data-message="Saved!" data-left="${abstractText.offsetWidth/2}"></confirmation-popup>`);
                 }
@@ -115,7 +117,8 @@ export class editAbstractPage {
 
     async delete(_target) {
         let abstract = reverseQuerySelector(_target, "alternative-abstract");
-        this._document.deleteAlternativeAbstract(abstract.getAttribute("data-id"));
+        let flowId = webSkel.currentUser.space.getFlowIdByName("DeleteAlternativeAbstract");
+        await webSkel.getService("LlmsService").callFlow(flowId, this._document.id, abstract.getAttribute("data-id"));
         await documentFactory.updateDocument(webSkel.currentUser.space.id, this._document);
         this.invalidate();
     }

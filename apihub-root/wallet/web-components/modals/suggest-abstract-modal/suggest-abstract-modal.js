@@ -33,7 +33,7 @@ export class suggestAbstractModal {
     async generate(_target){
         let formInfo = await extractFormInformation(_target);
         this.prompt = formInfo.data.prompt;
-        let flowId = webSkel.currentUser.space.getFlowIdByName("suggest abstract");
+        let flowId = webSkel.currentUser.space.getFlowIdByName("SuggestAbstract");
         let result = await webSkel.getService("LlmsService").callFlow(flowId, this._document.id, this.prompt, "");
         this.suggestedAbstract = result.responseString;
         this.invalidate();

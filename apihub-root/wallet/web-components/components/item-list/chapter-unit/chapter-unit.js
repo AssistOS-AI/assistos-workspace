@@ -196,12 +196,9 @@ export class chapterUnit {
 
         const adjacentChapterId = getAdjacentChapterId(currentChapterIndex, this._document.chapters);
 
-        if (this._document.swapChapters(currentChapterId, adjacentChapterId)) {
-            await documentFactory.updateDocument(webSkel.currentUser.space.id, this._document);
-            this._document.notifyObservers(`${this._document.getNotificationId()}:refresh`);
-        } else {
-            console.error(`Unable to swap chapters. ${currentChapterId}, ${adjacentChapterId}`);
-        }
+        let flowId = webSkel.currentUser.space.getFlowIdByName("SwapChapters");
+        await webSkel.getService("LlmsService").callFlow(flowId, this._document.id, currentChapterId, adjacentChapterId);
+        this._document.notifyObservers(`${this._document.getNotificationId()}:refresh`);
     }
 
 

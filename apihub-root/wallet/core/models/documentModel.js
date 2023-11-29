@@ -142,9 +142,6 @@ export class DocumentModel {
         this.mainIdeas = ideas;
         await documentFactory.updateDocument(webSkel.currentUser.space.id, this);
     }
-    addMainIdea(mainIdea) {
-        this.mainIdeas.push(mainIdea);
-    }
 
     async updateAbstract(abstractText) {
         this.abstract = abstractText;
@@ -167,9 +164,6 @@ export class DocumentModel {
     getChapterIndex(chapterId) {
         return this.chapters.findIndex(chapter => chapter.id === chapterId);
     }
-
-
-
     swapChapters(chapterId1, chapterId2) {
         let chapter1Index = this.chapters.findIndex(chapter => chapter.id === chapterId1);
         let chapter2Index = this.chapters.findIndex(chapter => chapter.id === chapterId2);
@@ -305,5 +299,4 @@ export class DocumentModel {
     getNotificationId() {
         return "doc";
     }
-
 }

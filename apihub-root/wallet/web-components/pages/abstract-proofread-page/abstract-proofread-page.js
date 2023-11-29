@@ -61,8 +61,9 @@ export class abstractProofreadPage {
             let timer = new SaveElementTimer(async () => {
                 let confirmationPopup = this.element.querySelector("confirmation-popup");
                 let sanitizedText = sanitize(abstract.innerText);
+                let flowId = webSkel.currentUser.space.getFlowIdByName("UpdateAbstract");
                 if (sanitizedText !== this._document.abstract && !confirmationPopup) {
-                    await this._document.updateAbstract(sanitizedText);
+                    await webSkel.getService("LlmsService").callFlow(flowId, this._document.id, sanitizedText);
                     abstract.insertAdjacentHTML("afterbegin", `<confirmation-popup data-presenter="confirmation-popup" 
                     data-message="Saved!" data-left="${abstract.offsetWidth/2}"></confirmation-popup>`);
                 }
@@ -102,7 +103,8 @@ export class abstractProofreadPage {
     async acceptImprovements(_target) {
         let abstract = this.element.querySelector(".improved-abstract").innerText;
         if(abstract !== this._document.abstract) {
-            await this._document.updateAbstract(abstract);
+            let flowId = webSkel.currentUser.space.getFlowIdByName("UpdateAbstract");
+            await webSkel.getService("LlmsService").callFlow(flowId, this._document.id, abstract);
             this.invalidate();
         }
     }

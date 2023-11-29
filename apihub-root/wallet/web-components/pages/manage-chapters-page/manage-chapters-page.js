@@ -72,8 +72,9 @@ export class manageChaptersPage {
                 let ideas = mainIdeas.innerText.split("\n");
                 let ideasString = ideas.join("");
                 let currentIdeas = this._document.mainIdeas.join("");
+                let flowId = webSkel.currentUser.space.getFlowIdByName("UpdateDocumentMainIdeas");
                 if (!confirmationPopup && ideasString !== currentIdeas) {
-                    await this._document.setMainIdeas(ideas);
+                    await webSkel.getService("LlmsService").callFlow(flowId, this._document.id, ideas);
                     mainIdeas.insertAdjacentHTML("afterbegin", `<confirmation-popup data-presenter="confirmation-popup" 
                     data-message="Saved!" data-left="${mainIdeas.offsetWidth/2}"></confirmation-popup>`);
                 }
@@ -94,11 +95,8 @@ export class manageChaptersPage {
         await webSkel.changeToDynamicPage("document-view-page", `documents/${this._document.id}/document-view-page`);
     }
     async addChapter(){
-        let chapterObj={
-            title: "New chapter",
-            paragraphs: [new Paragraph({text: "Edit here your first paragraph."})]
-        }
-        await this._document.addChapter(chapterObj,this._document.chapters.length);
+        let flowId = webSkel.currentUser.space.getFlowIdByName("AddChapter");
+        await webSkel.getService("LlmsService").callFlow(flowId, this._document.id, "");
         this.invalidate();
     }
     async summarize(){
@@ -121,7 +119,8 @@ export class manageChaptersPage {
     async deleteAction(_target){
         let chapter = reverseQuerySelector(_target, "reduced-chapter-unit");
         let chapterId = chapter.getAttribute("data-id");
-        await this._document.deleteChapter(chapterId);
+        let flowId = webSkel.currentUser.space.getFlowIdByName("DeleteChapter");
+        await webSkel.getService("LlmsService").callFlow(flowId, this._document.id, chapterId);
         this.invalidate();
     }
 }
