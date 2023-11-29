@@ -100,7 +100,7 @@ p {
 }
 
 .chapter-title {
-    width: calc(100% - 52px);
+    width: calc(100% - 95px);
     padding: 5px 5px 5px 5px;
     margin-left:3px;
     display: inline-block;
@@ -123,4 +123,7 @@ p {
 
 #highlighted-chapter{
     background-color:var(--medium-white);
+}
+.data-chapter-number{
+    width:17px;
 }
