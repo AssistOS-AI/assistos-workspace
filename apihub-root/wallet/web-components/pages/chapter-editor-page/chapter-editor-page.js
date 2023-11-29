@@ -98,15 +98,8 @@ export class chapterEditorPage{
         await this.addParagraph(event.target);
     }
     async addParagraph(_target){
-        let chapter = this._document.getChapter(this.chapterId);
-        let newParagraphId= webSkel.getService("UtilsService").generateId();
-        let position = chapter.paragraphs.length;
-        debugger;
-        if(webSkel.currentUser.space.currentParagraphId){
-            position = chapter.getParagraphIndex(webSkel.currentUser.space.currentParagraphId) + 1;
-        }
-        await this._document.addParagraph(chapter, {id: newParagraphId, text:""}, position);
-        webSkel.currentUser.space.currentParagraphId = newParagraphId;
+        let flowId = webSkel.currentUser.space.getFlowIdByName("AddParagraph");
+        await webSkel.getService("LlmsService").callFlow(flowId, this._document.id, this.chapterId);
         let controller = new AbortController();
         document.addEventListener("click",this.checkParagraphClick.bind(this, controller), {signal:controller.signal});
         this.invalidate();

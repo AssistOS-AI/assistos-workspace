@@ -37,7 +37,7 @@ export class addPersonalityModal {
                     image: formInfo.data.photo
             }
             let flowId = webSkel.currentUser.space.getFlowIdByName("AddPersonality");
-            let result = await webSkel.getService("LlmsService").callFlow(flowId, personalityData);
+            await webSkel.getService("LlmsService").callFlow(flowId, personalityData);
             webSkel.currentUser.space.notifyObservers(webSkel.currentUser.space.getNotificationId());
             closeModal(_target);
         }

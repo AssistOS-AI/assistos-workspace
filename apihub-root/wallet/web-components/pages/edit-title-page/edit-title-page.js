@@ -29,11 +29,12 @@ export class editTitlePage {
         if (title.getAttribute("contenteditable") === "false") {
             title.setAttribute("contenteditable", "true");
             title.focus();
+            let flowId = webSkel.currentUser.space.getFlowIdByName("UpdateDocumentTitle");
             let timer = new SaveElementTimer(async () => {
                 let confirmationPopup = this.element.querySelector("confirmation-popup");
                 let sanitizedText = sanitize(title.innerText);
                 if (sanitizedText !== this._document.title && !confirmationPopup) {
-                    await this._document.updateTitle(sanitizedText);
+                    await webSkel.getService("LlmsService").callFlow(flowId, this._document.id, sanitizedText);
                     title.insertAdjacentHTML("afterbegin", `<confirmation-popup data-presenter="confirmation-popup" 
                     data-message="Saved!" data-left="${title.offsetWidth/2}"></confirmation-popup>`);
                 }

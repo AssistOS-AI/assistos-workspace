@@ -39,7 +39,7 @@ export class cloneDocumentModal {
         let formData = await extractFormInformation(_target);
         let proofread = formData.data.proofread === "on";
         let flowId = webSkel.currentUser.space.getFlowIdByName("CloneDocument");
-        let result = await webSkel.getService("LlmsService").callFlow(flowId, webSkel.currentUser.space.currentDocumentId, formData.data.documentPersonality, formData.data.documentTitle, proofread);
+        await webSkel.getService("LlmsService").callFlow(flowId, webSkel.currentUser.space.currentDocumentId, formData.data.documentPersonality, formData.data.documentTitle, proofread);
         await documentFactory.notifyObservers("docs");
         closeModal(_target);
     }

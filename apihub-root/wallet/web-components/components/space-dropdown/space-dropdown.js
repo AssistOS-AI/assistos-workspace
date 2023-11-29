@@ -56,7 +56,7 @@ export class spaceDropdown {
         let selectedSpace = getClosestParentElement(_target,['space-unit']);
         let selectedSpaceId = selectedSpace.getAttribute('data-space-id');
         let flowId = webSkel.currentUser.space.getFlowIdByName("ChangeSpace");
-        let result = await webSkel.getService("LlmsService").callFlow(flowId, selectedSpaceId);
+        await webSkel.getService("LlmsService").callFlow(flowId, selectedSpaceId);
     }
 
     async addSpace(){

@@ -24,7 +24,7 @@ export class addAnnouncementModal {
                 date: new Date().toISOString().split('T')[0],
             };
             let flowId = webSkel.currentUser.space.getFlowIdByName("AddAnnouncement");
-            let result = await webSkel.getService("LlmsService").callFlow(flowId, announcementData);
+            await webSkel.getService("LlmsService").callFlow(flowId, announcementData);
             webSkel.currentUser.space.notifyObservers(webSkel.currentUser.space.getNotificationId());
             closeModal(_target);
         }

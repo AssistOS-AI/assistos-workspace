@@ -46,7 +46,7 @@ export class documentsPage {
     }
     async deleteAction(_target){
         let flowId = webSkel.currentUser.space.getFlowIdByName("DeleteDocument");
-        let result = await webSkel.getService("LlmsService").callFlow(flowId, this.getDocumentId(_target));
+        await webSkel.getService("LlmsService").callFlow(flowId, this.getDocumentId(_target));
         documentFactory.notifyObservers("docs");
     }
 }

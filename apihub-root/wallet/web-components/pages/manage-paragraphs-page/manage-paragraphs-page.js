@@ -100,10 +100,8 @@ export class manageParagraphsPage {
         await webSkel.changeToDynamicPage("chapter-edit-page", `documents/${this._document.id}/chapter-edit-page/${this._chapter.id}`);
     }
     async addParagraph(){
-        let paragraphObj={
-            text: "Edit here your first paragraph."
-        }
-        await this._document.addParagraph(this._chapter, paragraphObj);
+        let flowId = webSkel.currentUser.space.getFlowIdByName("AddParagraph");
+        let result = await webSkel.getService("LlmsService").callFlow(flowId, this._document.id, this._chapter.id);
         this.invalidate();
     }
     async summarize(){

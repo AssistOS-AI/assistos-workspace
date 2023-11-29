@@ -60,7 +60,6 @@ export class paragraphProofreadPage {
         this.details = formData.data.details;
         let flowId = webSkel.currentUser.space.getFlowIdByName("Proofread");
         let result = await webSkel.getService("LlmsService").callFlow(flowId, this.paragraphText, formData.data.personality, this.details);
-        console.log(result);
         this.observations = sanitize(result.responseJson.observations);
         this.improvedParagraph = sanitize(result.responseJson.improvedText);
         this.invalidate();

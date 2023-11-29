@@ -220,11 +220,6 @@ export class DocumentModel {
         await documentFactory.updateDocument(webSkel.currentUser.space.id, this);
     }
 
-    async addParagraph(chapter, paragraphData, position){
-        chapter.addParagraph(paragraphData, position);
-        await documentFactory.updateDocument(webSkel.currentUser.space.id, this);
-    }
-
     async deleteParagraph(chapter, id){
         chapter.deleteParagraph(id);
         await documentFactory.updateDocument(webSkel.currentUser.space.id, this);

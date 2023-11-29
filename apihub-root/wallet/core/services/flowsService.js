@@ -69,8 +69,7 @@ export class FlowsService{
                     let date = dateObj.toJSON().slice(0,10);
                     let time = dateObj.toJSON().slice(11, 16);
                     let flowId = webSkel.currentUser.space.getFlowIdByName("AddTask");
-                    let result = await webSkel.getService("LlmsService").callFlow(flowId, `${this.__body.prompt}`, date + " " + time);
-                    console.log(result);
+                    await webSkel.getService("LlmsService").callFlow(flowId, `${this.__body.prompt}`, date + " " + time);
                 },0);
 
                 return result;
