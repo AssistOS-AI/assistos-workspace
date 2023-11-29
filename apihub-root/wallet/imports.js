@@ -54,7 +54,7 @@ export {
 
 // WebSkel Utilities
 import { closeModal, showActionBox, showModal, removeActionBox } from "../WebSkel/utils/modal-utils.js";
-import { notBasePage, getClosestParentElement, sanitize,unsanitize, reverseQuerySelector,customTrim } from "../WebSkel/utils/dom-utils.js";
+import { notBasePage, getClosestParentElement, sanitize,unsanitize, reverseQuerySelector,customTrim, moveCursorToEnd } from "../WebSkel/utils/dom-utils.js";
 import { extractFormInformation } from "../WebSkel/utils/form-utils.js";
 
 export {
@@ -68,5 +68,6 @@ export {
     sanitize,
     unsanitize,
     reverseQuerySelector,
-    customTrim
+    customTrim,
+    moveCursorToEnd
 };

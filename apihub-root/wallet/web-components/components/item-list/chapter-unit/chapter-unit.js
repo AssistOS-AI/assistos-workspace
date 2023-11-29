@@ -1,4 +1,4 @@
-import {customTrim, parseURL, reverseQuerySelector, sanitize,unsanitize, SaveElementTimer} from "../../../../imports.js";
+import {customTrim, parseURL, reverseQuerySelector, sanitize,unsanitize, SaveElementTimer,moveCursorToEnd} from "../../../../imports.js";
 
 export class chapterUnit {
     constructor(element, invalidate) {
@@ -39,6 +39,7 @@ export class chapterUnit {
             if (reverseQuerySelector(paragraph, '[data-paragraph-id]').getAttribute("data-paragraph-id") === webSkel.currentUser.space.currentParagraphId) {
                 currentParagraph = paragraph;
                 currentParagraph.click();
+                moveCursorToEnd(currentParagraph);
                 this.switchParagraphArrows(currentParagraph, "on");
                 currentParagraph.scrollIntoView({behavior: "smooth", block: "center", inline: "nearest"});
             }
@@ -151,8 +152,17 @@ export class chapterUnit {
             const resetTimer = async (event) => {
                 if (paragraph.innerText.trim() === "" && event.key === "Backspace") {
                     if (currentParagraph) {
+                        let curentParagraphIndex = this.chapter.getParagraphIndex(currentParagraphId);
                         await this._document.deleteParagraph(this.chapter, currentParagraphId);
-                        webSkel.currentUser.space.currentParagraphId = null;
+                        if(this.chapter.paragraphs.length>0) {
+                            if (curentParagraphIndex === 0) {
+                                webSkel.currentUser.space.currentParagraphId = this.chapter.paragraphs[0].id;
+                            }else{
+                                webSkel.currentUser.space.currentParagraphId = this.chapter.paragraphs[curentParagraphIndex-1].id;
+                            }
+                        }else{
+                            webSkel.currentUser.space.currentParagraphId = null;
+                        }
                         this.invalidate();
                     }
                     await timer.stop();
