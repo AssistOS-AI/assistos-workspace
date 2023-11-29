@@ -351,3 +351,65 @@ dialog{
     height:20px;
 }
 
+/*page placeholder*/
+#page-placeholder{
+    position: absolute;
+    height: 100%;
+    width: 100%;
+    display: flex;
+}
+.left-sidebar-placeholder{
+    min-width: 270px;
+    width: 14%;
+    background: var(--very-light-gray);
+    height: 100%;
+    padding: 20px;
+}
+.logo-placeholder{
+    background: var(--white-text);
+    height: 20px;
+    width: 70px;
+    border-radius: 5px;
+}
+.menu-placeholder{
+    height: 50%;
+}
+.item-placeholder{
+    border-radius: 5px;
+    height: 20px;
+    margin: 35px 0 15px 0;
+    background: var(--white-text);
+}
+
+.content-placeholder{
+    width: calc(100% - 270px);
+}
+.header-placeholder{
+    padding: 20px;
+    height: 70px;
+    margin-bottom: 20px;
+    border-bottom: 1px solid var(--very-light-gray);
+}
+.main-content-placeholder{
+    height: calc(100% - 70px);
+    padding: 20px;
+}
+.line-placeholder{
+    width: 25%;
+    border-radius: 5px;
+    background: var(--very-light-gray);
+    height: 20px;
+    margin-bottom: 20px;
+}
+.short{
+    width: 50%;
+}
+.long{
+    width: 80%;
+}
+.right-sidebar-placeholder{
+    border-left: 1px solid var(--very-light-gray);
+    min-width: 270px;
+    width: 14%;
+    height: 100%;
+}

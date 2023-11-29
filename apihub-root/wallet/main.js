@@ -14,11 +14,13 @@ async function loadPage() {
         url = "#space-page/announcements-page";
     }
     let leftSidebar = document.querySelector("#app-left-sidebar");
+    let leftSidebarPlaceholder = document.querySelector(".left-sidebar-placeholder");
     let presenterName;
         /* URL examples: documents/0, documents/0/chapters/1 */
         switch(url.split('/')[0]) {
             case "#documents": {
                 leftSidebar.style.visibility = "visible";
+                leftSidebarPlaceholder.style.display = "none";
                 let documentIdURL = url.split('/')[1];
                 presenterName = url.split('/')[2];
                 let chapterIdURL = url.split('/')[3];
@@ -33,11 +35,13 @@ async function loadPage() {
             }
             case "#authentication-page":{
                 changeSelectedPageFromSidebar(url);
+                leftSidebarPlaceholder.style.display = "none";
                 presenterName = url.slice(1);
                 break;
             }
             case "#space-page":{
                 leftSidebar.style.visibility = "visible";
+                leftSidebarPlaceholder.style.display = "none";
                 changeSelectedPageFromSidebar("space-page");
                 if(url.split("/")[1] === "edit-personality-page"){
                     presenterName = url.split("/")[1];
@@ -49,6 +53,7 @@ async function loadPage() {
             }
             case "#chatbots-page":{
                 leftSidebar.style.visibility = "visible";
+                leftSidebarPlaceholder.style.display = "none";
                 changeSelectedPageFromSidebar("chatbots-page");
                 presenterName = url.split("/")[0];
                 presenterName = presenterName.slice(1);
@@ -57,6 +62,7 @@ async function loadPage() {
             default: {
                 /*#proofReader, #documents */
                 leftSidebar.style.visibility = "visible";
+                leftSidebarPlaceholder.style.display = "none";
                 changeSelectedPageFromSidebar(url);
                 presenterName = url.slice(1);
                 webSkel.currentUser.space.currentDocumentId = null;
@@ -66,6 +72,10 @@ async function loadPage() {
             }
         }
         await webSkel.changeToDynamicPage(presenterName, url.slice(1));
+        let pagePlaceholder = document.querySelector("#page-placeholder");
+        if(pagePlaceholder){
+            pagePlaceholder.style.display = "none";
+        }
 
 }
 

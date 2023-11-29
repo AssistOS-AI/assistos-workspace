@@ -56,6 +56,7 @@ export class flowsPage {
         await showModal(document.querySelector("body"), "edit-flow-modal", { presenter: "edit-flow-modal", id: this.getFlowId(_target)});
     }
     async deleteAction(_target){
+        this.filteredFlows = this.filteredFlows.filter(flow => flow.id !== this.getFlowId(_target));
         await webSkel.currentUser.space.deleteFlow(this.getFlowId(_target));
         this.invalidate();
     }

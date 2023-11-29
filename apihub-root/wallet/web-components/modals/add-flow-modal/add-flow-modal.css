@@ -2,7 +2,7 @@ dialog[class="modal"] {
     padding: 0;
     border:none;
     height: 90%;
-    width: 50%;
+    width: 90%;
 }
 add-flow-modal{
     overflow-y: scroll;
@@ -59,9 +59,12 @@ add-flow-modal{
     flex-direction: column;
 }
 #tags{
-    width: 50%;
+    width: 30%;
     margin-top: 5px;
     margin-bottom: 5px;
+}
+#name{
+    width: 50%;
 }
 .form-input {
     border-radius: 8px;
@@ -82,7 +85,10 @@ textarea#code {
     --full-highlight-height: none;
     --inset-highlight-height: none;
 }
-
+.modal-footer{
+    display: flex;
+    justify-content: space-around;
+}
 .wide-btn {
     cursor: pointer;
     padding: 8px 52px;

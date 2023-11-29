@@ -58,7 +58,7 @@ dialog[class="modal"] {
     width: 100%;
     padding: 8px;
 }
-textarea#scriptCode {
+textarea#flowCode {
     resize: none;
     height:100%;
     white-space: pre-wrap;
