@@ -34,8 +34,10 @@ export class announcementsPage {
         await showModal(document.querySelector("body"), "add-announcement-modal", { presenter: "add-announcement-modal"});
     }
     async deleteAction(_target){
-            await webSkel.currentUser.space.deleteAnnouncement(this.getAnnouncementId(_target));
-            this.invalidate();
+        let flowId = webSkel.currentUser.space.getFlowIdByName("DeleteAnnouncement");
+        let result = await webSkel.getService("LlmsService").callFlow(flowId, this.getAnnouncementId(_target));
+        console.log(result);
+        this.invalidate();
     }
     async editAction(_target){
         await showModal(document.querySelector("body"), "edit-announcement-modal", { presenter: "edit-announcement-modal", id: this.getAnnouncementId(_target)});

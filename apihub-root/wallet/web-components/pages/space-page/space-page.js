@@ -23,7 +23,7 @@ export class spacePage {
                 break;
             case "flows-page":
                 this.tab = "flows-page";
-               window.location.hash = "#space-page/flows-page";
+                window.location.hash = "#space-page/flows-page";
                 break;
             case "tasks-page":
                 this.tab = "tasks-page";
@@ -35,7 +35,7 @@ export class spacePage {
                 break;
             case "collaborators-page":
                 this.tab = "collaborators-page";
-               window.location.hash = "#space-page/collaborators-page";
+                window.location.hash = "#space-page/collaborators-page";
                 break;
             case "settings-page":
                 this.tab = "settings-page";

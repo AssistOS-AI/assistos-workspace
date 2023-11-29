@@ -1,4 +1,4 @@
-import {SaveElementTimer, sanitize, parseURL, extractFormInformation} from "../../../imports.js";
+import {SaveElementTimer, sanitize, parseURL, extractFormInformation, unsanitize} from "../../../imports.js";
 
 export class paragraphProofreadPage {
     constructor(element, invalidate) {
@@ -58,8 +58,9 @@ export class paragraphProofreadPage {
             this.personality = webSkel.currentUser.space.getPersonality(formData.data.personality);
         }
         this.details = formData.data.details;
-
-        let result = await webSkel.getService("GlobalFlowsService").proofreadFlows.proofread(this.paragraphText, formData.data.personality, this.details);
+        let flowId = webSkel.currentUser.space.getFlowIdByName("Proofread");
+        let result = await webSkel.getService("LlmsService").callFlow(flowId, this.paragraphText, formData.data.personality, this.details);
+        console.log(result);
         this.observations = sanitize(result.responseJson.observations);
         this.improvedParagraph = sanitize(result.responseJson.improvedText);
         this.invalidate();
