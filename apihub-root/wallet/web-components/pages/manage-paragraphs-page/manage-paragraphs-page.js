@@ -69,13 +69,14 @@ export class manageParagraphsPage {
         if (mainIdeas.getAttribute("contenteditable") === "false") {
             mainIdeas.setAttribute("contenteditable", "true");
             mainIdeas.focus();
+            let flowId = webSkel.currentUser.space.getFlowIdByName("UpdateChapterMainIdeas");
             let timer = new SaveElementTimer(async () => {
                 let confirmationPopup = this.element.querySelector("confirmation-popup");
                 let ideas = mainIdeas.innerText.split("\n");
                 let ideasString = ideas.join("");
                 let currentIdeas = this._chapter.mainIdeas.join("");
                 if (!confirmationPopup && ideasString !== currentIdeas) {
-                    await this._document.setChapterMainIdeas(this._chapter, ideas);
+                    await webSkel.getService("LlmsService").callFlow(flowId, this._document.id, this._chapter.id, ideas);
                     mainIdeas.insertAdjacentHTML("afterbegin", `<confirmation-popup data-presenter="confirmation-popup" 
                     data-message="Saved!" data-left="${mainIdeas.offsetWidth/2}"></confirmation-popup>`);
                 }

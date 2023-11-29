@@ -100,8 +100,8 @@ export class editTitlePage {
 
     async delete(_target) {
         let alternativeTitle = reverseQuerySelector(_target, "alternative-title");
-        this._document.deleteAlternativeTitle(alternativeTitle.getAttribute("data-id"));
-        await documentFactory.updateDocument(webSkel.currentUser.space.id, this._document);
+        let flowId = webSkel.currentUser.space.getFlowIdByName("DeleteAlternativeDocumentTitle");
+        await webSkel.getService("LlmsService").callFlow(flowId, this._document.id, alternativeTitle.getAttribute("data-id"));
         this.invalidate();
     }
     async select(_target){

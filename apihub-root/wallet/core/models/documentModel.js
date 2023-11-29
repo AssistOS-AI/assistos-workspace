@@ -195,17 +195,13 @@ export class DocumentModel {
         await documentFactory.updateDocument(webSkel.currentUser.space.id, this);
     }
 
-    deleteAlternativeTitle(id) {
+    async deleteAlternativeTitle(id) {
         const index = this.alternativeTitles.findIndex(title => title.id === id);
         if (index !== -1) {
             this.alternativeTitles.splice(index, 1);
         }else {
             console.error(`Failed to find altTitle with id: ${id}`);
         }
-    }
-
-    async setChapterMainIdeas(chapter, ideas){
-        chapter.setMainIdeas(ideas);
         await documentFactory.updateDocument(webSkel.currentUser.space.id, this);
     }
 
