@@ -9,7 +9,7 @@
         cursor: pointer;
     }
     .paragraph-arrows {
-        height:38px;
+        height:45px;
         width:30px;
         min-width:30px;
         display: none;
@@ -65,4 +65,7 @@
         overflow-wrap: break-word;
         hyphens: auto;
         word-break: break-word;
+    }
+    .paragraph-text:empty {
+        height: 45px;
     }
