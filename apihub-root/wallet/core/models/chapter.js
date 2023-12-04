@@ -133,6 +133,9 @@ export class Chapter {
     getAlternativeChapterIndex(alternativeChapterId) {
         return this.alternativeChapters.findIndex(alternativeChapter => alternativeChapter.id === alternativeChapterId);
     }
+    getAlternativeChapter(alternativeChapterId){
+        return this.alternativeChapters.find(alternativeChapter => alternativeChapter.id === alternativeChapterId) || `Cannot find alternative chapter with id:${alternativeChapterId}`;
+    }
     async addAlternativeChapter(chapterData){
         let chapterObj=new Chapter(chapterData);
         this.alternativeChapters.push(chapterObj);
@@ -148,6 +151,23 @@ export class Chapter {
         }
     }
 
+    async selectAlternativeChapter(alternativeChapterId) {
+        let alternativeChapter = this.getAlternativeChapter(alternativeChapterId);
+        let clone = Object.assign({}, this);
+        this.title = alternativeChapter.title;
+        this.id = alternativeChapter.id;
+        this.mainIdeas = Array.from(alternativeChapter.mainIdeas);
+        this.paragraphs = Array.from(alternativeChapter.paragraphs);
+
+        let alternativeChapterIndex = this.getAlternativeChapterIndex(alternativeChapterId);
+        this.alternativeChapters.splice(alternativeChapterIndex, 1);
+        this.alternativeChapters.splice(alternativeChapterIndex,0,{
+            id: clone.id,
+            paragraphs: clone.paragraphs,
+            mainIdeas: clone.mainIdeas,
+            title: clone.title
+        });
+    }
     getMainIdeas(){
         return this.mainIdeas;
     }

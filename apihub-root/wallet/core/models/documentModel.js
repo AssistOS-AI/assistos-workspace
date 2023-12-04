@@ -181,10 +181,6 @@ export class DocumentModel {
         this.title = title;
         await documentFactory.updateDocument(webSkel.currentUser.space.id, this);
     }
-    async deleteAlternativeChapter(chapter,alternativeChapterId){
-        chapter.deleteAlternativeChapter(alternativeChapterId);
-        await documentFactory.updateDocument(webSkel.currentUser.space.id,this);
-    }
     getAlternativeAbstractIndex(alternativeAbstractId) {
         return this.alternativeAbstracts.findIndex(abstract => abstract.id === alternativeAbstractId);
     }
@@ -211,26 +207,6 @@ export class DocumentModel {
         }else{
             console.warn("Attempting to select alternative abstract that doesn't exist in this document.");
         }
-    }
-    async selectAlternativeChapter(currentChapter, alternativeChapterId) {
-        let currentChapterIndex = this.getChapterIndex(currentChapter.id);
-        let alternativeChapterIndex = currentChapter.getAlternativeChapterIndex(alternativeChapterId);
-
-        let backupAlternativeChapters = [...this.chapters[currentChapterIndex].alternativeChapters];
-        this.chapters[currentChapterIndex] = backupAlternativeChapters[alternativeChapterIndex];
-
-        backupAlternativeChapters.splice(alternativeChapterIndex, 1);
-        delete currentChapter.alternativeChapters;
-        backupAlternativeChapters.push(currentChapter);
-
-        this.chapters[currentChapterIndex].alternativeChapters = backupAlternativeChapters;
-
-        await documentFactory.updateDocument(webSkel.currentUser.space.id, this);
-    }
-
-    async updateChapterTitle(chapter, newTitle){
-        chapter.updateTitle(newTitle);
-        await documentFactory.updateDocument(webSkel.currentUser.space.id, this);
     }
 
     getNotificationId() {

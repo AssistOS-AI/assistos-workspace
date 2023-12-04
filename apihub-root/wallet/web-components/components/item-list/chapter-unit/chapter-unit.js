@@ -107,7 +107,8 @@ export class chapterUnit {
         let timer = new SaveElementTimer(async () => {
             let titleText = sanitize(customTrim(title.innerText))
             if (titleText !== this.chapter.title && titleText !== "") {
-                await this._document.updateChapterTitle(this.chapter, titleText);
+                let flowId = webSkel.currentUser.space.getFlowIdByName("UpdateChapterTitle");
+                await webSkel.getService("LlmsService").callFlow(flowId, this._document.id, this.chapter.id, titleText);
             }
         }, 3000);
 
@@ -225,19 +226,11 @@ export class chapterUnit {
             }
             return index === paragraphs.length - 1 ? paragraphs[0].id : paragraphs[index + 1].id;
         };
-
         const adjacentParagraphId = getAdjacentParagraphId(currentParagraphIndex, this.chapter.paragraphs);
-        const chapterId = reverseQuerySelector(_target, "chapter-unit").getAttribute('data-chapter-id');
 
-        if (this.chapter.swapParagraphs(currentParagraphId, adjacentParagraphId)) {
-            await documentFactory.updateDocument(webSkel.currentUser.space.id, this._document);
-            webSkel.currentUser.space.currentParagraphId = currentParagraphId;
-            debugger;
-            this.invalidate();
-
-        } else {
-            console.error(`Unable to swap paragraphs. ${currentParagraphId}, ${adjacentParagraphId}, Chapter: ${chapterId}`);
-        }
+        let flowId = webSkel.currentUser.space.getFlowIdByName("SwapParagraphs");
+        await webSkel.getService("LlmsService").callFlow(flowId, this._document.id, this.chapter.id, currentParagraphId, adjacentParagraphId);
+        this.invalidate();
     }
 }
 

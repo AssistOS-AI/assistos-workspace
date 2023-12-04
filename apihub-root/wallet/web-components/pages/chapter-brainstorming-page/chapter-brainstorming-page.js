@@ -49,7 +49,8 @@ export class chapterBrainstormingPage {
     async exitEditMode (title, controller, event) {
         if (title.getAttribute("contenteditable") === "true" && title !== event.target && !title.contains(event.target)) {
             title.setAttribute("contenteditable", "false");
-            await this._document.updateChapterTitle(this._chapter, title.innerText)
+            let flowId = webSkel.currentUser.space.getFlowIdByName("UpdateChapterTitle");
+            await webSkel.getService("LlmsService").callFlow(flowId, this._document.id, this._chapter.id, title.innerText);
             title.insertAdjacentHTML("afterbegin", `<confirmation-popup data-presenter="confirmation-popup" 
             data-message="Saved!" data-left="${title.offsetWidth/2}"></confirmation-popup>`);
             controller.abort();
@@ -106,13 +107,15 @@ export class chapterBrainstormingPage {
     async delete(_target){
         let alternativeChapter = reverseQuerySelector(_target, "alternative-chapter");
         let alternativeChapterId = alternativeChapter.getAttribute("data-id");
-        await this._document.deleteAlternativeChapter(this._chapter, alternativeChapterId);
+        let flowId = webSkel.currentUser.space.getFlowIdByName("DeleteAlternativeChapter");
+        await webSkel.getService("LlmsService").callFlow(flowId, this._document.id, this._chapter.id, alternativeChapterId);
         this.invalidate();
     }
     async select(_target){
         let alternativeChapter = reverseQuerySelector(_target, "alternative-chapter");
         let alternativeChapterId = alternativeChapter.getAttribute("data-id");
-        await this._document.selectAlternativeChapter(this._chapter, alternativeChapterId);
+        let flowId = webSkel.currentUser.space.getFlowIdByName("SelectAlternativeChapter");
+        await webSkel.getService("LlmsService").callFlow(flowId, this._document.id, this._chapter.id, alternativeChapterId);
         removeActionBox(this.actionBox, this);
         webSkel.currentUser.space.currentChapterId = alternativeChapterId;
         await webSkel.changeToDynamicPage("chapter-brainstorming-page", `documents/${this._document.id}/chapter-brainstorming-page/${alternativeChapterId}`);

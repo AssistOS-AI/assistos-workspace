@@ -77,7 +77,8 @@ export class editAbstractPage {
     async select(_target){
         let suggestedAbstract=reverseQuerySelector(_target,"alternative-abstract");
         let suggestedAbstractId = suggestedAbstract.getAttribute("data-id");
-        await this._document.selectAlternativeAbstract(suggestedAbstractId);
+        let flowId = webSkel.currentUser.space.getFlowIdByName("SelectAlternativeAbstract");
+        await webSkel.getService("LlmsService").callFlow(flowId, this._document.id, suggestedAbstractId);
         removeActionBox(this.actionBox, this);
         this.invalidate();
     }
