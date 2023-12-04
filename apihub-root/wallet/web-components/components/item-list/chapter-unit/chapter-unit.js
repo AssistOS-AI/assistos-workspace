@@ -184,7 +184,7 @@ export class chapterUnit {
                 paragraph.removeEventListener("keydown", resetTimer);
                 await timer.stop(true);
                 paragraph.setAttribute("contenteditable", "false");
-                setTimeout(()=>{this.switchParagraphArrows(paragraphUnit, "off")},0);
+                setTimeout(()=>{this.switchParagraphArrows(paragraphUnit, "off")},1000);
             }, {once: true});
             let flowId = webSkel.currentUser.space.getFlowIdByName("DeleteParagraph");
             const resetTimer = async (event) => {
