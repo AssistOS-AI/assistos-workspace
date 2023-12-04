@@ -140,7 +140,8 @@ export class chapterUnit {
                 }
                 let paragraphText = sanitize(customTrim(paragraph.innerText));
                 if (paragraphText !== currentParagraph.text) {
-                    await this._document.updateParagraphText(currentParagraph, paragraphText);
+                    let flowId = webSkel.currentUser.space.getFlowIdByName("UpdateParagraphText");
+                    await webSkel.getService("LlmsService").callFlow(flowId, this._document.id, this.chapter.id, currentParagraph.id, paragraphText);
                 }
             }, 1000);
             paragraph.addEventListener("blur", async () => {
@@ -149,11 +150,12 @@ export class chapterUnit {
                 paragraph.setAttribute("contenteditable", "false");
                 webSkel.currentUser.space.currentParagraph = null;
             }, {once: true});
+            let flowId = webSkel.currentUser.space.getFlowIdByName("DeleteParagraph");
             const resetTimer = async (event) => {
                 if (paragraph.innerText.trim() === "" && event.key === "Backspace") {
                     if (currentParagraph) {
                         let curentParagraphIndex = this.chapter.getParagraphIndex(currentParagraphId);
-                        await this._document.deleteParagraph(this.chapter, currentParagraphId);
+                        await webSkel.getService("LlmsService").callFlow(flowId, this._document.id, this.chapter.id, currentParagraphId);
                         if(this.chapter.paragraphs.length>0) {
                             if (curentParagraphIndex === 0) {
                                 webSkel.currentUser.space.currentParagraphId = this.chapter.paragraphs[0].id;

@@ -94,31 +94,13 @@ export class chapterBrainstormingPage {
     }
 
     async editAction(_target, querySelect){
-        let paragraph;
-        if(querySelect){
-            paragraph = _target.querySelector(".content");
-        }else {
-            paragraph = reverseQuerySelector(_target, ".content");
-        }
-        let paragraphComponent = reverseQuerySelector(_target, "alternative-paragraph");
-        let paragraphId = paragraphComponent.getAttribute("data-id");
-        let alternativeParagraph = this._paragraph.getAlternativeParagraph(paragraphId);
-        if(this.actionBox){
-            removeActionBox(this.actionBox, this);
-        }
-        paragraph.contentEditable = true;
-        paragraph.focus();
-        paragraph.addEventListener('blur', async () => {
-            paragraph.contentEditable = false;
-            if(paragraph.innerText !== alternativeParagraph.text) {
-                await this._document.updateAlternativeParagraph(this._paragraph, paragraphId, paragraph.innerText)
-            }
-        }, {once:true});
+
     }
     async deleteAction(_target){
         let paragraph = reverseQuerySelector(_target, "reduced-paragraph-unit");
         let paragraphId = paragraph.getAttribute("data-id");
-        await this._document.deleteParagraph(this._chapter, paragraphId);
+        let flowId = webSkel.currentUser.space.getFlowIdByName("DeleteParagraph");
+        await webSkel.getService("LlmsService").callFlow(flowId, this._document.id, this._chapter.id, paragraphId);
         this.invalidate();
     }
     async delete(_target){

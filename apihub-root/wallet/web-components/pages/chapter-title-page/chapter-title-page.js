@@ -84,11 +84,12 @@ export class chapterTitlePage {
             let altTitleObj = this._chapter.getAlternativeTitle(component.getAttribute("data-id"));
             newTitle.setAttribute("contenteditable", "true");
             newTitle.focus();
+            let flowId = webSkel.currentUser.space.getFlowIdByName("UpdateAlternativeChapterTitle");
             let timer = new SaveElementTimer(async () => {
                 let confirmationPopup = this.element.querySelector("confirmation-popup");
                 let sanitizedText = sanitize(newTitle.innerText);
                 if (sanitizedText !== altTitleObj.title && !confirmationPopup) {
-                    await this._document.updateChapterAlternativeTitle(this._chapter, altTitleObj.id, sanitizedText);
+                    await webSkel.getService("LlmsService").callFlow(flowId, this._document.id, this._chapter.id, altTitleObj.id, sanitizedText);
                     newTitle.insertAdjacentHTML("afterbegin", `<confirmation-popup data-presenter="confirmation-popup" 
                     data-message="Saved!" data-left="${newTitle.offsetWidth/2}"></confirmation-popup>`);
                 }
