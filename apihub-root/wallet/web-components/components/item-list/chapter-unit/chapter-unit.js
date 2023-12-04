@@ -178,7 +178,7 @@ export class chapterUnit {
             }, 1000);
             paragraph.addEventListener("focusout", async (event) => {
                 webSkel.currentUser.space.currentParagraph = null;
-                if(!getClosestParentElement(event.relatedTarget, "paragraph-unit")) {
+                if(!getClosestParentElement(event.relatedTarget, ".paragraph-text")) {
                     getClosestParentWithPresenter(this.element, "document-view-page").webSkelPresenter.displaySidebar("paragraph-sidebar", "off");
                 }
                 paragraph.removeEventListener("keydown", resetTimer);
