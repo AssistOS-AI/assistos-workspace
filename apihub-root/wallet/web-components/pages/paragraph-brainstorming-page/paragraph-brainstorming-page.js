@@ -159,7 +159,7 @@ export class paragraphBrainstormingPage {
     async select(_target){
         let paragraphElement = reverseQuerySelector(_target,"alternative-paragraph");
         let alternativeParagraphId = paragraphElement.getAttribute("data-id");
-        let flowId = webSkel.currentUser.space.getFlowIdByName("SelectParagraph");
+        let flowId = webSkel.currentUser.space.getFlowIdByName("SelectAlternativeParagraph");
         await webSkel.getService("LlmsService").callFlow(flowId, this._document.id, this._chapter.id, this._paragraph.id, alternativeParagraphId);
         this.invalidate();
         removeActionBox(this.actionBox, this);

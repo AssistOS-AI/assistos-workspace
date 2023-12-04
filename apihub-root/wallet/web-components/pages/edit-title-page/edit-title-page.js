@@ -107,7 +107,8 @@ export class editTitlePage {
     async select(_target){
         let suggestedTitle = reverseQuerySelector(_target, "alternative-title");
         let suggestedTitleId = suggestedTitle.getAttribute("data-id");
-        await this._document.selectAlternativeTitle(suggestedTitleId);
+        let flowId = webSkel.currentUser.space.getFlowIdByName("SelectAlternativeDocumentTitle");
+        await webSkel.getService("LlmsService").callFlow(flowId, this._document.id, suggestedTitleId);
         removeActionBox(this.actionBox, this);
         this.invalidate();
     }

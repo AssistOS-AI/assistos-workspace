@@ -116,7 +116,8 @@ export class chapterUnit {
         let timer = new SaveElementTimer(async () => {
             let titleText = sanitize(customTrim(title.innerText))
             if (titleText !== this.chapter.title && titleText !== "") {
-                await this._document.updateChapterTitle(this.chapter, titleText);
+                let flowId = webSkel.currentUser.space.getFlowIdByName("UpdateChapterTitle");
+                await webSkel.getService("LlmsService").callFlow(flowId, this._document.id, this.chapter.id, titleText);
             }
         }, 3000);
 
@@ -160,8 +161,6 @@ export class chapterUnit {
             paragraph.setAttribute("contenteditable", "true");
             let paragraphUnit = reverseQuerySelector(paragraph, ".paragraph-unit");
             paragraph.focus();
-            this.switchParagraphArrows(paragraphUnit, "on");
-            getClosestParentWithPresenter(this.element, "document-view-page").webSkelPresenter.displaySidebar("paragraph-sidebar","on");
 
             let currentParagraphId = paragraphUnit.getAttribute("data-paragraph-id");
             webSkel.currentUser.space.currentParagraphId = currentParagraphId;

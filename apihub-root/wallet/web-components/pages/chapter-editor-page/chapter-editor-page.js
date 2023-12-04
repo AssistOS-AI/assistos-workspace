@@ -50,7 +50,8 @@ export class chapterEditorPage{
         title.focus();
         let timer = new SaveElementTimer(async () => {
             if (title.innerText !== this._chapter.title) {
-                await this._document.updateChapterTitle(this._chapter, title.innerText);
+                let flowId = webSkel.currentUser.space.getFlowIdByName("UpdateChapterTitle");
+                await webSkel.getService("LlmsService").callFlow(flowId, this._document.id, this._chapter.id, title.innerText);
             }
         }, 1000);
         title.addEventListener("blur", async () => {
@@ -194,15 +195,10 @@ export class chapterEditorPage{
         };
 
         const adjacentParagraphId = getAdjacentParagraphId(currentParagraphIndex, this._chapter.paragraphs);
-        const chapterId = this.chapterId;
 
-        if (this._chapter.swapParagraphs(currentParagraphId, adjacentParagraphId)) {
-            await documentFactory.updateDocument(webSkel.currentUser.space.id, this._document);
-            this.invalidate();
-            webSkel.currentUser.space.currentParagraphId = currentParagraphId;
-        } else {
-            console.error(`Unable to swap paragraphs. ${currentParagraphId}, ${adjacentParagraphId}, Chapter: ${chapterId}`);
-        }
+        let flowId = webSkel.currentUser.space.getFlowIdByName("SwapParagraphs");
+        await webSkel.getService("LlmsService").callFlow(flowId, this._document.id, this._chapter.id, currentParagraphId, adjacentParagraphId);
+        this.invalidate();
     }
     async openViewPage() {
         await webSkel.changeToDynamicPage("document-view-page", `documents/${this._document.id}/document-view-page`);

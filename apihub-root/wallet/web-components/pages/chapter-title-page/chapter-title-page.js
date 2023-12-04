@@ -36,8 +36,8 @@ export class chapterTitlePage {
             const documentIndex = webSkel.currentUser.space.documents.findIndex(doc => doc.id === this.docId);
             const chapterIndex = this._document.getChapterIndex(this.chapterId);
             if (documentIndex !== -1 && chapterIndex !== -1 && formInfo.data.title !== this._document.getChapterTitle(this.chapterId)) {
-                await this._document.updateChapterTitle(this.chapterId, formInfo.data.title);
-                await documentFactory.updateDocument(webSkel.currentUser.space.id, this._document);
+                let flowId = webSkel.currentUser.space.getFlowIdByName("UpdateChapterTitle");
+                await webSkel.getService("LlmsService").callFlow(flowId, this._document.id, this._chapter.id, formInfo.data.title);
             }
         }
     }
@@ -51,7 +51,8 @@ export class chapterTitlePage {
                 let confirmationPopup = this.element.querySelector("confirmation-popup");
                 let sanitizedText = sanitize(title.innerText);
                 if (sanitizedText !== this._chapter.title && !confirmationPopup) {
-                    await this._document.updateChapterTitle(this._chapter, sanitizedText);
+                    let flowId = webSkel.currentUser.space.getFlowIdByName("UpdateChapterTitle");
+                    await webSkel.getService("LlmsService").callFlow(flowId, this._document.id, this._chapter.id, sanitizedText);
                     title.insertAdjacentHTML("afterbegin", `<confirmation-popup data-presenter="confirmation-popup" 
                     data-message="Saved!" data-left="${title.offsetWidth/2}"></confirmation-popup>`);
                 }
@@ -107,15 +108,15 @@ export class chapterTitlePage {
     }
     async delete(_target) {
         let alternativeTitle = reverseQuerySelector(_target, "alternative-title");
-        this._chapter.deleteAlternativeTitle(alternativeTitle.getAttribute("data-id"));
-        await documentFactory.updateDocument(webSkel.currentUser.space.id, this._document);
+        let flowId = webSkel.currentUser.space.getFlowIdByName("DeleteAlternativeChapterTitle");
+        await webSkel.getService("LlmsService").callFlow(flowId, this._document.id, this._chapter.id, alternativeTitle.getAttribute("data-id"));
         this.invalidate();
     }
     async select(_target){
         let suggestedTitle = reverseQuerySelector(_target, "alternative-title");
         let suggestedTitleId = suggestedTitle.getAttribute("data-id");
-        await this._chapter.selectAlternativeTitle(suggestedTitleId);
-        await documentFactory.updateDocument(webSkel.currentUser.space.id, this._document);
+        let flowId = webSkel.currentUser.space.getFlowIdByName("SelectAlternativeChapterTitle");
+        await webSkel.getService("LlmsService").callFlow(flowId, this._document.id, this._chapter.id, suggestedTitleId);
         this.invalidate();
     }
     async openViewPage() {

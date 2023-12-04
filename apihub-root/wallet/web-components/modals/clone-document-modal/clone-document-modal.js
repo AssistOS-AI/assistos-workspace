@@ -28,10 +28,8 @@ export class cloneDocumentModal {
         let flowId = webSkel.currentUser.space.getFlowIdByName("GenerateDocument");
         let result = await webSkel.getService("LlmsService").callFlow(flowId,
             formData.data.documentTitle, formData.data.documentTopic, formData.data.chaptersCount);
-
         let docData = result.responseJson;
         closeModal(_target);
-        await webSkel.currentUser.space.addDocument(docData);
 
     }
 

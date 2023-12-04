@@ -55,9 +55,20 @@ export class Paragraph {
             console.warn(`Failed to find alternative paragraph with id: ${id}`);
         }
     }
-    select(alternativeParagraph){
+    selectAlternativeParagraph(alternativeParagraphId){
+        let clone = Object.assign({}, this);
+
+        let alternativeParagraph = this.getAlternativeParagraph(alternativeParagraphId);
         this.text = alternativeParagraph.text;
         this.id = alternativeParagraph.id;
         this.mainIdea = alternativeParagraph.mainIdea;
+
+        let alternativeParagraphIndex = this.alternativeParagraphs.findIndex(paragraph => paragraph.id === alternativeParagraph.id);
+        this.alternativeParagraphs.splice(alternativeParagraphIndex, 1);
+        this.alternativeParagraphs.splice(alternativeParagraphIndex,0,{
+            id: clone.id,
+            text: clone.text,
+            mainIdea: clone.mainIdea
+        });
     }
 }
