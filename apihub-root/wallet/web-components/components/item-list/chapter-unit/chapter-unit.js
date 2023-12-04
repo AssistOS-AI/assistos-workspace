@@ -161,7 +161,7 @@ export class chapterUnit {
             paragraph.setAttribute("contenteditable", "true");
             let paragraphUnit = reverseQuerySelector(paragraph, ".paragraph-unit");
             paragraph.focus();
-
+            this.switchParagraphArrows(paragraphUnit, "on");
             let currentParagraphId = paragraphUnit.getAttribute("data-paragraph-id");
             webSkel.currentUser.space.currentParagraphId = currentParagraphId;
             let currentParagraph = this.chapter.getParagraph(currentParagraphId);
@@ -184,7 +184,7 @@ export class chapterUnit {
                 paragraph.removeEventListener("keydown", resetTimer);
                 await timer.stop(true);
                 paragraph.setAttribute("contenteditable", "false");
-                setTimeout(()=>{this.switchParagraphArrows(paragraphUnit, "off")},1000);
+                setTimeout(()=>{this.switchParagraphArrows(paragraphUnit, "off")},100);
             }, {once: true});
             let flowId = webSkel.currentUser.space.getFlowIdByName("DeleteParagraph");
             const resetTimer = async (event) => {
