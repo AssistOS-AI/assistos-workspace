@@ -60,18 +60,20 @@ export class paragraphBrainstormingPage {
         if (item.getAttribute("contenteditable") === "false") {
             item.setAttribute("contenteditable", "true");
             item.focus();
+            let flowId = webSkel.currentUser.space.getFlowIdByName("UpdateParagraphMainIdea");
             let timer = new SaveElementTimer(async () => {
                 let confirmationPopup = this.element.querySelector("confirmation-popup");
                 let sanitizedText = sanitize(item.innerText);
                 if(itemName === "mainIdea"){
                     if (sanitizedText !== this._paragraph.mainIdea && !confirmationPopup) {
-                        await this._document.setParagraphMainIdea(this._paragraph, sanitizedText);
+                        await webSkel.getService("LlmsService").callFlow(flowId, this._document.id, this._chapter.id, this._paragraph.id, sanitizedText);
                         item.insertAdjacentHTML("afterbegin", `<confirmation-popup data-presenter="confirmation-popup" 
                         data-message="Saved!" data-left="${item.offsetWidth/2}"></confirmation-popup>`);
                     }
                 }else {
                     if(sanitizedText !== this._paragraph.text && !confirmationPopup){
-                        await this._document.updateParagraphText(this._paragraph, sanitizedText);
+                        let flowId = webSkel.currentUser.space.getFlowIdByName("UpdateParagraphText");
+                        await webSkel.getService("LlmsService").callFlow(flowId, this._document.id, this._chapter.id, this._paragraph.id, sanitizedText);
                         item.insertAdjacentHTML("afterbegin", `<confirmation-popup data-presenter="confirmation-popup" 
                         data-message="Saved!" data-left="${item.offsetWidth/2}"></confirmation-popup>`);
                     }
@@ -129,7 +131,8 @@ export class paragraphBrainstormingPage {
                 let confirmationPopup = this.element.querySelector("confirmation-popup");
                 let sanitizedText = sanitize(paragraph.innerText);
                 if (sanitizedText !== currentAltParagraph.text && !confirmationPopup) {
-                    await this._document.updateAlternativeParagraph(this._paragraph, currentAltParagraph.id, sanitizedText);
+                    let flowId = webSkel.currentUser.space.getFlowIdByName("UpdateAlternativeParagraph");
+                    await webSkel.getService("LlmsService").callFlow(flowId, this._document.id, this._chapter.id, this._paragraph.id, currentAltParagraph.id, sanitizedText);
                     paragraph.insertAdjacentHTML("afterbegin", `<confirmation-popup data-presenter="confirmation-popup" 
                     data-message="Saved!" data-left="${paragraph.offsetWidth/2}"></confirmation-popup>`);
                 }
@@ -148,19 +151,18 @@ export class paragraphBrainstormingPage {
     async delete(_target){
         let paragraph = reverseQuerySelector(_target, "alternative-paragraph");
         let paragraphId = paragraph.getAttribute("data-id");
-        await this._document.deleteAlternativeParagraph(this._paragraph, paragraphId);
+        let flowId = webSkel.currentUser.space.getFlowIdByName("DeleteAlternativeParagraph");
+        await webSkel.getService("LlmsService").callFlow(flowId, this._document.id, this._chapter.id, this._paragraph.id, paragraphId);
         this.invalidate();
     }
 
     async select(_target){
         let paragraphElement = reverseQuerySelector(_target,"alternative-paragraph");
-        let paragraphId = paragraphElement.getAttribute("data-id");
-        let paragraphObj = this._paragraph.getAlternativeParagraph(paragraphId);
-        if(paragraphObj.text !== this._paragraph.text ||  paragraphObj.text!==this._paragraph.getMainIdea() ) {
-            await this._document.updateParagraph(this._paragraph, paragraphObj);
-            this.invalidate();
-        } else {
-            removeActionBox(this.actionBox, this);
-        }
+        let alternativeParagraphId = paragraphElement.getAttribute("data-id");
+        let flowId = webSkel.currentUser.space.getFlowIdByName("SelectParagraph");
+        await webSkel.getService("LlmsService").callFlow(flowId, this._document.id, this._chapter.id, this._paragraph.id, alternativeParagraphId);
+        this.invalidate();
+        removeActionBox(this.actionBox, this);
+
     }
 }

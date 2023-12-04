@@ -96,9 +96,6 @@ export class DocumentModel {
         }
         await documentFactory.updateDocument(webSkel.currentUser.space.id, this);
     }
-    setCurrentChapter(chapterId) {
-        this.currentChapterId = chapterId;
-    }
 
     getAlternativeAbstract(id){
         return this.alternativeAbstracts.find(abs=>abs.id === id);
@@ -182,62 +179,6 @@ export class DocumentModel {
 
     async updateTitle(title) {
         this.title = title;
-        await documentFactory.updateDocument(webSkel.currentUser.space.id, this);
-    }
-
-    async updateAlternativeTitle(id, newName) {
-        let title = this.getAlternativeTitle(id);
-        if(title){
-            title.title = newName;
-        }else {
-            console.error(`Failed to find altTitle with id: ${id}`);
-        }
-        await documentFactory.updateDocument(webSkel.currentUser.space.id, this);
-    }
-
-    async deleteAlternativeTitle(id) {
-        const index = this.alternativeTitles.findIndex(title => title.id === id);
-        if (index !== -1) {
-            this.alternativeTitles.splice(index, 1);
-        }else {
-            console.error(`Failed to find altTitle with id: ${id}`);
-        }
-        await documentFactory.updateDocument(webSkel.currentUser.space.id, this);
-    }
-
-    async updateChapterAlternativeTitle(chapter, altTileId, title){
-        chapter.updateAlternativeTitle(altTileId, title);
-        await documentFactory.updateDocument(webSkel.currentUser.space.id, this);
-    }
-
-    async deleteParagraph(chapter, id){
-        chapter.deleteParagraph(id);
-        await documentFactory.updateDocument(webSkel.currentUser.space.id, this);
-    }
-
-    async setParagraphMainIdea(paragraph, text){
-        paragraph.setMainIdea(text);
-        await documentFactory.updateDocument(webSkel.currentUser.space.id, this);
-    }
-
-    async updateParagraph(paragraph, alternativeParagraph){
-        paragraph.updateText(alternativeParagraph.text);
-        paragraph.setMainIdea(alternativeParagraph.mainIdea);
-        await documentFactory.updateDocument(webSkel.currentUser.space.id, this);
-    }
-
-    async updateParagraphText(paragraph, text){
-        paragraph.updateText(text);
-        await documentFactory.updateDocument(webSkel.currentUser.space.id, this);
-    }
-
-    async updateAlternativeParagraph(paragraph, altParagraphId, text){
-        paragraph.updateAlternativeParagraph(altParagraphId, text);
-        await documentFactory.updateDocument(webSkel.currentUser.space.id, this);
-    }
-
-    async deleteAlternativeParagraph(paragraph, altParagraphId){
-        paragraph.deleteAlternativeParagraph(altParagraphId);
         await documentFactory.updateDocument(webSkel.currentUser.space.id, this);
     }
     async deleteAlternativeChapter(chapter,alternativeChapterId){

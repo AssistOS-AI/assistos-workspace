@@ -28,7 +28,6 @@ export class documentViewPage {
         this.docTitle = this._document.title;
         this.abstractText=this._document.abstract||"No abstract has been set or generated for this document";
         if(this._document.chapters.length > 0) {
-            this._document.setCurrentChapter(this._document.chapters[0].id);
             let iterator = 0;
             this._document.chapters.forEach((item) => {
                 iterator++;

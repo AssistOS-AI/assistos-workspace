@@ -125,7 +125,8 @@ export class manageParagraphsPage {
     async deleteAction(_target){
         let paragraph = reverseQuerySelector(_target, "reduced-paragraph-unit");
         let paragraphId = paragraph.getAttribute("data-id");
-        await this._document.deleteParagraph(this._chapter, paragraphId);
+        let flowId = webSkel.currentUser.space.getFlowIdByName("DeleteParagraph");
+        await webSkel.getService("LlmsService").callFlow(flowId, this._document.id, this._chapter.id, paragraphId);
         this.invalidate();
     }
 }

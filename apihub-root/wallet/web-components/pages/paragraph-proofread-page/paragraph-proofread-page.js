@@ -74,7 +74,8 @@ export class paragraphProofreadPage {
                 let confirmationPopup = this.element.querySelector("confirmation-popup");
                 let sanitizedText = sanitize(paragraph.innerText);
                 if (sanitizedText !== this._paragraph.text && !confirmationPopup) {
-                    await this._document.updateParagraphText(this._paragraph, sanitizedText);
+                    let flowId = webSkel.currentUser.space.getFlowIdByName("UpdateParagraphText");
+                    await webSkel.getService("LlmsService").callFlow(flowId, this._document.id, this._chapter.id, this._paragraph.id, sanitizedText);
                     paragraph.insertAdjacentHTML("afterbegin", `<confirmation-popup data-presenter="confirmation-popup" 
                     data-message="Saved!" data-left="${paragraph.offsetWidth/2}"></confirmation-popup>`);
                 }
@@ -114,7 +115,8 @@ export class paragraphProofreadPage {
     async acceptImprovements(_target) {
         let paragraph = this.element.querySelector(".improved-paragraph").innerText;
         if(paragraph !== this._paragraph.text) {
-            await this._document.updateParagraphText(this._paragraph, paragraph);
+            let flowId = webSkel.currentUser.space.getFlowIdByName("UpdateParagraphText");
+            await webSkel.getService("LlmsService").callFlow(flowId, this._document.id, this._chapter.id, this._paragraph.id, paragraph);
             this.invalidate();
         }
     }

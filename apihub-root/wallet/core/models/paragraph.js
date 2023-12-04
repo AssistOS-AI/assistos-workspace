@@ -55,4 +55,9 @@ export class Paragraph {
             console.warn(`Failed to find alternative paragraph with id: ${id}`);
         }
     }
+    select(alternativeParagraph){
+        this.text = alternativeParagraph.text;
+        this.id = alternativeParagraph.id;
+        this.mainIdea = alternativeParagraph.mainIdea;
+    }
 }
