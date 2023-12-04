@@ -157,11 +157,11 @@ export class chapterUnit {
     }
     editParagraph(paragraph) {
         if (paragraph.getAttribute("contenteditable") === "false") {
-
             paragraph.setAttribute("contenteditable", "true");
             let paragraphUnit = reverseQuerySelector(paragraph, ".paragraph-unit");
             paragraph.focus();
             this.switchParagraphArrows(paragraphUnit, "on");
+            getClosestParentWithPresenter(this.element, "document-view-page").webSkelPresenter.displaySidebar("paragraph-sidebar", "on");
             let currentParagraphId = paragraphUnit.getAttribute("data-paragraph-id");
             webSkel.currentUser.space.currentParagraphId = currentParagraphId;
             let currentParagraph = this.chapter.getParagraph(currentParagraphId);
