@@ -53,6 +53,7 @@
 
 
 .chapter-arrows{display:none;}
+
 .chapter-paragraphs:focus {
     background-color: var(--harsh-gray);
     color: var(--light-black);
