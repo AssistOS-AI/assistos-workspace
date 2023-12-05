@@ -79,7 +79,7 @@ async function loadPage() {
 
 }
 
-function changeSelectedPageFromSidebar(url) {
+export function changeSelectedPageFromSidebar(url) {
     let element = document.getElementById('selected-page');
     if (element) {
         element.removeAttribute('id');
@@ -100,17 +100,8 @@ function changeSelectedPageFromSidebar(url) {
 
 function defineActions() {
     webSkel.registerAction("changePage", async (_target, pageId, refreshFlag='0') => {
-        /* If we are attempting to click the button to the tool page we're currently on, a refreshFlag with the value 0
-            will prevent that page refresh from happening and just exit the function
-         */
-        if(refreshFlag === '0') {
-            if(pageId === window.location.hash.slice(1)) {
-                return;
-            }
-        }
-        webSkel.currentToolId = pageId;
-        changeSelectedPageFromSidebar(pageId);
-        await webSkel.changeToDynamicPage(pageId, pageId);
+        let flowId = webSkel.currentUser.space.getFlowIdByName("ChangeApplication");
+        let result = await webSkel.getService("LlmsService").callFlow(flowId, pageId, refreshFlag);
     });
 
     webSkel.registerAction("closeErrorModal", async (_target) => {

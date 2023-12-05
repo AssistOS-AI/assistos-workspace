@@ -1,7 +1,8 @@
 import {
     sanitize,
     SpaceFactory,
-    DocumentModel
+    DocumentModel,
+    changeSelectedPageFromSidebar
 } from "../../imports.js";
 
 export class LlmsService {
