@@ -26,6 +26,7 @@ export class personalitiesPage {
 
     async selectPersonality(_target){
         let personalityId = reverseQuerySelector(_target, "personality-unit").getAttribute("data-id");
+        window.location.hash = `#space-page/edit-personality-page/${personalityId}`;
         await webSkel.changeToDynamicPage("edit-personality-page", `space-page/edit-personality-page/${personalityId}`);
     }
 }
