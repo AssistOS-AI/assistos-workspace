@@ -120,7 +120,9 @@ export class chapterUnit {
                 await webSkel.getService("LlmsService").callFlow(flowId, this._document.id, this.chapter.id, titleText);
             }
         }, 3000);
-
+        /* NO chapter Title */
+        /* constants for page names */
+        /* save button hidden */
         title.addEventListener("blur", async () => {
             title.innerText = customTrim(title.innerText)||unsanitize(this.chapter.title);
             await timer.stop(true);
@@ -153,62 +155,6 @@ export class chapterUnit {
             refreshElement(getClosestParentWithPresenter(_target, "chapter-unit"));
         } else {
             console.error(`Unable to swap paragraphs. ${currentParagraphId}, ${adjacentParagraphId}, Chapter: ${chapterId}`);
-        }
-    }
-    editParagraph(paragraph) {
-        if (paragraph.getAttribute("contenteditable") === "false") {
-            paragraph.setAttribute("contenteditable", "true");
-            let paragraphUnit = reverseQuerySelector(paragraph, ".paragraph-unit");
-            paragraph.focus();
-            this.switchParagraphArrows(paragraphUnit, "on");
-            getClosestParentWithPresenter(this.element, "document-view-page").webSkelPresenter.displaySidebar("paragraph-sidebar", "on");
-            let currentParagraphId = paragraphUnit.getAttribute("data-paragraph-id");
-            webSkel.currentUser.space.currentParagraphId = currentParagraphId;
-            let currentParagraph = this.chapter.getParagraph(currentParagraphId);
-            let timer = new SaveElementTimer(async () => {
-                if (!currentParagraph) {
-                    await timer.stop();
-                    return;
-                }
-                let paragraphText = sanitize(customTrim(paragraph.innerText));
-                if (paragraphText !== currentParagraph.text) {
-                    let flowId = webSkel.currentUser.space.getFlowIdByName("UpdateParagraphText");
-                    await webSkel.getService("LlmsService").callFlow(flowId, this._document.id, this.chapter.id, currentParagraph.id, paragraphText);
-                }
-            }, 1000);
-            paragraph.addEventListener("focusout", async (event) => {
-                webSkel.currentUser.space.currentParagraph = null;
-                if(!getClosestParentElement(event.relatedTarget, ".paragraph-text")) {
-                    getClosestParentWithPresenter(this.element, "document-view-page").webSkelPresenter.displaySidebar("paragraph-sidebar", "off");
-                }
-                paragraph.removeEventListener("keydown", resetTimer);
-                await timer.stop(true);
-                paragraph.setAttribute("contenteditable", "false");
-                setTimeout(()=>{this.switchParagraphArrows(paragraphUnit, "off")},100);
-            }, {once: true});
-            let flowId = webSkel.currentUser.space.getFlowIdByName("DeleteParagraph");
-            const resetTimer = async (event) => {
-                if (paragraph.innerText.trim() === "" && event.key === "Backspace") {
-                    if (currentParagraph) {
-                        let curentParagraphIndex = this.chapter.getParagraphIndex(currentParagraphId);
-                        await webSkel.getService("LlmsService").callFlow(flowId, this._document.id, this.chapter.id, currentParagraphId);
-                        if(this.chapter.paragraphs.length>0) {
-                            if (curentParagraphIndex === 0) {
-                                webSkel.currentUser.space.currentParagraphId = this.chapter.paragraphs[0].id;
-                            }else{
-                                webSkel.currentUser.space.currentParagraphId = this.chapter.paragraphs[curentParagraphIndex-1].id;
-                            }
-                        }else{
-                            webSkel.currentUser.space.currentParagraphId = null;
-                        }
-                        this.invalidate();
-                    }
-                    await timer.stop();
-                } else {
-                    await timer.reset(1000);
-                }
-            };
-            paragraph.addEventListener("keydown", resetTimer);
         }
     }
 

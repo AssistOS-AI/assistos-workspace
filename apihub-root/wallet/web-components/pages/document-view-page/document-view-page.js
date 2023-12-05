@@ -43,19 +43,128 @@ export class documentViewPage {
         this.paragraphSidebar = this.element.querySelector("#paragraph-sidebar");
     }
 
-    highlightElement(controller, event) {
+    switchParagraphArrows(target, mode) {
+        if (this.chapter.paragraphs.length <= 1) {
+            return;
+        }
+        let foundElement = target.querySelector('.paragraph-arrows');
+        if (!foundElement) {
+            let nextSibling = target.nextElementSibling;
+            while (nextSibling) {
+                if (nextSibling.matches('.paragraph-arrows')) {
+                    foundElement = nextSibling;
+                    break;
+                }
+                nextSibling = nextSibling.nextElementSibling;
+            }
+        }
+        if (mode === "on") {
+            foundElement.style.visibility = "visible";
+        } else {
+            foundElement.style.visibility = "hidden";
+        }
+    }
+
+    saveParagraph(paragraph) {
+        webSkel.currentUser.space.currentParagraph = null;
+        paragraph.removeEventListener("keydown", this.resetTimer);
+        paragraph.setAttribute("contenteditable", "false");
+    }
+    editParagraph(paragraph) {
+        if (paragraph.getAttribute("contenteditable") === "false") {
+            paragraph.setAttribute("contenteditable", "true");
+            let paragraphUnit = reverseQuerySelector(paragraph, ".paragraph-unit");
+            paragraph.focus();
+            this.previouslySelectedParagraph=paragraphUnit;
+            this.switchParagraphArrows(paragraphUnit, "on");
+            let currentParagraphId = paragraphUnit.getAttribute("data-paragraph-id");
+            webSkel.currentUser.space.currentParagraphId = currentParagraphId;
+            let currentParagraph = this.chapter.getParagraph(currentParagraphId);
+            let timer = new SaveElementTimer(async () => {
+                if (!currentParagraph) {
+                    await timer.stop();
+                    return;
+                }
+                let paragraphText = sanitize(customTrim(paragraph.innerText));
+                if (paragraphText !== currentParagraph.text) {
+                    let flowId = webSkel.currentUser.space.getFlowIdByName("UpdateParagraphText");
+                    await webSkel.getService("LlmsService").callFlow(flowId, this._document.id, this.chapter.id, currentParagraph.id, paragraphText);
+                }
+            }, 1000);
+            let flowId = webSkel.currentUser.space.getFlowIdByName("DeleteParagraph");
+            this.resetTimer = async (event) => {
+                if (paragraph.innerText.trim() === "" && event.key === "Backspace") {
+                    if (currentParagraph) {
+                        let curentParagraphIndex = this.chapter.getParagraphIndex(currentParagraphId);
+                        await webSkel.getService("LlmsService").callFlow(flowId, this._document.id, this.chapter.id, currentParagraphId);
+                        if(this.chapter.paragraphs.length>0) {
+                            if (curentParagraphIndex === 0) {
+                                webSkel.currentUser.space.currentParagraphId = this.chapter.paragraphs[0].id;
+                            }else{
+                                webSkel.currentUser.space.currentParagraphId = this.chapter.paragraphs[curentParagraphIndex-1].id;
+                            }
+                        }else{
+                            webSkel.currentUser.space.currentParagraphId = null;
+                        }
+                        this.invalidate();
+                    }
+                    await timer.stop();
+                } else {
+                    await timer.reset(1000);
+                }
+            };
+            paragraph.addEventListener("keydown", this.resetTimer);
+        }
+    }
+    async highlightElement(controller, event) {
         this.chapterUnit = getClosestParentElement(event.target, ".chapter-unit");
-        /* clickul e pe un capitol */
+        this.paragraphUnit = getClosestParentElement(event.target, ".paragraph-text");
+        if (this.paragraphUnit) {
+            /* clickul e pe un paragraf */
+            if (this.chapterUnit !== this.previouslySelectedChapter) {
+                /* clickul e pe paragraf si un capitol diferit de cel curent */
+                if(this.previouslySelectedParagraph) {
+                    this.saveParagraph(this.previouslySelectedParagraph);
+                }
+                this.deselectPreviousParagraph();
+                this.deselectPreviousChapter();
+                await this.highlightChapter();
+                this.editParagraph(this.paragraphUnit);
+                this.displaySidebar("paragraph-sidebar", "on");
+            } else {
+                /* clickul e pe acelasi capitol dar alt paragraf*/
+                if (this.paragraphUnit !== this.previouslySelectedParagraph) {
+                    /* clickul e pe un paragraf diferit de cel curent */
+                    this.deselectPreviousParagraph();
+                    this.editParagraph(this.paragraphUnit);
+                }else{
+                    /* clickul e pe acelasi paragraf */
+                    return;
+                }
+            }
+        } else
         if (this.chapterUnit) {
-            /* clickul e pe un capitol diferit de cel curent */
-            if (this.chapterUnit!==this.previouslySelectedChapter) {
-                /* scoate highlight-ul vizual de pe paragraf si capitol */
+            /* clickul e pe un capitol si nu pe un paragraf*/
+            if(this.paragraphSidebar.style.display==="block") {
+                this.displaySidebar("paragraph-sidebar", "off");
+            }
+            if (this.chapterUnit !== this.previouslySelectedChapter) {
+                /* clickul e pe un capitol diferit de cel curent si nu e pe un paragraf */
                 this.deselectPreviousParagraph();
                 this.deselectPreviousChapter();
                 this.highlightChapter();
+            }else{
+                /* clickul e pe acelasi capitol dar nu pe un paragraf*/
+                this.deselectPreviousParagraph();
             }
         } else {
-            /* clickul e in afara unui capitol(pe document/sidebars) */
+            /* clickul e in afara unui capitol si in afara unui paragraf*/
+            if(this.paragraphSidebar.style.display==="block") {
+                this.displaySidebar("paragraph-sidebar", "off");
+            }
+            if(this.chapterSidebar.style.display==="block") {
+                this.displaySidebar("chapter-sidebar", "off");
+            }
             this.deselectPreviousParagraph();
             this.deselectPreviousChapter();
             let rightSideBarItem = getClosestParentElement(event.target, ".sidebar-item");
@@ -68,23 +177,24 @@ export class documentViewPage {
             } else if (leftSideBarItem) {
                 controller.abort();
             } else {
-                this.displaySidebar("document-sidebar","on");
+                this.displaySidebar("document-sidebar", "on");
             }
         }
     }
 
-    highlightChapter() {
-        this.displaySidebar("chapter-sidebar","on");
+    async highlightChapter() {
+        this.displaySidebar("chapter-sidebar", "on");
         this.previouslySelectedChapter = this.chapterUnit;
         this.chapterUnit.setAttribute("id", "highlighted-chapter");
         this.switchArrowsDisplay(this.chapterUnit, "chapter", "on");
         webSkel.currentUser.space.currentChapterId = this.chapterUnit.getAttribute("data-chapter-id");
+        this.chapter= this._document.getChapter(webSkel.currentUser.space.currentChapterId);
     }
 
     deselectPreviousParagraph() {
         if (this.previouslySelectedParagraph) {
             webSkel.currentUser.space.currentParagraphId = null;
-            this.switchArrowsDisplay(this.previouslySelectedParagraph, "paragraph");
+            this.switchArrowsDisplay(this.previouslySelectedParagraph, "paragraph","off");
             delete this.previouslySelectedParagraph;
         }
     }
@@ -129,15 +239,15 @@ export class documentViewPage {
         }
     }
 
-    displaySidebar(sidebarID,mode) {
-            if (sidebarID === "paragraph-sidebar") {
-                mode==="on"?this.paragraphSidebar.style.display = "block":this.paragraphSidebar.style.display = "none";
-            } else if (sidebarID === "chapter-sidebar") {
-                mode==="on"?this.chapterSidebar.style.display = "block":this.chapterSidebar.style.display = "none";
-            } else {
-                this.paragraphSidebar.style.display = "none";
-                this.chapterSidebar.style.display = "none";
-            }
+    displaySidebar(sidebarID, mode) {
+        if (sidebarID === "paragraph-sidebar") {
+            mode === "on" ? this.paragraphSidebar.style.display = "block" : this.paragraphSidebar.style.display = "none";
+        } else if (sidebarID === "chapter-sidebar") {
+            mode === "on" ? this.chapterSidebar.style.display = "block" : this.chapterSidebar.style.display = "none";
+        } else {
+            this.paragraphSidebar.style.display = "none";
+            this.chapterSidebar.style.display = "none";
+        }
     }
 
     async moveChapter(_target, direction) {
