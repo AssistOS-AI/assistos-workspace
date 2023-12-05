@@ -30,7 +30,7 @@ export class FlowsService{
                 return await this.callLLM();
             },
             request : async function (prompt, max_tokens){
-                this.setThink(prompt);
+                //this.setThink(prompt);
                 this.__body.prompt = prompt;
                 this.__body.max_tokens = max_tokens;
                 return await this.callLLM();

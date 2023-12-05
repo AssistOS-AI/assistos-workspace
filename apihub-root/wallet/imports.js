@@ -44,6 +44,7 @@ import {SaveElementTimer} from "./utils/saveElementTimer.js";
 import {parseURL} from "./utils/parseURL.js";
 import WebSkel from "../WebSkel/webSkel.js";
 import { createFlowsFactory } from "../llmFlows/src/llmFlows.js";
+import { changeSelectedPageFromSidebar } from "./main.js";
 
 export {
     parseURL,
@@ -71,5 +72,6 @@ export {
     customTrim,
     moveCursorToEnd,
     getClosestParentWithPresenter,
-    refreshElement
+    refreshElement,
+    changeSelectedPageFromSidebar
 };

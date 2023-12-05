@@ -5,7 +5,6 @@ export class DocumentFactory {
         this.observers = [];
     }
     createDocument(documentData) {
-        documentData.id=webSkel.servicesRegistry.UtilsService.generateId();
         return new DocumentModel(documentData);
     }
 
