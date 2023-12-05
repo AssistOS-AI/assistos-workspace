@@ -143,7 +143,12 @@ async function loadConfigs(jsonPath) {
         await showApplicationError("Error loading configs", "Error loading configs", `Encountered ${error} while trying loading webSkel configs`);
     }
 }
-
+async function handleNavigation(event){
+    let modal = document.querySelector("dialog");
+    if(modal){
+        closeModal(modal);
+    }
+}
 (async ()=> {
     await webSkel.defineComponent("general-loader", "./wallet/web-components/components/general-loader/general-loader.html");
     const loading = await webSkel.showLoading(`<general-loader></general-loader>`);
@@ -155,4 +160,5 @@ async function loadConfigs(jsonPath) {
     defineActions();
     loading.close();
     loading.remove();
+    window.addEventListener('popstate', handleNavigation);
 })();
