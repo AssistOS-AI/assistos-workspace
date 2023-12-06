@@ -44,16 +44,16 @@ export class chapterUnit {
         this.chapterUnit = this.element.querySelector(".chapter-unit");
         let selectedParagraphs = this.element.querySelectorAll(".paragraph-text");
         let currentParagraph = "";
-        selectedParagraphs.forEach(paragraph => {
+        for(let paragraph of selectedParagraphs){
             if (reverseQuerySelector(paragraph, '[data-paragraph-id]').getAttribute("data-paragraph-id") === webSkel.currentUser.space.currentParagraphId) {
                 currentParagraph = paragraph;
                 currentParagraph.click();
                 moveCursorToEnd(currentParagraph);
-                this.switchParagraphArrows(currentParagraph, "on");
                 currentParagraph.scrollIntoView({behavior: "smooth", block: "center", inline: "nearest"});
+                break;
             }
-        });
-        if (this.chapter.id === webSkel.currentUser.space.currentChapterId) {
+        }
+        if (this.chapter.id === webSkel.currentUser.space.currentChapterId&&!currentParagraph) {
             this.chapterUnit.click();
             this.element.scrollIntoView({behavior: "smooth", block: "center", inline: "nearest"});
         }
@@ -78,28 +78,6 @@ export class chapterUnit {
         let flowId = webSkel.currentUser.space.getFlowIdByName("AddParagraph");
         await webSkel.getService("LlmsService").callFlow(flowId, this._document.id, this.chapter.id);
         this.invalidate();
-    }
-
-    switchParagraphArrows(target, mode) {
-        if(this.chapter.paragraphs.length <= 1){
-            return;
-        }
-        let foundElement = target.querySelector('.paragraph-arrows');
-        if (!foundElement) {
-            let nextSibling = target.nextElementSibling;
-            while (nextSibling) {
-                if (nextSibling.matches('.paragraph-arrows')) {
-                    foundElement = nextSibling;
-                    break;
-                }
-                nextSibling = nextSibling.nextElementSibling;
-            }
-        }
-        if(mode === "on"){
-            foundElement.style.visibility = "visible";
-        }else{
-            foundElement.style.visibility = "hidden";
-        }
     }
 
     async editChapterTitle(title) {
