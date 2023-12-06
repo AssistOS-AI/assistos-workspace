@@ -2,10 +2,7 @@
     overflow:hidden;
 }
 
-.language,
-.personality,
-.text,
-.details{
+.label{
     margin-bottom: 10px;
     color: var(--gray-black);
     font-feature-settings: 'clig' off, 'liga' off;
@@ -17,17 +14,18 @@
 #language,
 #personality {
     width: 100%;
-    height: 32px;
+    height: 35px;
     border-radius: 8px;
     font-size: 12px;
     font-weight: 400;
     color: var(--settings-page-theme);
     border: 0.5px solid var(--lighter-black);
     background:none;
-    padding-left:10px;
+    padding:7px 12px;
 }
 .form-item > textarea {
-   width: 100%;
+    padding: 7px 12px;
+    width: 100%;
     height: 100%;
     resize: none;
     border: 0.5px solid var(--lighter-black);
