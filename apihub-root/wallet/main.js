@@ -9,13 +9,14 @@ window.webSkel = new WebSkel();
 window.mainContent = document.querySelector("#app-wrapper");
 
 async function loadPage() {
-    let modal = document.querySelector("dialog");
-    if(modal){
-        closeModal(modal);
-    }
+
     let url = window.location.hash;
     if(url === "" || url === null || url === "#space-page") {
+        let space = "space-page";
         url = "#space-page/announcements-page";
+        const content = `<${space} data-presenter="${space}" data-name="announcements-page"></${space}>`;
+        history.replaceState({space, relativeUrlContent: content}, url, url);
+        window.location.replace("#space-page/announcements-page");
     }
     let leftSidebar = document.querySelector("#app-left-sidebar");
     let leftSidebarPlaceholder = document.querySelector(".left-sidebar-placeholder");
@@ -40,7 +41,6 @@ async function loadPage() {
             break;
         }
         case authentication:{
-            changeSelectedPageFromSidebar(url);
             leftSidebarPlaceholder.style.display = "none";
             presenterName = url.slice(1);
             break;
@@ -82,7 +82,6 @@ async function loadPage() {
     if(pagePlaceholder){
         pagePlaceholder.style.display = "none";
     }
-
 }
 
 export function changeSelectedPageFromSidebar(url) {
@@ -107,7 +106,7 @@ export function changeSelectedPageFromSidebar(url) {
 function defineActions() {
     webSkel.registerAction("changePage", async (_target, pageId, refreshFlag='0') => {
         let flowId = webSkel.currentUser.space.getFlowIdByName("ChangeApplication");
-        let result = await webSkel.getService("LlmsService").callFlow(flowId, pageId, refreshFlag);
+        await webSkel.getService("LlmsService").callFlow(flowId, pageId, refreshFlag);
     });
 
     webSkel.registerAction("closeErrorModal", async (_target) => {
@@ -132,10 +131,8 @@ async function loadConfigs(jsonPath) {
                 storageManager.addStorageService(storageService.name, new StorageServiceModule[storageService.name]());
             }
         }
-
         storageManager.setCurrentService("FileSystemStorage");
         await webSkel.getService("AuthenticationService").initUser();
-
         for (const presenter of config.presenters) {
             const PresenterModule = await import(presenter.path);
             webSkel.registerPresenter(presenter.name, PresenterModule[presenter.className]);
@@ -149,6 +146,28 @@ async function loadConfigs(jsonPath) {
         await showApplicationError("Error loading configs", "Error loading configs", `Encountered ${error} while trying loading webSkel configs`);
     }
 }
+async function handleHistory(event){
+    const result = webSkel.getService("AuthenticationService").getCachedCurrentUser();
+    if(!result){
+        if(window.location.hash !== "#authentication-page"){
+            webSkel.setDomElementForPages(mainContent);
+            window.location.hash = "#authentication-page";
+            await webSkel.changeToDynamicPage("authentication-page", "authentication-page", "", true);
+        }
+    }else {
+        if(history.state.pageHtmlTagName === "authentication-page"){
+            const path = ["#", webSkel.currentState.pageHtmlTagName].join("");
+            history.replaceState(webSkel.currentState, path, path);
+        }
+    }
+    let modal = document.querySelector("dialog");
+    if(modal){
+        closeModal(modal);
+    }
+}
+function saveCurrentState(){
+    webSkel.currentState = Object.assign({}, history.state);
+}
 (async ()=> {
     await webSkel.defineComponent("general-loader", "./wallet/web-components/components/general-loader/general-loader.html");
     const loading = await webSkel.showLoading(`<general-loader></general-loader>`);
@@ -160,5 +179,7 @@ async function loadConfigs(jsonPath) {
     defineActions();
     loading.close();
     loading.remove();
-    window.addEventListener('popstate', loadPage);
+    window.addEventListener('popstate', handleHistory);
+    window.addEventListener('beforeunload', saveCurrentState);
+
 })();
