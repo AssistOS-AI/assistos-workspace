@@ -6,7 +6,6 @@ import {
 
 const openDSU = require("opendsu");
 const crypto = openDSU.loadApi("crypto");
-const w3cDID = openDSU.loadAPI("w3cdid");
 
 export class AuthenticationService{
 
@@ -51,12 +50,11 @@ export class AuthenticationService{
            }
         }
         else {
-            if(window.location !== "#authentication-page")
+            if(window.location.hash !== "#authentication-page")
             {
                 window.location.replace("#authentication-page");
             }
             webSkel.setDomElementForPages(mainContent);
-            //await webSkel.changeToDynamicPage("authentication-page", "authentication-page");
         }
     }
     async resetUser(userId){

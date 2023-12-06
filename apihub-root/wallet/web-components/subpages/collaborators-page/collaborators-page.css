@@ -1,7 +1,7 @@
-
+.collaborators-table{
+    padding: 15px;
+}
 .table-header {
-    padding-left: 15px;
-    padding-right: 15px;
     display: flex;
     justify-content: flex-start;
     color: var(--documents-page-header);

@@ -42,7 +42,7 @@
 }
 
 .announcement {
-    width: 100%;
+    width: 93%;
 }
 
 .modal-section {
@@ -57,6 +57,7 @@
 }
 
 .right-section {
+    width: 7%;
     display: flex;
     align-items: center;
     justify-content: center;
