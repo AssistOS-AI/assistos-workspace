@@ -155,9 +155,11 @@ async function handleHistory(event){
             await webSkel.changeToDynamicPage("authentication-page", "authentication-page", "", true);
         }
     }else {
-        if(history.state.pageHtmlTagName === "authentication-page"){
-            const path = ["#", webSkel.currentState.pageHtmlTagName].join("");
-            history.replaceState(webSkel.currentState, path, path);
+        if(history.state){
+            if(history.state.pageHtmlTagName === "authentication-page"){
+                const path = ["#", webSkel.currentState.pageHtmlTagName].join("");
+                history.replaceState(webSkel.currentState, path, path);
+            }
         }
     }
     let modal = document.querySelector("dialog");
