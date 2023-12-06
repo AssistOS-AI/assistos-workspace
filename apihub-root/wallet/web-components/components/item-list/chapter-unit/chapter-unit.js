@@ -49,13 +49,13 @@ export class chapterUnit {
                 currentParagraph = paragraph;
                 currentParagraph.click();
                 moveCursorToEnd(currentParagraph);
-                currentParagraph.scrollIntoView({behavior: "smooth", block: "center", inline: "nearest"});
+                //currentParagraph.scrollIntoView({behavior: "smooth", block: "center", inline: "nearest"});
                 break;
             }
         }
         if (this.chapter.id === webSkel.currentUser.space.currentChapterId&&!currentParagraph) {
             this.chapterUnit.click();
-            this.element.scrollIntoView({behavior: "smooth", block: "center", inline: "nearest"});
+            //this.element.scrollIntoView({behavior: "smooth", block: "center", inline: "nearest"});
         }
         if(this.chapter.visibility === "hide"){
             let paragraphsContainer = this.element.querySelector(".chapter-paragraphs");
