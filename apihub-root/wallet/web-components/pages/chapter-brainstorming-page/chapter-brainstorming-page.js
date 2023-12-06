@@ -1,10 +1,4 @@
-import {
-    reverseQuerySelector,
-    showActionBox,
-    showModal,
-    removeActionBox,
-    Chapter, parseURL
-} from "../../../imports.js";
+import {Chapter, parseURL, removeActionBox, reverseQuerySelector, showActionBox, showModal} from "../../../imports.js";
 
 export class chapterBrainstormingPage {
     constructor(element, invalidate) {
@@ -81,21 +75,17 @@ export class chapterBrainstormingPage {
         await showModal(document.querySelector("body"), "clone-chapter-modal", { presenter: "clone-chapter-modal"});
 
     }
-    async openChapterBrainStormingPage(){
-        await webSkel.changeToDynamicPage("chapter-brainstorming-page", `documents/${this._document.id}/chapter-brainstorming-page/${this._chapter.id}`);
-    }
     async openParagraphBrainstormingPage(_target) {
-        let paragraphId = reverseQuerySelector(_target, "reduced-paragraph-unit").getAttribute("data-id");
-        webSkel.currentUser.space.currentParagraphId = paragraphId;
+        webSkel.currentUser.space.currentParagraphId = reverseQuerySelector(_target, "reduced-paragraph-unit").getAttribute("data-id");
         await webSkel.changeToDynamicPage("paragraph-brainstorming-page",
-            `documents/${this._document.id}/paragraph-brainstorming-page/${webSkel.currentUser.space.currentChapterId}/${webSkel.currentUser.space.currentParagraphId}`);
+            `documents/${this._document.id}/paragraph-brainstorming-page/${this._chapter.id}/${webSkel.currentUser.space.currentParagraphId}`);
     }
     async showActionBox(_target, primaryKey, componentName, insertionMode) {
         this.actionBox = await showActionBox(_target, primaryKey, componentName, insertionMode);
     }
 
-    async editAction(_target, querySelect){
-
+    async editAction(_target){
+        await this.openParagraphBrainstormingPage(_target);
     }
     async deleteAction(_target){
         let paragraph = reverseQuerySelector(_target, "reduced-paragraph-unit");
