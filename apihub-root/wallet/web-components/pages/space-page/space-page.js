@@ -8,38 +8,41 @@ export class spacePage {
 
     async openTab(_target) {
         let tabName = _target.getAttribute("data-name");
+        const agents = "agents-page", announcements = "announcements-page", personalities = "personalities-page",
+            flows = "flows-page", tasks = "tasks-page", knowledge = "knowledge-page", collaborators = "collaborators-page",
+            settings = "settings-page";
         switch(tabName) {
-            case "agents-page":
-                this.tab = "agents-page";
-                window.location.hash = "#space-page/agents-page";
+            case agents:
+                this.tab = agents;
+                window.location.hash = `#space-page/${agents}`;
                 break;
-            case "announcements-page":
-                this.tab = "announcements-page";
-                window.location.hash = "#space-page/announcements-page";
+            case announcements:
+                this.tab = announcements;
+                window.location.hash = `#space-page/${announcements}`;
                 break;
-            case "personalities-page":
-                this.tab = "personalities-page";
-                window.location.hash = "#space-page/personalities-page";
+            case personalities:
+                this.tab = personalities;
+                window.location.hash = `#space-page/${personalities}`;
                 break;
-            case "flows-page":
-                this.tab = "flows-page";
-                window.location.hash = "#space-page/flows-page";
+            case flows:
+                this.tab = flows;
+                window.location.hash = `#space-page/${flows}`;
                 break;
-            case "tasks-page":
-                this.tab = "tasks-page";
-                window.location.hash = "#space-page/tasks-page";
+            case tasks:
+                this.tab = tasks;
+                window.location.hash = `#space-page/${tasks}`;
                 break;
-            case "knowledge-page":
-                this.tab = "knowledge-page";
-                window.location.hash = "#space-page/knowledge-page";
+            case knowledge:
+                this.tab = knowledge;
+                window.location.hash = `#space-page/${knowledge}`;
                 break;
-            case "collaborators-page":
-                this.tab = "collaborators-page";
-                window.location.hash = "#space-page/collaborators-page";
+            case collaborators:
+                this.tab = collaborators;
+                window.location.hash = `#space-page/${collaborators}`;
                 break;
-            case "settings-page":
-                this.tab = "settings-page";
-                window.location.hash = "#space-page/settings-page";
+            case settings:
+                this.tab = settings;
+                window.location.hash = `#space-page/${settings}`;
                 break;
         }
         this.invalidate();
@@ -47,44 +50,46 @@ export class spacePage {
 
     beforeRender() {
      this.spaceName = webSkel.currentUser.space.name;
-
+     const agents = "agents-page", announcements = "announcements-page", personalities = "personalities-page",
+        flows = "flows-page", tasks = "tasks-page", knowledge = "knowledge-page", collaborators = "collaborators-page",
+        settings = "settings-page";
      switch (this.tab){
-         case "agents-page":{
-             this.pageContent = `<agents-page data-presenter="agents-page"></agents-page>`;
+         case agents:{
+             this.pageContent = `<${agents} data-presenter="${agents}"></${agents}>`;
              break;
          }
-         case "announcements-page":{
-             this.pageContent = `<announcements-page data-presenter="announcements-page"></announcements-page>`;
+         case announcements:{
+             this.pageContent = `<${announcements} data-presenter="${announcements}"></${announcements}>`;
              break;
          }
-         case "personalities-page":{
-             this.pageContent = `<personalities-page data-presenter="personalities-page"></personalities-page>`;
+         case personalities:{
+             this.pageContent = `<${personalities} data-presenter="${personalities}"></${personalities}>`;
              break;
          }
-         case "flows-page":{
-             this.pageContent = `<flows-page data-presenter="flows-page"></flows-page>`;
+         case flows:{
+             this.pageContent = `<${flows} data-presenter="${flows}"></${flows}>`;
              break;
          }
-         case "tasks-page":{
-             this.pageContent = `<tasks-page data-presenter="tasks-page"></tasks-page>`;
+         case tasks:{
+             this.pageContent = `<${tasks} data-presenter="${tasks}"></${tasks}>`;
              break;
          }
-         case "knowledge-page":{
-             this.pageContent = `<knowledge-page data-presenter="knowledge-page"></knowledge-page>`;
+         case knowledge:{
+             this.pageContent = `<${knowledge} data-presenter="${knowledge}"></${knowledge}>`;
              break;
          }
-         case "collaborators-page":{
-             this.pageContent = `<collaborators-page data-presenter="collaborators-page"></collaborators-page>`;
+         case collaborators:{
+             this.pageContent = `<${collaborators} data-presenter="${collaborators}"></${collaborators}>`;
              break;
          }
-         case "settings-page":{
-             this.pageContent = `<settings-page data-presenter="settings-page"></settings-page>`;
+         case settings:{
+             this.pageContent = `<${settings} data-presenter="${settings}"></${settings}>`;
              break;
          }
          default:{
-             this.pageContent = `<announcements-page data-presenter="announcements-page"></announcements-page>`;
-             window.location.hash = "#space-page/announcements-page";
-             this.tab = "announcements-page";
+             this.pageContent = `<${announcements} data-presenter="${announcements}"></${announcements}>`;
+             window.location.hash = `#space-page/${announcements}`;
+             this.tab = announcements;
              break;
          }
      }

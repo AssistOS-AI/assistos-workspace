@@ -1,10 +1,11 @@
 export function parseURL(){
-    let url = window.location.hash;
-    switch(url.split('/')[0]) {
-        case "#documents": {
-            let documentId = url.split('/')[1];
-            let chapterId = url.split('/')[3];
-            let paragraphId = url.split('/')[4];
+    let url = window.location.hash.split('/');
+    const documents = "#documents", space = "#space-page", chatbots = "#chatbots-page";
+    switch(url[0]) {
+        case documents: {
+            let documentId = url[1];
+            let chapterId = url[3];
+            let paragraphId = url[4];
             if(chapterId){
                 return [documentId, chapterId, paragraphId];
             }else {
@@ -12,17 +13,17 @@ export function parseURL(){
             }
 
         }
-        case "#space-page":{
-            if(url.split("/")[1] === "edit-personality-page"){
-                return url.split("/")[2];
+        case space:{
+            if(url[1] === "edit-personality-page"){
+                return url[2];
             }
             break;
         }
-        case "#chatbots-page":{
-            return url.split("/")[1];
+        case chatbots:{
+            return url[1];
         }
         default:{
-            console.error("shouldn't have gotten here");
+            console.error("no parameters for this url");
         }
     }
 }
