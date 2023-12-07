@@ -139,5 +139,5 @@ input[type="file"]{
 .cancel-btn{
     background:var(--white-text);
     color: var(--button-purple);
-    border: 2px solid var(--button-purple);
+    box-shadow: inset 0 0 0 2px var(--button-purple);
 }
