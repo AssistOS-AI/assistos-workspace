@@ -21,9 +21,7 @@ export class flowsPage {
                 return a.name.toLowerCase().localeCompare(b.name.toLowerCase());
             });
             this.filteredFlows.forEach((item) => {
-                this.tableRows += `<flow-unit data-id="${item.id}" 
-                data-name="${item.name}" data-content="${item.content}" 
-                data-description="${item.description}" data-local-action="editAction"></flow-unit>`;
+                this.tableRows += `<flow-unit data-id="${item.id}" data-name="${item.name}" data-description="${item.description}" data-local-action="editAction"></flow-unit>`;
             });
         } else {
             this.tableRows = `<div class="no-data-loaded">No data loaded</div>`;
