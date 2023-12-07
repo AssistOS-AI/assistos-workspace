@@ -6,8 +6,7 @@ import {
 
 export class flowsPage {
     constructor(element, invalidate) {
-        this.notificationId = "space:space-page:flows";
-        webSkel.currentUser.space.observeChange(this.notificationId,invalidate);
+        webSkel.currentUser.space.observeChange(webSkel.currentUser.space.getNotificationId(),invalidate);
         this.element = element;
         this.filteredFlows =  webSkel.currentUser.space.flows;
         this.selectedTypes = [];

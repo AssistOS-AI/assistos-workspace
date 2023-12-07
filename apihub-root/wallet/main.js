@@ -21,7 +21,7 @@ async function loadPage() {
     let leftSidebar = document.querySelector("#app-left-sidebar");
     let leftSidebarPlaceholder = document.querySelector(".left-sidebar-placeholder");
     let presenterName;
-    const documents = "#documents", authentication = "#authentication-page", agent = "#agent-page", chatbots = "#chatbots-page";
+    const documents = "#documents", authentication = "#authentication-page", personalities = "#personalities-page", chatbots = "#chatbots-page";
     /* URL examples: documents/0, documents/0/chapters/1 */
     let splitUrl = url.split('/');
     switch(splitUrl[0]) {
@@ -45,7 +45,7 @@ async function loadPage() {
             presenterName = url.slice(1);
             break;
         }
-        case agent:{
+        case personalities:{
             leftSidebar.style.visibility = "visible";
             leftSidebarPlaceholder.style.display = "none";
             changeSelectedPageFromSidebar("agent-page");

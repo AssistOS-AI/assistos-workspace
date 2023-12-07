@@ -7,7 +7,7 @@ export class personalitiesPage {
     constructor(element,invalidate) {
         this.modal = "showAddPersonalityModal";
         this.element = element;
-        this.notificationId = webSkel.currentUser.space.getNotificationId() +":space-page:personalities-page";
+        this.notificationId = webSkel.currentUser.space.getNotificationId();
         webSkel.currentUser.space.observeChange(this.notificationId,invalidate);
         this.invalidate=invalidate;
         this.invalidate();
@@ -26,7 +26,7 @@ export class personalitiesPage {
 
     async selectPersonality(_target){
         let personalityId = reverseQuerySelector(_target, "personality-unit").getAttribute("data-id");
-        window.location.hash = `#space-page/edit-personality-page/${personalityId}`;
-        await webSkel.changeToDynamicPage("edit-personality-page", `space-page/edit-personality-page/${personalityId}`);
+        window.location.hash = `#personalities-page/edit-personality-page/${personalityId}`;
+        await webSkel.changeToDynamicPage("edit-personality-page", `personalities-page/edit-personality-page/${personalityId}`);
     }
 }

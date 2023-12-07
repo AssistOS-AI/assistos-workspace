@@ -76,15 +76,6 @@
     display: none;
     /* Safari and Chrome */
 }
-space-page:not(:defined) {
-  display:none;
-}
-announcements-page:not(:defined) {
-    display: none;
-}
-announcement-unit:not(:defined) {
-    display: none;
-}
 html {
     --default-font: Poppins;
     font-family: var(--default-font);

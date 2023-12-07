@@ -6,8 +6,7 @@ import {
 
 export class announcementsPage {
     constructor(element,invalidate) {
-        this.notificationId="space:space-page:announcements"
-        webSkel.currentUser.space.observeChange(this.notificationId,invalidate);
+        webSkel.currentUser.space.observeChange(webSkel.currentUser.space.getNotificationId(),invalidate);
         this.invalidate=invalidate;
         this.invalidate();
     }
