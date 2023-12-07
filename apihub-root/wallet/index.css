@@ -32,7 +32,8 @@
         --green-blue: #429E9D ;/* var(--green-blue); */
         --spinner-l-r-b: #00aeef26; /* var(--spinner-l-r-b); */
         --spinner-t: #00aeefcc ;/* var(--spinner-t); */
-        --medium-blue: #004A8D ;/* var(--medium-blue); */
+        --light-blue: #E1ECF4;/* var(--light-blue); */
+        --medium-blue: #0C5C9E ;/* var(--medium-blue); */
         --input-file-background: #F7FBFF ;/* var(--input-file-background); */
         --strong-blue: #007bff ;/* var(--strong-blue); */
         --documents-page-header: #363C44 ;/* var(--documents-page-header); */
