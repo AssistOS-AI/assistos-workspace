@@ -69,6 +69,11 @@ agent-page{
     outline: none;
 }
 .send-message-btn{
+    width: 7%;
+    padding: 0;
+    display: flex;
+    justify-content: center;
+    align-items: center;
     cursor: pointer;
     background: none;
     border: none;
