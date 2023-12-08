@@ -1,0 +1,10 @@
+
+.right-sidebar{
+    padding: 20px;
+    background: white;
+}
+.sidebar-item{
+    padding: 10px;
+    color: var(--medium-blue);
+    font-weight: 600;
+}

@@ -23,7 +23,7 @@
     text-overflow: ellipsis;
     white-space: nowrap;
 }
-.content{
+.description{
     margin-right: 10px;
     width: 64%;
     overflow: hidden;

@@ -1,28 +1,33 @@
 {
   "presenters": [
     {
+      "name": "space-right-sidebar",
+      "path": "./web-components/components/space-right-sidebar/space-right-sidebar.js",
+      "className": "spaceRightSidebar"
+    },
+    {
       "name": "collaborators-page",
-      "path": "./web-components/subpages/collaborators-page/collaborators-page.js",
+      "path": "./web-components/pages/collaborators-page/collaborators-page.js",
       "className": "collaboratorsPage"
     },
     {
       "name": "knowledge-page",
-      "path": "./web-components/subpages/knowledge-page/knowledge-page.js",
+      "path": "./web-components/pages/knowledge-page/knowledge-page.js",
       "className": "knowledgePage"
     },
     {
       "name": "tasks-page",
-      "path": "./web-components/subpages/tasks-page/tasks-page.js",
+      "path": "./web-components/pages/tasks-page/tasks-page.js",
       "className": "tasksPage"
     },
     {
-      "name": "agents-page",
-      "path": "./web-components/subpages/agents-page/agents-page.js",
-      "className": "agentsPage"
+      "name": "agent-page",
+      "path": "./web-components/pages/agent-page/agent-page.js",
+      "className": "agentPage"
     },
     {
       "name": "settings-page",
-      "path": "./web-components/subpages/settings-page/settings-page.js",
+      "path": "./web-components/pages/settings-page/settings-page.js",
       "className": "settingsPage"
     },
     {
@@ -97,11 +102,6 @@
       "className": "chapterUnit"
     },
     {
-      "name": "space-dropdown",
-      "path": "./web-components/components/space-dropdown/space-dropdown.js",
-      "className": "spaceDropdown"
-    },
-    {
       "name": "document-view-page",
       "path": "./web-components/pages/document-view-page/document-view-page.js",
       "className": "documentViewPage"
@@ -157,19 +157,14 @@
       "className": "proofReaderPage"
     },
     {
-      "name": "space-page",
-      "path": "./web-components/pages/space-page/space-page.js",
-      "className": "spacePage"
-    },
-    {
       "name": "announcements-page",
-      "path": "./web-components/subpages/announcements-page/announcements-page.js",
+      "path": "./web-components/pages/announcements-page/announcements-page.js",
       "className": "announcementsPage"
     },
 
     {
       "name": "personalities-page",
-      "path": "./web-components/subpages/personalities-page/personalities-page.js",
+      "path": "./web-components/pages/personalities-page/personalities-page.js",
       "className": "personalitiesPage"
     },
     {
@@ -260,7 +255,7 @@
     },
     {
       "name": "flows-page",
-      "path": "./web-components/subpages/flows-page/flows-page.js",
+      "path": "./web-components/pages/flows-page/flows-page.js",
       "className": "flowsPage"
     },
     {
@@ -293,38 +288,46 @@
   ],
   "components": [
     {
-      "name": "collaborators-page",
-      "path": "./wallet/web-components/subpages/collaborators-page/collaborators-page.html",
+      "name": "space-right-sidebar",
+      "path": "./wallet/web-components/components/space-right-sidebar/space-right-sidebar.html",
       "cssPaths": [
-        "./wallet/web-components/subpages/collaborators-page/collaborators-page.css"
+        "./wallet/web-components/components/space-right-sidebar/space-right-sidebar.css"
+      ]
+    },
+    {
+      "name": "collaborators-page",
+      "path": "./wallet/web-components/pages/collaborators-page/collaborators-page.html",
+      "cssPaths": [
+        "./wallet/web-components/pages/collaborators-page/collaborators-page.css"
       ]
     },
     {
       "name": "knowledge-page",
-      "path": "./wallet/web-components/subpages/knowledge-page/knowledge-page.html",
+      "path": "./wallet/web-components/pages/knowledge-page/knowledge-page.html",
       "cssPaths": [
-            "./wallet/web-components/subpages/knowledge-page/knowledge-page.css"
+            "./wallet/web-components/pages/knowledge-page/knowledge-page.css"
       ]
     },
     {
       "name": "tasks-page",
-      "path": "./wallet/web-components/subpages/tasks-page/tasks-page.html",
+      "path": "./wallet/web-components/pages/tasks-page/tasks-page.html",
         "cssPaths": [
-            "./wallet/web-components/subpages/tasks-page/tasks-page.css"
+            "./wallet/web-components/pages/tasks-page/tasks-page.css"
         ]
     },
     {
-      "name": "agents-page",
-      "path": "./wallet/web-components/subpages/agents-page/agents-page.html",
+      "name": "agent-page",
+      "path": "./wallet/web-components/pages/agent-page/agent-page.html",
       "cssPaths": [
-            "./wallet/web-components/subpages/agents-page/agents-page.css"
+            "./wallet/web-components/pages/agent-page/agent-page.css",
+        "./wallet/web-components/components/item-list/space-unit/space-unit.css"
         ]
     },
     {
       "name": "settings-page",
-      "path": "./wallet/web-components/subpages/settings-page/settings-page.html",
+      "path": "./wallet/web-components/pages/settings-page/settings-page.html",
       "cssPaths": [
-            "./wallet/web-components/subpages/settings-page/settings-page.css"
+            "./wallet/web-components/pages/settings-page/settings-page.css"
         ]
     },
     {
@@ -452,15 +455,6 @@
         "cssPaths": [
             "./wallet/web-components/pages/chapter-editor-page/chapter-editor-page.css",
           "./wallet/web-components/components/item-list/paragraph-unit/paragraph-unit.css"
-        ]
-    },
-    {
-      "name": "space-dropdown",
-      "path": "./wallet/web-components/components/space-dropdown/space-dropdown.html",
-        "cssPaths": [
-            "./wallet/web-components/components/space-dropdown/space-dropdown.css",
-          "./wallet/web-components/components/item-list/space-unit/space-unit.css"
-          
         ]
     },
     {
@@ -638,43 +632,26 @@
         ]
     },
     {
-      "name": "space-page",
-      "path": "./wallet/web-components/pages/space-page/space-page.html",
-        "cssPaths": [
-            "./wallet/web-components/pages/space-page/space-page.css",
-            "./wallet/web-components/subpages/announcements-page/announcements-page.css",
-          "./wallet/web-components/components/item-list/announcement-unit/announcement-unit.css",
-            "./wallet/web-components/subpages/personalities-page/personalities-page.css",
-          "./wallet/web-components/components/item-list/personality-unit/personality-unit.css",
-            "./wallet/web-components/subpages/flows-page/flows-page.css",
-            "./wallet/web-components/components/item-list/flow-unit/flow-unit.css",
-          "./wallet/web-components/subpages/knowledge-page/knowledge-page.css",
-          "./wallet/web-components/subpages/tasks-page/tasks-page.css",
-            "./wallet/web-components/subpages/agents-page/agents-page.css",
-            "./wallet/web-components/subpages/settings-page/settings-page.css"
-        ]
-    },
-    {
       "name": "announcements-page",
-      "path": "./wallet/web-components/subpages/announcements-page/announcements-page.html",
+      "path": "./wallet/web-components/pages/announcements-page/announcements-page.html",
         "cssPaths": [
-            "./wallet/web-components/subpages/announcements-page/announcements-page.css",
+            "./wallet/web-components/pages/announcements-page/announcements-page.css",
           "./wallet/web-components/components/item-list/announcement-unit/announcement-unit.css"
         ]
     },
     {
       "name": "personalities-page",
-      "path": "./wallet/web-components/subpages/personalities-page/personalities-page.html",
+      "path": "./wallet/web-components/pages/personalities-page/personalities-page.html",
         "cssPaths": [
-            "./wallet/web-components/subpages/personalities-page/personalities-page.css",
+            "./wallet/web-components/pages/personalities-page/personalities-page.css",
           "./wallet/web-components/components/item-list/personality-unit/personality-unit.css"
         ]
     },
     {
       "name": "flows-page",
-      "path": "./wallet/web-components/subpages/flows-page/flows-page.html",
+      "path": "./wallet/web-components/pages/flows-page/flows-page.html",
       "cssPaths": [
-        "./wallet/web-components/subpages/flows-page/flows-page.css",
+        "./wallet/web-components/pages/flows-page/flows-page.css",
         "./wallet/web-components/components/item-list/flow-unit/flow-unit.css"
       ]
     },

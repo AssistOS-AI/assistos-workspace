@@ -11,17 +11,17 @@ window.mainContent = document.querySelector("#app-wrapper");
 async function loadPage() {
 
     let url = window.location.hash;
-    if(url === "" || url === null || url === "#space-page") {
-        let space = "space-page";
-        url = "#space-page/announcements-page";
-        const content = `<${space} data-presenter="${space}" data-name="announcements-page"></${space}>`;
-        history.replaceState({space, relativeUrlContent: content}, url, url);
-        window.location.replace("#space-page/announcements-page");
+    if(url === "" || url === null || url === "#agent-page") {
+        let agent = "agent-page";
+        url = "#agent-page";
+        const content = `<${agent} data-presenter="${agent}"></${agent}>`;
+        history.replaceState({agent, relativeUrlContent: content}, url, url);
+        window.location.replace("#agent-page");
     }
     let leftSidebar = document.querySelector("#app-left-sidebar");
     let leftSidebarPlaceholder = document.querySelector(".left-sidebar-placeholder");
     let presenterName;
-    const documents = "#documents", authentication = "#authentication-page", space = "#space-page", chatbots = "#chatbots-page";
+    const documents = "#documents", authentication = "#authentication-page", personalities = "#personalities-page", chatbots = "#chatbots-page";
     /* URL examples: documents/0, documents/0/chapters/1 */
     let splitUrl = url.split('/');
     switch(splitUrl[0]) {
@@ -45,10 +45,10 @@ async function loadPage() {
             presenterName = url.slice(1);
             break;
         }
-        case space:{
+        case personalities:{
             leftSidebar.style.visibility = "visible";
             leftSidebarPlaceholder.style.display = "none";
-            changeSelectedPageFromSidebar("space-page");
+            changeSelectedPageFromSidebar("agent-page");
             if(splitUrl[1] === "edit-personality-page"){
                 presenterName = splitUrl[1];
             }else {

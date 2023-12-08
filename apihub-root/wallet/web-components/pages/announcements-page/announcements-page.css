@@ -1,0 +1,6 @@
+announcements-page{
+    display: flex;
+}
+.announcements-page{
+    width: calc(100% - 270px);
+}
