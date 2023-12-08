@@ -10,6 +10,8 @@ export class applicationUnit{
     async installApplication() {
         console.log("In development TBD")
        // let flowId = webSkel.currentUser.space.getFlowIdByName("installApplication");
-       // await webSkel.getService("applicationService").callFlow(flowId, this.element.getAttribute("data-id"));
+      // await webSkel.getService("applicationService").callFlow(flowId, this.element.getAttribute("data-id"));
+        debugger;
+        await webSkel.getService("ApplicationsService").installApplication(webSkel.currentUser.space.id, this.element.getAttribute("data-id"));
     }
 }

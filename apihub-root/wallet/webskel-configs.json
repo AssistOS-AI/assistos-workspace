@@ -299,6 +299,10 @@
     {
       "name": "FlowsService",
       "path": "./core/services/flowsService.js"
+    },
+    {
+      "name": "ApplicationsService",
+      "path": "./core/services/applicationsService.js"
     }
   ],
   "components": [
