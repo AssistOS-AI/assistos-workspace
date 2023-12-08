@@ -4,6 +4,10 @@ settings-page{
     height: 100%;
 }
 .settings-page{
-    padding: 20px;
     width: calc(100% - 270px);
+}
+.space-controls{
+    display: flex;
+    align-items: center;
+    padding: 20px 40px;
 }

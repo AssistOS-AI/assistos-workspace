@@ -67,3 +67,8 @@ flows-page{
 .filter label{
     cursor: pointer;
 }
+.space-controls{
+    display: flex;
+    align-items: center;
+    padding: 20px 40px;
+}

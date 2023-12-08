@@ -14,7 +14,7 @@ function sendResponse(response, statusCode, contentType, message) {
 async function installApplication(request, response) {
     const spaceId = request.params.spaceId;
     const applicationId = request.params.applicationId;
-    const folderPath = path.join(__dirname, `../apihub-root/spaces/${spaceId}/applications/${applicationId}`);
+    const folderPath = `../apihub-root/spaces/${spaceId}/applications/${applicationId}`;
     const branchName = `space-${spaceId}-app-${applicationId}`;
 
     try {
@@ -25,12 +25,11 @@ async function installApplication(request, response) {
             console.error("Application or repository not found");
             sendResponse(response, 404, "text/html", "Application or repository not found")
         }
-
         // Clone the repository
         await execAsync(`git clone ${application.repository} ${folderPath}`);
 
         // Change working directory to the cloned repository and create a new branch
-        await execAsync(`git checkout -b ${branchName}`, { cwd: folderPath });
+        await execAsync(`git checkout -b ${branchName}`);
 
         sendResponse(response, 200, "text/html", "Application installed successfully")
     } catch (error) {

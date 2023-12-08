@@ -4,7 +4,7 @@ export class ApplicationsService {
     async installApplication(spaceId,applicationId) {
             let result;
             try {
-                result = await fetch(`/spaces/${spaceId}/applications/${applicationId}`,
+                result = await fetch(`/space/${spaceId}/applications/${applicationId}`,
                     {
                         method: "POST",
                         headers: {
