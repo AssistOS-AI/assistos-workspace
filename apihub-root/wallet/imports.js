@@ -9,6 +9,7 @@ import { Space } from "./core/models/space.js";
 import { Settings } from "./core/models/settings.js";
 import { Flow } from "./core/models/flow.js";
 import { Agent } from "./core/models/agent.js";
+import {MyWebPage} from "./core/models/myWebPage.js";
 
 export {
     Chapter,
@@ -20,7 +21,8 @@ export {
     Space,
     Settings,
     Flow,
-    Agent
+    Agent,
+    MyWebPage
 };
 
 // Services

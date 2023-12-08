@@ -28,10 +28,10 @@ export class spaceRightSidebar {
     async navigateToCollaboratorsPage(){
         await webSkel.changeToDynamicPage("collaborators-page", "collaborators-page");
     }
+    async navigateToMyWebPage(){
+        await webSkel.changeToDynamicPage("my-web-page", "my-web-page");
+    }
     async navigateToSettingsPage(){
         await webSkel.changeToDynamicPage("settings-page", "settings-page");
-    }
-    async navigateToApplicationsMarketplacePage(){
-        await webSkel.changeToDynamicPage("applications-marketplace-page", "applications-marketplace-page");
     }
 }

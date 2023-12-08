@@ -31,6 +31,11 @@
       "className": "agentPage"
     },
     {
+      "name": "my-web-page",
+      "path": "./web-components/pages/my-web-page/my-web-page.js",
+      "className": "myWebPage"
+    },
+    {
       "name": "settings-page",
       "path": "./web-components/pages/settings-page/settings-page.js",
       "className": "settingsPage"
@@ -222,7 +227,7 @@
       "path": "./web-components/modals/suggest-abstract-modal/suggest-abstract-modal.js",
       "className": "suggestAbstractModal"
     },
-    
+
     {
       "name": "summarize-paragraph-modal",
       "path": "./web-components/modals/summarize-paragraph-modal/summarize-paragraph-modal.js",
@@ -328,6 +333,13 @@
       "path": "./wallet/web-components/pages/knowledge-page/knowledge-page.html",
       "cssPaths": [
             "./wallet/web-components/pages/knowledge-page/knowledge-page.css"
+      ]
+    },
+    {
+      "name": "my-web-page",
+      "path": "./wallet/web-components/pages/my-web-page/my-web-page.html",
+      "cssPaths": [
+        "./wallet/web-components/pages/my-web-page/my-web-page.css"
       ]
     },
     {
@@ -817,7 +829,6 @@
             "./wallet/web-components/pages/authentication-page/authentication-page.css"
         ]
     },
-    
     {
       "name": "application-unit",
       "path": "./wallet/web-components/components/item-list/application-unit/application-unit.html",
