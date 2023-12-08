@@ -8,30 +8,33 @@ export class spaceRightSidebar {
     }
 
     async navigateToAgentPage(){
-        await webSkel.changeToDynamicPage("agent-page", "agent-page");
+        await webSkel.changeToDynamicPage("agent-page", "space/agent-page");
     }
     async navigateToAnnouncementsPage(){
-        await webSkel.changeToDynamicPage("announcements-page", "announcements-page");
+        await webSkel.changeToDynamicPage("announcements-page", "space/announcements-page");
     }
     async navigateToPersonalitiesPage(){
-        await webSkel.changeToDynamicPage("personalities-page", "personalities-page");
+        await webSkel.changeToDynamicPage("personalities-page", "space/personalities-page");
     }
     async navigateToFlowsPage(){
-        await webSkel.changeToDynamicPage("flows-page", "flows-page");
+        await webSkel.changeToDynamicPage("flows-page", "space/flows-page");
     }
     async navigateToKnowledgePage(){
-        await webSkel.changeToDynamicPage("knowledge-page", "knowledge-page");
+        await webSkel.changeToDynamicPage("knowledge-page", "space/knowledge-page");
     }
     async navigateToTasksPage(){
-        await webSkel.changeToDynamicPage("tasks-page", "tasks-page");
+        await webSkel.changeToDynamicPage("tasks-page", "space/tasks-page");
     }
     async navigateToCollaboratorsPage(){
-        await webSkel.changeToDynamicPage("collaborators-page", "collaborators-page");
+        await webSkel.changeToDynamicPage("collaborators-page", "space/collaborators-page");
     }
     async navigateToMyWebPage(){
         await webSkel.changeToDynamicPage("my-web-page", "my-web-page");
     }
     async navigateToSettingsPage(){
-        await webSkel.changeToDynamicPage("settings-page", "settings-page");
+        await webSkel.changeToDynamicPage("settings-page", "space/settings-page");
+    }
+    async navigateToApplicationsMarketplacePage(){
+        await webSkel.changeToDynamicPage("applications-marketplace-page", "space/applications-marketplace-page");
     }
 }

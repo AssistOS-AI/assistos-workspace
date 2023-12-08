@@ -1,4 +1,9 @@
-
+space-right-sidebar{
+    width: 270px;
+}
+.personalities-page{
+    width: calc(100% - 270px);
+}
 .right-sidebar{
     padding: 20px;
     background: white;

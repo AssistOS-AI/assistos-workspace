@@ -1,6 +1,11 @@
 {
   "presenters": [
     {
+      "name": "space-dropdown",
+      "path": "./web-components/components/space-dropdown/space-dropdown.js",
+      "className": "spaceDropdown"
+    },
+    {
       "name": "left-sidebar",
       "path": "./web-components/components/left-sidebar/left-sidebar.js",
       "className": "leftSidebar"
@@ -304,9 +309,20 @@
     {
       "name": "FlowsService",
       "path": "./core/services/flowsService.js"
+    },
+    {
+      "name": "ApplicationsService",
+      "path": "./core/services/applicationsService.js"
     }
   ],
   "components": [
+    {
+      "name": "space-dropdown",
+      "path": "./wallet/web-components/components/space-dropdown/space-dropdown.html",
+      "cssPaths": [
+        "./wallet/web-components/components/space-dropdown/space-dropdown.css"
+      ]
+    },
     {
       "name": "left-sidebar",
       "path": "./wallet/web-components/components/left-sidebar/left-sidebar.html",
