@@ -144,7 +144,7 @@ agent-page{
     display: flex;
 }
 .spaces-list > *{
-    padding: 5px 5px 5px 30px;
+    padding: 5px 5px 5px 0;
     display: flex;
     justify-content: start;
     align-items: center;

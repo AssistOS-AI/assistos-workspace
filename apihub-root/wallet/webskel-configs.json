@@ -1,6 +1,11 @@
 {
   "presenters": [
     {
+      "name": "left-sidebar",
+      "path": "./web-components/components/left-sidebar/left-sidebar.js",
+      "className": "leftSidebar"
+    },
+    {
       "name": "space-right-sidebar",
       "path": "./web-components/components/space-right-sidebar/space-right-sidebar.js",
       "className": "spaceRightSidebar"
@@ -287,6 +292,13 @@
     }
   ],
   "components": [
+    {
+      "name": "left-sidebar",
+      "path": "./wallet/web-components/components/left-sidebar/left-sidebar.html",
+      "cssPaths": [
+        "./wallet/web-components/components/left-sidebar/left-sidebar.css"
+      ]
+    },
     {
       "name": "space-right-sidebar",
       "path": "./wallet/web-components/components/space-right-sidebar/space-right-sidebar.html",

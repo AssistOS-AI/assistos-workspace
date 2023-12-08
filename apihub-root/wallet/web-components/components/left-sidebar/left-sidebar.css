@@ -1,0 +1,54 @@
+left-sidebar{
+    background-color: var(--left-sidebar);
+    height: 100%;
+    display: flex;
+    flex-direction: column;
+    justify-content: space-between;
+}
+.features-list-wrapper {
+    margin: 20px;
+    display:flex;
+    justify-content: center;
+    flex-direction:column;
+}
+.feature {
+    justify-content: center;
+    position: relative;
+    align-items: center;
+    display: flex;
+    padding: 8px 10px 8px 10px;
+    margin-top: 15px;
+    max-height: 100%;
+}
+.feature:hover {
+    cursor: pointer;
+    border-radius: 5px;
+    background: var(--feature-hover);
+}
+#selected-page {
+    background: white;
+    border-radius: 5px;
+    font-size: 16px;
+    font-style: normal;
+    line-height: normal;
+}
+.first{
+    margin-top: 0;
+}
+.bottom-section{
+    display: flex;
+    flex-direction: column;
+    justify-content: center;
+    padding: 20px;
+}
+.app-name{
+    padding: 5px;
+    z-index: 1;
+    color: white;
+    background: var(--left-sidebar);
+    border: 1px solid var(--very-light-gray);
+    border-radius: 5px;
+    visibility: hidden;
+    position: absolute;
+    left: 100%;
+}

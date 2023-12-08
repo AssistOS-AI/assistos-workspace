@@ -18,7 +18,7 @@ async function loadPage() {
         history.replaceState({agent, relativeUrlContent: content}, url, url);
         window.location.replace("#agent-page");
     }
-    let leftSidebar = document.querySelector("#app-left-sidebar");
+    let leftSidebar = document.querySelector("left-sidebar");
     let leftSidebarPlaceholder = document.querySelector(".left-sidebar-placeholder");
     let presenterName;
     const documents = "#documents", authentication = "#authentication-page", personalities = "#personalities-page", chatbots = "#chatbots-page";
@@ -88,27 +88,30 @@ export function changeSelectedPageFromSidebar(url) {
     let element = document.getElementById('selected-page');
     if (element) {
         element.removeAttribute('id');
+        let paths = element.querySelectorAll("path");
+        paths.forEach((path)=>{
+            path.setAttribute("fill", "white");
+        });
     }
-    let divs = document.querySelectorAll('div[data-action]');
+    let divs = document.querySelectorAll('div[data-local-action]');
     let targetAction = url;
     if(targetAction.startsWith("#")) {
         targetAction = url.slice(1);
     }
     divs.forEach(div => {
-        let dataAction = div.getAttribute('data-action');
+        let dataAction = div.getAttribute('data-local-action');
         if (dataAction.includes(targetAction)) {
             console.log(`Element with data-action '${targetAction}' found.`);
             div.setAttribute('id', 'selected-page');
+            let paths = div.querySelectorAll("path");
+            paths.forEach((path)=>{
+                path.setAttribute("fill", "var(--left-sidebar)");
+            });
         }
     });
 }
 
 function defineActions() {
-    webSkel.registerAction("changePage", async (_target, pageId, refreshFlag='0') => {
-        let flowId = webSkel.currentUser.space.getFlowIdByName("ChangeApplication");
-        await webSkel.getService("LlmsService").callFlow(flowId, pageId, refreshFlag);
-    });
-
     webSkel.registerAction("closeErrorModal", async (_target) => {
         closeModal(_target);
     });
