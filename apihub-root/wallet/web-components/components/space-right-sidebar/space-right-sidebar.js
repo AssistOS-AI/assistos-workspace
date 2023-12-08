@@ -31,4 +31,7 @@ export class spaceRightSidebar {
     async navigateToSettingsPage(){
         await webSkel.changeToDynamicPage("settings-page", "settings-page");
     }
+    async navigateToApplicationsMarketplacePage(){
+        await webSkel.changeToDynamicPage("applications-marketplace-page", "applications-marketplace-page");
+    }
 }

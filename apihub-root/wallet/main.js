@@ -134,6 +134,9 @@ async function loadConfigs(jsonPath) {
                 storageManager.addStorageService(storageService.name, new StorageServiceModule[storageService.name]());
             }
         }
+        for( const application of config.applications){
+            webSkel.applications.push(application);
+        }
         storageManager.setCurrentService("FileSystemStorage");
         await webSkel.getService("AuthenticationService").initUser();
         for (const presenter of config.presenters) {

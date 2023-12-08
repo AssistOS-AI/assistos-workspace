@@ -36,6 +36,11 @@
       "className": "settingsPage"
     },
     {
+      "name": "applications-marketplace-page",
+      "path": "./web-components/pages/applications-marketplace-page/applications-marketplace-page.js",
+      "className": "applicationsMarketplacePage"
+    },
+    {
       "name": "chatbots-select-personality-page",
       "path": "./web-components/pages/chatbots-select-personality-page/chatbots-select-personality-page.js",
       "className": "chatbotsSelectPersonalityPage"
@@ -267,6 +272,11 @@
       "name": "authentication-page",
       "path": "./web-components/pages/authentication-page/authentication-page.js",
       "className": "authenticationPage"
+    },
+    {
+      "name": "application-unit",
+      "path": "./web-components/components/item-list/application-unit/application-unit.js",
+      "className": "applicationUnit"
     }
   ],
   "services": [
@@ -341,6 +351,13 @@
       "cssPaths": [
             "./wallet/web-components/pages/settings-page/settings-page.css"
         ]
+    },
+    {
+      "name": "applications-marketplace-page",
+      "path": "./wallet/web-components/pages/applications-marketplace-page/applications-marketplace-page.html",
+      "cssPaths": [
+        "./wallet/web-components/pages/applications-marketplace-page/applications-marketplace-page.css"
+      ]
     },
     {
       "name": "chatbots-select-personality-page",
@@ -799,12 +816,48 @@
         "cssPaths": [
             "./wallet/web-components/pages/authentication-page/authentication-page.css"
         ]
+    },
+    
+    {
+      "name": "application-unit",
+      "path": "./wallet/web-components/components/item-list/application-unit/application-unit.html",
+      "cssPaths": [
+        "./wallet/web-components/components/item-list/application-unit/application-unit.css"
+      ]
     }
   ],
   "storageServices": [
     {
        "name": "FileSystemStorage",
        "path": "./core/services/fileSystemStorage.js"
+    }
+  ],
+  "applications": [
+    {
+     "name": "ChatBot",
+      "image": "./wallet/assets/images/defaultApplication.jpg",
+      "id": 1
+    },
+    {
+      "name": "AiAuthor",
+      "image": "./wallet/assets/images/defaultApplication.jpg",
+      "id": 2
+    },
+    {
+      "name": "ProofReader",
+      "image": "./wallet/assets/images/defaultApplication.jpg",
+      "repository": "https://github.com/AssistOS-AI/ProofReader",
+      "id": 3
+    },
+    {
+      "name": "Translator",
+      "image": "./wallet/assets/images/defaultApplication.jpg",
+      "id": 4
+    },
+    {
+      "name": "Imagify",
+      "image": "./wallet/assets/images/defaultApplication.jpg",
+      "id": 5
     }
   ]
 }

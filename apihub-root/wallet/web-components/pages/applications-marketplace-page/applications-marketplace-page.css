@@ -1,0 +1,12 @@
+applications-marketplace-page{
+    display:flex;
+    width: calc(100% - 270px);
+}
+.applications-marketplace-page{
+    display:grid;
+    grid-template-columns: 1fr 1fr 1fr;
+    width:100%;
+    height:100%;
+    gap:40px;
+    overflow:hidden;
+}
