@@ -1,5 +1,6 @@
 tasks-page{
     display: flex;
+    height: 100%;
 }
 .tasks-page{
     width: calc(100% - 270px);
@@ -42,4 +43,9 @@ tasks-page{
     font-style: normal;
     font-weight: 500;
     line-height: normal;
+}
+.space-controls{
+    display: flex;
+    align-items: center;
+    padding: 20px 40px;
 }

@@ -1,6 +1,6 @@
 export function parseURL(){
     let url = window.location.hash.split('/');
-    const documents = "#documents", personalities = "#personalities-page", chatbots = "#chatbots-page";
+    const documents = "#documents", space = "#space", chatbots = "#chatbots-page";
     switch(url[0]) {
         case documents: {
             let documentId = url[1];
@@ -11,11 +11,10 @@ export function parseURL(){
             }else {
                 return documentId;
             }
-
         }
-        case personalities:{
-            if(url[1] === "edit-personality-page"){
-                return url[2];
+        case space:{
+            if(url[2] === "edit-personality-page"){
+                return url[3];
             }
             break;
         }
