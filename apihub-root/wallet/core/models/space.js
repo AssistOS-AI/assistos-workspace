@@ -21,6 +21,7 @@ export class Space {
 
         this.documents = (spaceData.documents || []).map(documentData => new DocumentModel(documentData)).reverse();
         this.admins = [];
+        this.pages = spaceData.pages || [];
         this.createDefaultAgent();
         this.observers = [];
         Space.instance = this;
