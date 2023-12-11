@@ -60,7 +60,7 @@ agent-page{
     min-height: 52px;
     resize: none;
     width: 93%;
-    border-radius: 5px;
+    border-radius: 10px;
     border: none;
     background: var(--light-blue);
     padding: 16px;
@@ -125,11 +125,11 @@ agent-page{
     height: 27px;
     width: 24px;
     border-bottom-left-radius: 68%;
-    box-shadow: -11px 0 0 0 var(--light-blue);;
+    box-shadow: -11px 0 0 0 var(--light-blue);
 }
 .robot-box{
     border-radius: 16px 16px 0 16px;
-    background: var(--light-blue);;
+    background: var(--light-blue);
 }
 .page-logo-section{
     display: flex;

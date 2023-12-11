@@ -125,4 +125,20 @@ export class chatbotsPage {
         this.displayMessage("assistant", response.responseJson.reply);
         this.displayEmotion(response.responseJson.emotion);
     }
+
+    showHistory(_target, mode){
+        if(mode === "off"){
+            let target = this.element.querySelector(".history");
+            target.style.display = "block";
+            let controller = new AbortController();
+            document.addEventListener("click",this.hideHistory.bind(this,controller, _target), {signal:controller.signal});
+            _target.setAttribute("data-local-action", "showHistory on");
+        }
+    }
+    hideHistory(controller, arrow, event) {
+        arrow.setAttribute("data-local-action", "showHistory off");
+        let target = this.element.querySelector(".history");
+        target.style.display = "none";
+        controller.abort();
+    };
 }
