@@ -49,20 +49,21 @@ agent-page{
 }
 .chat-input-container{
     height: 10%;
-    padding: 10px;
+    padding: 15px;
     justify-content: space-between;
     display: flex;
     align-items: center;
 }
 #input{
-    padding-top: 10px;
+    max-height: 100px;
+    height: 52px;
+    min-height: 52px;
     resize: none;
     width: 93%;
     border-radius: 5px;
     border: none;
     background: var(--light-blue);
-    height: 60px;
-    padding-left: 20px;
+    padding: 16px;
     font-weight: 400;
     font-size: 16px;
 }

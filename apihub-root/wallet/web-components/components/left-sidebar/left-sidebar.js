@@ -34,7 +34,7 @@ export class leftSidebar {
             clock.innerText = `${hours}:${minutes < 10 ? '0' : ''}${minutes}`;
         }
         updateClock();
-        setInterval(updateClock, 30000);
+        setInterval(updateClock, 10000);
     }
     async changePage(_target, pageId, refreshFlag='0'){
         let flowId = webSkel.currentUser.space.getFlowIdByName("ChangeApplication");
@@ -48,4 +48,19 @@ export class leftSidebar {
             path.setAttribute("fill", "var(--left-sidebar)");
         });
     }
+    showNotifications(_target, mode){
+        if(mode === "off"){
+            let target = this.element.querySelector(".notifications-box");
+            target.style.display = "flex";
+            let controller = new AbortController();
+            document.addEventListener("click",this.hideNotifications.bind(this,controller, _target), {signal:controller.signal});
+            _target.setAttribute("data-local-action", "showNotifications on");
+        }
+    }
+    hideNotifications(controller, arrow, event) {
+        arrow.setAttribute("data-local-action", "showNotifications off");
+        let target = this.element.querySelector(".notifications-box");
+        target.style.display = "none";
+        controller.abort();
+    };
 }

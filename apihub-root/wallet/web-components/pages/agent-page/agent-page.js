@@ -32,6 +32,10 @@ export class agentPage {
         }
         this.conversationHistory = stringHTML;
     }
+    resizeTextarea(){
+        //this.style.height = 'auto';
+        this.style.height = (this.scrollHeight) + 'px';
+    }
     afterRender(){
         this.conversation = this.element.querySelector(".conversation");
         this.userInput = this.element.querySelector("#input");
@@ -39,6 +43,8 @@ export class agentPage {
         this.boundFn = this.preventRefreshOnEnter.bind(this);
         this.userInput.addEventListener("keypress", this.boundFn);
         let spacesList = this.element.querySelector(".spaces-list");
+        this.userInput.removeEventListener("input", this.resizeTextarea);
+        this.userInput.addEventListener("input", this.resizeTextarea);
     }
     displayMessage(role, text){
         let reply;
