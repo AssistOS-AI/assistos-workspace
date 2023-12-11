@@ -32,7 +32,11 @@ dialog[class="modal"] {
     height: 72%;
     padding: 20px;
 }
-.actions-container,
+.actions{
+    display: flex;
+    align-items: flex-end;
+    margin-bottom: 20px
+}
 .marketplace{
     padding:10px;
     background: var(--flow-marketplace);
