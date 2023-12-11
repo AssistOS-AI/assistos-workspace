@@ -61,9 +61,9 @@ export class FlowsService{
                 this.__think = prompt;
             },
             callLLM: async function(){
-                await webSkel.getService("PromptAnimationService").displayThink(this.__think);
+                await webSkel.getService("LlmAnimationService").displayThink(this.__think);
                 let result = await webSkel.getService("LlmsService").generateResponse(JSON.stringify(this.__body));
-                await webSkel.getService("PromptAnimationService").closeThink(this.__think);
+                webSkel.getService("LlmAnimationService").closeThink();
                 setTimeout(async ()=>{
                     let dateObj = new Date();
                     let date = dateObj.toJSON().slice(0,10);

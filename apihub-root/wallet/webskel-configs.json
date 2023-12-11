@@ -291,8 +291,8 @@
   ],
   "services": [
     {
-      "name": "PromptAnimationService",
-      "path": "./core/services/promptAnimationService.js"
+      "name": "LlmAnimationService",
+      "path": "./core/services/llmAnimationService.js"
     },
     {
       "name": "AuthenticationService",
@@ -424,10 +424,10 @@
         ]
     },
     {
-      "name": "prompt-animation",
-      "path": "./wallet/web-components/components/prompt-animation/prompt-animation.html",
+      "name": "llm-animation",
+      "path": "./wallet/web-components/components/llm-animation/llm-animation.html",
         "cssPaths": [
-            "./wallet/web-components/components/prompt-animation/prompt-animation.css"
+            "./wallet/web-components/components/llm-animation/llm-animation.css"
         ]
     },
     {

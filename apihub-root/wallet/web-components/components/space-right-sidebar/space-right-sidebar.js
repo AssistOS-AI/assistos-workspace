@@ -1,3 +1,5 @@
+import {showModal} from "../../../imports.js";
+
 export class spaceRightSidebar {
     constructor(element,invalidate) {
         this.invalidate = invalidate;
