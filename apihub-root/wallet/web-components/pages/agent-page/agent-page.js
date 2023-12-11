@@ -34,7 +34,7 @@ export class agentPage {
     }
     resizeTextarea(){
         //this.style.height = 'auto';
-        this.style.height = (this.scrollHeight) + 'px';
+        //this.style.height = (this.scrollHeight) + 'px';
     }
     afterRender(){
         this.conversation = this.element.querySelector(".conversation");
