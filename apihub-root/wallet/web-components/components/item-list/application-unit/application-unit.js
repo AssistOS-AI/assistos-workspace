@@ -1,3 +1,5 @@
+import {getClosestParentWithPresenter, refreshElement} from "../../../../imports.js";
+
 export class applicationUnit{
     constructor(element, invalidate) {
         this.element = element;
@@ -8,10 +10,10 @@ export class applicationUnit{
     beforeRender() {
     }
     async installApplication() {
-        console.log("In development TBD")
-       // let flowId = webSkel.currentUser.space.getFlowIdByName("installApplication");
-      // await webSkel.getService("applicationService").callFlow(flowId, this.element.getAttribute("data-id"));
-        debugger;
+        const loading = await webSkel.showLoading(`<general-loader></general-loader>`);
         await webSkel.getService("ApplicationsService").installApplication(webSkel.currentUser.space.id, this.element.getAttribute("data-id"));
+        loading.close();
+        loading.remove();
+        window.location="";
     }
 }

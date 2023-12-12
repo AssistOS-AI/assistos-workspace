@@ -861,13 +861,17 @@
   ],
   "applications": [
     {
-     "name": "ChatBot",
+     "name": "ChatBots",
       "image": "./wallet/assets/images/defaultApplication.jpg",
+      "repository": "https://github.com/AssistOS-AI/ChatBots",
+      "flowsRepository": "https://github.com/AssistOS-AI/ChatBotsFlows",
       "id": 1
     },
     {
       "name": "AiAuthor",
       "image": "./wallet/assets/images/defaultApplication.jpg",
+      "repository": "https://github.com/AssistOS-AI/AiAuthor",
+      "flowsRepository": "https://github.com/AssistOS-AI/AiAuthorFlows",
       "id": 2
     },
     {
@@ -878,13 +882,17 @@
       "id": 3
     },
     {
-      "name": "Translator",
+      "name": "AiTranslator",
       "image": "./wallet/assets/images/defaultApplication.jpg",
+      "repository": "https://github.com/AssistOS-AI/AiTranslator",
+      "flowsRepository": "https://github.com/AssistOS-AI/AiTranslatorFlow",
       "id": 4
     },
     {
       "name": "Imagify",
       "image": "./wallet/assets/images/defaultApplication.jpg",
+      "repository": "https://github.com/AssistOS-AI/Imagify",
+      "flowsRepository": "https://github.com/AssistOS-AI/ImagifyFlows",
       "id": 5
     }
   ]

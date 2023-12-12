@@ -19,10 +19,10 @@ function updateSpaceStatus(spaceId, applicationId, applicationName) {
     } else {
         status = {};
     }
-   if(status.installedApplication){
-         status.installedApplication.push({id:applicationId, name:applicationName});
+   if(status.installedApplications){
+         status.installedApplications.push({id:applicationId, name:applicationName});
    }else{
-         status.installedApplication=[{id:applicationId, name:applicationName}];
+         status.installedApplications=[{id:applicationId, name:applicationName}];
    }
     fs.writeFileSync(statusPath, JSON.stringify(status, null, 2));
 }

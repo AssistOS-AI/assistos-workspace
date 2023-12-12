@@ -24,6 +24,7 @@ export class Space {
         this.pages = spaceData.pages || [];
         this.createDefaultAgent();
         this.observers = [];
+        this.installedApplications =spaceData.installedApplications || [];
         Space.instance = this;
     }
 

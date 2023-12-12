@@ -72,6 +72,9 @@ export class ApplicationsService {
             return await result.text();
     }
     async startApplication(_target,applicationId,spaceId){
+
+        // define web components
+        // append the index.html to the body
         //await webSkel.initializeApplication(applicationId);
         getClosestParentElement(_target, ".feature").setAttribute("id", "selected-page");
         let paths = _target.querySelectorAll("path");
