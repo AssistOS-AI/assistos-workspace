@@ -10,28 +10,63 @@ function sendResponse(response, statusCode, contentType, message) {
     response.write(message);
     response.end();
 }
+function updateSpaceStatus(spaceId, applicationId, applicationName) {
+    const statusPath = `../apihub-root/spaces/${spaceId}/status/status.json`;
+    let status;
+    if (fs.existsSync(statusPath)) {
+        const fileContent = fs.readFileSync(statusPath, 'utf8');
+        status = JSON.parse(fileContent);
+    } else {
+        status = {};
+    }
+   if(status.installedApplication){
+         status.installedApplication.push({id:applicationId, name:applicationName});
+   }else{
+         status.installedApplication=[{id:applicationId, name:applicationName}];
+   }
+    fs.writeFileSync(statusPath, JSON.stringify(status, null, 2));
+}
+function updateManifest  (manifestPath, spaceId, branchName, applicationId, applicationName){
+    let manifest;
 
+    if (fs.existsSync(manifestPath)) {
+        const fileContent = fs.readFileSync(manifestPath, 'utf8');
+        manifest = JSON.parse(fileContent);
+    } else {
+        manifest = {};
+    }
+    manifest.spaceId = spaceId;
+    manifest.version = manifest.version || "0.0.1";
+    manifest.flowsBranch = branchName;
+    manifest.applicationId = applicationId;
+    manifest.name = applicationName;
+
+    fs.writeFileSync(manifestPath, JSON.stringify(manifest, null, 2));
+}
 async function installApplication(request, response) {
     const spaceId = request.params.spaceId;
     const applicationId = request.params.applicationId;
-    const folderPath = path.join(__dirname, `../apihub-root/spaces/${spaceId}/applications/${applicationId}`);
-    const branchName = `space-${spaceId}-app-${applicationId}`;
 
+    const branchName = `space-${spaceId}`;
     try {
         const webSkelConfig = require("../apihub-root/wallet/webskel-configs.json");
         const application = webSkelConfig.applications.find(app => app.id == applicationId);
-
+        const folderPath =  `../apihub-root/spaces/${spaceId}/applications/${application.name}`;
         if (!application || !application.repository) {
             console.error("Application or repository not found");
             sendResponse(response, 404, "text/html", "Application or repository not found")
         }
-
-        // Clone the repository
         await execAsync(`git clone ${application.repository} ${folderPath}`);
+        updateManifest(`${folderPath}/manifest.json`, spaceId, branchName,applicationId,application.name);
 
-        // Change working directory to the cloned repository and create a new branch
-        await execAsync(`git checkout -b ${branchName}`, { cwd: folderPath });
-
+        if(application.flowsRepository) {
+            let applicationPath = `../apihub-root/spaces/${spaceId}/applications/${application.name}/flows`
+            await execAsync(`git clone ${application.flowsRepository} ${applicationPath}`);
+            await execAsync(`rm ${applicationPath}/README.md`);
+            await execAsync(`git -C ${applicationPath} checkout -b ${branchName}`);
+            await execAsync(`git -C ${applicationPath} push -u origin ${branchName}`);
+        }
+        updateSpaceStatus(spaceId, applicationId,application.name);
         sendResponse(response, 200, "text/html", "Application installed successfully")
     } catch (error) {
         console.error("Error in installing application:", error);

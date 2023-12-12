@@ -53,14 +53,14 @@ async function storeFolder(spaceId, data, folderName) {
             /* the error is that the folder doesn't exist, it needs to be created*/
             await fsPromises.mkdir(folderPath);
         }
-
-        if(folderName !== "status") {
-            for(let item of data) {
-                await saveJSON(null, JSON.stringify(item), `${folderPath}/${item.id}.json`);
+        if(data!=="newFolder") {
+            if (folderName !== "status") {
+                for (let item of data) {
+                    await saveJSON(null, JSON.stringify(item), `${folderPath}/${item.id}.json`);
+                }
+            } else {
+                await saveJSON(null, JSON.stringify(data), `${folderPath}/${folderName}.json`);
             }
-        }
-        else {
-            await saveJSON(null, JSON.stringify(data), `${folderPath}/${folderName}.json`);
         }
     }
 }
@@ -98,6 +98,7 @@ async function storeSpace(request, response) {
     await storeFolder(request.params.spaceId, jsonData.documents, "documents");
     await storeFolder(request.params.spaceId, jsonData.personalities, "personalities");
     await storeFolder(request.params.spaceId, jsonData.flows, "flows");
+    await storeFolder(request.params.spaceId, "newFolder", "applications");
     delete jsonData.personalities
     delete jsonData.documents;
     delete jsonData.flows;

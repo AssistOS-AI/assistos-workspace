@@ -851,6 +851,7 @@
       "name": "ProofReader",
       "image": "./wallet/assets/images/defaultApplication.jpg",
       "repository": "https://github.com/AssistOS-AI/ProofReader",
+      "flowsRepository": "https://github.com/AssistOS-AI/ProofReaderFlows",
       "id": 3
     },
     {

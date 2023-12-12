@@ -1,10 +1,12 @@
+import {getClosestParentElement} from "../../imports.js";
+
 export class ApplicationsService {
     constructor() {}
     // Creates a new branch for the space in the application's repository and clones the application into the space's folder
     async installApplication(spaceId,applicationId) {
             let result;
             try {
-                result = await fetch(`/spaces/${spaceId}/applications/${applicationId}`,
+                result = await fetch(`/space/${spaceId}/applications/${applicationId}`,
                     {
                         method: "POST",
                         headers: {
@@ -21,7 +23,7 @@ export class ApplicationsService {
     async uninstallApplication(spaceId,applicationId) {
         let result;
         try {
-            result = await fetch(`/spaces/${spaceId}/applications/${applicationId}`,
+            result = await fetch(`/space/${spaceId}/applications/${applicationId}`,
                 {
                     method: "DELETE",
                     headers: {
@@ -39,7 +41,7 @@ export class ApplicationsService {
     async updateApplicationFlow(spaceId,applicationId, flowId, flowContent) {
         let result;
         try {
-            result = await fetch(`/spaces/${spaceId}/applications/${applicationId}/flows/${flowId}`,
+            result = await fetch(`/space/${spaceId}/applications/${applicationId}/flows/${flowId}`,
                 {
                     method: "PUT",
                     body: flowContent,
@@ -57,7 +59,7 @@ export class ApplicationsService {
     async resetApplication(){
             let result;
             try{
-                result=await fetch(`/spaces/${spaceId}/applications/${applicationId}`,
+                result=await fetch(`/space/${spaceId}/applications/${applicationId}`,
                     {
                         method: "POST",
                         headers: {
@@ -68,5 +70,13 @@ export class ApplicationsService {
                 console.error(err);
             }
             return await result.text();
+    }
+    async startApplication(_target,applicationId,spaceId){
+        //await webSkel.initializeApplication(applicationId);
+        getClosestParentElement(_target, ".feature").setAttribute("id", "selected-page");
+        let paths = _target.querySelectorAll("path");
+        paths.forEach((path)=>{
+            path.setAttribute("fill", "var(--left-sidebar)");
+        });
     }
 }

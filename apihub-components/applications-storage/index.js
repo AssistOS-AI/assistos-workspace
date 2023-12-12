@@ -19,11 +19,11 @@ function bodyReaderMiddleware(req, res, next) {
 }
 
 function ApplicationsStorage(server) {
-    server.use("/spaces/*", bodyReaderMiddleware);
-    server.post("/spaces/:spaceId/applications/:applicationId", installApplication);
-    server.delete("/spaces/:spaceId/applications/:applicationId", uninstallApplication);
-    server.post("/spaces/:spaceId/applications/:applicationId/reset", resetApplication);
-    server.put("/spaces/:spaceId/applications/:applicationId/flows/:flowId", updateApplicationFlow);
+    server.use("/space/*", bodyReaderMiddleware);
+    server.post("/space/:spaceId/applications/:applicationId", installApplication);
+    server.delete("/space/:spaceId/applications/:applicationId", uninstallApplication);
+    server.post("/space/:spaceId/applications/:applicationId/reset", resetApplication);
+    server.put("/space/:spaceId/applications/:applicationId/flows/:flowId", updateApplicationFlow);
 }
 
 module.exports = ApplicationsStorage;
