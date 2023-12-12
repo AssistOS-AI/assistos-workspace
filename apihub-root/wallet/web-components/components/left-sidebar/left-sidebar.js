@@ -7,8 +7,44 @@ export class leftSidebar {
         this.invalidate();
     }
     beforeRender() {
+        this.applications = "";
+        for (let application of webSkel.currentUser.space.installedApplications) {
+            let applicationData = webSkel.getApplicationData(parseInt(application.id));
 
+            let svgImage = applicationData.encodedSvg;
+
+            this.applications += `
+            <div class="feature" data-id="${applicationData.name.toLowerCase()}" data-local-action="startApplication ${applicationData.id}">
+                <div class="page-logo">
+                    <img src="${svgImage}" alt="${applicationData.name}" class="app-icon"/>
+                    <div class="app-name" id="${applicationData.name.toLowerCase()}">
+                        ${applicationData.name}
+                    </div>
+                </div>
+            </div>`;
+        }
     }
+    /* temporary solution until proper and complete implementations of applications  */
+    async startApplication(_target, applicationId) {
+        switch(parseInt(applicationId)){
+            case 1:
+                await this.changePage(_target,"chatbots-select-personality-page");
+                break;
+            case 2:
+                await this.changePage(_target,"documents-page");
+                break;
+            case 3:
+                await this.changePage(_target,"proof-reader-page");
+                break;
+            case 4:
+                await this.changePage(_target,"translate-page");
+                break;
+            case 5:
+                await this.changePage(_target,"image-brainstorming-page");
+                break;
+        }
+    }
+
     afterRender(){
         let features = this.element.querySelectorAll(".feature");
         features.forEach((feature)=>{
