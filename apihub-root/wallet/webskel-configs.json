@@ -198,6 +198,11 @@
       "className": "generateDocumentModal"
     },
     {
+      "name": "add-page-modal",
+      "path": "./web-components/modals/add-page-modal/add-page-modal.js",
+      "className": "addPageModal"
+    },
+    {
       "name": "add-announcement-modal",
       "path": "./web-components/modals/add-announcement-modal/add-announcement-modal.js",
       "className": "addAnnouncementModal"
@@ -731,6 +736,13 @@
       "path": "./wallet/web-components/modals/add-announcement-modal/add-announcement-modal.html",
         "cssPaths": [
             "./wallet/web-components/modals/add-announcement-modal/add-announcement-modal.css"
+        ]
+    },
+    {
+      "name": "add-page-modal",
+      "path": "./wallet/web-components/modals/add-page-modal/add-page-modal.html",
+        "cssPaths": [
+            "./wallet/web-components/modals/add-page-modal/add-page-modal.css"
         ]
     },
     {

@@ -1,7 +1,17 @@
-const fs = require('fs');
 const path = require('path');
 const fsPromises = require('fs').promises;
 async function saveJSON(response, spaceData, filePath) {
+    const folderPath = path.dirname(filePath);
+    try{
+        await fsPromises.access(filePath);
+    }catch (e) {
+        try {
+            await fsPromises.mkdir(folderPath, { recursive: true });
+        } catch(error) {
+            sendResponse(response, 500, "text/html", error+ ` Error at creating folder: ${folderPath}`);
+            return false;
+        }
+    }
     try {
         await fsPromises.writeFile(filePath, spaceData, 'utf8');
     } catch(error) {

@@ -5,7 +5,7 @@ import {
     Settings,
     Flow,
     Announcement,
-    Agent
+    Agent, PageModel
 } from "../../imports.js";
 
 export class Space {
@@ -133,12 +133,22 @@ export class Space {
         this.announcements.unshift(new Announcement(announcementData));
         await storageManager.storeObject(webSkel.currentUser.space.id, "status", "status", JSON.stringify(webSkel.currentUser.space.getSpaceStatus(),null,2));
     }
+    async addPage(pageData) {
+        const page = new PageModel(pageData)
+        debugger
+        pageData.id = page.id;
+        this.pages.push(page);
+        await storageManager.storeObject(webSkel.currentUser.space.id, "pages", page.id, JSON.stringify(pageData,null,2));
+    }
+    async deletePage(pageId) {
+        this.pages = this.pages.filter(page => page.id !== pageId);
+        await storageManager.storeObject(webSkel.currentUser.space.id, "pages", pageId, "");
+    }
     async addFlow(flowData) {
         let flowObject= new Flow(flowData);
         this.flows.push(flowObject);
         await storageManager.storeObject(webSkel.currentUser.space.id, "flows", flowObject.id, JSON.stringify(flowObject,null,2));
     }
-
 
     async deleteAnnouncement(announcementId) {
         this.announcements = this.announcements.filter(announcement=> announcement.id !== announcementId);

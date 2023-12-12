@@ -1,9 +1,8 @@
-export class MyWebPage {
+export class PageModel {
     constructor(webPageData) {
-        debugger
         this.title = webPageData.title;
         this.id = webPageData.id || webSkel.getService("UtilsService").generateId();
         this.date = webPageData.date;
-        this.text = webPageData.text;
+        this.html = webPageData.html;
     }
 }
