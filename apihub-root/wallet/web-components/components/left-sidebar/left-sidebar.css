@@ -6,7 +6,7 @@ left-sidebar{
     justify-content: space-between;
 }
 .features-list-wrapper {
-    margin: 20px;
+    padding: 15px;
     display:flex;
     justify-content: center;
     flex-direction:column;
@@ -16,7 +16,7 @@ left-sidebar{
     position: relative;
     align-items: center;
     display: flex;
-    padding: 8px 10px 8px 10px;
+    padding: 5px;
     margin-top: 15px;
     max-height: 100%;
 }
@@ -36,10 +36,17 @@ left-sidebar{
     margin-top: 0;
 }
 .bottom-section{
+    color: white;
+    font-size: 18px;
+    font-weight: 600;
     display: flex;
+    align-items: center;
     flex-direction: column;
     justify-content: center;
-    padding: 20px;
+    padding: 15px;
+}
+.item{
+    margin-top:10px;
 }
 .app-name{
     padding: 5px;
@@ -51,4 +58,26 @@ left-sidebar{
     visibility: hidden;
     position: absolute;
     left: 100%;
+}
+.notifications{
+    cursor: pointer;
+    position: relative;
+}
+.notifications-box{
+    margin-left: 35px;
+    padding: 10px;
+    color: var(--very-light-gray);
+    box-shadow: 0 1px 6px 0 var(--very-light-gray);
+    z-index: 1;
+    border-radius: 5px;
+    border: 1px solid var(--blue-border);
+    background: white;
+    bottom: 0;
+    left: 100%;
+    display: none;
+    justify-content: center;
+    align-items: center;
+    position: absolute;
+    width: 300px;
+    height: 200px;
 }

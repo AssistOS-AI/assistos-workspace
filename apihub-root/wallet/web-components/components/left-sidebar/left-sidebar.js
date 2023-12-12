@@ -2,6 +2,7 @@ import {getClosestParentElement} from "../../../imports.js";
 
 export class leftSidebar {
     constructor(element,invalidate) {
+        this.element = element;
         this.invalidate = invalidate;
         this.invalidate();
     }
@@ -9,7 +10,7 @@ export class leftSidebar {
 
     }
     afterRender(){
-        let features = document.querySelectorAll(".feature");
+        let features = this.element.querySelectorAll(".feature");
         features.forEach((feature)=>{
             let timeoutId;
             feature.addEventListener("mouseover",()=>{
@@ -24,6 +25,16 @@ export class leftSidebar {
                 name.style.visibility = "hidden";
             });
         });
+        let clock = this.element.querySelector(".clock");
+        function updateClock() {
+            const now = new Date();
+            const hours = now.getHours();
+            const minutes = now.getMinutes();
+
+            clock.innerText = `${hours}:${minutes < 10 ? '0' : ''}${minutes}`;
+        }
+        updateClock();
+        setInterval(updateClock, 10000);
     }
     async changePage(_target, pageId, refreshFlag='0'){
         let flowId = webSkel.currentUser.space.getFlowIdByName("ChangeApplication");
@@ -31,7 +42,25 @@ export class leftSidebar {
         getClosestParentElement(_target, ".feature").setAttribute("id", "selected-page");
         let paths = _target.querySelectorAll("path");
         paths.forEach((path)=>{
+            if(path.hasAttribute("stroke")){
+                path.setAttribute("stroke", "var(--left-sidebar)");
+            }
             path.setAttribute("fill", "var(--left-sidebar)");
         });
     }
+    showNotifications(_target, mode){
+        if(mode === "off"){
+            let target = this.element.querySelector(".notifications-box");
+            target.style.display = "flex";
+            let controller = new AbortController();
+            document.addEventListener("click",this.hideNotifications.bind(this,controller, _target), {signal:controller.signal});
+            _target.setAttribute("data-local-action", "showNotifications on");
+        }
+    }
+    hideNotifications(controller, arrow, event) {
+        arrow.setAttribute("data-local-action", "showNotifications off");
+        let target = this.element.querySelector(".notifications-box");
+        target.style.display = "none";
+        controller.abort();
+    };
 }

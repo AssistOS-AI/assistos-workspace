@@ -4,3 +4,8 @@ announcements-page{
 .announcements-page{
     width: calc(100% - 270px);
 }
+.space-controls{
+    display: flex;
+    align-items: center;
+    padding: 20px 40px;
+}

@@ -1,3 +1,19 @@
+.personalities-page{
+    position: relative;
+}
+.personalities-page::before{
+    z-index: -1;
+    content: "";
+    background-image: url('background.png');
+    background-size: auto;
+    background-repeat: no-repeat;
+    position: absolute;
+    top: 0;
+    right: 0;
+    bottom: 0;
+    left: 0;
+    opacity: 1;
+}
 .chatbots-header{
     padding: 15px 15px 15px 25px;
     font-weight: 700;

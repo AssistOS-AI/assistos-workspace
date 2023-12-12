@@ -3,9 +3,11 @@ collaborators-page{
     width: 100%;
     height: 100%;
 }
+.collaborators-page{
+    width: calc(100% - 270px);
+}
 .collaborators-table{
     padding: 15px;
-    width: calc(100% - 270px);
 }
 .table-header {
     display: flex;
@@ -37,4 +39,9 @@ collaborators-page{
     font-style: normal;
     font-weight: 500;
     line-height: normal;
+}
+.space-controls{
+    display: flex;
+    align-items: center;
+    padding: 20px 40px;
 }

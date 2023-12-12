@@ -1,6 +1,11 @@
 {
   "presenters": [
     {
+      "name": "space-dropdown",
+      "path": "./web-components/components/space-dropdown/space-dropdown.js",
+      "className": "spaceDropdown"
+    },
+    {
       "name": "left-sidebar",
       "path": "./web-components/components/left-sidebar/left-sidebar.js",
       "className": "leftSidebar"
@@ -29,6 +34,11 @@
       "name": "agent-page",
       "path": "./web-components/pages/agent-page/agent-page.js",
       "className": "agentPage"
+    },
+    {
+      "name": "my-web-page",
+      "path": "./web-components/pages/my-web-page/my-web-page.js",
+      "className": "myWebPage"
     },
     {
       "name": "settings-page",
@@ -222,7 +232,7 @@
       "path": "./web-components/modals/suggest-abstract-modal/suggest-abstract-modal.js",
       "className": "suggestAbstractModal"
     },
-    
+
     {
       "name": "summarize-paragraph-modal",
       "path": "./web-components/modals/summarize-paragraph-modal/summarize-paragraph-modal.js",
@@ -281,8 +291,8 @@
   ],
   "services": [
     {
-      "name": "PromptAnimationService",
-      "path": "./core/services/promptAnimationService.js"
+      "name": "LlmAnimationService",
+      "path": "./core/services/llmAnimationService.js"
     },
     {
       "name": "AuthenticationService",
@@ -306,6 +316,13 @@
     }
   ],
   "components": [
+    {
+      "name": "space-dropdown",
+      "path": "./wallet/web-components/components/space-dropdown/space-dropdown.html",
+      "cssPaths": [
+        "./wallet/web-components/components/space-dropdown/space-dropdown.css"
+      ]
+    },
     {
       "name": "left-sidebar",
       "path": "./wallet/web-components/components/left-sidebar/left-sidebar.html",
@@ -332,6 +349,13 @@
       "path": "./wallet/web-components/pages/knowledge-page/knowledge-page.html",
       "cssPaths": [
             "./wallet/web-components/pages/knowledge-page/knowledge-page.css"
+      ]
+    },
+    {
+      "name": "my-web-page",
+      "path": "./wallet/web-components/pages/my-web-page/my-web-page.html",
+      "cssPaths": [
+        "./wallet/web-components/pages/my-web-page/my-web-page.css"
       ]
     },
     {
@@ -400,10 +424,10 @@
         ]
     },
     {
-      "name": "prompt-animation",
-      "path": "./wallet/web-components/components/prompt-animation/prompt-animation.html",
+      "name": "llm-animation",
+      "path": "./wallet/web-components/components/llm-animation/llm-animation.html",
         "cssPaths": [
-            "./wallet/web-components/components/prompt-animation/prompt-animation.css"
+            "./wallet/web-components/components/llm-animation/llm-animation.css"
         ]
     },
     {
@@ -821,7 +845,6 @@
             "./wallet/web-components/pages/authentication-page/authentication-page.css"
         ]
     },
-    
     {
       "name": "application-unit",
       "path": "./wallet/web-components/components/item-list/application-unit/application-unit.html",
