@@ -1,1 +1,0 @@
-{"name":"AddDocument","content":"({\nstart: async function(docData){\n       try{\n            await webSkel.currentUser.space.addDocument(docData);\n            this.return(docData);\n        }catch(e){\n            this.fail(e);\n            }\n    }\n})","id":"7SFvE1v84fPx","description":"Adds a new document","tags":["presenters","agents","documents"]}
