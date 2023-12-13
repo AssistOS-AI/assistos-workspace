@@ -3,6 +3,7 @@ space-dropdown{
 }
 .space-container{
     display: flex;
+    cursor: pointer;
 }
 .current-space-btn {
     display: flex;
@@ -22,6 +23,7 @@ space-dropdown{
 }
 .spaces-list {
     display: none;
+    background-color: white;
     position: absolute;
     left: 0;
     z-index: 1;
