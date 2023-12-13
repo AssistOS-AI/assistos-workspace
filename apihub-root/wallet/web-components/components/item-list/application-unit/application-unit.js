@@ -1,13 +1,13 @@
-import {getClosestParentWithPresenter, refreshElement} from "../../../../imports.js";
+import {getClosestParentWithPresenter, refreshElement,decodeBase64} from "../../../../imports.js";
 
 export class applicationUnit{
     constructor(element, invalidate) {
         this.element = element;
         this.invalidate = invalidate;
         this.invalidate();
-        debugger;
     }
     beforeRender() {
+        this.applicationImage = decodeBase64(this.element.getAttribute("data-image"));
     }
     async installApplication() {
         const loading = await webSkel.showLoading(`<general-loader></general-loader>`);

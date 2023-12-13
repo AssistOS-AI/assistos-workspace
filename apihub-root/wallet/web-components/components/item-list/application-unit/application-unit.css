@@ -3,4 +3,19 @@
         flex-direction:column;
     justify-content: center;
     align-items:center;
+    gap:10px;
+}
+.application-image-container{
+    background-color:var(--left-sidebar);
+    display:flex;
+    align-items:center;
+    justify-content: center;
+    height:80px;
+    width:80px;
+    padding:5px;
+    border:1px solid var(--left-sidebar);
+    border-radius:50%;
+}
+.application-image-container:hover{
+    border:1px solid var(--white-text);
 }

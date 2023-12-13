@@ -1,4 +1,4 @@
-import {getClosestParentElement} from "../../../imports.js";
+import {getClosestParentElement,decodeBase64} from "../../../imports.js";
 
 export class leftSidebar {
     constructor(element,invalidate) {
@@ -6,17 +6,17 @@ export class leftSidebar {
         this.invalidate = invalidate;
         this.invalidate();
     }
+
     beforeRender() {
         this.applications = "";
         for (let application of webSkel.currentUser.space.installedApplications) {
             let applicationData = webSkel.getApplicationData(parseInt(application.id));
 
             let svgImage = applicationData.encodedSvg;
-
             this.applications += `
             <div class="feature" data-id="${applicationData.name.toLowerCase()}" data-local-action="startApplication ${applicationData.id}">
                 <div class="page-logo">
-                    <img src="${svgImage}" alt="${applicationData.name}" class="app-icon"/>
+                       ${decodeBase64(svgImage)}
                     <div class="app-name" id="${applicationData.name.toLowerCase()}">
                         ${applicationData.name}
                     </div>
