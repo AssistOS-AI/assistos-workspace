@@ -249,7 +249,7 @@ export class authenticationPage {
     }
 
     async loginDefaultUser(){
-        let currentUserId = "1101522431685742196611723790234240113112996125581292472522231319144225195232444191";
+        let currentUserId = "5jURBE8WE3YH";
         let currentUser = JSON.parse(await storageManager.loadUser(currentUserId));
         /* incarcare json user de pe server*/
         let users = webSkel.getService("AuthenticationService").getCachedUsers();
