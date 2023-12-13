@@ -296,6 +296,10 @@
   ],
   "services": [
     {
+      "name": "AgentService",
+      "path": "./core/services/agentService.js"
+    },
+    {
       "name": "LlmAnimationService",
       "path": "./core/services/llmAnimationService.js"
     },

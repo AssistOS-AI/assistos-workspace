@@ -1,11 +1,12 @@
 
 export class Agent{
     constructor(agentData) {
-        this.agentConfigs=agentData.agentConfigs;
-        this.agentIntent=agentData.agentIntent;
-        this.userIntents=agentData.userIntents;
+        this.openers = agentData.openers || [];
+        this.capabilities = agentData.capabilities || [];
         this.id = agentData.id||"default";
+        this.name = agentData.name;
         this.tasks = [];
+        this.conversationHistory = agentData.conversationHistory || [];
     }
 
     setPersonality(id){
@@ -25,10 +26,20 @@ export class Agent{
     }
     loadKnowledge() {
         const knowledge = {
-            agentConfigs: this.agentConfigs,
-            agentIntent: this.agentIntent,
-            userIntents: this.userIntents
+            capabilities: this.capabilities,
+            name: this.name,
         };
         return JSON.stringify(knowledge, null, 2);
+    }
+    setOpeners(openers){
+        this.openers = openers;
+    }
+    getRandomOpener(){
+        let random = Math.floor(Math.random() * this.openers.length);
+        return this.openers[random];
+    }
+    async addReply(role, content){
+        this.conversationHistory.push({role:role,content:content});
+        await storageManager.storeObject(webSkel.currentUser.space.id, "status", "status", JSON.stringify(webSkel.currentUser.space.getSpaceStatus(),null,2));
     }
 }

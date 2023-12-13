@@ -1,60 +1,6 @@
 {
   "id": "default",
-  "name": "default-agent",
-  "agentConfigs":[
-    {
-      "languages": [
-        "en",
-        "es"
-      ],
-      "defaultLanguage": "en",
-      "answerFormat": "text"
-    }
-  ],
-  "agentIntent": [
-    "Navigate The User To A Page In The Application",
-    "Help The User Do Any Task In The Application",
-    "Help The User To Create Other Agents"
-  ],
-  "userIntents": [
-    {
-      "userIntent": "generate a document",
-      "description": "User wants to generate a document",
-      "actionScript": {
-        "scriptName": "generateDocument",
-        "requiredPermissions": ["document.create"],
-        "tags": ["document", "creation"]
-      },
-      "requiredScriptParameters": [
-        {
-          "parameterName": "documentTopic",
-          "meaning": "The topic of the document",
-          "parameterType": "String",
-          "validation": {
-            "regex": "^[a-zA-Z0-9_ ]*$",
-            "errorMessage": "Document topic can only contain alphanumeric characters and underscores."
-          },
-          "LLMResponse":"Ask the user to specify the topic of the document"
-        },
-        {
-          "parameterName": "documentTitle",
-          "meaning": "The name of the document",
-          "parameterType": "String",
-          "validation": {
-            "regex": "^[a-zA-Z0-9_ ]*$",
-            "errorMessage": "Document title can only contain alphanumeric characters and underscores."
-          },
-          "LLMResponse":"Ask the user to specify the name of the document"
-        }
-      ],
-      "asyncActions": {
-        "inProgressMessage": "Your document is being created, this might take a minute.",
-        "completionMessage": "Your document is ready!"
-        },
-      "fallbacks": {
-        "unrecognizedIntent": "I'm not sure how to help with that. Can you rephrase?",
-        "actionFailed":  "I'm sorry, but I couldn't complete that action. Please try again."
-        }
-      }
-  ]
+  "name": "default",
+  "openers": [],
+  "capabilities": ["Translate", "Proofread"]
 }

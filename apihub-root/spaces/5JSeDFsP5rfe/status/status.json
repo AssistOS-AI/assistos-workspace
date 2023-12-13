@@ -1,1 +1,63 @@
-{"name":"Personal Space","id":"5JSeDFsP5rfe","admins":[],"announcements":[{"title":"asdadf","id":"5SbLhPfGgBsS","date":"2023-12-07","text":"adgfaserywstrhbstgfhb"}]}
+{
+  "name": "Personal Space",
+  "id": "1101522431685742196611723790234240113112996125581292472522231319144225195232444191",
+  "admins": [],
+  "announcements": [
+    {
+      "title": "Welcome to AIAuthor!",
+      "id": "2nVtvAJMjk3z",
+      "date": "2023-12-13",
+      "text": "Space Personal Space was successfully created. You can now add documents, users and settings to your space."
+    }
+  ],
+  "agent": {
+    "openers": [
+      "Hello! How can I assist you today? I have the ability to translate text into different languages and proofread your content.",
+      "Welcome! How may I help you today? I specialize in translating text between languages and ensuring the accuracy of your written content through proofreading.",
+      "Hi there! How can I be of service? Whether you need a document translated or a thorough proofreading, I'm here to help!"
+    ],
+    "capabilities": [
+      "Translate",
+      "Proofread"
+    ],
+    "id": "default",
+    "name": "default",
+    "tasks": [],
+    "conversationHistory": [
+      {
+        "role": "agent",
+        "content": "Welcome! How may I help you today? I specialize in translating text between languages and ensuring the accuracy of your written content through proofreading."
+      },
+      {
+        "role": "user",
+        "content": "Proofread&nbsp;me&nbsp;this:&nbsp;I&nbsp;am&nbsp;but&nbsp;a&nbsp;humble&nbsp;servant&nbsp;of&nbsp;god,&nbsp;&nbsp;a&nbsp;lonely&nbsp;child&nbsp;on&nbsp;a&nbsp;unpathed&nbsp;road"
+      },
+      {
+        "role": "assistant",
+        "content": "I apologize, but as a text-based AI, I am unable to perform the task of proofreading. My capabilities are limited to providing information, answering questions, and assisting with translations. If you have any other requests or need assistance with translation, feel free to ask!"
+      }
+    ]
+  },
+  "installedApplications": [
+    {
+      "id": "1",
+      "name": "ChatBots"
+    },
+    {
+      "id": "3",
+      "name": "ProofReader"
+    },
+    {
+      "id": "2",
+      "name": "AiAuthor"
+    },
+    {
+      "id": "4",
+      "name": "AiTranslator"
+    },
+    {
+      "id": "5",
+      "name": "Imagify"
+    }
+  ]
+}

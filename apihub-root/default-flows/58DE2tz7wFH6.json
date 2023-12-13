@@ -1,7 +1,1 @@
-{
-  "name": "DefaultAgent",
-  "content": "({\nstart: function(userPrompt,agentData){\n    this.prompt = `You are a custom GPT agent designed for specific tasks in a software application. Your configuration is as     follows:\\n${agentData}\\n\\nGiven this configuration, please respond to the following user request: \"${userPrompt}\" Remember to follow the rules and     capabilities as described in your configuration.`;\n    this.setDefaultValues();\n    this.setIntelligenceLevel(3);\n    this.execute();\n    },\nexecute: async function(){\n    let response = await this.request(this.prompt);\n    this.return(response);\n    }\n})",
-  "id": "58DE2tz7wFH6",
-  "description": "Script for the default agent",
-  "tags": ["agents", "presenters"]
-}
+{"name":"DefaultAgent","content":"({\nstart: function(userPrompt,agentData){\n    this.prompt = `You are a custom GPT agent designed for specific tasks in a software application. Your configuration is as     follows:\\n${agentData}\\n\\nGiven this configuration, please respond to the following user request: \"${userPrompt}\" Remember to follow the rules and capabilities as described in your configuration.`;\n    this.setDefaultValues();\n    this.setIntelligenceLevel(3);\n    this.execute();\n    },\nexecute: async function(){\n    let response = await this.request(this.prompt);\n    this.return(response);\n    }\n})","id":"58DE2tz7wFH6","description":"Script for the default agent","tags":["agents","presenters"]}
