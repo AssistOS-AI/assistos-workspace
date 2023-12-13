@@ -76,6 +76,11 @@ async function storeFolder(spaceId, data, folderName) {
 }
 
 async function storeSpace(request, response) {
+    try {
+        await fsPromises.stat(`../apihub-root/spaces`);
+    }catch (e){
+        await fsPromises.mkdir(`../apihub-root/spaces`);
+    }
     const folderPath = `../apihub-root/spaces/${request.params.spaceId}`;
 
     // Request to delete the space

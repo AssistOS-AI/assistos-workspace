@@ -22,7 +22,9 @@ export class Space {
         this.documents = (spaceData.documents || []).map(documentData => new DocumentModel(documentData)).reverse();
         this.admins = [];
         this.pages = spaceData.pages || [];
-        this.agent = new Agent(spaceData.agent);
+        if(spaceData.agent){
+            this.agent = new Agent(spaceData.agent);
+        }
         this.observers = [];
         this.installedApplications =spaceData.installedApplications || [];
         Space.instance = this;
