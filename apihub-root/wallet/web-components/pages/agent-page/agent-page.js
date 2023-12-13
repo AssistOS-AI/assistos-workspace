@@ -88,10 +88,8 @@ export class agentPage {
             return;
         }
         await this.displayMessage("user", userPrompt);
-        let flowId = webSkel.currentUser.space.getFlowIdByName("DefaultAgent");
-        let response = await webSkel.getService("LlmsService").callFlow(flowId, userPrompt, this.agent.loadKnowledge());
-
-        let agentMessage=response.responseJson?response.responseJson:response.responseString;
+        let response = await webSkel.getService("AgentService").analyzeRequest();
+        let agentMessage=response.responseJson ? JSON.parse(response.responseJson) : response.responseString;
         await this.displayMessage("assistant", agentMessage);
 
     }
