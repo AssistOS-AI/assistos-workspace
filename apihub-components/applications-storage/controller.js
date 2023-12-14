@@ -47,11 +47,10 @@ function updateManifest  (manifestPath, spaceId, branchName, applicationId, appl
 }
 function generateId() {
     const length = 12;
-    const randomBytes = new Uint8Array(length);
-    crypto.generateRandom(randomBytes);
+    let random = crypto.getRandomSecret(length);
     let randomStringId = "";
     while (randomStringId.length < length) {
-        randomStringId = this.crypto.encodeBase58(randomBytes).slice(0, length);
+        randomStringId = crypto.encodeBase58(random).slice(0, length);
     }
     return randomStringId;
 }
@@ -70,7 +69,7 @@ async function installApplication(request, response) {
             sendResponse(response, 404, "text/html", "Application or repository not found")
         }
         await execAsync(`git clone ${application.repository} ${folderPath}`);
-        applicationId=generateId();
+        applicationId = application.name + generateId();
         updateManifest(`${folderPath}/manifest.json`, spaceId, branchName,applicationId,application.name);
         if(application.flowsRepository) {
             let applicationPath = `../apihub-root/spaces/${spaceId}/applications/${application.name}/flows`
