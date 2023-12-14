@@ -22,7 +22,9 @@ export class Space {
         this.documents = (spaceData.documents || []).map(documentData => new DocumentModel(documentData)).reverse();
         this.admins = [];
         this.pages = spaceData.pages || [];
-        this.createDefaultAgent();
+        if(spaceData.agent){
+            this.agent = new Agent(spaceData.agent);
+        }
         this.observers = [];
         this.installedApplications =spaceData.installedApplications || [];
         Space.instance = this;
@@ -39,7 +41,9 @@ export class Space {
             name: this.name,
             id: this.id,
             admins: this.admins,
-            announcements: this.announcements
+            announcements: this.announcements,
+            agent: this.agent,
+            installedApplications: this.installedApplications
         }
     }
     stringifySpace() {
@@ -196,5 +200,9 @@ export class Space {
     }
     async createDefaultAgent(){
         this.agent=new Agent(JSON.parse(await storageManager.loadDefaultAgent()));
+    }
+
+    async updateStatus(){
+        await storageManager.storeObject(webSkel.currentUser.space.id, "status", "status", JSON.stringify(webSkel.currentUser.space.getSpaceStatus(),null,2));
     }
 }

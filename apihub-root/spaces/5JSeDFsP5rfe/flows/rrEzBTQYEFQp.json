@@ -1,1 +1,0 @@
-{"name":"ChangeSpace","content":"({\nstart: async function(spaceId){\n       try{\n            await webSkel.currentUser.space.changeSpace(spaceId);\n            this.return(spaceId);\n        }catch(e){\n            this.fail(e);\n            }\n    }\n})","id":"rrEzBTQYEFQp","description":"Changes the current space","tags":["presenters","agents","space"]}
