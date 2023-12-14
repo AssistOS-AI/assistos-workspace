@@ -145,7 +145,6 @@ async function loadConfigs(jsonPath) {
         for (const component of config.components) {
             await webSkel.defineComponent(component.name, component.path,component.cssPaths);
         }
-
     } catch (error) {
         console.error(error);
         await showApplicationError("Error loading configs", "Error loading configs", `Encountered ${error} while trying loading webSkel configs`);
@@ -175,6 +174,7 @@ async function handleHistory(event){
 function saveCurrentState(){
     webSkel.currentState = Object.assign({}, history.state);
 }
+
 (async ()=> {
     await webSkel.defineComponent("general-loader", "./wallet/web-components/components/general-loader/general-loader.html");
     const loading = await webSkel.showLoading(`<general-loader></general-loader>`);
@@ -188,5 +188,4 @@ function saveCurrentState(){
     loading.remove();
     window.addEventListener('popstate', handleHistory);
     window.addEventListener('beforeunload', saveCurrentState);
-
 })();
