@@ -47,7 +47,7 @@ export class agentPage {
             if(this.agent.conversationHistory.length === 0){
                 await webSkel.getService("AgentService").initOpeners();
                 let message = this.agent.getRandomOpener();
-                await this.displayMessage("agent", message);
+                await this.displayMessage("assistant", message);
             }
         },0);
 
@@ -88,8 +88,8 @@ export class agentPage {
             return;
         }
         await this.displayMessage("user", userPrompt);
-        let response = await webSkel.getService("AgentService").analyzeRequest();
-        let agentMessage=response.responseJson ? JSON.parse(response.responseJson) : response.responseString;
+        let response = await webSkel.getService("AgentService").analyzeRequest(formInfo.data.input);
+        let agentMessage=response.responseJson ? JSON.stringify(response.responseJson) : response.responseString;
         await this.displayMessage("assistant", agentMessage);
 
     }

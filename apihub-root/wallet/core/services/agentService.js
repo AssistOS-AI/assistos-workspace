@@ -10,19 +10,26 @@ export class AgentService {
         }
     }
     async analyzeRequest(request){
-        let agent = webSkel.currentUser.space.agent;
-        let agentFlows = webSkel.currentUser.space.flows.filter((flow)=>{flow.tags.includes("agents")});
-        let operations = agentFlows.map((flow)=>{
-            return {id:flow.id,description:flow.description}
-            });
         let flowId = webSkel.currentUser.space.getFlowIdByName("DeduceIntention");
-        let result = await webSkel.getService("LlmsService").callFlow(flowId, operations, request, agent.loadKnowledge());
-        if(result.responseJson.operation === "operation"){
-            return result;
-            // let flowId = webSkel.currentUser.space.getFlowIdByName("ConfirmParameters");
-            // return await webSkel.getService("LlmsService").callFlow(flowId, request, result.responseJson.operationId);
+        let result = await webSkel.getService("LlmsService").callFlow(flowId, request);
+        if(result.responseJson.operation){
+            //user wants to execute an operation
+            let flowId = webSkel.currentUser.space.getFlowIdByName("ConfirmParameters");
+            let operationId = result.responseJson.operationId;
+            let response = await webSkel.getService("LlmsService").callFlow(flowId, request, operationId);
+            if(response.responseJson.missingParameters.length !== 0){
+                //request missing parameters from the user
+                let flowId = webSkel.currentUser.space.getFlowIdByName("RequestParameters");
+                return await webSkel.getService("LlmsService").callFlow(flowId, operationId, response.responseJson.missingParameters);
+            }else {
+                //execute operation with the current parameters
+                let parameters = response.responseJson.extractedParameters.map((flow) => flow.value);
+                return await webSkel.getService("LlmsService").callFlow(operationId, ...parameters);
+            }
         }else {
-            return result;
+            //provide a generic answer
+            let flowId = webSkel.currentUser.space.getFlowIdByName("DefaultAgent");
+            return await webSkel.getService("LlmsService").callFlow(flowId, request, agent.loadKnowledge());
         }
     }
 }
