@@ -7,7 +7,7 @@ apihub-root/external-volume/maindsu
 apihub-root/external-volume/lightDB
 apihub-root/external-volume/oba
 apihub-root/external-volume/versionlessdsu
-apihub-root/keys-secret.json
+apihub-root/keys-secret
 
 apihub-root/wallet/scripts/bundles/
 apihub-root/wallet/bundles/
