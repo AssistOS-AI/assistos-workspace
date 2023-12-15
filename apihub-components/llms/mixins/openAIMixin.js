@@ -54,7 +54,7 @@ function openAIMixin(target){
            }
         }
         target.setPrompt(settings.prompt);
-        await target.setKey("../apihub-root/keys-secret.json");
+        await target.setKey("../apihub-root/keys-secret");
         const result = await fetch(target.__url, target.getOptions());
         if (result.status !== 200) {
             console.log(`Response Status: ${result.status}`);
