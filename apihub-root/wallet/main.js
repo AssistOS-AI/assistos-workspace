@@ -177,6 +177,7 @@ function saveCurrentState(){
 
 (async ()=> {
     await webSkel.defineComponent("general-loader", "./wallet/web-components/components/general-loader/general-loader.html");
+    await webSkel.UtilsService.initialize();
     const loading = await webSkel.showLoading(`<general-loader></general-loader>`);
     webSkel.setDomElementForPages(document.querySelector("#page-content"));
     window.storageManager = new StorageManager();

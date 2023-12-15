@@ -12,7 +12,7 @@ function sendResponse(response, statusCode, contentType, message) {
     response.write(message);
     response.end();
 }
-function updateSpaceStatus(spaceId, applicationId, applicationName) {
+function updateSpaceStatus(spaceId,applicationName,branchName) {
     const statusPath = `../apihub-root/spaces/${spaceId}/status/status.json`;
     let status;
     if (fs.existsSync(statusPath)) {
@@ -21,30 +21,30 @@ function updateSpaceStatus(spaceId, applicationId, applicationName) {
     } else {
         status = {};
     }
+    let installationDate=new Date();
+    let lastUpdate=installationDate.toISOString();
+
    if(status.installedApplications){
-         status.installedApplications.push({id:applicationId, name:applicationName});
+         status.installedApplications.push(
+             {
+                 applicationId:applicationName,
+                 installationDate:installationDate,
+                 lastUpdate:lastUpdate,
+                 spaceFlowsBranch:branchName
+             });
    }else{
-         status.installedApplications=[{id:applicationId, name:applicationName}];
+         status.installedApplications=[
+             {
+             applicationId:applicationName,
+             installationDate:installationDate,
+             lastUpdate:lastUpdate,
+             spaceFlowsBranch:branchName
+         }
+         ];
    }
     fs.writeFileSync(statusPath, JSON.stringify(status, null, 2));
 }
-function updateManifest  (manifestPath, spaceId, branchName, applicationId, applicationName){
-    let manifest;
 
-    if (fs.existsSync(manifestPath)) {
-        const fileContent = fs.readFileSync(manifestPath, 'utf8');
-        manifest = JSON.parse(fileContent);
-    } else {
-        manifest = {};
-    }
-    manifest.spaceId = spaceId;
-    manifest.version = manifest.version || "0.0.1";
-    manifest.flowsBranch = branchName;
-    manifest.applicationId = applicationId;
-    manifest.name = applicationName;
-
-    fs.writeFileSync(manifestPath, JSON.stringify(manifest, null, 2));
-}
 function generateId() {
     const length = 12;
     let random = crypto.getRandomSecret(length);
@@ -58,8 +58,6 @@ function generateId() {
 async function installApplication(request, response) {
     const spaceId = request.params.spaceId;
     let applicationId = request.params.applicationId;
-
-    const branchName = `space-${spaceId}`;
     try {
         const webSkelConfig = require("../apihub-root/wallet/webskel-configs.json");
         const application = webSkelConfig.applications.find(app => app.id == applicationId);
@@ -69,8 +67,8 @@ async function installApplication(request, response) {
             sendResponse(response, 404, "text/html", "Application or repository not found")
         }
         await execAsync(`git clone ${application.repository} ${folderPath}`);
-        applicationId = application.name + generateId();
-        updateManifest(`${folderPath}/manifest.json`, spaceId, branchName,applicationId,application.name);
+
+        const branchName = `space-${spaceId}`;
         if(application.flowsRepository) {
             let applicationPath = `../apihub-root/spaces/${spaceId}/applications/${application.name}/flows`
             await execAsync(`git clone ${application.flowsRepository} ${applicationPath}`);
@@ -78,7 +76,7 @@ async function installApplication(request, response) {
             await execAsync(`git -C ${applicationPath} checkout -b ${branchName}`);
             await execAsync(`git -C ${applicationPath} push -u origin ${branchName}`);
         }
-        updateSpaceStatus(spaceId, applicationId,application.name);
+        updateSpaceStatus(spaceId,application.name,branchName);
         sendResponse(response, 200, "text/html", "Application installed successfully")
     } catch (error) {
         console.error("Error in installing application:", error);

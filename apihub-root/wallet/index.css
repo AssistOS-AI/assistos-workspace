@@ -57,7 +57,7 @@
         --navbarbox: #A283A3 ;/* var(--navbarbox); */
         --medium-white: #F3EBF3 ;/* var(--medium-white); */
         --flow-marketplace: #F3EBF366 ;/* var(--flow-marketplace); */
-        --proofreader-generated-content: #2E2C2E ;/* var(--proofreader-generated-content); */
+        --proofreader-generated-content: #2E2C2E ;/* var(--proofreader-page-generated-content); */
         --generated-text-title: #232023 ;/* var(--generated-text-title); */
         --chat-log-background: #9d019d80 ;/* var(--chat-log-background); */
         --chatbots-input: #F5E6EF ;/* var(--chatbots-input); */

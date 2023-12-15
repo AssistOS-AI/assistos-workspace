@@ -10,7 +10,7 @@ export class leftSidebar {
     beforeRender() {
         this.applications = "";
         for (let application of webSkel.currentUser.space.installedApplications) {
-            let applicationData = webSkel.getApplicationData(parseInt(application.id));
+            let applicationData = webSkel.getApplicationData((application.applicationId));
 
             let svgImage = applicationData.encodedSvg;
             this.applications += `
@@ -24,30 +24,8 @@ export class leftSidebar {
             </div>`;
         }
     }
-    /* temporary solution until proper and complete implementations of applications  */
     async startApplication(_target, applicationId) {
-        switch(parseInt(applicationId)){
-            case 1:
-                this.changeBaseURL(`/app/${webSkel.currentUser.space.id}/${applicationId}`);
-                await this.changePage(_target,"chatbots-select-personality-page",applicationId);
-                break;
-            case 2:
-                this.changeBaseURL(`/app/${webSkel.currentUser.space.id}/${applicationId}`);
-                await this.changePage(_target,"documents-page",applicationId);
-                break;
-            case 3:
-                this.changeBaseURL(`/app/${webSkel.currentUser.space.id}/${applicationId}`);
-                await this.changePage(_target,"proof-reader-page",applicationId);
-                break;
-            case 4:
-                this.changeBaseURL(`/app/${webSkel.currentUser.space.id}/${applicationId}`);
-                await this.changePage(_target,"translate-page",applicationId);
-                break;
-            case 5:
-                this.changeBaseURL(`/app/${webSkel.currentUser.space.id}/${applicationId}`);
-                await this.changePage(_target,"image-brainstorming-page",applicationId);
-                break;
-        }
+        await webSkel.startApplication(applicationId);
     }
     changeBaseURL(newBaseURL) {
         document.getElementById('baseTag').setAttribute('href', newBaseURL);
@@ -80,8 +58,6 @@ export class leftSidebar {
         setInterval(updateClock, 10000);
     }
     async changePage(_target, pageId,applicationId, refreshFlag='0'){
-        debugger;
-        await webSkel.startApplication(applicationId);
         let flowId = webSkel.currentUser.space.getFlowIdByName("ChangeApplication");
         await webSkel.getService("LlmsService").callFlow(flowId, pageId, refreshFlag);
         getClosestParentElement(_target, ".feature").setAttribute("id", "selected-page");

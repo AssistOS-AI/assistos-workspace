@@ -7,10 +7,9 @@ export class applicationsMarketplacePage {
 
     beforeRender() {
         this.applications = "";
-        debugger;
         webSkel.getApplications()?.forEach((application) => {
             for (let installedApplication of webSkel.currentUser.space.installedApplications) {
-                if (parseInt(installedApplication.id) === parseInt(application.id)) {
+                if (installedApplication.applicationId === application.id) {
                     return;
                 }
             }
