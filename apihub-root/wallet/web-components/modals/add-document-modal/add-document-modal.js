@@ -18,13 +18,10 @@ export class addDocumentModal {
     async addDocument(_target) {
         let formData = await extractFormInformation(_target);
         if(formData.isValid) {
-            let docData={
-                title: formData.data.documentTitle,
-                topic: formData.data.documentTopic
-            }
             let flowId = webSkel.currentUser.space.getFlowIdByName("AddDocument");
-            await webSkel.getService("LlmsService").callFlow(flowId, docData);
+            let docId = await webSkel.getService("LlmsService").callFlow(flowId, formData.data.documentTitle, formData.data.documentTopic);
             closeModal(_target);
+            await webSkel.changeToDynamicPage(`document-view-page`, `documents/${docId}/document-view-page`);
         }
     }
 }

@@ -106,11 +106,11 @@ export class Space {
     getDefaultAgent(){
         return this.agent;
     }
-   async addDocument(documentData,locationRedirect="document-view-page") {
+   async addDocument(documentData) {
         let newDocument=documentFactory.createDocument(documentData)
         await documentFactory.addDocument(webSkel.currentUser.space.id, newDocument);
         webSkel.currentUser.space.currentDocumentId = newDocument.id;
-        await webSkel.changeToDynamicPage(`${locationRedirect}`, `documents/${newDocument.id}/${locationRedirect}`);
+        return newDocument.id;
     }
     async deleteDocument(documentId) {
         this.documents = this.documents.filter(document => document.id !== documentId);

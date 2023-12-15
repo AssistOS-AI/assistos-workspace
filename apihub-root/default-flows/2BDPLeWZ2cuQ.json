@@ -1,1 +1,11 @@
-{"name":"DeleteChapter","content":"( {\n\tstart: async function(documentId, chapterId) {\n\t\ttry {\n\t\t\tlet document = webSkel.currentUser.space.getDocument(documentId);\n\t\t\tawait document.deleteChapter(chapterId);\n\t\t\tthis.return(chapterId);\n\t\t}catch(e) {\n\t\t\tthis.fail(e);\n\t\t}\n\t}\n})","id":"2BDPLeWZ2cuQ","description":"Deletes a chapter","tags":["presenters","agents","documents"]}
+{
+  "name": "DeleteChapter",
+  "content": "( {\n\tstart: async function(documentId, chapterId) {\n\t\ttry {\n\t\t\tlet document = webSkel.currentUser.space.getDocument(documentId);\n\t\t\tawait document.deleteChapter(chapterId);\n\t\t\tthis.return(chapterId);\n\t\t}catch(e) {\n\t\t\tthis.fail(e);\n\t\t}\n\t}\n})",
+  "id": "2BDPLeWZ2cuQ",
+  "description": "Deletes a chapter",
+  "tags": [
+    "presenters",
+    "agents",
+    "documents"
+  ]
+}

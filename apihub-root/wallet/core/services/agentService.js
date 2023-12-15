@@ -13,6 +13,7 @@ export class AgentService {
         let agent = webSkel.currentUser.space.agent;
         let flowId = webSkel.currentUser.space.getFlowIdByName("DeduceIntention");
         let result = await webSkel.getService("LlmsService").callFlow(flowId, request);
+        await agent.addMessage("user", request);
         if(result.responseJson.operation){
             //user wants to execute an operation
             let flowId = webSkel.currentUser.space.getFlowIdByName("ConfirmParameters");
@@ -28,12 +29,21 @@ export class AgentService {
                 let order = flow.agentConfigs.parameters.map((parameter) => parameter.name);
                 response.responseJson.extractedParameters.sort((a, b) => order.indexOf(a.name) - order.indexOf(b.name));
                 let parameters = response.responseJson.extractedParameters.map((parameter) => parameter.value);
-                return await webSkel.getService("LlmsService").callFlow(operationId, ...parameters);
+                let result = await webSkel.getService("LlmsService").callFlow(operationId, ...parameters);
+                let res;
+                if(result.responseJson){
+                    res = JSON.stringify(result.responseJson);
+                }else {
+                    res = result.responseString
+                }
+                let flowId = webSkel.currentUser.space.getFlowIdByName("ConfirmFlowExecution");
+                return await webSkel.getService("LlmsService").callFlow(flowId, operationId, response.responseJson.extractedParameters, res);
+
             }
         }else {
             //provide a generic answer
-            let flowId = webSkel.currentUser.space.getFlowIdByName("DefaultAgent");
-            return await webSkel.getService("LlmsService").callFlow(flowId, request, agent.loadKnowledge());
+            let flowId = webSkel.currentUser.space.getFlowIdByName("Fallback");
+            return await webSkel.getService("LlmsService").callFlow(flowId, request);
         }
     }
 }

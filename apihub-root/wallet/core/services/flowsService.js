@@ -8,11 +8,12 @@ export class FlowsService{
                     intelligence:3,
                     creativity:3,
                     cost:3,
-                    variants:1
+                    variants:1,
+                    messages: []
                 };
             },
             setResponseFormat : function (format){
-                //must be text or json_object
+                //must be text or json_object for now
                 this.__body.responseFormat = format;
             },
             setIntelligenceLevel : function (level){
@@ -26,9 +27,9 @@ export class FlowsService{
                 this.__body.max_tokens = max_tokens;
                 return await webSkel.getService("LlmsService").generateResponse(JSON.stringify(this.__body));
             },
-            chatbot : async function(prompt, max_tokens, replyHistory){
-                //replyHistory: array of these {"role": "user", content:"text"}
-                this.__body.history = replyHistory;
+            chatbot : async function(prompt, max_tokens, messages){
+                //messages: array of these {"role": "user", content:"text"}
+                this.__body.messages = messages;
                 this.__body.prompt = prompt;
                 this.__body.max_tokens = max_tokens;
                 return await this.callLLM();
@@ -46,7 +47,6 @@ export class FlowsService{
                 this.__body.max_tokens = max_tokens;
                 return await this.callLLM();
             },
-
             setCostLevel :  function (level){
                 this.__body.cost = level;
             },
@@ -56,9 +56,6 @@ export class FlowsService{
                 return await this.callLLM();
             },
             isLLMText: function(text){
-
-            },
-            filterLLMText: function(text){
 
             },
             setThink: function (prompt){

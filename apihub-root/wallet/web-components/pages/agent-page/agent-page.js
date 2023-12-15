@@ -22,7 +22,7 @@ export class agentPage {
                 <div class="chat-box-container user">
                  <div class="chat-box user-box">${reply.content}</div>
                 </div>`;
-            }else {
+            }else if(reply.role === "assistant"){
                 stringHTML += `
                 <div class="chat-box-container robot">
                  <div class="chat-box robot-box">${reply.content}</div>
@@ -48,20 +48,20 @@ export class agentPage {
                 await webSkel.getService("AgentService").initOpeners();
                 let message = this.agent.getRandomOpener();
                 await this.displayMessage("assistant", message);
+                await this.agent.addMessage("assistant", message);
             }
         },0);
 
     }
     async displayMessage(role, text){
         let reply;
-        await this.agent.addReply(role, text);
         if(role === "user"){
             reply = `
                 <div class="chat-box-container user">
                  <div class="chat-box user-box">${text}</div>
                 </div>`;
 
-        }else {
+        }else if(role === "assistant"){
             reply = `
                 <div class="chat-box-container robot">
                  <div class="chat-box robot-box">${text}</div>
@@ -91,7 +91,7 @@ export class agentPage {
         let response = await webSkel.getService("AgentService").analyzeRequest(formInfo.data.input);
         let agentMessage=response.responseJson ? JSON.stringify(response.responseJson) : response.responseString;
         await this.displayMessage("assistant", agentMessage);
-
+        await this.agent.addMessage("assistant", agentMessage);
     }
 
     async resetConversation(){

@@ -33,8 +33,14 @@ function openAIMixin(target){
     }
     target.setResponseFormat = function(format){
         if(format){
-            target.__body["response_format"] = {type:format};
-            target.addMessage({"role": "system", "content": `{\"response_format\":\"${format}\"}`});
+            if(format === "json_object"){
+                target.__body["response_format"] = {type:"json_object"};
+                target.addMessage({"role": "system", "content": `{\"response_format\":\"json_object\"}`});
+            }else {
+                target.__body["response_format"] = {type:"text"};
+                target.addMessage({"role": "system", "content": `{\"response_format\":\"text\"}`});
+            }
+
         }
     }
     target.addMessage = function(message){
@@ -44,12 +50,14 @@ function openAIMixin(target){
         target.setVariants(parseInt(settings.variants));
         target.setMaxTokens(settings.max_tokens);
         target.setResponseFormat(settings.responseFormat);
-        if(settings.history){
-           for(let reply of settings.history){
+        if(settings.messages){
+           for(let reply of settings.messages){
                if(reply.role === "user"){
                    target.addMessage({role: "user", content: reply.content});
-               }else {
+               }else if(reply.role === "assistant"){
                    target.addMessage({role: "assistant", content: reply.content});
+               }else {
+                   target.addMessage({role: "system", content: reply.content});
                }
            }
         }

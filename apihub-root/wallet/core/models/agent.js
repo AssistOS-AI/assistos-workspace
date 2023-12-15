@@ -38,7 +38,10 @@ export class Agent{
         let random = Math.floor(Math.random() * this.openers.length);
         return this.openers[random];
     }
-    async addReply(role, content){
+    async addMessage(role, content){
+        if(!["assistant","user","system"].includes(role)){
+            console.error(`LLM history: role must be either assistant, user or system. Message: ${content}`);
+        }
         this.conversationHistory.push({role:role,content:content});
         await storageManager.storeObject(webSkel.currentUser.space.id, "status", "status", JSON.stringify(webSkel.currentUser.space.getSpaceStatus(),null,2));
     }
