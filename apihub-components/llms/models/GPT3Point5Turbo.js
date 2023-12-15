@@ -9,7 +9,7 @@ class GPT3Point5Turbo{
 
         this.__url = "https://api.openai.com/v1/chat/completions";
         this.__body = {
-            model: "gpt-3.5-turbo",
+            model: "gpt-3.5-turbo-1106",
             messages: [],
             temperature: 0.7,
             n: 1

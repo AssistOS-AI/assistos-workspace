@@ -31,12 +31,19 @@ function openAIMixin(target){
         secret = JSON.parse(secret);
         target.key = secret.keys["openAI"];
     }
+    target.setResponseFormat = function(format){
+        if(format){
+            target.__body["response_format"] = {type:format};
+            target.addMessage({"role": "system", "content": `{\"response_format\":\"${format}\"}`});
+        }
+    }
     target.addMessage = function(message){
         target.__body.messages.push(message);
     }
     target.callLLM = async function(settings){
         target.setVariants(parseInt(settings.variants));
         target.setMaxTokens(settings.max_tokens);
+        target.setResponseFormat(settings.responseFormat);
         if(settings.history){
            for(let reply of settings.history){
                if(reply.role === "user"){

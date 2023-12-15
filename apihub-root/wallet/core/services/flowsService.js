@@ -11,7 +11,11 @@ export class FlowsService{
                     variants:1
                 };
             },
-            setIntelligenceLevel : function ( level){
+            setResponseFormat : function (format){
+                //must be text or json_object
+                this.__body.responseFormat = format;
+            },
+            setIntelligenceLevel : function (level){
                 this.__body.intelligence = level;
             },
             setCreativityLevel : async function (level){
