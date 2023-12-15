@@ -42,4 +42,9 @@ export class Agent{
         this.conversationHistory.push({role:role,content:content});
         await storageManager.storeObject(webSkel.currentUser.space.id, "status", "status", JSON.stringify(webSkel.currentUser.space.getSpaceStatus(),null,2));
     }
+
+    async resetConversationHistory(){
+        this.conversationHistory = [];
+        await storageManager.storeObject(webSkel.currentUser.space.id, "status", "status", JSON.stringify(webSkel.currentUser.space.getSpaceStatus(),null,2));
+    }
 }

@@ -10,6 +10,7 @@ export class AgentService {
         }
     }
     async analyzeRequest(request){
+        let agent = webSkel.currentUser.space.agent;
         let flowId = webSkel.currentUser.space.getFlowIdByName("DeduceIntention");
         let result = await webSkel.getService("LlmsService").callFlow(flowId, request);
         if(result.responseJson.operation){
@@ -23,7 +24,10 @@ export class AgentService {
                 return await webSkel.getService("LlmsService").callFlow(flowId, operationId, response.responseJson.missingParameters);
             }else {
                 //execute operation with the current parameters
-                let parameters = response.responseJson.extractedParameters.map((flow) => flow.value);
+                let flow = webSkel.currentUser.space.getFlow(operationId);
+                let order = flow.agentConfigs.parameters.map((parameter) => parameter.name);
+                response.responseJson.extractedParameters.sort((a, b) => order.indexOf(a.name) - order.indexOf(b.name));
+                let parameters = response.responseJson.extractedParameters.map((parameter) => parameter.value);
                 return await webSkel.getService("LlmsService").callFlow(operationId, ...parameters);
             }
         }else {
