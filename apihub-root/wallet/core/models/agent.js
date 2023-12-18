@@ -7,6 +7,8 @@ export class Agent{
         this.name = agentData.name;
         this.tasks = [];
         this.conversationHistory = agentData.conversationHistory || [];
+        this.context = agentData.context || [];
+        this.wordCount = agentData.wordCount || 0;
     }
 
     setPersonality(id){
@@ -31,8 +33,14 @@ export class Agent{
         };
         return JSON.stringify(knowledge, null, 2);
     }
-    setOpeners(openers){
+
+    async addCapability(capability){
+        this.capabilities.push(capability);
+        await storageManager.storeObject(webSkel.currentUser.space.id, "status", "status", JSON.stringify(webSkel.currentUser.space.getSpaceStatus(),null,2));
+    }
+    async setOpeners(openers){
         this.openers = openers;
+        await storageManager.storeObject(webSkel.currentUser.space.id, "status", "status", JSON.stringify(webSkel.currentUser.space.getSpaceStatus(),null,2));
     }
     getRandomOpener(){
         let random = Math.floor(Math.random() * this.openers.length);
@@ -42,12 +50,31 @@ export class Agent{
         if(!["assistant","user","system"].includes(role)){
             console.error(`LLM history: role must be either assistant, user or system. Message: ${content}`);
         }
+        let words = content.split(" ");
+        this.wordCount += words.length;
         this.conversationHistory.push({role:role,content:content});
         await storageManager.storeObject(webSkel.currentUser.space.id, "status", "status", JSON.stringify(webSkel.currentUser.space.getSpaceStatus(),null,2));
     }
 
-    async resetConversationHistory(){
+    async resetConversation(){
         this.conversationHistory = [];
+        this.wordCount = 0;
+        this.context.content = "";
         await storageManager.storeObject(webSkel.currentUser.space.id, "status", "status", JSON.stringify(webSkel.currentUser.space.getSpaceStatus(),null,2));
+    }
+
+    async setContext(context){
+        this.context[0] = {role:"system", content: context};
+        let words = context.split(" ");
+        this.wordCount = words.length;
+        await storageManager.storeObject(webSkel.currentUser.space.id, "status", "status", JSON.stringify(webSkel.currentUser.space.getSpaceStatus(),null,2));
+    }
+
+    getContext(){
+        if(this.context.length > 0){
+            return this.context;
+        }else {
+            return this.conversationHistory;
+        }
     }
 }
