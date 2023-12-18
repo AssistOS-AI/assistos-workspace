@@ -10,6 +10,7 @@ export class AgentService {
         }
     }
     async analyzeRequest(request){
+        await this.summarizeConversation();
         let agent = webSkel.currentUser.space.agent;
         let flowId = webSkel.currentUser.space.getFlowIdByName("DeduceIntention");
         let result = await webSkel.getService("LlmsService").callFlow(flowId, request);
@@ -44,6 +45,16 @@ export class AgentService {
             //provide a generic answer
             let flowId = webSkel.currentUser.space.getFlowIdByName("Fallback");
             return await webSkel.getService("LlmsService").callFlow(flowId, request);
+        }
+    }
+
+    async summarizeConversation(){
+        let agent = webSkel.currentUser.space.agent;
+        let limit = 300;
+        if(agent.wordCount > limit){
+            let flowId = webSkel.currentUser.space.getFlowIdByName("SummarizeAgentConversation");
+            let result = await webSkel.getService("LlmsService").callFlow(flowId);
+            await agent.setContext(result.responseString);
         }
     }
 }

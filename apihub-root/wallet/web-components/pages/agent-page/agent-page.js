@@ -95,7 +95,7 @@ export class agentPage {
     }
 
     async resetConversation(){
-        await this.agent.resetConversationHistory();
+        await this.agent.resetConversation();
         this.invalidate();
     }
 }
