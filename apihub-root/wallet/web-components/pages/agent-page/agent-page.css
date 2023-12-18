@@ -153,3 +153,13 @@ agent-page{
 .arrow-space:hover {
     background: var(--space-hover);
 }
+
+.reset-conversation{
+    margin-left: 20px;
+    color: var(--medium-blue);
+    font-weight: 600;
+    font-size: 14px;
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+}
