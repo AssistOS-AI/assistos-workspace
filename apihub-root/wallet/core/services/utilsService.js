@@ -18,4 +18,62 @@ export class UtilsService {
         }
         return randomStringId;
     }
+     parseURL(){
+        let url = window.location.hash.split('/');
+        const documents = "#documents", space = "#space", chatbots = "#chatbots-page";
+        switch(url[0]) {
+            case documents: {
+                let documentId = url[1];
+                let chapterId = url[3];
+                let paragraphId = url[4];
+                if(chapterId){
+                    return [documentId, chapterId, paragraphId];
+                }else {
+                    return documentId;
+                }
+            }
+            case space:{
+                if(url[2] === "edit-personality-page"){
+                    return url[3];
+                }
+                break;
+            }
+            case chatbots:{
+                return url[1];
+            }
+            default:{
+                console.error("no parameters for this url");
+            }
+        }
+    }
+    SaveElementTimer(fn, t) {
+        return new function (){
+            let timerObj = setInterval(fn, t);
+            this.stop = async function(executeFn) {
+                if (timerObj) {
+                    if(executeFn){
+                        await fn();
+                    }
+                    clearInterval(timerObj);
+                    timerObj = null;
+                }
+                return this;
+            }
+            // start timer using current settings (if it's not already running)
+            this.start = async function() {
+                if (!timerObj) {
+                    await this.stop();
+                    timerObj = setInterval(fn, t);
+                }
+                return this;
+            }
+            // start with new or original interval, stop current interval
+            this.reset = async function(newT = t) {
+                t = newT;
+                let self = await this.stop();
+                return self.start();
+            }
+        };
+    }
+
 }

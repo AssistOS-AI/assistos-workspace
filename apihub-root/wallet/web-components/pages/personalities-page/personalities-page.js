@@ -1,8 +1,3 @@
-import {
-    showModal,
-    reverseQuerySelector
-} from "../../../imports.js";
-
 export class personalitiesPage {
     constructor(element,invalidate) {
         this.modal = "showAddPersonalityModal";
@@ -21,11 +16,11 @@ export class personalitiesPage {
         }
     }
     async showAddPersonalityModal() {
-        await showModal(document.querySelector("body"), "add-personality-modal", { presenter: "add-personality-modal"});
+        await webSkel.UtilsService.showModal(document.querySelector("body"), "add-personality-modal", { presenter: "add-personality-modal"});
     }
 
     async selectPersonality(_target){
-        let personalityId = reverseQuerySelector(_target, "personality-unit").getAttribute("data-id");
+        let personalityId = webSkel.UtilsService.reverseQuerySelector(_target, "personality-unit").getAttribute("data-id");
         window.location.hash = `#space/personalities-page/edit-personality-page/${personalityId}`;
         await webSkel.changeToDynamicPage("edit-personality-page", `space/personalities-page/edit-personality-page/${personalityId}`);
     }

@@ -1,9 +1,3 @@
-import {
-    showActionBox,
-    showModal,
-    reverseQuerySelector
-} from "../../../imports.js";
-
 export class myWebPage {
     constructor(element, invalidate) {
         this.element = element;
@@ -42,15 +36,15 @@ export class myWebPage {
     }
 
     async showActionBox(_target, primaryKey, componentName, insertionMode) {
-        await showActionBox(_target, primaryKey, componentName, insertionMode);
+        await webSkel.UtilsService.showActionBox(_target, primaryKey, componentName, insertionMode);
     }
 
     getPageId(_target) {
-        return reverseQuerySelector(_target, "page-unit").getAttribute("data-id");
+        return webSkel.UtilsService.reverseQuerySelector(_target, "page-unit").getAttribute("data-id");
     }
 
     async showAddPageModal() {
-        await showModal(document.querySelector("body"), "add-page-modal", {presenter: "add-page-modal"});
+        await webSkel.UtilsService.showModal(document.querySelector("body"), "add-page-modal", {presenter: "add-page-modal"});
     }
 
     async deleteAction(_target) {
@@ -60,7 +54,7 @@ export class myWebPage {
     }
 
     async editAction(_target) {
-        await showModal(document.querySelector("body"), "edit-my-web-page-modal", {
+        await webSkel.UtilsService.showModal(document.querySelector("body"), "edit-my-web-page-modal", {
             presenter: "edit-my-web-page-modal",
             id: this.getPageId(_target)
         });

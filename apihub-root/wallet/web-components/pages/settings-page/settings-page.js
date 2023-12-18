@@ -1,4 +1,3 @@
-
 export class settingsPage{
     constructor(element,invalidate){
         this.element = element;

@@ -1,10 +1,8 @@
-import {SaveElementTimer, sanitize, parseURL, extractFormInformation, unsanitize} from "../../../imports.js";
-
 export class paragraphProofreadPage {
     constructor(element, invalidate) {
         this.element=element;
         let documentId, chapterId, paragraphId;
-        [documentId, chapterId, paragraphId] = parseURL();
+        [documentId, chapterId, paragraphId] = webSkel.getService("UtilsService").parseURL();
         this._document = webSkel.currentUser.space.getDocument(documentId);
         this._chapter = this._document.getChapter(chapterId);
         this._paragraph = this._chapter.getParagraph(paragraphId);
@@ -51,7 +49,7 @@ export class paragraphProofreadPage {
 
     async executeProofRead() {
         let form = this.element.querySelector(".proofread-form");
-        const formData = await extractFormInformation(form);
+        const formData = await webSkel.UtilsService.extractFormInformation(form);
 
         this.text = formData.data.text;
         if(formData.data.personality){
@@ -60,8 +58,8 @@ export class paragraphProofreadPage {
         this.details = formData.data.details;
         let flowId = webSkel.currentUser.space.getFlowIdByName("Proofread");
         let result = await webSkel.getService("LlmsService").callFlow(flowId, this.paragraphText, formData.data.personality, this.details);
-        this.observations = sanitize(result.responseJson.observations);
-        this.improvedParagraph = sanitize(result.responseJson.improvedText);
+        this.observations = webSkel.UtilsService.sanitize(result.responseJson.observations);
+        this.improvedParagraph = webSkel.UtilsService.sanitize(result.responseJson.improvedText);
         this.invalidate();
     }
 
@@ -70,9 +68,9 @@ export class paragraphProofreadPage {
         if (paragraph.getAttribute("contenteditable") === "false") {
             paragraph.setAttribute("contenteditable", "true");
             paragraph.focus();
-            let timer = new SaveElementTimer(async () => {
+            let timer = new webSkel.getService("UtilsService").SaveElementTimer(async () => {
                 let confirmationPopup = this.element.querySelector("confirmation-popup");
-                let sanitizedText = sanitize(paragraph.innerText);
+                let sanitizedText = webSkel.UtilsService.sanitize(paragraph.innerText);
                 if (sanitizedText !== this._paragraph.text && !confirmationPopup) {
                     let flowId = webSkel.currentUser.space.getFlowIdByName("UpdateParagraphText");
                     await webSkel.getService("LlmsService").callFlow(flowId, this._document.id, this._chapter.id, this._paragraph.id, sanitizedText);

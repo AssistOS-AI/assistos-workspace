@@ -1,14 +1,8 @@
-import {
-    parseURL,
-    reverseQuerySelector, SaveElementTimer,
-    showActionBox, showModal
-} from "../../../imports.js";
-
 export class manageParagraphsPage {
     constructor(element, invalidate) {
         this.element = element;
         let documentId, chapterId;
-        [documentId, chapterId] = parseURL();
+        [documentId, chapterId] = webSkel.getService("UtilsService").parseURL();
         this._document = webSkel.currentUser.space.getDocument(documentId);
         this._chapter = this._document.getChapter(chapterId);
         this._document.observeChange(this._document.getNotificationId() + ":manage-paragraphs-page", invalidate);
@@ -70,7 +64,7 @@ export class manageParagraphsPage {
             mainIdeas.setAttribute("contenteditable", "true");
             mainIdeas.focus();
             let flowId = webSkel.currentUser.space.getFlowIdByName("UpdateChapterMainIdeas");
-            let timer = new SaveElementTimer(async () => {
+            let timer = new webSkel.getService("UtilsService").SaveElementTimer(async () => {
                 let confirmationPopup = this.element.querySelector("confirmation-popup");
                 let ideas = mainIdeas.innerText.split("\n");
                 let ideasString = ideas.join("");
@@ -106,24 +100,24 @@ export class manageParagraphsPage {
         this.invalidate();
     }
     async summarize(){
-        await showModal(document.querySelector("body"), "summarize-chapter-modal", { presenter: "summarize-chapter-modal"});
+        await webSkel.UtilsService.showModal(document.querySelector("body"), "summarize-chapter-modal", { presenter: "summarize-chapter-modal"});
     }
 
     async generateParagraphs(){
         await webSkel.changeToDynamicPage("generate-paragraphs-page", `documents/${this._document.id}/generate-paragraphs-page/${this._chapter.id}`);
     }
     async showActionBox(_target, primaryKey, componentName, insertionMode) {
-        await showActionBox(_target, primaryKey, componentName, insertionMode);
+        await webSkel.UtilsService.showActionBox(_target, primaryKey, componentName, insertionMode);
     }
 
     async editAction(_target){
-        let paragraph = reverseQuerySelector(_target, "reduced-paragraph-unit");
+        let paragraph = webSkel.UtilsService.reverseQuerySelector(_target, "reduced-paragraph-unit");
         let paragraphId = paragraph.getAttribute("data-id");
         await webSkel.changeToDynamicPage("paragraph-brainstorming-page",
             `documents/${this._document.id}/paragraph-brainstorming-page/${this._chapter.id}/${paragraphId}`);
     }
     async deleteAction(_target){
-        let paragraph = reverseQuerySelector(_target, "reduced-paragraph-unit");
+        let paragraph = webSkel.UtilsService.reverseQuerySelector(_target, "reduced-paragraph-unit");
         let paragraphId = paragraph.getAttribute("data-id");
         let flowId = webSkel.currentUser.space.getFlowIdByName("DeleteParagraph");
         await webSkel.getService("LlmsService").callFlow(flowId, this._document.id, this._chapter.id, paragraphId);

@@ -1,9 +1,3 @@
-import {
-    showModal,
-    showActionBox,
-    reverseQuerySelector
-} from "../../../imports.js";
-
 export class tasksPage {
     constructor(element, invalidate) {
         this.element = element;
@@ -27,7 +21,7 @@ export class tasksPage {
     }
 
     async showActionBox(_target, primaryKey, componentName, insertionMode) {
-        await showActionBox(_target, primaryKey, componentName, insertionMode);
+        await webSkel.UtilsService.showActionBox(_target, primaryKey, componentName, insertionMode);
     }
 
 }

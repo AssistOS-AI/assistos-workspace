@@ -1,7 +1,6 @@
 import {
     closeModal,
-    extractFormInformation,
-    sanitize
+
 } from "../../../imports.js";
 
 export class suggestTitlesModal {
@@ -16,7 +15,7 @@ export class suggestTitlesModal {
     }
 
     async generate(_target){
-        let formInfo = await extractFormInformation(_target);
+        let formInfo = await webSkel.UtilsService.extractFormInformation(_target);
         this.prompt = formInfo.data.prompt;
         this.titlesNr = formInfo.data.nr;
         let flowId = webSkel.currentUser.space.getFlowIdByName("SuggestDocumentTitles");
@@ -25,7 +24,7 @@ export class suggestTitlesModal {
             this.suggestedTitles = result.responseJson;
             this.invalidate();
         }else {
-            closeModal(this.element);
+            webSkel.UtilsService.closeModal(this.element);
             await showApplicationError("Titles invalid format", "", "");
         }
     }
@@ -34,7 +33,7 @@ export class suggestTitlesModal {
         let i = 0;
         for(let altTitle of this.suggestedTitles) {
             i++;
-            altTitle = sanitize(altTitle);
+            altTitle = webSkel.UtilsService.sanitize(altTitle);
             let id = webSkel.getService("UtilsService").generateId();
             stringHTML += `
             <div class="alt-title-row">
@@ -63,20 +62,20 @@ export class suggestTitlesModal {
     }
 
     closeModal(_target) {
-        closeModal(_target);
+        webSkel.UtilsService.closeModal(_target);
     }
 
     async addAlternativeTitles(_target){
-        let formInfo = await extractFormInformation(_target);
+        let formInfo = await webSkel.UtilsService.extractFormInformation(_target);
         let selectedTitles = [];
         for (const [key, value] of Object.entries(formInfo.elements)) {
             if(value.element.checked) {
-                selectedTitles.push({title:sanitize(value.element.value)});
+                selectedTitles.push({title:webSkel.UtilsService.sanitize(value.element.value)});
             }
         }
         let flowId = webSkel.currentUser.space.getFlowIdByName("AddAlternativeDocumentTitles");
         let result = await webSkel.getService("LlmsService").callFlow(flowId, this._document.id, selectedTitles);
         this._document.notifyObservers(this._document.getNotificationId());
-        closeModal(_target);
+        webSkel.UtilsService.closeModal(_target);
     }
 }
