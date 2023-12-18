@@ -31,13 +31,9 @@ export class addPersonalityModal {
         const conditions = {"verifyPhotoSize": {fn:verifyPhotoSize, errorMessage:"Image too large! Image max size: 1MB"} };
         let formInfo = await extractFormInformation(_target, conditions);
         if(formInfo.isValid) {
-            let personalityData={
-                    name:formInfo.data.name,
-                    description:formInfo.data.description,
-                    image: formInfo.data.photo
-            }
+
             let flowId = webSkel.currentUser.space.getFlowIdByName("AddPersonality");
-            await webSkel.getService("LlmsService").callFlow(flowId, personalityData);
+            await webSkel.getService("LlmsService").callFlow(flowId, formInfo.data.name, formInfo.data.description, formInfo.data.photo);
             webSkel.currentUser.space.notifyObservers(webSkel.currentUser.space.getNotificationId());
             closeModal(_target);
         }

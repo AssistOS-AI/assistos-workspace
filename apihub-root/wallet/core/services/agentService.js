@@ -2,6 +2,10 @@ export class AgentService {
     constructor() {
 
     }
+    async addCapabilities(){
+        let flowId = webSkel.currentUser.space.getFlowIdByName("AddCapabilities");
+        await webSkel.getService("LlmsService").callFlow(flowId);
+    }
     async initOpeners(){
         let agent = webSkel.currentUser.space.agent;
         if(agent.openers.length === 0){
@@ -15,10 +19,10 @@ export class AgentService {
         let flowId = webSkel.currentUser.space.getFlowIdByName("DeduceIntention");
         let result = await webSkel.getService("LlmsService").callFlow(flowId, request);
         await agent.addMessage("user", request);
-        if(result.responseJson.operation){
+        if(result.responseString){
             //user wants to execute an operation
             let flowId = webSkel.currentUser.space.getFlowIdByName("ConfirmParameters");
-            let operationId = result.responseJson.operationId;
+            let operationId = result.responseString;
             let response = await webSkel.getService("LlmsService").callFlow(flowId, request, operationId);
             if(response.responseJson.missingParameters.length !== 0){
                 //request missing parameters from the user
@@ -50,7 +54,7 @@ export class AgentService {
 
     async summarizeConversation(){
         let agent = webSkel.currentUser.space.agent;
-        let limit = 300;
+        const limit = 1000;
         if(agent.wordCount > limit){
             let flowId = webSkel.currentUser.space.getFlowIdByName("SummarizeAgentConversation");
             let result = await webSkel.getService("LlmsService").callFlow(flowId);
