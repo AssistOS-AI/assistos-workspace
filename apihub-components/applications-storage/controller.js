@@ -1,4 +1,4 @@
-const { exec } = require('child_process');
+const {exec} = require('child_process');
 const util = require('util');
 const execAsync = util.promisify(exec);
 const fs = require('fs');
@@ -6,13 +6,15 @@ const path = require('path');
 const fsAsync = require('fs').promises;
 const openDSU = require("opendsu");
 const crypto = openDSU.loadApi("crypto");
+
 function sendResponse(response, statusCode, contentType, message) {
     response.statusCode = statusCode;
     response.setHeader("Content-Type", contentType);
     response.write(message);
     response.end();
 }
-function updateSpaceStatus(spaceId,applicationName,branchName) {
+
+function updateSpaceStatus(spaceId, applicationName, branchName) {
     const statusPath = `../apihub-root/spaces/${spaceId}/status/status.json`;
     let status;
     if (fs.existsSync(statusPath)) {
@@ -21,27 +23,27 @@ function updateSpaceStatus(spaceId,applicationName,branchName) {
     } else {
         status = {};
     }
-    let installationDate=new Date();
-    let lastUpdate=installationDate.toISOString();
+    let installationDate = new Date();
+    let lastUpdate = installationDate.toISOString();
 
-   if(status.installedApplications){
-         status.installedApplications.push(
-             {
-                 applicationId:applicationName,
-                 installationDate:installationDate,
-                 lastUpdate:lastUpdate,
-                 spaceFlowsBranch:branchName
-             });
-   }else{
-         status.installedApplications=[
-             {
-             applicationId:applicationName,
-             installationDate:installationDate,
-             lastUpdate:lastUpdate,
-             spaceFlowsBranch:branchName
-         }
-         ];
-   }
+    if (status.installedApplications) {
+        status.installedApplications.push(
+            {
+                applicationId: applicationName,
+                installationDate: installationDate,
+                lastUpdate: lastUpdate,
+                spaceFlowsBranch: branchName
+            });
+    } else {
+        status.installedApplications = [
+            {
+                applicationId: applicationName,
+                installationDate: installationDate,
+                lastUpdate: lastUpdate,
+                spaceFlowsBranch: branchName
+            }
+        ];
+    }
     fs.writeFileSync(statusPath, JSON.stringify(status, null, 2));
 }
 
@@ -61,7 +63,7 @@ async function installApplication(request, response) {
     try {
         const webSkelConfig = require("../apihub-root/wallet/webskel-configs.json");
         const application = webSkelConfig.applications.find(app => app.id == applicationId);
-        const folderPath =  `../apihub-root/spaces/${spaceId}/applications/${application.name}`;
+        const folderPath = `../apihub-root/spaces/${spaceId}/applications/${application.name}`;
         if (!application || !application.repository) {
             console.error("Application or repository not found");
             sendResponse(response, 404, "text/html", "Application or repository not found")
@@ -69,14 +71,14 @@ async function installApplication(request, response) {
         await execAsync(`git clone ${application.repository} ${folderPath}`);
 
         const branchName = `space-${spaceId}`;
-        if(application.flowsRepository) {
+        if (application.flowsRepository) {
             let applicationPath = `../apihub-root/spaces/${spaceId}/applications/${application.name}/flows`
             await execAsync(`git clone ${application.flowsRepository} ${applicationPath}`);
             await execAsync(`rm ${applicationPath}/README.md`);
             await execAsync(`git -C ${applicationPath} checkout -b ${branchName}`);
             await execAsync(`git -C ${applicationPath} push -u origin ${branchName}`);
         }
-        updateSpaceStatus(spaceId,application.name,branchName);
+        updateSpaceStatus(spaceId, application.name, branchName);
         sendResponse(response, 200, "text/html", "Application installed successfully")
     } catch (error) {
         console.error("Error in installing application:", error);
@@ -123,9 +125,10 @@ async function loadApplicationConfig(request, response) {
         sendResponse(response, 500, "text/plain", "Internal Server Error");
     }
 }
+
 async function loadApplicationComponents(request, response) {
     try {
-        const { spaceId, applicationName } = request.params;
+        const {spaceId, applicationName} = request.params;
         const baseUrl = `/app/${spaceId}/applications/${applicationName}/`;
         const componentPath = request.url.substring(baseUrl.length);
 
@@ -146,6 +149,30 @@ async function loadApplicationComponents(request, response) {
                 break;
             case "css":
                 contentType = "text/css";
+                break;
+            case"png":
+                contentType = "image/png";
+                break;
+            case"jpg":
+                contentType = "image/jpg";
+                break;
+            case "jpeg":
+                contentType = "image/jpeg";
+                break;
+            case "svg":
+                contentType = "image/svg+xml";
+                break;
+            case "gif":
+                contentType = "image/gif";
+                break;
+            case "ico":
+                contentType = "image/x-icon";
+                break;
+            case "json":
+                contentType = "application/json";
+                break;
+            case "woff":
+                contentType = "font/woff";
                 break;
             default:
                 return sendResponse(response, 500, "text/plain", "Internal Server Error, file type not supported");
