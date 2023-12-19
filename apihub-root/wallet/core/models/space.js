@@ -103,6 +103,16 @@ export class Space {
         let announcement = this.announcements.find((announcement) => announcement.id === announcementId);
         return announcement || console.error(`Announcement not found, announcementId: ${announcementId}`);
     }
+    async loadApplicationsFlows(){
+        for(let app of this.installedApplications){
+            let flows = await webSkel.getService("ApplicationsService").loadFlows(webSkel.currentUser.space.id, app.applicationId);
+            flows = JSON.parse(flows);
+            this.flows = this.flows.concat(flows);
+            this.flows = this.flows.filter((element, index, self) => {
+                return index === self.findIndex(e => e.id === element.id);
+            });
+        }
+    }
     getFlow(flowId) {
         let flow = this.flows.find((flow) => flow.id === flowId);
         return flow || console.error(`Flow not found in space, flowId: ${flowId}`);

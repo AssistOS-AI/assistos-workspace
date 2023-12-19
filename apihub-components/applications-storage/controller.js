@@ -3,7 +3,7 @@ const util = require('util');
 const execAsync = util.promisify(exec);
 const fs = require('fs');
 const path = require('path');
-const fsAsync = require('fs').promises;
+const fsPromises = require('fs').promises;
 const openDSU = require("opendsu");
 const crypto = openDSU.loadApi("crypto");
 
@@ -125,7 +125,24 @@ async function loadApplicationConfig(request, response) {
         sendResponse(response, 500, "text/plain", "Internal Server Error");
     }
 }
+async function loadObjects(filePath){
+    let localData = [];
+    const files = await fsPromises.readdir(filePath);
 
+    const statPromises = files.map(async (file) => {
+        const fullPath = path.join(filePath, file);
+        const stat = await fsPromises.stat(fullPath);
+        return { file, stat };
+    }).filter(stat => stat.file !== ".git");
+    let fileStats = await Promise.all(statPromises);
+    fileStats = fileStats.filter(stat => stat.file !== ".git");
+    fileStats.sort((a, b) => a.stat.ctimeMs - b.stat.ctimeMs);
+    for (const { file } of fileStats) {
+        const jsonContent = await fsPromises.readFile(path.join(filePath, file), 'utf8');
+        localData.push(JSON.parse(jsonContent));
+    }
+    return localData;
+}
 async function loadApplicationComponents(request, response) {
     try {
         const {spaceId, applicationName} = request.params;
@@ -134,9 +151,13 @@ async function loadApplicationComponents(request, response) {
 
         const filePath = `../apihub-root/spaces/${spaceId}/applications/${applicationName}/${componentPath}`;
         console.log("File Path:", filePath);
+        if(componentPath === "flows"){
+            let flows = await loadObjects(filePath);
+            return sendResponse(response, 200, "text/plain", JSON.stringify(flows));
+        }
         // Security check TBD: Ensure that filePath is still within the intended directory and user has access to it
 
-        const fileContent = await fsAsync.readFile(filePath, 'utf8');
+        const fileContent = await fsPromises.readFile(filePath, 'utf8');
         const fileType = path.extname(componentPath).slice(1); // get the extension of the file
         let contentType = "";
 

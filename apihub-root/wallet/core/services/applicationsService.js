@@ -19,6 +19,19 @@ export class ApplicationsService {
             return await result.text();
 
     }
+
+    async loadFlows(spaceId, applicationId){
+        let result;
+        try {
+            result = await fetch(`/app/${spaceId}/applications/${applicationId}/flows`,
+                {
+                    method: "GET"
+                });
+        } catch (err) {
+            console.error(err);
+        }
+        return await result.text();
+    }
     // Deletes the application's folder from the space's folder and deletes the branch from the application's repository
     async uninstallApplication(spaceId,applicationId) {
         let result;
