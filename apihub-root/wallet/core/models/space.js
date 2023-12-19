@@ -30,6 +30,14 @@ export class Space {
         Space.instance = this;
     }
 
+    simplifySpace(){
+        return {
+            name: this.name,
+            id: this.id,
+            personalities: this.personalities.map(personality => personality.simplify()),
+            announcements : this.announcements.map(announcement => announcement.simplify()),
+        }
+    }
     static getInstance(spaceData) {
         if(!this.instance) {
             this.instance = new Space(spaceData);
