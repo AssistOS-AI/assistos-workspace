@@ -97,12 +97,41 @@ async function resetApplication(request, response) {
     const applicationId = request.params.applicationId;
     const folderPath = `../apihub-root/spaces/${spaceId}/applications/${applicationId}`;
 }
-
-async function updateApplicationFlow(request, response) {
+async function saveJSON(response, spaceData, filePath) {
+    const folderPath = path.dirname(filePath);
+    try{
+        await fsPromises.access(filePath);
+    }catch (e) {
+        try {
+            await fsPromises.mkdir(folderPath, { recursive: true });
+        } catch(error) {
+            sendResponse(response, 500, "text/html", error+ ` Error at creating folder: ${folderPath}`);
+            return false;
+        }
+    }
+    try {
+        await fsPromises.writeFile(filePath, spaceData, 'utf8');
+    } catch(error) {
+        sendResponse(response, 500, "text/html", error+ ` Error at writing space: ${filePath}`);
+        return false;
+    }
+    return true;
+}
+async function storeObject(request, response) {
     const spaceId = request.params.spaceId;
     const applicationId = request.params.applicationId;
-    const flowId = request.params.flowId;
-    const folderPath = `../apihub-root/spaces/${spaceId}/applications/${applicationId}/flows/${flowId}`;
+    const objectType = request.params.objectType;
+    const objectId = request.params.objectId;
+    const filePath = `../apihub-root/spaces/${spaceId}/applications/${applicationId}/${objectType}/${objectId}.json`;
+    if(request.body.toString() === "") {
+        await fsPromises.unlink(filePath);
+        sendResponse(response, 200, "text/html", `Deleted successfully ${objectId}`);
+        return;
+    }
+    let jsonData = JSON.parse(request.body.toString());
+    if(await saveJSON(response, JSON.stringify(jsonData), filePath)){
+        sendResponse(response, 200, "text/html", `Success, ${objectId}`);
+    }
 
 }
 
@@ -213,7 +242,7 @@ module.exports = {
     installApplication,
     uninstallApplication,
     resetApplication,
-    updateApplicationFlow,
+    storeObject,
     loadApplicationConfig,
     loadApplicationComponents
 }

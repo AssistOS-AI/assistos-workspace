@@ -2,7 +2,7 @@ const {
     installApplication,
     uninstallApplication,
     resetApplication,
-    updateApplicationFlow,
+    storeObject,
     loadApplicationConfig,
     loadApplicationComponents
 
@@ -28,7 +28,7 @@ function ApplicationsStorage(server) {
     server.post("/space/:spaceId/applications/:applicationId", installApplication);
     server.delete("/space/:spaceId/applications/:applicationId", uninstallApplication);
     server.post("/space/:spaceId/applications/:applicationId/reset", resetApplication);
-    server.put("/space/:spaceId/applications/:applicationId/flows/:flowId", updateApplicationFlow);
+    server.put("/space/:spaceId/applications/:applicationId/:objectType/:objectId", storeObject);
 }
 
 module.exports = ApplicationsStorage;
