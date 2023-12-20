@@ -22,13 +22,15 @@ function bodyReaderMiddleware(req, res, next) {
 }
 
 function ApplicationsStorage(server) {
-    server.use("/space/*", bodyReaderMiddleware);
+
     server.get("/space/:spaceId/applications/:applicationId/configs", loadApplicationConfig);
     server.get("/app/:spaceId/applications/:applicationName/*", loadApplicationComponents);
+    server.use("/space/*", bodyReaderMiddleware);
+    server.use("/app/*", bodyReaderMiddleware);
     server.put("/space/:spaceId/applications/:applicationId", reinstallApplication);
     server.post("/space/:spaceId/applications/:applicationId", installApplication);
     server.delete("/space/:spaceId/applications/:applicationId", uninstallApplication);
-    server.put("/space/:spaceId/applications/:applicationId/:objectType/:objectId", storeObject);
+    server.put("/app/:spaceId/applications/:applicationId/:objectType/:objectId", storeObject);
 }
 
 module.exports = ApplicationsStorage;

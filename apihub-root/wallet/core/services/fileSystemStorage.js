@@ -114,4 +114,79 @@ export class FileSystemStorage{
             });
         return await result.text();
     }
+    //applications
+    async installApplication(spaceId,applicationId) {
+        let result;
+        try {
+            result = await fetch(`/space/${spaceId}/applications/${applicationId}`,
+                {
+                    method: "POST",
+                    headers: {
+                        "Content-type": "application/json; charset=UTF-8"
+                    }
+                });
+        } catch (err) {
+            console.error(err);
+        }
+        return await result.text();
+
+    }
+    async loadObjects(spaceId, applicationId, objectType){
+        let result;
+        try {
+            result = await fetch(`/app/${spaceId}/applications/${applicationId}/${objectType}`,
+                {
+                    method: "GET"
+                });
+        } catch (err) {
+            console.error(err);
+        }
+        return await result.text();
+    }
+    async storeAppObject(spaceId, applicationId, objectType, objectId, stringData){
+        let result;
+        try {
+            result = await fetch(`/app/${spaceId}/applications/${applicationId}/${objectType}/${objectId}`,
+                {
+                    method: "PUT",
+                    body: stringData,
+                    headers: {
+                        "Content-type": "application/json; charset=UTF-8"
+                    }
+                });
+        } catch (err) {
+            console.error(err);
+        }
+        return await result.text();
+    }
+    async uninstallApplication(spaceId,applicationId) {
+        let result;
+        try {
+            result = await fetch(`/space/${spaceId}/applications/${applicationId}`,
+                {
+                    method: "DELETE",
+                    headers: {
+                        "Content-type": "application/json; charset=UTF-8"
+                    }
+                });
+        } catch (err) {
+            console.error(err);
+        }
+        return await result.text();
+    }
+    async reinstallApplication(spaceId,applicationId){
+        let result;
+        try{
+            result=await fetch(`/space/${spaceId}/applications/${applicationId}`,
+                {
+                    method: "PUT",
+                    headers: {
+                        "Content-type": "application/json; charset=UTF-8"
+                    }
+                });
+        }catch(err){
+            console.error(err);
+        }
+        return await result.text();
+    }
 }

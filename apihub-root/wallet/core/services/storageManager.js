@@ -62,4 +62,21 @@ export class StorageManager {
     async loadFilteredKnowledge(words, agentId){
         return await this.currentService.loadFilteredKnowledge(words, agentId);
     }
+
+    //applications
+    async installApplication(spaceId,applicationId){
+        return await this.currentService.installApplication(spaceId, applicationId);
+    }
+    async loadObjects(spaceId, applicationId, objectType){
+        return await this.currentService.loadObjects(spaceId, applicationId, objectType);
+    }
+    async storeAppObject(spaceId, applicationId, objectType, objectId, stringData){
+        return await this.currentService.storeAppObject(spaceId, applicationId, objectType, objectId, stringData);
+    }
+    async uninstallApplication(spaceId, applicationId) {
+        return await this.currentService.uninstallApplication(spaceId,applicationId);
+    }
+    async reinstallApplication(spaceId, applicationId){
+        return await this.currentService.reinstallApplication(spaceId, applicationId);
+    }
 }

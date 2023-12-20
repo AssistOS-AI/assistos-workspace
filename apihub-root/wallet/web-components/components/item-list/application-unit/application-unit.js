@@ -28,21 +28,21 @@ export class applicationUnit{
     }
     async installApplication() {
         const loading = await webSkel.showLoading(`<general-loader></general-loader>`);
-        await webSkel.getService("ApplicationsService").installApplication(webSkel.currentUser.space.id, this.id);
+        await storageManager.installApplication(webSkel.currentUser.space.id, this.id);
         loading.close();
         loading.remove();
         window.location="";
     }
     async uninstallApplication() {
         const loading = await webSkel.showLoading(`<general-loader></general-loader>`);
-        await webSkel.getService("ApplicationsService").uninstallApplication(webSkel.currentUser.space.id, this.id);
+        await storageManager.uninstallApplication(webSkel.currentUser.space.id, this.id);
         loading.close();
         loading.remove();
         window.location="";
     }
     async reinstallApplication() {
         const loading = await webSkel.showLoading(`<general-loader></general-loader>`);
-        await webSkel.getService("ApplicationsService").reinstallApplication(webSkel.currentUser.space.id, this.id);
+        await storageManager.reinstallApplication(webSkel.currentUser.space.id, this.id);
         loading.close();
         loading.remove();
         window.location="";
