@@ -2,6 +2,10 @@ export class AgentService {
     constructor() {
 
     }
+    async addCapabilities(){
+        let flowId = webSkel.currentUser.space.getFlowIdByName("AddCapabilities");
+        await webSkel.getService("LlmsService").callFlow(flowId);
+    }
     async initOpeners(){
         let agent = webSkel.currentUser.space.agent;
         if(agent.openers.length === 0){
@@ -11,15 +15,19 @@ export class AgentService {
     }
     async analyzeRequest(request){
         await this.summarizeConversation();
+        let flowId1 = webSkel.currentUser.space.getFlowIdByName("FindObjectsByValue");
+        let response1 = await webSkel.getService("LlmsService").callFlow(flowId1, request);
+
         let agent = webSkel.currentUser.space.agent;
         let flowId = webSkel.currentUser.space.getFlowIdByName("DeduceIntention");
         let result = await webSkel.getService("LlmsService").callFlow(flowId, request);
         await agent.addMessage("user", request);
-        if(result.responseJson.operation){
+        if(result.responseString){
             //user wants to execute an operation
-            let flowId = webSkel.currentUser.space.getFlowIdByName("ConfirmParameters");
-            let operationId = result.responseJson.operationId;
-            let response = await webSkel.getService("LlmsService").callFlow(flowId, request, operationId);
+
+            let flowId2 = webSkel.currentUser.space.getFlowIdByName("ConfirmParameters");
+            let operationId = result.responseString;
+            let response = await webSkel.getService("LlmsService").callFlow(flowId2, request, operationId, response1.responseJson);
             if(response.responseJson.missingParameters.length !== 0){
                 //request missing parameters from the user
                 let flowId = webSkel.currentUser.space.getFlowIdByName("RequestParameters");
@@ -50,11 +58,35 @@ export class AgentService {
 
     async summarizeConversation(){
         let agent = webSkel.currentUser.space.agent;
-        let limit = 300;
+        const limit = 3000;
         if(agent.wordCount > limit){
             let flowId = webSkel.currentUser.space.getFlowIdByName("SummarizeAgentConversation");
             let result = await webSkel.getService("LlmsService").callFlow(flowId);
             await agent.setContext(result.responseString);
         }
+    }
+
+    a(){
+        let a = ({
+            start: async function(flowId, request){
+                let agent = webSkel.currentUser.space.agent;
+                let context = `You are a custom GPT agent designed for specific tasks in a software application. Your task right now is to find objects in the system that can be identified by some unique information that the user gives you. Ignore other requests from the user. These objects can later be used as parameters for certain operations in the application. Keep in mind that strings and integers can be considered objects. Here's all the system information available: ${JSON.stringify(webSkel.currentUser.space)}. Put all found objects as they are in an array. Your response should look like this: {"objects": [object 1, object 2, ... ,object n]}`;
+                await agent.addMessage("system", context);
+                this.prompt = request;
+                this.setDefaultValues();
+                this.setResponseFormat("json_object")
+                this.setIntelligenceLevel(3);
+                this.execute(agent);
+            },
+            execute: async function(agent){
+                let response = await this.chatbot(this.prompt, "", agent.getContext());
+                try {
+                    JSON.parse(response);
+                }catch (e){
+                    this.fail(e)
+                }
+                this.return(response);
+            }
+        })
     }
 }

@@ -1,1 +1,0 @@
-{"name":"UpdateDocumentTitle","content":"({\nstart: async function(documentId, title){\n\ttry{\n\t\tlet document = webSkel.currentUser.space.getDocument(documentId);\n\t\tawait document.updateTitle(title);\n\t\tthis.return(title);\n\t}catch(e){\n\t\tthis.fail(e);\n\t\t}\n\t}\n})","id":"4My96443fbG4","description":"Updates the title of a document","tags":["agents","documents"]}

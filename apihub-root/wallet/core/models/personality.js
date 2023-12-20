@@ -13,4 +13,11 @@ export class Personality {
             this.image = personalityData.image;
         }
     }
+
+    simplify(){
+        return {
+            name: this.name,
+            id: this.id
+        }
+    }
 }

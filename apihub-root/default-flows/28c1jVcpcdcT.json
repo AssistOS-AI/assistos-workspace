@@ -1,1 +1,0 @@
-{"name":"DeleteDocument","content":"({\nstart: async function(documentId){\n       try{\n            await webSkel.currentUser.space.deleteDocument(documentId);\n            this.return(documentId);\n        }catch(e){\n            this.fail(e);\n            }\n    }\n})","id":"28c1jVcpcdcT","description":"Deletes a document","tags":["presenters","agents","documents"]}

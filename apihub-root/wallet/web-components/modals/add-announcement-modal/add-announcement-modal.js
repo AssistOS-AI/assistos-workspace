@@ -18,13 +18,9 @@ export class addAnnouncementModal {
     async addAnnouncementSubmitForm(_target) {
         let formInfo = await extractFormInformation(_target);
         if(formInfo.isValid) {
-            let announcementData={
-                title:formInfo.data.title,
-                text:formInfo.data.text,
-                date: new Date().toISOString().split('T')[0],
-            };
+
             let flowId = webSkel.currentUser.space.getFlowIdByName("AddAnnouncement");
-            await webSkel.getService("LlmsService").callFlow(flowId, announcementData);
+            await webSkel.getService("LlmsService").callFlow(flowId, formInfo.data.title, formInfo.data.text);
             webSkel.currentUser.space.notifyObservers(webSkel.currentUser.space.getNotificationId());
             closeModal(_target);
         }

@@ -243,7 +243,7 @@ dialog{
     line-height: 24px;
     text-align: center;
     color:var(--white-text);
-    background: var(--button-purple);
+    background: var(--medium-blue);
     width:fit-content;
     height: 36px;
     padding: 6px 11px 6px 11px;

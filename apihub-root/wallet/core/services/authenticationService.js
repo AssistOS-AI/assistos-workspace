@@ -32,6 +32,7 @@ export class AuthenticationService{
                /* Attempting to load the last space the user was logged on */
                let spaceData = await storageManager.loadSpace(currentUser.currentSpaceId);
                webSkel.currentUser.space = new Space(JSON.parse(spaceData));
+               await webSkel.currentUser.space.loadApplicationsFlows();
            }catch (e){
                try{
                    /* To be replaced with better logic */

@@ -157,15 +157,9 @@ export class addFlowModal {
         const conditions = {"isValidPascalCase": {fn:isValidPascalCase, errorMessage:"Name is not valid PascalCase Format"} };
         let formInfo = await extractFormInformation(_target,conditions);
         if (formInfo.isValid) {
-            let flowData = {
-                name: formInfo.data.name,
-                description: formInfo.data.description,
-                id: webSkel.servicesRegistry.UtilsService.generateId(),
-                content: formInfo.data.code,
-                tags: formInfo.data.tags
-            }
+
             let flowId = webSkel.currentUser.space.getFlowIdByName("AddFlow");
-            await webSkel.getService("LlmsService").callFlow(flowId, flowData);
+            await webSkel.getService("LlmsService").callFlow(flowId, formInfo.data.name, formInfo.data.description, formInfo.data.code, formInfo.data.tags);
             webSkel.currentUser.space.notifyObservers(webSkel.currentUser.space.getNotificationId());
             closeModal(_target);
         }

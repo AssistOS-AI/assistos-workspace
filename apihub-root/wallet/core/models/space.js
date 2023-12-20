@@ -30,6 +30,14 @@ export class Space {
         Space.instance = this;
     }
 
+    simplifySpace(){
+        return {
+            name: this.name,
+            id: this.id,
+            personalities: this.personalities.map(personality => personality.simplify()),
+            announcements : this.announcements.map(announcement => announcement.simplify()),
+        }
+    }
     static getInstance(spaceData) {
         if(!this.instance) {
             this.instance = new Space(spaceData);
@@ -94,6 +102,16 @@ export class Space {
     getAnnouncement(announcementId) {
         let announcement = this.announcements.find((announcement) => announcement.id === announcementId);
         return announcement || console.error(`Announcement not found, announcementId: ${announcementId}`);
+    }
+    async loadApplicationsFlows(){
+        for(let app of this.installedApplications){
+            let flows = await webSkel.getService("ApplicationsService").loadFlows(webSkel.currentUser.space.id, app.applicationId);
+            flows = JSON.parse(flows);
+            this.flows = this.flows.concat(flows);
+            this.flows = this.flows.filter((element, index, self) => {
+                return index === self.findIndex(e => e.id === element.id);
+            });
+        }
     }
     getFlow(flowId) {
         let flow = this.flows.find((flow) => flow.id === flowId);
