@@ -118,12 +118,21 @@ export class Space {
         let app = this.installedApplications.find((app) => app.id === id);
         return app || console.error(`installed app not found in space, id: ${id}`);
     }
+    groupFlows(){
+        let flows = [];
+        for(let app of this.installedApplications){
+            flows = flows.concat(app.flows);
+        }
+        return flows.concat(this.flows);
+    }
     getFlow(flowId) {
-        let flow = this.flows.find((flow) => flow.id === flowId);
+        let flows = this.groupFlows();
+        let flow = flows.find((flow) => flow.id === flowId);
         return flow || console.error(`Flow not found in space, flowId: ${flowId}`);
     }
     getFlowIdByName(name){
-        let flow = this.flows.find((flow) => flow.name === name);
+        let flows = this.groupFlows()
+        let flow = flows.find((flow) => flow.name === name);
         return flow.id || console.error(`Flow not found in space, flow name: ${name}`);
     }
     getDefaultAgent(){

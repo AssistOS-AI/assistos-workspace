@@ -1,4 +1,4 @@
-applicatio-page{
+application-page{
     display:flex;
 }
 .application-page{
@@ -8,4 +8,14 @@ applicatio-page{
     display: flex;
     align-items: center;
     padding: 20px 40px;
+}
+.table-header-flows {
+    padding-left: 15px;
+    display: flex;
+    color: var(--documents-page-header);
+    font-size: 18px;
+    font-style: normal;
+    font-weight: 700;
+    line-height: normal;
+    text-transform: capitalize;
 }
