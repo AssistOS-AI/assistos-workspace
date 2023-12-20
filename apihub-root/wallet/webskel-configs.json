@@ -56,87 +56,15 @@
       "className": "confirmationPopup"
     },
     {
-      "name": "suggest-paragraph-modal",
-      "path": "./web-components/modals/suggest-paragraph-modal/suggest-paragraph-modal.js",
-      "className": "suggestParagraphModal"
-    },
-
-    {
-      "name": "paragraph-brainstorming-page",
-      "path": "./web-components/pages/paragraph-brainstorming-page/paragraph-brainstorming-page.js",
-      "className": "paragraphBrainstormingPage"
-    },
-    {
-      "name": "chapter-brainstorming-page",
-      "path": "./web-components/pages/chapter-brainstorming-page/chapter-brainstorming-page.js",
-      "className": "chapterBrainstormingPage"
-    },
-    {
-      "name": "chapter-editor-page",
-      "path": "./web-components/pages/chapter-editor-page/chapter-editor-page.js",
-      "className": "chapterEditorPage"
-    },
-    {
-      "name": "generate-paragraphs-page",
-      "path": "./web-components/pages/generate-paragraphs-page/generate-paragraphs-page.js",
-      "className": "generateParagraphsPage"
-    },
-    {
       "name": "edit-personality-page",
       "path": "./web-components/pages/edit-personality-page/edit-personality-page.js",
       "className": "editPersonalityPage"
-    },
-    {
-      "name": "generate-chapters-page",
-      "path": "./web-components/pages/generate-chapters-page/generate-chapters-page.js",
-      "className": "generateChaptersPage"
     },
     {
       "name": "show-error-modal",
       "path": "./web-components/modals/show-error-modal/show-error-modal.js",
       "className": "showErrorModal"
     },
-    {
-      "name": "abstract-proofread-page",
-      "path": "./web-components/pages/abstract-proofread-page/abstract-proofread-page.js",
-      "className": "abstractProofreadPage"
-    },
-    {
-      "name": "edit-title-page",
-      "path": "./web-components/pages/edit-title-page/edit-title-page.js",
-      "className": "editTitlePage"
-    },
-    {
-      "name": "edit-abstract-page",
-      "path": "./web-components/pages/edit-abstract-page/edit-abstract-page.js",
-      "className": "editAbstractPage"
-    },
-    {
-      "name": "document-settings-page",
-      "path": "./web-components/pages/document-settings-page/document-settings-page.js",
-      "className": "documentSettingsPage"
-    },
-    {
-      "name": "manage-chapters-page",
-      "path": "./web-components/pages/manage-chapters-page/manage-chapters-page.js",
-      "className": "manageChaptersPage"
-    },
-    {
-      "name": "manage-paragraphs-page",
-      "path": "./web-components/pages/manage-paragraphs-page/manage-paragraphs-page.js",
-      "className": "manageParagraphsPage"
-    },
-    {
-      "name": "paragraph-proofread-page",
-      "path": "./web-components/pages/paragraph-proofread-page/paragraph-proofread-page.js",
-      "className": "paragraphProofreadPage"
-    },
-    {
-      "name": "chapter-title-page",
-      "path": "./web-components/pages/chapter-title-page/chapter-title-page.js",
-      "className": "chapterTitlePage"
-    },
-   
     {
       "name": "announcements-page",
       "path": "./web-components/pages/announcements-page/announcements-page.js",
@@ -178,47 +106,6 @@
       "name": "edit-announcement-modal",
       "path": "./web-components/modals/edit-announcement-modal/edit-announcement-modal.js",
       "className": "editAnnouncementModal"
-    },
-    {
-      "name": "suggest-abstract-modal",
-      "path": "./web-components/modals/suggest-abstract-modal/suggest-abstract-modal.js",
-      "className": "suggestAbstractModal"
-    },
-
-    {
-      "name": "summarize-paragraph-modal",
-      "path": "./web-components/modals/summarize-paragraph-modal/summarize-paragraph-modal.js",
-      "className": "summarizeParagraphModal"
-    },
-    {
-      "name": "summarize-chapter-modal",
-      "path": "./web-components/modals/summarize-chapter-modal/summarize-chapter-modal.js",
-      "className": "summarizeChapterModal"
-    },
-    {
-      "name": "summarize-document-modal",
-      "path": "./web-components/modals/summarize-document-modal/summarize-document-modal.js",
-      "className": "summarizeDocumentModal"
-    },
-    {
-      "name": "suggest-titles-modal",
-      "path": "./web-components/modals/suggest-titles-modal/suggest-titles-modal.js",
-      "className": "suggestTitlesModal"
-    },
-    {
-      "name": "clone-document-modal",
-      "path": "./web-components/modals/clone-document-modal/clone-document-modal.js",
-      "className": "cloneDocumentModal"
-    },
-    {
-      "name": "clone-chapter-modal",
-      "path": "./web-components/modals/clone-chapter-modal/clone-chapter-modal.js",
-      "className": "cloneChapterModal"
-    },
-    {
-      "name": "suggest-chapter-titles-modal",
-      "path": "./web-components/modals/suggest-chapter-titles-modal/suggest-chapter-titles-modal.js",
-      "className": "suggestChapterTitlesModal"
     },
     {
       "name": "add-space-modal",
@@ -353,85 +240,15 @@
     {
       "name": "llm-animation",
       "path": "./wallet/web-components/components/llm-animation/llm-animation.html",
-        "cssPaths": [
-            "./wallet/web-components/components/llm-animation/llm-animation.css"
-        ]
-    },
-    {
-      "name": "suggest-paragraph-modal",
-      "path": "./wallet/web-components/modals/suggest-paragraph-modal/suggest-paragraph-modal.html",
-        "cssPaths": [
-            "./wallet/web-components/modals/suggest-paragraph-modal/suggest-paragraph-modal.css"
-        ]
-    },
-    {
-      "name": "alternative-paragraph",
-      "path": "./wallet/web-components/components/item-list/alternative-paragraph/alternative-paragraph.html",
-        "cssPaths": [
-            "./wallet/web-components/components/item-list/alternative-paragraph/alternative-paragraph.css"
-        ]
-    },
-    {
-      "name": "paragraph-brainstorming-page",
-      "path": "./wallet/web-components/pages/paragraph-brainstorming-page/paragraph-brainstorming-page.html",
-        "cssPaths": [
-            "./wallet/web-components/pages/paragraph-brainstorming-page/paragraph-brainstorming-page.css",
-            "./wallet/web-components/components/item-list/alternative-paragraph/alternative-paragraph.css"
-        ]
-    },
-    {
-      "name": "chapter-brainstorming-page",
-      "path": "./wallet/web-components/pages/chapter-brainstorming-page/chapter-brainstorming-page.html",
-        "cssPaths": [
-            "./wallet/web-components/pages/chapter-brainstorming-page/chapter-brainstorming-page.css",
-              "./wallet/web-components/components/item-list/alternative-chapter/alternative-chapter.css",
-          "./wallet/web-components/components/item-list/reduced-paragraph-unit/reduced-paragraph-unit.css",
-          "./wallet/web-components/components/confirmation-popup/confirmation-popup.css"
-        ]
-    },
-    {
-      "name": "generate-paragraphs-page",
-      "path": "./wallet/web-components/pages/generate-paragraphs-page/generate-paragraphs-page.html",
-        "cssPaths": [
-            "./wallet/web-components/pages/generate-paragraphs-page/generate-paragraphs-page.css"
-        ]
-    },
-    {
-      "name": "reduced-paragraph-unit",
-      "path": "./wallet/web-components/components/item-list/reduced-paragraph-unit/reduced-paragraph-unit.html",
-        "cssPaths": [
-            "./wallet/web-components/components/item-list/reduced-paragraph-unit/reduced-paragraph-unit.css"
-        ]
+      "cssPaths": [
+        "./wallet/web-components/components/llm-animation/llm-animation.css"
+      ]
     },
     {
       "name": "edit-personality-page",
       "path": "./wallet/web-components/pages/edit-personality-page/edit-personality-page.html",
         "cssPaths": [
             "./wallet/web-components/pages/edit-personality-page/edit-personality-page.css"
-        ]
-    },
-    {
-      "name": "generate-chapters-page",
-      "path": "./wallet/web-components/pages/generate-chapters-page/generate-chapters-page.html",
-        "cssPaths": [
-            "./wallet/web-components/pages/generate-chapters-page/generate-chapters-page.css"
-        ]
-    },
-    {
-      "name": "abstract-proofread-page",
-      "path": "./wallet/web-components/pages/abstract-proofread-page/abstract-proofread-page.html",
-        "cssPaths": [
-            "./wallet/web-components/pages/abstract-proofread-page/abstract-proofread-page.css",
-          "./wallet/web-components/components/confirmation-popup/confirmation-popup.css"
-        ]
-    },
-
-    {
-      "name": "chapter-editor-page",
-      "path": "./wallet/web-components/pages/chapter-editor-page/chapter-editor-page.html",
-        "cssPaths": [
-            "./wallet/web-components/pages/chapter-editor-page/chapter-editor-page.css",
-          "./wallet/web-components/components/item-list/paragraph-unit/paragraph-unit.css"
         ]
     },
     {
@@ -474,85 +291,6 @@
       "path": "./wallet/web-components/components/action-box-with-select/action-box-with-select.html",
         "cssPaths": [
             "./wallet/web-components/components/action-box-with-select/action-box-with-select.css"
-        ]
-    },
-    {
-      "name": "alternative-title",
-      "path": "./wallet/web-components/components/item-list/alternative-title/alternative-title.html",
-        "cssPaths": [
-            "./wallet/web-components/components/item-list/alternative-title/alternative-title.css"
-        ]
-    },
-    {
-      "name": "alternative-abstract",
-      "path": "./wallet/web-components/components/item-list/alternative-abstract/alternative-abstract.html",
-        "cssPaths": [
-            "./wallet/web-components/components/item-list/alternative-abstract/alternative-abstract.css"
-        ]
-    },
-    {
-      "name": "alternative-chapter",
-      "path": "./wallet/web-components/components/item-list/alternative-chapter/alternative-chapter.html",
-        "cssPaths": [
-            "./wallet/web-components/components/item-list/alternative-chapter/alternative-chapter.css"
-        ]
-    },
-    {
-      "name": "document-settings-page",
-      "path": "./wallet/web-components/pages/document-settings-page/document-settings-page.html",
-        "cssPaths": [
-            "./wallet/web-components/pages/document-settings-page/document-settings-page.css"
-        ]
-    },
-    {
-      "name": "manage-chapters-page",
-      "path": "./wallet/web-components/pages/manage-chapters-page/manage-chapters-page.html",
-        "cssPaths": [
-            "./wallet/web-components/pages/manage-chapters-page/manage-chapters-page.css",
-            "./wallet/web-components/components/item-list/reduced-chapter-unit/reduced-chapter-unit.css"
-        ]
-    },
-    {
-      "name": "manage-paragraphs-page",
-      "path": "./wallet/web-components/pages/manage-paragraphs-page/manage-paragraphs-page.html",
-        "cssPaths": [
-            "./wallet/web-components/pages/manage-paragraphs-page/manage-paragraphs-page.css",
-            "./wallet/web-components/components/item-list/reduced-paragraph-unit/reduced-paragraph-unit.css"
-        ]
-    },
-    {
-      "name": "paragraph-proofread-page",
-      "path": "./wallet/web-components/pages/paragraph-proofread-page/paragraph-proofread-page.html",
-        "cssPaths": [
-            "./wallet/web-components/pages/paragraph-proofread-page/paragraph-proofread-page.css",
-          "./wallet/web-components/components/confirmation-popup/confirmation-popup.css"
-        ]
-    },
-    {
-      "name": "chapter-title-page",
-      "path": "./wallet/web-components/pages/chapter-title-page/chapter-title-page.html",
-        "cssPaths": [
-            "./wallet/web-components/pages/chapter-title-page/chapter-title-page.css",
-            "./wallet/web-components/components/item-list/alternative-title/alternative-title.css",
-          "./wallet/web-components/components/confirmation-popup/confirmation-popup.css"
-        ]
-    },
-    {
-      "name": "edit-title-page",
-      "path": "./wallet/web-components/pages/edit-title-page/edit-title-page.html",
-        "cssPaths": [
-            "./wallet/web-components/pages/edit-title-page/edit-title-page.css",
-            "./wallet/web-components/components/item-list/alternative-title/alternative-title.css",
-            "./wallet/web-components/components/confirmation-popup/confirmation-popup.css"
-        ]
-    },
-    {
-      "name": "edit-abstract-page",
-      "path": "./wallet/web-components/pages/edit-abstract-page/edit-abstract-page.html",
-        "cssPaths": [
-            "./wallet/web-components/pages/edit-abstract-page/edit-abstract-page.css",
-            "./wallet/web-components/components/item-list/alternative-abstract/alternative-abstract.css",
-            "./wallet/web-components/components/confirmation-popup/confirmation-popup.css"
         ]
     },
     {
@@ -616,20 +354,6 @@
         ]
     },
     {
-      "name": "clone-document-modal",
-      "path": "./wallet/web-components/modals/clone-document-modal/clone-document-modal.html",
-        "cssPaths": [
-            "./wallet/web-components/modals/clone-document-modal/clone-document-modal.css"
-        ]
-    },
-    {
-      "name": "clone-chapter-modal",
-      "path": "./wallet/web-components/modals/clone-chapter-modal/clone-chapter-modal.html",
-        "cssPaths": [
-            "./wallet/web-components/modals/clone-chapter-modal/clone-chapter-modal.css"
-        ]
-    },
-    {
       "name": "edit-announcement-modal",
       "path": "./wallet/web-components/modals/edit-announcement-modal/edit-announcement-modal.html",
         "cssPaths": [
@@ -641,48 +365,6 @@
       "path": "./wallet/web-components/modals/show-error-modal/show-error-modal.html",
         "cssPaths": [
             "./wallet/web-components/modals/show-error-modal/show-error-modal.css"
-        ]
-    },
-    {
-      "name": "suggest-abstract-modal",
-      "path": "./wallet/web-components/modals/suggest-abstract-modal/suggest-abstract-modal.html",
-        "cssPaths": [
-            "./wallet/web-components/modals/suggest-abstract-modal/suggest-abstract-modal.css"
-        ]
-    },
-    {
-      "name": "summarize-paragraph-modal",
-      "path": "./wallet/web-components/modals/summarize-paragraph-modal/summarize-paragraph-modal.html",
-        "cssPaths": [
-            "./wallet/web-components/modals/summarize-paragraph-modal/summarize-paragraph-modal.css"
-        ]
-    },
-    {
-      "name": "summarize-chapter-modal",
-      "path": "./wallet/web-components/modals/summarize-chapter-modal/summarize-chapter-modal.html",
-        "cssPaths": [
-            "./wallet/web-components/modals/summarize-chapter-modal/summarize-chapter-modal.css"
-        ]
-    },
-    {
-      "name": "summarize-document-modal",
-      "path": "./wallet/web-components/modals/summarize-document-modal/summarize-document-modal.html",
-        "cssPaths": [
-            "./wallet/web-components/modals/summarize-document-modal/summarize-document-modal.css"
-        ]
-    },
-    {
-      "name": "suggest-titles-modal",
-      "path": "./wallet/web-components/modals/suggest-titles-modal/suggest-titles-modal.html",
-        "cssPaths": [
-            "./wallet/web-components/modals/suggest-titles-modal/suggest-titles-modal.css"
-        ]
-    },
-    {
-      "name": "suggest-chapter-titles-modal",
-      "path": "./wallet/web-components/modals/suggest-chapter-titles-modal/suggest-chapter-titles-modal.html",
-        "cssPaths": [
-            "./wallet/web-components/modals/suggest-chapter-titles-modal/suggest-chapter-titles-modal.css"
         ]
     },
     {

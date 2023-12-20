@@ -14,7 +14,7 @@ function sendResponse(response, statusCode, contentType, message) {
     response.end();
 }
 
-function updateSpaceStatus(spaceId, applicationName, branchName) {
+function updateSpaceStatus(spaceId, applicationName, branchName,deleteMode=false) {
     const statusPath = `../apihub-root/spaces/${spaceId}/status/status.json`;
     let status;
     if (fs.existsSync(statusPath)) {
@@ -22,6 +22,11 @@ function updateSpaceStatus(spaceId, applicationName, branchName) {
         status = JSON.parse(fileContent);
     } else {
         status = {};
+    }
+    if(deleteMode===true) {
+        status.installedApplications = status.installedApplications.filter(app => app.applicationId !== applicationName);
+        fs.writeFileSync(statusPath, JSON.stringify(status, null, 2));
+        return;
     }
     let installationDate = new Date();
     let lastUpdate = installationDate.toISOString();
@@ -75,8 +80,9 @@ async function installApplication(request, response) {
             let applicationPath = `../apihub-root/spaces/${spaceId}/applications/${application.name}/flows`
             await execAsync(`git clone ${application.flowsRepository} ${applicationPath}`);
             await execAsync(`rm ${applicationPath}/README.md`);
-            await execAsync(`git -C ${applicationPath} checkout -b ${branchName}`);
-            await execAsync(`git -C ${applicationPath} push -u origin ${branchName}`);
+            /* we first check if there is not already a branch with this name in application.flowsRepository */
+                await execAsync(`git -C ${applicationPath} checkout -b ${branchName}`);
+                await execAsync(`git -C ${applicationPath} push -u origin ${branchName}`);
         }
         updateSpaceStatus(spaceId, application.name, branchName);
         sendResponse(response, 200, "text/html", "Application installed successfully")
@@ -90,12 +96,45 @@ async function uninstallApplication(request, response) {
     const spaceId = request.params.spaceId;
     const applicationId = request.params.applicationId;
     const folderPath = `../apihub-root/spaces/${spaceId}/applications/${applicationId}`;
+
+    try {
+        await execAsync(`rm -rf ${folderPath}`);
+
+        // Now we remove the created branch for the flows
+        const webSkelConfig = require("../apihub-root/wallet/webskel-configs.json");
+        const application = webSkelConfig.applications.find(app => app.id == applicationId);
+
+        if (application.flowsRepository) {
+            let applicationPath = `../apihub-root/spaces/${spaceId}/applications/${application.name}/flows`;
+
+            // Check if the directory exists before running the Git command
+            try {
+                await fs.access(applicationPath); // Throws an error if the directory does not exist
+                // Proceed with the Git command as the directory exists
+                await execAsync(`git -C ${applicationPath} push origin --delete space-${spaceId}`);
+            } catch (dirError) {
+                console.error("Directory does not exist, skipping Git command:", dirError);
+            }
+        }
+        updateSpaceStatus(spaceId, application.name, "",true);
+        sendResponse(response, 200, "text/html", "Application uninstalled successfully");
+    } catch (error) {
+        console.error("Error in uninstalling application:", error);
+        sendResponse(response, 500, "text/html", error.toString()); // Convert error to string
+    }
 }
 
-async function resetApplication(request, response) {
+async function reinstallApplication(request, response) {
     const spaceId = request.params.spaceId;
     const applicationId = request.params.applicationId;
     const folderPath = `../apihub-root/spaces/${spaceId}/applications/${applicationId}`;
+    try {
+        await execAsync(`rm -rf ${folderPath}`);
+        await installApplication(request, response);
+    } catch (error) {
+        console.error("Error in reinstalling application:", error);
+        sendResponse(response, 500, "text/html", error)
+    }
 }
 
 async function updateApplicationFlow(request, response) {
@@ -191,7 +230,7 @@ async function loadApplicationComponents(request, response) {
 module.exports = {
     installApplication,
     uninstallApplication,
-    resetApplication,
+    reinstallApplication,
     updateApplicationFlow,
     loadApplicationConfig,
     loadApplicationComponents

@@ -35,7 +35,21 @@ export class ApplicationsService {
         }
         return await result.text();
     }
-
+    async reinstallApplication(spaceId,applicationId){
+        let result;
+        try{
+            result=await fetch(`/space/${spaceId}/applications/${applicationId}`,
+                {
+                    method: "PUT",
+                    headers: {
+                        "Content-type": "application/json; charset=UTF-8"
+                    }
+                });
+        }catch(err){
+            console.error(err);
+        }
+        return await result.text();
+    }
 
     // Sends a request to commit+push (update) changes to the space's branch for a specific flow
     async updateApplicationFlow(spaceId,applicationId, flowId, flowContent) {
@@ -56,21 +70,7 @@ export class ApplicationsService {
     }
 
     // Deletes the old application/branch and clones the new application/branch into the space's folder
-    async resetApplication(){
-            let result;
-            try{
-                result=await fetch(`/space/${spaceId}/applications/${applicationId}`,
-                    {
-                        method: "POST",
-                        headers: {
-                            "Content-type": "application/json; charset=UTF-8"
-                        }
-                    });
-            }catch(err){
-                console.error(err);
-            }
-            return await result.text();
-    }
+
     async startApplication(_target,applicationId,spaceId){
 
         // define web components
