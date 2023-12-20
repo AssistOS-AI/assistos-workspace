@@ -33,7 +33,9 @@ export class UtilsService {
                 }
             }
             case space:{
-                if(url[2] === "edit-personality-page"){
+                let editPers = "edit-personality-page";
+                let appPage = "application-page";
+                if(url[2] === editPers || url[2] === appPage){
                     return url[3];
                 }
                 break;

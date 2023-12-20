@@ -28,7 +28,6 @@ function ApplicationsStorage(server) {
     server.put("/space/:spaceId/applications/:applicationId", reinstallApplication);
     server.post("/space/:spaceId/applications/:applicationId", installApplication);
     server.delete("/space/:spaceId/applications/:applicationId", uninstallApplication);
-    server.put("/space/:spaceId/applications/:applicationId/flows/:flowId", updateApplicationFlow);
     server.put("/space/:spaceId/applications/:applicationId/:objectType/:objectId", storeObject);
 }
 

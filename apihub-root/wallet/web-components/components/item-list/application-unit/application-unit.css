@@ -6,6 +6,7 @@
     gap:10px;
 }
 .application-image-container{
+    cursor: pointer;
     background-color:var(--left-sidebar);
     display:flex;
     align-items:center;
@@ -18,4 +19,11 @@
 }
 .application-image-container:hover{
     border:1px solid var(--white-text);
+}
+.installed{
+    border: none;
+    border-radius: 10px;
+    background-color: var(--medium-blue);
+    color: white;
+    padding: 10px;
 }

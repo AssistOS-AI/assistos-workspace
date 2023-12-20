@@ -20,10 +20,10 @@ export class ApplicationsService {
 
     }
 
-    async loadFlows(spaceId, applicationId){
+    async loadObjects(spaceId, applicationId, objectType){
         let result;
         try {
-            result = await fetch(`/app/${spaceId}/applications/${applicationId}/flows`,
+            result = await fetch(`/app/${spaceId}/applications/${applicationId}/${objectType}`,
                 {
                     method: "GET"
                 });

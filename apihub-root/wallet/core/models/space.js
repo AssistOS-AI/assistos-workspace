@@ -5,7 +5,8 @@ import {
     Settings,
     Flow,
     Announcement,
-    Agent, PageModel
+    Agent, PageModel,
+    Application
 } from "../../imports.js";
 
 export class Space {
@@ -26,7 +27,7 @@ export class Space {
             this.agent = new Agent(spaceData.agent);
         }
         this.observers = [];
-        this.installedApplications =spaceData.installedApplications || [];
+        this.installedApplications = (spaceData.installedApplications || []).map(applicationData => new Application(applicationData));
         Space.instance = this;
     }
 
@@ -105,13 +106,17 @@ export class Space {
     }
     async loadApplicationsFlows(){
         for(let app of this.installedApplications){
-            let flows = await webSkel.getService("ApplicationsService").loadFlows(webSkel.currentUser.space.id, app.applicationId);
+            let flows = await webSkel.getService("ApplicationsService").loadObjects(webSkel.currentUser.space.id, app.id, "flows");
             flows = JSON.parse(flows);
-            this.flows = this.flows.concat(flows);
-            this.flows = this.flows.filter((element, index, self) => {
+            flows = flows.filter((element, index, self) => {
                 return index === self.findIndex(e => e.id === element.id);
             });
+            app.flows = flows;
         }
+    }
+    getApplication(id){
+        let app = this.installedApplications.find((app) => app.id === id);
+        return app || console.error(`installed app not found in space, id: ${id}`);
     }
     getFlow(flowId) {
         let flow = this.flows.find((flow) => flow.id === flowId);

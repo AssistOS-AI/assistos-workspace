@@ -10,6 +10,7 @@ import { Settings } from "./core/models/settings.js";
 import { Flow } from "./core/models/flow.js";
 import { Agent } from "./core/models/agent.js";
 import {PageModel} from "./core/models/pageModel.js";
+import {Application} from "./core/models/application.js";
 
 export {
     Chapter,
@@ -22,7 +23,8 @@ export {
     Settings,
     Flow,
     Agent,
-    PageModel
+    PageModel,
+    Application
 };
 
 // Services

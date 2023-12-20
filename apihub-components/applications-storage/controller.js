@@ -24,7 +24,7 @@ function updateSpaceStatus(spaceId, applicationName, branchName,deleteMode=false
         status = {};
     }
     if(deleteMode===true) {
-        status.installedApplications = status.installedApplications.filter(app => app.applicationId !== applicationName);
+        status.installedApplications = status.installedApplications.filter(app => app.id !== applicationName);
         fs.writeFileSync(statusPath, JSON.stringify(status, null, 2));
         return;
     }
@@ -34,18 +34,18 @@ function updateSpaceStatus(spaceId, applicationName, branchName,deleteMode=false
     if (status.installedApplications) {
         status.installedApplications.push(
             {
-                applicationId: applicationName,
+                id: applicationName,
                 installationDate: installationDate,
                 lastUpdate: lastUpdate,
-                spaceFlowsBranch: branchName
+                flowsBranch: branchName
             });
     } else {
         status.installedApplications = [
             {
-                applicationId: applicationName,
+                id: applicationName,
                 installationDate: installationDate,
                 lastUpdate: lastUpdate,
-                spaceFlowsBranch: branchName
+                flowsBranch: branchName
             }
         ];
     }

@@ -1,6 +1,11 @@
 {
   "presenters": [
     {
+      "name": "application-page",
+      "path": "./web-components/pages/application-page/application-page.js",
+      "className": "applicationPage"
+    },
+    {
       "name": "space-dropdown",
       "path": "./web-components/components/space-dropdown/space-dropdown.js",
       "className": "spaceDropdown"
@@ -65,47 +70,6 @@
       "path": "./web-components/modals/show-error-modal/show-error-modal.js",
       "className": "showErrorModal"
     },
-    {
-      "name": "abstract-proofread-page",
-      "path": "./web-components/pages/abstract-proofread-page/abstract-proofread-page.js",
-      "className": "abstractProofreadPage"
-    },
-    {
-      "name": "edit-title-page",
-      "path": "./web-components/pages/edit-title-page/edit-title-page.js",
-      "className": "editTitlePage"
-    },
-    {
-      "name": "edit-abstract-page",
-      "path": "./web-components/pages/edit-abstract-page/edit-abstract-page.js",
-      "className": "editAbstractPage"
-    },
-    {
-      "name": "document-settings-page",
-      "path": "./web-components/pages/document-settings-page/document-settings-page.js",
-      "className": "documentSettingsPage"
-    },
-    {
-      "name": "manage-chapters-page",
-      "path": "./web-components/pages/manage-chapters-page/manage-chapters-page.js",
-      "className": "manageChaptersPage"
-    },
-    {
-      "name": "manage-paragraphs-page",
-      "path": "./web-components/pages/manage-paragraphs-page/manage-paragraphs-page.js",
-      "className": "manageParagraphsPage"
-    },
-    {
-      "name": "paragraph-proofread-page",
-      "path": "./web-components/pages/paragraph-proofread-page/paragraph-proofread-page.js",
-      "className": "paragraphProofreadPage"
-    },
-    {
-      "name": "chapter-title-page",
-      "path": "./web-components/pages/chapter-title-page/chapter-title-page.js",
-      "className": "chapterTitlePage"
-    },
-
     {
       "name": "announcements-page",
       "path": "./web-components/pages/announcements-page/announcements-page.js",
@@ -200,6 +164,14 @@
     }
   ],
   "components": [
+    {
+      "name": "application-page",
+      "path": "./wallet/web-components/pages/application-page/application-page.html",
+      "cssPaths": [
+        "./wallet/web-components/pages/application-page/application-page.css",
+        "./wallet/web-components/components/item-list/flow-unit/flow-unit.css"
+      ]
+    },
     {
       "name": "space-dropdown",
       "path": "./wallet/web-components/components/space-dropdown/space-dropdown.html",

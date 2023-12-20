@@ -49,7 +49,9 @@ async function loadPage() {
             leftSidebar.style.visibility = "visible";
             leftSidebarPlaceholder.style.display = "none";
             changeSelectedPageFromSidebar("agent-page");
-            if(splitUrl[2] === "edit-personality-page"){
+            let editPers = "edit-personality-page";
+            let appPage = "application-page";
+            if(splitUrl[2] === editPers || splitUrl[2] === appPage){
                 presenterName = splitUrl[2];
             }else {
                 presenterName = splitUrl[1];
