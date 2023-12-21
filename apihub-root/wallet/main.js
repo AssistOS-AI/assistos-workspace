@@ -2,7 +2,7 @@ import {
     WebSkel,
     closeModal,
     StorageManager,
-    DocumentFactory
+    DocumentFactory, getClosestParentElement
 } from "./imports.js";
 
 window.webSkel = new WebSkel();
@@ -37,7 +37,7 @@ async function loadPage() {
                 webSkel.currentUser.space.currentChapterId = chapterIdURL;
                 webSkel.currentUser.space.currentParagraphId = paragraphIdURL;
             }
-            changeSelectedPageFromSidebar("documents-page");
+            //changeSelectedPageFromSidebar("documents-page");
             break;
         }
         case authentication:{
@@ -48,7 +48,7 @@ async function loadPage() {
         case space:{
             leftSidebar.style.visibility = "visible";
             leftSidebarPlaceholder.style.display = "none";
-            changeSelectedPageFromSidebar("agent-page");
+            //changeSelectedPageFromSidebar("agent-page");
             let editPers = "edit-personality-page";
             let appPage = "application-page";
             if(splitUrl[2] === editPers || splitUrl[2] === appPage){
@@ -61,7 +61,7 @@ async function loadPage() {
         case chatbots:{
             leftSidebar.style.visibility = "visible";
             leftSidebarPlaceholder.style.display = "none";
-            changeSelectedPageFromSidebar("chatbots-page");
+            //changeSelectedPageFromSidebar("chatbots-page");
             presenterName = splitUrl[0];
             presenterName = presenterName.slice(1);
             break;
@@ -70,7 +70,7 @@ async function loadPage() {
             /*#proofReader, #documents */
             leftSidebar.style.visibility = "visible";
             leftSidebarPlaceholder.style.display = "none";
-            changeSelectedPageFromSidebar(url);
+            //changeSelectedPageFromSidebar(url);
             presenterName = url.slice(1);
             webSkel.currentUser.space.currentDocumentId = null;
             webSkel.currentUser.space.currentChapterId = null;
@@ -78,6 +78,9 @@ async function loadPage() {
             break;
         }
     }
+
+    //await webSkel.startApplication(applicationId);
+    changeSelectedPageFromSidebar(url);
     await webSkel.changeToDynamicPage(presenterName, url.slice(1));
     let pagePlaceholder = document.querySelector("#page-placeholder");
     if(pagePlaceholder){

@@ -1,5 +1,6 @@
 application-page{
     display:flex;
+    height: 100%;
 }
 .application-page{
     width: calc(100% - 270px);
@@ -7,10 +8,11 @@ application-page{
 .space-controls{
     display: flex;
     align-items: center;
-    padding: 20px 40px;
+    padding: 20px 64px;
 }
 .table-header-flows {
-    padding-left: 15px;
+    padding-left: 64px;
+    padding-right: 64px;
     display: flex;
     color: var(--documents-page-header);
     font-size: 18px;
@@ -18,4 +20,58 @@ application-page{
     font-weight: 700;
     line-height: normal;
     text-transform: capitalize;
+}
+.name-and-options{
+    display: flex;
+    align-items: center;
+}
+.name-and-options > button{
+    margin-right: 10px;
+}
+.table-name{
+    width: 31.5%;
+    margin-bottom: 10px;
+}
+.table-description{
+    margin-bottom: 10px;
+}
+.application-name{
+    margin-right: 10px;
+    display: inline-block;
+    font-size: 36px;
+    font-weight: 600;
+}
+.flow-unit{
+    padding-left: 64px;
+    padding-right: 64px;
+}
+.app-description{
+    padding-left: 64px;
+    padding-right: 64px;
+}
+.organization-name{
+    color: var(--left-sidebar);
+    font-size: 15px;
+    font-weight: 600;
+    margin-bottom: 10px;
+}
+.tags{
+    display: flex;
+    margin-bottom: 20px;
+}
+.tag{
+    margin-right: 10px;
+    padding: 8px 10px;
+    border-radius: 10px;
+    background-color: var(--very-light-gray);
+    color: var(--medium-gray);
+    font-size: 15px;
+    font-weight: 500;
+}
+.overview{
+    margin-bottom: 20px;
+}
+.overview-title{
+    font-size: 24px;
+    font-weight: 500;
 }

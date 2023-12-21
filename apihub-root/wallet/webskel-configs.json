@@ -168,8 +168,8 @@
       "name": "application-page",
       "path": "./wallet/web-components/pages/application-page/application-page.html",
       "cssPaths": [
-        "./wallet/web-components/pages/application-page/application-page.css",
-        "./wallet/web-components/components/item-list/flow-unit/flow-unit.css"
+        "./wallet/web-components/components/item-list/flow-unit/flow-unit.css",
+        "./wallet/web-components/pages/application-page/application-page.css"
       ]
     },
     {

@@ -34,7 +34,8 @@ function updateSpaceStatus(spaceId, applicationName, branchName,deleteMode=false
     if (status.installedApplications) {
         status.installedApplications.push(
             {
-                id: applicationName,
+                name: applicationName,
+                id: generateId(),
                 installationDate: installationDate,
                 lastUpdate: lastUpdate,
                 flowsBranch: branchName
@@ -42,7 +43,8 @@ function updateSpaceStatus(spaceId, applicationName, branchName,deleteMode=false
     } else {
         status.installedApplications = [
             {
-                id: applicationName,
+                name: applicationName,
+                id: generateId(),
                 installationDate: installationDate,
                 lastUpdate: lastUpdate,
                 flowsBranch: branchName

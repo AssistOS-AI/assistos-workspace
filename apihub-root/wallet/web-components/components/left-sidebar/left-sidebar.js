@@ -1,4 +1,4 @@
-import {getClosestParentElement,decodeBase64} from "../../../imports.js";
+import {getClosestParentElement, decodeBase64, changeSelectedPageFromSidebar} from "../../../imports.js";
 
 export class leftSidebar {
     constructor(element,invalidate) {
@@ -10,9 +10,7 @@ export class leftSidebar {
     beforeRender() {
         this.applications = "";
         for (let application of webSkel.currentUser.space.installedApplications) {
-            debugger;
-            let applicationData = webSkel.getApplicationData((application.id));
-
+            let applicationData = webSkel.getApplicationData((application.name));
             let svgImage = applicationData.encodedSvg;
             this.applications += `
             <div class="feature" data-id="${applicationData.name.toLowerCase()}" data-local-action="startApplication ${applicationData.id}">
@@ -27,6 +25,15 @@ export class leftSidebar {
     }
     async startApplication(_target, applicationId) {
         await webSkel.startApplication(applicationId);
+        changeSelectedPageFromSidebar(window.location.hash);
+        getClosestParentElement(_target, ".feature").setAttribute("id", "selected-page");
+        let paths = _target.querySelectorAll("path");
+        paths.forEach((path)=>{
+            if(path.hasAttribute("stroke")){
+                path.setAttribute("stroke", "var(--left-sidebar)");
+            }
+            path.setAttribute("fill", "var(--left-sidebar)");
+        });
     }
     changeBaseURL(newBaseURL) {
         document.getElementById('baseTag').setAttribute('href', newBaseURL);

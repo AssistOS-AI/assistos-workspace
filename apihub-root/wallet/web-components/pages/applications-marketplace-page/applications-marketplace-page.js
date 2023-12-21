@@ -9,7 +9,7 @@ export class applicationsMarketplacePage {
         this.applications = "";
         webSkel.getApplications()?.forEach((application) => {
             this.applications +=
-                `<application-unit data-name="${application.name}" data-image="${application.encodedSvg}" data-id="${application.id}" data-presenter="application-unit"></application-unit>`
+                `<application-unit data-name="${application.name}" data-image="${application.encodedSvg}" data-presenter="application-unit"></application-unit>`
         });
     }
 }

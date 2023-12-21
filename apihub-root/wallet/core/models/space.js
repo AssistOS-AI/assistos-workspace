@@ -52,7 +52,7 @@ export class Space {
             admins: this.admins,
             announcements: this.announcements,
             agent: this.agent,
-            installedApplications: this.installedApplications
+            installedApplications: this.installedApplications.stringifyApplication()
         }
     }
     stringifySpace() {
@@ -106,32 +106,32 @@ export class Space {
     }
     async loadApplicationsFlows(){
         for(let app of this.installedApplications){
-            let flows = await webSkel.getService("ApplicationsService").loadObjects(webSkel.currentUser.space.id, app.id, "flows");
-            flows = JSON.parse(flows);
-            flows = flows.filter((element, index, self) => {
-                return index === self.findIndex(e => e.id === element.id);
-            });
-            app.flows = flows;
+            await app.loadFlows();
         }
     }
-    getApplication(id){
-        let app = this.installedApplications.find((app) => app.id === id);
-        return app || console.error(`installed app not found in space, id: ${id}`);
+    getApplication(name){
+        let app = this.installedApplications.find((app) => app.name === name);
+        return app || console.error(`installed app not found in space, name: ${name}`);
     }
-    groupFlows(){
+    getAllFlows(){
         let flows = [];
         for(let app of this.installedApplications){
             flows = flows.concat(app.flows);
         }
-        return flows.concat(this.flows);
+        flows = flows.concat(this.flows);
+        //removes duplicates by id
+        flows = flows.filter((element, index, self) => {
+            return index === self.findIndex(e => e.id === element.id);
+        });
+        return flows;
     }
     getFlow(flowId) {
-        let flows = this.groupFlows();
+        let flows = this.getAllFlows();
         let flow = flows.find((flow) => flow.id === flowId);
         return flow || console.error(`Flow not found in space, flowId: ${flowId}`);
     }
     getFlowIdByName(name){
-        let flows = this.groupFlows()
+        let flows = this.getAllFlows();
         let flow = flows.find((flow) => flow.name === name);
         return flow.id || console.error(`Flow not found in space, flow name: ${name}`);
     }
@@ -190,9 +190,16 @@ export class Space {
         this.announcements = this.announcements.filter(announcement=> announcement.id !== announcementId);
         await storageManager.storeObject(webSkel.currentUser.space.id, "status", "status", JSON.stringify(webSkel.currentUser.space.getSpaceStatus(),null,2));
     }
-    async deleteFlow(flowId) {
-        this.flows = this.flows.filter(flow => flow.id !== flowId);
-        await storageManager.storeObject(webSkel.currentUser.space.id, "flows", flowId, "");
+    async deleteFlow(flowId, appId) {
+        if(!appId){
+            this.flows = this.flows.filter(flow => flow.id !== flowId);
+            await storageManager.storeObject(webSkel.currentUser.space.id, "flows", flowId, "");
+        }else {
+            let app = this.getApplication(appId);
+            app.flows = app.flows.filter(flow => flow.id !== flowId);
+            await storageManager.storeAppObject(webSkel.currentUser.space.id, app.id, "flows", flowId, "");
+        }
+
     }
     async deletePersonality(personalityId){
         this.personalities = this.personalities.filter(personality => personality.id !== personalityId);
@@ -208,11 +215,16 @@ export class Space {
             console.error("Failed to update announcement, announcement not found.");
         }
     }
-    async updateFlow(flowId, content) {
+    async updateFlow(flowId, content, appId) {
         let flow = this.getFlow(flowId);
         if(flow!==null) {
             flow.content = content;
-            await storageManager.storeObject(webSkel.currentUser.space.id, "flows", flow.id, JSON.stringify(flow,null,2));
+            if(!appId){
+                await storageManager.storeObject(webSkel.currentUser.space.id, "flows", flow.id,  JSON.stringify(flow,null,2));
+            }else {
+                let app = this.getApplication(appId);
+                await storageManager.storeAppObject(webSkel.currentUser.space.id, app.id, "flows", flowId,  JSON.stringify(flow,null,2));
+            }
         }else{
             console.error("Failed to update flow, flow not found.");
         }
@@ -233,8 +245,8 @@ export class Space {
     async createDefaultAgent(){
         this.agent=new Agent(JSON.parse(await storageManager.loadDefaultAgent()));
     }
-
-    async updateStatus(){
+    async deleteApplication(name){
+        this.installedApplications = this.installedApplications.filter(app => app.name !== name);
         await storageManager.storeObject(webSkel.currentUser.space.id, "status", "status", JSON.stringify(webSkel.currentUser.space.getSpaceStatus(),null,2));
     }
 }
