@@ -9,9 +9,9 @@ export class applicationUnit{
     beforeRender() {
         this.installed = false;
 
-        this.id = this.element.getAttribute("data-id");
+        this.appName = this.element.getAttribute("data-name");
         for (let installedApplication of webSkel.currentUser.space.installedApplications) {
-            if (installedApplication.id === this.id) {
+            if (installedApplication.name === this.appName) {
                 this.installed = true;
             }
         }
@@ -28,27 +28,27 @@ export class applicationUnit{
     }
     async installApplication() {
         const loading = await webSkel.showLoading(`<general-loader></general-loader>`);
-        await storageManager.installApplication(webSkel.currentUser.space.id, this.id);
+        await webSkel.getService("ApplicationsService").installApplication(this.appName);
         loading.close();
         loading.remove();
         window.location="";
     }
     async uninstallApplication() {
         const loading = await webSkel.showLoading(`<general-loader></general-loader>`);
-        await storageManager.uninstallApplication(webSkel.currentUser.space.id, this.id);
+        await webSkel.getService("ApplicationsService").uninstallApplication(this.appName);
         loading.close();
         loading.remove();
         window.location="";
     }
     async reinstallApplication() {
         const loading = await webSkel.showLoading(`<general-loader></general-loader>`);
-        await storageManager.reinstallApplication(webSkel.currentUser.space.id, this.id);
+        await webSkel.getService("ApplicationsService").reinstallApplication(this.appName);
         loading.close();
         loading.remove();
         window.location="";
     }
 
     async navigateToApplicationPage(){
-        await webSkel.changeToDynamicPage("application-page", `space/applications-marketplace-page/application-page/${this.id}`);
+        await webSkel.changeToDynamicPage("application-page", `space/applications-marketplace-page/application-page/${this.appName}`);
     }
 }

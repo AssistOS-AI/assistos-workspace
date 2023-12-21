@@ -131,10 +131,10 @@ export class FileSystemStorage{
         return await result.text();
 
     }
-    async loadObjects(spaceId, applicationId, objectType){
+    async loadObjects(spaceId, appName, objectType){
         let result;
         try {
-            result = await fetch(`/app/${spaceId}/applications/${applicationId}/${objectType}`,
+            result = await fetch(`/app/${spaceId}/applications/${appName}/${objectType}`,
                 {
                     method: "GET"
                 });
@@ -143,10 +143,10 @@ export class FileSystemStorage{
         }
         return await result.text();
     }
-    async storeAppObject(spaceId, applicationId, objectType, objectId, stringData){
+    async storeAppObject(spaceId, appName, objectType, objectId, stringData){
         let result;
         try {
-            result = await fetch(`/app/${spaceId}/applications/${applicationId}/${objectType}/${objectId}`,
+            result = await fetch(`/app/${spaceId}/applications/${appName}/${objectType}/${objectId}`,
                 {
                     method: "PUT",
                     body: stringData,
@@ -159,10 +159,10 @@ export class FileSystemStorage{
         }
         return await result.text();
     }
-    async uninstallApplication(spaceId,applicationId) {
+    async uninstallApplication(spaceId, appName) {
         let result;
         try {
-            result = await fetch(`/space/${spaceId}/applications/${applicationId}`,
+            result = await fetch(`/space/${spaceId}/applications/${appName}`,
                 {
                     method: "DELETE",
                     headers: {
@@ -174,10 +174,10 @@ export class FileSystemStorage{
         }
         return await result.text();
     }
-    async reinstallApplication(spaceId,applicationId){
+    async reinstallApplication(spaceId, appName){
         let result;
         try{
-            result=await fetch(`/space/${spaceId}/applications/${applicationId}`,
+            result=await fetch(`/space/${spaceId}/applications/${appName}`,
                 {
                     method: "PUT",
                     headers: {

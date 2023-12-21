@@ -64,19 +64,19 @@ export class StorageManager {
     }
 
     //applications
-    async installApplication(spaceId,applicationId){
-        return await this.currentService.installApplication(spaceId, applicationId);
+    async installApplication(spaceId, appName){
+        return await this.currentService.installApplication(spaceId, appName);
     }
-    async loadObjects(spaceId, applicationId, objectType){
-        return await this.currentService.loadObjects(spaceId, applicationId, objectType);
+    async loadObjects(spaceId, appName, objectType){
+        return await this.currentService.loadObjects(spaceId, appName, objectType);
     }
-    async storeAppObject(spaceId, applicationId, objectType, objectId, stringData){
-        return await this.currentService.storeAppObject(spaceId, applicationId, objectType, objectId, stringData);
+    async storeAppObject(spaceId, appName, objectType, objectId, stringData){
+        return await this.currentService.storeAppObject(spaceId, appName, objectType, objectId, stringData);
     }
-    async uninstallApplication(spaceId, applicationId) {
-        return await this.currentService.uninstallApplication(spaceId,applicationId);
+    async uninstallApplication(spaceId, appName) {
+        return await this.currentService.uninstallApplication(spaceId, appName);
     }
-    async reinstallApplication(spaceId, applicationId){
-        return await this.currentService.reinstallApplication(spaceId, applicationId);
+    async reinstallApplication(spaceId, appName){
+        return await this.currentService.reinstallApplication(spaceId, appName);
     }
 }

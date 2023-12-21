@@ -10,7 +10,7 @@ export class leftSidebar {
     beforeRender() {
         this.applications = "";
         for (let application of webSkel.currentUser.space.installedApplications) {
-            let applicationData = webSkel.getApplicationData((application.id));
+            let applicationData = webSkel.getApplicationData((application.name));
             let svgImage = applicationData.encodedSvg;
             this.applications += `
             <div class="feature" data-id="${applicationData.name.toLowerCase()}" data-local-action="startApplication ${applicationData.id}">

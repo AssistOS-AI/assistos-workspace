@@ -10,7 +10,7 @@ export class applicationPage {
     }
 
     beforeRender() {
-        this.appName = this._app.id;
+        this.appName = this._app.name;
         this.appFlows = "";
         if (this._app.flows.length > 0) {
             this._app.flows.sort(function(a, b) {
@@ -46,21 +46,21 @@ export class applicationPage {
     }
     async installApplication() {
         const loading = await webSkel.showLoading(`<general-loader></general-loader>`);
-        await storageManager.installApplication(webSkel.currentUser.space.id, this.id);
+        await webSkel.getService("ApplicationsService").installApplication(this.appName);
         loading.close();
         loading.remove();
         window.location="";
     }
     async uninstallApplication() {
         const loading = await webSkel.showLoading(`<general-loader></general-loader>`);
-        await storageManager.uninstallApplication(webSkel.currentUser.space.id, this.id);
+        await webSkel.getService("ApplicationsService").uninstallApplication(this.appName);
         loading.close();
         loading.remove();
         window.location="";
     }
     async reinstallApplication() {
         const loading = await webSkel.showLoading(`<general-loader></general-loader>`);
-        await storageManager.reinstallApplication(webSkel.currentUser.space.id, this.id);
+        await webSkel.getService("ApplicationsService").reinstallApplication(this.appName);
         loading.close();
         loading.remove();
         window.location="";
