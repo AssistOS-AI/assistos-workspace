@@ -24,8 +24,10 @@ async function loadPage() {
     const documents = "#documents", authentication = "#authentication-page", space = "#space", chatbots = "#chatbots-page";
     /* URL examples: documents/0, documents/0/chapters/1 */
     let splitUrl = url.split('/');
+    let appName;
     switch(splitUrl[0]) {
         case documents: {
+            appName = "AiAuthor";
             leftSidebar.style.visibility = "visible";
             leftSidebarPlaceholder.style.display = "none";
             let documentIdURL = splitUrl[1];
@@ -37,7 +39,7 @@ async function loadPage() {
                 webSkel.currentUser.space.currentChapterId = chapterIdURL;
                 webSkel.currentUser.space.currentParagraphId = paragraphIdURL;
             }
-            //changeSelectedPageFromSidebar("documents-page");
+            changeSelectedPageFromSidebar("AiAuthor");
             break;
         }
         case authentication:{
@@ -48,7 +50,7 @@ async function loadPage() {
         case space:{
             leftSidebar.style.visibility = "visible";
             leftSidebarPlaceholder.style.display = "none";
-            //changeSelectedPageFromSidebar("agent-page");
+            changeSelectedPageFromSidebar("agent-page");
             let editPers = "edit-personality-page";
             let appPage = "application-page";
             if(splitUrl[2] === editPers || splitUrl[2] === appPage){
@@ -59,18 +61,18 @@ async function loadPage() {
             break;
         }
         case chatbots:{
+            appName = "Chatbots";
             leftSidebar.style.visibility = "visible";
             leftSidebarPlaceholder.style.display = "none";
-            //changeSelectedPageFromSidebar("chatbots-page");
+            changeSelectedPageFromSidebar("ChatBots");
             presenterName = splitUrl[0];
             presenterName = presenterName.slice(1);
             break;
         }
         default: {
-            /*#proofReader, #documents */
+            /*#proofReader, documents-page*/
             leftSidebar.style.visibility = "visible";
             leftSidebarPlaceholder.style.display = "none";
-            //changeSelectedPageFromSidebar(url);
             presenterName = url.slice(1);
             webSkel.currentUser.space.currentDocumentId = null;
             webSkel.currentUser.space.currentChapterId = null;
@@ -78,14 +80,13 @@ async function loadPage() {
             break;
         }
     }
-
-    //await webSkel.startApplication(applicationId);
-    changeSelectedPageFromSidebar(url);
-    await webSkel.changeToDynamicPage(presenterName, url.slice(1));
     let pagePlaceholder = document.querySelector("#page-placeholder");
     if(pagePlaceholder){
         pagePlaceholder.style.display = "none";
     }
+    await webSkel.startApplication(appName);
+    await webSkel.changeToDynamicPage(presenterName, url.slice(1));
+
 }
 
 export function changeSelectedPageFromSidebar(url) {
