@@ -24,7 +24,6 @@ export class AgentService {
         await agent.addMessage("user", request);
         if(result.responseString){
             //user wants to execute an operation
-
             let flowId2 = webSkel.currentUser.space.getFlowIdByName("ConfirmParameters");
             let operationId = result.responseString;
             let response = await webSkel.getService("LlmsService").callFlow(flowId2, request, operationId, response1.responseJson);
