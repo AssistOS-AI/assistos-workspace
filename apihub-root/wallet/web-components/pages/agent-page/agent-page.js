@@ -49,7 +49,7 @@ export class agentPage {
                 let message = this.agent.getRandomOpener();
                 await this.displayMessage("assistant", message);
                 await this.agent.addMessage("assistant", message);
-                //await webSkel.getService("AgentService").addCapabilities();
+                await webSkel.getService("AgentService").addCapabilities();
             }
         },0);
 

@@ -52,7 +52,7 @@ export class Space {
             admins: this.admins,
             announcements: this.announcements,
             agent: this.agent,
-            installedApplications: this.installedApplications.stringifyApplication()
+            installedApplications: this.installedApplications.map(app => app.stringifyApplication())
         }
     }
     stringifySpace() {
