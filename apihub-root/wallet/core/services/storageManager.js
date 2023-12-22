@@ -67,6 +67,15 @@ export class StorageManager {
     async installApplication(spaceId, appName){
         return await this.currentService.installApplication(spaceId, appName);
     }
+    async getApplicationConfigs(spaceId, appId){
+        return await this.currentService.getApplicationConfigs(spaceId, appId);
+    }
+    async getApplicationFile(spaceId, appId, filePath){
+        return await this.currentService.getApplicationFile(spaceId, appId, filePath);
+    }
+    async loadPresenter(spaceId, appId, presenterName){
+        return await this.currentService.loadPresenter(spaceId, appId, presenterName);
+    }
     async loadObjects(spaceId, appName, objectType){
         return await this.currentService.loadObjects(spaceId, appName, objectType);
     }

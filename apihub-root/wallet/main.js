@@ -18,6 +18,7 @@ async function loadPage() {
         history.replaceState({agent, relativeUrlContent: content}, url, url);
         window.location.replace("#space/agent-page");
     }
+
     let leftSidebar = document.querySelector("left-sidebar");
     let leftSidebarPlaceholder = document.querySelector(".left-sidebar-placeholder");
     let presenterName;
@@ -28,8 +29,6 @@ async function loadPage() {
     switch(splitUrl[0]) {
         case documents: {
             appName = "AiAuthor";
-            leftSidebar.style.visibility = "visible";
-            leftSidebarPlaceholder.style.display = "none";
             let documentIdURL = splitUrl[1];
             presenterName = splitUrl[2];
             let chapterIdURL = splitUrl[3];
@@ -40,6 +39,7 @@ async function loadPage() {
                 webSkel.currentUser.space.currentParagraphId = paragraphIdURL;
             }
             changeSelectedPageFromSidebar("AiAuthor");
+            document.querySelector("#page-content").insertAdjacentHTML("beforebegin", `<left-sidebar data-presenter="left-sidebar" ></left-sidebar>`);
             break;
         }
         case authentication:{
@@ -48,8 +48,6 @@ async function loadPage() {
             break;
         }
         case space:{
-            leftSidebar.style.visibility = "visible";
-            leftSidebarPlaceholder.style.display = "none";
             changeSelectedPageFromSidebar("agent-page");
             let editPers = "edit-personality-page";
             let appPage = "application-page";
@@ -58,33 +56,34 @@ async function loadPage() {
             }else {
                 presenterName = splitUrl[1];
             }
+            document.querySelector("#page-content").insertAdjacentHTML("beforebegin", `<left-sidebar data-presenter="left-sidebar" ></left-sidebar>`);
             break;
         }
         case chatbots:{
             appName = "Chatbots";
-            leftSidebar.style.visibility = "visible";
-            leftSidebarPlaceholder.style.display = "none";
+
             changeSelectedPageFromSidebar("ChatBots");
             presenterName = splitUrl[0];
             presenterName = presenterName.slice(1);
+            document.querySelector("#page-content").insertAdjacentHTML("beforebegin", `<left-sidebar data-presenter="left-sidebar" ></left-sidebar>`);
             break;
         }
         default: {
             /*#proofReader, documents-page*/
-            leftSidebar.style.visibility = "visible";
-            leftSidebarPlaceholder.style.display = "none";
             presenterName = url.slice(1);
             webSkel.currentUser.space.currentDocumentId = null;
             webSkel.currentUser.space.currentChapterId = null;
             webSkel.currentUser.space.currentParagraphId = null;
+            document.querySelector("#page-content").insertAdjacentHTML("beforebegin", `<left-sidebar data-presenter="left-sidebar" ></left-sidebar>`);
             break;
         }
     }
+
     let pagePlaceholder = document.querySelector("#page-placeholder");
     if(pagePlaceholder){
         pagePlaceholder.style.display = "none";
     }
-    await webSkel.startApplication(appName);
+    //await webSkel.getService("ApplicationsService").startApplication(appName);
     await webSkel.changeToDynamicPage(presenterName, url.slice(1));
 
 }

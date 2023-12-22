@@ -25,7 +25,7 @@ export class leftSidebar {
     }
     async startApplication(_target, appName) {
         //this.changeBaseURL(appName);
-        await webSkel.startApplication(appName);
+        await webSkel.getService("ApplicationsService").startApplication(appName);
         changeSelectedPageFromSidebar(window.location.hash);
         getClosestParentElement(_target, ".feature").setAttribute("id", "selected-page");
         let paths = _target.querySelectorAll("path");

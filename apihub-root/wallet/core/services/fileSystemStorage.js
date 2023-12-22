@@ -131,6 +131,34 @@ export class FileSystemStorage{
         return await result.text();
 
     }
+    async getApplicationConfigs(spaceId, appId){
+
+        let result;
+        try {
+            result = await fetch(`/space/${spaceId}/applications/${appId}/configs`,
+                {
+                    method: "GET"
+                });
+        } catch (err) {
+            console.error(err);
+        }
+        return await result.json();
+    }
+    async getApplicationFile(spaceId, appId, filePath){
+        let result;
+        try {
+            result = await fetch(`/app/${webSkel.currentUser.space.id}/applications/${appId}/${filePath}`,
+                {
+                    method: "GET"
+                });
+        } catch (err) {
+            console.error(err);
+        }
+        return result;
+    }
+    async loadPresenter(spaceId, appId, presenterPath){
+        return await import(`/app/${webSkel.currentUser.space.id}/applications/${appId}/${presenterPath}`);
+    }
     async loadObjects(spaceId, appName, objectType){
         let result;
         try {
