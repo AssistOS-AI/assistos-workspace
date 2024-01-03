@@ -11,16 +11,27 @@ export class AuthenticationService{
 
     constructor() {
     }
-    async initUser() {
-        debugger;
+    async initUser(spaceId) {
+
+        /* check if there is a cached user */
         const result = this.getCachedCurrentUser();
+
         if(result) {
             let user = JSON.parse(result);
+            /* load the user's config file */
             let currentUser = JSON.parse(await storageManager.loadUser(user.id));
             webSkel.currentUser = {
                 id:currentUser.id,
                 secretToken: currentUser.secretToken,
                 spaces: currentUser.spaces,
+            }
+            if(spaceId){
+                if(currentUser.spaces.map((space)=>{return space.id}).includes(spaceId)){
+                    if(currentUser.currentSpaceId!==spaceId){
+                     currentUser.currentSpaceId=spaceId;
+                     await this.updateUser(user.id,currentUser);
+                    }
+                }
             }
            if(!currentUser.spaces){
                 let defaultSpace=await this.createDefaultSpace(currentUser.id);
@@ -57,7 +68,10 @@ export class AuthenticationService{
                 window.location.replace("#authentication-page");
             }
             webSkel.setDomElementForPages(mainContent);
+            await webSkel.changeToDynamicPage("authentication-page","authentication-page");
+            return false;
         }
+        return true;
     }
     async resetUser(userId){
         let user = JSON.parse(await storageManager.loadUser(userId));
@@ -117,6 +131,10 @@ export class AuthenticationService{
            let user = JSON.parse(await storageManager.loadUser(userId));
            user.spaces = user.spaces.filter(space => space.id !== spaceId);
            await storageManager.storeUser(userId,JSON.stringify(user));
+    }
+    async updateUser(userId,userData){
+        let user = JSON.parse(await storageManager.loadUser(userId));
+        await storageManager.storeUser(userId,JSON.stringify(userData));
     }
     async removeSpaceFromUsers(spaceId) {
         let promises = [];

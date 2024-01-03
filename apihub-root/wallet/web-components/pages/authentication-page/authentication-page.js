@@ -10,6 +10,7 @@ export class authenticationPage {
     }
 
     beforeRender() {
+
       switch (this.element.getAttribute("data-subpage")){
           case "register-page":{
               this.subpage = ` <div>

@@ -8,84 +8,46 @@ import {
 window.webSkel = new WebSkel();
 window.mainContent = document.querySelector("#app-wrapper");
 
+
 async function loadPage() {
 
-    let url = window.location.hash;
-    if(url === "" || url === null || url === "#space/agent-page") {
-        let agent = "space/agent-page";
-        url = "#space/agent-page";
-        const content = `<${agent} data-presenter="${agent}"></${agent}>`;
-        history.replaceState({agent, relativeUrlContent: content}, url, url);
-        window.location.replace("#space/agent-page");
-    }
-
-    let leftSidebar = document.querySelector("left-sidebar");
     let leftSidebarPlaceholder = document.querySelector(".left-sidebar-placeholder");
-    let presenterName;
-    const documents = "#documents", authentication = "#authentication-page", space = "#space", chatbots = "#chatbots-page";
-    /* URL examples: documents/0, documents/0/chapters/1 */
-    let splitUrl = url.split('/');
-    let appName;
-    switch(splitUrl[0]) {
-        case documents: {
-            appName = "AiAuthor";
-            let documentIdURL = splitUrl[1];
-            presenterName = splitUrl[2];
-            let chapterIdURL = splitUrl[3];
-            let paragraphIdURL = splitUrl[4];
-            if (await storageManager.loadObject(webSkel.currentUser.space.id, "documents", documentIdURL) !== null) {
-                webSkel.currentUser.space.currentDocumentId = documentIdURL;
-                webSkel.currentUser.space.currentChapterId = chapterIdURL;
-                webSkel.currentUser.space.currentParagraphId = paragraphIdURL;
-            }
-            changeSelectedPageFromSidebar("AiAuthor");
-            document.querySelector("#page-content").insertAdjacentHTML("beforebegin", `<left-sidebar data-presenter="left-sidebar" ></left-sidebar>`);
-            break;
-        }
-        case authentication:{
-            leftSidebarPlaceholder.style.display = "none";
-            presenterName = url.slice(1);
-            break;
-        }
-        case space:{
-            changeSelectedPageFromSidebar("agent-page");
-            let editPers = "edit-personality-page";
-            let appPage = "application-page";
-            if(splitUrl[2] === editPers || splitUrl[2] === appPage){
-                presenterName = splitUrl[2];
-            }else {
-                presenterName = splitUrl[1];
-            }
-            document.querySelector("#page-content").insertAdjacentHTML("beforebegin", `<left-sidebar data-presenter="left-sidebar" ></left-sidebar>`);
-            break;
-        }
-        case chatbots:{
-            appName = "Chatbots";
 
-            changeSelectedPageFromSidebar("ChatBots");
-            presenterName = splitUrl[0];
-            presenterName = presenterName.slice(1);
-            document.querySelector("#page-content").insertAdjacentHTML("beforebegin", `<left-sidebar data-presenter="left-sidebar" ></left-sidebar>`);
-            break;
-        }
-        default: {
-            /*#proofReader, documents-page*/
-            presenterName = url.slice(1);
-            webSkel.currentUser.space.currentDocumentId = null;
-            webSkel.currentUser.space.currentChapterId = null;
-            webSkel.currentUser.space.currentParagraphId = null;
-            document.querySelector("#page-content").insertAdjacentHTML("beforebegin", `<left-sidebar data-presenter="left-sidebar" ></left-sidebar>`);
-            break;
-        }
-    }
+    storageManager.setCurrentService("FileSystemStorage");
+
+    let splitUrl = window.location.hash.slice(1).split('/');
+    let spaceId = splitUrl[0];
 
     let pagePlaceholder = document.querySelector("#page-placeholder");
-    if(pagePlaceholder){
+    if (pagePlaceholder) {
         pagePlaceholder.style.display = "none";
     }
-    //await webSkel.getService("ApplicationsService").startApplication(appName);
-    await webSkel.changeToDynamicPage(presenterName, url.slice(1));
-
+    if (spaceId) {
+        if (spaceId === "authentication-page") {
+            leftSidebarPlaceholder.style.display = "none";
+            await webSkel.changeToDynamicPage(spaceId, spaceId);
+        } else {
+            if(await webSkel.getService("AuthenticationService").initUser(spaceId)) {
+                if (splitUrl[1]) {
+                    /* appName, applicationLocation */
+                    await webSkel.getService("ApplicationsService").startApplication(splitUrl[1], splitUrl.slice(2));
+                }else{
+                    document.querySelector("#page-content").insertAdjacentHTML("beforebegin", `<left-sidebar data-presenter="left-sidebar" ></left-sidebar>`);
+                    await webSkel.changeToDynamicPage("agent-page", `${webSkel.currentUser.space.id}/agent-page`);
+                }
+            }
+        }
+    } else {
+        if(await webSkel.getService("AuthenticationService").initUser()) {
+            document.querySelector("#page-content").insertAdjacentHTML("beforebegin", `<left-sidebar data-presenter="left-sidebar" ></left-sidebar>`);
+            /*let agent = "space/agent-page";
+            let url = "#space/agent-page";
+            const content = `<${agent} data-presenter="${agent}"></${agent}>`;
+            history.replaceState({agent, relativeUrlContent: content}, url, url);
+            window.location.replace("#space/agent-page");*/
+            await webSkel.changeToDynamicPage("agent-page", `${webSkel.currentUser.space.id}/agent-page`);
+        }
+    }
 }
 
 export function changeSelectedPageFromSidebar(url) {
@@ -93,13 +55,13 @@ export function changeSelectedPageFromSidebar(url) {
     if (element) {
         element.removeAttribute('id');
         let paths = element.querySelectorAll("path");
-        paths.forEach((path)=>{
+        paths.forEach((path) => {
             path.setAttribute("fill", "white");
         });
     }
     let divs = document.querySelectorAll('div[data-local-action]');
     let targetAction = url;
-    if(targetAction.startsWith("#")) {
+    if (targetAction.startsWith("#")) {
         targetAction = url.slice(1);
     }
     divs.forEach(div => {
@@ -108,7 +70,7 @@ export function changeSelectedPageFromSidebar(url) {
             console.log(`Element with data-action '${targetAction}' found.`);
             div.setAttribute('id', 'selected-page');
             let paths = div.querySelectorAll("path");
-            paths.forEach((path)=>{
+            paths.forEach((path) => {
                 path.setAttribute("fill", "var(--left-sidebar)");
             });
         }
@@ -130,57 +92,58 @@ async function loadConfigs(jsonPath) {
             const ServiceModule = await import(service.path);
             webSkel.initialiseService(service.name, ServiceModule[service.name]);
         }
-        for( const storageService of config.storageServices){
-            const StorageServiceModule=await import(storageService.path);
-            if(storageService.params) {
+        for (const storageService of config.storageServices) {
+            const StorageServiceModule = await import(storageService.path);
+            if (storageService.params) {
                 storageManager.addStorageService(storageService.name, new StorageServiceModule[storageService.name](...Object.values(storageService.params)));
             } else {
                 storageManager.addStorageService(storageService.name, new StorageServiceModule[storageService.name]());
             }
         }
-        for( const application of config.applications){
+        for (const application of config.applications) {
             webSkel.applications.push(application);
         }
-        storageManager.setCurrentService("FileSystemStorage");
-        await webSkel.getService("AuthenticationService").initUser();
+
         for (const presenter of config.presenters) {
             const PresenterModule = await import(presenter.path);
             webSkel.registerPresenter(presenter.name, PresenterModule[presenter.className]);
         }
         for (const component of config.components) {
-            await webSkel.defineComponent(component.name, component.path,component.cssPaths);
+            await webSkel.defineComponent(component.name, component.path, component.cssPaths);
         }
     } catch (error) {
         console.error(error);
         await showApplicationError("Error loading configs", "Error loading configs", `Encountered ${error} while trying loading webSkel configs`);
     }
 }
-async function handleHistory(event){
+
+async function handleHistory(event) {
     const result = webSkel.getService("AuthenticationService").getCachedCurrentUser();
-    if(!result){
-        if(window.location.hash !== "#authentication-page"){
+    if (!result) {
+        if (window.location.hash !== "#authentication-page") {
             webSkel.setDomElementForPages(mainContent);
             window.location.hash = "#authentication-page";
             await webSkel.changeToDynamicPage("authentication-page", "authentication-page", "", true);
         }
-    }else {
-        if(history.state){
-            if(history.state.pageHtmlTagName === "authentication-page"){
+    } else {
+        if (history.state) {
+            if (history.state.pageHtmlTagName === "authentication-page") {
                 const path = ["#", webSkel.currentState.pageHtmlTagName].join("");
                 history.replaceState(webSkel.currentState, path, path);
             }
         }
     }
     let modal = document.querySelector("dialog");
-    if(modal){
+    if (modal) {
         closeModal(modal);
     }
 }
-function saveCurrentState(){
+
+function saveCurrentState() {
     webSkel.currentState = Object.assign({}, history.state);
 }
 
-(async ()=> {
+(async () => {
     await webSkel.defineComponent("general-loader", "./wallet/web-components/components/general-loader/general-loader.html");
     await webSkel.UtilsService.initialize();
     const loading = await webSkel.showLoading(`<general-loader></general-loader>`);
