@@ -29,7 +29,7 @@ async function loadPage() {
         } else {
             if(await webSkel.getService("AuthenticationService").initUser(spaceId)) {
                 if (splitUrl[1]) {
-                    /* appName, applicationLocation */
+                    /* appName, applicationLocation that will get passed to the application itself to be handled */
                     await webSkel.getService("ApplicationsService").startApplication(splitUrl[1], splitUrl.slice(2));
                 }else{
                     document.querySelector("#page-content").insertAdjacentHTML("beforebegin", `<left-sidebar data-presenter="left-sidebar" ></left-sidebar>`);
@@ -45,7 +45,7 @@ async function loadPage() {
             const content = `<${agent} data-presenter="${agent}"></${agent}>`;
             history.replaceState({agent, relativeUrlContent: content}, url, url);
             window.location.replace("#space/agent-page");*/
-            await webSkel.changeToDynamicPage("agent-page", `${webSkel.currentUser.space.id}/agent-page`);
+            await webSkel.changeToDynamicPage("agent-page", `${webSkel.currentUser.space.id}/SpaceConfiguration/agent-page`);
         }
     }
 }

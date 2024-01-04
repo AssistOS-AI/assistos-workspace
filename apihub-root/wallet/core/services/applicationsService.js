@@ -33,10 +33,14 @@ export class ApplicationsService {
             const PresenterModule = await storageManager.loadPresenter(webSkel.currentUser.space.id, applicationId, presenter.presenterPath);
             webSkel.registerPresenter(presenter.forComponent, PresenterModule[presenter.presenterName]);
         }
+        for(const service of webSkel.initialisedApplications[applicationId].services){
+            const ServiceModule=await storageManager.loadService(webSkel.currentUser.space.id,applicationId,service.servicePath);
+            webSkel.registerApplicationService(applicationId,service.serviceName,ServiceModule[service.serviceName]);
+        }
     }
 
     async startApplication(applicationId, applicationLocation) {
-        if(document.querySelector("left-sidebar") === null) {
+        if (document.querySelector("left-sidebar") === null) {
             document.querySelector("#page-content").insertAdjacentHTML("beforebegin", `<left-sidebar data-presenter="left-sidebar" ></left-sidebar>`);
         }
         if (applicationId === "SpaceConfiguration") {
@@ -47,6 +51,15 @@ export class ApplicationsService {
         if (!webSkel.initialisedApplications[applicationId]) {
             await this.initialiseApplication(applicationId);
         }
-        await webSkel.changeToDynamicPage(webSkel.initialisedApplications[applicationId].entryPointComponent, `${webSkel.currentUser.space.id}/${applicationId}/${webSkel.initialisedApplications[applicationId].entryPointComponent}`);
+        if (!applicationLocation) {
+            await webSkel.changeToDynamicPage(webSkel.initialisedApplications[applicationId].entryPointComponent, `${webSkel.currentUser.space.id}/${applicationId}/${webSkel.initialisedApplications[applicationId].entryPointComponent}`);
+        } else {
+            try {
+                await webSkel.initialisedApplications[applicationId]["routingService"].navigateToLocation(applicationLocation);
+            } catch (e) {
+                console.error(`Encountered an Issue trying to navigate to ${applicationLocation} .Navigating to application entry point`);
+                await webSkel.changeToDynamicPage(webSkel.initialisedApplications[applicationId].entryPointComponent, `${webSkel.currentUser.space.id}/${applicationId}/${webSkel.initialisedApplications[applicationId].entryPointComponent}`);
+            }
+        }
     }
 }

@@ -1,10 +1,7 @@
 import {
     customTrim,
     extractFormInformation,
-    getClosestParentElement,
-    parseURL,
     sanitize,
-    showModal
 } from "../../../imports.js";
 
 export class agentPage {
