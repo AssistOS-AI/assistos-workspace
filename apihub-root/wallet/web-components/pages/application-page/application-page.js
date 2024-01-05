@@ -67,7 +67,7 @@ export class applicationPage {
     }
 
     async openApplicationsMarketplacePage(){
-        await webSkel.changeToDynamicPage("applications-marketplace-page", "space/applications-marketplace-page");
+        await webSkel.changeToDynamicPage("applications-marketplace-page", `${webSkel.currentUser.space.id}/SpaceConfiguration/applications-marketplace-page`);
     }
     getFlowId(_target){
         return reverseQuerySelector(_target, "flow-unit").getAttribute("data-id");

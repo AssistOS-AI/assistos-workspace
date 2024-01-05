@@ -45,7 +45,8 @@ export class ApplicationsService {
         }
         if (applicationId === "SpaceConfiguration") {
             let appLocation = applicationLocation || "agent-page";
-            await webSkel.changeToDynamicPage(`${appLocation}`, `${webSkel.currentUser.space.id}/SpaceConfiguration/${appLocation}`)
+            const presenter=appLocation[appLocation.length-1]
+            await webSkel.changeToDynamicPage(`${presenter}`, `${webSkel.currentUser.space.id}/SpaceConfiguration/${appLocation.join('/')}`)
             return;
         }
         if (!webSkel.initialisedApplications[applicationId]) {
