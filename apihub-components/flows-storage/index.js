@@ -12,8 +12,9 @@ function bodyReaderMiddleware(req, res, next) {
 }
 
 function SpaceStorage(server){
-    const { loadDefaultFlows,loadDefaultPersonalities } = require("./controller");
+    const { loadDefaultFlows,loadDefaultPersonalities, loadFlows } = require("./controller");
     server.get("/flows/default", loadDefaultFlows);
+    server.get("/flows/:spaceId", loadFlows);
     server.get("/personalities/default", loadDefaultPersonalities);
 
     server.use("/spaces/*", bodyReaderMiddleware);

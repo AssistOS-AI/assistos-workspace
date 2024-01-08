@@ -1,1 +1,0 @@
-{"name":"DeleteFlow","content":"({\nstart: async function(flowId, appId){\n       try{\n            await webSkel.currentUser.space.deleteFlow(flowId, appId);\n            this.return(flowId);\n        }catch(e){\n            this.fail(e);\n            }\n    }\n})","id":"2xrktLxCYf3o","description":"Deletes a flow","tags":["presenters","agents","space"]}

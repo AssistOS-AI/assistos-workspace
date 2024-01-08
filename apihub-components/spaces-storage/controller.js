@@ -152,7 +152,7 @@ async function loadSpace(request, response){
         return;
     }
     for(let item of await fsPromises.readdir(filePath)) {
-        if(item !== "status" && item!== "applications") {
+        if(item !== "status" && item!== "applications" && item !== "flows") {
             statusJson[item] = await buildSpace(`${filePath}\/${item}`);
         }
     }

@@ -49,7 +49,9 @@ export class StorageManager {
     async loadUserByEmail(email){
         return await this.currentService.loadUserByEmail(email);
     }
-
+    async loadFlows(spaceId){
+        return await this.currentService.loadFlows(spaceId);
+    }
     async loadDefaultFlows(){
         return await this.currentService.loadDefaultFlows();
     }

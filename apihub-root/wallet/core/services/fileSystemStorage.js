@@ -84,7 +84,9 @@ export class FileSystemStorage{
             });
         return await result.text();
     }
-
+    async loadFlows(spaceId){
+        return await import(`/flows/${spaceId}`);
+    }
     async loadDefaultFlows(){
         const result = await fetch(`/flows/default`,
             {
