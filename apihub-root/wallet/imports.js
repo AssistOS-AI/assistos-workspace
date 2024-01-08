@@ -81,8 +81,3 @@ export {
     changeSelectedPageFromSidebar,
     decodeBase64
 };
-function importFileFromApp(spaceId,applicationId,filePath){
-    let path=path.join
-        path="../apihub-root/webSkel//utils/template-utils.js";
-        path="../WebSkel/utils/template-utils.js";
-}
