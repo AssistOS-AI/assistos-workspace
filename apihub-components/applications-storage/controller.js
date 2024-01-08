@@ -233,7 +233,7 @@ async function loadApplicationConfig(request, response) {
     }
 }
 async function loadObjects(filePath){
-    let localData = "";
+    let localData = [];
     const files = await fsPromises.readdir(filePath);
 
     const statPromises = files.map(async (file) => {
@@ -245,7 +245,8 @@ async function loadObjects(filePath){
     fileStats = fileStats.filter(stat => stat.file !== ".git");
     fileStats.sort((a, b) => a.stat.ctimeMs - b.stat.ctimeMs);
     for (const { file } of fileStats) {
-        localData += await fsPromises.readFile(path.join(filePath, file), 'utf8') + '\n';
+        const jsonContent = await fsPromises.readFile(path.join(filePath, file), 'utf8');
+        localData.push(JSON.parse(jsonContent));
     }
     return localData;
 }
@@ -259,7 +260,7 @@ async function loadApplicationComponents(request, response) {
         console.log("File Path:", filePath);
         if(componentPath === "flows"){
             let flows = await loadObjects(filePath);
-            return sendResponse(response, 200, "application/javascript", flows);
+            return sendResponse(response, 200, "text/plain", JSON.stringify(flows));
         }
         // Security check TBD: Ensure that filePath is still within the intended directory and user has access to it
 

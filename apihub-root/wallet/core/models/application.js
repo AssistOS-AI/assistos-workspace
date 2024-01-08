@@ -10,9 +10,8 @@ export class Application {
 
     async loadFlows(){
         let flows = await storageManager.loadObjects(webSkel.currentUser.space.id, this.name, "flows");
-        for (let [name, flowClass] of Object.entries(flows)) {
-            this.flows.push({name:name, class:flowClass, id:flowClass.id});
-        }
+        flows = JSON.parse(flows);
+        this.flows = flows;
     }
     stringifyApplication(){
         function replacer(key, value) {

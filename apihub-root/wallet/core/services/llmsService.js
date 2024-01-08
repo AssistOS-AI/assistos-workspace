@@ -28,17 +28,9 @@ export class LlmsService {
     /*flowId, flowParams */
     async callFlow(...args){
         let flow =webSkel.currentUser.space.getFlow(args[0]);
-        let flowInstance = new flow.class();
-
-        const methodEntries = Object.getOwnPropertyNames(Object.getPrototypeOf(flowInstance))
-            .filter(property => typeof flowInstance[property] === 'function' && property !== 'constructor')
-            .reduce((acc, methodName) => {
-                acc[methodName] = flowInstance[methodName];
-                return acc;
-            }, {});
-        //let flowCode = eval(flow.content);
+        let flowCode = eval(flow.content);
         args.shift();
-        webSkel.getService("FlowsService").registerFlow(flow.name, methodEntries);
+        webSkel.getService("FlowsService").registerFlow(flow.name, flowCode);
         let response="";
         try{
             response = await webSkel.getService("FlowsService").runFlow(flow.name, ...args);
