@@ -123,13 +123,16 @@ export class DocumentModel {
             console.warn(`Failed to find alternative abstract with id: ${id}`);
         }
     }
-
+    async updateAlternativeTitle(id,text){
+        let alternativeTitle= this.getAlternativeTitle(id)
+        alternativeTitle.title=text;
+        await documentFactory.updateDocument(webSkel.currentUser.space.id, this);
+    }
     async addAlternativeTitles(alternativeTitles){
         for(let title of alternativeTitles){
             title.id=webSkel.getService("UtilsService").generateId();
         }
         this.alternativeTitles.push(...alternativeTitles);
-        await documentFactory.updateDocument(webSkel.currentUser.space.id, this);
     }
 
     getMainIdeas() {

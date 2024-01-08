@@ -76,6 +76,9 @@ export class StorageManager {
     async loadPresenter(spaceId, appId, presenterName){
         return await this.currentService.loadPresenter(spaceId, appId, presenterName);
     }
+    async loadService(spaceId, appId, serviceName) {
+        return await this.currentService.loadService(spaceId,appId,serviceName);
+    }
     async loadObjects(spaceId, appName, objectType){
         return await this.currentService.loadObjects(spaceId, appName, objectType);
     }

@@ -49,6 +49,6 @@ export class applicationUnit{
     }
 
     async navigateToApplicationPage(){
-        await webSkel.changeToDynamicPage("application-page", `space/applications-marketplace-page/application-page/${this.appName}`);
+        await webSkel.changeToDynamicPage("application-page", `${webSkel.currentUser.space.id}/SpaceConfiguration/applications/${this.appName}/application-page`);
     }
 }

@@ -159,6 +159,9 @@ export class FileSystemStorage{
     async loadPresenter(spaceId, appId, presenterPath){
         return await import(`/app/${webSkel.currentUser.space.id}/applications/${appId}/${presenterPath}`);
     }
+    async loadService(spaceId, appId, servicePath){
+        return await import(`/app/${webSkel.currentUser.space.id}/applications/${appId}/${servicePath}`);
+    }
     async loadObjects(spaceId, appName, objectType){
         let result;
         try {

@@ -52,6 +52,6 @@ export class editPersonalityPage{
     }
 
     async openPersonalitiesPage(){
-      await webSkel.changeToDynamicPage("personalities-page", "space/personalities-page");
+      await webSkel.changeToDynamicPage("personalities-page", `${webSkel.currentUser.space.id}/SpaceConfiguration/personalities-page`);
     }
 }
