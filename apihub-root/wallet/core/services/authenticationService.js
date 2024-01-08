@@ -47,20 +47,21 @@ export class AuthenticationService{
                webSkel.currentUser.space = await SpaceFactory.loadSpace(currentUser.currentSpaceId)
                await webSkel.currentUser.space.loadApplicationsFlows();
            }catch (e){
-               try{
-                   /* To be replaced with better logic */
-                   // Handle the case when the space with the currentSpaceId has been deleted manually from the disk for development
-                   await this.removeSpaceFromUser(currentUser.id,currentUser.currentSpaceId);
-                   console.warn("Space with id "+currentUser.currentSpaceId+" not found");
-                   /*Attempting to load the Default Space if the currentSpaceId is not valid or the space with that id has been deleted */
-                     //spaceData = await storageManager.loadSpace(currentUser.id);
-                     webSkel.currentUser.space = await SpaceFactory.loadSpace(currentUser.currentSpaceId)
-               }catch(e){
-                   console.warn("Couldn't load the default space for user "+currentUser.id+"");
-                   /* Attempting to load any space from the User's spaces array and removing the invalid ones */
-                   await this.resetUser(currentUser.id);
-                   window.location="";
-               }
+               await showApplicationError(e,e,e);
+               // try{
+               //     /* To be replaced with better logic */
+               //     // Handle the case when the space with the currentSpaceId has been deleted manually from the disk for development
+               //     await this.removeSpaceFromUser(currentUser.id,currentUser.currentSpaceId);
+               //     console.warn("Space with id "+currentUser.currentSpaceId+" not found");
+               //     /*Attempting to load the Default Space if the currentSpaceId is not valid or the space with that id has been deleted */
+               //       //spaceData = await storageManager.loadSpace(currentUser.id);
+               //       webSkel.currentUser.space = await SpaceFactory.loadSpace(currentUser.currentSpaceId)
+               // }catch(e){
+               //     console.warn("Couldn't load the default space for user "+currentUser.id+"");
+               //     /* Attempting to load any space from the User's spaces array and removing the invalid ones */
+               //     await this.resetUser(currentUser.id);
+               //     window.location="";
+               // }
            }
         }
         else {
