@@ -162,14 +162,11 @@ export class FileSystemStorage{
     async loadObjects(spaceId, appName, objectType){
         let result;
         try {
-            result = await fetch(`/app/${spaceId}/applications/${appName}/${objectType}`,
-                {
-                    method: "GET"
-                });
+            result = await import(`/app/${spaceId}/applications/${appName}/${objectType}`);
         } catch (err) {
             console.error(err);
         }
-        return await result.text();
+        return  result;
     }
     async storeAppObject(spaceId, appName, objectType, objectId, stringData){
         let result;

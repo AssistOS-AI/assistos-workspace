@@ -12,7 +12,6 @@ export class AuthenticationService{
     constructor() {
     }
     async initUser() {
-        debugger;
         const result = this.getCachedCurrentUser();
         if(result) {
             let user = JSON.parse(result);
