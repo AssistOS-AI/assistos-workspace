@@ -25,7 +25,7 @@ export class AuthenticationService{
                 secretToken: currentUser.secretToken,
                 spaces: currentUser.spaces,
             }
-            if(spaceId){
+            if(spaceId && currentUser.spaces){
                 if(currentUser.spaces.map((space)=>{return space.id}).includes(spaceId)){
                     if(currentUser.currentSpaceId!==spaceId){
                      currentUser.currentSpaceId=spaceId;
@@ -41,9 +41,10 @@ export class AuthenticationService{
            }
            let spaceData;
            try {
+               debugger;
                /* Attempting to load the last space the user was logged on */
-               let spaceData = await storageManager.loadSpace(currentUser.currentSpaceId);
-               webSkel.currentUser.space = new Space(JSON.parse(spaceData));
+               //let spaceData = await storageManager.loadSpace(currentUser.currentSpaceId);
+               webSkel.currentUser.space = await SpaceFactory.loadSpace(currentUser.currentSpaceId)
                await webSkel.currentUser.space.loadApplicationsFlows();
            }catch (e){
                try{
@@ -52,8 +53,8 @@ export class AuthenticationService{
                    await this.removeSpaceFromUser(currentUser.id,currentUser.currentSpaceId);
                    console.warn("Space with id "+currentUser.currentSpaceId+" not found");
                    /*Attempting to load the Default Space if the currentSpaceId is not valid or the space with that id has been deleted */
-                     spaceData = await storageManager.loadSpace(currentUser.id);
-                     webSkel.currentUser.space = new Space(JSON.parse(spaceData));
+                     //spaceData = await storageManager.loadSpace(currentUser.id);
+                     webSkel.currentUser.space = await SpaceFactory.loadSpace(currentUser.currentSpaceId)
                }catch(e){
                    console.warn("Couldn't load the default space for user "+currentUser.id+"");
                    /* Attempting to load any space from the User's spaces array and removing the invalid ones */

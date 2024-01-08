@@ -25,8 +25,9 @@ export class SpaceFactory {
 
     static async loadSpace(spaceId) {
         let spacePath = "spaces/" + spaceId;
-        let spaceJson = await webSkel.storageService.loadObject(spacePath, spaceJson);
+        let spaceJson = await storageManager.loadSpace(spaceId);
         let space = JSON.parse(spaceJson);
+        debugger;
         return new Space(space);
     }
 }
