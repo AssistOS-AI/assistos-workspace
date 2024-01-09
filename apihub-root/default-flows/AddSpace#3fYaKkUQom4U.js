@@ -1,15 +1,14 @@
+import {SpaceFactory} from "../../../wallet/imports.js";
 export class AddSpace {
     static id = "3fYaKkUQom4U";
 
     constructor() {
         this.name = "AddSpace";
-        this.description = "Adds a new space";
-        this.agentConfigs = {
-            description: "Adds a new workspace. A name must be provided",
-            parameters: [
-                { name: "name", type: "string", description: "The name of the space.", optional: false }
-            ]
-        };
+        this.description = "Adds a new workspace. A name must be provided";
+        this.parameters = [
+            { name: "name", type: "string", description: "The name of the space.", optional: false }
+        ]
+
     }
 
     async start(name) {

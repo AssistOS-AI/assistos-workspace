@@ -1,10 +1,11 @@
-import {changeSelectedPageFromSidebar} from "../../../../../wallet/main.js";
 
 export class ChangeApplication {
     static id = "2vA3ZipyUcZC";
-    constructor() {
+    constructor(dependencies) {
         this.name = "ChangeApplication";
         this.description = "Changes the current application";
+        const { changeSelectedPageFromSidebar } = dependencies;
+        this.changeSelectedPageFromSidebar = changeSelectedPageFromSidebar;
     }
     async start(pageId, refreshFlag) {
         try {
@@ -14,7 +15,7 @@ export class ChangeApplication {
                 }
             }
 
-            changeSelectedPageFromSidebar(pageId);
+            this.changeSelectedPageFromSidebar(pageId);
 
             if (pageId.startsWith("space")) {
                 let page = pageId.split("/")[1];

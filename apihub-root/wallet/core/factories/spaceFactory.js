@@ -19,7 +19,7 @@ export class SpaceFactory {
         await newSpace.createDefaultFlows();
         await newSpace.createDefaultPersonalities();
         await newSpace.createDefaultAgent();
-        await storageManager.storeSpace(newSpace.id, newSpace.stringifySpace());
+        await storageManager.storeSpace(newSpace);
         return newSpace;
     }
 

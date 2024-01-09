@@ -26,10 +26,6 @@ export class FileSystemStorage{
         return await result.text();
     }
 
-    async listObjects(spaceId, objectType){
-
-    }
-
     async loadSpace(spaceId) {
         const result = await fetch(`/load-space/${spaceId}`, {"method": "GET"});
         return await result.text();
@@ -85,14 +81,54 @@ export class FileSystemStorage{
         return await result.text();
     }
     async loadFlows(spaceId){
-        return await import(`/flows/${spaceId}`);
+        let result;
+        try {
+            result = await import(`/flows/${spaceId}`);
+        } catch (err) {
+            console.error(err);
+        }
+        return result;
+    }
+    async storeFlow(spaceId, objectName, jsData){
+        let result;
+        try {
+            result = await fetch(`/flows/${spaceId}/${objectName}`,
+                {
+                    method: "PUT",
+                    body: jsData,
+                    headers: {
+                        "Content-type": "application/javascript; charset=UTF-8"
+                    }
+                });
+        } catch (err) {
+            console.error(err);
+        }
+        return await result.text();
+    }
+    async storeFlows(spaceId, data){
+        let result;
+        try {
+            result = await fetch(`/flows/${spaceId}/store/flows`,
+                {
+                    method: "PUT",
+                    body: data,
+                    headers: {
+                        "Content-type": "application/json; charset=UTF-8"
+                    }
+                });
+        } catch (err) {
+            console.error(err);
+        }
+        return await result.text();
     }
     async loadDefaultFlows(){
-        const result = await fetch(`/flows/default`,
-            {
-                method: "GET"
-            });
-        return await result.text();
+        let result;
+        try {
+            result = await import(`/flows/default`);
+        } catch (err) {
+            console.error(err);
+        }
+        return  result;
     }
     async loadDefaultPersonalities(){
         const result=await fetch(`/personalities/default`,

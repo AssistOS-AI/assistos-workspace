@@ -58,11 +58,6 @@ add-flow-modal{
     display: flex;
     flex-direction: column;
 }
-#tags{
-    width: 30%;
-    margin-top: 5px;
-    margin-bottom: 5px;
-}
 #name{
     width: 50%;
 }

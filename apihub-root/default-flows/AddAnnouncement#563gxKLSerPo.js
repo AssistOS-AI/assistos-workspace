@@ -4,13 +4,12 @@ export class AddAnnouncement {
     constructor() {
         this.name = "AddAnnouncement";
         this.description = "Adds a new announcement";
-        this.agentConfigs = {
-            description: "Adds a new announcement to the current space, a title and text are needed",
-            parameters: [
-                { name: "title", type: "string", description: "The title of the announcement.", optional: false },
-                { name: "text", type: "string", description: "The text content of the announcement.", optional: false }
-            ]
-        };
+        this.description = "Adds a new announcement to the current space, a title and text are needed"
+        this.parameters = [
+            { name: "title", type: "string", description: "The title of the announcement.", optional: false },
+            { name: "text", type: "string", description: "The text content of the announcement.", optional: false }
+        ]
+
     }
 
     async start(title, text) {

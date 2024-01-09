@@ -30,14 +30,6 @@ async function loadDefaultPersonalities(request, response) {
     let data = await getDefaultItems(filePath);
     sendResponse(response, 200, "text/html", JSON.stringify(data));
 }
-function getFlowName(fileName, separator = "#") {
-    if (typeof fileName !== 'string') {
-        throw new Error('fileName must be a string');
-    }
-    const separatorIndex = fileName.indexOf(separator);
-
-    return fileName.substring(0, separatorIndex);
-}
 async function loadObjects(filePath){
     let localData = "";
     const files = await fsPromises.readdir(filePath);
@@ -65,8 +57,45 @@ async function loadFlows(request, response){
     let flows = await loadObjects(filePath);
     return sendResponse(response, 200, "application/javascript", flows);
 }
+async function storeFlow(request, response){
+    const filePath = `../apihub-root/spaces/${request.params.spaceId}/flows/${request.params.objectName}.js`;
+    if(request.body.toString() === "") {
+        await fsPromises.unlink(filePath);
+        sendResponse(response, 200, "text/html", `Deleted successfully ${request.params.objectName}`);
+        return;
+    }
+    let data = request.body.toString();
+    try {
+        await fsPromises.writeFile(filePath, data, 'utf8');
+    } catch(error) {
+        return sendResponse(response, 500, "text/html", error+ ` Error at writing file: ${filePath}`);
+    }
+    return sendResponse(response, 200, "text/html", `Success, ${request.body.toString()}`);
+}
+async function storeFlows(request, response){
+    const filePath = `../apihub-root/spaces/${request.params.spaceId}/flows`;
+    try{
+        await fsPromises.access(filePath);
+    }catch (e){
+        /* the error is that the folder doesn't exist, it needs to be created*/
+        await fsPromises.mkdir(filePath);
+    }
+
+    let flows = JSON.parse(request.body.toString());
+    for (const flow of flows) {
+        try {
+            await fsPromises.writeFile(filePath+`/${flow.name}.js`, flow.class, 'utf8');
+        }
+        catch (e){
+            return sendResponse(response, 500, "text/html", e);
+        }
+    }
+    return sendResponse(response, 200, "text/html", `Success, Write flows to space: ${request.params.spaceId}`);
+}
 module.exports = {
     loadDefaultFlows,
     loadDefaultPersonalities,
-    loadFlows
+    loadFlows,
+    storeFlow,
+    storeFlows
 }

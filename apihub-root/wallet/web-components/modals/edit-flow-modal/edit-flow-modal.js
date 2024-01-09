@@ -12,7 +12,7 @@ export class editFlowModal {
 
     beforeRender() {
       let flow = webSkel.currentUser.space.getFlow(this.element.getAttribute("data-id"));
-      this.flowContent = flow.content;
+      this.flowContent = flow.class.toString();
       this.flowName = flow.name;
     }
     afterRender(){

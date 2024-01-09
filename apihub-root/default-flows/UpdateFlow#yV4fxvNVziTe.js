@@ -8,6 +8,7 @@ export class UpdateFlow {
 
     async start(flowId, flowData, appId) {
         try {
+            flowData = "return " + flowData;
             await webSkel.currentUser.space.updateFlow(flowId, flowData, appId);
             this.return(flowId);
         } catch (e) {

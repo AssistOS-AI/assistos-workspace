@@ -51,9 +51,18 @@ export class Space {
     stringifySpace() {
         function replacer(key, value) {
             if (key === "observers") return undefined;
+            else if (key === "flows") return undefined;
             else return value;
         }
         return JSON.stringify(this, replacer,2);
+    }
+
+    stringifyFlows(){
+        let arr = [];
+        for(let flow of this.flows){
+            arr.push({name:flow.name+ "#" + flow.id, class: "export " + flow.class.toString()})
+        }
+        return JSON.stringify(arr);
     }
 
     observeChange(elementId, callback) {
@@ -210,9 +219,10 @@ export class Space {
     async updateFlow(flowId, content, appId) {
         let flow = this.getFlow(flowId);
         if(flow!==null) {
-            flow.content = content;
+            const classConstructor = new Function(content);
+            flow.class = classConstructor();
             if(!appId){
-                await storageManager.storeObject(webSkel.currentUser.space.id, "flows", flow.id,  JSON.stringify(flow,null,2));
+                await storageManager.storeFlow(webSkel.currentUser.space.id, flow.name+ "#" +flow.id, JSON.stringify(flow,null,2));
             }else {
                 let app = this.getApplication(appId);
                 await storageManager.storeAppObject(webSkel.currentUser.space.id, app.id, "flows", flowId,  JSON.stringify(flow,null,2));

@@ -1,9 +1,4 @@
-import {
-    sanitize,
-    SpaceFactory,
-    DocumentModel,
-    changeSelectedPageFromSidebar
-} from "../../imports.js";
+import * as dependencies from "../../imports.js";
 
 export class LlmsService {
     constructor() {
@@ -28,7 +23,7 @@ export class LlmsService {
     /*flowId, flowParams */
     async callFlow(...args){
         let flow =webSkel.currentUser.space.getFlow(args[0]);
-        let flowInstance = new flow.class();
+        let flowInstance = new flow.class(dependencies);
 
         const methodEntries = Object.getOwnPropertyNames(Object.getPrototypeOf(flowInstance))
             .filter(property => typeof flowInstance[property] === 'function' && property !== 'constructor')
@@ -36,6 +31,11 @@ export class LlmsService {
                 acc[methodName] = flowInstance[methodName];
                 return acc;
             }, {});
+        for(let entries of Object.entries(flowInstance)){
+            if(typeof entries[1] === 'function'){
+                methodEntries[entries[0]]=entries[1];
+            }
+        }
         //let flowCode = eval(flow.content);
         args.shift();
         webSkel.getService("FlowsService").registerFlow(flow.name, methodEntries);

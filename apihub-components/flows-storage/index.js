@@ -1,3 +1,5 @@
+const {loadFlows} = require("./controller");
+
 function bodyReaderMiddleware(req, res, next) {
     const data = [];
 
@@ -12,12 +14,14 @@ function bodyReaderMiddleware(req, res, next) {
 }
 
 function SpaceStorage(server){
-    const { loadDefaultFlows,loadDefaultPersonalities, loadFlows } = require("./controller");
+    const { loadDefaultFlows,loadDefaultPersonalities, loadFlows, storeFlow, storeFlows} = require("./controller");
     server.get("/flows/default", loadDefaultFlows);
     server.get("/flows/:spaceId", loadFlows);
     server.get("/personalities/default", loadDefaultPersonalities);
 
-    server.use("/spaces/*", bodyReaderMiddleware);
+    server.use("/flows/*", bodyReaderMiddleware);
+    server.put("/flows/:spaceId/:objectName", storeFlow);
+    server.put("/flows/:spaceId/store/flows", storeFlows);
 }
 
 module.exports = SpaceStorage;
