@@ -18,8 +18,7 @@ export class Space {
         this.settings = spaceData.settings ? new Settings(spaceData.settings) : {};
         this.announcements = (spaceData.announcements || []).map(announcementData => new Announcement(announcementData));
         this.users = (spaceData.users || []).map(userData => new User(userData));
-        this.flows = (spaceData.flows|| []).map(flowData => new Flow(flowData));
-
+        this.flows = [];
         this.documents = (spaceData.documents || []).map(documentData => new DocumentModel(documentData)).reverse();
         this.admins = [];
         this.pages = spaceData.pages || [];
@@ -38,12 +37,6 @@ export class Space {
             personalities: this.personalities.map(personality => personality.simplify()),
             announcements : this.announcements.map(announcement => announcement.simplify()),
         }
-    }
-    static getInstance(spaceData) {
-        if(!this.instance) {
-            this.instance = new Space(spaceData);
-        }
-        return this.instance;
     }
     getSpaceStatus() {
         return {
@@ -228,11 +221,16 @@ export class Space {
             console.error("Failed to update flow, flow not found.");
         }
     }
-
+    async loadFlows(){
+        let flows = await storageManager.loadFlows(this.id);
+        for (let [name, flowClass] of Object.entries(flows)) {
+            this.flows.push({name:name, class:flowClass, id:flowClass.id});
+        }
+    }
     async createDefaultFlows(){
-        let flows = JSON.parse(await storageManager.loadDefaultFlows());
-        for(let flow of flows){
-            this.flows.push(new Flow(flow));
+        let flows = await storageManager.loadDefaultFlows();
+        for (let [name, flowClass] of Object.entries(flows)) {
+            this.flows.push({name:name, class:flowClass, id:flowClass.id});
         }
     }
     async createDefaultPersonalities(){
