@@ -171,7 +171,6 @@ export class Space {
     }
     async addPage(pageData) {
         const page = new PageModel(pageData)
-        debugger
         pageData.id = page.id;
         this.pages.push(page);
         await storageManager.storeObject(webSkel.currentUser.space.id, "pages", page.id, JSON.stringify(pageData,null,2));

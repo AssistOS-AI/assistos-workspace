@@ -150,6 +150,7 @@ function saveCurrentState() {
     webSkel.setDomElementForPages(document.querySelector("#page-content"));
     window.storageManager = new StorageManager();
     window.documentFactory = new DocumentFactory();
+    webSkel.defaultApplicationId="SpaceConfiguration";
     await loadConfigs("./wallet/webskel-configs.json");
     await loadPage();
     defineActions();

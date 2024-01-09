@@ -41,7 +41,6 @@ export class AuthenticationService{
            }
            let spaceData;
            try {
-               debugger;
                /* Attempting to load the last space the user was logged on */
                //let spaceData = await storageManager.loadSpace(currentUser.currentSpaceId);
                webSkel.currentUser.space = await SpaceFactory.loadSpace(currentUser.currentSpaceId)

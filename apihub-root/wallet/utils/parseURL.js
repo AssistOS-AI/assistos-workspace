@@ -1,6 +1,5 @@
 export function parseURL(){
     let url = window.location.hash.split('/');
-    debugger;
     switch(url[2]) {
         case "personality": {
             return url[3];

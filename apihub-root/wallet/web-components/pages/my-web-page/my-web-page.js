@@ -10,7 +10,6 @@ export class myWebPage {
         this.myWebPageContainer = "";
         this.pageOptions = "";
         let selectedPageHtml = "";
-        debugger
         if (webSkel.currentUser.space.pages.length > 0) {
             webSkel.currentUser.space.pages.forEach((page) => {
                 this.myWebPageContainer += `<page-unit data-title="${page.title}"

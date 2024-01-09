@@ -27,7 +27,6 @@ export class SpaceFactory {
         let spacePath = "spaces/" + spaceId;
         let spaceJson = await storageManager.loadSpace(spaceId);
         let space = JSON.parse(spaceJson);
-        debugger;
         return new Space(space);
     }
 }

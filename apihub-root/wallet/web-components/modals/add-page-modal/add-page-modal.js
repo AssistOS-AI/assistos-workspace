@@ -50,7 +50,6 @@ export class addPageModal {
             </div>
         `;
 
-            debugger
             let flowId = webSkel.currentUser.space.getFlowIdByName("AddPage");
             await webSkel.getService("LlmsService").callFlow(flowId, pageData);
             webSkel.currentUser.space.notifyObservers(webSkel.currentUser.space.getNotificationId());
