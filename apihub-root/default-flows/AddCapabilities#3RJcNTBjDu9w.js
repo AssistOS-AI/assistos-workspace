@@ -1,9 +1,7 @@
 export class AddCapabilities {
     static id = "3RJcNTBjDu9w";
-
+    static description = "Adds capabilities to the agent, based on the applications that are installed in the system";
     constructor() {
-        this.name = "AddCapabilities";
-        this.description = "Adds capabilities to the agent, based on the applications that are installed in the system";
     }
 
     start(appId) {
@@ -13,10 +11,16 @@ export class AddCapabilities {
             // let agentFlows = application.flows.filter((flow) => flow.tags.includes("agents"));
 
             // If you want to filter flows globally across the space, use the line below
-            let agentFlows = webSkel.currentUser.space.flows.filter((flow) => flow.tags.includes("agents"));
+            let agentFlows = webSkel.currentUser.space.flows.filter((flow) =>{
+                if(flow.class.parameters){
+                    if( flow.class.parameters.length !== 0){
+                        return flow;
+                    }
+                }
+            });
 
-            let operations = agentFlows.filter((flow) => flow.agentConfigs).map((flow) => ({
-                description: flow.agentConfigs.description,
+            let operations = agentFlows.filter((flow) => flow.class.parameters).map((flow) => ({
+                description: flow.class.description,
             }));
 
             this.prompt = `Here is a list of tasks that a custom GPT assistant can perform in a software application: ${JSON.stringify(operations)}. For each of them, summarize their description in a minimum amount of words. Use uppercase for every first letter of a word. Your response should look like this: {"capabilities":["summary 1", "summary 2", ... , "summary n"]}`;

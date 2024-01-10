@@ -1,9 +1,8 @@
 export class DeleteSpace {
     static id = "DMVGGkSMPhvf";
-
+    static description = "Deletes a space";
     constructor() {
-        this.name = "DeleteSpace";
-        this.description = "Deletes a space";
+
     }
 
     async start(spaceId) {

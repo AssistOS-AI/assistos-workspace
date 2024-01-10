@@ -1,9 +1,8 @@
 export class DeletePersonality {
     static id = "55sNBWJu2rGP";
-
+    static description = "Deletes a personality";
     constructor() {
-        this.name = "DeletePersonality";
-        this.description = "Deletes a personality";
+
     }
 
     async start(personalityId) {

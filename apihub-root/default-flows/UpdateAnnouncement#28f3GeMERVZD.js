@@ -1,9 +1,8 @@
 export class UpdateAnnouncement {
     static id = "28f3GeMERVZD";
-
+    static description = "Updates an announcement";
     constructor() {
-        this.name = "UpdateAnnouncement";
-        this.description = "Updates an announcement";
+
     }
 
     async start(announcementId, text) {

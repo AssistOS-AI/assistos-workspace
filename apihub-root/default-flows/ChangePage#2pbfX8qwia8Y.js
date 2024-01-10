@@ -1,8 +1,8 @@
 export class ChangePage{
     static id = "2pbfX8qwia8Y";
+    static description = "Redirects you to a page";
     constructor() {
-        this.name = "ChangePage";
-        this.description = "Redirects you to a page";
+
     }
 
     async start (pageHtmlTagName, url, dataPresenterParams, skipHistoryState) {

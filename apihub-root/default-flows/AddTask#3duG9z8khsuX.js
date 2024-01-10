@@ -1,9 +1,8 @@
 export class AddTask {
     static id = "3duG9z8khsuX";
-
+    static description = "Adds a task for the agent";
     constructor() {
-        this.name = "AddTask";
-        this.description = "Adds a task for the agent";
+
     }
 
     async start(description, date) {

@@ -1,3 +1,5 @@
+import {Flow} from "../../imports.js";
+
 export class Application {
     constructor(applicationData) {
         this.id = applicationData.id;
@@ -11,7 +13,7 @@ export class Application {
     async loadFlows(){
         let flows = await storageManager.loadAppFlows(webSkel.currentUser.space.id, this.name);
         for (let [name, flowClass] of Object.entries(flows)) {
-            this.flows.push({name:name, class:flowClass, id:flowClass.id});
+            this.flows.push(new Flow(flowClass));
         }
     }
     stringifyApplication(){

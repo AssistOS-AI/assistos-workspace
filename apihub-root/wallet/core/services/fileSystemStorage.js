@@ -215,8 +215,9 @@ export class FileSystemStorage{
     }
     async storeAppFlow(spaceId, appName, objectId, jsData){
         let result;
+        objectId = encodeURIComponent(objectId);
         try {
-            result = await fetch(`/flows/${spaceId}/applications/${appName}/?id=${objectId}`,
+            result = await fetch(`/flows/${spaceId}/applications/${appName}/${objectId}`,
                 {
                     method: "PUT",
                     body: jsData,

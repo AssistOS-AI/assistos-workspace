@@ -1,9 +1,9 @@
-
 export class ChangeApplication {
     static id = "2vA3ZipyUcZC";
+    static description = "Changes the current application";
     constructor(dependencies) {
         this.name = "ChangeApplication";
-        this.description = "Changes the current application";
+
         const { changeSelectedPageFromSidebar } = dependencies;
         this.changeSelectedPageFromSidebar = changeSelectedPageFromSidebar;
     }

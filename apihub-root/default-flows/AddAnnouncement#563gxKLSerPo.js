@@ -1,14 +1,11 @@
 export class AddAnnouncement {
     static id = "563gxKLSerPo";
-
+    static description = "Adds a new announcement to the current space, a title and text are needed";
+    static parameters = [
+        { name: "title", type: "string", description: "The title of the announcement.", optional: false },
+        { name: "text", type: "string", description: "The text content of the announcement.", optional: false }
+    ];
     constructor() {
-        this.name = "AddAnnouncement";
-        this.description = "Adds a new announcement";
-        this.description = "Adds a new announcement to the current space, a title and text are needed"
-        this.parameters = [
-            { name: "title", type: "string", description: "The title of the announcement.", optional: false },
-            { name: "text", type: "string", description: "The text content of the announcement.", optional: false }
-        ]
 
     }
 

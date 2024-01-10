@@ -1,9 +1,8 @@
 export class Fallback {
     static id = "58DE2tz7wFH6";
+    static description = "Tries to come up with a satisfactory answer for the user";
 
     constructor() {
-        this.name = "Fallback";
-        this.description = "Tries to come up with a satisfactory answer for the user";
     }
 
     async start(userPrompt, spaceObjects) {

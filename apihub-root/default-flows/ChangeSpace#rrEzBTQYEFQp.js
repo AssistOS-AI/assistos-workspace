@@ -1,9 +1,8 @@
 export class ChangeSpace {
     static id = "rrEzBTQYEFQp";
-
+    static description = "Changes the current space";
     constructor() {
-        this.name = "ChangeSpace";
-        this.description = "Changes the current space";
+
     }
 
     async start(spaceId) {

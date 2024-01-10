@@ -1,9 +1,9 @@
 export class SummarizeAgentConversation {
     static id = "tyiQ6ynoswXM";
+    static description = "Summarizes the conversation by creating the main ideas of the three entities: user, assistant, and system.";
 
     constructor() {
-        this.name = "SummarizeAgentConversation";
-        this.description = "Summarizes the conversation by creating the main ideas of the three entities: user, assistant, and system.";
+
     }
 
     start() {

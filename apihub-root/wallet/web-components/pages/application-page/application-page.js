@@ -5,8 +5,8 @@ export class applicationPage {
         this.element=element;
         this.invalidate = invalidate;
         this.invalidate();
-        let id = webSkel.getService("UtilsService").parseURL();
-        this._app = webSkel.currentUser.space.getApplication(id);
+        let name = webSkel.getService("UtilsService").parseURL();
+        this._app = webSkel.currentUser.space.getApplicationByName(name);
     }
 
     beforeRender() {

@@ -1,9 +1,7 @@
 export class UpdatePersonality {
     static id = "2kvVZst5g3gt";
-
+    static description = "Updates information about a personality";
     constructor() {
-        this.name = "UpdatePersonality";
-        this.description = "Updates information about a personality";
     }
 
     async start(personalityData, personalityId) {

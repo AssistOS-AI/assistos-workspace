@@ -1,15 +1,16 @@
 export class UpdateFlow {
     static id = "yV4fxvNVziTe";
-
+    static description = "Updates a flow";
     constructor() {
-        this.name = "UpdateFlow";
-        this.description = "Updates a flow";
+
     }
 
     async start(flowId, flowData, appId) {
         try {
             flowData = "return " + flowData;
-            await webSkel.currentUser.space.updateFlow(flowId, flowData, appId);
+            const classConstructor = new Function(flowData);
+            const flowClass = classConstructor();
+            await webSkel.currentUser.space.updateFlow(flowId, flowClass, appId);
             this.return(flowId);
         } catch (e) {
             this.fail(e);

@@ -1,9 +1,8 @@
 export class CreateOpeners {
     static id = "5ZrtJwrj3ucd";
-
+    static description = "Creates openers for the agent based on its capabilities.";
     constructor() {
-        this.name = "CreateOpeners";
-        this.description = "Creates openers for the agent based on its capabilities.";
+
     }
 
     async start(capabilities, openersCount) {

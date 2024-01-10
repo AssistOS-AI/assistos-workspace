@@ -1,9 +1,8 @@
 export class FindObjectsByValue {
     static id = "4BAyyXzmfrRA";
-
+    static description = "Finds information in the system based on the values provided";
     constructor() {
-        this.name = "FindObjectsByValue";
-        this.description = "Finds information in the system based on the values provided";
+
     }
 
     async start(request) {

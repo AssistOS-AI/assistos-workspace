@@ -42,12 +42,17 @@ export class addFlowModal {
         // });
         this.flowCode = this.element.querySelector("#code");
         this.flowCode.addEventListener("keydown", this.insertSpacesOnTab);
-        this.flowCode.value = "class name {\n" +
+        this.flowCode.value = "class PascalCase {\n" +
             "\n" +
-            "static description = \"description\"; \n" +
-            "    constructor() {\n" +
+            `   static id = "${webSkel.getService("UtilsService").generateId()}" \n` +
+            "   static description = \"description\"; \n\n" +
+            "   constructor(dependencies) {\n" +
+            "       const { changeSelectedPageFromSidebar } = dependencies;\n" +
+            "       this.changeSelectedPageFromSidebar = changeSelectedPageFromSidebar;\n" +
+            "   }\n" +
+            "   start(){\n" +
             "\n" +
-            "    }\n" +
+            "   }\n" +
             "}"
     }
 

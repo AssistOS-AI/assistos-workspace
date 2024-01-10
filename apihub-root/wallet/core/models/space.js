@@ -111,9 +111,13 @@ export class Space {
             await app.loadFlows();
         }
     }
-    getApplication(name){
+    getApplication(id){
+        let app = this.installedApplications.find((app) => app.id === id);
+        return app || console.error(`installed app not found in space, id: ${id}`);
+    }
+    getApplicationByName(name){
         let app = this.installedApplications.find((app) => app.name === name);
-        return app || console.error(`installed app not found in space, name: ${name}`);
+        return app || console.error(`installed app not found in space, id: ${name}`);
     }
     getAllFlows(){
         let flows = [];
@@ -200,7 +204,7 @@ export class Space {
             let app = this.getApplication(appId);
             let fileName = this.getFlow(flowId).fileName;
             app.flows = app.flows.filter(flow => flow.class.id !== flowId);
-            await storageManager.storeAppFlow(webSkel.currentUser.space.id, app.id, fileName, "");
+            await storageManager.storeAppFlow(webSkel.currentUser.space.id, app.name, fileName, "");
         }
 
     }
@@ -226,7 +230,7 @@ export class Space {
                 await storageManager.storeFlow(webSkel.currentUser.space.id, flow.fileName, flow.stringifyClass());
             }else {
                 let app = this.getApplication(appId);
-                await storageManager.storeAppFlow(webSkel.currentUser.space.id, app.id, flow.fileName,  flow.stringifyClass());
+                await storageManager.storeAppFlow(webSkel.currentUser.space.id, app.name, flow.fileName,  flow.stringifyClass());
             }
         }else{
             console.error("Failed to update flow, flow not found.");

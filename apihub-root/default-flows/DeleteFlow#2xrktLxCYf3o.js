@@ -1,9 +1,8 @@
 export class DeleteFlow {
     static id = "2xrktLxCYf3o";
-
+    static description = "Deletes a flow";
     constructor() {
-        this.name = "DeleteFlow";
-        this.description = "Deletes a flow";
+
     }
 
     async start(flowId, appId) {

@@ -1,9 +1,8 @@
 export class DeleteAnnouncement {
     static id = "7rppGd6eFR7b";
-
+    static description = "Deletes an announcement";
     constructor() {
-        this.name = "DeleteAnnouncement";
-        this.description = "Deletes an announcement";
+
     }
 
     async start(announcementId) {
