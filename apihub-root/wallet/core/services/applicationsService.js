@@ -51,7 +51,7 @@ export class ApplicationsService {
             await this.initialiseApplication(applicationId);
         }
         try {
-            webSkel.initialisedApplications[applicationId].manager.navigateToLocation(applicationLocation);
+            await webSkel.initialisedApplications[applicationId].manager.navigateToLocation(applicationLocation);
         } catch (e) {
             console.error(`Encountered an Issue trying to navigate to ${applicationLocation} .Navigating to application entry point`);
             await webSkel.changeToDynamicPage(webSkel.initialisedApplications[applicationId].entryPointComponent,
