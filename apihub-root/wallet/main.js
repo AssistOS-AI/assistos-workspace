@@ -31,9 +31,12 @@ async function loadPage() {
                 if (splitUrl[1]) {
                     /* appName, applicationLocation that will get passed to the application itself to be handled */
                     await webSkel.getService("ApplicationsService").startApplication(splitUrl[1], splitUrl.slice(2));
+                    changeSelectedPageFromSidebar(window.location.hash);
                 }else{
                     document.querySelector("#page-content").insertAdjacentHTML("beforebegin", `<left-sidebar data-presenter="left-sidebar" ></left-sidebar>`);
                     await webSkel.changeToDynamicPage("agent-page", `${webSkel.currentUser.space.id}/agent-page`);
+                    changeSelectedPageFromSidebar(window.location.hash);
+
                 }
             }
         }
@@ -46,6 +49,8 @@ async function loadPage() {
             history.replaceState({agent, relativeUrlContent: content}, url, url);
             window.location.replace("#space/agent-page");*/
             await webSkel.changeToDynamicPage("agent-page", `${webSkel.currentUser.space.id}/SpaceConfiguration/agent-page`);
+            changeSelectedPageFromSidebar(window.location.hash);
+
         }
     }
 }
@@ -59,15 +64,12 @@ export function changeSelectedPageFromSidebar(url) {
             path.setAttribute("fill", "white");
         });
     }
-    let divs = document.querySelectorAll('div[data-local-action]');
-    let targetAction = url;
-    if (targetAction.startsWith("#")) {
-        targetAction = url.slice(1);
-    }
+    let divs = document.querySelectorAll('.feature');
     divs.forEach(div => {
         let dataAction = div.getAttribute('data-local-action');
-        if (dataAction.includes(targetAction)) {
-            console.log(`Element with data-action '${targetAction}' found.`);
+        let page=dataAction.split(" ")[1];
+        if (url.includes(page)) {
+            console.log(`Element with data-action '${page}' found.`);
             div.setAttribute('id', 'selected-page');
             let paths = div.querySelectorAll("path");
             paths.forEach((path) => {

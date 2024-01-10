@@ -21,7 +21,6 @@ export class ApplicationsService {
             let ManagerModule = await storageManager.loadManager(webSkel.currentUser.space.id, applicationId, webSkel.initialisedApplications[applicationId].manager.path)
             webSkel.initialisedApplications[applicationId].manager = new ManagerModule[webSkel.initialisedApplications[applicationId].manager.name];
         }
-
         for (const component of webSkel.initialisedApplications[applicationId].components) {
             let componentHTML = await (await storageManager.getApplicationFile(webSkel.currentUser.space.id, applicationId, component.componentPath)).text();
             const cssPaths = await Promise.all(
@@ -36,10 +35,6 @@ export class ApplicationsService {
             const PresenterModule = await storageManager.loadPresenter(webSkel.currentUser.space.id, applicationId, presenter.presenterPath);
             webSkel.registerPresenter(presenter.forComponent, PresenterModule[presenter.presenterName]);
         }
-        /*  for(const service of webSkel.initialisedApplications[applicationId].services){
-              const ServiceModule=await storageManager.loadService(webSkel.currentUser.space.id,applicationId,service.servicePath);
-              webSkel.registerApplicationService(applicationId,service.serviceName,ServiceModule[service.serviceName]);
-          }*/
     }
 
     async startApplication(applicationId, applicationLocation) {
