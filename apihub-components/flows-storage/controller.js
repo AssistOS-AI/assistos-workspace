@@ -1,6 +1,5 @@
 const fsPromises = require('fs').promises;
 const path = require('path');
-
 function sendResponse(response, statusCode, contentType, message) {
     response.statusCode = statusCode;
     response.setHeader("Content-Type", contentType);
@@ -58,10 +57,11 @@ async function loadFlows(request, response){
     return sendResponse(response, 200, "application/javascript", flows);
 }
 async function storeFlow(request, response){
-    const filePath = `../apihub-root/spaces/${request.params.spaceId}/flows/${request.params.objectName}.js`;
+    let objectId = decodeURIComponent(request.params.objectId);
+    const filePath = `../apihub-root/spaces/${request.params.spaceId}/flows/${objectId}.js`;
     if(request.body.toString() === "") {
         await fsPromises.unlink(filePath);
-        sendResponse(response, 200, "text/html", `Deleted successfully ${request.params.objectName}`);
+        sendResponse(response, 200, "text/html", `Deleted successfully ${objectId}`);
         return;
     }
     let data = request.body.toString();
@@ -70,7 +70,7 @@ async function storeFlow(request, response){
     } catch(error) {
         return sendResponse(response, 500, "text/html", error+ ` Error at writing file: ${filePath}`);
     }
-    return sendResponse(response, 200, "text/html", `Success, ${request.body.toString()}`);
+    return sendResponse(response, 200, "text/html", `Success, write ${objectId}`);
 }
 async function storeFlows(request, response){
     const filePath = `../apihub-root/spaces/${request.params.spaceId}/flows`;
@@ -92,10 +92,32 @@ async function storeFlows(request, response){
     }
     return sendResponse(response, 200, "text/html", `Success, Write flows to space: ${request.params.spaceId}`);
 }
+async function storeAppFlow(request, response){
+    const filePath = `../apihub-root/spaces/${request.params.spaceId}/applications/${request.params.applicationId}/flows/${request.params.objectId}`;
+    if(request.body.toString() === "") {
+        await fsPromises.unlink(filePath);
+        sendResponse(response, 200, "text/html", `Deleted successfully ${request.params.objectId}`);
+        return;
+    }
+    let data = request.body.toString();
+    try {
+        await fsPromises.writeFile(filePath, data, 'utf8');
+    } catch(error) {
+        return sendResponse(response, 500, "text/html", error+ ` Error at writing file: ${filePath}`);
+    }
+    return sendResponse(response, 200, "text/html", `Success, write ${request.params.objectId}`);
+}
+async function loadAppFlows(request, response){
+    const filePath = `../apihub-root/spaces/${request.params.spaceId}/applications/${request.params.applicationId}/flows`;
+    let flows = await loadObjects(filePath);
+    return sendResponse(response, 200, "application/javascript", flows);
+}
 module.exports = {
     loadDefaultFlows,
     loadDefaultPersonalities,
     loadFlows,
     storeFlow,
-    storeFlows
+    storeFlows,
+    storeAppFlow,
+    loadAppFlows
 }

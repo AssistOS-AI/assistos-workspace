@@ -89,8 +89,11 @@ export class StorageManager {
  /*   async loadService(spaceId, appId, serviceName) {
         return await this.currentService.loadService(spaceId,appId,serviceName);
     }*/
-    async loadObjects(spaceId, appName, objectType){
-        return await this.currentService.loadObjects(spaceId, appName, objectType);
+    async loadAppFlows(spaceId, appName){
+        return await this.currentService.loadAppFlows(spaceId, appName);
+    }
+    async storeAppFlow(spaceId, appName, objectId, jsData){
+        return await this.currentService.storeAppFlow(spaceId, appName, objectId, jsData)
     }
     async storeAppObject(spaceId, appName, objectType, objectId, stringData){
         return await this.currentService.storeAppObject(spaceId, appName, objectType, objectId, stringData);

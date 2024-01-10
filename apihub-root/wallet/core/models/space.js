@@ -60,7 +60,7 @@ export class Space {
     stringifyFlows(){
         let arr = [];
         for(let flow of this.flows){
-            arr.push({name:flow.name+ "#" + flow.id, class: "export " + flow.class.toString()})
+            arr.push({name:flow.name+ "#" + flow.id, class: flow.stringifyClass()})
         }
         return JSON.stringify(arr);
     }
@@ -181,10 +181,10 @@ export class Space {
         this.pages = this.pages.filter(page => page.id !== pageId);
         await storageManager.storeObject(webSkel.currentUser.space.id, "pages", pageId, "");
     }
-    async addFlow(flowData) {
-        let flowObject= new Flow(flowData);
+    async addFlow(flowClass) {
+        let flowObject= new Flow(flowClass);
         this.flows.push(flowObject);
-        await storageManager.storeObject(webSkel.currentUser.space.id, "flows", flowObject.id, JSON.stringify(flowObject,null,2));
+        await storageManager.storeFlow(webSkel.currentUser.space.id, flowObject.fileName, flowObject.stringifyClass());
     }
 
     async deleteAnnouncement(announcementId) {
@@ -193,12 +193,14 @@ export class Space {
     }
     async deleteFlow(flowId, appId) {
         if(!appId){
+            let fileName = this.getFlow(flowId).fileName;
             this.flows = this.flows.filter(flow => flow.id !== flowId);
-            await storageManager.storeObject(webSkel.currentUser.space.id, "flows", flowId, "");
+            await storageManager.storeFlow(webSkel.currentUser.space.id, fileName, "");
         }else {
             let app = this.getApplication(appId);
+            let fileName = this.getFlow(flowId).fileName;
             app.flows = app.flows.filter(flow => flow.id !== flowId);
-            await storageManager.storeAppObject(webSkel.currentUser.space.id, app.id, "flows", flowId, "");
+            await storageManager.storeAppFlow(webSkel.currentUser.space.id, app.id, fileName, "");
         }
 
     }
@@ -216,16 +218,15 @@ export class Space {
             console.error("Failed to update announcement, announcement not found.");
         }
     }
-    async updateFlow(flowId, content, appId) {
+    async updateFlow(flowId, flowClass, appId) {
         let flow = this.getFlow(flowId);
         if(flow!==null) {
-            const classConstructor = new Function(content);
-            flow.class = classConstructor();
+            flow.class = flowClass;
             if(!appId){
-                await storageManager.storeFlow(webSkel.currentUser.space.id, flow.name+ "#" +flow.id, JSON.stringify(flow,null,2));
+                await storageManager.storeFlow(webSkel.currentUser.space.id, flow.fileName, flow.stringifyClass());
             }else {
                 let app = this.getApplication(appId);
-                await storageManager.storeAppObject(webSkel.currentUser.space.id, app.id, "flows", flowId,  JSON.stringify(flow,null,2));
+                await storageManager.storeAppFlow(webSkel.currentUser.space.id, app.id, flow.fileName,  flow.stringifyClass());
             }
         }else{
             console.error("Failed to update flow, flow not found.");
@@ -234,13 +235,13 @@ export class Space {
     async loadFlows(){
         let flows = await storageManager.loadFlows(this.id);
         for (let [name, flowClass] of Object.entries(flows)) {
-            this.flows.push({name:name, class:flowClass, id:flowClass.id});
+            this.flows.push(new Flow(flowClass));
         }
     }
     async createDefaultFlows(){
         let flows = await storageManager.loadDefaultFlows();
         for (let [name, flowClass] of Object.entries(flows)) {
-            this.flows.push({name:name, class:flowClass, id:flowClass.id});
+            this.flows.push(new Flow(flowClass));
         }
     }
     async createDefaultPersonalities(){

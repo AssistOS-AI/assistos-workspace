@@ -257,10 +257,7 @@ async function loadApplicationComponents(request, response) {
 
         const filePath = `../apihub-root/spaces/${spaceId}/applications/${applicationName}/${componentPath}`;
         console.log("File Path:", filePath);
-        if(componentPath === "flows"){
-            let flows = await loadObjects(filePath);
-            return sendResponse(response, 200, "application/javascript", flows);
-        }
+
         // Security check TBD: Ensure that filePath is still within the intended directory and user has access to it
 
         const fileContent = await fsPromises.readFile(filePath, 'utf8');

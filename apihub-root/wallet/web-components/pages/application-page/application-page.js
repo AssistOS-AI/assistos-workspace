@@ -14,10 +14,10 @@ export class applicationPage {
         this.appFlows = "";
         if (this._app.flows.length > 0) {
             this._app.flows.sort(function(a, b) {
-                return a.name.toLowerCase().localeCompare(b.name.toLowerCase());
+                return a.class.name.toLowerCase().localeCompare(b.class.name.toLowerCase());
             });
             this._app.flows.forEach((item) => {
-                this.appFlows += `<flow-unit data-id="${item.id}" data-name="${item.name}" data-description="${item.description}" data-local-action="editAction"></flow-unit>`;
+                this.appFlows += `<flow-unit data-id="${item.class.id}" data-name="${item.class.name}" data-description="${item.class.description}" data-local-action="editAction"></flow-unit>`;
             });
         } else {
             this.appFlows = `<div class="no-data-loaded">No data loaded</div>`;

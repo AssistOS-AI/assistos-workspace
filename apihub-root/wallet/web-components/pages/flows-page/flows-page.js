@@ -17,13 +17,13 @@ export class flowsPage {
     beforeRender() {
         this.tableRows = "";
         /* TO BE REMOVED, ADDED FOR EASY FLOWS DEBUGGING */
-        this.filteredFlows=webSkel.currentUser.space.getAllFlows();
+        this.filteredFlows=webSkel.currentUser.space.flows;
         if (this.filteredFlows.length > 0) {
             this.filteredFlows.sort(function(a, b) {
-                return a.name.toLowerCase().localeCompare(b.name.toLowerCase());
+                return a.class.name.toLowerCase().localeCompare(b.class.name.toLowerCase());
             });
             this.filteredFlows.forEach((item) => {
-                this.tableRows += `<flow-unit data-id="${item.id}" data-name="${item.name}" data-description="${item.description}" data-local-action="editAction"></flow-unit>`;
+                this.tableRows += `<flow-unit data-id="${item.class.id}" data-name="${item.class.name}" data-description="${item.class.description}" data-local-action="editAction"></flow-unit>`;
             });
         } else {
             this.tableRows = `<div class="no-data-loaded">No data loaded</div>`;

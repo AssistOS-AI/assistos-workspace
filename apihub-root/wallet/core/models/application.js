@@ -9,7 +9,7 @@ export class Application {
     }
 
     async loadFlows(){
-        let flows = await storageManager.loadObjects(webSkel.currentUser.space.id, this.name, "flows");
+        let flows = await storageManager.loadAppFlows(webSkel.currentUser.space.id, this.name);
         for (let [name, flowClass] of Object.entries(flows)) {
             this.flows.push({name:name, class:flowClass, id:flowClass.id});
         }

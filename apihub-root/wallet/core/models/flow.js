@@ -1,9 +1,13 @@
 export class Flow{
-    constructor(flowData) {
-        this.name = flowData.name;
-        this.class = flowData.class;
-        this.id = flowData.id || webSkel.getService("UtilsService").generateId();
-        this.description = flowData.description;
-        this.parameters = flowData.parameters;
+    constructor(flowClass) {
+        this.class = flowClass;
+        if(!flowClass.id){
+            flowClass.id = webSkel.getService("UtilsService").generateId();
+        }
+        this.fileName = flowClass.name + "#" + flowClass.id;
+    }
+
+    stringifyClass(){
+        return "export " + this.class.toString();
     }
 }

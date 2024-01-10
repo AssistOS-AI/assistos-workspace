@@ -89,10 +89,11 @@ export class FileSystemStorage{
         }
         return result;
     }
-    async storeFlow(spaceId, objectName, jsData){
+    async storeFlow(spaceId, objectId, jsData){
         let result;
+        objectId = encodeURIComponent(objectId);
         try {
-            result = await fetch(`/flows/${spaceId}/${objectName}`,
+            result = await fetch(`/flows/${spaceId}/${objectId}`,
                 {
                     method: "PUT",
                     body: jsData,
@@ -203,14 +204,30 @@ export class FileSystemStorage{
    /* async loadService(spaceId, appId, servicePath){
         return await import(`/app/${webSkel.currentUser.space.id}/applications/${appId}/${servicePath}`);
     }*/
-    async loadObjects(spaceId, appName, objectType){
+    async loadAppFlows(spaceId, appName){
         let result;
         try {
-            result = await import(`/app/${spaceId}/applications/${appName}/${objectType}`);
+            result = await import(`/flows/${spaceId}/applications/${appName}`);
         } catch (err) {
             console.error(err);
         }
         return  result;
+    }
+    async storeAppFlow(spaceId, appName, objectId, jsData){
+        let result;
+        try {
+            result = await fetch(`/flows/${spaceId}/applications/${appName}/?id=${objectId}`,
+                {
+                    method: "PUT",
+                    body: jsData,
+                    headers: {
+                        "Content-type": "application/json; charset=UTF-8"
+                    }
+                });
+        } catch (err) {
+            console.error(err);
+        }
+        return await result.text();
     }
     async storeAppObject(spaceId, appName, objectType, objectId, stringData){
         let result;

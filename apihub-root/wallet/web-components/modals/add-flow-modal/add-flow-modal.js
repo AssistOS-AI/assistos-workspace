@@ -42,6 +42,15 @@ export class addFlowModal {
         });
         this.flowCode = this.element.querySelector("#code");
         this.flowCode.addEventListener("keydown", this.insertSpacesOnTab);
+        this.flowCode.value = "class name {\n" +
+            "    static id = \"unique id\";\n" +
+            "\n" +
+            "    constructor() {\n" +
+            "        this.name = \"name\";\n" +
+            "        this.description = \"description\";\n" +
+            "\n" +
+            "    }\n" +
+            "}"
     }
 
     insertSpacesOnTab(event){
