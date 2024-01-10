@@ -60,7 +60,7 @@ export class Space {
     stringifyFlows(){
         let arr = [];
         for(let flow of this.flows){
-            arr.push({name:flow.name+ "#" + flow.id, class: flow.stringifyClass()})
+            arr.push({name:flow.class.name+ "#" + flow.class.id, class: flow.stringifyClass()})
         }
         return JSON.stringify(arr);
     }
