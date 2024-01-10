@@ -16,7 +16,6 @@ export class flowsPage {
     }
     beforeRender() {
         this.tableRows = "";
-        /* TO BE REMOVED, ADDED FOR EASY FLOWS DEBUGGING */
         this.filteredFlows=webSkel.currentUser.space.flows;
         if (this.filteredFlows.length > 0) {
             this.filteredFlows.sort(function(a, b) {

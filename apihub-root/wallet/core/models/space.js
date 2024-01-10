@@ -123,19 +123,19 @@ export class Space {
         flows = flows.concat(this.flows);
         //removes duplicates by id
         flows = flows.filter((element, index, self) => {
-            return index === self.findIndex(e => e.id === element.id);
+            return index === self.findIndex(e => e.class.id === element.class.id);
         });
         return flows;
     }
     getFlow(flowId) {
         let flows = this.getAllFlows();
-        let flow = flows.find((flow) => flow.id === flowId);
+        let flow = flows.find((flow) => flow.class.id === flowId);
         return flow || console.error(`Flow not found in space, flowId: ${flowId}`);
     }
     getFlowIdByName(name){
         let flows = this.getAllFlows();
-        let flow = flows.find((flow) => flow.name === name);
-        return flow.id || console.error(`Flow not found in space, flow name: ${name}`);
+        let flow = flows.find((flow) => flow.class.name === name);
+        return flow.class.id || console.error(`Flow not found in space, flow name: ${name}`);
     }
     getDefaultAgent(){
         return this.agent;
