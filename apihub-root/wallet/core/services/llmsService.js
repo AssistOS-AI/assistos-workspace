@@ -22,7 +22,7 @@ export class LlmsService {
     }
     /*flowId, flowParams */
     async callFlow(...args){
-        let flow =webSkel.currentUser.space.getFlow(args[0]);
+        let flow = webSkel.currentUser.space.getFlow(args[0]);
         let flowInstance = new flow.class(dependencies);
 
         const methodEntries = Object.getOwnPropertyNames(Object.getPrototypeOf(flowInstance))

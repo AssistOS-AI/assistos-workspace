@@ -58,9 +58,6 @@ add-flow-modal{
     display: flex;
     flex-direction: column;
 }
-#name{
-    width: 50%;
-}
 .form-input {
     border-radius: 8px;
     border: 0.5px solid var(--lighter-black);;

@@ -194,12 +194,12 @@ export class Space {
     async deleteFlow(flowId, appId) {
         if(!appId){
             let fileName = this.getFlow(flowId).fileName;
-            this.flows = this.flows.filter(flow => flow.id !== flowId);
+            this.flows = this.flows.filter(flow => flow.class.id !== flowId);
             await storageManager.storeFlow(webSkel.currentUser.space.id, fileName, "");
         }else {
             let app = this.getApplication(appId);
             let fileName = this.getFlow(flowId).fileName;
-            app.flows = app.flows.filter(flow => flow.id !== flowId);
+            app.flows = app.flows.filter(flow => flow.class.id !== flowId);
             await storageManager.storeAppFlow(webSkel.currentUser.space.id, app.id, fileName, "");
         }
 
