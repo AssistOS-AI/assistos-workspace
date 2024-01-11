@@ -6,13 +6,13 @@ export class AddSpace {
     ]
     constructor(dependencies) {
         const { SpaceFactory } = dependencies;
-        this.SpaceFactory = SpaceFactory;
+        this.createSpace = SpaceFactory.createSpace;
     }
 
     async start(name) {
         try {
             let spaceData = { name: name };
-            let newSpace = await this.SpaceFactory.createSpace(spaceData);
+            let newSpace = await this.createSpace(spaceData);
             await webSkel.getService("AuthenticationService").addSpaceToUser(webSkel.currentUser.id, newSpace);
             this.return(spaceData);
         } catch (e) {

@@ -257,6 +257,15 @@ export class Space {
     async createDefaultAgent(){
         this.agent=new Agent(JSON.parse(await storageManager.loadDefaultAgent()));
     }
+    createDefaultAnnouncement(spaceData) {
+        let defaultAnnouncement = {
+            id: webSkel.servicesRegistry.UtilsService.generateId(),
+            title: "Welcome to AIAuthor!",
+            text: `Space ${this.name} was successfully created. You can now add documents, users and settings to your space.`,
+            date: new Date().toISOString().split('T')[0]
+        };
+        this.announcements.push(new Announcement(defaultAnnouncement));
+    }
     async deleteApplication(name){
         this.installedApplications = this.installedApplications.filter(app => app.name !== name);
         await storageManager.storeObject(webSkel.currentUser.space.id, "status", "status", JSON.stringify(webSkel.currentUser.space.getSpaceStatus(),null,2));

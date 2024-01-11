@@ -31,10 +31,8 @@ export class StorageManager {
     }
 
     /* creating a new space */
-    async storeSpace(space) {
-       let response = await this.currentService.storeSpace(space.id, space.stringifySpace());
-       let response2 = await this.currentService.storeFlows(space.id, space.stringifyFlows());
-       return response + " " + response2;
+    async storeSpace(spaceId, jsonData) {
+       return await this.currentService.storeSpace(spaceId, jsonData);
     }
 
     async listObjects(spaceId, objectType) {
@@ -89,6 +87,9 @@ export class StorageManager {
  /*   async loadService(spaceId, appId, serviceName) {
         return await this.currentService.loadService(spaceId,appId,serviceName);
     }*/
+    async storeFlows(spaceId, flows){
+        return await this.currentService.storeFlows(spaceId, flows);
+    }
     async loadAppFlows(spaceId, appName){
         return await this.currentService.loadAppFlows(spaceId, appName);
     }

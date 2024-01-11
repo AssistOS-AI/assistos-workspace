@@ -60,6 +60,7 @@ export class Agent{
         this.conversationHistory = [];
         this.wordCount = 0;
         this.context= [];
+        this.capabilities = [];
         await storageManager.storeObject(webSkel.currentUser.space.id, "status", "status", JSON.stringify(webSkel.currentUser.space.getSpaceStatus(),null,2));
     }
 

@@ -4,14 +4,10 @@ export class AddCapabilities {
     constructor() {
     }
 
-    start(appId) {
+    start() {
         try {
-            // Uncomment the following lines if you want to filter flows by application
-            // let application = webSkel.currentUser.space.getApplication(appId);
-            // let agentFlows = application.flows.filter((flow) => flow.tags.includes("agents"));
-
-            // If you want to filter flows globally across the space, use the line below
-            let agentFlows = webSkel.currentUser.space.flows.filter((flow) =>{
+            let flows = webSkel.currentUser.space.getAllFlows();
+            let agentFlows = flows.filter((flow) =>{
                 if(flow.class.parameters){
                     if( flow.class.parameters.length !== 0){
                         return flow;

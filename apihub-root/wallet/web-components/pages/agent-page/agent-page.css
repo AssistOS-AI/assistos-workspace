@@ -27,7 +27,6 @@ agent-page{
     height: 88%;
 }
 .chat-log{
-    height: 89%;
     position: relative;
 }
 .page-container::before {
