@@ -2,7 +2,7 @@ import {
     WebSkel,
     closeModal,
     StorageManager,
-    DocumentFactory, getClosestParentElement
+    DocumentFactory,
 } from "./imports.js";
 
 window.webSkel = new WebSkel();
@@ -66,7 +66,6 @@ export function changeSelectedPageFromSidebar(url) {
         let dataAction = div.getAttribute('data-local-action');
         let page=dataAction.split(" ")[1];
         if (url.includes(page)) {
-            console.log(`Element with data-action '${page}' found.`);
             div.setAttribute('id', 'selected-page');
             let paths = div.querySelectorAll("path");
             paths.forEach((path) => {
