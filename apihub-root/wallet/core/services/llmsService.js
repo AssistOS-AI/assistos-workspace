@@ -43,7 +43,7 @@ export class LlmsService {
         try{
             response = await webSkel.getService("FlowsService").runFlow(flow.class.name, ...args);
         }catch (e){
-            await showApplicationError("Flow execution Error", `Encountered an error while attempting to execute the script ${flow.name}`, e);
+            await showApplicationError("Flow execution Error", `Encountered an error while attempting to execute the flow ${flow.class.name}`, e);
         }
         try{
             let responseJson = JSON.parse(response);
