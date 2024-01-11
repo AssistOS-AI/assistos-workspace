@@ -42,7 +42,7 @@ export class ApplicationsService {
             document.querySelector("#page-content").insertAdjacentHTML("beforebegin", `<left-sidebar data-presenter="left-sidebar" ></left-sidebar>`);
         }
         if (applicationId === webSkel.defaultApplicationId) {
-            let appLocation = applicationLocation || "agent-page";
+            let appLocation = applicationLocation || ["agent-page"];
             const presenter = appLocation[appLocation.length - 1]
             await webSkel.changeToDynamicPage(`${presenter}`, `${webSkel.currentUser.space.id}/SpaceConfiguration/${appLocation.join('/')}`)
             return;

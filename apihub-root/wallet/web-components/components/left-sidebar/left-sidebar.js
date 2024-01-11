@@ -62,6 +62,7 @@ export class leftSidebar {
 
         updateClock();
         setInterval(updateClock, 10000);
+        changeSelectedPageFromSidebar(window.location.hash);
     }
 
     async changePage(_target, pageId, applicationId, refreshFlag = '0') {

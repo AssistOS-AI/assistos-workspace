@@ -17,7 +17,6 @@ async function loadPage() {
 
     let splitUrl = window.location.hash.slice(1).split('/');
     let spaceId = splitUrl[0];
-
     let pagePlaceholder = document.querySelector("#page-placeholder");
     if (pagePlaceholder) {
         pagePlaceholder.style.display = "none";
@@ -27,15 +26,14 @@ async function loadPage() {
             leftSidebarPlaceholder.style.display = "none";
             await webSkel.changeToDynamicPage(spaceId, spaceId);
         } else {
-            if(await webSkel.getService("AuthenticationService").initUser(spaceId)) {
+            let authenticationResult=await webSkel.getService("AuthenticationService").initUser(spaceId);
+            if(authenticationResult === true) {
                 if (splitUrl[1]) {
                     /* appName, applicationLocation that will get passed to the application itself to be handled */
                     await webSkel.getService("ApplicationsService").startApplication(splitUrl[1], splitUrl.slice(2));
-                    changeSelectedPageFromSidebar(window.location.hash);
                 }else{
                     document.querySelector("#page-content").insertAdjacentHTML("beforebegin", `<left-sidebar data-presenter="left-sidebar" ></left-sidebar>`);
                     await webSkel.changeToDynamicPage("agent-page", `${webSkel.currentUser.space.id}/agent-page`);
-                    changeSelectedPageFromSidebar(window.location.hash);
 
                 }
             }
@@ -49,7 +47,6 @@ async function loadPage() {
             history.replaceState({agent, relativeUrlContent: content}, url, url);
             window.location.replace("#space/agent-page");*/
             await webSkel.changeToDynamicPage("agent-page", `${webSkel.currentUser.space.id}/SpaceConfiguration/agent-page`);
-            changeSelectedPageFromSidebar(window.location.hash);
 
         }
     }
