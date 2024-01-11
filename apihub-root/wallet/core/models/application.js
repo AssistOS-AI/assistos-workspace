@@ -17,10 +17,7 @@ export class Application {
         }
     }
     stringifyApplication(){
-        function replacer(key, value) {
-            if (key === "flows") return undefined;
-            else return value;
-        }
-        return JSON.stringify(this, replacer,2);
+        const { flows, ...data } = this;
+        return data;
     }
 }
