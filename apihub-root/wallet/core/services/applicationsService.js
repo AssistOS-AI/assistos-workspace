@@ -20,49 +20,50 @@ export class ApplicationsService {
         let completeURL=[baseURL,appLocation].join("/");
         await webSkel.changeToDynamicPage(webComponentPage,completeURL,presenterParams)
     }
-    async initialiseApplication(applicationId) {
-        webSkel.initialisedApplications[applicationId] = await storageManager.getApplicationConfigs(webSkel.currentUser.space.id, applicationId);
-        if (webSkel.initialisedApplications[applicationId].manager) {
-            let ManagerModule = await storageManager.loadManager(webSkel.currentUser.space.id, applicationId, webSkel.initialisedApplications[applicationId].manager.path)
-            webSkel.initialisedApplications[applicationId].manager = new ManagerModule[webSkel.initialisedApplications[applicationId].manager.name];
+    async initialiseApplication(appName) {
+        webSkel.initialisedApplications[appName] = await storageManager.getApplicationConfigs(webSkel.currentUser.space.id, appName);
+        if (webSkel.initialisedApplications[appName].manager) {
+            let ManagerModule = await storageManager.loadManager(webSkel.currentUser.space.id, appName, webSkel.initialisedApplications[appName].manager.path)
+            webSkel.initialisedApplications[appName].manager = new ManagerModule[webSkel.initialisedApplications[appName].manager.name](appName);
+            await webSkel.initialisedApplications[appName].manager.loadAppData?.();
         }
-        for (const component of webSkel.initialisedApplications[applicationId].components) {
-            let componentHTML = await (await storageManager.getApplicationFile(webSkel.currentUser.space.id, applicationId, component.componentPath)).text();
+        for (const component of webSkel.initialisedApplications[appName].components) {
+            let componentHTML = await (await storageManager.getApplicationFile(webSkel.currentUser.space.id, appName, component.componentPath)).text();
             const cssPaths = await Promise.all(
                 component.cssPaths.map(cssPath =>
-                    storageManager.getApplicationFile(webSkel.currentUser.space.id, applicationId, cssPath)
+                    storageManager.getApplicationFile(webSkel.currentUser.space.id, appName, cssPath)
                         .then(response => response.text())
                 )
             );
             await webSkel.defineComponent(component.componentName, componentHTML, cssPaths, true);
         }
-        for (const presenter of webSkel.initialisedApplications[applicationId].presenters) {
-            const PresenterModule = await storageManager.loadPresenter(webSkel.currentUser.space.id, applicationId, presenter.presenterPath);
+        for (const presenter of webSkel.initialisedApplications[appName].presenters) {
+            const PresenterModule = await storageManager.loadPresenter(webSkel.currentUser.space.id, appName, presenter.presenterPath);
             webSkel.registerPresenter(presenter.forComponent, PresenterModule[presenter.presenterName]);
         }
     }
 
-    async startApplication(applicationId, applicationLocation) {
+    async startApplication(appName, applicationLocation) {
         if (document.querySelector("left-sidebar") === null) {
             document.querySelector("#page-content").insertAdjacentHTML("beforebegin", `<left-sidebar data-presenter="left-sidebar" ></left-sidebar>`);
         }
-        if (applicationId === webSkel.defaultApplicationId) {
+        if (appName === webSkel.defaultApplicationName) {
             let appLocation = applicationLocation || ["agent-page"];
             const presenter = appLocation[appLocation.length - 1]
             await webSkel.changeToDynamicPage(`${presenter}`, `${webSkel.currentUser.space.id}/SpaceConfiguration/${appLocation.join('/')}`)
             return;
         }
-        if (!webSkel.initialisedApplications[applicationId]) {
-            await this.initialiseApplication(applicationId);
+        if (!webSkel.initialisedApplications[appName]) {
+            await this.initialiseApplication(appName);
         }
         try {
-            await webSkel.initialisedApplications[applicationId].manager.navigateToLocation(applicationLocation);
+            await webSkel.initialisedApplications[appName].manager.navigateToLocation(applicationLocation);
         } catch (e) {
             console.error(`Encountered an Issue trying to navigate to ${applicationLocation} .Navigating to application entry point`);
-            await webSkel.changeToDynamicPage(webSkel.initialisedApplications[applicationId].entryPointComponent,
-                `${webSkel.currentUser.space.id}/${applicationId}/${webSkel.initialisedApplications[applicationId].entryPointComponent}`);
+            await webSkel.changeToDynamicPage(webSkel.initialisedApplications[appName].entryPointComponent,
+                `${webSkel.currentUser.space.id}/${appName}/${webSkel.initialisedApplications[appName].entryPointComponent}`);
         }finally{
-            webSkel.currentApplicationName=applicationId;
+            webSkel.currentApplicationName=appName;
         }
     }
 }

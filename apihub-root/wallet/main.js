@@ -98,8 +98,10 @@ async function loadConfigs(jsonPath) {
                 storageManager.addStorageService(storageService.name, new StorageServiceModule[storageService.name]());
             }
         }
+        webSkel.applications = new Set();
+        webSkel.initialisedApplications = new Set();
         for (const application of config.applications) {
-            webSkel.applications.push(application);
+            webSkel.applications[application.name] = application;
         }
 
         for (const presenter of config.presenters) {
@@ -148,7 +150,7 @@ function saveCurrentState() {
     webSkel.setDomElementForPages(document.querySelector("#page-content"));
     window.storageManager = new StorageManager();
     window.documentFactory = new DocumentFactory();
-    webSkel.defaultApplicationId="SpaceConfiguration";
+    webSkel.defaultApplicationName="SpaceConfiguration";
     await loadConfigs("./wallet/webskel-configs.json");
     await loadPage();
     defineActions();

@@ -99,6 +99,9 @@ export class StorageManager {
     async storeAppObject(spaceId, appName, objectType, objectId, stringData){
         return await this.currentService.storeAppObject(spaceId, appName, objectType, objectId, stringData);
     }
+    async loadAppObjects(appName, objectType){
+        return await this.currentService.loadAppObjects(appName, objectType);
+    }
     async uninstallApplication(spaceId, appName) {
         return await this.currentService.uninstallApplication(spaceId, appName);
     }
