@@ -144,7 +144,7 @@ function saveCurrentState() {
 (async () => {
     await webSkel.defineComponent("general-loader", "./wallet/web-components/components/general-loader/general-loader.html");
     await webSkel.UtilsService.initialize();
-    const loading = await webSkel.showLoading(`<general-loader></general-loader>`);
+    //const loading = await webSkel.showLoading(`<general-loader></general-loader>`);
     webSkel.setDomElementForPages(document.querySelector("#page-content"));
     window.storageManager = new StorageManager();
     window.documentFactory = new DocumentFactory();
@@ -152,8 +152,8 @@ function saveCurrentState() {
     await loadConfigs("./wallet/webskel-configs.json");
     await loadPage();
     defineActions();
-    loading.close();
-    loading.remove();
+/*    loading.close();
+    loading.remove();*/
     window.addEventListener('popstate', handleHistory);
     window.addEventListener('beforeunload', saveCurrentState);
 })();
