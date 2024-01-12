@@ -155,10 +155,6 @@
       "path": "./core/services/llmsService.js"
     },
     {
-      "name": "FlowsService",
-      "path": "./core/services/flowsService.js"
-    },
-    {
       "name": "ApplicationsService",
       "path": "./core/services/applicationsService.js"
     }

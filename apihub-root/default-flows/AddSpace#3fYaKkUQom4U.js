@@ -4,15 +4,15 @@ export class AddSpace {
     static parameters = [
         { name: "name", type: "string", description: "The name of the space.", optional: false }
     ]
-    constructor(dependencies) {
-        const { SpaceFactory } = dependencies;
-        this.createSpace = SpaceFactory.createSpace;
+    static dependencies = ["SpaceFactory"];
+    constructor(SpaceFactory) {
+        this.iSpaceFactory = SpaceFactory;
     }
 
     async start(name) {
         try {
             let spaceData = { name: name };
-            let newSpace = await this.createSpace(spaceData);
+            let newSpace = await this.iSpaceFactory.createSpace(spaceData);
             await webSkel.getService("AuthenticationService").addSpaceToUser(webSkel.currentUser.id, newSpace);
             this.return(spaceData);
         } catch (e) {

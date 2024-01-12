@@ -1,10 +1,8 @@
 export class ChangeApplication {
     static id = "2vA3ZipyUcZC";
     static description = "Changes the current application";
-    constructor(dependencies) {
-        this.name = "ChangeApplication";
-
-        const { changeSelectedPageFromSidebar } = dependencies;
+    static dependencies = ["changeSelectedPageFromSidebar"]
+    constructor(changeSelectedPageFromSidebar) {
         this.changeSelectedPageFromSidebar = changeSelectedPageFromSidebar;
     }
     async start(pageId, refreshFlag) {

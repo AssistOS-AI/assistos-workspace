@@ -1,4 +1,5 @@
 import * as dependencies from "../../imports.js";
+import {FlowApis} from "../models/flowApis.js";
 
 export class LlmsService {
     constructor() {
@@ -23,33 +24,40 @@ export class LlmsService {
     /*flowId, flowParams */
     async callFlow(...args){
         let flow = webSkel.currentUser.space.getFlow(args[0]);
-        let flowInstance = new flow.class(dependencies);
-
-        const methodEntries = Object.getOwnPropertyNames(Object.getPrototypeOf(flowInstance))
-            .filter(property => typeof flowInstance[property] === 'function' && property !== 'constructor')
-            .reduce((acc, methodName) => {
-                acc[methodName] = flowInstance[methodName];
-                return acc;
-            }, {});
-        for(let entries of Object.entries(flowInstance)){
-            if(typeof entries[1] === 'function'){
-                methodEntries[entries[0]]=entries[1];
+        let usedDependencies = [];
+        if(flow.class.dependencies){
+            for(let functionName of flow.class.dependencies){
+                usedDependencies.push(dependencies[functionName]);
             }
         }
-        //let flowCode = eval(flow.content);
+        let flowInstance = new flow.class(...usedDependencies);
+
+        const apis = Object.getOwnPropertyNames(FlowApis.prototype)
+            .filter(method => method !== 'constructor');
+        apis.forEach(methodName => {
+            flowInstance[methodName] = FlowApis.prototype[methodName].bind(flowInstance);
+        });
+
         args.shift();
-        webSkel.getService("FlowsService").registerFlow(flow.class.name, methodEntries);
-        let response="";
-        try{
-            response = await webSkel.getService("FlowsService").runFlow(flow.class.name, ...args);
-        }catch (e){
-            await showApplicationError("Flow execution Error", `Encountered an error while attempting to execute the flow ${flow.class.name}`, e);
-        }
-        try{
-            let responseJson = JSON.parse(response);
-            return {responseString:null,responseJson:responseJson};
-        }catch(e){
-            return {responseString:response,responseJson:null};
+        if(flowInstance.start === undefined){
+            let message = `Flow ${flow.class.name} must have a function named 'start'`;
+            await showApplicationError(message, message, message);
+        } else {
+            let response;
+            try {
+                response = await flowInstance.run(...args);
+            }catch (e) {
+                return await showApplicationError("Flow execution Error", `Encountered an error while attempting to execute the flow ${flow.class.name}`, e);
+            }
+            if(!response){
+                return await showApplicationError("Flow execution Error", `flow ${flow.class.name} must have a return value!`,`flow ${flow.class.name} must have a return value!`);
+            }
+            try{
+                let responseJson = JSON.parse(response);
+                return {responseString:null,responseJson:responseJson};
+            }catch(e){
+                return {responseString:response,responseJson:null};
+            }
         }
     }
 }
