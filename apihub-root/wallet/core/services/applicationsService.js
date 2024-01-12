@@ -28,7 +28,7 @@ export class ApplicationsService {
         if (webSkel.initialisedApplications[appName].loader) {
             UILoader.spinner = await webSkel.showLoading(webSkel.initialisedApplications[appName].loader.tag);
         } else {
-            console.warn(`Application ${applicationId} does not have an UI loader`);
+            console.warn(`Application ${appName} does not have an UI loader`);
             UILoader.spinner = await webSkel.showLoading(`<general-loader></general-loader>`);
         }
         if (webSkel.initialisedApplications[appName].manager) {
