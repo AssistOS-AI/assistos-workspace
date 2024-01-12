@@ -186,7 +186,7 @@ export class FileSystemStorage{
     async getApplicationFile(spaceId, appId, filePath){
         let result;
         try {
-            result = await fetch(`/app/${webSkel.currentUser.space.id}/applications/${appId}/${filePath}`,
+            result = await fetch(`/app/${webSkel.currentUser.space.id}/applications/${appId}/file/${filePath}`,
                 {
                     method: "GET"
                 });
@@ -196,14 +196,11 @@ export class FileSystemStorage{
         return result;
     }
     async loadPresenter(spaceId, appId, presenterPath){
-        return await import(`/app/${webSkel.currentUser.space.id}/applications/${appId}/${presenterPath}`);
+        return await import(`/app/${webSkel.currentUser.space.id}/applications/${appId}/file/${presenterPath}`);
     }
     async loadManager(spaceId, appId, managerPath){
-        return await import(`/app/${webSkel.currentUser.space.id}/applications/${appId}/${managerPath}`);
+        return await import(`/app/${webSkel.currentUser.space.id}/applications/${appId}/file/${managerPath}`);
     }
-   /* async loadService(spaceId, appId, servicePath){
-        return await import(`/app/${webSkel.currentUser.space.id}/applications/${appId}/${servicePath}`);
-    }*/
     async loadAppFlows(spaceId, appName){
         let result;
         try {
@@ -240,6 +237,18 @@ export class FileSystemStorage{
                     headers: {
                         "Content-type": "application/json; charset=UTF-8"
                     }
+                });
+        } catch (err) {
+            console.error(err);
+        }
+        return await result.text();
+    }
+    async loadAppObjects(appName, objectType){
+        let result;
+        try {
+            result = await fetch(`/app/${webSkel.currentUser.space.id}/applications/${appName}/${objectType}`,
+                {
+                    method: "GET"
                 });
         } catch (err) {
             console.error(err);

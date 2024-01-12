@@ -1,5 +1,6 @@
 export class ApplicationsService {
-    constructor() {}
+    constructor() {
+    }
 
     async installApplication(appName) {
         await storageManager.installApplication(webSkel.currentUser.space.id, appName);
@@ -14,47 +15,50 @@ export class ApplicationsService {
         await this.uninstallApplication(appName);
         await this.installApplication(appName);
     }
-    async changeApplicationLocation(appLocation,presenterParams){
-        let baseURL=`${webSkel.currentUser.space.id}/${webSkel.currentApplicationName}`
-        let webComponentPage=appLocation.split("/").slice(-1)[0];
-        let completeURL=[baseURL,appLocation].join("/");
-        await webSkel.changeToDynamicPage(webComponentPage,completeURL,presenterParams)
+
+    async changeApplicationLocation(appLocation, presenterParams) {
+        let baseURL = `${webSkel.currentUser.space.id}/${webSkel.currentApplicationName}`
+        let webComponentPage = appLocation.split("/").slice(-1)[0];
+        let completeURL = [baseURL, appLocation].join("/");
+        await webSkel.changeToDynamicPage(webComponentPage, completeURL, presenterParams)
     }
-    async initialiseApplication(applicationId,UILoader) {
-        webSkel.initialisedApplications[applicationId] = await storageManager.getApplicationConfigs(webSkel.currentUser.space.id, applicationId);
-        if(webSkel.initialisedApplications[applicationId].loader){
-            UILoader.spinner = await webSkel.showLoading(webSkel.initialisedApplications[applicationId].loader.tag);
-        }else{
+
+    async initialiseApplication(appName, UILoader) {
+        webSkel.initialisedApplications[appName] = await storageManager.getApplicationConfigs(webSkel.currentUser.space.id, appName);
+        if (webSkel.initialisedApplications[appName].loader) {
+            UILoader.spinner = await webSkel.showLoading(webSkel.initialisedApplications[appName].loader.tag);
+        } else {
             console.warn(`Application ${applicationId} does not have an UI loader`);
             UILoader.spinner = await webSkel.showLoading(`<general-loader></general-loader>`);
         }
-        if (webSkel.initialisedApplications[applicationId].manager) {
-            let ManagerModule = await storageManager.loadManager(webSkel.currentUser.space.id, applicationId, webSkel.initialisedApplications[applicationId].manager.path)
-            webSkel.initialisedApplications[applicationId].manager = new ManagerModule[webSkel.initialisedApplications[applicationId].manager.name];
+        if (webSkel.initialisedApplications[appName].manager) {
+            let ManagerModule = await storageManager.loadManager(webSkel.currentUser.space.id, appName, webSkel.initialisedApplications[appName].manager.path)
+            webSkel.initialisedApplications[appName].manager = new ManagerModule[webSkel.initialisedApplications[appName].manager.name];
+            await webSkel.initialisedApplications[appName].manager.loadAppData?.();
         }
-        for (const component of webSkel.initialisedApplications[applicationId].components) {
-            let componentHTML = await (await storageManager.getApplicationFile(webSkel.currentUser.space.id, applicationId, component.componentPath)).text();
+        for (const component of webSkel.initialisedApplications[appName].components) {
+            let componentHTML = await (await storageManager.getApplicationFile(webSkel.currentUser.space.id, appName, component.componentPath)).text();
             const cssPaths = await Promise.all(
                 component.cssPaths.map(cssPath =>
-                    storageManager.getApplicationFile(webSkel.currentUser.space.id, applicationId, cssPath)
+                    storageManager.getApplicationFile(webSkel.currentUser.space.id, appName, cssPath)
                         .then(response => response.text())
                 )
             );
             await webSkel.defineComponent(component.componentName, componentHTML, cssPaths, true);
         }
-        for (const presenter of webSkel.initialisedApplications[applicationId].presenters) {
-            const PresenterModule = await storageManager.loadPresenter(webSkel.currentUser.space.id, applicationId, presenter.presenterPath);
+        for (const presenter of webSkel.initialisedApplications[appName].presenters) {
+            const PresenterModule = await storageManager.loadPresenter(webSkel.currentUser.space.id, appName, presenter.presenterPath);
             webSkel.registerPresenter(presenter.forComponent, PresenterModule[presenter.presenterName]);
         }
     }
 
-    async startApplication(applicationId, applicationLocation) {
+    async startApplication(appName, applicationLocation) {
         if (document.querySelector("left-sidebar") === null) {
             document.querySelector("#page-content").insertAdjacentHTML("beforebegin", `<left-sidebar data-presenter="left-sidebar" ></left-sidebar>`);
         }
-        let UILoader={};
-        if (applicationId === webSkel.defaultApplicationId) {
-            UILoader.spinner  = await webSkel.showLoading(`<general-loader></general-loader>`);
+        let UILoader = {};
+        if (appName === webSkel.defaultApplicationName) {
+            UILoader.spinner = await webSkel.showLoading(`<general-loader></general-loader>`);
             let appLocation = applicationLocation || ["agent-page"];
             const presenter = appLocation[appLocation.length - 1]
             await webSkel.changeToDynamicPage(`${presenter}`, `${webSkel.currentUser.space.id}/SpaceConfiguration/${appLocation.join('/')}`)
@@ -62,26 +66,26 @@ export class ApplicationsService {
             UILoader.spinner.remove();
             return;
         }
-        if (!webSkel.initialisedApplications[applicationId]) {
-            await this.initialiseApplication(applicationId,UILoader);
-        }else{
-            if(webSkel.initialisedApplications[applicationId].loader) {
-                UILoader.spinner = await webSkel.showLoading(webSkel.initialisedApplications[applicationId].loader.tag);
+        if (!webSkel.initialisedApplications[appName]) {
+            await this.initialiseApplication(appName, UILoader);
+        } else {
+            if (webSkel.initialisedApplications[appName].loader) {
+                UILoader.spinner = await webSkel.showLoading(webSkel.initialisedApplications[appName].loader.tag);
+            } else {
+                console.warn(`Application ${appName} does not have an UI loader`);
+                UILoader.spinner = await webSkel.showLoading(`<general-loader></general-loader>`);
             }
-            else
-                console.warn(`Application ${applicationId} does not have an UI loader`);
-                UILoader.spinner  = await webSkel.showLoading(`<general-loader></general-loader>`);
-            }
+        }
         try {
-            await webSkel.initialisedApplications[applicationId].manager.navigateToLocation(applicationLocation);
+            await webSkel.initialisedApplications[appName].manager.navigateToLocation(applicationLocation);
         } catch (e) {
             console.error(`Encountered an Issue trying to navigate to ${applicationLocation} .Navigating to application entry point`);
-            await webSkel.changeToDynamicPage(webSkel.initialisedApplications[applicationId].entryPointComponent,
-                `${webSkel.currentUser.space.id}/${applicationId}/${webSkel.initialisedApplications[applicationId].entryPointComponent}`);
-        }finally{
+            await webSkel.changeToDynamicPage(webSkel.initialisedApplications[appName].entryPointComponent,
+                `${webSkel.currentUser.space.id}/${appName}/${webSkel.initialisedApplications[appName].entryPointComponent}`);
+        } finally {
             UILoader.spinner.close();
             UILoader.spinner.remove();
-            webSkel.currentApplicationName=applicationId;
+            webSkel.currentApplicationName = appName;
         }
     }
 }

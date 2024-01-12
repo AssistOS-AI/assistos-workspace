@@ -212,8 +212,6 @@ async function storeObject(request, response) {
     }
 
 }
-
-
 async function loadApplicationConfig(request, response) {
     try {
         const spaceId = request.params.spaceId;
@@ -232,27 +230,34 @@ async function loadApplicationConfig(request, response) {
         sendResponse(response, 500, "text/plain", "Internal Server Error");
     }
 }
-async function loadObjects(filePath){
-    let localData = "";
-    const files = await fsPromises.readdir(filePath);
+async function loadObjects(request, response){
+    let filePath = `../apihub-root/spaces/${request.params.spaceId}/applications/${request.params.appName}/${request.params.objectType}`;
 
-    const statPromises = files.map(async (file) => {
-        const fullPath = path.join(filePath, file);
-        const stat = await fsPromises.stat(fullPath);
-        return { file, stat };
-    }).filter(stat => stat.file !== ".git");
-    let fileStats = await Promise.all(statPromises);
-    fileStats = fileStats.filter(stat => stat.file !== ".git");
-    fileStats.sort((a, b) => a.stat.ctimeMs - b.stat.ctimeMs);
-    for (const { file } of fileStats) {
-        localData += await fsPromises.readFile(path.join(filePath, file), 'utf8') + '\n';
+    let localData = [];
+    try {
+        const files = await fsPromises.readdir(filePath);
+        const statPromises = files.map(async (file) => {
+            const fullPath = path.join(filePath, file);
+            const stat = await fsPromises.stat(fullPath);
+            return { file, stat };
+        }).filter(stat => stat.file !== ".git");
+        let fileStats = await Promise.all(statPromises);
+        fileStats = fileStats.filter(stat => stat.file !== ".git");
+        fileStats.sort((a, b) => a.stat.ctimeMs - b.stat.ctimeMs);
+        for (const { file } of fileStats) {
+            const jsonContent = await fsPromises.readFile(path.join(filePath, file), 'utf8');
+            localData.push(JSON.parse(jsonContent));
+        }
+    }catch (e) {
+        sendResponse(response, 500, "text/plain", JSON.stringify(e));
     }
-    return localData;
+
+    sendResponse(response, 200, "application/json", JSON.stringify(localData));
 }
 async function loadApplicationComponents(request, response) {
     try {
-        const {spaceId, applicationName} = request.params;
-        const baseUrl = `/app/${spaceId}/applications/${applicationName}/`;
+        const {spaceId, applicationName, } = request.params;
+        const baseUrl = `/app/${spaceId}/applications/${applicationName}/file`;
         const componentPath = request.url.substring(baseUrl.length);
 
         const filePath = `../apihub-root/spaces/${spaceId}/applications/${applicationName}/${componentPath}`;
@@ -318,5 +323,6 @@ module.exports = {
     storeObject,
     reinstallApplication,
     loadApplicationConfig,
-    loadApplicationComponents
+    loadApplicationComponents,
+    loadObjects
 }

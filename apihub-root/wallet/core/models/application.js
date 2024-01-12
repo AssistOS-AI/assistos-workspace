@@ -17,7 +17,12 @@ export class Application {
         }
     }
     stringifyApplication(){
-        const { flows, ...data } = this;
-        return data;
+        return {
+            id: this.id,
+            name:this.name,
+            installationDate:this.installationDate,
+            lastUpdate: this.lastUpdate,
+            flowsBranch: this.flowsBranch
+        };
     }
 }

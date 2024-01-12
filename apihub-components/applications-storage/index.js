@@ -4,7 +4,8 @@ const {
     reinstallApplication,
     storeObject,
     loadApplicationConfig,
-    loadApplicationComponents
+    loadApplicationComponents,
+    loadObjects
 
 } = require("../applications-storage/controller");
 
@@ -23,7 +24,8 @@ function bodyReaderMiddleware(req, res, next) {
 
 function ApplicationsStorage(server) {
     server.get("/space/:spaceId/applications/:applicationId/configs", loadApplicationConfig);
-    server.get("/app/:spaceId/applications/:applicationName/*", loadApplicationComponents);
+    server.get("/app/:spaceId/applications/:appName/:objectType", loadObjects);
+    server.get("/app/:spaceId/applications/:applicationName/file/*", loadApplicationComponents);
     server.use("/space/*", bodyReaderMiddleware);
     server.use("/app/*", bodyReaderMiddleware);
     server.post("/space/:spaceId/applications/:applicationId", installApplication);
