@@ -14,7 +14,12 @@ export class ApplicationsService {
         await this.uninstallApplication(appName);
         await this.installApplication(appName);
     }
-
+    async changeApplicationLocation(appLocation,presenterParams){
+        let baseURL=`${webSkel.currentUser.space.id}/${webSkel.currentApplicationName}`
+        let webComponentPage=appLocation.split("/").slice(-1)[0];
+        let completeURL=[baseURL,appLocation].join("/");
+        await webSkel.changeToDynamicPage(webComponentPage,completeURL,presenterParams)
+    }
     async initialiseApplication(applicationId) {
         webSkel.initialisedApplications[applicationId] = await storageManager.getApplicationConfigs(webSkel.currentUser.space.id, applicationId);
         if (webSkel.initialisedApplications[applicationId].manager) {
@@ -56,6 +61,8 @@ export class ApplicationsService {
             console.error(`Encountered an Issue trying to navigate to ${applicationLocation} .Navigating to application entry point`);
             await webSkel.changeToDynamicPage(webSkel.initialisedApplications[applicationId].entryPointComponent,
                 `${webSkel.currentUser.space.id}/${applicationId}/${webSkel.initialisedApplications[applicationId].entryPointComponent}`);
+        }finally{
+            webSkel.currentApplicationName=applicationId;
         }
     }
 }
