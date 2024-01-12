@@ -24,7 +24,7 @@ export {
     Flow,
     Agent,
     PageModel,
-    Application
+    Application,
 };
 
 // Services
@@ -47,14 +47,12 @@ export {
 import {SaveElementTimer} from "./utils/saveElementTimer.js";
 import {parseURL} from "./utils/parseURL.js";
 import WebSkel from "../WebSkel/webSkel.js";
-import { createFlowsFactory } from "../llmFlows/src/llmFlows.js";
 import { changeSelectedPageFromSidebar } from "./main.js";
 
 export {
     parseURL,
     SaveElementTimer,
-    WebSkel,
-    createFlowsFactory
+    WebSkel
 };
 
 // WebSkel Utilities

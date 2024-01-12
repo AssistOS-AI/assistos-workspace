@@ -34,17 +34,6 @@
             "collectLog": false
           }
         ]
-      },
-      {
-        "name": "llmFlows",
-        "src": "https://github.com/OutfinityResearch/llmFlows.git",
-        "actions": [
-          {
-            "type": "smartClone",
-            "target": "./apihub-root/",
-            "collectLog": false
-          }
-        ]
       }
     ],
     "postinstall": [
