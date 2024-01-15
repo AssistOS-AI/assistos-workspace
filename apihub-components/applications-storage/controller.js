@@ -76,11 +76,16 @@ function iterateFolder(folderPath, extensions) {
     });
     return filePaths;
 }
-function processFile(filePath, searchStr, replaceStr) {
-    const content = fs.readFileSync(filePath, 'utf8');
-    const updatedContent = content.replace(new RegExp(searchStr, 'g'), replaceStr);
-    fs.writeFileSync(filePath, updatedContent, 'utf8');
+function processFile(filePath, applicationId, components) {
+    let content = fs.readFileSync(filePath, 'utf8');
+    components.forEach(component => {
+        const searchStr = new RegExp(component.componentName, 'g');
+        const replaceStr = `${applicationId}-${component.componentName}`;
+        content = content.replace(searchStr, replaceStr);
+    });
+    fs.writeFileSync(filePath, content, 'utf8');
 }
+
 async function installApplication(request, response) {
     const spaceId = request.params.spaceId;
     let applicationId = request.params.applicationId;
@@ -101,21 +106,16 @@ async function installApplication(request, response) {
         const extensions = ['.html', '.css', '.js'];
 
         const filePaths = iterateFolder(folderPath, extensions);
-
+        applicationId=applicationId.toLowerCase();
         filePaths.forEach(filePath => {
-            manifest.components.forEach(component=>{
-                const searchStr = `${component.componentName}`;
-                const replaceStr = `${applicationId.toLowerCase()}-${component.componentName}`;
-                processFile(filePath, searchStr, replaceStr);
+                processFile(filePath,applicationId,manifest.components);
             })
-        });
-
         for (let component of manifest.components){
-            component.componentName=`${applicationId.toLowerCase()}-`+component.componentName;
+            component.componentName=`${applicationId}-`+component.componentName;
         }
-        manifest.entryPointComponent=`${applicationId.toLowerCase()}-`+manifest.entryPointComponent;
+        manifest.entryPointComponent=`${applicationId}-`+manifest.entryPointComponent;
         for(let presenter of manifest.presenters){
-            presenter.forComponent=`${applicationId.toLowerCase()}-`+presenter.forComponent;
+            presenter.forComponent=`${applicationId}-`+presenter.forComponent;
         }
         fs.writeFileSync(manifestPath, JSON.stringify(manifest, null, 2), 'utf8')
 
