@@ -1,6 +1,6 @@
-# aiauthor-workspace
+# AssistOS
 
-*aiauthor-workspace*  bundles all the necessary dependencies for building and running AIAuthor in a single package.
+*AssistOS*  bundles all the necessary dependencies for building and running AssistOS in a single package.
 
 For more details about what a *workspace* is check out the [template-workspace](https://github.com/PrivateSky/template-workspace).
 
@@ -11,7 +11,6 @@ For more details about what a *workspace* is check out the [template-workspace](
    3. [Build all things needed for the application to run](#step-3-build-all-things-needed-for-the-application-to-run)
 2. [Running](#running)
    1. [Step 1: Launch the "server"](#step-1-launch-the-server)
-   2. [Step 2: Run the enclaves](#step-2-run-the-enclaves)
    
 
 ## Installation
@@ -34,7 +33,7 @@ $ npm run dev-install
 
 ### Step 3: Build all things needed for the application to run.
 
-While in the *aiauthor-workspace* folder run:
+While in the *AssistOS* folder run:
 
 ```sh
 $ npm run build-all
@@ -48,7 +47,7 @@ $ npm run build-all-win
 
 ### Step 1: Launch the "server"
 
-While in the *aiauthor-workspace* folder run:
+While in the *AssistOS* folder run:
 
 ```sh
 $ npm run server
@@ -58,12 +57,3 @@ At the end of this command you get something similar to:
 
 ![alt text](scr-npm-run-server.png)
 
-
-### Step 2: Run the enclaves.
-
-Open a new console inside *aiauthor-workspace* folder and run:
-
-```sh
-# Note: Run this in a new console inside "aiauthor-workspace" folder
-$ npm run enclaves
-```
