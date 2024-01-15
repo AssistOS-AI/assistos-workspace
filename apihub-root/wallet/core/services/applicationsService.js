@@ -33,7 +33,7 @@ export class ApplicationsService {
         }
         if (webSkel.initialisedApplications[appName].manager) {
             let ManagerModule = await storageManager.loadManager(webSkel.currentUser.space.id, appName, webSkel.initialisedApplications[appName].manager.path)
-            webSkel.initialisedApplications[appName].manager = new ManagerModule[webSkel.initialisedApplications[appName].manager.name];
+            webSkel.initialisedApplications[appName].manager = new ManagerModule[webSkel.initialisedApplications[appName].manager.name](appName);
             await webSkel.initialisedApplications[appName].manager.loadAppData?.();
         }
         for (const component of webSkel.initialisedApplications[appName].components) {

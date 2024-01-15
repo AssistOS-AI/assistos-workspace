@@ -227,10 +227,11 @@ export class FileSystemStorage{
         }
         return await result.text();
     }
-    async storeAppObject(spaceId, appName, objectType, objectId, stringData){
+    async storeAppObject(appName, objectType, objectId, stringData){
+        objectId = encodeURIComponent(objectId);
         let result;
         try {
-            result = await fetch(`/app/${spaceId}/applications/${appName}/${objectType}/${objectId}`,
+            result = await fetch(`/app/${webSkel.currentUser.space.id}/applications/${appName}/${objectType}/${objectId}`,
                 {
                     method: "PUT",
                     body: stringData,
