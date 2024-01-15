@@ -64,6 +64,28 @@ function generateId() {
     return randomStringId;
 }
 
+function iterateFolder(folderPath, extensions) {
+    let filePaths = [];
+    fs.readdirSync(folderPath, { withFileTypes: true }).forEach(dirent => {
+        const fullPath = path.join(folderPath, dirent.name);
+        if (dirent.isDirectory()) {
+            filePaths = filePaths.concat(iterateFolder(fullPath, extensions));
+        } else if (dirent.isFile() && extensions.includes(path.extname(dirent.name))) {
+            filePaths.push(fullPath);
+        }
+    });
+    return filePaths;
+}
+function processFile(filePath, applicationId, components) {
+    let content = fs.readFileSync(filePath, 'utf8');
+    components.forEach(component => {
+        const searchStr = new RegExp(component.componentName, 'g');
+        const replaceStr = `${applicationId}-${component.componentName}`;
+        content = content.replace(searchStr, replaceStr);
+    });
+    fs.writeFileSync(filePath, content, 'utf8');
+}
+
 async function installApplication(request, response) {
     const spaceId = request.params.spaceId;
     let applicationId = request.params.applicationId;
@@ -77,6 +99,25 @@ async function installApplication(request, response) {
             return;
         }
         await execAsync(`git clone ${application.repository} ${folderPath}`);
+        let manifestPath=folderPath+"/"+ "manifest.json";
+        let manifest=JSON.parse(fs.readFileSync(manifestPath, 'utf8'));
+
+
+        const extensions = ['.html', '.css', '.js'];
+
+        const filePaths = iterateFolder(folderPath, extensions);
+        applicationId=applicationId.toLowerCase();
+        filePaths.forEach(filePath => {
+                processFile(filePath,applicationId,manifest.components);
+            })
+        for (let component of manifest.components){
+            component.componentName=`${applicationId}-`+component.componentName;
+        }
+        manifest.entryPointComponent=`${applicationId}-`+manifest.entryPointComponent;
+        for(let presenter of manifest.presenters){
+            presenter.forComponent=`${applicationId}-`+presenter.forComponent;
+        }
+        fs.writeFileSync(manifestPath, JSON.stringify(manifest, null, 2), 'utf8')
 
         const branchName = `space-${spaceId}`;
         if (application.flowsRepository) {
