@@ -26,12 +26,12 @@ async function loadPage() {
             leftSidebarPlaceholder.style.display = "none";
             await webSkel.changeToDynamicPage(spaceId, spaceId);
         } else {
-            let authenticationResult=await webSkel.getService("AuthenticationService").initUser(spaceId);
-            if(authenticationResult === true) {
+            let authenticationResult = await webSkel.getService("AuthenticationService").initUser(spaceId);
+            if (authenticationResult === true) {
                 if (splitUrl[1]) {
                     /* appName, applicationLocation that will get passed to the application itself to be handled */
                     await webSkel.getService("ApplicationsService").startApplication(splitUrl[1], splitUrl.slice(2));
-                }else{
+                } else {
                     document.querySelector("#page-content").insertAdjacentHTML("beforebegin", `<left-sidebar data-presenter="left-sidebar" ></left-sidebar>`);
                     await webSkel.changeToDynamicPage("agent-page", `${webSkel.currentUser.space.id}/agent-page`);
 
@@ -39,7 +39,7 @@ async function loadPage() {
             }
         }
     } else {
-        if(await webSkel.getService("AuthenticationService").initUser()) {
+        if (await webSkel.getService("AuthenticationService").initUser()) {
             document.querySelector("#page-content").insertAdjacentHTML("beforebegin", `<left-sidebar data-presenter="left-sidebar" ></left-sidebar>`);
             /*let agent = "space/agent-page";
             let url = "#space/agent-page";
@@ -64,7 +64,7 @@ export function changeSelectedPageFromSidebar(url) {
     let divs = document.querySelectorAll('.feature');
     divs.forEach(div => {
         let dataAction = div.getAttribute('data-local-action');
-        let page=dataAction.split(" ")[1];
+        let page = dataAction.split(" ")[1];
         if (url.includes(page)) {
             div.setAttribute('id', 'selected-page');
             let paths = div.querySelectorAll("path");
@@ -142,20 +142,29 @@ async function handleHistory(event) {
 function saveCurrentState() {
     webSkel.currentState = Object.assign({}, history.state);
 }
+function closeDefaultLoader(){
+    let UILoader = {
+        "modal": document.querySelector('#default-loader-markup'),
+        "style": document.querySelector('#default-loader-style'),
+        "script": document.querySelector('#default-loader-script')
+    }
+    UILoader.modal.close();
+    UILoader.modal.remove();
+    UILoader.script.remove();
+    UILoader.style.remove();
+}
 
 (async () => {
     await webSkel.defineComponent("general-loader", "./wallet/web-components/components/general-loader/general-loader.html");
     await webSkel.UtilsService.initialize();
-    //const loading = await webSkel.showLoading(`<general-loader></general-loader>`);
     webSkel.setDomElementForPages(document.querySelector("#page-content"));
     window.storageManager = new StorageManager();
     window.documentFactory = new DocumentFactory();
-    webSkel.defaultApplicationName="SpaceConfiguration";
+    webSkel.defaultApplicationName = "SpaceConfiguration";
     await loadConfigs("./wallet/webskel-configs.json");
     await loadPage();
     defineActions();
-/*    loading.close();
-    loading.remove();*/
     window.addEventListener('popstate', handleHistory);
     window.addEventListener('beforeunload', saveCurrentState);
+    closeDefaultLoader();
 })();
