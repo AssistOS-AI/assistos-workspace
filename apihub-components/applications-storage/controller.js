@@ -232,7 +232,15 @@ async function loadApplicationConfig(request, response) {
 }
 async function loadObjects(request, response){
     let filePath = `../apihub-root/spaces/${request.params.spaceId}/applications/${request.params.appName}/${request.params.objectType}`;
-
+    try{
+        await fsPromises.access(filePath);
+    }catch (e) {
+        try {
+            await fsPromises.mkdir(filePath, { recursive: true });
+        } catch(error) {
+            return sendResponse(response, 500, "text/html", error+ ` Error at creating folder: ${filePath}`);
+        }
+    }
     let localData = [];
     try {
         const files = await fsPromises.readdir(filePath);
