@@ -96,8 +96,8 @@ export class StorageManager {
     async storeAppFlow(spaceId, appName, objectId, jsData){
         return await this.currentService.storeAppFlow(spaceId, appName, objectId, jsData)
     }
-    async storeAppObject(spaceId, appName, objectType, objectId, stringData){
-        return await this.currentService.storeAppObject(spaceId, appName, objectType, objectId, stringData);
+    async storeAppObject(appName, objectType, objectId, stringData){
+        return await this.currentService.storeAppObject(appName, objectType, objectId, stringData);
     }
     async loadAppObjects(appName, objectType){
         return await this.currentService.loadAppObjects(appName, objectType);

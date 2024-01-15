@@ -199,7 +199,7 @@ async function storeObject(request, response) {
     const spaceId = request.params.spaceId;
     const applicationId = request.params.applicationId;
     const objectType = request.params.objectType;
-    const objectId = request.params.objectId;
+    const objectId = decodeURIComponent(request.params.objectId);
     const filePath = `../apihub-root/spaces/${spaceId}/applications/${applicationId}/${objectType}/${objectId}.json`;
     if(request.body.toString() === "") {
         await fsPromises.unlink(filePath);
