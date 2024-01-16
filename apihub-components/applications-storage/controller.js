@@ -78,6 +78,7 @@ function iterateFolder(folderPath, extensions) {
 }
 function processFile(filePath, applicationId, components) {
     let content = fs.readFileSync(filePath, 'utf8');
+    components = components.sort((a, b) => b.componentName.length - a.componentName.length);
     components.forEach(component => {
         const searchStr = new RegExp(component.componentName, 'g');
         const replaceStr = `${applicationId}-${component.componentName}`;
