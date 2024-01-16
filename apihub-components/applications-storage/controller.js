@@ -79,10 +79,15 @@ function iterateFolder(folderPath, extensions) {
 function processFile(filePath, applicationId, components) {
     let content = fs.readFileSync(filePath, 'utf8');
     components = components.sort((a, b) => b.componentName.length - a.componentName.length);
-    components.forEach(component => {
-        const searchStr = new RegExp(component.componentName, 'g');
+    components.forEach((component, index) => {
+        const uniqueMarker = `TEMP_MARKER_${index}_`;
+        const searchStr = new RegExp(`\\b${component.componentName}\\b`, 'g');
+        content= content.replace(searchStr, uniqueMarker);
+    });
+    components.forEach((component, index) => {
+        const uniqueMarker = `TEMP_MARKER_${index}_`;
         const replaceStr = `${applicationId}-${component.componentName}`;
-        content = content.replace(searchStr, replaceStr);
+        content = content.replace(new RegExp(uniqueMarker, 'g'), replaceStr);
     });
     fs.writeFileSync(filePath, content, 'utf8');
 }
