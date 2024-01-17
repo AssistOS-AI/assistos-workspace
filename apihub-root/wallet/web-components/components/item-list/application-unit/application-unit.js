@@ -1,4 +1,4 @@
-import {getClosestParentWithPresenter, refreshElement,decodeBase64} from "../../../../imports.js";
+import {showActionBox} from "../../../../imports.js";
 
 export class applicationUnit{
     constructor(element, invalidate) {
@@ -15,12 +15,13 @@ export class applicationUnit{
                 this.installed = true;
             }
         }
-        this.applicationImage = decodeBase64(this.element.getAttribute("data-image"));
+        //this.description = this.element.getAttribute("data-description");
+        this.description = "this is the description of the application that we have here and it is very nice";
         this.applicationButtons = "";
         if (this.installed) {
-            this.applicationButtons += `<button class="btn btn-primary" data-local-action="uninstallApplication">Uninstall</button>`;
+            this.applicationButtons += `<button class="general-button" data-local-action="uninstallApplication">Uninstall</button>`;
         }else{
-            this.applicationButtons += `<button class="btn btn-primary" data-local-action="installApplication">Install</button>`;
+            this.applicationButtons += `<button class="general-button" data-local-action="installApplication">Install</button>`;
         }
     }
     afterRender(){
@@ -42,5 +43,9 @@ export class applicationUnit{
 
     async navigateToApplicationPage(){
         await webSkel.changeToDynamicPage("application-page", `${webSkel.currentUser.space.id}/SpaceConfiguration/applications/${this.appName}/application-page`);
+    }
+
+    async showActionBox(_target, primaryKey, componentName, insertionMode) {
+        await showActionBox(_target, primaryKey, componentName, insertionMode);
     }
 }
