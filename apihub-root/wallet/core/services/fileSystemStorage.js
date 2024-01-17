@@ -271,19 +271,4 @@ export class FileSystemStorage{
         }
         return await result.text();
     }
-    async reinstallApplication(spaceId, appName){
-        let result;
-        try{
-            result=await fetch(`/space/${spaceId}/applications/${appName}`,
-                {
-                    method: "PUT",
-                    headers: {
-                        "Content-type": "application/json; charset=UTF-8"
-                    }
-                });
-        }catch(err){
-            console.error(err);
-        }
-        return await result.text();
-    }
 }

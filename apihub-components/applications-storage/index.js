@@ -1,7 +1,6 @@
 const {
     installApplication,
     uninstallApplication,
-    reinstallApplication,
     storeObject,
     loadApplicationConfig,
     loadApplicationComponents,
@@ -31,7 +30,6 @@ function ApplicationsStorage(server) {
     server.post("/space/:spaceId/applications/:applicationId", installApplication);
     server.delete("/space/:spaceId/applications/:applicationId", uninstallApplication);
     server.put("/app/:spaceId/applications/:applicationId/:objectType/:objectId", storeObject);
-    server.put("/space/:spaceId/applications/:applicationId", reinstallApplication);
     server.put("/space/:spaceId/applications/:applicationId/:objectType/:objectId", storeObject);
 }
 

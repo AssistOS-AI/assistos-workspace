@@ -190,38 +190,6 @@ async function uninstallApplication(request, response) {
 }
 
 
-async function reinstallApplication(request, response) {
-    const spaceId = request.params.spaceId;
-    const applicationId = request.params.applicationId;
-    const folderPath = `../apihub-root/spaces/${spaceId}/applications/${applicationId}`;
-
-    try {
-        // Delete the existing branch first
-        const webSkelConfig = require("../apihub-root/wallet/webskel-configs.json");
-        const application = webSkelConfig.applications.find(app => app.id == applicationId);
-
-        if (application && application.flowsRepository) {
-            let flowsPath = `../apihub-root/spaces/${spaceId}/applications/${application.name}/flows`;
-            try {
-                await fsPromises.access(flowsPath); // Ensure the directory exists
-                const branchName = `space-${spaceId}`;
-                await execAsync(`git -C ${flowsPath} push origin --delete ${branchName}`);
-            } catch (dirError) {
-                console.error("Flows directory does not exist or branch deletion failed:", dirError);
-            }
-        }
-
-        // Remove the application folder
-        await execAsync(`rm -rf ${folderPath}`);
-        updateSpaceStatus(spaceId, application.name, "", true);
-        // Proceed with the installation
-        await installApplication(request, response);
-    } catch (error) {
-        console.error("Error in reinstalling application:", error);
-        sendResponse(response, 500, "text/html", error.toString());
-    }
-}
-
 async function saveJSON(response, spaceData, filePath) {
     const folderPath = path.dirname(filePath);
     try{
@@ -376,7 +344,6 @@ module.exports = {
     installApplication,
     uninstallApplication,
     storeObject,
-    reinstallApplication,
     loadApplicationConfig,
     loadApplicationComponents,
     loadObjects

@@ -19,7 +19,6 @@ export class applicationUnit{
         this.applicationButtons = "";
         if (this.installed) {
             this.applicationButtons += `<button class="btn btn-primary" data-local-action="uninstallApplication">Uninstall</button>`;
-            this.applicationButtons += `<button class="btn btn-primary" data-local-action="reinstallApplication">Reinstall</button>`;
         }else{
             this.applicationButtons += `<button class="btn btn-primary" data-local-action="installApplication">Install</button>`;
         }
@@ -36,13 +35,6 @@ export class applicationUnit{
     async uninstallApplication() {
         const loading = await webSkel.showLoading(`<general-loader></general-loader>`);
         await webSkel.getService("ApplicationsService").uninstallApplication(this.appName);
-        loading.close();
-        loading.remove();
-        window.location="";
-    }
-    async reinstallApplication() {
-        const loading = await webSkel.showLoading(`<general-loader></general-loader>`);
-        await webSkel.getService("ApplicationsService").reinstallApplication(this.appName);
         loading.close();
         loading.remove();
         window.location="";

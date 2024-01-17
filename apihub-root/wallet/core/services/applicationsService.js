@@ -11,10 +11,6 @@ export class ApplicationsService {
         await webSkel.currentUser.space.deleteApplication(appName);
     }
 
-    async reinstallApplication(appName) {
-        await this.uninstallApplication(appName);
-        await this.installApplication(appName);
-    }
 
     async changeApplicationLocation(appLocation, presenterParams) {
         let baseURL = `${webSkel.currentUser.space.id}/${webSkel.currentApplicationName}`

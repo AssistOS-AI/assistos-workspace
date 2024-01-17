@@ -105,7 +105,4 @@ export class StorageManager {
     async uninstallApplication(spaceId, appName) {
         return await this.currentService.uninstallApplication(spaceId, appName);
     }
-    async reinstallApplication(spaceId, appName){
-        return await this.currentService.reinstallApplication(spaceId, appName);
-    }
 }
