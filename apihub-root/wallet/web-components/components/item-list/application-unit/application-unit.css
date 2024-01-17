@@ -1,7 +1,7 @@
 application-unit{
     border: 1px solid var(--very-light-gray);
     border-radius: 10px;
-    width: 200px;
+    width: 240px;
     height: 230px;
 }
 .unit-header{
@@ -67,6 +67,7 @@ application-unit{
 }
 .action-cell{
     cursor: pointer;
+    position: relative;
 }
 .description{
     height: 70px;

@@ -18,3 +18,25 @@ applications-marketplace-page{
     align-items: center;
     padding: 20px 40px;
 }
+.page-header{
+    display: flex;
+    justify-content: space-between;
+}
+.add-marketplace{
+    margin: 40px 40px 40px 0;
+    border: none;
+    display: flex;
+    align-items: center;
+    font-size: 16px;
+    font-weight: 600;
+    line-height: 24px;
+    text-align: center;
+    color: var(--white-text);
+    background: var(--medium-blue);
+    width: fit-content;
+    height: 36px;
+    padding: 6px 11px 6px 11px;
+    border-radius: 10px;
+    gap: 5px;
+    cursor: pointer;
+}
