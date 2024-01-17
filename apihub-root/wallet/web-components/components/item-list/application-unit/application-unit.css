@@ -60,17 +60,25 @@ application-unit{
     align-items: center;
     display: flex;
 }
-.circle-button{
-    display: flex;
-    align-items: center;
-}
 .general-button{
-    margin-right: 10px;
     font-size: 14px;
 }
 .action-cell{
     cursor: pointer;
     position: relative;
+    width: 20px;
+    max-height: 12px;
+    display: flex;
+    justify-content: right;
+    align-items: center;
+}
+.circle-button{
+    align-items: center;
+    padding: 7px 0;
+    display: flex;
+    justify-content: center;
+    border-radius: 30px;
+    height: 100%;
 }
 .app-description{
     height: 70px;
