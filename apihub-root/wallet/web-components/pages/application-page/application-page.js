@@ -48,14 +48,14 @@ export class applicationPage {
         await webSkel.getService("ApplicationsService").installApplication(this.appName);
         loading.close();
         loading.remove();
-        window.location="";
+        location.reload();
     }
     async uninstallApplication() {
         const loading = await webSkel.showLoading(`<general-loader></general-loader>`);
         await webSkel.getService("ApplicationsService").uninstallApplication(this.appName);
         loading.close();
         loading.remove();
-        window.location="";
+        location.reload();
     }
 
     async openApplicationsMarketplacePage(){

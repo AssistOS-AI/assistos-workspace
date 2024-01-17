@@ -40,3 +40,21 @@ applications-marketplace-page{
     gap: 5px;
     cursor: pointer;
 }
+.category-header{
+    padding: 0 40px 20px 40px;
+}
+.category-title{
+    font-size: 32px;
+    font-weight: 600;
+}
+.description{
+    color: var(--medium-gray);
+    font-size: 16px;
+    font-weight: 500;
+}
+
+@media (max-width: 1920px) {
+    .marketplace-table{
+        grid-template-columns: 1fr 1fr 1fr;
+    }
+}

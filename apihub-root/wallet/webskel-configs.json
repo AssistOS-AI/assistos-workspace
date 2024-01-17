@@ -1,6 +1,11 @@
 {
   "presenters": [
     {
+      "name": "add-marketplace-modal",
+      "path": "./web-components/modals/add-marketplace-modal/add-marketplace-modal.js",
+      "className": "addMarketplaceModal"
+    },
+    {
       "name": "application-page",
       "path": "./web-components/pages/application-page/application-page.js",
       "className": "applicationPage"
@@ -160,6 +165,20 @@
     }
   ],
   "components": [
+    {
+      "name": "add-marketplace-modal",
+      "path": "./wallet/web-components/modals/add-marketplace-modal/add-marketplace-modal.html",
+      "cssPaths": [
+        "./wallet/web-components/modals/add-marketplace-modal/add-marketplace-modal.css"
+      ]
+    },
+    {
+      "name": "action-box-marketplace",
+      "path": "./wallet/web-components/components/action-box-marketplace/action-box-marketplace.html",
+      "cssPaths": [
+        "./wallet/web-components/components/action-box-marketplace/action-box-marketplace.css"
+      ]
+    },
     {
       "name": "application-page",
       "path": "./wallet/web-components/pages/application-page/application-page.html",

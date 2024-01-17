@@ -31,14 +31,14 @@ export class applicationUnit{
         await webSkel.getService("ApplicationsService").installApplication(this.appName);
         loading.close();
         loading.remove();
-        window.location="";
+        location.reload();
     }
     async uninstallApplication() {
         const loading = await webSkel.showLoading(`<general-loader></general-loader>`);
         await webSkel.getService("ApplicationsService").uninstallApplication(this.appName);
         loading.close();
         loading.remove();
-        window.location="";
+        location.reload();
     }
 
     async navigateToApplicationPage(){
@@ -47,5 +47,9 @@ export class applicationUnit{
 
     async showActionBox(_target, primaryKey, componentName, insertionMode) {
         await showActionBox(_target, primaryKey, componentName, insertionMode);
+    }
+
+    async cloneAction(){
+        console.log("to be done");
     }
 }

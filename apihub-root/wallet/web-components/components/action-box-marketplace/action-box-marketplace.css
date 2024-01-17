@@ -1,0 +1,32 @@
+action-box-with-clone{
+    position:relative;
+}
+.action-box-with-clone{
+    margin-top: -8px;
+    margin-left: -70px;
+    background-color:  var(--white-text);
+    line-height: normal;
+    border-radius: 6px;
+    border: 1px solid   var(--action-box-border);
+    position: absolute;
+    z-index:9999;
+}
+
+.action {
+    background: var(--action-box-background);
+    padding: 4px 8px;
+    cursor: pointer;
+}
+
+.act1:hover {
+    border-radius: 6px 6px 0 0;
+}
+
+.act2:hover {
+    border-radius: 0 0 6px 6px;
+}
+
+.action:hover {
+   background-color: var(--medium-blue);
+    color: var(--white-text)
+}
