@@ -4,6 +4,7 @@ applications-marketplace-page{
 }
 .applications-marketplace-page{
     width: calc(100% - 270px);
+    position: relative;
 }
 .marketplace-table{
     display:grid;
@@ -53,8 +54,20 @@ applications-marketplace-page{
     font-weight: 500;
 }
 
-@media (max-width: 1920px) {
+@media only screen and (max-width: 1800px) {
     .marketplace-table{
         grid-template-columns: 1fr 1fr 1fr;
     }
+}
+.applications-marketplace-page::before {
+    z-index: -1;
+    content: "";
+    background-image: url('../../../assets/images/space-background.png');
+    background-size: cover;
+    position: absolute;
+    top: 0;
+    right: 0;
+    bottom: 0;
+    left: 0;
+    opacity: 1;
 }
