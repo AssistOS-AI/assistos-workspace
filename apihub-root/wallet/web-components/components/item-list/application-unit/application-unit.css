@@ -96,3 +96,8 @@ application-unit{
     overflow: hidden;
     vertical-align: bottom;
 }
+.uninstall{
+    background: white;
+    color: var(--medium-blue);
+    border: 1px solid var(--medium-blue);
+}

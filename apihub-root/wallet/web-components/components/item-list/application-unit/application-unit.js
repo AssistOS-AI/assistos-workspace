@@ -19,7 +19,7 @@ export class applicationUnit{
         this.description = "this is the description of the application that we have here and it is very nice";
         this.applicationButtons = "";
         if (this.installed) {
-            this.applicationButtons += `<button class="general-button" data-local-action="uninstallApplication">Uninstall</button>`;
+            this.applicationButtons += `<button class="general-button uninstall" data-local-action="uninstallApplication">Uninstall</button>`;
         }else{
             this.applicationButtons += `<button class="general-button" data-local-action="installApplication">Install</button>`;
         }

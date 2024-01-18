@@ -1,7 +1,0 @@
-webc-app-root {
-    --mode: none;
-}
-
-input[type=checkbox], input[type=radio] {
-    accent-color: #4CBC79;
-}
