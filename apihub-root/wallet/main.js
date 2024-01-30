@@ -109,7 +109,7 @@ async function loadConfigs(jsonPath) {
             webSkel.registerPresenter(presenter.name, PresenterModule[presenter.className]);
         }
         for (const component of config.components) {
-            await webSkel.defineComponent(component.name, component.path, component.cssPaths);
+            await webSkel.defineComponent(component.name, component.path, {urls:component.cssPaths});
         }
     } catch (error) {
         console.error(error);

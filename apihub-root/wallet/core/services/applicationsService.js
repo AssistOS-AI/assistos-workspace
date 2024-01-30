@@ -40,7 +40,7 @@ export class ApplicationsService {
                         .then(response => response.text())
                 )
             );
-            await webSkel.defineComponent(component.componentName, componentHTML, cssPaths, true);
+            await webSkel.defineComponent(component.componentName, componentHTML, {cssTexts:cssPaths}, true);
         }
         for (const presenter of webSkel.initialisedApplications[appName].presenters) {
             const PresenterModule = await storageManager.loadPresenter(webSkel.currentUser.space.id, appName, presenter.presenterPath);

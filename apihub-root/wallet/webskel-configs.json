@@ -80,7 +80,6 @@
       "path": "./web-components/pages/announcements-page/announcements-page.js",
       "className": "announcementsPage"
     },
-
     {
       "name": "personalities-page",
       "path": "./web-components/pages/personalities-page/personalities-page.js",
@@ -104,13 +103,12 @@
     {
       "name": "add-flow-modal",
       "path": "./web-components/modals/add-flow-modal/add-flow-modal.js",
-    "className": "addFlowModal"
+      "className": "addFlowModal"
     },
-
     {
       "name": "edit-flow-modal",
       "path": "./web-components/modals/edit-flow-modal/edit-flow-modal.js",
-    "className": "editFlowModal"
+      "className": "editFlowModal"
     },
     {
       "name": "edit-announcement-modal",
@@ -183,7 +181,6 @@
       "name": "application-page",
       "path": "./wallet/web-components/pages/application-page/application-page.html",
       "cssPaths": [
-        "./wallet/web-components/components/item-list/flow-unit/flow-unit.css",
         "./wallet/web-components/pages/application-page/application-page.css"
       ]
     },
@@ -219,7 +216,7 @@
       "name": "knowledge-page",
       "path": "./wallet/web-components/pages/knowledge-page/knowledge-page.html",
       "cssPaths": [
-            "./wallet/web-components/pages/knowledge-page/knowledge-page.css"
+        "./wallet/web-components/pages/knowledge-page/knowledge-page.css"
       ]
     },
     {
@@ -232,24 +229,23 @@
     {
       "name": "tasks-page",
       "path": "./wallet/web-components/pages/tasks-page/tasks-page.html",
-        "cssPaths": [
-            "./wallet/web-components/pages/tasks-page/tasks-page.css"
-        ]
+      "cssPaths": [
+        "./wallet/web-components/pages/tasks-page/tasks-page.css"
+      ]
     },
     {
       "name": "agent-page",
       "path": "./wallet/web-components/pages/agent-page/agent-page.html",
       "cssPaths": [
-            "./wallet/web-components/pages/agent-page/agent-page.css",
-        "./wallet/web-components/components/item-list/space-unit/space-unit.css"
-        ]
+        "./wallet/web-components/pages/agent-page/agent-page.css"
+      ]
     },
     {
       "name": "settings-page",
       "path": "./wallet/web-components/pages/settings-page/settings-page.html",
       "cssPaths": [
-            "./wallet/web-components/pages/settings-page/settings-page.css"
-        ]
+        "./wallet/web-components/pages/settings-page/settings-page.css"
+      ]
     },
     {
       "name": "applications-marketplace-page",
@@ -261,9 +257,9 @@
     {
       "name": "confirmation-popup",
       "path": "./wallet/web-components/components/confirmation-popup/confirmation-popup.html",
-        "cssPaths": [
-            "./wallet/web-components/components/confirmation-popup/confirmation-popup.css"
-        ]
+      "cssPaths": [
+        "./wallet/web-components/components/confirmation-popup/confirmation-popup.css"
+      ]
     },
     {
       "name": "llm-animation",
@@ -275,139 +271,135 @@
     {
       "name": "edit-personality-page",
       "path": "./wallet/web-components/pages/edit-personality-page/edit-personality-page.html",
-        "cssPaths": [
-            "./wallet/web-components/pages/edit-personality-page/edit-personality-page.css"
-        ]
+      "cssPaths": [
+        "./wallet/web-components/pages/edit-personality-page/edit-personality-page.css"
+      ]
     },
     {
       "name": "space-unit",
       "path": "./wallet/web-components/components/item-list/space-unit/space-unit.html",
-        "cssPaths": [
-            "./wallet/web-components/components/item-list/space-unit/space-unit.css"
-        ]
+      "cssPaths": [
+        "./wallet/web-components/components/item-list/space-unit/space-unit.css"
+      ]
     },
     {
       "name": "personality-unit",
       "path": "./wallet/web-components/components/item-list/personality-unit/personality-unit.html",
-        "cssPaths": [
-            "./wallet/web-components/components/item-list/personality-unit/personality-unit.css"
-        ]
+      "cssPaths": [
+        "./wallet/web-components/components/item-list/personality-unit/personality-unit.css"
+      ]
     },
     {
       "name": "flow-unit",
       "path": "./wallet/web-components/components/item-list/flow-unit/flow-unit.html",
-        "cssPaths": [
-            "./wallet/web-components/components/item-list/flow-unit/flow-unit.css"
-        ]
+      "cssPaths": [
+        "./wallet/web-components/components/item-list/flow-unit/flow-unit.css"
+      ]
     },
     {
       "name": "announcement-unit",
       "path": "./wallet/web-components/components/item-list/announcement-unit/announcement-unit.html",
-        "cssPaths": [
-            "./wallet/web-components/components/item-list/announcement-unit/announcement-unit.css"
-        ]
+      "cssPaths": [
+        "./wallet/web-components/components/item-list/announcement-unit/announcement-unit.css"
+      ]
     },
     {
       "name": "action-box",
       "path": "./wallet/web-components/components/action-box/action-box.html",
-        "cssPaths": [
-            "./wallet/web-components/components/action-box/action-box.css"
-        ]
+      "cssPaths": [
+        "./wallet/web-components/components/action-box/action-box.css"
+      ]
     },
     {
       "name": "action-box-with-select",
       "path": "./wallet/web-components/components/action-box-with-select/action-box-with-select.html",
-        "cssPaths": [
-            "./wallet/web-components/components/action-box-with-select/action-box-with-select.css"
-        ]
+      "cssPaths": [
+        "./wallet/web-components/components/action-box-with-select/action-box-with-select.css"
+      ]
     },
     {
       "name": "announcements-page",
       "path": "./wallet/web-components/pages/announcements-page/announcements-page.html",
-        "cssPaths": [
-            "./wallet/web-components/pages/announcements-page/announcements-page.css",
-          "./wallet/web-components/components/item-list/announcement-unit/announcement-unit.css"
-        ]
+      "cssPaths": [
+        "./wallet/web-components/pages/announcements-page/announcements-page.css"
+      ]
     },
     {
       "name": "personalities-page",
       "path": "./wallet/web-components/pages/personalities-page/personalities-page.html",
-        "cssPaths": [
-            "./wallet/web-components/pages/personalities-page/personalities-page.css",
-          "./wallet/web-components/components/item-list/personality-unit/personality-unit.css"
-        ]
+      "cssPaths": [
+        "./wallet/web-components/pages/personalities-page/personalities-page.css"
+      ]
     },
     {
       "name": "flows-page",
       "path": "./wallet/web-components/pages/flows-page/flows-page.html",
       "cssPaths": [
-        "./wallet/web-components/pages/flows-page/flows-page.css",
-        "./wallet/web-components/components/item-list/flow-unit/flow-unit.css"
+        "./wallet/web-components/pages/flows-page/flows-page.css"
       ]
     },
-
     {
       "name": "add-announcement-modal",
       "path": "./wallet/web-components/modals/add-announcement-modal/add-announcement-modal.html",
-        "cssPaths": [
-            "./wallet/web-components/modals/add-announcement-modal/add-announcement-modal.css"
-        ]
+      "cssPaths": [
+        "./wallet/web-components/modals/add-announcement-modal/add-announcement-modal.css"
+      ]
     },
     {
       "name": "add-page-modal",
       "path": "./wallet/web-components/modals/add-page-modal/add-page-modal.html",
-        "cssPaths": [
-            "./wallet/web-components/modals/add-page-modal/add-page-modal.css"
-        ]
+      "cssPaths": [
+        "./wallet/web-components/modals/add-page-modal/add-page-modal.css"
+      ]
     },
     {
       "name": "add-personality-modal",
       "path": "./wallet/web-components/modals/add-personality-modal/add-personality-modal.html",
-        "cssPaths": [
-            "./wallet/web-components/modals/add-personality-modal/add-personality-modal.css"
-        ]
+      "cssPaths": [
+        "./wallet/web-components/modals/add-personality-modal/add-personality-modal.css"
+      ]
     },
     {
       "name": "add-flow-modal",
       "path": "./wallet/web-components/modals/add-flow-modal/add-flow-modal.html",
-        "cssPaths": [
-            "./wallet/web-components/modals/add-flow-modal/add-flow-modal.css"
-        ]
+      "cssPaths": [
+        "./wallet/web-components/modals/add-flow-modal/add-flow-modal.css"
+      ]
     },
     {
       "name": "edit-flow-modal",
       "path": "./wallet/web-components/modals/edit-flow-modal/edit-flow-modal.html",
-        "cssPaths": [
-            "./wallet/web-components/modals/edit-flow-modal/edit-flow-modal.css"
-        ]
+      "cssPaths": [
+        "./wallet/web-components/modals/edit-flow-modal/edit-flow-modal.css"
+      ]
     },
     {
       "name": "edit-announcement-modal",
       "path": "./wallet/web-components/modals/edit-announcement-modal/edit-announcement-modal.html",
-        "cssPaths": [
-            "./wallet/web-components/modals/edit-announcement-modal/edit-announcement-modal.css"
-        ]
+      "cssPaths": [
+        "./wallet/web-components/modals/edit-announcement-modal/edit-announcement-modal.css"
+      ]
     },
     {
       "name": "show-error-modal",
       "path": "./wallet/web-components/modals/show-error-modal/show-error-modal.html",
-        "cssPaths": [
-            "./wallet/web-components/modals/show-error-modal/show-error-modal.css"
-        ]
+      "cssPaths": [
+        "./wallet/web-components/modals/show-error-modal/show-error-modal.css"
+      ]
     },
     {
       "name": "add-space-modal",
       "path": "./wallet/web-components/modals/add-space-modal/add-space-modal.html",
-        "cssPaths": [
-            "./wallet/web-components/modals/add-space-modal/add-space-modal.css"
-        ]
+      "cssPaths": [
+        "./wallet/web-components/modals/add-space-modal/add-space-modal.css"
+      ]
     },
     {
       "name": "authentication-page",
       "path": "./wallet/web-components/pages/authentication-page/authentication-page.html",
-        "cssPaths": [
-            "./wallet/web-components/pages/authentication-page/authentication-page.css"
-        ]
+      "cssPaths": [
+        "./wallet/web-components/pages/authentication-page/authentication-page.css"
+      ]
     },
     {
       "name": "application-unit",
@@ -419,13 +411,13 @@
   ],
   "storageServices": [
     {
-       "name": "FileSystemStorage",
-       "path": "./core/services/fileSystemStorage.js"
+      "name": "FileSystemStorage",
+      "path": "./core/services/fileSystemStorage.js"
     }
   ],
   "applications": [
     {
-     "name": "ChatBots",
+      "name": "ChatBots",
       "placeholderImage": "./wallet/assets/images/defaultApplication.jpg",
       "repository": "https://github.com/AssistOS-AI/ChatBots",
       "encodedSvg": "data:image/svg+xml;base64,PHN2ZyB4bWxucz0iaHR0cDovL3d3dy53My5vcmcvMjAwMC9zdmciIHdpZHRoPSI0MSIgaGVpZ2h0PSI0MSIgdmlld0JveD0iMCAwIDQxIDQxIiBmaWxsPSJub25lIj4KICAgICAgICAgICAgICAgICAgICA8cGF0aCBkPSJNMjAuNSAzMS43NzVDMjUuMjc2NSAzMS43NzUgMjkuMzE1IDI4Ljc4MiAzMC45NzU1IDI0LjZIMTAuMDI0NUMxMS42NjQ1IDI4Ljc4MiAxNS43MjM1IDMxLjc3NSAyMC41IDMxLjc3NVpNMTMuMzI1IDE4LjQ1QzE0LjE0MDUgMTguNDUgMTQuOTIyNyAxOC4xMjYgMTUuNDk5NCAxNy41NDk0QzE2LjA3NiAxNi45NzI3IDE2LjQgMTYuMTkwNSAxNi40IDE1LjM3NUMxNi40IDE0LjU1OTUgMTYuMDc2IDEzLjc3NzMgMTUuNDk5NCAxMy4yMDA2QzE0LjkyMjcgMTIuNjI0IDE0LjE0MDUgMTIuMyAxMy4zMjUgMTIuM0MxMi41MDk1IDEyLjMgMTEuNzI3MyAxMi42MjQgMTEuMTUwNiAxMy4yMDA2QzEwLjU3NCAxMy43NzczIDEwLjI1IDE0LjU1OTUgMTAuMjUgMTUuMzc1QzEwLjI1IDE2LjE5MDUgMTAuNTc0IDE2Ljk3MjcgMTEuMTUwNiAxNy41NDk0QzExLjcyNzMgMTguMTI2IDEyLjUwOTUgMTguNDUgMTMuMzI1IDE4LjQ1Wk0yNy42NzUgMTguNDVDMjguNDkwNSAxOC40NSAyOS4yNzI3IDE4LjEyNiAyOS44NDk0IDE3LjU0OTRDMzAuNDI2IDE2Ljk3MjcgMzAuNzUgMTYuMTkwNSAzMC43NSAxNS4zNzVDMzAuNzUgMTQuNTU5NSAzMC40MjYgMTMuNzc3MyAyOS44NDk0IDEzLjIwMDZDMjkuMjcyNyAxMi42MjQgMjguNDkwNSAxMi4zIDI3LjY3NSAxMi4zQzI2Ljg1OTUgMTIuMyAyNi4wNzczIDEyLjYyNCAyNS41MDA2IDEzLjIwMDZDMjQuOTI0IDEzLjc3NzMgMjQuNiAxNC41NTk1IDI0LjYgMTUuMzc1QzI0LjYgMTYuMTkwNSAyNC45MjQgMTYuOTcyNyAyNS41MDA2IDE3LjU0OTRDMjYuMDc3MyAxOC4xMjYgMjYuODU5NSAxOC40NSAyNy42NzUgMTguNDVaTTIwLjUgMzYuOUMxNi4xNTA0IDM2LjkgMTEuOTc5IDM1LjE3MjEgOC45MDM0NSAzMi4wOTY1QzUuODI3ODUgMjkuMDIxIDQuMSAyNC44NDk2IDQuMSAyMC41QzQuMSAxNi4xNTA0IDUuODI3ODUgMTEuOTc5IDguOTAzNDUgOC45MDM0NUMxMS45NzkgNS44Mjc4NSAxNi4xNTA0IDQuMSAyMC41IDQuMUMyNC44NDk2IDQuMSAyOS4wMjEgNS44Mjc4NSAzMi4wOTY1IDguOTAzNDVDMzUuMTcyMSAxMS45NzkgMzYuOSAxNi4xNTA0IDM2LjkgMjAuNUMzNi45IDI0Ljg0OTYgMzUuMTcyMSAyOS4wMjEgMzIuMDk2NSAzMi4wOTY1QzI5LjAyMSAzNS4xNzIxIDI0Ljg0OTYgMzYuOSAyMC41IDM2LjlaTTIwLjUgMEM5LjE2MzUgMCAwIDkuMjI1IDAgMjAuNUMwIDI1LjkzNjkgMi4xNTk4MiAzMS4xNTEyIDYuMDA0MzEgMzQuOTk1N0M3LjkwNzkxIDM2Ljg5OTMgMTAuMTY3OCAzOC40MDkzIDEyLjY1NSAzOS40Mzk1QzE1LjE0MjIgNDAuNDY5OCAxNy44MDc5IDQxIDIwLjUgNDFDMjUuOTM2OSA0MSAzMS4xNTEyIDM4Ljg0MDIgMzQuOTk1NyAzNC45OTU3QzM4Ljg0MDIgMzEuMTUxMiA0MSAyNS45MzY5IDQxIDIwLjVDNDEgMTcuODA3OSA0MC40Njk4IDE1LjE0MjIgMzkuNDM5NSAxMi42NTVDMzguNDA5MyAxMC4xNjc4IDM2Ljg5OTMgNy45MDc5MSAzNC45OTU3IDYuMDA0MzFDMzMuMDkyMSA0LjEwMDcxIDMwLjgzMjIgMi41OTA2OSAyOC4zNDUgMS41NjA0N0MyNS44NTc4IDAuNTMwMjQ4IDIzLjE5MjEgMCAyMC41IDBaIiBmaWxsPSJ3aGl0ZSIvPgogICAgICAgICAgICAgICAgPC9zdmc+",
@@ -446,7 +438,7 @@
       "repository": "https://github.com/AssistOS-AI/ProofReader",
       "encodedSvg": "data:image/svg+xml;base64,PHN2ZyB3aWR0aD0iNDEiIGhlaWdodD0iNDEiIHZpZXdCb3g9IjAgMCA0MSA0MSIgZmlsbD0ibm9uZSIgeG1sbnM9Imh0dHA6Ly93d3cudzMub3JnLzIwMDAvc3ZnIj4KICAgICAgICAgICAgICAgICAgICA8cGF0aCBkPSJNMTIuODEyNSAyLjU2MjVDMTEuNDUzMyAyLjU2MjUgMTAuMTQ5NyAzLjEwMjQ1IDkuMTg4NTggNC4wNjM1OEM4LjIyNzQ1IDUuMDI0NyA3LjY4NzUgNi4zMjgyNyA3LjY4NzUgNy42ODc1VjEzLjQ2ODVDOC41MDIzNyAxMy4xODE1IDkuMzYwODEgMTIuOTgxNiAxMC4yNSAxMi44ODE3VjcuNjg3NUMxMC4yNSA3LjAwNzg4IDEwLjUyIDYuMzU2MSAxMS4wMDA1IDUuODc1NTRDMTEuNDgxMSA1LjM5NDk4IDEyLjEzMjkgNS4xMjUgMTIuODEyNSA1LjEyNUgyMC41VjExLjUzMTNDMjAuNSAxMi41NTA3IDIwLjkwNSAxMy41MjgzIDIxLjYyNTggMTQuMjQ5MkMyMi4zNDY2IDE0Ljk3IDIzLjMyNDMgMTUuMzc1IDI0LjM0MzcgMTUuMzc1SDMwLjc1VjMzLjMxMjVDMzAuNzUgMzMuOTkyMSAzMC40OCAzNC42NDM5IDI5Ljk5OTUgMzUuMTI0NUMyOS41MTg5IDM1LjYwNSAyOC44NjcxIDM1Ljg3NSAyOC4xODc1IDM1Ljg3NUgyNy45Njk3QzI4LjI2MTggMzYuNzAyNyAyOC4yNjE4IDM3LjYwOTggMjcuOTY5NyAzOC40Mzc1SDI4LjE4NzVDMjkuNTQ2NyAzOC40Mzc1IDMwLjg1MDMgMzcuODk3NSAzMS44MTE0IDM2LjkzNjRDMzIuNzcyNSAzNS45NzUzIDMzLjMxMjUgMzQuNjcxNyAzMy4zMTI1IDMzLjMxMjVWMTMuODczNEMzMy4zMTE2IDEyLjg1NDMgMzIuOTA2IDExLjg3NzMgMzIuMTg1IDExLjE1NzFMMjQuNzIwNCAzLjY4NzQ0QzI0LjM2MzMgMy4zMzA1NyAyMy45Mzk0IDMuMDQ3NTQgMjMuNDcyOSAyLjg1NDUyQzIzLjAwNjQgMi42NjE1IDIyLjUwNjUgMi41NjIyNyAyMi4wMDE2IDIuNTYyNUgxMi44MTI1Wk0zMC4yMTk2IDEyLjgxMjVIMjQuMzQzN0MyNC4wMDM5IDEyLjgxMjUgMjMuNjc4IDEyLjY3NzUgMjMuNDM3OCAxMi40MzcyQzIzLjE5NzUgMTIuMTk3IDIzLjA2MjUgMTEuODcxMSAyMy4wNjI1IDExLjUzMTNWNS42NTU0NEwzMC4yMTk2IDEyLjgxMjVaTTE2LjkwMjIgMzEuNTI2NEMxNS4wODYzIDMyLjg4NDMgMTIuODIzNCAzMy41MDQgMTAuNTY5IDMzLjI2MDdDOC4zMTQ2MSAzMy4wMTc1IDYuMjM2MDIgMzEuOTI5MyA0Ljc1MTU4IDMwLjIxNTNDMy4yNjcxNCAyOC41MDEyIDIuNDg3MDMgMjYuMjg4NSAyLjU2ODI2IDI0LjAyMjVDMi42NDk0OSAyMS43NTY0IDMuNTg2MDMgMTkuNjA1MyA1LjE4OTM5IDE4LjAwMTlDNi43OTI3NSAxNi4zOTg1IDguOTQzOTIgMTUuNDYyIDExLjIxIDE1LjM4MDhDMTMuNDc2IDE1LjI5OTUgMTUuNjg4NyAxNi4wNzk2IDE3LjQwMjggMTcuNTY0MUMxOS4xMTY4IDE5LjA0ODUgMjAuMjA1IDIxLjEyNzEgMjAuNDQ4MiAyMy4zODE1QzIwLjY5MTUgMjUuNjM1OSAyMC4wNzE4IDI3Ljg5ODggMTguNzEzOSAyOS43MTQ4TDI1LjI0ODMgMzYuMjQ5MUMyNS40ODg5IDM2LjQ4OTQgMjUuNjI0MiAzNi44MTUzIDI1LjYyNDQgMzcuMTU1M0MyNS42MjQ3IDM3LjQ5NTMgMjUuNDg5OCAzNy44MjE1IDI1LjI0OTYgMzguMDYyMUMyNS4wMDkzIDM4LjMwMjcgMjQuNjgzNCAzOC40MzggMjQuMzQzNCAzOC40MzgyQzI0LjAwMzQgMzguNDM4NSAyMy42NzcyIDM4LjMwMzYgMjMuNDM2NiAzOC4wNjM0TDE2LjkwMjIgMzEuNTI2NFpNMTcuOTM3NSAyNC4zNDM4QzE3LjkzNzUgMjIuNjQ0NyAxNy4yNjI2IDIxLjAxNTMgMTYuMDYxMiAxOS44MTM4QzE0Ljg1OTcgMTguNjEyNCAxMy4yMzAzIDE3LjkzNzUgMTEuNTMxMiAxNy45Mzc1QzkuODMyMjEgMTcuOTM3NSA4LjIwMjc1IDE4LjYxMjQgNy4wMDEzNSAxOS44MTM4QzUuNzk5OTQgMjEuMDE1MyA1LjEyNSAyMi42NDQ3IDUuMTI1IDI0LjM0MzhDNS4xMjUgMjYuMDQyOCA1Ljc5OTk0IDI3LjY3MjMgNy4wMDEzNSAyOC44NzM3QzguMjAyNzUgMzAuMDc1MSA5LjgzMjIxIDMwLjc1IDExLjUzMTIgMzAuNzVDMTMuMjMwMyAzMC43NSAxNC44NTk3IDMwLjA3NTEgMTYuMDYxMiAyOC44NzM3QzE3LjI2MjYgMjcuNjcyMyAxNy45Mzc1IDI2LjA0MjggMTcuOTM3NSAyNC4zNDM4WiIgZmlsbD0id2hpdGUiLz4KICAgICAgICAgICAgICAgICAgICA8ZyBjbGlwLXBhdGg9InVybCgjY2xpcDBfOTg2XzE2ODcpIj4KICAgICAgICAgICAgICAgICAgICAgICAgPHBhdGggZmlsbC1ydWxlPSJldmVub2RkIiBjbGlwLXJ1bGU9ImV2ZW5vZGQiIGQ9Ik0xNS44NzUyIDIxLjM0MjZDMTYuMDA0MSAyMS40NzE1IDE2LjA3NjUgMjEuNjQ2MyAxNi4wNzY1IDIxLjgyODZDMTYuMDc2NSAyMi4wMTA5IDE2LjAwNDEgMjIuMTg1OCAxNS44NzUyIDIyLjMxNDdMMTAuNzIyMiAyNy40Njc3QzEwLjY1NDEgMjcuNTM1OSAxMC41NzMzIDI3LjU4OTkgMTAuNDg0MyAyNy42MjY3QzEwLjM5NTMgMjcuNjYzNiAxMC4yOTk5IDI3LjY4MjYgMTAuMjAzNiAyNy42ODI2QzEwLjEwNzMgMjcuNjgyNiAxMC4wMTE5IDI3LjY2MzYgOS45MjI5MiAyNy42MjY3QzkuODMzOTQgMjcuNTg5OSA5Ljc1MzA5IDI3LjUzNTkgOS42ODQ5OSAyNy40Njc3TDcuMTI0NzQgMjQuOTA3OUM3LjA1OTA4IDI0Ljg0NDUgNy4wMDY3IDI0Ljc2ODcgNi45NzA2NyAyNC42ODQ4QzYuOTM0NjQgMjQuNjAwOSA2LjkxNTY4IDI0LjUxMDcgNi45MTQ4OCAyNC40MTk0QzYuOTE0MDkgMjQuMzI4MSA2LjkzMTQ4IDI0LjIzNzYgNi45NjYwNSAyNC4xNTMxQzcuMDAwNjIgMjQuMDY4NiA3LjA1MTY3IDIzLjk5MTkgNy4xMTYyMiAyMy45MjczQzcuMTgwNzcgMjMuODYyNyA3LjI1NzUzIDIzLjgxMTcgNy4zNDIwMiAyMy43NzcxQzcuNDI2NTEgMjMuNzQyNiA3LjUxNzA0IDIzLjcyNTIgNy42MDgzMyAyMy43MjZDNy42OTk2MiAyMy43MjY4IDcuNzg5ODMgMjMuNzQ1NyA3Ljg3MzcxIDIzLjc4MThDNy45NTc1OCAyMy44MTc4IDguMDMzNDUgMjMuODcwMiA4LjA5Njg3IDIzLjkzNThMMTAuMjAzNCAyNi4wNDIzTDE0LjkwMjcgMjEuMzQyNkMxNC45NjY1IDIxLjI3ODcgMTUuMDQyMyAyMS4yMjggMTUuMTI1OCAyMS4xOTM0QzE1LjIwOTIgMjEuMTU4OCAxNS4yOTg2IDIxLjE0MTEgMTUuMzg5IDIxLjE0MTFDMTUuNDc5MyAyMS4xNDExIDE1LjU2ODcgMjEuMTU4OCAxNS42NTIxIDIxLjE5MzRDMTUuNzM1NiAyMS4yMjggMTUuODExNCAyMS4yNzg3IDE1Ljg3NTIgMjEuMzQyNloiIGZpbGw9IndoaXRlIi8+CiAgICAgICAgICAgICAgICAgICAgPC9nPgogICAgICAgICAgICAgICAgICAgIDxkZWZzPgogICAgICAgICAgICAgICAgICAgICAgICA8Y2xpcFBhdGggaWQ9ImNsaXAwXzk4Nl8xNjg3Ij4KICAgICAgICAgICAgICAgICAgICAgICAgICAgIDxyZWN0IHdpZHRoPSIxMSIgaGVpZ2h0PSIxMSIgZmlsbD0id2hpdGUiIHRyYW5zZm9ybT0idHJhbnNsYXRlKDYgMTkpIi8+CiAgICAgICAgICAgICAgICAgICAgICAgIDwvY2xpcFBhdGg+CiAgICAgICAgICAgICAgICAgICAgPC9kZWZzPgogICAgICAgICAgICAgICAgPC9zdmc+",
       "flowsRepository": "https://github.com/AssistOS-AI/ProofReaderFlows",
-      "id":"ProofReader"
+      "id": "ProofReader"
     },
     {
       "name": "AiTranslator",
