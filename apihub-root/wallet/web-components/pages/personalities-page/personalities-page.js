@@ -16,11 +16,11 @@ export class personalitiesPage {
         }
     }
     async showAddPersonalityModal() {
-        await webSkel.UtilsService.showModal(document.querySelector("body"), "add-personality-modal", { presenter: "add-personality-modal"});
+        await webSkel.showModal("add-personality-modal", { presenter: "add-personality-modal"});
     }
 
     async selectPersonality(_target){
-        let personalityId = webSkel.UtilsService.reverseQuerySelector(_target, "personality-unit").getAttribute("data-id");
+        let personalityId = webSkel.reverseQuerySelector(_target, "personality-unit").getAttribute("data-id");
         window.location.hash = `#space/personalities-page/edit-personality-page/${personalityId}`;
         await webSkel.changeToDynamicPage("edit-personality-page", `${webSkel.currentUser.space.id}/SpaceConfiguration/personality/${personalityId}/edit-personality-page`);
     }

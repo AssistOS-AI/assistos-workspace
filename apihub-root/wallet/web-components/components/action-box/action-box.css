@@ -18,7 +18,7 @@ action-box{
     cursor: pointer;
 }
 .action:hover {
-    background-color: var(--button-purple);
+    background-color: var(--medium-blue);
     color: var(--white-text);
 }
 .act1:hover {

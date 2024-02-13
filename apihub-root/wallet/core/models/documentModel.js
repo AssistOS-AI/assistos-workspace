@@ -193,7 +193,7 @@ export class DocumentModel {
             let currentTitle = this.title;
             this.title = this.alternativeTitles[alternativeTitleIndex].title;
             this.alternativeTitles.splice(alternativeTitleIndex, 1);
-            this.alternativeTitles.splice(alternativeTitleIndex,0,{id: webSkel.servicesRegistry.UtilsService.generateId(), title: currentTitle});
+            this.alternativeTitles.splice(alternativeTitleIndex,0,{id: webSkel.appServices.generateId(), title: currentTitle});
             await documentFactory.updateDocument(webSkel.currentUser.space.id, this);
         }else{
             console.warn("Attempting to select alternative title that doesn't exist in this document.");
@@ -205,7 +205,7 @@ export class DocumentModel {
             let currentAbstract = this.abstract;
             this.abstract = this.alternativeAbstracts[alternativeAbstractIndex].content;
             this.alternativeAbstracts.splice(alternativeAbstractIndex, 1);
-            this.alternativeAbstracts.splice(alternativeAbstractIndex,0,{id: webSkel.servicesRegistry.UtilsService.generateId(), content: currentAbstract});
+            this.alternativeAbstracts.splice(alternativeAbstractIndex,0,{id: webSkel.appServices.generateId(), content: currentAbstract});
             await documentFactory.updateDocument(webSkel.currentUser.space.id, this);
         }else{
             console.warn("Attempting to select alternative abstract that doesn't exist in this document.");

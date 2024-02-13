@@ -65,7 +65,7 @@ export class applicationPage {
         return reverseQuerySelector(_target, "flow-unit").getAttribute("data-id");
     }
     async editAction(_target){
-        await showModal(document.querySelector("body"), "edit-flow-modal", { presenter: "edit-flow-modal", id: this.getFlowId(_target), appId: this._app.id});
+        await showModal( "edit-flow-modal", { presenter: "edit-flow-modal", id: this.getFlowId(_target), appId: this._app.id});
     }
     async deleteAction(_target){
         this._app.flows = this._app.flows.filter(flow => flow.id !== this.getFlowId(_target));

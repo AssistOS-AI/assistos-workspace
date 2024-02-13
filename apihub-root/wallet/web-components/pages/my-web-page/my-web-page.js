@@ -39,11 +39,11 @@ export class myWebPage {
     }
 
     getPageId(_target) {
-        return webSkel.UtilsService.reverseQuerySelector(_target, "page-unit").getAttribute("data-id");
+        return webSkel.reverseQuerySelector(_target, "page-unit").getAttribute("data-id");
     }
 
     async showAddPageModal() {
-        await webSkel.UtilsService.showModal(document.querySelector("body"), "add-page-modal", {presenter: "add-page-modal"});
+        await webSkel.showModal( "add-page-modal", {presenter: "add-page-modal"});
     }
 
     async deleteAction(_target) {
@@ -53,7 +53,7 @@ export class myWebPage {
     }
 
     async editAction(_target) {
-        await webSkel.UtilsService.showModal(document.querySelector("body"), "edit-my-web-page-modal", {
+        await webSkel.showModal( "edit-my-web-page-modal", {
             presenter: "edit-my-web-page-modal",
             id: this.getPageId(_target)
         });

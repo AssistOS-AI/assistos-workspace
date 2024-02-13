@@ -30,7 +30,7 @@ export class announcementsPage {
         return reverseQuerySelector(_target, "announcement-unit").getAttribute("data-id");
     }
     async showAddAnnouncementModal() {
-        await showModal(document.querySelector("body"), "add-announcement-modal", { presenter: "add-announcement-modal"});
+        await showModal( "add-announcement-modal", { presenter: "add-announcement-modal"});
     }
     async deleteAction(_target){
         let flowId = webSkel.currentUser.space.getFlowIdByName("DeleteAnnouncement");
@@ -38,6 +38,6 @@ export class announcementsPage {
         this.invalidate();
     }
     async editAction(_target){
-        await showModal(document.querySelector("body"), "edit-announcement-modal", { presenter: "edit-announcement-modal", id: this.getAnnouncementId(_target)});
+        await showModal("edit-announcement-modal", { presenter: "edit-announcement-modal", id: this.getAnnouncementId(_target)});
     }
 }

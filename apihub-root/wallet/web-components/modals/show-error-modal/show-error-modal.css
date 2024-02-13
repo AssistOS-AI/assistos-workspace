@@ -88,13 +88,13 @@ dialog[class="modal"] {
 }
 
 #ok-button {
-    background: var(--button-purple);
+    background: var(--medium-blue);
 }
 
 #details-button {
-    color: var(--button-purple);
+    color: var(--medium-blue);
     background-color: var(--white-text);
-    border-color: var(--button-purple);
+    border-color: var(--medium-blue);
 }
 
 .button {

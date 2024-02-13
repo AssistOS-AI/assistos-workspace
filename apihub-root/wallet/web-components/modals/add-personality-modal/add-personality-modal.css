@@ -15,7 +15,7 @@ dialog[class="modal"] {
 .modal-header{
     padding: 5px 20px 5px 20px;
     margin-bottom: 5px;
-    background: var(--button-purple);
+    background: var(--medium-blue);
     display: flex;
     justify-content: space-between;
 }
@@ -105,7 +105,7 @@ input[type="file"]{
     border-radius: 16px;
     margin: 16px 0;
     border: 0.5px solid var(--pink-white);
-    background: var(--button-purple);
+    background: var(--medium-blue);
     color: var(--white-text);
     font-feature-settings: 'clig' off, 'liga' off;
     font-size: 14px;

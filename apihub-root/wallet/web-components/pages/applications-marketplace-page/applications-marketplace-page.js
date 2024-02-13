@@ -15,6 +15,6 @@ export class applicationsMarketplacePage {
         });
     }
     async addMarketplace(){
-        await showModal(document.querySelector("body"), "add-marketplace-modal", { presenter: "add-marketplace-modal"});
+        await showModal( "add-marketplace-modal", { presenter: "add-marketplace-modal"});
     }
 }

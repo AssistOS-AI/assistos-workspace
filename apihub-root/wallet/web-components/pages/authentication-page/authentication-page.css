@@ -80,7 +80,7 @@ authentication-page{
     font-weight: 600;
 }
 .highlighted-text{
-    color: var(--button-purple);
+    color: var(--medium-blue);
 }
 .controls{
     width: 100%;
@@ -162,7 +162,7 @@ authentication-page{
 .wide-btn {
     width: 70%;
     height: 36px;
-    background:  var(--button-purple);
+    background:  var(--medium-blue);
     color: var(--white-text);
     border-radius: 16px;
     font-size: 14px;

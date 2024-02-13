@@ -13,7 +13,7 @@ dialog[class="modal"] {
 .modal-header{
     height: 8%;
     padding: 5px 20px 5px 20px;
-    background: var(--button-purple);
+    background: var(--medium-blue);
     display: flex;
     justify-content: space-between;
 }
@@ -84,7 +84,7 @@ textarea#flowCode {
     padding: 8px 40px;
     border-radius: 16px;
     border: 0.5px solid var(--pink-white);
-    background:  var(--button-purple);
+    background:  var(--medium-blue);
     color:  var(--white-text);
     font-feature-settings: 'clig' off, 'liga' off;
     font-size: 14px;

@@ -5,9 +5,8 @@ import {
     DocumentFactory,
 } from "./imports.js";
 
-window.webSkel = new WebSkel();
 window.mainContent = document.querySelector("#app-wrapper");
-
+const CONFIGS_PATH="./wallet/webskel-configs.json"
 
 async function loadPage() {
 
@@ -26,11 +25,11 @@ async function loadPage() {
             leftSidebarPlaceholder.style.display = "none";
             await webSkel.changeToDynamicPage(spaceId, spaceId);
         } else {
-            let authenticationResult = await webSkel.getService("AuthenticationService").initUser(spaceId);
+            let authenticationResult = await webSkel.appServices.initUser(spaceId);
             if (authenticationResult === true) {
                 if (splitUrl[1]) {
                     /* appName, applicationLocation that will get passed to the application itself to be handled */
-                    await webSkel.getService("ApplicationsService").startApplication(splitUrl[1], splitUrl.slice(2));
+                    await webSkel.appServices.startApplication(splitUrl[1], splitUrl.slice(2));
                 } else {
                     document.querySelector("#page-content").insertAdjacentHTML("beforebegin", `<left-sidebar data-presenter="left-sidebar" ></left-sidebar>`);
                     await webSkel.changeToDynamicPage("agent-page", `${webSkel.currentUser.space.id}/agent-page`);
@@ -39,7 +38,7 @@ async function loadPage() {
             }
         }
     } else {
-        if (await webSkel.getService("AuthenticationService").initUser()) {
+        if (await webSkel.appServices.initUser()) {
             document.querySelector("#page-content").insertAdjacentHTML("beforebegin", `<left-sidebar data-presenter="left-sidebar" ></left-sidebar>`);
             /*let agent = "space/agent-page";
             let url = "#space/agent-page";
@@ -81,44 +80,10 @@ function defineActions() {
     });
 }
 
-async function loadConfigs(jsonPath) {
-    try {
-        const response = await fetch(jsonPath);
-        const config = await response.json();
 
-        for (const service of config.services) {
-            const ServiceModule = await import(service.path);
-            webSkel.initialiseService(service.name, ServiceModule[service.name]);
-        }
-        for (const storageService of config.storageServices) {
-            const StorageServiceModule = await import(storageService.path);
-            if (storageService.params) {
-                storageManager.addStorageService(storageService.name, new StorageServiceModule[storageService.name](...Object.values(storageService.params)));
-            } else {
-                storageManager.addStorageService(storageService.name, new StorageServiceModule[storageService.name]());
-            }
-        }
-        webSkel.applications = new Set();
-        webSkel.initialisedApplications = new Set();
-        for (const application of config.applications) {
-            webSkel.applications[application.name] = application;
-        }
-
-        for (const presenter of config.presenters) {
-            const PresenterModule = await import(presenter.path);
-            webSkel.registerPresenter(presenter.name, PresenterModule[presenter.className]);
-        }
-        for (const component of config.components) {
-            await webSkel.defineComponent(component.name, component.path, {urls:component.cssPaths});
-        }
-    } catch (error) {
-        console.error(error);
-        await showApplicationError("Error loading configs", "Error loading configs", `Encountered ${error} while trying loading webSkel configs`);
-    }
-}
 
 async function handleHistory(event) {
-    const result = webSkel.getService("AuthenticationService").getCachedCurrentUser();
+    const result = webSkel.appServices.getCachedCurrentUser();
     if (!result) {
         if (window.location.hash !== "#authentication-page") {
             webSkel.setDomElementForPages(mainContent);
@@ -154,16 +119,31 @@ function closeDefaultLoader(){
     UILoader.style.remove();
 }
 
+async function loadAssistOSConfigs(config,webSkel) {
+        for (const storageService of config.storageServices) {
+            const StorageServiceModule = await import(storageService.path);
+            if (storageService.params) {
+                storageManager.addStorageService(storageService.name, new StorageServiceModule[storageService.name](...Object.values(storageService.params)));
+            } else {
+                storageManager.addStorageService(storageService.name, new StorageServiceModule[storageService.name]());
+            }
+        }
+        webSkel.applications = new Set();
+        webSkel.initialisedApplications = new Set();
+        for (const application of config.applications) {
+            webSkel.applications[application.name] = application;
+        }
+       //webSkel.setLoading(`<general-loader></general-loader>`);
+        webSkel.defaultApplicationName = "SpaceConfiguration";
+        webSkel.setDomElementForPages(document.querySelector("#page-content"));
+}
+
 (async () => {
-    await webSkel.defineComponent("general-loader", "./wallet/web-components/components/general-loader/general-loader.html");
-    await webSkel.UtilsService.initialize();
-    webSkel.setDomElementForPages(document.querySelector("#page-content"));
     window.storageManager = new StorageManager();
     window.documentFactory = new DocumentFactory();
-    webSkel.defaultApplicationName = "SpaceConfiguration";
-    await loadConfigs("./wallet/webskel-configs.json");
-    await loadPage();
+    window.webSkel= await WebSkel.initialise(CONFIGS_PATH,loadAssistOSConfigs);
     defineActions();
+    await loadPage();
     window.addEventListener('popstate', handleHistory);
     window.addEventListener('beforeunload', saveCurrentState);
     closeDefaultLoader();

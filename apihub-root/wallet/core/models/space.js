@@ -259,7 +259,7 @@ export class Space {
     }
     createDefaultAnnouncement(spaceData) {
         let defaultAnnouncement = {
-            id: webSkel.servicesRegistry.UtilsService.generateId(),
+            id: webSkel.appServices.generateId(),
             title: "Welcome to AIAuthor!",
             text: `Space ${this.name} was successfully created. You can now add documents, users and settings to your space.`,
             date: new Date().toISOString().split('T')[0]

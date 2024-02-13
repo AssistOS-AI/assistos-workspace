@@ -16,7 +16,6 @@ export class addSpaceModal {
     async addSpace(_target){
         let formData = await extractFormInformation(_target);
         if(formData.isValid) {
-
             let flowId = webSkel.currentUser.space.getFlowIdByName("AddSpace");
             await webSkel.appServices.callFlow(flowId, formData.data.name);
             closeModal(_target);

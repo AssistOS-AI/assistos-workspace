@@ -10,7 +10,7 @@ dialog[class="modal"] {
 .modal-header{
     padding: 5px 20px 5px 20px;
     margin-bottom: 5px;
-    background: var(--button-purple);
+    background: var(--medium-blue);
     display: flex;
     justify-content: space-between;
 }
@@ -50,7 +50,7 @@ dialog[class="modal"] {
     cursor: pointer;
     width: 100%;
     height: 36px;
-    background: var(--button-purple);
+    background: var(--medium-blue);
     border: none;
     color: var(--white-text);
     border-radius: 16px;

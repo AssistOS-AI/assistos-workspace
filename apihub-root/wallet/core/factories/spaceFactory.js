@@ -6,7 +6,7 @@ export class SpaceFactory {
      static async createSpace(spaceData) {
 
         if(!spaceData.id) {
-            spaceData.id = webSkel.servicesRegistry.UtilsService.generateId();
+            spaceData.id = webSkel.appServices.generateId();
         }
         let newSpace = new Space(spaceData);
         newSpace.createDefaultAnnouncement();

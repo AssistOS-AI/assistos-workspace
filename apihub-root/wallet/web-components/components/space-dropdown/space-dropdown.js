@@ -64,7 +64,7 @@ export class spaceDropdown {
     }
 
     async addSpace(){
-        await showModal(document.querySelector("body"), "add-space-modal", { presenter: "add-space-modal"});
+        await showModal("add-space-modal", { presenter: "add-space-modal"});
     }
 
     async logout(){

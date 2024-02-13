@@ -5,7 +5,7 @@ export class LlmAnimationService {
     }
 
     async displayThink(prompt){
-        await showModal(document.querySelector("body"),"llm-animation");
+        await showModal("llm-animation");
         let phrases = ["Seeking inspiration","Generating new ideas","Making ideas come to reality"];
         let animation = document.querySelector("llm-animation");
         this.timeoutId = setTimeout(this.animateThink.bind(this),500,animation,phrases);

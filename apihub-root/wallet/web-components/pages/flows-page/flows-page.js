@@ -48,10 +48,10 @@ export class flowsPage {
         return reverseQuerySelector(_target, "flow-unit").getAttribute("data-id");
     }
     async showAddFlowModal() {
-        await showModal(document.querySelector("body"), "add-flow-modal", { presenter: "add-flow-modal"});
+        await showModal("add-flow-modal", { presenter: "add-flow-modal"});
     }
     async editAction(_target){
-        await showModal(document.querySelector("body"), "edit-flow-modal", { presenter: "edit-flow-modal", id: this.getFlowId(_target)});
+        await showModal("edit-flow-modal", { presenter: "edit-flow-modal", id: this.getFlowId(_target)});
     }
     async deleteAction(_target){
         this.filteredFlows = this.filteredFlows.filter(flow => flow.id !== this.getFlowId(_target));

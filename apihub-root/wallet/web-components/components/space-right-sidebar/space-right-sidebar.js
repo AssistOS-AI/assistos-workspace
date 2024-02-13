@@ -28,9 +28,6 @@ export class spaceRightSidebar {
     async navigateToCollaboratorsPage(){
         await webSkel.changeToDynamicPage("collaborators-page", `${webSkel.currentUser.space.id}/SpaceConfiguration/collaborators-page`);
     }
-    async navigateToMyWebPage(){
-        await webSkel.changeToDynamicPage("my-web-page", `${webSkel.currentUser.space.id}/SpaceConfiguration/my-web-page`);
-    }
     async navigateToSettingsPage(){
         await webSkel.changeToDynamicPage("settings-page", `${webSkel.currentUser.space.id}/SpaceConfiguration/settings-page`);
     }
