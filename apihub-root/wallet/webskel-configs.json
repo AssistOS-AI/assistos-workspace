@@ -1,412 +1,199 @@
 {
-  "presenters": [
-    {
-      "name": "add-marketplace-modal",
-      "path": "./web-components/modals/add-marketplace-modal/add-marketplace-modal.js",
-      "className": "addMarketplaceModal"
-    },
-    {
-      "name": "application-page",
-      "path": "./web-components/pages/application-page/application-page.js",
-      "className": "applicationPage"
-    },
-    {
-      "name": "space-dropdown",
-      "path": "./web-components/components/space-dropdown/space-dropdown.js",
-      "className": "spaceDropdown"
-    },
-    {
-      "name": "left-sidebar",
-      "path": "./web-components/components/left-sidebar/left-sidebar.js",
-      "className": "leftSidebar"
-    },
-    {
-      "name": "space-right-sidebar",
-      "path": "./web-components/components/space-right-sidebar/space-right-sidebar.js",
-      "className": "spaceRightSidebar"
-    },
-    {
-      "name": "collaborators-page",
-      "path": "./web-components/pages/collaborators-page/collaborators-page.js",
-      "className": "collaboratorsPage"
-    },
-    {
-      "name": "knowledge-page",
-      "path": "./web-components/pages/knowledge-page/knowledge-page.js",
-      "className": "knowledgePage"
-    },
-    {
-      "name": "tasks-page",
-      "path": "./web-components/pages/tasks-page/tasks-page.js",
-      "className": "tasksPage"
-    },
-    {
-      "name": "agent-page",
-      "path": "./web-components/pages/agent-page/agent-page.js",
-      "className": "agentPage"
-    },
-    {
-      "name": "my-web-page",
-      "path": "./web-components/pages/my-web-page/my-web-page.js",
-      "className": "myWebPage"
-    },
-    {
-      "name": "settings-page",
-      "path": "./web-components/pages/settings-page/settings-page.js",
-      "className": "settingsPage"
-    },
-    {
-      "name": "applications-marketplace-page",
-      "path": "./web-components/pages/applications-marketplace-page/applications-marketplace-page.js",
-      "className": "applicationsMarketplacePage"
-    },
-    {
-      "name": "confirmation-popup",
-      "path": "./web-components/components/confirmation-popup/confirmation-popup.js",
-      "className": "confirmationPopup"
-    },
-    {
-      "name": "edit-personality-page",
-      "path": "./web-components/pages/edit-personality-page/edit-personality-page.js",
-      "className": "editPersonalityPage"
-    },
-    {
-      "name": "show-error-modal",
-      "path": "./web-components/modals/show-error-modal/show-error-modal.js",
-      "className": "showErrorModal"
-    },
-    {
-      "name": "announcements-page",
-      "path": "./web-components/pages/announcements-page/announcements-page.js",
-      "className": "announcementsPage"
-    },
-    {
-      "name": "personalities-page",
-      "path": "./web-components/pages/personalities-page/personalities-page.js",
-      "className": "personalitiesPage"
-    },
-    {
-      "name": "add-page-modal",
-      "path": "./web-components/modals/add-page-modal/add-page-modal.js",
-      "className": "addPageModal"
-    },
-    {
-      "name": "add-announcement-modal",
-      "path": "./web-components/modals/add-announcement-modal/add-announcement-modal.js",
-      "className": "addAnnouncementModal"
-    },
-    {
-      "name": "add-personality-modal",
-      "path": "./web-components/modals/add-personality-modal/add-personality-modal.js",
-      "className": "addPersonalityModal"
-    },
-    {
-      "name": "add-flow-modal",
-      "path": "./web-components/modals/add-flow-modal/add-flow-modal.js",
-      "className": "addFlowModal"
-    },
-    {
-      "name": "edit-flow-modal",
-      "path": "./web-components/modals/edit-flow-modal/edit-flow-modal.js",
-      "className": "editFlowModal"
-    },
-    {
-      "name": "edit-announcement-modal",
-      "path": "./web-components/modals/edit-announcement-modal/edit-announcement-modal.js",
-      "className": "editAnnouncementModal"
-    },
-    {
-      "name": "add-space-modal",
-      "path": "./web-components/modals/add-space-modal/add-space-modal.js",
-      "className": "addSpaceModal"
-    },
-    {
-      "name": "flows-page",
-      "path": "./web-components/pages/flows-page/flows-page.js",
-      "className": "flowsPage"
-    },
-    {
-      "name": "authentication-page",
-      "path": "./web-components/pages/authentication-page/authentication-page.js",
-      "className": "authenticationPage"
-    },
-    {
-      "name": "application-unit",
-      "path": "./web-components/components/item-list/application-unit/application-unit.js",
-      "className": "applicationUnit"
-    }
-  ],
+  "defaultPage": "agent-page",
+  "webComponentsRootDir": "wallet/web-components",
   "services": [
     {
       "name": "AgentService",
-      "path": "./core/services/agentService.js"
+      "path": "../wallet/core/services/agentService.js"
     },
     {
       "name": "LlmAnimationService",
-      "path": "./core/services/llmAnimationService.js"
+      "path": "../wallet/core/services/llmAnimationService.js"
     },
     {
       "name": "AuthenticationService",
-      "path": "./core/services/authenticationService.js"
+      "path": "../wallet/core/services/authenticationService.js"
     },
     {
       "name": "UtilsService",
-      "path": "./core/services/utilsService.js"
+      "path": "../wallet/core/services/utilsService.js"
     },
     {
       "name": "LlmsService",
-      "path": "./core/services/llmsService.js"
+      "path": "../wallet/core/services/llmsService.js"
     },
     {
       "name": "ApplicationsService",
-      "path": "./core/services/applicationsService.js"
+      "path": "../wallet/core/services/applicationsService.js"
     }
   ],
   "components": [
     {
       "name": "add-marketplace-modal",
-      "path": "./wallet/web-components/modals/add-marketplace-modal/add-marketplace-modal.html",
-      "cssPaths": [
-        "./wallet/web-components/modals/add-marketplace-modal/add-marketplace-modal.css"
-      ]
+      "type": "modals",
+      "presenterClassName": "addMarketplaceModal"
     },
     {
       "name": "action-box-marketplace",
-      "path": "./wallet/web-components/components/action-box-marketplace/action-box-marketplace.html",
-      "cssPaths": [
-        "./wallet/web-components/components/action-box-marketplace/action-box-marketplace.css"
-      ]
+      "type": "components"
     },
     {
       "name": "application-page",
-      "path": "./wallet/web-components/pages/application-page/application-page.html",
-      "cssPaths": [
-        "./wallet/web-components/pages/application-page/application-page.css"
-      ]
+      "type": "pages",
+      "presenterClassName": "applicationPage"
     },
     {
       "name": "space-dropdown",
-      "path": "./wallet/web-components/components/space-dropdown/space-dropdown.html",
-      "cssPaths": [
-        "./wallet/web-components/components/space-dropdown/space-dropdown.css"
-      ]
+      "type": "components",
+      "presenterClassName": "spaceDropdown"
     },
     {
       "name": "left-sidebar",
-      "path": "./wallet/web-components/components/left-sidebar/left-sidebar.html",
-      "cssPaths": [
-        "./wallet/web-components/components/left-sidebar/left-sidebar.css"
-      ]
+      "type": "components",
+      "presenterClassName": "leftSidebar"
     },
     {
       "name": "space-right-sidebar",
-      "path": "./wallet/web-components/components/space-right-sidebar/space-right-sidebar.html",
-      "cssPaths": [
-        "./wallet/web-components/components/space-right-sidebar/space-right-sidebar.css"
-      ]
+      "type": "components",
+      "presenterClassName": "spaceRightSidebar"
     },
     {
       "name": "collaborators-page",
-      "path": "./wallet/web-components/pages/collaborators-page/collaborators-page.html",
-      "cssPaths": [
-        "./wallet/web-components/pages/collaborators-page/collaborators-page.css"
-      ]
+      "type": "pages",
+      "presenterClassName": "collaboratorsPage"
     },
     {
       "name": "knowledge-page",
-      "path": "./wallet/web-components/pages/knowledge-page/knowledge-page.html",
-      "cssPaths": [
-        "./wallet/web-components/pages/knowledge-page/knowledge-page.css"
-      ]
+      "type": "pages",
+      "presenterClassName": "knowledgePage"
     },
     {
       "name": "my-web-page",
-      "path": "./wallet/web-components/pages/my-web-page/my-web-page.html",
-      "cssPaths": [
-        "./wallet/web-components/pages/my-web-page/my-web-page.css"
-      ]
+      "type": "pages",
+      "presenterClassName": "myWebPage"
     },
     {
       "name": "tasks-page",
-      "path": "./wallet/web-components/pages/tasks-page/tasks-page.html",
-      "cssPaths": [
-        "./wallet/web-components/pages/tasks-page/tasks-page.css"
-      ]
+      "type": "pages",
+      "presenterClassName": "tasksPage"
     },
     {
       "name": "agent-page",
-      "path": "./wallet/web-components/pages/agent-page/agent-page.html",
-      "cssPaths": [
-        "./wallet/web-components/pages/agent-page/agent-page.css"
-      ]
+      "type": "pages",
+      "presenterClassName": "agentPage"
     },
     {
       "name": "settings-page",
-      "path": "./wallet/web-components/pages/settings-page/settings-page.html",
-      "cssPaths": [
-        "./wallet/web-components/pages/settings-page/settings-page.css"
-      ]
+      "type": "pages",
+      "presenterClassName": "settingsPage"
     },
     {
       "name": "applications-marketplace-page",
-      "path": "./wallet/web-components/pages/applications-marketplace-page/applications-marketplace-page.html",
-      "cssPaths": [
-        "./wallet/web-components/pages/applications-marketplace-page/applications-marketplace-page.css"
-      ]
+      "type": "pages",
+      "presenterClassName": "applicationsMarketplacePage"
     },
     {
       "name": "confirmation-popup",
-      "path": "./wallet/web-components/components/confirmation-popup/confirmation-popup.html",
-      "cssPaths": [
-        "./wallet/web-components/components/confirmation-popup/confirmation-popup.css"
-      ]
+      "type": "components",
+      "presenterClassName": "confirmationPopup"
     },
     {
       "name": "llm-animation",
-      "path": "./wallet/web-components/components/llm-animation/llm-animation.html",
-      "cssPaths": [
-        "./wallet/web-components/components/llm-animation/llm-animation.css"
-      ]
+      "type": "components"
     },
     {
       "name": "edit-personality-page",
-      "path": "./wallet/web-components/pages/edit-personality-page/edit-personality-page.html",
-      "cssPaths": [
-        "./wallet/web-components/pages/edit-personality-page/edit-personality-page.css"
-      ]
+      "type": "pages",
+      "presenterClassName": "editPersonalityPage"
     },
     {
       "name": "space-unit",
-      "path": "./wallet/web-components/components/item-list/space-unit/space-unit.html",
-      "cssPaths": [
-        "./wallet/web-components/components/item-list/space-unit/space-unit.css"
-      ]
+      "type": "components"
     },
     {
       "name": "personality-unit",
-      "path": "./wallet/web-components/components/item-list/personality-unit/personality-unit.html",
-      "cssPaths": [
-        "./wallet/web-components/components/item-list/personality-unit/personality-unit.css"
-      ]
+      "type": "components"
     },
     {
       "name": "flow-unit",
-      "path": "./wallet/web-components/components/item-list/flow-unit/flow-unit.html",
-      "cssPaths": [
-        "./wallet/web-components/components/item-list/flow-unit/flow-unit.css"
-      ]
+      "type": "components"
     },
     {
       "name": "announcement-unit",
-      "path": "./wallet/web-components/components/item-list/announcement-unit/announcement-unit.html",
-      "cssPaths": [
-        "./wallet/web-components/components/item-list/announcement-unit/announcement-unit.css"
-      ]
+      "type": "components"
     },
     {
       "name": "action-box",
-      "path": "./wallet/web-components/components/action-box/action-box.html",
-      "cssPaths": [
-        "./wallet/web-components/components/action-box/action-box.css"
-      ]
+      "type": "components"
     },
     {
       "name": "action-box-with-select",
-      "path": "./wallet/web-components/components/action-box-with-select/action-box-with-select.html",
-      "cssPaths": [
-        "./wallet/web-components/components/action-box-with-select/action-box-with-select.css"
-      ]
+      "type": "components"
     },
     {
       "name": "announcements-page",
-      "path": "./wallet/web-components/pages/announcements-page/announcements-page.html",
-      "cssPaths": [
-        "./wallet/web-components/pages/announcements-page/announcements-page.css"
-      ]
+      "type": "pages",
+      "presenterClassName": "announcementsPage"
     },
     {
       "name": "personalities-page",
-      "path": "./wallet/web-components/pages/personalities-page/personalities-page.html",
-      "cssPaths": [
-        "./wallet/web-components/pages/personalities-page/personalities-page.css"
-      ]
+      "type": "pages",
+      "presenterClassName": "personalitiesPage"
     },
     {
       "name": "flows-page",
-      "path": "./wallet/web-components/pages/flows-page/flows-page.html",
-      "cssPaths": [
-        "./wallet/web-components/pages/flows-page/flows-page.css"
-      ]
+      "type": "pages",
+      "presenterClassName": "flowsPage"
     },
     {
       "name": "add-announcement-modal",
-      "path": "./wallet/web-components/modals/add-announcement-modal/add-announcement-modal.html",
-      "cssPaths": [
-        "./wallet/web-components/modals/add-announcement-modal/add-announcement-modal.css"
-      ]
+      "type": "modals",
+      "presenterClassName": "addAnnouncementModal"
     },
     {
       "name": "add-page-modal",
-      "path": "./wallet/web-components/modals/add-page-modal/add-page-modal.html",
-      "cssPaths": [
-        "./wallet/web-components/modals/add-page-modal/add-page-modal.css"
-      ]
+      "type": "modals",
+      "presenterClassName": "addPageModal"
     },
     {
       "name": "add-personality-modal",
-      "path": "./wallet/web-components/modals/add-personality-modal/add-personality-modal.html",
-      "cssPaths": [
-        "./wallet/web-components/modals/add-personality-modal/add-personality-modal.css"
-      ]
+      "type": "modals",
+      "presenterClassName": "addPersonalityModal"
     },
     {
       "name": "add-flow-modal",
-      "path": "./wallet/web-components/modals/add-flow-modal/add-flow-modal.html",
-      "cssPaths": [
-        "./wallet/web-components/modals/add-flow-modal/add-flow-modal.css"
-      ]
+      "type": "modals",
+      "presenterClassName": "addFlowModal"
     },
     {
       "name": "edit-flow-modal",
-      "path": "./wallet/web-components/modals/edit-flow-modal/edit-flow-modal.html",
-      "cssPaths": [
-        "./wallet/web-components/modals/edit-flow-modal/edit-flow-modal.css"
-      ]
+      "type": "modals",
+      "presenterClassName": "editFlowModal"
     },
     {
       "name": "edit-announcement-modal",
-      "path": "./wallet/web-components/modals/edit-announcement-modal/edit-announcement-modal.html",
-      "cssPaths": [
-        "./wallet/web-components/modals/edit-announcement-modal/edit-announcement-modal.css"
-      ]
+      "type": "modals",
+      "presenterClassName": "editAnnouncementModal"
     },
     {
       "name": "show-error-modal",
-      "path": "./wallet/web-components/modals/show-error-modal/show-error-modal.html",
-      "cssPaths": [
-        "./wallet/web-components/modals/show-error-modal/show-error-modal.css"
-      ]
+      "type": "modals",
+      "presenterClassName": "showErrorModal"
     },
     {
       "name": "add-space-modal",
-      "path": "./wallet/web-components/modals/add-space-modal/add-space-modal.html",
-      "cssPaths": [
-        "./wallet/web-components/modals/add-space-modal/add-space-modal.css"
-      ]
+      "type": "modals",
+      "presenterClassName": "addSpaceModal"
     },
     {
       "name": "authentication-page",
-      "path": "./wallet/web-components/pages/authentication-page/authentication-page.html",
-      "cssPaths": [
-        "./wallet/web-components/pages/authentication-page/authentication-page.css"
-      ]
+      "type": "pages",
+      "presenterClassName": "authenticationPage"
     },
     {
       "name": "application-unit",
-      "path": "./wallet/web-components/components/item-list/application-unit/application-unit.html",
-      "cssPaths": [
-        "./wallet/web-components/components/item-list/application-unit/application-unit.css"
-      ]
+      "type": "components",
+      "presenterClassName": "applicationUnit"
     }
   ],
   "storageServices": [
