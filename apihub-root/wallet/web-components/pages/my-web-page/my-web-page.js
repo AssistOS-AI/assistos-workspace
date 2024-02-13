@@ -48,7 +48,7 @@ export class myWebPage {
 
     async deleteAction(_target) {
         let flowId = webSkel.currentUser.space.getFlowIdByName("DeletePage");
-        await webSkel.getService("LlmsService").callFlow(flowId, this.getPageId(_target));
+        await webSkel.appServices.callFlow(flowId, this.getPageId(_target));
         this.invalidate();
     }
 

@@ -42,11 +42,11 @@ export class agentPage {
         this.userInput.addEventListener("input", this.resizeTextarea);
         setTimeout(async ()=>{
             if(this.agent.conversationHistory.length === 0){
-                await webSkel.getService("AgentService").initOpeners();
+                await webSkel.appServices.initOpeners();
                 let message = this.agent.getRandomOpener();
                 await this.displayMessage("assistant", message);
                 await this.agent.addMessage("assistant", message);
-                await webSkel.getService("AgentService").addCapabilities();
+                await webSkel.appServices.addCapabilities();
             }
         },0);
 
@@ -86,7 +86,7 @@ export class agentPage {
             return;
         }
         await this.displayMessage("user", userPrompt);
-        let response = await webSkel.getService("AgentService").analyzeRequest(formInfo.data.input);
+        let response = await webSkel.appServices.analyzeRequest(formInfo.data.input);
         let agentMessage=response.responseJson ? JSON.stringify(response.responseJson) : response.responseString;
         await this.displayMessage("assistant", agentMessage);
         await this.agent.addMessage("assistant", agentMessage);

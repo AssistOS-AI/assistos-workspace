@@ -3,7 +3,7 @@ import { Paragraph } from "../../imports.js";
 export class Chapter {
     constructor(chapterData) {
         this.title = chapterData.title;
-        this.id = chapterData.id || webSkel.getService("UtilsService").generateId();
+        this.id = chapterData.id || webSkel.appServices.generateId();
         this.visibility = "show";
         this.paragraphs = [];
         this.alternativeChapters=[]
@@ -73,7 +73,7 @@ export class Chapter {
     }
     addAlternativeTitles(alternativeTitles) {
         for(let title of alternativeTitles){
-            title.id=webSkel.getService("UtilsService").generateId();
+            title.id=webSkel.appServices.generateId();
         }
         this.alternativeTitles.push(...alternativeTitles);
     }
@@ -106,7 +106,7 @@ export class Chapter {
     selectAlternativeTitle(alternativeTitleId) {
         let alternativeTitleIndex= this.getAlternativeTitleIndex(alternativeTitleId);
         if(alternativeTitleIndex !== -1) {
-            let currentTitle = {title:this.title,id:webSkel.getService("UtilsService").generateId()};
+            let currentTitle = {title:this.title,id:webSkel.appServices.generateId()};
             this.title = this.alternativeTitles[alternativeTitleIndex].title;
             this.alternativeTitles[alternativeTitleIndex] = currentTitle;
         }else{

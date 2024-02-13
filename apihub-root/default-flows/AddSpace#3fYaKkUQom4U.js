@@ -13,7 +13,7 @@ export class AddSpace {
         try {
             let spaceData = { name: name };
             let newSpace = await this.iSpaceFactory.createSpace(spaceData);
-            await webSkel.getService("AuthenticationService").addSpaceToUser(webSkel.currentUser.id, newSpace);
+            await webSkel.appServices.addSpaceToUser(webSkel.currentUser.id, newSpace);
             this.return(spaceData);
         } catch (e) {
             this.fail(e);

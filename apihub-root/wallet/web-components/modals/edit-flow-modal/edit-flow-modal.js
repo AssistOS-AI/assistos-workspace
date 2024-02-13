@@ -62,7 +62,7 @@ export class editFlowModal {
         if(formInfo.isValid) {
             let flowId = this.element.getAttribute("data-id");
                 let execFlowId = webSkel.currentUser.space.getFlowIdByName("UpdateFlow");
-            await webSkel.getService("LlmsService").callFlow(execFlowId, flowId, formInfo.data.flowCode, this.element.getAttribute("data-appId"));
+            await webSkel.appServices.callFlow(execFlowId, flowId, formInfo.data.flowCode, this.element.getAttribute("data-appId"));
             webSkel.currentUser.space.notifyObservers(webSkel.currentUser.space.getNotificationId());
             closeModal(_target);
         }

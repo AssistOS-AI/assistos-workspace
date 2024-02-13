@@ -253,7 +253,7 @@ export class authenticationPage {
         let currentUserId = "5jURBE8WE3YH";
         let currentUser = JSON.parse(await storageManager.loadUser(currentUserId));
         /* incarcare json user de pe server*/
-        let users = webSkel.getService("AuthenticationService").getCachedUsers();
+        let users = webSkel.appServices.getCachedUsers();
         /* incarcare users din localstorage */
         let userObj;
         try {
@@ -261,22 +261,22 @@ export class authenticationPage {
             users = JSON.parse(users);
             /* daca se gaseste id-ul userului default */
             if(users.find(user => user.id === currentUser.id)){
-                await webSkel.getService("AuthenticationService").loginUser("teo@teo", "teo");
+                await webSkel.appServices.loginUser("teo@teo", "teo");
             }else {
                throw new Error("user not found");
             }
         }catch (e){
             //users not present in localStorage yet or not found - > default login
-            await webSkel.getService("AuthenticationService").loginFirstTimeUser("teo@teo", "teo");
-            webSkel.getService("AuthenticationService").setCachedCurrentUser({id:currentUser.id,secretToken:currentUser.secretToken});
-            webSkel.getService("AuthenticationService").addCachedUser({id:currentUser.id,secretToken:currentUser.secretToken});
+            await webSkel.appServices.loginFirstTimeUser("teo@teo", "teo");
+            webSkel.appServices.setCachedCurrentUser({id:currentUser.id,secretToken:currentUser.secretToken});
+            webSkel.appServices.addCachedUser({id:currentUser.id,secretToken:currentUser.secretToken});
         }
         window.location = "";
     }
     async beginRegistration(_target){
         const formInfo = await extractFormInformation(_target);
         if(formInfo.isValid) {
-            if(await webSkel.getService("AuthenticationService").registerUser(formInfo.data)){
+            if(await webSkel.appServices.registerUser(formInfo.data)){
                 await webSkel.changeToDynamicPage("authentication-page", "authentication-page",{subpage:"register-confirmation"});
             }else{
                 console.error("Failed to create user");
@@ -286,16 +286,16 @@ export class authenticationPage {
         }
     }
     verifyConfirmationLink(){
-        webSkel.getService("AuthenticationService").verifyConfirmationLink();
+        webSkel.appServices.verifyConfirmationLink();
         window.location = "";
     }
     async beginLogin(_target){
         const formInfo = await extractFormInformation(_target);
         if(formInfo.isValid) {
-            if(await webSkel.getService("AuthenticationService").loginUser(formInfo.data.email, formInfo.data.password)){
+            if(await webSkel.appServices.loginUser(formInfo.data.email, formInfo.data.password)){
                 window.location = "";
             }else {
-                if(await webSkel.getService("AuthenticationService").loginFirstTimeUser(formInfo.data.email, formInfo.data.password)){
+                if(await webSkel.appServices.loginFirstTimeUser(formInfo.data.email, formInfo.data.password)){
                     await webSkel.changeToDynamicPage("authentication-page", "authentication-page",{subpage:"login-new-device"});
                 }else {
                     alert("incorrect email or password");
@@ -315,7 +315,7 @@ export class authenticationPage {
         const conditions = {"checkPasswordConfirmation": {fn:checkPasswordConfirmation, errorMessage:"Passwords do not match!"} };
         const formInfo = await extractFormInformation(_target, conditions);
         if (formInfo.isValid) {
-            if(await webSkel.getService("AuthenticationService").recoverPassword(formInfo.data.email, formInfo.data.password)){
+            if(await webSkel.appServices.recoverPassword(formInfo.data.email, formInfo.data.password)){
                 await webSkel.changeToDynamicPage("authentication-page", "authentication-page",{subpage:"password-recovery-confirmation"});
             }else {
                 console.log("Failed to recover password");
@@ -326,7 +326,7 @@ export class authenticationPage {
 
     }
     async finishPasswordRecovery(){
-        if(await webSkel.getService("AuthenticationService").confirmRecoverPassword()){
+        if(await webSkel.appServices.confirmRecoverPassword()){
             window.location = "";
         } else{
             console.error("Failed to confirm password recovery");

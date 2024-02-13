@@ -44,7 +44,7 @@ export class addFlowModal {
         this.flowCode.addEventListener("keydown", this.insertSpacesOnTab);
         this.flowCode.value = "class PascalCase {\n" +
             "\n" +
-            `   static id = "${webSkel.getService("UtilsService").generateId()}" \n` +
+            `   static id = "${webSkel.appServices.generateId()}" \n` +
             "   static description = \"description\"; \n\n" +
             "   constructor(dependencies) {\n" +
             "       const { changeSelectedPageFromSidebar } = dependencies;\n" +
@@ -170,7 +170,7 @@ export class addFlowModal {
         if (formInfo.isValid) {
 
             let flowId = webSkel.currentUser.space.getFlowIdByName("AddFlow");
-            await webSkel.getService("LlmsService").callFlow(flowId, formInfo.data.code);
+            await webSkel.appServices.callFlow(flowId, formInfo.data.code);
             webSkel.currentUser.space.notifyObservers(webSkel.currentUser.space.getNotificationId());
             closeModal(_target);
         }

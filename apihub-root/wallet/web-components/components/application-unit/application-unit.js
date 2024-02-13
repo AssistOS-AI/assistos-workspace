@@ -28,14 +28,14 @@ export class applicationUnit{
     }
     async installApplication() {
         const loading = await webSkel.showLoading(`<general-loader></general-loader>`);
-        await webSkel.getService("ApplicationsService").installApplication(this.appName);
+        await webSkel.appServices.installApplication(this.appName);
         loading.close();
         loading.remove();
         location.reload();
     }
     async uninstallApplication() {
         const loading = await webSkel.showLoading(`<general-loader></general-loader>`);
-        await webSkel.getService("ApplicationsService").uninstallApplication(this.appName);
+        await webSkel.appServices.uninstallApplication(this.appName);
         loading.close();
         loading.remove();
         location.reload();

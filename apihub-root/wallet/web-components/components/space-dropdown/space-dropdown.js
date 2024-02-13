@@ -8,7 +8,7 @@ export class spaceDropdown {
         this.element = element;
         this.invalidate=invalidate;
         this.invalidate();
-        this.user = JSON.parse(webSkel.getService("AuthenticationService").getCachedCurrentUser());
+        this.user = JSON.parse(webSkel.appServices.getCachedCurrentUser());
     }
 
     beforeRender() {
@@ -23,7 +23,7 @@ export class spaceDropdown {
             if(this.user)
             {
                 let userId = this.user.id;
-                this.userSpaces = JSON.parse(await webSkel.getService("AuthenticationService").getStoredUser(userId)).spaces;
+                this.userSpaces = JSON.parse(await webSkel.appServices.getStoredUser(userId)).spaces;
                 this.spacesDiv = "";
 
                 this.userSpaces.filter(space => space.id !== webSkel.currentUser.space.id).forEach((space) => {
@@ -60,7 +60,7 @@ export class spaceDropdown {
         let selectedSpace = getClosestParentElement(_target,['space-unit']);
         let selectedSpaceId = selectedSpace.getAttribute('data-space-id');
         let flowId = webSkel.currentUser.space.getFlowIdByName("ChangeSpace");
-        await webSkel.getService("LlmsService").callFlow(flowId, selectedSpaceId);
+        await webSkel.appServices.callFlow(flowId, selectedSpaceId);
     }
 
     async addSpace(){
@@ -68,7 +68,7 @@ export class spaceDropdown {
     }
 
     async logout(){
-        webSkel.getService("AuthenticationService").deleteCachedCurrentUser();
+        webSkel.appServices.deleteCachedCurrentUser();
         webSkel.setDomElementForPages(mainContent);
         await webSkel.changeToDynamicPage("authentication-page", "authentication-page");
     }

@@ -2,7 +2,7 @@ import {Chapter, Paragraph} from "../../imports.js"
 
 export class DocumentModel {
     constructor(documentData) {
-        this.id = documentData.id || webSkel.getService("UtilsService").generateId();
+        this.id = documentData.id || webSkel.appServices.generateId();
         this.title = documentData.title || "";
         this.abstract = documentData.abstract || "";
         this.topic = documentData.topic||"";
@@ -130,7 +130,7 @@ export class DocumentModel {
     }
     async addAlternativeTitles(alternativeTitles){
         for(let title of alternativeTitles){
-            title.id=webSkel.getService("UtilsService").generateId();
+            title.id=webSkel.appServices.generateId();
         }
         this.alternativeTitles.push(...alternativeTitles);
     }

@@ -17,7 +17,7 @@ export class addMarketplaceModal {
         let formData = await extractFormInformation(_target);
         if(formData.isValid) {
             //let flowId = webSkel.currentUser.space.getFlowIdByName("AddMarketplace");
-            //await webSkel.getService("LlmsService").callFlow(flowId, formData.data.name, formData.data.url);
+            //await webSkel.appServices.callFlow(flowId, formData.data.name, formData.data.url);
             closeModal(_target);
             console.log("to be done");
             //location.reload();

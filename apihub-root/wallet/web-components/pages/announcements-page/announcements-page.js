@@ -34,7 +34,7 @@ export class announcementsPage {
     }
     async deleteAction(_target){
         let flowId = webSkel.currentUser.space.getFlowIdByName("DeleteAnnouncement");
-        await webSkel.getService("LlmsService").callFlow(flowId, this.getAnnouncementId(_target));
+        await webSkel.appServices.callFlow(flowId, this.getAnnouncementId(_target));
         this.invalidate();
     }
     async editAction(_target){

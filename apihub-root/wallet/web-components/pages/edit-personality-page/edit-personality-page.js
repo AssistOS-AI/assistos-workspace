@@ -40,14 +40,14 @@ export class editPersonalityPage{
                 image: formInfo.data.photo
             }
             let flowId = webSkel.currentUser.space.getFlowIdByName("UpdatePersonality");
-            await webSkel.getService("LlmsService").callFlow(flowId, personalityData, this.personality.id);
+            await webSkel.appServices.callFlow(flowId, personalityData, this.personality.id);
             await this.openPersonalitiesPage();
         }
     }
 
     async deletePersonality(){
         let flowId = webSkel.currentUser.space.getFlowIdByName("DeletePersonality");
-        await webSkel.getService("LlmsService").callFlow(flowId, this.personality.id);
+        await webSkel.appServices.callFlow(flowId, this.personality.id);
         await this.openPersonalitiesPage();
     }
 

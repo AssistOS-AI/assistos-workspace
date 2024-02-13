@@ -5,7 +5,7 @@ export class applicationPage {
         this.element=element;
         this.invalidate = invalidate;
         this.invalidate();
-        let name = webSkel.getService("UtilsService").parseURL();
+        let name = webSkel.appServices.parseURL();
         this._app = webSkel.currentUser.space.getApplicationByName(name);
     }
 
@@ -45,14 +45,14 @@ export class applicationPage {
     }
     async installApplication() {
         const loading = await webSkel.showLoading(`<general-loader></general-loader>`);
-        await webSkel.getService("ApplicationsService").installApplication(this.appName);
+        await webSkel.appServices.installApplication(this.appName);
         loading.close();
         loading.remove();
         location.reload();
     }
     async uninstallApplication() {
         const loading = await webSkel.showLoading(`<general-loader></general-loader>`);
-        await webSkel.getService("ApplicationsService").uninstallApplication(this.appName);
+        await webSkel.appServices.uninstallApplication(this.appName);
         loading.close();
         loading.remove();
         location.reload();
@@ -70,7 +70,7 @@ export class applicationPage {
     async deleteAction(_target){
         this._app.flows = this._app.flows.filter(flow => flow.id !== this.getFlowId(_target));
         let flowId = webSkel.currentUser.space.getFlowIdByName("DeleteFlow");
-        await webSkel.getService("LlmsService").callFlow(flowId, this.getFlowId(_target), this._app.id);
+        await webSkel.appServices.callFlow(flowId, this.getFlowId(_target), this._app.id);
         this.invalidate();
     }
     async showActionBox(_target, primaryKey, componentName, insertionMode) {

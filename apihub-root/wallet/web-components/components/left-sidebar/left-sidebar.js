@@ -26,7 +26,7 @@ export class leftSidebar {
 
     async startApplication(_target, appName) {
         //this.changeBaseURL(appName);
-        await webSkel.getService("ApplicationsService").startApplication(appName);
+        await webSkel.appServices.startApplication(appName);
         changeSelectedPageFromSidebar(window.location.hash);
     }
 
@@ -67,7 +67,7 @@ export class leftSidebar {
 
     async changePage(_target, pageId, applicationId, refreshFlag = '0') {
         let flowId = webSkel.currentUser.space.getFlowIdByName("ChangeApplication");
-        await webSkel.getService("LlmsService").callFlow(flowId, pageId, refreshFlag);
+        await webSkel.appServices.callFlow(flowId, pageId, refreshFlag);
         getClosestParentElement(_target, ".feature").setAttribute("id", "selected-page");
         let paths = _target.querySelectorAll("path");
         paths.forEach((path) => {

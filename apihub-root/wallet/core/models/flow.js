@@ -1,7 +1,7 @@
 export class Flow{
     constructor(flowClass) {
         if(!flowClass.id){
-            flowClass.id = webSkel.getService("UtilsService").generateId();
+            flowClass.id = webSkel.appServices.generateId();
         }
         this.class = flowClass;
         this.fileName = flowClass.name + "#" + flowClass.id;

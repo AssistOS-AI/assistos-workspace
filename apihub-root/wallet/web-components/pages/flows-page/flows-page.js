@@ -56,7 +56,7 @@ export class flowsPage {
     async deleteAction(_target){
         this.filteredFlows = this.filteredFlows.filter(flow => flow.id !== this.getFlowId(_target));
         let flowId = webSkel.currentUser.space.getFlowIdByName("DeleteFlow");
-        await webSkel.getService("LlmsService").callFlow(flowId, this.getFlowId(_target));
+        await webSkel.appServices.callFlow(flowId, this.getFlowId(_target));
         this.invalidate();
     }
 

@@ -151,7 +151,7 @@ export class AuthenticationService{
         delete userData.password;
 
         userData.secretToken = secretToken;
-        userData.id = webSkel.getService("UtilsService").generateId();
+        userData.id = webSkel.appServices.generateId();
 
         let defaultSpace = this.createDefaultSpace(userData.id);
         userData.spaces = [{name: defaultSpace.name, id: defaultSpace.id}];
