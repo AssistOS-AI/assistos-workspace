@@ -2,6 +2,23 @@ export class ApplicationsService {
     constructor() {
     }
 
+    getInstalledApplications() {
+        return webSkel.currentUser.space.installedApplications || []
+    }
+
+    getApplicationFlows(applicationId) {
+        return webSkel.currentUser.space.installedApplications.find(application => application.id === applicationId).flows || [];
+    }
+
+    getInstalledApplicationFlows(processFlowCallback) {
+        return (this.getInstalledApplications())
+            .map(application => processFlowCallback && typeof processFlowCallback === "function" ?
+                this.getApplicationFlows(application.id)
+                    .map(flow => processFlowCallback(flow, application.name))
+                : this.getApplicationFlows(application.id))
+            .flat();
+    }
+
     async installApplication(appName) {
         await storageManager.installApplication(webSkel.currentUser.space.id, appName);
     }
@@ -40,7 +57,7 @@ export class ApplicationsService {
                         .then(response => response.text())
                 )
             );
-            await webSkel.defineComponent(component.componentName, componentHTML, {cssTexts:cssPaths}, true);
+            await webSkel.defineComponent(component.componentName, componentHTML, {cssTexts: cssPaths}, true);
         }
         for (const presenter of webSkel.initialisedApplications[appName].presenters) {
             const PresenterModule = await storageManager.loadPresenter(webSkel.currentUser.space.id, appName, presenter.presenterPath);

@@ -12,8 +12,11 @@ export class editFlowModal {
 
     beforeRender() {
       let flow = webSkel.currentUser.space.getFlow(this.element.getAttribute("data-id"));
+        /* TODO Replace getting the flowname from the class name with a static methot getName on the
+                flow itself
+         */
+      this.flowName = flow.class.name;
       this.flowContent = flow.class.toString();
-      this.flowName = flow.name;
     }
     afterRender(){
         this.flowCode = this.element.querySelector("textarea");

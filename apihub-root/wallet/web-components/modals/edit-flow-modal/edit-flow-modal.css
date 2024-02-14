@@ -1,8 +1,14 @@
+edit-flow-modal{
+    display:flex;
+    flex-direction:column;
+    height:500px;
+    width:700px;
+}
 dialog[class="modal"] {
     padding: 0;
     border:none;
-    height: 90%;
-    width: 90%;
+    height: 100%;
+    width: 100%;
 }
 .dialog-modal{
     height: 100%;
@@ -16,6 +22,7 @@ dialog[class="modal"] {
     background: var(--medium-blue);
     display: flex;
     justify-content: space-between;
+    align-items:center;
 }
 .modal-title {
     color: var(--white-text);
@@ -38,12 +45,11 @@ dialog[class="modal"] {
     margin-bottom: 20px
 }
 .marketplace{
-    padding:10px;
-    background: var(--flow-marketplace);
     width: 49%;
     display: flex;
     flex-direction: column;
     justify-content: space-between;
+    align-items:center;
     margin-bottom: 20px;
 }
 .modal-footer{

@@ -19,7 +19,7 @@ export class addMarketplaceModal {
             //let flowId = webSkel.currentUser.space.getFlowIdByName("AddMarketplace");
             //await webSkel.appServices.callFlow(flowId, formData.data.name, formData.data.url);
             closeModal(_target);
-            console.log("to be done");
+            alert("Feature is currently being built!")
             //location.reload();
         }
     }

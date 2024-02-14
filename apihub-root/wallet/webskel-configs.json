@@ -146,11 +146,6 @@
       "presenterClassName": "addAnnouncementModal"
     },
     {
-      "name": "add-page-modal",
-      "type": "modals",
-      "presenterClassName": "addPageModal"
-    },
-    {
       "name": "add-personality-modal",
       "type": "modals",
       "presenterClassName": "addPersonalityModal"
