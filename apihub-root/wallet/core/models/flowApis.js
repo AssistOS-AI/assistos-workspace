@@ -31,6 +31,9 @@ export class FlowApis{
             messages: []
         };
     }
+    addSystemMessage(message){
+        this.__body.messages.push({role:"system", content: message});
+    }
     setResponseFormat(format){
         //must be text or json_object for now
         this.__body.responseFormat = format;
