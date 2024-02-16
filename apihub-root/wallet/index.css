@@ -57,7 +57,7 @@
         --left-sidebar: #3F88C5 ;/* var(--left-sidebar); */
         --document-path: #440A46 ;/* var(--document-path); */
         --navbarbox: #A283A3 ;/* var(--navbarbox); */
-        --medium-white: #F3EBF3 ;/* var(--medium-white); */
+        --medium-white:#EAF3FE; /* var(--medium-white); */
         --flow-marketplace: #F3EBF366 ;/* var(--flow-marketplace); */
         --proofreader-generated-content: #2E2C2E ;/* var(--proofreader-page-generated-content); */
         --generated-text-title: #232023 ;/* var(--generated-text-title); */
@@ -304,6 +304,7 @@ dialog{
     line-height: 24px;
     letter-spacing: 0;
     text-align: left;
+    color:var(--medium-blue);
 }
 .svg-container{
     width:20px;
@@ -372,4 +373,32 @@ dialog{
     width: 14%;
     height: 100%;
 }
+/* TODO move to index.css(global application css) of AiAuthor after a proper solution is implemented */
 
+/* AiAuthor */
+.main-path-button{
+    font-family: Poppins;
+    font-size: 26px;
+    font-weight: 600;
+    line-height: 39px;
+    letter-spacing: 0em;
+    text-align: left;
+    color: var(--medium-blue);
+}
+
+.secondary-path-button{
+    font-family: Poppins;
+    font-size: 26px;
+    font-weight: 600;
+    line-height: 39px;
+    letter-spacing: 0em;
+    text-align: left;
+    color: var(--left-sidebar);
+}
+.document-path{
+    padding:20px !important;
+}
+.document-path svg{
+    margin:10px !important;
+}
+/* AiAuthor end*/
