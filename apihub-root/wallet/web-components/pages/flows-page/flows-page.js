@@ -1,5 +1,5 @@
 import {
-    showModal, showActionBox, reverseQuerySelector, extractFormInformation
+    showModal, showActionBox, reverseQuerySelector
 } from "../../../imports.js";
 
 export class flowsPage {
@@ -14,43 +14,21 @@ export class flowsPage {
 
 
     beforeRender() {
-        const tagifyFlow = (flow, applicationName) => {
-            flow.tags = [applicationName];
-            return flow;
-        };
-
-        const createUIFlowFilter = (applicationName) => `
-        <div class="filter">
-            <label for="${applicationName}">${applicationName}</label>
-            <input type="checkbox" id="${applicationName}" name="${applicationName}" data-id="${applicationName}" value="${applicationName}">
-        </div>`;
-
         const generateTableRow = (item) => `
         <flow-unit data-id="${item.class.id}" data-name="${item.class.name}" data-description="${item.class.description}" data-local-action="editAction"></flow-unit>`;
 
         const sortFlows = (flows) => flows.sort((a, b) => a.class.name.toLowerCase().localeCompare(b.class.name.toLowerCase()));
 
-        const generateApplicationFlowsUI = () => {
-            return (webSkel.appServices.getInstalledApplications() || []).map(application => createUIFlowFilter(application.name)).join("");
-        };
-
-        if (this.filteredFlows === undefined) {
-            this.filteredFlows = webSkel.currentUser.space.flows || [];
-            const applicationFlows = webSkel.appServices.getInstalledApplicationFlows(tagifyFlow);
-            this.filteredFlows = [...this.filteredFlows, ...applicationFlows];
-        }
-
-        if (this.filteredFlows.length > 0) {
-            this.filteredFlows = sortFlows(this.filteredFlows);
-            this.tableRows = this.filteredFlows.map(generateTableRow).join("");
+        this.flows = webSkel.currentUser.space.flows;
+        if (this.flows.length > 0) {
+            this.flows = sortFlows(this.flows);
+            this.tableRows = this.flows.map(generateTableRow).join("");
         } else {
             this.tableRows = `<div class="no-data-loaded">No data loaded</div>`;
         }
-        this.applicationsFlows = generateApplicationFlowsUI();
     }
 
     afterRender() {
-        this.filters = this.element.querySelector(".filters");
     }
 
     async showActionBox(_target, primaryKey, componentName, insertionMode) {
