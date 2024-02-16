@@ -69,8 +69,7 @@ textarea{
     resize: none;
 }
 textarea#code {
-
-    height: 250px;
+    min-height: 250px;
 }
 
 .item-has-focus {

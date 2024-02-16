@@ -36,7 +36,7 @@ dialog[class="modal"] {
     font-weight: 400;
 }
 .modal-body{
-    height: 72%;
+    min-height: 72%;
     padding: 20px;
 }
 .actions{
