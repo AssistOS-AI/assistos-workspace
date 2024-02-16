@@ -106,15 +106,23 @@ export class DocumentModel {
         await documentFactory.updateDocument(webSkel.currentUser.space.id, this);
     }
 
-    deleteAlternativeAbstract(id){
+    async deleteAlternativeAbstract(id){
         const index = this.alternativeAbstracts.findIndex(title => title.id === id);
         if (index !== -1) {
             this.alternativeAbstracts.splice(index, 1);
         }else {
             console.warn(`Failed to find alternative abstract with id: ${id}`);
         }
+        await documentFactory.updateDocument(webSkel.currentUser.space.id, this);
     }
-   async updateAlternativeAbstract(id, newContent){
+    async deleteAlternativeTitle(altTitleId) {
+        const index = this.alternativeTitles.findIndex(altTitle => altTitle.id === altTitleId);
+        if (index !== -1) {
+            this.alternativeTitles.splice(index, 1);
+        }
+        await documentFactory.updateDocument(webSkel.currentUser.space.id, this);
+    }
+    async updateAlternativeAbstract(id, newContent){
         let abstract = this.getAlternativeAbstract(id);
         if(abstract){
             abstract.content = newContent;
