@@ -5,17 +5,16 @@ export class RequestParameters {
     constructor() {
     }
 
-    start(flowId, missingParameters) {
+    async start(flowId, missingParameters) {
         let flow = webSkel.currentUser.space.getFlow(flowId);
         let parameters = flow.class.parameters.filter((parameter) => {
             return missingParameters.includes(parameter.name);
         });
 
-        this.prompt = `You are a custom GPT agent designed for specific tasks in a software application. Your purpose right now is to formulate a statement or a question in which you require the user to provide you with these missing parameters: ${JSON.stringify(parameters)} for this operation: ${flow.class.description}.`;
-
+        this.prompt = `Your purpose right now is to formulate a statement or a question in which you require the user to provide you with these missing parameters: ${JSON.stringify(parameters)} for this operation: ${flow.class.description}.`;
         this.setDefaultValues();
         this.setIntelligenceLevel(3);
-        this.execute();
+        await this.execute();
     }
 
     async execute() {

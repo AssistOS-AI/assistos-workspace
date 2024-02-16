@@ -20,10 +20,11 @@ export class DeduceIntention {
                 id: flow.class.id,
                 description: flow.class.description,
             }));
-        let context = `You are a custom GPT agent designed for specific tasks in a software application. Your purpose right now is to figure out what operation the user is trying to accomplish using your help. Here is a list of operations that you are capable of doing and their ID's: ${JSON.stringify(operations)}. Using only this list, figure out what operation the user is trying to do. If you found an operation that matches the user's request, your response must only be the ID of the operation. DO NOT respond with additional text. You may not find an operation that matches the user's request, in this case, your response must be an empty string: "".`;
+        let context = `You are a custom GPT agent designed for specific tasks in a software application. Your purpose right now is to figure out what operation the user is trying to accomplish using your help. Here is a list of operations that you are capable of doing and their ID's: ${JSON.stringify(operations)}. Using only this list, figure out what operation the user is trying to do. Your response should be like this: {"flowId" : "id of the operation"}`;
         await agent.addMessage("system", context);
         this.prompt = request;
         this.setDefaultValues();
+        this.setResponseFormat("json_object");
         this.setIntelligenceLevel(3);
         this.execute(agent);
     }

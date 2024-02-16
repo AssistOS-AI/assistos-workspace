@@ -15,18 +15,18 @@ export class AgentService {
     }
     async analyzeRequest(request){
         await this.summarizeConversation();
-        let flowId1 = webSkel.currentUser.space.getFlowIdByName("FindObjectsByValue");
-        let response1 = await webSkel.appServices.callFlow(flowId1, request);
+        //let flowId1 = webSkel.currentUser.space.getFlowIdByName("FindObjectsByValue");
+        //let response1 = await webSkel.appServices.callFlow(flowId1, request);
 
         let agent = webSkel.currentUser.space.agent;
         let flowId = webSkel.currentUser.space.getFlowIdByName("DeduceIntention");
         let result = await webSkel.appServices.callFlow(flowId, request);
         await agent.addMessage("user", request);
-        if(result.responseString){
+        if(result.responseJson.flowId){
             //user wants to execute an operation
             let flowId2 = webSkel.currentUser.space.getFlowIdByName("ConfirmParameters");
-            let operationId = result.responseString;
-            let response = await webSkel.appServices.callFlow(flowId2, request, operationId, response1.responseJson);
+            let operationId = result.responseJson.flowId;
+            let response = await webSkel.appServices.callFlow(flowId2, request, operationId);
             if(response.responseJson.missingParameters.length !== 0){
                 //request missing parameters from the user
                 let flowId = webSkel.currentUser.space.getFlowIdByName("RequestParameters");
@@ -42,7 +42,7 @@ export class AgentService {
                 if(result.responseJson){
                     res = JSON.stringify(result.responseJson);
                 }else {
-                    res = result.responseString
+                    res = result.responseString;
                 }
                 let flowId = webSkel.currentUser.space.getFlowIdByName("ConfirmFlowExecution");
                 return await webSkel.appServices.callFlow(flowId, operationId, response.responseJson.extractedParameters, res);
