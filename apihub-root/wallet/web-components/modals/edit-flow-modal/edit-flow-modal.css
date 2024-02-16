@@ -4,7 +4,7 @@ edit-flow-modal{
     height:500px;
     width:700px;
 }
-dialog[class="modal"] {
+dialog{
     padding: 0;
     border:none;
     height: 100%;
