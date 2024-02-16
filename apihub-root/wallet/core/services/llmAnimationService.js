@@ -15,7 +15,7 @@ export class LlmAnimationService {
         clearTimeout(this.timeoutId);
         closeModal(document.querySelector("llm-animation"));
     }
-    async animateThink(element,phrases) {
+    async animateThink(element, phrases) {
         const delay = ms => new Promise(res => setTimeout(res, ms));
         let mainText = element.querySelector(".main-text");
         for(let phrase of phrases){

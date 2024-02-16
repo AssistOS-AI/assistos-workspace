@@ -7,7 +7,6 @@ export class flowsPage {
         webSkel.currentUser.space.observeChange(webSkel.currentUser.space.getNotificationId(), invalidate);
         this.element = element;
         this.selectedTypes = [];
-        this.filtersOpen = false;
         this.invalidate = invalidate;
         this.spaceChecked="checked";
         this.invalidate();
@@ -52,15 +51,6 @@ export class flowsPage {
 
     afterRender() {
         this.filters = this.element.querySelector(".filters");
-        if (this.filtersOpen) {
-            this.openFilters();
-        }
-        for (let filter of this.filters.children) {
-            let checkbox = filter.children[1];
-            if (this.selectedTypes.includes(checkbox.getAttribute("name"))) {
-                checkbox.checked = true;
-            }
-        }
     }
 
     async showActionBox(_target, primaryKey, componentName, insertionMode) {
@@ -92,46 +82,6 @@ export class flowsPage {
 
     exportFlows() {
         alert("To be implemented.");
-    }
-
-    openFilters(_target) {
-        this.filters.style.display = "flex";
-        let controller = new AbortController();
-        document.addEventListener("click", this.manageFilters.bind(this, controller), {signal: controller.signal});
-    }
-
-    async manageFilters(controller, event) {
-        if (this.filters.contains(event.target)) {
-            event.preventDefault();
-            event.stopPropagation();
-            if (event.target.tagName === "LABEL") {
-                let checkbox = this.filters.querySelector(`#${event.target.getAttribute("for")}`);
-                checkbox.checked = !checkbox.checked;
-            }
-            if (!event.target.classList.contains("filter")) {
-                let formInfo = await extractFormInformation(event.target);
-                let selectedTypes = [];
-                for (const [key, value] of Object.entries(formInfo.elements)) {
-                    if (value.element.checked) {
-                        selectedTypes.push(value.element.value);
-                    }
-                }
-
-                this.selectedTypes = selectedTypes;
-                if(!this.selectedTypes.includes("space")){
-                    this.spaceChecked="";
-                }
-                this.filtersOpen = true;
-                this.filteredFlows = [...webSkel.currentUser.space.tagifyAllSpaceFlows(), ...webSkel.appServices.getInstalledApplicationFlows()]
-                    .filter(flow => selectedTypes.some(type => flow.tags.includes(type)));
-                this.invalidate();
-                controller.abort();
-            }
-        } else {
-            this.filters.style.display = "none";
-            this.filtersOpen = false;
-            controller.abort();
-        }
     }
 
 }
