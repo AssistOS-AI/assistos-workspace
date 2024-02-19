@@ -35,11 +35,10 @@ export class agentPage {
     afterRender(){
         this.conversation = this.element.querySelector(".conversation");
         this.userInput = this.element.querySelector("#input");
-        this.userInput.removeEventListener("keypress", this.boundFn);
-        this.boundFn = this.preventRefreshOnEnter.bind(this);
-        this.userInput.addEventListener("keypress", this.boundFn);
-        this.userInput.removeEventListener("input", this.resizeTextarea);
-        this.userInput.addEventListener("input", this.resizeTextarea);
+        let form = this.element.querySelector(".chat-input-container");
+        this.userInput.removeEventListener("keydown", this.boundFn);
+        this.boundFn = this.preventRefreshOnEnter.bind(this, form);
+        this.userInput.addEventListener("keydown", this.boundFn);
         setTimeout(async ()=>{
             if(this.agent.conversationHistory.length === 0){
                 await webSkel.appServices.initOpeners();
@@ -69,9 +68,13 @@ export class agentPage {
         const lastReplyElement = this.conversation.lastElementChild;
         lastReplyElement.scrollIntoView({behavior: "smooth", block: "start", inline: "nearest"});
     }
-    preventRefreshOnEnter(event){
+     preventRefreshOnEnter(form, event){
+        event.target.style.height = (event.target.scrollHeight) + 'px';
+        form.style.height = (form.scrollHeight) + 'px';
         if(event.key === "Enter" && !event.ctrlKey){
             event.preventDefault();
+             event.target.style.height = "52px";
+            form.style.height = "10%";
             this.element.querySelector(".send-message-btn").click();
         }
         if(event.key === "Enter" && event.ctrlKey){
