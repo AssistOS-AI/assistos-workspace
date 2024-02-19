@@ -219,9 +219,10 @@ export class Space {
         await storageManager.storeObject(webSkel.currentUser.space.id, "personalities", personalityId, "");
     }
 
-    async updateAnnouncement(announcementId, content) {
+    async updateAnnouncement(announcementId, title, content) {
         let announcement = this.getAnnouncement(announcementId);
         if(announcement!==null) {
+            announcement.title = title;
             announcement.text = content;
             await storageManager.storeObject(webSkel.currentUser.space.id, "status", "status", JSON.stringify(webSkel.currentUser.space.getSpaceStatus(),null,2));
         }else{

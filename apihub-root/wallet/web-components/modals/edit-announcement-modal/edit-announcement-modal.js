@@ -12,18 +12,24 @@ export class editAnnouncementModal {
     }
 
     beforeRender() {
-        let announcement = webSkel.currentUser.space.getAnnouncement(this.element.getAttribute("data-id"));
-        [this.announcementContent,this.announcementTitle]=[announcement.text,announcement.title];
+
     }
     closeModal(_target) {
         closeModal(_target);
     }
+    afterRender(){
+        let title = this.element.querySelector("#title");
+        let content = this.element.querySelector("#content");
+        let announcement = webSkel.currentUser.space.getAnnouncement(this.element.getAttribute("data-id"));
+        title.value = announcement.title;
+        content.value = announcement.text;
+    }
 
     async saveAnnouncement(_target) {
-        let textContent = reverseQuerySelector(_target,".modal-body").innerText;
+        let formData = await webSkel.extractFormInformation(_target);
         let announcementId = this.element.getAttribute("data-id");
         let flowId = webSkel.currentUser.space.getFlowIdByName("UpdateAnnouncement");
-        await webSkel.appServices.callFlow(flowId, announcementId, textContent);
+        await webSkel.appServices.callFlow(flowId, announcementId, formData.data.title, formData.data.content);
         webSkel.currentUser.space.notifyObservers(webSkel.currentUser.space.getNotificationId());
         closeModal(_target);
     }

@@ -5,9 +5,9 @@ export class UpdateAnnouncement {
 
     }
 
-    async start(announcementId, text) {
+    async start(announcementId, title, text) {
         try {
-            await webSkel.currentUser.space.updateAnnouncement(announcementId, text);
+            await webSkel.currentUser.space.updateAnnouncement(announcementId, title, text);
             this.return(announcementId);
         } catch (e) {
             this.fail(e);

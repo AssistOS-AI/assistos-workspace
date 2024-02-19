@@ -8,7 +8,8 @@ agent-page{
 }
 .page-container{
     position: relative;
-    height: 90%;
+    overflow: scroll;
+    height: calc(100% - 148px)
 }
 .page-header{
     z-index: 1;
