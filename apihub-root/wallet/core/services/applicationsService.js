@@ -66,8 +66,10 @@ export class ApplicationsService {
     }
 
     async startApplication(appName, applicationLocation) {
+        const applicationContainer=document.querySelector("#page-content");
+
         if (document.querySelector("left-sidebar") === null) {
-            document.querySelector("#page-content").insertAdjacentHTML("beforebegin", `<left-sidebar data-presenter="left-sidebar" ></left-sidebar>`);
+            applicationContainer.insertAdjacentHTML("beforebegin", `<left-sidebar data-presenter="left-sidebar" ></left-sidebar>`);
         }
         /* TODO refactor the showLoading function tot take a custom loader instead of using this.defaultLoader, or find a way to use the
             application`s loader

@@ -80,18 +80,23 @@ export class FlowApis{
     setThink(prompt){
         this.__think = prompt;
     }
-    async callLLM(){
+    async callLLM() {
         await webSkel.appServices.displayThink(this.__think);
         let result = await webSkel.appServices.generateResponse(JSON.stringify(this.__body));
         webSkel.appServices.closeThink();
-        setTimeout(async ()=>{
-            let dateObj = new Date();
-            let date = dateObj.toJSON().slice(0,10);
-            let time = dateObj.toJSON().slice(11, 16);
-            let flowId = webSkel.currentUser.space.getFlowIdByName("AddTask");
-            await webSkel.appServices.callFlow(flowId, `${this.__body.prompt}`, date + " " + time);
-        },0);
+
+        await new Promise(async (resolve) => {
+            setTimeout(async () => {
+                let dateObj = new Date();
+                let date = dateObj.toJSON().slice(0, 10);
+                let time = dateObj.toJSON().slice(11, 16);
+                let flowId = webSkel.currentUser.space.getFlowIdByName("AddTask");
+                await webSkel.appServices.callFlow(flowId, `${this.__body.prompt}`, date + " " + time);
+                resolve();
+            }, 0);
+        });
 
         return result;
     }
+
 }
