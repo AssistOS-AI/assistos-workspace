@@ -130,6 +130,7 @@ async function installApplication(request, response) {
             let applicationPath = `../apihub-root/spaces/${spaceId}/applications/${application.name}/flows`;
             await execAsync(`git clone ${application.flowsRepository} ${applicationPath}`);
             await execAsync(`rm ${applicationPath}/README.md`);
+            await execAsync(`rm ${applicationPath}/LICENSE`);
 
 
             const { stdout: branchList } = await execAsync(`git -C ${applicationPath} branch -r`);
