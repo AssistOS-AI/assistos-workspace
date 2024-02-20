@@ -36,11 +36,15 @@ async function loadObjects(filePath){
     const statPromises = files.map(async (file) => {
         const fullPath = path.join(filePath, file);
         const stat = await fsPromises.stat(fullPath);
-        return { file, stat };
-    }).filter(stat => stat.file !== ".git");
-    let fileStats = await Promise.all(statPromises);
-    fileStats = fileStats.filter(stat => stat.file !== ".git");
+        if (file.toLowerCase() !== ".git" && !file.toLowerCase().includes("license")) {
+            return { file, stat };
+        }
+    });
+
+    let fileStats = (await Promise.all(statPromises)).filter(stat => stat !== undefined);
+
     fileStats.sort((a, b) => a.stat.ctimeMs - b.stat.ctimeMs);
+
     for (const { file } of fileStats) {
         localData += await fsPromises.readFile(path.join(filePath, file), 'utf8') + '\n';
     }

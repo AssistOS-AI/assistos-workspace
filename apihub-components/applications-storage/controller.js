@@ -130,7 +130,6 @@ async function installApplication(request, response) {
             let applicationPath = `../apihub-root/spaces/${spaceId}/applications/${application.name}/flows`;
             await execAsync(`git clone ${application.flowsRepository} ${applicationPath}`);
             await execAsync(`rm ${applicationPath}/README.md`);
-            await execAsync(`rm ${applicationPath}/LICENSE`);
 
 
             const { stdout: branchList } = await execAsync(`git -C ${applicationPath} branch -r`);
@@ -263,10 +262,13 @@ async function loadObjects(request, response){
         const statPromises = files.map(async (file) => {
             const fullPath = path.join(filePath, file);
             const stat = await fsPromises.stat(fullPath);
-            return { file, stat };
-        }).filter(stat => stat.file !== ".git");
+            if (file.toLowerCase() !== ".git" && !file.toLowerCase().includes("license")) {
+                return { file, stat };
+            }
+        });
+
         let fileStats = await Promise.all(statPromises);
-        fileStats = fileStats.filter(stat => stat.file !== ".git");
+
         fileStats.sort((a, b) => a.stat.ctimeMs - b.stat.ctimeMs);
         for (const { file } of fileStats) {
             const jsonContent = await fsPromises.readFile(path.join(filePath, file), 'utf8');
