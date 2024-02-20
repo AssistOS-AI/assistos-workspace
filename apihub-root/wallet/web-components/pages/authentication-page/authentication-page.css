@@ -1,7 +1,3 @@
-* {
-    font-family: Poppins;
-}
-
 html {
     height: 100%;
 }
@@ -14,7 +10,9 @@ authentication-page{
     height: 100%;
     width:100%;
 }
-
+#page-content{
+    overflow: initial;
+}
 .content-container {
     height: 100%;
     display: flex;
@@ -158,24 +156,9 @@ authentication-page{
     display: flex;
     justify-content: center;
 }
-
-.wide-btn {
-    width: 70%;
-    height: 36px;
-    background:  var(--medium-blue);
-    color: var(--white-text);
-    border-radius: 16px;
-    font-size: 14px;
-    font-weight: 600;
-    line-height: 21px;
+.general-button{
     margin: 16px 0;
-    border: none;
 }
-
-.wide-btn:hover {
-    cursor: pointer;
-}
-
 .logo-container {
     display: flex;
     justify-content: center;

@@ -121,21 +121,6 @@ input[type="file"]{
 .delete-personality:hover{
     cursor: pointer;
 }
-.wide-btn {
-    cursor: pointer;
-    padding: 8px 35px;
-    border-radius: 16px;
-    margin: 16px 10px 16px 0;
-    border: 0.5px solid var(--pink-white);
-    background: var(--medium-blue);
-    color: var(--white-text);
-    font-feature-settings: 'clig' off, 'liga' off;
-    font-size: 14px;
-    font-style: normal;
-    font-weight: 600;
-    line-height: normal;
-}
-
 .cancel-btn{
     background:var(--white-text);
     color: var(--medium-blue);
@@ -148,4 +133,10 @@ input[type="file"]{
 }
 .pointer{
     cursor: pointer;
+}
+.form-footer{
+    display: flex;
+}
+.right-margin{
+    margin-right: 8px;
 }

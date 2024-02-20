@@ -30,6 +30,7 @@ dialog{
 .modal-footer {
     display: flex;
     justify-content: center;
+    margin-bottom: 12px;
 }
 
 .close {
@@ -65,19 +66,4 @@ textarea#text {
 .item-has-focus {
     --full-highlight-height: none;
     --inset-highlight-height: none;
-}
-
-.wide-btn {
-    cursor: pointer;
-    padding: 8px 52px;
-    border-radius: 16px;
-    margin: 16px 0 30px 0;
-    border: 0.5px solid var(--pink-white);
-    background: var(--medium-blue);
-    color: var(--white-text);
-    font-feature-settings: 'clig' off, 'liga' off;
-    font-size: 14px;
-    font-style: normal;
-    font-weight: 600;
-    line-height: normal;
 }

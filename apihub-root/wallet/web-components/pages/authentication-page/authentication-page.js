@@ -36,7 +36,7 @@ export class authenticationPage {
                         <input class="form-input" name="password" type="password" data-id="user-password" id="user-password" required placeholder="Add password">
                     </div>
                     <div class="form-footer">
-                        <button type="button" class="wide-btn" data-local-action="beginRegistration">Sign Up</button>
+                        <button type="button" class="general-button" data-local-action="beginRegistration">Sign Up</button>
                     </div>
                 </form>
            </div>`;
@@ -54,7 +54,7 @@ export class authenticationPage {
                         <input class="form-input" name="token" type="text" data-id="user-token" id="user-token" required placeholder="Add secret token">
                     </div>
                     <div class="form-footer">
-                        <button class="wide-btn" data-local-action="verifyConfirmationLink">Log in</button>
+                        <button class="general-button" data-local-action="verifyConfirmationLink">Log in</button>
                     </div>
                     <div class="development-mode" data-local-action="verifyConfirmationLink">
                         Log in development mode
@@ -76,7 +76,7 @@ export class authenticationPage {
                         <input class="form-input" name="token" type="text" data-email="user-token" id="user-token" required placeholder="Add secret token">
                     </div>
                     <div class="form-footer">
-                        <button type="button" class="wide-btn" data-local-action="verifyConfirmationLink">Log in</button>
+                        <button type="button" class="general-button" data-local-action="verifyConfirmationLink">Log in</button>
                     </div>
                     <div class="development-mode" data-local-action="verifyConfirmationLink">
                         Log in development mode
@@ -108,7 +108,7 @@ export class authenticationPage {
                         <input class="form-input" name="password-confirm" type="password" data-condition="checkPasswordConfirmation" data-id="user-password-confirm" id="user-password-confirm" required placeholder="Confirm new password">
                     </div>
                     <div class="form-footer">
-                        <button type="button" class="wide-btn" data-local-action="beginPasswordRecovery">Set New Password</button>
+                        <button type="button" class="general-button" data-local-action="beginPasswordRecovery">Set New Password</button>
                     </div>
                 </form>
               </div>`;
@@ -126,7 +126,7 @@ export class authenticationPage {
                         <input class="form-input" name="token" type="text" data-id="user-token" id="user-token" required placeholder="Add secret token">
                     </div>
                     <div class="form-footer">
-                        <button type="button" class="wide-btn" data-local-action="finishPasswordRecovery">Log in</button>
+                        <button type="button" class="general-button" data-local-action="finishPasswordRecovery">Log in</button>
                     </div>
                     <div class="development-mode" data-local-action="finishPasswordRecovery">
                         Log in development mode
@@ -154,7 +154,7 @@ export class authenticationPage {
                           Forgot password?
                       </div>
                       <div class="form-footer">
-                          <button type="button" class="wide-btn" data-local-action="beginLogin">Log in</button>
+                          <button type="button" class="general-button" data-local-action="beginLogin">Log in</button>
                       </div>
                       <div class="suggest-registration">
                           <div>
@@ -178,7 +178,7 @@ export class authenticationPage {
     sendFormOnEnter(event){
         if(event.key === "Enter"){
             event.preventDefault();
-            this.element.querySelector(".wide-btn").click();
+            this.element.querySelector(".general-button").click();
         }
     }
     afterRender(){
