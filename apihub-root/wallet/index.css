@@ -406,5 +406,9 @@ dialog{
 .document-path{
     padding:20px !important;
 }
+.breadcrumbs-path-svg{
+    min-width: 7px;
+    min-height:12px;
+}
 
 /* AiAuthor end*/
