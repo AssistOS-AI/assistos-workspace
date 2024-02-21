@@ -386,7 +386,7 @@ dialog{
 /* AiAuthor */
 .main-path-button{
     font-family: Poppins;
-    font-size: 26px;
+    font-size: 18px;
     font-weight: 600;
     line-height: 39px;
     letter-spacing: 0em;
@@ -396,7 +396,7 @@ dialog{
 
 .secondary-path-button{
     font-family: Poppins;
-    font-size: 26px;
+    font-size: 18px;
     font-weight: 600;
     line-height: 39px;
     letter-spacing: 0em;
@@ -406,7 +406,5 @@ dialog{
 .document-path{
     padding:20px !important;
 }
-.document-path svg{
-    margin:10px !important;
-}
+
 /* AiAuthor end*/
