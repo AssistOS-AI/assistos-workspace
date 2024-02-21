@@ -36,6 +36,7 @@ export class Space {
             id: this.id,
             personalities: this.personalities.map(personality => personality.simplify()),
             announcements : this.announcements.map(announcement => announcement.simplify()),
+            installedApplications: this.installedApplications.map(application => application.stringifyApplication())
         }
     }
     getSpaceStatus() {
