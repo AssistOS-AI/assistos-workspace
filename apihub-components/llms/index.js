@@ -12,9 +12,10 @@ function bodyReaderMiddleware(req, res, next) {
 }
 
 function SpaceStorage(server){
-    const { generateResponse } = require("./controller");
+    const {generateResponse,executeFlow} = require("./controller");
     server.use("/llms/*", bodyReaderMiddleware);
     server.put("/llms/generate", generateResponse);
+    server.post("/llms/:spaceId/executeFlow/:flowId/:applicationId", executeFlow);
 }
 
 module.exports = SpaceStorage;
