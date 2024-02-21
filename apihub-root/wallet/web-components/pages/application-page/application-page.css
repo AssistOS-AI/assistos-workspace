@@ -5,11 +5,6 @@ application-page{
 .application-page{
     width: calc(100% - 270px);
 }
-.space-controls{
-    display: flex;
-    align-items: center;
-    padding: 20px 64px;
-}
 .table-header-flows {
     padding-left: 64px;
     padding-right: 64px;

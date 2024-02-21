@@ -375,6 +375,12 @@ dialog{
     width: 14%;
     height: 100%;
 }
+.space-controls{
+    display: flex;
+    align-items: center;
+    padding: 15px 15px;
+    height:69px;
+}
 /* TODO move to index.css(global application css) of AiAuthor after a proper solution is implemented */
 
 /* AiAuthor */

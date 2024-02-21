@@ -51,8 +51,3 @@ knowledge-page{
     font-weight: 500;
     border-right: 2px solid var(--pink-white);
 }
-.space-controls{
-    display: flex;
-    align-items: center;
-    padding: 20px 15px;
-}

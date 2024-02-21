@@ -44,8 +44,3 @@ tasks-page{
     font-weight: 500;
     line-height: normal;
 }
-.space-controls{
-    display: flex;
-    align-items: center;
-    padding: 20px 15px;
-}

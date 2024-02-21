@@ -14,11 +14,6 @@ applications-marketplace-page{
     overflow:hidden;
     padding:0 40px;
 }
-.space-controls{
-    display: flex;
-    align-items: center;
-    padding: 20px 40px;
-}
 .page-header{
     display: flex;
     justify-content: space-between;

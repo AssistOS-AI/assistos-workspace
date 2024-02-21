@@ -53,8 +53,3 @@ personality-unit{
 .button-text{
     color:  var(--medium-blue);
 }
-.space-controls{
-    display: flex;
-    align-items: center;
-    padding: 20px 15px;
-}
