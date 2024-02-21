@@ -1,10 +1,15 @@
 applications-marketplace-page{
     display:flex;
     height: 100%;
+    position: relative;
+}
+#page-content{
+    overflow: initial;
 }
 .applications-marketplace-page{
     width: calc(100% - 270px);
     position: relative;
+    overflow: scroll;
 }
 .marketplace-table{
     display:grid;
@@ -54,7 +59,7 @@ applications-marketplace-page{
         grid-template-columns: 1fr 1fr 1fr;
     }
 }
-.applications-marketplace-page::before {
+applications-marketplace-page::before {
     z-index: -1;
     content: "";
     background-image: url('../../../assets/images/space-background.png');
