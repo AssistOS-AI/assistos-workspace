@@ -24,12 +24,11 @@ application-unit{
     display:flex;
     align-items:center;
     justify-content: center;
-    height:80px;
     padding:5px;
     border-radius:50%;
 }
-.application-image-container:hover{
-    border:1px solid var(--white-text);
+.application-image-container img{
+    height: 99%;
 }
 .installed{
     border: none;

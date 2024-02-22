@@ -6,17 +6,26 @@ export class applicationUnit{
         this.invalidate = invalidate;
         this.invalidate();
     }
+    getApp() {
+        for (let name of Object.keys(webSkel.applications)) {
+            if (name === this.appName) {
+                return webSkel.applications[name];
+            }
+        }
+        return null; // Object not found
+    }
     beforeRender() {
         this.installed = false;
-
         this.appName = this.element.getAttribute("data-name");
+        this.app = this.getApp();
         for (let installedApplication of webSkel.currentUser.space.installedApplications) {
             if (installedApplication.name === this.appName) {
                 this.installed = true;
             }
         }
         //this.description = this.element.getAttribute("data-description");
-        this.description = "this is the description of the application that we have here and it is very nice";
+        this.description = this.app.description;
+        this.appImage = this.app.image;
         this.applicationButtons = "";
         if (this.installed) {
             this.applicationButtons += `<button class="general-button uninstall" data-local-action="uninstallApplication">Uninstall</button>`;
@@ -42,7 +51,9 @@ export class applicationUnit{
     }
 
     async navigateToApplicationPage(){
-        await webSkel.changeToDynamicPage("application-page", `${webSkel.currentUser.space.id}/SpaceConfiguration/applications/${this.appName}/application-page`);
+        if(this.installed){
+            await webSkel.changeToDynamicPage("application-page", `${webSkel.currentUser.space.id}/SpaceConfiguration/applications/${this.appName}/application-page`);
+        }
     }
 
     async showActionBox(_target, primaryKey, componentName, insertionMode) {

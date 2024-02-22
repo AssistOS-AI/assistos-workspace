@@ -7,7 +7,7 @@ import {
 
 window.mainContent = document.querySelector("#app-wrapper");
 const CONFIGS_PATH="./wallet/webskel-configs.json"
-
+const loader = await (await fetch("./wallet/general-loader.html")).text();
 async function loadPage() {
 
     let leftSidebarPlaceholder = document.querySelector(".left-sidebar-placeholder");
@@ -20,6 +20,7 @@ async function loadPage() {
     if (pagePlaceholder) {
         pagePlaceholder.style.display = "none";
     }
+    closeDefaultLoader();
     if (spaceId) {
         if (spaceId === "authentication-page") {
             leftSidebarPlaceholder.style.display = "none";
@@ -128,12 +129,12 @@ async function loadAssistOSConfigs(config,webSkel) {
                 storageManager.addStorageService(storageService.name, new StorageServiceModule[storageService.name]());
             }
         }
-        webSkel.applications = new Set();
+        webSkel.applications = {};
         webSkel.initialisedApplications = new Set();
         for (const application of config.applications) {
             webSkel.applications[application.name] = application;
         }
-       //webSkel.setLoading(`<general-loader></general-loader>`);
+        webSkel.setLoading(loader);
         webSkel.defaultApplicationName = "SpaceConfiguration";
         webSkel.setDomElementForPages(document.querySelector("#page-content"));
 }
@@ -146,5 +147,4 @@ async function loadAssistOSConfigs(config,webSkel) {
     await loadPage();
     window.addEventListener('popstate', handleHistory);
     window.addEventListener('beforeunload', saveCurrentState);
-    closeDefaultLoader();
 })();

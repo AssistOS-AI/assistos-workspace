@@ -22,7 +22,7 @@ export class applicationPage {
         } else {
             this.appFlows = `<div class="no-data-loaded">No data loaded</div>`;
         }
-
+        this.description = this._app.description;
         this.installed = false;
         for (let installedApplication of webSkel.currentUser.space.installedApplications) {
             if (installedApplication.id === this._app.id) {
