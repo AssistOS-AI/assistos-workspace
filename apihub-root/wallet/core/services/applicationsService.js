@@ -2,23 +2,6 @@ export class ApplicationsService {
     constructor() {
     }
 
-    getInstalledApplications() {
-        return webSkel.currentUser.space.installedApplications || []
-    }
-
-    getApplicationFlows(applicationId) {
-        return webSkel.currentUser.space.installedApplications.find(application => application.id === applicationId).flows || [];
-    }
-
-    getInstalledApplicationFlows(processFlowCallback) {
-        return (this.getInstalledApplications())
-            .map(application => processFlowCallback && typeof processFlowCallback === "function" ?
-                this.getApplicationFlows(application.id)
-                    .map(flow => processFlowCallback(flow, application.name))
-                : this.getApplicationFlows(application.id))
-            .flat();
-    }
-
     async installApplication(appName) {
         await storageManager.installApplication(webSkel.currentUser.space.id, appName);
     }

@@ -13,8 +13,33 @@ function sendResponse(response, statusCode, contentType, message) {
     response.write(message);
     response.end();
 }
+async function storeSecret(server, request, response){
+    try {
+        let spaceId = request.params.spaceId;
+        let userId = request.params.userId;
+        let containerName = `${spaceId}.${userId}`;
+        const secretsService = await require('apihub').getSecretsServiceInstanceAsync(server.rootFolder);
+        if(request.body.toString() === ""){
+            //delete
+            await secretsService.deleteSecretAsync(containerName, )
+            sendResponse(response, 200, "text/plain", "Success");
+        }
+        let body = JSON.parse(request.body.toString());
 
-function updateSpaceStatus(spaceId, applicationName, branchName,deleteMode=false) {
+        await secretsService.putSecretAsync(containerName, body.secretName, body.secret);
+        sendResponse(response, 200, "text/plain", "Succes");
+    } catch (e) {
+        sendResponse(response, 500, "text/plain", JSON.stringify(e));
+    }
+
+}
+async function deleteSecret(request, response){
+
+}
+function getSecret(){
+
+}
+function updateSpaceStatus(spaceId, applicationName, description, branchName, deleteMode=false) {
     const statusPath = `../apihub-root/spaces/${spaceId}/status/status.json`;
     let status;
     if (fs.existsSync(statusPath)) {
@@ -38,7 +63,8 @@ function updateSpaceStatus(spaceId, applicationName, branchName,deleteMode=false
                 id: generateId(),
                 installationDate: installationDate,
                 lastUpdate: lastUpdate,
-                flowsBranch: branchName
+                flowsBranch: branchName,
+                description: description
             });
     } else {
         status.installedApplications = [
@@ -47,7 +73,8 @@ function updateSpaceStatus(spaceId, applicationName, branchName,deleteMode=false
                 id: generateId(),
                 installationDate: installationDate,
                 lastUpdate: lastUpdate,
-                flowsBranch: branchName
+                flowsBranch: branchName,
+                description: description
             }
         ];
     }
@@ -77,7 +104,7 @@ function iterateFolder(folderPath, extensions) {
     return filePaths;
 }
 function processFile(filePath, applicationId, components) {
-    let content = fs.readFileSync(filePath, 'utf8');
+    let content = fsPromises.readFile(filePath, 'utf8');
     components = components.sort((a, b) => b.componentName.length - a.componentName.length);
     components.forEach((component, index) => {
         const uniqueMarker = `TEMP_MARKER_${index}_`;
@@ -89,7 +116,7 @@ function processFile(filePath, applicationId, components) {
         const replaceStr = `${applicationId}-${component.componentName}`;
         content = content.replace(new RegExp(uniqueMarker, 'g'), replaceStr);
     });
-    fs.writeFileSync(filePath, content, 'utf8');
+    fsPromises.writeFile(filePath, content, 'utf8');
 }
 
 async function installApplication(request, response) {
@@ -105,25 +132,26 @@ async function installApplication(request, response) {
             return;
         }
         await execAsync(`git clone ${application.repository} ${folderPath}`);
+
         let manifestPath=folderPath+"/"+ "manifest.json";
-        let manifest=JSON.parse(fs.readFileSync(manifestPath, 'utf8'));
-
-
-        const extensions = ['.html', '.css', '.js'];
-
-        const filePaths = iterateFolder(folderPath, extensions);
-        applicationId=applicationId.toLowerCase();
-        filePaths.forEach(filePath => {
-                processFile(filePath,applicationId,manifest.components);
-            })
-        for (let component of manifest.components){
-            component.componentName=`${applicationId}-`+component.componentName;
-        }
-        manifest.entryPointComponent=`${applicationId}-`+manifest.entryPointComponent;
-        for(let presenter of manifest.presenters){
-            presenter.forComponent=`${applicationId}-`+presenter.forComponent;
-        }
-        fs.writeFileSync(manifestPath, JSON.stringify(manifest, null, 2), 'utf8')
+        let manifest=JSON.parse(await fsPromises.readFile(manifestPath, 'utf8'));
+        //
+        //
+        // const extensions = ['.html', '.css', '.js'];
+        //
+        // const filePaths = iterateFolder(folderPath, extensions);
+        // applicationId=applicationId.toLowerCase();
+        // filePaths.forEach(filePath => {
+        //         processFile(filePath,applicationId,manifest.components);
+        //     })
+        // for (let component of manifest.components){
+        //     component.componentName=`${applicationId}-`+component.componentName;
+        // }
+        // manifest.entryPointComponent=`${applicationId}-`+manifest.entryPointComponent;
+        // for(let presenter of manifest.presenters){
+        //     presenter.forComponent=`${applicationId}-`+presenter.forComponent;
+        // }
+        // fs.writeFileSync(manifestPath, JSON.stringify(manifest, null, 2), 'utf8')
 
         const branchName = `space-${spaceId}`;
         if (application.flowsRepository) {
@@ -140,7 +168,7 @@ async function installApplication(request, response) {
                 await execAsync(`git -C ${applicationPath} push -u origin ${branchName}`);
             }
         }
-        updateSpaceStatus(spaceId, application.name, branchName);
+        updateSpaceStatus(spaceId, application.name, manifest.description, branchName);
         sendResponse(response, 200, "text/html", "Application installed successfully");
     } catch (error) {
         console.error("Error in installing application:", error);
@@ -181,7 +209,7 @@ async function uninstallApplication(request, response) {
         // Remove the application folder
         await execAsync(`rm -rf ${folderPath}`);
 
-        updateSpaceStatus(spaceId, application.name, "", true);
+        updateSpaceStatus(spaceId, application.name, "", "",true);
         sendResponse(response, 200, "text/html", "Application uninstalled successfully");
     } catch (error) {
         console.error("Error in uninstalling application:", error);
@@ -238,7 +266,7 @@ async function loadApplicationConfig(request, response) {
         const folderPath = `../apihub-root/spaces/${spaceId}/applications/${application.name}`;
         const manifestPath = `${folderPath}/manifest.json`;
 
-        const manifest = fs.readFileSync(manifestPath, 'utf8');
+        const manifest = await fsPromises.readFile(manifestPath, 'utf8');
         sendResponse(response, 200, "application/json", manifest);
     } catch (error) {
         console.error('Error reading manifest:', error);
@@ -349,5 +377,6 @@ module.exports = {
     storeObject,
     loadApplicationConfig,
     loadApplicationComponents,
-    loadObjects
+    loadObjects,
+    storeSecret
 }

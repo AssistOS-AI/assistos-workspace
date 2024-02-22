@@ -105,4 +105,9 @@ export class StorageManager {
     async uninstallApplication(spaceId, appName) {
         return await this.currentService.uninstallApplication(spaceId, appName);
     }
+
+    /*GIT*/
+    async storeGITCredentials(spaceId, userId, stringData){
+        return await this.currentService.storeGITCredentials(spaceId, userId, stringData);
+    }
 }

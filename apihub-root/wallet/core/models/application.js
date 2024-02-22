@@ -4,6 +4,7 @@ export class Application {
     constructor(applicationData) {
         this.id = applicationData.id;
         this.name = applicationData.name;
+        this.description = applicationData.description;
         this.installationDate = applicationData.installationDate;
         this.lastUpdate = applicationData.lastUpdate;
         this.flowsBranch = applicationData.flowsBranch;
@@ -20,6 +21,7 @@ export class Application {
         return {
             id: this.id,
             name:this.name,
+            description: this.description,
             installationDate:this.installationDate,
             lastUpdate: this.lastUpdate,
             flowsBranch: this.flowsBranch

@@ -271,4 +271,22 @@ export class FileSystemStorage{
         }
         return await result.text();
     }
+
+    /*GIT*/
+    async storeGITCredentials(spaceId, userId, stringData){
+        let result;
+        try {
+            result = await fetch(`/space/${spaceId}/${userId}secret`,
+                {
+                    method: "PUT",
+                    body: stringData,
+                    headers: {
+                        "Content-type": "application/json; charset=UTF-8"
+                    }
+                });
+        } catch (err) {
+            console.error(err);
+        }
+        return await result.text();
+    }
 }
