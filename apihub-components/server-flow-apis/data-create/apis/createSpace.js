@@ -1,3 +1,10 @@
-export async function createSpace(){
-    const defaultAnnouncement=CONSTANTS.SPACE_CONSTANTS.DEFAULT_ANNOUNCEMENT;
+export async function createSpace(spaceName){
+    const spaceObj={};
+
+    const generateId = require('../../data-utils/exporter.js')('generateId');
+    const createDefaultAnnouncement = require('../exporter.js')('createDefaultAnnouncement');
+
+    spaceObj.announcemenets=spaceObj.announcements = [createDefaultAnnouncement(spaceName)];
+    spaceObj.documents=[];
+    spaceObj.id=generateId();
 }
