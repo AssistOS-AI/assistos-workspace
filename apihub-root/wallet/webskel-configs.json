@@ -29,6 +29,11 @@
   ],
   "components": [
     {
+      "name": "git-credentials-modal",
+      "type": "modals",
+      "presenterClassName": "gitCredentialsModal"
+    },
+    {
       "name": "add-marketplace-modal",
       "type": "modals",
       "presenterClassName": "addMarketplaceModal"

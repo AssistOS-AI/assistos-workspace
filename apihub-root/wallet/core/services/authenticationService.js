@@ -302,4 +302,11 @@ export class AuthenticationService{
     async updateStoredUser(updatedUser){
         return await storageManager.storeUser(updatedUser.id, JSON.stringify(updatedUser));
     }
+
+    async storeGITCredentials(stringData){
+        return await storageManager.storeGITCredentials(webSkel.currentUser.space.id, webSkel.currentUser.id, stringData);
+    }
+    async getUsersSecretsExist(){
+        return await storageManager.getUsersSecretsExist(webSkel.currentUser.space.id);
+    }
 }
