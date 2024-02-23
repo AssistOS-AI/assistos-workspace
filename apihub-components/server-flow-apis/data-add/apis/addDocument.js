@@ -1,0 +1,3 @@
+function addDocument(spaceId,documentObject){
+
+}

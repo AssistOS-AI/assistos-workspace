@@ -1,15 +1,13 @@
-const openDSU = require("opendsu");
-const crypto = openDSU.loadApi("crypto");
+const crypto = require("opendsu").loadApi("crypto");
 
-function generateId() {
-    const length = 12;
-    const randomBytes = new Uint8Array(length);
-    crypto.getRandomValues(randomBytes);
+const {DEFAULT_ID_LENGTH}=require('../../data-constants/exporter.js')('utils-constants')
+function generateId(length=DEFAULT_ID_LENGTH) {
+    let random = crypto.getRandomSecret(length);
     let randomStringId = "";
     while (randomStringId.length < length) {
-        randomStringId = this.crypto.encodeBase58(randomBytes).slice(0, length);
+        randomStringId = crypto.encodeBase58(random).slice(0, length);
     }
     return randomStringId;
 }
-console.log(generateId());
+
 module.exports=generateId

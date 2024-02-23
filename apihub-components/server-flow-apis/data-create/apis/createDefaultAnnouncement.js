@@ -1,12 +1,13 @@
-function createDefaultAnnouncement(spaceId, spaceName) {
-    const {getCurrentUTCDate,templateReplacer_$$}= require('../../data-utils/exporter.js')('getCurrentUTCDate','templateReplacer_$$');
-    const spaceConstants=require('../../data-constants/exporter.js')('space-constants');
+function createDefaultAnnouncement(spaceName) {
+    const {getCurrentUTCDate,templateReplacer_$$,generateId}= require('../../data-utils/exporter.js')('getCurrentUTCDate','templateReplacer_$$','generateId');
+    const {DEFAULT_ANNOUNCEMENT_TEMPLATE}=require('../../data-constants/exporter.js')('space-constants');
 
-    const defaultAnnouncement=spaceConstants.DEFAULT_ANNOUNCEMENT_TEMPLATE
     const date = getCurrentUTCDate();
-    return templateReplacer_$$(defaultAnnouncement,
+    const announcementId=generateId();
+
+    return templateReplacer_$$(DEFAULT_ANNOUNCEMENT_TEMPLATE,
         {
-            spaceId:spaceId,
+            announcementId:announcementId,
             spaceName:spaceName,
             currentUTCDate:date
         })
