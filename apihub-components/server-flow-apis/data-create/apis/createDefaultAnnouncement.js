@@ -2,7 +2,7 @@ function createDefaultAnnouncement(spaceId, spaceName) {
     const {getCurrentUTCDate,templateReplacer_$$}= require('../../data-utils/exporter.js')('getCurrentUTCDate','templateReplacer_$$');
     const spaceConstants=require('../../data-constants/exporter.js')('space-constants');
 
-    const defaultAnnouncement=spaceConstants.DEFAULT_ANNOUNCEMENT
+    const defaultAnnouncement=spaceConstants.DEFAULT_ANNOUNCEMENT_TEMPLATE
     const date = getCurrentUTCDate();
     return templateReplacer_$$(defaultAnnouncement,
         {

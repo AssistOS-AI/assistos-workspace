@@ -1,5 +1,5 @@
 {
-  "DEFAULT_ANNOUNCEMENT": {
+  "DEFAULT_ANNOUNCEMENT_TEMPLATE": {
     "id": "$$spaceId",
     "title": "Welcome to AssistOS!",
     "text": "Space $$spaceName was successfully created. You can now add documents, users and settings to your space.",

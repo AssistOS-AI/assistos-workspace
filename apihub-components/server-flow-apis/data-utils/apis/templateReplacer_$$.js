@@ -1,6 +1,6 @@
 function templateReplacer_$$(obj, replacements, depth = 0) {
     if (depth > 10) {
-        throw new Error("Depth Overreach");
+        throw new Error("Depth Overreach. Possible Circular Dependency");
     }
 
     function replaceInString(str) {
