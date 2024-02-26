@@ -69,8 +69,8 @@ export class StorageManager {
     }
 
     //applications
-    async installApplication(spaceId, appName){
-        return await this.currentService.installApplication(spaceId, appName);
+    async installApplication(spaceId, appName, userId){
+        return await this.currentService.installApplication(spaceId, appName, userId);
     }
     async getApplicationConfigs(spaceId, appId){
         return await this.currentService.getApplicationConfigs(spaceId, appId);
@@ -102,12 +102,15 @@ export class StorageManager {
     async loadAppObjects(appName, objectType){
         return await this.currentService.loadAppObjects(appName, objectType);
     }
-    async uninstallApplication(spaceId, appName) {
-        return await this.currentService.uninstallApplication(spaceId, appName);
+    async uninstallApplication(spaceId, appName, userId) {
+        return await this.currentService.uninstallApplication(spaceId, appName, userId);
     }
 
     /*GIT*/
     async storeGITCredentials(spaceId, userId, stringData){
         return await this.currentService.storeGITCredentials(spaceId, userId, stringData);
+    }
+    async getUsersSecretsExist(spaceId){
+        return await this.currentService.getUsersSecretsExist(spaceId);
     }
 }

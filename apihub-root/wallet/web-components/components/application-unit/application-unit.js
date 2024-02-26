@@ -1,4 +1,4 @@
-import {showActionBox} from "../../../imports.js";
+import {showActionBox, showModal} from "../../../imports.js";
 
 export class applicationUnit{
     constructor(element, invalidate) {
@@ -37,17 +37,31 @@ export class applicationUnit{
     }
     async installApplication() {
         const loading = await webSkel.showLoading(`<general-loader></general-loader>`);
-        await webSkel.appServices.installApplication(this.appName);
-        loading.close();
-        loading.remove();
-        location.reload();
+        let response = await webSkel.appServices.installApplication(this.appName);
+        if(response.status === 404){
+           let confirmation = await webSkel.showModal("git-credentials-modal", true);
+           if(confirmation){
+               await this.installApplication();
+           }
+        }else {
+            loading.close();
+            loading.remove();
+            location.reload();
+        }
     }
     async uninstallApplication() {
         const loading = await webSkel.showLoading(`<general-loader></general-loader>`);
-        await webSkel.appServices.uninstallApplication(this.appName);
-        loading.close();
-        loading.remove();
-        location.reload();
+        let response = await webSkel.appServices.uninstallApplication(this.appName);
+        if(response.status === 404){
+            let confirmation = await webSkel.showModal("git-credentials-modal", true);
+            if(confirmation){
+                await this.uninstallApplication();
+            }
+        }else {
+            loading.close();
+            loading.remove();
+            location.reload();
+        }
     }
 
     async navigateToApplicationPage(){

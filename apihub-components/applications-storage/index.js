@@ -5,7 +5,6 @@ const {
     loadApplicationConfig,
     loadApplicationComponents,
     loadObjects,
-    storeSecret
 
 } = require("../applications-storage/controller");
 
@@ -28,13 +27,14 @@ function ApplicationsStorage(server) {
     server.get("/app/:spaceId/applications/:applicationName/file/*", loadApplicationComponents);
     server.use("/space/*", bodyReaderMiddleware);
     server.use("/app/*", bodyReaderMiddleware);
-    server.post("/space/:spaceId/applications/:applicationId", installApplication);
-    server.delete("/space/:spaceId/applications/:applicationId", uninstallApplication);
+    server.post("/space/:spaceId/applications/:applicationId/:userId", async (request, response)=>{
+        await installApplication(server, request, response);
+    });
+    server.delete("/space/:spaceId/applications/:applicationId/:userId", async (request, response)=>{
+        await uninstallApplication(server, request, response);
+    });
     server.put("/app/:spaceId/applications/:applicationId/:objectType/:objectId", storeObject);
     server.put("/space/:spaceId/applications/:applicationId/:objectType/:objectId", storeObject);
-    server.put("/space/:spaceId/:userId/secret", async (request, response)=>{
-       await storeSecret(server, request, response);
-    })
 }
 
 module.exports = ApplicationsStorage;

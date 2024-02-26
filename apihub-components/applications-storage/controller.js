@@ -6,38 +6,20 @@ const path = require('path');
 const fsPromises = require('fs').promises;
 const openDSU = require("opendsu");
 const crypto = openDSU.loadApi("crypto");
-
 function sendResponse(response, statusCode, contentType, message) {
     response.statusCode = statusCode;
     response.setHeader("Content-Type", contentType);
     response.write(message);
     response.end();
 }
-async function storeSecret(server, request, response){
-    try {
-        let spaceId = request.params.spaceId;
-        let userId = request.params.userId;
-        let containerName = `${spaceId}.${userId}`;
-        const secretsService = await require('apihub').getSecretsServiceInstanceAsync(server.rootFolder);
-        if(request.body.toString() === ""){
-            //delete
-            await secretsService.deleteSecretAsync(containerName, )
-            sendResponse(response, 200, "text/plain", "Success");
-        }
-        let body = JSON.parse(request.body.toString());
-
-        await secretsService.putSecretAsync(containerName, body.secretName, body.secret);
-        sendResponse(response, 200, "text/plain", "Succes");
-    } catch (e) {
-        sendResponse(response, 500, "text/plain", JSON.stringify(e));
-    }
-
+function createContainerName(spaceId, userId){
+    return `${spaceId}.${userId}`;
 }
-async function deleteSecret(request, response){
 
-}
-function getSecret(){
-
+async function getSecret(spaceId, userId, secretName, serverRootFolder){
+    let containerName = createContainerName(spaceId, userId);
+    const secretsService = await require('apihub').getSecretsServiceInstanceAsync(serverRootFolder);
+    return secretsService.getSecretSync(containerName, secretName);
 }
 function updateSpaceStatus(spaceId, applicationName, description, branchName, deleteMode=false) {
     const statusPath = `../apihub-root/spaces/${spaceId}/status/status.json`;
@@ -119,9 +101,34 @@ function processFile(filePath, applicationId, components) {
     fsPromises.writeFile(filePath, content, 'utf8');
 }
 
-async function installApplication(request, response) {
+async function setGITCredentialsCache(spaceId, userId, serverRootFolder){
+    let username;
+    let token;
+    try {
+        username = await getSecret(spaceId, userId, "username", serverRootFolder);
+        token = await getSecret(spaceId, userId, "token", serverRootFolder);
+    }
+    catch (e){
+      return 404;
+    }
+    const timeout = "60";
+    await execAsync(`git config --global credential.helper 'cache --timeout=${timeout}'`);
+    await execAsync(`echo "protocol=https\nhost=github.com\nusername=${username}\npassword=${token}\n" | git credential approve`);
+    return 200;
+}
+async function clearGITCredentialsCache(){
+    await execAsync(`git credential-cache exit`);
+}
+async function installApplication(server, request, response) {
     const spaceId = request.params.spaceId;
     let applicationId = request.params.applicationId;
+    // let userId = request.params.userId;
+    //
+    // let result = await setGITCredentialsCache(spaceId, userId, server.rootFolder);
+    // if(result === 404){
+    //     return sendResponse(response, 404, "text/plain", "Credentials not found for current user");
+    // }
+
     try {
         const webSkelConfig = require("../apihub-root/wallet/webskel-configs.json");
         const application = webSkelConfig.applications.find(app => app.id == applicationId);
@@ -135,23 +142,23 @@ async function installApplication(request, response) {
 
         let manifestPath=folderPath+"/"+ "manifest.json";
         let manifest=JSON.parse(await fsPromises.readFile(manifestPath, 'utf8'));
-        //
-        //
-        // const extensions = ['.html', '.css', '.js'];
-        //
-        // const filePaths = iterateFolder(folderPath, extensions);
-        // applicationId=applicationId.toLowerCase();
-        // filePaths.forEach(filePath => {
-        //         processFile(filePath,applicationId,manifest.components);
-        //     })
-        // for (let component of manifest.components){
-        //     component.componentName=`${applicationId}-`+component.componentName;
-        // }
-        // manifest.entryPointComponent=`${applicationId}-`+manifest.entryPointComponent;
-        // for(let presenter of manifest.presenters){
-        //     presenter.forComponent=`${applicationId}-`+presenter.forComponent;
-        // }
-        // fs.writeFileSync(manifestPath, JSON.stringify(manifest, null, 2), 'utf8')
+
+
+        const extensions = ['.html', '.css', '.js'];
+
+        const filePaths = iterateFolder(folderPath, extensions);
+        applicationId=applicationId.toLowerCase();
+        filePaths.forEach(filePath => {
+                processFile(filePath,applicationId,manifest.components);
+            })
+        for (let component of manifest.components){
+            component.componentName=`${applicationId}-`+component.componentName;
+        }
+        manifest.entryPointComponent=`${applicationId}-`+manifest.entryPointComponent;
+        for(let presenter of manifest.presenters){
+            presenter.forComponent=`${applicationId}-`+presenter.forComponent;
+        }
+        fs.writeFileSync(manifestPath, JSON.stringify(manifest, null, 2), 'utf8')
 
         const branchName = `space-${spaceId}`;
         if (application.flowsRepository) {
@@ -168,6 +175,8 @@ async function installApplication(request, response) {
                 await execAsync(`git -C ${applicationPath} push -u origin ${branchName}`);
             }
         }
+        //await clearGITCredentialsCache();
+        await execAsync(`git pull`);
         updateSpaceStatus(spaceId, application.name, manifest.description, branchName);
         sendResponse(response, 200, "text/html", "Application installed successfully");
     } catch (error) {
@@ -176,11 +185,15 @@ async function installApplication(request, response) {
     }
 }
 
-async function uninstallApplication(request, response) {
+async function uninstallApplication(server, request, response) {
     const spaceId = request.params.spaceId;
     const applicationId = request.params.applicationId;
     const folderPath = `../apihub-root/spaces/${spaceId}/applications/${applicationId}`;
-
+    // let userId = request.params.userId;
+    // let result = await setGITCredentialsCache(spaceId, userId, server.rootFolder);
+    // if(result === 404){
+    //     return sendResponse(response, 404, "text/plain", "Credentials not found for current user");
+    // }
     try {
         const webSkelConfig = require("../apihub-root/wallet/webskel-configs.json");
         const application = webSkelConfig.applications.find(app => app.id == applicationId);
@@ -208,7 +221,7 @@ async function uninstallApplication(request, response) {
 
         // Remove the application folder
         await execAsync(`rm -rf ${folderPath}`);
-
+        //await clearGITCredentialsCache();
         updateSpaceStatus(spaceId, application.name, "", "",true);
         sendResponse(response, 200, "text/html", "Application uninstalled successfully");
     } catch (error) {
@@ -378,5 +391,4 @@ module.exports = {
     loadApplicationConfig,
     loadApplicationComponents,
     loadObjects,
-    storeSecret
 }

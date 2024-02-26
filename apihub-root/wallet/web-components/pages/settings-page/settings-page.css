@@ -6,3 +6,38 @@ settings-page{
 .settings-page{
     width: calc(100% - 270px);
 }
+.row{
+    display: flex;
+    padding: 15px;
+    border-bottom: 1px solid var(--gray-border);
+}
+.username{
+    width: 100%;
+    padding-right: 15px;
+    overflow: hidden;
+    text-overflow: ellipsis;
+    white-space: nowrap;
+}
+.delete-credentials{
+    display: flex;
+    align-items: center;
+    cursor: pointer;
+}
+.table-label{
+    margin-left: 15px;
+    font-weight: 700;
+    font-size: 18px;
+    color: var(--documents-page-header)
+}
+.labels{
+    display: flex;
+    margin-top: 10px;
+    margin-left: 15px;
+}
+.labels > *{
+    font-weight: 600;
+}
+.filler{
+    width: 20px;
+    margin-right: 15px;
+}

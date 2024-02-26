@@ -154,10 +154,10 @@ export class FileSystemStorage{
         return await result.text();
     }
     //applications
-    async installApplication(spaceId,applicationId) {
+    async installApplication(spaceId, applicationId, userId) {
         let result;
         try {
-            result = await fetch(`/space/${spaceId}/applications/${applicationId}`,
+            result = await fetch(`/space/${spaceId}/applications/${applicationId}/${userId}`,
                 {
                     method: "POST",
                     headers: {
@@ -167,8 +167,7 @@ export class FileSystemStorage{
         } catch (err) {
             console.error(err);
         }
-        return await result.text();
-
+        return  {response: await result.text(), status: result.status};
     }
     async getApplicationConfigs(spaceId, appId){
 
@@ -256,10 +255,10 @@ export class FileSystemStorage{
         }
         return await result.text();
     }
-    async uninstallApplication(spaceId, appName) {
+    async uninstallApplication(spaceId, appName, userId) {
         let result;
         try {
-            result = await fetch(`/space/${spaceId}/applications/${appName}`,
+            result = await fetch(`/space/${spaceId}/applications/${appName}/${userId}`,
                 {
                     method: "DELETE",
                     headers: {
@@ -269,20 +268,32 @@ export class FileSystemStorage{
         } catch (err) {
             console.error(err);
         }
-        return await result.text();
+        return {response: await result.text(), status: result.status};
     }
 
     /*GIT*/
     async storeGITCredentials(spaceId, userId, stringData){
         let result;
         try {
-            result = await fetch(`/space/${spaceId}/${userId}secret`,
+            result = await fetch(`/users/${spaceId}/${userId}/secret`,
                 {
                     method: "PUT",
                     body: stringData,
                     headers: {
                         "Content-type": "application/json; charset=UTF-8"
                     }
+                });
+        } catch (err) {
+            console.error(err);
+        }
+        return await result.text();
+    }
+    async getUsersSecretsExist(spaceId){
+        let result;
+        try {
+            result = await fetch(`/users/${spaceId}/secrets`,
+                {
+                    method: "GET"
                 });
         } catch (err) {
             console.error(err);

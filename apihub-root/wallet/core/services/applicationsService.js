@@ -3,12 +3,15 @@ export class ApplicationsService {
     }
 
     async installApplication(appName) {
-        await storageManager.installApplication(webSkel.currentUser.space.id, appName);
+        return await storageManager.installApplication(webSkel.currentUser.space.id, appName, webSkel.currentUser.id);
     }
 
     async uninstallApplication(appName) {
-        await storageManager.uninstallApplication(webSkel.currentUser.space.id, appName);
-        await webSkel.currentUser.space.deleteApplication(appName);
+        let response = await storageManager.uninstallApplication(webSkel.currentUser.space.id, appName, webSkel.currentUser.id);
+        if(response.status === 200){
+            await webSkel.currentUser.space.deleteApplication(appName);
+        }
+        return response;
     }
 
 
