@@ -1,3 +1,0 @@
-function addDocument(spaceId,announcementObject){
-
-}
