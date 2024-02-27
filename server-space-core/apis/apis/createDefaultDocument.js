@@ -1,7 +1,7 @@
 function createDefaultDocument(documentTitle,documentTopic){
 
-    const {templateReplacer_$$,generateId}= require('../../data-utils/exporter.js')('templateReplacer_$$','generateId');
-    const {DEFAULT_DOCUMENT_TEMPLATE}=require('../../data-constants/exporter.js')('space-constants');
+    const {templateReplacer_$$,generateId}= require('./data-utils/exporter.js')('templateReplacer_$$','generateId');
+    const {DEFAULT_DOCUMENT_TEMPLATE}=require('../server-space-constants/exporter.js')('space-constants');
 
 
     const documentId=generateId();

@@ -1,4 +1,6 @@
-class createOrchestra extends IFLOW{
+const IFlow = require("../IFlow.js");
+
+class CreateOrchestra extends IFlow{
     constructor(dependencies) {
         super(dependencies);
     }
@@ -26,4 +28,4 @@ class createOrchestra extends IFLOW{
     };
 }
 
-module.exports = createOrchestra;
+module.exports = CreateOrchestra;

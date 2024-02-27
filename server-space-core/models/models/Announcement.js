@@ -1,7 +1,9 @@
-export class Announcement{
+
+const IModel = require('../IModel.js')
+class Announcement extends IModel{
     constructor(announcementObj){
+        super(announcementObj);
         this.validate(announcementObj);
-        Object.keys(announcementObj).forEach(objKey=>this[objKey]=announcementObj[objKey])
     }
     validate(announcementObj=this){
         const mustInclude=['title','id','text','date']
@@ -29,3 +31,4 @@ export class Announcement{
         return JSON.stringify(properties);
     }
 }
+module.exports=Announcement;

@@ -1,16 +1,17 @@
-class addAnnouncementToSpace extends IFLOW{
+const IFlow = require("../IFlow.js");
+class AddAnnouncementToSpace extends IFlow{
     constructor(dependencies) {
         super(dependencies);
     }
 
    getFlowMetadata() {
         return {
-            "description": "Add an Announcement to the SPACE the USER that send the request is currently LOGGED ON"
+            "description": "Add an Announcement to the current SPACE of the USER who sent the request and is currently LOGGED IN"
         }
     }
     async validateFlow() {
         try {
-            this.announcementModel= this.APIS.createAnnouncementInstance(this.announcementObject)
+            this.announcementModel= await this.APIS.createAnnouncementInstance(this.announcementObject)
             return true;
         }catch(error){
            this.error=error;
@@ -23,4 +24,4 @@ class addAnnouncementToSpace extends IFLOW{
             : throw (`Error executing flow ${this.error}`);
     }
 }
-module.exports= addAnnouncementToSpace
+module.exports= AddAnnouncementToSpace

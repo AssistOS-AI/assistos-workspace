@@ -1,5 +1,5 @@
 function createAnnouncementInstance(announcementObject) {
-    const {Announcement} = require('../../data-models/exporter.js')('Announcement');
+    const {Announcement} = require('../server-space-models/exporter.js')('Announcement');
     return new Announcement(announcementObject);
 }
 

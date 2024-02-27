@@ -3,7 +3,7 @@ const {
     storeUser,
     loadUser,
     loadUserByEmail,
-    loadUsersSecretsExist} = require("../users-storage/controller");
+    loadUsersSecretsExist} = require("./controller");
 
 function bodyReaderMiddleware(req, res, next) {
     const data = [];

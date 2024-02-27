@@ -1,14 +1,20 @@
+const IFlow = require("./IFlow");
+
 class FlowFactory {
-    constructor() {
+    constructor(APIS) {
         this.registeredFlows = {};
+        this.APIS = APIS;
     }
 
-    registerFlow(name, flowDefinition) {
+    registerFlow(name, flowDefinition, specificDependencies = {}) {
         this.validateFlowCreation(name, flowDefinition);
+
+        const combinedDependencies = { ...this.APIS, ...specificDependencies };
+
         this.registeredFlows[name] = class extends IFlow {
-            constructor(dependencies) {
-                super(dependencies);
-                if(flowDefinition.init) {
+            constructor() {
+                super(combinedDependencies);
+                if (flowDefinition.init) {
                     flowDefinition.init.call(this);
                 }
             }
@@ -27,4 +33,5 @@ class FlowFactory {
         }
     }
 }
-module.exports=FlowFactory
+
+module.exports = FlowFactory;
