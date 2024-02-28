@@ -82,7 +82,7 @@ export class FlowApis{
     }
     async callLLM() {
         await webSkel.appServices.displayThink(this.__think);
-        let result = await webSkel.appServices.generateResponse(JSON.stringify(this.__body));
+        let result = await webSkel.appServices.generateResponse(JSON.stringify(this.__body),webSkel.currentUser.space.id);
         webSkel.appServices.closeThink();
 
         await new Promise(async (resolve) => {

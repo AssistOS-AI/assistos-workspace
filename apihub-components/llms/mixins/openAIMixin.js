@@ -1,5 +1,10 @@
 const fsPromises = require('fs').promises;
 
+async function getApiKeyForSpace(server,spaceId){
+    const secretsService= await require('apihub').getSecretsServiceInstanceAsync(server.rootFolder);
+    debugger
+    return secretsService.getSecretSync(`${spaceId}.APIKey`, "OpenAIAPIKey");
+}
 function openAIMixin(target) {
     target.setTemperature = function (level) {
         target.__body.temperature = level;
@@ -63,7 +68,7 @@ function openAIMixin(target) {
     target.addMessage = function (message) {
         target.__body.messages.push(message);
     }
-    target.callLLM = async function (settings) {
+    target.callLLM = async function (settings,spaceId,server) {
         target.setVariants(parseInt(settings.variants));
         target.setMaxTokens(settings.max_tokens);
         target.setResponseFormat(settings.responseFormat);
@@ -79,7 +84,7 @@ function openAIMixin(target) {
             }
         }
         target.setPrompt(settings.prompt);
-        await target.setKey();
+        await target.setKey(await getApiKeyForSpace(server,spaceId));
         const result = await fetch(target.__url, target.getOptions());
         if (result.status !== 200) {
             console.log(`Response Status: ${result.status}`);

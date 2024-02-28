@@ -1,3 +1,6 @@
+const {storeSpace} = require("../spaces-storage/controller");
+const {generateResponse} = require("./controller");
+
 function bodyReaderMiddleware(req, res, next) {
     const data = [];
 
@@ -14,7 +17,7 @@ function bodyReaderMiddleware(req, res, next) {
 function SpaceStorage(server){
     const {generateResponse,executeFlow} = require("./controller");
     server.use("/llms/*", bodyReaderMiddleware);
-    server.put("/llms/generate", generateResponse);
+    server.put("/llms/generate",   async (request,response) =>{ await generateResponse(request,response,server)})
     server.post("/llms/:spaceId/executeFlow/:flowId/:applicationId", executeFlow);
 }
 

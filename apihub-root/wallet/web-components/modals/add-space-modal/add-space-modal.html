@@ -14,7 +14,11 @@
                     <label class="form-label" for="space-name">Name</label>
                     <input class="form-input" name="name" data-id="space-name" pattern=".*\S+.*" type="text" id="space-name" maxlength="30" required placeholder="New Space">
                 </div>
-
+                <!-- TODO CrossBrowser Solution (doesnt work on IE,Firefox)*/ -->
+                <div class="form-item">
+                    <label class="form-label" for="space-api-key">OpenAi API Key</label>
+                    <input type="text" class="form-input" name="spaceAPIKey" data-id="space-api-key" pattern="sk-[a-zA-Z0-9]{32,}" id="space-api-key"  style="-webkit-text-security: disc;" required placeholder="sk-xxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxx">
+                </div>
                 <div class="modal-footer">
                     <button type="button" class="general-button" data-local-action="addSpace">Add Space</button>
                 </div>

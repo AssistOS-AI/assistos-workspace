@@ -18,7 +18,7 @@ function SpaceStorage(server){
     server.delete("/spaces/:spaceId/:objectType/:objectName", storeObject);
     server.use("/spaces/*", bodyReaderMiddleware);
     server.put("/spaces/:spaceId/:objectType/:objectName", storeObject);
-    server.put("/spaces/:spaceId", storeSpace);
+    server.put("/spaces/:spaceId", async (request,response) =>{ await storeSpace(request,response,server)});
 }
 
 module.exports = SpaceStorage;

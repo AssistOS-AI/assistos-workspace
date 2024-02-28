@@ -48,13 +48,14 @@ function chooseModel(registry, settings) {
     return registry[bestModel.modelName];
 }
 
-async function generateResponse(request, response) {
+async function generateResponse(request, response,server) {
+    const spaceId=request.headers["spaceid"];
 
     let settings = JSON.parse(request.body.toString());
-    let registry = await initModels(response);
+    let registry = await initModels(response,spaceId);
     let model = chooseModel(registry, settings);
     try {
-        let result = await model.callLLM(settings);
+        let result = await model.callLLM(settings,spaceId,server);
         sendResponse(response, 200, "text/html", result);
     } catch (e) {
         console.error(e);

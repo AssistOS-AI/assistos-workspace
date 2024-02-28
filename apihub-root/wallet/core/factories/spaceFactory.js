@@ -3,7 +3,7 @@ import {Announcement, Space} from "../../imports.js";
 export class SpaceFactory {
 
 
-     static async createSpace(spaceData) {
+     static async createSpace(spaceData,apiKey) {
 
         if(!spaceData.id) {
             spaceData.id = webSkel.appServices.generateId();
@@ -13,7 +13,7 @@ export class SpaceFactory {
         await newSpace.createDefaultFlows();
         await newSpace.createDefaultPersonalities();
         await newSpace.createDefaultAgent();
-        await storageManager.storeSpace(newSpace.id, newSpace.stringifySpace());
+        await storageManager.storeSpace(newSpace.id, newSpace.stringifySpace(),apiKey);
         await storageManager.storeFlows(newSpace.id, newSpace.stringifyFlows());
         return newSpace;
     }

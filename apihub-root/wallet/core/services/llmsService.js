@@ -5,13 +5,14 @@ export class LlmsService {
     constructor() {
     }
 
-    async generateResponse(body){
+    async generateResponse(body,spaceId){
         let result = await fetch("llms/generate",
             {
                 method: "PUT",
                 body: body,
                 headers: {
-                    "Content-type": "application/json; charset=UTF-8"
+                    "Content-type": "application/json; charset=UTF-8",
+                    "spaceId":spaceId
                 }
             });
         if(result.status !==200){

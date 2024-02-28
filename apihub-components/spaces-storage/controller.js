@@ -74,15 +74,18 @@ async function storeFolder(spaceId, data, folderName) {
         }
     }
 }
-
-async function storeSpace(request, response) {
+async function saveSpaceAPIKeysecret(spaceId,apiKey,server){
+    const secretsService= await require('apihub').getSecretsServiceInstanceAsync(server.rootFolder);
+    const containerName= `${spaceId}.APIKey`
+    await secretsService.putSecretAsync(containerName, "OpenAiAPIKey", apiKey);
+}
+async function storeSpace(request, response,server) {
     try {
         await fsPromises.stat(`../apihub-root/spaces`);
     }catch (e){
         await fsPromises.mkdir(`../apihub-root/spaces`);
     }
     const folderPath = `../apihub-root/spaces/${request.params.spaceId}`;
-
     // Request to delete the space
     if (request.body.toString().trim() === "") {
         try {
@@ -108,7 +111,12 @@ async function storeSpace(request, response) {
             return;
         }
     }
-
+    const authHeader=request.headers['authorization'];
+    let apiKey = null;
+    if (authHeader && authHeader.startsWith('Bearer ')) {
+        apiKey = authHeader.slice(7);
+    }
+    await saveSpaceAPIKeysecret(request.params.spaceId,apiKey,server);
     let jsonData = JSON.parse(request.body.toString());
     await storeFolder(request.params.spaceId, jsonData.documents, "documents");
     await storeFolder(request.params.spaceId, jsonData.personalities, "personalities");

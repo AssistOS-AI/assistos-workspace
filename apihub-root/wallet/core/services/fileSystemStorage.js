@@ -1,6 +1,7 @@
-export class FileSystemStorage{
+export class FileSystemStorage {
     constructor() {
     }
+
     async loadObject(spaceId, objectType, objectName) {
         const result = await fetch(`/spaces/${spaceId}/${objectType}/${objectName}`,
             {
@@ -13,13 +14,13 @@ export class FileSystemStorage{
         let result;
         try {
             result = await fetch(`/spaces/${spaceId}/${objectType}/${objectName}`,
-            {
-                method: "PUT",
-                body: jsonData,
-                headers: {
-                    "Content-type": "application/json; charset=UTF-8"
-                }
-            });
+                {
+                    method: "PUT",
+                    body: jsonData,
+                    headers: {
+                        "Content-type": "application/json; charset=UTF-8"
+                    }
+                });
         } catch (err) {
             console.error(err);
         }
@@ -31,24 +32,32 @@ export class FileSystemStorage{
         return await result.text();
     }
 
-    async storeSpace(spaceId, jsonData) {
-        let result;
-        try {
-            result = await fetch(`/spaces/${spaceId}`,
-            {
-                method: "PUT",
-                body: jsonData,
-                headers: {
-                    "Content-type": "application/json; charset=UTF-8"
-                }
-            });
-        } catch (err) {
-            console.error(err);
+    async storeSpace(spaceId, jsonData = null, apiKey = null) {
+        let headers = {
+            "Content-type": "application/json; charset=UTF-8"
+        };
+
+        if (apiKey) {
+            headers["Authorization"] = `Bearer ${apiKey}`;
         }
-        return await result.text();
+
+        let options = {
+            method: "PUT",
+            headers: headers,
+            body: jsonData
+        };
+        debugger;
+        let response = await fetch(`/spaces/${spaceId}`, options);
+
+        if (!response.ok) {
+            throw new Error(`HTTP error! status: ${response.status}`);
+        }
+
+        return await response.text();
     }
 
-    async loadUser(userId){
+
+    async loadUser(userId) {
         const result = await fetch(`/users/${userId}`,
             {
                 method: "GET"
@@ -58,18 +67,18 @@ export class FileSystemStorage{
 
     async storeUser(userId, jsonData) {
         let result = await fetch(`/users/${userId}`,
-                {
-                    method: "PUT",
-                    body: jsonData,
-                    headers: {
-                        "Content-type": "application/json; charset=UTF-8"
-                    }
-                });
+            {
+                method: "PUT",
+                body: jsonData,
+                headers: {
+                    "Content-type": "application/json; charset=UTF-8"
+                }
+            });
 
         return await result.text();
     }
 
-    async loadUserByEmail(email){
+    async loadUserByEmail(email) {
         const result = await fetch(`/users/email`,
             {
                 method: "PUT",
@@ -80,7 +89,8 @@ export class FileSystemStorage{
             });
         return await result.text();
     }
-    async loadFlows(spaceId){
+
+    async loadFlows(spaceId) {
         let result;
         try {
             result = await import(`/flows/${spaceId}`);
@@ -89,7 +99,8 @@ export class FileSystemStorage{
         }
         return result;
     }
-    async storeFlow(spaceId, objectId, jsData){
+
+    async storeFlow(spaceId, objectId, jsData) {
         let result;
         objectId = encodeURIComponent(objectId);
         try {
@@ -106,7 +117,8 @@ export class FileSystemStorage{
         }
         return await result.text();
     }
-    async storeFlows(spaceId, data){
+
+    async storeFlows(spaceId, data) {
         let result;
         try {
             result = await fetch(`/flows/${spaceId}/store/flows`,
@@ -122,37 +134,41 @@ export class FileSystemStorage{
         }
         return await result.text();
     }
-    async loadDefaultFlows(){
+
+    async loadDefaultFlows() {
         let result;
         try {
             result = await import(`/flows/default`);
         } catch (err) {
             console.error(err);
         }
-        return  result;
+        return result;
     }
-    async loadDefaultPersonalities(){
-        const result=await fetch(`/personalities/default`,
-            {
-                method: "GET"
-            });
-        return await result.text();
-    }
-    async loadDefaultAgent(){
-        const result=await fetch(`/agents/default`,
+
+    async loadDefaultPersonalities() {
+        const result = await fetch(`/personalities/default`,
             {
                 method: "GET"
             });
         return await result.text();
     }
 
-    async loadFilteredKnowledge(words, agentId){
-        const result=await fetch(`/agents/${webSkel.currentUser.space.id}/${agentId}/search?param1=${words}`,
+    async loadDefaultAgent() {
+        const result = await fetch(`/agents/default`,
             {
                 method: "GET"
             });
         return await result.text();
     }
+
+    async loadFilteredKnowledge(words, agentId) {
+        const result = await fetch(`/agents/${webSkel.currentUser.space.id}/${agentId}/search?param1=${words}`,
+            {
+                method: "GET"
+            });
+        return await result.text();
+    }
+
     //applications
     async installApplication(spaceId, applicationId, userId) {
         let result;
@@ -167,9 +183,10 @@ export class FileSystemStorage{
         } catch (err) {
             console.error(err);
         }
-        return  {response: await result.text(), status: result.status};
+        return {response: await result.text(), status: result.status};
     }
-    async getApplicationConfigs(spaceId, appId){
+
+    async getApplicationConfigs(spaceId, appId) {
 
         let result;
         try {
@@ -182,7 +199,8 @@ export class FileSystemStorage{
         }
         return await result.json();
     }
-    async getApplicationFile(spaceId, appId, filePath){
+
+    async getApplicationFile(spaceId, appId, filePath) {
         let result;
         try {
             result = await fetch(`/app/${webSkel.currentUser.space.id}/applications/${appId}/file/${filePath}`,
@@ -194,22 +212,26 @@ export class FileSystemStorage{
         }
         return result;
     }
-    async loadPresenter(spaceId, appId, presenterPath){
+
+    async loadPresenter(spaceId, appId, presenterPath) {
         return await import(`/app/${webSkel.currentUser.space.id}/applications/${appId}/file/${presenterPath}`);
     }
-    async loadManager(spaceId, appId, managerPath){
+
+    async loadManager(spaceId, appId, managerPath) {
         return await import(`/app/${webSkel.currentUser.space.id}/applications/${appId}/file/${managerPath}`);
     }
-    async loadAppFlows(spaceId, appName){
+
+    async loadAppFlows(spaceId, appName) {
         let result;
         try {
             result = await import(`/flows/${spaceId}/applications/${appName}`);
         } catch (err) {
             console.error(err);
         }
-        return  result;
+        return result;
     }
-    async storeAppFlow(spaceId, appName, objectId, jsData){
+
+    async storeAppFlow(spaceId, appName, objectId, jsData) {
         let result;
         objectId = encodeURIComponent(objectId);
         try {
@@ -226,7 +248,8 @@ export class FileSystemStorage{
         }
         return await result.text();
     }
-    async storeAppObject(appName, objectType, objectId, stringData){
+
+    async storeAppObject(appName, objectType, objectId, stringData) {
         objectId = encodeURIComponent(objectId);
         let result;
         try {
@@ -243,7 +266,8 @@ export class FileSystemStorage{
         }
         return await result.text();
     }
-    async loadAppObjects(appName, objectType){
+
+    async loadAppObjects(appName, objectType) {
         let result;
         try {
             result = await fetch(`/app/${webSkel.currentUser.space.id}/applications/${appName}/${objectType}`,
@@ -255,6 +279,7 @@ export class FileSystemStorage{
         }
         return await result.text();
     }
+
     async uninstallApplication(spaceId, appName, userId) {
         let result;
         try {
@@ -272,7 +297,7 @@ export class FileSystemStorage{
     }
 
     /*GIT*/
-    async storeGITCredentials(spaceId, userId, stringData){
+    async storeGITCredentials(spaceId, userId, stringData) {
         let result;
         try {
             result = await fetch(`/users/${spaceId}/${userId}/secret`,
@@ -288,7 +313,8 @@ export class FileSystemStorage{
         }
         return await result.text();
     }
-    async getUsersSecretsExist(spaceId){
+
+    async getUsersSecretsExist(spaceId) {
         let result;
         try {
             result = await fetch(`/users/${spaceId}/secrets`,
