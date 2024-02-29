@@ -2,8 +2,7 @@ const fsPromises = require('fs').promises;
 
 async function getApiKeyForSpace(server,spaceId){
     const secretsService= await require('apihub').getSecretsServiceInstanceAsync(server.rootFolder);
-    debugger
-    return secretsService.getSecretSync(`${spaceId}.APIKey`, "OpenAIAPIKey");
+    return secretsService.getSecretSync(`${spaceId}.APIKey`, "OpenAiAPIKey");
 }
 function openAIMixin(target) {
     target.setTemperature = function (level) {
@@ -32,25 +31,16 @@ function openAIMixin(target) {
             target.__body.max_tokens = number;
         }
     }
-    target.setKey = async function(path) {
-        let keyFound = false;
+    target.setKey = async function(key) {
         try {
-            if (path !== undefined) {
-                let secret = await fsPromises.readFile(path, { encoding: 'utf8' });
-                secret = JSON.parse(secret);
-                if(secret.keys && secret.keys["openAI"]) {
-                    target.key = secret.keys["openAI"];
-                    keyFound = true;
+            if (key !== undefined) {
+                    target.key = key;
                 }
-            } else if (process.env.OPENAI_API_KEY) {
+             else if (process.env.OPENAI_API_KEY) {
                 target.key = process.env.OPENAI_API_KEY;
-                keyFound = true;
             }
         } catch (error) {
-            throw new Error(`Error setting the API key: ${error.message}`);
-        }
-        if (!keyFound) {
-            throw new Error(`Failed setting the API key. Failed to find an API key at '${path}' or in the environment`);
+            throw new Error(`Failed setting the API key. No key provided or couldn't find a key in the environment`);
         }
     };
     target.setResponseFormat = function (format) {

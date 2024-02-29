@@ -3,11 +3,9 @@ import {Announcement, Space} from "../../imports.js";
 export class SpaceFactory {
 
 
-     static async createSpace(spaceData,apiKey) {
-
-        if(!spaceData.id) {
-            spaceData.id = webSkel.appServices.generateId();
-        }
+     static async createSpace(spaceName,apiKey,spaceId) {
+         let spaceData={name:spaceName}
+         spaceId?spaceData.id=spaceId:spaceData.id= webSkel.appServices.generateId();
         let newSpace = new Space(spaceData);
         newSpace.createDefaultAnnouncement();
         await newSpace.createDefaultFlows();

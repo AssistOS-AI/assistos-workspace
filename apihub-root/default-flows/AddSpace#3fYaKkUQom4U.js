@@ -11,10 +11,9 @@ export class AddSpace {
 
     async start(name,apiKey) {
         try {
-            let spaceData = { name: name };
-            let newSpace = await this.iSpaceFactory.createSpace(spaceData,apiKey);
+            let newSpace = await this.iSpaceFactory.createSpace(name,apiKey);
             await webSkel.appServices.addSpaceToUser(webSkel.currentUser.id, newSpace);
-            this.return(spaceData);
+            this.return( ewSpace);
         } catch (e) {
             this.fail(e);
         }

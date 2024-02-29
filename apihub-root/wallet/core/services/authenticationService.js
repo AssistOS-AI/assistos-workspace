@@ -126,7 +126,7 @@ export class AuthenticationService{
         return localStorage.getItem("currentUser");
     }
     async createDefaultSpace(currentUserId){
-        return await SpaceFactory.createSpace({name: "Personal Space",id:currentUserId});
+        return await SpaceFactory.createSpace( "Personal Space",undefined,currentUserId);
     }
     async removeSpaceFromUser(userId,spaceId){
            let user = JSON.parse(await storageManager.loadUser(userId));

@@ -46,7 +46,6 @@ export class FileSystemStorage {
             headers: headers,
             body: jsonData
         };
-        debugger;
         let response = await fetch(`/spaces/${spaceId}`, options);
 
         if (!response.ok) {
