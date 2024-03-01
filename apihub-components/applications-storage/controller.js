@@ -85,8 +85,8 @@ function iterateFolder(folderPath, extensions) {
     });
     return filePaths;
 }
-function processFile(filePath, applicationId, components) {
-    let content = fsPromises.readFile(filePath, 'utf8');
+async function processFile(filePath, applicationId, components) {
+    let content = await fsPromises.readFile(filePath, 'utf8');
     components = components.sort((a, b) => b.componentName.length - a.componentName.length);
     components.forEach((component, index) => {
         const uniqueMarker = `TEMP_MARKER_${index}_`;
@@ -98,7 +98,7 @@ function processFile(filePath, applicationId, components) {
         const replaceStr = `${applicationId}-${component.componentName}`;
         content = content.replace(new RegExp(uniqueMarker, 'g'), replaceStr);
     });
-    fsPromises.writeFile(filePath, content, 'utf8');
+    await fsPromises.writeFile(filePath, content, 'utf8');
 }
 
 async function setGITCredentialsCache(spaceId, userId, serverRootFolder){
@@ -130,7 +130,8 @@ async function installApplication(server, request, response) {
     // }
 
     try {
-        const webSkelConfig = require("../apihub-root/wallet/webskel-configs.json");
+        debugger
+        const webSkelConfig = require("../apihub-root/wallet/assistOS-configs.json");
         const application = webSkelConfig.applications.find(app => app.id == applicationId);
         const folderPath = `../apihub-root/spaces/${spaceId}/applications/${application.name}`;
         if (!application || !application.repository) {
@@ -148,9 +149,11 @@ async function installApplication(server, request, response) {
 
         const filePaths = iterateFolder(folderPath, extensions);
         applicationId=applicationId.toLowerCase();
+        let promisesArray=[]
         filePaths.forEach(filePath => {
-                processFile(filePath,applicationId,manifest.components);
+               promisesArray.push(processFile(filePath,applicationId,manifest.components));
             })
+        await Promise.all(promisesArray)
         for (let component of manifest.components){
             component.componentName=`${applicationId}-`+component.componentName;
         }
@@ -273,7 +276,7 @@ async function loadApplicationConfig(request, response) {
         const spaceId = request.params.spaceId;
         const applicationId = request.params.applicationId;
 
-        const webSkelConfig = require("../apihub-root/wallet/webskel-configs.json");
+        const webSkelConfig = require("../apihub-root/wallet/assistOS-configs.json");
         const application = webSkelConfig.applications.find(app => app.id == applicationId);
 
         const folderPath = `../apihub-root/spaces/${spaceId}/applications/${application.name}`;
