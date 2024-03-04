@@ -4,7 +4,7 @@ import {
     reverseQuerySelector
 } from "../../../imports.js";
 
-export class announcementsPage {
+export class AnnouncementsPage {
     constructor(element,invalidate) {
         webSkel.currentUser.space.observeChange(webSkel.currentUser.space.getNotificationId(),invalidate);
         this.invalidate=invalidate;

@@ -4,7 +4,7 @@ import {
 } from "../../../imports.js";
 
 
-export class addPersonalityModal {
+export class AddPersonalityModal {
     constructor(element,invalidate) {
         this.element=element;
         this.invalidate=invalidate;

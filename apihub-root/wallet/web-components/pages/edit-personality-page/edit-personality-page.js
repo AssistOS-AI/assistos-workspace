@@ -1,6 +1,6 @@
 import {extractFormInformation, parseURL} from "../../../imports.js";
 
-export class editPersonalityPage{
+export class EditPersonalityPage{
     constructor(element,invalidate) {
         this.personality = webSkel.currentUser.space.getPersonality(parseURL());
         this.element = element;

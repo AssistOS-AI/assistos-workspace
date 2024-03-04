@@ -3,7 +3,7 @@ import {
     extractFormInformation
 } from "../../../imports.js";
 
-export class editFlowModal {
+export class EditFlowModal {
     constructor(element,invalidate) {
         this.element=element;
         this.invalidate=invalidate;

@@ -100,37 +100,22 @@ async function processFile(filePath, applicationId, components) {
     });
     await fsPromises.writeFile(filePath, content, 'utf8');
 }
-
-async function setGITCredentialsCache(spaceId, userId, serverRootFolder){
-    let username;
-    let token;
-    try {
-        username = await getSecret(spaceId, userId, "username", serverRootFolder);
-        token = await getSecret(spaceId, userId, "token", serverRootFolder);
-    }
-    catch (e){
-      return 404;
-    }
-    const timeout = "60";
-    await execAsync(`git config --global credential.helper 'cache --timeout=${timeout}'`);
-    await execAsync(`echo "protocol=https\nhost=github.com\nusername=${username}\npassword=${token}\n" | git credential approve`);
-    return 200;
-}
-async function clearGITCredentialsCache(){
-    await execAsync(`git credential-cache exit`);
-}
 async function installApplication(server, request, response) {
     const spaceId = request.params.spaceId;
     let applicationId = request.params.applicationId;
-    // let userId = request.params.userId;
-    //
-    // let result = await setGITCredentialsCache(spaceId, userId, server.rootFolder);
-    // if(result === 404){
-    //     return sendResponse(response, 404, "text/plain", "Credentials not found for current user");
-    // }
+    let userId = request.params.userId;
+
+    let username;
+    let token;
+    try {
+        username = await getSecret(spaceId, userId, "username", server.rootFolder);
+        token = await getSecret(spaceId, userId, "token", server.rootFolder);
+    }
+    catch (e){
+        return sendResponse(response, 404, "text/plain", "Credentials not found for current user");
+    }
 
     try {
-        debugger
         const webSkelConfig = require("../apihub-root/wallet/assistOS-configs.json");
         const application = webSkelConfig.applications.find(app => app.id == applicationId);
         const folderPath = `../apihub-root/spaces/${spaceId}/applications/${application.name}`;
@@ -139,29 +124,27 @@ async function installApplication(server, request, response) {
             sendResponse(response, 404, "text/html", "Application or repository not found");
             return;
         }
-        await execAsync(`git clone ${application.repository} ${folderPath}`);
+        await execAsync(`git clone https://${username}:${token}@${application.repository.split("//")[1]} ${folderPath}`);
 
         let manifestPath=folderPath+"/"+ "manifest.json";
         let manifest=JSON.parse(await fsPromises.readFile(manifestPath, 'utf8'));
-
-
-        const extensions = ['.html', '.css', '.js'];
-
-        const filePaths = iterateFolder(folderPath, extensions);
-        applicationId=applicationId.toLowerCase();
-        let promisesArray=[]
-        filePaths.forEach(filePath => {
-               promisesArray.push(processFile(filePath,applicationId,manifest.components));
-            })
-        await Promise.all(promisesArray)
-        for (let component of manifest.components){
-            component.componentName=`${applicationId}-`+component.componentName;
-        }
-        manifest.entryPointComponent=`${applicationId}-`+manifest.entryPointComponent;
-        for(let presenter of manifest.presenters){
-            presenter.forComponent=`${applicationId}-`+presenter.forComponent;
-        }
-        fs.writeFileSync(manifestPath, JSON.stringify(manifest, null, 2), 'utf8')
+        //
+        //
+        // const extensions = ['.html', '.css', '.js'];
+        //
+        // const filePaths = iterateFolder(folderPath, extensions);
+        // applicationId=applicationId.toLowerCase();
+        // filePaths.forEach(filePath => {
+        //         processFile(filePath,applicationId,manifest.components);
+        //     })
+        // for (let component of manifest.components){
+        //     component.componentName=`${applicationId}-`+component.componentName;
+        // }
+        // manifest.entryPointComponent=`${applicationId}-`+manifest.entryPointComponent;
+        // for(let presenter of manifest.presenters){
+        //     presenter.forComponent=`${applicationId}-`+presenter.forComponent;
+        // }
+        // fs.writeFileSync(manifestPath, JSON.stringify(manifest, null, 2), 'utf8')
 
         const branchName = `space-${spaceId}`;
         if (application.flowsRepository) {
@@ -178,7 +161,6 @@ async function installApplication(server, request, response) {
                 await execAsync(`git -C ${applicationPath} push -u origin ${branchName}`);
             }
         }
-        //await clearGITCredentialsCache();
         await execAsync(`git pull`);
         updateSpaceStatus(spaceId, application.name, manifest.description, branchName);
         sendResponse(response, 200, "text/html", "Application installed successfully");
@@ -192,11 +174,16 @@ async function uninstallApplication(server, request, response) {
     const spaceId = request.params.spaceId;
     const applicationId = request.params.applicationId;
     const folderPath = `../apihub-root/spaces/${spaceId}/applications/${applicationId}`;
-    // let userId = request.params.userId;
-    // let result = await setGITCredentialsCache(spaceId, userId, server.rootFolder);
-    // if(result === 404){
-    //     return sendResponse(response, 404, "text/plain", "Credentials not found for current user");
-    // }
+    let userId = request.params.userId;
+    let username;
+    let token;
+    try {
+        username = await getSecret(spaceId, userId, "username", server.rootFolder);
+        token = await getSecret(spaceId, userId, "token", server.rootFolder);
+    }
+    catch (e){
+        return sendResponse(response, 404, "text/plain", "Credentials not found for current user");
+    }
     try {
         const webSkelConfig = require("../apihub-root/wallet/webskel-configs.json");
         const application = webSkelConfig.applications.find(app => app.id == applicationId);
@@ -216,7 +203,7 @@ async function uninstallApplication(server, request, response) {
                 await fsPromises.access(flowsPath);
                 // If it exists, delete the branch
                 const branchName = `space-${spaceId}`;
-                await execAsync(`git -C ${flowsPath} push origin --delete ${branchName}`);
+                await execAsync(`git -C ${flowsPath} push https://${username}:${token}@origin --delete ${branchName}`);
             } catch (dirError) {
                 console.error("Flows directory does not exist, skipping branch deletion:", dirError);
             }
@@ -224,7 +211,6 @@ async function uninstallApplication(server, request, response) {
 
         // Remove the application folder
         await execAsync(`rm -rf ${folderPath}`);
-        //await clearGITCredentialsCache();
         updateSpaceStatus(spaceId, application.name, "", "",true);
         sendResponse(response, 200, "text/html", "Application uninstalled successfully");
     } catch (error) {

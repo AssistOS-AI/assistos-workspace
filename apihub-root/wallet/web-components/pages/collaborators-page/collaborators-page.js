@@ -2,7 +2,7 @@ import {
     showActionBox,
 } from "../../../imports.js";
 
-export class collaboratorsPage {
+export class CollaboratorsPage {
     constructor(element, invalidate) {
         this.element = element;
         this.invalidate = invalidate;

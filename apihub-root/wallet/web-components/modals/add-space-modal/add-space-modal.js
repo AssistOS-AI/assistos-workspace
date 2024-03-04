@@ -5,7 +5,7 @@ import {
     SpaceFactory
 } from "../../../imports.js";
 
-export class addSpaceModal {
+export class AddSpaceModal {
     constructor(element, invalidate) {
         this.invalidate = invalidate;
         this.invalidate();

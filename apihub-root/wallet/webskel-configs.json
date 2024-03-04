@@ -1,196 +1,194 @@
 {
-  "defaultPage": "agent-page",
-  "webComponentsRootDir": "wallet/web-components",
-  "services": [
-    {
-      "name": "AgentService",
-      "path": "../wallet/core/services/agentService.js"
-    },
-    {
-      "name": "LlmAnimationService",
-      "path": "../wallet/core/services/llmAnimationService.js"
-    },
-    {
-      "name": "AuthenticationService",
-      "path": "../wallet/core/services/authenticationService.js"
-    },
-    {
-      "name": "UtilsService",
-      "path": "../wallet/core/services/utilsService.js"
-    },
-    {
-      "name": "LlmsService",
-      "path": "../wallet/core/services/llmsService.js"
-    },
-    {
-      "name": "ApplicationsService",
-      "path": "../wallet/core/services/applicationsService.js"
-    }
-  ],
-  "components": [
-    {
-      "name": "git-credentials-modal",
-      "type": "modals",
-      "presenterClassName": "gitCredentialsModal"
-    },
-    {
-      "name": "add-marketplace-modal",
-      "type": "modals",
-      "presenterClassName": "addMarketplaceModal"
-    },
-    {
-      "name": "action-box-marketplace",
-      "type": "components"
-    },
-    {
-      "name": "application-page",
-      "type": "pages",
-      "presenterClassName": "applicationPage"
-    },
-    {
-      "name": "space-dropdown",
-      "type": "components",
-      "presenterClassName": "spaceDropdown"
-    },
-    {
-      "name": "left-sidebar",
-      "type": "components",
-      "presenterClassName": "leftSidebar"
-    },
-    {
-      "name": "space-right-sidebar",
-      "type": "components",
-      "presenterClassName": "spaceRightSidebar"
-    },
-    {
-      "name": "collaborators-page",
-      "type": "pages",
-      "presenterClassName": "collaboratorsPage"
-    },
-    {
-      "name": "knowledge-page",
-      "type": "pages",
-      "presenterClassName": "knowledgePage"
-    },
-    {
-      "name": "tasks-page",
-      "type": "pages",
-      "presenterClassName": "tasksPage"
-    },
-    {
-      "name": "agent-page",
-      "type": "pages",
-      "presenterClassName": "agentPage"
-    },
-    {
-      "name": "settings-page",
-      "type": "pages",
-      "presenterClassName": "settingsPage"
-    },
-    {
-      "name": "applications-marketplace-page",
-      "type": "pages",
-      "presenterClassName": "applicationsMarketplacePage"
-    },
-    {
-      "name": "confirmation-popup",
-      "type": "components",
-      "presenterClassName": "confirmationPopup"
-    },
-    {
-      "name": "llm-animation",
-      "type": "components"
-    },
-    {
-      "name": "edit-personality-page",
-      "type": "pages",
-      "presenterClassName": "editPersonalityPage"
-    },
-    {
-      "name": "space-unit",
-      "type": "components"
-    },
-    {
-      "name": "personality-unit",
-      "type": "components"
-    },
-    {
-      "name": "flow-unit",
-      "type": "components"
-    },
-    {
-      "name": "announcement-unit",
-      "type": "components"
-    },
-    {
-      "name": "action-box",
-      "type": "components"
-    },
-    {
-      "name": "action-box-with-select",
-      "type": "components"
-    },
-    {
-      "name": "announcements-page",
-      "type": "pages",
-      "presenterClassName": "announcementsPage"
-    },
-    {
-      "name": "personalities-page",
-      "type": "pages",
-      "presenterClassName": "personalitiesPage"
-    },
-    {
-      "name": "flows-page",
-      "type": "pages",
-      "presenterClassName": "flowsPage"
-    },
-    {
-      "name": "add-announcement-modal",
-      "type": "modals",
-      "presenterClassName": "addAnnouncementModal"
-    },
-    {
-      "name": "add-personality-modal",
-      "type": "modals",
-      "presenterClassName": "addPersonalityModal"
-    },
-    {
-      "name": "add-flow-modal",
-      "type": "modals",
-      "presenterClassName": "addFlowModal"
-    },
-    {
-      "name": "edit-flow-modal",
-      "type": "modals",
-      "presenterClassName": "editFlowModal"
-    },
-    {
-      "name": "edit-announcement-modal",
-      "type": "modals",
-      "presenterClassName": "editAnnouncementModal"
-    },
-    {
-      "name": "show-error-modal",
-      "type": "modals",
-      "presenterClassName": "showErrorModal"
-    },
-    {
-      "name": "add-space-modal",
-      "type": "modals",
-      "presenterClassName": "addSpaceModal"
-    },
-    {
-      "name": "authentication-page",
-      "type": "pages",
-      "presenterClassName": "authenticationPage"
-    },
-    {
-      "name": "application-unit",
-      "type": "components",
-      "presenterClassName": "applicationUnit"
-    }
-  ]
-
-
+    "defaultPage": "agent-page",
+    "webComponentsRootDir": "wallet/web-components",
+    "services": [
+        {
+            "name": "AgentService",
+            "path": "../wallet/core/services/AgentService.js"
+        },
+        {
+            "name": "LlmAnimationService",
+            "path": "../wallet/core/services/LlmAnimationService.js"
+        },
+        {
+            "name": "AuthenticationService",
+            "path": "../wallet/core/services/AuthenticationService.js"
+        },
+        {
+            "name": "UtilsService",
+            "path": "../wallet/core/services/UtilsService.js"
+        },
+        {
+            "name": "LlmsService",
+            "path": "../wallet/core/services/LlmsService.js"
+        },
+        {
+            "name": "ApplicationsService",
+            "path": "../wallet/core/services/ApplicationsService.js"
+        }
+    ],
+    "components": [
+        {
+            "name": "git-credentials-modal",
+            "type": "modals",
+            "presenterClassName": "GitCredentialsModal"
+        },
+        {
+            "name": "add-marketplace-modal",
+            "type": "modals",
+            "presenterClassName": "AddMarketplaceModal"
+        },
+        {
+            "name": "action-box-marketplace",
+            "type": "components"
+        },
+        {
+            "name": "application-page",
+            "type": "pages",
+            "presenterClassName": "ApplicationPage"
+        },
+        {
+            "name": "space-dropdown",
+            "type": "components",
+            "presenterClassName": "SpaceDropdown"
+        },
+        {
+            "name": "left-sidebar",
+            "type": "components",
+            "presenterClassName": "LeftSidebar"
+        },
+        {
+            "name": "space-right-sidebar",
+            "type": "components",
+            "presenterClassName": "SpaceRightSidebar"
+        },
+        {
+            "name": "collaborators-page",
+            "type": "pages",
+            "presenterClassName": "CollaboratorsPage"
+        },
+        {
+            "name": "knowledge-page",
+            "type": "pages",
+            "presenterClassName": "KnowledgePage"
+        },
+        {
+            "name": "tasks-page",
+            "type": "pages",
+            "presenterClassName": "TasksPage"
+        },
+        {
+            "name": "agent-page",
+            "type": "pages",
+            "presenterClassName": "AgentPage"
+        },
+        {
+            "name": "settings-page",
+            "type": "pages",
+            "presenterClassName": "SettingsPage"
+        },
+        {
+            "name": "applications-marketplace-page",
+            "type": "pages",
+            "presenterClassName": "ApplicationsMarketplacePage"
+        },
+        {
+            "name": "confirmation-popup",
+            "type": "components",
+            "presenterClassName": "ConfirmationPopup"
+        },
+        {
+            "name": "llm-animation",
+            "type": "components"
+        },
+        {
+            "name": "edit-personality-page",
+            "type": "pages",
+            "presenterClassName": "EditPersonalityPage"
+        },
+        {
+            "name": "space-unit",
+            "type": "components"
+        },
+        {
+            "name": "personality-unit",
+            "type": "components"
+        },
+        {
+            "name": "flow-unit",
+            "type": "components"
+        },
+        {
+            "name": "announcement-unit",
+            "type": "components"
+        },
+        {
+            "name": "action-box",
+            "type": "components"
+        },
+        {
+            "name": "action-box-with-select",
+            "type": "components"
+        },
+        {
+            "name": "announcements-page",
+            "type": "pages",
+            "presenterClassName": "AnnouncementsPage"
+        },
+        {
+            "name": "personalities-page",
+            "type": "pages",
+            "presenterClassName": "PersonalitiesPage"
+        },
+        {
+            "name": "flows-page",
+            "type": "pages",
+            "presenterClassName": "FlowsPage"
+        },
+        {
+            "name": "add-announcement-modal",
+            "type": "modals",
+            "presenterClassName": "AddAnnouncementModal"
+        },
+        {
+            "name": "add-personality-modal",
+            "type": "modals",
+            "presenterClassName": "AddPersonalityModal"
+        },
+        {
+            "name": "add-flow-modal",
+            "type": "modals",
+            "presenterClassName": "AddFlowModal"
+        },
+        {
+            "name": "edit-flow-modal",
+            "type": "modals",
+            "presenterClassName": "EditFlowModal"
+        },
+        {
+            "name": "edit-announcement-modal",
+            "type": "modals",
+            "presenterClassName": "EditAnnouncementModal"
+        },
+        {
+            "name": "show-error-modal",
+            "type": "modals",
+            "presenterClassName": "ShowErrorModal"
+        },
+        {
+            "name": "add-space-modal",
+            "type": "modals",
+            "presenterClassName": "AddSpaceModal"
+        },
+        {
+            "name": "authentication-page",
+            "type": "pages",
+            "presenterClassName": "AuthenticationPage"
+        },
+        {
+            "name": "application-unit",
+            "type": "components",
+            "presenterClassName": "ApplicationUnit"
+        }
+    ]
 }

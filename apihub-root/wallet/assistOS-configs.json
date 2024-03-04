@@ -3,7 +3,7 @@
   "storageServices": [
     {
       "name": "FileSystemStorage",
-      "path": "./core/services/fileSystemStorage.js"
+      "path": "./core/services/FileSystemStorage.js"
     }
   ],
   "applications": [

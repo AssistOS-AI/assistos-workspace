@@ -3,7 +3,7 @@ import {
     extractFormInformation
 } from "../../../imports.js";
 
-export class addAnnouncementModal {
+export class AddAnnouncementModal {
     constructor(element,invalidate) {
         this.invalidate=invalidate;
         this.invalidate();

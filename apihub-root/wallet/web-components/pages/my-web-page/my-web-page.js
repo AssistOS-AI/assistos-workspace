@@ -1,4 +1,4 @@
-export class myWebPage {
+export class MyWebPage {
     constructor(element, invalidate) {
         this.element = element;
         webSkel.currentUser.space.observeChange(webSkel.currentUser.space.getNotificationId(), invalidate);

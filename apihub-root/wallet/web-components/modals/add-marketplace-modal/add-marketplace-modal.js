@@ -3,7 +3,7 @@ import {
     extractFormInformation
 } from "../../../imports.js";
 
-export class addMarketplaceModal {
+export class AddMarketplaceModal {
     constructor(element,invalidate){
        this.invalidate=invalidate;
          this.invalidate();

@@ -28,7 +28,7 @@ export {
 };
 
 // Services
-import { StorageManager } from "./core/services/storageManager.js";
+import { StorageManager } from "./core/services/StorageManager.js";
 
 export{
     StorageManager

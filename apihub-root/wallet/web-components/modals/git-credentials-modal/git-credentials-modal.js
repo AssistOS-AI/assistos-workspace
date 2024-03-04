@@ -1,6 +1,6 @@
 import {extractFormInformation} from "../../../imports.js";
 
-export class gitCredentialsModal {
+export class GitCredentialsModal {
     constructor(element,invalidate){
         this.invalidate=invalidate;
         this.invalidate();
