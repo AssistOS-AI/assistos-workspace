@@ -128,23 +128,23 @@ async function installApplication(server, request, response) {
 
         let manifestPath=folderPath+"/"+ "manifest.json";
         let manifest=JSON.parse(await fsPromises.readFile(manifestPath, 'utf8'));
-        //
-        //
-        // const extensions = ['.html', '.css', '.js'];
-        //
-        // const filePaths = iterateFolder(folderPath, extensions);
-        // applicationId=applicationId.toLowerCase();
-        // filePaths.forEach(filePath => {
-        //         processFile(filePath,applicationId,manifest.components);
-        //     })
-        // for (let component of manifest.components){
-        //     component.componentName=`${applicationId}-`+component.componentName;
-        // }
-        // manifest.entryPointComponent=`${applicationId}-`+manifest.entryPointComponent;
-        // for(let presenter of manifest.presenters){
-        //     presenter.forComponent=`${applicationId}-`+presenter.forComponent;
-        // }
-        // fs.writeFileSync(manifestPath, JSON.stringify(manifest, null, 2), 'utf8')
+
+
+        const extensions = ['.html', '.css', '.js'];
+
+        const filePaths = iterateFolder(folderPath, extensions);
+        applicationId=applicationId.toLowerCase();
+        filePaths.forEach(filePath => {
+                processFile(filePath,applicationId,manifest.components);
+            })
+        for (let component of manifest.components){
+            component.componentName=`${applicationId}-`+component.componentName;
+        }
+        manifest.entryPointComponent=`${applicationId}-`+manifest.entryPointComponent;
+        for(let presenter of manifest.presenters){
+            presenter.forComponent=`${applicationId}-`+presenter.forComponent;
+        }
+        fs.writeFileSync(manifestPath, JSON.stringify(manifest, null, 2), 'utf8')
 
         const branchName = `space-${spaceId}`;
         if (application.flowsRepository) {
