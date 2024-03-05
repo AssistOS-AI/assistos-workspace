@@ -3,7 +3,6 @@ const {
     uninstallApplication,
     storeObject,
     loadApplicationConfig,
-    loadApplicationComponent,
     loadApplicationFile,
     loadObjects,
 
@@ -25,9 +24,13 @@ function bodyReaderMiddleware(req, res, next) {
 function ApplicationsStorage(server) {
     server.get("/space/:spaceId/applications/:applicationId/configs", loadApplicationConfig);
     server.get("/app/:spaceId/applications/:appName/:objectType", loadObjects);
-    server.get("/app/:spaceId/applications/:applicationName/component/:componentName/:fileType", loadApplicationComponent);
+
     /* :variable e pana intalneste un "/" */
-    server.get("/app/:spaceId/applications/:applicationName/files/*", loadApplicationFile);
+
+    server.get("/app/:spaceId/applications/:applicationName/file/*", loadApplicationFile);
+
+    //server.get("/app/:spaceId/applications/:applicationName/component/:componentName/:fileType", loadApplicationComponent);
+
     server.use("/space/*", bodyReaderMiddleware);
     server.use("/app/*", bodyReaderMiddleware);
     server.post("/space/:spaceId/applications/:applicationId/:userId", async (request, response)=>{

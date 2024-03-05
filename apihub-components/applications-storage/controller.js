@@ -335,9 +335,10 @@ async function loadObjects(request, response) {
 
 async function loadApplicationFile(request, response) {
     try {
-        const { spaceId, applicationName} = request.params;
-        const baseUrl = `/app/${spaceId}/applications/${applicationName}/files`
+        const {spaceId, applicationName} = request.params;
+        const baseUrl = `/app/${spaceId}/applications/${applicationName}/file/`
         const relativeFilePath = request.url.substring(baseUrl.length);
+
         const filePath = `../apihub-root/spaces/${spaceId}/applications/${applicationName}/${relativeFilePath}`;
         const fileType = filePath.substring(filePath.lastIndexOf('.') + 1) || '';
 
@@ -347,7 +348,6 @@ async function loadApplicationFile(request, response) {
         handleFileError(response, error);
     }
 }
-
 function handleFileError(response, error) {
     if (error.code === 'ENOENT') {
         sendResponse(response, 404, "text/plain", "File not found");
@@ -403,7 +403,9 @@ async function sendFileToClient(response, filePath, fileType) {
     }
 }
 
-async function loadApplicationComponent(request, response) {
+
+
+/*async function loadApplicationComponent(request, response) {
     try {
         let {spaceId, applicationName, componentName,fileType} = request.params;
         let index = componentName.indexOf("-");
@@ -414,14 +416,14 @@ async function loadApplicationComponent(request, response) {
         console.error('Error reading component:', error);
         handleFileError(response,error)
     }
-}
+}*/
+
 
     module.exports = {
         installApplication,
         uninstallApplication,
         storeObject,
         loadApplicationConfig,
-        loadApplicationComponent,
         loadApplicationFile,
         loadObjects,
     }

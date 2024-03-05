@@ -1,9 +1,9 @@
-
 export class StorageManager {
     constructor() {
         this.services = {};
         this.currentService = {};
     }
+
     addStorageService(name, service) {
         this.services[name] = service;
     }
@@ -12,7 +12,7 @@ export class StorageManager {
         return this.services[name];
     }
 
-    setCurrentService(name){
+    setCurrentService(name) {
         const service = this.getStorageService(name);
         if (!service) throw new Error("Service not found");
         this.currentService = service;
@@ -27,12 +27,12 @@ export class StorageManager {
     }
 
     async storeObject(spaceId, objectType, objectName, jsonData) {
-      return await this.currentService.storeObject(spaceId, objectType, objectName, jsonData);
+        return await this.currentService.storeObject(spaceId, objectType, objectName, jsonData);
     }
 
     /* creating a new space */
-    async storeSpace(spaceId, jsonData,apiKey) {
-       return await this.currentService.storeSpace(spaceId, jsonData,apiKey);
+    async storeSpace(spaceId, jsonData, apiKey) {
+        return await this.currentService.storeSpace(spaceId, jsonData, apiKey);
     }
 
     async listObjects(spaceId, objectType) {
@@ -42,79 +42,98 @@ export class StorageManager {
     async storeUser(userId, jsonData) {
         return await this.currentService.storeUser(userId, jsonData);
     }
-    async loadUser(userId){
+
+    async loadUser(userId) {
         return await this.currentService.loadUser(userId);
     }
 
-    async loadUserByEmail(email){
+    async loadUserByEmail(email) {
         return await this.currentService.loadUserByEmail(email);
     }
-    async loadFlows(spaceId){
+
+    async loadFlows(spaceId) {
         return await this.currentService.loadFlows(spaceId);
     }
-    async storeFlow(spaceId, objectName, jsData){
+
+    async storeFlow(spaceId, objectName, jsData) {
         return await this.currentService.storeFlow(spaceId, objectName, jsData);
     }
-    async loadDefaultFlows(){
+
+    async loadDefaultFlows() {
         return await this.currentService.loadDefaultFlows();
     }
-    async loadDefaultPersonalities(){
+
+    async loadDefaultPersonalities() {
         return await this.currentService.loadDefaultPersonalities();
     }
-    async loadDefaultAgent(){
+
+    async loadDefaultAgent() {
         return await this.currentService.loadDefaultAgent();
     }
-    async loadFilteredKnowledge(words, agentId){
+
+    async loadFilteredKnowledge(words, agentId) {
         return await this.currentService.loadFilteredKnowledge(words, agentId);
     }
 
     //applications
-    async installApplication(spaceId, appName, userId){
+    async installApplication(spaceId, appName, userId) {
         return await this.currentService.installApplication(spaceId, appName, userId);
     }
-    async getApplicationConfigs(spaceId, appId){
+
+    async getApplicationConfigs(spaceId, appId) {
         return await this.currentService.getApplicationConfigs(spaceId, appId);
     }
-    async getApplicationComponent(spaceId,appId,componentName){
-        let componentHTML = await (await this.getApplicationFile(spaceId, appId, componentName,'html')).text();
-        let componentCSS = await (await this.getApplicationFile(spaceId, appId, componentName,'css')).text();
-        let componentPresenterModule = await this.getApplicationFile(spaceId,appId,componentName,'js');
-        return {componentHTML,componentCSS,componentPresenterModule};
-    }
-    async getApplicationFile(spaceId, appId, componentName,type){
-        return this.currentService.getApplicationFile(spaceId, appId, componentName,type);
+
+    async getApplicationComponent(spaceId, appId, appComponentsDirPath, component) {
+        const HTMLPath = `${appComponentsDirPath}/${component.name}/${component.name}.html`
+        const CSSPath = `${appComponentsDirPath}/${component.name}/${component.name}.css`
+        let componentHTML = await (await this.getApplicationFile(spaceId, appId, HTMLPath)).text();
+        let componentCSS = await (await this.getApplicationFile(spaceId, appId, CSSPath)).text();
+        let componentPresenterModule="";
+        if (component.presenterClassName) {
+            const PresenterPath = `${appComponentsDirPath}/${component.name}/${component.name}.js`
+            componentPresenterModule= await this.getApplicationFile(spaceId, appId, PresenterPath);
+        }
+        return {componentHTML, componentCSS, componentPresenterModule};
     }
 
-    async loadManager(spaceId, appId, managerPath){
-        return await this.currentService.loadManager(spaceId, appId, managerPath);
+    async getApplicationFile(spaceId, appId, relativeAppFilePath) {
+        return this.currentService.getApplicationFile(spaceId, appId, relativeAppFilePath);
     }
- /*   async loadService(spaceId, appId, serviceName) {
-        return await this.currentService.loadService(spaceId,appId,serviceName);
-    }*/
-    async storeFlows(spaceId, flows){
+
+    /*   async loadService(spaceId, appId, serviceName) {
+           return await this.currentService.loadService(spaceId,appId,serviceName);
+       }*/
+    async storeFlows(spaceId, flows) {
         return await this.currentService.storeFlows(spaceId, flows);
     }
-    async loadAppFlows(spaceId, appName){
+
+    async loadAppFlows(spaceId, appName) {
         return await this.currentService.loadAppFlows(spaceId, appName);
     }
-    async storeAppFlow(spaceId, appName, objectId, jsData){
+
+    async storeAppFlow(spaceId, appName, objectId, jsData) {
         return await this.currentService.storeAppFlow(spaceId, appName, objectId, jsData)
     }
-    async storeAppObject(appName, objectType, objectId, stringData){
+
+    async storeAppObject(appName, objectType, objectId, stringData) {
         return await this.currentService.storeAppObject(appName, objectType, objectId, stringData);
     }
-    async loadAppObjects(appName, objectType){
+
+    async loadAppObjects(appName, objectType) {
         return await this.currentService.loadAppObjects(appName, objectType);
     }
+
     async uninstallApplication(spaceId, appName, userId) {
         return await this.currentService.uninstallApplication(spaceId, appName, userId);
     }
 
     /*GIT*/
-    async storeGITCredentials(spaceId, userId, stringData){
+    async storeGITCredentials(spaceId, userId, stringData) {
         return await this.currentService.storeGITCredentials(spaceId, userId, stringData);
     }
-    async getUsersSecretsExist(spaceId){
+
+    async getUsersSecretsExist(spaceId) {
         return await this.currentService.getUsersSecretsExist(spaceId);
     }
 }

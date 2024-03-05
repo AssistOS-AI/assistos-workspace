@@ -199,11 +199,13 @@ export class FileSystemStorage {
         return await result.json();
     }
 
-    async getApplicationFile(spaceId, appId, componentName, type) {
+    async getApplicationFile(spaceId, appId, relativeAppFilePath) {
+        const pathParts=relativeAppFilePath.split(".")
+        const type=pathParts[pathParts.length-1]||"";
         if (type !== "js") {
             let result;
             try {
-                result = await fetch(`/app/${spaceId}/applications/${appId}/component/${componentName}/${type}`,
+                result = await fetch(`/app/${spaceId}/applications/${appId}/file/${relativeAppFilePath}`,
                     {
                         method: "GET",
                     });
@@ -212,7 +214,7 @@ export class FileSystemStorage {
             }
             return result;
         } else {
-            return await import(`/app/${spaceId}/applications/${appId}/component/${componentName}/${type}`);
+            return await import(`/app/${spaceId}/applications/${appId}/file/${relativeAppFilePath}`);
         }
     }
 

@@ -26,13 +26,15 @@ export class ApplicationsService {
 
         webSkel.initialisedApplications[appName] = await storageManager.getApplicationConfigs(webSkel.currentUser.space.id, appName);
         if (webSkel.initialisedApplications[appName].manager) {
-            let ManagerModule = await storageManager.loadManager(webSkel.currentUser.space.id, appName, webSkel.initialisedApplications[appName].manager.path)
+            let ManagerModule = await storageManager.getApplicationFile(webSkel.currentUser.space.id, appName, webSkel.initialisedApplications[appName].manager.path)
             webSkel.initialisedApplications[appName].manager = new ManagerModule[webSkel.initialisedApplications[appName].manager.name](appName);
             await webSkel.initialisedApplications[appName].manager.loadAppData?.();
         }
 
         for (let component of webSkel.initialisedApplications[appName].components) {
-            component = {...await storageManager.getApplicationComponent(webSkel.currentUser.space.id, appName, component.name),
+            let index =  component.name.indexOf("-");
+            component.name= component.name.substring(index + 1);
+            component = {...await storageManager.getApplicationComponent(webSkel.currentUser.space.id, appName,webSkel.initialisedApplications[appName].componentsDirPath,component),
                         ...component
             }
             await webSkel.defineComponent(component);
