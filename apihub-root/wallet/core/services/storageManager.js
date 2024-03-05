@@ -75,14 +75,18 @@ export class StorageManager {
     async getApplicationConfigs(spaceId, appId){
         return await this.currentService.getApplicationConfigs(spaceId, appId);
     }
-    async getApplicationFile(spaceId, appId, filePath){
-        return await this.currentService.getApplicationFile(spaceId, appId, filePath);
+    async getApplicationComponent(spaceId,appId,componentName){
+        let componentHTML = await (await this.getApplicationFile(spaceId, appId, componentName,'html')).text();
+        let componentCSS = await (await this.getApplicationFile(spaceId, appId, componentName,'css')).text();
+        let componentPresenterModule = await this.getApplicationFile(spaceId,appId,componentName,'js');
+        return {componentHTML,componentCSS,componentPresenterModule};
     }
-    async loadPresenter(spaceId, appId, presenterName){
-        return await this.currentService.loadPresenter(spaceId, appId, presenterName);
+    async getApplicationFile(spaceId, appId, componentName,type){
+        return this.currentService.getApplicationFile(spaceId, appId, componentName,type);
     }
-    async loadManager(spaceId, appId, managerName){
-        return await this.currentService.loadManager(spaceId, appId, managerName);
+
+    async loadManager(spaceId, appId, managerPath){
+        return await this.currentService.loadManager(spaceId, appId, managerPath);
     }
  /*   async loadService(spaceId, appId, serviceName) {
         return await this.currentService.loadService(spaceId,appId,serviceName);

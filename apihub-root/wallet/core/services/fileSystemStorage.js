@@ -199,25 +199,25 @@ export class FileSystemStorage {
         return await result.json();
     }
 
-    async getApplicationFile(spaceId, appId, filePath) {
-        let result;
-        try {
-            result = await fetch(`/app/${webSkel.currentUser.space.id}/applications/${appId}/file/${filePath}`,
-                {
-                    method: "GET"
-                });
-        } catch (err) {
-            console.error(err);
+    async getApplicationFile(spaceId, appId, componentName, type) {
+        if (type !== "js") {
+            let result;
+            try {
+                result = await fetch(`/app/${spaceId}/applications/${appId}/component/${componentName}/${type}`,
+                    {
+                        method: "GET",
+                    });
+            } catch (err) {
+                console.error(err);
+            }
+            return result;
+        } else {
+            return await import(`/app/${spaceId}/applications/${appId}/component/${componentName}/${type}`);
         }
-        return result;
-    }
-
-    async loadPresenter(spaceId, appId, presenterPath) {
-        return await import(`/app/${webSkel.currentUser.space.id}/applications/${appId}/file/${presenterPath}`);
     }
 
     async loadManager(spaceId, appId, managerPath) {
-        return await import(`/app/${webSkel.currentUser.space.id}/applications/${appId}/file/${managerPath}`);
+        return await import(`/app/${spaceId}/applications/${appId}/files/${managerPath}`);
     }
 
     async loadAppFlows(spaceId, appName) {

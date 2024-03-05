@@ -23,25 +23,19 @@ export class ApplicationsService {
     }
 
     async initialiseApplication(appName) {
+
         webSkel.initialisedApplications[appName] = await storageManager.getApplicationConfigs(webSkel.currentUser.space.id, appName);
         if (webSkel.initialisedApplications[appName].manager) {
             let ManagerModule = await storageManager.loadManager(webSkel.currentUser.space.id, appName, webSkel.initialisedApplications[appName].manager.path)
             webSkel.initialisedApplications[appName].manager = new ManagerModule[webSkel.initialisedApplications[appName].manager.name](appName);
             await webSkel.initialisedApplications[appName].manager.loadAppData?.();
         }
-        for (const component of webSkel.initialisedApplications[appName].components) {
-            let componentHTML = await (await storageManager.getApplicationFile(webSkel.currentUser.space.id, appName, component.componentPath)).text();
-            const cssPaths = await Promise.all(
-                component.cssPaths.map(cssPath =>
-                    storageManager.getApplicationFile(webSkel.currentUser.space.id, appName, cssPath)
-                        .then(response => response.text())
-                )
-            );
-            await webSkel.defineComponent(component.componentName, componentHTML, {cssTexts: cssPaths}, true);
-        }
-        for (const presenter of webSkel.initialisedApplications[appName].presenters) {
-            const PresenterModule = await storageManager.loadPresenter(webSkel.currentUser.space.id, appName, presenter.presenterPath);
-            webSkel.registerPresenter(presenter.forComponent, PresenterModule[presenter.presenterName]);
+
+        for (let component of webSkel.initialisedApplications[appName].components) {
+            component = {...await storageManager.getApplicationComponent(webSkel.currentUser.space.id, appName, component.name),
+                        ...component
+            }
+            await webSkel.defineComponent(component);
         }
     }
 
@@ -52,7 +46,6 @@ export class ApplicationsService {
             applicationContainer.insertAdjacentHTML("beforebegin", `<left-sidebar data-presenter="left-sidebar" ></left-sidebar>`);
         }
         if (appName === webSkel.defaultApplicationName) {
-
             let appLocation = applicationLocation || ["agent-page"];
             const presenter = appLocation[appLocation.length - 1]
             await webSkel.changeToDynamicPage(`${presenter}`, `${webSkel.currentUser.space.id}/SpaceConfiguration/${appLocation.join('/')}`)
@@ -70,8 +63,6 @@ export class ApplicationsService {
             await webSkel.changeToDynamicPage(webSkel.initialisedApplications[appName].entryPointComponent,
                 `${webSkel.currentUser.space.id}/${appName}/${webSkel.initialisedApplications[appName].entryPointComponent}`);
         } finally {
-            //UILoader.spinner.close();
-            //UILoader.spinner.remove();
             webSkel.currentApplicationName = appName;
         }
     }

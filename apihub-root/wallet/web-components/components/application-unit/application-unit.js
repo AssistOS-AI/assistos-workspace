@@ -38,8 +38,7 @@ export class applicationUnit{
     async installApplication() {
         const loading = await webSkel.showLoading(`<general-loader></general-loader>`);
         let response = await webSkel.appServices.installApplication(this.appName);
-        debugger
-        if(response.status.toString().startsWith("4")||response.status.toString().startsWith("5"))    {
+        if(response.status%100===4||response.status%100===5)    {
            let confirmation = await webSkel.showModal("git-credentials-modal", true);
            if(confirmation){
                await this.installApplication();
@@ -53,7 +52,7 @@ export class applicationUnit{
     async uninstallApplication() {
         const loading = await webSkel.showLoading(`<general-loader></general-loader>`);
         let response = await webSkel.appServices.uninstallApplication(this.appName);
-        if(response.status.startsWith("4")||response.status.startsWith("5")){
+        if(response.status%100===4||response.status%100===5){
             let confirmation = await webSkel.showModal("git-credentials-modal", true);
             if(confirmation){
                 await this.uninstallApplication();

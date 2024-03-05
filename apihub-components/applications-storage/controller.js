@@ -6,22 +6,25 @@ const path = require('path');
 const fsPromises = require('fs').promises;
 const openDSU = require("opendsu");
 const crypto = openDSU.loadApi("crypto");
+
 function sendResponse(response, statusCode, contentType, message) {
     response.statusCode = statusCode;
     response.setHeader("Content-Type", contentType);
     response.write(message);
     response.end();
 }
-function createContainerName(spaceId, userId){
+
+function createContainerName(spaceId, userId) {
     return `${spaceId}.${userId}`;
 }
 
-async function getSecret(spaceId, userId, secretName, serverRootFolder){
+async function getSecret(spaceId, userId, secretName, serverRootFolder) {
     let containerName = createContainerName(spaceId, userId);
     const secretsService = await require('apihub').getSecretsServiceInstanceAsync(serverRootFolder);
     return secretsService.getSecretSync(containerName, secretName);
 }
-function updateSpaceStatus(spaceId, applicationName, description, branchName, deleteMode=false) {
+
+function updateSpaceStatus(spaceId, applicationName, description, branchName, deleteMode = false) {
     const statusPath = `../apihub-root/spaces/${spaceId}/status/status.json`;
     let status;
     if (fs.existsSync(statusPath)) {
@@ -30,7 +33,7 @@ function updateSpaceStatus(spaceId, applicationName, description, branchName, de
     } else {
         status = {};
     }
-    if(deleteMode===true) {
+    if (deleteMode === true) {
         status.installedApplications = status.installedApplications.filter(app => app.id !== applicationName);
         fs.writeFileSync(statusPath, JSON.stringify(status, null, 2));
         return;
@@ -75,7 +78,7 @@ function generateId() {
 
 function iterateFolder(folderPath, extensions) {
     let filePaths = [];
-    fs.readdirSync(folderPath, { withFileTypes: true }).forEach(dirent => {
+    fs.readdirSync(folderPath, {withFileTypes: true}).forEach(dirent => {
         const fullPath = path.join(folderPath, dirent.name);
         if (dirent.isDirectory()) {
             filePaths = filePaths.concat(iterateFolder(fullPath, extensions));
@@ -85,40 +88,42 @@ function iterateFolder(folderPath, extensions) {
     });
     return filePaths;
 }
+
 async function processFile(filePath, applicationId, components) {
     let content = await fsPromises.readFile(filePath, 'utf8');
-    components = components.sort((a, b) => b.componentName.length - a.componentName.length);
+    components = components.sort((a, b) => b.name.length - a.name.length);
     components.forEach((component, index) => {
         const uniqueMarker = `TEMP_MARKER_${index}_`;
-        const searchStr = new RegExp(`\\b${component.componentName}\\b`, 'g');
-        content= content.replace(searchStr, uniqueMarker);
+        const searchStr = new RegExp(`\\b${component.name}\\b`, 'g');
+        content = content.replace(searchStr, uniqueMarker);
     });
     components.forEach((component, index) => {
         const uniqueMarker = `TEMP_MARKER_${index}_`;
-        const replaceStr = `${applicationId}-${component.componentName}`;
+        const replaceStr = `${applicationId}-${component.name}`;
         content = content.replace(new RegExp(uniqueMarker, 'g'), replaceStr);
     });
     await fsPromises.writeFile(filePath, content, 'utf8');
 }
 
-async function setGITCredentialsCache(spaceId, userId, serverRootFolder){
+async function setGITCredentialsCache(spaceId, userId, serverRootFolder) {
     let username;
     let token;
     try {
         username = await getSecret(spaceId, userId, "username", serverRootFolder);
         token = await getSecret(spaceId, userId, "token", serverRootFolder);
-    }
-    catch (e){
-      return 404;
+    } catch (e) {
+        return 404;
     }
     const timeout = "60";
     await execAsync(`git config --global credential.helper 'cache --timeout=${timeout}'`);
     await execAsync(`echo "protocol=https\nhost=github.com\nusername=${username}\npassword=${token}\n" | git credential approve`);
     return 200;
 }
-async function clearGITCredentialsCache(){
+
+async function clearGITCredentialsCache() {
     await execAsync(`git credential-cache exit`);
 }
+
 async function installApplication(server, request, response) {
     const spaceId = request.params.spaceId;
     let applicationId = request.params.applicationId;
@@ -130,9 +135,8 @@ async function installApplication(server, request, response) {
     // }
 
     try {
-        debugger
-        const webSkelConfig = require("../apihub-root/wallet/assistOS-configs.json");
-        const application = webSkelConfig.applications.find(app => app.id == applicationId);
+        const assistOSConfig = require("../apihub-root/wallet/assistOS-configs.json");
+        const application = assistOSConfig.applications.find(app => app.id == applicationId);
         const folderPath = `../apihub-root/spaces/${spaceId}/applications/${application.name}`;
         if (!application || !application.repository) {
             console.error("Application or repository not found");
@@ -141,26 +145,25 @@ async function installApplication(server, request, response) {
         }
         await execAsync(`git clone ${application.repository} ${folderPath}`);
 
-        let manifestPath=folderPath+"/"+ "manifest.json";
-        let manifest=JSON.parse(await fsPromises.readFile(manifestPath, 'utf8'));
+        let manifestPath = folderPath + "/" + "manifest.json";
+        let manifest = JSON.parse(await fsPromises.readFile(manifestPath, 'utf8'));
 
 
         const extensions = ['.html', '.css', '.js'];
 
         const filePaths = iterateFolder(folderPath, extensions);
-        applicationId=applicationId.toLowerCase();
-        let promisesArray=[]
+        applicationId = applicationId.toLowerCase();
+        let promisesArray = []
         filePaths.forEach(filePath => {
-               promisesArray.push(processFile(filePath,applicationId,manifest.components));
-            })
+            promisesArray.push(processFile(filePath, applicationId, manifest.components));
+        })
         await Promise.all(promisesArray)
-        for (let component of manifest.components){
-            component.componentName=`${applicationId}-`+component.componentName;
+        for (let component of manifest.components) {
+            component.name = `${applicationId}-` + component.name;
         }
-        manifest.entryPointComponent=`${applicationId}-`+manifest.entryPointComponent;
-        for(let presenter of manifest.presenters){
-            presenter.forComponent=`${applicationId}-`+presenter.forComponent;
-        }
+
+        manifest.entryPointComponent = `${applicationId}-` + manifest.entryPointComponent;
+
         fs.writeFileSync(manifestPath, JSON.stringify(manifest, null, 2), 'utf8')
 
         const branchName = `space-${spaceId}`;
@@ -170,7 +173,7 @@ async function installApplication(server, request, response) {
             await execAsync(`rm ${applicationPath}/README.md`);
 
 
-            const { stdout: branchList } = await execAsync(`git -C ${applicationPath} branch -r`);
+            const {stdout: branchList} = await execAsync(`git -C ${applicationPath} branch -r`);
             if (branchList.includes(`origin/${branchName}`)) {
                 await execAsync(`git -C ${applicationPath} checkout ${branchName}`);
             } else {
@@ -198,8 +201,8 @@ async function uninstallApplication(server, request, response) {
     //     return sendResponse(response, 404, "text/plain", "Credentials not found for current user");
     // }
     try {
-        const webSkelConfig = require("../apihub-root/wallet/webskel-configs.json");
-        const application = webSkelConfig.applications.find(app => app.id == applicationId);
+        const assistOSConfigs = require("../apihub-root/wallet/assistOS-configs.json");
+        const application = assistOSConfigs.applications.find(app => app.id === applicationId);
 
         // Check for the application's existence
         if (!application) {
@@ -225,7 +228,7 @@ async function uninstallApplication(server, request, response) {
         // Remove the application folder
         await execAsync(`rm -rf ${folderPath}`);
         //await clearGITCredentialsCache();
-        updateSpaceStatus(spaceId, application.name, "", "",true);
+        updateSpaceStatus(spaceId, application.name, "", "", true);
         sendResponse(response, 200, "text/html", "Application uninstalled successfully");
     } catch (error) {
         console.error("Error in uninstalling application:", error);
@@ -236,48 +239,50 @@ async function uninstallApplication(server, request, response) {
 
 async function saveJSON(response, spaceData, filePath) {
     const folderPath = path.dirname(filePath);
-    try{
+    try {
         await fsPromises.access(filePath);
-    }catch (e) {
+    } catch (e) {
         try {
-            await fsPromises.mkdir(folderPath, { recursive: true });
-        } catch(error) {
-            sendResponse(response, 500, "text/html", error+ ` Error at creating folder: ${folderPath}`);
+            await fsPromises.mkdir(folderPath, {recursive: true});
+        } catch (error) {
+            sendResponse(response, 500, "text/html", error + ` Error at creating folder: ${folderPath}`);
             return false;
         }
     }
     try {
         await fsPromises.writeFile(filePath, spaceData, 'utf8');
-    } catch(error) {
-        sendResponse(response, 500, "text/html", error+ ` Error at writing space: ${filePath}`);
+    } catch (error) {
+        sendResponse(response, 500, "text/html", error + ` Error at writing space: ${filePath}`);
         return false;
     }
     return true;
 }
+
 async function storeObject(request, response) {
     const spaceId = request.params.spaceId;
     const applicationId = request.params.applicationId;
     const objectType = request.params.objectType;
     const objectId = decodeURIComponent(request.params.objectId);
     const filePath = `../apihub-root/spaces/${spaceId}/applications/${applicationId}/${objectType}/${objectId}.json`;
-    if(request.body.toString() === "") {
+    if (request.body.toString() === "") {
         await fsPromises.unlink(filePath);
         sendResponse(response, 200, "text/html", `Deleted successfully ${objectId}`);
         return;
     }
     let jsonData = JSON.parse(request.body.toString());
-    if(await saveJSON(response, JSON.stringify(jsonData), filePath)){
+    if (await saveJSON(response, JSON.stringify(jsonData), filePath)) {
         sendResponse(response, 200, "text/html", `Success, ${objectId}`);
     }
 
 }
+
 async function loadApplicationConfig(request, response) {
     try {
         const spaceId = request.params.spaceId;
         const applicationId = request.params.applicationId;
 
-        const webSkelConfig = require("../apihub-root/wallet/assistOS-configs.json");
-        const application = webSkelConfig.applications.find(app => app.id == applicationId);
+        const assistOSConfig = require("../apihub-root/wallet/assistOS-configs.json");
+        const application = assistOSConfig.applications.find(app => app.id == applicationId);
 
         const folderPath = `../apihub-root/spaces/${spaceId}/applications/${application.name}`;
         const manifestPath = `${folderPath}/manifest.json`;
@@ -289,15 +294,16 @@ async function loadApplicationConfig(request, response) {
         sendResponse(response, 500, "text/plain", "Internal Server Error");
     }
 }
-async function loadObjects(request, response){
+
+async function loadObjects(request, response) {
     let filePath = `../apihub-root/spaces/${request.params.spaceId}/applications/${request.params.appName}/${request.params.objectType}`;
-    try{
+    try {
         await fsPromises.access(filePath);
-    }catch (e) {
+    } catch (e) {
         try {
-            await fsPromises.mkdir(filePath, { recursive: true });
-        } catch(error) {
-            return sendResponse(response, 500, "text/html", error+ ` Error at creating folder: ${filePath}`);
+            await fsPromises.mkdir(filePath, {recursive: true});
+        } catch (error) {
+            return sendResponse(response, 500, "text/html", error + ` Error at creating folder: ${filePath}`);
         }
     }
     let localData = [];
@@ -307,38 +313,51 @@ async function loadObjects(request, response){
             const fullPath = path.join(filePath, file);
             const stat = await fsPromises.stat(fullPath);
             if (file.toLowerCase() !== ".git" && !file.toLowerCase().includes("license")) {
-                return { file, stat };
+                return {file, stat};
             }
         });
 
         let fileStats = await Promise.all(statPromises);
 
         fileStats.sort((a, b) => a.stat.ctimeMs - b.stat.ctimeMs);
-        for (const { file } of fileStats) {
+        for (const {file} of fileStats) {
             const jsonContent = await fsPromises.readFile(path.join(filePath, file), 'utf8');
             localData.push(JSON.parse(jsonContent));
         }
-    }catch (e) {
+    } catch (e) {
         sendResponse(response, 500, "text/plain", JSON.stringify(e));
     }
 
     sendResponse(response, 200, "application/json", JSON.stringify(localData));
 }
-async function loadApplicationComponents(request, response) {
+
+async function loadApplicationFile(request, response) {
     try {
-        const {spaceId, applicationName, } = request.params;
-        const baseUrl = `/app/${spaceId}/applications/${applicationName}/file`;
-        const componentPath = request.url.substring(baseUrl.length);
+        const { spaceId, applicationName} = request.params;
+        const baseUrl = `/app/${spaceId}/applications/${applicationName}/files`
+        const relativeFilePath = request.url.substring(baseUrl.length);
+        const filePath = `../apihub-root/spaces/${spaceId}/applications/${applicationName}/${relativeFilePath}`;
+        const fileType = filePath.substring(filePath.lastIndexOf('.') + 1) || '';
 
-        const filePath = `../apihub-root/spaces/${spaceId}/applications/${applicationName}/${componentPath}`;
-        console.log("File Path:", filePath);
+        await sendFileToClient(response, filePath, fileType);
+    } catch (error) {
+        console.error('Error reading component:', error);
+        handleFileError(response, error);
+    }
+}
 
-        // Security check TBD: Ensure that filePath is still within the intended directory and user has access to it
+function handleFileError(response, error) {
+    if (error.code === 'ENOENT') {
+        sendResponse(response, 404, "text/plain", "File not found");
+    } else {
+        sendResponse(response, 500, "text/plain", "Internal Server Error");
+    }
+}
 
+async function sendFileToClient(response, filePath, fileType) {
+    try {
         const fileContent = await fsPromises.readFile(filePath, 'utf8');
-        const fileType = path.extname(componentPath).slice(1); // get the extension of the file
         let contentType = "";
-
         switch (fileType) {
             case "js":
                 contentType = "application/javascript";
@@ -378,20 +397,29 @@ async function loadApplicationComponents(request, response) {
         }
         sendResponse(response, 200, contentType, fileContent);
     } catch (error) {
-        console.error('Error reading component:', error);
-        if (error.code === 'ENOENT') {
-            sendResponse(response, 404, "text/plain", "File not found");
-        } else {
-            sendResponse(response, 500, "text/plain", "Internal Server Error");
-        }
+        throw Error(error);
     }
 }
 
-module.exports = {
-    installApplication,
-    uninstallApplication,
-    storeObject,
-    loadApplicationConfig,
-    loadApplicationComponents,
-    loadObjects,
+async function loadApplicationComponent(request, response) {
+    try {
+        let {spaceId, applicationName, componentName,fileType} = request.params;
+        let index = componentName.indexOf("-");
+        componentName=componentName.substring(index + 1);
+        const componentFilePath = `../apihub-root/spaces/${spaceId}/applications/${applicationName}/web-components/${componentName}/${componentName + '.' + fileType}`;
+        await sendFileToClient(response, componentFilePath, fileType);
+    }catch(error){
+        console.error('Error reading component:', error);
+        handleFileError(response,error)
+    }
 }
+
+    module.exports = {
+        installApplication,
+        uninstallApplication,
+        storeObject,
+        loadApplicationConfig,
+        loadApplicationComponent,
+        loadApplicationFile,
+        loadObjects,
+    }
