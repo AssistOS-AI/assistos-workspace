@@ -4,7 +4,7 @@ import {
     sanitize,
 } from "../../../imports.js";
 
-export class agentPage {
+export class AgentPage {
     constructor(element, invalidate) {
         this.element = element;
         this.invalidate = invalidate;

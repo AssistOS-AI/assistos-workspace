@@ -1,10 +1,9 @@
 import {
-    showModal,
     showActionBox,
-    reverseQuerySelector, extractFormInformation
+    extractFormInformation
 } from "../../../imports.js";
 
-export class knowledgePage {
+export class KnowledgePage {
     constructor(element, invalidate) {
         this.element = element;
         this.invalidate = invalidate;

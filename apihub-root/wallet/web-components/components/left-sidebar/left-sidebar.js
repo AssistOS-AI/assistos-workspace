@@ -1,6 +1,6 @@
 import {getClosestParentElement, decodeBase64, changeSelectedPageFromSidebar} from "../../../imports.js";
 
-export class leftSidebar {
+export class LeftSidebar {
     constructor(element, invalidate) {
         this.element = element;
         this.invalidate = invalidate;

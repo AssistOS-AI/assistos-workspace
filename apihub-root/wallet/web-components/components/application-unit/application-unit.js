@@ -1,6 +1,6 @@
-import {showActionBox, showModal} from "../../../imports.js";
+import {showActionBox} from "../../../imports.js";
 
-export class applicationUnit{
+export class ApplicationUnit{
     constructor(element, invalidate) {
         this.element = element;
         this.invalidate = invalidate;

@@ -1,6 +1,6 @@
 import {extractFormInformation} from "../../../imports.js";
 
-export class authenticationPage {
+export class AuthenticationPage {
     constructor(element, invalidate) {
         this.element = element;
         this.invalidate = invalidate;

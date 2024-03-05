@@ -1,5 +1,5 @@
 import {closeModal} from "../../../imports.js"
-export class showErrorModal{
+export class ShowErrorModal{
     constructor(element, invalidate) {
         this.element = element;
         this.invalidate = invalidate;

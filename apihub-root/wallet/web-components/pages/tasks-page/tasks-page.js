@@ -1,4 +1,4 @@
-export class tasksPage {
+export class TasksPage {
     constructor(element, invalidate) {
         this.element = element;
         this.invalidate = invalidate;
@@ -21,7 +21,7 @@ export class tasksPage {
     }
 
     async showActionBox(_target, primaryKey, componentName, insertionMode) {
-        await webSkel.UtilsService.showActionBox(_target, primaryKey, componentName, insertionMode);
+        await webSkel.showActionBox(_target, primaryKey, componentName, insertionMode);
     }
 
 }

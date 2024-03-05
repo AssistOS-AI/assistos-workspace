@@ -1,4 +1,4 @@
-export class spaceRightSidebar {
+export class SpaceRightSidebar {
     constructor(element,invalidate) {
         this.invalidate = invalidate;
         this.invalidate();

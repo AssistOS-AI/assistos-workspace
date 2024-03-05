@@ -1,4 +1,4 @@
-export class settingsPage{
+export class SettingsPage{
     constructor(element,invalidate){
         this.element = element;
         this.invalidate = invalidate;

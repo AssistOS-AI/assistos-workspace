@@ -1,5 +1,5 @@
 import * as dependencies from "../../imports.js";
-import {FlowApis} from "../models/flowApis.js";
+import {FlowApis} from "../models/FlowApis.js";
 
 export class LlmsService {
     constructor() {

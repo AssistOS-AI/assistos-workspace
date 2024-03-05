@@ -4,7 +4,7 @@ import {
 } from "../../../imports.js";
 
 
-export class addFlowModal {
+export class AddFlowModal {
     constructor(element, invalidate) {
         this.element = element;
         this.invalidate = invalidate;

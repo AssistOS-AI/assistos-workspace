@@ -1,10 +1,9 @@
 import {
     closeModal,
-    reverseQuerySelector
 } from "../../../imports.js";
 
 
-export class editAnnouncementModal {
+export class EditAnnouncementModal {
     constructor(element,invalidate) {
         this.element=element;
         this.invalidate=invalidate;

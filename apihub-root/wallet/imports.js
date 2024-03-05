@@ -1,16 +1,16 @@
 // Models
-import { Chapter } from "./core/models/chapter.js";
-import { DocumentModel } from "./core/models/documentModel.js";
-import { Personality } from "./core/models/personality.js";
-import { User } from "./core/models/user.js";
-import { Announcement } from "./core/models/announcement.js";
-import { Paragraph } from "./core/models/paragraph.js";
-import { Space } from "./core/models/space.js";
-import { Settings } from "./core/models/settings.js";
-import { Flow } from "./core/models/flow.js";
-import { Agent } from "./core/models/agent.js";
-import {PageModel} from "./core/models/pageModel.js";
-import {Application} from "./core/models/application.js";
+import { Chapter } from "./core/models/Chapter.js";
+import { DocumentModel } from "./core/models/DocumentModel.js";
+import { Personality } from "./core/models/Personality.js";
+import { User } from "./core/models/User.js";
+import { Announcement } from "./core/models/Announcement.js";
+import { Paragraph } from "./core/models/Paragraph.js";
+import { Space } from "./core/models/Space.js";
+import { Settings } from "./core/models/Settings.js";
+import { Flow } from "./core/models/Flow.js";
+import { Agent } from "./core/models/Agent.js";
+import {PageModel} from "./core/models/PageModel.js";
+import {Application} from "./core/models/Application.js";
 
 export {
     Chapter,
@@ -28,7 +28,7 @@ export {
 };
 
 // Services
-import { StorageManager } from "./core/services/storageManager.js";
+import { StorageManager } from "./core/services/StorageManager.js";
 
 export{
     StorageManager

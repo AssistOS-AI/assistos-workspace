@@ -1,4 +1,4 @@
-export class personalitiesPage {
+export class PersonalitiesPage {
     constructor(element,invalidate) {
         this.modal = "showAddPersonalityModal";
         this.element = element;

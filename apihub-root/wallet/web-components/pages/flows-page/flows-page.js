@@ -2,7 +2,7 @@ import {
     showModal, showActionBox, reverseQuerySelector
 } from "../../../imports.js";
 
-export class flowsPage {
+export class FlowsPage {
     constructor(element, invalidate) {
         webSkel.currentUser.space.observeChange(webSkel.currentUser.space.getNotificationId(), invalidate);
         this.element = element;

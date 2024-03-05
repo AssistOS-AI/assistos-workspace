@@ -1,6 +1,6 @@
 import {showModal} from "../../../imports.js";
 
-export class applicationsMarketplacePage {
+export class ApplicationsMarketplacePage {
     constructor(element, invalidate) {
         this.element = element;
         this.invalidate = invalidate;

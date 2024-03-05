@@ -113,6 +113,8 @@ async function setGITCredentialsCache(spaceId, userId, serverRootFolder) {
         token = await getSecret(spaceId, userId, "token", serverRootFolder);
     } catch (e) {
         return 404;
+        username = await getSecret(spaceId, userId, "username", server.rootFolder);
+        token = await getSecret(spaceId, userId, "token", server.rootFolder);
     }
     const timeout = "60";
     await execAsync(`git config --global credential.helper 'cache --timeout=${timeout}'`);

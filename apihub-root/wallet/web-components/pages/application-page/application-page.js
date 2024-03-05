@@ -1,6 +1,6 @@
 import {showModal, reverseQuerySelector, showActionBox} from "../../../imports.js";
 
-export class applicationPage {
+export class ApplicationPage {
     constructor(element, invalidate) {
         this.element=element;
         this.invalidate = invalidate;

@@ -3,7 +3,7 @@ import {
     showModal
 } from "../../../imports.js";
 
-export class spaceDropdown {
+export class SpaceDropdown {
     constructor(element,invalidate) {
         this.element = element;
         this.invalidate=invalidate;

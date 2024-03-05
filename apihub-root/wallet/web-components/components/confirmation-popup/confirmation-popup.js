@@ -1,4 +1,4 @@
-export class confirmationPopup {
+export class ConfirmationPopup {
     constructor(element, invalidate) {
         this.element = element;
         this.invalidate=invalidate;
