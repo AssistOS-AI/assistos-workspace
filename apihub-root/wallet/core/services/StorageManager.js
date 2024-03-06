@@ -87,14 +87,15 @@ export class StorageManager {
     async getApplicationComponent(spaceId, appId, appComponentsDirPath, component) {
         const HTMLPath = `${appComponentsDirPath}/${component.name}/${component.name}.html`
         const CSSPath = `${appComponentsDirPath}/${component.name}/${component.name}.css`
-        let componentHTML = await (await this.getApplicationFile(spaceId, appId, HTMLPath)).text();
-        let componentCSS = await (await this.getApplicationFile(spaceId, appId, CSSPath)).text();
-        let componentPresenterModule="";
+        let loadedTemplate = await (await this.getApplicationFile(spaceId, appId, HTMLPath)).text();
+        let loadedCSSs = await (await this.getApplicationFile(spaceId, appId, CSSPath)).text();
+        let presenterModule="";
         if (component.presenterClassName) {
             const PresenterPath = `${appComponentsDirPath}/${component.name}/${component.name}.js`
-            componentPresenterModule= await this.getApplicationFile(spaceId, appId, PresenterPath);
+            presenterModule = await this.getApplicationFile(spaceId, appId, PresenterPath);
         }
-        return {componentHTML, componentCSS, componentPresenterModule};
+        loadedCSSs = [loadedCSSs];
+        return {loadedTemplate, loadedCSSs, presenterModule};
     }
 
     async getApplicationFile(spaceId, appId, relativeAppFilePath) {
