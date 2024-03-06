@@ -5,12 +5,12 @@ agent-page {
 }
 
 .middle-content {
+    position: relative;
     width: calc(100% - 270px);
     height: 100%;
 }
 
 .page-container {
-    position: relative;
     overflow: scroll;
     height: calc(100% - 144px)
 }
@@ -33,17 +33,12 @@ agent-page {
     position: relative;
 }
 
-.page-container::before {
+.chat-background{
     z-index: -1;
-    content: "";
-    background-image: url('agent-background.png');
-    background-size: cover;
+    object-fit: cover;
     position: absolute;
-    top: 0;
     right: 0;
     bottom: 0;
-    left: 0;
-    opacity: 1;
 }
 
 .conversation {

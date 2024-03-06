@@ -59,15 +59,11 @@ applications-marketplace-page{
         grid-template-columns: 1fr 1fr 1fr;
     }
 }
-applications-marketplace-page::before {
+.background{
     z-index: -1;
-    content: "";
-    background-image: url('../../../assets/images/space-background.png');
-    background-size: cover;
+    object-fit: cover;
     position: absolute;
-    top: 0;
     right: 0;
     bottom: 0;
     left: 0;
-    opacity: 1;
 }
