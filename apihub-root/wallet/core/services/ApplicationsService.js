@@ -32,8 +32,8 @@ export class ApplicationsService {
         }
 
         for (let component of webSkel.initialisedApplications[appName].components) {
-            //let index =  component.name.indexOf("-");
-            //component.name= component.name.substring(index + 1);
+            let index =  component.name.indexOf("-");
+            component.name= component.name.substring(index + 1);
             component = {
                 ...await storageManager.getApplicationComponent(webSkel.currentUser.space.id, appName,webSkel.initialisedApplications[appName].componentsDirPath,component),
                 ...component
