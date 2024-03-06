@@ -5,7 +5,7 @@ flows-page{
     width: calc(100% - 270px);
 }
 .table-header-flows {
-    padding-left: 15px;
+    padding-left: 20px;
     display: flex;
     color: var(--documents-page-header);
     font-size: 18px;
@@ -33,7 +33,7 @@ flows-page{
 }
 .buttons-section {
     display: flex;
-    padding-left: 15px;
+    padding-left: 20px;
     margin-bottom: 20px;
 }
 

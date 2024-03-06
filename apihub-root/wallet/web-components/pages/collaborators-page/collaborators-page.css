@@ -7,7 +7,7 @@ collaborators-page{
     width: calc(100% - 270px);
 }
 .collaborators-table{
-    padding: 15px;
+    padding: 20px;
 }
 .table-header {
     display: flex;

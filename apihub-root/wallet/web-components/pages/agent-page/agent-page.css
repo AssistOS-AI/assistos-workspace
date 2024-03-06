@@ -50,7 +50,7 @@ agent-page {
 .chat-input-container {
     height: 70px;
     margin: 5px 0;
-    padding: 0 0 0 15px;
+    padding: 0 0 0 20px;
     justify-content: space-between;
     display: flex;
     align-items: center;
@@ -86,7 +86,7 @@ agent-page {
 }
 
 .conversation {
-    padding: 15px;
+    padding: 20px;
 }
 
 
@@ -144,16 +144,6 @@ agent-page {
     display: flex;
 }
 
-.breadcrumbs {
-    color: var(--medium-blue);
-    font-size: 26px;
-    font-weight: 600;
-    overflow-wrap: break-word;
-    hyphens: auto;
-    word-break: break-word;
-    margin-right: 10px;
-    margin-left: 10px;
-}
 
 .arrow-space {
     padding: 0 5px;

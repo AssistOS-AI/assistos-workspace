@@ -17,14 +17,14 @@ applications-marketplace-page{
     width:100%;
     gap:40px;
     overflow:hidden;
-    padding:0 40px;
+    padding:0 20px;
 }
 .page-header{
     display: flex;
     justify-content: space-between;
 }
 .add-marketplace{
-    margin: 40px 40px 40px 0;
+    margin: 20px 20px 20px 0;
     border: none;
     display: flex;
     align-items: center;
@@ -42,7 +42,7 @@ applications-marketplace-page{
     cursor: pointer;
 }
 .category-header{
-    padding: 0 40px 20px 40px;
+    padding: 0 20px 20px 20px;
 }
 .category-title{
     font-size: 32px;

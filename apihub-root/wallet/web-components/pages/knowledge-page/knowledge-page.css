@@ -9,7 +9,7 @@ knowledge-page{
 .search{
     width: calc(100% - 270px);
    margin-top: 20px;
-    padding-left: 15px;
+    padding-left: 20px;
     margin-bottom: 20px;
 }
 .form-item{
