@@ -24,7 +24,7 @@ async function getSecret(spaceId, userId, secretName, serverRootFolder) {
     return secretsService.getSecretSync(containerName, secretName);
 }
 
-function updateSpaceStatus(spaceId, applicationName, description, branchName, deleteMode = false) {
+function updateSpaceStatus(spaceId, applicationName, description, deleteMode = false) {
     const statusPath = `../apihub-root/spaces/${spaceId}/status/status.json`;
     let status;
     if (fs.existsSync(statusPath)) {
@@ -48,7 +48,6 @@ function updateSpaceStatus(spaceId, applicationName, description, branchName, de
                 id: generateId(),
                 installationDate: installationDate,
                 lastUpdate: lastUpdate,
-                flowsBranch: branchName,
                 description: description
             });
     } else {
@@ -58,7 +57,6 @@ function updateSpaceStatus(spaceId, applicationName, description, branchName, de
                 id: generateId(),
                 installationDate: installationDate,
                 lastUpdate: lastUpdate,
-                flowsBranch: branchName,
                 description: description
             }
         ];
@@ -105,36 +103,9 @@ async function processFile(filePath, applicationId, components) {
     await fsPromises.writeFile(filePath, content, 'utf8');
 }
 
-async function setGITCredentialsCache(spaceId, userId, serverRootFolder) {
-    let username;
-    let token;
-    try {
-        username = await getSecret(spaceId, userId, "username", serverRootFolder);
-        token = await getSecret(spaceId, userId, "token", serverRootFolder);
-    } catch (e) {
-        return 404;
-        username = await getSecret(spaceId, userId, "username", server.rootFolder);
-        token = await getSecret(spaceId, userId, "token", server.rootFolder);
-    }
-    const timeout = "60";
-    await execAsync(`git config --global credential.helper 'cache --timeout=${timeout}'`);
-    await execAsync(`echo "protocol=https\nhost=github.com\nusername=${username}\npassword=${token}\n" | git credential approve`);
-    return 200;
-}
-
-async function clearGITCredentialsCache() {
-    await execAsync(`git credential-cache exit`);
-}
-
-async function installApplication(server, request, response) {
+async function installApplication(request, response) {
     const spaceId = request.params.spaceId;
     let applicationId = request.params.applicationId;
-    // let userId = request.params.userId;
-    //
-    // let result = await setGITCredentialsCache(spaceId, userId, server.rootFolder);
-    // if(result === 404){
-    //     return sendResponse(response, 404, "text/plain", "Credentials not found for current user");
-    // }
 
     try {
         const assistOSConfig = require("../apihub-root/wallet/assistOS-configs.json");
@@ -167,25 +138,14 @@ async function installApplication(server, request, response) {
         manifest.entryPointComponent = `${applicationId}-` + manifest.entryPointComponent;
 
         fs.writeFileSync(manifestPath, JSON.stringify(manifest, null, 2), 'utf8')
-
-        const branchName = `space-${spaceId}`;
         if (application.flowsRepository) {
             let applicationPath = `../apihub-root/spaces/${spaceId}/applications/${application.name}/flows`;
             await execAsync(`git clone ${application.flowsRepository} ${applicationPath}`);
             await execAsync(`rm ${applicationPath}/README.md`);
-
-
-            const {stdout: branchList} = await execAsync(`git -C ${applicationPath} branch -r`);
-            if (branchList.includes(`origin/${branchName}`)) {
-                await execAsync(`git -C ${applicationPath} checkout ${branchName}`);
-            } else {
-                await execAsync(`git -C ${applicationPath} checkout -b ${branchName}`);
-                await execAsync(`git -C ${applicationPath} push -u origin ${branchName}`);
-            }
         }
         //await clearGITCredentialsCache();
         await execAsync(`git pull`);
-        updateSpaceStatus(spaceId, application.name, manifest.description, branchName);
+        updateSpaceStatus(spaceId, application.name, manifest.description);
         sendResponse(response, 200, "text/html", "Application installed successfully");
     } catch (error) {
         console.error("Error in installing application:", error);
@@ -193,15 +153,10 @@ async function installApplication(server, request, response) {
     }
 }
 
-async function uninstallApplication(server, request, response) {
+async function uninstallApplication(request, response) {
     const spaceId = request.params.spaceId;
     const applicationId = request.params.applicationId;
     const folderPath = `../apihub-root/spaces/${spaceId}/applications/${applicationId}`;
-    // let userId = request.params.userId;
-    // let result = await setGITCredentialsCache(spaceId, userId, server.rootFolder);
-    // if(result === 404){
-    //     return sendResponse(response, 404, "text/plain", "Credentials not found for current user");
-    // }
     try {
         const assistOSConfigs = require("../apihub-root/wallet/assistOS-configs.json");
         const application = assistOSConfigs.applications.find(app => app.id === applicationId);

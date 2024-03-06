@@ -169,10 +169,10 @@ export class FileSystemStorage {
     }
 
     //applications
-    async installApplication(spaceId, applicationId, userId) {
+    async installApplication(spaceId, applicationId) {
         let result;
         try {
-            result = await fetch(`/space/${spaceId}/applications/${applicationId}/${userId}`,
+            result = await fetch(`/space/${spaceId}/applications/${applicationId}`,
                 {
                     method: "POST",
                     headers: {
@@ -281,10 +281,10 @@ export class FileSystemStorage {
         return await result.text();
     }
 
-    async uninstallApplication(spaceId, appName, userId) {
+    async uninstallApplication(spaceId, appName) {
         let result;
         try {
-            result = await fetch(`/space/${spaceId}/applications/${appName}/${userId}`,
+            result = await fetch(`/space/${spaceId}/applications/${appName}`,
                 {
                     method: "DELETE",
                     headers: {
