@@ -309,6 +309,9 @@ dialog{
     color:var(--medium-blue);
 }
 .svg-container{
+    display: flex;
+    justify-content: center;
+    align-items: center;
     width:20px;
     height:20px;
 }
