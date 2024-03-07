@@ -24,7 +24,7 @@ llm-animation{
     animation: slideToLeft 20s infinite linear;
 }
 .background{
-    background: url('background.png') repeat-x;
+    background: url('/wallet/assets/images/llm-animation-background.png') repeat-x;
     background-size: cover;
     width: 600px;
     height: 400px;

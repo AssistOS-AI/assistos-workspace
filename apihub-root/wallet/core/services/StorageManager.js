@@ -76,8 +76,8 @@ export class StorageManager {
     }
 
     //applications
-    async installApplication(spaceId, appName, userId) {
-        return await this.currentService.installApplication(spaceId, appName, userId);
+    async installApplication(spaceId, appName) {
+        return await this.currentService.installApplication(spaceId, appName);
     }
 
     async getApplicationConfigs(spaceId, appId) {
@@ -125,8 +125,8 @@ export class StorageManager {
         return await this.currentService.loadAppObjects(appName, objectType);
     }
 
-    async uninstallApplication(spaceId, appName, userId) {
-        return await this.currentService.uninstallApplication(spaceId, appName, userId);
+    async uninstallApplication(spaceId, appName) {
+        return await this.currentService.uninstallApplication(spaceId, appName);
     }
 
     /*GIT*/
