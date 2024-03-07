@@ -24,18 +24,19 @@ async function getSecret(spaceId, userId, secretName, serverRootFolder) {
     return secretsService.getSecretSync(containerName, secretName);
 }
 
-function updateSpaceStatus(spaceId, applicationName, description, deleteMode = false) {
+async function updateSpaceStatus(spaceId, applicationName, description, deleteMode = false) {
     const statusPath = `../apihub-root/spaces/${spaceId}/status/status.json`;
     let status;
-    if (fs.existsSync(statusPath)) {
-        const fileContent = fs.readFileSync(statusPath, 'utf8');
+    try{
+        await fsPromises.access(statusPath);
+        const fileContent = await fsPromises.readFile(statusPath, 'utf8');
         status = JSON.parse(fileContent);
-    } else {
+    }catch (e) {
         status = {};
     }
     if (deleteMode === true) {
         status.installedApplications = status.installedApplications.filter(app => app.id !== applicationName);
-        fs.writeFileSync(statusPath, JSON.stringify(status, null, 2));
+        await fsPromises.writeFile(statusPath, JSON.stringify(status, null, 2));
         return;
     }
     let installationDate = new Date();
@@ -61,7 +62,7 @@ function updateSpaceStatus(spaceId, applicationName, description, deleteMode = f
             }
         ];
     }
-    fs.writeFileSync(statusPath, JSON.stringify(status, null, 2));
+    await fsPromises.writeFile(statusPath, JSON.stringify(status, null, 2));
 }
 
 function generateId() {
@@ -74,16 +75,17 @@ function generateId() {
     return randomStringId;
 }
 
-function iterateFolder(folderPath, extensions) {
+async function iterateFolder(folderPath, extensions) {
     let filePaths = [];
-    fs.readdirSync(folderPath, {withFileTypes: true}).forEach(dirent => {
+    let files = await fsPromises.readdir(folderPath, {withFileTypes: true});
+    for(let dirent of files){
         const fullPath = path.join(folderPath, dirent.name);
         if (dirent.isDirectory()) {
-            filePaths = filePaths.concat(iterateFolder(fullPath, extensions));
+            filePaths = filePaths.concat(await iterateFolder(fullPath, extensions));
         } else if (dirent.isFile() && extensions.includes(path.extname(dirent.name))) {
             filePaths.push(fullPath);
         }
-    });
+    }
     return filePaths;
 }
 
@@ -124,7 +126,7 @@ async function installApplication(request, response) {
 
         const extensions = ['.html', '.css', '.js'];
 
-        const filePaths = iterateFolder(folderPath, extensions);
+        const filePaths = await iterateFolder(folderPath, extensions);
         applicationId = applicationId.toLowerCase();
         let promisesArray = []
         filePaths.forEach(filePath => {
@@ -137,7 +139,8 @@ async function installApplication(request, response) {
 
         manifest.entryPointComponent = `${applicationId}-` + manifest.entryPointComponent;
 
-        fs.writeFileSync(manifestPath, JSON.stringify(manifest, null, 2), 'utf8')
+        await fsPromises.writeFile(manifestPath, JSON.stringify(manifest, null, 2), 'utf8')
+
         if (application.flowsRepository) {
             let applicationPath = `../apihub-root/spaces/${spaceId}/applications/${application.name}/flows`;
             await execAsync(`git clone ${application.flowsRepository} ${applicationPath}`);
@@ -145,7 +148,7 @@ async function installApplication(request, response) {
         }
         //await clearGITCredentialsCache();
         await execAsync(`git pull`);
-        updateSpaceStatus(spaceId, application.name, manifest.description);
+        await updateSpaceStatus(spaceId, application.name, manifest.description);
         sendResponse(response, 200, "text/html", "Application installed successfully");
     } catch (error) {
         console.error("Error in installing application:", error);
