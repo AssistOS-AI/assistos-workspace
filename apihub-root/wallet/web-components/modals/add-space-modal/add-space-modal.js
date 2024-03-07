@@ -35,7 +35,7 @@ export class AddSpaceModal {
                 if(!keyValidation.success){
                     throw Error(keyValidation.error);
                 }
-                let newSpace = await SpaceFactory.createSpace(formData.data.name, apiKey);
+                let newSpace = await SpaceFactory.createSpace(formData.data.name, apiKey,webSkel.currentUser.id);
                 await webSkel.appServices.addSpaceToUser(webSkel.currentUser.id, newSpace);
                 closeModal(_target);
                 window.location = "";

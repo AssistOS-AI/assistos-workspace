@@ -33,7 +33,9 @@ export class AuthenticationService{
                     }
                 }
             }
+            /* TODO better logic as the current one can result in an UI endless LOOP of resetting if any unhandled error or case happens */
            if(!currentUser.spaces){
+               /* TODO error handling */
                 let defaultSpace=await this.createDefaultSpace(currentUser.id);
                 await this.addSpaceToUser(currentUser.id,defaultSpace);
                currentUser.spaces=webSkel.currentUser.spaces=[{name: defaultSpace.name, id: defaultSpace.id}];
@@ -126,7 +128,7 @@ export class AuthenticationService{
         return localStorage.getItem("currentUser");
     }
     async createDefaultSpace(currentUserId){
-        return await SpaceFactory.createSpace( "Personal Space",undefined,currentUserId);
+        return await SpaceFactory.createSpace( "Personal Space",undefined,undefined,webSkel.currentUser.id);
     }
     async removeSpaceFromUser(userId,spaceId){
            let user = JSON.parse(await storageManager.loadUser(userId));

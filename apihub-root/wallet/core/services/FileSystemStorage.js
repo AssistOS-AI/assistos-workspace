@@ -32,13 +32,14 @@ export class FileSystemStorage {
         return await result.text();
     }
 
-    async storeSpace(spaceId, jsonData = null, apiKey = null) {
+    async storeSpace(spaceId, jsonData = null, apiKey = null,userId=null) {
         let headers = {
             "Content-type": "application/json; charset=UTF-8"
         };
-
+        debugger
         if (apiKey) {
-            headers["Authorization"] = `Bearer ${apiKey}`;
+            headers["apikey"] = `${apiKey}`;
+            headers["initiatorid"]=`${userId}`;
         }
 
         let options = {

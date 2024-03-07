@@ -118,11 +118,26 @@ async function validateOpenAiKey(apiKey) {
     }
 }
 
-async function saveSpaceAPIKeysecret(spaceId, apiKey, server) {
+async function saveSpaceAPIKeySecret(spaceId, apiKey, server) {
     const secretsService = await require('apihub').getSecretsServiceInstanceAsync(server.rootFolder);
     const containerName = `${spaceId}.APIKey`
     const keyValidation = await validateOpenAiKey(apiKey);
-    await secretsService.putSecretAsync(containerName, "OpenAiAPIKey", apiKey);
+    if (keyValidation) {
+        await secretsService.putSecretAsync(containerName, "OpenAiAPIKey", apiKey);
+        return true;
+    }
+    return false;
+}
+
+function maskKey(str) {
+    if (str.length <= 10) {
+        return str;
+    }
+    const start = str.slice(0, 6);
+    const end = str.slice(-4);
+    const maskedLength = str.length - 10;
+    const masked = '*'.repeat(maskedLength);
+    return start + masked + end;
 }
 
 async function storeSpace(request, response, server) {
@@ -157,21 +172,45 @@ async function storeSpace(request, response, server) {
             return;
         }
     }
-    const authHeader = request.headers['authorization'];
+    const keyHeader = request.headers['apikey'];
+    const initiatorHeader = request.headers['initiatorid'];
+
     let apiKey = null;
-    if (authHeader && authHeader.startsWith('Bearer ')) {
-        apiKey = authHeader.slice(7);
+    let userId = null;
+    if (keyHeader) {
+        apiKey = keyHeader
+        userId = initiatorHeader;
     }
-    await saveSpaceAPIKeysecret(request.params.spaceId, apiKey, server);
+
     let jsonData = JSON.parse(request.body.toString());
-    await storeFolder(request.params.spaceId, jsonData.documents, "documents");
-    await storeFolder(request.params.spaceId, jsonData.personalities, "personalities");
-    await storeFolder(request.params.spaceId, "newFolder", "applications");
-    delete jsonData.personalities
-    delete jsonData.documents;
-    await storeFolder(request.params.spaceId, jsonData, "status");
-    sendResponse(response, 200, "text/html", `Success, ${request.body.toString()}`);
-    return "";
+    if (apiKey) {
+       // const generateId = require('../../server-space-core/apis/exporter.js')('generateId');
+        if (await saveSpaceAPIKeySecret(request.params.spaceId, apiKey, server)) {
+            if (jsonData.apiKeys.openAi) {
+                jsonData.apiKeys.openAi.push({
+                    "userId": `${userId}`,
+                    "id": "000000000000",
+                    "value": maskKey(apiKey)
+                })
+            } else {
+                jsonData.apiKeys = {
+                    "openAi": [{
+                        "userId": `${userId}`,
+                        "id": "000000000000",
+                        "value": maskKey(apiKey)
+                    }]
+                }
+            }
+        }
+    }
+        await storeFolder(request.params.spaceId, jsonData.documents, "documents");
+        await storeFolder(request.params.spaceId, jsonData.personalities, "personalities");
+        await storeFolder(request.params.spaceId, "newFolder", "applications");
+        delete jsonData.personalities
+        delete jsonData.documents;
+        await storeFolder(request.params.spaceId, jsonData, "status");
+        sendResponse(response, 200, "text/html", `Success, ${request.body.toString()}`);
+        return "";
 }
 
 async function buildSpace(filePath) {

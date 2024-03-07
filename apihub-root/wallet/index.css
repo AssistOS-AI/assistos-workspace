@@ -387,7 +387,7 @@ dialog{
 /* TODO move to index.css(global application css) of AiAuthor after a proper solution is implemented */
 
 /* AiAuthor */
-.main-path-button{
+.secondary-path-button{
     font-family: Poppins;
     font-size: 18px;
     font-weight: 600;
@@ -397,7 +397,7 @@ dialog{
     color: var(--medium-blue);
 }
 
-.secondary-path-button{
+.main-path-button{
     font-family: Poppins;
     font-size: 18px;
     font-weight: 600;

@@ -35,7 +35,6 @@ async function loadPage() {
                 } else {
                     document.querySelector("#page-content").insertAdjacentHTML("beforebegin", `<left-sidebar data-presenter="left-sidebar" ></left-sidebar>`);
                     await webSkel.changeToDynamicPage("agent-page", `${webSkel.currentUser.space.id}/agent-page`);
-
                 }
             }
         }
