@@ -184,13 +184,13 @@ export class Space {
     async addPersonality(personalityData) {
         let personalityObj = new Personality(personalityData);
         this.personalities.push(personalityObj);
-        await storageManager.storeObject(webSkel.currentUser.space.id, "personalities", personalityObj.id, JSON.stringify(personalityObj, null, 2));
+        await storageManager.storeObject(webSkel.currentUser.space.id, "personalities", personalityObj.getFileName(), JSON.stringify(personalityObj, null, 2));
     }
 
     async updatePersonality(personalityData, id) {
         let personality = this.getPersonality(id);
         personality.update(personalityData);
-        await storageManager.storeObject(webSkel.currentUser.space.id, "personalities", id, JSON.stringify(personality, null, 2));
+        await storageManager.storeObject(webSkel.currentUser.space.id, "personalities", personality.getFileName(), JSON.stringify(personality, null, 2));
     }
 
     getPersonality(id) {
@@ -240,8 +240,10 @@ export class Space {
     }
 
     async deletePersonality(personalityId) {
+        let personality = this.personalities.find(personality => personality.id === personalityId);
+        let fileName = personality.getFileName();
         this.personalities = this.personalities.filter(personality => personality.id !== personalityId);
-        await storageManager.storeObject(webSkel.currentUser.space.id, "personalities", personalityId, "");
+        await storageManager.storeObject(webSkel.currentUser.space.id, "personalities", fileName, "");
     }
 
     async updateAnnouncement(announcementId, title, content) {
