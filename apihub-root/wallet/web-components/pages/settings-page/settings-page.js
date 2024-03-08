@@ -4,6 +4,7 @@ export class SettingsPage {
         this.invalidate = invalidate;
         this.invalidate(async () => {
             this.users = JSON.parse(await webSkel.appServices.getUsersSecretsExist());
+            this.apiKeys = webSkel.currentUser.space.apiKeys
         });
     }
 
@@ -18,18 +19,17 @@ export class SettingsPage {
             </div>
         </div>`;
         }
+        this.apiKeysContainers=""
+        Object.keys(this.apiKeys).forEach(keyType => {
+            apiKeysContainer=""
+            webSkel.currentUser.space.apiKeys[keyType].forEach(keyObj => {
+                apiKeysContainer +=
+                    `<apikey-unit data-presenter="apikey-unit" data-key-id="${keyObj.id}" data-key-type="${keyType}"> </apikey-unit>`
+            })
+            this.apiKeysContainers+=apiKeysContainer
+        })
 
-        Object.keys(webSkel.currentUser.space.apiKeys).forEach(keyType=>{
-            apiKeysContainer+= `<div class=${keyType}>Type: ${keyType}`
-            webSkel.currentUser.space.apiKeys[keyType].forEach(keyObj=>{
-            apiKeysContainer +=
-                `    <div class="keyContainer>" id="${keyObj.id}">
-                          <div class="api-key-username">Added By: ${keyObj.userId}</div>
-                          <div class="api-key-value">Value: ${keyObj.value}</div>
-                    </div>`
-        })})
-            apiKeysContainer+='</div>'
-        this.tableRows = stringHTML + apiKeysContainer;
+        this.tableRows = stringHTML;
     }
 
     afterRender() {
@@ -57,4 +57,21 @@ export class SettingsPage {
             this.users = JSON.parse(await webSkel.appServices.getUsersSecretsExist());
         });
     }
+
+    async deleteKey(_eventTarget) {
+        debugger
+        const keyId = webSkel.reverseQuerySelector(_eventTarget, 'apikey-unit').getAttribute('data-key-id');
+        const keyType = webSkel.reverseQuerySelector(_eventTarget, 'apikey-unit').getAttribute('data-key-type');
+        await storageManager.deleteKey(webSkel.currentUser.space.id,keyType, keyId);
+        this.apiKeys[keyType]=this.apiKeys[keyType].filter(key=>key.id!==keyId);
+        this.invalidate();
+    }
+    async addKey(){
+        await webSkel.showModal( "add-apikey-modal", {presenter: "add-apikey-modal"});
+    }
+    editKey(_eventTarget) {
+        const keyId = webSkel.reverseQuerySelector(_eventTarget, 'apikey-unit').getAttribute('data-id');
+    }
+
+
 }

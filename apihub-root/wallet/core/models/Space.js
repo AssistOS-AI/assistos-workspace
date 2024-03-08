@@ -53,7 +53,9 @@ export class Space {
             apiKeys:this.apiKeys
         }
     }
-
+    getKey(keyType,keyId){
+        return this.apiKeys[keyType].find(key=>key.id===keyId)||null;
+    }
     stringifySpace() {
         function replacer(key, value) {
             if (key === "observers") return undefined;

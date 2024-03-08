@@ -31,8 +31,8 @@ export class StorageManager {
     }
 
     /* creating a new space */
-    async storeSpace(spaceId, jsonData, apiKey,userId) {
-        return await this.currentService.storeSpace(spaceId, jsonData, apiKey,userId);
+    async storeSpace(spaceId, jsonData, apiKey, userId) {
+        return await this.currentService.storeSpace(spaceId, jsonData, apiKey, userId);
     }
 
     async listObjects(spaceId, objectType) {
@@ -89,7 +89,7 @@ export class StorageManager {
         const CSSPath = `${appComponentsDirPath}/${component.name}/${component.name}.css`
         let loadedTemplate = await (await this.getApplicationFile(spaceId, appId, HTMLPath)).text();
         let loadedCSSs = await (await this.getApplicationFile(spaceId, appId, CSSPath)).text();
-        let presenterModule="";
+        let presenterModule = "";
         if (component.presenterClassName) {
             const PresenterPath = `${appComponentsDirPath}/${component.name}/${component.name}.js`
             presenterModule = await this.getApplicationFile(spaceId, appId, PresenterPath);
@@ -136,5 +136,9 @@ export class StorageManager {
 
     async getUsersSecretsExist(spaceId) {
         return await this.currentService.getUsersSecretsExist(spaceId);
+    }
+
+    async deleteKey(spaceId,keyType, keyId) {
+        return this.currentService.deleteKey(spaceId,keyType, keyId);
     }
 }

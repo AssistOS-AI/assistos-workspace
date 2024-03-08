@@ -20,7 +20,6 @@ export class SpaceFactory {
         let spacePath = "spaces/" + spaceId;
         let spaceJson = await storageManager.loadSpace(spaceId);
         let spaceData = JSON.parse(spaceJson);
-        debugger;
         let space = new Space(spaceData);
         await space.loadFlows();
         return space;

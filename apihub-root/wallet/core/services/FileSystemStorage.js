@@ -36,7 +36,6 @@ export class FileSystemStorage {
         let headers = {
             "Content-type": "application/json; charset=UTF-8"
         };
-        debugger
         if (apiKey) {
             headers["apikey"] = `${apiKey}`;
             headers["initiatorid"]=`${userId}`;
@@ -219,10 +218,6 @@ export class FileSystemStorage {
         }
     }
 
-    async loadManager(spaceId, appId, managerPath) {
-        return await import(`/app/${spaceId}/applications/${appId}/files/${managerPath}`);
-    }
-
     async loadAppFlows(spaceId, appName) {
         let result;
         try {
@@ -322,6 +317,18 @@ export class FileSystemStorage {
             result = await fetch(`/users/${spaceId}/secrets`,
                 {
                     method: "GET"
+                });
+        } catch (err) {
+            console.error(err);
+        }
+        return await result.text();
+    }
+    async deleteKey(spaceId,keyType,keyId){
+        let result;
+        try {
+            result = await fetch(`/users/${spaceId}/secrets/${keyType}/${keyId}`,
+                {
+                    method: "DELETE"
                 });
         } catch (err) {
             console.error(err);

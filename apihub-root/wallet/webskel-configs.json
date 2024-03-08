@@ -29,6 +29,11 @@
     ],
     "components": [
         {
+            "name": "apikey-unit",
+            "type": "components",
+            "presenterClassName": "ApikeyUnit"
+        },
+        {
             "name": "git-credentials-modal",
             "type": "modals",
             "presenterClassName": "GitCredentialsModal"
@@ -159,6 +164,11 @@
             "name": "add-flow-modal",
             "type": "modals",
             "presenterClassName": "AddFlowModal"
+        },
+        {
+            "name": "add-apikey-modal",
+            "type": "modals",
+            "presenterClassName": "AddApikeyModal"
         },
         {
             "name": "edit-flow-modal",
