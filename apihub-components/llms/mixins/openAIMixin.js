@@ -1,9 +1,10 @@
 const fsPromises = require('fs').promises;
 
-async function getApiKeyForSpace(server,spaceId){
-    const secretsService= await require('apihub').getSecretsServiceInstanceAsync(server.rootFolder);
-    return secretsService.getSecretSync(`${spaceId}.APIKey`, "OpenAiAPIKey");
+async function getApiKeyForSpace(server, spaceId) {
+    const secretsService = await require('apihub').getSecretsServiceInstanceAsync(server.rootFolder);
+    return secretsService.getSecretSync(`${spaceId}.APIKey`, "OpenAiAPIKey")
 }
+
 function openAIMixin(target) {
     target.setTemperature = function (level) {
         target.__body.temperature = level;
@@ -31,12 +32,11 @@ function openAIMixin(target) {
             target.__body.max_tokens = number;
         }
     }
-    target.setKey = async function(key) {
+    target.setKey = async function (key) {
         try {
             if (key !== undefined) {
-                    target.key = key;
-                }
-             else if (process.env.OPENAI_API_KEY) {
+                target.key = key;
+            } else if (process.env.OPENAI_API_KEY) {
                 target.key = process.env.OPENAI_API_KEY;
             }
         } catch (error) {
@@ -58,7 +58,7 @@ function openAIMixin(target) {
     target.addMessage = function (message) {
         target.__body.messages.push(message);
     }
-    target.callLLM = async function (settings,spaceId,server) {
+    target.callLLM = async function (settings, spaceId, server) {
         target.setVariants(parseInt(settings.variants));
         target.setMaxTokens(settings.max_tokens);
         target.setResponseFormat(settings.responseFormat);
@@ -74,7 +74,13 @@ function openAIMixin(target) {
             }
         }
         target.setPrompt(settings.prompt);
-        await target.setKey(await getApiKeyForSpace(server,spaceId));
+        try {
+            await target.setKey(await getApiKeyForSpace(server, spaceId))
+        } catch (error) {
+            const noApiKeyError=new Error(error)
+            noApiKeyError.noKeyFound=true;
+            throw(noApiKeyError)
+        }
         const result = await fetch(target.__url, target.getOptions());
         if (result.status !== 200) {
             console.log(`Response Status: ${result.status}`);

@@ -296,7 +296,9 @@ export class AuthenticationService{
     async getStoredUser(userId){
         return await storageManager.loadUser(userId);
     }
-
+    async addKeyToSpace(spaceId,userId,keyType,apiKey){
+        return storageManager.addKeyToSpace(spaceId,userId,keyType,apiKey);
+    }
     async getStoredUserByEmail(email){
         return await storageManager.loadUserByEmail(email);
     }

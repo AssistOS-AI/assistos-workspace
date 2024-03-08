@@ -62,7 +62,9 @@ export class StorageManager {
     async loadDefaultFlows() {
         return await this.currentService.loadDefaultFlows();
     }
-
+    async addKeyToSpace(spaceId,userId,keyType,apiKey){
+        return this.currentService.addKeyToSpace(spaceId,userId,keyType,apiKey);
+    }
     async loadDefaultPersonalities() {
         return await this.currentService.loadDefaultPersonalities();
     }

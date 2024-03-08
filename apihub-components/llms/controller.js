@@ -48,29 +48,35 @@ function chooseModel(registry, settings) {
     return registry[bestModel.modelName];
 }
 
-async function generateResponse(request, response,server) {
-    const spaceId=request.headers["spaceid"];
+async function generateResponse(request, response, server) {
+    const spaceId = request.headers["spaceid"];
 
     let settings = JSON.parse(request.body.toString());
-    let registry = await initModels(response,spaceId);
+    let registry = await initModels(response, spaceId);
     let model = chooseModel(registry, settings);
     try {
-        let result = await model.callLLM(settings,spaceId,server);
+        let result = await model.callLLM(settings, spaceId, server);
         sendResponse(response, 200, "text/html", result);
     } catch (e) {
         console.error(e);
-        sendResponse(response, 500, "text/html", JSON.stringify(e, Object.getOwnPropertyNames(e)));
+        if (e.noKeyFound) {
+            sendResponse(response, 404, "application/json", '{"message": "No API Key is set for this space"}');
+        } else {
+            sendResponse(response, 500, "text/html", JSON.stringify(e, Object.getOwnPropertyNames(e)))
+        }
+
     }
 }
 
-async function getFlowFromSpace(spaceId,flowId){
+async function getFlowFromSpace(spaceId, flowId) {
 
 }
+
 async function executeFlow(request, response) {
     const {spaceId, applicationId, flowId} = request.params;
     let flowSettings = JSON.parse(request.body.toString());
     const llmModels = await initModels();
-    const flow= applicationId
+    const flow = applicationId
         ? require(`../../apihub-root/spaces/${spaceId}/${applicationId}/${flowId}`)
         : require(`../../apihub-root/spaces/${spaceId}/${flowId}`)
 

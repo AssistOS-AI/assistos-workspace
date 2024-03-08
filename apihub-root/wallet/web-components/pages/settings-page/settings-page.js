@@ -59,7 +59,6 @@ export class SettingsPage {
     }
 
     async deleteKey(_eventTarget) {
-        debugger
         const keyId = webSkel.reverseQuerySelector(_eventTarget, 'apikey-unit').getAttribute('data-key-id');
         const keyType = webSkel.reverseQuerySelector(_eventTarget, 'apikey-unit').getAttribute('data-key-type');
         await storageManager.deleteKey(webSkel.currentUser.space.id,keyType, keyId);

@@ -335,4 +335,24 @@ export class FileSystemStorage {
         }
         return await result.text();
     }
+    async addKeyToSpace(spaceId,userId,keyType,apiKey){
+        let result;
+        let headers = {
+            "Content-type": "application/json; charset=UTF-8"
+        };
+        if (apiKey) {
+            headers["apikey"] = `${apiKey}`;
+            headers["initiatorid"]=`${userId}`;
+        }
+        try {
+            result = await fetch(`/spaces/${spaceId}/secrets`,
+                {
+                    method: "POST",
+                    headers:headers
+                });
+        } catch (err) {
+            console.error(err);
+        }
+        return await result.text();
+    }
 }

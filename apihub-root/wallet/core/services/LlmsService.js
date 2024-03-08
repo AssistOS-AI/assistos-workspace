@@ -17,8 +17,13 @@ export class LlmsService {
             });
         if(result.status !==200){
             let err = JSON.parse(await result.text());
+            if(result.status===404){
+                    await webSkel.showModal( "add-apikey-modal", {presenter: "add-apikey-modal"});
+                    return;
+            }else{
             await showApplicationError("LLM call failed", `An error occurred on the server side`, err.message + " " + err.stack);
             return;
+            }
         }
         return await result.text();
     }

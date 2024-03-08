@@ -139,6 +139,42 @@ function maskKey(str) {
     const masked = '*'.repeat(maskedLength);
     return start + masked + end;
 }
+async function storeSecret(request, response, server) {
+    const apiKey = request.headers['apikey'];
+    const userId = request.headers['initiatorid'];
+
+    if (!apiKey) {
+        sendResponse(response, 400, "text/html", "No API Key provided");
+        return;
+    }
+    if (await saveSpaceAPIKeySecret(request.params.spaceId, apiKey, server)) {
+        const spaceStatusPath = `../apihub-root/spaces/${request.params.spaceId}/status/status.json`;
+        try {
+            const statusData = await fsPromises.readFile(spaceStatusPath, 'utf8');
+            const statusObject = JSON.parse(statusData);
+            const apiKeyObject = {
+                "userId": `${userId}`,
+                "id": "000000000000",
+                "value": maskKey(apiKey)
+            };
+            if (statusObject.apiKeys && statusObject.apiKeys.openAi) {
+                statusObject.apiKeys.openAi.push(apiKeyObject);
+            } else {
+                statusObject.apiKeys = {
+                    "openAi": [apiKeyObject]
+                };
+            }
+            const jsonString = JSON.stringify(statusObject, null, 2);
+            await fsPromises.writeFile(spaceStatusPath, jsonString, 'utf8');
+            sendResponse(response, 200, "text/html", "API Key added successfully");
+        } catch (error) {
+            console.error('Error while processing:', error);
+            sendResponse(response, 500, "text/html", "Internal Server Error");
+        }
+    } else {
+        sendResponse(response, 401, "text/html", "Invalid API Key provided");
+    }
+}
 
 async function storeSpace(request, response, server) {
     try {
@@ -254,5 +290,6 @@ module.exports = {
     loadObject,
     storeObject,
     loadSpace,
-    storeSpace
+    storeSpace,
+    storeSecret
 }
