@@ -20,4 +20,7 @@ export class Personality {
             id: this.id
         }
     }
+    getFileName(){
+        return this.name.split(" ").join("_").toLowerCase() + "-" + this.id;
+    }
 }
