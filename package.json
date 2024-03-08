@@ -17,6 +17,7 @@
     "tag-freeze": "node ./node_modules/octopus/scripts/tagFreeze dependencies",
     "enclaves": "node ./opendsu-sdk/psknode/bin/scripts/enclaveLauncher.js \"./brand-remote-enclave-config.json\" & node ./opendsu-sdk/psknode/bin/scripts/enclaveLauncher.js \"./accounting-remote-enclave-config.json\"",
     "build-all": "node ./node_modules/octopus/scripts/run build devmode",
+    "clean-state": "rm -rf ./apihub-root/spaces && rm -rf ./apihub-root/external-volume/secrets && rm -rf ./apihub-root/external-volume/versionlessdsu && npm run server",
     "delete-enclaves-content-win": "rmdir /s /q SVDS && rmdir /s /q remote-enclave-root-brand && cd .\\apihub-root\\external-volume\\mqs && rmdir /s /q vault"
   },
   "repository": {
