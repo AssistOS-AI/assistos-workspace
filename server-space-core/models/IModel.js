@@ -9,6 +9,5 @@ class IModel{
    stringify() {
         throw new Error("Stringify method must be implemented.");
     }
-
 }
 module.exports=IModel

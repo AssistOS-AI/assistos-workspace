@@ -5,6 +5,9 @@ import {
     DocumentFactory,
 } from "./imports.js";
 
+import {AssistOS} from "../AssistOS.js";
+const ASSISTOS_CONFIGS_PATH = "../assistOS-configs.json";
+
 window.mainContent = document.querySelector("#app-wrapper");
 const CONFIGS_PATH = "./wallet/webskel-configs.json"
 const loader = await (await fetch("./wallet/general-loader.html")).text();
@@ -143,10 +146,14 @@ async function loadAssistOSConfigs(configPath) {
 
 
 (async () => {
+    // const configuration= await (await fetch(ASSISTOS_CONFIGS_PATH)).json();
+    // window.AssistOS = new AssistOS(configuration);
+    // await AssistOS.boot();
+
     window.storageManager = new StorageManager();
     window.documentFactory = new DocumentFactory();
     window.webSkel = await WebSkel.initialise(CONFIGS_PATH);
-    await loadAssistOSConfigs('./wallet/assistOS-configs.json');
+    await loadAssistOSConfigs('../assistOS-configs.json');
     defineActions();
     await loadPage();
     window.addEventListener('popstate', handleHistory);

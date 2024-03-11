@@ -17,7 +17,6 @@ export class SpaceFactory {
     }
 
     static async loadSpace(spaceId) {
-        let spacePath = "spaces/" + spaceId;
         let spaceJson = await storageManager.loadSpace(spaceId);
         let spaceData = JSON.parse(spaceJson);
         let space = new Space(spaceData);
