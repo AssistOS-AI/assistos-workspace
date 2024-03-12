@@ -146,14 +146,6 @@ export class Space {
         return flows;
     }
 
-    getSpaceFlows() {
-        return this.flows;
-    }
-
-    tagifyAllSpaceFlows() {
-        return (this.flows.forEach(flow => flow.tags = ['space']), this.flows);
-    }
-
     getFlow(flowId) {
         let flows = this.getAllFlows();
         let flow = flows.find((flow) => flow.class.id === flowId);

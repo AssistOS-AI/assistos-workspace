@@ -1,4 +1,8 @@
-space-right-sidebar{
+space-configs-page{
+    display: flex;
+    height: 100%;
+}
+.right-sidebar{
     width: 270px;
 }
 .personalities-page{

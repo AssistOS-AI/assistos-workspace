@@ -52,9 +52,7 @@ export class ApplicationsService {
             applicationContainer.insertAdjacentHTML("beforebegin", `<left-sidebar data-presenter="left-sidebar" ></left-sidebar>`);
         }
         if (appName === webSkel.defaultApplicationName) {
-            let appLocation = applicationLocation || ["agent-page"];
-            const presenter = appLocation[appLocation.length - 1]
-            await webSkel.changeToDynamicPage(`${presenter}`, `${webSkel.currentUser.space.id}/SpaceConfiguration/${appLocation.join('/')}`)
+            await webSkel.changeToDynamicPage("space-configs-page", `${webSkel.currentUser.space.id}/SpaceConfiguration/${applicationLocation}`)
             return;
         }
         if (!webSkel.initialisedApplications[appName]) {

@@ -1,20 +1,13 @@
 
 agent-page {
-    display: flex;
-    height: 100%;
+    width: calc((100% - 270px) / 2);
+    height: 100%
 }
 
 .middle-content {
     position: relative;
-    width: calc(100% - 270px);
     height: 100%;
 }
-
-.page-container {
-    overflow: scroll;
-    height: calc(100% - 144px)
-}
-
 .page-header {
     z-index: 1;
     padding: 20px 40px;
@@ -30,7 +23,9 @@ agent-page {
 }
 
 .chat-log {
+    overflow: scroll;
     position: relative;
+    height: calc(100% - 150px);
 }
 
 .chat-background{
@@ -61,7 +56,7 @@ agent-page {
     height: 52px;
     min-height: 52px;
     resize: none;
-    width: 93%;
+    width: 88%;
     border-radius: 10px;
     border: none;
     background: var(--light-blue);

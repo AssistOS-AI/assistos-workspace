@@ -1,13 +1,13 @@
 applications-marketplace-page{
     display:flex;
     height: 100%;
+    width: calc((100% - 270px) / 2);
     position: relative;
 }
 #page-content{
     overflow: initial;
 }
 .applications-marketplace-page{
-    width: calc(100% - 270px);
     position: relative;
     overflow: scroll;
 }
