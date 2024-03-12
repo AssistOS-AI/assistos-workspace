@@ -29,6 +29,11 @@
     ],
     "components": [
         {
+            "name": "space-configs-page",
+            "type": "pages",
+            "presenterClassName": "SpaceConfigsPage"
+        },
+        {
             "name": "apikey-unit",
             "type": "components",
             "presenterClassName": "ApikeyUnit"
@@ -63,19 +68,9 @@
             "presenterClassName": "LeftSidebar"
         },
         {
-            "name": "space-right-sidebar",
-            "type": "components",
-            "presenterClassName": "SpaceRightSidebar"
-        },
-        {
             "name": "collaborators-page",
             "type": "pages",
             "presenterClassName": "CollaboratorsPage"
-        },
-        {
-            "name": "knowledge-page",
-            "type": "pages",
-            "presenterClassName": "KnowledgePage"
         },
         {
             "name": "tasks-page",
