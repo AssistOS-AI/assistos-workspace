@@ -2,7 +2,7 @@ flows-page{
     display: flex;
 }
 .flows-page{
-    width: calc(100% - 270px);
+    overflow: auto;
 }
 .table-header-flows {
     padding-left: 20px;
@@ -35,6 +35,7 @@ flows-page{
     display: flex;
     padding-left: 20px;
     margin-bottom: 20px;
+    margin-top: 20px;
 }
 
 .no-data-loaded{

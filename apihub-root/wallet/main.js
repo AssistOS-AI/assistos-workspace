@@ -145,7 +145,6 @@ async function loadAssistOSConfigs(configPath) {
 
 
 (async () => {
-    debugger;
     const configuration= await (await fetch(ASSISTOS_CONFIGS_PATH)).json();
     window.AssistOS = new AOS(configuration);
     await AssistOS.boot();

@@ -1,18 +1,11 @@
 personalities-page{
     display: flex;
+    overflow: scroll;
 }
 .table{
-    width: calc(100% - 270px);
     display: grid;
-    grid-template-columns: repeat(5, 1fr);
-    grid-template-rows: repeat(5, 1fr);
-    grid-column-gap: 0px;
-    grid-row-gap: 0px;
+    grid-template-columns: repeat(3, 1fr);
 }
-personality-unit{
-    padding: 25px;
-}
-
 .add-personality-button{
     display: flex;
     flex-direction: column;
@@ -22,8 +15,8 @@ personality-unit{
 .square-container{
     border: 6px solid  var(--medium-blue);
     border-radius: 9px;
-    width: 150px;
-    height: 150px;
+    width: 130px;
+    height: 130px;
     display: grid;
     place-items: center;
     grid-template-areas:"inner-div";
@@ -33,17 +26,17 @@ personality-unit{
     cursor: pointer;
 }
 .horizontal-line{
-    margin: 35px;
+    margin: 25px;
     background-color:  var(--medium-blue);
-    width: 68px;
+    width: 64px;
     height: 9px;
     grid-area: inner-div;
 }
 .vertical-line{
-    margin: 35px;
+    margin: 25px;
     background-color:  var(--medium-blue);
     width: 9px;
-    height: 68px;
+    height: 64px;
     grid-area: inner-div;
 }
 .text{

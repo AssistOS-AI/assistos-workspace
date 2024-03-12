@@ -1,7 +1,6 @@
 applications-marketplace-page{
     display:flex;
     height: 100%;
-    width: calc((100% - 270px) / 2);
     position: relative;
 }
 #page-content{
@@ -13,7 +12,7 @@ applications-marketplace-page{
 }
 .marketplace-table{
     display:grid;
-    grid-template-columns: 1fr 1fr 1fr 1fr;
+    grid-template-columns: repeat(1, 1fr);
     width:100%;
     gap:40px;
     overflow:hidden;
@@ -54,11 +53,6 @@ applications-marketplace-page{
     font-weight: 500;
 }
 
-@media only screen and (max-width: 1800px) {
-    .marketplace-table{
-        grid-template-columns: 1fr 1fr 1fr;
-    }
-}
 .background{
     z-index: -1;
     object-fit: cover;

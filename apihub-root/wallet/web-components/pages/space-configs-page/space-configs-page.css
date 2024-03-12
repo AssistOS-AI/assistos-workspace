@@ -1,12 +1,12 @@
 space-configs-page{
     display: flex;
     height: 100%;
+    overflow: hidden;
 }
 .right-sidebar{
+    display: inline-block;
     width: 270px;
-}
-.personalities-page{
-    width: calc(100% - 270px);
+    transition: transform 0.3s ease;
 }
 .right-sidebar{
     padding: 20px;
@@ -19,4 +19,25 @@ space-configs-page{
     margin-left: 10px;
     color: var(--left-sidebar);
     font-weight: 600;
+}
+.expand-button{
+    color: white;
+    width: 10px;
+    background-color: var(--medium-blue);
+    border-right: 10px;
+    position: absolute;
+    top: 50%;
+    left: -10px;
+}
+.current-page{
+    width: calc((100% - 270px) / 2);
+}
+.hide-sidebar{
+    padding-left: 10px;
+    font-weight: 300;
+    color: var(--medium-blue);
+    cursor: pointer;
+    background-color: transparent;
+    border: none;
+    font-size: 30px;
 }

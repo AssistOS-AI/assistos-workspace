@@ -15,6 +15,28 @@ export class PersonalitiesPage {
             });
         }
     }
+    expandTable(){
+        let table = this.element.querySelector(".table");
+        table.style.gridTemplateColumns = "repeat(4, 1fr)";
+        table.style.gridColumnGap = "25px";
+    }
+    minimizeTable(){
+        let table = this.element.querySelector(".table");
+        table.style.gridTemplateColumns = "repeat(3, 1fr)";
+        table.style.gridColumnGap = "0px";
+    }
+    afterRender(){
+        if(this.boundExpandTable){
+            this.element.removeEventListener("hideSidebar", this.boundExpandTable);
+        }
+        this.boundExpandTable = this.expandTable.bind(this);
+        this.element.addEventListener("hideSidebar", this.boundExpandTable);
+        if(this.boundMinimizeTable){
+            this.element.removeEventListener("showSidebar", this.boundMinimizeTable);
+        }
+        this.boundMinimizeTable = this.minimizeTable.bind(this);
+        this.element.addEventListener("showSidebar", this.boundMinimizeTable);
+    }
     async showAddPersonalityModal() {
         await webSkel.showModal("add-personality-modal", { presenter: "add-personality-modal"});
     }
