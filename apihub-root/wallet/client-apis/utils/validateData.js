@@ -19,14 +19,13 @@ export function validateData(schema, data) {
         if (validationResponse.status === "false") {
             return { status: "false", errorMessage: `Property ${property}: ${validationResponse.errorMessage}` };
         }
-e
+
         if (prop.type === "object") {
             const nestedValidationResult = validateData(prop, value);
             if (nestedValidationResult.status === "false") {
                 return nestedValidationResult;
             }
         }
-
 
         if (prop.type === "array") {
             if (!Array.isArray(value)) {

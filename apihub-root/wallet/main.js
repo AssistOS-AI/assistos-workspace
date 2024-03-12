@@ -149,7 +149,6 @@ async function loadAssistOSConfigs(configPath) {
     // const configuration= await (await fetch(ASSISTOS_CONFIGS_PATH)).json();
     // window.AssistOS = new AssistOS(configuration);
     // await AssistOS.boot();
-
     window.storageManager = new StorageManager();
     window.documentFactory = new DocumentFactory();
     window.webSkel = await WebSkel.initialise(CONFIGS_PATH);
