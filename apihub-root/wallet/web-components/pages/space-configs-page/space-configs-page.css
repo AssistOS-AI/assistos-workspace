@@ -41,3 +41,26 @@ space-configs-page{
     border: none;
     font-size: 30px;
 }
+.drag-separator{
+    cursor: grab;
+    background-color: black;
+    width: 1px;
+    height: 100%;
+    position: relative;
+}
+.drag-separator:active {
+    cursor: grabbing;
+}
+.drag-icon{
+    color: white;
+    top: 50%;
+    background-color: var(--medium-blue);
+    border-right: 10px;
+    position: absolute;
+}
+.left-drag{
+    left: -9px;
+}
+.right-drag{
+    left: 1px;
+}
