@@ -1,5 +1,3 @@
-import {Announcement, Space} from "../../imports.js";
-
 export class SpaceFactory {
 
     constructor() {
@@ -16,8 +14,8 @@ export class SpaceFactory {
         }
     }
 
-    async createSpace(userId, spaceName, apiKey) {
-        return await AssistOS.StorageService.createSpace(userId,spaceName,apiKey);
+    async createSpace(spaceName, apiKey) {
+        return await AssistOS.StorageService.createSpace(spaceName,apiKey);
     }
     async createPersonalSpace(userId){
         return await AssistOS.StorageService.createPersonalSpace(userId);

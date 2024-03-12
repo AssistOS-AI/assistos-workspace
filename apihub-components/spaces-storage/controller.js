@@ -22,12 +22,23 @@ async function saveJSON(response, spaceData, filePath) {
     return true;
 }
 
-function sendResponse(response, statusCode, contentType, message) {
+function sendResponse(response, statusCode, contentType, message, cookies) {
     response.statusCode = statusCode;
     response.setHeader("Content-Type", contentType);
+
+    if (cookies) {
+        if (Array.isArray(cookies)) {
+            cookies.forEach(cookie => {
+                response.setHeader('Set-Cookie', cookie);
+            });
+        } else {
+            response.setHeader('Set-Cookie', cookies);
+        }
+    }
     response.write(message);
     response.end();
 }
+
 
 async function loadObject(request, response) {
     const filePath = `../apihub-root/spaces/${request.params.spaceId}/${request.params.objectType}/${request.params.objectName}.json`;
@@ -139,6 +150,7 @@ function maskKey(str) {
     const masked = '*'.repeat(maskedLength);
     return start + masked + end;
 }
+
 async function storeSecret(request, response, server) {
     const apiKey = request.headers['apikey'];
     const userId = request.headers['initiatorid'];
@@ -220,7 +232,7 @@ async function storeSpace(request, response, server) {
 
     let jsonData = JSON.parse(request.body.toString());
     if (apiKey) {
-       // const generateId = require('../../server-space-core/apis/exporter.js')('generateId');
+        // const generateId = require('../../server-space-core/apis/exporter.js')('generateId');
         if (await saveSpaceAPIKeySecret(request.params.spaceId, apiKey, server)) {
             if (jsonData.apiKeys.openAi) {
                 jsonData.apiKeys.openAi.push({
@@ -239,14 +251,14 @@ async function storeSpace(request, response, server) {
             }
         }
     }
-        await storeFolder(request.params.spaceId, jsonData.documents, "documents");
-        await storeFolder(request.params.spaceId, jsonData.personalities, "personalities");
-        await storeFolder(request.params.spaceId, "newFolder", "applications");
-        delete jsonData.personalities
-        delete jsonData.documents;
-        await storeFolder(request.params.spaceId, jsonData, "status");
-        sendResponse(response, 200, "text/html", `Success, ${request.body.toString()}`);
-        return "";
+    await storeFolder(request.params.spaceId, jsonData.documents, "documents");
+    await storeFolder(request.params.spaceId, jsonData.personalities, "personalities");
+    await storeFolder(request.params.spaceId, "newFolder", "applications");
+    delete jsonData.personalities
+    delete jsonData.documents;
+    await storeFolder(request.params.spaceId, jsonData, "status");
+    sendResponse(response, 200, "text/html", `Success, ${request.body.toString()}`);
+    return "";
 }
 
 async function buildSpace(filePath) {
@@ -285,11 +297,104 @@ async function loadSpace(request, response) {
     }
     sendResponse(response, 200, "text/html", JSON.stringify(statusJson));
 }
+function createCookieString(name, value, options = {}) {
+    let cookieString = `${name}=${value};`;
+
+    if (options.maxAge) {
+        cookieString += ` Max-Age=${options.maxAge};`;
+    }
+    if (options.path) {
+        cookieString += ` Path=${options.path};`;
+    }
+    if (options.domain) {
+        cookieString += ` Domain=${options.domain};`;
+    }
+    if (options.expires) {
+        cookieString += ` Expires=${options.expires.toUTCString()};`;
+    }
+    if (options.httpOnly) {
+        cookieString += ` HttpOnly;`;
+    }
+    if (options.secure) {
+        cookieString += ` Secure;`;
+    }
+    if (options.sameSite) {
+        cookieString += ` SameSite=${options.sameSite};`;
+    }
+
+    return cookieString;
+}
+
+function parseCookies(request) {
+    const list = {};
+    const cookieHeader = request.headers.cookie;
+
+    if (cookieHeader) {
+        cookieHeader.split(';').forEach(function(cookie) {
+            const parts = cookie.split('=');
+            list[parts.shift().trim()] = decodeURI(parts.join('='));
+        });
+    }
+
+    return list;
+}
+
+async function createSpace(request, response) {
+    const cookies = parseCookies(request);
+    const userId = cookies.userId;
+    if (!userId) {
+        sendResponse(response,401,"text/html","Unauthorized: No valid session");
+        return;
+    }
+
+    const userIsValid = await checkUserValidity(userId);
+    if (!userIsValid) {
+        sendResponse(response,401,"text/html","Unauthorized: Invalid user");
+        return;
+    }
+
+    const spaceName = request.body.spaceName;
+    if (!spaceName) {
+        sendResponse(response,400,"text/html","Bad Request: Space Name is required");
+        return;
+    }
+
+    const apiKey = request.headers.apikey;
+    if (!apiKey) {
+        sendResponse(response,400,"text/html","Bad Request: API Key is required");
+        return;
+    }
+
+    try {
+        const newSpace = await createNewSpace(spaceName, userId);
+        response.cookie('currentSpaceId',newSpace.id);
+        sendResponse(response,201,"text/html",`Space created successfully: ${newSpace.id}`);
+    } catch (error) {
+       sendResponse(response,500,"text/html",`Internal Server Error: ${error}`);
+    }
+}
+async function createNewSpace(spaceName,userId){
+    const spaceId = generateSpaceId()||"ABCDEF123456";
+    const spacePath=path.join(__dirname,`../apihub-root/spaces/${spaceId}`);
+    try {
+        await fsPromises.access(spacePath);
+        const error = new Error('Space already exists');
+        error.statusCode = 409;
+        throw error;
+    } catch (e) {
+        if (e.code === 'ENOENT') {
+            await fsPromises.mkdir(spacePath);
+        } else {
+            throw e;
+        }
+    }
+}
 
 module.exports = {
     loadObject,
     storeObject,
     loadSpace,
     storeSpace,
+    createSpace,
     storeSecret
 }

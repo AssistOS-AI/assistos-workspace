@@ -5,7 +5,7 @@ import {
     DocumentFactory,
 } from "./imports.js";
 
-import {AssistOS} from "../AssistOS.js";
+import AOS from "../AssistOS.js";
 const ASSISTOS_CONFIGS_PATH = "../assistOS-configs.json";
 
 window.mainContent = document.querySelector("#app-wrapper");
@@ -145,9 +145,15 @@ async function loadAssistOSConfigs(configPath) {
 
 
 (async () => {
-    // const configuration= await (await fetch(ASSISTOS_CONFIGS_PATH)).json();
-    // window.AssistOS = new AssistOS(configuration);
-    // await AssistOS.boot();
+    debugger;
+    const configuration= await (await fetch(ASSISTOS_CONFIGS_PATH)).json();
+    window.AssistOS = new AOS(configuration);
+    await AssistOS.boot();
+    try {
+        await AssistOS.SpaceFactory.createSpace("testSpace", "testApiKey");
+    }catch(error){
+        console.log(error);
+    }
     window.storageManager = new StorageManager();
     window.documentFactory = new DocumentFactory();
     window.webSkel = await WebSkel.initialise(CONFIGS_PATH);

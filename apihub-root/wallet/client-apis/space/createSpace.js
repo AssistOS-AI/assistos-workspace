@@ -1,3 +1,3 @@
-export async function createSpace(userId, spaceName, apiKey) {
-    return await AssistOS.SpaceFactory.createSpace(userId, spaceName, apiKey);
+export async function createSpace(spaceName, apiKey) {
+    return await AssistOS.SpaceFactory.createSpace(spaceName, apiKey);
 }

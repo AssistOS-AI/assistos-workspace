@@ -1,4 +1,4 @@
-function templateReplacer_$$(obj, replacements, depth = 0) {
+export function templateReplacer_$$(obj, replacements, depth = 0) {
     if (depth > 10) {
         throw new Error("Depth Overreach. Possible Circular Dependency");
     }
@@ -35,5 +35,3 @@ function templateReplacer_$$(obj, replacements, depth = 0) {
 
     return replaceRecursively(obj);
 }
-
-module.exports=templateReplacer_$$

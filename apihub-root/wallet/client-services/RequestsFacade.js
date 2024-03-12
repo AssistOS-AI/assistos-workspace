@@ -3,18 +3,21 @@ export class RequestsFacade {
 
     }
 
-    async createSpace(userId, spaceName, apiKey) {
+    async createSpace(spaceName, apiKey) {
         const headers = {
-            "Content-type": "application/json; charset=UTF-8",
+            "Content-Type": "application/json; charset=UTF-8",
             "apikey": `${apiKey}`,
-            "initiatorid": `${userId}`
         };
+
+        const body = JSON.stringify({spaceName:spaceName});
 
         const options = {
             method: "POST",
             headers: headers,
+            body: body,
         };
-        const response= await fetch('/spaces',options)
+
+        const response = await fetch('/spaces', options);
 
         if (!response.ok) {
             throw new Error(`HTTP error! status: ${response.status}`);
@@ -22,23 +25,15 @@ export class RequestsFacade {
 
         return await response.text();
     }
-    /* TODO: automat de pe server la crearea unui cont */
-    async createPersonalSpace(userId){
-        const headers = {
-            "Content-type": "application/json; charset=UTF-8",
-            "initiatorid": `${userId}`
-        };
 
-        const options = {
-            method: "POST",
-            headers: headers,
-        };
-        const response= await fetch('/personal-space/',options)
+    async getSpace(spaceId){
 
-        if (!response.ok) {
-            throw new Error(`HTTP error! status: ${response.status}`);
-        }
-
-        return await response.text();
     }
+    async updateSpace(spaceId,spaceDataObject) {
+
+    }
+    async deleteSpace(spaceId) {
+
+    }
+
 }
