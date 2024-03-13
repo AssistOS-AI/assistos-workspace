@@ -66,7 +66,7 @@ export class ApplicationUnit{
 
     async navigateToApplicationPage(){
         if(this.installed){
-            await webSkel.changeToDynamicPage("application-page", `${webSkel.currentUser.space.id}/SpaceConfiguration/applications/${this.appName}/application-page`);
+            await webSkel.changeToDynamicPage("space-configs-page", `${webSkel.currentUser.space.id}/SpaceConfiguration/application-page/${this.appName}`);
         }
     }
 

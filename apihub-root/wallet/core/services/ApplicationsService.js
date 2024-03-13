@@ -52,7 +52,7 @@ export class ApplicationsService {
             applicationContainer.insertAdjacentHTML("beforebegin", `<left-sidebar data-presenter="left-sidebar" ></left-sidebar>`);
         }
         if (appName === webSkel.defaultApplicationName) {
-            await webSkel.changeToDynamicPage("space-configs-page", `${webSkel.currentUser.space.id}/SpaceConfiguration/${applicationLocation}`)
+            await webSkel.changeToDynamicPage("space-configs-page", `${webSkel.currentUser.space.id}/SpaceConfiguration/${applicationLocation.join("/")}`)
             return;
         }
         if (!webSkel.initialisedApplications[appName]) {

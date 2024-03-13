@@ -109,7 +109,7 @@ async function installApplication(request, response) {
     let applicationId = request.params.applicationId;
 
     try {
-        const assistOSConfig = require("../apihub-root/wallet/assistOS-configs.json");
+        const assistOSConfig = require("../apihub-root/assistOS-configs.json");
         const application = assistOSConfig.applications.find(app => app.id == applicationId);
         const folderPath = `../apihub-root/spaces/${spaceId}/applications/${application.name}`;
         if (!application || !application.repository) {
@@ -123,22 +123,22 @@ async function installApplication(request, response) {
         let manifest = JSON.parse(await fsPromises.readFile(manifestPath, 'utf8'));
 
 
-        // const extensions = ['.html', '.css', '.js'];
-        //
-        // const filePaths = await iterateFolder(folderPath, extensions);
-        // applicationId = applicationId.toLowerCase();
-        // let promisesArray = []
-        // filePaths.forEach(filePath => {
-        //     promisesArray.push(processFile(filePath, applicationId, manifest.components));
-        // })
-        // await Promise.all(promisesArray)
-        // for (let component of manifest.components) {
-        //     component.name = `${applicationId}-` + component.name;
-        // }
-        //
-        // manifest.entryPointComponent = `${applicationId}-` + manifest.entryPointComponent;
-        //
-        // await fsPromises.writeFile(manifestPath, JSON.stringify(manifest, null, 2), 'utf8')
+        const extensions = ['.html', '.css', '.js'];
+
+        const filePaths = await iterateFolder(folderPath, extensions);
+        applicationId = applicationId.toLowerCase();
+        let promisesArray = []
+        filePaths.forEach(filePath => {
+            promisesArray.push(processFile(filePath, applicationId, manifest.components));
+        })
+        await Promise.all(promisesArray)
+        for (let component of manifest.components) {
+            component.name = `${applicationId}-` + component.name;
+        }
+
+        manifest.entryPointComponent = `${applicationId}-` + manifest.entryPointComponent;
+
+        await fsPromises.writeFile(manifestPath, JSON.stringify(manifest, null, 2), 'utf8')
 
         if (application.flowsRepository) {
             let applicationPath = `../apihub-root/spaces/${spaceId}/applications/${application.name}/flows`;
@@ -160,7 +160,7 @@ async function uninstallApplication(request, response) {
     const applicationId = request.params.applicationId;
     const folderPath = `../apihub-root/spaces/${spaceId}/applications/${applicationId}`;
     try {
-        const assistOSConfigs = require("../apihub-root/wallet/assistOS-configs.json");
+        const assistOSConfigs = require("../apihub-root/assistOS-configs.json");
         const application = assistOSConfigs.applications.find(app => app.id === applicationId);
 
         // Check for the application's existence
@@ -240,7 +240,7 @@ async function loadApplicationConfig(request, response) {
         const spaceId = request.params.spaceId;
         const applicationId = request.params.applicationId;
 
-        const assistOSConfig = require("../apihub-root/wallet/assistOS-configs.json");
+        const assistOSConfig = require("../apihub-root/assistOS-configs.json");
         const application = assistOSConfig.applications.find(app => app.id == applicationId);
 
         const folderPath = `../apihub-root/spaces/${spaceId}/applications/${application.name}`;

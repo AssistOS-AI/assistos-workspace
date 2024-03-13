@@ -64,7 +64,7 @@ export function changeSelectedPageFromSidebar(url) {
         });
     }
     let divs = document.querySelectorAll('.feature');
-    divs.forEach(div => {
+    for(let div of divs){
         let dataAction = div.getAttribute('data-local-action');
         let page = dataAction.split(" ")[1];
         if (url.includes(page)) {
@@ -73,8 +73,9 @@ export function changeSelectedPageFromSidebar(url) {
             paths.forEach((path) => {
                 path.setAttribute("fill", "var(--left-sidebar)");
             });
+            return;
         }
-    });
+    }
 }
 
 function defineActions() {

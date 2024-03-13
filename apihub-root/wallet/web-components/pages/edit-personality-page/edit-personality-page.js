@@ -1,8 +1,8 @@
-import {extractFormInformation, parseURL} from "../../../imports.js";
+import {extractFormInformation} from "../../../imports.js";
 
 export class EditPersonalityPage{
     constructor(element,invalidate) {
-        this.personality = webSkel.currentUser.space.getPersonality(parseURL());
+        this.personality = webSkel.currentUser.space.getPersonality(window.location.hash.split("/")[3]);
         this.element = element;
         this.invalidate=invalidate;
         this.knowledgeArray = [];
@@ -10,7 +10,12 @@ export class EditPersonalityPage{
     }
 
     beforeRender(){
-       this.personalityName = this.personality.name;
+        if(this.personality.image){
+            this.photo = this.personality.image;
+        } else {
+            this.photo = "./wallet/assets/images/default-personality.png";
+        }
+        this.personalityName = this.personality.name;
         let string = "";
         for(let fact of this.knowledgeArray){
             string+= `<div class="fact">${fact}</div>`;
@@ -31,7 +36,23 @@ export class EditPersonalityPage{
         this.userInput.removeEventListener("keypress", this.boundFn);
         this.boundFn = this.preventRefreshOnEnter.bind(this);
         this.userInput.addEventListener("keypress", this.boundFn);
+
+        let photoInput = this.element.querySelector("#photo");
+        if(this.boundShowPhoto){
+            photoInput.removeEventListener("input", this.boundShowPhoto);
+        }
+        this.boundShowPhoto =  this.showPhoto.bind(this, photoInput)
+        photoInput.addEventListener("input", this.boundShowPhoto);
+        photoInput.click();
     }
+
+    async showPhoto(photoInput, event) {
+        let photoContainer = this.element.querySelector(".personality-photo");
+        let encodedPhoto = await webSkel.imageUpload(photoInput.files[0]);
+        photoContainer.src = encodedPhoto;
+        this.photo = encodedPhoto;
+    }
+
     async search(_target){
         let form = this.element.querySelector(".search");
         let formInfo = await extractFormInformation(form);
@@ -40,10 +61,6 @@ export class EditPersonalityPage{
             this.knowledgeArray = ["Nothing found"];
         }
         this.invalidate();
-    }
-
-    async showActionBox(_target, primaryKey, componentName, insertionMode) {
-        await showActionBox(_target, primaryKey, componentName, insertionMode);
     }
 
     triggerInputFileOpen(_target){
@@ -81,6 +98,6 @@ export class EditPersonalityPage{
     }
 
     async openPersonalitiesPage(){
-      await webSkel.changeToDynamicPage("personalities-page", `${webSkel.currentUser.space.id}/SpaceConfiguration/personalities-page`);
+      await webSkel.changeToDynamicPage("space-configs-page", `${webSkel.currentUser.space.id}/SpaceConfiguration/personalities-page`);
     }
 }
