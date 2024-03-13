@@ -8,7 +8,7 @@ export class LlmAnimationService {
 
     async displayThink(prompt){
         await showModal("llm-animation");
-        let phrases = ["Seeking inspiration", "Generating new ideas", "Making ideas come to reality"];
+        let phrases = ["Generating response..."];
         let animation = document.querySelector("llm-animation");
         if (animation) {
             this.keepAnimating = true;
