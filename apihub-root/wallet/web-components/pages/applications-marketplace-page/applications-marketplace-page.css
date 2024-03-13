@@ -9,6 +9,7 @@ applications-marketplace-page{
 .applications-marketplace-page{
     position: relative;
     overflow: scroll;
+    width: 100%;
 }
 .marketplace-table{
     display:grid;

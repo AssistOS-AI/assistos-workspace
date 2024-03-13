@@ -46,12 +46,10 @@ export {
 // Others
 import {SaveElementTimer} from "./utils/saveElementTimer.js";
 import {validateOpenAiKey}  from "./utils/OpenAiUtils/validateAPIKey.js";
-import {parseURL} from "./utils/parseURL.js";
 import WebSkel from "../WebSkel/webSkel.js";
 import { changeSelectedPageFromSidebar } from "./main.js";
 
 export {
-    parseURL,
     SaveElementTimer,
     validateOpenAiKey,
     WebSkel

@@ -24,9 +24,6 @@ export class UtilsService {
             case "personality": {
                 return url[3];
             }
-            case "applications":{
-                return url[3];
-            }
             default:{
                 console.error("no parameters for this url");
             }

@@ -11,7 +11,7 @@ export class PersonalitiesPage {
         this.personalityBlocks = "";
         if (webSkel.currentUser.space.personalities.length > 0) {
             webSkel.currentUser.space.personalities.forEach((item) => {
-                this.personalityBlocks += `<personality-unit data-name="${item.name}" data-description="${item.description}" data-id="${item.id}" data-image="${item.image}"></personality-unit>`;
+                this.personalityBlocks += `<personality-unit data-name="${item.name}" data-description="${item.description}" data-id="${item.id}" data-image="${item.image || "./wallet/assets/images/default-personality.png"}"></personality-unit>`;
             });
         }
     }
@@ -43,6 +43,6 @@ export class PersonalitiesPage {
 
     async selectPersonality(_target){
         let personalityId = webSkel.reverseQuerySelector(_target, "personality-unit").getAttribute("data-id");
-        await webSkel.changeToDynamicPage("edit-personality-page", `${webSkel.currentUser.space.id}/SpaceConfiguration/personality/${personalityId}/edit-personality-page`);
+        await webSkel.changeToDynamicPage("space-configs-page", `${webSkel.currentUser.space.id}/SpaceConfiguration/edit-personality-page/${personalityId}`);
     }
 }

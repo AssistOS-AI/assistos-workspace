@@ -5,7 +5,7 @@ export class ApplicationPage {
         this.element=element;
         this.invalidate = invalidate;
         this.invalidate();
-        let name = webSkel.appServices.parseURL();
+        let name = window.location.hash.split("/")[3];
         this._app = webSkel.currentUser.space.getApplicationByName(name);
     }
 

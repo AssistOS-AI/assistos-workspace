@@ -30,7 +30,9 @@ space-configs-page{
     left: -10px;
 }
 .current-page{
-    width: calc((100% - 270px) / 2);
+    width: calc(50% - 135px);
+    transition: width 0.3s;
+    min-width: 350px;
 }
 .hide-sidebar{
     padding-left: 10px;

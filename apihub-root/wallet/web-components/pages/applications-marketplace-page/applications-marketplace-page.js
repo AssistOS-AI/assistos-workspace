@@ -20,12 +20,10 @@ export class ApplicationsMarketplacePage {
     expandTable(){
         let table = this.element.querySelector(".marketplace-table");
         table.style.gridTemplateColumns = "repeat(2, 1fr)";
-        //table.style.gridColumnGap = "100px";
     }
     minimizeTable(){
         let table = this.element.querySelector(".marketplace-table");
         table.style.gridTemplateColumns = "repeat(1, 1fr)";
-        //table.style.gridColumnGap = "0px";
     }
     afterRender(){
         if(this.boundExpandTable){

@@ -1,9 +1,10 @@
 application-page{
     display:flex;
     height: 100%;
+    overflow: scroll;
 }
 .application-page{
-    width: calc(100% - 270px);
+    width: 100%;
 }
 .table-header-flows {
     padding-left: 64px;

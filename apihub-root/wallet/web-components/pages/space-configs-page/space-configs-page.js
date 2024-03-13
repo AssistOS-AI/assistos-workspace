@@ -3,6 +3,7 @@ export class SpaceConfigsPage {
         this.element = element;
         this.invalidate = invalidate;
         this.configPage = location.hash.split("/")[2] || "announcements-page";
+        this.isSidebarVisible = true;
         this.invalidate();
     }
 
@@ -23,23 +24,53 @@ export class SpaceConfigsPage {
         }
         this.boundMouseDownFn = this.MouseDownFn.bind(this);
         resizeBar.addEventListener("mousedown", this.boundMouseDownFn);
+
+        if(this.agentPageWidth){
+            this.agentPage.style.width = this.agentPageWidth + 'px';
+            this.currentPage.style.width = this.currentPageWidth + 'px';
+        }
     }
-    resizePanels(event) {
+    resizePanels(startX, firstPanelWidth, secondPanelWidth, event) {
         if (this.isResizing) {
-            let panel1Width = event.clientX;
-            this.currentPage.style.width = panel1Width + 'px';
-            this.agentPage.style.width = 'calc(100% - ' + panel1Width + 'px)';
+            let mouseX = event.clientX;
+            let firstNewWidth = firstPanelWidth + (mouseX - startX);
+            let secondNewWidth = secondPanelWidth - (mouseX - startX);
+            let minimumSize = 350;
+            if(firstNewWidth >= minimumSize && secondNewWidth >= minimumSize){
+                this.agentPage.style.width = firstNewWidth + 'px';
+                this.currentPage.style.width = secondNewWidth + 'px';
+                this.agentPageWidth = firstNewWidth;
+                if(this.isSidebarVisible){
+                    this.currentPageWidth = secondNewWidth;
+                } else {
+                    this.currentPageWidth = secondNewWidth - 270;
+                }
+            }
         }
     }
 
     stopResize() {
         this.isResizing = false;
-        this.removeEventListener('mousemove', this.resizePanels);
+        this.element.removeEventListener('mousemove', this.resizePanels);
+        document.body.style.userSelect = "initial";
     }
-    MouseDownFn(){
+    MouseDownFn(event){
+        document.body.style.userSelect = "none";
         this.isResizing = true;
-        this.element.addEventListener('mousemove', this.resizePanels);
-        this.element.addEventListener('mouseup', this.stopResize);
+        let startX = event.clientX;
+        let firstPanelWidth = parseFloat(getComputedStyle(this.agentPage, null).width);
+        let secondPanelWidth = parseFloat(getComputedStyle(this.currentPage, null).width);
+        if(this.boundMouseMoveFn){
+            this.element.removeEventListener("mousemove", this.boundMouseMoveFn);
+        }
+        this.boundMouseMoveFn = this.resizePanels.bind(this, startX, firstPanelWidth, secondPanelWidth);
+        this.element.addEventListener("mousemove", this.boundMouseMoveFn);
+
+        if(this.boundMouseUp){
+            this.element.removeEventListener("mouseup", this.boundMouseUp);
+        }
+        this.boundMouseUp = this.stopResize.bind(this);
+        this.element.addEventListener("mouseup", this.boundMouseUp);
     }
 
     async navigateToPage(_target, page){
@@ -47,15 +78,17 @@ export class SpaceConfigsPage {
     }
 
     hideSidebar(){
+        this.isSidebarVisible = false;
         this.sidebar.style.transform = "translateX(100%)";
         this.expandButton.style.display = "block";
-        this.currentPage.style.width = "calc((100% + 270px) / 2)";
+        this.currentPage.style.width = this.currentPageWidth ? `calc(${this.currentPageWidth}px + 270px)` : "calc(50% + 135px)";
         this.dispatchSidebarEvent("hideSidebar");
     }
     showSidebar(){
+        this.isSidebarVisible = true;
         this.sidebar.style.transform = "translateX(0%)";
         this.expandButton.style.display = "none";
-        this.currentPage.style.width = "calc((100% - 270px) / 2)";
+        this.currentPage.style.width = this.currentPageWidth ? `${this.currentPageWidth}px` : "calc(50% - 135px)";
         this.dispatchSidebarEvent("showSidebar");
     }
 
