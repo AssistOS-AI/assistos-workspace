@@ -29,6 +29,11 @@
     ],
     "components": [
         {
+            "name": "ml-ide-page",
+            "type": "pages",
+            "presenterClassName": "MlIdePage"
+        },
+        {
             "name": "space-configs-page",
             "type": "pages",
             "presenterClassName": "SpaceConfigsPage"
