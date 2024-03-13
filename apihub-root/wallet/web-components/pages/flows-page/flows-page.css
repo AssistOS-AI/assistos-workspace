@@ -3,6 +3,7 @@ flows-page{
 }
 .flows-page{
     overflow: auto;
+    width: 100%;
 }
 .table-header-flows {
     padding-left: 20px;

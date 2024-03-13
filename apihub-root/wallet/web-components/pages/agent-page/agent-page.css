@@ -1,6 +1,6 @@
 
 agent-page {
-    width: calc((100% - 270px) / 2);
+    width: calc(50% - 135px);
     height: 100%;
     transition: width 0.3s;
     min-width: 350px;
