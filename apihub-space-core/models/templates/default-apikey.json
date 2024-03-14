@@ -1,0 +1,6 @@
+{
+  "type": "$$keyType",
+  "userId": "$$userId",
+  "id": "$$keyId",
+  "value": "$$keyValue"
+}

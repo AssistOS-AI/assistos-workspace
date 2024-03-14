@@ -3,6 +3,7 @@ class Manager {
         this.apiExporter = require('./apis/exporter.js');
         this.modelExporer = require('./models/exporter.js');
         this.constantsExporter = require('./constants/exporter.js')
+        this.initialise();
     }
 
     initialise() {
@@ -10,7 +11,12 @@ class Manager {
         this.constants = this.modelExporer();
         this.models = this.constantsExporter();
     }
-
+    static getInstance() {
+        if (!Manager.instance) {
+            Manager.instance = new Manager();
+        }
+        return Manager.instance;
+    }
 }
 
 module.exports = Manager;

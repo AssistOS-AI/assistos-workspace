@@ -1,6 +1,11 @@
 const path = require('path');
 const fsPromises = require('fs').promises;
 const crypto = require("opendsu").loadAPI("crypto");
+const Manager = require('../../apihub-space-core/Manager.js').getInstance();
+
+const {sendResponse, createCookieString, parseCookies} = require('../requests-processing-apis/exporter.js')
+('sendResponse', 'createCookieString', 'parseCookies');
+
 async function saveJSON(response, spaceData, filePath) {
     const folderPath = path.dirname(filePath);
     try {
@@ -22,21 +27,6 @@ async function saveJSON(response, spaceData, filePath) {
     return true;
 }
 
-function sendResponse(response, statusCode, contentType, message, cookies) {
-    response.statusCode = statusCode;
-    response.setHeader("Content-Type", contentType);
-
-    if (cookies) {
-        const cookiesArray = Array.isArray(cookies) ? cookies : [cookies];
-        response.setHeader('Set-Cookie', cookiesArray);
-    }
-
-    response.write(message);
-    response.end();
-}
-
-
-
 async function loadObject(request, response) {
     const filePath = `../apihub-root/spaces/${request.params.spaceId}/${request.params.objectType}/${request.params.objectName}.json`;
     let data;
@@ -50,16 +40,25 @@ async function loadObject(request, response) {
     return "";
 }
 
+
 async function storeObject(request, response) {
     const filePath = `../apihub-root/spaces/${request.params.spaceId}/${request.params.objectType}/${request.params.objectName}.json`;
-    if (request.body.toString() === "") {
-        await fsPromises.unlink(filePath);
-        sendResponse(response, 200, "text/html", `Deleted successfully ${request.params.objectName}`);
+
+    if (request.body && Object.keys(request.body).length === 0) {
+        try {
+            await fsPromises.unlink(filePath);
+            sendResponse(response, 200, "text/html", `Deleted successfully ${request.params.objectName}`);
+        } catch (error) {
+            sendResponse(response, 500, "text/html", `Error deleting ${request.params.objectName}`);
+        }
         return;
     }
-    let jsonData = JSON.parse(request.body.toString());
-    if (await saveJSON(response, JSON.stringify(jsonData), filePath)) {
-        sendResponse(response, 200, "text/html", `Success, ${request.body.toString()}`);
+    try {
+        const jsonData = request.body;
+        await fsPromises.writeFile(filePath, JSON.stringify(jsonData));
+        sendResponse(response, 200, "text/html", `Success, saved ${request.params.objectName}`);
+    } catch (error) {
+        sendResponse(response, 500, "text/html", `Error saving ${request.params.objectName}`);
     }
 }
 
@@ -84,52 +83,10 @@ async function storeFolder(spaceId, data, folderName) {
     }
 }
 
-/* Validate the key by calling the free listModels endpoint
-*  The endpoint returns a list of models the users has access to
-*/
-async function validateOpenAiKey(apiKey) {
-    const endpoint = 'https://api.openai.com/v1/models';
-    try {
-        const response = await fetch(endpoint, {
-            method: 'GET',
-            headers: {
-                'Authorization': `Bearer ${apiKey}`
-            }
-        });
-        if (response.ok) {
-            return true;
-        } else {
-            /* TODO Decide what to do further based on the response status */
-            const errorData = await response.json();
-            let errorMessage = `Error: ${response.status} - ${errorData.error}`;
-            switch (response.status) {
-                case 401:
-                case 403:
-                    errorMessage = 'Unauthorized: Invalid API Key';
-                    break;
-                case 404:
-                    errorMessage = 'Invalid Endpoint';
-                    break;
-                case 500:
-                case 502:
-                case 503:
-                case 504:
-                    errorMessage = 'Server Error: OpenAI may be experiencing issues. Please try again later.';
-                    break;
-                default:
-                    break;
-            }
-            return false;
-        }
-    } catch (error) {
-        return false;
-    }
-}
-
 async function saveSpaceAPIKeySecret(spaceId, apiKey, server) {
     const secretsService = await require('apihub').getSecretsServiceInstanceAsync(server.rootFolder);
     const containerName = `${spaceId}.APIKey`
-    const keyValidation = await validateOpenAiKey(apiKey);
+    const keyValidation = await Manager.apis.validateOpenAIKey(apiKey);
     if (keyValidation) {
         await secretsService.putSecretAsync(containerName, "OpenAiAPIKey", apiKey);
         return true;
@@ -137,16 +94,6 @@ async function saveSpaceAPIKeySecret(spaceId, apiKey, server) {
     return false;
 }
 
-function maskKey(str) {
-    if (str.length <= 10) {
-        return str;
-    }
-    const start = str.slice(0, 6);
-    const end = str.slice(-4);
-    const maskedLength = str.length - 10;
-    const masked = '*'.repeat(maskedLength);
-    return start + masked + end;
-}
 
 async function storeSecret(request, response, server) {
     const apiKey = request.headers['apikey'];
@@ -164,7 +111,7 @@ async function storeSecret(request, response, server) {
             const apiKeyObject = {
                 "userId": `${userId}`,
                 "id": "000000000000",
-                "value": maskKey(apiKey)
+                "value": Manager.apis.maskOpenAIKey(apiKey)
             };
             if (statusObject.apiKeys && statusObject.apiKeys.openAi) {
                 statusObject.apiKeys.openAi.push(apiKeyObject);
@@ -191,15 +138,12 @@ async function storeSpace(request, response, server) {
     } catch (e) {
         await fsPromises.mkdir(`../apihub-root/spaces`);
     }
+
     const folderPath = `../apihub-root/spaces/${request.params.spaceId}`;
-    // Request to delete the space
-    if (request.body.toString().trim() === "") {
+
+    if (Object.keys(request.body).length === 0) {
         try {
-            if (fsPromises.rm) {
-                await fsPromises.rm(folderPath, {recursive: true, force: true});
-            } else if (fsPromises.rmdir) {
-                await fsPromises.rmdir(folderPath, {recursive: true});
-            }
+            await fsPromises.rm(folderPath, {recursive: true, force: true});
             sendResponse(response, 200, "text/html", "Space deleted successfully");
         } catch (err) {
             sendResponse(response, 500, "text/html", "Error deleting Space");
@@ -213,49 +157,33 @@ async function storeSpace(request, response, server) {
         if (err.code === 'ENOENT') {
             await fsPromises.mkdir(folderPath);
         } else {
-            sendResponse(response, 500, "text/html", err + ` Error creating Space: ${request.params.spaceId}`);
+            sendResponse(response, 500, "text/html", `Error creating Space: ${request.params.spaceId}`);
             return;
         }
     }
-    const keyHeader = request.headers['apikey'];
-    const initiatorHeader = request.headers['initiatorid'];
 
-    let apiKey = null;
-    let userId = null;
-    if (keyHeader) {
-        apiKey = keyHeader
-        userId = initiatorHeader;
-    }
+    const jsonData = request.body;
+    const { apikey: apiKey, initiatorid: userId } = request.headers;
 
-    let jsonData = JSON.parse(request.body.toString());
     if (apiKey) {
-        // const generateId = require('../../server-space-core/apis/exporter.js')('generateId');
         if (await saveSpaceAPIKeySecret(request.params.spaceId, apiKey, server)) {
-            if (jsonData.apiKeys.openAi) {
-                jsonData.apiKeys.openAi.push({
-                    "userId": `${userId}`,
-                    "id": "000000000000",
-                    "value": maskKey(apiKey)
-                })
-            } else {
-                jsonData.apiKeys = {
-                    "openAi": [{
-                        "userId": `${userId}`,
-                        "id": "000000000000",
-                        "value": maskKey(apiKey)
-                    }]
-                }
-            }
+            jsonData.apiKeys = jsonData.apiKeys || {};
+            jsonData.apiKeys.openAi = jsonData.apiKeys.openAi || [];
+            jsonData.apiKeys.openAi.push({
+                "userId": userId,
+                "id": "000000000000",
+                "value": Manager.apis.maskOpenAIKey(apiKey)
+            });
         }
     }
+
     await storeFolder(request.params.spaceId, jsonData.documents, "documents");
     await storeFolder(request.params.spaceId, jsonData.personalities, "personalities");
-    await storeFolder(request.params.spaceId, "newFolder", "applications");
-    delete jsonData.personalities
+    await storeFolder(request.params.spaceId, [], "applications");
+    delete jsonData.personalities;
     delete jsonData.documents;
     await storeFolder(request.params.spaceId, jsonData, "status");
-    sendResponse(response, 200, "text/html", `Success, ${request.body.toString()}`);
-    return "";
+    sendResponse(response, 200, "text/html", `Success, updated space ${request.params.spaceId}`);
 }
 
 async function buildSpace(filePath) {
@@ -294,50 +222,10 @@ async function loadSpace(request, response) {
     }
     sendResponse(response, 200, "text/html", JSON.stringify(statusJson));
 }
-function createCookieString(name, value, options = {}) {
-    let cookieString = `${name}=${value};`;
 
-    if (options.maxAge) {
-        cookieString += ` Max-Age=${options.maxAge};`;
-    }
-    if (options.path) {
-        cookieString += ` Path=${options.path};`;
-    }
-    if (options.domain) {
-        cookieString += ` Domain=${options.domain};`;
-    }
-    if (options.expires) {
-        cookieString += ` Expires=${options.expires.toUTCString()};`;
-    }
-    if (options.httpOnly) {
-        cookieString += ` HttpOnly;`;
-    }
-    if (options.secure) {
-        cookieString += ` Secure;`;
-    }
-    if (options.sameSite) {
-        cookieString += ` SameSite=${options.sameSite};`;
-    }
-
-    return cookieString;
-}
-
-function parseCookies(request) {
-    const list = {};
-    const cookieHeader = request.headers.cookie;
-
-    if (cookieHeader) {
-        cookieHeader.split(';').forEach(function(cookie) {
-            const parts = cookie.split('=');
-            list[parts.shift().trim()] = decodeURI(parts.join('='));
-        });
-    }
-
-    return list;
-}
 
 async function authenticateUser(userId) {
-    const userFile= path.join(__dirname,`../../apihub-root/users/${userId}.json`);
+    const userFile = path.join(__dirname, `../../apihub-root/users/${userId}.json`);
     try {
         await fsPromises.access(userFile);
         return true;
@@ -345,10 +233,12 @@ async function authenticateUser(userId) {
         return false;
     }
 }
+
 async function getUserRights(userId) {
-    return {createSpace:true};
+    return {createSpace: true};
 }
-async function generateId(length=12){
+
+async function generateId(length = 12) {
     let random = crypto.getRandomSecret(length);
     let randomStringId = "";
     while (randomStringId.length < length) {
@@ -356,37 +246,38 @@ async function generateId(length=12){
     }
     return randomStringId;
 }
+
 async function createSpace(request, response) {
     const cookies = parseCookies(request);
     const userId = cookies.userId;
     if (!userId) {
-        sendResponse(response,401,"text/html","Unauthorized: No valid session");
+        sendResponse(response, 401, "text/html", "Unauthorized: No valid session");
         return;
     }
     const userIsValid = await authenticateUser(userId);
     if (!userIsValid) {
-        sendResponse(response,401,"text/html","Unauthorized: Invalid user");
+        sendResponse(response, 401, "text/html", "Unauthorized: Invalid user");
         return;
     }
-    const userRights= await getUserRights(userId);
+    const userRights = await getUserRights(userId);
     if (!userRights.createSpace) {
-        sendResponse(response,403,"text/html","Forbidden: User does not have rights to create a space");
+        sendResponse(response, 403, "text/html", "Forbidden: User does not have rights to create a space");
         return;
     }
     const spaceName = request.body.spaceName;
     if (!spaceName) {
-        sendResponse(response,400,"text/html","Bad Request: Space Name is required");
+        sendResponse(response, 400, "text/html", "Bad Request: Space Name is required");
         return;
     }
 
     const apiKey = request.headers.apikey;
     if (!apiKey) {
-        sendResponse(response,400,"text/html","Bad Request: API Key is required");
+        sendResponse(response, 400, "text/html", "Bad Request: API Key is required");
         return;
     }
 
     try {
-        const newSpace = await createNewSpace(spaceName, userId,apiKey);
+        const newSpace = Manager.apis.createSpace(spaceName, userId, apiKey);
         const cookieString = createCookieString('currentSpaceId', newSpace.id, {
             maxAge: 30 * 24 * 60 * 60,
             httpOnly: true,
@@ -396,27 +287,20 @@ async function createSpace(request, response) {
         });
         sendResponse(response, 201, "text/html", `Space created successfully: ${newSpace.id}`, cookieString);
     } catch (error) {
-       sendResponse(response,500,"text/html",`Internal Server Error: ${error}`);
-    }
-}
-async function createNewSpace(spaceName,userId,apiKey){
-    const spaceId = await generateId();
-    const spacePath=path.join(__dirname,`../../apihub-root/spaces/${spaceId}`);
-    try {
-        await fsPromises.access(spacePath);
-        const error = new Error('Space already exists');
-        error.statusCode = 409;
-        throw error;
-    } catch (e) {
-        if (e.code === 'ENOENT') {
-            await fsPromises.mkdir(spacePath);
-            //await createDefaultSpace(spacePath,spaceName,userId);
-            return {id:spaceId}
-        } else {
-            throw e;
+        switch (error.statusCode) {
+            case 409:
+                sendResponse(response, 409, "text/html", "Conflict: Space already exists");
+                break;
+            case 401:
+                sendResponse(response, 401, "text/html", "Unauthorized: Invalid API Key");
+                break;
+            default:
+                sendResponse(response, 500, "text/html", `Internal Server Error: ${error}`);
         }
+        sendResponse(response, 500, "text/html", `Internal Server Error: ${error}`);
     }
 }
+
 
 module.exports = {
     loadObject,

@@ -1,37 +1,34 @@
-const {createSpace} = require("./controller");
-
-function bodyReaderMiddleware(req, res, next) {
-    const data = [];
-
-    req.on('data', (chunk) => {
-        data.push(chunk);
-    });
-
-    req.on('end', () => {
-        const rawData = Buffer.concat(data).toString();
-        try {
-            req.body = JSON.parse(rawData);
-        } catch (error) {
-            req.body = rawData;
-            console.error("Parsing error:", error);
-        }
-        next();
-    });
-}
-
-
 function SpaceStorage(server) {
-    const {loadObject, storeObject, loadSpace, storeSpace,createSpace, storeSecret} = require("./controller");
+    const bodyReaderMiddleware = require('../requests-processing-apis/exporter.js')
+    ('bodyReaderMiddleware');
 
-    server.get("/spaces/:spaceId/:objectType/:objectName", loadObject);
-    server.get("/load-space/:spaceId", loadSpace);
-    server.delete("/spaces/:spaceId/:objectType/:objectName", storeObject);
+    const {loadObject, storeObject, loadSpace, storeSpace, createSpace, storeSecret} = require("./controller.js");
+
+    server.get("/spaces/:spaceId/:objectType/:objectName", async (request, response) => {
+        await loadObject(request, response)
+    });
+    server.get("/load-space/:spaceId", async (request, response) => {
+        await loadSpace(request, response)
+    });
+
+    server.delete("/spaces/:spaceId/:objectType/:objectName", async (request, response) => {
+        await storeObject(request, response)
+    });
+
     server.post("/spaces/:spaceId/secrets", async (request, response) => {
         await storeSecret(request, response, server)
     });
+
     server.use("/spaces/*", bodyReaderMiddleware);
-    server.post("/spaces", async (req, res) => {await createSpace(req,res)});
-    server.put("/spaces/:spaceId/:objectType/:objectName", storeObject);
+
+    server.post("/spaces", async (request, response) => {
+        await createSpace(request, response)
+    });
+
+    server.put("/spaces/:spaceId/:objectType/:objectName", async (request, response) => {
+        await storeObject(request, response)
+    });
+
     server.put("/spaces/:spaceId", async (request, response) => {
         await storeSpace(request, response, server)
     });

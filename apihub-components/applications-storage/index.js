@@ -5,7 +5,6 @@ const {
     loadApplicationConfig,
     loadApplicationFile,
     loadObjects,
-
 } = require("../applications-storage/controller");
 
 function bodyReaderMiddleware(req, res, next) {
