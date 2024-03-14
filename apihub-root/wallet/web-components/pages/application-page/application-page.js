@@ -44,17 +44,15 @@ export class ApplicationPage {
         this.tags = string;
     }
     async installApplication() {
-        const loading = await webSkel.showLoading(`<general-loader></general-loader>`);
+        const loadingId = await webSkel.showLoading();
         await webSkel.appServices.installApplication(this.appName);
-        loading.close();
-        loading.remove();
+        webSkel.hideLoading(loadingId);
         location.reload();
     }
     async uninstallApplication() {
-        const loading = await webSkel.showLoading(`<general-loader></general-loader>`);
+        const loadingId = await webSkel.showLoading();
         await webSkel.appServices.uninstallApplication(this.appName);
-        loading.close();
-        loading.remove();
+        webSkel.hideLoading(loadingId);
         location.reload();
     }
 
