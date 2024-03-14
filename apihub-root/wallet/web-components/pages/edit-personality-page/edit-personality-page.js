@@ -43,7 +43,6 @@ export class EditPersonalityPage{
         }
         this.boundShowPhoto =  this.showPhoto.bind(this, photoInput)
         photoInput.addEventListener("input", this.boundShowPhoto);
-        photoInput.click();
     }
 
     async showPhoto(photoInput, event) {
@@ -63,11 +62,11 @@ export class EditPersonalityPage{
         this.invalidate();
     }
 
-    triggerInputFileOpen(_target){
+    triggerInputFileOpen(_target, id){
         _target.removeAttribute("data-local-action");
-        let input = this.element.querySelector(`input[type="file"]`);
+        let input = this.element.querySelector(`#${id}`);
         input.click();
-        _target.setAttribute("data-local-action", "triggerInputFileOpen");
+        _target.setAttribute("data-local-action", `triggerInputFileOpen ${id}`);
     }
 
     async saveChanges(_target){
@@ -88,6 +87,17 @@ export class EditPersonalityPage{
             let flowId = webSkel.currentUser.space.getFlowIdByName("UpdatePersonality");
             await webSkel.appServices.callFlow(flowId, personalityData, this.personality.id);
             await this.openPersonalitiesPage();
+        }
+    }
+    async addKnowledge(_target){
+        let formInfo = await extractFormInformation(_target);
+        let promiseArray = [];
+        if(formInfo.isValid){
+            for(let file of formInfo.data.files){
+                promiseArray.push(await webSkel.uploadFileAsText(file));
+            }
+            let files = await Promise.all(promiseArray);
+            alert("save knowledge TBD")
         }
     }
 
