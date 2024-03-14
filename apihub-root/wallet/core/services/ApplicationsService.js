@@ -45,13 +45,16 @@ export class ApplicationsService {
         }
     }
 
-    async startApplication(appName, applicationLocation) {
+    async startApplication(appName, applicationLocation, isReadOnly) {
         const applicationContainer=document.querySelector("#page-content");
 
         if (document.querySelector("left-sidebar") === null) {
             applicationContainer.insertAdjacentHTML("beforebegin", `<left-sidebar data-presenter="left-sidebar" ></left-sidebar>`);
         }
         if (appName === webSkel.defaultApplicationName) {
+            if(!applicationLocation){
+                applicationLocation = ["announcements-page"];
+            }
             await webSkel.changeToDynamicPage("space-configs-page", `${webSkel.currentUser.space.id}/SpaceConfiguration/${applicationLocation.join("/")}`)
             return;
         }
@@ -61,7 +64,7 @@ export class ApplicationsService {
             webSkel.hideLoading();
         }
         try {
-            await webSkel.initialisedApplications[appName].manager.navigateToLocation(applicationLocation);
+            await webSkel.initialisedApplications[appName].manager.navigateToLocation(applicationLocation, isReadOnly);
         } catch (e) {
             console.error(`Encountered an Issue trying to navigate to ${applicationLocation} .Navigating to application entry point`);
             await webSkel.changeToDynamicPage(webSkel.initialisedApplications[appName].entryPointComponent,

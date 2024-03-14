@@ -1,8 +1,9 @@
 export class Flow{
-    constructor(flowClass) {
+    constructor(flowClass, isNew) {
         if(!flowClass.id){
             flowClass.id = webSkel.appServices.generateId();
         }
+        flowClass.isNew = isNew
         this.class = flowClass;
         this.fileName = flowClass.name + "#" + flowClass.id;
     }

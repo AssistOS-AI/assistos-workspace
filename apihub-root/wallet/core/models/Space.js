@@ -209,7 +209,7 @@ export class Space {
     }
 
     async addFlow(flowClass) {
-        let flowObject = new Flow(flowClass);
+        let flowObject = new Flow(flowClass, true);
         this.flows.push(flowObject);
         await storageManager.storeFlow(webSkel.currentUser.space.id, flowObject.fileName, flowObject.stringifyClass());
     }

@@ -64,7 +64,6 @@ async function generateResponse(request, response, server) {
         } else {
             sendResponse(response, 500, "text/html", JSON.stringify(e, Object.getOwnPropertyNames(e)))
         }
-
     }
 }
 

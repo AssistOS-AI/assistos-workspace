@@ -14,32 +14,6 @@ export class AddFlowModal {
     beforeRender() {
     }
     afterRender() {
-        let lastCharWasSpace = false;
-        // const nameInput = this.element.querySelector('#name');
-        //
-        // nameInput.addEventListener('keydown', function(e) {
-        //     if (e.ctrlKey || e.metaKey || e.altKey || e.shiftKey ||
-        //         e.key === 'ArrowUp' || e.key === 'ArrowDown' ||
-        //         e.key === 'ArrowLeft' || e.key === 'ArrowRight' ||
-        //         e.key === 'Home' || e.key === 'End' ||
-        //         e.key === 'PageUp' || e.key === 'PageDown' ||
-        //         e.key === 'Enter' || e.key === 'Tab' ||
-        //         e.key === 'Escape' || e.key === 'F1' ||
-        //         e.key.startsWith('F') && !isNaN(e.key.slice(1))) {
-        //         return;
-        //     }
-        //     if (e.key === ' ') {
-        //         lastCharWasSpace = true;
-        //     } else if (e.key.length === 1) {
-        //         e.preventDefault();
-        //         if (lastCharWasSpace || this.value.length === 0) {
-        //             this.value = this.value.trimEnd() + e.key.toUpperCase();
-        //         } else {
-        //             this.value = this.value + e.key;
-        //         }
-        //         lastCharWasSpace = false;
-        //     }
-        // });
         this.flowCode = this.element.querySelector("#code");
         this.flowCode.addEventListener("keydown", this.insertSpacesOnTab);
         this.flowCode.value = "class PascalCase {\n" +
@@ -163,12 +137,8 @@ export class AddFlowModal {
     }
 
     async addFlow(_target) {
-        // const isValidPascalCase=(nameInput)=> {
-        //     return /^[A-Z][^\s]*$/.test(nameInput.value);
-        // }
         let formInfo = await extractFormInformation(_target);
         if (formInfo.isValid) {
-
             let flowId = webSkel.currentUser.space.getFlowIdByName("AddFlow");
             await webSkel.appServices.callFlow(flowId, formInfo.data.code);
             webSkel.currentUser.space.notifyObservers(webSkel.currentUser.space.getNotificationId());

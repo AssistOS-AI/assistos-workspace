@@ -315,7 +315,10 @@ dialog{
     width:20px;
     height:20px;
 }
-
+.disabled{
+    background-color: var(--blue-border);
+    pointer-events: none;
+}
 /*page placeholder*/
 #page-placeholder{
     position: absolute;
