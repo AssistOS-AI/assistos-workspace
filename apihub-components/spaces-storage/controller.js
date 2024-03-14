@@ -277,7 +277,7 @@ async function createSpace(request, response) {
     }
 
     try {
-        const newSpace = Manager.apis.createSpace(spaceName, userId, apiKey);
+        const newSpace = await Manager.apis.createSpace(spaceName, userId, apiKey);
         const cookieString = createCookieString('currentSpaceId', newSpace.id, {
             maxAge: 30 * 24 * 60 * 60,
             httpOnly: true,

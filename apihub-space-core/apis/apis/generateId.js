@@ -1,6 +1,6 @@
 //const crypto = require("../../../opendsu-sdk/").loadApi("crypto");
 
-const {DEFAULT_ID_LENGTH}=require('../../constants/exporter.js')('space-constants');
+const {DEFAULT_ID_LENGTH}=require('../../constants/exporter.js')('utils-constants');
 function generateId(length=DEFAULT_ID_LENGTH) {
     return generateRandomString(length);
     let random = crypto.getRandomSecret(length);

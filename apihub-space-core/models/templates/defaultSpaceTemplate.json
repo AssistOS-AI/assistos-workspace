@@ -3,7 +3,7 @@
   "id": "$$spaceId",
   "creationDate": "$$creationDate",
   "settings": {},
-  "announcements": "$$defaultAnnouncement",
+  "announcements": ["$$defaultAnnouncement"],
   "users": [],
   "admins":["$$adminId"],
   "apiKeys": ["$$apiKey"],
@@ -11,10 +11,11 @@
   "pages": [],
   "tasks": [],
   "conversationHistory": [],
+  "documents": [],
   "context": [],
   "wordCount": 0,
   "installedApplications": [],
-  "agent": {},
+  "agent": "$$spaceAgent",
   "personalities": []
 
 }

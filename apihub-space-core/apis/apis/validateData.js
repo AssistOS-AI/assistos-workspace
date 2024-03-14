@@ -1,4 +1,4 @@
-export function validateData(schema, data) {
+function validateData(schema, data) {
     if (!matchesType(schema.type, data)) {
         return { status: false, errorMessage: `Type mismatch. Expected ${schema.type}.` };
     }
@@ -86,3 +86,4 @@ function validateType(prop, value) {
     }
     return { status: true };
 }
+module.exports=validateData
