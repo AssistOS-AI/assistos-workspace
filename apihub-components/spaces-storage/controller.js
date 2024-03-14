@@ -1,6 +1,6 @@
 const path = require('path');
 const fsPromises = require('fs').promises;
-
+const crypto = require("opendsu").loadAPI("crypto");
 async function saveJSON(response, spaceData, filePath) {
     const folderPath = path.dirname(filePath);
     try {
@@ -27,17 +27,14 @@ function sendResponse(response, statusCode, contentType, message, cookies) {
     response.setHeader("Content-Type", contentType);
 
     if (cookies) {
-        if (Array.isArray(cookies)) {
-            cookies.forEach(cookie => {
-                response.setHeader('Set-Cookie', cookie);
-            });
-        } else {
-            response.setHeader('Set-Cookie', cookies);
-        }
+        const cookiesArray = Array.isArray(cookies) ? cookies : [cookies];
+        response.setHeader('Set-Cookie', cookiesArray);
     }
+
     response.write(message);
     response.end();
 }
+
 
 
 async function loadObject(request, response) {
@@ -339,6 +336,26 @@ function parseCookies(request) {
     return list;
 }
 
+async function authenticateUser(userId) {
+    const userFile= path.join(__dirname,`../../apihub-root/users/${userId}.json`);
+    try {
+        await fsPromises.access(userFile);
+        return true;
+    } catch (e) {
+        return false;
+    }
+}
+async function getUserRights(userId) {
+    return {createSpace:true};
+}
+async function generateId(length=12){
+    let random = crypto.getRandomSecret(length);
+    let randomStringId = "";
+    while (randomStringId.length < length) {
+        randomStringId = crypto.encodeBase58(random).slice(0, length);
+    }
+    return randomStringId;
+}
 async function createSpace(request, response) {
     const cookies = parseCookies(request);
     const userId = cookies.userId;
@@ -346,13 +363,16 @@ async function createSpace(request, response) {
         sendResponse(response,401,"text/html","Unauthorized: No valid session");
         return;
     }
-
-    const userIsValid = await checkUserValidity(userId);
+    const userIsValid = await authenticateUser(userId);
     if (!userIsValid) {
         sendResponse(response,401,"text/html","Unauthorized: Invalid user");
         return;
     }
-
+    const userRights= await getUserRights(userId);
+    if (!userRights.createSpace) {
+        sendResponse(response,403,"text/html","Forbidden: User does not have rights to create a space");
+        return;
+    }
     const spaceName = request.body.spaceName;
     if (!spaceName) {
         sendResponse(response,400,"text/html","Bad Request: Space Name is required");
@@ -366,16 +386,22 @@ async function createSpace(request, response) {
     }
 
     try {
-        const newSpace = await createNewSpace(spaceName, userId);
-        response.cookie('currentSpaceId',newSpace.id);
-        sendResponse(response,201,"text/html",`Space created successfully: ${newSpace.id}`);
+        const newSpace = await createNewSpace(spaceName, userId,apiKey);
+        const cookieString = createCookieString('currentSpaceId', newSpace.id, {
+            maxAge: 30 * 24 * 60 * 60,
+            httpOnly: true,
+            secure: true,
+            path: '/',
+            sameSite: 'Strict'
+        });
+        sendResponse(response, 201, "text/html", `Space created successfully: ${newSpace.id}`, cookieString);
     } catch (error) {
        sendResponse(response,500,"text/html",`Internal Server Error: ${error}`);
     }
 }
-async function createNewSpace(spaceName,userId){
-    const spaceId = generateSpaceId()||"ABCDEF123456";
-    const spacePath=path.join(__dirname,`../apihub-root/spaces/${spaceId}`);
+async function createNewSpace(spaceName,userId,apiKey){
+    const spaceId = await generateId();
+    const spacePath=path.join(__dirname,`../../apihub-root/spaces/${spaceId}`);
     try {
         await fsPromises.access(spacePath);
         const error = new Error('Space already exists');
@@ -384,6 +410,8 @@ async function createNewSpace(spaceName,userId){
     } catch (e) {
         if (e.code === 'ENOENT') {
             await fsPromises.mkdir(spacePath);
+            //await createDefaultSpace(spacePath,spaceName,userId);
+            return {id:spaceId}
         } else {
             throw e;
         }

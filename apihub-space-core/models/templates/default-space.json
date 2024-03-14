@@ -1,0 +1,20 @@
+{
+  "name": "$$spaceName",
+  "id": "$$spaceId",
+  "creationDate": "$$creationDate",
+  "settings": {},
+  "announcements": "$$defaultAnnouncement",
+  "users": [],
+  "admins": [],
+  "apiKeys": [],
+  "flows": [],
+  "pages": [],
+  "tasks": [],
+  "conversationHistory": [],
+  "context": [],
+  "wordCount": 0,
+  "installedApplications": [],
+  "agent": {},
+  "personalities": []
+
+}

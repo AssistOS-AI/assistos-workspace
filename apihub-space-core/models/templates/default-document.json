@@ -1,0 +1,10 @@
+{
+  "id":"$$documentId",
+  "title": "$$documentTitle",
+  "topic": "$$documentTopic",
+  "mainIdeas": "",
+  "abstract": "",
+  "alternativeTitles":[],
+  "alternativeAbstracts":[],
+  "settings": {}
+}

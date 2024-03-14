@@ -25,7 +25,6 @@ export class RequestsFacade {
 
         return await response.text();
     }
-
     async getSpace(spaceId){
 
     }
@@ -35,5 +34,7 @@ export class RequestsFacade {
     async deleteSpace(spaceId) {
 
     }
+    async registerUser(userDataObject) {
 
+    }
 }

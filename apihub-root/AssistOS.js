@@ -38,13 +38,13 @@ class AssistOS {
                 this.ApplicationsManager = await ApplicationManager.initialise(this.configuration.applicationsManagerConfig);
             })()*/
             (async () => {
-                this.SpaceFactory = await new SpaceFactory();
+                this.SpaceFactory = new SpaceFactory();
             })(),
             (async () => {
-                this.StorageService = await new StorageService();
+                this.StorageService = new StorageService();
             })(),
             (async () => {
-                this.RequestsFacade = await new RequestsFacade();
+                this.RequestsFacade = new RequestsFacade();
             })()
         ];
         await Promise.all(bootPromises);

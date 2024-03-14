@@ -162,13 +162,18 @@ export class AuthenticationService{
         try{
             let result = await storageManager.storeUser(userData.id, JSON.stringify(userData));
             webSkel.currentUser = JSON.parse(result);
+            this.setUserCookie(userData.id);
             return true;
         }catch (e){
             console.error(e);
             return false;
         }
     }
-
+    setUserCookie(userId) {
+        let expires = new Date();
+        expires.setTime(expires.getTime() + (30 * 24 * 60 * 60 * 1000));
+        document.cookie = `userId=${userId}; expires=${expires.toUTCString()}; path=/;`;
+    }
     verifyConfirmationLink(){
         let user = {id:webSkel.currentUser.id, secretToken:webSkel.currentUser.secretToken};
         this.addCachedUser(user);
@@ -189,6 +194,8 @@ export class AuthenticationService{
                         let secretToken = user.secretToken;
                         if(this.verifyPassword(secretToken, password)) {
                             this.setCachedCurrentUser({ id: userId, secretToken: secretToken});
+                            /* TODO replace with better logic after APIs are implemented */
+                            this.setUserCookie(userId);
                             return true;
                         } else {
                             return false;
@@ -228,6 +235,7 @@ export class AuthenticationService{
                     }
                     await this.addSpaceToUser(userId,defaultSpace);
                 }
+                this.setUserCookie(userId);
                 return true;
             }else {
                 return false;

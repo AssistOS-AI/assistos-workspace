@@ -1,3 +1,5 @@
+const {createSpace} = require("./controller");
+
 function bodyReaderMiddleware(req, res, next) {
     const data = [];
 
@@ -6,20 +8,21 @@ function bodyReaderMiddleware(req, res, next) {
     });
 
     req.on('end', () => {
-        req.body = Buffer.concat(data);
+        const rawData = Buffer.concat(data).toString();
+        try {
+            req.body = JSON.parse(rawData);
+        } catch (error) {
+            req.body = rawData;
+            console.error("Parsing error:", error);
+        }
         next();
     });
 }
 
+
 function SpaceStorage(server) {
     const {loadObject, storeObject, loadSpace, storeSpace,createSpace, storeSecret} = require("./controller");
-    /* test routes */
-    /*
-        server.get("/space/:spaceId", (req, res) => {getSpace(req,res)});
-      server.put("/space/:spaceId", (req, res) => {updateSpace(req,res)});
-      server.delete("/space/:spaceId", (req, res) => {deleteSpace(req,res)});*/
 
-    server.post("/spaces", (req, res) => {createSpace(req,res)});
     server.get("/spaces/:spaceId/:objectType/:objectName", loadObject);
     server.get("/load-space/:spaceId", loadSpace);
     server.delete("/spaces/:spaceId/:objectType/:objectName", storeObject);
@@ -27,6 +30,7 @@ function SpaceStorage(server) {
         await storeSecret(request, response, server)
     });
     server.use("/spaces/*", bodyReaderMiddleware);
+    server.post("/spaces", async (req, res) => {await createSpace(req,res)});
     server.put("/spaces/:spaceId/:objectType/:objectName", storeObject);
     server.put("/spaces/:spaceId", async (request, response) => {
         await storeSpace(request, response, server)
