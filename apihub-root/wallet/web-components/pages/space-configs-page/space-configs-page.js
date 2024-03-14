@@ -3,7 +3,6 @@ export class SpaceConfigsPage {
         this.element = element;
         this.invalidate = invalidate;
         this.configPage = location.hash.split("/")[2] || "announcements-page";
-        this.isSidebarVisible = true;
         this.invalidate();
     }
 
@@ -40,11 +39,7 @@ export class SpaceConfigsPage {
                 this.agentPage.style.width = firstNewWidth + 'px';
                 this.currentPage.style.width = secondNewWidth + 'px';
                 this.agentPageWidth = firstNewWidth;
-                if(this.isSidebarVisible){
-                    this.currentPageWidth = secondNewWidth;
-                } else {
-                    this.currentPageWidth = secondNewWidth - 270;
-                }
+                this.currentPageWidth = secondNewWidth;
             }
         }
     }
@@ -78,17 +73,22 @@ export class SpaceConfigsPage {
     }
 
     hideSidebar(){
-        this.isSidebarVisible = false;
         this.sidebar.style.transform = "translateX(100%)";
         this.expandButton.style.display = "block";
-        this.currentPage.style.width = this.currentPageWidth ? `calc(${this.currentPageWidth}px + 270px)` : "calc(50% + 135px)";
+        this.currentPageWidth = this.currentPageWidth + 270;
+        this.currentPage.style.width = this.currentPageWidth ? `${this.currentPageWidth}px` : "calc(50% + 135px)";
         this.dispatchSidebarEvent("hideSidebar");
     }
     showSidebar(){
-        this.isSidebarVisible = true;
+        if(this.agentPageWidth > this.currentPageWidth){
+            this.agentPageWidth = this.agentPageWidth - 270;
+            this.agentPage.style.width = this.agentPageWidth ? `${this.agentPageWidth}px` : "calc(50% - 135px)";
+        } else {
+            this.currentPageWidth = this.currentPageWidth - 270;
+            this.currentPage.style.width = this.currentPageWidth ? `${this.currentPageWidth}px` : "calc(50% - 135px)";
+        }
         this.sidebar.style.transform = "translateX(0%)";
         this.expandButton.style.display = "none";
-        this.currentPage.style.width = this.currentPageWidth ? `${this.currentPageWidth}px` : "calc(50% - 135px)";
         this.dispatchSidebarEvent("showSidebar");
     }
 
