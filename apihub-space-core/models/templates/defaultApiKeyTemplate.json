@@ -1,6 +1,6 @@
 {
   "type": "$$keyType",
-  "userId": "$$userId",
+  "ownerId": "$$ownerId",
   "id": "$$keyId",
   "value": "$$keyValue"
 }

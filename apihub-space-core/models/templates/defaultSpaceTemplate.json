@@ -4,7 +4,7 @@
   "creationDate": "$$creationDate",
   "settings": {},
   "announcements": ["$$defaultAnnouncement"],
-  "users": [],
+  "users": ["$$adminId"],
   "admins":["$$adminId"],
   "apiKeys": ["$$apiKey"],
   "flows": [],

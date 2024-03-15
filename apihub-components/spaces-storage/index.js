@@ -21,7 +21,7 @@ function SpaceStorage(server) {
 
     server.use("/spaces/*", bodyReaderMiddleware);
 
-    server.post("/spaces", async (request, response) => {
+    server.post("/spaces/:spaceName", async (request, response) => {
         await createSpace(request, response)
     });
 

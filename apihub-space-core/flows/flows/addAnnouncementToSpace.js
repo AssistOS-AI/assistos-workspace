@@ -32,7 +32,7 @@ class AddAnnouncementToSpace extends IFlow {
             this.announcementModel = await this.APIS.createAnnouncementInstance(this.announcementObject)
             return true;
         } catch (error) {
-            this.error = error;
+            this.error = {message:error.message};
             return false;
         }
     }

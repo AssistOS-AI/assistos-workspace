@@ -36,6 +36,5 @@ class Orchestra {
         const newAgent = new Agent(agentConfigs)
         this.addObserver(newAgent)
     }
-
 }
 module.exports=Orchestra

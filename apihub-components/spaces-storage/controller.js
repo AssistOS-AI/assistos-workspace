@@ -238,15 +238,6 @@ async function getUserRights(userId) {
     return {createSpace: true};
 }
 
-async function generateId(length = 12) {
-    let random = crypto.getRandomSecret(length);
-    let randomStringId = "";
-    while (randomStringId.length < length) {
-        randomStringId = crypto.encodeBase58(random).slice(0, length);
-    }
-    return randomStringId;
-}
-
 async function createSpace(request, response) {
     const cookies = parseCookies(request);
     const userId = cookies.userId;
@@ -264,7 +255,7 @@ async function createSpace(request, response) {
         sendResponse(response, 403, "text/html", "Forbidden: User does not have rights to create a space");
         return;
     }
-    const spaceName = request.body.spaceName;
+    const spaceName = request.params.spaceName
     if (!spaceName) {
         sendResponse(response, 400, "text/html", "Bad Request: Space Name is required");
         return;
@@ -277,7 +268,12 @@ async function createSpace(request, response) {
     }
 
     try {
-        const newSpace = await Manager.apis.createSpace(spaceName, userId, apiKey);
+        let newSpace={};
+        if(request.body==="" || Object.keys(request.body).length === 0) {
+            newSpace = await Manager.apis.createSpace(spaceName, userId, apiKey);
+        }else{
+            newSpace = await Manager.apis.addSpace(spaceName, userId, apiKey, request.body);
+        }
         const cookieString = createCookieString('currentSpaceId', newSpace.id, {
             maxAge: 30 * 24 * 60 * 60,
             httpOnly: true,
@@ -290,12 +286,10 @@ async function createSpace(request, response) {
         switch (error.statusCode) {
             case 409:
                 sendResponse(response, 409, "text/html", "Conflict: Space already exists");
-                break;
+                return;
             case 401:
                 sendResponse(response, 401, "text/html", "Unauthorized: Invalid API Key");
-                break;
-            default:
-                sendResponse(response, 500, "text/html", `Internal Server Error: ${error}`);
+                return;
         }
         sendResponse(response, 500, "text/html", `Internal Server Error: ${error}`);
     }

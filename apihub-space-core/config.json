@@ -1,5 +1,6 @@
 {
   "SPACE_FOLDER_PATH": "./apihub-root/spaces",
+  "USER_FOLDER_PATH": "./apihub-root/users",
   "DEFAULT_FLOWS_PATH":"./apihub-root/default-flows",
   "DEFAULT_PERSONALITIES_PATH": "./apihub-root/default-personalities",
   "DEFAULT_AGENT_PATH": "./apihub-root/default-agents"
