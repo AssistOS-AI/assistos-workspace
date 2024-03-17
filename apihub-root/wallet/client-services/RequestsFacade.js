@@ -2,22 +2,35 @@ export class RequestsFacade {
     constructor() {
 
     }
+    async addSpace(spaceName,apiKey,spaceObject) {
+        const headers = {
+            "Content-Type": "application/json; charset=UTF-8",
+            "apikey": `${apiKey}`,
+        };
+        const options = {
+            method: "POST",
+            headers: headers,
+            body: JSON.stringify(spaceObject)
+        };
+        const response = await fetch(`/spaces/${spaceName}`, options);
+
+        if (!response.ok) {
+            throw new Error(`HTTP error! status: ${response.status}`);
+        }
+
+        return await response.text();
+    }
 
     async createSpace(spaceName, apiKey) {
         const headers = {
             "Content-Type": "application/json; charset=UTF-8",
             "apikey": `${apiKey}`,
         };
-
-        const body = JSON.stringify({spaceName:spaceName});
-
         const options = {
             method: "POST",
             headers: headers,
-            body: body,
         };
-
-        const response = await fetch('/spaces', options);
+        const response = await fetch(`/spaces/${spaceName}`, options);
 
         if (!response.ok) {
             throw new Error(`HTTP error! status: ${response.status}`);

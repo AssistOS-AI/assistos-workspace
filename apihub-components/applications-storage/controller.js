@@ -5,13 +5,8 @@ const path = require('path');
 const fsPromises = require('fs').promises;
 const openDSU = require("opendsu");
 const crypto = openDSU.loadApi("crypto");
-
-function sendResponse(response, statusCode, contentType, message) {
-    response.statusCode = statusCode;
-    response.setHeader("Content-Type", contentType);
-    response.write(message);
-    response.end();
-}
+const sendResponse = require('../requests-processing-apis/sendResponse')
+const Manager = require('../../apihub-space-core/Manager').getInstance();
 
 function createContainerName(spaceId, userId) {
     return `${spaceId}.${userId}`;
@@ -26,11 +21,11 @@ async function getSecret(spaceId, userId, secretName, serverRootFolder) {
 async function updateSpaceStatus(spaceId, applicationName, description, deleteMode = false) {
     const statusPath = `../apihub-root/spaces/${spaceId}/status/status.json`;
     let status;
-    try{
+    try {
         await fsPromises.access(statusPath);
         const fileContent = await fsPromises.readFile(statusPath, 'utf8');
         status = JSON.parse(fileContent);
-    }catch (e) {
+    } catch (e) {
         status = {};
     }
     if (deleteMode === true) {
@@ -45,7 +40,7 @@ async function updateSpaceStatus(spaceId, applicationName, description, deleteMo
         status.installedApplications.push(
             {
                 name: applicationName,
-                id: generateId(),
+                id: Manager.apis.generateId(),
                 installationDate: installationDate,
                 lastUpdate: lastUpdate,
                 description: description
@@ -54,7 +49,7 @@ async function updateSpaceStatus(spaceId, applicationName, description, deleteMo
         status.installedApplications = [
             {
                 name: applicationName,
-                id: generateId(),
+                id: Manager.apis.generateId(),
                 installationDate: installationDate,
                 lastUpdate: lastUpdate,
                 description: description
@@ -64,20 +59,10 @@ async function updateSpaceStatus(spaceId, applicationName, description, deleteMo
     await fsPromises.writeFile(statusPath, JSON.stringify(status, null, 2));
 }
 
-function generateId() {
-    const length = 12;
-    let random = crypto.getRandomSecret(length);
-    let randomStringId = "";
-    while (randomStringId.length < length) {
-        randomStringId = crypto.encodeBase58(random).slice(0, length);
-    }
-    return randomStringId;
-}
-
 async function iterateFolder(folderPath, extensions) {
     let filePaths = [];
     let files = await fsPromises.readdir(folderPath, {withFileTypes: true});
-    for(let dirent of files){
+    for (let dirent of files) {
         const fullPath = path.join(folderPath, dirent.name);
         if (dirent.isDirectory()) {
             filePaths = filePaths.concat(await iterateFolder(fullPath, extensions));
@@ -299,12 +284,13 @@ async function loadApplicationFile(request, response) {
         const filePath = `../apihub-root/spaces/${spaceId}/applications/${applicationName}/${relativeFilePath}`;
         const fileType = filePath.substring(filePath.lastIndexOf('.') + 1) || '';
 
-        await sendFileToClient(response, filePath, fileType);
+        await Manager.apis.sendFileToClient(response, filePath, fileType);
     } catch (error) {
         console.error('Error reading component:', error);
         handleFileError(response, error);
     }
 }
+
 function handleFileError(response, error) {
     if (error.code === 'ENOENT') {
         sendResponse(response, 404, "text/plain", "File not found");
@@ -312,54 +298,6 @@ function handleFileError(response, error) {
         sendResponse(response, 500, "text/plain", "Internal Server Error");
     }
 }
-
-async function sendFileToClient(response, filePath, fileType) {
-    try {
-        const fileContent = await fsPromises.readFile(filePath, 'utf8');
-        let contentType = "";
-        switch (fileType) {
-            case "js":
-                contentType = "application/javascript";
-                break;
-            case "html":
-                contentType = "text/html";
-                break;
-            case "css":
-                contentType = "text/css";
-                break;
-            case"png":
-                contentType = "image/png";
-                break;
-            case"jpg":
-                contentType = "image/jpg";
-                break;
-            case "jpeg":
-                contentType = "image/jpeg";
-                break;
-            case "svg":
-                contentType = "image/svg+xml";
-                break;
-            case "gif":
-                contentType = "image/gif";
-                break;
-            case "ico":
-                contentType = "image/x-icon";
-                break;
-            case "json":
-                contentType = "application/json";
-                break;
-            case "woff":
-                contentType = "font/woff";
-                break;
-            default:
-                return sendResponse(response, 500, "text/plain", "Internal Server Error, file type not supported");
-        }
-        sendResponse(response, 200, contentType, fileContent);
-    } catch (error) {
-        throw Error(error);
-    }
-}
-
 
 
 /*async function loadApplicationComponent(request, response) {
@@ -375,12 +313,11 @@ async function sendFileToClient(response, filePath, fileType) {
     }
 }*/
 
-
-    module.exports = {
-        installApplication,
-        uninstallApplication,
-        storeObject,
-        loadApplicationConfig,
-        loadApplicationFile,
-        loadObjects,
-    }
+module.exports = {
+    installApplication,
+    uninstallApplication,
+    storeObject,
+    loadApplicationConfig,
+    loadApplicationFile,
+    loadObjects,
+}
