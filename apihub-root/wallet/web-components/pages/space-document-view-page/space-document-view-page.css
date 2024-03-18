@@ -1,0 +1,137 @@
+.abstract-subtitle {
+    color: var(--path-button);
+    font-size: 18px;
+    font-style: normal;
+    font-weight: 600;
+    line-height: normal;
+    padding-left:10px;
+    padding-right:10px;
+}
+.abstract-section{
+    border-radius: 10px;
+    margin-bottom:10px;
+}
+.abstract-content {
+    display:flex;
+    white-space: pre-line;
+    text-align: justify;
+    font-size: 16px;
+    font-style: normal;
+    font-weight: 400;
+    line-height: normal;
+}
+.abstract-content-text{
+    display:inline-block;
+    border-radius: 3px;
+    padding: 10px;
+    width: calc(100% - 30px);
+    white-space: pre-wrap;
+    flex-wrap:wrap;
+    overflow-wrap: break-word;
+    hyphens: auto;
+    word-break: break-word;
+}
+.abstract-content-text:focus{
+    outline:none;
+    background: var(--white-text);
+}
+.document-view-page {
+    display: flex;
+    width:100%;
+
+}
+space-document-view-page{
+    overflow: auto;
+}
+.document-content {
+    padding-left:50px;
+   padding-right:20px;
+    height:100%;
+    min-height:100%;
+}
+.document-page-header{
+    display: flex;
+    justify-content: space-between;
+    padding-top: 15px;
+    padding-left: 20px;
+    padding-right: 50px;
+}
+.buttons-section{
+    display: flex;
+    align-items: center;
+}
+.space-document-path {
+    cursor: default;
+    display: flex;
+    align-items: center;
+    font-size: 14px;
+    font-weight: 500;
+    line-height: 21px;
+    letter-spacing: 0em;
+    text-align: left;
+}
+
+.document-title {
+    width: calc(100% - 30px);
+    display: inline-block;
+    color: var(--light-black);
+    font-size: 26px;
+    font-style: normal;
+    font-weight: 600;
+    line-height: normal;
+    padding: 10px;
+    border-radius: 3px;
+}
+.document-title-container{
+    padding: 10px;
+    border-radius: 10px;
+    display: flex;
+}
+
+.document-title:focus{
+    outline: none;
+    background: var(--white-text);
+}
+
+.space-document-path svg {
+    margin: 5px;
+}
+
+.new-chapter-btn {
+    padding: 7px 15px;
+    border-radius: 20px;
+    font-weight: 600;
+    cursor: pointer;
+    color: var(--white-text);
+    background-color: var(--new-chapter-btn);
+}
+
+.add-new-chapter-section {
+    display: flex;
+    align-items: center;
+    justify-content: end;
+}
+
+#chapter-sidebar,
+#paragraph-sidebar {
+    display: none;
+}
+.abstract-section,.path-button,.chapter-unit{
+    padding:10px;
+}
+.abstract-section{
+    width:100%;
+}
+.thirty-px-horizontal-space{
+    width:30px;
+    min-width:30px;
+}
+.path-button:hover{
+    cursor:pointer;
+}
+#highlighted-abstract{
+    background-color:var(--medium-white);
+}
+.sidebar-item{
+    font-weight: 600;
+}

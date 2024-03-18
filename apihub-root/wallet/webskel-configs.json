@@ -29,6 +29,34 @@
     ],
     "components": [
         {
+            "name": "space-chapter-unit",
+            "type": "components",
+            "presenterClassName": "SpaceChapterUnit"
+        },
+        {
+            "name": "space-paragraph-unit",
+            "type": "components"
+        },
+        {
+            "name": "space-document-unit",
+            "type": "components"
+        },
+        {
+            "name": "space-add-document-modal",
+            "type": "modals",
+            "presenterClassName": "SpaceAddDocumentModal"
+        },
+        {
+            "name": "space-document-view-page",
+            "type": "pages",
+            "presenterClassName": "SpaceDocumentViewPage"
+        },
+        {
+            "name": "space-documents-page",
+            "type": "pages",
+            "presenterClassName": "SpaceDocumentsPage"
+        },
+        {
             "name": "ml-ide-page",
             "type": "pages",
             "presenterClassName": "MlIdePage"

@@ -71,9 +71,6 @@ export class SpaceConfigsPage {
     async navigateToPage(_target, page){
         await webSkel.changeToDynamicPage("space-configs-page", `${webSkel.currentUser.space.id}/SpaceConfiguration/${page}`);
     }
-    async navigateToDocumentViewer(){
-        await webSkel.appServices.startApplication("AiAuthor", "", true);
-    }
 
     hideSidebar(){
         this.sidebar.style.transform = "translateX(100%)";

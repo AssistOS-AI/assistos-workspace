@@ -1,0 +1,22 @@
+<div class="modal-header">
+    <div>Add Document</div>
+    <div class="pointer" data-local-action="closeModal">
+        <svg width="17" height="16" viewBox="0 0 17 16" fill="none" xmlns="http://www.w3.org/2000/svg">
+            <path d="M16.751 14.3443C16.9105 14.4935 17 14.695 17 14.9049C17 15.1149 16.9105 15.3164 16.751 15.4656C16.5886 15.611 16.3716 15.6923 16.1457 15.6923C15.9198 15.6923 15.7028 15.611 15.5404 15.4656L8.5 8.93466L1.45959 15.4656C1.29721 15.611 1.08017 15.6923 0.854301 15.6923C0.628429 15.6923 0.411394 15.611 0.249016 15.4656C0.0894917 15.3164 0 15.1149 0 14.9049C0 14.695 0.0894917 14.4935 0.249016 14.3443L7.30005 7.82322L0.249016 1.30213C0.113549 1.14925 0.0443198 0.955156 0.0547945 0.757614C0.0652691 0.560071 0.154699 0.373199 0.305688 0.233347C0.456678 0.0934948 0.658432 0.0106619 0.871706 0.000959849C1.08498 -0.00874218 1.29453 0.0553804 1.45959 0.180855L8.5 6.71178L15.5404 0.180855C15.7055 0.0553804 15.915 -0.00874218 16.1283 0.000959849C16.3416 0.0106619 16.5433 0.0934948 16.6943 0.233347C16.8453 0.373199 16.9347 0.560071 16.9452 0.757614C16.9557 0.955156 16.8865 1.14925 16.751 1.30213L9.69995 7.82322L16.751 14.3443Z" fill="white"/>
+        </svg>
+    </div>
+</div>
+<form class="add-document-form">
+    <div class="form-item">
+        <label class="form-label" for="documentTitle">Title</label>
+        <input class="form-input" name="documentTitle" data-id="documentTitle" pattern=".*\S+.*" type="text" id="documentTitle" maxlength="50" required placeholder="Title of Document">
+    </div>
+
+    <div class="form-item">
+        <label class="form-label" for="documentTopic">Topic</label>
+        <textarea class="form-input" name="documentTopic" data-id="documentTopic" id="documentTopic" required placeholder="Topic of Document"></textarea>
+    </div>
+    <div class="form-footer">
+        <button type="button" class="general-button" data-local-action="addDocument">Create</button>
+    </div>
+</form>

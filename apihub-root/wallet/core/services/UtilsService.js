@@ -18,17 +18,6 @@ export class UtilsService {
         }
         return randomStringId;
     }
-     parseURL(){
-        let url = window.location.hash.split('/');
-        switch(url[2]) {
-            case "personality": {
-                return url[3];
-            }
-            default:{
-                console.error("no parameters for this url");
-            }
-        }
-    }
     SaveElementTimer(fn, t) {
         return new function (){
             let timerObj = setInterval(fn, t);
