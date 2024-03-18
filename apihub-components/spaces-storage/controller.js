@@ -44,7 +44,7 @@ async function loadObject(request, response) {
 async function storeObject(request, response) {
     const filePath = `../apihub-root/spaces/${request.params.spaceId}/${request.params.objectType}/${request.params.objectName}.json`;
 
-    if (request.body && Object.keys(request.body).length === 0) {
+    if (!request.body || Object.keys(request.body).length === 0) {
         try {
             await fsPromises.unlink(filePath);
             sendResponse(response, 200, "text/html", `Deleted successfully ${request.params.objectName}`);

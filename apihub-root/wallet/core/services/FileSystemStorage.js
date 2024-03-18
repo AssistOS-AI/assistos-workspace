@@ -12,6 +12,7 @@ export class FileSystemStorage {
 
     async storeObject(spaceId, objectType, objectName, jsonData) {
         let result;
+        debugger
         try {
             result = await fetch(`/spaces/${spaceId}/${objectType}/${objectName}`,
                 {
