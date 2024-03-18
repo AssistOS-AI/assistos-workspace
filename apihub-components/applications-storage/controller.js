@@ -6,6 +6,7 @@ const fsPromises = require('fs').promises;
 const openDSU = require("opendsu");
 const crypto = openDSU.loadApi("crypto");
 const sendResponse = require('../requests-processing-apis/sendResponse')
+const sendFileToClient=require('../requests-processing-apis/sendFileToClient.js')
 const Manager = require('../../apihub-space-core/Manager').getInstance();
 
 function createContainerName(spaceId, userId) {
@@ -284,7 +285,7 @@ async function loadApplicationFile(request, response) {
         const filePath = `../apihub-root/spaces/${spaceId}/applications/${applicationName}/${relativeFilePath}`;
         const fileType = filePath.substring(filePath.lastIndexOf('.') + 1) || '';
 
-        await Manager.apis.sendFileToClient(response, filePath, fileType);
+        await sendFileToClient(response, filePath, fileType);
     } catch (error) {
         console.error('Error reading component:', error);
         handleFileError(response, error);
