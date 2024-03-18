@@ -42,7 +42,7 @@ export class LeftSidebar {
                 timeoutId = setTimeout(() => {
                     let name = feature.querySelector(`[id=${feature.getAttribute("data-id")}]`);
                     name.style.visibility = "visible";
-                }, 1000);
+                }, 300);
             });
             feature.addEventListener("mouseout", () => {
                 clearTimeout(timeoutId);
