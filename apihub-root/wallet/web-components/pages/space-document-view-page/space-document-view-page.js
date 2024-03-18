@@ -164,7 +164,7 @@ export class SpaceDocumentViewPage {
                         await this.moveParagraph(this.previouslySelectedParagraph["paragraph"], "down")
                     }
                 } else {
-                    if (webSkel.getClosestParentElement(event.target, ".chapter-arrows")) {
+                    if (webSkel.getClosestParentElement(event.target, ".chapter-arrows") && !event.target.classList.includes("delete-chapter")) {
                         /* clickul e pe un buton de swap al capitolului */
                         if(this.previouslySelectedParagraph){
                             this.saveParagraph(this.previouslySelectedParagraph);
