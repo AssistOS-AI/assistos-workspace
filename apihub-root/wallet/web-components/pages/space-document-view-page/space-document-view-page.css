@@ -42,6 +42,7 @@
 }
 space-document-view-page{
     overflow: auto;
+    min-width: 415px !important;
 }
 .document-content {
     padding-left:50px;
