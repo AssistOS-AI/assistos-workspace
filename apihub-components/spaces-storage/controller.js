@@ -141,7 +141,7 @@ async function storeSpace(request, response, server) {
 
     const folderPath = `../apihub-root/spaces/${request.params.spaceId}`;
 
-    if (Object.keys(request.body).length === 0) {
+    if (!request.body || Object.keys(request.body).length === 0) {
         try {
             await fsPromises.rm(folderPath, {recursive: true, force: true});
             sendResponse(response, 200, "text/html", "Space deleted successfully");
@@ -163,7 +163,7 @@ async function storeSpace(request, response, server) {
     }
 
     const jsonData = request.body;
-    const { apikey: apiKey, initiatorid: userId } = request.headers;
+    const {apikey: apiKey, initiatorid: userId} = request.headers;
 
     if (apiKey) {
         if (await saveSpaceAPIKeySecret(request.params.spaceId, apiKey, server)) {
@@ -235,7 +235,51 @@ async function authenticateUser(userId) {
 }
 
 async function getUserRights(userId) {
-    return {createSpace: true};
+    return {createSpace: true, addCollaborator: true};
+}
+
+async function addCollaboratorToSpace(request, response) {
+    const cookies = parseCookies(request);
+    const userId = cookies.userId;
+    if (!userId) {
+        sendResponse(response, 401, "text/html", "Unauthorized: No valid session");
+        return;
+    }
+    const userIsValid = await authenticateUser(userId);
+    if (!userIsValid) {
+        sendResponse(response, 401, "text/html", "Unauthorized: Invalid user");
+        return;
+    }
+    const userRights = await getUserRights(userId);
+    if (!userRights.addCollaborator) {
+        sendResponse(response, 403, "text/html", "Forbidden: User does not have rights to create a space");
+        return;
+    }
+    const spaceId = request.body.spaceId;
+    const collaboratorId = request.body.collaboratorId;
+
+    if (!spaceId || !collaboratorId) {
+        sendResponse(response, 400, "text/html", "Bad Request: Space Id and Collaborator Id are required");
+        return;
+    }
+    try {
+        const space = await Manager.apis.addSpaceCollaborator(spaceId, collaboratorId);
+        sendResponse(response, 200, "text/html", `Collaborator added successfully: ${collaboratorId}`);
+    } catch (error) {
+        switch (error.statusCode) {
+            case 404:
+                sendResponse(response, 404, "text/html", "Not Found: Space not found");
+                return;
+            case 409:
+                sendResponse(response, 409, "text/html", "Conflict: Collaborator already exists");
+                return;
+            case 401:
+                sendResponse(response, 401, "text/html", "Unauthorized: Invalid Collaborator Id");
+                return;
+        }
+        sendResponse(response, 500, "text/html", `Internal Server Error: ${error}`);
+    }
+
 }
 
 async function createSpace(request, response) {
@@ -268,10 +312,10 @@ async function createSpace(request, response) {
     }
 
     try {
-        let newSpace={};
-        if(request.body==="" || Object.keys(request.body).length === 0) {
+        let newSpace = {};
+        if (request.body === "" || Object.keys(request.body).length === 0) {
             newSpace = await Manager.apis.createSpace(spaceName, userId, apiKey);
-        }else{
+        } else {
             newSpace = await Manager.apis.addSpace(spaceName, userId, apiKey, request.body);
         }
         const cookieString = createCookieString('currentSpaceId', newSpace.id, {
@@ -302,5 +346,6 @@ module.exports = {
     loadSpace,
     storeSpace,
     createSpace,
-    storeSecret
+    storeSecret,
+    addCollaboratorToSpace
 }

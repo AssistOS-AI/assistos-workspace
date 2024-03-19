@@ -1,8 +1,7 @@
-async function linkSpaceToUser(userId, spaceId, spaceName) {
-    const path = require('path');
-    const fsPromises = require('fs').promises;
-    const {USER_FOLDER_PATH} = require('../../config.json');
-
+const path = require('path');
+const fsPromises = require('fs').promises;
+const {USER_FOLDER_PATH} = require('../../config.json');
+async function linkSpaceToUser(userId, spaceId) {
 
     const userFile = path.join(__dirname, '../../../', USER_FOLDER_PATH, `${userId + '.json'}`);
     let userObject;
@@ -28,13 +27,8 @@ async function linkSpaceToUser(userId, spaceId, spaceName) {
         throw error;
     }
 
-    try {
-        userObject.spaces.push({id: spaceId, name: spaceName});
-    } catch (error) {
-        error.message = `Corrupted user file for userId ${userId}.`;
-        error.statusCode = 500;
-        throw error;
-    }
+    userObject.spaces.push({id: spaceId});
+
     try {
         userObject.currentSpaceId = spaceId;
         await fsPromises.writeFile(userFile, JSON.stringify(userObject, null, 2));

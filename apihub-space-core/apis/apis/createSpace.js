@@ -1,32 +1,41 @@
 const path = require('path');
 const fsPromises = require('fs').promises;
+const {
+    generateId,
+    createDefaultAnnouncement,
+    templateReplacer_$$,
+    getCurrentUTCDate,
+    createDirectory,
+    maskOpenAIKey,
+    validateData,
+    copyDefaultFlows,
+    copyDefaultPersonalities,
+    createSpaceStatus,
+    linkSpaceToUser,
+} = require('../exporter.js')
+('generateId', 'createDefaultAnnouncement', 'templateReplacer_$$', 'getCurrentUTCDate', 'createDirectory', 'maskOpenAIKey', 'validateData', 'copyDefaultFlows', 'copyDefaultPersonalities', 'createSpaceStatus', 'linkSpaceToUser');
+
+const {
+    defaultSpaceTemplate,
+    defaultApiKeyTemplate,
+    defaultSpaceAgent
+} = require('../../models/templates/exporter.js')
+('defaultSpaceTemplate', 'defaultApiKeyTemplate', 'defaultSpaceAgent');
+
+const spaceValidationSchema = require('../../models/validation-schemas/exporter.js')
+('spaceValidationSchema');
+
+const {SPACE_FOLDER_PATH} = require('../../config.json');
+
+const rollback = async (spacePath) => {
+    try {
+        await fsPromises.rm(spacePath, {recursive: true, force: true});
+    } catch (error) {
+        console.error(`Failed to clean up space directory at ${spacePath}: ${error}`);
+        throw error;
+    }
+};
 async function createSpace(spaceName, userId, apiKey) {
-    const {
-        generateId,
-        createDefaultAnnouncement,
-        templateReplacer_$$,
-        getCurrentUTCDate,
-        createDirectory,
-        maskOpenAIKey,
-        validateData,
-        copyDefaultFlows,
-        copyDefaultPersonalities,
-        createSpaceStatus,
-        linkSpaceToUser,
-    } = require('../exporter.js')
-    ('generateId', 'createDefaultAnnouncement', 'templateReplacer_$$', 'getCurrentUTCDate', 'createDirectory', 'maskOpenAIKey', 'validateData', 'copyDefaultFlows', 'copyDefaultPersonalities', 'createSpaceStatus', 'linkSpaceToUser');
-
-    const {
-        defaultSpaceTemplate,
-        defaultApiKeyTemplate,
-        defaultSpaceAgent
-    } = require('../../models/templates/exporter.js')
-    ('defaultSpaceTemplate', 'defaultApiKeyTemplate', 'defaultSpaceAgent');
-
-    const spaceValidationSchema = require('../../models/validation-schemas/exporter.js')
-    ('spaceValidationSchema');
-
-    const {SPACE_FOLDER_PATH} = require('../../config.json');
 
     const spaceId = generateId();
     let spaceObj = {}
@@ -64,15 +73,6 @@ async function createSpace(spaceName, userId, apiKey) {
         throw error;
     }
 
-    const rollback = async (spacePath) => {
-        try {
-            await fsPromises.rm(spacePath, {recursive: true, force: true});
-        } catch (error) {
-            console.error(`Failed to clean up space directory at ${spacePath}: ${error}`);
-            throw error;
-        }
-    };
-
     const spacePath = path.join(__dirname, '../../../', `${SPACE_FOLDER_PATH}`, `${spaceId}`);
 
     await createDirectory(spacePath);
@@ -83,7 +83,7 @@ async function createSpace(spaceName, userId, apiKey) {
         () => createDirectory(path.join(spacePath, 'documents')),
         () => createDirectory(path.join(spacePath, 'applications')),
         () => createSpaceStatus(spacePath, spaceObj),
-        () => linkSpaceToUser(userId, spaceId, spaceName),
+        () => linkSpaceToUser(userId, spaceId),
     ];
 
     const results = await Promise.allSettled(filesPromises.map(fn => fn()));
