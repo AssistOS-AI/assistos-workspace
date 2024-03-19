@@ -12,7 +12,6 @@ export class FileSystemStorage {
 
     async storeObject(spaceId, objectType, objectName, jsonData) {
         let result;
-        debugger
         try {
             result = await fetch(`/spaces/${spaceId}/${objectType}/${objectName}`,
                 {
@@ -162,7 +161,7 @@ export class FileSystemStorage {
     }
 
     async loadFilteredKnowledge(words, agentId) {
-        const result = await fetch(`/agents/${webSkel.currentUser.space.id}/${agentId}/search?param1=${words}`,
+        const result = await fetch(`/agents/${system.space.id}/${agentId}/search?param1=${words}`,
             {
                 method: "GET"
             });
@@ -251,7 +250,7 @@ export class FileSystemStorage {
         objectId = encodeURIComponent(objectId);
         let result;
         try {
-            result = await fetch(`/app/${webSkel.currentUser.space.id}/applications/${appName}/${objectType}/${objectId}`,
+            result = await fetch(`/app/${system.space.id}/applications/${appName}/${objectType}/${objectId}`,
                 {
                     method: "PUT",
                     body: stringData,
@@ -268,7 +267,7 @@ export class FileSystemStorage {
     async loadAppObjects(appName, objectType) {
         let result;
         try {
-            result = await fetch(`/app/${webSkel.currentUser.space.id}/applications/${appName}/${objectType}`,
+            result = await fetch(`/app/${system.space.id}/applications/${appName}/${objectType}`,
                 {
                     method: "GET"
                 });

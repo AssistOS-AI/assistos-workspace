@@ -2,15 +2,15 @@ export class PersonalitiesPage {
     constructor(element,invalidate) {
         this.modal = "showAddPersonalityModal";
         this.element = element;
-        this.notificationId = webSkel.currentUser.space.getNotificationId();
-        webSkel.currentUser.space.observeChange(this.notificationId,invalidate);
+        this.notificationId = system.space.getNotificationId();
+        system.space.observeChange(this.notificationId,invalidate);
         this.invalidate=invalidate;
         this.invalidate();
     }
     beforeRender() {
         this.personalityBlocks = "";
-        if (webSkel.currentUser.space.personalities.length > 0) {
-            webSkel.currentUser.space.personalities.forEach((item) => {
+        if (system.space.personalities.length > 0) {
+            system.space.personalities.forEach((item) => {
                 this.personalityBlocks += `<personality-unit data-name="${item.name}" data-description="${item.description}" data-id="${item.id}" data-image="${item.image || "./wallet/assets/images/default-personality.png"}"></personality-unit>`;
             });
         }
@@ -38,11 +38,11 @@ export class PersonalitiesPage {
         this.element.addEventListener("showSidebar", this.boundMinimizeTable);
     }
     async showAddPersonalityModal() {
-        await webSkel.showModal("add-personality-modal", { presenter: "add-personality-modal"});
+        await system.UI.showModal("add-personality-modal", { presenter: "add-personality-modal"});
     }
 
     async selectPersonality(_target){
-        let personalityId = webSkel.reverseQuerySelector(_target, "personality-unit").getAttribute("data-id");
-        await webSkel.changeToDynamicPage("space-configs-page", `${webSkel.currentUser.space.id}/SpaceConfiguration/edit-personality-page/${personalityId}`);
+        let personalityId = system.UI.reverseQuerySelector(_target, "personality-unit").getAttribute("data-id");
+        await system.UI.changeToDynamicPage("space-configs-page", `${system.space.id}/SpaceConfiguration/edit-personality-page/${personalityId}`);
     }
 }

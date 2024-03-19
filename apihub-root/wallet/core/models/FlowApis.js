@@ -47,7 +47,7 @@ export class FlowApis{
     async summarize(prompt, max_tokens){
         this.__body.prompt = prompt;
         this.__body.max_tokens = max_tokens;
-        return await webSkel.appServices.generateResponse(JSON.stringify(this.__body));
+        return await system.services.generateResponse(JSON.stringify(this.__body));
     }
     async chatbot(prompt, max_tokens, messages){
         //messages: array of these {"role": "user", content:"text"}
@@ -81,17 +81,17 @@ export class FlowApis{
         this.__think = prompt;
     }
     async callLLM() {
-        await webSkel.appServices.displayThink(this.__think);
-        let result = await webSkel.appServices.generateResponse(JSON.stringify(this.__body),webSkel.currentUser.space.id);
-        webSkel.appServices.closeThink();
+        await system.services.displayThink(this.__think);
+        let result = await system.services.generateResponse(JSON.stringify(this.__body),system.space.id);
+        system.services.closeThink();
 
         await new Promise(async (resolve) => {
             setTimeout(async () => {
                 let dateObj = new Date();
                 let date = dateObj.toJSON().slice(0, 10);
                 let time = dateObj.toJSON().slice(11, 16);
-                let flowId = webSkel.currentUser.space.getFlowIdByName("AddTask");
-                await webSkel.appServices.callFlow(flowId, `${this.__body.prompt}`, date + " " + time);
+                let flowId = system.space.getFlowIdByName("AddTask");
+                await system.services.callFlow(flowId, `${this.__body.prompt}`, date + " " + time);
                 resolve();
             }, 0);
         });

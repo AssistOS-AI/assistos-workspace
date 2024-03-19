@@ -11,7 +11,7 @@ export class EditFlowModal {
     }
 
     beforeRender() {
-      let flow = webSkel.currentUser.space.getFlow(this.element.getAttribute("data-id"));
+      let flow = system.space.getFlow(this.element.getAttribute("data-id"));
         /* TODO Replace getting the flowname from the class name with a static methot getName on the
                 flow itself
          */
@@ -64,9 +64,9 @@ export class EditFlowModal {
         let formInfo = await extractFormInformation(form);
         if(formInfo.isValid) {
             let flowId = this.element.getAttribute("data-id");
-                let execFlowId = webSkel.currentUser.space.getFlowIdByName("UpdateFlow");
-            await webSkel.appServices.callFlow(execFlowId, flowId, formInfo.data.flowCode, this.element.getAttribute("data-appId"));
-            webSkel.currentUser.space.notifyObservers(webSkel.currentUser.space.getNotificationId());
+                let execFlowId = system.space.getFlowIdByName("UpdateFlow");
+            await system.services.callFlow(execFlowId, flowId, formInfo.data.flowCode, this.element.getAttribute("data-appId"));
+            system.space.notifyObservers(system.space.getNotificationId());
             closeModal(_target);
         }
     }

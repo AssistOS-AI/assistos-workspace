@@ -1,22 +1,19 @@
 import {
-    WebSkel,
     closeModal,
-    StorageManager,
-    DocumentFactory,
 } from "./imports.js";
 
-import AOS from "../AssistOS.js";
+import AssistSystem from "../System.js";
 const ASSISTOS_CONFIGS_PATH = "../assistOS-configs.json";
 
 window.mainContent = document.querySelector("#app-wrapper");
-const CONFIGS_PATH = "./wallet/webskel-configs.json"
+const UI_CONFIGS_PATH = "./wallet/webskel-configs.json"
 const loader = await (await fetch("./wallet/general-loader.html")).text();
 
 async function loadPage() {
 
     let leftSidebarPlaceholder = document.querySelector(".left-sidebar-placeholder");
 
-    storageManager.setCurrentService("FileSystemStorage");
+    system.storage.setCurrentService("FileSystemStorage");
 
     let splitUrl = window.location.hash.slice(1).split('/');
     let spaceId = splitUrl[0];
@@ -28,28 +25,28 @@ async function loadPage() {
     if (spaceId) {
         if (spaceId === "authentication-page") {
             leftSidebarPlaceholder.style.display = "none";
-            await webSkel.changeToDynamicPage(spaceId, spaceId);
+            await system.UI.changeToDynamicPage(spaceId, spaceId);
         } else {
-            let authenticationResult = await webSkel.appServices.initUser(spaceId);
+            let authenticationResult = await system.services.initUser(spaceId);
             if (authenticationResult === true) {
                 if (splitUrl[1]) {
                     /* appName, applicationLocation that will get passed to the application itself to be handled */
-                    await webSkel.appServices.startApplication(splitUrl[1], splitUrl.slice(2));
+                    await system.services.startApplication(splitUrl[1], splitUrl.slice(2));
                 } else {
                     document.querySelector("#page-content").insertAdjacentHTML("beforebegin", `<left-sidebar data-presenter="left-sidebar" ></left-sidebar>`);
-                    await webSkel.changeToDynamicPage("space-configs-page", `${webSkel.currentUser.space.id}/SpaceConfiguration/announcements-page`);
+                    await system.UI.changeToDynamicPage("space-configs-page", `${system.space.id}/SpaceConfiguration/announcements-page`);
                 }
             }
         }
     } else {
-        if (await webSkel.appServices.initUser()) {
+        if (await system.services.initUser()) {
             document.querySelector("#page-content").insertAdjacentHTML("beforebegin", `<left-sidebar data-presenter="left-sidebar" ></left-sidebar>`);
             /*let agent = "space/agent-page";
             let url = "#space/agent-page";
             const content = `<${agent} data-presenter="${agent}"></${agent}>`;
             history.replaceState({agent, relativeUrlContent: content}, url, url);
             window.location.replace("#space/agent-page");*/
-            await webSkel.changeToDynamicPage("space-configs-page", `${webSkel.currentUser.space.id}/SpaceConfiguration/announcements-page`);
+            await system.UI.changeToDynamicPage("space-configs-page", `${system.space.id}/SpaceConfiguration/announcements-page`);
         }
     }
 }
@@ -79,25 +76,25 @@ export function changeSelectedPageFromSidebar(url) {
 }
 
 function defineActions() {
-    webSkel.registerAction("closeErrorModal", async (_target) => {
+    system.UI.registerAction("closeErrorModal", async (_target) => {
         closeModal(_target);
     });
 }
 
 
 async function handleHistory(event) {
-    const result = webSkel.appServices.getCachedCurrentUser();
+    const result = system.services.getCachedCurrentUser();
     if (!result) {
         if (window.location.hash !== "#authentication-page") {
-            webSkel.setDomElementForPages(mainContent);
+            system.UI.setDomElementForPages(mainContent);
             window.location.hash = "#authentication-page";
-            await webSkel.changeToDynamicPage("authentication-page", "authentication-page", "", true);
+            await system.UI.changeToDynamicPage("authentication-page", "authentication-page", "", true);
         }
     } else {
         if (history.state) {
             if (history.state.pageHtmlTagName === "authentication-page") {
-                const path = ["#", webSkel.currentState.pageHtmlTagName].join("");
-                history.replaceState(webSkel.currentState, path, path);
+                const path = ["#", system.UI.currentState.pageHtmlTagName].join("");
+                history.replaceState(system.UI.currentState, path, path);
             }
         }
     }
@@ -108,7 +105,7 @@ async function handleHistory(event) {
 }
 
 function saveCurrentState() {
-    webSkel.currentState = Object.assign({}, history.state);
+    system.UI.currentState = Object.assign({}, history.state);
 }
 
 function closeDefaultLoader() {
@@ -122,37 +119,13 @@ function closeDefaultLoader() {
     UILoader.script.remove();
     UILoader.style.remove();
 }
-
-async function loadAssistOSConfigs(configPath) {
-    const response = await fetch(configPath);
-    const configs = await response.json();
-    for (const storageService of configs.storageServices) {
-        const StorageServiceModule = await import(storageService.path);
-        if (storageService.params) {
-            storageManager.addStorageService(storageService.name, new StorageServiceModule[storageService.name](...Object.values(storageService.params)));
-        } else {
-            storageManager.addStorageService(storageService.name, new StorageServiceModule[storageService.name]());
-        }
-    }
-    webSkel.applications = {};
-    webSkel.initialisedApplications = new Set();
-    for (const application of configs.applications) {
-        webSkel.applications[application.name] = application;
-    }
-    webSkel.setLoading(loader);
-    webSkel.defaultApplicationName = configs.defaultApplicationName;
-    webSkel.setDomElementForPages(document.querySelector("#page-content"));
-}
-
-
 (async () => {
     const configuration= await (await fetch(ASSISTOS_CONFIGS_PATH)).json();
-    window.AssistOS = new AOS(configuration);
-    await AssistOS.boot();
-    window.storageManager = new StorageManager();
-    window.documentFactory = new DocumentFactory();
-    window.webSkel = await WebSkel.initialise(CONFIGS_PATH);
-    await loadAssistOSConfigs('../assistOS-configs.json');
+    window.system = new AssistSystem(configuration);
+    await system.boot(UI_CONFIGS_PATH);
+
+    system.UI.setLoading(loader);
+    system.UI.setDomElementForPages(document.querySelector("#page-content"));
     defineActions();
     await loadPage();
     window.addEventListener('popstate', handleHistory);

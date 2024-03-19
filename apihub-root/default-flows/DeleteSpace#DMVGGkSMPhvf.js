@@ -7,9 +7,9 @@ export class DeleteSpace {
 
     async start(spaceId) {
         try {
-            await storageManager.storeSpace(spaceId, "");
-            await webSkel.appServices.removeSpaceFromUser(webSkel.currentUser.id, spaceId);
-            await webSkel.currentUser.space.changeSpace(webSkel.currentUser.id);
+            await system.storage.storeSpace(spaceId, "");
+            await system.services.removeSpaceFromUser(system.user.id, spaceId);
+            await system.space.changeSpace(system.user.id);
             this.return(spaceId);
         } catch (e) {
             this.fail(e);

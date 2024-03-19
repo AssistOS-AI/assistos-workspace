@@ -16,7 +16,7 @@ export class AddAnnouncement {
                 text: text,
                 date: new Date().toISOString().split('T')[0],
             };
-            await webSkel.currentUser.space.addAnnouncement(announcementData);
+            await system.space.addAnnouncement(announcementData);
             this.return(announcementData);
         } catch (e) {
             this.fail(e);

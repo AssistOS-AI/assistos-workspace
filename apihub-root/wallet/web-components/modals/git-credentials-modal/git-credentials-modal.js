@@ -6,7 +6,7 @@ export class GitCredentialsModal {
         this.invalidate();
     }
     closeModal(_target) {
-        webSkel.closeModal(_target);
+        system.UI.closeModal(_target);
     }
     beforeRender() {}
 
@@ -21,9 +21,9 @@ export class GitCredentialsModal {
                 secretName: "token",
                 secret: formData.data.token
             }
-            await webSkel.appServices.storeGITCredentials(JSON.stringify(usernameSecret));
-            await webSkel.appServices.storeGITCredentials(JSON.stringify(tokenSecret));
-            webSkel.closeModal(_target, true);
+            await system.services.storeGITCredentials(JSON.stringify(usernameSecret));
+            await system.services.storeGITCredentials(JSON.stringify(tokenSecret));
+            system.UI.closeModal(_target, true);
         }
     }
 }

@@ -8,13 +8,13 @@ export class SpaceDropdown {
         this.element = element;
         this.invalidate=invalidate;
         this.invalidate();
-        this.user = JSON.parse(webSkel.appServices.getCachedCurrentUser());
+        this.user = JSON.parse(system.services.getCachedCurrentUser());
     }
 
     beforeRender() {
         if(this.user)
         {
-            this.currentSpaceName = webSkel.currentUser.space.name;
+            this.currentSpaceName = system.space.name;
         }
     }
     afterRender(){
@@ -23,10 +23,10 @@ export class SpaceDropdown {
             if(this.user)
             {
                 let userId = this.user.id;
-                this.userSpaces = JSON.parse(await webSkel.appServices.getStoredUser(userId)).spaces;
+                this.userSpaces = JSON.parse(await system.services.getStoredUser(userId)).spaces;
                 this.spacesDiv = "";
 
-                this.userSpaces.filter(space => space.id !== webSkel.currentUser.space.id).forEach((space) => {
+                this.userSpaces.filter(space => space.id !== system.space.id).forEach((space) => {
                     this.spacesDiv += `<space-unit data-space-name="${space.name}" data-space-id="${space.id}"></space-unit>`;
                 });
                 spacesList.insertAdjacentHTML("afterbegin",this.spacesDiv);
@@ -59,8 +59,8 @@ export class SpaceDropdown {
     async changeSpace(_target) {
         let selectedSpace = getClosestParentElement(_target,['space-unit']);
         let selectedSpaceId = selectedSpace.getAttribute('data-space-id');
-        let flowId = webSkel.currentUser.space.getFlowIdByName("ChangeSpace");
-        await webSkel.appServices.callFlow(flowId, selectedSpaceId);
+        let flowId = system.space.getFlowIdByName("ChangeSpace");
+        await system.services.callFlow(flowId, selectedSpaceId);
     }
 
     async addSpace(){
@@ -68,8 +68,8 @@ export class SpaceDropdown {
     }
 
     async logout(){
-        webSkel.appServices.deleteCachedCurrentUser();
-        webSkel.setDomElementForPages(mainContent);
-        await webSkel.changeToDynamicPage("authentication-page", "authentication-page");
+        system.services.deleteCachedCurrentUser();
+        system.UI.setDomElementForPages(mainContent);
+        await system.UI.changeToDynamicPage("authentication-page", "authentication-page");
     }
 }

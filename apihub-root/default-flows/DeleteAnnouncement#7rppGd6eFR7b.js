@@ -7,7 +7,7 @@ export class DeleteAnnouncement {
 
     async start(announcementId) {
         try {
-            await webSkel.currentUser.space.deleteAnnouncement(announcementId);
+            await system.space.deleteAnnouncement(announcementId);
             this.return(announcementId);
         } catch (e) {
             this.fail(e);

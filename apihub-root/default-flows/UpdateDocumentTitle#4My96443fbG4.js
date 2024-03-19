@@ -7,7 +7,7 @@ export class UpdateDocumentTitle {
 
     async start(documentId, title) {
         try {
-            let document = webSkel.currentUser.space.getDocument(documentId);
+            let document = system.space.getDocument(documentId);
             await document.updateTitle(title);
             this.return(title);
         } catch (e) {

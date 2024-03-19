@@ -1,7 +1,7 @@
 export class MyWebPage {
     constructor(element, invalidate) {
         this.element = element;
-        webSkel.currentUser.space.observeChange(webSkel.currentUser.space.getNotificationId(), invalidate);
+        system.space.observeChange(system.space.getNotificationId(), invalidate);
         this.invalidate = invalidate;
         this.invalidate();
     }
@@ -10,8 +10,8 @@ export class MyWebPage {
         this.myWebPageContainer = "";
         this.pageOptions = "";
         let selectedPageHtml = "";
-        if (webSkel.currentUser.space.pages.length > 0) {
-            webSkel.currentUser.space.pages.forEach((page) => {
+        if (system.space.pages.length > 0) {
+            system.space.pages.forEach((page) => {
                 this.myWebPageContainer += `<page-unit data-title="${page.title}"
         data-content="${page.text}" data-date="${page.date}"
         data-id="${page.id}" data-local-action="editAction"></page-unit>`;
@@ -26,7 +26,7 @@ export class MyWebPage {
         this.element.querySelector("#pages").addEventListener("change", (event) => {
             debugger;
             this.selectedPageId = event.target.value;
-            this.textAreaValue = webSkel.currentUser.space.pages.find((page) => {
+            this.textAreaValue = system.space.pages.find((page) => {
                 return page.id === this.selectedPageId;
             }).html;
             this.textArea = this.element.querySelector("#pageCode");
@@ -35,25 +35,25 @@ export class MyWebPage {
     }
 
     async showActionBox(_target, primaryKey, componentName, insertionMode) {
-        await webSkel.UtilsService.showActionBox(_target, primaryKey, componentName, insertionMode);
+        await system.UI.UtilsService.showActionBox(_target, primaryKey, componentName, insertionMode);
     }
 
     getPageId(_target) {
-        return webSkel.reverseQuerySelector(_target, "page-unit").getAttribute("data-id");
+        return system.UI.reverseQuerySelector(_target, "page-unit").getAttribute("data-id");
     }
 
     async showAddPageModal() {
-        await webSkel.showModal( "add-page-modal", {presenter: "add-page-modal"});
+        await system.UI.showModal( "add-page-modal", {presenter: "add-page-modal"});
     }
 
     async deleteAction(_target) {
-        let flowId = webSkel.currentUser.space.getFlowIdByName("DeletePage");
-        await webSkel.appServices.callFlow(flowId, this.getPageId(_target));
+        let flowId = system.space.getFlowIdByName("DeletePage");
+        await system.services.callFlow(flowId, this.getPageId(_target));
         this.invalidate();
     }
 
     async editAction(_target) {
-        await webSkel.showModal( "edit-my-web-page-modal", {
+        await system.UI.showModal( "edit-my-web-page-modal", {
             presenter: "edit-my-web-page-modal",
             id: this.getPageId(_target)
         });

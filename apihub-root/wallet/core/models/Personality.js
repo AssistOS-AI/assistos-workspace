@@ -2,7 +2,7 @@ export class Personality {
     constructor(personalityData) {
         this.name = personalityData.name;
         this.description = personalityData.description;
-        this.id = personalityData.id || webSkel.appServices.generateId();
+        this.id = personalityData.id || system.services.generateId();
         this.image = personalityData.image;
     }
     update(personalityData){

@@ -6,8 +6,8 @@ export class DeduceIntention {
     }
 
     async start(request) {
-        let agent = webSkel.currentUser.space.agent;
-        let flows = webSkel.currentUser.space.getAllFlows();
+        let agent = system.space.agent;
+        let flows = system.space.getAllFlows();
         let agentFlows = flows.filter((flow) => {
             if(flow.class.parameters){
                 if( flow.class.parameters.length !== 0){

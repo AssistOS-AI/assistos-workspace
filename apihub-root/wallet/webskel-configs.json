@@ -1,32 +1,7 @@
 {
     "defaultPage": "agent-page",
     "webComponentsRootDir": "wallet/web-components",
-    "services": [
-        {
-            "name": "AgentService",
-            "path": "../wallet/core/services/AgentService.js"
-        },
-        {
-            "name": "LlmAnimationService",
-            "path": "../wallet/core/services/LlmAnimationService.js"
-        },
-        {
-            "name": "AuthenticationService",
-            "path": "../wallet/core/services/AuthenticationService.js"
-        },
-        {
-            "name": "UtilsService",
-            "path": "../wallet/core/services/UtilsService.js"
-        },
-        {
-            "name": "LlmsService",
-            "path": "../wallet/core/services/LlmsService.js"
-        },
-        {
-            "name": "ApplicationsService",
-            "path": "../wallet/core/services/ApplicationsService.js"
-        }
-    ],
+    "services": [],
     "components": [
         {
             "name": "space-chapter-unit",

@@ -23,7 +23,7 @@ export class SpaceFactory {
 
     /* Trebuie mutat intr-un service */
   /*  static async loadSpace(spaceId) {
-        let spaceJson = await storageManager.loadSpace(spaceId);
+        let spaceJson = await system.storage.loadSpace(spaceId);
         let spaceData = JSON.parse(spaceJson);
         let space = new Space(spaceData);
         await space.loadFlows();

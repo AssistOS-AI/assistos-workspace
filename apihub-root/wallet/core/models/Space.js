@@ -101,9 +101,9 @@ export class Space {
     }
 
     async changeSpace(spaceId) {
-        let user = JSON.parse(await storageManager.loadUser(webSkel.currentUser.id));
+        let user = JSON.parse(await system.storage.loadUser(system.user.id));
         user.currentSpaceId = spaceId;
-        await storageManager.storeUser(user.id, JSON.stringify(user));
+        await system.storage.storeUser(user.id, JSON.stringify(user));
         window.location = "";
     }
 
@@ -163,28 +163,28 @@ export class Space {
     }
 
     async addDocument(documentData) {
-        let newDocument = documentFactory.createDocument(documentData)
-        await documentFactory.addDocument(webSkel.currentUser.space.id, newDocument);
-        webSkel.currentUser.space.currentDocumentId = newDocument.id;
+        let newDocument = system.factories.createDocument(documentData)
+        await system.factories.addDocument(system.space.id, newDocument);
+        system.space.currentDocumentId = newDocument.id;
         return newDocument.id;
     }
 
     async deleteDocument(documentId) {
         this.documents = this.documents.filter(document => document.id !== documentId);
-        await storageManager.storeObject(webSkel.currentUser.space.id, "documents", documentId, "");
+        await system.storage.storeObject(system.space.id, "documents", documentId, "");
 
     }
 
     async addPersonality(personalityData) {
         let personalityObj = new Personality(personalityData);
         this.personalities.push(personalityObj);
-        await storageManager.storeObject(webSkel.currentUser.space.id, "personalities", personalityObj.getFileName(), JSON.stringify(personalityObj, null, 2));
+        await system.storage.storeObject(system.space.id, "personalities", personalityObj.getFileName(), JSON.stringify(personalityObj, null, 2));
     }
 
     async updatePersonality(personalityData, id) {
         let personality = this.getPersonality(id);
         personality.update(personalityData);
-        await storageManager.storeObject(webSkel.currentUser.space.id, "personalities", personality.getFileName(), JSON.stringify(personality, null, 2));
+        await system.storage.storeObject(system.space.id, "personalities", personality.getFileName(), JSON.stringify(personality, null, 2));
     }
 
     getPersonality(id) {
@@ -193,42 +193,42 @@ export class Space {
 
     async addAnnouncement(announcementData) {
         this.announcements.unshift(new Announcement(announcementData));
-        await storageManager.storeObject(webSkel.currentUser.space.id, "status", "status", JSON.stringify(webSkel.currentUser.space.getSpaceStatus(), null, 2));
+        await system.storage.storeObject(system.space.id, "status", "status", JSON.stringify(system.space.getSpaceStatus(), null, 2));
     }
 
     async addPage(pageData) {
         const page = new PageModel(pageData)
         pageData.id = page.id;
         this.pages.push(page);
-        await storageManager.storeObject(webSkel.currentUser.space.id, "pages", page.id, JSON.stringify(pageData, null, 2));
+        await system.storage.storeObject(system.space.id, "pages", page.id, JSON.stringify(pageData, null, 2));
     }
 
     async deletePage(pageId) {
         this.pages = this.pages.filter(page => page.id !== pageId);
-        await storageManager.storeObject(webSkel.currentUser.space.id, "pages", pageId, "");
+        await system.storage.storeObject(system.space.id, "pages", pageId, "");
     }
 
     async addFlow(flowClass) {
         let flowObject = new Flow(flowClass, true);
         this.flows.push(flowObject);
-        await storageManager.storeFlow(webSkel.currentUser.space.id, flowObject.fileName, flowObject.stringifyClass());
+        await system.storage.storeFlow(system.space.id, flowObject.fileName, flowObject.stringifyClass());
     }
 
     async deleteAnnouncement(announcementId) {
         this.announcements = this.announcements.filter(announcement => announcement.id !== announcementId);
-        await storageManager.storeObject(webSkel.currentUser.space.id, "status", "status", JSON.stringify(webSkel.currentUser.space.getSpaceStatus(), null, 2));
+        await system.storage.storeObject(system.space.id, "status", "status", JSON.stringify(system.space.getSpaceStatus(), null, 2));
     }
 
     async deleteFlow(flowId, appId) {
         if (!appId) {
             let fileName = this.getFlow(flowId).fileName;
             this.flows = this.flows.filter(flow => flow.class.id !== flowId);
-            await storageManager.storeFlow(webSkel.currentUser.space.id, fileName, "");
+            await system.storage.storeFlow(system.space.id, fileName, "");
         } else {
             let app = this.getApplication(appId);
             let fileName = this.getFlow(flowId).fileName;
             app.flows = app.flows.filter(flow => flow.class.id !== flowId);
-            await storageManager.storeAppFlow(webSkel.currentUser.space.id, app.name, fileName, "");
+            await system.storage.storeAppFlow(system.space.id, app.name, fileName, "");
         }
 
     }
@@ -237,7 +237,7 @@ export class Space {
         let personality = this.personalities.find(personality => personality.id === personalityId);
         let fileName = personality.getFileName();
         this.personalities = this.personalities.filter(personality => personality.id !== personalityId);
-        await storageManager.storeObject(webSkel.currentUser.space.id, "personalities", fileName, "");
+        await system.storage.storeObject(system.space.id, "personalities", fileName, "");
     }
 
     async updateAnnouncement(announcementId, title, content) {
@@ -245,7 +245,7 @@ export class Space {
         if (announcement !== null) {
             announcement.title = title;
             announcement.text = content;
-            await storageManager.storeObject(webSkel.currentUser.space.id, "status", "status", JSON.stringify(webSkel.currentUser.space.getSpaceStatus(), null, 2));
+            await system.storage.storeObject(system.space.id, "status", "status", JSON.stringify(system.space.getSpaceStatus(), null, 2));
         } else {
             console.error("Failed to update announcement, announcement not found.");
         }
@@ -256,10 +256,10 @@ export class Space {
         if (flow !== null) {
             flow.class = flowClass;
             if (!appId) {
-                await storageManager.storeFlow(webSkel.currentUser.space.id, flow.fileName, flow.stringifyClass());
+                await system.storage.storeFlow(system.space.id, flow.fileName, flow.stringifyClass());
             } else {
                 let app = this.getApplication(appId);
-                await storageManager.storeAppFlow(webSkel.currentUser.space.id, app.name, flow.fileName, flow.stringifyClass());
+                await system.storage.storeAppFlow(system.space.id, app.name, flow.fileName, flow.stringifyClass());
             }
         } else {
             console.error("Failed to update flow, flow not found.");
@@ -267,33 +267,33 @@ export class Space {
     }
 
     async loadFlows() {
-        let flows = await storageManager.loadFlows(this.id);
+        let flows = await system.storage.loadFlows(this.id);
         for (let [name, flowClass] of Object.entries(flows)) {
             this.flows.push(new Flow(flowClass));
         }
     }
 
     async createDefaultFlows() {
-        let flows = await storageManager.loadDefaultFlows();
+        let flows = await system.storage.loadDefaultFlows();
         for (let [name, flowClass] of Object.entries(flows)) {
             this.flows.push(new Flow(flowClass));
         }
     }
 
     async createDefaultPersonalities() {
-        let personalities = JSON.parse(await storageManager.loadDefaultPersonalities());
+        let personalities = JSON.parse(await system.storage.loadDefaultPersonalities());
         for (let personality of personalities) {
             this.personalities.push(new Personality(personality));
         }
     }
 
     async createDefaultAgent() {
-        this.agent = new Agent(JSON.parse(await storageManager.loadDefaultAgent()));
+        this.agent = new Agent(JSON.parse(await system.storage.loadDefaultAgent()));
     }
 
     createDefaultAnnouncement(spaceData) {
         let defaultAnnouncement = {
-            id: webSkel.appServices.generateId(),
+            id: system.services.generateId(),
             title: "Welcome to AIAuthor!",
             text: `Space ${this.name} was successfully created. You can now add documents, users and settings to your space.`,
             date: new Date().toISOString().split('T')[0]
@@ -303,6 +303,6 @@ export class Space {
 
     async deleteApplication(name) {
         this.installedApplications = this.installedApplications.filter(app => app.name !== name);
-        await storageManager.storeObject(webSkel.currentUser.space.id, "status", "status", JSON.stringify(webSkel.currentUser.space.getSpaceStatus(), null, 2));
+        await system.storage.storeObject(system.space.id, "status", "status", JSON.stringify(system.space.getSpaceStatus(), null, 2));
     }
 }

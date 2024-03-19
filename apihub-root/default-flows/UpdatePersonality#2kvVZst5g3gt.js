@@ -6,7 +6,7 @@ export class UpdatePersonality {
 
     async start(personalityData, personalityId) {
         try {
-            await webSkel.currentUser.space.updatePersonality(personalityData, personalityId);
+            await system.space.updatePersonality(personalityData, personalityId);
             this.return(personalityId);
         } catch (e) {
             this.fail(e);

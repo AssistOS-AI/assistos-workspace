@@ -10,7 +10,7 @@ export class UpdateFlow {
             flowData = "return " + flowData;
             const classConstructor = new Function(flowData);
             const flowClass = classConstructor();
-            await webSkel.currentUser.space.updateFlow(flowId, flowClass, appId);
+            await system.space.updateFlow(flowId, flowClass, appId);
             this.return(flowId);
         } catch (e) {
             this.fail(e);

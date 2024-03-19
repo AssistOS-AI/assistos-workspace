@@ -8,7 +8,7 @@ export class AgentPage {
     constructor(element, invalidate) {
         this.element = element;
         this.invalidate = invalidate;
-        this.agent=webSkel.currentUser.space.getDefaultAgent();
+        this.agent=system.space.getDefaultAgent();
         this.invalidate();
     }
     beforeRender() {
@@ -41,11 +41,11 @@ export class AgentPage {
         this.userInput.addEventListener("keydown", this.boundFn);
         setTimeout(async ()=>{
             if(this.agent.conversationHistory.length === 0){
-                await webSkel.appServices.initOpeners();
+                await system.services.initOpeners();
                 let message = this.agent.getRandomOpener();
                 await this.displayMessage("assistant", message);
                 await this.agent.addMessage("assistant", message);
-                await webSkel.appServices.addCapabilities();
+                await system.services.addCapabilities();
             }
         },0);
 
@@ -89,7 +89,7 @@ export class AgentPage {
             return;
         }
         await this.displayMessage("user", userPrompt);
-        let response = await webSkel.appServices.analyzeRequest(formInfo.data.input);
+        let response = await system.services.analyzeRequest(formInfo.data.input);
         let agentMessage=response.responseJson ? JSON.stringify(response.responseJson) : response.responseString;
         await this.displayMessage("assistant", agentMessage);
         await this.agent.addMessage("assistant", agentMessage);

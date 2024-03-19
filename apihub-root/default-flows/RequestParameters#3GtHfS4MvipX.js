@@ -6,7 +6,7 @@ export class RequestParameters {
     }
 
     async start(flowId, missingParameters) {
-        let flow = webSkel.currentUser.space.getFlow(flowId);
+        let flow = system.space.getFlow(flowId);
         let parameters = flow.class.parameters.filter((parameter) => {
             return missingParameters.includes(parameter.name);
         });
@@ -18,7 +18,7 @@ export class RequestParameters {
     }
 
     async execute() {
-        let agent = webSkel.currentUser.space.agent;
+        let agent = system.space.agent;
         let response = await this.chatbot(this.prompt, "", agent.getContext());
         this.return(response);
     }

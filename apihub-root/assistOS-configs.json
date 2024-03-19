@@ -3,7 +3,43 @@
   "storageServices": [
     {
       "name": "FileSystemStorage",
-      "path": "./core/services/FileSystemStorage.js"
+      "path": "./wallet/core/services/FileSystemStorage.js"
+    }
+  ],
+  "factories": [
+    {
+      "name": "DocumentFactory",
+      "path": "./wallet/core/factories/DocumentFactory.js"
+    },
+    {
+      "name": "SpaceFactory",
+      "path": "./wallet/core/factories/SpaceFactory.js"
+    }
+  ],
+  "services": [
+    {
+      "name": "AgentService",
+      "path": "./wallet/core/services/AgentService.js"
+    },
+    {
+      "name": "LlmAnimationService",
+      "path": "./wallet/core/services/LlmAnimationService.js"
+    },
+    {
+      "name": "AuthenticationService",
+      "path": "./wallet/core/services/AuthenticationService.js"
+    },
+    {
+      "name": "UtilsService",
+      "path": "./wallet/core/services/UtilsService.js"
+    },
+    {
+      "name": "LlmsService",
+      "path": "./wallet/core/services/LlmsService.js"
+    },
+    {
+      "name": "ApplicationsService",
+      "path": "./wallet/core/services/ApplicationsService.js"
     }
   ],
   "applications": [

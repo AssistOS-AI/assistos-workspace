@@ -18,7 +18,7 @@ export class LlmsService {
         if(result.status !==200){
             let err = JSON.parse(await result.text());
             if(result.status===404){
-                    await webSkel.showModal( "add-apikey-modal", {presenter: "add-apikey-modal"});
+                    await system.UI.showModal( "add-apikey-modal", {presenter: "add-apikey-modal"});
                     return;
             }else{
             await showApplicationError("LLM call failed", `An error occurred on the server side`, err.message + " " + err.stack);
@@ -29,7 +29,7 @@ export class LlmsService {
     }
     /*flowId, flowParams */
     async callFlow(...args){
-        let flow = webSkel.currentUser.space.getFlow(args[0]);
+        let flow = system.space.getFlow(args[0]);
         let usedDependencies = [];
         if(flow.class.dependencies){
             for(let functionName of flow.class.dependencies){

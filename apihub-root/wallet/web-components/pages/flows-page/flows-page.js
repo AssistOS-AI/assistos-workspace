@@ -4,7 +4,7 @@ import {
 
 export class FlowsPage {
     constructor(element, invalidate) {
-        webSkel.currentUser.space.observeChange(webSkel.currentUser.space.getNotificationId(), invalidate);
+        system.space.observeChange(system.space.getNotificationId(), invalidate);
         this.element = element;
         this.selectedTypes = [];
         this.invalidate = invalidate;
@@ -19,7 +19,7 @@ export class FlowsPage {
 
         const sortFlows = (flows) => flows.sort((a, b) => a.class.name.toLowerCase().localeCompare(b.class.name.toLowerCase()));
 
-        this.flows = webSkel.currentUser.space.flows;
+        this.flows = system.space.flows;
         if (this.flows.length > 0) {
             this.flows = sortFlows(this.flows);
             this.tableRows = this.flows.map(generateTableRow).join("");
@@ -49,8 +49,8 @@ export class FlowsPage {
 
     async deleteAction(_target) {
         this.filteredFlows = this.filteredFlows.filter(flow => flow.id !== this.getFlowId(_target));
-        let flowId = webSkel.currentUser.space.getFlowIdByName("DeleteFlow");
-        await webSkel.appServices.callFlow(flowId, this.getFlowId(_target));
+        let flowId = system.space.getFlowIdByName("DeleteFlow");
+        await system.services.callFlow(flowId, this.getFlowId(_target));
         this.invalidate();
     }
 

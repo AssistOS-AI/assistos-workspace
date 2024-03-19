@@ -242,18 +242,18 @@ export class AuthenticationPage {
         }
     }
     async navigateToRegisterPage(){
-        await webSkel.changeToDynamicPage("authentication-page", "authentication-page",{subpage:"register-page"});
+        await system.UI.changeToDynamicPage("authentication-page", "authentication-page",{subpage:"register-page"});
     }
 
     async navigateToLoginPage(){
-        await webSkel.changeToDynamicPage("authentication-page", "authentication-page",{subpage:"login-page"});
+        await system.UI.changeToDynamicPage("authentication-page", "authentication-page",{subpage:"login-page"});
     }
 
     async loginDefaultUser(){
         let currentUserId = "5jURBE8WE3YH";
-        let currentUser = JSON.parse(await storageManager.loadUser(currentUserId));
+        let currentUser = JSON.parse(await system.storage.loadUser(currentUserId));
         /* incarcare json user de pe server*/
-        let users = webSkel.appServices.getCachedUsers();
+        let users = system.services.getCachedUsers();
         /* incarcare users din localstorage */
         let userObj;
         try {
@@ -261,23 +261,23 @@ export class AuthenticationPage {
             users = JSON.parse(users);
             /* daca se gaseste id-ul userului default */
             if(users.find(user => user.id === currentUser.id)){
-                await webSkel.appServices.loginUser("teo@teo", "teo");
+                await system.services.loginUser("teo@teo", "teo");
             }else {
                throw new Error("user not found");
             }
         }catch (e){
             //users not present in localStorage yet or not found - > default login
-            await webSkel.appServices.loginFirstTimeUser("teo@teo", "teo");
-            webSkel.appServices.setCachedCurrentUser({id:currentUser.id,secretToken:currentUser.secretToken});
-            webSkel.appServices.addCachedUser({id:currentUser.id,secretToken:currentUser.secretToken});
+            await system.services.loginFirstTimeUser("teo@teo", "teo");
+            system.services.setCachedCurrentUser({id:currentUser.id,secretToken:currentUser.secretToken});
+            system.services.addCachedUser({id:currentUser.id,secretToken:currentUser.secretToken});
         }
         window.location = "";
     }
     async beginRegistration(_target){
         const formInfo = await extractFormInformation(_target);
         if(formInfo.isValid) {
-            if(await webSkel.appServices.registerUser(formInfo.data)){
-                await webSkel.changeToDynamicPage("authentication-page", "authentication-page",{subpage:"register-confirmation"});
+            if(await system.services.registerUser(formInfo.data)){
+                await system.UI.changeToDynamicPage("authentication-page", "authentication-page",{subpage:"register-confirmation"});
             }else{
                 console.error("Failed to create user");
             }
@@ -286,17 +286,17 @@ export class AuthenticationPage {
         }
     }
     verifyConfirmationLink(){
-        webSkel.appServices.verifyConfirmationLink();
+        system.services.verifyConfirmationLink();
         window.location = "";
     }
     async beginLogin(_target){
         const formInfo = await extractFormInformation(_target);
         if(formInfo.isValid) {
-            if(await webSkel.appServices.loginUser(formInfo.data.email, formInfo.data.password)){
+            if(await system.services.loginUser(formInfo.data.email, formInfo.data.password)){
                 window.location = "";
             }else {
-                if(await webSkel.appServices.loginFirstTimeUser(formInfo.data.email, formInfo.data.password)){
-                    await webSkel.changeToDynamicPage("authentication-page", "authentication-page",{subpage:"login-new-device"});
+                if(await system.services.loginFirstTimeUser(formInfo.data.email, formInfo.data.password)){
+                    await system.UI.changeToDynamicPage("authentication-page", "authentication-page",{subpage:"login-new-device"});
                 }else {
                     alert("incorrect email or password");
                 }
@@ -304,7 +304,7 @@ export class AuthenticationPage {
         }
     }
     async navigateToPasswordRecoveryPage(){
-        await webSkel.changeToDynamicPage("authentication-page", "authentication-page",{subpage:"password-recovery"});
+        await system.UI.changeToDynamicPage("authentication-page", "authentication-page",{subpage:"password-recovery"});
     }
     async beginPasswordRecovery(_target){
         const checkPasswordConfirmation = (confirmPassword)=>{
@@ -315,8 +315,8 @@ export class AuthenticationPage {
         const conditions = {"checkPasswordConfirmation": {fn:checkPasswordConfirmation, errorMessage:"Passwords do not match!"} };
         const formInfo = await extractFormInformation(_target, conditions);
         if (formInfo.isValid) {
-            if(await webSkel.appServices.recoverPassword(formInfo.data.email, formInfo.data.password)){
-                await webSkel.changeToDynamicPage("authentication-page", "authentication-page",{subpage:"password-recovery-confirmation"});
+            if(await system.services.recoverPassword(formInfo.data.email, formInfo.data.password)){
+                await system.UI.changeToDynamicPage("authentication-page", "authentication-page",{subpage:"password-recovery-confirmation"});
             }else {
                 console.log("Failed to recover password");
             }
@@ -326,7 +326,7 @@ export class AuthenticationPage {
 
     }
     async finishPasswordRecovery(){
-        if(await webSkel.appServices.confirmRecoverPassword()){
+        if(await system.services.confirmRecoverPassword()){
             window.location = "";
         } else{
             console.error("Failed to confirm password recovery");

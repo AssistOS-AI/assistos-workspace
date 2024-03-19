@@ -8,24 +8,17 @@ export class DocumentFactory {
         return new DocumentModel(documentData);
     }
 
-    async loadDocument(docId) {
-        let documentPath = "documents/" + docId;
-        let docJson = await webSkel.storageService.loadObject(documentPath, docJson);
-        let documentModel = JSON.parse(docJson);
-        return new DocumentModel(documentModel);
-    }
-
     async addDocument(spaceId, documentObj) {
-        webSkel.currentUser.space.documents.unshift(documentObj);
-        await storageManager.storeObject(spaceId, "documents", documentObj.id, documentObj.stringifyDocument());
+        system.space.documents.unshift(documentObj);
+        await system.storage.storeObject(spaceId, "documents", documentObj.id, documentObj.stringifyDocument());
     }
     async updateDocument(spaceId, documentObj) {
-        await storageManager.storeObject(spaceId, "documents", documentObj.id, documentObj.stringifyDocument());
+        await system.storage.storeObject(spaceId, "documents", documentObj.id, documentObj.stringifyDocument());
     }
 
     async deleteDocument(spaceId, documentId) {
-        webSkel.currentUser.space.deleteDocument(documentId);
-        await storageManager.storeObject(webSkel.currentUser.space.id, "documents", documentId, "");
+        system.space.deleteDocument(documentId);
+        await system.storage.storeObject(system.space.id, "documents", documentId, "");
     }
 
     observeChange(elementId, callback) {

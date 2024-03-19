@@ -11,16 +11,16 @@ export class AddChapter {
         }
 
         try {
-            let document = webSkel.currentUser.space.getDocument(documentId);
+            let document = system.space.getDocument(documentId);
 
             // Create chapter data
             let chapterData = {
                 title: title,
-                id: webSkel.appServices.generateId(),
+                id: system.services.generateId(),
                 paragraphs: [
                     {
                         text: "New Paragraph",
-                        id: webSkel.appServices.generateId(),
+                        id: system.services.generateId(),
                     },
                 ],
             };
@@ -28,9 +28,9 @@ export class AddChapter {
             let position = document.chapters.length;
 
             // Find the position to add the new chapter
-            if (webSkel.currentUser.space.currentChapterId) {
+            if (system.space.currentChapterId) {
                 position = document.chapters.findIndex(
-                    (chapter) => chapter.id === webSkel.currentUser.space.currentChapterId
+                    (chapter) => chapter.id === system.space.currentChapterId
                 ) + 1;
             }
 
@@ -38,8 +38,8 @@ export class AddChapter {
             await document.addChapter(chapterData, position);
 
             // Update current chapter and paragraph IDs in the user space
-            webSkel.currentUser.space.currentChapterId = chapterData.id;
-            webSkel.currentUser.space.currentParagraphId = chapterData.paragraphs[0].id;
+            system.space.currentChapterId = chapterData.id;
+            system.space.currentParagraphId = chapterData.paragraphs[0].id;
 
             this.return(title);
         } catch (e) {

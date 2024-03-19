@@ -2,7 +2,7 @@ import {Chapter, Paragraph} from "../../imports.js"
 
 export class DocumentModel {
     constructor(documentData) {
-        this.id = documentData.id || webSkel.appServices.generateId();
+        this.id = documentData.id || system.services.generateId();
         this.title = documentData.title || "";
         this.abstract = documentData.abstract || "";
         this.topic = documentData.topic||"";
@@ -68,7 +68,7 @@ export class DocumentModel {
     async addChapter(chapterData, position=0) {
         //if position is not specified splice converts undefined to 0
         this.chapters.splice(position,0,new Chapter(chapterData));
-        await documentFactory.updateDocument(webSkel.currentUser.space.id, this);
+        await system.factories.updateDocument(system.space.id, this);
     }
 
     async addChapters(chaptersData){
@@ -82,7 +82,7 @@ export class DocumentModel {
             this.chapters.push(newChapter);
             newChapter.addParagraphs(chaptersData[i].paragraphs);
         }
-        await documentFactory.updateDocument(webSkel.currentUser.space.id, this);
+        await system.factories.updateDocument(system.space.id, this);
     }
     async addEmptyChapters(chaptersData){
         for(let i= 0; i < chaptersData.titles.length; i++){
@@ -94,7 +94,7 @@ export class DocumentModel {
             let newChapter = new Chapter(chapterData);
             this.chapters.push(newChapter);
         }
-        await documentFactory.updateDocument(webSkel.currentUser.space.id, this);
+        await system.factories.updateDocument(system.space.id, this);
     }
 
     getAlternativeAbstract(id){
@@ -103,7 +103,7 @@ export class DocumentModel {
 
     async addAlternativeAbstract(abstractObj){
         this.alternativeAbstracts.push(abstractObj);
-        await documentFactory.updateDocument(webSkel.currentUser.space.id, this);
+        await system.factories.updateDocument(system.space.id, this);
     }
 
     async deleteAlternativeAbstract(id){
@@ -113,20 +113,20 @@ export class DocumentModel {
         }else {
             console.warn(`Failed to find alternative abstract with id: ${id}`);
         }
-        await documentFactory.updateDocument(webSkel.currentUser.space.id, this);
+        await system.factories.updateDocument(system.space.id, this);
     }
     async deleteAlternativeTitle(altTitleId) {
         const index = this.alternativeTitles.findIndex(altTitle => altTitle.id === altTitleId);
         if (index !== -1) {
             this.alternativeTitles.splice(index, 1);
         }
-        await documentFactory.updateDocument(webSkel.currentUser.space.id, this);
+        await system.factories.updateDocument(system.space.id, this);
     }
     async updateAlternativeAbstract(id, newContent){
         let abstract = this.getAlternativeAbstract(id);
         if(abstract){
             abstract.content = newContent;
-            await documentFactory.updateDocument(webSkel.currentUser.space.id, this);
+            await system.factories.updateDocument(system.space.id, this);
         }else {
             console.warn(`Failed to find alternative abstract with id: ${id}`);
         }
@@ -134,11 +134,11 @@ export class DocumentModel {
     async updateAlternativeTitle(id,text){
         let alternativeTitle= this.getAlternativeTitle(id)
         alternativeTitle.title=text;
-        await documentFactory.updateDocument(webSkel.currentUser.space.id, this);
+        await system.factories.updateDocument(system.space.id, this);
     }
     async addAlternativeTitles(alternativeTitles){
         for(let title of alternativeTitles){
-            title.id=webSkel.appServices.generateId();
+            title.id=system.services.generateId();
         }
         this.alternativeTitles.push(...alternativeTitles);
     }
@@ -148,12 +148,12 @@ export class DocumentModel {
     }
     async setMainIdeas(ideas){
         this.mainIdeas = ideas;
-        await documentFactory.updateDocument(webSkel.currentUser.space.id, this);
+        await system.factories.updateDocument(system.space.id, this);
     }
 
     async updateAbstract(abstractText) {
         this.abstract = abstractText;
-        await documentFactory.updateDocument(webSkel.currentUser.space.id, this);
+        await system.factories.updateDocument(system.space.id, this);
     }
 
     /* left shift(decrement) the ids to the right of the deleted chapter? */
@@ -161,7 +161,7 @@ export class DocumentModel {
         const index = this.chapters.findIndex(chapter => chapter.id === chapterId);
         if (index !== -1) {
             this.chapters.splice(index, 1);
-            await documentFactory.updateDocument(webSkel.currentUser.space.id, this);
+            await system.factories.updateDocument(system.space.id, this);
         }
     }
 
@@ -190,7 +190,7 @@ export class DocumentModel {
 
     async updateTitle(title) {
         this.title = title;
-        await documentFactory.updateDocument(webSkel.currentUser.space.id, this);
+        await system.factories.updateDocument(system.space.id, this);
     }
     getAlternativeAbstractIndex(alternativeAbstractId) {
         return this.alternativeAbstracts.findIndex(abstract => abstract.id === alternativeAbstractId);
@@ -201,8 +201,8 @@ export class DocumentModel {
             let currentTitle = this.title;
             this.title = this.alternativeTitles[alternativeTitleIndex].title;
             this.alternativeTitles.splice(alternativeTitleIndex, 1);
-            this.alternativeTitles.splice(alternativeTitleIndex,0,{id: webSkel.appServices.generateId(), title: currentTitle});
-            await documentFactory.updateDocument(webSkel.currentUser.space.id, this);
+            this.alternativeTitles.splice(alternativeTitleIndex,0,{id: system.services.generateId(), title: currentTitle});
+            await system.factories.updateDocument(system.space.id, this);
         }else{
             console.warn("Attempting to select alternative title that doesn't exist in this document.");
         }
@@ -213,8 +213,8 @@ export class DocumentModel {
             let currentAbstract = this.abstract;
             this.abstract = this.alternativeAbstracts[alternativeAbstractIndex].content;
             this.alternativeAbstracts.splice(alternativeAbstractIndex, 1);
-            this.alternativeAbstracts.splice(alternativeAbstractIndex,0,{id: webSkel.appServices.generateId(), content: currentAbstract});
-            await documentFactory.updateDocument(webSkel.currentUser.space.id, this);
+            this.alternativeAbstracts.splice(alternativeAbstractIndex,0,{id: system.services.generateId(), content: currentAbstract});
+            await system.factories.updateDocument(system.space.id, this);
         }else{
             console.warn("Attempting to select alternative abstract that doesn't exist in this document.");
         }

@@ -19,17 +19,17 @@ export class EditAnnouncementModal {
     afterRender(){
         let title = this.element.querySelector("#title");
         let content = this.element.querySelector("#content");
-        let announcement = webSkel.currentUser.space.getAnnouncement(this.element.getAttribute("data-id"));
+        let announcement = system.space.getAnnouncement(this.element.getAttribute("data-id"));
         title.value = announcement.title;
         content.value = announcement.text;
     }
 
     async saveAnnouncement(_target) {
-        let formData = await webSkel.extractFormInformation(_target);
+        let formData = await system.UI.extractFormInformation(_target);
         let announcementId = this.element.getAttribute("data-id");
-        let flowId = webSkel.currentUser.space.getFlowIdByName("UpdateAnnouncement");
-        await webSkel.appServices.callFlow(flowId, announcementId, formData.data.title, formData.data.content);
-        webSkel.currentUser.space.notifyObservers(webSkel.currentUser.space.getNotificationId());
+        let flowId = system.space.getFlowIdByName("UpdateAnnouncement");
+        await system.services.callFlow(flowId, announcementId, formData.data.title, formData.data.content);
+        system.space.notifyObservers(system.space.getNotificationId());
         closeModal(_target);
     }
 }

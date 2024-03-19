@@ -6,7 +6,7 @@ export class DeleteChapter {
 
     async start(documentId, chapterId) {
         try {
-            let document = webSkel.currentUser.space.getDocument(documentId);
+            let document = system.space.getDocument(documentId);
             await document.deleteChapter(chapterId);
             this.return(chapterId);
         } catch (e) {

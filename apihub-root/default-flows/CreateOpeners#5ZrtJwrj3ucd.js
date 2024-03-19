@@ -21,7 +21,7 @@ export class CreateOpeners {
         let response = await this.request(this.prompt);
         try {
             let openers = JSON.parse(response);
-            await webSkel.currentUser.space.agent.setOpeners(openers.openers);
+            await system.space.agent.setOpeners(openers.openers);
         } catch (e) {
             this.fail(e);
         }

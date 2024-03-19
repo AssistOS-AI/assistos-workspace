@@ -17,7 +17,7 @@ export class AddPersonality {
                 description: description,
                 image: photo
             };
-            await webSkel.currentUser.space.addPersonality(personalityData);
+            await system.space.addPersonality(personalityData);
             this.return(personalityData);
         } catch (e) {
             this.fail(e);
