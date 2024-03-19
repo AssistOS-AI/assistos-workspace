@@ -1,6 +1,6 @@
 export class AddDocument {
     static id = "7SFvE1v84fPx";
-    static description = "Adds a new document. All the information needed is just its title and its topic. The topic should be no longer than a sentence";
+    static description = "Adds a new document, article or any kind of paperwork";
     static parameters=[
         {
             name: "title",

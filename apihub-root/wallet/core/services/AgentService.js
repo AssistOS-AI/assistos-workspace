@@ -51,8 +51,8 @@ export class AgentService {
                     res = result.responseString;
                 }
                 let flowId = system.space.getFlowIdByName("ConfirmFlowExecution");
-                return await system.services.callFlow(flowId, operationId, response.responseJson.extractedParameters, res, applicationObjects.responseJson);
-
+                let executionMessageResult = await system.services.callFlow(flowId, operationId, response.responseJson.extractedParameters, res, applicationObjects.responseJson);
+                return {refreshRightPanel: true, message: executionMessageResult};
             }
         }else {
             //provide a generic answer
