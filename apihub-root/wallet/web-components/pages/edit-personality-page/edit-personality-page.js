@@ -2,7 +2,7 @@ import {extractFormInformation} from "../../../imports.js";
 
 export class EditPersonalityPage{
     constructor(element,invalidate) {
-        this.personality = webSkel.currentUser.space.getPersonality(window.location.hash.split("/")[3]);
+        this.personality = system.space.getPersonality(window.location.hash.split("/")[3]);
         this.element = element;
         this.invalidate=invalidate;
         this.knowledgeArray = [];
@@ -47,7 +47,7 @@ export class EditPersonalityPage{
 
     async showPhoto(photoInput, event) {
         let photoContainer = this.element.querySelector(".personality-photo");
-        let encodedPhoto = await webSkel.imageUpload(photoInput.files[0]);
+        let encodedPhoto = await system.UI.imageUpload(photoInput.files[0]);
         photoContainer.src = encodedPhoto;
         this.photo = encodedPhoto;
     }
@@ -55,7 +55,7 @@ export class EditPersonalityPage{
     async search(_target){
         let form = this.element.querySelector(".search");
         let formInfo = await extractFormInformation(form);
-        this.knowledgeArray = JSON.parse(await webSkel.currentUser.space.agent.loadFilteredKnowledge(formInfo.data.search));
+        this.knowledgeArray = JSON.parse(await system.space.agent.loadFilteredKnowledge(formInfo.data.search));
         if(this.knowledgeArray.length === 0){
             this.knowledgeArray = ["Nothing found"];
         }
@@ -84,8 +84,8 @@ export class EditPersonalityPage{
                 description:formInfo.data.description,
                 image: formInfo.data.photo
             }
-            let flowId = webSkel.currentUser.space.getFlowIdByName("UpdatePersonality");
-            await webSkel.appServices.callFlow(flowId, personalityData, this.personality.id);
+            let flowId = system.space.getFlowIdByName("UpdatePersonality");
+            await system.services.callFlow(flowId, personalityData, this.personality.id);
             await this.openPersonalitiesPage();
         }
     }
@@ -94,7 +94,7 @@ export class EditPersonalityPage{
         let promiseArray = [];
         if(formInfo.isValid){
             for(let file of formInfo.data.files){
-                promiseArray.push(await webSkel.uploadFileAsText(file));
+                promiseArray.push(await system.UI.uploadFileAsText(file));
             }
             let files = await Promise.all(promiseArray);
             alert("save knowledge TBD")
@@ -102,12 +102,12 @@ export class EditPersonalityPage{
     }
 
     async deletePersonality(){
-        let flowId = webSkel.currentUser.space.getFlowIdByName("DeletePersonality");
-        await webSkel.appServices.callFlow(flowId, this.personality.id);
+        let flowId = system.space.getFlowIdByName("DeletePersonality");
+        await system.services.callFlow(flowId, this.personality.id);
         await this.openPersonalitiesPage();
     }
 
     async openPersonalitiesPage(){
-      await webSkel.changeToDynamicPage("space-configs-page", `${webSkel.currentUser.space.id}/SpaceConfiguration/personalities-page`);
+      await system.UI.changeToDynamicPage("space-configs-page", `${system.space.id}/SpaceConfiguration/personalities-page`);
     }
 }

@@ -1,12 +1,5 @@
-import {
-    Space,
-    SpaceFactory
-} from "../../imports.js";
-
-
 const openDSU = require("opendsu");
 const crypto = openDSU.loadApi("crypto");
-
 export class AuthenticationService{
 
     constructor() {
@@ -19,8 +12,8 @@ export class AuthenticationService{
         if(result) {
             let user = JSON.parse(result);
             /* load the user's config file */
-            let currentUser = JSON.parse(await storageManager.loadUser(user.id));
-            webSkel.currentUser = {
+            let currentUser = JSON.parse(await system.storage.loadUser(user.id));
+            system.user = {
                 id:currentUser.id,
                 secretToken: currentUser.secretToken,
                 spaces: currentUser.spaces,
@@ -38,15 +31,15 @@ export class AuthenticationService{
                /* TODO error handling */
                 let defaultSpace=await this.createDefaultSpace(currentUser.id);
                 await this.addSpaceToUser(currentUser.id,defaultSpace);
-               currentUser.spaces=webSkel.currentUser.spaces=[{name: defaultSpace.name, id: defaultSpace.id}];
-               currentUser.currentSpaceId=webSkel.currentUser.currentSpaceId=defaultSpace.id;
+               currentUser.spaces = system.spaces=[{name: defaultSpace.name, id: defaultSpace.id}];
+               currentUser.currentSpaceId = system.user.currentSpaceId=defaultSpace.id;
            }
            let spaceData;
            try {
                /* Attempting to load the last space the user was logged on */
-               //let spaceData = await storageManager.loadSpace(currentUser.currentSpaceId);
-               webSkel.currentUser.space = await SpaceFactory.loadSpace(currentUser.currentSpaceId)
-               await webSkel.currentUser.space.loadApplicationsFlows();
+               //let spaceData = await system.storage.loadSpace(currentUser.currentSpaceId);
+               system.space = await system.factories.loadSpace(currentUser.currentSpaceId)
+               await system.space.loadApplicationsFlows();
            }catch (e){
                await showApplicationError(e,e,e);
                try{
@@ -55,8 +48,8 @@ export class AuthenticationService{
                    await this.removeSpaceFromUser(currentUser.id,currentUser.currentSpaceId);
                    console.warn("Space with id "+currentUser.currentSpaceId+" not found");
                    /*Attempting to load the Default Space if the currentSpaceId is not valid or the space with that id has been deleted */
-                     //spaceData = await storageManager.loadSpace(currentUser.id);
-                     webSkel.currentUser.space = await SpaceFactory.loadSpace(currentUser.currentSpaceId)
+                     //spaceData = await system.storage.loadSpace(currentUser.id);
+                     system.space = await system.factories.loadSpace(currentUser.currentSpaceId)
                }catch(e){
                    console.warn("Couldn't load the default space for user "+currentUser.id+"");
                    /* Attempting to load any space from the User's spaces array and removing the invalid ones */
@@ -70,17 +63,17 @@ export class AuthenticationService{
             {
                 window.location.replace("#authentication-page");
             }
-            webSkel.setDomElementForPages(mainContent);
-            await webSkel.changeToDynamicPage("authentication-page","authentication-page");
+            system.UI.setDomElementForPages(mainContent);
+            await system.UI.changeToDynamicPage("authentication-page","authentication-page");
             return false;
         }
         return true;
     }
     async resetUser(userId){
-        let user = JSON.parse(await storageManager.loadUser(userId));
+        let user = JSON.parse(await system.storage.loadUser(userId));
         delete user.spaces;
         delete user.currentSpaceId;
-        await storageManager.storeUser(userId,JSON.stringify(user));
+        await system.storage.storeUser(userId,JSON.stringify(user));
     }
     verifyPassword(secretToken, password) {
         //secretToken should be an object with type Buffer or an Uint8Array
@@ -127,22 +120,22 @@ export class AuthenticationService{
         //returns string
         return localStorage.getItem("currentUser");
     }
-    async createDefaultSpace(currentUserId){
-        return await SpaceFactory.createSpace( "Personal Space",undefined,undefined,webSkel.currentUser.id);
+    async createDefaultSpace(){
+        return await system.factories.createSpace( "Personal Space",undefined,undefined,system.user.id);
     }
     async removeSpaceFromUser(userId,spaceId){
-           let user = JSON.parse(await storageManager.loadUser(userId));
+           let user = JSON.parse(await system.storage.loadUser(userId));
            user.spaces = user.spaces.filter(space => space.id !== spaceId);
-           await storageManager.storeUser(userId,JSON.stringify(user));
+           await system.storage.storeUser(userId,JSON.stringify(user));
     }
     async updateUser(userId,userData){
-        let user = JSON.parse(await storageManager.loadUser(userId));
-        await storageManager.storeUser(userId,JSON.stringify(userData));
+        let user = JSON.parse(await system.storage.loadUser(userId));
+        await system.storage.storeUser(userId,JSON.stringify(userData));
     }
     async removeSpaceFromUsers(spaceId) {
         let promises = [];
         /* we assume the current User has delete rights for now*/
-        for (let userId of webSkel.currentUser.space.users) {
+        for (let userId of system.space.users) {
             promises.push(this.removeSpaceFromUser(userId, spaceId));
         }
         await Promise.all(promises);
@@ -153,15 +146,15 @@ export class AuthenticationService{
         delete userData.password;
 
         userData.secretToken = secretToken;
-        userData.id = webSkel.appServices.generateId();
+        userData.id = system.services.generateId();
 
         let defaultSpace = this.createDefaultSpace(userData.id);
         userData.spaces = [{name: defaultSpace.name, id: defaultSpace.id}];
         userData.currentSpaceId = defaultSpace.id;
         //const didDocument = await $$.promisify(w3cDID.createIdentity)("key", undefined, randomNr);
         try{
-            let result = await storageManager.storeUser(userData.id, JSON.stringify(userData));
-            webSkel.currentUser = JSON.parse(result);
+            let result = await system.storage.storeUser(userData.id, JSON.stringify(userData));
+            system.user = JSON.parse(result);
             this.setUserCookie(userData.id);
             return true;
         }catch (e){
@@ -175,7 +168,7 @@ export class AuthenticationService{
         document.cookie = `userId=${userId}; expires=${expires.toUTCString()}; path=/;`;
     }
     verifyConfirmationLink(){
-        let user = {id:webSkel.currentUser.id, secretToken:webSkel.currentUser.secretToken};
+        let user = {id:system.user.id, secretToken:system.user.secretToken};
         this.addCachedUser(user);
         this.setCachedCurrentUser(user);
     }
@@ -219,7 +212,7 @@ export class AuthenticationService{
             const storedUser = JSON.parse(result);
             if(this.verifyPassword(storedUser.secretToken, password)) {
                 if(storedUser.spaces&&storedUser.spaces.length>0) {
-                    webSkel.currentUser = {
+                    system.user = {
                         id: storedUser.id,
                         secretToken: storedUser.secretToken,
                         spaces: storedUser.spaces,
@@ -227,7 +220,7 @@ export class AuthenticationService{
                     }
                 }else{
                     let defaultSpace=await this.createDefaultSpace(storedUser.id);
-                    webSkel.currentUser = {
+                    system.user = {
                         id: storedUser.id,
                         secretToken: storedUser.secretToken,
                         spaces: [{name: defaultSpace.name, id: defaultSpace.id}],
@@ -256,7 +249,7 @@ export class AuthenticationService{
             let result = await this.updateStoredUser(userObj);
             try {
                 result = JSON.parse(result);
-                webSkel.currentUser = result;
+                system.user = result;
                 console.log(result);
 
                 return true;
@@ -271,7 +264,7 @@ export class AuthenticationService{
     }
 
     async confirmRecoverPassword(){
-        const user = JSON.parse(await this.getStoredUser(webSkel.currentUser.id));
+        const user = JSON.parse(await this.getStoredUser(system.user.id));
         user.secretToken = user.temporarySecretToken;
         delete user.temporarySecretToken;
         let result = await this.updateStoredUser(user);
@@ -292,33 +285,33 @@ export class AuthenticationService{
     }
 
     async addSpaceToUser(userId,newSpace){
-        let user = JSON.parse(await storageManager.loadUser(userId));
+        let user = JSON.parse(await system.storage.loadUser(userId));
         if(user.spaces) {
             user.spaces.push({name: newSpace.name, id: newSpace.id});
         }else{
             user.spaces=[{name: newSpace.name, id: newSpace.id}];
         }
         user.currentSpaceId = newSpace.id;
-        await storageManager.storeUser(userId,JSON.stringify(user));
+        await system.storage.storeUser(userId,JSON.stringify(user));
     }
     async getStoredUser(userId){
-        return await storageManager.loadUser(userId);
+        return await system.storage.loadUser(userId);
     }
     async addKeyToSpace(spaceId,userId,keyType,apiKey){
-        return storageManager.addKeyToSpace(spaceId,userId,keyType,apiKey);
+        return system.storage.addKeyToSpace(spaceId,userId,keyType,apiKey);
     }
     async getStoredUserByEmail(email){
-        return await storageManager.loadUserByEmail(email);
+        return await system.storage.loadUserByEmail(email);
     }
 
     async updateStoredUser(updatedUser){
-        return await storageManager.storeUser(updatedUser.id, JSON.stringify(updatedUser));
+        return await system.storage.storeUser(updatedUser.id, JSON.stringify(updatedUser));
     }
 
     async storeGITCredentials(stringData){
-        return await storageManager.storeGITCredentials(webSkel.currentUser.space.id, webSkel.currentUser.id, stringData);
+        return await system.storage.storeGITCredentials(system.space.id, system.user.id, stringData);
     }
     async getUsersSecretsExist(){
-        return await storageManager.getUsersSecretsExist(webSkel.currentUser.space.id);
+        return await system.storage.getUsersSecretsExist(system.space.id);
     }
 }

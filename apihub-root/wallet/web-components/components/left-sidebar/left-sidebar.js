@@ -9,8 +9,8 @@ export class LeftSidebar {
 
     beforeRender() {
         this.applications = "";
-        for (let application of webSkel.currentUser.space.installedApplications) {
-            let applicationData = webSkel.applications[application.name];
+        for (let application of system.space.installedApplications) {
+            let applicationData = system.applications[application.name];
             let svgImage = applicationData.encodedSvg;
             this.applications += `
             <div class="feature" data-id="${applicationData.name.toLowerCase()}" data-local-action="startApplication ${applicationData.id}">
@@ -26,7 +26,7 @@ export class LeftSidebar {
 
     async startApplication(_target, appName) {
         //this.changeBaseURL(appName);
-        await webSkel.appServices.startApplication(appName);
+        await system.services.startApplication(appName);
         changeSelectedPageFromSidebar(window.location.hash);
     }
 
@@ -66,8 +66,8 @@ export class LeftSidebar {
     }
 
     async changePage(_target, pageId, applicationId, refreshFlag = '0') {
-        let flowId = webSkel.currentUser.space.getFlowIdByName("ChangeApplication");
-        await webSkel.appServices.callFlow(flowId, pageId, refreshFlag);
+        let flowId = system.space.getFlowIdByName("ChangeApplication");
+        await system.services.callFlow(flowId, pageId, refreshFlag);
         getClosestParentElement(_target, ".feature").setAttribute("id", "selected-page");
         let paths = _target.querySelectorAll("path");
         paths.forEach((path) => {

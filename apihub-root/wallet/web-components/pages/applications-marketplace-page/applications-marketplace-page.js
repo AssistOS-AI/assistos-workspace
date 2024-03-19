@@ -9,7 +9,7 @@ export class ApplicationsMarketplacePage {
 
     beforeRender() {
         this.applications = "";
-        Object.entries(webSkel.applications).forEach((application) => {
+        Object.entries(system.applications).forEach((application) => {
             if(application[1].name === "Imagify" || application[1].name === "MyWebPage"){
                 return;
             }

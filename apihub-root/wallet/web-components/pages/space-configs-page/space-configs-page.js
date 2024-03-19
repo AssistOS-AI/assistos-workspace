@@ -69,7 +69,7 @@ export class SpaceConfigsPage {
     }
 
     async navigateToPage(_target, page){
-        await webSkel.changeToDynamicPage("space-configs-page", `${webSkel.currentUser.space.id}/SpaceConfiguration/${page}`);
+        await system.UI.changeToDynamicPage("space-configs-page", `${system.space.id}/SpaceConfiguration/${page}`);
     }
 
     hideSidebar(){

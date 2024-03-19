@@ -6,7 +6,7 @@ export class AddCapabilities {
 
     start() {
         try {
-            let flows = webSkel.currentUser.space.getAllFlows();
+            let flows = system.space.getAllFlows();
             let agentFlows = flows.filter((flow) =>{
                 if(flow.class.parameters){
                     if( flow.class.parameters.length !== 0){
@@ -31,7 +31,7 @@ export class AddCapabilities {
     }
 
     async execute() {
-        let agent = webSkel.currentUser.space.agent;
+        let agent = system.space.agent;
         let response = await this.request(this.prompt);
         try {
             let obj = JSON.parse(response);

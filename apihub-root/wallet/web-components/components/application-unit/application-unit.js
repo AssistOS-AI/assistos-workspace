@@ -7,9 +7,9 @@ export class ApplicationUnit{
         this.invalidate();
     }
     getApp() {
-        for (let name of Object.keys(webSkel.applications)) {
+        for (let name of Object.keys(system.applications)) {
             if (name === this.appName) {
-                return webSkel.applications[name];
+                return system.applications[name];
             }
         }
         return null; // Object not found
@@ -18,7 +18,7 @@ export class ApplicationUnit{
         this.installed = false;
         this.appName = this.element.getAttribute("data-name");
         this.app = this.getApp();
-        for (let installedApplication of webSkel.currentUser.space.installedApplications) {
+        for (let installedApplication of system.space.installedApplications) {
             if (installedApplication.name === this.appName) {
                 this.installed = true;
             }
@@ -36,35 +36,35 @@ export class ApplicationUnit{
     afterRender(){
     }
     async installApplication() {
-        const loadingId = await webSkel.showLoading();
-        let response = await webSkel.appServices.installApplication(this.appName);
+        const loadingId = await system.UI.showLoading();
+        let response = await system.services.installApplication(this.appName);
         if(response.status === 404)    {
-           let confirmation = await webSkel.showModal("git-credentials-modal", true);
+           let confirmation = await system.UI.showModal("git-credentials-modal", true);
            if(confirmation){
                await this.installApplication();
            }
         }else {
-            webSkel.hideLoading(loadingId);
+            system.UI.hideLoading(loadingId);
             location.reload();
         }
     }
     async uninstallApplication() {
-        const loadingId = await webSkel.showLoading();
-        let response = await webSkel.appServices.uninstallApplication(this.appName);
+        const loadingId = await system.UI.showLoading();
+        let response = await system.services.uninstallApplication(this.appName);
         if(response.status === 404){
-            let confirmation = await webSkel.showModal("git-credentials-modal", true);
+            let confirmation = await system.UI.showModal("git-credentials-modal", true);
             if(confirmation){
                 await this.uninstallApplication();
             }
         }else {
-            webSkel.hideLoading(loadingId);
+            system.UI.hideLoading(loadingId);
             location.reload();
         }
     }
 
     async navigateToApplicationPage(){
         if(this.installed){
-            await webSkel.changeToDynamicPage("space-configs-page", `${webSkel.currentUser.space.id}/SpaceConfiguration/application-page/${this.appName}`);
+            await system.UI.changeToDynamicPage("space-configs-page", `${system.space.id}/SpaceConfiguration/application-page/${this.appName}`);
         }
     }
 

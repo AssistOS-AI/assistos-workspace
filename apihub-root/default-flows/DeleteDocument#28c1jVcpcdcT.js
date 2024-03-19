@@ -7,7 +7,7 @@ export class DeleteDocument {
 
     async start(documentId) {
         try {
-            await webSkel.currentUser.space.deleteDocument(documentId);
+            await system.space.deleteDocument(documentId);
             this.return(documentId);
         } catch (e) {
             this.fail(e);

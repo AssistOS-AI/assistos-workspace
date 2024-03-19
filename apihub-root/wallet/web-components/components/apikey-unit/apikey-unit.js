@@ -7,7 +7,7 @@ export class ApikeyUnit {
         this.invalidate = invalidate;
         this.invalidate(async () => {
             this.key = {
-                ...webSkel.currentUser.space.getKey(this.element.getAttribute("data-key-type"), this.element.getAttribute("data-key-id")),
+                ...system.space.getKey(this.element.getAttribute("data-key-type"), this.element.getAttribute("data-key-id")),
                 "type": this.element.getAttribute("data-key-type")
             };
         });

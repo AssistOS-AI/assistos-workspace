@@ -6,8 +6,8 @@ export class TasksPage {
     }
     beforeRender() {
         let string = "";
-        this.tasksNr = webSkel.currentUser.space.agent.tasks.length;
-        for(let task of webSkel.currentUser.space.agent.tasks){
+        this.tasksNr = system.space.agent.tasks.length;
+        for(let task of system.space.agent.tasks){
             string+= `<div class="task">
                        <div class="description">${task.description}</div> 
                        <div class="date">${task.date}</div>
@@ -21,7 +21,7 @@ export class TasksPage {
     }
 
     async showActionBox(_target, primaryKey, componentName, insertionMode) {
-        await webSkel.showActionBox(_target, primaryKey, componentName, insertionMode);
+        await system.UI.showActionBox(_target, primaryKey, componentName, insertionMode);
     }
 
 }

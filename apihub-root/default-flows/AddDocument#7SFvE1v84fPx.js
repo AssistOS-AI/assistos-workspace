@@ -25,7 +25,7 @@ export class AddDocument {
                 title: title,
                 topic: topic,
             };
-            let docId = await webSkel.currentUser.space.addDocument(docData);
+            let docId = await system.space.addDocument(docData);
             this.return(docId);
         } catch (e) {
             this.fail(e);

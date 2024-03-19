@@ -7,7 +7,7 @@ export class UpdateAbstract {
 
     async start(documentId, text) {
         try {
-            let document = webSkel.currentUser.space.getDocument(documentId);
+            let document = system.space.getDocument(documentId);
             await document.updateAbstract(text);
             this.return(documentId);
         } catch (e) {

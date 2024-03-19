@@ -23,12 +23,12 @@ export class AddApikeyModal {
                 if(!keyValidation.success){
                     throw Error(keyValidation.error);
                 }
-                await webSkel.appServices.addKeyToSpace(webSkel.currentUser.space.id,webSkel.currentUser.id,keyType,apiKey);
+                await system.services.addKeyToSpace(system.space.id,system.user.id,keyType,apiKey);
                 closeModal(_target);
                 window.location=""
             } catch (error) {
                 closeModal(_target);
-                showApplicationError('Invalid API Key', `Encountered an error trying to add the API Key to Space: ${webSkel.currentUser.space.name}`,
+                showApplicationError('Invalid API Key', `Encountered an error trying to add the API Key to Space: ${system.space.name}`,
                     error);
             }
         }

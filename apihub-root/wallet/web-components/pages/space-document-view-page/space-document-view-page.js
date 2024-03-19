@@ -1,7 +1,7 @@
 export class SpaceDocumentViewPage {
     constructor(element, invalidate) {
         this.element = element;
-        this._document = webSkel.currentUser.space.getDocument(window.location.hash.split("/")[3]);
+        this._document = system.space.getDocument(window.location.hash.split("/")[3]);
         this._document.observeChange(this._document.getNotificationId() + ":document-view-page", invalidate);
         this._document.observeChange(this._document.getNotificationId() + ":refresh", invalidate);
         this.invalidate = invalidate;
@@ -29,10 +29,10 @@ export class SpaceDocumentViewPage {
     }
 
     async deleteChapter(_target){
-        let chapter = webSkel.reverseQuerySelector(_target, "space-chapter-unit");
+        let chapter = system.UI.reverseQuerySelector(_target, "space-chapter-unit");
         let chapterId = chapter.getAttribute("data-chapter-id");
-        let flowId = webSkel.currentUser.space.getFlowIdByName("DeleteChapter");
-        await webSkel.appServices.callFlow(flowId, this._document.id, chapterId);
+        let flowId = system.space.getFlowIdByName("DeleteChapter");
+        await system.services.callFlow(flowId, this._document.id, chapterId);
         this.invalidate();
     }
     switchParagraphArrows(target, mode) {
@@ -59,7 +59,7 @@ export class SpaceDocumentViewPage {
 
     saveParagraph(paragraph, swapAction) {
         if (!swapAction) {
-            webSkel.currentUser.space.currentParagraph = null;
+            system.space.currentParagraph = null;
         }
         paragraph["timer"].stop(true);
         paragraph["paragraph"].removeEventListener("keydown", this.resetTimer);
@@ -69,41 +69,41 @@ export class SpaceDocumentViewPage {
     editParagraph(paragraph) {
         if (paragraph.getAttribute("contenteditable") === "false") {
             paragraph.setAttribute("contenteditable", "true");
-            let paragraphUnit = webSkel.reverseQuerySelector(paragraph, ".paragraph-unit");
+            let paragraphUnit = system.UI.reverseQuerySelector(paragraph, ".paragraph-unit");
             paragraph.focus();
             this.previouslySelectedParagraph={};
             this.previouslySelectedParagraph["paragraph"] = paragraph;
             this.switchParagraphArrows(paragraphUnit, "on");
             let currentParagraphId = paragraphUnit.getAttribute("data-paragraph-id");
-            webSkel.currentUser.space.currentParagraphId = currentParagraphId;
+            system.space.currentParagraphId = currentParagraphId;
             let currentParagraph = this.chapter.getParagraph(currentParagraphId);
 
-            let timer = webSkel.appServices.SaveElementTimer(async () => {
+            let timer = system.services.SaveElementTimer(async () => {
                 if (!currentParagraph) {
                     await timer.stop();
                     return;
                 }
-                let paragraphText = webSkel.sanitize(webSkel.customTrim(paragraph.innerText));
+                let paragraphText = system.UI.sanitize(system.UI.customTrim(paragraph.innerText));
                 if (paragraphText !== currentParagraph.text) {
-                    let flowId = webSkel.currentUser.space.getFlowIdByName("UpdateParagraphText");
-                    await webSkel.appServices.callFlow(flowId, this._document.id, this.chapter.id, currentParagraph.id, paragraphText);
+                    let flowId = system.space.getFlowIdByName("UpdateParagraphText");
+                    await system.services.callFlow(flowId, this._document.id, this.chapter.id, currentParagraph.id, paragraphText);
                 }
             }, 1000);
             this.previouslySelectedParagraph["timer"]=timer;
-            let flowId = webSkel.currentUser.space.getFlowIdByName("DeleteParagraph");
+            let flowId = system.space.getFlowIdByName("DeleteParagraph");
             this.resetTimer = async (event) => {
                 if (paragraph.innerText.trim() === "" && event.key === "Backspace") {
                     if (currentParagraph) {
                         let curentParagraphIndex = this.chapter.getParagraphIndex(currentParagraphId);
-                        await webSkel.appServices.callFlow(flowId, this._document.id, this.chapter.id, currentParagraphId);
+                        await system.services.callFlow(flowId, this._document.id, this.chapter.id, currentParagraphId);
                         if (this.chapter.paragraphs.length > 0) {
                             if (curentParagraphIndex === 0) {
-                                webSkel.currentUser.space.currentParagraphId = this.chapter.paragraphs[0].id;
+                                system.space.currentParagraphId = this.chapter.paragraphs[0].id;
                             } else {
-                                webSkel.currentUser.space.currentParagraphId = this.chapter.paragraphs[curentParagraphIndex - 1].id;
+                                system.space.currentParagraphId = this.chapter.paragraphs[curentParagraphIndex - 1].id;
                             }
                         } else {
-                            webSkel.currentUser.space.currentParagraphId = null;
+                            system.space.currentParagraphId = null;
                         }
                         this.invalidate();
                     }
@@ -117,8 +117,8 @@ export class SpaceDocumentViewPage {
     }
 
     async highlightElement(controller, event) {
-        this.chapterUnit = webSkel.getClosestParentElement(event.target, ".chapter-unit");
-        this.paragraphUnit = webSkel.getClosestParentElement(event.target, ".paragraph-text");
+        this.chapterUnit = system.UI.getClosestParentElement(event.target, ".chapter-unit");
+        this.paragraphUnit = system.UI.getClosestParentElement(event.target, ".paragraph-text");
         if (this.paragraphUnit) {
             /* clickul e pe un paragraf */
             if (this.chapterUnit.getAttribute("data-id") !== (this.previouslySelectedChapter?.getAttribute("data-id") || "")) {
@@ -153,23 +153,23 @@ export class SpaceDocumentViewPage {
                 this.highlightChapter();
             } else {
                 /* clickul e pe acelasi capitol dar nu pe un paragraf*/
-                if (webSkel.getClosestParentElement(event.target, ".paragraph-arrows")) {
+                if (system.UI.getClosestParentElement(event.target, ".paragraph-arrows")) {
                     /* clickul e pe un buton de swap */
                     if (this.previouslySelectedParagraph) {
                         this.saveParagraph(this.previouslySelectedParagraph, "swap");
                     }
-                    if (webSkel.getClosestParentElement(event.target, ".arrow-up") || webSkel.getClosestParentElement(event.target, ".arrow-up-space")) {
+                    if (system.UI.getClosestParentElement(event.target, ".arrow-up") || system.UI.getClosestParentElement(event.target, ".arrow-up-space")) {
                         await this.moveParagraph(this.previouslySelectedParagraph["paragraph"], "up")
                     } else {
                         await this.moveParagraph(this.previouslySelectedParagraph["paragraph"], "down")
                     }
                 } else {
-                    if (webSkel.getClosestParentElement(event.target, ".chapter-arrows") && !event.target.classList.includes("delete-chapter")) {
+                    if (system.UI.getClosestParentElement(event.target, ".chapter-arrows") && !event.target.classList.includes("delete-chapter")) {
                         /* clickul e pe un buton de swap al capitolului */
                         if(this.previouslySelectedParagraph){
                             this.saveParagraph(this.previouslySelectedParagraph);
                         }
-                        if (webSkel.getClosestParentElement(event.target, ".arrow-up")) {
+                        if (system.UI.getClosestParentElement(event.target, ".arrow-up")) {
                             await this.moveChapter(event.target, "up");
                         }else{
                             await this.moveChapter(event.target, "down");
@@ -186,8 +186,8 @@ export class SpaceDocumentViewPage {
             }
             this.deselectPreviousParagraph();
             this.deselectPreviousChapter();
-            let rightSideBarItem = webSkel.getClosestParentElement(event.target, ".sidebar-item");
-            let leftSideBarItem = webSkel.getClosestParentElement(event.target, ".feature");
+            let rightSideBarItem = system.UI.getClosestParentElement(event.target, ".sidebar-item");
+            let leftSideBarItem = system.UI.getClosestParentElement(event.target, ".feature");
             /* data-keep-page inseamna ca nu schimbam pagina ci doar dam refresh(#Add chapter) -> */
             if (rightSideBarItem) {
                 if (!rightSideBarItem.getAttribute("data-keep-page")) {
@@ -203,13 +203,13 @@ export class SpaceDocumentViewPage {
         this.previouslySelectedChapter = this.chapterUnit;
         this.chapterUnit.setAttribute("id", "highlighted-chapter");
         this.switchArrowsDisplay(this.chapterUnit, "chapter", "on");
-        webSkel.currentUser.space.currentChapterId = this.chapterUnit.getAttribute("data-chapter-id");
-        this.chapter = this._document.getChapter(webSkel.currentUser.space.currentChapterId);
+        system.space.currentChapterId = this.chapterUnit.getAttribute("data-chapter-id");
+        this.chapter = this._document.getChapter(system.space.currentChapterId);
     }
 
     deselectPreviousParagraph() {
         if (this.previouslySelectedParagraph) {
-            webSkel.currentUser.space.currentParagraphId = null;
+            system.space.currentParagraphId = null;
             this.previouslySelectedParagraph["paragraph"].setAttribute("contenteditable", "false");
             this.switchParagraphArrows(this.previouslySelectedParagraph["paragraph"], "off");
             delete this.previouslySelectedParagraph;
@@ -220,7 +220,7 @@ export class SpaceDocumentViewPage {
         if (this.previouslySelectedChapter) {
             this.switchArrowsDisplay(this.previouslySelectedChapter, "chapter", "off");
             this.previouslySelectedChapter.removeAttribute("id");
-            webSkel.currentUser.space.currentChapterId = null;
+            system.space.currentChapterId = null;
             delete this.previouslySelectedChapter;
         }
     }
@@ -258,7 +258,7 @@ export class SpaceDocumentViewPage {
 
 
     async moveChapter(_target, direction) {
-        const currentChapter = webSkel.reverseQuerySelector(_target, "space-chapter-unit");
+        const currentChapter = system.UI.reverseQuerySelector(_target, "space-chapter-unit");
         const currentChapterId = currentChapter.getAttribute('data-chapter-id');
         const currentChapterIndex = this._document.getChapterIndex(currentChapterId);
 
@@ -271,14 +271,14 @@ export class SpaceDocumentViewPage {
 
         const adjacentChapterId = getAdjacentChapterId(currentChapterIndex, this._document.chapters);
 
-        let flowId = webSkel.currentUser.space.getFlowIdByName("SwapChapters");
-        await webSkel.appServices.callFlow(flowId, this._document.id, currentChapterId, adjacentChapterId);
+        let flowId = system.space.getFlowIdByName("SwapChapters");
+        await system.services.callFlow(flowId, this._document.id, currentChapterId, adjacentChapterId);
         this.invalidate();
     }
 
     async moveParagraph(_target, direction) {
-        let chapter = this._document.getChapter(webSkel.currentUser.space.currentChapterId);
-        const currentParagraph = webSkel.reverseQuerySelector(_target, "space-paragraph-unit");
+        let chapter = this._document.getChapter(system.space.currentChapterId);
+        const currentParagraph = system.UI.reverseQuerySelector(_target, "space-paragraph-unit");
         const currentParagraphId = currentParagraph.getAttribute('data-paragraph-id');
         const currentParagraphIndex = chapter.getParagraphIndex(currentParagraphId);
 
@@ -289,11 +289,11 @@ export class SpaceDocumentViewPage {
             return index === paragraphs.length - 1 ? paragraphs[0].id : paragraphs[index + 1].id;
         };
         const adjacentParagraphId = getAdjacentParagraphId(currentParagraphIndex, chapter.paragraphs);
-        const chapterId = webSkel.reverseQuerySelector(_target, "space-chapter-unit").getAttribute('data-chapter-id');
+        const chapterId = system.UI.reverseQuerySelector(_target, "space-chapter-unit").getAttribute('data-chapter-id');
         if (chapter.swapParagraphs(currentParagraphId, adjacentParagraphId)) {
-            await documentFactory.updateDocument(webSkel.currentUser.space.id, this._document);
-            webSkel.currentUser.space.currentParagraphId = currentParagraphId;
-            webSkel.refreshElement(webSkel.getClosestParentWithPresenter(_target, "space-chapter-unit"));
+            await system.factories.updateDocument(system.space.id, this._document);
+            system.space.currentParagraphId = currentParagraphId;
+            system.UI.refreshElement(system.UI.getClosestParentWithPresenter(_target, "space-chapter-unit"));
         } else {
             console.error(`Unable to swap paragraphs. ${currentParagraphId}, ${adjacentParagraphId}, Chapter: ${chapterId}`);
         }
@@ -310,15 +310,15 @@ export class SpaceDocumentViewPage {
             title.addEventListener('keydown', titleEnterHandler);
             title.focus();
             title.parentElement.setAttribute("id", "highlighted-chapter");
-            let flowId = webSkel.currentUser.space.getFlowIdByName("UpdateDocumentTitle");
-            let timer = webSkel.appServices.SaveElementTimer(async () => {
-                let titleText = webSkel.sanitize(webSkel.customTrim(title.innerText));
+            let flowId = system.space.getFlowIdByName("UpdateDocumentTitle");
+            let timer = system.services.SaveElementTimer(async () => {
+                let titleText = system.UI.sanitize(system.UI.customTrim(title.innerText));
                 if (titleText !== this._document.title && titleText !== "") {
-                    await webSkel.appServices.callFlow(flowId, this._document.id, titleText);
+                    await system.services.callFlow(flowId, this._document.id, titleText);
                 }
             }, 1000);
             title.addEventListener("blur", async () => {
-                title.innerText = webSkel.customTrim(title.innerText) || webSkel.unsanitize(this._document.title);
+                title.innerText = system.UI.customTrim(title.innerText) || system.UI.unsanitize(this._document.title);
                 await timer.stop(true);
                 title.setAttribute("contenteditable", "false");
                 title.removeEventListener('keydown', titleEnterHandler);
@@ -334,20 +334,20 @@ export class SpaceDocumentViewPage {
 
     async editAbstract(abstract) {
         if (abstract.getAttribute("contenteditable") === "false") {
-            let abstractSection = webSkel.reverseQuerySelector(abstract, ".abstract-section");
+            let abstractSection = system.UI.reverseQuerySelector(abstract, ".abstract-section");
             abstract.setAttribute("contenteditable", "true");
             abstract.focus();
             abstractSection.setAttribute("id", "highlighted-chapter");
-            let flowId = webSkel.currentUser.space.getFlowIdByName("UpdateAbstract");
-            let timer =  webSkel.appServices.SaveElementTimer(async () => {
-                let abstractText = webSkel.sanitize(webSkel.customTrim(abstract.innerText));
+            let flowId = system.space.getFlowIdByName("UpdateAbstract");
+            let timer =  system.services.SaveElementTimer(async () => {
+                let abstractText = system.UI.sanitize(system.UI.customTrim(abstract.innerText));
                 if (abstractText !== this._document.abstract && abstractText !== "") {
-                    await webSkel.appServices.callFlow(flowId, this._document.id, abstractText);
+                    await system.services.callFlow(flowId, this._document.id, abstractText);
                 }
             }, 1000);
 
             abstract.addEventListener("blur", async () => {
-                abstract.innerText = webSkel.customTrim(abstract.innerText) || webSkel.unsanitize(this._document.abstract);
+                abstract.innerText = system.UI.customTrim(abstract.innerText) || system.UI.unsanitize(this._document.abstract);
                 abstract.removeEventListener("keydown", resetTimer);
                 await timer.stop(true);
                 abstract.setAttribute("contenteditable", "false");
@@ -361,17 +361,17 @@ export class SpaceDocumentViewPage {
     }
 
     async addChapter() {
-        let flowId = webSkel.currentUser.space.getFlowIdByName("AddChapter");
-        await webSkel.appServices.callFlow(flowId, this._document.id, "");
+        let flowId = system.space.getFlowIdByName("AddChapter");
+        await system.services.callFlow(flowId, this._document.id, "");
         this.invalidate();
     }
 
     async addParagraph(_target) {
-        let flowId = webSkel.currentUser.space.getFlowIdByName("AddParagraph");
-        await webSkel.appServices.callFlow(flowId, this._document.id, webSkel.currentUser.space.currentChapterId);
-        this._document.notifyObservers(this._document.getNotificationId() + ":document-view-page:" + "chapter:" + `${webSkel.currentUser.space.currentChapterId}`);
+        let flowId = system.space.getFlowIdByName("AddParagraph");
+        await system.services.callFlow(flowId, this._document.id, system.space.currentChapterId);
+        this._document.notifyObservers(this._document.getNotificationId() + ":document-view-page:" + "chapter:" + `${system.space.currentChapterId}`);
     }
     async openDocumentsPage() {
-        await webSkel.changeToDynamicPage("space-configs-page", `${webSkel.currentUser.space.id}/SpaceConfiguration/space-documents-page`);
+        await system.UI.changeToDynamicPage("space-configs-page", `${system.space.id}/SpaceConfiguration/space-documents-page`);
     }
 }

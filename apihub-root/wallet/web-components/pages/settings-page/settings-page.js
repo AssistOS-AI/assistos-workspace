@@ -3,8 +3,8 @@ export class SettingsPage {
         this.element = element;
         this.invalidate = invalidate;
         this.invalidate(async () => {
-            this.users = JSON.parse(await webSkel.appServices.getUsersSecretsExist());
-            this.apiKeys = webSkel.currentUser.space.apiKeys
+            this.users = JSON.parse(await system.services.getUsersSecretsExist());
+            this.apiKeys = system.space.apiKeys
         });
     }
 
@@ -22,7 +22,7 @@ export class SettingsPage {
         this.apiKeysContainers=""
         Object.keys(this.apiKeys).forEach(keyType => {
             apiKeysContainer=""
-            webSkel.currentUser.space.apiKeys[keyType].forEach(keyObj => {
+            system.space.apiKeys[keyType].forEach(keyObj => {
                 apiKeysContainer +=
                     `<apikey-unit data-presenter="apikey-unit" data-key-id="${keyObj.id}" data-key-type="${keyType}"> </apikey-unit>`
             })
@@ -34,7 +34,7 @@ export class SettingsPage {
 
     afterRender() {
         let deleteButton = this.element.querySelector("#delete-space-button");
-        if (webSkel.currentUser.id !== webSkel.currentUser.space.id) {
+        if (system.user.id !== system.space.id) {
             deleteButton.style.display = "block";
         } else {
             deleteButton.style.display = "none";
@@ -42,34 +42,34 @@ export class SettingsPage {
     }
 
     async deleteSpace() {
-        let flowId = webSkel.currentUser.space.getFlowIdByName("DeleteSpace");
-        return await webSkel.appServices.callFlow(flowId, webSkel.currentUser.space.id);
+        let flowId = system.space.getFlowIdByName("DeleteSpace");
+        return await system.services.callFlow(flowId, system.space.id);
     }
 
     async deleteGITCredentials(_target, userId) {
-        await storageManager.storeGITCredentials(webSkel.currentUser.space.id, userId, JSON.stringify({
+        await system.storage.storeGITCredentials(system.space.id, userId, JSON.stringify({
             delete: true, secretName: "username"
         }));
-        await storageManager.storeGITCredentials(webSkel.currentUser.space.id, userId, JSON.stringify({
+        await system.storage.storeGITCredentials(system.space.id, userId, JSON.stringify({
             delete: true, secretName: "token"
         }));
         this.invalidate(async () => {
-            this.users = JSON.parse(await webSkel.appServices.getUsersSecretsExist());
+            this.users = JSON.parse(await system.services.getUsersSecretsExist());
         });
     }
 
     async deleteKey(_eventTarget) {
-        const keyId = webSkel.reverseQuerySelector(_eventTarget, 'apikey-unit').getAttribute('data-key-id');
-        const keyType = webSkel.reverseQuerySelector(_eventTarget, 'apikey-unit').getAttribute('data-key-type');
-        await storageManager.deleteKey(webSkel.currentUser.space.id,keyType, keyId);
+        const keyId = system.UI.reverseQuerySelector(_eventTarget, 'apikey-unit').getAttribute('data-key-id');
+        const keyType = system.UI.reverseQuerySelector(_eventTarget, 'apikey-unit').getAttribute('data-key-type');
+        await system.storage.deleteKey(system.space.id,keyType, keyId);
         this.apiKeys[keyType]=this.apiKeys[keyType].filter(key=>key.id!==keyId);
         this.invalidate();
     }
     async addKey(){
-        await webSkel.showModal( "add-apikey-modal", {presenter: "add-apikey-modal"});
+        await system.UI.showModal( "add-apikey-modal", {presenter: "add-apikey-modal"});
     }
     editKey(_eventTarget) {
-        const keyId = webSkel.reverseQuerySelector(_eventTarget, 'apikey-unit').getAttribute('data-id');
+        const keyId = system.UI.reverseQuerySelector(_eventTarget, 'apikey-unit').getAttribute('data-id');
     }
 
 

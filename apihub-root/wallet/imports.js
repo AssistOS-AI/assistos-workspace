@@ -33,14 +33,6 @@ import { StorageManager } from "./core/services/StorageManager.js";
 export{
     StorageManager
 }
-// Factories
-import {DocumentFactory} from "./core/factories/documentFactory.js";
-import {SpaceFactory} from "./core/factories/spaceFactory.js";
-
-export {
-    DocumentFactory,
-    SpaceFactory
-}
 
 
 // Others

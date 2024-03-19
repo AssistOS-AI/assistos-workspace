@@ -7,7 +7,7 @@ export class AddTask {
 
     async start(description, date) {
         try {
-            await webSkel.currentUser.space.agent.addTask(description, date);
+            await system.space.agent.addTask(description, date);
             this.return(description);
         } catch (e) {
             this.fail(e);

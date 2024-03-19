@@ -6,14 +6,14 @@ import {
 
 export class AnnouncementsPage {
     constructor(element,invalidate) {
-        webSkel.currentUser.space.observeChange(webSkel.currentUser.space.getNotificationId(),invalidate);
+        system.space.observeChange(system.space.getNotificationId(),invalidate);
         this.invalidate=invalidate;
         this.invalidate();
     }
     beforeRender() {
         this.announcementsContainer = "";
-        if(webSkel.currentUser.space.announcements.length>0) {
-            webSkel.currentUser.space.announcements.forEach((announcement) => {
+        if(system.space.announcements.length>0) {
+            system.space.announcements.forEach((announcement) => {
                 this.announcementsContainer += `<announcement-unit data-title="${announcement.title}" 
                 data-content="${announcement.text}" data-date="${announcement.date}" 
                 data-id="${announcement.id}" data-local-action="editAction"></announcement-unit>`;
@@ -33,8 +33,8 @@ export class AnnouncementsPage {
         await showModal( "add-announcement-modal", { presenter: "add-announcement-modal"});
     }
     async deleteAction(_target){
-        let flowId = webSkel.currentUser.space.getFlowIdByName("DeleteAnnouncement");
-        await webSkel.appServices.callFlow(flowId, this.getAnnouncementId(_target));
+        let flowId = system.space.getFlowIdByName("DeleteAnnouncement");
+        await system.services.callFlow(flowId, this.getAnnouncementId(_target));
         this.invalidate();
     }
     async editAction(_target){

@@ -16,7 +16,7 @@ export class AddFlow {
             code = "return " + code;
             const classConstructor = new Function(code);
             let flowClass = classConstructor();
-            await webSkel.currentUser.space.addFlow(flowClass);
+            await system.space.addFlow(flowClass);
             this.return(flowClass.name);
         } catch (e) {
             this.fail(e);

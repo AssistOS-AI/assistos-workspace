@@ -7,7 +7,7 @@ export class DeleteFlow {
 
     async start(flowId, appId) {
         try {
-            await webSkel.currentUser.space.deleteFlow(flowId, appId);
+            await system.space.deleteFlow(flowId, appId);
             this.return(flowId);
         } catch (e) {
             this.fail(e);

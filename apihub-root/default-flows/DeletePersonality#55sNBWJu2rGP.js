@@ -7,7 +7,7 @@ export class DeletePersonality {
 
     async start(personalityId) {
         try {
-            await webSkel.currentUser.space.deletePersonality(personalityId);
+            await system.space.deletePersonality(personalityId);
             this.return(personalityId);
         } catch (e) {
             this.fail(e);

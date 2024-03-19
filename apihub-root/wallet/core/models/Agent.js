@@ -24,7 +24,7 @@ export class Agent{
 
     async loadFilteredKnowledge(words){
         words = words.trim();
-        return await storageManager.loadFilteredKnowledge(words, this.id);
+        return await system.storage.loadFilteredKnowledge(words, this.id);
     }
     loadKnowledge() {
         const knowledge = {
@@ -36,11 +36,11 @@ export class Agent{
 
     async addCapability(capability){
         this.capabilities.push(capability);
-        await storageManager.storeObject(webSkel.currentUser.space.id, "status", "status", JSON.stringify(webSkel.currentUser.space.getSpaceStatus(),null,2));
+        await system.storage.storeObject(system.space.id, "status", "status", JSON.stringify(system.space.getSpaceStatus(),null,2));
     }
     async setOpeners(openers){
         this.openers = openers;
-        await storageManager.storeObject(webSkel.currentUser.space.id, "status", "status", JSON.stringify(webSkel.currentUser.space.getSpaceStatus(),null,2));
+        await system.storage.storeObject(system.space.id, "status", "status", JSON.stringify(system.space.getSpaceStatus(),null,2));
     }
     getRandomOpener(){
         let random = Math.floor(Math.random() * this.openers.length);
@@ -53,7 +53,7 @@ export class Agent{
         let words = content.split(" ");
         this.wordCount += words.length;
         this.conversationHistory.push({role:role,content:content});
-        await storageManager.storeObject(webSkel.currentUser.space.id, "status", "status", JSON.stringify(webSkel.currentUser.space.getSpaceStatus(),null,2));
+        await system.storage.storeObject(system.space.id, "status", "status", JSON.stringify(system.space.getSpaceStatus(),null,2));
     }
 
     async resetConversation(){
@@ -61,14 +61,14 @@ export class Agent{
         this.wordCount = 0;
         this.context= [];
         this.capabilities = [];
-        await storageManager.storeObject(webSkel.currentUser.space.id, "status", "status", JSON.stringify(webSkel.currentUser.space.getSpaceStatus(),null,2));
+        await system.storage.storeObject(system.space.id, "status", "status", JSON.stringify(system.space.getSpaceStatus(),null,2));
     }
 
     async setContext(context){
         this.context[0] = {role:"system", content: context};
         let words = context.split(" ");
         this.wordCount = words.length;
-        await storageManager.storeObject(webSkel.currentUser.space.id, "status", "status", JSON.stringify(webSkel.currentUser.space.getSpaceStatus(),null,2));
+        await system.storage.storeObject(system.space.id, "status", "status", JSON.stringify(system.space.getSpaceStatus(),null,2));
     }
 
     getContext(){

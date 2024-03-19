@@ -19,9 +19,9 @@ export class AddAnnouncementModal {
         let formInfo = await extractFormInformation(_target);
         if(formInfo.isValid) {
 
-            let flowId = webSkel.currentUser.space.getFlowIdByName("AddAnnouncement");
-            await webSkel.appServices.callFlow(flowId, formInfo.data.title, formInfo.data.text);
-            webSkel.currentUser.space.notifyObservers(webSkel.currentUser.space.getNotificationId());
+            let flowId = system.space.getFlowIdByName("AddAnnouncement");
+            await system.services.callFlow(flowId, formInfo.data.title, formInfo.data.text);
+            system.space.notifyObservers(system.space.getNotificationId());
             closeModal(_target);
         }
     }

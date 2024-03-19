@@ -6,7 +6,7 @@ export class ApplicationPage {
         this.invalidate = invalidate;
         this.invalidate();
         let name = window.location.hash.split("/")[3];
-        this._app = webSkel.currentUser.space.getApplicationByName(name);
+        this._app = system.space.getApplicationByName(name);
     }
 
     beforeRender() {
@@ -24,7 +24,7 @@ export class ApplicationPage {
         }
         this.description = this._app.description;
         this.installed = false;
-        for (let installedApplication of webSkel.currentUser.space.installedApplications) {
+        for (let installedApplication of system.space.installedApplications) {
             if (installedApplication.id === this._app.id) {
                 this.installed = true;
             }
@@ -44,20 +44,20 @@ export class ApplicationPage {
         this.tags = string;
     }
     async installApplication() {
-        const loadingId = await webSkel.showLoading();
-        await webSkel.appServices.installApplication(this.appName);
-        webSkel.hideLoading(loadingId);
+        const loadingId = await system.UI.showLoading();
+        await system.services.installApplication(this.appName);
+        system.UI.hideLoading(loadingId);
         location.reload();
     }
     async uninstallApplication() {
-        const loadingId = await webSkel.showLoading();
-        await webSkel.appServices.uninstallApplication(this.appName);
-        webSkel.hideLoading(loadingId);
+        const loadingId = await system.UI.showLoading();
+        await system.services.uninstallApplication(this.appName);
+        system.UI.hideLoading(loadingId);
         location.reload();
     }
 
     async openApplicationsMarketplacePage(){
-        await webSkel.changeToDynamicPage("applications-marketplace-page", `${webSkel.currentUser.space.id}/SpaceConfiguration/applications-marketplace-page`);
+        await system.UI.changeToDynamicPage("applications-marketplace-page", `${system.space.id}/SpaceConfiguration/applications-marketplace-page`);
     }
     getFlowId(_target){
         return reverseQuerySelector(_target, "flow-unit").getAttribute("data-id");
@@ -67,8 +67,8 @@ export class ApplicationPage {
     }
     async deleteAction(_target){
         this._app.flows = this._app.flows.filter(flow => flow.id !== this.getFlowId(_target));
-        let flowId = webSkel.currentUser.space.getFlowIdByName("DeleteFlow");
-        await webSkel.appServices.callFlow(flowId, this.getFlowId(_target), this._app.id);
+        let flowId = system.space.getFlowIdByName("DeleteFlow");
+        await system.services.callFlow(flowId, this.getFlowId(_target), this._app.id);
         this.invalidate();
     }
     async showActionBox(_target, primaryKey, componentName, insertionMode) {

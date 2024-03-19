@@ -7,7 +7,7 @@ export class ChangeSpace {
 
     async start(spaceId) {
         try {
-            await webSkel.currentUser.space.changeSpace(spaceId);
+            await system.space.changeSpace(spaceId);
             this.return(spaceId);
         } catch (e) {
             this.fail(e);

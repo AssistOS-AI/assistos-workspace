@@ -32,9 +32,9 @@ export class AddPersonalityModal {
         let formInfo = await extractFormInformation(_target, conditions);
         if(formInfo.isValid) {
 
-            let flowId = webSkel.currentUser.space.getFlowIdByName("AddPersonality");
-            await webSkel.appServices.callFlow(flowId, formInfo.data.name, formInfo.data.description, formInfo.data.photo);
-            webSkel.currentUser.space.notifyObservers(webSkel.currentUser.space.getNotificationId());
+            let flowId = system.space.getFlowIdByName("AddPersonality");
+            await system.services.callFlow(flowId, formInfo.data.name, formInfo.data.description, formInfo.data.photo);
+            system.space.notifyObservers(system.space.getNotificationId());
             closeModal(_target);
         }
     }
