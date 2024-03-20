@@ -136,3 +136,6 @@ space-document-view-page{
 .sidebar-item{
     font-weight: 600;
 }
+#highlighted-chapter{
+    background-color:var(--medium-white);
+}

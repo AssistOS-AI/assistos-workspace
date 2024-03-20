@@ -186,14 +186,8 @@ export class SpaceDocumentViewPage {
             }
             this.deselectPreviousParagraph();
             this.deselectPreviousChapter();
-            let rightSideBarItem = system.UI.getClosestParentElement(event.target, ".sidebar-item");
             let leftSideBarItem = system.UI.getClosestParentElement(event.target, ".feature");
-            /* data-keep-page inseamna ca nu schimbam pagina ci doar dam refresh(#Add chapter) -> */
-            if (rightSideBarItem) {
-                if (!rightSideBarItem.getAttribute("data-keep-page")) {
-                    controller.abort();
-                }
-            } else if (leftSideBarItem) {
+             if (leftSideBarItem) {
                 controller.abort();
             }
         }
@@ -203,6 +197,8 @@ export class SpaceDocumentViewPage {
         this.previouslySelectedChapter = this.chapterUnit;
         this.chapterUnit.setAttribute("id", "highlighted-chapter");
         this.switchArrowsDisplay(this.chapterUnit, "chapter", "on");
+        let xMark = this.chapterUnit.querySelector(".delete-chapter");
+        xMark.style.visibility = "visible";
         system.space.currentChapterId = this.chapterUnit.getAttribute("data-chapter-id");
         this.chapter = this._document.getChapter(system.space.currentChapterId);
     }
@@ -218,6 +214,8 @@ export class SpaceDocumentViewPage {
 
     deselectPreviousChapter() {
         if (this.previouslySelectedChapter) {
+            let xMark = this.previouslySelectedChapter.querySelector(".delete-chapter");
+            xMark.style.visibility = "hidden";
             this.switchArrowsDisplay(this.previouslySelectedChapter, "chapter", "off");
             this.previouslySelectedChapter.removeAttribute("id");
             system.space.currentChapterId = null;

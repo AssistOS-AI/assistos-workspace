@@ -1,4 +1,5 @@
 .chapter-title-section {
+    position: relative;
     display: flex;
     align-items: center;
     color: var(--light-black);
@@ -14,9 +15,10 @@
     transition-duration: 0.3s;
 }
 .delete-chapter{
+    visibility: hidden;
     position: absolute;
-    right: -10px;
-    top: -23px;
+    right: 0;
+    top: 0;
     cursor: pointer;
 }
 .chapter-title:focus{
@@ -48,7 +50,6 @@
 }
 
 .chapter-arrows {
-    position: relative;
     display:flex;
     width:42px;
     min-width:42px;
