@@ -3,7 +3,7 @@ const {
     linkUserToSpace,
     unlinkSpaceFromUser,
 } = require('../exporter.js')
-('linkSpaceToUser', 'linkUserToSpace');
+('linkSpaceToUser', 'linkUserToSpace','unlinkSpaceFromUser');
 
 async function addSpaceCollaborator(spaceId, userId, role) {
     await linkSpaceToUser(userId, spaceId)
@@ -14,3 +14,4 @@ async function addSpaceCollaborator(spaceId, userId, role) {
         throw error;
     }
 }
+module.exports=addSpaceCollaborator;

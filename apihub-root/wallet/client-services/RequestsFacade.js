@@ -26,11 +26,13 @@ export class RequestsFacade {
             "Content-Type": "application/json; charset=UTF-8",
             "apikey": `${apiKey}`,
         };
+        const bodyObject={spaceName:spaceName}
         const options = {
             method: "POST",
             headers: headers,
+            body: JSON.stringify(bodyObject)
         };
-        const response = await fetch(`/spaces/${spaceName}`, options);
+        const response = await fetch(`/spaces`, options);
 
         if (!response.ok) {
             throw new Error(`HTTP error! status: ${response.status}`);

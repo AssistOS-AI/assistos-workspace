@@ -47,6 +47,7 @@ export class Space {
             name: this.name,
             id: this.id,
             admins: this.admins,
+            users:this.users,
             announcements: this.announcements,
             agent: this.agent,
             installedApplications: this.installedApplications.map(app => app.stringifyApplication()),

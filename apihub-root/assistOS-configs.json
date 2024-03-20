@@ -40,6 +40,10 @@
     {
       "name": "ApplicationsService",
       "path": "./wallet/core/services/ApplicationsService.js"
+    },
+    {
+      "name": "RequestsFacade",
+      "path": "./wallet/client-services/RequestsFacade.js"
     }
   ],
   "applications": [

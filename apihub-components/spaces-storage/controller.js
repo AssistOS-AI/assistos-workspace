@@ -283,6 +283,7 @@ async function addCollaboratorToSpace(request, response) {
 }
 
 async function createSpace(request, response) {
+    debugger
     const cookies = parseCookies(request);
     const userId = cookies.userId;
     if (!userId) {
@@ -299,7 +300,7 @@ async function createSpace(request, response) {
         sendResponse(response, 403, "text/html", "Forbidden: User does not have rights to create a space");
         return;
     }
-    const spaceName = request.params.spaceName
+    const spaceName = request.body.spaceName
     if (!spaceName) {
         sendResponse(response, 400, "text/html", "Bad Request: Space Name is required");
         return;
@@ -313,11 +314,7 @@ async function createSpace(request, response) {
 
     try {
         let newSpace = {};
-        if (request.body === "" || Object.keys(request.body).length === 0) {
-            newSpace = await Manager.apis.createSpace(spaceName, userId, apiKey);
-        } else {
-            newSpace = await Manager.apis.addSpace(spaceName, userId, apiKey, request.body);
-        }
+        newSpace = await Manager.apis.createSpace(spaceName, userId, apiKey);
         const cookieString = createCookieString('currentSpaceId', newSpace.id, {
             maxAge: 30 * 24 * 60 * 60,
             httpOnly: true,
