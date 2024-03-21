@@ -41,6 +41,20 @@ export class RequestsFacade {
         return await response.text();
     }
     async getSpace(spaceId){
+        const headers = {
+            "Content-Type": "application/json; charset=UTF-8",
+        };
+        const options = {
+            method: "GET",
+            headers: headers,
+        };
+        const response = await fetch(`/spaces/${spaceId}`, options);
+
+        if (!response.ok) {
+            throw new Error(`HTTP error! status: ${response.status}`);
+        }
+
+        return await response.json();
 
     }
     async updateSpace(spaceId,spaceDataObject) {

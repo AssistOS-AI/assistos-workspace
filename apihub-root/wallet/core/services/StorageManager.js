@@ -23,7 +23,7 @@ export class StorageManager {
     }
 
     async loadSpace(spaceId) {
-        return await this.currentService.loadSpace(spaceId);
+        return await system.services.loadSpace(spaceId);
     }
 
     async storeObject(spaceId, objectType, objectName, jsonData) {

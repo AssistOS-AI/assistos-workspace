@@ -1,4 +1,3 @@
-const {createSpace} = require("./controller");
 
 function SpaceStorage(server) {
     const bodyReaderMiddleware = require('../requests-processing-apis/exporter.js')
@@ -7,7 +6,7 @@ function SpaceStorage(server) {
     const {
         loadObject,
         storeObject,
-        loadSpace,
+        getSpace,
         storeSpace,
         createSpace,
         storeSecret,
@@ -20,9 +19,7 @@ function SpaceStorage(server) {
     server.get("/spaces/:spaceId/:objectType/:objectName", async (request, response) => {
         await loadObject(request, response)
     });
-    server.get("/load-space/:spaceId", async (request, response) => {
-        await loadSpace(request, response)
-    });
+
 
     server.delete("/spaces/:spaceId/:objectType/:objectName", async (request, response) => {
         await storeObject(request, response)
@@ -34,6 +31,9 @@ function SpaceStorage(server) {
 
     server.use("/spaces/*", bodyReaderMiddleware);
 
+    server.get("/spaces/:spaceId", async (request, response) => {
+        await getSpace(request, response)
+    });
     server.post("/spaces", async (request, response) => {
         await createSpace(request, response)
     });

@@ -204,23 +204,54 @@ async function buildSpace(filePath) {
     return localData;
 }
 
-async function loadSpace(request, response) {
-    let spaceId = request.params.spaceId;
-    let filePath = `../apihub-root/spaces/${spaceId}`;
-    let statusJson
-    try {
-        statusJson = await fsPromises.readFile(`${filePath}/status/status.json`);
-        statusJson = JSON.parse(statusJson);
-    } catch (e) {
-        sendResponse(response, 404, "text/html", e + ` Error space not found: ${filePath}`);
+/* TODO constant object mapping of content types to avoid writing manually the content type of a response
+*   and move the cookie verification authentication, rights, etc in a middleware */
+async function getSpace(request, response) {
+    const cookies = parseCookies(request);
+    const userId = cookies.userId;
+    if (!userId) {
+        sendResponse(response, 401, "application/json", JSON.stringify({message: "Unauthorized: No valid session"}));
         return;
     }
-    for (let item of await fsPromises.readdir(filePath)) {
-        if (item !== "status" && item !== "applications" && item !== "flows") {
-            statusJson[item] = await buildSpace(`${filePath}\/${item}`);
+    const userIsValid = await authenticateUser(userId);
+    if (!userIsValid) {
+        sendResponse(response, 401, "application/json", JSON.stringify({message: "Unauthorized: Invalid user"}));
+        return;
+    }
+    const userRights = await getUserRights(userId);
+    if (!userRights.readSpace) {
+        sendResponse(response, 403, "application/json", JSON.stringify({message: "Forbidden: User does not have rights to read space"}));
+        return;
+    }
+
+    let spaceId = request.params.spaceId;
+    let spaceStatusObject = {};
+
+    try {
+        spaceStatusObject = await Manager.apis.getSpaceStatusObject(spaceId);
+    } catch (error) {
+        switch (error.statusCode) {
+            case 404:
+                sendResponse(response, 404, "application/json", JSON.stringify({message: "Not Found: Space not found"}));
+                return;
+            case 500:
+                sendResponse(response, 500, "application/json", JSON.stringify({message: "Internal Server Error"}));
+                return;
         }
     }
-    sendResponse(response, 200, "text/html", JSON.stringify(statusJson));
+    let filePath = `../apihub-root/spaces/${spaceId}`;
+    for (let item of await fsPromises.readdir(filePath)) {
+        if (item !== "status" && item !== "applications" && item !== "flows") {
+            spaceStatusObject[item] = await buildSpace(`${filePath}\/${item}`);
+        }
+    }
+
+    /* Packaging space Data into one Object */
+
+    spaceStatusObject["documents"] = Manager.apis.getSpaceDocumentsObject(spaceId);
+    spaceStatusObject["personalities"] = Manager.apis.getSpacePersonalitiesObject(spaceId);
+
+    sendResponse(response, 200, "application/json", JSON.stringify(spaceStatusObject));
 }
 
 
@@ -235,7 +266,7 @@ async function authenticateUser(userId) {
 }
 
 async function getUserRights(userId) {
-    return {createSpace: true, addCollaborator: true};
+    return {readSpace: true, createSpace: true, addCollaborator: true};
 }
 
 async function addCollaboratorToSpace(request, response) {
@@ -283,7 +314,6 @@ async function addCollaboratorToSpace(request, response) {
 }
 
 async function createSpace(request, response) {
-    debugger
     const cookies = parseCookies(request);
     const userId = cookies.userId;
     if (!userId) {
@@ -307,11 +337,11 @@ async function createSpace(request, response) {
     }
 
     const apiKey = request.headers.apikey;
-    if (!apiKey) {
+   /* if (apiKey==="undefined" || !apiKey) {
         sendResponse(response, 400, "text/html", "Bad Request: API Key is required");
         return;
     }
-
+*/
     try {
         let newSpace = {};
         newSpace = await Manager.apis.createSpace(spaceName, userId, apiKey);
@@ -340,7 +370,7 @@ async function createSpace(request, response) {
 module.exports = {
     loadObject,
     storeObject,
-    loadSpace,
+    getSpace,
     storeSpace,
     createSpace,
     storeSecret,

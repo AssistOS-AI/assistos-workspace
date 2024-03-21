@@ -7,8 +7,7 @@ export class SpaceFactory {
     }
 
     async loadSpace(spaceId) {
-        let spaceJson = await system.storage.loadSpace(spaceId);
-        let spaceData = JSON.parse(spaceJson);
+        const spaceData= await system.storage.loadSpace(spaceId);
         let space = new Space(spaceData);
         await space.loadFlows();
         return space;
