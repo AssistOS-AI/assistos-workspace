@@ -4,10 +4,10 @@ export class AddParagraph {
     constructor() {
     }
 
-    async start(documentId, chapterId) {
+    async start(context) {
         try {
-            let document = system.space.getDocument(documentId);
-            let chapter = document.getChapter(chapterId);
+            let document = system.space.getDocument(context.documentId);
+            let chapter = document.getChapter(context.chapterId);
             let newParagraphId = system.services.generateId();
             let position = chapter.paragraphs.length;
 
@@ -21,7 +21,7 @@ export class AddParagraph {
             system.space.currentParagraphId = newParagraphId;
             system.space.currentChapterId = chapter.id;
 
-            this.return(chapterId);
+            this.return(context.chapterId);
         } catch (e) {
             this.fail(e);
         }

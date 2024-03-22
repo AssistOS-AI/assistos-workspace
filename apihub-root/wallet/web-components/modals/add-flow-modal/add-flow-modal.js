@@ -139,7 +139,10 @@ export class AddFlowModal {
         let formInfo = await extractFormInformation(_target);
         if (formInfo.isValid) {
             let flowId = system.space.getFlowIdByName("AddFlow");
-            await system.services.callFlow(flowId, formInfo.data.code);
+            let context = {
+                code: formInfo.data.code
+            }
+            await system.services.callFlow(flowId, context);
             system.space.notifyObservers(system.space.getNotificationId());
             closeModal(_target);
         }

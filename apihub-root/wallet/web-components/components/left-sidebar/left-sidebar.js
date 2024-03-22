@@ -67,7 +67,11 @@ export class LeftSidebar {
 
     async changePage(_target, pageId, applicationId, refreshFlag = '0') {
         let flowId = system.space.getFlowIdByName("ChangeApplication");
-        await system.services.callFlow(flowId, pageId, refreshFlag);
+        let context = {
+            pageId: pageId,
+            refreshFlag: refreshFlag
+        }
+        await system.services.callFlow(flowId, context);
         getClosestParentElement(_target, ".feature").setAttribute("id", "selected-page");
         let paths = _target.querySelectorAll("path");
         paths.forEach((path) => {

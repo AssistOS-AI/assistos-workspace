@@ -5,12 +5,12 @@ export class DeleteSpace {
 
     }
 
-    async start(spaceId) {
+    async start(context) {
         try {
-            await system.storage.storeSpace(spaceId, "");
-            await system.services.removeSpaceFromUser(system.user.id, spaceId);
+            await system.storage.storeSpace(context.spaceId, "");
+            await system.services.removeSpaceFromUser(system.user.id, context.spaceId);
             await system.space.changeSpace(system.user.id);
-            this.return(spaceId);
+            this.return(context.spaceId);
         } catch (e) {
             this.fail(e);
         }

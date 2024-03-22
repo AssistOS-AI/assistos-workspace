@@ -60,7 +60,10 @@ export class SpaceDropdown {
         let selectedSpace = getClosestParentElement(_target,['space-unit']);
         let selectedSpaceId = selectedSpace.getAttribute('data-space-id');
         let flowId = system.space.getFlowIdByName("ChangeSpace");
-        await system.services.callFlow(flowId, selectedSpaceId);
+        let context = {
+            spaceId: selectedSpaceId
+        }
+        await system.services.callFlow(flowId, context);
     }
 
     async addSpace(){

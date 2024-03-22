@@ -28,7 +28,12 @@ export class EditAnnouncementModal {
         let formData = await system.UI.extractFormInformation(_target);
         let announcementId = this.element.getAttribute("data-id");
         let flowId = system.space.getFlowIdByName("UpdateAnnouncement");
-        await system.services.callFlow(flowId, announcementId, formData.data.title, formData.data.content);
+        let context = {
+            announcementId: announcementId,
+            title: formData.data.title,
+            text: formData.data.content
+        };
+        await system.services.callFlow(flowId, context);
         system.space.notifyObservers(system.space.getNotificationId());
         closeModal(_target);
     }

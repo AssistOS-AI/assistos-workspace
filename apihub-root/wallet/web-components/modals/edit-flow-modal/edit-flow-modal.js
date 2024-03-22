@@ -64,8 +64,13 @@ export class EditFlowModal {
         let formInfo = await extractFormInformation(form);
         if(formInfo.isValid) {
             let flowId = this.element.getAttribute("data-id");
-                let execFlowId = system.space.getFlowIdByName("UpdateFlow");
-            await system.services.callFlow(execFlowId, flowId, formInfo.data.flowCode, this.element.getAttribute("data-appId"));
+            let execFlowId = system.space.getFlowIdByName("UpdateFlow");
+            let context = {
+                flowId: flowId,
+                flowData: formInfo.data.flowCode,
+                appId: this.element.getAttribute("data-appId")
+            }
+            await system.services.callFlow(execFlowId, context);
             system.space.notifyObservers(system.space.getNotificationId());
             closeModal(_target);
         }

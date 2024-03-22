@@ -5,7 +5,7 @@ export class DeduceIntention {
 
     }
 
-    async start(request) {
+    async start(context) {
         let agent = system.space.agent;
         let flows = system.space.getAllFlows();
         let agentFlows = flows.filter((flow) => {
@@ -20,12 +20,10 @@ export class DeduceIntention {
                 id: flow.class.id,
                 description: flow.class.description,
             }));
-        let context = `You are a custom GPT agent designed for specific tasks in a software application. Your purpose right now is to figure out what operation the user is trying to accomplish using your help. Here is a list of operations that you are capable of doing and their ID's: ${JSON.stringify(operations)}. Using only this list, figure out what operation the user is trying to do. Your response should be like this: {"flowId" : "id of the operation"}`;
-        await agent.addMessage("system", context);
-        this.prompt = request;
-        this.setDefaultValues();
+        let systemMessage = `You are a custom GPT agent designed for specific tasks in a software application. Your purpose right now is to figure out what operation the user is trying to accomplish using your help. Here is a list of operations that you are capable of doing and their ID's: ${JSON.stringify(operations)}. Using only this list, figure out what operation the user is trying to do. Your response should be like this: {"flowId" : "id of the operation"}`;
+        await agent.addMessage("system", systemMessage);
+        this.prompt = context.request;
         this.setResponseFormat("json_object");
-        this.setIntelligenceLevel(3);
         this.execute(agent);
     }
 

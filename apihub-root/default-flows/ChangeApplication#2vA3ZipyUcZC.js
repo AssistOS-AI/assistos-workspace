@@ -5,24 +5,24 @@ export class ChangeApplication {
     constructor(changeSelectedPageFromSidebar) {
         this.changeSelectedPageFromSidebar = changeSelectedPageFromSidebar;
     }
-    async start(pageId, refreshFlag) {
+    async start(context) {
         try {
-            if (refreshFlag === '0') {
-                if (pageId === window.location.hash.slice(1)) {
+            if (context.refreshFlag === '0') {
+                if (context.pageId === window.location.hash.slice(1)) {
                     return;
                 }
             }
 
-            this.changeSelectedPageFromSidebar(pageId);
+            this.changeSelectedPageFromSidebar(context.pageId);
 
-            if (pageId.startsWith("space")) {
-                let page = pageId.split("/")[1];
-                await system.UI.changeToDynamicPage(page, pageId);
+            if (context.pageId.startsWith("space")) {
+                let page = context.pageId.split("/")[1];
+                await system.UI.changeToDynamicPage(page, context.pageId);
             } else {
-                await system.UI.changeToDynamicPage(pageId, pageId);
+                await system.UI.changeToDynamicPage(context.pageId, context.pageId);
             }
 
-            this.return(pageId);
+            this.return(context.pageId);
         } catch (e) {
             this.fail(e);
         }

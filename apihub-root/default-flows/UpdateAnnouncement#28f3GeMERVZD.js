@@ -5,10 +5,10 @@ export class UpdateAnnouncement {
 
     }
 
-    async start(announcementId, title, text) {
+    async start(context) {
         try {
-            await system.space.updateAnnouncement(announcementId, title, text);
-            this.return(announcementId);
+            await system.space.updateAnnouncement(context.announcementId, context.title, context.text);
+            this.return(context.announcementId);
         } catch (e) {
             this.fail(e);
         }

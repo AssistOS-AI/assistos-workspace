@@ -4,10 +4,10 @@ export class UpdatePersonality {
     constructor() {
     }
 
-    async start(personalityData, personalityId) {
+    async start(context) {
         try {
-            await system.space.updatePersonality(personalityData, personalityId);
-            this.return(personalityId);
+            await system.space.updatePersonality(context.personalityData, context.personalityId);
+            this.return(context.personalityId);
         } catch (e) {
             this.fail(e);
         }

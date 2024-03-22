@@ -1,14 +1,14 @@
 
-export class FlowApis{
+export class IFlow{
     constructor() {
 
     }
-    run(...args){
+    run(context, personality){
         let returnPromise = new Promise((resolve, reject) => {
             this.resolve = resolve;
             this.reject = reject;
         });
-        this.start(...args);
+        this.start(context, personality);
         return returnPromise;
     }
     return(value){
@@ -82,7 +82,7 @@ export class FlowApis{
     }
     async callLLM() {
         await system.services.displayThink(this.__think);
-        let result = await system.services.generateResponse(JSON.stringify(this.__body),system.space.id);
+        let result = await system.services.generateResponse(JSON.stringify(this.__body), system.space.id);
         system.services.closeThink();
 
         await new Promise(async (resolve) => {
@@ -91,7 +91,11 @@ export class FlowApis{
                 let date = dateObj.toJSON().slice(0, 10);
                 let time = dateObj.toJSON().slice(11, 16);
                 let flowId = system.space.getFlowIdByName("AddTask");
-                await system.services.callFlow(flowId, `${this.__body.prompt}`, date + " " + time);
+                let context = {
+                    taskDescription: this.__body.prompt,
+                    date: date + " " + time
+                }
+                await system.services.callFlow(flowId, context);
                 resolve();
             }, 0);
         });

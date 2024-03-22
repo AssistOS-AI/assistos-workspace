@@ -1,5 +1,5 @@
 import * as dependencies from "../../imports.js";
-import {FlowApis} from "../models/FlowApis.js";
+import {IFlow} from "../models/IFlow.js";
 
 export class LlmsService {
     constructor() {
@@ -28,8 +28,44 @@ export class LlmsService {
         return await result.text();
     }
     /*flowId, flowParams */
-    async callFlow(...args){
-        let flow = system.space.getFlow(args[0]);
+    async callFlow(flowId, context, personalityId){
+        let flowObj;
+        try {
+            flowObj = this.initFlow(flowId, context, personalityId);
+        }catch (e) {
+            console.error(e);
+            return await showApplicationError(e, e, e.stack);
+        }
+
+        let response;
+        try {
+            response = await flowObj.flowInstance.run(context, flowObj.personality);
+        }catch (e) {
+            console.error(e);
+            return await showApplicationError("Flow execution Error", `Error executing flow ${flowObj.flowInstance.constructor.name}`, e);
+        }
+
+        if(typeof flowObj.flowClass.outputSchema.isValid === "undefined"){
+            try {
+                let parsedResponse = JSON.parse(response);
+                system.services.validateSchema(parsedResponse, flowObj.flowClass.outputSchema, "output");
+                return parsedResponse;
+            }catch (e) {
+                console.error(e);
+                return await showApplicationError(e, e, e.stack);
+            }
+        }
+        return response;
+    }
+
+    initFlow(flowId, context, personalityId){
+        let flow = system.space.getFlow(flowId);
+        let personality;
+        if(personalityId){
+            personality = system.space.getPersonality(personalityId);
+        } else {
+            personality = system.space.getPersonalityByName(dependencies.constants.DEFAULT_PERSONALITY_NAME);
+        }
         let usedDependencies = [];
         if(flow.class.dependencies){
             for(let functionName of flow.class.dependencies){
@@ -37,33 +73,19 @@ export class LlmsService {
             }
         }
         let flowInstance = new flow.class(...usedDependencies);
-
-        const apis = Object.getOwnPropertyNames(FlowApis.prototype)
+        if(flowInstance.start === undefined){
+            throw new Error(`Flow ${flowInstance.constructor.name} must have a function named 'start'`);
+        }
+        const apis = Object.getOwnPropertyNames(IFlow.prototype)
             .filter(method => method !== 'constructor');
         apis.forEach(methodName => {
-            flowInstance[methodName] = FlowApis.prototype[methodName].bind(flowInstance);
+            flowInstance[methodName] = IFlow.prototype[methodName].bind(flowInstance);
         });
-
-        args.shift();
-        if(flowInstance.start === undefined){
-            let message = `Flow ${flow.class.name} must have a function named 'start'`;
-            await showApplicationError(message, message, message);
-        } else {
-            let response;
-            try {
-                response = await flowInstance.run(...args);
-            }catch (e) {
-                return await showApplicationError("Flow execution Error", `Encountered an error while attempting to execute the flow ${flow.class.name}`, e);
-            }
-            if(!response){
-                return await showApplicationError("Flow execution Error", `flow ${flow.class.name} must have a return value!`,`flow ${flow.class.name} must have a return value!`);
-            }
-            try{
-                let responseJson = JSON.parse(response);
-                return {responseString:null,responseJson:responseJson};
-            }catch(e){
-                return {responseString:response,responseJson:null};
-            }
+        flowInstance.setDefaultValues();
+        if(flow.class.inputSchema){
+            system.services.validateSchema(context, flow.class.inputSchema, "input");
         }
+        return {flowInstance:flowInstance, flowClass:flow.class, personality: personality};
     }
+
 }

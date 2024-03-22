@@ -29,7 +29,7 @@ export class AuthenticationService{
             /* TODO better logic as the current one can result in an UI endless LOOP of resetting if any unhandled error or case happens */
            if(!currentUser.spaces){
                /* TODO error handling */
-                let defaultSpace=await this.createDefaultSpace(currentUser.id);
+                let defaultSpace= JSON.parse(await this.createDefaultSpace(currentUser.id));
                 await this.addSpaceToUser(currentUser.id,defaultSpace);
                currentUser.spaces = system.spaces=[{name: defaultSpace.name, id: defaultSpace.id}];
                currentUser.currentSpaceId = system.user.currentSpaceId=defaultSpace.id;
@@ -219,6 +219,7 @@ export class AuthenticationService{
                         currentSpaceId: storedUser.spaces[0].id
                     }
                 }else{
+                    this.setUserCookie(userId);
                     let defaultSpace=await this.createDefaultSpace(storedUser.id);
                     system.user = {
                         id: storedUser.id,
@@ -228,7 +229,6 @@ export class AuthenticationService{
                     }
                     await this.addSpaceToUser(userId,defaultSpace);
                 }
-                this.setUserCookie(userId);
                 return true;
             }else {
                 return false;

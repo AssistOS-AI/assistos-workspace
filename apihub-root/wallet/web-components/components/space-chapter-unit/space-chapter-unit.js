@@ -65,7 +65,11 @@ export class SpaceChapterUnit {
             return;
         }
         let flowId = system.space.getFlowIdByName("AddParagraph");
-        await system.services.callFlow(flowId, this._document.id, this.chapter.id);
+        let context = {
+            documentId: this._document.id,
+            chapterId: this.chapter.id
+        }
+        await system.services.callFlow(flowId, context);
         this.invalidate();
     }
 
@@ -84,7 +88,12 @@ export class SpaceChapterUnit {
             let titleText = system.UI.sanitize(system.UI.customTrim(title.innerText))
             if (titleText !== this.chapter.title && titleText !== "") {
                 let flowId = system.space.getFlowIdByName("UpdateChapterTitle");
-                await system.services.callFlow(flowId, this._document.id, this.chapter.id, titleText);
+                let context = {
+                    documentId: this._document.id,
+                    chapterId: this.chapter.id,
+                    title: titleText
+                }
+                await system.services.callFlow(flowId, context);
             }
         }, 3000);
         /* NO chapter Title */

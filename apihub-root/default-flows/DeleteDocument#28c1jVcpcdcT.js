@@ -5,10 +5,10 @@ export class DeleteDocument {
     constructor() {
     }
 
-    async start(documentId) {
+    async start(context) {
         try {
-            await system.space.deleteDocument(documentId);
-            this.return(documentId);
+            await system.space.deleteDocument(context.documentId);
+            this.return(context.documentId);
         } catch (e) {
             this.fail(e);
         }
