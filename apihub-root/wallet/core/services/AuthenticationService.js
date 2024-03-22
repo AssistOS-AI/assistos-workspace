@@ -29,7 +29,7 @@ export class AuthenticationService{
             /* TODO better logic as the current one can result in an UI endless LOOP of resetting if any unhandled error or case happens */
            if(!currentUser.spaces){
                /* TODO error handling */
-                let defaultSpace=await this.createDefaultSpace(currentUser.id);
+                let defaultSpace=await this.createDefaultSpace(currentUser.name);
                 await this.addSpaceToUser(currentUser.id,defaultSpace);
                currentUser.spaces = system.spaces=[{name: defaultSpace.name, id: defaultSpace.id}];
                currentUser.currentSpaceId = system.user.currentSpaceId=defaultSpace.id;
@@ -120,8 +120,8 @@ export class AuthenticationService{
         //returns string
         return localStorage.getItem("currentUser");
     }
-    async createDefaultSpace(){
-        return await system.factories.createSpace("Personal Space",undefined);
+    async createDefaultSpace(userName){
+        return await system.services.createSpace(`${userName.endsWith("s")?userName+"'":userName+"'s"} Space`);
     }
     async removeSpaceFromUser(userId,spaceId){
            let user = JSON.parse(await system.storage.loadUser(userId));
@@ -148,7 +148,7 @@ export class AuthenticationService{
         userData.secretToken = secretToken;
         userData.id = system.services.generateId();
 
-        let defaultSpace = this.createDefaultSpace(userData.id);
+        let defaultSpace = this.createDefaultSpace(userData.name);
         userData.spaces = [{name: defaultSpace.name, id: defaultSpace.id}];
         userData.currentSpaceId = defaultSpace.id;
         //const didDocument = await $$.promisify(w3cDID.createIdentity)("key", undefined, randomNr);
@@ -219,7 +219,7 @@ export class AuthenticationService{
                         currentSpaceId: storedUser.spaces[0].id
                     }
                 }else{
-                    let defaultSpace=await this.createDefaultSpace(storedUser.id);
+                    let defaultSpace=await this.createDefaultSpace(storedUser.name);
                     system.user = {
                         id: storedUser.id,
                         secretToken: storedUser.secretToken,

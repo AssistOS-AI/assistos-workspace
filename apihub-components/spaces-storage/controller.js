@@ -248,8 +248,8 @@ async function getSpace(request, response) {
 
     /* Packaging space Data into one Object */
 
-    spaceStatusObject["documents"] = Manager.apis.getSpaceDocumentsObject(spaceId);
-    spaceStatusObject["personalities"] = Manager.apis.getSpacePersonalitiesObject(spaceId);
+    spaceStatusObject["documents"] = await  Manager.apis.getSpaceDocumentsObject(spaceId);
+    spaceStatusObject["personalities"] = await Manager.apis.getSpacePersonalitiesObject(spaceId);
 
     sendResponse(response, 200, "application/json", JSON.stringify(spaceStatusObject));
 }
@@ -337,11 +337,6 @@ async function createSpace(request, response) {
     }
 
     const apiKey = request.headers.apikey;
-   /* if (apiKey==="undefined" || !apiKey) {
-        sendResponse(response, 400, "text/html", "Bad Request: API Key is required");
-        return;
-    }
-*/
     try {
         let newSpace = {};
         newSpace = await Manager.apis.createSpace(spaceName, userId, apiKey);

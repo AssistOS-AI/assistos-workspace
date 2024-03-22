@@ -36,7 +36,6 @@ const rollback = async (spacePath) => {
     }
 };
 async function createSpace(spaceName, userId, apiKey) {
-
     const spaceId = generateId();
     let spaceObj = {}
     try {
@@ -44,12 +43,12 @@ async function createSpace(spaceName, userId, apiKey) {
             spaceName: spaceName,
             spaceId: spaceId,
             adminId: userId,
-            apiKey: templateReplacer_$$(defaultApiKeyTemplate, {
+            apiKey: apiKey?templateReplacer_$$(defaultApiKeyTemplate, {
                 keyType: "OpenAI",
                 ownerId: userId,
                 keyId: generateId(),
                 keyValue: maskOpenAIKey(apiKey)
-            }),
+            }):undefined,
             spaceAgent: defaultSpaceAgent,
             defaultAnnouncement: createDefaultAnnouncement(spaceName),
             creationDate: getCurrentUTCDate()
