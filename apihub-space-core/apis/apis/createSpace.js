@@ -12,8 +12,9 @@ const {
     copyDefaultPersonalities,
     createSpaceStatus,
     linkSpaceToUser,
+    addSpaceToSpaceMap
 } = require('../exporter.js')
-('generateId', 'createDefaultAnnouncement', 'templateReplacer_$$', 'getCurrentUTCDate', 'createDirectory', 'maskOpenAIKey', 'validateData', 'copyDefaultFlows', 'copyDefaultPersonalities', 'createSpaceStatus', 'linkSpaceToUser');
+('generateId', 'createDefaultAnnouncement', 'templateReplacer_$$', 'getCurrentUTCDate', 'createDirectory', 'maskOpenAIKey', 'validateData', 'copyDefaultFlows', 'copyDefaultPersonalities', 'createSpaceStatus', 'linkSpaceToUser','addSpaceToSpaceMap');
 
 const {
     defaultSpaceTemplate,
@@ -83,6 +84,7 @@ async function createSpace(spaceName, userId, apiKey) {
         () => createDirectory(path.join(spacePath, 'applications')),
         () => createSpaceStatus(spacePath, spaceObj),
         () => linkSpaceToUser(userId, spaceId),
+        () => addSpaceToSpaceMap(spaceId, spaceName)
     ];
 
     const results = await Promise.allSettled(filesPromises.map(fn => fn()));

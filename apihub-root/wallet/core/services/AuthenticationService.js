@@ -1,83 +1,58 @@
 const openDSU = require("opendsu");
 const crypto = openDSU.loadApi("crypto");
-export class AuthenticationService{
+
+export class AuthenticationService {
 
     constructor() {
     }
+
     async initUser(spaceId) {
+        debugger
+        const cachedUser = this.getCachedUser();
+        if (cachedUser) {
 
-        /* check if there is a cached user */
-        const result = this.getCachedCurrentUser();
+            let userData = JSON.parse(await system.storage.loadUser(cachedUser));
 
-        if(result) {
-            let user = JSON.parse(result);
-            /* load the user's config file */
-            let currentUser = JSON.parse(await system.storage.loadUser(user.id));
-            system.user = {
-                id:currentUser.id,
-                secretToken: currentUser.secretToken,
-                spaces: currentUser.spaces,
+            if (userData.spaces.length === 0) {
+                await this.createDefaultSpace(userData.name);
+                window.location = "";
             }
-            if(spaceId && currentUser.spaces){
-                if(currentUser.spaces.map((space)=>{return space.id}).includes(spaceId)){
-                    if(currentUser.currentSpaceId!==spaceId){
-                     currentUser.currentSpaceId=spaceId;
-                     await this.updateUser(user.id,currentUser);
-                    }
+
+            system.user = {
+                id: userData.id,
+                secretToken: userData.secretToken,
+                spaces: userData.spaces,
+            }
+
+            if (spaceId) {
+                if (system.user.spaces.find(space => space.id === spaceId)) {
+                    system.space = await  system.services.loadSpace(spaceId);
+                } else {
+                    /* TODO Custom 403 page : user does not have access to this space */
+                    window.location = "";
+                }
+            } else {
+                const cachedSpace = this.getCachedSpace();
+                if (cachedSpace) {
+                    system.space = await system.services.loadSpace(cachedSpace);
+                } else {
+                    system.space = await system.services.loadSpace(system.user.spaces[0].id);
                 }
             }
-            /* TODO better logic as the current one can result in an UI endless LOOP of resetting if any unhandled error or case happens */
-           if(!currentUser.spaces){
-               /* TODO error handling */
-                let defaultSpace=await this.createDefaultSpace(currentUser.name);
-                await this.addSpaceToUser(currentUser.id,defaultSpace);
-               currentUser.spaces = system.spaces=[{name: defaultSpace.name, id: defaultSpace.id}];
-               currentUser.currentSpaceId = system.user.currentSpaceId=defaultSpace.id;
-           }
-           let spaceData;
-           try {
-               /* Attempting to load the last space the user was logged on */
-               //let spaceData = await system.storage.loadSpace(currentUser.currentSpaceId);
-               system.space = await system.factories.loadSpace(currentUser.currentSpaceId)
-               await system.space.loadApplicationsFlows();
-           }catch (e){
-               await showApplicationError(e,e,e);
-               try{
-                   /* To be replaced with better logic */
-                   // Handle the case when the space with the currentSpaceId has been deleted manually from the disk for development
-                   await this.removeSpaceFromUser(currentUser.id,currentUser.currentSpaceId);
-                   console.warn("Space with id "+currentUser.currentSpaceId+" not found");
-                   /*Attempting to load the Default Space if the currentSpaceId is not valid or the space with that id has been deleted */
-                     //spaceData = await system.storage.loadSpace(currentUser.id);
-                     system.space = await system.factories.loadSpace(currentUser.currentSpaceId)
-               }catch(e){
-                   console.warn("Couldn't load the default space for user "+currentUser.id+"");
-                   /* Attempting to load any space from the User's spaces array and removing the invalid ones */
-                   await this.resetUser(currentUser.id);
-                   window.location="";
-               }
-           }
-        }
-        else {
-            if(window.location.hash !== "#authentication-page")
-            {
+        } else {
+            if (window.location.hash !== "#authentication-page") {
                 window.location.replace("#authentication-page");
             }
             system.UI.setDomElementForPages(mainContent);
-            await system.UI.changeToDynamicPage("authentication-page","authentication-page");
+            await system.UI.changeToDynamicPage("authentication-page", "authentication-page");
             return false;
         }
         return true;
     }
-    async resetUser(userId){
-        let user = JSON.parse(await system.storage.loadUser(userId));
-        delete user.spaces;
-        delete user.currentSpaceId;
-        await system.storage.storeUser(userId,JSON.stringify(user));
-    }
+
     verifyPassword(secretToken, password) {
         //secretToken should be an object with type Buffer or an Uint8Array
-        if(secretToken.type === 'Buffer') {
+        if (secretToken.type === 'Buffer') {
             const uint8Array = new Uint8Array(secretToken.data.length);
             for (let i = 0; i < secretToken.data.length; i++) {
                 uint8Array[i] = secretToken.data[i];
@@ -87,62 +62,76 @@ export class AuthenticationService{
         return crypto.decrypt(secretToken, crypto.deriveEncryptionKey(password));
     }
 
-    getCachedUsers(){
+    getCachedUsers() {
         return localStorage.getItem("users");
     }
-    addCachedUser(user){
+
+    addCachedUser(user) {
         let usersString = this.getCachedUsers();
         let users = [];
-        if(usersString) {
+        if (usersString) {
             users = JSON.parse(usersString);
         }
         users.push(user);
         localStorage.setItem("users", JSON.stringify(users));
     }
-    deleteCachedUser(id){
+
+    deleteCachedUser(id) {
         let usersString = this.getCachedUsers();
-        try{
+        try {
             let users = JSON.parse(usersString);
             users = users.filter(user => user.id !== id);
             localStorage.setItem("users", JSON.stringify(users));
-        }catch (e){
+        } catch (e) {
             console.log(e);
         }
     }
 
-    setCachedCurrentUser(userObj){
+    setCachedCurrentUser(userObj) {
         localStorage.setItem("currentUser", JSON.stringify(userObj));
     }
-    deleteCachedCurrentUser(){
+
+    deleteCachedCurrentUser() {
         localStorage.removeItem("currentUser");
     }
-    getCachedCurrentUser(){
-        //returns string
-        return localStorage.getItem("currentUser");
+
+    getCachedUser() {
+        return this.getCookieValue("userId");
     }
-    async createDefaultSpace(userName){
-        return await system.services.createSpace(`${userName.endsWith("s")?userName+"'":userName+"'s"} Space`);
+
+    getCachedSpace() {
+        return this.getCookieValue("currentSpaceId")
     }
-    async removeSpaceFromUser(userId,spaceId){
-           let user = JSON.parse(await system.storage.loadUser(userId));
-           user.spaces = user.spaces.filter(space => space.id !== spaceId);
-           await system.storage.storeUser(userId,JSON.stringify(user));
-    }
-    async updateUser(userId,userData){
-        let user = JSON.parse(await system.storage.loadUser(userId));
-        await system.storage.storeUser(userId,JSON.stringify(userData));
-    }
-    async removeSpaceFromUsers(spaceId) {
-        let promises = [];
-        /* we assume the current User has delete rights for now*/
-        for (let userId of system.space.users) {
-            promises.push(this.removeSpaceFromUser(userId, spaceId));
+
+    getCookieValue(cookieName) {
+        const name = cookieName + "=";
+        const decodedCookie = decodeURIComponent(document.cookie);
+        const ca = decodedCookie.split(';');
+        for (let i = 0; i < ca.length; i++) {
+            let c = ca[i];
+            while (c.charAt(0) === ' ') {
+                c = c.substring(1);
+            }
+            if (c.indexOf(name) === 0) {
+                return c.substring(name.length, c.length);
+            }
         }
-        await Promise.all(promises);
+        return null;
     }
+
+    async createDefaultSpace(userName) {
+        return await system.storage.createSpace(`${userName.endsWith("s") ? userName + "'" : userName + "'s"} Space`);
+    }
+
+    async removeSpaceFromUser(userId, spaceId) {
+        let user = JSON.parse(await system.storage.loadUser(userId));
+        user.spaces = user.spaces.filter(space => space.id !== spaceId);
+        await system.storage.storeUser(userId, JSON.stringify(user));
+    }
+
     async registerUser(userData) {
         const randomNr = crypto.generateRandom(32);
-        const secretToken = crypto.encrypt(randomNr,crypto.deriveEncryptionKey(userData.password));
+        const secretToken = crypto.encrypt(randomNr, crypto.deriveEncryptionKey(userData.password));
         delete userData.password;
 
         userData.secretToken = secretToken;
@@ -152,41 +141,43 @@ export class AuthenticationService{
         userData.spaces = [{name: defaultSpace.name, id: defaultSpace.id}];
         userData.currentSpaceId = defaultSpace.id;
         //const didDocument = await $$.promisify(w3cDID.createIdentity)("key", undefined, randomNr);
-        try{
+        try {
             let result = await system.storage.storeUser(userData.id, JSON.stringify(userData));
             system.user = JSON.parse(result);
             this.setUserCookie(userData.id);
             return true;
-        }catch (e){
+        } catch (e) {
             console.error(e);
             return false;
         }
     }
+
     setUserCookie(userId) {
         let expires = new Date();
         expires.setTime(expires.getTime() + (30 * 24 * 60 * 60 * 1000));
         document.cookie = `userId=${userId}; expires=${expires.toUTCString()}; path=/;`;
     }
-    verifyConfirmationLink(){
-        let user = {id:system.user.id, secretToken:system.user.secretToken};
+
+    verifyConfirmationLink() {
+        let user = {id: system.user.id, secretToken: system.user.secretToken};
         this.addCachedUser(user);
         this.setCachedCurrentUser(user);
     }
 
-    async loginUser(email, password){
+    async loginUser(email, password) {
         const userString = await this.getStoredUserByEmail(email);
-        try{
+        try {
             let userObj = JSON.parse(userString);
             const userId = userObj.id;
 
             let users = this.getCachedUsers();
-            if(users) {
+            if (users) {
                 users = JSON.parse(users);
-                for(let user of users){
-                    if(user.id === userId) {
+                for (let user of users) {
+                    if (user.id === userId) {
                         let secretToken = user.secretToken;
-                        if(this.verifyPassword(secretToken, password)) {
-                            this.setCachedCurrentUser({ id: userId, secretToken: secretToken});
+                        if (this.verifyPassword(secretToken, password)) {
+                            this.setCachedCurrentUser({id: userId, secretToken: secretToken});
                             /* TODO replace with better logic after APIs are implemented */
                             this.setUserCookie(userId);
                             return true;
@@ -197,50 +188,51 @@ export class AuthenticationService{
                 }
             }
             return false;
-        }catch (e) {
+        } catch (e) {
             console.log(e);
             return false;
         }
     }
-    async loginFirstTimeUser(email, password){
+
+    async loginFirstTimeUser(email, password) {
         const userString = await this.getStoredUserByEmail(email);
-        try{
+        try {
             let userObj = JSON.parse(userString);
             const userId = userObj.id;
             console.log(`First time logging in on this device userId: ${JSON.stringify(userId)}`);
             const result = await this.getStoredUser(userId);
             const storedUser = JSON.parse(result);
-            if(this.verifyPassword(storedUser.secretToken, password)) {
-                if(storedUser.spaces&&storedUser.spaces.length>0) {
+            if (this.verifyPassword(storedUser.secretToken, password)) {
+                if (storedUser.spaces && storedUser.spaces.length > 0) {
                     system.user = {
                         id: storedUser.id,
                         secretToken: storedUser.secretToken,
                         spaces: storedUser.spaces,
                         currentSpaceId: storedUser.spaces[0].id
                     }
-                }else{
-                    let defaultSpace=await this.createDefaultSpace(storedUser.name);
+                } else {
+                    let defaultSpace = await this.createDefaultSpace(storedUser.name);
                     system.user = {
                         id: storedUser.id,
                         secretToken: storedUser.secretToken,
                         spaces: [{name: defaultSpace.name, id: defaultSpace.id}],
                         currentSpaceId: defaultSpace.id
                     }
-                    await this.addSpaceToUser(userId,defaultSpace);
+                    await this.addSpaceToUser(userId, defaultSpace);
                 }
                 this.setUserCookie(userId);
                 return true;
-            }else {
+            } else {
                 return false;
             }
-        }catch (e) {
+        } catch (e) {
             console.log(e);
             return false;
         }
 
     }
 
-    async recoverPassword(email, password){
+    async recoverPassword(email, password) {
         const userString = await this.getStoredUserByEmail(email);
         try {
             let userObj = JSON.parse(userString);
@@ -253,17 +245,17 @@ export class AuthenticationService{
                 console.log(result);
 
                 return true;
-            }catch (e){
+            } catch (e) {
                 console.error(e);
                 return false;
             }
-        }catch (e){
+        } catch (e) {
             console.error(e);
             return false;
         }
     }
 
-    async confirmRecoverPassword(){
+    async confirmRecoverPassword() {
         const user = JSON.parse(await this.getStoredUser(system.user.id));
         user.secretToken = user.temporarySecretToken;
         delete user.temporarySecretToken;
@@ -278,40 +270,44 @@ export class AuthenticationService{
             this.deleteCachedUser(result.id);
             this.addCachedUser(result);
             return true;
-        }catch (e){
+        } catch (e) {
             console.error(e);
             return false;
         }
     }
 
-    async addSpaceToUser(userId,newSpace){
+    async addSpaceToUser(userId, newSpace) {
         let user = JSON.parse(await system.storage.loadUser(userId));
-        if(user.spaces) {
+        if (user.spaces) {
             user.spaces.push({name: newSpace.name, id: newSpace.id});
-        }else{
-            user.spaces=[{name: newSpace.name, id: newSpace.id}];
+        } else {
+            user.spaces = [{name: newSpace.name, id: newSpace.id}];
         }
         user.currentSpaceId = newSpace.id;
-        await system.storage.storeUser(userId,JSON.stringify(user));
+        await system.storage.storeUser(userId, JSON.stringify(user));
     }
-    async getStoredUser(userId){
+
+    async getStoredUser(userId) {
         return await system.storage.loadUser(userId);
     }
-    async addKeyToSpace(spaceId,userId,keyType,apiKey){
-        return system.storage.addKeyToSpace(spaceId,userId,keyType,apiKey);
+
+    async addKeyToSpace(spaceId, userId, keyType, apiKey) {
+        return system.storage.addKeyToSpace(spaceId, userId, keyType, apiKey);
     }
-    async getStoredUserByEmail(email){
+
+    async getStoredUserByEmail(email) {
         return await system.storage.loadUserByEmail(email);
     }
 
-    async updateStoredUser(updatedUser){
+    async updateStoredUser(updatedUser) {
         return await system.storage.storeUser(updatedUser.id, JSON.stringify(updatedUser));
     }
 
-    async storeGITCredentials(stringData){
+    async storeGITCredentials(stringData) {
         return await system.storage.storeGITCredentials(system.space.id, system.user.id, stringData);
     }
-    async getUsersSecretsExist(){
+
+    async getUsersSecretsExist() {
         return await system.storage.getUsersSecretsExist(system.space.id);
     }
 }

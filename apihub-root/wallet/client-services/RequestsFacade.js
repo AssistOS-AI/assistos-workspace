@@ -40,10 +40,9 @@ export class RequestsFacade {
             throw new Error(`HTTP error! status: ${response.status}`);
         }
 
-        return await response.text();
+        return await response.json();
     }
     async getSpace(spaceId){
-        debugger
         const headers = {
             "Content-Type": "application/json; charset=UTF-8",
         };
