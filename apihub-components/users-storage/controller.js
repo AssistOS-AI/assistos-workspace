@@ -1,6 +1,8 @@
 const fsPromises = require('fs').promises;
 const path = require('path');
-
+const Manager = require('../../apihub-space-core/Manager.js').getInstance();
+const {sendResponse, createCookieString, parseCookies} = require('../requests-processing-apis/exporter.js')
+('sendResponse', 'createCookieString', 'parseCookies');
 async function saveJSON(response, spaceData, filePath) {
     try {
         await fsPromises.writeFile(filePath, spaceData, 'utf8');
@@ -11,12 +13,6 @@ async function saveJSON(response, spaceData, filePath) {
     return true;
 }
 
-function sendResponse(response, statusCode, contentType, message) {
-    response.statusCode = statusCode;
-    response.setHeader("Content-Type", contentType);
-    response.write(message);
-    response.end();
-}
 
 function createContainerName(spaceId, userId) {
     return `${spaceId}.${userId}`;
@@ -105,16 +101,8 @@ async function storeUser(request, response) {
 
 async function loadUser(request, response) {
     const userId = request.params.userId;
-    const userData = Manager.apis.getUserObject(userId);
-    const filePath = `../apihub-root/users/${request.params.userId}.json`;
-    let data;
-    try {
-        data = await fsPromises.readFile(filePath, {encoding: 'utf8'});
-    } catch (error) {
-        sendResponse(response, 404, "text/html", error + ` Error user not found: ${filePath}`);
-        return "";
-    }
-    sendResponse(response, 200, "text/html", data);
+    const userData = await Manager.apis.getUserData(userId);
+    sendResponse(response, 200, "application/json", userData);
     return "";
 }
 

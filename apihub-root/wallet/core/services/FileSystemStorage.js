@@ -28,7 +28,6 @@ export class FileSystemStorage {
     }
 
     async loadSpace(spaceId) {
-        debugger
         const result = await fetch(`/spaces/${spaceId}`, {"method": "GET"});
         return await result.json();
     }
@@ -62,7 +61,7 @@ export class FileSystemStorage {
             {
                 method: "GET"
             });
-        return await result.text();
+        return await result.json();
     }
 
     async storeUser(userId, jsonData) {

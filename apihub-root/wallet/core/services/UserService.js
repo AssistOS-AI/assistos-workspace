@@ -1,5 +1,5 @@
 export class UserService{
-    async getUserSpaces(){
+    getUserSpaces(){
         return system.user.spaces;
     }
 }

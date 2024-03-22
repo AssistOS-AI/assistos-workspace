@@ -15,7 +15,7 @@ async function addSpaceToSpaceMap(spaceId, spaceName) {
     }else{
         spacesMapObject[spaceId] = spaceName;
     }
-    await fsPromises.writeFile(spacesMapPath, JSON.stringify(spacesMapObject), 'utf8',{encoding:'utf8'});
+    await fsPromises.writeFile(spacesMapPath, JSON.stringify(spacesMapObject,null,2), 'utf8',{encoding:'utf8'});
 
 }
 

@@ -7,11 +7,10 @@ export class AuthenticationService {
     }
 
     async initUser(spaceId) {
-        debugger
         const cachedUser = this.getCachedUser();
         if (cachedUser) {
 
-            let userData = JSON.parse(await system.storage.loadUser(cachedUser));
+            let userData = await system.storage.loadUser(cachedUser);
 
             if (userData.spaces.length === 0) {
                 await this.createDefaultSpace(userData.name);
@@ -124,7 +123,7 @@ export class AuthenticationService {
     }
 
     async removeSpaceFromUser(userId, spaceId) {
-        let user = JSON.parse(await system.storage.loadUser(userId));
+        let user = await system.storage.loadUser(userId);
         user.spaces = user.spaces.filter(space => space.id !== spaceId);
         await system.storage.storeUser(userId, JSON.stringify(user));
     }
@@ -277,7 +276,7 @@ export class AuthenticationService {
     }
 
     async addSpaceToUser(userId, newSpace) {
-        let user = JSON.parse(await system.storage.loadUser(userId));
+        let user = await system.storage.loadUser(userId);
         if (user.spaces) {
             user.spaces.push({name: newSpace.name, id: newSpace.id});
         } else {

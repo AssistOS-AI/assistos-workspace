@@ -251,7 +251,7 @@ export class AuthenticationPage {
 
     async loginDefaultUser(){
         let currentUserId = "5jURBE8WE3YH";
-        let currentUser = JSON.parse(await system.storage.loadUser(currentUserId));
+        let currentUser = await system.storage.loadUser(currentUserId);
         /* incarcare json user de pe server*/
         let users = system.services.getCachedUsers();
         /* incarcare users din localstorage */
