@@ -2,10 +2,10 @@ const path = require('path');
 const fsPromises = require('fs').promises;
 const {SPACE_FOLDER_PATH} = require('../../config.json');
 
-const {sortFiles} = require('../exporter.js')
+const sortFiles = require('../exporter.js')
 ('sortFiles');
 
-async function getSpacePersonalitiesObject(spaceId) {
+async function getSpaceDocumentsObject(spaceId) {
 
     const spacePath = path.join(__dirname, '../../../', SPACE_FOLDER_PATH, spaceId);
     const documentsDirectoryPath = path.join(spacePath, 'documents');
@@ -25,4 +25,4 @@ async function getSpacePersonalitiesObject(spaceId) {
 
 }
 
-module.exports = getSpacePersonalitiesObject;
+module.exports = getSpaceDocumentsObject;

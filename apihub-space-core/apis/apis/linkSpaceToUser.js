@@ -2,7 +2,6 @@ const path = require('path');
 const fsPromises = require('fs').promises;
 const {USER_FOLDER_PATH} = require('../../config.json');
 async function linkSpaceToUser(userId, spaceId) {
-
     const userFile = path.join(__dirname, '../../../', USER_FOLDER_PATH, `${userId + '.json'}`);
     let userObject;
     let userFileContents;

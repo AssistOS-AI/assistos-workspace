@@ -210,17 +210,26 @@ async function getSpace(request, response) {
     const cookies = parseCookies(request);
     const userId = cookies.userId;
     if (!userId) {
-        sendResponse(response, 401, "application/json", JSON.stringify({message: "Unauthorized: No valid session"}));
+        sendResponse(response, 401, "application/json", {
+            message: "Unauthorized: No valid session",
+            success: false
+        });
         return;
     }
     const userIsValid = await authenticateUser(userId);
     if (!userIsValid) {
-        sendResponse(response, 401, "application/json", JSON.stringify({message: "Unauthorized: Invalid user"}));
+        sendResponse(response, 401, "application/json", {
+            message: "Unauthorized: Invalid user",
+            success: false
+        });
         return;
     }
     const userRights = await getUserRights(userId);
     if (!userRights.readSpace) {
-        sendResponse(response, 403, "application/json", JSON.stringify({message: "Forbidden: User does not have rights to read space"}));
+        sendResponse(response, 403, "application/json", {
+            message: "Forbidden: User does not have the rights to read space",
+            success: false
+        });
         return;
     }
 
@@ -232,10 +241,16 @@ async function getSpace(request, response) {
     } catch (error) {
         switch (error.statusCode) {
             case 404:
-                sendResponse(response, 404, "application/json", JSON.stringify({message: "Not Found: Space not found"}));
+                sendResponse(response, 404, "application/json", {
+                    message: "Not Found: Space not found",
+                    success: false
+                });
                 return;
             case 500:
-                sendResponse(response, 500, "application/json", JSON.stringify({message: "Internal Server Error"}));
+                sendResponse(response, 500, "application/json", {
+                    message: "Internal Server Error",
+                    success: false
+                });
                 return;
         }
     }
@@ -248,10 +263,14 @@ async function getSpace(request, response) {
 
     /* Packaging space Data into one Object */
 
-    spaceStatusObject["documents"] = Manager.apis.getSpaceDocumentsObject(spaceId);
-    spaceStatusObject["personalities"] = Manager.apis.getSpacePersonalitiesObject(spaceId);
+    spaceStatusObject["documents"] = await Manager.apis.getSpaceDocumentsObject(spaceId);
+    spaceStatusObject["personalities"] = await Manager.apis.getSpacePersonalitiesObject(spaceId);
 
-    sendResponse(response, 200, "application/json", JSON.stringify(spaceStatusObject));
+    sendResponse(response, 200, "application/json", {
+        success: true,
+        data: spaceStatusObject,
+        message: `Space ${spaceId} loaded successfully`
+    });
 }
 
 
@@ -273,42 +292,69 @@ async function addCollaboratorToSpace(request, response) {
     const cookies = parseCookies(request);
     const userId = cookies.userId;
     if (!userId) {
-        sendResponse(response, 401, "text/html", "Unauthorized: No valid session");
+        sendResponse(response, 401, "application/json", {
+            message: "Unauthorized: No valid session",
+            success: false
+        });
         return;
     }
     const userIsValid = await authenticateUser(userId);
     if (!userIsValid) {
-        sendResponse(response, 401, "text/html", "Unauthorized: Invalid user");
+        sendResponse(response, 401, "application/json", {
+            message: "Unauthorized: Invalid user",
+            success: false
+        });
         return;
     }
     const userRights = await getUserRights(userId);
     if (!userRights.addCollaborator) {
-        sendResponse(response, 403, "text/html", "Forbidden: User does not have rights to create a space");
+        sendResponse(response, 403, "application/json", {
+            message: "Forbidden: User does not have rights to create a space",
+            success: false
+        });
         return;
     }
     const spaceId = request.body.spaceId;
     const collaboratorId = request.body.collaboratorId;
 
     if (!spaceId || !collaboratorId) {
-        sendResponse(response, 400, "text/html", "Bad Request: Space Id and Collaborator Id are required");
+        sendResponse(response, 400, "application/json", {
+            message: "Bad Request: Space Id and Collaborator Id are required",
+            success: false
+        });
         return;
     }
     try {
         const space = await Manager.apis.addSpaceCollaborator(spaceId, collaboratorId);
-        sendResponse(response, 200, "text/html", `Collaborator added successfully: ${collaboratorId}`);
+        sendResponse(response, 200, "application/json", {
+            message: `Collaborator added successfully: ${collaboratorId}`,
+            success: true
+        });
     } catch (error) {
         switch (error.statusCode) {
             case 404:
-                sendResponse(response, 404, "text/html", "Not Found: Space not found");
+                sendResponse(response, 404, "application/json", {
+                    message: "Not Found: Space not found",
+                    success: false
+                });
                 return;
             case 409:
-                sendResponse(response, 409, "text/html", "Conflict: Collaborator already exists");
+                sendResponse(response, 409, "application/json", {
+                    message: "Conflict: Collaborator already exists",
+                    success: false
+                });
                 return;
             case 401:
-                sendResponse(response, 401, "text/html", "Unauthorized: Invalid Collaborator Id");
+                sendResponse(response, 401, "application/json", {
+                    message: "Unauthorized: Invalid Collaborator Id",
+                    success: false
+                });
                 return;
         }
-        sendResponse(response, 500, "text/html", `Internal Server Error: ${error}`);
+        sendResponse(response, 500, "application/json", {
+            message: `Internal Server Error: ${error}`,
+            success: false
+        });
     }
 
 }
@@ -317,52 +363,71 @@ async function createSpace(request, response) {
     const cookies = parseCookies(request);
     const userId = cookies.userId;
     if (!userId) {
-        sendResponse(response, 401, "text/html", "Unauthorized: No valid session");
+        sendResponse(response, 401, "application/json", {
+            message: "Unauthorized: No valid session",
+            success: false
+        });
         return;
     }
     const userIsValid = await authenticateUser(userId);
     if (!userIsValid) {
-        sendResponse(response, 401, "text/html", "Unauthorized: Invalid user");
+        sendResponse(response, 401, "application/json", {
+            message: "Unauthorized: Invalid user",
+            success: false
+
+        });
         return;
     }
     const userRights = await getUserRights(userId);
     if (!userRights.createSpace) {
-        sendResponse(response, 403, "text/html", "Forbidden: User does not have rights to create a space");
+        sendResponse(response, 403, "application/json", {
+            message: "Forbidden: User does not have rights to create a space",
+            success: false
+        });
         return;
     }
     const spaceName = request.body.spaceName
     if (!spaceName) {
-        sendResponse(response, 400, "text/html", "Bad Request: Space Name is required");
+        sendResponse(response, 400, "application/json", {
+            message: "Bad Request: Space Name is required",
+            success: false
+        });
         return;
     }
 
     const apiKey = request.headers.apikey;
-   /* if (apiKey==="undefined" || !apiKey) {
-        sendResponse(response, 400, "text/html", "Bad Request: API Key is required");
-        return;
-    }
-*/
     try {
         let newSpace = {};
         newSpace = await Manager.apis.createSpace(spaceName, userId, apiKey);
         const cookieString = createCookieString('currentSpaceId', newSpace.id, {
             maxAge: 30 * 24 * 60 * 60,
-            httpOnly: true,
-            secure: true,
             path: '/',
             sameSite: 'Strict'
         });
-        sendResponse(response, 201, "text/html", `Space created successfully: ${newSpace.id}`, cookieString);
+        sendResponse(response, 201, "application/json", {
+            message: `Space created successfully: ${newSpace.id}`,
+            data: newSpace,
+            success: true
+        }, cookieString);
     } catch (error) {
         switch (error.statusCode) {
             case 409:
-                sendResponse(response, 409, "text/html", "Conflict: Space already exists");
+                sendResponse(response, 409, "application/json", {
+                    message: "Conflict: Space already exists",
+                    success: false
+                });
                 return;
             case 401:
-                sendResponse(response, 401, "text/html", "Unauthorized: Invalid API Key");
+                sendResponse(response, 401, "application/json", {
+                    message: "Unauthorized: Invalid API Key",
+                    success: false
+                });
                 return;
         }
-        sendResponse(response, 500, "text/html", `Internal Server Error: ${error}`);
+        sendResponse(response, 500, "application/json", {
+            message: `Internal Server Error: ${error}`,
+            success: false
+        });
     }
 }
 

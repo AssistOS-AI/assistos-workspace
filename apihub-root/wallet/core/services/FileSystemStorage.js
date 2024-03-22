@@ -28,17 +28,17 @@ export class FileSystemStorage {
     }
 
     async loadSpace(spaceId) {
-        const result = await fetch(`/load-space/${spaceId}`, {"method": "GET"});
-        return await result.text();
+        const result = await fetch(`/spaces/${spaceId}`, {"method": "GET"});
+        return await result.json();
     }
 
-    async storeSpace(spaceId, jsonData = null, apiKey = null,userId=null) {
+    async storeSpace(spaceId, jsonData = null, apiKey = null, userId = null) {
         let headers = {
             "Content-type": "application/json; charset=UTF-8"
         };
         if (apiKey) {
             headers["apikey"] = `${apiKey}`;
-            headers["initiatorid"]=`${userId}`;
+            headers["initiatorid"] = `${userId}`;
         }
 
         let options = {
@@ -61,7 +61,7 @@ export class FileSystemStorage {
             {
                 method: "GET"
             });
-        return await result.text();
+        return await result.json();
     }
 
     async storeUser(userId, jsonData) {
@@ -200,8 +200,8 @@ export class FileSystemStorage {
     }
 
     async getApplicationFile(spaceId, appId, relativeAppFilePath) {
-        const pathParts=relativeAppFilePath.split(".")
-        const type=pathParts[pathParts.length-1]||"";
+        const pathParts = relativeAppFilePath.split(".")
+        const type = pathParts[pathParts.length - 1] || "";
         if (type !== "js") {
             let result;
             try {
@@ -323,7 +323,8 @@ export class FileSystemStorage {
         }
         return await result.text();
     }
-    async deleteKey(spaceId,keyType,keyId){
+
+    async deleteKey(spaceId, keyType, keyId) {
         let result;
         try {
             result = await fetch(`/users/${spaceId}/secrets/${keyType}/${keyId}`,
@@ -335,20 +336,21 @@ export class FileSystemStorage {
         }
         return await result.text();
     }
-    async addKeyToSpace(spaceId,userId,keyType,apiKey){
+
+    async addKeyToSpace(spaceId, userId, keyType, apiKey) {
         let result;
         let headers = {
             "Content-type": "application/json; charset=UTF-8"
         };
         if (apiKey) {
             headers["apikey"] = `${apiKey}`;
-            headers["initiatorid"]=`${userId}`;
+            headers["initiatorid"] = `${userId}`;
         }
         try {
             result = await fetch(`/spaces/${spaceId}/secrets`,
                 {
                     method: "POST",
-                    headers:headers
+                    headers: headers
                 });
         } catch (err) {
             console.error(err);

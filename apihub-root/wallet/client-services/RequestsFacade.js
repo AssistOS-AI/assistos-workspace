@@ -24,8 +24,10 @@ export class RequestsFacade {
     async createSpace(spaceName, apiKey) {
         const headers = {
             "Content-Type": "application/json; charset=UTF-8",
-            "apikey": `${apiKey}`,
         };
+        if(apiKey){
+            headers.apikey=apiKey
+        }
         const bodyObject={spaceName:spaceName}
         const options = {
             method: "POST",
@@ -38,7 +40,7 @@ export class RequestsFacade {
             throw new Error(`HTTP error! status: ${response.status}`);
         }
 
-        return await response.text();
+        return await response.json();
     }
     async getSpace(spaceId){
         const headers = {

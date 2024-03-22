@@ -42,6 +42,14 @@
       "path": "./wallet/core/services/ApplicationsService.js"
     },
     {
+      "name": "SpaceService",
+      "path": "./wallet/core/services/SpaceService.js"
+    },
+    {
+      "name": "UserService",
+        "path": "./wallet/core/services/UserService.js"
+    },
+    {
       "name": "RequestsFacade",
       "path": "./wallet/client-services/RequestsFacade.js"
     },

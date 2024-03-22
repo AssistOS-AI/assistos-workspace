@@ -6,7 +6,7 @@
   "announcements": ["$$defaultAnnouncement"],
   "users": ["$$adminId"],
   "admins":["$$adminId"],
-  "apiKeys": ["$$apiKey"],
+  "apiKeys": ["$$apiKey?"],
   "flows": [],
   "pages": [],
   "tasks": [],
