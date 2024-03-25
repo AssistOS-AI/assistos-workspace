@@ -3,12 +3,7 @@ export class AddDocument {
     static description = "Adds a new document, article or any kind of paperwork";
     static inputSchema= {
             title: "string",
-            topic: "string",
     }
-    constructor() {
-
-    }
-
     async start(context) {
         try {
             let docData = {

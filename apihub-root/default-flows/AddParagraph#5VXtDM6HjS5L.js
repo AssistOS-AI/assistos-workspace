@@ -1,9 +1,6 @@
 export class AddParagraph {
     static id = "5VXtDM6HjS5L";
     static description = "Adds a new paragraph to a chapter";
-    constructor() {
-    }
-
     async start(context) {
         try {
             let document = system.space.getDocument(context.documentId);

@@ -1,10 +1,6 @@
 export class SwapChapters {
     static id = "4p7y8tRN5FTY";
     static description = "Swaps the order of 2 chapters";
-
-    constructor() {
-    }
-
     async start(context) {
         try {
             let document = system.space.getDocument(context.documentId);

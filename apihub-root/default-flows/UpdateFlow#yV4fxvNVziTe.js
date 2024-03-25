@@ -1,10 +1,6 @@
 export class UpdateFlow {
     static id = "yV4fxvNVziTe";
     static description = "Updates a flow";
-    constructor() {
-
-    }
-
     async start(context) {
         try {
             context.flowData = "return " + context.flowData;

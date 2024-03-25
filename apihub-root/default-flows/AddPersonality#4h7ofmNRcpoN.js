@@ -6,10 +6,6 @@ export class AddPersonality {
         description: "string",
         photo: "string"
     };
-    constructor() {
-
-    }
-
     async start(context) {
         try {
             let personalityData ={

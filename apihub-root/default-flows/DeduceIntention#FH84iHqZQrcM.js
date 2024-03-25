@@ -1,21 +1,15 @@
 export class DeduceIntention {
     static id = "FH84iHqZQrcM";
     static description = "Deduces the intention of the user when speaking to an agent";
-    constructor() {
-
-    }
-
     async start(context) {
         let agent = system.space.agent;
         let flows = system.space.getAllFlows();
         let agentFlows = flows.filter((flow) => {
-            if(flow.class.parameters){
-                if( flow.class.parameters.length !== 0){
+            if(flow.class.inputSchema){
                     return flow;
-                }
             }
         });
-        let operations = agentFlows.filter((flow) => flow.class.parameters)
+        let operations = agentFlows.filter((flow) => flow.class.inputSchema)
             .map((flow) => ({
                 id: flow.class.id,
                 description: flow.class.description,
@@ -29,6 +23,6 @@ export class DeduceIntention {
 
     async execute(agent) {
         let response = await this.chatbot(this.prompt, "", agent.getContext());
-        this.return(response);
+        this.return(JSON.parse(response));
     }
 }

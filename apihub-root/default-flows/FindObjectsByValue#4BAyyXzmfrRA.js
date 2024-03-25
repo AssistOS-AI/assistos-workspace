@@ -22,10 +22,9 @@ export class FindObjectsByValue {
     async execute(agent) {
         let response = await this.chatbot(this.prompt, "", agent.getContext());
         try {
-            JSON.parse(response);
+            this.return(JSON.parse(response));
         } catch (e) {
             this.fail(e);
         }
-        this.return(response);
     }
 }

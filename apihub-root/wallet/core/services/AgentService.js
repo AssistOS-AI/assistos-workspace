@@ -2,13 +2,15 @@ export class AgentService {
     constructor() {
 
     }
-    async addCapabilities(){
+
+    async addCapabilities() {
         let flowId = system.space.getFlowIdByName("AddCapabilities");
         await system.services.callFlow(flowId);
     }
-    async initOpeners(){
+
+    async initOpeners() {
         let agent = system.space.agent;
-        if(agent.openers.length === 0){
+        if (agent.openers.length === 0) {
             //let flowId = system.space.getFlowIdByName("CreateOpeners");
             // let context = {
             //     capabilities: agent.capabilities,
@@ -23,7 +25,8 @@ export class AgentService {
             system.services.closeThink();
         }
     }
-    async analyzeRequest(request){
+
+    async analyzeRequest(request) {
         await this.summarizeConversation();
         let flowId1 = system.space.getFlowIdByName("FindObjectsByValue");
         let findObjectsContext = {
@@ -38,7 +41,7 @@ export class AgentService {
         }
         let result = await system.services.callFlow(flowId, context);
         await agent.addMessage("user", request);
-        if(result.flowId){
+        if (result.flowId) {
             //user wants to execute an operation
             let flowId2 = system.space.getFlowIdByName("ConfirmParameters");
             let operationId = result.flowId;
@@ -47,7 +50,7 @@ export class AgentService {
                 flowId: operationId
             }
             let response = await system.services.callFlow(flowId2, context);
-            if(response.missingParameters.length !== 0){
+            if (response.missingParameters.length !== 0) {
                 //request missing parameters from the user
                 let flowId = system.space.getFlowIdByName("RequestParameters");
                 let context = {
@@ -55,24 +58,20 @@ export class AgentService {
                     missingParameters: response.missingParameters
                 }
                 return await system.services.callFlow(flowId, context);
-            }else {
+            } else {
                 //execute operation with the current parameters
-                let flow = system.space.getFlow(operationId);
-                let order = flow.class.parameters.map((parameter) => parameter.name);
-                response.extractedParameters.sort((a, b) => order.indexOf(a.name) - order.indexOf(b.name));
-                let parameters = response.extractedParameters.map((parameter) => parameter.value);
-                let result = await system.services.callFlow(operationId, ...parameters);
-                let res;
-                if(result){
-                    res = JSON.stringify(result);
-                }else {
-                    res = result;
-                }
+                let result = await system.services.callFlow(operationId, response.extractedParameters);
                 let flowId = system.space.getFlowIdByName("ConfirmFlowExecution");
-                let executionMessageResult = await system.services.callFlow(flowId, operationId, response.extractedParameters, res, applicationObjects);
+                let context = {
+                    flowId: operationId,
+                    parameters: response.extractedParameters,
+                    result: result,
+                    spaceObjects: applicationObjects
+                }
+                let executionMessageResult = await system.services.callFlow(flowId, context);
                 return {refreshRightPanel: true, message: executionMessageResult};
             }
-        }else {
+        } else {
             //provide a generic answer
             let flowId = system.space.getFlowIdByName("Fallback");
             let context = {
@@ -83,10 +82,10 @@ export class AgentService {
         }
     }
 
-    async summarizeConversation(){
+    async summarizeConversation() {
         let agent = system.space.agent;
         const limit = 3000;
-        if(agent.wordCount > limit){
+        if (agent.wordCount > limit) {
             let flowId = system.space.getFlowIdByName("SummarizeAgentConversation");
             let result = await system.services.callFlow(flowId);
             await agent.setContext(result);
