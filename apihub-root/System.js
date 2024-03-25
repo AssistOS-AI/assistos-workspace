@@ -58,8 +58,9 @@ class System {
     }
 
     async reboot() {
-        await this.shutdown();
-        await this.boot();
+        /*await this.shutdown();
+        await this.boot();*/
+        window.location="";
     }
     async refresh(){
         /* ... */

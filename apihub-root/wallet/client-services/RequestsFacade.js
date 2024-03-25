@@ -2,7 +2,8 @@ export class RequestsFacade {
     constructor() {
 
     }
-    async addSpace(spaceName,apiKey,spaceObject) {
+
+    async addSpace(spaceName, apiKey, spaceObject) {
         const headers = {
             "Content-Type": "application/json; charset=UTF-8",
             "apikey": `${apiKey}`,
@@ -25,10 +26,10 @@ export class RequestsFacade {
         const headers = {
             "Content-Type": "application/json; charset=UTF-8",
         };
-        if(apiKey){
-            headers.apikey=apiKey
+        if (apiKey) {
+            headers.apikey = apiKey
         }
-        const bodyObject={spaceName:spaceName}
+        const bodyObject = {spaceName: spaceName}
         const options = {
             method: "POST",
             headers: headers,
@@ -37,12 +38,13 @@ export class RequestsFacade {
         const response = await fetch(`/spaces`, options);
 
         if (!response.ok) {
-            throw new Error(`HTTP error! status: ${response.status}`);
+            throw new Error(`HTTP error! status: ${response.status}, message: ${response.message}`);
         }
 
         return await response.json();
     }
-    async getSpace(spaceId){
+
+    async getSpace(spaceId) {
         const headers = {
             "Content-Type": "application/json; charset=UTF-8",
         };
@@ -53,19 +55,51 @@ export class RequestsFacade {
         const response = await fetch(`/spaces/${spaceId}`, options);
 
         if (!response.ok) {
-            throw new Error(`HTTP error! status: ${response.status}`);
+            throw new Error(`HTTP error! status: ${response.status}, message: ${response.message}`);
         }
 
         return await response.json();
 
     }
-    async updateSpace(spaceId,spaceDataObject) {
+
+    async updateSpace(spaceId, spaceDataObject) {
 
     }
+
     async deleteSpace(spaceId) {
 
     }
-    async registerUser(userDataObject) {
 
+    async registerUser(name, email, secretToken) {
+        const headers = {
+            "Content-Type": "application/json; charset=UTF-8",
+        };
+        const options = {
+            method: "POST",
+            headers: headers,
+            body: JSON.stringify({
+                name: name,
+                email: email,
+                secretToken: secretToken
+            })
+        };
+        const response = await fetch(`/users`, options);
+
+        if (!response.ok) {
+            throw new Error(`HTTP error! status: ${response.status}, message: ${response.message}`);
+        }
+
+        return await response.json();
+    }
+
+    async loadUser(userId) {
+        const response = await fetch(`/users/${userId}`,
+            {
+                method: "GET"
+            });
+        if (!response.ok) {
+            throw new Error(`HTTP error! status: ${response.status}, message: ${response.message}`);
+        }
+        return (await response.json()).data;
     }
 }

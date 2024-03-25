@@ -1,0 +1,9 @@
+{
+  "id": "$$id",
+  "name": "$$username",
+  "email": "$$email",
+  "spaces": [],
+  "secretToken": "$$secretToken",
+  "creationDate": "$$creationDate",
+  "currentSpaceId": "$$currentSpaceId?"
+}
