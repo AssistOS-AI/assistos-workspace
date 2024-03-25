@@ -7,10 +7,6 @@ export class AddFlow {
             code: "string"
 
     }
-    constructor() {
-
-    }
-
     async start(context) {
         try {
             context.code = "return " + context.code;

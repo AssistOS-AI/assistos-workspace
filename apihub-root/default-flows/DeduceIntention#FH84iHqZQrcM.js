@@ -1,10 +1,6 @@
 export class DeduceIntention {
     static id = "FH84iHqZQrcM";
     static description = "Deduces the intention of the user when speaking to an agent";
-    constructor() {
-
-    }
-
     async start(context) {
         let agent = system.space.agent;
         let flows = system.space.getAllFlows();

@@ -1,10 +1,6 @@
 export class ChangePage{
     static id = "2pbfX8qwia8Y";
     static description = "Redirects you to a page";
-    constructor() {
-
-    }
-
     async start (context){
         try {
             await system.UI.changeToDynamicPage(context.pageHtmlTagName, context.url, context.dataPresenterParams, context.skipHistoryState);

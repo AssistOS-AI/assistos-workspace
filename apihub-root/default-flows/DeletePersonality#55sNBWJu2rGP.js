@@ -1,10 +1,6 @@
 export class DeletePersonality {
     static id = "55sNBWJu2rGP";
     static description = "Deletes a personality";
-    constructor() {
-
-    }
-
     async start(context) {
         try {
             await system.space.deletePersonality(context.personalityId);

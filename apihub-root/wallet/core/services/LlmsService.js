@@ -44,15 +44,16 @@ export class LlmsService {
             console.error(e);
             return await showApplicationError("Flow execution Error", `Error executing flow ${flowObj.flowInstance.constructor.name}`, e);
         }
-
-        if(typeof flowObj.flowClass.outputSchema.isValid === "undefined"){
-            try {
-                let parsedResponse = JSON.parse(response);
-                system.services.validateSchema(parsedResponse, flowObj.flowClass.outputSchema, "output");
-                return parsedResponse;
-            }catch (e) {
-                console.error(e);
-                return await showApplicationError(e, e, e.stack);
+        if(flowObj.flowClass.outputSchema){
+            if(typeof flowObj.flowClass.outputSchema.isValid === "undefined"){
+                try {
+                    let parsedResponse = JSON.parse(response);
+                    system.services.validateSchema(parsedResponse, flowObj.flowClass.outputSchema, "output");
+                    return parsedResponse;
+                }catch (e) {
+                    console.error(e);
+                    return await showApplicationError(e, e, e.stack);
+                }
             }
         }
         return response;
@@ -83,7 +84,7 @@ export class LlmsService {
         });
         flowInstance.setDefaultValues();
         if(flow.class.inputSchema){
-            system.services.validateSchema(context, flow.class.inputSchema, "input");
+           // system.services.validateSchema(context, flow.class.inputSchema, "input");
         }
         return {flowInstance:flowInstance, flowClass:flow.class, personality: personality};
     }

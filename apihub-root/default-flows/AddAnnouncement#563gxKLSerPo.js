@@ -5,10 +5,6 @@ export class AddAnnouncement {
         title: "string",
         text: "string",
     };
-    constructor() {
-
-    }
-
     async start(context) {
         try {
             let announcementData = {

@@ -4,9 +4,6 @@ export class AddCapabilities{
     static outputSchema = {
             capabilities:["string"]
     }
-    constructor() {
-    }
-
     async start() {
         try {
             let flows = system.space.getAllFlows();
@@ -37,9 +34,9 @@ export class AddCapabilities{
             for (let capability of obj.capabilities) {
                 await agent.addCapability(capability);
             }
+            this.return(obj);
         } catch (e) {
             this.fail(e);
         }
-        this.return(response);
     }
 }

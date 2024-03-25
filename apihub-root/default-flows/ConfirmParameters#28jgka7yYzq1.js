@@ -1,10 +1,6 @@
 export class ConfirmParameters {
     static id = "28jgka7yYzq1";
     static description = "Determines if the request of the user has enough parameters to execute the chosen operation";
-
-    constructor() {
-    }
-
     async start(request, flowId) {
         let agent = system.space.agent;
         let flow = system.space.getFlow(flowId);
@@ -21,10 +17,10 @@ export class ConfirmParameters {
         let agent = system.space.agent;
         let response = await this.chatbot(this.prompt, "", agent.getContext());
         try {
-            JSON.parse(response);
+            this.return(JSON.parse(response));
         } catch (e) {
             this.fail(e);
         }
-        this.return(response);
+
     }
 }

@@ -1,10 +1,6 @@
 export class UpdateParagraphText {
     static id = "31NKgxUUAKup";
     static description = "Updates the text of a paragraph";
-
-    constructor() {
-    }
-
     async start(context) {
         try {
             let document = system.space.getDocument(context.documentId);

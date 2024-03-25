@@ -1,10 +1,6 @@
 export class ConfirmFlowExecution {
     static id = "2qTh1JoDiLS3";
     static description = "Generates a user-friendly message that confirms that the operation has been executed successfully";
-
-    constructor() {
-    }
-
     async start(context) {
         try {
             let agent = system.space.agent;

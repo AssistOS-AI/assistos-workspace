@@ -4,9 +4,6 @@ export class AddSpace {
     static inputSchema = {
         name: "string"
     };
-    constructor() {
-    }
-
     async start(context) {
         try {
             let newSpace = await system.factories.createSpace(context.name,context.apiKey);

@@ -1,9 +1,6 @@
 export class UpdateChapterTitle {
     static id = "2FkpqCvy1bki";
     static description = "Updates the title of a chapter";
-    constructor() {
-    }
-
     async start(context){
         try {
             let document = system.space.getDocument(context.documentId);

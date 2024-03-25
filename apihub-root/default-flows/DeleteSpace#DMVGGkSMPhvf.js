@@ -1,10 +1,6 @@
 export class DeleteSpace {
     static id = "DMVGGkSMPhvf";
     static description = "Deletes a space";
-    constructor() {
-
-    }
-
     async start(context) {
         try {
             await system.storage.storeSpace(context.spaceId, "");

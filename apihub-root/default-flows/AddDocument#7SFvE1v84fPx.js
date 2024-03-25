@@ -5,10 +5,6 @@ export class AddDocument {
             title: "string",
             topic: "string",
     }
-    constructor() {
-
-    }
-
     async start(context) {
         try {
             let docData = {

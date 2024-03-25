@@ -1,10 +1,6 @@
 export class DeleteParagraph {
     static id = "2Ds4XYzD8Pu1";
     static description = "Deletes a paragraph";
-
-    constructor() {
-    }
-
     async start(context) {
         try {
             let document = system.space.getDocument(context.documentId);
