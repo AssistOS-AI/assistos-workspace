@@ -11,4 +11,8 @@ export class SpaceService {
         await space.loadFlows();
         return space;
     }
+    async changeSpace(spaceId) {
+        system.space=await this.loadSpace(spaceId);
+        await system.refresh();
+    }
 }

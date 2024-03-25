@@ -101,13 +101,6 @@ export class Space {
         return "space";
     }
 
-    async changeSpace(spaceId) {
-        let user = JSON.parse(await system.storage.loadUser(system.user.id));
-        user.currentSpaceId = spaceId;
-        await system.storage.storeUser(user.id, JSON.stringify(user));
-        window.location = "";
-    }
-
     getDocument(documentId) {
         const document = this.documents.find(document => document.id === documentId);
         return document || null;

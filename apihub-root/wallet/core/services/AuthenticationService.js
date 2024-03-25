@@ -13,10 +13,9 @@ export class AuthenticationService {
             let userData = await system.storage.loadUser(cachedUser);
 
             if (userData.spaces.length === 0) {
-                await this.createDefaultSpace(userData.name);
+                await this.createPersonalSpace(userData.name);
                 window.location = "";
             }
-
             system.user = {
                 id: userData.id,
                 secretToken: userData.secretToken,
@@ -118,7 +117,7 @@ export class AuthenticationService {
         return null;
     }
 
-    async createDefaultSpace(userName) {
+    async createPersonalSpace(userName) {
         return await system.storage.createSpace(`${userName.endsWith("s") ? userName + "'" : userName + "'s"} Space`);
     }
 
@@ -136,7 +135,7 @@ export class AuthenticationService {
         userData.secretToken = secretToken;
         userData.id = system.services.generateId();
 
-        let defaultSpace = this.createDefaultSpace(userData.name);
+        let defaultSpace = this.createPersonalSpace(userData.name);
         userData.spaces = [{name: defaultSpace.name, id: defaultSpace.id}];
         userData.currentSpaceId = defaultSpace.id;
         //const didDocument = await $$.promisify(w3cDID.createIdentity)("key", undefined, randomNr);
@@ -210,7 +209,7 @@ export class AuthenticationService {
                         currentSpaceId: storedUser.spaces[0].id
                     }
                 } else {
-                    let defaultSpace = await this.createDefaultSpace(storedUser.name);
+                    let defaultSpace = await this.createPersonalSpace(storedUser.name);
                     system.user = {
                         id: storedUser.id,
                         secretToken: storedUser.secretToken,
