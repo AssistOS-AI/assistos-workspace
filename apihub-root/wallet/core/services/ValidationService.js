@@ -4,7 +4,7 @@ export class ValidationService{
         if(schema.type){
             this.parseSchema(object, schema, schemaType, failedFields);
         } else {
-            this.parseSimpleSchema(object, schema);
+            this.parseSimpleSchema(object, schema, failedFields);
         }
         if(failedFields.length > 0){
             schema.isValid = false;

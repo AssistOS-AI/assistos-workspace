@@ -91,16 +91,16 @@ export class AgentPage {
         await this.displayMessage("user", userPrompt);
         let response = await system.services.analyzeRequest(formInfo.data.input);
         let agentMessage;
-        if(response.responseJson){
-            agentMessage = JSON.stringify(response.responseJson)
+        if(response){
+            agentMessage = JSON.stringify(response)
         } else{
             if(response.refreshRightPanel){
-                agentMessage = response.message.responseString;
+                agentMessage = response.message;
                 let parentComponent = system.UI.getClosestParentElement(this.element, "space-configs-page");
                 let rightPanel = parentComponent.querySelector(".current-page");
                 system.UI.refreshElement(rightPanel);
             } else {
-                agentMessage = response.responseString
+                agentMessage = response
             }
         }
         await this.displayMessage("assistant", agentMessage);

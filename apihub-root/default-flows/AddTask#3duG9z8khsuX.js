@@ -8,7 +8,7 @@ export class AddTask {
     async start(context) {
         try {
             await system.space.agent.addTask(context.description, context.date);
-            this.return(description);
+            this.return(context.description);
         } catch (e) {
             this.fail(e);
         }

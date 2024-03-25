@@ -10,6 +10,7 @@ export class SpaceService {
         let space = new Space(spaceData);
         await space.loadFlows();
         system.space = space;
+        await space.loadApplicationsFlows();
     }
 
     async changeSpace(spaceId) {

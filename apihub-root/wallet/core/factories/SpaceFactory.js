@@ -13,6 +13,7 @@ export class SpaceFactory {
     async initialiseSpace(spaceData) {
         let space = new Space(spaceData);
         await space.loadFlows();
+        await space.loadApplicationsFlows();
         return space;
     }
 }

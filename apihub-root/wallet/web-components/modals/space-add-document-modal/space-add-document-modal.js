@@ -19,7 +19,7 @@ export class SpaceAddDocumentModal {
                 topic: formData.data.documentTopic
             }
             let docId = await system.services.callFlow(flowId, context);
-            docId.responseString? docId = docId.responseString : docId = docId.responseJson;
+            docId? docId = docId : docId = docId;
             system.UI.closeModal(_target);
             await system.UI.changeToDynamicPage(`space-configs-page`, `${system.space.id}/SpaceConfiguration/space-document-view-page/${docId}`);
         }

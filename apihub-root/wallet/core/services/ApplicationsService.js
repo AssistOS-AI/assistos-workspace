@@ -24,7 +24,7 @@ export class ApplicationsService {
 
     async initialiseApplication(appName) {
 
-        system.initialisedApplications[appName] = await system.storage.getApplicationConfigs(system.space.id, appName);
+        system.initialisedApplications[appName] = JSON.parse(await system.storage.getApplicationConfigs(system.space.id, appName));
         if (system.initialisedApplications[appName].manager) {
             let ManagerModule = await system.storage.getApplicationFile(system.space.id, appName, system.initialisedApplications[appName].manager.path)
             system.initialisedApplications[appName].manager = new ManagerModule[system.initialisedApplications[appName].manager.name](appName);
