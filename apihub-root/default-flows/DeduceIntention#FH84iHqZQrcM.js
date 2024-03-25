@@ -5,13 +5,11 @@ export class DeduceIntention {
         let agent = system.space.agent;
         let flows = system.space.getAllFlows();
         let agentFlows = flows.filter((flow) => {
-            if(flow.class.parameters){
-                if( flow.class.parameters.length !== 0){
+            if(flow.class.inputSchema){
                     return flow;
-                }
             }
         });
-        let operations = agentFlows.filter((flow) => flow.class.parameters)
+        let operations = agentFlows.filter((flow) => flow.class.inputSchema)
             .map((flow) => ({
                 id: flow.class.id,
                 description: flow.class.description,
@@ -25,6 +23,6 @@ export class DeduceIntention {
 
     async execute(agent) {
         let response = await this.chatbot(this.prompt, "", agent.getContext());
-        this.return(response);
+        this.return(JSON.parse(response));
     }
 }

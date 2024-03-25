@@ -3,7 +3,6 @@ export class AddDocument {
     static description = "Adds a new document, article or any kind of paperwork";
     static inputSchema= {
             title: "string",
-            topic: "string",
     }
     async start(context) {
         try {

@@ -30,11 +30,11 @@ export class AddCapabilities{
         let response = await this.request(this.prompt);
         try {
             let obj = JSON.parse(response);
-            system.services.validateSchema(obj, AddCapabilities.outputSchema, "output");
+            //system.services.validateSchema(obj, AddCapabilities.outputSchema, "output");
             for (let capability of obj.capabilities) {
                 await agent.addCapability(capability);
             }
-            this.return(obj);
+            this.return(response);
         } catch (e) {
             this.fail(e);
         }

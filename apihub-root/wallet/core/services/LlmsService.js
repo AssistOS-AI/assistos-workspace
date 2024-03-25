@@ -48,7 +48,7 @@ export class LlmsService {
             if(typeof flowObj.flowClass.outputSchema.isValid === "undefined"){
                 try {
                     let parsedResponse = JSON.parse(response);
-                    system.services.validateSchema(parsedResponse, flowObj.flowClass.outputSchema, "output");
+                    //system.services.validateSchema(parsedResponse, flowObj.flowClass.outputSchema, "output");
                     return parsedResponse;
                 }catch (e) {
                     console.error(e);
