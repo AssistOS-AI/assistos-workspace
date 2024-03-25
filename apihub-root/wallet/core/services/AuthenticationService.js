@@ -24,7 +24,7 @@ export class AuthenticationService {
 
             if (spaceId) {
                 if (system.user.spaces.find(space => space.id === spaceId)) {
-                    system.space = await  system.services.loadSpace(spaceId);
+                    await system.services.loadSpace(spaceId);
                 } else {
                     /* TODO Custom 403 page : user does not have access to this space */
                     window.location = "";
@@ -32,9 +32,9 @@ export class AuthenticationService {
             } else {
                 const cachedSpace = this.getCachedSpace();
                 if (cachedSpace) {
-                    system.space = await system.services.loadSpace(cachedSpace);
+                    await system.services.loadSpace(cachedSpace);
                 } else {
-                    system.space = await system.services.loadSpace(system.user.spaces[0].id);
+                    await system.services.loadSpace(system.user.spaces[0].id);
                 }
             }
         } else {

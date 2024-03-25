@@ -9,10 +9,11 @@ export class SpaceService {
         const spaceData = (await system.storage.loadSpace(spaceId)).data;
         let space = new Space(spaceData);
         await space.loadFlows();
-        return space;
+        system.space = space;
     }
+
     async changeSpace(spaceId) {
-        system.space=await this.loadSpace(spaceId);
+        await this.loadSpace(spaceId);
         await system.refresh();
     }
 }
