@@ -5,10 +5,10 @@ export class DeleteAnnouncement {
 
     }
 
-    async start(announcementId) {
+    async start(context) {
         try {
-            await system.space.deleteAnnouncement(announcementId);
-            this.return(announcementId);
+            await system.space.deleteAnnouncement(context.announcementId);
+            this.return(context.announcementId);
         } catch (e) {
             this.fail(e);
         }

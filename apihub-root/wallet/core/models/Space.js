@@ -184,6 +184,9 @@ export class Space {
     getPersonality(id) {
         return this.personalities.find(pers => pers.id === id);
     }
+    getPersonalityByName(name){
+        return this.personalities.find(pers => pers.name === name);
+    }
 
     async addAnnouncement(announcementData) {
         this.announcements.unshift(new Announcement(announcementData));

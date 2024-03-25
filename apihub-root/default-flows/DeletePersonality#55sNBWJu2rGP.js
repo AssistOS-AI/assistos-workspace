@@ -5,10 +5,10 @@ export class DeletePersonality {
 
     }
 
-    async start(personalityId) {
+    async start(context) {
         try {
-            await system.space.deletePersonality(personalityId);
-            this.return(personalityId);
+            await system.space.deletePersonality(context.personalityId);
+            this.return(context.personalityId);
         } catch (e) {
             this.fail(e);
         }

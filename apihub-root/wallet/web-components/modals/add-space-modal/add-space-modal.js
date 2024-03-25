@@ -24,8 +24,12 @@ export class AddSpaceModal {
             /* TODO It does not make sense to use an editable flow for default Application operations
             *   Hard to debug, prone to errors, hard to separate the UI logic with data logic (when to refresh, when to close the modal, etc)
             * */
-            //let flowId = system.space.getFlowIdByName("AddSpace");
-            //await system.services.callFlow(flowId, formData.data.name,formData.data.spaceAPIKey);
+            let flowId = system.space.getFlowIdByName("AddSpace");
+            let context = {
+                name: formData.data.name,
+                apiKey: formData.data.spaceAPIKey
+            }
+            await system.services.callFlow(flowId, context);
 
 
             const apiKey = formData.data.spaceAPIKey

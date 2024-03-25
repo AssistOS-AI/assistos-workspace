@@ -9,8 +9,6 @@ export class SummarizeAgentConversation {
     start() {
         let agent = system.space.agent;
         this.prompt = `Please summarize the following conversation between a user and an AI model: "${JSON.stringify(agent.conversationHistory)}" by extracting key information about the discussion. The assistant's role is to answer to the user's needs and perform certain tasks in a software application. System messages are used to instruct the model about the context of the conversation. Include in the summary any potential parameters and their values and operations that the assistant may use for his tasks.`;
-        this.setDefaultValues();
-        this.setIntelligenceLevel(3);
         this.execute();
     }
 

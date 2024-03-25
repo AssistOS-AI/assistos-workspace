@@ -50,7 +50,10 @@ export class FlowsPage {
     async deleteAction(_target) {
         this.filteredFlows = this.filteredFlows.filter(flow => flow.id !== this.getFlowId(_target));
         let flowId = system.space.getFlowIdByName("DeleteFlow");
-        await system.services.callFlow(flowId, this.getFlowId(_target));
+        let context = {
+            flowId: this.getFlowId(_target)
+        }
+        await system.services.callFlow(flowId, context);
         this.invalidate();
     }
 

@@ -33,7 +33,12 @@ export class AddPersonalityModal {
         if(formInfo.isValid) {
 
             let flowId = system.space.getFlowIdByName("AddPersonality");
-            await system.services.callFlow(flowId, formInfo.data.name, formInfo.data.description, formInfo.data.photo);
+            let context = {
+                name: formInfo.data.name,
+                description: formInfo.data.description,
+                photo: formInfo.data.photo
+            }
+            await system.services.callFlow(flowId, context);
             system.space.notifyObservers(system.space.getNotificationId());
             closeModal(_target);
         }

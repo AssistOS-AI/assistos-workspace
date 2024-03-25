@@ -1,5 +1,4 @@
-import {extractFormInformation} from "../../../imports.js";
-
+import {extractFormInformation, constants} from "../../../imports.js";
 export class EditPersonalityPage{
     constructor(element,invalidate) {
         this.personality = system.space.getPersonality(window.location.hash.split("/")[3]);
@@ -10,6 +9,9 @@ export class EditPersonalityPage{
     }
 
     beforeRender(){
+        if(this.personality.name === constants.DEFAULT_PERSONALITY_NAME){
+            this.disabled = "disabled";
+        }
         if(this.personality.image){
             this.photo = this.personality.image;
         } else {
@@ -85,7 +87,11 @@ export class EditPersonalityPage{
                 image: formInfo.data.photo
             }
             let flowId = system.space.getFlowIdByName("UpdatePersonality");
-            await system.services.callFlow(flowId, personalityData, this.personality.id);
+            let context = {
+                personalityData: personalityData,
+                personalityId: this.personality.id
+            }
+            await system.services.callFlow(flowId, context);
             await this.openPersonalitiesPage();
         }
     }
@@ -103,7 +109,10 @@ export class EditPersonalityPage{
 
     async deletePersonality(){
         let flowId = system.space.getFlowIdByName("DeletePersonality");
-        await system.services.callFlow(flowId, this.personality.id);
+        let context = {
+            personalityId: this.personality.id
+        }
+        await system.services.callFlow(flowId, context);
         await this.openPersonalitiesPage();
     }
 

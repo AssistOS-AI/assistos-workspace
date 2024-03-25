@@ -4,11 +4,11 @@ export class DeleteChapter {
     constructor() {
     }
 
-    async start(documentId, chapterId) {
+    async start(context) {
         try {
-            let document = system.space.getDocument(documentId);
-            await document.deleteChapter(chapterId);
-            this.return(chapterId);
+            let document = system.space.getDocument(context.documentId);
+            await document.deleteChapter(context.chapterId);
+            this.return(context.chapterId);
         } catch (e) {
             this.fail(e);
         }

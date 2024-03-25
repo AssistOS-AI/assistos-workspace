@@ -34,7 +34,10 @@ export class AnnouncementsPage {
     }
     async deleteAction(_target){
         let flowId = system.space.getFlowIdByName("DeleteAnnouncement");
-        await system.services.callFlow(flowId, this.getAnnouncementId(_target));
+        let context = {
+            announcementId: this.getAnnouncementId(_target)
+        }
+        await system.services.callFlow(flowId, context);
         this.invalidate();
     }
     async editAction(_target){

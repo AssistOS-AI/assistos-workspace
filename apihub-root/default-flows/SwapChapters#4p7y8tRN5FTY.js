@@ -5,17 +5,17 @@ export class SwapChapters {
     constructor() {
     }
 
-    async start(documentId, chapterId1, chapterId2) {
+    async start(context) {
         try {
-            let document = system.space.getDocument(documentId);
+            let document = system.space.getDocument(context.documentId);
 
             // Swap chapters in the document
-            if (document.swapChapters(chapterId1, chapterId2)) {
+            if (document.swapChapters(context.chapterId1, context.chapterId2)) {
                 // Update the document after swapping chapters
                 await system.factories.updateDocument(system.space.id, document);
-                this.return(documentId);
+                this.return(context.documentId);
             } else {
-                this.fail(`Unable to swap chapters. ${chapterId1}, ${chapterId2}`);
+                this.fail(`Unable to swap chapters. ${context.chapterId1}, ${context.chapterId2}`);
             }
         } catch (e) {
             this.fail(e);

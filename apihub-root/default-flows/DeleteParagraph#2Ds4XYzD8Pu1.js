@@ -5,13 +5,13 @@ export class DeleteParagraph {
     constructor() {
     }
 
-    async start(documentId, chapterId, paragraphId) {
+    async start(context) {
         try {
-            let document = system.space.getDocument(documentId);
-            let chapter = document.getChapter(chapterId);
-            chapter.deleteParagraph(paragraphId);
+            let document = system.space.getDocument(context.documentId);
+            let chapter = document.getChapter(context.chapterId);
+            chapter.deleteParagraph(context.paragraphId);
             await system.factories.updateDocument(system.space.id, document);
-            this.return(paragraphId);
+            this.return(context.paragraphId);
         } catch (e) {
             this.fail(e);
         }

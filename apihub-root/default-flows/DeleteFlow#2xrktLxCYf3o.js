@@ -5,10 +5,10 @@ export class DeleteFlow {
 
     }
 
-    async start(flowId, appId) {
+    async start(context) {
         try {
-            await system.space.deleteFlow(flowId, appId);
-            this.return(flowId);
+            await system.space.deleteFlow(context.flowId, context.appId);
+            this.return(context.flowId);
         } catch (e) {
             this.fail(e);
         }

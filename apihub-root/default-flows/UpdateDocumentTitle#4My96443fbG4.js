@@ -5,11 +5,11 @@ export class UpdateDocumentTitle {
     constructor() {
     }
 
-    async start(documentId, title) {
+    async start(context) {
         try {
-            let document = system.space.getDocument(documentId);
-            await document.updateTitle(title);
-            this.return(title);
+            let document = system.space.getDocument(context.documentId);
+            await document.updateTitle(context.title);
+            this.return(context.title);
         } catch (e) {
             this.fail(e);
         }

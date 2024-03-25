@@ -5,9 +5,9 @@ export class ChangeSpace {
 
     }
 
-    async start(spaceId) {
+    async start(context) {
         try {
-            await system.space.changeSpace(spaceId);
+            await system.space.changeSpace(context.spaceId);
             this.return(spaceId);
         } catch (e) {
             this.fail(e);

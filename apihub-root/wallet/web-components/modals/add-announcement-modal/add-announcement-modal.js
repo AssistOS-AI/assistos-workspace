@@ -20,7 +20,11 @@ export class AddAnnouncementModal {
         if(formInfo.isValid) {
 
             let flowId = system.space.getFlowIdByName("AddAnnouncement");
-            await system.services.callFlow(flowId, formInfo.data.title, formInfo.data.text);
+            let context = {
+                title: formInfo.data.title,
+                text: formInfo.data.text
+            };
+            await system.services.callFlow(flowId, context);
             system.space.notifyObservers(system.space.getNotificationId());
             closeModal(_target);
         }

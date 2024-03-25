@@ -5,17 +5,17 @@ export class AddChapter {
     constructor() {
     }
 
-    async start(documentId, title) {
-        if (!title) {
-            title = "NewChapter";
+    async start(context) {
+        if (!context.title) {
+            context.title = "NewChapter";
         }
 
         try {
-            let document = system.space.getDocument(documentId);
+            let document = system.space.getDocument(context.documentId);
 
             // Create chapter data
             let chapterData = {
-                title: title,
+                title: context.title,
                 id: system.services.generateId(),
                 paragraphs: [
                     {
@@ -41,7 +41,7 @@ export class AddChapter {
             system.space.currentChapterId = chapterData.id;
             system.space.currentParagraphId = chapterData.paragraphs[0].id;
 
-            this.return(title);
+            this.return(context.title);
         } catch (e) {
             this.fail(e);
         }

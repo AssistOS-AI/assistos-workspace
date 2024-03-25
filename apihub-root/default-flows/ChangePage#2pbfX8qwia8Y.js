@@ -5,10 +5,10 @@ export class ChangePage{
 
     }
 
-    async start (pageHtmlTagName, url, dataPresenterParams, skipHistoryState) {
+    async start (context){
         try {
-            await system.UI.changeToDynamicPage(pageHtmlTagName, url, dataPresenterParams, skipHistoryState);
-            this.return(pageHtmlTagName);
+            await system.UI.changeToDynamicPage(context.pageHtmlTagName, context.url, context.dataPresenterParams, context.skipHistoryState);
+            this.return(context.pageHtmlTagName);
         } catch (e) {
             this.fail(e);
         }

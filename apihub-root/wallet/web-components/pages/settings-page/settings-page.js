@@ -43,7 +43,8 @@ export class SettingsPage {
 
     async deleteSpace() {
         let flowId = system.space.getFlowIdByName("DeleteSpace");
-        return await system.services.callFlow(flowId, system.space.id);
+        let context = { spaceId: system.space.id };
+        return await system.services.callFlow(flowId, context);
     }
 
     async deleteGITCredentials(_target, userId) {

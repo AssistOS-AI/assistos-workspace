@@ -5,14 +5,14 @@ export class UpdateParagraphText {
     constructor() {
     }
 
-    async start(documentId, chapterId, paragraphId, text) {
+    async start(context) {
         try {
-            let document = system.space.getDocument(documentId);
-            let chapter = document.getChapter(chapterId);
-            let paragraph = chapter.getParagraph(paragraphId);
-            paragraph.updateText(text);
+            let document = system.space.getDocument(context.documentId);
+            let chapter = document.getChapter(context.chapterId);
+            let paragraph = chapter.getParagraph(context.paragraphId);
+            paragraph.updateText(context.text);
             await system.factories.updateDocument(system.space.id, document);
-            this.return(paragraphId);
+            this.return(context.paragraphId);
         } catch (e) {
             this.fail(e);
         }

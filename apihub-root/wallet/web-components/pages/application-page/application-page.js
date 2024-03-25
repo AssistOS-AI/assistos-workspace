@@ -68,7 +68,11 @@ export class ApplicationPage {
     async deleteAction(_target){
         this._app.flows = this._app.flows.filter(flow => flow.id !== this.getFlowId(_target));
         let flowId = system.space.getFlowIdByName("DeleteFlow");
-        await system.services.callFlow(flowId, this.getFlowId(_target), this._app.id);
+        let context = {
+            flowId: this.getFlowId(_target),
+            appId: this._app.id
+        }
+        await system.services.callFlow(flowId, context);
         this.invalidate();
     }
     async showActionBox(_target, primaryKey, componentName, insertionMode) {

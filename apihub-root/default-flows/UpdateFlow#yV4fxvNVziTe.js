@@ -5,13 +5,13 @@ export class UpdateFlow {
 
     }
 
-    async start(flowId, flowData, appId) {
+    async start(context) {
         try {
-            flowData = "return " + flowData;
-            const classConstructor = new Function(flowData);
+            context.flowData = "return " + context.flowData;
+            const classConstructor = new Function(context.flowData);
             const flowClass = classConstructor();
-            await system.space.updateFlow(flowId, flowClass, appId);
-            this.return(flowId);
+            await system.space.updateFlow(context.flowId, flowClass, context.appId);
+            this.return(context.flowId);
         } catch (e) {
             this.fail(e);
         }
