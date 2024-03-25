@@ -117,7 +117,7 @@ async function loadUserByEmail(request, response) {
 
     let user = users.find(user => user.email === email);
     if (user) {
-        sendResponse(response, 200, "application/json", JSON.stringify(user));
+        sendResponse(response, 200, "text/plain", JSON.stringify(user));
         return "";
     }
 
