@@ -10,10 +10,6 @@
     {
       "name": "DocumentFactory",
       "path": "./wallet/core/factories/DocumentFactory.js"
-    },
-    {
-      "name": "SpaceFactory",
-      "path": "./wallet/core/factories/SpaceFactory.js"
     }
   ],
   "services": [
@@ -56,6 +52,10 @@
     {
       "name": "ValidationService",
       "path": "./wallet/core/services/ValidationService.js"
+    },
+    {
+      "name": "DocumentService",
+      "path": "./wallet/core/services/DocumentService.js"
     }
   ],
   "applications": [

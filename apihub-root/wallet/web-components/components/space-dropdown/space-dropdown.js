@@ -33,7 +33,6 @@ export class SpaceDropdown {
         let arrow = container.querySelector(".arrow");
         arrow.classList.add("rotated");
     }
-    ;
 
     showSpaces(_target, mode) {
         if (mode === "off") {

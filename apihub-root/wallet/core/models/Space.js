@@ -287,7 +287,7 @@ export class Space {
     async createDefaultAgent() {
         this.agent = new Agent(JSON.parse(await system.storage.loadDefaultAgent()));
     }
-
+   /* TODO TBD makes sense only if the intent is to have the application also working offline */
     createDefaultAnnouncement(spaceData) {
         let defaultAnnouncement = {
             id: system.services.generateId(),
