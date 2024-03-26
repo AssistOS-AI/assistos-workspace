@@ -68,11 +68,13 @@ export class SpaceDocumentViewPage {
         paragraph["timer"].stop(true);
         paragraph["paragraph"].removeEventListener("keydown", this.resetTimer);
         paragraph["paragraph"].setAttribute("contenteditable", "false");
+        paragraph["paragraph"].removeAttribute("id");
     }
 
     editParagraph(paragraph) {
         if (paragraph.getAttribute("contenteditable") === "false") {
             paragraph.setAttribute("contenteditable", "true");
+            paragraph.setAttribute("id", "highlighted-child-element");
             let paragraphUnit = system.UI.reverseQuerySelector(paragraph, ".paragraph-unit");
             paragraph.focus();
             this.previouslySelectedParagraph={};
@@ -202,7 +204,8 @@ export class SpaceDocumentViewPage {
             this.deselectPreviousParagraph();
             this.deselectPreviousChapter();
             let leftSideBarItem = system.UI.getClosestParentElement(event.target, ".feature");
-             if (leftSideBarItem) {
+            let rightSideBarItem = system.UI.getClosestParentElement(event.target, ".sidebar-item");
+             if (leftSideBarItem || rightSideBarItem) {
                 controller.abort();
             }
         }
@@ -210,7 +213,7 @@ export class SpaceDocumentViewPage {
 
     highlightChapter() {
         this.previouslySelectedChapter = this.chapterUnit;
-        this.chapterUnit.setAttribute("id", "highlighted-chapter");
+        this.chapterUnit.setAttribute("id", "highlighted-element");
         this.switchArrowsDisplay(this.chapterUnit, "chapter", "on");
         let xMark = this.chapterUnit.querySelector(".delete-chapter");
         xMark.style.visibility = "visible";
@@ -327,7 +330,7 @@ export class SpaceDocumentViewPage {
             title.setAttribute("contenteditable", "true");
             title.addEventListener('keydown', titleEnterHandler);
             title.focus();
-            title.parentElement.setAttribute("id", "highlighted-chapter");
+            title.parentElement.setAttribute("id", "highlighted-element");
             let flowId = system.space.getFlowIdByName("UpdateDocumentTitle");
             let timer = system.services.SaveElementTimer(async () => {
                 let titleText = system.UI.sanitize(system.UI.customTrim(title.innerText));
@@ -359,7 +362,7 @@ export class SpaceDocumentViewPage {
             let abstractSection = system.UI.reverseQuerySelector(abstract, ".abstract-section");
             abstract.setAttribute("contenteditable", "true");
             abstract.focus();
-            abstractSection.setAttribute("id", "highlighted-chapter");
+            abstractSection.setAttribute("id", "highlighted-element");
             let flowId = system.space.getFlowIdByName("UpdateAbstract");
             let timer =  system.services.SaveElementTimer(async () => {
                 let abstractText = system.UI.sanitize(system.UI.customTrim(abstract.innerText));
