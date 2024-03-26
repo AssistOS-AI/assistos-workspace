@@ -12,10 +12,10 @@ const {
 const {defaultUserTemplate, defaultSpaceNameTemplate} = require('../../models/templates/exporter.js')
 ('defaultUserTemplate', 'defaultSpaceNameTemplate');
 
-const {USER_FOLDER_PATH} = require('../../config.json');
+const {USER_FOLDER_PATH, USER_CREDENTIALS_PATH} = require('../../config.json');
 
 
-async function createUser(username, email, secretToken, withDefaultSpace = false) {
+async function createUser(username, email, withDefaultSpace = false) {
     const rollback = async () => {
         try {
             await fsPromises.rm(userPath, {recursive: true, force: true});
@@ -39,10 +39,10 @@ async function createUser(username, email, secretToken, withDefaultSpace = false
             id: userId,
             username: username,
             email: email,
-            secretToken: secretToken,
-            creationDate: getCurrentUTCDate()
+            activationDate: getCurrentUTCDate()
         }
     )
+
     const userPath = path.join(__dirname, '../../../', USER_FOLDER_PATH, `${userId}.json`);
     try {
         await fsPromises.writeFile(userPath, JSON.stringify(userData, null, 2), 'utf8');
