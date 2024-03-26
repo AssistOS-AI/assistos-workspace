@@ -15,6 +15,12 @@ export class PersonalitiesPage {
             });
         }
     }
+    setContext(){
+        system.context = {
+            "location and available actions":"You are in the page Personalities. Here you can add, edit or delete personalities.",
+            "available items": system.space.personalities.map((personality)=>personality.simplify())
+        }
+    }
     expandTable(){
         let table = this.element.querySelector(".table");
         table.style.gridTemplateColumns = "repeat(4, 1fr)";
@@ -36,6 +42,7 @@ export class PersonalitiesPage {
         }
         this.boundMinimizeTable = this.minimizeTable.bind(this);
         this.element.addEventListener("showSidebar", this.boundMinimizeTable);
+        this.setContext();
     }
     async showAddPersonalityModal() {
         await system.UI.showModal("add-personality-modal", { presenter: "add-personality-modal"});

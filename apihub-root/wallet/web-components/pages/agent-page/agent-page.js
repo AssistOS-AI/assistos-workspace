@@ -112,7 +112,7 @@ export class AgentPage {
     }
 
     async resetConversation() {
-        await this.agent.resetConversation();
+        await system.services.resetConversation();
         this.invalidate();
     }
 }

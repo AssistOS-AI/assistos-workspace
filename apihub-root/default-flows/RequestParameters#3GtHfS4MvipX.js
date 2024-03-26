@@ -10,7 +10,7 @@ export class RequestParameters {
         let parameters = Object.keys(flow.class.inputSchema).filter((key) => {
             return context.missingParameters.includes(key);
         });
-        this.prompt = `Your purpose right now is to formulate a statement or a question in which you require the user to provide you with these missing parameters: ${JSON.stringify(parameters)} for this operation: ${flow.class.description}.`;
+        this.prompt = `Your task right now is to formulate a statement or a question in which you require the user to provide you with these missing parameters: ${JSON.stringify(parameters)} for this operation: ${flow.class.description}.`;
         await this.execute();
     }
 

@@ -22,6 +22,15 @@ export class AnnouncementsPage {
             this.announcementsContainer=`<div class="no-data-loaded">No announcements for now</div>`;
         }
     }
+    afterRender(){
+        this.setContext();
+    }
+    setContext(){
+        system.context = {
+            "location and available actions": "We are in the Rules and Announcements page in OS. Here you can add announcements.",
+            "available items": system.space.announcements.map((announcement)=>announcement.simplify())
+        }
+    }
     async showActionBox(_target, primaryKey, componentName, insertionMode) {
         await showActionBox(_target, primaryKey, componentName, insertionMode);
     }
