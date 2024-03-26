@@ -129,7 +129,7 @@ p {
     width: 100%;
 }
 
-#highlighted-chapter{
+#highlighted-element{
     background-color:var(--medium-white);
 }
 .data-chapter-number{

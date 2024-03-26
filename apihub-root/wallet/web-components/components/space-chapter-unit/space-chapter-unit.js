@@ -75,6 +75,7 @@ export class SpaceChapterUnit {
 
     async editChapterTitle(title) {
         title.setAttribute("contenteditable", "true");
+        title.setAttribute("id", "highlighted-child-element");
 
         const titleEnterHandler = async (event) => {
             if (event.key === 'Enter') {
@@ -103,6 +104,7 @@ export class SpaceChapterUnit {
             title.innerText = system.UI.customTrim(title.innerText)||system.UI.unsanitize(this.chapter.title);
             await timer.stop(true);
             title.removeAttribute("contenteditable");
+            title.removeAttribute("id");
             title.removeEventListener('keydown', titleEnterHandler);
             title.removeEventListener("keydown", resetTimer);
         }, {once: true});
@@ -135,7 +137,7 @@ export class SpaceChapterUnit {
     }
 
     highlightChapter(){
-        this.chapterUnit.setAttribute("id", "highlighted-chapter");
+        this.chapterUnit.setAttribute("id", "highlighted-element");
         system.space.currentChapterId = this.chapter.id;
         if(this._document.chapters.length===1){
             return;
