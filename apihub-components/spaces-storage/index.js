@@ -11,7 +11,7 @@ function SpaceStorage(server) {
         createSpace,
         storeSecret,
         addCollaboratorToSpace
-    } = require("./controller.js");
+    } = require("./controller");
 
     /* server.use("/spaces/*",authenticationMiddleware)  */
     /* server.use("/spaces/*",authorizationMiddleware)  */

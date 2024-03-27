@@ -1,5 +1,3 @@
-const {loadFilteredKnowledge} = require("./controller");
-
 function bodyReaderMiddleware(req, res, next) {
     const data = [];
 
@@ -13,7 +11,7 @@ function bodyReaderMiddleware(req, res, next) {
     });
 }
 
-function SpaceStorage(server){
+function KnowledgeStorage(server){
     const { loadKnowledge, loadFilteredKnowledge, addKnowledge, storeKnowledge,loadDefaultAgent } = require("./controller");
     server.get("/agents/default",loadDefaultAgent)
     server.get("/agents/:spaceId/:agentId", loadKnowledge);
@@ -23,4 +21,4 @@ function SpaceStorage(server){
     server.put("/agents/:spaceId/:agentId/store", storeKnowledge);
 }
 
-module.exports = SpaceStorage;
+module.exports = KnowledgeStorage;

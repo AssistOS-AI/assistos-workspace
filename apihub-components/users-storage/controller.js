@@ -53,9 +53,9 @@ async function loadUsersSecretsExist(server, request, response) {
                 //secret for user doesn't exist
             }
         }
-        sendResponse(response, 200, "application/json", JSON.stringify(secretsExistArr));
+        sendResponse(response, 200, "text/plain", JSON.stringify(secretsExistArr));
     } catch (e) {
-        sendResponse(response, 500, "application/json", JSON.stringify(e));
+        sendResponse(response, 500, "text/plain", JSON.stringify(e));
     }
 }
 
