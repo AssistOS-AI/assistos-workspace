@@ -28,22 +28,35 @@ class System {
     async boot(uiConfigsPath) {
         const initialiseModules = async (configName) => {
             this[configName] = {};
-            for (const obj of this.configuration[configName]) {
+            const loadModule = async (obj) => {
                 const module = await import(obj.path);
-                let service = new module[obj.name];
+                let service = new module[obj.name]();
                 const methodNames = Object.getOwnPropertyNames(module[obj.name].prototype)
                     .filter(method => method !== 'constructor');
-                methodNames.forEach(methodName => {
-                    this[configName][methodName] = service[methodName].bind(service);
-                });
-            }
-        }
+                return { service, methodNames };
+            };
+
+            const modulePromises = this.configuration[configName].map(obj => loadModule(obj));
+            const modules = await Promise.allSettled(modulePromises);
+
+            modules.forEach(result => {
+                if (result.status === 'fulfilled') {
+                    const { service, methodNames } = result.value;
+                    methodNames.forEach(methodName => {
+                        this[configName][methodName] = service[methodName].bind(service);
+                    });
+                }
+            });
+        };
+
         this.UI = await WebSkel.initialise(uiConfigsPath);
         this.storage = new StorageManager();
-        for (const storageService of this.configuration.storageServices) {
+        const storageServicePromises = this.configuration.storageServices.map(async storageService => {
             const StorageServiceModule = await import(storageService.path);
             this.storage.addStorageService(storageService.name, new StorageServiceModule[storageService.name]());
-        }
+        });
+        await Promise.all(storageServicePromises);
+
         const initialisePromises = [
             initialiseModules("services"),
             initialiseModules("factories")
@@ -51,12 +64,13 @@ class System {
 
         this.applications = {};
         this.initialisedApplications = new Set();
-        for (const application of this.configuration.applications) {
+        this.configuration.applications.forEach(application => {
             this.applications[application.name] = application;
-        }
+        });
         this.defaultApplicationName = this.configuration.defaultApplicationName;
         await Promise.all(initialisePromises);
     }
+
 
     async shutdown() {
     }
