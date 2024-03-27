@@ -29,10 +29,7 @@ export class AgentService {
     async analyzeRequest(request) {
         await this.summarizeConversation();
         let flowId1 = system.space.getFlowIdByName("FindObjectsByValue");
-        let findObjectsContext = {
-            request: request
-        }
-        let applicationObjects = await system.services.callFlow(flowId1, findObjectsContext);
+        let applicationObjects = await system.services.callFlow(flowId1, {});
 
         let agent = system.space.agent;
         let flowId = system.space.getFlowIdByName("DeduceIntention");
@@ -90,5 +87,11 @@ export class AgentService {
             let result = await system.services.callFlow(flowId);
             await agent.setContext(result);
         }
+    }
+    resetConversation() {
+        let agent = system.space.agent;
+        agent.resetConversation();
+        let agentDefaultInstructions = "You are an agent that oversees an operating system called AssistOS. This OS has some applications installed on it. Each application has different pages and objects related to them. The bare OS also has some pages and objects related to it. You are aware of objects that are created within the OS and can perform certain operations with them or create new objects.";
+        agent.addMessage("system", agentDefaultInstructions);
     }
 }

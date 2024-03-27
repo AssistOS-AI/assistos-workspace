@@ -67,6 +67,9 @@ export class LlmsService {
         } else {
             personality = system.space.getPersonalityByName(dependencies.constants.DEFAULT_PERSONALITY_NAME);
         }
+        if(flow.class.inputSchema){
+            // system.services.validateSchema(context, flow.class.inputSchema, "input");
+        }
         let usedDependencies = [];
         if(flow.class.dependencies){
             for(let functionName of flow.class.dependencies){
