@@ -39,8 +39,17 @@ export class SettingsPage {
         } else {
             deleteButton.style.display = "none";
         }
+        this.setContext();
     }
-
+    setContext() {
+        system.context = {
+            "location and available actions": "We are in the Settings page in OS. Here you can see if a user has configured his GIT credentials and LLM API keys. You can also delete them and delete the space.",
+            "available items": {
+                users:JSON.stringify(this.users),
+                apiKeys:JSON.stringify(this.apiKeys)
+            }
+        }
+    }
     async deleteSpace() {
         let flowId = system.space.getFlowIdByName("DeleteSpace");
         let context = { spaceId: system.space.id };

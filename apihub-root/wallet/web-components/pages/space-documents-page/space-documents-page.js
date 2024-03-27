@@ -17,6 +17,17 @@ export class SpaceDocumentsPage {
             this.tableRows = `<div> There are no documents yet </div>`;
         }
     }
+    afterRender(){
+        this.setContext();
+    }
+    setContext(){
+        system.context = {
+            "location and available actions": "We are in the Documents page in OS. Here you can see the documents available for the space. You can add or delete documents.",
+            "available items": system.space.documents.map((document)=>{
+                return {title:document.title, abstract:document.abstract, id:document.id}
+            })
+        }
+    }
     async showActionBox(_target, primaryKey, componentName, insertionMode) {
         await system.UI.showActionBox(_target, primaryKey, componentName, insertionMode);
     }

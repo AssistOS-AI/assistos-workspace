@@ -34,7 +34,7 @@
         {
             "name": "ml-ide-page",
             "type": "pages",
-            "presenterClassName": "MlIdePage"
+            "presenterClassName": "MlIDEPage"
         },
         {
             "name": "space-configs-page",

@@ -15,7 +15,14 @@ export class TasksPage {
         }
         this.tasks = string;
     }
-
+    afterRender(){
+        this.setContext();
+    }
+    setContext(){
+        system.context = {
+            "location and available actions": "We are in the Tasks page in OS. Here you can see tasks that are ongoing, cancelled or done in the system.",
+        }
+    }
     search(){
      alert("to be done");
     }

@@ -36,6 +36,13 @@ export class ApplicationsMarketplacePage {
         }
         this.boundMinimizeTable = this.minimizeTable.bind(this);
         this.element.addEventListener("showSidebar", this.boundMinimizeTable);
+        this.setContext();
+    }
+    setContext(){
+        system.context = {
+            "location and available actions": "We are in the Applications Marketplace page in OS. Here you can see the applications available for the system. Some of them have not been installed yet.",
+            "available items": JSON.stringify(system.applications)
+        }
     }
     async addMarketplace(){
         await showModal( "add-marketplace-modal", { presenter: "add-marketplace-modal"});
