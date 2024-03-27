@@ -46,10 +46,6 @@
         "path": "./wallet/core/services/UserService.js"
     },
     {
-      "name": "RequestsFacade",
-      "path": "./wallet/client-services/RequestsFacade.js"
-    },
-    {
       "name": "ValidationService",
       "path": "./wallet/core/services/ValidationService.js"
     },

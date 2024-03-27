@@ -1,8 +1,11 @@
 {
-  "SPACE_FOLDER_PATH": "./apihub-root/spaces",
-  "USER_FOLDER_PATH": "./apihub-root/users",
-  "SPACE_MAP_PATH": "./apihub-space-core/data/[MAP]Spaces.json",
-  "DEFAULT_FLOWS_PATH":"./apihub-root/default-flows",
-  "DEFAULT_PERSONALITIES_PATH": "./apihub-root/default-personalities",
-  "DEFAULT_AGENT_PATH": "./apihub-root/default-agents"
+  "SPACE_FOLDER_PATH": "./data-volume/spaces",
+  "USER_FOLDER_PATH": "./data-volume/users",
+  "SPACE_MAP_PATH": "./data-volume/[MAP]Spaces.json",
+  "USER_MAP_PATH": "./data-volume/[MAP]Users.json",
+  "USER_PENDING_ACTIVATION_PATH": "./data-volume/UsersPendingActivation.json",
+  "DEFAULT_FLOWS_PATH":"./data-volume/default-flows",
+  "DEFAULT_PERSONALITIES_PATH": "./data-volume/default-personalities",
+  "DEFAULT_AGENT_PATH": "./data-volume/default-agents",
+  "USER_CREDENTIALS_PATH": "./data-volume/user-credentials.json"
 }

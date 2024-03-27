@@ -44,8 +44,7 @@ export {
 import {SaveElementTimer} from "./utils/saveElementTimer.js";
 import {validateOpenAiKey}  from "./utils/OpenAiUtils/validateAPIKey.js";
 import WebSkel from "../WebSkel/webSkel.js";
-import { changeSelectedPageFromSidebar } from "./main.js";
-
+import {changeSelectedPageFromSidebar} from "../System.js";
 export {
     SaveElementTimer,
     validateOpenAiKey,
