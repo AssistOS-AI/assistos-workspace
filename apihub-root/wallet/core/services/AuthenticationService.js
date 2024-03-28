@@ -11,6 +11,7 @@ export class AuthenticationService {
             system.user  = new User(await system.storage.loadUser());
             const spaceData=await system.storage.loadSpace(spaceId)
             system.space = new Space(spaceData);
+            await system.space.loadFlows();
     }
 
     getCookieValue(cookieName) {

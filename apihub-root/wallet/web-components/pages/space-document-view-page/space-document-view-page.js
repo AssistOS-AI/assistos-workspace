@@ -400,8 +400,9 @@ export class SpaceDocumentViewPage {
                 title.setAttribute("contenteditable", "false");
                 title.removeEventListener('keydown', titleEnterHandler);
                 title.removeEventListener("keydown", resetTimer);
+                let agentPage = document.getElementById("agent-page");
                 if (event.relatedTarget) {
-                    if (event.relatedTarget.getAttribute("id") !== "agent-page") {
+                    if ((event.relatedTarget.getAttribute("id") !== "agent-page") && !agentPage.contains(event.relatedTarget)) {
                         title.parentElement.removeAttribute("id");
                     }
                 } else {
@@ -440,6 +441,14 @@ export class SpaceDocumentViewPage {
                 abstract.removeEventListener("keydown", resetTimer);
                 await timer.stop(true);
                 abstract.setAttribute("contenteditable", "false");
+                let agentPage = document.getElementById("agent-page");
+                if (event.relatedTarget) {
+                    if ((event.relatedTarget.getAttribute("id") !== "agent-page") && !agentPage.contains(event.relatedTarget)) {
+                        abstractSection.removeAttribute("id");
+                    }
+                } else {
+                    abstractSection.removeAttribute("id");
+                }
                 if (event.relatedTarget) {
                     if (event.relatedTarget.getAttribute("id") !== "agent-page") {
                         abstractSection.removeAttribute("id");

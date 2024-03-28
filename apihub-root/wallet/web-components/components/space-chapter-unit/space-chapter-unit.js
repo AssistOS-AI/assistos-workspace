@@ -108,8 +108,9 @@ export class SpaceChapterUnit {
             title.innerText = system.UI.customTrim(title.innerText)||system.UI.unsanitize(this.chapter.title || "");
             await timer.stop(true);
             title.removeAttribute("contenteditable");
+            let agentPage = document.getElementById("agent-page");
             if(event.relatedTarget){
-                if(event.relatedTarget.getAttribute("id") !== "agent-page"){
+                if((event.relatedTarget.getAttribute("id") !== "agent-page") && !agentPage.contains(event.relatedTarget)){
                     title.removeAttribute("id");
                 }
             } else {

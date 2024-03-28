@@ -93,7 +93,7 @@ export class AgentPage {
         let formInfo = await extractFormInformation(_target);
         let userPrompt = sanitize(customTrim(formInfo.data.input));
         formInfo.elements.input.element.value = "";
-        if (userPrompt === "") {
+        if (userPrompt === "" || userPrompt === null || userPrompt === undefined) {
             return;
         }
         await this.displayMessage("user", userPrompt);
