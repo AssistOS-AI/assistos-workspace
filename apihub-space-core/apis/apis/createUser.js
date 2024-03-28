@@ -39,7 +39,6 @@ async function createUser(username, email, withDefaultSpace = false) {
             id: userId,
             username: username,
             email: email,
-            activationDate: getCurrentUTCDate()
         }
     )
 

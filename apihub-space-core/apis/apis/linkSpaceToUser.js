@@ -26,7 +26,7 @@ async function linkSpaceToUser(userId, spaceId) {
         throw error;
     }
 
-    userObject.spaces.push({id: spaceId});
+    userObject.spaces.push(spaceId);
 
     try {
         userObject.currentSpaceId = spaceId;

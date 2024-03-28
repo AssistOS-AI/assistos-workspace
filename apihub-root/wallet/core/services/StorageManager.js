@@ -23,7 +23,7 @@ export class StorageManager {
     }
 
     async loadSpace(spaceId) {
-        return await system.services.getSpace(spaceId);
+        return await this.currentService.loadSpace(spaceId);
     }
 
     async storeObject(spaceId, objectType, objectName, jsonData) {
@@ -35,19 +35,27 @@ export class StorageManager {
         return await this.currentService.storeSpace(spaceId, jsonData, apiKey, userId);
     }
     async createSpace(spaceId, apiKey) {
-        return await system.services.createSpace(spaceId,apiKey);
+        return await this.currentService.createSpace(spaceId,apiKey);
     }
 
     async listObjects(spaceId, objectType) {
         return await this.currentService.storeObject(spaceId, objectType);
     }
 
-    async storeUser(userId, jsonData) {
-        return await this.currentService.storeUser(userId, jsonData);
+    async registerUser(name,email,password) {
+        return await this.currentService.registerUser(name,email,password);
     }
-
-    async loadUser(userId) {
-        return await this.currentService.loadUser(userId);
+    async activateUser(activationToken) {
+        return await this.currentService.activateUser(activationToken);
+    }
+    async loginUser(email,password) {
+        return await this.currentService.loginUser(email,password);
+    }
+    async logoutUser() {
+        return await this.currentService.logoutUser();
+    }
+    async loadUser() {
+        return await this.currentService.loadUser();
     }
 
     async loadUserByEmail(email) {

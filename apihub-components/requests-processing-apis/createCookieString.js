@@ -1,7 +1,7 @@
 function createCookieString(name, value, options = {}) {
     let cookieString = `${name}=${value};`;
 
-    if (options.maxAge) {
+    if ('maxAge' in options) {
         cookieString += ` Max-Age=${options.maxAge};`;
     }
     if (options.path) {

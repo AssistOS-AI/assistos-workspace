@@ -24,24 +24,26 @@ export class AddSpaceModal {
             /* TODO It does not make sense to use an editable flow for default Application operations
             *   Hard to debug, prone to errors, hard to separate the UI logic with data logic (when to refresh, when to close the modal, etc)
             * */
+
+            /*
             let flowId = system.space.getFlowIdByName("AddSpace");
-            let context = {
-                name: formData.data.name,
-                apiKey: formData.data.spaceAPIKey
-            }
-            await system.services.callFlow(flowId, context);
+             await system.services.callFlow(flowId, context);
 
+             let context = {
+                 name: formData.data.name,
+                 apiKey: formData.data.spaceAPIKey
+             }
+             */
+            const [spaceName,apiKey]=[formData.data.name,formData.data.spaceAPIKey]
 
-            const apiKey = formData.data.spaceAPIKey
             try {
                 const keyValidation = await validateOpenAiKey(apiKey);
-                if(!keyValidation.success){
+                if (!keyValidation.success) {
                     throw Error(keyValidation.error);
                 }
-                let newSpace = await system.factories.createSpace(formData.data.name, apiKey,system.user.id);
-                await system.services.addSpaceToUser(system.user.id, newSpace);
+                await system.services.createSpace(spaceName,apiKey);
                 closeModal(_target);
-                window.location = "";
+               await system.loadPage(false,true);
             } catch (error) {
                 showApplicationError('Failed Creating Space', `Encountered an Issue creating the space ${formData.data.name}`,
                     error);

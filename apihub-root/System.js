@@ -10,19 +10,8 @@ class System {
             return System.instance;
         }
         this.configuration = configuration;
-        const validationResults = this.validateConfiguration(configuration);
-        if (!validationResults.status) {
-            throw new Error(validationResults.errorMessage);
-        }
         System.instance = this;
         return System.instance;
-    }
-
-    validateConfiguration(configuration) {
-        /*if (!configuration.UIConfiguration) {
-            return {"status": false, "errorMessage": "UIConfiguration is missing"};
-        }*/
-        return {"status": true};
     }
 
     async boot(uiConfigsPath) {
@@ -33,7 +22,7 @@ class System {
                 let service = new module[obj.name]();
                 const methodNames = Object.getOwnPropertyNames(module[obj.name].prototype)
                     .filter(method => method !== 'constructor');
-                return { service, methodNames };
+                return {service, methodNames};
             };
 
             const modulePromises = this.configuration[configName].map(obj => loadModule(obj));
@@ -41,7 +30,7 @@ class System {
 
             modules.forEach(result => {
                 if (result.status === 'fulfilled') {
-                    const { service, methodNames } = result.value;
+                    const {service, methodNames} = result.value;
                     methodNames.forEach(methodName => {
                         this[configName][methodName] = service[methodName].bind(service);
                     });
@@ -71,19 +60,44 @@ class System {
         await Promise.all(initialisePromises);
     }
 
-
-    async shutdown() {
-    }
-
-    async reboot() {
-        /*await this.shutdown();
-        await this.boot();*/
-        window.location = "";
-    }
-
     async refresh() {
-        /* ... */
         await this.UI.changeToDynamicPage("space-configs-page", `${system.space.id}/SpaceConfiguration/announcements-page`);
+    }
+
+    async loadPage(skipAuth = false, skipSpace = false, spaceId) {
+        const initPage = async () => {
+            const insertSidebar = () => {
+                if (!document.querySelector("left-sidebar")) {
+                    document.querySelector("#page-content").insertAdjacentHTML("beforebegin", `<left-sidebar data-presenter="left-sidebar"></left-sidebar>`);
+                }
+            }
+            hidePlaceholders();
+            insertSidebar();
+            if (applicationName) {
+                await system.services.startApplication(applicationName, applicationLocation);
+            } else {
+                await system.UI.changeToDynamicPage("space-configs-page", `${system.space.id}/SpaceConfiguration/announcements-page`);
+            }
+        };
+
+        let {spaceIdURL, applicationName, applicationLocation} = getURLData(window.location.hash);
+        spaceId = spaceId ? spaceId : spaceIdURL;
+        if (spaceId === "authentication-page" && skipAuth) {
+            spaceId = undefined;
+        }
+
+        if (spaceId === "authentication-page") {
+            hidePlaceholders();
+            return system.UI.changeToDynamicPage(spaceId, spaceId);
+        }
+
+        try {
+            await (spaceId ? skipSpace ? system.services.initUser() : system.services.initUser(spaceId) : system.services.initUser());
+            await initPage();
+        } catch (error) {
+            hidePlaceholders();
+            await system.UI.changeToDynamicPage("authentication-page", "authentication-page");
+        }
     }
 }
 
@@ -111,106 +125,89 @@ export function changeSelectedPageFromSidebar(url) {
     }
 }
 
+function getURLData(url) {
+    let URLParts = url.slice(1).split('/');
+    return {
+        spaceId: URLParts[0],
+        applicationName: URLParts[1],
+        applicationLocation: URLParts.slice(2)
+    }
+}
+
+function hidePlaceholders() {
+    let leftSidebarPlaceholder = document.querySelector(".left-sidebar-placeholder");
+    let pagePlaceholder = document.querySelector("#page-placeholder");
+    if (leftSidebarPlaceholder) {
+        leftSidebarPlaceholder.style.display = "none";
+    }
+    if (pagePlaceholder) {
+        pagePlaceholder.style.display = "none";
+    }
+}
+
+
+function defineActions() {
+    system.UI.registerAction("closeErrorModal", async (_target) => {
+        closeModal(_target);
+    });
+}
+
+async function handleHistory(event) {
+    const result = system.services.getCachedCurrentUser();
+    if (!result) {
+        if (window.location.hash !== "#authentication-page") {
+            system.UI.setDomElementForPages(mainContent);
+            window.location.hash = "#authentication-page";
+            await system.UI.changeToDynamicPage("authentication-page", "authentication-page", "", true);
+        }
+    } else {
+        if (history.state) {
+            if (history.state.pageHtmlTagName === "authentication-page") {
+                const path = ["#", system.UI.currentState.pageHtmlTagName].join("");
+                history.replaceState(system.UI.currentState, path, path);
+            }
+        }
+    }
+    let modal = document.querySelector("dialog");
+    if (modal) {
+        closeModal(modal);
+    }
+}
+
+function saveCurrentState() {
+    system.UI.currentState = Object.assign({}, history.state);
+}
+
+function closeDefaultLoader() {
+    let UILoader = {
+        "modal": document.querySelector('#default-loader-markup'),
+        "style": document.querySelector('#default-loader-style'),
+        "script": document.querySelector('#default-loader-script')
+    }
+    UILoader.modal.close();
+    UILoader.modal.remove();
+    UILoader.script.remove();
+    UILoader.style.remove();
+}
+
 (async () => {
     const ASSISTOS_CONFIGS_PATH = "./assistOS-configs.json";
     const UI_CONFIGS_PATH = "./wallet/webskel-configs.json"
 
     window.mainContent = document.querySelector("#app-wrapper");
-    const loader = await (await fetch("./wallet/general-loader.html")).text();
-
-    async function loadPage() {
-
-        let leftSidebarPlaceholder = document.querySelector(".left-sidebar-placeholder");
-        let splitUrl = window.location.hash.slice(1).split('/');
-        let spaceId = splitUrl[0];
-        let pagePlaceholder = document.querySelector("#page-placeholder");
-        if (pagePlaceholder) {
-            pagePlaceholder.style.display = "none";
-        }
-        closeDefaultLoader();
-        if (spaceId) {
-            if (spaceId === "authentication-page") {
-                leftSidebarPlaceholder.style.display = "none";
-                await system.UI.changeToDynamicPage(spaceId, spaceId);
-            } else {
-                let authenticationResult = await system.services.initUser(spaceId);
-                if (authenticationResult === true) {
-                    if (splitUrl[1]) {
-                        /* appName, applicationLocation that will get passed to the application itself to be handled */
-                        await system.services.startApplication(splitUrl[1], splitUrl.slice(2));
-                    } else {
-                        document.querySelector("#page-content").insertAdjacentHTML("beforebegin", `<left-sidebar data-presenter="left-sidebar" ></left-sidebar>`);
-                        await system.UI.changeToDynamicPage("space-configs-page", `${system.space.id}/SpaceConfiguration/announcements-page`);
-                    }
-                }
-            }
-        } else {
-            if (await system.services.initUser()) {
-                document.querySelector("#page-content").insertAdjacentHTML("beforebegin", `<left-sidebar data-presenter="left-sidebar" ></left-sidebar>`);
-                /*let agent = "space/agent-page";
-                let url = "#space/agent-page";
-                const content = `<${agent} data-presenter="${agent}"></${agent}>`;
-                history.replaceState({agent, relativeUrlContent: content}, url, url);
-                window.location.replace("#space/agent-page");*/
-                await system.UI.changeToDynamicPage("space-configs-page", `${system.space.id}/SpaceConfiguration/announcements-page`);
-            }
-        }
-    }
-
-
-    function defineActions() {
-        system.UI.registerAction("closeErrorModal", async (_target) => {
-            closeModal(_target);
-        });
-    }
-
-
-    async function handleHistory(event) {
-        const result = system.services.getCachedCurrentUser();
-        if (!result) {
-            if (window.location.hash !== "#authentication-page") {
-                system.UI.setDomElementForPages(mainContent);
-                window.location.hash = "#authentication-page";
-                await system.UI.changeToDynamicPage("authentication-page", "authentication-page", "", true);
-            }
-        } else {
-            if (history.state) {
-                if (history.state.pageHtmlTagName === "authentication-page") {
-                    const path = ["#", system.UI.currentState.pageHtmlTagName].join("");
-                    history.replaceState(system.UI.currentState, path, path);
-                }
-            }
-        }
-        let modal = document.querySelector("dialog");
-        if (modal) {
-            closeModal(modal);
-        }
-    }
-
-    function saveCurrentState() {
-        system.UI.currentState = Object.assign({}, history.state);
-    }
-
-    function closeDefaultLoader() {
-        let UILoader = {
-            "modal": document.querySelector('#default-loader-markup'),
-            "style": document.querySelector('#default-loader-style'),
-            "script": document.querySelector('#default-loader-script')
-        }
-        UILoader.modal.close();
-        UILoader.modal.remove();
-        UILoader.script.remove();
-        UILoader.style.remove();
-    }
 
     const configuration = await (await fetch(ASSISTOS_CONFIGS_PATH)).json();
+    const loader = await (await fetch("./wallet/general-loader.html")).text();
+
     window.system = new System(configuration);
     await system.boot(UI_CONFIGS_PATH);
+
     system.UI.setLoading(loader);
     system.storage.setCurrentService("FileSystemStorage");
     system.UI.setDomElementForPages(document.querySelector("#page-content"));
     defineActions();
-    await loadPage();
+    closeDefaultLoader()
+    await system.loadPage();
     window.addEventListener('popstate', handleHistory);
     window.addEventListener('beforeunload', saveCurrentState);
 })();

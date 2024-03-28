@@ -12,8 +12,8 @@ apihub-root/keys-secret
 
 apihub-root/wallet/scripts/bundles/
 apihub-root/wallet/bundles/
-apihub-root/users
-apihub-root/spaces
+data-volume/users
+data-volume/spaces
 
 node_modules
 opendsu-sdk/
@@ -23,3 +23,4 @@ initialEncryptionTest
 
 **/.DS_Store
 
+/apihub-space-core/data/

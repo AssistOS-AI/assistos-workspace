@@ -1,8 +1,151 @@
 const fsPromises = require('fs').promises;
 const path = require('path');
-const Manager = require('../../apihub-space-core/Manager.js').getInstance();
-const {sendResponse, createCookieString, parseCookies} = require('../requests-processing-apis/exporter.js')
+const {
+    sendResponse,
+    createCookieString,
+    parseCookies
+} = require('../requests-processing-apis/exporter.js')
 ('sendResponse', 'createCookieString', 'parseCookies');
+
+const Manager = require('../../apihub-space-core/Manager.js').getInstance();
+
+async function loginUser(request, response) {
+    const userData = request.body;
+    try {
+        const loginResult = await Manager.apis.loginUser(
+            userData.email,
+            userData.password);
+        if (loginResult.success) {
+            const userData = await Manager.apis.getUserData(loginResult.userId);
+            const authCookie = createCookieString('authToken', await Manager.apis.createUserLoginJWT(userData), {
+                httpOnly: true,
+                sameSite: 'Strict',
+                secure: true,
+                maxAge: 60 * 60 * 24 * 7,
+                path: '/'
+            });
+            const spaceCookie = createCookieString('currentSpaceId', userData.currentSpaceId, {
+                httpOnly: true,
+                sameSite: 'Strict',
+                secure: true,
+                maxAge: 60 * 60 * 24 * 7,
+                path: '/'
+            });
+            sendResponse(response, 200, "application/json", {
+                data: userData,
+                success: true,
+                message: `User ${userData.name} logged in successfully`
+            }, [authCookie, spaceCookie]);
+        } else {
+            sendResponse(response, 404, "application/json", {
+                success: false,
+                message: loginResult.message
+            });
+        }
+    } catch (error) {
+        sendResponse(response, error.statusCode, "application/json", {
+            success: false,
+            message: error.message
+        });
+    }
+}
+
+async function registerUser(request, response) {
+    const userData = request.body;
+    try {
+        await Manager.apis.registerUser(
+            userData.name,
+            userData.email,
+            userData.password);
+        sendResponse(response, 200, "application/json", {
+            success: true,
+            message: `User ${userData.name} registered successfully. Please check your email for the verification code`
+        });
+    } catch (error) {
+        sendResponse(response, error.statusCode, "application/json", {
+            success: false,
+            message: error.message
+        });
+    }
+}
+
+async function activateUser(request, response, server) {
+    const activationToken = request.body.activationToken;
+    try {
+        const userObject = await Manager.apis.activateUser(activationToken);
+        sendResponse(response, 200, "application/json", {
+            data: userObject,
+            success: true,
+            message: `User ${userObject.name} activated successfully`
+        });
+    } catch (error) {
+        sendResponse(response, error.statusCode, "application/json", {
+            success: false,
+            message: error.message
+        });
+    }
+}
+
+async function loadUser(request, response) {
+    try {
+        const authCookie = parseCookies(request).authToken;
+        if (!authCookie) {
+            throw {
+                statusCode: 401,
+                message: "Unauthorized"
+            };
+        }
+        const userId = await Manager.apis.decodeJWT(authCookie)
+        const userData = await Manager.apis.getUserData(userId);
+        sendResponse(response, 200, "application/json", {
+            data: userData,
+            success: true,
+            message: `User ${userData.name} loaded successfully`
+        });
+    } catch (error) {
+        sendResponse(response, error.statusCode, "application/json", {
+            success: false,
+            message: error.message
+        });
+    }
+}
+
+async function logoutUser(request, response) {
+    const oldAuthCookie = parseCookies(request).authToken;
+    if (!oldAuthCookie) {
+        sendResponse(response, 401, "application/json", {
+            success: false,
+            message: "Unauthorized"
+        });
+        return;
+    }
+    try {
+        const spaceCookie = createCookieString('currentSpaceId', '', {
+            httpOnly: true,
+            sameSite: 'Strict',
+            secure: true,
+            maxAge: 0,
+            path: '/'
+        });
+        const authCookie = createCookieString('authToken', '', {
+            httpOnly: true,
+            sameSite: 'Strict',
+            secure: true,
+            maxAge: 0,
+            path: '/'
+        });
+        sendResponse(response, 200, "application/json", {
+            success: true,
+            message: "User logged out successfully"
+        }, [authCookie, spaceCookie]);
+    } catch (error) {
+        sendResponse(response, error.statusCode, "application/json", {
+            success: false,
+            message: error.message
+        });
+    }
+}
+
 async function saveJSON(response, spaceData, filePath) {
     try {
         await fsPromises.writeFile(filePath, spaceData, 'utf8');
@@ -99,36 +242,11 @@ async function storeUser(request, response) {
     }
 }
 
-async function loadUser(request, response) {
-    const userId = request.params.userId;
-    const userData = await Manager.apis.getUserData(userId);
-    sendResponse(response, 200, "application/json", userData);
-    return "";
-}
-
-async function loadUserByEmail(request, response) {
-    let email = request.body.toString();
-    let users = [];
-
-    for (let item of await fsPromises.readdir("../apihub-root/users")) {
-        let result = await fsPromises.readFile(`../apihub-root/users/${item}`);
-        users.push(JSON.parse(result));
-    }
-
-    let user = users.find(user => user.email === email);
-    if (user) {
-        sendResponse(response, 200, "text/plain", JSON.stringify(user));
-        return "";
-    }
-
-    sendResponse(response, 404, "text/html", "User not found");
-    return "";
-}
 
 module.exports = {
-    storeUser,
+    registerUser,
+    activateUser,
+    loginUser,
     loadUser,
-    loadUserByEmail,
-    storeSecret,
-    loadUsersSecretsExist
+    logoutUser
 };

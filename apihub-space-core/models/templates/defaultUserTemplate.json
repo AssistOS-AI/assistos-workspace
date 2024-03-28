@@ -3,6 +3,5 @@
   "name": "$$username",
   "email": "$$email",
   "spaces": [],
-  "activationDate": "$$activationDate",
   "currentSpaceId": "$$currentSpaceId?"
 }

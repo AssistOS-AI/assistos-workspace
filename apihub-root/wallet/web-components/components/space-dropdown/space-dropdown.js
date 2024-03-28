@@ -49,16 +49,14 @@ export class SpaceDropdown {
     async changeSpace(_target) {
         let selectedSpace = getClosestParentElement(_target, ['space-unit']);
         let selectedSpaceId = selectedSpace.getAttribute('data-space-id');
-        await system.services.changeSpace(selectedSpaceId);
+        await system.loadPage(false,false,selectedSpaceId);
     }
-
     async addSpace() {
         await showModal("add-space-modal", {presenter: "add-space-modal"});
     }
 
     async logout() {
-        system.services.deleteCachedCurrentUser();
-        system.UI.setDomElementForPages(mainContent);
-        await system.UI.changeToDynamicPage("authentication-page", "authentication-page");
+        await system.services.logoutUser();
+        await system.loadPage();
     }
 }

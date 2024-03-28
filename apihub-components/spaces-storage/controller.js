@@ -28,21 +28,22 @@ async function saveJSON(response, spaceData, filePath) {
 }
 
 async function loadObject(request, response) {
-    const filePath = `../apihub-root/spaces/${request.params.spaceId}/${request.params.objectType}/${request.params.objectName}.json`;
+
+    const filePath = `../data-volume/spaces/${request.params.spaceId}/${request.params.objectType}/${request.params.objectName}.json`;
     let data;
     try {
         data = await fsPromises.readFile(filePath, {encoding: 'utf8'});
     } catch (error) {
         sendResponse(response, 404, "text/html", error + ` Error space not found: ${filePath}`);
-        return "";
+        return;
     }
     sendResponse(response, 200, "text/html", data);
-    return "";
 }
 
 
 async function storeObject(request, response) {
-    const filePath = `../apihub-root/spaces/${request.params.spaceId}/${request.params.objectType}/${request.params.objectName}.json`;
+
+    const filePath = `../data-volume/spaces/${request.params.spaceId}/${request.params.objectType}/${request.params.objectName}.json`;
 
     if (!request.body || Object.keys(request.body).length === 0) {
         try {
@@ -64,11 +65,10 @@ async function storeObject(request, response) {
 
 async function storeFolder(spaceId, data, folderName) {
     if (data) {
-        let folderPath = `../apihub-root/spaces/${spaceId}/${folderName}`;
+        let folderPath = `../data-volume/spaces/${spaceId}/${folderName}`;
         try {
             await fsPromises.access(folderPath);
         } catch (e) {
-            /* the error is that the folder doesn't exist, it needs to be created*/
             await fsPromises.mkdir(folderPath);
         }
         if (data !== "newFolder") {
@@ -104,7 +104,7 @@ async function storeSecret(request, response, server) {
         return;
     }
     if (await saveSpaceAPIKeySecret(request.params.spaceId, apiKey, server)) {
-        const spaceStatusPath = `../apihub-root/spaces/${request.params.spaceId}/status/status.json`;
+        const spaceStatusPath = `../data-volume/spaces/${request.params.spaceId}/status/status.json`;
         try {
             const statusData = await fsPromises.readFile(spaceStatusPath, 'utf8');
             const statusObject = JSON.parse(statusData);
@@ -133,13 +133,8 @@ async function storeSecret(request, response, server) {
 }
 
 async function storeSpace(request, response, server) {
-    try {
-        await fsPromises.stat(`../apihub-root/spaces`);
-    } catch (e) {
-        await fsPromises.mkdir(`../apihub-root/spaces`);
-    }
 
-    const folderPath = `../apihub-root/spaces/${request.params.spaceId}`;
+    const folderPath = `../data-volume/spaces/${request.params.spaceId}`;
 
     if (!request.body || Object.keys(request.body).length === 0) {
         try {
@@ -186,96 +181,55 @@ async function storeSpace(request, response, server) {
     sendResponse(response, 200, "text/html", `Success, updated space ${request.params.spaceId}`);
 }
 
-async function buildSpace(filePath) {
-    let localData = [];
-    const files = await fsPromises.readdir(filePath);
-
-    const statPromises = files.map(async (file) => {
-        const fullPath = path.join(filePath, file);
-        const stat = await fsPromises.stat(fullPath);
-        return {file, stat};
-    });
-    const fileStats = await Promise.all(statPromises);
-    fileStats.sort((a, b) => a.stat.ctimeMs - b.stat.ctimeMs);
-    for (const {file} of fileStats) {
-        const jsonContent = await fsPromises.readFile(path.join(filePath, file), 'utf8');
-        localData.push(JSON.parse(jsonContent));
-    }
-    return localData;
-}
 
 /* TODO constant object mapping of content types to avoid writing manually the content type of a response
 *   and move the cookie verification authentication, rights, etc in a middleware */
 async function getSpace(request, response) {
-    const cookies = parseCookies(request);
-    const userId = cookies.userId;
-    if (!userId) {
-        sendResponse(response, 401, "application/json", {
-            message: "Unauthorized: No valid session",
-            success: false
-        });
-        return;
-    }
-    const userIsValid = await authenticateUser(userId);
-    if (!userIsValid) {
-        sendResponse(response, 401, "application/json", {
-            message: "Unauthorized: Invalid user",
-            success: false
-        });
-        return;
-    }
-    const userRights = await getUserRights(userId);
-    if (!userRights.readSpace) {
-        sendResponse(response, 403, "application/json", {
-            message: "Forbidden: User does not have the rights to read space",
-            success: false
-        });
-        return;
-    }
-
-    let spaceId = request.params.spaceId;
-    let spaceStatusObject = {};
-
     try {
+        const authCookie = parseCookies(request).authToken;
+        const userId = await Manager.apis.decodeJWT(authCookie)
+
+        let spaceId;
+
+        if (request.params.spaceId) {
+            spaceId = request.params.spaceId;
+        } else if (parseCookies(request).currentSpaceId) {
+            spaceId = parseCookies(request).currentSpaceId;
+        } else {
+            spaceId = Manager.apis.getDefaultSpaceId(userId);
+        }
+
+        const userRights = await getUserRights(userId);
+        if (!userRights.readSpace) {
+            sendResponse(response, 403, "application/json", {
+                message: "Forbidden: User does not have the rights to read a space",
+                success: false
+            });
+            return;
+        }
+
+        let spaceStatusObject = {};
         spaceStatusObject = await Manager.apis.getSpaceStatusObject(spaceId);
+        /* Packaging space Data into one Object */
+        spaceStatusObject["documents"] = await Manager.apis.getSpaceDocumentsObject(spaceId);
+        spaceStatusObject["personalities"] = await Manager.apis.getSpacePersonalitiesObject(spaceId);
+
+        sendResponse(response, 200, "application/json", {
+            success: true,
+            data: spaceStatusObject,
+            message: `Space ${spaceId} loaded successfully`
+        });
     } catch (error) {
-        switch (error.statusCode) {
-            case 404:
-                sendResponse(response, 404, "application/json", {
-                    message: "Not Found: Space not found",
-                    success: false
-                });
-                return;
-            case 500:
-                sendResponse(response, 500, "application/json", {
-                    message: "Internal Server Error",
-                    success: false
-                });
-                return;
-        }
+        sendResponse(response, 500, "application/json", {
+            success: false,
+            message: error.message
+        });
     }
-    let filePath = `../apihub-root/spaces/${spaceId}`;
-    for (let item of await fsPromises.readdir(filePath)) {
-        if (item !== "status" && item !== "applications" && item !== "flows") {
-            spaceStatusObject[item] = await buildSpace(`${filePath}\/${item}`);
-        }
-    }
-
-    /* Packaging space Data into one Object */
-
-    spaceStatusObject["documents"] = await Manager.apis.getSpaceDocumentsObject(spaceId);
-    spaceStatusObject["personalities"] = await Manager.apis.getSpacePersonalitiesObject(spaceId);
-
-    sendResponse(response, 200, "application/json", {
-        success: true,
-        data: spaceStatusObject,
-        message: `Space ${spaceId} loaded successfully`
-    });
 }
 
 
 async function authenticateUser(userId) {
-    const userFile = path.join(__dirname, `../../apihub-root/users/${userId}.json`);
+    const userFile = path.join(__dirname, `../../data-volume/users/${userId}.json`);
     try {
         await fsPromises.access(userFile);
         return true;
@@ -360,8 +314,8 @@ async function addCollaboratorToSpace(request, response) {
 }
 
 async function createSpace(request, response) {
-    const cookies = parseCookies(request);
-    const userId = cookies.userId;
+    const authCookie = parseCookies(request).authToken;
+    const userId = await Manager.apis.decodeJWT(authCookie)
     if (!userId) {
         sendResponse(response, 401, "application/json", {
             message: "Unauthorized: No valid session",
@@ -369,15 +323,7 @@ async function createSpace(request, response) {
         });
         return;
     }
-    const userIsValid = await authenticateUser(userId);
-    if (!userIsValid) {
-        sendResponse(response, 401, "application/json", {
-            message: "Unauthorized: Invalid user",
-            success: false
 
-        });
-        return;
-    }
     const userRights = await getUserRights(userId);
     if (!userRights.createSpace) {
         sendResponse(response, 403, "application/json", {
@@ -402,6 +348,7 @@ async function createSpace(request, response) {
         const cookieString = createCookieString('currentSpaceId', newSpace.id, {
             maxAge: 30 * 24 * 60 * 60,
             path: '/',
+            httpOnly: true,
             sameSite: 'Strict'
         });
         sendResponse(response, 201, "application/json", {

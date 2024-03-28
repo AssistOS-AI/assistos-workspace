@@ -1,7 +1,11 @@
 const path = require('path');
 const fsPromises = require('fs').promises;
-const {createUser, isActivationTokenExpired} = require('../exporter.js')('createUser', 'isActivationTokenExpired');
-const {USER_PENDING_ACTIVATION_PATH, USER_MAP_PATH} = require('../../config.json');
+const {
+    createUser,
+    isActivationTokenExpired,
+    getCurrentUTCDate
+} = require('../exporter.js')('createUser', 'isActivationTokenExpired', 'getCurrentUTCDate');
+const {USER_PENDING_ACTIVATION_PATH, USER_MAP_PATH, USER_CREDENTIALS_PATH} = require('../../config.json');
 
 async function activateUser(activationToken) {
     const userPendingActivationFilePath = path.join(__dirname, '../../../', USER_PENDING_ACTIVATION_PATH);
@@ -16,6 +20,7 @@ async function activateUser(activationToken) {
         delete userPendingActivationObject[activationToken]
         await fsPromises.writeFile(userPendingActivationFilePath, JSON.stringify(userPendingActivationObject, null, 2), 'utf8');
         const error = new Error('Token Activation Expired');
+
         error.statusCode = 404;
         throw error;
     }
@@ -27,6 +32,11 @@ async function activateUser(activationToken) {
         const userMapObject = JSON.parse(await fsPromises.readFile(userMapPath));
         userMapObject[userData.email] = userDataObject.id;
         await fsPromises.writeFile(userMapPath, JSON.stringify(userMapObject, null, 2), 'utf8');
+        const userCredentialsPath = path.join(__dirname, '../../../', USER_CREDENTIALS_PATH);
+        const userCredentialsObject = JSON.parse(await fsPromises.readFile(userCredentialsPath));
+        userCredentialsObject[userDataObject.id] = userData;
+        userCredentialsObject[userDataObject.id].activationDate = getCurrentUTCDate();
+        await fsPromises.writeFile(userCredentialsPath, JSON.stringify(userCredentialsObject, null, 2), 'utf8');
         return userDataObject;
     } catch (error) {
         throw error;

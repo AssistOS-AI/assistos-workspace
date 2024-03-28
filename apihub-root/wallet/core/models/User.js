@@ -1,8 +1,7 @@
 export class User {
     constructor(userData) {
-        this.id = userData.id;
-        this.name =  userData.name || undefined;
-        this.email =  userData.email || undefined;
-        this.phoneNumber =  userData.phoneNumber || undefined;
+        Object.keys(userData).forEach(objKey=>{
+            this[objKey]=userData[objKey]
+        })
     }
 }
