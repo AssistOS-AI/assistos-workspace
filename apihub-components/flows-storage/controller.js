@@ -60,20 +60,20 @@ async function loadObjects(filePath) {
 }
 
 async function loadDefaultFlows(request, response) {
-    const filePath = `../apihub-root/default-flows`;
+    const filePath = `../data-volume/default-flows`;
     let flows = await loadObjects(filePath);
     return sendResponse(response, 200, "application/javascript", flows);
 }
 
 async function loadFlows(request, response) {
-    const filePath = `../apihub-root/spaces/${request.params.spaceId}/flows`;
+    const filePath = `../data-volume/spaces/${request.params.spaceId}/flows`;
     let flows = await loadObjects(filePath);
     return sendResponse(response, 200, "application/javascript", flows);
 }
 
 async function storeFlow(request, response) {
     let objectId = decodeURIComponent(request.params.objectId);
-    const filePath = `../apihub-root/spaces/${request.params.spaceId}/flows/${objectId}.js`;
+    const filePath = `../data-volume/spaces/${request.params.spaceId}/flows/${objectId}.js`;
     if (request.body.toString() === "") {
         await fsPromises.unlink(filePath);
         sendResponse(response, 200, "text/html", `Deleted successfully ${objectId}`);
@@ -89,7 +89,7 @@ async function storeFlow(request, response) {
 }
 
 async function storeFlows(request, response) {
-    const filePath = `../apihub-root/spaces/${request.params.spaceId}/flows`;
+    const filePath = `../data-volume/spaces/${request.params.spaceId}/flows`;
     try {
         await fsPromises.access(filePath);
     } catch (e) {
@@ -110,7 +110,7 @@ async function storeFlows(request, response) {
 
 async function storeAppFlow(request, response) {
     let objectId = decodeURIComponent(request.params.objectId);
-    const filePath = `../apihub-root/spaces/${request.params.spaceId}/applications/${request.params.applicationId}/flows/${objectId}.js`;
+    const filePath = `../data-volume/spaces/${request.params.spaceId}/applications/${request.params.applicationId}/flows/${objectId}.js`;
     if (request.body.toString() === "") {
         await fsPromises.unlink(filePath);
         sendResponse(response, 200, "text/html", `Deleted successfully ${objectId}`);
@@ -126,7 +126,7 @@ async function storeAppFlow(request, response) {
 }
 
 async function loadAppFlows(request, response) {
-    const filePath = `../apihub-root/spaces/${request.params.spaceId}/applications/${request.params.applicationId}/flows`;
+    const filePath = `../data-volume/spaces/${request.params.spaceId}/applications/${request.params.applicationId}/flows`;
     let flows = await loadObjects(filePath);
     return sendResponse(response, 200, "application/javascript", flows);
 }

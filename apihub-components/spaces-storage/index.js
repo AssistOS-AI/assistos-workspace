@@ -26,6 +26,8 @@ function SpaceStorage(server) {
         await storeObject(request, response)
     });
 
+    server.use("/spaces/*", bodyReaderMiddleware);
+
     server.put("/spaces/:spaceId/:objectType/:objectName", async (request, response) => {
         await storeObject(request, response)
     });
@@ -33,8 +35,6 @@ function SpaceStorage(server) {
     server.post("/spaces/:spaceId/secrets", async (request, response) => {
         await storeSecret(request, response, server)
     });
-    server.use("/spaces/*", bodyReaderMiddleware);
-
     server.get("/spaces", async (request, response) => {
         await getSpace(request, response)
     });

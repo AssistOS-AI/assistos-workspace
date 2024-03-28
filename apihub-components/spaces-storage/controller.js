@@ -44,7 +44,7 @@ async function loadObject(request, response) {
 async function storeObject(request, response) {
 
     const filePath = `../data-volume/spaces/${request.params.spaceId}/${request.params.objectType}/${request.params.objectName}.json`;
-
+    debugger
     if (!request.body || Object.keys(request.body).length === 0) {
         try {
             await fsPromises.unlink(filePath);
@@ -55,8 +55,9 @@ async function storeObject(request, response) {
         return;
     }
     try {
+        debugger
         const jsonData = request.body;
-        await fsPromises.writeFile(filePath, JSON.stringify(jsonData));
+        await fsPromises.writeFile(filePath, JSON.stringify(jsonData, null, 2), 'utf8');
         sendResponse(response, 200, "text/html", `Success, saved ${request.params.objectName}`);
     } catch (error) {
         sendResponse(response, 500, "text/html", `Error saving ${request.params.objectName}`);

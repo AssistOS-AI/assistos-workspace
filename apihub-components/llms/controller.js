@@ -77,8 +77,8 @@ async function executeFlow(request, response) {
     let flowSettings = JSON.parse(request.body.toString());
     const llmModels = await initModels();
     const flow = applicationId
-        ? require(`../../apihub-root/spaces/${spaceId}/${applicationId}/${flowId}`)
-        : require(`../../apihub-root/spaces/${spaceId}/${flowId}`)
+        ? require(`../../data-volume/spaces/${spaceId}/${applicationId}/${flowId}`)
+        : require(`../../data-volume/spaces/${spaceId}/${flowId}`)
 
 }
 
