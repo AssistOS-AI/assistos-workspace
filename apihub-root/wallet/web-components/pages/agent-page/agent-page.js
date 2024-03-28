@@ -45,7 +45,7 @@ export class AgentPage {
         this.boundFn = this.preventRefreshOnEnter.bind(this, form);
         this.userInput.addEventListener("keydown", this.boundFn);
         setTimeout(async () => {
-            if (this.agent.conversationHistory.length === 0) {
+            if (this.agent.conversationHistory.length === 1) {
                 await system.services.initOpeners();
                 let message = this.agent.getRandomOpener();
                 await this.displayMessage("assistant", message);

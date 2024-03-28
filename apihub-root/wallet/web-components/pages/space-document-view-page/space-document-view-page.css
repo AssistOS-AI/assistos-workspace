@@ -139,3 +139,6 @@ space-document-view-page{
 #highlighted-element{
     background-color:var(--medium-white);
 }
+#highlighted-child-element{
+    background-color: white;
+}

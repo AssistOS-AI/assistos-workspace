@@ -11,8 +11,6 @@ export class SpaceConfigsPage {
 
     afterRender() {
         this.sidebar = this.element.querySelector(".right-sidebar");
-        this.expandButton = this.element.querySelector(".expand-button");
-        this.expandButton.style.display = "none";
         this.currentPage = this.element.querySelector(".current-page");
         this.agentPage = this.element.querySelector("agent-page");
         let resizeBar = this.element.querySelector('.drag-separator');
@@ -72,24 +70,28 @@ export class SpaceConfigsPage {
         await system.UI.changeToDynamicPage("space-configs-page", `${system.space.id}/SpaceConfiguration/${page}`);
     }
 
-    hideSidebar(){
-        this.sidebar.style.transform = "translateX(100%)";
-        this.expandButton.style.display = "block";
-        this.currentPageWidth = this.currentPageWidth + 270;
-        this.currentPage.style.width = this.currentPageWidth ? `${this.currentPageWidth}px` : "calc(50% + 135px)";
-        this.dispatchSidebarEvent("hideSidebar");
-    }
-    showSidebar(){
-        if(this.agentPageWidth > this.currentPageWidth){
-            this.agentPageWidth = this.agentPageWidth - 270;
-            this.agentPage.style.width = this.agentPageWidth ? `${this.agentPageWidth}px` : "calc(50% - 135px)";
+    toggleSidebar(_target, mode){
+        let arrow = _target.querySelector(".point-arrow");
+        if(mode === "off"){
+            this.sidebar.style.transform = "translateX(95%)";
+            this.currentPageWidth = this.currentPageWidth + 270;
+            this.currentPage.style.width = this.currentPageWidth ? `${this.currentPageWidth}px` : "calc(50% + 135px)";
+            _target.setAttribute("data-local-action", "toggleSidebar on");
+            arrow.classList.toggle("arrow-rotated");
+            this.dispatchSidebarEvent("hideSidebar");
         } else {
-            this.currentPageWidth = this.currentPageWidth - 270;
-            this.currentPage.style.width = this.currentPageWidth ? `${this.currentPageWidth}px` : "calc(50% - 135px)";
+            if(this.agentPageWidth > this.currentPageWidth){
+                this.agentPageWidth = this.agentPageWidth - 270;
+                this.agentPage.style.width = this.agentPageWidth ? `${this.agentPageWidth}px` : "calc(50% - 135px)";
+            } else {
+                this.currentPageWidth = this.currentPageWidth - 270;
+                this.currentPage.style.width = this.currentPageWidth ? `${this.currentPageWidth}px` : "calc(50% - 135px)";
+            }
+            this.sidebar.style.transform = "translateX(0%)";
+            _target.setAttribute("data-local-action", "toggleSidebar off");
+            arrow.classList.toggle("arrow-rotated");
+            this.dispatchSidebarEvent("showSidebar");
         }
-        this.sidebar.style.transform = "translateX(0%)";
-        this.expandButton.style.display = "none";
-        this.dispatchSidebarEvent("showSidebar");
     }
 
     dispatchSidebarEvent(name){
