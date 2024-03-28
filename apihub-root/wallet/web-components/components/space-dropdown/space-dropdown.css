@@ -4,6 +4,10 @@ space-dropdown{
 .space-container{
     display: flex;
     cursor: pointer;
+    background-color: #A5D0F430;
+    border-radius: 10px;
+    border-color: #0000000D;
+    padding: 5px 5px 5px 8px;
 }
 .current-space-btn {
     display: flex;
@@ -18,8 +22,8 @@ space-dropdown{
     overflow-wrap: break-word;
     hyphens: auto;
     word-break: break-word;
-    margin-right: 10px;
-    margin-left: 10px;
+    margin-right: 5px;
+    margin-left: 5px;
 }
 .spaces-list {
     display: none;

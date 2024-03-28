@@ -5,7 +5,7 @@ export class UpdateChapterTitle {
         try {
             let document = system.space.getDocument(context.documentId);
             let chapter = document.getChapter(context.chapterId);
-            chapter.updateTitle(context.newTitle);
+            chapter.updateTitle(context.title);
             await system.factories.updateDocument(system.space.id, document);
             this.return(context.newTitle);
         } catch (e) {

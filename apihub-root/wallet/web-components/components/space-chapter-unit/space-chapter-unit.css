@@ -1,5 +1,4 @@
 .chapter-title-section {
-    position: relative;
     display: flex;
     align-items: center;
     color: var(--light-black);
@@ -18,7 +17,7 @@
     visibility: hidden;
     position: absolute;
     right: 0;
-    top: 0;
+    bottom: 0;
     cursor: pointer;
 }
 .chapter-title:focus{
@@ -113,7 +112,11 @@ p {
     margin-left:3px;
     display: inline-block;
 }
-.chapter-text,.chapter-unit{
+.chapter-text{
+    width:100%;
+    position: relative;
+}
+.chapter-unit{
     width:100%;
 }
 

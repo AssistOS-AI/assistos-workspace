@@ -16,6 +16,7 @@ export class SpaceChapterUnit {
         let chapterId = this.element.getAttribute("data-chapter-id");
         this.chapter = this._document.getChapter(chapterId);
         this.chapterTitle=this.chapter.title;
+        this.titleMetadata = this.element.variables["data-title-metadata"];
         this.chapterContent = "";
         if (this.chapter) {
             if (this.chapter.visibility === "hide") {
@@ -24,8 +25,10 @@ export class SpaceChapterUnit {
                 }
             }
         }
+        let iterator = 0;
         this.chapter.paragraphs.forEach((paragraph) => {
-            this.chapterContent += `<space-paragraph-unit data-paragraph-content="${paragraph.text}" data-paragraph-id="${paragraph.id}"></space-paragraph-unit>`;
+            iterator++;
+            this.chapterContent += `<space-paragraph-unit data-paragraph-content="${paragraph.text}" data-metadata="paragraph nr. ${iterator} with id ${paragraph.id}" data-paragraph-id="${paragraph.id}"></space-paragraph-unit>`;
         });
     }
 
@@ -42,7 +45,7 @@ export class SpaceChapterUnit {
                 break;
             }
         }
-        if (this.chapter.id === system.space.currentChapterId&&!currentParagraph) {
+        if (this.chapter.id === system.space.currentChapterId && !currentParagraph) {
             this.chapterUnit.click();
             //this.element.scrollIntoView({behavior: "smooth", block: "center", inline: "nearest"});
         }
@@ -74,6 +77,7 @@ export class SpaceChapterUnit {
     }
 
     async editChapterTitle(title) {
+        this.deselectPreviousElements(title);
         title.setAttribute("contenteditable", "true");
         title.setAttribute("id", "highlighted-child-element");
 
@@ -100,11 +104,17 @@ export class SpaceChapterUnit {
         /* NO chapter Title */
         /* constants for page names */
         /* save button hidden */
-        title.addEventListener("blur", async () => {
-            title.innerText = system.UI.customTrim(title.innerText)||system.UI.unsanitize(this.chapter.title);
+        title.addEventListener("focusout", async (event) => {
+            title.innerText = system.UI.customTrim(title.innerText)||system.UI.unsanitize(this.chapter.title || "");
             await timer.stop(true);
             title.removeAttribute("contenteditable");
-            title.removeAttribute("id");
+            if(event.relatedTarget){
+                if(event.relatedTarget.getAttribute("id") !== "agent-page"){
+                    title.removeAttribute("id");
+                }
+            } else {
+                title.removeAttribute("id");
+            }
             title.removeEventListener('keydown', titleEnterHandler);
             title.removeEventListener("keydown", resetTimer);
         }, {once: true});
@@ -137,6 +147,7 @@ export class SpaceChapterUnit {
     }
 
     highlightChapter(){
+        this.deselectPreviousElements();
         this.chapterUnit.setAttribute("id", "highlighted-element");
         system.space.currentChapterId = this.chapter.id;
         if(this._document.chapters.length===1){
@@ -146,6 +157,17 @@ export class SpaceChapterUnit {
         foundElement.style.display = "flex";
         let xMark = this.chapterUnit.querySelector('.delete-chapter');
         xMark.style.visibility = "visible";
+    }
+
+    deselectPreviousElements(element){
+        let previousHighlightedElement = document.querySelector("#highlighted-element");
+        if(previousHighlightedElement && !previousHighlightedElement.contains(element)){
+            previousHighlightedElement.removeAttribute("id");
+        }
+        let previousHighlightedChildElement = document.querySelector("#highlighted-child-element");
+        if(previousHighlightedChildElement){
+            previousHighlightedChildElement.removeAttribute("id");
+        }
     }
     changeChapterDisplay(_target) {
         this.chapter.visibility === "hide" ? this.chapter.visibility = "show" : this.chapter.visibility = "hide";

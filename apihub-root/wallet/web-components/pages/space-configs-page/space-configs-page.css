@@ -20,11 +20,16 @@ space-configs-page{
     color: var(--left-sidebar);
     font-weight: 600;
 }
-.expand-button{
-    color: white;
-    width: 10px;
-    background-color: var(--medium-blue);
-    border-right: 10px;
+.toggle-sidebar{
+    cursor: pointer;
+    display: flex;
+    justify-content: center;
+    align-items: center;
+    box-shadow: 0 0 1px rgba(0, 0, 0, 0.5);
+    width: 25px;
+    height: 25px;
+    border-radius: 50%;
+    background-color: white;
     position: absolute;
     top: 50%;
     left: -10px;
@@ -45,24 +50,35 @@ space-configs-page{
 }
 .drag-separator{
     cursor: grab;
-    background-color: black;
-    width: 1px;
+    width: 3px;
     height: 100%;
     position: relative;
+}
+.drag-line{
+    height: 100%;
+    width: 1px;
+    background-color: var(--right-sidebar-border);
+    position: absolute;
+    left: 0;
 }
 .drag-separator:active {
     cursor: grabbing;
 }
+.drag-separator:active > .drag-icon{
+    visibility: visible;
+}
+.drag-separator:hover > .drag-icon {
+    visibility: visible;
+}
+.drag-icon:hover{
+    visibility: visible;
+}
 .drag-icon{
-    color: white;
+    visibility: hidden;
     top: 50%;
-    background-color: var(--medium-blue);
-    border-right: 10px;
+    right: -7px;
     position: absolute;
 }
-.left-drag{
-    left: -9px;
-}
-.right-drag{
-    left: 1px;
+.arrow-rotated{
+    transform: rotate(180deg);
 }
