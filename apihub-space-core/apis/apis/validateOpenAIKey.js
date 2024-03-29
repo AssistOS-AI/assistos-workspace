@@ -8,7 +8,7 @@ async function validateOpenAiKey(apiKey) {
             }
         });
         if (response.ok) {
-            return {"status":true};
+            return true;
         } else {
             const errorData = await response.json();
             let errorMessage = `Error: ${response.status} - ${errorData.error}`;
@@ -29,10 +29,11 @@ async function validateOpenAiKey(apiKey) {
                 default:
                     break;
             }
-            return {"status":false,errorMessage:errorMessage};
+            throw new Error(errorMessage);
         }
     } catch (error) {
-        return {"status":false,errorMessage:error};
+        throw error;
     }
 }
+
 module.exports = validateOpenAiKey;

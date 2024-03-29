@@ -1,4 +1,5 @@
 {
+  "SERVER_ROOT_FOLDER": "./apihub-root",
   "SPACE_FOLDER_PATH": "./data-volume/spaces",
   "USER_FOLDER_PATH": "./data-volume/users",
   "SPACE_MAP_PATH": "./data-volume/[MAP]Spaces.json",

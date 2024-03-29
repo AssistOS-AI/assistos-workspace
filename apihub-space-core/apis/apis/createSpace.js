@@ -12,9 +12,10 @@ const {
     copyDefaultPersonalities,
     createSpaceStatus,
     linkSpaceToUser,
-    addSpaceToSpaceMap
+    addSpaceToSpaceMap,
+    saveSpaceAPIKeySecret
 } = require('../exporter.js')
-('generateId', 'createDefaultAnnouncement', 'templateReplacer_$$', 'getCurrentUTCDate', 'createDirectory', 'maskOpenAIKey', 'validateData', 'copyDefaultFlows', 'copyDefaultPersonalities', 'createSpaceStatus', 'linkSpaceToUser','addSpaceToSpaceMap');
+('generateId', 'createDefaultAnnouncement', 'templateReplacer_$$', 'getCurrentUTCDate', 'createDirectory', 'maskOpenAIKey', 'validateData', 'copyDefaultFlows', 'copyDefaultPersonalities', 'createSpaceStatus', 'linkSpaceToUser', 'addSpaceToSpaceMap', 'saveSpaceAPIKeySecret');
 
 const {
     defaultSpaceTemplate,
@@ -36,6 +37,7 @@ const rollback = async (spacePath) => {
         throw error;
     }
 };
+
 async function createSpace(spaceName, userId, apiKey) {
     const spaceId = generateId();
     let spaceObj = {}
@@ -44,12 +46,12 @@ async function createSpace(spaceName, userId, apiKey) {
             spaceName: spaceName,
             spaceId: spaceId,
             adminId: userId,
-            apiKey: apiKey?templateReplacer_$$(defaultApiKeyTemplate, {
+            apiKey: apiKey ? templateReplacer_$$(defaultApiKeyTemplate, {
                 keyType: "OpenAI",
                 ownerId: userId,
                 keyId: generateId(),
                 keyValue: maskOpenAIKey(apiKey)
-            }):undefined,
+            }) : undefined,
             spaceAgent: defaultSpaceAgent,
             defaultAnnouncement: createDefaultAnnouncement(spaceName),
             creationDate: getCurrentUTCDate()
@@ -84,8 +86,8 @@ async function createSpace(spaceName, userId, apiKey) {
         () => createDirectory(path.join(spacePath, 'applications')),
         () => createSpaceStatus(spacePath, spaceObj),
         () => linkSpaceToUser(userId, spaceId),
-        () => addSpaceToSpaceMap(spaceId, spaceName)
-    ];
+        () => addSpaceToSpaceMap(spaceId, spaceName),
+    ].concat(apiKey ? [() => saveSpaceAPIKeySecret(spaceId, apiKey)] : []);
 
     const results = await Promise.allSettled(filesPromises.map(fn => fn()));
     const failed = results.filter(r => r.status === 'rejected');
