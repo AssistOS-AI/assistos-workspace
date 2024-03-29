@@ -14,7 +14,7 @@ apihub-root/wallet/scripts/bundles/
 apihub-root/wallet/bundles/
 data-volume/users
 data-volume/spaces
-
+data-volume
 node_modules
 opendsu-sdk/
 package-lock.json
