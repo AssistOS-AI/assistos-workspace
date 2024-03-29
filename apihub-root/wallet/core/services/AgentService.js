@@ -27,7 +27,7 @@ export class AgentService {
     }
 
     async analyzeRequest(request) {
-        await this.summarizeConversation();
+        //await this.summarizeConversation();
         let flowId1 = system.space.getFlowIdByName("FindObjectsByValue");
         let applicationObjects = await system.services.callFlow(flowId1, {});
 
