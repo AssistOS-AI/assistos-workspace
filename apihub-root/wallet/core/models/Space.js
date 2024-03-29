@@ -38,7 +38,13 @@ export class Space {
             personalities: this.personalities.map(personality => personality.simplify()),
             announcements: this.announcements.map(announcement => announcement.simplify()),
             installedApplications: this.installedApplications.map(application => application.stringifyApplication()),
-            apiKeys:this.apiKeys
+            apiKeys:this.apiKeys,
+            documents: this.documents.map(document => {
+                return {
+                    id: document.id,
+                    title: document.title,
+                }
+            }),
         }
     }
 
