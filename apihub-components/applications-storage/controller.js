@@ -282,10 +282,11 @@ async function loadApplicationFile(request, response) {
         const baseUrl = `/app/${spaceId}/applications/${applicationName}/file/`
         const relativeFilePath = request.url.substring(baseUrl.length);
 
-        const filePath = `../data-volume/spaces/${spaceId}/applications/${applicationName}/${relativeFilePath}`;
-        const fileType = filePath.substring(filePath.lastIndexOf('.') + 1) || '';
+        const fileType = relativeFilePath.substring(relativeFilePath.lastIndexOf('.') + 1) || '';
 
-        await sendFileToClient(response, filePath, fileType);
+        const filePath = `../data-volume/spaces/${spaceId}/applications/${applicationName}/${relativeFilePath}`;
+        const file = await fsPromises.readFile(filePath, 'utf8');
+        await sendFileToClient(response, file, fileType);
     } catch (error) {
         console.error('Error reading component:', error);
         handleFileError(response, error);

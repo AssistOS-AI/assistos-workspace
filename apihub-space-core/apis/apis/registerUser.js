@@ -2,13 +2,13 @@ const path = require('path');
 const fsPromises = require('fs').promises;
 const {
     getCurrentUTCDate,
-    generateId,
     templateReplacer_$$,
     generateVerificationToken,
     hashPassword,
-    incrementDate
+    incrementDate,
+    sendActivationEmail
 } = require('../exporter.js')
-('getCurrentUTCDate', 'generateId', 'templateReplacer_$$', 'generateVerificationToken', 'hashPassword', 'incrementDate')
+('getCurrentUTCDate','templateReplacer_$$', 'generateVerificationToken', 'hashPassword', 'incrementDate','sendActivationEmail')
 
 const userRegistrationTemplate = require('../../models/templates/exporter.js')
 ('userRegistrationTemplate');
@@ -23,7 +23,7 @@ async function registerUser(name, email, password) {
         name: name,
         passwordHash: await hashPassword(password),
         verificationToken: await generateVerificationToken(),
-        verificationTokenExpirationDate: incrementDate(currentDate, {minutes: 5}),
+        verificationTokenExpirationDate: incrementDate(currentDate, {minutes: 30}),
         currentDate: currentDate,
     })
     const userMapFilePath = path.join(__dirname, '../../../', USER_MAP_PATH);
@@ -38,6 +38,7 @@ async function registerUser(name, email, password) {
     const userPendingActivationObject = JSON.parse(await fsPromises.readFile(userPendingActivationFilePath));
     userPendingActivationObject[registrationUserObject.verificationToken] = registrationUserObject
     await fsPromises.writeFile(userPendingActivationFilePath, JSON.stringify(userPendingActivationObject, null, 2));
+    await sendActivationEmail(email, name, registrationUserObject.verificationToken);
 }
 
 module.exports = registerUser

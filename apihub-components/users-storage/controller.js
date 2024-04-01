@@ -3,9 +3,11 @@ const path = require('path');
 const {
     sendResponse,
     createCookieString,
-    parseCookies
+    parseCookies,
+    extractQueryParams,
+    sendFileToClient
 } = require('../requests-processing-apis/exporter.js')
-('sendResponse', 'createCookieString', 'parseCookies');
+('sendResponse', 'createCookieString', 'parseCookies', 'extractQueryParams', 'sendFileToClient');
 
 const Manager = require('../../apihub-space-core/Manager.js').getInstance();
 
@@ -70,21 +72,25 @@ async function registerUser(request, response) {
 }
 
 async function activateUser(request, response, server) {
-    const activationToken = request.body.activationToken;
-    try {
-        const userObject = await Manager.apis.activateUser(activationToken);
-        sendResponse(response, 200, "application/json", {
-            data: userObject,
-            success: true,
-            message: `User ${userObject.name} activated successfully`
-        });
-    } catch (error) {
-        sendResponse(response, error.statusCode, "application/json", {
+    const queryParams = extractQueryParams(request);
+    const activationToken = queryParams['activationToken'];
+    if (!activationToken) {
+        return sendResponse(response, 400, "application/json", {
             success: false,
-            message: error.message
+            message: "No activation token provided."
         });
     }
+    try {
+        debugger
+        const userObject = await Manager.apis.activateUser(activationToken);
+        const activationSuccessHTML= await Manager.apis.getActivationSuccessHTML();
+        sendFileToClient(response,activationSuccessHTML,"html")
+    } catch (error) {
+        const activationFailHTML= await Manager.apis.getActivationFailHTML(error.message);
+        sendFileToClient(response,activationFailHTML,"html")
+    }
 }
+
 
 async function loadUser(request, response) {
     try {

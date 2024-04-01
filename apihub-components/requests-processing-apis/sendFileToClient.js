@@ -1,8 +1,8 @@
-async function sendFileToClient(response, filePath, fileType) {
-    const fsPromises=require('fs').promises
+const fsPromises=require('fs').promises
+
+async function sendFileToClient(response, resource, fileType) {
     const sendResponse=require('./sendResponse.js')
     try {
-        const fileContent = await fsPromises.readFile(filePath, 'utf8');
         let contentType = "";
         switch (fileType) {
             case "js":
@@ -41,7 +41,7 @@ async function sendFileToClient(response, filePath, fileType) {
             default:
                 return sendResponse(response, 500, "text/plain", "Internal Server Error, file type not supported");
         }
-        sendResponse(response, 200, contentType, fileContent);
+        sendResponse(response, 200, contentType, resource);
     } catch (error) {
         throw Error(error);
     }

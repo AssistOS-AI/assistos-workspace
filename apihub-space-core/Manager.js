@@ -2,6 +2,7 @@ class Manager {
     constructor() {
         this.apiExporter = require('./apis/exporter.js');
         this.modelExporer = require('./models/exporter.js');
+        this.servicesExporter = require('./services/exporter.js');
         this.constantsExporter = require('./constants/exporter.js')
         this.initialise();
     }
@@ -10,7 +11,9 @@ class Manager {
         this.apis = this.apiExporter();
         this.constants = this.modelExporer();
         this.models = this.constantsExporter();
+        this.services = this.servicesExporter();
     }
+
     static getInstance() {
         if (!Manager.instance) {
             Manager.instance = new Manager();

@@ -1,4 +1,7 @@
 {
+  "ENVIRONMENT_MODE": "development",
+  "PRODUCTION_BASE_URL": "http://demo.axiologic.net:8080",
+  "DEVELOPMENT_BASE_URL": "http://localhost:8080",
   "SERVER_ROOT_FOLDER": "./apihub-root",
   "SPACE_FOLDER_PATH": "./data-volume/spaces",
   "USER_FOLDER_PATH": "./data-volume/users",

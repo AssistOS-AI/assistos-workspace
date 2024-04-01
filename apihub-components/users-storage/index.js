@@ -20,7 +20,7 @@ function UserStorage(server) {
         await registerUser(request, response)
     });
 
-    server.post("/users/verify", async (request, response) => {
+    server.get("/users/verify", async (request, response) => {
         await activateUser(request, response, server)
     });
 

@@ -17,7 +17,6 @@ function SpaceStorage(server) {
 
     /* server.use("/spaces/*",authenticationMiddleware)  */
     /* server.use("/spaces/*",authorizationMiddleware)  */
-
     server.get("/spaces/:spaceId/:objectType/:objectName", async (request, response) => {
         await loadObject(request, response)
     });

@@ -1,3 +1,4 @@
+const crypto = require("opendsu").loadApi("crypto");
 export class FileSystemStorage {
     constructor() {
     }

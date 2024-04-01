@@ -65,18 +65,11 @@ export class AuthenticationPage {
             case "register-confirmation": {
                 this.subpage = `
               <div>
-                  <div class="form-title">
-                   Registration
-                  </div>
-                  <form>
                    <div class="form-item">
-                        <label class="form-label" for="user-token">Enter the secret token or just click the link we just sent you by email.</label>
-                        <input class="form-input" name="token" type="text" data-email="user-token" id="user-token" required placeholder="Add secret token">
+                        <label class="form-label">
+                            <p>Thank you for registering with us! A confirmation email has been sent to your email address!</p>
+                        </label>
                     </div>
-                    <div class="form-footer">
-                        <button type="button" class="general-button" data-local-action="activateUser">Register</button>
-                    </div>     
-                </form>
               </div>`;
                 break;
             }
@@ -182,9 +175,11 @@ export class AuthenticationPage {
         });
         let inputs = this.element.querySelectorAll("input");
         this.lastInput = inputs[inputs.length - 1];
-        this.lastInput.removeEventListener("keypress", this.boundFn);
-        this.boundFn = this.sendFormOnEnter.bind(this);
-        this.lastInput.addEventListener("keypress", this.boundFn);
+        if (this.lastInput) {
+            this.lastInput.removeEventListener("keypress", this.boundFn);
+            this.boundFn = this.sendFormOnEnter.bind(this);
+            this.lastInput.addEventListener("keypress", this.boundFn);
+        }
     }
 
     async startSlideshow(milliseconds) {
@@ -271,8 +266,8 @@ export class AuthenticationPage {
             const {email, password} = formInfo.data;
             try {
                 await system.services.loginUser(email, password);
-                await system.loadPage( true);
-            }catch(error){
+                await system.loadPage(true);
+            } catch (error) {
                 alert(`Login failed: Invalid email or password`);
             }
         }
