@@ -126,14 +126,12 @@ async function logoutUser(request, response) {
         const spaceCookie = createCookieString('currentSpaceId', '', {
             httpOnly: true,
             sameSite: 'Strict',
-            secure: true,
             maxAge: 0,
             path: '/'
         });
         const authCookie = createCookieString('authToken', '', {
             httpOnly: true,
             sameSite: 'Strict',
-            secure: true,
             maxAge: 0,
             path: '/'
         });
