@@ -14,8 +14,15 @@ export class Agent{
     setPersonality(id){
         this.personalityId = id;
     }
-    getTasks(){
+    setCurrentTask(flowIds){
+        this.flowsArray = [];
+        for(let flowId of flowIds){
+            this.flowsArray.push({flowId: flowId});
+        }
+    }
 
+    deleteTask(){
+        delete this.flowsArray;
     }
 
     addTask(description, date){

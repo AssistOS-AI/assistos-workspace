@@ -97,18 +97,21 @@ export class AgentPage {
             return;
         }
         await this.displayMessage("user", userPrompt);
-        let response = await system.services.analyzeRequest(formInfo.data.input);
         let agentMessage;
-        if (response.refreshRightPanel) {
-            agentMessage = response.message;
-            let parentComponent = system.UI.getClosestParentElement(this.element, "space-configs-page");
-            let rightPanel = parentComponent.querySelector(".current-page");
-            system.UI.refreshElement(rightPanel);
-        } else {
-            agentMessage = response;
+        try {
+            agentMessage = await system.services.analyzeRequest(formInfo.data.input, this.refreshRightPanel.bind(this));
+        }catch (e) {
+            console.error(e);
+            agentMessage = "I am sorry, something went wrong while analyzing your request. Please try again.";
         }
         await this.displayMessage("assistant", agentMessage);
         await this.agent.addMessage("assistant", agentMessage);
+    }
+
+    refreshRightPanel(){
+        let parentComponent = system.UI.getClosestParentElement(this.element, "space-configs-page");
+        let rightPanel = parentComponent.querySelector(".current-page");
+        system.UI.refreshElement(rightPanel);
     }
 
     async resetConversation() {

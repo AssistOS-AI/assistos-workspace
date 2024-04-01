@@ -26,7 +26,7 @@ export class AgentService {
         }
     }
 
-    async analyzeRequest(request) {
+    async analyzeRequest(request, notifyUIFn) {
         //await this.summarizeConversation();
         let flowId1 = system.space.getFlowIdByName("FindObjectsByValue");
         let applicationObjects = await system.services.callFlow(flowId1, {});
@@ -66,7 +66,8 @@ export class AgentService {
                     spaceObjects: applicationObjects
                 }
                 let executionMessageResult = await system.services.callFlow(flowId, context);
-                return {refreshRightPanel: true, message: executionMessageResult};
+                notifyUIFn();
+                return executionMessageResult;
             }
         } else {
             //provide a generic answer
@@ -93,5 +94,70 @@ export class AgentService {
         agent.resetConversation();
         let agentDefaultInstructions = "You are an agent that oversees an operating system called AssistOS. This OS has some applications installed on it. Each application has different pages and objects related to them. The bare OS also has some pages and objects related to it. You are aware of objects that are created within the OS and can perform certain operations with them or create new objects.";
         agent.addMessage("system", agentDefaultInstructions);
+    }
+
+    async analyzeRequestIndependentAgent(request, notifyUIFn) {
+        let flowId1 = system.space.getFlowIdByName("FindObjectsByValue");
+        let applicationObjects = await system.services.callFlow(flowId1, {});
+
+        let agent = system.space.agent;
+        let flowId = system.space.getFlowIdByName("InstructAgent");
+        let context = {
+            request: request
+        }
+        let result = await system.services.callFlow(flowId, context);
+        await agent.addMessage("user", request);
+        if(result.flowIds){
+            agent.setCurrentTask(result.flowIds);
+            let confirmParametersFlowId = system.space.getFlowIdByName("ConfirmParameters");
+            let missingParameters = [];
+            for(let flow of agent.flowsArray){
+                if(flow.executed){
+                    continue;
+                }
+                let context = {
+                    request: request,
+                    flowId: flow.flowId,
+                }
+                let response = await system.services.callFlow(confirmParametersFlowId, context);
+                if (response.missingParameters.length !== 0) {
+                    missingParameters.push({flowId: flow.flowId, missingParameters:response.missingParameters});
+                } else {
+                    let result = await system.services.callFlow(flow.flowId, response.extractedParameters);
+                    flow.executed = true;
+                    let flowId = system.space.getFlowIdByName("ConfirmFlowExecution");
+                    let context = {
+                        flowId: flow.flowId,
+                        parameters: response.extractedParameters,
+                        result: result,
+                        spaceObjects: applicationObjects
+                    }
+                    let executionMessageResult = await system.services.callFlow(flowId, context);
+                    let executionMessage = `You have succesfully executed the operation with id: ${flow.flowId} and the result is: ${executionMessageResult}`
+                    agent.addMessage("system", executionMessage);
+                    notifyUIFn();
+                }
+            }
+            if(missingParameters.length !== 0){
+                //request missing parameters from the user
+                let flowId = system.space.getFlowIdByName("RequestMultipleParameters");
+                let context = {
+                    missingParameters: missingParameters
+                }
+                return await system.services.callFlow(flowId, context);
+            } else {
+                let flowId = system.space.getFlowIdByName("ConfirmTaskCompletion");
+                agent.deleteTask();
+                return await system.services.callFlow(flowId, {});
+            }
+        } else {
+            //provide a generic answer
+            let flowId = system.space.getFlowIdByName("Fallback");
+            let context = {
+                userPrompt: request,
+                spaceObjects: applicationObjects
+            }
+            return await system.services.callFlow(flowId, context);
+        }
     }
 }
