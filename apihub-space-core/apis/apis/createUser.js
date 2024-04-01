@@ -4,7 +4,6 @@ const {
     generateId,
     templateReplacer_$$,
     createSpace,
-    getCurrentUTCDate,
     deleteSpace
 } = require('../exporter.js')
 ('generateId', 'templateReplacer_$$', 'createSpace', 'getCurrentUTCDate', 'deleteSpace');
@@ -12,7 +11,7 @@ const {
 const {defaultUserTemplate, defaultSpaceNameTemplate} = require('../../models/templates/exporter.js')
 ('defaultUserTemplate', 'defaultSpaceNameTemplate');
 
-const {USER_FOLDER_PATH, USER_CREDENTIALS_PATH} = require('../../config.json');
+const {USER_FOLDER_PATH} = require('../../config.json');
 
 
 async function createUser(username, email, withDefaultSpace = false) {
