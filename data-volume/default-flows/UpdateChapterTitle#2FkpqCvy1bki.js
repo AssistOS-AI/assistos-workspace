@@ -1,6 +1,11 @@
 export class UpdateChapterTitle {
     static id = "2FkpqCvy1bki";
     static description = "Updates the title of a chapter";
+    static inputSchema = {
+        documentId: "string",
+        chapterId: "string",
+        title: "string"
+    }
     async start(context){
         try {
             let document = system.space.getDocument(context.documentId);

@@ -1,6 +1,10 @@
 export class DeleteChapter {
     static id = "2BDPLeWZ2cuQ";
     static description = "Deletes a chapter";
+    static inputSchema = {
+        documentId: "string",
+        chapterId: "string"
+    }
     async start(context) {
         try {
             let document = system.space.getDocument(context.documentId);
