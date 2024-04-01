@@ -22,14 +22,12 @@ async function loginUser(request, response) {
             const authCookie = createCookieString('authToken', await Manager.apis.createUserLoginJWT(userData), {
                 httpOnly: true,
                 sameSite: 'Strict',
-                secure: true,
                 maxAge: 60 * 60 * 24 * 7,
                 path: '/'
             });
             const spaceCookie = createCookieString('currentSpaceId', userData.currentSpaceId, {
                 httpOnly: true,
                 sameSite: 'Strict',
-                secure: true,
                 maxAge: 60 * 60 * 24 * 7,
                 path: '/'
             });
@@ -81,7 +79,6 @@ async function activateUser(request, response, server) {
         });
     }
     try {
-        debugger
         const userObject = await Manager.apis.activateUser(activationToken);
         const activationSuccessHTML= await Manager.apis.getActivationSuccessHTML();
         sendFileToClient(response,activationSuccessHTML,"html")
