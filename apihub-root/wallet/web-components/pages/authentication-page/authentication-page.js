@@ -6,9 +6,13 @@ export class AuthenticationPage {
         this.invalidate = invalidate;
         this.invalidate();
         this.rotations = 0;
+        [this.demoUserEmail, this.demoUserPassword]=system.services.getDemoUserCredentials();
     }
+    getDemoUserCredentials(){
 
+    }
     beforeRender() {
+
         switch (this.element.getAttribute("data-subpage")) {
             case "register-page": {
                 this.subpage = ` <div>
@@ -132,11 +136,11 @@ export class AuthenticationPage {
                   <form>
                       <div class="form-item">
                           <label class="form-label" for="user-email">E-mail</label>
-                          <input class="form-input" name="email" type="email" data-id="user-email" id="user-email" required placeholder="Add e-mail" value="demo@axiologic.net">
+                          <input class="form-input" name="email" type="email" data-id="user-email" id="user-email" required placeholder="Add e-mail" value="${this.demoUserEmail}">
                       </div>
                       <div class="form-item">
                           <label class="form-label" for="user-password">Password</label>
-                          <input class="form-input" name="password" type="password" data-id="user-password" id="user-password" required placeholder="Add password" value="demo2024">
+                          <input class="form-input" name="password" type="password" data-id="user-password" id="user-password" required placeholder="Add password" value="${this.demoUserPassword}">
                       </div>
                       <div class="forgot-password" data-local-action="navigateToPasswordRecoveryPage">
                           Forgot password?

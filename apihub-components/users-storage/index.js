@@ -7,7 +7,10 @@ const {
 } = require("./controller");
 
 function UserStorage(server) {
-    require('../../apihub-space-core/Manager.js').getInstance().apis.createDemoUser();
+
+    if(require('../../apihub-space-core/config.json').CREATE_DEMO_USER==='true') {
+        require('../../apihub-space-core/Manager.js').getInstance().apis.createDemoUser();
+    }
 
     const bodyReaderMiddleware = require('../requests-processing-apis/exporter.js')
     ('bodyReaderMiddleware');

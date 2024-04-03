@@ -8,7 +8,8 @@ const {
     sendFileToClient
 } = require('../requests-processing-apis/exporter.js')
 ('sendResponse', 'createCookieString', 'parseCookies', 'extractQueryParams', 'sendFileToClient');
-
+const configs = require('../../apihub-space-core/config.json')
+const demoUser = require('../../demoUser.json');
 const Manager = require('../../apihub-space-core/Manager.js').getInstance();
 
 async function loginUser(request, response) {
@@ -80,24 +81,46 @@ async function activateUser(request, response, server) {
     }
     try {
         const userObject = await Manager.apis.activateUser(activationToken);
-        const activationSuccessHTML= await Manager.apis.getActivationSuccessHTML();
-        sendFileToClient(response,activationSuccessHTML,"html")
+        const activationSuccessHTML = await Manager.apis.getActivationSuccessHTML();
+        sendFileToClient(response, activationSuccessHTML, "html")
     } catch (error) {
-        const activationFailHTML= await Manager.apis.getActivationFailHTML(error.message);
-        sendFileToClient(response,activationFailHTML,"html")
+        const activationFailHTML = await Manager.apis.getActivationFailHTML(error.message);
+        sendFileToClient(response, activationFailHTML, "html")
     }
 }
 
 
 async function loadUser(request, response) {
-    try {
-        const authCookie = parseCookies(request).authToken;
-        if (!authCookie) {
-            throw {
-                statusCode: 401,
+    const authCookie = parseCookies(request).authToken;
+    if (!authCookie) {
+        if (configs.CREATE_DEMO_USER === 'true') {
+            const demoCredentialsCookie = createCookieString("demoCredentials", JSON.stringify({
+                    email: demoUser.email,
+                    password: demoUser.password
+                }
+            ), {
+                path: "/",
+                sameSite: 'Strict',
+                maxAge: 60 * 60 * 24 * 7
+            });
+            sendResponse(response, 401, "application/json", {
+                success: false,
                 message: "Unauthorized"
-            };
+            }, demoCredentialsCookie);
+        } else {
+            const demoCredentialsCookie = createCookieString("demoCredentials", "", {
+                path: "/",
+                sameSite: 'Strict',
+                maxAge: 0
+            });
+            sendResponse(response, 401, "application/json", {
+                success: false,
+                message: "Unauthorized"
+            }, demoCredentialsCookie);
         }
+        return
+    }
+    try {
         const userId = await Manager.apis.decodeJWT(authCookie)
         const userData = await Manager.apis.getUserData(userId);
         sendResponse(response, 200, "application/json", {
@@ -106,10 +129,22 @@ async function loadUser(request, response) {
             message: `User ${userData.name} loaded successfully`
         });
     } catch (error) {
+        const spaceCookie = createCookieString('currentSpaceId', '', {
+            httpOnly: true,
+            sameSite: 'Strict',
+            maxAge: 0,
+            path: '/'
+        });
+        const authCookie = createCookieString('authToken', '', {
+            httpOnly: true,
+            sameSite: 'Strict',
+            maxAge: 0,
+            path: '/'
+        });
         sendResponse(response, error.statusCode, "application/json", {
             success: false,
             message: error.message
-        });
+        }, [authCookie, spaceCookie]);
     }
 }
 
