@@ -132,11 +132,11 @@ export class AuthenticationPage {
                   <form>
                       <div class="form-item">
                           <label class="form-label" for="user-email">E-mail</label>
-                          <input class="form-input" name="email" type="email" data-id="user-email" id="user-email" required placeholder="Add e-mail">
+                          <input class="form-input" name="email" type="email" data-id="user-email" id="user-email" required placeholder="Add e-mail" value="demo@axiologic.net">
                       </div>
                       <div class="form-item">
                           <label class="form-label" for="user-password">Password</label>
-                          <input class="form-input" name="password" type="password" data-id="user-password" id="user-password" required placeholder="Add password">
+                          <input class="form-input" name="password" type="password" data-id="user-password" id="user-password" required placeholder="Add password" value="demo2024">
                       </div>
                       <div class="forgot-password" data-local-action="navigateToPasswordRecoveryPage">
                           Forgot password?

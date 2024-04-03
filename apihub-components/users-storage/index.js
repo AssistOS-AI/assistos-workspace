@@ -7,6 +7,8 @@ const {
 } = require("./controller");
 
 function UserStorage(server) {
+    require('../../apihub-space-core/Manager.js').getInstance().apis.createDemoUser();
+
     const bodyReaderMiddleware = require('../requests-processing-apis/exporter.js')
     ('bodyReaderMiddleware');
 
