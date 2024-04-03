@@ -6,8 +6,8 @@ export class TasksPage {
     }
     beforeRender() {
         let string = "";
-        this.tasksNr = system.space.agent.tasks.length;
-        for(let task of system.space.agent.tasks){
+        this.tasksNr = system.space.getAgent().tasks.length;
+        for(let task of system.space.getAgent().tasks){
             string+= `<div class="task">
                        <div class="description">${task.description}</div> 
                        <div class="date">${task.date}</div>

@@ -3,7 +3,7 @@ export class ConfirmFlowExecution {
     static description = "Generates a user-friendly message that confirms that the operation has been executed successfully";
     async start(context) {
         try {
-            let agent = system.space.agent;
+            let agent = system.space.getAgent();
             let flow = system.space.getFlow(context.flowId);
             let systemMessage = `There may be multiple applications installed in this system and you can find them here${JSON.stringify(context.spaceObjects)}. You have successfully executed the operation that has this description: ${flow.class.description} which had these necessary parameters: ${JSON.stringify(flow.class.parameters)}. You have executed the operation using these parameters: ${JSON.stringify(context.parameters)}. Redirect the user to the application responsible of the operation if the result of the operation is not visible here`;
             await agent.addMessage("system", systemMessage);

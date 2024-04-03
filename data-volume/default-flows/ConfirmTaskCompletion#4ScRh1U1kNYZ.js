@@ -5,7 +5,7 @@ export class ConfirmTaskCompletion {
 
    async start(){
       this.prompt = "Your task right now is to formulate a statement in which you confirm and sum up the task that you have completed. The statement should be clear and concise.";
-      let agent = system.space.agent;
+      let agent = system.space.getAgent();
       let response = await this.chatbot(this.prompt, "", agent.getContext());
       this.return(response);
    }

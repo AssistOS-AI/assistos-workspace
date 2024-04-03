@@ -1,3 +1,6 @@
 export default {
-    "DEFAULT_PERSONALITY_NAME" : "This Space"
+    "PERSONALITIES" : {
+        "DEFAULT_PERSONALITY_NAME" : "This Space",
+        "DEFAULT_PERSONALITY_ID" : "2idYvpTEKXM5",
+    }
 }

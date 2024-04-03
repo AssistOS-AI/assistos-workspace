@@ -42,10 +42,6 @@
       "path": "./wallet/core/services/SpaceService.js"
     },
     {
-      "name": "UserService",
-        "path": "./wallet/core/services/UserService.js"
-    },
-    {
       "name": "ValidationService",
       "path": "./wallet/core/services/ValidationService.js"
     },

@@ -15,7 +15,7 @@ export class RequestParameters {
     }
 
     async execute() {
-        let agent = system.space.agent;
+        let agent = system.space.getAgent();
         let response = await this.chatbot(this.prompt, "", agent.getContext());
         this.return(response);
     }

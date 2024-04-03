@@ -8,7 +8,7 @@ export class AgentPage {
     constructor(element, invalidate) {
         this.element = element;
         this.invalidate = invalidate;
-        this.agent = system.space.getDefaultAgent();
+        this.agent = system.space.getAgent();
         this.invalidate();
     }
 
@@ -28,6 +28,17 @@ export class AgentPage {
             }
         }
         this.conversationHistory = stringHTML;
+        let personalities = "";
+        for(let personality of system.space.personalities){
+            if(personality.id === system.space.currentPersonalityId){
+                continue;
+            }
+            personalities += `<div class="personality-card" data-local-action="changePersonality ${personality.id}">
+                                <span class="personality-name">${personality.name}</span>
+                              </div>`;
+        }
+        this.personalitiesList = personalities;
+        this.currentAgentName =  system.space.getAgent().name;
     }
 
     resizeTextarea() {
@@ -45,7 +56,7 @@ export class AgentPage {
         this.boundFn = this.preventRefreshOnEnter.bind(this, form);
         this.userInput.addEventListener("keydown", this.boundFn);
         setTimeout(async () => {
-            if (this.agent.conversationHistory.length === 1) {
+            if (this.agent.conversationHistory.length === 0) {
                 await system.services.initOpeners();
                 let message = this.agent.getRandomOpener();
                 await this.displayMessage("assistant", message);
@@ -55,7 +66,32 @@ export class AgentPage {
         }, 0);
 
     }
+    hidePersonalities(controller, container, event) {
+        container.setAttribute("data-local-action", "showPersonalities off");
+        let target = this.element.querySelector(".personalities-list");
+        target.style.display = "none";
+        controller.abort();
+        let arrow = container.querySelector(".arrow");
+        arrow.classList.add("rotated");
+    }
 
+    showPersonalities(_target, mode) {
+        if (mode === "off") {
+            let target = this.element.querySelector(".personalities-list");
+            target.style.display = "flex";
+            let arrow = _target.querySelector(".arrow");
+            arrow.classList.remove("rotated");
+            let controller = new AbortController();
+            document.addEventListener("click", this.hidePersonalities.bind(this, controller, _target), {signal: controller.signal});
+            _target.setAttribute("data-local-action", "showPersonalities on");
+        }
+    }
+
+    async changePersonality(_target, id){
+        await system.space.setAgent(id);
+        this.agent = system.space.getAgent();
+        this.invalidate();
+    }
     async displayMessage(role, text) {
         let reply;
         if (role === "user") {

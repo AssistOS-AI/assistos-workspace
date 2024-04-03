@@ -15,7 +15,7 @@ export class CreateOpeners {
         let response = await this.request(this.prompt);
         try {
             let openers = JSON.parse(response);
-            await system.space.agent.setOpeners(openers.openers);
+            await system.space.getAgent().setOpeners(openers.openers);
             this.return(openers);
         } catch (e) {
             this.fail(e);

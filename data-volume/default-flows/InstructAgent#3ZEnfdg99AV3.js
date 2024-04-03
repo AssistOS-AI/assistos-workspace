@@ -4,7 +4,7 @@ export class InstructAgent {
    static description = "description";
 
    async start(context) {
-      let agent = system.space.agent;
+      let agent = system.space.getAgent();
       let flows = system.space.getAllFlows();
       let agentFlows = flows.filter((flow) => {
          if(flow.class.inputSchema){

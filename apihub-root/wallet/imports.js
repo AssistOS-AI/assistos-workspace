@@ -8,7 +8,6 @@ import { Paragraph } from "./core/models/Paragraph.js";
 import { Space } from "./core/models/Space.js";
 import { Settings } from "./core/models/Settings.js";
 import { Flow } from "./core/models/Flow.js";
-import { Agent } from "./core/models/Agent.js";
 import {PageModel} from "./core/models/PageModel.js";
 import {Application} from "./core/models/Application.js";
 
@@ -22,7 +21,6 @@ export {
     Space,
     Settings,
     Flow,
-    Agent,
     PageModel,
     Application,
 };

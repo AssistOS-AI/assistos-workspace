@@ -11,7 +11,6 @@ export class Space {
         }
 
         Object.assign(this, spaceDataObject);
-        this.agent = new Agent(this.agent);
         this.settings = new Settings(this.settings);
 
         this.personalities = this.personalities.map(personalityData => new Personality(personalityData));

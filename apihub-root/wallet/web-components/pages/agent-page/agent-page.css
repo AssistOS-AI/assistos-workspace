@@ -160,3 +160,77 @@ agent-page {
     flex-direction: column;
     align-items: center;
 }
+
+.select-personality-container{
+    position: relative;
+    display: flex;
+    cursor: pointer;
+    background-color: #A5D0F430;
+    border-radius: 10px;
+    border-color: #0000000D;
+    padding: 5px 5px 5px 8px;
+}
+.current-personality-btn {
+    display: flex;
+    align-items: center;
+    cursor: pointer;
+    font-weight: 600;
+}
+.breadcrumbs {
+    color: var(--medium-blue);
+    font-size: 18px;
+    font-weight: 600;
+    overflow-wrap: break-word;
+    hyphens: auto;
+    word-break: break-word;
+    margin-right: 5px;
+    margin-left: 5px;
+}
+.personalities-list {
+    display: none;
+    background-color: white;
+    position: absolute;
+    top: 40px;
+    left: 0;
+    z-index: 1;
+    flex-direction: column;
+    min-width: 160px;
+    max-height: 150px;
+    right: 10px;
+    overflow: auto;
+    width: max-content;
+}
+.personalities-list > *{
+    padding: 5px 5px 5px 0;
+    display: flex;
+    justify-content: start;
+    align-items: center;
+    width: fit-content;
+}
+.add-personality-btn{
+    outline: none;
+    border: none;
+    background: none;
+    color: var(--medium-blue);
+    font-family: 'Poppins', sans-serif;
+    font-size: 17px;
+    cursor: pointer;
+}
+.rotated{
+    transform: rotate(-90deg);
+}
+.personality-card {
+    overflow-wrap: break-word;
+    hyphens: auto;
+    word-break: break-word;
+    display: flex;
+    justify-content: center;
+    color:   var(--medium-blue);
+    align-items: center;
+}
+.personality-card:hover{
+    cursor: pointer;
+}
+.personality-name{
+    margin-left: 10px;
+}

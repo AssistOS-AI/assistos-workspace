@@ -1,12 +1,12 @@
 import {
     DocumentModel,
     Personality,
-    User,
     Settings,
     Flow,
     Announcement,
-    Agent, PageModel,
-    Application
+    PageModel,
+    Application,
+    constants
 } from "../../imports.js";
 
 export class Space {
@@ -14,18 +14,15 @@ export class Space {
         this.name = spaceData.name || undefined;
         this.id = spaceData.id || undefined;
         this.personalities = (spaceData.personalities || []).map(personalityData => new Personality(personalityData));
-
         this.settings = spaceData.settings ? new Settings(spaceData.settings) : {};
         this.announcements = (spaceData.announcements || []).map(announcementData => new Announcement(announcementData));
-        this.users = (spaceData.users || []).map(userData => new User(userData));
+        this.users = spaceData.users || [];
         this.flows = [];
         this.documents = (spaceData.documents || []).map(documentData => new DocumentModel(documentData)).reverse();
         this.admins = [];
         this.apiKeys = spaceData.apiKeys || {};
         this.pages = spaceData.pages || [];
-        if (spaceData.agent) {
-            this.agent = new Agent(spaceData.agent);
-        }
+        this.currentPersonalityId = spaceData.currentPersonalityId || this.personalities.find(personality => personality.id === constants.PERSONALITIES.DEFAULT_PERSONALITY_ID).id;
         this.observers = [];
         this.installedApplications = (spaceData.installedApplications || []).map(applicationData => new Application(applicationData));
         Space.instance = this;
@@ -55,7 +52,7 @@ export class Space {
             admins: this.admins,
             users:this.users,
             announcements: this.announcements,
-            agent: this.agent,
+            currentPersonalityId: this.currentPersonalityId,
             installedApplications: this.installedApplications.map(app => app.stringifyApplication()),
             apiKeys:this.apiKeys
         }
@@ -101,6 +98,13 @@ export class Space {
                 observer.callback();
             }
         }
+    }
+    getAgent(){
+        return this.personalities.find(personality=> personality.id === this.currentPersonalityId);
+    }
+    async setAgent(personalityId){
+        this.currentPersonalityId = personalityId;
+        await system.storage.storeObject(system.space.id, "status", "status", JSON.stringify(system.space.getSpaceStatus(), null, 2));
     }
 
     getNotificationId() {
@@ -290,9 +294,6 @@ export class Space {
         }
     }
 
-    async createDefaultAgent() {
-        this.agent = new Agent(JSON.parse(await system.storage.loadDefaultAgent()));
-    }
    /* TODO TBD makes sense only if the intent is to have the application also working offline */
     createDefaultAnnouncement(spaceData) {
         let defaultAnnouncement = {

@@ -16,6 +16,6 @@
   "wordCount": 0,
   "installedApplications": [],
   "agent": "$$spaceAgent",
-  "personalities": []
-
+  "personalities": [],
+  "currentPersonalityId": ""
 }

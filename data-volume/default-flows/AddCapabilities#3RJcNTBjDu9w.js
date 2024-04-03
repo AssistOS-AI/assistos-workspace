@@ -26,7 +26,7 @@ export class AddCapabilities{
     }
 
     async execute() {
-        let agent = system.space.agent;
+        let agent = system.space.getAgent();
         let response = await this.request(this.prompt);
         try {
             let obj = JSON.parse(response);
