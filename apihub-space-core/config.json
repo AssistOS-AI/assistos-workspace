@@ -1,6 +1,6 @@
 {
   "ENVIRONMENT_MODE": "development",
-  "CREATE_DEMO_USER": "false",
+  "CREATE_DEMO_USER": "true",
   "PRODUCTION_BASE_URL": "http://demo.axiologic.net:8080",
   "DEVELOPMENT_BASE_URL": "http://localhost:8080",
   "SERVER_ROOT_FOLDER": "./apihub-root",
