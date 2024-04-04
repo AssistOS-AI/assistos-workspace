@@ -22,8 +22,8 @@
         "flows-storage": {
             "module": "./../../apihub-components/flows-storage"
         },
-        "knowledge-storage": {
-            "module": "./../../apihub-components/knowledge-storage"
+        "personalities-storage": {
+            "module": "./../../apihub-components/personalities-storage"
         },
         "applications-storage": {
             "module": "./../../apihub-components/applications-storage"

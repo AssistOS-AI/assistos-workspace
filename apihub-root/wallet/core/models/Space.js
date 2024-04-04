@@ -23,6 +23,8 @@ export class Space {
         this.apiKeys = spaceData.apiKeys || {};
         this.pages = spaceData.pages || [];
         this.currentPersonalityId = spaceData.currentPersonalityId || this.personalities.find(personality => personality.id === constants.PERSONALITIES.DEFAULT_PERSONALITY_ID).id;
+        this.llms = spaceData.llms || ["GPT3.5Turbo", "GPT4.0"];
+        this.currentLlmId = spaceData.currentLlmId || "GPT3.5Turbo";
         this.observers = [];
         this.installedApplications = (spaceData.installedApplications || []).map(applicationData => new Application(applicationData));
         Space.instance = this;
@@ -105,6 +107,12 @@ export class Space {
     async setAgent(personalityId){
         this.currentPersonalityId = personalityId;
         await system.storage.storeObject(system.space.id, "status", "status", JSON.stringify(system.space.getSpaceStatus(), null, 2));
+    }
+    getLlm(){
+        return this.llms.find(llm=> llm === this.currentLlmId);
+    }
+    setLlm(llmId){
+        this.currentLlmId = llmId;
     }
 
     getNotificationId() {

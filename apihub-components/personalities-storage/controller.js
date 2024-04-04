@@ -18,7 +18,7 @@ async function saveJSON(response, spaceData, filePath) {
 async function loadFilteredKnowledge(request, response){
     let queryParams = request.query.param1;
     let searchedWords = queryParams.split(" ");
-    const filePath = `../data-volume/spaces/${request.params.spaceId}/agents/${request.params.agentId}/knowledge.json`;
+    const filePath = `../data-volume/spaces/${request.params.spaceId}/agents/${request.params.personalityId}/knowledge.json`;
     let knowledge =  JSON.parse(await fsPromises.readFile(filePath, 'utf8'));
     const regexPattern = new RegExp(searchedWords.join("|"), "gim"); // "i" flag for case-insensitive matching
 
@@ -29,7 +29,7 @@ async function loadFilteredKnowledge(request, response){
     sendResponse(response, 200, "text/html", JSON.stringify(filteredKnowledge));
 }
 async function addKnowledge(request, response){
-    const filePath = `../data-volume/spaces/${request.params.spaceId}/agents/${request.params.agentId}/knowledge.json`;
+    const filePath = `../data-volume/spaces/${request.params.spaceId}/agents/${request.params.personalityId}/knowledge.json`;
     let jsonData = JSON.parse(request.body.toString());
     let knowledge =  JSON.parse(await fsPromises.readFile(filePath, 'utf8'));
     knowledge.push(jsonData);
@@ -39,15 +39,15 @@ async function addKnowledge(request, response){
 }
 
 async function loadKnowledge(request, response){
-    const filePath = `../data-volume/spaces/${request.params.spaceId}/agents/${request.params.agentId}/knowledge.json`;
+    const filePath = `../data-volume/spaces/${request.params.spaceId}/agents/${request.params.personalityId}/knowledge.json`;
     let knowledge =  JSON.parse(await fsPromises.readFile(filePath, 'utf8'));
     sendResponse(response, 200, "text/html", JSON.stringify(knowledge));
 }
 async function storeKnowledge(request, response){
-    const filePath = `../data-volume/spaces/${request.params.spaceId}/agents/${request.params.agentId}.json`;
+    const filePath = `../data-volume/spaces/${request.params.spaceId}/agents/${request.params.personalityId}.json`;
     if(request.body.toString() === "") {
         await fsPromises.unlink(filePath);
-        sendResponse(response, 200, "text/html", `Deleted successfully agent: ${request.params.agentId}`);
+        sendResponse(response, 200, "text/html", `Deleted successfully agent: ${request.params.personalityId}`);
         return;
     }
     let jsonData = JSON.parse(request.body.toString());
@@ -55,11 +55,13 @@ async function storeKnowledge(request, response){
         sendResponse(response, 200, "text/html", `Success, ${request.body.toString()}`);
     }
 }
-
-async function loadDefaultAgent(request,response) {
-    const filePath=`../data-volume/default-agents/default-agent.json`;
-    const jsonContent = await fsPromises.readFile(filePath, 'utf8');
-    sendResponse(response, 200, "text/html", jsonContent);
+async function loadDefaultPersonalities(request, response) {
+    const defaultPersonalitiesObject = await Manager.apis.getDefaultPersonalitiesObject();
+    sendResponse(response, 200, "application/json", {
+        data: defaultPersonalitiesObject,
+        success: true,
+        message: "Default Personalities loaded successfully"
+    });
 }
 
 module.exports = {
@@ -67,5 +69,5 @@ module.exports = {
     loadFilteredKnowledge,
     addKnowledge,
     storeKnowledge,
-    loadDefaultAgent
+    loadDefaultPersonalities,
 }

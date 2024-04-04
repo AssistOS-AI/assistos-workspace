@@ -28,14 +28,7 @@ async function getDefaultItems(filePath) {
     return localData;
 }
 
-async function loadDefaultPersonalities(request, response) {
-    const defaultPersonalitiesObject = await Manager.apis.getDefaultPersonalitiesObject();
-    sendResponse(response, 200, "application/json", {
-        data: defaultPersonalitiesObject,
-        success: true,
-        message: "Default Personalities loaded successfully"
-    });
-}
+
 
 async function loadObjects(filePath) {
     let localData = "";
@@ -133,7 +126,6 @@ async function loadAppFlows(request, response) {
 
 module.exports = {
     loadDefaultFlows,
-    loadDefaultPersonalities,
     loadFlows,
     storeFlow,
     storeFlows,

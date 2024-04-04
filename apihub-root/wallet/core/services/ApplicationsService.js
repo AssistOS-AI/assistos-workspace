@@ -44,6 +44,19 @@ export class ApplicationsService {
             await system.UI.defineComponent(component);
         }
     }
+    async getApplicationComponent(spaceId, appId, appComponentsDirPath, component) {
+        const HTMLPath = `${appComponentsDirPath}/${component.name}/${component.name}.html`
+        const CSSPath = `${appComponentsDirPath}/${component.name}/${component.name}.css`
+        let loadedTemplate = await (await system.storage.getApplicationFile(spaceId, appId, HTMLPath)).text();
+        let loadedCSSs = await (await system.storage.getApplicationFile(spaceId, appId, CSSPath)).text();
+        let presenterModule = "";
+        if (component.presenterClassName) {
+            const PresenterPath = `${appComponentsDirPath}/${component.name}/${component.name}.js`
+            presenterModule = await system.storage.getApplicationFile(spaceId, appId, PresenterPath);
+        }
+        loadedCSSs = [loadedCSSs];
+        return {loadedTemplate, loadedCSSs, presenterModule};
+    }
 
     async startApplication(appName, applicationLocation, isReadOnly) {
         const applicationContainer=document.querySelector("#page-content");

@@ -38,7 +38,18 @@ export class AgentPage {
                               </div>`;
         }
         this.personalitiesList = personalities;
+        let llms = "";
+        for(let llm of system.space.llms){
+            if(llm === system.space.currentLlmId){
+                continue;
+            }
+            llms += `<div class="llm-card" data-local-action="changeLlm ${llm}">
+                        <span class="llm-name">${llm}</span>
+                      </div>`;
+        }
+        this.llmsList = llms;
         this.currentAgentName =  system.space.getAgent().name;
+        this.currentLlmName =  system.space.getLlm();
     }
 
     resizeTextarea() {
@@ -68,7 +79,7 @@ export class AgentPage {
     }
     hidePersonalities(controller, container, event) {
         container.setAttribute("data-local-action", "showPersonalities off");
-        let target = this.element.querySelector(".personalities-list");
+        let target = this.element.querySelector(".personalities-list-container");
         target.style.display = "none";
         controller.abort();
         let arrow = container.querySelector(".arrow");
@@ -77,7 +88,7 @@ export class AgentPage {
 
     showPersonalities(_target, mode) {
         if (mode === "off") {
-            let target = this.element.querySelector(".personalities-list");
+            let target = this.element.querySelector(".personalities-list-container");
             target.style.display = "flex";
             let arrow = _target.querySelector(".arrow");
             arrow.classList.remove("rotated");
@@ -85,6 +96,31 @@ export class AgentPage {
             document.addEventListener("click", this.hidePersonalities.bind(this, controller, _target), {signal: controller.signal});
             _target.setAttribute("data-local-action", "showPersonalities on");
         }
+    }
+
+    hideLlms(controller, container, event) {
+        container.setAttribute("data-local-action", "showLlms off");
+        let target = this.element.querySelector(".llms-list");
+        target.style.display = "none";
+        controller.abort();
+        let arrow = container.querySelector(".arrow");
+        arrow.classList.add("rotated");
+    }
+
+    showLlms(_target, mode) {
+        if (mode === "off") {
+            let target = this.element.querySelector(".llms-list");
+            target.style.display = "flex";
+            let arrow = _target.querySelector(".arrow");
+            arrow.classList.remove("rotated");
+            let controller = new AbortController();
+            document.addEventListener("click", this.hideLlms.bind(this, controller, _target), {signal: controller.signal});
+            _target.setAttribute("data-local-action", "showLlms on");
+        }
+    }
+    changeLlm(_target, id){
+        system.space.setLlm(id);
+        this.invalidate();
     }
 
     async changePersonality(_target, id){
