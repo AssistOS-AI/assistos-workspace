@@ -1,6 +1,6 @@
 .idea
 .env
-
+apihub-root/external-volume
 apihub-root/external-volume/domains
 apihub-root/external-volume/fixed-urls
 apihub-root/external-volume/maindsu
@@ -8,13 +8,19 @@ apihub-root/external-volume/lightDB
 apihub-root/external-volume/oba
 apihub-root/external-volume/versionlessdsu
 apihub-root/external-volume/secrets
+
 apihub-root/keys-secret
 
 apihub-root/wallet/scripts/bundles/
 apihub-root/wallet/bundles/
+
 data-volume/users
 data-volume/spaces
-data-volume
+data-volume/[MAP]Spaces.json
+data-volume/[MAP]Users.json
+data-volume/user-credentials.json
+data-volume/UsersPendingActivation.json
+
 node_modules
 opendsu-sdk/
 package-lock.json
@@ -22,5 +28,3 @@ env.json.devel
 initialEncryptionTest
 
 **/.DS_Store
-
-/apihub-space-core/data/
