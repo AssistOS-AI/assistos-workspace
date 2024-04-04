@@ -1,26 +1,34 @@
-const securityConfig = require('../../securityConfig.json');
+const JWTConfig = require('../../securityConfig.json').JWT;
 const crypto = require('opendsu').loadAPI('crypto');
-const {SERVER_ROOT_FOLDER}=require('../../config.json')
 
-const map={
-    SHA256:crypto.sha256,
-}
+const {getCurrentUnixTime, IncrementUnixTime} = require('../exporter.js')
+('getCurrentUnixTime', 'incrementUnixTime')
 
-async function createJWT(payload, secret=securityConfig.JWT.secret) {
-    debugger
-    const crypto = require("pskcrypto");
+async function createJWT(payloadData, secret =  JWTConfig.secret) {
+
     const header = {
-        alg: securityConfig.JWT.algorithm,
-        type: securityConfig.JWT.type
+        alg:  JWTConfig.algorithm,
+        typ:  JWTConfig.typ
     };
-    const encodedHeader=crypto.base64UrlEncodeJOSE(header);
-    const encodedPayload=crypto.base64UrlEncodeJOSE(payload);
 
-    const signatureBase=encodedHeader+"."+encodedPayload;
+    const payload= {
+        ...payloadData,
+        iat: getCurrentUnixTime(),
+        exp: IncrementUnixTime(getCurrentUnixTime(),  JWTConfig.userJWTExpiresIn),
+        iss: JWTConfig.issuer,
+        aud: JWTConfig.audience
+    };
 
-    const encodedSignature=map[securityConfig.jwt.algorithm]();
+    const pskCrypto = require("pskcrypto");
+
+    const encodedHeader = crypto.base64UrlEncodeJOSE(JSON.stringify(header));
+    const encodedPayload = crypto.base64UrlEncodeJOSE(JSON.stringify(payload));
+
+    const signatureBase = encodedHeader + "." + encodedPayload;
+
+    const encodedSignature = pskCrypto.joseAPI.sign(signatureBase,secret);
 
     return `${encodedHeader}.${encodedPayload}.${encodedSignature}`;
-
 }
+
 module.exports = createJWT;

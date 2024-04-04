@@ -3,7 +3,7 @@ const fsPromises = require('fs').promises;
 const getUserFilePath = require('../exporter.js')('getUserFilePath');
 
 async function getUserFile(userId) {
-    const userFilePath = getUserFilePath(userId)
+    const userFilePath = await getUserFilePath(userId)
     try {
         await fsPromises.access(userFilePath);
     } catch (e) {

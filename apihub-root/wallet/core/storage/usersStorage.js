@@ -1,3 +1,9 @@
+const crypto=require('opendsu').loadAPI('crypto')
+
+const prepareSecret = (secret)=>{
+    debugger
+    return crypto.sha256(secret)
+}
 async function registerUser(name, email, password) {
     const headers = {
         "Content-Type": "application/json; charset=UTF-8",
@@ -8,9 +14,10 @@ async function registerUser(name, email, password) {
         body: JSON.stringify({
             name: name,
             email: email,
-            password: password
+            password: prepareSecret(password)
         })
     };
+    console.info(options.body.password)
     const response = await fetch(`/users`, options);
 
     if (!response.ok) {
@@ -47,9 +54,10 @@ async function loginUser(email,password) {
         headers: headers,
         body: JSON.stringify({
             email: email,
-            password: password
+            password: prepareSecret(password)
         })
     };
+    console.info(options.body.password)
     const response = await fetch(`/users/login`, options);
     if (!response.ok) {
         throw new Error(`HTTP error! status: ${response.status}, message: ${response.message}`);
