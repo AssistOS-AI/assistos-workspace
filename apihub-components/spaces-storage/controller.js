@@ -212,12 +212,18 @@ async function getSpace(request, response) {
         /* Packaging space Data into one Object */
         spaceStatusObject["documents"] = await Manager.apis.getSpaceDocumentsObject(spaceId);
         spaceStatusObject["personalities"] = await Manager.apis.getSpacePersonalitiesObject(spaceId);
-
+        await Manager.apis.updateUsersCurrentSpace(userId, spaceId);
+        const cookieString = createCookieString('currentSpaceId', spaceStatusObject.id, {
+            maxAge: 30 * 24 * 60 * 60,
+            path: '/',
+            httpOnly: true,
+            sameSite: 'Strict'
+        });
         sendResponse(response, 200, "application/json", {
             success: true,
             data: spaceStatusObject,
             message: `Space ${spaceId} loaded successfully`
-        });
+        }, cookieString);
     } catch (error) {
         sendResponse(response, 500, "application/json", {
             success: false,

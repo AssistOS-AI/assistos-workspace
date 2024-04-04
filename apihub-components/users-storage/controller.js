@@ -20,7 +20,7 @@ async function loginUser(request, response) {
             userData.password);
         if (loginResult.success) {
             const userData = await Manager.apis.getUserData(loginResult.userId);
-            const authCookie = createCookieString('authToken', await Manager.apis.createUserLoginJWT(userData), {
+            const authCookie = createCookieString('authToken', await Manager.apis.createUserJWT(userData), {
                 httpOnly: true,
                 sameSite: 'Strict',
                 maxAge: 60 * 60 * 24 * 7,

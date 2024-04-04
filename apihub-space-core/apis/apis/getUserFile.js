@@ -1,9 +1,9 @@
 const path = require('path');
 const fsPromises = require('fs').promises;
-const {USER_FOLDER_PATH} = require('../../config.json');
+const getUserFilePath = require('../exporter.js')('getUserFilePath');
 
 async function getUserFile(userId) {
-    const userFilePath = path.join(__dirname, '../../../', USER_FOLDER_PATH, `${userId + '.json'}`);
+    const userFilePath = getUserFilePath(userId)
     try {
         await fsPromises.access(userFilePath);
     } catch (e) {
