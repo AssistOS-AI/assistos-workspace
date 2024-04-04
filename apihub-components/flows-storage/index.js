@@ -16,8 +16,6 @@ function FlowsStorage(server){
     server.get("/flows/default", loadDefaultFlows);
     server.get("/flows/:spaceId", loadFlows);
     server.get("/flows/:spaceId/applications/:applicationId", loadAppFlows);
-    server.get("/personalities/default", loadDefaultPersonalities);
-
     server.use("/flows/*", bodyReaderMiddleware);
     server.put("/flows/:spaceId/:objectId", storeFlow);
     server.put("/flows/:spaceId/store/flows", storeFlows);

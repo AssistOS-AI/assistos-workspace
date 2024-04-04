@@ -5,8 +5,8 @@ async function loadDefaultPersonalities() {
         });
     return await result.text();
 }
-async function loadFilteredKnowledge(words, agentId) {
-    const result = await fetch(`/agents/${system.space.id}/${agentId}/search?param1=${words}`,
+async function loadFilteredKnowledge(words, personalityId) {
+    const result = await fetch(`/personalities/${system.space.id}/${personalityId}/search?param1=${words}`,
         {
             method: "GET"
         });
