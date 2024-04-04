@@ -40,11 +40,6 @@ class System {
 
         this.UI = await WebSkel.initialise(uiConfigsPath);
         this.storage = new StorageManager();
-        const storageServicePromises = this.configuration.storageServices.map(async storageService => {
-            const StorageServiceModule = await import(storageService.path);
-            this.storage.addStorageService(storageService.name, new StorageServiceModule[storageService.name]());
-        });
-        await Promise.all(storageServicePromises);
 
         const initialisePromises = [
             initialiseModules("services"),
@@ -203,7 +198,6 @@ function closeDefaultLoader() {
     await system.boot(UI_CONFIGS_PATH);
 
     system.UI.setLoading(loader);
-    system.storage.setCurrentService("FileSystemStorage");
     system.UI.setDomElementForPages(document.querySelector("#page-content"));
     defineActions();
     closeDefaultLoader()

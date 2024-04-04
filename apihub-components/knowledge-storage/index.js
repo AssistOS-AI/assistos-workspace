@@ -12,8 +12,7 @@ function bodyReaderMiddleware(req, res, next) {
 }
 
 function KnowledgeStorage(server){
-    const { loadKnowledge, loadFilteredKnowledge, addKnowledge, storeKnowledge,loadDefaultAgent } = require("./controller");
-    server.get("/agents/default",loadDefaultAgent)
+    const { loadKnowledge, loadFilteredKnowledge, addKnowledge, storeKnowledge } = require("./controller");
     server.get("/agents/:spaceId/:agentId", loadKnowledge);
     server.get("/agents/:spaceId/:agentId/search", loadFilteredKnowledge);
     server.use("/agents/*", bodyReaderMiddleware);

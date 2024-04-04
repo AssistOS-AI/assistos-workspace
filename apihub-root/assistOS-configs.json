@@ -1,11 +1,5 @@
 {
   "defaultApplicationName": "SpaceConfiguration",
-  "storageServices": [
-    {
-      "name": "FileSystemStorage",
-      "path": "./wallet/core/services/FileSystemStorage.js"
-    }
-  ],
   "factories": [
     {
       "name": "DocumentFactory",
