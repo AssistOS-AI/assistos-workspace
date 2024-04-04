@@ -148,20 +148,10 @@ function defineActions() {
 }
 
 async function handleHistory(event) {
-    const result = system.services.getCachedCurrentUser();
-    if (!result) {
-        if (window.location.hash !== "#authentication-page") {
-            system.UI.setDomElementForPages(mainContent);
-            window.location.hash = "#authentication-page";
-            await system.UI.changeToDynamicPage("authentication-page", "authentication-page", "", true);
-        }
-    } else {
-        if (history.state) {
-            if (history.state.pageHtmlTagName === "authentication-page") {
-                const path = ["#", system.UI.currentState.pageHtmlTagName].join("");
-                history.replaceState(system.UI.currentState, path, path);
-            }
-        }
+    if (window.location.hash !== "#authentication-page") {
+        system.UI.setDomElementForPages(mainContent);
+        window.location.hash = "#authentication-page";
+        await system.UI.changeToDynamicPage("authentication-page", "authentication-page", "", true);
     }
     let modal = document.querySelector("dialog");
     if (modal) {

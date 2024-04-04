@@ -58,7 +58,7 @@ export class AgentService {
                 return await system.services.callFlow(flowId, context);
             } else {
                 //execute operation with the current parameters
-                let result = await system.services.callFlow(operationId, response.extractedParameters);
+                let result = await system.services.callFlow(operationId, response.extractedParameters, agent.id);
                 let flowId = system.space.getFlowIdByName("ConfirmFlowExecution");
                 let context = {
                     flowId: operationId,
