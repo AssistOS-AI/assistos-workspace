@@ -42,6 +42,8 @@ export class Personality {
     async init(){
         let agentDefaultInstructions = "You are an agent that oversees an operating system called AssistOS. This OS has some applications installed on it. Each application has different pages and objects related to them. The bare OS also has some pages and objects related to it. You are aware of objects that are created within the OS and can perform certain operations with them or create new objects.";
         await this.addMessage("system", agentDefaultInstructions);
+        let personalityPrompt = `Step into the shoes of ${this.name}, a character known for their distinctive traits: ${this.description}.From here on out respond to requests in such a way that it encapsulates the distinct essence of this character.`;
+        await this.addMessage("system", personalityPrompt);
     }
 
     async addCapability(capability){

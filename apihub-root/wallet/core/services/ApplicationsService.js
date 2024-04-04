@@ -36,7 +36,7 @@ export class ApplicationsService {
             let prefix = component.name.substring(0, index);
             component.name= component.name.substring(index + 1);
             component = {
-                ...await system.storage.getApplicationComponent(system.space.id, appName,system.initialisedApplications[appName].componentsDirPath,component),
+                ...await this.getApplicationComponent(system.space.id, appName,system.initialisedApplications[appName].componentsDirPath,component),
                 ...component
             }
             component.name = prefix + "-" + component.name;
