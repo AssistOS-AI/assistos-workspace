@@ -30,6 +30,17 @@ export class LeftSidebar {
         changeSelectedPageFromSidebar(window.location.hash);
     }
 
+    toggleTheme(_target) {
+        const element = document.getElementsByTagName('html')[0];
+        const currentTheme = element.getAttribute('theme');
+
+        if (currentTheme && currentTheme === 'dark') {
+            element.setAttribute('theme', '');
+        } else {
+            element.setAttribute('theme', 'dark');
+        }
+    }
+
     changeBaseURL(newBaseURL) {
         document.getElementById('baseTag').setAttribute('href', newBaseURL);
     }

@@ -5,7 +5,7 @@
     font-size: 18px;
     font-style: normal;
     font-weight: 600;
-    padding:10px;
+    padding: 10px;
     line-height: normal;
 }
 
@@ -13,29 +13,36 @@
     cursor: pointer;
     transition-duration: 0.3s;
 }
-.delete-chapter{
+
+html[theme="dark"] .arrow svg {
+    filter: brightness(0) invert(1);
+}
+
+.delete-chapter {
     visibility: hidden;
     position: absolute;
     top: 0;
     right: 0;
     cursor: pointer;
 }
-.chapter-title:focus{
-    outline:none;
-    background-color:var(--white-text);
-    border-radius:3px;
+
+.chapter-title:focus {
+    outline: none;
+    background-color: var(--white-text);
+    border-radius: 3px;
 }
 
-.ten-px-margin-left{
-    margin-left:10px;
+.ten-px-margin-left {
+    margin-left: 10px;
 }
+
 .chapter-unit {
     cursor: default;
     border-radius: 10px;
     display: flex;
     flex-direction: column;
     min-width: 0;
-    width:100%;
+    width: 100%;
 }
 
 .chapter-content {
@@ -49,16 +56,18 @@
 }
 
 .chapter-arrows {
-    display:flex;
-    width:42px;
-    min-width:42px;
+    display: flex;
+    width: 42px;
+    min-width: 42px;
     justify-content: space-between;
     margin-left: 10px;
     cursor: pointer;
 }
 
 
-.chapter-arrows{display:none;}
+.chapter-arrows {
+    display: none;
+}
 
 .chapter-paragraphs:focus {
     background-color: var(--harsh-gray);
@@ -94,7 +103,7 @@
     height: min-content;
 }
 
-.hidden{
+.hidden {
     display: none;
 }
 
@@ -109,15 +118,17 @@ p {
 .chapter-title {
     width: calc(100% - 95px);
     padding: 5px 5px 5px 5px;
-    margin-left:3px;
+    margin-left: 3px;
     display: inline-block;
 }
-.chapter-text{
-    width:100%;
+
+.chapter-text {
+    width: 100%;
     position: relative;
 }
-.chapter-unit{
-    width:100%;
+
+.chapter-unit {
+    width: 100%;
 }
 
 .chapter-paragraphs {
@@ -132,9 +143,10 @@ p {
     width: 100%;
 }
 
-#highlighted-element{
-    background-color:var(--medium-white);
+#highlighted-element {
+    background-color: var(--medium-white);
 }
-.data-chapter-number{
-    width:17px;
+
+.data-chapter-number {
+    width: 17px;
 }

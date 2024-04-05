@@ -1,20 +1,23 @@
-space-dropdown{
+space-dropdown {
     position: relative;
 }
-.space-container{
+
+.space-container {
     display: flex;
     cursor: pointer;
-    background-color: #A5D0F430;
+    background-color: var(--white-text);
     border-radius: 10px;
     border-color: #0000000D;
     padding: 5px 5px 5px 8px;
 }
+
 .current-space-btn {
     display: flex;
     align-items: center;
     cursor: pointer;
     font-weight: 600;
 }
+
 .breadcrumbs {
     color: var(--medium-blue);
     font-size: 18px;
@@ -25,6 +28,11 @@ space-dropdown{
     margin-right: 5px;
     margin-left: 5px;
 }
+
+*[theme="dark"] .breadcrumbs {
+    color: var(--light-brown);
+}
+
 .spaces-list {
     display: none;
     background-color: white;
@@ -37,15 +45,17 @@ space-dropdown{
     overflow: auto;
     width: max-content;
 }
-.spaces-list > *{
+
+.spaces-list > * {
     padding: 5px 5px 5px 0;
     display: flex;
     justify-content: start;
     align-items: center;
     width: fit-content;
 }
+
 .add-space-txt,
-.logout-txt{
+.logout-txt {
     margin-left: 10px;
 }
 
@@ -59,6 +69,7 @@ space-dropdown{
     font-size: 17px;
     cursor: pointer;
 }
-.rotated{
+
+.rotated {
     transform: rotate(-90deg);
 }

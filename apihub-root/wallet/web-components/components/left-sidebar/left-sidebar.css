@@ -1,16 +1,18 @@
-left-sidebar{
-    background-color: var(--left-sidebar);
+left-sidebar {
+    background-color: var(--left-sidebar-background);
     height: 100%;
     display: flex;
     flex-direction: column;
     justify-content: space-between;
 }
+
 .features-list-wrapper {
     padding: 15px;
-    display:flex;
+    display: flex;
     justify-content: center;
-    flex-direction:column;
+    flex-direction: column;
 }
+
 .feature {
     justify-content: center;
     position: relative;
@@ -20,22 +22,26 @@ left-sidebar{
     margin-top: 15px;
     max-height: 100%;
 }
+
 .feature:hover {
     cursor: pointer;
     border-radius: 5px;
     background: var(--feature-hover);
 }
+
 #selected-page {
-    background: white;
+    background: var(--white-text);
     border-radius: 5px;
     font-size: 16px;
     font-style: normal;
     line-height: normal;
 }
-.first{
+
+.first {
     margin-top: 0;
 }
-.bottom-section{
+
+.bottom-section {
     color: white;
     font-size: 18px;
     font-weight: 600;
@@ -45,10 +51,12 @@ left-sidebar{
     justify-content: center;
     padding: 15px;
 }
-.item{
-    margin-top:10px;
+
+.item {
+    margin-top: 10px;
 }
-.app-name{
+
+.app-name {
     padding: 5px;
     z-index: 1;
     color: white;
@@ -59,11 +67,13 @@ left-sidebar{
     position: absolute;
     left: 100%;
 }
-.notifications{
+
+.notifications {
     cursor: pointer;
     position: relative;
 }
-.notifications-box{
+
+.notifications-box {
     margin-left: 35px;
     padding: 10px;
     color: var(--very-light-gray);
@@ -71,7 +81,7 @@ left-sidebar{
     z-index: 1;
     border-radius: 5px;
     border: 1px solid var(--blue-border);
-    background: white;
+    background: var(--action-box-background);
     bottom: 0;
     left: 100%;
     display: none;
@@ -80,4 +90,8 @@ left-sidebar{
     position: absolute;
     width: 300px;
     height: 200px;
+}
+
+html[theme="dark"] {
+
 }

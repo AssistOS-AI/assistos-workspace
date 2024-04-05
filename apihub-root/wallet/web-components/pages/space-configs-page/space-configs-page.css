@@ -1,26 +1,33 @@
-space-configs-page{
+space-configs-page {
     display: flex;
     height: 100%;
     overflow: hidden;
 }
-.right-sidebar{
+
+.right-sidebar {
     display: inline-block;
     width: 270px;
     transition: transform 0.3s ease;
 }
-.right-sidebar{
+
+.right-sidebar {
     padding: 20px;
-    background: white;
+    background: var(--right-sidebar);
+    border: 1px solid var(--right-sidebar-border);
+    box-shadow: var(--right-sidebar-shadow);
 }
-.sidebar-item{
+
+.sidebar-item {
     padding: 10px;
 }
-.sidebar-item-title{
+
+.sidebar-item-title {
     margin-left: 10px;
     color: var(--left-sidebar);
     font-weight: 600;
 }
-.toggle-sidebar{
+
+.toggle-sidebar {
     cursor: pointer;
     display: flex;
     justify-content: center;
@@ -34,12 +41,16 @@ space-configs-page{
     top: 50%;
     left: -10px;
 }
-.current-page{
+
+.current-page {
     width: calc(50% - 135px);
     transition: width 0.3s;
     min-width: 350px;
+    background: var(--middle-content-background);
+    color: var(--left-sidebar);
 }
-.hide-sidebar{
+
+.hide-sidebar {
     padding-left: 10px;
     font-weight: 300;
     color: var(--medium-blue);
@@ -48,37 +59,45 @@ space-configs-page{
     border: none;
     font-size: 30px;
 }
-.drag-separator{
+
+.drag-separator {
     cursor: grab;
     width: 3px;
     height: 100%;
     position: relative;
+    background: var(--right-sidebar-border);
 }
-.drag-line{
+
+.drag-line {
     height: 100%;
     width: 1px;
-    background-color: var(--right-sidebar-border);
     position: absolute;
     left: 0;
 }
+
 .drag-separator:active {
     cursor: grabbing;
 }
-.drag-separator:active > .drag-icon{
+
+.drag-separator:active > .drag-icon {
     visibility: visible;
 }
+
 .drag-separator:hover > .drag-icon {
     visibility: visible;
 }
-.drag-icon:hover{
+
+.drag-icon:hover {
     visibility: visible;
 }
-.drag-icon{
+
+.drag-icon {
     visibility: hidden;
     top: 50%;
     right: -7px;
     position: absolute;
 }
-.arrow-rotated{
+
+.arrow-rotated {
     transform: rotate(180deg);
 }

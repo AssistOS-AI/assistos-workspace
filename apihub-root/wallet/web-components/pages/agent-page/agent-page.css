@@ -9,7 +9,9 @@ agent-page {
 .middle-content {
     position: relative;
     height: 100%;
+    background: var(--middle-content-background);
 }
+
 .page-header {
     z-index: 1;
     padding: 20px 40px;
@@ -30,7 +32,7 @@ agent-page {
     height: calc(100% - 150px);
 }
 
-.chat-background{
+.chat-background {
     z-index: -1;
     object-fit: cover;
     position: absolute;
@@ -132,9 +134,14 @@ agent-page {
     box-shadow: -11px 0 0 0 var(--light-blue);
 }
 
+.user-box {
+    color: var(--user-text);
+}
+
 .robot-box {
     border-radius: 16px 16px 0 16px;
     background: var(--light-blue);
+    color: var(--robot-text);
 }
 
 .page-logo-section {

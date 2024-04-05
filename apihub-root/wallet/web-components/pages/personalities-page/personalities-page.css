@@ -1,20 +1,25 @@
-personalities-page{
+personalities-page {
     display: flex;
     overflow: scroll;
 }
-.table{
+
+.table {
     width: 100%;
     display: grid;
     grid-template-columns: repeat(3, 1fr);
+    background: var(--middle-content-background);
+    color: var(--user-text);
 }
-.add-personality-button{
+
+.add-personality-button {
     display: flex;
     flex-direction: column;
     align-items: center;
     margin: 25px;
 }
-.square-container{
-    border: 6px solid  var(--medium-blue);
+
+.square-container {
+    border: 6px solid var(--medium-blue);
     border-radius: 9px;
     width: 130px;
     height: 130px;
@@ -23,27 +28,31 @@ personalities-page{
     grid-template-areas:"inner-div";
 }
 
-.square-container:hover{
+.square-container:hover {
     cursor: pointer;
 }
-.horizontal-line{
+
+.horizontal-line {
     margin: 25px;
-    background-color:  var(--medium-blue);
+    background-color: var(--medium-blue);
     width: 64px;
     height: 9px;
     grid-area: inner-div;
 }
-.vertical-line{
+
+.vertical-line {
     margin: 25px;
-    background-color:  var(--medium-blue);
+    background-color: var(--medium-blue);
     width: 9px;
     height: 64px;
     grid-area: inner-div;
 }
-.text{
+
+.text {
     font-weight: 500;
     font-size: 22px;
 }
-.button-text{
-    color:  var(--medium-blue);
+
+.button-text {
+    color: var(--medium-blue);
 }

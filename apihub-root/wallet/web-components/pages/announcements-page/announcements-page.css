@@ -1,7 +1,10 @@
-announcements-page{
+announcements-page {
     display: flex;
     width: calc((100% - 270px) / 2);
 }
-.announcements-page{
+
+.announcements-page {
     width: 100%;
+    background: var(--middle-content-background);
 }
+

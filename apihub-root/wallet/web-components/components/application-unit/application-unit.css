@@ -1,68 +1,80 @@
-application-unit{
+application-unit {
     border: 1px solid var(--blue-border);
     border-radius: 10px;
     width: 300px;
     height: 330px;
-    background: white;
+    background: var(--left-sidebar-background);
 }
-.unit-header{
+
+.unit-header {
     height: 200px;
     display: flex;
     justify-content: center;
     border: 1px solid var(--blue-border);
     border-radius: 10px;
 }
-.application-unit{
+
+.application-unit {
     height: 100%;
-    display:flex;
-    flex-direction:column;
+    display: flex;
+    flex-direction: column;
     padding: 20px;
 }
-.application-image-container{
+
+.application-image-container {
     cursor: pointer;
-    display:flex;
-    align-items:center;
+    display: flex;
+    align-items: center;
     justify-content: center;
-    padding:5px;
-    border-radius:50%;
+    padding: 5px;
+    border-radius: 50%;
 }
-.application-image-container img{
+
+.application-image-container img {
     height: 99%;
 }
-.installed{
+
+.installed {
     border: none;
     border-radius: 10px;
     background-color: var(--medium-blue);
     color: white;
     padding: 10px;
 }
-.details{
+
+.details {
     display: flex;
     flex-direction: column;
 }
-.container-header{
+
+.container-header {
     display: flex;
     justify-content: space-between;
 }
-.name{
+
+.name {
     margin-top: 5px;
     font-size: 16px;
     font-weight: 500;
 }
-.author{
+
+.author {
     color: var(--left-sidebar);
     margin: 5px 0;
     font-size: 15px;
     font-weight: 500;
 }
-.install-section{
+
+.install-section {
     align-items: center;
     display: flex;
 }
-.general-button{
+
+.general-button {
     font-size: 14px;
 }
-.action-cell{
+
+.action-cell {
     cursor: pointer;
     position: relative;
     width: 20px;
@@ -71,7 +83,8 @@ application-unit{
     justify-content: right;
     align-items: center;
 }
-.circle-button{
+
+.circle-button {
     align-items: center;
     padding: 7px 0;
     display: flex;
@@ -79,7 +92,8 @@ application-unit{
     border-radius: 30px;
     height: 100%;
 }
-.app-description{
+
+.app-description {
     height: 70px;
     overflow: hidden;
     text-overflow: ellipsis;
@@ -87,14 +101,16 @@ application-unit{
     -webkit-line-clamp: 3; /* Number of lines to show before truncating */
     -webkit-box-orient: vertical;
 }
-.app-description::after{
+
+.app-description::after {
     content: '\2026'; /* Unicode character for ellipsis */
     display: inline-block;
     width: 1em; /* Adjust as needed */
     overflow: hidden;
     vertical-align: bottom;
 }
-.uninstall{
+
+.uninstall {
     background: white;
     color: var(--medium-blue);
     border: 1px solid var(--medium-blue);

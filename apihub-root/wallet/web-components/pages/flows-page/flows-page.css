@@ -1,10 +1,13 @@
-flows-page{
+flows-page {
     display: flex;
 }
-.flows-page{
+
+.flows-page {
     overflow: auto;
     width: 100%;
+    background: var(--middle-content-background);
 }
+
 .table-header-flows {
     padding-left: 20px;
     display: flex;
@@ -15,23 +18,29 @@ flows-page{
     line-height: normal;
     text-transform: capitalize;
 }
-.button-margin{
+
+.button-margin {
     margin-right: 10px;
 }
-#export-svg{
+
+#export-svg {
     transform: matrix(-1, 0, 0, 1, 0, 0);
 }
+
 .add-icon {
     margin-right: 5px;
     margin-bottom: 1px;
 }
-.table-name{
+
+.table-name {
     width: 31.5%;
     margin-bottom: 10px;
 }
-.table-description{
+
+.table-description {
     margin-bottom: 10px;
 }
+
 .buttons-section {
     display: flex;
     padding-left: 20px;
@@ -39,24 +48,27 @@ flows-page{
     margin-top: 20px;
 }
 
-.no-data-loaded{
+.no-data-loaded {
     padding-left: 15px;
 }
-.filters-container{
+
+.filters-container {
     position: relative;
 }
-.filters{
+
+.filters {
     display: none;
     border-radius: 5px;
     padding-top: 10px;
     padding-bottom: 10px;
     background: var(--medium-blue);
     position: absolute;
-    top:0;
+    top: 0;
     left: 95px;
     flex-direction: column;
 }
-.filter{
+
+.filter {
     display: flex;
     padding: 0 10px 0 10px;
     width: 150px;
@@ -65,6 +77,7 @@ flows-page{
     font-weight: 600;
     color: var(--white-text);
 }
-.filter label{
+
+.filter label {
     cursor: pointer;
 }
