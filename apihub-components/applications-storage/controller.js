@@ -132,7 +132,7 @@ async function installApplication(request, response) {
             await execAsync(`rm ${applicationPath}/README.md`);
         }
         //await clearGITCredentialsCache();
-        await execAsync(`git pull`);
+        //await execAsync(`git pull`);
         await updateSpaceStatus(spaceId, application.name, manifest.description);
         sendResponse(response, 200, "text/html", "Application installed successfully");
     } catch (error) {
