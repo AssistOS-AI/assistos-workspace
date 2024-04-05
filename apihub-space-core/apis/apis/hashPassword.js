@@ -1,8 +1,6 @@
-
-const crypto=require('opendsu').loadAPI('crypto');
-
+const crypto = require('crypto');
 async function hashPassword(password){
     /* TODO Use a more secure hashing algorithm */
-    return await crypto.sha256(password);
+    return  crypto.createHash('sha256').update(password).digest('hex');
 }
 module.exports=hashPassword

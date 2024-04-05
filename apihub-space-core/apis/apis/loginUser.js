@@ -6,7 +6,6 @@ const {getUserIdByEmail, hashPassword} = require('../exporter.js')
 const {USER_CREDENTIALS_PATH} = require('../../config.json')
 
 async function loginUser(email, password) {
-
     let userId = null;
     try {
         userId = await getUserIdByEmail(email)
