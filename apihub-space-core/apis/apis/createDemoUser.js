@@ -10,7 +10,7 @@ const {email, password, username} = require('../../../demoUser.json');
 async function createDemoUser() {
     console.log("Creating Demo User")
     try {
-        await registerUser(username, email, await hashPassword(password))
+        await registerUser(username, email,hashPassword(password))
         const usersPendingActivation = require('../../../data-volume/UsersPendingActivation.json')
         const activationToken = Object.keys(usersPendingActivation)[0]
         await activateUser(activationToken)

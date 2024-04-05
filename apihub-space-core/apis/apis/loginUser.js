@@ -19,7 +19,7 @@ async function loginUser(email, password) {
     }
     const userCredentialsPath = path.join(__dirname, '../../../', USER_CREDENTIALS_PATH);
     const usersCredentialsObject = JSON.parse(await fsPromises.readFile(userCredentialsPath));
-    if(usersCredentialsObject[userId].password === await hashPassword(password)){
+    if(usersCredentialsObject[userId].password === hashPassword(password)){
         return {
             success: true,
             userId:userId

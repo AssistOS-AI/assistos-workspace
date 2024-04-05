@@ -21,7 +21,7 @@ async function registerUser(name, email, password) {
     const registrationUserObject = templateReplacer_$$(userRegistrationTemplate, {
         email: email,
         name: name,
-        passwordHash: await hashPassword(password),
+        passwordHash: hashPassword(password),
         verificationToken: await generateVerificationToken(),
         verificationTokenExpirationDate: incrementDate(currentDate, {minutes: 30}),
         currentDate: currentDate,

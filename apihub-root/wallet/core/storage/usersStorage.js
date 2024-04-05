@@ -1,10 +1,8 @@
-const prepareSecret = async (secret)=>{
-        const utf8 = new TextEncoder().encode(secret);
-        const hashBuffer = await crypto.subtle.digest('SHA-256', utf8);
-        const hashArray = Array.from(new Uint8Array(hashBuffer));
-        return hashArray
-            .map((bytes) => bytes.toString(16).padStart(2, '0'))
-            .join('');
+const crypto=require('opendsu').loadAPI('crypto');
+const prepareSecret =  (secret)=>{
+    return Array.from(crypto.sha256JOSE(secret))
+        .map(b => b.toString(16).padStart(2, '0'))
+        .join('');
 }
 async function registerUser(name, email, password) {
     const headers = {
@@ -16,7 +14,7 @@ async function registerUser(name, email, password) {
         body: JSON.stringify({
             name: name,
             email: email,
-            password: await prepareSecret(password)
+            password: prepareSecret(password)
         })
     };
     const response = await fetch(`/users`, options);
@@ -55,7 +53,7 @@ async function loginUser(email,password) {
         headers: headers,
         body: JSON.stringify({
             email: email,
-            password: await prepareSecret(password)
+            password: prepareSecret(password)
         })
     };
 
