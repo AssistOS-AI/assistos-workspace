@@ -1,0 +1,129 @@
+:root[theme="dark"] {
+    --black: #000000; /* var(--black); */
+    --space-hover: #00000054; /* var(--space-hover); */
+    --form-border: #0000006E; /* var(--form-border); */
+    --lighter-black: #0000003d; /* var(--lighter-black); */
+    --chatbots-shadow: #00000047; /* var(--chatbots-shadow); */
+    --abstract-content-focus: #0000001C; /* var(--abstract-content-focus); */
+    --prompt-shadow: #00000057; /* var(--prompt-shadow); */
+    --path-button: #CCCCCC; /* var(--path-button); */
+    --chapter-title: #f7f7f5; /* var(--chapter-title); */
+    --prompt-text: #222222; /* var(--prompt-text); */
+    --light-black: #f7f7f5; /* var(--light-black); */
+    --gray-black: #FFFFFF; /* var(--gray-black); */
+    --medium-gray: #CCCCCC; /* var(--medium-gray); */
+    --medium-black: #55555514; /* var(--medium-black); */
+    --brown-gray: #555555; /* var(--brown-gray); */
+    --settings-page-theme: #6b6b6b; /* var(--settings-page-theme); */
+    --form-input: #8B8B8B; /* var(--form-input); */
+    --very-light-gray: #c2c2c299; /* var(--very-light-gray); */
+    --action-box-border: #383838; /* var(--action-box-border); */
+    --error-modal-border: #E5E5E5; /* var(--error-modal-border); */
+    --gray-border: #E6E6E6; /* var(--gray-border); */
+    --white-text: #121111; /* var(--white-text); */
+    --robot-text: #939396;
+    --user-text: #FFFFFF;
+    --light-brown-gray: #707070; /* var(--light-brown-gray); */
+    --light-brown: #CCCCCC; /* var(--light-brown); */
+    --delete-personality: #C70000; /* var(--delete-personality); */
+    --form-input-error: #ff0000; /* var(--form-input-error); */
+    --lighter-brown: #6B574E; /* var(--lighter-brown); */
+    --proof-reader-content: #CCC; /* var(--proof-reader-content); */
+    --green-blue: #429E9D; /* var(--green-blue); */
+    --spinner-l-r-b: #00aeef26; /* var(--spinner-l-r-b); */
+    --spinner-t: #00aeefcc; /* var(--spinner-t); */
+    --light-blue: #3F3F46; /* var(--light-blue); */
+    --medium-blue: #0C5C9E; /* var(--medium-blue); */
+    --chatbots-history-blue: #98BFE0; /* var(--medium-blue); */
+    --input-file-background: #F7FBFF; /* var(--input-file-background); */
+    --strong-blue: #007bff; /* var(--strong-blue); */
+    --documents-page-header: #CCCCCC; /* var(--documents-page-header); */
+    --harsh-gray: #94aee34d; /* var(--harsh-gray); */
+    --input-file-selector: #2B64E1; /* var(--input-file-selector); */
+    --blue-black: #18203F; /* var(--blue-black); */
+    --suggest: #0618D1; /* var(--suggest); */
+    --blue-border: #383838;
+    --bright-blue: #2D9FFF;
+    --semi-bold-text: #f7f7f5; /* var(--semi-bold-text); */
+    --pink-white: #383838; /* var(--pink-white); */
+    --feature-hover: #afa8ba38; /* var(--feature-hover); */
+    --new-chapter-btn: #350549; /* var(--new-chapter-btn); */
+    --action-box-background: #252526; /* var(--action-box-background); */
+    --tab-hover: #ebe4ec; /* var(--tab-hover); */
+    --space-tab: #937397; /* var(--space-tab); */
+    --navbackground: #d5c8d6; /* var(--navbackground); */
+    --robot-shadow: #E0C9E1; /* var(--robot-shadow); */
+    --left-sidebar: #CCCCCC; /* var(--left-sidebar); */
+    --left-sidebar-background: #333333;
+    --middle-content-background: #252526;
+    --right-sidebar: linear-gradient(180deg, #353535 44%, #252526 100%);
+    --right-sidebar-border: #383838;
+    --right-sidebar-shadow: -2px 9px 0px rgba(82, 82, 82, 0.06);
+    --document-path: #440A46; /* var(--document-path); */
+    --navbarbox: #A283A3; /* var(--navbarbox); */
+    --medium-white: #55555514; /* var(--medium-white); */
+    --flow-marketplace: #3F3F46; /* var(--flow-marketplace); */
+    --proofreader-generated-content: #2E2C2E; /* var(--proofreader-page-generated-content); */
+    --generated-text-title: #FFFFFF; /* var(--generated-text-title); */
+    --chat-log-background: #9d019d80; /* var(--chat-log-background); */
+    --chatbots-input: #F5E6EF; /* var(--chatbots-input); */
+    --button-purple: #A42E70; /* var(--button-purple); */
+    --general-button-text-color: #FFFFFF;
+}
+
+html[theme="dark"] .right-sidebar svg,
+html[theme="dark"] svg.rotated,
+html[theme="dark"] .general-button-reversed-colors svg,
+html[theme="dark"] svg.breadcrumbs-path-svg,
+html[theme="dark"] .document-item svg,
+html[theme="dark"] .title-edit-section-right.pointer,
+html[theme="dark"] .alternative svg.pointe {
+    filter: saturate(0%) brightness(155%) contrast(100%);
+}
+
+html[theme="dark"] textarea,
+html[theme="dark"] input,
+html[theme="dark"] select {
+    background: var(--light-blue);
+    color: var(--user-text);
+}
+
+html[theme="dark"] form,
+html[theme="dark"] dialog {
+    background: var(--middle-content-background);
+    border: var(--right-sidebar-border);
+    color: var(--user-text);
+    box-shadow: var(--right-sidebar-shadow);
+}
+
+html[theme="dark"] dialog.spinner {
+    border-radius: 50%;
+}
+
+html[theme="dark"] .modal-header,
+html[theme="dark"] .modal-title,
+html[theme="dark"] button.close,
+html[theme="dark"] .secondary-path-button,
+html[theme="dark"] .sidebar-name {
+    color: var(--user-text);
+}
+
+html[theme="dark"] .modal-header {
+    background: var(--brown-gray);
+}
+
+html[theme="dark"] .general-button-reversed-colors {
+    background: var(--light-blue);
+    color: var(--user-text);
+    border: var(--right-sidebar-border);
+}
+
+html[theme="dark"] .item-list-container {
+    border: 1px solid var(--gray-border);
+    padding: 0;
+}
+
+html[theme="dark"] .sidebar-item {
+    padding-left: 10px;
+}
+
