@@ -1,4 +1,27 @@
-@import url('https://fonts.cdnfonts.com/css/poppins');
+@font-face {
+    font-family: 'Poppins';
+    font-style: normal;
+    font-weight: 400;
+    font-display: swap;
+    font-stretch: 100%;
+    src: local(''), url("./assets/fonts/Poppins/Poppins-Regular.ttf") format('truetype');
+}
+
+@font-face {
+    font-family: 'Poppins';
+    font-style: normal;
+    font-weight: 600;
+    src: local(''),
+    url("./assets/fonts/Poppins/Poppins-SemiBold.ttf") format('truetype');
+}
+
+@font-face {
+    font-family: 'Poppins';
+    font-style: normal;
+    font-weight: 700;
+    src: local(''),
+    url("./assets/fonts/Poppins/Poppins-Bold.ttf") format('truetype');
+}
 
 :root {
     --black: #000000; /* var(--black); */
@@ -207,6 +230,7 @@ html[theme="dark"] .general-button-reversed-colors {
 
 html {
     --default-font: Poppins;
+    font-weight: 400;
     font-family: var(--default-font);
 }
 
