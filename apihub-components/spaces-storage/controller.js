@@ -27,8 +27,7 @@ async function saveJSON(response, spaceData, filePath) {
     return true;
 }
 
-async function loadObject(request, response) {
-
+async function getObject(request, response) {
     const filePath = `../data-volume/spaces/${request.params.spaceId}/${request.params.objectType}/${request.params.objectName}.json`;
     let data;
     try {
@@ -40,27 +39,48 @@ async function loadObject(request, response) {
     sendResponse(response, 200, "text/html", data);
 }
 
-
-async function storeObject(request, response) {
-
-    const filePath = `../data-volume/spaces/${request.params.spaceId}/${request.params.objectType}/${request.params.objectName}.json`;
-    if (!request.body || Object.keys(request.body).length === 0) {
-        try {
-            await fsPromises.unlink(filePath);
-            sendResponse(response, 200, "text/html", `Deleted successfully ${request.params.objectName}`);
-        } catch (error) {
-            sendResponse(response, 500, "text/html", `Error deleting ${request.params.objectName}`);
-        }
-        return;
-    }
-    try {
-        const jsonData = request.body;
-        await fsPromises.writeFile(filePath, JSON.stringify(jsonData, null, 2), 'utf8');
-        sendResponse(response, 200, "text/html", `Success, saved ${request.params.objectName}`);
-    } catch (error) {
-        sendResponse(response, 500, "text/html", `Error saving ${request.params.objectName}`);
+async function addObject(request, response) {
+    try{
+        let object = await Manager.apis.genericObjects.addObject(request.params.spaceId, request.params.objectType, request.body);
+        return sendResponse(response, 200, "text/html", JSON.stringify(object));
+    }catch (e){
+        return sendResponse(response, 500, "text/html", JSON.stringify(e + ` Error at adding object: ${request.params.objectType}`));
     }
 }
+async function updateObject(request, response) {
+    try{
+        let object = await Manager.apis.genericObjects.updateObject(request.params.spaceId, request.params.objectType, request.params.objectName, request.body);
+        return sendResponse(response, 200, "text/html", JSON.stringify(object));
+    }catch (e){
+        return sendResponse(response, 500, "text/html", JSON.stringify(e + ` Error at updating object: ${request.params.objectType}: ${request.params.objectName}`));
+    }
+}
+async function deleteObject(request, response) {
+    try{
+        let objectId = await Manager.apis.genericObjects.deleteObject(request.params.spaceId, request.params.objectType, request.params.objectName);
+        return sendResponse(response, 200, "text/html", JSON.stringify(objectId));
+    }catch (e){
+        return sendResponse(response, 500, "text/html", JSON.stringify(e + ` Error at deleting object: ${request.params.objectType}: ${request.params.objectName}`));
+    }
+}
+// async function storeObject(request, response) {
+//     if (!request.body || Object.keys(request.body).length === 0) {
+//         try {
+//             await fsPromises.unlink(filePath);
+//             sendResponse(response, 200, "text/html", `Deleted successfully ${request.params.objectName}`);
+//         } catch (error) {
+//             sendResponse(response, 500, "text/html", `Error deleting ${request.params.objectName}`);
+//         }
+//         return;
+//     }
+//     try {
+//         const jsonData = request.body;
+//         await fsPromises.writeFile(filePath, JSON.stringify(jsonData, null, 2), 'utf8');
+//         sendResponse(response, 200, "text/html", `Success, saved ${request.params.objectName}`);
+//     } catch (error) {
+//         sendResponse(response, 500, "text/html", `Error saving ${request.params.objectName}`);
+//     }
+// }
 
 async function storeFolder(spaceId, data, folderName) {
     if (data) {
@@ -385,8 +405,10 @@ async function createSpace(request, response) {
 
 
 module.exports = {
-    loadObject,
-    storeObject,
+    getObject,
+    addObject,
+    updateObject,
+    deleteObject,
     getSpace,
     storeSpace,
     createSpace,

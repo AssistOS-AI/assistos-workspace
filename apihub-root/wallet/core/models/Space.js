@@ -175,10 +175,9 @@ export class Space {
     }
 
     async addDocument(documentData) {
-        let newDocument = system.factories.createDocument(documentData)
-        await system.factories.addDocument(system.space.id, newDocument);
-        system.space.currentDocumentId = newDocument.id;
-        return newDocument.id;
+        let document = JSON.stringify(await system.storage.addDocument(system.space.id,  JSON.stringify(documentData)));
+        this.documents.push(new DocumentModel(document));
+        return document.id;
     }
 
     async deleteDocument(documentId) {

@@ -28,6 +28,7 @@ const spaceValidationSchema = require('../../models/validation-schemas/exporter.
 ('spaceValidationSchema');
 
 const {SPACE_FOLDER_PATH} = require('../../config.json');
+const enclave = require("opendsu").loadAPI("enclave");
 
 const rollback = async (spacePath) => {
     try {
@@ -78,7 +79,9 @@ async function createSpace(spaceName, userId, apiKey) {
     const spacePath = path.join(__dirname, '../../../', `${SPACE_FOLDER_PATH}`, `${spaceId}`);
 
     await createDirectory(spacePath);
-
+    let lightDBEnclaveClient = enclave.initialiseLightDBEnclave(spaceId);
+    await $$.promisify(lightDBEnclaveClient.createDatabase)(spaceId);
+    await $$.promisify(lightDBEnclaveClient.grantWriteAccess)($$.SYSTEM_IDENTIFIER);
     const filesPromises = [
         () => copyDefaultFlows(spacePath),
         () => copyDefaultPersonalities(spacePath),

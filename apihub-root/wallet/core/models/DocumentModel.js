@@ -9,7 +9,6 @@ export class DocumentModel {
         this.chapters = (documentData.chapters || []).map(chapterData => new Chapter(chapterData));
         this.alternativeTitles = documentData.alternativeTitles || [];
         this.alternativeAbstracts = documentData.alternativeAbstracts || [];
-        this.settings = documentData.settings || null;
         this.currentChapterId = null;
         this.observers = [];
         this.mainIdeas = documentData.mainIdeas || [];
@@ -55,14 +54,6 @@ export class DocumentModel {
                 observer.callback();
             }
         }
-    }
-
-    getDocSettings() {
-        return this.settings || [];
-    }
-
-    setDocSettings(settings) {
-        this.settings = settings;
     }
 
     async addChapter(chapterData, position=0) {

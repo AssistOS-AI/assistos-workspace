@@ -81,10 +81,6 @@ async function storeSpace(spaceId, jsonData = null, apiKey = null, userId = null
     return await response.text();
 }
 
-async function updateSpace(spaceId, spaceDataObject) {
-
-}
-
 async function deleteSpace(spaceId) {
 
 }
@@ -133,4 +129,4 @@ async function storeObject(spaceId, objectType, objectName, jsonData) {
     }
     return await result.text();
 }
-export default {addSpace, createSpace, loadSpace, updateSpace, deleteSpace, storeSpace, addKeyToSpace, loadObject, storeObject};
+export default {addSpace, createSpace, loadSpace, deleteSpace, storeSpace, addKeyToSpace, loadObject, storeObject};

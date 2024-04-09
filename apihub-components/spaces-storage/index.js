@@ -1,13 +1,14 @@
-const {storeObject, storeSecret, loadObject} = require("./controller");
-const {loadAppFlows} = require("../flows-storage/controller");
+const {storeObject} = require("./controller");
 
 function SpaceStorage(server) {
     const bodyReaderMiddleware = require('../requests-processing-apis/exporter.js')
     ('bodyReaderMiddleware');
 
     const {
-        loadObject,
-        storeObject,
+        getObject,
+        addObject,
+        updateObject,
+        deleteObject,
         getSpace,
         storeSpace,
         createSpace,
@@ -18,17 +19,25 @@ function SpaceStorage(server) {
     /* server.use("/spaces/*",authenticationMiddleware)  */
     /* server.use("/spaces/*",authorizationMiddleware)  */
     server.get("/spaces/:spaceId/:objectType/:objectName", async (request, response) => {
-        await loadObject(request, response)
+        await getObject(request, response)
     });
 
-    server.delete("/spaces/:spaceId/:objectType/:objectName", async (request, response) => {
-        await storeObject(request, response)
-    });
+    // server.delete("/spaces/:spaceId/:objectType/:objectName", async (request, response) => {
+    //     await storeObject(request, response)
+    // });
 
     server.use("/spaces/*", bodyReaderMiddleware);
 
+    server.post("/spaces/:spaceId/:objectType", async (request, response) => {
+        await addObject(request, response);
+    });
+
     server.put("/spaces/:spaceId/:objectType/:objectName", async (request, response) => {
-        await storeObject(request, response)
+        await updateObject(request, response);
+    });
+
+    server.delete("/spaces/:spaceId/:objectType/:objectName", async (request, response) => {
+        await deleteObject(request, response);
     });
 
     server.post("/spaces/:spaceId/secrets", async (request, response) => {
