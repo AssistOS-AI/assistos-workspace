@@ -1,0 +1,11 @@
+{
+  "ENVIRONMENT_MODE": "development",
+  "PRODUCTION_BASE_URL": "http://demo.axiologic.net:8080",
+  "DEVELOPMENT_BASE_URL": "http://localhost:8080",
+  "SERVER_ROOT_FOLDER": "./apihub-root",
+  "SECURITY_MODULE_PATH": "./apihub-space-core/securityModule.json",
+  "STORAGE_VOLUME_PATH": "./data-volume",
+  "CLEAN_STORAGE_VOLUME_ON_RESTART": "true",
+  "CREATE_DEMO_USER": "true",
+  "REGENERATE_TOKEN_SECRETS_ON_RESTART": "true"
+}

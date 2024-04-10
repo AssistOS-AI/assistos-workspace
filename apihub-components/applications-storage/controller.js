@@ -5,9 +5,9 @@ const path = require('path');
 const fsPromises = require('fs').promises;
 const openDSU = require("opendsu");
 const crypto = openDSU.loadApi("crypto");
-const sendResponse = require('../requests-processing-apis/sendResponse')
-const sendFileToClient=require('../requests-processing-apis/sendFileToClient.js')
-const Manager = require('../../apihub-space-core/Manager').getInstance();
+const sendResponse = require('../apihub-component-utils/utils/sendResponse')
+const sendFileToClient=require('../apihub-component-utils/utils/sendFileToClient.js')
+const Manager = require('../../apihub-core/Manager').getInstance();
 
 function createContainerName(spaceId, userId) {
     return `${spaceId}.${userId}`;

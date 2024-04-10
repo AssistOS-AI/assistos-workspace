@@ -4,10 +4,10 @@ const {
     sendResponse,
     createCookieString,
     parseCookies
-} = require('../requests-processing-apis/exporter.js')
+} = require('../apihub-component-utils/exporter.js')
 ('sendResponse', 'createCookieString', 'parseCookies');
 
-const Manager = require('../../apihub-space-core/Manager.js').getInstance();
+const Manager = require('../../apihub-core/Manager.js').getInstance();
 
 
 async function getDefaultItems(filePath) {

@@ -5,38 +5,38 @@ const {
     createCookieString,
     parseCookies,
     extractQueryParams,
-    sendFileToClient
-} = require('../requests-processing-apis/exporter.js')
-('sendResponse', 'createCookieString', 'parseCookies', 'extractQueryParams', 'sendFileToClient');
-const configs = require('../../apihub-space-core/config.json')
-const demoUser = require('../../demoUser.json');
-const Manager = require('../../apihub-space-core/Manager.js').getInstance();
+    sendFileToClient,
+    createAuthCookie,
+    createRefreshAuthCookie,
+    createCurrentSpaceCookie
+} = require('../apihub-component-utils/exporter.js')
+('sendResponse', 'createCookieString', 'parseCookies', 'extractQueryParams', 'sendFileToClient','createAuthCookie','createRefreshAuthCookie','createCurrentSpaceCookie')
+
+const configs = require('../../config.json')
+const demoUser = require('../../apihub-core/user/demoUser.json');
+const Manager = require('../../apihub-core/Manager.js').getInstance();
 
 async function loginUser(request, response) {
+
     const userData = request.body;
     try {
         const loginResult = await Manager.apis.loginUser(
             userData.email,
             userData.password);
         if (loginResult.success) {
+
             const userData = await Manager.apis.getUserData(loginResult.userId);
-            const authCookie = createCookieString('authToken', await Manager.apis.createUserJWT(userData), {
-                httpOnly: true,
-                sameSite: 'Strict',
-                maxAge: 60 * 60 * 24 * 7,
-                path: '/'
-            });
-            const spaceCookie = createCookieString('currentSpaceId', userData.currentSpaceId, {
-                httpOnly: true,
-                sameSite: 'Strict',
-                maxAge: 60 * 60 * 24 * 7,
-                path: '/'
-            });
+            const [accessToken, refreshToken] = await Manager.apis.createUserJWT(userData);
+
+            const authCookie = createAuthCookie(accessToken);
+            const refreshAuthCookie =createRefreshAuthCookie(refreshToken);
+            const currentSpaceCookie = createCurrentSpaceCookie(userData.currentSpaceId);
+
             sendResponse(response, 200, "application/json", {
                 data: userData,
                 success: true,
                 message: `User ${userData.name} logged in successfully`
-            }, [authCookie, spaceCookie]);
+            }, [authCookie,refreshAuthCookie, currentSpaceCookie]);
         } else {
             sendResponse(response, 404, "application/json", {
                 success: false,
@@ -54,6 +54,7 @@ async function loginUser(request, response) {
 async function registerUser(request, response) {
     const userData = request.body;
     try {
+        const userMOdule= require('Manager').loadAPI('user');
         await Manager.apis.registerUser(
             userData.name,
             userData.email,
@@ -121,7 +122,7 @@ async function loadUser(request, response) {
         return
     }
     try {
-        const userId = await Manager.apis.decodeJWT(authCookie)
+        const userId = (await Manager.apis.validateJWT(authCookie,"AccessTokens")).payload.id
         const userData = await Manager.apis.getUserData(userId);
         sendResponse(response, 200, "application/json", {
             data: userData,

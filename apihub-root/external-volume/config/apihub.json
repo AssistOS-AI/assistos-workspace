@@ -10,6 +10,7 @@
         },
         "bricking": {},
         "anchoring": {},
+
         "llms" :{
             "module": "./../../apihub-components/llms"
         },

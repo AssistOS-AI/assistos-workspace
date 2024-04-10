@@ -1,0 +1,10 @@
+{
+  "id":"$$id",
+  "title": "$$title",
+  "topic": "$$topic?",
+  "mainIdeas": [],
+  "abstract": "",
+  "alternativeTitles":[],
+  "alternativeAbstracts":[],
+  "chapters":[]
+}

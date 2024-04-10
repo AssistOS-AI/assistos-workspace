@@ -1,12 +1,13 @@
 const path = require('path');
 const fsPromises = require('fs').promises;
 const crypto = require("opendsu").loadAPI("crypto");
-const Manager = require('../../apihub-space-core/Manager.js').getInstance();
+const Manager = require('../../apihub-core/Manager.js').getInstance();
 
-const {sendResponse, createCookieString, parseCookies} = require('../requests-processing-apis/exporter.js')
+const {sendResponse, createCookieString, parseCookies} = require('../apihub-component-utils/exporter.js')
 ('sendResponse', 'createCookieString', 'parseCookies');
 
 async function saveJSON(response, spaceData, filePath) {
+
     const folderPath = path.dirname(filePath);
     try {
         await fsPromises.access(filePath);
@@ -205,11 +206,8 @@ async function storeSpace(request, response, server) {
 *   and move the cookie verification authentication, rights, etc in a middleware */
 async function getSpace(request, response) {
     try {
-        const authCookie = parseCookies(request).authToken;
-        const userId = await Manager.apis.decodeJWT(authCookie)
-
         let spaceId;
-
+        const userId=request.userId;
         if (request.params.spaceId) {
             spaceId = request.params.spaceId;
         } else if (parseCookies(request).currentSpaceId) {
@@ -340,7 +338,7 @@ async function addCollaboratorToSpace(request, response) {
 
 async function createSpace(request, response) {
     const authCookie = parseCookies(request).authToken;
-    const userId = await Manager.apis.decodeJWT(authCookie)
+    const userId = (await Manager.apis.validateJWT(authCookie)).id
     if (!userId) {
         sendResponse(response, 401, "application/json", {
             message: "Unauthorized: No valid session",
