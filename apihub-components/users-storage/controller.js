@@ -13,7 +13,7 @@ const {
 ('sendResponse', 'createCookieString', 'parseCookies', 'extractQueryParams', 'sendFileToClient','createAuthCookie','createRefreshAuthCookie','createCurrentSpaceCookie')
 
 const configs = require('../../config.json')
-const demoUser = require('../../apihub-core/user/demoUser.json');
+const demoUser = require('../../apihub-core/user/templates/json/demoUser.json');
 const Manager = require('../../apihub-core/Manager.js').getInstance();
 
 async function loginUser(request, response) {

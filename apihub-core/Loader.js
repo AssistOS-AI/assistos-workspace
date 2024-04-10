@@ -34,6 +34,9 @@ const loader = {
             return require(apiResourcesPaths[apiPackage])
         }
     },
+    getStorageVolumePaths() {
+        return storageVolumePaths
+    }
 };
 
 module.exports = loader
