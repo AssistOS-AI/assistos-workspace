@@ -1,4 +1,5 @@
 const crypto=require('opendsu').loadAPI('crypto');
+
 const prepareSecret =  (secret)=>{
     return Array.from(crypto.sha256JOSE(secret))
         .map(b => b.toString(16).padStart(2, '0'))

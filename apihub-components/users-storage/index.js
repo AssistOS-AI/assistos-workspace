@@ -8,46 +8,39 @@ const {
 
 function UserStorage(server) {
 
-    if(require('../../apihub-space-core/config.json').CREATE_DEMO_USER==='true') {
-        require('../../apihub-space-core/Manager.js').getInstance().apis.createDemoUser();
-    }
+    const {bodyReader, authentication, authorization} = require('../apihub-component-middlewares/exporter.js')
+    ('bodyReader', 'authentication', 'authorization');
+    /* TODO */
+    setTimeout(async()=>{
+        const apihub=require('apihub');
+        const secretService=await apihub.getSecretsServiceInstanceAsync();
+        await secretService.putSecretAsync('test','test', 'test',true);
+        },0)
 
-    const bodyReaderMiddleware = require('../requests-processing-apis/exporter.js')
-    ('bodyReaderMiddleware');
-
-
-    server.use("/users/*", bodyReaderMiddleware);
-
-    server.get("/users", async (request, response) => {
-        await loadUser(request,response);
-    });
-    server.post("/users", async (request, response) => {
-        await registerUser(request, response)
-    });
+    server.use("/users/*", bodyReader);
 
     server.get("/users/verify", async (request, response) => {
         await activateUser(request, response, server)
     });
 
+    server.use("/users/*", authentication);
+
+    server.get("/users", async (request, response) => {
+        await loadUser(request, response);
+    });
+
+    server.post("/users", async (request, response) => {
+        await registerUser(request, response)
+    });
+
     server.post("/users/login", async (request, response) => {
         await loginUser(request, response)
     });
+
     server.post("/users/logout", async (request, response) => {
         await logoutUser(request, response)
     });
 
-    /*  server.put("/users/:userId", async (request, response) => {
-          await updateUser(request, response)
-      });*/
-
-    /* server.put("/users/email", loadUserByEmail);
-    server.put("/users/:spaceId/secret", async (request, response)=>{
-        await storeSecret(server, request, response);
-    });
-    server.get("/users/:spaceId/secrets", async (request, response)=>{
-        await loadUsersSecretsExist(server, request, response);
-    })
-    */
 }
 
 module.exports = UserStorage;

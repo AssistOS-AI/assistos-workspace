@@ -1,8 +1,6 @@
 const {storeObject} = require("./controller");
 
 function SpaceStorage(server) {
-    const bodyReaderMiddleware = require('../requests-processing-apis/exporter.js')
-    ('bodyReaderMiddleware');
 
     const {
         getObject,
@@ -16,8 +14,11 @@ function SpaceStorage(server) {
         addCollaboratorToSpace
     } = require("./controller");
 
-    /* server.use("/spaces/*",authenticationMiddleware)  */
-    /* server.use("/spaces/*",authorizationMiddleware)  */
+    const {bodyReader, authentication, authorization} = require('../apihub-component-middlewares/exporter.js')
+    ('bodyReader', 'authentication', 'authorization');
+
+    server.use("/spaces/*", bodyReader);
+    server.use("/spaces/*", authentication);
     server.get("/spaces/:spaceId/:objectType/:objectName", async (request, response) => {
         await getObject(request, response)
     });

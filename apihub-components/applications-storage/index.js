@@ -26,6 +26,7 @@ function ApplicationsStorage(server) {
 
     /* :variable e pana intalneste un "/" */
 
+
     server.get("/app/:spaceId/applications/:applicationName/file/*", loadApplicationFile);
 
 
