@@ -15,6 +15,10 @@ const modulePaths = {
     document: path.join(__dirname, './documents'),
     space: path.join(__dirname, './space'),
     user: path.join(__dirname, './users'),
+    services: path.join(__dirname, './services'),
+    jwt: path.join(__dirname, "../", "apihub-components/apihub-component-utils/jwt.js"),
+    cookie: path.join(__dirname, "../", "apihub-components/apihub-component-utils/cookie.js"),
+    requestUtil: path.join(__dirname, "../", "apihub-components/apihub-component-utils/utils.js")
 }
 
 const storageVolumePaths = {
@@ -51,7 +55,13 @@ const loader = {
 
         return moduleSet ? requiredModule[moduleSet] : requiredModule;
     },
-    getStorageVolumePaths() {
+    getStorageVolumePaths(resource) {
+        if (resource) {
+            if (!storageVolumePaths[resource]) {
+                throw new Error(`Resource ${resource} not found in storage volume paths`);
+            }
+            return storageVolumePaths[resource];
+        }
         return storageVolumePaths
     }
 };

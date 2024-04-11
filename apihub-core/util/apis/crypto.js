@@ -26,7 +26,7 @@ function hashPassword(password) {
         .join('');
 }
 
-const {SERVER_ROOT_FOLDER} = require('../../config.json')
+const {SERVER_ROOT_FOLDER} = require('../../../config.json')
 
 async function invalidateAndRegenerateSecrets() {
     const apihub = require('apihub');

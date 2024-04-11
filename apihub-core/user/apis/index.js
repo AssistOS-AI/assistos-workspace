@@ -1,6 +1,13 @@
+const fsPromises = require('fs').promises;
+const Loader = require('../../Loader.js')
+const EmailService = Loader.loadModule('services', 'EmailService')
+const userPendingActivation = Loader.getStorageVolumePaths('userPendingActivation')
+const userMap = Loader.getStorageVolumePaths('userMap')
+const userCredentials = Loader.getStorageVolumePaths('userCredentials')
+
+
 async function activateUser(activationToken) {
-    const userPendingActivationFilePath = path.join(__dirname, '../../../', USER_PENDING_ACTIVATION_PATH);
-    const userPendingActivationObject = JSON.parse(await fsPromises.readFile(userPendingActivationFilePath));
+    const userPendingActivationObject = JSON.parse(await fsPromises.readFile(userPendingActivation));
     if (!userPendingActivationObject[activationToken]) {
         const error = new Error('Invalid activation token');
         error.statusCode = 404;
@@ -9,7 +16,7 @@ async function activateUser(activationToken) {
 
     if (isActivationTokenExpired(userPendingActivationObject[activationToken].verificationTokenExpirationDate)) {
         delete userPendingActivationObject[activationToken]
-        await fsPromises.writeFile(userPendingActivationFilePath, JSON.stringify(userPendingActivationObject, null, 2), 'utf8');
+        await fsPromises.writeFile(userPendingActivation, JSON.stringify(userPendingActivationObject, null, 2), 'utf8');
         const error = new Error('Token Activation Expired');
 
         error.statusCode = 404;
@@ -19,21 +26,21 @@ async function activateUser(activationToken) {
     const userData = userPendingActivationObject[activationToken];
     try {
         const userDataObject = await createUser(userData.name, userData.email, true);
-        const userMapPath = path.join(__dirname, '../../../', USER_MAP_PATH);
-        const userMapObject = JSON.parse(await fsPromises.readFile(userMapPath));
+        const userMapObject = JSON.parse(await fsPromises.readFile(userMap));
         userMapObject[userData.email] = userDataObject.id;
-        await fsPromises.writeFile(userMapPath, JSON.stringify(userMapObject, null, 2), 'utf8');
-        const userCredentialsPath = path.join(__dirname, '../../../', USER_CREDENTIALS_PATH);
-        const userCredentialsObject = JSON.parse(await fsPromises.readFile(userCredentialsPath));
+        await fsPromises.writeFile(userMap, JSON.stringify(userMapObject, null, 2), 'utf8');
+
+        const userCredentialsObject = JSON.parse(await fsPromises.readFile(userCredentials));
         userCredentialsObject[userDataObject.id] = userData;
         userCredentialsObject[userDataObject.id].activationDate = getCurrentUTCDate();
-        await fsPromises.writeFile(userCredentialsPath, JSON.stringify(userCredentialsObject, null, 2), 'utf8');
+        await fsPromises.writeFile(userCredentials, JSON.stringify(userCredentialsObject, null, 2), 'utf8');
+
         return userDataObject;
     } catch (error) {
         throw error;
     } finally {
         delete userPendingActivationObject[activationToken]
-        await fsPromises.writeFile(userPendingActivationFilePath, JSON.stringify(userPendingActivationObject, null, 2), 'utf8');
+        await fsPromises.writeFile(userPendingActivation, JSON.stringify(userPendingActivationObject, null, 2), 'utf8');
     }
 }
 
@@ -50,21 +57,16 @@ async function addSpaceCollaborator(spaceId, userId, role) {
 
 
 async function createDemoUser() {
-    console.log("Creating Demo User")
-    try {
-        await registerUser(username, email,hashPassword(password))
-        const usersPendingActivation = require('../../../data-volume/UsersPendingActivation.json')
-        const activationToken = Object.keys(usersPendingActivation)[0]
-        await activateUser(activationToken)
-        console.log('Demo User Created')
-    } catch (e) {
-        console.error(`Failed Creating Demo User` + e)
-    }
+    const {username, email, password} = Loader.loadModule('user', 'data').demoUser
+    await registerUser(username, email, hashPassword(password))
+    const usersPendingActivation = await JSON.parse(await fsPromises.readFile(userPendingActivation, 'utf8'));
+    const activationToken = Object.keys(usersPendingActivation)[0]
+    await activateUser(activationToken)
 }
 
 
-
 async function createUser(username, email, withDefaultSpace = false) {
+
     const rollback = async () => {
         try {
             await fsPromises.rm(userPath, {recursive: true, force: true});
@@ -110,9 +112,6 @@ async function createUser(username, email, withDefaultSpace = false) {
 }
 
 
-
-
-
 async function getActivationFailHTML(failReason) {
     let redirectURL = ENVIRONMENT_MODE === 'development' ? DEVELOPMENT_BASE_URL : PRODUCTION_BASE_URL
 
@@ -123,14 +122,12 @@ async function getActivationFailHTML(failReason) {
 }
 
 
-
 async function getActivationSuccessHTML() {
     let loginRedirectURL = ENVIRONMENT_MODE === 'development' ? DEVELOPMENT_BASE_URL : PRODUCTION_BASE_URL
     return templateReplacer_$$(activationSuccessTemplate, {
         loginRedirectURL: loginRedirectURL
     })
 }
-
 
 
 async function getUserData(userId) {
@@ -159,20 +156,18 @@ async function getUserFile(userId) {
 }
 
 
-
 function getUserFilePath(userId) {
     return path.join(__dirname, '../../../', USER_FOLDER_PATH, `${userId + '.json'}`);
 }
-
 
 
 async function getUserIdByEmail(email) {
     const userMapPath = path.join(__dirname, '../../../', USER_MAP_PATH);
     const userMapObject = JSON.parse(await fsPromises.readFile(userMapPath));
 
-    if(userMapObject[email]){
+    if (userMapObject[email]) {
         return userMapObject[email];
-    }else{
+    } else {
         const error = new Error('No user found with this email');
         error.statusCode = 404;
         throw error;
@@ -186,8 +181,8 @@ async function linkSpaceToUser(userId, spaceId) {
 
     try {
         userFileContents = await fsPromises.readFile(userFile, 'utf8');
-    } catch(error) {
-        error.message =`User ${userId} not found.`;
+    } catch (error) {
+        error.message = `User ${userId} not found.`;
         error.statusCode = 404;
         throw error;
     }
@@ -210,7 +205,7 @@ async function linkSpaceToUser(userId, spaceId) {
         userObject.currentSpaceId = spaceId;
         await fsPromises.writeFile(userFile, JSON.stringify(userObject, null, 2));
     } catch (error) {
-        error.message=`Failed to update user file for userId ${userId}.`;
+        error.message = `Failed to update user file for userId ${userId}.`;
         error.statusCode = 500;
         throw error;
     }
@@ -254,12 +249,12 @@ async function loginUser(email, password) {
     }
     const userCredentialsPath = path.join(__dirname, '../../../', USER_CREDENTIALS_PATH);
     const usersCredentialsObject = JSON.parse(await fsPromises.readFile(userCredentialsPath));
-    if(usersCredentialsObject[userId].password === hashPassword(password)){
+    if (usersCredentialsObject[userId].password === hashPassword(password)) {
         return {
             success: true,
-            userId:userId
+            userId: userId
         }
-    }else{
+    } else {
         return {
             success: false,
             message: 'Invalid email or password'
@@ -336,13 +331,10 @@ async function unlinkSpaceFromUser(userId, spaceId) {
 }
 
 
-
-async function updateUserFile(userId,userObject) {
+async function updateUserFile(userId, userObject) {
     const userFile = path.join(__dirname, '../../../', USER_FOLDER_PATH, `${userId + '.json'}`);
-    await fsPromises.writeFile(userFile,userObject,'utf8',{encoding: 'utf8'});
+    await fsPromises.writeFile(userFile, userObject, 'utf8', {encoding: 'utf8'});
 }
-
-
 
 
 async function updateUsersCurrentSpace(userId, spaceId) {
@@ -352,3 +344,23 @@ async function updateUsersCurrentSpace(userId, spaceId) {
     await fsPromises.writeFile(userFilePath, JSON.stringify(userFile, null, 2));
 }
 
+module.exports = {
+    activateUser,
+    addSpaceCollaborator,
+    createDemoUser,
+    createUser,
+    getActivationFailHTML,
+    getActivationSuccessHTML,
+    getUserData,
+    getUserFile,
+    getUserFilePath,
+    getUserIdByEmail,
+    linkSpaceToUser,
+    linkUserToSpace,
+    loginUser,
+    registerUser,
+    sendActivationEmail,
+    unlinkSpaceFromUser,
+    updateUserFile,
+    updateUsersCurrentSpace
+}
