@@ -18,7 +18,8 @@ const modulePaths = {
     services: path.join(__dirname, './services'),
     jwt: path.join(__dirname, "../", "apihub-components/apihub-component-utils/jwt.js"),
     cookie: path.join(__dirname, "../", "apihub-components/apihub-component-utils/cookie.js"),
-    requestUtil: path.join(__dirname, "../", "apihub-components/apihub-component-utils/utils.js")
+    requestUtil: path.join(__dirname, "../", "apihub-components/apihub-component-utils/utils.js"),
+    config: path.join(__dirname, '../config.json'),
 }
 
 const storageVolumePaths = {

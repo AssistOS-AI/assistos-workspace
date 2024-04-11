@@ -34,6 +34,10 @@ async function invalidateAndRegenerateSecrets() {
     await secretsService.putSecretAsync("default", "apjfghjihub", {abc: "apihjhfgjfub"});
 }
 
-module.exports = hashPassword
-module.exports = generateVerificationToken
-module.exports = generateId
+module.exports = {
+    hashPassword,
+    generateSecret,
+    generateVerificationToken,
+    generateId,
+    invalidateAndRegenerateSecrets
+}

@@ -44,11 +44,22 @@ function incrementUTCDate(dateStringUTC, incrementObject) {
 
     return `${year}-${month}-${day}T${hour}:${minute}:${second}Z`;
 }
+function compareUTCDates(d1, d2) {
+    const date1 = new Date(d1);
+    const date2 = new Date(d2);
+    return date1.getTime() - date2.getTime();
+}
+
+function compareUnixDates(t1, t2) {
+    return t1 - t2;
+}
 
 
 module.exports = {
     getCurrentUTCDate,
     getCurrentUnixTime,
     incrementUTCDate,
-    incrementUnixTime
+    incrementUnixTime,
+    compareUTCDates,
+    compareUnixDates
 };

@@ -1,19 +1,18 @@
 const fsPromises = require('fs').promises;
 const Loader = require('../../Loader.js')
-const EmailService = Loader.loadModule('services', 'EmailService')
-const userPendingActivation = Loader.getStorageVolumePaths('userPendingActivation')
-const userMap = Loader.getStorageVolumePaths('userMap')
-const userCredentials = Loader.getStorageVolumePaths('userCredentials')
 
-
+const config = Loader.loadModule('config')
+const crypto = Loader.loadModule('util', 'crypto')
+const data = Loader.loadModule('util', 'data')
+const date = Loader.loadModule('util', 'date')
+const email= Loader.loadModule('services', 'email')
 async function activateUser(activationToken) {
-    const userPendingActivationObject = JSON.parse(await fsPromises.readFile(userPendingActivation));
-    if (!userPendingActivationObject[activationToken]) {
+    const userPendingActivation= await getUserPendingActivation()
+    if (!userPendingActivation[activationToken]) {
         const error = new Error('Invalid activation token');
         error.statusCode = 404;
         throw error;
     }
-
     if (isActivationTokenExpired(userPendingActivationObject[activationToken].verificationTokenExpirationDate)) {
         delete userPendingActivationObject[activationToken]
         await fsPromises.writeFile(userPendingActivation, JSON.stringify(userPendingActivationObject, null, 2), 'utf8');
@@ -58,7 +57,7 @@ async function addSpaceCollaborator(spaceId, userId, role) {
 
 async function createDemoUser() {
     const {username, email, password} = Loader.loadModule('user', 'data').demoUser
-    await registerUser(username, email, hashPassword(password))
+    await registerUser(username, email, crypto.hashPassword(password))
     const usersPendingActivation = await JSON.parse(await fsPromises.readFile(userPendingActivation, 'utf8'));
     const activationToken = Object.keys(usersPendingActivation)[0]
     await activateUser(activationToken)
@@ -113,18 +112,16 @@ async function createUser(username, email, withDefaultSpace = false) {
 
 
 async function getActivationFailHTML(failReason) {
-    let redirectURL = ENVIRONMENT_MODE === 'development' ? DEVELOPMENT_BASE_URL : PRODUCTION_BASE_URL
-
-    return templateReplacer_$$(activationSuccessTemplate, {
+    let redirectURL = config.ENVIRONMENT_MODE === 'development' ? config.DEVELOPMENT_BASE_URL : config.PRODUCTION_BASE_URL
+    return data.fillTemplate(user.data.activationSuccessTemplate, {
         redirectURL: redirectURL,
         failReason: failReason
     })
 }
 
-
 async function getActivationSuccessHTML() {
-    let loginRedirectURL = ENVIRONMENT_MODE === 'development' ? DEVELOPMENT_BASE_URL : PRODUCTION_BASE_URL
-    return templateReplacer_$$(activationSuccessTemplate, {
+    let loginRedirectURL = config.ENVIRONMENT_MODE === 'development' ? config.DEVELOPMENT_BASE_URL : config.PRODUCTION_BASE_URL
+    return data.fillTemplate(activationSuccessTemplate, {
         loginRedirectURL: loginRedirectURL
     })
 }
@@ -142,31 +139,11 @@ async function getUserData(userId) {
     return userFile;
 }
 
-async function getUserFile(userId) {
-    const userFilePath = await getUserFilePath(userId)
-    try {
-        await fsPromises.access(userFilePath);
-    } catch (e) {
-        const error = new Error(`User with id ${userId} does not exist`);
-        error.statusCode = 404;
-        throw error;
-    }
-    let userFile = await fsPromises.readFile(userFilePath, 'utf8');
-    return userFile;
-}
-
-
-function getUserFilePath(userId) {
-    return path.join(__dirname, '../../../', USER_FOLDER_PATH, `${userId + '.json'}`);
-}
-
 
 async function getUserIdByEmail(email) {
-    const userMapPath = path.join(__dirname, '../../../', USER_MAP_PATH);
-    const userMapObject = JSON.parse(await fsPromises.readFile(userMapPath));
-
-    if (userMapObject[email]) {
-        return userMapObject[email];
+    const userMap = await getUserMap()
+    if (userMap[email]) {
+        return userMap[email];
     } else {
         const error = new Error('No user found with this email');
         error.statusCode = 404;
@@ -236,55 +213,40 @@ async function linkUserToSpace(spaceId, userId, role) {
 }
 
 async function loginUser(email, password) {
-    let userId = null;
-    try {
-        userId = await getUserIdByEmail(email)
-    } catch (error) {
-        if (error.statusCode === 404) {
-            error.message = 'Invalid email or password';
-            error.statusCode = 404;
-            throw error;
-        }
-        throw error;
+    const userId = await getUserIdByEmail(email).catch(() => {
+        throw new Error('Invalid credentials');
+    });
+
+    const userCredentials = await getUserCredentials();
+    const hashedPassword = crypto.hashPassword(password);
+    if (userCredentials[userId].password === hashedPassword) {
+        return userId;
     }
-    const userCredentialsPath = path.join(__dirname, '../../../', USER_CREDENTIALS_PATH);
-    const usersCredentialsObject = JSON.parse(await fsPromises.readFile(userCredentialsPath));
-    if (usersCredentialsObject[userId].password === hashPassword(password)) {
-        return {
-            success: true,
-            userId: userId
-        }
-    } else {
-        return {
-            success: false,
-            message: 'Invalid email or password'
-        }
-    }
+
+    throw new Error('Invalid credentials');
 }
 
-async function registerUser(name, email, password) {
 
-    const currentDate = getCurrentUTCDate();
-    const registrationUserObject = templateReplacer_$$(userRegistrationTemplate, {
+async function registerUser(name, email, password) {
+    const currentDate = date.getCurrentUTCDate();
+    const registrationUserObject = data.fillTemplate(user.data.userRegistrationTemplate, {
         email: email,
         name: name,
-        passwordHash: hashPassword(password),
-        verificationToken: await generateVerificationToken(),
-        verificationTokenExpirationDate: incrementDate(currentDate, {minutes: 30}),
+        passwordHash: crypto.hashPassword(password),
+        verificationToken: await crypto.generateVerificationToken(),
+        verificationTokenExpirationDate: date.incrementUTCDate(currentDate, {minutes: 30}),
         currentDate: currentDate,
     })
-    const userMapFilePath = path.join(__dirname, '../../../', USER_MAP_PATH);
-    const userMapObject = JSON.parse(await fsPromises.readFile(userMapFilePath));
-    if (userMapObject[email]) {
+    const userMap = await getUserMap()
+    if (userMap[email]) {
         const error = new Error(`User with email ${email} already exists`);
         error.statusCode = 409;
         throw error;
     }
 
-    const userPendingActivationFilePath = path.join(__dirname, '../../../', USER_PENDING_ACTIVATION_PATH);
-    const userPendingActivationObject = JSON.parse(await fsPromises.readFile(userPendingActivationFilePath));
-    userPendingActivationObject[registrationUserObject.verificationToken] = registrationUserObject
-    await fsPromises.writeFile(userPendingActivationFilePath, JSON.stringify(userPendingActivationObject, null, 2));
+    const userPendingActivation = await getUserPendingActivation()
+    userPendingActivation[registrationUserObject.verificationToken] = registrationUserObject
+    await updateUserPendingActivation(userPendingActivation)
     await sendActivationEmail(email, name, registrationUserObject.verificationToken);
 }
 
@@ -294,54 +256,105 @@ async function sendActivationEmail(emailAddress, username, activationToken) {
 }
 
 async function unlinkSpaceFromUser(userId, spaceId) {
-    const userFile = path.join(__dirname, '../../../', USER_FOLDER_PATH, `${userId}.json`);
-    let userObject;
-    try {
-        const userFileContents = await fsPromises.readFile(userFile, 'utf8');
-        userObject = JSON.parse(userFileContents);
-    } catch (error) {
-        if (error.code === 'ENOENT') {
-            error.message = `User ${userId} not found.`;
-            error.statusCode = 404;
-        } else {
-            error.message = `Failed to read or parse user file for userId ${userId}.`;
-            error.statusCode = 500;
-        }
-        throw error;
-    }
+    const userFile = await getUserFile(userId)
 
-    const spaceIndex = userObject.spaces.findIndex(space => space.id === spaceId);
+    const spaceIndex = userFile.spaces.findIndex(space => space.id === spaceId);
     if (spaceIndex === -1) {
         return;
     }
 
-    userObject.spaces.splice(spaceIndex, 1);
+    userFile.spaces.splice(spaceIndex, 1);
 
-    if (userObject.currentSpaceId === spaceId) {
-        delete userObject.currentSpaceId;
+    if (userFile.currentSpaceId === spaceId) {
+        delete userFile.currentSpaceId;
     }
+    await updateUserFile(userId, userFile)
+}
 
+function getUserPendingActivationPath() {
+    return Loader.getStorageVolumePaths('userPendingActivation')
+}
+
+async function getUserPendingActivation() {
+    const userPendingActivationPath = getUserPendingActivationPath();
     try {
-        await fsPromises.writeFile(userFile, JSON.stringify(userObject, null, 2));
+        await fsPromises.access(userPendingActivationPath);
     } catch (error) {
-        error.message = `Failed to update user file for userId ${userId}.`;
-        error.statusCode = 500;
+        error.message = 'User pending activation not found';
+        error.statusCode = 404;
         throw error;
     }
+    const userPendingActivation = await fsPromises.readFile(userPendingActivationPath, 'utf8');
+    return JSON.parse(userPendingActivation);
 }
 
+async function updateUserPendingActivation(userPendingActivationObject) {
+    await fsPromises.writeFile(getUserPendingActivationPath(), JSON.stringify(userPendingActivationObject, null, 2));
+}
+
+function getUserCredentialsPath() {
+    return Loader.getStorageVolumePaths('userCredentials')
+}
+
+async function getUserCredentials() {
+    const userCredentialsPath = getUserCredentialsPath();
+    try {
+        await fsPromises.access(userCredentialsPath);
+    } catch (error) {
+        error.message = 'User credentials not found';
+        error.statusCode = 404;
+        throw error;
+    }
+    const userCredentials = await fsPromises.readFile(userCredentialsPath, 'utf8');
+    return JSON.parse(userCredentials);
+}
+
+async function updateUserCredentials(userCredentialsObject) {
+    await fsPromises.writeFile(getUserCredentialsPath(), JSON.stringify(userCredentialsObject, null, 2));
+}
+
+function getUserMapPath() {
+    return Loader.getStorageVolumePaths('userMap')
+}
+
+async function getUserMap() {
+    const userMapPath = getUserMapPath();
+    try {
+        await fsPromises.access(userMapPath);
+    } catch (error) {
+        error.message = 'User map not found';
+        error.statusCode = 404;
+        throw error;
+    }
+    const userMap = await fsPromises.readFile(userMapPath, 'utf8');
+    return JSON.parse(userMap);
+}
+
+function getUserFilePath(userId) {
+    return path.join(Loader.getStorageVolumePaths('user'), `${userId}.json`);
+}
+
+async function getUserFile(userId) {
+    const userFilePath = await getUserFilePath(userId)
+    try {
+        await fsPromises.access(userFilePath);
+    } catch (e) {
+        const error = new Error(`User with id ${userId} does not exist`);
+        error.statusCode = 404;
+        throw error;
+    }
+    let userFile = await fsPromises.readFile(userFilePath, 'utf8');
+    return JSON.parse(userFile);
+}
 
 async function updateUserFile(userId, userObject) {
-    const userFile = path.join(__dirname, '../../../', USER_FOLDER_PATH, `${userId + '.json'}`);
-    await fsPromises.writeFile(userFile, userObject, 'utf8', {encoding: 'utf8'});
+    await fsPromises.writeFile(getUserFilePath(userId), JSON.stringify(userObject, null, 2), 'utf8', {encoding: 'utf8'});
 }
 
-
 async function updateUsersCurrentSpace(userId, spaceId) {
-    let userFile = JSON.parse(await getUserFile(userId));
+    const userFile = await getUserFile(userId);
     userFile.currentSpaceId = spaceId;
-    const userFilePath = getUserFilePath(userId);
-    await fsPromises.writeFile(userFilePath, JSON.stringify(userFile, null, 2));
+    await updateUserFile(userId, userFile);
 }
 
 module.exports = {
