@@ -1,4 +1,4 @@
-const EmailService=require('./email')
+const EmailService=require('./email/api')
 
 module.exports={
     EmailService
