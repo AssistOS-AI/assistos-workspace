@@ -24,15 +24,15 @@ async function activateUser(activationToken) {
         throw error;
     }
 
-    const userData = userPendingActivation[activationToken];
+    const user = userPendingActivation[activationToken];
     try {
-        const userDataObject = await createUser(userData.name, userData.email, true);
+        const userDataObject = await createUser(user.name, user.email, true);
         const userMap = await getUserMap();
-        userMap[userData.email] = userDataObject.id;
+        userMap[user.email] = userDataObject.id;
         await updateUserMap(userMap);
 
         const userCredentials = await getUserCredentials();
-        userCredentials[userDataObject.id] = userData;
+        userCredentials[userDataObject.id] = user;
         userCredentials[userDataObject.id].activationDate = date.getCurrentUTCDate();
         await updateUserCredentials(userCredentials);
 
@@ -69,11 +69,7 @@ async function createDemoUser() {
 async function createUser(username, email, withDefaultSpace = false) {
 
     const rollback = async () => {
-        try {
-            await fsPromises.rm(userPath, {recursive: true, force: true});
-        } catch (error) {
-            throw error;
-        }
+        await fsPromises.rm(userPath, {recursive: true, force: true});
         if (withDefaultSpace) {
             await space.apis.deleteSpace(userData.currentSpaceId)
         }
@@ -104,8 +100,6 @@ async function createUser(username, email, withDefaultSpace = false) {
         await updateUserFile(userId, user)
         return user;
     } catch (error) {
-        error.message = 'Error creating user';
-        error.statusCode = 500;
         await rollback();
         throw error;
     }
