@@ -1,5 +1,3 @@
-const fsPromises=require('fs').promises
-
 function extractQueryParams(request) {
     const queryObject = new URL(request.url, `http://${request.headers.host}`).searchParams;
     let params = {};

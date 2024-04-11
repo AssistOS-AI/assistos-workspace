@@ -1,50 +1,39 @@
-const fsPromises = require('fs').promises;
-const path = require('path');
-const {
-    sendResponse,
-    createCookieString,
-    parseCookies,
-    extractQueryParams,
-    sendFileToClient,
-    createAuthCookie,
-    createRefreshAuthCookie,
-    createCurrentSpaceCookie
-} = require('../apihub-component-utils/exporter.js')
-('sendResponse', 'createCookieString', 'parseCookies', 'extractQueryParams', 'sendFileToClient','createAuthCookie','createRefreshAuthCookie','createCurrentSpaceCookie')
+const jwt=require('../apihub-component-utils/jwt.js')
+const cookie = require('../apihub-component-utils/cookie.js');
+const utils = require('../apihub-component-utils/utils.js');
 
 const configs = require('../../config.json')
-const demoUser = require('../../apihub-core/user/templates/json/demoUser.json');
-const Manager = require('../../apihub-core/Manager.js').getInstance();
+const Loader = require('../../apihub-core/Loader.js');
+const user = Loader.loadModule('user');
 
 async function loginUser(request, response) {
 
     const userData = request.body;
     try {
-        const loginResult = await Manager.apis.loginUser(
+        const loginResult = await user.apis.loginUser(
             userData.email,
             userData.password);
         if (loginResult.success) {
 
-            const userData = await Manager.apis.getUserData(loginResult.userId);
-            const [accessToken, refreshToken] = await Manager.apis.createUserJWT(userData);
+            const userData = await user.apis.getUserData(loginResult.userId);
 
-            const authCookie = createAuthCookie(accessToken);
-            const refreshAuthCookie =createRefreshAuthCookie(refreshToken);
-            const currentSpaceCookie = createCurrentSpaceCookie(userData.currentSpaceId);
+            const authCookie = await cookie.createAuthCookie(userData);
+            const refreshAuthCookie = await cookie.createRefreshAuthCookie(userData);
+            const currentSpaceCookie =  cookie.createCurrentSpaceCookie(userData.currentSpaceId);
 
-            sendResponse(response, 200, "application/json", {
+            utils.sendResponse(response, 200, "application/json", {
                 data: userData,
                 success: true,
                 message: `User ${userData.name} logged in successfully`
-            }, [authCookie,refreshAuthCookie, currentSpaceCookie]);
+            }, [authCookie, refreshAuthCookie, currentSpaceCookie]);
         } else {
-            sendResponse(response, 404, "application/json", {
+            utils.sendResponse(response, 404, "application/json", {
                 success: false,
                 message: loginResult.message
             });
         }
     } catch (error) {
-        sendResponse(response, error.statusCode, "application/json", {
+        utils.sendResponse(response, error.statusCode, "application/json", {
             success: false,
             message: error.message
         });
@@ -54,17 +43,16 @@ async function loginUser(request, response) {
 async function registerUser(request, response) {
     const userData = request.body;
     try {
-        const userMOdule= require('Manager').loadAPI('user');
-        await Manager.apis.registerUser(
+        await user.apis.registerUser(
             userData.name,
             userData.email,
             userData.password);
-        sendResponse(response, 200, "application/json", {
+        utils.sendResponse(response, 200, "application/json", {
             success: true,
             message: `User ${userData.name} registered successfully. Please check your email for the verification code`
         });
     } catch (error) {
-        sendResponse(response, error.statusCode, "application/json", {
+        utils.sendResponse(response, error.statusCode, "application/json", {
             success: false,
             message: error.message
         });
@@ -72,49 +60,49 @@ async function registerUser(request, response) {
 }
 
 async function activateUser(request, response, server) {
-    const queryParams = extractQueryParams(request);
+    const queryParams = utils.extractQueryParams(request);
     const activationToken = queryParams['activationToken'];
     if (!activationToken) {
-        return sendResponse(response, 400, "application/json", {
+        return utils.sendResponse(response, 400, "application/json", {
             success: false,
             message: "No activation token provided."
         });
     }
     try {
-        const userObject = await Manager.apis.activateUser(activationToken);
-        const activationSuccessHTML = await Manager.apis.getActivationSuccessHTML();
-        sendFileToClient(response, activationSuccessHTML, "html")
+        await user.apis.activateUser(activationToken);
+        const activationSuccessHTML = await user.apis.getActivationSuccessHTML();
+        await utils.sendFileToClient(response, activationSuccessHTML, "html")
     } catch (error) {
-        const activationFailHTML = await Manager.apis.getActivationFailHTML(error.message);
-        sendFileToClient(response, activationFailHTML, "html")
+        const activationFailHTML = await user.apis.getActivationFailHTML(error.message);
+        await utils.sendFileToClient(response, activationFailHTML, "html")
     }
 }
 
 
 async function loadUser(request, response) {
-    const authCookie = parseCookies(request).authToken;
+    const authCookie = cookie.parseCookies(request).authToken;
     if (!authCookie) {
         if (configs.CREATE_DEMO_USER === 'true') {
-            const demoCredentialsCookie = createCookieString("demoCredentials", JSON.stringify({
-                    email: demoUser.email,
-                    password: demoUser.password
+            const demoCredentialsCookie = cookie.createCookieString("demoCredentials", JSON.stringify({
+                    email: user.data.demoUser.email,
+                    password: user.data.demoUser.password
                 }
             ), {
                 path: "/",
                 sameSite: 'Strict',
                 maxAge: 60 * 60 * 24 * 7
             });
-            sendResponse(response, 401, "application/json", {
+            utils.sendResponse(response, 401, "application/json", {
                 success: false,
                 message: "Unauthorized"
             }, demoCredentialsCookie);
         } else {
-            const demoCredentialsCookie = createCookieString("demoCredentials", "", {
+            const demoCredentialsCookie = cookie.createCookieString("demoCredentials", "", {
                 path: "/",
                 sameSite: 'Strict',
                 maxAge: 0
             });
-            sendResponse(response, 401, "application/json", {
+            utils.sendResponse(response, 401, "application/json", {
                 success: false,
                 message: "Unauthorized"
             }, demoCredentialsCookie);
@@ -122,27 +110,27 @@ async function loadUser(request, response) {
         return
     }
     try {
-        const userId = (await Manager.apis.validateJWT(authCookie,"AccessTokens")).payload.id
-        const userData = await Manager.apis.getUserData(userId);
-        sendResponse(response, 200, "application/json", {
+        const userId = await jwt.validateUserAccessJWT(authCookie)
+        const userData = await user.apis.getUserData(userId);
+        utils.sendResponse(response, 200, "application/json", {
             data: userData,
             success: true,
             message: `User ${userData.name} loaded successfully`
         });
     } catch (error) {
-        const spaceCookie = createCookieString('currentSpaceId', '', {
+        const spaceCookie = cookie.createCookieString('currentSpaceId', '', {
             httpOnly: true,
             sameSite: 'Strict',
             maxAge: 0,
             path: '/'
         });
-        const authCookie = createCookieString('authToken', '', {
+        const authCookie = cookie.createCookieString('authToken', '', {
             httpOnly: true,
             sameSite: 'Strict',
             maxAge: 0,
             path: '/'
         });
-        sendResponse(response, error.statusCode, "application/json", {
+        utils.sendResponse(response, error.statusCode, "application/json", {
             success: false,
             message: error.message
         }, [authCookie, spaceCookie]);
@@ -150,135 +138,38 @@ async function loadUser(request, response) {
 }
 
 async function logoutUser(request, response) {
-    const oldAuthCookie = parseCookies(request).authToken;
+    const oldAuthCookie = cookie.parseCookies(request).authToken;
     if (!oldAuthCookie) {
-        sendResponse(response, 401, "application/json", {
+        utils.sendResponse(response, 401, "application/json", {
             success: false,
             message: "Unauthorized"
         });
         return;
     }
     try {
-        const spaceCookie = createCookieString('currentSpaceId', '', {
+        const spaceCookie = cookie.createCookieString('currentSpaceId', '', {
             httpOnly: true,
             sameSite: 'Strict',
             maxAge: 0,
             path: '/'
         });
-        const authCookie = createCookieString('authToken', '', {
+        const authCookie = cookie.createCookieString('authToken', '', {
             httpOnly: true,
             sameSite: 'Strict',
             maxAge: 0,
             path: '/'
         });
-        sendResponse(response, 200, "application/json", {
+        utils.sendResponse(response, 200, "application/json", {
             success: true,
             message: "User logged out successfully"
         }, [authCookie, spaceCookie]);
     } catch (error) {
-        sendResponse(response, error.statusCode, "application/json", {
+        utils.sendResponse(response, error.statusCode, "application/json", {
             success: false,
             message: error.message
         });
     }
 }
-
-async function saveJSON(response, spaceData, filePath) {
-    try {
-        await fsPromises.writeFile(filePath, spaceData, 'utf8');
-    } catch (error) {
-        sendResponse(response, 500, "text/html", error + ` Error at writing space: ${filePath}`);
-        return false;
-    }
-    return true;
-}
-
-
-function createContainerName(spaceId, userId) {
-    return `${spaceId}.${userId}`;
-}
-
-async function storeSecret(server, request, response) {
-    try {
-        let spaceId = request.params.spaceId;
-        let userId = request.params.userId;
-        let containerName = createContainerName(spaceId, userId);
-        const secretsService = await require('apihub').getSecretsServiceInstanceAsync(server.rootFolder);
-        let body = JSON.parse(request.body.toString());
-        if (body.delete) {
-            //delete
-            await secretsService.deleteSecretAsync(containerName, body.secretName);
-            return sendResponse(response, 200, "text/plain", "Success");
-        }
-        await secretsService.putSecretAsync(containerName, body.secretName, body.secret);
-        sendResponse(response, 200, "text/plain", "Succes");
-    } catch (e) {
-        sendResponse(response, 500, "text/plain", JSON.stringify(e));
-    }
-}
-
-async function loadUsersSecretsExist(server, request, response) {
-    try {
-        let spaceId = request.params.spaceId;
-        let users = await loadUsers(`../apihub-root/users`);
-        const secretsService = await require('apihub').getSecretsServiceInstanceAsync(server.rootFolder);
-        let secretsExistArr = [];
-        for (let user of users) {
-            let containerName = createContainerName(spaceId, user.id);
-            try {
-                secretsService.getSecretSync(containerName, "username");
-                //secretsService.getSecretSync(containerName, "token");
-                secretsExistArr.push({name: user.name, id: user.id});
-            } catch (e) {
-                //secret for user doesn't exist
-            }
-        }
-        sendResponse(response, 200, "text/plain", JSON.stringify(secretsExistArr));
-    } catch (e) {
-        sendResponse(response, 500, "text/plain", JSON.stringify(e));
-    }
-}
-
-async function loadUsers(filePath) {
-    let localData = [];
-    const files = await fsPromises.readdir(filePath);
-
-    const statPromises = files.map(async (file) => {
-        const fullPath = path.join(filePath, file);
-        const stat = await fsPromises.stat(fullPath);
-        return {file, stat};
-    });
-
-    let fileStats = (await Promise.all(statPromises)).filter(stat => stat !== undefined);
-
-    fileStats.sort((a, b) => a.stat.ctimeMs - b.stat.ctimeMs);
-
-    for (const {file} of fileStats) {
-        localData.push(JSON.parse(await fsPromises.readFile(path.join(filePath, file), 'utf8')));
-    }
-    return localData;
-}
-
-async function storeUser(request, response) {
-    const filePath = `../apihub-root/users/${request.params.userId}.json`;
-    let userData = request.body.toString();
-    if (userData === "") {
-        await fsPromises.unlink(filePath);
-        sendResponse(response, 200, "text/html", `Deleted successfully ${request.params.userId}`);
-        return "";
-    }
-    let jsonData = JSON.parse(userData);
-    if (await saveJSON(response, JSON.stringify(jsonData), filePath)) {
-        let message = {
-            id: jsonData.id,
-            secretToken: jsonData.secretToken,
-            spaces: jsonData.spaces,
-            currentSpaceId: jsonData.currentSpaceId
-        };
-        sendResponse(response, 200, "application/json", JSON.stringify(message));
-    }
-}
-
 
 module.exports = {
     registerUser,

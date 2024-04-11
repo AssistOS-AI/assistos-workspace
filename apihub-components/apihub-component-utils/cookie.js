@@ -1,3 +1,5 @@
+const jwt = require("./jwt");
+
 function parseCookies(request) {
     const list = {};
     const cookieHeader = request.headers.cookie;
@@ -40,8 +42,19 @@ function createCookieString(name, value, options = {}) {
     return cookieString;
 }
 
-function createAuthCookie(accessToken) {
+async function createAuthCookie(userData) {
+    const accessToken= await jwt.createUserAccessJWT(userData)
     return createCookieString('authToken', accessToken, {
+        httpOnly: true,
+        sameSite: 'Strict',
+        maxAge: 60 * 15,
+        path: '/'
+    });
+}
+
+async function createRefreshAuthCookie(userData) {
+    const refreshToken= await jwt.createUserRefreshAccessJWT(userData)
+    return createCookieString('refreshAuthToken', refreshToken, {
         httpOnly: true,
         sameSite: 'Strict',
         maxAge: 60 * 60 * 24 * 7,
@@ -57,16 +70,6 @@ function createCurrentSpaceCookie(currentSpaceId){
         path: '/'
     });
 }
-
-function createRefreshAuthCookie(refreshToken) {
-    return createCookieString('refreshAuthToken', refreshToken, {
-        httpOnly: true,
-        sameSite: 'Strict',
-        maxAge: 60 * 60 * 24 * 7,
-        path: '/'
-    });
-}
-
 module.exports={
     parseCookies,
     createCookieString,

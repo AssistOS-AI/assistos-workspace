@@ -2,18 +2,19 @@ const path = require('path');
 
 const config = require('../config.json')
 
-const STORAGE_VOLUME_PATH=path.join(__dirname, '../', config.STORAGE_VOLUME_PATH);
+const STORAGE_VOLUME_PATH = path.join(__dirname, '../', config.STORAGE_VOLUME_PATH);
 
 const volumeConfig = require(STORAGE_VOLUME_PATH).volumeConfigs;
+
 function resolveVolumePath(volumeResourcePath) {
-    return path.join(STORAGE_VOLUME_PATH,volumeResourcePath);
+    return path.join(__dirname, "../", STORAGE_VOLUME_PATH, volumeResourcePath);
 }
 
-const apiResourcesPaths = {
-    util: './util',
-    documents: './documents',
-    space: './space',
-    users: './users',
+const modulePaths = {
+    util: path.join(__dirname, './util'),
+    document: path.join(__dirname, './documents'),
+    space: path.join(__dirname, './space'),
+    user: path.join(__dirname, './users'),
 }
 
 const storageVolumePaths = {
@@ -27,12 +28,28 @@ const storageVolumePaths = {
     defaultFlows: resolveVolumePath(volumeConfig.DEFAULT_FLOWS_PATH),
 }
 const loader = {
-    loadAPI(apiPackage) {
-        if (!apiResourcesPaths[apiPackage]) {
-            throw new Error('API package not found')
-        } else {
-            return require(apiResourcesPaths[apiPackage])
+    loadModule(moduleName, moduleSet) {
+        const modulePath = modulePaths[moduleName];
+        if (!modulePath) {
+            throw new Error('Module not found');
         }
+        const requiredModule = require(modulePath);
+
+        if (Array.isArray(moduleSet)) {
+            return moduleSet.reduce((acc, key) => {
+                if (!requiredModule[key]) {
+                    throw new Error(`Sub-module ${key} not found in ${moduleName}`);
+                }
+                acc[key] = requiredModule[key];
+                return acc;
+            }, {});
+        }
+
+        if (moduleSet && !requiredModule[moduleSet]) {
+            throw new Error(`Sub-module ${moduleSet} not found in ${moduleName}`);
+        }
+
+        return moduleSet ? requiredModule[moduleSet] : requiredModule;
     },
     getStorageVolumePaths() {
         return storageVolumePaths

@@ -3,7 +3,7 @@ const fsPromises= require('fs').promises;
 const enclave = require("opendsu").loadAPI("enclave");
 
 const storageVolumePaths = require('../Loader.js').getStorageVolumePaths();
-
+const {crypto}=require('../Loader.js').loadAPI('utils');
 
 async function addAnnouncement(spaceId, announcementObject) {
     const spaceStatusObject = getSpaceStatusObject(spaceId)

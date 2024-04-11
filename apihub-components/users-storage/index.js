@@ -8,14 +8,37 @@ const {
 
 function UserStorage(server) {
 
-    const {bodyReader, authentication, authorization} = require('../apihub-component-middlewares/exporter.js')
-    ('bodyReader', 'authentication', 'authorization');
-    /* TODO */
-    setTimeout(async()=>{
-        const apihub=require('apihub');
-        const secretService=await apihub.getSecretsServiceInstanceAsync();
-        await secretService.putSecretAsync('test','test', 'test',true);
-        },0)
+    setTimeout(async () => {
+        const securityConfig = require('../securityConfig.json');
+        const jwtConfig = securityConfig.JWT;
+        const apihub = require('apihub');
+        const crypto = require('../../apihub-core/Loader.js').loadAPI('util', 'crypto')
+
+        const accessToken = {
+            ...jwtConfig.AccessTokens,
+            secret: crypto.generateSecret()
+
+        }
+        const refreshToken = {
+            ...jwtConfig.RefreshTokens,
+            secret: crypto.generateSecret()
+        }
+        const emailToken = {
+            ...jwtConfig.EmailTokens,
+            secret: crypto.generateSecret()
+        }
+
+        const secretService = await apihub.getSecretsServiceInstanceAsync(securityConfig.SERVER_ROOT_FOLDER);
+
+        await secretService.putSecretAsync('JWT', 'AccessToken', accessToken);
+        await secretService.putSecretAsync('JWT', 'RefreshToken', refreshToken);
+        await secretService.putSecretAsync('JWT', 'EmailToken', emailToken);
+
+    }, 0);
+
+    const bodyReader = require('../apihub-component-middlewares/bodyReader.js')
+    const authentication = require('../apihub-component-middlewares/authentication.js')
+    const authorization = require('../apihub-component-middlewares/authorization.js')
 
     server.use("/users/*", bodyReader);
 
