@@ -3,11 +3,12 @@ const util = require('util');
 const execAsync = util.promisify(exec);
 const path = require('path');
 const fsPromises = require('fs').promises;
-const openDSU = require("opendsu");
-const crypto = openDSU.loadApi("crypto");
-const sendResponse = require('../apihub-component-utils/utils/sendResponse')
-const sendFileToClient=require('../apihub-component-utils/utils/sendFileToClient.js')
-const Manager = require('../../apihub-core/Manager').getInstance();
+
+const requestUtils = require('../apihub-component-utils/utils.js')
+
+const sendResponse = requestUtils.sendResponse
+const sendFileToClient = requestUtils.sendFileToClient
+
 
 function createContainerName(spaceId, userId) {
     return `${spaceId}.${userId}`;

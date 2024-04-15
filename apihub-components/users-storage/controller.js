@@ -1,25 +1,25 @@
-const jwt=require('../apihub-component-utils/jwt.js')
+const jwt = require('../apihub-component-utils/jwt.js')
 const cookie = require('../apihub-component-utils/cookie.js');
 const utils = require('../apihub-component-utils/utils.js');
 
 const configs = require('../../config.json')
-const Loader = require('../../apihub-core/Loader.js');
-const user = Loader.loadModule('user');
+const Loader = require('../../assistOS-sdk/Loader.js');
+const userModule = Loader.loadModule('user');
 
 async function loginUser(request, response) {
-
+    const userAPIs = userModule.loadAPIs();
     const userData = request.body;
     try {
-        const loginResult = await user.apis.loginUser(
+        const loginResult = await userAPIs.loginUser(
             userData.email,
             userData.password);
         if (loginResult.success) {
 
-            const userData = await user.apis.getUserData(loginResult.userId);
+            const userData = await userAPIs.getUserData(loginResult.userId);
 
             const authCookie = await cookie.createAuthCookie(userData);
             const refreshAuthCookie = await cookie.createRefreshAuthCookie(userData);
-            const currentSpaceCookie =  cookie.createCurrentSpaceCookie(userData.currentSpaceId);
+            const currentSpaceCookie = cookie.createCurrentSpaceCookie(userData.currentSpaceId);
 
             utils.sendResponse(response, 200, "application/json", {
                 data: userData,
@@ -41,9 +41,10 @@ async function loginUser(request, response) {
 }
 
 async function registerUser(request, response) {
+    const userAPIs = userModule.loadAPIs();
     const userData = request.body;
     try {
-        await user.apis.registerUser(
+        await userAPIs.registerUser(
             userData.name,
             userData.email,
             userData.password);
@@ -60,6 +61,7 @@ async function registerUser(request, response) {
 }
 
 async function activateUser(request, response, server) {
+    const userAPIs = userModule.loadAPIs();
     const queryParams = utils.extractQueryParams(request);
     const activationToken = queryParams['activationToken'];
     if (!activationToken) {
@@ -69,23 +71,24 @@ async function activateUser(request, response, server) {
         });
     }
     try {
-        await user.apis.activateUser(activationToken);
-        const activationSuccessHTML = await user.apis.getActivationSuccessHTML();
+        await userAPIs.activateUser(activationToken);
+        const activationSuccessHTML = await userAPIs.getActivationSuccessHTML();
         await utils.sendFileToClient(response, activationSuccessHTML, "html")
     } catch (error) {
-        const activationFailHTML = await user.apis.getActivationFailHTML(error.message);
+        const activationFailHTML = await userAPIs.getActivationFailHTML(error.message);
         await utils.sendFileToClient(response, activationFailHTML, "html")
     }
 }
 
-
 async function loadUser(request, response) {
+    const userData = userModule.loadData('templates');
+    const userAPIs = userModule.loadAPIs();
     const authCookie = cookie.parseCookies(request).authToken;
     if (!authCookie) {
         if (configs.CREATE_DEMO_USER === 'true') {
             const demoCredentialsCookie = cookie.createCookieString("demoCredentials", JSON.stringify({
-                    email: user.data.demoUser.email,
-                    password: user.data.demoUser.password
+                    email: userData.demoUser.email,
+                    password: userData.demoUser.password
                 }
             ), {
                 path: "/",
@@ -111,7 +114,7 @@ async function loadUser(request, response) {
     }
     try {
         const userId = await jwt.validateUserAccessJWT(authCookie)
-        const userData = await user.apis.getUserData(userId);
+        const userData = await userAPIs.getUserData(userId);
         utils.sendResponse(response, 200, "application/json", {
             data: userData,
             success: true,

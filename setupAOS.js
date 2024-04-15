@@ -5,18 +5,20 @@ const configs = require('./config.json');
 const cleanStorageVolume = configs.CLEAN_STORAGE_VOLUME_ON_RESTART;
 const createDefaultUser = configs.CREATE_DEMO_USER;
 
-const createDemoUser = require('./apihub-core/exporter.js')
-('createDemoUser');
+const Loader = require('./assistOS-sdk/Loader.js');
+const userModule = Loader.loadModule('user');
+const userAPIs = userModule.loadAPIs();
+
+
 
 (async () => {
     let setupPromises = [];
 
     if (cleanStorageVolume) {
-        const volume = require('./data-volume/volume.js');
-        await volume.clean()
+        const volume = require('./data-volume');
     }
     if (createDefaultUser) {
-        setupPromises.push(createDemoUser());
+        setupPromises.push(userAPIs.createDemoUser());
     }
 
     await Promise.all(setupPromises);

@@ -1,10 +1,18 @@
 const path = require('path');
 const fsPromises = require('fs').promises;
-const crypto = require("opendsu").loadAPI("crypto");
-const Manager = require('../../apihub-core/Manager.js').getInstance();
 
-const {sendResponse, createCookieString, parseCookies} = require('../apihub-component-utils/exporter.js')
-('sendResponse', 'createCookieString', 'parseCookies');
+const requestUtils = require('../apihub-component-utils/utils.js');
+const cookieUtils = require('../apihub-component-utils/cookie.js');
+const jwtUtils=require('../apihub-component-utils/jwt.js');
+
+const Loader = require('../../assistOS-sdk/Loader.js');
+const utilsModule = Loader.loadModule('util');
+const userModule= Loader.loadModule('user');
+const spaceModule= Loader.loadModule('space');
+const openAI = utilsModule.loadAPIs('openAI');
+const sendResponse = requestUtils.sendResponse;
+const createCookieString = cookieUtils.createCookieString;
+const parseCookies = cookieUtils.parseCookies;
 
 async function saveJSON(response, spaceData, filePath) {
 
@@ -41,29 +49,32 @@ async function getObject(request, response) {
 }
 
 async function addObject(request, response) {
-    try{
+    try {
         let object = await Manager.apis.genericObjects.addObject(request.params.spaceId, request.params.objectType, request.body);
         return sendResponse(response, 200, "text/html", JSON.stringify(object));
-    }catch (e){
+    } catch (e) {
         return sendResponse(response, 500, "text/html", JSON.stringify(e + ` Error at adding object: ${request.params.objectType}`));
     }
 }
+
 async function updateObject(request, response) {
-    try{
+    try {
         let object = await Manager.apis.genericObjects.updateObject(request.params.spaceId, request.params.objectType, request.params.objectName, request.body);
         return sendResponse(response, 200, "text/html", JSON.stringify(object));
-    }catch (e){
+    } catch (e) {
         return sendResponse(response, 500, "text/html", JSON.stringify(e + ` Error at updating object: ${request.params.objectType}: ${request.params.objectName}`));
     }
 }
+
 async function deleteObject(request, response) {
-    try{
+    try {
         let objectId = await Manager.apis.genericObjects.deleteObject(request.params.spaceId, request.params.objectType, request.params.objectName);
         return sendResponse(response, 200, "text/html", JSON.stringify(objectId));
-    }catch (e){
+    } catch (e) {
         return sendResponse(response, 500, "text/html", JSON.stringify(e + ` Error at deleting object: ${request.params.objectType}: ${request.params.objectName}`));
     }
 }
+
 // async function storeObject(request, response) {
 //     if (!request.body || Object.keys(request.body).length === 0) {
 //         try {
@@ -106,7 +117,7 @@ async function storeFolder(spaceId, data, folderName) {
 async function saveSpaceAPIKeySecret(spaceId, apiKey, server) {
     const secretsService = await require('apihub').getSecretsServiceInstanceAsync(server.rootFolder);
     const containerName = `${spaceId}.APIKey`
-    const keyValidation = await Manager.apis.validateOpenAIKey(apiKey);
+    const keyValidation = await openAI.validateOpenAiKey(apiKey);
     if (keyValidation) {
         await secretsService.putSecretAsync(containerName, "OpenAiAPIKey", apiKey);
         return true;
@@ -131,7 +142,7 @@ async function storeSecret(request, response, server) {
             const apiKeyObject = {
                 "userId": `${userId}`,
                 "id": "000000000000",
-                "value": Manager.apis.maskOpenAIKey(apiKey)
+                "value": openAI.maskKey(apiKey)
             };
             if (statusObject.apiKeys && statusObject.apiKeys.openAi) {
                 statusObject.apiKeys.openAi.push(apiKeyObject);
@@ -187,7 +198,7 @@ async function storeSpace(request, response, server) {
             jsonData.apiKeys.openAi.push({
                 "userId": userId,
                 "id": "000000000000",
-                "value": Manager.apis.maskOpenAIKey(apiKey)
+                "value": openAI.maskKey(apiKey)
             });
         }
     }
@@ -205,15 +216,17 @@ async function storeSpace(request, response, server) {
 /* TODO constant object mapping of content types to avoid writing manually the content type of a response
 *   and move the cookie verification authentication, rights, etc in a middleware */
 async function getSpace(request, response) {
+    const userAPIs= userModule.loadAPIs();
+    const spaceAPIs = spaceModule.loadAPIs();
     try {
         let spaceId;
-        const userId=request.userId;
+        const userId = request.userId;
         if (request.params.spaceId) {
             spaceId = request.params.spaceId;
         } else if (parseCookies(request).currentSpaceId) {
             spaceId = parseCookies(request).currentSpaceId;
         } else {
-            spaceId = Manager.apis.getDefaultSpaceId(userId);
+            spaceId = userAPIs.getDefaultSpaceId(userId);
         }
 
         const userRights = await getUserRights(userId);
@@ -226,22 +239,16 @@ async function getSpace(request, response) {
         }
 
         let spaceStatusObject = {};
-        spaceStatusObject = await Manager.apis.getSpaceStatusObject(spaceId);
+        spaceStatusObject = await spaceAPIs.getSpaceStatusObject(spaceId);
         /* Packaging space Data into one Object */
-        spaceStatusObject["documents"] = await Manager.apis.getSpaceDocumentsObject(spaceId);
-        spaceStatusObject["personalities"] = await Manager.apis.getSpacePersonalitiesObject(spaceId);
-        await Manager.apis.updateUsersCurrentSpace(userId, spaceId);
-        const cookieString = createCookieString('currentSpaceId', spaceStatusObject.id, {
-            maxAge: 30 * 24 * 60 * 60,
-            path: '/',
-            httpOnly: true,
-            sameSite: 'Strict'
-        });
+        spaceStatusObject["documents"] = await spaceAPIs.getSpaceDocumentsObject(spaceId);
+        spaceStatusObject["personalities"] = await spaceAPIs.getSpacePersonalitiesObject(spaceId);
+        await userAPIs.updateUsersCurrentSpace(userId, spaceId);
         sendResponse(response, 200, "application/json", {
             success: true,
             data: spaceStatusObject,
             message: `Space ${spaceId} loaded successfully`
-        }, cookieString);
+        },  cookieUtils.createCurrentSpaceCookie(spaceId));
     } catch (error) {
         sendResponse(response, 500, "application/json", {
             success: false,
@@ -268,6 +275,7 @@ async function getUserRights(userId) {
 async function addCollaboratorToSpace(request, response) {
     const cookies = parseCookies(request);
     const userId = cookies.userId;
+    const userAPIs= userModule.loadAPIs();
     if (!userId) {
         sendResponse(response, 401, "application/json", {
             message: "Unauthorized: No valid session",
@@ -302,7 +310,7 @@ async function addCollaboratorToSpace(request, response) {
         return;
     }
     try {
-        const space = await Manager.apis.addSpaceCollaborator(spaceId, collaboratorId);
+        const space = await userAPIs.addSpaceCollaborator(spaceId, collaboratorId);
         sendResponse(response, 200, "application/json", {
             message: `Collaborator added successfully: ${collaboratorId}`,
             success: true
@@ -338,7 +346,8 @@ async function addCollaboratorToSpace(request, response) {
 
 async function createSpace(request, response) {
     const authCookie = parseCookies(request).authToken;
-    const userId = (await Manager.apis.validateJWT(authCookie)).id
+    const userId = await jwtUtils.validateUserAccessJWT(authCookie)
+    const spaceAPIs= spaceModule.loadAPIs();
     if (!userId) {
         sendResponse(response, 401, "application/json", {
             message: "Unauthorized: No valid session",
@@ -367,18 +376,12 @@ async function createSpace(request, response) {
     const apiKey = request.headers.apikey;
     try {
         let newSpace = {};
-        newSpace = await Manager.apis.createSpace(spaceName, userId, apiKey);
-        const cookieString = createCookieString('currentSpaceId', newSpace.id, {
-            maxAge: 30 * 24 * 60 * 60,
-            path: '/',
-            httpOnly: true,
-            sameSite: 'Strict'
-        });
+        newSpace = await spaceAPIs.createSpace(spaceName, userId, apiKey);
         sendResponse(response, 201, "application/json", {
             message: `Space created successfully: ${newSpace.id}`,
             data: newSpace,
             success: true
-        }, cookieString);
+        }, cookieUtils.createCurrentSpaceCookie(newSpace.id));
     } catch (error) {
         switch (error.statusCode) {
             case 409:

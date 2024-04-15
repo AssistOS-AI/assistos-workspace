@@ -1,14 +1,5 @@
 const fsPromises = require('fs').promises;
 const path = require('path');
-const {
-    sendResponse,
-    createCookieString,
-    parseCookies
-} = require('../apihub-component-utils/exporter.js')
-('sendResponse', 'createCookieString', 'parseCookies');
-
-const Manager = require('../../apihub-core/Manager.js').getInstance();
-
 
 async function getDefaultItems(filePath) {
     let localData = [];

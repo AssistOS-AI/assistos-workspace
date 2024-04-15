@@ -1,32 +1,26 @@
-const {
-    parseCookies,
-    createAuthCookie
-} = require('../apihub-component-utils/exporter.js')('parseCookies', 'createAuthCookie');
-const {createJWT, validateJWT} = require('../../apihub-core/exporter.js')('createJWT', 'validateJWT');
+const cookie = require('../apihub-component-utils/cookie.js');
+const jwt = require('../apihub-component-utils/jwt.js');
+const Loader = require('../../assistOS-sdk/Loader.js')
+const user = Loader.loadModule('user');
 
 async function authentication(req, res, next) {
-    const cookies = parseCookies(req);
+    const cookies = cookie.parseCookies(req);
     const authToken = cookies['authToken'];
     const refreshToken = cookies['refreshAuthToken'];
 
     if (authToken) {
-        const jwtValidation = await validateJWT(authToken, 'AccessTokens');
-        if (jwtValidation) {
-            req.userId = jwtValidation.payload.id;
-            return next();
-        }
+        const userId = await jwt.validateUserAccessJWT(authToken, 'AccessToken');
+        req.userId = userId
+        return next();
     }
 
     if (refreshToken) {
         try {
-            const jwtValidation = await validateJWT(refreshToken, 'RefreshTokens');
-            if (!jwtValidation) {
-                throw new Error('RefreshToken validation failed');
-            }
-            const newAccessToken = await createJWT(jwtValidation.payload, 'AccessTokens');
-            const authCookie = createAuthCookie(newAccessToken);
+            const userId = await jwt.validateUserRefreshAccessJWT(refreshToken, 'RefreshToken');
+            const userData = await user.apis.getUserData(userId);
+            const authCookie = cookie.createAuthCookie(userData);
             res.setHeader('Set-Cookie', authCookie);
-            req.userId = jwtValidation.payload.id;
+            req.userId = userId
             return next();
         } catch (error) {
             return authenticationError(next);

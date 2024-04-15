@@ -12,19 +12,20 @@ function UserStorage(server) {
         const securityConfig = require('../securityConfig.json');
         const jwtConfig = securityConfig.JWT;
         const apihub = require('apihub');
-        const crypto = require('../../apihub-core/Loader.js').loadAPI('util', 'crypto')
+        const utilsModule=require('../../assistOS-sdk/Loader.js').loadModule('util');
+        const crypto = utilsModule.loadAPIs('crypto');
 
         const accessToken = {
-            ...jwtConfig.AccessTokens,
+            ...jwtConfig.AccessToken,
             secret: crypto.generateSecret()
 
         }
         const refreshToken = {
-            ...jwtConfig.RefreshTokens,
+            ...jwtConfig.RefreshToken,
             secret: crypto.generateSecret()
         }
         const emailToken = {
-            ...jwtConfig.EmailTokens,
+            ...jwtConfig.EmailToken,
             secret: crypto.generateSecret()
         }
 
@@ -38,7 +39,7 @@ function UserStorage(server) {
 
     const bodyReader = require('../apihub-component-middlewares/bodyReader.js')
     const authentication = require('../apihub-component-middlewares/authentication.js')
-    const authorization = require('../apihub-component-middlewares/authorization.js')
+    //const authorization = require('../apihub-component-middlewares/authorization.js')
 
     server.use("/users/*", bodyReader);
 

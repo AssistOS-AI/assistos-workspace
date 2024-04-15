@@ -2,7 +2,7 @@
   "SERVER_ROOT_FOLDER": "./apihub-root",
   "JWT": {
     "secretContainerName": "JWT",
-    "AccessTokens": {
+    "AccessToken": {
       "typ": "JWT",
       "algorithm": "HS256",
       "expiresIn": {
@@ -11,7 +11,7 @@
       "issuer": "AssistOS",
       "audience": "AssistOS"
     },
-    "RefreshTokens": {
+    "RefreshToken": {
       "typ": "JWT",
       "algorithm": "HS256",
       "expiresIn": {
@@ -20,7 +20,7 @@
       "issuer": "AssistOS",
       "audience": "AssistOS"
     },
-    "EmailTokens": {
+    "EmailToken": {
       "typ": "JWT",
       "algorithm": "HS256",
       "expiresIn": {

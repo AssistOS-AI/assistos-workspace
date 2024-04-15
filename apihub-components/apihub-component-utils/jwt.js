@@ -1,9 +1,7 @@
-const JWTConfigs = require('../../../apihub-core/securityModule.json').JWT;
+const JWTConfigs = require('../securityConfig.json').JWT;
 const crypto = require('opendsu').loadAPI('crypto');
 
-
-const {getCurrentUnixTime, incrementUnixTime} = require('../../apihub-core/exporter.js')
-('getCurrentUnixTime', 'incrementUnixTime')
+const date = require('../../assistOS-sdk/Loader.js').loadModule('util', 'date');
 
 
 async function createJWT(payloadData, jwtType) {
@@ -16,8 +14,8 @@ async function createJWT(payloadData, jwtType) {
 
     const payload = {
         ...payloadData,
-        iat: getCurrentUnixTime(),
-        exp: incrementUnixTime(getCurrentUnixTime(), jwtConfig.expiresIn),
+        iat: date.getCurrentUnixTime(),
+        exp: date.incrementUnixTime(date.getCurrentUnixTime(), jwtConfig.expiresIn),
         iss: jwtConfig.issuer,
         aud: jwtConfig.audience
     };
@@ -43,30 +41,33 @@ async function createUserAccessJWT(userData) {
         id: userData.id,
         role: "user"
     }
-    const accessToken = await createJWT(payloadData,"AccessTokens");
+    const accessToken = await createJWT(payloadData, "AccessToken");
     return accessToken
 
 }
-async function createUserRefreshAccessJWT(userData){
+
+async function createUserRefreshAccessJWT(userData) {
     const payloadData = {
         id: userData.id,
         role: "user"
     }
-    const refreshToken = await createJWT(payloadData,"RefreshTokens");
+    const refreshToken = await createJWT(payloadData, "RefreshToken");
     return refreshToken
 }
-async function validateUserAccessJWT(jwt){
-    const jwtPayload = (await validateJWT(jwt,"AccessToken")).payload
-    const userId=jwtPayload.id;
-    return userId;
-}
-async function validateUserRefreshAccessJWT(jwt){
-    const jwtPayload = (await validateJWT(jwt,"RefreshToken")).payload
-    const userId=jwtPayload.id;
+
+async function validateUserAccessJWT(jwt) {
+    const jwtPayload = (await validateJWT(jwt, "AccessToken")).payload
+    const userId = jwtPayload.id;
     return userId;
 }
 
-module.exports={
+async function validateUserRefreshAccessJWT(jwt) {
+    const jwtPayload = (await validateJWT(jwt, "RefreshToken")).payload
+    const userId = jwtPayload.id;
+    return userId;
+}
+
+module.exports = {
     createJWT,
     validateJWT,
     createUserAccessJWT,
