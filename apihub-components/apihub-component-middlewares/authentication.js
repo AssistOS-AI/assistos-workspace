@@ -7,33 +7,43 @@ async function authentication(req, res, next) {
     const cookies = cookie.parseCookies(req);
     const authToken = cookies['authToken'];
     const refreshToken = cookies['refreshAuthToken'];
+    let setCookies = [];
 
     if (authToken) {
-        const userId = await jwt.validateUserAccessJWT(authToken, 'AccessToken');
-        req.userId = userId
-        return next();
+        try {
+            const userId = await jwt.validateUserAccessJWT(authToken, 'AccessToken');
+            req.userId = userId;
+            return next();
+        } catch (error) {
+
+        }
     }
 
     if (refreshToken) {
         try {
             const userId = await jwt.validateUserRefreshAccessJWT(refreshToken, 'RefreshToken');
             const userData = await user.apis.getUserData(userId);
-            const authCookie = cookie.createAuthCookie(userData);
-            res.setHeader('Set-Cookie', authCookie);
-            req.userId = userId
+            const newAuthCookie = await cookie.createAuthCookie(userData);
+            setCookies.push(newAuthCookie);
+            req.userId = userId;
+            res.setHeader('Set-Cookie', setCookies);
             return next();
         } catch (error) {
-            return authenticationError(next);
+            setCookies.push(cookie.deleteAuthCookie());
+            setCookies.push(cookie.deleteRefreshAuthCookie());
+            res.setHeader('Set-Cookie', setCookies);
+            return authenticationError(res, next);
         }
+    } else {
+        setCookies.push(cookie.deleteAuthCookie());
+        setCookies.push(cookie.deleteRefreshAuthCookie());
+        res.setHeader('Set-Cookie', setCookies);
+        return authenticationError(res, next);
     }
-
-    return authenticationError(next);
 }
 
-function authenticationError(next) {
-    const error = new Error('Authentication required');
-    error.statusCode = 401;
-    next();
+function authenticationError(res, next) {
+    return next();
 }
 
-module.exports = authentication
+module.exports = authentication;

@@ -47,18 +47,18 @@ function UserStorage(server) {
         await activateUser(request, response, server)
     });
 
-    server.use("/users/*", authentication);
-
-    server.get("/users", async (request, response) => {
-        await loadUser(request, response);
-    });
-
     server.post("/users", async (request, response) => {
         await registerUser(request, response)
     });
 
     server.post("/users/login", async (request, response) => {
         await loginUser(request, response)
+    });
+
+    server.use("/users/*", authentication);
+
+    server.get("/users", async (request, response) => {
+        await loadUser(request, response);
     });
 
     server.post("/users/logout", async (request, response) => {

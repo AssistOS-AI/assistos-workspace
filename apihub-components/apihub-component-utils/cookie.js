@@ -51,6 +51,14 @@ async function createAuthCookie(userData) {
         path: '/'
     });
 }
+function deleteAuthCookie(){
+    return createCookieString('authToken', '', {
+        httpOnly: true,
+        sameSite: 'Strict',
+        maxAge: 0,
+        path: '/'
+    });
+}
 
 async function createRefreshAuthCookie(userData) {
     const refreshToken= await jwt.createUserRefreshAccessJWT(userData)
@@ -58,6 +66,14 @@ async function createRefreshAuthCookie(userData) {
         httpOnly: true,
         sameSite: 'Strict',
         maxAge: 60 * 60 * 24 * 7,
+        path: '/'
+    });
+}
+function deleteRefreshAuthCookie(){
+    return createCookieString('refreshAuthToken', '', {
+        httpOnly: true,
+        sameSite: 'Strict',
+        maxAge: 0,
         path: '/'
     });
 }
@@ -70,10 +86,22 @@ function createCurrentSpaceCookie(currentSpaceId){
         path: '/'
     });
 }
+function deleteCurrentSpaceCookie(){
+    return createCookieString('currentSpaceId', '', {
+        httpOnly: true,
+        sameSite: 'Strict',
+        maxAge: 0,
+        path: '/'
+    });
+}
+
+
 module.exports={
     parseCookies,
     createCookieString,
     createAuthCookie,
     createCurrentSpaceCookie,
-    createRefreshAuthCookie
+    createRefreshAuthCookie,
+    deleteAuthCookie,
+    deleteRefreshAuthCookie
 }

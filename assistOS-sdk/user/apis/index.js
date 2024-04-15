@@ -91,6 +91,7 @@ async function createUser(username, email, withDefaultSpace = false) {
 
     const userPath = getUserFilePath(userId)
     try {
+        await updateUserFile(userId, user)
         if (withDefaultSpace) {
             const createdSpaceId = (await spaceAPIs.createSpace(spaceName, userId)).id;
             user.currentSpaceId = createdSpaceId

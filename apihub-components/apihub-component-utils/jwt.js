@@ -1,16 +1,17 @@
 const JWTConfigs = require('../securityConfig.json').JWT;
 const crypto = require('opendsu').loadAPI('crypto');
 
-const date = require('../../assistOS-sdk/Loader.js').loadModule('util', 'date');
+const Loader = require('../../assistOS-sdk/Loader.js');
+const utils = Loader.loadModule('util');
+const date = utils.loadAPIs('date');
+
+const securityConfig = require('../securityConfig.json');
+const apihub = require('apihub');
 
 
 async function createJWT(payloadData, jwtType) {
-
-    if (!JWTConfigs[jwtType]) {
-        throw new Error(`Invalid JWT type: ${jwtType}`);
-    }
-
-    const jwtConfig = JWTConfigs[jwtType];
+    const secretService = await apihub.getSecretsServiceInstanceAsync(securityConfig.SERVER_ROOT_FOLDER);
+    const jwtConfig = secretService.getSecretSync('JWT', jwtType)
 
     const payload = {
         ...payloadData,
@@ -26,12 +27,8 @@ async function createJWT(payloadData, jwtType) {
 }
 
 async function validateJWT(jwt, jwtType) {
-
-    if (!JWTConfigs[jwtType]) {
-        throw new Error(`Invalid JWT type: ${jwtType}`);
-    }
-
-    const jwtConfig = JWTConfigs[jwtType];
+    const secretService = await apihub.getSecretsServiceInstanceAsync(securityConfig.SERVER_ROOT_FOLDER);
+    const jwtConfig = secretService.getSecretSync('JWT', jwtType)
     return await crypto.joseAPI.verifyAndRetrievePayloadHmacJWT(jwt, jwtConfig.secret);
 
 }

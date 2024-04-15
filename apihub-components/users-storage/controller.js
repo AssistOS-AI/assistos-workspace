@@ -8,32 +8,21 @@ const userModule = Loader.loadModule('user');
 
 async function loginUser(request, response) {
     const userAPIs = userModule.loadAPIs();
-    const userData = request.body;
+    const requestData = request.body;
     try {
-        const loginResult = await userAPIs.loginUser(
-            userData.email,
-            userData.password);
-        if (loginResult.success) {
+        const userId = await userAPIs.loginUser(requestData.email, requestData.password);
+        const userData = await userAPIs.getUserData(userId);
+        const authCookie = await cookie.createAuthCookie(userData);
+        const refreshAuthCookie = await cookie.createRefreshAuthCookie(userData);
+        const currentSpaceCookie = cookie.createCurrentSpaceCookie(userData.currentSpaceId);
 
-            const userData = await userAPIs.getUserData(loginResult.userId);
-
-            const authCookie = await cookie.createAuthCookie(userData);
-            const refreshAuthCookie = await cookie.createRefreshAuthCookie(userData);
-            const currentSpaceCookie = cookie.createCurrentSpaceCookie(userData.currentSpaceId);
-
-            utils.sendResponse(response, 200, "application/json", {
-                data: userData,
-                success: true,
-                message: `User ${userData.name} logged in successfully`
-            }, [authCookie, refreshAuthCookie, currentSpaceCookie]);
-        } else {
-            utils.sendResponse(response, 404, "application/json", {
-                success: false,
-                message: loginResult.message
-            });
-        }
+        utils.sendResponse(response, 200, "application/json", {
+            data: userData,
+            success: true,
+            message: `User ${userData.name} logged in successfully`
+        }, [authCookie, refreshAuthCookie, currentSpaceCookie]);
     } catch (error) {
-        utils.sendResponse(response, error.statusCode, "application/json", {
+        utils.sendResponse(response, 404, "application/json", {
             success: false,
             message: error.message
         });
@@ -82,9 +71,7 @@ async function activateUser(request, response, server) {
 
 async function loadUser(request, response) {
     const userData = userModule.loadData('templates');
-    const userAPIs = userModule.loadAPIs();
-    const authCookie = cookie.parseCookies(request).authToken;
-    if (!authCookie) {
+    if (!request.userId) {
         if (configs.CREATE_DEMO_USER === 'true') {
             const demoCredentialsCookie = cookie.createCookieString("demoCredentials", JSON.stringify({
                     email: userData.demoUser.email,
@@ -113,7 +100,8 @@ async function loadUser(request, response) {
         return
     }
     try {
-        const userId = await jwt.validateUserAccessJWT(authCookie)
+        const userAPIs = userModule.loadAPIs();
+        const userId = request.userId
         const userData = await userAPIs.getUserData(userId);
         utils.sendResponse(response, 200, "application/json", {
             data: userData,
