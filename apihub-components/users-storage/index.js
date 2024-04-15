@@ -44,7 +44,7 @@ function UserStorage(server) {
     server.use("/users/*", bodyReader);
 
     server.get("/users/verify", async (request, response) => {
-        await activateUser(request, response, server)
+        await activateUser(request, response)
     });
 
     server.post("/users", async (request, response) => {

@@ -106,18 +106,18 @@ async function createUser(username, email, withDefaultSpace = false) {
 }
 
 async function getActivationFailHTML(failReason) {
-    const emailData = Loader.loadModule('services').loadServices('email').data
+    const emailData = await Loader.loadModule('services').loadServices('email').data
     let redirectURL = config.ENVIRONMENT_MODE === 'development' ? config.DEVELOPMENT_BASE_URL : config.PRODUCTION_BASE_URL
-    return data.fillTemplate(emailData.activationSuccessTemplate, {
+    return data.fillTemplate(emailData.templates.activationFailTemplate, {
         redirectURL: redirectURL,
         failReason: failReason
     })
 }
 
 async function getActivationSuccessHTML() {
-    const emailData = Loader.loadModule('services').loadServices('email').data
+    const emailData = await Loader.loadModule('services').loadServices('email').data
     let loginRedirectURL = config.ENVIRONMENT_MODE === 'development' ? config.DEVELOPMENT_BASE_URL : config.PRODUCTION_BASE_URL
-    return data.fillTemplate(emailData.activationSuccessTemplate, {
+    return data.fillTemplate(emailData.templates.activationSuccessTemplate, {
         loginRedirectURL: loginRedirectURL
     })
 }

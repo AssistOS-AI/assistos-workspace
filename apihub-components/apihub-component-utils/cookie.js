@@ -103,5 +103,6 @@ module.exports={
     createCurrentSpaceCookie,
     createRefreshAuthCookie,
     deleteAuthCookie,
-    deleteRefreshAuthCookie
+    deleteRefreshAuthCookie,
+    deleteCurrentSpaceCookie
 }

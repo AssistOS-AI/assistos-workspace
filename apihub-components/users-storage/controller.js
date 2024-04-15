@@ -49,7 +49,7 @@ async function registerUser(request, response) {
     }
 }
 
-async function activateUser(request, response, server) {
+async function activateUser(request, response) {
     const userAPIs = userModule.loadAPIs();
     const queryParams = utils.extractQueryParams(request);
     const activationToken = queryParams['activationToken'];
@@ -153,7 +153,7 @@ async function logoutUser(request, response) {
         utils.sendResponse(response, 200, "application/json", {
             success: true,
             message: "User logged out successfully"
-        }, [authCookie, spaceCookie]);
+        }, [cookie.deleteAuthCookie(),cookie.deleteRefreshAuthCookie(),cookie.deleteCurrentSpaceCookie()]);
     } catch (error) {
         utils.sendResponse(response, error.statusCode, "application/json", {
             success: false,
