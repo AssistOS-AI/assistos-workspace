@@ -201,7 +201,7 @@ async function deleteSpace() {
 }
 
 async function getSpaceDocumentsObject(spaceId) {
-
+/*
     let lightDBEnclaveClient = enclave.initialiseLightDBEnclave(spaceId);
     try {
         let records = await $$.promisify(lightDBEnclaveClient.getAllRecords)($$.SYSTEM_IDENTIFIER, 'documents');
@@ -212,7 +212,7 @@ async function getSpaceDocumentsObject(spaceId) {
         }
     } catch (e) {
         console.log(e + "no documents yet");
-    }
+    }*/
 
     const spacePath = getSpacePath(spaceId)
     const documentsDirectoryPath = path.join(spacePath, 'documents');

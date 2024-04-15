@@ -1,5 +1,6 @@
+const path = require('path');
+const fsPromises = require('fs').promises;
 async function createDirectory(directoryPath) {
-    const fsPromises = require('fs').promises;
     try {
         await fsPromises.access(directoryPath);
         const error = new Error('Directory already exists');

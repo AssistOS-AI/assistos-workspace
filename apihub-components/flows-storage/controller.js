@@ -1,6 +1,7 @@
 const fsPromises = require('fs').promises;
 const path = require('path');
-
+const requestUtils= require('../apihub-component-utils/utils');
+const sendResponse = requestUtils.sendResponse;
 async function getDefaultItems(filePath) {
     let localData = [];
     const files = await fsPromises.readdir(filePath);
