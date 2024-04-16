@@ -6,7 +6,7 @@ export class DeleteDocument {
     }
     async start(context) {
         try {
-            await system.space.deleteDocument(context.documentId);
+            await assistOS.space.deleteDocument(context.documentId);
             this.return(context.documentId);
         } catch (e) {
             this.fail(e);

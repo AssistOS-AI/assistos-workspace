@@ -3,56 +3,56 @@ export class ApplicationsService {
     }
 
     async installApplication(appName) {
-        return await system.storage.installApplication(system.space.id, appName);
+        return await assistOS.storage.installApplication(assistOS.space.id, appName);
     }
 
     async uninstallApplication(appName) {
-        let response = await system.storage.uninstallApplication(system.space.id, appName);
+        let response = await assistOS.storage.uninstallApplication(assistOS.space.id, appName);
         if(response.status === 200){
-            await system.space.deleteApplication(appName);
+            await assistOS.space.deleteApplication(appName);
         }
         return response;
     }
 
 
     async changeApplicationLocation(appLocation, presenterParams) {
-        let baseURL = `${system.space.id}/${system.currentApplicationName}`
+        let baseURL = `${assistOS.space.id}/${assistOS.currentApplicationName}`
         let webComponentPage = appLocation.split("/").slice(-1)[0];
         let completeURL = [baseURL, appLocation].join("/");
-        await system.UI.changeToDynamicPage(webComponentPage, completeURL, presenterParams)
+        await assistOS.UI.changeToDynamicPage(webComponentPage, completeURL, presenterParams)
     }
 
     async initialiseApplication(appName) {
 
-        system.initialisedApplications[appName] = JSON.parse(await system.storage.getApplicationConfigs(system.space.id, appName));
-        if (system.initialisedApplications[appName].manager) {
-            let ManagerModule = await system.storage.getApplicationFile(system.space.id, appName, system.initialisedApplications[appName].manager.path)
-            system.initialisedApplications[appName].manager = new ManagerModule[system.initialisedApplications[appName].manager.name](appName);
-            await system.initialisedApplications[appName].manager.loadAppData?.();
+        assistOS.initialisedApplications[appName] = JSON.parse(await assistOS.storage.getApplicationConfigs(assistOS.space.id, appName));
+        if (assistOS.initialisedApplications[appName].manager) {
+            let ManagerModule = await assistOS.storage.getApplicationFile(assistOS.space.id, appName, assistOS.initialisedApplications[appName].manager.path)
+            assistOS.initialisedApplications[appName].manager = new ManagerModule[assistOS.initialisedApplications[appName].manager.name](appName);
+            await assistOS.initialisedApplications[appName].manager.loadAppData?.();
         }
 
-        for (let component of system.initialisedApplications[appName].components) {
+        for (let component of assistOS.initialisedApplications[appName].components) {
             let index =  component.name.indexOf("-");
             let prefix = component.name.substring(0, index);
             component.name= component.name.substring(index + 1);
             component = {
-                ...await this.getApplicationComponent(system.space.id, appName,system.initialisedApplications[appName].componentsDirPath,component),
+                ...await this.getApplicationComponent(assistOS.space.id, appName,assistOS.initialisedApplications[appName].componentsDirPath,component),
                 ...component
             }
             component.name = prefix + "-" + component.name;
-            system.UI.configs.components.push(component);
-            await system.UI.defineComponent(component);
+            assistOS.UI.configs.components.push(component);
+            await assistOS.UI.defineComponent(component);
         }
     }
     async getApplicationComponent(spaceId, appId, appComponentsDirPath, component) {
         const HTMLPath = `${appComponentsDirPath}/${component.name}/${component.name}.html`
         const CSSPath = `${appComponentsDirPath}/${component.name}/${component.name}.css`
-        let loadedTemplate = await (await system.storage.getApplicationFile(spaceId, appId, HTMLPath)).text();
-        let loadedCSSs = await (await system.storage.getApplicationFile(spaceId, appId, CSSPath)).text();
+        let loadedTemplate = await (await assistOS.storage.getApplicationFile(spaceId, appId, HTMLPath)).text();
+        let loadedCSSs = await (await assistOS.storage.getApplicationFile(spaceId, appId, CSSPath)).text();
         let presenterModule = "";
         if (component.presenterClassName) {
             const PresenterPath = `${appComponentsDirPath}/${component.name}/${component.name}.js`
-            presenterModule = await system.storage.getApplicationFile(spaceId, appId, PresenterPath);
+            presenterModule = await assistOS.storage.getApplicationFile(spaceId, appId, PresenterPath);
         }
         loadedCSSs = [loadedCSSs];
         return {loadedTemplate, loadedCSSs, presenterModule};
@@ -64,26 +64,26 @@ export class ApplicationsService {
         if (document.querySelector("left-sidebar") === null) {
             applicationContainer.insertAdjacentHTML("beforebegin", `<left-sidebar data-presenter="left-sidebar" ></left-sidebar>`);
         }
-        if (appName === system.defaultApplicationName) {
+        if (appName === assistOS.configuration.defaultApplicationName) {
             if(!applicationLocation){
                 applicationLocation = ["announcements-page"];
             }
-            await system.UI.changeToDynamicPage("space-configs-page", `${system.space.id}/SpaceConfiguration/${applicationLocation.join("/")}`)
+            await assistOS.UI.changeToDynamicPage("space-configs-page", `${assistOS.space.id}/SpaceConfiguration/${applicationLocation.join("/")}`)
             return;
         }
-        if (!system.initialisedApplications[appName]) {
-            await system.UI.showLoading();
+        if (!assistOS.initialisedApplications[appName]) {
+            await assistOS.UI.showLoading();
             await this.initialiseApplication(appName);
-            system.UI.hideLoading();
+            assistOS.UI.hideLoading();
         }
         try {
-            await system.initialisedApplications[appName].manager.navigateToLocation(applicationLocation, isReadOnly);
+            await assistOS.initialisedApplications[appName].manager.navigateToLocation(applicationLocation, isReadOnly);
         } catch (e) {
             console.error(`Encountered an Issue trying to navigate to ${applicationLocation} .Navigating to application entry point`);
-            await system.UI.changeToDynamicPage(system.initialisedApplications[appName].entryPointComponent,
-                `${system.space.id}/${appName}/${system.initialisedApplications[appName].entryPointComponent}`);
+            await assistOS.UI.changeToDynamicPage(assistOS.initialisedApplications[appName].entryPointComponent,
+                `${assistOS.space.id}/${appName}/${assistOS.initialisedApplications[appName].entryPointComponent}`);
         } finally {
-            system.currentApplicationName = appName;
+            assistOS.currentApplicationName = appName;
         }
     }
 }

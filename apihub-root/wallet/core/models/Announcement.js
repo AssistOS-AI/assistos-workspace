@@ -1,7 +1,7 @@
 export class Announcement {
     constructor(announcementData) {
         this.title = announcementData.title;
-        this.id = announcementData.id || system.services.generateId();
+        this.id = announcementData.id || assistOS.services.generateId();
         this.date = announcementData.date;
         this.text = announcementData.text;
     }

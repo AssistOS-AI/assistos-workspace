@@ -6,8 +6,7 @@ export class AddSpace {
     };
     async start(context) {
         try {
-            let newSpace = await system.factories.createSpace(context.name,context.apiKey);
-            await system.services.addSpaceToUser(system.user.id, newSpace);
+            let newSpace = await assistOS.services.createSpace(context.name,context.apiKey);
             this.return(newSpace);
         } catch (e) {
             this.fail(e);

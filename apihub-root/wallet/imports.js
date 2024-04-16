@@ -10,6 +10,7 @@ import { Settings } from "./core/models/Settings.js";
 import { Flow } from "./core/models/Flow.js";
 import {PageModel} from "./core/models/PageModel.js";
 import {Application} from "./core/models/Application.js";
+import {LLM} from "./core/models/LLM.js";
 
 export {
     Chapter,
@@ -23,6 +24,7 @@ export {
     Flow,
     PageModel,
     Application,
+    LLM
 };
 
 // Services
@@ -42,7 +44,7 @@ export {
 import {SaveElementTimer} from "./utils/saveElementTimer.js";
 import {validateOpenAiKey}  from "./utils/OpenAiUtils/validateAPIKey.js";
 import WebSkel from "../WebSkel/webSkel.js";
-import {changeSelectedPageFromSidebar} from "../System.js";
+import {changeSelectedPageFromSidebar} from "../AssistOS.js";
 export {
     SaveElementTimer,
     validateOpenAiKey,

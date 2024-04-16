@@ -18,7 +18,6 @@ export class AddFlowModal {
         this.flowCode.addEventListener("keydown", this.insertSpacesOnTab);
         this.flowCode.value = "class PascalCase {\n" +
             "\n" +
-            `   static id = "${system.services.generateId()}" \n` +
             "   static description = \"description\"; \n\n" +
             "   constructor(personality) {\n" +
             "       this.dependency = dependency;\n" +
@@ -138,12 +137,10 @@ export class AddFlowModal {
     async addFlow(_target) {
         let formInfo = await extractFormInformation(_target);
         if (formInfo.isValid) {
-            let flowId = system.space.getFlowIdByName("AddFlow");
-            let context = {
+            await assistOS.callFlow("AddFlow", {
                 code: formInfo.data.code
-            }
-            await system.services.callFlow(flowId, context);
-            system.space.notifyObservers(system.space.getNotificationId());
+            });
+            assistOS.space.notifyObservers(assistOS.space.getNotificationId());
             closeModal(_target);
         }
     }

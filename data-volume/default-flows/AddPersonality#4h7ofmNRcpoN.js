@@ -12,7 +12,7 @@ export class AddPersonality {
                 description: context.description,
                 image: context.photo
             };
-            await system.space.addPersonality(personalityData);
+            await assistOS.space.addPersonality(personalityData);
             this.return(personalityData);
         } catch (e) {
             this.fail(e);

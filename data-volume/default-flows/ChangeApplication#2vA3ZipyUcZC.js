@@ -17,9 +17,9 @@ export class ChangeApplication {
 
             if (context.pageId.startsWith("space")) {
                 let page = context.pageId.split("/")[1];
-                await system.UI.changeToDynamicPage(page, context.pageId);
+                await assistOS.UI.changeToDynamicPage(page, context.pageId);
             } else {
-                await system.UI.changeToDynamicPage(context.pageId, context.pageId);
+                await assistOS.UI.changeToDynamicPage(context.pageId, context.pageId);
             }
 
             this.return(context.pageId);

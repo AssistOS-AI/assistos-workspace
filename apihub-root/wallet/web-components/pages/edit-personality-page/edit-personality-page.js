@@ -1,7 +1,7 @@
 import {extractFormInformation, constants} from "../../../imports.js";
 export class EditPersonalityPage{
     constructor(element,invalidate) {
-        this.personality = system.space.getPersonality(window.location.hash.split("/")[3]);
+        this.personality = assistOS.space.getPersonality(window.location.hash.split("/")[3]);
         this.element = element;
         this.invalidate=invalidate;
         this.knowledgeArray = [];
@@ -49,7 +49,7 @@ export class EditPersonalityPage{
 
     async showPhoto(photoInput, event) {
         let photoContainer = this.element.querySelector(".personality-photo");
-        let encodedPhoto = await system.UI.imageUpload(photoInput.files[0]);
+        let encodedPhoto = await assistOS.UI.imageUpload(photoInput.files[0]);
         photoContainer.src = encodedPhoto;
         this.photo = encodedPhoto;
     }
@@ -57,7 +57,7 @@ export class EditPersonalityPage{
     async search(_target){
         let form = this.element.querySelector(".search");
         let formInfo = await extractFormInformation(form);
-        this.knowledgeArray = JSON.parse(await system.space.getAgent().loadFilteredKnowledge(formInfo.data.search));
+        this.knowledgeArray = JSON.parse(await assistOS.space.getAgent().loadFilteredKnowledge(formInfo.data.search));
         if(this.knowledgeArray.length === 0){
             this.knowledgeArray = ["Nothing found"];
         }
@@ -86,12 +86,10 @@ export class EditPersonalityPage{
                 description:formInfo.data.description,
                 image: formInfo.data.photo
             }
-            let flowId = system.space.getFlowIdByName("UpdatePersonality");
-            let context = {
+            await assistOS.callFlow("UpdatePersonality", {
                 personalityData: personalityData,
                 personalityId: this.personality.id
-            }
-            await system.services.callFlow(flowId, context);
+            });
             await this.openPersonalitiesPage();
         }
     }
@@ -100,7 +98,7 @@ export class EditPersonalityPage{
         let promiseArray = [];
         if(formInfo.isValid){
             for(let file of formInfo.data.files){
-                promiseArray.push(await system.UI.uploadFileAsText(file));
+                promiseArray.push(await assistOS.UI.uploadFileAsText(file));
             }
             let files = await Promise.all(promiseArray);
             alert("save knowledge TBD")
@@ -108,15 +106,13 @@ export class EditPersonalityPage{
     }
 
     async deletePersonality(){
-        let flowId = system.space.getFlowIdByName("DeletePersonality");
-        let context = {
+        await assistOS.callFlow("DeletePersonality", {
             personalityId: this.personality.id
-        }
-        await system.services.callFlow(flowId, context);
+        });
         await this.openPersonalitiesPage();
     }
 
     async openPersonalitiesPage(){
-      await system.UI.changeToDynamicPage("space-configs-page", `${system.space.id}/SpaceConfiguration/personalities-page`);
+      await assistOS.UI.changeToDynamicPage("space-configs-page", `${assistOS.space.id}/SpaceConfiguration/personalities-page`);
     }
 }

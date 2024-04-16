@@ -5,10 +5,10 @@ space-dropdown {
 .space-container {
     display: flex;
     cursor: pointer;
-    background-color: var(--white-text);
-    border-radius: 10px;
-    border-color: #0000000D;
     padding: 5px 5px 5px 8px;
+    border-radius: 10px;
+    background-color: #EAF4FC;
+    border: 1px solid #0000000D
 }
 
 .current-space-btn {

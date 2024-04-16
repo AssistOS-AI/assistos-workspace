@@ -8,7 +8,8 @@ export class AgentPage {
     constructor(element, invalidate) {
         this.element = element;
         this.invalidate = invalidate;
-        this.agent = system.space.getAgent();
+        assistOS.space.observeChange(assistOS.space.getNotificationId(),invalidate);
+        this.agent = assistOS.space.getAgent();
         this.invalidate();
     }
 
@@ -28,28 +29,6 @@ export class AgentPage {
             }
         }
         this.conversationHistory = stringHTML;
-        let personalities = "";
-        for(let personality of system.space.personalities){
-            if(personality.id === system.space.currentPersonalityId){
-                continue;
-            }
-            personalities += `<div class="personality-card" data-local-action="changePersonality ${personality.id}">
-                                <span class="personality-name">${personality.name}</span>
-                              </div>`;
-        }
-        this.personalitiesList = personalities;
-        let llms = "";
-        for(let llm of system.space.llms){
-            if(llm === system.space.currentLlmId){
-                continue;
-            }
-            llms += `<div class="llm-card" data-local-action="changeLlm ${llm}">
-                        <span class="llm-name">${llm}</span>
-                      </div>`;
-        }
-        this.llmsList = llms;
-        this.currentAgentName =  system.space.getAgent().name;
-        this.currentLlmName =  system.space.getLlm();
     }
 
     resizeTextarea() {
@@ -68,65 +47,38 @@ export class AgentPage {
         this.userInput.addEventListener("keydown", this.boundFn);
         setTimeout(async () => {
             if (this.agent.conversationHistory.length === 0) {
-                await system.services.initOpeners();
+                await assistOS.services.initOpeners();
                 let message = this.agent.getRandomOpener();
                 await this.displayMessage("assistant", message);
                 await this.agent.addMessage("assistant", message);
-                await system.services.addCapabilities();
+                await assistOS.services.addCapabilities();
             }
         }, 0);
 
     }
-    hidePersonalities(controller, container, event) {
-        container.setAttribute("data-local-action", "showPersonalities off");
-        let target = this.element.querySelector(".personalities-list-container");
+    hideSettings(controller, container, event) {
+        container.setAttribute("data-local-action", "showSettings off");
+        let target = this.element.querySelector(".settings-list-container");
         target.style.display = "none";
         controller.abort();
-        let arrow = container.querySelector(".arrow");
-        arrow.classList.add("rotated");
     }
 
-    showPersonalities(_target, mode) {
+    showSettings(_target, mode) {
         if (mode === "off") {
-            let target = this.element.querySelector(".personalities-list-container");
+            let target = this.element.querySelector(".settings-list-container");
             target.style.display = "flex";
-            let arrow = _target.querySelector(".arrow");
-            arrow.classList.remove("rotated");
             let controller = new AbortController();
-            document.addEventListener("click", this.hidePersonalities.bind(this, controller, _target), {signal: controller.signal});
-            _target.setAttribute("data-local-action", "showPersonalities on");
+            document.addEventListener("click", this.hideSettings.bind(this, controller, _target), {signal: controller.signal});
+            _target.setAttribute("data-local-action", "showSettings on");
         }
     }
 
-    hideLlms(controller, container, event) {
-        container.setAttribute("data-local-action", "showLlms off");
-        let target = this.element.querySelector(".llms-list");
-        target.style.display = "none";
-        controller.abort();
-        let arrow = container.querySelector(".arrow");
-        arrow.classList.add("rotated");
-    }
-
-    showLlms(_target, mode) {
-        if (mode === "off") {
-            let target = this.element.querySelector(".llms-list");
-            target.style.display = "flex";
-            let arrow = _target.querySelector(".arrow");
-            arrow.classList.remove("rotated");
-            let controller = new AbortController();
-            document.addEventListener("click", this.hideLlms.bind(this, controller, _target), {signal: controller.signal});
-            _target.setAttribute("data-local-action", "showLlms on");
-        }
-    }
-    changeLlm(_target, id){
-        system.space.setLlm(id);
-        this.invalidate();
+    async changeLLM(_target){
+       await assistOS.UI.showModal("change-llm-modal");
     }
 
     async changePersonality(_target, id){
-        await system.space.setAgent(id);
-        this.agent = system.space.getAgent();
-        this.invalidate();
+        await assistOS.UI.showModal("change-personality-modal");
     }
     async displayMessage(role, text) {
         let reply;
@@ -171,7 +123,7 @@ export class AgentPage {
         await this.displayMessage("user", userPrompt);
         let agentMessage;
         try {
-            agentMessage = await system.services.analyzeRequest(formInfo.data.input, this.refreshRightPanel.bind(this));
+            agentMessage = await assistOS.services.analyzeRequest(formInfo.data.input, this.refreshRightPanel.bind(this));
         }catch (e) {
             console.error(e);
             agentMessage = "I am sorry, something went wrong while analyzing your request. Please try again.";
@@ -181,13 +133,13 @@ export class AgentPage {
     }
 
     refreshRightPanel(){
-        let parentComponent = system.UI.getClosestParentElement(this.element, "space-configs-page");
+        let parentComponent = assistOS.UI.getClosestParentElement(this.element, "space-configs-page");
         let rightPanel = parentComponent.querySelector(".current-page");
-        system.UI.refreshElement(rightPanel);
+        assistOS.UI.refreshElement(rightPanel);
     }
 
     async resetConversation() {
-        await system.services.resetConversation();
+        await assistOS.services.resetConversation();
         this.invalidate();
     }
 }

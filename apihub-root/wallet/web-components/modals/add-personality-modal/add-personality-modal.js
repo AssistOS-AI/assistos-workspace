@@ -31,15 +31,12 @@ export class AddPersonalityModal {
         const conditions = {"verifyPhotoSize": {fn:verifyPhotoSize, errorMessage:"Image too large! Image max size: 1MB"} };
         let formInfo = await extractFormInformation(_target, conditions);
         if(formInfo.isValid) {
-
-            let flowId = system.space.getFlowIdByName("AddPersonality");
-            let context = {
+            await assistOS.callFlow("AddPersonality", {
                 name: formInfo.data.name,
                 description: formInfo.data.description,
                 photo: formInfo.data.photo
-            }
-            await system.services.callFlow(flowId, context);
-            system.space.notifyObservers(system.space.getNotificationId());
+            });
+            assistOS.space.notifyObservers(assistOS.space.getNotificationId());
             closeModal(_target);
         }
     }

@@ -3,7 +3,7 @@ export class DeleteFlow {
     static description = "Deletes a flow";
     async start(context) {
         try {
-            await system.space.deleteFlow(context.flowId, context.appId);
+            await assistOS.space.deleteFlow(context.flowId, context.appId);
             this.return(context.flowId);
         } catch (e) {
             this.fail(e);

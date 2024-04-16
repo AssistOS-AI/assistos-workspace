@@ -50,7 +50,7 @@ async function storeAppObject(appName, objectType, objectId, stringData) {
     objectId = encodeURIComponent(objectId);
     let result;
     try {
-        result = await fetch(`/app/${system.space.id}/applications/${appName}/${objectType}/${objectId}`,
+        result = await fetch(`/app/${assistOS.space.id}/applications/${appName}/${objectType}/${objectId}`,
             {
                 method: "PUT",
                 body: stringData,
@@ -67,7 +67,7 @@ async function storeAppObject(appName, objectType, objectId, stringData) {
 async function loadAppObjects(appName, objectType) {
     let result;
     try {
-        result = await fetch(`/app/${system.space.id}/applications/${appName}/${objectType}`,
+        result = await fetch(`/app/${assistOS.space.id}/applications/${appName}/${objectType}`,
             {
                 method: "GET"
             });

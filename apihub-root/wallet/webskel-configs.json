@@ -4,6 +4,16 @@
     "services": [],
     "components": [
         {
+            "name": "change-personality-modal",
+            "type": "modals",
+            "presenterClassName": "ChangePersonalityModal"
+        },
+        {
+            "name": "change-llm-modal",
+            "type": "modals",
+            "presenterClassName": "ChangeLlmModal"
+        },
+        {
             "name": "space-chapter-unit",
             "type": "components",
             "presenterClassName": "SpaceChapterUnit"

@@ -6,17 +6,14 @@ export class RequestParameters {
     }
 
     async start(context) {
-        let flow = system.space.getFlow(context.flowId);
+        let flow = assistOS.space.getFlow(context.flowId);
         let parameters = Object.keys(flow.class.inputSchema).filter((key) => {
             return context.missingParameters.includes(key);
         });
-        this.prompt = `Your task right now is to formulate a statement or a question in which you require the user to provide you with these missing parameters: ${JSON.stringify(parameters)} for this operation: ${flow.class.description}.`;
-        await this.execute();
-    }
-
-    async execute() {
-        let agent = system.space.getAgent();
-        let response = await this.chatbot(this.prompt, "", agent.getContext());
+        let prompt = `Your task right now is to formulate a statement or a question in which you require the user to provide you with these missing parameters: ${JSON.stringify(parameters)} for this operation: ${flow.class.description}.`;
+        let agent = assistOS.space.getAgent();
+        let llm = assistOS.space.getLLM();
+        let response = await llm.chatbot(prompt, "", agent.getContext());
         this.return(response);
     }
 }

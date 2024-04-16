@@ -3,9 +3,9 @@ export class DeleteSpace {
     static description = "Deletes a space";
     async start(context) {
         try {
-            await system.storage.storeSpace(context.spaceId, "");
-            await system.services.removeSpaceFromUser(system.user.id, context.spaceId);
-            await system.space.changeSpace(system.user.id);
+            await assistOS.storage.storeSpace(context.spaceId, "");
+            await assistOS.services.removeSpaceFromUser(assistOS.user.id, context.spaceId);
+            await assistOS.space.changeSpace(assistOS.user.id);
             this.return(context.spaceId);
         } catch (e) {
             this.fail(e);

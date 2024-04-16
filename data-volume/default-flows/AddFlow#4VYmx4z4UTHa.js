@@ -12,7 +12,7 @@ export class AddFlow {
             context.code = "return " + context.code;
             const classConstructor = new Function(context.code);
             let flowClass = classConstructor();
-            await system.space.addFlow(flowClass);
+            await assistOS.space.addFlow(flowClass);
             this.return(flowClass.name);
         } catch (e) {
             this.fail(e);

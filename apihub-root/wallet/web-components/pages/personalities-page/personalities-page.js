@@ -2,23 +2,23 @@ export class PersonalitiesPage {
     constructor(element,invalidate) {
         this.modal = "showAddPersonalityModal";
         this.element = element;
-        this.notificationId = system.space.getNotificationId();
-        system.space.observeChange(this.notificationId,invalidate);
+        this.notificationId = assistOS.space.getNotificationId();
+        assistOS.space.observeChange(this.notificationId,invalidate);
         this.invalidate=invalidate;
         this.invalidate();
     }
     beforeRender() {
         this.personalityBlocks = "";
-        if (system.space.personalities.length > 0) {
-            system.space.personalities.forEach((item) => {
+        if (assistOS.space.personalities.length > 0) {
+            assistOS.space.personalities.forEach((item) => {
                 this.personalityBlocks += `<personality-unit data-name="${item.name}" data-description="${item.description}" data-id="${item.id}" data-image="${item.image || "./wallet/assets/images/default-personality.png"}"></personality-unit>`;
             });
         }
     }
     setContext(){
-        system.context = {
+        assistOS.context = {
             "location and available actions":"You are in the page Personalities. Here you can add, edit or delete personalities.",
-            "available items": system.space.personalities.map((personality)=>personality.simplify())
+            "available items": assistOS.space.personalities.map((personality)=>personality.simplify())
         }
     }
     expandTable(){
@@ -45,11 +45,11 @@ export class PersonalitiesPage {
         this.setContext();
     }
     async showAddPersonalityModal() {
-        await system.UI.showModal("add-personality-modal", { presenter: "add-personality-modal"});
+        await assistOS.UI.showModal("add-personality-modal");
     }
 
     async selectPersonality(_target){
-        let personalityId = system.UI.reverseQuerySelector(_target, "personality-unit").getAttribute("data-id");
-        await system.UI.changeToDynamicPage("space-configs-page", `${system.space.id}/SpaceConfiguration/edit-personality-page/${personalityId}`);
+        let personalityId = assistOS.UI.reverseQuerySelector(_target, "personality-unit").getAttribute("data-id");
+        await assistOS.UI.changeToDynamicPage("space-configs-page", `${assistOS.space.id}/SpaceConfiguration/edit-personality-page/${personalityId}`);
     }
 }

@@ -12,7 +12,7 @@ export class Application {
     }
 
     async loadFlows(){
-        let flows = await system.storage.loadAppFlows(system.space.id, this.name);
+        let flows = await assistOS.storage.loadAppFlows(assistOS.space.id, this.name);
         for (let [name, flowClass] of Object.entries(flows)) {
             this.flows.push(new Flow(flowClass));
         }
@@ -20,11 +20,19 @@ export class Application {
     stringifyApplication(){
         return {
             id: this.id,
-            name:this.name,
+            name: this.name,
             description: this.description,
-            installationDate:this.installationDate,
+            installationDate: this.installationDate,
             lastUpdate: this.lastUpdate,
             flowsBranch: this.flowsBranch
         };
+    }
+
+    getFlow(flowName){
+        let flow = this.flows.find(flow => flow.name === flowName);
+        if(!flow){
+            flow = assistOS.space.getFlow(flowName);
+        }
+        return flow || console.error(`Flow not found in application ${this.name} or in space, flow name: ${flowName}`);
     }
 }

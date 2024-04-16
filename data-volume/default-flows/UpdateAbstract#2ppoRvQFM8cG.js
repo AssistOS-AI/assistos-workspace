@@ -7,7 +7,7 @@ export class UpdateAbstract {
     }
     async start(context) {
         try {
-            let document = system.space.getDocument(context.documentId);
+            let document = assistOS.space.getDocument(context.documentId);
             await document.updateAbstract(context.text);
             this.return(context.documentId);
         } catch (e) {

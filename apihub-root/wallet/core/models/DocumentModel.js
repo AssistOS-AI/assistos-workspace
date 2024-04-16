@@ -1,8 +1,8 @@
-import {Chapter, Paragraph} from "../../imports.js"
+import {Chapter} from "../../imports.js"
 
 export class DocumentModel {
     constructor(documentData) {
-        this.id = documentData.id || system.services.generateId();
+        this.id = documentData.id || assistOS.services.generateId();
         this.title = documentData.title || "";
         this.abstract = documentData.abstract || "";
         this.topic = documentData.topic||"";
@@ -12,6 +12,7 @@ export class DocumentModel {
         this.currentChapterId = null;
         this.observers = [];
         this.mainIdeas = documentData.mainIdeas || [];
+        this.position = documentData.position;
     }
 
     toString() {
@@ -56,10 +57,10 @@ export class DocumentModel {
         }
     }
 
-    async addChapter(chapterData, position=0) {
+    async addChapter(chapterData) {
         //if position is not specified splice converts undefined to 0
-        this.chapters.splice(position,0,new Chapter(chapterData));
-        await system.factories.updateDocument(system.space.id, this);
+        let chapterObj = JSON.parse(await assistOS.storage.addChapter(assistOS.space.id, this.id, chapterData));
+        this.chapters.splice(chapterObj.position,0,new Chapter(chapterObj));
     }
 
     async addChapters(chaptersData){
@@ -73,7 +74,7 @@ export class DocumentModel {
             this.chapters.push(newChapter);
             newChapter.addParagraphs(chaptersData[i].paragraphs);
         }
-        await system.factories.updateDocument(system.space.id, this);
+        await assistOS.factories.updateDocument(assistOS.space.id, this);
     }
     async addEmptyChapters(chaptersData){
         for(let i= 0; i < chaptersData.titles.length; i++){
@@ -85,7 +86,7 @@ export class DocumentModel {
             let newChapter = new Chapter(chapterData);
             this.chapters.push(newChapter);
         }
-        await system.factories.updateDocument(system.space.id, this);
+        await assistOS.factories.updateDocument(assistOS.space.id, this);
     }
 
     getAlternativeAbstract(id){
@@ -94,7 +95,7 @@ export class DocumentModel {
 
     async addAlternativeAbstract(abstractObj){
         this.alternativeAbstracts.push(abstractObj);
-        await system.factories.updateDocument(system.space.id, this);
+        await assistOS.factories.updateDocument(assistOS.space.id, this);
     }
 
     async deleteAlternativeAbstract(id){
@@ -104,20 +105,20 @@ export class DocumentModel {
         }else {
             console.warn(`Failed to find alternative abstract with id: ${id}`);
         }
-        await system.factories.updateDocument(system.space.id, this);
+        await assistOS.factories.updateDocument(assistOS.space.id, this);
     }
     async deleteAlternativeTitle(altTitleId) {
         const index = this.alternativeTitles.findIndex(altTitle => altTitle.id === altTitleId);
         if (index !== -1) {
             this.alternativeTitles.splice(index, 1);
         }
-        await system.factories.updateDocument(system.space.id, this);
+        await assistOS.factories.updateDocument(assistOS.space.id, this);
     }
     async updateAlternativeAbstract(id, newContent){
         let abstract = this.getAlternativeAbstract(id);
         if(abstract){
             abstract.content = newContent;
-            await system.factories.updateDocument(system.space.id, this);
+            await assistOS.factories.updateDocument(assistOS.space.id, this);
         }else {
             console.warn(`Failed to find alternative abstract with id: ${id}`);
         }
@@ -125,11 +126,11 @@ export class DocumentModel {
     async updateAlternativeTitle(id,text){
         let alternativeTitle= this.getAlternativeTitle(id)
         alternativeTitle.title=text;
-        await system.factories.updateDocument(system.space.id, this);
+        await assistOS.factories.updateDocument(assistOS.space.id, this);
     }
     async addAlternativeTitles(alternativeTitles){
         for(let title of alternativeTitles){
-            title.id=system.services.generateId();
+            title.id=assistOS.services.generateId();
         }
         this.alternativeTitles.push(...alternativeTitles);
     }
@@ -139,12 +140,12 @@ export class DocumentModel {
     }
     async setMainIdeas(ideas){
         this.mainIdeas = ideas;
-        await system.factories.updateDocument(system.space.id, this);
+        await assistOS.factories.updateDocument(assistOS.space.id, this);
     }
 
     async updateAbstract(abstractText) {
         this.abstract = abstractText;
-        await system.factories.updateDocument(system.space.id, this);
+        await assistOS.storage.updateDocumentAbstract(assistOS.space.id, this.id, abstractText);
     }
 
     /* left shift(decrement) the ids to the right of the deleted chapter? */
@@ -152,7 +153,7 @@ export class DocumentModel {
         const index = this.chapters.findIndex(chapter => chapter.id === chapterId);
         if (index !== -1) {
             this.chapters.splice(index, 1);
-            await system.factories.updateDocument(system.space.id, this);
+            await assistOS.storage.deleteChapter(assistOS.space.id, this.id, chapterId);
         }
     }
 
@@ -181,7 +182,7 @@ export class DocumentModel {
 
     async updateTitle(title) {
         this.title = title;
-        await system.factories.updateDocument(system.space.id, this);
+        await assistOS.storage.updateDocumentTitle(assistOS.space.id, this.id, title);
     }
     getAlternativeAbstractIndex(alternativeAbstractId) {
         return this.alternativeAbstracts.findIndex(abstract => abstract.id === alternativeAbstractId);
@@ -192,8 +193,8 @@ export class DocumentModel {
             let currentTitle = this.title;
             this.title = this.alternativeTitles[alternativeTitleIndex].title;
             this.alternativeTitles.splice(alternativeTitleIndex, 1);
-            this.alternativeTitles.splice(alternativeTitleIndex,0,{id: system.services.generateId(), title: currentTitle});
-            await system.factories.updateDocument(system.space.id, this);
+            this.alternativeTitles.splice(alternativeTitleIndex,0,{id: assistOS.services.generateId(), title: currentTitle});
+            await assistOS.factories.updateDocument(assistOS.space.id, this);
         }else{
             console.warn("Attempting to select alternative title that doesn't exist in this document.");
         }
@@ -204,8 +205,8 @@ export class DocumentModel {
             let currentAbstract = this.abstract;
             this.abstract = this.alternativeAbstracts[alternativeAbstractIndex].content;
             this.alternativeAbstracts.splice(alternativeAbstractIndex, 1);
-            this.alternativeAbstracts.splice(alternativeAbstractIndex,0,{id: system.services.generateId(), content: currentAbstract});
-            await system.factories.updateDocument(system.space.id, this);
+            this.alternativeAbstracts.splice(alternativeAbstractIndex,0,{id: assistOS.services.generateId(), content: currentAbstract});
+            await assistOS.factories.updateDocument(assistOS.space.id, this);
         }else{
             console.warn("Attempting to select alternative abstract that doesn't exist in this document.");
         }

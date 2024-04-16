@@ -10,7 +10,7 @@ export class AddDocument {
                 title: context.title,
                 topic: context.topic,
             };
-            let docId = await system.space.addDocument(docData);
+            let docId = await assistOS.space.addDocument(docData);
             this.return(docId);
         } catch (e) {
             this.fail(e);

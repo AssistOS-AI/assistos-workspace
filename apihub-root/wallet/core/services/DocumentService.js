@@ -9,16 +9,16 @@ export class DocumentService {
     }
 
     async addDocument(spaceId, documentObj) {
-        system.space.documents.unshift(documentObj);
-        await system.storage.storeObject(spaceId, "documents", documentObj.id, documentObj.stringifyDocument());
+        assistOS.space.documents.unshift(documentObj);
+        await assistOS.storage.storeObject(spaceId, "documents", documentObj.id, documentObj.stringifyDocument());
     }
     async updateDocument(spaceId, documentObj) {
-        await system.storage.storeObject(spaceId, "documents", documentObj.id, documentObj.stringifyDocument());
+        await assistOS.storage.storeObject(spaceId, "documents", documentObj.id, documentObj.stringifyDocument());
     }
 
     async deleteDocument(spaceId, documentId) {
-        system.space.deleteDocument(documentId);
-        await system.storage.storeObject(system.space.id, "documents", documentId, "");
+        assistOS.space.deleteDocument(documentId);
+        await assistOS.storage.storeObject(assistOS.space.id, "documents", documentId, "");
     }
 
     observeChange(elementId, callback) {

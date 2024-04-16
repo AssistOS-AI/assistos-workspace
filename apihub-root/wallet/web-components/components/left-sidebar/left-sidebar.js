@@ -9,8 +9,8 @@ export class LeftSidebar {
 
     beforeRender() {
         this.applications = "";
-        for (let application of system.space.installedApplications) {
-            let applicationData = system.applications[application.name];
+        for (let application of assistOS.space.installedApplications) {
+            let applicationData = assistOS.applications[application.name];
             let svgImage = applicationData.encodedSvg;
             this.applications += `
             <div class="feature" data-id="${applicationData.name.toLowerCase()}" data-local-action="startApplication ${applicationData.id}">
@@ -26,7 +26,7 @@ export class LeftSidebar {
 
     async startApplication(_target, appName) {
         //this.changeBaseURL(appName);
-        await system.services.startApplication(appName);
+        await assistOS.services.startApplication(appName);
         changeSelectedPageFromSidebar(window.location.hash);
     }
 
@@ -77,12 +77,10 @@ export class LeftSidebar {
     }
 
     async changePage(_target, pageId, applicationId, refreshFlag = '0') {
-        let flowId = system.space.getFlowIdByName("ChangeApplication");
-        let context = {
+        await assistOS.callFlow("ChangeApplication", {
             pageId: pageId,
             refreshFlag: refreshFlag
-        }
-        await system.services.callFlow(flowId, context);
+        });
         getClosestParentElement(_target, ".feature").setAttribute("id", "selected-page");
         let paths = _target.querySelectorAll("path");
         paths.forEach((path) => {

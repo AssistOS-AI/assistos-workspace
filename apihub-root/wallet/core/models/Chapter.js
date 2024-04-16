@@ -2,8 +2,9 @@ import { Paragraph } from "../../imports.js";
 
 export class Chapter {
     constructor(chapterData) {
+        this.position = chapterData.position;
         this.title = chapterData.title;
-        this.id = chapterData.id || system.services.generateId();
+        this.id = chapterData.id || assistOS.services.generateId();
         this.visibility = "show";
         this.paragraphs = [];
         this.alternativeChapters=[]
@@ -46,9 +47,9 @@ export class Chapter {
         return JSON.stringify(this, replacer);
     }
 
-    addParagraph(paragraphData,paragraphPosition){
+    addParagraph(paragraphData){
         //if position is not specified splice converts undefined to 0
-        this.paragraphs.splice(paragraphPosition,0,new Paragraph(paragraphData));
+        this.paragraphs.splice(paragraphData.position,0,new Paragraph(paragraphData));
     }
 
     addParagraphs(paragraphsData){
@@ -73,7 +74,7 @@ export class Chapter {
     }
     addAlternativeTitles(alternativeTitles) {
         for(let title of alternativeTitles){
-            title.id=system.services.generateId();
+            title.id=assistOS.services.generateId();
         }
         this.alternativeTitles.push(...alternativeTitles);
     }
@@ -106,7 +107,7 @@ export class Chapter {
     selectAlternativeTitle(alternativeTitleId) {
         let alternativeTitleIndex= this.getAlternativeTitleIndex(alternativeTitleId);
         if(alternativeTitleIndex !== -1) {
-            let currentTitle = {title:this.title,id:system.services.generateId()};
+            let currentTitle = {title:this.title,id:assistOS.services.generateId()};
             this.title = this.alternativeTitles[alternativeTitleIndex].title;
             this.alternativeTitles[alternativeTitleIndex] = currentTitle;
         }else{

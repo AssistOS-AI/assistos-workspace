@@ -11,7 +11,7 @@ export class EditFlowModal {
     }
 
     beforeRender() {
-      let flow = system.space.getFlow(this.element.getAttribute("data-id"));
+      let flow = assistOS.space.getFlow(this.element.getAttribute("data-name"));
         /* TODO Replace getting the flowname from the class name with a static methot getName on the
                 flow itself
          */
@@ -63,15 +63,13 @@ export class EditFlowModal {
         let form = this.element.querySelector("form")
         let formInfo = await extractFormInformation(form);
         if(formInfo.isValid) {
-            let flowId = this.element.getAttribute("data-id");
-            let execFlowId = system.space.getFlowIdByName("UpdateFlow");
-            let context = {
-                flowId: flowId,
+            let flowName = this.element.getAttribute("data-name");
+            await assistOS.callFlow("UpdateFlow", {
+                flowName: flowName,
                 flowData: formInfo.data.flowCode,
                 appId: this.element.getAttribute("data-appId")
-            }
-            await system.services.callFlow(execFlowId, context);
-            system.space.notifyObservers(system.space.getNotificationId());
+            });
+            assistOS.space.notifyObservers(assistOS.space.getNotificationId());
             closeModal(_target);
         }
     }

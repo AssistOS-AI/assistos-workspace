@@ -6,7 +6,7 @@ export class UpdateFlow {
             context.flowData = "return " + context.flowData;
             const classConstructor = new Function(context.flowData);
             const flowClass = classConstructor();
-            await system.space.updateFlow(context.flowId, flowClass, context.appId);
+            await assistOS.space.updateFlow(context.flowId, flowClass, context.appId);
             this.return(context.flowId);
         } catch (e) {
             this.fail(e);

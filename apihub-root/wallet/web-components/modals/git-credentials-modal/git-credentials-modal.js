@@ -6,7 +6,7 @@ export class GitCredentialsModal {
         this.invalidate();
     }
     closeModal(_target) {
-        system.UI.closeModal(_target);
+        assistOS.UI.closeModal(_target);
     }
     beforeRender() {}
 
@@ -21,9 +21,9 @@ export class GitCredentialsModal {
                 secretName: "token",
                 secret: formData.data.token
             }
-            await system.services.storeGITCredentials(JSON.stringify(usernameSecret));
-            await system.services.storeGITCredentials(JSON.stringify(tokenSecret));
-            system.UI.closeModal(_target, true);
+            await assistOS.services.storeGITCredentials(JSON.stringify(usernameSecret));
+            await assistOS.services.storeGITCredentials(JSON.stringify(tokenSecret));
+            assistOS.UI.closeModal(_target, true);
         }
     }
 }

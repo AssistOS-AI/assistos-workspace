@@ -7,9 +7,9 @@ export class ApplicationUnit{
         this.invalidate();
     }
     getApp() {
-        for (let name of Object.keys(system.applications)) {
+        for (let name of Object.keys(assistOS.applications)) {
             if (name === this.appName) {
-                return system.applications[name];
+                return assistOS.applications[name];
             }
         }
         return null; // Object not found
@@ -18,7 +18,7 @@ export class ApplicationUnit{
         this.installed = false;
         this.appName = this.element.getAttribute("data-name");
         this.app = this.getApp();
-        for (let installedApplication of system.space.installedApplications) {
+        for (let installedApplication of assistOS.space.installedApplications) {
             if (installedApplication.name === this.appName) {
                 this.installed = true;
             }
@@ -36,35 +36,35 @@ export class ApplicationUnit{
     afterRender(){
     }
     async installApplication() {
-        const loadingId = await system.UI.showLoading();
-        let response = await system.services.installApplication(this.appName);
+        const loadingId = await assistOS.UI.showLoading();
+        let response = await assistOS.services.installApplication(this.appName);
         if(response.status === 404)    {
-           let confirmation = await system.UI.showModal("git-credentials-modal", true);
+           let confirmation = await assistOS.UI.showModal("git-credentials-modal", true);
            if(confirmation){
                await this.installApplication();
            }
         }else {
-            system.UI.hideLoading(loadingId);
+            assistOS.UI.hideLoading(loadingId);
             location.reload();
         }
     }
     async uninstallApplication() {
-        const loadingId = await system.UI.showLoading();
-        let response = await system.services.uninstallApplication(this.appName);
+        const loadingId = await assistOS.UI.showLoading();
+        let response = await assistOS.services.uninstallApplication(this.appName);
         if(response.status === 404){
-            let confirmation = await system.UI.showModal("git-credentials-modal", true);
+            let confirmation = await assistOS.UI.showModal("git-credentials-modal", true);
             if(confirmation){
                 await this.uninstallApplication();
             }
         }else {
-            system.UI.hideLoading(loadingId);
+            assistOS.UI.hideLoading(loadingId);
             location.reload();
         }
     }
 
     async navigateToApplicationPage(){
         if(this.installed){
-            await system.UI.changeToDynamicPage("space-configs-page", `${system.space.id}/SpaceConfiguration/application-page/${this.appName}`);
+            await assistOS.UI.changeToDynamicPage("space-configs-page", `${assistOS.space.id}/SpaceConfiguration/application-page/${this.appName}`);
         }
     }
 

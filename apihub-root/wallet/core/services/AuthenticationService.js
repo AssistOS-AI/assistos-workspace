@@ -8,11 +8,11 @@ export class AuthenticationService {
     }
 
     async initUser(spaceId) {
-        system.user = new User(await system.storage.loadUser());
-        const spaceData = await system.storage.loadSpace(spaceId)
-        system.space = new Space(spaceData);
-        await system.space.loadFlows();
-        await system.space.loadApplicationsFlows();
+        assistOS.user = new User(await assistOS.storage.loadUser());
+        const spaceData = await assistOS.storage.loadSpace(spaceId)
+        assistOS.space = new Space(spaceData);
+        await assistOS.space.loadFlows();
+        await assistOS.space.loadApplicationsFlows();
     }
 
     getCookieValue(cookieName) {
@@ -42,31 +42,31 @@ export class AuthenticationService {
     }
 
     async registerUser(name, email, password) {
-        return await system.storage.registerUser(name, email, password);
+        return await assistOS.storage.registerUser(name, email, password);
 
     }
 
     async activateUser(activationToken) {
-        return await system.storage.activateUser(activationToken);
+        return await assistOS.storage.activateUser(activationToken);
     }
 
     async loginUser(email, password) {
-        return await system.storage.loginUser(email, password);
+        return await assistOS.storage.loginUser(email, password);
     }
 
     async logoutUser() {
-        return await system.storage.logoutUser();
+        return await assistOS.storage.logoutUser();
     }
 
     async addKeyToSpace(spaceId, userId, keyType, apiKey) {
-        return system.storage.addKeyToSpace(spaceId, userId, keyType, apiKey);
+        return assistOS.storage.addKeyToSpace(spaceId, userId, keyType, apiKey);
     }
 
     async storeGITCredentials(stringData) {
-        return await system.storage.storeGITCredentials(system.space.id, system.user.id, stringData);
+        return await assistOS.storage.storeGITCredentials(assistOS.space.id, assistOS.user.id, stringData);
     }
 
     async getUsersSecretsExist() {
-        return await system.storage.getUsersSecretsExist(system.space.id);
+        return await assistOS.storage.getUsersSecretsExist(assistOS.space.id);
     }
 }

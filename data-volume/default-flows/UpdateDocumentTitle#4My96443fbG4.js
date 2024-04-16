@@ -7,7 +7,7 @@ export class UpdateDocumentTitle {
     }
     async start(context) {
         try {
-            let document = system.space.getDocument(context.documentId);
+            let document = assistOS.space.getDocument(context.documentId);
             await document.updateTitle(context.title);
             this.return(context.title);
         } catch (e) {

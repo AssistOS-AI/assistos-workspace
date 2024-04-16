@@ -6,7 +6,7 @@ export class AuthenticationPage {
         this.invalidate = invalidate;
         this.invalidate();
         this.rotations = 0;
-        [this.demoUserEmail, this.demoUserPassword]=system.services.getDemoUserCredentials();
+        [this.demoUserEmail, this.demoUserPassword]=assistOS.services.getDemoUserCredentials();
     }
     getDemoUserCredentials(){
 
@@ -235,11 +235,11 @@ export class AuthenticationPage {
     }
 
     async navigateToRegisterPage() {
-        await system.UI.changeToDynamicPage("authentication-page", "authentication-page", {subpage: "register-page"});
+        await assistOS.UI.changeToDynamicPage("authentication-page", "authentication-page", {subpage: "register-page"});
     }
 
     async navigateToLoginPage() {
-        await system.UI.changeToDynamicPage("authentication-page", "authentication-page", {subpage: "login-page"});
+        await assistOS.UI.changeToDynamicPage("authentication-page", "authentication-page", {subpage: "login-page"});
     }
 
     async registerUser(_target) {
@@ -247,7 +247,7 @@ export class AuthenticationPage {
         if (formInfo.isValid) {
             this.formData = formInfo.data;
             const {name, email, password} = formInfo.data;
-            await system.services.registerUser(name, email, password);
+            await assistOS.services.registerUser(name, email, password);
             this.invalidate(async () => {
                 this.element.setAttribute("data-subpage", "register-confirmation")
             })
@@ -257,8 +257,8 @@ export class AuthenticationPage {
     async activateUser() {
         const activationToken = this.element.querySelector("#user-token").value;
         try {
-            await system.services.activateUser(activationToken);
-            await system.UI.changeToDynamicPage("authentication-page", "authentication-page");
+            await assistOS.services.activateUser(activationToken);
+            await assistOS.UI.changeToDynamicPage("authentication-page", "authentication-page");
         } catch (error) {
             alert(`Activation failed: Invalid Activation Token`)
         }
@@ -269,8 +269,8 @@ export class AuthenticationPage {
         if (formInfo.isValid) {
             const {email, password} = formInfo.data;
             try {
-                await system.services.loginUser(email, password);
-                await system.loadPage(true);
+                await assistOS.services.loginUser(email, password);
+                await assistOS.loadPage(true);
             } catch (error) {
                 alert(`Login failed: Invalid email or password`);
             }
@@ -279,7 +279,7 @@ export class AuthenticationPage {
 
 
     async navigateToPasswordRecoveryPage() {
-        await system.UI.changeToDynamicPage("authentication-page", "authentication-page", {subpage: "password-recovery"});
+        await assistOS.UI.changeToDynamicPage("authentication-page", "authentication-page", {subpage: "password-recovery"});
     }
 
     async beginPasswordRecovery(_target) {
@@ -296,8 +296,8 @@ export class AuthenticationPage {
         };
         const formInfo = await extractFormInformation(_target, conditions);
         if (formInfo.isValid) {
-            if (await system.services.recoverPassword(formInfo.data.email, formInfo.data.password)) {
-                await system.UI.changeToDynamicPage("authentication-page", "authentication-page", {subpage: "password-recovery-confirmation"});
+            if (await assistOS.services.recoverPassword(formInfo.data.email, formInfo.data.password)) {
+                await assistOS.UI.changeToDynamicPage("authentication-page", "authentication-page", {subpage: "password-recovery-confirmation"});
             } else {
                 console.log("Failed to recover password");
             }
@@ -308,7 +308,7 @@ export class AuthenticationPage {
     }
 
     async finishPasswordRecovery() {
-        if (await system.services.confirmRecoverPassword()) {
+        if (await assistOS.services.confirmRecoverPassword()) {
             window.location = "";
         } else {
             console.error("Failed to confirm password recovery");

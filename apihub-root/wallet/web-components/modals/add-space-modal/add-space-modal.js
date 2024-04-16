@@ -26,13 +26,10 @@ export class AddSpaceModal {
             * */
 
             /*
-            let flowId = system.space.getFlowIdByName("AddSpace");
-             await system.services.callFlow(flowId, context);
-
-             let context = {
+             await assistOS.callFlow("AddSpace", {
                  name: formData.data.name,
                  apiKey: formData.data.spaceAPIKey
-             }
+             });
              */
             const [spaceName,apiKey]=[formData.data.name,formData.data.spaceAPIKey]
 
@@ -41,9 +38,9 @@ export class AddSpaceModal {
                 if (!keyValidation.success) {
                     throw Error(keyValidation.error);
                 }
-                await system.services.createSpace(spaceName,apiKey);
+                await assistOS.services.createSpace(spaceName,apiKey);
                 closeModal(_target);
-               await system.loadPage(false,true);
+               await assistOS.loadPage(false,true);
             } catch (error) {
                 showApplicationError('Failed Creating Space', `Encountered an Issue creating the space ${formData.data.name}`,
                     error);

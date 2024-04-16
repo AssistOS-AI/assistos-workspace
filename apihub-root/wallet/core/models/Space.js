@@ -1,12 +1,13 @@
 import {
+    Announcement,
+    Application,
+    constants,
     DocumentModel,
+    Flow,
+    PageModel,
     Personality,
     Settings,
-    Flow,
-    Announcement,
-    PageModel,
-    Application,
-    constants
+    LLM
 } from "../../imports.js";
 
 export class Space {
@@ -23,8 +24,8 @@ export class Space {
         this.apiKeys = spaceData.apiKeys || {};
         this.pages = spaceData.pages || [];
         this.currentPersonalityId = spaceData.currentPersonalityId || this.personalities.find(personality => personality.id === constants.PERSONALITIES.DEFAULT_PERSONALITY_ID).id;
-        this.llms = spaceData.llms || ["GPT3.5Turbo", "GPT4.0"];
-        this.currentLlmId = spaceData.currentLlmId || "GPT3.5Turbo";
+        this.llms = spaceData.llms || [{name:"GPT 3.5 Turbo",id:"q12437rgq39r845t"}, {name:"GPT 4",id:"q124wsreg"}].map(llm => new LLM(llm));
+        this.currentLlmId = spaceData.currentLlmId || "q12437rgq39r845t";
         this.observers = [];
         this.installedApplications = (spaceData.installedApplications || []).map(applicationData => new Application(applicationData));
         Space.instance = this;
@@ -106,10 +107,10 @@ export class Space {
     }
     async setAgent(personalityId){
         this.currentPersonalityId = personalityId;
-        await system.storage.storeObject(system.space.id, "status", "status", JSON.stringify(system.space.getSpaceStatus(), null, 2));
+        await assistOS.storage.storeObject(assistOS.space.id, "status", "status", JSON.stringify(assistOS.space.getSpaceStatus(), null, 2));
     }
-    getLlm(){
-        return this.llms.find(llm=> llm === this.currentLlmId);
+    getLLM(){
+        return this.llms.find(llm=> llm.id === this.currentLlmId);
     }
     setLlm(llmId){
         this.currentLlmId = llmId;
@@ -153,49 +154,44 @@ export class Space {
         flows = flows.concat(this.flows);
         //removes duplicates by id
         flows = flows.filter((element, index, self) => {
-            return index === self.findIndex(e => e.class.id === element.class.id);
+            return index === self.findIndex(e => e.class.name === element.class.name);
         });
         return flows;
     }
 
-    getFlow(flowId) {
-        let flows = this.getAllFlows();
-        let flow = flows.find((flow) => flow.class.id === flowId);
-        return flow || console.error(`Flow not found in space, flowId: ${flowId}`);
+    getFlow(flowName) {
+        let flow = this.flows.find((flow) => flow.class.name === flowName);
+        return flow || console.error(`Flow not found in space, flowId: ${flowName}`);
     }
 
-    getFlowIdByName(name) {
-        let flows = this.getAllFlows();
-        let flow = flows.find((flow) => flow.class.name === name);
-        return flow.class.id || console.error(`Flow not found in space, flow name: ${name}`);
-    }
 
     getDefaultAgent() {
         return this.agent;
     }
 
     async addDocument(documentData) {
-        let document = JSON.stringify(await system.storage.addDocument(system.space.id,  JSON.stringify(documentData)));
+        documentData.position = this.documents.length;
+        let document = JSON.parse(await assistOS.storage.addDocument(assistOS.space.id,  documentData));
         this.documents.push(new DocumentModel(document));
         return document.id;
     }
 
     async deleteDocument(documentId) {
         this.documents = this.documents.filter(document => document.id !== documentId);
-        await system.storage.storeObject(system.space.id, "documents", documentId, "");
+        await assistOS.storage.storeObject(assistOS.space.id, "documents", documentId, "");
 
     }
 
     async addPersonality(personalityData) {
         let personalityObj = new Personality(personalityData);
         this.personalities.push(personalityObj);
-        await system.storage.storeObject(system.space.id, "personalities", personalityObj.getFileName(), JSON.stringify(personalityObj, null, 2));
+        await assistOS.storage.storeObject(assistOS.space.id, "personalities", personalityObj.getFileName(), JSON.stringify(personalityObj, null, 2));
     }
 
     async updatePersonality(personalityData, id) {
         let personality = this.getPersonality(id);
         personality.update(personalityData);
-        await system.storage.storeObject(system.space.id, "personalities", personality.getFileName(), JSON.stringify(personality, null, 2));
+        await assistOS.storage.storeObject(assistOS.space.id, "personalities", personality.getFileName(), JSON.stringify(personality, null, 2));
     }
 
     getPersonality(id) {
@@ -207,51 +203,50 @@ export class Space {
 
     async addAnnouncement(announcementData) {
         this.announcements.unshift(new Announcement(announcementData));
-        await system.storage.storeObject(system.space.id, "status", "status", JSON.stringify(system.space.getSpaceStatus(), null, 2));
+        await assistOS.storage.storeObject(assistOS.space.id, "status", "status", JSON.stringify(assistOS.space.getSpaceStatus(), null, 2));
     }
 
     async addPage(pageData) {
         const page = new PageModel(pageData)
         pageData.id = page.id;
         this.pages.push(page);
-        await system.storage.storeObject(system.space.id, "pages", page.id, JSON.stringify(pageData, null, 2));
+        await assistOS.storage.storeObject(assistOS.space.id, "pages", page.id, JSON.stringify(pageData, null, 2));
     }
 
     async deletePage(pageId) {
         this.pages = this.pages.filter(page => page.id !== pageId);
-        await system.storage.storeObject(system.space.id, "pages", pageId, "");
+        await assistOS.storage.storeObject(assistOS.space.id, "pages", pageId, "");
     }
 
     async addFlow(flowClass) {
         let flowObject = new Flow(flowClass, true);
         this.flows.push(flowObject);
-        await system.storage.storeFlow(system.space.id, flowObject.fileName, flowObject.stringifyClass());
+        await assistOS.storage.storeFlow(assistOS.space.id, flowObject.fileName, flowObject.stringifyClass());
     }
 
     async deleteAnnouncement(announcementId) {
         this.announcements = this.announcements.filter(announcement => announcement.id !== announcementId);
-        await system.storage.storeObject(system.space.id, "status", "status", JSON.stringify(system.space.getSpaceStatus(), null, 2));
+        await assistOS.storage.storeObject(assistOS.space.id, "status", "status", JSON.stringify(assistOS.space.getSpaceStatus(), null, 2));
     }
 
-    async deleteFlow(flowId, appId) {
+    async deleteFlow(flowName, appId) {
         if (!appId) {
-            let fileName = this.getFlow(flowId).fileName;
-            this.flows = this.flows.filter(flow => flow.class.id !== flowId);
-            await system.storage.storeFlow(system.space.id, fileName, "");
+            let fileName = this.getFlow(flowName).fileName;
+            this.flows = this.flows.filter(flow => flow.class.name !== flowName);
+            await assistOS.storage.storeFlow(assistOS.space.id, fileName, "");
         } else {
             let app = this.getApplication(appId);
             let fileName = this.getFlow(flowId).fileName;
-            app.flows = app.flows.filter(flow => flow.class.id !== flowId);
-            await system.storage.storeAppFlow(system.space.id, app.name, fileName, "");
+            app.flows = app.flows.filter(flow => flow.class.name !== flowName);
+            await assistOS.storage.storeAppFlow(assistOS.space.id, app.name, fileName, "");
         }
-
     }
 
     async deletePersonality(personalityId) {
         let personality = this.personalities.find(personality => personality.id === personalityId);
         let fileName = personality.getFileName();
         this.personalities = this.personalities.filter(personality => personality.id !== personalityId);
-        await system.storage.storeObject(system.space.id, "personalities", fileName, "");
+        await assistOS.storage.storeObject(assistOS.space.id, "personalities", fileName, "");
     }
 
     async updateAnnouncement(announcementId, title, content) {
@@ -259,21 +254,21 @@ export class Space {
         if (announcement !== null) {
             announcement.title = title;
             announcement.text = content;
-            await system.storage.storeObject(system.space.id, "status", "status", JSON.stringify(system.space.getSpaceStatus(), null, 2));
+            await assistOS.storage.storeObject(assistOS.space.id, "status", "status", JSON.stringify(assistOS.space.getSpaceStatus(), null, 2));
         } else {
             console.error("Failed to update announcement, announcement not found.");
         }
     }
 
-    async updateFlow(flowId, flowClass, appId) {
-        let flow = this.getFlow(flowId);
+    async updateFlow(flowName, flowClass, appId) {
+        let flow = this.getFlow(flowName);
         if (flow !== null) {
             flow.class = flowClass;
             if (!appId) {
-                await system.storage.storeFlow(system.space.id, flow.fileName, flow.stringifyClass());
+                await assistOS.storage.storeFlow(assistOS.space.id, flow.fileName, flow.stringifyClass());
             } else {
                 let app = this.getApplication(appId);
-                await system.storage.storeAppFlow(system.space.id, app.name, flow.fileName, flow.stringifyClass());
+                await assistOS.storage.storeAppFlow(assistOS.space.id, app.name, flow.fileName, flow.stringifyClass());
             }
         } else {
             console.error("Failed to update flow, flow not found.");
@@ -281,21 +276,21 @@ export class Space {
     }
 
     async loadFlows() {
-        let flows = await system.storage.loadFlows(this.id);
+        let flows = await assistOS.storage.loadFlows(this.id);
         for (let [name, flowClass] of Object.entries(flows)) {
             this.flows.push(new Flow(flowClass));
         }
     }
 
     async createDefaultFlows() {
-        let flows = await system.storage.loadDefaultFlows();
+        let flows = await assistOS.storage.loadDefaultFlows();
         for (let [name, flowClass] of Object.entries(flows)) {
             this.flows.push(new Flow(flowClass));
         }
     }
 
     async createDefaultPersonalities() {
-        let personalities = JSON.parse(await system.storage.loadDefaultPersonalities());
+        let personalities = JSON.parse(await assistOS.storage.loadDefaultPersonalities());
         for (let personality of personalities) {
             this.personalities.push(new Personality(personality));
         }
@@ -304,7 +299,7 @@ export class Space {
    /* TODO TBD makes sense only if the intent is to have the application also working offline */
     createDefaultAnnouncement(spaceData) {
         let defaultAnnouncement = {
-            id: system.services.generateId(),
+            id: assistOS.services.generateId(),
             title: "Welcome to AIAuthor!",
             text: `Space ${this.name} was successfully created. You can now add documents, users and settings to your space.`,
             date: new Date().toISOString().split('T')[0]
@@ -314,6 +309,6 @@ export class Space {
 
     async deleteApplication(name) {
         this.installedApplications = this.installedApplications.filter(app => app.name !== name);
-        await system.storage.storeObject(system.space.id, "status", "status", JSON.stringify(system.space.getSpaceStatus(), null, 2));
+        await assistOS.storage.storeObject(assistOS.space.id, "status", "status", JSON.stringify(assistOS.space.getSpaceStatus(), null, 2));
     }
 }

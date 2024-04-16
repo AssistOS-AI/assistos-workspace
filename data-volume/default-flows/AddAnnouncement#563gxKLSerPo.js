@@ -12,7 +12,7 @@ export class AddAnnouncement {
                 text: context.text,
                 date: new Date().toISOString().split('T')[0],
             };
-            await system.space.addAnnouncement(announcementData);
+            await assistOS.space.addAnnouncement(announcementData);
             this.return(announcementData);
         } catch (e) {
             this.fail(e);

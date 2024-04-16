@@ -24,10 +24,6 @@
       "path": "./wallet/core/services/UtilsService.js"
     },
     {
-      "name": "LlmsService",
-      "path": "./wallet/core/services/LlmsService.js"
-    },
-    {
       "name": "ApplicationsService",
       "path": "./wallet/core/services/ApplicationsService.js"
     },

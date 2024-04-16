@@ -6,14 +6,14 @@ import {
 
 export class AnnouncementsPage {
     constructor(element,invalidate) {
-        system.space.observeChange(system.space.getNotificationId(),invalidate);
+        assistOS.space.observeChange(assistOS.space.getNotificationId(),invalidate);
         this.invalidate=invalidate;
         this.invalidate();
     }
     beforeRender() {
         this.announcementsContainer = "";
-        if(system.space.announcements.length>0) {
-            system.space.announcements.forEach((announcement) => {
+        if(assistOS.space.announcements.length>0) {
+            assistOS.space.announcements.forEach((announcement) => {
                 this.announcementsContainer += `<announcement-unit data-title="${announcement.title}" 
                 data-content="${announcement.text}" data-date="${announcement.date}" 
                 data-id="${announcement.id}" data-local-action="editAction"></announcement-unit>`;
@@ -26,9 +26,9 @@ export class AnnouncementsPage {
         this.setContext();
     }
     setContext(){
-        system.context = {
+        assistOS.context = {
             "location and available actions": "We are in the Rules and Announcements page in OS. Here you can add announcements.",
-            "available items": system.space.announcements.map((announcement)=>announcement.simplify())
+            "available items": assistOS.space.announcements.map((announcement)=>announcement.simplify())
         }
     }
     async showActionBox(_target, primaryKey, componentName, insertionMode) {
@@ -42,11 +42,9 @@ export class AnnouncementsPage {
         await showModal( "add-announcement-modal", { presenter: "add-announcement-modal"});
     }
     async deleteAction(_target){
-        let flowId = system.space.getFlowIdByName("DeleteAnnouncement");
-        let context = {
+        await assistOS.callFlow("DeleteAnnouncement", {
             announcementId: this.getAnnouncementId(_target)
-        }
-        await system.services.callFlow(flowId, context);
+        });
         this.invalidate();
     }
     async editAction(_target){

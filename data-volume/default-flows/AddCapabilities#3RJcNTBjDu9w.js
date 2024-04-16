@@ -6,7 +6,7 @@ export class AddCapabilities{
     }
     async start() {
         try {
-            let flows = system.space.getAllFlows();
+            let flows = assistOS.space.getAllFlows();
             let agentFlows = flows.filter((flow) =>{
                 if(flow.class.inputSchema){
                         return flow;
@@ -16,21 +16,14 @@ export class AddCapabilities{
             let operations = agentFlows.filter((flow) => flow.class.inputSchema).map((flow) => ({
                 description: flow.class.description,
             }));
+            let llm = assistOS.space.getLLM();
 
-            this.prompt = `Here is a list of tasks that a custom GPT assistant can perform in a software application: ${JSON.stringify(operations)}. For each of them, summarize their description in a minimum amount of words. Use uppercase for every first letter of a word. Your response should look like this: {"capabilities":["summary 1", "summary 2", ... , "summary n"]}`;
-            this.setResponseFormat("json_object");
-            await this.execute();
-        } catch (e) {
-            this.fail(e);
-        }
-    }
-
-    async execute() {
-        let agent = system.space.getAgent();
-        let response = await this.request(this.prompt);
-        try {
+            let prompt = `Here is a list of tasks that a custom GPT assistant can perform in a software application: ${JSON.stringify(operations)}. For each of them, summarize their description in a minimum amount of words. Use uppercase for every first letter of a word. Your response should look like this: {"capabilities":["summary 1", "summary 2", ... , "summary n"]}`;
+            llm.setResponseFormat("json_object");
+            let agent = assistOS.space.getAgent();
+            let response = await llm.request(prompt);
             let obj = JSON.parse(response);
-            //system.services.validateSchema(obj, AddCapabilities.outputSchema, "output");
+            //assistOS.services.validateSchema(obj, AddCapabilities.outputSchema, "output");
             for (let capability of obj.capabilities) {
                 await agent.addCapability(capability);
             }
@@ -39,4 +32,5 @@ export class AddCapabilities{
             this.fail(e);
         }
     }
+
 }

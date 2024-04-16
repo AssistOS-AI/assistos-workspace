@@ -1,7 +1,8 @@
 export class Paragraph {
     constructor(paragraphData) {
         this.text = paragraphData.text;
-        this.id = paragraphData.id || system.services.generateId();
+        this.position = paragraphData.position;
+        this.id = paragraphData.id || assistOS.services.generateId();
         this.mainIdea = paragraphData.mainIdea || "";
         this.alternativeParagraphs = paragraphData.alternativeParagraphs || [];
     }

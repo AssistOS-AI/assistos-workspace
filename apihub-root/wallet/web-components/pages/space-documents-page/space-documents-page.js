@@ -1,15 +1,15 @@
 export class SpaceDocumentsPage {
     constructor(element, invalidate) {
         this.notificationId = "docs"
-        system.factories.observeChange(this.notificationId, invalidate);
+        assistOS.factories.observeChange(this.notificationId, invalidate);
         this.invalidate = invalidate;
         this.invalidate();
     }
     beforeRender() {
         this.tableRows = "";
-        if(system.space.documents.length > 0) {
-            system.space.documents.forEach((document) => {
-                this.tableRows += `<space-document-unit data-name="${system.UI.sanitize(document.title)}" 
+        if(assistOS.space.documents.length > 0) {
+            assistOS.space.documents.forEach((document) => {
+                this.tableRows += `<space-document-unit data-name="${assistOS.UI.sanitize(document.title)}" 
                 data-id="${document.id}" data-local-action="editAction"></space-document-unit>`;
             });
         }
@@ -21,33 +21,31 @@ export class SpaceDocumentsPage {
         this.setContext();
     }
     setContext(){
-        system.context = {
+        assistOS.context = {
             "location and available actions": "We are in the Documents page in OS. Here you can see the documents available for the space. You can add or delete documents.",
-            "available items": system.space.documents.map((document)=>{
+            "available items": assistOS.space.documents.map((document)=>{
                 return {title:document.title, abstract:document.abstract, id:document.id}
             })
         }
     }
     async showActionBox(_target, primaryKey, componentName, insertionMode) {
-        await system.UI.showActionBox(_target, primaryKey, componentName, insertionMode);
+        await assistOS.UI.showActionBox(_target, primaryKey, componentName, insertionMode);
     }
     getDocumentId(_target){
-        return system.UI.reverseQuerySelector(_target, "space-document-unit").getAttribute("data-id");
+        return assistOS.UI.reverseQuerySelector(_target, "space-document-unit").getAttribute("data-id");
     }
     async showAddDocumentModal() {
-        await system.UI.showModal( "space-add-document-modal");
+        await assistOS.UI.showModal( "space-add-document-modal");
     }
     async editAction(_target) {
         let documentId = this.getDocumentId(_target);
-        await system.UI.changeToDynamicPage("space-configs-page",`${system.space.id}/SpaceConfiguration/space-document-view-page/${documentId}`);
+        await assistOS.UI.changeToDynamicPage("space-configs-page",`${assistOS.space.id}/SpaceConfiguration/space-document-view-page/${documentId}`);
     }
 
     async deleteAction(_target){
-        let flowId = system.space.getFlowIdByName("DeleteDocument");
-        let context = {
+        await assistOS.callFlow("DeleteDocument", {
             documentId: this.getDocumentId(_target)
-        }
-        await system.services.callFlow(flowId, context);
-        system.factories.notifyObservers("docs");
+        });
+        assistOS.factories.notifyObservers("docs");
     }
 }

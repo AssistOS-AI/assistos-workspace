@@ -6,7 +6,8 @@ export class GenerateText {
       requirements: "string"
    };
    async start(context){
-        this.prompt = `Please generate some text based on these requirements: ${context.requirements}`;
-        return await this.request(this.prompt);
+        let llm = assistOS.space.getLLM();
+        let prompt = `Please generate some text based on these requirements: ${context.requirements}`;
+        return await llm.request(prompt);
    }
 }

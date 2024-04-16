@@ -9,11 +9,11 @@ export class UpdateParagraphText {
     }
     async start(context) {
         try {
-            let document = system.space.getDocument(context.documentId);
+            let document = assistOS.space.getDocument(context.documentId);
             let chapter = document.getChapter(context.chapterId);
             let paragraph = chapter.getParagraph(context.paragraphId);
             paragraph.updateText(context.text);
-            await system.factories.updateDocument(system.space.id, document);
+            await assistOS.storage.updateParagraphText(assistOS.space.id, document.id, chapter.id, paragraph.id, context.text);
             this.return(context.paragraphId);
         } catch (e) {
             this.fail(e);

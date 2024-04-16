@@ -4,7 +4,7 @@ import {
 
 export class FlowsPage {
     constructor(element, invalidate) {
-        system.space.observeChange(system.space.getNotificationId(), invalidate);
+        assistOS.space.observeChange(assistOS.space.getNotificationId(), invalidate);
         this.element = element;
         this.selectedTypes = [];
         this.invalidate = invalidate;
@@ -15,11 +15,11 @@ export class FlowsPage {
 
     beforeRender() {
         const generateTableRow = (item) => `
-        <flow-unit data-id="${item.class.id}" data-name="${item.class.name}" data-description="${item.class.description}" data-local-action="editAction"></flow-unit>`;
+        <flow-unit data-name="${item.class.name}" data-description="${item.class.description}" data-local-action="editAction"></flow-unit>`;
 
         const sortFlows = (flows) => flows.sort((a, b) => a.class.name.toLowerCase().localeCompare(b.class.name.toLowerCase()));
 
-        this.flows = system.space.flows;
+        this.flows = assistOS.space.flows;
         if (this.flows.length > 0) {
             this.flows = sortFlows(this.flows);
             this.tableRows = this.flows.map(generateTableRow).join("");
@@ -35,8 +35,8 @@ export class FlowsPage {
         await showActionBox(_target, primaryKey, componentName, insertionMode);
     }
 
-    getFlowId(_target) {
-        return reverseQuerySelector(_target, "flow-unit").getAttribute("data-id");
+    getFlowName(_target) {
+        return reverseQuerySelector(_target, "flow-unit").getAttribute("data-name");
     }
 
     async showAddFlowModal() {
@@ -44,16 +44,13 @@ export class FlowsPage {
     }
 
     async editAction(_target) {
-        await showModal("edit-flow-modal", {presenter: "edit-flow-modal", id: this.getFlowId(_target)});
+        await showModal("edit-flow-modal", {presenter: "edit-flow-modal", name: this.getFlowName(_target)});
     }
 
     async deleteAction(_target) {
-        this.filteredFlows = this.filteredFlows.filter(flow => flow.id !== this.getFlowId(_target));
-        let flowId = system.space.getFlowIdByName("DeleteFlow");
-        let context = {
-            flowId: this.getFlowId(_target)
-        }
-        await system.services.callFlow(flowId, context);
+        await assistOS.callFlow("DeleteFlow", {
+            flowName: this.getFlowName(_target)
+        });
         this.invalidate();
     }
 

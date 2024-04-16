@@ -6,8 +6,8 @@ export class TasksPage {
     }
     beforeRender() {
         let string = "";
-        this.tasksNr = system.space.getAgent().tasks.length;
-        for(let task of system.space.getAgent().tasks){
+        this.tasksNr = assistOS.space.getAgent().tasks.length;
+        for(let task of assistOS.space.getAgent().tasks){
             string+= `<div class="task">
                        <div class="description">${task.description}</div> 
                        <div class="date">${task.date}</div>
@@ -19,8 +19,8 @@ export class TasksPage {
         this.setContext();
     }
     setContext(){
-        system.context = {
-            "location and available actions": "We are in the Tasks page in OS. Here you can see tasks that are ongoing, cancelled or done in the system.",
+        assistOS.context = {
+            "location and available actions": "We are in the Tasks page in OS. Here you can see tasks that are ongoing, cancelled or done in the assistOS.",
         }
     }
     search(){
@@ -28,7 +28,7 @@ export class TasksPage {
     }
 
     async showActionBox(_target, primaryKey, componentName, insertionMode) {
-        await system.UI.showActionBox(_target, primaryKey, componentName, insertionMode);
+        await assistOS.UI.showActionBox(_target, primaryKey, componentName, insertionMode);
     }
 
 }

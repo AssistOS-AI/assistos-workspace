@@ -1,6 +1,5 @@
 const path = require('path');
 const fsPromises = require('fs').promises;
-const enclave = require("opendsu").loadAPI("enclave");
 
 const Loader = require('../../Loader.js');
 const constants=Loader.loadModule('constants');
@@ -9,9 +8,9 @@ const utilsModule = Loader.loadModule('util');
 const userModule = Loader.loadModule('user');
 const spaceModule= Loader.loadModule('space');
 const documentModule= Loader.loadModule('document');
-
+const objectTypes = constants.OBJECT_TYPES;
 const {crypto, file, data, date, openAI} = utilsModule.loadAPIs('crypto', 'file', 'data', 'date', 'openAI');
-
+const enclave = require('opendsu').loadAPI('enclave');
 
 function getSpacePath(spaceId) {
     return path.join(Loader.getStorageVolumePaths('space'), spaceId);
@@ -144,11 +143,6 @@ async function createSpace(spaceName, userId, apiKey) {
     const spacePath = getSpacePath(spaceId);
 
     await file.createDirectory(spacePath);
-
-/*    let lightDBEnclaveClient = enclave.initialiseLightDBEnclave(spaceId);
-    await $$.promisify(lightDBEnclaveClient.createDatabase)(spaceId);
-    await $$.promisify(lightDBEnclaveClient.grantWriteAccess)($$.SYSTEM_IDENTIFIER);*/
-
     const filesPromises = [
         () => copyDefaultFlows(spacePath),
         () => copyDefaultPersonalities(spacePath),
@@ -176,62 +170,131 @@ async function createSpaceStatus(spacePath, spaceObject) {
     const statusPath = path.join(spacePath, 'status', 'status.json');
     await fsPromises.writeFile(statusPath, JSON.stringify(spaceObject, null, 2));
 }
-
-async function addObject(spaceId, objectType, objectData) {
-    const documentAPIs= documentModule.loadAPIs('document');
-    if (!constants.OBJECT_TYPES[objectType]) {
-        throw new Error(`Invalid object type: ${objectType}`);
-    }
-    if (!documentAPIs[constants.OBJECT_TYPES[objectType]]["add"]) {
-        throw new Error(`No ADD API found for object type: ${objectType}`);
-    }
-    return await documentAPIs[constants.OBJECT_TYPES[objectType]]["add"](spaceId, objectData);
-}
-
-async function updateObject() {
-
-}
-
-async function deleteObject() {
-
-}
-
 async function deleteSpace() {
 
 }
+function getRecordDataAndRemove(recordsArray, pk){
+    const index = recordsArray.findIndex(item => item.pk === pk);
+    if (index !== -1) {
+        const record = recordsArray[index];
+        recordsArray.splice(index, 1);
+        return record.data;
+    } else {
+        return null;
+    }
+}
+function constructObjectArrayAndRemove(recordsArray, objectType){
+    const objectsToRemove = recordsArray.filter(record => record.pk.includes(objectType));
+    const dataArray = objectsToRemove.map(record => record.data);
+    objectsToRemove.forEach(object => {
+        const index = recordsArray.indexOf(object);
+        if (index !== -1) {
+            recordsArray.splice(index, 1);
+        }
+    });
+    return dataArray;
+}
+function constructChaptersAndRemove(recordsArray){
+    let chapters = [];
+    let chapterRecords = recordsArray.filter(record => record.pk.includes("#chapter#"));
+    //remove records from original array
+    chapterRecords.forEach(object => {
+        const index = recordsArray.indexOf(object);
+        if (index !== -1) {
+            recordsArray.splice(index, 1);
+        }
+    });
+    const groupedChapters = chapterRecords.reduce((groups, record) => {
+        const chapterId = record.pk.split('#')[2];
+        if (!groups[chapterId]) {
+            groups[chapterId] = [];
+        }
+        groups[chapterId].push(record);
+        return groups;
+    }, {});
 
-async function getSpaceDocumentsObject(spaceId) {
-/*
-    let lightDBEnclaveClient = enclave.initialiseLightDBEnclave(spaceId);
-    try {
-        let records = await $$.promisify(lightDBEnclaveClient.getAllRecords)($$.SYSTEM_IDENTIFIER, 'documents');
-        let documentIds = records.map(record => record.data);
-        for (let documentId of documentIds) {
-            let document = await $$.promisify(lightDBEnclaveClient.getAllRecords)($$.SYSTEM_IDENTIFIER, documentId);
-            console.log(document);
+    for(let key of Object.keys(groupedChapters)){
+        let chapterObj = {
+            id: key,
+            position: getRecordDataAndRemove(groupedChapters[key], objectTypes.chapterMetadata + "#chapter#" + key),
+            title: getRecordDataAndRemove(groupedChapters[key], objectTypes.chapterTitle + "#chapter#" + key),
+            mainIdeas: constructObjectArrayAndRemove(groupedChapters[key], objectTypes.chapterMainIdea) || [],
+            alternativeTitles: constructObjectArrayAndRemove(groupedChapters[key], objectTypes.chapterAlternativeTitle) || [],
+            alternativeChapters: constructObjectArrayAndRemove(groupedChapters[key], objectTypes.alternativeChapter) || [],
+            paragraphs: constructParagraphsAndRemove(groupedChapters[key], key) || []
+        }
+        chapters.push(chapterObj);
+    }
+    chapters.sort((a, b) => a.position - b.position);
+    return chapters;
+}
+function constructParagraphsAndRemove(recordsArray, chapterId){
+    let paragraphs = [];
+    let paragraphRecords = recordsArray.filter(record => record.pk.includes("#paragraph#"));
+    const groupedParagraphs = paragraphRecords.reduce((groups, record) => {
+        const paragraphId = record.pk.split('#')[4];
+        if (!groups[paragraphId]) {
+            groups[paragraphId] = [];
+        }
+        groups[paragraphId].push(record);
+        return groups;
+    }, {});
+    for(let key of Object.keys(groupedParagraphs)){
+        let paragraphObj = {
+            id: key,
+            position: getRecordDataAndRemove(groupedParagraphs[key], objectTypes.paragraphMetadata + "#chapter#" + chapterId + "#paragraph#" + key),
+            text: getRecordDataAndRemove(groupedParagraphs[key], objectTypes.paragraphText + "#chapter#" + chapterId + "#paragraph#" + key) || "",
+            mainIdea: getRecordDataAndRemove(groupedParagraphs[key], objectTypes.paragraphMainIdea + "#chapter#" + chapterId + "#paragraph#" + key) || "",
+            alternativeParagraphs: constructObjectArrayAndRemove(groupedParagraphs[key], objectTypes.alternativeParagraph) || []
+        }
+        paragraphs.push(paragraphObj);
+    }
+    paragraphs.sort((a, b) => a.position - b.position);
+    return paragraphs;
+}
+function constructDocument(documentId, recordsArray){
+    if(!recordsArray || recordsArray.length === 0){
+        throw new Error(`No records found for document with id: ${documentId}`);
+    }
+    try{
+        return {
+            id: documentId,
+            position: getRecordDataAndRemove(recordsArray, objectTypes.documentMetadata),
+            title: getRecordDataAndRemove(recordsArray, objectTypes.title),
+            topic: getRecordDataAndRemove(recordsArray, objectTypes.topic) || "",
+            abstract: getRecordDataAndRemove(recordsArray, objectTypes.abstract) || "",
+            mainIdeas: constructObjectArrayAndRemove(recordsArray, objectTypes.mainIdea) || [],
+            chapters: constructChaptersAndRemove(recordsArray) || [],
+            alternativeTitles: constructObjectArrayAndRemove(recordsArray, objectTypes.alternativeTitle) || [],
+            alternativeAbstracts:  constructObjectArrayAndRemove(recordsArray, objectTypes.alternativeAbstract) || []
         }
     } catch (e) {
-        console.log(e + "no documents yet");
-    }*/
-
-    const spacePath = getSpacePath(spaceId)
-    const documentsDirectoryPath = path.join(spacePath, 'documents');
-
-
-    const documentsFiles = await fsPromises.readdir(documentsDirectoryPath, {withFileTypes: true});
-
-    const sortedDocumentsFiles = await file.sortFiles(documentsFiles, documentsDirectoryPath, 'creationDate');
-
-    let spaceDocumentsObject = [];
-
-    for (const fileName of sortedDocumentsFiles) {
-        const documentJson = await fsPromises.readFile(path.join(documentsDirectoryPath, fileName), 'utf8');
-        spaceDocumentsObject.push(JSON.parse(documentJson));
+        throw new Error(`Error constructing document with id ${documentId}: ${e}`);
     }
-
-    return spaceDocumentsObject;
-
 }
+async function getSpaceDocumentsObject(spaceId) {
+
+    let lightDBEnclaveClient = enclave.initialiseLightDBEnclave(spaceId);
+    await $$.promisify(lightDBEnclaveClient.createDatabase)(spaceId);
+    await $$.promisify(lightDBEnclaveClient.grantWriteAccess)($$.SYSTEM_IDENTIFIER);
+
+    let documents = [];
+    let records;
+    try {
+        records = await $$.promisify(lightDBEnclaveClient.getAllRecords)($$.SYSTEM_IDENTIFIER, 'documents');
+    }catch (e){
+        console.log(e + "no documents yet");
+        return documents;
+    }
+    let documentIds = records.map(record => record.data);
+    for(let documentId of documentIds){
+        let documentRecords = await $$.promisify(lightDBEnclaveClient.getAllRecords)($$.SYSTEM_IDENTIFIER, documentId);
+        documents.push(constructDocument(documentId, documentRecords));
+    }
+    documents.sort((a, b) => a.position - b.position);
+    return documents;
+}
+
 
 async function getSpacePersonalitiesObject(spaceId) {
 
@@ -282,7 +345,44 @@ async function updateSpaceStatus(spaceId, spaceStatusObject) {
     const spaceStatusPath = path.join(spacePath, 'status', `status.json`);
     await fsPromises.writeFile(spaceStatusPath, JSON.stringify(spaceStatusObject, null, 2), {encoding: 'utf8'});
 }
+async function getObject(spaceId, objectType, objectId) {
+    if(!constants.OBJECT_TYPES[objectType]){
+        throw new Error(`Invalid object type: ${objectType}`);
+    }
+    if(!documentModule[constants.OBJECT_TYPES[objectType]]["get"]){
+        throw new Error(`No ADD API found for object type: ${objectType}`);
+    }
+    return await documentModule[constants.OBJECT_TYPES[objectType]]["get"](spaceId, objectId);
+}
 
+async function addObject(spaceId, objectType, objectData) {
+    if(!constants.OBJECT_TYPES[objectType]){
+        throw new Error(`Invalid object type: ${objectType}`);
+    }
+    if(!documentModule[constants.OBJECT_TYPES[objectType]]["add"]){
+        throw new Error(`No ADD API found for object type: ${objectType}`);
+    }
+    return await documentModule[constants.OBJECT_TYPES[objectType]]["add"](spaceId, objectData);
+}
+
+async function updateObject(spaceId, objectType, objectId, objectData) {
+    if(!constants.OBJECT_TYPES[objectType]){
+        throw new Error(`Invalid object type: ${objectType}`);
+    }
+    if(!documentModule[constants.OBJECT_TYPES[objectType]]["update"]){
+        throw new Error(`No ADD API found for object type: ${objectType}`);
+    }
+    return await documentModule[constants.OBJECT_TYPES[objectType]]["update"](spaceId, objectId, objectData);
+}
+async function deleteObject(spaceId, objectType, objectId) {
+    if(!constants.OBJECT_TYPES[objectType]){
+        throw new Error(`Invalid object type: ${objectType}`);
+    }
+    if(!documentModule[constants.OBJECT_TYPES[objectType]]["delete"]){
+        throw new Error(`No ADD API found for object type: ${objectType}`);
+    }
+    return await documentModule[constants.OBJECT_TYPES[objectType]]["delete"](spaceId, objectId);
+}
 module.exports = {
     addAnnouncement,
     addSpaceToSpaceMap,

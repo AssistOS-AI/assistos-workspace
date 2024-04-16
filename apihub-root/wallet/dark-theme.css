@@ -127,3 +127,10 @@ html[theme="dark"] .sidebar-item {
     padding-left: 10px;
 }
 
+html[theme="dark"] .space-container {
+    background: var(--light-blue);
+    border: 1px solid var(--black);
+}
+html[theme="dark"] .select-settings-container {
+    background: var(--light-blue);
+}

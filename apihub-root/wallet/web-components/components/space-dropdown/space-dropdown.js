@@ -12,13 +12,13 @@ export class SpaceDropdown {
     }
 
     beforeRender() {
-        this.currentSpaceName = system.space.name;
+        this.currentSpaceName = assistOS.space.name;
     }
 
     afterRender() {
         let spacesList = this.element.querySelector(".spaces-list");
         this.spacesDiv = "";
-        system.user.getUserSpaces().filter(space => space.id !== system.space.id).forEach((space) => {
+        assistOS.user.getUserSpaces().filter(space => space.id !== assistOS.space.id).forEach((space) => {
             this.spacesDiv += `<space-unit data-space-name="${space.name}" data-space-id="${space.id}"></space-unit>`;
         });
         spacesList.insertAdjacentHTML("afterbegin", this.spacesDiv);
@@ -49,14 +49,14 @@ export class SpaceDropdown {
     async changeSpace(_target) {
         let selectedSpace = getClosestParentElement(_target, ['space-unit']);
         let selectedSpaceId = selectedSpace.getAttribute('data-space-id');
-        await system.loadPage(false,false,selectedSpaceId);
+        await assistOS.loadPage(false,false,selectedSpaceId);
     }
     async addSpace() {
         await showModal("add-space-modal", {presenter: "add-space-modal"});
     }
 
     async logout() {
-        await system.services.logoutUser();
-        await system.loadPage();
+        await assistOS.services.logoutUser();
+        await assistOS.loadPage();
     }
 }

@@ -18,14 +18,11 @@ export class AddAnnouncementModal {
     async addAnnouncementSubmitForm(_target) {
         let formInfo = await extractFormInformation(_target);
         if(formInfo.isValid) {
-
-            let flowId = system.space.getFlowIdByName("AddAnnouncement");
-            let context = {
+            await assistOS.callFlow("AddAnnouncement", {
                 title: formInfo.data.title,
                 text: formInfo.data.text
-            };
-            await system.services.callFlow(flowId, context);
-            system.space.notifyObservers(system.space.getNotificationId());
+            });
+            assistOS.space.notifyObservers(assistOS.space.getNotificationId());
             closeModal(_target);
         }
     }

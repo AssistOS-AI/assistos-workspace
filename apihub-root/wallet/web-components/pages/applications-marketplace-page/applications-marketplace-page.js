@@ -9,7 +9,7 @@ export class ApplicationsMarketplacePage {
 
     beforeRender() {
         this.applications = "";
-        Object.entries(system.applications).forEach((application) => {
+        Object.entries(assistOS.applications).forEach((application) => {
             if(application[1].name === "Imagify" || application[1].name === "MyWebPage"){
                 return;
             }
@@ -39,9 +39,9 @@ export class ApplicationsMarketplacePage {
         this.setContext();
     }
     setContext(){
-        system.context = {
-            "location and available actions": "We are in the Applications Marketplace page in OS. Here you can see the applications available for the system. Some of them have not been installed yet.",
-            "available items": JSON.stringify(system.applications)
+        assistOS.context = {
+            "location and available actions": "We are in the Applications Marketplace page in OS. Here you can see the applications available for the assistOS. Some of them have not been installed yet.",
+            "available items": JSON.stringify(assistOS.applications)
         }
     }
     async addMarketplace(){

@@ -274,7 +274,7 @@ async function loadObjects(request, response) {
         sendResponse(response, 500, "text/plain", JSON.stringify(e));
     }
 
-    sendResponse(response, 200, "application/json", JSON.stringify(localData));
+    sendResponse(response, 200, "text/plain", JSON.stringify(localData));
 }
 
 async function loadApplicationFile(request, response) {

@@ -7,7 +7,7 @@ export class DeleteChapter {
     }
     async start(context) {
         try {
-            let document = system.space.getDocument(context.documentId);
+            let document = assistOS.space.getDocument(context.documentId);
             await document.deleteChapter(context.chapterId);
             this.return(context.chapterId);
         } catch (e) {

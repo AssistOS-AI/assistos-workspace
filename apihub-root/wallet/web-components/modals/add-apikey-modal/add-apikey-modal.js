@@ -23,12 +23,12 @@ export class AddApikeyModal {
                 if(!keyValidation.success){
                     throw Error(keyValidation.error);
                 }
-                await system.services.addKeyToSpace(system.space.id,system.user.id,keyType,apiKey);
+                await assistOS.services.addKeyToSpace(assistOS.space.id,assistOS.user.id,keyType,apiKey);
                 closeModal(_target);
                 window.location=""
             } catch (error) {
                 closeModal(_target);
-                showApplicationError('Invalid API Key', `Encountered an error trying to add the API Key to Space: ${system.space.name}`,
+                showApplicationError('Invalid API Key', `Encountered an error trying to add the API Key to Space: ${assistOS.space.name}`,
                     error);
             }
         }

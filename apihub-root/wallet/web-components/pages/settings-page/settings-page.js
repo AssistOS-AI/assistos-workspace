@@ -3,8 +3,8 @@ export class SettingsPage {
         this.element = element;
         this.invalidate = invalidate;
         this.invalidate(async () => {
-            this.users = JSON.parse(await system.services.getUsersSecretsExist());
-            this.apiKeys = system.space.apiKeys
+            this.users = JSON.parse(await assistOS.services.getUsersSecretsExist());
+            this.apiKeys = assistOS.space.apiKeys
         });
     }
 
@@ -22,7 +22,7 @@ export class SettingsPage {
         this.apiKeysContainers=""
         Object.keys(this.apiKeys).forEach(keyType => {
             apiKeysContainer=""
-            system.space.apiKeys[keyType].forEach(keyObj => {
+            assistOS.space.apiKeys[keyType].forEach(keyObj => {
                 apiKeysContainer +=
                     `<apikey-unit data-presenter="apikey-unit" data-key-id="${keyObj.id}" data-key-type="${keyType}"> </apikey-unit>`
             })
@@ -34,7 +34,7 @@ export class SettingsPage {
 
     afterRender() {
         let deleteButton = this.element.querySelector("#delete-space-button");
-        if (system.user.id !== system.space.id) {
+        if (assistOS.user.id !== assistOS.space.id) {
             deleteButton.style.display = "block";
         } else {
             deleteButton.style.display = "none";
@@ -42,7 +42,7 @@ export class SettingsPage {
         this.setContext();
     }
     setContext() {
-        system.context = {
+        assistOS.context = {
             "location and available actions": "We are in the Settings page in OS. Here you can see if a user has configured his GIT credentials and LLM API keys. You can also delete them and delete the space.",
             "available items": {
                 users:JSON.stringify(this.users),
@@ -51,35 +51,33 @@ export class SettingsPage {
         }
     }
     async deleteSpace() {
-        let flowId = system.space.getFlowIdByName("DeleteSpace");
-        let context = { spaceId: system.space.id };
-        return await system.services.callFlow(flowId, context);
+        return await assistOS.callFlow("DeleteSpace", { spaceId: assistOS.space.id });
     }
 
     async deleteGITCredentials(_target, userId) {
-        await system.storage.storeGITCredentials(system.space.id, userId, JSON.stringify({
+        await assistOS.storage.storeGITCredentials(assistOS.space.id, userId, JSON.stringify({
             delete: true, secretName: "username"
         }));
-        await system.storage.storeGITCredentials(system.space.id, userId, JSON.stringify({
+        await assistOS.storage.storeGITCredentials(assistOS.space.id, userId, JSON.stringify({
             delete: true, secretName: "token"
         }));
         this.invalidate(async () => {
-            this.users = JSON.parse(await system.services.getUsersSecretsExist());
+            this.users = JSON.parse(await assistOS.services.getUsersSecretsExist());
         });
     }
 
     async deleteKey(_eventTarget) {
-        const keyId = system.UI.reverseQuerySelector(_eventTarget, 'apikey-unit').getAttribute('data-key-id');
-        const keyType = system.UI.reverseQuerySelector(_eventTarget, 'apikey-unit').getAttribute('data-key-type');
-        await system.storage.deleteKey(system.space.id,keyType, keyId);
+        const keyId = assistOS.UI.reverseQuerySelector(_eventTarget, 'apikey-unit').getAttribute('data-key-id');
+        const keyType = assistOS.UI.reverseQuerySelector(_eventTarget, 'apikey-unit').getAttribute('data-key-type');
+        await assistOS.storage.deleteKey(assistOS.space.id,keyType, keyId);
         this.apiKeys[keyType]=this.apiKeys[keyType].filter(key=>key.id!==keyId);
         this.invalidate();
     }
     async addKey(){
-        await system.UI.showModal( "add-apikey-modal", {presenter: "add-apikey-modal"});
+        await assistOS.UI.showModal( "add-apikey-modal");
     }
     editKey(_eventTarget) {
-        const keyId = system.UI.reverseQuerySelector(_eventTarget, 'apikey-unit').getAttribute('data-id');
+        const keyId = assistOS.UI.reverseQuerySelector(_eventTarget, 'apikey-unit').getAttribute('data-id');
     }
 
 

@@ -1,7 +1,7 @@
 export class MyWebPage {
     constructor(element, invalidate) {
         this.element = element;
-        system.space.observeChange(system.space.getNotificationId(), invalidate);
+        assistOS.space.observeChange(assistOS.space.getNotificationId(), invalidate);
         this.invalidate = invalidate;
         this.invalidate();
     }
@@ -10,8 +10,8 @@ export class MyWebPage {
         this.myWebPageContainer = "";
         this.pageOptions = "";
         let selectedPageHtml = "";
-        if (system.space.pages.length > 0) {
-            system.space.pages.forEach((page) => {
+        if (assistOS.space.pages.length > 0) {
+            assistOS.space.pages.forEach((page) => {
                 this.myWebPageContainer += `<page-unit data-title="${page.title}"
         data-content="${page.text}" data-date="${page.date}"
         data-id="${page.id}" data-local-action="editAction"></page-unit>`;
@@ -26,7 +26,7 @@ export class MyWebPage {
         this.element.querySelector("#pages").addEventListener("change", (event) => {
             debugger;
             this.selectedPageId = event.target.value;
-            this.textAreaValue = system.space.pages.find((page) => {
+            this.textAreaValue = assistOS.space.pages.find((page) => {
                 return page.id === this.selectedPageId;
             }).html;
             this.textArea = this.element.querySelector("#pageCode");
@@ -35,25 +35,24 @@ export class MyWebPage {
     }
 
     async showActionBox(_target, primaryKey, componentName, insertionMode) {
-        await system.UI.UtilsService.showActionBox(_target, primaryKey, componentName, insertionMode);
+        await assistOS.UI.UtilsService.showActionBox(_target, primaryKey, componentName, insertionMode);
     }
 
     getPageId(_target) {
-        return system.UI.reverseQuerySelector(_target, "page-unit").getAttribute("data-id");
+        return assistOS.UI.reverseQuerySelector(_target, "page-unit").getAttribute("data-id");
     }
 
     async showAddPageModal() {
-        await system.UI.showModal( "add-page-modal", {presenter: "add-page-modal"});
+        await assistOS.UI.showModal( "add-page-modal");
     }
 
     async deleteAction(_target) {
-        let flowId = system.space.getFlowIdByName("DeletePage");
-        await system.services.callFlow(flowId, this.getPageId(_target));
+        await assistOS.callFlow("DeletePage", this.getPageId(_target));
         this.invalidate();
     }
 
     async editAction(_target) {
-        await system.UI.showModal( "edit-my-web-page-modal", {
+        await assistOS.UI.showModal( "edit-my-web-page-modal", {
             presenter: "edit-my-web-page-modal",
             id: this.getPageId(_target)
         });

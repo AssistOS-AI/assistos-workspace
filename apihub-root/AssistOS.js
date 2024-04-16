@@ -3,15 +3,17 @@ import {
     WebSkel,
     StorageManager
 } from "./wallet/imports.js";
+import * as dependencies from "./wallet/imports.js";
+import {IFlow} from "./wallet/core/models/IFlow.js";
 
-class System {
+class AssistOS {
     constructor(configuration) {
-        if (System.instance) {
-            return System.instance;
+        if (AssistOS.instance) {
+            return AssistOS.instance;
         }
         this.configuration = configuration;
-        System.instance = this;
-        return System.instance;
+        AssistOS.instance = this;
+        return AssistOS.instance;
     }
 
     async boot(uiConfigsPath) {
@@ -51,12 +53,12 @@ class System {
         this.configuration.applications.forEach(application => {
             this.applications[application.name] = application;
         });
-        this.defaultApplicationName = this.configuration.defaultApplicationName;
+        this.currentApplicationName = this.configuration.defaultApplicationName;
         await Promise.all(initialisePromises);
     }
 
     async refresh() {
-        await this.UI.changeToDynamicPage("space-configs-page", `${system.space.id}/SpaceConfiguration/announcements-page`);
+        await this.UI.changeToDynamicPage("space-configs-page", `${assistOS.space.id}/SpaceConfiguration/announcements-page`);
     }
 
     async loadPage(skipAuth = false, skipSpace = false, spaceId) {
@@ -69,9 +71,9 @@ class System {
             hidePlaceholders();
             insertSidebar();
             if (applicationName) {
-                await system.services.startApplication(applicationName, applicationLocation);
+                await assistOS.services.startApplication(applicationName, applicationLocation);
             } else {
-                await system.UI.changeToDynamicPage("space-configs-page", `${system.space.id}/SpaceConfiguration/announcements-page`);
+                await assistOS.UI.changeToDynamicPage("space-configs-page", `${assistOS.space.id}/SpaceConfiguration/announcements-page`);
             }
         };
 
@@ -83,15 +85,92 @@ class System {
 
         if (spaceId === "authentication-page") {
             hidePlaceholders();
-            return system.UI.changeToDynamicPage(spaceId, spaceId);
+            return assistOS.UI.changeToDynamicPage(spaceId, spaceId);
         }
 
         try {
-            await (spaceId ? skipSpace ? system.services.initUser() : system.services.initUser(spaceId) : system.services.initUser());
+            await (spaceId ? skipSpace ? assistOS.services.initUser() : assistOS.services.initUser(spaceId) : assistOS.services.initUser());
             await initPage();
         } catch (error) {
             hidePlaceholders();
-            await system.UI.changeToDynamicPage("authentication-page", "authentication-page");
+            await assistOS.UI.changeToDynamicPage("authentication-page", "authentication-page");
+        }
+    }
+
+    async callFlow(flowName, context, personalityId) {
+        let flowObj;
+        try {
+            flowObj = initFlow(flowName, context, personalityId);
+        }catch (e) {
+            console.error(e);
+            return await showApplicationError(e, e, e.stack);
+        }
+
+        let response;
+        try {
+            response = await ((context, personality)=>{
+                let returnPromise = new Promise((resolve, reject) => {
+                    flowObj.flowInstance.resolve = resolve;
+                    flowObj.flowInstance.reject = reject;
+                });
+                flowObj.flowInstance.personality = personality;
+                flowObj.flowInstance.start(context, personality);
+                return returnPromise;
+            })(context, flowObj.personality);
+        }catch (e) {
+            console.error(e);
+            return await showApplicationError("Flow execution Error", `Error executing flow ${flowObj.flowInstance.constructor.name}`, e);
+        }
+        if(flowObj.flowClass.outputSchema){
+            if(typeof flowObj.flowClass.outputSchema.isValid === "undefined"){
+                try {
+                    let parsedResponse = JSON.parse(response);
+                    //assistOS.services.validateSchema(parsedResponse, flowObj.flowClass.outputSchema, "output");
+                    return parsedResponse;
+                }catch (e) {
+                    console.error(e);
+                    return await showApplicationError(e, e, e.stack);
+                }
+            }
+        }
+        return response;
+
+        function initFlow(flowName, context, personalityId){
+            let flow;
+            if(assistOS.currentApplicationName === assistOS.configuration.defaultApplicationName){
+                flow = assistOS.space.getFlow(flowName);
+            } else {
+                let app = assistOS.space.getApplicationByName(assistOS.currentApplicationName);
+                flow = app.getFlow(flowName);
+            }
+            let personality;
+            if(personalityId){
+                personality = assistOS.space.getPersonality(personalityId);
+            } else {
+                personality = assistOS.space.getPersonalityByName(dependencies.constants.DEFAULT_PERSONALITY_NAME);
+            }
+            if(flow.class.inputSchema){
+                // assistOS.services.validateSchema(context, flow.class.inputSchema, "input");
+            }
+            let usedDependencies = [];
+            if(flow.class.dependencies){
+                for(let functionName of flow.class.dependencies){
+                    usedDependencies.push(dependencies[functionName]);
+                }
+            }
+            let flowInstance = new flow.class(...usedDependencies);
+            if(flowInstance.start === undefined){
+                throw new Error(`Flow ${flowInstance.constructor.name} must have a function named 'start'`);
+            }
+            const apis = Object.getOwnPropertyNames(IFlow.prototype)
+                .filter(method => method !== 'constructor');
+            apis.forEach(methodName => {
+                flowInstance[methodName] = IFlow.prototype[methodName].bind(flowInstance);
+            });
+            if(flow.class.inputSchema){
+                // assistOS.services.validateSchema(context, flow.class.inputSchema, "input");
+            }
+            return {flowInstance:flowInstance, flowClass:flow.class, personality: personality};
         }
     }
 }
@@ -142,16 +221,16 @@ function hidePlaceholders() {
 
 
 function defineActions() {
-    system.UI.registerAction("closeErrorModal", async (_target) => {
+    assistOS.UI.registerAction("closeErrorModal", async (_target) => {
         closeModal(_target);
     });
 }
 
 async function handleHistory(event) {
     if (window.location.hash !== "#authentication-page") {
-        system.UI.setDomElementForPages(mainContent);
+        assistOS.UI.setDomElementForPages(mainContent);
         window.location.hash = "#authentication-page";
-        await system.UI.changeToDynamicPage("authentication-page", "authentication-page", "", true);
+        await assistOS.UI.changeToDynamicPage("authentication-page", "authentication-page", "", true);
     }
     let modal = document.querySelector("dialog");
     if (modal) {
@@ -160,7 +239,7 @@ async function handleHistory(event) {
 }
 
 function saveCurrentState() {
-    system.UI.currentState = Object.assign({}, history.state);
+    assistOS.UI.currentState = Object.assign({}, history.state);
 }
 
 function closeDefaultLoader() {
@@ -184,14 +263,14 @@ function closeDefaultLoader() {
     const configuration = await (await fetch(ASSISTOS_CONFIGS_PATH)).json();
     const loader = await (await fetch("./wallet/general-loader.html")).text();
 
-    window.system = new System(configuration);
-    await system.boot(UI_CONFIGS_PATH);
+    window.assistOS = new AssistOS(configuration);
+    await assistOS.boot(UI_CONFIGS_PATH);
 
-    system.UI.setLoading(loader);
-    system.UI.setDomElementForPages(document.querySelector("#page-content"));
+    assistOS.UI.setLoading(loader);
+    assistOS.UI.setDomElementForPages(document.querySelector("#page-content"));
     defineActions();
     closeDefaultLoader()
-    await system.loadPage();
+    await assistOS.loadPage();
     window.addEventListener('popstate', handleHistory);
     window.addEventListener('beforeunload', saveCurrentState);
 })();
