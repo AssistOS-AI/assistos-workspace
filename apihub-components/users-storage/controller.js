@@ -22,7 +22,7 @@ async function loginUser(request, response) {
             message: `User ${userData.name} logged in successfully`
         }, [authCookie, refreshAuthCookie, currentSpaceCookie]);
     } catch (error) {
-        utils.sendResponse(response, 404, "application/json", {
+        utils.sendResponse(response, 500, "application/json", {
             success: false,
             message: error.message
         });

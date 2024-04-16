@@ -162,6 +162,9 @@ async function createSpace(spaceName, userId, apiKey) {
         error.statusCode = 500;
         throw error;
     }
+    let lightDBEnclaveClient = enclave.initialiseLightDBEnclave(spaceId);
+    await $$.promisify(lightDBEnclaveClient.createDatabase)(spaceId);
+    await $$.promisify(lightDBEnclaveClient.grantWriteAccess)($$.SYSTEM_IDENTIFIER);
     return spaceObj;
 }
 
@@ -273,11 +276,6 @@ function constructDocument(documentId, recordsArray){
     }
 }
 async function getSpaceDocumentsObject(spaceId) {
-
-    let lightDBEnclaveClient = enclave.initialiseLightDBEnclave(spaceId);
-    await $$.promisify(lightDBEnclaveClient.createDatabase)(spaceId);
-    await $$.promisify(lightDBEnclaveClient.grantWriteAccess)($$.SYSTEM_IDENTIFIER);
-
     let documents = [];
     let records;
     try {
