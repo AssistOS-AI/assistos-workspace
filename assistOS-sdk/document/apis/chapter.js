@@ -1,9 +1,10 @@
 const enclave = require("opendsu").loadAPI("enclave");
-const generateId = require('../../exporter.js')
-('generateId');
-const SPACE_CONSTANTS = require('../../../constants/exporter.js')('space-constants');
+const Loader = require('../../Loader.js');
+const utilsModule = Loader.loadModule('util');
+const crypto = utilsModule.loadAPIs('crypto');
+const constants = Loader.loadModule('constants');
 const paragraphAPIs = require('./paragraph.js');
-const objectTypes = SPACE_CONSTANTS.OBJECT_TYPES;
+const objectTypes = constants.OBJECT_TYPES;
 
 function splitObjectId(objectId){
     let splitId = objectId.split(".");
@@ -16,11 +17,17 @@ function getChapterRecordPK (chapterId, key){
 function getChapterComponentRecordPK(chapterId, key, componentId){
     return key + "#" + "chapter" + "#" + chapterId + "#" + "item" + "#" + componentId;
 }
-async function addChapter(spaceId, chapterData) {
+async function addChapter(spaceId, chapterData, isUpdate = false) {
     let documentId = chapterData.documentId;
     let lightDBEnclaveClient = enclave.initialiseLightDBEnclave(spaceId);
-    let chapterId = generateId();
     chapterData = chapterData.chapter;
+    let chapterId;
+    if(isUpdate){
+        chapterId = chapterData.id;
+    } else {
+        chapterId = crypto.generateId();
+    }
+
     let chapterObj = {
         id: chapterId,
         position: chapterData.position,
@@ -37,7 +44,7 @@ async function addChapter(spaceId, chapterData) {
                 chapterId: chapterId,
                 paragraph: paragraph
             }
-            paragraphs.push(await paragraphAPIs.paragraph.add(spaceId, paragraphObj));
+            paragraphs.push(await paragraphAPIs.paragraph.add(spaceId, paragraphObj, isUpdate));
         }
     }
     chapterObj.paragraphs = paragraphs;
@@ -136,7 +143,7 @@ async function updateChapterTitle(spaceId, objectId, title) {
 //mainIdeas
 async function addChapterMainIdea(spaceId, objectData) {
     let lightDBEnclaveClient = enclave.initialiseLightDBEnclave(spaceId);
-    let mainIdeaId = generateId();
+    let mainIdeaId = crypto.generateId();
     let pk = getChapterComponentRecordPK(objectData.chapterId, objectTypes.chapterMainIdea, mainIdeaId);
     let mainIdeaObj = {
         id: mainIdeaId,
@@ -162,7 +169,7 @@ async function deleteChapterMainIdea(spaceId, objectId) {
 //alternativeTitles
 async function addChapterAlternativeTitle(spaceId, objectData) {
     let lightDBEnclaveClient = enclave.initialiseLightDBEnclave(spaceId);
-    let alternativeTitleId = generateId();
+    let alternativeTitleId = crypto.generateId();
     let pk = getChapterComponentRecordPK(objectData.chapterId, objectTypes.chapterAlternativeTitle, alternativeTitleId);
     let alternativeTitleObj = {
         id: alternativeTitleId,
@@ -190,7 +197,7 @@ async function addAlternativeChapter(spaceId, objectData) {
     let documentId = objectData.documentId;
     objectData = objectData.alternativeChapter;
     let lightDBEnclaveClient = enclave.initialiseLightDBEnclave(spaceId);
-    let alternativeChapterId = generateId();
+    let alternativeChapterId = crypto.generateId();
     let pk = getChapterComponentRecordPK(objectData.chapterId, objectTypes.alternativeChapter, alternativeChapterId);
     let alternativeChapterObj = {
         id: alternativeChapterId,

@@ -1,3 +1,4 @@
+const jwt = require('../apihub-component-utils/jwt.js')
 const cookie = require('../apihub-component-utils/cookie.js');
 const utils = require('../apihub-component-utils/utils.js');
 

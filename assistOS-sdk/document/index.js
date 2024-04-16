@@ -26,7 +26,7 @@ const dataModules={
 }
 function loadAPIs(...apiNames) {
     if (apiNames.length === 0) {
-        apiNames = Object.keys(apiModules);
+        apiNames = [Object.keys(apiModules)[0]];
     }
     if (apiNames.length === 1) {
         const api = apiModules[apiNames[0]];

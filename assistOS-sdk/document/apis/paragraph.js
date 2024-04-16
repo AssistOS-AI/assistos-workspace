@@ -1,8 +1,9 @@
 const enclave = require("opendsu").loadAPI("enclave");
-const generateId = require('../../exporter.js')
-('generateId');
-const SPACE_CONSTANTS = require('../../../constants/exporter.js')('space-constants');
-const objectTypes = SPACE_CONSTANTS.OBJECT_TYPES;
+const Loader = require('../../Loader.js');
+const utilsModule = Loader.loadModule('util');
+const crypto = utilsModule.loadAPIs('crypto');
+const constants = Loader.loadModule('constants');
+const objectTypes = constants.OBJECT_TYPES;
 
 function getParagraphRecordPK(chapterId, paragraphId, key){
     return key + "#" + "chapter" + "#" + chapterId + "#" + "paragraph" + "#" + paragraphId;
@@ -16,12 +17,18 @@ function splitObjectId(objectId){
     let splitId = objectId.split(".");
     return splitId.filter((element, index) => index % 2 !== 0);
 }
-async function addParagraph(spaceId, paragraphData) {
+async function addParagraph(spaceId, paragraphData, isUpdate = false) {
     let documentId = paragraphData.documentId;
     let chapterId = paragraphData.chapterId;
     paragraphData = paragraphData.paragraph;
     let lightDBEnclaveClient = enclave.initialiseLightDBEnclave(spaceId);
-    let paragraphId = generateId();
+    let paragraphId;
+    if(isUpdate){
+       paragraphId = paragraphData.id;
+    } else{
+        paragraphId = crypto.generateId();
+    }
+
     let paragraphObj = {
         id: paragraphId,
         position: paragraphData.position,
@@ -108,7 +115,7 @@ async function updateParagraphText(spaceId, objectId, text) {
 }
 async function addParagraphMainIdea(spaceId, objectData) {
     let lightDBEnclaveClient = enclave.initialiseLightDBEnclave(spaceId);
-    let mainIdeaId = generateId();
+    let mainIdeaId = crypto.generateId();
     let mainIdeaObj = {
         id: mainIdeaId,
         text: objectData.mainIdea
@@ -137,7 +144,7 @@ async function addAlternativeParagraph(spaceId, objectData) {
     let paragraphId = objectData.paragraphId;
     objectData = objectData.alternativeParagraph;
     let lightDBEnclaveClient = enclave.initialiseLightDBEnclave(spaceId);
-    let alternativeParagraphId = generateId();
+    let alternativeParagraphId = crypto.generateId();
     let paragraphObj = {
         id: alternativeParagraphId,
         text: objectData.text || "",

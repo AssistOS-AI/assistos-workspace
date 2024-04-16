@@ -9,6 +9,7 @@ const Loader = require('../../assistOS-sdk/Loader.js');
 const utilsModule = Loader.loadModule('util');
 const userModule= Loader.loadModule('user');
 const spaceModule= Loader.loadModule('space');
+const spaceAPIs= spaceModule.loadAPIs();
 const openAI = utilsModule.loadAPIs('openAI');
 const sendResponse = requestUtils.sendResponse;
 const createCookieString = cookieUtils.createCookieString;
@@ -50,7 +51,7 @@ async function getObject(request, response) {
 
 async function addObject(request, response) {
     try {
-        let object = await spaceModule.addObject(request.params.spaceId, request.params.objectType, request.body);
+        let object = await spaceAPIs.addObject(request.params.spaceId, request.params.objectType, request.body);
         return sendResponse(response, 200, "text/html", JSON.stringify(object));
     } catch (e) {
         return sendResponse(response, 500, "text/html", JSON.stringify(e + ` Error at adding object: ${request.params.objectType}`));
@@ -59,7 +60,7 @@ async function addObject(request, response) {
 
 async function updateObject(request, response) {
     try {
-        let objectId = await spaceModule.updateObject(request.params.spaceId, request.params.objectType, request.params.objectName, request.body);
+        let objectId = await spaceAPIs.updateObject(request.params.spaceId, request.params.objectType, request.params.objectName, request.body);
         return sendResponse(response, 200, "text/html", objectId);
     } catch (e) {
         return sendResponse(response, 500, "text/html", JSON.stringify(e + ` Error at updating object: ${request.params.objectType}: ${request.params.objectName}`));
@@ -68,7 +69,7 @@ async function updateObject(request, response) {
 
 async function deleteObject(request, response) {
     try {
-        let objectId = await spaceModule.deleteObject(request.params.spaceId, request.params.objectType, request.params.objectName);
+        let objectId = await spaceAPIs.deleteObject(request.params.spaceId, request.params.objectType, request.params.objectName);
         return sendResponse(response, 200, "text/html", JSON.stringify(objectId));
     } catch (e) {
         return sendResponse(response, 500, "text/html", JSON.stringify(e + ` Error at deleting object: ${request.params.objectType}: ${request.params.objectName}`));

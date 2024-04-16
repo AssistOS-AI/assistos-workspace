@@ -5,6 +5,7 @@ const {
     loadUser,
     logoutUser
 } = require("./controller");
+const configs = require("../../config.json");
 
 function UserStorage(server) {
 
@@ -35,6 +36,17 @@ function UserStorage(server) {
         await secretService.putSecretAsync('JWT', 'RefreshToken', refreshToken);
         await secretService.putSecretAsync('JWT', 'EmailToken', emailToken);
 
+    }, 0);
+    setTimeout(async () => {
+        const configs = require('../../config.json');
+
+        const createDefaultUser = configs.CREATE_DEMO_USER;
+        const Loader = require('../../assistOS-sdk/Loader.js');
+        const userModule = Loader.loadModule('user');
+        const userAPIs = userModule.loadAPIs();
+        if (createDefaultUser) {
+            await userAPIs.createDemoUser();
+        }
     }, 0);
 
     const bodyReader = require('../apihub-component-middlewares/bodyReader.js')

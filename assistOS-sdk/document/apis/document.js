@@ -1,21 +1,28 @@
 const enclave = require("opendsu").loadAPI("enclave");
-const generateId = require('../../exporter.js')
-('generateId');
-const SPACE_CONSTANTS = require('../../../constants/exporter.js')('space-constants');
+const Loader = require('../../Loader.js');
+const utilsModule = Loader.loadModule('util');
+const crypto = utilsModule.loadAPIs('crypto');
+const constants = Loader.loadModule('constants');
 const chapterAPIs = require('./chapter.js');
 
 function splitObjectId(objectId){
     let splitId = objectId.split(".");
     return splitId.filter((element, index) => index % 2 !== 0);
 }
-const objectTypes = SPACE_CONSTANTS.OBJECT_TYPES;
+const objectTypes = constants.OBJECT_TYPES;
 function getDocumentComponentRecordPK(key, componentId){
     return key + "#" + componentId;
 }
-async function addDocument(spaceId, documentData) {
+async function addDocument(spaceId, documentData, isUpdate = false) {
     let lightDBEnclaveClient = enclave.initialiseLightDBEnclave(spaceId);
-    let documentId = generateId();
-    await $$.promisify(lightDBEnclaveClient.insertRecord)($$.SYSTEM_IDENTIFIER, SPACE_CONSTANTS.DB_NAMES.DOCUMENTS, documentId, {data:documentId});
+    let documentId;
+    if(isUpdate){
+        documentId = documentData.id;
+    }else{
+        documentId = crypto.generateId();
+    }
+
+    await $$.promisify(lightDBEnclaveClient.insertRecord)($$.SYSTEM_IDENTIFIER, constants.DB_NAMES.DOCUMENTS, documentId, {data:documentId});
     let documentObj =  {
         id: documentId,
         position: documentData.position,
@@ -36,7 +43,7 @@ async function addDocument(spaceId, documentData) {
                 documentId: documentId,
                 chapter: chapter
             }
-            chapters.push(await chapterAPIs.chapter.add(spaceId, chapterObj));
+            chapters.push(await chapterAPIs.chapter.add(spaceId, chapterObj, isUpdate));
         }
     }
     documentObj.chapters = chapters;
@@ -62,14 +69,14 @@ async function addDocument(spaceId, documentData) {
     return documentObj;
 }
 async function updateDocument(spaceId, documentId, documentData) {
-    // TODO
-    //await deleteDocument(spaceId, documentId);
-    //return await addDocument(spaceId, documentData, isUpdate);
+    await deleteDocument(spaceId, documentId);
+    await addDocument(spaceId, documentData, true);
+    return documentId;
 }
 async function deleteDocument(spaceId, documentId) {
     // TODO
     let lightDBEnclaveClient = enclave.initialiseLightDBEnclave(spaceId);
-    await $$.promisify(lightDBEnclaveClient.deleteRecord)($$.SYSTEM_IDENTIFIER, SPACE_CONSTANTS.DB_NAMES.DOCUMENTS, documentId);
+    await $$.promisify(lightDBEnclaveClient.deleteRecord)($$.SYSTEM_IDENTIFIER, constants.DB_NAMES.DOCUMENTS, documentId);
     //delete table??
 }
 
@@ -97,7 +104,7 @@ async function updateDocumentAbstract(spaceId, objectId, abstract) {
 //mainIdeas
 async function addDocumentMainIdea(spaceId, objectData) {
     let lightDBEnclaveClient = enclave.initialiseLightDBEnclave(spaceId);
-    let mainIdeaId = generateId();
+    let mainIdeaId = crypto.generateId();
     let pk = getDocumentComponentRecordPK(objectTypes.mainIdea, mainIdeaId);
     let mainIdeaObj = {
         id: mainIdeaId,
@@ -123,7 +130,7 @@ async function deleteDocumentMainIdea(spaceId, objectId) {
 //alternativeTitles
 async function addDocumentAlternativeTitle(spaceId, objectData) {
     let lightDBEnclaveClient = enclave.initialiseLightDBEnclave(spaceId);
-    let alternativeTitleId = generateId();
+    let alternativeTitleId = crypto.generateId();
     let pk = getDocumentComponentRecordPK(objectTypes.alternativeTitle, alternativeTitleId);
     let alternativeTitleObj = {
         id: alternativeTitleId,
@@ -149,7 +156,7 @@ async function deleteDocumentAlternativeTitle(spaceId, objectId) {
 //alternativeAbstracts
 async function addDocumentAlternativeAbstract(spaceId, objectData) {
     let lightDBEnclaveClient = enclave.initialiseLightDBEnclave(spaceId);
-    let alternativeAbstractId = generateId();
+    let alternativeAbstractId = crypto.generateId();
     let pk = getDocumentComponentRecordPK(objectTypes.alternativeAbstract, alternativeAbstractId);
     let alternativeAbstractObj = {
         id: alternativeAbstractId,
