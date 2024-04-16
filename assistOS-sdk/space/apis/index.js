@@ -8,6 +8,7 @@ const utilsModule = Loader.loadModule('util');
 const userModule = Loader.loadModule('user');
 const spaceModule= Loader.loadModule('space');
 const documentModule= Loader.loadModule('document');
+const documentAPIs = documentModule.loadAPIs();
 const objectTypes = constants.OBJECT_TYPES;
 const {crypto, file, data, date, openAI} = utilsModule.loadAPIs('crypto', 'file', 'data', 'date', 'openAI');
 const enclave = require('opendsu').loadAPI('enclave');
@@ -276,6 +277,7 @@ function constructDocument(documentId, recordsArray){
     }
 }
 async function getSpaceDocumentsObject(spaceId) {
+    let lightDBEnclaveClient = enclave.initialiseLightDBEnclave(spaceId);
     let documents = [];
     let records;
     try {
@@ -347,39 +349,39 @@ async function getObject(spaceId, objectType, objectId) {
     if(!constants.OBJECT_TYPES[objectType]){
         throw new Error(`Invalid object type: ${objectType}`);
     }
-    if(!documentModule[constants.OBJECT_TYPES[objectType]]["get"]){
+    if(!documentAPIs[constants.OBJECT_TYPES[objectType]]["get"]){
         throw new Error(`No ADD API found for object type: ${objectType}`);
     }
-    return await documentModule[constants.OBJECT_TYPES[objectType]]["get"](spaceId, objectId);
+    return await documentAPIs[constants.OBJECT_TYPES[objectType]]["get"](spaceId, objectId);
 }
 
 async function addObject(spaceId, objectType, objectData) {
     if(!constants.OBJECT_TYPES[objectType]){
         throw new Error(`Invalid object type: ${objectType}`);
     }
-    if(!documentModule[constants.OBJECT_TYPES[objectType]]["add"]){
+    if(!documentAPIs[constants.OBJECT_TYPES[objectType]]["add"]){
         throw new Error(`No ADD API found for object type: ${objectType}`);
     }
-    return await documentModule[constants.OBJECT_TYPES[objectType]]["add"](spaceId, objectData);
+    return await documentAPIs[constants.OBJECT_TYPES[objectType]]["add"](spaceId, objectData);
 }
 
 async function updateObject(spaceId, objectType, objectId, objectData) {
     if(!constants.OBJECT_TYPES[objectType]){
         throw new Error(`Invalid object type: ${objectType}`);
     }
-    if(!documentModule[constants.OBJECT_TYPES[objectType]]["update"]){
+    if(!documentAPIs[constants.OBJECT_TYPES[objectType]]["update"]){
         throw new Error(`No ADD API found for object type: ${objectType}`);
     }
-    return await documentModule[constants.OBJECT_TYPES[objectType]]["update"](spaceId, objectId, objectData);
+    return await documentAPIs[constants.OBJECT_TYPES[objectType]]["update"](spaceId, objectId, objectData);
 }
 async function deleteObject(spaceId, objectType, objectId) {
     if(!constants.OBJECT_TYPES[objectType]){
         throw new Error(`Invalid object type: ${objectType}`);
     }
-    if(!documentModule[constants.OBJECT_TYPES[objectType]]["delete"]){
+    if(!documentAPIs[constants.OBJECT_TYPES[objectType]]["delete"]){
         throw new Error(`No ADD API found for object type: ${objectType}`);
     }
-    return await documentModule[constants.OBJECT_TYPES[objectType]]["delete"](spaceId, objectId);
+    return await documentAPIs[constants.OBJECT_TYPES[objectType]]["delete"](spaceId, objectId);
 }
 module.exports = {
     addAnnouncement,
