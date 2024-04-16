@@ -178,8 +178,7 @@ export class Space {
 
     async deleteDocument(documentId) {
         this.documents = this.documents.filter(document => document.id !== documentId);
-        await assistOS.storage.storeObject(assistOS.space.id, "documents", documentId, "");
-
+        await assistOS.storage.deleteDocument(assistOS.space.id, documentId);
     }
 
     async addPersonality(personalityData) {

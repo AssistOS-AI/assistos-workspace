@@ -177,105 +177,7 @@ async function createSpaceStatus(spacePath, spaceObject) {
 async function deleteSpace() {
 
 }
-function getRecordDataAndRemove(recordsArray, pk){
-    const index = recordsArray.findIndex(item => item.pk === pk);
-    if (index !== -1) {
-        const record = recordsArray[index];
-        recordsArray.splice(index, 1);
-        return record.data;
-    } else {
-        return null;
-    }
-}
-function constructObjectArrayAndRemove(recordsArray, objectType){
-    const objectsToRemove = recordsArray.filter(record => record.pk.includes(objectType));
-    const dataArray = objectsToRemove.map(record => record.data);
-    objectsToRemove.forEach(object => {
-        const index = recordsArray.indexOf(object);
-        if (index !== -1) {
-            recordsArray.splice(index, 1);
-        }
-    });
-    return dataArray;
-}
-function constructChaptersAndRemove(recordsArray){
-    let chapters = [];
-    let chapterRecords = recordsArray.filter(record => record.pk.includes("#chapter#"));
-    //remove records from original array
-    chapterRecords.forEach(object => {
-        const index = recordsArray.indexOf(object);
-        if (index !== -1) {
-            recordsArray.splice(index, 1);
-        }
-    });
-    const groupedChapters = chapterRecords.reduce((groups, record) => {
-        const chapterId = record.pk.split('#')[2];
-        if (!groups[chapterId]) {
-            groups[chapterId] = [];
-        }
-        groups[chapterId].push(record);
-        return groups;
-    }, {});
 
-    for(let key of Object.keys(groupedChapters)){
-        let chapterObj = {
-            id: key,
-            position: getRecordDataAndRemove(groupedChapters[key], objectTypes.chapterMetadata + "#chapter#" + key),
-            title: getRecordDataAndRemove(groupedChapters[key], objectTypes.chapterTitle + "#chapter#" + key),
-            mainIdeas: constructObjectArrayAndRemove(groupedChapters[key], objectTypes.chapterMainIdea) || [],
-            alternativeTitles: constructObjectArrayAndRemove(groupedChapters[key], objectTypes.chapterAlternativeTitle) || [],
-            alternativeChapters: constructObjectArrayAndRemove(groupedChapters[key], objectTypes.alternativeChapter) || [],
-            paragraphs: constructParagraphsAndRemove(groupedChapters[key], key) || []
-        }
-        chapters.push(chapterObj);
-    }
-    chapters.sort((a, b) => a.position - b.position);
-    return chapters;
-}
-function constructParagraphsAndRemove(recordsArray, chapterId){
-    let paragraphs = [];
-    let paragraphRecords = recordsArray.filter(record => record.pk.includes("#paragraph#"));
-    const groupedParagraphs = paragraphRecords.reduce((groups, record) => {
-        const paragraphId = record.pk.split('#')[4];
-        if (!groups[paragraphId]) {
-            groups[paragraphId] = [];
-        }
-        groups[paragraphId].push(record);
-        return groups;
-    }, {});
-    for(let key of Object.keys(groupedParagraphs)){
-        let paragraphObj = {
-            id: key,
-            position: getRecordDataAndRemove(groupedParagraphs[key], objectTypes.paragraphMetadata + "#chapter#" + chapterId + "#paragraph#" + key),
-            text: getRecordDataAndRemove(groupedParagraphs[key], objectTypes.paragraphText + "#chapter#" + chapterId + "#paragraph#" + key) || "",
-            mainIdea: getRecordDataAndRemove(groupedParagraphs[key], objectTypes.paragraphMainIdea + "#chapter#" + chapterId + "#paragraph#" + key) || "",
-            alternativeParagraphs: constructObjectArrayAndRemove(groupedParagraphs[key], objectTypes.alternativeParagraph) || []
-        }
-        paragraphs.push(paragraphObj);
-    }
-    paragraphs.sort((a, b) => a.position - b.position);
-    return paragraphs;
-}
-function constructDocument(documentId, recordsArray){
-    if(!recordsArray || recordsArray.length === 0){
-        throw new Error(`No records found for document with id: ${documentId}`);
-    }
-    try{
-        return {
-            id: documentId,
-            position: getRecordDataAndRemove(recordsArray, objectTypes.documentMetadata),
-            title: getRecordDataAndRemove(recordsArray, objectTypes.title),
-            topic: getRecordDataAndRemove(recordsArray, objectTypes.topic) || "",
-            abstract: getRecordDataAndRemove(recordsArray, objectTypes.abstract) || "",
-            mainIdeas: constructObjectArrayAndRemove(recordsArray, objectTypes.mainIdea) || [],
-            chapters: constructChaptersAndRemove(recordsArray) || [],
-            alternativeTitles: constructObjectArrayAndRemove(recordsArray, objectTypes.alternativeTitle) || [],
-            alternativeAbstracts:  constructObjectArrayAndRemove(recordsArray, objectTypes.alternativeAbstract) || []
-        }
-    } catch (e) {
-        throw new Error(`Error constructing document with id ${documentId}: ${e}`);
-    }
-}
 async function getSpaceDocumentsObject(spaceId) {
     let lightDBEnclaveClient = enclave.initialiseLightDBEnclave(spaceId);
     let documents = [];
@@ -288,9 +190,9 @@ async function getSpaceDocumentsObject(spaceId) {
     }
     let documentIds = records.map(record => record.data);
     for(let documentId of documentIds){
-        let documentRecords = await $$.promisify(lightDBEnclaveClient.getAllRecords)($$.SYSTEM_IDENTIFIER, documentId);
-        documents.push(constructDocument(documentId, documentRecords));
+        documents.push(documentAPIs.document.get(spaceId, documentId));
     }
+    documents = await Promise.all(documents);
     documents.sort((a, b) => a.position - b.position);
     return documents;
 }

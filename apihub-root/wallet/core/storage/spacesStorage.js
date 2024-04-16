@@ -106,7 +106,7 @@ async function addKeyToSpace(spaceId, userId, keyType, apiKey) {
     return await result.text();
 }
 async function loadObject(spaceId, objectType, objectName) {
-    const result = await fetch(`/spaces/${spaceId}/${objectType}/${objectName}`,
+    const result = await fetch(`/spaces/${spaceId}/objects/${objectType}/${objectName}`,
         {
             method: "GET"
         });
@@ -116,7 +116,7 @@ async function loadObject(spaceId, objectType, objectName) {
 async function storeObject(spaceId, objectType, objectName, jsonData) {
     let result;
     try {
-        result = await fetch(`/spaces/${spaceId}/${objectType}/${objectName}`,
+        result = await fetch(`/spaces/${spaceId}/objects/${objectType}/${objectName}`,
             {
                 method: "PUT",
                 body: jsonData,
