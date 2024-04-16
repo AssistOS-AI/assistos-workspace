@@ -1,9 +1,8 @@
-const JWTConfigs = require('../securityConfig.json').JWT;
 const crypto = require('opendsu').loadAPI('crypto');
 
 const Loader = require('../../assistOS-sdk/Loader.js');
-const utils = Loader.loadModule('util');
-const date = utils.loadAPIs('date');
+const utilsModule = Loader.loadModule('util');
+const date = utilsModule.loadAPIs('date');
 
 const securityConfig = require('../securityConfig.json');
 const apihub = require('apihub');

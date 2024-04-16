@@ -43,7 +43,7 @@ function createCookieString(name, value, options = {}) {
 }
 
 async function createAuthCookie(userData) {
-    const accessToken= await jwt.createUserAccessJWT(userData)
+    const accessToken = await jwt.createUserAccessJWT(userData)
     return createCookieString('authToken', accessToken, {
         httpOnly: true,
         sameSite: 'Strict',
@@ -51,7 +51,8 @@ async function createAuthCookie(userData) {
         path: '/'
     });
 }
-function deleteAuthCookie(){
+
+function deleteAuthCookie() {
     return createCookieString('authToken', '', {
         httpOnly: true,
         sameSite: 'Strict',
@@ -61,7 +62,7 @@ function deleteAuthCookie(){
 }
 
 async function createRefreshAuthCookie(userData) {
-    const refreshToken= await jwt.createUserRefreshAccessJWT(userData)
+    const refreshToken = await jwt.createUserRefreshAccessJWT(userData)
     return createCookieString('refreshAuthToken', refreshToken, {
         httpOnly: true,
         sameSite: 'Strict',
@@ -69,7 +70,8 @@ async function createRefreshAuthCookie(userData) {
         path: '/'
     });
 }
-function deleteRefreshAuthCookie(){
+
+function deleteRefreshAuthCookie() {
     return createCookieString('refreshAuthToken', '', {
         httpOnly: true,
         sameSite: 'Strict',
@@ -78,7 +80,7 @@ function deleteRefreshAuthCookie(){
     });
 }
 
-function createCurrentSpaceCookie(currentSpaceId){
+function createCurrentSpaceCookie(currentSpaceId) {
     return createCookieString('currentSpaceId', currentSpaceId, {
         httpOnly: true,
         sameSite: 'Strict',
@@ -86,7 +88,8 @@ function createCurrentSpaceCookie(currentSpaceId){
         path: '/'
     });
 }
-function deleteCurrentSpaceCookie(){
+
+function deleteCurrentSpaceCookie() {
     return createCookieString('currentSpaceId', '', {
         httpOnly: true,
         sameSite: 'Strict',
@@ -95,13 +98,25 @@ function deleteCurrentSpaceCookie(){
     });
 }
 
+function createDemoUserCookie(email, password) {
+    return createCookieString("demoCredentials", JSON.stringify({
+            email: email,
+            password: password
+        }
+    ), {
+        path: "/",
+        sameSite: 'Strict',
+        maxAge: 60 * 60 * 24 * 7
+    });
+}
 
-module.exports={
+module.exports = {
     parseCookies,
     createCookieString,
     createAuthCookie,
     createCurrentSpaceCookie,
     createRefreshAuthCookie,
+    createDemoUserCookie,
     deleteAuthCookie,
     deleteRefreshAuthCookie,
     deleteCurrentSpaceCookie
