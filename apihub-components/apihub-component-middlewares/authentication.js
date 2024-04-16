@@ -1,7 +1,13 @@
 const cookie = require('../apihub-component-utils/cookie.js');
 const jwt = require('../apihub-component-utils/jwt.js');
+const utils = require('../apihub-component-utils/utils.js');
+
 const Loader = require('../../assistOS-sdk/Loader.js')
+const configs = require("../../config.json");
+const {deleteDemoUserCookie} = require("../apihub-component-utils/cookie");
 const user = Loader.loadModule('user');
+const userAPIs = user.loadAPIs();
+const userData = user.loadData('templates');
 
 async function authentication(req, res, next) {
     const cookies = cookie.parseCookies(req);
@@ -22,28 +28,41 @@ async function authentication(req, res, next) {
     if (refreshToken) {
         try {
             const userId = await jwt.validateUserRefreshAccessJWT(refreshToken, 'RefreshToken');
-            const userData = await user.apis.getUserData(userId);
+            const userData = await userAPIs.getUserData(userId);
             const newAuthCookie = await cookie.createAuthCookie(userData);
             setCookies.push(newAuthCookie);
             req.userId = userId;
             res.setHeader('Set-Cookie', setCookies);
-            return next();
+            next();
         } catch (error) {
             setCookies.push(cookie.deleteAuthCookie());
             setCookies.push(cookie.deleteRefreshAuthCookie());
             res.setHeader('Set-Cookie', setCookies);
-            return authenticationError(res, next);
+            authenticationError(res, next);
         }
     } else {
         setCookies.push(cookie.deleteAuthCookie());
         setCookies.push(cookie.deleteRefreshAuthCookie());
         res.setHeader('Set-Cookie', setCookies);
-        return authenticationError(res, next);
+        authenticationError(res, next);
     }
 }
 
 function authenticationError(res, next) {
-    return next();
+    const error = new Error('Authentication failed');
+    error.statusCode = 401;
+    if (configs.CREATE_DEMO_USER === 'true') {
+        utils.sendResponse(res, 401, "application/json", {
+            success: false,
+            message: "Unauthorized"
+        }, [cookie.createDemoUserCookie(userData.demoUser.email, userData.demoUser.password), cookie.deleteAuthCookie(), cookie.deleteRefreshAuthCookie(), cookie.deleteCurrentSpaceCookie()]);
+    } else {
+        utils.sendResponse(res, 401, "application/json", {
+            success: false,
+            message: "Unauthorized"
+        }, [cookie, deleteDemoUserCookie(), cookie.deleteAuthCookie(), cookie.deleteRefreshAuthCookie(), cookie.deleteCurrentSpaceCookie()]);
+    }
+    next(error);
 }
 
 module.exports = authentication;

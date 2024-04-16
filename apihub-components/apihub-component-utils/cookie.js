@@ -109,6 +109,14 @@ function createDemoUserCookie(email, password) {
         maxAge: 60 * 60 * 24 * 7
     });
 }
+function deleteDemoUserCookie() {
+    return createCookieString("demoCredentials", "", {
+        path: "/",
+        sameSite: 'Strict',
+        maxAge: 0
+    });
+
+}
 
 module.exports = {
     parseCookies,
@@ -117,6 +125,7 @@ module.exports = {
     createCurrentSpaceCookie,
     createRefreshAuthCookie,
     createDemoUserCookie,
+    deleteDemoUserCookie,
     deleteAuthCookie,
     deleteRefreshAuthCookie,
     deleteCurrentSpaceCookie

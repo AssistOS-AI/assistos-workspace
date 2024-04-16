@@ -13,7 +13,7 @@ function UserStorage(server) {
         const securityConfig = require('../securityConfig.json');
         const jwtConfig = securityConfig.JWT;
         const apihub = require('apihub');
-        const utilsModule=require('../../assistOS-sdk/Loader.js').loadModule('util');
+        const utilsModule = require('../../assistOS-sdk/Loader.js').loadModule('util');
         const crypto = utilsModule.loadAPIs('crypto');
 
         const accessToken = {

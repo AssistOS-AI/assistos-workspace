@@ -67,21 +67,6 @@ async function loginUser(request, response) {
 }
 
 async function loadUser(request, response) {
-    const userData = userModule.loadData('templates');
-    if (!request.userId) {
-        if (configs.CREATE_DEMO_USER === 'true') {
-            utils.sendResponse(response, 401, "application/json", {
-                success: false,
-                message: "Unauthorized"
-            }, cookie.createDemoUserCookie(userData.demoUser.email, userData.demoUser.password));
-        } else {
-            utils.sendResponse(response, 401, "application/json", {
-                success: false,
-                message: "Unauthorized"
-            }, cookie.createDemoUserCookie(userData.demoUser.email, userData.demoUser.password));
-        }
-        return
-    }
     try {
         const userAPIs = userModule.loadAPIs();
         const userId = request.userId
