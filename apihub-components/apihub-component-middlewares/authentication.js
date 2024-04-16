@@ -21,7 +21,6 @@ async function authentication(req, res, next) {
             req.userId = userId;
             return next();
         } catch (error) {
-
         }
     }
 
@@ -35,14 +34,10 @@ async function authentication(req, res, next) {
             res.setHeader('Set-Cookie', setCookies);
             next();
         } catch (error) {
-            setCookies.push(cookie.deleteAuthCookie());
-            setCookies.push(cookie.deleteRefreshAuthCookie());
             res.setHeader('Set-Cookie', setCookies);
             authenticationError(res, next);
         }
     } else {
-        setCookies.push(cookie.deleteAuthCookie());
-        setCookies.push(cookie.deleteRefreshAuthCookie());
         res.setHeader('Set-Cookie', setCookies);
         authenticationError(res, next);
     }
