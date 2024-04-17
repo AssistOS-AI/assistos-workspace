@@ -8,7 +8,7 @@ const {
 
 const bodyReader = require('../apihub-component-middlewares/bodyReader.js')
 const authentication = require('../apihub-component-middlewares/authentication.js')
-const Loader = require("../../assistOS-sdk/Loader");
+const Loader = require("../../assistOS-sdk");
 
 function UserStorage(server) {
 
@@ -16,7 +16,7 @@ function UserStorage(server) {
         const securityConfig = require('../securityConfig.json');
         const jwtConfig = securityConfig.JWT;
         const apihub = require('apihub');
-        const utilsModule = require('../../assistOS-sdk/Loader.js').loadModule('util');
+        const utilsModule = require('../../assistOS-sdk').loadModule('util');
         const crypto = utilsModule.loadAPIs('crypto');
 
         const accessToken = {
@@ -45,7 +45,7 @@ function UserStorage(server) {
         const configs = require('../../config.json');
         const createDefaultUser = configs.CREATE_DEMO_USER;
         if (createDefaultUser) {
-            const Loader = require('../../assistOS-sdk/Loader.js');
+            const Loader = require('../../assistOS-sdk');
             const userModule = Loader.loadModule('user');
             const userAPIs = userModule.loadAPIs();
             await userAPIs.createDemoUser();

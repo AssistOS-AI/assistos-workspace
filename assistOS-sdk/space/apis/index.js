@@ -1,7 +1,7 @@
 const path = require('path');
 const fsPromises = require('fs').promises;
 
-const Loader = require('../../Loader.js');
+const Loader = require('../../index.js');
 const constants=Loader.loadModule('constants');
 const config=Loader.loadModule('config');
 const utilsModule = Loader.loadModule('util');

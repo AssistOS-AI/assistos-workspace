@@ -1,7 +1,7 @@
 const utils = require('../apihub-component-utils/utils.js');
 const cookie = require('../apihub-component-utils/cookie.js');
 
-const Loader = require('../../assistOS-sdk/Loader.js');
+const Loader = require('../../assistOS-sdk');
 
 const userModule = Loader.loadModule('user');
 const spaceModule = Loader.loadModule('space');

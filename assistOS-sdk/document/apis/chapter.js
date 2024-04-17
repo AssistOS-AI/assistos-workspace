@@ -1,5 +1,5 @@
 const enclave = require("opendsu").loadAPI("enclave");
-const Loader = require('../../Loader.js');
+const Loader = require('../../index.js');
 const utilsModule = Loader.loadModule('util');
 const crypto = utilsModule.loadAPIs('crypto');
 const constants = Loader.loadModule('constants');

@@ -1,6 +1,6 @@
 const crypto = require('opendsu').loadAPI('crypto');
 
-const Loader = require('../../assistOS-sdk/Loader.js');
+const Loader = require('../../assistOS-sdk');
 const utilsModule = Loader.loadModule('util');
 const date = utilsModule.loadAPIs('date');
 

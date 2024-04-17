@@ -6,7 +6,7 @@ const path = require('path');
 const activationEmailTemplatePath = path.join(__dirname, '..', 'data', 'templates', 'html', 'activationEmailTemplate.html');
 
 
-const Loader = require('../../../Loader.js')
+const Loader = require('../../../index.js')
 const utilModule = Loader.loadModule('util')
 const data = utilModule.loadAPIs('data')
 

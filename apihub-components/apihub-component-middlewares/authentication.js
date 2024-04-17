@@ -4,7 +4,7 @@ const utils = require('../apihub-component-utils/utils.js');
 
 const configs = require("../../config.json");
 
-const Loader = require('../../assistOS-sdk/Loader.js')
+const Loader = require('../../assistOS-sdk')
 
 const user = Loader.loadModule('user');
 const userAPIs = user.loadAPIs();
