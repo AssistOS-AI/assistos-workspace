@@ -26,12 +26,12 @@ const dataModules={
 }
 function loadAPIs(...apiNames) {
     if (apiNames.length === 0) {
-        apiNames = [Object.keys(apiModules)[0]];
+        apiNames = Object.keys(apiModules);
     }
     if (apiNames.length === 1) {
-        const api = apiModules[apiNames[0]];
+        const api = apiModules[apiNames];
         if (!api) {
-            throw new Error(`API '${apiNames[0]}' not found`);
+            throw new Error(`API '${apiNames}' not found`);
         }
         return api;
     }

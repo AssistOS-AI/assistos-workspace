@@ -32,14 +32,14 @@ export class ApplicationsService {
         }
 
         for (let component of assistOS.initialisedApplications[appName].components) {
-            let index =  component.name.indexOf("-");
-            let prefix = component.name.substring(0, index);
-            component.name= component.name.substring(index + 1);
+            // let index =  component.name.indexOf("-");
+            // let prefix = component.name.substring(0, index);
+            // component.name= component.name.substring(index + 1);
             component = {
                 ...await this.getApplicationComponent(assistOS.space.id, appName,assistOS.initialisedApplications[appName].componentsDirPath,component),
                 ...component
             }
-            component.name = prefix + "-" + component.name;
+            //component.name = prefix + "-" + component.name;
             assistOS.UI.configs.components.push(component);
             await assistOS.UI.defineComponent(component);
         }

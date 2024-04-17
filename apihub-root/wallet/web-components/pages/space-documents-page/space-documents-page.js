@@ -1,7 +1,7 @@
 export class SpaceDocumentsPage {
     constructor(element, invalidate) {
         this.notificationId = "docs"
-        assistOS.factories.observeChange(this.notificationId, invalidate);
+        assistOS.space.observeChange(this.notificationId, invalidate);
         this.invalidate = invalidate;
         this.invalidate();
     }
@@ -46,6 +46,6 @@ export class SpaceDocumentsPage {
         await assistOS.callFlow("DeleteDocument", {
             documentId: this.getDocumentId(_target)
         });
-        assistOS.factories.notifyObservers("docs");
+        assistOS.space.notifyObservers("docs");
     }
 }

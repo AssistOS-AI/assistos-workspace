@@ -135,7 +135,7 @@ export class SpaceChapterUnit {
         const adjacentParagraphId = getAdjacentParagraphId(currentParagraphIndex, chapter.paragraphs);
         const chapterId = assistOS.UI.reverseQuerySelector(_target, "space-chapter-unit").getAttribute('data-chapter-id');
         if (chapter.swapParagraphs(currentParagraphId, adjacentParagraphId)) {
-            await assistOS.factories.updateDocument(assistOS.space.id, this._document);
+            await assistOS.space.updateDocument(assistOS.space.id, this._document);
             assistOS.space.currentParagraphId = currentParagraphId;
             assistOS.UI.refreshElement(assistOS.UI.getClosestParentWithPresenter(_target, "space-chapter-unit"));
         } else {

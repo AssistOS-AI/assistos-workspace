@@ -173,6 +173,14 @@ class AssistOS {
             return {flowInstance:flowInstance, flowClass:flow.class, personality: personality};
         }
     }
+    loadModule(moduleName) {
+        switch (moduleName) {
+            case "space": return import("./wallet/core/space/index.js");
+            case "user": return import("./wallet/core/user/index.js");
+            case "personality": return import("./wallet/core/personality/personality.js");
+            default: console.error("Module doesn't exist"); break;
+        }
+    }
 }
 
 export function changeSelectedPageFromSidebar(url) {

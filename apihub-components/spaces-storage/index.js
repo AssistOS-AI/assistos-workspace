@@ -1,5 +1,4 @@
 const {
-    loadObject,
     getObject,
     addObject,
     updateObject,
@@ -24,13 +23,27 @@ function SpaceStorage(server) {
 
     server.post("/spaces/collaborators", addCollaboratorToSpace);
 
-    server.get("/spaces/:spaceId/:objectType/:objectName", getObject);
-    server.get("/spaces/:spaceId/objects/:objectType/:objectName", loadObject);
+    server.get("/spaces/fileObject/:spaceId/:objectType/:objectId", getFileObject);
+    server.post("/spaces/fileObject/:spaceId/:objectType", addFileObject);
+    server.put("/spaces/fileObject/:spaceId/:objectType/:objectId", updateFileObject);
+    server.delete("/spaces/fileObject/:spaceId/:objectType/:objectId", deleteFileObject);
 
-    server.post("/spaces/:spaceId/:objectType", addObject);
-    server.put("/spaces/:spaceId/:objectType/:objectName", updateObject);
-    server.delete("/spaces/:spaceId/:objectType/:objectName", deleteObject);
+    server.get("/spaces/containerObject/:spaceId/:objectType/:objectId", getContainerObject);
+    server.post("/spaces/containerObject/:spaceId/:objectType", addContainerObject);
+    server.put("/spaces/containerObject/:spaceId/:objectType/:objectId", updateContainerObject);
+    server.delete("/spaces/containerObject/:spaceId/:objectType/:objectId", deleteContainerObject);
 
+    server.get("/spaces/embeddedObject/:spaceId/:objectType/:objectURI", getEmbeddedObject);
+    server.post("/spaces/embeddedObject/:spaceId/:objectType/:objectURI", addEmbeddedObject);
+    server.put("/spaces/embeddedObject/:spaceId/:objectType/:objectURI", updateEmbeddedObject);
+    server.delete("/spaces/embeddedObject/:spaceId/:objectType/:objectURI", deleteEmbeddedObject);
+
+    server.post("/spaces/:spaceId/secrets", storeSecret);
+    server.get("/spaces", getSpace);
+    server.get("/spaces/:spaceId", getSpace);
+    server.post("/spaces", createSpace);
+    server.post("/spaces/collaborators", addCollaboratorToSpace);
+    server.put("/spaces/:spaceId", storeSpace);
 }
 
 module.exports = SpaceStorage;

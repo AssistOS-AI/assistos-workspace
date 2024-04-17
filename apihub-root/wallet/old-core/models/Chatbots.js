@@ -1,4 +1,4 @@
-import {Application, Flow} from "../../imports.js";
+import {Application} from "../../imports.js";
 import {Bot} from "./bot.js";
 
 export class Chatbots extends Application{

@@ -9,7 +9,7 @@ const spaceModule = Loader.loadModule('space');
 const spaceAPIs = spaceModule.loadAPIs();
 
 
-async function getObject(request, response) {
+async function getContainerObject(request, response) {
     const spaceId = request.params.spaceId;
     const objectType = request.params.objectType;
     const objectName = request.params.objectName;
@@ -28,7 +28,7 @@ async function getObject(request, response) {
     }
 }
 
-async function addObject(request, response) {
+async function addContainerObject(request, response) {
     const spaceId = request.params.spaceId;
     const objectType = request.params.objectType;
     const objectData = request.body;
@@ -47,7 +47,7 @@ async function addObject(request, response) {
     }
 }
 
-async function updateObject(request, response) {
+async function updateContainerObject(request, response) {
     const spaceId = request.params.spaceId;
     const objectType = request.params.objectType;
     const objectName = request.params.objectName;

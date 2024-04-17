@@ -20,7 +20,7 @@ export class GenerateParagraphs {
         try{
             let paragraphsObj = JSON.parse(paragraphs);
             await chapter.addParagraphs(paragraphsObj.paragraphs);
-            await assistOS.factories.updateDocument(assistOS.space.id, document);
+            await assistOS.space.updateDocument(assistOS.space.id, document);
             this.return(paragraphsObj);
         }catch(e){
             this.fail(e);

@@ -110,22 +110,22 @@ async function installApplication(request, response) {
         let manifest = JSON.parse(await fsPromises.readFile(manifestPath, 'utf8'));
 
 
-        const extensions = ['.html', '.css', '.js'];
-
-        const filePaths = await iterateFolder(folderPath, extensions);
-        applicationId = applicationId.toLowerCase();
-        let promisesArray = []
-        filePaths.forEach(filePath => {
-            promisesArray.push(processFile(filePath, applicationId, manifest.components));
-        })
-        await Promise.all(promisesArray)
-        for (let component of manifest.components) {
-            component.name = `${applicationId}-` + component.name;
-        }
-
-        manifest.entryPointComponent = `${applicationId}-` + manifest.entryPointComponent;
-
-        await fsPromises.writeFile(manifestPath, JSON.stringify(manifest, null, 2), 'utf8')
+        // const extensions = ['.html', '.css', '.js'];
+        //
+        // const filePaths = await iterateFolder(folderPath, extensions);
+        // applicationId = applicationId.toLowerCase();
+        // let promisesArray = []
+        // filePaths.forEach(filePath => {
+        //     promisesArray.push(processFile(filePath, applicationId, manifest.components));
+        // })
+        // await Promise.all(promisesArray)
+        // for (let component of manifest.components) {
+        //     component.name = `${applicationId}-` + component.name;
+        // }
+        //
+        // manifest.entryPointComponent = `${applicationId}-` + manifest.entryPointComponent;
+        //
+        // await fsPromises.writeFile(manifestPath, JSON.stringify(manifest, null, 2), 'utf8')
 
         if (application.flowsRepository) {
             let applicationPath = `../data-volume/spaces/${spaceId}/applications/${application.name}/flows`;

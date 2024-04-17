@@ -2,7 +2,6 @@ import {
     Announcement,
     Application,
     constants,
-    DocumentModel,
     Flow,
     PageModel,
     Personality,
@@ -19,7 +18,6 @@ export class Space {
         this.announcements = (spaceData.announcements || []).map(announcementData => new Announcement(announcementData));
         this.users = spaceData.users || [];
         this.flows = [];
-        this.documents = (spaceData.documents || []).map(documentData => new DocumentModel(documentData)).reverse();
         this.admins = [];
         this.apiKeys = spaceData.apiKeys || {};
         this.pages = spaceData.pages || [];
@@ -120,10 +118,7 @@ export class Space {
         return "space";
     }
 
-    getDocument(documentId) {
-        const document = this.documents.find(document => document.id === documentId);
-        return document || null;
-    }
+
 
     getAnnouncement(announcementId) {
         let announcement = this.announcements.find((announcement) => announcement.id === announcementId);
@@ -167,18 +162,6 @@ export class Space {
 
     getDefaultAgent() {
         return this.agent;
-    }
-
-    async addDocument(documentData) {
-        documentData.position = this.documents.length;
-        let document = JSON.parse(await assistOS.storage.addDocument(assistOS.space.id,  documentData));
-        this.documents.push(new DocumentModel(document));
-        return document.id;
-    }
-
-    async deleteDocument(documentId) {
-        this.documents = this.documents.filter(document => document.id !== documentId);
-        await assistOS.storage.deleteDocument(assistOS.space.id, documentId);
     }
 
     async addPersonality(personalityData) {
