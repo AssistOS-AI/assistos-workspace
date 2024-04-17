@@ -34,6 +34,21 @@
             "collectLog": false
           }
         ]
+      },
+      {
+        "name": "assistos-sdk",
+        "src":"https://github.com/AssistOS-AI/assistos-sdk.git",
+        "actions": [
+          {
+            "type": "smartClone",
+            "target": ".",
+            "collectLog": false
+          },
+          {
+            "type": "execute",
+            "cmd": "cd assistos-sdk && npm install"
+          }
+        ]
       }
     ],
     "postinstall": [
