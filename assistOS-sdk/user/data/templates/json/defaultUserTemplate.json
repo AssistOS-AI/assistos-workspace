@@ -1,7 +1,0 @@
-{
-  "id": "$$id",
-  "name": "$$username",
-  "email": "$$email",
-  "spaces": [],
-  "currentSpaceId": "$$currentSpaceId?"
-}

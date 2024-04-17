@@ -1,9 +1,0 @@
-{
-  "name": "$$name",
-  "email": "$$email",
-  "password": "$$passwordHash",
-  "creationDate": "$$currentDate",
-  "verificationToken": "$$verificationToken",
-  "verificationTokenIssueDate": "$$currentDate",
-  "verificationTokenExpirationDate": "$$verificationTokenExpirationDate"
-}
