@@ -2,9 +2,10 @@ const cookie = require('../apihub-component-utils/cookie.js');
 const jwt = require('../apihub-component-utils/jwt.js');
 const utils = require('../apihub-component-utils/utils.js');
 
-const Loader = require('../../assistOS-sdk/Loader.js')
 const configs = require("../../config.json");
-const {deleteDemoUserCookie} = require("../apihub-component-utils/cookie");
+
+const Loader = require('../../assistOS-sdk/Loader.js')
+
 const user = Loader.loadModule('user');
 const userAPIs = user.loadAPIs();
 const userData = user.loadData('templates');
@@ -55,7 +56,7 @@ function authenticationError(res, next) {
         utils.sendResponse(res, 401, "application/json", {
             success: false,
             message: "Unauthorized"
-        }, [cookie, deleteDemoUserCookie(), cookie.deleteAuthCookie(), cookie.deleteRefreshAuthCookie(), cookie.deleteCurrentSpaceCookie()]);
+        }, [cookie.deleteDemoUserCookie(), cookie.deleteAuthCookie(), cookie.deleteRefreshAuthCookie(), cookie.deleteCurrentSpaceCookie()]);
     }
     next(error);
 }

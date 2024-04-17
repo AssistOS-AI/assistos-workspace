@@ -1,14 +1,30 @@
-const jwt = require('../apihub-component-utils/jwt.js')
 const cookie = require('../apihub-component-utils/cookie.js');
 const utils = require('../apihub-component-utils/utils.js');
 
-const configs = require('../../config.json')
 const Loader = require('../../assistOS-sdk/Loader.js');
 const userModule = Loader.loadModule('user');
 
 async function registerUser(request, response) {
     const userAPIs = userModule.loadAPIs();
     const userData = request.body;
+    if(!userData.name){
+        return utils.sendResponse(response, 400, "application/json", {
+            success: false,
+            message: "Name is required"
+        });
+    }
+    if(!userData.email){
+        return utils.sendResponse(response, 400, "application/json", {
+            success: false,
+            message: "Email is required"
+        });
+    }
+    if(!userData.password){
+        return utils.sendResponse(response, 400, "application/json", {
+            success: false,
+            message: "Password is required"
+        });
+    }
     try {
         await userAPIs.registerUser(
             userData.name,

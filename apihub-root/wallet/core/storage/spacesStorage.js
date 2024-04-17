@@ -1,30 +1,12 @@
-async function addSpace(spaceName, apiKey, spaceObject) {
-    const headers = {
-        "Content-Type": "application/json; charset=UTF-8",
-        "apikey": `${apiKey}`,
-    };
-    const options = {
-        method: "POST",
-        headers: headers,
-        body: JSON.stringify(spaceObject)
-    };
-    const response = await fetch(`/spaces/${spaceName}`, options);
-
-    if (!response.ok) {
-        throw new Error(`HTTP error! status: ${response.status}`);
-    }
-
-    return await response.text();
-}
-
 async function createSpace(spaceName, apiKey) {
     const headers = {
         "Content-Type": "application/json; charset=UTF-8",
+        apiKey: apiKey
     };
-    if (apiKey) {
-        headers.apikey = apiKey
+    const bodyObject = {
+        spaceName: spaceName
     }
-    const bodyObject = {spaceName: spaceName}
+
     const options = {
         method: "POST",
         headers: headers,
@@ -38,6 +20,7 @@ async function createSpace(spaceName, apiKey) {
 
     return (await response.json()).data;
 }
+
 async function loadSpace(spaceId) {
     const headers = {
         "Content-Type": "application/json; charset=UTF-8",
@@ -47,7 +30,7 @@ async function loadSpace(spaceId) {
         headers: headers,
     };
 
-    let requestURL= spaceId?`/spaces/${spaceId}`:`/spaces`;
+    let requestURL = spaceId ? `/spaces/${spaceId}` : `/spaces`;
 
     const response = await fetch(requestURL, options);
 
@@ -58,6 +41,7 @@ async function loadSpace(spaceId) {
     return (await response.json()).data;
 
 }
+
 async function storeSpace(spaceId, jsonData = null, apiKey = null, userId = null) {
     let headers = {
         "Content-type": "application/json; charset=UTF-8"
@@ -75,14 +59,25 @@ async function storeSpace(spaceId, jsonData = null, apiKey = null, userId = null
     let response = await fetch(`/spaces/${spaceId}`, options);
 
     if (!response.ok) {
-        throw new Error(`HTTP error! status: ${response.status}`);
+        throw new Error(`HTTP error! status: ${response.status}, message: ${response.message}`);
     }
 
     return await response.text();
 }
 
 async function deleteSpace(spaceId) {
+    const headers = {
+        "Content-Type": "application/json; charset=UTF-8",
+    };
+    const options = {
+        method: "DELETE",
+        headers: headers,
+    };
+    const response= await fetch(`/spaces/${spaceId}`, options);
+    if(!response.ok) {
+        throw new Error(`HTTP error! status: ${response.status}, message: ${response.message}`);
 
+    }
 }
 
 async function addKeyToSpace(spaceId, userId, keyType, apiKey) {
@@ -105,6 +100,7 @@ async function addKeyToSpace(spaceId, userId, keyType, apiKey) {
     }
     return await result.text();
 }
+
 async function loadObject(spaceId, objectType, objectName) {
     const result = await fetch(`/spaces/${spaceId}/objects/${objectType}/${objectName}`,
         {
@@ -129,4 +125,5 @@ async function storeObject(spaceId, objectType, objectName, jsonData) {
     }
     return await result.text();
 }
-export default {addSpace, createSpace, loadSpace, deleteSpace, storeSpace, addKeyToSpace, loadObject, storeObject};
+
+export default {createSpace, loadSpace, deleteSpace, storeSpace, addKeyToSpace, loadObject, storeObject};

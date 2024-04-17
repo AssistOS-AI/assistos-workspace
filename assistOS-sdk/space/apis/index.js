@@ -9,7 +9,6 @@ const userModule = Loader.loadModule('user');
 const spaceModule= Loader.loadModule('space');
 const documentModule= Loader.loadModule('document');
 const documentAPIs = documentModule.loadAPIs();
-const objectTypes = constants.OBJECT_TYPES;
 const {crypto, file, data, date, openAI} = utilsModule.loadAPIs('crypto', 'file', 'data', 'date', 'openAI');
 const enclave = require('opendsu').loadAPI('enclave');
 
