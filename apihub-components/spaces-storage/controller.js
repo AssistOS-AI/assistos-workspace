@@ -1,23 +1,29 @@
-// const utils = require('../apihub-component-utils/utils.js');
+const utils = require('../apihub-component-utils/utils.js');
 // const cookie = require('../apihub-component-utils/cookie.js');
 // const Loader = require('../../assistOS-sdk');
-// const {constants} = require("../../assistos-sdk");
+const {constants} = require("../../assistos-sdk");
 // const userModule = Loader.loadModule('user');
 // const spaceModule = Loader.loadModule('space');
 // const spaceAPIs = spaceModule.loadAPIs();
 const enclave = require("opendsu").loadAPI("enclave");
-async function getFileObject(){
+
+async function getFileObject() {
 
 }
+
 async function addFileObject(request, response) {
 
 }
+
 async function updateFileObject(request, response) {
 
 }
+
 async function deleteFileObject(request, response) {
 
-}function getRecordDataAndRemove(recordsArray, pk){
+}
+
+function getRecordDataAndRemove(recordsArray, pk) {
     const index = recordsArray.findIndex(item => item.pk === pk);
     if (index !== -1) {
         const record = recordsArray[index];
@@ -27,7 +33,8 @@ async function deleteFileObject(request, response) {
         return null;
     }
 }
-function constructArrayAndRemove(recordsArray, arraySubtype){
+
+function constructArrayAndRemove(recordsArray, arraySubtype) {
     const objectsToRemove = recordsArray.filter(record => record.pk.includes(arraySubtype));
     const dataArray = objectsToRemove.map(record => record.data);
     objectsToRemove.forEach(object => {
@@ -38,6 +45,7 @@ function constructArrayAndRemove(recordsArray, arraySubtype){
     });
     return dataArray;
 }
+
 function constructArrayOfObjects(schemaArrayType, arrayItemsSchema, recordsArray, nestingLevel) {
     let arrayOfObjects = [];
     let objectRecords = recordsArray.filter(record => record.pk.includes(`#${schemaArrayType}#`));
@@ -64,7 +72,7 @@ function constructArrayOfObjects(schemaArrayType, arrayItemsSchema, recordsArray
         }
         for (let key of Object.keys(arrayItemsSchema)) {
             if (typeof arrayItemsSchema[key] === "object") {
-                if(arrayItemsSchema[key].type === "array"){
+                if (arrayItemsSchema[key].type === "array") {
                     objectItem[key] = constructArrayOfObjects(key, arrayItemsSchema[key], recordsArray, nestingLevel + 1);
                 } else {
                     //TODO: handle object embedded type
@@ -82,26 +90,27 @@ function constructArrayOfObjects(schemaArrayType, arrayItemsSchema, recordsArray
     }
     return arrayOfObjects;
 }
+
 function constructContainerObject(objectType, objectId, recordsArray) {
-    if(!recordsArray || recordsArray.length === 0){
+    if (!recordsArray || recordsArray.length === 0) {
         throw new Error(`No records found for container object with id: ${objectId}`);
     }
-    try{
+    try {
         let containerObject = {
             id: objectId,
         }
         const nestingLevel = 0;
         let schema = constants.OBJECT_SCHEMAS[objectType];
-        for(let key of Object.keys(schema)){
-            if(typeof schema[key] === "object"){
-                if(schema[key].type === "array"){
+        for (let key of Object.keys(schema)) {
+            if (typeof schema[key] === "object") {
+                if (schema[key].type === "array") {
                     containerObject[key] = constructArrayOfObjects(key, schema[key].items, recordsArray, nestingLevel + 1);
                 } else {
                     //TODO: handle object embedded type
                 }
-            }else if(schema[key] === "string" || schema[key] === "number"){
+            } else if (schema[key] === "string" || schema[key] === "number") {
                 containerObject[key] = getRecordDataAndRemove(recordsArray, key);
-            } else if(schema[key] === "array"){
+            } else if (schema[key] === "array") {
                 containerObject[key] = constructArrayAndRemove(recordsArray, key);
             }
         }
@@ -112,12 +121,13 @@ function constructContainerObject(objectType, objectId, recordsArray) {
         throw new Error(`Error constructing container Object with id ${objectId}: ${e}`);
     }
 }
+
 async function getContainerObject(request, response) {
     const spaceId = request.params.spaceId;
     const objectType = request.params.objectType;
     const objectId = request.params.objectId;
     try {
-        if(!constants.OBJECT_SCHEMAS[objectType]){
+        if (!constants.OBJECT_SCHEMAS[objectType]) {
             return utils.sendResponse(response, 500, "application/json", {
                 success: false,
                 message: `Invalid container object type: ${objectType}`
@@ -125,7 +135,7 @@ async function getContainerObject(request, response) {
         }
         let lightDBEnclaveClient = enclave.initialiseLightDBEnclave(spaceId);
         let containerObjectRecords = await $$.promisify(lightDBEnclaveClient.getAllRecords)($$.SYSTEM_IDENTIFIER, objectId);
-        let object = constructContainerObject(objectType, objectId , containerObjectRecords);
+        let object = constructContainerObject(objectType, objectId, containerObjectRecords);
         return utils.sendResponse(response, 200, "application/json", {
             success: true,
             data: object,
@@ -138,59 +148,64 @@ async function getContainerObject(request, response) {
         });
     }
 }
-async function insertContainerObjectRecords(spaceId, objectType, objectData, isUpdate = false){
+
+async function insertContainerObjectRecords(spaceId, objectType, objectData, isUpdate = false) {
     let lightDBEnclaveClient = enclave.initialiseLightDBEnclave(spaceId);
     let containerObjectId;
-    if(isUpdate){
+    if (isUpdate) {
         containerObjectId = objectData.id;
-    }else{
+    } else {
         containerObjectId = crypto.generateId();
     }
-    await $$.promisify(lightDBEnclaveClient.insertRecord)($$.SYSTEM_IDENTIFIER, objectType, containerObjectId, {data:containerObjectId});
-    let nestingLevel = 0;
-    await iterateObjectAndInsertRecord(lightDBEnclaveClient, constants.OBJECT_SCHEMAS[objectType], objectData, nestingLevel)
+    await $$.promisify(lightDBEnclaveClient.insertRecord)($$.SYSTEM_IDENTIFIER, objectType, containerObjectId, {data: containerObjectId});
+    await iterateObjectAndInsertRecords(lightDBEnclaveClient, containerObjectId, constants.OBJECT_SCHEMAS[objectType], objectData, "")
     return containerObjectId;
 }
-function getObjectPk(schema, key, data, nestingLevel){
-    let pk = `#${schema[key]}#${data.id}`;
-    if(nestingLevel > 0){
-        pk += `#${data.id}`;
-    }
-    return pk;
+function getObjectPk(objectType, pkSuffix) {
+    return `${objectType}/${pkSuffix}`;
 }
-function iterateObjectAndInsertRecord(lightDBEnclaveClient, schema, data, nestingLevel){
-    for(let key of Object.keys(schema)){
-        if(typeof schema[key] === "object"){
-            if(schema[key].type === "array"){
-                if(data[key] && Array.isArray(data[key])){
-                    for(let item of data[key]){
-                        iterateObjectAndInsertRecord(lightDBEnclaveClient, schema[key].items, item, nestingLevel + 1);
+function getArrayItemPk(objectType, pkSuffix, objectId) {
+    return `${objectType}/${pkSuffix}/${objectId}`;
+}
+function iterateObjectAndInsertRecords(lightDBEnclaveClient, tableId, schema, data, pkSuffix) {
+    for (let key of Object.keys(schema)) {
+        if (typeof schema[key] === "object") {
+            if (schema[key].type === "array") {
+                if (data[key] && Array.isArray(data[key])) {
+                    for (let item of data[key]) {
+                        iterateObjectAndInsertRecords(lightDBEnclaveClient, tableId, schema[key].items, item, pkSuffix + `${key}/${item.id}`);
                     }
                 }
             } else {
                 //TODO: handle object embedded type
             }
-        }else if(schema[key] === "string" || schema[key] === "number"){
-           if(data[key]){
-               let pk = getObjectPk(schema, key, data, nestingLevel);
-               lightDBEnclaveClient.insertRecord($$.SYSTEM_IDENTIFIER, key, data[key], {data: data[key]});
-           }
-        } else if(schema[key] === "array"){
-            containerObject[key] = data[key] || [];
+        } else if (schema[key] === "string" || schema[key] === "number") {
+            if (data[key]) {
+                let pk = getObjectPk(key, pkSuffix);
+                lightDBEnclaveClient.insertRecord($$.SYSTEM_IDENTIFIER, tableId, pk, {data: data[key]});
+            }
+        } else if (schema[key] === "array") {
+            if (data[key] && Array.isArray(data[key])) {
+                for (let item of data[key]) {
+                    let pk = getArrayItemPk(key, pkSuffix, item.id);
+                    lightDBEnclaveClient.insertRecord($$.SYSTEM_IDENTIFIER, tableId, pk, {data: item});
+                }
+            }
         }
     }
 }
+
 async function addContainerObject(request, response) {
     const spaceId = request.params.spaceId;
     const objectType = request.params.objectType;
     const objectData = request.body;
 
-    let lightDBEnclaveClient = enclave.initialiseLightDBEnclave(spaceId);
-    await $$.promisify(lightDBEnclaveClient.createDatabase)(spaceId);
-    await $$.promisify(lightDBEnclaveClient.grantWriteAccess)($$.SYSTEM_IDENTIFIER);
+    // let lightDBEnclaveClient = enclave.initialiseLightDBEnclave(spaceId);
+    // await $$.promisify(lightDBEnclaveClient.createDatabase)(spaceId);
+    // await $$.promisify(lightDBEnclaveClient.grantWriteAccess)($$.SYSTEM_IDENTIFIER);
 
     try {
-        if(!constants.OBJECT_SCHEMAS[objectType]){
+        if (!constants.OBJECT_SCHEMAS[objectType]) {
             return utils.sendResponse(response, 500, "application/json", {
                 success: false,
                 message: `Invalid container object type: ${objectType}`
@@ -209,28 +224,25 @@ async function addContainerObject(request, response) {
         });
     }
 }
+
 async function updateContainerObject(request, response) {
     const spaceId = request.params.spaceId;
     const objectType = request.params.objectType;
     const objectId = request.params.objectId;
     const objectData = request.body;
     try {
-        if(!constants.OBJECT_SCHEMAS[objectType]){
+        if (!constants.OBJECT_SCHEMAS[objectType]) {
             return utils.sendResponse(response, 500, "application/json", {
                 success: false,
                 message: `Invalid container object type: ${objectType}`
             });
         }
-        if(!objectAPIs[objectType]["update"]){
-            return utils.sendResponse(response, 500, "application/json", {
-                success: false,
-                message: `No UPDATE API found for container object type: ${objectType}`
-            });
-        }
-        let object = await objectAPIs[objectType]["update"](spaceId, objectId, objectData);
+
+        await deleteContainerObjectTable(spaceId, objectId, objectData);
+        await insertContainerObjectRecords(spaceId, objectType, objectData, true);
         return utils.sendResponse(response, 200, "application/json", {
             success: true,
-            data: object,
+            data: objectId,
             message: `Object ${objectType} updated successfully`
         });
     } catch (e) {
@@ -241,28 +253,29 @@ async function updateContainerObject(request, response) {
     }
 
 }
+
+async function deleteContainerObjectTable(spaceId, objectType, objectId) {
+    let lightDBEnclaveClient = enclave.initialiseLightDBEnclave(spaceId);
+    await $$.promisify(lightDBEnclaveClient.deleteRecord)($$.SYSTEM_IDENTIFIER, objectType, objectId);
+    return objectId;
+}
+
 async function deleteContainerObject(request, response) {
     const spaceId = request.params.spaceId;
     const objectType = request.params.objectType;
     const objectId = request.params.objectId;
     try {
-        if(!constants.OBJECT_SCHEMAS[objectType]){
+        if (!constants.OBJECT_SCHEMAS[objectType]) {
             return utils.sendResponse(response, 500, "application/json", {
                 success: false,
                 message: `Invalid container object type: ${objectType}`
             });
         }
-        if(!objectAPIs[objectType]["delete"]){
-            return utils.sendResponse(response, 500, "application/json", {
-                success: false,
-                message: `No DELETE API found for container object type: ${objectType}`
-            });
-        }
-        let object = await objectAPIs[objectType]["delete"](spaceId, objectId);
+        await deleteContainerObjectTable(spaceId, objectType, objectId);
         return utils.sendResponse(response, 200, "application/json", {
             success: true,
-            data: object,
-            message: `Object ${objectType} deleted successfully`
+            data: objectId,
+            message: `Object ${objectType} ${objectId} deleted successfully`
         });
     } catch (error) {
         return utils.sendResponse(response, 500, "application/json", {
@@ -272,27 +285,72 @@ async function deleteContainerObject(request, response) {
     }
 }
 
+function getEmbeddedObjectSchema(objectType, objectURI, schema) {
+    objectURI += `/${objectType}`;
+    let splitURI = objectURI.split("/");
+    let componentNames = splitURI.filter((element, index) => index % 2 === 0);
+    for (let name of componentNames) {
+        if (name === objectType) {
+            if(schema.hasOwnProperty(objectType)){
+                return schema[objectType];
+            } else {
+                throw new Error(`Invalid object URI: ${objectURI}, type: ${objectType}`);
+            }
+
+        }
+        if (!schema[name]) {
+            throw new Error(`Invalid object URI: ${objectURI}, type: ${objectType}`);
+        }
+        schema = schema[name];
+        if (schema["type"]) {
+            if (schema["type"] === "array") {
+                schema = schema["items"];
+            } else if (schema["type"] === "object") {
+                schema = schema["properties"];
+            }
+        }
+    }
+    throw new Error(`Invalid object URI: ${objectURI}, type: ${objectType}`);
+}
+function getContainerObjectId(objectURI){
+    return objectURI.split("/")[1];
+}
 async function getEmbeddedObject(request, response) {
     const spaceId = request.params.spaceId;
     const objectType = request.params.objectType;
+    //decode it first decodeURIComponent
     const objectURI = request.params.objectURI;
     try {
-        if(!constants.OBJECT_SCHEMAS[objectType]){
+        if (!constants.OBJECT_SCHEMAS[objectType]) {
             return utils.sendResponse(response, 500, "application/json", {
                 success: false,
                 message: `Invalid container object type: ${objectType}`
             });
         }
-        if(!objectAPIs[objectType]["get"]){
-            return utils.sendResponse(response, 500, "application/json", {
-                success: false,
-                message: `No GET API found for container object type: ${objectType}`
-            });
+        let embeddedObject;
+        let objectSchema = getEmbeddedObjectSchema(objectType, objectURI, constants.OBJECT_SCHEMAS);
+        let tableId = getContainerObjectId(objectURI);
+        let pk = getObjectPk(objectType, objectURI);
+        let lightDBEnclaveClient = enclave.initialiseLightDBEnclave(spaceId);
+        if(typeof objectSchema === "object"){
+            if(objectSchema.type === "array"){
+                let query = [`pk like ${pk}`];
+                let records = await $$.promisify(lightDBEnclaveClient.filter)($$.SYSTEM_IDENTIFIER, tableId, query);
+                embeddedObject = constructArrayOfObjects(objectType, objectSchema.items, records, 0);
+            } else {
+                //TODO: handle object embedded type
+            }
+        } else if(objectSchema === "array"){
+            let query = [`pk like ${pk}`];
+            let records = await $$.promisify(lightDBEnclaveClient.filter)($$.SYSTEM_IDENTIFIER, tableId, query);
+            embeddedObject = records.map(record => record.data);
+        } else if(objectSchema === "string" || objectSchema === "number"){
+            let record = await $$.promisify(lightDBEnclaveClient.getRecord)($$.SYSTEM_IDENTIFIER, tableId, pk);
+            embeddedObject = record.data;
         }
-        let object = await objectAPIs[objectType]["get"](spaceId, objectId);
         return utils.sendResponse(response, 200, "application/json", {
             success: true,
-            data: object,
+            data: embeddedObject,
             message: `Object ${objectType} loaded successfully`
         });
     } catch (error) {
@@ -302,12 +360,18 @@ async function getEmbeddedObject(request, response) {
         });
     }
 }
+
 async function addEmbeddedObject(request, response) {
     const spaceId = request.params.spaceId;
     const objectType = request.params.objectType;
     const objectURI = request.params.objectURI;
     const objectData = request.body;
     try {
+        let objectSchema = getEmbeddedObjectSchema(objectType, objectURI, constants.OBJECT_SCHEMAS);
+        let tableId = getContainerObjectId(objectURI);
+        let pk = getObjectPk(objectType, objectURI);
+        let lightDBEnclaveClient = enclave.initialiseLightDBEnclave(spaceId);
+        await iterateObjectAndInsertRecords(lightDBEnclaveClient, tableId, objectSchema, objectData, pk);
         let object = await spaceAPIs.addEmbeddedObject(spaceId, objectType, objectURI, objectData);
         return utils.sendResponse(response, 200, "application/json", {
             success: true,
@@ -321,6 +385,7 @@ async function addEmbeddedObject(request, response) {
         });
     }
 }
+
 async function updateEmbeddedObject(request, response) {
     const spaceId = request.params.spaceId;
     const objectType = request.params.objectType;
@@ -340,6 +405,7 @@ async function updateEmbeddedObject(request, response) {
         });
     }
 }
+
 async function deleteEmbeddedObject(request, response) {
     const spaceId = request.params.spaceId;
     const objectType = request.params.objectType;
@@ -392,6 +458,7 @@ async function storeObject(request, response) {
         sendResponse(response, 500, "text/html", `Error saving ${request.params.objectName}`);
     }
 }
+
 /* TODO constant object mapping of content types to avoid writing manually the content type of a response
 *   and move the cookie verification authentication, rights, etc in a middleware */
 async function getSpace(request, response) {
@@ -532,7 +599,6 @@ async function addCollaboratorToSpace(request, response) {
     }
 
 }
-
 
 
 module.exports = {
