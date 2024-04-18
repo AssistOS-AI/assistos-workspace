@@ -8,7 +8,6 @@ const {
 
 const bodyReader = require('../apihub-component-middlewares/bodyReader.js')
 const authentication = require('../apihub-component-middlewares/authentication.js')
-const Loader = require("../../assistOS-sdk");
 
 function UserStorage(server) {
 
