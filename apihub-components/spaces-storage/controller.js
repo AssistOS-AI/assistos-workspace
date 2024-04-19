@@ -167,13 +167,13 @@ function getObjectPk(objectType, pkSuffix) {
 function getArrayItemPk(objectType, pkSuffix, objectId) {
     return `${objectType}/${pkSuffix}/${objectId}`;
 }
-function iterateObjectAndInsertRecords(lightDBEnclaveClient, tableId, schema, data, pkSuffix) {
+async function iterateObjectAndInsertRecords(lightDBEnclaveClient, tableId, schema, data, pkSuffix) {
     for (let key of Object.keys(schema)) {
         if (typeof schema[key] === "object") {
             if (schema[key].type === "array") {
                 if (data[key] && Array.isArray(data[key])) {
                     for (let item of data[key]) {
-                        iterateObjectAndInsertRecords(lightDBEnclaveClient, tableId, schema[key].items, item, pkSuffix + `${key}/${item.id}`);
+                        await iterateObjectAndInsertRecords(lightDBEnclaveClient, tableId, schema[key].items, item, pkSuffix + `${key}/${item.id}`);
                     }
                 }
             } else {
@@ -182,13 +182,14 @@ function iterateObjectAndInsertRecords(lightDBEnclaveClient, tableId, schema, da
         } else if (schema[key] === "string" || schema[key] === "number") {
             if (data[key]) {
                 let pk = getObjectPk(key, pkSuffix);
-                lightDBEnclaveClient.insertRecord($$.SYSTEM_IDENTIFIER, tableId, pk, {data: data[key]});
+                await $$.promisify(lightDBEnclaveClient.insertRecord)($$.SYSTEM_IDENTIFIER, tableId, pk, {data: data[key]})
+
             }
         } else if (schema[key] === "array") {
             if (data[key] && Array.isArray(data[key])) {
                 for (let item of data[key]) {
                     let pk = getArrayItemPk(key, pkSuffix, item.id);
-                    lightDBEnclaveClient.insertRecord($$.SYSTEM_IDENTIFIER, tableId, pk, {data: item});
+                    await $$.promisify(lightDBEnclaveClient.insertRecord)($$.SYSTEM_IDENTIFIER, tableId, pk, {data: item})
                 }
             }
         }
@@ -238,7 +239,7 @@ async function updateContainerObject(request, response) {
             });
         }
 
-        await deleteContainerObjectTable(spaceId, objectId, objectData);
+        await deleteContainerObjectTable(spaceId, objectType, objectId);
         await insertContainerObjectRecords(spaceId, objectType, objectData, true);
         return utils.sendResponse(response, 200, "application/json", {
             success: true,
@@ -360,7 +361,9 @@ async function getEmbeddedObject(request, response) {
         });
     }
 }
-
+function getEmbeddedObjectPkSuffix(objectURI){
+    return objectURI.split("/").slice(2).join("/");
+}
 async function addEmbeddedObject(request, response) {
     const spaceId = request.params.spaceId;
     const objectType = request.params.objectType;
@@ -369,13 +372,26 @@ async function addEmbeddedObject(request, response) {
     try {
         let objectSchema = getEmbeddedObjectSchema(objectType, objectURI, constants.OBJECT_SCHEMAS);
         let tableId = getContainerObjectId(objectURI);
-        let pk = getObjectPk(objectType, objectURI);
+        let pkSuffix = getEmbeddedObjectPkSuffix(objectURI);
         let lightDBEnclaveClient = enclave.initialiseLightDBEnclave(spaceId);
-        await iterateObjectAndInsertRecords(lightDBEnclaveClient, tableId, objectSchema, objectData, pk);
-        let object = await spaceAPIs.addEmbeddedObject(spaceId, objectType, objectURI, objectData);
+        if (typeof objectSchema === "object") {
+            if (objectSchema.type === "array") {
+                let newObjectId = crypto.generateId();
+                await iterateObjectAndInsertRecords(lightDBEnclaveClient, tableId, objectSchema.items, objectData, pkSuffix + `${objectType}/${newObjectId.id}`);
+            } else {
+                //TODO: handle object embedded type
+            }
+        } else if (objectSchema === "string" || objectSchema === "number") {
+            let pk = getObjectPk(objectType, pkSuffix);
+            await $$.promisify(lightDBEnclaveClient.insertRecord)($$.SYSTEM_IDENTIFIER, tableId, pk, {data: objectData});
+        } else if (objectSchema === "array") {
+            let newObjectId = crypto.generateId();
+            let pk = getArrayItemPk(objectType, pkSuffix, newObjectId);
+            await $$.promisify(lightDBEnclaveClient.insertRecord)($$.SYSTEM_IDENTIFIER, tableId, pk, {data: objectData});
+        }
         return utils.sendResponse(response, 200, "application/json", {
             success: true,
-            data: object,
+            data: objectURI,
             message: `Object ${objectType} added successfully`
         });
     } catch (error) {
@@ -385,17 +401,60 @@ async function addEmbeddedObject(request, response) {
         });
     }
 }
-
+async function iterateObjectAndUpdateRecords(lightDBEnclaveClient, tableId, schema, data, pkSuffix) {
+    for (let key of Object.keys(schema)) {
+        if (typeof schema[key] === "object") {
+            if (schema[key].type === "array") {
+                if (data[key] && Array.isArray(data[key])) {
+                    for (let item of data[key]) {
+                        await iterateObjectAndUpdateRecords(lightDBEnclaveClient, tableId, schema[key].items, item, pkSuffix + `${key}/${item.id}`);
+                    }
+                }
+            } else {
+                //TODO: handle object embedded type
+            }
+        } else if (schema[key] === "string" || schema[key] === "number") {
+            if (data[key]) {
+                let pk = getObjectPk(key, pkSuffix);
+                await $$.promisify(lightDBEnclaveClient.updateRecord)($$.SYSTEM_IDENTIFIER, tableId, pk, {data: data[key]});
+            }
+        } else if (schema[key] === "array") {
+            if (data[key] && Array.isArray(data[key])) {
+                for (let item of data[key]) {
+                    let pk = getArrayItemPk(key, pkSuffix, item.id);
+                    await $$.promisify(lightDBEnclaveClient.updateRecord)($$.SYSTEM_IDENTIFIER, tableId, pk, {data: item});
+                }
+            }
+        }
+    }
+}
 async function updateEmbeddedObject(request, response) {
     const spaceId = request.params.spaceId;
     const objectType = request.params.objectType;
     const objectURI = request.params.objectURI;
     const objectData = request.body;
     try {
-        let object = await spaceAPIs.updateEmbeddedObject(spaceId, objectType, objectURI, objectData);
+        let objectSchema = getEmbeddedObjectSchema(objectType, objectURI, constants.OBJECT_SCHEMAS);
+        let tableId = getContainerObjectId(objectURI);
+        let pkSuffix = getEmbeddedObjectPkSuffix(objectURI);
+        let lightDBEnclaveClient = enclave.initialiseLightDBEnclave(spaceId);
+        if (typeof objectSchema === "object") {
+            if (objectSchema.type === "array") {
+                await iterateObjectAndUpdateRecords(lightDBEnclaveClient, tableId, objectSchema.items, objectData, pkSuffix);
+            } else {
+                //TODO: handle object embedded type
+            }
+        } else if (objectSchema === "string" || objectSchema === "number") {
+            let pk = getObjectPk(objectType, pkSuffix);
+            await $$.promisify(lightDBEnclaveClient.updateRecord)($$.SYSTEM_IDENTIFIER, tableId, pk, {data: objectData});
+        } else if (objectSchema === "array") {
+            let newObjectId = crypto.generateId();
+            let pk = getArrayItemPk(objectType, pkSuffix, newObjectId);
+            await $$.promisify(lightDBEnclaveClient.updateRecord)($$.SYSTEM_IDENTIFIER, tableId, pk, {data: objectData});
+        }
         return utils.sendResponse(response, 200, "application/json", {
             success: true,
-            data: object,
+            data: objectURI,
             message: `Object ${objectType} updated successfully`
         })
     } catch (e) {

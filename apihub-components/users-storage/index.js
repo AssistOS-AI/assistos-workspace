@@ -50,7 +50,10 @@ function UserStorage(server) {
             await userAPIs.createDemoUser();
         }
     }, 0);
-
+    setTimeout(async () => {
+        require('../../assistos-sdk/build/bundles/assistOS.js');
+        const document = require('assistos-sdk').loadModule('document');
+    }, 0);
 
     server.use("/users/*", bodyReader);
 
