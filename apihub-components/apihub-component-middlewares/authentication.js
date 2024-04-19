@@ -2,9 +2,9 @@ const cookie = require('../apihub-component-utils/cookie.js');
 const jwt = require('../apihub-component-utils/jwt.js');
 const utils = require('../apihub-component-utils/utils.js');
 
-const configs = require("../../config.json");
+const configs = require("../../assistos-sdk/modules/email/data/json/config.json");
 
-const Loader = require('../../assistOS-sdk')
+const Loader = require('assistos-sdk')
 
 const user = Loader.loadModule('user');
 const userAPIs = user.loadAPIs();

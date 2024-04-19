@@ -21,13 +21,13 @@ const authentication = require('../apihub-component-middlewares/authentication.j
 
 function SpaceStorage(server) {
     server.use("/spaces/*", bodyReader);
-    server.use("/spaces/*", authentication);
+    //server.use("/spaces/*", authentication);
 
     server.get("/spaces", getSpace);
     server.get("/spaces/:spaceId", getSpace);
 
     server.post("/spaces", createSpace);
-    server.delete("/spaces/:spaceId", deleteSpace);
+    //server.delete("/spaces/:spaceId", deleteSpace);
 
     server.post("/spaces/collaborators", addCollaboratorToSpace);
 
@@ -46,12 +46,12 @@ function SpaceStorage(server) {
     server.put("/spaces/embeddedObject/:spaceId/:objectType/:objectURI", updateEmbeddedObject);
     server.delete("/spaces/embeddedObject/:spaceId/:objectType/:objectURI", deleteEmbeddedObject);
 
-    server.post("/spaces/:spaceId/secrets", storeSecret);
+    //server.post("/spaces/:spaceId/secrets", storeSecret);
     server.get("/spaces", getSpace);
     server.get("/spaces/:spaceId", getSpace);
     server.post("/spaces", createSpace);
     server.post("/spaces/collaborators", addCollaboratorToSpace);
-    server.put("/spaces/:spaceId", storeSpace);
+    //server.put("/spaces/:spaceId", storeSpace);
 }
 
 module.exports = SpaceStorage;

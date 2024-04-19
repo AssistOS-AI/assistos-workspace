@@ -15,7 +15,7 @@ function UserStorage(server) {
         const securityConfig = require('../securityConfig.json');
         const jwtConfig = securityConfig.JWT;
         const apihub = require('apihub');
-        const utilsModule = require('../../assistOS-sdk').loadModule('util');
+        const utilsModule = require('assistos-sdk').loadModule('util');
         const crypto = utilsModule.loadAPIs('crypto');
 
         const accessToken = {
@@ -41,19 +41,16 @@ function UserStorage(server) {
     }, 0);
 
     setTimeout(async () => {
-        const configs = require('../../config.json');
+        const configs = require('../../assistos-sdk/modules/email/data/json/config.json');
         const createDefaultUser = configs.CREATE_DEMO_USER;
         if (createDefaultUser) {
-            const Loader = require('../../assistOS-sdk');
+            const Loader = require('assistos-sdk');
             const userModule = Loader.loadModule('user');
             const userAPIs = userModule.loadAPIs();
-            await userAPIs.createDemoUser();
+            //await userAPIs.createDemoUser();
         }
     }, 0);
-    setTimeout(async () => {
-        require('../../assistos-sdk/build/bundles/assistOS.js');
-        const document = require('assistos-sdk').loadModule('document');
-    }, 0);
+
 
     server.use("/users/*", bodyReader);
 

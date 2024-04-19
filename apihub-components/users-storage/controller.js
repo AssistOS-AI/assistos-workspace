@@ -1,7 +1,7 @@
 const cookie = require('../apihub-component-utils/cookie.js');
 const utils = require('../apihub-component-utils/utils.js');
 
-const Loader = require('../../assistOS-sdk');
+const Loader = require('assistos-sdk');
 const userModule = Loader.loadModule('user');
 
 async function registerUser(request, response) {
