@@ -262,6 +262,18 @@ async function updateEmbeddedObject(request, response) {
         let [tableId, objectId] = objectURI.split("/");
         await deleteEmbeddedObjectFromTable(lightDBEnclaveClient, tableId, objectURI);
         await insertEmbeddedObjectRecords(lightDBEnclaveClient, tableId, objectURI, objectData, true);
+        // let embeddedObjectRecord = await $$.promisify(lightDBEnclaveClient.getRecord)($$.SYSTEM_IDENTIFIER, tableId, objectId);
+        // let embeddedObject = await constructEmbeddedObject(lightDBEnclaveClient, tableId, embeddedObjectRecord);
+        //
+        // const updatedObject = JSON.parse(JSON.stringify(embeddedObject));
+        // const propertiesToUpdate = Object.keys(objectData);
+        // propertiesToUpdate.forEach(property => {
+        //     if (objectData.hasOwnProperty(property) && property!== "id") {
+        //         updatedObject[property] = objectData[property];
+        //     }
+        // });
+        //await insertEmbeddedObjectRecords(lightDBEnclaveClient, tableId, objectURI, updatedObject, true);
+
         return utils.sendResponse(response, 200, "application/json", {
             success: true,
             data: objectId,

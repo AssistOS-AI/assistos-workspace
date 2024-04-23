@@ -3,7 +3,8 @@ const {
     activateUser,
     loginUser,
     loadUser,
-    logoutUser
+    logoutUser,
+    createDemoUser
 } = require("./controller");
 
 const bodyReader = require('../apihub-component-middlewares/bodyReader.js')
@@ -15,8 +16,7 @@ function UserStorage(server) {
         const securityConfig = require('../securityConfig.json');
         const jwtConfig = securityConfig.JWT;
         const apihub = require('apihub');
-        const utilsModule = require('assistos-sdk').loadModule('util');
-        const crypto = utilsModule.loadAPIs('crypto');
+        const crypto = require("../apihub-component-utils/crypto.js");
 
         const accessToken = {
             ...jwtConfig.AccessToken,
@@ -41,13 +41,10 @@ function UserStorage(server) {
     }, 0);
 
     setTimeout(async () => {
-        const configs = require('../../assistos-sdk/modules/email/data/json/config.json');
+        const configs = require('./config.json');
         const createDefaultUser = configs.CREATE_DEMO_USER;
         if (createDefaultUser) {
-            const Loader = require('assistos-sdk');
-            const userModule = Loader.loadModule('user');
-            const userAPIs = userModule.loadAPIs();
-            //await userAPIs.createDemoUser();
+            await createDemoUser();
         }
     }, 0);
 
