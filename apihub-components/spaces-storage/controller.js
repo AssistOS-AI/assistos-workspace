@@ -95,7 +95,7 @@ function constructArrayOfObjects(pkPrefix, arrayItemsSchema, recordsArray, nesti
 }
 function constructObject(prefix, schema, recordsArray, nestingLevel) {
     if (!recordsArray || recordsArray.length === 0) {
-        throw new Error(`No records found for container this object`);
+        throw new Error(`No records found for this object`);
     }
     try {
         let object = {};
@@ -297,7 +297,6 @@ function cleanURI(uri){
     return uri.replace(/[{}[\]]/g, '');
 }
 function getEmbeddedObjectSchema(objectType, objectURI, schema) {
-    objectURI += `/${objectType}`;
     let splitURI = objectURI.split("/");
     let nestingLevel = 0;
     let componentNames = splitURI.filter((element, index) => {
@@ -313,7 +312,7 @@ function getEmbeddedObjectSchema(objectType, objectURI, schema) {
         name = cleanURI(name);
         if (name === objectType) {
             if(schema.hasOwnProperty(objectType)){
-                return [schema[objectType], nestingLevel];
+                return [schema[objectType], nestingLevel + 1];
             } else {
                 throw new Error(`Invalid object URI: ${objectURI}, type: ${objectType}`);
             }
@@ -347,28 +346,26 @@ async function getEmbeddedObject(request, response) {
         let [objectSchema, nestingLevel] = getEmbeddedObjectSchema(objectType, objectURI, constants.OBJECT_SCHEMAS);
         objectURI = cleanURI(objectURI);
         let tableId = getContainerObjectId(objectURI);
-        let pkPrefix = getEmbeddedObjectPkSuffix(objectURI + `/${objectType}`);
+        let pk = getEmbeddedObjectPkSuffix(objectURI);
         let lightDBEnclaveClient = enclave.initialiseLightDBEnclave(spaceId);
         if(typeof objectSchema === "object"){
-            let query = [`pk like ${pkPrefix}`];
+            let query = [`pk like ${pk}`];
             if(objectSchema.type === "array"){
                 let segments = objectURI.split("/");
                 let objectId = segments[segments.length - 1];
                 let records = await $$.promisify(lightDBEnclaveClient.filter)($$.SYSTEM_IDENTIFIER, tableId, query);
-                let nestingLevel = pkPrefix.split('/').length / 2;
-                embeddedObject = constructObject(pkPrefix, objectSchema.items, records, nestingLevel);
+                let nestingLevel = pk.split('/').length / 2;
+                embeddedObject = constructObject(pk, objectSchema.items, records, nestingLevel);
                 embeddedObject.id = objectId;
             } else {
                 let records = await $$.promisify(lightDBEnclaveClient.filter)($$.SYSTEM_IDENTIFIER, tableId, query);
-                embeddedObject = constructObject(pkPrefix, objectSchema.properties, records, nestingLevel);
+                embeddedObject = constructObject(pk, objectSchema.properties, records, nestingLevel);
             }
         } else if(objectSchema === "array"){
-            let pk = getObjectPk(objectType, pkPrefix);
             let query = [`pk like ${pk}`];
             let records = await $$.promisify(lightDBEnclaveClient.filter)($$.SYSTEM_IDENTIFIER, tableId, query);
             embeddedObject = records.map(record => record.data);
         } else if(objectSchema === "string" || objectSchema === "number"){
-            let pk = getObjectPk(objectType, pkPrefix);
             let record = await $$.promisify(lightDBEnclaveClient.getRecord)($$.SYSTEM_IDENTIFIER, tableId, pk);
             embeddedObject = record.data;
         }
@@ -442,7 +439,7 @@ async function updateEmbeddedObject(request, response) {
         let [objectSchema, nestingLevel] = getEmbeddedObjectSchema(objectType, objectURI, constants.OBJECT_SCHEMAS);
         objectURI = cleanURI(objectURI);
         let tableId = getContainerObjectId(objectURI);
-        let pkPrefix = getEmbeddedObjectPkSuffix(objectURI);
+        let pk = getEmbeddedObjectPkSuffix(objectURI);
         let lightDBEnclaveClient = enclave.initialiseLightDBEnclave(spaceId);
         if (typeof objectSchema === "object") {
             if (objectSchema.type === "array") {
@@ -456,7 +453,6 @@ async function updateEmbeddedObject(request, response) {
                 //TODO: handle object embedded type
             }
         } else if (objectSchema === "string" || objectSchema === "number" || objectSchema === "array") {
-            let pk = getObjectPk(pkPrefix, objectType);
             await $$.promisify(lightDBEnclaveClient.updateRecord)($$.SYSTEM_IDENTIFIER, tableId, pk, {data: objectData});
         }
         return utils.sendResponse(response, 200, "application/json", {
@@ -475,27 +471,23 @@ async function deleteEmbeddedObjectFromTable(lightDBEnclaveClient, spaceId, obje
     let [objectSchema, nestingLevel] = getEmbeddedObjectSchema(objectType, objectURI, constants.OBJECT_SCHEMAS);
     objectURI = cleanURI(objectURI);
     let tableId = getContainerObjectId(objectURI);
-    let pkPrefix = getEmbeddedObjectPkSuffix(objectURI);
+    let pk = getEmbeddedObjectPkSuffix(objectURI);
 
-    if(typeof objectSchema === "object"){
+    if(typeof objectSchema === "object" || objectSchema === "array"){
         if(objectSchema.type === "array"){
-            let query = [`pk like ${pkPrefix}`];
+            let query = [`pk like ${pk}`];
             let records = await $$.promisify(lightDBEnclaveClient.filter)($$.SYSTEM_IDENTIFIER, tableId, query);
             for(let record of records){
                 await $$.promisify(lightDBEnclaveClient.deleteRecord)($$.SYSTEM_IDENTIFIER, tableId, record.pk);
             }
         } else {
-            //TODO: handle object embedded type
-        }
-    } else if(objectSchema === "array"){
-        let pk = getObjectPk(pkPrefix, objectType);
-        let query = [`pk like ${pk}`];
-        let records = await $$.promisify(lightDBEnclaveClient.filter)($$.SYSTEM_IDENTIFIER, tableId, query);
-        for(let record of records){
-            await $$.promisify(lightDBEnclaveClient.deleteRecord)($$.SYSTEM_IDENTIFIER, tableId, record.pk);
+            let query = [`pk like ${pk}`];
+            let records = await $$.promisify(lightDBEnclaveClient.filter)($$.SYSTEM_IDENTIFIER, tableId, query);
+            for(let record of records){
+                await $$.promisify(lightDBEnclaveClient.deleteRecord)($$.SYSTEM_IDENTIFIER, tableId, record.pk);
+            }
         }
     } else if(objectSchema === "string" || objectSchema === "number"){
-        let pk = getObjectPk(pkPrefix, objectType);
         await $$.promisify(lightDBEnclaveClient.deleteRecord)($$.SYSTEM_IDENTIFIER, tableId, pk);
     }
 }
