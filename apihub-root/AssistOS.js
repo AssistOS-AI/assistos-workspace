@@ -1,10 +1,6 @@
-import {
-    closeModal,
-    WebSkel,
-    StorageManager
-} from "./wallet/imports.js";
+import WebSkel from "../WebSkel/webSkel.js";
 import * as dependencies from "./wallet/imports.js";
-import {IFlow} from "./wallet/core/models/IFlow.js";
+import {IFlow} from "./wallet/core/flow/IFlow.js";
 
 class AssistOS {
     constructor(configuration) {
@@ -41,7 +37,7 @@ class AssistOS {
         };
 
         this.UI = await WebSkel.initialise(uiConfigsPath);
-        this.storage = new StorageManager();
+        //this.storage = new StorageManager();
 
         const initialisePromises = [
             initialiseModules("services"),
@@ -230,7 +226,7 @@ function hidePlaceholders() {
 
 function defineActions() {
     assistOS.UI.registerAction("closeErrorModal", async (_target) => {
-        closeModal(_target);
+        assistOS.UI.closeModal(_target);
     });
 }
 
@@ -242,7 +238,7 @@ async function handleHistory(event) {
     }
     let modal = document.querySelector("dialog");
     if (modal) {
-        closeModal(modal);
+        assistOS.UI.closeModal(modal);
     }
 }
 
