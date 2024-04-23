@@ -36,15 +36,15 @@ function SpaceStorage(server) {
     server.put("/spaces/fileObject/:spaceId/:objectType/:objectId", updateFileObject);
     server.delete("/spaces/fileObject/:spaceId/:objectType/:objectId", deleteFileObject);
 
-    server.get("/spaces/containerObject/:spaceId/:objectType/:objectId", getContainerObject);
+    server.get("/spaces/containerObject/:spaceId/:objectId", getContainerObject);
     server.post("/spaces/containerObject/:spaceId/:objectType", addContainerObject);
-    server.put("/spaces/containerObject/:spaceId/:objectType/:objectId", updateContainerObject);
-    server.delete("/spaces/containerObject/:spaceId/:objectType/:objectId", deleteContainerObject);
+    server.put("/spaces/containerObject/:spaceId/:objectId", updateContainerObject);
+    server.delete("/spaces/containerObject/:spaceId/:objectId", deleteContainerObject);
 
-    server.get("/spaces/embeddedObject/:spaceId/:objectType/:objectURI", getEmbeddedObject);
-    server.post("/spaces/embeddedObject/:spaceId/:objectType/:objectURI", addEmbeddedObject);
-    server.put("/spaces/embeddedObject/:spaceId/:objectType/:objectURI", updateEmbeddedObject);
-    server.delete("/spaces/embeddedObject/:spaceId/:objectType/:objectURI", deleteEmbeddedObject);
+    server.get("/spaces/embeddedObject/:spaceId/:objectURI", getEmbeddedObject);
+    server.post("/spaces/embeddedObject/:spaceId/:objectURI", addEmbeddedObject);
+    server.put("/spaces/embeddedObject/:spaceId/:objectURI", updateEmbeddedObject);
+    server.delete("/spaces/embeddedObject/:spaceId/:objectURI", deleteEmbeddedObject);
 
     //server.post("/spaces/:spaceId/secrets", storeSecret);
     server.get("/spaces", getSpace);
