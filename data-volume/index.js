@@ -3,7 +3,7 @@ const fsPromises = require('fs').promises;
 const volumeConfigs = require('./config.json');
 
 module.exports = {
-    volumeConfigs: volumeConfigs,
+    configs: volumeConfigs,
     clean: async function () {
         const cleanDirectory = async (directoryPath) => {
             const fullPath = path.join(__dirname, directoryPath);

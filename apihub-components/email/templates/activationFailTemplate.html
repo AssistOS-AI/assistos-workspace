@@ -1,0 +1,77 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Account Activation Failed</title>
+    <style>
+        body {
+            font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+            background-color: #f7f7f7;
+            color: #333;
+            margin: 0;
+            padding: 0;
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            height: 100vh;
+            text-align: center;
+        }
+        .container {
+            background-color: #fff;
+            padding: 40px 60px;
+            border-radius: 10px;
+            box-shadow: 0 4px 8px rgba(0,0,0,0.1);
+            max-width: 400px;
+        }
+        h1 {
+            color: #D32F2F;
+            font-size: 24px;
+            margin-bottom: 20px;
+        }
+        p {
+            font-size: 16px;
+            line-height: 1.6;
+            margin: 20px 0;
+        }
+        a {
+            display: inline-block;
+            background-color: #0C5C9E;
+            color: #ffffff;
+            padding: 10px 20px;
+            text-decoration: none;
+            border-radius: 5px;
+            font-weight: bold;
+            margin-top: 20px;
+        }
+        a:hover {
+            background-color: #0A4C8E;
+        }
+        .countdown {
+            font-weight: bold;
+            color: #D32F2F;
+        }
+    </style>
+</head>
+<body>
+<div class="container">
+    <h1>Activation Failed</h1>
+    <p>We were unable to activate your account: $$failReason</p>
+    <p>You will be redirected to the home page in <span class="countdown">5</span> seconds.</p>
+</div>
+<script>
+    let timeLeft = 5;
+    let timerId = setInterval(countdown, 1000);
+
+    function countdown() {
+        if (timeLeft == 0) {
+            clearTimeout(timerId);
+            window.location.href = '$$redirectURL';
+        } else {
+            document.querySelector('.countdown').innerHTML = timeLeft;
+            timeLeft--;
+        }
+    }
+</script>
+</body>
+</html>

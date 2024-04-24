@@ -41,7 +41,7 @@ function UserStorage(server) {
     }, 0);
 
     setTimeout(async () => {
-        const configs = require('./config.json');
+        const configs = require('../config.json');
         const createDefaultUser = configs.CREATE_DEMO_USER;
         if (createDefaultUser) {
             await createDemoUser();

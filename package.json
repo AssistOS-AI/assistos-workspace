@@ -31,6 +31,7 @@
   },
   "homepage": "https://github.com/PharmaLedger-IMI/epi-workspace#readme",
   "dependencies": {
-    "octopus": "git+http://github.com/opendsu/octopus.git"
+    "octopus": "git+http://github.com/opendsu/octopus.git",
+    "nodemailer": "^6.9.13"
   }
 }

@@ -1,0 +1,6 @@
+{
+  "id": "$$announcementId",
+  "title": "Welcome to AssistOS!",
+  "text": "Space $$spaceName was successfully created. You can now add documents, users and settings to your space.",
+  "date": "$$currentUTCDate"
+}
