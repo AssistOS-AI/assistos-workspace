@@ -12,12 +12,11 @@ function bodyReaderMiddleware(req, res, next) {
 }
 
 function FlowsStorage(server){
-    const { loadDefaultFlows,loadDefaultPersonalities, loadFlows, storeFlow, storeFlows, loadAppFlows, storeAppFlow} = require("./controller");
+    const { loadDefaultFlows, loadFlows, storeFlows, loadAppFlows, storeAppFlow} = require("./controller");
     server.get("/flows/default", loadDefaultFlows);
     server.get("/flows/:spaceId", loadFlows);
     server.get("/flows/:spaceId/applications/:applicationId", loadAppFlows);
     server.use("/flows/*", bodyReaderMiddleware);
-    server.put("/flows/:spaceId/:objectId", storeFlow);
     server.put("/flows/:spaceId/store/flows", storeFlows);
     server.put("/flows/:spaceId/applications/:applicationId/:objectId", storeAppFlow);
 }

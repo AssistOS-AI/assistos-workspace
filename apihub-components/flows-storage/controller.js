@@ -56,23 +56,6 @@ async function loadFlows(request, response) {
     return sendResponse(response, 200, "application/javascript", flows);
 }
 
-async function storeFlow(request, response) {
-    let objectId = decodeURIComponent(request.params.objectId);
-    const filePath = `../data-volume/spaces/${request.params.spaceId}/flows/${objectId}.js`;
-    if (request.body.toString() === "") {
-        await fsPromises.unlink(filePath);
-        sendResponse(response, 200, "text/html", `Deleted successfully ${objectId}`);
-        return;
-    }
-    let data = request.body.toString();
-    try {
-        await fsPromises.writeFile(filePath, data, 'utf8');
-    } catch (error) {
-        return sendResponse(response, 500, "text/html", error + ` Error at writing file: ${filePath}`);
-    }
-    return sendResponse(response, 200, "text/html", `Success, write ${objectId}`);
-}
-
 async function storeFlows(request, response) {
     const filePath = `../data-volume/spaces/${request.params.spaceId}/flows`;
     try {

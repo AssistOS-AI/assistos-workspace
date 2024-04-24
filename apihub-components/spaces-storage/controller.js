@@ -3,17 +3,109 @@ const utils = require('../apihub-component-utils/utils.js');
 require('../../assistos-sdk/build/bundles/assistOS.js');
 const enclave = require("opendsu").loadAPI("enclave");
 const crypto = require('../apihub-component-utils/crypto.js');
-async function getFileObject() {
-
+const fsPromises = require('fs').promises;
+function getFileObjectsMetadataPath(spaceId, objectType) {
+    return `../data-volume/spaces/${spaceId}/${objectType}/metadata.json`;
+}
+async function getFileObjectsMetadata(request, response) {
+    // const spaceId = request.params.spaceId;
+    // const objectType = request.params.objectType;
+    // try {
+    //     let filePath = getFileObjectsMetadataPath(spaceId, objectType);
+    //     let metadata = JSON.parse(await fsPromises.readFile(filePath, {encoding: 'utf8'}));
+    //     return utils.sendResponse(response, 200, "application/json", {
+    //         success: true,
+    //         data: metadata,
+    //         message: `Objects metadata of type ${objectType} loaded successfully`
+    //     });
+    // } catch (error) {
+    //     return utils.sendResponse(response, 500, "application/json", {
+    //         success: false,
+    //         message: error + ` Error at getting objects metadata of type: ${objectType}`
+    //     });
+    // }
+}
+function getFileObjectPath(spaceId, objectType, objectId) {
+    return `../data-volume/spaces/${spaceId}/${objectType}/${objectId}.json`;
+}
+async function getFileObject(request, response) {
+    const spaceId = request.params.spaceId;
+    const objectType = request.params.objectType;
+    const objectId = request.params.objectId;
+    try {
+        let filePath = getFileObjectPath(spaceId, objectType, objectId);
+        let data = await fsPromises.readFile(filePath, {encoding: 'utf8'});
+        return utils.sendResponse(response, 200, "application/json", {
+            success: true,
+            data: data,
+            message: `Object with id: ${objectId} loaded successfully`
+        });
+    } catch (error) {
+        return utils.sendResponse(response, 500, "application/json", {
+            success: false,
+            message: error + ` Error at getting object with id: ${objectId}`
+        });
+    }
 }
 async function addFileObject(request, response) {
-
+    const spaceId = request.params.spaceId;
+    const objectType = request.params.objectType;
+    const objectData = request.body;
+    let objectId = crypto.generateId();
+    try {
+        objectData.id = objectId;
+        let filePath = getFileObjectPath(spaceId, objectType, objectId);
+        await fsPromises.writeFile(filePath, JSON.stringify(objectData, null, 2), 'utf8');
+        return utils.sendResponse(response, 200, "application/json", {
+            success: true,
+            data: objectId,
+            message: `Object ${objectType} added successfully`
+        });
+    } catch (error) {
+        return utils.sendResponse(response, 500, "application/json", {
+            success: false,
+            message: error + ` Error at adding object: ${objectType}`
+        });
+    }
 }
 async function updateFileObject(request, response) {
-
+    const spaceId = request.params.spaceId;
+    const objectType = request.params.objectType;
+    const objectId = request.params.objectId;
+    const objectData = request.body;
+    try {
+        let filePath = getFileObjectPath(spaceId, objectType, objectId);
+        await fsPromises.writeFile(filePath, JSON.stringify(objectData, null, 2), 'utf8');
+        return utils.sendResponse(response, 200, "application/json", {
+            success: true,
+            data: objectId,
+            message: `Object ${objectId} updated successfully`
+        });
+    } catch (error) {
+        return utils.sendResponse(response, 500, "application/json", {
+            success: false,
+            message: error + ` Error at updating object: ${objectId}`
+        });
+    }
 }
 async function deleteFileObject(request, response) {
-
+    const spaceId = request.params.spaceId;
+    const objectType = request.params.objectType;
+    const objectId = request.params.objectId;
+    try {
+        let filePath = getFileObjectPath(spaceId, objectType, objectId);
+        await fsPromises.unlink(filePath);
+        return utils.sendResponse(response, 200, "application/json", {
+            success: true,
+            data: objectId,
+            message: `Object ${objectId} deleted successfully`
+        });
+    } catch (error) {
+        return utils.sendResponse(response, 500, "application/json", {
+            success: false,
+            message: error + ` Error at deleting object: ${objectId}`
+        });
+    }
 }
 function getRecordDataAndRemove(recordsArray, pk) {
     const index = recordsArray.findIndex(item => item.pk === pk);
@@ -374,39 +466,7 @@ async function swapEmbeddedObjects(request, response) {
         });
     }
 }
-async function loadObject(request, response) {
 
-    const filePath = `../data-volume/spaces/${request.params.spaceId}/${request.params.objectType}/${request.params.objectName}.json`;
-    let data;
-    try {
-        data = await fsPromises.readFile(filePath, {encoding: 'utf8'});
-    } catch (error) {
-        sendResponse(response, 404, "text/html", error + ` Error space not found: ${filePath}`);
-        return;
-    }
-    sendResponse(response, 200, "text/html", data);
-}
-
-async function storeObject(request, response) {
-
-    const filePath = `../data-volume/spaces/${request.params.spaceId}/${request.params.objectType}/${request.params.objectName}.json`;
-    if (!request.body || Object.keys(request.body).length === 0) {
-        try {
-            await fsPromises.unlink(filePath);
-            sendResponse(response, 200, "text/html", `Deleted successfully ${request.params.objectName}`);
-        } catch (error) {
-            sendResponse(response, 500, "text/html", `Error deleting ${request.params.objectName}`);
-        }
-        return;
-    }
-    try {
-        const jsonData = request.body;
-        await fsPromises.writeFile(filePath, JSON.stringify(jsonData, null, 2), 'utf8');
-        sendResponse(response, 200, "text/html", `Success, saved ${request.params.objectName}`);
-    } catch (error) {
-        sendResponse(response, 500, "text/html", `Error saving ${request.params.objectName}`);
-    }
-}
 
 /* TODO constant object mapping of content types to avoid writing manually the content type of a response
 *   and move the cookie verification authentication, rights, etc in a middleware */
@@ -551,6 +611,7 @@ async function addCollaboratorToSpace(request, response) {
 
 
 module.exports = {
+    getFileObjectsMetadata,
     getFileObject,
     addFileObject,
     updateFileObject,

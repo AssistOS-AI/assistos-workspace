@@ -1,4 +1,5 @@
 const {
+    getFileObjectsMetadata,
     getFileObject,
     addFileObject,
     updateFileObject,
@@ -32,6 +33,7 @@ function SpaceStorage(server) {
 
     server.post("/spaces/collaborators", addCollaboratorToSpace);
 
+    server.get("/spaces/fileObject/:spaceId/:objectType", getFileObjectsMetadata);
     server.get("/spaces/fileObject/:spaceId/:objectType/:objectId", getFileObject);
     server.post("/spaces/fileObject/:spaceId/:objectType", addFileObject);
     server.put("/spaces/fileObject/:spaceId/:objectType/:objectId", updateFileObject);
