@@ -1,11 +1,6 @@
 const utils = require('../apihub-component-utils/utils.js');
 // const cookie = require('../apihub-component-utils/cookie.js');
 require('../../assistos-sdk/build/bundles/assistOS.js');
-const assistOS = require('assistos-sdk');
-const constants = assistOS.constants;
-// const userModule = Loader.loadModule('user');
-// const spaceModule = Loader.loadModule('space');
-// const spaceAPIs = spaceModule.loadAPIs();
 const enclave = require("opendsu").loadAPI("enclave");
 const crypto = require('../apihub-component-utils/crypto.js');
 async function getFileObject() {
@@ -39,9 +34,6 @@ function constructObject(recordsArray, objectId) {
         if (Array.isArray(object[key])) {
             for(let i = 0; i < object[key].length; i++){
              object[key][i] = constructObject(recordsArray, object[key][i]);
-            }
-            if(object[key].position){
-                object[key].sort((a, b) => a.position - b.position);
             }
         }
     }
@@ -175,9 +167,6 @@ async function constructEmbeddedObject(lightDBEnclaveClient, tableId, record) {
                 let record = await $$.promisify(lightDBEnclaveClient.getRecord)($$.SYSTEM_IDENTIFIER, tableId, object[key][i]);
                 object[key][i] = await constructEmbeddedObject(lightDBEnclaveClient, tableId, record);
             }
-            if(object[key].position){
-                object[key].sort((a, b) => a.position - b.position);
-            }
         }
     }
     return object;
@@ -221,7 +210,11 @@ async function insertEmbeddedObjectRecords(lightDBEnclaveClient, tableId, object
             objectId = `${objectType}_${crypto.generateId()}`;
             objectData.id = objectId;
         }
-        object[objectType].push(objectId);
+        if(objectData.position){
+            object[objectType].splice(objectData.position, 0, objectId);
+        } else {
+            object[objectType].push(objectId);
+        }
         await $$.promisify(lightDBEnclaveClient.updateRecord)($$.SYSTEM_IDENTIFIER, tableId, pk, {data: object});
         await insertObjectRecords(lightDBEnclaveClient, tableId, objectId, objectData);
         return objectId;
@@ -345,7 +338,42 @@ async function deleteEmbeddedObject(request, response) {
         });
     }
 }
-
+async function swapEmbeddedObjects(request, response) {
+    const spaceId = request.params.spaceId;
+    const objectURI = decodeURIComponent(request.params.objectURI);
+    let lightDBEnclaveClient = enclave.initialiseLightDBEnclave(spaceId);
+    let [embeddedId1, embeddedId2] = Object.values(request.body);
+    try {
+        let [tableId, objectId, propertyName] = objectURI.split("/");
+        if(!propertyName && !objectId.includes("_")){
+            propertyName = objectId;
+            objectId = tableId;
+        }
+        let record = await $$.promisify(lightDBEnclaveClient.getRecord)($$.SYSTEM_IDENTIFIER, tableId, objectId);
+        let object = record.data;
+        let index1 = object[propertyName].indexOf(embeddedId1);
+        let index2 = object[propertyName].indexOf(embeddedId2);
+        if(index1 === -1 || index2 === -1){
+            return utils.sendResponse(response, 500, "application/json", {
+                success: false,
+                message: ` Error at swapping objects: ${objectURI}`
+            });
+        }
+        object[propertyName][index1] = embeddedId2;
+        object[propertyName][index2] = embeddedId1;
+        await $$.promisify(lightDBEnclaveClient.updateRecord)($$.SYSTEM_IDENTIFIER, tableId, objectId, {data: object});
+        return utils.sendResponse(response, 200, "application/json", {
+            success: true,
+            data: objectURI,
+            message: `Objects from ${objectURI} swapped successfully`
+        });
+    } catch (error) {
+        return utils.sendResponse(response, 500, "application/json", {
+            success: false,
+            message: error + ` Error at swapping objects: ${objectURI}`
+        });
+    }
+}
 async function loadObject(request, response) {
 
     const filePath = `../data-volume/spaces/${request.params.spaceId}/${request.params.objectType}/${request.params.objectName}.json`;
@@ -534,6 +562,7 @@ module.exports = {
     getEmbeddedObject,
     addEmbeddedObject,
     updateEmbeddedObject,
+    swapEmbeddedObjects,
     deleteEmbeddedObject,
     getSpace,
     createSpace,
