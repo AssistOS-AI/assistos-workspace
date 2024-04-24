@@ -259,20 +259,27 @@ async function updateEmbeddedObject(request, response) {
     const objectData = request.body;
     try {
         let lightDBEnclaveClient = enclave.initialiseLightDBEnclave(spaceId);
-        let [tableId, objectId] = objectURI.split("/");
-        await deleteEmbeddedObjectFromTable(lightDBEnclaveClient, tableId, objectURI);
-        await insertEmbeddedObjectRecords(lightDBEnclaveClient, tableId, objectURI, objectData, true);
-        // let embeddedObjectRecord = await $$.promisify(lightDBEnclaveClient.getRecord)($$.SYSTEM_IDENTIFIER, tableId, objectId);
-        // let embeddedObject = await constructEmbeddedObject(lightDBEnclaveClient, tableId, embeddedObjectRecord);
-        //
-        // const updatedObject = JSON.parse(JSON.stringify(embeddedObject));
-        // const propertiesToUpdate = Object.keys(objectData);
-        // propertiesToUpdate.forEach(property => {
-        //     if (objectData.hasOwnProperty(property) && property!== "id") {
-        //         updatedObject[property] = objectData[property];
-        //     }
-        // });
-        //await insertEmbeddedObjectRecords(lightDBEnclaveClient, tableId, objectURI, updatedObject, true);
+        let [tableId, objectId, propertyName] = objectURI.split("/");
+        if(propertyName){
+            let record = await $$.promisify(lightDBEnclaveClient.getRecord)($$.SYSTEM_IDENTIFIER, tableId, objectId);
+            let object = record.data;
+            object[propertyName] = objectData;
+            await $$.promisify(lightDBEnclaveClient.updateRecord)($$.SYSTEM_IDENTIFIER, tableId, objectId, {data: object});
+        } else {
+            await deleteEmbeddedObjectDependencies(lightDBEnclaveClient, tableId, objectId);
+            await insertEmbeddedObjectRecords(lightDBEnclaveClient, tableId, objectURI, objectData, true);
+            // let embeddedObjectRecord = await $$.promisify(lightDBEnclaveClient.getRecord)($$.SYSTEM_IDENTIFIER, tableId, objectId);
+            // let embeddedObject = await constructEmbeddedObject(lightDBEnclaveClient, tableId, embeddedObjectRecord);
+            //
+            // const updatedObject = JSON.parse(JSON.stringify(embeddedObject));
+            // const propertiesToUpdate = Object.keys(objectData);
+            // propertiesToUpdate.forEach(property => {
+            //     if (objectData.hasOwnProperty(property) && property!== "id") {
+            //         updatedObject[property] = objectData[property];
+            //     }
+            // });
+            //await insertEmbeddedObjectRecords(lightDBEnclaveClient, tableId, objectURI, updatedObject, true);
+        }
 
         return utils.sendResponse(response, 200, "application/json", {
             success: true,

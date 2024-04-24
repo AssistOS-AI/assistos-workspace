@@ -2,6 +2,8 @@ const cookie = require('../apihub-component-utils/cookie.js');
 const utils = require('../apihub-component-utils/utils.js');
 const fsPromises = require('fs').promises;
 const crypto = require('../apihub-component-utils/crypto.js');
+const data = require('../apihub-component-utils/data.js');
+const date = require('../apihub-component-utils/date.js');
 async function registerUser(request, response) {
     const userData = request.body;
     if(!userData.name){
@@ -88,11 +90,6 @@ async function createUser(username, email, withDefaultSpace = false) {
         throw error;
     }
 }
-
-
-
-
-
 async function getUserData(userId) {
     const spaceAPIs = spaceModule.loadAPIs()
     const userFile = await getUserFile(userId)
@@ -105,7 +102,6 @@ async function getUserData(userId) {
     });
     return userFile;
 }
-
 async function getUserIdByEmail(email) {
     const userMap = await getUserMap()
     if (userMap[email]) {
@@ -116,7 +112,6 @@ async function getUserIdByEmail(email) {
         throw error;
     }
 }
-
 async function linkSpaceToUser(userId, spaceId) {
     const userFile = await getUserFile(userId)
 
@@ -130,7 +125,6 @@ async function linkSpaceToUser(userId, spaceId) {
     await updateUserFile(userId, userFile);
 
 }
-
 async function linkUserToSpace(spaceId, userId, role) {
     const spaceAPIs = spaceModule.loadAPIs()
     const spaceStatusObject = await spaceAPIs.getSpaceStatusObject(spaceId);
@@ -170,7 +164,6 @@ async function loginUserImpl(email, password) {
 
     throw new Error('Invalid credentials');
 }
-
 async function registerUserImpl(name, email, password) {
     const currentDate = date.getCurrentUTCDate();
     const userData = userModule.loadData('templates')
@@ -194,12 +187,10 @@ async function registerUserImpl(name, email, password) {
     await updateUserPendingActivation(userPendingActivation)
     await sendActivationEmail(email, name, registrationUserObject.verificationToken);
 }
-
 async function sendActivationEmail(emailAddress, username, activationToken) {
     const emailService = Loader.loadModule('services').loadServices('email').service.getInstance()
     await emailService.sendActivationEmail(emailAddress, username, activationToken);
 }
-
 async function unlinkSpaceFromUser(userId, spaceId) {
     const userFile = await getUserFile(userId)
 
@@ -215,15 +206,12 @@ async function unlinkSpaceFromUser(userId, spaceId) {
     }
     await updateUserFile(userId, userFile)
 }
-
 async function updateUserPendingActivation(userPendingActivationObject) {
     await fsPromises.writeFile(getUserPendingActivationPath(), JSON.stringify(userPendingActivationObject, null, 2));
 }
-
 function getUserCredentialsPath() {
     return Loader.getStorageVolumePaths('userCredentials')
 }
-
 async function getUserCredentials() {
     const userCredentialsPath = getUserCredentialsPath();
     try {
@@ -236,15 +224,12 @@ async function getUserCredentials() {
     const userCredentials = await fsPromises.readFile(userCredentialsPath, 'utf8');
     return JSON.parse(userCredentials);
 }
-
 async function updateUserCredentials(userCredentialsObject) {
     await fsPromises.writeFile(getUserCredentialsPath(), JSON.stringify(userCredentialsObject, null, 2));
 }
-
 function getUserMapPath() {
     return Loader.getStorageVolumePaths('userMap')
 }
-
 async function getUserMap() {
     const userMapPath = getUserMapPath();
     try {
@@ -257,15 +242,12 @@ async function getUserMap() {
     const userMap = await fsPromises.readFile(userMapPath, 'utf8');
     return JSON.parse(userMap);
 }
-
 async function updateUserMap(userMapObject) {
     await fsPromises.writeFile(getUserMapPath(), JSON.stringify(userMapObject, null, 2));
 }
-
 function getUserFilePath(userId) {
     return path.join(Loader.getStorageVolumePaths('user'), `${userId}.json`);
 }
-
 async function getUserFile(userId) {
     const userFilePath = await getUserFilePath(userId)
     try {
@@ -278,11 +260,9 @@ async function getUserFile(userId) {
     let userFile = await fsPromises.readFile(userFilePath, 'utf8');
     return JSON.parse(userFile);
 }
-
 async function updateUserFile(userId, userObject) {
     await fsPromises.writeFile(getUserFilePath(userId), JSON.stringify(userObject, null, 2), 'utf8', {encoding: 'utf8'});
 }
-
 async function updateUsersCurrentSpace(userId, spaceId) {
     const userFile = await getUserFile(userId);
     userFile.currentSpaceId = spaceId;
@@ -373,7 +353,6 @@ async function activateUser(request, response) {
         await utils.sendFileToClient(response, activationFailHTML, "html")
     }
 }
-
 async function loginUser(request, response) {
     const requestData = request.body;
     try {
@@ -392,7 +371,6 @@ async function loginUser(request, response) {
         });
     }
 }
-
 async function loadUser(request, response) {
     try {
         const userAPIs = userModule.loadAPIs();
@@ -410,7 +388,6 @@ async function loadUser(request, response) {
         }, [cookie.createCurrentSpaceCookie(), cookie.createAuthCookie()]);
     }
 }
-
 async function logoutUser(request, response) {
     if (!request.userId) {
         return utils.sendResponse(response, 401, "application/json", {
