@@ -102,7 +102,6 @@ async function loadAppFlows(request, response) {
 module.exports = {
     loadDefaultFlows,
     loadFlows,
-    storeFlow,
     storeFlows,
     storeAppFlow,
     loadAppFlows

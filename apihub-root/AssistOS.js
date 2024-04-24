@@ -1,6 +1,5 @@
 import WebSkel from "../WebSkel/webSkel.js";
 import * as dependencies from "./wallet/imports.js";
-import {IFlow} from "./wallet/core/flow/IFlow.js";
 
 class AssistOS {
     constructor(configuration) {
@@ -158,10 +157,10 @@ class AssistOS {
             if(flowInstance.start === undefined){
                 throw new Error(`Flow ${flowInstance.constructor.name} must have a function named 'start'`);
             }
-            const apis = Object.getOwnPropertyNames(IFlow.prototype)
+            const apis = Object.getOwnPropertyNames(dependencies.IFlow.prototype)
                 .filter(method => method !== 'constructor');
             apis.forEach(methodName => {
-                flowInstance[methodName] = IFlow.prototype[methodName].bind(flowInstance);
+                flowInstance[methodName] = dependencies.IFlow.prototype[methodName].bind(flowInstance);
             });
             if(flow.class.inputSchema){
                 // assistOS.services.validateSchema(context, flow.class.inputSchema, "input");
