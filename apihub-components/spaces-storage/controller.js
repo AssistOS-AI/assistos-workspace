@@ -44,6 +44,9 @@ function constructObject(recordsArray, objectId) {
             for(let i = 0; i < object[key].length; i++){
              object[key][i] = constructObject(recordsArray, object[key][i]);
             }
+            if(object[key].position){
+                object[key].sort((a, b) => a.position - b.position);
+            }
         }
     }
     return object;
@@ -181,6 +184,9 @@ async function constructEmbeddedObject(lightDBEnclaveClient, tableId, record) {
                 let record = await $$.promisify(lightDBEnclaveClient.getRecord)($$.SYSTEM_IDENTIFIER, tableId, object[key][i]);
                 object[key][i] = await constructEmbeddedObject(lightDBEnclaveClient, tableId, record);
             }
+            if(object[key].position){
+                object[key].sort((a, b) => a.position - b.position);
+            }
         }
     }
     return object;
@@ -260,6 +266,10 @@ async function updateEmbeddedObject(request, response) {
     try {
         let lightDBEnclaveClient = enclave.initialiseLightDBEnclave(spaceId);
         let [tableId, objectId, propertyName] = objectURI.split("/");
+        if(!propertyName && !objectId.includes("_")){
+            propertyName = objectId;
+            objectId = tableId;
+        }
         if(propertyName){
             let record = await $$.promisify(lightDBEnclaveClient.getRecord)($$.SYSTEM_IDENTIFIER, tableId, objectId);
             let object = record.data;
