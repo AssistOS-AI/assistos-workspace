@@ -4,7 +4,6 @@ const {
     loginUser,
     loadUser,
     logoutUser,
-    createDemoUser
 } = require("./controller");
 
 const bodyReader = require('../apihub-component-middlewares/bodyReader.js')
@@ -44,7 +43,8 @@ function UserStorage(server) {
         const configs = require('../config.json');
         const createDefaultUser = configs.CREATE_DEMO_USER;
         if (createDefaultUser) {
-            await createDemoUser();
+            const User = require('./user.js');
+            await User.APIs.createDemoUser();
         }
     }, 0);
 

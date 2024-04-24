@@ -2,13 +2,8 @@ const cookie = require('../apihub-component-utils/cookie.js');
 const jwt = require('../apihub-component-utils/jwt.js');
 const utils = require('../apihub-component-utils/utils.js');
 
-const configs = require("../email/data/json/config.json");
-
-const Loader = require('assistos-sdk')
-
-const user = Loader.loadModule('user');
-const userAPIs = user.loadAPIs();
-const userData = user.loadData('templates');
+const config = require('../config.json')
+const User=require('../users-storage/user.js');
 
 async function authentication(req, res, next) {
     const cookies = cookie.parseCookies(req);
@@ -28,7 +23,7 @@ async function authentication(req, res, next) {
     if (refreshToken) {
         try {
             const userId = await jwt.validateUserRefreshAccessJWT(refreshToken, 'RefreshToken');
-            const userData = await userAPIs.getUserData(userId);
+            const userData = await User.APIs.getUserData(userId);
             const newAuthCookie = await cookie.createAuthCookie(userData);
             setCookies.push(newAuthCookie);
             req.userId = userId;
@@ -47,11 +42,12 @@ async function authentication(req, res, next) {
 function authenticationError(res, next) {
     const error = new Error('Authentication failed');
     error.statusCode = 401;
-    if (configs.CREATE_DEMO_USER === 'true') {
+    if (config.CREATE_DEMO_USER === 'true') {
+        const {email,password}=User.templates.demoUser;
         utils.sendResponse(res, 401, "application/json", {
             success: false,
             message: "Unauthorized"
-        }, [cookie.createDemoUserCookie(userData.demoUser.email, userData.demoUser.password), cookie.deleteAuthCookie(), cookie.deleteRefreshAuthCookie(), cookie.deleteCurrentSpaceCookie()]);
+        }, [cookie.createDemoUserCookie(email, password), cookie.deleteAuthCookie(), cookie.deleteRefreshAuthCookie(), cookie.deleteCurrentSpaceCookie()]);
     } else {
         utils.sendResponse(res, 401, "application/json", {
             success: false,

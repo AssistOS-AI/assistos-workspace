@@ -138,7 +138,7 @@ async function createDemoUser() {
     await registerUser(username, email, crypto.hashPassword(password))
     const userPendingActivation = await getUserPendingActivation()
     const activationToken = Object.keys(userPendingActivation)[0]
-    await activateUserImpl(activationToken);
+    await activateUser(activationToken);
 }
 
 async function getUserData(userId) {
@@ -344,6 +344,7 @@ module.exports = {
         getActivationFailHTML,
         getActivationSuccessHTML,
         getUserData,
+        createDemoUser
     },
     templates: {
         userRegistrationTemplate: require('./templates/userRegistrationTemplate.json'),
