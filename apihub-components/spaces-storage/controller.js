@@ -1,29 +1,25 @@
 const utils = require('../apihub-component-utils/utils.js');
 // const cookie = require('../apihub-component-utils/cookie.js');
-// const Loader = require('../../assistOS-sdk');
+require('../../assistos-sdk/build/bundles/assistOS.js');
 const assistOS = require('assistos-sdk');
 const constants = assistOS.constants;
 // const userModule = Loader.loadModule('user');
 // const spaceModule = Loader.loadModule('space');
 // const spaceAPIs = spaceModule.loadAPIs();
 const enclave = require("opendsu").loadAPI("enclave");
-const crypto = assistOS.loadModule("util").loadAPIs("crypto");
+const crypto = require('../apihub-component-utils/crypto.js');
 async function getFileObject() {
 
 }
-
 async function addFileObject(request, response) {
 
 }
-
 async function updateFileObject(request, response) {
 
 }
-
 async function deleteFileObject(request, response) {
 
 }
-
 function getRecordDataAndRemove(recordsArray, pk) {
     const index = recordsArray.findIndex(item => item.pk === pk);
     if (index !== -1) {
@@ -51,7 +47,6 @@ function constructObject(recordsArray, objectId) {
     }
     return object;
 }
-
 async function getContainerObject(request, response) {
     const spaceId = request.params.spaceId;
     const objectId = request.params.objectId;
@@ -71,7 +66,6 @@ async function getContainerObject(request, response) {
         });
     }
 }
-
 async function insertObjectRecords(lightDBEnclaveClient, tableId, objectId, objectData){
     let object = {};
     for(let key of Object.keys(objectData)){
@@ -125,7 +119,6 @@ async function addContainerObject(request, response) {
         });
     }
 }
-
 async function updateContainerObject(request, response) {
     const spaceId = request.params.spaceId;
     const objectId = request.params.objectId;
@@ -148,13 +141,11 @@ async function updateContainerObject(request, response) {
     }
 
 }
-
 async function deleteContainerObjectTable(lightDBEnclaveClient, objectId) {
     let objectType = objectId.split('_')[0];
     await $$.promisify(lightDBEnclaveClient.deleteRecord)($$.SYSTEM_IDENTIFIER, objectType, objectId);
     return objectId;
 }
-
 async function deleteContainerObject(request, response) {
     const spaceId = request.params.spaceId;
     const objectId = request.params.objectId;

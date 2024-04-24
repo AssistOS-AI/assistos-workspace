@@ -1,4 +1,5 @@
 const fsPromises = require('fs').promises;
+const path=require('path');
 
 const config = require('../config.json');
 
@@ -344,7 +345,8 @@ module.exports = {
         getActivationFailHTML,
         getActivationSuccessHTML,
         getUserData,
-        createDemoUser
+        createDemoUser,
+        linkSpaceToUser
     },
     templates: {
         userRegistrationTemplate: require('./templates/userRegistrationTemplate.json'),

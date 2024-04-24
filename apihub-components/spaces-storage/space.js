@@ -1,27 +1,35 @@
 const path = require('path');
 const fsPromises = require('fs').promises;
 
-const Loader = require('../../../index.js');
-const constants = Loader.loadModule('constants');
-const config = Loader.loadModule('config');
-const utilsModule = Loader.loadModule('util');
-const userModule = Loader.loadModule('user');
-const spaceModule = Loader.loadModule('space');
-const documentModule = Loader.loadModule('document');
+const config = require('../config.json');
+
+const volumeManager = require('../volumeManager.js');
+
+const constants = require('assistos-sdk').constants;
+
+const documentModule = require('assistos-sdk').loadModule('document');
+
 const documentAPIs = documentModule.loadAPIs();
-const {crypto, file, data, date, openAI} = utilsModule.loadAPIs('crypto', 'file', 'data', 'date', 'openAI');
+
 const enclave = require('opendsu').loadAPI('enclave');
 
+const crypto = require("../apihub-component-utils/crypto");
+const data = require('../apihub-component-utils/data.js');
+const date = require('../apihub-component-utils/date.js');
+const file = require('../apihub-component-utils/file.js');
+const openAI = require('../apihub-component-utils/openAI.js');
+
+
 function getSpacePath(spaceId) {
-    return path.join(Loader.getStorageVolumePaths('space'), spaceId);
+    return path.join(volumeManager.paths.space, spaceId);
 }
 
 function getSpaceFolderPath() {
-    return Loader.getStorageVolumePaths('space');
+    return volumeManager.paths.space;
 }
 
 function getSpaceMapPath() {
-    return Loader.getStorageVolumePaths('spaceMap');
+    return volumeManager.paths.spaceMap;
 }
 
 async function updateSpaceMap(spaceMapObject) {
@@ -52,7 +60,7 @@ async function addSpaceToSpaceMap(spaceId, spaceName) {
 
 async function copyDefaultFlows(spacePath) {
 
-    const defaultFlowsPath = Loader.getStorageVolumePaths('defaultFlows');
+    const defaultFlowsPath = volumeManager.paths.defaultFlows;
     const flowsPath = path.join(spacePath, 'flows');
     await file.createDirectory(flowsPath);
 
@@ -67,7 +75,7 @@ async function copyDefaultFlows(spacePath) {
 
 async function copyDefaultPersonalities(spacePath) {
 
-    const defaultPersonalitiesPath = Loader.getStorageVolumePaths('defaultPersonalities');
+    const defaultPersonalitiesPath = volumeManager.paths.defaultPersonalities;
     const personalitiesPath = path.join(spacePath, 'personalities');
 
     await file.createDirectory(personalitiesPath);
@@ -82,10 +90,10 @@ async function copyDefaultPersonalities(spacePath) {
 }
 
 function createDefaultAnnouncement(spaceName) {
-    const spaceData = spaceModule.loadData();
+    const defaultSpaceAnnouncement= require('./templates/defaultSpaceAnnouncement.json');
     const currentDate = date.getCurrentUTCDate();
     const announcementId = crypto.generateId();
-    return data.fillTemplate(spaceData.defaultSpaceAnnouncement,
+    return data.fillTemplate(defaultSpaceAnnouncement,
         {
             announcementId: announcementId,
             spaceName: spaceName,
@@ -94,8 +102,11 @@ function createDefaultAnnouncement(spaceName) {
 }
 
 async function createSpace(spaceName, userId, apiKey) {
-    const spaceData = spaceModule.loadData();
-    const userAPIs = userModule.loadAPIs();
+    const defaultSpaceTemplate= require('./templates/defaultSpaceTemplate.json');
+    const defaultApiKeyTemplate= require('./templates/defaultApiKeyTemplate.json');
+    const spaceValidationSchema= require('./templates/spaceValidationSchema.json');
+
+    const User=require('../users-storage/user.js');
     const rollback = async (spacePath) => {
         try {
             await fsPromises.rm(spacePath, {recursive: true, force: true});
@@ -108,11 +119,11 @@ async function createSpace(spaceName, userId, apiKey) {
     const spaceId = crypto.generateId();
     let spaceObj = {}
     try {
-        spaceObj = data.fillTemplate(spaceData.defaultSpaceTemplate, {
+        spaceObj = data.fillTemplate(defaultSpaceTemplate, {
             spaceName: spaceName,
             spaceId: spaceId,
             adminId: userId,
-            apiKey: apiKey ? data.fillTemplate(spaceData.defaultApiKeyTemplate, {
+            apiKey: apiKey ? data.fillTemplate(defaultApiKeyTemplate, {
                 keyType: "OpenAI",
                 ownerId: userId,
                 keyId: crypto.generateId(),
@@ -128,7 +139,7 @@ async function createSpace(spaceName, userId, apiKey) {
     }
     let spaceValidationResult = {};
     try {
-        spaceValidationResult = data.validateObject(spaceData.spaceValidationSchema, spaceObj);
+        spaceValidationResult = data.validateObject(spaceValidationSchema, spaceObj);
     } catch (error) {
         error.message = 'Error validating space data';
         error.statusCode = 500;
@@ -149,7 +160,7 @@ async function createSpace(spaceName, userId, apiKey) {
         () => file.createDirectory(path.join(spacePath, 'documents')),
         () => file.createDirectory(path.join(spacePath, 'applications')),
         () => createSpaceStatus(spacePath, spaceObj),
-        () => userAPIs.linkSpaceToUser(userId, spaceId),
+        () => User.APIs.linkSpaceToUser(userId, spaceId),
         () => addSpaceToSpaceMap(spaceId, spaceName),
     ].concat(apiKey ? [() => saveSpaceAPIKeySecret(spaceId, apiKey)] : []);
 
@@ -310,11 +321,11 @@ module.exports = {
         deleteSpace
     },
     templates: {
-        defaultApiKeyTemplate:require('./templates/json/defaultApiKeyTemplate.json'),
-        defaultSpaceAnnouncement:require('./templates/json/defaultSpaceAnnouncement.json'),
-        defaultSpaceNameTemplate:require('./templates/json/defaultSpaceNameTemplate.json'),
-        defaultSpaceTemplate:require('./templates/json/defaultSpaceTemplate.json'),
-        spaceValidationSchema:require('./templates/json/spaceValidationSchema.json')
+        defaultApiKeyTemplate:require('./templates/defaultApiKeyTemplate.json'),
+        defaultSpaceAnnouncement:require('./templates/defaultSpaceAnnouncement.json'),
+        defaultSpaceNameTemplate:require('./templates/defaultSpaceNameTemplate.json'),
+        defaultSpaceTemplate:require('./templates/defaultSpaceTemplate.json'),
+        spaceValidationSchema:require('./templates/spaceValidationSchema.json')
     }
 }
 
