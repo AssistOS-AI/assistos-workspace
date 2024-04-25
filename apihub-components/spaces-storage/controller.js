@@ -8,24 +8,27 @@ function getFileObjectsMetadataPath(spaceId, objectType) {
     return `../data-volume/spaces/${spaceId}/${objectType}/metadata.json`;
 }
 async function getFileObjectsMetadata(request, response) {
-    // const spaceId = request.params.spaceId;
-    // const objectType = request.params.objectType;
-    // try {
-    //     let filePath = getFileObjectsMetadataPath(spaceId, objectType);
-    //     let metadata = JSON.parse(await fsPromises.readFile(filePath, {encoding: 'utf8'}));
-    //     return utils.sendResponse(response, 200, "application/json", {
-    //         success: true,
-    //         data: metadata,
-    //         message: `Objects metadata of type ${objectType} loaded successfully`
-    //     });
-    // } catch (error) {
-    //     return utils.sendResponse(response, 500, "application/json", {
-    //         success: false,
-    //         message: error + ` Error at getting objects metadata of type: ${objectType}`
-    //     });
-    // }
+    const spaceId = request.params.spaceId;
+    const objectType = request.params.objectType;
+    try {
+        let filePath = getFileObjectsMetadataPath(spaceId, objectType);
+        let metadata = JSON.parse(await fsPromises.readFile(filePath, {encoding: 'utf8'}));
+        return utils.sendResponse(response, 200, "application/json", {
+            success: true,
+            data: metadata,
+            message: `Objects metadata of type ${objectType} loaded successfully`
+        });
+    } catch (error) {
+        return utils.sendResponse(response, 500, "application/json", {
+            success: false,
+            message: error + ` Error at getting objects metadata of type: ${objectType}`
+        });
+    }
 }
 function getFileObjectPath(spaceId, objectType, objectId) {
+    if(objectType === "flow"){
+        return `../data-volume/spaces/${spaceId}/${objectType}/${objectId}.js`;
+    }
     return `../data-volume/spaces/${spaceId}/${objectType}/${objectId}.json`;
 }
 async function getFileObject(request, response) {
@@ -54,6 +57,15 @@ async function addFileObject(request, response) {
     let objectId = crypto.generateId();
     try {
         objectData.id = objectId;
+        let metaObj = {};
+        for(let key of objectData.metadata){
+            metaObj[key] = objectData[key];
+        }
+        let metadataPath = getFileObjectsMetadataPath(spaceId, objectType);
+        let metadata = JSON.parse(await fsPromises.readFile(metadataPath, {encoding: 'utf8'}));
+        metadata.push(metaObj);
+        await fsPromises.writeFile(metadataPath, JSON.stringify(metadata, null, 2), 'utf8');
+
         let filePath = getFileObjectPath(spaceId, objectType, objectId);
         await fsPromises.writeFile(filePath, JSON.stringify(objectData, null, 2), 'utf8');
         return utils.sendResponse(response, 200, "application/json", {
@@ -75,6 +87,21 @@ async function updateFileObject(request, response) {
     const objectData = request.body;
     try {
         let filePath = getFileObjectPath(spaceId, objectType, objectId);
+        let metadataPath = getFileObjectsMetadataPath(spaceId, objectType);
+        let metadata = JSON.parse(await fsPromises.readFile(metadataPath, {encoding: 'utf8'}));
+        let fileExtension = objectType === "flow" ? "js" : "json";
+        let metaObj = metadata.find(item => item.fileName === `${objectId}.${fileExtension}`);
+        if (metaObj) {
+            for(let key of Object.keys(objectData.metadata)){
+                metaObj[key] = objectData.metadata[key];
+            }
+            await fsPromises.writeFile(metadataPath, JSON.stringify(metadata), 'utf8');
+        } else {
+            return utils.sendResponse(response, 500, "application/json", {
+                success: false,
+                message: `Error at updating object: ${objectId}: metadata not found`
+            });
+        }
         await fsPromises.writeFile(filePath, JSON.stringify(objectData, null, 2), 'utf8');
         return utils.sendResponse(response, 200, "application/json", {
             success: true,
@@ -93,6 +120,14 @@ async function deleteFileObject(request, response) {
     const objectType = request.params.objectType;
     const objectId = request.params.objectId;
     try {
+        let metadataPath = getFileObjectsMetadataPath(spaceId, objectType);
+        let metadata = JSON.parse(await fsPromises.readFile(metadataPath, {encoding: 'utf8'}));
+        let fileExtension = objectType === "flow" ? "js" : "json";
+        let index = metadata.findIndex(item => item.fileName === `${objectId}.${fileExtension}`);
+        if (index !== -1) {
+            metadata.splice(index, 1);
+            await fsPromises.writeFile(metadataPath, JSON.stringify(metadata), 'utf8');
+        }
         let filePath = getFileObjectPath(spaceId, objectType, objectId);
         await fsPromises.unlink(filePath);
         return utils.sendResponse(response, 200, "application/json", {
@@ -104,6 +139,34 @@ async function deleteFileObject(request, response) {
         return utils.sendResponse(response, 500, "application/json", {
             success: false,
             message: error + ` Error at deleting object: ${objectId}`
+        });
+    }
+}
+async function getContainerObjectsMetadata(request, response) {
+    const spaceId = request.params.spaceId;
+    const objectType = request.params.objectType;
+    try {
+        let lightDBEnclaveClient = enclave.initialiseLightDBEnclave(spaceId);
+        let records = await $$.promisify(lightDBEnclaveClient.getAllRecords)($$.SYSTEM_IDENTIFIER, objectType);
+        let metadata = [];
+        for(let record of records){
+            let metadataRecord = await $$.promisify(lightDBEnclaveClient.getRecord)($$.SYSTEM_IDENTIFIER, record.pk, record.pk);
+            let object = metadataRecord.data;
+            let metadataObj = {};
+            for(let key of object.metadata){
+                metadataObj[key] = object[key];
+            }
+            metadata.push(metadataObj);
+        }
+        return utils.sendResponse(response, 200, "application/json", {
+            success: true,
+            data: metadata,
+            message: `Objects metadata of type ${objectType} loaded successfully`
+        });
+    } catch (error) {
+        return utils.sendResponse(response, 500, "application/json", {
+            success: false,
+            message: error + ` Error at getting objects metadata of type: ${objectType}`
         });
     }
 }
@@ -616,6 +679,7 @@ module.exports = {
     addFileObject,
     updateFileObject,
     deleteFileObject,
+    getContainerObjectsMetadata,
     getContainerObject,
     addContainerObject,
     updateContainerObject,

@@ -4,6 +4,7 @@ const {
     addFileObject,
     updateFileObject,
     deleteFileObject,
+    getContainerObjectsMetadata,
     getContainerObject,
     addContainerObject,
     updateContainerObject,
@@ -39,6 +40,7 @@ function SpaceStorage(server) {
     server.put("/spaces/fileObject/:spaceId/:objectType/:objectId", updateFileObject);
     server.delete("/spaces/fileObject/:spaceId/:objectType/:objectId", deleteFileObject);
 
+    server.get("/spaces/containerObject/meta/:spaceId/:objectType", getContainerObjectsMetadata);
     server.get("/spaces/containerObject/:spaceId/:objectId", getContainerObject);
     server.post("/spaces/containerObject/:spaceId/:objectType", addContainerObject);
     server.put("/spaces/containerObject/:spaceId/:objectId", updateContainerObject);

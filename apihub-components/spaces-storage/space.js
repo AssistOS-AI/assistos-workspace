@@ -65,12 +65,17 @@ async function copyDefaultFlows(spacePath) {
     await file.createDirectory(flowsPath);
 
     const files = await fsPromises.readdir(defaultFlowsPath);
-
+    let metadata = [];
     for (const file of files) {
         const filePath = path.join(defaultFlowsPath, file);
         const destFilePath = path.join(flowsPath, file);
         await fsPromises.copyFile(filePath, destFilePath);
+        metadata.push({
+            fileName: file
+        });
     }
+
+    await fsPromises.writeFile(path.join(spacePath, 'flows', 'metadata.json'), JSON.stringify(metadata), 'utf8');
 }
 
 async function copyDefaultPersonalities(spacePath) {
@@ -81,12 +86,20 @@ async function copyDefaultPersonalities(spacePath) {
     await file.createDirectory(personalitiesPath);
 
     const files = await fsPromises.readdir(defaultPersonalitiesPath);
-
+    let metadata = [];
     for (const file of files) {
         const filePath = path.join(defaultPersonalitiesPath, file);
+        let personality = JSON.parse(await fsPromises.readFile(filePath, 'utf8'));
         const destFilePath = path.join(personalitiesPath, file);
         await fsPromises.copyFile(filePath, destFilePath);
+        let metaObj = {};
+        for(let key of personality.metadata){
+            metaObj[key] = personality[key];
+        }
+        metaObj.fileName = file;
+        metadata.push(metaObj);
     }
+    await fsPromises.writeFile(path.join(spacePath, 'flows', 'metadata.json'), JSON.stringify(metadata), 'utf8');
 }
 
 function createDefaultAnnouncement(spaceName) {
@@ -259,46 +272,6 @@ async function updateSpaceStatus(spaceId, spaceStatusObject) {
     await fsPromises.writeFile(spaceStatusPath, JSON.stringify(spaceStatusObject, null, 2), {encoding: 'utf8'});
 }
 
-async function getObject(spaceId, objectType, objectId) {
-    if (!constants.OBJECT_TYPES[objectType]) {
-        throw new Error(`Invalid object type: ${objectType}`);
-    }
-    if (!documentAPIs[constants.OBJECT_TYPES[objectType]]["get"]) {
-        throw new Error(`No ADD API found for object type: ${objectType}`);
-    }
-    return await documentAPIs[constants.OBJECT_TYPES[objectType]]["get"](spaceId, objectId);
-}
-
-async function addObject(spaceId, objectType, objectData) {
-    if (!constants.OBJECT_TYPES[objectType]) {
-        throw new Error(`Invalid object type: ${objectType}`);
-    }
-    if (!documentAPIs[constants.OBJECT_TYPES[objectType]]["add"]) {
-        throw new Error(`No ADD API found for object type: ${objectType}`);
-    }
-    return await documentAPIs[constants.OBJECT_TYPES[objectType]]["add"](spaceId, objectData);
-}
-
-async function updateObject(spaceId, objectType, objectId, objectData) {
-    if (!constants.OBJECT_TYPES[objectType]) {
-        throw new Error(`Invalid object type: ${objectType}`);
-    }
-    if (!documentAPIs[constants.OBJECT_TYPES[objectType]]["update"]) {
-        throw new Error(`No ADD API found for object type: ${objectType}`);
-    }
-    return await documentAPIs[constants.OBJECT_TYPES[objectType]]["update"](spaceId, objectId, objectData);
-}
-
-async function deleteObject(spaceId, objectType, objectId) {
-    if (!constants.OBJECT_TYPES[objectType]) {
-        throw new Error(`Invalid object type: ${objectType}`);
-    }
-    if (!documentAPIs[constants.OBJECT_TYPES[objectType]]["delete"]) {
-        throw new Error(`No ADD API found for object type: ${objectType}`);
-    }
-    return await documentAPIs[constants.OBJECT_TYPES[objectType]]["delete"](spaceId, objectId);
-}
-
 module.exports = {
     APIs: {
         addAnnouncement,
@@ -308,9 +281,6 @@ module.exports = {
         createDefaultAnnouncement,
         createSpace,
         createSpaceStatus,
-        addObject,
-        updateObject,
-        deleteObject,
         getSpaceDocumentsObject,
         getSpacePersonalitiesObject,
         getSpaceMap,
