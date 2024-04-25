@@ -49,6 +49,76 @@ class AssistOS {
         this.currentApplicationName = this.configuration.defaultApplicationName;
     }
 
+    async installApplication(appName) {
+        return await assistOS.storage.installApplication(assistOS.space.id, appName);
+    }
+    async uninstallApplication(appName) {
+        let response = await assistOS.storage.uninstallApplication(assistOS.space.id, appName);
+        if(response.status === 200){
+            await assistOS.space.deleteApplication(appName);
+        }
+        return response;
+    }
+    async startApplication(appName, applicationLocation, isReadOnly) {
+        const initialiseApplication = async () => {
+            assistOS.initialisedApplications[appName] = JSON.parse(await assistOS.storage.getApplicationConfigs(assistOS.space.id, appName));
+            if (assistOS.initialisedApplications[appName].manager) {
+                let ManagerModule = await assistOS.storage.getApplicationFile(assistOS.space.id, appName, assistOS.initialisedApplications[appName].manager.path)
+                assistOS.initialisedApplications[appName].manager = new ManagerModule[assistOS.initialisedApplications[appName].manager.name](appName);
+                await assistOS.initialisedApplications[appName].manager.loadAppData?.();
+            }
+            for (let component of assistOS.initialisedApplications[appName].components) {
+                component = {
+                    ...await getApplicationComponent(assistOS.space.id, appName, assistOS.initialisedApplications[appName].componentsDirPath, component),
+                    ...component
+                }
+                assistOS.UI.configs.components.push(component);
+                await assistOS.UI.defineComponent(component);
+            }
+        }
+
+        const getApplicationComponent = async (spaceId, appId, appComponentsDirPath, component) => {
+            const HTMLPath = `${appComponentsDirPath}/${component.name}/${component.name}.html`
+            const CSSPath = `${appComponentsDirPath}/${component.name}/${component.name}.css`
+            let loadedTemplate = await (await assistOS.storage.getApplicationFile(spaceId, appId, HTMLPath)).text();
+            let loadedCSSs = await (await assistOS.storage.getApplicationFile(spaceId, appId, CSSPath)).text();
+            let presenterModule = "";
+            if (component.presenterClassName) {
+                const PresenterPath = `${appComponentsDirPath}/${component.name}/${component.name}.js`
+                presenterModule = await assistOS.storage.getApplicationFile(spaceId, appId, PresenterPath);
+            }
+            loadedCSSs = [loadedCSSs];
+            return {loadedTemplate, loadedCSSs, presenterModule};
+        }
+
+        const applicationContainer = document.querySelector("#page-content");
+
+        if (document.querySelector("left-sidebar") === null) {
+            applicationContainer.insertAdjacentHTML("beforebegin", `<left-sidebar data-presenter="left-sidebar" ></left-sidebar>`);
+        }
+        if (appName === assistOS.configuration.defaultApplicationName) {
+            if (!applicationLocation) {
+                applicationLocation = ["announcements-page"];
+            }
+            await assistOS.UI.changeToDynamicPage("space-configs-page", `${assistOS.space.id}/SpaceConfiguration/${applicationLocation.join("/")}`)
+            return;
+        }
+        if (!assistOS.initialisedApplications[appName]) {
+            await assistOS.UI.showLoading();
+            await initialiseApplication(appName);
+            assistOS.UI.hideLoading();
+        }
+        try {
+            await assistOS.initialisedApplications[appName].manager.navigateToLocation(applicationLocation, isReadOnly);
+        } catch (e) {
+            console.error(`Encountered an Issue trying to navigate to ${applicationLocation} .Navigating to application entry point`);
+            await assistOS.UI.changeToDynamicPage(assistOS.initialisedApplications[appName].entryPointComponent,
+                `${assistOS.space.id}/${appName}/${assistOS.initialisedApplications[appName].entryPointComponent}`);
+        } finally {
+            assistOS.currentApplicationName = appName;
+        }
+    }
+
     async refresh() {
         await this.UI.changeToDynamicPage("space-configs-page", `${assistOS.space.id}/SpaceConfiguration/announcements-page`);
     }
@@ -93,14 +163,14 @@ class AssistOS {
         let flowObj;
         try {
             flowObj = initFlow(flowName, context, personalityId);
-        }catch (e) {
+        } catch (e) {
             console.error(e);
             return await showApplicationError(e, e, e.stack);
         }
 
         let response;
         try {
-            response = await ((context, personality)=>{
+            response = await ((context, personality) => {
                 let returnPromise = new Promise((resolve, reject) => {
                     flowObj.flowInstance.resolve = resolve;
                     flowObj.flowInstance.reject = reject;
@@ -109,17 +179,17 @@ class AssistOS {
                 flowObj.flowInstance.start(context, personality);
                 return returnPromise;
             })(context, flowObj.personality);
-        }catch (e) {
+        } catch (e) {
             console.error(e);
             return await showApplicationError("Flow execution Error", `Error executing flow ${flowObj.flowInstance.constructor.name}`, e);
         }
-        if(flowObj.flowClass.outputSchema){
-            if(typeof flowObj.flowClass.outputSchema.isValid === "undefined"){
+        if (flowObj.flowClass.outputSchema) {
+            if (typeof flowObj.flowClass.outputSchema.isValid === "undefined") {
                 try {
                     let parsedResponse = JSON.parse(response);
                     //assistOS.services.validateSchema(parsedResponse, flowObj.flowClass.outputSchema, "output");
                     return parsedResponse;
-                }catch (e) {
+                } catch (e) {
                     console.error(e);
                     return await showApplicationError(e, e, e.stack);
                 }
@@ -127,31 +197,31 @@ class AssistOS {
         }
         return response;
 
-        function initFlow(flowName, context, personalityId){
+        function initFlow(flowName, context, personalityId) {
             let flow;
-            if(assistOS.currentApplicationName === assistOS.configuration.defaultApplicationName){
+            if (assistOS.currentApplicationName === assistOS.configuration.defaultApplicationName) {
                 flow = assistOS.space.getFlow(flowName);
             } else {
                 let app = assistOS.space.getApplicationByName(assistOS.currentApplicationName);
                 flow = app.getFlow(flowName);
             }
             let personality;
-            if(personalityId){
+            if (personalityId) {
                 personality = assistOS.space.getPersonality(personalityId);
             } else {
                 personality = assistOS.space.getPersonalityByName(dependencies.constants.DEFAULT_PERSONALITY_NAME);
             }
-            if(flow.class.inputSchema){
+            if (flow.class.inputSchema) {
                 // assistOS.services.validateSchema(context, flow.class.inputSchema, "input");
             }
             let usedDependencies = [];
-            if(flow.class.dependencies){
-                for(let functionName of flow.class.dependencies){
+            if (flow.class.dependencies) {
+                for (let functionName of flow.class.dependencies) {
                     usedDependencies.push(dependencies[functionName]);
                 }
             }
             let flowInstance = new flow.class(...usedDependencies);
-            if(flowInstance.start === undefined){
+            if (flowInstance.start === undefined) {
                 throw new Error(`Flow ${flowInstance.constructor.name} must have a function named 'start'`);
             }
             const apis = Object.getOwnPropertyNames(dependencies.IFlow.prototype)
@@ -159,18 +229,25 @@ class AssistOS {
             apis.forEach(methodName => {
                 flowInstance[methodName] = dependencies.IFlow.prototype[methodName].bind(flowInstance);
             });
-            if(flow.class.inputSchema){
+            if (flow.class.inputSchema) {
                 // assistOS.services.validateSchema(context, flow.class.inputSchema, "input");
             }
-            return {flowInstance:flowInstance, flowClass:flow.class, personality: personality};
+            return {flowInstance: flowInstance, flowClass: flow.class, personality: personality};
         }
     }
+
     loadModule(moduleName) {
         switch (moduleName) {
-            case "space": return import("./wallet/core/space/index.js");
-            case "user": return import("./wallet/core/user/index.js");
-            case "personality": return import("./wallet/core/personality/personality.js");
-            default: console.error("Module doesn't exist"); break;
+            case "space":
+                return require("assistos-sdk").loadModule("space");
+            case "user":
+                return require("assistos-sdk").loadModule("user");
+            case "personality":
+                return require("assistos-sdk").loadModule("personality");
+            case "document":
+                return require("assistos-sdk").loadModule("document");
+            default:
+                throw new Error("Module doesn't exist");
         }
     }
 }

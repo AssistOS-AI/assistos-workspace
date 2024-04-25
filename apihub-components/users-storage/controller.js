@@ -1,5 +1,3 @@
-const fsPromises = require('fs').promises
-
 const cookie = require('../apihub-component-utils/cookie.js');
 const utils = require('../apihub-component-utils/utils.js');
 

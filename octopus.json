@@ -88,8 +88,8 @@
           },
             {
                 "type": "copy",
-                "src": "./assistos-sdk/build/bundles/assistOS.js",
-                "target": "./apihub-root/wallet/bundles/assistOS.js",
+                "src": "./assistos-sdk/build/bundles/assistos_sdk.js",
+                "target": "./apihub-root/wallet/bundles/assistos_sdk.js",
                 "options": {
                     "overwrite": true
                 }

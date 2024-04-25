@@ -26,7 +26,7 @@ export class LeftSidebar {
 
     async startApplication(_target, appName) {
         //this.changeBaseURL(appName);
-        await assistOS.services.startApplication(appName);
+        await assistOS.startApplication(appName);
         changeSelectedPageFromSidebar(window.location.hash);
     }
 
