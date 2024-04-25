@@ -1,5 +1,4 @@
-import {extractFormInformation} from "../../../imports.js";
-
+//const user = require("assistos-sdk").loadModule("user");
 export class AuthenticationPage {
     constructor(element, invalidate) {
         this.element = element;
@@ -8,11 +7,7 @@ export class AuthenticationPage {
         this.rotations = 0;
         [this.demoUserEmail, this.demoUserPassword]=assistOS.services.getDemoUserCredentials();
     }
-    getDemoUserCredentials(){
-
-    }
     beforeRender() {
-
         switch (this.element.getAttribute("data-subpage")) {
             case "register-page": {
                 this.subpage = ` <div>
@@ -243,7 +238,7 @@ export class AuthenticationPage {
     }
 
     async registerUser(_target) {
-        const formInfo = await extractFormInformation(_target);
+        const formInfo = await assistOS.UI.extractFormInformation(_target);
         if (formInfo.isValid) {
             this.formData = formInfo.data;
             const {name, email, password} = formInfo.data;
@@ -265,7 +260,7 @@ export class AuthenticationPage {
     }
 
     async loginUser(_target) {
-        const formInfo = await extractFormInformation(_target);
+        const formInfo = await assistOS.UI.extractFormInformation(_target);
         if (formInfo.isValid) {
             const {email, password} = formInfo.data;
             try {
@@ -294,7 +289,7 @@ export class AuthenticationPage {
                 errorMessage: "Passwords do not match!"
             }
         };
-        const formInfo = await extractFormInformation(_target, conditions);
+        const formInfo = await assistOS.UI.extractFormInformation(_target, conditions);
         if (formInfo.isValid) {
             if (await assistOS.services.recoverPassword(formInfo.data.email, formInfo.data.password)) {
                 await assistOS.UI.changeToDynamicPage("authentication-page", "authentication-page", {subpage: "password-recovery-confirmation"});

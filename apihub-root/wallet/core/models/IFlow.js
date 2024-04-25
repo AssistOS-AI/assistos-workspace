@@ -14,12 +14,7 @@ export class IFlow{
         return this.reject(error);
     }
     loadModule(moduleName){
-        switch (moduleName) {
-            case "space":
-                return assistOS.space;
-            default:
-                return assistOS[moduleName];
-        }
+        return require("assistos-sdk").loadModule(moduleName);
     }
     callFlow(flowName, context){
         return assistOS.callFlow(flowName, context, this.personality);

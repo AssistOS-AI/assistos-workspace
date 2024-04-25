@@ -38,10 +38,8 @@ class AssistOS {
         this.UI = await WebSkel.initialise(uiConfigsPath);
         //this.storage = new StorageManager();
 
-        const initialisePromises = [
-            initialiseModules("services"),
-            initialiseModules("factories")
-        ];
+        await initialiseModules("services");
+
 
         this.applications = {};
         this.initialisedApplications = new Set();
@@ -49,7 +47,6 @@ class AssistOS {
             this.applications[application.name] = application;
         });
         this.currentApplicationName = this.configuration.defaultApplicationName;
-        await Promise.all(initialisePromises);
     }
 
     async refresh() {

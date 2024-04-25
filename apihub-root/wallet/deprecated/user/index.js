@@ -1,13 +1,3 @@
-function getDemoUserCredentials() {
-    try {
-        const demoUserCredentials= JSON.parse(getCookieValue("demoCredentials"));
-        return [demoUserCredentials.email, demoUserCredentials.password]
-    } catch (error) {
-        console.log(error+"No demo credentials found")
-        return ["",""];
-    }
-}
-
 async function registerUser(name, email, password) {
     return await assistOS.storage.registerUser(name, email, password);
 }
