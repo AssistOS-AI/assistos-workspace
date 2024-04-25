@@ -5,6 +5,8 @@ const {
     loadApplicationConfig,
     loadApplicationFile,
     loadObjects,
+    loadAppFlows,
+    storeAppFlow
 } = require("./controller");
 
 function bodyReaderMiddleware(req, res, next) {
@@ -36,6 +38,9 @@ function ApplicationsStorage(server) {
     server.delete("/space/:spaceId/applications/:applicationId", uninstallApplication);
     server.put("/app/:spaceId/applications/:applicationId/:objectType/:objectId", storeObject);
     server.put("/space/:spaceId/applications/:applicationId/:objectType/:objectId", storeObject);
+
+    server.get("/app/:spaceId/applications/:applicationId", loadAppFlows);
+    server.put("/app/:spaceId/applications/:applicationId/:objectId", storeAppFlow);
 }
 
 module.exports = ApplicationsStorage;

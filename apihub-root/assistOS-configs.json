@@ -1,11 +1,5 @@
 {
   "defaultApplicationName": "SpaceConfiguration",
-  "factories": [
-    {
-      "name": "DocumentFactory",
-      "path": "./wallet/core/factories/DocumentFactory.js"
-    }
-  ],
   "services": [
     {
       "name": "AgentService",
@@ -28,16 +22,8 @@
       "path": "./wallet/core/services/ApplicationsService.js"
     },
     {
-      "name": "SpaceService",
-      "path": "./wallet/core/services/SpaceService.js"
-    },
-    {
       "name": "ValidationService",
       "path": "./wallet/core/services/ValidationService.js"
-    },
-    {
-      "name": "DocumentService",
-      "path": "./wallet/core/services/DocumentService.js"
     }
   ],
   "applications": [

@@ -1,11 +1,6 @@
 const fsPromises = require('fs').promises;
 const path = require('path');
-function sendResponse(response,statusCode, contentType, message){
-    response.statusCode = statusCode;
-    response.setHeader("Content-Type", contentType);
-    response.write(message);
-    response.end();
-}
+const{ sendResponse } = require('../apihub-component-utils/utils');
 async function saveJSON(response, spaceData, filePath) {
     try {
         await fsPromises.writeFile(filePath, spaceData, 'utf8');
@@ -15,6 +10,7 @@ async function saveJSON(response, spaceData, filePath) {
     }
     return true;
 }
+//UNSUPPORTED
 async function loadFilteredKnowledge(request, response){
     let queryParams = request.query.param1;
     let searchedWords = queryParams.split(" ");
@@ -55,19 +51,10 @@ async function storeKnowledge(request, response){
         sendResponse(response, 200, "text/html", `Success, ${request.body.toString()}`);
     }
 }
-async function loadDefaultPersonalities(request, response) {
-    const defaultPersonalitiesObject = await Manager.apis.getDefaultPersonalitiesObject();
-    sendResponse(response, 200, "application/json", {
-        data: defaultPersonalitiesObject,
-        success: true,
-        message: "Default Personalities loaded successfully"
-    });
-}
 
 module.exports = {
     loadKnowledge,
     loadFilteredKnowledge,
     addKnowledge,
     storeKnowledge,
-    loadDefaultPersonalities,
 }

@@ -346,7 +346,10 @@ module.exports = {
         getActivationSuccessHTML,
         getUserData,
         createDemoUser,
-        linkSpaceToUser
+        linkSpaceToUser,
+        getDefaultSpaceId,
+        updateUsersCurrentSpace,
+        addSpaceCollaborator
     },
     templates: {
         userRegistrationTemplate: require('./templates/userRegistrationTemplate.json'),

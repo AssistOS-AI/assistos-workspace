@@ -1,11 +1,15 @@
 const utils = require('../apihub-component-utils/utils.js');
-// const cookie = require('../apihub-component-utils/cookie.js');
+const cookie = require('../apihub-component-utils/cookie.js');
+const space = require("./space.js");
+const user = require("../users-storage/user.js");
 require('../../assistos-sdk/build/bundles/assistOS.js');
 const enclave = require("opendsu").loadAPI("enclave");
 const crypto = require('../apihub-component-utils/crypto.js');
 const fsPromises = require('fs').promises;
+const path = require('path');
+const dataVolumePaths = require('../volumeManager').paths;
 function getFileObjectsMetadataPath(spaceId, objectType) {
-    return `../data-volume/spaces/${spaceId}/${objectType}/metadata.json`;
+    return path.join(dataVolumePaths.space, `${spaceId}/${objectType}/metadata.json`);
 }
 async function getFileObjectsMetadata(request, response) {
     const spaceId = request.params.spaceId;
@@ -27,9 +31,9 @@ async function getFileObjectsMetadata(request, response) {
 }
 function getFileObjectPath(spaceId, objectType, objectId) {
     if(objectType === "flow"){
-        return `../data-volume/spaces/${spaceId}/${objectType}/${objectId}.js`;
+        return path.join(dataVolumePaths.space, `${spaceId}/${objectType}/${objectId}.js`);
     }
-    return `../data-volume/spaces/${spaceId}/${objectType}/${objectId}.json`;
+    return path.join(dataVolumePaths.space, `${spaceId}/${objectType}/${objectId}.json`);
 }
 async function getFileObject(request, response) {
     const spaceId = request.params.spaceId;
@@ -248,9 +252,6 @@ async function addContainerObject(request, response) {
     const spaceId = request.params.spaceId;
     const objectType = request.params.objectType;
     const objectData = request.body;
-    // let lightDBEnclaveClient = enclave.initialiseLightDBEnclave(spaceId);
-    // await $$.promisify(lightDBEnclaveClient.createDatabase)(spaceId);
-    // await $$.promisify(lightDBEnclaveClient.grantWriteAccess)($$.SYSTEM_IDENTIFIER);
     try {
         let lightDBEnclaveClient = enclave.initialiseLightDBEnclave(spaceId);
         let objectId = await addContainerObjectToTable(lightDBEnclaveClient, objectType, objectData);
@@ -417,17 +418,6 @@ async function updateEmbeddedObject(request, response) {
         } else {
             await deleteEmbeddedObjectDependencies(lightDBEnclaveClient, tableId, objectId);
             await insertEmbeddedObjectRecords(lightDBEnclaveClient, tableId, objectURI, objectData, true);
-            // let embeddedObjectRecord = await $$.promisify(lightDBEnclaveClient.getRecord)($$.SYSTEM_IDENTIFIER, tableId, objectId);
-            // let embeddedObject = await constructEmbeddedObject(lightDBEnclaveClient, tableId, embeddedObjectRecord);
-            //
-            // const updatedObject = JSON.parse(JSON.stringify(embeddedObject));
-            // const propertiesToUpdate = Object.keys(objectData);
-            // propertiesToUpdate.forEach(property => {
-            //     if (objectData.hasOwnProperty(property) && property!== "id") {
-            //         updatedObject[property] = objectData[property];
-            //     }
-            // });
-            //await insertEmbeddedObjectRecords(lightDBEnclaveClient, tableId, objectURI, updatedObject, true);
         }
 
         return utils.sendResponse(response, 200, "application/json", {
@@ -534,8 +524,6 @@ async function swapEmbeddedObjects(request, response) {
 /* TODO constant object mapping of content types to avoid writing manually the content type of a response
 *   and move the cookie verification authentication, rights, etc in a middleware */
 async function getSpace(request, response) {
-    const userAPIs = userModule.loadAPIs();
-    const spaceAPIs = spaceModule.loadAPIs();
     try {
         let spaceId;
         const userId = request.userId;
@@ -544,13 +532,13 @@ async function getSpace(request, response) {
         } else if (cookie.parseCookies(request).currentSpaceId) {
             spaceId = cookie.parseCookies(request).currentSpaceId;
         } else {
-            spaceId = userAPIs.getDefaultSpaceId(userId);
+            spaceId = user.APIs.getDefaultSpaceId(userId);
         }
 
-        let spaceObject = await spaceAPIs.getSpaceStatusObject(spaceId);
-        spaceObject["documents"] = await spaceAPIs.getSpaceDocumentsObject(spaceId);
-        spaceObject["personalities"] = await spaceAPIs.getSpacePersonalitiesObject(spaceId);
-        await userAPIs.updateUsersCurrentSpace(userId, spaceId);
+        let spaceObject = await space.APIs.getSpaceStatusObject(spaceId);
+        spaceObject["documents"] = await space.APIs.getSpaceDocumentsObject(spaceId);
+        spaceObject["personalities"] = await space.APIs.getSpacePersonalitiesObject(spaceId);
+        await user.APIs.updateUsersCurrentSpace(userId, spaceId);
         utils.sendResponse(response, 200, "application/json", {
             success: true,
             data: spaceObject,
@@ -566,8 +554,6 @@ async function getSpace(request, response) {
 
 async function createSpace(request, response) {
     const userId = request.userId
-    const spaceAPIs = spaceModule.loadAPIs();
-
     const spaceName = request.body.spaceName
     if (!spaceName) {
         utils.sendResponse(response, 400, "application/json", {
@@ -587,7 +573,7 @@ async function createSpace(request, response) {
     }
 
     try {
-        let newSpace = await spaceAPIs.createSpace(spaceName, userId, apiKey);
+        let newSpace = await space.APIs.createSpace(spaceName, userId, apiKey);
         utils.sendResponse(response, 201, "application/json", {
             message: `Space created successfully: ${newSpace.id}`,
             data: newSpace,
@@ -617,8 +603,7 @@ async function createSpace(request, response) {
 
 async function addCollaboratorToSpace(request, response) {
     /* Todo Check if the user has access to that space and has the right to add an user */
-    const userId = request.userId
-    const userAPIs = userModule.loadAPIs();
+    const userId = request.userId;
 
     const spaceId = request.body.spaceId;
     if (!spaceId) {
@@ -638,7 +623,7 @@ async function addCollaboratorToSpace(request, response) {
     }
 
     try {
-        await userAPIs.addSpaceCollaborator(spaceId, collaboratorId);
+        await user.APIs.addSpaceCollaborator(spaceId, collaboratorId);
         utils.sendResponse(response, 200, "application/json", {
             message: `Collaborator added successfully: ${collaboratorId}`,
             success: true

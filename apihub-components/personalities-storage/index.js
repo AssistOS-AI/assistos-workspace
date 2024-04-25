@@ -12,8 +12,7 @@ function bodyReaderMiddleware(req, res, next) {
 }
 
 function PersonalitiesStorage(server){
-    const { loadKnowledge, loadFilteredKnowledge, addKnowledge, storeKnowledge, loadDefaultPersonalities } = require("./controller");
-    server.get("/personalities/default", loadDefaultPersonalities);
+    const { loadKnowledge, loadFilteredKnowledge, addKnowledge, storeKnowledge } = require("./controller");
     server.get("/personalities/:spaceId/:personalityId", loadKnowledge);
     server.get("/personalities/:spaceId/:personalityId/search", loadFilteredKnowledge);
     server.use("/personalities/*", bodyReaderMiddleware);
