@@ -1,8 +1,8 @@
+require('../../assistos-sdk/build/bundles/assistos_sdk.js');
 const utils = require('../apihub-component-utils/utils.js');
 const cookie = require('../apihub-component-utils/cookie.js');
 const space = require("./space.js");
 const user = require("../users-storage/user.js");
-require('../../assistos-sdk/build/bundles/assistos_sdk.js');
 const enclave = require("opendsu").loadAPI("enclave");
 const crypto = require('../apihub-component-utils/crypto.js');
 const fsPromises = require('fs').promises;

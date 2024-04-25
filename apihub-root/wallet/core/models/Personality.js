@@ -10,6 +10,7 @@ export class Personality {
         this.capabilities = personalityData.capabilities || [];
         this.openers = personalityData.openers || [];
         this.tasks = personalityData.tasks || [];
+        this.metadata = ["id", "name", "image"];
     }
     update(personalityData){
         this.name = personalityData.name;

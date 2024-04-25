@@ -3,9 +3,13 @@ export class AuthenticationPage {
     constructor(element, invalidate) {
         this.element = element;
         this.invalidate = invalidate;
-        this.invalidate();
+        this.invalidate(async ()=>{
+            let documentAPIs = require("assistos").loadModule("document").loadAPIs();
+            this.documents = await documentAPIs.document.getDocumentsMetadata("1");
+        });
         this.rotations = 0;
         [this.demoUserEmail, this.demoUserPassword]=assistOS.services.getDemoUserCredentials();
+
     }
     beforeRender() {
         switch (this.element.getAttribute("data-subpage")) {

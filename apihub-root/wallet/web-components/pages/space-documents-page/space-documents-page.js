@@ -3,7 +3,10 @@ export class SpaceDocumentsPage {
         this.notificationId = "docs"
         assistOS.space.observeChange(this.notificationId, invalidate);
         this.invalidate = invalidate;
-        this.invalidate();
+        let documentAPIs = require("assistOS").loadModule("document").loadAPIs();
+        this.invalidate(async ()=>{
+            this.documents = await documentAPIs.getDocumentsMetadata(assistOS.space.id);
+        });
     }
     beforeRender() {
         this.tableRows = "";

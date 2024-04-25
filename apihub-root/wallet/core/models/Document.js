@@ -12,7 +12,7 @@ export class Document {
         this.currentChapterId = null;
         this.observers = [];
         this.mainIdeas = documentData.mainIdeas || [];
-        this.position = documentData.position;
+        this.metadata = ["id", "title"];
     }
 
     toString() {

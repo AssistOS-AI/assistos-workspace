@@ -5,7 +5,6 @@ import {
     Flow,
     PageModel,
     Personality,
-    Settings,
     LLM,
     Document
 } from "../../imports.js";
@@ -15,7 +14,6 @@ export class Space {
         this.name = spaceData.name || undefined;
         this.id = spaceData.id || undefined;
         this.personalities = (spaceData.personalities || []).map(personalityData => new Personality(personalityData));
-        this.settings = spaceData.settings ? new Settings(spaceData.settings) : {};
         this.announcements = (spaceData.announcements || []).map(announcementData => new Announcement(announcementData));
         this.users = spaceData.users || [];
         this.flows = [];

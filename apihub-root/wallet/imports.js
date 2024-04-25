@@ -15,7 +15,6 @@ import {IFlow} from "./core/models/IFlow.js";
 import {LLM} from "./core/models/LLM.js";
 import {PageModel} from "./core/models/PageModel.js";
 import {Personality} from "./core/models/Personality.js";
-import {Settings} from "./core/models/Settings.js";
 import {Space} from "./core/models/Space.js";
 import {User} from "./core/models/User.js";
 import {Application} from "./core/models/Application.js";
@@ -30,7 +29,6 @@ export{
     LLM,
     PageModel,
     Personality,
-    Settings,
     Space,
     User,
     Application,

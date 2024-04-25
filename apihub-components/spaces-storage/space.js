@@ -5,9 +5,9 @@ const config = require('../config.json');
 
 const volumeManager = require('../volumeManager.js');
 
-const constants = require('assistos-sdk').constants;
+const constants = require('assistos').constants;
 
-const documentModule = require('assistos-sdk').loadModule('document');
+const documentModule = require('assistos').loadModule('document');
 
 const documentAPIs = documentModule.loadAPIs();
 
