@@ -9,7 +9,10 @@ export class AddChapter {
         }
 
         try {
-            let document = assistOS.space.getDocument(context.documentId);
+            let userModule = this.loadModule("user");
+            let spaceId = userModule.getCurrentSpaceId();
+            let documentModule = this.loadModule("document");
+            let document = documentModule.getDocument(context.documentId);
 
             // Create chapter data
             let chapterData = {
@@ -33,7 +36,8 @@ export class AddChapter {
 
             // Add the chapter to the document
             chapterData.position = position;
-            await document.addChapter(chapterData);
+
+            await documentModule.addChapter(spaceId, document.id, chapterData);
 
             // Update current chapter and paragraph IDs in the user assistOS.space
             assistOS.space.currentChapterId = chapterData.id;

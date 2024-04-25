@@ -5,7 +5,10 @@ export class DeleteDocument {
     }
     async start(context) {
         try {
-            await assistOS.space.deleteDocument(context.documentId);
+            let documentModule = this.loadModule("document");
+            let userModule = this.loadModule("user");
+            let spaceId = userModule.getCurrentSpaceId();
+            await documentModule.deleteDocument(spaceId, context.documentId);
             this.return(context.documentId);
         } catch (e) {
             this.fail(e);

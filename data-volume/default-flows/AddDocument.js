@@ -9,7 +9,10 @@ export class AddDocument {
                 title: context.title,
                 topic: context.topic,
             };
-            let docId = await assistOS.space.addDocument(docData);
+            let documentModule = this.loadModule("document");
+            let userModule = this.loadModule("space");
+            let spaceId = userModule.getCurrentSpaceId();
+            let docId = await documentModule.addDocument(spaceId, docData);
             this.return(docId);
         } catch (e) {
             this.fail(e);

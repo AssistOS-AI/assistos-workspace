@@ -7,10 +7,6 @@ const volumeManager = require('../volumeManager.js');
 
 const constants = require('assistos').constants;
 
-const documentModule = require('assistos').loadModule('document');
-
-const documentAPIs = documentModule.loadAPIs();
-
 const enclave = require('opendsu').loadAPI('enclave');
 
 const crypto = require("../apihub-component-utils/crypto");

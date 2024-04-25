@@ -58,6 +58,29 @@ export class Space {
             apiKeys:this.apiKeys
         }
     }
+
+    async getDocument(documentId){
+        let document = this.documents.find(document=>document.id === documentId);
+        if(document){
+            return document;
+        } else{
+            let documentModule = require("assistOS").loadModule("document");
+            let response = JSON.parse(await documentModule.getDocument(assistOS.space.id, documentId));
+            let document = new Document(response.data);
+            this.documents.push(document);
+            return document;
+        }
+    }
+    async getDocuments(){
+        if(this.documentsMetadata){
+            return this.documentsMetadata;
+        } else {
+            let documentModule = require("assistOS").loadModule("document");
+            let response = JSON.parse(await documentModule.getDocumentsMetadata(assistOS.space.id));
+            this.documentsMetadata = response.data;
+            return this.documentsMetadata;
+        }
+    }
     getKey(keyType,keyId){
         return this.apiKeys[keyType].find(key=>key.id===keyId)||null;
     }

@@ -17,7 +17,6 @@ export class SpaceAddDocumentModal {
                 title: formData.data.documentTitle,
                 topic: formData.data.documentTopic
             });
-            docId? docId = docId : docId = docId;
             assistOS.UI.closeModal(_target);
             await assistOS.UI.changeToDynamicPage(`space-configs-page`, `${assistOS.space.id}/SpaceConfiguration/space-document-view-page/${docId}`);
         }

@@ -3,15 +3,14 @@ export class SpaceDocumentsPage {
         this.notificationId = "docs"
         assistOS.space.observeChange(this.notificationId, invalidate);
         this.invalidate = invalidate;
-        let documentAPIs = require("assistOS").loadModule("document").loadAPIs();
         this.invalidate(async ()=>{
-            this.documents = await documentAPIs.getDocumentsMetadata(assistOS.space.id);
+                this.documents = await assistOS.space.getDocuments();
         });
     }
     beforeRender() {
         this.tableRows = "";
-        if(assistOS.space.documents.length > 0) {
-            assistOS.space.documents.forEach((document) => {
+        if(this.documents.length > 0) {
+            this.documents.forEach((document) => {
                 this.tableRows += `<space-document-unit data-name="${assistOS.UI.sanitize(document.title)}" 
                 data-id="${document.id}" data-local-action="editAction"></space-document-unit>`;
             });

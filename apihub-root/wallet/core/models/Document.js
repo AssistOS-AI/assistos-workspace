@@ -1,5 +1,5 @@
 import {Chapter} from "../../imports.js"
-
+const documentModule = require("assistos").loadModule("document");
 export class Document {
     constructor(documentData) {
         this.id = documentData.id || assistOS.services.generateId();
@@ -55,12 +55,6 @@ export class Document {
                 observer.callback();
             }
         }
-    }
-
-    async addChapter(chapterData) {
-        //if position is not specified splice converts undefined to 0
-        let chapterObj = JSON.parse(await assistOS.storage.addChapter(assistOS.space.id, this.id, chapterData));
-        this.chapters.splice(chapterObj.position,0,new Chapter(chapterObj));
     }
 
     async addChapters(chaptersData){
