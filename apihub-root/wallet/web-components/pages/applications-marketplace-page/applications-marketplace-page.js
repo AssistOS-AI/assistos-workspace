@@ -1,5 +1,3 @@
-import {showModal} from "../../../imports.js";
-
 export class ApplicationsMarketplacePage {
     constructor(element, invalidate) {
         this.element = element;
@@ -45,6 +43,6 @@ export class ApplicationsMarketplacePage {
         }
     }
     async addMarketplace(){
-        await showModal( "add-marketplace-modal", { presenter: "add-marketplace-modal"});
+        await assistOS.UI.showModal( "add-marketplace-modal", { presenter: "add-marketplace-modal"});
     }
 }

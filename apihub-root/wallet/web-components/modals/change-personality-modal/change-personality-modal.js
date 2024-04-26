@@ -1,5 +1,3 @@
-import {closeModal} from "../../../imports.js";
-
 export class ChangePersonalityModal {
     constructor(element, invalidate) {
         this.element = element;
@@ -8,7 +6,7 @@ export class ChangePersonalityModal {
     }
 
     closeModal(_target) {
-        closeModal(_target);
+        assistOS.UI.closeModal(_target);
     }
 
     beforeRender() {
@@ -57,8 +55,8 @@ export class ChangePersonalityModal {
     }
 
     async changePersonality(_target) {
-        assistOS.space.setAgent(this.selectedPersonalityId);
-        closeModal(_target);
+        await assistOS.space.setAgent(this.selectedPersonalityId);
+        assistOS.UI.closeModal(_target);
         assistOS.space.notifyObservers(assistOS.space.getNotificationId());
     }
 }

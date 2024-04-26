@@ -63,7 +63,7 @@ export class Space {
     }
     async refreshDocument(documentId){
         let response = JSON.parse(await documentModule.getDocument(documentId));
-        let documentIndex = this.documents.findIndex(documentId);
+        let documentIndex = this.documents.findIndex(doc => doc.id === documentId);
         let document = new Document(response.data);
         this.documents[documentIndex] = document;
         return document;
@@ -204,10 +204,20 @@ export class Space {
         });
         return flows;
     }
-
-    getFlow(flowName) {
+    async refreshFlow(flowName){
+        let response = JSON.parse(await flowModule.getFlow(flowName));
+        let flowIndex = this.documents.findIndex(flow => flow.name === flowName);
+        let flow = new Flow(response.data);
+        this.flows[flowIndex] = flow;
+        return flow;
+    }
+    async getFlow(flowName) {
         let flow = this.flows.find((flow) => flow.class.name === flowName);
-        return flow || console.error(`Flow not found in space, flowId: ${flowName}`);
+        if(flow){
+           return flow;
+        } else {
+           return await this.refreshFlow(flowName);
+        }
     }
 
 
@@ -218,7 +228,7 @@ export class Space {
 
     async refreshPersonality(id){
         let response = await personalityModule.getPersonality(assistOS.space.id, id);
-        let personalityIndex = this.personalities.findIndex(id);
+        let personalityIndex = this.personalities.findIndex(pers => pers.id === id);
         let personality = new Personality(response.data);
         this.personalities[personalityIndex] = personality
         return personality;
@@ -251,18 +261,6 @@ export class Space {
         this.announcements = this.announcements.filter(announcement => announcement.id !== announcementId);
         await assistOS.storage.storeObject(assistOS.space.id, "status", "status", JSON.stringify(assistOS.space.getSpaceStatus(), null, 2));
     }
-
-    async updateAnnouncement(announcementId, title, content) {
-        let announcement = this.getAnnouncement(announcementId);
-        if (announcement !== null) {
-            announcement.title = title;
-            announcement.text = content;
-            await assistOS.storage.storeObject(assistOS.space.id, "status", "status", JSON.stringify(assistOS.space.getSpaceStatus(), null, 2));
-        } else {
-            console.error("Failed to update announcement, announcement not found.");
-        }
-    }
-
 
     async loadFlows() {
         let flows = await assistOS.storage.loadFlows(this.id);

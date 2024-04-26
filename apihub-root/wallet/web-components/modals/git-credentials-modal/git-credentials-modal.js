@@ -1,5 +1,3 @@
-import {extractFormInformation} from "../../../imports.js";
-
 export class GitCredentialsModal {
     constructor(element,invalidate){
         this.invalidate=invalidate;
@@ -11,7 +9,7 @@ export class GitCredentialsModal {
     beforeRender() {}
 
     async setCredentials(_target){
-        let formData = await extractFormInformation(_target);
+        let formData = await assistOS.UI.extractFormInformation(_target);
         if(formData.isValid) {
             let usernameSecret = {
                 secretName: "username",

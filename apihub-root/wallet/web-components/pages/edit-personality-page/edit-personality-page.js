@@ -1,4 +1,4 @@
-import {extractFormInformation, constants} from "../../../imports.js";
+import {constants} from "../../../imports.js";
 export class EditPersonalityPage{
     constructor(element,invalidate) {
         this.element = element;
@@ -56,7 +56,7 @@ export class EditPersonalityPage{
 
     async search(_target){
         let form = this.element.querySelector(".search");
-        let formInfo = await extractFormInformation(form);
+        let formInfo = await assistOS.UI.extractFormInformation(form);
         this.knowledgeArray = JSON.parse(await assistOS.space.getAgent().loadFilteredKnowledge(formInfo.data.search));
         if(this.knowledgeArray.length === 0){
             this.knowledgeArray = ["Nothing found"];
@@ -79,7 +79,7 @@ export class EditPersonalityPage{
             return true;
         };
         const conditions = {"verifyPhotoSize": {fn:verifyPhotoSize, errorMessage:"Image too large! Image max size: 1MB"} };
-        let formInfo = await extractFormInformation(_target, conditions);
+        let formInfo = await assistOS.UI.extractFormInformation(_target, conditions);
         if(formInfo.isValid) {
             let personalityData={
                 name:formInfo.data.name,
@@ -95,7 +95,7 @@ export class EditPersonalityPage{
         }
     }
     async addKnowledge(_target){
-        let formInfo = await extractFormInformation(_target);
+        let formInfo = await assistOS.UI.extractFormInformation(_target);
         let promiseArray = [];
         if(formInfo.isValid){
             for(let file of formInfo.data.files){

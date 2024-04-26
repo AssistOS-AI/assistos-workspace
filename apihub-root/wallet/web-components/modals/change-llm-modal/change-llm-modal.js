@@ -1,5 +1,3 @@
-import {closeModal} from "../../../imports.js";
-
 export class ChangeLlmModal {
     constructor(element, invalidate) {
         this.element = element;
@@ -8,7 +6,7 @@ export class ChangeLlmModal {
     }
 
     closeModal(_target) {
-        closeModal(_target);
+        assistOS.UI.closeModal(_target);
     }
 
     beforeRender() {
@@ -58,6 +56,6 @@ export class ChangeLlmModal {
 
     async changeLLM(_target) {
         assistOS.space.setLlm(this.selectedLLMID);
-        closeModal(_target);
+        assistOS.UI.closeModal(_target);
     }
 }

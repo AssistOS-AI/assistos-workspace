@@ -1,5 +1,3 @@
-import {showModal, reverseQuerySelector, showActionBox} from "../../../imports.js";
-
 export class ApplicationPage {
     constructor(element, invalidate) {
         this.element=element;
@@ -60,10 +58,10 @@ export class ApplicationPage {
         await assistOS.UI.changeToDynamicPage("applications-marketplace-page", `${assistOS.space.id}/SpaceConfiguration/applications-marketplace-page`);
     }
     getFlowName(_target){
-        return reverseQuerySelector(_target, "flow-unit").getAttribute("data-name");
+        return assistOS.UI.reverseQuerySelector(_target, "flow-unit").getAttribute("data-name");
     }
     async editAction(_target){
-        await showModal( "edit-flow-modal", { presenter: "edit-flow-modal", name: this.getFlowName(_target), appId: this._app.id});
+        await assistOS.UI.showModal( "edit-flow-modal", { presenter: "edit-flow-modal", name: this.getFlowName(_target), appId: this._app.id});
     }
     async deleteAction(_target){
         this._app.flows = this._app.flows.filter(flow => flow.class.name !== this.getFlowName(_target));
@@ -74,6 +72,6 @@ export class ApplicationPage {
         this.invalidate();
     }
     async showActionBox(_target, primaryKey, componentName, insertionMode) {
-        await showActionBox(_target, primaryKey, componentName, insertionMode);
+        await assistOS.UI.showActionBox(_target, primaryKey, componentName, insertionMode);
     }
 }

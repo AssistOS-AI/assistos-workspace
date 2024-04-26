@@ -1,9 +1,3 @@
-import {
-    showActionBox,
-    showModal,
-    reverseQuerySelector
-} from "../../../imports.js";
-
 export class AnnouncementsPage {
     constructor(element,invalidate) {
         assistOS.space.observeChange(assistOS.space.getNotificationId(),invalidate);
@@ -32,22 +26,23 @@ export class AnnouncementsPage {
         }
     }
     async showActionBox(_target, primaryKey, componentName, insertionMode) {
-        await showActionBox(_target, primaryKey, componentName, insertionMode);
+        await assistOS.UI.showActionBox(_target, primaryKey, componentName, insertionMode);
     }
 
     getAnnouncementId(_target){
-        return reverseQuerySelector(_target, "announcement-unit").getAttribute("data-id");
+        return assistOS.UI.reverseQuerySelector(_target, "announcement-unit").getAttribute("data-id");
     }
     async showAddAnnouncementModal() {
-        await showModal( "add-announcement-modal", { presenter: "add-announcement-modal"});
+        await assistOS.UI.showModal( "add-announcement-modal", { presenter: "add-announcement-modal"});
     }
     async deleteAction(_target){
         await assistOS.callFlow("DeleteAnnouncement", {
+            spaceId: assistOS.space.id,
             announcementId: this.getAnnouncementId(_target)
         });
         this.invalidate();
     }
     async editAction(_target){
-        await showModal("edit-announcement-modal", { presenter: "edit-announcement-modal", id: this.getAnnouncementId(_target)});
+        await assistOS.UI.showModal("edit-announcement-modal", { presenter: "edit-announcement-modal", id: this.getAnnouncementId(_target)});
     }
 }

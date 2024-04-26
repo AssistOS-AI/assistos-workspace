@@ -1,6 +1,4 @@
 import {
-    closeModal,
-    extractFormInformation,
     validateOpenAiKey,
 } from "../../../imports.js";
 
@@ -11,14 +9,14 @@ export class AddSpaceModal {
     }
 
     closeModal(_target) {
-        closeModal(_target);
+        assistOS.UI.closeModal(_target);
     }
 
     beforeRender() {
     }
 
     async addSpace(_target) {
-        let formData = await extractFormInformation(_target);
+        let formData = await assistOS.UI.extractFormInformation(_target);
         if (formData.isValid) {
 
             /* TODO It does not make sense to use an editable flow for default Application operations
@@ -39,7 +37,7 @@ export class AddSpaceModal {
                     throw Error(keyValidation.error);
                 }
                 await assistOS.services.createSpace(spaceName,apiKey);
-                closeModal(_target);
+                assistOS.UI.closeModal(_target);
                await assistOS.loadPage(false,true);
             } catch (error) {
                 showApplicationError('Failed Creating Space', `Encountered an Issue creating the space ${formData.data.name}`,

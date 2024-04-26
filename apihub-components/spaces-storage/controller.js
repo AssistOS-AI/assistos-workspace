@@ -225,6 +225,9 @@ async function insertObjectRecords(lightDBEnclaveClient, tableId, objectId, obje
                 object[key] = [];
                 if(typeof objectData[key][0] === "object"){
                     for(let item of objectData[key]){
+                        if(!item.id){
+                            item.id = `${key}_${crypto.generateId()}`;
+                        }
                         object[key].push(item.id);
                         await insertObjectRecords(lightDBEnclaveClient, tableId, item.id, item);
                     }

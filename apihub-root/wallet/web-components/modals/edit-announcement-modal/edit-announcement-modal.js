@@ -1,8 +1,3 @@
-import {
-    closeModal,
-} from "../../../imports.js";
-
-
 export class EditAnnouncementModal {
     constructor(element,invalidate) {
         this.element=element;
@@ -14,7 +9,7 @@ export class EditAnnouncementModal {
 
     }
     closeModal(_target) {
-        closeModal(_target);
+        assistOS.UI.closeModal(_target);
     }
     afterRender(){
         let title = this.element.querySelector("#title");
@@ -28,11 +23,14 @@ export class EditAnnouncementModal {
         let formData = await assistOS.UI.extractFormInformation(_target);
         let announcementId = this.element.getAttribute("data-id");
         await assistOS.callFlow("UpdateAnnouncement", {
+            spaceId: assistOS.space.id,
             announcementId: announcementId,
-            title: formData.data.title,
-            text: formData.data.content
+            announcementObj:{
+                title: formData.data.title,
+                text: formData.data.content
+            }
         });
         assistOS.space.notifyObservers(assistOS.space.getNotificationId());
-        closeModal(_target);
+        assistOS.UI.closeModal(_target);
     }
 }

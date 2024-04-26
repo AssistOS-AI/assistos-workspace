@@ -87,6 +87,7 @@ export class GenerateDocument {
     }
 
     async addDocument(title, topic, chapters, mainIdeas, abstract) {
+        let documentModule = this.loadModule("document");
         let documentData = {
             title: title,
             topic: topic,
@@ -95,6 +96,6 @@ export class GenerateDocument {
             abstract: abstract
         };
 
-        await assistOS.space.addDocument(documentData);
+        await documentModule.addDocument(documentData);
     }
 }

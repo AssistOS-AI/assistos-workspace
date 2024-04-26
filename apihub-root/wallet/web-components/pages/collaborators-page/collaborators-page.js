@@ -1,7 +1,3 @@
-import {
-    showActionBox,
-} from "../../../imports.js";
-
 export class CollaboratorsPage {
     constructor(element, invalidate) {
         this.element = element;
@@ -25,7 +21,7 @@ export class CollaboratorsPage {
     }
 
     async showActionBox(_target, primaryKey, componentName, insertionMode) {
-        await showActionBox(_target, primaryKey, componentName, insertionMode);
+        await assistOS.UI.showActionBox(_target, primaryKey, componentName, insertionMode);
     }
 
 }

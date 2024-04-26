@@ -1,9 +1,3 @@
-import {
-    customTrim,
-    extractFormInformation,
-    sanitize,
-} from "../../../imports.js";
-
 export class AgentPage {
     constructor(element, invalidate) {
         this.element = element;
@@ -114,8 +108,8 @@ export class AgentPage {
     }
 
     async sendMessage(_target) {
-        let formInfo = await extractFormInformation(_target);
-        let userPrompt = sanitize(customTrim(formInfo.data.input));
+        let formInfo = await assistOS.UI.extractFormInformation(_target);
+        let userPrompt = assistOS.UI.sanitize(assistOS.UI.customTrim(formInfo.data.input));
         formInfo.elements.input.element.value = "";
         if (userPrompt === "" || userPrompt === null || userPrompt === undefined) {
             return;

@@ -1,9 +1,3 @@
-import {
-    closeModal,
-    extractFormInformation
-} from "../../../imports.js";
-
-
 export class AddFlowModal {
     constructor(element, invalidate) {
         this.element = element;
@@ -62,7 +56,7 @@ export class AddFlowModal {
 
 
     closeModal(_target) {
-        closeModal(_target);
+        assistOS.UI.closeModal(_target);
     }
 
     formatCode() {
@@ -135,13 +129,13 @@ export class AddFlowModal {
     }
 
     async addFlow(_target) {
-        let formInfo = await extractFormInformation(_target);
+        let formInfo = await assistOS.UI.extractFormInformation(_target);
         if (formInfo.isValid) {
             await assistOS.callFlow("AddFlow", {
                 code: formInfo.data.code
             });
             assistOS.space.notifyObservers(assistOS.space.getNotificationId());
-            closeModal(_target);
+            assistOS.UI.closeModal(_target);
         }
     }
 }

@@ -3,7 +3,8 @@ export class UpdateAnnouncement {
     static description = "Updates an announcement";
     async start(context) {
         try {
-            await assistOS.space.updateAnnouncement(context.announcementId, context.title, context.text);
+            let spaceModule = await this.loadModule("space");
+            await spaceModule.updateAnnouncement(context.spaceId, context.announcementId, context.announcementObj);
             this.return(context.announcementId);
         } catch (e) {
             this.fail(e);

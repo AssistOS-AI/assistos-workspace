@@ -1,8 +1,3 @@
-import {
-    getClosestParentElement,
-    showModal
-} from "../../../imports.js";
-
 export class SpaceDropdown {
     constructor(element, invalidate) {
         this.element = element;
@@ -47,12 +42,12 @@ export class SpaceDropdown {
     }
 
     async changeSpace(_target) {
-        let selectedSpace = getClosestParentElement(_target, ['space-unit']);
+        let selectedSpace = assistOS.UI.getClosestParentElement(_target, ['space-unit']);
         let selectedSpaceId = selectedSpace.getAttribute('data-space-id');
         await assistOS.loadPage(false,false,selectedSpaceId);
     }
     async addSpace() {
-        await showModal("add-space-modal", {presenter: "add-space-modal"});
+        await assistOS.UI.showModal("add-space-modal", {presenter: "add-space-modal"});
     }
 
     async logout() {

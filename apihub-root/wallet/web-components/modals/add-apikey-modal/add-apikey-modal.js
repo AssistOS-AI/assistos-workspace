@@ -1,6 +1,4 @@
 import {
-    closeModal,
-    extractFormInformation,
     validateOpenAiKey,
 } from "../../../imports.js";
 
@@ -14,7 +12,7 @@ export class AddApikeyModal {
     }
     beforeRender(){}
     async addKey(_target) {
-        let formData = await extractFormInformation(_target);
+        let formData = await assistOS.UI.extractFormInformation(_target);
         if (formData.isValid) {
             const apiKey = formData.data.apiKey
             const keyType=formData.data
@@ -34,6 +32,6 @@ export class AddApikeyModal {
         }
     }
     closeModal(_target) {
-        closeModal(_target);
+        assistOS.UI.closeModal(_target);
     }
 }

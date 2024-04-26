@@ -2,16 +2,17 @@ export class EditFlowModal {
     constructor(element,invalidate) {
         this.element=element;
         this.invalidate=invalidate;
-        this.invalidate();
+        this.invalidate(async ()=>{
+            this.flow = await assistOS.space.getFlow(this.element.getAttribute("data-name"));
+        });
     }
 
     beforeRender() {
-      let flow = assistOS.space.getFlow(this.element.getAttribute("data-name"));
         /* TODO Replace getting the flowname from the class name with a static methot getName on the
                 flow itself
          */
-      this.flowName = flow.class.name;
-      this.flowContent = flow.class.toString();
+      this.flowName = this.flow.class.name;
+      this.flowContent = this.flow.class.toString();
     }
     afterRender(){
         this.flowCode = this.element.querySelector("textarea");
@@ -66,7 +67,7 @@ export class EditFlowModal {
                 appId: this.element.getAttribute("data-appId")
             });
             assistOS.space.notifyObservers(assistOS.space.getNotificationId());
-            closeModal(_target);
+            assistOS.UI.closeModal(_target);
         }
     }
     formatCode() {
