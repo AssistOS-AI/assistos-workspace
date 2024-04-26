@@ -1,17 +1,19 @@
 export class SpaceDocumentViewPage {
     constructor(element, invalidate) {
         this.element = element;
-        this._document = assistOS.space.getDocument(window.location.hash.split("/")[3]);
-        this._document.observeChange(this._document.getNotificationId() + ":document-view-page", invalidate);
-        this._document.observeChange(this._document.getNotificationId() + ":refresh", invalidate);
         this.invalidate = invalidate;
-        this.invalidate();
+        this.invalidate(async ()=>{
+            this._document = await assistOS.space.getDocument(window.location.hash.split("/")[3]);
+            this._document.observeChange(this._document.getNotificationId() + ":document-view-page", invalidate);
+        });
         this.controller = new AbortController();
         this.boundedFn = this.highlightElement.bind(this, this.controller);
         document.removeEventListener("click", this.boundedFn);
         document.addEventListener("click", this.boundedFn, {signal: this.controller.signal});
     }
-
+    refreshDocument(){
+        this._document = assistOS.space.refreshDocument(this._document.id);
+    }
     beforeRender() {
         this.chaptersContainer = "";
         this.docTitle = this._document.title;
@@ -32,10 +34,11 @@ export class SpaceDocumentViewPage {
         let chapter = assistOS.UI.reverseQuerySelector(_target, "space-chapter-unit");
         let chapterId = chapter.getAttribute("data-chapter-id");
         await assistOS.callFlow("DeleteChapter", {
+            spaceId: assistOS.space.id,
             documentId: this._document.id,
             chapterId: chapterId
         });
-        this.invalidate();
+        this.invalidate(this.refreshDocument);
     }
 
     switchParagraphArrows(target, mode) {
@@ -95,11 +98,13 @@ export class SpaceDocumentViewPage {
                 let paragraphText = assistOS.UI.sanitize(assistOS.UI.customTrim(paragraph.innerText));
                 if (paragraphText !== currentParagraph.text) {
                     await assistOS.callFlow("UpdateParagraphText", {
+                        spaceId: assistOS.space.id,
                         documentId: this._document.id,
                         chapterId: this.chapter.id,
                         paragraphId: currentParagraph.id,
                         text: paragraphText
                     });
+                    this._document.notifyObservers(this._document.getNotificationId() + ":document-view-page:" + "chapter:" + `${this.chapter.id}`);
                 }
             }, 1000);
             this.previouslySelectedParagraph["timer"] = timer;
@@ -108,6 +113,7 @@ export class SpaceDocumentViewPage {
                     if (currentParagraph) {
                         let curentParagraphIndex = this.chapter.getParagraphIndex(currentParagraphId);
                         await assistOS.callFlow("DeleteParagraph", {
+                            spaceId: assistOS.space.id,
                             documentId: this._document.id,
                             chapterId: this.chapter.id,
                             paragraphId: currentParagraphId
@@ -121,7 +127,7 @@ export class SpaceDocumentViewPage {
                         } else {
                             assistOS.space.currentParagraphId = null;
                         }
-                        this.invalidate();
+                        this.invalidate(this.refreshDocument);
                     }
                     await timer.stop();
                 } else {
@@ -332,11 +338,12 @@ export class SpaceDocumentViewPage {
 
         const adjacentChapterId = getAdjacentChapterId(currentChapterIndex, this._document.chapters);
         await assistOS.callFlow("SwapChapters", {
+            spaceId: assistOS.space.id,
             documentId: this._document.id,
             chapterId1: currentChapterId,
             chapterId2: adjacentChapterId
         });
-        this.invalidate();
+        this.invalidate(this.refreshDocument);
     }
 
     async moveParagraph(_target, direction) {
@@ -354,12 +361,13 @@ export class SpaceDocumentViewPage {
         const adjacentParagraphId = getAdjacentParagraphId(currentParagraphIndex, chapter.paragraphs);
         const chapterId = assistOS.UI.reverseQuerySelector(_target, "space-chapter-unit").getAttribute('data-chapter-id');
         await assistOS.callFlow("SwapParagraphs", {
+            spaceId: assistOS.space.id,
             documentId: this._document.id,
             chapterId: chapterId,
             paragraphId1: currentParagraphId,
             paragraphId2: adjacentParagraphId
         });
-        assistOS.UI.refreshElement(assistOS.UI.getClosestParentWithPresenter(_target, "space-chapter-unit"));
+        this._document.notifyObservers(this._document.getNotificationId() + ":document-view-page:" + "chapter:" + `${chapterId}`);
     }
 
     editTitle(title) {
@@ -378,9 +386,11 @@ export class SpaceDocumentViewPage {
                 let titleText = assistOS.UI.sanitize(assistOS.UI.customTrim(title.innerText));
                 if (titleText !== this._document.title && titleText !== "") {
                     await assistOS.callFlow("UpdateDocumentTitle", {
+                        spaceId: assistOS.space.id,
                         documentId: this._document.id,
                         title: titleText
                     });
+                    this.invalidate(this.refreshDocument);
                 }
             }, 1000);
             title.addEventListener("focusout", async (event) => {
@@ -417,9 +427,11 @@ export class SpaceDocumentViewPage {
                 let abstractText = assistOS.UI.sanitize(assistOS.UI.customTrim(abstract.innerText));
                 if (abstractText !== this._document.abstract && abstractText !== "") {
                     await assistOS.callFlow("UpdateAbstract", {
+                        spaceId: assistOS.space.id,
                         documentId: this._document.id,
                         text: abstractText
                     });
+                    this.invalidate(this.refreshDocument);
                 }
             }, 1000);
 
@@ -452,17 +464,38 @@ export class SpaceDocumentViewPage {
     }
 
     async addChapter() {
-        await assistOS.callFlow("AddChapter", {
-            documentId: this._document.id
+        let position = this._document.chapters.length;
+
+        // Find the position to add the new chapter
+        if (assistOS.space.currentChapterId) {
+            position = this._document.chapters.findIndex(
+                (chapter) => chapter.id === assistOS.space.currentChapterId
+            ) + 1;
+        }
+        let [chapterId, paragraphId] = await assistOS.callFlow("AddChapter", {
+            spaceId: assistOS.space.id,
+            documentId: this._document.id,
+            position: position
         });
-        this.invalidate();
+        assistOS.space.currentChapterId = chapterId;
+        assistOS.space.currentParagraphId = paragraphId;
+        this.invalidate(this.refreshDocument);
+
     }
 
     async addParagraph(_target) {
-        await assistOS.callFlow("AddParagraph", {
+        let chapter = this._document.getChapter(assistOS.space.currentChapterId);
+        let position = chapter.paragraphs.length;
+        if (assistOS.space.currentParagraphId) {
+            position = chapter.getParagraphIndex(assistOS.space.currentParagraphId) + 1;
+        }
+        assistOS.space.currentParagraphId = await assistOS.callFlow("AddParagraph", {
+            spaceId: assistOS.space.id,
             documentId: this._document.id,
-            chapterId: assistOS.space.currentChapterId
+            chapterId: chapter.id,
+            position: position
         });
+        assistOS.space.currentChapterId = chapter.id;
         this._document.notifyObservers(this._document.getNotificationId() + ":document-view-page:" + "chapter:" + `${assistOS.space.currentChapterId}`);
     }
 

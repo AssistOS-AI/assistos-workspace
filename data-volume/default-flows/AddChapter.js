@@ -1,6 +1,7 @@
 export class AddChapter {
     static description = "Adds a new chapter to a document";
     static inputSchema = {
+        spaceId: "string",
         documentId: "string",
     }
     async start(context) {
@@ -9,41 +10,13 @@ export class AddChapter {
         }
 
         try {
-            let userModule = this.loadModule("user");
-            let spaceId = userModule.getCurrentSpaceId();
             let documentModule = this.loadModule("document");
-            let document = documentModule.getDocument(context.documentId);
-
-            // Create chapter data
-            let chapterData = {
-                title: context.title,
-                paragraphs: [
-                    {
-                        text: "New Paragraph",
-                        position: 0
-                    },
-                ],
-            };
-
-            let position = document.chapters.length;
-
-            // Find the position to add the new chapter
-            if (assistOS.space.currentChapterId) {
-                position = document.chapters.findIndex(
-                    (chapter) => chapter.id === assistOS.space.currentChapterId
-                ) + 1;
-            }
-
-            // Add the chapter to the document
-            chapterData.position = position;
-
-            await documentModule.addChapter(spaceId, document.id, chapterData);
-
-            // Update current chapter and paragraph IDs in the user assistOS.space
-            assistOS.space.currentChapterId = chapterData.id;
-            assistOS.space.currentParagraphId = chapterData.paragraphs[0].id;
-
-            this.return(context.title);
+            let chapterData = {title: context.title};
+            chapterData.position = context.position;
+            let chapterId = await documentModule.addChapter(context.spaceId, context.documentId, chapterData);
+            let paragraphData = {text: ""};
+            let paragraphId = await documentModule.addParagraph(context.spaceId, context.documentId, chapterId, paragraphData);
+            this.return([chapterId, paragraphId]);
         } catch (e) {
             this.fail(e);
         }

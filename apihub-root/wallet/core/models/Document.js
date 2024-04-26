@@ -2,7 +2,7 @@ import {Chapter} from "../../imports.js"
 const documentModule = require("assistos").loadModule("document");
 export class Document {
     constructor(documentData) {
-        this.id = documentData.id || assistOS.services.generateId();
+        this.id = documentData.id;
         this.title = documentData.title || "";
         this.abstract = documentData.abstract || "";
         this.topic = documentData.topic||"";
@@ -37,8 +37,8 @@ export class Document {
         return JSON.stringify(this, replacer);
     }
 
-    observeChange(elementId, callback) {
-        let obj = {elementId: elementId, callback: callback};
+    observeChange(elementId, callback, callbackAsyncParamFn) {
+        let obj = {elementId: elementId, callback: callback, param: callbackAsyncParamFn};
         callback.refferenceObject = obj;
         this.observers.push(new WeakRef(obj));
     }
@@ -52,7 +52,7 @@ export class Document {
               * doc:document-view-page:right-sidebar:chapter-titles:chapter:23SDFAasd4
             */
             if(observer &&observer.elementId.startsWith(prefix)) {
-                observer.callback();
+                observer.callback(observer.param);
             }
         }
     }
@@ -129,9 +129,6 @@ export class Document {
         this.alternativeTitles.push(...alternativeTitles);
     }
 
-    getMainIdeas() {
-        return this.mainIdeas;
-    }
     async setMainIdeas(ideas){
         this.mainIdeas = ideas;
         await assistOS.space.updateDocument(assistOS.space.id, this);
@@ -153,6 +150,13 @@ export class Document {
 
     getChapter(chapterId) {
         return this.chapters.find(chapter => chapter.id === chapterId);
+    }
+    async refreshChapter(chapterId){
+        let response = JSON.parse(await documentModule.getChapter(chapterId));
+        let chapterIndex = this.getChapterIndex(chapterId);
+        let chapter = new Chapter(response.data)
+        this.chapters[chapterIndex] = chapter;
+        return chapter;
     }
 
     getChapterIndex(chapterId) {

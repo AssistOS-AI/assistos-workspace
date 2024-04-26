@@ -4,14 +4,16 @@ export class SpaceChapterUnit {
         this._document = assistOS.space.getDocument(window.location.hash.split("/")[3]);
         let chapterId = this.element.getAttribute("data-chapter-id");
         this.chapter = this._document.getChapter(chapterId);
-        this._document.observeChange(this._document.getNotificationId() + ":document-view-page:" + "chapter:" + `${chapterId}`, invalidate);
+        this.refreshChapter = async () =>{
+            this.chapter = this._document.refreshChapter(this.chapter.id);
+        };
+        this._document.observeChange(this._document.getNotificationId() + ":document-view-page:" + "chapter:" + `${chapterId}`, invalidate, this.refreshChapter);
         this.invalidate = invalidate;
         this.invalidate();
         this.addParagraphOnCtrlEnter = this.addParagraphOnCtrlEnter.bind(this);
         this.element.removeEventListener('keydown', this.addParagraphOnCtrlEnter);
         this.element.addEventListener('keydown', this.addParagraphOnCtrlEnter);
     }
-
     beforeRender() {
         let chapterId = this.element.getAttribute("data-chapter-id");
         this.chapter = this._document.getChapter(chapterId);
@@ -68,10 +70,11 @@ export class SpaceChapterUnit {
             return;
         }
         await assistOS.callFlow("AddParagraph", {
+            spaceId: assistOS.space.id,
             documentId: this._document.id,
             chapterId: this.chapter.id
         });
-        this.invalidate();
+        this.invalidate(this.refreshChapter);
     }
 
     async editChapterTitle(title) {
@@ -91,10 +94,12 @@ export class SpaceChapterUnit {
             let titleText = assistOS.UI.sanitize(assistOS.UI.customTrim(title.innerText))
             if (titleText !== this.chapter.title && titleText !== "") {
                 await assistOS.callFlow("UpdateChapterTitle", {
+                    spaceId: assistOS.space.id,
                     documentId: this._document.id,
                     chapterId: this.chapter.id,
                     title: titleText
                 });
+                this.invalidate(this.refreshChapter);
             }
         }, 3000);
         /* NO chapter Title */
@@ -119,41 +124,6 @@ export class SpaceChapterUnit {
             await timer.reset(1000);
         };
         title.addEventListener("keydown", resetTimer);
-    }
-    async moveParagraph(_target, direction) {
-        let chapter = this._document.getChapter(assistOS.space.currentChapterId);
-        const currentParagraph = assistOS.UI.reverseQuerySelector(_target, "space-paragraph-unit");
-        const currentParagraphId = currentParagraph.getAttribute('data-paragraph-id');
-        const currentParagraphIndex = chapter.getParagraphIndex(currentParagraphId);
-
-        const getAdjacentParagraphId = (index, paragraphs) => {
-            if (direction === "up") {
-                return index === 0 ? paragraphs[paragraphs.length - 1].id : paragraphs[index - 1].id;
-            }
-            return index === paragraphs.length - 1 ? paragraphs[0].id : paragraphs[index + 1].id;
-        };
-        const adjacentParagraphId = getAdjacentParagraphId(currentParagraphIndex, chapter.paragraphs);
-        const chapterId = assistOS.UI.reverseQuerySelector(_target, "space-chapter-unit").getAttribute('data-chapter-id');
-        if (chapter.swapParagraphs(currentParagraphId, adjacentParagraphId)) {
-            await assistOS.space.updateDocument(assistOS.space.id, this._document);
-            assistOS.space.currentParagraphId = currentParagraphId;
-            assistOS.UI.refreshElement(assistOS.UI.getClosestParentWithPresenter(_target, "space-chapter-unit"));
-        } else {
-            console.error(`Unable to swap paragraphs. ${currentParagraphId}, ${adjacentParagraphId}, Chapter: ${chapterId}`);
-        }
-    }
-
-    highlightChapter(){
-        this.deselectPreviousElements();
-        this.chapterUnit.setAttribute("id", "highlighted-element");
-        assistOS.space.currentChapterId = this.chapter.id;
-        if(this._document.chapters.length===1){
-            return;
-        }
-        let foundElement = this.chapterUnit.querySelector('.chapter-arrows');
-        foundElement.style.display = "flex";
-        let xMark = this.chapterUnit.querySelector('.delete-chapter');
-        xMark.style.visibility = "visible";
     }
 
     deselectPreviousElements(element){

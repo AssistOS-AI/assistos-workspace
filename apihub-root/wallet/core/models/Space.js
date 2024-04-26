@@ -8,7 +8,7 @@ import {
     LLM,
     Document
 } from "../../imports.js";
-
+const documentModule = require("assistos").loadModule("document");
 export class Space {
     constructor(spaceData) {
         this.name = spaceData.name || undefined;
@@ -58,24 +58,29 @@ export class Space {
             apiKeys:this.apiKeys
         }
     }
-
+    async refreshDocument(documentId){
+        let response = JSON.parse(await documentModule.getDocument(documentId));
+        let documentIndex = this.documents.findIndex(documentId);
+        let document = new Document(response.data);
+        this.documents[documentIndex] = document;
+        return document;
+    }
     async getDocument(documentId){
         let document = this.documents.find(document=>document.id === documentId);
         if(document){
             return document;
         } else{
-            let documentModule = require("assistOS").loadModule("document");
             let response = JSON.parse(await documentModule.getDocument(assistOS.space.id, documentId));
             let document = new Document(response.data);
-            this.documents.push(document);
+            let documentIndex = this.documentsMetadata.findIndex(documentId);
+            this.documents[documentIndex] = document;
             return document;
         }
     }
-    async getDocuments(){
+    async getDocumentsMetadata(){
         if(this.documentsMetadata){
             return this.documentsMetadata;
         } else {
-            let documentModule = require("assistOS").loadModule("document");
             let response = JSON.parse(await documentModule.getDocumentsMetadata(assistOS.space.id));
             this.documentsMetadata = response.data;
             return this.documentsMetadata;

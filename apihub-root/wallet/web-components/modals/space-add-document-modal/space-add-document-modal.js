@@ -14,6 +14,7 @@ export class SpaceAddDocumentModal {
         let formData = await assistOS.UI.extractFormInformation(_target);
         if(formData.isValid) {
             let docId = await assistOS.callFlow("AddDocument", {
+                spaceId: assistOS.space.id,
                 title: formData.data.documentTitle,
                 topic: formData.data.documentTopic
             });

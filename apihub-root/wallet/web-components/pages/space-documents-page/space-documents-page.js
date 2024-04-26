@@ -3,9 +3,10 @@ export class SpaceDocumentsPage {
         this.notificationId = "docs"
         assistOS.space.observeChange(this.notificationId, invalidate);
         this.invalidate = invalidate;
-        this.invalidate(async ()=>{
-                this.documents = await assistOS.space.getDocuments();
-        });
+        this.refreshDocuments = async () =>{
+            this.documents = await assistOS.space.getDocumentsMetadata();
+        }
+        this.invalidate(this.refreshDocuments);
     }
     beforeRender() {
         this.tableRows = "";
@@ -46,8 +47,9 @@ export class SpaceDocumentsPage {
 
     async deleteAction(_target){
         await assistOS.callFlow("DeleteDocument", {
+            spaceId: assistOS.space.id,
             documentId: this.getDocumentId(_target)
         });
-        assistOS.space.notifyObservers("docs");
+       this.invalidate(this.refreshDocuments);
     }
 }
