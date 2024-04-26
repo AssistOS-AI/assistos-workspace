@@ -1,6 +1,5 @@
 export class Flow{
-    constructor(flowClass, isNew) {
-        flowClass.isNew = isNew
+    constructor(flowClass) {
         this.class = flowClass;
         this.fileName = flowClass.name;
     }

@@ -1,15 +1,15 @@
-import {
-    showModal, showActionBox, reverseQuerySelector
-} from "../../../imports.js";
-
 export class FlowsPage {
     constructor(element, invalidate) {
-        assistOS.space.observeChange(assistOS.space.getNotificationId(), invalidate);
+        this.refreshFlows = async () => {
+            this.flows = await assistOS.space.refreshFlowsMetadata();
+        }
+        assistOS.space.observeChange(assistOS.space.getNotificationId(), invalidate, this.refreshFlows);
         this.element = element;
-        this.selectedTypes = [];
         this.invalidate = invalidate;
-        this.spaceChecked="checked";
-        this.invalidate();
+        this.spaceChecked = "checked";
+        this.invalidate(()=>{
+            this.flows = assistOS.space.getFlowsMetadata();
+        });
     }
 
 
@@ -32,26 +32,27 @@ export class FlowsPage {
     }
 
     async showActionBox(_target, primaryKey, componentName, insertionMode) {
-        await showActionBox(_target, primaryKey, componentName, insertionMode);
+        await assistOS.UI.showActionBox(_target, primaryKey, componentName, insertionMode);
     }
 
     getFlowName(_target) {
-        return reverseQuerySelector(_target, "flow-unit").getAttribute("data-name");
+        return assistOS.UI.reverseQuerySelector(_target, "flow-unit").getAttribute("data-name");
     }
 
     async showAddFlowModal() {
-        await showModal("add-flow-modal", {presenter: "add-flow-modal"});
+        await assistOS.UI.showModal("add-flow-modal", {presenter: "add-flow-modal"});
     }
 
     async editAction(_target) {
-        await showModal("edit-flow-modal", {presenter: "edit-flow-modal", name: this.getFlowName(_target)});
+        await assistOS.UI.showModal("edit-flow-modal", {presenter: "edit-flow-modal", name: this.getFlowName(_target)});
     }
 
     async deleteAction(_target) {
         await assistOS.callFlow("DeleteFlow", {
+            spaceId: assistOS.space.id,
             flowName: this.getFlowName(_target)
         });
-        this.invalidate();
+        this.invalidate(this.refreshFlows);
     }
 
     importFlows() {

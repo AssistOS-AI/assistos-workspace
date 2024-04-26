@@ -1,8 +1,3 @@
-import {
-    closeModal,
-    extractFormInformation
-} from "../../../imports.js";
-
 export class EditFlowModal {
     constructor(element,invalidate) {
         this.element=element;
@@ -25,7 +20,7 @@ export class EditFlowModal {
     }
 
     closeModal(_target) {
-        closeModal(_target);
+        assistOS.UI.closeModal(_target);
     }
 
     insertSpacesOnTab(event){
@@ -61,10 +56,11 @@ export class EditFlowModal {
     }
     async saveFlow(_target) {
         let form = this.element.querySelector("form")
-        let formInfo = await extractFormInformation(form);
+        let formInfo = await assistOS.UI.extractFormInformation(form);
         if(formInfo.isValid) {
             let flowName = this.element.getAttribute("data-name");
             await assistOS.callFlow("UpdateFlow", {
+                spaceId: assistOS.space.id,
                 flowName: flowName,
                 flowData: formInfo.data.flowCode,
                 appId: this.element.getAttribute("data-appId")

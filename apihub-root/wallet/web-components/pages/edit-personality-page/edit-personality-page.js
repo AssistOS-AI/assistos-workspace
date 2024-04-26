@@ -1,13 +1,13 @@
 import {extractFormInformation, constants} from "../../../imports.js";
 export class EditPersonalityPage{
     constructor(element,invalidate) {
-        this.personality = assistOS.space.getPersonality(window.location.hash.split("/")[3]);
         this.element = element;
         this.invalidate=invalidate;
         this.knowledgeArray = [];
-        this.invalidate();
+        this.invalidate(()=>{
+            this.personality = assistOS.space.getPersonality(window.location.hash.split("/")[3]);
+        });
     }
-
     beforeRender(){
         if(this.personality.name === constants.DEFAULT_PERSONALITY_NAME){
             this.disabled = "disabled";
@@ -87,6 +87,7 @@ export class EditPersonalityPage{
                 image: formInfo.data.photo
             }
             await assistOS.callFlow("UpdatePersonality", {
+                spaceId: assistOS.space.id,
                 personalityData: personalityData,
                 personalityId: this.personality.id
             });
@@ -107,6 +108,7 @@ export class EditPersonalityPage{
 
     async deletePersonality(){
         await assistOS.callFlow("DeletePersonality", {
+            spaceId: assistOS.space.id,
             personalityId: this.personality.id
         });
         await this.openPersonalitiesPage();

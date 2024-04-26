@@ -1,9 +1,3 @@
-import {
-    closeModal,
-    extractFormInformation
-} from "../../../imports.js";
-
-
 export class AddPersonalityModal {
     constructor(element,invalidate) {
         this.element=element;
@@ -14,7 +8,7 @@ export class AddPersonalityModal {
     beforeRender() {}
 
     closeModal(_target) {
-        closeModal(_target);
+        assistOS.UI.closeModal(_target);
     }
 
     triggerInputFileOpen(_target){
@@ -29,15 +23,16 @@ export class AddPersonalityModal {
             return !element.files[0]? true : element.files[0].size <= 1048576;
         };
         const conditions = {"verifyPhotoSize": {fn:verifyPhotoSize, errorMessage:"Image too large! Image max size: 1MB"} };
-        let formInfo = await extractFormInformation(_target, conditions);
+        let formInfo = await assistOS.UI.extractFormInformation(_target, conditions);
         if(formInfo.isValid) {
             await assistOS.callFlow("AddPersonality", {
+                spaceId: assistOS.space.id,
                 name: formInfo.data.name,
                 description: formInfo.data.description,
                 photo: formInfo.data.photo
             });
             assistOS.space.notifyObservers(assistOS.space.getNotificationId());
-            closeModal(_target);
+            assistOS.UI.closeModal(_target);
         }
     }
 }

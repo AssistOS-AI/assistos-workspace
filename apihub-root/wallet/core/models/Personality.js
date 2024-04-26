@@ -12,13 +12,6 @@ export class Personality {
         this.tasks = personalityData.tasks || [];
         this.metadata = ["id", "name", "image"];
     }
-    update(personalityData){
-        this.name = personalityData.name;
-        this.description = personalityData.description;
-        if(personalityData.image){
-            this.image = personalityData.image;
-        }
-    }
 
     simplify(){
         return {

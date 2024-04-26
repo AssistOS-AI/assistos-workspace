@@ -6,12 +6,13 @@ export class AddAnnouncement {
     };
     async start(context) {
         try {
+            let spaceModule = await this.loadModule("space");
             let announcementData = {
                 title: context.title,
                 text: context.text,
                 date: new Date().toISOString().split('T')[0],
             };
-            await assistOS.space.addAnnouncement(announcementData);
+            await spaceModule.addAnnouncement(announcementData);
             this.return(announcementData);
         } catch (e) {
             this.fail(e);
