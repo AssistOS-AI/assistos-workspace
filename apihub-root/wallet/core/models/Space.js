@@ -9,6 +9,7 @@ import {
     Document
 } from "../../imports.js";
 const documentModule = require("assistos").loadModule("document");
+const personalityModule = require("assistos").loadModule("personality");
 export class Space {
     constructor(spaceData) {
         this.name = spaceData.name || undefined;
@@ -70,20 +71,31 @@ export class Space {
         if(document){
             return document;
         } else{
-            let response = JSON.parse(await documentModule.getDocument(assistOS.space.id, documentId));
-            let document = new Document(response.data);
-            let documentIndex = this.documentsMetadata.findIndex(documentId);
-            this.documents[documentIndex] = document;
-            return document;
+            return await this.refreshDocument(documentId);
         }
+    }
+    async refreshDocumentsMetadata(){
+        let response = JSON.parse(await documentModule.getDocumentsMetadata(assistOS.space.id));
+        this.documentsMetadata = response.data;
+        return this.documentsMetadata;
     }
     async getDocumentsMetadata(){
         if(this.documentsMetadata){
             return this.documentsMetadata;
         } else {
-            let response = JSON.parse(await documentModule.getDocumentsMetadata(assistOS.space.id));
-            this.documentsMetadata = response.data;
-            return this.documentsMetadata;
+           return await this.refreshDocumentsMetadata();
+        }
+    }
+    async refreshPersonalitiesMetadata(){
+        let response = await personalityModule.getPersonalitiesMetadata(assistOS.space.id);
+        this.personalitiesMetadata = response.data;
+        return this.personalitiesMetadata;
+    }
+    async getPersonalitiesMetadata(){
+        if(this.personalitiesMetadata){
+            return this.personalitiesMetadata;
+        } else {
+            return await this.refreshPersonalitiesMetadata();
         }
     }
     getKey(keyType,keyId){
@@ -107,8 +119,8 @@ export class Space {
         return JSON.stringify(arr);
     }
 
-    observeChange(elementId, callback) {
-        let obj = {elementId: elementId, callback: callback};
+    observeChange(elementId, callback, callbackAsyncParamFn) {
+        let obj = {elementId: elementId, callback: callback, param: callbackAsyncParamFn};
         callback.refferenceObject = obj;
         this.observers.push(new WeakRef(obj));
 
@@ -124,7 +136,7 @@ export class Space {
         for (const observerRef of this.observers) {
             const observer = observerRef.deref();
             if (observer && observer.elementId.startsWith(prefix)) {
-                observer.callback();
+                observer.callback(observer.param);
             }
         }
     }

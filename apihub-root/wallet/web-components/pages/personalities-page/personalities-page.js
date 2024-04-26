@@ -3,15 +3,20 @@ export class PersonalitiesPage {
         this.modal = "showAddPersonalityModal";
         this.element = element;
         this.notificationId = assistOS.space.getNotificationId();
-        assistOS.space.observeChange(this.notificationId,invalidate);
-        this.invalidate=invalidate;
-        this.invalidate();
+        this.refreshPersonalities = async ()=>{
+            this.personalities = await assistOS.space.refreshPersonalitiesMetadata();
+        }
+        assistOS.space.observeChange(this.notificationId, invalidate, this.refreshPersonalities);
+        this.invalidate = invalidate;
+        this.invalidate(async() =>{
+            await assistOS.space.getPersonalitiesMetadata();
+        });
     }
     beforeRender() {
         this.personalityBlocks = "";
-        if (assistOS.space.personalities.length > 0) {
-            assistOS.space.personalities.forEach((item) => {
-                this.personalityBlocks += `<personality-unit data-name="${item.name}" data-description="${item.description}" data-id="${item.id}" data-image="${item.image || "./wallet/assets/images/default-personality.png"}"></personality-unit>`;
+        if (this.personalities.length > 0) {
+            this.personalities.forEach((item) => {
+                this.personalityBlocks += `<personality-unit data-name="${item.name}" data-id="${item.id}" data-image="${item.image || "./wallet/assets/images/default-personality.png"}"></personality-unit>`;
             });
         }
     }

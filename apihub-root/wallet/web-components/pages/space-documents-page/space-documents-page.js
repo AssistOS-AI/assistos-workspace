@@ -1,12 +1,14 @@
 export class SpaceDocumentsPage {
     constructor(element, invalidate) {
-        this.notificationId = "docs"
-        assistOS.space.observeChange(this.notificationId, invalidate);
+        this.notificationId = "docs";
+        this.refreshDocuments = async ()=>{
+            this.documents = await assistOS.space.refreshDocumentsMetadata();
+        };
+        assistOS.space.observeChange(this.notificationId, invalidate, this.refreshDocuments);
         this.invalidate = invalidate;
-        this.refreshDocuments = async () =>{
-            this.documents = await assistOS.space.getDocumentsMetadata();
-        }
-        this.invalidate(this.refreshDocuments);
+        this.invalidate(async() =>{
+            await assistOS.space.getDocumentsMetadata();
+        });
     }
     beforeRender() {
         this.tableRows = "";
