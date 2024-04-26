@@ -24,7 +24,7 @@ const authentication = require('../apihub-component-middlewares/authentication.j
 
 function SpaceStorage(server) {
     server.use("/spaces/*", bodyReader);
-    //server.use("/spaces/*", authentication);
+    server.use("/spaces/*", authentication);
 
     server.get("/spaces", getSpace);
     server.get("/spaces/:spaceId", getSpace);

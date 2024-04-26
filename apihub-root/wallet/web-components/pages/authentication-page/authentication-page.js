@@ -1,13 +1,19 @@
-//const user = require("assistos-sdk").loadModule("user");
+let User = require("assistos").loadModule("user");
+User = {
+    apis: User.loadAPIs(),
+    constants: User.constants
+}
+
 export class AuthenticationPage {
     constructor(element, invalidate) {
         this.element = element;
         this.invalidate = invalidate;
         this.invalidate();
         this.rotations = 0;
-        [this.demoUserEmail, this.demoUserPassword]=assistOS.services.getDemoUserCredentials();
+        [this.demoUserEmail, this.demoUserPassword] = assistOS.services.getDemoUserCredentials();
 
     }
+
     beforeRender() {
         switch (this.element.getAttribute("data-subpage")) {
             case "register-page": {
@@ -243,7 +249,7 @@ export class AuthenticationPage {
         if (formInfo.isValid) {
             this.formData = formInfo.data;
             const {name, email, password} = formInfo.data;
-            await assistOS.services.registerUser(name, email, password);
+            await User.apis.registerUser(name, email, password);
             this.invalidate(async () => {
                 this.element.setAttribute("data-subpage", "register-confirmation")
             })
@@ -253,7 +259,7 @@ export class AuthenticationPage {
     async activateUser() {
         const activationToken = this.element.querySelector("#user-token").value;
         try {
-            await assistOS.services.activateUser(activationToken);
+            await User.apis.activateUser(activationToken);
             await assistOS.UI.changeToDynamicPage("authentication-page", "authentication-page");
         } catch (error) {
             alert(`Activation failed: Invalid Activation Token`)
@@ -265,7 +271,7 @@ export class AuthenticationPage {
         if (formInfo.isValid) {
             const {email, password} = formInfo.data;
             try {
-                await assistOS.services.loginUser(email, password);
+                await User.apis.loginUser(email, password);
                 await assistOS.loadPage(true);
             } catch (error) {
                 alert(`Login failed: Invalid email or password`);
@@ -292,7 +298,7 @@ export class AuthenticationPage {
         };
         const formInfo = await assistOS.UI.extractFormInformation(_target, conditions);
         if (formInfo.isValid) {
-            if (await assistOS.services.recoverPassword(formInfo.data.email, formInfo.data.password)) {
+            if (await User.apis.recoverPassword(formInfo.data.email, formInfo.data.password)) {
                 await assistOS.UI.changeToDynamicPage("authentication-page", "authentication-page", {subpage: "password-recovery-confirmation"});
             } else {
                 console.log("Failed to recover password");
@@ -304,7 +310,7 @@ export class AuthenticationPage {
     }
 
     async finishPasswordRecovery() {
-        if (await assistOS.services.confirmRecoverPassword()) {
+        if (await User.apis.confirmRecoverPassword()) {
             window.location = "";
         } else {
             console.error("Failed to confirm password recovery");

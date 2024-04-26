@@ -536,8 +536,6 @@ async function getSpace(request, response) {
         }
 
         let spaceObject = await space.APIs.getSpaceStatusObject(spaceId);
-        spaceObject["documents"] = await space.APIs.getSpaceDocumentsObject(spaceId);
-        spaceObject["personalities"] = await space.APIs.getSpacePersonalitiesObject(spaceId);
         await user.APIs.updateUsersCurrentSpace(userId, spaceId);
         utils.sendResponse(response, 200, "application/json", {
             success: true,

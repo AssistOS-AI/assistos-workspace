@@ -1,6 +1,7 @@
 import WebSkel from "../WebSkel/webSkel.js";
 import * as dependencies from "./wallet/imports.js";
-
+const userModule=require('assistos').loadModule('user');
+const spaceModule=require('assistos').loadModule('space');
 class AssistOS {
     constructor(configuration) {
         if (AssistOS.instance) {
@@ -122,8 +123,13 @@ class AssistOS {
     async refresh() {
         await this.UI.changeToDynamicPage("space-configs-page", `${assistOS.space.id}/SpaceConfiguration/announcements-page`);
     }
-
+    async initUser(spaceId) {
+        assistOS.user = new dependencies.User(await userModule.loadAPIs().loadUser());
+        const spaceData=await spaceModule.loadAPIs().loadSpace(spaceId);
+        assistOS.space = new dependencies.Space(spaceData);
+    }
     async loadPage(skipAuth = false, skipSpace = false, spaceId) {
+        debugger
         const initPage = async () => {
             const insertSidebar = () => {
                 if (!document.querySelector("left-sidebar")) {
@@ -133,7 +139,7 @@ class AssistOS {
             hidePlaceholders();
             insertSidebar();
             if (applicationName) {
-                await assistOS.services.startApplication(applicationName, applicationLocation);
+                await assistOS.startApplication(applicationName, applicationLocation);
             } else {
                 await assistOS.UI.changeToDynamicPage("space-configs-page", `${assistOS.space.id}/SpaceConfiguration/announcements-page`);
             }
@@ -151,7 +157,7 @@ class AssistOS {
         }
 
         try {
-            await (spaceId ? skipSpace ? assistOS.services.initUser() : assistOS.services.initUser(spaceId) : assistOS.services.initUser());
+            await (spaceId ? skipSpace ? assistOS.initUser() : assistOS.initUser(spaceId) : assistOS.initUser());
             await initPage();
         } catch (error) {
             hidePlaceholders();
