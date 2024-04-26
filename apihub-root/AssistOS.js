@@ -129,7 +129,6 @@ class AssistOS {
         assistOS.space = new dependencies.Space(spaceData);
     }
     async loadPage(skipAuth = false, skipSpace = false, spaceId) {
-        debugger
         const initPage = async () => {
             const insertSidebar = () => {
                 if (!document.querySelector("left-sidebar")) {

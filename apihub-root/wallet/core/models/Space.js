@@ -23,7 +23,7 @@ export class Space {
         this.apiKeys = spaceData.apiKeys || {};
         this.documents = (spaceData.documents|| []).map(documentData => new Document(documentData)).reverse();
         this.pages = spaceData.pages || [];
-        debugger
+        /* TODO REFACTOR METADATA LOGIC for personalities nnd include default personality in the space object */
         this.currentPersonalityId = spaceData.currentPersonalityId //|| this.personalities.find(personality => personality.id === constants.PERSONALITIES.DEFAULT_PERSONALITY_ID).id;
         this.llms = spaceData.llms || [{name:"GPT 3.5 Turbo",id:"q12437rgq39r845t"}, {name:"GPT 4",id:"q124wsreg"}].map(llm => new LLM(llm));
         this.currentLlmId = spaceData.currentLlmId || "q12437rgq39r845t";

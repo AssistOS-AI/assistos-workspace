@@ -19,6 +19,7 @@ import {Space} from "./core/models/Space.js";
 import {User} from "./core/models/User.js";
 import {Application} from "./core/models/Application.js";
 import {Chatbots} from "./core/models/Chatbots.js";
+import {Util} from "./core/models/Util.js";
 export{
     Document,
     Chapter,
@@ -32,7 +33,8 @@ export{
     Space,
     User,
     Application,
-    Chatbots
+    Chatbots,
+    Util
 };
 
 // Others

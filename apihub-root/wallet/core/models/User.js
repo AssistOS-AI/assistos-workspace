@@ -1,10 +1,12 @@
 export class User {
     constructor(userData) {
-        Object.keys(userData).forEach(objKey=>{
-                this[objKey] = userData[objKey];
+        Object.keys(userData).forEach(objKey => {
+            this[objKey] = userData[objKey];
         })
     }
-    getUserSpaces(){
+
+    getUserSpaces() {
         return this.spaces;
     }
+
 }

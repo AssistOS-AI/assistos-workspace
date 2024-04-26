@@ -1,5 +1,5 @@
-import {getClosestParentElement, decodeBase64, changeSelectedPageFromSidebar} from "../../../imports.js";
-
+import {changeSelectedPageFromSidebar} from "../../../imports.js";
+const crypto=require("opendsu").loadAPI("crypto");
 export class LeftSidebar {
     constructor(element, invalidate) {
         this.element = element;
@@ -15,7 +15,7 @@ export class LeftSidebar {
             this.applications += `
             <div class="feature" data-id="${applicationData.name.toLowerCase()}" data-local-action="startApplication ${applicationData.id}">
                 <div class="page-logo">
-                       ${decodeBase64(svgImage)}
+                       ${crypto.decodeBase64(svgImage)}
                     <div class="app-name" id="${applicationData.name.toLowerCase()}">
                         ${applicationData.name}
                     </div>
@@ -81,7 +81,7 @@ export class LeftSidebar {
             pageId: pageId,
             refreshFlag: refreshFlag
         });
-        getClosestParentElement(_target, ".feature").setAttribute("id", "selected-page");
+        assistOS.UI.getClosestParentElement(_target, ".feature").setAttribute("id", "selected-page");
         let paths = _target.querySelectorAll("path");
         paths.forEach((path) => {
             if (path.hasAttribute("stroke")) {
