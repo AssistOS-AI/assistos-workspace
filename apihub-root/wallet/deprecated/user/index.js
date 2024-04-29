@@ -28,6 +28,7 @@ async function getUsersSecretsExist() {
 async function initUser(spaceId) {
     let space = assistOS.loadModule("space");
     assistOS.user = new User(await assistOS.storage.loadUser());
+    //assistOS.currentAgent/Agent=loadAgent(...)
     await space.loadSpace(spaceId);
 }
 

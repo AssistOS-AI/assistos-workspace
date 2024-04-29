@@ -44,11 +44,7 @@ function UserStorage(server) {
         const createDefaultUser = configs.CREATE_DEMO_USER;
         if (createDefaultUser) {
             const User = require('./user.js');
-            try{
-                await User.APIs.createDemoUser();
-            } catch(e){
-                //user already exists
-            }
+            await User.APIs.createDemoUser();
         }
     }, 0);
 

@@ -105,13 +105,10 @@
     "name",
     "id",
     "creationDate",
-    "personalities",
     "settings",
     "announcements",
     "users",
-    "documents",
     "apiKeys",
-    "pages",
     "installedApplications"
   ]
 }

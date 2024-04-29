@@ -2,7 +2,6 @@ const fsPromises = require('fs').promises;
 const path = require('path');
 const service = require('./api');
 
-// Template registry
 const templateRegistry = {
     'activationFailTemplate': 'activationFailTemplate.html',
     'activationSuccessTemplate': 'activationSuccessTemplate.html',

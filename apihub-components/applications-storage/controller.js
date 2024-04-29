@@ -6,7 +6,7 @@ const fsPromises = require('fs').promises;
 const {sendResponse,sendFileToClient} = require('../apihub-component-utils/utils.js')
 const crypto = require('../apihub-component-utils/crypto.js');
 const dataVolumePaths = require('../volumeManager').paths;
-
+const Space=require('../spaces-storage/space.js');
 function createContainerName(spaceId, userId) {
     return `${spaceId}.${userId}`;
 }
@@ -137,42 +137,13 @@ async function installApplication(request, response) {
     }
 }
 
-async function uninstallApplication(request, response) {
-    const spaceId = request.params.spaceId;
-    const applicationId = request.params.applicationId;
-    const folderPath = path.join(dataVolumePaths.space,`${spaceId}/applications/${applicationId}`);
+async function uninstallApplication(request,response) {
+    const spaceId=request.params.spaceId;
+    const applicationId=request.params.applicationId;
     try {
-        const assistOSConfigs = require("../../apihub-root/assistOS-configs.json");
-        const application = assistOSConfigs.applications.find(app => app.id === applicationId);
-
-        // Check for the application's existence
-        if (!application) {
-            console.error("Application not found");
-            sendResponse(response, 404, "text/html", "Application not found");
-            return;
-        }
-
-        if (application.flowsRepository) {
-            const flowsPath = path.join(dataVolumePaths.space,`${spaceId}/applications/${application.name}/flows`);
-
-            // Check if the flows directory exists
-            try {
-                await fsPromises.access(flowsPath);
-                // If it exists, delete the branch
-                const branchName = `space-${spaceId}`;
-                await execAsync(`git -C ${flowsPath} push origin --delete ${branchName}`);
-            } catch (dirError) {
-                console.error("Flows directory does not exist, skipping branch deletion:", dirError);
-            }
-        }
-
-        // Remove the application folder
-        await execAsync(`rm -rf ${folderPath}`);
-        //await clearGITCredentialsCache();
-        updateSpaceStatus(spaceId, application.name, "", "", true);
+        await Space.APIs.uninstallApplication(spaceId, applicationId);
         sendResponse(response, 200, "text/html", "Application uninstalled successfully");
-    } catch (error) {
-        console.error("Error in uninstalling application:", error);
+    }catch(error){
         sendResponse(response, 500, "text/html", error.toString());
     }
 }

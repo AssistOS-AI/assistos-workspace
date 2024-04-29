@@ -32,7 +32,6 @@ export class AgentPage {
 
     afterRender() {
         this.rightPanel = document.querySelector(".current-page");
-
         this.conversation = this.element.querySelector(".conversation");
         this.userInput = this.element.querySelector("#input");
         let form = this.element.querySelector(".chat-input-container");

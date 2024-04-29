@@ -1,5 +1,6 @@
 import {changeSelectedPageFromSidebar} from "../../../imports.js";
 const crypto=require("opendsu").loadAPI("crypto");
+
 export class LeftSidebar {
     constructor(element, invalidate) {
         this.element = element;
@@ -12,15 +13,16 @@ export class LeftSidebar {
         for (let application of assistOS.space.installedApplications) {
             let applicationData = assistOS.applications[application.name];
             let svgImage = applicationData.encodedSvg;
+
             this.applications += `
-            <div class="feature" data-id="${applicationData.name.toLowerCase()}" data-local-action="startApplication ${applicationData.id}">
-                <div class="page-logo">
-                       ${crypto.decodeBase64(svgImage)}
-                    <div class="app-name" id="${applicationData.name.toLowerCase()}">
-                        ${applicationData.name}
-                    </div>
+        <div class="feature" data-id="${applicationData.name.toLowerCase()}" data-local-action="startApplication ${applicationData.id}">
+            <div class="page-logo">
+                <img src="${svgImage}" alt="${applicationData.name}" />
+                <div class="app-name" id="${applicationData.name.toLowerCase()}">
+                    ${applicationData.name}
                 </div>
-            </div>`;
+            </div>
+        </div>`;
         }
     }
 

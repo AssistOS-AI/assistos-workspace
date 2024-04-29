@@ -1,7 +1,10 @@
 import WebSkel from "../WebSkel/webSkel.js";
 import * as dependencies from "./wallet/imports.js";
-const userModule=require('assistos').loadModule('user');
-const spaceModule=require('assistos').loadModule('space');
+
+const userModule = require('assistos').loadModule('user');
+const spaceModule = require('assistos').loadModule('space');
+const applicationModule = require('assistos').loadModule('application');
+
 class AssistOS {
     constructor(configuration) {
         if (AssistOS.instance) {
@@ -51,20 +54,21 @@ class AssistOS {
     }
 
     async installApplication(appName) {
-        return await assistOS.storage.installApplication(assistOS.space.id, appName);
+        await applicationModule.installApplication(assistOS.space.id, appName);
+        await this.refresh();
     }
+
     async uninstallApplication(appName) {
-        let response = await assistOS.storage.uninstallApplication(assistOS.space.id, appName);
-        if(response.status === 200){
-            await assistOS.space.deleteApplication(appName);
-        }
-        return response;
+        await applicationModule.uninstallApplication(assistOS.space.id, appName);
+        await this.refresh();
     }
+
     async startApplication(appName, applicationLocation, isReadOnly) {
         const initialiseApplication = async () => {
-            assistOS.initialisedApplications[appName] = JSON.parse(await assistOS.storage.getApplicationConfigs(assistOS.space.id, appName));
+            const applicationConfigs = await applicationModule.getApplicationConfigs(assistOS.space.id, appName);
+            assistOS.initialisedApplications[appName] = applicationConfigs;
             if (assistOS.initialisedApplications[appName].manager) {
-                let ManagerModule = await assistOS.storage.getApplicationFile(assistOS.space.id, appName, assistOS.initialisedApplications[appName].manager.path)
+                let ManagerModule = await applicationModule.getApplicationFile(assistOS.space.id, appName, assistOS.initialisedApplications[appName].manager.path)
                 assistOS.initialisedApplications[appName].manager = new ManagerModule[assistOS.initialisedApplications[appName].manager.name](appName);
                 await assistOS.initialisedApplications[appName].manager.loadAppData?.();
             }
@@ -81,12 +85,12 @@ class AssistOS {
         const getApplicationComponent = async (spaceId, appId, appComponentsDirPath, component) => {
             const HTMLPath = `${appComponentsDirPath}/${component.name}/${component.name}.html`
             const CSSPath = `${appComponentsDirPath}/${component.name}/${component.name}.css`
-            let loadedTemplate = await (await assistOS.storage.getApplicationFile(spaceId, appId, HTMLPath)).text();
-            let loadedCSSs = await (await assistOS.storage.getApplicationFile(spaceId, appId, CSSPath)).text();
+            let loadedTemplate = await applicationModule.getApplicationFile(spaceId, appId, HTMLPath)
+            let loadedCSSs = await applicationModule.getApplicationFile(spaceId, appId, CSSPath)
             let presenterModule = "";
             if (component.presenterClassName) {
                 const PresenterPath = `${appComponentsDirPath}/${component.name}/${component.name}.js`
-                presenterModule = await assistOS.storage.getApplicationFile(spaceId, appId, PresenterPath);
+                presenterModule = await applicationModule.getApplicationFile(spaceId, appId, PresenterPath);
             }
             loadedCSSs = [loadedCSSs];
             return {loadedTemplate, loadedCSSs, presenterModule};
@@ -121,13 +125,15 @@ class AssistOS {
     }
 
     async refresh() {
-        await this.UI.changeToDynamicPage("space-configs-page", `${assistOS.space.id}/SpaceConfiguration/announcements-page`);
+        window.location = "";
     }
+
     async initUser(spaceId) {
         assistOS.user = new dependencies.User(await userModule.loadAPIs().loadUser());
-        const spaceData=await spaceModule.loadAPIs().loadSpace(spaceId);
+        const spaceData = await spaceModule.loadAPIs().loadSpace(spaceId);
         assistOS.space = new dependencies.Space(spaceData);
     }
+
     async loadPage(skipAuth = false, skipSpace = false, spaceId) {
         const initPage = async () => {
             const insertSidebar = () => {
@@ -251,6 +257,8 @@ class AssistOS {
                 return require("assistos-sdk").loadModule("personality");
             case "document":
                 return require("assistos-sdk").loadModule("document");
+            case "application":
+                return require("assistos-sdk").loadModule("application");
             default:
                 throw new Error("Module doesn't exist");
         }

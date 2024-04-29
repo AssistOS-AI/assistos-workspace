@@ -43,13 +43,13 @@ export class ApplicationPage {
     }
     async installApplication() {
         const loadingId = await assistOS.UI.showLoading();
-        await assistOS.services.installApplication(this.appName);
+        await assistOS.installApplication(this.appName);
         assistOS.UI.hideLoading(loadingId);
         location.reload();
     }
     async uninstallApplication() {
         const loadingId = await assistOS.UI.showLoading();
-        await assistOS.services.uninstallApplication(this.appName);
+        await assistOS.uninstallApplication(this.appName);
         assistOS.UI.hideLoading(loadingId);
         location.reload();
     }

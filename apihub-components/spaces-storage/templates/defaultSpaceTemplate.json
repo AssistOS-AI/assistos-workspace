@@ -7,14 +7,5 @@
   "users": ["$$adminId"],
   "admins":["$$adminId"],
   "apiKeys": ["$$apiKey?"],
-  "flows": [],
-  "pages": [],
-  "tasks": [],
-  "conversationHistory": [],
-  "documents": [],
-  "context": [],
-  "wordCount": 0,
-  "installedApplications": [],
-  "personalities": [],
-  "currentPersonalityId": ""
+  "installedApplications": []
 }

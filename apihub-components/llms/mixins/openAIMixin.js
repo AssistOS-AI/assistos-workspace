@@ -1,5 +1,3 @@
-const fsPromises = require('fs').promises;
-
 async function getApiKeyForSpace(server, spaceId) {
     const secretsService = await require('apihub').getSecretsServiceInstanceAsync(server.rootFolder);
     return secretsService.getSecretSync(`${spaceId}.APIKey`, "OpenAiAPIKey")

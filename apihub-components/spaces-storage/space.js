@@ -5,7 +5,6 @@ const config = require('../config.json');
 
 const volumeManager = require('../volumeManager.js');
 
-const constants = require('assistos').constants;
 
 const enclave = require('opendsu').loadAPI('enclave');
 
@@ -261,30 +260,29 @@ async function saveSpaceAPIKeySecret(spaceId, apiKey) {
 
 async function storeSpaceSecret(spaceId, secret) {
 }
-
+function getApplicationPath(spaceId,appName){
+    return path.join(getSpacePath(spaceId), 'applications', appName);
+}
 async function updateSpaceStatus(spaceId, spaceStatusObject) {
     const spacePath = getSpacePath(spaceId)
     const spaceStatusPath = path.join(spacePath, 'status', `status.json`);
     await fsPromises.writeFile(spaceStatusPath, JSON.stringify(spaceStatusObject, null, 2), {encoding: 'utf8'});
 }
-
+async function uninstallApplication(spaceId,appName){
+    const spaceStatusObject = await getSpaceStatusObject(spaceId);
+    spaceStatusObject.installedApplications = spaceStatusObject.installedApplications.filter(application => application.name !== appName);
+    await updateSpaceStatus(spaceId, spaceStatusObject);
+    await fsPromises.rm(getApplicationPath(spaceId,appName), {recursive: true, force: true});
+}
 module.exports = {
     APIs: {
         addAnnouncement,
-        addSpaceToSpaceMap,
-        copyDefaultFlows,
-        copyDefaultPersonalities,
-        createDefaultAnnouncement,
         createSpace,
-        createSpaceStatus,
-        getSpaceDocumentsObject,
-        getSpacePersonalitiesObject,
         getSpaceMap,
         getSpaceStatusObject,
-        saveSpaceAPIKeySecret,
-        storeSpaceSecret,
         updateSpaceStatus,
-        deleteSpace
+        deleteSpace,
+        uninstallApplication
     },
     templates: {
         defaultApiKeyTemplate:require('./templates/defaultApiKeyTemplate.json'),

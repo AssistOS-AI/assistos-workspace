@@ -142,6 +142,7 @@ export class Space {
             }
         }
     }
+
     getAgent(){
         return this.personalities.find(personality=> personality.id === this.currentPersonalityId);
     }
@@ -294,8 +295,4 @@ export class Space {
         this.announcements.push(new Announcement(defaultAnnouncement));
     }
 
-    async deleteApplication(name) {
-        this.installedApplications = this.installedApplications.filter(app => app.name !== name);
-        await assistOS.storage.storeObject(assistOS.space.id, "status", "status", JSON.stringify(assistOS.space.getSpaceStatus(), null, 2));
-    }
 }

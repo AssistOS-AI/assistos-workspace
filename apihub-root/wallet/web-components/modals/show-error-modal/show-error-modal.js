@@ -1,4 +1,3 @@
-import {closeModal} from "../../../imports.js"
 export class ShowErrorModal{
     constructor(element, invalidate) {
         this.element = element;
@@ -7,7 +6,7 @@ export class ShowErrorModal{
     }
     beforeRender(){}
     closeModal(_target) {
-        closeModal(_target);
+        assistOS.UI.closeModal(_target);
     }
     async toggleDetails(_target) {
        let details = this.element.querySelector("#detailed-error-message");
