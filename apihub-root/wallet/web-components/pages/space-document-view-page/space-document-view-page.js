@@ -2,17 +2,17 @@ export class SpaceDocumentViewPage {
     constructor(element, invalidate) {
         this.element = element;
         this.invalidate = invalidate;
+        this.refreshDocument = async () =>{
+            this._document = assistOS.space.getDocument(this._document.id);
+        }
         this.invalidate(async ()=>{
             this._document = await assistOS.space.getDocument(window.location.hash.split("/")[3]);
-            this._document.observeChange(this._document.getNotificationId() + ":document-view-page", invalidate);
+            this._document.observeChange(this._document.getNotificationId() + ":document-view-page", invalidate, this.refreshDocument);
         });
         this.controller = new AbortController();
         this.boundedFn = this.highlightElement.bind(this, this.controller);
         document.removeEventListener("click", this.boundedFn);
         document.addEventListener("click", this.boundedFn, {signal: this.controller.signal});
-    }
-    refreshDocument(){
-        this._document = assistOS.space.refreshDocument(this._document.id);
     }
     beforeRender() {
         this.chaptersContainer = "";

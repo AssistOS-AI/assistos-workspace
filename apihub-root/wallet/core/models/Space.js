@@ -60,32 +60,17 @@ export class Space {
             apiKeys:this.apiKeys
         }
     }
-    async refreshDocument(documentId){
-        let response = JSON.parse(await documentModule.getDocument(documentId));
+    async getDocument(documentId){
+        let response = JSON.parse(await documentModule.getDocument(this.id, documentId));
         let documentIndex = this.documents.findIndex(doc => doc.id === documentId);
         let document = new Document(response.data);
         this.documents[documentIndex] = document;
         return document;
     }
-    async getDocument(documentId){
-        let document = this.documents.find(document=>document.id === documentId);
-        if(document){
-            return document;
-        } else{
-            return await this.refreshDocument(documentId);
-        }
-    }
-    async refreshDocumentsMetadata(){
+    async getDocumentsMetadata(){
         let response = JSON.parse(await documentModule.getDocumentsMetadata(assistOS.space.id));
         this.documentsMetadata = response.data;
         return this.documentsMetadata;
-    }
-    async getDocumentsMetadata(){
-        if(this.documentsMetadata){
-            return this.documentsMetadata;
-        } else {
-           return await this.refreshDocumentsMetadata();
-        }
     }
     async refreshPersonalitiesMetadata(){
         let response = JSON.parse(await personalityModule.getPersonalitiesMetadata(assistOS.space.id));
