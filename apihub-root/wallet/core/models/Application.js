@@ -1,5 +1,3 @@
-import {Flow} from "../../imports.js";
-
 export class Application {
     constructor(applicationData) {
         this.id = applicationData.id;
@@ -14,7 +12,7 @@ export class Application {
     async loadFlows(){
         let flows = await assistOS.storage.loadAppFlows(assistOS.space.id, this.name);
         for (let [name, flowClass] of Object.entries(flows)) {
-            this.flows.push(new Flow(flowClass));
+            this.flows.push(flowClass);
         }
     }
     stringifyApplication(){

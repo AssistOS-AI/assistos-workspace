@@ -12,10 +12,10 @@ export class ApplicationPage {
         this.appFlows = "";
         if (this._app.flows.length > 0) {
             this._app.flows.sort(function(a, b) {
-                return a.class.name.toLowerCase().localeCompare(b.class.name.toLowerCase());
+                return a.name.toLowerCase().localeCompare(b.name.toLowerCase());
             });
             this._app.flows.forEach((item) => {
-                this.appFlows += `<flow-unit data-name="${item.class.name}" data-description="${item.class.description}" data-local-action="editAction"></flow-unit>`;
+                this.appFlows += `<flow-unit data-name="${item.name}" data-description="${item.description}" data-local-action="editAction"></flow-unit>`;
             });
         } else {
             this.appFlows = `<div class="no-data-loaded">No data loaded</div>`;
@@ -64,7 +64,7 @@ export class ApplicationPage {
         await assistOS.UI.showModal( "edit-flow-modal", { presenter: "edit-flow-modal", name: this.getFlowName(_target), appId: this._app.id});
     }
     async deleteAction(_target){
-        this._app.flows = this._app.flows.filter(flow => flow.class.name !== this.getFlowName(_target));
+        this._app.flows = this._app.flows.filter(flow => flow.name !== this.getFlowName(_target));
         await assistOS.callFlow("DeleteFlow", {
             flowName: this.getFlowName(_target),
             appId: this._app.id

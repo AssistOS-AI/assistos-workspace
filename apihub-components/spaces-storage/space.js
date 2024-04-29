@@ -60,17 +60,11 @@ async function copyDefaultFlows(spacePath) {
     await file.createDirectory(flowsPath);
 
     const files = await fsPromises.readdir(defaultFlowsPath);
-    let metadata = [];
     for (const file of files) {
         const filePath = path.join(defaultFlowsPath, file);
         const destFilePath = path.join(flowsPath, file);
         await fsPromises.copyFile(filePath, destFilePath);
-        metadata.push({
-            fileName: file
-        });
     }
-
-    await fsPromises.writeFile(path.join(spacePath, 'flows', 'metadata.json'), JSON.stringify(metadata), 'utf8');
 }
 
 async function copyDefaultPersonalities(spacePath) {
@@ -94,7 +88,7 @@ async function copyDefaultPersonalities(spacePath) {
         metaObj.fileName = file;
         metadata.push(metaObj);
     }
-    await fsPromises.writeFile(path.join(spacePath, 'flows', 'metadata.json'), JSON.stringify(metadata), 'utf8');
+    await fsPromises.writeFile(path.join(spacePath, 'personalities', 'metadata.json'), JSON.stringify(metadata), 'utf8');
 }
 
 function createDefaultAnnouncement(spaceName) {

@@ -7,13 +7,13 @@ export class AddCapabilities{
         try {
             let flows = assistOS.space.getAllFlows();
             let agentFlows = flows.filter((flow) =>{
-                if(flow.class.inputSchema){
+                if(flow.inputSchema){
                         return flow;
                 }
             });
 
-            let operations = agentFlows.filter((flow) => flow.class.inputSchema).map((flow) => ({
-                description: flow.class.description,
+            let operations = agentFlows.filter((flow) => flow.inputSchema).map((flow) => ({
+                description: flow.description,
             }));
             let llm = assistOS.space.getLLM();
 

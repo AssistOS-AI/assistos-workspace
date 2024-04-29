@@ -2,7 +2,6 @@ import {
     Announcement,
     Application,
     constants,
-    Flow,
     PageModel,
     Personality,
     LLM,
@@ -89,7 +88,7 @@ export class Space {
         }
     }
     async refreshPersonalitiesMetadata(){
-        let response = await personalityModule.getPersonalitiesMetadata(assistOS.space.id);
+        let response = JSON.parse(await personalityModule.getPersonalitiesMetadata(assistOS.space.id));
         this.personalitiesMetadata = response.data;
         return this.personalitiesMetadata;
     }
@@ -116,7 +115,7 @@ export class Space {
     stringifyFlows() {
         let arr = [];
         for (let flow of this.flows) {
-            arr.push({name: flow.class.name + "#" + flow.class.id, class: flow.stringifyClass()})
+            arr.push({name: flow.name + "#" + flow.id, class: "export " + flow.toString()})
         }
         return JSON.stringify(arr);
     }
@@ -181,18 +180,6 @@ export class Space {
         let app = this.installedApplications.find((app) => app.name === name);
         return app || console.error(`installed app not found in space, id: ${name}`);
     }
-    async refreshFlowsMetadata(){
-        let response = await flowModule.getFlowsMetadata(assistOS.space.id);
-        this.flowsMetadata = response.data;
-        return this.flowsMetadata;
-    }
-    async getFlowsMetadata(){
-        if(this.flowsMetadata){
-            return this.flowsMetadata;
-        } else {
-            return await this.refreshFlowsMetadata();
-        }
-    }
     getAllFlows() {
         let flows = [];
         for (let app of this.installedApplications) {
@@ -205,20 +192,12 @@ export class Space {
         });
         return flows;
     }
-    async refreshFlow(flowName){
-        let response = JSON.parse(await flowModule.getFlow(flowName));
-        let flowIndex = this.documents.findIndex(flow => flow.name === flowName);
-        let flow = new Flow(response.data);
-        this.flows[flowIndex] = flow;
-        return flow;
-    }
+
     async getFlow(flowName) {
-        let flow = this.flows.find((flow) => flow.class.name === flowName);
-        if(flow){
-           return flow;
-        } else {
-           return await this.refreshFlow(flowName);
-        }
+        let flowClass = await flowModule.getFlow(assistOS.space.id, flowName);
+        let flowIndex = this.flows.findIndex(flow => flow.name === flowName);
+        this.flows[flowIndex] = flowClass[flowName];
+        return flowClass[flowName];
     }
 
 
@@ -228,9 +207,11 @@ export class Space {
 
 
     async refreshPersonality(id){
-        let response = await personalityModule.getPersonality(assistOS.space.id, id);
-        let personalityIndex = this.personalities.findIndex(pers => pers.id === id);
-        let personality = new Personality(response.data);
+        let personalitiesMetadata = await this.getPersonalitiesMetadata(assistOS.space.id);
+        let fileName = personalitiesMetadata.find(pers => pers.id === id).fileName;
+        let response = JSON.parse(await personalityModule.getPersonality(assistOS.space.id, fileName.split(".")[0]));
+        let personalityIndex = this.personalitiesMetadata.findIndex(pers => pers.id === id);
+        let personality = new Personality(JSON.parse(response.data));
         this.personalities[personalityIndex] = personality
         return personality;
     }
@@ -264,24 +245,12 @@ export class Space {
     }
 
     async loadFlows() {
-        let flows = await assistOS.storage.loadFlows(this.id);
+        this.flows = [];
+        let flows = await flowModule.loadFlows(this.id);
         for (let [name, flowClass] of Object.entries(flows)) {
-            this.flows.push(new Flow(flowClass));
+            this.flows.push(flowClass);
         }
-    }
-
-    async createDefaultFlows() {
-        let flows = await assistOS.storage.loadDefaultFlows();
-        for (let [name, flowClass] of Object.entries(flows)) {
-            this.flows.push(new Flow(flowClass));
-        }
-    }
-
-    async createDefaultPersonalities() {
-        let personalities = JSON.parse(await assistOS.storage.loadDefaultPersonalities());
-        for (let personality of personalities) {
-            this.personalities.push(new Personality(personality));
-        }
+        return this.flows;
     }
 
    /* TODO TBD makes sense only if the intent is to have the application also working offline */

@@ -1,25 +1,23 @@
 export class FlowsPage {
     constructor(element, invalidate) {
-        this.refreshFlows = async () => {
-            this.flows = await assistOS.space.refreshFlowsMetadata();
+        this.refreshFlows = async () =>{
+            this.flows = await assistOS.space.loadFlows();
         }
         assistOS.space.observeChange(assistOS.space.getNotificationId(), invalidate, this.refreshFlows);
         this.element = element;
         this.invalidate = invalidate;
         this.spaceChecked = "checked";
-        this.invalidate(()=>{
-            this.flows = assistOS.space.getFlowsMetadata();
-        });
+        this.invalidate(this.refreshFlows);
     }
 
 
     beforeRender() {
         const generateTableRow = (item) => `
-        <flow-unit data-name="${item.class.name}" data-description="${item.class.description}" data-local-action="editAction"></flow-unit>`;
+        <flow-unit data-name="${item.name}" data-description="${item.description}" data-local-action="editAction"></flow-unit>`;
 
-        const sortFlows = (flows) => flows.sort((a, b) => a.class.name.toLowerCase().localeCompare(b.class.name.toLowerCase()));
+        const sortFlows = (flows) => flows.sort((a, b) => a.name.toLowerCase().localeCompare(b.name.toLowerCase()));
 
-        this.flows = assistOS.space.flows;
+
         if (this.flows.length > 0) {
             this.flows = sortFlows(this.flows);
             this.tableRows = this.flows.map(generateTableRow).join("");

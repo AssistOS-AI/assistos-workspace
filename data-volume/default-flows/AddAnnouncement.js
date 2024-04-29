@@ -1,4 +1,4 @@
-export class AddAnnouncement {
+class AddAnnouncement {
     static description = "Adds a new announcement to the current space, a title and text are needed";
     static inputSchema = {
         title: "string",

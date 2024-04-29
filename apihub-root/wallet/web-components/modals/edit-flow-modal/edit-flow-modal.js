@@ -11,8 +11,8 @@ export class EditFlowModal {
         /* TODO Replace getting the flowname from the class name with a static methot getName on the
                 flow itself
          */
-      this.flowName = this.flow.class.name;
-      this.flowContent = this.flow.class.toString();
+      this.flowName = this.flow.name;
+      this.flowContent = this.flow.toString();
     }
     afterRender(){
         this.flowCode = this.element.querySelector("textarea");

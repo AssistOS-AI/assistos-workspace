@@ -132,6 +132,7 @@ class AssistOS {
         assistOS.user = new dependencies.User(await userModule.loadAPIs().loadUser());
         const spaceData = await spaceModule.loadAPIs().loadSpace(spaceId);
         assistOS.space = new dependencies.Space(spaceData);
+        await assistOS.space.loadFlows();
     }
 
     async loadPage(skipAuth = false, skipSpace = false, spaceId) {
@@ -173,7 +174,7 @@ class AssistOS {
     async callFlow(flowName, context, personalityId) {
         let flowObj;
         try {
-            flowObj = initFlow(flowName, context, personalityId);
+            flowObj = await initFlow(flowName, context, personalityId);
         } catch (e) {
             console.error(e);
             return await showApplicationError(e, e, e.stack);
@@ -208,10 +209,10 @@ class AssistOS {
         }
         return response;
 
-        function initFlow(flowName, context, personalityId) {
+        async function initFlow(flowName, context, personalityId) {
             let flow;
             if (assistOS.currentApplicationName === assistOS.configuration.defaultApplicationName) {
-                flow = assistOS.space.getFlow(flowName);
+                 flow = await assistOS.space.getFlow(flowName);
             } else {
                 let app = assistOS.space.getApplicationByName(assistOS.currentApplicationName);
                 flow = app.getFlow(flowName);
@@ -222,16 +223,16 @@ class AssistOS {
             } else {
                 personality = assistOS.space.getPersonalityByName(dependencies.constants.DEFAULT_PERSONALITY_NAME);
             }
-            if (flow.class.inputSchema) {
-                // assistOS.services.validateSchema(context, flow.class.inputSchema, "input");
+            if (flow.inputSchema) {
+                // assistOS.services.validateSchema(context, flow.inputSchema, "input");
             }
             let usedDependencies = [];
-            if (flow.class.dependencies) {
-                for (let functionName of flow.class.dependencies) {
+            if (flow.dependencies) {
+                for (let functionName of flow.dependencies) {
                     usedDependencies.push(dependencies[functionName]);
                 }
             }
-            let flowInstance = new flow.class(...usedDependencies);
+            let flowInstance = new flow(...usedDependencies);
             if (flowInstance.start === undefined) {
                 throw new Error(`Flow ${flowInstance.constructor.name} must have a function named 'start'`);
             }
@@ -240,10 +241,10 @@ class AssistOS {
             apis.forEach(methodName => {
                 flowInstance[methodName] = dependencies.IFlow.prototype[methodName].bind(flowInstance);
             });
-            if (flow.class.inputSchema) {
-                // assistOS.services.validateSchema(context, flow.class.inputSchema, "input");
+            if (flow.inputSchema) {
+                // assistOS.services.validateSchema(context, flow.inputSchema, "input");
             }
-            return {flowInstance: flowInstance, flowClass: flow.class, personality: personality};
+            return {flowInstance: flowInstance, flowClass: flow, personality: personality};
         }
     }
 

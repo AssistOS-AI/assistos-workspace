@@ -10,7 +10,6 @@ import {Document} from "./core/models/Document.js";
 import {Chapter} from "./core/models/Chapter.js";
 import {Paragraph} from "./core/models/Paragraph.js";
 import {Announcement} from "./core/models/Announcement.js";
-import {Flow} from "./core/models/Flow.js";
 import {IFlow} from "./core/models/IFlow.js";
 import {LLM} from "./core/models/LLM.js";
 import {PageModel} from "./core/models/PageModel.js";
@@ -25,7 +24,6 @@ export{
     Chapter,
     Paragraph,
     Announcement,
-    Flow,
     IFlow,
     LLM,
     PageModel,

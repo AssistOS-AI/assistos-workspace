@@ -2,14 +2,13 @@ export class PersonalitiesPage {
     constructor(element,invalidate) {
         this.modal = "showAddPersonalityModal";
         this.element = element;
-        this.notificationId = assistOS.space.getNotificationId();
         this.refreshPersonalities = async ()=>{
             this.personalities = await assistOS.space.refreshPersonalitiesMetadata();
         }
-        assistOS.space.observeChange(this.notificationId, invalidate, this.refreshPersonalities);
+        assistOS.space.observeChange(assistOS.space.getNotificationId(), invalidate, this.refreshPersonalities);
         this.invalidate = invalidate;
         this.invalidate(async() =>{
-            await assistOS.space.getPersonalitiesMetadata();
+            this.personalities = await assistOS.space.getPersonalitiesMetadata();
         });
     }
     beforeRender() {

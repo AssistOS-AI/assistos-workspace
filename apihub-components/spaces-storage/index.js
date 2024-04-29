@@ -16,7 +16,12 @@ const {
     swapEmbeddedObjects,
     getSpace,
     createSpace,
-    addCollaboratorToSpace
+    addCollaboratorToSpace,
+    loadFlows,
+    getFlow,
+    updateFlow,
+    deleteFlow,
+    addFlow
 } = require("./controller");
 
 const bodyReader = require('../apihub-component-middlewares/bodyReader.js')
@@ -33,6 +38,12 @@ function SpaceStorage(server) {
     //server.delete("/spaces/:spaceId", deleteSpace);
 
     server.post("/spaces/collaborators", addCollaboratorToSpace);
+
+    server.get("/spaces/flows/:spaceId", loadFlows);
+    server.get("/spaces/flows/:spaceId/:flowName", getFlow);
+    server.post("/spaces/flows/:spaceId/:flowName", addFlow);
+    server.put("/spaces/flows/:spaceId/:flowName", updateFlow);
+    server.delete("/spaces/flows/:spaceId/:flowName", deleteFlow);
 
     server.get("/spaces/fileObject/:spaceId/:objectType", getFileObjectsMetadata);
     server.get("/spaces/fileObject/:spaceId/:objectType/:objectId", getFileObject);

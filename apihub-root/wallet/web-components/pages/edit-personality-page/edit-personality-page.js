@@ -4,8 +4,8 @@ export class EditPersonalityPage{
         this.element = element;
         this.invalidate=invalidate;
         this.knowledgeArray = [];
-        this.invalidate(()=>{
-            this.personality = assistOS.space.getPersonality(window.location.hash.split("/")[3]);
+        this.invalidate(async ()=>{
+            this.personality = await assistOS.space.getPersonality(window.location.hash.split("/")[3]);
         });
     }
     beforeRender(){
@@ -81,14 +81,12 @@ export class EditPersonalityPage{
         const conditions = {"verifyPhotoSize": {fn:verifyPhotoSize, errorMessage:"Image too large! Image max size: 1MB"} };
         let formInfo = await assistOS.UI.extractFormInformation(_target, conditions);
         if(formInfo.isValid) {
-            let personalityData={
-                name:formInfo.data.name,
-                description:formInfo.data.description,
-                image: formInfo.data.photo
-            }
+            this.personality.name = formInfo.data.name;
+            this.personality.description = formInfo.data.description;
+            this.personality.image = this.photo;
             await assistOS.callFlow("UpdatePersonality", {
                 spaceId: assistOS.space.id,
-                personalityData: personalityData,
+                personalityData: this.personality,
                 personalityId: this.personality.id
             });
             await this.openPersonalitiesPage();

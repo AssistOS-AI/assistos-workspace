@@ -132,6 +132,7 @@ export class AddFlowModal {
         let formInfo = await assistOS.UI.extractFormInformation(_target);
         if (formInfo.isValid) {
             await assistOS.callFlow("AddFlow", {
+                spaceId: assistOS.space.id,
                 code: formInfo.data.code
             });
             assistOS.space.notifyObservers(assistOS.space.getNotificationId());
