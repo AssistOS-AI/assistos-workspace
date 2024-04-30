@@ -10,7 +10,7 @@ export class UpdateParagraphText {
     async start(context) {
         try {
             let documentModule = this.loadModule("document");
-            await documentModule.updateParagraphText(context.spaceId, context.documentId, context.chapterId, context.paragraphId, context.text);
+            await documentModule.updateParagraphText(context.spaceId, context.documentId, context.paragraphId, context.text);
             this.return(context.paragraphId);
         } catch (e) {
             this.fail(e);

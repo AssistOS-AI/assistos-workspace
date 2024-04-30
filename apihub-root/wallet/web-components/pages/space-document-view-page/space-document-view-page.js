@@ -3,11 +3,10 @@ export class SpaceDocumentViewPage {
         this.element = element;
         this.invalidate = invalidate;
         this.refreshDocument = async () =>{
-            this._document = assistOS.space.getDocument(this._document.id);
+            this._document = await assistOS.space.getDocument(this._document.id);
         }
         this.invalidate(async ()=>{
             this._document = await assistOS.space.getDocument(window.location.hash.split("/")[3]);
-            this._document.observeChange(this._document.getNotificationId() + ":document-view-page", invalidate, this.refreshDocument);
         });
         this.controller = new AbortController();
         this.boundedFn = this.highlightElement.bind(this, this.controller);
@@ -15,6 +14,7 @@ export class SpaceDocumentViewPage {
         document.addEventListener("click", this.boundedFn, {signal: this.controller.signal});
     }
     beforeRender() {
+        this._document.observeChange(this._document.getNotificationId() + ":document-view-page", this.invalidate, this.refreshDocument);
         this.chaptersContainer = "";
         this.docTitle = this._document.title;
         this.abstractText = this._document.abstract || "No abstract has been set or generated for this document";
@@ -96,6 +96,9 @@ export class SpaceDocumentViewPage {
                     return;
                 }
                 let paragraphText = assistOS.UI.sanitize(assistOS.UI.customTrim(paragraph.innerText));
+                if(!paragraphText){
+                    paragraphText = "";
+                }
                 if (paragraphText !== currentParagraph.text) {
                     await assistOS.callFlow("UpdateParagraphText", {
                         spaceId: assistOS.space.id,
@@ -104,7 +107,7 @@ export class SpaceDocumentViewPage {
                         paragraphId: currentParagraph.id,
                         text: paragraphText
                     });
-                    this._document.notifyObservers(this._document.getNotificationId() + ":document-view-page:" + "chapter:" + `${this.chapter.id}`);
+                    this._document.notifyObservers(currentParagraph.id);
                 }
             }, 1000);
             this.previouslySelectedParagraph["timer"] = timer;
@@ -127,7 +130,7 @@ export class SpaceDocumentViewPage {
                         } else {
                             assistOS.space.currentParagraphId = null;
                         }
-                        this.invalidate(this.refreshDocument);
+                        this._document.notifyObservers(this.chapter.id);
                     }
                     await timer.stop();
                 } else {
@@ -367,7 +370,7 @@ export class SpaceDocumentViewPage {
             paragraphId1: currentParagraphId,
             paragraphId2: adjacentParagraphId
         });
-        this._document.notifyObservers(this._document.getNotificationId() + ":document-view-page:" + "chapter:" + `${chapterId}`);
+        this._document.notifyObservers(chapterId);
     }
 
     editTitle(title) {
@@ -384,6 +387,9 @@ export class SpaceDocumentViewPage {
             title.parentElement.setAttribute("id", "highlighted-element");
             let timer = assistOS.services.SaveElementTimer(async () => {
                 let titleText = assistOS.UI.sanitize(assistOS.UI.customTrim(title.innerText));
+                if(!titleText){
+                    titleText = "";
+                }
                 if (titleText !== this._document.title && titleText !== "") {
                     await assistOS.callFlow("UpdateDocumentTitle", {
                         spaceId: assistOS.space.id,
@@ -425,6 +431,9 @@ export class SpaceDocumentViewPage {
             abstractSection.setAttribute("id", "highlighted-element");
             let timer = assistOS.services.SaveElementTimer(async () => {
                 let abstractText = assistOS.UI.sanitize(assistOS.UI.customTrim(abstract.innerText));
+                if(!abstractText){
+                    abstractText = "";
+                }
                 if (abstractText !== this._document.abstract && abstractText !== "") {
                     await assistOS.callFlow("UpdateAbstract", {
                         spaceId: assistOS.space.id,
@@ -496,7 +505,7 @@ export class SpaceDocumentViewPage {
             position: position
         });
         assistOS.space.currentChapterId = chapter.id;
-        this._document.notifyObservers(this._document.getNotificationId() + ":document-view-page:" + "chapter:" + `${assistOS.space.currentChapterId}`);
+        this._document.notifyObservers(assistOS.space.currentChapterId);
     }
 
     async openDocumentsPage() {

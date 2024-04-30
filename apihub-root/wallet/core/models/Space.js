@@ -62,11 +62,15 @@ export class Space {
         }
     }
     async getDocument(documentId){
+        let documentsMetadata = await this.getDocumentsMetadata();
         let documentData = await documentModule.getDocument(this.id, documentId);
-        let documentIndex = this.documents.findIndex(doc => doc.id === documentId);
+        let documentIndex = documentsMetadata.findIndex(doc => doc.id === documentId);
         let document = new Document(documentData);
         this.documents[documentIndex] = document;
         return document;
+    }
+    getDocumentFromCache(documentId){
+        return this.documents.find(doc => doc.id === documentId);
     }
     async getDocumentsMetadata(){
         this.documentsMetadata = await documentModule.getDocumentsMetadata(assistOS.space.id);

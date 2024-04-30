@@ -1,5 +1,6 @@
-import { Paragraph } from "../../imports.js";
+import {Paragraph} from "../../imports.js";
 
+const documentModule = require("assistos").loadModule("document");
 export class Chapter {
     constructor(chapterData) {
         this.position = chapterData.position;
@@ -46,7 +47,12 @@ export class Chapter {
         }
         return JSON.stringify(this, replacer);
     }
-
+    async refreshParagraph(documentId, paragraphId) {
+        let paragraphData = await documentModule.getParagraph(assistOS.space.id, documentId, paragraphId);
+        let paragraphIndex = this.paragraphs.findIndex(paragraph => paragraph.id === paragraphId);
+        this.paragraphs[paragraphIndex] = new Paragraph(paragraphData);
+        return this;
+    }
     addParagraph(paragraphData){
         //if position is not specified splice converts undefined to 0
         this.paragraphs.splice(paragraphData.position,0,new Paragraph(paragraphData));
