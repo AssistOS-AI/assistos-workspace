@@ -151,10 +151,10 @@ export class Document {
     getChapter(chapterId) {
         return this.chapters.find(chapter => chapter.id === chapterId);
     }
-    async refreshChapter(chapterId){
-        let response = JSON.parse(await documentModule.getChapter(chapterId));
+    async refreshChapter(documentId ,chapterId){
+        let chapterData = await documentModule.getChapter(assistOS.space.id, documentId, chapterId);
         let chapterIndex = this.getChapterIndex(chapterId);
-        let chapter = new Chapter(response.data)
+        let chapter = new Chapter(chapterData)
         this.chapters[chapterIndex] = chapter;
         return chapter;
     }

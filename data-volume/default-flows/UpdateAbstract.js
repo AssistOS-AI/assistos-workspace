@@ -8,7 +8,7 @@ export class UpdateAbstract {
     async start(context) {
         try {
             let documentModule = this.loadModule("document");
-            await documentModule.updateAbstract(context.spaceId, context.documentId, context.text);
+            await documentModule.updateDocumentAbstract(context.spaceId, context.documentId, context.text);
             this.return(context.documentId);
         } catch (e) {
             this.fail(e);

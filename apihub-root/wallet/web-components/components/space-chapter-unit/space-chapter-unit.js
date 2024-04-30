@@ -1,20 +1,29 @@
 export class SpaceChapterUnit {
     constructor(element, invalidate) {
         this.element = element;
-        this._document = assistOS.space.getDocument(window.location.hash.split("/")[3]);
+        this.invalidate = invalidate;
+        this._document =  assistOS.space.getDocumentFromCache(window.location.hash.split("/")[3]);
         let chapterId = this.element.getAttribute("data-chapter-id");
         this.chapter = this._document.getChapter(chapterId);
         this.refreshChapter = async () =>{
-            this.chapter = this._document.refreshChapter(this.chapter.id);
+            this.chapter = await this._document.refreshChapter(this._document.id, this.chapter.id);
         };
-        this._document.observeChange(this._document.getNotificationId() + ":document-view-page:" + "chapter:" + `${chapterId}`, invalidate, this.refreshChapter);
-        this.invalidate = invalidate;
-        this.invalidate();
+        this.refreshParagraph = (paragraphId) =>{
+            return async ()=>{
+                this.chapter = await this.chapter.refreshParagraph(this._document.id, paragraphId);
+            };
+        }
+
         this.addParagraphOnCtrlEnter = this.addParagraphOnCtrlEnter.bind(this);
         this.element.removeEventListener('keydown', this.addParagraphOnCtrlEnter);
         this.element.addEventListener('keydown', this.addParagraphOnCtrlEnter);
+        this.invalidate();
     }
     beforeRender() {
+        this._document.observeChange(this.chapter.id, this.invalidate, this.refreshChapter);
+        for(let paragraph of this.chapter.paragraphs){
+            this._document.observeChange(paragraph.id, this.invalidate, this.refreshParagraph(paragraph.id));
+        }
         let chapterId = this.element.getAttribute("data-chapter-id");
         this.chapter = this._document.getChapter(chapterId);
         this.chapterTitle=this.chapter.title;
@@ -76,7 +85,18 @@ export class SpaceChapterUnit {
         });
         this.invalidate(this.refreshChapter);
     }
-
+    highlightChapter(){
+        this.deselectPreviousElements();
+        this.chapterUnit.setAttribute("id", "highlighted-element");
+        assistOS.space.currentChapterId = this.chapter.id;
+        if(this._document.chapters.length===1){
+            return;
+        }
+        let foundElement = this.chapterUnit.querySelector('.chapter-arrows');
+        foundElement.style.display = "flex";
+        let xMark = this.chapterUnit.querySelector('.delete-chapter');
+        xMark.style.visibility = "visible";
+    }
     async editChapterTitle(title) {
         this.deselectPreviousElements(title);
         title.setAttribute("contenteditable", "true");
@@ -92,6 +112,9 @@ export class SpaceChapterUnit {
 
         let timer = assistOS.services.SaveElementTimer(async () => {
             let titleText = assistOS.UI.sanitize(assistOS.UI.customTrim(title.innerText))
+            if(!titleText){
+                titleText = "";
+            }
             if (titleText !== this.chapter.title && titleText !== "") {
                 await assistOS.callFlow("UpdateChapterTitle", {
                     spaceId: assistOS.space.id,
