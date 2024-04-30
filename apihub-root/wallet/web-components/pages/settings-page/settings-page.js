@@ -1,9 +1,10 @@
+const userModule = require('assistos').loadModule('user').loadAPIs();
 export class SettingsPage {
     constructor(element, invalidate) {
         this.element = element;
         this.invalidate = invalidate;
         this.invalidate(async () => {
-            this.users = JSON.parse(await assistOS.services.getUsersSecretsExist());
+            this.users = await userModule.getUsersSecretsExist(assistOS.space.id);
             this.apiKeys = assistOS.space.apiKeys
         });
     }

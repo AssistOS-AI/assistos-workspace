@@ -2,7 +2,38 @@ const cookie = require('../apihub-component-utils/cookie.js');
 const utils = require('../apihub-component-utils/utils.js');
 
 const User=require('./user.js');
-
+async function storeSecret(request, response) {
+    const spaceId = request.params.spaceId;
+    const secrets = request.body;
+    try {
+        await User.APIs.storeSecret(spaceId, secrets);
+        utils.sendResponse(response, 200, "application/json", {
+            success: true,
+            message: "Secret stored successfully"
+        });
+    } catch (error) {
+        utils.sendResponse(response, 500, "application/json", {
+            success: false,
+            message: error.message
+        });
+    }
+}
+async function getUsersSecretsExist(request, response){
+    try {
+        let spaceId = request.params.spaceId;
+        const secretsExistArr = await User.APIs.getUsersSecretsExist(spaceId);
+        utils.sendResponse(response, 200, "application/json", {
+            data: secretsExistArr,
+            success: true,
+            message: "Secrets exist status loaded successfully"
+        });
+    } catch (e) {
+        utils.sendResponse(response, 500, "application/json", {
+            success: false,
+            message: JSON.stringify(e)
+        });
+    }
+}
 async function registerUser(request, response) {
     const userData = request.body;
     if(!userData.name){
@@ -113,6 +144,8 @@ async function logoutUser(request, response) {
 }
 
 module.exports = {
+    storeSecret,
+    getUsersSecretsExist,
     registerUser,
     activateUser,
     loginUser,

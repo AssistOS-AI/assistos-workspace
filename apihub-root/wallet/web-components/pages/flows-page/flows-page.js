@@ -10,7 +10,6 @@ export class FlowsPage {
         this.invalidate(this.refreshFlows);
     }
 
-
     beforeRender() {
         const generateTableRow = (item) => `
         <flow-unit data-name="${item.name}" data-description="${item.description}" data-local-action="editAction"></flow-unit>`;

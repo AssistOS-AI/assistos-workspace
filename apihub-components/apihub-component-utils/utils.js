@@ -44,9 +44,12 @@ async function sendFileToClient(response, resource, fileType) {
                 contentType = "font/woff";
                 break;
             default:
-                return sendResponse(response, 500, "text/plain", "Internal Server Error, file type not supported");
+                return sendResponse(response, 500, "text/plain", {
+                    message: "File type not supported",
+                    success: false
+                });
         }
-        sendResponse(response, 200, contentType, resource);
+        sendResponse(response, 200, contentType , resource);
     } catch (error) {
         throw Error(error);
     }

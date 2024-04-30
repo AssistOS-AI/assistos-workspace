@@ -4,6 +4,8 @@ const {
     loginUser,
     loadUser,
     logoutUser,
+    getUsersSecretsExist,
+    storeSecret
 } = require("./controller");
 
 const bodyReader = require('../apihub-component-middlewares/bodyReader.js')
@@ -50,6 +52,8 @@ function UserStorage(server) {
 
 
     server.use("/users/*", bodyReader);
+    server.get("/users/secrets/:spaceId", getUsersSecretsExist);
+    server.post("/users/secrets/:spaceId", storeSecret);
 
     server.get("/users/verify", async (request, response) => {
         await activateUser(request, response)

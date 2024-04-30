@@ -23,7 +23,7 @@ async function storeGITCredentials(stringData) {
 }
 
 async function getUsersSecretsExist() {
-    return await assistOS.storage.getUsersSecretsExist(assistOS.space.id);
+
 }
 async function initUser(spaceId) {
     let space = assistOS.loadModule("space");
