@@ -19,6 +19,7 @@ export class Space {
         this.users = spaceData.users || [];
         this.flows = [];
         this.admins = [];
+        this.chat = spaceData.chat
         this.apiKeys = spaceData.apiKeys || {};
         this.documents = (spaceData.documents|| []).map(documentData => new Document(documentData)).reverse();
         this.pages = spaceData.pages || [];
@@ -235,16 +236,4 @@ export class Space {
         }
         return this.flows;
     }
-
-   /* TODO TBD makes sense only if the intent is to have the application also working offline */
-    createDefaultAnnouncement(spaceData) {
-        let defaultAnnouncement = {
-            id: assistOS.services.generateId(),
-            title: "Welcome to AIAuthor!",
-            text: `Space ${this.name} was successfully created. You can now add documents, users and settings to your space.`,
-            date: new Date().toISOString().split('T')[0]
-        };
-        this.announcements.push(new Announcement(defaultAnnouncement));
-    }
-
 }

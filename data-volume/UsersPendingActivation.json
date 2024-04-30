@@ -1,1 +1,11 @@
-{}
+{
+  "aebb6da0972905d1866619be918a4a69baa6c8e8318cc20822962b9fac1a22b1f483ce620554aa15329af94e143c8f48bd45ce3d71511ab894ec3ee424718b6b": {
+    "name": "Axiologic",
+    "email": "victor@axiologic.net",
+    "password": "71f4e81077d5a7ee4042e74cdecff49cd7997e243e1933f210e6fe34bebdf4a7",
+    "creationDate": "2024-04-30T11:18:48Z",
+    "verificationToken": "aebb6da0972905d1866619be918a4a69baa6c8e8318cc20822962b9fac1a22b1f483ce620554aa15329af94e143c8f48bd45ce3d71511ab894ec3ee424718b6b",
+    "verificationTokenIssueDate": "2024-04-30T11:18:48Z",
+    "verificationTokenExpirationDate": "2024-04-30T11:48:48Z"
+  }
+}

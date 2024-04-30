@@ -21,7 +21,8 @@ const {
     getFlow,
     updateFlow,
     deleteFlow,
-    addFlow
+    addFlow,
+    getAgent
 } = require("./controller");
 
 const bodyReader = require('../apihub-component-middlewares/bodyReader.js')
@@ -51,6 +52,9 @@ function SpaceStorage(server) {
     server.put("/spaces/fileObject/:spaceId/:objectType/:objectId", updateFileObject);
     server.delete("/spaces/fileObject/:spaceId/:objectType/:objectId", deleteFileObject);
 
+    server.get("/spaces/:spaceId/agents",getAgent)
+    server.get("/spaces/:spaceId/agents/:agentId",getAgent)
+
     server.get("/spaces/containerObject/meta/:spaceId/:objectType", getContainerObjectsMetadata);
     server.get("/spaces/containerObject/:spaceId/:objectId", getContainerObject);
     server.post("/spaces/containerObject/:spaceId/:objectType", addContainerObject);
@@ -69,6 +73,8 @@ function SpaceStorage(server) {
     server.post("/spaces", createSpace);
     server.post("/spaces/collaborators", addCollaboratorToSpace);
     //server.put("/spaces/:spaceId", storeSpace);
+
+
 }
 
 module.exports = SpaceStorage;

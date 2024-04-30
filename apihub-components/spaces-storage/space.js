@@ -13,6 +13,7 @@ const data = require('../apihub-component-utils/data.js');
 const date = require('../apihub-component-utils/date.js');
 const file = require('../apihub-component-utils/file.js');
 const openAI = require('../apihub-component-utils/openAI.js');
+const utils = require("../apihub-component-utils/utils");
 
 
 function getSpacePath(spaceId) {
@@ -82,7 +83,7 @@ async function copyDefaultPersonalities(spacePath) {
         const destFilePath = path.join(personalitiesPath, file);
         await fsPromises.copyFile(filePath, destFilePath);
         let metaObj = {};
-        for(let key of personality.metadata){
+        for (let key of personality.metadata) {
             metaObj[key] = personality[key];
         }
         metaObj.fileName = file;
@@ -92,7 +93,7 @@ async function copyDefaultPersonalities(spacePath) {
 }
 
 function createDefaultAnnouncement(spaceName) {
-    const defaultSpaceAnnouncement= require('./templates/defaultSpaceAnnouncement.json');
+    const defaultSpaceAnnouncement = require('./templates/defaultSpaceAnnouncement.json');
     const currentDate = date.getCurrentUTCDate();
     const announcementId = crypto.generateId();
     return data.fillTemplate(defaultSpaceAnnouncement,
@@ -104,11 +105,11 @@ function createDefaultAnnouncement(spaceName) {
 }
 
 async function createSpace(spaceName, userId, apiKey) {
-    const defaultSpaceTemplate= require('./templates/defaultSpaceTemplate.json');
-    const defaultApiKeyTemplate= require('./templates/defaultApiKeyTemplate.json');
-    const spaceValidationSchema= require('./templates/spaceValidationSchema.json');
+    const defaultSpaceTemplate = require('./templates/defaultSpaceTemplate.json');
+    const defaultApiKeyTemplate = require('./templates/defaultApiKeyTemplate.json');
+    const spaceValidationSchema = require('./templates/spaceValidationSchema.json');
 
-    const User=require('../users-storage/user.js');
+    const User = require('../users-storage/user.js');
     const rollback = async (spacePath) => {
         try {
             await fsPromises.rm(spacePath, {recursive: true, force: true});
@@ -175,10 +176,64 @@ async function createSpace(spaceName, userId, apiKey) {
         error.statusCode = 500;
         throw error;
     }
-    let lightDBEnclaveClient = enclave.initialiseLightDBEnclave(spaceId);
+    const lightDBEnclaveClient = enclave.initialiseLightDBEnclave(spaceId);
     await $$.promisify(lightDBEnclaveClient.createDatabase)(spaceId);
     await $$.promisify(lightDBEnclaveClient.grantWriteAccess)($$.SYSTEM_IDENTIFIER);
+    await createSpaceChat(lightDBEnclaveClient, spaceId, spaceName);
     return spaceObj;
+}
+async function getSpaceChat(spaceId) {
+    const lightDBEnclaveClient = enclave.initialiseLightDBEnclave(spaceId);
+    const tableName = `spaceChat_${spaceId}`
+    let records = await $$.promisify(lightDBEnclaveClient.filter)($$.SYSTEM_IDENTIFIER, tableName);
+    let chat=[]
+    for(let record of records){
+        chat.push({
+            role: record.data.role,
+            message: record.data.message,
+            date:date.parseUnixDate(record.__timestamp)
+        })
+    }
+    return chat;
+
+}
+async function createSpaceChat(lightDBEnclaveClient, spaceId, spaceName) {
+    const welcomeChatMessageTemplate = require('./templates/defaultSpaceChatMessageTemplate.json');
+    spaceName = spaceName.endsWith('s') ? spaceName + "'" : spaceName + "'s";
+    const tableName = `spaceChat_${spaceId}`
+    const primaryKey = `${spaceId}_welcomeMessage`;
+    const welcomeMessage = data.fillTemplate(welcomeChatMessageTemplate, {spaceName: spaceName});
+    await lightDBEnclaveClient.insertRecord($$.SYSTEM_IDENTIFIER, tableName, primaryKey, {
+        data: [{
+            role: "Admin",
+            message: welcomeMessage
+        }]
+    })
+}
+
+async function getSpacePersonalities(spaceId) {
+    const personalitiesFolder = path.join(getSpacePath(spaceId), 'personalities');
+    const personalities = {};
+
+    try {
+        const files = await fsPromises.readdir(personalitiesFolder);
+        for (const file of files) {
+            const filePath = path.join(personalitiesFolder, file);
+            const data = await fsPromises.readFile(filePath, 'utf8');
+            const personality = JSON.parse(data);
+            personalities[personality.id] = {
+                name: personality.name,
+                description: personality.description,
+                metadata: personality.metadata,
+                image: personality.image,
+                welcomingMessage: `Welcome! As a ${personality.name}, I'm here to help you navigate and thrive in this space.`
+            };
+        }
+    } catch (error) {
+        console.error('Failed to read directory or file:', error);
+    }
+
+    return personalities;
 }
 
 async function createSpaceStatus(spacePath, spaceObject) {
@@ -254,20 +309,24 @@ async function saveSpaceAPIKeySecret(spaceId, apiKey) {
 
 async function storeSpaceSecret(spaceId, secret) {
 }
-function getApplicationPath(spaceId,appName){
+
+function getApplicationPath(spaceId, appName) {
     return path.join(getSpacePath(spaceId), 'applications', appName);
 }
+
 async function updateSpaceStatus(spaceId, spaceStatusObject) {
     const spacePath = getSpacePath(spaceId)
     const spaceStatusPath = path.join(spacePath, 'status', `status.json`);
     await fsPromises.writeFile(spaceStatusPath, JSON.stringify(spaceStatusObject, null, 2), {encoding: 'utf8'});
 }
-async function uninstallApplication(spaceId,appName){
+
+async function uninstallApplication(spaceId, appName) {
     const spaceStatusObject = await getSpaceStatusObject(spaceId);
     spaceStatusObject.installedApplications = spaceStatusObject.installedApplications.filter(application => application.name !== appName);
     await updateSpaceStatus(spaceId, spaceStatusObject);
-    await fsPromises.rm(getApplicationPath(spaceId,appName), {recursive: true, force: true});
+    await fsPromises.rm(getApplicationPath(spaceId, appName), {recursive: true, force: true});
 }
+
 module.exports = {
     APIs: {
         addAnnouncement,
@@ -276,14 +335,15 @@ module.exports = {
         getSpaceStatusObject,
         updateSpaceStatus,
         deleteSpace,
-        uninstallApplication
+        uninstallApplication,
+        getSpaceChat
     },
     templates: {
-        defaultApiKeyTemplate:require('./templates/defaultApiKeyTemplate.json'),
-        defaultSpaceAnnouncement:require('./templates/defaultSpaceAnnouncement.json'),
-        defaultSpaceNameTemplate:require('./templates/defaultSpaceNameTemplate.json'),
-        defaultSpaceTemplate:require('./templates/defaultSpaceTemplate.json'),
-        spaceValidationSchema:require('./templates/spaceValidationSchema.json')
+        defaultApiKeyTemplate: require('./templates/defaultApiKeyTemplate.json'),
+        defaultSpaceAnnouncement: require('./templates/defaultSpaceAnnouncement.json'),
+        defaultSpaceNameTemplate: require('./templates/defaultSpaceNameTemplate.json'),
+        defaultSpaceTemplate: require('./templates/defaultSpaceTemplate.json'),
+        spaceValidationSchema: require('./templates/spaceValidationSchema.json')
     }
 }
 

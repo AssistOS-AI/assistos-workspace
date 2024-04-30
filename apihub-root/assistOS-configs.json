@@ -10,10 +10,6 @@
       "path": "./wallet/core/services/LlmAnimationService.js"
     },
     {
-      "name": "AuthenticationService",
-      "path": "./wallet/core/services/AuthenticationService.js"
-    },
-    {
       "name": "UtilsService",
       "path": "./wallet/core/services/UtilsService.js"
     },

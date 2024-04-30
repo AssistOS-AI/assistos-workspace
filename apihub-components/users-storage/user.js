@@ -336,7 +336,9 @@ async function getActivationFailHTML(failReason) {
         failReason: failReason
     })
 }
-
+async function getUserActiveAgent(){
+    getUserActiveAgentId
+}
 module.exports = {
     APIs: {
         registerUser,

@@ -3,7 +3,10 @@ export class AgentPage {
         this.element = element;
         this.invalidate = invalidate;
         assistOS.space.observeChange(assistOS.space.getNotificationId(),invalidate);
-        this.agent = assistOS.space.getAgent();
+        //this.agent = assistOS.space.getAgent();
+        this.agent={
+            conversationHistory: [],
+        }
         this.invalidate();
     }
 

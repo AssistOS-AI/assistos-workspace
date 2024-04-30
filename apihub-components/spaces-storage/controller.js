@@ -633,6 +633,7 @@ async function getSpace(request, response) {
         }
 
         let spaceObject = await space.APIs.getSpaceStatusObject(spaceId);
+        spaceObject.chat=await space.APIs.getSpaceChat(spaceId);
         await user.APIs.updateUsersCurrentSpace(userId, spaceId);
         utils.sendResponse(response, 200, "application/json", {
             success: true,
@@ -751,7 +752,10 @@ async function addCollaboratorToSpace(request, response) {
     }
 
 }
-
+async function getAgent(request, response) {
+    const agentId= request.params.agentId;
+    const agent= user.APIs.getUserActiveAgentId(agentId);
+}
 
 module.exports = {
     getFileObjectsMetadata,
@@ -776,5 +780,6 @@ module.exports = {
     getFlow,
     addFlow,
     updateFlow,
-    deleteFlow
+    deleteFlow,
+    getAgent
 }

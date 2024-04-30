@@ -1,5 +1,5 @@
 function getCurrentUnixTime() {
-    return Math.floor(Date.now() / 1000);
+    return Date.now()
 }
 function incrementUnixTime(unixTimestamp, incrementObject) {
     const {seconds = 0, minutes = 0, hours = 0, days = 0, months = 0, years = 0} = incrementObject;
@@ -53,6 +53,18 @@ function compareUTCDates(d1, d2) {
 function compareUnixDates(t1, t2) {
     return t1 - t2;
 }
+function parseUnixDate(timestamp_ms) {
+    const date = new Date(timestamp_ms);
+
+    return {
+        year: String(date.getUTCFullYear()),
+        month: String(date.getUTCMonth() + 1).padStart(2, '0'),
+        day: String(date.getUTCDate()).padStart(2, '0'),
+        hour: String(date.getUTCHours()).padStart(2, '0'),
+        min: String(date.getUTCMinutes()).padStart(2, '0'),
+        second: String(date.getUTCSeconds()).padStart(2, '0')
+    };
+}
 
 
 module.exports = {
@@ -61,5 +73,6 @@ module.exports = {
     incrementUTCDate,
     incrementUnixTime,
     compareUTCDates,
-    compareUnixDates
+    compareUnixDates,
+    parseUnixDate
 };
