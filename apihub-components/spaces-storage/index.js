@@ -22,7 +22,8 @@ const {
     updateFlow,
     deleteFlow,
     addFlow,
-    getAgent
+    getAgent,
+    addSpaceChatMessage
 } = require("./controller");
 
 const bodyReader = require('../apihub-component-middlewares/bodyReader.js')
@@ -73,7 +74,7 @@ function SpaceStorage(server) {
     server.post("/spaces", createSpace);
     server.post("/spaces/collaborators", addCollaboratorToSpace);
     //server.put("/spaces/:spaceId", storeSpace);
-
+    server.post("/spaces/:spaceId/chat",addSpaceChatMessage);
 
 }
 

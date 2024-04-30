@@ -143,9 +143,11 @@ class AssistOS {
     async changeAgent(agentId) {
         await this.loadAgent(assistOS.space.id,agentId);
     }
-
+    async createSpace(spaceName, apiKey) {
+        await spaceModule.loadAPIs().createSpace(spaceName, apiKey);
+        await this.loadPage(false,true);
+    }
     async loadPage(skipAuth = false, skipSpace = false, spaceId) {
-        debugger
         const initPage = async () => {
             const insertSidebar = () => {
                 if (!document.querySelector("left-sidebar")) {

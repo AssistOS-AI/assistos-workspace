@@ -36,9 +36,9 @@ export class AddSpaceModal {
                 if (!keyValidation.success) {
                     throw Error(keyValidation.error);
                 }
-                await assistOS.services.createSpace(spaceName,apiKey);
+                await assistOS.createSpace(spaceName,apiKey);
                 assistOS.UI.closeModal(_target);
-               await assistOS.loadPage(false,true);
+
             } catch (error) {
                 showApplicationError('Failed Creating Space', `Encountered an Issue creating the space ${formData.data.name}`,
                     error);

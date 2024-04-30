@@ -1,9 +1,9 @@
+const spaceModule=require("assistos").loadModule("space");
 export class AgentPage {
     constructor(element, invalidate) {
         this.element = element;
         this.invalidate = invalidate;
         assistOS.space.observeChange(assistOS.space.getNotificationId(),invalidate);
-        //this.agent = assistOS.space.getAgent();
         this.agent={
             conversationHistory: [],
         }
@@ -11,17 +11,19 @@ export class AgentPage {
     }
 
     beforeRender() {
+        this.chat=assistOS.space.chat
+
         let stringHTML = "";
-        for (let reply of this.agent.conversationHistory) {
-            if (reply.role === "user") {
+        for (let reply of this.chat) {
+            if ( reply.role === "user") {
                 stringHTML += `
                 <div class="chat-box-container user">
-                 <div class="chat-box user-box">${reply.content}</div>
+                 <div class="chat-box user-box">${reply.message}</div>
                 </div>`;
-            } else if (reply.role === "assistant") {
+            } else if (reply.role === "Admin" || reply.role === "assistant") {
                 stringHTML += `
                 <div class="chat-box-container robot">
-                 <div class="chat-box robot-box">${reply.content}</div>
+                 <div class="chat-box robot-box">${reply.message}</div>
                 </div>`;
             }
         }
@@ -111,12 +113,14 @@ export class AgentPage {
 
     async sendMessage(_target) {
         let formInfo = await assistOS.UI.extractFormInformation(_target);
-        let userPrompt = assistOS.UI.sanitize(assistOS.UI.customTrim(formInfo.data.input));
+        let userMessage = assistOS.UI.sanitize(assistOS.UI.customTrim(formInfo.data.input));
         formInfo.elements.input.element.value = "";
-        if (userPrompt === "" || userPrompt === null || userPrompt === undefined) {
+        if (userMessage === "" || userMessage === null || userMessage === undefined) {
             return;
         }
-        await this.displayMessage("user", userPrompt);
+        await this.displayMessage("user", userMessage);
+        debugger
+        await spaceModule.loadAPIs().addSpaceChatMessage(assistOS.space.id, userMessage)
         let agentMessage;
         try {
             agentMessage = await assistOS.services.analyzeRequest(formInfo.data.input, this.refreshRightPanel.bind(this));

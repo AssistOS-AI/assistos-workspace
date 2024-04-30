@@ -617,7 +617,23 @@ async function swapEmbeddedObjects(request, response) {
     }
 }
 
-
+async function addSpaceChatMessage(request,response){
+    const spaceId= request.params.spaceId;
+    const userId= request.userId;
+    const messageData= request.body;
+    try {
+        await space.APIs.addSpaceChatMessage(spaceId, userId, messageData);
+        utils.sendResponse(response, 200, "application/json", {
+            success: true,
+            message: `Message added successfully`
+        });
+    }catch(error){
+        utils.sendResponse(response, 500, "application/json", {
+            success: false,
+            message: error
+        });
+    }
+}
 /* TODO constant object mapping of content types to avoid writing manually the content type of a response
 *   and move the cookie verification authentication, rights, etc in a middleware */
 async function getSpace(request, response) {
@@ -774,6 +790,7 @@ module.exports = {
     swapEmbeddedObjects,
     deleteEmbeddedObject,
     getSpace,
+    addSpaceChatMessage,
     createSpace,
     addCollaboratorToSpace,
     loadFlows,

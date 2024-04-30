@@ -197,6 +197,18 @@ async function getSpaceChat(spaceId) {
     return chat;
 
 }
+async function  addSpaceChatMessage(spaceId,userId,messageData){
+    const lightDBEnclaveClient = enclave.initialiseLightDBEnclave(spaceId);
+    const tableName = `spaceChat_${spaceId}`
+    const primaryKey = `${userId}_${date.getCurrentUnixTime()}`
+    await lightDBEnclaveClient.insertRecord($$.SYSTEM_IDENTIFIER, tableName, primaryKey, {
+        data: {
+            role: "user",
+            message: messageData
+        }
+    })
+}
+
 async function createSpaceChat(lightDBEnclaveClient, spaceId, spaceName) {
     const welcomeChatMessageTemplate = require('./templates/defaultSpaceChatMessageTemplate.json');
     spaceName = spaceName.endsWith('s') ? spaceName + "'" : spaceName + "'s";
@@ -204,10 +216,10 @@ async function createSpaceChat(lightDBEnclaveClient, spaceId, spaceName) {
     const primaryKey = `${spaceId}_welcomeMessage`;
     const welcomeMessage = data.fillTemplate(welcomeChatMessageTemplate, {spaceName: spaceName});
     await lightDBEnclaveClient.insertRecord($$.SYSTEM_IDENTIFIER, tableName, primaryKey, {
-        data: [{
+        data: {
             role: "Admin",
             message: welcomeMessage
-        }]
+        }
     })
 }
 
@@ -336,7 +348,8 @@ module.exports = {
         updateSpaceStatus,
         deleteSpace,
         uninstallApplication,
-        getSpaceChat
+        getSpaceChat,
+        addSpaceChatMessage
     },
     templates: {
         defaultApiKeyTemplate: require('./templates/defaultApiKeyTemplate.json'),
