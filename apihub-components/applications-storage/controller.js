@@ -98,7 +98,10 @@ async function installApplication(request, response) {
         const folderPath = path.join(dataVolumePaths.space,`${spaceId}/applications/${application.name}`);
         if (!application || !application.repository) {
             console.error("Application or repository not found");
-            sendResponse(response, 404, "text/html", "Application or repository not found");
+            sendResponse(response, 404, "application/json", {
+                message: "Application or repository not found",
+                success: false
+            });
             return;
         }
         await execAsync(`git clone ${application.repository} ${folderPath}`);
@@ -130,10 +133,16 @@ async function installApplication(request, response) {
             await execAsync(`rm ${applicationPath}/README.md`);
         }
         await updateSpaceStatus(spaceId, application.name, manifest.description);
-        sendResponse(response, 200, "text/html", "Application installed successfully");
+        sendResponse(response, 200, "application/json", {
+            message: "Application installed successfully",
+            success: true
+        });
     } catch (error) {
         console.error("Error in installing application:", error);
-        sendResponse(response, 500, "text/html", error.toString());
+        sendResponse(response, 500, "application/json", {
+            message: error.toString(),
+            success: false
+        });
     }
 }
 
@@ -142,9 +151,15 @@ async function uninstallApplication(request,response) {
     const applicationId=request.params.applicationId;
     try {
         await Space.APIs.uninstallApplication(spaceId, applicationId);
-        sendResponse(response, 200, "text/html", "Application uninstalled successfully");
+        sendResponse(response, 200, "application/json", {
+            message: "Application uninstalled successfully",
+            success: true
+        });
     }catch(error){
-        sendResponse(response, 500, "text/html", error.toString());
+        sendResponse(response, 500, "application/json", {
+            message: "Application or repository not found",
+            success: false
+        });
     }
 }
 
@@ -157,14 +172,20 @@ async function saveJSON(response, spaceData, filePath) {
         try {
             await fsPromises.mkdir(folderPath, {recursive: true});
         } catch (error) {
-            sendResponse(response, 500, "text/html", error + ` Error at creating folder: ${folderPath}`);
+            sendResponse(response, 500, "application/json", {
+                message: error + ` Error at creating folder: ${folderPath}`,
+                success: false
+            });
             return false;
         }
     }
     try {
         await fsPromises.writeFile(filePath, spaceData, 'utf8');
     } catch (error) {
-        sendResponse(response, 500, "text/html", error + ` Error at writing space: ${filePath}`);
+        sendResponse(response, 500, "application/json", {
+            message: error + ` Error at writing file: ${filePath}`,
+            success: false
+        });
         return false;
     }
     return true;
@@ -178,12 +199,18 @@ async function storeObject(request, response) {
     const filePath = path.join(dataVolumePaths.space,`${spaceId}/applications/${applicationId}/${objectType}/${objectId}.json`);
     if (request.body.toString() === "") {
         await fsPromises.unlink(filePath);
-        sendResponse(response, 200, "text/html", `Deleted successfully ${objectId}`);
+        sendResponse(response, 200, "application/json", {
+            message: "Deleted successfully " + objectId,
+            success: true
+        });
         return;
     }
     let jsonData = JSON.parse(request.body.toString());
     if (await saveJSON(response, JSON.stringify(jsonData), filePath)) {
-        sendResponse(response, 200, "text/html", `Success, ${objectId}`);
+        sendResponse(response, 200, "application/json", {
+            message: `Success, write ${objectId}`,
+            success: true
+        });
     }
 
 }
@@ -200,10 +227,17 @@ async function loadApplicationConfig(request, response) {
         const manifestPath = `${folderPath}/manifest.json`;
 
         const manifest = await fsPromises.readFile(manifestPath, 'utf8');
-        sendResponse(response, 200, "application/json", manifest);
+        sendResponse(response, 200, "application/json", {
+            message: "",
+            success: true,
+            data: JSON.parse(manifest)
+        });
     } catch (error) {
         console.error('Error reading manifest:', error);
-        sendResponse(response, 500, "text/plain", "Internal Server Error");
+        sendResponse(response, 500, "application/json", {
+            message: "Internal Server Error",
+            success: false
+        });
     }
 }
 
@@ -215,7 +249,10 @@ async function loadObjects(request, response) {
         try {
             await fsPromises.mkdir(filePath, {recursive: true});
         } catch (error) {
-            return sendResponse(response, 500, "text/html", error + ` Error at creating folder: ${filePath}`);
+            return sendResponse(response, 500, "application/json", {
+                message: error + ` Error at creating folder: ${filePath}`,
+                success: false
+            });
         }
     }
     let localData = [];
@@ -237,10 +274,17 @@ async function loadObjects(request, response) {
             localData.push(JSON.parse(jsonContent));
         }
     } catch (e) {
-        sendResponse(response, 500, "text/plain", JSON.stringify(e));
+        sendResponse(response, 500, "application/json", {
+            message: JSON.stringify(e),
+            success: false
+        });
     }
 
-    sendResponse(response, 200, "text/plain", JSON.stringify(localData));
+    sendResponse(response, 200, "application/json", {
+        message: "Application or repository not found",
+        success: true,
+        data: localData
+    });
 }
 
 async function loadApplicationFile(request, response) {
@@ -261,9 +305,15 @@ async function loadApplicationFile(request, response) {
 
 function handleFileError(response, error) {
     if (error.code === 'ENOENT') {
-        sendResponse(response, 404, "text/plain", "File not found");
+        sendResponse(response, 404, "application/json", {
+            message: "File not found",
+            success: false
+        });
     } else {
-        sendResponse(response, 500, "text/plain", "Internal Server Error");
+        sendResponse(response, 500, "application/json", {
+            message: "Internal Server Error",
+            success: false
+        });
     }
 }
 async function storeAppFlow(request, response) {
@@ -271,22 +321,35 @@ async function storeAppFlow(request, response) {
     const filePath = path.join(dataVolumePaths.space,`${request.params.spaceId}/applications/${request.params.applicationId}/flows/${objectId}.js`);
     if (request.body.toString() === "") {
         await fsPromises.unlink(filePath);
-        sendResponse(response, 200, "text/html", `Deleted successfully ${objectId}`);
+        sendResponse(response, 200, "application/json", {
+            message: "Deleted successfully " + objectId,
+            success: true
+        });
         return;
     }
     let data = request.body.toString();
     try {
         await fsPromises.writeFile(filePath, data, 'utf8');
     } catch (error) {
-        return sendResponse(response, 500, "text/html", error + ` Error at writing file: ${filePath}`);
+        return sendResponse(response, 500, "application/json", {
+            message: error + ` Error at writing file: ${filePath}`,
+            success: false
+        });
     }
-    return sendResponse(response, 200, "text/html", `Success, write ${objectId}`);
+    return sendResponse(response, 200, "application/json", {
+        message: `Success, write ${objectId}`,
+        success: true
+    });
 }
 
 async function loadAppFlows(request, response) {
     const filePath = path.join(dataVolumePaths.space,`${request.params.spaceId}/applications/${request.params.applicationId}/flows`);
     let flows = await loadObjects(filePath);
-    return sendResponse(response, 200, "application/javascript", flows);
+    return sendResponse(response, 200, "application/javascript", {
+        message: "Success",
+        success: true,
+        data: flows
+    });
 }
 module.exports = {
     installApplication,

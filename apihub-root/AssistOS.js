@@ -145,7 +145,6 @@ class AssistOS {
     }
 
     async loadPage(skipAuth = false, skipSpace = false, spaceId) {
-        debugger
         const initPage = async () => {
             const insertSidebar = () => {
                 if (!document.querySelector("left-sidebar")) {
@@ -236,13 +235,7 @@ class AssistOS {
             if (flow.inputSchema) {
                 // assistOS.services.validateSchema(context, flow.inputSchema, "input");
             }
-            let usedDependencies = [];
-            if (flow.dependencies) {
-                for (let functionName of flow.dependencies) {
-                    usedDependencies.push(dependencies[functionName]);
-                }
-            }
-            let flowInstance = new flow(...usedDependencies);
+            let flowInstance = new flow();
             if (flowInstance.start === undefined) {
                 throw new Error(`Flow ${flowInstance.constructor.name} must have a function named 'start'`);
             }
@@ -375,4 +368,5 @@ function closeDefaultLoader() {
     await assistOS.loadPage();
     window.addEventListener('popstate', handleHistory);
     window.addEventListener('beforeunload', saveCurrentState);
+    assistOS.changeSelectedPageFromSidebar = changeSelectedPageFromSidebar;
 })();

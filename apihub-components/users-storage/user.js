@@ -339,6 +339,37 @@ async function getActivationFailHTML(failReason) {
 async function getUserActiveAgent(){
     getUserActiveAgentId
 }
+function createContainerName(spaceId, userId) {
+    return `${spaceId}-${userId}`;
+}
+async function storeSecret(server, request, response) {
+    let spaceId = request.params.spaceId;
+    let userId = request.params.userId;
+    let containerName = createContainerName(spaceId, userId);
+    const secretsService = await require('apihub').getSecretsServiceInstanceAsync(server.rootFolder);
+    let body = JSON.parse(request.body.toString());
+    if (body.delete) {
+        //delete
+        await secretsService.deleteSecretAsync(containerName, body.secretName);
+    }
+    await secretsService.putSecretAsync(containerName, body.secretName, body.secret);
+}
+async function getUsersSecretsExist(spaceId){
+    let users = await getUserMap();
+    let rootFolder = require("../securityConfig.json").SERVER_ROOT_FOLDER;
+    const secretsService = await require('apihub').getSecretsServiceInstanceAsync(rootFolder);
+    let secretsExistArr = [];
+    for (let username of Object.keys(users)) {
+        let containerName = createContainerName(spaceId, users[username]);
+        try {
+            secretsService.getSecretSync(containerName, "git-credentials");
+            secretsExistArr.push({name: username, id: crypto.generateId()});
+        } catch (e) {
+            //secret for user doesn't exist
+        }
+    }
+    return secretsExistArr;
+}
 module.exports = {
     APIs: {
         registerUser,
@@ -351,7 +382,9 @@ module.exports = {
         linkSpaceToUser,
         getDefaultSpaceId,
         updateUsersCurrentSpace,
-        addSpaceCollaborator
+        addSpaceCollaborator,
+        getUsersSecretsExist,
+        storeSecret
     },
     templates: {
         userRegistrationTemplate: require('./templates/userRegistrationTemplate.json'),
