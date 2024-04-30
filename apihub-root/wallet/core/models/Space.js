@@ -61,20 +61,18 @@ export class Space {
         }
     }
     async getDocument(documentId){
-        let response = JSON.parse(await documentModule.getDocument(this.id, documentId));
+        let documentData = await documentModule.getDocument(this.id, documentId);
         let documentIndex = this.documents.findIndex(doc => doc.id === documentId);
-        let document = new Document(response.data);
+        let document = new Document(documentData);
         this.documents[documentIndex] = document;
         return document;
     }
     async getDocumentsMetadata(){
-        let response = JSON.parse(await documentModule.getDocumentsMetadata(assistOS.space.id));
-        this.documentsMetadata = response.data;
+        this.documentsMetadata = await documentModule.getDocumentsMetadata(assistOS.space.id);
         return this.documentsMetadata;
     }
     async refreshPersonalitiesMetadata(){
-        let response = JSON.parse(await personalityModule.getPersonalitiesMetadata(assistOS.space.id));
-        this.personalitiesMetadata = response.data;
+        this.personalitiesMetadata = await personalityModule.getPersonalitiesMetadata(assistOS.space.id);
         return this.personalitiesMetadata;
     }
     async getPersonalitiesMetadata(){
@@ -194,9 +192,9 @@ export class Space {
     async refreshPersonality(id){
         let personalitiesMetadata = await this.getPersonalitiesMetadata(assistOS.space.id);
         let fileName = personalitiesMetadata.find(pers => pers.id === id).fileName;
-        let response = JSON.parse(await personalityModule.getPersonality(assistOS.space.id, fileName.split(".")[0]));
+        let personalityData = await personalityModule.getPersonality(assistOS.space.id, fileName.split(".")[0]);
         let personalityIndex = this.personalitiesMetadata.findIndex(pers => pers.id === id);
-        let personality = new Personality(JSON.parse(response.data));
+        let personality = new Personality(personalityData);
         this.personalities[personalityIndex] = personality
         return personality;
     }

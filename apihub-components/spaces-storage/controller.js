@@ -136,7 +136,7 @@ async function getFileObject(request, response) {
         let data = await fsPromises.readFile(filePath, {encoding: 'utf8'});
         return utils.sendResponse(response, 200, "application/json", {
             success: true,
-            data: data,
+            data: JSON.parse(data),
             message: `Object with id: ${objectId} loaded successfully`
         });
     } catch (error) {
@@ -272,13 +272,10 @@ function getRecordDataAndRemove(recordsArray, pk) {
         recordsArray.splice(index, 1);
         return record.data;
     } else {
-        return null;
+        return {};
     }
 }
 function constructObject(recordsArray, objectId) {
-    if (!recordsArray || recordsArray.length === 0) {
-        throw new Error(`No records found for this object`);
-    }
     let object = getRecordDataAndRemove(recordsArray, objectId);
     for (let key of Object.keys(object)) {
         if (Array.isArray(object[key])) {
@@ -295,6 +292,12 @@ async function getContainerObject(request, response) {
     try {
         let lightDBEnclaveClient = enclave.initialiseLightDBEnclave(spaceId);
         let containerObjectRecords = await $$.promisify(lightDBEnclaveClient.getAllRecords)($$.SYSTEM_IDENTIFIER, objectId);
+        if (containerObjectRecords.length === 0) {
+            return utils.sendResponse(response, 500, "application/json", {
+                success: false,
+                message: ` Error at getting object with id: ${objectId}`
+            });
+        }
         let object = constructObject(containerObjectRecords, objectId);
         return utils.sendResponse(response, 200, "application/json", {
             success: true,
