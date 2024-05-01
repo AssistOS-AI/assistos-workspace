@@ -43,7 +43,7 @@ space-dropdown {
     min-width: 160px;
     right: 10px;
     overflow: auto;
-    width: max-content;
+    margin-top:2px;
 }
 
 .spaces-list > * {
@@ -51,7 +51,6 @@ space-dropdown {
     display: flex;
     justify-content: start;
     align-items: center;
-    width: fit-content;
 }
 
 .add-space-txt,
@@ -72,4 +71,7 @@ space-dropdown {
 
 .rotated {
     transform: rotate(-90deg);
+}
+.add-space-btn:hover, #logout-button:hover{
+        background-color: var(--light-blue);
 }

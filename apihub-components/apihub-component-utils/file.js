@@ -51,8 +51,16 @@ async function sortFiles(files, directoryPath, criterion = 'filename') {
     return filesAttributes.map(file => file.name);
 }
 
+async function convertImageToBase64(imageBuffer, mimeType) {
+    const base64Image = imageBuffer.toString('base64');
+
+    const base64Prefix = `data:${mimeType};base64,`;
+
+    return base64Prefix + base64Image;
+}
 
 module.exports = {
     sortFiles,
-    createDirectory
+    createDirectory,
+    convertImageToBase64
 };

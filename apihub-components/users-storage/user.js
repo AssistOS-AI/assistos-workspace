@@ -1,20 +1,23 @@
 const fsPromises = require('fs').promises;
-const path=require('path');
+const path = require('path');
 
 const config = require('../config.json');
 
 const crypto = require("../apihub-component-utils/crypto");
 const data = require('../apihub-component-utils/data.js');
 const date = require('../apihub-component-utils/date.js');
+const file = require('../apihub-component-utils/file.js');
 
 const volumeManager = require('../volumeManager.js');
 
-async function registerUser(name, email, password) {
+async function registerUser(name, email, password, photo) {
     const currentDate = date.getCurrentUTCDate();
     const userRegistrationTemplate = require('./templates/userRegistrationTemplate.json')
+    let userPhoto = photo || await getDefaultUserPhoto();
     const registrationUserObject = data.fillTemplate(userRegistrationTemplate, {
         email: email,
         name: name,
+        photo: userPhoto,
         passwordHash: crypto.hashPassword(password),
         verificationToken: await crypto.generateVerificationToken(),
         verificationTokenExpirationDate: date.incrementUTCDate(currentDate, {minutes: 30}),
@@ -33,7 +36,7 @@ async function registerUser(name, email, password) {
     await sendActivationEmail(email, name, registrationUserObject.verificationToken);
 }
 
-async function createUser(username, email, withDefaultSpace = false) {
+async function createUser(username, email, photo, withDefaultSpace = false) {
     const Space = require('../spaces-storage/space.js');
     const defaultUserTemplate = require('./templates/defaultUserTemplate.json')
     const rollback = async () => {
@@ -55,6 +58,7 @@ async function createUser(username, email, withDefaultSpace = false) {
             id: userId,
             username: username,
             email: email,
+            photo: photo
         }
     )
 
@@ -91,11 +95,11 @@ async function activateUser(activationToken) {
 
     const user = userPendingActivation[activationToken];
     try {
-        const userDataObject = await createUser(user.name, user.email, true);
+        const userDataObject = await createUser(user.name, user.email, user.photo, true);
         const userMap = await getUserMap();
         userMap[user.email] = userDataObject.id;
         await updateUserMap(userMap);
-
+        delete user.photo
         const userCredentials = await getUserCredentials();
         userCredentials[userDataObject.id] = user;
         userCredentials[userDataObject.id].activationDate = date.getCurrentUTCDate();
@@ -140,6 +144,12 @@ async function createDemoUser() {
     const userPendingActivation = await getUserPendingActivation()
     const activationToken = Object.keys(userPendingActivation)[0]
     await activateUser(activationToken);
+}
+
+async function getDefaultUserPhoto(){
+    const defaultUserPhotoPath = path.join(__dirname, 'templates/defaultUserPhoto.png');
+    const defaultUserPhoto = await fsPromises.readFile(defaultUserPhotoPath);
+    return await file.convertImageToBase64(defaultUserPhoto, 'image/png');
 }
 
 async function getUserData(userId) {
@@ -336,12 +346,15 @@ async function getActivationFailHTML(failReason) {
         failReason: failReason
     })
 }
-async function getUserActiveAgent(){
+
+async function getUserActiveAgent() {
     getUserActiveAgentId
 }
+
 function createContainerName(spaceId, userId) {
     return `${spaceId}-${userId}`;
 }
+
 async function storeSecret(server, request, response) {
     let spaceId = request.params.spaceId;
     let userId = request.params.userId;
@@ -354,7 +367,8 @@ async function storeSecret(server, request, response) {
     }
     await secretsService.putSecretAsync(containerName, body.secretName, body.secret);
 }
-async function getUsersSecretsExist(spaceId){
+
+async function getUsersSecretsExist(spaceId) {
     let users = await getUserMap();
     let rootFolder = require("../securityConfig.json").SERVER_ROOT_FOLDER;
     const secretsService = await require('apihub').getSecretsServiceInstanceAsync(rootFolder);
@@ -370,6 +384,7 @@ async function getUsersSecretsExist(spaceId){
     }
     return secretsExistArr;
 }
+
 module.exports = {
     APIs: {
         registerUser,

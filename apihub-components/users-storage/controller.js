@@ -58,7 +58,8 @@ async function registerUser(request, response) {
         await User.APIs.registerUser(
             userData.name,
             userData.email,
-            userData.password);
+            userData.password,
+            userData.photo);
         utils.sendResponse(response, 200, "application/json", {
             success: true,
             message: `User ${userData.name} registered successfully. Please check your email for the verification code`

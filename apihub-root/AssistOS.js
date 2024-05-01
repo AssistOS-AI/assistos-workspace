@@ -123,7 +123,10 @@ class AssistOS {
             assistOS.currentApplicationName = appName;
         }
     }
-
+    async logout(){
+        await userModule.loadAPIs().logoutUser();
+        await this.refresh();
+    }
     async refresh() {
         window.location = "";
     }
@@ -152,6 +155,8 @@ class AssistOS {
             const insertSidebar = () => {
                 if (!document.querySelector("left-sidebar")) {
                     document.querySelector("#page-content").insertAdjacentHTML("beforebegin", `<left-sidebar data-presenter="left-sidebar"></left-sidebar>`);
+                }else{
+                    document.querySelector("left-sidebar").webSkelPresenter.invalidate();
                 }
             }
             hidePlaceholders();
@@ -162,7 +167,6 @@ class AssistOS {
                 await assistOS.UI.changeToDynamicPage("space-configs-page", `${assistOS.space.id}/SpaceConfiguration/announcements-page`);
             }
         };
-
         let {spaceIdURL, agentId,applicationName, applicationLocation} = getURLData(window.location.hash);
         spaceId = spaceId ? spaceId : spaceIdURL;
         if (spaceId === "authentication-page" && skipAuth) {
@@ -299,10 +303,10 @@ export function changeSelectedPageFromSidebar(url) {
 function getURLData(url) {
     let URLParts = url.slice(1).split('/');
     return {
-        spaceId: URLParts[0],
-        agentId: URLParts[1],
-        applicationName: URLParts[2],
-        applicationLocation: URLParts.slice(3)
+        spaceIdURL: URLParts[0],
+        //agentId: URLParts[1],
+        applicationName: URLParts[1],
+        applicationLocation: URLParts.slice(2)
     }
 }
 

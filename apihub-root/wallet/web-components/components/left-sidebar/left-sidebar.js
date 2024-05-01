@@ -1,5 +1,6 @@
 import {changeSelectedPageFromSidebar} from "../../../imports.js";
-const crypto=require("opendsu").loadAPI("crypto");
+
+const crypto = require("opendsu").loadAPI("crypto");
 
 export class LeftSidebar {
     constructor(element, invalidate) {
@@ -10,6 +11,8 @@ export class LeftSidebar {
 
     beforeRender() {
         this.applications = "";
+        this.userImage = assistOS.user.photo;
+        this.userName = assistOS.user.name;
         for (let application of assistOS.space.installedApplications) {
             let applicationData = assistOS.applications[application.name];
             let svgImage = applicationData.encodedSvg;
@@ -27,7 +30,6 @@ export class LeftSidebar {
     }
 
     async startApplication(_target, appName) {
-        //this.changeBaseURL(appName);
         await assistOS.startApplication(appName);
         changeSelectedPageFromSidebar(window.location.hash);
     }
@@ -77,7 +79,40 @@ export class LeftSidebar {
         setInterval(updateClock, 10000);
         changeSelectedPageFromSidebar(window.location.hash);
     }
+    addSpaceCollaborator(_target){
+        assistOS.UI.showModal("add-space-collaborator-modal", {presenter: "add-space-collaborator-modal"});
+    }
+    openUserActions(_target) {
+        let userPhotoContainer = this.element.querySelector(".user-photo-container"); // Container-ul care include și iconița și dropdown-ul
+        let dropdownMenu = this.element.querySelector(".user-action-menu");
 
+        // Arată dropdown-ul
+        dropdownMenu.style.display = "flex";
+
+        // Funcția de ascundere a dropdown-ului
+        function hideDropdown() {
+            dropdownMenu.style.display = "none";
+            userPhotoContainer.removeEventListener('mouseleave', hideDropdown); // Înlătură listener-ul după ce dropdown-ul a fost ascuns
+        }
+
+        // Adaugă un event listener pentru mouseleave
+        userPhotoContainer.addEventListener('mouseleave', hideDropdown);
+
+        // Asigură-te că dropdown-ul se închide și la click în afara lui
+        document.addEventListener("click", function(event) {
+            if (!userPhotoContainer.contains(event.target)) {
+                hideDropdown();
+            }
+        }, { once: true }); // Opțiunea 'once' face ca listener-ul să fie executat doar o singură dată
+    }
+
+    async logout() {
+        await assistOS.logout();
+        await assistOS.loadPage();
+    }
+    async addSpace() {
+        await assistOS.UI.showModal("add-space-modal", {presenter: "add-space-modal"});
+    }
     async changePage(_target, pageId, applicationId, refreshFlag = '0') {
         await assistOS.callFlow("ChangeApplication", {
             pageId: pageId,
@@ -109,4 +144,5 @@ export class LeftSidebar {
         target.style.display = "none";
         controller.abort();
     };
+
 }

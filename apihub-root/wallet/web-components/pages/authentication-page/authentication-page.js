@@ -30,14 +30,18 @@ export class AuthenticationPage {
                         <label class="form-label" for="user-email">E-mail</label>
                         <input class="form-input" name="email" type="email" data-id="user-email" id="user-email" required placeholder="Add e-mail">
                     </div>
-                    <div class="form-item">
+                  <!--  <div class="form-item">
                         <label class="form-label" for="user-phone">Phone</label>
                         <input class="form-input" name="phone" data-id="user-phone" type="text" id="user-phone" required
                             placeholder="Add phone">
-                    </div>
+                    </div>-->
                     <div class="form-item">
                         <label class="form-label" for="user-password">Password</label>
                         <input class="form-input" name="password" type="password" data-id="user-password" id="user-password" required placeholder="Add password">
+                    </div>
+                     <div class="form-item">
+                        <label class="form-label" for="photo">Profile Picture</label>
+                        <input class="form-input"  accept="image/png, image/jpeg" data-condition="verifyPhotoSize" name="photo" type="file" data-id="photo" id="photo" placeholder="Select a Profile Image">
                     </div>
                     <div class="form-footer">
                         <button type="button" class="general-button" data-local-action="registerUser">Get Secret Token</button>
@@ -245,11 +249,16 @@ export class AuthenticationPage {
     }
 
     async registerUser(_target) {
-        const formInfo = await assistOS.UI.extractFormInformation(_target);
+        const verifyPhotoSize = (element) => {
+            return !element.files[0]? true : element.files[0].size <= 1048576;
+        };
+        const conditions = {"verifyPhotoSize": {fn:verifyPhotoSize, errorMessage:"Image too large! Image max size: 1MB"} };
+        debugger
+        const formInfo = await assistOS.UI.extractFormInformation(_target,conditions);
         if (formInfo.isValid) {
             this.formData = formInfo.data;
-            const {name, email, password} = formInfo.data;
-            await User.apis.registerUser(name, email, password);
+            const {name, email, password,photo} = formInfo.data;
+            await User.apis.registerUser(name, email, password,photo||undefined);
             this.invalidate(async () => {
                 this.element.setAttribute("data-subpage", "register-confirmation")
             })

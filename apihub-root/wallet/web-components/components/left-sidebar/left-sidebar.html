@@ -1,3 +1,13 @@
+<div class="user-photo-container">
+    <img class="user-photo pointer" src="$$userImage" alt="" data-local-action="openUserActions"/>
+    <div class="user-action-menu" style="display:none;">
+        <span data-local-action="openProfile">Profile</span>
+        <span data-local-action="openUserSettings">Settings</span>
+        <span data-local-action="addSpace">Create Space</span>
+        <span data-local-action="addSpaceCollaborator">Invite Collaborators</span>
+        <span data-local-action="logout">Logout</span>
+    </div>
+</div>
 <div class="features-list-wrapper">
     <div class="features-list">
         <div class="feature first" data-id="space" data-local-action="startApplication SpaceConfiguration">
@@ -12,6 +22,7 @@
                 Space
             </div>
         </div>
+
         $$applications
     </div>
 </div>

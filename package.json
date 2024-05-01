@@ -7,7 +7,8 @@
     "postinstall": "node ./node_modules/octopus/scripts/setEnv --file=../../../env.json \"npm run do-install\"",
     "do-install": "node ./node_modules/octopus/scripts/ensureFreezeState.js && node ./node_modules/octopus/scripts/run",
     "update": "node ./node_modules/octopus/scripts/update",
-    "server": "node ./node_modules/octopus/scripts/setEnv --file=../../../env.json \"cd opendsu-sdk && npm run start\"",
+    "server": "npm run build && node ./node_modules/octopus/scripts/setEnv --file=../../../env.json \"cd opendsu-sdk && npm run start\"",
+    "server-clean": "npm run clean && npm run server",
     "worker": "node ./node_modules/octopus/scripts/setEnv --file=../../../env-worker.json \"cd opendsu-sdk && npm run start\"",
     "apihub": "node ./node_modules/octopus/scripts/setEnv --file=../../../env.json \"cd opendsu-sdk && npm run start\"",
     "tests": "npm run test",
@@ -16,9 +17,9 @@
     "freeze": "node ./node_modules/octopus/scripts/freeze dependencies",
     "tag-freeze": "node ./node_modules/octopus/scripts/tagFreeze dependencies",
     "enclaves": "node ./opendsu-sdk/psknode/bin/scripts/enclaveLauncher.js \"./brand-remote-enclave-config.json\" & node ./opendsu-sdk/psknode/bin/scripts/enclaveLauncher.js \"./accounting-remote-enclave-config.json\"",
-    "build-all": "node ./node_modules/octopus/scripts/run build devmode",
     "clean-state": "rm -rf data-volume/spaces/* && rm -rf data-volume/users/* && echo \"{}\" > data-volume/\\[MAP\\]Spaces.json && echo \"{}\" > data-volume/\\[MAP\\]Users.json && echo \"{}\" > data-volume/user-credentials.json && echo \"{}\" > data-volume/UsersPendingActivation.json && rm -rf ./apihub-root/external-volume/versionlessdsu $$ rm -rf ./apihub-root/external-volume/secrets/*",
-    "delete-enclaves-content-win": "rmdir /s /q SVDS && rmdir /s /q remote-enclave-root-brand && cd .\\apihub-root\\external-volume\\mqs && rmdir /s /q vault"
+    "delete-enclaves-content-win": "rmdir /s /q SVDS && rmdir /s /q remote-enclave-root-brand && cd .\\apihub-root\\external-volume\\mqs && rmdir /s /q vault",
+    "build": "cd ./assistos-sdk && npm run build && cd .. && node ./node_modules/octopus/scripts/run build devmode"
   },
   "repository": {
     "type": "git",

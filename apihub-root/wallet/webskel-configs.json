@@ -9,6 +9,11 @@
             "presenterClassName": "ChangePersonalityModal"
         },
         {
+            "name": "add-space-collaborator-modal",
+            "type": "modals",
+            "presenterClassName": "AddSpaceCollaboratorModal"
+        },
+        {
             "name": "change-llm-modal",
             "type": "modals",
             "presenterClassName": "ChangeLlmModal"
