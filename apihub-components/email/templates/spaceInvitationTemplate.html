@@ -3,7 +3,7 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Activate Your Account</title>
+    <title>Space Invitation</title>
     <style>
         body {
             font-family: 'Helvetica Neue', Helvetica, Arial, sans-serif;
@@ -33,20 +33,13 @@
         .button {
             background-color: #0C5C9E;
             color: white !important;
-            padding: 10px 15px;
+            padding: 10px 20px;
             text-align: center;
             border-radius: 4px;
             text-decoration: none !important;
             display: inline-block;
-            margin: 10px 0;
+            margin: 10px 5px;
             font-size: 14px;
-            width: auto;
-        }
-        a{
-            text-decoration:none;
-        }
-        a[href] {
-            color:white !important;
         }
         img.logo {
             display: block;
@@ -55,16 +48,11 @@
             max-width: 100px;
             border-radius: 50%;
         }
-        #activationLinkContainer{
-            display:flex;
-            width:100%;
-            justify-content:center;
-            align-items:center;
-            color:white;
+        a {
+            text-decoration: none;
         }
-        .aHighlight{
-            color:#0C5C9E !important;
-            text-decoration:none !important;
+        a[href] {
+            color: white !important;
         }
         div{
             color:black !important;
@@ -76,17 +64,17 @@
     <div class="header">
         <img src="$$companyLogoURL" alt="Company Logo" class="logo">
     </div>
-    <h2>Welcome to AssistOS, $$username!</h2>
-    <p>You're almost ready to start exploring the limitless possibilities with AssistOS. Click the button below to activate your account:</p>
-    <div id="activationLinkContainer">
-        <a href="$$activationLink" class="button">Activate Account</a>
+    <h2>You've been invited to join $$spaceName</h2>
+    <p>This invitation was sent by $$referrerName. To respond to the invitation, please choose an option below:</p>
+    <div>
+        $$invitationLinkAccepted
+        $$invitationLinkRejected?
     </div>
-    <p>If you did not request this email, please ignore it or notify us.</p>
     <div class="footer">
         $$companyName<br>
         $$streetAddress<br>
         $$country, $$city, $$zipCode<br>
-        If you have any questions, feel free to <a class="aHighlight" href="mailto:$$supportEmail">contact us</a> or call us at <a class="aHighlight" href="tel:$$phoneNumber">$$phoneNumber</a>
+        If you have any questions, feel free to <a href="mailto:$$supportEmail">contact us</a> or call us at <a href="tel:$$phoneNumber">$$phoneNumber</a>
     </div>
 </div>
 </body>

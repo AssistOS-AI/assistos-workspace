@@ -1,6 +1,7 @@
 {
   "SPACE_FOLDER_PATH": "spaces",
   "SPACE_MAP_PATH": "[MAP]Spaces.json",
+  "SPACE_PENDING_INVITATIONS_PATH": "SpacesPendingInvitations.json",
   "USER_FOLDER_PATH": "users",
   "USER_MAP_PATH": "[MAP]Users.json",
   "USER_PENDING_ACTIVATION_PATH": "UsersPendingActivation.json",

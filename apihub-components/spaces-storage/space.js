@@ -28,6 +28,10 @@ function getSpaceMapPath() {
     return volumeManager.paths.spaceMap;
 }
 
+function getSpacePendingInvitationsPath() {
+    return volumeManager.paths.spacePendingInvitations;
+}
+
 async function updateSpaceMap(spaceMapObject) {
     await fsPromises.writeFile(getSpaceMapPath(), JSON.stringify(spaceMapObject, null, 2), 'utf8');
 }
@@ -182,22 +186,24 @@ async function createSpace(spaceName, userId, apiKey) {
     await createSpaceChat(lightDBEnclaveClient, spaceId, spaceName);
     return spaceObj;
 }
+
 async function getSpaceChat(spaceId) {
     const lightDBEnclaveClient = enclave.initialiseLightDBEnclave(spaceId);
     const tableName = `spaceChat_${spaceId}`
     let records = await $$.promisify(lightDBEnclaveClient.filter)($$.SYSTEM_IDENTIFIER, tableName);
-    let chat=[]
-    for(let record of records){
+    let chat = []
+    for (let record of records) {
         chat.push({
             role: record.data.role,
             message: record.data.message,
-            date:date.parseUnixDate(record.__timestamp)
+            date: date.parseUnixDate(record.__timestamp)
         })
     }
     return chat;
 
 }
-async function  addSpaceChatMessage(spaceId,userId,messageData){
+
+async function addSpaceChatMessage(spaceId, userId, messageData) {
     const lightDBEnclaveClient = enclave.initialiseLightDBEnclave(spaceId);
     const tableName = `spaceChat_${spaceId}`
     const primaryKey = `${userId}_${date.getCurrentUnixTime()}`
@@ -277,7 +283,10 @@ async function getSpaceDocumentsObject(spaceId) {
     return documents;
 }
 
-
+async function getSpaceName(spaceId) {
+    const spaceMap = await getSpaceMap();
+    return spaceMap[spaceId];
+}
 async function getSpacePersonalitiesObject(spaceId) {
 
     const personalitiesDirectoryPath = path.join(getSpacePath(spaceId), 'personalities');
@@ -339,17 +348,31 @@ async function uninstallApplication(spaceId, appName) {
     await fsPromises.rm(getApplicationPath(spaceId, appName), {recursive: true, force: true});
 }
 
+
+async function getSpacesPendingInvitationsObject() {
+    const path = getSpacePendingInvitationsPath();
+    return JSON.parse(await fsPromises.readFile(path, 'utf8'));
+}
+
+async function updateSpacePendingInvitations(spaceId, pendingInvitationsObject) {
+    const path = getSpacePendingInvitationsPath();
+    await fsPromises.writeFile(path, JSON.stringify(pendingInvitationsObject, null, 2), 'utf8');
+}
+
 module.exports = {
     APIs: {
         addAnnouncement,
         createSpace,
         getSpaceMap,
         getSpaceStatusObject,
+        getSpacesPendingInvitationsObject,
+        updateSpacePendingInvitations,
         updateSpaceStatus,
         deleteSpace,
         uninstallApplication,
         getSpaceChat,
-        addSpaceChatMessage
+        addSpaceChatMessage,
+        getSpaceName
     },
     templates: {
         defaultApiKeyTemplate: require('./templates/defaultApiKeyTemplate.json'),

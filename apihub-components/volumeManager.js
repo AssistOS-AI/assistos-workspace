@@ -12,6 +12,7 @@ module.exports = {
     paths: {
         space: resolveVolumePath(volume.configs.SPACE_FOLDER_PATH),
         spaceMap: resolveVolumePath(volume.configs.SPACE_MAP_PATH),
+        spacePendingInvitations: resolveVolumePath(volume.configs.SPACE_PENDING_INVITATIONS_PATH),
         user: resolveVolumePath(volume.configs.USER_FOLDER_PATH),
         userMap: resolveVolumePath(volume.configs.USER_MAP_PATH),
         userPendingActivation: resolveVolumePath(volume.configs.USER_PENDING_ACTIVATION_PATH),

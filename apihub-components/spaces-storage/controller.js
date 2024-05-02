@@ -8,6 +8,7 @@ const crypto = require('../apihub-component-utils/crypto.js');
 const fsPromises = require('fs').promises;
 const path = require('path');
 const dataVolumePaths = require('../volumeManager').paths;
+
 async function loadJSFiles(filePath) {
     let localData = "";
     const files = await fsPromises.readdir(filePath);
@@ -29,16 +30,18 @@ async function loadJSFiles(filePath) {
     }
     return localData;
 }
+
 async function loadFlows(request, response) {
     const filePath = path.join(dataVolumePaths.space, `${request.params.spaceId}/flows`);
-    try{
+    try {
         let flows = await loadJSFiles(filePath);
         return utils.sendResponse(response, 200, "application/javascript", flows);
     } catch (e) {
         return utils.sendResponse(response, 500, "application/javascript", e);
     }
 }
-async function getFlow(request, response){
+
+async function getFlow(request, response) {
     const spaceId = request.params.spaceId;
     const flowName = request.params.flowName;
     try {
@@ -50,7 +53,8 @@ async function getFlow(request, response){
     }
 
 }
-async function addFlow(request, response){
+
+async function addFlow(request, response) {
     const spaceId = request.params.spaceId;
     const flowData = request.body;
     const flowName = request.params.flowName;
@@ -68,7 +72,8 @@ async function addFlow(request, response){
         });
     }
 }
-async function updateFlow(request, response){
+
+async function updateFlow(request, response) {
     const spaceId = request.params.spaceId;
     const flowName = request.params.flowName;
     const flowData = request.body;
@@ -86,7 +91,8 @@ async function updateFlow(request, response){
         });
     }
 }
-async function deleteFlow(request, response){
+
+async function deleteFlow(request, response) {
     const spaceId = request.params.spaceId;
     const flowName = request.params.flowName;
     try {
@@ -103,9 +109,11 @@ async function deleteFlow(request, response){
         });
     }
 }
+
 function getFileObjectsMetadataPath(spaceId, objectType) {
     return path.join(dataVolumePaths.space, `${spaceId}/${objectType}/metadata.json`);
 }
+
 async function getFileObjectsMetadata(request, response) {
     const spaceId = request.params.spaceId;
     const objectType = request.params.objectType;
@@ -124,9 +132,11 @@ async function getFileObjectsMetadata(request, response) {
         });
     }
 }
+
 function getFileObjectPath(spaceId, objectType, objectId) {
     return path.join(dataVolumePaths.space, `${spaceId}/${objectType}/${objectId}.json`);
 }
+
 async function getFileObject(request, response) {
     const spaceId = request.params.spaceId;
     const objectType = request.params.objectType;
@@ -146,6 +156,7 @@ async function getFileObject(request, response) {
         });
     }
 }
+
 async function addFileObject(request, response) {
     const spaceId = request.params.spaceId;
     const objectType = request.params.objectType;
@@ -154,7 +165,7 @@ async function addFileObject(request, response) {
     try {
         objectData.id = objectId;
         let metaObj = {};
-        for(let key of objectData.metadata){
+        for (let key of objectData.metadata) {
             metaObj[key] = objectData[key];
         }
         let metadataPath = getFileObjectsMetadataPath(spaceId, objectType);
@@ -176,6 +187,7 @@ async function addFileObject(request, response) {
         });
     }
 }
+
 async function updateFileObject(request, response) {
     const spaceId = request.params.spaceId;
     const objectType = request.params.objectType;
@@ -187,7 +199,7 @@ async function updateFileObject(request, response) {
         let metadata = JSON.parse(await fsPromises.readFile(metadataPath, {encoding: 'utf8'}));
         let metaObj = metadata.find(item => item.fileName === `${objectId}.json`);
         if (metaObj) {
-            for(let key of Object.keys(objectData.metadata)){
+            for (let key of Object.keys(objectData.metadata)) {
                 metaObj[key] = objectData.metadata[key];
             }
             await fsPromises.writeFile(metadataPath, JSON.stringify(metadata), 'utf8');
@@ -210,6 +222,7 @@ async function updateFileObject(request, response) {
         });
     }
 }
+
 async function deleteFileObject(request, response) {
     const spaceId = request.params.spaceId;
     const objectType = request.params.objectType;
@@ -237,6 +250,7 @@ async function deleteFileObject(request, response) {
         });
     }
 }
+
 async function getContainerObjectsMetadata(request, response) {
     const spaceId = request.params.spaceId;
     const objectType = request.params.objectType;
@@ -244,11 +258,11 @@ async function getContainerObjectsMetadata(request, response) {
         let lightDBEnclaveClient = enclave.initialiseLightDBEnclave(spaceId);
         let records = await $$.promisify(lightDBEnclaveClient.getAllRecords)($$.SYSTEM_IDENTIFIER, objectType);
         let metadata = [];
-        for(let record of records){
+        for (let record of records) {
             let metadataRecord = await $$.promisify(lightDBEnclaveClient.getRecord)($$.SYSTEM_IDENTIFIER, record.pk, record.pk);
             let object = metadataRecord.data;
             let metadataObj = {};
-            for(let key of object.metadata){
+            for (let key of object.metadata) {
                 metadataObj[key] = object[key];
             }
             metadata.push(metadataObj);
@@ -265,6 +279,7 @@ async function getContainerObjectsMetadata(request, response) {
         });
     }
 }
+
 function getRecordDataAndRemove(recordsArray, pk) {
     const index = recordsArray.findIndex(item => item.pk === pk);
     if (index !== -1) {
@@ -275,17 +290,19 @@ function getRecordDataAndRemove(recordsArray, pk) {
         return {};
     }
 }
+
 function constructObject(recordsArray, objectId) {
     let object = getRecordDataAndRemove(recordsArray, objectId);
     for (let key of Object.keys(object)) {
         if (Array.isArray(object[key])) {
-            for(let i = 0; i < object[key].length; i++){
-             object[key][i] = constructObject(recordsArray, object[key][i]);
+            for (let i = 0; i < object[key].length; i++) {
+                object[key][i] = constructObject(recordsArray, object[key][i]);
             }
         }
     }
     return object;
 }
+
 async function getContainerObject(request, response) {
     const spaceId = request.params.spaceId;
     const objectId = request.params.objectId;
@@ -311,15 +328,16 @@ async function getContainerObject(request, response) {
         });
     }
 }
-async function insertObjectRecords(lightDBEnclaveClient, tableId, objectId, objectData){
+
+async function insertObjectRecords(lightDBEnclaveClient, tableId, objectId, objectData) {
     let object = {};
-    for(let key of Object.keys(objectData)){
-        if(Array.isArray(objectData[key])){
-            if(objectData[key].length > 0){
+    for (let key of Object.keys(objectData)) {
+        if (Array.isArray(objectData[key])) {
+            if (objectData[key].length > 0) {
                 object[key] = [];
-                if(typeof objectData[key][0] === "object"){
-                    for(let item of objectData[key]){
-                        if(!item.id){
+                if (typeof objectData[key][0] === "object") {
+                    for (let item of objectData[key]) {
+                        if (!item.id) {
                             item.id = `${key}_${crypto.generateId()}`;
                         }
                         object[key].push(item.id);
@@ -336,15 +354,17 @@ async function insertObjectRecords(lightDBEnclaveClient, tableId, objectId, obje
             object[key] = objectData[key];
         }
     }
-    await $$.promisify(lightDBEnclaveClient.insertRecord)($$.SYSTEM_IDENTIFIER, tableId, objectId, {data:object});
+    await $$.promisify(lightDBEnclaveClient.insertRecord)($$.SYSTEM_IDENTIFIER, tableId, objectId, {data: object});
 }
-async function addContainerObjectToTable(lightDBEnclaveClient, objectType, objectData){
+
+async function addContainerObjectToTable(lightDBEnclaveClient, objectType, objectData) {
     let objectId = `${objectType}_${crypto.generateId()}`;
     await $$.promisify(lightDBEnclaveClient.insertRecord)($$.SYSTEM_IDENTIFIER, objectType, objectId, {data: objectId});
     objectData.id = objectId;
     await insertObjectRecords(lightDBEnclaveClient, objectId, objectId, objectData);
     return objectId;
 }
+
 async function addContainerObject(request, response) {
     const spaceId = request.params.spaceId;
     const objectType = request.params.objectType;
@@ -364,6 +384,7 @@ async function addContainerObject(request, response) {
         });
     }
 }
+
 async function updateContainerObject(request, response) {
     const spaceId = request.params.spaceId;
     const objectId = request.params.objectId;
@@ -386,11 +407,13 @@ async function updateContainerObject(request, response) {
     }
 
 }
+
 async function deleteContainerObjectTable(lightDBEnclaveClient, objectId) {
     let objectType = objectId.split('_')[0];
     await $$.promisify(lightDBEnclaveClient.deleteRecord)($$.SYSTEM_IDENTIFIER, objectType, objectId);
     return objectId;
 }
+
 async function deleteContainerObject(request, response) {
     const spaceId = request.params.spaceId;
     const objectId = request.params.objectId;
@@ -409,6 +432,7 @@ async function deleteContainerObject(request, response) {
         });
     }
 }
+
 async function constructEmbeddedObject(lightDBEnclaveClient, tableId, record) {
     if (!record) {
         throw new Error(`No records found for this object`);
@@ -416,7 +440,7 @@ async function constructEmbeddedObject(lightDBEnclaveClient, tableId, record) {
     let object = record.data;
     for (let key of Object.keys(object)) {
         if (Array.isArray(object[key])) {
-            for(let i = 0; i < object[key].length; i++){
+            for (let i = 0; i < object[key].length; i++) {
                 let record = await $$.promisify(lightDBEnclaveClient.getRecord)($$.SYSTEM_IDENTIFIER, tableId, object[key][i]);
                 object[key][i] = await constructEmbeddedObject(lightDBEnclaveClient, tableId, record);
             }
@@ -424,6 +448,7 @@ async function constructEmbeddedObject(lightDBEnclaveClient, tableId, record) {
     }
     return object;
 }
+
 async function getEmbeddedObject(request, response) {
     const spaceId = request.params.spaceId;
     const objectType = request.params.objectType;
@@ -445,25 +470,26 @@ async function getEmbeddedObject(request, response) {
         });
     }
 }
-async function insertEmbeddedObjectRecords(lightDBEnclaveClient, tableId, objectURI, objectData, isUpdate = false){
+
+async function insertEmbeddedObjectRecords(lightDBEnclaveClient, tableId, objectURI, objectData, isUpdate = false) {
     let segments = objectURI.split("/");
     let pk = segments[0];
     segments = segments.slice(1);
     let record = await $$.promisify(lightDBEnclaveClient.getRecord)($$.SYSTEM_IDENTIFIER, tableId, pk);
     let object = record.data;
-    if(segments.length === 1){
+    if (segments.length === 1) {
         let objectType = segments[0].split('_')[0];
-        if(!object[objectType]){
+        if (!object[objectType]) {
             object[objectType] = [];
         }
         let objectId;
-        if(isUpdate){
+        if (isUpdate) {
             objectId = objectData.id;
-        } else{
+        } else {
             objectId = `${objectType}_${crypto.generateId()}`;
             objectData.id = objectId;
         }
-        if(objectData.position){
+        if (objectData.position) {
             object[objectType].splice(objectData.position, 0, objectId);
         } else {
             object[objectType].push(objectId);
@@ -476,6 +502,7 @@ async function insertEmbeddedObjectRecords(lightDBEnclaveClient, tableId, object
         return await insertEmbeddedObjectRecords(lightDBEnclaveClient, tableId, objectURI, objectData);
     }
 }
+
 async function addEmbeddedObject(request, response) {
     const spaceId = request.params.spaceId;
     const objectURI = decodeURIComponent(request.params.objectURI);
@@ -496,6 +523,7 @@ async function addEmbeddedObject(request, response) {
         });
     }
 }
+
 async function updateEmbeddedObject(request, response) {
     const spaceId = request.params.spaceId;
     let objectURI = decodeURIComponent(request.params.objectURI);
@@ -503,11 +531,11 @@ async function updateEmbeddedObject(request, response) {
     try {
         let lightDBEnclaveClient = enclave.initialiseLightDBEnclave(spaceId);
         let [tableId, objectId, propertyName] = objectURI.split("/");
-        if(!propertyName && !objectId.includes("_")){
+        if (!propertyName && !objectId.includes("_")) {
             propertyName = objectId;
             objectId = tableId;
         }
-        if(propertyName){
+        if (propertyName) {
             let record = await $$.promisify(lightDBEnclaveClient.getRecord)($$.SYSTEM_IDENTIFIER, tableId, objectId);
             let object = record.data;
             object[propertyName] = objectData;
@@ -529,28 +557,30 @@ async function updateEmbeddedObject(request, response) {
         });
     }
 }
-async function deleteEmbeddedObjectDependencies(lightDBEnclaveClient, tableId, objectId){
+
+async function deleteEmbeddedObjectDependencies(lightDBEnclaveClient, tableId, objectId) {
     let record = await $$.promisify(lightDBEnclaveClient.getRecord)($$.SYSTEM_IDENTIFIER, tableId, objectId);
     let object = record.data;
-    for(let key of Object.keys(object)){
-        if(Array.isArray(object[key])){
-            for(let item of object[key]){
+    for (let key of Object.keys(object)) {
+        if (Array.isArray(object[key])) {
+            for (let item of object[key]) {
                 await deleteEmbeddedObjectDependencies(lightDBEnclaveClient, tableId, item);
             }
         }
     }
     await $$.promisify(lightDBEnclaveClient.deleteRecord)($$.SYSTEM_IDENTIFIER, tableId, objectId);
 }
-async function deleteEmbeddedObjectFromTable(lightDBEnclaveClient, tableId, objectURI){
+
+async function deleteEmbeddedObjectFromTable(lightDBEnclaveClient, tableId, objectURI) {
     let segments = objectURI.split("/");
     let pk = segments[0];
     segments = segments.slice(1);
     let record = await $$.promisify(lightDBEnclaveClient.getRecord)($$.SYSTEM_IDENTIFIER, tableId, pk);
     let object = record.data;
-    if(segments.length === 1){
+    if (segments.length === 1) {
         let objectId = segments[0];
         let objectType = objectId.split('_')[0];
-        if(object[objectType]){
+        if (object[objectType]) {
             object[objectType].splice(object[objectType].indexOf(objectId), 1)
             await $$.promisify(lightDBEnclaveClient.updateRecord)($$.SYSTEM_IDENTIFIER, tableId, pk, {data: object});
             await deleteEmbeddedObjectDependencies(lightDBEnclaveClient, tableId, objectId);
@@ -561,6 +591,7 @@ async function deleteEmbeddedObjectFromTable(lightDBEnclaveClient, tableId, obje
         return await deleteEmbeddedObjectFromTable(lightDBEnclaveClient, tableId, objectURI);
     }
 }
+
 async function deleteEmbeddedObject(request, response) {
     const spaceId = request.params.spaceId;
     const objectURI = decodeURIComponent(request.params.objectURI);
@@ -580,6 +611,7 @@ async function deleteEmbeddedObject(request, response) {
         });
     }
 }
+
 async function swapEmbeddedObjects(request, response) {
     const spaceId = request.params.spaceId;
     const objectURI = decodeURIComponent(request.params.objectURI);
@@ -587,7 +619,7 @@ async function swapEmbeddedObjects(request, response) {
     let [embeddedId1, embeddedId2] = Object.values(request.body);
     try {
         let [tableId, objectId, propertyName] = objectURI.split("/");
-        if(!propertyName && !objectId.includes("_")){
+        if (!propertyName && !objectId.includes("_")) {
             propertyName = objectId;
             objectId = tableId;
         }
@@ -595,7 +627,7 @@ async function swapEmbeddedObjects(request, response) {
         let object = record.data;
         let index1 = object[propertyName].indexOf(embeddedId1);
         let index2 = object[propertyName].indexOf(embeddedId2);
-        if(index1 === -1 || index2 === -1){
+        if (index1 === -1 || index2 === -1) {
             return utils.sendResponse(response, 500, "application/json", {
                 success: false,
                 message: ` Error at swapping objects: ${objectURI}`
@@ -617,23 +649,24 @@ async function swapEmbeddedObjects(request, response) {
     }
 }
 
-async function addSpaceChatMessage(request,response){
-    const spaceId= request.params.spaceId;
-    const userId= request.userId;
-    const messageData= request.body;
+async function addSpaceChatMessage(request, response) {
+    const spaceId = request.params.spaceId;
+    const userId = request.userId;
+    const messageData = request.body;
     try {
         await space.APIs.addSpaceChatMessage(spaceId, userId, messageData);
         utils.sendResponse(response, 200, "application/json", {
             success: true,
             message: `Message added successfully`
         });
-    }catch(error){
+    } catch (error) {
         utils.sendResponse(response, 500, "application/json", {
             success: false,
             message: error
         });
     }
 }
+
 /* TODO constant object mapping of content types to avoid writing manually the content type of a response
 *   and move the cookie verification authentication, rights, etc in a middleware */
 async function getSpace(request, response) {
@@ -649,7 +682,7 @@ async function getSpace(request, response) {
         }
 
         let spaceObject = await space.APIs.getSpaceStatusObject(spaceId);
-        spaceObject.chat=await space.APIs.getSpaceChat(spaceId);
+        spaceObject.chat = await space.APIs.getSpaceChat(spaceId);
         await user.APIs.updateUsersCurrentSpace(userId, spaceId);
         utils.sendResponse(response, 200, "application/json", {
             success: true,
@@ -713,31 +746,24 @@ async function createSpace(request, response) {
     }
 }
 
-async function addCollaboratorToSpace(request, response) {
-    /* Todo Check if the user has access to that space and has the right to add an user */
+async function addCollaboratorsToSpace(request, response) {
+    /* TODO Check if the user has access to that space and has the right to add an user */
     const userId = request.userId;
+    const spaceId = request.params.spaceId;
 
-    const spaceId = request.body.spaceId;
-    if (!spaceId) {
+    if (!request.body.emails) {
         utils.sendResponse(response, 400, "application/json", {
-            message: "Bad Request: Space Id is required",
+            message: "Bad Request: Collaborator Emails is required",
             success: false
         });
-        return;
     }
-    const collaboratorId = request.body.collaboratorId;
-    if (!collaboratorId) {
-        utils.sendResponse(response, 400, "application/json", {
-            message: "Bad Request: Collaborator Id is required",
-            success: false
-        });
-        return;
-    }
+
+    const collaboratorsEmails = request.body.emails;
 
     try {
-        await user.APIs.addSpaceCollaborator(spaceId, collaboratorId);
+        await user.APIs.inviteSpaceCollaborators(userId, spaceId, collaboratorsEmails);
         utils.sendResponse(response, 200, "application/json", {
-            message: `Collaborator added successfully: ${collaboratorId}`,
+            message: `Collaborators invited successfully`,
             success: true
         });
     } catch (error) {
@@ -750,13 +776,7 @@ async function addCollaboratorToSpace(request, response) {
                 return;
             case 409:
                 utils.sendResponse(response, 409, "application/json", {
-                    message: "Conflict: Collaborator already exists",
-                    success: false
-                });
-                return;
-            case 401:
-                utils.sendResponse(response, 401, "application/json", {
-                    message: "Unauthorized: Invalid Collaborator Id",
+                    message: "Conflict: Collaborators already exists",
                     success: false
                 });
                 return;
@@ -768,12 +788,40 @@ async function addCollaboratorToSpace(request, response) {
     }
 
 }
+
 async function getAgent(request, response) {
-    const agentId= request.params.agentId;
-    const agent= user.APIs.getUserActiveAgentId(agentId);
+    const agentId = request.params.agentId;
+    const agent = user.APIs.getUserActiveAgentId(agentId);
+}
+
+async function acceptSpaceInvitation(request, response) {
+    const queryParams = utils.extractQueryParams(request);
+    const invitationToken = queryParams.invitationToken;
+    const newUser = queryParams.newUser || false;
+    try {
+        const HTMLResponse= await user.APIs.acceptSpaceInvitation(invitationToken,newUser);
+        utils.sendResponse(response, 200, "text/html", HTMLResponse);
+    } catch (error) {
+        const spaceInvitationError= await user.APIs.getSpaceInvitationErrorHTML(error);
+        utils.sendResponse(response, 500, "text/html", spaceInvitationError);
+    }
+}
+
+async function rejectSpaceInvitation(request, response) {
+    const queryParams = utils.extractQueryParams(request);
+    const invitationToken = queryParams.invitationToken;
+    try{
+        const HTMLResponse= await user.APIs.rejectSpaceInvitation(invitationToken);
+        utils.sendResponse(response, 200, "text/html", HTMLResponse);
+    }catch(error){
+        const spaceInvitationError= await user.APIs.getSpaceInvitationErrorHTML(error);
+        utils.sendResponse(response, 500, "text/html", spaceInvitationError);
+    }
 }
 
 module.exports = {
+    acceptSpaceInvitation,
+    rejectSpaceInvitation,
     getFileObjectsMetadata,
     getFileObject,
     addFileObject,
@@ -792,7 +840,7 @@ module.exports = {
     getSpace,
     addSpaceChatMessage,
     createSpace,
-    addCollaboratorToSpace,
+    addCollaboratorsToSpace,
     loadFlows,
     getFlow,
     addFlow,

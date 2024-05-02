@@ -16,14 +16,16 @@ const {
     swapEmbeddedObjects,
     getSpace,
     createSpace,
-    addCollaboratorToSpace,
+    addCollaboratorsToSpace,
     loadFlows,
     getFlow,
     updateFlow,
     deleteFlow,
     addFlow,
     getAgent,
-    addSpaceChatMessage
+    addSpaceChatMessage,
+    rejectSpaceInvitation,
+    acceptSpaceInvitation
 } = require("./controller");
 
 const bodyReader = require('../apihub-component-middlewares/bodyReader.js')
@@ -31,6 +33,11 @@ const authentication = require('../apihub-component-middlewares/authentication.j
 
 function SpaceStorage(server) {
     server.use("/spaces/*", bodyReader);
+
+    /* invitations */
+    server.get("/spaces/invitations/reject", rejectSpaceInvitation);
+    server.get("/spaces/invitations/accept", acceptSpaceInvitation);
+
     server.use("/spaces/*", authentication);
 
     server.get("/spaces", getSpace);
@@ -38,8 +45,6 @@ function SpaceStorage(server) {
 
     server.post("/spaces", createSpace);
     //server.delete("/spaces/:spaceId", deleteSpace);
-
-    server.post("/spaces/collaborators", addCollaboratorToSpace);
 
     server.get("/spaces/flows/:spaceId", loadFlows);
     server.get("/spaces/flows/:spaceId/:flowName", getFlow);
@@ -72,7 +77,7 @@ function SpaceStorage(server) {
     server.get("/spaces", getSpace);
     server.get("/spaces/:spaceId", getSpace);
     server.post("/spaces", createSpace);
-    server.post("/spaces/collaborators", addCollaboratorToSpace);
+    server.post("/spaces/:spaceId/collaborators", addCollaboratorsToSpace);
     //server.put("/spaces/:spaceId", storeSpace);
     server.post("/spaces/:spaceId/chat",addSpaceChatMessage);
 

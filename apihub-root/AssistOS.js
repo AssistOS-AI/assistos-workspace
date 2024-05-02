@@ -4,7 +4,7 @@ import * as dependencies from "./wallet/imports.js";
 const userModule = require('assistos').loadModule('user');
 const spaceModule = require('assistos').loadModule('space');
 const applicationModule = require('assistos').loadModule('application');
-const agentModule= require('assistos').loadModule('personality');
+const agentModule = require('assistos').loadModule('personality');
 
 class AssistOS {
     constructor(configuration) {
@@ -41,10 +41,8 @@ class AssistOS {
         };
 
         this.UI = await WebSkel.initialise(uiConfigsPath);
-        //this.storage = new StorageManager();
 
         await initialiseModules("services");
-
 
         this.applications = {};
         this.initialisedApplications = new Set();
@@ -123,39 +121,44 @@ class AssistOS {
             assistOS.currentApplicationName = appName;
         }
     }
-    async logout(){
+
+    async logout() {
         await userModule.loadAPIs().logoutUser();
         await this.refresh();
     }
+
     async refresh() {
         window.location = "";
     }
 
-    async initUser(spaceId,agentId) {
+    async initUser(spaceId, agentId) {
         assistOS.user = new dependencies.User(await userModule.loadAPIs().loadUser());
         assistOS.space = new dependencies.Space(await spaceModule.loadAPIs().loadSpace(spaceId));
         await assistOS.space.loadFlows();
         //await assistOS.loadAgent(spaceId,agentId);
 
     }
-    async loadAgent(spaceId,agentId) {
-        const personalityData= await agentModule.getAgent(spaceId,agentId);
-        assistOS.agent =  new dependencies.Personality(personalityData);
+
+    async loadAgent(spaceId, agentId) {
+        const personalityData = await agentModule.getAgent(spaceId, agentId);
+        assistOS.agent = new dependencies.Personality(personalityData);
     }
 
     async changeAgent(agentId) {
-        await this.loadAgent(assistOS.space.id,agentId);
+        await this.loadAgent(assistOS.space.id, agentId);
     }
+
     async createSpace(spaceName, apiKey) {
         await spaceModule.loadAPIs().createSpace(spaceName, apiKey);
-        await this.loadPage(false,true);
+        await this.loadPage(false, true);
     }
+
     async loadPage(skipAuth = false, skipSpace = false, spaceId) {
         const initPage = async () => {
             const insertSidebar = () => {
                 if (!document.querySelector("left-sidebar")) {
                     document.querySelector("#page-content").insertAdjacentHTML("beforebegin", `<left-sidebar data-presenter="left-sidebar"></left-sidebar>`);
-                }else{
+                } else {
                     document.querySelector("left-sidebar").webSkelPresenter.invalidate();
                 }
             }
@@ -167,7 +170,7 @@ class AssistOS {
                 await assistOS.UI.changeToDynamicPage("space-configs-page", `${assistOS.space.id}/SpaceConfiguration/announcements-page`);
             }
         };
-        let {spaceIdURL, agentId,applicationName, applicationLocation} = getURLData(window.location.hash);
+        let {spaceIdURL, agentId, applicationName, applicationLocation} = getURLData(window.location.hash);
         spaceId = spaceId ? spaceId : spaceIdURL;
         if (spaceId === "authentication-page" && skipAuth) {
             spaceId = undefined;
@@ -179,12 +182,16 @@ class AssistOS {
         }
 
         try {
-            await (spaceId ? skipSpace ? assistOS.initUser(undefined,agentId) : assistOS.initUser(spaceId) : assistOS.initUser(undefined,agentId));
+            await (spaceId ? skipSpace ? assistOS.initUser(undefined, agentId) : assistOS.initUser(spaceId) : assistOS.initUser(undefined, agentId));
             await initPage();
         } catch (error) {
             hidePlaceholders();
             await assistOS.UI.changeToDynamicPage("authentication-page", "authentication-page");
         }
+    }
+
+    async inviteCollaborators(collaboratorEmails) {
+        await this.loadifyFunction(spaceModule.loadAPIs().inviteSpaceCollaborators, assistOS.space.id, collaboratorEmails);
     }
 
     async callFlow(flowName, context, personalityId) {
@@ -228,7 +235,7 @@ class AssistOS {
         async function initFlow(flowName, context, personalityId) {
             let flow;
             if (assistOS.currentApplicationName === assistOS.configuration.defaultApplicationName) {
-                 flow = await assistOS.space.getFlow(flowName);
+                flow = await assistOS.space.getFlow(flowName);
             } else {
                 let app = assistOS.space.getApplicationByName(assistOS.currentApplicationName);
                 flow = app.getFlow(flowName);
@@ -256,6 +263,30 @@ class AssistOS {
             }
             return {flowInstance: flowInstance, flowClass: flow, personality: personality};
         }
+    }
+
+    async loadifyFunction(asyncFunc, ...args) {
+        await this.openLoader();
+        try {
+            await asyncFunc(...args);
+        } catch (error) {
+            await showApplicationError("Error", `Encountered an error during the execution of ${asyncFunc.name||"Undefined Function"}`, {
+                message: error.message,
+                stack: error.stack,
+                function: asyncFunc.name,
+                params: args
+            });
+        } finally {
+            await this.closeLoader();
+        }
+    }
+
+    async openLoader() {
+        await assistOS.UI.showLoading();
+    }
+
+    async closeLoader() {
+        await assistOS.UI.hideLoading();
     }
 
     loadModule(moduleName) {

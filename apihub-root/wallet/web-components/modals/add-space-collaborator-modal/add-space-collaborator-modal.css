@@ -1,14 +1,30 @@
 add-space-collaborator-modal {
     display:flex;
+    flex-direction:column;
+    height:300px;
+    width:300px;
 
 }
 dialog{
     padding: 0;
     border: none;
 }
-
+#collaborators-email-form{
+    display:flex;
+    height:100%;
+    flex-direction:column;
+    justify-content:space-between;
+    overflow: auto;
+}
 .modal-body {
     padding: 0 30px;
+    height:calc(100% - 49px);
+}
+.modal-content{
+    height:100%;
+}
+.modal-dialog{
+    height:100%;
 }
 #form-item-box{
     display: flex;
@@ -56,6 +72,9 @@ dialog{
 
 .modal-footer{
     display: flex;
+    height:20%;
+    position:sticky;
     justify-content: center;
-    margin-bottom: 8px;
+    bottom:10px;
+    align-items: flex-end;
 }

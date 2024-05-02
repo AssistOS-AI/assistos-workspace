@@ -9,6 +9,8 @@ const date = require('../apihub-component-utils/date.js');
 const file = require('../apihub-component-utils/file.js');
 
 const volumeManager = require('../volumeManager.js');
+const Space = require("../spaces-storage/space");
+const {instance: emailService} = require("../email");
 
 async function registerUser(name, email, password, photo) {
     const currentDate = date.getCurrentUTCDate();
@@ -128,10 +130,10 @@ async function loginUser(email, password) {
     throw new Error('Invalid credentials');
 }
 
-async function addSpaceCollaborator(spaceId, userId, role) {
+async function addSpaceCollaborators(spaceId, userId,referrerId, role) {
     await linkSpaceToUser(userId, spaceId)
     try {
-        await linkUserToSpace(spaceId, userId, role)
+        await linkUserToSpace(spaceId, userId,referrerId, role)
     } catch (error) {
         await unlinkSpaceFromUser(userId, spaceId);
         throw error;
@@ -146,7 +148,7 @@ async function createDemoUser() {
     await activateUser(activationToken);
 }
 
-async function getDefaultUserPhoto(){
+async function getDefaultUserPhoto() {
     const defaultUserPhotoPath = path.join(__dirname, 'templates/defaultUserPhoto.png');
     const defaultUserPhoto = await fsPromises.readFile(defaultUserPhotoPath);
     return await file.convertImageToBase64(defaultUserPhoto, 'image/png');
@@ -190,7 +192,7 @@ async function linkSpaceToUser(userId, spaceId) {
 
 }
 
-async function linkUserToSpace(spaceId, userId, role) {
+async function linkUserToSpace(spaceId, userId,referrerId, role) {
     const Space = require('../spaces-storage/space.js');
     const spaceStatusObject = await Space.APIs.getSpaceStatusObject(spaceId);
     if (!spaceStatusObject.users || !Array.isArray(spaceStatusObject.users)) {
@@ -203,7 +205,8 @@ async function linkUserToSpace(spaceId, userId, role) {
             {
                 userId: userId,
                 role: role,
-                joinDate: date.getCurrentUTCDate()
+                referrerId: referrerId,
+                joinDate: date.getCurrentUnixTime()
             }
         )
     } else {
@@ -385,6 +388,100 @@ async function getUsersSecretsExist(spaceId) {
     return secretsExistArr;
 }
 
+async function registerInvite(referrerId, spaceId, email) {
+    const spacePendingInvitationsObj = await Space.APIs.getSpacesPendingInvitationsObject();
+    const invitationToken = await crypto.generateVerificationToken();
+    spacePendingInvitationsObj[invitationToken] = {
+        spaceId: spaceId,
+        referrerId: referrerId,
+        email: email,
+        invitationDate: date.getCurrentUnixTime()
+    }
+    await Space.APIs.updateSpacePendingInvitations(spaceId, spacePendingInvitationsObj);
+    return invitationToken;
+}
+
+async function inviteSpaceCollaborators(referrerId, spaceId, collaboratorsEmails) {
+    const emailService = require('../email').instance;
+    const userMap = await getUserMap();
+    const spaceStatusObject = await Space.APIs.getSpaceStatusObject(spaceId);
+    const spaceName = spaceStatusObject.name;
+    const referrerName = (await getUserFile(referrerId)).name;
+    const existingUserIds = new Set(spaceStatusObject.users.map(user => user.userId));
+
+    for (let email of collaboratorsEmails) {
+        const userId = userMap[email];
+
+        if (userId && existingUserIds.has(userId)) {
+            continue;
+        }
+
+        const invitationToken = await registerInvite(referrerId, spaceId, email);
+        if (userId) {
+            await emailService.sendSpaceInvitationEmail(email, invitationToken, spaceName, referrerName);
+        } else {
+            await emailService.sendSpaceInvitationEmail(email, invitationToken, spaceName, referrerName, true);
+
+        }
+    }
+}
+async function acceptSpaceInvitation(invitationToken,newUser) {
+    const spacePendingInvitationsObj = await Space.APIs.getSpacesPendingInvitationsObject();
+    const invitation = spacePendingInvitationsObj[invitationToken];
+    if (!invitation) {
+        return await getSpaceInvitationErrorHTML('Invalid invitation token');
+    }
+    const {spaceId, referrerId, email} = invitation;
+    if(!newUser){
+        const userMap = await getUserMap();
+        const userId = userMap[email];
+        await addSpaceCollaborators(spaceId, userId,referrerId, 'collaborator');
+        delete spacePendingInvitationsObj[invitationToken];
+        await Space.APIs.updateSpacePendingInvitations(spaceId, spacePendingInvitationsObj);
+        const spaceName= await Space.APIs.getSpaceName(spaceId)
+        return await getSpaceInvitationSuccessfulHTML(spaceName)
+    }else{
+        /* TBD */
+    }
+
+}
+
+async function rejectSpaceInvitation(invitationToken) {
+    const spacePendingInvitationsObj = await Space.APIs.getSpacesPendingInvitationsObject();
+    const invitation = spacePendingInvitationsObj[invitationToken];
+    if (!invitation) {
+        return await getSpaceInvitationErrorHTML('Invalid invitation token');
+    }
+    delete spacePendingInvitationsObj[invitationToken];
+    await Space.APIs.updateSpacePendingInvitations(invitation.spaceId, spacePendingInvitationsObj);
+    return await getSpaceInvitationRejectedHTML()
+}
+
+
+async function getSpaceInvitationSuccessfulHTML(spaceName){
+    const redirectURL= config.ENVIRONMENT_MODE === 'development' ? config.DEVELOPMENT_BASE_URL : config.PRODUCTION_BASE_URL
+    return data.fillTemplate(await require('../email').getTemplate('spaceInvitationAcceptedTemplate'),
+        {
+            spaceName: spaceName,
+            redirectURL:redirectURL
+        });
+}
+async function getSpaceInvitationRejectedHTML(spaceName){
+    const redirectURL= config.ENVIRONMENT_MODE === 'development' ? config.DEVELOPMENT_BASE_URL : config.PRODUCTION_BASE_URL
+    return data.fillTemplate(await require('../email').getTemplate('spaceInvitationRejectedTemplate'),
+        {
+            spaceName: spaceName,
+            redirectURL:redirectURL
+        });
+}
+async function getSpaceInvitationErrorHTML(error){
+    const redirectURL= config.ENVIRONMENT_MODE === 'development' ? config.DEVELOPMENT_BASE_URL : config.PRODUCTION_BASE_URL
+    return data.fillTemplate(await require('../email').getTemplate('spaceInvitationErrorTemplate'),
+        {
+            errorMessage: error,
+            redirectURL:redirectURL
+        });
+}
 module.exports = {
     APIs: {
         registerUser,
@@ -397,9 +494,12 @@ module.exports = {
         linkSpaceToUser,
         getDefaultSpaceId,
         updateUsersCurrentSpace,
-        addSpaceCollaborator,
+        inviteSpaceCollaborators,
         getUsersSecretsExist,
-        storeSecret
+        storeSecret,
+        acceptSpaceInvitation,
+        rejectSpaceInvitation,
+        getSpaceInvitationErrorHTML
     },
     templates: {
         userRegistrationTemplate: require('./templates/userRegistrationTemplate.json'),
