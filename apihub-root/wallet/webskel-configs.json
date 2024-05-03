@@ -154,6 +154,11 @@
             "type": "components"
         },
         {
+            "name": "chat-unit",
+            "type": "components",
+            "presenterClassName": "ChatUnit"
+        },
+        {
             "name": "announcements-page",
             "type": "pages",
             "presenterClassName": "AnnouncementsPage"

@@ -11,39 +11,38 @@ export class AgentPage {
     }
 
     beforeRender() {
-        this.chat=assistOS.space.chat
-
         let stringHTML = "";
-        for (let reply of this.chat) {
-            if ( reply.role === "user") {
-                stringHTML += `
-                <div class="chat-box-container user">
-                 <div class="chat-box user-box">${reply.message}</div>
-                </div>`;
-            } else if (reply.role === "Admin" || reply.role === "assistant") {
-                stringHTML += `
-                <div class="chat-box-container robot">
-                 <div class="chat-box robot-box">${reply.message}</div>
-                </div>`;
+        for (let message of assistOS.space.chat) {
+            if ( message.role === "user") {
+                if(message.user===assistOS.user.id) {
+                    stringHTML += `<chat-unit role="own" message="${message.message}" user="${message.user}" data-presenter="chat-unit"></chat-unit>`;
+                }else {
+                    stringHTML += `<chat-unit role="user" message="${message.message}" user="${message.user}" data-presenter="chat-unit"></chat-unit>`;
+                }
+            } else if (message.role === "assistant") {
+               stringHTML += `<chat-unit role="robot" message="${message.message}" user="${message.user}" data-presenter="chat-unit"></chat-unit>`;
             }
         }
-        this.conversationHistory = stringHTML;
+        this.spaceConversation = stringHTML;
     }
 
     resizeTextarea() {
         //this.style.height = 'auto';
         //this.style.height = (this.scrollHeight) + 'px';
     }
-
+    inviteCollaborators(_target){
+        assistOS.UI.showModal("add-space-collaborator-modal", {presenter: "add-space-collaborator-modal"});
+    }
     afterRender() {
-        this.rightPanel = document.querySelector(".current-page");
+        this.conversation=this.element.querySelector(".conversation");
+  /*      this.rightPanel = document.querySelector(".current-page");
         this.conversation = this.element.querySelector(".conversation");
         this.userInput = this.element.querySelector("#input");
         let form = this.element.querySelector(".chat-input-container");
         this.userInput.removeEventListener("keydown", this.boundFn);
         this.boundFn = this.preventRefreshOnEnter.bind(this, form);
         this.userInput.addEventListener("keydown", this.boundFn);
-        setTimeout(async () => {
+     /!*   setTimeout(async () => {
             if (this.agent.conversationHistory.length === 0) {
                 await assistOS.services.initOpeners();
                 let message = this.agent.getRandomOpener();
@@ -51,7 +50,7 @@ export class AgentPage {
                 await this.agent.addMessage("assistant", message);
                 await assistOS.services.addCapabilities();
             }
-        }, 0);
+        }, 0);*!/*/
 
     }
     hideSettings(controller, container, event) {
@@ -79,20 +78,7 @@ export class AgentPage {
         await assistOS.UI.showModal("change-personality-modal");
     }
     async displayMessage(role, text) {
-        let reply;
-        if (role === "user") {
-            reply = `
-                <div class="chat-box-container user">
-                 <div class="chat-box user-box">${text}</div>
-                </div>`;
-
-        } else if (role === "assistant") {
-            reply = `
-                <div class="chat-box-container robot">
-                 <div class="chat-box robot-box">${text}</div>
-                </div>`;
-        }
-        this.conversation.insertAdjacentHTML("beforeend", reply);
+        this.conversation.insertAdjacentHTML("beforeend", `<chat-unit role="${role}" message="${text}" data-presenter="chat-unit" user="${assistOS.user.id}"></chat-unit>`);
         const lastReplyElement = this.conversation.lastElementChild;
         lastReplyElement.scrollIntoView({behavior: "smooth", block: "start", inline: "nearest"});
     }
@@ -118,9 +104,10 @@ export class AgentPage {
         if (userMessage === "" || userMessage === null || userMessage === undefined) {
             return;
         }
-        await this.displayMessage("user", userMessage);
-        debugger
         await spaceModule.loadAPIs().addSpaceChatMessage(assistOS.space.id, userMessage)
+
+        await this.displayMessage("own", userMessage);
+
         let agentMessage;
         try {
             agentMessage = await assistOS.services.analyzeRequest(formInfo.data.input, this.refreshRightPanel.bind(this));

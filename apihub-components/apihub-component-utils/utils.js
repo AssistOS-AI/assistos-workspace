@@ -63,7 +63,6 @@ function sendResponse(response, statusCode, contentType, message, cookies) {
             message = JSON.stringify(message);
             break;
     }
-
     if (cookies) {
         const cookiesArray = Array.isArray(cookies) ? cookies : [cookies];
         response.setHeader('Set-Cookie', cookiesArray);
@@ -72,8 +71,33 @@ function sendResponse(response, statusCode, contentType, message, cookies) {
     response.write(message);
     response.end();
 }
+function setCacheControl(response, options = {}) {
+    let cacheControl = options.private ? 'private' : 'public';
+
+    if (options.noStore) {
+        cacheControl = 'no-store';
+    } else {
+        if (options.noCache) {
+            cacheControl += ', no-cache';
+        }
+        if (options.mustRevalidate) {
+            cacheControl += ', must-revalidate';
+        }
+        if (options.maxAge) {
+            cacheControl += `, max-age=${options.maxAge}`;
+        }
+        if (options.sMaxAge) {
+            cacheControl += `, s-maxage=${options.sMaxAge}`;
+        }
+    }
+
+    response.setHeader('Cache-Control', cacheControl);
+}
+
+
 module.exports={
     extractQueryParams,
     sendFileToClient,
+    setCacheControl,
     sendResponse
 }

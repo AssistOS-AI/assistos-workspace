@@ -79,9 +79,6 @@ export class LeftSidebar {
         setInterval(updateClock, 10000);
         changeSelectedPageFromSidebar(window.location.hash);
     }
-    addSpaceCollaborator(_target){
-        assistOS.UI.showModal("add-space-collaborator-modal", {presenter: "add-space-collaborator-modal"});
-    }
     openUserActions(_target) {
         let userPhotoContainer = this.element.querySelector(".user-photo-container"); // Container-ul care include și iconița și dropdown-ul
         let dropdownMenu = this.element.querySelector(".user-action-menu");

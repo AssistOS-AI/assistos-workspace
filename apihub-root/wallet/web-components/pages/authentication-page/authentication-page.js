@@ -253,7 +253,6 @@ export class AuthenticationPage {
             return !element.files[0]? true : element.files[0].size <= 1048576;
         };
         const conditions = {"verifyPhotoSize": {fn:verifyPhotoSize, errorMessage:"Image too large! Image max size: 1MB"} };
-        debugger
         const formInfo = await assistOS.UI.extractFormInformation(_target,conditions);
         if (formInfo.isValid) {
             this.formData = formInfo.data;

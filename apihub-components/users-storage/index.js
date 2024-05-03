@@ -5,7 +5,8 @@ const {
     loadUser,
     logoutUser,
     getUsersSecretsExist,
-    storeSecret
+    storeSecret,
+    getUserProfileImage
 } = require("./controller");
 
 const bodyReader = require('../apihub-component-middlewares/bodyReader.js')
@@ -65,6 +66,9 @@ function UserStorage(server) {
 
     server.post("/users/login", async (request, response) => {
         await loginUser(request, response)
+    });
+    server.get("/users/profileImage/:userId",async(request,response)=>{
+        await getUserProfileImage(request,response)
     });
 
     server.use("/users/*", authentication);

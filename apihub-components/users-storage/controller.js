@@ -1,7 +1,8 @@
 const cookie = require('../apihub-component-utils/cookie.js');
 const utils = require('../apihub-component-utils/utils.js');
+const data = require('../apihub-component-utils/data.js');
+const User = require('./user.js');
 
-const User=require('./user.js');
 async function storeSecret(request, response) {
     const spaceId = request.params.spaceId;
     const secrets = request.body;
@@ -18,7 +19,8 @@ async function storeSecret(request, response) {
         });
     }
 }
-async function getUsersSecretsExist(request, response){
+
+async function getUsersSecretsExist(request, response) {
     try {
         let spaceId = request.params.spaceId;
         const secretsExistArr = await User.APIs.getUsersSecretsExist(spaceId);
@@ -34,21 +36,22 @@ async function getUsersSecretsExist(request, response){
         });
     }
 }
+
 async function registerUser(request, response) {
     const userData = request.body;
-    if(!userData.name){
+    if (!userData.name) {
         return utils.sendResponse(response, 400, "application/json", {
             success: false,
             message: "Name is required"
         });
     }
-    if(!userData.email){
+    if (!userData.email) {
         return utils.sendResponse(response, 400, "application/json", {
             success: false,
             message: "Email is required"
         });
     }
-    if(!userData.password){
+    if (!userData.password) {
         return utils.sendResponse(response, 400, "application/json", {
             success: false,
             message: "Password is required"
@@ -71,6 +74,7 @@ async function registerUser(request, response) {
         });
     }
 }
+
 async function activateUser(request, response) {
 
     const queryParams = utils.extractQueryParams(request);
@@ -90,6 +94,7 @@ async function activateUser(request, response) {
         await utils.sendFileToClient(response, activationFailHTML, "html")
     }
 }
+
 async function loginUser(request, response) {
     const requestData = request.body;
     try {
@@ -108,6 +113,7 @@ async function loginUser(request, response) {
         });
     }
 }
+
 async function loadUser(request, response) {
     try {
         const userId = request.userId
@@ -124,6 +130,7 @@ async function loadUser(request, response) {
         }, [cookie.createCurrentSpaceCookie(), cookie.createAuthCookie()]);
     }
 }
+
 async function logoutUser(request, response) {
     if (!request.userId) {
         return utils.sendResponse(response, 401, "application/json", {
@@ -144,6 +151,18 @@ async function logoutUser(request, response) {
     }
 }
 
+async function getUserProfileImage(request, response) {
+    const userId = request.params.userId;
+    const user = await User.APIs.getUserFile(userId);
+    const base64Data = user.photo.split(",")[1];
+    const imageBuffer = Buffer.from(base64Data, 'base64');
+    utils.setCacheControl(response, {
+        maxAge: 60 * 60 * 24 * 7,
+        public: true
+    });
+    utils.sendResponse(response, 200, "image/png", imageBuffer);
+}
+
 module.exports = {
     storeSecret,
     getUsersSecretsExist,
@@ -152,4 +171,5 @@ module.exports = {
     loginUser,
     loadUser,
     logoutUser,
+    getUserProfileImage
 };

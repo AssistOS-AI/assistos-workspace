@@ -93,7 +93,7 @@ agent-page {
     position: relative;
     display: flex;
     margin-bottom: 15px;
-    align-items: center;
+    align-items: stretch;
 }
 
 .user:before {
@@ -118,11 +118,7 @@ agent-page {
     font-size: 16px;
 }
 
-.user-box {
-    border-radius: 16px 16px 16px 0;
-    background: var(--white-text);
-}
-
+/*
 .robot:after {
     position: absolute;
     content: "";
@@ -132,16 +128,29 @@ agent-page {
     width: 24px;
     border-bottom-left-radius: 68%;
     box-shadow: -11px 0 0 0 var(--light-blue);
-}
+}*/
+
 
 .user-box {
+    width: auto;
+    max-width: 60%;
+    word-wrap: break-word;
+    white-space: normal;
+    border-radius: 16px 16px 16px 0;
     color: var(--user-text);
+    background: var(--white-text);
+    margin-right:auto;
 }
 
 .robot-box {
+    width: auto;
+    max-width: 60%;
+    word-wrap: break-word;
+    white-space: normal;
     border-radius: 16px 16px 0 16px;
     background: var(--light-blue);
     color: var(--robot-text);
+    margin-left:auto;
 }
 
 .page-logo-section {

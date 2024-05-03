@@ -499,7 +499,8 @@ module.exports = {
         storeSecret,
         acceptSpaceInvitation,
         rejectSpaceInvitation,
-        getSpaceInvitationErrorHTML
+        getSpaceInvitationErrorHTML,
+        getUserFile
     },
     templates: {
         userRegistrationTemplate: require('./templates/userRegistrationTemplate.json'),

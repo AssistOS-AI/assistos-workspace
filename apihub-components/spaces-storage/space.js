@@ -196,11 +196,11 @@ async function getSpaceChat(spaceId) {
         chat.push({
             role: record.data.role,
             message: record.data.message,
-            date: date.parseUnixDate(record.__timestamp)
+            date: date.parseUnixDate(record.__timestamp),
+            user: record.data.user
         })
     }
     return chat;
-
 }
 
 async function addSpaceChatMessage(spaceId, userId, messageData) {
@@ -210,7 +210,8 @@ async function addSpaceChatMessage(spaceId, userId, messageData) {
     await lightDBEnclaveClient.insertRecord($$.SYSTEM_IDENTIFIER, tableName, primaryKey, {
         data: {
             role: "user",
-            message: messageData
+            message: messageData,
+            user: userId
         }
     })
 }
@@ -224,7 +225,7 @@ async function createSpaceChat(lightDBEnclaveClient, spaceId, spaceName) {
     await lightDBEnclaveClient.insertRecord($$.SYSTEM_IDENTIFIER, tableName, primaryKey, {
         data: {
             role: "Admin",
-            message: welcomeMessage
+            message: welcomeMessage,
         }
     })
 }
