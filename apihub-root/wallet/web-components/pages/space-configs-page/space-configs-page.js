@@ -67,7 +67,7 @@ export class SpaceConfigsPage {
     }
 
     async navigateToPage(_target, page){
-        await assistOS.UI.changeToDynamicPage("space-configs-page", `${assistOS.space.id}/SpaceConfiguration/${page}`);
+        await assistOS.UI.changeToDynamicPage("space-configs-page", `${assistOS.space.id}/Space/${page}`);
     }
 
     toggleSidebar(_target, mode){

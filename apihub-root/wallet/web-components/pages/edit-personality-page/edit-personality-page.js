@@ -113,6 +113,6 @@ export class EditPersonalityPage{
     }
 
     async openPersonalitiesPage(){
-      await assistOS.UI.changeToDynamicPage("space-configs-page", `${assistOS.space.id}/SpaceConfiguration/personalities-page`);
+      await assistOS.UI.changeToDynamicPage("space-configs-page", `${assistOS.space.id}/Space/personalities-page`);
     }
 }

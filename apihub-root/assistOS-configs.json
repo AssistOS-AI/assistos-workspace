@@ -1,5 +1,5 @@
 {
-  "defaultApplicationName": "SpaceConfiguration",
+  "defaultApplicationName": "Space",
   "services": [
     {
       "name": "AgentService",

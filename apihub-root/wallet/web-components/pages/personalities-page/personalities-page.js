@@ -54,6 +54,6 @@ export class PersonalitiesPage {
 
     async selectPersonality(_target){
         let personalityId = assistOS.UI.reverseQuerySelector(_target, "personality-unit").getAttribute("data-id");
-        await assistOS.UI.changeToDynamicPage("space-configs-page", `${assistOS.space.id}/SpaceConfiguration/edit-personality-page/${personalityId}`);
+        await assistOS.UI.changeToDynamicPage("space-configs-page", `${assistOS.space.id}/Space/edit-personality-page/${personalityId}`);
     }
 }

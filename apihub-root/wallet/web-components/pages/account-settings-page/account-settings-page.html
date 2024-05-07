@@ -1,0 +1,57 @@
+<div id="settings-header">
+    <div id="user-avatar">
+        <img src="$$userImage" alt="User Avatar">
+        <div class="overlay">Edit</div>
+    </div>
+</div>
+
+<div id="settings-body">
+    <div id="user-settings">
+        <div id="name-container">
+            Username: <span class="span-text" id="username">$$username</span>
+        </div>
+        <div id="email-container">
+            Email: <span class="span-text" id="email">$$email</span>
+        </div>
+
+        <div id="creation-date-container">
+            Creation Date: <span class="span-text" id="creation-date">$$creationDate</span>
+        </div>
+    </div>
+    <div id="user-api-keys">
+        <div id="settings-table">
+            <div class="credentials-table">
+                <div class="table-header">
+                    <div class="label-text">GIT Credentials</div>
+                    <div class="label-action pointer" data-local-action="">+</div>
+
+                </div>
+                <div class="labels">
+                    <div>Username</div>
+                    <div></div>
+                </div>
+
+            </div>
+            <div class="apikeys-table">
+                <div class="table-header">
+                    <div class="label-text">API Keys</div>
+                    <div class="label-action pointer" data-local-action="addKey">+</div>
+                </div>
+                <div class="table-content">
+                    <div class="labels">
+                        <div id="type-label">Type</div>
+                        <div id="value-label">Value</div>
+                        <div id="actions-label">Action</div>
+                    </div>
+                    <div id="apiKeyContainerWrapper">
+
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+
+<div id="settings-footer">
+
+</div>

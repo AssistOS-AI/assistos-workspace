@@ -67,7 +67,7 @@ export class ApplicationUnit {
 
     async navigateToApplicationPage() {
         if (this.installed) {
-            await assistOS.UI.changeToDynamicPage("space-configs-page", `${assistOS.space.id}/SpaceConfiguration/application-page/${this.appName}`);
+            await assistOS.UI.changeToDynamicPage("space-configs-page", `${assistOS.space.id}/Space/application-page/${this.appName}`);
         }
     }
 

@@ -28,7 +28,7 @@ export class AgentService {
         //await this.summarizeConversation();
         let applicationObjects = await assistOS.callFlow("FindObjectsByValue", {});
 
-        let agent = assistOS.space.getAgent();
+        let agent = assistOS.agent
         let result = await assistOS.callFlow("DeduceIntention", {
             request: request
         });

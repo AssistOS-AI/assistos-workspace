@@ -42,7 +42,7 @@ export class SpaceDocumentsPage {
     }
     async editAction(_target) {
         let documentId = this.getDocumentId(_target);
-        await assistOS.UI.changeToDynamicPage("space-configs-page",`${assistOS.space.id}/SpaceConfiguration/space-document-view-page/${documentId}`);
+        await assistOS.UI.changeToDynamicPage("space-configs-page",`${assistOS.space.id}/Space/space-document-view-page/${documentId}`);
     }
 
     async deleteAction(_target){

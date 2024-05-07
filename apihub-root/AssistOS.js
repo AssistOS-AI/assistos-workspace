@@ -103,7 +103,7 @@ class AssistOS {
             if (!applicationLocation) {
                 applicationLocation = ["announcements-page"];
             }
-            await assistOS.UI.changeToDynamicPage("space-configs-page", `${assistOS.space.id}/SpaceConfiguration/${applicationLocation.join("/")}`)
+            await assistOS.UI.changeToDynamicPage("space-configs-page", `${assistOS.space.id}/Space/${applicationLocation.join("/")}`)
             return;
         }
         if (!assistOS.initialisedApplications[appName]) {
@@ -135,7 +135,7 @@ class AssistOS {
         assistOS.user = new dependencies.User(await userModule.loadAPIs().loadUser());
         assistOS.space = new dependencies.Space(await spaceModule.loadAPIs().loadSpace(spaceId));
         await assistOS.space.loadFlows();
-        //await assistOS.loadAgent(spaceId,agentId);
+       // await assistOS.loadAgent(spaceId,agentId);
 
     }
 
@@ -167,7 +167,7 @@ class AssistOS {
             if (applicationName) {
                 await assistOS.startApplication(applicationName, applicationLocation);
             } else {
-                await assistOS.UI.changeToDynamicPage("space-configs-page", `${assistOS.space.id}/SpaceConfiguration/announcements-page`);
+                await assistOS.UI.changeToDynamicPage("space-configs-page", `${assistOS.space.id}/Space/announcements-page`);
             }
         };
         let {spaceIdURL, agentId, applicationName, applicationLocation} = getURLData(window.location.hash);

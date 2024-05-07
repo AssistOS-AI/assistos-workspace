@@ -20,7 +20,7 @@ export class SpaceAddDocumentModal {
             });
             assistOS.UI.closeModal(_target);
             let docId = JSON.parse(response.data.id);
-            await assistOS.UI.changeToDynamicPage(`space-configs-page`, `${assistOS.space.id}/SpaceConfiguration/space-document-view-page/${docId}`);
+            await assistOS.UI.changeToDynamicPage(`space-configs-page`, `${assistOS.space.id}/Space/space-document-view-page/${docId}`);
         }
     }
 }

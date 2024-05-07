@@ -48,7 +48,17 @@ export class LeftSidebar {
     changeBaseURL(newBaseURL) {
         document.getElementById('baseTag').setAttribute('href', newBaseURL);
     }
+    async openAccountSettings() {
+        function hideDropdown() {
+            dropdownMenu.style.display = "none";
+            userPhotoContainer.removeEventListener('mouseleave', hideDropdown);
+        }
 
+        let userPhotoContainer = this.element.querySelector(".user-photo-container");
+        let dropdownMenu = this.element.querySelector(".user-action-menu");
+        hideDropdown();
+        await assistOS.UI.changeToDynamicPage("space-configs-page", `${assistOS.space.id}/Space/account-settings-page`);
+    }
     afterRender() {
         let features = this.element.querySelectorAll(".feature");
         features.forEach((feature) => {
@@ -80,27 +90,23 @@ export class LeftSidebar {
         changeSelectedPageFromSidebar(window.location.hash);
     }
     openUserActions(_target) {
-        let userPhotoContainer = this.element.querySelector(".user-photo-container"); // Container-ul care include și iconița și dropdown-ul
+        let userPhotoContainer = this.element.querySelector(".user-photo-container");
         let dropdownMenu = this.element.querySelector(".user-action-menu");
 
-        // Arată dropdown-ul
         dropdownMenu.style.display = "flex";
 
-        // Funcția de ascundere a dropdown-ului
         function hideDropdown() {
             dropdownMenu.style.display = "none";
-            userPhotoContainer.removeEventListener('mouseleave', hideDropdown); // Înlătură listener-ul după ce dropdown-ul a fost ascuns
+            userPhotoContainer.removeEventListener('mouseleave', hideDropdown);
         }
 
-        // Adaugă un event listener pentru mouseleave
         userPhotoContainer.addEventListener('mouseleave', hideDropdown);
 
-        // Asigură-te că dropdown-ul se închide și la click în afara lui
         document.addEventListener("click", function(event) {
             if (!userPhotoContainer.contains(event.target)) {
                 hideDropdown();
             }
-        }, { once: true }); // Opțiunea 'once' face ca listener-ul să fie executat doar o singură dată
+        }, { once: true });
     }
 
     async logout() {

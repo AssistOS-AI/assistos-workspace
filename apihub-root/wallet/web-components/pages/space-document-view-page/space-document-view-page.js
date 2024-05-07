@@ -509,6 +509,6 @@ export class SpaceDocumentViewPage {
     }
 
     async openDocumentsPage() {
-        await assistOS.UI.changeToDynamicPage("space-configs-page", `${assistOS.space.id}/SpaceConfiguration/space-documents-page`);
+        await assistOS.UI.changeToDynamicPage("space-configs-page", `${assistOS.space.id}/Space/space-documents-page`);
     }
 }

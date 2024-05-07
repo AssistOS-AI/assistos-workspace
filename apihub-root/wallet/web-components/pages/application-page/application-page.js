@@ -55,7 +55,7 @@ export class ApplicationPage {
     }
 
     async openApplicationsMarketplacePage(){
-        await assistOS.UI.changeToDynamicPage("applications-marketplace-page", `${assistOS.space.id}/SpaceConfiguration/applications-marketplace-page`);
+        await assistOS.UI.changeToDynamicPage("applications-marketplace-page", `${assistOS.space.id}/Space/applications-marketplace-page`);
     }
     getFlowName(_target){
         return assistOS.UI.reverseQuerySelector(_target, "flow-unit").getAttribute("data-name");
