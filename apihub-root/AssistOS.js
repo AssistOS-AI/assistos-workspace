@@ -51,17 +51,6 @@ class AssistOS {
         });
         this.currentApplicationName = this.configuration.defaultApplicationName;
     }
-
-    async installApplication(appName) {
-        await applicationModule.installApplication(assistOS.space.id, appName);
-        await this.refresh();
-    }
-
-    async uninstallApplication(appName) {
-        await applicationModule.uninstallApplication(assistOS.space.id, appName);
-        await this.refresh();
-    }
-
     async startApplication(appName, applicationLocation, isReadOnly) {
         const initialiseApplication = async () => {
             assistOS.initialisedApplications[appName] = await applicationModule.getApplicationConfigs(assistOS.space.id, appName);

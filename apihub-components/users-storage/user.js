@@ -357,35 +357,35 @@ async function getUserActiveAgent() {
 function createContainerName(spaceId, userId) {
     return `${spaceId}-${userId}`;
 }
-
-async function storeSecret(server, request, response) {
-    let spaceId = request.params.spaceId;
-    let userId = request.params.userId;
+async function getSecret(spaceId, userId, secretName) {
     let containerName = createContainerName(spaceId, userId);
-    const secretsService = await require('apihub').getSecretsServiceInstanceAsync(server.rootFolder);
-    let body = JSON.parse(request.body.toString());
-    if (body.delete) {
-        //delete
-        await secretsService.deleteSecretAsync(containerName, body.secretName);
-    }
-    await secretsService.putSecretAsync(containerName, body.secretName, body.secret);
-}
-
-async function getUsersSecretsExist(spaceId) {
-    let users = await getUserMap();
     let rootFolder = require("../securityConfig.json").SERVER_ROOT_FOLDER;
     const secretsService = await require('apihub').getSecretsServiceInstanceAsync(rootFolder);
-    let secretsExistArr = [];
-    for (let username of Object.keys(users)) {
-        let containerName = createContainerName(spaceId, users[username]);
+    return secretsService.getSecretSync(containerName, secretName);
+}
+async function addSecret(spaceId, userId, body) {
+    let containerName = createContainerName(spaceId, userId);
+    let rootFolder = require("../securityConfig.json").SERVER_ROOT_FOLDER;
+    const secretsService = await require('apihub').getSecretsServiceInstanceAsync(rootFolder);
+    await secretsService.putSecretAsync(containerName, body.secretName, body.secret);
+}
+async function deleteSecret(spaceId, userId, secretName) {
+    let containerName = createContainerName(spaceId, userId);
+    let rootFolder = require("../securityConfig.json").SERVER_ROOT_FOLDER;
+    const secretsService = await require('apihub').getSecretsServiceInstanceAsync(rootFolder);
+    await secretsService.deleteSecretAsync(containerName, secretName);
+}
+async function userSecretExists(spaceId, userId, secretName) {
+    let rootFolder = require("../securityConfig.json").SERVER_ROOT_FOLDER;
+    const secretsService = await require('apihub').getSecretsServiceInstanceAsync(rootFolder);
+    let containerName = createContainerName(spaceId, userId);
         try {
-            secretsService.getSecretSync(containerName, "git-credentials");
-            secretsExistArr.push({name: username, id: crypto.generateId()});
+            secretsService.getSecretSync(containerName, secretName);
+            return true;
         } catch (e) {
             //secret for user doesn't exist
+            return false;
         }
-    }
-    return secretsExistArr;
 }
 
 async function registerInvite(referrerId, spaceId, email) {
@@ -495,8 +495,10 @@ module.exports = {
         getDefaultSpaceId,
         updateUsersCurrentSpace,
         inviteSpaceCollaborators,
-        getUsersSecretsExist,
-        storeSecret,
+        getSecret,
+        userSecretExists,
+        addSecret,
+        deleteSecret,
         acceptSpaceInvitation,
         rejectSpaceInvitation,
         getSpaceInvitationErrorHTML,

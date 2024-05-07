@@ -1,13 +1,10 @@
 const cookie = require('../apihub-component-utils/cookie.js');
 const utils = require('../apihub-component-utils/utils.js');
-const data = require('../apihub-component-utils/data.js');
 const User = require('./user.js');
 
-async function storeSecret(request, response) {
-    const spaceId = request.params.spaceId;
-    const secrets = request.body;
+async function addSecret(request, response) {
     try {
-        await User.APIs.storeSecret(spaceId, secrets);
+        await User.APIs.addSecret(request.params.spaceId, request.userId, request.body);
         utils.sendResponse(response, 200, "application/json", {
             success: true,
             message: "Secret stored successfully"
@@ -19,13 +16,25 @@ async function storeSecret(request, response) {
         });
     }
 }
-
-async function getUsersSecretsExist(request, response) {
+async function deleteSecret(request, response) {
     try {
-        let spaceId = request.params.spaceId;
-        const secretsExistArr = await User.APIs.getUsersSecretsExist(spaceId);
+        await User.APIs.deleteSecret(request.params.spaceId, request.userId, request.body);
         utils.sendResponse(response, 200, "application/json", {
-            data: secretsExistArr,
+            success: true,
+            message: "Secret deleted successfully"
+        });
+    } catch (error) {
+        utils.sendResponse(response, 500, "application/json", {
+            success: false,
+            message: error.message
+        });
+    }
+}
+async function userSecretExists(request, response) {
+    try {
+        const booleanResult = await User.APIs.userSecretExists(request.params.spaceId, request.userId, request.body);
+        utils.sendResponse(response, 200, "application/json", {
+            data: booleanResult,
             success: true,
             message: "Secrets exist status loaded successfully"
         });
@@ -164,8 +173,9 @@ async function getUserProfileImage(request, response) {
 }
 
 module.exports = {
-    storeSecret,
-    getUsersSecretsExist,
+    addSecret,
+    deleteSecret,
+    userSecretExists,
     registerUser,
     activateUser,
     loginUser,

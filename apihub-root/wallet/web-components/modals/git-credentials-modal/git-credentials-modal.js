@@ -1,3 +1,4 @@
+let userModule = require("assistos").loadModule("user").loadAPIs();
 export class GitCredentialsModal {
     constructor(element,invalidate){
         this.invalidate=invalidate;
@@ -11,16 +12,7 @@ export class GitCredentialsModal {
     async setCredentials(_target){
         let formData = await assistOS.UI.extractFormInformation(_target);
         if(formData.isValid) {
-            let usernameSecret = {
-                secretName: "username",
-                secret: formData.data.username
-            }
-            let tokenSecret = {
-                secretName: "token",
-                secret: formData.data.token
-            }
-            await assistOS.services.storeGITCredentials(JSON.stringify(usernameSecret));
-            await assistOS.services.storeGITCredentials(JSON.stringify(tokenSecret));
+            await userModule.addGITCredentials(assistOS.space.id, formData.data.username, formData.data.token);
             assistOS.UI.closeModal(_target, true);
         }
     }
