@@ -1,7 +1,7 @@
 import {
     validateOpenAiKey,
 } from "../../../imports.js";
-
+const userModule= require('assistos').loadModule('user');
 export class AddApikeyModal {
     constructor(element, invalidate) {
         this.element = element;
@@ -13,6 +13,7 @@ export class AddApikeyModal {
     beforeRender(){}
     async addKey(_target) {
         let formData = await assistOS.UI.extractFormInformation(_target);
+        debugger
         if (formData.isValid) {
             const apiKey = formData.data.apiKey
             const keyType=formData.data
@@ -21,6 +22,7 @@ export class AddApikeyModal {
                 if(!keyValidation.success){
                     throw Error(keyValidation.error);
                 }
+                await userModule.loadAPIs().add
                 await assistOS.services.addKeyToSpace(assistOS.space.id,assistOS.user.id,keyType,apiKey);
                 closeModal(_target);
                 window.location=""

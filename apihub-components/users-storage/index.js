@@ -5,9 +5,9 @@ const {
     loadUser,
     logoutUser,
     userSecretExists,
-    addSecret,
-    deleteSecret,
-    getUserProfileImage
+    getUserAvatar,
+    addAPIKey,
+    deleteAPIKey
 } = require("./controller");
 
 const bodyReader = require('../apihub-component-middlewares/bodyReader.js')
@@ -54,22 +54,33 @@ function UserStorage(server) {
 
 
     server.use("/users/*", bodyReader);
+
+
     server.post("/users/secrets/exists/:spaceId", userSecretExists);
-    server.post("/users/secrets/:spaceId", addSecret);
-    server.put("/users/secrets/:spaceId", deleteSecret);
+
 
     server.get("/users/verify", activateUser);
 
     server.post("/users", registerUser);
 
     server.post("/users/login", loginUser);
-    server.get("/users/profileImage/:userId", getUserProfileImage);
+
+    server.get("/users/profileImage/:userId", getUserAvatar);
+
 
     server.use("/users/*", authentication);
 
     server.get("/users", loadUser);
 
+    server.get("/users/profileImage", getUserAvatar);
+
     server.post("/users/logout", logoutUser);
+
+    server.post("/users/secrets/keys",addAPIKey);
+    server.post("/users/:userId/secrets/keys",addAPIKey);
+    server.delete("/users/secrets/keys/:keyId",deleteAPIKey);
+    server.delete("/users/:userId/secrets/keys/:keyId",deleteAPIKey);
+
 
 }
 

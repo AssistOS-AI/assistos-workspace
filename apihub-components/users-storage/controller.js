@@ -160,7 +160,7 @@ async function logoutUser(request, response) {
     }
 }
 
-async function getUserProfileImage(request, response) {
+async function getUserAvatar(request, response) {
     const userId = request.params.userId;
     const user = await User.APIs.getUserFile(userId);
     const base64Data = user.photo.split(",")[1];
@@ -181,5 +181,5 @@ module.exports = {
     loginUser,
     loadUser,
     logoutUser,
-    getUserProfileImage
+    getUserAvatar
 };
