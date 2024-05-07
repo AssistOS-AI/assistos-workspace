@@ -219,6 +219,11 @@
             "presenterClassName": "AuthenticationPage"
         },
         {
+            "name": "account-settings-page",
+            "type": "pages",
+            "presenterClassName": "AccountSettingsPage"
+        },
+        {
             "name": "application-unit",
             "type": "components",
             "presenterClassName": "ApplicationUnit"
