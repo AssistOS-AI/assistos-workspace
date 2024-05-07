@@ -4,8 +4,9 @@ const {
     loginUser,
     loadUser,
     logoutUser,
-    getUsersSecretsExist,
-    storeSecret,
+    userSecretExists,
+    addSecret,
+    deleteSecret,
     getUserProfileImage
 } = require("./controller");
 
@@ -53,33 +54,22 @@ function UserStorage(server) {
 
 
     server.use("/users/*", bodyReader);
-    server.get("/users/secrets/:spaceId", getUsersSecretsExist);
-    server.post("/users/secrets/:spaceId", storeSecret);
+    server.post("/users/secrets/exists/:spaceId", userSecretExists);
+    server.post("/users/secrets/:spaceId", addSecret);
+    server.put("/users/secrets/:spaceId", deleteSecret);
 
-    server.get("/users/verify", async (request, response) => {
-        await activateUser(request, response)
-    });
+    server.get("/users/verify", activateUser);
 
-    server.post("/users", async (request, response) => {
-        await registerUser(request, response)
-    });
+    server.post("/users", registerUser);
 
-    server.post("/users/login", async (request, response) => {
-        await loginUser(request, response)
-    });
-    server.get("/users/profileImage/:userId",async(request,response)=>{
-        await getUserProfileImage(request,response)
-    });
+    server.post("/users/login", loginUser);
+    server.get("/users/profileImage/:userId", getUserProfileImage);
 
     server.use("/users/*", authentication);
 
-    server.get("/users", async (request, response) => {
-        await loadUser(request, response);
-    });
+    server.get("/users", loadUser);
 
-    server.post("/users/logout", async (request, response) => {
-        await logoutUser(request, response)
-    });
+    server.post("/users/logout", logoutUser);
 
 }
 

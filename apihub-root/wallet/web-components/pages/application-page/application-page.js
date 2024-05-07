@@ -1,3 +1,4 @@
+const applicationModule = require("assistos").loadModule("application");
 export class ApplicationPage {
     constructor(element, invalidate) {
         this.element=element;
@@ -41,17 +42,18 @@ export class ApplicationPage {
         }
         this.tags = string;
     }
-    async installApplication() {
-        const loadingId = await assistOS.UI.showLoading();
-        await assistOS.installApplication(this.appName);
-        assistOS.UI.hideLoading(loadingId);
-        location.reload();
-    }
     async uninstallApplication() {
         const loadingId = await assistOS.UI.showLoading();
-        await assistOS.uninstallApplication(this.appName);
-        assistOS.UI.hideLoading(loadingId);
-        location.reload();
+        let response = await applicationModule.uninstallApplication(assistOS.space.id, this.appName);
+        if (response.status === 401) {
+            let confirmation = await assistOS.UI.showModal("git-credentials-modal", true);
+            if (confirmation) {
+                await this.uninstallApplication();
+            }
+        } else {
+            assistOS.UI.hideLoading(loadingId);
+            location.reload();
+        }
     }
 
     async openApplicationsMarketplacePage(){

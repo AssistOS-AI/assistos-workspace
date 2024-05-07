@@ -7,15 +7,6 @@ const {sendResponse,sendFileToClient} = require('../apihub-component-utils/utils
 const crypto = require('../apihub-component-utils/crypto.js');
 const dataVolumePaths = require('../volumeManager').paths;
 const Space=require('../spaces-storage/space.js');
-function createContainerName(spaceId, userId) {
-    return `${spaceId}.${userId}`;
-}
-
-async function getSecret(spaceId, userId, secretName, serverRootFolder) {
-    let containerName = createContainerName(spaceId, userId);
-    const secretsService = await require('apihub').getSecretsServiceInstanceAsync(serverRootFolder);
-    return secretsService.getSecretSync(containerName, secretName);
-}
 
 async function updateSpaceStatus(spaceId, applicationName, description, deleteMode = false) {
     const statusPath = path.join(dataVolumePaths.space,`${spaceId}/status/status.json`);
