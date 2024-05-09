@@ -31,15 +31,7 @@ function openAIMixin(target) {
         }
     }
     target.setKey = async function (key) {
-        try {
-            if (key !== undefined) {
                 target.key = key;
-            } else if (process.env.OPENAI_API_KEY) {
-                target.key = process.env.OPENAI_API_KEY;
-            }
-        } catch (error) {
-            throw new Error(`Failed setting the API key. No key provided or couldn't find a key in the environment`);
-        }
     };
     target.setResponseFormat = function (format) {
         if (format) {

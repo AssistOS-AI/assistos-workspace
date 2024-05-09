@@ -35,7 +35,7 @@
       }
     },
     "apiKeys": {
-      "type": "array",
+      "type": "object",
       "items": {
         "type": "object"
       }

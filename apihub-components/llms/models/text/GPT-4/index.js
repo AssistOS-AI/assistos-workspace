@@ -1,4 +1,4 @@
-class GPT4{
+class Index {
     constructor() {
         this.name = "GPT4";
         this.intelligence = 9;
@@ -14,9 +14,9 @@ class GPT4{
             temperature: 0.7,
             n: 1
         }
-        let openAIMixin = require("../../mixins/openAIMixin");
+        let openAIMixin = require("../../../mixins/utils/openAIMixin");
         openAIMixin(this);
     }
 
 }
-module.exports = GPT4;
+module.exports = Index;

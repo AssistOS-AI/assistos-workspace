@@ -1,4 +1,4 @@
-class GPT35Turbo {
+class Index {
     constructor() {
         this.name = "GPT3Point5Turbo";
         this.intelligence = 5;
@@ -14,9 +14,9 @@ class GPT35Turbo {
             temperature: 0.7,
             n: 1
         }
-        let openAIMixin = require("../../mixins/openAIMixin");
+        let openAIMixin = require("../../../mixins/utils/openAIMixin");
         openAIMixin(this);
     }
 
 }
-module.exports = GPT35Turbo;
+module.exports = Index;
