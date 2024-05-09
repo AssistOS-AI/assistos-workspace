@@ -8,6 +8,9 @@ export class SpaceChapterUnit {
         this.refreshChapter = async () =>{
             this.chapter = await this._document.refreshChapter(this._document.id, this.chapter.id);
         };
+        this.refreshChapterTitle = async () =>{
+            await this.chapter.refreshChapterTitle(this._document.id, this.chapter.id);
+        };
         this.refreshParagraph = (paragraphId) =>{
             return async ()=>{
                 this.chapter = await this.chapter.refreshParagraph(this._document.id, paragraphId);
@@ -21,6 +24,7 @@ export class SpaceChapterUnit {
     }
     beforeRender() {
         this._document.observeChange(this.chapter.id, this.invalidate, this.refreshChapter);
+        this._document.observeChange(this.chapter.id + "/title", this.invalidate, this.refreshChapterTitle);
         for(let paragraph of this.chapter.paragraphs){
             this._document.observeChange(paragraph.id, this.invalidate, this.refreshParagraph(paragraph.id));
         }
@@ -122,7 +126,7 @@ export class SpaceChapterUnit {
                     chapterId: this.chapter.id,
                     title: titleText
                 });
-                this.invalidate(this.refreshChapter);
+                this.invalidate(this.refreshChapterTitle);
             }
         }, 3000);
         /* NO chapter Title */

@@ -1,4 +1,5 @@
 import {Chapter} from "../../imports.js"
+
 const documentModule = require("assistos").loadModule("document");
 export class Document {
     constructor(documentData) {
@@ -46,11 +47,6 @@ export class Document {
     notifyObservers(prefix) {
         for (const observerRef of this.observers) {
             const observer = observerRef.deref();
-            /* multiple refreshes at the same time( when refreshing a parent the child also refresh causing problems */
-            /* doc:document-view-page:chapter:23SDFAasd4
-              * doc:document-view-page
-              * doc:document-view-page:right-sidebar:chapter-titles:chapter:23SDFAasd4
-            */
             if(observer &&observer.elementId.startsWith(prefix)) {
                 observer.callback(observer.param);
             }
@@ -139,17 +135,14 @@ export class Document {
         await assistOS.storage.updateDocumentAbstract(assistOS.space.id, this.id, abstractText);
     }
 
-    /* left shift(decrement) the ids to the right of the deleted chapter? */
-    async deleteChapter(chapterId) {
-        const index = this.chapters.findIndex(chapter => chapter.id === chapterId);
-        if (index !== -1) {
-            this.chapters.splice(index, 1);
-            await assistOS.storage.deleteChapter(assistOS.space.id, this.id, chapterId);
-        }
-    }
-
     getChapter(chapterId) {
         return this.chapters.find(chapter => chapter.id === chapterId);
+    }
+    async refreshDocumentTitle() {
+        this.title = await documentModule.getDocumentTitle(assistOS.space.id, this.id);
+    }
+    async refreshDocumentAbstract() {
+        this.abstract = await documentModule.getDocumentAbstract(assistOS.space.id, this.id);
     }
     async refreshChapter(documentId ,chapterId){
         let chapterData = await documentModule.getChapter(assistOS.space.id, documentId, chapterId);
