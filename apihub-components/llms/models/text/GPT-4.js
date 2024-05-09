@@ -14,7 +14,7 @@ class GPT4{
             temperature: 0.7,
             n: 1
         }
-        let openAIMixin = require("../mixins/openAIMixin");
+        let openAIMixin = require("../../mixins/openAIMixin");
         openAIMixin(this);
     }
 
