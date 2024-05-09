@@ -25,7 +25,9 @@ const {
     getAgent,
     addSpaceChatMessage,
     rejectSpaceInvitation,
-    acceptSpaceInvitation
+    acceptSpaceInvitation,
+    addAPIKey,
+    deleteAPIKey
 } = require("./controller");
 
 const bodyReader = require('../apihub-component-middlewares/bodyReader.js')
@@ -44,7 +46,6 @@ function SpaceStorage(server) {
     server.get("/spaces/:spaceId", getSpace);
 
     server.post("/spaces", createSpace);
-    //server.delete("/spaces/:spaceId", deleteSpace);
 
     server.get("/spaces/flows/:spaceId", loadFlows);
     server.get("/spaces/flows/:spaceId/:flowName", getFlow);
@@ -73,14 +74,17 @@ function SpaceStorage(server) {
     server.delete("/spaces/embeddedObject/:spaceId/:objectURI", deleteEmbeddedObject);
     server.put("/spaces/embeddedObject/swap/:spaceId/:objectURI", swapEmbeddedObjects);
 
-    //server.post("/spaces/:spaceId/secrets", storeSecret);
     server.get("/spaces", getSpace);
     server.get("/spaces/:spaceId", getSpace);
     server.post("/spaces", createSpace);
     server.post("/spaces/:spaceId/collaborators", addCollaboratorsToSpace);
-    //server.put("/spaces/:spaceId", storeSpace);
     server.post("/spaces/:spaceId/chat",addSpaceChatMessage);
 
+    server.post("/spaces/secrets/keys",addAPIKey);
+    server.post("/spaces/:spaceId/secrets/keys",addAPIKey);
+
+    server.delete("/spaces/secrets/keys/:keyId",deleteAPIKey);
+    server.delete("/spaces/:spaceId/secrets/keys/:keyId",deleteAPIKey);
 }
 
 module.exports = SpaceStorage;

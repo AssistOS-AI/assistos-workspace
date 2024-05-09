@@ -1,7 +1,9 @@
 import {
     validateOpenAiKey,
 } from "../../../imports.js";
-const userModule= require('assistos').loadModule('user');
+
+const userModule = require('assistos').loadModule('user');
+
 export class AddApikeyModal {
     constructor(element, invalidate) {
         this.element = element;
@@ -10,29 +12,37 @@ export class AddApikeyModal {
 
         });
     }
-    beforeRender(){}
-    async addKey(_target) {
+
+    beforeRender() {
+        this.APIKeyTypeOptions = "";
+        Object.keys(assistOS.space.apiKeys).forEach((keyType) => {
+            this.APIKeyTypeOptions += `<option value="${keyType}">${keyType}</option>`
+        })
+    }
+
+    async addAPIKey(_target) {
         let formData = await assistOS.UI.extractFormInformation(_target);
-        debugger
         if (formData.isValid) {
             const apiKey = formData.data.apiKey
-            const keyType=formData.data
+            const keyType = formData.data.keyType
             try {
-                const keyValidation = await validateOpenAiKey(apiKey);
-                if(!keyValidation.success){
-                    throw Error(keyValidation.error);
+                if (keyType === "OpenAI") {
+                    const keyValidation = await validateOpenAiKey(apiKey);
+                    if (!keyValidation.success) {
+                        throw Error(keyValidation.error);
+                    }
                 }
-                await userModule.loadAPIs().add
-                await assistOS.services.addKeyToSpace(assistOS.space.id,assistOS.user.id,keyType,apiKey);
-                closeModal(_target);
-                window.location=""
+                await userModule.loadAPIs().addAPIKey(keyType, apiKey);
+                assistOS.UI.closeModal(_target);
+                window.location = ""
             } catch (error) {
-                closeModal(_target);
-                showApplicationError('Invalid API Key', `Encountered an error trying to add the API Key to Space: ${assistOS.space.name}`,
+                assistOS.UI.closeModal(_target);
+                await showApplicationError('Invalid API Key', `Encountered an error trying to add the API Key to Space: ${assistOS.space.name}`,
                     error);
             }
         }
     }
+
     closeModal(_target) {
         assistOS.UI.closeModal(_target);
     }

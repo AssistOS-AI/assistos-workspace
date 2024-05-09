@@ -3,9 +3,21 @@
   "id": "$$spaceId",
   "creationDate": "$$creationDate",
   "settings": {},
-  "announcements": ["$$defaultAnnouncement"],
-  "users": ["$$adminId"],
-  "admins":["$$adminId"],
-  "apiKeys": ["$$apiKey?"],
+  "announcements": [
+    "$$defaultAnnouncement"
+  ],
+  "users": [
+    "$$adminId"
+  ],
+  "admins": [
+    "$$adminId"
+  ],
+  "apiKeys": {
+    "OpenAI": "$$OpenAIAPIKey",
+    "Google": {},
+    "Microsoft": {},
+    "Meta": {},
+    "Amazon": {}
+  },
   "installedApplications": []
 }

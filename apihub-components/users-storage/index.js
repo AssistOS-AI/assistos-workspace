@@ -76,11 +76,6 @@ function UserStorage(server) {
 
     server.post("/users/logout", logoutUser);
 
-    server.post("/users/secrets/keys",addAPIKey);
-    server.post("/users/:userId/secrets/keys",addAPIKey);
-    server.delete("/users/secrets/keys/:keyId",deleteAPIKey);
-    server.delete("/users/:userId/secrets/keys/:keyId",deleteAPIKey);
-
 
 }
 

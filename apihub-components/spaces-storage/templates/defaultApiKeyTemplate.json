@@ -2,5 +2,6 @@
   "type": "$$keyType",
   "ownerId": "$$ownerId",
   "id": "$$keyId",
-  "value": "$$keyValue"
+  "value": "$$keyValue",
+  "addedAt": "$$addedDate"
 }

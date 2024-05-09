@@ -14,7 +14,8 @@ const date = require('../apihub-component-utils/date.js');
 const file = require('../apihub-component-utils/file.js');
 const openAI = require('../apihub-component-utils/openAI.js');
 const utils = require("../apihub-component-utils/utils");
-
+const secrets = require('../apihub-component-utils/secrets.js');
+const defaultApiKeyTemplate = require("./templates/defaultApiKeyTemplate.json");
 
 function getSpacePath(spaceId) {
     return path.join(volumeManager.paths.space, spaceId);
@@ -125,19 +126,28 @@ async function createSpace(spaceName, userId, apiKey) {
 
     const spaceId = crypto.generateId();
     let spaceObj = {}
+    let OpenAPIKeyObj = {}
+    let keyId
+    if (apiKey) {
+        await openAI.confirmOpenAiKeyValidation(apiKey);
+        keyId = crypto.generateId();
+        OpenAPIKeyObj[keyId] = data.fillTemplate(defaultApiKeyTemplate, {
+            keyType: "OpenAI",
+            ownerId: userId,
+            keyId: keyId,
+            keyValue: openAI.maskKey(apiKey),
+            addedDate: date.getCurrentUTCDate()
+        })
+    }
     try {
         spaceObj = data.fillTemplate(defaultSpaceTemplate, {
             spaceName: spaceName,
             spaceId: spaceId,
             adminId: userId,
-            apiKey: apiKey ? data.fillTemplate(defaultApiKeyTemplate, {
-                keyType: "OpenAI",
-                ownerId: userId,
-                keyId: crypto.generateId(),
-                keyValue: openAI.maskKey(apiKey)
-            }) : undefined,
+            OpenAIAPIKey: OpenAPIKeyObj,
             defaultAnnouncement: createDefaultAnnouncement(spaceName),
-            creationDate: date.getCurrentUTCDate()
+            creationDate:
+                date.getCurrentUTCDate()
         });
     } catch (error) {
         error.message = 'Error creating space';
@@ -161,6 +171,8 @@ async function createSpace(spaceName, userId, apiKey) {
     const spacePath = getSpacePath(spaceId);
 
     await file.createDirectory(spacePath);
+    await secrets.createSpaceSecretsContainer(spaceId);
+
     const filesPromises = [
         () => copyDefaultFlows(spacePath),
         () => copyDefaultPersonalities(spacePath),
@@ -169,7 +181,7 @@ async function createSpace(spaceName, userId, apiKey) {
         () => createSpaceStatus(spacePath, spaceObj),
         () => User.APIs.linkSpaceToUser(userId, spaceId),
         () => addSpaceToSpaceMap(spaceId, spaceName),
-    ].concat(apiKey ? [() => saveSpaceAPIKeySecret(spaceId, apiKey)] : []);
+    ].concat(apiKey ? [() => secrets.addSpaceKey(spaceId, "OpenAI", apiKey, keyId)] : []);
 
     const results = await Promise.allSettled(filesPromises.map(fn => fn()));
     const failed = results.filter(r => r.status === 'rejected');
@@ -288,6 +300,7 @@ async function getSpaceName(spaceId) {
     const spaceMap = await getSpaceMap();
     return spaceMap[spaceId];
 }
+
 async function getSpacePersonalitiesObject(spaceId) {
 
     const personalitiesDirectoryPath = path.join(getSpacePath(spaceId), 'personalities');
@@ -318,20 +331,6 @@ async function getSpaceStatusObject(spaceId) {
     }
 }
 
-async function saveSpaceAPIKeySecret(spaceId, apiKey) {
-    const apihub = require('apihub');
-
-    const secretsService = await apihub.getSecretsServiceInstanceAsync(config.SERVER_ROOT_FOLDER);
-    const containerName = `${spaceId}.APIKey`
-    const keyValidation = await openAI.validateOpenAiKey(apiKey);
-    if (keyValidation) {
-        await secretsService.putSecretAsync(containerName, "OpenAiAPIKey", apiKey);
-    }
-}
-
-async function storeSpaceSecret(spaceId, secret) {
-}
-
 function getApplicationPath(spaceId, appName) {
     return path.join(getSpacePath(spaceId), 'applications', appName);
 }
@@ -360,6 +359,50 @@ async function updateSpacePendingInvitations(spaceId, pendingInvitationsObject) 
     await fsPromises.writeFile(path, JSON.stringify(pendingInvitationsObject, null, 2), 'utf8');
 }
 
+async function addAPIKey(spaceId, userId, keyType, key) {
+    const spaceStatusObject = await getSpaceStatusObject(spaceId);
+    if (!spaceStatusObject.apiKeys[keyType]) {
+        const error = new Error(`API Key type ${keyType} not supported`);
+        error.statusCode = 400;
+        throw error;
+    }
+    if (await secrets.keyAlreadyExists(spaceId, keyType, key)) {
+        const error = new Error(`API Key ${key} already exists`);
+        error.statusCode = 409;
+        throw error;
+    }
+    const defaultApiKeyTemplate = require('./templates/defaultApiKeyTemplate.json');
+    const keyId = crypto.generateId();
+
+    spaceStatusObject.apiKeys[keyType][keyId] =data.fillTemplate(defaultApiKeyTemplate, {
+        keyType: keyType,
+        ownerId: userId,
+        keyId: keyId,
+        keyValue: openAI.maskKey(key),
+        addedDate: date.getCurrentUTCDate()
+    })
+    await updateSpaceStatus(spaceId, spaceStatusObject);
+    await secrets.addSpaceKey(spaceId, keyType, key, keyId);
+}
+
+
+async function deleteAPIKey(spaceId,keyType, keyId) {
+    const spaceStatusObject = await getSpaceStatusObject(spaceId);
+    if (!spaceStatusObject.apiKeys[keyType]) {
+        const error = new Error(`API Key type ${keyType} not supported`);
+        error.statusCode = 400;
+        throw error;
+    }
+    if (!spaceStatusObject.apiKeys[keyType][keyId]) {
+        const error = new Error(`API Key ${keyId} not found`);
+        error.statusCode = 404;
+        throw error;
+    }
+    delete spaceStatusObject.apiKeys[keyType][keyId];
+    await updateSpaceStatus(spaceId, spaceStatusObject);
+    await secrets.deleteSpaceKey(spaceId, keyType, keyId);
+}
+
 module.exports = {
     APIs: {
         addAnnouncement,
@@ -373,7 +416,9 @@ module.exports = {
         uninstallApplication,
         getSpaceChat,
         addSpaceChatMessage,
-        getSpaceName
+        getSpaceName,
+        addAPIKey,
+        deleteAPIKey,
     },
     templates: {
         defaultApiKeyTemplate: require('./templates/defaultApiKeyTemplate.json'),

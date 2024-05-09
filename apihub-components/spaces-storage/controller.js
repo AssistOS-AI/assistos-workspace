@@ -799,10 +799,10 @@ async function acceptSpaceInvitation(request, response) {
     const invitationToken = queryParams.invitationToken;
     const newUser = queryParams.newUser || false;
     try {
-        const HTMLResponse= await user.APIs.acceptSpaceInvitation(invitationToken,newUser);
+        const HTMLResponse = await user.APIs.acceptSpaceInvitation(invitationToken, newUser);
         utils.sendResponse(response, 200, "text/html", HTMLResponse);
     } catch (error) {
-        const spaceInvitationError= await user.APIs.getSpaceInvitationErrorHTML(error);
+        const spaceInvitationError = await user.APIs.getSpaceInvitationErrorHTML(error);
         utils.sendResponse(response, 500, "text/html", spaceInvitationError);
     }
 }
@@ -810,12 +810,105 @@ async function acceptSpaceInvitation(request, response) {
 async function rejectSpaceInvitation(request, response) {
     const queryParams = utils.extractQueryParams(request);
     const invitationToken = queryParams.invitationToken;
-    try{
-        const HTMLResponse= await user.APIs.rejectSpaceInvitation(invitationToken);
+    try {
+        const HTMLResponse = await user.APIs.rejectSpaceInvitation(invitationToken);
         utils.sendResponse(response, 200, "text/html", HTMLResponse);
-    }catch(error){
-        const spaceInvitationError= await user.APIs.getSpaceInvitationErrorHTML(error);
+    } catch (error) {
+        const spaceInvitationError = await user.APIs.getSpaceInvitationErrorHTML(error);
         utils.sendResponse(response, 500, "text/html", spaceInvitationError);
+    }
+}
+
+async function addAPIKey(request, response) {
+    const spaceId = request.params.spaceId || cookie.parseCookies(request).currentSpaceId;
+    if (!spaceId) {
+        return utils.sendResponse(response, 400, "application/json", {
+            message: "Bad Request: Space ID or a valid currentSpaceId cookie is required",
+            success: false
+        });
+    }
+    const {keyType, key} = request.body;
+    if (!keyType || !key) {
+        return utils.sendResponse(response, 400, "application/json", {
+            message: "Bad Request: Key Type and API Key are required in the request body",
+            success: false
+        });
+    }
+    const userId = request.userId;
+    try {
+        await space.APIs.addAPIKey(spaceId, userId, keyType,key);
+        utils.sendResponse(response, 200, "application/json", {
+            message: `API Key added successfully to space ${spaceId}`,
+            success: true
+        });
+    } catch (error) {
+        switch (error.statusCode) {
+            case 400:
+                utils.sendResponse(response, 400, "application/json", {
+                    message: "Bad Request: Invalid Key Type",
+                    success: false
+                });
+                return;
+            case 404:
+                utils.sendResponse(response, 404, "application/json", {
+                    message: "Not Found: Space not found",
+                    success: false
+                });
+                return;
+            case 409:
+                utils.sendResponse(response, 409, "application/json", {
+                    message: "Conflict: API Key already exists",
+                    success: false
+                });
+                return;
+        }
+        utils.sendResponse(response, 500, "application/json", {
+            message: `Internal Server Error: ${error}`,
+            success: false
+        });
+    }
+}
+
+async function deleteAPIKey(request, response) {
+    const spaceId = request.params.spaceId || cookie.parseCookies(request).currentSpaceId;
+    if (!spaceId) {
+        return utils.sendResponse(response, 400, "application/json", {
+            message: "Bad Request: Space ID or a valid currentSpaceId cookie is required",
+            success: false
+        });
+    }
+    const {keyType, keyId} = request.body;
+    if (!keyType || !keyId) {
+        return utils.sendResponse(response, 400, "application/json", {
+            message: "Bad Request: Key Type and Key Id are required in the request body",
+            success: false
+        });
+    }
+    try {
+        await space.APIs.deleteAPIKey(spaceId,keyType,keyId);
+        utils.sendResponse(response, 200, "application/json", {
+            message: `API Key deleted successfully from space ${spaceId}`,
+            success: true
+        });
+    } catch (error) {
+        switch (error.statusCode) {
+            case 404:
+                utils.sendResponse(response, 404, "application/json", {
+                    message: "Not Found: Space not found",
+                    success: false
+                });
+                return;
+            case 409:
+                utils.sendResponse(response, 409, "application/json", {
+                    message: "Conflict: API Key not found",
+                    success: false
+                });
+                return;
+        }
+        utils.sendResponse(response, 500, "application/json", {
+            message: `Internal Server Error: ${error}`,
+            success: false
+        });
     }
 }
 
@@ -846,5 +939,7 @@ module.exports = {
     addFlow,
     updateFlow,
     deleteFlow,
-    getAgent
+    getAgent,
+    addAPIKey,
+    deleteAPIKey
 }

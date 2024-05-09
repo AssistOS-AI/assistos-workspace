@@ -9,7 +9,7 @@ function maskKey(str) {
     return start + masked + end;
 }
 
-async function validateOpenAiKey(apiKey) {
+async function confirmOpenAiKeyValidation(apiKey) {
     const endpoint = 'https://api.openai.com/v1/models';
     try {
         const response = await fetch(endpoint, {
@@ -48,6 +48,6 @@ async function validateOpenAiKey(apiKey) {
 }
 
 module.exports = {
-    validateOpenAiKey,
+    confirmOpenAiKeyValidation,
     maskKey
 }

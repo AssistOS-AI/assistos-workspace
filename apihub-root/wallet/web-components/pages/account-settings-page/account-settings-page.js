@@ -10,7 +10,7 @@ export class AccountSettingsPage{
         this.email=assistOS.user.email;
         this.creationDate=assistOS.user.createdDate||"Unknown";
     }
-    async addKey(){
+    async addAPIKey(){
         await assistOS.UI.showModal( "add-apikey-modal");
     }
 }
