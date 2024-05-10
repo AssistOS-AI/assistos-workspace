@@ -5,3 +5,4 @@ class ITextLLM{
         }
     }
 }
+module.exports=ITextLLM;

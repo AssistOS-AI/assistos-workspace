@@ -1,22 +1,14 @@
-class Index {
-    constructor() {
-        this.name = "GPT4";
-        this.intelligence = 9;
-        this.creativity = 9;
-        this.cost = 9;
-        //8,192 tokens
-        this.context = 0.8;
+const ITextLLM=require("../../../interfaces/ITextLLM.js");
 
-        this.__url = "https://api.openai.com/v1/chat/completions";
-        this.__body = {
-            model: "gpt-4",
-            messages: [],
-            temperature: 0.7,
-            n: 1
-        }
-        let openAIMixin = require("../../../mixins/utils/openAIMixin");
-        openAIMixin(this);
+class GPT4 extends ITextLLM{
+    static modelName = "gpt-4";
+    constructor(config,apiKey) {
+        super()
+        this.config = config;
+        this.apiKey = apiKey;
     }
-
+    getModelName(){
+        return GPT4.modelName;
+    }
 }
-module.exports = Index;
+module.exports = GPT4;
