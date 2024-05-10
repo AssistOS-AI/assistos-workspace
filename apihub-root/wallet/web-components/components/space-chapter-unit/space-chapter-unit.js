@@ -1,3 +1,4 @@
+const {notificationService} = require("assistos").loadModule("util");
 export class SpaceChapterUnit {
     constructor(element, invalidate) {
         this.element = element;
@@ -20,14 +21,10 @@ export class SpaceChapterUnit {
         this.addParagraphOnCtrlEnter = this.addParagraphOnCtrlEnter.bind(this);
         this.element.removeEventListener('keydown', this.addParagraphOnCtrlEnter);
         this.element.addEventListener('keydown', this.addParagraphOnCtrlEnter);
+        this.subscribeToChapterEvents();
         this.invalidate();
     }
     beforeRender() {
-        this._document.observeChange(this.chapter.id, this.invalidate, this.refreshChapter);
-        this._document.observeChange(this.chapter.id + "/title", this.invalidate, this.refreshChapterTitle);
-        for(let paragraph of this.chapter.paragraphs){
-            this._document.observeChange(paragraph.id, this.invalidate, this.refreshParagraph(paragraph.id));
-        }
         let chapterId = this.element.getAttribute("data-chapter-id");
         this.chapter = this._document.getChapter(chapterId);
         this.chapterTitle=this.chapter.title;
@@ -46,8 +43,22 @@ export class SpaceChapterUnit {
             this.chapterContent += `<space-paragraph-unit data-paragraph-content="${paragraph.text}" data-metadata="paragraph nr. ${iterator} with id ${paragraph.id}" data-paragraph-id="${paragraph.id}"></space-paragraph-unit>`;
         });
     }
+    subscribeToChapterEvents(){
+        notificationService.on(this.chapter.id + "/title", ()=>{
+            this.invalidate(this.refreshChapterTitle);
+        });
+        notificationService.on(this.chapter.id, ()=>{
+            this.invalidate(this.refreshChapter);
+        });
 
+        for(let paragraph of this.chapter.paragraphs){
+            notificationService.on(paragraph.id, ()=>{
+                this.invalidate(this.refreshParagraph(paragraph.id));
+            });
+        }
+    }
     afterRender() {
+
         this.chapterUnit = this.element.querySelector(".chapter-unit");
         let selectedParagraphs = this.element.querySelectorAll(".paragraph-text");
         let currentParagraph = "";
@@ -87,7 +98,6 @@ export class SpaceChapterUnit {
             documentId: this._document.id,
             chapterId: this.chapter.id
         });
-        this.invalidate(this.refreshChapter);
     }
     highlightChapter(){
         this.deselectPreviousElements();
@@ -126,7 +136,6 @@ export class SpaceChapterUnit {
                     chapterId: this.chapter.id,
                     title: titleText
                 });
-                this.invalidate(this.refreshChapterTitle);
             }
         }, 3000);
         /* NO chapter Title */

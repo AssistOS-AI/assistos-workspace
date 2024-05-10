@@ -1,5 +1,5 @@
 const spaceAPIs = require("assistos").loadModule("space").loadAPIs();
-const {eventEmitter} = require("assistos").loadModule("util");
+const {notificationService} = require("assistos").loadModule("util");
 export class SpaceDocumentViewPage {
     constructor(element, invalidate) {
         this.element = element;
@@ -9,18 +9,31 @@ export class SpaceDocumentViewPage {
         }
         this.invalidate(async ()=> {
             this._document = await assistOS.space.getDocument(window.location.hash.split("/")[3]);
-            this._document.observeChange("abstract", this.invalidate, this._document.refreshDocumentAbstract.bind(this._document));
-            this._document.observeChange("title", this.invalidate, this._document.refreshDocumentTitle.bind(this._document));
-            spaceAPIs.checkUpdates(assistOS.space.id, this._document.id);
+            spaceAPIs.subscribeToObject(assistOS.space.id, this._document.id);
+            spaceAPIs.checkUpdates(assistOS.space.id);
+            notificationService.on(this._document.id + "/delete", async ()=>{
+                await spaceAPIs.unsubscribeFromObject(assistOS.space.id);
+                await this.openDocumentsPage();
+                alert("The document has been deleted");
+            });
+            notificationService.on(this._document.id, ()=>{
+                this.invalidate(this.refreshDocument);
+            });
+            notificationService.on("title", ()=>{
+                this.invalidate(this._document.refreshDocumentTitle.bind(this._document));
+            });
+            notificationService.on("abstract", ()=>{
+                this.invalidate(this._document.refreshDocumentAbstract.bind(this._document));
+            });
         });
 
         this.controller = new AbortController();
         this.boundedFn = this.highlightElement.bind(this, this.controller);
         document.removeEventListener("click", this.boundedFn);
         document.addEventListener("click", this.boundedFn, {signal: this.controller.signal});
+        assistOS.UI.setLoading("");
     }
     beforeRender() {
-        this._document.observeChange(this._document.getNotificationId() + ":document-view-page", this.invalidate, this.refreshDocument);
         this.chaptersContainer = "";
         this.docTitle = this._document.title;
         this.abstractText = this._document.abstract || "No abstract has been set or generated for this document";
@@ -34,17 +47,7 @@ export class SpaceDocumentViewPage {
     }
 
     afterRender() {
-        eventEmitter.on("embeddedObject", (objectId)=>{
-            this._document.notifyObservers(objectId);
-        })
-        eventEmitter.on("containerObject", (objectId)=>{
-            this.invalidate(this.refreshDocument);
-        });
-        eventEmitter.on("containerObjectList", async (objectId)=>{
-            await this.openDocumentsPage();
-            await spaceAPIs.unsubscribeFromObject(assistOS.space.id);
-            alert("The document has been deleted");
-        });
+
     }
 
     async deleteChapter(_target) {

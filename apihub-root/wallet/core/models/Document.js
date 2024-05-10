@@ -38,20 +38,6 @@ export class Document {
         return JSON.stringify(this, replacer);
     }
 
-    observeChange(elementId, callback, callbackAsyncParamFn) {
-        let obj = {elementId: elementId, callback: callback, param: callbackAsyncParamFn};
-        callback.refferenceObject = obj;
-        this.observers.push(new WeakRef(obj));
-    }
-
-    notifyObservers(prefix) {
-        for (const observerRef of this.observers) {
-            const observer = observerRef.deref();
-            if(observer &&observer.elementId.startsWith(prefix)) {
-                observer.callback(observer.param);
-            }
-        }
-    }
 
     async addChapters(chaptersData){
         for(let i= 0; i < chaptersData.length; i++){
