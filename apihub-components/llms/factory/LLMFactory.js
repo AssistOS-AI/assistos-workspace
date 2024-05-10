@@ -1,6 +1,7 @@
 const LLMs = {
     "GPT-3.5-Turbo": require('../models/text/GPT-3.5-Turbo'),
-    "GPT-4": require('../models/text/GPT-4')
+    "GPT-4": require('../models/text/GPT-4'),
+    "GPT-4-Turbo": require('../models/text/GPT-4-Turbo'),
 };
 const Mixins = {
     "openAI": require('../mixins/openAI.js')
