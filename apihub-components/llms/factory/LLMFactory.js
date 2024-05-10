@@ -2,9 +2,12 @@ const LLMs = {
     "GPT-3.5-Turbo": require('../models/text/GPT-3.5-Turbo'),
     "GPT-4": require('../models/text/GPT-4'),
     "GPT-4-Turbo": require('../models/text/GPT-4-Turbo'),
+    "Claude-3": require('../models/text/Claude-3'),
+    "Claude-2": require('../models/text/Claude-2')
 };
 const Mixins = {
-    "openAI": require('../mixins/openAI.js')
+    "openAI": require('../mixins/openAI.js'),
+    "anthropic": require('../mixins/anthropic.js')
 };
 
 class LLMFactory {
