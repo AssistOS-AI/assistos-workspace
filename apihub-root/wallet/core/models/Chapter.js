@@ -47,6 +47,9 @@ export class Chapter {
         }
         return JSON.stringify(this, replacer);
     }
+    async refreshChapterTitle(documentId, chapterId) {
+        this.title = await documentModule.getChapterTitle(assistOS.space.id, documentId, chapterId);
+    }
     async refreshParagraph(documentId, paragraphId) {
         let paragraphData = await documentModule.getParagraph(assistOS.space.id, documentId, paragraphId);
         let paragraphIndex = this.paragraphs.findIndex(paragraph => paragraph.id === paragraphId);

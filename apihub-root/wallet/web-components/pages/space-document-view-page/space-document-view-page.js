@@ -1,3 +1,5 @@
+const spaceAPIs = require("assistos").loadModule("space").loadAPIs();
+const {eventEmitter} = require("assistos").loadModule("util");
 export class SpaceDocumentViewPage {
     constructor(element, invalidate) {
         this.element = element;
@@ -5,9 +7,13 @@ export class SpaceDocumentViewPage {
         this.refreshDocument = async () =>{
             this._document = await assistOS.space.getDocument(this._document.id);
         }
-        this.invalidate(async ()=>{
+        this.invalidate(async ()=> {
             this._document = await assistOS.space.getDocument(window.location.hash.split("/")[3]);
+            this._document.observeChange("abstract", this.invalidate, this._document.refreshDocumentAbstract.bind(this._document));
+            this._document.observeChange("title", this.invalidate, this._document.refreshDocumentTitle.bind(this._document));
+            spaceAPIs.checkUpdates(assistOS.space.id, this._document.id);
         });
+
         this.controller = new AbortController();
         this.boundedFn = this.highlightElement.bind(this, this.controller);
         document.removeEventListener("click", this.boundedFn);
@@ -28,6 +34,17 @@ export class SpaceDocumentViewPage {
     }
 
     afterRender() {
+        eventEmitter.on("embeddedObject", (objectId)=>{
+            this._document.notifyObservers(objectId);
+        })
+        eventEmitter.on("containerObject", (objectId)=>{
+            this.invalidate(this.refreshDocument);
+        });
+        eventEmitter.on("containerObjectList", async (objectId)=>{
+            await this.openDocumentsPage();
+            await spaceAPIs.unsubscribeFromObject(assistOS.space.id);
+            alert("The document has been deleted");
+        });
     }
 
     async deleteChapter(_target) {
@@ -38,7 +55,6 @@ export class SpaceDocumentViewPage {
             documentId: this._document.id,
             chapterId: chapterId
         });
-        this.invalidate(this.refreshDocument);
     }
 
     switchParagraphArrows(target, mode) {
@@ -107,7 +123,6 @@ export class SpaceDocumentViewPage {
                         paragraphId: currentParagraph.id,
                         text: paragraphText
                     });
-                    this._document.notifyObservers(currentParagraph.id);
                 }
             }, 1000);
             this.previouslySelectedParagraph["timer"] = timer;
@@ -130,7 +145,6 @@ export class SpaceDocumentViewPage {
                         } else {
                             assistOS.space.currentParagraphId = null;
                         }
-                        this._document.notifyObservers(this.chapter.id);
                     }
                     await timer.stop();
                 } else {
@@ -346,7 +360,6 @@ export class SpaceDocumentViewPage {
             chapterId1: currentChapterId,
             chapterId2: adjacentChapterId
         });
-        this.invalidate(this.refreshDocument);
     }
 
     async moveParagraph(_target, direction) {
@@ -370,7 +383,6 @@ export class SpaceDocumentViewPage {
             paragraphId1: currentParagraphId,
             paragraphId2: adjacentParagraphId
         });
-        this._document.notifyObservers(chapterId);
     }
 
     editTitle(title) {
@@ -396,7 +408,6 @@ export class SpaceDocumentViewPage {
                         documentId: this._document.id,
                         title: titleText
                     });
-                    this.invalidate(this.refreshDocument);
                 }
             }, 1000);
             title.addEventListener("focusout", async (event) => {
@@ -440,7 +451,6 @@ export class SpaceDocumentViewPage {
                         documentId: this._document.id,
                         text: abstractText
                     });
-                    this.invalidate(this.refreshDocument);
                 }
             }, 1000);
 
@@ -488,8 +498,6 @@ export class SpaceDocumentViewPage {
         });
         assistOS.space.currentChapterId = chapterId;
         assistOS.space.currentParagraphId = paragraphId;
-        this.invalidate(this.refreshDocument);
-
     }
 
     async addParagraph(_target) {
@@ -505,7 +513,6 @@ export class SpaceDocumentViewPage {
             position: position
         });
         assistOS.space.currentChapterId = chapter.id;
-        this._document.notifyObservers(assistOS.space.currentChapterId);
     }
 
     async openDocumentsPage() {
