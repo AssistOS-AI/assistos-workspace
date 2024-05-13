@@ -1,8 +1,10 @@
 {
     "storage": "../apihub-root",
+    "lightDBStorage": "../data-volume/lightDB",
+    "externalStorage": "../data-volume",
     "port": 8080,
     "preventRateLimit": true,
-    "activeComponents": ["bdns", "bricking", "anchoring", "enclave", "mq", "secrets", "versionlessDSU", "llms", "users-storage", "spaces-storage", "knowledge-storage","applications-storage","server-flow-apis", "lightDBEnclave", "staticServer"],
+    "activeComponents": ["bdns", "bricking", "anchoring", "enclave", "mq", "secrets", "versionlessDSU", "llms", "users-storage", "spaces-storage", "knowledge-storage","applications-storage","server-flow-apis", "subscribers", "lightDBEnclave", "staticServer"],
     "componentsConfig": {
         "staticServer": {
             "excludedFiles": [".*.secret"],
@@ -10,7 +12,6 @@
         },
         "bricking": {},
         "anchoring": {},
-
         "llms" :{
             "module": "./../../apihub-components/llms"
         },
@@ -28,6 +29,9 @@
         },
         "server-flow-apis": {
             "module": "./../../apihub-components/applications-storage"
+        },
+        "subscribers": {
+            "module": "./../../apihub-components/subscribers"
         }
     },
     "responseHeaders": {
