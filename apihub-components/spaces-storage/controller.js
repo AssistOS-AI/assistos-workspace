@@ -7,8 +7,7 @@ const enclave = require("opendsu").loadAPI("enclave");
 const crypto = require('../apihub-component-utils/crypto.js');
 const fsPromises = require('fs').promises;
 const path = require('path');
-const subscribersModule = require("../subscribers");
-const {sendResponse} = require("../apihub-component-utils/utils");
+const {subscribersModule} = require("../subscribers/controller.js");
 const dataVolumePaths = require('../volumeManager').paths;
 async function loadJSFiles(filePath) {
     let localData = "";
@@ -373,7 +372,7 @@ async function addContainerObject(request, response) {
     try {
         let lightDBEnclaveClient = enclave.initialiseLightDBEnclave(spaceId);
         let objectId = await addContainerObjectToTable(lightDBEnclaveClient, objectType, objectData);
-        subscribersModule.notifySubscribers(spaceId, objectId, "containerObjectList", objectType);
+        subscribersModule.notifySubscribers(spaceId, request.userId, objectType, objectType);
         return utils.sendResponse(response, 200, "application/json", {
             success: true,
             data: objectId,
@@ -396,7 +395,7 @@ async function updateContainerObject(request, response) {
         await deleteContainerObjectTable(lightDBEnclaveClient, objectId);
         let objectType = objectId.split('_')[0];
         await addContainerObjectToTable(lightDBEnclaveClient, objectType, objectData);
-        subscribersModule.notifySubscribers(spaceId, objectId, "containerObject");
+        subscribersModule.notifySubscribers(spaceId, request.userId, objectId, objectId);
         return utils.sendResponse(response, 200, "application/json", {
             success: true,
             data: objectId,
@@ -422,8 +421,8 @@ async function deleteContainerObject(request, response) {
     const objectId = request.params.objectId;
     try {
         let lightDBEnclaveClient = enclave.initialiseLightDBEnclave(spaceId);
-        await deleteContainerObjectTable(lightDBEnclaveClient, spaceId, objectId);
-        subscribersModule.notifySubscribers(spaceId, objectId, "containerObjectList", objectId);
+        await deleteContainerObjectTable(lightDBEnclaveClient, objectId);
+        subscribersModule.notifySubscribers(spaceId, request.userId, objectId, objectId + "/delete");
         return utils.sendResponse(response, 200, "application/json", {
             success: true,
             data: objectId,
@@ -526,11 +525,7 @@ async function addEmbeddedObject(request, response) {
         let parts = objectURI.split("/");
         let tableId = parts[0];
         let objectId = await insertEmbeddedObjectRecords(lightDBEnclaveClient, tableId, objectURI, objectData);
-        let type = "embeddedObject";
-        if(parts.length === 2){
-            type = "containerObject";
-        }
-        subscribersModule.notifySubscribers(spaceId, tableId, type, parts[parts.length - 2]);
+        subscribersModule.notifySubscribers(spaceId, request.userId, tableId, parts[parts.length - 2]);
         return utils.sendResponse(response, 200, "application/json", {
             success: true,
             data: objectId,
@@ -562,15 +557,15 @@ async function updateEmbeddedObject(request, response) {
             object[propertyName] = objectData;
             await $$.promisify(lightDBEnclaveClient.updateRecord)($$.SYSTEM_IDENTIFIER, tableId, objectId, {data: object});
             if(segments.length === 2){
-                subscribersModule.notifySubscribers(spaceId, tableId, "embeddedObject", propertyName);
+                subscribersModule.notifySubscribers(spaceId, request.userId, tableId, propertyName);
             }
             else {
-                subscribersModule.notifySubscribers(spaceId, tableId, "embeddedObject", objectId);
+                subscribersModule.notifySubscribers(spaceId, request.userId, tableId, objectId);
             }
         } else {
             await deleteEmbeddedObjectDependencies(lightDBEnclaveClient, tableId, objectId);
             await insertEmbeddedObjectRecords(lightDBEnclaveClient, tableId, objectURI, objectData, true);
-            subscribersModule.notifySubscribers(spaceId, tableId, "embeddedObject", objectId);
+            subscribersModule.notifySubscribers(spaceId, request.userId, tableId, objectId);
         }
         return utils.sendResponse(response, 200, "application/json", {
             success: true,
@@ -627,11 +622,7 @@ async function deleteEmbeddedObject(request, response) {
         let parts = objectURI.split("/");
         let tableId = parts[0];
         await deleteEmbeddedObjectFromTable(lightDBEnclaveClient, tableId, objectURI);
-        let type = "embeddedObject";
-        if(parts.length === 2){
-            type = "containerObject";
-        }
-        subscribersModule.notifySubscribers(spaceId, tableId, type, parts[parts.length - 2]);
+        subscribersModule.notifySubscribers(spaceId, request.userId, tableId, parts[parts.length - 2]);
         return utils.sendResponse(response, 200, "application/json", {
             success: true,
             data: objectURI,
@@ -670,11 +661,7 @@ async function swapEmbeddedObjects(request, response) {
         object[propertyName][index1] = embeddedId2;
         object[propertyName][index2] = embeddedId1;
         await $$.promisify(lightDBEnclaveClient.updateRecord)($$.SYSTEM_IDENTIFIER, tableId, objectId, {data: object});
-        let type = "embeddedObject";
-        if(parts.length === 2){
-            type = "containerObject";
-        }
-        subscribersModule.notifySubscribers(spaceId, tableId, type, objectId);
+        subscribersModule.notifySubscribers(spaceId, request.userId, tableId, objectId);
         return utils.sendResponse(response, 200, "application/json", {
             success: true,
             data: objectURI,
@@ -858,36 +845,6 @@ async function rejectSpaceInvitation(request, response) {
     }
 }
 
-async function checkUpdates(request, response) {
-    const spaceId = request.params.spaceId;
-    let userId = request.userId;
-    if(request.body.objectId){
-        subscribersModule.putSubscriber(spaceId, userId, response, request.body.objectId);
-    } else if(request.body.action){
-        subscribersModule.removeSubscriber(spaceId, userId);
-        return sendResponse(response, 200, "application/json", {
-            success: true,
-            message: "Subscription removed"
-        })
-    }
-
-    subscribersModule.putResponse(spaceId, userId, response);
-    let timeoutId = setTimeout(()=>{
-        if(!response.sent){
-            sendResponse(response, 200, "application/json", {
-                success: true,
-                data: null
-            })
-        }
-    },10000);
-    const listener = function (){
-        clearTimeout(timeoutId);
-        setTimeout(()=>{
-            subscribersModule.eventEmitter.removeListener(`${spaceId}/${userId}`, listener);
-        },0);
-    }
-    subscribersModule.eventEmitter.on(`${spaceId}/${userId}`, listener);
-}
 async function addAPIKey(request, response) {
     const spaceId = request.params.spaceId || cookie.parseCookies(request).currentSpaceId;
     if (!spaceId) {
@@ -980,6 +937,7 @@ async function deleteAPIKey(request, response) {
         });
     }
 }
+
 module.exports = {
     acceptSpaceInvitation,
     rejectSpaceInvitation,
@@ -1008,7 +966,6 @@ module.exports = {
     updateFlow,
     deleteFlow,
     getAgent,
-    checkUpdates,
     addAPIKey,
     deleteAPIKey
 }
