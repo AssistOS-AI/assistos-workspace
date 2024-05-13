@@ -17,6 +17,7 @@ async function authentication(req, res, next) {
             req.userId = userId;
             return next();
         } catch (error) {
+
         }
     }
 

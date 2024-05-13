@@ -1,13 +1,27 @@
 const LLMs = {
-    "GPT-3.5-Turbo": require('../models/text/GPT-3.5-Turbo'),
-    "GPT-4": require('../models/text/GPT-4'),
-    "GPT-4-Turbo": require('../models/text/GPT-4-Turbo'),
-    "Claude-3": require('../models/text/Claude-3'),
-    "Claude-2": require('../models/text/Claude-2')
+    "GPT-3.5-Turbo": {
+        instance: require('../models/text/GPT-3.5-Turbo'),
+    },
+    "GPT-4": {
+        instance: require('../models/text/GPT-4')
+    },
+    "GPT-4-Turbo": {
+        instance: require('../models/text/GPT-4-Turbo')
+    },
+    "Claude-3": {
+        instance: require('../models/text/Claude-3')
+    },
+    "Claude-2": {
+        instance: require('../models/text/Claude-2')
+    },
+    "Gemini": {
+        instance: require('../models/text/Gemini')
+    }
 };
 const Mixins = {
     "openAI": require('../mixins/openAI.js'),
-    "anthropic": require('../mixins/anthropic.js')
+    "anthropic": require('../mixins/anthropic.js'),
+    "google": require('../mixins/google.js'),
 };
 
 class LLMFactory {
@@ -19,7 +33,7 @@ class LLMFactory {
             throw error;
         }
 
-        let instance = new LLMClass(config, apiKey);
+        let instance = new LLMClass.instance(config, apiKey);
 
         mixins.forEach(mixinName => {
             const mixin = Mixins[mixinName];
