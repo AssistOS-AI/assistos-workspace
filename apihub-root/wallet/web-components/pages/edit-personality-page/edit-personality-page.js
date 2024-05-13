@@ -1,11 +1,27 @@
 import {constants} from "../../../imports.js";
+const spaceAPIs = require("assistos").loadModule("space").loadAPIs();
+const {notificationService} = require("assistos").loadModule("util");
 export class EditPersonalityPage{
     constructor(element,invalidate) {
         this.element = element;
         this.invalidate=invalidate;
         this.knowledgeArray = [];
-        this.invalidate(async ()=>{
+        this.refreshPersonality = async ()=>{
             this.personality = await assistOS.space.getPersonality(window.location.hash.split("/")[3]);
+        }
+        this.invalidate(async ()=>{
+            await this.refreshPersonality();
+            spaceAPIs.startCheckingUpdates(assistOS.space.id);
+            spaceAPIs.subscribeToObject(assistOS.space.id, this.personality.id);
+            notificationService.on(this.personality.id, ()=>{
+                this.invalidate(this.refreshPersonality);
+            });
+            notificationService.on(this.personality.id + "/delete", async ()=>{
+                await this.openPersonalitiesPage();
+                await spaceAPIs.unsubscribeFromObject(assistOS.space.id, this.personality.id);
+                spaceAPIs.stopCheckingUpdates(assistOS.space.id);
+                alert("The personality has been deleted");
+            })
         });
     }
     beforeRender(){
@@ -29,6 +45,10 @@ export class EditPersonalityPage{
             event.preventDefault();
             this.element.querySelector(".magnifier-container").click();
         }
+    }
+    async afterUnload() {
+        await spaceAPIs.unsubscribeFromObject(assistOS.space.id, this.personality.id);
+        spaceAPIs.stopCheckingUpdates(assistOS.space.id);
     }
 
     afterRender(){

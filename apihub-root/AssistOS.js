@@ -233,7 +233,7 @@ class AssistOS {
             if (personalityId) {
                 personality = assistOS.space.getPersonality(personalityId);
             } else {
-                personality = assistOS.space.getPersonalityByName(dependencies.constants.DEFAULT_PERSONALITY_NAME);
+                personality = assistOS.space.getPersonality(dependencies.constants.PERSONALITIES.DEFAULT_PERSONALITY_ID);
             }
             if (flow.inputSchema) {
                 // assistOS.services.validateSchema(context, flow.inputSchema, "input");

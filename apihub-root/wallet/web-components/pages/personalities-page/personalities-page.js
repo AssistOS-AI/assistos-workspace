@@ -1,14 +1,21 @@
+const spaceAPIs = require("assistos").loadModule("space").loadAPIs();
+const {notificationService} = require("assistos").loadModule("util");
 export class PersonalitiesPage {
-    constructor(element,invalidate) {
+    constructor(element, invalidate) {
         this.modal = "showAddPersonalityModal";
         this.element = element;
         this.refreshPersonalities = async ()=>{
-            this.personalities = await assistOS.space.refreshPersonalitiesMetadata();
+            this.personalities = await assistOS.space.getPersonalitiesMetadata();
         }
-        assistOS.space.observeChange(assistOS.space.getNotificationId(), invalidate, this.refreshPersonalities);
         this.invalidate = invalidate;
+        this.id = "personalities";
         this.invalidate(async() =>{
             this.personalities = await assistOS.space.getPersonalitiesMetadata();
+            await spaceAPIs.subscribeToObject(assistOS.space.id, this.id);
+            spaceAPIs.startCheckingUpdates(assistOS.space.id);
+            notificationService.on(this.id, ()=>{
+                this.invalidate(this.refreshPersonalities);
+            });
         });
     }
     beforeRender() {
@@ -18,6 +25,10 @@ export class PersonalitiesPage {
                 this.personalityBlocks += `<personality-unit data-name="${item.name}" data-id="${item.id}" data-image="${item.image || "./wallet/assets/images/default-personality.png"}"></personality-unit>`;
             });
         }
+    }
+    async afterUnload() {
+        await spaceAPIs.unsubscribeFromObject(assistOS.space.id, this.id);
+        spaceAPIs.stopCheckingUpdates(assistOS.space.id);
     }
     setContext(){
         assistOS.context = {

@@ -61,6 +61,8 @@ async function addFlow(request, response) {
     try {
         let filePath = path.join(dataVolumePaths.space, `${spaceId}/flows/${flowName}.js`);
         await fsPromises.writeFile(filePath, flowData, 'utf8');
+        subscribersModule.notifySubscribers(spaceId, request.userId, flowName, flowName);
+        subscribersModule.notifySubscribers(spaceId, request.userId, "flows", "flows");
         return utils.sendResponse(response, 200, "application/json", {
             success: true,
             message: `Flow ${flowData.name} added successfully`
@@ -80,6 +82,8 @@ async function updateFlow(request, response) {
     try {
         let filePath = path.join(dataVolumePaths.space, `${spaceId}/flows/${flowName}.js`);
         await fsPromises.writeFile(filePath, flowData, 'utf8');
+        subscribersModule.notifySubscribers(spaceId, request.userId, flowName, flowName);
+
         return utils.sendResponse(response, 200, "application/json", {
             success: true,
             message: `Flow ${flowName} updated successfully`
@@ -98,6 +102,8 @@ async function deleteFlow(request, response) {
     try {
         let filePath = path.join(dataVolumePaths.space, `${spaceId}/flows/${flowName}.js`);
         await fsPromises.unlink(filePath);
+        subscribersModule.notifySubscribers(spaceId, request.userId, "flows", "flows");
+        subscribersModule.notifySubscribers(spaceId, request.userId, flowName, flowName);
         return utils.sendResponse(response, 200, "application/json", {
             success: true,
             message: `Flow ${flowName} deleted successfully`
@@ -175,6 +181,9 @@ async function addFileObject(request, response) {
 
         let filePath = getFileObjectPath(spaceId, objectType, objectId);
         await fsPromises.writeFile(filePath, JSON.stringify(objectData, null, 2), 'utf8');
+        subscribersModule.notifySubscribers(spaceId, request.userId, objectId, objectId);
+        subscribersModule.notifySubscribers(spaceId, request.userId, objectType, objectType);
+
         return utils.sendResponse(response, 200, "application/json", {
             success: true,
             data: objectId,
@@ -197,10 +206,10 @@ async function updateFileObject(request, response) {
         let filePath = getFileObjectPath(spaceId, objectType, objectId);
         let metadataPath = getFileObjectsMetadataPath(spaceId, objectType);
         let metadata = JSON.parse(await fsPromises.readFile(metadataPath, {encoding: 'utf8'}));
-        let metaObj = metadata.find(item => item.fileName === `${objectId}.json`);
+        let metaObj = metadata.find(item => item.id === objectId);
         if (metaObj) {
-            for (let key of Object.keys(objectData.metadata)) {
-                metaObj[key] = objectData.metadata[key];
+            for (let key of objectData.metadata) {
+                metaObj[key] = objectData[key];
             }
             await fsPromises.writeFile(metadataPath, JSON.stringify(metadata), 'utf8');
         } else {
@@ -210,6 +219,8 @@ async function updateFileObject(request, response) {
             });
         }
         await fsPromises.writeFile(filePath, JSON.stringify(objectData, null, 2), 'utf8');
+        subscribersModule.notifySubscribers(spaceId, request.userId, objectId, objectId);
+        subscribersModule.notifySubscribers(spaceId, request.userId, objectType, objectType);
         return utils.sendResponse(response, 200, "application/json", {
             success: true,
             data: objectId,
@@ -230,13 +241,14 @@ async function deleteFileObject(request, response) {
     try {
         let metadataPath = getFileObjectsMetadataPath(spaceId, objectType);
         let metadata = JSON.parse(await fsPromises.readFile(metadataPath, {encoding: 'utf8'}));
-        let fileExtension = objectType === "flow" ? "js" : "json";
-        let index = metadata.findIndex(item => item.fileName === `${objectId}.${fileExtension}`);
+        let index = metadata.findIndex(item => item.id === objectId);
         if (index !== -1) {
             metadata.splice(index, 1);
             await fsPromises.writeFile(metadataPath, JSON.stringify(metadata), 'utf8');
         }
         let filePath = getFileObjectPath(spaceId, objectType, objectId);
+        subscribersModule.notifySubscribers(spaceId, request.userId, objectType, objectType);
+        subscribersModule.notifySubscribers(spaceId, request.userId, objectId, objectId + "/delete");
         await fsPromises.unlink(filePath);
         return utils.sendResponse(response, 200, "application/json", {
             success: true,
@@ -396,6 +408,7 @@ async function updateContainerObject(request, response) {
         let objectType = objectId.split('_')[0];
         await addContainerObjectToTable(lightDBEnclaveClient, objectType, objectData);
         subscribersModule.notifySubscribers(spaceId, request.userId, objectId, objectId);
+        subscribersModule.notifySubscribers(spaceId, request.userId, objectType, objectType);
         return utils.sendResponse(response, 200, "application/json", {
             success: true,
             data: objectId,
@@ -423,6 +436,7 @@ async function deleteContainerObject(request, response) {
         let lightDBEnclaveClient = enclave.initialiseLightDBEnclave(spaceId);
         await deleteContainerObjectTable(lightDBEnclaveClient, objectId);
         subscribersModule.notifySubscribers(spaceId, request.userId, objectId, objectId + "/delete");
+        subscribersModule.notifySubscribers(spaceId, request.userId, objectId.split('_')[0], objectId.split('_')[0]);
         return utils.sendResponse(response, 200, "application/json", {
             success: true,
             data: objectId,

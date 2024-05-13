@@ -11,7 +11,8 @@ export class AddPersonality {
             let personalityData ={
                 name: context.name,
                 description: context.description,
-                image: context.photo
+                image: context.photo,
+                metadata: ["name", "id", "photo"]
             };
             await personalityModule.addPersonality(context.spaceId, personalityData);
             this.return(personalityData);
