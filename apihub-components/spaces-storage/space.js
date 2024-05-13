@@ -1,10 +1,7 @@
 const path = require('path');
 const fsPromises = require('fs').promises;
 
-const config = require('../config.json');
-
 const volumeManager = require('../volumeManager.js');
-
 
 const enclave = require('opendsu').loadAPI('enclave');
 
@@ -13,9 +10,9 @@ const data = require('../apihub-component-utils/data.js');
 const date = require('../apihub-component-utils/date.js');
 const file = require('../apihub-component-utils/file.js');
 const openAI = require('../apihub-component-utils/openAI.js');
-const utils = require("../apihub-component-utils/utils");
 const secrets = require('../apihub-component-utils/secrets.js');
-const defaultApiKeyTemplate = require("./templates/defaultApiKeyTemplate.json");
+
+const spaceConstants = require('./constants.js');
 
 function getSpacePath(spaceId) {
     return path.join(volumeManager.paths.space, spaceId);
@@ -143,7 +140,12 @@ async function createSpace(spaceName, userId, apiKey) {
         spaceObj = data.fillTemplate(defaultSpaceTemplate, {
             spaceName: spaceName,
             spaceId: spaceId,
-            adminId: userId,
+            admin: {
+                userId: {
+                    roles: [spaceConstants.spaceRoles.Admin, spaceConstants.spaceRoles.Owner],
+                    joinDate: date.getCurrentUnixTime()
+                }
+            },
             OpenAIAPIKey: OpenAPIKeyObj,
             defaultAnnouncement: createDefaultAnnouncement(spaceName),
             creationDate:
@@ -359,6 +361,10 @@ async function updateSpacePendingInvitations(spaceId, pendingInvitationsObject) 
     await fsPromises.writeFile(path, JSON.stringify(pendingInvitationsObject, null, 2), 'utf8');
 }
 
+async function getAPIKey(spaceId, modelName) {
+
+}
+
 async function addAPIKey(spaceId, userId, keyType, key) {
     const spaceStatusObject = await getSpaceStatusObject(spaceId);
     if (!spaceStatusObject.apiKeys[keyType]) {
@@ -374,7 +380,7 @@ async function addAPIKey(spaceId, userId, keyType, key) {
     const defaultApiKeyTemplate = require('./templates/defaultApiKeyTemplate.json');
     const keyId = crypto.generateId();
 
-    spaceStatusObject.apiKeys[keyType][keyId] =data.fillTemplate(defaultApiKeyTemplate, {
+    spaceStatusObject.apiKeys[keyType][keyId] = data.fillTemplate(defaultApiKeyTemplate, {
         keyType: keyType,
         ownerId: userId,
         keyId: keyId,
@@ -386,7 +392,7 @@ async function addAPIKey(spaceId, userId, keyType, key) {
 }
 
 
-async function deleteAPIKey(spaceId,keyType, keyId) {
+async function deleteAPIKey(spaceId, keyType, keyId) {
     const spaceStatusObject = await getSpaceStatusObject(spaceId);
     if (!spaceStatusObject.apiKeys[keyType]) {
         const error = new Error(`API Key type ${keyType} not supported`);
@@ -417,6 +423,7 @@ module.exports = {
         getSpaceChat,
         addSpaceChatMessage,
         getSpaceName,
+        getAPIKey,
         addAPIKey,
         deleteAPIKey,
     },
@@ -426,6 +433,7 @@ module.exports = {
         defaultSpaceNameTemplate: require('./templates/defaultSpaceNameTemplate.json'),
         defaultSpaceTemplate: require('./templates/defaultSpaceTemplate.json'),
         spaceValidationSchema: require('./templates/spaceValidationSchema.json')
-    }
+    },
+    constants: require('./constants.js')
 }
 

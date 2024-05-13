@@ -130,10 +130,10 @@ async function loginUser(email, password) {
     throw new Error('Invalid credentials');
 }
 
-async function addSpaceCollaborators(spaceId, userId,referrerId, role) {
+async function addSpaceCollaborators(spaceId, userId, referrerId, role) {
     await linkSpaceToUser(userId, spaceId)
     try {
-        await linkUserToSpace(spaceId, userId,referrerId, role)
+        await linkUserToSpace(spaceId, userId, referrerId, role)
     } catch (error) {
         await unlinkSpaceFromUser(userId, spaceId);
         throw error;
@@ -192,23 +192,16 @@ async function linkSpaceToUser(userId, spaceId) {
 
 }
 
-async function linkUserToSpace(spaceId, userId,referrerId, role) {
+async function linkUserToSpace(spaceId, userId, referrerId, role) {
     const Space = require('../spaces-storage/space.js');
     const spaceStatusObject = await Space.APIs.getSpaceStatusObject(spaceId);
-    if (!spaceStatusObject.users || !Array.isArray(spaceStatusObject.users)) {
-        const error = new Error(`Corrupted Space file for Space: ${spaceStatusObject.name}`);
-        error.statusCode = 500;
-        throw error;
-    }
-    if (!spaceStatusObject.users.find(user => user.userId === userId)) {
-        spaceStatusObject.users.push(
+    if (!spaceStatusObject.users[userId]) {
+        spaceStatusObject.users[userId] =
             {
-                userId: userId,
-                role: role,
+                roles: [role],
                 referrerId: referrerId,
                 joinDate: date.getCurrentUnixTime()
             }
-        )
     } else {
         const error = new Error(`User is already member of the Space: ${spaceStatusObject.name}`);
         error.statusCode = 409
@@ -350,42 +343,43 @@ async function getActivationFailHTML(failReason) {
     })
 }
 
-async function getUserActiveAgent() {
-    getUserActiveAgentId
-}
 
 function createContainerName(spaceId, userId) {
     return `${spaceId}-${userId}`;
 }
+
 async function getSecret(spaceId, userId, secretName) {
     let containerName = createContainerName(spaceId, userId);
     let rootFolder = require("../securityConfig.json").SERVER_ROOT_FOLDER;
     const secretsService = await require('apihub').getSecretsServiceInstanceAsync(rootFolder);
     return secretsService.getSecretSync(containerName, secretName);
 }
+
 async function addSecret(spaceId, userId, body) {
     let containerName = createContainerName(spaceId, userId);
     let rootFolder = require("../securityConfig.json").SERVER_ROOT_FOLDER;
     const secretsService = await require('apihub').getSecretsServiceInstanceAsync(rootFolder);
     await secretsService.putSecretAsync(containerName, body.secretName, body.secret);
 }
+
 async function deleteSecret(spaceId, userId, secretName) {
     let containerName = createContainerName(spaceId, userId);
     let rootFolder = require("../securityConfig.json").SERVER_ROOT_FOLDER;
     const secretsService = await require('apihub').getSecretsServiceInstanceAsync(rootFolder);
     await secretsService.deleteSecretAsync(containerName, secretName);
 }
+
 async function userSecretExists(spaceId, userId, secretName) {
     let rootFolder = require("../securityConfig.json").SERVER_ROOT_FOLDER;
     const secretsService = await require('apihub').getSecretsServiceInstanceAsync(rootFolder);
     let containerName = createContainerName(spaceId, userId);
-        try {
-            secretsService.getSecretSync(containerName, secretName);
-            return true;
-        } catch (e) {
-            //secret for user doesn't exist
-            return false;
-        }
+    try {
+        secretsService.getSecretSync(containerName, secretName);
+        return true;
+    } catch (e) {
+        //secret for user doesn't exist
+        return false;
+    }
 }
 
 async function registerInvite(referrerId, spaceId, email) {
@@ -425,22 +419,23 @@ async function inviteSpaceCollaborators(referrerId, spaceId, collaboratorsEmails
         }
     }
 }
-async function acceptSpaceInvitation(invitationToken,newUser) {
+
+async function acceptSpaceInvitation(invitationToken, newUser) {
     const spacePendingInvitationsObj = await Space.APIs.getSpacesPendingInvitationsObject();
     const invitation = spacePendingInvitationsObj[invitationToken];
     if (!invitation) {
         return await getSpaceInvitationErrorHTML('Invalid invitation token');
     }
     const {spaceId, referrerId, email} = invitation;
-    if(!newUser){
+    if (!newUser) {
         const userMap = await getUserMap();
         const userId = userMap[email];
-        await addSpaceCollaborators(spaceId, userId,referrerId, 'collaborator');
+        await addSpaceCollaborators(spaceId, userId, referrerId, [Space.constants.spaceRoles.Collaborator]);
         delete spacePendingInvitationsObj[invitationToken];
         await Space.APIs.updateSpacePendingInvitations(spaceId, spacePendingInvitationsObj);
-        const spaceName= await Space.APIs.getSpaceName(spaceId)
+        const spaceName = await Space.APIs.getSpaceName(spaceId)
         return await getSpaceInvitationSuccessfulHTML(spaceName)
-    }else{
+    } else {
         /* TBD */
     }
 
@@ -458,30 +453,33 @@ async function rejectSpaceInvitation(invitationToken) {
 }
 
 
-async function getSpaceInvitationSuccessfulHTML(spaceName){
-    const redirectURL= config.ENVIRONMENT_MODE === 'development' ? config.DEVELOPMENT_BASE_URL : config.PRODUCTION_BASE_URL
+async function getSpaceInvitationSuccessfulHTML(spaceName) {
+    const redirectURL = config.ENVIRONMENT_MODE === 'development' ? config.DEVELOPMENT_BASE_URL : config.PRODUCTION_BASE_URL
     return data.fillTemplate(await require('../email').getTemplate('spaceInvitationAcceptedTemplate'),
         {
             spaceName: spaceName,
-            redirectURL:redirectURL
+            redirectURL: redirectURL
         });
 }
-async function getSpaceInvitationRejectedHTML(spaceName){
-    const redirectURL= config.ENVIRONMENT_MODE === 'development' ? config.DEVELOPMENT_BASE_URL : config.PRODUCTION_BASE_URL
+
+async function getSpaceInvitationRejectedHTML(spaceName) {
+    const redirectURL = config.ENVIRONMENT_MODE === 'development' ? config.DEVELOPMENT_BASE_URL : config.PRODUCTION_BASE_URL
     return data.fillTemplate(await require('../email').getTemplate('spaceInvitationRejectedTemplate'),
         {
             spaceName: spaceName,
-            redirectURL:redirectURL
+            redirectURL: redirectURL
         });
 }
-async function getSpaceInvitationErrorHTML(error){
-    const redirectURL= config.ENVIRONMENT_MODE === 'development' ? config.DEVELOPMENT_BASE_URL : config.PRODUCTION_BASE_URL
+
+async function getSpaceInvitationErrorHTML(error) {
+    const redirectURL = config.ENVIRONMENT_MODE === 'development' ? config.DEVELOPMENT_BASE_URL : config.PRODUCTION_BASE_URL
     return data.fillTemplate(await require('../email').getTemplate('spaceInvitationErrorTemplate'),
         {
             errorMessage: error,
-            redirectURL:redirectURL
+            redirectURL: redirectURL
         });
 }
+
 module.exports = {
     APIs: {
         registerUser,

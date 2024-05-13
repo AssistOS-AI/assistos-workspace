@@ -3,6 +3,7 @@ const streamEmitter = require('../utils/streamEmitter.js');
 
 const OpenAIApiKey = "";
 const AnthropicApikey = "";
+const GoogleApiKey = "";
 
 const GPT3_Turbo = LLMFactory.createLLM("GPT-3.5-Turbo", {}, OpenAIApiKey, "openAI");
 const GPT4 = LLMFactory.createLLM("GPT-4", {}, OpenAIApiKey, "openAI");
@@ -10,6 +11,8 @@ const GPT4_Turbo = LLMFactory.createLLM("GPT-4-Turbo", {}, OpenAIApiKey, "openAI
 
 const Claude2=LLMFactory.createLLM("Claude-2", {}, AnthropicApikey, "anthropic");
 const Claude3=LLMFactory.createLLM("Claude-3", {}, AnthropicApikey, "anthropic");
+
+const Gemini= LLMFactory.createLLM("Gemini", {}, GoogleApiKey, "google");
 
 let finalResponse = "";
 
@@ -105,7 +108,16 @@ streamEmitter.on('data', (data) => {
                     console.error('Error during response:', error);
                 }
             }
-
+        },
+        google:{
+            response: async (LLM) => {
+                try {
+                    const response = await LLM.getResponse("Hello, how are you?", {});
+                    console.log(response);
+                } catch (error) {
+                    console.error('Error during response:', error);
+                }
+            }
         }
     }
 

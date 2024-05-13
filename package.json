@@ -33,6 +33,7 @@
   "homepage": "https://github.com/PharmaLedger-IMI/epi-workspace#readme",
   "dependencies": {
     "@anthropic-ai/sdk": "^0.20.9",
+    "@google/generative-ai": "^0.11.1",
     "nodemailer": "^6.9.13",
     "octopus": "git+http://github.com/opendsu/octopus.git",
     "openai": "^4.43.0"

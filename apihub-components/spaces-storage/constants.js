@@ -1,8 +1,16 @@
-module.exports={
-    supportedAPIKeyTypes:[
+module.exports = {
+    supportedAPIKeyTypes: [
         "OpenAI",
         "Google",
         "Meta",
-        "Microsoft"
-    ]
+        "Microsoft",
+        "Anthropic"
+    ],
+    spaceRoles: {
+        Owner: "owner",
+        Admin: "admin",
+        Collaborator: "collaborator",
+        Auditor: "auditor",
+        Viewer: "viewer"
+    }
 }
