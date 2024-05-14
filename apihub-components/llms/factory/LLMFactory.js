@@ -8,6 +8,9 @@ const LLMs = {
     "GPT-4-Turbo": {
         instance: require('../models/text/GPT-4-Turbo')
     },
+    "GPT-4o": {
+        instance: require('../models/text/GPT-4o')
+    },
     "Claude-3": {
         instance: require('../models/text/Claude-3')
     },
