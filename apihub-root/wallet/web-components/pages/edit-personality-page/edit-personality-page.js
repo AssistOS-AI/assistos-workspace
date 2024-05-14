@@ -77,7 +77,7 @@ export class EditPersonalityPage{
     async search(_target){
         let form = this.element.querySelector(".search");
         let formInfo = await assistOS.UI.extractFormInformation(form);
-        this.knowledgeArray = JSON.parse(await assistOS.space.getAgent().loadFilteredKnowledge(formInfo.data.search));
+        this.knowledgeArray = JSON.parse(await assistOS.space.getAgent().loadFilteredKnowledge(assistOS.space.id, formInfo.data.search));
         if(this.knowledgeArray.length === 0){
             this.knowledgeArray = ["Nothing found"];
         }

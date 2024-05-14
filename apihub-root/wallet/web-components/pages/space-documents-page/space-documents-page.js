@@ -5,9 +5,8 @@ export class SpaceDocumentsPage {
     constructor(element, invalidate) {
         this.notificationId = "docs";
         this.refreshDocuments = async ()=>{
-            this.documents = await documentModule.getDocumentsMetadata(assistOS.space.id);
+            this.documents = await assistOS.space.getDocumentsMetadata(assistOS.space.id);
         };
-        assistOS.space.observeChange(this.notificationId, invalidate, this.refreshDocuments);
         this.invalidate = invalidate;
         this.invalidate(async () => {
             await this.refreshDocuments();

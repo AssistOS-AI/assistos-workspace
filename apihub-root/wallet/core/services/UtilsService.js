@@ -1,23 +1,4 @@
-const openDSU = require("opendsu");
-const crypto = openDSU.loadApi("crypto");
-
 export class UtilsService {
-    constructor() {
-        this.crypto = crypto;
-        this.w3cDID = openDSU.loadAPI("w3cdid");
-    }
-
-    /* To be replaced with one from opendsu Crypto : Import issue*/
-    generateId() {
-        const length = 12;
-        const randomBytes = new Uint8Array(length);
-        window.crypto.getRandomValues(randomBytes);
-        let randomStringId = "";
-        while (randomStringId.length < length) {
-            randomStringId = this.crypto.encodeBase58(randomBytes).slice(0, length);
-        }
-        return randomStringId;
-    }
     SaveElementTimer(fn, t) {
         return new function (){
             let timerObj = setInterval(fn, t);
@@ -47,5 +28,28 @@ export class UtilsService {
             }
         };
     }
-
+    getDemoUserCredentials() {
+        try {
+            const demoUserCredentials = JSON.parse(this.getCookieValue("demoCredentials"));
+            return [demoUserCredentials.email, demoUserCredentials.password]
+        } catch (error) {
+            console.log(error + "No demo credentials found")
+            return ["", ""];
+        }
+    }
+    getCookieValue(cookieName) {
+        const name = cookieName + "=";
+        const decodedCookie = decodeURIComponent(document.cookie);
+        const ca = decodedCookie.split(';');
+        for (let i = 0; i < ca.length; i++) {
+            let c = ca[i];
+            while (c.charAt(0) === ' ') {
+                c = c.substring(1);
+            }
+            if (c.indexOf(name) === 0) {
+                return c.substring(name.length, c.length);
+            }
+        }
+        return null;
+    }
 }

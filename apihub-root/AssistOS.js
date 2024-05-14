@@ -51,6 +51,14 @@ class AssistOS {
         });
         this.currentApplicationName = this.configuration.defaultApplicationName;
     }
+
+    async changeApplicationLocation(appLocation, presenterParams) {
+        let baseURL = `${assistOS.space.id}/${assistOS.currentApplicationName}`
+        let webComponentPage = appLocation.split("/").slice(-1)[0];
+        let completeURL = [baseURL, appLocation].join("/");
+        await assistOS.UI.changeToDynamicPage(webComponentPage, completeURL, presenterParams)
+    }
+
     async startApplication(appName, applicationLocation, isReadOnly) {
         const initialiseApplication = async () => {
             assistOS.initialisedApplications[appName] = await applicationModule.getApplicationConfigs(assistOS.space.id, appName);
@@ -121,10 +129,10 @@ class AssistOS {
     }
 
     async initUser(spaceId, agentId) {
-        assistOS.user = new dependencies.User(await userModule.loadAPIs().loadUser());
-        assistOS.space = new dependencies.Space(await spaceModule.loadAPIs().loadSpace(spaceId));
+        assistOS.user = await userModule.loadAPIs().loadUser();
+        assistOS.space = new spaceModule.Space(await spaceModule.loadAPIs().loadSpace(spaceId));
         await assistOS.space.loadFlows();
-       // await assistOS.loadAgent(spaceId,agentId);
+        // await assistOS.loadAgent(spaceId,agentId);
 
     }
 
@@ -259,7 +267,7 @@ class AssistOS {
         try {
             await asyncFunc(...args);
         } catch (error) {
-            await showApplicationError("Error", `Encountered an error during the execution of ${asyncFunc.name||"Undefined Function"}`, {
+            await showApplicationError("Error", `Encountered an error during the execution of ${asyncFunc.name || "Undefined Function"}`, {
                 message: error.message,
                 stack: error.stack,
                 function: asyncFunc.name,
