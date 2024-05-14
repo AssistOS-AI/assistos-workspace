@@ -1,0 +1,35 @@
+const OpenAILib = require('openai');
+const streamEmitter = require("../utils/streamEmitter");
+
+function createOpenAIInstance(apiKey) {
+    if (!apiKey) {
+        const error = new Error("API key not provided");
+        error.statusCode = 400;
+        throw error;
+    }
+    return new OpenAILib({apiKey});
+}
+
+module.exports = function (modelInstance) {
+    const OpenAI = createOpenAIInstance(modelInstance.apiKey);
+    const data= require('../../apihub-component-utils/data.js')
+    const promptRevisionOverrideTemplate=require('../models/image/DALL-E-3/promptRevisionOverrideTemplate.json')
+    modelInstance.generateImage = async function (prompt, configs) {
+        const response=await OpenAI.images.generate(
+            {
+                model: modelInstance.getModelName(),
+                prompt: data.fillTemplate(promptRevisionOverrideTemplate.prompt,{prompt:prompt}),
+                ...(configs.size?{size:configs.size}:{}),
+                ...(configs.quality?{quality:configs.quality}:{}),
+                n:1
+            },
+        )
+        const image=response.data[0].url;
+        delete response.data[0].url;
+        return {
+            image: image,
+            metadata: response.data[0]
+        }
+    }
+
+}

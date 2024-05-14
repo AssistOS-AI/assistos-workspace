@@ -8,11 +8,13 @@ const GoogleApiKey = "";
 const GPT3_Turbo = LLMFactory.createLLM("GPT-3.5-Turbo", {}, OpenAIApiKey, "openAI");
 const GPT4 = LLMFactory.createLLM("GPT-4", {}, OpenAIApiKey, "openAI");
 const GPT4_Turbo = LLMFactory.createLLM("GPT-4-Turbo", {}, OpenAIApiKey, "openAI");
+const GPT4o = LLMFactory.createLLM("GPT-4o", {}, OpenAIApiKey, "openAI");
+const DALLE3 = LLMFactory.createLLM("DALL-E-3", {}, OpenAIApiKey, "openAIImage");
 
-const Claude2=LLMFactory.createLLM("Claude-2", {}, AnthropicApikey, "anthropic");
+/*const Claude2=LLMFactory.createLLM("Claude-2", {}, AnthropicApikey, "anthropic");
 const Claude3=LLMFactory.createLLM("Claude-3", {}, AnthropicApikey, "anthropic");
 
-const Gemini= LLMFactory.createLLM("Gemini", {}, GoogleApiKey, "google");
+const Gemini= LLMFactory.createLLM("Gemini", {}, GoogleApiKey, "google");*/
 
 let finalResponse = "";
 
@@ -95,6 +97,16 @@ streamEmitter.on('data', (data) => {
                 } catch (error) {
                     console.error('Error during streaming with history:', error);
                 }
+            },
+            generateImage: async (LLM) => {
+                try {
+                    const response = await LLM.generateImage("A painting of a cat", {
+                        quality: "standard"
+                    });
+                    console.log(response);
+                } catch (error) {
+                    console.error('Error during image generation:', error);
+                }
             }
         },
         anthropic: {
@@ -121,7 +133,7 @@ streamEmitter.on('data', (data) => {
         }
     }
 
-    await runTest("anthropic", Claude3, "response");
+    await runTest("openAI", DALLE3, "generateImage");
 
 
 })();

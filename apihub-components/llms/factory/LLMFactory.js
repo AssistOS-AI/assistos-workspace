@@ -11,6 +11,9 @@ const LLMs = {
     "GPT-4o": {
         instance: require('../models/text/GPT-4o')
     },
+    "DALL-E-3": {
+        instance: require('../models/image/DALL-E-3')
+    },
     "Claude-3": {
         instance: require('../models/text/Claude-3')
     },
@@ -23,8 +26,10 @@ const LLMs = {
 };
 const Mixins = {
     "openAI": require('../mixins/openAI.js'),
+    "openAIImage": require('../mixins/openAIImage.js'),
     "anthropic": require('../mixins/anthropic.js'),
     "google": require('../mixins/google.js'),
+
 };
 
 class LLMFactory {
