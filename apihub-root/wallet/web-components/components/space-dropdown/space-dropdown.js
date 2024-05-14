@@ -13,7 +13,7 @@ export class SpaceDropdown {
     afterRender() {
         let spacesList = this.element.querySelector(".spaces-list");
         this.spacesDiv = "";
-        assistOS.user.getUserSpaces().filter(space => space.id !== assistOS.space.id).forEach((space) => {
+        assistOS.user.spaces.filter(space => space.id !== assistOS.space.id).forEach((space) => {
             this.spacesDiv += `<space-unit data-space-name="${space.name}" data-space-id="${space.id}" data-local-action="changeSpace"> </space-unit> `;
         });
         spacesList.insertAdjacentHTML("afterbegin", this.spacesDiv);

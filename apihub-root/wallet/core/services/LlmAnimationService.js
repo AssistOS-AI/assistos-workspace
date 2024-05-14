@@ -1,5 +1,3 @@
-import { showModal, closeModal } from "../../imports.js";
-
 export class LlmAnimationService {
 
     constructor() {
@@ -7,7 +5,7 @@ export class LlmAnimationService {
     }
 
     async displayThink(prompt){
-        await showModal("llm-animation");
+        await assistOS.UI.showModal("llm-animation");
         let phrases = ["Generating response..."];
         let animation = document.querySelector("llm-animation");
         if (animation) {
@@ -25,7 +23,7 @@ export class LlmAnimationService {
         if (this.timeoutId) {
             clearTimeout(this.timeoutId);
         }
-        closeModal(document.querySelector("llm-animation"));
+        assistOS.UI.closeModal(document.querySelector("llm-animation"));
     }
 
     async animateThink(element, phrases) {

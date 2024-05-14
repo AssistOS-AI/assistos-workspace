@@ -336,11 +336,7 @@ async function storeAppFlow(request, response) {
 async function loadAppFlows(request, response) {
     const filePath = path.join(dataVolumePaths.space,`${request.params.spaceId}/applications/${request.params.applicationId}/flows`);
     let flows = await loadObjects(filePath);
-    return sendResponse(response, 200, "application/javascript", {
-        message: "Success",
-        success: true,
-        data: flows
-    });
+    return sendResponse(response, 200, "application/javascript", flows);
 }
 module.exports = {
     installApplication,

@@ -33,7 +33,7 @@ export class PersonalitiesPage {
     setContext(){
         assistOS.context = {
             "location and available actions":"You are in the page Personalities. Here you can add, edit or delete personalities.",
-            "available items": assistOS.space.personalities.map((personality)=>personality.simplify())
+            "available items": this.personalities
         }
     }
     expandTable(){

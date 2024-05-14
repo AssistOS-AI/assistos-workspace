@@ -3,7 +3,6 @@ User = {
     apis: User.loadAPIs(),
     constants: User.constants
 }
-import {Util} from "../../../imports.js";
 
 export class AuthenticationPage {
     constructor(element, invalidate) {
@@ -11,7 +10,7 @@ export class AuthenticationPage {
         this.invalidate = invalidate;
         this.invalidate();
         this.rotations = 0;
-        [this.demoUserEmail, this.demoUserPassword] = Util.getDemoUserCredentials();
+        [this.demoUserEmail, this.demoUserPassword] = assistOS.services.getDemoUserCredentials();
     }
 
     beforeRender() {
