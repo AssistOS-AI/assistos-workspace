@@ -66,7 +66,6 @@ export class EditFlowModal {
                 flowData: formInfo.data.flowCode,
                 appId: this.element.getAttribute("data-appId")
             });
-            assistOS.space.notifyObservers(assistOS.space.getNotificationId());
             assistOS.UI.closeModal(_target);
         }
     }

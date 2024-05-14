@@ -1,11 +1,9 @@
 import {
     Announcement,
     Application,
-    constants,
     PageModel,
     Personality,
     LLM,
-    Document
 } from "../../imports.js";
 const documentModule = require("assistos").loadModule("document");
 const personalityModule = require("assistos").loadModule("personality");
@@ -21,7 +19,6 @@ export class Space {
         this.admins = [];
         this.chat = spaceData.chat
         this.apiKeys = spaceData.apiKeys || {};
-        this.documents = (spaceData.documents|| []).map(documentData => new Document(documentData)).reverse();
         this.pages = spaceData.pages || [];
         /* TODO REFACTOR METADATA LOGIC for personalities nnd include default personality in the space object */
         this.currentPersonalityId = spaceData.currentPersonalityId //|| this.personalities.find(personality => personality.id === constants.PERSONALITIES.DEFAULT_PERSONALITY_ID).id;
@@ -61,31 +58,9 @@ export class Space {
             apiKeys:this.apiKeys
         }
     }
-    async getDocument(documentId){
-        let documentsMetadata = await this.getDocumentsMetadata();
-        let documentData = await documentModule.getDocument(this.id, documentId);
-        let documentIndex = documentsMetadata.findIndex(doc => doc.id === documentId);
-        let document = new Document(documentData);
-        this.documents[documentIndex] = document;
-        return document;
-    }
-    getDocumentFromCache(documentId){
-        return this.documents.find(doc => doc.id === documentId);
-    }
-    async getDocumentsMetadata(){
-        this.documentsMetadata = await documentModule.getDocumentsMetadata(assistOS.space.id);
-        return this.documentsMetadata;
-    }
-    async refreshPersonalitiesMetadata(){
+    async getPersonalitiesMetadata(){
         this.personalitiesMetadata = await personalityModule.getPersonalitiesMetadata(assistOS.space.id);
         return this.personalitiesMetadata;
-    }
-    async getPersonalitiesMetadata(){
-        if(this.personalitiesMetadata){
-            return this.personalitiesMetadata;
-        } else {
-            return await this.refreshPersonalitiesMetadata();
-        }
     }
     getKey(keyType,keyId){
         return this.apiKeys[keyType].find(key=>key.id===keyId)||null;
@@ -188,31 +163,14 @@ export class Space {
         return flowClass[flowName];
     }
 
-
-    getDefaultAgent() {
-        return this.agent;
-    }
-
-
-    async refreshPersonality(id){
+    async getPersonality(id) {
         let personalitiesMetadata = await this.getPersonalitiesMetadata(assistOS.space.id);
-        let fileName = personalitiesMetadata.find(pers => pers.id === id).fileName;
-        let personalityData = await personalityModule.getPersonality(assistOS.space.id, fileName.split(".")[0]);
+        let fileName = personalitiesMetadata.find(pers => pers.id === id).id;
+        let personalityData = await personalityModule.getPersonality(assistOS.space.id, fileName);
         let personalityIndex = this.personalitiesMetadata.findIndex(pers => pers.id === id);
         let personality = new Personality(personalityData);
-        this.personalities[personalityIndex] = personality
+        this.personalities[personalityIndex] = personality;
         return personality;
-    }
-    async getPersonality(id) {
-        let personality = this.personalities.find(personality=>personality.id === id);
-        if(personality){
-            return personality;
-        } else{
-            return await this.refreshPersonality(id);
-        }
-    }
-    getPersonalityByName(name){
-        return this.personalities.find(pers => pers.name === name);
     }
 
     async addPage(pageData) {

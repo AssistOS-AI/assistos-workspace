@@ -83,7 +83,7 @@ async function updateFlow(request, response) {
         let filePath = path.join(dataVolumePaths.space, `${spaceId}/flows/${flowName}.js`);
         await fsPromises.writeFile(filePath, flowData, 'utf8');
         subscribersModule.notifySubscribers(spaceId, request.userId, flowName, flowName);
-
+        subscribersModule.notifySubscribers(spaceId, request.userId, "flows", "flows");
         return utils.sendResponse(response, 200, "application/json", {
             success: true,
             message: `Flow ${flowName} updated successfully`

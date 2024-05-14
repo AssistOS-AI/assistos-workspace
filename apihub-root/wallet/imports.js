@@ -6,9 +6,6 @@ export {
     constants
 };
 //Models
-import {Document} from "./core/models/Document.js";
-import {Chapter} from "./core/models/Chapter.js";
-import {Paragraph} from "./core/models/Paragraph.js";
 import {Announcement} from "./core/models/Announcement.js";
 import {IFlow} from "./core/models/IFlow.js";
 import {LLM} from "./core/models/LLM.js";
@@ -20,9 +17,6 @@ import {Application} from "./core/models/Application.js";
 import {Chatbots} from "./core/models/Chatbots.js";
 import {Util} from "./core/models/Util.js";
 export{
-    Document,
-    Chapter,
-    Paragraph,
     Announcement,
     IFlow,
     LLM,

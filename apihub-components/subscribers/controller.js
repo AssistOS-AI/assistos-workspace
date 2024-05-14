@@ -1,8 +1,6 @@
 const {sendResponse} = require("../apihub-component-utils/utils");
-const EventEmitter = require('events');
 const subscribersModule = (() => {
     let subscribers = {};
-    const eventEmitter = new EventEmitter();
     let subscribersResponses = {};
 
     function getSubscribersRegistry() {
@@ -19,11 +17,14 @@ const subscribersModule = (() => {
         subscribers[spaceId][userId][objectId] = objectId;
     }
 
-    function putResponse(spaceId, userId, response) {
+    function putResponse(spaceId, userId, response, timeoutId) {
         if (!subscribersResponses[spaceId]) {
             subscribersResponses[spaceId] = {};
         }
-        subscribersResponses[spaceId][userId] = response;
+        subscribersResponses[spaceId][userId] = {
+            response: response,
+            timeoutId: timeoutId
+        };
     }
 
     function removeSubscriber(spaceId, userId) {
@@ -48,18 +49,21 @@ const subscribersModule = (() => {
                 continue;
             }
 
-            let response = subscribersResponses[spaceId][userId];
-            if (!response) {
+            let subscriberResponse = subscribersResponses[spaceId][userId];
+            if(!subscriberResponse){
                 continue;
             }
-            if (!response.sent) {
-                response.sent = true;
-                eventEmitter.emit(`${spaceId}/${userId}`);
+            if (!subscriberResponse.response) {
+                continue;
+            }
+            if (!subscriberResponse.response.sent) {
+                subscriberResponse.response.sent = true;
+                clearTimeout(subscribersResponses[spaceId][userId].timeoutId);
                 let isSameUser = false;
                 if (userId === sourceUserId) {
                     isSameUser = true;
                 }
-                sendResponse(response, 200, "application/json", {
+                sendResponse(subscriberResponse.response, 200, "application/json", {
                     success: true,
                     data: {
                         isSameUser: isSameUser,
@@ -79,7 +83,6 @@ const subscribersModule = (() => {
         removeSubscriber,
         removeObjectSubscription,
         notifySubscribers,
-        eventEmitter
     }
 })
 ();
@@ -88,7 +91,6 @@ async function getLatestUpdates(request, response) {
     const spaceId = request.params.spaceId;
     let userId = request.userId;
 
-    subscribersModule.putResponse(spaceId, userId, response);
     let timeoutId = setTimeout(() => {
         if (!response.sent) {
             sendResponse(response, 200, "application/json", {
@@ -96,14 +98,8 @@ async function getLatestUpdates(request, response) {
                 data: null
             })
         }
-    }, 10000);
-    const listener = function () {
-        clearTimeout(timeoutId);
-        setTimeout(() => {
-            subscribersModule.eventEmitter.removeListener(`${spaceId}/${userId}`, listener);
-        }, 0);
-    }
-    subscribersModule.eventEmitter.on(`${spaceId}/${userId}`, listener);
+    }, 30000);
+    subscribersModule.putResponse(spaceId, userId, response, timeoutId);
 }
 
 function subscribeToObject(request, response) {

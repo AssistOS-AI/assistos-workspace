@@ -3,18 +3,18 @@ export class SpaceChapterUnit {
     constructor(element, invalidate) {
         this.element = element;
         this.invalidate = invalidate;
-        this._document =  assistOS.space.getDocumentFromCache(window.location.hash.split("/")[3]);
+        this._document = document.querySelector("space-document-view-page").webSkelPresenter._document;
         let chapterId = this.element.getAttribute("data-chapter-id");
         this.chapter = this._document.getChapter(chapterId);
         this.refreshChapter = async () =>{
             this.chapter = await this._document.refreshChapter(this._document.id, this.chapter.id);
         };
         this.refreshChapterTitle = async () =>{
-            await this.chapter.refreshChapterTitle(this._document.id, this.chapter.id);
+             await this.chapter.refreshChapterTitle(assistOS.space.id, this._document.id, this.chapter.id);
         };
         this.refreshParagraph = (paragraphId) =>{
-            return async ()=>{
-                this.chapter = await this.chapter.refreshParagraph(this._document.id, paragraphId);
+            return async ()=> {
+                await this.chapter.refreshParagraph(assistOS.space.id, this._document.id, paragraphId);
             };
         }
 

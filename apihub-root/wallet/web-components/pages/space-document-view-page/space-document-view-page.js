@@ -1,18 +1,27 @@
 const spaceAPIs = require("assistos").loadModule("space").loadAPIs();
 const {notificationService} = require("assistos").loadModule("util");
+const documentModule = require("assistos").loadModule("document");
 export class SpaceDocumentViewPage {
     constructor(element, invalidate) {
         this.element = element;
         this.invalidate = invalidate;
-        this.refreshDocument = async () =>{
-            this._document = await assistOS.space.getDocument(this._document.id);
+        this.refreshDocument = async () => {
+            let documentData = await documentModule.getDocument(assistOS.space.id, this._document.id);
+            this._document = new documentModule.Document(documentData);
         }
+        this.refreshDocumentTitle = async () => {
+            await this._document.refreshDocumentTitle(assistOS.space.id, this._document.id);
+        };
+        this.refreshDocumentAbstract = async () => {
+            await this._document.refreshDocumentAbstract(assistOS.space.id, this._document.id);
+        };
         this.invalidate(async ()=> {
-            this._document = await assistOS.space.getDocument(window.location.hash.split("/")[3]);
-            spaceAPIs.subscribeToObject(assistOS.space.id, this._document.id);
-            spaceAPIs.checkUpdates(assistOS.space.id);
+            let documentData = await documentModule.getDocument(assistOS.space.id, window.location.hash.split("/")[3]);
+            this._document = new documentModule.Document(documentData);
+            await spaceAPIs.subscribeToObject(assistOS.space.id, this._document.id);
             notificationService.on(this._document.id + "/delete", async ()=>{
                 await spaceAPIs.unsubscribeFromObject(assistOS.space.id);
+                spaceAPIs.stopCheckingUpdates(assistOS.space.id);
                 await this.openDocumentsPage();
                 alert("The document has been deleted");
             });
@@ -20,11 +29,12 @@ export class SpaceDocumentViewPage {
                 this.invalidate(this.refreshDocument);
             });
             notificationService.on("title", ()=>{
-                this.invalidate(this._document.refreshDocumentTitle.bind(this._document));
+                this.invalidate(this.refreshDocumentTitle);
             });
             notificationService.on("abstract", ()=>{
-                this.invalidate(this._document.refreshDocumentAbstract.bind(this._document));
+                this.invalidate(this.refreshDocumentAbstract);
             });
+            spaceAPIs.startCheckingUpdates(assistOS.space.id);
         });
 
         this.controller = new AbortController();
@@ -45,9 +55,9 @@ export class SpaceDocumentViewPage {
             });
         }
     }
-
-    afterRender() {
-
+    async afterUnload() {
+        await spaceAPIs.unsubscribeFromObject(assistOS.space.id, this._document.id);
+        spaceAPIs.stopCheckingUpdates(assistOS.space.id);
     }
 
     async deleteChapter(_target) {
@@ -494,13 +504,12 @@ export class SpaceDocumentViewPage {
                 (chapter) => chapter.id === assistOS.space.currentChapterId
             ) + 1;
         }
-        let [chapterId, paragraphId] = await assistOS.callFlow("AddChapter", {
+        let chapterId = await assistOS.callFlow("AddChapter", {
             spaceId: assistOS.space.id,
             documentId: this._document.id,
             position: position
         });
         assistOS.space.currentChapterId = chapterId;
-        assistOS.space.currentParagraphId = paragraphId;
     }
 
     async addParagraph(_target) {

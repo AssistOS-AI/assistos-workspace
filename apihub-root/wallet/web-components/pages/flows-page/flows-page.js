@@ -1,13 +1,22 @@
+const spaceAPIs = require("assistos").loadModule("space").loadAPIs();
+const {notificationService} = require("assistos").loadModule("util");
 export class FlowsPage {
     constructor(element, invalidate) {
         this.refreshFlows = async () =>{
             this.flows = await assistOS.space.loadFlows();
         }
-        assistOS.space.observeChange(assistOS.space.getNotificationId(), invalidate, this.refreshFlows);
+        this.id = "flows";
         this.element = element;
         this.invalidate = invalidate;
         this.spaceChecked = "checked";
-        this.invalidate(this.refreshFlows);
+        this.invalidate(async()=>{
+            await this.refreshFlows();
+            await spaceAPIs.subscribeToObject(assistOS.space.id, this.id);
+            spaceAPIs.startCheckingUpdates(assistOS.space.id);
+            notificationService.on(this.id, ()=>{
+                this.invalidate(this.refreshFlows);
+            });
+        });
     }
 
     beforeRender() {
@@ -25,9 +34,10 @@ export class FlowsPage {
         }
     }
 
-    afterRender() {
+    async afterUnload() {
+        await spaceAPIs.unsubscribeFromObject(assistOS.space.id, this.id);
+        spaceAPIs.stopCheckingUpdates(assistOS.space.id);
     }
-
     async showActionBox(_target, primaryKey, componentName, insertionMode) {
         await assistOS.UI.showActionBox(_target, primaryKey, componentName, insertionMode);
     }

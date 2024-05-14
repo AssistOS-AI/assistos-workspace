@@ -1,12 +1,23 @@
+const spaceAPIs = require("assistos").loadModule("space").loadAPIs();
+const documentModule = require("assistos").loadModule("document");
+const {notificationService} = require("assistos").loadModule("util");
 export class SpaceDocumentsPage {
     constructor(element, invalidate) {
         this.notificationId = "docs";
         this.refreshDocuments = async ()=>{
-            this.documents = await assistOS.space.getDocumentsMetadata();
+            this.documents = await documentModule.getDocumentsMetadata(assistOS.space.id);
         };
         assistOS.space.observeChange(this.notificationId, invalidate, this.refreshDocuments);
         this.invalidate = invalidate;
-        this.invalidate(this.refreshDocuments);
+        this.invalidate(async () => {
+            await this.refreshDocuments();
+            await spaceAPIs.subscribeToObject(assistOS.space.id, this.id);
+            spaceAPIs.startCheckingUpdates(assistOS.space.id);
+        });
+        this.id = "documents";
+        notificationService.on(this.id, ()=>{
+            this.invalidate(this.refreshDocuments);
+        });
     }
     beforeRender() {
         this.tableRows = "";
@@ -23,12 +34,14 @@ export class SpaceDocumentsPage {
     afterRender(){
         this.setContext();
     }
+    async afterUnload() {
+        await spaceAPIs.unsubscribeFromObject(assistOS.space.id, this.id);
+        spaceAPIs.stopCheckingUpdates(assistOS.space.id);
+    }
     setContext(){
         assistOS.context = {
             "location and available actions": "We are in the Documents page in OS. Here you can see the documents available for the space. You can add or delete documents.",
-            "available items": assistOS.space.documents.map((document)=>{
-                return {title:document.title, abstract:document.abstract, id:document.id}
-            })
+            "available items": this.documents
         }
     }
     async showActionBox(_target, primaryKey, componentName, insertionMode) {

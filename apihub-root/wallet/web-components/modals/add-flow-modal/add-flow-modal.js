@@ -135,7 +135,6 @@ export class AddFlowModal {
                 spaceId: assistOS.space.id,
                 code: formInfo.data.code
             });
-            assistOS.space.notifyObservers(assistOS.space.getNotificationId());
             assistOS.UI.closeModal(_target);
         }
     }

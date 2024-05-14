@@ -11,12 +11,10 @@ export class AddChapter {
 
         try {
             let documentModule = this.loadModule("document");
-            let chapterData = {title: context.title};
+            let chapterData = {title: context.title, paragraphs:[{text: ""}]};
             chapterData.position = context.position;
             let chapterId = await documentModule.addChapter(context.spaceId, context.documentId, chapterData);
-            let paragraphData = {text: ""};
-            let paragraphId = await documentModule.addParagraph(context.spaceId, context.documentId, chapterId, paragraphData);
-            this.return([chapterId, paragraphId]);
+            this.return(chapterId);
         } catch (e) {
             this.fail(e);
         }

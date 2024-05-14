@@ -12,6 +12,7 @@ const {
 
 const bodyReader = require('../apihub-component-middlewares/bodyReader.js')
 const authentication = require('../apihub-component-middlewares/authentication.js')
+const User = require("./user");
 
 function UserStorage(server) {
 
@@ -48,7 +49,11 @@ function UserStorage(server) {
         const createDefaultUser = configs.CREATE_DEMO_USER;
         if (createDefaultUser) {
             const User = require('./user.js');
-            await User.APIs.createDemoUser();
+            try{
+                await User.APIs.createDemoUser();
+            } catch (e) {
+                //user already exists
+            }
         }
     }, 0);
 
