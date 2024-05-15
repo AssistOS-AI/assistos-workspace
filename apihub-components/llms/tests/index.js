@@ -1,5 +1,9 @@
+const fs = require('fs');
+const data = require('../../apihub-component-utils/data.js');
+
 const LLMFactory = require('../factory/LLMFactory');
 const streamEmitter = require('../utils/streamEmitter.js');
+
 
 const OpenAIApiKey = "";
 const AnthropicApikey = "";
@@ -10,7 +14,7 @@ const GPT4 = LLMFactory.createLLM("GPT-4", {}, OpenAIApiKey, "openAI");
 const GPT4_Turbo = LLMFactory.createLLM("GPT-4-Turbo", {}, OpenAIApiKey, "openAI");
 const GPT4o = LLMFactory.createLLM("GPT-4o", {}, OpenAIApiKey, "openAI");
 const DALLE3 = LLMFactory.createLLM("DALL-E-3", {}, OpenAIApiKey, "openAIImage");
-
+const DALLE2 = LLMFactory.createLLM("DALL-E-2", {}, OpenAIApiKey, "openAIImage");
 /*const Claude2=LLMFactory.createLLM("Claude-2", {}, AnthropicApikey, "anthropic");
 const Claude3=LLMFactory.createLLM("Claude-3", {}, AnthropicApikey, "anthropic");
 
@@ -29,7 +33,7 @@ streamEmitter.on('data', (data) => {
     }
 
     const testSuites = {
-        openAI : {
+        openAI: {
             response: async (LLM) => {
                 try {
                     const response = await LLM.getResponse("Hello, how are you?", {
@@ -100,19 +104,32 @@ streamEmitter.on('data', (data) => {
             },
             generateImage: async (LLM) => {
                 try {
-                    const response = await LLM.generateImage("A painting of a cat", {
+                    const response = await LLM.generateImage("", {
                         quality: "standard"
                     });
                     console.log(response);
                 } catch (error) {
                     console.error('Error during image generation:', error);
                 }
+            },
+            generateImageVariants: async (LLM) => {
+                try {
+                    const image = fs.createReadStream('./download.png')
+                    const response = await LLM.generateImageVariants(image, {
+                        variants: 3,
+                        size: "256x256",
+                        response_format: "b64_json"
+                    });
+                    console.log(response);
+                } catch (error) {
+                    console.error('Error during image generation with variants:', error);
+                }
             }
         },
         anthropic: {
             response: async (LLM) => {
                 try {
-                    const response = await LLM.getResponse({ role: "user", content: "Hello, Claude" }, {
+                    const response = await LLM.getResponse({role: "user", content: "Hello, Claude"}, {
                         temperature: 0.5, maxTokens: 300
                     });
                     console.log(response);
@@ -121,7 +138,7 @@ streamEmitter.on('data', (data) => {
                 }
             }
         },
-        google:{
+        google: {
             response: async (LLM) => {
                 try {
                     const response = await LLM.getResponse("Hello, how are you?", {});
@@ -133,7 +150,7 @@ streamEmitter.on('data', (data) => {
         }
     }
 
-    await runTest("openAI", DALLE3, "generateImage");
+    await runTest("openAI", DALLE2, "generateImageVariants");
 
 
 })();

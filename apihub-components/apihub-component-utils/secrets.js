@@ -60,9 +60,20 @@ async function deleteSpaceKey(spaceId, keyType, keyId) {
         throw error
     }
 }
+async function getModelAPIKey(spaceId, keyType) {
+    const secretsService = await apihub.getSecretsServiceInstanceAsync(config.SERVER_ROOT_FOLDER);
+    const spaceAPIKeyObject = secretsService.getSecretSync(getSpaceSecretsContainerName(spaceId), "apiKeys")
+    if (!spaceAPIKeyObject[keyType]) {
+        const error = new Error("Key Type not supported")
+        error.statusCode = 400
+        throw error
+    }
+    return spaceAPIKeyObject[keyType];
+}
 module.exports = {
     createSpaceSecretsContainer,
     keyAlreadyExists,
     addSpaceKey,
-    deleteSpaceKey
+    deleteSpaceKey,
+    getModelAPIKey
 }
