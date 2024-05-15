@@ -129,4 +129,8 @@ export class AgentPage {
         await assistOS.services.resetConversation();
         this.invalidate();
     }
+    uploadFile(_target){
+        let fileInput = this.element.querySelector(".file-input");
+        fileInput.click();
+    }
 }

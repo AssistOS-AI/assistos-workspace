@@ -15,25 +15,8 @@ export class ApplicationsMarketplacePage {
                 `<application-unit data-name="${application[1].name}" data-presenter="application-unit" data-description="${application[1].description}"></application-unit>`;
         });
     }
-    expandTable(){
-        let table = this.element.querySelector(".marketplace-table");
-        table.style.gridTemplateColumns = "repeat(2, 1fr)";
-    }
-    minimizeTable(){
-        let table = this.element.querySelector(".marketplace-table");
-        table.style.gridTemplateColumns = "repeat(1, 1fr)";
-    }
+
     afterRender(){
-        if(this.boundExpandTable){
-            this.element.removeEventListener("hideSidebar", this.boundExpandTable);
-        }
-        this.boundExpandTable = this.expandTable.bind(this);
-        this.element.addEventListener("hideSidebar", this.boundExpandTable);
-        if(this.boundMinimizeTable){
-            this.element.removeEventListener("showSidebar", this.boundMinimizeTable);
-        }
-        this.boundMinimizeTable = this.minimizeTable.bind(this);
-        this.element.addEventListener("showSidebar", this.boundMinimizeTable);
         this.setContext();
     }
     setContext(){

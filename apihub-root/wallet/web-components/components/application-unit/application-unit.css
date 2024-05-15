@@ -3,7 +3,7 @@ application-unit {
     border-radius: 10px;
     width: 300px;
     height: 330px;
-    background: var(--left-sidebar-background);
+    background: var(--white);
 }
 
 .unit-header {

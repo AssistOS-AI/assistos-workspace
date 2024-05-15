@@ -4,7 +4,7 @@
     justify-content: space-between;
     flex-direction: row;
     padding: 20px 20px 5px 20px;
-    border-bottom: 0.5px solid var(--pink-white);
+    border-bottom: 0.5px solid var(--very-light-gray);
 }
 
 .page-unit:hover{

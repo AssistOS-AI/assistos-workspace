@@ -5,7 +5,7 @@ flows-page {
 .flows-page {
     overflow: auto;
     width: 100%;
-    background: var(--middle-content-background);
+    background: var(--white);
 }
 
 .table-header-flows {

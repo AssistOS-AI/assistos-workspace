@@ -5,7 +5,7 @@ const userModule = require('assistos').loadModule('user');
 const spaceModule = require('assistos').loadModule('space');
 const applicationModule = require('assistos').loadModule('application');
 const agentModule = require('assistos').loadModule('personality');
-
+const flowModule = require('assistos').loadModule('flow');
 class AssistOS {
     constructor(configuration) {
         if (AssistOS.instance) {
@@ -192,74 +192,7 @@ class AssistOS {
     }
 
     async callFlow(flowName, context, personalityId) {
-        let flowObj;
-        try {
-            flowObj = await initFlow(flowName, context, personalityId);
-        } catch (e) {
-            console.error(e);
-            return await showApplicationError(e, e, e.stack);
-        }
-
-        let response;
-        try {
-            response = await ((context, personality) => {
-                let returnPromise = new Promise((resolve, reject) => {
-                    flowObj.flowInstance.resolve = resolve;
-                    flowObj.flowInstance.reject = reject;
-                });
-                flowObj.flowInstance.personality = personality;
-                flowObj.flowInstance.start(context, personality);
-                return returnPromise;
-            })(context, flowObj.personality);
-        } catch (e) {
-            console.error(e);
-            return await showApplicationError("Flow execution Error", `Error executing flow ${flowObj.flowInstance.constructor.name}`, e);
-        }
-        if (flowObj.flowClass.outputSchema) {
-            if (typeof flowObj.flowClass.outputSchema.isValid === "undefined") {
-                try {
-                    let parsedResponse = JSON.parse(response);
-                    //assistOS.services.validateSchema(parsedResponse, flowObj.flowClass.outputSchema, "output");
-                    return parsedResponse;
-                } catch (e) {
-                    console.error(e);
-                    return await showApplicationError(e, e, e.stack);
-                }
-            }
-        }
-        return response;
-
-        async function initFlow(flowName, context, personalityId) {
-            let flow;
-            if (assistOS.currentApplicationName === assistOS.configuration.defaultApplicationName) {
-                flow = await assistOS.space.getFlow(flowName);
-            } else {
-                let app = assistOS.space.getApplicationByName(assistOS.currentApplicationName);
-                flow = app.getFlow(flowName);
-            }
-            let personality;
-            if (personalityId) {
-                personality = assistOS.space.getPersonality(personalityId);
-            } else {
-                personality = assistOS.space.getPersonality(dependencies.constants.PERSONALITIES.DEFAULT_PERSONALITY_ID);
-            }
-            if (flow.inputSchema) {
-                // assistOS.services.validateSchema(context, flow.inputSchema, "input");
-            }
-            let flowInstance = new flow();
-            if (flowInstance.start === undefined) {
-                throw new Error(`Flow ${flowInstance.constructor.name} must have a function named 'start'`);
-            }
-            const apis = Object.getOwnPropertyNames(dependencies.IFlow.prototype)
-                .filter(method => method !== 'constructor');
-            apis.forEach(methodName => {
-                flowInstance[methodName] = dependencies.IFlow.prototype[methodName].bind(flowInstance);
-            });
-            if (flow.inputSchema) {
-                // assistOS.services.validateSchema(context, flow.inputSchema, "input");
-            }
-            return {flowInstance: flowInstance, flowClass: flow, personality: personality};
-        }
+        return await flowModule.callFlow(flowName, context, personalityId);
     }
 
     async loadifyFunction(asyncFunc, ...args) {

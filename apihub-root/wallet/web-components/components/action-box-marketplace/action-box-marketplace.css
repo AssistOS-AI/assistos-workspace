@@ -13,7 +13,7 @@ action-box-with-clone{
 }
 
 .action {
-    background: var(--action-box-background);
+    background: var(--white);
     padding: 4px 8px;
     cursor: pointer;
 }

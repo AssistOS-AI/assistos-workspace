@@ -6,11 +6,11 @@ personalities-page {
 .table {
     width: 100%;
     display: grid;
-    grid-template-columns: repeat(3, 1fr);
-    background: var(--middle-content-background);
+    grid-template-columns: repeat(4, 1fr);
+    grid-column-gap: 25px;
+    background: var(--white);
     color: var(--user-text);
 }
-
 .add-personality-button {
     display: flex;
     flex-direction: column;

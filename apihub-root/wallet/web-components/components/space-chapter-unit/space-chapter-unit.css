@@ -144,7 +144,7 @@ p {
 }
 
 #highlighted-element {
-    background-color: var(--medium-white);
+    background-color: var(--white-blue-tint);
 }
 
 .data-chapter-number {

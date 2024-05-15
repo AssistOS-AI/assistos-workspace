@@ -121,7 +121,8 @@ html[theme="dark"] .document-title-container {
     font-weight: 600;
     cursor: pointer;
     color: var(--white-text);
-    background-color: var(--new-chapter-btn);
+    background-color: #2D9FFF;
+    /*TODO: change to another color*/
 }
 
 .add-new-chapter-section {
@@ -153,7 +154,7 @@ html[theme="dark"] .document-title-container {
 }
 
 #highlighted-abstract {
-    background-color: var(--medium-white);
+    background-color: var(--white-blue-tint);
 }
 
 .sidebar-item {
@@ -161,7 +162,7 @@ html[theme="dark"] .document-title-container {
 }
 
 #highlighted-element {
-    background-color: var(--medium-white);
+    background-color: var(--white-blue-tint);
 }
 
 #highlighted-child-element {

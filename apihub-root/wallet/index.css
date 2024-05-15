@@ -2,75 +2,55 @@
 @import "dark-theme.css";
 
 :root {
-    --black: #000000; /* var(--black); */
-    --space-hover: #00000054; /* var(--space-hover); */
-    --form-border: #0000006E; /* var(--form-border); */
-    --lighter-black: #0000003d; /* var(--lighter-black); */
-    --chatbots-shadow: #00000047; /* var(--chatbots-shadow); */
-    --abstract-content-focus: #0000001C; /* var(--abstract-content-focus); */
-    --prompt-shadow: #00000057; /* var(--prompt-shadow); */
-    --path-button: #121212; /* var(--path-button); */
-    --chapter-title: #1E1E1E; /* var(--chapter-title); */
-    --prompt-text: #222222; /* var(--prompt-text); */
-    --light-black: #252525; /* var(--light-black); */
-    --gray-black: #3A3A3A; /* var(--gray-black); */
-    --medium-gray: #494949; /* var(--medium-gray); */
-    --medium-black: #55555514; /* var(--medium-black); */
-    --brown-gray: #555555; /* var(--brown-gray); */
-    --settings-page-theme: #6b6b6b; /* var(--settings-page-theme); */
-    --form-input: #8B8B8B; /* var(--form-input); */
-    --very-light-gray: #c2c2c299; /* var(--very-light-gray); */
-    --action-box-border: #dedede; /* var(--action-box-border); */
-    --error-modal-border: #E5E5E5; /* var(--error-modal-border); */
-    --gray-border: #E6E6E6; /* var(--gray-border); */
-    --white-text: #FFFFFF; /* var(--white-text); */
-    --robot-text: #000000;
-    --user-text: #000000;
-    --light-brown-gray: #504f4f; /* var(--light-brown-gray); */
-    --light-brown: #372B2B; /* var(--light-brown); */
-    --delete-personality: #C70000; /* var(--delete-personality); */
-    --form-input-error: #ff0000; /* var(--form-input-error); */
-    --lighter-brown: #6B574E; /* var(--lighter-brown); */
-    --proof-reader-content: #CCC; /* var(--proof-reader-content); */
-    --green-blue: #429E9D; /* var(--green-blue); */
-    --spinner-l-r-b: #00aeef26; /* var(--spinner-l-r-b); */
-    --spinner-t: #00aeefcc; /* var(--spinner-t); */
-    --light-blue: #E1ECF4; /* var(--light-blue); */
-    --medium-blue: #0C5C9E; /* var(--medium-blue); */
-    --chatbots-history-blue: #98BFE0; /* var(--medium-blue); */
-    --input-file-background: #F7FBFF; /* var(--input-file-background); */
-    --strong-blue: #007bff; /* var(--strong-blue); */
-    --documents-page-header: #363C44; /* var(--documents-page-header); */
-    --harsh-gray: #94aee34d; /* var(--harsh-gray); */
-    --input-file-selector: #2B64E1; /* var(--input-file-selector); */
-    --blue-black: #18203F; /* var(--blue-black); */
-    --suggest: #0618D1; /* var(--suggest); */
+    --black: black;
+    --user-text: black;
+    --robot-text: black;
+    --white: white;
+    --white-text: white;
+    --red: red;
+
+    --form-border: #0000006E;
+    --lighter-black: #0000003d;
+    --chatbots-shadow: #00000047;
+    --abstract-content-focus: #0000001C;
+    --prompt-shadow: #00000057;
+    --path-button: #121212;
+    --chapter-title: #1E1E1E;
+    --prompt-text: #222222;
+    --light-black: #252525;
+    --gray-black: #3A3A3A;
+    --medium-gray: #505050;
+    --medium-black: #55555514;
+    --brown-gray: #555555;
+    --settings-page-theme: #6b6b6b;
+    --form-input: #8B8B8B;
+    --very-light-gray: #c2c2c299;
+    --action-box-border: #dedede;
+    --error-modal-border: #E5E5E5;
+    --gray-border: #E6E6E6;
+    --light-brown-gray: #504f4f;
+    --light-brown: #372B2B;
+    --lighter-brown: #6B574E;
+    --spinner-l-r-b: #00aeef26;
+    --spinner-t: #00aeefcc;
+    --light-blue: #E1ECF4;
+    --medium-blue: #0C5C9E;
+    --chatbots-history-blue: #98BFE0;
+    --strong-blue: #007bff;
+    --documents-page-header: #363C44;
+    --harsh-gray: #94aee34d;
+    --input-file-selector: #2B64E1;
+    --blue-black: #18203F;
+    --suggest: #0618D1;
     --blue-border: #C3DEF4;
     --bright-blue: #2D9FFF;
-    --semi-bold-text: #3C3C3D; /* var(--semi-bold-text); */
-    --right-sidebar-border: #D9D4EE; /* var(--right-sidebar-border); */
-    --pink-white: #d9d4eed9; /* var(--pink-white); */
-    --feature-hover: #afa8ba38; /* var(--feature-hover); */
-    --new-chapter-btn: #350549; /* var(--new-chapter-btn); */
-    --action-box-background: #FEFAFF; /* var(--action-box-background); */
-    --tab-hover: #ebe4ec; /* var(--tab-hover); */
-    --space-tab: #937397; /* var(--space-tab); */
-    --navbackground: #d5c8d6; /* var(--navbackground); */
-    --robot-shadow: #E0C9E1; /* var(--robot-shadow); */
-    --left-sidebar: #3F88C5; /* var(--left-sidebar); */
-    --left-sidebar-background: #3F88C5;
-    --middle-content-background: #ffffff;
-    --right-sidebar: #ffffff;
-    --document-path: #440A46; /* var(--document-path); */
-    --navbarbox: #A283A3; /* var(--navbarbox); */
-    --medium-white: #EAF3FE; /* var(--medium-white); */
-    --flow-marketplace: #F3EBF366; /* var(--flow-marketplace); */
-    --proofreader-generated-content: #2E2C2E; /* var(--proofreader-page-generated-content); */
-    --generated-text-title: #232023; /* var(--generated-text-title); */
-    --chat-log-background: #9d019d80; /* var(--chat-log-background); */
-    --chatbots-input: #F5E6EF; /* var(--chatbots-input); */
-    --button-purple: #A42E70; /* var(--button-purple); */
-    --general-button-text-color: #FFFFFF;
+    --semi-bold-text: #3C3C3D;
+    --right-sidebar-border: #E4E6F0;
+    --feature-hover: #afa8ba38;
+    --action-box-background: #FEFAFF;
+    --left-sidebar: #3F88C5;
+    --left-sidebar-background:#2C2C2C;
+    --white-blue-tint: #EAF3FE;
 }
 
 * {
@@ -112,7 +92,7 @@ body {
 }
 
 .input-invalid {
-    border: 1px solid var(--form-input-error) !important;
+    border: 1px solid var(--red) !important;
     border-radius: 8px !important;
 }
 
@@ -144,7 +124,7 @@ dialog {
     min-width: calc(100% - 270px);
     overflow: scroll;
     z-index: 0;
-    background: var(--middle-content-background);
+    background: var(--white);
 }
 
 #app-wrapper {
@@ -161,18 +141,6 @@ dialog {
     justify-content: space-between;
     margin-left: 10px;
     height: 30px;
-}
-
-.right-sidebar {
-    display: flex;
-    flex-direction: column;
-    position: fixed;
-    right: 0;
-    height: 100%;
-    width: 270px;
-    min-width: 270px;
-    min-height: 100%;
-    border-left: 1px solid var(--right-sidebar-border);
 }
 
 .sidebar-item-main {
@@ -278,7 +246,7 @@ dialog {
     font-weight: 600;
     line-height: 24px;
     text-align: center;
-    color: var(--general-button-text-color);
+    color: var(--white);
     background: var(--medium-blue);
     width: fit-content;
     height: 36px;

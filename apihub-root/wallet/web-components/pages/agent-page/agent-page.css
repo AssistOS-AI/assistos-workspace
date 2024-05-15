@@ -3,13 +3,13 @@ agent-page {
     width: calc(50% - 135px);
     height: 100%;
     transition: width 0.3s;
-    min-width: 350px;
+    min-width: 35%;
 }
 
 .middle-content {
     position: relative;
     height: 100%;
-    background: var(--middle-content-background);
+    background: var(--white);
 }
 
 .page-header {
@@ -29,7 +29,7 @@ agent-page {
 .chat-log {
     overflow: scroll;
     position: relative;
-    height: calc(100% - 150px);
+    height: calc(100% - 140px);
 }
 
 .chat-background {
@@ -48,22 +48,31 @@ agent-page {
 
 .chat-input-container {
     height: 70px;
-    margin: 5px 0;
-    padding: 0 0 0 20px;
+    padding: 10px 15px;
+    background: #E9E9E9;
     justify-content: space-between;
     display: flex;
     align-items: center;
 }
-
-#input {
+.input-container{
+    padding-left: 15px;
+    background: white;
+    border-radius: 6px;
     max-height: 100px;
-    height: 52px;
-    min-height: 52px;
+    height: 50px;
+    min-height: 50px;
+    width: 100%;
+    display: flex;
+    align-items: center;
+}
+#input {
+    border-radius: 6px;
+    max-height: 100px;
+    height: 50px;
+    min-height: 50px;
     resize: none;
-    width: 88%;
-    border-radius: 10px;
+    width: 100%;
     border: none;
-    background: var(--light-blue);
     padding: 16px;
     font-weight: 400;
     font-size: 16px;
@@ -72,18 +81,9 @@ agent-page {
 #input:focus {
     outline: none;
 }
-
-.send-message-btn {
-    width: 7%;
-    padding: 0;
-    display: flex;
-    justify-content: center;
-    align-items: center;
+.attach-file{
     cursor: pointer;
-    background: none;
-    border: none;
 }
-
 .conversation {
     padding: 20px;
 }
@@ -164,7 +164,7 @@ agent-page {
 }
 
 .arrow-space:hover {
-    background: var(--space-hover);
+    background: var(--black);
 }
 
 .select-settings-container{
