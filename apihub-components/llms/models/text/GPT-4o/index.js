@@ -1,7 +1,7 @@
 const ITextLLM = require("../../../interfaces/ITextLLM.js");
 
 class GPT4o extends ITextLLM {
-    static modelName = "gpt-4o";
+    static modelName = "gpt-4o-2024-05-13";
     constructor(config, apiKey) {
         super();
         this.config = config;

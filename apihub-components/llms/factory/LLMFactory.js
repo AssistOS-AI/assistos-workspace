@@ -12,7 +12,13 @@ const LLMs = {
         instance: require('../models/text/GPT-4o')
     },
     "DALL-E-3": {
-        instance: require('../models/image/DALL-E-3')
+        instance: require('../models/image/DALL-E-3'),
+        defaultMixins:[
+            'openAIImage'
+        ]
+    },
+    "DALL-E-2": {
+        instance: require('../models/image/DALL-E-2')
     },
     "Claude-3": {
         instance: require('../models/text/Claude-3')
@@ -27,13 +33,13 @@ const LLMs = {
 const Mixins = {
     "openAI": require('../mixins/openAI.js'),
     "openAIImage": require('../mixins/openAIImage.js'),
-    "anthropic": require('../mixins/anthropic.js'),
+   " anthropic": require('../mixins/anthropic.js'),
     "google": require('../mixins/google.js'),
 
 };
 
 class LLMFactory {
-    static createLLM(LLMName, config, apiKey, ...mixins) {
+    static createLLM(LLMName,apiKey,config,...mixins) {
         const LLMClass = LLMs[LLMName];
         if (!LLMClass) {
             const error = new Error(`No LLM found with the name: ${LLMName}`);
@@ -42,7 +48,6 @@ class LLMFactory {
         }
 
         let instance = new LLMClass.instance(config, apiKey);
-
         mixins.forEach(mixinName => {
             const mixin = Mixins[mixinName];
             if (!mixin) {
