@@ -1,5 +1,5 @@
 const OpenAILib = require('openai');
-const { EventEmitter } = require('events');
+const {EventEmitter} = require('events');
 
 function createOpenAIInstance(apiKey) {
     if (!apiKey) {
@@ -7,25 +7,25 @@ function createOpenAIInstance(apiKey) {
         error.statusCode = 400;
         throw error;
     }
-    return new OpenAILib({ apiKey });
+    return new OpenAILib({apiKey});
 }
 
-function buildLLMRequestConfig(modelInstance, { prompt, configs }) {
-    const { variants, temperature, maxTokens } = configs;
+function buildLLMRequestConfig(modelInstance, prompt, configs) {
+    const {variants, temperature, maxTokens} = configs;
     return {
         model: modelInstance.getModelName(),
         messages: prompt,
-        ...(variants ? { n: variants } : {}),
-        ...(temperature ? { temperature } : {}),
-        ...(maxTokens ? { max_tokens: maxTokens } : {})
+        ...(variants ? {n: variants} : {}),
+        ...(temperature ? {temperature} : {}),
+        ...(maxTokens ? {max_tokens: maxTokens} : {})
     };
 }
 
 module.exports = function (modelInstance) {
     const OpenAI = createOpenAIInstance(modelInstance.apiKey);
 
-    async function executeStandardCompletion(OpenAI, modelInstance, { prompt, configs }) {
-        const LLMRequestConfig = buildLLMRequestConfig(modelInstance, { prompt, configs });
+    async function executeStandardCompletion(OpenAI, modelInstance, prompt, configs) {
+        const LLMRequestConfig = buildLLMRequestConfig(modelInstance, prompt, configs);
         const response = await OpenAI.chat.completions.create(LLMRequestConfig);
         const messages = response.choices.map(choice => choice.message.content);
         delete response.choices;
@@ -35,8 +35,8 @@ module.exports = function (modelInstance) {
         };
     }
 
-    async function executeStreamingCompletion(OpenAI, modelInstance, { prompt, configs, streamEmitter }) {
-        const LLMRequestConfig = buildLLMRequestConfig(modelInstance, { prompt, configs });
+    async function executeStreamingCompletion(OpenAI, modelInstance, prompt, streamEmitter, configs) {
+        const LLMRequestConfig = buildLLMRequestConfig(modelInstance, prompt, configs);
         const stream = await OpenAI.beta.chat.completions.stream(LLMRequestConfig);
 
         (async () => {
@@ -47,27 +47,29 @@ module.exports = function (modelInstance) {
             const response = await stream.finalChatCompletion();
             const messages = response.choices.map(choice => choice.message.content);
             delete response.choices;
-            streamEmitter.emit('final', { messages: messages, metadata: response });
+            streamEmitter.emit('final', {messages: messages, metadata: response});
         })();
 
         return streamEmitter;
     }
 
     modelInstance.getTextResponse = function (prompt, configs = {}) {
-        return executeStandardCompletion(OpenAI, modelInstance, { prompt, configs });
+        prompt= [{role: 'user', content: prompt}];
+        return executeStandardCompletion(OpenAI, modelInstance, prompt, configs);
     };
 
     modelInstance.getTextConversationResponse = function (prompt, messagesQueue, configs = {}) {
-        const combinedPrompt = messagesQueue.concat({ role: 'user', content: prompt });
-        return executeStandardCompletion(OpenAI, modelInstance, { prompt: combinedPrompt, configs });
+        const combinedPrompt = messagesQueue.concat({role: 'user', content: prompt});
+        return executeStandardCompletion(OpenAI, modelInstance, combinedPrompt, configs);
     };
 
     modelInstance.getTextStreamingResponse = function (prompt, streamEmitter, configs = {}) {
-        return executeStreamingCompletion(OpenAI, modelInstance, { prompt, configs, streamEmitter });
+        prompt= [{role: 'user', content: prompt}];
+        return executeStreamingCompletion(OpenAI, modelInstance, prompt, streamEmitter, configs);
     };
 
     modelInstance.getTextConversationStreamingResponse = function (prompt, messagesQueue, streamEmitter, configs = {}) {
-        const combinedPrompt = messagesQueue.concat({ role: 'user', content: prompt });
-        return executeStreamingCompletion(OpenAI, modelInstance, { prompt: combinedPrompt, configs, streamEmitter });
+        const combinedPrompt = messagesQueue.concat({role: 'user', content: prompt});
+        return executeStreamingCompletion(OpenAI, modelInstance, combinedPrompt, streamEmitter, configs);
     };
 };
