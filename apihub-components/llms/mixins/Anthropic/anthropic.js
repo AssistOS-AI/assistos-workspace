@@ -1,5 +1,5 @@
 const anthropicLib = require("@anthropic-ai/sdk");
-const streamEmitter = require('../utils/streamEmitter.js');
+const streamEmitter = require('../../utils/streamEmitter.js');
 
 function createAnthropicInstance(apiKey) {
     if (!apiKey) {

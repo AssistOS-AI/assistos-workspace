@@ -15,7 +15,8 @@ const LLMs = {
         instance: require('../models/image/DALL-E-3'),
         defaultMixins:[
             'openAIImage'
-        ]
+        ],
+        defaultConfig:{}
     },
     "DALL-E-2": {
         instance: require('../models/image/DALL-E-2')
@@ -31,10 +32,10 @@ const LLMs = {
     }
 };
 const Mixins = {
-    "openAI": require('../mixins/openAI.js'),
-    "openAIImage": require('../mixins/openAIImage.js'),
-   " anthropic": require('../mixins/anthropic.js'),
-    "google": require('../mixins/google.js'),
+    "openAI_Text": require('../mixins/OpenAI/Text'),
+    "openAI_Image": require('../mixins/OpenAI/Image.js'),
+   " anthropic": require('../mixins/Anthropic/anthropic.js'),
+    "google": require('../mixins/Google/google.js'),
 
 };
 
@@ -46,8 +47,20 @@ class LLMFactory {
             error.statusCode = 404;
             throw error;
         }
+        mixins = [...LLMClass.defaultMixins, ...mixins];
+
+        if(typeof config !== 'object'){
+            const error = new Error(`Config must be an object`);
+            error.statusCode = 400;
+            throw error;
+        }
+
+        if(!config){
+            config = LLMClass.instance.defaultConfig;
+        }
 
         let instance = new LLMClass.instance(config, apiKey);
+
         mixins.forEach(mixinName => {
             const mixin = Mixins[mixinName];
             if (!mixin) {

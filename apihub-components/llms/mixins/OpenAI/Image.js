@@ -1,5 +1,5 @@
 const OpenAILib = require('openai');
-const streamEmitter = require("../utils/streamEmitter");
+const streamEmitter = require("../../utils/streamEmitter");
 
 function createOpenAIInstance(apiKey) {
     if (!apiKey) {
@@ -12,8 +12,8 @@ function createOpenAIInstance(apiKey) {
 
 module.exports = function (modelInstance) {
     const OpenAI = createOpenAIInstance(modelInstance.apiKey);
-    const data = require('../../apihub-component-utils/data.js')
-    const promptRevisionOverrideTemplate = require('../models/image/DALL-E-3/promptRevisionOverrideTemplate.json')
+    const data = require('../../../apihub-component-utils/data.js')
+    const promptRevisionOverrideTemplate = require('../../models/image/DALL-E-3/promptRevisionOverrideTemplate.json')
     modelInstance.generateImage = async function (prompt, configs) {
         const response = await OpenAI.images.generate(
             {
