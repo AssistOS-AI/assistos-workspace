@@ -1,12 +1,12 @@
 const utils = require('../apihub-component-utils/utils.js');
 const Text = require("./apis/Text.js");
-const { EventEmitter } = require('events');
+const LLMStreamingEmitter= require('./utils/streamEmitter.js');
 const { v4: uuidv4 } = require('uuid');
 
 const cache = {};
 
 async function getTextResponse(request, response) {
-    const { modelName, prompt, messagesQueue, modelConfig, sessionId } = request.body;
+    const { modelName, prompt, messagesQueue, modelConfig} = request.body;
     const spaceId = request.params.spaceId;
 
     if (!modelName) {
@@ -19,18 +19,6 @@ async function getTextResponse(request, response) {
         return utils.sendResponse(response, 400, "application/json", {
             success: false,
             message: "Bad Request. Prompt is required"
-        });
-    }
-
-    if (sessionId && cache[sessionId]) {
-        const sessionData = cache[sessionId];
-        const newData = sessionData.data.slice(sessionData.lastSentIndex);
-        sessionData.lastSentIndex = sessionData.data.length;
-
-        return utils.sendResponse(response, 200, "application/json", {
-            success: true,
-            data: newData,
-            end: sessionData.end || false
         });
     }
 
@@ -69,18 +57,22 @@ async function getTextStreamingResponse(request, response) {
         const sessionData = cache[sessionId];
         const newData = sessionData.data.slice(sessionData.lastSentIndex);
         sessionData.lastSentIndex = sessionData.data.length;
+        const isEnd = sessionData.end || false;
+
+        if (isEnd) {
+            delete cache[sessionId];
+        }
 
         return utils.sendResponse(response, 200, "application/json", {
             success: true,
             data: newData,
-            end: sessionData.end || false
+            end: isEnd
         });
     }
 
     const newSessionId = uuidv4();
     cache[newSessionId] = { data: '', lastSentIndex: 0 };
-
-    const streamEmitter = new EventEmitter();
+    const streamEmitter = new LLMStreamingEmitter();
 
     streamEmitter.on('data', data => {
         cache[newSessionId].data += data;
