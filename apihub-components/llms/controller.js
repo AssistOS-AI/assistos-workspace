@@ -1,5 +1,5 @@
 const utils = require('../apihub-component-utils/utils.js');
-const Text = require("./apis/Text.js");
+const Text = require("./handlers/Text.js");
 const LLMStreamingEmitter= require('./utils/streamEmitter.js');
 const { v4: uuidv4 } = require('uuid');
 
