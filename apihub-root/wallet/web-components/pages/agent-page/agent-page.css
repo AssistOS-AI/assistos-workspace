@@ -9,7 +9,16 @@ agent-page {
 .middle-content {
     position: relative;
     height: 100%;
-    background: var(--white);
+}
+.middle-content::after{
+    content: "";
+    position: absolute;
+    top: 0;
+    left: 0;
+    width: 100%;
+    height: 100%;
+    background: var(--chat-background);
+    z-index: -2;
 }
 
 .page-header {
@@ -20,7 +29,81 @@ agent-page {
 .space-container {
     display: flex;
 }
+.space-controls{
+    z-index: 1;
+    position: absolute;
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    margin: 15px;
+    width: calc(100% - 30px);
+    background-color: var(--chat-header-background);
+    border-radius: 10px;
+    border: 2px solid var(--chat-header-border);
+}
+.chats{
+    display: flex;
+    align-items: center;
+}
+.selected-chat{
+    background: var(--selected-chat);
+    border-radius: 10px;
+    outline: 1px solid var(--selected-chat-outline);
+}
+.chat-name{
+    cursor: pointer;
+    padding: 5px;
+    margin: 5px;
+}
+.arrow{
+    cursor: pointer;
+    font-weight: 600;
+}
+.current-personality{
+    display: flex;
+    align-items: center;
+}
+.current-personality-name {
+    font-size: 18px;
+    font-weight: 600;
+    overflow-wrap: break-word;
+    hyphens: auto;
+    word-break: break-word;
+    margin-left: 5px;
+    margin-right: 5px;
+}
 
+*[theme="dark"] .current-personality {
+    color: var(--light-brown);
+}
+
+.personalities-list {
+    color: var(--white-text);
+    border-radius: 10px;
+    height: 150px;
+    display: none;
+    top:50px;
+    background-color: var(--left-sidebar-background);
+    position: absolute;
+    left: 0;
+    z-index: 1;
+    flex-direction: column;
+    min-width: 160px;
+    overflow: auto;
+}
+.personalities-list > * {
+    display: flex;
+    justify-content: start;
+    align-items: center;
+}
+.rotated {
+    transform: rotate(-90deg);
+}
+.private-chat {
+    display: flex;
+    align-items: center;
+    position: relative;
+}
 .chat-container {
     width: 100%;
     height: 88%;
@@ -29,11 +112,12 @@ agent-page {
 .chat-log {
     overflow: scroll;
     position: relative;
-    height: calc(100% - 140px);
+    height: calc(100% - 70px);
 }
 
 .chat-background {
     z-index: -1;
+    opacity: 0.05;
     object-fit: cover;
     position: absolute;
     right: 0;
@@ -56,7 +140,7 @@ agent-page {
 }
 .input-container{
     padding-left: 15px;
-    background: white;
+    background: var(--chat-input-container);
     border-radius: 6px;
     max-height: 100px;
     height: 50px;
@@ -168,21 +252,14 @@ agent-page {
 }
 
 .select-settings-container{
-    margin-left: 10px;
+    margin: 5px;
     position: relative;
-    display: flex;
     cursor: pointer;
-    background-color: #EAF4FC;
-    border-radius: 10px;
-    border: 1px solid #0000000D;
     padding: 8px;
-}
-.current-personality-btn {
     display: flex;
     align-items: center;
-    cursor: pointer;
-    font-weight: 600;
 }
+
 .breadcrumbs {
     color: var(--medium-blue);
     font-size: 18px;
@@ -215,4 +292,3 @@ agent-page {
 .settings-list-container > div:hover{
     background-color: #A5D0F430;
 }
-

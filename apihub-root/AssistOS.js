@@ -46,10 +46,7 @@ class AssistOS {
 
         this.applications = {};
         this.initialisedApplications = new Set();
-        this.configuration.applications.forEach(application => {
-            this.applications[application.name] = application;
-        });
-        this.currentApplicationName = this.configuration.defaultApplicationName;
+
     }
 
     async changeApplicationLocation(appLocation, presenterParams) {
@@ -131,6 +128,11 @@ class AssistOS {
     async initUser(spaceId, agentId) {
         assistOS.user = await userModule.loadAPIs().loadUser();
         assistOS.space = new spaceModule.Space(await spaceModule.loadAPIs().loadSpace(spaceId));
+        const appsData = await applicationModule.loadApplicationsMetadata(assistOS.space.id);
+        appsData.applications.forEach(application => {
+            assistOS.applications[application.name] = application;
+        });
+        assistOS.currentApplicationName = this.configuration.defaultApplicationName;
         await assistOS.space.loadFlows();
         // await assistOS.loadAgent(spaceId,agentId);
 
@@ -243,18 +245,22 @@ export function changeSelectedPageFromSidebar(url) {
         element.removeAttribute('id');
         let paths = element.querySelectorAll("path");
         paths.forEach((path) => {
-            path.setAttribute("fill", "white");
+            path.setAttribute("fill", "#7B7B7B");
         });
+        let appFocus = element.querySelector('.app-focus');
+        appFocus.classList.add("hidden");
     }
     let divs = document.querySelectorAll('.feature');
     for (let div of divs) {
         let dataAction = div.getAttribute('data-local-action');
         let page = dataAction.split(" ")[1];
         if (url.includes(page)) {
+            let appFocus = div.querySelector('.app-focus');
+            appFocus.classList.remove("hidden");
             div.setAttribute('id', 'selected-page');
             let paths = div.querySelectorAll("path");
             paths.forEach((path) => {
-                path.setAttribute("fill", "var(--left-sidebar)");
+                path.setAttribute("fill", "var(--white)");
             });
             return;
         }

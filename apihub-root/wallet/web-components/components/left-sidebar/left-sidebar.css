@@ -4,6 +4,7 @@ left-sidebar {
     display: flex;
     flex-direction: column;
     max-width: 75px;
+    position: relative;
 }
 
 .features-list-wrapper {
@@ -67,7 +68,7 @@ left-sidebar {
     align-items: center;
     display: flex;
     padding: 5px;
-    margin-top: 15px;
+    margin-top: 10px;
     max-height: 100%;
     transition: transform 0.2s ease-in-out, box-shadow 0.2s ease-in-out;
 }
@@ -78,9 +79,15 @@ left-sidebar {
     cursor: pointer;
     z-index: 1;
 }
-
+.app-focus{
+    left: -12px;
+    position: absolute;
+    height: 80%;
+    width: 5px;
+    border-radius: 7px;
+    background-color: var(--left-sidebar);
+}
 #selected-page {
-    background: var(--white-text);
     border-radius: 5px;
     font-size: 16px;
     font-style: normal;
@@ -114,12 +121,20 @@ left-sidebar {
 .item {
     margin-top: 10px;
 }
-
+.spaces-list{
+    color: var(--white-text);
+    max-width: 160px;
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    justify-content: center;
+    background-color: var(--left-sidebar-background);
+}
 .app-name {
     padding: 5px;
     z-index: 1;
-    color: white;
-    background: var(--left-sidebar);
+    color: var(--white-text);
+    background: var(--left-sidebar-background);
     border: 1px solid var(--very-light-gray);
     border-radius: 5px;
     visibility: hidden;
@@ -156,7 +171,17 @@ html[theme="dark"] {
 }
 .app-separator{
     background-color: #505050;
-    height: 2px;
+    height: 2.5px;
     width: 70%;
-    margin: 10px 0;
+}
+
+#space{
+    z-index: 2;
+    left: 65px;
+    top: 0;
+    overflow: auto;
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    padding: 0;
 }

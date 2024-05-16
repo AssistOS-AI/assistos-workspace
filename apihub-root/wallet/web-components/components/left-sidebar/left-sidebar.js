@@ -15,18 +15,24 @@ export class LeftSidebar {
         this.userName = assistOS.user.name;
         for (let application of assistOS.space.installedApplications) {
             let applicationData = assistOS.applications[application.name];
-            let svgImage = applicationData.encodedSvg;
+            let svgImage = applicationData.svg;
 
             this.applications += `
         <div class="feature" data-id="${applicationData.name.toLowerCase()}" data-local-action="startApplication ${applicationData.id}">
+            <div class="app-focus hidden"></div>
             <div class="page-logo">
-                <img src="${svgImage}" alt="${applicationData.name}" />
+                ${svgImage}
                 <div class="app-name" id="${applicationData.name.toLowerCase()}">
                     ${applicationData.name}
                 </div>
             </div>
         </div>`;
         }
+        let stringHTML = "";
+        for(let space of assistOS.user.spaces){
+            stringHTML += `<simple-unit data-local-action="changeSpace ${space.id}" data-name="${space.name}"></simple-unit>`;
+        }
+        this.spaces = stringHTML;
     }
 
     async startApplication(_target, appName) {
