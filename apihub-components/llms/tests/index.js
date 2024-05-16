@@ -9,23 +9,15 @@ const OpenAIApiKey = "";
 const AnthropicApikey = "";
 const GoogleApiKey = "";
 
-const GPT3_Turbo = LLMFactory.createLLM("GPT-3.5-Turbo", {}, OpenAIApiKey, "openAI");
-const GPT4 = LLMFactory.createLLM("GPT-4", {}, OpenAIApiKey, "openAI");
-const GPT4_Turbo = LLMFactory.createLLM("GPT-4-Turbo", {}, OpenAIApiKey, "openAI");
-const GPT4o = LLMFactory.createLLM("GPT-4o", {}, OpenAIApiKey, "openAI");
-const DALLE3 = LLMFactory.createLLM("DALL-E-3", {}, OpenAIApiKey, "openAIImage");
-const DALLE2 = LLMFactory.createLLM("DALL-E-2", {}, OpenAIApiKey, "openAIImage");
+const GPT3_Turbo = LLMFactory.createLLM("GPT-3.5-Turbo", OpenAIApiKey, {}, "openAI_Text");
+const GPT4 = LLMFactory.createLLM("GPT-4", OpenAIApiKey, {}, "openAI_Text");
+const GPT4_Turbo = LLMFactory.createLLM("GPT-4-Turbo", OpenAIApiKey, {}, "openAI_Text");
+const GPT4o = LLMFactory.createLLM("GPT-4o", OpenAIApiKey, {}, "openAI_Text");
 /*const Claude2=LLMFactory.createLLM("Claude-2", {}, AnthropicApikey, "anthropic");
 const Claude3=LLMFactory.createLLM("Claude-3", {}, AnthropicApikey, "anthropic");
 
 const Gemini= LLMFactory.createLLM("Gemini", {}, GoogleApiKey, "google");*/
 
-let finalResponse = "";
-
-streamEmitter.on('data', (data) => {
-    finalResponse += data;
-    console.log(finalResponse);
-});
 
 (async () => {
     const runTest = async (testSuite, LLM, testName) => {
@@ -36,7 +28,7 @@ streamEmitter.on('data', (data) => {
         openAI: {
             response: async (LLM) => {
                 try {
-                    const response = await LLM.getResponse("Hello, how are you?", {
+                    const response = await LLM.getTextResponse("Hello, how are you?", {
                         variants: 1, temperature: 0.5, maxTokens: 300
                     });
                     console.log(response);
@@ -46,7 +38,7 @@ streamEmitter.on('data', (data) => {
             },
             responseWithVariants: async (LLM) => {
                 try {
-                    const response = await LLM.getResponse("Hello, how are you?", {
+                    const response = await LLM.getTextResponse("Hello, how are you?", {
                         variants: 3, temperature: 0.5, maxTokens: 300
                     });
                     console.log(response);
@@ -56,50 +48,38 @@ streamEmitter.on('data', (data) => {
             },
             responseWithHistory: async (LLM) => {
                 try {
-                    const response = await LLM.getResponseWithHistory([
+                    const response = await LLM.getTextConversationResponse("What was my first message?", [
                         {role: 'user', content: "Hello, how are you?"},
                         {role: 'assistant', content: "I'm fine, thank you."},
-                        {role: 'user', content: "Whats 2+2?"}
                     ]);
                     console.log(response);
                 } catch (error) {
                     console.error('Error during response with history:', error);
                 }
             },
-            responseWithHistoryWithVariants: async (LLM) => {
+            responseWithStreaming: async (LLM) => {
                 try {
-                    const response = await LLM.getResponseWithHistory([
-                        {role: 'user', content: "Hello, how are you?"},
-                        {role: 'assistant', content: "I'm fine, thank you."},
-                        {role: 'user', content: "Whats the best way to fly?"},
-                    ], {variants: 3, temperature: 0.7, maxTokens: 300});
-                    console.log(response);
+                    const stream = await LLM.getTextStreamingResponse("Hello, how are you?", streamEmitter, {});
+                    streamEmitter.on('data', (data) => {
+                        console.log(data);
+                    })
+
                 } catch (error) {
-                    console.error('Error during response with history with variants:', error);
+                    console.error('Error during response with streaming:', error);
                 }
             },
-            streaming: async (LLM) => {
+           responseWithStreamingHistory: async (LLM) => {
                 try {
-                    const response = await LLM.getStreamingResponse("Hello, how are you?", {
-                        variants: 1, temperature: 0.5, maxTokens: 300
-                    });
-                    streamEmitter.emit('end');
-                    console.log(response);
-                } catch (error) {
-                    console.error('Error during streaming:', error);
-                }
-            },
-            streamingWithHistory: async (LLM) => {
-                try {
-                    const response = await LLM.getResponseWithHistory([
+                    const stream = await LLM.getTextConversationStreamingResponse("What was my first message?", [
                         {role: 'user', content: "Hello, how are you?"},
                         {role: 'assistant', content: "I'm fine, thank you."},
-                        {role: 'user', content: "Whats 1+1?"}
-                    ]);
-                    streamEmitter.emit('end');
-                    console.log(response);
+                    ], streamEmitter, {});
+                    streamEmitter.on('data', (data) => {
+                        console.log(data);
+                    })
+
                 } catch (error) {
-                    console.error('Error during streaming with history:', error);
+                    console.error('Error during response with streaming history:', error);
                 }
             },
             generateImage: async (LLM) => {
@@ -150,7 +130,7 @@ streamEmitter.on('data', (data) => {
         }
     }
 
-    await runTest("openAI", DALLE2, "generateImageVariants");
+    await runTest("openAI", GPT4o, "responseWithStreamingHistory");
 
 
 })();

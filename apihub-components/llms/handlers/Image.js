@@ -1,5 +1,5 @@
-const APIKeyDecorator = require('./decorators/APIKeyDecorator.js');
-const ImageWrapper = require('./wrappers/ImageWrapper.js');
+const APIKeyDecorator = require('../decorators/APIKeyDecorator.js');
+const ImageWrapper = require('../wrappers/ImageWrapper.js');
 
 async function generateImage(APIKey,modelName, prompt) {
     return await ImageWrapper.generateImage(APIKey, modelName, prompt);

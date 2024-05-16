@@ -1,5 +1,5 @@
 const {GoogleGenerativeAI} = require("@google/generative-ai");
-const streamEmitter = require('../utils/streamEmitter.js');
+const streamEmitter = require('../../utils/streamEmitter.js');
 
 function createGoogleGenerativeAIInstance(apiKey) {
     if (!apiKey) {
