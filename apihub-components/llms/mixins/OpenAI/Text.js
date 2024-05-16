@@ -1,5 +1,4 @@
 const OpenAILib = require('openai');
-const {EventEmitter} = require('events');
 
 function createOpenAIInstance(apiKey) {
     if (!apiKey) {

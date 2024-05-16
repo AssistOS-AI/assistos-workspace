@@ -19,7 +19,6 @@ function LLMStorage(server) {
     server.post("/apis/v1/spaces/:spaceId/llms/texts/streaming/generate", async (request, response) => {
         await getTextStreamingResponse(request, response);
     });
-
     server.post("/apis/v1/spaces/:spaceId/llms/images/generate", async (request, response) => {
 
     });
@@ -29,8 +28,6 @@ function LLMStorage(server) {
     server.post("/apis/v1/spaces/:spaceId/llms/images/variants", async (request, response) => {
 
     });
-
-
     server.post("/apis/v1/spaces/:spaceId/llms/videos/generate", async (request, response) => {
     });
     server.post("/apis/v1/spaces/:spaceId/llms/audios/generate", async (request, response) => {

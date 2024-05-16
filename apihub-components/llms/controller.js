@@ -21,7 +21,6 @@ async function getTextResponse(request, response) {
             message: "Bad Request. Prompt is required"
         });
     }
-
     try {
         const modelResponse = await Text.APIs.getTextResponse(spaceId, modelName, prompt, modelConfig, messagesQueue);
         utils.sendResponse(response, 200, "application/json", {

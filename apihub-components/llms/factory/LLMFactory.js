@@ -47,9 +47,8 @@ class LLMFactory {
         if (!LLMClass) {
             throw this._createError(`No LLM found with the name: ${LLMName}`, 404);
         }
-
         const defaultMixins = LLMClass.defaultMixins || [];
-        const allMixins = [...defaultMixins, ...additionalMixins];
+        const allMixins = Array.from(new Set([...defaultMixins, ...additionalMixins]));
 
         if (typeof config !== 'object') {
             throw this._createError(`Config must be an object`, 400);
