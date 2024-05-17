@@ -6,6 +6,7 @@ export class LeftSidebar {
     constructor(element, invalidate) {
         this.element = element;
         this.invalidate = invalidate;
+        this.themeIcon = "wallet/assets/icons/moon.svg";
         this.invalidate();
     }
 
@@ -33,9 +34,13 @@ export class LeftSidebar {
             stringHTML += `<simple-unit data-local-action="swapSpace ${space.id}" data-name="${space.name}"></simple-unit>`;
         }
         this.spaces = stringHTML;
+
     }
 
     async startApplication(_target, appName) {
+        if(appName === assistOS.currentApplicationName){
+            return;
+        }
         await assistOS.startApplication(appName);
         changeSelectedPageFromSidebar(window.location.hash);
     }
@@ -46,8 +51,12 @@ export class LeftSidebar {
 
         if (currentTheme && currentTheme === 'dark') {
             element.setAttribute('theme', '');
+            this.themeIcon = "wallet/assets/icons/moon.svg";
+            this.invalidate();
         } else {
             element.setAttribute('theme', 'dark');
+            this.themeIcon = "wallet/assets/icons/sun.svg";
+            this.invalidate();
         }
     }
 
@@ -179,5 +188,4 @@ export class LeftSidebar {
         }
         await assistOS.loadPage(false,false, id);
     }
-    async PreventBubbling(){}
 }

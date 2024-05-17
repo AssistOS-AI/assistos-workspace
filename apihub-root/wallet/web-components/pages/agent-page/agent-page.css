@@ -3,7 +3,7 @@ agent-page {
     width: calc(50% - 135px);
     height: 100%;
     transition: width 0.3s;
-    min-width: 35%;
+    min-width: 41%;
 }
 
 .middle-content {
