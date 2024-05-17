@@ -78,6 +78,7 @@ agent-page {
 }
 
 .personalities-list {
+    padding: 5px 0;
     color: var(--white-text);
     border-radius: 10px;
     height: 150px;

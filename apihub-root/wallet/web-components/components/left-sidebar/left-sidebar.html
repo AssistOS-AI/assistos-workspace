@@ -1,10 +1,9 @@
 <div class="user-photo-container">
     <img class="user-photo pointer" src="$$userImage" alt="" data-local-action="openUserActions"/>
     <div class="user-action-menu" style="display:none;">
-        <span data-local-action="openProfile">Profile</span>
-        <span data-local-action="openAccountSettings">Account Settings</span>
-        <span data-local-action="addSpace">Create Space</span>
-        <span data-local-action="logout">Logout</span>
+        <simple-unit data-local-action="openProfile" data-name="Profile"></simple-unit>
+        <simple-unit data-local-action="openAccountSettings" data-name="Account Settings"></simple-unit>
+        <simple-unit data-local-action="logout" data-name="Logout"></simple-unit>
     </div>
 </div>
 <div class="features-list-wrapper">
@@ -12,18 +11,16 @@
         <div class="feature first" data-id="space" data-local-action="startApplication Space">
             <div class="app-focus hidden"></div>
             <div class="page-logo">
-                <svg width="35" height="26" viewBox="0 0 35 26" fill="none" xmlns="http://www.w3.org/2000/svg">
-                    <path fill-rule="evenodd" clip-rule="evenodd"
-                          d="M15.243 0.616842L0.0870972 23.3507L2.58325 25.0148L17.2796 2.97025L22.8287 11.2939H16.8531L14.6755 14.2939H24.8287L31.976 25.0148L34.4721 23.3507L26.8795 11.9618L19.3115 0.609741L15.243 0.616842Z"
-                          fill="var(--left-sidebar-icons)"/>
+                <svg width="41" height="41" viewBox="0 0 41 41" fill="none" xmlns="http://www.w3.org/2000/svg">
+                    <path d="M2.94629 27.771C1.99145 25.4658 1.5 22.9951 1.5 20.5C1.5 18.0049 1.99145 15.5342 2.94629 13.229C3.90113 10.9238 5.30066 8.82928 7.06497 7.06497C8.82928 5.30066 10.9238 3.90113 13.229 2.94629C15.5342 1.99145 18.0049 1.5 20.5 1.5C22.9951 1.5 25.4658 1.99145 27.771 2.94629C30.0762 3.90113 32.1707 5.30066 33.935 7.06497C35.6993 8.82928 37.0989 10.9238 38.0537 13.229C39.0086 15.5342 39.5 18.0049 39.5 20.5C39.5 22.9951 39.0086 25.4658 38.0537 27.771C37.0989 30.0762 35.6993 32.1707 33.935 33.935C32.1707 35.6993 30.0762 37.0989 27.771 38.0537C25.4658 39.0086 22.9951 39.5 20.5 39.5C18.0049 39.5 15.5342 39.0086 13.229 38.0537C10.9238 37.0989 8.82928 35.6993 7.06497 33.935C5.30066 32.1707 3.90113 30.0762 2.94629 27.771Z" stroke="var(--left-sidebar-icons)" stroke-width="3" stroke-linecap="round" stroke-linejoin="round"/>
+                    <path fill-rule="evenodd" clip-rule="evenodd" d="M18.1559 8.61648L3 31.3503L5.49615 33.0144L20.1925 10.9699L25.7416 19.2935H19.766L17.5884 22.2935H27.7416L34.8889 33.0144L37.385 31.3503L29.7924 19.9614L22.2244 8.60938L18.1559 8.61648Z" fill="var(--left-sidebar-icons)"/>
                 </svg>
             </div>
+            <div class="focus-bridge" data-local-action="PreventBubbling"></div>
             <div class="app-name" id="space">
                 <div class="spaces-list">$$spaces</div>
-                <div class="app-separator"></div>
-                <div class="simple-unit create-space" data-local-action="createSpace">
-                    <div class="simple-unit-name">Create Space</div>
-                </div>
+                <div class="app-separator long"></div>
+                <simple-unit data-local-action="addSpace" data-name="Create Space"></simple-unit>
             </div>
         </div>
         <div class="app-separator"></div>

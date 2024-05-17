@@ -4,10 +4,10 @@ simple-unit:hover > .simple-unit{
 }
 simple-unit{
     width:100%;
-    padding: 5px 0;
 }
 .simple-unit {
-    width: 100%;
+    width: calc(100% - 10px);
+    padding: 5px 0;
     border-radius: 8px;
     margin: 0 5px;
     display: flex;

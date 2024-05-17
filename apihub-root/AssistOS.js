@@ -245,7 +245,11 @@ export function changeSelectedPageFromSidebar(url) {
         element.removeAttribute('id');
         let paths = element.querySelectorAll("path");
         paths.forEach((path) => {
-            path.setAttribute("fill", "#7B7B7B");
+            if(path.getAttribute("stroke-linejoin") === "round") {
+                path.setAttribute("stroke", "var(--left-sidebar-icons)");
+            } else {
+                path.setAttribute("fill", "var(--left-sidebar-icons)");
+            }
         });
         let appFocus = element.querySelector('.app-focus');
         appFocus.classList.add("hidden");
@@ -260,7 +264,11 @@ export function changeSelectedPageFromSidebar(url) {
             div.setAttribute('id', 'selected-page');
             let paths = div.querySelectorAll("path");
             paths.forEach((path) => {
-                path.setAttribute("fill", "var(--white)");
+                if(path.getAttribute("stroke-linejoin") === "round") {
+                    path.setAttribute("stroke", "var(--white)");
+                } else {
+                    path.setAttribute("fill", "var(--white)");
+                }
             });
             return;
         }

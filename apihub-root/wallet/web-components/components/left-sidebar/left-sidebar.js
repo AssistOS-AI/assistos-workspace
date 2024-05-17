@@ -30,7 +30,7 @@ export class LeftSidebar {
         }
         let stringHTML = "";
         for(let space of assistOS.user.spaces){
-            stringHTML += `<simple-unit data-local-action="changeSpace ${space.id}" data-name="${space.name}"></simple-unit>`;
+            stringHTML += `<simple-unit data-local-action="swapSpace ${space.id}" data-name="${space.name}"></simple-unit>`;
         }
         this.spaces = stringHTML;
     }
@@ -69,18 +69,37 @@ export class LeftSidebar {
         let features = this.element.querySelectorAll(".feature");
         features.forEach((feature) => {
             let timeoutId;
-            feature.addEventListener("mouseover", () => {
-                timeoutId = setTimeout(() => {
+            if(feature.getAttribute("data-id") === "space"){
+                let focusSection = feature.querySelector("#space");
+                feature.addEventListener("mouseover", () => {
+                    focusSection.style.visibility = "visible";
+                    let currentSpace = focusSection.querySelector(`[data-name="${assistOS.space.name}"]`);
+                    currentSpace.firstChild.style.backgroundColor = "var(--black)";
+                });
+                feature.addEventListener("mouseout", () => {
+                    focusSection.style.visibility = "hidden";
+                });
+                focusSection.addEventListener("mouseout", (event) => {
+                    if(!focusSection.contains(event.relatedTarget)){
+                        focusSection.style.visibility = "hidden";
+                    }
+                });
+            } else{
+                feature.addEventListener("mouseover", () => {
+                    timeoutId = setTimeout(() => {
+                        let name = feature.querySelector(`[id=${feature.getAttribute("data-id")}]`);
+                        name.style.visibility = "visible";
+                    }, 300);
+                });
+                feature.addEventListener("mouseout", () => {
+                    clearTimeout(timeoutId);
                     let name = feature.querySelector(`[id=${feature.getAttribute("data-id")}]`);
-                    name.style.visibility = "visible";
-                }, 300);
-            });
-            feature.addEventListener("mouseout", () => {
-                clearTimeout(timeoutId);
-                let name = feature.querySelector(`[id=${feature.getAttribute("data-id")}]`);
-                name.style.visibility = "hidden";
-            });
+                    name.style.visibility = "hidden";
+                });
+            }
         });
+
+
         let clock = this.element.querySelector(".clock");
 
         function updateClock() {
@@ -154,4 +173,11 @@ export class LeftSidebar {
         controller.abort();
     };
 
+    async swapSpace(_target, id) {
+        if(assistOS.space.id === id){
+            return;
+        }
+        await assistOS.loadPage(false,false, id);
+    }
+    async PreventBubbling(){}
 }
