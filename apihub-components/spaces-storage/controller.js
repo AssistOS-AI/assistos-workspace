@@ -3,6 +3,9 @@ const utils = require('../apihub-component-utils/utils.js');
 const cookie = require('../apihub-component-utils/cookie.js');
 const space = require("./space.js");
 const user = require("../users-storage/user.js");
+const personalityModule = require("assistos").loadModule("personality");
+const IFlow = require("assistos").loadModule("flow").IFlow;
+const constants = require("assistos").constants;
 const enclave = require("opendsu").loadAPI("enclave");
 const crypto = require('../apihub-component-utils/crypto.js');
 const fsPromises = require('fs').promises;
@@ -115,7 +118,75 @@ async function deleteFlow(request, response) {
         });
     }
 }
+async function callFlow(request, response) {
+    const spaceId = request.params.spaceId;
+    const flowName = request.params.flowName;
+    const context = request.body.context;
+    const personalityId = request.body.personalityId;
+    try {
+        let personality;
+        if(personalityId){
+            personality = await personalityModule.getPersonality(spaceId, personalityId);
+        } else {
+            personality = await personalityModule.getPersonality(spaceId, constants.PERSONALITIES.DEFAULT_PERSONALITY_ID);
+        }
+        const flowPath = path.join(dataVolumePaths.space, `${spaceId}/flows/${flowName}.js`);
+        const flowClass = require(flowPath);
+        let flowInstance = new flowClass();
+        if (flowInstance.start === undefined) {
+            return utils.sendResponse(response, 500, "application/json", {
+                success: false,
+                message: `Flow ${flowInstance.constructor.name} must have a function named 'start'`
+            });
+        }
+        const apis = Object.getOwnPropertyNames(IFlow.prototype)
+            .filter(method => method !== 'constructor');
+        apis.forEach(methodName => {
+            flowInstance[methodName] = IFlow.prototype[methodName].bind(flowInstance);
+        });
+        if (flowClass.inputSchema) {
+            // assistOS.services.validateSchema(context, flow.inputSchema, "input");
+        }
 
+        let response;
+        try {
+            response = await ((context, personality) => {
+                let returnPromise = new Promise((resolve, reject) => {
+                    flowInstance.resolve = resolve;
+                    flowInstance.reject = reject;
+                });
+                flowInstance.personality = personality;
+                flowInstance.start(context, personality);
+                return returnPromise;
+            })(context, personality);
+        } catch (e) {
+            console.error(e);
+            return await showApplicationError("Flow execution Error", `Error executing flow ${flowObj.flowInstance.constructor.name}`, e);
+        }
+        if (flowClass.outputSchema) {
+            if (typeof flowClass.outputSchema.isValid === "undefined") {
+                try {
+                    let parsedResponse = JSON.parse(response);
+                    //assistOS.services.validateSchema(parsedResponse, flowObj.flowClass.outputSchema, "output");
+                    return parsedResponse;
+                } catch (e) {
+                    console.error(e);
+                    return await showApplicationError(e, e, e.stack);
+                }
+            }
+        }
+        return utils.sendResponse(response, 200, "application/json", {
+            success: true,
+            message: `Flow ${flowName} called successfully`
+        });
+    } catch (error) {
+        return utils.sendResponse(response, 500, "application/json", {
+            success: false,
+            message: error + ` Error at calling flow: ${flowName}`
+        });
+    }
+
+}
 function getFileObjectsMetadataPath(spaceId, objectType) {
     return path.join(dataVolumePaths.space, `${spaceId}/${objectType}/metadata.json`);
 }
@@ -979,6 +1050,7 @@ module.exports = {
     addFlow,
     updateFlow,
     deleteFlow,
+    callFlow,
     getAgent,
     addAPIKey,
     deleteAPIKey

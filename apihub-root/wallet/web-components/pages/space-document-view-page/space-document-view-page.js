@@ -1,4 +1,4 @@
-const spaceAPIs = require("assistos").loadModule("space").loadAPIs();
+const spaceAPIs = require("assistos").loadModule("space");
 const {notificationService} = require("assistos").loadModule("util");
 const documentModule = require("assistos").loadModule("document");
 export class SpaceDocumentViewPage {

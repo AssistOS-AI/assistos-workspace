@@ -15,7 +15,8 @@ export class AddAnnouncementModal {
         if(formInfo.isValid) {
             await assistOS.callFlow("AddAnnouncement", {
                 title: formInfo.data.title,
-                text: formInfo.data.text
+                text: formInfo.data.text,
+                spaceId: assistOS.space.id
             });
             assistOS.space.notifyObservers(assistOS.space.getNotificationId());
             assistOS.UI.closeModal(_target);

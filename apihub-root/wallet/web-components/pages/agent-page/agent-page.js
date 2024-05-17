@@ -116,7 +116,7 @@ export class AgentPage {
         if (userMessage === "" || userMessage === null || userMessage === undefined) {
             return;
         }
-        await spaceModule.loadAPIs().addSpaceChatMessage(assistOS.space.id, userMessage)
+        await spaceModule.addSpaceChatMessage(assistOS.space.id, userMessage)
 
         await this.displayMessage("own", userMessage);
 

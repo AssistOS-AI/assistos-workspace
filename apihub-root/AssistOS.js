@@ -127,7 +127,7 @@ class AssistOS {
 
     async initUser(spaceId, agentId) {
         assistOS.user = await userModule.loadAPIs().loadUser();
-        assistOS.space = new spaceModule.Space(await spaceModule.loadAPIs().loadSpace(spaceId));
+        assistOS.space = new spaceModule.Space(await spaceModule.loadSpace(spaceId));
         const appsData = await applicationModule.loadApplicationsMetadata(assistOS.space.id);
         appsData.applications.forEach(application => {
             assistOS.applications[application.name] = application;
@@ -148,7 +148,7 @@ class AssistOS {
     }
 
     async createSpace(spaceName, apiKey) {
-        await spaceModule.loadAPIs().createSpace(spaceName, apiKey);
+        await spaceModule.createSpace(spaceName, apiKey);
         await this.loadPage(false, true);
     }
 
@@ -190,11 +190,11 @@ class AssistOS {
     }
 
     async inviteCollaborators(collaboratorEmails) {
-        await this.loadifyFunction(spaceModule.loadAPIs().inviteSpaceCollaborators, assistOS.space.id, collaboratorEmails);
+        await this.loadifyFunction(spaceModule.inviteSpaceCollaborators, assistOS.space.id, collaboratorEmails);
     }
 
     async callFlow(flowName, context, personalityId) {
-        return await flowModule.callFlow(flowName, context, personalityId);
+        return await flowModule.callServerFlow(assistOS.space.id, flowName, context, personalityId);
     }
 
     async loadifyFunction(asyncFunc, ...args) {

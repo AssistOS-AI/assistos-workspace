@@ -1,5 +1,5 @@
 import {constants} from "../../../imports.js";
-const spaceAPIs = require("assistos").loadModule("space").loadAPIs();
+const spaceAPIs = require("assistos").loadModule("space");
 const {notificationService} = require("assistos").loadModule("util");
 export class EditPersonalityPage{
     constructor(element,invalidate) {

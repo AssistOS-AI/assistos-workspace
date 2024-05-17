@@ -1,4 +1,4 @@
-const spaceAPIs = require("assistos").loadModule("space").loadAPIs();
+const spaceAPIs = require("assistos").loadModule("space");
 const {notificationService} = require("assistos").loadModule("util");
 export class PersonalitiesPage {
     constructor(element, invalidate) {
