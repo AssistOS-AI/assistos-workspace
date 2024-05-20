@@ -7,8 +7,11 @@
     --robot-text: black;
     --white: white;
     --white-text: white;
+    --dark-text: #444444;
+    --darker-text: #1D1D1D;
     --red: red;
     --chat-background:  #F3F3F3;
+    --light-highlight: #E4E6F0;
 
     --form-border: #0000006E;
     --lighter-black: #0000003d;

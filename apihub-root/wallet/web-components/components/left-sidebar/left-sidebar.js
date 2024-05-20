@@ -31,7 +31,7 @@ export class LeftSidebar {
         }
         let stringHTML = "";
         for(let space of assistOS.user.spaces){
-            stringHTML += `<simple-unit data-local-action="swapSpace ${space.id}" data-name="${space.name}"></simple-unit>`;
+            stringHTML += `<simple-unit data-local-action="swapSpace ${space.id}" data-name="${space.name}" data-highlight="dark-highlight"></simple-unit>`;
         }
         this.spaces = stringHTML;
 

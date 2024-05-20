@@ -1,4 +1,4 @@
-export class SwapChapters {
+class SwapChapters {
     static description = "Swaps the order of 2 chapters";
     async start(context) {
         try {
@@ -10,3 +10,4 @@ export class SwapChapters {
         }
     }
 }
+module.exports = SwapChapters;

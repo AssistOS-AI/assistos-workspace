@@ -1,4 +1,4 @@
-const spaceModule=require("assistos").loadModule("space");
+const spaceModule=require("assistos").loadModule("space", {});
 export class AgentPage {
     constructor(element, invalidate) {
         this.element = element;
@@ -28,7 +28,7 @@ export class AgentPage {
         }
         let personalitiesHTML = "";
         for(let personality of this.personalities){
-            personalitiesHTML += `<simple-unit data-local-action="swapPersonality ${personality.id}" data-name="${personality.name}"></simple-unit>`;
+            personalitiesHTML += `<simple-unit data-local-action="swapPersonality ${personality.id}" data-name="${personality.name}" data-highlight="light-highlight"></simple-unit>`;
 
         }
         this.personalitiesHTML = personalitiesHTML;

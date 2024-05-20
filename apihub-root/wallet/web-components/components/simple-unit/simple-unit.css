@@ -1,14 +1,17 @@
-simple-unit:hover > .simple-unit{
-    cursor: pointer;
+simple-unit:hover > .dark-highlight{
     background-color: var(--black);
+}
+simple-unit:hover > .light-highlight{
+    background-color: var(--light-highlight);
 }
 simple-unit{
     width:100%;
 }
 .simple-unit {
+    cursor: pointer;
     width: calc(100% - 10px);
     padding: 5px 0;
-    border-radius: 8px;
+    border-radius: 5px;
     margin: 0 5px;
     display: flex;
     align-items: center;

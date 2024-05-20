@@ -6,9 +6,9 @@
   "announcements": [
     "$$defaultAnnouncement"
   ],
-  "users": "$$admin",
+  "users": ["$$admin"],
   "admins": [
-    "$$adminId"
+    "$$admin"
   ],
   "apiKeys": {
     "OpenAI": "$$OpenAIAPIKey",

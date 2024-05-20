@@ -1,11 +1,11 @@
 import WebSkel from "../WebSkel/webSkel.js";
 import * as dependencies from "./wallet/imports.js";
 
-const userModule = require('assistos').loadModule('user');
-const spaceModule = require('assistos').loadModule('space');
-const applicationModule = require('assistos').loadModule('application');
-const agentModule = require('assistos').loadModule('personality');
-const flowModule = require('assistos').loadModule('flow');
+const userModule = require('assistos').loadModule('user', {});
+const spaceModule = require('assistos').loadModule('space', {});
+const applicationModule = require('assistos').loadModule('application', {});
+const agentModule = require('assistos').loadModule('personality', {});
+const flowModule = require('assistos').loadModule('flow', {});
 class AssistOS {
     constructor(configuration) {
         if (AssistOS.instance) {
@@ -184,6 +184,7 @@ class AssistOS {
             await (spaceId ? skipSpace ? assistOS.initUser(undefined, agentId) : assistOS.initUser(spaceId) : assistOS.initUser(undefined, agentId));
             await initPage();
         } catch (error) {
+            console.error(error);
             hidePlaceholders();
             await assistOS.UI.changeToDynamicPage("authentication-page", "authentication-page");
         }
@@ -194,7 +195,7 @@ class AssistOS {
     }
 
     async callFlow(flowName, context, personalityId) {
-        return await flowModule.callServerFlow(assistOS.space.id, flowName, context, personalityId);
+        return await flowModule.callFlow(assistOS.space.id, flowName, context, personalityId);
     }
 
     async loadifyFunction(asyncFunc, ...args) {
@@ -224,15 +225,15 @@ class AssistOS {
     loadModule(moduleName) {
         switch (moduleName) {
             case "space":
-                return require("assistos-sdk").loadModule("space");
+                return require("assistos-sdk").loadModule("space", {});
             case "user":
-                return require("assistos-sdk").loadModule("user");
+                return require("assistos-sdk").loadModule("user", {});
             case "personality":
-                return require("assistos-sdk").loadModule("personality");
+                return require("assistos-sdk").loadModule("personality", {});
             case "document":
-                return require("assistos-sdk").loadModule("document");
+                return require("assistos-sdk").loadModule("document", {});
             case "application":
-                return require("assistos-sdk").loadModule("application");
+                return require("assistos-sdk").loadModule("application", {});
             default:
                 throw new Error("Module doesn't exist");
         }

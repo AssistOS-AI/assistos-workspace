@@ -19,3 +19,4 @@ class AddAnnouncement {
         }
     }
 }
+module.exports = AddAnnouncement;

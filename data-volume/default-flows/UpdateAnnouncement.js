@@ -1,4 +1,4 @@
-export class UpdateAnnouncement {
+class UpdateAnnouncement {
     static id = "28f3GeMERVZD";
     static description = "Updates an announcement";
     async start(context) {
@@ -11,3 +11,4 @@ export class UpdateAnnouncement {
         }
     }
 }
+module.exports = UpdateAnnouncement;

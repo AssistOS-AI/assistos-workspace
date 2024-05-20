@@ -1,4 +1,4 @@
-export class DeleteDocument {
+class DeleteDocument {
     static description = "Deletes a document";
     static inputSchema = {
         spaceId: "string",
@@ -14,3 +14,4 @@ export class DeleteDocument {
         }
     }
 }
+module.exports = DeleteDocument;

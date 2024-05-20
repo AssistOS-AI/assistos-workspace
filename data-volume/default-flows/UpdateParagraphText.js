@@ -1,4 +1,4 @@
-export class UpdateParagraphText {
+class UpdateParagraphText {
     static description = "Updates the text of a paragraph";
     static inputSchema = {
         spaceId: "string",
@@ -17,3 +17,4 @@ export class UpdateParagraphText {
         }
     }
 }
+module.exports = UpdateParagraphText;

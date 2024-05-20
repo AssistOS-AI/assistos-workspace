@@ -53,6 +53,7 @@ function UserStorage(server) {
                 await User.APIs.createDemoUser();
             } catch (e) {
                 //user already exists
+                console.error(e)
             }
         }
     }, 0);

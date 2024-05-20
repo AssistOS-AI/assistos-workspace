@@ -1,4 +1,4 @@
-export class RequestParameters {
+class RequestParameters {
     static description = "Formulates a statement in which the agent requires the user to provide parameters for an operation he wants to execute";
 
     constructor() {
@@ -16,3 +16,4 @@ export class RequestParameters {
         this.return(response);
     }
 }
+module.exports = RequestParameters;

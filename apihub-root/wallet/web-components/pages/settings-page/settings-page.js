@@ -1,4 +1,4 @@
-const userModule = require('assistos').loadModule('user').loadAPIs();
+const userModule = require('assistos').loadModule('user', {}).loadAPIs();
 export class SettingsPage {
     constructor(element, invalidate) {
         this.element = element;

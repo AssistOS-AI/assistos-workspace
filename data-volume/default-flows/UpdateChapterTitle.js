@@ -1,4 +1,4 @@
-export class UpdateChapterTitle {
+class UpdateChapterTitle {
     static description = "Updates the title of a chapter";
     static inputSchema = {
         spaceId: "string",
@@ -16,3 +16,4 @@ export class UpdateChapterTitle {
         }
     }
 }
+module.exports = UpdateChapterTitle;

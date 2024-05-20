@@ -2,7 +2,7 @@ import {
     validateOpenAiKey,
 } from "../../../imports.js";
 
-const userModule = require('assistos').loadModule('user');
+const userModule = require('assistos').loadModule('user', {});
 
 export class AddApikeyModal {
     constructor(element, invalidate) {

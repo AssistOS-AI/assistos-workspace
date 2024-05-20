@@ -1,4 +1,4 @@
-export class FindObjectsByValue {
+class FindObjectsByValue {
     static description = "Finds information in the system based on the values provided";
     constructor() {
 
@@ -18,3 +18,4 @@ export class FindObjectsByValue {
     }
 
 }
+module.exports = FindObjectsByValue;

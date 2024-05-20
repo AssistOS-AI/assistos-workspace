@@ -1,4 +1,4 @@
-export class UpdatePersonality {
+class UpdatePersonality {
     static description = "Updates information about a personality";
     async start(context) {
         try {
@@ -10,3 +10,4 @@ export class UpdatePersonality {
         }
     }
 }
+module.exports = UpdatePersonality;

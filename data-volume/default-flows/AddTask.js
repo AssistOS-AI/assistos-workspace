@@ -1,4 +1,4 @@
-export class AddTask {
+class AddTask {
     static description = "Adds a task for the agent";
     async start(context) {
         try {
@@ -9,3 +9,4 @@ export class AddTask {
         }
     }
 }
+module.exports = AddTask;

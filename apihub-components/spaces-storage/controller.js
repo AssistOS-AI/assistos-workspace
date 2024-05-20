@@ -3,8 +3,6 @@ const utils = require('../apihub-component-utils/utils.js');
 const cookie = require('../apihub-component-utils/cookie.js');
 const space = require("./space.js");
 const user = require("../users-storage/user.js");
-const personalityModule = require("assistos").loadModule("personality");
-const IFlow = require("assistos").loadModule("flow").IFlow;
 const constants = require("assistos").constants;
 const enclave = require("opendsu").loadAPI("enclave");
 const crypto = require('../apihub-component-utils/crypto.js');
@@ -29,7 +27,10 @@ async function loadJSFiles(filePath) {
     fileStats.sort((a, b) => a.stat.ctimeMs - b.stat.ctimeMs);
 
     for (const {file} of fileStats) {
-        localData += await fsPromises.readFile(path.join(filePath, file), 'utf8') + '\n';
+        let fullPath = path.join(filePath, file);
+        const module = require(fullPath);
+        localData += "export " + module.toString() + '\n';
+        //localData += await fsPromises.readFile(path.join(filePath, file), 'utf8') + '\n';
     }
     return localData;
 }
@@ -123,6 +124,11 @@ async function callFlow(request, response) {
     const flowName = request.params.flowName;
     const context = request.body.context;
     const personalityId = request.body.personalityId;
+    const SecurityContext = require("assistos").ServerSideSecurityContext;
+
+    let securityContext = new SecurityContext(request);
+    const personalityModule = require("assistos").loadModule("personality", securityContext);
+    const flowModule = require("assistos").loadModule("flow", securityContext);
     try {
         let personality;
         if(personalityId){
@@ -131,6 +137,8 @@ async function callFlow(request, response) {
             personality = await personalityModule.getPersonality(spaceId, constants.PERSONALITIES.DEFAULT_PERSONALITY_ID);
         }
         const flowPath = path.join(dataVolumePaths.space, `${spaceId}/flows/${flowName}.js`);
+        //const flowClass = await import(flowPath);
+        //let flowInstance = new flowClass[Object.keys(flowClass)[0]]();
         const flowClass = require(flowPath);
         let flowInstance = new flowClass();
         if (flowInstance.start === undefined) {
@@ -139,10 +147,10 @@ async function callFlow(request, response) {
                 message: `Flow ${flowInstance.constructor.name} must have a function named 'start'`
             });
         }
-        const apis = Object.getOwnPropertyNames(IFlow.prototype)
+        const apis = Object.getOwnPropertyNames(flowModule.IFlow.prototype)
             .filter(method => method !== 'constructor');
         apis.forEach(methodName => {
-            flowInstance[methodName] = IFlow.prototype[methodName].bind(flowInstance);
+            flowInstance[methodName] = flowModule.IFlow.prototype[methodName].bind(flowInstance);
         });
         if (flowClass.inputSchema) {
             // assistOS.services.validateSchema(context, flow.inputSchema, "input");
@@ -156,6 +164,7 @@ async function callFlow(request, response) {
                     flowInstance.reject = reject;
                 });
                 flowInstance.personality = personality;
+                flowInstance.__securityContext = securityContext;
                 flowInstance.start(context, personality);
                 return returnPromise;
             })(context, personality);

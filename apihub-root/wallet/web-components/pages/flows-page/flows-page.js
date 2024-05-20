@@ -1,5 +1,5 @@
-const spaceAPIs = require("assistos").loadModule("space");
-const {notificationService} = require("assistos").loadModule("util");
+const spaceAPIs = require("assistos").loadModule("space", {});
+const {notificationService} = require("assistos").loadModule("util", {});
 export class FlowsPage {
     constructor(element, invalidate) {
         this.refreshFlows = async () =>{
@@ -10,7 +10,7 @@ export class FlowsPage {
         this.invalidate = invalidate;
         this.spaceChecked = "checked";
         this.invalidate(async()=>{
-            await this.refreshFlows();
+            this.flows = await assistOS.space.flows;
             await spaceAPIs.subscribeToObject(assistOS.space.id, this.id);
             spaceAPIs.startCheckingUpdates(assistOS.space.id);
             notificationService.on(this.id, ()=>{

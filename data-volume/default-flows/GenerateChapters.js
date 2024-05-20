@@ -1,4 +1,4 @@
-export class GenerateChapters {
+class GenerateChapters {
     static description = "Generates chapters based on some ideas";
     static inputSchema = {
         spaceId: "string",
@@ -25,3 +25,4 @@ export class GenerateChapters {
         }
     }
 }
+module.exports = GenerateChapters;

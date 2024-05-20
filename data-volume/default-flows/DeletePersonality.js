@@ -1,4 +1,4 @@
-export class DeletePersonality {
+class DeletePersonality {
     static description = "Deletes a personality";
     async start(context) {
         try {
@@ -10,3 +10,4 @@ export class DeletePersonality {
         }
     }
 }
+module.exports = DeletePersonality;

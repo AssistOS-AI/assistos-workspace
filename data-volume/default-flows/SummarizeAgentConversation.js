@@ -1,4 +1,4 @@
-export class SummarizeAgentConversation {
+class SummarizeAgentConversation {
     static description = "Summarizes the conversation by creating the main ideas of the three entities: user, assistant, and assistOS.";
     start() {
         let agent = assistOS.space.getAgent();
@@ -12,3 +12,4 @@ export class SummarizeAgentConversation {
         this.return(summary);
     }
 }
+module.exports = SummarizeAgentConversation;

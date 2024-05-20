@@ -1,4 +1,4 @@
-export class ChangeSpace {
+class ChangeSpace {
     static description = "Changes the current space";
     async start(context) {
         try {
@@ -9,3 +9,4 @@ export class ChangeSpace {
         }
     }
 }
+module.exports = ChangeSpace;
