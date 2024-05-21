@@ -1,17 +1,17 @@
-const OpenAILib = require('openai');
-const streamEmitter = require("../../utils/streamEmitter");
 
-function createOpenAIInstance(apiKey) {
+async function createOpenAIInstance(apiKey) {
     if (!apiKey) {
         const error = new Error("API key not provided");
         error.statusCode = 400;
         throw error;
     }
+    const OpenAILib = (await import('openai')).default;
+
     return new OpenAILib({apiKey});
 }
 
-module.exports = function (modelInstance) {
-    const OpenAI = createOpenAIInstance(modelInstance.apiKey);
+module.exports = async function (modelInstance) {
+    const OpenAI = await createOpenAIInstance(modelInstance.apiKey);
     const data = require('../../../apihub-component-utils/data.js')
     const promptRevisionOverrideTemplate = require('../../models/image/DALL-E-3/promptRevisionOverrideTemplate.json')
     modelInstance.generateImage = async function (prompt, configs) {
