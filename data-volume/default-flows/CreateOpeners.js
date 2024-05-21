@@ -1,4 +1,4 @@
-export class CreateOpeners {
+class CreateOpeners {
     static description = "Creates openers for the agent based on its capabilities.";
     async start(context) {
         try {
@@ -15,3 +15,4 @@ export class CreateOpeners {
     }
 
 }
+module.exports = CreateOpeners;

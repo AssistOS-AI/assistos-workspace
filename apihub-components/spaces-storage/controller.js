@@ -9,112 +9,6 @@ const fsPromises = require('fs').promises;
 const path = require('path');
 const {subscribersModule} = require("../subscribers/controller.js");
 const dataVolumePaths = require('../volumeManager').paths;
-async function loadJSFiles(filePath) {
-    let localData = "";
-    const files = await fsPromises.readdir(filePath);
-
-    const statPromises = files.map(async (file) => {
-        const fullPath = path.join(filePath, file);
-        const stat = await fsPromises.stat(fullPath);
-        if (file.toLowerCase() !== ".git" && !file.toLowerCase().includes("license")) {
-            return {file, stat};
-        }
-    });
-
-    let fileStats = (await Promise.all(statPromises)).filter(stat => stat !== undefined);
-
-    fileStats.sort((a, b) => a.stat.ctimeMs - b.stat.ctimeMs);
-
-    for (const {file} of fileStats) {
-        localData += await fsPromises.readFile(path.join(filePath, file), 'utf8') + '\n';
-    }
-    return localData;
-}
-
-async function loadFlows(request, response) {
-    const filePath = path.join(dataVolumePaths.space, `${request.params.spaceId}/flows`);
-    try {
-        let flows = await loadJSFiles(filePath);
-        return utils.sendResponse(response, 200, "application/javascript", flows);
-    } catch (e) {
-        return utils.sendResponse(response, 500, "application/javascript", e);
-    }
-}
-
-async function getFlow(request, response) {
-    const spaceId = request.params.spaceId;
-    const flowName = request.params.flowName;
-    try {
-        let filePath = path.join(dataVolumePaths.space, `${spaceId}/flows/${flowName}.js`);
-        let flow = await fsPromises.readFile(filePath, {encoding: 'utf8'});
-        return utils.sendResponse(response, 200, "application/javascript", flow);
-    } catch (error) {
-        return utils.sendResponse(response, 500, "application/javascript", error);
-    }
-
-}
-
-async function addFlow(request, response) {
-    const spaceId = request.params.spaceId;
-    const flowData = request.body;
-    const flowName = request.params.flowName;
-    try {
-        let filePath = path.join(dataVolumePaths.space, `${spaceId}/flows/${flowName}.js`);
-        await fsPromises.writeFile(filePath, flowData, 'utf8');
-        subscribersModule.notifySubscribers(spaceId, request.userId, flowName, flowName);
-        subscribersModule.notifySubscribers(spaceId, request.userId, "flows", "flows");
-        return utils.sendResponse(response, 200, "application/json", {
-            success: true,
-            message: `Flow ${flowData.name} added successfully`
-        });
-    } catch (error) {
-        return utils.sendResponse(response, 500, "application/json", {
-            success: false,
-            message: error + ` Error at adding flow: ${flowData.name}`
-        });
-    }
-}
-
-async function updateFlow(request, response) {
-    const spaceId = request.params.spaceId;
-    const flowName = request.params.flowName;
-    const flowData = request.body;
-    try {
-        let filePath = path.join(dataVolumePaths.space, `${spaceId}/flows/${flowName}.js`);
-        await fsPromises.writeFile(filePath, flowData, 'utf8');
-        subscribersModule.notifySubscribers(spaceId, request.userId, flowName, flowName);
-        subscribersModule.notifySubscribers(spaceId, request.userId, "flows", "flows");
-        return utils.sendResponse(response, 200, "application/json", {
-            success: true,
-            message: `Flow ${flowName} updated successfully`
-        });
-    } catch (error) {
-        return utils.sendResponse(response, 500, "application/json", {
-            success: false,
-            message: error + ` Error at updating flow: ${flowName}`
-        });
-    }
-}
-
-async function deleteFlow(request, response) {
-    const spaceId = request.params.spaceId;
-    const flowName = request.params.flowName;
-    try {
-        let filePath = path.join(dataVolumePaths.space, `${spaceId}/flows/${flowName}.js`);
-        await fsPromises.unlink(filePath);
-        subscribersModule.notifySubscribers(spaceId, request.userId, "flows", "flows");
-        subscribersModule.notifySubscribers(spaceId, request.userId, flowName, flowName);
-        return utils.sendResponse(response, 200, "application/json", {
-            success: true,
-            message: `Flow ${flowName} deleted successfully`
-        });
-    } catch (error) {
-        return utils.sendResponse(response, 500, "application/json", {
-            success: false,
-            message: error + ` Error at deleting flow: ${flowName}`
-        });
-    }
-}
 
 function getFileObjectsMetadataPath(spaceId, objectType) {
     return path.join(dataVolumePaths.space, `${spaceId}/${objectType}/metadata.json`);
@@ -974,11 +868,6 @@ module.exports = {
     addSpaceChatMessage,
     createSpace,
     addCollaboratorsToSpace,
-    loadFlows,
-    getFlow,
-    addFlow,
-    updateFlow,
-    deleteFlow,
     getAgent,
     addAPIKey,
     deleteAPIKey

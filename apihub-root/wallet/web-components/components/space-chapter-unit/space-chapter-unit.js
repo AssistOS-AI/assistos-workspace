@@ -1,4 +1,4 @@
-const {notificationService} = require("assistos").loadModule("util");
+const {notificationService} = require("assistos").loadModule("util", {});
 export class SpaceChapterUnit {
     constructor(element, invalidate) {
         this.element = element;

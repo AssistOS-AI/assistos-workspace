@@ -1,4 +1,4 @@
-export class GenerateDocument {
+class GenerateDocument {
     static description = "Generates a whole document based on: a title, a topic, number of chapters";
     static inputSchema = {
         title: "string",
@@ -99,3 +99,4 @@ export class GenerateDocument {
         await documentModule.addDocument(documentData);
     }
 }
+module.exports = GenerateDocument;

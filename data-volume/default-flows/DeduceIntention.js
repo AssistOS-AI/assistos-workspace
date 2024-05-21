@@ -1,4 +1,4 @@
-export class DeduceIntention {
+class DeduceIntention {
     static description = "Deduces the intention of the user when speaking to an agent";
     async start(context) {
         let agent = assistOS.space.getAgent();
@@ -21,3 +21,4 @@ export class DeduceIntention {
         this.return(JSON.parse(response));
     }
 }
+module.exports = DeduceIntention;

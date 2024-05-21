@@ -84,8 +84,8 @@ async function installApplication(request, response) {
     let applicationId = request.params.applicationId;
 
     try {
-        const assistOSConfig = require("../../apihub-root/assistOS-configs.json");
-        const application = assistOSConfig.applications.find(app => app.id === applicationId);
+        const applications = require("./applications.json");
+        const application = applications.find(app => app.id === applicationId);
         const folderPath = path.join(dataVolumePaths.space,`${spaceId}/applications/${application.name}`);
         if (!application || !application.repository) {
             console.error("Application or repository not found");
@@ -205,14 +205,29 @@ async function storeObject(request, response) {
     }
 
 }
-
+async function loadApplicationsMetadata(request, response) {
+    try {
+        const applications = require("./applications.json");
+        sendResponse(response, 200, "application/json", {
+            message: "",
+            success: true,
+            data: applications
+        });
+    } catch (error) {
+        console.error('Error reading applications metadata:', error);
+        sendResponse(response, 500, "application/json", {
+            message: "Internal Server Error",
+            success: false
+        });
+    }
+}
 async function loadApplicationConfig(request, response) {
     try {
         const spaceId = request.params.spaceId;
         const applicationId = request.params.applicationId;
 
-        const assistOSConfig = require("../../apihub-root/assistOS-configs.json");
-        const application = assistOSConfig.applications.find(app => app.id === applicationId);
+        const applications = require("./applications.json");
+        const application = applications.applications.find(app => app.id === applicationId);
 
         const folderPath = path.join(dataVolumePaths.space,`${spaceId}/applications/${application.name}`);
         const manifestPath = `${folderPath}/manifest.json`;
@@ -339,6 +354,7 @@ async function loadAppFlows(request, response) {
     return sendResponse(response, 200, "application/javascript", flows);
 }
 module.exports = {
+    loadApplicationsMetadata,
     installApplication,
     uninstallApplication,
     storeObject,

@@ -17,11 +17,6 @@ const {
     getSpace,
     createSpace,
     addCollaboratorsToSpace,
-    loadFlows,
-    getFlow,
-    updateFlow,
-    deleteFlow,
-    addFlow,
     getAgent,
     addSpaceChatMessage,
     rejectSpaceInvitation,
@@ -46,12 +41,6 @@ function SpaceStorage(server) {
     server.get("/spaces/:spaceId", getSpace);
 
     server.post("/spaces", createSpace);
-
-    server.get("/spaces/flows/:spaceId", loadFlows);
-    server.get("/spaces/flows/:spaceId/:flowName", getFlow);
-    server.post("/spaces/flows/:spaceId/:flowName", addFlow);
-    server.put("/spaces/flows/:spaceId/:flowName", updateFlow);
-    server.delete("/spaces/flows/:spaceId/:flowName", deleteFlow);
 
     server.get("/spaces/fileObject/:spaceId/:objectType", getFileObjectsMetadata);
     server.get("/spaces/fileObject/:spaceId/:objectType/:objectId", getFileObject);

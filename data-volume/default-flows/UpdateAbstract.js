@@ -1,4 +1,4 @@
-export class UpdateAbstract {
+class UpdateAbstract {
     static description = "Updates the abstract of a document";
     static inputSchema = {
         spaceId: "string",
@@ -15,3 +15,4 @@ export class UpdateAbstract {
         }
     }
 }
+module.exports = UpdateAbstract;

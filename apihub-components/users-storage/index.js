@@ -53,32 +53,21 @@ function UserStorage(server) {
                 await User.APIs.createDemoUser();
             } catch (e) {
                 //user already exists
+                console.error(e)
             }
         }
     }, 0);
 
 
     server.use("/users/*", bodyReader);
-
-
     server.post("/users/secrets/exists/:spaceId", userSecretExists);
-
-
     server.get("/users/verify", activateUser);
-
     server.post("/users", registerUser);
-
     server.post("/users/login", loginUser);
-
     server.get("/users/profileImage/:userId", getUserAvatar);
-
-
     server.use("/users/*", authentication);
-
     server.get("/users", loadUser);
-
     server.get("/users/profileImage", getUserAvatar);
-
     server.post("/users/logout", logoutUser);
 
 

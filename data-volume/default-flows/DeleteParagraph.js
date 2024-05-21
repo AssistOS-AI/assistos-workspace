@@ -1,4 +1,4 @@
-export class DeleteParagraph {
+class DeleteParagraph {
     static description = "Deletes a paragraph";
     static inputSchema = {
         spaceId: "string",
@@ -16,3 +16,4 @@ export class DeleteParagraph {
         }
     }
 }
+module.exports = DeleteParagraph;

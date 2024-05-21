@@ -4,6 +4,10 @@
     "services": [],
     "components": [
         {
+            "name": "simple-unit",
+            "type": "components"
+        },
+        {
             "name": "change-personality-modal",
             "type": "modals",
             "presenterClassName": "ChangePersonalityModal"

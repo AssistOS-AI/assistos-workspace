@@ -6,6 +6,7 @@ export class LeftSidebar {
     constructor(element, invalidate) {
         this.element = element;
         this.invalidate = invalidate;
+        this.themeIcon = "wallet/assets/icons/moon.svg";
         this.invalidate();
     }
 
@@ -15,21 +16,31 @@ export class LeftSidebar {
         this.userName = assistOS.user.name;
         for (let application of assistOS.space.installedApplications) {
             let applicationData = assistOS.applications[application.name];
-            let svgImage = applicationData.encodedSvg;
+            let svgImage = applicationData.svg;
 
             this.applications += `
         <div class="feature" data-id="${applicationData.name.toLowerCase()}" data-local-action="startApplication ${applicationData.id}">
+            <div class="app-focus hidden"></div>
             <div class="page-logo">
-                <img src="${svgImage}" alt="${applicationData.name}" />
+                ${svgImage}
                 <div class="app-name" id="${applicationData.name.toLowerCase()}">
                     ${applicationData.name}
                 </div>
             </div>
         </div>`;
         }
+        let stringHTML = "";
+        for(let space of assistOS.user.spaces){
+            stringHTML += `<simple-unit data-local-action="swapSpace ${space.id}" data-name="${space.name}" data-highlight="dark-highlight"></simple-unit>`;
+        }
+        this.spaces = stringHTML;
+
     }
 
     async startApplication(_target, appName) {
+        if(appName === assistOS.currentApplicationName){
+            return;
+        }
         await assistOS.startApplication(appName);
         changeSelectedPageFromSidebar(window.location.hash);
     }
@@ -40,8 +51,12 @@ export class LeftSidebar {
 
         if (currentTheme && currentTheme === 'dark') {
             element.setAttribute('theme', '');
+            this.themeIcon = "wallet/assets/icons/moon.svg";
+            this.invalidate();
         } else {
             element.setAttribute('theme', 'dark');
+            this.themeIcon = "wallet/assets/icons/sun.svg";
+            this.invalidate();
         }
     }
 
@@ -63,18 +78,37 @@ export class LeftSidebar {
         let features = this.element.querySelectorAll(".feature");
         features.forEach((feature) => {
             let timeoutId;
-            feature.addEventListener("mouseover", () => {
-                timeoutId = setTimeout(() => {
+            if(feature.getAttribute("data-id") === "space"){
+                let focusSection = feature.querySelector("#space");
+                feature.addEventListener("mouseover", () => {
+                    focusSection.style.visibility = "visible";
+                    let currentSpace = focusSection.querySelector(`[data-name="${assistOS.space.name}"]`);
+                    currentSpace.firstChild.style.backgroundColor = "var(--black)";
+                });
+                feature.addEventListener("mouseout", () => {
+                    focusSection.style.visibility = "hidden";
+                });
+                focusSection.addEventListener("mouseout", (event) => {
+                    if(!focusSection.contains(event.relatedTarget)){
+                        focusSection.style.visibility = "hidden";
+                    }
+                });
+            } else{
+                feature.addEventListener("mouseover", () => {
+                    timeoutId = setTimeout(() => {
+                        let name = feature.querySelector(`[id=${feature.getAttribute("data-id")}]`);
+                        name.style.visibility = "visible";
+                    }, 300);
+                });
+                feature.addEventListener("mouseout", () => {
+                    clearTimeout(timeoutId);
                     let name = feature.querySelector(`[id=${feature.getAttribute("data-id")}]`);
-                    name.style.visibility = "visible";
-                }, 300);
-            });
-            feature.addEventListener("mouseout", () => {
-                clearTimeout(timeoutId);
-                let name = feature.querySelector(`[id=${feature.getAttribute("data-id")}]`);
-                name.style.visibility = "hidden";
-            });
+                    name.style.visibility = "hidden";
+                });
+            }
         });
+
+
         let clock = this.element.querySelector(".clock");
 
         function updateClock() {
@@ -148,4 +182,10 @@ export class LeftSidebar {
         controller.abort();
     };
 
+    async swapSpace(_target, id) {
+        if(assistOS.space.id === id){
+            return;
+        }
+        await assistOS.loadPage(false,false, id);
+    }
 }

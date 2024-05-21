@@ -1,4 +1,4 @@
-export class AddSpace {
+class AddSpace {
     static description = "Adds a new workspace. A name must be provided";
     static inputSchema = {
         name: "string"
@@ -12,3 +12,4 @@ export class AddSpace {
         }
     }
 }
+module.exports = AddSpace;

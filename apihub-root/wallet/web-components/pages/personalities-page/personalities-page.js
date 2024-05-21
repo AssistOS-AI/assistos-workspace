@@ -1,5 +1,5 @@
-const spaceAPIs = require("assistos").loadModule("space").loadAPIs();
-const {notificationService} = require("assistos").loadModule("util");
+const spaceAPIs = require("assistos").loadModule("space", {});
+const {notificationService} = require("assistos").loadModule("util", {});
 export class PersonalitiesPage {
     constructor(element, invalidate) {
         this.modal = "showAddPersonalityModal";

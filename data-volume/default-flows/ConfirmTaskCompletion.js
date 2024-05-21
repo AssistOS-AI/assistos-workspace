@@ -1,4 +1,4 @@
-export class ConfirmTaskCompletion {
+class ConfirmTaskCompletion {
    static description = "Formulates a statement which summarizes the task that the agent has completed";
 
    async start(){
@@ -9,3 +9,4 @@ export class ConfirmTaskCompletion {
       this.return(response);
    }
 }
+module.exports = ConfirmTaskCompletion;

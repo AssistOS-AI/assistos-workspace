@@ -1,4 +1,4 @@
-export class GenerateText {
+class GenerateText {
    static description = "Generates text based on some requirements.";
    static inputSchema = {
       requirements: "string"
@@ -9,3 +9,4 @@ export class GenerateText {
         return await llm.request(prompt);
    }
 }
+module.exports = GenerateText;

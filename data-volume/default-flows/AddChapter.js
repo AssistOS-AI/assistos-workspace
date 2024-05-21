@@ -1,4 +1,4 @@
-export class AddChapter {
+class AddChapter {
     static description = "Adds a new chapter to a document";
     static inputSchema = {
         spaceId: "string",
@@ -20,3 +20,4 @@ export class AddChapter {
         }
     }
 }
+module.exports = AddChapter;

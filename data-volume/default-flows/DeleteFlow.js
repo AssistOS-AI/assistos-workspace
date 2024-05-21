@@ -1,4 +1,4 @@
-export class DeleteFlow {
+class DeleteFlow {
     static description = "Deletes a flow";
     async start(context) {
         try {
@@ -10,3 +10,4 @@ export class DeleteFlow {
         }
     }
 }
+module.exports = DeleteFlow;

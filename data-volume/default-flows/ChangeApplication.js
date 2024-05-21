@@ -1,4 +1,4 @@
-export class ChangeApplication {
+class ChangeApplication {
     static description = "Changes the current application";
     async start(context) {
         try {
@@ -23,3 +23,4 @@ export class ChangeApplication {
         }
     }
 }
+module.exports = ChangeApplication;

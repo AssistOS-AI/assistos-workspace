@@ -1,6 +1,6 @@
-const spaceAPIs = require("assistos").loadModule("space").loadAPIs();
-const {notificationService} = require("assistos").loadModule("util");
-const documentModule = require("assistos").loadModule("document");
+const spaceAPIs = require("assistos").loadModule("space", {});
+const {notificationService} = require("assistos").loadModule("util", {});
+const documentModule = require("assistos").loadModule("document", {});
 export class SpaceDocumentViewPage {
     constructor(element, invalidate) {
         this.element = element;

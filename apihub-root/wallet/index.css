@@ -7,7 +7,11 @@
     --robot-text: black;
     --white: white;
     --white-text: white;
+    --dark-text: #444444;
+    --darker-text: #1D1D1D;
     --red: red;
+    --chat-background:  #F3F3F3;
+    --light-highlight: #E4E6F0;
 
     --form-border: #0000006E;
     --lighter-black: #0000003d;
@@ -50,7 +54,14 @@
     --action-box-background: #FEFAFF;
     --left-sidebar: #3F88C5;
     --left-sidebar-background:#2C2C2C;
+    --black-pin: #2C2C2C;
+    --left-sidebar-icons: #7B7B7B;
+    --chat-input-container: white;
     --white-blue-tint: #EAF3FE;
+    --chat-header-background: #EFEFEF99;
+    --chat-header-border: #E5E5E599;
+    --selected-chat: #ECEEF5;
+    --selected-chat-outline: #0000000D;
 }
 
 * {
@@ -403,15 +414,6 @@ dialog {
     width: 14%;
     height: 100%;
 }
-
-.space-controls {
-    display: flex;
-    align-items: center;
-    justify-content: space-between;
-    padding: 20px 20px;
-    height: 69px;
-}
-
 /* TODO move to index.css(global application css) of AiAuthor after a proper solution is implemented */
 
 /* AiAuthor */

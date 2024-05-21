@@ -1,4 +1,4 @@
-export class UpdateDocumentTitle {
+class UpdateDocumentTitle {
     static description = "Updates the title of a document";
     static inputSchema = {
         spaceId: "string",
@@ -15,3 +15,4 @@ export class UpdateDocumentTitle {
         }
     }
 }
+module.exports = UpdateDocumentTitle;

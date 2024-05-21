@@ -1,11 +1,11 @@
 import WebSkel from "../WebSkel/webSkel.js";
 import * as dependencies from "./wallet/imports.js";
 
-const userModule = require('assistos').loadModule('user');
-const spaceModule = require('assistos').loadModule('space');
-const applicationModule = require('assistos').loadModule('application');
-const agentModule = require('assistos').loadModule('personality');
-const flowModule = require('assistos').loadModule('flow');
+const userModule = require('assistos').loadModule('user', {});
+const spaceModule = require('assistos').loadModule('space', {});
+const applicationModule = require('assistos').loadModule('application', {});
+const agentModule = require('assistos').loadModule('personality', {});
+const flowModule = require('assistos').loadModule('flow', {});
 class AssistOS {
     constructor(configuration) {
         if (AssistOS.instance) {
@@ -46,10 +46,7 @@ class AssistOS {
 
         this.applications = {};
         this.initialisedApplications = new Set();
-        this.configuration.applications.forEach(application => {
-            this.applications[application.name] = application;
-        });
-        this.currentApplicationName = this.configuration.defaultApplicationName;
+
     }
 
     async changeApplicationLocation(appLocation, presenterParams) {
@@ -130,7 +127,12 @@ class AssistOS {
 
     async initUser(spaceId, agentId) {
         assistOS.user = await userModule.loadAPIs().loadUser();
-        assistOS.space = new spaceModule.Space(await spaceModule.loadAPIs().loadSpace(spaceId));
+        assistOS.space = new spaceModule.Space(await spaceModule.loadSpace(spaceId));
+        const appsData = await applicationModule.loadApplicationsMetadata(assistOS.space.id);
+        appsData.applications.forEach(application => {
+            assistOS.applications[application.name] = application;
+        });
+        assistOS.currentApplicationName = this.configuration.defaultApplicationName;
         await assistOS.space.loadFlows();
         // await assistOS.loadAgent(spaceId,agentId);
 
@@ -146,7 +148,7 @@ class AssistOS {
     }
 
     async createSpace(spaceName, apiKey) {
-        await spaceModule.loadAPIs().createSpace(spaceName, apiKey);
+        await spaceModule.createSpace(spaceName, apiKey);
         await this.loadPage(false, true);
     }
 
@@ -182,17 +184,18 @@ class AssistOS {
             await (spaceId ? skipSpace ? assistOS.initUser(undefined, agentId) : assistOS.initUser(spaceId) : assistOS.initUser(undefined, agentId));
             await initPage();
         } catch (error) {
+            console.error(error);
             hidePlaceholders();
             await assistOS.UI.changeToDynamicPage("authentication-page", "authentication-page");
         }
     }
 
     async inviteCollaborators(collaboratorEmails) {
-        await this.loadifyFunction(spaceModule.loadAPIs().inviteSpaceCollaborators, assistOS.space.id, collaboratorEmails);
+        await this.loadifyFunction(spaceModule.inviteSpaceCollaborators, assistOS.space.id, collaboratorEmails);
     }
 
     async callFlow(flowName, context, personalityId) {
-        return await flowModule.callFlow(flowName, context, personalityId);
+        return await flowModule.callFlow(assistOS.space.id, flowName, context, personalityId);
     }
 
     async loadifyFunction(asyncFunc, ...args) {
@@ -222,15 +225,15 @@ class AssistOS {
     loadModule(moduleName) {
         switch (moduleName) {
             case "space":
-                return require("assistos-sdk").loadModule("space");
+                return require("assistos-sdk").loadModule("space", {});
             case "user":
-                return require("assistos-sdk").loadModule("user");
+                return require("assistos-sdk").loadModule("user", {});
             case "personality":
-                return require("assistos-sdk").loadModule("personality");
+                return require("assistos-sdk").loadModule("personality", {});
             case "document":
-                return require("assistos-sdk").loadModule("document");
+                return require("assistos-sdk").loadModule("document", {});
             case "application":
-                return require("assistos-sdk").loadModule("application");
+                return require("assistos-sdk").loadModule("application", {});
             default:
                 throw new Error("Module doesn't exist");
         }
@@ -243,18 +246,30 @@ export function changeSelectedPageFromSidebar(url) {
         element.removeAttribute('id');
         let paths = element.querySelectorAll("path");
         paths.forEach((path) => {
-            path.setAttribute("fill", "white");
+            if(path.getAttribute("stroke-linejoin") === "round") {
+                path.setAttribute("stroke", "var(--left-sidebar-icons)");
+            } else {
+                path.setAttribute("fill", "var(--left-sidebar-icons)");
+            }
         });
+        let appFocus = element.querySelector('.app-focus');
+        appFocus.classList.add("hidden");
     }
     let divs = document.querySelectorAll('.feature');
     for (let div of divs) {
         let dataAction = div.getAttribute('data-local-action');
         let page = dataAction.split(" ")[1];
         if (url.includes(page)) {
+            let appFocus = div.querySelector('.app-focus');
+            appFocus.classList.remove("hidden");
             div.setAttribute('id', 'selected-page');
             let paths = div.querySelectorAll("path");
             paths.forEach((path) => {
-                path.setAttribute("fill", "var(--left-sidebar)");
+                if(path.getAttribute("stroke-linejoin") === "round") {
+                    path.setAttribute("stroke", "var(--white)");
+                } else {
+                    path.setAttribute("fill", "var(--white)");
+                }
             });
             return;
         }

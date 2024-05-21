@@ -1,4 +1,4 @@
-export class AddDocument {
+class AddDocument {
     static description = "Adds a new document, article or any kind of paperwork";
     static inputSchema= {
         spaceId: "string",
@@ -18,3 +18,4 @@ export class AddDocument {
         }
     }
 }
+module.exports = AddDocument;

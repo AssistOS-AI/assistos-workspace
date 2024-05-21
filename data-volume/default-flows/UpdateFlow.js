@@ -1,4 +1,4 @@
-export class UpdateFlow {
+class UpdateFlow {
     static description = "Updates a flow";
     async start(context) {
         try {
@@ -13,3 +13,4 @@ export class UpdateFlow {
         }
     }
 }
+module.exports = UpdateFlow;

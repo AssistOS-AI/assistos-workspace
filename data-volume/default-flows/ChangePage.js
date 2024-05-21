@@ -1,4 +1,4 @@
-export class ChangePage{
+class ChangePage{
     static description = "Redirects you to a page";
     async start (context){
         try {
@@ -9,3 +9,4 @@ export class ChangePage{
         }
     }
 }
+module.exports = ChangePage;

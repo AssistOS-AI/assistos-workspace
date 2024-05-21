@@ -48,6 +48,8 @@
     --right-sidebar: linear-gradient(180deg, #353535 44%, #252526 100%);
     --right-sidebar-border: #383838;
     --right-sidebar-shadow: -2px 9px 0px rgba(82, 82, 82, 0.06);
+    --black-pin: white;
+    --chat-input-container: #3F3F46;
     --white-blue-tint: #55555514;
 }
 

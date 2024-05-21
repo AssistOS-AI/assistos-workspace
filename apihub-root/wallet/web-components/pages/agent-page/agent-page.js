@@ -1,4 +1,4 @@
-const spaceModule=require("assistos").loadModule("space");
+const spaceModule=require("assistos").loadModule("space", {});
 export class AgentPage {
     constructor(element, invalidate) {
         this.element = element;
@@ -7,7 +7,10 @@ export class AgentPage {
         this.agent={
             conversationHistory: [],
         }
-        this.invalidate();
+        this.invalidate(async ()=>{
+            this.personalities= await assistOS.space.getPersonalitiesMetadata();
+        });
+        this.private = "selected-chat";
     }
 
     beforeRender() {
@@ -23,7 +26,16 @@ export class AgentPage {
                stringHTML += `<chat-unit role="robot" message="${message.message}" user="${message.user}" data-presenter="chat-unit"></chat-unit>`;
             }
         }
+        let personalitiesHTML = "";
+        for(let personality of this.personalities){
+            personalitiesHTML += `<simple-unit data-local-action="swapPersonality ${personality.id}" data-name="${personality.name}" data-highlight="light-highlight"></simple-unit>`;
+
+        }
+        this.personalitiesHTML = personalitiesHTML;
         this.spaceConversation = stringHTML;
+        this.currentPersonalityName = "Artist";
+        this.personalityLLM = "GPT 3.5";
+        this.spaceName = assistOS.space.name;
     }
 
     resizeTextarea() {
@@ -104,7 +116,7 @@ export class AgentPage {
         if (userMessage === "" || userMessage === null || userMessage === undefined) {
             return;
         }
-        await spaceModule.loadAPIs().addSpaceChatMessage(assistOS.space.id, userMessage)
+        await spaceModule.addSpaceChatMessage(assistOS.space.id, userMessage)
 
         await this.displayMessage("own", userMessage);
 
@@ -132,5 +144,58 @@ export class AgentPage {
     uploadFile(_target){
         let fileInput = this.element.querySelector(".file-input");
         fileInput.click();
+    }
+    swapChat(_target, mode){
+        const selectedChat = this.element.querySelector(".selected-chat");
+        if(mode === selectedChat.getAttribute("id")){
+            return;
+        }
+        switch (mode) {
+            case "private":
+            {
+                this.private = "selected-chat";
+                this.shared = "";
+                this.chat = "";
+                break;
+            }
+            case "shared":
+            {
+                this.private = "";
+                this.shared = "selected-chat";
+                this.chat = "";
+                break;
+            }
+            default:
+            {
+                this.private = "";
+                this.shared = "";
+                this.chat = "selected-chat";
+                break;
+            }
+        }
+        this.invalidate();
+    }
+
+    hidePersonalities(controller, arrow, event) {
+        arrow.setAttribute("data-local-action", "showPersonalities off");
+        let target = this.element.querySelector(".personalities-list");
+        target.style.display = "none";
+        controller.abort();
+        arrow.classList.add("rotated");
+    }
+
+    showPersonalities(_target, mode) {
+        if (mode === "off") {
+            let list = this.element.querySelector(".personalities-list");
+            list.style.display = "flex";
+            _target.classList.remove("rotated");
+            let controller = new AbortController();
+            document.addEventListener("click", this.hidePersonalities.bind(this, controller, _target), {signal: controller.signal});
+            _target.setAttribute("data-local-action", "showPersonalities on");
+        }
+    }
+
+    async swapPersonality(_target, id) {
+        console.log("to be done")
     }
 }

@@ -1,4 +1,4 @@
-export class ConfirmFlowExecution {
+class ConfirmFlowExecution {
     static description = "Generates a user-friendly message that confirms that the operation has been executed successfully";
     async start(context) {
         try {
@@ -16,3 +16,4 @@ export class ConfirmFlowExecution {
     }
 
 }
+module.exports = ConfirmFlowExecution;

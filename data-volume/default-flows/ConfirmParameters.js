@@ -1,4 +1,4 @@
-export class ConfirmParameters {
+class ConfirmParameters {
     static description = "Determines if the request of the user has enough parameters to execute the chosen operation";
     async start(context) {
         let agent = assistOS.space.getAgent();
@@ -17,3 +17,4 @@ export class ConfirmParameters {
     }
 
 }
+module.exports = ConfirmParameters;

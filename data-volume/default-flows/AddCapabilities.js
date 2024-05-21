@@ -1,4 +1,4 @@
-export class AddCapabilities{
+class AddCapabilities{
     static description = "Adds capabilities to the agent, based on the applications that are installed in the system";
     static outputSchema = {
             capabilities:["string"]
@@ -33,3 +33,4 @@ export class AddCapabilities{
     }
 
 }
+module.exports = AddCapabilities;

@@ -1,4 +1,4 @@
-export class Fallback {
+class Fallback {
     static description = "Tries to come up with a satisfactory answer for the user";
     async start(context) {
         let agent = assistOS.space.getAgent();
@@ -9,3 +9,4 @@ export class Fallback {
         this.return(response);
     }
 }
+module.exports = Fallback;

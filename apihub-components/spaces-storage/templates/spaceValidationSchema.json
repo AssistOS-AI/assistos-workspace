@@ -25,13 +25,13 @@
     "users": {
       "type": "array",
       "items": {
-        "type": "string"
+        "type": "object"
       }
     },
     "admins": {
       "type": "array",
       "items": {
-        "type": "string"
+        "type": "object"
       }
     },
     "apiKeys": {

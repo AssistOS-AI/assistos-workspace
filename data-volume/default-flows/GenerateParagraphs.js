@@ -1,4 +1,4 @@
-export class GenerateParagraphs {
+class GenerateParagraphs {
     static description = "Generates paragraphs based on some ideas";
     static inputSchema = {
         documentId: "string",
@@ -28,3 +28,4 @@ export class GenerateParagraphs {
         }
     }
 }
+module.exports = GenerateParagraphs;

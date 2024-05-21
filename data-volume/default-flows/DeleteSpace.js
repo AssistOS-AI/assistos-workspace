@@ -1,4 +1,4 @@
-export class DeleteSpace {
+class DeleteSpace {
     static description = "Deletes a space";
     async start(context) {
         try {
@@ -11,3 +11,4 @@ export class DeleteSpace {
         }
     }
 }
+module.exports = DeleteSpace;

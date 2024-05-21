@@ -1,4 +1,4 @@
-export class DeleteAnnouncement {
+class DeleteAnnouncement {
     static description = "Deletes an announcement";
     async start(context) {
         try {
@@ -10,3 +10,4 @@ export class DeleteAnnouncement {
         }
     }
 }
+module.exports = DeleteAnnouncement;
