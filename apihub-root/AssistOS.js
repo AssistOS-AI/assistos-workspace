@@ -117,7 +117,7 @@ class AssistOS {
     }
 
     async logout() {
-        await userModule.loadAPIs().logoutUser();
+        await userModule.logoutUser();
         await this.refresh();
     }
 
@@ -126,7 +126,7 @@ class AssistOS {
     }
 
     async initUser(spaceId, agentId) {
-        assistOS.user = await userModule.loadAPIs().loadUser();
+        assistOS.user = await userModule.loadUser();
         assistOS.space = new spaceModule.Space(await spaceModule.loadSpace(spaceId));
         const appsData = await applicationModule.loadApplicationsMetadata(assistOS.space.id);
         appsData.applications.forEach(application => {
@@ -195,7 +195,7 @@ class AssistOS {
     }
 
     async callFlow(flowName, context, personalityId) {
-        return await flowModule.callServerFlow(assistOS.space.id, flowName, context, personalityId);
+        return await flowModule.callFlow(assistOS.space.id, flowName, context, personalityId);
     }
 
     async loadifyFunction(asyncFunc, ...args) {

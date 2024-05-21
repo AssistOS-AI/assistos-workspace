@@ -50,7 +50,6 @@ async function getFlow(request, response) {
     } catch (error) {
         return utils.sendResponse(response, 500, "application/javascript", error);
     }
-
 }
 
 async function addFlow(request, response) {
@@ -151,9 +150,9 @@ async function callFlow(request, response) {
             // assistOS.services.validateSchema(context, flow.inputSchema, "input");
         }
 
-        let response;
+        let result;
         try {
-            response = await ((context, personality) => {
+            result = await ((context, personality) => {
                 let returnPromise = new Promise((resolve, reject) => {
                     flowInstance.resolve = resolve;
                     flowInstance.reject = reject;
@@ -164,24 +163,31 @@ async function callFlow(request, response) {
                 return returnPromise;
             })(context, personality);
         } catch (e) {
-            console.error(e);
-            return await showApplicationError("Flow execution Error", `Error executing flow ${flowObj.flowInstance.constructor.name}`, e);
+            return utils.sendResponse(response, 500, "application/json", {
+                success: false,
+                message: `Flow execution error: ${e}`
+            });
         }
         if (flowClass.outputSchema) {
             if (typeof flowClass.outputSchema.isValid === "undefined") {
                 try {
-                    let parsedResponse = JSON.parse(response);
+                    let parsedResponse = JSON.parse(result);
                     //assistOS.services.validateSchema(parsedResponse, flowObj.flowClass.outputSchema, "output");
-                    return parsedResponse;
+                    return utils.sendResponse(response, 200, "application/json", {
+                        success: true,
+                        data: parsedResponse
+                    });
                 } catch (e) {
-                    console.error(e);
-                    return await showApplicationError(e, e, e.stack);
+                    return utils.sendResponse(response, 500, "application/json", {
+                        success: false,
+                        message: e
+                    });
                 }
             }
         }
         return utils.sendResponse(response, 200, "application/json", {
             success: true,
-            message: `Flow ${flowName} called successfully`
+            data: result
         });
     } catch (error) {
         return utils.sendResponse(response, 500, "application/json", {

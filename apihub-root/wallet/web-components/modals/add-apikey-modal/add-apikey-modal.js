@@ -32,7 +32,7 @@ export class AddApikeyModal {
                         throw Error(keyValidation.error);
                     }
                 }
-                await userModule.loadAPIs().addAPIKey(keyType, apiKey);
+                await userModule.addAPIKey(keyType, apiKey);
                 assistOS.UI.closeModal(_target);
                 window.location = ""
             } catch (error) {

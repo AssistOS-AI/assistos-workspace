@@ -1,4 +1,4 @@
-let userModule = require("assistos").loadModule("user", {}).loadAPIs();
+let userModule = require("assistos").loadModule("user", {});
 export class GitCredentialsModal {
     constructor(element,invalidate){
         this.invalidate=invalidate;

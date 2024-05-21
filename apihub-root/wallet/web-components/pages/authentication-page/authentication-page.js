@@ -1,6 +1,6 @@
 let User = require("assistos").loadModule("user", {});
 User = {
-    apis: User.loadAPIs(),
+    apis: User,
     constants: User.constants
 }
 
