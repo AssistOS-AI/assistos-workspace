@@ -1,13 +1,13 @@
 const OpenAITextMixin = require('../mixins/OpenAI/Text');
 const OpenAIImageMixin = require('../mixins/OpenAI/Image.js');
-const AnthropicMixin = require('../mixins/Anthropic/anthropic.js');
-const GoogleMixin = require('../mixins/Google/google.js');
+/*const AnthropicMixin = require('../mixins/Anthropic/anthropic.js');
+const GoogleMixin = require('../mixins/Google/google.js');*/
 
 const Mixins = {
     openAI_Text: OpenAITextMixin,
     openAI_Image: OpenAIImageMixin,
-    anthropic: AnthropicMixin,
-    google: GoogleMixin,
+    /* anthropic: AnthropicMixin,
+    google: GoogleMixin,*/
 };
 
 const LLMs = {
@@ -42,7 +42,7 @@ const LLMs = {
 };
 
 class LLMFactory {
-    static createLLM(LLMName, apiKey, config = {}, ...additionalMixins) {
+    static async createLLM(LLMName, apiKey, config = {}, ...additionalMixins) {
         const LLMClass = LLMs[LLMName];
         if (!LLMClass) {
             throw this._createError(`No LLM found with the name: ${LLMName}`, 404);

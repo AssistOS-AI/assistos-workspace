@@ -47,6 +47,10 @@ export class AgentPage {
     }
     afterRender() {
         this.conversation=this.element.querySelector(".conversation");
+        this.userInput = this.element.querySelector("#input");
+        this.form = this.element.querySelector(".chat-input-container");
+        this.boundFn = this.preventRefreshOnEnter.bind(this, this.form);
+        this.userInput.addEventListener("keydown", this.boundFn);
   /*      this.rightPanel = document.querySelector(".current-page");
         this.conversation = this.element.querySelector(".conversation");
         this.userInput = this.element.querySelector("#input");
@@ -90,24 +94,33 @@ export class AgentPage {
         await assistOS.UI.showModal("change-personality-modal");
     }
     async displayMessage(role, text) {
-        this.conversation.insertAdjacentHTML("beforeend", `<chat-unit role="${role}" message="${text}" data-presenter="chat-unit" user="${assistOS.user.id}"></chat-unit>`);
+        const messageHTML = `<chat-unit role="${role}" message="${text}" data-presenter="chat-unit" user="${assistOS.user.id}"></chat-unit>`;
+        this.conversation.insertAdjacentHTML("beforeend", messageHTML);
         const lastReplyElement = this.conversation.lastElementChild;
-        lastReplyElement.scrollIntoView({behavior: "smooth", block: "start", inline: "nearest"});
+
+        const isNearBottom = this.conversation.scrollHeight - this.conversation.scrollTop < this.conversation.clientHeight + 100;
+        if (isNearBottom) {
+            lastReplyElement.scrollIntoView({ behavior: "smooth", block: "nearest" });
+        }
     }
 
-    preventRefreshOnEnter(form, event) {
-        event.target.style.height = (event.target.scrollHeight) + 'px';
-        form.style.height = (form.scrollHeight) + 'px';
-        if (event.key === "Enter" && !event.ctrlKey) {
+
+    async preventRefreshOnEnter(form, event) {
+        if (event.key === "Enter") {
             event.preventDefault();
-            event.target.style.height = "52px";
-            form.style.height = "10%";
-            this.element.querySelector(".send-message-btn").click();
-        }
-        if (event.key === "Enter" && event.ctrlKey) {
-            this.userInput.value += '\n';
+
+            if (!event.ctrlKey) {
+                await this.sendMessage(form);
+                this.userInput.style.height = "50px";
+                form.style.height = "auto";
+                this.userInput.scrollIntoView({ behavior: "smooth", block: "end" });
+            } else {
+                this.userInput.value += '\n';
+                this.userInput.style.height = `${this.userInput.scrollHeight}px`;
+            }
         }
     }
+
 
     async sendMessage(_target) {
         let formInfo = await assistOS.UI.extractFormInformation(_target);
