@@ -195,7 +195,7 @@ class AssistOS {
     }
 
     async callFlow(flowName, context, personalityId) {
-        return await flowModule.callFlow(assistOS.space.id, flowName, context, personalityId);
+        return await flowModule.callServerFlow(assistOS.space.id, flowName, context, personalityId);
     }
 
     async loadifyFunction(asyncFunc, ...args) {
