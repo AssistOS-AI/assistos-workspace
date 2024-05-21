@@ -7,4 +7,16 @@ announcements-page {
     width: 100%;
     background: var(--white);
 }
+.announcements-header {
+    padding: 15px;
+    display: flex;
+    justify-content: space-between;
+    border-bottom: 1px solid var(--very-light-gray);
+}
+.page-title{
+    color: var(--dark-text);
+    font-size: 26px;
+    font-weight: 600;
+}
+
 

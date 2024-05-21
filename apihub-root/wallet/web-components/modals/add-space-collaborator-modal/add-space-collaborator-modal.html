@@ -1,30 +1,34 @@
-<div class="modal-dialog" role="document" data-presenter="add-space-collaborator-modal">
-    <div class="modal-content">
-        <div class="modal-header">
-            <div class="modal-title">
-                $$spaceName
-            </div>
-            <button type="button" class="close" data-local-action="closeModal" aria-label="Close">
-                <span aria-hidden="true">&times;</span>
-            </button>
+<div class="modal-header">
+    <div class="modal-title">
+        $$spaceName
+    </div>
+    <button type="button" class="close" data-local-action="closeModal" aria-label="Close">
+        <span aria-hidden="true">&times;</span>
+    </button>
+</div>
+<form id="collaborators-email-form">
+    <div class="collabs-list">
+        <div id="form-item-box">
+            <label class="form-label" for="email1">Collaborators Emails</label>
+            <label class="form-label margin" for="email1">Role</label>
         </div>
-        <div class="modal-body">
-            <form id="collaborators-email-form">
-                <div class="form-item">
-                    <div id="form-item-box">
-                        <label class="form-label" for="email1">Collaborators Emails</label>
-                        <svg data-local-action="addEmailField" class="pointer" width="12" height="12" viewBox="0 0 12 12" fill="#0C5C9E" xmlns="http://www.w3.org/2000/svg">
-                            <path d="M5.14286 6.85714H0V5.14286H5.14286V0H6.85714V5.14286H12V6.85714H6.85714V12H5.14286V6.85714Z" fill="#0C5C9E"></path>
-                        </svg>
-                    </div>
-
-                    <input type="email" class="form-input" id="email1" name="email1" placeholder="Enter email address" required>
-
-                </div>
-                <div class="modal-footer">
-                    <button type="button" class="general-button" data-local-action="inviteCollaborators">Invite Collaborators</button>
-                </div>
-            </form>
+        <div class="collab-unit">
+            <input type="email" class="form-input" id="email1" name="email1" placeholder="Enter email address" required>
+            <select class="select-role" id="role1" name="role1" required>
+                <option value="admin">Admin</option>
+                <option value="member" selected>Member</option>
+            </select>
+        </div>
+        <div class="add-collab pointer" data-local-action="addEmailField">
+            <svg width="12" height="12" viewBox="0 0 12 12" fill="#0C5C9E" xmlns="http://www.w3.org/2000/svg">
+                <path d="M5.14286 6.85714H0V5.14286H5.14286V0H6.85714V5.14286H12V6.85714H6.85714V12H5.14286V6.85714Z" fill="var(--blue-button)"></path>
+            </svg>
+            <div class="collab-title">Add new collaborator</div>
         </div>
     </div>
-</div>
+    <div class="modal-footer">
+        <button type="button" class="general-button" data-local-action="inviteCollaborators">Invite</button>
+    </div>
+</form>
+
+

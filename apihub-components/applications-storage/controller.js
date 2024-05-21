@@ -227,7 +227,7 @@ async function loadApplicationConfig(request, response) {
         const applicationId = request.params.applicationId;
 
         const applications = require("./applications.json");
-        const application = applications.applications.find(app => app.id === applicationId);
+        const application = applications.find(app => app.id === applicationId);
 
         const folderPath = path.join(dataVolumePaths.space,`${spaceId}/applications/${application.name}`);
         const manifestPath = `${folderPath}/manifest.json`;

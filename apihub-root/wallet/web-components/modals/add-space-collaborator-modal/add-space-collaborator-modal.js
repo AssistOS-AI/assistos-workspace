@@ -15,15 +15,17 @@ export class AddSpaceCollaboratorModal {
     }
 
     addEmailField(_target) {
-        const form = this.element.querySelector('.modal-body .form-item');
+        const addCollabBtn = this.element.querySelector('.add-collab');
         this.lastEmailCount += 1;
-        let emailField = document.createElement("input");
-        emailField.type = "email";
-        emailField.placeholder = "Enter additional email address";
-        emailField.className = "form-input";
-        emailField.name = `email${this.additionalEmailsCount}`;
-        emailField.id = `email${this.additionalEmailsCount}`;
-        form.appendChild(emailField);
+        let newCollabUnit = `
+            <div class="collab-unit">
+                <input type="email" class="form-input" id="email${this.lastEmailCount}" name="email${this.lastEmailCount}" placeholder="Enter email address" required>
+                <select class="select-role" id="role${this.lastEmailCount}" name="role${this.lastEmailCount}" required>
+                    <option value="admin">Admin</option>
+                    <option value="member" selected>Member</option>
+                </select>
+            </div>`;
+        addCollabBtn.insertAdjacentHTML("beforebegin", newCollabUnit);
     }
 
     async inviteCollaborators(_target) {
@@ -32,7 +34,7 @@ export class AddSpaceCollaboratorModal {
             try {
                 let collaboratorEmails = [];
                 Object.keys(formData.data).forEach(key => {
-                    if (key.includes('email')||formData.data[key].trim()) {
+                    if (key.includes('email')) {
                         collaboratorEmails.push(formData.data[key]);
                     }
                 });

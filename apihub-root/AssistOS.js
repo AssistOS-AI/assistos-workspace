@@ -129,7 +129,7 @@ class AssistOS {
         assistOS.user = await userModule.loadUser();
         assistOS.space = new spaceModule.Space(await spaceModule.loadSpace(spaceId));
         const appsData = await applicationModule.loadApplicationsMetadata(assistOS.space.id);
-        appsData.applications.forEach(application => {
+        appsData.forEach(application => {
             assistOS.applications[application.name] = application;
         });
         assistOS.currentApplicationName = this.configuration.defaultApplicationName;

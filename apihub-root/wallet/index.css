@@ -7,6 +7,7 @@
     --robot-text: black;
     --white: white;
     --white-text: white;
+    --light-gray-text: #616161;
     --dark-text: #444444;
     --darker-text: #1D1D1D;
     --red: red;
@@ -53,6 +54,7 @@
     --feature-hover: #afa8ba38;
     --action-box-background: #FEFAFF;
     --left-sidebar: #3F88C5;
+    --blue-button: #3478C6;
     --left-sidebar-background:#2C2C2C;
     --black-pin: #2C2C2C;
     --left-sidebar-icons: #7B7B7B;
@@ -258,11 +260,11 @@ dialog {
     line-height: 24px;
     text-align: center;
     color: var(--white);
-    background: var(--medium-blue);
+    background: var(--blue-button);
     width: fit-content;
     height: 36px;
     padding: 6px 11px 6px 11px;
-    border-radius: 10px;
+    border-radius: 5px;
     gap: 5px;
     cursor: pointer;
 }
