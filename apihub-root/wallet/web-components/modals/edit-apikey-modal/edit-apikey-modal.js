@@ -27,7 +27,7 @@ export class EditApikeyModal {
                     }
                 }
                 await userModule.editAPIKey(this.type, apiKey);
-                assistOS.UI.closeModal(_target);
+                assistOS.UI.closeModal(_target, true);
                 //window.location.reload();
             } catch (error) {
                 assistOS.UI.closeModal(_target);

@@ -26,7 +26,7 @@ async function keyAlreadyExists(spaceId, keyType, apiKey) {
     return Object.values(spaceAPIKeyObject[keyType]).includes(apiKey);
 }
 
-async function putSpaceKey(spaceId, keyType, apiKey) {
+async function putSpaceKey(spaceId, keyType, apiKeyObj) {
     const secretsService = await apihub.getSecretsServiceInstanceAsync(config.SERVER_ROOT_FOLDER);
     const spaceAPIKeyObject = secretsService.getSecretSync(getSpaceSecretsContainerName(spaceId), "apiKeys")
     if (!spaceAPIKeyObject[keyType]) {
@@ -34,7 +34,7 @@ async function putSpaceKey(spaceId, keyType, apiKey) {
         error.statusCode = 400
         throw error
     }
-    spaceAPIKeyObject[keyType] = apiKey;
+    spaceAPIKeyObject[keyType] = apiKeyObj;
     try {
         await secretsService.putSecretAsync(getSpaceSecretsContainerName(spaceId), "apiKeys", spaceAPIKeyObject)
     } catch (e) {
@@ -43,7 +43,7 @@ async function putSpaceKey(spaceId, keyType, apiKey) {
         throw error
     }
 }
-async function deleteSpaceKey(spaceId, keyType, keyId) {
+async function deleteSpaceKey(spaceId, keyType) {
     const secretsService = await apihub.getSecretsServiceInstanceAsync(config.SERVER_ROOT_FOLDER);
     const spaceAPIKeyObject = secretsService.getSecretSync(getSpaceSecretsContainerName(spaceId), "apiKeys")
     if (!spaceAPIKeyObject[keyType]) {
@@ -51,7 +51,7 @@ async function deleteSpaceKey(spaceId, keyType, keyId) {
         error.statusCode = 400
         throw error
     }
-    delete spaceAPIKeyObject[keyType][keyId]
+    spaceAPIKeyObject[keyType]= {}
     try {
         await secretsService.putSecretAsync(getSpaceSecretsContainerName(spaceId), "apiKeys", spaceAPIKeyObject)
     } catch (e) {
@@ -70,10 +70,15 @@ async function getModelAPIKey(spaceId, keyType) {
     }
     return spaceAPIKeyObject[keyType];
 }
+async function getAPIKeys(spaceId) {
+    const secretsService = await apihub.getSecretsServiceInstanceAsync(config.SERVER_ROOT_FOLDER);
+    return secretsService.getSecretSync(getSpaceSecretsContainerName(spaceId), "apiKeys")
+}
 module.exports = {
     createSpaceSecretsContainer,
     keyAlreadyExists,
     putSpaceKey,
     deleteSpaceKey,
-    getModelAPIKey
+    getModelAPIKey,
+    getAPIKeys
 }

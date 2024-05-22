@@ -8,6 +8,7 @@ const crypto = require('../apihub-component-utils/crypto.js');
 const fsPromises = require('fs').promises;
 const path = require('path');
 const {subscribersModule} = require("../subscribers/controller.js");
+const {sendResponse} = require("../apihub-component-utils/utils");
 const dataVolumePaths = require('../volumeManager').paths;
 
 function getFileObjectsMetadataPath(spaceId, objectType) {
@@ -804,22 +805,22 @@ async function editAPIKey(request, response) {
 }
 
 async function deleteAPIKey(request, response) {
-    const spaceId = request.params.spaceId || cookie.parseCookies(request).currentSpaceId;
+    const {spaceId} = request.body;
+    const keyType = request.params.keyType;
     if (!spaceId) {
         return utils.sendResponse(response, 400, "application/json", {
             message: "Bad Request: Space ID or a valid currentSpaceId cookie is required",
             success: false
         });
     }
-    const {keyType, keyId} = request.body;
-    if (!keyType || !keyId) {
+    if (!keyType) {
         return utils.sendResponse(response, 400, "application/json", {
             message: "Bad Request: Key Type and Key Id are required in the request body",
             success: false
         });
     }
     try {
-        await space.APIs.deleteAPIKey(spaceId,keyType,keyId);
+        await space.APIs.deleteAPIKey(spaceId,keyType);
         utils.sendResponse(response, 200, "application/json", {
             message: `API Key deleted successfully from space ${spaceId}`,
             success: true
@@ -845,7 +846,21 @@ async function deleteAPIKey(request, response) {
         });
     }
 }
-
+async function getAPIKeysMetadata(request, response) {
+    const spaceId = request.params.spaceId;
+    try {
+        let keys = await space.APIs.getAPIKeysMetadata(spaceId);
+        return sendResponse(response, 200, "application/json", {
+            success: true,
+            data: keys,
+        });
+    } catch (e) {
+        return sendResponse(response, 500, "application/json", {
+            success: false,
+            message: e
+        });
+    }
+}
 module.exports = {
     acceptSpaceInvitation,
     rejectSpaceInvitation,
@@ -870,5 +885,6 @@ module.exports = {
     addCollaboratorsToSpace,
     getAgent,
     editAPIKey,
-    deleteAPIKey
+    deleteAPIKey,
+    getAPIKeysMetadata
 }

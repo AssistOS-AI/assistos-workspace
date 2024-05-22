@@ -22,11 +22,13 @@ const {
     rejectSpaceInvitation,
     acceptSpaceInvitation,
     editAPIKey,
-    deleteAPIKey
+    deleteAPIKey,
+    getAPIKeysMetadata
 } = require("./controller");
 
 const bodyReader = require('../apihub-component-middlewares/bodyReader.js')
 const authentication = require('../apihub-component-middlewares/authentication.js')
+const {getAPIKeys} = require("../apihub-component-utils/secrets");
 
 function SpaceStorage(server) {
     server.use("/spaces/*", bodyReader);
@@ -69,11 +71,12 @@ function SpaceStorage(server) {
     server.post("/spaces/:spaceId/collaborators", addCollaboratorsToSpace);
     server.post("/spaces/:spaceId/chat", addSpaceChatMessage);
 
+    server.get("/spaces/:spaceId/secrets/keys",getAPIKeysMetadata);
     server.post("/spaces/secrets/keys", editAPIKey);
     server.post("/spaces/:spaceId/secrets/keys",editAPIKey);
 
-    server.delete("/spaces/secrets/keys/:keyId",deleteAPIKey);
-    server.delete("/spaces/:spaceId/secrets/keys/:keyId",deleteAPIKey);
+    server.delete("/spaces/secrets/keys/:keyType",deleteAPIKey);
+    server.delete("/spaces/:spaceId/secrets/keys/:keyType",deleteAPIKey);
 }
 
 module.exports = SpaceStorage;

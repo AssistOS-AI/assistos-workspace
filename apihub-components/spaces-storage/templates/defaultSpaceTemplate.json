@@ -10,12 +10,5 @@
   "admins": [
     "$$admin"
   ],
-  "apiKeys": {
-    "OpenAI": "$$OpenAIAPIKey",
-    "Google": {},
-    "Microsoft": {},
-    "Meta": {},
-    "Amazon": {}
-  },
   "installedApplications": []
 }
