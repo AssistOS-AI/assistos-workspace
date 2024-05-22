@@ -1,67 +1,14 @@
 dialog {
-    padding: 0;
-    border: none;
+
     width: 60%;
 }
-
-.modal-content {
-    padding: 0 20px;
-}
-
-.modal-header{
-    height: 8%;
-    padding: 5px 15px;
-    background: var(--medium-blue);
-    display: flex;
-    justify-content: space-between;
-    align-items:center;
-}
-
-.modal-title{
-    color: white;
-}
-
-.modal-body{
-    padding: 20px;
-}
-
 #content{
     resize: none;
     height: 200px;
     font-family: var(--default-font);
 }
-
-.form-item{
-    display: flex;
-    flex-direction: column;
-}
-
 .form-footer {
     margin-top: 16px;
     display: flex;
     justify-content: center;
-}
-
-.close {
-    background: none;
-    cursor: pointer;
-    border: none;
-    outline: none;
-    font-size: 20px;
-    color: white;
-    padding: 0;
-}
-
-.form-label {
-    color: var(--gray-black);
-    font-size: 12px;
-    font-weight: 600;
-}
-
-.form-input {
-    border-radius: 8px;
-    border: 0.5px solid var(--lighter-black);
-    width: 100%;
-    margin: 4px 0;
-    padding: 8px;
 }

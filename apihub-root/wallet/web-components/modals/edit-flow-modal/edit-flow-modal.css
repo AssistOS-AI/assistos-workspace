@@ -5,31 +5,8 @@ edit-flow-modal{
     width:700px;
 }
 dialog{
-    padding: 0;
-    border:none;
     height:500px;
     width:700px;
-}
-.dialog-modal{
-    height: 100%;
-}
-*{
-    font-family: Poppins;
-}
-.modal-header{
-    height: 8%;
-    padding: 5px 20px 5px 20px;
-    background: var(--medium-blue);
-    display: flex;
-    justify-content: space-between;
-    align-items:center;
-}
-.modal-title {
-    color: var(--white-text);
-    font-size: 18px;
-    display: flex;
-    flex-direction: column;
-    justify-content: center;
 }
 .title{
     font-size: 18px;
@@ -37,7 +14,6 @@ dialog{
 }
 .modal-body{
     min-height: 72%;
-    padding: 20px;
 }
 .actions{
     display: flex;
@@ -53,6 +29,7 @@ dialog{
     margin-bottom: 20px;
 }
 .modal-footer{
+    background-color: var(--modal-background);
     height: 20%;
     margin-left: 20px;
     margin-right: 20px;
@@ -62,25 +39,10 @@ dialog{
 .form-label{
     display: none;
 }
-.form-input {
-    border-radius: 8px;
-    border: 0.5px solid  var(--lighter-black);
-    width: 100%;
-    padding: 8px;
-}
 textarea#flowCode {
     resize: none;
     height:100%;
     white-space: pre-wrap;
-}
-.close {
-    padding: 0;
-    font-weight: 300;
-    color: var(--white-text);
-    cursor: pointer;
-    background-color: transparent;
-    border: none;
-    font-size: 30px;
 }
 .right-margin{
     margin-right: 10px;

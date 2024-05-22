@@ -1,69 +1,11 @@
 dialog{
-    padding: 0;
-    border:none;
-    height: 90%;
     width: 90%;
 }
 add-flow-modal{
     overflow-y: scroll;
 }
-* {
-    font-family: Poppins;
-}
-
-.modal-body {
-    padding: 20px;
-}
-
 .script-content {
     height: 400px;
-}
-
-.modal-header{
-    padding: 5px 20px 5px 20px;
-    margin-bottom: 5px;
-    background: var(--medium-blue);
-    display: flex;
-    justify-content: space-between;
-}
-.modal-title {
-    color:  var(--white-text);
-    font-size: 18px;
-    display: flex;
-    flex-direction: column;
-    justify-content: center;
-}
-
-.modal-footer {
-    display: flex;
-    justify-content: center;
-}
-
-.close {
-    padding: 0;
-    font-weight: 300;
-    color:  var(--white-text);
-    cursor: pointer;
-    background-color: transparent;
-    border: none;
-    font-size: 30px;
-}
-
-.form-label {
-    color: var(--gray-black);
-    font-size: 12px;
-    font-weight: 600;
-}
-.form-item{
-    display: flex;
-    flex-direction: column;
-}
-.form-input {
-    border-radius: 8px;
-    border: 0.5px solid var(--lighter-black);;
-    width: 100%;
-    margin: 4px 0 8px;
-    padding: 8px;
 }
 textarea{
     resize: none;
