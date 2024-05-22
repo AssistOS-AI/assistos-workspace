@@ -3,25 +3,11 @@
     <div class="page-body">
         <hr class="line-separator">
         <div class="tabs-section pointer">
-            <div class="tab active" data-local-action="openSpaceSettings">Space Settings</div>
-            <div class="tab" data-local-action="openCollaboratorsTab">Collaborators</div>
+            <div class="tab $$spaceSettingsTab" data-local-action="changeTab spaceSettingsTab">Space Settings</div>
+            <div class="tab $$collaboratorsTab" data-local-action="changeTab collaboratorsTab">Collaborators</div>
         </div>
         <div class="tab-content">
-            <div class="apikeys-table">
-                <div class="table-header">
-                    <div class="table-name">
-                        API Keys
-                    </div>
-                </div>
-                <div class="table-content">
-                    <div class="table-labels">
-                        <div class="table-label company-name">Type</div>
-                        <div class="table-label api-key">Value</div>
-                        <div class="table-label"></div>
-                    </div>
-                    <div class="table-rows">$$keys</div>
-                </div>
-            </div>
+            $$tabContent
             <div class="tab-footer">
                 <div class="general-button" id="delete-space-button" data-local-action="deleteSpace">Delete Space</div>
             </div>
