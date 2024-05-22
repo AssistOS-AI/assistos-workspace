@@ -107,7 +107,19 @@ export class LeftSidebar {
                 });
             }
         });
-
+        let userSection = this.element.querySelector(".user-photo-container");
+        let userActions = this.element.querySelector(".user-action-menu");
+        userSection.addEventListener("mouseover", () => {
+            userActions.style.visibility = "visible";
+        });
+        userSection.addEventListener("mouseout", () => {
+            userActions.style.visibility = "hidden";
+        });
+        userActions.addEventListener("mouseout", (event) => {
+            if(!userActions.contains(event.relatedTarget)){
+                userActions.style.visibility = "hidden";
+            }
+        });
 
         let clock = this.element.querySelector(".clock");
 

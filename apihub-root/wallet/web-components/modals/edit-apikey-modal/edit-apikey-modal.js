@@ -4,37 +4,31 @@ import {
 
 const userModule = require('assistos').loadModule('user', {});
 
-export class AddApikeyModal {
+export class EditApikeyModal {
     constructor(element, invalidate) {
         this.element = element;
         this.invalidate = invalidate;
-        this.invalidate(async () => {
-
-        });
+        this.type = this.element.variables["data-type"];
+        this.invalidate();
     }
 
     beforeRender() {
-        this.APIKeyTypeOptions = "";
-        Object.keys(assistOS.space.apiKeys).forEach((keyType) => {
-            this.APIKeyTypeOptions += `<option value="${keyType}">${keyType}</option>`
-        })
     }
 
-    async addAPIKey(_target) {
+    async SaveChanges(_target) {
         let formData = await assistOS.UI.extractFormInformation(_target);
         if (formData.isValid) {
             const apiKey = formData.data.apiKey
-            const keyType = formData.data.keyType
             try {
-                if (keyType === "OpenAI") {
+                if (this.type === "OpenAI") {
                     const keyValidation = await validateOpenAiKey(apiKey);
                     if (!keyValidation.success) {
                         throw Error(keyValidation.error);
                     }
                 }
-                await userModule.addAPIKey(keyType, apiKey);
+                await userModule.editAPIKey(this.type, apiKey);
                 assistOS.UI.closeModal(_target);
-                window.location = ""
+                //window.location.reload();
             } catch (error) {
                 assistOS.UI.closeModal(_target);
                 await showApplicationError('Invalid API Key', `Encountered an error trying to add the API Key to Space: ${assistOS.space.name}`,

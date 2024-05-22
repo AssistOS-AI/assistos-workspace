@@ -21,7 +21,7 @@ const {
     addSpaceChatMessage,
     rejectSpaceInvitation,
     acceptSpaceInvitation,
-    addAPIKey,
+    editAPIKey,
     deleteAPIKey
 } = require("./controller");
 
@@ -69,8 +69,8 @@ function SpaceStorage(server) {
     server.post("/spaces/:spaceId/collaborators", addCollaboratorsToSpace);
     server.post("/spaces/:spaceId/chat", addSpaceChatMessage);
 
-    server.post("/spaces/secrets/keys",addAPIKey);
-    server.post("/spaces/:spaceId/secrets/keys",addAPIKey);
+    server.post("/spaces/secrets/keys", editAPIKey);
+    server.post("/spaces/:spaceId/secrets/keys",editAPIKey);
 
     server.delete("/spaces/secrets/keys/:keyId",deleteAPIKey);
     server.delete("/spaces/:spaceId/secrets/keys/:keyId",deleteAPIKey);

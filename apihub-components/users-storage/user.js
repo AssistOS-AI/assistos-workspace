@@ -506,6 +506,5 @@ module.exports = {
         userRegistrationTemplate: require('./templates/userRegistrationTemplate.json'),
         defaultUserTemplate: require('./templates/defaultUserTemplate.json'),
         demoUser: require('./templates/demoUser.json'),
-        defaultApiKeyTemplate: require('./templates/defaultApiKeyTemplate.json'),
     }
 }

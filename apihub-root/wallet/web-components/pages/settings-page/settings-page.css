@@ -1,82 +1,121 @@
-settings-page{
+settings-page {
     display: flex;
     height: 100%;
 }
-.settings-page{
 
+.settings-page {
+    width: 100%;
 }
-.row{
+
+.settings-header {
+    padding: 20px;
+    font-size: 26px;
+    font-weight: 600;
+    color: var(--black)
+}
+
+.line-separator {
+    border: none;
+    background-color: var(--chat-background);
+    width: 100%;
+    height: 2px;
+    margin: 0;
+}
+
+.tabs-section {
+    display: flex;
+    background-color: var(--chat-background);
+    font-size: 18px;
+    font-weight: 400;
+}
+
+.tab {
+    background-color: var(--tab);
+    padding: 10px 20px;
+}
+
+.active {
+    background-color: var(--white);
+}
+
+.row {
     display: flex;
     padding: 15px;
     border-bottom: 1px solid var(--gray-border);
 }
-.username{
+
+.username {
     width: 100%;
     padding-right: 15px;
     overflow: hidden;
     text-overflow: ellipsis;
     white-space: nowrap;
 }
-.delete-credentials{
+
+.delete-credentials {
     display: flex;
     align-items: center;
     cursor: pointer;
 }
-#apiKeyContainerWrapper{
-    margin-top:10px;
-}
-#settings-table{
-    display:flex;
-    width:calc(100% - 40px);
-    margin:20px;
-    flex-direction:row;
-    justify-content: space-between;
-}
-.credentials-table, .apikeys-table{
-    display:flex;
-    flex-direction:column;
-    width:47.5%;
-    border: 2px solid var(--medium-blue);
-    border-radius:5px;
-}
-.table-header{
-    display:flex;
-    flex-direction:row;
-    width:100%;
-    font-weight: 700;
-    font-size: 18px;
-    border-bottom: 2px solid var(--medium-blue);
-    color: var(--documents-page-header);
-    padding:10px;
-}
-.label-text{
-    width:calc(100% - 30px);
-    color: var(--medium-blue);
-}
-.label-action{
-    display:flex;
-    justify-content: center;
-    align-items: center;
-    width:30px;
-    color: var(--medium-blue);
-}
-.table-content{
-    padding: 10px;
+
+
+page-body {
+    display: flex;
+    flex-direction: column;
+    width: 100%;
 }
 
+.tab-content {
+    padding: 25px 20px 20px 20px;
+    display: flex;
+    flex-direction: column;
+    width: 100%;
+    height: 100%;
+}
+.tab-footer{
+    margin-top: 25px;
+}
+.apikeys-table {
+    max-width: 600px;
+    background-color: var(--chat-background);
+    border: 1px solid var(--very-light-gray);
+}
+
+.table-name {
+    margin-right: 15px;
+    font-size: 20px;
+    font-weight: 600;
+    color: var(--black);
+}
+
+.table-header {
+    border-bottom: 1px solid var(--very-light-gray);
+    padding: 15px 20px;
+    display: flex;
+    align-items: center;
+}
+
+.table-content {
+    padding: 15px 20px;
+}
+.table-labels{
+    display: flex;
+    color: var(--light-gray-text);
+}
+
+.company-name{
+    width: 20%;
+}
+.api-key{
+    width: 77%;
+}
 .labels {
     width: 100%;
     display: grid;
     grid-template-columns: 15% 70% 15%;
+}
 
-}
- #value-label{
-    justify-self: center;
-}
-.labels > *{
-    font-weight: 600;
-}
-.filler{
-    width: 20px;
-    margin-right: 15px;
+.table-line{
+    margin: 10px 0;
+    display: flex;
 }

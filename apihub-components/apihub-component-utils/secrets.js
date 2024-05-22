@@ -26,7 +26,7 @@ async function keyAlreadyExists(spaceId, keyType, apiKey) {
     return Object.values(spaceAPIKeyObject[keyType]).includes(apiKey);
 }
 
-async function addSpaceKey(spaceId, keyType, apiKey, keyId) {
+async function putSpaceKey(spaceId, keyType, apiKey) {
     const secretsService = await apihub.getSecretsServiceInstanceAsync(config.SERVER_ROOT_FOLDER);
     const spaceAPIKeyObject = secretsService.getSecretSync(getSpaceSecretsContainerName(spaceId), "apiKeys")
     if (!spaceAPIKeyObject[keyType]) {
@@ -34,7 +34,7 @@ async function addSpaceKey(spaceId, keyType, apiKey, keyId) {
         error.statusCode = 400
         throw error
     }
-    spaceAPIKeyObject[keyType][keyId] = apiKey;
+    spaceAPIKeyObject[keyType] = apiKey;
     try {
         await secretsService.putSecretAsync(getSpaceSecretsContainerName(spaceId), "apiKeys", spaceAPIKeyObject)
     } catch (e) {
@@ -73,7 +73,7 @@ async function getModelAPIKey(spaceId, keyType) {
 module.exports = {
     createSpaceSecretsContainer,
     keyAlreadyExists,
-    addSpaceKey,
+    putSpaceKey,
     deleteSpaceKey,
     getModelAPIKey
 }

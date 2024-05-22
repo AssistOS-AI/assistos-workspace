@@ -1,33 +1,30 @@
 <div class="settings-page">
-    <div id="settings-table">
-        <div class="credentials-table">
-            <div class="table-header">
-                <div class="label-text">GIT Credentials</div>
-                <div class="label-action pointer" data-local-action="">+</div>
-
-            </div>
-            <div class="labels">
-                <div>Username</div>
-                <div></div>
-            </div>
-            $$tableRows
+    <div class="settings-header">Settings</div>
+    <div class="page-body">
+        <hr class="line-separator">
+        <div class="tabs-section pointer">
+            <div class="tab active" data-local-action="openSpaceSettings">Space Settings</div>
+            <div class="tab" data-local-action="openCollaboratorsTab">Collaborators</div>
         </div>
-        <div class="apikeys-table">
-            <div class="table-header">
-                <div class="label-text">API Keys</div>
-                <div class="label-action pointer" data-local-action="addKey">+</div>
-            </div>
-            <div class="table-content">
-            <div class="labels">
-                <div id="type-label">Type</div>
-                <div id="value-label">Value</div>
-                <div id="actions-label">Action</div>
-            </div>
-                <div id="apiKeyContainerWrapper">
-            $$apiKeysContainers
+        <div class="tab-content">
+            <div class="apikeys-table">
+                <div class="table-header">
+                    <div class="table-name">
+                        API Keys
+                    </div>
                 </div>
+                <div class="table-content">
+                    <div class="table-labels">
+                        <div class="table-label company-name">Type</div>
+                        <div class="table-label api-key">Value</div>
+                        <div class="table-label"></div>
+                    </div>
+                    <div class="table-rows">$$keys</div>
+                </div>
+            </div>
+            <div class="tab-footer">
+                <div class="general-button" id="delete-space-button" data-local-action="deleteSpace">Delete Space</div>
             </div>
         </div>
     </div>
-    <div class="general-button" id="delete-space-button" data-local-action="deleteSpace">Delete Space</div>
 </div>

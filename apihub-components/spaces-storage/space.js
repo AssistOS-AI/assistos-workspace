@@ -183,7 +183,7 @@ async function createSpace(spaceName, userId, apiKey) {
         () => createSpaceStatus(spacePath, spaceObj),
         () => User.APIs.linkSpaceToUser(userId, spaceId),
         () => addSpaceToSpaceMap(spaceId, spaceName),
-    ].concat(apiKey ? [() => secrets.addSpaceKey(spaceId, "OpenAI", apiKey, keyId)] : []);
+    ].concat(apiKey ? [() => secrets.putSpaceKey(spaceId, "OpenAI", apiKey, keyId)] : []);
 
     const results = await Promise.allSettled(filesPromises.map(fn => fn()));
     const failed = results.filter(r => r.status === 'rejected');
@@ -365,30 +365,17 @@ async function getAPIKey(spaceId, modelName) {
 
 }
 
-async function addAPIKey(spaceId, userId, keyType, key) {
+async function editAPIKey(spaceId, userId, keyType, key) {
     const spaceStatusObject = await getSpaceStatusObject(spaceId);
-    if (!spaceStatusObject.apiKeys[keyType]) {
-        const error = new Error(`API Key type ${keyType} not supported`);
-        error.statusCode = 400;
-        throw error;
-    }
-    if (await secrets.keyAlreadyExists(spaceId, keyType, key)) {
-        const error = new Error(`API Key ${key} already exists`);
-        error.statusCode = 409;
-        throw error;
-    }
     const defaultApiKeyTemplate = require('./templates/defaultApiKeyTemplate.json');
-    const keyId = crypto.generateId();
-
-    spaceStatusObject.apiKeys[keyType][keyId] = data.fillTemplate(defaultApiKeyTemplate, {
+    spaceStatusObject.apiKeys[keyType] = data.fillTemplate(defaultApiKeyTemplate, {
         keyType: keyType,
         ownerId: userId,
-        keyId: keyId,
         keyValue: openAI.maskKey(key),
         addedDate: date.getCurrentUTCDate()
     })
     await updateSpaceStatus(spaceId, spaceStatusObject);
-    await secrets.addSpaceKey(spaceId, keyType, key, keyId);
+    await secrets.putSpaceKey(spaceId, keyType, key);
 }
 
 
@@ -424,7 +411,7 @@ module.exports = {
         addSpaceChatMessage,
         getSpaceName,
         getAPIKey,
-        addAPIKey,
+        editAPIKey,
         deleteAPIKey,
     },
     templates: {

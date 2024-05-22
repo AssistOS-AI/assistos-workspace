@@ -1,19 +1,15 @@
 dialog{
     font-family: Poppins, serif;
-    height: 400px;
-    width: 400px;
-    min-height: 400px;
-    min-width: 400px;
+    width: 300px;
 }
-add-apikey-modal{
+edit-apikey-modal{
     display: flex;
     flex-direction:column;
-    height:400px;
 }
-.add-apikey-form{
+.edit-apikey-form{
     padding-left: 20px;
     padding-right: 20px;
-    height: 85%;
+    height: 100%;
     display: flex;
     flex-direction: column;
     justify-content: space-evenly;

@@ -55,7 +55,6 @@ space-configs-page {
     transition: width 0.3s;
     min-width: 35%;
     background: var(--white);
-    color: var(--left-sidebar);
 }
 .highlighted{
     background: #E4E6F0;

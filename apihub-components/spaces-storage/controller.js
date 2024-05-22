@@ -753,7 +753,7 @@ async function rejectSpaceInvitation(request, response) {
     }
 }
 
-async function addAPIKey(request, response) {
+async function editAPIKey(request, response) {
     const spaceId = request.params.spaceId || cookie.parseCookies(request).currentSpaceId;
     if (!spaceId) {
         return utils.sendResponse(response, 400, "application/json", {
@@ -770,7 +770,7 @@ async function addAPIKey(request, response) {
     }
     const userId = request.userId;
     try {
-        await space.APIs.addAPIKey(spaceId, userId, keyType,key);
+        await space.APIs.editAPIKey(spaceId, userId, keyType,key);
         utils.sendResponse(response, 200, "application/json", {
             message: `API Key added successfully to space ${spaceId}`,
             success: true
@@ -869,6 +869,6 @@ module.exports = {
     createSpace,
     addCollaboratorsToSpace,
     getAgent,
-    addAPIKey,
+    editAPIKey,
     deleteAPIKey
 }

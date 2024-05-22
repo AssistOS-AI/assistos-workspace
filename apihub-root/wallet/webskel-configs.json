@@ -61,11 +61,6 @@
             "presenterClassName": "SpaceConfigsPage"
         },
         {
-            "name": "apikey-unit",
-            "type": "components",
-            "presenterClassName": "ApikeyUnit"
-        },
-        {
             "name": "git-credentials-modal",
             "type": "modals",
             "presenterClassName": "GitCredentialsModal"
@@ -193,9 +188,9 @@
             "presenterClassName": "AddFlowModal"
         },
         {
-            "name": "add-apikey-modal",
+            "name": "edit-apikey-modal",
             "type": "modals",
-            "presenterClassName": "AddApikeyModal"
+            "presenterClassName": "EditApikeyModal"
         },
         {
             "name": "edit-flow-modal",

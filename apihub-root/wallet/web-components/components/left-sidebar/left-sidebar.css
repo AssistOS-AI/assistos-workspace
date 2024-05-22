@@ -37,8 +37,9 @@ left-sidebar {
 }
 
 .user-action-menu {
+    padding: 5px 0;
     border-radius: 5px;
-    display: none;
+    visibility: hidden;
     position: absolute;
     left: 105%;
     top: 15px;
