@@ -102,6 +102,7 @@ space-configs-page {
 }
 
 .drag-icon {
+    z-index: 2;
     visibility: hidden;
     top: 50%;
     right: -7px;

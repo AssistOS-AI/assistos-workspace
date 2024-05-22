@@ -1,13 +1,23 @@
 personalities-page {
-    display: flex;
     overflow: scroll;
 }
-
+.personalities-header{
+    font-size: 26px;
+    font-weight: 600;
+    padding: 20px;
+}
+.line-separator{
+    margin-top: 0;
+    border: none;
+    height: 2px;
+    background: var(--very-light-gray);
+}
 .table {
+    height: calc(100% - 78px);
+    overflow: auto;
     width: 100%;
     display: grid;
-    grid-template-columns: repeat(4, 1fr);
-    grid-column-gap: 25px;
+    grid-template-columns: repeat(5, 1fr);
     background: var(--white);
     color: var(--user-text);
 }

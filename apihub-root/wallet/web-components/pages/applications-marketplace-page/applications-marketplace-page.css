@@ -23,28 +23,13 @@ applications-marketplace-page {
     padding: 0 20px;
 }
 
-.page-header {
+.marketplace-header {
+    padding: 20px;
     display: flex;
     justify-content: space-between;
-}
-
-.add-marketplace {
-    margin: 20px 20px 20px 0;
-    border: none;
-    display: flex;
     align-items: center;
-    font-size: 16px;
+    font-size: 32px;
     font-weight: 600;
-    line-height: 24px;
-    text-align: center;
-    color: var(--white-text);
-    background: var(--medium-blue);
-    width: fit-content;
-    height: 36px;
-    padding: 6px 11px 6px 11px;
-    border-radius: 10px;
-    gap: 5px;
-    cursor: pointer;
 }
 
 *[theme="dark"] .add-marketplace {
@@ -55,10 +40,6 @@ applications-marketplace-page {
     padding: 0 20px 20px 20px;
 }
 
-.category-title {
-    font-size: 32px;
-    font-weight: 600;
-}
 
 .description {
     color: var(--medium-gray);
