@@ -1,5 +1,4 @@
-{
-    "applications": [
+[
         {
             "name": "ChatBots",
             "description": "ChatBots is a platform where you can chat with virtual personalities or create your own chatbots. Whether you want a friendly chat, need help with something, or want to create a specialized bot, ChatBots has got you covered. You can choose from different default personalities or train your bot to interact just the way you like.",
@@ -52,5 +51,4 @@
             "flowsRepository": "https://github.com/AssistOS-AI/MyWebPageFlows",
             "id": "MyWebPage"
         }
-    ]
-}
+]
