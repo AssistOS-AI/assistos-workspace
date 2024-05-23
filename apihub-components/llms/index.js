@@ -1,6 +1,11 @@
 const {
     getTextResponse,
-    getTextStreamingResponse
+    getTextStreamingResponse,
+    getImageResponse,
+    editImage,
+    getImageVariants,
+    getVideoResponse,
+    getAudioResponse
 } = require("./controller.js");
 
 const bodyReader = require("../apihub-component-middlewares/bodyReader");
@@ -12,26 +17,14 @@ function LLMStorage(server) {
     server.use("/apis/v1/spaces/:spaceId/llms/*", authentication);
     server.use("/apis/v1/spaces/:spaceId/llms/*", authorization);
 
+    server.post("/apis/v1/spaces/:spaceId/llms/text/generate", getTextResponse);
+    server.post("/apis/v1/spaces/:spaceId/llms/text/streaming/generate", getTextStreamingResponse);
 
-    server.post("/apis/v1/spaces/:spaceId/llms/texts/generate", async (request, response) => {
-        await getTextResponse(request, response);
-    });
-    server.post("/apis/v1/spaces/:spaceId/llms/texts/streaming/generate", async (request, response) => {
-        await getTextStreamingResponse(request, response);
-    });
-    server.post("/apis/v1/spaces/:spaceId/llms/images/generate", async (request, response) => {
-
-    });
-    server.post("/apis/v1/spaces/:spaceId/llms/images/edit", async (request, response) => {
-
-    });
-    server.post("/apis/v1/spaces/:spaceId/llms/images/variants", async (request, response) => {
-
-    });
-    server.post("/apis/v1/spaces/:spaceId/llms/videos/generate", async (request, response) => {
-    });
-    server.post("/apis/v1/spaces/:spaceId/llms/audios/generate", async (request, response) => {
-    });
+    server.post("/apis/v1/spaces/:spaceId/llms/image/generate", getImageResponse);
+    server.post("/apis/v1/spaces/:spaceId/llms/image/edit", editImage);
+    server.post("/apis/v1/spaces/:spaceId/llms/image/variants", getImageVariants);
+    server.post("/apis/v1/spaces/:spaceId/llms/video/generate", getVideoResponse);
+    server.post("/apis/v1/spaces/:spaceId/llms/audio/generate", getAudioResponse);
 
 }
 

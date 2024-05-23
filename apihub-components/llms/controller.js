@@ -1,28 +1,51 @@
 const utils = require('../apihub-component-utils/utils.js');
-const Text = require("./handlers/Text.js");
 const LLMStreamingEmitter= require('./utils/streamEmitter.js');
 const { v4: uuidv4 } = require('uuid');
+const secrets = require("../apihub-component-utils/secrets");
+const configs = require("../config.json");
 
 const cache = {};
-
-async function getTextResponse(request, response) {
-    const { modelName, prompt, messagesQueue, modelConfig} = request.body;
+async function sendRequest(url, method, request, response){
     const spaceId = request.params.spaceId;
+    const LLMMap = require("./[MAP]LLMs.json");
+    const configs = require("../config.json");
+    const APIKey = await secrets.getModelAPIKey(spaceId, LLMMap[request.body.modelName]);
+    if (!APIKey) {
+        return utils.sendResponse(response, 500, "application/json", {
+            success: false,
+            message: "API key not found"
+        });
+    }
+    let body = Object.assign({}, request.body);
+    body.APIKey = APIKey;
 
-    if (!modelName) {
-        return utils.sendResponse(response, 400, "application/json", {
-            success: false,
-            message: "Bad Request. Model name is required"
-        });
+    let result;
+    let init = {
+        method: method,
+        headers: {}
+    };
+    if(method === "POST" || method === "PUT" || method === "DELETE"){
+        init.body = typeof data === "string" ? data : JSON.stringify(data);
+        init.headers = {
+            "Content-type": "application/json; charset=UTF-8"
+        };
     }
-    if(!prompt){
-        return utils.sendResponse(response, 400, "application/json", {
-            success: false,
-            message: "Bad Request. Prompt is required"
-        });
+    if(configs.ENVIRONMENT_MODE === "production"){
+        url = `${configs.LLMS_SERVER_PRODUCTION_BASE_URL}${url}`;
+    } else {
+        url = `${configs.LLMS_SERVER_DEVELOPMENT_BASE_URL}${url}`;
     }
+
     try {
-        const modelResponse = await Text.APIs.getTextResponse(spaceId, modelName, prompt, modelConfig, messagesQueue);
+        result = await fetch(url,init);
+    } catch (err) {
+        console.error(err);
+    }
+    return await result.text()
+}
+async function getTextResponse(request, response) {
+    try {
+        const modelResponse = await sendRequest(`/apis/v1/text/generate`, "POST", request, response);
         utils.sendResponse(response, 200, "application/json", {
             success: true,
             data: modelResponse
@@ -36,22 +59,7 @@ async function getTextResponse(request, response) {
 }
 
 async function getTextStreamingResponse(request, response) {
-    const { modelName, prompt, messagesQueue, modelConfig, sessionId } = request.body;
-    const spaceId = request.params.spaceId;
-
-    if (!modelName) {
-        return utils.sendResponse(response, 400, "application/json", {
-            success: false,
-            message: "Bad Request. Model name is required"
-        });
-    }
-    if(!prompt){
-        return utils.sendResponse(response, 400, "application/json", {
-            success: false,
-            message: "Bad Request. Prompt is required"
-        });
-    }
-
+    const sessionId  = request.body.sessionId;
     if (sessionId && cache[sessionId]) {
         const sessionData = cache[sessionId];
         const newData = sessionData.data.slice(sessionData.lastSentIndex);
@@ -86,7 +94,15 @@ async function getTextStreamingResponse(request, response) {
     });
 
     try {
-        await Text.APIs.getTextStreamingResponse(spaceId, modelName, prompt, modelConfig, messagesQueue, streamEmitter);
+        const modelResponse = await sendRequest(`/apis/v1/text/streaming/generate`, "POST", request, response);
+        if(modelResponse.final){
+            streamEmitter.emit('final', modelResponse.data);
+        }
+        if(!modelResponse) {
+            streamEmitter.emit('end');
+        }
+
+        streamEmitter.emit('data', modelResponse);
         utils.sendResponse(response, 200, "application/json", {
             success: true,
             sessionId: newSessionId,
@@ -101,8 +117,82 @@ async function getTextStreamingResponse(request, response) {
         });
     }
 }
-
+async function getImageResponse(request, response) {
+    try {
+        const modelResponse = await sendRequest(`/apis/v1/image/generate`, "POST", request, response);
+        utils.sendResponse(response, 200, "application/json", {
+            success: true,
+            data: modelResponse
+        });
+    } catch (error) {
+        utils.sendResponse(response, error.statusCode || 500, "application/json", {
+            success: false,
+            message: error.message
+        });
+    }
+}
+async function editImage(request, response) {
+    try {
+        const modelResponse = await sendRequest(`/apis/v1/image/edit`, "POST", request, response);
+        utils.sendResponse(response, 200, "application/json", {
+            success: true,
+            data: modelResponse
+        });
+    } catch (error) {
+        utils.sendResponse(response, error.statusCode || 500, "application/json", {
+            success: false,
+            message: error.message
+        });
+    }
+}
+async function getImageVariants(request, response) {
+    try {
+        const modelResponse = await sendRequest(`/apis/v1/image/variants`, "POST", request, response);
+        utils.sendResponse(response, 200, "application/json", {
+            success: true,
+            data: modelResponse
+        });
+    } catch (error) {
+        utils.sendResponse(response, error.statusCode || 500, "application/json", {
+            success: false,
+            message: error.message
+        });
+    }
+}
+async function getVideoResponse(request, response) {
+    try {
+        const modelResponse = await sendRequest(`/apis/v1/video/generate`, "POST", request, response);
+        utils.sendResponse(response, 200, "application/json", {
+            success: true,
+            data: modelResponse
+        });
+    } catch (error) {
+        utils.sendResponse(response, error.statusCode || 500, "application/json", {
+            success: false,
+            message: error.message
+        });
+    }
+}
+async function getAudioResponse(request, response) {
+    try {
+        const modelResponse = await sendRequest(`/apis/v1/audio/generate`, "POST", request, response);
+        utils.sendResponse(response, 200, "application/json", {
+            success: true,
+            data: modelResponse
+        });
+    } catch (error) {
+        utils.sendResponse(response, error.statusCode || 500, "application/json", {
+            success: false,
+            message: error.message
+        });
+    }
+}
 module.exports = {
     getTextResponse,
-    getTextStreamingResponse
+    getTextStreamingResponse,
+    getImageResponse,
+    editImage,
+    getImageVariants,
+    getVideoResponse,
+    getAudioResponse
 };
