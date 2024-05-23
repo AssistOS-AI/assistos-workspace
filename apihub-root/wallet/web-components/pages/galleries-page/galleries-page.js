@@ -34,14 +34,32 @@ export class GalleriesPage{
         spaceModule.stopCheckingUpdates(assistOS.space.id);
     }
     async showActionBox(_target, primaryKey, componentName, insertionMode) {
-        await assistOS.UI.showActionBox(_target, primaryKey, componentName, insertionMode);
+        this.actionBox = await assistOS.UI.showActionBox(_target, primaryKey, componentName, insertionMode);
     }
 
     async addGallery(){
         await assistOS.UI.showModal("add-gallery-modal");
     }
     renameGallery(_target) {
-        alert("to be done");
+        let component = assistOS.UI.reverseQuerySelector(_target, "gallery-unit");
+        let galleryName = component.querySelector(".gallery-name-text");
+        let galleryId = component.getAttribute("data-id");
+        if(this.actionBox){
+            assistOS.UI.removeActionBox(this.actionBox, this);
+        }
+        if (galleryName.getAttribute("contenteditable") === "false") {
+            component.removeAttribute("data-local-action");
+            galleryName.setAttribute("contenteditable", "true");
+            galleryName.focus();
+            let controller = new AbortController();
+            galleryName.addEventListener("blur", async (event) => {
+                component.setAttribute("data-local-action", `openGallery ${galleryId}`);
+                galleryName.setAttribute("contenteditable", "false");
+                await spaceModule.updateGalleryName(assistOS.space.id, galleryId, galleryName.innerText);
+                controller.abort();
+            }, {signal: controller.signal});
+        }
+
     }
     async deleteGallery(_target){
         let galleryUnit = _target.closest("gallery-unit");
