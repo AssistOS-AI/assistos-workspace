@@ -8,12 +8,13 @@ export class SpaceDocumentsPage {
             this.documents = await assistOS.space.getDocumentsMetadata(assistOS.space.id);
         };
         this.invalidate = invalidate;
+        this.id = "documents";
         this.invalidate(async () => {
             await this.refreshDocuments();
             await spaceAPIs.subscribeToObject(assistOS.space.id, this.id);
             spaceAPIs.startCheckingUpdates(assistOS.space.id);
         });
-        this.id = "documents";
+
         notificationService.on(this.id, ()=>{
             this.invalidate(this.refreshDocuments);
         });

@@ -1,0 +1,41 @@
+dialog{
+    width: 500px;
+}
+generate-image-modal{
+
+}
+.images-section{
+    height: 300px;
+}
+.left-section{
+    display: flex;
+    align-items: center;
+}
+.modal-body{
+    padding: 0;
+}
+#prompt{
+    border: none;
+    resize: none;
+    background-color: var(--modal-background);
+    height: 100px;
+}
+#prompt:focus{
+    outline: none;
+}
+.padding{
+    padding: 20px;
+}
+.modal-footer{
+    padding: 20px;
+    border-top: 1px solid var(--very-light-gray);
+    justify-content: space-between;
+}
+.select-variants-container{
+    margin-right: 20px;
+    display: flex;
+    flex-direction: column;
+}
+.select-variants{
+
+}

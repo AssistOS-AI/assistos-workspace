@@ -288,17 +288,6 @@ agent-page {
     align-items: center;
 }
 
-.breadcrumbs {
-    color: var(--medium-blue);
-    font-size: 18px;
-    font-weight: 600;
-    overflow-wrap: break-word;
-    hyphens: auto;
-    word-break: break-word;
-    margin-right: 5px;
-    margin-left: 5px;
-}
-
 .settings-list-container {
     padding: 5px 0;
     border-radius: 10px;

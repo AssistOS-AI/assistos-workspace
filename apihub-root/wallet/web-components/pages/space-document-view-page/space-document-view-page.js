@@ -20,8 +20,6 @@ export class SpaceDocumentViewPage {
             this._document = new documentModule.Document(documentData);
             await spaceAPIs.subscribeToObject(assistOS.space.id, this._document.id);
             notificationService.on(this._document.id + "/delete", async ()=>{
-                await spaceAPIs.unsubscribeFromObject(assistOS.space.id);
-                spaceAPIs.stopCheckingUpdates(assistOS.space.id);
                 await this.openDocumentsPage();
                 alert("The document has been deleted");
             });

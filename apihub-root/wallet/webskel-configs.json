@@ -4,6 +4,34 @@
     "services": [],
     "components": [
         {
+            "name": "generate-image-modal",
+            "type": "modals",
+            "presenterClassName": "GenerateImageModal"
+        },
+        {
+            "name": "gallery-page",
+            "type": "pages",
+            "presenterClassName": "GalleryPage"
+        },
+        {
+            "name": "gallery-unit",
+            "type": "components"
+        },
+        {
+            "name": "add-gallery-modal",
+            "type": "modals",
+            "presenterClassName": "AddGalleryModal"
+        },
+        {
+            "name": "action-box-gallery",
+            "type": "components"
+        },
+        {
+            "name": "galleries-page",
+            "type": "pages",
+            "presenterClassName": "GalleriesPage"
+        },
+        {
             "name": "simple-unit",
             "type": "components"
         },

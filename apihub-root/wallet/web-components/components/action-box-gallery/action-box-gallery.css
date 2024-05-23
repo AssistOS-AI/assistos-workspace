@@ -1,0 +1,25 @@
+action-box-gallery{
+    position:relative;
+}
+.action-box-gallery {
+    margin-top: -10px;
+    margin-left: -90px;
+    background-color: var(--white-text);
+    line-height: normal;
+    border-radius: 6px;
+    border: 1px solid var(--action-box-border);
+    position: absolute;
+    z-index:9999;
+}
+
+.action {
+    background: var(--white);
+    padding: 4px 8px;
+    cursor: pointer;
+    color: var(--action-box-text);
+}
+
+.action:hover {
+    background-color: var(--action-box-text);
+    color: var(--white-text);
+}
