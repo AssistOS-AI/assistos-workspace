@@ -23,13 +23,13 @@
       }
     },
     "users": {
-      "type": "array",
+      "type": "object",
       "items": {
         "type": "object"
       }
     },
     "admins": {
-      "type": "array",
+      "type": "object",
       "items": {
         "type": "object"
       }

@@ -36,3 +36,6 @@
     
     Removed unnecessary code lines, updated regular expressions and made logic simplifications across multiple files. This led to a cleaner and easily maintainable code base.
     crud objects update
+    Publishing new release bundles
+    after removing component from DOM handler
+    securityContext update

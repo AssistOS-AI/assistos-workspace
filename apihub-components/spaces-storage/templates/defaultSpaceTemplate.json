@@ -6,9 +6,7 @@
   "announcements": [
     "$$defaultAnnouncement"
   ],
-  "users": ["$$admin"],
-  "admins": [
-    "$$admin"
-  ],
+  "users": "$$admin",
+  "admins": "$$admin",
   "installedApplications": []
 }
