@@ -1,5 +1,5 @@
 dialog{
-    width: 500px;
+    width: 480px;
 }
 generate-image-modal{
 
@@ -18,7 +18,7 @@ generate-image-modal{
     border: none;
     resize: none;
     background-color: var(--modal-background);
-    height: 100px;
+    height: 80px;
 }
 #prompt:focus{
     outline: none;
@@ -38,4 +38,17 @@ generate-image-modal{
 }
 .select-variants{
 
+}
+.images-section{
+    padding: 0 10px;
+    overflow: auto;
+    width: 100%;
+    display: grid;
+    grid-template-columns: repeat(3, 1fr);
+}
+.generated-image{
+    width: 130px;
+    height: 130px;
+    object-fit: cover;
+    margin: 10px;
 }

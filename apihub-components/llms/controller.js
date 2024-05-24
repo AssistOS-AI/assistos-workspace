@@ -1,35 +1,32 @@
 const utils = require('../apihub-component-utils/utils.js');
-const LLMStreamingEmitter= require('./utils/streamEmitter.js');
+//const LLMStreamingEmitter= require('./utils/streamEmitter.js');
 const { v4: uuidv4 } = require('uuid');
 const secrets = require("../apihub-component-utils/secrets");
-const configs = require("../config.json");
 
 const cache = {};
 async function sendRequest(url, method, request, response){
     const spaceId = request.params.spaceId;
     const LLMMap = require("./[MAP]LLMs.json");
     const configs = require("../config.json");
-    const APIKey = await secrets.getModelAPIKey(spaceId, LLMMap[request.body.modelName]);
-    if (!APIKey) {
+    const APIKeyObj = await secrets.getModelAPIKey(spaceId, LLMMap[request.body.modelName]);
+    if (!APIKeyObj) {
         return utils.sendResponse(response, 500, "application/json", {
             success: false,
             message: "API key not found"
         });
     }
     let body = Object.assign({}, request.body);
-    body.APIKey = APIKey;
+    body.APIKey = APIKeyObj.value;
 
     let result;
     let init = {
         method: method,
         headers: {}
     };
-    if(method === "POST" || method === "PUT" || method === "DELETE"){
-        init.body = typeof data === "string" ? data : JSON.stringify(data);
-        init.headers = {
-            "Content-type": "application/json; charset=UTF-8"
-        };
-    }
+    init.body = JSON.stringify(body);
+    init.headers = {
+        "Content-type": "application/json; charset=UTF-8"
+    };
     if(configs.ENVIRONMENT_MODE === "production"){
         url = `${configs.LLMS_SERVER_PRODUCTION_BASE_URL}${url}`;
     } else {
@@ -38,10 +35,15 @@ async function sendRequest(url, method, request, response){
 
     try {
         result = await fetch(url,init);
-    } catch (err) {
-        console.error(err);
+    } catch (error) {
+        console.error(error);
     }
-    return await result.text()
+
+    let llmResponse = JSON.parse(await result.text());
+    if(!llmResponse.success){
+        console.error(llmResponse.message);
+    }
+    return llmResponse.data;
 }
 async function getTextResponse(request, response) {
     try {
