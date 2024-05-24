@@ -370,7 +370,7 @@ async function editAPIKey(spaceId, userId, keyType, key) {
     await secrets.putSpaceKey(spaceId, keyType, apiKeyObj);
 }
 async function getAPIKeysMetadata(spaceId) {
-    let keys = await secrets.getAPIKeys(spaceId);
+    let keys = JSON.parse(JSON.stringify(await secrets.getAPIKeys(spaceId)));
     for(let keyType in keys){
         if(keys[keyType].value){
             keys[keyType].value = openAI.maskKey(keys[keyType].value);
@@ -379,19 +379,6 @@ async function getAPIKeysMetadata(spaceId) {
     return keys;
 }
 async function deleteAPIKey(spaceId, keyType) {
-    const spaceStatusObject = await getSpaceStatusObject(spaceId);
-    if (!spaceStatusObject.apiKeys[keyType]) {
-        const error = new Error(`API Key type ${keyType} not supported`);
-        error.statusCode = 400;
-        throw error;
-    }
-    if (!spaceStatusObject.apiKeys[keyType]) {
-        const error = new Error(`API Key for ${keyType} not found`);
-        error.statusCode = 404;
-        throw error;
-    }
-    spaceStatusObject.apiKeys[keyType]= {};
-    await updateSpaceStatus(spaceId, spaceStatusObject);
     await secrets.deleteSpaceKey(spaceId, keyType);
 }
 

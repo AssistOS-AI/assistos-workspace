@@ -278,6 +278,7 @@ async function addContainerObject(request, response) {
     const objectData = request.body;
     try {
         let lightDBEnclaveClient = enclave.initialiseLightDBEnclave(spaceId);
+        let writeAccess = await $$.promisify(lightDBEnclaveClient.hasWriteAccess)($$.SYSTEM_IDENTIFIER);
         let objectId = await addContainerObjectToTable(lightDBEnclaveClient, objectType, objectData);
         subscribersModule.notifySubscribers(spaceId, request.userId, objectType, objectType);
         return utils.sendResponse(response, 200, "application/json", {

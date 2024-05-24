@@ -52,3 +52,29 @@ generate-image-modal{
     object-fit: cover;
     margin: 10px;
 }
+.image-unit{
+    position: relative;
+}
+.image-menu{
+    position: absolute;
+    background-color: #200C0C54;
+    top: 11px;
+    left: 10px;
+    visibility: hidden;
+    width: 130px;
+    height: 130px;
+    padding: 5px;
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    justify-content: space-between;
+}
+.image-checkbox{
+    visibility: hidden;
+    position: absolute;
+    bottom: 17px;
+    left: 10px;
+}
+.small{
+    font-size: 13px;
+}
