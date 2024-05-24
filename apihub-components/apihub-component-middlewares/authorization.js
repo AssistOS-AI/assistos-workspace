@@ -6,7 +6,7 @@ async function authorization(req, res, next){
     const spaceId= req.params.spaceId;
 
     const spaceStatusObject= await Space.APIs.getSpaceStatusObject(spaceId);
-    if(!spaceStatusObject.users.includes(userId)){
+    if(spaceStatusObject.users[userId]){
         return next();
     }else{
         const error = new Error('Authorization failed. User is not authorized to access this space.');

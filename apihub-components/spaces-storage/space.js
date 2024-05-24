@@ -137,7 +137,7 @@ async function createSpace(spaceName, userId, apiKey) {
             spaceName: spaceName,
             spaceId: spaceId,
             admin: {
-                userId: {
+                [userId]: {
                     roles: [spaceConstants.spaceRoles.Admin, spaceConstants.spaceRoles.Owner],
                     joinDate: date.getCurrentUnixTime()
                 }
