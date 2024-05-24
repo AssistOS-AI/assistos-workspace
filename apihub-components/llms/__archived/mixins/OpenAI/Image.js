@@ -12,7 +12,7 @@ async function createOpenAIInstance(apiKey) {
 
 module.exports = async function (modelInstance) {
     const OpenAI = await createOpenAIInstance(modelInstance.apiKey);
-    const data = require('../../../apihub-component-utils/data.js')
+    const data = require('../../../../apihub-component-utils/data.js')
     const promptRevisionOverrideTemplate = require('../../models/image/DALL-E-3/promptRevisionOverrideTemplate.json')
     modelInstance.generateImage = async function (prompt, configs) {
         const response = await OpenAI.images.generate(

@@ -34,12 +34,6 @@
         "type": "object"
       }
     },
-    "apiKeys": {
-      "type": "object",
-      "items": {
-        "type": "object"
-      }
-    },
     "flows": {
       "type": "array",
       "items": {
@@ -108,7 +102,6 @@
     "settings",
     "announcements",
     "users",
-    "apiKeys",
     "installedApplications"
   ]
 }

@@ -1,4 +1,4 @@
-const secrets = require('../../apihub-component-utils/secrets.js');
+const secrets = require('../../../apihub-component-utils/secrets.js');
 
 module.exports = async function(spaceId, modelName, callbackFunc, ...callbackFuncArgs) {
     const APIKey = await secrets.getModelAPIKey(spaceId, modelName);
