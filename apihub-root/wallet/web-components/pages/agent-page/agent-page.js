@@ -29,7 +29,6 @@ export class AgentPage {
         let personalitiesHTML = "";
         for(let personality of this.personalities){
             personalitiesHTML += `<simple-unit data-local-action="swapPersonality ${personality.id}" data-name="${personality.name}" data-highlight="light-highlight"></simple-unit>`;
-
         }
         this.personalitiesHTML = personalitiesHTML;
         this.spaceConversation = stringHTML;

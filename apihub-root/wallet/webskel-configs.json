@@ -4,9 +4,9 @@
     "services": [],
     "components": [
         {
-            "name": "generate-image-modal",
-            "type": "modals",
-            "presenterClassName": "GenerateImageModal"
+            "name": "generate-image-page",
+            "type": "pages",
+            "presenterClassName": "GenerateImagePage"
         },
         {
             "name": "gallery-page",

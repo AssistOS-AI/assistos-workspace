@@ -1,23 +1,30 @@
-dialog{
-    width: 480px;
-}
-generate-image-modal{
+generate-image-page{
 
 }
-.images-section{
-    height: 300px;
+.image-generator-header{
+    font-size: 26px;
+    font-weight: 500;
+    display: flex;
+    align-items: center;
+    padding: 20px;
+    border-bottom: 1px solid var(--very-light-gray);
 }
-.left-section{
+.page-title{
+    margin-left: 15px;
+}
+
+.form-footer{
+    padding: 20px;
+    border-bottom: 1px solid var(--very-light-gray);
     display: flex;
     align-items: center;
 }
-.modal-body{
+.page-body{
     padding: 0;
 }
 #prompt{
     border: none;
     resize: none;
-    background-color: var(--modal-background);
     height: 80px;
 }
 #prompt:focus{
@@ -32,7 +39,12 @@ generate-image-modal{
     justify-content: space-between;
 }
 .select-variants-container{
-    margin-right: 20px;
+    margin-right: 15px;
+    display: flex;
+    flex-direction: column;
+}
+.select-personality-container{
+    margin-right: 15px;
     display: flex;
     flex-direction: column;
 }
@@ -40,15 +52,15 @@ generate-image-modal{
 
 }
 .images-section{
-    padding: 0 10px;
+    padding: 10px 10px;
     overflow: auto;
     width: 100%;
     display: grid;
-    grid-template-columns: repeat(3, 1fr);
+    grid-template-columns: repeat(4, 1fr);
 }
 .generated-image{
-    width: 130px;
-    height: 130px;
+    width: 210px;
+    height: 210px;
     object-fit: cover;
     margin: 10px;
 }
@@ -61,13 +73,13 @@ generate-image-modal{
     top: 11px;
     left: 10px;
     visibility: hidden;
-    width: 130px;
-    height: 130px;
-    padding: 5px;
+    width: 210px;
+    height: 210px;
+    padding: 20px;
     display: flex;
     flex-direction: column;
     align-items: center;
-    justify-content: space-between;
+    justify-content: flex-end;
 }
 .image-checkbox{
     visibility: hidden;
@@ -76,5 +88,9 @@ generate-image-modal{
     left: 10px;
 }
 .small{
+    margin-top: 10px;
     font-size: 13px;
+    width: 100%;
+    justify-content: center;
+    height: 25px;
 }
