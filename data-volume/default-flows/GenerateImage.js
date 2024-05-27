@@ -8,7 +8,13 @@ class GenerateImage {
     async start(context) {
         try {
             let llmModule = await this.loadModule("llm");
-            let images = await llmModule.generateImage(context.spaceId, "DALL-E-2", context.prompt, context.variants);
+            let modelConfigs = {
+                modelName: "DALL-E-2",
+                prompt: context.prompt,
+                variants: context.variants,
+                responseFormat: context.responseFormat
+            }
+            let images = await llmModule.generateImage(context.spaceId, modelConfigs);
             this.return(images);
         } catch (e) {
             this.fail(e);

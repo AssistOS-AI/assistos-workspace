@@ -1,4 +1,4 @@
-import {constants} from "../../../imports.js";
+const constants = require("assistos").constants;
 const spaceAPIs = require("assistos").loadModule("space", {});
 const {notificationService} = require("assistos").loadModule("util", {});
 export class EditPersonalityPage{
@@ -25,7 +25,7 @@ export class EditPersonalityPage{
         });
     }
     beforeRender(){
-        if(this.personality.name === constants.DEFAULT_PERSONALITY_NAME){
+        if(this.personality.name === constants.PERSONALITIES.DEFAULT_PERSONALITY_NAME){
             this.disabled = "disabled";
         }
         if(this.personality.image){

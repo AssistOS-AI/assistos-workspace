@@ -1,10 +1,3 @@
-
-//Constants
-import constants from "./constants.js";
-
-export {
-    constants
-};
 //Models
 import {PageModel} from "./core/models/PageModel.js";
 export{

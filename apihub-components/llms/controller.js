@@ -62,8 +62,6 @@ async function getTextResponse(request, response) {
     }
 }
 
-
-
 async function getTextStreamingResponse(request, response) {
     const requestData = { ...request.body };
     let sessionId = requestData.sessionId || null;
@@ -137,7 +135,6 @@ async function getImageResponse(request, response) {
         });
     }
 }
-
 async function editImage(request, response) {
     try {
         const modelResponse = await sendRequest(`/apis/v1/image/edit`, "POST", request, response);
@@ -152,7 +149,6 @@ async function editImage(request, response) {
         });
     }
 }
-
 async function getImageVariants(request, response) {
     try {
         const modelResponse = await sendRequest(`/apis/v1/image/variants`, "POST", request, response);
@@ -167,7 +163,6 @@ async function getImageVariants(request, response) {
         });
     }
 }
-
 async function getVideoResponse(request, response) {
     try {
         const modelResponse = await sendRequest(`/apis/v1/video/generate`, "POST", request, response);
@@ -182,7 +177,6 @@ async function getVideoResponse(request, response) {
         });
     }
 }
-
 async function getAudioResponse(request, response) {
     try {
         const modelResponse = await sendRequest(`/apis/v1/audio/generate`, "POST", request, response);
@@ -197,7 +191,6 @@ async function getAudioResponse(request, response) {
         });
     }
 }
-
 module.exports = {
     getTextResponse,
     getTextStreamingResponse,

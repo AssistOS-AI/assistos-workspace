@@ -31,7 +31,7 @@ export class GalleryPage {
         this.galleryName = this.gallery.name;
         let stringHTML = "";
         for(let image of this.gallery.images){
-             stringHTML += `<img class="gallery-image" src="${image.src}" alt="${image.name}">`;
+             stringHTML += `<img class="gallery-image" src="${image.src}" alt="${image.timestamp}">`;
         }
         this.images = stringHTML;
     }
@@ -44,7 +44,7 @@ export class GalleryPage {
         spaceModule.unsubscribeFromObject(assistOS.space.id, this.id);
         spaceModule.stopCheckingUpdates(assistOS.space.id);
     }
-    generateImage() {
-        assistOS.UI.showModal("generate-image-modal");
+    async generateImage() {
+        await assistOS.UI.changeToDynamicPage("space-configs-page", `${assistOS.space.id}/Space/generate-image-page/${this.id}`);
     }
 }
