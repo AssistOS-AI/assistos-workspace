@@ -1,10 +1,11 @@
 const utils = require('../apihub-component-utils/utils.js');
-const LLMStreamingEmitter= require('./__archived/utils/streamEmitter.js');
-const { v4: uuidv4 } = require('uuid');
+const {v4: uuidv4} = require('uuid');
 const secrets = require("../apihub-component-utils/secrets");
-
+const axios = require('axios');
+const LLMMap = require("./[MAP]LLMs.json");
 const cache = {};
-async function sendRequest(url, method, request, response){
+
+async function sendRequest(url, method, request, response) {
     const spaceId = request.params.spaceId;
     const LLMMap = require("./[MAP]LLMs.json");
     const configs = require("../config.json");
@@ -27,24 +28,25 @@ async function sendRequest(url, method, request, response){
     init.headers = {
         "Content-type": "application/json; charset=UTF-8"
     };
-    if(configs.ENVIRONMENT_MODE === "production"){
+    if (configs.ENVIRONMENT_MODE === "production") {
         url = `${configs.LLMS_SERVER_PRODUCTION_BASE_URL}${url}`;
     } else {
         url = `${configs.LLMS_SERVER_DEVELOPMENT_BASE_URL}${url}`;
     }
 
     try {
-        result = await fetch(url,init);
+        result = await fetch(url, init);
     } catch (error) {
         console.error(error);
     }
 
     let llmResponse = JSON.parse(await result.text());
-    if(!llmResponse.success){
+    if (!llmResponse.success) {
         console.error(llmResponse.message);
     }
     return llmResponse.data;
 }
+
 async function getTextResponse(request, response) {
     try {
         const modelResponse = await sendRequest(`/apis/v1/text/generate`, "POST", request, response);
@@ -60,8 +62,14 @@ async function getTextResponse(request, response) {
     }
 }
 
+
+
 async function getTextStreamingResponse(request, response) {
-    const sessionId  = request.body.sessionId;
+    const requestData = { ...request.body };
+    const sessionId = requestData.sessionId || null;
+    const APIKeyObj = await secrets.getModelAPIKey(request.params.spaceId, LLMMap[request.body.modelName]);
+    requestData.APIKey = APIKeyObj.value;
+
     if (sessionId && cache[sessionId]) {
         const sessionData = cache[sessionId];
         const newData = sessionData.data.slice(sessionData.lastSentIndex);
@@ -72,53 +80,92 @@ async function getTextStreamingResponse(request, response) {
             delete cache[sessionId];
         }
 
-        return utils.sendResponse(response, 200, "application/json", {
-            success: true,
-            data: newData,
-            end: isEnd
-        });
+        response.setHeader('Content-Type', 'text/event-stream');
+        response.setHeader('Cache-Control', 'no-cache');
+        response.setHeader('Connection', 'keep-alive');
+
+        if (newData) {
+            response.write(`data: ${newData}\n\n`);
+        }
+
+        if (isEnd) {
+            response.write('event: end\ndata: {}\n\n');
+            response.end();
+        }
+
+        return;
     }
 
-    const newSessionId = uuidv4();
-    cache[newSessionId] = { data: '', lastSentIndex: 0 };
-    const streamEmitter = new LLMStreamingEmitter();
-
-    streamEmitter.on('data', data => {
-        cache[newSessionId].data += data;
-    });
-
-    streamEmitter.on('end', () => {
-        cache[newSessionId].end = true;
-    });
-
-    streamEmitter.on('final', finalData => {
-        cache[newSessionId].data += finalData.messages.join('');
+    response.writeHead(200, {
+        'Content-Type': 'text/event-stream',
+        'Cache-Control': 'no-cache',
+        'Connection': 'keep-alive'
     });
 
     try {
-        const modelResponse = await sendRequest(`/apis/v1/text/streaming/generate`, "POST", request, response);
-        if(modelResponse.final){
-            streamEmitter.emit('final', modelResponse.data);
-        }
-        if(!modelResponse) {
-            streamEmitter.emit('end');
-        }
+        const llmRes = await axios.post('http://localhost:8079/apis/v1/text/streaming/generate', requestData, {
+            headers: {
+                'Content-Type': 'application/json'
+            },
+            responseType: 'stream'
+        });
 
-        streamEmitter.emit('data', modelResponse);
-        utils.sendResponse(response, 200, "application/json", {
-            success: true,
-            sessionId: newSessionId,
-            data: cache[newSessionId].data,
-            end: cache[newSessionId].end || false
+        llmRes.data.on('data', chunk => {
+            const lines = chunk.toString().split('\n');
+            lines.forEach(line => {
+                if (line.startsWith('data: ')) {
+                    const jsonData = line.slice(6); // Elimina "data: "
+                    if (jsonData.trim()) {
+                        try {
+                            const parsedData = JSON.parse(jsonData);
+                            if (parsedData.sessionId) {
+                                requestData.sessionId = parsedData.sessionId;
+                                cache[parsedData.sessionId] = { data: '', lastSentIndex: 0 };
+                            } else {
+                                response.write(`data: ${jsonData}\n\n`);
+                                if (requestData.sessionId) {
+                                    cache[requestData.sessionId].data += jsonData;
+                                }
+                            }
+                        } catch (err) {
+                            response.write(`data: ${jsonData}\n\n`);
+                            if (requestData.sessionId) {
+                                cache[requestData.sessionId].data += jsonData;
+                            }
+                        }
+                    }
+                } else if (line.trim()) {
+                    response.write(`data: ${line}\n\n`);
+                    if (requestData.sessionId) {
+                        cache[requestData.sessionId].data += line;
+                    }
+                }
+            });
         });
+
+        llmRes.data.on('end', () => {
+            if (requestData.sessionId) {
+                const finalMessage = cache[requestData.sessionId].data;
+                cache[requestData.sessionId].end = true;
+                response.write(`event: complete\ndata: ${JSON.stringify({ message: finalMessage })}\n\n`);
+            }
+            response.write('event: end\ndata: {}\n\n');
+            response.end();
+        });
+
+        llmRes.data.on('close', () => {
+            if (requestData.sessionId) {
+                cache[requestData.sessionId].end = true;
+            }
+            response.end();
+        });
+
     } catch (error) {
-        delete cache[newSessionId];
-        utils.sendResponse(response, error.statusCode || 500, "application/json", {
-            success: false,
-            message: error.message
-        });
+        console.error(error);
+        utils.sendResponse(response, 500, "application/json", { success: false, message: error.message });
     }
 }
+
 async function getImageResponse(request, response) {
     try {
         const modelResponse = await sendRequest(`/apis/v1/image/generate`, "POST", request, response);
@@ -133,6 +180,7 @@ async function getImageResponse(request, response) {
         });
     }
 }
+
 async function editImage(request, response) {
     try {
         const modelResponse = await sendRequest(`/apis/v1/image/edit`, "POST", request, response);
@@ -147,6 +195,7 @@ async function editImage(request, response) {
         });
     }
 }
+
 async function getImageVariants(request, response) {
     try {
         const modelResponse = await sendRequest(`/apis/v1/image/variants`, "POST", request, response);
@@ -161,6 +210,7 @@ async function getImageVariants(request, response) {
         });
     }
 }
+
 async function getVideoResponse(request, response) {
     try {
         const modelResponse = await sendRequest(`/apis/v1/video/generate`, "POST", request, response);
@@ -175,6 +225,7 @@ async function getVideoResponse(request, response) {
         });
     }
 }
+
 async function getAudioResponse(request, response) {
     try {
         const modelResponse = await sendRequest(`/apis/v1/audio/generate`, "POST", request, response);
@@ -189,6 +240,7 @@ async function getAudioResponse(request, response) {
         });
     }
 }
+
 module.exports = {
     getTextResponse,
     getTextStreamingResponse,

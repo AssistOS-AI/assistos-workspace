@@ -84,6 +84,11 @@
             "presenterClassName": "MlIDEPage"
         },
         {
+            "name": "llm-playground-page",
+            "type": "pages",
+            "presenterClassName": "LLMPlaygroundPage"
+        },
+        {
             "name": "space-configs-page",
             "type": "pages",
             "presenterClassName": "SpaceConfigsPage"
