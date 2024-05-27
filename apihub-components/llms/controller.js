@@ -66,35 +66,9 @@ async function getTextResponse(request, response) {
 
 async function getTextStreamingResponse(request, response) {
     const requestData = { ...request.body };
-    const sessionId = requestData.sessionId || null;
+    let sessionId = requestData.sessionId || null;
     const APIKeyObj = await secrets.getModelAPIKey(request.params.spaceId, LLMMap[request.body.modelName]);
     requestData.APIKey = APIKeyObj.value;
-
-    if (sessionId && cache[sessionId]) {
-        const sessionData = cache[sessionId];
-        const newData = sessionData.data.slice(sessionData.lastSentIndex);
-        sessionData.lastSentIndex = sessionData.data.length;
-        const isEnd = sessionData.end || false;
-
-        if (isEnd) {
-            delete cache[sessionId];
-        }
-
-        response.setHeader('Content-Type', 'text/event-stream');
-        response.setHeader('Cache-Control', 'no-cache');
-        response.setHeader('Connection', 'keep-alive');
-
-        if (newData) {
-            response.write(`data: ${newData}\n\n`);
-        }
-
-        if (isEnd) {
-            response.write('event: end\ndata: {}\n\n');
-            response.end();
-        }
-
-        return;
-    }
 
     response.writeHead(200, {
         'Content-Type': 'text/event-stream',
@@ -111,58 +85,41 @@ async function getTextStreamingResponse(request, response) {
         });
 
         llmRes.data.on('data', chunk => {
-            const lines = chunk.toString().split('\n');
-            lines.forEach(line => {
-                if (line.startsWith('data: ')) {
-                    const jsonData = line.slice(6); // Elimina "data: "
-                    if (jsonData.trim()) {
-                        try {
-                            const parsedData = JSON.parse(jsonData);
-                            if (parsedData.sessionId) {
-                                requestData.sessionId = parsedData.sessionId;
-                                cache[parsedData.sessionId] = { data: '', lastSentIndex: 0 };
-                            } else {
-                                response.write(`data: ${jsonData}\n\n`);
-                                if (requestData.sessionId) {
-                                    cache[requestData.sessionId].data += jsonData;
-                                }
-                            }
-                        } catch (err) {
-                            response.write(`data: ${jsonData}\n\n`);
-                            if (requestData.sessionId) {
-                                cache[requestData.sessionId].data += jsonData;
-                            }
-                        }
+            try {
+                const dataStr = chunk.toString();
+                if (dataStr.startsWith('data:')) {
+                    const dataObj = JSON.parse(dataStr.slice(5));
+                    if (dataObj.sessionId && !sessionId) {
+                        sessionId = dataObj.sessionId;
+                        cache[sessionId] = { data: "", lastSentIndex: 0, end: false };
+                        response.write(`data: ${JSON.stringify({ sessionId })}\n\n`);
                     }
-                } else if (line.trim()) {
-                    response.write(`data: ${line}\n\n`);
-                    if (requestData.sessionId) {
-                        cache[requestData.sessionId].data += line;
+                    if (dataObj.message) {
+                        cache[sessionId].data += dataObj.message;
+                        response.write(`data: ${JSON.stringify({ message: dataObj.message })}\n\n`);
                     }
                 }
-            });
+            } catch (err) {
+                console.error('Failed to parse JSON:', err);
+            }
         });
 
         llmRes.data.on('end', () => {
-            if (requestData.sessionId) {
-                const finalMessage = cache[requestData.sessionId].data;
-                cache[requestData.sessionId].end = true;
-                response.write(`event: complete\ndata: ${JSON.stringify({ message: finalMessage })}\n\n`);
+            if (sessionId) {
+                const finalMessage = cache[sessionId].data;
+                cache[sessionId].end = true;
+                response.write(`event: end\ndata: {}\n\n`);
+                response.end();
+                delete cache[sessionId];
             }
-            response.write('event: end\ndata: {}\n\n');
-            response.end();
-        });
-
-        llmRes.data.on('close', () => {
-            if (requestData.sessionId) {
-                cache[requestData.sessionId].end = true;
-            }
-            response.end();
         });
 
     } catch (error) {
         console.error(error);
-        utils.sendResponse(response, 500, "application/json", { success: false, message: error.message });
+        if (!response.headersSent) {
+            response.writeHead(500, { 'Content-Type': 'application/json' });
+        }
+        response.end(JSON.stringify({ success: false, message: error.message }));
     }
 }
 
