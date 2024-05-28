@@ -62,6 +62,7 @@ async function getTextResponse(request, response) {
     }
 }
 
+
 async function getTextStreamingResponse(request, response) {
     const requestData = { ...request.body };
     let sessionId = requestData.sessionId || null;
@@ -85,18 +86,42 @@ async function getTextStreamingResponse(request, response) {
         llmRes.data.on('data', chunk => {
             try {
                 const dataStr = chunk.toString();
-                if (dataStr.startsWith('data:')) {
-                    const dataObj = JSON.parse(dataStr.slice(5));
-                    if (dataObj.sessionId && !sessionId) {
-                        sessionId = dataObj.sessionId;
-                        cache[sessionId] = { data: "", lastSentIndex: 0, end: false };
-                        response.write(`data: ${JSON.stringify({ sessionId })}\n\n`);
+                const lines = dataStr.split('\n');
+                let eventName = null;
+                let eventData = '';
+
+                lines.forEach(line => {
+                    if (line.startsWith('event:')) {
+                        eventName = line.replace('event: ', '').trim();
+                    } else if (line.startsWith('data:')) {
+                        eventData += line.replace('data: ', '').trim();
+                    } else if (line.trim() === '') {
+                        if (eventData) {
+                            const dataObj = JSON.parse(eventData);
+
+                            if (eventName === 'beginSession' && dataObj.sessionId && !sessionId) {
+                                sessionId = dataObj.sessionId;
+                                cache[sessionId] = { data: "", lastSentIndex: 0, end: false };
+                                response.write(`event: beginSession\ndata: ${JSON.stringify({ sessionId })}\n\n`);
+                            } else if (eventName === 'end') {
+                                if (sessionId) {
+                                    cache[sessionId].end = true;
+                                    response.write(`event: end\ndata: ${JSON.stringify({ fullResponse: dataObj.fullResponse, metadata: dataObj.metadata })}\n\n`);
+                                    response.end();
+                                    delete cache[sessionId];
+                                }
+                            } else {
+                                if (dataObj.message) {
+                                    cache[sessionId].data += dataObj.message;
+                                    response.write(`data: ${JSON.stringify({ message: dataObj.message })}\n\n`);
+                                }
+                            }
+
+                            eventName = null;
+                            eventData = '';
+                        }
                     }
-                    if (dataObj.message) {
-                        cache[sessionId].data += dataObj.message;
-                        response.write(`data: ${JSON.stringify({ message: dataObj.message })}\n\n`);
-                    }
-                }
+                });
             } catch (err) {
                 console.error('Failed to parse JSON:', err);
             }
@@ -104,7 +129,6 @@ async function getTextStreamingResponse(request, response) {
 
         llmRes.data.on('end', () => {
             if (sessionId) {
-                const finalMessage = cache[sessionId].data;
                 cache[sessionId].end = true;
                 response.write(`event: end\ndata: {}\n\n`);
                 response.end();

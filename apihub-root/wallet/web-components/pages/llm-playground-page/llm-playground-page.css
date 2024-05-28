@@ -4,6 +4,9 @@
     height: 100px;
     margin-bottom: 10px;
 }
+#result {
+    height:1000px;
+}
 #controls {
     margin-bottom: 10px;
 }

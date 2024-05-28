@@ -45,49 +45,56 @@ export class LLMPlaygroundPage {
                 return;
             }
 
-            const data = await response.json();
-            this.sessionId = data.sessionId;
+            const reader = response.body.getReader();
+            const decoder = new TextDecoder("utf-8");
+            let buffer = '';
 
-            this.eventSource = new EventSource(`/apis/v1/spaces/${assistOS.space.id}/llms/text/streaming/generate?sessionId=${this.sessionId}`, {
-                withCredentials: true
-            });
+            while (true) {
+                const { done, value } = await reader.read();
+                if (done) break;
+                buffer += decoder.decode(value, { stream: true });
+                let lines = buffer.split("\n");
 
-            this.eventSource.onmessage = (event) => {
-                const resultContainer = this.element.querySelector('#result');
-                try {
-                    const dataStr = event.data.replace(/^data:\s*/, '');
-                    const json = JSON.parse(dataStr);
-                    if (json.sessionId) {
-                        this.sessionId = json.sessionId;
+                buffer = lines.pop();
+
+                for (let line of lines) {
+                    if (line.startsWith("event:")) {
+                        const eventName = line.replace("event:", "").trim();
+                        lines.shift();
+                        const eventData = lines.shift().replace("data:", "").trim();
+                        this.handleEvent({ type: eventName, data: eventData });
+                    } else if (line.startsWith("data:")) {
+                        const eventData = line.replace("data:", "").trim();
+                        this.handleEvent({ type: "message", data: eventData });
                     }
-                    if (json.message) {
-                        resultContainer.innerHTML += `<p>${json.message}</p>`;
-                    }
-                } catch (e) {
-                    console.error('Failed to parse event data:', e);
                 }
-            };
+            }
 
-            this.eventSource.addEventListener('end', (event) => {
-                const resultContainer = this.element.querySelector('#result');
-                try {
-                    const dataStr = event.data.replace(/^data:\s*/, '');
-                    const json = JSON.parse(dataStr);
-                    resultContainer.innerHTML += `<p>Complete: ${json.message}</p>`;
-                } catch (e) {
-                    console.error('Failed to parse complete event data:', e);
-                }
-                this.eventSource.close();
-            });
+            if (buffer.trim()) {
+                this.handleEvent({ type: "message", data: buffer.trim() });
+            }
 
-            this.eventSource.onerror = (error) => {
-                this.eventSource.close();
-                console.error('EventSource error:', error);
-                alert('Error occurred. Check the console for more details.');
-            };
         } catch (error) {
             console.error('Failed to fetch:', error);
             alert('Error occurred. Check the console for more details.');
+        }
+    }
+
+    handleEvent(event) {
+        const resultContainer = this.element.querySelector('#result');
+        try {
+            const json = JSON.parse(event.data);
+            if (json.sessionId) {
+                this.sessionId = json.sessionId;
+            }
+            if (json.message) {
+                resultContainer.innerHTML += `${json.message}`;
+            }
+       /*     if (event.type === 'end') {
+                resultContainer.innerHTML += `<p>Complete: ${json.fullResponse || 'No final message'}</p>`;
+            }*/
+        } catch (e) {
+            console.error('Failed to parse event data:', e);
         }
     }
 
