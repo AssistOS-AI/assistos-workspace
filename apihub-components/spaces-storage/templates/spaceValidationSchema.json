@@ -102,6 +102,7 @@
     "settings",
     "announcements",
     "users",
-    "installedApplications"
+    "installedApplications",
+    "defaultSpaceAgent"
   ]
 }

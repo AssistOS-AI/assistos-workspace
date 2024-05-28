@@ -6,6 +6,7 @@ const spaceModule = require('assistos').loadModule('space', {});
 const applicationModule = require('assistos').loadModule('application', {});
 const agentModule = require('assistos').loadModule('personality', {});
 const flowModule = require('assistos').loadModule('flow', {});
+const personalityModule=require('assistos').loadModule('personality',{})
 class AssistOS {
     constructor(configuration) {
         if (AssistOS.instance) {
@@ -125,7 +126,7 @@ class AssistOS {
         window.location = "";
     }
 
-    async initUser(spaceId, agentId) {
+    async initUser(spaceId) {
         assistOS.user = await userModule.loadUser();
         assistOS.space = new spaceModule.Space(await spaceModule.loadSpace(spaceId));
         const appsData = await applicationModule.loadApplicationsMetadata(assistOS.space.id);
@@ -133,14 +134,15 @@ class AssistOS {
             assistOS.applications[application.name] = application;
         });
         assistOS.currentApplicationName = this.configuration.defaultApplicationName;
+        await assistOS.loadAgent(assistOS.space.id);
         await assistOS.space.loadFlows();
-        // await assistOS.loadAgent(spaceId,agentId);
 
     }
 
-    async loadAgent(spaceId, agentId) {
-        const personalityData = await agentModule.getAgent(spaceId, agentId);
-        assistOS.agent = new dependencies.Personality(personalityData);
+    async loadAgent(spaceId) {
+        const personalityData = await agentModule.getAgent(spaceId);
+        debugger
+        assistOS.agent = new personalityModule.models.personality(personalityData);
     }
 
     async changeAgent(agentId) {
@@ -169,7 +171,7 @@ class AssistOS {
                 await assistOS.UI.changeToDynamicPage("space-configs-page", `${assistOS.space.id}/Space/announcements-page`);
             }
         };
-        let {spaceIdURL, agentId, applicationName, applicationLocation} = getURLData(window.location.hash);
+        let {spaceIdURL,  applicationName, applicationLocation} = getURLData(window.location.hash);
         spaceId = spaceId ? spaceId : spaceIdURL;
         if (spaceId === "authentication-page" && skipAuth) {
             spaceId = undefined;
@@ -181,7 +183,7 @@ class AssistOS {
         }
 
         try {
-            await (spaceId ? skipSpace ? assistOS.initUser(undefined, agentId) : assistOS.initUser(spaceId) : assistOS.initUser(undefined, agentId));
+            await (spaceId ? skipSpace ? assistOS.initUser() : assistOS.initUser(spaceId) : assistOS.initUser());
             await initPage();
         } catch (error) {
             console.error(error);
@@ -194,9 +196,9 @@ class AssistOS {
         await this.loadifyFunction(spaceModule.inviteSpaceCollaborators, assistOS.space.id, collaboratorEmails);
     }
 
-    async callFlow(flowName, context, personalityId) {
+   /* async callFlow(flowName, context, personalityId) {
         return await flowModule.callFlow(assistOS.space.id, flowName, context, personalityId);
-    }
+    }*/
 
     async loadifyFunction(asyncFunc, ...args) {
         await this.openLoader();
@@ -280,7 +282,6 @@ function getURLData(url) {
     let URLParts = url.slice(1).split('/');
     return {
         spaceIdURL: URLParts[0],
-        //agentId: URLParts[1],
         applicationName: URLParts[1],
         applicationLocation: URLParts.slice(2)
     }

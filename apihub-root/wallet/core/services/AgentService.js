@@ -26,10 +26,11 @@ export class AgentService {
 
     async analyzeRequest(request, notifyUIFn) {
         //await this.summarizeConversation();
-        let applicationObjects = await assistOS.callFlow("FindObjectsByValue", {});
 
+        //let applicationObjects = await assistOS.callFlow("FindObjectsByValue", {});
+        debugger
         let agent = assistOS.agent
-        let result = await assistOS.callFlow("DeduceIntention", {
+        let result = await agent.callFlow("DeduceIntention", {
             request: request
         });
         await agent.addMessage("user", request);

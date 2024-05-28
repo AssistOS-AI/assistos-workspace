@@ -376,7 +376,7 @@ async function getEmbeddedObject(request, response) {
 
         let embeddedObjectRecord = await $$.promisify(lightDBEnclaveClient.getRecord)($$.SYSTEM_IDENTIFIER, tableId, objectId);
         let embeddedObject;
-        if(propertyName){
+        if (propertyName) {
             embeddedObject = embeddedObjectRecord.data[propertyName];
         } else {
             embeddedObject = await constructEmbeddedObject(lightDBEnclaveClient, tableId, embeddedObjectRecord);
@@ -466,10 +466,9 @@ async function updateEmbeddedObject(request, response) {
             let object = record.data;
             object[propertyName] = objectData;
             await $$.promisify(lightDBEnclaveClient.updateRecord)($$.SYSTEM_IDENTIFIER, tableId, objectId, {data: object});
-            if(segments.length === 2){
+            if (segments.length === 2) {
                 subscribersModule.notifySubscribers(spaceId, request.userId, tableId, propertyName);
-            }
-            else {
+            } else {
                 subscribersModule.notifySubscribers(spaceId, request.userId, tableId, objectId);
             }
         } else {
@@ -590,10 +589,11 @@ async function addSpaceChatMessage(request, response) {
     const userId = request.userId;
     const messageData = request.body;
     try {
-        await space.APIs.addSpaceChatMessage(spaceId, userId, messageData);
+        const messageId = await space.APIs.addSpaceChatMessage(spaceId, userId, "user", messageData);
         utils.sendResponse(response, 200, "application/json", {
             success: true,
-            message: `Message added successfully`
+            message: `Message added successfully`,
+            data: {messageId: messageId}
         });
     } catch (error) {
         utils.sendResponse(response, 500, "application/json", {
@@ -726,8 +726,29 @@ async function addCollaboratorsToSpace(request, response) {
 }
 
 async function getAgent(request, response) {
-    const agentId = request.params.agentId;
-    const agent = user.APIs.getUserActiveAgentId(agentId);
+    let agentId = request.params.agentId;
+    const spaceId = request.params.spaceId;
+    const userId = request.userId;
+    if (!agentId) {
+        agentId = await user.APIs.getUserPrivateChatAgentId(userId, spaceId)
+    }
+    if (!agentId) {
+        agentId = await space.APIs.getDefaultSpaceAgentId(spaceId)
+    }
+    try {
+        const agent = await space.APIs.getSpaceAgent(spaceId,agentId)
+        utils.sendResponse(response,200,"application/json",{
+            message:"Success retrieving Agent",
+            success:true,
+            data:agent
+        })
+    }catch(error){
+        utils.sendResponse(response,error.statusCode,"application/json",{
+            message:"Error retrieving Agent",
+            success:false,
+            data:error.message
+        })
+    }
 }
 
 async function acceptSpaceInvitation(request, response) {
@@ -772,7 +793,7 @@ async function editAPIKey(request, response) {
     }
     const userId = request.userId;
     try {
-        await space.APIs.editAPIKey(spaceId, userId, keyType,key);
+        await space.APIs.editAPIKey(spaceId, userId, keyType, key);
         utils.sendResponse(response, 200, "application/json", {
             message: `API Key added successfully to space ${spaceId}`,
             success: true
@@ -821,7 +842,7 @@ async function deleteAPIKey(request, response) {
         });
     }
     try {
-        await space.APIs.deleteAPIKey(spaceId,keyType);
+        await space.APIs.deleteAPIKey(spaceId, keyType);
         utils.sendResponse(response, 200, "application/json", {
             message: `API Key deleted successfully from space ${spaceId}`,
             success: true
@@ -847,6 +868,7 @@ async function deleteAPIKey(request, response) {
         });
     }
 }
+
 async function getAPIKeysMetadata(request, response) {
     const spaceId = request.params.spaceId;
     try {
@@ -862,6 +884,7 @@ async function getAPIKeysMetadata(request, response) {
         });
     }
 }
+
 module.exports = {
     acceptSpaceInvitation,
     rejectSpaceInvitation,

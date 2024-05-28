@@ -8,5 +8,6 @@
   ],
   "users": "$$admin",
   "admins": "$$admin",
+  "defaultSpaceAgent": "$$defaultSpaceAgentId",
   "installedApplications": []
 }

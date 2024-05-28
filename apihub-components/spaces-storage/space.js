@@ -142,6 +142,7 @@ async function createSpace(spaceName, userId, apiKey) {
                     joinDate: date.getCurrentUnixTime()
                 }
             },
+            defaultSpaceAgentId:"2idYvpTEKXM5",
             defaultAnnouncement: createDefaultAnnouncement(spaceName),
             creationDate:
                 date.getCurrentUTCDate()
@@ -212,17 +213,20 @@ async function getSpaceChat(spaceId) {
     return chat;
 }
 
-async function addSpaceChatMessage(spaceId, userId, messageData) {
+async function addSpaceChatMessage(spaceId, entityId, role, messageData) {
     const lightDBEnclaveClient = enclave.initialiseLightDBEnclave(spaceId);
+    const messageId = crypto.generateId();
     const tableName = `spaceChat_${spaceId}`
-    const primaryKey = `${userId}_${date.getCurrentUnixTime()}`
+    const primaryKey = `${entityId}_${date.getCurrentUnixTime()}`
     await lightDBEnclaveClient.insertRecord($$.SYSTEM_IDENTIFIER, tableName, primaryKey, {
         data: {
-            role: "user",
+            role: role,
             message: messageData,
-            user: userId
+            messageId: messageId,
+            user: entityId
         }
     })
+    return messageId
 }
 
 async function createSpaceChat(lightDBEnclaveClient, spaceId, spaceName) {
@@ -369,19 +373,37 @@ async function editAPIKey(spaceId, userId, keyType, key) {
     })
     await secrets.putSpaceKey(spaceId, keyType, apiKeyObj);
 }
+
 async function getAPIKeysMetadata(spaceId) {
     let keys = JSON.parse(JSON.stringify(await secrets.getAPIKeys(spaceId)));
-    for(let keyType in keys){
-        if(keys[keyType].value){
+    for (let keyType in keys) {
+        if (keys[keyType].value) {
             keys[keyType].value = openAI.maskKey(keys[keyType].value);
         }
     }
     return keys;
 }
+function getAgentPath(spaceId,agentId){
+    return path.join(getSpacePath(spaceId), 'personalities',`${agentId}.json`);
+}
 async function deleteAPIKey(spaceId, keyType) {
     await secrets.deleteSpaceKey(spaceId, keyType);
 }
-
+async function getSpaceAgent(spaceId,agentId){
+    try{
+        const agentPath = getAgentPath(spaceId,agentId);
+        const agentObj = JSON.parse(await fsPromises.readFile(agentPath, 'utf8'));
+        return agentObj;
+    }catch(error){
+        error.message = `Agent ${agentId} not found.`;
+        error.statusCode = 404;
+        throw error;
+    }
+}
+async function getDefaultSpaceAgentId(spaceId) {
+    const spaceStatusObject = await getSpaceStatusObject(spaceId);
+    return spaceStatusObject.defaultSpaceAgent;
+}
 module.exports = {
     APIs: {
         addAnnouncement,
@@ -399,7 +421,9 @@ module.exports = {
         getAPIKey,
         editAPIKey,
         deleteAPIKey,
-        getAPIKeysMetadata
+        getAPIKeysMetadata,
+        getSpaceAgent,
+        getDefaultSpaceAgentId
     },
     templates: {
         defaultApiKeyTemplate: require('./templates/defaultApiKeyTemplate.json'),

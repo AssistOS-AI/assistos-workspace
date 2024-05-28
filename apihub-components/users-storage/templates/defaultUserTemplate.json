@@ -2,7 +2,7 @@
   "id": "$$id",
   "name": "$$username",
   "email": "$$email",
-  "spaces": [],
+  "spaces": {},
   "currentSpaceId": "$$currentSpaceId?",
   "photo": "$$photo"
 }

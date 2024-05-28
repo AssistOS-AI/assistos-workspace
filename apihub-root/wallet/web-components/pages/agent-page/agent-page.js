@@ -1,14 +1,15 @@
-const spaceModule=require("assistos").loadModule("space", {});
+const spaceModule = require("assistos").loadModule("space", {});
+
 export class AgentPage {
     constructor(element, invalidate) {
         this.element = element;
         this.invalidate = invalidate;
-        assistOS.space.observeChange(assistOS.space.getNotificationId(),invalidate);
-        this.agent={
+        assistOS.space.observeChange(assistOS.space.getNotificationId(), invalidate);
+        this.agent = {
             conversationHistory: [],
         }
-        this.invalidate(async ()=>{
-            this.personalities= await assistOS.space.getPersonalitiesMetadata();
+        this.invalidate(async () => {
+            this.personalities = await assistOS.space.getPersonalitiesMetadata();
         });
         this.private = "selected-chat";
     }
@@ -16,18 +17,21 @@ export class AgentPage {
     beforeRender() {
         let stringHTML = "";
         for (let message of assistOS.space.chat) {
-            if ( message.role === "user") {
-                if(message.user===assistOS.user.id) {
-                    stringHTML += `<chat-unit role="own" message="${message.message}" user="${message.user}" data-presenter="chat-unit"></chat-unit>`;
-                }else {
-                    stringHTML += `<chat-unit role="user" message="${message.message}" user="${message.user}" data-presenter="chat-unit"></chat-unit>`;
+            let role;
+
+            if (message.role === "user") {
+                if (message.user === assistOS.user.id) {
+                    role = "own"
+                } else {
+                    role = "user"
                 }
             } else if (message.role === "assistant") {
-               stringHTML += `<chat-unit role="robot" message="${message.message}" user="${message.user}" data-presenter="chat-unit"></chat-unit>`;
+                role = "robot";
             }
+            stringHTML += `<chat-unit role="${role}" message="${message.message}" user="${message.user}" data-presenter="chat-unit"></chat-unit>`;
         }
         let personalitiesHTML = "";
-        for(let personality of this.personalities){
+        for (let personality of this.personalities) {
             personalitiesHTML += `<simple-unit data-local-action="swapPersonality ${personality.id}" data-name="${personality.name}" data-highlight="light-highlight"></simple-unit>`;
         }
         this.personalitiesHTML = personalitiesHTML;
@@ -41,33 +45,36 @@ export class AgentPage {
         //this.style.height = 'auto';
         //this.style.height = (this.scrollHeight) + 'px';
     }
-    inviteCollaborators(_target){
+
+    inviteCollaborators(_target) {
         assistOS.UI.showModal("add-space-collaborator-modal", {presenter: "add-space-collaborator-modal"});
     }
+
     afterRender() {
-        this.conversation=this.element.querySelector(".conversation");
+        this.conversation = this.element.querySelector(".conversation");
         this.userInput = this.element.querySelector("#input");
         this.form = this.element.querySelector(".chat-input-container");
         this.boundFn = this.preventRefreshOnEnter.bind(this, this.form);
         this.userInput.addEventListener("keydown", this.boundFn);
-  /*      this.rightPanel = document.querySelector(".current-page");
-        this.conversation = this.element.querySelector(".conversation");
-        this.userInput = this.element.querySelector("#input");
-        let form = this.element.querySelector(".chat-input-container");
-        this.userInput.removeEventListener("keydown", this.boundFn);
-        this.boundFn = this.preventRefreshOnEnter.bind(this, form);
-        this.userInput.addEventListener("keydown", this.boundFn);
-     /!*   setTimeout(async () => {
-            if (this.agent.conversationHistory.length === 0) {
-                await assistOS.services.initOpeners();
-                let message = this.agent.getRandomOpener();
-                await this.displayMessage("assistant", message);
-                await this.agent.addMessage("assistant", message);
-                await assistOS.services.addCapabilities();
-            }
-        }, 0);*!/*/
+        /*      this.rightPanel = document.querySelector(".current-page");
+              this.conversation = this.element.querySelector(".conversation");
+              this.userInput = this.element.querySelector("#input");
+              let form = this.element.querySelector(".chat-input-container");
+              this.userInput.removeEventListener("keydown", this.boundFn);
+              this.boundFn = this.preventRefreshOnEnter.bind(this, form);
+              this.userInput.addEventListener("keydown", this.boundFn);
+           /!*   setTimeout(async () => {
+                  if (this.agent.conversationHistory.length === 0) {
+                      await assistOS.services.initOpeners();
+                      let message = this.agent.getRandomOpener();
+                      await this.displayMessage("assistant", message);
+                      await this.agent.addMessage("assistant", message);
+                      await assistOS.services.addCapabilities();
+                  }
+              }, 0);*!/*/
 
     }
+
     hideSettings(controller, container, event) {
         container.setAttribute("data-local-action", "showSettings off");
         let target = this.element.querySelector(".settings-list-container");
@@ -85,13 +92,14 @@ export class AgentPage {
         }
     }
 
-    async changeLLM(_target){
-       await assistOS.UI.showModal("change-llm-modal");
+    async changeLLM(_target) {
+        await assistOS.UI.showModal("change-llm-modal");
     }
 
-    async changePersonality(_target, id){
+    async changePersonality(_target, id) {
         await assistOS.UI.showModal("change-personality-modal");
     }
+
     async displayMessage(role, text) {
         const messageHTML = `<chat-unit role="${role}" message="${text}" data-presenter="chat-unit" user="${assistOS.user.id}"></chat-unit>`;
         this.conversation.insertAdjacentHTML("beforeend", messageHTML);
@@ -99,7 +107,7 @@ export class AgentPage {
 
         const isNearBottom = this.conversation.scrollHeight - this.conversation.scrollTop < this.conversation.clientHeight + 100;
         if (isNearBottom) {
-            lastReplyElement.scrollIntoView({ behavior: "smooth", block: "nearest" });
+            lastReplyElement.scrollIntoView({behavior: "smooth", block: "nearest"});
         }
     }
 
@@ -112,7 +120,7 @@ export class AgentPage {
                 await this.sendMessage(form);
                 this.userInput.style.height = "50px";
                 form.style.height = "auto";
-                this.userInput.scrollIntoView({ behavior: "smooth", block: "end" });
+                this.userInput.scrollIntoView({behavior: "smooth", block: "end"});
             } else {
                 this.userInput.value += '\n';
                 this.userInput.style.height = `${this.userInput.scrollHeight}px`;
@@ -125,25 +133,28 @@ export class AgentPage {
         let formInfo = await assistOS.UI.extractFormInformation(_target);
         let userMessage = assistOS.UI.sanitize(assistOS.UI.customTrim(formInfo.data.input));
         formInfo.elements.input.element.value = "";
-        if (userMessage === "" || userMessage === null || userMessage === undefined) {
+
+        if (!userMessage.trim()) {
             return;
         }
-        await spaceModule.addSpaceChatMessage(assistOS.space.id, userMessage)
+        debugger
+        const messageId = (await spaceModule.addSpaceChatMessage(assistOS.space.id, userMessage)).messageId
 
         await this.displayMessage("own", userMessage);
 
         let agentMessage;
         try {
             agentMessage = await assistOS.services.analyzeRequest(formInfo.data.input, this.refreshRightPanel.bind(this));
-        }catch (e) {
+        } catch (e) {
+            debugger
             console.error(e);
-            agentMessage = "I am sorry, something went wrong while analyzing your request. Please try again.";
         }
+
         await this.displayMessage("assistant", agentMessage);
         await this.agent.addMessage("assistant", agentMessage);
     }
 
-    refreshRightPanel(){
+    refreshRightPanel() {
         let parentComponent = assistOS.UI.getClosestParentElement(this.element, "space-configs-page");
         let rightPanel = parentComponent.querySelector(".current-page");
         assistOS.UI.refreshElement(rightPanel);
@@ -153,32 +164,31 @@ export class AgentPage {
         await assistOS.services.resetConversation();
         this.invalidate();
     }
-    uploadFile(_target){
+
+    uploadFile(_target) {
         let fileInput = this.element.querySelector(".file-input");
         fileInput.click();
     }
-    swapChat(_target, mode){
+
+    swapChat(_target, mode) {
         const selectedChat = this.element.querySelector(".selected-chat");
-        if(mode === selectedChat.getAttribute("id")){
+        if (mode === selectedChat.getAttribute("id")) {
             return;
         }
         switch (mode) {
-            case "private":
-            {
+            case "private": {
                 this.private = "selected-chat";
                 this.shared = "";
                 this.chat = "";
                 break;
             }
-            case "shared":
-            {
+            case "shared": {
                 this.private = "";
                 this.shared = "selected-chat";
                 this.chat = "";
                 break;
             }
-            default:
-            {
+            default: {
                 this.private = "";
                 this.shared = "";
                 this.chat = "selected-chat";

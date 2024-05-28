@@ -70,7 +70,7 @@ async function createUser(username, email, photo, withDefaultSpace = false) {
         if (withDefaultSpace) {
             const createdSpaceId = (await Space.APIs.createSpace(spaceName, userId)).id;
             user.currentSpaceId = createdSpaceId
-            user.spaces.push(createdSpaceId);
+            user.spaces[createdSpaceId]={};
         }
         await updateUserFile(userId, user)
         return user;
@@ -158,10 +158,11 @@ async function getUserData(userId) {
     const Space = require('../spaces-storage/space.js');
     const userFile = await getUserFile(userId)
     const spacesMap = await Space.APIs.getSpaceMap();
-    userFile.spaces = userFile.spaces.map(space => {
+    userFile.spaces=Object.keys(userFile.spaces).map(spaceId => {
         return {
-            name: spacesMap[space],
-            id: space
+            name: spacesMap[spaceId],
+            id: spaceId,
+            data:userFile.spaces[spaceId]
         };
     });
     return userFile;
@@ -181,12 +182,12 @@ async function getUserIdByEmail(email) {
 async function linkSpaceToUser(userId, spaceId) {
     const userFile = await getUserFile(userId)
 
-    if (userFile.spaces.some(space => space.id === spaceId)) {
+    if (userFile.spaces[spaceId]) {
         const error = new Error(`Space ${spaceId} is already linked to user ${userId}.`);
         error.statusCode = 400;
         throw error;
     }
-    userFile.spaces.push(spaceId);
+    userFile.spaces[spaceId]={};
     userFile.currentSpaceId = spaceId;
     await updateUserFile(userId, userFile);
 
@@ -479,7 +480,17 @@ async function getSpaceInvitationErrorHTML(error) {
             redirectURL: redirectURL
         });
 }
-
+async function getUserPrivateChatAgentId(userId,spaceId){
+    const userFile = await getUserFile(userId);
+    if(userFile.spaces[spaceId].privateChatAgentId){
+        return userFile.spaces[spaceId].privateChatAgentId;
+    }else{
+        const defaultSpaceAgentId= await Space.APIs.getDefaultSpaceAgentId(spaceId);
+        userFile.spaces[spaceId].privateChatAgentId=defaultSpaceAgentId;
+        await updateUserFile(userId,userFile);
+        return defaultSpaceAgentId;
+    }
+}
 module.exports = {
     APIs: {
         registerUser,
@@ -500,7 +511,8 @@ module.exports = {
         acceptSpaceInvitation,
         rejectSpaceInvitation,
         getSpaceInvitationErrorHTML,
-        getUserFile
+        getUserFile,
+        getUserPrivateChatAgentId
     },
     templates: {
         userRegistrationTemplate: require('./templates/userRegistrationTemplate.json'),
