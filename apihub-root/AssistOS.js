@@ -141,7 +141,6 @@ class AssistOS {
 
     async loadAgent(spaceId) {
         const personalityData = await agentModule.getAgent(spaceId);
-        debugger
         assistOS.agent = new personalityModule.models.personality(personalityData);
     }
 

@@ -137,7 +137,6 @@ export class AgentPage {
         if (!userMessage.trim()) {
             return;
         }
-        debugger
         const messageId = (await spaceModule.addSpaceChatMessage(assistOS.space.id, userMessage)).messageId
 
         await this.displayMessage("own", userMessage);
@@ -146,7 +145,6 @@ export class AgentPage {
         try {
             agentMessage = await assistOS.services.analyzeRequest(formInfo.data.input, this.refreshRightPanel.bind(this));
         } catch (e) {
-            debugger
             console.error(e);
         }
 

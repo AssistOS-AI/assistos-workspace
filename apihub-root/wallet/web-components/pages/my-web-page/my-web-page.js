@@ -24,7 +24,6 @@ export class MyWebPage {
 
     afterRender() {
         this.element.querySelector("#pages").addEventListener("change", (event) => {
-            debugger;
             this.selectedPageId = event.target.value;
             this.textAreaValue = assistOS.space.pages.find((page) => {
                 return page.id === this.selectedPageId;

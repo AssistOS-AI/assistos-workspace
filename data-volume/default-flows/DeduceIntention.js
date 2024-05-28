@@ -1,7 +1,7 @@
 class DeduceIntention {
     static description = "Deduces the intention of the user when speaking to an agent";
     async start(context) {
-        let agent = assistOS.space.getAgent();
+        let agent = assistOS.agent;
         let flows = assistOS.space.getAllFlows();
         let agentFlows = flows.filter((flow) => {
             if(flow.inputSchema){
