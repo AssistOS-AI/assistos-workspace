@@ -178,6 +178,11 @@ export class SpaceChapterUnit {
         paragraphsContainer.classList.toggle('hidden');
         _target.classList.toggle('rotate');
     }
+    openPersonalitiesPopUp(_target){
+        let paragraphUnit = assistOS.UI.reverseQuerySelector(_target, 'space-paragraph-unit');
+        let personalitiesPopUp = `<text-to-speech-unit data-presenter="select-personality-tts"></text-to-speech-unit>`;
+        paragraphUnit.insertAdjacentHTML('beforeend', personalitiesPopUp);
+    }
 }
 
 

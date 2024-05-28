@@ -4,6 +4,7 @@ const secrets = require("../apihub-component-utils/secrets");
 const axios = require('axios');
 const LLMMap = require("./[MAP]LLMs.json");
 const cache = {};
+const { pipeline } = require('stream');
 
 async function sendRequest(url, method, request, response) {
     const spaceId = request.params.spaceId;
@@ -18,7 +19,6 @@ async function sendRequest(url, method, request, response) {
     }
     let body = Object.assign({}, request.body);
     body.APIKey = APIKeyObj.value;
-
     let result;
     let init = {
         method: method,
@@ -194,6 +194,7 @@ async function getVideoResponse(request, response) {
             success: true,
             data: modelResponse
         });
+        modelResponse.body.pipe(response);
     } catch (error) {
         utils.sendResponse(response, error.statusCode || 500, "application/json", {
             success: false,
@@ -201,12 +202,38 @@ async function getVideoResponse(request, response) {
         });
     }
 }
+
 async function getAudioResponse(request, response) {
     try {
-        const modelResponse = await sendRequest(`/apis/v1/audio/generate`, "POST", request, response);
-        utils.sendResponse(response, 200, "application/json", {
+        const modelResponse = await fetch(`http://localhost:8079/apis/v1/audio/generate`, {
+            method: "POST",
+            headers: {
+                "content-type": "application/json",
+            },
+            body: JSON.stringify(request.body)
+        });
+        await $$.promisify(pipeline)(modelResponse.body, response);
+
+    } catch (error) {
+        utils.sendResponse(response, error.statusCode || 500, "application/json", {
+            success: false,
+            message: error.message
+        });
+    }
+}
+async function listVoicesAndEmotions(request, response) {
+    try {
+        let result = await fetch(`http://localhost:8079/apis/v1/audio/listVoicesAndEmotions`, {
+            method: "POST",
+            headers: {
+                "content-type": "application/json",
+            },
+            body: JSON.stringify(request.body)
+        });
+        let configs = await result.json();
+        return utils.sendResponse(response, 200, "application/json", {
             success: true,
-            data: modelResponse
+            data: configs.data
         });
     } catch (error) {
         utils.sendResponse(response, error.statusCode || 500, "application/json", {
@@ -222,5 +249,6 @@ module.exports = {
     editImage,
     getImageVariants,
     getVideoResponse,
-    getAudioResponse
+    getAudioResponse,
+    listVoicesAndEmotions
 };

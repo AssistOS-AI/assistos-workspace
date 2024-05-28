@@ -1,0 +1,39 @@
+<form class="tts-unit">
+    <button type="button" class="close" data-local-action="closePopup" aria-label="Close">
+        <span aria-hidden="true">&times;</span>
+    </button>
+    <div class="form-item">
+        <label for="personality">Select Personality</label>
+        <select id="personality" name="personality" required>
+            <option disabled selected value="">Select Personality</option>
+            $$personalitiesHTML
+        </select>
+    </div>
+    <div class="form-item">
+        <label for="voice">Select Voice</label>
+        <select id="voice" name="voice" required>
+            <option disabled selected value="">Select Voice</option>
+            $$voicesHTML
+        </select>
+    </div>
+    <div class="form-item">
+        <label for="emotion">Select Emotion</label>
+        <select id="emotion" name="emotion" required>
+            <option disabled selected value="">Select Emotion</option>
+            $$emotionsHTML
+        </select>
+    </div>
+    <div class="form-item">
+        <label for="styleGuidance">Emotion Intensity</label>
+        <input type="range" name="styleGuidance" id="styleGuidance" min="0" max="30" value="15">
+    </div>
+    <div>
+        <button class="general-button" data-local-action="textToSpeech">Generate audio</button>
+    </div>
+</form>
+<div class="audio-section hidden">
+    <audio class="generated-audio" controls>
+        <source class="audio-source" src="" type="audio/mpeg">
+    </audio>
+    <button class="general-button" data-local-action="downloadAudio">Download Audio</button>
+</div>

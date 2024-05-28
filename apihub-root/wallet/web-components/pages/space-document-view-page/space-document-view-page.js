@@ -39,7 +39,6 @@ export class SpaceDocumentViewPage {
         this.boundedFn = this.highlightElement.bind(this, this.controller);
         document.removeEventListener("click", this.boundedFn);
         document.addEventListener("click", this.boundedFn, {signal: this.controller.signal});
-        assistOS.UI.setLoading("");
     }
     beforeRender() {
         this.chaptersContainer = "";

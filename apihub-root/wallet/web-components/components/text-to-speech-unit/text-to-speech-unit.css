@@ -1,0 +1,17 @@
+text-to-speech-unit{
+    position: absolute;
+    top: 0;
+    right: 0;
+    background-color: var(--white);
+    padding: 10px;
+}
+.tts-unit{
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+}
+.visible-section{
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+}

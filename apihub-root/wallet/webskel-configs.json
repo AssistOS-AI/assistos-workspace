@@ -4,6 +4,11 @@
     "services": [],
     "components": [
         {
+            "name": "text-to-speech-unit",
+            "type": "components",
+            "presenterClassName": "TextToSpeechUnit"
+        },
+        {
             "name": "generate-image-page",
             "type": "pages",
             "presenterClassName": "GenerateImagePage"

@@ -1,6 +1,7 @@
 const constants = require("assistos").constants;
 const spaceAPIs = require("assistos").loadModule("space", {});
 const {notificationService} = require("assistos").loadModule("util", {});
+const llmModule = require("assistos").loadModule("llm", {});
 export class EditPersonalityPage{
     constructor(element,invalidate) {
         this.element = element;
@@ -39,6 +40,12 @@ export class EditPersonalityPage{
             string+= `<div class="fact">${fact}</div>`;
         }
         this.filteredKnowledge = string;
+
+        // let llmOptions = `<option value="" disabled selected hidden>Select LLM</option>`;
+        // for(let llm of llmModule.models){
+        //     llmOptions += `<option value="${llm.id}">${llm.name}</option>`;
+        // }
+        // this.llmOptions = llmOptions;
     }
     preventRefreshOnEnter(event){
         if(event.key === "Enter"){
