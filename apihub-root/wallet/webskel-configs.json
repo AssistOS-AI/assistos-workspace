@@ -62,7 +62,8 @@
         },
         {
             "name": "space-paragraph-unit",
-            "type": "components"
+            "type": "components",
+            "presenterClassName": "SpaceParagraphUnit"
         },
         {
             "name": "space-document-unit",

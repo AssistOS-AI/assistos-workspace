@@ -40,7 +40,7 @@ export class SpaceChapterUnit {
         let iterator = 0;
         this.chapter.paragraphs.forEach((paragraph) => {
             iterator++;
-            this.chapterContent += `<space-paragraph-unit data-paragraph-content="${paragraph.text}" data-metadata="paragraph nr. ${iterator} with id ${paragraph.id}" data-paragraph-id="${paragraph.id}"></space-paragraph-unit>`;
+            this.chapterContent += `<space-paragraph-unit data-presenter="space-paragraph-unit" data-metadata="paragraph nr. ${iterator} with id ${paragraph.id}" data-paragraph-id="${paragraph.id}" data-chapter-id="${this.chapter.id}"></space-paragraph-unit>`;
         });
     }
     subscribeToChapterEvents(){
@@ -50,15 +50,8 @@ export class SpaceChapterUnit {
         notificationService.on(this.chapter.id, ()=>{
             this.invalidate(this.refreshChapter);
         });
-
-        for(let paragraph of this.chapter.paragraphs){
-            notificationService.on(paragraph.id, ()=>{
-                this.invalidate(this.refreshParagraph(paragraph.id));
-            });
-        }
     }
     afterRender() {
-
         this.chapterUnit = this.element.querySelector(".chapter-unit");
         let selectedParagraphs = this.element.querySelectorAll(".paragraph-text");
         let currentParagraph = "";
@@ -177,11 +170,6 @@ export class SpaceChapterUnit {
         let paragraphsContainer = this.element.querySelector(".chapter-paragraphs");
         paragraphsContainer.classList.toggle('hidden');
         _target.classList.toggle('rotate');
-    }
-    openPersonalitiesPopUp(_target){
-        let paragraphUnit = assistOS.UI.reverseQuerySelector(_target, 'space-paragraph-unit');
-        let personalitiesPopUp = `<text-to-speech-unit data-presenter="select-personality-tts"></text-to-speech-unit>`;
-        paragraphUnit.insertAdjacentHTML('beforeend', personalitiesPopUp);
     }
 }
 

@@ -114,9 +114,9 @@ export class SpaceDocumentViewPage {
             this.switchParagraphArrows(paragraphUnit, "on");
             let currentParagraphId = paragraphUnit.getAttribute("data-paragraph-id");
             assistOS.space.currentParagraphId = currentParagraphId;
-            let currentParagraph = this.chapter.getParagraph(currentParagraphId);
 
             let timer = assistOS.services.SaveElementTimer(async () => {
+                let currentParagraph = this.chapter.getParagraph(currentParagraphId);
                 if (!currentParagraph || assistOS.space.currentParagraphId !== currentParagraphId) {
                     await timer.stop();
                     return;
