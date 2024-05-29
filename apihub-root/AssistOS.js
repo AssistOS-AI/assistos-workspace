@@ -195,7 +195,7 @@ class AssistOS {
         await this.loadifyFunction(spaceModule.inviteSpaceCollaborators, assistOS.space.id, collaboratorEmails);
     }
 
-    async callFlow(flowName, context, personalityId) {
+   async callFlow(flowName, context, personalityId) {
         return await flowModule.callFlow(assistOS.space.id, flowName, context, personalityId);
     }
 
