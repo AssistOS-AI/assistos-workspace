@@ -3,30 +3,39 @@ export class SpaceParagraphUnit{
     constructor(element, invalidate) {
         this.element = element;
         this.invalidate = invalidate;
-        this._document = document.querySelector("space-document-view-page").webSkelPresenter._document;
+        this.documentPresenter = document.querySelector("space-document-view-page").webSkelPresenter;
+        this._document = this.documentPresenter._document;
         let paragraphId = this.element.getAttribute("data-paragraph-id");
         let chapterId = this.element.getAttribute("data-chapter-id");
         this.chapter = this._document.getChapter(chapterId);
         this.paragraph = this.chapter.getParagraph(paragraphId);
-        this.refreshParagraph = async () =>{
-            this.paragraph = await this.chapter.refreshParagraph(assistOS.space.id, this._document.id, this.paragraph.id);
-        };
         this.invalidate();
     }
     beforeRender() {
         this["data-paragraph-content"] = this.paragraph.text;
-        notificationService.on(this.paragraph.id, ()=>{
+        notificationService.on(this.paragraph.id, async ()=>{
             let ttsUnit = this.element.querySelector('text-to-speech-unit');
             if(ttsUnit){
                 this.openTTSUnit = true;
             }
-            this.invalidate(this.refreshParagraph);
+            let paragraphDiv = this.element.querySelector(".paragraph-text");
+            let paragraphText = assistOS.UI.sanitize(assistOS.UI.customTrim(paragraphDiv.innerText));
+            if(!paragraphText){
+                paragraphText = "";
+            }
+            this.paragraph = await this.chapter.refreshParagraph(assistOS.space.id, this._document.id, this.paragraph.id);
+            if (paragraphText !== this.paragraph.text) {
+                this.invalidate();
+            }
         });
     }
     afterRender() {
         if(this.openTTSUnit){
             this.openPersonalitiesPopUp(this.element);
             this.openTTSUnit = false;
+        }
+        if(assistOS.space.currentParagraphId === this.paragraph.id){
+            this.documentPresenter.editParagraph(this.element.querySelector(".paragraph-text"))
         }
     }
     openPersonalitiesPopUp(_target){
