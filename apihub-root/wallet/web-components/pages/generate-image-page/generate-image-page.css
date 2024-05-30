@@ -38,16 +38,12 @@ generate-image-page{
     border-top: 1px solid var(--very-light-gray);
     justify-content: space-between;
 }
-.select-personality-container,
-.select-variants-container,
-.select-llm-container{
+.select-container{
     margin-right: 15px;
     display: flex;
     flex-direction: column;
 }
-.select-variants{
 
-}
 .images-section{
     padding: 10px 10px;
     overflow: auto;

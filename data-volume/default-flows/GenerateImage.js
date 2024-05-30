@@ -8,13 +8,9 @@ class GenerateImage {
     async start(context) {
         try {
             let llmModule = await this.loadModule("llm");
-            let modelConfigs = {
-                modelName: context.modelName,
-                prompt: context.prompt,
-                variants: context.variants,
-                responseFormat: context.responseFormat
-            }
-            let images = await llmModule.generateImage(context.spaceId, modelConfigs);
+            let spaceId = context.spaceId;
+            delete context.spaceId;
+            let images = await llmModule.generateImage(spaceId, context);
             this.return(images);
         } catch (e) {
             this.fail(e);

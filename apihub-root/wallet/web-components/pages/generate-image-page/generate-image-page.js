@@ -8,7 +8,15 @@ export class GenerateImagePage {
         this.id = window.location.hash.split("/")[3];
         this.invalidate(async () => {
             this.personalities = await assistOS.space.getPersonalitiesMetadata();
-            this.configs = await llmModule.getLLMConfigs(assistOS.space.id);
+            this.models = [];
+            let configs = await llmModule.getLLMConfigs(assistOS.space.id);
+            for(let companyObj of configs){
+                for(let model of companyObj.models){
+                    if(model.type === "image"){
+                        this.models.push(model);
+                    }
+                }
+            }
         });
         this.images = [];
     }
@@ -35,12 +43,21 @@ export class GenerateImagePage {
                                 </div>`;
         }
         this.llms = "";
-        for(let companyObj of this.configs){
-            for(let model of companyObj.models){
-               if(model.type === "image"){
-                    this.llms += `<option value="${model.name}">${model.name}</option>`;
-               }
-            }
+
+        for(let model of this.models){
+            this.llms += `<option value="${model.name}">${model.name}</option>`;
+        }
+        this.sizesHTML = "";
+        for(let size of this.models[0].size){
+            this.sizesHTML += `<option value="${size}">${size}</option>`;
+        }
+        this.stylesHTML = "";
+        for(let style of this.models[0].style){
+            this.stylesHTML += `<option value="${style}">${style}</option>`;
+        }
+        this.qualityHTML = "";
+        for(let quality of this.models[0].quality){
+            this.qualityHTML += `<option value="${quality}">${quality}</option>`;
         }
     }
 
@@ -92,6 +109,17 @@ export class GenerateImagePage {
                 }
             });
         }
+        let modelInput = this.element.querySelector(".select-llm");
+        modelInput.addEventListener("change", (event) => {
+            let modelName = modelInput.value;
+            let model = this.models.find((model) => model.name === modelName);
+            let sizeInput = this.element.querySelector(".select-size");
+            let sizeOptions = "";
+            for(let size of model.size){
+                sizeOptions += `<option value="${size}">${size}</option>`;
+            }
+            sizeInput.innerHTML = sizeOptions;
+        });
     }
 
     closeModal(_target) {
@@ -109,7 +137,10 @@ export class GenerateImagePage {
             spaceId: assistOS.space.id,
             prompt: formData.data.prompt,
             variants: formData.data.variants,
-            modelName: formData.data.modelName
+            modelName: formData.data.modelName,
+            size: formData.data.size,
+            style: formData.data.style,
+            quality: formData.data.quality,
         }, formData.data.personality);
         assistOS.UI.hideLoading(loaderId);
         this.invalidate();
