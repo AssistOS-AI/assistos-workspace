@@ -2,15 +2,42 @@ const utils = require('../apihub-component-utils/utils.js');
 const {v4: uuidv4} = require('uuid');
 const secrets = require("../apihub-component-utils/secrets");
 const axios = require('axios');
-const LLMMap = require("./[MAP]LLMs.json");
 const cache = {};
-const { pipeline } = require('stream');
-
-async function sendRequest(url, method, request, response) {
+const { pipeline} = require('stream');
+let LLMConfigs;
+async function getLLMAuthRequirements() {
+    try {
+        const llmAuthRequirements = await fetch(`http://localhost:8079/apis/v1/authRequirements`, {
+            method: "GET",
+            headers: {
+                "content-type": "application/json"
+            },
+        });
+        let textResult = await llmAuthRequirements.text();
+        let data = JSON.parse(textResult).data;
+        LLMConfigs = JSON.parse(data);
+    } catch (error) {
+       console.error(error);
+    }
+}
+function getLLMConfigs() {
+    return LLMConfigs;
+}
+async function constructRequestInitAndURL(url, method, request, response){
     const spaceId = request.params.spaceId;
-    const LLMMap = require("./[MAP]LLMs.json");
     const configs = require("../config.json");
-    const APIKeyObj = await secrets.getModelAPIKey(spaceId, LLMMap[request.body.modelName]);
+    let companyObj;
+    if(request.body.modelName){
+        companyObj = LLMConfigs.find(company => company.models.some(model => model === request.body.modelName));
+    } else if(request.body.company){
+        companyObj = LLMConfigs.find((companyObj) => companyObj.company === request.body.company);
+    } else {
+        return utils.sendResponse(response, 500, "application/json", {
+            success: false,
+            message: "LLM name or company name must be provided in the request body"
+        });
+    }
+    const APIKeyObj = await secrets.getModelAPIKey(spaceId, companyObj.company);
     if (!APIKeyObj) {
         return utils.sendResponse(response, 500, "application/json", {
             success: false,
@@ -18,8 +45,11 @@ async function sendRequest(url, method, request, response) {
         });
     }
     let body = Object.assign({}, request.body);
-    body.APIKey = APIKeyObj.value;
-    let result;
+
+    for(let key of companyObj.authentication){
+        body[key] = APIKeyObj[key];
+    }
+
     let init = {
         method: method,
         headers: {}
@@ -28,14 +58,19 @@ async function sendRequest(url, method, request, response) {
     init.headers = {
         "Content-type": "application/json; charset=UTF-8"
     };
+    let fullURL;
     if (configs.ENVIRONMENT_MODE === "production") {
-        url = `${configs.LLMS_SERVER_PRODUCTION_BASE_URL}${url}`;
+        fullURL = `${configs.LLMS_SERVER_PRODUCTION_BASE_URL}${url}`;
     } else {
-        url = `${configs.LLMS_SERVER_DEVELOPMENT_BASE_URL}${url}`;
+        fullURL = `${configs.LLMS_SERVER_DEVELOPMENT_BASE_URL}${url}`;
     }
-
+    return {fullURL, init};
+}
+async function sendRequest(url, method, request, response) {
+    let {fullURL, init} = await constructRequestInitAndURL(url, method, request, response);
+    let result;
     try {
-        result = await fetch(url, init);
+        result = await fetch(fullURL, init);
     } catch (error) {
         console.error(error);
     }
@@ -205,13 +240,8 @@ async function getVideoResponse(request, response) {
 
 async function getAudioResponse(request, response) {
     try {
-        const modelResponse = await fetch(`http://localhost:8079/apis/v1/audio/generate`, {
-            method: "POST",
-            headers: {
-                "content-type": "application/json",
-            },
-            body: JSON.stringify(request.body)
-        });
+        const {fullURL, init} = await constructRequestInitAndURL(`/apis/v1/audio/generate`, "POST", request, response);
+        const modelResponse = await fetch(fullURL, init);
         await $$.promisify(pipeline)(modelResponse.body, response);
 
     } catch (error) {
@@ -223,17 +253,12 @@ async function getAudioResponse(request, response) {
 }
 async function listVoicesAndEmotions(request, response) {
     try {
-        let result = await fetch(`http://localhost:8079/apis/v1/audio/listVoicesAndEmotions`, {
-            method: "POST",
-            headers: {
-                "content-type": "application/json",
-            },
-            body: JSON.stringify(request.body)
-        });
-        let configs = await result.json();
+        request.body = {};
+        request.body.company = "PlayHT";
+        let result = await sendRequest(`/apis/v1/audio/listVoicesAndEmotions`, "POST", request, response);
         return utils.sendResponse(response, 200, "application/json", {
             success: true,
-            data: configs.data
+            data: result
         });
     } catch (error) {
         utils.sendResponse(response, error.statusCode || 500, "application/json", {
@@ -250,5 +275,7 @@ module.exports = {
     getImageVariants,
     getVideoResponse,
     getAudioResponse,
-    listVoicesAndEmotions
+    listVoicesAndEmotions,
+    getLLMAuthRequirements,
+    getLLMConfigs
 };

@@ -108,7 +108,6 @@ function createDefaultAnnouncement(spaceName) {
 
 async function createSpace(spaceName, userId, apiKey) {
     const defaultSpaceTemplate = require('./templates/defaultSpaceTemplate.json');
-    const defaultApiKeyTemplate = require('./templates/defaultApiKeyTemplate.json');
     const spaceValidationSchema = require('./templates/spaceValidationSchema.json');
 
     const User = require('../users-storage/user.js');
@@ -126,11 +125,11 @@ async function createSpace(spaceName, userId, apiKey) {
     let OpenAPIKeyObj = {};
     if (apiKey) {
         await openAI.confirmOpenAiKeyValidation(apiKey);
-        OpenAPIKeyObj = data.fillTemplate(defaultApiKeyTemplate, {
+        OpenAPIKeyObj = {
             ownerId: userId,
-            keyValue: apiKey,
+            APIkey: apiKey,
             addedDate: date.getCurrentUTCDate()
-        });
+        };
     }
     try {
         spaceObj = data.fillTemplate(defaultSpaceTemplate, {
@@ -364,21 +363,28 @@ async function getAPIKey(spaceId, modelName) {
 
 }
 
-async function editAPIKey(spaceId, userId, keyType, key) {
-    const defaultApiKeyTemplate = require('./templates/defaultApiKeyTemplate.json');
-    let apiKeyObj = data.fillTemplate(defaultApiKeyTemplate, {
+async function editAPIKey(spaceId, userId, APIkeyObj) {
+    const {getLLMConfigs} = require('../llms/controller.js');
+    let LLMConfigs = getLLMConfigs();
+    let companyObj = LLMConfigs.find((companyObj) => companyObj.company === APIkeyObj.type);
+    let apiKeyObj = {
         ownerId: userId,
-        keyValue: key,
         addedDate: date.getCurrentUTCDate()
-    })
-    await secrets.putSpaceKey(spaceId, keyType, apiKeyObj);
+    }
+    for(let key of companyObj.authentication){
+        apiKeyObj[key] = APIkeyObj[key];
+    }
+    await secrets.putSpaceKey(spaceId, APIkeyObj.type, apiKeyObj);
 }
 
 async function getAPIKeysMetadata(spaceId) {
     let keys = JSON.parse(JSON.stringify(await secrets.getAPIKeys(spaceId)));
     for (let keyType in keys) {
-        if (keys[keyType].value) {
-            keys[keyType].value = openAI.maskKey(keys[keyType].value);
+        if (keys[keyType].APIKey) {
+            keys[keyType].APIKey = openAI.maskKey(keys[keyType].APIKey);
+        }
+        if(keys[keyType].userId){
+            keys[keyType].userId = openAI.maskKey(keys[keyType].userId);
         }
     }
     return keys;
@@ -426,7 +432,6 @@ module.exports = {
         getDefaultSpaceAgentId
     },
     templates: {
-        defaultApiKeyTemplate: require('./templates/defaultApiKeyTemplate.json'),
         defaultSpaceAnnouncement: require('./templates/defaultSpaceAnnouncement.json'),
         defaultSpaceNameTemplate: require('./templates/defaultSpaceNameTemplate.json'),
         defaultSpaceTemplate: require('./templates/defaultSpaceTemplate.json'),

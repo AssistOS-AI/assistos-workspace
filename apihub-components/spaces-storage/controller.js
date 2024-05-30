@@ -784,8 +784,7 @@ async function editAPIKey(request, response) {
             success: false
         });
     }
-    const {keyType, key} = request.body;
-    if (!keyType || !key) {
+    if (! request.body.type || ! request.body.APIKey) {
         return utils.sendResponse(response, 400, "application/json", {
             message: "Bad Request: Key Type and API Key are required in the request body",
             success: false
@@ -793,7 +792,7 @@ async function editAPIKey(request, response) {
     }
     const userId = request.userId;
     try {
-        await space.APIs.editAPIKey(spaceId, userId, keyType, key);
+        await space.APIs.editAPIKey(spaceId, userId, request.body);
         utils.sendResponse(response, 200, "application/json", {
             message: `API Key added successfully to space ${spaceId}`,
             success: true

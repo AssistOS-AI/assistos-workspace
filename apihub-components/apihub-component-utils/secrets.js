@@ -8,11 +8,21 @@ function getSpaceSecretsContainerName(spaceId) {
 }
 
 async function createSpaceSecretsContainer(spaceId) {
+    const {getLLMConfigs} = require('../llms/controller.js');
+    let LLMConfigs = getLLMConfigs();
     const secretsService = await apihub.getSecretsServiceInstanceAsync(config.SERVER_ROOT_FOLDER);
-    const secretsContainerTemplate = require('../spaces-storage/templates/spaceSecretsContainerTemplate.json')
-    for (const key of Object.keys(secretsContainerTemplate)) {
-        await secretsService.putSecretAsync(getSpaceSecretsContainerName(spaceId), key, secretsContainerTemplate[key])
+    let secretObject = {};
+    for (const companyObj of LLMConfigs) {
+        secretObject[companyObj.company] = {
+            ownerId: "",
+            addedAt: ""
+        };
+        for (const key of companyObj.authentication) {
+            secretObject[companyObj.company][key] = "";
+        }
     }
+    await secretsService.putSecretAsync(getSpaceSecretsContainerName(spaceId), "apiKeys", secretObject)
+
 }
 
 async function keyAlreadyExists(spaceId, keyType, apiKey) {

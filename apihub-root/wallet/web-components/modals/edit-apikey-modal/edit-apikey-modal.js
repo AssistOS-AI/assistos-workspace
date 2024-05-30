@@ -9,10 +9,19 @@ export class EditApikeyModal {
         this.element = element;
         this.invalidate = invalidate;
         this.type = this.element.variables["data-type"];
+        this.hasUserId = this.element.variables["data-has-user-id"];
         this.invalidate();
     }
-
+    stringToBool(str) {
+        return str.toLowerCase() === 'true';
+    }
     beforeRender() {
+        if(this.stringToBool(this.hasUserId)){
+            this.userIdInput = `<div class="form-item">
+                <label class="form-label" for="userId">User ID</label>
+                <input type="text" class="form-input" name="userId" data-id="userId" id="userId" style="-webkit-text-security: disc;" required>
+        </div>`
+        }
     }
 
     async SaveChanges(_target) {
@@ -26,9 +35,15 @@ export class EditApikeyModal {
                         throw Error(keyValidation.error);
                     }
                 }
-                await userModule.editAPIKey(this.type, apiKey);
+                let APIKeyObj = {
+                    type: this.type,
+                    APIKey: apiKey
+                }
+                if(formData.data.userId){
+                    APIKeyObj.userId = formData.data.userId;
+                }
+                await userModule.editAPIKey(APIKeyObj);
                 assistOS.UI.closeModal(_target, true);
-                //window.location.reload();
             } catch (error) {
                 assistOS.UI.closeModal(_target);
                 await showApplicationError('Invalid API Key', `Encountered an error trying to add the API Key to Space: ${assistOS.space.name}`,

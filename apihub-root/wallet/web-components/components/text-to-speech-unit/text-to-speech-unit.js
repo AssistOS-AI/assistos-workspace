@@ -71,7 +71,8 @@ export class TextToSpeechUnit {
             prompt: prompt,
             voice: formData.data.voice,
             emotion: formData.data.emotion,
-            styleGuidance: formData.data.styleGuidance
+            styleGuidance: formData.data.styleGuidance,
+            modelName: "PlayHT2.0"
         });
         let audioSection = this.element.querySelector('.audio-section');
         audioSection.classList.remove('hidden');

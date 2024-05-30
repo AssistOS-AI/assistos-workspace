@@ -13,7 +13,7 @@ export class ChatUnit{
             this.user=this.element.getAttribute("user");
             this.imageContainer=`
             <div class="user-profile-image-container">
-        <img class="user-profile-image" src="/users/profileImage/${this.user}" alt="userImage">
+        <img class="user-profile-image" alt="userImage">
     </div>`
         }else{
             this.messageType="robot";
