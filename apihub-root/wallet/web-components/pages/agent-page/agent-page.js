@@ -141,15 +141,12 @@ export class AgentPage {
 
         await this.displayMessage("own", userMessage);
 
-        let agentMessage;
         try {
-            agentMessage = await assistOS.services.analyzeRequest(formInfo.data.input, this.refreshRightPanel.bind(this));
+            await assistOS.agent.processUserRequest(userMessage, {});
         } catch (e) {
             console.error(e);
         }
 
-        await this.displayMessage("assistant", agentMessage);
-        await this.agent.addMessage("assistant", agentMessage);
     }
 
     refreshRightPanel() {

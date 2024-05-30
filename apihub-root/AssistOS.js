@@ -141,7 +141,7 @@ class AssistOS {
 
     async loadAgent(spaceId) {
         const personalityData = await agentModule.getAgent(spaceId);
-        assistOS.agent = new personalityModule.models.personality(personalityData);
+        assistOS.agent = new personalityModule.models.agent(personalityData);
     }
 
     async changeAgent(agentId) {
@@ -198,7 +198,7 @@ class AssistOS {
    async callFlow(flowName, context, personalityId) {
         return await flowModule.callFlow(assistOS.space.id, flowName, context, personalityId);
     }
-
+t
     async loadifyFunction(asyncFunc, ...args) {
         await this.openLoader();
         try {
