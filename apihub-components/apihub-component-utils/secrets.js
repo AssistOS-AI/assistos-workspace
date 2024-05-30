@@ -9,7 +9,7 @@ function getSpaceSecretsContainerName(spaceId) {
 
 async function createSpaceSecretsContainer(spaceId) {
     const {getLLMConfigs} = require('../llms/controller.js');
-    let LLMConfigs = getLLMConfigs();
+    let LLMConfigs = await getLLMConfigs();
     const secretsService = await apihub.getSecretsServiceInstanceAsync(config.SERVER_ROOT_FOLDER);
     let secretObject = {};
     for (const companyObj of LLMConfigs) {

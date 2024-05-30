@@ -9,7 +9,7 @@ class GenerateImage {
         try {
             let llmModule = await this.loadModule("llm");
             let modelConfigs = {
-                modelName: "DALL-E-2",
+                modelName: context.modelName,
                 prompt: context.prompt,
                 variants: context.variants,
                 responseFormat: context.responseFormat

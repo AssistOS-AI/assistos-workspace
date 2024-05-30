@@ -7,7 +7,7 @@ const {
     getVideoResponse,
     getAudioResponse,
     listVoicesAndEmotions,
-    getLLMAuthRequirements
+    sendLLMConfigs
 } = require("./controller.js");
 
 const bodyReader = require("../apihub-component-middlewares/bodyReader");
@@ -18,6 +18,7 @@ function LLMStorage(server) {
     server.use("/apis/v1/spaces/:spaceId/llms/*", bodyReader);
     server.use("/apis/v1/spaces/:spaceId/llms/*", authentication);
     server.use("/apis/v1/spaces/:spaceId/llms/*", authorization);
+    server.get("/apis/v1/spaces/:spaceId/llms/configs", sendLLMConfigs);
 
     server.post("/apis/v1/spaces/:spaceId/llms/text/generate", getTextResponse);
     server.post("/apis/v1/spaces/:spaceId/llms/text/streaming/generate", getTextStreamingResponse);
@@ -29,9 +30,6 @@ function LLMStorage(server) {
 
     server.post("/apis/v1/spaces/:spaceId/llms/audio/generate", getAudioResponse);
     server.get("/apis/v1/spaces/:spaceId/llms/audio/listVoicesAndEmotions", listVoicesAndEmotions);
-    setTimeout(async () => {
-        await getLLMAuthRequirements();
-    }, 0);
 }
 
 module.exports = LLMStorage;

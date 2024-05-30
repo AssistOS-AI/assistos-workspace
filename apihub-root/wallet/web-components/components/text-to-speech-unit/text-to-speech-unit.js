@@ -59,8 +59,11 @@ export class TextToSpeechUnit {
     }
 
     async textToSpeech(_target) {
-        let loaderId = await assistOS.UI.showLoading(_target);
         let formData = await assistOS.UI.extractFormInformation(_target);
+        if(!formData.isValid){
+            return;
+        }
+        let loaderId = await assistOS.UI.showLoading(_target);
         let paragraphUnit = assistOS.UI.reverseQuerySelector(_target, "space-paragraph-unit");
         let prompt = paragraphUnit.querySelector(".paragraph-text").innerText;
         if(!prompt || prompt === "") {

@@ -20,21 +20,38 @@ async function getLLMAuthRequirements() {
        console.error(error);
     }
 }
-function getLLMConfigs() {
+async function getLLMConfigs() {
+    if(!LLMConfigs){
+        await getLLMAuthRequirements();
+    }
     return LLMConfigs;
+}
+async function sendLLMConfigs(request, response) {
+    let configs = await getLLMConfigs();
+    return utils.sendResponse(response, 200, "application/json", {
+        success: true,
+        data: configs
+    });
 }
 async function constructRequestInitAndURL(url, method, request, response){
     const spaceId = request.params.spaceId;
     const configs = require("../config.json");
     let companyObj;
+    let LLMConfigs = await getLLMConfigs();
     if(request.body.modelName){
-        companyObj = LLMConfigs.find(company => company.models.some(model => model === request.body.modelName));
+        companyObj = LLMConfigs.find(company => company.models.some(model => model.name === request.body.modelName));
     } else if(request.body.company){
         companyObj = LLMConfigs.find((companyObj) => companyObj.company === request.body.company);
     } else {
         return utils.sendResponse(response, 500, "application/json", {
             success: false,
             message: "LLM name or company name must be provided in the request body"
+        });
+    }
+    if(!companyObj){
+        return utils.sendResponse(response, 404, "application/json", {
+            success: false,
+            message: "Api key not set"
         });
     }
     const APIKeyObj = await secrets.getModelAPIKey(spaceId, companyObj.company);
@@ -276,6 +293,6 @@ module.exports = {
     getVideoResponse,
     getAudioResponse,
     listVoicesAndEmotions,
-    getLLMAuthRequirements,
-    getLLMConfigs
+    getLLMConfigs,
+    sendLLMConfigs
 };

@@ -38,12 +38,9 @@ generate-image-page{
     border-top: 1px solid var(--very-light-gray);
     justify-content: space-between;
 }
-.select-variants-container{
-    margin-right: 15px;
-    display: flex;
-    flex-direction: column;
-}
-.select-personality-container{
+.select-personality-container,
+.select-variants-container,
+.select-llm-container{
     margin-right: 15px;
     display: flex;
     flex-direction: column;
