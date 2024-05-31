@@ -21,16 +21,17 @@ async function getLLMAuthRequirements() {
         console.error(error);
     }
 }
+
 async function getLLMConfigs() {
-    if(!LLMConfigs){
+    if (!LLMConfigs) {
         await getLLMAuthRequirements();
     }
+}
 
 function getLLMConfigs() {
     return LLMConfigs;
 }
 
-async function constructRequestInitAndURL(url, method, request, response) {
 async function sendLLMConfigs(request, response) {
     let configs = await getLLMConfigs();
     return utils.sendResponse(response, 200, "application/json", {
@@ -38,58 +39,60 @@ async function sendLLMConfigs(request, response) {
         data: configs
     });
 }
-async function constructRequestInitAndURL(url, method, request, response){
+
+async function constructRequestInitAndURL(url, method, request, response) {
     const spaceId = request.params.spaceId;
     const configs = require("../config.json");
     let companyObj;
     if (request.body.modelName) {
         companyObj = LLMConfigs.find(company => company.models.some(model => model === request.body.modelName));
     } else if (request.body.company) {
-    let LLMConfigs = await getLLMConfigs();
-    if(request.body.modelName){
-        companyObj = LLMConfigs.find(company => company.models.some(model => model.name === request.body.modelName));
-    } else if(request.body.company){
-        companyObj = LLMConfigs.find((companyObj) => companyObj.company === request.body.company);
-    } else {
-        return utils.sendResponse(response, 500, "application/json", {
-            success: false,
-            message: "LLM name or company name must be provided in the request body"
-        });
-    }
-    if(!companyObj){
-        return utils.sendResponse(response, 404, "application/json", {
-            success: false,
-            message: "Api key not set"
-        });
-    }
-    const APIKeyObj = await secrets.getModelAPIKey(spaceId, companyObj.company);
-    if (!APIKeyObj) {
-        return utils.sendResponse(response, 500, "application/json", {
-            success: false,
-            message: "API key not found"
-        });
-    }
-    let body = Object.assign({}, request.body);
+        let LLMConfigs = await getLLMConfigs();
+        if (request.body.modelName) {
+            companyObj = LLMConfigs.find(company => company.models.some(model => model.name === request.body.modelName));
+        } else if (request.body.company) {
+            companyObj = LLMConfigs.find((companyObj) => companyObj.company === request.body.company);
+        } else {
+            return utils.sendResponse(response, 500, "application/json", {
+                success: false,
+                message: "LLM name or company name must be provided in the request body"
+            });
+        }
+        if (!companyObj) {
+            return utils.sendResponse(response, 404, "application/json", {
+                success: false,
+                message: "Api key not set"
+            });
+        }
+        const APIKeyObj = await secrets.getModelAPIKey(spaceId, companyObj.company);
+        if (!APIKeyObj) {
+            return utils.sendResponse(response, 500, "application/json", {
+                success: false,
+                message: "API key not found"
+            });
+        }
+        let body = Object.assign({}, request.body);
 
-    for (let key of companyObj.authentication) {
-        body[key] = APIKeyObj[key];
-    }
+        for (let key of companyObj.authentication) {
+            body[key] = APIKeyObj[key];
+        }
 
-    let init = {
-        method: method,
-        headers: {}
-    };
-    init.body = JSON.stringify(body);
-    init.headers = {
-        "Content-type": "application/json; charset=UTF-8"
-    };
-    let fullURL;
-    if (configs.ENVIRONMENT_MODE === "production") {
-        fullURL = `${configs.LLMS_SERVER_PRODUCTION_BASE_URL}${url}`;
-    } else {
-        fullURL = `${configs.LLMS_SERVER_DEVELOPMENT_BASE_URL}${url}`;
+        let init = {
+            method: method,
+            headers: {}
+        };
+        init.body = JSON.stringify(body);
+        init.headers = {
+            "Content-type": "application/json; charset=UTF-8"
+        };
+        let fullURL;
+        if (configs.ENVIRONMENT_MODE === "production") {
+            fullURL = `${configs.LLMS_SERVER_PRODUCTION_BASE_URL}${url}`;
+        } else {
+            fullURL = `${configs.LLMS_SERVER_DEVELOPMENT_BASE_URL}${url}`;
+        }
+        return {fullURL, init};
     }
-    return {fullURL, init};
 }
 
 async function sendRequest(url, method, request, response) {
@@ -138,7 +141,7 @@ async function getTextStreamingResponse(request, response) {
         'Connection': 'keep-alive'
     });
     init.responseType = 'stream'
-    const requestBody=init.body
+    const requestBody = init.body
     delete init.body;
     try {
         const llmRes = await axios.post(fullURL, requestBody, init);
@@ -271,7 +274,10 @@ async function getVideoResponse(request, response) {
 
 async function getAudioResponse(request, response) {
     try {
-        const {fullURL, init} = await constructRequestInitAndURL(`/apis/v1/audio/generate`, "POST", request, response);
+        const {
+            fullURL,
+            init
+        } = await constructRequestInitAndURL(`/apis/v1/audio/generate`, "POST", request, response);
         const modelResponse = await fetch(fullURL, init);
         await $$.promisify(pipeline)(modelResponse.body, response);
 
