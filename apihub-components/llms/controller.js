@@ -28,10 +28,6 @@ async function getLLMConfigs() {
     }
 }
 
-function getLLMConfigs() {
-    return LLMConfigs;
-}
-
 async function sendLLMConfigs(request, response) {
     let configs = await getLLMConfigs();
     return utils.sendResponse(response, 200, "application/json", {
