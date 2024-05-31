@@ -16,39 +16,16 @@
             </select>
         </div>
         <div class="select-container">
-            <label class="form-label" for="variants">Variants</label>
-            <select class="select-variants" id="variants" data-id="variants" name="variants">
-                <option value="1">1</option>
-                <option value="2">2</option>
-                <option value="3">3</option>
-                <option value="4">4</option>
-            </select>
-        </div>
-        <div class="select-container">
             <label class="form-label" for="modelName">Select LLM</label>
             <select class="select-llm" id="modelName" data-id="modelName" name="modelName" required>
                 $$llms
             </select>
         </div>
-        <div class="select-container">
-            <label class="form-label" for="size">Select Size</label>
-            <select class="select-size" id="size" data-id="size" name="size">
-                $$sizesHTML
-            </select>
-        </div>
-        <div class="select-container">
-            <label class="form-label" for="style">Select Style</label>
-            <select class="select-style" id="style" data-id="style" name="style">
-                $$stylesHTML
-            </select>
-        </div>
-        <div class="select-container">
-            <label class="form-label" for="quality">Select Quality</label>
-            <select class="select-quality" id="quality" data-id="quality" name="quality">
-                $$qualityHTML
-            </select>
-        </div>
-        <button class="general-button" data-local-action="generateImage">Generate</button>
+        $$variantsSelect
+        $$sizeSelect
+        $$styleSelect
+        $$qualitySelect
+        <button class="general-button generate-image" data-local-action="generateImage">Generate</button>
     </div>
     <div class="images-section">
         $$imagesHTML
