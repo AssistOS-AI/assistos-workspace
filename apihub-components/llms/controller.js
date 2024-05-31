@@ -3,8 +3,9 @@ const {v4: uuidv4} = require('uuid');
 const secrets = require("../apihub-component-utils/secrets");
 const axios = require('axios');
 const cache = {};
-const { pipeline} = require('stream');
+const {pipeline} = require('stream');
 let LLMConfigs;
+
 async function getLLMAuthRequirements() {
     try {
         const llmAuthRequirements = await fetch(`http://localhost:8079/apis/v1/authRequirements`, {
@@ -17,19 +18,21 @@ async function getLLMAuthRequirements() {
         let data = JSON.parse(textResult).data;
         LLMConfigs = JSON.parse(data);
     } catch (error) {
-       console.error(error);
+        console.error(error);
     }
 }
+
 function getLLMConfigs() {
     return LLMConfigs;
 }
-async function constructRequestInitAndURL(url, method, request, response){
+
+async function constructRequestInitAndURL(url, method, request, response) {
     const spaceId = request.params.spaceId;
     const configs = require("../config.json");
     let companyObj;
-    if(request.body.modelName){
+    if (request.body.modelName) {
         companyObj = LLMConfigs.find(company => company.models.some(model => model === request.body.modelName));
-    } else if(request.body.company){
+    } else if (request.body.company) {
         companyObj = LLMConfigs.find((companyObj) => companyObj.company === request.body.company);
     } else {
         return utils.sendResponse(response, 500, "application/json", {
@@ -46,7 +49,7 @@ async function constructRequestInitAndURL(url, method, request, response){
     }
     let body = Object.assign({}, request.body);
 
-    for(let key of companyObj.authentication){
+    for (let key of companyObj.authentication) {
         body[key] = APIKeyObj[key];
     }
 
@@ -66,6 +69,7 @@ async function constructRequestInitAndURL(url, method, request, response){
     }
     return {fullURL, init};
 }
+
 async function sendRequest(url, method, request, response) {
     let {fullURL, init} = await constructRequestInitAndURL(url, method, request, response);
     let result;
@@ -99,24 +103,23 @@ async function getTextResponse(request, response) {
 
 
 async function getTextStreamingResponse(request, response) {
-    const requestData = { ...request.body };
+    const requestData = {...request.body};
     let sessionId = requestData.sessionId || null;
-    const APIKeyObj = await secrets.getModelAPIKey(request.params.spaceId, LLMMap[request.body.modelName]);
-    requestData.APIKey = APIKeyObj.value;
+    const {
+        fullURL,
+        init
+    } = await constructRequestInitAndURL(`/apis/v1/text/streaming/generate`, "POST", request, response);
 
     response.writeHead(200, {
         'Content-Type': 'text/event-stream',
         'Cache-Control': 'no-cache',
         'Connection': 'keep-alive'
     });
-
+    init.responseType = 'stream'
+    const requestBody=init.body
+    delete init.body;
     try {
-        const llmRes = await axios.post('http://localhost:8079/apis/v1/text/streaming/generate', requestData, {
-            headers: {
-                'Content-Type': 'application/json'
-            },
-            responseType: 'stream'
-        });
+        const llmRes = await axios.post(fullURL, requestBody, init);
 
         llmRes.data.on('data', chunk => {
             try {
@@ -136,19 +139,22 @@ async function getTextStreamingResponse(request, response) {
 
                             if (eventName === 'beginSession' && dataObj.sessionId && !sessionId) {
                                 sessionId = dataObj.sessionId;
-                                cache[sessionId] = { data: "", lastSentIndex: 0, end: false };
-                                response.write(`event: beginSession\ndata: ${JSON.stringify({ sessionId })}\n\n`);
+                                cache[sessionId] = {data: "", lastSentIndex: 0, end: false};
+                                response.write(`event: beginSession\ndata: ${JSON.stringify({sessionId})}\n\n`);
                             } else if (eventName === 'end') {
                                 if (sessionId) {
                                     cache[sessionId].end = true;
-                                    response.write(`event: end\ndata: ${JSON.stringify({ fullResponse: dataObj.fullResponse, metadata: dataObj.metadata })}\n\n`);
+                                    response.write(`event: end\ndata: ${JSON.stringify({
+                                        fullResponse: dataObj.fullResponse,
+                                        metadata: dataObj.metadata
+                                    })}\n\n`);
                                     response.end();
                                     delete cache[sessionId];
                                 }
                             } else {
                                 if (dataObj.message) {
                                     cache[sessionId].data += dataObj.message;
-                                    response.write(`data: ${JSON.stringify({ message: dataObj.message })}\n\n`);
+                                    response.write(`data: ${JSON.stringify({message: dataObj.message})}\n\n`);
                                 }
                             }
 
@@ -174,9 +180,9 @@ async function getTextStreamingResponse(request, response) {
     } catch (error) {
         console.error(error);
         if (!response.headersSent) {
-            response.writeHead(500, { 'Content-Type': 'application/json' });
+            response.writeHead(500, {'Content-Type': 'application/json'});
         }
-        response.end(JSON.stringify({ success: false, message: error.message }));
+        response.end(JSON.stringify({success: false, message: error.message}));
     }
 }
 
@@ -194,6 +200,7 @@ async function getImageResponse(request, response) {
         });
     }
 }
+
 async function editImage(request, response) {
     try {
         const modelResponse = await sendRequest(`/apis/v1/image/edit`, "POST", request, response);
@@ -208,6 +215,7 @@ async function editImage(request, response) {
         });
     }
 }
+
 async function getImageVariants(request, response) {
     try {
         const modelResponse = await sendRequest(`/apis/v1/image/variants`, "POST", request, response);
@@ -222,6 +230,7 @@ async function getImageVariants(request, response) {
         });
     }
 }
+
 async function getVideoResponse(request, response) {
     try {
         const modelResponse = await sendRequest(`/apis/v1/video/generate`, "POST", request, response);
@@ -251,6 +260,7 @@ async function getAudioResponse(request, response) {
         });
     }
 }
+
 async function listVoicesAndEmotions(request, response) {
     try {
         request.body = {};
@@ -267,6 +277,7 @@ async function listVoicesAndEmotions(request, response) {
         });
     }
 }
+
 module.exports = {
     getTextResponse,
     getTextStreamingResponse,
