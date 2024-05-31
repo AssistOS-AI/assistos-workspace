@@ -365,7 +365,7 @@ async function getAPIKey(spaceId, modelName) {
 
 async function editAPIKey(spaceId, userId, APIkeyObj) {
     const {getLLMConfigs} = require('../llms/controller.js');
-    let LLMConfigs = getLLMConfigs();
+    let LLMConfigs = await getLLMConfigs();
     let companyObj = LLMConfigs.find((companyObj) => companyObj.company === APIkeyObj.type);
     let apiKeyObj = {
         ownerId: userId,

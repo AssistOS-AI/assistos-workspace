@@ -1,27 +1,51 @@
 <div class="image-generator-header">
-    <svg data-local-action="openGalleryPage" width="24" height="24" viewBox="0 0 24 24" fill="none" xmlns="http://www.w3.org/2000/svg">
+    <svg class="pointer" data-local-action="openGalleryPage" width="24" height="24" viewBox="0 0 24 24" fill="none" xmlns="http://www.w3.org/2000/svg">
         <path d="M24 10.5H5.745L14.13 2.115L12 0L0 12L12 24L14.115 21.885L5.745 13.5H24V10.5Z" fill="#3478C6"/>
     </svg>
     <div class="page-title">Image Generator</div>
 </div>
 <form class="page-body">
     <div class="form-item padding">
-        <textarea id="prompt" name="prompt" placeholder="Type something here" required></textarea>
+        <textarea id="prompt" name="prompt" data-id="prompt" placeholder="Type something here" required></textarea>
     </div>
     <div class="form-footer">
-        <div class="select-personality-container">
+        <div class="select-container">
             <label class="form-label" for="personality">Choose personality</label>
-            <select class="select-personality" id="personality" name="personality">
+            <select class="select-personality" id="personality" data-id="personality" name="personality">
                 $$personalitiesHTML
             </select>
         </div>
-        <div class="select-variants-container">
+        <div class="select-container">
             <label class="form-label" for="variants">Variants</label>
-            <select class="select-variants" id="variants" name="variants">
+            <select class="select-variants" id="variants" data-id="variants" name="variants">
                 <option value="1">1</option>
                 <option value="2">2</option>
                 <option value="3">3</option>
                 <option value="4">4</option>
+            </select>
+        </div>
+        <div class="select-container">
+            <label class="form-label" for="modelName">Select LLM</label>
+            <select class="select-llm" id="modelName" data-id="modelName" name="modelName" required>
+                $$llms
+            </select>
+        </div>
+        <div class="select-container">
+            <label class="form-label" for="size">Select Size</label>
+            <select class="select-size" id="size" data-id="size" name="size">
+                $$sizesHTML
+            </select>
+        </div>
+        <div class="select-container">
+            <label class="form-label" for="style">Select Style</label>
+            <select class="select-style" id="style" data-id="style" name="style">
+                $$stylesHTML
+            </select>
+        </div>
+        <div class="select-container">
+            <label class="form-label" for="quality">Select Quality</label>
+            <select class="select-quality" id="quality" data-id="quality" name="quality">
+                $$qualityHTML
             </select>
         </div>
         <button class="general-button" data-local-action="generateImage">Generate</button>
