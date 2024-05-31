@@ -1,6 +1,7 @@
 const spaceModule = require("assistos").loadModule("space", {});
 const constants = require("assistos").constants;
 const llmModule = require("assistos").loadModule("llm", {});
+
 export class GenerateImagePage {
     constructor(element, invalidate) {
         this.element = element;
@@ -10,24 +11,30 @@ export class GenerateImagePage {
             this.personalities = await assistOS.space.getPersonalitiesMetadata();
             this.models = [];
             let configs = await llmModule.getLLMConfigs(assistOS.space.id);
-            for(let companyObj of configs){
-                for(let model of companyObj.models){
-                    if(model.type === "image"){
+            for (let companyObj of configs) {
+                for (let model of companyObj.models) {
+                    if (model.type === "image") {
                         this.models.push(model);
                     }
                 }
             }
+            this.currentModel = this.models[0];
         });
+        this.selectInputs = [];
         this.images = [];
     }
 
     beforeRender() {
         let personalitiesHTML = `<option selected value="${constants.PERSONALITIES.DEFAULT_PERSONALITY_ID}">${constants.PERSONALITIES.DEFAULT_PERSONALITY_NAME}</option>`;
         for (let personality of this.personalities) {
-            if(personality.id !== constants.PERSONALITIES.DEFAULT_PERSONALITY_ID){
+            if (personality.id !== constants.PERSONALITIES.DEFAULT_PERSONALITY_ID) {
                 personalitiesHTML += `<option value="${personality.id}">${personality.name}</option>`;
             }
         }
+        this.variantsSelect = "";
+        this.sizeSelect = "";
+        this.styleSelect = "";
+        this.qualitySelect = "";
         this.personalitiesHTML = personalitiesHTML;
         this.imagesHTML = "";
         let pngPrefix = "data:image/png;base64,"
@@ -43,21 +50,61 @@ export class GenerateImagePage {
                                 </div>`;
         }
         this.llms = "";
-
-        for(let model of this.models){
+        for (let model of this.models) {
             this.llms += `<option value="${model.name}">${model.name}</option>`;
         }
-        this.sizesHTML = "";
-        for(let size of this.models[0].size){
-            this.sizesHTML += `<option value="${size}">${size}</option>`;
+        if(this.currentModel.variants){
+            let variantsHTML = "";
+            for (let i= 1; i<= this.currentModel.variants; i++) {
+                variantsHTML += `<option value="${i}">${i}</option>`;
+            }
+            this.variantsSelect = `
+            <div class="select-container">
+                <label class="form-label" for="variants">Variants</label>
+                <select class="select-variants" id="variants" data-id="variants" name="variants">
+                    ${variantsHTML}
+                </select>
+            </div>`;
         }
-        this.stylesHTML = "";
-        for(let style of this.models[0].style){
-            this.stylesHTML += `<option value="${style}">${style}</option>`;
+
+        if (this.currentModel.size) {
+            let sizesHTML = "";
+            for (let size of this.currentModel.size) {
+                sizesHTML += `<option value="${size}">${size}</option>`;
+            }
+            this.sizeSelect = `
+            <div class="select-container">
+                <label class="form-label" for="size">Select Size</label>
+                <select class="select-size" id="size" data-id="size" name="size">
+                     ${sizesHTML}
+                </select>
+            </div>`;
         }
-        this.qualityHTML = "";
-        for(let quality of this.models[0].quality){
-            this.qualityHTML += `<option value="${quality}">${quality}</option>`;
+        if (this.currentModel.style) {
+            let stylesHTML = "";
+            for (let style of this.currentModel.style) {
+                stylesHTML += `<option value="${style}">${style}</option>`;
+            }
+            this.styleSelect = `
+            <div class="select-container">
+                <label class="form-label" for="style">Select Style</label>
+                <select class="select-style" id="style" data-id="style" name="style">
+                    ${stylesHTML}
+                </select>
+            </div>`;
+        }
+        if (this.currentModel.quality) {
+            let qualityHTML = "";
+            for (let quality of this.currentModel.quality) {
+                qualityHTML += `<option value="${quality}">${quality}</option>`;
+            }
+            this.qualitySelect = `
+            <div class="select-container">
+                <label class="form-label" for="quality">Select Quality</label>
+                <select class="select-quality" id="quality" data-id="quality" name="quality">
+                    ${qualityHTML}
+                </select>
+            </div>`;
         }
     }
 
@@ -76,7 +123,7 @@ export class GenerateImagePage {
             prompt: this.prompt || ""
         });
         _target.insertAdjacentHTML("afterbegin", `<confirmation-popup data-presenter="confirmation-popup" 
-                    data-message="Saved!" data-left="${_target.offsetWidth/2}"></confirmation-popup>`);
+                    data-message="Saved!" data-left="${_target.offsetWidth / 2}"></confirmation-popup>`);
     }
 
     saveImageToDevice(_target) {
@@ -110,42 +157,91 @@ export class GenerateImagePage {
             });
         }
         let modelInput = this.element.querySelector(".select-llm");
-        modelInput.addEventListener("change", (event) => {
+        modelInput.addEventListener("change", async (event) => {
             let modelName = modelInput.value;
-            let model = this.models.find((model) => model.name === modelName);
-            let sizeInput = this.element.querySelector(".select-size");
-            let sizeOptions = "";
-            for(let size of model.size){
-                sizeOptions += `<option value="${size}">${size}</option>`;
+            let newModel = this.models.find((model) => model.name === modelName);
+            if(newModel.size && this.currentModel.size){
+                let sizeInput = this.element.querySelector(".select-size");
+                let sizeOptions = "";
+                for(let size of newModel.size){
+                    sizeOptions += `<option value="${size}">${size}</option>`;
+                }
+                sizeInput.innerHTML = sizeOptions;
             }
-            sizeInput.innerHTML = sizeOptions;
+            this.currentModel = newModel;
+            await this.rememberValues();
+            this.invalidate();
         });
+        if(this.prompt){
+            let promptInput = this.element.querySelector("#prompt");
+            promptInput.value = this.prompt;
+        }
+        for(let value of this.selectInputs){
+            let optionElement = this.element.querySelector(`[value="${value}"]`);
+            if(optionElement){
+                optionElement.selected = true;
+            }
+        }
     }
-
+    async rememberValues() {
+        this.selectInputs = [];
+        let formData = await assistOS.UI.extractFormInformation(this.element.querySelector("form"));
+        this.prompt = formData.data.prompt;
+        let formSelects = this.element.querySelectorAll("select");
+        for(let selectElement of formSelects){
+            this.selectInputs.push(selectElement.value);
+        }
+    }
     closeModal(_target) {
         assistOS.UI.closeModal(_target);
     }
 
     async generateImage(_target) {
         let formData = await assistOS.UI.extractFormInformation(_target);
-        if(!formData.isValid){
+        if (!formData.isValid) {
             return;
         }
         let loaderId = assistOS.UI.showLoading();
         this.prompt = formData.data.prompt;
-        this.images = await assistOS.callFlow("GenerateImage", {
+        let flowContext = {
             spaceId: assistOS.space.id,
             prompt: formData.data.prompt,
-            variants: formData.data.variants,
-            modelName: formData.data.modelName,
-            size: formData.data.size,
-            style: formData.data.style,
-            quality: formData.data.quality,
-        }, formData.data.personality);
+            modelName: formData.data.modelName
+        }
+        for(let configName of Object.keys(this.currentModel)){
+            if(configName === "name" || configName === "type"){
+                continue
+            }
+            flowContext[configName] = formData.data[configName];
+        }
+        if(this.currentModel.variants){
+            this.images = await assistOS.callFlow("GenerateImage", flowContext, formData.data.personality);
+        } else if(this.currentModel.buttons){
+            this.image = await assistOS.callFlow("GenerateImage", flowContext, formData.data.personality);
+            this.images.push(this.image.uri);
+            this.renderImageButtons();
+        }
+        await this.rememberValues();
         assistOS.UI.hideLoading(loaderId);
         this.invalidate();
     }
-
+    renderImageButtons(){
+        let buttonsSectionElement = this.element.querySelector(".buttons-section");
+        if(buttonsSectionElement){
+            buttonsSectionElement.remove();
+        }
+        let buttonsHTML = "";
+        for(let action of this.image.buttons){
+            buttonsHTML += `<button class="general-button" data-local-action="editImage ${action}">${this.currentModel.buttons[action]}</button>`
+        }
+        let buttonsSection = `<div class="buttons-section">${buttonsHTML}</div>`;
+        let generateImgBtn = this.element.querySelector(".generate-image");
+        generateImgBtn.insertAdjacentHTML("beforebegin", buttonsSection);
+    }
+    async editImage(_target, action){
+        this.image = await llmModule.editImage(this.image, action);
+        this.renderImageButtons();
+    }
     async openGalleryPage(_target) {
         await assistOS.UI.changeToDynamicPage("space-configs-page", `${assistOS.space.id}/Space/gallery-page/${this.id}`);
     }
