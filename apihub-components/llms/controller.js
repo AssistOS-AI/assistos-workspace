@@ -24,8 +24,9 @@ async function getLLMAuthRequirements() {
 
 async function getLLMConfigs() {
     if (!LLMConfigs) {
-        await getLLMAuthRequirements();
+       await getLLMAuthRequirements();
     }
+    return LLMConfigs;
 }
 
 async function sendLLMConfigs(request, response) {
