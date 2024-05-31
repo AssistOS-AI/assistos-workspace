@@ -128,10 +128,21 @@ export class AgentPage {
         }
     }
 
+    getChatHistory() {
+        const chatUnits = this.element.querySelectorAll("chat-unit");
+        const chatHistory = [];
+        for (const chatUnit of chatUnits) {
+            let role = chatUnit.getAttribute("role");
+            role = role === "own" ? "user" : role;
+            chatHistory.push({role: role, content: chatUnit.getAttribute("message")});
+        }
+        return chatHistory;
+    }
 
     async sendMessage(_target) {
         let formInfo = await assistOS.UI.extractFormInformation(_target);
-        let userMessage = assistOS.UI.sanitize(assistOS.UI.customTrim(formInfo.data.input));
+        const userRequestMessage = assistOS.UI.customTrim(formInfo.data.input)
+        let userMessage = assistOS.UI.sanitize(userRequestMessage);
         formInfo.elements.input.element.value = "";
 
         if (!userMessage.trim()) {
@@ -142,7 +153,9 @@ export class AgentPage {
         await this.displayMessage("own", userMessage);
 
         try {
-            await assistOS.agent.processUserRequest(userMessage, {});
+            const context = {}
+            context.chatHistory = this.getChatHistory();
+            await assistOS.agent.processUserRequest(userRequestMessage, context);
         } catch (e) {
             console.error(e);
         }
