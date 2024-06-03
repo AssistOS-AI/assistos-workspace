@@ -1,21 +1,10 @@
-function bodyReaderMiddleware(req, res, next) {
-    const data = [];
-
-    req.on('data', (chunk) => {
-        data.push(chunk);
-    });
-
-    req.on('end', () => {
-        req.body = Buffer.concat(data);
-        next();
-    });
-}
+const bodyReader=require("../apihub-component-middlewares/bodyReader");
 
 function PersonalitiesStorage(server){
     const { loadKnowledge, loadFilteredKnowledge, addKnowledge, storeKnowledge } = require("./controller");
     server.get("/personalities/:spaceId/:personalityId", loadKnowledge);
     server.get("/personalities/:spaceId/:personalityId/search", loadFilteredKnowledge);
-    server.use("/personalities/*", bodyReaderMiddleware);
+    server.use("/personalities/*", bodyReader);
     server.put("/personalities/:spaceId/:personalityId/add", addKnowledge);
     server.put("/personalities/:spaceId/:personalityId/store", storeKnowledge);
 }

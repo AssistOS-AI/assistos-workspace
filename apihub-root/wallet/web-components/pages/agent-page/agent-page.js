@@ -37,7 +37,7 @@ export class AgentPage {
         this.personalitiesHTML = personalitiesHTML;
         this.spaceConversation = stringHTML;
         this.currentPersonalityName = "Artist";
-        this.personalityLLM = "GPT 3.5";
+        this.personalityLLM = "GPT-4o";
         this.spaceName = assistOS.space.name;
     }
 
@@ -134,7 +134,9 @@ export class AgentPage {
         for (const chatUnit of chatUnits) {
             let role = chatUnit.getAttribute("role");
             role = role === "own" ? "user" : role;
-            chatHistory.push({role: role, content: chatUnit.getAttribute("message")});
+            if(role!=="undefined") {
+                chatHistory.push({role: role, content: chatUnit.getAttribute("message")});
+            }
         }
         return chatHistory;
     }
@@ -149,17 +151,16 @@ export class AgentPage {
             return;
         }
         const messageId = (await spaceModule.addSpaceChatMessage(assistOS.space.id, userMessage)).messageId
-
+        const context = {};
+        context.chatHistory = this.getChatHistory();
         await this.displayMessage("own", userMessage);
+        const conversationContainer = this.element.querySelector('.conversation');
 
         try {
-            const context = {}
-            context.chatHistory = this.getChatHistory();
-            await assistOS.agent.processUserRequest(userRequestMessage, context);
-        } catch (e) {
-            console.error(e);
+            await assistOS.agent.processUserRequest(userRequestMessage, context,  conversationContainer,messageId);
+        } catch (error) {
+            console.error('Failed to find element:', error);
         }
-
     }
 
     refreshRightPanel() {

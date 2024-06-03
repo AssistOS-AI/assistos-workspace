@@ -185,7 +185,7 @@ class AssistOS {
             await (spaceId ? skipSpace ? assistOS.initUser() : assistOS.initUser(spaceId) : assistOS.initUser());
             await initPage();
         } catch (error) {
-            console.error(error);
+            console.info(error);
             hidePlaceholders();
             await assistOS.UI.changeToDynamicPage("authentication-page", "authentication-page");
         }
