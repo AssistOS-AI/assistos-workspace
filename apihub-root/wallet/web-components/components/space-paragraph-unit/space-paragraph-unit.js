@@ -35,7 +35,8 @@ export class SpaceParagraphUnit{
             this.openTTSUnit = false;
         }
         if(assistOS.space.currentParagraphId === this.paragraph.id){
-            this.documentPresenter.editParagraph(this.element.querySelector(".paragraph-text"))
+                let paragraphText = this.element.querySelector(".paragraph-text");
+                paragraphText.click();
         }
     }
     openPersonalitiesPopUp(_target){

@@ -138,7 +138,7 @@ export class SpaceDocumentViewPage {
             this.previouslySelectedParagraph["timer"] = timer;
             this.resetTimer = async (event) => {
                 if (paragraph.innerText.trim() === "" && event.key === "Backspace") {
-                    if (currentParagraph) {
+                    if (assistOS.space.currentParagraphId === currentParagraphId) {
                         let curentParagraphIndex = this.chapter.getParagraphIndex(currentParagraphId);
                         await assistOS.callFlow("DeleteParagraph", {
                             spaceId: assistOS.space.id,
@@ -195,7 +195,7 @@ export class SpaceDocumentViewPage {
             }
         } else if (this.chapterUnit) {
             /* clickul e pe un capitol si nu pe un paragraf*/
-            if (this.chapterUnit !== this.previouslySelectedChapter) {
+            if (!this.chapterUnit.hasAttribute("id") && this.previouslySelectedChapter.hasAttribute("id")) {
                 /* clickul e pe un capitol diferit de cel curent si nu e pe un paragraf */
                 this.deselectPreviousParagraph();
                 this.deselectPreviousChapter(event);
@@ -507,21 +507,6 @@ export class SpaceDocumentViewPage {
             position: position
         });
         assistOS.space.currentChapterId = chapterId;
-    }
-
-    async addParagraph(_target) {
-        let chapter = this._document.getChapter(assistOS.space.currentChapterId);
-        let position = chapter.paragraphs.length;
-        if (assistOS.space.currentParagraphId) {
-            position = chapter.getParagraphIndex(assistOS.space.currentParagraphId) + 1;
-        }
-        assistOS.space.currentParagraphId = await assistOS.callFlow("AddParagraph", {
-            spaceId: assistOS.space.id,
-            documentId: this._document.id,
-            chapterId: chapter.id,
-            position: position
-        });
-        assistOS.space.currentChapterId = chapter.id;
     }
 
     async openDocumentsPage() {
