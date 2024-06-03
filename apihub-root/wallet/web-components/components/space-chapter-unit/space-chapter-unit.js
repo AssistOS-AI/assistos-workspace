@@ -53,18 +53,7 @@ export class SpaceChapterUnit {
     }
     afterRender() {
         this.chapterUnit = this.element.querySelector(".chapter-unit");
-        let selectedParagraphs = this.element.querySelectorAll(".paragraph-text");
-        let currentParagraph = "";
-        for(let paragraph of selectedParagraphs){
-            if (assistOS.UI.reverseQuerySelector(paragraph, '[data-paragraph-id]').getAttribute("data-paragraph-id") === assistOS.space.currentParagraphId) {
-                currentParagraph = paragraph;
-                currentParagraph.click();
-                assistOS.UI.moveCursorToEnd(currentParagraph);
-                //currentParagraph.scrollIntoView({behavior: "smooth", block: "center", inline: "nearest"});
-                break;
-            }
-        }
-        if (this.chapter.id === assistOS.space.currentChapterId && !currentParagraph) {
+        if (this.chapter.id === assistOS.space.currentChapterId && !assistOS.space.currentParagraphId) {
             this.chapterUnit.click();
             //this.element.scrollIntoView({behavior: "smooth", block: "center", inline: "nearest"});
         }
@@ -86,11 +75,16 @@ export class SpaceChapterUnit {
         if (!fromParagraph && !fromChapter) {
             return;
         }
-        await assistOS.callFlow("AddParagraph", {
-            spaceId: assistOS.space.id,
-            documentId: this._document.id,
-            chapterId: this.chapter.id
-        });
+        let position = this.chapter.paragraphs.length;
+        if (assistOS.space.currentParagraphId) {
+            position = this.chapter.getParagraphIndex(assistOS.space.currentParagraphId) + 1;
+        }
+        assistOS.space.currentParagraphId = await assistOS.callFlow("AddParagraph", {
+           spaceId: assistOS.space.id,
+           documentId: this._document.id,
+           chapterId: this.chapter.id,
+           position: position
+       });
     }
     highlightChapter(){
         this.deselectPreviousElements();

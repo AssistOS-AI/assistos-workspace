@@ -61,7 +61,9 @@ async function deleteSpaceKey(spaceId, keyType) {
         error.statusCode = 400
         throw error
     }
-    spaceAPIKeyObject[keyType]= {}
+    for(let key of Object.keys(spaceAPIKeyObject[keyType])){
+        spaceAPIKeyObject[keyType][key] = "";
+    }
     try {
         await secretsService.putSecretAsync(getSpaceSecretsContainerName(spaceId), "apiKeys", spaceAPIKeyObject)
     } catch (e) {
