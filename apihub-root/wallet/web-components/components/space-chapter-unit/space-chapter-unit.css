@@ -17,7 +17,13 @@
 html[theme="dark"] .arrow svg {
     filter: brightness(0) invert(1);
 }
+.chapter-to-image{
 
+    position: absolute;
+    top: -2px;
+    right: 20px;
+    cursor: pointer;
+}
 .delete-chapter {
     visibility: hidden;
     position: absolute;

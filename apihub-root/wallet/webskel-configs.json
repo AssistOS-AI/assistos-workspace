@@ -4,6 +4,11 @@
     "services": [],
     "components": [
         {
+            "name": "insert-image-modal",
+            "type": "modals",
+            "presenterClassName": "InsertImageModal"
+        },
+        {
             "name": "text-to-speech-unit",
             "type": "components",
             "presenterClassName": "TextToSpeechUnit"
