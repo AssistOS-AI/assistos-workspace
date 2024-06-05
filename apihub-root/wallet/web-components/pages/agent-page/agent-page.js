@@ -135,7 +135,7 @@ export class AgentPage {
             let role = chatUnit.getAttribute("role");
             role = role === "own" ? "user" : role;
             if(role!=="undefined") {
-                chatHistory.push({role: role, content: chatUnit.getAttribute("message")});
+                chatHistory.push({role: role, content: chatUnit.querySelector("#messageContainer").innerText});
             }
         }
         return chatHistory;

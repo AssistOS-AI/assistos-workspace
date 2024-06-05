@@ -150,8 +150,9 @@ agent-page {
 
 
 .chat-input-container {
-    min-height: 70px;
-    max-height: 120px;
+    height:120px;
+    min-height:120px;
+    max-height:120px;
     padding: 10px 15px;
     background: #E9E9E9;
     justify-content: space-between;
@@ -167,17 +168,16 @@ agent-page {
     padding-left: 15px;
     background: var(--chat-input-container);
     border-radius: 6px;
-    max-height: 100px;
-    height: 50px;
-    min-height: 50px;
+    min-height: 60px;
+    max-height:50px;
     width: 100%;
     display: flex;
     align-items: center;
 }
 
 #input {
-    height: 100%;
-    min-height: 50px;
+    min-height: 60px;
+    max-height:60px;
     resize: none;
     width: 100%;
     padding: 16px;
@@ -198,26 +198,17 @@ agent-page {
     padding-top: 70px; /* Adjust according to the actual height of your header */
     position: relative;
     overflow-y: scroll;
-    height: calc(100% - 70px); /* Adjust based on your layout */
+    height: calc(100% - 120px); /* Adjust based on your layout */
 }
 
 .chat-box-container {
     position: relative;
     display: flex;
     margin-bottom: 15px;
+    margin-left:6px;
     align-items: stretch;
 }
 
-.user:before {
-    content: "";
-    position: absolute;
-    bottom: 0;
-    left: -22px;
-    height: 27px;
-    width: 24px;
-    border-bottom-right-radius: 68%;
-    box-shadow: 11px 0 0 0 var(--white-text);
-}
 
 .chat-box {
     padding: 5px 5px 5px 12px;
@@ -230,17 +221,6 @@ agent-page {
     font-size: 16px;
 }
 
-/*
-.robot:after {
-    position: absolute;
-    content: "";
-    bottom: 0;
-    right: -22px;
-    height: 27px;
-    width: 24px;
-    border-bottom-left-radius: 68%;
-    box-shadow: -11px 0 0 0 var(--light-blue);
-}*/
 
 
 .user-box {
@@ -248,10 +228,11 @@ agent-page {
     max-width: 60%;
     word-wrap: break-word;
     white-space: normal;
-    border-radius: 16px 16px 16px 0;
+    border-radius: 16px 16px 16px 16px;
     color: var(--user-text);
     background: var(--white-text);
     margin-right: auto;
+    margin-left:5px;
 }
 
 .robot-box {
@@ -259,10 +240,11 @@ agent-page {
     max-width: 60%;
     word-wrap: break-word;
     white-space: normal;
-    border-radius: 16px 16px 0 16px;
+    border-radius: 16px 16px 16px 16px;
     background: var(--light-blue);
     color: var(--robot-text);
     margin-left: auto;
+    margin-right:6px;
 }
 
 .page-logo-section {

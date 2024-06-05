@@ -643,18 +643,8 @@ async function createSpace(request, response) {
         });
         return;
     }
-
-    const apiKey = request.headers.apikey;
-    if (!apiKey) {
-        utils.sendResponse(response, 400, "application/json", {
-            message: "Bad Request: API Key is required",
-            success: false
-        });
-        return;
-    }
-
     try {
-        let newSpace = await space.APIs.createSpace(spaceName, userId, apiKey);
+        let newSpace = await space.APIs.createSpace(spaceName, userId);
         utils.sendResponse(response, 201, "application/json", {
             message: `Space created successfully: ${newSpace.id}`,
             data: newSpace,
