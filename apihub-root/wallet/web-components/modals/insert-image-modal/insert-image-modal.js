@@ -1,3 +1,4 @@
+const spaceModule = require("assistos").loadModule("space", {});
 export class InsertImageModal {
     constructor(element, invalidate) {
         this.element = element;
@@ -10,7 +11,10 @@ export class InsertImageModal {
                 <button data-local-action="openGallerySection">From Gallery</button>
                 <button data-local-action="openGenerateSection">Generate</button>
             </div>`;
-        this.invalidate();
+        this.invalidate(async ()=>{
+            this.galleries = await spaceModule.getGalleriesMetadata(assistOS.space.id);
+        });
+        this.selectedImages = [];
     }
 
     beforeRender() {
@@ -24,9 +28,19 @@ export class InsertImageModal {
                 <button type="button" class="general-button" data-local-action="changePersonality">Generate image</button>
             </div>
         </form>`;
+        let galleriesHMTL = "";
+        if(this.galleries.length > 0) {
+            this.galleries.forEach((gallery) => {
+                galleriesHMTL += `<gallery-unit data-name="${assistOS.UI.sanitize(gallery.name)}" 
+                data-id="${gallery.id}" data-local-action="openGallery ${gallery.id}"></gallery-unit>`;
+            });
+        }
+        else {
+            galleriesHMTL = `<div> There are no galleries yet </div>`;
+        }
         this.gallerySection = `
         <div class="modal-body gallery-section">
-         to be done
+         ${galleriesHMTL}
         </div>`;
     }
 
@@ -38,6 +52,28 @@ export class InsertImageModal {
                 inputValue += paragraph.text;
             }
             input.value = inputValue;
+        }
+        if(this.modalBody === this.galleryImagesSection){
+            let images = this.element.querySelectorAll(".gallery-image");
+            images.forEach((image) => {
+                image.addEventListener("click", (event) => {
+                    let imgContainer = event.target.parentElement;
+                    let imgSrc = event.target.src;
+                    let checkbox = imgContainer.querySelector(".image-checkbox");
+                    event.target.classList.toggle("selected-image");
+                    if(imgContainer.classList.contains("selected")){
+                        imgContainer.classList.remove("selected");
+                        checkbox.checked = false;
+                        checkbox.style.visibility = "hidden";
+                        this.selectedImages = this.selectedImages.filter((img) => img !== imgSrc);
+                    } else {
+                        imgContainer.classList.add("selected");
+                        checkbox.checked = true;
+                        checkbox.style.visibility = "visible";
+                        this.selectedImages.push(imgSrc);
+                    }
+                });
+            });
         }
 
     }
@@ -51,5 +87,31 @@ export class InsertImageModal {
     }
     closeModal(_target){
         assistOS.UI.closeModal(_target);
+    }
+    async openGallery(_target, galleryId){
+        let gallery = await spaceModule.getGallery(assistOS.space.id, galleryId);
+        let stringHTML = "";
+        for(let image of gallery.images){
+            stringHTML += `
+            <div class="img-container">
+                <img class="gallery-image" src="${image.src}" alt="${image.timestamp}">
+                <input type="checkbox" class="image-checkbox">
+            </div>
+            `;
+        }
+        this.galleryImagesSection = `
+        <div class="modal-body gallery-images">
+            <div class="images-grid">
+                 ${stringHTML}
+            </div>
+            <div class="modal-footer">
+                <button type="button" class="general-button" data-local-action="insertImages">Insert</button>
+            </div>
+        </div>`;
+        this.modalBody = this.galleryImagesSection;
+        this.invalidate();
+    }
+    insertImages(_target){
+        assistOS.UI.closeModal(_target, this.selectedImages);
     }
 }

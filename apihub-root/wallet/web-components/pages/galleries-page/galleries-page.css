@@ -18,9 +18,7 @@ galleries-page {
 .header-buttons{
     display: flex;
 }
-.left-margin{
-    margin-left: 10px;
-}
+
 .table-labels{
     padding: 10px 0 10px 20px;
     display: flex;
