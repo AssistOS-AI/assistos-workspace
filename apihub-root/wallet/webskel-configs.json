@@ -4,6 +4,11 @@
     "services": [],
     "components": [
         {
+            "name": "midjourney-image-unit",
+            "type": "components",
+            "presenterClassName": "MidjourneyImageUnit"
+        },
+        {
             "name": "insert-image-modal",
             "type": "modals",
             "presenterClassName": "InsertImageModal"

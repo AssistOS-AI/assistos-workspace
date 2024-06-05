@@ -99,7 +99,7 @@ async function sendRequest(url, method, request, response) {
 
     let llmResponse = JSON.parse(await result.text());
     if (!llmResponse.success) {
-        console.error(llmResponse.message);
+        throw new Error(llmResponse.message);
     }
     return llmResponse.data;
 }

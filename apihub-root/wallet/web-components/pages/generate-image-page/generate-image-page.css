@@ -21,8 +21,6 @@ generate-image-page{
     flex-flow: row wrap;
 }
 .page-body{
-    height: calc(100% - 100px);
-    overflow: auto;
     padding: 0;
 }
 #prompt{
@@ -51,8 +49,20 @@ generate-image-page{
     padding: 10px 10px;
     overflow: auto;
     width: 100%;
+    height: inherit;
     display: grid;
     grid-template-columns: repeat(4, 1fr);
+}
+.midjourney-images-section{
+    padding: 10px 10px;
+    overflow: auto;
+    width: 100%;
+    height: 400px;
+}
+@media only screen and (min-height: 1081px) {
+    .midjourney-images-section {
+        height: 600px;
+    }
 }
 .generated-image{
     width: 210px;
@@ -89,13 +99,4 @@ generate-image-page{
     width: 100%;
     justify-content: center;
     height: 25px;
-}
-.buttons-section{
-    margin-top: 10px;
-    display: flex;
-    flex-flow: row wrap;
-}
-.buttons-section > button {
-    margin-right: 10px;
-    margin-bottom: 10px;
 }

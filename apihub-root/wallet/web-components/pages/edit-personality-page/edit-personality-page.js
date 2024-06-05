@@ -60,7 +60,7 @@ export class EditPersonalityPage{
 
     afterRender(){
         let description = this.element.querySelector("textarea");
-        description.value = this.personality.description;
+        description.innerHTML = this.personality.description;
         this.userInput = this.element.querySelector("#search");
         this.userInput.removeEventListener("keypress", this.boundFn);
         this.boundFn = this.preventRefreshOnEnter.bind(this);
