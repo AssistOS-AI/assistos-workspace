@@ -1,0 +1,9 @@
+dialog[class = "modal"]{
+    width: 400px;
+    height: 600px;
+}
+#prompt{
+    resize: none;
+    width: 400px;
+    height: 200px;
+}

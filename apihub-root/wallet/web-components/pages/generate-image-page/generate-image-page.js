@@ -37,7 +37,6 @@ export class GenerateImagePage {
         this.qualitySelect = "";
         this.personalitiesHTML = personalitiesHTML;
         this.imagesHTML = "";
-        let pngPrefix = "data:image/png;base64,"
         for (let image of this.images) {
             this.imagesHTML += `<div class="image-unit">
                                     <div class="image-menu">
@@ -45,7 +44,7 @@ export class GenerateImagePage {
                                         <button class="general-button small" data-local-action="saveImageToDevice">Save to my device</button>
                                         <button class="general-button small">History</button>
                                     </div>
-                                    <img src="${pngPrefix}${image}" class="generated-image" alt="img">
+                                    <img src="${image}" class="generated-image" alt="img">
                                     <input type="checkbox" class="image-checkbox">
                                 </div>`;
         }
@@ -108,14 +107,33 @@ export class GenerateImagePage {
         }
     }
 
-    getImageSrc(_target) {
+    async getImageSrc(_target) {
         let imageUnit = _target.closest(".image-unit");
         let image = imageUnit.querySelector("img");
+        const pattern = /^http/;
+        if(pattern.test(image.src))
+        {
+            const response = await fetch(image.src);
+            if (!response.ok) {
+                throw new Error(`HTTP error! Status: ${response.status}`);
+            }
+            const blob = await response.blob();
+            const reader = new FileReader();
+            return new Promise((resolve, reject) => {
+                reader.onloadend = () => {
+                    resolve(reader.result);
+                };
+                reader.onerror = () => {
+                    reject(new Error('FileReader error'));
+                };
+                reader.readAsDataURL(blob);
+            });
+        }
         return image.src;
     }
 
     async saveImage(_target) {
-        let imgSource = this.getImageSrc(_target);
+        let imgSource = await this.getImageSrc(_target);
         await spaceModule.addImage(assistOS.space.id, this.id, {
             src: imgSource,
             userId: assistOS.user.id,
@@ -182,6 +200,9 @@ export class GenerateImagePage {
                 optionElement.selected = true;
             }
         }
+        if(this.image){
+            this.renderImageButtons();
+        }
     }
     async rememberValues() {
         this.selectInputs = [];
@@ -210,16 +231,27 @@ export class GenerateImagePage {
         }
         for(let configName of Object.keys(this.currentModel)){
             if(configName === "name" || configName === "type"){
-                continue
+                continue;
             }
             flowContext[configName] = formData.data[configName];
         }
         if(this.currentModel.variants){
             this.images = await assistOS.callFlow("GenerateImage", flowContext, formData.data.personality);
+            let pngPrefix = "data:image/png;base64,"
+            for(let img of this.images){
+                img = pngPrefix + img;
+            }
         } else if(this.currentModel.buttons){
-            this.image = await assistOS.callFlow("GenerateImage", flowContext, formData.data.personality);
+            //this.image = await assistOS.callFlow("GenerateImage", flowContext, formData.data.personality);
+            this.image = {"prompt":"a black cat",
+                "status":"DONE",
+                "uri":"https://image.mymidjourney.ai/storage/v1/object/public/cdn/9cfaecff-2a16-4666-ae8d-2e5086b33b87.png",
+                "progress":100,
+                "buttons":["U1","U2","U3","U4","🔄","V1","V2","V3","V4"],
+                "messageId":"1f373462-9b80-4840-9165-4812a1db061b",
+                "createdAt":"2024-06-04T08:09:30+00:00",
+                "updatedAt":"2024-06-04T08:10:06+00:00"};
             this.images.push(this.image.uri);
-            this.renderImageButtons();
         }
         await this.rememberValues();
         assistOS.UI.hideLoading(loaderId);
@@ -239,8 +271,14 @@ export class GenerateImagePage {
         generateImgBtn.insertAdjacentHTML("beforebegin", buttonsSection);
     }
     async editImage(_target, action){
-        this.image = await llmModule.editImage(this.image, action);
-        this.renderImageButtons();
+        let loaderId = await assistOS.UI.showLoading();
+        this.image = await llmModule.editImage(assistOS.space.id, this.currentModel.name, {
+            messageId: this.image.messageId,
+            action: action
+        });
+        this.images.push(this.image.uri);
+        assistOS.UI.hideLoading(loaderId);
+        this.invalidate();
     }
     async openGalleryPage(_target) {
         await assistOS.UI.changeToDynamicPage("space-configs-page", `${assistOS.space.id}/Space/gallery-page/${this.id}`);

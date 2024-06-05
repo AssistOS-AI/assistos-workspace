@@ -1,4 +1,5 @@
 const {notificationService} = require("assistos").loadModule("util", {});
+
 export class SpaceChapterUnit {
     constructor(element, invalidate) {
         this.element = element;
@@ -6,14 +7,14 @@ export class SpaceChapterUnit {
         this._document = document.querySelector("space-document-view-page").webSkelPresenter._document;
         let chapterId = this.element.getAttribute("data-chapter-id");
         this.chapter = this._document.getChapter(chapterId);
-        this.refreshChapter = async () =>{
+        this.refreshChapter = async () => {
             this.chapter = await this._document.refreshChapter(this._document.id, this.chapter.id);
         };
-        this.refreshChapterTitle = async () =>{
-             await this.chapter.refreshChapterTitle(assistOS.space.id, this._document.id, this.chapter.id);
+        this.refreshChapterTitle = async () => {
+            await this.chapter.refreshChapterTitle(assistOS.space.id, this._document.id, this.chapter.id);
         };
-        this.refreshParagraph = (paragraphId) =>{
-            return async ()=> {
+        this.refreshParagraph = (paragraphId) => {
+            return async () => {
                 await this.chapter.refreshParagraph(assistOS.space.id, this._document.id, paragraphId);
             };
         }
@@ -24,10 +25,11 @@ export class SpaceChapterUnit {
         this.subscribeToChapterEvents();
         this.invalidate();
     }
+
     beforeRender() {
         let chapterId = this.element.getAttribute("data-chapter-id");
         this.chapter = this._document.getChapter(chapterId);
-        this.chapterTitle=this.chapter.title;
+        this.chapterTitle = this.chapter.title;
         this.titleMetadata = this.element.variables["data-title-metadata"];
         this.chapterContent = "";
         if (this.chapter) {
@@ -43,21 +45,23 @@ export class SpaceChapterUnit {
             this.chapterContent += `<space-paragraph-unit data-presenter="space-paragraph-unit" data-metadata="paragraph nr. ${iterator} with id ${paragraph.id}" data-paragraph-id="${paragraph.id}" data-chapter-id="${this.chapter.id}"></space-paragraph-unit>`;
         });
     }
-    subscribeToChapterEvents(){
-        notificationService.on(this.chapter.id + "/title", ()=>{
+
+    subscribeToChapterEvents() {
+        notificationService.on(this.chapter.id + "/title", () => {
             this.invalidate(this.refreshChapterTitle);
         });
-        notificationService.on(this.chapter.id, ()=>{
+        notificationService.on(this.chapter.id, () => {
             this.invalidate(this.refreshChapter);
         });
     }
+
     afterRender() {
         this.chapterUnit = this.element.querySelector(".chapter-unit");
         if (this.chapter.id === assistOS.space.currentChapterId && !assistOS.space.currentParagraphId) {
             this.chapterUnit.click();
             //this.element.scrollIntoView({behavior: "smooth", block: "center", inline: "nearest"});
         }
-        if(this.chapter.visibility === "hide"){
+        if (this.chapter.visibility === "hide") {
             let paragraphsContainer = this.element.querySelector(".chapter-paragraphs");
             paragraphsContainer.classList.toggle('hidden');
             let arrow = this.element.querySelector(".arrow");
@@ -69,7 +73,7 @@ export class SpaceChapterUnit {
         if (!event.ctrlKey || event.key !== 'Enter') {
             return;
         }
-        const fromParagraph = assistOS.UI.reverseQuerySelector(event.target, '[data-paragraph-id]','space-chapter-unit');
+        const fromParagraph = assistOS.UI.reverseQuerySelector(event.target, '[data-paragraph-id]', 'space-chapter-unit');
         const fromChapter = assistOS.UI.reverseQuerySelector(event.target, '.chapter-unit');
 
         if (!fromParagraph && !fromChapter) {
@@ -80,17 +84,18 @@ export class SpaceChapterUnit {
             position = this.chapter.getParagraphIndex(assistOS.space.currentParagraphId) + 1;
         }
         assistOS.space.currentParagraphId = await assistOS.callFlow("AddParagraph", {
-           spaceId: assistOS.space.id,
-           documentId: this._document.id,
-           chapterId: this.chapter.id,
-           position: position
-       });
+            spaceId: assistOS.space.id,
+            documentId: this._document.id,
+            chapterId: this.chapter.id,
+            position: position
+        });
     }
-    highlightChapter(){
+
+    highlightChapter() {
         this.deselectPreviousElements();
         this.chapterUnit.setAttribute("id", "highlighted-element");
         assistOS.space.currentChapterId = this.chapter.id;
-        if(this._document.chapters.length===1){
+        if (this._document.chapters.length === 1) {
             return;
         }
         let foundElement = this.chapterUnit.querySelector('.chapter-arrows');
@@ -98,6 +103,7 @@ export class SpaceChapterUnit {
         let xMark = this.chapterUnit.querySelector('.delete-chapter');
         xMark.style.visibility = "visible";
     }
+
     async editChapterTitle(title) {
         this.deselectPreviousElements(title);
         title.setAttribute("contenteditable", "true");
@@ -113,7 +119,7 @@ export class SpaceChapterUnit {
 
         let timer = assistOS.services.SaveElementTimer(async () => {
             let titleText = assistOS.UI.sanitize(assistOS.UI.customTrim(title.innerText))
-            if(!titleText){
+            if (!titleText) {
                 titleText = "";
             }
             if (titleText !== this.chapter.title && titleText !== "") {
@@ -129,12 +135,12 @@ export class SpaceChapterUnit {
         /* constants for page names */
         /* save button hidden */
         title.addEventListener("focusout", async (event) => {
-            title.innerText = assistOS.UI.customTrim(title.innerText)||assistOS.UI.unsanitize(this.chapter.title || "");
+            title.innerText = assistOS.UI.customTrim(title.innerText) || assistOS.UI.unsanitize(this.chapter.title || "");
             await timer.stop(true);
             title.removeAttribute("contenteditable");
             let agentPage = document.getElementById("agent-page");
-            if(event.relatedTarget){
-                if((event.relatedTarget.getAttribute("id") !== "agent-page") && !agentPage.contains(event.relatedTarget)){
+            if (event.relatedTarget) {
+                if ((event.relatedTarget.getAttribute("id") !== "agent-page") && !agentPage.contains(event.relatedTarget)) {
                     title.removeAttribute("id");
                 }
             } else {
@@ -149,21 +155,41 @@ export class SpaceChapterUnit {
         title.addEventListener("keydown", resetTimer);
     }
 
-    deselectPreviousElements(element){
+    deselectPreviousElements(element) {
         let previousHighlightedElement = document.querySelector("#highlighted-element");
-        if(previousHighlightedElement && !previousHighlightedElement.contains(element)){
+        if (previousHighlightedElement && !previousHighlightedElement.contains(element)) {
             previousHighlightedElement.removeAttribute("id");
         }
         let previousHighlightedChildElement = document.querySelector("#highlighted-child-element");
-        if(previousHighlightedChildElement){
+        if (previousHighlightedChildElement) {
             previousHighlightedChildElement.removeAttribute("id");
         }
     }
+
     changeChapterDisplay(_target) {
         this.chapter.visibility === "hide" ? this.chapter.visibility = "show" : this.chapter.visibility = "hide";
         let paragraphsContainer = this.element.querySelector(".chapter-paragraphs");
         paragraphsContainer.classList.toggle('hidden');
         _target.classList.toggle('rotate');
+    }
+
+    async openInsertImageModal(_target) {
+        let paragraph;
+        if (assistOS.space.currentParagraphId) {
+            paragraph = this.chapter.getParagraph(assistOS.space.currentParagraphId);
+        } else {
+            paragraph = this.chapter.paragraphs[this.chapter.paragraphs.length - 1];
+        }
+        let data = await assistOS.UI.showModal("insert-image-modal", {["chapter-id"]: this.chapter.id}, true);
+        if(data){
+            await assistOS.callFlow("InsertImage", {
+                spaceId: assistOS.space.id,
+                documentId: this._document.id,
+                chapterId: this.chapter.id,
+                paragraphId: paragraph.id,
+                data: data
+            });
+        }
     }
 }
 
