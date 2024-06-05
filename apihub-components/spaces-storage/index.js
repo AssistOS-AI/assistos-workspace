@@ -29,6 +29,7 @@ const {
 const bodyReader = require('../apihub-component-middlewares/bodyReader.js')
 const authentication = require('../apihub-component-middlewares/authentication.js')
 const {getAPIKeys} = require("../apihub-component-utils/secrets");
+const {getImageResponse, editImage, getImageVariants, getVideoResponse, getTextResponse, getTextStreamingResponse} = require("../llms/controller");
 
 function SpaceStorage(server) {
     server.use("/spaces/*", bodyReader);
@@ -77,6 +78,15 @@ function SpaceStorage(server) {
 
     server.delete("/spaces/secrets/keys/:keyType",deleteAPIKey);
     server.delete("/spaces/:spaceId/secrets/keys/:keyType",deleteAPIKey);
+
+
+    server.post("spaces/:spaceId/chat/:chatId/llms/text/generate", getTextResponse);
+    server.post("spaces/:spaceId/chat/:chatId/llms/text/streaming/generate", getTextStreamingResponse);
+
+    server.post("spaces/:spaceId/chat/:chatId/llms/image/generate", getImageResponse);
+    server.post("spaces/:spaceId/chat/:chatId/llms/image/edit", editImage);
+    server.post("spaces/:spaceId/chat/:chatId/llms/image/variants", getImageVariants);
+    server.post("spaces/:spaceId/chat/:chatId/llms/video/generate", getVideoResponse);
 }
 
 module.exports = SpaceStorage;
