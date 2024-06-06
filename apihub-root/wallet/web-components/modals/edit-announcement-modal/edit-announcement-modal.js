@@ -22,14 +22,12 @@ export class EditAnnouncementModal {
     async saveAnnouncement(_target) {
         let formData = await assistOS.UI.extractFormInformation(_target);
         let announcementId = this.element.getAttribute("data-id");
-        await assistOS.callFlow("UpdateAnnouncement", {
-            spaceId: assistOS.space.id,
-            announcementId: announcementId,
-            announcementObj:{
-                title: formData.data.title,
-                text: formData.data.content
-            }
-        });
+        const spaceModule =assistOS.loadModule("space");
+        const announcementData={
+            title:formData.data.title,
+            text:formData.data.content
+        }
+        await spaceModule.updateSpaceAnnouncement(assistOS.space.id,announcementId,announcementData);
         assistOS.space.notifyObservers(assistOS.space.getNotificationId());
         assistOS.UI.closeModal(_target);
     }

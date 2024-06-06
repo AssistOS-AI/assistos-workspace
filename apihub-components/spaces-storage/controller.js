@@ -725,17 +725,17 @@ async function getAgent(request, response) {
         agentId = await space.APIs.getDefaultSpaceAgentId(spaceId)
     }
     try {
-        const agent = await space.APIs.getSpaceAgent(spaceId,agentId)
-        utils.sendResponse(response,200,"application/json",{
-            message:"Success retrieving Agent",
-            success:true,
-            data:agent
+        const agent = await space.APIs.getSpaceAgent(spaceId, agentId)
+        utils.sendResponse(response, 200, "application/json", {
+            message: "Success retrieving Agent",
+            success: true,
+            data: agent
         })
-    }catch(error){
-        utils.sendResponse(response,error.statusCode,"application/json",{
-            message:"Error retrieving Agent",
-            success:false,
-            data:error.message
+    } catch (error) {
+        utils.sendResponse(response, error.statusCode, "application/json", {
+            message: "Error retrieving Agent",
+            success: false,
+            data: error.message
         })
     }
 }
@@ -773,7 +773,7 @@ async function editAPIKey(request, response) {
             success: false
         });
     }
-    if (! request.body.type || ! request.body.APIKey) {
+    if (!request.body.type || !request.body.APIKey) {
         return utils.sendResponse(response, 400, "application/json", {
             message: "Bad Request: Key Type and API Key are required in the request body",
             success: false
@@ -873,6 +873,137 @@ async function getAPIKeysMetadata(request, response) {
     }
 }
 
+async function addSpaceAnnouncement(request, response) {
+    debugger
+    const spaceId = request.params.spaceId;
+    const announcementData = request.body;
+    if (!announcementData.text || !announcementData.title) {
+        utils.sendResponse(response, 400, "application/json", {
+            success: false,
+            message: "Bad Request: title and text are required"
+        })
+    }
+    try {
+        const announcementId = await space.APIs.addSpaceAnnouncement(spaceId, announcementData);
+        utils.sendResponse(response, 200, "application/json", {
+            success: true,
+            message: `Announcement added successfully`,
+            data: {announcementId: announcementId}
+        });
+    } catch (error) {
+        utils.sendResponse(response, 500, "application/json", {
+            success: false,
+            message: error
+        });
+    }
+}
+
+async function getSpaceAnnouncement(request, response) {
+    const spaceId = request.params.spaceId;
+    const announcementId = request.params.announcementId;
+    if (!announcementId) {
+        utils.sendResponse(response, 400, "application/json", {
+            success: false,
+            message: "Bad Request: announcementId is required"
+        })
+    }
+    if (!spaceId) {
+        utils.sendResponse(response, 400, "application/json", {
+            success: false,
+            message: "Bad Request: spaceId is required"
+        })
+    }
+    try {
+        const announcement = await space.APIs.getSpaceAnnouncement(spaceId, announcementId);
+        utils.sendResponse(response, 200, "application/json", {
+            success: true,
+            message: `Announcement loaded successfully`,
+            data: announcement
+        });
+    } catch (error) {
+        utils.sendResponse(response, error.statusCode, "application/json", {
+            success: false,
+            message: error.message
+        });
+    }
+}
+
+async function getSpaceAnnouncements(request, response) {
+    const spaceId = request.params.spaceId;
+    if (!spaceId) {
+        utils.sendResponse(response, 400, "application/json", {
+            success: false,
+            message: "Bad Request: spaceId is required"
+        })
+    }
+    try {
+        const announcements = await space.APIs.getSpaceAnnouncements(spaceId);
+        utils.sendResponse(response, 200, "application/json", {
+            success: true,
+            message: `Announcements loaded successfully`,
+            data: announcements
+        });
+    } catch (error) {
+        utils.sendResponse(response, 500, "application/json", {
+            success: false,
+            message: error.message
+        });
+    }
+}
+
+async function updateSpaceAnnouncement(request, response) {
+    const spaceId = request.params.spaceId;
+    const announcementId = request.params.announcementId;
+    const announcementData = request.body;
+    if(!spaceId || !announcementId) {
+        utils.sendResponse(response, 400, "application/json", {
+            success: false,
+            message: "Bad Request: spaceId and announcementId are required"
+        })
+    }
+    if (!announcementData.text || !announcementData.title) {
+        utils.sendResponse(response, 400, "application/json", {
+            success: false,
+            message: "Bad Request: title and text are required"
+        })
+    }
+    try {
+        await space.APIs.updateSpaceAnnouncement(spaceId, announcementId, announcementData);
+        utils.sendResponse(response, 200, "application/json", {
+            success: true,
+            message: `Announcement updated successfully`
+        });
+    } catch (error) {
+        utils.sendResponse(response, error.statusCode, "application/json", {
+            success: false,
+            message: error.message
+        });
+    }
+}
+
+async function deleteSpaceAnnouncement(request, response) {
+    const spaceId = request.params.spaceId;
+    const announcementId = request.params.announcementId;
+    if(!spaceId || !announcementId) {
+        utils.sendResponse(response, 400, "application/json", {
+            success: false,
+            message: "Bad Request: spaceId and announcementId are required"
+        })
+    }
+    try {
+        await space.APIs.deleteSpaceAnnouncement(spaceId, announcementId);
+        utils.sendResponse(response, 200, "application/json", {
+            success: true,
+            message: `Announcement deleted successfully`
+        });
+    } catch (error) {
+        utils.sendResponse(response, error.statusCode, "application/json", {
+            success: false,
+            message: error.message
+        });
+    }
+}
+
 module.exports = {
     acceptSpaceInvitation,
     rejectSpaceInvitation,
@@ -898,5 +1029,10 @@ module.exports = {
     getAgent,
     editAPIKey,
     deleteAPIKey,
-    getAPIKeysMetadata
+    getAPIKeysMetadata,
+    addSpaceAnnouncement,
+    getSpaceAnnouncement,
+    getSpaceAnnouncements,
+    updateSpaceAnnouncement,
+    deleteSpaceAnnouncement
 }

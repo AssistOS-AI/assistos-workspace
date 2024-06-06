@@ -226,15 +226,15 @@ t
     loadModule(moduleName) {
         switch (moduleName) {
             case "space":
-                return require("assistos-sdk").loadModule("space", {});
+                return require("assistos").loadModule("space", {});
             case "user":
-                return require("assistos-sdk").loadModule("user", {});
+                return require("assistos").loadModule("user", {});
             case "personality":
-                return require("assistos-sdk").loadModule("personality", {});
+                return require("assistos").loadModule("personality", {});
             case "document":
-                return require("assistos-sdk").loadModule("document", {});
+                return require("assistos").loadModule("document", {});
             case "application":
-                return require("assistos-sdk").loadModule("application", {});
+                return require("assistos").loadModule("application", {});
             default:
                 throw new Error("Module doesn't exist");
         }
