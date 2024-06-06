@@ -39,10 +39,57 @@ async function getSpaceMap() {
     return JSON.parse(await fsPromises.readFile(spaceMapPath, 'utf8'));
 }
 
-async function addAnnouncement(spaceId, announcementObject) {
-    const spaceStatusObject = getSpaceStatusObject(spaceId)
+async function addSpaceAnnouncement(spaceId, announcementObject) {
+    const spaceStatusObject = await getSpaceStatusObject(spaceId)
+    announcementObject.date = date.getCurrentUTCDate();
+    announcementObject.id = crypto.generateId();
     spaceStatusObject.announcements.push(announcementObject)
-    await updateSpaceStatus(spaceStatusObject);
+    await updateSpaceStatus(spaceId,spaceStatusObject);
+    return announcementObject.id;
+}
+
+async function getSpaceAnnouncement(spaceId, announcementId) {
+    const spaceStatusObject = await getSpaceStatusObject(spaceId)
+    const announcement = spaceStatusObject.announcements.find(announcement => announcement.id === announcementId);
+    if (announcement) {
+        return announcement;
+    } else {
+        const error = new Error(`Announcement with id ${announcementId} not found`);
+        error.statusCode = 404;
+        throw error;
+    }
+}
+
+async function getSpaceAnnouncements(spaceId) {
+    const spaceStatusObject = await getSpaceStatusObject(spaceId)
+    return spaceStatusObject.announcements;
+}
+
+async function updateSpaceAnnouncement(spaceId, announcementId, announcementData) {
+    const spaceStatusObject = await getSpaceStatusObject(spaceId)
+    const announcementIndex = spaceStatusObject.announcements.findIndex(announcement => announcement.id === announcementId);
+    if (announcementIndex === -1) {
+        const error = new Error(`Announcement with id ${announcementId} not found`);
+        error.statusCode = 404;
+        throw error
+    }
+    spaceStatusObject.announcements[announcementIndex].title=announcementData.title;
+    spaceStatusObject.announcements[announcementIndex].text=announcementData.text;
+    spaceStatusObject.announcements[announcementIndex].lastUpdated = date.getCurrentUTCDate();
+    await updateSpaceStatus(spaceId,spaceStatusObject);
+}
+
+async function deleteSpaceAnnouncement(spaceId, announcementId) {
+    const spaceStatusObject = await getSpaceStatusObject(spaceId);
+    const announcementIndex = spaceStatusObject.announcements.findIndex(announcement => announcement.id === announcementId);
+    if (announcementIndex === -1) {
+        const error = new Error(`Announcement with id ${announcementId} not found`);
+        error.statusCode = 404;
+        throw error
+    }
+    spaceStatusObject.announcements.splice(announcementIndex, 1);
+    await updateSpaceStatus(spaceId,spaceStatusObject);
+    return announcementId;
 }
 
 async function addSpaceToSpaceMap(spaceId, spaceName) {
@@ -141,7 +188,7 @@ async function createSpace(spaceName, userId, apiKey) {
                     joinDate: date.getCurrentUnixTime()
                 }
             },
-            defaultSpaceAgentId:"2idYvpTEKXM5",
+            defaultSpaceAgentId: "2idYvpTEKXM5",
             defaultAnnouncement: createDefaultAnnouncement(spaceName),
             creationDate:
                 date.getCurrentUTCDate()
@@ -337,7 +384,7 @@ function getApplicationPath(spaceId, appName) {
 
 async function updateSpaceStatus(spaceId, spaceStatusObject) {
     const spacePath = getSpacePath(spaceId)
-    const spaceStatusPath = path.join(spacePath, 'status', `status.json`);
+    const   spaceStatusPath = path.join(spacePath, 'status', `status.json`);
     await fsPromises.writeFile(spaceStatusPath, JSON.stringify(spaceStatusObject, null, 2), {encoding: 'utf8'});
 }
 
@@ -371,7 +418,7 @@ async function editAPIKey(spaceId, userId, APIkeyObj) {
         ownerId: userId,
         addedDate: date.getCurrentUTCDate()
     }
-    for(let key of companyObj.authentication){
+    for (let key of companyObj.authentication) {
         apiKeyObj[key] = APIkeyObj[key];
     }
     await secrets.putSpaceKey(spaceId, APIkeyObj.type, apiKeyObj);
@@ -383,36 +430,45 @@ async function getAPIKeysMetadata(spaceId) {
         if (keys[keyType].APIKey) {
             keys[keyType].APIKey = openAI.maskKey(keys[keyType].APIKey);
         }
-        if(keys[keyType].userId){
+        if (keys[keyType].userId) {
             keys[keyType].userId = openAI.maskKey(keys[keyType].userId);
         }
     }
     return keys;
 }
-function getAgentPath(spaceId,agentId){
-    return path.join(getSpacePath(spaceId), 'personalities',`${agentId}.json`);
+
+function getAgentPath(spaceId, agentId) {
+    return path.join(getSpacePath(spaceId), 'personalities', `${agentId}.json`);
 }
+
 async function deleteAPIKey(spaceId, keyType) {
     await secrets.deleteSpaceKey(spaceId, keyType);
 }
-async function getSpaceAgent(spaceId,agentId){
-    try{
-        const agentPath = getAgentPath(spaceId,agentId);
+
+async function getSpaceAgent(spaceId, agentId) {
+    try {
+        const agentPath = getAgentPath(spaceId, agentId);
         const agentObj = JSON.parse(await fsPromises.readFile(agentPath, 'utf8'));
         return agentObj;
-    }catch(error){
+    } catch (error) {
         error.message = `Agent ${agentId} not found.`;
         error.statusCode = 404;
         throw error;
     }
 }
+
 async function getDefaultSpaceAgentId(spaceId) {
     const spaceStatusObject = await getSpaceStatusObject(spaceId);
     return spaceStatusObject.defaultSpaceAgent;
 }
+
 module.exports = {
     APIs: {
-        addAnnouncement,
+        addSpaceAnnouncement,
+        getSpaceAnnouncement,
+        getSpaceAnnouncements,
+        updateSpaceAnnouncement,
+        deleteSpaceAnnouncement,
         createSpace,
         getSpaceMap,
         getSpaceStatusObject,

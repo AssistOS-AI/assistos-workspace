@@ -13,11 +13,13 @@ export class AddAnnouncementModal {
     async addAnnouncementSubmitForm(_target) {
         let formInfo = await assistOS.UI.extractFormInformation(_target);
         if(formInfo.isValid) {
-            await assistOS.callFlow("AddAnnouncement", {
-                title: formInfo.data.title,
-                text: formInfo.data.text,
-                spaceId: assistOS.space.id
-            });
+            const { title, text } = formInfo.data;
+            const announcementData = {
+                title:title,
+                text:text,
+            };
+            const spaceModule =assistOS.loadModule("space");
+            await spaceModule.addSpaceAnnouncement(assistOS.space.id,announcementData);
             assistOS.space.notifyObservers(assistOS.space.getNotificationId());
             assistOS.UI.closeModal(_target);
         }

@@ -36,10 +36,9 @@ export class AnnouncementsPage {
         await assistOS.UI.showModal( "add-announcement-modal", { presenter: "add-announcement-modal"});
     }
     async deleteAction(_target){
-        await assistOS.callFlow("DeleteAnnouncement", {
-            spaceId: assistOS.space.id,
-            announcementId: this.getAnnouncementId(_target)
-        });
+        const announcementId=assistOS.UI.reverseQuerySelector(_target, "announcement-unit").getAttribute("data-id");
+        const spaceModule =assistOS.loadModule("space");
+        await spaceModule.deleteSpaceAnnouncement(assistOS.space.id,announcementId);
         this.invalidate();
     }
     async editAction(_target){

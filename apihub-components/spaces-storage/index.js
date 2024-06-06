@@ -23,7 +23,12 @@ const {
     acceptSpaceInvitation,
     editAPIKey,
     deleteAPIKey,
-    getAPIKeysMetadata
+    getAPIKeysMetadata,
+    addSpaceAnnouncement,
+    getSpaceAnnouncement,
+    getSpaceAnnouncements,
+    updateSpaceAnnouncement,
+    deleteSpaceAnnouncement
 } = require("./controller");
 
 const bodyReader = require('../apihub-component-middlewares/bodyReader.js')
@@ -45,14 +50,16 @@ function SpaceStorage(server) {
 
     server.post("/spaces", createSpace);
 
+
+
+    server.get("/spaces/:spaceId/agents",getAgent)
+    server.get("/spaces/:spaceId/agents/:agentId",getAgent)
+
     server.get("/spaces/fileObject/:spaceId/:objectType", getFileObjectsMetadata);
     server.get("/spaces/fileObject/:spaceId/:objectType/:objectId", getFileObject);
     server.post("/spaces/fileObject/:spaceId/:objectType", addFileObject);
     server.put("/spaces/fileObject/:spaceId/:objectType/:objectId", updateFileObject);
     server.delete("/spaces/fileObject/:spaceId/:objectType/:objectId", deleteFileObject);
-
-    server.get("/spaces/:spaceId/agents",getAgent)
-    server.get("/spaces/:spaceId/agents/:agentId",getAgent)
 
     server.get("/spaces/containerObject/meta/:spaceId/:objectType", getContainerObjectsMetadata);
     server.get("/spaces/containerObject/:spaceId/:objectId", getContainerObject);
@@ -82,6 +89,12 @@ function SpaceStorage(server) {
 
     server.post("spaces/:spaceId/chat/:chatId/llms/text/generate", getTextResponse);
     server.post("spaces/:spaceId/chat/:chatId/llms/text/streaming/generate", getTextStreamingResponse);
+
+    server.post("/spaces/:spaceId/announcements",addSpaceAnnouncement)
+    server.get("/spaces/:spaceId/announcements/:announcementId",getSpaceAnnouncement)
+    server.get("/spaces/:spaceId/announcements",getSpaceAnnouncements)
+    server.put("/spaces/:spaceId/announcements/:announcementId",updateSpaceAnnouncement)
+    server.delete("/spaces/:spaceId/announcements/:announcementId",deleteSpaceAnnouncement)
 
     server.post("spaces/:spaceId/chat/:chatId/llms/image/generate", getImageResponse);
     server.post("spaces/:spaceId/chat/:chatId/llms/image/edit", editImage);
