@@ -172,25 +172,6 @@ export class SpaceChapterUnit {
         paragraphsContainer.classList.toggle('hidden');
         _target.classList.toggle('rotate');
     }
-
-    async openInsertImageModal(_target) {
-        let paragraph;
-        if (assistOS.space.currentParagraphId) {
-            paragraph = this.chapter.getParagraph(assistOS.space.currentParagraphId);
-        } else {
-            paragraph = this.chapter.paragraphs[this.chapter.paragraphs.length - 1];
-        }
-        let images = await assistOS.UI.showModal("insert-image-modal", {["chapter-id"]: this.chapter.id}, true);
-        if(images){
-            await assistOS.callFlow("InsertImages", {
-                spaceId: assistOS.space.id,
-                documentId: this._document.id,
-                chapterId: this.chapter.id,
-                paragraphId: paragraph.id,
-                images: images
-            });
-        }
-    }
 }
 
 

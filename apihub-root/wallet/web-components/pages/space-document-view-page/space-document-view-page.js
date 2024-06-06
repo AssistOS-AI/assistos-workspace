@@ -1,6 +1,7 @@
 const spaceAPIs = require("assistos").loadModule("space", {});
 const {notificationService} = require("assistos").loadModule("util", {});
 const documentModule = require("assistos").loadModule("document", {});
+import {insertTextAtCursor, saveCaretPosition, getCursorPositionTextIndex} from "../../../imports.js";
 export class SpaceDocumentViewPage {
     constructor(element, invalidate) {
         this.element = element;
@@ -15,21 +16,21 @@ export class SpaceDocumentViewPage {
         this.refreshDocumentAbstract = async () => {
             await this._document.refreshDocumentAbstract(assistOS.space.id, this._document.id);
         };
-        this.invalidate(async ()=> {
+        this.invalidate(async () => {
             let documentData = await documentModule.getDocument(assistOS.space.id, window.location.hash.split("/")[3]);
             this._document = new documentModule.Document(documentData);
             await spaceAPIs.subscribeToObject(assistOS.space.id, this._document.id);
-            notificationService.on(this._document.id + "/delete", async ()=>{
+            notificationService.on(this._document.id + "/delete", async () => {
                 await this.openDocumentsPage();
                 alert("The document has been deleted");
             });
-            notificationService.on(this._document.id, ()=>{
+            notificationService.on(this._document.id, () => {
                 this.invalidate(this.refreshDocument);
             });
-            notificationService.on("title", ()=>{
+            notificationService.on("title", () => {
                 this.invalidate(this.refreshDocumentTitle);
             });
-            notificationService.on("abstract", ()=>{
+            notificationService.on("abstract", () => {
                 this.invalidate(this.refreshDocumentAbstract);
             });
             spaceAPIs.startCheckingUpdates(assistOS.space.id);
@@ -40,6 +41,7 @@ export class SpaceDocumentViewPage {
         document.removeEventListener("click", this.boundedFn);
         document.addEventListener("click", this.boundedFn, {signal: this.controller.signal});
     }
+
     beforeRender() {
         this.chaptersContainer = "";
         this.docTitle = this._document.title;
@@ -51,6 +53,19 @@ export class SpaceDocumentViewPage {
                 this.chaptersContainer += `<space-chapter-unit data-chapter-number="${iterator}" data-chapter-id="${item.id}" data-metadata="chapter nr. ${iterator} with title ${item.title} and id ${item.id}" data-title-metadata="title of the current chapter" data-presenter="space-chapter-unit"></space-chapter-unit>`;
             });
         }
+    }
+   afterRender() {
+        let buttonsSection = this.element.querySelector(".buttons-section");
+        if(!this.boundSaveSelectionHandler){
+            this.boundSaveSelectionHandler = this.saveSelectionHandler.bind(this);
+            buttonsSection.addEventListener("mousedown", this.boundSaveSelectionHandler);
+        }
+   }
+    saveSelectionHandler(event){
+        let {chapter, paragraph} = this.getSelectedParagraphAndChapter();
+        let paragraphUnit = this.element.querySelector(`space-paragraph-unit[data-paragraph-id="${paragraph.id}"]`);
+        let paragraphText = paragraphUnit.querySelector(".paragraph-text");
+        this.restoreSelectionFn = saveCaretPosition(paragraphText);
     }
     async afterUnload() {
         await spaceAPIs.unsubscribeFromObject(assistOS.space.id, this._document.id);
@@ -121,8 +136,9 @@ export class SpaceDocumentViewPage {
                     await timer.stop();
                     return;
                 }
+                let parsedText = await this.replaceImgTags(paragraph);
                 let paragraphText = assistOS.UI.sanitize(assistOS.UI.customTrim(paragraph.innerText));
-                if(!paragraphText){
+                if (!paragraphText) {
                     paragraphText = "";
                 }
                 if (paragraphText !== currentParagraph.text) {
@@ -164,10 +180,35 @@ export class SpaceDocumentViewPage {
             paragraph.addEventListener("keydown", this.resetTimer);
         }
     }
-
+    async replaceImgTags(paragraphTextElement){
+        let imgTags = paragraphTextElement.querySelectorAll("img");
+        if(!imgTags){
+            return;
+        }
+        for(let imgTag of imgTags){
+            let imgId = imgTag.getAttribute("data-id");
+            let galleryId = imgTag.getAttribute("data-gallery-id");
+            if(imgId || galleryId){
+                continue;
+            }
+            let imagesIdsString = `{"imageId":"${imgId}","galleryId":"${galleryId}"} `;
+            this.replaceElementWithText(imgTag, imagesIdsString);
+        }
+    }
+    replaceElementWithText(element, replacementText) {
+        const textNode = document.createTextNode(replacementText);
+        if (element.parentNode) {
+            element.parentNode.replaceChild(textNode, element);
+        }
+    }
     async highlightElement(controller, event) {
         this.chapterUnit = assistOS.UI.getClosestParentElement(event.target, ".chapter-unit");
         this.paragraphUnit = assistOS.UI.getClosestParentElement(event.target, ".paragraph-text");
+        let buttonsSection = assistOS.UI.getClosestParentElement(event.target, ".buttons-section");
+        let modal = assistOS.UI.getClosestParentElement(event.target, "dialog");
+        if(modal){
+            return;
+        }
         if (this.paragraphUnit) {
             /* clickul e pe un paragraf */
             if (this.chapterUnit.getAttribute("data-id") !== (this.previouslySelectedChapter?.getAttribute("data-id") || "")) {
@@ -230,6 +271,9 @@ export class SpaceDocumentViewPage {
                 }
             }
         } else {
+            if(buttonsSection){
+                return;
+            }
             /* clickul e in afara unui capitol si in afara unui paragraf*/
             if (this.previouslySelectedParagraph) {
                 this.saveParagraph(this.previouslySelectedParagraph, event);
@@ -409,7 +453,7 @@ export class SpaceDocumentViewPage {
             title.parentElement.setAttribute("id", "highlighted-element");
             let timer = assistOS.services.SaveElementTimer(async () => {
                 let titleText = assistOS.UI.sanitize(assistOS.UI.customTrim(title.innerText));
-                if(!titleText){
+                if (!titleText) {
                     titleText = "";
                 }
                 if (titleText !== this._document.title && titleText !== "") {
@@ -452,7 +496,7 @@ export class SpaceDocumentViewPage {
             abstractSection.setAttribute("id", "highlighted-element");
             let timer = assistOS.services.SaveElementTimer(async () => {
                 let abstractText = assistOS.UI.sanitize(assistOS.UI.customTrim(abstract.innerText));
-                if(!abstractText){
+                if (!abstractText) {
                     abstractText = "";
                 }
                 if (abstractText !== this._document.abstract && abstractText !== "") {
@@ -511,5 +555,37 @@ export class SpaceDocumentViewPage {
 
     async openDocumentsPage() {
         await assistOS.UI.changeToDynamicPage("space-configs-page", `${assistOS.space.id}/Space/space-documents-page`);
+    }
+
+    getSelectedParagraphAndChapter(){
+        let chapter;
+        let paragraph;
+        if (assistOS.space.currentParagraphId) {
+            chapter = this._document.getChapter(assistOS.space.currentChapterId);
+            paragraph = this.chapter.getParagraph(assistOS.space.currentParagraphId);
+        } else if(assistOS.space.currentChapterId){
+            chapter = this._document.getChapter(assistOS.space.currentChapterId);
+            paragraph = chapter.paragraphs[this.chapter.paragraphs.length - 1];
+        } else {
+            chapter = this._document.chapters[this._document.chapters.length - 1];
+            paragraph = chapter.paragraphs[chapter.paragraphs.length - 1];
+        }
+        return {chapter, paragraph};
+    }
+    async openInsertImageModal(_target) {
+        let {chapter, paragraph} = this.getSelectedParagraphAndChapter();
+        let imagesData = await assistOS.UI.showModal("insert-image-modal", {["chapter-id"]: chapter.id}, true);
+        this.restoreSelectionFn();
+        if(imagesData){
+            let index = getCursorPositionTextIndex();
+            await assistOS.callFlow("AddImagesToParagraph", {
+                spaceId: assistOS.space.id,
+                documentId: this._document.id,
+                chapterId: chapter.id,
+                paragraphId: paragraph.id,
+                offset: index,
+                imagesData: imagesData
+            });
+        }
     }
 }

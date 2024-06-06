@@ -58,19 +58,20 @@ export class InsertImageModal {
             images.forEach((image) => {
                 image.addEventListener("click", (event) => {
                     let imgContainer = event.target.parentElement;
-                    let imgSrc = event.target.src;
+                    let imgId = event.target.getAttribute("id");
+                    let image = this.selectedGallery.images.find((img) => img.id === imgId);
                     let checkbox = imgContainer.querySelector(".image-checkbox");
                     event.target.classList.toggle("selected-image");
                     if(imgContainer.classList.contains("selected")){
                         imgContainer.classList.remove("selected");
                         checkbox.checked = false;
                         checkbox.style.visibility = "hidden";
-                        this.selectedImages = this.selectedImages.filter((img) => img !== imgSrc);
+                        this.selectedImages = this.selectedImages.filter((img) => img.id !== image.id);
                     } else {
                         imgContainer.classList.add("selected");
                         checkbox.checked = true;
                         checkbox.style.visibility = "visible";
-                        this.selectedImages.push(imgSrc);
+                        this.selectedImages.push(image);
                     }
                 });
             });
@@ -89,12 +90,12 @@ export class InsertImageModal {
         assistOS.UI.closeModal(_target);
     }
     async openGallery(_target, galleryId){
-        let gallery = await spaceModule.getGallery(assistOS.space.id, galleryId);
+        this.selectedGallery = await spaceModule.getGallery(assistOS.space.id, galleryId);
         let stringHTML = "";
-        for(let image of gallery.images){
+        for(let image of this.selectedGallery.images){
             stringHTML += `
             <div class="img-container">
-                <img class="gallery-image" src="${image.src}" alt="${image.timestamp}">
+                <img class="gallery-image" src="${image.src}" alt="${image.timestamp}" id="${image.id}">
                 <input type="checkbox" class="image-checkbox">
             </div>
             `;
@@ -112,6 +113,10 @@ export class InsertImageModal {
         this.invalidate();
     }
     insertImages(_target){
-        assistOS.UI.closeModal(_target, this.selectedImages);
+        let data= {
+            images: this.selectedImages,
+            galleryId: this.selectedGallery.id
+        }
+        assistOS.UI.closeModal(_target, data);
     }
 }

@@ -81,3 +81,8 @@ paragraph-unit{
 .paragraph-text:empty {
     height: 45px;
 }
+.paragraph-image{
+    width: 100%;
+    height: 100%;
+    object-fit: cover;
+}
