@@ -1,9 +1,53 @@
-dialog[class = "modal"]{
-    width: 400px;
-    height: 600px;
+dialog.modal {
 }
-#prompt{
+
+#prompt {
     resize: none;
     width: 400px;
     height: 200px;
+}
+
+.action-cell {
+    display: none !important;
+}
+
+.gallery-section {
+    width: 500px;
+}
+
+.images-grid {
+    overflow: auto;
+    width: 100%;
+    display: grid;
+    grid-template-columns: repeat(4, 1fr);
+    background: var(--white);
+}
+
+.gallery-images {
+    padding: 10px;
+
+}
+
+.gallery-image {
+    width: 150px;
+    height: 150px;
+    object-fit: cover;
+    margin: 10px;
+    transition: filter 0.3s ease;
+}
+img.selected-image {
+    filter: brightness(0.5); /* Adjust the brightness value as needed */
+}
+
+.img-container {
+    position: relative;
+}
+.image-checkbox{
+    visibility: hidden;
+    position: absolute;
+    bottom: 20px;
+    left: 13px;
+}
+.modal-footer {
+    margin-top: 10px;
 }

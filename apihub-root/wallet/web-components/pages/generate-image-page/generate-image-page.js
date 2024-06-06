@@ -217,7 +217,7 @@ export class GenerateImagePage {
         if (!formData.isValid) {
             return;
         }
-        let loaderId = assistOS.UI.showLoading();
+        let loaderId = await assistOS.UI.showLoading();
         this.prompt = formData.data.prompt;
         let flowContext = {
             spaceId: assistOS.space.id,
