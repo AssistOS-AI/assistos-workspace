@@ -40,7 +40,9 @@ export class ApplicationUnit {
     }
 
     async installApplication() {
-        await applicationModule.installApplication(assistOS.space.id, this.appName);
+       await assistOS.loadifyFunction(async (spaceId, appName) => {
+            await applicationModule.installApplication(spaceId, appName);
+        }, assistOS.space.id, this.appName)
         location.reload();
     }
 
