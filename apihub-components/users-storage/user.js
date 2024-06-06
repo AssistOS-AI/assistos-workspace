@@ -402,12 +402,12 @@ async function inviteSpaceCollaborators(referrerId, spaceId, collaboratorsEmails
     const spaceStatusObject = await Space.APIs.getSpaceStatusObject(spaceId);
     const spaceName = spaceStatusObject.name;
     const referrerName = (await getUserFile(referrerId)).name;
-    const existingUserIds = new Set(spaceStatusObject.users.map(user => user.userId));
+    const existingUserIds = Object.keys(spaceStatusObject.users)
 
     for (let email of collaboratorsEmails) {
         const userId = userMap[email];
 
-        if (userId && existingUserIds.has(userId)) {
+        if (userId && existingUserIds.includes(userId)) {
             continue;
         }
 
@@ -437,6 +437,7 @@ async function acceptSpaceInvitation(invitationToken, newUser) {
         const spaceName = await Space.APIs.getSpaceName(spaceId)
         return await getSpaceInvitationSuccessfulHTML(spaceName)
     } else {
+        /* TODO */
         /* TBD */
     }
 
@@ -448,9 +449,11 @@ async function rejectSpaceInvitation(invitationToken) {
     if (!invitation) {
         return await getSpaceInvitationErrorHTML('Invalid invitation token');
     }
+    const {spaceId}=invitation
+    const spaceName = await Space.APIs.getSpaceName(spaceId)
     delete spacePendingInvitationsObj[invitationToken];
     await Space.APIs.updateSpacePendingInvitations(invitation.spaceId, spacePendingInvitationsObj);
-    return await getSpaceInvitationRejectedHTML()
+    return await getSpaceInvitationRejectedHTML(spaceName)
 }
 
 

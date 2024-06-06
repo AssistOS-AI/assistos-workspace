@@ -29,6 +29,7 @@ export class AddSpaceCollaboratorModal {
     }
 
     async inviteCollaborators(_target) {
+        debugger
         let formData = await assistOS.UI.extractFormInformation(_target);
         if (formData.isValid) {
             try {
