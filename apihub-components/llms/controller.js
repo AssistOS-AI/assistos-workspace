@@ -24,7 +24,7 @@ async function getLLMAuthRequirements() {
 
 async function getLLMConfigs() {
     if (!LLMConfigs) {
-       await getLLMAuthRequirements();
+        await getLLMAuthRequirements();
     }
     return LLMConfigs;
 }
@@ -37,14 +37,14 @@ async function sendLLMConfigs(request, response) {
     });
 }
 
-async function constructRequestInitAndURL(url, method, request, response){
+async function constructRequestInitAndURL(url, method, request, response) {
     const spaceId = request.params.spaceId;
     const configs = require("../config.json");
     let companyObj;
     let LLMConfigs = await getLLMConfigs();
-    if(request.body.modelName){
+    if (request.body.modelName) {
         companyObj = LLMConfigs.find(company => company.models.some(model => model.name === request.body.modelName));
-    } else if(request.body.company){
+    } else if (request.body.company) {
         companyObj = LLMConfigs.find((companyObj) => companyObj.company === request.body.company);
     } else {
         return utils.sendResponse(response, 500, "application/json", {
@@ -52,7 +52,7 @@ async function constructRequestInitAndURL(url, method, request, response){
             message: "LLM name or company name must be provided in the request body"
         });
     }
-    if(!companyObj){
+    if (!companyObj) {
         return utils.sendResponse(response, 404, "application/json", {
             success: false,
             message: "Api key not set"
@@ -67,7 +67,7 @@ async function constructRequestInitAndURL(url, method, request, response){
     }
     let body = Object.assign({}, request.body);
 
-    for(let key of companyObj.authentication){
+    for (let key of companyObj.authentication) {
         body[key] = APIKeyObj[key];
     }
 
@@ -111,11 +111,13 @@ async function getTextResponse(request, response) {
             success: true,
             data: modelResponse
         });
+        return {success: true, data: modelResponse};
     } catch (error) {
         utils.sendResponse(response, error.statusCode || 500, "application/json", {
             success: false,
             message: error.message
         });
+        return {success: false, message: error.message};
     }
 }
 
@@ -192,6 +194,7 @@ async function getTextStreamingResponse(request, response) {
                 response.write(`event: end\ndata: {}\n\n`);
                 response.end();
                 delete cache[sessionId];
+
             }
         });
 

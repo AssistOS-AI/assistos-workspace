@@ -10,6 +10,7 @@ class GenerateDocument {
 
     async start(context, personality) {
         let personalityPrompt;
+        debugger
         personalityPrompt = `Step into the shoes of ${personality.name}, a character known for their distinctive traits: ${personality.description}. Your mission is to respond to the following prompt in such a way that it encapsulates the distinct essence of this character. Don't reiterate ${personality.name}'s traits in your answer. `;
         this.llm = assistOS.space.getLLM();
         this.llm.setResponseFormat("json_object");

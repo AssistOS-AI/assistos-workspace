@@ -12,7 +12,7 @@ export class ChatUnit {
             this.messageType = "user";
             this.messageTypeBox = "user-box";
             this.user = this.element.getAttribute("user");
-            this.imageContainer = ` <div class="user-profile-image-container"> <img class="user-profile-image" src="${this.role === "assistant" ? assistOS.agent.agentData.image : `/users/profileImage/${this.user}`}" alt="userImage"> </div>`;
+            this.imageContainer = `<div class="user-profile-image-container"><img class="user-profile-image" src="${this.role === "assistant" ? assistOS.agent.agentData.image : (this.role === "user" ? `/users/profileImage/${this.user}` : "")}" alt="userImage"></div>`;
         } else {
             this.messageType = "robot";
             this.messageTypeBox = "robot-box";

@@ -170,6 +170,7 @@ async function getUserAvatar(request, response) {
         public: true
     });
     utils.sendResponse(response, 200, "image/png", imageBuffer);
+
 }
 
 module.exports = {

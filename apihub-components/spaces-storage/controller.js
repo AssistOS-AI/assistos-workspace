@@ -874,7 +874,6 @@ async function getAPIKeysMetadata(request, response) {
 }
 
 async function addSpaceAnnouncement(request, response) {
-    debugger
     const spaceId = request.params.spaceId;
     const announcementData = request.body;
     if (!announcementData.text || !announcementData.title) {
@@ -955,7 +954,7 @@ async function updateSpaceAnnouncement(request, response) {
     const spaceId = request.params.spaceId;
     const announcementId = request.params.announcementId;
     const announcementData = request.body;
-    if(!spaceId || !announcementId) {
+    if (!spaceId || !announcementId) {
         utils.sendResponse(response, 400, "application/json", {
             success: false,
             message: "Bad Request: spaceId and announcementId are required"
@@ -984,7 +983,7 @@ async function updateSpaceAnnouncement(request, response) {
 async function deleteSpaceAnnouncement(request, response) {
     const spaceId = request.params.spaceId;
     const announcementId = request.params.announcementId;
-    if(!spaceId || !announcementId) {
+    if (!spaceId || !announcementId) {
         utils.sendResponse(response, 400, "application/json", {
             success: false,
             message: "Bad Request: spaceId and announcementId are required"
@@ -1002,6 +1001,50 @@ async function deleteSpaceAnnouncement(request, response) {
             message: error.message
         });
     }
+}
+
+const {
+    getTextResponse,
+    getTextStreamingResponse,
+    getImageResponse,
+    editImage,
+    getImageVariants
+} = require('../llms/controller.js');
+
+async function getChatTextResponse(request, response) {
+
+    const spaceId = request.params.spaceId;
+    const chatId = request.params.chatId;
+    const agentId= request.body.agentId
+    const modelResponse= await getTextResponse(request, response);
+    if(modelResponse.success){
+        const chatMessages= modelResponse.data.messages
+        for(const chatMessage of chatMessages){
+            await space.APIs.addSpaceChatMessage(spaceId,chatId,agentId, "assistant", chatMessage);
+        }
+    }
+}
+
+
+async function getChatTextStreamingResponse(request, response) {
+    const spaceId = request.params.spaceId;
+    const chatId = request.params.chatId;
+}
+
+
+async function getChatImageResponse(request, response) {
+}
+
+
+async function editChatImage(request, response) {
+}
+
+
+async function getChatImageVariants(request, response) {
+}
+
+async function getChatVideoResponse(request, response) {
+
 }
 
 module.exports = {
@@ -1034,5 +1077,10 @@ module.exports = {
     getSpaceAnnouncement,
     getSpaceAnnouncements,
     updateSpaceAnnouncement,
-    deleteSpaceAnnouncement
-}
+    deleteSpaceAnnouncement,
+    getChatTextResponse,
+    getChatTextStreamingResponse,
+    getChatImageResponse,
+    editChatImage,
+    getChatImageVariants,
+    getChatVideoResponse}

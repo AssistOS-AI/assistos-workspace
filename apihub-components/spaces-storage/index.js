@@ -28,7 +28,13 @@ const {
     getSpaceAnnouncement,
     getSpaceAnnouncements,
     updateSpaceAnnouncement,
-    deleteSpaceAnnouncement
+    deleteSpaceAnnouncement,
+    getChatTextResponse,
+    getChatTextStreamingResponse,
+    getChatImageResponse,
+    editChatImage,
+    getChatImageVariants,
+    getChatVideoResponse
 } = require("./controller");
 
 const bodyReader = require('../apihub-component-middlewares/bodyReader.js')
@@ -38,7 +44,7 @@ const {getImageResponse, editImage, getImageVariants, getVideoResponse, getTextR
 
 function SpaceStorage(server) {
     server.use("/spaces/*", bodyReader);
-
+    server.use("/apis/v1/spaces/*", bodyReader);
     /* invitations */
     server.get("/spaces/invitations/reject", rejectSpaceInvitation);
     server.get("/spaces/invitations/accept", acceptSpaceInvitation);
@@ -87,8 +93,6 @@ function SpaceStorage(server) {
     server.delete("/spaces/:spaceId/secrets/keys/:keyType",deleteAPIKey);
 
 
-    server.post("spaces/:spaceId/chat/:chatId/llms/text/generate", getTextResponse);
-    server.post("spaces/:spaceId/chat/:chatId/llms/text/streaming/generate", getTextStreamingResponse);
 
     server.post("/spaces/:spaceId/announcements",addSpaceAnnouncement)
     server.get("/spaces/:spaceId/announcements/:announcementId",getSpaceAnnouncement)
@@ -96,10 +100,14 @@ function SpaceStorage(server) {
     server.put("/spaces/:spaceId/announcements/:announcementId",updateSpaceAnnouncement)
     server.delete("/spaces/:spaceId/announcements/:announcementId",deleteSpaceAnnouncement)
 
-    server.post("spaces/:spaceId/chat/:chatId/llms/image/generate", getImageResponse);
-    server.post("spaces/:spaceId/chat/:chatId/llms/image/edit", editImage);
-    server.post("spaces/:spaceId/chat/:chatId/llms/image/variants", getImageVariants);
-    server.post("spaces/:spaceId/chat/:chatId/llms/video/generate", getVideoResponse);
+    server.post("/apis/v1/spaces/:spaceId/chats/:chatId/llms/text/streaming/generate", getTextStreamingResponse);
+
+    server.post("/apis/v1/spaces/:spaceId/chats/:chatId/llms/text/generate", getChatTextResponse);
+    server.post("/apis/v1/spaces/:spaceId/chats/:chatId/llms/text/streaming/generate", getChatTextStreamingResponse);
+    server.post("/apis/v1/spaces/:spaceId/chats/:chatId/llms/image/generate", getChatImageResponse);
+    server.post("/apis/v1/spaces/:spaceId/chats/:chatId/llms/image/edit", editChatImage);
+    server.post("/apis/v1/spaces/:spaceId/chats/:chatId/llms/image/variants", getChatImageVariants);
+    server.post("/apis/v1/spaces/:spaceId/chats/:chatId/llms/video/generate", getChatVideoResponse);
 }
 
 module.exports = SpaceStorage;
