@@ -135,76 +135,71 @@ async function getTextStreamingResponse(request, response) {
         'Cache-Control': 'no-cache',
         'Connection': 'keep-alive'
     });
-    init.responseType = 'stream'
-    const requestBody = init.body
+
+    init.responseType = 'stream';
+    const requestBody = init.body;
     delete init.body;
-    try {
-        const llmRes = await axios.post(fullURL, requestBody, init);
 
-        llmRes.data.on('data', chunk => {
-            try {
-                const dataStr = chunk.toString();
-                const lines = dataStr.split('\n');
-                let eventName = null;
-                let eventData = '';
+    return new Promise((resolve, reject) => {
+        axios.post(fullURL, requestBody, init).then(llmRes => {
+            let metadata = null;
 
-                lines.forEach(line => {
-                    if (line.startsWith('event:')) {
-                        eventName = line.replace('event: ', '').trim();
-                    } else if (line.startsWith('data:')) {
-                        eventData += line.replace('data: ', '').trim();
-                    } else if (line.trim() === '') {
-                        if (eventData) {
-                            const dataObj = JSON.parse(eventData);
+            llmRes.data.on('data', chunk => {
+                try {
+                    const dataStr = chunk.toString();
+                    const lines = dataStr.split('\n');
+                    let eventName = null;
+                    let eventData = '';
 
-                            if (eventName === 'beginSession' && dataObj.sessionId && !sessionId) {
-                                sessionId = dataObj.sessionId;
-                                cache[sessionId] = {data: "", lastSentIndex: 0, end: false};
-                                response.write(`event: beginSession\ndata: ${JSON.stringify({sessionId})}\n\n`);
-                            } else if (eventName === 'end') {
-                                if (sessionId) {
-                                    cache[sessionId].end = true;
-                                    response.write(`event: end\ndata: ${JSON.stringify({
-                                        fullResponse: dataObj.fullResponse,
-                                        metadata: dataObj.metadata
-                                    })}\n\n`);
-                                    response.end();
-                                    delete cache[sessionId];
+                    lines.forEach(line => {
+                        if (line.startsWith('event:')) {
+                            eventName = line.replace('event: ', '').trim();
+                        } else if (line.startsWith('data:')) {
+                            eventData += line.replace('data: ', '').trim();
+                        } else if (line.trim() === '') {
+                            if (eventData) {
+                                const dataObj = JSON.parse(eventData);
+
+                                if (eventName === 'beginSession' && dataObj.sessionId && !sessionId) {
+                                    sessionId = dataObj.sessionId;
+                                    cache[sessionId] = {data: "", lastSentIndex: 0, end: false};
+                                    response.write(`event: beginSession\ndata: ${JSON.stringify({sessionId})}\n\n`);
+                                } else if (eventName === 'end') {
+                                    if (sessionId) {
+                                        cache[sessionId].end = true;
+                                        response.write(`event: end\ndata: ${JSON.stringify({
+                                            fullResponse: dataObj.fullResponse,
+                                            metadata: dataObj.metadata
+                                        })}\n\n`);
+                                        response.end();
+                                        delete cache[sessionId];
+                                        resolve({success: true, data: {messages:dataObj.fullResponse, metadata: metadata}});
+                                    }
+                                } else {
+                                    if (dataObj.message) {
+                                        cache[sessionId].data += dataObj.message;
+                                        response.write(`data: ${JSON.stringify({message: dataObj.message})}\n\n`);
+                                    }
                                 }
-                            } else {
-                                if (dataObj.message) {
-                                    cache[sessionId].data += dataObj.message;
-                                    response.write(`data: ${JSON.stringify({message: dataObj.message})}\n\n`);
-                                }
+
+                                eventName = null;
+                                eventData = '';
                             }
-
-                            eventName = null;
-                            eventData = '';
                         }
-                    }
-                });
-            } catch (err) {
-                console.error('Failed to parse JSON:', err);
+                    });
+                } catch (err) {
+                    console.error('Failed to parse JSON:', err);
+                }
+            });
+        }).catch(error => {
+            console.error(error);
+            if (!response.headersSent) {
+                response.writeHead(500, {'Content-Type': 'application/json'});
             }
+            response.end(JSON.stringify({success: false, message: error.message}));
+            reject(error);
         });
-
-        llmRes.data.on('end', () => {
-            if (sessionId) {
-                cache[sessionId].end = true;
-                response.write(`event: end\ndata: {}\n\n`);
-                response.end();
-                delete cache[sessionId];
-
-            }
-        });
-
-    } catch (error) {
-        console.error(error);
-        if (!response.headersSent) {
-            response.writeHead(500, {'Content-Type': 'application/json'});
-        }
-        response.end(JSON.stringify({success: false, message: error.message}));
-    }
+    });
 }
 
 async function getImageResponse(request, response) {

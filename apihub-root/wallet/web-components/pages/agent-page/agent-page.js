@@ -26,9 +26,9 @@ export class AgentPage {
                     role = "user"
                 }
             } else if (message.role === "assistant") {
-                role = "robot";
+                role = "assistant";
             }
-            stringHTML += `<chat-unit role="${role}" message="${message.message}" user="${message.user}" data-presenter="chat-unit"></chat-unit>`;
+            stringHTML += `<chat-unit role="${role}" message="${assistOS.UI.sanitize(message.message)}" user="${message.user}" data-presenter="chat-unit"></chat-unit>`;
         }
         let personalitiesHTML = "";
         for (let personality of this.personalities) {
@@ -150,7 +150,9 @@ export class AgentPage {
         if (!userMessage.trim()) {
             return;
         }
-        const messageId = (await spaceModule.addSpaceChatMessage(assistOS.space.id, userMessage)).messageId
+        /* TODO remove hardoced chatId value */
+        const chatId = "123456789";
+        const messageId = (await spaceModule.addSpaceChatMessage(assistOS.space.id, chatId,userMessage)).messageId
         const context = {};
         context.chatHistory = this.getChatHistory();
         await this.displayMessage("own", userMessage);

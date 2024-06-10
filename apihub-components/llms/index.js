@@ -21,7 +21,7 @@ function LLMStorage(server) {
     server.get("/apis/v1/spaces/:spaceId/llms/configs", sendLLMConfigs);
 
     server.post("/apis/v1/spaces/:spaceId/llms/text/generate", getTextResponse);
-    server.post("/apis/v1/spaces/:spaceId/llms/text/streaming/generate", getTextStreamingResponse);
+    //server.post("/apis/v1/spaces/:spaceId/llms/text/streaming/generate", getTextStreamingResponse);
     server.post("/apis/v1/spaces/:spaceId/llms/image/generate", getImageResponse);
     server.post("/apis/v1/spaces/:spaceId/llms/image/edit", editImage);
     server.post("/apis/v1/spaces/:spaceId/llms/image/variants", getImageVariants);

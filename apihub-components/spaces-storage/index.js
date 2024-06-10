@@ -40,7 +40,6 @@ const {
 const bodyReader = require('../apihub-component-middlewares/bodyReader.js')
 const authentication = require('../apihub-component-middlewares/authentication.js')
 const {getAPIKeys} = require("../apihub-component-utils/secrets");
-const {getImageResponse, editImage, getImageVariants, getVideoResponse, getTextResponse, getTextStreamingResponse} = require("../llms/controller");
 
 function SpaceStorage(server) {
     server.use("/spaces/*", bodyReader);
@@ -83,7 +82,7 @@ function SpaceStorage(server) {
     server.get("/spaces/:spaceId", getSpace);
     server.post("/spaces", createSpace);
     server.post("/spaces/:spaceId/collaborators", addCollaboratorsToSpace);
-    server.post("/spaces/:spaceId/chat", addSpaceChatMessage);
+    server.post("/spaces/:spaceId/chat/:chatId", addSpaceChatMessage);
 
     server.get("/spaces/:spaceId/secrets/keys",getAPIKeysMetadata);
     server.post("/spaces/secrets/keys", editAPIKey);
@@ -100,7 +99,6 @@ function SpaceStorage(server) {
     server.put("/spaces/:spaceId/announcements/:announcementId",updateSpaceAnnouncement)
     server.delete("/spaces/:spaceId/announcements/:announcementId",deleteSpaceAnnouncement)
 
-    server.post("/apis/v1/spaces/:spaceId/chats/:chatId/llms/text/streaming/generate", getTextStreamingResponse);
 
     server.post("/apis/v1/spaces/:spaceId/chats/:chatId/llms/text/generate", getChatTextResponse);
     server.post("/apis/v1/spaces/:spaceId/chats/:chatId/llms/text/streaming/generate", getChatTextStreamingResponse);

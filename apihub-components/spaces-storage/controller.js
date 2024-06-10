@@ -586,10 +586,11 @@ async function swapEmbeddedObjects(request, response) {
 
 async function addSpaceChatMessage(request, response) {
     const spaceId = request.params.spaceId;
+    const chatId= request.params.chatId;
     const userId = request.userId;
     const messageData = request.body;
     try {
-        const messageId = await space.APIs.addSpaceChatMessage(spaceId, userId, "user", messageData);
+        const messageId = await space.APIs.addSpaceChatMessage(spaceId,chatId, userId, "user", messageData);
         utils.sendResponse(response, 200, "application/json", {
             success: true,
             message: `Message added successfully`,
@@ -1025,10 +1026,21 @@ async function getChatTextResponse(request, response) {
     }
 }
 
-
 async function getChatTextStreamingResponse(request, response) {
     const spaceId = request.params.spaceId;
     const chatId = request.params.chatId;
+    const agentId= request.body.agentId;
+    try {
+        const modelResponse = await getTextStreamingResponse(request, response);
+        if (modelResponse.success) {
+            const chatMessages = modelResponse.data.messages;
+            for (const chatMessage of chatMessages) {
+                await space.APIs.addSpaceChatMessage(spaceId, chatId, agentId, "assistant", chatMessage);
+            }
+        }
+    } catch (error) {
+        console.error('Error in getChatTextStreamingResponse:', error);
+    }
 }
 
 
