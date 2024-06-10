@@ -198,6 +198,26 @@ export class GenerateImagePage {
                 optionElement.selected = true;
             }
         }
+        let imageUnits = this.element.querySelectorAll(".image-unit");
+        for (let imageUnit of imageUnits) {
+            let imageCheckbox = imageUnit.querySelector(".image-checkbox");
+            let imageMenu = imageUnit.querySelector(".image-menu");
+            imageUnit.addEventListener("mouseenter", (event) => {
+                imageCheckbox.style.visibility = "visible";
+            });
+            imageUnit.addEventListener("mouseleave", (event) => {
+                if (!imageCheckbox.checked) {
+                    imageCheckbox.style.visibility = "hidden";
+                }
+            });
+            imageCheckbox.addEventListener("change", (event) => {
+                if (imageCheckbox.checked) {
+                    imageMenu.style.visibility = "visible";
+                } else {
+                    imageMenu.style.visibility = "hidden";
+                }
+            });
+        }
     }
     async rememberValues() {
         this.selectInputs = [];
@@ -232,11 +252,12 @@ export class GenerateImagePage {
         }
         if(this.currentModel.variants){
             try{
-                this.images = await assistOS.callFlow("GenerateImage", flowContext, formData.data.personality);
+                let images = await assistOS.callFlow("GenerateImage", flowContext, formData.data.personality);
                 let pngPrefix = "data:image/png;base64,"
-                for(let img of this.images){
-                    img = pngPrefix + img;
+                for (let i = 0; i < images.length; i++) {
+                    images[i] = pngPrefix + images[i];
                 }
+                this.images = images;
             } catch (e) {
                 //error handled in the flow
             }

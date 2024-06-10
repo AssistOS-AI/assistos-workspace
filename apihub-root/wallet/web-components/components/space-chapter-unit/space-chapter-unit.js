@@ -91,10 +91,15 @@ export class SpaceChapterUnit {
         });
     }
 
-    highlightChapter() {
+    highlightChapter(_target) {
         this.deselectPreviousElements();
         this.chapterUnit.setAttribute("id", "highlighted-element");
         assistOS.space.currentChapterId = this.chapter.id;
+        this.switchArrowsDisplay(this.chapterUnit, "chapter", "on");
+        let paragraphs = this.element.querySelectorAll(".paragraph-text");
+        for(let paragraph of paragraphs) {
+            paragraph.classList.add("unfocused");
+        }
         if (this._document.chapters.length === 1) {
             return;
         }
@@ -102,6 +107,27 @@ export class SpaceChapterUnit {
         foundElement.style.display = "flex";
         let xMark = this.chapterUnit.querySelector('.delete-chapter');
         xMark.style.visibility = "visible";
+    }
+    switchArrowsDisplay(target, mode) {
+        if (this._document.chapters.length <= 1) {
+            return;
+        }
+        let foundElement = target.querySelector(".chapter-arrows");
+        if (!foundElement) {
+            let nextSibling = target.nextElementSibling;
+            while (nextSibling) {
+                if (nextSibling.matches(".chapter-arrows")) {
+                    foundElement = nextSibling;
+                    break;
+                }
+                nextSibling = nextSibling.nextElementSibling;
+            }
+        }
+        if (mode === "on") {
+            foundElement.style.display = "flex";
+        } else {
+            foundElement.style.display = "none";
+        }
     }
 
     async editChapterTitle(title) {

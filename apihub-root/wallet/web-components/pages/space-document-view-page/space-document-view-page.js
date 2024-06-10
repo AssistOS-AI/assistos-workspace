@@ -37,9 +37,9 @@ export class SpaceDocumentViewPage {
         });
 
         this.controller = new AbortController();
-        this.boundedFn = this.highlightElement.bind(this, this.controller);
-        document.removeEventListener("click", this.boundedFn);
-        document.addEventListener("click", this.boundedFn, {signal: this.controller.signal});
+        // this.boundedFn = this.highlightElement.bind(this, this.controller);
+        // document.removeEventListener("click", this.boundedFn);
+        // document.addEventListener("click", this.boundedFn, {signal: this.controller.signal});
     }
 
     beforeRender() {
@@ -63,6 +63,9 @@ export class SpaceDocumentViewPage {
    }
     saveSelectionHandler(event){
         let {chapter, paragraph} = this.getSelectedParagraphAndChapter();
+        if(!chapter){
+            return;
+        }
         let paragraphUnit = this.element.querySelector(`space-paragraph-unit[data-paragraph-id="${paragraph.id}"]`);
         let paragraphText = paragraphUnit.querySelector(".paragraph-text");
         this.restoreSelectionFn = saveCaretPosition(paragraphText);
@@ -82,125 +85,6 @@ export class SpaceDocumentViewPage {
         });
     }
 
-    switchParagraphArrows(target, mode) {
-        if (this.chapter.paragraphs.length <= 1) {
-            return;
-        }
-        let foundElement = target.querySelector('.paragraph-arrows');
-        if (!foundElement) {
-            let nextSibling = target.nextElementSibling;
-            while (nextSibling) {
-                if (nextSibling.matches('.paragraph-arrows')) {
-                    foundElement = nextSibling;
-                    break;
-                }
-                nextSibling = nextSibling.nextElementSibling;
-            }
-        }
-        if (mode === "on") {
-            foundElement.style.visibility = "visible";
-        } else {
-            foundElement.style.visibility = "hidden";
-        }
-    }
-
-    saveParagraph(paragraph, event, swapAction) {
-        if (!swapAction) {
-            assistOS.space.currentParagraph = null;
-        }
-        if (paragraph["timer"]) {
-            paragraph["timer"].stop(true);
-        }
-        paragraph["paragraph"].removeEventListener("keydown", this.resetTimer);
-        paragraph["paragraph"].setAttribute("contenteditable", "false");
-        if (!assistOS.UI.getClosestParentElement(event.target, "agent-page")) {
-            paragraph["paragraph"].removeAttribute("id");
-        }
-    }
-
-    editParagraph(paragraph) {
-        if (paragraph.getAttribute("contenteditable") === "false") {
-            paragraph.setAttribute("contenteditable", "true");
-            paragraph.setAttribute("id", "highlighted-child-element");
-            let paragraphUnit = assistOS.UI.reverseQuerySelector(paragraph, ".paragraph-unit");
-            paragraph.focus();
-            this.previouslySelectedParagraph = {};
-            this.previouslySelectedParagraph["paragraph"] = paragraph;
-            this.switchParagraphArrows(paragraphUnit, "on");
-            let currentParagraphId = paragraphUnit.getAttribute("data-paragraph-id");
-            assistOS.space.currentParagraphId = currentParagraphId;
-
-            let timer = assistOS.services.SaveElementTimer(async () => {
-                let currentParagraph = this.chapter.getParagraph(currentParagraphId);
-                if (!currentParagraph || assistOS.space.currentParagraphId !== currentParagraphId) {
-                    await timer.stop();
-                    return;
-                }
-                let parsedText = await this.replaceImgTags(paragraph);
-                let paragraphText = assistOS.UI.sanitize(assistOS.UI.customTrim(paragraph.innerText));
-                if (!paragraphText) {
-                    paragraphText = "";
-                }
-                if (paragraphText !== currentParagraph.text) {
-                    await assistOS.callFlow("UpdateParagraphText", {
-                        spaceId: assistOS.space.id,
-                        documentId: this._document.id,
-                        chapterId: this.chapter.id,
-                        paragraphId: currentParagraph.id,
-                        text: paragraphText
-                    });
-                }
-            }, 1000);
-            this.previouslySelectedParagraph["timer"] = timer;
-            this.resetTimer = async (event) => {
-                if (paragraph.innerText.trim() === "" && event.key === "Backspace") {
-                    if (assistOS.space.currentParagraphId === currentParagraphId) {
-                        let curentParagraphIndex = this.chapter.getParagraphIndex(currentParagraphId);
-                        await assistOS.callFlow("DeleteParagraph", {
-                            spaceId: assistOS.space.id,
-                            documentId: this._document.id,
-                            chapterId: this.chapter.id,
-                            paragraphId: currentParagraphId
-                        });
-                        if (this.chapter.paragraphs.length > 0) {
-                            if (curentParagraphIndex === 0) {
-                                assistOS.space.currentParagraphId = this.chapter.paragraphs[0].id;
-                            } else {
-                                assistOS.space.currentParagraphId = this.chapter.paragraphs[curentParagraphIndex - 1].id;
-                            }
-                        } else {
-                            assistOS.space.currentParagraphId = null;
-                        }
-                    }
-                    await timer.stop();
-                } else {
-                    await timer.reset(1000);
-                }
-            };
-            paragraph.addEventListener("keydown", this.resetTimer);
-        }
-    }
-    async replaceImgTags(paragraphTextElement){
-        let imgTags = paragraphTextElement.querySelectorAll("img");
-        if(!imgTags){
-            return;
-        }
-        for(let imgTag of imgTags){
-            let imgId = imgTag.getAttribute("data-id");
-            let galleryId = imgTag.getAttribute("data-gallery-id");
-            if(imgId || galleryId){
-                continue;
-            }
-            let imagesIdsString = `{"imageId":"${imgId}","galleryId":"${galleryId}"} `;
-            this.replaceElementWithText(imgTag, imagesIdsString);
-        }
-    }
-    replaceElementWithText(element, replacementText) {
-        const textNode = document.createTextNode(replacementText);
-        if (element.parentNode) {
-            element.parentNode.replaceChild(textNode, element);
-        }
-    }
     async highlightElement(controller, event) {
         this.chapterUnit = assistOS.UI.getClosestParentElement(event.target, ".chapter-unit");
         this.paragraphUnit = assistOS.UI.getClosestParentElement(event.target, ".paragraph-text");
@@ -214,21 +98,21 @@ export class SpaceDocumentViewPage {
             if (this.chapterUnit.getAttribute("data-id") !== (this.previouslySelectedChapter?.getAttribute("data-id") || "")) {
                 /* clickul e pe paragraf si un capitol diferit de cel curent */
                 if (this.previouslySelectedParagraph) {
-                    this.saveParagraph(this.previouslySelectedParagraph, event);
+                    //this.saveParagraph(this.previouslySelectedParagraph, event);
                 }
-                this.deselectPreviousParagraph();
+                //this.deselectPreviousParagraph();
                 this.deselectPreviousChapter(event);
-                await this.highlightChapter();
-                this.editParagraph(this.paragraphUnit);
+                //await this.highlightChapter();
+                //this.editParagraph(this.paragraphUnit);
             } else {
                 /* clickul e pe acelasi capitol dar alt paragraf*/
                 if (this.paragraphUnit !== this.previouslySelectedParagraph["paragraph"]) {
                     /* clickul e pe un paragraf diferit de cel curent */
                     if (this.previouslySelectedParagraph) {
-                        this.saveParagraph(this.previouslySelectedParagraph, event);
+                        //this.saveParagraph(this.previouslySelectedParagraph, event);
                     }
                     this.deselectPreviousParagraph();
-                    this.editParagraph(this.paragraphUnit);
+                    //this.editParagraph(this.paragraphUnit);
                 } else {
                     /* clickul e pe acelasi paragraf */
                     return;
@@ -238,26 +122,26 @@ export class SpaceDocumentViewPage {
             /* clickul e pe un capitol si nu pe un paragraf*/
             if (!this.chapterUnit.hasAttribute("id") && this.previouslySelectedChapter.hasAttribute("id")) {
                 /* clickul e pe un capitol diferit de cel curent si nu e pe un paragraf */
-                this.deselectPreviousParagraph();
+                //this.deselectPreviousParagraph();
                 this.deselectPreviousChapter(event);
-                this.highlightChapter();
+                //this.highlightChapter();
             } else {
                 /* clickul e pe acelasi capitol dar nu pe un paragraf*/
                 if (assistOS.UI.getClosestParentElement(event.target, ".paragraph-arrows")) {
                     /* clickul e pe un buton de swap */
                     if (this.previouslySelectedParagraph) {
-                        this.saveParagraph(this.previouslySelectedParagraph, event, "swap");
+                        //this.saveParagraph(this.previouslySelectedParagraph, event, "swap");
                     }
                     if (assistOS.UI.getClosestParentElement(event.target, ".arrow-up") || assistOS.UI.getClosestParentElement(event.target, ".arrow-up-space")) {
-                        await this.moveParagraph(this.previouslySelectedParagraph["paragraph"], "up")
+                        //await this.moveParagraph(this.previouslySelectedParagraph["paragraph"], "up")
                     } else {
-                        await this.moveParagraph(this.previouslySelectedParagraph["paragraph"], "down")
+                        //await this.moveParagraph(this.previouslySelectedParagraph["paragraph"], "down")
                     }
                 } else {
                     if (assistOS.UI.getClosestParentElement(event.target, ".chapter-arrows") && !event.target.classList.contains("delete-chapter")) {
                         /* clickul e pe un buton de swap al capitolului */
                         if (this.previouslySelectedParagraph) {
-                            this.saveParagraph(this.previouslySelectedParagraph, event);
+                            //this.saveParagraph(this.previouslySelectedParagraph, event);
                         }
                         if (assistOS.UI.getClosestParentElement(event.target, ".arrow-up")) {
                             await this.moveChapter(event.target, "up");
@@ -266,7 +150,7 @@ export class SpaceDocumentViewPage {
                         }
                     } else {
                         //this.saveParagraph(this.previouslySelectedParagraph, event);
-                        this.deselectPreviousParagraph();
+                        //this.deselectPreviousParagraph();
                     }
                 }
             }
@@ -276,9 +160,9 @@ export class SpaceDocumentViewPage {
             }
             /* clickul e in afara unui capitol si in afara unui paragraf*/
             if (this.previouslySelectedParagraph) {
-                this.saveParagraph(this.previouslySelectedParagraph, event);
+                //this.saveParagraph(this.previouslySelectedParagraph, event);
             }
-            this.deselectPreviousParagraph();
+            //this.deselectPreviousParagraph();
             this.deselectPreviousChapter(event);
             let leftSideBarItem = assistOS.UI.getClosestParentElement(event.target, ".feature");
             let rightSideBarItem = assistOS.UI.getClosestParentElement(event.target, ".sidebar-item");
@@ -320,24 +204,15 @@ export class SpaceDocumentViewPage {
         }
     }
 
-    highlightChapter() {
-        this.previouslySelectedChapter = this.chapterUnit;
-        this.chapterUnit.setAttribute("id", "highlighted-element");
-        this.switchArrowsDisplay(this.chapterUnit, "chapter", "on");
-        let xMark = this.chapterUnit.querySelector(".delete-chapter");
-        xMark.style.visibility = "visible";
-        assistOS.space.currentChapterId = this.chapterUnit.getAttribute("data-chapter-id");
-        this.chapter = this._document.getChapter(assistOS.space.currentChapterId);
-    }
-
-    deselectPreviousParagraph() {
-        if (this.previouslySelectedParagraph) {
-            assistOS.space.currentParagraphId = null;
-            this.previouslySelectedParagraph["paragraph"].setAttribute("contenteditable", "false");
-            this.switchParagraphArrows(this.previouslySelectedParagraph["paragraph"], "off");
-            delete this.previouslySelectedParagraph;
-        }
-    }
+    // highlightChapter() {
+    //     this.previouslySelectedChapter = this.chapterUnit;
+    //     this.chapterUnit.setAttribute("id", "highlighted-element");
+    //     this.switchArrowsDisplay(this.chapterUnit, "chapter", "on");
+    //     let xMark = this.chapterUnit.querySelector(".delete-chapter");
+    //     xMark.style.visibility = "visible";
+    //     assistOS.space.currentChapterId = this.chapterUnit.getAttribute("data-chapter-id");
+    //     this.chapter = this._document.getChapter(assistOS.space.currentChapterId);
+    // }
 
     deselectPreviousChapter(event) {
         if (this.previouslySelectedChapter) {
@@ -363,37 +238,6 @@ export class SpaceDocumentViewPage {
         }
     }
 
-    switchArrowsDisplay(target, type, mode) {
-        if (type === "chapter") {
-            if (this._document.chapters.length <= 1) {
-                return;
-            }
-        }
-        if (type === "paragraph") {
-            let chapter = this._document.getChapter(this.previouslySelectedChapter.getAttribute("data-chapter-id"));
-            if (chapter.paragraphs.length <= 1) {
-                return;
-            }
-        }
-        const arrowsSelector = type === "chapter" ? '.chapter-arrows' : '.paragraph-arrows';
-        let foundElement = target.querySelector(arrowsSelector);
-        if (!foundElement) {
-            let nextSibling = target.nextElementSibling;
-            while (nextSibling) {
-                if (nextSibling.matches(arrowsSelector)) {
-                    foundElement = nextSibling;
-                    break;
-                }
-                nextSibling = nextSibling.nextElementSibling;
-            }
-        }
-        if (mode === "on") {
-            foundElement.style.display = "flex";
-        } else {
-            foundElement.style.display = "none";
-        }
-    }
-
 
     async moveChapter(_target, direction) {
         const currentChapter = assistOS.UI.reverseQuerySelector(_target, "space-chapter-unit");
@@ -416,28 +260,6 @@ export class SpaceDocumentViewPage {
         });
     }
 
-    async moveParagraph(_target, direction) {
-        let chapter = this._document.getChapter(assistOS.space.currentChapterId);
-        const currentParagraph = assistOS.UI.reverseQuerySelector(_target, "space-paragraph-unit");
-        const currentParagraphId = currentParagraph.getAttribute('data-paragraph-id');
-        const currentParagraphIndex = chapter.getParagraphIndex(currentParagraphId);
-
-        const getAdjacentParagraphId = (index, paragraphs) => {
-            if (direction === "up") {
-                return index === 0 ? paragraphs[paragraphs.length - 1].id : paragraphs[index - 1].id;
-            }
-            return index === paragraphs.length - 1 ? paragraphs[0].id : paragraphs[index + 1].id;
-        };
-        const adjacentParagraphId = getAdjacentParagraphId(currentParagraphIndex, chapter.paragraphs);
-        const chapterId = assistOS.UI.reverseQuerySelector(_target, "space-chapter-unit").getAttribute('data-chapter-id');
-        await assistOS.callFlow("SwapParagraphs", {
-            spaceId: assistOS.space.id,
-            documentId: this._document.id,
-            chapterId: chapterId,
-            paragraphId1: currentParagraphId,
-            paragraphId2: adjacentParagraphId
-        });
-    }
 
     editTitle(title) {
         const titleEnterHandler = async (event) => {
@@ -567,6 +389,9 @@ export class SpaceDocumentViewPage {
             chapter = this._document.getChapter(assistOS.space.currentChapterId);
             paragraph = chapter.paragraphs[this.chapter.paragraphs.length - 1];
         } else {
+            if(this._document.chapters.length === 0){
+                return {chapter, paragraph};
+            }
             chapter = this._document.chapters[this._document.chapters.length - 1];
             paragraph = chapter.paragraphs[chapter.paragraphs.length - 1];
         }
