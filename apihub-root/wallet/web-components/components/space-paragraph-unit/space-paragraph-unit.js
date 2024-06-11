@@ -11,25 +11,7 @@ export class SpaceParagraphUnit {
         let chapterId = this.element.getAttribute("data-chapter-id");
         this.chapter = this._document.getChapter(chapterId);
         this.paragraph = this.chapter.getParagraph(paragraphId);
-        this.prepareToRenderImages = async () => {
-            let imageRegex = /\{\s*&quot;imageId&quot;\s*:\s*&quot;([^,]+)&quot;\s*,\s*&quot;galleryId&quot;\s*:\s*&quot;([^}]+)&quot;\s*}/g;
-            const imagesData = this.paragraph.text.match(imageRegex);
-            if (imagesData) {
-                for (let imageData of imagesData) {
-                    const imgIdRegex = new RegExp(`${imageData}`, 'g');
-                    let jsonData;
-                    try {
-                        let unsatiziedData = imageData.replace(/&quot;/g, '"');
-                        jsonData = JSON.parse(unsatiziedData);
-                    } catch (e) {
-                        continue;
-                    }
-                    let imageUnitTag = `<image-unit data-presenter=\"image-unit\" data-id=\"${jsonData.imageId}\" data-gallery-id=\"${jsonData.galleryId}\" contenteditable=\"false\"></image-unit>`;
-                    this.paragraphText = this.paragraph.text.replace(imgIdRegex, imageUnitTag);
-                }
-            }
-        };
-        this.invalidate(this.prepareToRenderImages);
+        this.invalidate();
     }
 
     beforeRender() {
@@ -42,7 +24,7 @@ export class SpaceParagraphUnit {
             let paragraphText = assistOS.UI.sanitize(paragraphDiv.value);
             this.paragraph = await this.chapter.refreshParagraph(assistOS.space.id, this._document.id, this.paragraph.id);
             if (paragraphText !== this.paragraph.text) {
-                this.invalidate(this.prepareToRenderImages);
+                this.invalidate();
             }
         });
     }
@@ -50,7 +32,7 @@ export class SpaceParagraphUnit {
     afterRender() {
         this.chapterPresenter = this.element.closest("space-chapter-unit").webSkelPresenter;
         let paragraphText = this.element.querySelector(".paragraph-text");
-        paragraphText.innerHTML = this.paragraphText || this.paragraph.text;
+        paragraphText.innerHTML = this.paragraph.text;
         let paragraphHeight = paragraphText.scrollHeight + 20;
         paragraphText.style.height = paragraphText.scrollHeight + 'px';
         if (this.openTTSUnit) {
@@ -60,7 +42,7 @@ export class SpaceParagraphUnit {
         if (assistOS.space.currentParagraphId === this.paragraph.id) {
             paragraphText.click();
         }
-        if(assistOS.space.currentChapterId === this.chapter.id && assistOS.space.currentParagraphId !== this.paragraph.id){
+        if (assistOS.space.currentChapterId === this.chapter.id && assistOS.space.currentParagraphId !== this.paragraph.id) {
             paragraphText.classList.add("unfocused");
         }
     }
@@ -104,14 +86,13 @@ export class SpaceParagraphUnit {
             paragraphId2: adjacentParagraphId
         });
     }
+
     editParagraph(paragraph) {
         this.chapterPresenter.highlightChapter();
         paragraph.classList.remove("unfocused");
         paragraph.setAttribute("id", "highlighted-child-element");
         let paragraphUnit = assistOS.UI.reverseQuerySelector(paragraph, ".paragraph-unit");
         paragraph.focus();
-        this.previouslySelectedParagraph = {};
-        this.previouslySelectedParagraph["paragraph"] = paragraph;
         this.switchParagraphArrows(paragraphUnit, "on");
         assistOS.space.currentParagraphId = this.paragraph.id;
         let saved = false;
@@ -120,8 +101,7 @@ export class SpaceParagraphUnit {
                 await timer.stop();
                 return;
             }
-            let parsedText = await this.replaceImgTags(paragraph);
-            let paragraphText = assistOS.UI.sanitize(parsedText);
+            let paragraphText = assistOS.UI.sanitize(paragraph.value);
             if (paragraphText !== this.paragraph.text && !saved) {
                 saved = true;
                 await assistOS.callFlow("UpdateParagraphText", {
@@ -134,7 +114,6 @@ export class SpaceParagraphUnit {
                 saved = false;
             }
         }, 1000);
-        this.previouslySelectedParagraph["timer"] = timer;
         this.resetTimer = async (event) => {
             paragraph.style.height = "auto";
             paragraph.style.height = paragraph.scrollHeight + 'px';
@@ -164,7 +143,7 @@ export class SpaceParagraphUnit {
         };
         paragraph.addEventListener("keydown", this.resetTimer);
         paragraph.addEventListener("focusout", async (event) => {
-            if(event.relatedTarget && event.relatedTarget.getAttribute("data-paragraph-id") === this.paragraph.id){
+            if (event.relatedTarget && event.relatedTarget.getAttribute("data-paragraph-id") === this.paragraph.id) {
                 return;
             }
             await timer.stop(true);
@@ -172,29 +151,6 @@ export class SpaceParagraphUnit {
             this.switchParagraphArrows(paragraphUnit, "off");
         }, {once: true});
 
-    }
-    async replaceImgTags(paragraphTextElement){
-        let clonedTag  = paragraphTextElement.cloneNode(true);
-        let imgTags = clonedTag.querySelectorAll("image-unit");
-        if(imgTags.length === 0){
-            return paragraphTextElement.value;
-        }
-        for(let imgTag of imgTags){
-            let imgId = imgTag.getAttribute("data-id");
-            let galleryId = imgTag.getAttribute("data-gallery-id");
-            if(!imgId || !galleryId){
-                continue;
-            }
-            let imagesIdsString = `{"imageId":"${imgId}","galleryId":"${galleryId}"} `;
-            this.replaceElementWithText(imgTag, imagesIdsString, clonedTag);
-        }
-        return clonedTag.innerHTML;
-    }
-    replaceElementWithText(element, replacementText) {
-        const textNode = document.createTextNode(replacementText);
-        if (element.parentNode) {
-            element.parentNode.replaceChild(textNode, element);
-        }
     }
 
     openPersonalitiesPopUp(_target) {

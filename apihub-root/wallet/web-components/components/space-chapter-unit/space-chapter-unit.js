@@ -42,7 +42,11 @@ export class SpaceChapterUnit {
         let iterator = 0;
         this.chapter.paragraphs.forEach((paragraph) => {
             iterator++;
-            this.chapterContent += `<space-paragraph-unit data-presenter="space-paragraph-unit" data-metadata="paragraph nr. ${iterator} with id ${paragraph.id}" data-paragraph-id="${paragraph.id}" data-chapter-id="${this.chapter.id}"></space-paragraph-unit>`;
+            if(paragraph.image){
+                this.chapterContent += `<image-paragraph data-presenter="image-paragraph" data-metadata="paragraph nr. ${iterator} with id ${paragraph.id}" data-paragraph-id="${paragraph.id}" data-chapter-id="${this.chapter.id}"></image-paragraph>`
+            } else {
+                this.chapterContent += `<space-paragraph-unit data-presenter="space-paragraph-unit" data-metadata="paragraph nr. ${iterator} with id ${paragraph.id}" data-paragraph-id="${paragraph.id}" data-chapter-id="${this.chapter.id}"></space-paragraph-unit>`;
+            }
         });
     }
 

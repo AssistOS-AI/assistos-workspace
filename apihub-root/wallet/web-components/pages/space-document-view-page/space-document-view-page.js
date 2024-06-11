@@ -2,6 +2,7 @@ const spaceAPIs = require("assistos").loadModule("space", {});
 const {notificationService} = require("assistos").loadModule("util", {});
 const documentModule = require("assistos").loadModule("document", {});
 import {insertTextAtCursor, saveCaretPosition, getCursorPositionTextIndex} from "../../../imports.js";
+
 export class SpaceDocumentViewPage {
     constructor(element, invalidate) {
         this.element = element;
@@ -54,22 +55,25 @@ export class SpaceDocumentViewPage {
             });
         }
     }
-   afterRender() {
+
+    afterRender() {
         let buttonsSection = this.element.querySelector(".buttons-section");
-        if(!this.boundSaveSelectionHandler){
+        if (!this.boundSaveSelectionHandler) {
             this.boundSaveSelectionHandler = this.saveSelectionHandler.bind(this);
             buttonsSection.addEventListener("mousedown", this.boundSaveSelectionHandler);
         }
-   }
-    saveSelectionHandler(event){
+    }
+
+    saveSelectionHandler(event) {
         let {chapter, paragraph} = this.getSelectedParagraphAndChapter();
-        if(!chapter){
+        if (!chapter) {
             return;
         }
         let paragraphUnit = this.element.querySelector(`space-paragraph-unit[data-paragraph-id="${paragraph.id}"]`);
         let paragraphText = paragraphUnit.querySelector(".paragraph-text");
         this.restoreSelectionFn = saveCaretPosition(paragraphText);
     }
+
     async afterUnload() {
         await spaceAPIs.unsubscribeFromObject(assistOS.space.id, this._document.id);
         spaceAPIs.stopCheckingUpdates(assistOS.space.id);
@@ -277,17 +281,21 @@ export class SpaceDocumentViewPage {
         await assistOS.UI.changeToDynamicPage("space-configs-page", `${assistOS.space.id}/Space/space-documents-page`);
     }
 
-    getSelectedParagraphAndChapter(){
+    getSelectedParagraphAndChapter() {
         let chapter;
         let paragraph;
         if (assistOS.space.currentParagraphId) {
             chapter = this._document.getChapter(assistOS.space.currentChapterId);
-            paragraph = this.chapter.getParagraph(assistOS.space.currentParagraphId);
-        } else if(assistOS.space.currentChapterId){
+            paragraph = chapter.getParagraph(assistOS.space.currentParagraphId);
+        } else if (assistOS.space.currentChapterId) {
             chapter = this._document.getChapter(assistOS.space.currentChapterId);
             paragraph = chapter.paragraphs[this.chapter.paragraphs.length - 1];
         } else {
-            if(this._document.chapters.length === 0){
+            if (this._document.chapters.length === 0) {
+                return {chapter, paragraph};
+            }
+            if (this._document.chapters.paragraphs.length === 0) {
+                chapter = this._document.chapters[this._document.chapters.length - 1];
                 return {chapter, paragraph};
             }
             chapter = this._document.chapters[this._document.chapters.length - 1];
@@ -295,20 +303,31 @@ export class SpaceDocumentViewPage {
         }
         return {chapter, paragraph};
     }
+
     async openInsertImageModal(_target) {
         let {chapter, paragraph} = this.getSelectedParagraphAndChapter();
+        let position = chapter.paragraphs.findIndex(p => p.id === paragraph.id);
+        if (position === -1) {
+            position = chapter.paragraphs.length;
+        }
         let imagesData = await assistOS.UI.showModal("insert-image-modal", {["chapter-id"]: chapter.id}, true);
-        this.restoreSelectionFn();
-        if(imagesData){
-            let index = getCursorPositionTextIndex();
-            await assistOS.callFlow("AddImagesToParagraph", {
-                spaceId: assistOS.space.id,
-                documentId: this._document.id,
-                chapterId: chapter.id,
-                paragraphId: paragraph.id,
-                offset: index,
-                imagesData: imagesData
-            });
+        if (imagesData) {
+            for (let image of imagesData) {
+                await assistOS.callFlow("AddImageParagraph", {
+                    spaceId: assistOS.space.id,
+                    documentId: this._document.id,
+                    chapterId: chapter.id,
+                    paragraphData: {
+                        position: position,
+                        image: image,
+                        dimensions: {
+                            width: "",
+                            height: ""
+                        }
+                    }
+                });
+                position++;
+            }
         }
     }
 }
