@@ -37,9 +37,9 @@ export class SpaceDocumentViewPage {
         });
 
         this.controller = new AbortController();
-        // this.boundedFn = this.highlightElement.bind(this, this.controller);
-        // document.removeEventListener("click", this.boundedFn);
-        // document.addEventListener("click", this.boundedFn, {signal: this.controller.signal});
+        this.boundedFn = this.highlightElement.bind(this, this.controller);
+        document.removeEventListener("click", this.boundedFn);
+        document.addEventListener("click", this.boundedFn, {signal: this.controller.signal});
     }
 
     beforeRender() {
@@ -86,89 +86,10 @@ export class SpaceDocumentViewPage {
     }
 
     async highlightElement(controller, event) {
-        this.chapterUnit = assistOS.UI.getClosestParentElement(event.target, ".chapter-unit");
-        this.paragraphUnit = assistOS.UI.getClosestParentElement(event.target, ".paragraph-text");
-        let buttonsSection = assistOS.UI.getClosestParentElement(event.target, ".buttons-section");
-        let modal = assistOS.UI.getClosestParentElement(event.target, "dialog");
-        if(modal){
-            return;
-        }
-        if (this.paragraphUnit) {
-            /* clickul e pe un paragraf */
-            if (this.chapterUnit.getAttribute("data-id") !== (this.previouslySelectedChapter?.getAttribute("data-id") || "")) {
-                /* clickul e pe paragraf si un capitol diferit de cel curent */
-                if (this.previouslySelectedParagraph) {
-                    //this.saveParagraph(this.previouslySelectedParagraph, event);
-                }
-                //this.deselectPreviousParagraph();
-                this.deselectPreviousChapter(event);
-                //await this.highlightChapter();
-                //this.editParagraph(this.paragraphUnit);
-            } else {
-                /* clickul e pe acelasi capitol dar alt paragraf*/
-                if (this.paragraphUnit !== this.previouslySelectedParagraph["paragraph"]) {
-                    /* clickul e pe un paragraf diferit de cel curent */
-                    if (this.previouslySelectedParagraph) {
-                        //this.saveParagraph(this.previouslySelectedParagraph, event);
-                    }
-                    this.deselectPreviousParagraph();
-                    //this.editParagraph(this.paragraphUnit);
-                } else {
-                    /* clickul e pe acelasi paragraf */
-                    return;
-                }
-            }
-        } else if (this.chapterUnit) {
-            /* clickul e pe un capitol si nu pe un paragraf*/
-            if (!this.chapterUnit.hasAttribute("id") && this.previouslySelectedChapter.hasAttribute("id")) {
-                /* clickul e pe un capitol diferit de cel curent si nu e pe un paragraf */
-                //this.deselectPreviousParagraph();
-                this.deselectPreviousChapter(event);
-                //this.highlightChapter();
-            } else {
-                /* clickul e pe acelasi capitol dar nu pe un paragraf*/
-                if (assistOS.UI.getClosestParentElement(event.target, ".paragraph-arrows")) {
-                    /* clickul e pe un buton de swap */
-                    if (this.previouslySelectedParagraph) {
-                        //this.saveParagraph(this.previouslySelectedParagraph, event, "swap");
-                    }
-                    if (assistOS.UI.getClosestParentElement(event.target, ".arrow-up") || assistOS.UI.getClosestParentElement(event.target, ".arrow-up-space")) {
-                        //await this.moveParagraph(this.previouslySelectedParagraph["paragraph"], "up")
-                    } else {
-                        //await this.moveParagraph(this.previouslySelectedParagraph["paragraph"], "down")
-                    }
-                } else {
-                    if (assistOS.UI.getClosestParentElement(event.target, ".chapter-arrows") && !event.target.classList.contains("delete-chapter")) {
-                        /* clickul e pe un buton de swap al capitolului */
-                        if (this.previouslySelectedParagraph) {
-                            //this.saveParagraph(this.previouslySelectedParagraph, event);
-                        }
-                        if (assistOS.UI.getClosestParentElement(event.target, ".arrow-up")) {
-                            await this.moveChapter(event.target, "up");
-                        } else {
-                            await this.moveChapter(event.target, "down");
-                        }
-                    } else {
-                        //this.saveParagraph(this.previouslySelectedParagraph, event);
-                        //this.deselectPreviousParagraph();
-                    }
-                }
-            }
-        } else {
-            if(buttonsSection){
-                return;
-            }
-            /* clickul e in afara unui capitol si in afara unui paragraf*/
-            if (this.previouslySelectedParagraph) {
-                //this.saveParagraph(this.previouslySelectedParagraph, event);
-            }
-            //this.deselectPreviousParagraph();
-            this.deselectPreviousChapter(event);
-            let leftSideBarItem = assistOS.UI.getClosestParentElement(event.target, ".feature");
-            let rightSideBarItem = assistOS.UI.getClosestParentElement(event.target, ".sidebar-item");
-            if (leftSideBarItem || rightSideBarItem) {
-                controller.abort();
-            }
+        let leftSideBarItem = assistOS.UI.getClosestParentElement(event.target, ".feature");
+        let rightSideBarItem = assistOS.UI.getClosestParentElement(event.target, ".sidebar-item");
+        if (leftSideBarItem || rightSideBarItem) {
+            controller.abort();
         }
         this.setContext();
     }
@@ -201,29 +122,6 @@ export class SpaceDocumentViewPage {
         assistOS.context = {
             "location and available actions": `You are in the document editor page. The current document is ${this._document.title} with id ${this._document.id} and its about ${this._document.abstract}.`,
             "focused element": focusedElement
-        }
-    }
-
-    // highlightChapter() {
-    //     this.previouslySelectedChapter = this.chapterUnit;
-    //     this.chapterUnit.setAttribute("id", "highlighted-element");
-    //     this.switchArrowsDisplay(this.chapterUnit, "chapter", "on");
-    //     let xMark = this.chapterUnit.querySelector(".delete-chapter");
-    //     xMark.style.visibility = "visible";
-    //     assistOS.space.currentChapterId = this.chapterUnit.getAttribute("data-chapter-id");
-    //     this.chapter = this._document.getChapter(assistOS.space.currentChapterId);
-    // }
-
-    deselectPreviousChapter(event) {
-        if (this.previouslySelectedChapter) {
-            let xMark = this.previouslySelectedChapter.querySelector(".delete-chapter");
-            xMark.style.visibility = "hidden";
-            this.switchArrowsDisplay(this.previouslySelectedChapter, "chapter", "off");
-            if (!assistOS.UI.getClosestParentElement(event.target, "agent-page")) {
-                this.previouslySelectedChapter.removeAttribute("id");
-            }
-            assistOS.space.currentChapterId = null;
-            delete this.previouslySelectedChapter;
         }
     }
 

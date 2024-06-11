@@ -97,16 +97,18 @@ export class SpaceChapterUnit {
         assistOS.space.currentChapterId = this.chapter.id;
         this.switchButtonsDisplay(this.chapterUnit, "on");
         let paragraphs = this.element.querySelectorAll(".paragraph-text");
+        let agentPage = document.getElementById("agent-page");
         for(let paragraph of paragraphs) {
             paragraph.classList.add("unfocused");
         }
         this.chapterUnit.addEventListener("focusout", (event) => {
             if(event.relatedTarget){
                 let chapterUnit = event.relatedTarget.closest("space-chapter-unit");
-                if(!chapterUnit || event.relatedTarget.getAttribute("data-chapter-id") !== this.chapter.id){
+                if((!chapterUnit || event.relatedTarget.getAttribute("data-chapter-id") !== this.chapter.id) && (event.relatedTarget.getAttribute("id") !== "agent-page") && !agentPage.contains(event.relatedTarget)){
                     this.switchParagraphsBackground("white");
                     this.switchButtonsDisplay(this.chapterUnit, "off");
                 }
+
             } else {
                 this.switchParagraphsBackground("white");
                 this.switchButtonsDisplay(this.chapterUnit, "off");
@@ -161,7 +163,8 @@ export class SpaceChapterUnit {
         };
         title.addEventListener('keydown', titleEnterHandler);
         title.focus();
-
+        this.switchParagraphsBackground("blue");
+        this.switchButtonsDisplay(this.chapterUnit, "on");
         let timer = assistOS.services.SaveElementTimer(async () => {
             let titleText = assistOS.UI.sanitize(assistOS.UI.customTrim(title.innerText))
             if (!titleText) {
