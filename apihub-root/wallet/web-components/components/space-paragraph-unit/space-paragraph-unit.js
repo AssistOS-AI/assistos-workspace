@@ -39,10 +39,7 @@ export class SpaceParagraphUnit {
                 this.openTTSUnit = true;
             }
             let paragraphDiv = this.element.querySelector(".paragraph-text");
-            let paragraphText = assistOS.UI.sanitize(paragraphDiv.innerHTML);
-            if (!paragraphText) {
-                paragraphText = "";
-            }
+            let paragraphText = assistOS.UI.sanitize(paragraphDiv.value);
             this.paragraph = await this.chapter.refreshParagraph(assistOS.space.id, this._document.id, this.paragraph.id);
             if (paragraphText !== this.paragraph.text) {
                 this.invalidate(this.prepareToRenderImages);
@@ -51,6 +48,7 @@ export class SpaceParagraphUnit {
     }
 
     afterRender() {
+        this.chapterPresenter = this.element.closest("space-chapter-unit").webSkelPresenter;
         let paragraphText = this.element.querySelector(".paragraph-text");
         paragraphText.innerHTML = this.paragraphText || this.paragraph.text;
         let paragraphHeight = paragraphText.scrollHeight + 20;
@@ -89,19 +87,6 @@ export class SpaceParagraphUnit {
         }
     }
 
-    saveParagraph(paragraph, event, swapAction) {
-        if (!swapAction) {
-            assistOS.space.currentParagraph = null;
-        }
-        if (paragraph["timer"]) {
-            paragraph["timer"].stop(true);
-        }
-        paragraph["paragraph"].removeEventListener("keydown", this.resetTimer);
-        paragraph["paragraph"].setAttribute("contenteditable", "false");
-        if (!assistOS.UI.getClosestParentElement(event.target, "agent-page")) {
-            paragraph["paragraph"].removeAttribute("id");
-        }
-    }
     async moveParagraph(_target, direction) {
         const currentParagraphIndex = this.chapter.getParagraphIndex(this.paragraph.id);
         const getAdjacentParagraphId = (index, paragraphs) => {
@@ -120,6 +105,7 @@ export class SpaceParagraphUnit {
         });
     }
     editParagraph(paragraph) {
+        this.chapterPresenter.highlightChapter();
         paragraph.classList.remove("unfocused");
         paragraph.setAttribute("id", "highlighted-child-element");
         let paragraphUnit = assistOS.UI.reverseQuerySelector(paragraph, ".paragraph-unit");
@@ -150,9 +136,10 @@ export class SpaceParagraphUnit {
         }, 1000);
         this.previouslySelectedParagraph["timer"] = timer;
         this.resetTimer = async (event) => {
+            paragraph.style.height = "auto";
             paragraph.style.height = paragraph.scrollHeight + 'px';
-            if (paragraph.innerText.trim() === "" && event.key === "Backspace") {
-                if (assistOS.space.currentParagraphId === this.paragraph) {
+            if (paragraph.value.trim() === "" && event.key === "Backspace") {
+                if (assistOS.space.currentParagraphId === this.paragraph.id) {
                     let curentParagraphIndex = this.chapter.getParagraphIndex(this.paragraph.id);
                     await assistOS.callFlow("DeleteParagraph", {
                         spaceId: assistOS.space.id,
@@ -176,7 +163,7 @@ export class SpaceParagraphUnit {
             }
         };
         paragraph.addEventListener("keydown", this.resetTimer);
-        paragraph.addEventListener("blur", async (event) => {
+        paragraph.addEventListener("focusout", async (event) => {
             if(event.relatedTarget && event.relatedTarget.getAttribute("data-paragraph-id") === this.paragraph.id){
                 return;
             }
@@ -190,7 +177,7 @@ export class SpaceParagraphUnit {
         let clonedTag  = paragraphTextElement.cloneNode(true);
         let imgTags = clonedTag.querySelectorAll("image-unit");
         if(imgTags.length === 0){
-            return paragraphTextElement.innerHTML;
+            return paragraphTextElement.value;
         }
         for(let imgTag of imgTags){
             let imgId = imgTag.getAttribute("data-id");
