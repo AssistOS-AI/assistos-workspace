@@ -4,6 +4,7 @@ const constants = require("assistos").constants;
 const path = require('path');
 const {subscribersModule} = require("../subscribers/controller.js");
 const dataVolumePaths = require('../volumeManager').paths;
+const flows = require('./flows.js');
 
 async function loadJSFiles(filePath) {
     let localData = "";
@@ -30,37 +31,61 @@ async function loadJSFiles(filePath) {
     return localData;
 }
 
-async function loadFlows(request, response) {
-    const filePath = path.join(dataVolumePaths.space, `${request.params.spaceId}/flows`);
+
+async function listFlows(request, response) {
     try {
-        let flows = await loadJSFiles(filePath);
-        return utils.sendResponse(response, 200, "application/javascript", flows);
+        const spaceId = request.params.spaceId;
+        const flowNames = await getSpaceFlowNames(spaceId);
+        return utils.sendResponse(response, 200, "application/json",
+            {
+                data: JSON.stringify(flowNames),
+                success: true
+            });
     } catch (e) {
-        return utils.sendResponse(response, 500, "application/javascript", e);
+        return utils.sendResponse(response, 500, "application/json", e);
     }
 }
 
+async function getSpaceFlowNames(spaceId) {
+    const filePath = path.join(dataVolumePaths.space, `${spaceId}/flows`);
+    const files = await fsPromises.readdir(filePath);
+    const flows = [];
+    for (const file of files) {
+        const flowName = file.replace('.js', '');
+        flows.push(flowName);
+    }
+    return flows;
+
+}
+
 async function getFlow(request, response) {
+
+    async function transformCommonJSToES6(filePath) {
+        let content = await fsPromises.readFile(filePath, 'utf8');
+
+        content = content.replace(/const\s+(\w+)\s*=\s*require\(['"](.+?)['"]\);/g, 'import $1 from \'$2\';');
+
+        content = content.replace(/module\.exports\s*=\s*(\w+);/, 'export default $1;');
+
+        return content;
+    }
+
     const spaceId = request.params.spaceId;
     const flowName = request.params.flowName;
     try {
         let filePath = path.join(dataVolumePaths.space, `${spaceId}/flows/${flowName}.js`);
-        let flow = await fsPromises.readFile(filePath, {encoding: 'utf8'});
+        let flow = await transformCommonJSToES6(filePath);
         return utils.sendResponse(response, 200, "application/javascript", flow);
     } catch (error) {
-        return utils.sendResponse(response, 500, "application/javascript", error);
+        return utils.sendResponse(response, 500, "application/javascript", error.message);
     }
 }
 
 async function addFlow(request, response) {
     const spaceId = request.params.spaceId;
     const flowData = request.body;
-    const flowName = request.params.flowName;
     try {
-        let filePath = path.join(dataVolumePaths.space, `${spaceId}/flows/${flowName}.js`);
-        await fsPromises.writeFile(filePath, flowData, 'utf8');
-        subscribersModule.notifySubscribers(spaceId, request.userId, flowName, flowName);
-        subscribersModule.notifySubscribers(spaceId, request.userId, "flows", "flows");
+        await flows.APIs.addFlow(spaceId, flowData);
         return utils.sendResponse(response, 200, "application/json", {
             success: true,
             message: `Flow ${flowData.name} added successfully`
@@ -113,6 +138,7 @@ async function deleteFlow(request, response) {
         });
     }
 }
+
 async function callFlow(request, response) {
     const spaceId = request.params.spaceId;
     const flowName = request.params.flowName;
@@ -125,7 +151,7 @@ async function callFlow(request, response) {
     const flowModule = require("assistos").loadModule("flow", securityContext);
     try {
         let personality;
-        if(personalityId){
+        if (personalityId) {
             personality = await personalityModule.getPersonality(spaceId, personalityId);
         } else {
             personality = await personalityModule.getPersonality(spaceId, constants.PERSONALITIES.DEFAULT_PERSONALITY_ID);
@@ -197,8 +223,9 @@ async function callFlow(request, response) {
     }
 
 }
+
 module.exports = {
-    loadFlows,
+    listFlows,
     getFlow,
     addFlow,
     updateFlow,

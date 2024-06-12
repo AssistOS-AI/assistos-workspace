@@ -6,23 +6,21 @@ export class AddFlowModal {
     }
 
     beforeRender() {
+        this.parameterCount = 0;
+        this.codeStart = "async execute(apis,parameters){\n" +
+            "try{";
+        this.codeEnd = "}catch(error){\n" +
+            " this.genericReject(reject, error);\n" +
+            "}\n";
     }
+
     afterRender() {
         this.flowCode = this.element.querySelector("#code");
         this.flowCode.addEventListener("keydown", this.insertSpacesOnTab);
-        this.flowCode.value = "class PascalCase {\n" +
-            "\n" +
-            "   static description = \"description\"; \n\n" +
-            "   constructor(personality) {\n" +
-            "       this.dependency = dependency;\n" +
-            "   }\n" +
-            "   start(){\n" +
-            "\n" +
-            "   }\n" +
-            "}"
+
     }
 
-    insertSpacesOnTab(event){
+    insertSpacesOnTab(event) {
         if (event.key === 'Tab' && !event.shiftKey) {
             event.preventDefault();
             let start = this.selectionStart;
@@ -34,7 +32,7 @@ export class AddFlowModal {
             this.selectionEnd = start + indentedText.length;
             this.setSelectionRange(this.selectionStart, this.selectionEnd);
 
-        }else if(event.key === 'Tab' && event.shiftKey){
+        } else if (event.key === 'Tab' && event.shiftKey) {
             event.preventDefault();
             let start = this.selectionStart;
             let beginningOfLine = start;
@@ -99,7 +97,7 @@ export class AddFlowModal {
                 inString = true;
                 stringChar = char;
             } else if (char === '{') {
-                if(lastNonWhiteSpaceChar && !isLineTerminator(lastNonWhiteSpaceChar) && !isNewStatement(lastNonWhiteSpaceChar)) {
+                if (lastNonWhiteSpaceChar && !isLineTerminator(lastNonWhiteSpaceChar) && !isNewStatement(lastNonWhiteSpaceChar)) {
                     formattedCode = formattedCode.trimEnd() + ' ';
                 }
                 formattedCode += char + '\n';
@@ -131,11 +129,72 @@ export class AddFlowModal {
     async addFlow(_target) {
         let formInfo = await assistOS.UI.extractFormInformation(_target);
         if (formInfo.isValid) {
+            const name = formInfo.data.name;
+            const action = formInfo.data.action;
+            const intent = formInfo.data.intent;
+            const code = formInfo.data.code;
+            delete formInfo.data.name;
+            delete formInfo.data.action;
+            delete formInfo.data.intent;
+            delete formInfo.data.code;
+            let parameters = {};
+            for (let key in formInfo.data) {
+                if (key.includes('param-name')) {
+                    const index = key.match(/\d+/)[0];
+                    parameters[formInfo.data[key]] = {
+                        type: formInfo.data[`param-type${index}`],
+                        required: formInfo.data[`param-required${index}`] === 'on'
+                    };
+                }
+            }
             await assistOS.callFlow("AddFlow", {
-                spaceId: assistOS.space.id,
-                code: formInfo.data.code
+                name: name,
+                code: code,
+                flowParametersSchema: parameters,
+                intent: intent,
+                action: action
             });
             assistOS.UI.closeModal(_target);
         }
+    }
+
+    addParameter(_target) {
+        this.parameterCount += 1;
+        const container = assistOS.UI.reverseQuerySelector(_target, '#parameters-container');
+        const parameterDiv = document.createElement('div');
+        parameterDiv.className = 'form-item parameter-div';
+
+        parameterDiv.innerHTML = `
+        <div class="form-item">
+            <label class="form-label" for="param-name${this.parameterCount}">Parameter Name</label>
+            <input type="text" class="form-input" name="param-name${this.parameterCount}" required placeholder="Parameter Name">
+        </div>
+        <div class="form-item">
+            <label class="form-label" for="param-type${this.parameterCount}">Parameter Type</label>
+            <select class="form-input" name="param-type${this.parameterCount}" required>
+                <option value="string">String</option>
+                <option value="number">Number</option>
+                <option value="boolean">Boolean</option>
+                <option value="object">Object</option>
+                <option value="array">Array</option>
+                <option value="date">Date</option>
+                <option value="file">File</option>
+                <option value="function">Function</option>
+                <option value="any">Any</option>
+            </select>
+        </div>
+        <div class="form-item">
+            <label class="form-label" for="param-required${this.parameterCount}">Required</label>
+            <input type="checkbox" class="form-input" name="param-required${this.parameterCount}">
+        </div>
+        <div class="delete-parameter" data-local-action="deleteParameter"">X</div>
+    `;
+
+        container.appendChild(parameterDiv);
+    }
+
+    deleteParameter(element) {
+        const parameterDiv = element.closest('.parameter-div');
+        parameterDiv.remove();
     }
 }
