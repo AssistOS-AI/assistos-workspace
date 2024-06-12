@@ -53,7 +53,10 @@ export class UtilsService {
         return null;
     }
     base64ToBlob(base64, contentType = '', sliceSize = 512) {
-        const byteCharacters = atob(base64);
+        // Remove the data URL prefix if it exists
+        const base64String = base64.includes(',') ? base64.split(',')[1] : base64;
+
+        const byteCharacters = atob(base64String);
         const byteArrays = [];
 
         for (let offset = 0; offset < byteCharacters.length; offset += sliceSize) {

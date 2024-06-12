@@ -13,11 +13,7 @@ export class SpaceChapterUnit {
         this.refreshChapterTitle = async () => {
             await this.chapter.refreshChapterTitle(assistOS.space.id, this._document.id, this.chapter.id);
         };
-        this.refreshParagraph = (paragraphId) => {
-            return async () => {
-                await this.chapter.refreshParagraph(assistOS.space.id, this._document.id, paragraphId);
-            };
-        }
+
 
         this.addParagraphOnCtrlEnter = this.addParagraphOnCtrlEnter.bind(this);
         this.element.removeEventListener('keydown', this.addParagraphOnCtrlEnter);
@@ -42,7 +38,11 @@ export class SpaceChapterUnit {
         let iterator = 0;
         this.chapter.paragraphs.forEach((paragraph) => {
             iterator++;
-            this.chapterContent += `<space-paragraph-unit data-presenter="space-paragraph-unit" data-metadata="paragraph nr. ${iterator} with id ${paragraph.id}" data-paragraph-id="${paragraph.id}" data-chapter-id="${this.chapter.id}"></space-paragraph-unit>`;
+            if(paragraph.image){
+                this.chapterContent += `<image-paragraph data-presenter="image-paragraph" data-metadata="paragraph nr. ${iterator} with id ${paragraph.id}" data-paragraph-id="${paragraph.id}" data-chapter-id="${this.chapter.id}"></image-paragraph>`
+            } else {
+                this.chapterContent += `<space-paragraph-unit data-presenter="space-paragraph-unit" data-metadata="paragraph nr. ${iterator} with id ${paragraph.id}" data-paragraph-id="${paragraph.id}" data-chapter-id="${this.chapter.id}"></space-paragraph-unit>`;
+            }
         });
     }
 
@@ -91,20 +91,67 @@ export class SpaceChapterUnit {
         });
     }
 
-    highlightChapter() {
+    highlightChapter(_target) {
         this.deselectPreviousElements();
         this.chapterUnit.setAttribute("id", "highlighted-element");
         assistOS.space.currentChapterId = this.chapter.id;
-        if (this._document.chapters.length === 1) {
+        this.switchButtonsDisplay(this.chapterUnit, "on");
+        let paragraphs = this.element.querySelectorAll(".paragraph-text");
+        let agentPage = document.getElementById("agent-page");
+        for(let paragraph of paragraphs) {
+            paragraph.classList.add("unfocused");
+        }
+        this.chapterUnit.addEventListener("focusout", (event) => {
+            if(event.relatedTarget){
+                let chapterUnit = event.relatedTarget.closest("space-chapter-unit");
+                if((!chapterUnit || event.relatedTarget.getAttribute("data-chapter-id") !== this.chapter.id) && (event.relatedTarget.getAttribute("id") !== "agent-page") && !agentPage.contains(event.relatedTarget)){
+                    this.switchParagraphsBackground("white");
+                    this.switchButtonsDisplay(this.chapterUnit, "off");
+                }
+
+            } else {
+                this.switchParagraphsBackground("white");
+                this.switchButtonsDisplay(this.chapterUnit, "off");
+            }
+        }, {once: true});
+    }
+    switchButtonsDisplay(target, mode) {
+        let xMark = this.chapterUnit.querySelector('.delete-chapter');
+        mode === "on" ? xMark.style.visibility = "visible" : xMark.style.visibility = "hidden";
+        if (this._document.chapters.length <= 1) {
             return;
         }
-        let foundElement = this.chapterUnit.querySelector('.chapter-arrows');
-        foundElement.style.display = "flex";
-        let xMark = this.chapterUnit.querySelector('.delete-chapter');
-        xMark.style.visibility = "visible";
+        let foundElement = target.querySelector(".chapter-arrows");
+        if (!foundElement) {
+            let nextSibling = target.nextElementSibling;
+            while (nextSibling) {
+                if (nextSibling.matches(".chapter-arrows")) {
+                    foundElement = nextSibling;
+                    break;
+                }
+                nextSibling = nextSibling.nextElementSibling;
+            }
+        }
+        if (mode === "on") {
+            foundElement.style.display = "flex";
+        } else {
+            foundElement.style.display = "none";
+        }
     }
-
+    switchParagraphsBackground(mode){
+        let paragraphs = this.element.querySelectorAll(".paragraph-text");
+        if(mode === "white"){
+            for(let paragraph of paragraphs){
+                paragraph.classList.remove("unfocused");
+            }
+        } else {
+            for(let paragraph of paragraphs){
+                paragraph.classList.add("unfocused");
+            }
+        }
+    }
     async editChapterTitle(title) {
+        this.highlightChapter();
         this.deselectPreviousElements(title);
         title.setAttribute("contenteditable", "true");
         title.setAttribute("id", "highlighted-child-element");
@@ -116,7 +163,8 @@ export class SpaceChapterUnit {
         };
         title.addEventListener('keydown', titleEnterHandler);
         title.focus();
-
+        this.switchParagraphsBackground("blue");
+        this.switchButtonsDisplay(this.chapterUnit, "on");
         let timer = assistOS.services.SaveElementTimer(async () => {
             let titleText = assistOS.UI.sanitize(assistOS.UI.customTrim(title.innerText))
             if (!titleText) {
@@ -141,10 +189,14 @@ export class SpaceChapterUnit {
             let agentPage = document.getElementById("agent-page");
             if (event.relatedTarget) {
                 if ((event.relatedTarget.getAttribute("id") !== "agent-page") && !agentPage.contains(event.relatedTarget)) {
+                    this.switchParagraphsBackground("white");
                     title.removeAttribute("id");
+                    this.switchButtonsDisplay(this.chapterUnit, "off");
                 }
             } else {
+                this.switchParagraphsBackground("white");
                 title.removeAttribute("id");
+                this.switchButtonsDisplay(this.chapterUnit, "off");
             }
             title.removeEventListener('keydown', titleEnterHandler);
             title.removeEventListener("keydown", resetTimer);
@@ -167,6 +219,7 @@ export class SpaceChapterUnit {
     }
 
     changeChapterDisplay(_target) {
+        this.highlightChapter(_target);
         this.chapter.visibility === "hide" ? this.chapter.visibility = "show" : this.chapter.visibility = "hide";
         let paragraphsContainer = this.element.querySelector(".chapter-paragraphs");
         paragraphsContainer.classList.toggle('hidden');

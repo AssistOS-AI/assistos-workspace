@@ -4,6 +4,16 @@
     "services": [],
     "components": [
         {
+            "name": "image-paragraph",
+            "type": "components",
+            "presenterClassName": "ImageParagraph"
+        },
+        {
+            "name": "image-unit",
+            "type": "components",
+            "presenterClassName": "ImageUnit"
+        },
+        {
             "name": "midjourney-image-unit",
             "type": "components",
             "presenterClassName": "MidjourneyImageUnit"

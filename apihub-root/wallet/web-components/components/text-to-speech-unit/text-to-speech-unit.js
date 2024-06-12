@@ -1,5 +1,6 @@
 const llmModule = require("assistos").loadModule("llm", {});
 const documentModule = require("assistos").loadModule("document", {});
+const personalityModule = require("assistos").loadModule("personality", {});
 export class TextToSpeechUnit {
     constructor(element, invalidate) {
         this.element = element;
@@ -11,7 +12,6 @@ export class TextToSpeechUnit {
         this.invalidate(async () => {
             this.personalities = await assistOS.space.getPersonalitiesMetadata();
             let configs = await llmModule.listVoicesAndEmotions(assistOS.space.id);
-            this.voices = configs.voices;
             this.emotions = configs.emotions;
         });
     }
@@ -22,11 +22,6 @@ export class TextToSpeechUnit {
             personalitiesHTML += `<option value="${personality.id}">${personality.name}</option>`;
         }
         this.personalitiesHTML = personalitiesHTML;
-        let voicesHTML = "";
-        for (let voice of this.voices) {
-            voicesHTML += `<option value="${voice.id}">${voice.name}</option>`;
-        }
-        this.voicesHTML = voicesHTML;
         let emotionsHTML = "";
         for (let emotion of this.emotions) {
             emotionsHTML += `<option value="${emotion}">${emotion}</option>`;
@@ -49,8 +44,6 @@ export class TextToSpeechUnit {
             audioElement.load();
             let personalityOption = this.element.querySelector(`option[value="${this.audioConfigs.personalityId}"]`);
             personalityOption.selected = true;
-            let voiceOption = this.element.querySelector(`option[value="${this.audioConfigs.voiceId}"]`);
-            voiceOption.selected = true;
             let emotionOption = this.element.querySelector(`option[value="${this.audioConfigs.emotion}"]`);
             emotionOption.selected = true;
             let styleGuidance = this.element.querySelector(`#styleGuidance`);
@@ -65,14 +58,20 @@ export class TextToSpeechUnit {
         }
         let loaderId = await assistOS.UI.showLoading(_target);
         let paragraphUnit = assistOS.UI.reverseQuerySelector(_target, "space-paragraph-unit");
-        let prompt = paragraphUnit.querySelector(".paragraph-text").innerText;
+        let prompt = paragraphUnit.querySelector(".paragraph-text").value;
         if(!prompt || prompt === "") {
             alert("Write something!");
             return;
         }
+        let personality = await assistOS.space.getPersonality(formData.data.personality);
+        if(!personality.voiceId){
+            alert("Personality does not have a voice assigned!");
+            assistOS.UI.hideLoading(loaderId);
+            return;
+        }
         let audioBlob = await llmModule.textToSpeech(assistOS.space.id, {
             prompt: prompt,
-            voice: formData.data.voice,
+            voice: personality.voiceId,
             emotion: formData.data.emotion,
             styleGuidance: formData.data.styleGuidance,
             modelName: "PlayHT2.0"
@@ -94,14 +93,6 @@ export class TextToSpeechUnit {
         }
         await documentModule.updateParagraphAudio(assistOS.space.id, this._document.id, this.paragraphId, audioConfigs);
         assistOS.UI.hideLoading(loaderId);
-    }
-    downloadAudio(_target) {
-        const link = document.createElement('a');
-        link.href = this.audioURL;
-        link.download = 'audio.mp3';
-        document.body.appendChild(link);
-        link.click();
-        document.body.removeChild(link);
     }
 
     closePopup(_target) {

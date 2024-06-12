@@ -113,10 +113,6 @@ export class InsertImageModal {
         this.invalidate();
     }
     insertImages(_target){
-        let data= {
-            images: this.selectedImages,
-            galleryId: this.selectedGallery.id
-        }
-        assistOS.UI.closeModal(_target, data);
+        assistOS.UI.closeModal(_target, this.selectedImages);
     }
 }

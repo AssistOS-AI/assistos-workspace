@@ -23,7 +23,7 @@ export class SpaceDocumentsPage {
         this.tableRows = "";
         if(this.documents.length > 0) {
             this.documents.forEach((document) => {
-                this.tableRows += `<space-document-unit data-name="${assistOS.UI.sanitize(document.title)}" 
+                this.tableRows += `<space-document-unit data-name="${document.title}" 
                 data-id="${document.id}" data-local-action="editAction"></space-document-unit>`;
             });
         }

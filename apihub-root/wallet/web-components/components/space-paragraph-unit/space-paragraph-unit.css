@@ -1,4 +1,4 @@
-paragraph-unit{
+space-paragraph-unit{
     position: relative;
 }
 .paragraph-unit {
@@ -61,8 +61,13 @@ paragraph-unit{
     width: 100%;
     height: 12px;
 }
-
+.unfocused{
+    background-color: var(--white-blue-tint);
+}
 .paragraph-text {
+    overflow: hidden;
+    resize: none;
+    border: none;
     border-radius: 3px;
     display: inline-block;
     cursor: text;
@@ -80,9 +85,4 @@ paragraph-unit{
 
 .paragraph-text:empty {
     height: 45px;
-}
-.paragraph-image{
-    width: 100%;
-    height: 100%;
-    object-fit: cover;
 }

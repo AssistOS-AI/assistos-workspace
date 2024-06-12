@@ -6,6 +6,7 @@ space-configs-page {
 }
 
 .right-sidebar {
+    z-index: 5;
     position: absolute;
     display: inline-block;
     transition: transform 0.3s ease;
