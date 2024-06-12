@@ -205,7 +205,7 @@ export class ImageParagraph{
             }
         }, 1000);
         this.resetTimer = async (event) => {
-            if (paragraph.value.trim() === "" && event.key === "Backspace") {
+            if (event.key === "Backspace") {
                 if (assistOS.space.currentParagraphId === this.paragraph.id) {
                     let curentParagraphIndex = this.chapter.getParagraphIndex(this.paragraph.id);
                     await assistOS.callFlow("DeleteParagraph", {

@@ -1,5 +1,6 @@
 image-paragraph {
     position: relative;
+    z-index: 3;
 }
 
 .image-paragraph {

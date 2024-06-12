@@ -62,6 +62,47 @@ export class SpaceDocumentViewPage {
             this.boundSaveSelectionHandler = this.saveSelectionHandler.bind(this);
             buttonsSection.addEventListener("mousedown", this.boundSaveSelectionHandler);
         }
+        if(!this.boundPasteHandler) {
+            this.boundPasteHandler = this.pasteHandler.bind(this);
+            this.element.addEventListener('paste', this.boundPasteHandler);
+        }
+    }
+    pasteHandler(event) {
+        let clipboardData = event.clipboardData || window.clipboardData;
+        let items = clipboardData.items;
+        const {chapter, paragraph} = this.getSelectedParagraphAndChapter();
+        let position = chapter.paragraphs.findIndex(p => p.id === paragraph.id);
+        if (position === -1) {
+            position = chapter.paragraphs.length;
+        }
+        for (let i = 0; i < items.length; i++) {
+            let item = items[i];
+            if (item.type.indexOf('image') !== -1) {
+                let blob = item.getAsFile();
+                let reader = new FileReader();
+
+                reader.onload = async (event) => {
+                    let base64String = event.target.result;
+                    await assistOS.callFlow("AddImageParagraph", {
+                        spaceId: assistOS.space.id,
+                        documentId: this._document.id,
+                        chapterId: chapter.id,
+                        paragraphData: {
+                            position: position,
+                            image: {src: base64String, alt: "pasted image"},
+                            dimensions: {
+                                width: "",
+                                height: ""
+                            }
+                        }
+                    });
+                    position++;
+                }
+
+                reader.readAsDataURL(blob);
+                event.preventDefault();
+            }
+        }
     }
 
     saveSelectionHandler(event) {
