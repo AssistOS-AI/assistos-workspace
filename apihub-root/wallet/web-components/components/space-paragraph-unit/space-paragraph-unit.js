@@ -11,22 +11,30 @@ export class SpaceParagraphUnit {
         let chapterId = this.element.getAttribute("data-chapter-id");
         this.chapter = this._document.getChapter(chapterId);
         this.paragraph = this.chapter.getParagraph(paragraphId);
-        this.invalidate();
-    }
-
-    beforeRender() {
         notificationService.on(this.paragraph.id, async () => {
             let ttsUnit = this.element.querySelector('text-to-speech-unit');
             if (ttsUnit) {
                 this.openTTSUnit = true;
             }
             let paragraphDiv = this.element.querySelector(".paragraph-text");
-            let paragraphText = assistOS.UI.sanitize(paragraphDiv.value);
-            this.paragraph = await this.chapter.refreshParagraph(assistOS.space.id, this._document.id, this.paragraph.id);
-            if (paragraphText !== this.paragraph.text) {
-                this.invalidate();
+            if(!paragraphDiv){
+                //notification received before render
+                return this.invalidate();
             }
+            if(this.timer){
+                await this.timer.stop(true);
+            }
+            // let paragraphText = assistOS.UI.sanitize(paragraphDiv.value);
+            // this.paragraph = await this.chapter.refreshParagraph(assistOS.space.id, this._document.id, this.paragraph.id);
+            // if (paragraphText !== this.paragraph.text) {
+            //     this.invalidate();
+            // }
         });
+        this.invalidate();
+    }
+
+    beforeRender() {
+
     }
 
     afterRender() {
@@ -70,6 +78,7 @@ export class SpaceParagraphUnit {
     }
 
     async moveParagraph(_target, direction) {
+        await this.timer.stop(true);
         const currentParagraphIndex = this.chapter.getParagraphIndex(this.paragraph.id);
         const getAdjacentParagraphId = (index, paragraphs) => {
             if (direction === "up") {
@@ -96,13 +105,15 @@ export class SpaceParagraphUnit {
         this.switchParagraphArrows(paragraphUnit, "on");
         assistOS.space.currentParagraphId = this.paragraph.id;
         let saved = false;
-        let timer = assistOS.services.SaveElementTimer(async () => {
+        let deleted = false;
+        this.timer = assistOS.services.SaveElementTimer(async () => {
             if (!this.paragraph || assistOS.space.currentParagraphId !== this.paragraph.id) {
-                await timer.stop();
+                await this.timer.stop();
                 return;
             }
             let paragraphText = assistOS.UI.sanitize(paragraph.value);
-            if (paragraphText !== this.paragraph.text && !saved) {
+            if (paragraphText !== this.paragraph.text && !saved && !deleted) {
+                console.log("saved");
                 saved = true;
                 await assistOS.callFlow("UpdateParagraphText", {
                     spaceId: assistOS.space.id,
@@ -119,6 +130,7 @@ export class SpaceParagraphUnit {
             paragraph.style.height = paragraph.scrollHeight + 'px';
             if (paragraph.value.trim() === "" && event.key === "Backspace") {
                 if (assistOS.space.currentParagraphId === this.paragraph.id) {
+                    deleted = true;
                     let curentParagraphIndex = this.chapter.getParagraphIndex(this.paragraph.id);
                     await assistOS.callFlow("DeleteParagraph", {
                         spaceId: assistOS.space.id,
@@ -136,23 +148,23 @@ export class SpaceParagraphUnit {
                         assistOS.space.currentParagraphId = null;
                     }
                 }
-                await timer.stop();
+                await this.timer.stop();
             } else {
-                await timer.reset(1000);
+                console.log("reseting")
+                await this.timer.reset(1000);
             }
         };
+        paragraph.removeEventListener("keydown", this.resetTimer);
         paragraph.addEventListener("keydown", this.resetTimer);
         paragraph.addEventListener("focusout", async (event) => {
             if (event.relatedTarget && event.relatedTarget.getAttribute("data-paragraph-id") === this.paragraph.id) {
                 return;
             }
-            await timer.stop(true);
+            await this.timer.stop(true);
             paragraph.removeAttribute("id");
             this.switchParagraphArrows(paragraphUnit, "off");
         }, {once: true});
-
     }
-
     openPersonalitiesPopUp(_target) {
         let personalitiesPopUp = `<text-to-speech-unit data-presenter="select-personality-tts" data-chapter-id="${this.chapter.id}" data-paragraph-id="${this.paragraph.id}"></text-to-speech-unit>`;
         this.element.insertAdjacentHTML('beforeend', personalitiesPopUp);

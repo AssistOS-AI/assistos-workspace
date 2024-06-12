@@ -10,19 +10,23 @@ export class ImageParagraph{
         let chapterId = this.element.getAttribute("data-chapter-id");
         this.chapter = this._document.getChapter(chapterId);
         this.paragraph = this.chapter.getParagraph(paragraphId);
+        notificationService.on(this.paragraph.id, async () => {
+            let paragraphImg = this.element.querySelector(".paragraph-image").src;
+            this.paragraph = await this.chapter.refreshParagraph(assistOS.space.id, this._document.id, this.paragraph.id);
+            if (paragraphImg !== this.paragraph.image.src) {
+                if(this.timer){
+                    this.timer.stop();
+                }
+                this.invalidate();
+            }
+        });
         this.invalidate();
     }
 
     beforeRender() {
         this.imageSrc = this.paragraph.image.src;
         this.imageAlt = this.paragraph.image.alt;
-        notificationService.on(this.paragraph.id, async () => {
-            let paragraphImg = this.element.querySelector(".paragraph-image").src;
-            this.paragraph = await this.chapter.refreshParagraph(assistOS.space.id, this._document.id, this.paragraph.id);
-            if (paragraphImg !== this.paragraph.image.src) {
-                this.invalidate();
-            }
-        });
+
     }
     afterRender() {
         this.chapterPresenter = this.element.closest("space-chapter-unit").webSkelPresenter;
@@ -34,7 +38,7 @@ export class ImageParagraph{
         this.imgContainer = this.element.querySelector('.img-container');
         let paragraphImage = this.element.querySelector(".paragraph-image");
         if (assistOS.space.currentParagraphId === this.paragraph.id) {
-            paragraphImage.click();
+            this.editParagraph(paragraphImage);
         }
         if (assistOS.space.currentChapterId === this.chapter.id && assistOS.space.currentParagraphId !== this.paragraph.id) {
             paragraphImage.classList.add("unfocused");
@@ -66,11 +70,11 @@ export class ImageParagraph{
         let boundResize = this.resize[handle].bind(this);
         this.resize[handle].boundFn = boundResize;
         this.element.addEventListener('mousemove', boundResize);
-        this.element.addEventListener('mouseup', this.stopResize.bind(this, handle));
+        this.element.addEventListener('mouseup', this.stopResize.bind(this, handle), {once: true});
     }
 
     resize = {
-        nw: function(e) {
+        nw: async function(e) {
             const aspectRatio = this.originalWidth / this.originalHeight;
             const width = this.originalWidth - (e.pageX - this.originalMouseX);
             const height = width / aspectRatio;
@@ -78,8 +82,9 @@ export class ImageParagraph{
                 this.imgElement.style.width = width + 'px';
                 this.imgElement.style.height = height + 'px';
             }
+            await this.timer.reset(1000);
         },
-        ne: function(e) {
+        ne: async function(e) {
             const aspectRatio = this.originalWidth / this.originalHeight;
             const width = this.originalWidth + (e.pageX - this.originalMouseX);
             const height = width / aspectRatio;
@@ -87,8 +92,9 @@ export class ImageParagraph{
                 this.imgElement.style.width = width + 'px';
                 this.imgElement.style.height = height + 'px';
             }
+            await this.timer.reset(1000);
         },
-        sw: function(e) {
+        sw: async function(e) {
             const aspectRatio = this.originalWidth / this.originalHeight;
             const width = this.originalWidth - (e.pageX - this.originalMouseX);
             const height = width / aspectRatio;
@@ -96,8 +102,9 @@ export class ImageParagraph{
                 this.imgElement.style.width = width + 'px';
                 this.imgElement.style.height = height + 'px';
             }
+            await this.timer.reset(1000);
         },
-        se: function(e) {
+        se: async function(e) {
             const aspectRatio = this.originalWidth / this.originalHeight;
             const width = this.originalWidth + (e.pageX - this.originalMouseX);
             const height = width / aspectRatio;
@@ -105,35 +112,40 @@ export class ImageParagraph{
                 this.imgElement.style.width = width + 'px';
                 this.imgElement.style.height = height + 'px';
             }
+            await this.timer.reset(1000);
         },
-        n: function(e) {
+        n: async function(e) {
             const height = this.originalHeight - (e.pageY - this.originalMouseY);
             if (height > 20) {
                 this.imgElement.style.height = height + 'px';
             }
+            await this.timer.reset(1000);
         },
-        e: function(e) {
+        e: async function(e) {
             const width = this.originalWidth + (e.pageX - this.originalMouseX);
             if (width > 20) {
                 this.imgElement.style.width = width + 'px';
             }
+            await this.timer.reset(1000);
         },
-        s: function(e) {
+        s: async function(e) {
             const height = this.originalHeight + (e.pageY - this.originalMouseY);
             if (height > 20) {
                 this.imgElement.style.height = height + 'px';
             }
+            await this.timer.reset(1000);
         },
-        w: function(e) {
+        w: async function(e) {
             const width = this.originalWidth - (e.pageX - this.originalMouseX);
             if (width > 20) {
                 this.imgElement.style.width = width + 'px';
             }
+            await this.timer.reset(1000);
         }
     };
-    stopResize(handle, event) {
+    async stopResize(handle, event) {
         this.element.removeEventListener('mousemove', this.resize[handle].boundFn);
-        this.element.removeEventListener('mouseup', this.stopResize);
+        await this.timer.stop();
     }
     switchParagraphArrows(target, mode) {
         if (this.chapter.paragraphs.length <= 1) {
@@ -158,6 +170,7 @@ export class ImageParagraph{
     }
 
     async moveParagraph(_target, direction) {
+        await this.timer.stop();
         const currentParagraphIndex = this.chapter.getParagraphIndex(this.paragraph.id);
         const getAdjacentParagraphId = (index, paragraphs) => {
             if (direction === "up") {
@@ -185,9 +198,9 @@ export class ImageParagraph{
         this.switchParagraphArrows(paragraphUnit, "on");
         assistOS.space.currentParagraphId = this.paragraph.id;
         let saved = false;
-        let timer = assistOS.services.SaveElementTimer(async () => {
+        this.timer = assistOS.services.SaveElementTimer(async () => {
             if (!this.paragraph || assistOS.space.currentParagraphId !== this.paragraph.id) {
-                await timer.stop();
+                await this.timer.stop();
                 return;
             }
             let imageElement = this.element.querySelector(".paragraph-image");
@@ -195,7 +208,7 @@ export class ImageParagraph{
                 width: imageElement.width,
                 height: imageElement.height
             };
-            if (dimensions !== this.paragraph.dimensions && !saved) {
+            if ((dimensions.width !== this.paragraph.dimensions.width || dimensions.height!==this.paragraph.dimensions.height)  && !saved) {
                 saved = true;
                 await documentModule.updateImageParagraphDimensions(assistOS.space.id,
                     this._document.id,
@@ -204,40 +217,38 @@ export class ImageParagraph{
                 saved = false;
             }
         }, 1000);
-        this.resetTimer = async (event) => {
-            if (event.key === "Backspace") {
-                if (assistOS.space.currentParagraphId === this.paragraph.id) {
-                    let curentParagraphIndex = this.chapter.getParagraphIndex(this.paragraph.id);
-                    await assistOS.callFlow("DeleteParagraph", {
-                        spaceId: assistOS.space.id,
-                        documentId: this._document.id,
-                        chapterId: this.chapter.id,
-                        paragraphId: this.paragraph.id
-                    });
-                    if (this.chapter.paragraphs.length > 0) {
-                        if (curentParagraphIndex === 0) {
-                            assistOS.space.currentParagraphId = this.chapter.paragraphs[0].id;
-                        } else {
-                            assistOS.space.currentParagraphId = this.chapter.paragraphs[curentParagraphIndex - 1].id;
-                        }
-                    } else {
-                        assistOS.space.currentParagraphId = null;
-                    }
-                }
-                await timer.stop();
-            } else {
-                await timer.reset(1000);
-            }
-        };
-        paragraph.addEventListener("keydown", this.resetTimer);
-        paragraph.addEventListener("focusout", async (event) => {
+        paragraphUnit.addEventListener("keydown", this.deleteHandler, {once: true});
+        paragraphUnit.addEventListener("focusout", async (event) => {
             if (event.relatedTarget && event.relatedTarget.getAttribute("data-paragraph-id") === this.paragraph.id) {
                 return;
             }
-            await timer.stop(true);
-            paragraph.removeAttribute("id");
+            await this.timer.stop(true);
+            paragraphUnit.removeAttribute("id");
             this.switchParagraphArrows(paragraphUnit, "off");
             dragBorder.style.display = "none";
         }, {once: true});
+    }
+    async deleteHandler(event){
+        if (event.key === "Backspace") {
+            if (assistOS.space.currentParagraphId === this.paragraph.id) {
+                let curentParagraphIndex = this.chapter.getParagraphIndex(this.paragraph.id);
+                await assistOS.callFlow("DeleteParagraph", {
+                    spaceId: assistOS.space.id,
+                    documentId: this._document.id,
+                    chapterId: this.chapter.id,
+                    paragraphId: this.paragraph.id
+                });
+                if (this.chapter.paragraphs.length > 0) {
+                    if (curentParagraphIndex === 0) {
+                        assistOS.space.currentParagraphId = this.chapter.paragraphs[0].id;
+                    } else {
+                        assistOS.space.currentParagraphId = this.chapter.paragraphs[curentParagraphIndex - 1].id;
+                    }
+                } else {
+                    assistOS.space.currentParagraphId = null;
+                }
+            }
+            await this.timer.stop();
+        }
     }
 }

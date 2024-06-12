@@ -7,6 +7,9 @@ image-paragraph {
     justify-content: space-between;
     margin: 10px 0;
 }
+.image-paragraph:focus{
+    outline: none;
+}
 
 .paragraph-arrow {
     margin-left: 8px;
@@ -56,7 +59,7 @@ image-paragraph {
 
 .paragraph-image {
     max-width: 100%;
-    height: auto;
+    /*height: auto;*/
 }
 
 .img-container {

@@ -13,11 +13,7 @@ export class SpaceChapterUnit {
         this.refreshChapterTitle = async () => {
             await this.chapter.refreshChapterTitle(assistOS.space.id, this._document.id, this.chapter.id);
         };
-        this.refreshParagraph = (paragraphId) => {
-            return async () => {
-                await this.chapter.refreshParagraph(assistOS.space.id, this._document.id, paragraphId);
-            };
-        }
+
 
         this.addParagraphOnCtrlEnter = this.addParagraphOnCtrlEnter.bind(this);
         this.element.removeEventListener('keydown', this.addParagraphOnCtrlEnter);
