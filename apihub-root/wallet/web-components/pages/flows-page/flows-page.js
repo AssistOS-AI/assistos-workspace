@@ -21,9 +21,9 @@ export class FlowsPage {
 
     beforeRender() {
         const generateTableRow = (item) => `
-        <flow-unit data-name="${item.name}" data-description="${item.description}" data-local-action="editAction"></flow-unit>`;
+        <flow-unit data-name="${item.constructor.name}"  data-action="${item.constructor.flowMetadata.action}" data-local-action="editAction"></flow-unit>`;
 
-        const sortFlows = (flows) => flows.sort((a, b) => a.name.toLowerCase().localeCompare(b.name.toLowerCase()));
+        const sortFlows = (flows) => flows.sort((a, b) => a.constructor.name.toLowerCase().localeCompare(b.constructor.name.toLowerCase()));
 
 
         if (this.flows.length > 0) {

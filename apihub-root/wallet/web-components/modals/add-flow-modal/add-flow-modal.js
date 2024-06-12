@@ -149,7 +149,7 @@ export class AddFlowModal {
             }
             await assistOS.callFlow("AddFlow", {
                 name: name,
-                code: code,
+                code: assistOS.UI.unsanitize(code),
                 flowParametersSchema: parameters,
                 intent: intent,
                 action: action

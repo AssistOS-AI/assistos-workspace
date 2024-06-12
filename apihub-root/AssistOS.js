@@ -134,7 +134,6 @@ class AssistOS {
             assistOS.applications[application.name] = application;
         });
         assistOS.currentApplicationName = this.configuration.defaultApplicationName;
-        debugger
         await assistOS.space.loadFlows();
         await assistOS.loadAgent(assistOS.space.id);
 

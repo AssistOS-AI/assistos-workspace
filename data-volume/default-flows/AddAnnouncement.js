@@ -1,22 +1,25 @@
 class IFlow {
-    constructor(flowInstance) {
-        if (!flowInstance.flowParametersSchema) {
+    constructor() {
+        const schema = this.constructor.flowParametersSchema;
+        const metadata = this.constructor.flowMetadata;
+
+        if (!schema) {
             throw new Error("Flow inputParametersValidationSchema is required");
         }
-        if (!flowInstance.flowMetadata) {
+        if (!metadata) {
             throw new Error("Flow metadata is required");
         } else {
-            if (!flowInstance.flowMetadata.intent) {
+            if (!metadata.intent) {
                 throw new Error("Flow flowMetadata.intent is required");
             }
-            if (!flowInstance.flowMetadata.action) {
+            if (!metadata.action) {
                 throw new Error("Flow flowMetadata.action is required");
             }
         }
     }
 
-    loadModule(moduleName,securityContext) {
-        return require("assistos").loadModule(moduleName, securityContext);
+    loadModule(moduleName) {
+        return require("assistos").loadModule(moduleName, this.__securityContext);
     }
 
     validateParameters(flowParameters) {
@@ -48,13 +51,6 @@ class IFlow {
             success: false,
             message: error.message,
             statusCode: error.statusCode || 500
-        });
-    }
-
-    return(data, resolve) {
-        resolve({
-            success: true,
-            data: data
         });
     }
 }

@@ -5,15 +5,15 @@ export class CollaboratorsPage {
         this.invalidate();
     }
     beforeRender() {
-        let string = "";
-        this.tasksNr = assistOS.space.getAgent().tasks.length;
-        for(let task of assistOS.space.getAgent().tasks){
+     /*   let string = "";
+        this.tasksNr = assistOS.agent.tasks.length;
+        for(let task of assistOS.agent.tasks){
             string+= `<div class="task">
                        <div class="description">${task.description}</div> 
                        <div class="date">${task.date}</div>
                       </div>`;
         }
-        this.tasks = string;
+        this.tasks = string;*/
     }
 
     search(){

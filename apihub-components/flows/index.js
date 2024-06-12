@@ -13,7 +13,7 @@ function Flows(server){
     server.use("/flows/*", bodyReader);
     server.get("/flows/:spaceId", listFlows);
     server.get("/flows/:spaceId/:flowName", getFlow);
-    server.post("/flows/:spaceId/", addFlow);
+    server.post("/flows/:spaceId", addFlow);
     server.put("/flows/:spaceId/:flowName", updateFlow);
     server.delete("/flows/:spaceId/:flowName", deleteFlow);
     server.post("/flows/call/:spaceId/:flowName", callFlow);
