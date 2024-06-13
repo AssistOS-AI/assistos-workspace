@@ -98,4 +98,12 @@ export class TextToSpeechUnit {
     closePopup(_target) {
         this.element.remove();
     }
+    downloadAudio(_target) {
+        const link = document.createElement('a');
+        link.href = this.audioURL;
+        link.download = 'audio.mp3';
+        document.body.appendChild(link);
+        link.click();
+        document.body.removeChild(link);
+    }
 }

@@ -38,7 +38,8 @@ export class SpaceParagraphUnit {
     }
 
     afterRender() {
-        this.chapterPresenter = this.element.closest("space-chapter-unit").webSkelPresenter;
+        let chapterElement = this.element.closest("space-chapter-unit");
+        this.chapterPresenter = chapterElement.webSkelPresenter;
         let paragraphText = this.element.querySelector(".paragraph-text");
         paragraphText.innerHTML = this.paragraph.text;
         let paragraphHeight = paragraphText.scrollHeight + 20;
@@ -56,6 +57,12 @@ export class SpaceParagraphUnit {
     }
 
     switchParagraphArrows(target, mode) {
+        let audioIcon = target.querySelector('.audio-icon');
+        if(mode === "on"){
+            audioIcon.classList.remove("hidden");
+        }else {
+            audioIcon.classList.add("hidden");
+        }
         if (this.chapter.paragraphs.length <= 1) {
             return;
         }
@@ -166,7 +173,7 @@ export class SpaceParagraphUnit {
             this.switchParagraphArrows(paragraphUnit, "off");
         }, {once: true});
     }
-    openPersonalitiesPopUp(_target) {
+    openTTSPopup(_target) {
         let personalitiesPopUp = `<text-to-speech-unit data-presenter="select-personality-tts" data-chapter-id="${this.chapter.id}" data-paragraph-id="${this.paragraph.id}"></text-to-speech-unit>`;
         this.element.insertAdjacentHTML('beforeend', personalitiesPopUp);
     }
