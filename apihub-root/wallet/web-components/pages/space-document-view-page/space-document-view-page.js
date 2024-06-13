@@ -310,11 +310,11 @@ export class SpaceDocumentViewPage {
                 (chapter) => chapter.id === assistOS.space.currentChapterId
             ) + 1;
         }
-        let chapterId = await assistOS.callFlow("AddChapter", {
+        let chapterId = (await assistOS.callFlow("AddChapter", {
             spaceId: assistOS.space.id,
             documentId: this._document.id,
             position: position
-        });
+        })).data;
         assistOS.space.currentChapterId = chapterId;
     }
 

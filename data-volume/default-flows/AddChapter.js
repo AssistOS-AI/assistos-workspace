@@ -64,7 +64,7 @@ class AddChapter extends IFlow {
     static flowParametersSchema = {
         title: {
             type: "string",
-            required: true
+            required: false
         },
         position: {
             type: "number",
