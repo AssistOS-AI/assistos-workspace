@@ -2,7 +2,6 @@ export class MlIDEPage {
     constructor(element, invalidate) {
         this.element = element;
         this.invalidate = invalidate;
-        debugger
         this.invalidate();
     }
 
