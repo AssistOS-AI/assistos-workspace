@@ -2,6 +2,7 @@ const fsPromises = require('fs').promises;
 const path = require('path');
 const volumeManager = require('../volumeManager.js');
 const IFlow = require('./IFlow.js');
+const esprima= require('esprima');
 
 async function getSpaceFlows(spaceId) {
     const flowsPath = path.join(volumeManager.paths.space, `${spaceId}/flows`);
@@ -14,11 +15,29 @@ async function getSpaceFlows(spaceId) {
     return flows;
 }
 
+
+function validateJavaScriptSyntax(code) {
+    try {
+        esprima.parseScript(code);
+        return true;
+    } catch (e) {
+        console.error('Syntax error:', e.message);
+        return false;
+    }
+}
+
+
 async function addFlow(spaceId, flowData) {
     const flows = await getSpaceFlows(spaceId);
     if (flows[flowData.name]) {
         const error = new Error("Flow already exists");
         error.statusCode = 429;
+        throw error;
+    }
+
+    if (!validateJavaScriptSyntax(flowData.code)) {
+        const error = new Error("Invalid JavaScript syntax");
+        error.statusCode = 400;
         throw error;
     }
 
