@@ -24,11 +24,11 @@ export class SpaceParagraphUnit {
             if(this.timer){
                 await this.timer.stop(true);
             }
-            // let paragraphText = assistOS.UI.sanitize(paragraphDiv.value);
-            // this.paragraph = await this.chapter.refreshParagraph(assistOS.space.id, this._document.id, this.paragraph.id);
-            // if (paragraphText !== this.paragraph.text) {
-            //     this.invalidate();
-            // }
+            let paragraph = await this.chapter.refreshParagraph(assistOS.space.id, this._document.id, this.paragraph.id);
+            if (paragraph.text !== this.paragraph.text) {
+                this.paragraph = paragraph;
+                this.invalidate();
+            }
         });
         this.invalidate();
     }
@@ -38,7 +38,8 @@ export class SpaceParagraphUnit {
     }
 
     afterRender() {
-        this.chapterPresenter = this.element.closest("space-chapter-unit").webSkelPresenter;
+        let chapterElement = this.element.closest("space-chapter-unit");
+        this.chapterPresenter = chapterElement.webSkelPresenter;
         let paragraphText = this.element.querySelector(".paragraph-text");
         paragraphText.innerHTML = this.paragraph.text;
         let paragraphHeight = paragraphText.scrollHeight + 20;
@@ -56,6 +57,12 @@ export class SpaceParagraphUnit {
     }
 
     switchParagraphArrows(target, mode) {
+        let audioIcon = target.querySelector('.audio-icon');
+        if(mode === "on"){
+            audioIcon.classList.remove("hidden");
+        }else {
+            audioIcon.classList.add("hidden");
+        }
         if (this.chapter.paragraphs.length <= 1) {
             return;
         }
@@ -97,6 +104,9 @@ export class SpaceParagraphUnit {
     }
 
     editParagraph(paragraph) {
+        if(paragraph.hasAttribute("id") && paragraph.getAttribute("id") === "highlighted-child-element"){
+            return;
+        }
         this.chapterPresenter.highlightChapter();
         paragraph.classList.remove("unfocused");
         paragraph.setAttribute("id", "highlighted-child-element");
@@ -113,7 +123,6 @@ export class SpaceParagraphUnit {
             }
             let paragraphText = assistOS.UI.sanitize(paragraph.value);
             if (paragraphText !== this.paragraph.text && !saved && !deleted) {
-                console.log("saved");
                 saved = true;
                 await assistOS.callFlow("UpdateParagraphText", {
                     spaceId: assistOS.space.id,
@@ -150,7 +159,6 @@ export class SpaceParagraphUnit {
                 }
                 await this.timer.stop();
             } else {
-                console.log("reseting")
                 await this.timer.reset(1000);
             }
         };
@@ -165,7 +173,7 @@ export class SpaceParagraphUnit {
             this.switchParagraphArrows(paragraphUnit, "off");
         }, {once: true});
     }
-    openPersonalitiesPopUp(_target) {
+    openTTSPopup(_target) {
         let personalitiesPopUp = `<text-to-speech-unit data-presenter="select-personality-tts" data-chapter-id="${this.chapter.id}" data-paragraph-id="${this.paragraph.id}"></text-to-speech-unit>`;
         this.element.insertAdjacentHTML('beforeend', personalitiesPopUp);
     }
