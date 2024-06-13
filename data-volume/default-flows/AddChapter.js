@@ -88,7 +88,6 @@ class AddChapter extends IFlow {
         if (!parameters.title) {
             parameters.title = "NewChapter";
         }
-
         try {
             let documentModule = apis.loadModule("document");
             let chapterData = { title: parameters.title, paragraphs: [{ text: "" }] };
