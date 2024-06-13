@@ -1,8 +1,7 @@
 const fsPromises = require('fs').promises;
 const path = require('path');
 const volumeManager = require('../volumeManager.js');
-const IFlow = require('./IFlow.js');
-const esprima= require('esprima');
+const esprima = require('esprima');
 
 async function getSpaceFlows(spaceId) {
     const flowsPath = path.join(volumeManager.paths.space, `${spaceId}/flows`);
@@ -15,7 +14,6 @@ async function getSpaceFlows(spaceId) {
     return flows;
 }
 
-
 function validateJavaScriptSyntax(code) {
     try {
         esprima.parseScript(code);
@@ -25,7 +23,6 @@ function validateJavaScriptSyntax(code) {
         return false;
     }
 }
-
 
 async function addFlow(spaceId, flowData) {
     const flows = await getSpaceFlows(spaceId);
@@ -52,44 +49,37 @@ async function addFlow(spaceId, flowData) {
 }
 
 function generateFlowContent(flowData) {
-    const IFlowString = IFlow.toString();
     return `
-${IFlowString}
+(function (root, factory) {
+    if (typeof define === 'function' && define.amd) {
+        define([], factory);
+    } else if (typeof module === 'object' && module.exports) {
+        module.exports = factory();
+    } else {
+        root.${flowData.name} = factory();
+    }
+}(typeof self !== 'undefined' ? self : this, function () {
+    const IFlow = require('assistos').loadModule('flow').IFlow;
+    
+    class ${flowData.name} extends IFlow {
+        static flowMetadata = {
+            action: "${flowData.action}",
+            intent: "${flowData.intent}",
+        };
 
-class ${flowData.name} extends IFlow {
-    static flowMetadata = {
-        action: "${flowData.action}",
-        intent: "${flowData.intent}",
-    };
+        static flowParametersSchema = ${JSON.stringify(flowData.flowParametersSchema, null, 4)};
 
-    static flowParametersSchema = ${JSON.stringify(flowData.flowParametersSchema, null, 4)};
+        constructor() {
+            super(${flowData.name});
+        }
 
-    constructor() {
-        super(${flowData.name});
+        async userCode(apis, parameters) {
+            ${flowData.code}
+        }
     }
 
-    async userCode(apis, parameters) {
-        ${flowData.code}
-    }
-
-    async execute(parameters) {
-        return new Promise(async (resolve, reject) => {
-            const apis = {
-                success: (data) => this.resolve({ resolve }, data),
-                fail: (error) => this.reject({ reject }, error),
-                loadModule: (moduleName) => this.loadModule(moduleName, this.__securityContext)
-            };
-            try {
-                this.validateParameters(parameters);
-                await this.userCode(apis, parameters);
-            } catch (error) {
-                this.genericReject(reject, error);
-            }
-        });
-    }
-}
-
-module.exports = ${flowData.name};
+    return ${flowData.name};
+}));
 `;
 }
 

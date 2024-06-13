@@ -59,7 +59,6 @@ async function getSpaceFlowNames(spaceId) {
 }
 
 async function getFlow(request, response) {
-
     async function transformCommonJSToES6(filePath) {
         let content = await fsPromises.readFile(filePath, 'utf8');
 
@@ -80,6 +79,7 @@ async function getFlow(request, response) {
         return utils.sendResponse(response, 500, "application/javascript", error.message);
     }
 }
+
 
 async function addFlow(request, response) {
     const spaceId = request.params.spaceId;
