@@ -45,7 +45,7 @@ export class SpaceParagraphUnit {
         let paragraphHeight = paragraphText.scrollHeight + 20;
         paragraphText.style.height = paragraphText.scrollHeight + 'px';
         if (this.openTTSUnit) {
-            this.openPersonalitiesPopUp(this.element);
+            this.openTTSPopup(this.element);
             this.openTTSUnit = false;
         }
         if (assistOS.space.currentParagraphId === this.paragraph.id) {
