@@ -24,11 +24,11 @@ export class SpaceParagraphUnit {
             if(this.timer){
                 await this.timer.stop(true);
             }
-            // let paragraphText = assistOS.UI.sanitize(paragraphDiv.value);
-            // this.paragraph = await this.chapter.refreshParagraph(assistOS.space.id, this._document.id, this.paragraph.id);
-            // if (paragraphText !== this.paragraph.text) {
-            //     this.invalidate();
-            // }
+            let paragraph = await this.chapter.refreshParagraph(assistOS.space.id, this._document.id, this.paragraph.id);
+            if (paragraph.text !== this.paragraph.text) {
+                this.paragraph = paragraph;
+                this.invalidate();
+            }
         });
         this.invalidate();
     }
@@ -97,6 +97,9 @@ export class SpaceParagraphUnit {
     }
 
     editParagraph(paragraph) {
+        if(paragraph.hasAttribute("id") && paragraph.getAttribute("id") === "highlighted-child-element"){
+            return;
+        }
         this.chapterPresenter.highlightChapter();
         paragraph.classList.remove("unfocused");
         paragraph.setAttribute("id", "highlighted-child-element");
@@ -113,7 +116,6 @@ export class SpaceParagraphUnit {
             }
             let paragraphText = assistOS.UI.sanitize(paragraph.value);
             if (paragraphText !== this.paragraph.text && !saved && !deleted) {
-                console.log("saved");
                 saved = true;
                 await assistOS.callFlow("UpdateParagraphText", {
                     spaceId: assistOS.space.id,
@@ -150,7 +152,6 @@ export class SpaceParagraphUnit {
                 }
                 await this.timer.stop();
             } else {
-                console.log("reseting")
                 await this.timer.reset(1000);
             }
         };

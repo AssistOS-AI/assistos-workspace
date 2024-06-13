@@ -97,23 +97,28 @@ export class SpaceChapterUnit {
         assistOS.space.currentChapterId = this.chapter.id;
         this.switchButtonsDisplay(this.chapterUnit, "on");
         let paragraphs = this.element.querySelectorAll(".paragraph-text");
-        let agentPage = document.getElementById("agent-page");
         for(let paragraph of paragraphs) {
             paragraph.classList.add("unfocused");
         }
-        this.chapterUnit.addEventListener("focusout", (event) => {
-            if(event.relatedTarget){
-                let chapterUnit = event.relatedTarget.closest("space-chapter-unit");
-                if((!chapterUnit || event.relatedTarget.getAttribute("data-chapter-id") !== this.chapter.id) && (event.relatedTarget.getAttribute("id") !== "agent-page") && !agentPage.contains(event.relatedTarget)){
-                    this.switchParagraphsBackground("white");
-                    this.switchButtonsDisplay(this.chapterUnit, "off");
-                }
+        if(!this.boundFocusOutHandler){
+            this.boundFocusOutHandler = this.focusOutHandler.bind(this);
+            this.chapterUnit.addEventListener("focusout", this.boundFocusOutHandler);
+        }
 
-            } else {
+    }
+    focusOutHandler(event){
+        let agentPage = document.getElementById("agent-page");
+        if(event.relatedTarget){
+            let chapterUnit = event.relatedTarget.closest("space-chapter-unit");
+            if((!chapterUnit || event.relatedTarget.getAttribute("data-chapter-id") !== this.chapter.id) && (event.relatedTarget.getAttribute("id") !== "agent-page") && !agentPage.contains(event.relatedTarget)){
                 this.switchParagraphsBackground("white");
                 this.switchButtonsDisplay(this.chapterUnit, "off");
             }
-        }, {once: true});
+
+        } else {
+            this.switchParagraphsBackground("white");
+            this.switchButtonsDisplay(this.chapterUnit, "off");
+        }
     }
     switchButtonsDisplay(target, mode) {
         let xMark = this.chapterUnit.querySelector('.delete-chapter');
