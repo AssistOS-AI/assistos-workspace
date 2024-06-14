@@ -1,0 +1,103 @@
+.page-item {
+    display: flex;
+    cursor: default;
+    justify-content: space-between;
+    flex-direction: row;
+    padding: 20px 20px 5px 20px;
+    border-bottom: 0.5px solid var(--very-light-gray);
+}
+
+.page-item:hover{
+    cursor: pointer;
+}
+
+.page-title {
+    display: flex;
+    flex-direction: column;
+    justify-content: center;
+    overflow: hidden;
+    color: var(--light-brown);;
+    font-feature-settings: 'clig' off, 'liga' off;
+    text-overflow: ellipsis;
+    font-size: 20px;
+    font-style: normal;
+    font-weight: 600;
+    line-height: normal;
+}
+
+.page-content {
+    padding-top: 5px;
+    display: flex;
+    flex-direction: column;
+    justify-content: center;
+    overflow: hidden;
+    color: var(--light-brown);
+    text-align: justify;
+    font-feature-settings: 'clig' off, 'liga' off;
+    text-overflow: ellipsis;
+    font-size: 14px;
+    font-style: normal;
+    font-weight: 400;
+    line-height: normal;
+}
+
+.page {
+    width: 93%;
+}
+
+.modal-section {
+    display: flex;
+    padding-left: 20px;
+    padding-top: 20px;
+}
+
+.cell {
+    width: 32%;
+    padding: 8px 10px;
+}
+
+.right-section {
+    width: 7%;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+}
+
+.action-cell {
+    width: 33px;
+    max-width: 33px;
+    max-height: 12px;
+    margin: 0 10px;
+    color: var(--brown-gray);
+    display: flex;
+    justify-content: right;
+    align-items: center;
+}
+
+.circle-button:hover {
+    cursor: pointer;
+    background-color: var(--medium-black);
+}
+
+.circle-button {
+    padding: 7px 0;
+    display: flex;
+    justify-content: center;
+    border-radius: 30px;
+    width: 100%;
+    height: 100%;
+}
+
+.page-date {
+    margin-top: 10px;
+    width: 100%;
+    text-align: end;
+    color: var(--light-brown-gray);
+    font-feature-settings: 'clig' off, 'liga' off;
+    text-overflow: ellipsis;
+    font-size: 12px;
+    font-style: normal;
+    font-weight: 400;
+    line-height: normal;
+    padding-right: 30px;
+}

@@ -1,0 +1,17 @@
+image-item{
+    position: relative;
+    width: fit-content;
+    height: fit-content;
+}
+.paragraph-image{
+    width: 100%;
+    height: 100%;
+    object-fit: cover;
+}
+.drag-border{
+    width: 100%;
+    height: 100%;
+    position: absolute;
+    top: 0;
+    left: 0;
+}

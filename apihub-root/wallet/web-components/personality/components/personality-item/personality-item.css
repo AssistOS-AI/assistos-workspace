@@ -1,0 +1,22 @@
+personality-item{
+    padding: 20px;
+}
+.personality-image{
+    height: 130px;
+    width: 130px;
+    border-radius: 9px;
+    object-fit: cover;
+}
+.personality-content{
+    width: 130px;
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+}
+.text{
+    text-align: center;
+    width: 130px;
+    overflow: hidden;
+    text-overflow: ellipsis;
+    white-space: nowrap;
+}

@@ -1,0 +1,117 @@
+application-item {
+    border: 1px solid var(--blue-border);
+    border-radius: 10px;
+    width: 300px;
+    height: 330px;
+    background: var(--white);
+}
+
+.unit-header {
+    height: 200px;
+    display: flex;
+    justify-content: center;
+    border: 1px solid var(--blue-border);
+    border-radius: 10px;
+}
+
+.application-item {
+    height: 100%;
+    display: flex;
+    flex-direction: column;
+    padding: 20px;
+}
+
+.application-image-container {
+    cursor: pointer;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    padding: 5px;
+    border-radius: 50%;
+}
+
+.application-image-container img {
+    height: 99%;
+}
+
+.installed {
+    border: none;
+    border-radius: 10px;
+    background-color: var(--medium-blue);
+    color: white;
+    padding: 10px;
+}
+
+.details {
+    display: flex;
+    flex-direction: column;
+}
+
+.container-header {
+    display: flex;
+    justify-content: space-between;
+}
+
+.name {
+    margin-top: 5px;
+    font-size: 16px;
+    font-weight: 500;
+}
+
+.author {
+    color: var(--left-sidebar);
+    margin: 5px 0;
+    font-size: 15px;
+    font-weight: 500;
+}
+
+.install-section {
+    align-items: center;
+    display: flex;
+}
+
+.general-button {
+    font-size: 14px;
+}
+
+.action-cell {
+    cursor: pointer;
+    position: relative;
+    width: 20px;
+    max-height: 12px;
+    display: flex;
+    justify-content: right;
+    align-items: center;
+}
+
+.circle-button {
+    align-items: center;
+    padding: 7px 0;
+    display: flex;
+    justify-content: center;
+    border-radius: 30px;
+    height: 100%;
+}
+
+.app-description {
+    height: 70px;
+    overflow: hidden;
+    text-overflow: ellipsis;
+    display: -webkit-box;
+    -webkit-line-clamp: 3; /* Number of lines to show before truncating */
+    -webkit-box-orient: vertical;
+}
+
+.app-description::after {
+    content: '\2026'; /* Unicode character for ellipsis */
+    display: inline-block;
+    width: 1em; /* Adjust as needed */
+    overflow: hidden;
+    vertical-align: bottom;
+}
+
+.uninstall {
+    background: white;
+    color: var(--medium-blue);
+    border: 1px solid var(--medium-blue);
+}

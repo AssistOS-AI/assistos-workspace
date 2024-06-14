@@ -37,5 +37,44 @@
     Removed unnecessary code lines, updated regular expressions and made logic simplifications across multiple files. This led to a cleaner and easily maintainable code base.
     crud objects update
     Publishing new release bundles
+    Refactor code to remove redundant elements
+    
+    Removed unnecessary code lines, updated regular expressions and made logic simplifications across multiple files. This led to a cleaner and easily maintainable code base.
+    swap and insert embeddedObjects with position
+    Publishing new release bundles
+    Refactoring fixes
+    git integration
+    Publishing new release bundles
+    Refactoring fixes
+    git integration
+    Publishing new release bundles
+    after removing component from DOM handler
+    css colors cleanup
+    Publishing new release bundles
+    Publishing new release bundles
+    after removing component from DOM handler
+    rename gallery (not functional yet)
+    Publishing new release bundles
     after removing component from DOM handler
     securityContext update
+    Publishing new release bundles
+    after removing component from DOM handler
+    update images
+    Publishing new release bundles
+    after removing component from DOM handler
+    update images, can save and create multiple images
+    Publishing new release bundles
+    after removing component from DOM handler
+    update images, can save and create multiple images
+
+    Merge branch 'refs/heads/master' into code-quality
+    
+    # Conflicts:
+    #       builds/output/iframeBoot.js
+    #       builds/output/loaderBoot.js
+    #       builds/output/nodeBoot.js
+    #       builds/output/openDSU.js
+    #       builds/output/pskWebServer.js
+    #       builds/output/testsRuntime.js
+    #       builds/output/versionLessBoot.js
+    #       package.json

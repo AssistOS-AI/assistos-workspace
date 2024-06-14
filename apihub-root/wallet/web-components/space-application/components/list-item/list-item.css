@@ -1,0 +1,25 @@
+list-item:hover > .dark-highlight{
+    background-color: var(--black);
+}
+list-item:hover > .light-highlight{
+    background-color: var(--light-highlight);
+}
+list-item{
+    width:100%;
+}
+.list-item {
+    cursor: pointer;
+    width: calc(100% - 10px);
+    padding: 5px 0;
+    border-radius: 5px;
+    margin: 0 5px;
+    display: flex;
+    align-items: center;
+}
+.list-item-name{
+    white-space: nowrap;
+    overflow: hidden;
+    text-overflow: ellipsis;
+    margin-left: 10px;
+    margin-right: 10px;
+}

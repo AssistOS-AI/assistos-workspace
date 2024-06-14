@@ -98,7 +98,7 @@ class AssistOS {
             if (!applicationLocation) {
                 applicationLocation = ["announcements-page"];
             }
-            await assistOS.UI.changeToDynamicPage("space-configs-page", `${assistOS.space.id}/Space/${applicationLocation.join("/")}`)
+            await assistOS.UI.changeToDynamicPage("space-application-page", `${assistOS.space.id}/Space/${applicationLocation.join("/")}`)
             return;
         }
         if (!assistOS.initialisedApplications[appName]) {
@@ -167,7 +167,7 @@ class AssistOS {
             if (applicationName) {
                 await assistOS.startApplication(applicationName, applicationLocation);
             } else {
-                await assistOS.UI.changeToDynamicPage("space-configs-page", `${assistOS.space.id}/Space/announcements-page`);
+                await assistOS.UI.changeToDynamicPage("space-application-page", `${assistOS.space.id}/Space/announcements-page`);
             }
         };
         let {spaceIdURL,  applicationName, applicationLocation} = getURLData(window.location.hash);
