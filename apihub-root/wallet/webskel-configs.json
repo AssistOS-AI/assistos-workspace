@@ -4,138 +4,154 @@
     "services": [],
     "components": [
         {
+            "name": "chapter-item",
+            "directory": "document",
+            "type": "components",
+            "presenterClassName": "ChapterItem"
+        },
+        {
             "name": "image-paragraph",
+            "directory": "document",
             "type": "components",
             "presenterClassName": "ImageParagraph"
         },
         {
-            "name": "image-unit",
+            "name": "paragraph-item",
+            "directory": "document",
             "type": "components",
-            "presenterClassName": "ImageUnit"
+            "presenterClassName": "ParagraphItem"
         },
         {
-            "name": "midjourney-image-unit",
+            "name": "text-to-speech",
+            "directory": "document",
             "type": "components",
-            "presenterClassName": "MidjourneyImageUnit"
+            "presenterClassName": "TextToSpeech"
         },
         {
             "name": "insert-image-modal",
+            "directory": "document",
             "type": "modals",
             "presenterClassName": "InsertImageModal"
         },
         {
-            "name": "text-to-speech-unit",
+            "name": "document-view-page",
+            "directory": "document",
+            "type": "pages",
+            "presenterClassName": "DocumentViewPage"
+        },
+        {
+            "name": "documents-page",
+            "directory": "document",
+            "type": "pages",
+            "presenterClassName": "DocumentsPage"
+        },
+        {
+            "name": "image-item",
+            "directory": "gallery",
             "type": "components",
-            "presenterClassName": "TextToSpeechUnit"
+            "presenterClassName": "ImageItem"
+        },
+        {
+            "name": "midjourney-image",
+            "directory": "gallery",
+            "type": "components",
+            "presenterClassName": "MidjourneyImage"
         },
         {
             "name": "generate-image-page",
+            "directory": "gallery",
             "type": "pages",
             "presenterClassName": "GenerateImagePage"
         },
         {
             "name": "gallery-page",
+            "directory": "gallery",
             "type": "pages",
             "presenterClassName": "GalleryPage"
         },
         {
-            "name": "gallery-unit",
+            "name": "gallery-item",
+            "directory": "gallery",
             "type": "components"
         },
         {
             "name": "add-gallery-modal",
+            "directory": "gallery",
             "type": "modals",
             "presenterClassName": "AddGalleryModal"
         },
         {
             "name": "action-box-gallery",
+            "directory": "gallery",
             "type": "components"
         },
         {
             "name": "galleries-page",
+            "directory": "gallery",
             "type": "pages",
             "presenterClassName": "GalleriesPage"
         },
         {
-            "name": "simple-unit",
+            "name": "list-item",
+            "directory": "space-application",
             "type": "components"
         },
         {
-            "name": "change-personality-modal",
-            "type": "modals",
-            "presenterClassName": "ChangePersonalityModal"
-        },
-        {
             "name": "add-space-collaborator-modal",
+            "directory": "space-application",
             "type": "modals",
             "presenterClassName": "AddSpaceCollaboratorModal"
         },
         {
-            "name": "change-llm-modal",
-            "type": "modals",
-            "presenterClassName": "ChangeLlmModal"
-        },
-        {
-            "name": "space-chapter-unit",
-            "type": "components",
-            "presenterClassName": "SpaceChapterUnit"
-        },
-        {
-            "name": "space-paragraph-unit",
-            "type": "components",
-            "presenterClassName": "SpaceParagraphUnit"
-        },
-        {
-            "name": "space-document-unit",
+            "name": "document-item",
+            "directory": "document",
             "type": "components"
         },
         {
-            "name": "space-add-document-modal",
+            "name": "add-document-modal",
+            "directory": "document",
             "type": "modals",
             "presenterClassName": "SpaceAddDocumentModal"
         },
         {
-            "name": "space-document-view-page",
-            "type": "pages",
-            "presenterClassName": "SpaceDocumentViewPage"
-        },
-        {
-            "name": "space-documents-page",
-            "type": "pages",
-            "presenterClassName": "SpaceDocumentsPage"
-        },
-        {
             "name": "ml-ide-page",
+            "directory": "space-application",
             "type": "pages",
             "presenterClassName": "MlIDEPage"
         },
         {
             "name": "llm-playground-page",
+            "directory": "space-application",
             "type": "pages",
             "presenterClassName": "LLMPlaygroundPage"
         },
         {
-            "name": "space-configs-page",
+            "name": "space-application-page",
+            "directory": "space-application",
             "type": "pages",
-            "presenterClassName": "SpaceConfigsPage"
+            "presenterClassName": "SpaceApplicationPage"
         },
         {
             "name": "git-credentials-modal",
+            "directory": "space-application",
             "type": "modals",
             "presenterClassName": "GitCredentialsModal"
         },
         {
             "name": "add-marketplace-modal",
+            "directory": "application",
             "type": "modals",
             "presenterClassName": "AddMarketplaceModal"
         },
         {
             "name": "action-box-marketplace",
+            "directory": "application",
             "type": "components"
         },
         {
             "name": "application-page",
             "type": "pages",
+            "directory": "application",
             "presenterClassName": "ApplicationPage"
         },
         {
@@ -145,45 +161,54 @@
         },
         {
             "name": "left-sidebar",
+            "directory": "space-application",
             "type": "components",
             "presenterClassName": "LeftSidebar"
         },
         {
             "name": "collaborators-page",
+            "directory": "space-application",
             "type": "pages",
             "presenterClassName": "CollaboratorsPage"
         },
         {
             "name": "tasks-page",
+            "directory": "space-application",
             "type": "pages",
             "presenterClassName": "TasksPage"
         },
         {
             "name": "agent-page",
+            "directory": "space-application",
             "type": "pages",
             "presenterClassName": "AgentPage"
         },
         {
             "name": "settings-page",
+            "directory": "space-application",
             "type": "pages",
             "presenterClassName": "SettingsPage"
         },
         {
             "name": "applications-marketplace-page",
+            "directory": "application",
             "type": "pages",
             "presenterClassName": "ApplicationsMarketplacePage"
         },
         {
             "name": "confirmation-popup",
+            "directory": "space-application",
             "type": "components",
             "presenterClassName": "ConfirmationPopup"
         },
         {
             "name": "llm-animation",
-            "type": "components"
+            "directory": "space-application",
+            "type": "modals"
         },
         {
             "name": "edit-personality-page",
+            "directory": "personality",
             "type": "pages",
             "presenterClassName": "EditPersonalityPage"
         },
@@ -192,99 +217,114 @@
             "type": "components"
         },
         {
-            "name": "personality-unit",
+            "name": "personality-item",
+            "directory": "personality",
             "type": "components"
         },
         {
-            "name": "flow-unit",
+            "name": "flow-item",
+            "directory": "flow",
             "type": "components"
         },
         {
-            "name": "announcement-unit",
+            "name": "announcement-item",
+            "directory": "space-application",
             "type": "components"
         },
         {
             "name": "action-box",
+            "directory": "space-application",
             "type": "components"
         },
         {
-            "name": "action-box-with-select",
-            "type": "components"
-        },
-        {
-            "name": "chat-unit",
+            "name": "chat-item",
+            "directory": "space-application",
             "type": "components",
-            "presenterClassName": "ChatUnit"
+            "presenterClassName": "ChatItem"
         },
         {
             "name": "announcements-page",
+            "directory": "space-application",
             "type": "pages",
             "presenterClassName": "AnnouncementsPage"
         },
         {
             "name": "personalities-page",
+            "directory": "personality",
             "type": "pages",
             "presenterClassName": "PersonalitiesPage"
         },
         {
             "name": "flows-page",
+            "directory": "flow",
             "type": "pages",
             "presenterClassName": "FlowsPage"
         },
         {
             "name": "add-announcement-modal",
+            "directory": "space-application",
             "type": "modals",
             "presenterClassName": "AddAnnouncementModal"
         },
         {
             "name": "add-personality-modal",
+            "directory": "personality",
             "type": "modals",
             "presenterClassName": "AddPersonalityModal"
         },
         {
             "name": "add-flow-modal",
+            "directory": "flow",
             "type": "modals",
             "presenterClassName": "AddFlowModal"
         },
         {
             "name": "edit-apikey-modal",
+            "directory": "space-application",
             "type": "modals",
             "presenterClassName": "EditApikeyModal"
         },
         {
             "name": "edit-flow-modal",
+            "directory": "flow",
             "type": "modals",
             "presenterClassName": "EditFlowModal"
         },
         {
             "name": "edit-announcement-modal",
+            "directory": "space-application",
             "type": "modals",
             "presenterClassName": "EditAnnouncementModal"
         },
         {
             "name": "show-error-modal",
+            "directory": "space-application",
             "type": "modals",
             "presenterClassName": "ShowErrorModal"
         },
         {
             "name": "add-space-modal",
+            "directory": "space-application",
             "type": "modals",
             "presenterClassName": "AddSpaceModal"
         },
         {
             "name": "authentication-page",
+            "directory": "space-application",
             "type": "pages",
             "presenterClassName": "AuthenticationPage"
         },
         {
             "name": "account-settings-page",
+            "directory": "space-application",
             "type": "pages",
             "presenterClassName": "AccountSettingsPage"
         },
         {
-            "name": "application-unit",
+            "name": "application-item",
+            "directory": "application",
             "type": "components",
-            "presenterClassName": "ApplicationUnit"
+            "presenterClassName": "ApplicationItem"
         }
     ]
 }
