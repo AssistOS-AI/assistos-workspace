@@ -111,7 +111,7 @@
             "name": "add-document-modal",
             "directory": "document",
             "type": "modals",
-            "presenterClassName": "SpaceAddDocumentModal"
+            "presenterClassName": "AddDocumentModal"
         },
         {
             "name": "ml-ide-page",
@@ -153,11 +153,6 @@
             "type": "pages",
             "directory": "application",
             "presenterClassName": "ApplicationPage"
-        },
-        {
-            "name": "space-dropdown",
-            "type": "components",
-            "presenterClassName": "SpaceDropdown"
         },
         {
             "name": "left-sidebar",
@@ -211,10 +206,6 @@
             "directory": "personality",
             "type": "pages",
             "presenterClassName": "EditPersonalityPage"
-        },
-        {
-            "name": "space-unit",
-            "type": "components"
         },
         {
             "name": "personality-item",

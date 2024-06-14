@@ -1,7 +1,7 @@
 const spaceAPIs = require("assistos").loadModule("space", {});
 const {notificationService} = require("assistos").loadModule("util", {});
 const documentModule = require("assistos").loadModule("document", {});
-import {saveCaretPosition} from "../../../../imports.js";
+import {executorTimer, saveCaretPosition, unescapeHtmlEntities} from "../../../../imports.js";
 
 export class DocumentViewPage {
     constructor(element, invalidate) {
@@ -11,12 +11,6 @@ export class DocumentViewPage {
             let documentData = await documentModule.getDocument(assistOS.space.id, this._document.id);
             this._document = new documentModule.Document(documentData);
         }
-        this.refreshDocumentTitle = async () => {
-            await this._document.refreshDocumentTitle(assistOS.space.id, this._document.id);
-        };
-        this.refreshDocumentAbstract = async () => {
-            await this._document.refreshDocumentAbstract(assistOS.space.id, this._document.id);
-        };
         this.invalidate(async () => {
             let documentData = await documentModule.getDocument(assistOS.space.id, window.location.hash.split("/")[3]);
             this._document = new documentModule.Document(documentData);
@@ -28,11 +22,19 @@ export class DocumentViewPage {
             notificationService.on(this._document.id, () => {
                 this.invalidate(this.refreshDocument);
             });
-            notificationService.on("title", () => {
-                this.invalidate(this.refreshDocumentTitle);
+            notificationService.on("title", async () => {
+                let title = await documentModule.getDocumentTitle(assistOS.space.id, this._document.id);
+                if(this._document.title !== title) {
+                    this._document.title = title;
+                    this.renderDocumentTitle();
+                }
             });
-            notificationService.on("abstract", () => {
-                this.invalidate(this.refreshDocumentAbstract);
+            notificationService.on("abstract", async () => {
+                let abstract = await documentModule.getDocumentAbstract(assistOS.space.id, this._document.id);
+                if(this._document.abstract !== abstract) {
+                    this._document.abstract = abstract;
+                    this.renderAbstract();
+                }
             });
             spaceAPIs.startCheckingUpdates(assistOS.space.id);
         });
@@ -55,8 +57,17 @@ export class DocumentViewPage {
             });
         }
     }
-
+    renderDocumentTitle() {
+        let documentTitle = this.element.querySelector(".document-title");
+        documentTitle.value = unescapeHtmlEntities(this._document.title);
+    }
+    renderAbstract(){
+        let abstract = this.element.querySelector(".abstract-text");
+        abstract.innerHTML = this._document.abstract || "No abstract has been set or generated for this document";
+    }
     afterRender() {
+        this.renderDocumentTitle();
+        this.renderAbstract();
         let buttonsSection = this.element.querySelector(".buttons-section");
         if (!this.boundSaveSelectionHandler) {
             this.boundSaveSelectionHandler = this.saveSelectionHandler.bind(this);
@@ -202,102 +213,15 @@ export class DocumentViewPage {
             chapterId2: adjacentChapterId
         });
     }
-
-
-    editTitle(title) {
-        const titleEnterHandler = async (event) => {
-            if (event.key === 'Enter') {
-                event.preventDefault();
-            }
-        };
-        if (title.getAttribute("contenteditable") === "false") {
-            this.deselectPreviousElements();
-            title.setAttribute("contenteditable", "true");
-            title.addEventListener('keydown', titleEnterHandler);
-            title.focus();
-            title.parentElement.setAttribute("id", "highlighted-element");
-            let timer = assistOS.services.SaveElementTimer(async () => {
-                let titleText = assistOS.UI.sanitize(assistOS.UI.customTrim(title.innerText));
-                if (!titleText) {
-                    titleText = "";
-                }
-                if (titleText !== this._document.title && titleText !== "") {
-                    await assistOS.callFlow("UpdateDocumentTitle", {
-                        spaceId: assistOS.space.id,
-                        documentId: this._document.id,
-                        title: titleText
-                    });
-                }
-            }, 1000);
-            title.addEventListener("focusout", async (event) => {
-                title.innerText = assistOS.UI.customTrim(title.innerText) || assistOS.UI.unsanitize(this._document.title);
-                await timer.stop(true);
-                title.setAttribute("contenteditable", "false");
-                title.removeEventListener('keydown', titleEnterHandler);
-                title.removeEventListener("keydown", resetTimer);
-                let agentPage = document.getElementById("agent-page");
-                if (event.relatedTarget) {
-                    if ((event.relatedTarget.getAttribute("id") !== "agent-page") && !agentPage.contains(event.relatedTarget)) {
-                        title.parentElement.removeAttribute("id");
-                    }
-                } else {
-                    title.parentElement.removeAttribute("id");
-                }
-
-            }, {once: true});
-            const resetTimer = async () => {
-                await timer.reset(1000);
-            };
-            title.addEventListener("keydown", resetTimer);
-        }
-    }
-
-    async editAbstract(abstract) {
-        if (abstract.getAttribute("contenteditable") === "false") {
-            this.deselectPreviousElements();
-            let abstractSection = assistOS.UI.reverseQuerySelector(abstract, ".abstract-section");
-            abstract.setAttribute("contenteditable", "true");
-            abstract.focus();
-            abstractSection.setAttribute("id", "highlighted-element");
-            let timer = assistOS.services.SaveElementTimer(async () => {
-                let abstractText = assistOS.UI.sanitize(assistOS.UI.customTrim(abstract.innerText));
-                if (!abstractText) {
-                    abstractText = "";
-                }
-                if (abstractText !== this._document.abstract && abstractText !== "") {
-                    await assistOS.callFlow("UpdateAbstract", {
-                        spaceId: assistOS.space.id,
-                        documentId: this._document.id,
-                        text: abstractText
-                    });
-                }
-            }, 1000);
-
-            abstract.addEventListener("blur", async (event) => {
-                abstract.innerText = assistOS.UI.customTrim(abstract.innerText) || assistOS.UI.unsanitize(this._document.abstract);
-                abstract.removeEventListener("keydown", resetTimer);
-                await timer.stop(true);
-                abstract.setAttribute("contenteditable", "false");
-                let agentPage = document.getElementById("agent-page");
-                if (event.relatedTarget) {
-                    if ((event.relatedTarget.getAttribute("id") !== "agent-page") && !agentPage.contains(event.relatedTarget)) {
-                        abstractSection.removeAttribute("id");
-                    }
-                } else {
-                    abstractSection.removeAttribute("id");
-                }
-                if (event.relatedTarget) {
-                    if (event.relatedTarget.getAttribute("id") !== "agent-page") {
-                        abstractSection.removeAttribute("id");
-                    }
-                } else {
-                    abstractSection.removeAttribute("id");
-                }
-            }, {once: true});
-            const resetTimer = async () => {
-                await timer.reset(1000);
-            };
-            abstract.addEventListener("keydown", resetTimer);
+    async saveAbstract(abstractElement){
+        let abstractText = assistOS.UI.sanitize(abstractElement.value);
+        if (abstractText !== this._document.abstract) {
+            this._document.abstract = abstractText;
+            await assistOS.callFlow("UpdateAbstract", {
+                spaceId: assistOS.space.id,
+                documentId: this._document.id,
+                text: abstractText
+            });
         }
     }
 
@@ -370,5 +294,82 @@ export class DocumentViewPage {
                 position++;
             }
         }
+    }
+    async saveTitle(textElement){
+        let titleText = assistOS.UI.sanitize(textElement.value);
+        if (titleText !== this._document.title && titleText !== "") {
+            this._document.title = titleText;
+            await assistOS.callFlow("UpdateDocumentTitle", {
+                spaceId: assistOS.space.id,
+                documentId: this._document.id,
+                title: titleText
+            });
+        }
+    }
+    async changeCurrentElement(element, focusoutFunction) {
+        if(this.currentElement){
+            this.currentElement.element.removeAttribute("id");
+            let containerElement = this.currentElement.element.closest(".container-element");
+            containerElement.removeAttribute("id");
+            await this.currentElement.focusoutFunction(this.currentElement.element);
+        }
+        this.currentElement = {
+            element: element,
+            focusoutFunction: focusoutFunction
+        };
+        element.setAttribute("id", "current-selection");
+        let containerElement = element.closest(".container-element");
+        containerElement.setAttribute("id", "current-selection-parent");
+    }
+    async titleEnterHandler(event){
+        if (event.key === 'Enter') {
+            event.preventDefault();
+        }
+    };
+    async resetTimer(){
+        console.log("reset");
+        await this.timer.reset(1000);
+    }
+    async stopTimer(){
+        if(this.timer){
+            await this.timer.stop(true);
+        }
+    }
+    async editItem(_target, type) {
+        if(_target.hasAttribute("id") && _target.getAttribute("id") === "current-selection"){
+            return;
+        }
+        let saveFunction;
+        let resetTimerFunction = this.resetTimer.bind(this);
+        this.deselectPreviousElements(_target);
+        if(type === "title"){
+            await this.changeCurrentElement(_target, this.stopTimer.bind(this));
+            _target.addEventListener('keydown', this.titleEnterHandler);
+            saveFunction = this.saveTitle.bind(this, _target);
+        }else if(type === "abstract"){
+            await this.changeCurrentElement(_target, this.stopTimer.bind(this));
+            saveFunction = this.saveAbstract.bind(this, _target);
+        } else if(type === "chapterTitle"){
+            let chapterPresenter = _target.closest("chapter-item").webSkelPresenter;
+            saveFunction = chapterPresenter.saveTitle.bind(chapterPresenter, _target);
+            await this.changeCurrentElement(_target, chapterPresenter.focusOutHandler.bind(chapterPresenter));
+            await chapterPresenter.highlightChapter(_target);
+            _target.addEventListener('keydown', this.titleEnterHandler);
+            chapterPresenter.switchParagraphsBackground("blue");
+        } else if(type === "paragraph"){
+            let chapterPresenter = _target.closest("chapter-item").webSkelPresenter;
+            await chapterPresenter.highlightChapter(_target);
+            let paragraphPresenter = _target.closest("paragraph-item").webSkelPresenter;
+            await this.changeCurrentElement(_target, paragraphPresenter.focusoutCallback.bind(paragraphPresenter, _target));
+            paragraphPresenter.highlightParagraph(_target);
+            saveFunction = paragraphPresenter.saveParagraph.bind(paragraphPresenter, _target);
+            resetTimerFunction = paragraphPresenter.resetTimer.bind(paragraphPresenter, _target);
+        }
+        _target.focus();
+        if(this.timer){
+            await this.timer.stop(true);
+        }
+        this.timer = new executorTimer(saveFunction,1000);
+        _target.addEventListener("keydown", resetTimerFunction);
     }
 }

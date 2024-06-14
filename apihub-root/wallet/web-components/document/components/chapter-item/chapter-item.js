@@ -1,20 +1,19 @@
+import {unescapeHtmlEntities} from "../../../../imports.js";
+
+const documentModule = require("assistos").loadModule("document", {});
 const {notificationService} = require("assistos").loadModule("util", {});
 
 export class ChapterItem {
     constructor(element, invalidate) {
         this.element = element;
         this.invalidate = invalidate;
-        this._document = document.querySelector("document-view-page").webSkelPresenter._document;
+        this.documentPresenter = document.querySelector("document-view-page").webSkelPresenter;
+        this._document = this.documentPresenter._document;
         let chapterId = this.element.getAttribute("data-chapter-id");
         this.chapter = this._document.getChapter(chapterId);
         this.refreshChapter = async () => {
             this.chapter = await this._document.refreshChapter(this._document.id, this.chapter.id);
         };
-        this.refreshChapterTitle = async () => {
-            await this.chapter.refreshChapterTitle(assistOS.space.id, this._document.id, this.chapter.id);
-        };
-
-
         this.addParagraphOnCtrlEnter = this.addParagraphOnCtrlEnter.bind(this);
         this.element.removeEventListener('keydown', this.addParagraphOnCtrlEnter);
         this.element.addEventListener('keydown', this.addParagraphOnCtrlEnter);
@@ -25,7 +24,6 @@ export class ChapterItem {
     beforeRender() {
         let chapterId = this.element.getAttribute("data-chapter-id");
         this.chapter = this._document.getChapter(chapterId);
-        this.chapterTitle = this.chapter.title;
         this.titleMetadata = this.element.variables["data-title-metadata"];
         this.chapterContent = "";
         if (this.chapter) {
@@ -47,15 +45,34 @@ export class ChapterItem {
     }
 
     subscribeToChapterEvents() {
-        notificationService.on(this.chapter.id + "/title", () => {
-            this.invalidate(this.refreshChapterTitle);
+        notificationService.on(this.chapter.id + "/title", async () => {
+            let title = await documentModule.getChapterTitle(assistOS.space.id, this._document.id, this.chapter.id);
+            if(title !== this.chapter.title){
+                this.chapter.title = title;
+                this.renderChapterTitle();
+            }
         });
         notificationService.on(this.chapter.id, () => {
             this.invalidate(this.refreshChapter);
         });
     }
-
+    async saveTitle(titleElement) {
+        let titleText = assistOS.UI.sanitize(titleElement.value);
+        if (titleText !== this.chapter.title && titleText !== "") {
+            await assistOS.callFlow("UpdateChapterTitle", {
+                spaceId: assistOS.space.id,
+                documentId: this._document.id,
+                chapterId: this.chapter.id,
+                title: titleText
+            });
+        }
+    }
+    renderChapterTitle(){
+        let chapterTitle = this.element.querySelector(".chapter-title");
+        chapterTitle.value = unescapeHtmlEntities(this.chapter.title);
+    }
     afterRender() {
+        this.renderChapterTitle();
         this.chapterItem = this.element.querySelector(".chapter-item");
         if (this.chapter.id === assistOS.space.currentChapterId && !assistOS.space.currentParagraphId) {
             this.chapterItem.click();
@@ -91,34 +108,25 @@ export class ChapterItem {
         });
     }
 
-    highlightChapter(_target) {
-        this.deselectPreviousElements();
-        this.chapterItem.setAttribute("id", "highlighted-element");
-        assistOS.space.currentChapterId = this.chapter.id;
+    async highlightChapter(_target) {
         this.switchButtonsDisplay(this.chapterItem, "on");
         let paragraphs = this.element.querySelectorAll(".paragraph-text");
         for(let paragraph of paragraphs) {
             paragraph.classList.add("unfocused");
         }
-        if(!this.boundFocusOutHandler){
-            this.boundFocusOutHandler = this.focusOutHandler.bind(this);
-            this.chapterItem.addEventListener("focusout", this.boundFocusOutHandler);
-        }
-
     }
-    focusOutHandler(event){
-        let agentPage = document.getElementById("agent-page");
-        if(event.relatedTarget){
-            let chapterItem = event.relatedTarget.closest("chapter-item");
-            if((!chapterItem || event.relatedTarget.getAttribute("data-chapter-id") !== this.chapter.id) && (event.relatedTarget.getAttribute("id") !== "agent-page") && !agentPage.contains(event.relatedTarget)){
-                this.switchParagraphsBackground("white");
-                this.switchButtonsDisplay(this.chapterItem, "off");
-            }
-
+    switchTitleBackground(mode){
+        let title = this.element.querySelector(".chapter-title");
+        if(mode === "white"){
+            title.classList.remove("unfocused");
         } else {
-            this.switchParagraphsBackground("white");
-            this.switchButtonsDisplay(this.chapterItem, "off");
+            title.classList.add("unfocused");
         }
+    }
+    focusOutHandler(){
+        this.switchTitleBackground("white");
+        this.switchParagraphsBackground("white");
+        this.switchButtonsDisplay(this.chapterItem, "off");
     }
     switchButtonsDisplay(target, mode) {
         let xMark = this.chapterItem.querySelector('.delete-chapter');
@@ -155,81 +163,17 @@ export class ChapterItem {
             }
         }
     }
-    async editChapterTitle(title) {
-        this.highlightChapter();
-        this.deselectPreviousElements(title);
-        title.setAttribute("contenteditable", "true");
-        title.setAttribute("id", "highlighted-child-element");
 
-        const titleEnterHandler = async (event) => {
-            if (event.key === 'Enter') {
-                event.preventDefault();
-            }
-        };
-        title.addEventListener('keydown', titleEnterHandler);
-        title.focus();
-        this.switchParagraphsBackground("blue");
-        this.switchButtonsDisplay(this.chapterItem, "on");
-        let timer = assistOS.services.SaveElementTimer(async () => {
-            let titleText = assistOS.UI.sanitize(assistOS.UI.customTrim(title.innerText))
-            if (!titleText) {
-                titleText = "";
-            }
-            if (titleText !== this.chapter.title && titleText !== "") {
-                await assistOS.callFlow("UpdateChapterTitle", {
-                    spaceId: assistOS.space.id,
-                    documentId: this._document.id,
-                    chapterId: this.chapter.id,
-                    title: titleText
-                });
-            }
-        }, 3000);
-        /* NO chapter Title */
-        /* constants for page names */
-        /* save button hidden */
-        title.addEventListener("focusout", async (event) => {
-            title.innerText = assistOS.UI.customTrim(title.innerText) || assistOS.UI.unsanitize(this.chapter.title || "");
-            await timer.stop(true);
-            title.removeAttribute("contenteditable");
-            let agentPage = document.getElementById("agent-page");
-            if (event.relatedTarget) {
-                if ((event.relatedTarget.getAttribute("id") !== "agent-page") && !agentPage.contains(event.relatedTarget)) {
-                    this.switchParagraphsBackground("white");
-                    title.removeAttribute("id");
-                    this.switchButtonsDisplay(this.chapterItem, "off");
-                }
-            } else {
-                this.switchParagraphsBackground("white");
-                title.removeAttribute("id");
-                this.switchButtonsDisplay(this.chapterItem, "off");
-            }
-            title.removeEventListener('keydown', titleEnterHandler);
-            title.removeEventListener("keydown", resetTimer);
-        }, {once: true});
-        const resetTimer = async () => {
-            await timer.reset(1000);
-        };
-        title.addEventListener("keydown", resetTimer);
-    }
-
-    deselectPreviousElements(element) {
-        let previousHighlightedElement = document.querySelector("#highlighted-element");
-        if (previousHighlightedElement && !previousHighlightedElement.contains(element)) {
-            previousHighlightedElement.removeAttribute("id");
-        }
-        let previousHighlightedChildElement = document.querySelector("#highlighted-child-element");
-        if (previousHighlightedChildElement) {
-            previousHighlightedChildElement.removeAttribute("id");
-        }
-    }
-
-    changeChapterDisplay(_target) {
-        this.highlightChapter(_target);
+    async changeChapterDisplay(_target) {
+        await this.highlightChapter(_target);
+        await this.documentPresenter.changeCurrentElement(this.chapterItem, this.focusOutHandler.bind(this));
         this.chapter.visibility === "hide" ? this.chapter.visibility = "show" : this.chapter.visibility = "hide";
         let paragraphsContainer = this.element.querySelector(".chapter-paragraphs");
         paragraphsContainer.classList.toggle('hidden');
         _target.classList.toggle('rotate');
     }
+
+
 }
 
 

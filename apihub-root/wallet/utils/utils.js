@@ -55,7 +55,7 @@ export function blobToBase64(blob) {
     });
 }
 
-export function executeTimer(fn, t) {
+export function executorTimer(fn, t) {
     let intervalId = setInterval(fn, t);
     this.stop = async function (executeFn) {
         if (intervalId) {
@@ -140,4 +140,9 @@ export function getCursorPositionTextIndex() {
         return currentIndex;
     }
     return -1; // No cursor position found
+}
+export function unescapeHtmlEntities(value) {
+    const tempElement = document.createElement('textarea');
+    tempElement.innerHTML = value;
+    return tempElement.value;
 }

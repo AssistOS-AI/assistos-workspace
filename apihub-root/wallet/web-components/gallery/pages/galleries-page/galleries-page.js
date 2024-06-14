@@ -63,8 +63,8 @@ export class GalleriesPage{
 
     }
     async deleteGallery(_target){
-        let galleryUnit = _target.closest("gallery-item");
-        let galleryId = galleryUnit.getAttribute("data-id");
+        let galleryItem = _target.closest("gallery-item");
+        let galleryId = galleryItem.getAttribute("data-id");
         await galleryModule.deleteGallery(assistOS.space.id, galleryId);
     }
     async openGallery(_target, galleryId){

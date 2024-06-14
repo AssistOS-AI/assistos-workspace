@@ -24,7 +24,9 @@
     color: var(--user-text);
 }
 
-.abstract-content-text {
+.abstract-text {
+    resize: none;
+    border: none;
     display: inline-block;
     border-radius: 3px;
     padding: 10px;
@@ -37,7 +39,7 @@
     color: var(--user-text);
 }
 
-.abstract-content-text:focus {
+.abstract-text:focus {
     outline: none;
     background: var(--white-text);
 }
@@ -85,6 +87,7 @@ document-view-page {
 }
 
 .document-title {
+    border: none;
     width: calc(100% - 30px);
     display: inline-block;
     color: var(--light-black);
@@ -136,7 +139,7 @@ html[theme="dark"] .document-title-container {
     display: none;
 }
 
-.abstract-section, .path-button, .chapter-unit {
+.abstract-section, .path-button, .chapter-item {
     padding: 10px;
 }
 
@@ -153,25 +156,19 @@ html[theme="dark"] .document-title-container {
     cursor: pointer;
 }
 
-#highlighted-abstract {
-    background-color: var(--white-blue-tint);
-}
 
 .sidebar-item {
     font-weight: 600;
 }
 
-#highlighted-element {
+#current-selection-parent {
     background-color: var(--white-blue-tint);
 }
 
-#highlighted-child-element {
+#current-selection {
     background-color: white;
 }
 
-#highlighted-child-element {
-    background-color: white;
-}
 .insert-image{
     cursor: pointer;
 }

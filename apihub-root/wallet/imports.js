@@ -13,7 +13,8 @@ import {
     saveCaretPosition,
     base64ToBlob,
     blobToBase64,
-    executeTimer
+    executorTimer,
+    unescapeHtmlEntities
 } from "./utils/utils.js";
 import {validateOpenAiKey} from "./utils/OpenAiUtils/validateAPIKey.js";
 import WebSkel from "../WebSkel/webSkel.js";
@@ -26,7 +27,8 @@ export {
     saveCaretPosition,
     base64ToBlob,
     blobToBase64,
-    executeTimer,
+    executorTimer,
+    unescapeHtmlEntities,
     validateOpenAiKey,
     changeSelectedPageFromSidebar,
     WebSkel

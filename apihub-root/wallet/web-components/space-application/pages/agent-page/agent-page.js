@@ -126,13 +126,13 @@ export class AgentPage {
     }
 
     getChatHistory() {
-        const chatUnits = this.element.querySelectorAll("chat-item");
+        const chatItems = this.element.querySelectorAll("chat-item");
         const chatHistory = [];
-        for (const chatUnit of chatUnits) {
-            let role = chatUnit.getAttribute("role");
+        for (const chatItem of chatItems) {
+            let role = chatItem.getAttribute("role");
             role = role === "own" ? "user" : role;
             if(role!=="undefined") {
-                chatHistory.push({role: role, content: chatUnit.querySelector("#messageContainer").innerText});
+                chatHistory.push({role: role, content: chatItem.querySelector("#messageContainer").innerText});
             }
         }
         return chatHistory;

@@ -16,13 +16,13 @@ export class MidjourneyImage {
         this.buttons = buttonsHTML;
     }
     afterRender(){
-        let imageUnit = this.element.querySelector(".image-item");
-        let imageCheckbox = imageUnit.querySelector(".image-checkbox");
-        let imageMenu = imageUnit.querySelector(".image-menu");
-        imageUnit.addEventListener("mouseenter", (event) => {
+        let imageItem = this.element.querySelector(".image-item");
+        let imageCheckbox = imageItem.querySelector(".image-checkbox");
+        let imageMenu = imageItem.querySelector(".image-menu");
+        imageItem.addEventListener("mouseenter", (event) => {
             imageCheckbox.style.visibility = "visible";
         });
-        imageUnit.addEventListener("mouseleave", (event) => {
+        imageItem.addEventListener("mouseleave", (event) => {
             if (!imageCheckbox.checked) {
                 imageCheckbox.style.visibility = "hidden";
             }

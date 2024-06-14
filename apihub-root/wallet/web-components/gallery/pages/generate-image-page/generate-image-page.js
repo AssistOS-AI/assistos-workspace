@@ -123,8 +123,8 @@ export class GenerateImagePage {
     }
 
     async getImageSrc(_target) {
-        let imageUnit = _target.closest(".image-item");
-        let image = imageUnit.querySelector("img");
+        let imageItem = _target.closest(".image-item");
+        let image = imageItem.querySelector("img");
         const pattern = /^http/;
         if(pattern.test(image.src))
         {
@@ -198,14 +198,14 @@ export class GenerateImagePage {
                 optionElement.selected = true;
             }
         }
-        let imageUnits = this.element.querySelectorAll(".image-item");
-        for (let imageUnit of imageUnits) {
-            let imageCheckbox = imageUnit.querySelector(".image-checkbox");
-            let imageMenu = imageUnit.querySelector(".image-menu");
-            imageUnit.addEventListener("mouseenter", (event) => {
+        let imageItems = this.element.querySelectorAll(".image-item");
+        for (let imageItem of imageItems) {
+            let imageCheckbox = imageItem.querySelector(".image-checkbox");
+            let imageMenu = imageItem.querySelector(".image-menu");
+            imageItem.addEventListener("mouseenter", (event) => {
                 imageCheckbox.style.visibility = "visible";
             });
-            imageUnit.addEventListener("mouseleave", (event) => {
+            imageItem.addEventListener("mouseleave", (event) => {
                 if (!imageCheckbox.checked) {
                     imageCheckbox.style.visibility = "hidden";
                 }

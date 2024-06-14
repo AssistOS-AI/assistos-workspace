@@ -39,7 +39,7 @@ html[theme="dark"] .arrow svg {
     margin-left: 10px;
 }
 
-.chapter-unit {
+.chapter-item {
     cursor: default;
     border-radius: 10px;
     display: flex;
@@ -119,6 +119,7 @@ p {
 }
 
 .chapter-title {
+    border: none;
     width: calc(100% - 95px);
     padding: 5px 5px 5px 5px;
     margin-left: 3px;
@@ -130,7 +131,7 @@ p {
     position: relative;
 }
 
-.chapter-unit {
+.chapter-item {
     width: 100%;
 }
 

@@ -9,7 +9,6 @@
                 <div class="secondary-path-button pointer">$$docTitle</div>
             </div>
             <div class="buttons-section">
-
                 <button class="general-button" data-local-action="addChapter">
                     <svg width="12" height="12" viewBox="0 0 12 12" fill="none" xmlns="http://www.w3.org/2000/svg">
                         <path d="M5.14286 6.85714H0V5.14286H5.14286V0H6.85714V5.14286H12V6.85714H6.85714V12H5.14286V6.85714Z" fill="white"></path>
@@ -26,16 +25,16 @@
                 </svg>
             </div>
         </div>
-        <div class="document-title-container" data-metadata="title of the document">
-            <div class="document-title" data-local-action="editTitle" contenteditable="false">$$docTitle</div>
+        <div class="document-title-container container-element" data-metadata="title of the document">
+            <input type="text" class="document-title" data-local-action="editItem title"/>
             <div class="thirty-px-horizontal-space"></div>
         </div>
-        <div class="abstract-section" data-metadata="abstract of the document">
+        <div class="abstract-section container-element" data-metadata="abstract of the document">
             <div class="abstract-subtitle">
                 Abstract
             </div>
             <div class="abstract-content">
-                <div class="abstract-content-text" data-local-action="editAbstract" contenteditable="false">$$abstractText</div>
+                <textarea class="abstract-text" data-local-action="editItem abstract"></textarea>
                 <div class="thirty-px-horizontal-space"></div>
             </div>
         </div>

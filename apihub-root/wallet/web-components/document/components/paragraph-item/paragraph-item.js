@@ -12,17 +12,14 @@ export class ParagraphItem {
         this.chapter = this._document.getChapter(chapterId);
         this.paragraph = this.chapter.getParagraph(paragraphId);
         notificationService.on(this.paragraph.id, async () => {
-            let ttsUnit = this.element.querySelector('text-to-speech');
-            if (ttsUnit) {
-                this.openTTSUnit = true;
+            let ttsItem = this.element.querySelector('text-to-speech');
+            if (ttsItem) {
+                this.openTTSItem = true;
             }
             let paragraphDiv = this.element.querySelector(".paragraph-text");
             if(!paragraphDiv){
                 //notification received before render
                 return this.invalidate();
-            }
-            if(this.timer){
-                await this.timer.stop(true);
             }
             let paragraph = await this.chapter.refreshParagraph(assistOS.space.id, this._document.id, this.paragraph.id);
             if (paragraph.text !== this.paragraph.text) {
@@ -44,9 +41,9 @@ export class ParagraphItem {
         paragraphText.innerHTML = this.paragraph.text;
         let paragraphHeight = paragraphText.scrollHeight + 20;
         paragraphText.style.height = paragraphText.scrollHeight + 'px';
-        if (this.openTTSUnit) {
+        if (this.openTTSItem) {
             this.openTTSPopup(this.element);
-            this.openTTSUnit = false;
+            this.openTTSItem = false;
         }
         if (assistOS.space.currentParagraphId === this.paragraph.id) {
             paragraphText.click();
@@ -56,33 +53,7 @@ export class ParagraphItem {
         }
     }
 
-    switchParagraphArrows(target, mode) {
-        let audioIcon = target.querySelector('.audio-icon');
-        if(mode === "on"){
-            audioIcon.classList.remove("hidden");
-        }else {
-            audioIcon.classList.add("hidden");
-        }
-        if (this.chapter.paragraphs.length <= 1) {
-            return;
-        }
-        let foundElement = target.querySelector('.paragraph-arrows');
-        if (!foundElement) {
-            let nextSibling = target.nextElementSibling;
-            while (nextSibling) {
-                if (nextSibling.matches('.paragraph-arrows')) {
-                    foundElement = nextSibling;
-                    break;
-                }
-                nextSibling = nextSibling.nextElementSibling;
-            }
-        }
-        if (mode === "on") {
-            foundElement.style.visibility = "visible";
-        } else {
-            foundElement.style.visibility = "hidden";
-        }
-    }
+
 
     async moveParagraph(_target, direction) {
         await this.timer.stop(true);
@@ -102,79 +73,82 @@ export class ParagraphItem {
             paragraphId2: adjacentParagraphId
         });
     }
-
-    editParagraph(paragraph) {
-        if(paragraph.hasAttribute("id") && paragraph.getAttribute("id") === "highlighted-child-element"){
+    async saveParagraph(paragraph) {
+        if (!this.paragraph || assistOS.space.currentParagraphId !== this.paragraph.id || this.deleted) {
+            await this.documentPresenter.stopTimer();
             return;
         }
-        this.chapterPresenter.highlightChapter();
+        let paragraphText = assistOS.UI.sanitize(paragraph.value);
+        if (paragraphText !== this.paragraph.text) {
+            this.paragraph.text = paragraphText;
+            await assistOS.callFlow("UpdateParagraphText", {
+                spaceId: assistOS.space.id,
+                documentId: this._document.id,
+                chapterId: this.chapter.id,
+                paragraphId: this.paragraph.id,
+                text: paragraphText
+            });
+        }
+
+    }
+    switchParagraphArrows(target, mode) {
+        let audioIcon = this.element.querySelector('.audio-icon');
+        if(mode === "on"){
+            audioIcon.classList.remove("hidden");
+        }else {
+            audioIcon.classList.add("hidden");
+        }
+        if (this.chapter.paragraphs.length <= 1) {
+            return;
+        }
+        let arrows = this.element.querySelector('.paragraph-arrows');
+        if (mode === "on") {
+            arrows.style.visibility = "visible";
+        } else {
+            arrows.style.visibility = "hidden";
+        }
+    }
+    highlightParagraph(paragraph) {
         paragraph.classList.remove("unfocused");
-        paragraph.setAttribute("id", "highlighted-child-element");
         let paragraphItem = assistOS.UI.reverseQuerySelector(paragraph, ".paragraph-item");
-        paragraph.focus();
+        let paragraphId = paragraphItem.getAttribute("data-paragraph-id");
         this.switchParagraphArrows(paragraphItem, "on");
-        assistOS.space.currentParagraphId = this.paragraph.id;
-        let saved = false;
-        let deleted = false;
-        this.timer = assistOS.services.SaveElementTimer(async () => {
-            if (!this.paragraph || assistOS.space.currentParagraphId !== this.paragraph.id) {
-                await this.timer.stop();
-                return;
-            }
-            let paragraphText = assistOS.UI.sanitize(paragraph.value);
-            if (paragraphText !== this.paragraph.text && !saved && !deleted) {
-                saved = true;
-                await assistOS.callFlow("UpdateParagraphText", {
-                    spaceId: assistOS.space.id,
-                    documentId: this._document.id,
-                    chapterId: this.chapter.id,
-                    paragraphId: this.paragraph.id,
-                    text: paragraphText
-                });
-                saved = false;
-            }
-        }, 1000);
-        this.resetTimer = async (event) => {
-            paragraph.style.height = "auto";
-            paragraph.style.height = paragraph.scrollHeight + 'px';
-            if (paragraph.value.trim() === "" && event.key === "Backspace") {
-                if (assistOS.space.currentParagraphId === this.paragraph.id) {
-                    deleted = true;
-                    let curentParagraphIndex = this.chapter.getParagraphIndex(this.paragraph.id);
-                    await assistOS.callFlow("DeleteParagraph", {
-                        spaceId: assistOS.space.id,
-                        documentId: this._document.id,
-                        chapterId: this.chapter.id,
-                        paragraphId: this.paragraph.id
-                    });
-                    if (this.chapter.paragraphs.length > 0) {
-                        if (curentParagraphIndex === 0) {
-                            assistOS.space.currentParagraphId = this.chapter.paragraphs[0].id;
-                        } else {
-                            assistOS.space.currentParagraphId = this.chapter.paragraphs[curentParagraphIndex - 1].id;
-                        }
-                    } else {
-                        assistOS.space.currentParagraphId = null;
-                    }
-                }
-                await this.timer.stop();
-            } else {
-                await this.timer.reset(1000);
-            }
-        };
-        paragraph.removeEventListener("keydown", this.resetTimer);
-        paragraph.addEventListener("keydown", this.resetTimer);
-        paragraph.addEventListener("focusout", async (event) => {
-            if (event.relatedTarget && event.relatedTarget.getAttribute("data-paragraph-id") === this.paragraph.id) {
-                return;
-            }
-            await this.timer.stop(true);
-            paragraph.removeAttribute("id");
-            this.switchParagraphArrows(paragraphItem, "off");
-        }, {once: true});
+        assistOS.space.currentParagraphId = paragraphId;
+    }
+    focusoutCallback(paragraphItem) {
+        this.switchParagraphArrows(paragraphItem, "off");
+        //await this.timer.stop(true);
     }
     openTTSPopup(_target) {
         let personalitiesPopUp = `<text-to-speech data-presenter="select-personality-tts" data-chapter-id="${this.chapter.id}" data-paragraph-id="${this.paragraph.id}"></text-to-speech>`;
         this.element.insertAdjacentHTML('beforeend', personalitiesPopUp);
+    }
+    async resetTimer (paragraph, event) {
+        paragraph.style.height = "auto";
+        paragraph.style.height = paragraph.scrollHeight + 'px';
+        if (paragraph.value.trim() === "" && event.key === "Backspace") {
+            if (assistOS.space.currentParagraphId === this.paragraph.id) {
+                this.deleted = true;
+                let curentParagraphIndex = this.chapter.getParagraphIndex(this.paragraph.id);
+                await assistOS.callFlow("DeleteParagraph", {
+                    spaceId: assistOS.space.id,
+                    documentId: this._document.id,
+                    chapterId: this.chapter.id,
+                    paragraphId: this.paragraph.id
+                });
+                if (this.chapter.paragraphs.length > 0) {
+                    if (curentParagraphIndex === 0) {
+                        assistOS.space.currentParagraphId = this.chapter.paragraphs[0].id;
+                    } else {
+                        assistOS.space.currentParagraphId = this.chapter.paragraphs[curentParagraphIndex - 1].id;
+                    }
+                } else {
+                    assistOS.space.currentParagraphId = null;
+                }
+            }
+            await this.documentPresenter.stopTimer();
+        } else {
+            await this.documentPresenter.resetTimer();
+        }
     }
 }

@@ -29,7 +29,6 @@ class AddDocument extends IFlow {
             };
             let documentModule = apis.loadModule("document");
             let docId = await documentModule.addDocument(assistOS.space.id, docData);
-            debugger
             apis.success(docId);
         } catch (e) {
             apis.fail(e);
