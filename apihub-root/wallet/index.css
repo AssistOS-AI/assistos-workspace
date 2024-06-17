@@ -116,9 +116,11 @@ dialog {
     padding: 0 !important;
     outline: none !important;
 }
+dialog.modal {
+    box-shadow: 0px 1px 7.3px 0px #00000040;
+}
 dialog{
     border-radius: 5px;
-    box-shadow: 0px 1px 7.3px 0px #00000040;
 }
 .modal-header{
     align-items: center;

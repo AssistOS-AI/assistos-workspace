@@ -271,7 +271,6 @@ async function getAudioResponse(request, response) {
         } = await constructRequestInitAndURL(`/apis/v1/audio/generate`, "POST", request, response);
         const modelResponse = await fetch(fullURL, init);
         await $$.promisify(pipeline)(modelResponse.body, response);
-
     } catch (error) {
         utils.sendResponse(response, error.statusCode || 500, "application/json", {
             success: false,

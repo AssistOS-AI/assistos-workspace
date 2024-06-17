@@ -110,6 +110,25 @@ export class ParagraphItem {
         this.chapterPresenter.focusOutHandler();
         this.switchParagraphArrows("off");
     }
+    showTTSPopup(_target, mode) {
+        if (mode === "off") {
+            let ttsPopup = `<text-to-speech data-presenter="select-personality-tts" data-chapter-id="${this.chapter.id}" data-paragraph-id="${this.paragraph.id}"></text-to-speech>`;
+            this.element.insertAdjacentHTML('beforeend', ttsPopup);
+            let controller = new AbortController();
+            document.addEventListener("click", this.hideTTSPopup.bind(this, controller, _target), {signal: controller.signal});
+            _target.setAttribute("data-local-action", "showTTSPopup on");
+        }
+    }
+
+    hideTTSPopup(controller, arrow, event) {
+        if(event.target.closest("text-to-speech") || event.target.tagName === "A"){
+            return;
+        }
+        arrow.setAttribute("data-local-action", "showTTSPopup off");
+        let popup = this.element.querySelector("text-to-speech");
+        popup.remove();
+        controller.abort();
+    };
     openTTSPopup(_target) {
         let personalitiesPopUp = `<text-to-speech data-presenter="select-personality-tts" data-chapter-id="${this.chapter.id}" data-paragraph-id="${this.paragraph.id}"></text-to-speech>`;
         this.element.insertAdjacentHTML('beforeend', personalitiesPopUp);

@@ -45,7 +45,6 @@ export class LeftSidebar {
     toggleTheme(_target) {
         const element = document.getElementsByTagName('html')[0];
         const currentTheme = element.getAttribute('theme');
-
         if (currentTheme && currentTheme === 'dark') {
             element.setAttribute('theme', '');
             this.themeIcon = "wallet/assets/icons/moon.svg";

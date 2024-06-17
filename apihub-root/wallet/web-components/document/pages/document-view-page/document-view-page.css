@@ -56,9 +56,11 @@ document-view-page {
 }
 
 .document-content {
+    width: 100%;
     padding-left: 50px;
     padding-right: 20px;
     height: 100%;
+    margin-bottom: 20px;
     min-height: 100%;
 }
 
@@ -174,5 +176,6 @@ html[theme="dark"] .document-title-container {
 }
 
 .insert-image{
+    margin-left: 10px;
     cursor: pointer;
 }

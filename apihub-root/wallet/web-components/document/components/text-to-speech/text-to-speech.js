@@ -1,7 +1,6 @@
 import {base64ToBlob, blobToBase64} from "../../../../imports.js";
 const llmModule = require("assistos").loadModule("llm", {});
 const documentModule = require("assistos").loadModule("document", {});
-const personalityModule = require("assistos").loadModule("personality", {});
 
 export class TextToSpeech {
     constructor(element, invalidate) {
@@ -10,7 +9,7 @@ export class TextToSpeech {
         this._document = document.querySelector("document-view-page").webSkelPresenter._document;
         this.chapterId = this.element.getAttribute("data-chapter-id");
         this.paragraphId = this.element.getAttribute("data-paragraph-id");
-        this.generateBtnName = "Generate Audio";
+        this.generateBtnName = "Generate";
         this.invalidate(async () => {
             this.personalities = await assistOS.space.getPersonalitiesMetadata();
             let configs = await llmModule.listVoicesAndEmotions(assistOS.space.id);
@@ -31,7 +30,7 @@ export class TextToSpeech {
         this.emotionsHTML = emotionsHTML;
         this.audioConfigs = this._document.getParagraphAudio(this.chapterId, this.paragraphId);
         if(this.audioConfigs) {
-            this.generateBtnName = "Regenerate Audio";
+            this.generateBtnName = "Regenerate";
         }
     }
     afterRender() {
@@ -39,7 +38,7 @@ export class TextToSpeech {
         if(this.audioConfigs) {
             let audioSection = this.element.querySelector('.audio-section');
             let audioElement = this.element.querySelector('audio');
-            audioSource.src = URL.createObjectURL(base64ToBlob(this.audioConfigs.audioBlob));
+            audioSource.src = URL.createObjectURL(base64ToBlob(this.audioConfigs.audioBlob, "audio/mp3"));
             this.audioURL = audioSource.src;
             audioSection.classList.remove('hidden');
             audioSection.classList.add('visible-section');
@@ -71,13 +70,19 @@ export class TextToSpeech {
             assistOS.UI.hideLoading(loaderId);
             return;
         }
-        let audioBlob = await llmModule.textToSpeech(assistOS.space.id, {
-            prompt: prompt,
-            voice: personality.voiceId,
-            emotion: formData.data.emotion,
-            styleGuidance: formData.data.styleGuidance,
-            modelName: "PlayHT2.0"
-        });
+        let audioBlob;
+        try {
+            audioBlob = await llmModule.textToSpeech(assistOS.space.id, {
+                prompt: prompt,
+                voice: personality.voiceId,
+                emotion: formData.data.emotion,
+                styleGuidance: formData.data.styleGuidance,
+                modelName: "PlayHT2.0"
+            });
+        }catch (e) {
+           return await showApplicationError(e,e,e);
+        }
+
         let audioSection = this.element.querySelector('.audio-section');
         audioSection.classList.remove('hidden');
         audioSection.classList.add('visible-section');
@@ -91,14 +96,10 @@ export class TextToSpeech {
             voiceId: formData.data.voice,
             emotion: formData.data.emotion,
             styleGuidance: formData.data.styleGuidance,
-            audioBlob: blobToBase64(audioBlob)
+            audioBlob: await blobToBase64(audioBlob)
         }
         await documentModule.updateParagraphAudio(assistOS.space.id, this._document.id, this.paragraphId, audioConfigs);
         assistOS.UI.hideLoading(loaderId);
-    }
-
-    closePopup(_target) {
-        this.element.remove();
     }
     downloadAudio(_target) {
         const link = document.createElement('a');

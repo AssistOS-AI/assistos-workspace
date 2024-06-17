@@ -250,11 +250,10 @@ export class DocumentViewPage {
             if (this._document.chapters.length === 0) {
                 return {chapter, paragraph};
             }
-            if (this._document.chapters.paragraphs.length === 0) {
-                chapter = this._document.chapters[this._document.chapters.length - 1];
+            chapter = this._document.chapters[this._document.chapters.length - 1];
+            if (chapter.paragraphs.length === 0) {
                 return {chapter, paragraph};
             }
-            chapter = this._document.chapters[this._document.chapters.length - 1];
             paragraph = chapter.paragraphs[chapter.paragraphs.length - 1];
         }
         return {chapter, paragraph};
