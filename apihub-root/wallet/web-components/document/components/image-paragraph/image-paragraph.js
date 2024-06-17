@@ -23,7 +23,7 @@ export class ImageParagraph{
     beforeRender() {
         this.initialized = false;
         this.imageSrc = this.paragraph.image.src;
-        this.imageAlt = this.paragraph.image.alt;
+        this.imageAlt = this.paragraph.image.timestamp;
 
     }
     afterRender() {

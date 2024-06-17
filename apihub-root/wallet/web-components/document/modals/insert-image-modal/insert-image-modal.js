@@ -9,6 +9,8 @@ export class InsertImageModal {
         this.modalBody = `
             <div class="modal-body">
                 <button data-local-action="openGallerySection">From Gallery</button>
+                <button data-local-action="openMyDevice">My device</button data-local-action="openMyDevice">
+                <input type="file" id="file" class="hidden" accept="image/*">
                 <button data-local-action="openGenerateSection">Generate</button>
             </div>`;
         this.invalidate(async ()=>{
@@ -114,5 +116,30 @@ export class InsertImageModal {
     }
     insertImages(_target){
         assistOS.UI.closeModal(_target, this.selectedImages);
+    }
+    openMyDevice(_target){
+        let fileInput = this.element.querySelector("#file");
+        fileInput.click();
+        if(!this.boundFileHandler){
+            this.boundFileHandler = this.selectFileHandler.bind(this, _target);
+            fileInput.addEventListener("change", this.boundFileHandler);
+        }
+    }
+    selectFileHandler(_target, event){
+        let file = event.target.files[0];
+        let reader = new FileReader();
+        reader.onload = (e) => {
+            let data = {
+                src: e.target.result,
+                userId: assistOS.user.id,
+                timestamp: new Date().toISOString(),
+                id: this.generateUniqueId()
+            };
+            assistOS.UI.closeModal(_target, [data]);
+        };
+        reader.readAsDataURL(file);
+    }
+    generateUniqueId() {
+        return 'images_' + Math.random().toString(36).substr(2, 9);
     }
 }

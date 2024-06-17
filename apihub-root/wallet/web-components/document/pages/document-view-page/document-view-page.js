@@ -322,7 +322,6 @@ export class DocumentViewPage {
     }
     async stopTimer(executeFn){
         if(this.timer){
-            console.log("stopped");
             await this.timer.stop(executeFn);
         }
     }
