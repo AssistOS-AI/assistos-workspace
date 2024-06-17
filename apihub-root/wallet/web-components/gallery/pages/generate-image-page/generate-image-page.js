@@ -252,23 +252,23 @@ export class GenerateImagePage {
         }
         if(this.currentModel.variants){
             try{
-                let images = await assistOS.callFlow("GenerateImage", flowContext, formData.data.personality);
+                let images = (await assistOS.callFlow("GenerateImage", flowContext, formData.data.personality)).data;
                 let pngPrefix = "data:image/png;base64,"
                 for (let i = 0; i < images.length; i++) {
                     images[i] = pngPrefix + images[i];
                 }
                 this.images = images;
             } catch (e) {
-                //error handled in the flow
+                await showApplicationError(e, e, e);
             }
 
         } else if(this.currentModel.buttons){
             try{
-                let image = await assistOS.callFlow("GenerateImage", flowContext, formData.data.personality);
+                let image = (await assistOS.callFlow("GenerateImage", flowContext, formData.data.personality)).data;
                 image.prompt = this.prompt;
                 this.images.push(image);
             } catch (e) {
-                //error handled in the flow
+                await showApplicationError(e, e, e);
             }
         }
         await this.rememberValues();

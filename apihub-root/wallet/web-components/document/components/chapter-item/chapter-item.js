@@ -90,6 +90,7 @@ export class ChapterItem {
         if (!event.ctrlKey || event.key !== 'Enter') {
             return;
         }
+        await this.documentPresenter.stopTimer(true);
         const fromParagraph = assistOS.UI.reverseQuerySelector(event.target, '[data-paragraph-id]', 'space-chapter-item');
         const fromChapter = assistOS.UI.reverseQuerySelector(event.target, '.chapter-item');
 
@@ -100,34 +101,23 @@ export class ChapterItem {
         if (assistOS.space.currentParagraphId) {
             position = this.chapter.getParagraphIndex(assistOS.space.currentParagraphId) + 1;
         }
-        assistOS.space.currentParagraphId = await assistOS.callFlow("AddParagraph", {
+        assistOS.space.currentParagraphId = (await assistOS.callFlow("AddParagraph", {
             spaceId: assistOS.space.id,
             documentId: this._document.id,
             chapterId: this.chapter.id,
             position: position
-        });
+        })).data;
     }
 
     async highlightChapter(_target) {
+        assistOS.space.currentChapterId = this.chapter.id;
         this.switchButtonsDisplay(this.chapterItem, "on");
-        let paragraphs = this.element.querySelectorAll(".paragraph-text");
-        for(let paragraph of paragraphs) {
-            paragraph.classList.add("unfocused");
-        }
     }
-    switchTitleBackground(mode){
-        let title = this.element.querySelector(".chapter-title");
-        if(mode === "white"){
-            title.classList.remove("unfocused");
-        } else {
-            title.classList.add("unfocused");
-        }
-    }
+
     focusOutHandler(){
-        this.switchTitleBackground("white");
-        this.switchParagraphsBackground("white");
         this.switchButtonsDisplay(this.chapterItem, "off");
     }
+
     switchButtonsDisplay(target, mode) {
         let xMark = this.chapterItem.querySelector('.delete-chapter');
         mode === "on" ? xMark.style.visibility = "visible" : xMark.style.visibility = "hidden";
@@ -151,29 +141,15 @@ export class ChapterItem {
             foundElement.style.display = "none";
         }
     }
-    switchParagraphsBackground(mode){
-        let paragraphs = this.element.querySelectorAll(".paragraph-text");
-        if(mode === "white"){
-            for(let paragraph of paragraphs){
-                paragraph.classList.remove("unfocused");
-            }
-        } else {
-            for(let paragraph of paragraphs){
-                paragraph.classList.add("unfocused");
-            }
-        }
-    }
 
     async changeChapterDisplay(_target) {
-        await this.highlightChapter(_target);
         await this.documentPresenter.changeCurrentElement(this.chapterItem, this.focusOutHandler.bind(this));
+        await this.highlightChapter(_target);
         this.chapter.visibility === "hide" ? this.chapter.visibility = "show" : this.chapter.visibility = "hide";
         let paragraphsContainer = this.element.querySelector(".chapter-paragraphs");
         paragraphsContainer.classList.toggle('hidden');
         _target.classList.toggle('rotate');
     }
-
-
 }
 
 

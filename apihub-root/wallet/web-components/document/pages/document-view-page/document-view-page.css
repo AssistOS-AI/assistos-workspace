@@ -165,7 +165,11 @@ html[theme="dark"] .document-title-container {
     background-color: var(--white-blue-tint);
 }
 
-#current-selection {
+#current-selection-parent .focusable {
+    background-color: var(--white-blue-tint);
+}
+
+#current-selection-parent .focusable#current-selection {
     background-color: white;
 }
 

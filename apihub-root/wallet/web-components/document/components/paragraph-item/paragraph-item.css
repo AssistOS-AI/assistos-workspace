@@ -61,9 +61,6 @@ paragraph-item{
     width: 100%;
     height: 12px;
 }
-.unfocused{
-    background-color: var(--white-blue-tint);
-}
 .paragraph-text {
     overflow: hidden;
     resize: none;

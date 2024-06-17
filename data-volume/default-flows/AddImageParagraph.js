@@ -19,14 +19,6 @@ class AddImageParagraph extends IFlow {
             type: "string",
             required: true
         },
-        paragraphId: {
-            type: "string",
-            required: true
-        },
-        offset: {
-            type: "string",
-            required: false
-        },
         paragraphData: {
             type: "object",
             required: true

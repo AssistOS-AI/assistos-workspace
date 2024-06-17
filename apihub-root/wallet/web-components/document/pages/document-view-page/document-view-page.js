@@ -38,11 +38,6 @@ export class DocumentViewPage {
             });
             spaceAPIs.startCheckingUpdates(assistOS.space.id);
         });
-
-        this.controller = new AbortController();
-        this.boundedFn = this.highlightElement.bind(this, this.controller);
-        document.removeEventListener("click", this.boundedFn);
-        document.addEventListener("click", this.boundedFn, {signal: this.controller.signal});
     }
 
     beforeRender() {
@@ -76,6 +71,13 @@ export class DocumentViewPage {
         if(!this.boundPasteHandler) {
             this.boundPasteHandler = this.pasteHandler.bind(this);
             this.element.addEventListener('paste', this.boundPasteHandler);
+        }
+        if(assistOS.space.currentChapterId){
+            let chapter = this.element.querySelector(`chapter-item[data-chapter-id="${assistOS.space.currentChapterId}"]`);
+            if(chapter){
+                chapter.click();
+                chapter.scrollIntoView({behavior: "smooth", block: "center"});
+            }
         }
     }
     pasteHandler(event) {
@@ -139,15 +141,6 @@ export class DocumentViewPage {
             documentId: this._document.id,
             chapterId: chapterId
         });
-    }
-
-    async highlightElement(controller, event) {
-        let leftSideBarItem = assistOS.UI.getClosestParentElement(event.target, ".feature");
-        let rightSideBarItem = assistOS.UI.getClosestParentElement(event.target, ".sidebar-item");
-        if (leftSideBarItem || rightSideBarItem) {
-            controller.abort();
-        }
-        this.setContext();
     }
 
     setContext() {
@@ -227,19 +220,17 @@ export class DocumentViewPage {
 
     async addChapter() {
         let position = this._document.chapters.length;
-
         // Find the position to add the new chapter
         if (assistOS.space.currentChapterId) {
             position = this._document.chapters.findIndex(
                 (chapter) => chapter.id === assistOS.space.currentChapterId
             ) + 1;
         }
-        let chapterId = (await assistOS.callFlow("AddChapter", {
+        assistOS.space.currentChapterId = (await assistOS.callFlow("AddChapter", {
             spaceId: assistOS.space.id,
             documentId: this._document.id,
             position: position
         })).data;
-        assistOS.space.currentChapterId = chapterId;
     }
 
     async openDocumentsPage() {
@@ -312,6 +303,7 @@ export class DocumentViewPage {
             let containerElement = this.currentElement.element.closest(".container-element");
             containerElement.removeAttribute("id");
             await this.currentElement.focusoutFunction(this.currentElement.element);
+            await this.stopTimer(true);
         }
         this.currentElement = {
             element: element,
@@ -327,12 +319,12 @@ export class DocumentViewPage {
         }
     };
     async resetTimer(){
-        console.log("reset");
         await this.timer.reset(1000);
     }
-    async stopTimer(){
+    async stopTimer(executeFn){
         if(this.timer){
-            await this.timer.stop(true);
+            console.log("stopped");
+            await this.timer.stop(executeFn);
         }
     }
     async editItem(_target, type) {
@@ -343,11 +335,11 @@ export class DocumentViewPage {
         let resetTimerFunction = this.resetTimer.bind(this);
         this.deselectPreviousElements(_target);
         if(type === "title"){
-            await this.changeCurrentElement(_target, this.stopTimer.bind(this));
+            await this.changeCurrentElement(_target, this.stopTimer.bind(this, true));
             _target.addEventListener('keydown', this.titleEnterHandler);
             saveFunction = this.saveTitle.bind(this, _target);
         }else if(type === "abstract"){
-            await this.changeCurrentElement(_target, this.stopTimer.bind(this));
+            await this.changeCurrentElement(_target, this.stopTimer.bind(this, true));
             saveFunction = this.saveAbstract.bind(this, _target);
         } else if(type === "chapterTitle"){
             let chapterPresenter = _target.closest("chapter-item").webSkelPresenter;
@@ -355,13 +347,13 @@ export class DocumentViewPage {
             await this.changeCurrentElement(_target, chapterPresenter.focusOutHandler.bind(chapterPresenter));
             await chapterPresenter.highlightChapter(_target);
             _target.addEventListener('keydown', this.titleEnterHandler);
-            chapterPresenter.switchParagraphsBackground("blue");
         } else if(type === "paragraph"){
             let chapterPresenter = _target.closest("chapter-item").webSkelPresenter;
+            let paragraphItem = _target.closest("paragraph-item") || _target.closest("image-paragraph");
+            let paragraphPresenter = paragraphItem.webSkelPresenter;
+            await this.changeCurrentElement(_target, paragraphPresenter.focusOutHandler.bind(paragraphPresenter));
             await chapterPresenter.highlightChapter(_target);
-            let paragraphPresenter = _target.closest("paragraph-item").webSkelPresenter;
-            await this.changeCurrentElement(_target, paragraphPresenter.focusoutCallback.bind(paragraphPresenter, _target));
-            paragraphPresenter.highlightParagraph(_target);
+            paragraphPresenter.highlightParagraph();
             saveFunction = paragraphPresenter.saveParagraph.bind(paragraphPresenter, _target);
             resetTimerFunction = paragraphPresenter.resetTimer.bind(paragraphPresenter, _target);
         }
@@ -369,6 +361,7 @@ export class DocumentViewPage {
         if(this.timer){
             await this.timer.stop(true);
         }
+        this.setContext();
         this.timer = new executorTimer(saveFunction,1000);
         _target.addEventListener("keydown", resetTimerFunction);
     }
