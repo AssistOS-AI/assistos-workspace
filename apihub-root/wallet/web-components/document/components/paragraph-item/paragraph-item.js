@@ -44,12 +44,27 @@ export class ParagraphItem {
             this.openTTSPopup(this.element);
             this.openTTSItem = false;
         }
+        const audioIcon = this.element.querySelector('.audio-icon');
+        if(this.paragraph.audio.audioBlob){
+            this.hasAudio = true;
+        }
         if (assistOS.space.currentParagraphId === this.paragraph.id) {
             paragraphText.click();
         }
+
+        if(!this.boundPreventSelectionChange){
+            this.boundPreventSelectionChange = this.preventSelectionChange.bind(this);
+        }
+        if(!this.boundUpdateIconDisplay){
+            this.boundUpdateIconDisplay = this.updateIconDisplay.bind(this, audioIcon);
+        }
+        if(!this.boundSelectionChangeHandler){
+            this.boundSelectionChangeHandler = this.selectionChangeHandler.bind(this, paragraphText, audioIcon);
+        }
+        if(!this.boundMouseDownAudioIconHandler){
+            this.boundMouseDownAudioIconHandler = this.mouseDownAudioIconHandler.bind(this, paragraphText, audioIcon);
+        }
     }
-
-
 
     async moveParagraph(_target, direction) {
         const currentParagraphIndex = this.chapter.getParagraphIndex(this.paragraph.id);
@@ -86,12 +101,15 @@ export class ParagraphItem {
         }
     }
     switchParagraphArrows(mode) {
-        let audioIcon = this.element.querySelector('.audio-icon');
-        if(mode === "on"){
-            audioIcon.classList.remove("hidden");
-        }else {
-            audioIcon.classList.add("hidden");
+        if(this.hasAudio){
+            let audioIcon = this.element.querySelector('.audio-icon');
+            if(mode === "on"){
+                audioIcon.classList.remove("hidden");
+            }else {
+                audioIcon.classList.add("hidden");
+            }
         }
+
         if (this.chapter.paragraphs.length <= 1) {
             return;
         }
@@ -105,13 +123,51 @@ export class ParagraphItem {
     highlightParagraph() {
         this.switchParagraphArrows("on");
         assistOS.space.currentParagraphId = this.paragraph.id;
+        let paragraphText = this.element.querySelector('.paragraph-text');
+        const audioIcon = this.element.querySelector('.audio-icon');
+        if(!this.hasAudio){
+            paragraphText.addEventListener('mouseup', this.boundUpdateIconDisplay);
+            document.addEventListener('selectionchange', this.boundSelectionChangeHandler);
+            document.addEventListener('mousedown', this.boundMouseDownAudioIconHandler);
+            audioIcon.addEventListener('mousedown', this.boundPreventSelectionChange);
+        }
+
     }
     focusOutHandler() {
         this.chapterPresenter.focusOutHandler();
         this.switchParagraphArrows("off");
+        let paragraphText = this.element.querySelector('.paragraph-text');
+        paragraphText.removeEventListener('mouseup', this.boundUpdateIconDisplay);
+        document.removeEventListener('selectionchange', this.boundSelectionChangeHandler);
+        document.removeEventListener('mousedown', this.boundMouseDownAudioIconHandler);
+    }
+    mouseDownAudioIconHandler(paragraphText, audioIcon, event) {
+        if (!paragraphText.contains(event.target) && !audioIcon.contains(event.target)) {
+            audioIcon.classList.add("hidden");
+        }
+    }
+    selectionChangeHandler(paragraphText, audioIcon, event) {
+        const selection = window.getSelection();
+        if (selection.rangeCount > 0 && selection.toString().length > 0 && paragraphText.contains(selection.anchorNode)) {
+            this.updateIconDisplay(audioIcon);
+        } else {
+            audioIcon.classList.add("hidden");
+        }
+    }
+    preventSelectionChange(event) {
+        event.preventDefault();
+    }
+    updateIconDisplay(audioIcon, event) {
+        const selection = window.getSelection();
+        if (selection.rangeCount > 0 && selection.toString().length > 0) {
+            audioIcon.classList.remove("hidden");
+        } else {
+            audioIcon.classList.add("hidden");
+        }
     }
     showTTSPopup(_target, mode) {
         if (mode === "off") {
+            this.selectionText = window.getSelection().toString();
             let ttsPopup = `<text-to-speech data-presenter="select-personality-tts" data-chapter-id="${this.chapter.id}" data-paragraph-id="${this.paragraph.id}"></text-to-speech>`;
             this.element.insertAdjacentHTML('beforeend', ttsPopup);
             let controller = new AbortController();
@@ -129,10 +185,6 @@ export class ParagraphItem {
         popup.remove();
         controller.abort();
     };
-    openTTSPopup(_target) {
-        let personalitiesPopUp = `<text-to-speech data-presenter="select-personality-tts" data-chapter-id="${this.chapter.id}" data-paragraph-id="${this.paragraph.id}"></text-to-speech>`;
-        this.element.insertAdjacentHTML('beforeend', personalitiesPopUp);
-    }
     async resetTimer (paragraph, event) {
         paragraph.style.height = "auto";
         paragraph.style.height = paragraph.scrollHeight + 'px';

@@ -264,19 +264,19 @@ async function getVideoResponse(request, response) {
 }
 
 async function getAudioResponse(request, response) {
-    try {
-        const {
-            fullURL,
-            init
-        } = await constructRequestInitAndURL(`/apis/v1/audio/generate`, "POST", request, response);
-        const modelResponse = await fetch(fullURL, init);
-        await $$.promisify(pipeline)(modelResponse.body, response);
-    } catch (error) {
-        utils.sendResponse(response, error.statusCode || 500, "application/json", {
+    const {
+        fullURL,
+        init
+    } = await constructRequestInitAndURL(`/apis/v1/audio/generate`, "POST", request, response);
+    const modelResponse = await fetch(fullURL, init);
+    if(!modelResponse.ok){
+        let jsonMessage = await modelResponse.json();
+        return utils.sendResponse(response, modelResponse.statusCode || 500, "application/json", {
             success: false,
-            message: error.message
+            message: jsonMessage.message
         });
     }
+    await $$.promisify(pipeline)(modelResponse.body, response);
 }
 
 async function listVoicesAndEmotions(request, response) {

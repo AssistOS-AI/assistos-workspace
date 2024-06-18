@@ -1,4 +1,4 @@
-import {unescapeHtmlEntities} from "../../../../imports.js";
+import {base64ToBlob, unescapeHtmlEntities} from "../../../../imports.js";
 
 const documentModule = require("assistos").loadModule("document", {});
 const {notificationService} = require("assistos").loadModule("util", {});
@@ -84,6 +84,43 @@ export class ChapterItem {
             let arrow = this.element.querySelector(".arrow");
             arrow.classList.toggle('rotate');
         }
+        if(!this.boundPasteHandler) {
+            this.boundPasteHandler = this.pasteHandler.bind(this);
+            this.element.addEventListener('paste', this.boundPasteHandler);
+        }
+    }
+    pasteHandler(event) {
+        let clipboardData = event.clipboardData || window.clipboardData;
+        let items = clipboardData.items;
+        let position = this.getParagraphPosition();
+        for (let i = 0; i < items.length; i++) {
+            let item = items[i];
+            if (item.type.indexOf('image') !== -1) {
+                let blob = item.getAsFile();
+                let reader = new FileReader();
+
+                reader.onload = async (event) => {
+                    let base64String = event.target.result;
+                    await assistOS.callFlow("AddImageParagraph", {
+                        spaceId: assistOS.space.id,
+                        documentId: this._document.id,
+                        chapterId: this.chapter.id,
+                        paragraphData: {
+                            position: position,
+                            image: {src: base64String, alt: "pasted image"},
+                            dimensions: {
+                                width: "",
+                                height: ""
+                            }
+                        }
+                    });
+                    position++;
+                }
+
+                reader.readAsDataURL(blob);
+                event.preventDefault();
+            }
+        }
     }
 
     async addParagraphOnCtrlEnter(event) {
@@ -119,27 +156,8 @@ export class ChapterItem {
     }
 
     switchButtonsDisplay(target, mode) {
-        let xMark = this.chapterItem.querySelector('.delete-chapter');
-        mode === "on" ? xMark.style.visibility = "visible" : xMark.style.visibility = "hidden";
-        if (this._document.chapters.length <= 1) {
-            return;
-        }
-        let foundElement = target.querySelector(".chapter-arrows");
-        if (!foundElement) {
-            let nextSibling = target.nextElementSibling;
-            while (nextSibling) {
-                if (nextSibling.matches(".chapter-arrows")) {
-                    foundElement = nextSibling;
-                    break;
-                }
-                nextSibling = nextSibling.nextElementSibling;
-            }
-        }
-        if (mode === "on") {
-            foundElement.style.display = "flex";
-        } else {
-            foundElement.style.display = "none";
-        }
+        let actionCell = this.chapterItem.querySelector('.action-cell');
+        mode === "on" ? actionCell.style.visibility = "visible" : actionCell.style.visibility = "hidden";
     }
 
     async changeChapterDisplay(_target) {
@@ -149,6 +167,62 @@ export class ChapterItem {
         let paragraphsContainer = this.element.querySelector(".chapter-paragraphs");
         paragraphsContainer.classList.toggle('hidden');
         _target.classList.toggle('rotate');
+    }
+    downloadAllAudio(){
+        let i = 1;
+        let hasAudio = false;
+        for(let paragraph of this.chapter.paragraphs){
+            if(paragraph.audio){
+                hasAudio = true;
+                let audioName = `audio${i}.mp3`;
+                let url = URL.createObjectURL(base64ToBlob(paragraph.audio.audioBlob, "audio/mp3"));
+                const link = document.createElement('a');
+                link.href = url;
+                link.download = audioName;
+                document.body.appendChild(link);
+                link.click();
+                document.body.removeChild(link);
+                i++;
+            }
+        }
+        if(!hasAudio){
+            alert("No audio to download!");
+        }
+    }
+    async showActionBox(_target, primaryKey, componentName, insertionMode) {
+        await assistOS.UI.showActionBox(_target, primaryKey, componentName, insertionMode);
+    }
+    getParagraphPosition() {
+        if (this.chapter.paragraphs.length === 0) {
+            return 0;
+        }
+        if (assistOS.space.currentParagraphId) {
+            return this.chapter.paragraphs.findIndex(p => p.id === assistOS.space.currentParagraphId);
+        }
+        return this.chapter.paragraphs.length;
+
+    }
+    async openInsertImageModal(_target) {
+        let position = this.getParagraphPosition();
+        let imagesData = await assistOS.UI.showModal("insert-image-modal", {["chapter-id"]: this.chapter.id}, true);
+        if (imagesData) {
+            for (let image of imagesData) {
+                await assistOS.callFlow("AddImageParagraph", {
+                    spaceId: assistOS.space.id,
+                    documentId: this._document.id,
+                    chapterId: this.chapter.id,
+                    paragraphData: {
+                        position: position,
+                        image: image,
+                        dimensions: {
+                            width: "",
+                            height: ""
+                        }
+                    }
+                });
+                position++;
+            }
+        }
     }
 }
 

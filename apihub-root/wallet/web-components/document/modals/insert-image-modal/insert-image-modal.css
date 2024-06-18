@@ -7,10 +7,6 @@ dialog.modal {
     height: 200px;
 }
 
-.action-cell {
-    display: none !important;
-}
-
 .gallery-section {
     width: 500px;
 }

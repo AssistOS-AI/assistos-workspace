@@ -1,4 +1,5 @@
 import {base64ToBlob, blobToBase64} from "../../../../imports.js";
+
 const llmModule = require("assistos").loadModule("llm", {});
 const documentModule = require("assistos").loadModule("document", {});
 
@@ -29,13 +30,14 @@ export class TextToSpeech {
         }
         this.emotionsHTML = emotionsHTML;
         this.audioConfigs = this._document.getParagraphAudio(this.chapterId, this.paragraphId);
-        if(this.audioConfigs) {
+        if (this.audioConfigs) {
             this.generateBtnName = "Regenerate";
         }
     }
+
     afterRender() {
         let audioSource = this.element.querySelector('.audio-source');
-        if(this.audioConfigs) {
+        if (this.audioConfigs) {
             let audioSection = this.element.querySelector('.audio-section');
             let audioElement = this.element.querySelector('audio');
             audioSource.src = URL.createObjectURL(base64ToBlob(this.audioConfigs.audioBlob, "audio/mp3"));
@@ -54,33 +56,45 @@ export class TextToSpeech {
 
     async textToSpeech(_target) {
         let formData = await assistOS.UI.extractFormInformation(_target);
-        if(!formData.isValid){
+        if (!formData.isValid) {
             return;
         }
         let loaderId = await assistOS.UI.showLoading(_target);
-        let paragraphItem = assistOS.UI.reverseQuerySelector(_target, "paragraph-item");
-        let prompt = paragraphItem.querySelector(".paragraph-text").value;
-        if(!prompt || prompt === "") {
-            alert("Write something!");
+        let prompt;
+        if (this.audioConfigs) {
+            prompt = this.audioConfigs.prompt;
+        } else {
+            let paragraphItem = assistOS.UI.reverseQuerySelector(_target, "paragraph-item");
+            let paragraphPresenter = paragraphItem.webSkelPresenter;
+            prompt = paragraphPresenter.selectionText;
+            paragraphPresenter.hasAudio = true;
+        }
+        if (!prompt || prompt === "") {
+            alert("Nothing selected!");
+            assistOS.UI.hideLoading(loaderId);
             return;
         }
         let personality = await assistOS.space.getPersonality(formData.data.personality);
-        if(!personality.voiceId){
+        if (!personality.voiceId) {
             alert("Personality does not have a voice assigned!");
             assistOS.UI.hideLoading(loaderId);
             return;
         }
         let audioBlob;
         try {
-            audioBlob = await llmModule.textToSpeech(assistOS.space.id, {
+            audioBlob = (await assistOS.callFlow("TextToSpeech", {
+                spaceId: assistOS.space.id,
                 prompt: prompt,
-                voice: personality.voiceId,
-                emotion: formData.data.emotion,
-                styleGuidance: formData.data.styleGuidance,
+                voiceId: personality.voiceId,
+                voiceConfigs: {
+                    emotion: formData.data.emotion,
+                    styleGuidance: formData.data.styleGuidance
+                },
                 modelName: "PlayHT2.0"
-            });
-        }catch (e) {
-           return await showApplicationError(e,e,e);
+            })).data;
+        } catch (e) {
+            let message = assistOS.UI.sanitize(e.message);
+            return await showApplicationError(message, message, message);
         }
 
         let audioSection = this.element.querySelector('.audio-section');
@@ -96,11 +110,13 @@ export class TextToSpeech {
             voiceId: formData.data.voice,
             emotion: formData.data.emotion,
             styleGuidance: formData.data.styleGuidance,
-            audioBlob: await blobToBase64(audioBlob)
+            audioBlob: await blobToBase64(audioBlob),
+            prompt: prompt
         }
         await documentModule.updateParagraphAudio(assistOS.space.id, this._document.id, this.paragraphId, audioConfigs);
         assistOS.UI.hideLoading(loaderId);
     }
+
     downloadAudio(_target) {
         const link = document.createElement('a');
         link.href = this.audioURL;

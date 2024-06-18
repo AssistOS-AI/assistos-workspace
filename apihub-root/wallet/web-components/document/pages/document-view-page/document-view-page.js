@@ -63,15 +63,7 @@ export class DocumentViewPage {
     afterRender() {
         this.renderDocumentTitle();
         this.renderAbstract();
-        let buttonsSection = this.element.querySelector(".buttons-section");
-        if (!this.boundSaveSelectionHandler) {
-            this.boundSaveSelectionHandler = this.saveSelectionHandler.bind(this);
-            buttonsSection.addEventListener("mousedown", this.boundSaveSelectionHandler);
-        }
-        if(!this.boundPasteHandler) {
-            this.boundPasteHandler = this.pasteHandler.bind(this);
-            this.element.addEventListener('paste', this.boundPasteHandler);
-        }
+
         if(assistOS.space.currentChapterId){
             let chapter = this.element.querySelector(`chapter-item[data-chapter-id="${assistOS.space.currentChapterId}"]`);
             if(chapter){
@@ -79,53 +71,6 @@ export class DocumentViewPage {
                 chapter.scrollIntoView({behavior: "smooth", block: "center"});
             }
         }
-    }
-    pasteHandler(event) {
-        let clipboardData = event.clipboardData || window.clipboardData;
-        let items = clipboardData.items;
-        const {chapter, paragraph} = this.getSelectedParagraphAndChapter();
-        let position = chapter.paragraphs.findIndex(p => p.id === paragraph.id);
-        if (position === -1) {
-            position = chapter.paragraphs.length;
-        }
-        for (let i = 0; i < items.length; i++) {
-            let item = items[i];
-            if (item.type.indexOf('image') !== -1) {
-                let blob = item.getAsFile();
-                let reader = new FileReader();
-
-                reader.onload = async (event) => {
-                    let base64String = event.target.result;
-                    await assistOS.callFlow("AddImageParagraph", {
-                        spaceId: assistOS.space.id,
-                        documentId: this._document.id,
-                        chapterId: chapter.id,
-                        paragraphData: {
-                            position: position,
-                            image: {src: base64String, alt: "pasted image"},
-                            dimensions: {
-                                width: "",
-                                height: ""
-                            }
-                        }
-                    });
-                    position++;
-                }
-
-                reader.readAsDataURL(blob);
-                event.preventDefault();
-            }
-        }
-    }
-
-    saveSelectionHandler(event) {
-        let {chapter, paragraph} = this.getSelectedParagraphAndChapter();
-        if (!chapter) {
-            return;
-        }
-        let paragraphItem = this.element.querySelector(`paragraph-item[data-paragraph-id="${paragraph.id}"]`);
-        let paragraphText = paragraphItem.querySelector(".paragraph-text");
-        this.restoreSelectionFn = saveCaretPosition(paragraphText);
     }
 
     async afterUnload() {
@@ -237,54 +182,6 @@ export class DocumentViewPage {
         await assistOS.UI.changeToDynamicPage("space-application-page", `${assistOS.space.id}/Space/documents-page`);
     }
 
-    getSelectedParagraphAndChapter() {
-        let chapter;
-        let paragraph;
-        if (assistOS.space.currentParagraphId) {
-            chapter = this._document.getChapter(assistOS.space.currentChapterId);
-            paragraph = chapter.getParagraph(assistOS.space.currentParagraphId);
-        } else if (assistOS.space.currentChapterId) {
-            chapter = this._document.getChapter(assistOS.space.currentChapterId);
-            paragraph = chapter.paragraphs[this.chapter.paragraphs.length - 1];
-        } else {
-            if (this._document.chapters.length === 0) {
-                return {chapter, paragraph};
-            }
-            chapter = this._document.chapters[this._document.chapters.length - 1];
-            if (chapter.paragraphs.length === 0) {
-                return {chapter, paragraph};
-            }
-            paragraph = chapter.paragraphs[chapter.paragraphs.length - 1];
-        }
-        return {chapter, paragraph};
-    }
-
-    async openInsertImageModal(_target) {
-        let {chapter, paragraph} = this.getSelectedParagraphAndChapter();
-        let position = chapter.paragraphs.findIndex(p => p.id === paragraph.id);
-        if (position === -1) {
-            position = chapter.paragraphs.length;
-        }
-        let imagesData = await assistOS.UI.showModal("insert-image-modal", {["chapter-id"]: chapter.id}, true);
-        if (imagesData) {
-            for (let image of imagesData) {
-                await assistOS.callFlow("AddImageParagraph", {
-                    spaceId: assistOS.space.id,
-                    documentId: this._document.id,
-                    chapterId: chapter.id,
-                    paragraphData: {
-                        position: position,
-                        image: image,
-                        dimensions: {
-                            width: "",
-                            height: ""
-                        }
-                    }
-                });
-                position++;
-            }
-        }
-    }
     async saveTitle(textElement){
         let titleText = assistOS.UI.sanitize(textElement.value);
         if (titleText !== this._document.title && titleText !== "") {
@@ -363,4 +260,5 @@ export class DocumentViewPage {
         this.timer = new executorTimer(saveFunction,1000);
         _target.addEventListener("keydown", resetTimerFunction);
     }
+
 }
