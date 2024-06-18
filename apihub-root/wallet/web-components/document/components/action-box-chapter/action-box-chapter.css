@@ -11,3 +11,6 @@ action-box-chapter{
     background-color: var(--white);
     padding: 5px 0;
 }
+#hide .optional{
+    display: none;
+}

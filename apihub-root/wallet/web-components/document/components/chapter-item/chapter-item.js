@@ -22,6 +22,11 @@ export class ChapterItem {
     }
 
     beforeRender() {
+        if(this._document.chapters.length === 1){
+          this.toggleSwapArrows = "hide";
+        } else {
+            this.toggleSwapArrows = "show";
+        }
         let chapterId = this.element.getAttribute("data-chapter-id");
         this.chapter = this._document.getChapter(chapterId);
         this.titleMetadata = this.element.variables["data-title-metadata"];
