@@ -4,6 +4,11 @@
     "services": [],
     "components": [
         {
+            "name": "action-box-chapter",
+            "directory": "document",
+            "type": "components"
+        },
+        {
             "name": "chapter-item",
             "directory": "document",
             "type": "components",
