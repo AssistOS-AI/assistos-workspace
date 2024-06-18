@@ -466,7 +466,7 @@ async function updateEmbeddedObject(request, response) {
             let object = record.data;
             object[propertyName] = objectData;
             await $$.promisify(lightDBEnclaveClient.updateRecord)($$.SYSTEM_IDENTIFIER, tableId, objectId, {data: object});
-            if (segments.length === 3) {
+            if (segments.length === 3 || (segments.length === 2 && !Array.isArray(object[propertyName]))) {
                 subscribersModule.notifySubscribers(spaceId, request.userId, tableId, propertyName);
             } else {
                 subscribersModule.notifySubscribers(spaceId, request.userId, tableId, objectId);

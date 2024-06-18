@@ -209,7 +209,7 @@ export class DocumentViewPage {
         let containerElement = element.closest(".container-element");
         containerElement.setAttribute("id", "current-selection-parent");
     }
-    async titleEnterHandler(event){
+    async titleKeyDownHandler(event){
         if (event.key === 'Enter') {
             event.preventDefault();
         }
@@ -222,6 +222,15 @@ export class DocumentViewPage {
             await this.timer.stop(executeFn);
         }
     }
+    focusOutHandler(element){
+        element.removeEventListener('keydown', this.titleKeyDownHandler);
+        element.removeEventListener('keydown', this.boundControlAbstractHeight);
+        this.stopTimer.bind(this, true);
+    }
+    async controlAbstractHeight(abstract){
+        abstract.style.height = "auto";
+        abstract.style.height = abstract.scrollHeight + 'px';
+    }
     async editItem(_target, type) {
         if(_target.hasAttribute("id") && _target.getAttribute("id") === "current-selection"){
             return;
@@ -230,18 +239,22 @@ export class DocumentViewPage {
         let resetTimerFunction = this.resetTimer.bind(this);
         this.deselectPreviousElements(_target);
         if(type === "title"){
-            await this.changeCurrentElement(_target, this.stopTimer.bind(this, true));
-            _target.addEventListener('keydown', this.titleEnterHandler);
+            await this.changeCurrentElement(_target, this.focusOutHandler.bind(this, _target));
+            _target.addEventListener('keydown', this.titleKeyDownHandler);
             saveFunction = this.saveTitle.bind(this, _target);
         }else if(type === "abstract"){
-            await this.changeCurrentElement(_target, this.stopTimer.bind(this, true));
+            if(!this.boundControlAbstractHeight){
+                this.boundControlAbstractHeight = this.controlAbstractHeight.bind(this, _target);
+            }
+            _target.addEventListener('keydown', this.boundControlAbstractHeight);
+            await this.changeCurrentElement(_target, this.focusOutHandler.bind(this, _target));
             saveFunction = this.saveAbstract.bind(this, _target);
         } else if(type === "chapterTitle"){
             let chapterPresenter = _target.closest("chapter-item").webSkelPresenter;
             saveFunction = chapterPresenter.saveTitle.bind(chapterPresenter, _target);
             await this.changeCurrentElement(_target, chapterPresenter.focusOutHandler.bind(chapterPresenter));
             await chapterPresenter.highlightChapter(_target);
-            _target.addEventListener('keydown', this.titleEnterHandler);
+            _target.addEventListener('keydown', this.titleKeyDownHandler.bind(this, _target));
         } else if(type === "paragraph"){
             let chapterPresenter = _target.closest("chapter-item").webSkelPresenter;
             let paragraphItem = _target.closest("paragraph-item") || _target.closest("image-paragraph");

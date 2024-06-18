@@ -4,9 +4,8 @@
     align-items: center;
     color: var(--light-black);
     font-size: 18px;
-    font-style: normal;
     font-weight: 600;
-    padding: 10px;
+    padding: 0 0 10px 8px;
     line-height: normal;
 }
 
@@ -43,7 +42,6 @@ html[theme="dark"] .arrow svg {
 }
 
 .chapter-content {
-    margin-top: -10px;
     min-width: 0;
     text-align: justify;
     justify-content: start;
@@ -118,6 +116,8 @@ p {
     padding: 5px 5px 5px 5px;
     margin-left: 3px;
     display: inline-block;
+    font-size: 18px;
+    font-weight: 600;
 }
 
 .chapter-text {
@@ -149,7 +149,7 @@ p {
     width: 17px;
 }
 .circle-button{
-    width: 25px;
+    width: 16px;
     height: 25px;
     border-radius: 50%;
     display: flex;
@@ -161,6 +161,6 @@ p {
     background-color: var(--medium-black);
 }
 .action-cell{
+    margin-left: 5px;
     visibility: hidden;
-    margin-left: 15px;
 }

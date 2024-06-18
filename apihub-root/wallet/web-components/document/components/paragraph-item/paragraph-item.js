@@ -67,6 +67,7 @@ export class ParagraphItem {
     }
 
     async moveParagraph(_target, direction) {
+        await this.documentPresenter.stopTimer(true);
         const currentParagraphIndex = this.chapter.getParagraphIndex(this.paragraph.id);
         const getAdjacentParagraphId = (index, paragraphs) => {
             if (direction === "up") {
