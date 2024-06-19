@@ -194,10 +194,10 @@ export class ParagraphItem {
         paragraph.style.height = paragraph.scrollHeight + 'px';
         if (paragraph.value.trim() === "" && event.key === "Backspace" && !this.deleted) {
             if (assistOS.space.currentParagraphId === this.paragraph.id) {
-                await this.documentPresenter.stopTimer(false);
+                this.documentPresenter.stopTimer(false);
                 this.deleted = true;
                 let curentParagraphIndex = this.chapter.getParagraphIndex(this.paragraph.id);
-                await assistOS.callFlow("DeleteParagraph", {
+                assistOS.callFlow("DeleteParagraph", {
                     spaceId: assistOS.space.id,
                     documentId: this._document.id,
                     chapterId: this.chapter.id,
