@@ -192,7 +192,7 @@ export class ParagraphItem {
     async resetTimer (paragraph, event) {
         paragraph.style.height = "auto";
         paragraph.style.height = paragraph.scrollHeight + 'px';
-        if (paragraph.value.trim() === "" && event.key === "Backspace") {
+        if (paragraph.value.trim() === "" && event.key === "Backspace" && !this.deleted) {
             if (assistOS.space.currentParagraphId === this.paragraph.id) {
                 await this.documentPresenter.stopTimer(false);
                 this.deleted = true;
