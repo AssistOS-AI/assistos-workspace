@@ -10,7 +10,7 @@ export class ParagraphItem {
         let chapterId = this.element.getAttribute("data-chapter-id");
         this.chapter = this._document.getChapter(chapterId);
         this.paragraph = this.chapter.getParagraph(paragraphId);
-        notificationService.on(this.paragraph.id, async () => {
+        notificationService.on(this.paragraph.id + "/text", async () => {
             let ttsItem = this.element.querySelector('text-to-speech');
             if (ttsItem) {
                 this.openTTSItem = true;

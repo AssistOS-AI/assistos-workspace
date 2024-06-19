@@ -141,9 +141,6 @@ p {
     width: 100%;
 }
 
-#highlighted-element {
-    background-color: var(--white-blue-tint);
-}
 
 .data-chapter-number {
     width: 17px;

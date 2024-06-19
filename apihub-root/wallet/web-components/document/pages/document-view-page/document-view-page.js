@@ -22,14 +22,14 @@ export class DocumentViewPage {
             notificationService.on(this._document.id, () => {
                 this.invalidate(this.refreshDocument);
             });
-            notificationService.on("title", async () => {
+            notificationService.on(this._document.id + "/title", async () => {
                 let title = await documentModule.getDocumentTitle(assistOS.space.id, this._document.id);
                 if(this._document.title !== title) {
                     this._document.title = title;
                     this.renderDocumentTitle();
                 }
             });
-            notificationService.on("abstract", async () => {
+            notificationService.on(this._document.id + "/abstract", async () => {
                 let abstract = await documentModule.getDocumentAbstract(assistOS.space.id, this._document.id);
                 if(this._document.abstract !== abstract) {
                     this._document.abstract = abstract;
@@ -119,18 +119,6 @@ export class DocumentViewPage {
         }
     }
 
-    deselectPreviousElements() {
-        let previousHighlightedElement = document.querySelector("#highlighted-element");
-        if (previousHighlightedElement) {
-            previousHighlightedElement.removeAttribute("id");
-        }
-        let previousHighlightedChildElement = document.querySelector("#highlighted-child-element");
-        if (previousHighlightedChildElement) {
-            previousHighlightedChildElement.removeAttribute("id");
-        }
-    }
-
-
     async moveChapter(_target, direction) {
         const currentChapter = assistOS.UI.reverseQuerySelector(_target, "chapter-item");
         const currentChapterId = currentChapter.getAttribute('data-chapter-id');
@@ -196,18 +184,18 @@ export class DocumentViewPage {
     async changeCurrentElement(element, focusoutFunction) {
         if(this.currentElement){
             this.currentElement.element.removeAttribute("id");
-            let containerElement = this.currentElement.element.closest(".container-element");
-            containerElement.removeAttribute("id");
+            this.currentElement.containerElement.removeAttribute("id");
             await this.currentElement.focusoutFunction(this.currentElement.element);
             await this.stopTimer(true);
         }
-        this.currentElement = {
-            element: element,
-            focusoutFunction: focusoutFunction
-        };
         element.setAttribute("id", "current-selection");
         let containerElement = element.closest(".container-element");
         containerElement.setAttribute("id", "current-selection-parent");
+        this.currentElement = {
+            element: element,
+            containerElement: containerElement,
+            focusoutFunction: focusoutFunction
+        };
     }
     async titleKeyDownHandler(event){
         if (event.key === 'Enter') {
@@ -237,7 +225,6 @@ export class DocumentViewPage {
         }
         let saveFunction;
         let resetTimerFunction = this.resetTimer.bind(this);
-        this.deselectPreviousElements(_target);
         if(type === "title"){
             await this.changeCurrentElement(_target, this.focusOutHandler.bind(this, _target));
             _target.addEventListener('keydown', this.titleKeyDownHandler);
