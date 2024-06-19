@@ -89,7 +89,6 @@ export class ParagraphItem {
     }
     async saveParagraph(paragraph) {
         if (!this.paragraph || assistOS.space.currentParagraphId !== this.paragraph.id || this.deleted) {
-            await this.documentPresenter.stopTimer(true);
             return;
         }
         let paragraphText = assistOS.UI.sanitize(paragraph.value);
