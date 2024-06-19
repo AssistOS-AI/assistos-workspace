@@ -1,5 +1,6 @@
 const {notificationService} = require("assistos").loadModule("util", {});
 const documentModule = require("assistos").loadModule("document", {});
+const spaceModule = require("assistos").loadModule("space", {});
 export class ImageParagraph{
     constructor(element, invalidate) {
         this.element = element;
@@ -17,7 +18,9 @@ export class ImageParagraph{
                 this.invalidate();
             }
         });
-        this.invalidate();
+        this.invalidate(async ()=>{
+            await spaceModule.subscribeToObject(assistOS.space.id, this.paragraph.id);
+        });
     }
 
     beforeRender() {
@@ -57,6 +60,9 @@ export class ImageParagraph{
             handles[key].addEventListener('mousedown', this.mouseDownFn.bind(this, key));
         }
 
+    }
+    async afterUnload(){
+        await spaceModule.unsubscribeFromObject(assistOS.space.id, this.paragraph.id);
     }
     mouseDownFn(handle, event) {
         event.preventDefault();

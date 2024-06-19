@@ -1,5 +1,5 @@
 import {base64ToBlob, unescapeHtmlEntities} from "../../../../imports.js";
-
+const spaceModule = require("assistos").loadModule("space", {});
 const documentModule = require("assistos").loadModule("document", {});
 const {notificationService} = require("assistos").loadModule("util", {});
 
@@ -18,7 +18,9 @@ export class ChapterItem {
         this.element.removeEventListener('keydown', this.addParagraphOnCtrlEnter);
         this.element.addEventListener('keydown', this.addParagraphOnCtrlEnter);
         this.subscribeToChapterEvents();
-        this.invalidate();
+        this.invalidate(async ()=>{
+            await spaceModule.subscribeToObject(assistOS.space.id, this.chapter.id);
+        });
     }
 
     beforeRender() {
@@ -93,6 +95,9 @@ export class ChapterItem {
             this.boundPasteHandler = this.pasteHandler.bind(this);
             this.element.addEventListener('paste', this.boundPasteHandler);
         }
+    }
+    async afterUnload(){
+        await spaceModule.unsubscribeFromObject(assistOS.space.id, this.chapter.id);
     }
     pasteHandler(event) {
         let clipboardData = event.clipboardData || window.clipboardData;

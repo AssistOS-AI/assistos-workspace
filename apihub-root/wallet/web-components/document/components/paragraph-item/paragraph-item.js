@@ -1,6 +1,5 @@
 const {notificationService} = require("assistos").loadModule("util", {});
 const spaceModule = require("assistos").loadModule("space", {});
-
 export class ParagraphItem {
     constructor(element, invalidate) {
         this.element = element;
@@ -27,7 +26,9 @@ export class ParagraphItem {
                 this.invalidate();
             }
         });
-        this.invalidate();
+        this.invalidate(async ()=>{
+            await spaceModule.subscribeToObject(assistOS.space.id, this.paragraph.id);
+        });
     }
 
     beforeRender() {
@@ -65,7 +66,9 @@ export class ParagraphItem {
             this.boundMouseDownAudioIconHandler = this.mouseDownAudioIconHandler.bind(this, paragraphText, audioIcon);
         }
     }
-
+    async afterUnload(){
+        await spaceModule.unsubscribeFromObject(assistOS.space.id, this.paragraph.id);
+    }
     async moveParagraph(_target, direction) {
         await this.documentPresenter.stopTimer(true);
         const currentParagraphIndex = this.chapter.getParagraphIndex(this.paragraph.id);
