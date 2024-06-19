@@ -137,7 +137,7 @@ export class ChapterItem {
         if (!event.ctrlKey || event.key !== 'Enter') {
             return;
         }
-        await this.documentPresenter.stopTimer(true);
+        this.documentPresenter.stopTimer(true);
         const fromParagraph = assistOS.UI.reverseQuerySelector(event.target, '[data-paragraph-id]', 'space-chapter-item');
         const fromChapter = assistOS.UI.reverseQuerySelector(event.target, '.chapter-item');
 
