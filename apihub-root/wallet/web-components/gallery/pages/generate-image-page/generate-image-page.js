@@ -181,7 +181,7 @@ export class GenerateImagePage {
                 }
                 sizeInput.innerHTML = sizeOptions;
             }
-            if(this.currentModel.buttons && !newModel.buttons){
+            if((this.currentModel.buttons && !newModel.buttons) || (!this.currentModel.buttons && newModel.buttons)){
                 this.images = [];
             }
             this.currentModel = newModel;
@@ -259,7 +259,8 @@ export class GenerateImagePage {
                 }
                 this.images = images;
             } catch (e) {
-                await showApplicationError(e, e, e);
+                let message = assistOS.UI.sanitize(e.message);
+                await showApplicationError(message, message, message);
             }
 
         } else if(this.currentModel.buttons){
@@ -268,7 +269,8 @@ export class GenerateImagePage {
                 image.prompt = this.prompt;
                 this.images.push(image);
             } catch (e) {
-                await showApplicationError(e, e, e);
+                let message = assistOS.UI.sanitize(e.message);
+                await showApplicationError(message, message, message);
             }
         }
         await this.rememberValues();
