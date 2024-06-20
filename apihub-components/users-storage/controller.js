@@ -54,12 +54,12 @@ async function registerUser(request, response) {
             message: "Name is required"
         });
     }
-    if (!userData.email) {
-        return utils.sendResponse(response, 400, "application/json", {
-            success: false,
-            message: "Email is required"
-        });
-    }
+    // if (!userData.email) {
+    //     return utils.sendResponse(response, 400, "application/json", {
+    //         success: false,
+    //         message: "Email is required"
+    //     });
+    // }
     if (!userData.password) {
         return utils.sendResponse(response, 400, "application/json", {
             success: false,
@@ -71,7 +71,8 @@ async function registerUser(request, response) {
             userData.name,
             userData.email,
             userData.password,
-            userData.photo);
+            userData.photo,
+            userData.inviteToken);
         utils.sendResponse(response, 200, "application/json", {
             success: true,
             message: `User ${userData.name} registered successfully. Please check your email for the verification code`

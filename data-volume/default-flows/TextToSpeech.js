@@ -37,6 +37,8 @@ class TextToSpeech extends IFlow {
                 voice: parameters.voiceId,
                 emotion: parameters.voiceConfigs.emotion,
                 styleGuidance: parameters.voiceConfigs.styleGuidance,
+                voiceGuidance: parameters.voiceConfigs.voiceGuidance,
+                temperature: parameters.voiceConfigs.temperature,
                 modelName: parameters.modelName
             });
             apis.success(audioBlob);

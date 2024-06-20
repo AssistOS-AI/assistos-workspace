@@ -1,4 +1,5 @@
 import {getDemoUserCredentials} from "../../../../imports.js";
+
 let User = require("assistos").loadModule("user", {});
 User = {
     apis: User,
@@ -12,11 +13,14 @@ export class AuthenticationPage {
         this.invalidate();
         this.rotations = 0;
         [this.demoUserEmail, this.demoUserPassword] = getDemoUserCredentials();
+        this.inviteToken = window.location.hash.split("/")[2];
     }
 
     beforeRender() {
         switch (this.element.getAttribute("data-subpage")) {
             case "register-page": {
+                let hiddenClass = this.inviteToken ? "hidden" : "email";
+                let requiredEmail = this.inviteToken ? "" : "required";
                 this.subpage = ` <div>
              <div class="form-title">
              Registration
@@ -26,9 +30,9 @@ export class AuthenticationPage {
                         <label class="form-label" for="user-name">Name</label>
                         <input class="form-input" name="name" data-id="user-name" type="text" id="user-name" required placeholder="Add name">
                     </div>
-                    <div class="form-item">
+                    <div class="form-item" id="${hiddenClass}">
                         <label class="form-label" for="user-email">E-mail</label>
-                        <input class="form-input" name="email" type="email" data-id="user-email" id="user-email" required placeholder="Add e-mail">
+                        <input class="form-input" name="email" type="email" data-id="user-email" id="user-email" ${requiredEmail} placeholder="Add e-mail">
                     </div>
                   <!--  <div class="form-item">
                         <label class="form-label" for="user-phone">Phone</label>
@@ -78,6 +82,19 @@ export class AuthenticationPage {
                    <div class="form-item">
                         <label class="form-label">
                             <p>Thank you for registering with us! A confirmation email has been sent to your email address!</p>
+                        </label>
+                    </div>
+              </div>`;
+                break;
+            }
+            case "register-confirmation-with-invite": {
+                delete this.inviteToken;
+                this.subpage = `
+              <div>
+                   <div class="form-item">
+                        <label class="form-label">
+                            <p>Account Created! Click here to login into your new account.</p>
+                            <button class="general-button" data-local-action="navigateToLoginPage">Log in</button>
                         </label>
                     </div>
               </div>`;
@@ -240,27 +257,47 @@ export class AuthenticationPage {
         }
     }
 
+    async navigateToPage(subpage) {
+        if (this.inviteToken) {
+            await assistOS.UI.changeToDynamicPage("authentication-page", `authentication-page/inviteToken/${this.inviteToken}`, {subpage: subpage});
+        } else {
+            await assistOS.UI.changeToDynamicPage("authentication-page", "authentication-page", {subpage: subpage});
+        }
+    }
+
     async navigateToRegisterPage() {
-        await assistOS.UI.changeToDynamicPage("authentication-page", "authentication-page", {subpage: "register-page"});
+        await this.navigateToPage("register-page");
     }
 
     async navigateToLoginPage() {
-        await assistOS.UI.changeToDynamicPage("authentication-page", "authentication-page", {subpage: "login-page"});
+        await this.navigateToPage("login-page");
     }
 
     async registerUser(_target) {
         const verifyPhotoSize = (element) => {
-            return !element.files[0]? true : element.files[0].size <= 1048576;
+            return !element.files[0] ? true : element.files[0].size <= 1048576;
         };
-        const conditions = {"verifyPhotoSize": {fn:verifyPhotoSize, errorMessage:"Image too large! Image max size: 1MB"} };
-        const formInfo = await assistOS.UI.extractFormInformation(_target,conditions);
+        const conditions = {
+            "verifyPhotoSize": {
+                fn: verifyPhotoSize,
+                errorMessage: "Image too large! Image max size: 1MB"
+            }
+        };
+        const formInfo = await assistOS.UI.extractFormInformation(_target, conditions);
         if (formInfo.isValid) {
             this.formData = formInfo.data;
-            const {name, email, password,photo} = formInfo.data;
-            await User.apis.registerUser(name, email, password,photo||undefined);
-            this.invalidate(async () => {
-                this.element.setAttribute("data-subpage", "register-confirmation")
-            })
+            const {name, email, password, photo} = formInfo.data;
+            await User.apis.registerUser(name, email, password, photo || undefined, this.inviteToken);
+            if (this.inviteToken) {
+                this.invalidate(async () => {
+                    this.element.setAttribute("data-subpage", "register-confirmation-with-invite")
+                })
+            } else {
+                this.invalidate(async () => {
+                    this.element.setAttribute("data-subpage", "register-confirmation")
+                })
+            }
+
         }
     }
 
@@ -289,7 +326,7 @@ export class AuthenticationPage {
 
 
     async navigateToPasswordRecoveryPage() {
-        await assistOS.UI.changeToDynamicPage("authentication-page", "authentication-page", {subpage: "password-recovery"});
+        await this.navigateToPage("password-recovery");
     }
 
     async beginPasswordRecovery(_target) {

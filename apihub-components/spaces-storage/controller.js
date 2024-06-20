@@ -687,10 +687,11 @@ async function addCollaboratorsToSpace(request, response) {
     const collaboratorsEmails = request.body.emails;
 
     try {
-        await user.APIs.inviteSpaceCollaborators(userId, spaceId, collaboratorsEmails);
+        let collaborators = await user.APIs.inviteSpaceCollaborators(userId, spaceId, collaboratorsEmails);
         utils.sendResponse(response, 200, "application/json", {
             message: `Collaborators invited successfully`,
-            success: true
+            success: true,
+            data: collaborators
         });
     } catch (error) {
         switch (error.statusCode) {

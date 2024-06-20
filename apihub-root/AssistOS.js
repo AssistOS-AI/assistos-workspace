@@ -178,6 +178,9 @@ class AssistOS {
 
         if (spaceId === "authentication-page") {
             hidePlaceholders();
+            if(applicationName === "inviteToken"){
+                return assistOS.UI.changeToDynamicPage(spaceId, `${spaceId}/${applicationName}/${applicationLocation}`);
+            }
             return assistOS.UI.changeToDynamicPage(spaceId, spaceId);
         }
 
@@ -192,17 +195,17 @@ class AssistOS {
     }
 
     async inviteCollaborators(collaboratorEmails) {
-        await this.loadifyFunction(spaceModule.inviteSpaceCollaborators, assistOS.space.id, collaboratorEmails);
+        return await this.loadifyFunction(spaceModule.inviteSpaceCollaborators, assistOS.space.id, collaboratorEmails);
     }
 
    async callFlow(flowName, context, personalityId) {
         return await flowModule.callFlow(assistOS.space.id, flowName, context, personalityId);
     }
-t
+
     async loadifyFunction(asyncFunc, ...args) {
         await this.openLoader();
         try {
-            await asyncFunc(...args);
+            return await asyncFunc(...args);
         } catch (error) {
             await showApplicationError("Error", `Encountered an error during the execution of ${asyncFunc.name || "Undefined Function"}`, {
                 message: error.message,
@@ -305,7 +308,7 @@ function defineActions() {
 }
 
 async function handleHistory(event) {
-    if (window.location.hash !== "#authentication-page") {
+    if (!window.location.hash.includes("#authentication-page")) {
         assistOS.UI.setDomElementForPages(mainContent);
         window.location.hash = "#authentication-page";
         await assistOS.UI.changeToDynamicPage("authentication-page", "authentication-page", "", true);

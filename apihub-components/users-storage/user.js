@@ -12,7 +12,7 @@ const volumeManager = require('../volumeManager.js');
 const Space = require("../spaces-storage/space");
 const {instance: emailService} = require("../email");
 
-async function registerUser(name, email, password, photo) {
+async function registerUser(name, email, password, photo, inviteToken) {
     const currentDate = date.getCurrentUTCDate();
     const userRegistrationTemplate = require('./templates/userRegistrationTemplate.json')
     let userPhoto = photo || await getDefaultUserPhoto();
@@ -20,11 +20,17 @@ async function registerUser(name, email, password, photo) {
         email: email,
         name: name,
         photo: userPhoto,
+        inviteToken: inviteToken || null,
         passwordHash: crypto.hashPassword(password),
         verificationToken: await crypto.generateVerificationToken(),
         verificationTokenExpirationDate: date.incrementUTCDate(currentDate, {minutes: 30}),
         currentDate: currentDate,
     })
+    if(inviteToken){
+        const spacePendingInvitationsObj = await Space.APIs.getSpacesPendingInvitationsObject();
+        const invitation = spacePendingInvitationsObj[inviteToken];
+        registrationUserObject.email = invitation.email;
+    }
     const userMap = await getUserMap()
     if (userMap[email]) {
         const error = new Error(`User with email ${email} already exists`);
@@ -35,6 +41,9 @@ async function registerUser(name, email, password, photo) {
     const userPendingActivation = await getUserPendingActivation()
     userPendingActivation[registrationUserObject.verificationToken] = registrationUserObject
     await updateUserPendingActivation(userPendingActivation)
+    if(inviteToken){
+        return await activateUser(registrationUserObject.verificationToken);
+    }
     await sendActivationEmail(email, name, registrationUserObject.verificationToken);
 }
 
@@ -106,7 +115,15 @@ async function activateUser(activationToken) {
         userCredentials[userDataObject.id] = user;
         userCredentials[userDataObject.id].activationDate = date.getCurrentUTCDate();
         await updateUserCredentials(userCredentials);
-
+        let inviteToken = user.inviteToken;
+        if(inviteToken){
+            const spacePendingInvitationsObj = await Space.APIs.getSpacesPendingInvitationsObject();
+            const invitation = spacePendingInvitationsObj[inviteToken];
+            await acceptSpaceInvitation(inviteToken,false);
+            let user = await getUserFile(userDataObject.id);
+            user.currentSpaceId = invitation.spaceId;
+            await updateUserFile(userDataObject.id, user);
+        }
         return userDataObject;
     } catch (error) {
         throw error;
@@ -403,11 +420,12 @@ async function inviteSpaceCollaborators(referrerId, spaceId, collaboratorsEmails
     const spaceName = spaceStatusObject.name;
     const referrerName = (await getUserFile(referrerId)).name;
     const existingUserIds = Object.keys(spaceStatusObject.users)
-
+    let collaborators = [];
     for (let email of collaboratorsEmails) {
         const userId = userMap[email];
 
         if (userId && existingUserIds.includes(userId)) {
+            collaborators.push(email);
             continue;
         }
 
@@ -416,9 +434,9 @@ async function inviteSpaceCollaborators(referrerId, spaceId, collaboratorsEmails
             await emailService.sendSpaceInvitationEmail(email, invitationToken, spaceName, referrerName);
         } else {
             await emailService.sendSpaceInvitationEmail(email, invitationToken, spaceName, referrerName, true);
-
         }
     }
+    return collaborators;
 }
 
 async function acceptSpaceInvitation(invitationToken, newUser) {
@@ -437,10 +455,9 @@ async function acceptSpaceInvitation(invitationToken, newUser) {
         const spaceName = await Space.APIs.getSpaceName(spaceId)
         return await getSpaceInvitationSuccessfulHTML(spaceName)
     } else {
-        /* TODO */
-        /* TBD */
+        const spaceName = await Space.APIs.getSpaceName(spaceId);
+        return await getCreateAccountHTML(spaceName, invitationToken)
     }
-
 }
 
 async function rejectSpaceInvitation(invitationToken) {
@@ -456,7 +473,15 @@ async function rejectSpaceInvitation(invitationToken) {
     return await getSpaceInvitationRejectedHTML(spaceName)
 }
 
-
+async function getCreateAccountHTML(spaceName, invitationToken) {
+    let redirectURL = config.ENVIRONMENT_MODE === 'development' ? config.DEVELOPMENT_BASE_URL : config.PRODUCTION_BASE_URL
+    redirectURL = `${redirectURL}/#authentication-page/inviteToken/${invitationToken}`;
+    return data.fillTemplate(await require('../email').getTemplate('createAccountTemplate'),
+        {
+            spaceName: spaceName,
+            redirectURL: redirectURL
+        });
+}
 async function getSpaceInvitationSuccessfulHTML(spaceName) {
     const redirectURL = config.ENVIRONMENT_MODE === 'development' ? config.DEVELOPMENT_BASE_URL : config.PRODUCTION_BASE_URL
     return data.fillTemplate(await require('../email').getTemplate('spaceInvitationAcceptedTemplate'),

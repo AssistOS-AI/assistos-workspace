@@ -1,5 +1,7 @@
+import {unescapeHtmlEntities} from "../../../../imports.js";
 const {notificationService} = require("assistos").loadModule("util", {});
 const spaceModule = require("assistos").loadModule("space", {});
+const documentModule = require("assistos").loadModule("document", {});
 export class ParagraphItem {
     constructor(element, invalidate) {
         this.element = element;
@@ -16,7 +18,7 @@ export class ParagraphItem {
                 this.openTTSItem = true;
             }
             let paragraphDiv = this.element.querySelector(".paragraph-text");
-            if(!paragraphDiv){
+            if (!paragraphDiv) {
                 //notification received before render
                 return this.invalidate();
             }
@@ -26,7 +28,13 @@ export class ParagraphItem {
                 this.invalidate();
             }
         });
-        this.invalidate(async ()=>{
+        notificationService.on(this.paragraph.id + "/audio", async () => {
+            this.paragraph.audio = await documentModule.getParagraphAudio(assistOS.space.id, this._document.id, this.paragraph.id);
+            if(assistOS.space.currentParagraphId === this.paragraph.id){
+                this.checkAudioTextDiff();
+            }
+        });
+        this.invalidate(async () => {
             await spaceModule.subscribeToObject(assistOS.space.id, this.paragraph.id);
         });
     }
@@ -42,33 +50,35 @@ export class ParagraphItem {
         paragraphText.innerHTML = this.paragraph.text;
         paragraphText.style.height = paragraphText.scrollHeight + 'px';
         if (this.openTTSItem) {
-            this.openTTSPopup(this.element);
+            this.showTTSPopup(this.element, "off");
             this.openTTSItem = false;
         }
         const audioIcon = this.element.querySelector('.audio-icon');
-        if(this.paragraph.audio.audioBlob){
+        if (this.paragraph.audio.audioBlob) {
             this.hasAudio = true;
         }
         if (assistOS.space.currentParagraphId === this.paragraph.id) {
             paragraphText.click();
         }
 
-        if(!this.boundPreventSelectionChange){
+        if (!this.boundPreventSelectionChange) {
             this.boundPreventSelectionChange = this.preventSelectionChange.bind(this);
         }
-        if(!this.boundUpdateIconDisplay){
+        if (!this.boundUpdateIconDisplay) {
             this.boundUpdateIconDisplay = this.updateIconDisplay.bind(this, audioIcon);
         }
-        if(!this.boundSelectionChangeHandler){
+        if (!this.boundSelectionChangeHandler) {
             this.boundSelectionChangeHandler = this.selectionChangeHandler.bind(this, paragraphText, audioIcon);
         }
-        if(!this.boundMouseDownAudioIconHandler){
+        if (!this.boundMouseDownAudioIconHandler) {
             this.boundMouseDownAudioIconHandler = this.mouseDownAudioIconHandler.bind(this, paragraphText, audioIcon);
         }
     }
-    async afterUnload(){
+
+    async afterUnload() {
         await spaceModule.unsubscribeFromObject(assistOS.space.id, this.paragraph.id);
     }
+
     async moveParagraph(_target, direction) {
         await this.documentPresenter.stopTimer(true);
         const currentParagraphIndex = this.chapter.getParagraphIndex(this.paragraph.id);
@@ -87,13 +97,26 @@ export class ParagraphItem {
             paragraphId2: adjacentParagraphId
         });
     }
-    async saveParagraph(paragraph) {
+    checkAudioTextDiff(){
+        if(!this.hasAudio){
+            return;
+        }
+        let warningIcon = this.element.querySelector('.warning-icon');
+        let text = unescapeHtmlEntities(this.paragraph.text)
+        if (text !== this.paragraph.audio.prompt) {
+            warningIcon.classList.remove("hidden");
+        } else {
+            warningIcon.classList.add("hidden");
+        }
+    }
+    async saveParagraph(paragraph, warningIcon) {
         if (!this.paragraph || assistOS.space.currentParagraphId !== this.paragraph.id || this.deleted) {
             return;
         }
         let paragraphText = assistOS.UI.sanitize(paragraph.value);
         if (paragraphText !== this.paragraph.text) {
             this.paragraph.text = paragraphText;
+            this.checkAudioTextDiff();
             await assistOS.callFlow("UpdateParagraphText", {
                 spaceId: assistOS.space.id,
                 documentId: this._document.id,
@@ -103,15 +126,25 @@ export class ParagraphItem {
             });
         }
     }
+
     switchParagraphArrows(mode) {
-        if(this.hasAudio){
+        if (this.hasAudio) {
             let audioIcon = this.element.querySelector('.audio-icon');
-            if(mode === "on"){
+            if (mode === "on") {
                 audioIcon.classList.remove("hidden");
-            }else {
+            } else {
                 audioIcon.classList.add("hidden");
             }
+            if (unescapeHtmlEntities(this.paragraph.text) !== this.paragraph.audio.prompt) {
+                let warningIcon = this.element.querySelector('.warning-icon');
+                if (mode === "on") {
+                    warningIcon.classList.remove("hidden");
+                } else {
+                    warningIcon.classList.add("hidden");
+                }
+            }
         }
+
 
         if (this.chapter.paragraphs.length <= 1) {
             return;
@@ -123,19 +156,20 @@ export class ParagraphItem {
             arrows.style.visibility = "hidden";
         }
     }
+
     highlightParagraph() {
         this.switchParagraphArrows("on");
         assistOS.space.currentParagraphId = this.paragraph.id;
         let paragraphText = this.element.querySelector('.paragraph-text');
         const audioIcon = this.element.querySelector('.audio-icon');
-        if(!this.hasAudio){
+        if (!this.hasAudio) {
             paragraphText.addEventListener('mouseup', this.boundUpdateIconDisplay);
             document.addEventListener('selectionchange', this.boundSelectionChangeHandler);
             document.addEventListener('mousedown', this.boundMouseDownAudioIconHandler);
-            audioIcon.addEventListener('mousedown', this.boundPreventSelectionChange);
         }
-
+        audioIcon.addEventListener('mousedown', this.boundPreventSelectionChange);
     }
+
     focusOutHandler() {
         this.chapterPresenter.focusOutHandler();
         this.switchParagraphArrows("off");
@@ -144,11 +178,13 @@ export class ParagraphItem {
         document.removeEventListener('selectionchange', this.boundSelectionChangeHandler);
         document.removeEventListener('mousedown', this.boundMouseDownAudioIconHandler);
     }
+
     mouseDownAudioIconHandler(paragraphText, audioIcon, event) {
         if (!paragraphText.contains(event.target) && !audioIcon.contains(event.target)) {
             audioIcon.classList.add("hidden");
         }
     }
+
     selectionChangeHandler(paragraphText, audioIcon, event) {
         const selection = window.getSelection();
         if (selection.rangeCount > 0 && selection.toString().length > 0 && paragraphText.contains(selection.anchorNode)) {
@@ -157,9 +193,11 @@ export class ParagraphItem {
             audioIcon.classList.add("hidden");
         }
     }
+
     preventSelectionChange(event) {
         event.preventDefault();
     }
+
     updateIconDisplay(audioIcon, event) {
         const selection = window.getSelection();
         if (selection.rangeCount > 0 && selection.toString().length > 0) {
@@ -168,6 +206,7 @@ export class ParagraphItem {
             audioIcon.classList.add("hidden");
         }
     }
+
     showTTSPopup(_target, mode) {
         if (mode === "off") {
             this.selectionText = window.getSelection().toString();
@@ -180,7 +219,7 @@ export class ParagraphItem {
     }
 
     hideTTSPopup(controller, arrow, event) {
-        if(event.target.closest("text-to-speech") || event.target.tagName === "A"){
+        if (event.target.closest("text-to-speech") || event.target.tagName === "A") {
             return;
         }
         arrow.setAttribute("data-local-action", "showTTSPopup off");
@@ -188,14 +227,15 @@ export class ParagraphItem {
         popup.remove();
         controller.abort();
     };
-    async resetTimer (paragraph, event) {
+
+    async resetTimer(paragraph, event) {
         paragraph.style.height = "auto";
         paragraph.style.height = paragraph.scrollHeight + 'px';
         if (paragraph.value.trim() === "" && event.key === "Backspace" && !this.deleted) {
             if (assistOS.space.currentParagraphId === this.paragraph.id) {
                 this.documentPresenter.stopTimer(false);
                 this.deleted = true;
-                let curentParagraphIndex = this.chapter.getParagraphIndex(this.paragraph.id);
+                let currentParagraphIndex = this.chapter.getParagraphIndex(this.paragraph.id);
                 assistOS.callFlow("DeleteParagraph", {
                     spaceId: assistOS.space.id,
                     documentId: this._document.id,
@@ -203,10 +243,10 @@ export class ParagraphItem {
                     paragraphId: this.paragraph.id
                 });
                 if (this.chapter.paragraphs.length > 0) {
-                    if (curentParagraphIndex === 0) {
+                    if (currentParagraphIndex === 0) {
                         assistOS.space.currentParagraphId = this.chapter.paragraphs[0].id;
                     } else {
-                        assistOS.space.currentParagraphId = this.chapter.paragraphs[curentParagraphIndex - 1].id;
+                        assistOS.space.currentParagraphId = this.chapter.paragraphs[currentParagraphIndex - 1].id;
                     }
                 } else {
                     assistOS.space.currentParagraphId = null;

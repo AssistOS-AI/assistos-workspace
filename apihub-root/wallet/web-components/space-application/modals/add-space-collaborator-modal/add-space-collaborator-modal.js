@@ -38,7 +38,10 @@ export class AddSpaceCollaboratorModal {
                         collaboratorEmails.push(formData.data[key]);
                     }
                 });
-                await assistOS.inviteCollaborators(collaboratorEmails);
+                let collaborators = await assistOS.inviteCollaborators(collaboratorEmails);
+                if(collaborators.length > 0){
+                    await showApplicationError("Collaborators already exist", `${collaborators.join(', ')} already exist in the space`, "");
+                }
                 assistOS.UI.closeModal(_target);
             } catch (error) {
                 await showApplicationError('Failed Inviting Collaborators', `Encountered an Issue inviting the collaborators`,

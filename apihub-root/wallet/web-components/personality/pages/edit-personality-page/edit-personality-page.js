@@ -26,6 +26,15 @@ export class EditPersonalityPage {
             })
             let configs = await llmModule.listVoicesAndEmotions(assistOS.space.id);
             this.voices = configs.voices;
+            this.voices.sort((a, b) => {
+                if (a.name < b.name) {
+                    return -1;
+                }
+                if (a.name > b.name) {
+                    return 1;
+                }
+                return 0;
+            });
         });
     }
 

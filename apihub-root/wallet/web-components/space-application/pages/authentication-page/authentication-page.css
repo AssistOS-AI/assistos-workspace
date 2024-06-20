@@ -215,3 +215,6 @@ authentication-page{
     margin-top: -10px;
     padding-bottom: 20px;
 }
+#hidden{
+    display: none;
+}

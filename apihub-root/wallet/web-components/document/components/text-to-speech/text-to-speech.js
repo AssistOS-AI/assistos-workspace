@@ -1,4 +1,4 @@
-import {base64ToBlob, blobToBase64} from "../../../../imports.js";
+import {base64ToBlob, blobToBase64, unescapeHtmlEntities} from "../../../../imports.js";
 
 const llmModule = require("assistos").loadModule("llm", {});
 const documentModule = require("assistos").loadModule("document", {});
@@ -61,13 +61,14 @@ export class TextToSpeech {
         }
         let loaderId = await assistOS.UI.showLoading(_target);
         let prompt;
-        if (this.audioConfigs) {
-            prompt = this.audioConfigs.prompt;
-        } else {
-            let paragraphItem = assistOS.UI.reverseQuerySelector(_target, "paragraph-item");
-            let paragraphPresenter = paragraphItem.webSkelPresenter;
-            prompt = paragraphPresenter.selectionText;
-            paragraphPresenter.hasAudio = true;
+        let paragraphItem = assistOS.UI.reverseQuerySelector(_target, "paragraph-item");
+        let paragraphPresenter = paragraphItem.webSkelPresenter;
+        prompt = unescapeHtmlEntities(assistOS.UI.sanitize(paragraphPresenter.selectionText));
+        paragraphPresenter.hasAudio = true;
+        if(prompt === ""){
+            if (this.audioConfigs) {
+                prompt = this.audioConfigs.prompt;
+            }
         }
         if (!prompt || prompt === "") {
             alert("Nothing selected!");
@@ -88,7 +89,9 @@ export class TextToSpeech {
                 voiceId: personality.voiceId,
                 voiceConfigs: {
                     emotion: formData.data.emotion,
-                    styleGuidance: formData.data.styleGuidance
+                    styleGuidance: formData.data.styleGuidance,
+                    voiceGuidance: formData.data.voiceGuidance,
+                    temperature: formData.data.temperature
                 },
                 modelName: "PlayHT2.0"
             })).data;
@@ -110,6 +113,8 @@ export class TextToSpeech {
             voiceId: formData.data.voice,
             emotion: formData.data.emotion,
             styleGuidance: formData.data.styleGuidance,
+            voiceGuidance: formData.data.voiceGuidance,
+            temperature: formData.data.temperature,
             audioBlob: await blobToBase64(audioBlob),
             prompt: prompt
         }
