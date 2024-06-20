@@ -30,9 +30,6 @@ export class ParagraphItem {
         });
         notificationService.on(this.paragraph.id + "/audio", async () => {
             this.paragraph.audio = await documentModule.getParagraphAudio(assistOS.space.id, this._document.id, this.paragraph.id);
-            if(assistOS.space.currentParagraphId === this.paragraph.id){
-                this.checkAudioTextDiff();
-            }
         });
         this.invalidate(async () => {
             await spaceModule.subscribeToObject(assistOS.space.id, this.paragraph.id);
@@ -97,18 +94,7 @@ export class ParagraphItem {
             paragraphId2: adjacentParagraphId
         });
     }
-    checkAudioTextDiff(){
-        if(!this.hasAudio){
-            return;
-        }
-        let warningIcon = this.element.querySelector('.warning-icon');
-        let text = unescapeHtmlEntities(this.paragraph.text)
-        if (text !== this.paragraph.audio.prompt) {
-            warningIcon.classList.remove("hidden");
-        } else {
-            warningIcon.classList.add("hidden");
-        }
-    }
+
     async saveParagraph(paragraph, warningIcon) {
         if (!this.paragraph || assistOS.space.currentParagraphId !== this.paragraph.id || this.deleted) {
             return;
@@ -116,7 +102,6 @@ export class ParagraphItem {
         let paragraphText = assistOS.UI.sanitize(paragraph.value);
         if (paragraphText !== this.paragraph.text) {
             this.paragraph.text = paragraphText;
-            this.checkAudioTextDiff();
             await assistOS.callFlow("UpdateParagraphText", {
                 spaceId: assistOS.space.id,
                 documentId: this._document.id,
@@ -134,14 +119,6 @@ export class ParagraphItem {
                 audioIcon.classList.remove("hidden");
             } else {
                 audioIcon.classList.add("hidden");
-            }
-            if (unescapeHtmlEntities(this.paragraph.text) !== this.paragraph.audio.prompt) {
-                let warningIcon = this.element.querySelector('.warning-icon');
-                if (mode === "on") {
-                    warningIcon.classList.remove("hidden");
-                } else {
-                    warningIcon.classList.add("hidden");
-                }
             }
         }
 

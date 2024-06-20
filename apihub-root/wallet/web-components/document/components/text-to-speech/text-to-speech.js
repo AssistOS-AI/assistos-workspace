@@ -51,6 +51,10 @@ export class TextToSpeech {
             emotionOption.selected = true;
             let styleGuidance = this.element.querySelector(`#styleGuidance`);
             styleGuidance.value = this.audioConfigs.styleGuidance;
+            let temperature = this.element.querySelector(`#temperature`);
+            temperature.value = this.audioConfigs.temperature;
+            let voiceGuidance = this.element.querySelector(`#voiceGuidance`);
+            voiceGuidance.value = this.audioConfigs.voiceGuidance;
         }
     }
 
