@@ -11,7 +11,7 @@ export class InsertImageModal {
                 <button data-local-action="openGallerySection">From Gallery</button>
                 <button data-local-action="openMyDevice">My device</button data-local-action="openMyDevice">
                 <input type="file" id="file" class="hidden" accept="image/*">
-                <button data-local-action="openGenerateSection">Generate</button>
+<!--                <button data-local-action="openGenerateSection">Generate</button>-->
             </div>`;
         this.invalidate(async ()=>{
             this.galleries = await galleryModule.getGalleriesMetadata(assistOS.space.id);
