@@ -96,7 +96,9 @@ html, body,
 .app-container {
     height: 100%;
 }
-
+.invisible {
+    visibility: hidden;
+}
 .hidden {
     display: none;
 }

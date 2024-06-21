@@ -1,4 +1,5 @@
 import {base64ToBlob, unescapeHtmlEntities} from "../../../../imports.js";
+
 const spaceModule = require("assistos").loadModule("space", {});
 const documentModule = require("assistos").loadModule("document", {});
 const {notificationService} = require("assistos").loadModule("util", {});
@@ -11,6 +12,9 @@ export class ChapterItem {
         this._document = this.documentPresenter._document;
         let chapterId = this.element.getAttribute("data-chapter-id");
         this.chapter = this._document.getChapter(chapterId);
+        if (this.chapter.backgroundSound) {
+            this.hasBackgroundSound = true;
+        }
         this.refreshChapter = async () => {
             this.chapter = await this._document.refreshChapter(this._document.id, this.chapter.id);
         };
@@ -18,14 +22,14 @@ export class ChapterItem {
         this.element.removeEventListener('keydown', this.addParagraphOnCtrlEnter);
         this.element.addEventListener('keydown', this.addParagraphOnCtrlEnter);
         this.subscribeToChapterEvents();
-        this.invalidate(async ()=>{
+        this.invalidate(async () => {
             await spaceModule.subscribeToObject(assistOS.space.id, this.chapter.id);
         });
     }
 
     beforeRender() {
-        if(this._document.chapters.length === 1){
-          this.toggleSwapArrows = "hide";
+        if (this._document.chapters.length === 1) {
+            this.toggleSwapArrows = "hide";
         } else {
             this.toggleSwapArrows = "show";
         }
@@ -43,7 +47,7 @@ export class ChapterItem {
         let iterator = 0;
         this.chapter.paragraphs.forEach((paragraph) => {
             iterator++;
-            if(paragraph.image){
+            if (paragraph.image) {
                 this.chapterContent += `<image-paragraph data-presenter="image-paragraph" data-metadata="paragraph nr. ${iterator} with id ${paragraph.id}" data-paragraph-id="${paragraph.id}" data-chapter-id="${this.chapter.id}"></image-paragraph>`
             } else {
                 this.chapterContent += `<paragraph-item data-presenter="paragraph-item" data-metadata="paragraph nr. ${iterator} with id ${paragraph.id}" data-paragraph-id="${paragraph.id}" data-chapter-id="${this.chapter.id}"></paragraph-item>`;
@@ -54,7 +58,7 @@ export class ChapterItem {
     subscribeToChapterEvents() {
         notificationService.on(this.chapter.id + "/title", async () => {
             let title = await documentModule.getChapterTitle(assistOS.space.id, this._document.id, this.chapter.id);
-            if(title !== this.chapter.title){
+            if (title !== this.chapter.title) {
                 this.chapter.title = title;
                 this.renderChapterTitle();
             }
@@ -62,7 +66,23 @@ export class ChapterItem {
         notificationService.on(this.chapter.id, () => {
             this.invalidate(this.refreshChapter);
         });
+        notificationService.on(this.chapter.id + "/backgroundSound", async () => {
+            this.chapter.backgroundSound = await documentModule.getChapterBackgroundSound(assistOS.space.id, this._document.id, this.chapter.id);
+            if (this.chapter.backgroundSound) {
+                this.hasBackgroundSound = true;
+                if (assistOS.space.currentChapterId === this.chapter.id) {
+                    this.switchPlayButtonDisplay("on");
+                }
+            } else {
+                this.hasBackgroundSound = false;
+                if (assistOS.space.currentChapterId === this.chapter.id) {
+                    this.switchPlayButtonDisplay("off");
+                }
+            }
+
+        });
     }
+
     async saveTitle(titleElement) {
         let titleText = assistOS.UI.sanitize(titleElement.value);
         if (titleText !== this.chapter.title && titleText !== "") {
@@ -74,10 +94,12 @@ export class ChapterItem {
             });
         }
     }
-    renderChapterTitle(){
+
+    renderChapterTitle() {
         let chapterTitle = this.element.querySelector(".chapter-title");
         chapterTitle.value = unescapeHtmlEntities(this.chapter.title);
     }
+
     afterRender() {
         this.renderChapterTitle();
         this.chapterItem = this.element.querySelector(".chapter-item");
@@ -91,14 +113,16 @@ export class ChapterItem {
             let arrow = this.element.querySelector(".arrow");
             arrow.classList.toggle('rotate');
         }
-        if(!this.boundPasteHandler) {
+        if (!this.boundPasteHandler) {
             this.boundPasteHandler = this.pasteHandler.bind(this);
             this.element.addEventListener('paste', this.boundPasteHandler);
         }
     }
-    async afterUnload(){
+
+    async afterUnload() {
         await spaceModule.unsubscribeFromObject(assistOS.space.id, this.chapter.id);
     }
+
     pasteHandler(event) {
         let clipboardData = event.clipboardData || window.clipboardData;
         let items = clipboardData.items;
@@ -161,13 +185,27 @@ export class ChapterItem {
         this.switchButtonsDisplay(this.chapterItem, "on");
     }
 
-    focusOutHandler(){
+    focusOutHandler() {
         this.switchButtonsDisplay(this.chapterItem, "off");
+    }
+
+    switchPlayButtonDisplay(mode) {
+        if (this.hasBackgroundSound) {
+            let playButton = this.chapterItem.querySelector('.background-sound-play');
+            if (mode === "on") {
+                playButton.classList.remove("hidden");
+                playButton.classList.add("flex");
+            } else {
+                playButton.classList.add("hidden");
+                playButton.classList.remove("flex");
+            }
+        }
     }
 
     switchButtonsDisplay(target, mode) {
         let actionCell = this.chapterItem.querySelector('.action-cell');
         mode === "on" ? actionCell.style.visibility = "visible" : actionCell.style.visibility = "hidden";
+        this.switchPlayButtonDisplay(mode);
     }
 
     async changeChapterDisplay(_target) {
@@ -178,14 +216,15 @@ export class ChapterItem {
         paragraphsContainer.classList.toggle('hidden');
         _target.classList.toggle('rotate');
     }
-    downloadAllAudio(){
+
+    downloadAllAudio() {
         let i = 1;
         let hasAudio = false;
-        for(let paragraph of this.chapter.paragraphs){
-            if(paragraph.audio){
+        for (let paragraph of this.chapter.paragraphs) {
+            if (paragraph.audio) {
                 hasAudio = true;
                 let audioName = `audio${i}.mp3`;
-                let url = URL.createObjectURL(base64ToBlob(paragraph.audio.audioBlob, "audio/mp3"));
+                let url = URL.createObjectURL(base64ToBlob(paragraph.audio.base64Audio, "audio/mp3"));
                 const link = document.createElement('a');
                 link.href = url;
                 link.download = audioName;
@@ -195,13 +234,15 @@ export class ChapterItem {
                 i++;
             }
         }
-        if(!hasAudio){
+        if (!hasAudio) {
             alert("No audio to download!");
         }
     }
+
     async showActionBox(_target, primaryKey, componentName, insertionMode) {
         await assistOS.UI.showActionBox(_target, primaryKey, componentName, insertionMode);
     }
+
     getParagraphPosition() {
         if (this.chapter.paragraphs.length === 0) {
             return 0;
@@ -212,6 +253,7 @@ export class ChapterItem {
         return this.chapter.paragraphs.length;
 
     }
+
     async openInsertImageModal(_target) {
         let position = this.getParagraphPosition();
         let imagesData = await assistOS.UI.showModal("insert-image-modal", {["chapter-id"]: this.chapter.id}, true);
@@ -233,6 +275,113 @@ export class ChapterItem {
                 position++;
             }
         }
+    }
+
+    uploadSoundEffects(event) {
+        const file = event.target.files[0];
+        const maxFileSize = 10 * 1024 * 1024;
+        if (file) {
+            if (file.size > maxFileSize) {
+                return showApplicationError("The file is too large.", "Maximum file size is 10MB.", "");
+            }
+            const reader = new FileReader();
+            reader.onload = async (e) => {
+                let backgroundSound = {
+                    base64Audio: e.target.result,
+                    userId: assistOS.user.id,
+                    volume: "default"
+                };
+                await assistOS.callFlow("UpdateChapterBackgroundSound", {
+                    spaceId: assistOS.space.id,
+                    documentId: this._document.id,
+                    chapterId: this.chapter.id,
+                    backgroundSound: backgroundSound
+                });
+                this.fileInput.remove();
+                delete this.fileInput;
+            };
+            reader.readAsDataURL(file);
+        }
+
+    }
+
+    insertBackgroundSound(_target) {
+        if (!this.fileInput) {
+            this.fileInput = document.createElement('input');
+            this.fileInput.type = 'file';
+            this.fileInput.accept = 'audio/*';
+            this.fileInput.classList.add('hidden');
+        }
+        this.fileInput.addEventListener('change', this.uploadSoundEffects.bind(this), {once: true});
+        this.fileInput.click();
+    }
+
+
+    hideAudioElement(controller, playAudioButton, event) {
+        if (event.target.closest("audio") || event.target.closest(".background-sound-play")) {
+            return;
+        }
+        playAudioButton.setAttribute("data-local-action", "playBackgroundAudio off");
+        let audioSection = this.element.querySelector('.chapter-audio-section');
+        audioSection.classList.add('hidden');
+        audioSection.classList.remove('flex');
+        controller.abort();
+    };
+
+    isAudioPlaying(audioElement) {
+        return audioElement.paused === false && audioElement.currentTime > 0;
+    }
+
+    saveVolumeChanges(audio, event) {
+        if (!this.timeoutId) {
+            this.timeoutId = setTimeout(async () => {
+                await assistOS.callFlow("UpdateChapterBackgroundSound", {
+                    spaceId: assistOS.space.id,
+                    documentId: this._document.id,
+                    chapterId: this.chapter.id,
+                    backgroundSound: {
+                        base64Audio: this.chapter.backgroundSound.base64Audio,
+                        userId: this.chapter.backgroundSound.userId,
+                        volume: audio.volume
+                    }
+
+                });
+                this.timeoutId = null;
+            }, 2000);
+        }
+    }
+
+    playBackgroundAudio(_target, mode) {
+        if (mode === "off") {
+            let audioSection = this.element.querySelector('.chapter-audio-section');
+            let audio = this.element.querySelector('.chapter-audio');
+            if (!this.isAudioPlaying(audio)) {
+                audio.src = URL.createObjectURL(base64ToBlob(this.chapter.backgroundSound.base64Audio, "audio/mp3"));
+                audio.load();
+            }
+            if (!this.boundSaveVolumeChanges) {
+                this.boundSaveVolumeChanges = this.saveVolumeChanges.bind(this, audio);
+                audio.addEventListener('volumechange', this.boundSaveVolumeChanges, {passive: true});
+            }
+            audioSection.classList.remove('hidden');
+            audioSection.classList.add('flex');
+            if (this.chapter.backgroundSound.volume !== "default") {
+                audio.volume = this.chapter.backgroundSound.volume;
+            }
+            let controller = new AbortController();
+            document.addEventListener("click", this.hideAudioElement.bind(this, controller, _target), {signal: controller.signal});
+            _target.setAttribute("data-local-action", "playBackgroundAudio on");
+        }
+    }
+
+    async deleteBackgroundSound() {
+        this.switchPlayButtonDisplay("off");
+        await assistOS.callFlow("UpdateChapterBackgroundSound", {
+            spaceId: assistOS.space.id,
+            documentId: this._document.id,
+            chapterId: this.chapter.id,
+            backgroundSound: null
+        });
     }
 }
 

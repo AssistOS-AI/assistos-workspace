@@ -118,6 +118,7 @@ p {
     display: inline-block;
     font-size: 18px;
     font-weight: 600;
+    margin-right: 10px;
 }
 
 .chapter-text {
@@ -158,6 +159,21 @@ p {
     background-color: var(--medium-black);
 }
 .action-cell{
-    margin-left: 5px;
     visibility: hidden;
+}
+.background-sound-play{
+    margin-right: 5px;
+    align-items: center;
+}
+.flex{
+    display: flex;
+}
+.chapter-audio{
+    margin-right: 5px;
+}
+.chapter-audio-section{
+    align-items: center;
+    position: absolute;
+    bottom: 57px;
+    right: -10px;
 }
