@@ -294,7 +294,6 @@ export class GenerateImagePage {
             });
             llmModule.createSSEConnection(task.messageId, task.clientId);
             task.prompt = this.prompt;
-            task.inProgress = true;
             task.buttons = ["Cancel Job"];
             this.images.push(task);
             assistOS.UI.hideLoading(loaderId);

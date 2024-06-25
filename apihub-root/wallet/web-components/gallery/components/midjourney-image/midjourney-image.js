@@ -3,16 +3,22 @@ export class MidjourneyImage {
     constructor(element, invalidate) {
         this.element = element;
         this.invalidate = invalidate;
-        let imageId = this.element.variables["data-image-id"];
+        this.imageId = this.element.variables["data-image-id"];
         this.parentPresenter = document.querySelector("generate-image-page").webSkelPresenter;
-        this.image = this.parentPresenter.images.find((image)=> image.messageId === imageId);
-        this.prompt = this.image.prompt;
-        notificationService.off(this.image.messageId);
-        notificationService.on(this.image.messageId, (data) => {
-            this.image = data;
+        let image = this.parentPresenter.images.find((image)=> image.messageId === this.imageId);
+        this.prompt = image.prompt;
+        notificationService.off(this.imageId);
+        notificationService.on(this.imageId, (data) => {
+            this.setImage(data);
             this.invalidate();
         });
         this.invalidate();
+    }
+    getImage(){
+        return this.parentPresenter.images.find((image)=> image.messageId === this.imageId);
+    }
+    setImage(data){
+        this.parentPresenter.images[this.parentPresenter.images.findIndex((image)=> image.messageId === this.imageId)] = data;
     }
     beforeRender(){
         let buttonsHTML = "";
@@ -20,25 +26,26 @@ export class MidjourneyImage {
         this.queueStatus = "hidden";
         this.processStatus = "hidden";
         this.doneStatus = "hidden";
-        if(!this.image.status){
+        let image = this.getImage();
+        if(!image.status){
             this.noStatus = "flex";
-            this.image.buttons = ["Cancel Job"];
-        } else if(this.image.status === "QUEUED"){
+            image.buttons = ["Cancel Job"];
+        } else if(image.status === "QUEUED"){
             this.queueStatus = "flex";
-            this.image.buttons = ["Cancel Job"];
-        } else if(this.image.status === "PROCESSING"){
-            this.barWidth = this.image.progress + "%";
+            image.buttons = ["Cancel Job"];
+        } else if(image.status === "PROCESSING"){
+            this.barWidth = image.progress + "%";
             this.processStatus = "flex";
-            this.image.buttons = ["Cancel Job"];
-        } else if(this.image.status === "DONE"){
+            image.buttons = ["Cancel Job"];
+        } else if(image.status === "DONE"){
             this.doneStatus = "";
-            this.image.prompt = this.prompt;
-            this.imageSrc = this.image.uri;
-        } else if(this.image.status === "FAILED"){
+            image.prompt = this.prompt;
+            this.imageSrc = image.uri;
+        } else if(image.status === "FAILED"){
             showApplicationError("Error generating image", this.image.error,"error");
         }
-        for(let action of this.image.buttons){
-            buttonsHTML += `<button class="general-button midjourney-button" data-local-action="editImage ${this.image.messageId} ${assistOS.UI.sanitize(action)}">${this.parentPresenter.currentModel.buttons[action]}</button>`
+        for(let action of image.buttons){
+            buttonsHTML += `<button class="general-button midjourney-button" data-local-action="editImage ${image.messageId} ${assistOS.UI.sanitize(action)}">${this.parentPresenter.currentModel.buttons[action]}</button>`
         }
         this.buttons = buttonsHTML;
     }
@@ -61,7 +68,8 @@ export class MidjourneyImage {
                 imageMenu.style.visibility = "hidden";
             }
         });
-        if(this.parentPresenter.images[this.parentPresenter.images.length - 1] === this.image){
+        let image = this.getImage();
+        if(this.parentPresenter.images[this.parentPresenter.images.length - 1] === image){
             this.element.scrollIntoView({behavior: "smooth", block: "end"});
         }
     }
