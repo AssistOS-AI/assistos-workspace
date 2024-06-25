@@ -3,9 +3,17 @@
         <button class="general-button small" data-local-action="saveImage">Save</button>
         <button class="general-button small" data-local-action="saveImageToDevice">Save to my device</button>
         <button class="general-button small">History</button>
-
     </div>
-    <input type="checkbox" class="image-checkbox">
-    <img src="$$imageSrc" class="generated-image" alt="img">
+    <div class="img-container $$noStatus">
+        <div class="loading-mask"></div>
+    </div>
+    <div class="img-container queued-placeholder $$queueStatus">QUEUED</div>
+    <div class="img-container progress-bar-container $$processStatus">
+        <div class="progress-bar">
+            <div class="progress-fill" style="width: $$barWidth"></div>
+        </div>
+    </div>
+    <input type="checkbox" class="image-checkbox $$doneStatus">
+    <img src="$$imageSrc" class="generated-image $$doneStatus" alt="img">
 </div>
 <div class="buttons-section">$$buttons</div>

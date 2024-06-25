@@ -1,7 +1,6 @@
 const galleryModule = require("assistos").loadModule("gallery", {});
 const constants = require("assistos").constants;
 const llmModule = require("assistos").loadModule("llm", {});
-
 export class GenerateImagePage {
     constructor(element, invalidate) {
         this.element = element;
@@ -265,9 +264,18 @@ export class GenerateImagePage {
 
         } else if(this.currentModel.buttons){
             try{
-                let image = (await assistOS.callFlow("GenerateImage", flowContext, formData.data.personality)).data;
-                image.prompt = this.prompt;
-                this.images.push(image);
+                // let task = {
+                //     clientId: "124",
+                //     messageId: "124",
+                //     prompt: this.prompt,
+                //     status: "QUEUED",
+                //     buttons: ["Cancel Job"]
+                // }
+                let task = (await assistOS.callFlow("GenerateImage", flowContext, formData.data.personality)).data;
+                llmModule.createSSEConnection(task.messageId, task.clientId);
+                task.prompt = this.prompt;
+                task.buttons = ["Cancel Job"];
+                this.images.push(task);
             } catch (e) {
                 let message = assistOS.UI.sanitize(e.message);
                 await showApplicationError(message, message, message);
@@ -280,12 +288,15 @@ export class GenerateImagePage {
     async editImage(_target, messageId, action){
         let loaderId = await assistOS.UI.showLoading();
         try{
-            let image = await llmModule.editImage(assistOS.space.id, this.currentModel.name, {
+            let task = await llmModule.editImage(assistOS.space.id, this.currentModel.name, {
                 messageId: messageId,
                 action: action
             });
-            image.prompt = this.prompt;
-            this.images.push(image);
+            llmModule.createSSEConnection(task.messageId, task.clientId);
+            task.prompt = this.prompt;
+            task.inProgress = true;
+            task.buttons = ["Cancel Job"];
+            this.images.push(task);
             assistOS.UI.hideLoading(loaderId);
             this.invalidate();
         } catch (e) {
