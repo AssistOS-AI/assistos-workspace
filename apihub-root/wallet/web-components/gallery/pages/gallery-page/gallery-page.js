@@ -1,5 +1,4 @@
-const spaceModule = require("assistos").loadModule("space", {});
-const {notificationService} = require("assistos").loadModule("util", {});
+const utilModule = require("assistos").loadModule("util", {});
 const galleryModule = require("assistos").loadModule("gallery", {});
 export class GalleryPage {
     constructor(element, invalidate) {
@@ -11,18 +10,16 @@ export class GalleryPage {
         }
         this.invalidate(async () => {
             await this.refreshGallery();
-            await spaceModule.subscribeToObject(assistOS.space.id, this.id);
-            spaceModule.startCheckingUpdates(assistOS.space.id);
-        });
-        notificationService.on(this.id, () => {
-            this.invalidate(async () => {
-                await this.refreshGallery();
+            await utilModule.subscribeToObject(this.id, (data) => {
+                this.invalidate(async () => {
+                    await this.refreshGallery();
+                });
             });
-        });
-        notificationService.on(this.id + "/delete", () => {
-            this.invalidate(async () => {
-                await this.openGalleriesPage();
-                alert("The gallery has been deleted");
+            await utilModule.subscribeToObject(this.id + "/delete", (data) => {
+                this.invalidate(async () => {
+                    await this.openGalleriesPage();
+                    alert("The gallery has been deleted");
+                });
             });
         });
     }
@@ -40,9 +37,9 @@ export class GalleryPage {
         await assistOS.UI.changeToDynamicPage("space-application-page", `${assistOS.space.id}/Space/galleries-page`);
     }
 
-    afterUnload() {
-        spaceModule.unsubscribeFromObject(assistOS.space.id, this.id);
-        spaceModule.stopCheckingUpdates(assistOS.space.id);
+    async afterUnload() {
+       await utilModule.unsubscribeFromObject(assistOS.space.id, this.id);
+       await utilModule.unsubscribeFromObject(assistOS.space.id, this.id + "/delete");
     }
     async generateImage() {
         await assistOS.UI.changeToDynamicPage("space-application-page", `${assistOS.space.id}/Space/generate-image-page/${this.id}`);

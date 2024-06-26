@@ -7,6 +7,7 @@ const applicationModule = require('assistos').loadModule('application', {});
 const agentModule = require('assistos').loadModule('personality', {});
 const flowModule = require('assistos').loadModule('flow', {});
 const personalityModule=require('assistos').loadModule('personality',{})
+const utilModule = require('assistos').loadModule('util', {});
 class AssistOS {
     constructor(configuration) {
         if (AssistOS.instance) {
@@ -116,8 +117,13 @@ class AssistOS {
             assistOS.currentApplicationName = appName;
         }
     }
-
+    async login(email, password){
+        await userModule.loginUser(email, password);
+        await assistOS.loadPage(true);
+        utilModule.createSSEConnection();
+    }
     async logout() {
+        await utilModule.closeSSEConnection();
         await userModule.logoutUser();
         await this.refresh();
     }

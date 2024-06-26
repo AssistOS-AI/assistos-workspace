@@ -1,6 +1,5 @@
-const spaceModule = require("assistos").loadModule("space", {});
+const utilModule = require("assistos").loadModule("util", {});
 const galleryModule = require("assistos").loadModule("gallery", {});
-const {notificationService} = require("assistos").loadModule("util", {});
 export class GalleriesPage{
     constructor(element, invalidate) {
         this.element = element;
@@ -11,18 +10,16 @@ export class GalleriesPage{
         this.id = "galleries";
         this.invalidate(async () => {
             await this.refreshGalleries();
-            await spaceModule.subscribeToObject(assistOS.space.id, this.id);
-            spaceModule.startCheckingUpdates(assistOS.space.id);
-        });
-        notificationService.on(this.id, ()=>{
-            this.invalidate(this.refreshGalleries);
+            await utilModule.subscribeToObject(this.id,(data)=>{
+                this.invalidate(this.refreshGalleries);
+            });
         });
     }
     beforeRender(){
         this.tableRows = "";
         if(this.galleries.length > 0) {
             this.galleries.forEach((gallery) => {
-                this.tableRows += `<gallery-item data-name="${assistOS.UI.sanitize(gallery.name)}" 
+                this.tableRows += `<gallery-item data-name="${gallery.name}" 
                 data-id="${gallery.id}" data-local-action="openGallery ${gallery.id}"></gallery-item>`;
             });
         }
@@ -30,9 +27,8 @@ export class GalleriesPage{
             this.tableRows = `<div> There are no galleries yet </div>`;
         }
     }
-    afterUnload(){
-        spaceModule.unsubscribeFromObject(assistOS.space.id, this.id);
-        spaceModule.stopCheckingUpdates(assistOS.space.id);
+    async afterUnload(){
+        await utilModule.unsubscribeFromObject(this.id);
     }
     async showActionBox(_target, primaryKey, componentName, insertionMode) {
         this.actionBox = await assistOS.UI.showActionBox(_target, primaryKey, componentName, insertionMode);

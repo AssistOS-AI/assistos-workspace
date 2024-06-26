@@ -15,7 +15,8 @@ export class AddGalleryModal{
         const formData = await assistOS.UI.extractFormInformation(_target);
         let galleryId = await galleryModule.addGallery(assistOS.space.id, {
             name: formData.data.name,
-            images: []
+            images: [],
+            history: []
         });
         await assistOS.UI.changeToDynamicPage("space-application-page", `${assistOS.space.id}/Space/gallery-page/${galleryId}`);
     }

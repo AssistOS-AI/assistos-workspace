@@ -105,7 +105,6 @@ export class ParagraphItem {
             await assistOS.callFlow("UpdateParagraphText", {
                 spaceId: assistOS.space.id,
                 documentId: this._document.id,
-                chapterId: this.chapter.id,
                 paragraphId: this.paragraph.id,
                 text: paragraphText
             });

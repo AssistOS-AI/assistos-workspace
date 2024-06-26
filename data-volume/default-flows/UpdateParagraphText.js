@@ -15,10 +15,6 @@ class UpdateParagraphText extends IFlow {
             type: "string",
             required: true
         },
-        chapterId: {
-            type: "string",
-            required: true
-        },
         paragraphId: {
             type: "string",
             required: true

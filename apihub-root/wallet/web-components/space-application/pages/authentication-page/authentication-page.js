@@ -1,5 +1,4 @@
 import {getDemoUserCredentials} from "../../../../imports.js";
-
 let User = require("assistos").loadModule("user", {});
 User = {
     apis: User,
@@ -316,8 +315,7 @@ export class AuthenticationPage {
         if (formInfo.isValid) {
             const {email, password} = formInfo.data;
             try {
-                await User.apis.loginUser(email, password);
-                await assistOS.loadPage(true);
+                await assistOS.login(email, password);
             } catch (error) {
                 alert(`Login failed: Invalid email or password`);
             }

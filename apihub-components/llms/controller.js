@@ -206,6 +206,7 @@ async function getTextStreamingResponse(request, response) {
 async function getImageResponse(request, response) {
     try {
         request.body.webhookSecret = getWebhookSecret();
+        request.body.userId = request.userId;
         const modelResponse = await sendRequest(`/apis/v1/image/generate`, "POST", request, response);
         utils.sendResponse(response, 200, "application/json", {
             success: true,
@@ -222,6 +223,7 @@ async function getImageResponse(request, response) {
 async function editImage(request, response) {
     try {
         request.body.webhookSecret = getWebhookSecret();
+        request.body.userId = request.userId;
         const modelResponse = await sendRequest(`/apis/v1/image/edit`, "POST", request, response);
         utils.sendResponse(response, 200, "application/json", {
             success: true,

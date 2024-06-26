@@ -1,24 +1,29 @@
-const {notificationService} = require("assistos").loadModule("util", {});
+const utilModule = require("assistos").loadModule("util", {});
 export class MidjourneyImage {
     constructor(element, invalidate) {
         this.element = element;
         this.invalidate = invalidate;
-        this.imageId = this.element.variables["data-image-id"];
+        this.imageId = this.element.variables["data-id"];
         this.parentPresenter = document.querySelector("generate-image-page").webSkelPresenter;
-        let image = this.parentPresenter.images.find((image)=> image.messageId === this.imageId);
+        let image = this.parentPresenter.images.find((image)=> image.id === this.imageId);
         this.prompt = image.prompt;
-        notificationService.off(this.imageId);
-        notificationService.on(this.imageId, (data) => {
-            this.setImage(data);
-            this.invalidate();
+        this.invalidate(async ()=>{
+            if(image.status !== "DONE"){
+                await utilModule.subscribeToObject(this.imageId, (data)=>{
+                    this.setImage(data);
+                    this.invalidate();
+                });
+            }
         });
-        this.invalidate();
+    }
+    async afterUnload(){
+        utilModule.unsubscribeFromObject(this.imageId);
     }
     getImage(){
-        return this.parentPresenter.images.find((image)=> image.messageId === this.imageId);
+        return this.parentPresenter.images.find((image)=> image.id === this.imageId);
     }
     setImage(data){
-        this.parentPresenter.images[this.parentPresenter.images.findIndex((image)=> image.messageId === this.imageId)] = data;
+        this.parentPresenter.images[this.parentPresenter.images.findIndex((image)=> image.id === this.imageId)] = data;
     }
     beforeRender(){
         let buttonsHTML = "";
@@ -42,10 +47,10 @@ export class MidjourneyImage {
             image.prompt = this.prompt;
             this.imageSrc = image.uri;
         } else if(image.status === "FAILED"){
-            showApplicationError("Error generating image", this.image.error,"error");
+            showApplicationError("Error generating image", image.error,"error");
         }
         for(let action of image.buttons){
-            buttonsHTML += `<button class="general-button midjourney-button" data-local-action="editImage ${image.messageId} ${assistOS.UI.sanitize(action)}">${this.parentPresenter.currentModel.buttons[action]}</button>`
+            buttonsHTML += `<button class="general-button midjourney-button" data-local-action="editImage ${image.messageId} ${image.id} ${assistOS.UI.sanitize(action)}">${this.parentPresenter.currentModel.buttons[action]}</button>`
         }
         this.buttons = buttonsHTML;
     }

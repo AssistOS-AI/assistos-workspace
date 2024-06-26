@@ -50,7 +50,7 @@ const subscribersModule = (() => {
             }
 
             let subscriberResponse = subscribersResponses[spaceId][userId];
-            if(!subscriberResponse){
+            if (!subscriberResponse) {
                 continue;
             }
             if (!subscriberResponse.response) {
@@ -84,47 +84,160 @@ const subscribersModule = (() => {
         removeObjectSubscription,
         notifySubscribers,
     }
-})
-();
+})();
 
-async function getLatestUpdates(request, response) {
-    const spaceId = request.params.spaceId;
-    let userId = request.userId;
+// async function getLatestUpdates(request, response) {
+//     const spaceId = request.params.spaceId;
+//     let userId = request.userId;
+//
+//     let timeoutId = setTimeout(() => {
+//         if (!response.sent) {
+//             sendResponse(response, 200, "application/json", {
+//                 success: true,
+//                 data: null
+//             })
+//         }
+//     }, 30000);
+//     subscribersModule.putResponse(spaceId, userId, response, timeoutId);
+// }
+//
+// function subscribeToObject(request, response) {
+//     const spaceId = request.params.spaceId;
+//     let userId = request.userId;
+//     let objectId = request.params.objectId;
+//     subscribersModule.putSubscriber(spaceId, userId, objectId);
+//     sendResponse(response, 200, "application/json", {
+//         success: true
+//     })
+// }
+//
+// function unsubscribeFromObject(request, response) {
+//     const spaceId = request.params.spaceId;
+//     let userId = request.userId;
+//     let objectId = request.params.objectId;
+//     subscribersModule.removeObjectSubscription(spaceId, userId, objectId);
+//     sendResponse(response, 200, "application/json", {
+//         success: true
+//     })
+// }
 
-    let timeoutId = setTimeout(() => {
-        if (!response.sent) {
-            sendResponse(response, 200, "application/json", {
-                success: true,
-                data: null
-            })
+const eventPublisher = (() => {
+    let clients = [];
+    function registerClient(userId, response){
+        response.setHeader('Content-Type', 'text/event-stream');
+        response.setHeader('Cache-Control', 'no-cache');
+        response.setHeader('Connection', 'keep-alive');
+        response.flushHeaders();
+        const intervalId = setInterval(() => {
+            response.write("event: message\n");
+            response.write('data: keep-alive\n\n');
+        }, 5000);
+        response.on('error', (err) => {
+            clearInterval(intervalId);
+            console.error('Server SSE error:', err);
+            response.end();
+        });
+        let client = {
+            res: response,
+            userId: userId,
+            intervalId: intervalId,
+            objectIds: {}
+        };
+        clients.push(client);
+    }
+    function notifyClient(userId, eventType, objectId) {
+        const client = clients.find(client => client.userId === userId);
+        if (!client) {
+            return;
         }
-    }, 30000);
-    subscribersModule.putResponse(spaceId, userId, response, timeoutId);
+        let subscription = client.objectIds[objectId];
+        if(!subscription) {
+            return;
+        }
+        let data = {objectId: objectId};
+        client.res.write(`event: ${eventType}\n`);
+        client.res.write(`data: ${data}\n\n`);
+    }
+    function removeClient(userId) {
+        let client = clients.find(client => client.userId === userId);
+        clearInterval(client.intervalId);
+        client.res.end();
+        clients = clients.filter(client => client.userId !== userId);
+    }
+    function subscribeToObject(userId, objectId) {
+        let client = clients.find(client => client.userId === userId);
+        if (!client) {
+            return;
+        }
+        client.objectIds[objectId] = objectId;
+    }
+    function unsubscribeFromObject(userId, objectId) {
+        let client = clients.find(client => client.userId === userId);
+        if (!client) {
+            return;
+        }
+        delete client.objectIds[objectId];
+    }
+    return {
+        registerClient,
+        notifyClient,
+        removeClient,
+        subscribeToObject,
+        unsubscribeFromObject
+    }
+})();
+function registerClient(request, response) {
+    eventPublisher.registerClient(request.userId, response);
 }
-
+function removeClient(request, response) {
+    try{
+        eventPublisher.removeClient(request.userId);
+        sendResponse(response, 200, "application/json", {
+            success: true
+        });
+    } catch (e) {
+        sendResponse(response, 500, "application/json", {
+            success: false,
+            message: e.message
+        })
+    }
+}
 function subscribeToObject(request, response) {
-    const spaceId = request.params.spaceId;
-    let userId = request.userId;
-    let objectId = request.params.objectId;
-    subscribersModule.putSubscriber(spaceId, userId, objectId);
-    sendResponse(response, 200, "application/json", {
-        success: true
-    })
+    try {
+        let objectId = decodeURIComponent(request.params.objectId);
+        let userId = request.userId;
+        eventPublisher.subscribeToObject(userId, objectId);
+        sendResponse(response, 200, "application/json", {
+            success: true
+        });
+    } catch (e) {
+        sendResponse(response, 500, "application/json", {
+            success: false,
+            message: e.message
+        })
+    }
 }
-
 function unsubscribeFromObject(request, response) {
-    const spaceId = request.params.spaceId;
-    let userId = request.userId;
-    let objectId = request.params.objectId;
-    subscribersModule.removeObjectSubscription(spaceId, userId, objectId);
-    sendResponse(response, 200, "application/json", {
-        success: true
-    })
+    try{
+        let objectId = decodeURIComponent(request.params.objectId);
+        let userId = request.userId;
+        eventPublisher.unsubscribeFromObject(userId, objectId);
+        sendResponse(response, 200, "application/json", {
+            success: true
+        });
+    } catch (e) {
+        sendResponse(response, 500, "application/json", {
+            success: false,
+            message: e.message
+        });
+    }
 }
-
 module.exports = {
     subscribersModule,
-    getLatestUpdates,
+    //getLatestUpdates,
     subscribeToObject,
-    unsubscribeFromObject
+    unsubscribeFromObject,
+    eventPublisher,
+    registerClient,
+    removeClient
 };

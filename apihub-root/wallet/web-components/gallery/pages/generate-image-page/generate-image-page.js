@@ -1,6 +1,7 @@
 const galleryModule = require("assistos").loadModule("gallery", {});
 const constants = require("assistos").constants;
 const llmModule = require("assistos").loadModule("llm", {});
+const utilModule = require("assistos").loadModule("util", {});
 export class GenerateImagePage {
     constructor(element, invalidate) {
         this.element = element;
@@ -18,9 +19,13 @@ export class GenerateImagePage {
                 }
             }
             this.currentModel = this.models[0];
+            this.images = await galleryModule.getGalleryHistory(assistOS.space.id, this.id);
+            await utilModule.subscribeToObject(this.id, async (data) => {
+                this.images = await galleryModule.getGalleryHistory(assistOS.space.id, this.id);
+                this.invalidate();
+            });
         });
         this.selectInputs = [];
-        this.images = [];
     }
 
     beforeRender() {
@@ -38,7 +43,7 @@ export class GenerateImagePage {
         let imagesHTML = "";
         if(this.currentModel.buttons){
             for (let image of this.images) {
-                imagesHTML += `<midjourney-image data-image-id="${image.messageId}" data-presenter="midjourney-image"></midjourney-image>`;
+                imagesHTML += `<midjourney-image data-id="${image.id}" data-presenter="midjourney-image"></midjourney-image>`;
             }
             this.imagesSection = `
             <div class="midjourney-images-section">
@@ -120,7 +125,9 @@ export class GenerateImagePage {
             </div>`;
         }
     }
-
+    async afterUnload() {
+        await utilModule.unsubscribeFromObject(this.id);
+    }
     async getImageSrc(_target) {
         let imageItem = _target.closest(".image-item");
         let image = imageItem.querySelector("img");
@@ -264,15 +271,14 @@ export class GenerateImagePage {
 
         } else if(this.currentModel.buttons){
             try{
-                // let task = {
-                //     clientId: "124",
-                //     messageId: "124",
-                //     prompt: this.prompt,
-                //     status: "QUEUED",
-                //     buttons: ["Cancel Job"]
-                // }
+                let taskId = await galleryModule.addImageToHistory(assistOS.space.id, this.id, {});
+                flowContext.saveDataConfig = {
+                    module: "gallery",
+                    fnName: "updateImageInHistory",
+                    params: [assistOS.space.id, this.id, taskId]
+                }
                 let task = (await assistOS.callFlow("GenerateImage", flowContext, formData.data.personality)).data;
-                llmModule.createSSEConnection(task.messageId, task.clientId);
+                await galleryModule.updateImageInHistory(assistOS.space.id, this.id, taskId, task);
                 task.prompt = this.prompt;
                 task.buttons = ["Cancel Job"];
                 this.images.push(task);
@@ -285,14 +291,18 @@ export class GenerateImagePage {
         assistOS.UI.hideLoading(loaderId);
         this.invalidate();
     }
-    async editImage(_target, messageId, action){
+    async editImage(_target, messageId, imageId, action){
         let loaderId = await assistOS.UI.showLoading();
         try{
             let task = await llmModule.editImage(assistOS.space.id, this.currentModel.name, {
                 messageId: messageId,
-                action: action
+                action: action,
+                saveDataConfig : {
+                    module: "gallery",
+                    fnName: "updateImageInHistory",
+                    params: [assistOS.space.id, this.id, imageId]
+                }
             });
-            llmModule.createSSEConnection(task.messageId, task.clientId);
             task.prompt = this.prompt;
             task.buttons = ["Cancel Job"];
             this.images.push(task);
