@@ -17,7 +17,7 @@ export class MidjourneyImage {
         });
     }
     async afterUnload(){
-        utilModule.unsubscribeFromObject(this.imageId);
+        await utilModule.unsubscribeFromObject(this.imageId);
     }
     getImage(){
         return this.parentPresenter.images.find((image)=> image.id === this.imageId);

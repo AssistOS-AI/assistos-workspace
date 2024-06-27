@@ -19,7 +19,7 @@ export class GalleriesPage{
         this.tableRows = "";
         if(this.galleries.length > 0) {
             this.galleries.forEach((gallery) => {
-                this.tableRows += `<gallery-item data-name="${gallery.name}" 
+                this.tableRows += `<gallery-item data-name="${gallery.config.name}" 
                 data-id="${gallery.id}" data-local-action="openGallery ${gallery.id}"></gallery-item>`;
             });
         }
@@ -52,7 +52,9 @@ export class GalleriesPage{
             galleryName.addEventListener("blur", async (event) => {
                 component.setAttribute("data-local-action", `openGallery ${galleryId}`);
                 galleryName.setAttribute("contenteditable", "false");
-                await galleryModule.updateGalleryName(assistOS.space.id, galleryId, galleryName.innerText);
+                let galleryConfig = await galleryModule.getGalleryConfig(assistOS.space.id, galleryId);
+                galleryConfig.name = galleryName.innerText;
+                await galleryModule.updateGalleryConfig(assistOS.space.id, galleryId, galleryConfig);
                 controller.abort();
             }, {signal: controller.signal});
         }

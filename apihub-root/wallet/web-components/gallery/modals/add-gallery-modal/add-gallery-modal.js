@@ -14,9 +14,24 @@ export class AddGalleryModal{
         assistOS.UI.closeModal(_target);
         const formData = await assistOS.UI.extractFormInformation(_target);
         let galleryId = await galleryModule.addGallery(assistOS.space.id, {
-            name: formData.data.name,
             images: [],
-            history: []
+            config:{
+                name: formData.data.name,
+                mode: "OpenAI",
+                commonConfig:{
+                    personalityId: "",
+                    modelName: "DALL-E-2",
+                    prompt: ""
+                },
+                openAIConfig: {
+                    variables: "1",
+                    size: "256x256",
+                    style: "natural",
+                    quality: "standard"
+                }
+            },
+            midjourneyHistory:[],
+            openAIHistory:[],
         });
         await assistOS.UI.changeToDynamicPage("space-application-page", `${assistOS.space.id}/Space/gallery-page/${galleryId}`);
     }

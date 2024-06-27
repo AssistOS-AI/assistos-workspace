@@ -38,8 +38,8 @@ export class GalleryPage {
     }
 
     async afterUnload() {
-       await utilModule.unsubscribeFromObject(assistOS.space.id, this.id);
-       await utilModule.unsubscribeFromObject(assistOS.space.id, this.id + "/delete");
+       await utilModule.unsubscribeFromObject(this.id);
+       await utilModule.unsubscribeFromObject(this.id + "/delete");
     }
     async generateImage() {
         await assistOS.UI.changeToDynamicPage("space-application-page", `${assistOS.space.id}/Space/generate-image-page/${this.id}`);

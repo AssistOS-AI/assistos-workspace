@@ -131,7 +131,7 @@ const eventPublisher = (() => {
         const intervalId = setInterval(() => {
             response.write("event: message\n");
             response.write('data: keep-alive\n\n');
-        }, 5000);
+        }, 30000);
         response.on('error', (err) => {
             clearInterval(intervalId);
             console.error('Server SSE error:', err);
@@ -154,7 +154,7 @@ const eventPublisher = (() => {
         if(!subscription) {
             return;
         }
-        let data = {objectId: objectId};
+        let data = JSON.stringify({objectId: objectId});
         client.res.write(`event: ${eventType}\n`);
         client.res.write(`data: ${data}\n\n`);
     }
