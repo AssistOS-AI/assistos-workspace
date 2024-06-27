@@ -120,7 +120,6 @@ class AssistOS {
     async login(email, password){
         await userModule.loginUser(email, password);
         await assistOS.loadPage(true);
-        utilModule.createSSEConnection();
     }
     async logout() {
         await utilModule.closeSSEConnection();
@@ -170,6 +169,7 @@ class AssistOS {
             }
             hidePlaceholders();
             insertSidebar();
+            utilModule.createSSEConnection();
             if (applicationName) {
                 await assistOS.startApplication(applicationName, applicationLocation);
             } else {

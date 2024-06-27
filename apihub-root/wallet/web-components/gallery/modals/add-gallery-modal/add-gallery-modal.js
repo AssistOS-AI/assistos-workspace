@@ -24,7 +24,7 @@ export class AddGalleryModal{
                     prompt: ""
                 },
                 openAIConfig: {
-                    variables: "1",
+                    variants: "1",
                     size: "256x256",
                     style: "natural",
                     quality: "standard"

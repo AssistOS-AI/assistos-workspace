@@ -41,10 +41,7 @@ export class GenerateImagePage {
                 this.invalidate(this.refreshHistory);
             }
         });
-        utilModule.subscribeToObject(this.id + "/midjourneyHistory", async (data) => {
-            this.invalidate(this.refreshHistory);
-        });
-        utilModule.subscribeToObject(this.id + "/openAIHistory", async (data) => {
+        utilModule.subscribeToObject(this.id, async (data) => {
             this.invalidate(this.refreshHistory);
         });
         this.selectInputs = [];
@@ -331,7 +328,7 @@ export class GenerateImagePage {
 
         } else {
             try {
-                let taskId = await galleryModule.addImageToHistory(assistOS.space.id, this.id, {});
+                let taskId = await galleryModule.addMidjourneyHistoryImage(assistOS.space.id, this.id, {});
                 // flowContext.saveDataConfig = {
                 //     module: "gallery",
                 //     fnName: "updateImageInHistory",
@@ -348,7 +345,7 @@ export class GenerateImagePage {
             }
         }
         assistOS.UI.hideLoading(loaderId);
-        this.invalidate();
+        //this.invalidate();
     }
 
     async editImage(_target, messageId, imageId, action) {

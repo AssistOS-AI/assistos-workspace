@@ -365,7 +365,24 @@ async function constructEmbeddedObject(lightDBEnclaveClient, tableId, record) {
     }
     return object;
 }
-
+function isArrayOfEmbeddedObjectsRefs(object, objectType){
+    if(Array.isArray(object) && object.length !== 0){
+        if(object[0].includes("_")){
+            if(object[0].split("_")[0] === objectType){
+                return true;
+            }
+        }
+    }
+    return false;
+}
+async function constructArrayOfEmbeddedObjects(lightDBEnclaveClient, tableId, embeddedObjectRecord){
+    let array = [];
+    for(let id of embeddedObjectRecord){
+        let record = await $$.promisify(lightDBEnclaveClient.getRecord)($$.SYSTEM_IDENTIFIER, tableId, id);
+        array.push(await constructEmbeddedObject(lightDBEnclaveClient, tableId, record));
+    }
+    return array;
+}
 async function getEmbeddedObject(request, response) {
     const spaceId = request.params.spaceId;
     const objectType = request.params.objectType;
@@ -381,7 +398,16 @@ async function getEmbeddedObject(request, response) {
         let embeddedObjectRecord = await $$.promisify(lightDBEnclaveClient.getRecord)($$.SYSTEM_IDENTIFIER, tableId, objectId);
         let embeddedObject;
         if (propertyName) {
-            embeddedObject = embeddedObjectRecord.data[propertyName];
+            if(isArrayOfEmbeddedObjectsRefs(embeddedObjectRecord.data[propertyName], propertyName)){
+                embeddedObject = await constructArrayOfEmbeddedObjects(lightDBEnclaveClient, tableId, embeddedObjectRecord.data[propertyName]);
+                return utils.sendResponse(response, 200, "application/json", {
+                    success: true,
+                    data: embeddedObject,
+                    message: `Object ${objectType} loaded successfully`
+                });
+            } else {
+                embeddedObject = embeddedObjectRecord.data[propertyName];
+            }
         } else {
             embeddedObject = await constructEmbeddedObject(lightDBEnclaveClient, tableId, embeddedObjectRecord);
         }

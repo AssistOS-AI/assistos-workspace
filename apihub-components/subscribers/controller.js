@@ -123,11 +123,14 @@ const subscribersModule = (() => {
 
 const eventPublisher = (() => {
     let clients = [];
-    function registerClient(userId, response){
+    function registerClient(userId, request, response){
         response.setHeader('Content-Type', 'text/event-stream');
         response.setHeader('Cache-Control', 'no-cache');
         response.setHeader('Connection', 'keep-alive');
         response.flushHeaders();
+        request.on('close', () => {
+            clients = clients.filter(client => client.userId !== userId);
+        });
         const intervalId = setInterval(() => {
             response.write("event: message\n");
             response.write('data: keep-alive\n\n');
@@ -187,7 +190,7 @@ const eventPublisher = (() => {
     }
 })();
 function registerClient(request, response) {
-    eventPublisher.registerClient(request.userId, response);
+    eventPublisher.registerClient(request.userId, request, response);
 }
 function removeClient(request, response) {
     try{
