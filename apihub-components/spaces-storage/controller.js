@@ -441,11 +441,11 @@ async function insertEmbeddedObjectRecords(lightDBEnclaveClient, tableId, object
         } else {
             objectId = `${objectType}_${crypto.generateId()}`;
             objectData.id = objectId;
-        }
-        if (objectData.position) {
-            object[objectType].splice(objectData.position, 0, objectId);
-        } else {
-            object[objectType].push(objectId);
+            if (objectData.position) {
+                object[objectType].splice(objectData.position, 0, objectId);
+            } else {
+                object[objectType].push(objectId);
+            }
         }
         await $$.promisify(lightDBEnclaveClient.updateRecord)($$.SYSTEM_IDENTIFIER, tableId, pk, {data: object});
         await insertObjectRecords(lightDBEnclaveClient, tableId, objectId, objectData);
@@ -508,6 +508,7 @@ async function updateEmbeddedObject(request, response) {
             await deleteEmbeddedObjectDependencies(lightDBEnclaveClient, tableId, objectId);
             await insertEmbeddedObjectRecords(lightDBEnclaveClient, tableId, objectURI, objectData, true);
             subscribersModule.notifySubscribers(spaceId, request.userId, tableId, objectId);
+            eventPublisher.notifyClient(request.userId, "content", objectId);
         }
         return utils.sendResponse(response, 200, "application/json", {
             success: true,

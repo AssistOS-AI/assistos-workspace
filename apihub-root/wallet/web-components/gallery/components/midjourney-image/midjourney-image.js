@@ -1,4 +1,5 @@
 const utilModule = require("assistos").loadModule("util", {});
+const galleryModule = require("assistos").loadModule("gallery", {});
 export class MidjourneyImage {
     constructor(element, invalidate) {
         this.element = element;
@@ -8,12 +9,11 @@ export class MidjourneyImage {
         let image = this.parentPresenter.images.find((image)=> image.id === this.imageId);
         this.prompt = image.prompt;
         this.invalidate(async ()=>{
-            if(image.status !== "DONE"){
-                await utilModule.subscribeToObject(this.imageId, (data)=>{
-                    this.setImage(data);
-                    this.invalidate();
-                });
-            }
+            await utilModule.subscribeToObject(this.imageId, async (data)=>{
+                let image = await galleryModule.getMidjourneyHistoryImage(assistOS.space.id , this.parentPresenter.id, this.imageId);
+                this.setImage(image);
+                this.invalidate();
+            });
         });
     }
     async afterUnload(){

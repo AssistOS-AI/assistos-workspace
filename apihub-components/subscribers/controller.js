@@ -122,15 +122,12 @@ const subscribersModule = (() => {
 // }
 
 const eventPublisher = (() => {
-    let clients = [];
+    let clients = new Map();
     function registerClient(userId, request, response){
         response.setHeader('Content-Type', 'text/event-stream');
         response.setHeader('Cache-Control', 'no-cache');
         response.setHeader('Connection', 'keep-alive');
         response.flushHeaders();
-        request.on('close', () => {
-            clients = clients.filter(client => client.userId !== userId);
-        });
         const intervalId = setInterval(() => {
             response.write("event: message\n");
             response.write('data: keep-alive\n\n');
@@ -140,16 +137,21 @@ const eventPublisher = (() => {
             console.error('Server SSE error:', err);
             response.end();
         });
+        if (clients.has(userId)) {
+            const existingClient = clients.get(userId);
+            clearInterval(existingClient.intervalId);
+            existingClient.res.end();
+        }
         let client = {
             res: response,
             userId: userId,
             intervalId: intervalId,
             objectIds: {}
         };
-        clients.push(client);
+        clients.set(userId, client);
     }
     function notifyClient(userId, eventType, objectId) {
-        const client = clients.find(client => client.userId === userId);
+        const client = clients.get(userId);
         if (!client) {
             return;
         }
@@ -162,20 +164,20 @@ const eventPublisher = (() => {
         client.res.write(`data: ${data}\n\n`);
     }
     function removeClient(userId) {
-        let client = clients.find(client => client.userId === userId);
+        let client = clients.get(userId);
         clearInterval(client.intervalId);
         client.res.end();
-        clients = clients.filter(client => client.userId !== userId);
+        clients.delete(userId);
     }
     function subscribeToObject(userId, objectId) {
-        let client = clients.find(client => client.userId === userId);
+        let client = clients.get(userId);
         if (!client) {
             return;
         }
         client.objectIds[objectId] = objectId;
     }
     function unsubscribeFromObject(userId, objectId) {
-        let client = clients.find(client => client.userId === userId);
+        let client = clients.get(userId);
         if (!client) {
             return;
         }

@@ -204,16 +204,14 @@ export class GenerateImagePage {
             sizeInput.innerHTML = sizeOptions;
             this.galleryConfig.openAIConfig.size = newModel.size[0];
         }
+        this.galleryConfig.commonConfig.modelName = newModel.name;
         if (newModel.companyName === this.currentModel.companyName) {
-            this.galleryConfig.commonConfig.modelName = newModel.name;
             await galleryModule.updateGalleryConfig(assistOS.space.id, this.id, this.galleryConfig);
         } else {
             this.galleryConfig.mode = newModel.companyName;
-            this.galleryConfig.commonConfig.modelName = newModel.name;
             await galleryModule.updateGalleryConfig(assistOS.space.id, this.id, this.galleryConfig);
         }
         this.currentModel = newModel;
-        this.invalidate();
     }
 
     async saveInput(input, event) {
@@ -237,12 +235,10 @@ export class GenerateImagePage {
     afterRender() {
         let modelInput = this.element.querySelector(".select-llm");
         modelInput.addEventListener("change", this.changeLLMHandler.bind(this, modelInput));
-
         let inputs = this.element.querySelectorAll(".config-select");
         for (let input of inputs) {
             input.addEventListener("change", this.saveInput.bind(this, input));
         }
-
         let promptInput = this.element.querySelector("#prompt");
         promptInput.innerHTML = this.galleryConfig.commonConfig.prompt;
         promptInput.addEventListener("click", ()=>{
@@ -320,7 +316,7 @@ export class GenerateImagePage {
                 for (let i = 0; i < images.length; i++) {
                     images[i] = pngPrefix + images[i];
                 }
-                this.images = images;
+                await galleryModule.updateOpenAIHistoryImages(assistOS.space.id, this.id, images);
             } catch (e) {
                 let message = assistOS.UI.sanitize(e.message);
                 await showApplicationError(message, message, message);
@@ -329,16 +325,14 @@ export class GenerateImagePage {
         } else {
             try {
                 let taskId = await galleryModule.addMidjourneyHistoryImage(assistOS.space.id, this.id, {});
-                // flowContext.saveDataConfig = {
-                //     module: "gallery",
-                //     fnName: "updateImageInHistory",
-                //     params: [assistOS.space.id, this.id, taskId]
-                // }
-                // let task = (await assistOS.callFlow("GenerateImage", flowContext, formData.data.personality)).data;
-                // await galleryModule.updateImageInHistory(assistOS.space.id, this.id, taskId, task);
-                //task.prompt = this.prompt;
-                //task.buttons = ["Cancel Job"];
-                //this.images.push(task);
+                flowContext.saveDataConfig = {
+                    module: "gallery",
+                    fnName: "updateMidjourneyHistoryImage",
+                    params: [assistOS.space.id, this.id, taskId]
+                }
+                let task = (await assistOS.callFlow("GenerateImage", flowContext, formData.data.personality)).data;
+                task.buttons = ["Cancel Job"];
+                await galleryModule.updateMidjourneyHistoryImage(assistOS.space.id, this.id, taskId, task);
             } catch (e) {
                 let message = assistOS.UI.sanitize(e.message);
                 await showApplicationError(message, message, message);

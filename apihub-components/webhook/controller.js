@@ -16,19 +16,19 @@ async function dataHandler(request, response) {
             });
         }
         const ref = JSON.parse(request.body.ref);
-        const {timestamp, nonce, signature: receivedSignature, userId, saveDataConfig} = ref;
+        const {timestamp, nonce, signature: receivedSignature, saveDataConfig, __securityContext} = ref;
         const generatedSignature = generateSignature(timestamp, nonce);
         if (receivedSignature === generatedSignature) {
             if(saveDataConfig){
-                const module = require("assistos").loadModule(saveDataConfig.module);
+                let requestDummy = {
+                    headers:{
+                        cookie: __securityContext.cookies
+                    }
+                }
+                const SecurityContext = require("assistos").ServerSideSecurityContext;
+                let securityContext = new SecurityContext(requestDummy);
+                const module = require("assistos").loadModule(saveDataConfig.module, securityContext);
                 await module[saveDataConfig.fnName](...saveDataConfig.params, request.body);
-            }
-            if (request.body.status === "QUEUED" || request.body.status === "PROCESSING") {
-                eventPublisher.notifyClient(userId, "content", request.body);
-            } else if (request.body.status === "FAILED") {
-                eventPublisher.notifyClient(userId, "content", request.body.error);
-            } else if (request.body.status === "DONE") {
-                eventPublisher.notifyClient(userId, "done", request.body);
             }
             return utils.sendResponse(response, 200, "application/json", {
                 success: true
