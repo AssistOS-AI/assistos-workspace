@@ -34,7 +34,8 @@ const {
     getChatImageResponse,
     editChatImage,
     getChatImageVariants,
-    getChatVideoResponse
+    getChatVideoResponse,
+    storeImage
 } = require("./controller");
 
 const bodyReader = require('../apihub-component-middlewares/bodyReader.js')
@@ -48,7 +49,7 @@ function SpaceStorage(server) {
     server.get("/spaces/invitations/reject", rejectSpaceInvitation);
     server.get("/spaces/invitations/accept", acceptSpaceInvitation);
 
-    server.use("/spaces/*", authentication);
+    //server.use("/spaces/*", authentication);
 
     server.get("/spaces", getSpace);
     server.get("/spaces/:spaceId", getSpace);
@@ -106,6 +107,8 @@ function SpaceStorage(server) {
     server.post("/apis/v1/spaces/:spaceId/chats/:chatId/llms/image/edit", editChatImage);
     server.post("/apis/v1/spaces/:spaceId/chats/:chatId/llms/image/variants", getChatImageVariants);
     server.post("/apis/v1/spaces/:spaceId/chats/:chatId/llms/video/generate", getChatVideoResponse);
+
+    server.post("/spaces/images/:spaceId/:imageId", storeImage);
 }
 
 module.exports = SpaceStorage;

@@ -379,7 +379,7 @@ async function constructArrayOfEmbeddedObjects(lightDBEnclaveClient, tableId, em
     let array = [];
     for(let id of embeddedObjectRecord){
         let record = await $$.promisify(lightDBEnclaveClient.getRecord)($$.SYSTEM_IDENTIFIER, tableId, id);
-        array.push(await constructEmbeddedObject(lightDBEnclaveClient, tableId, record));
+        array.push(record.data);
     }
     return array;
 }
@@ -1095,7 +1095,24 @@ async function getChatImageVariants(request, response) {
 async function getChatVideoResponse(request, response) {
 
 }
+async function storeImage(request, response) {
+    const spaceId = request.params.spaceId;
+    const imageId = request.params.imageId;
+    const objectData = request.body;
+    try {
+        await space.APIs.writeImage(spaceId, imageId, objectData);
+        return utils.sendResponse(response, 200, "application/json", {
+            success: true,
+            data: imageId,
+        });
+    } catch (error) {
+        return utils.sendResponse(response, 500, "application/json", {
+            success: false,
+            message: error + ` Error at writing image: ${imageId}`
+        });
+    }
 
+}
 module.exports = {
     acceptSpaceInvitation,
     rejectSpaceInvitation,
@@ -1132,4 +1149,5 @@ module.exports = {
     getChatImageResponse,
     editChatImage,
     getChatImageVariants,
-    getChatVideoResponse}
+    getChatVideoResponse,
+    storeImage}

@@ -151,17 +151,17 @@ const eventPublisher = (() => {
         clients.set(userId, client);
     }
     function notifyClient(userId, eventType, objectId) {
-        const client = clients.get(userId);
-        if (!client) {
-            return;
+        for(let [key, value] of clients) {
+            if(value.objectIds[objectId]) {
+                let data = {objectId: objectId};
+                if(key === userId) {
+                    data.isSameUser = true;
+                }
+                let stringData = JSON.stringify(data);
+                value.res.write(`event: ${eventType}\n`);
+                value.res.write(`data: ${stringData}\n\n`);
+            }
         }
-        let subscription = client.objectIds[objectId];
-        if(!subscription) {
-            return;
-        }
-        let data = JSON.stringify({objectId: objectId});
-        client.res.write(`event: ${eventType}\n`);
-        client.res.write(`data: ${data}\n\n`);
     }
     function removeClient(userId) {
         let client = clients.get(userId);

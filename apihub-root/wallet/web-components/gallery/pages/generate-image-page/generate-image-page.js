@@ -36,7 +36,7 @@ export class GenerateImagePage {
 
         utilModule.subscribeToObject(this.id + "/config", async (data) => {
             let galleryConfig = await galleryModule.getGalleryConfig(assistOS.space.id, this.id);
-            if (this.galleryConfig !== galleryConfig) {
+            if (JSON.stringify(this.galleryConfig) !== JSON.stringify(galleryConfig)) {
                 this.galleryConfig = galleryConfig;
                 this.invalidate(this.refreshHistory);
             }
@@ -323,8 +323,8 @@ export class GenerateImagePage {
             }
 
         } else {
+            let taskId = await galleryModule.addMidjourneyHistoryImage(assistOS.space.id, this.id, {});
             try {
-                let taskId = await galleryModule.addMidjourneyHistoryImage(assistOS.space.id, this.id, {});
                 flowContext.saveDataConfig = {
                     module: "gallery",
                     fnName: "updateMidjourneyHistoryImage",
@@ -332,35 +332,34 @@ export class GenerateImagePage {
                 }
                 let task = (await assistOS.callFlow("GenerateImage", flowContext, formData.data.personality)).data;
                 task.buttons = ["Cancel Job"];
-                await galleryModule.updateMidjourneyHistoryImage(assistOS.space.id, this.id, taskId, task);
+                //await galleryModule.updateMidjourneyHistoryImage(assistOS.space.id, this.id, taskId, task);
             } catch (e) {
                 let message = assistOS.UI.sanitize(e.message);
+                await llmModule.deleteMidjourneyHistoryImage(assistOS.space.id, this.id, taskId);
                 await showApplicationError(message, message, message);
             }
         }
         assistOS.UI.hideLoading(loaderId);
-        //this.invalidate();
     }
 
     async editImage(_target, messageId, imageId, action) {
         let loaderId = await assistOS.UI.showLoading();
+        let taskId = await galleryModule.addMidjourneyHistoryImage(assistOS.space.id, this.id, {});
         try {
             let task = await llmModule.editImage(assistOS.space.id, this.currentModel.name, {
                 messageId: messageId,
                 action: action,
                 saveDataConfig: {
                     module: "gallery",
-                    fnName: "updateImageInHistory",
-                    params: [assistOS.space.id, this.id, imageId]
+                    fnName: "updateMidjourneyHistoryImage",
+                    params: [assistOS.space.id, this.id, taskId]
                 }
             });
-            task.prompt = this.prompt;
             task.buttons = ["Cancel Job"];
-            this.images.push(task);
             assistOS.UI.hideLoading(loaderId);
-            this.invalidate();
         } catch (e) {
             let message = assistOS.UI.sanitize(e);
+            await galleryModule.deleteMidjourneyHistoryImage(assistOS.space.id, this.id, taskId);
             await showApplicationError(message, message, message);
         }
     }

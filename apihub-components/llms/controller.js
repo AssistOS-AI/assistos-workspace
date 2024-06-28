@@ -5,6 +5,7 @@ const axios = require('axios');
 const cache = {};
 const {pipeline} = require('stream');
 const {getWebhookSecret} = require("../webhook/controller");
+const crypto = require("../apihub-component-utils/crypto");
 let LLMConfigs;
 
 async function getLLMAuthRequirements() {
@@ -206,13 +207,12 @@ async function getTextStreamingResponse(request, response) {
 async function getImageResponse(request, response) {
     try {
         request.body.webhookSecret = getWebhookSecret();
-        request.body.userId = request.userId;
-        const SecurityContext = require("assistos").ServerSideSecurityContext;
-        request.body.__securityContext = new SecurityContext(request);
-        const modelResponse = await sendRequest(`/apis/v1/image/generate`, "POST", request, response);
+        let imageId = `${request.params.spaceId}_${crypto.generateId()}`;
+        request.body.imageId = imageId;
+        await sendRequest(`/apis/v1/image/generate`, "POST", request, response);
         utils.sendResponse(response, 200, "application/json", {
             success: true,
-            data: modelResponse
+            data: imageId
         });
     } catch (error) {
         utils.sendResponse(response, error.statusCode || 500, "application/json", {
@@ -226,6 +226,8 @@ async function editImage(request, response) {
     try {
         request.body.webhookSecret = getWebhookSecret();
         request.body.userId = request.userId;
+        const SecurityContext = require("assistos").ServerSideSecurityContext;
+        request.body.__securityContext = new SecurityContext(request);
         const modelResponse = await sendRequest(`/apis/v1/image/edit`, "POST", request, response);
         utils.sendResponse(response, 200, "application/json", {
             success: true,

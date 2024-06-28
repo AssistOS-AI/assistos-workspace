@@ -2,7 +2,7 @@ const {generateId} = require("../apihub-component-utils/crypto");
 const crypto = require('crypto');
 const utils = require("../apihub-component-utils/utils");
 const secret = generateId(32);
-const {eventPublisher} = require("../subscribers");
+const space = require("../spaces-storage/space.js");
 function generateSignature(timestamp, nonce) {
     const data = timestamp + nonce + secret;
     return crypto.createHmac('sha256', secret).update(data).digest('hex');
@@ -16,19 +16,11 @@ async function dataHandler(request, response) {
             });
         }
         const ref = JSON.parse(request.body.ref);
-        const {timestamp, nonce, signature: receivedSignature, saveDataConfig, __securityContext} = ref;
+        const {timestamp, nonce, signature: receivedSignature, imageId} = ref;
         const generatedSignature = generateSignature(timestamp, nonce);
         if (receivedSignature === generatedSignature) {
-            if(saveDataConfig){
-                let requestDummy = {
-                    headers:{
-                        cookie: __securityContext.cookies
-                    }
-                }
-                const SecurityContext = require("assistos").ServerSideSecurityContext;
-                let securityContext = new SecurityContext(requestDummy);
-                const module = require("assistos").loadModule(saveDataConfig.module, securityContext);
-                await module[saveDataConfig.fnName](...saveDataConfig.params, request.body);
+            if(imageId && request.body.status === "DONE"){
+                await space.APIs.writeImage(imageId, request.body.uri);
             }
             return utils.sendResponse(response, 200, "application/json", {
                 success: true
@@ -46,7 +38,9 @@ async function dataHandler(request, response) {
         });
     }
 }
+async function processBuffer() {
 
+}
 function getWebhookSecret() {
     return secret;
 }

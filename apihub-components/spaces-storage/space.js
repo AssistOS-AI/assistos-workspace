@@ -221,6 +221,7 @@ async function createSpace(spaceName, userId, apiKey) {
         () => copyDefaultFlows(spacePath),
         () => copyDefaultPersonalities(spacePath),
         () => file.createDirectory(path.join(spacePath, 'documents')),
+        () => file.createDirectory(path.join(spacePath, 'images')),
         () => file.createDirectory(path.join(spacePath, 'applications')),
         () => createSpaceStatus(spacePath, spaceObj),
         () => User.APIs.linkSpaceToUser(userId, spaceId),
@@ -481,7 +482,17 @@ async function getDefaultSpaceAgentId(spaceId) {
     const spaceStatusObject = await getSpaceStatusObject(spaceId);
     return spaceStatusObject.defaultSpaceAgent;
 }
-
+async function writeImage(spaceId, imageId, base64Image){
+    const imagesPath = path.join(getSpacePath(spaceId), 'images');
+    if(base64Image.startsWith("http")){
+        let response = await fetch(base64Image);
+        const buffer = await response.buffer();
+        await fsPromises.writeFile(path.join(imagesPath, `${imageId}.png`), buffer);
+    }
+    const base64Data = base64Image.replace(/^data:image\/png;base64,/, "");
+    const buffer = Buffer.from(base64Data, 'base64');
+    await fsPromises.writeFile(path.join(imagesPath, `${imageId}.png`), buffer);
+}
 module.exports = {
     APIs: {
         addSpaceAnnouncement,
@@ -505,7 +516,8 @@ module.exports = {
         deleteAPIKey,
         getAPIKeysMetadata,
         getSpaceAgent,
-        getDefaultSpaceAgentId
+        getDefaultSpaceAgentId,
+        writeImage
     },
     templates: {
         defaultSpaceAnnouncement: require('./templates/defaultSpaceAnnouncement.json'),
