@@ -207,12 +207,12 @@ async function getTextStreamingResponse(request, response) {
 async function getImageResponse(request, response) {
     try {
         request.body.webhookSecret = getWebhookSecret();
-        let imageId = `${request.params.spaceId}_${crypto.generateId()}`;
-        request.body.imageId = imageId;
-        await sendRequest(`/apis/v1/image/generate`, "POST", request, response);
+        request.body.spaceId = request.params.spaceId;
+        request.body.userId = request.userId;
+        let imagesIds = await sendRequest(`/apis/v1/image/generate`, "POST", request, response);
         utils.sendResponse(response, 200, "application/json", {
             success: true,
-            data: imageId
+            data: imagesIds
         });
     } catch (error) {
         utils.sendResponse(response, error.statusCode || 500, "application/json", {

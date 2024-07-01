@@ -25,10 +25,16 @@ export class GalleryPage {
     }
 
     beforeRender() {
-        this.galleryName = this.gallery.name;
+        this.galleryName = this.gallery.config.name;
         let stringHTML = "";
-        for(let image of this.gallery.images){
-             stringHTML += `<img class="gallery-image" src="${image.src}" alt="${image.timestamp}">`;
+        let allImages = this.gallery.openAIHistory.concat(this.gallery.midjourneyHistory);
+        allImages.sort((a, b) => {
+            return new Date(b.createdAt) - new Date(a.createdAt);
+        });
+        for(let image of allImages){
+            if(image.saved){
+                stringHTML += `<img class="gallery-image" src="${image.src}" alt="${image.createdAt}">`;
+            }
         }
         this.images = stringHTML;
     }

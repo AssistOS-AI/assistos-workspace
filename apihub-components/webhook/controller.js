@@ -16,11 +16,12 @@ async function dataHandler(request, response) {
             });
         }
         const ref = JSON.parse(request.body.ref);
-        const {timestamp, nonce, signature: receivedSignature, imageId} = ref;
+        const {timestamp, nonce, signature: receivedSignature, imageId, userId} = ref;
         const generatedSignature = generateSignature(timestamp, nonce);
         if (receivedSignature === generatedSignature) {
             if(imageId && request.body.status === "DONE"){
-                await space.APIs.writeImage(imageId, request.body.uri);
+                let spaceId = imageId.split("_")[0];
+                await space.APIs.putImage(userId, spaceId, imageId, request.body.uri || request.body.imageData);
             }
             return utils.sendResponse(response, 200, "application/json", {
                 success: true

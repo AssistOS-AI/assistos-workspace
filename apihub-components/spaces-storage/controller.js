@@ -365,24 +365,29 @@ async function constructEmbeddedObject(lightDBEnclaveClient, tableId, record) {
     }
     return object;
 }
-function isArrayOfEmbeddedObjectsRefs(object, objectType){
-    if(Array.isArray(object) && object.length !== 0){
-        if(object[0].includes("_")){
-            if(object[0].split("_")[0] === objectType){
-                return true;
+
+function isArrayOfEmbeddedObjectsRefs(object, objectType) {
+    if (Array.isArray(object) && object.length !== 0) {
+        if (typeof object[0] === "string") {
+            if (object[0].includes("_")) {
+                if (object[0].split("_")[0] === objectType || object[0].split("_")[0].length <= 16) {
+                    return true;
+                }
             }
         }
     }
     return false;
 }
-async function constructArrayOfEmbeddedObjects(lightDBEnclaveClient, tableId, embeddedObjectRecord){
+
+async function constructArrayOfEmbeddedObjects(lightDBEnclaveClient, tableId, embeddedObjectRecord) {
     let array = [];
-    for(let id of embeddedObjectRecord){
+    for (let id of embeddedObjectRecord) {
         let record = await $$.promisify(lightDBEnclaveClient.getRecord)($$.SYSTEM_IDENTIFIER, tableId, id);
         array.push(record.data);
     }
     return array;
 }
+
 async function getEmbeddedObject(request, response) {
     const spaceId = request.params.spaceId;
     const objectType = request.params.objectType;
@@ -398,7 +403,7 @@ async function getEmbeddedObject(request, response) {
         let embeddedObjectRecord = await $$.promisify(lightDBEnclaveClient.getRecord)($$.SYSTEM_IDENTIFIER, tableId, objectId);
         let embeddedObject;
         if (propertyName) {
-            if(isArrayOfEmbeddedObjectsRefs(embeddedObjectRecord.data[propertyName], propertyName)){
+            if (isArrayOfEmbeddedObjectsRefs(embeddedObjectRecord.data[propertyName], propertyName)) {
                 embeddedObject = await constructArrayOfEmbeddedObjects(lightDBEnclaveClient, tableId, embeddedObjectRecord.data[propertyName]);
                 return utils.sendResponse(response, 200, "application/json", {
                     success: true,
@@ -435,21 +440,36 @@ async function insertEmbeddedObjectRecords(lightDBEnclaveClient, tableId, object
         if (!object[objectType]) {
             object[objectType] = [];
         }
-        let objectId;
-        if (isUpdate) {
-            objectId = objectData.id;
-        } else {
-            objectId = `${objectType}_${crypto.generateId()}`;
-            objectData.id = objectId;
-            if (objectData.position) {
-                object[objectType].splice(objectData.position, 0, objectId);
-            } else {
-                object[objectType].push(objectId);
+        if (!isUpdate) {
+            //array concatenate
+            if(Array.isArray(objectData)){
+                for(let item of objectData){
+                    if(!item.id){
+                        item.id = `${objectType}_${crypto.generateId()}`;
+                    }
+                    if(item.position){
+                        object[objectType].splice(item.position, 0, item.id);
+                    } else {
+                        object[objectType].push(item.id);
+                    }
+                    await insertObjectRecords(lightDBEnclaveClient, tableId, item.id, item);
+                }
+                await $$.promisify(lightDBEnclaveClient.updateRecord)($$.SYSTEM_IDENTIFIER, tableId, pk, {data: object});
+                return objectData.map(item => item.id);
             }
+            //single object
+            if(!objectData.id){
+                objectData.id = `${objectType}_${crypto.generateId()}`;
+            }
+            if (objectData.position) {
+                object[objectType].splice(objectData.position, 0, objectData.id);
+            } else {
+                object[objectType].push(objectData.id);
+            }
+            await $$.promisify(lightDBEnclaveClient.updateRecord)($$.SYSTEM_IDENTIFIER, tableId, pk, {data: object});
         }
-        await $$.promisify(lightDBEnclaveClient.updateRecord)($$.SYSTEM_IDENTIFIER, tableId, pk, {data: object});
-        await insertObjectRecords(lightDBEnclaveClient, tableId, objectId, objectData);
-        return objectId;
+        await insertObjectRecords(lightDBEnclaveClient, tableId, objectData.id, objectData);
+        return objectData.id;
     } else {
         objectURI = segments.join("/");
         return await insertEmbeddedObjectRecords(lightDBEnclaveClient, tableId, objectURI, objectData);
@@ -495,6 +515,25 @@ async function updateEmbeddedObject(request, response) {
         if (propertyName) {
             let record = await $$.promisify(lightDBEnclaveClient.getRecord)($$.SYSTEM_IDENTIFIER, tableId, objectId);
             let object = record.data;
+            if(Array.isArray(objectData) && objectData.length !== 0){
+                if(typeof objectData[0] === "object"){
+                    for(let objectId of object[propertyName]){
+                        await deleteEmbeddedObjectDependencies(lightDBEnclaveClient, tableId, objectId);
+                    }
+                    object[propertyName] = [];
+                    for(let item of objectData){
+                        await insertEmbeddedObjectRecords(lightDBEnclaveClient, tableId, objectURI, item, true);
+                        object[propertyName].push(item.id);
+                    }
+                    await $$.promisify(lightDBEnclaveClient.updateRecord)($$.SYSTEM_IDENTIFIER, tableId, objectId, {data: object});
+                    eventPublisher.notifyClient(request.userId, "content", objectId + "/" + propertyName);
+                    return utils.sendResponse(response, 200, "application/json", {
+                        success: true,
+                        data: objectId,
+                        message: `Object ${objectId} updated successfully`
+                    });
+                }
+            }
             object[propertyName] = objectData;
             await $$.promisify(lightDBEnclaveClient.updateRecord)($$.SYSTEM_IDENTIFIER, tableId, objectId, {data: object});
             if (segments.length === 3 || (segments.length === 2 && !Array.isArray(object[propertyName]))) {
@@ -527,9 +566,11 @@ async function deleteEmbeddedObjectDependencies(lightDBEnclaveClient, tableId, o
     let record = await $$.promisify(lightDBEnclaveClient.getRecord)($$.SYSTEM_IDENTIFIER, tableId, objectId);
     let object = record.data;
     for (let key of Object.keys(object)) {
-        if (Array.isArray(object[key])) {
-            for (let item of object[key]) {
-                await deleteEmbeddedObjectDependencies(lightDBEnclaveClient, tableId, item);
+        if (Array.isArray(object[key]) && object[key].length > 0) {
+            if(typeof object[key][0] === "string" && object[key][0].includes("_")){
+                for (let item of object[key]) {
+                    await deleteEmbeddedObjectDependencies(lightDBEnclaveClient, tableId, item);
+                }
             }
         }
     }
@@ -622,11 +663,11 @@ async function swapEmbeddedObjects(request, response) {
 
 async function addSpaceChatMessage(request, response) {
     const spaceId = request.params.spaceId;
-    const chatId= request.params.chatId;
+    const chatId = request.params.chatId;
     const userId = request.userId;
     const messageData = request.body;
     try {
-        const messageId = await space.APIs.addSpaceChatMessage(spaceId,chatId, userId, "user", messageData);
+        const messageId = await space.APIs.addSpaceChatMessage(spaceId, chatId, userId, "user", messageData);
         utils.sendResponse(response, 200, "application/json", {
             success: true,
             message: `Message added successfully`,
@@ -1053,12 +1094,12 @@ async function getChatTextResponse(request, response) {
 
     const spaceId = request.params.spaceId;
     const chatId = request.params.chatId;
-    const agentId= request.body.agentId
-    const modelResponse= await getTextResponse(request, response);
-    if(modelResponse.success){
-        const chatMessages= modelResponse.data.messages
-        for(const chatMessage of chatMessages){
-            await space.APIs.addSpaceChatMessage(spaceId,chatId,agentId, "assistant", chatMessage);
+    const agentId = request.body.agentId
+    const modelResponse = await getTextResponse(request, response);
+    if (modelResponse.success) {
+        const chatMessages = modelResponse.data.messages
+        for (const chatMessage of chatMessages) {
+            await space.APIs.addSpaceChatMessage(spaceId, chatId, agentId, "assistant", chatMessage);
         }
     }
 }
@@ -1066,7 +1107,7 @@ async function getChatTextResponse(request, response) {
 async function getChatTextStreamingResponse(request, response) {
     const spaceId = request.params.spaceId;
     const chatId = request.params.chatId;
-    const agentId= request.body.agentId;
+    const agentId = request.body.agentId;
     try {
         const modelResponse = await getTextStreamingResponse(request, response);
         if (modelResponse.success) {
@@ -1095,12 +1136,13 @@ async function getChatImageVariants(request, response) {
 async function getChatVideoResponse(request, response) {
 
 }
+
 async function storeImage(request, response) {
     const spaceId = request.params.spaceId;
     const imageId = request.params.imageId;
     const objectData = request.body;
     try {
-        await space.APIs.writeImage(spaceId, imageId, objectData);
+        await space.APIs.putImage(request.userId, spaceId, imageId, objectData);
         return utils.sendResponse(response, 200, "application/json", {
             success: true,
             data: imageId,
@@ -1112,6 +1154,32 @@ async function storeImage(request, response) {
         });
     }
 
+}
+async function getImage(request, response) {
+    const spaceId = request.params.spaceId;
+    const imageId = request.params.imageId;
+    try {
+        let image = await space.APIs.getImage(spaceId, imageId);
+        return utils.sendResponse(response, 200, "image/png", image);
+    } catch (error) {
+        return utils.sendResponse(response, 500, "application/json", {
+            success: false,
+            message: error + ` Error at reading image: ${imageId}`
+        });
+    }
+}
+async function deleteImage(request, response) {
+    const spaceId = request.params.spaceId;
+    const imageId = request.params.imageId;
+    try {
+        await space.APIs.deleteImage(spaceId, imageId);
+        return utils.sendResponse(response, 200, "image/png", image);
+    } catch (error) {
+        return utils.sendResponse(response, 500, "application/json", {
+            success: false,
+            message: error + ` Error at reading image: ${imageId}`
+        });
+    }
 }
 module.exports = {
     acceptSpaceInvitation,
@@ -1150,4 +1218,7 @@ module.exports = {
     editChatImage,
     getChatImageVariants,
     getChatVideoResponse,
-    storeImage}
+    storeImage,
+    getImage,
+    deleteImage
+}

@@ -45,54 +45,9 @@ generate-image-page{
     display: flex;
     flex-direction: column;
 }
-
 .images-section{
     padding: 10px 10px;
     overflow: auto;
     width: 100%;
-    height: inherit;
-    display: grid;
-    grid-template-columns: repeat(4, 1fr);
-}
-.midjourney-images-section{
-    padding: 10px 10px;
-    overflow: auto;
-    width: 100%;
     height: calc(100% - 275px);
-}
-.generated-image{
-    width: 210px;
-    height: 210px;
-    object-fit: cover;
-    margin: 10px;
-}
-.image-item{
-    position: relative;
-}
-.image-menu{
-    position: absolute;
-    background-color: #200C0C54;
-    top: 11px;
-    left: 10px;
-    visibility: hidden;
-    width: 210px;
-    height: 210px;
-    padding: 20px;
-    display: flex;
-    flex-direction: column;
-    align-items: center;
-    justify-content: flex-end;
-}
-.image-checkbox{
-    visibility: hidden;
-    position: absolute;
-    bottom: 17px;
-    left: 10px;
-}
-.small{
-    margin-top: 10px;
-    font-size: 13px;
-    width: 100%;
-    justify-content: center;
-    height: 25px;
 }

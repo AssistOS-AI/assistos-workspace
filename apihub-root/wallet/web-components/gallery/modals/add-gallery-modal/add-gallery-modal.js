@@ -14,7 +14,6 @@ export class AddGalleryModal{
         assistOS.UI.closeModal(_target);
         const formData = await assistOS.UI.extractFormInformation(_target);
         let galleryId = await galleryModule.addGallery(assistOS.space.id, {
-            images: [],
             config:{
                 name: formData.data.name,
                 mode: "OpenAI",

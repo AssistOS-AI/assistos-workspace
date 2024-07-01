@@ -1,23 +1,27 @@
 const utilModule = require("assistos").loadModule("util", {});
 const galleryModule = require("assistos").loadModule("gallery", {});
-export class MidjourneyImage {
+export class HistoryImage {
     constructor(element, invalidate) {
         this.element = element;
         this.invalidate = invalidate;
-        this.imageId = this.element.variables["data-id"];
+        this.imageId = this.element.getAttribute("data-id");
+        this.hasButtons = (this.element.getAttribute("data-has-buttons") === "true");
         this.parentPresenter = document.querySelector("generate-image-page").webSkelPresenter;
         let image = this.parentPresenter.images.find((image)=> image.id === this.imageId);
         this.prompt = image.prompt;
         this.invalidate(async ()=>{
-            await utilModule.subscribeToObject(this.imageId, async (data)=>{
-                let image = await galleryModule.getMidjourneyHistoryImage(assistOS.space.id , this.parentPresenter.id, this.imageId);
-                this.setImage(image);
-                this.invalidate();
-            });
+            if(image.status !== "DONE") {
+                await utilModule.subscribeToObject(this.imageId, async (data) => {
+                    let imgSrc = "/spaces/images/" + assistOS.space.id + "/" + this.imageId;
+                    let image = this.getImage();
+                    image.status = "DONE";
+                    image.src = imgSrc;
+                    await galleryModule.updateOpenAIHistoryImage(assistOS.space.id, this.parentPresenter.id, this.imageId, image);
+                    await utilModule.unsubscribeFromObject(this.imageId);
+                    this.invalidate();
+                });
+            }
         });
-    }
-    async afterUnload(){
-        await utilModule.unsubscribeFromObject(this.imageId);
     }
     getImage(){
         return this.parentPresenter.images.find((image)=> image.id === this.imageId);
@@ -27,6 +31,7 @@ export class MidjourneyImage {
     }
     beforeRender(){
         let buttonsHTML = "";
+        this.type = "openAI";
         this.noStatus = "hidden";
         this.queueStatus = "hidden";
         this.processStatus = "hidden";
@@ -34,25 +39,28 @@ export class MidjourneyImage {
         let image = this.getImage();
         if(!image.status){
             this.noStatus = "flex";
-            image.buttons = ["Cancel Job"];
+            //image.buttons = ["Cancel Job"];
         } else if(image.status === "QUEUED"){
             this.queueStatus = "flex";
-            image.buttons = ["Cancel Job"];
+            //image.buttons = ["Cancel Job"];
         } else if(image.status === "PROCESSING"){
             this.barWidth = image.progress + "%";
             this.processStatus = "flex";
-            image.buttons = ["Cancel Job"];
+            //image.buttons = ["Cancel Job"];
         } else if(image.status === "DONE"){
+            this.imgSrc = image.src;
             this.doneStatus = "";
             image.prompt = this.prompt;
-            this.imageSrc = image.uri;
         } else if(image.status === "FAILED"){
             showApplicationError("Error generating image", image.error,"error");
         }
-        for(let action of image.buttons){
-            buttonsHTML += `<button class="general-button midjourney-button" data-local-action="editImage ${image.messageId} ${image.id} ${assistOS.UI.sanitize(action)}">${this.parentPresenter.currentModel.buttons[action]}</button>`
+        if(this.hasButtons){
+            this.type = "midjourney";
+            for(let action of image.buttons){
+                buttonsHTML += `<button class="general-button midjourney-button" data-local-action="editImage ${image.messageId} ${image.id} ${assistOS.UI.sanitize(action)}">${this.parentPresenter.currentModel.buttons[action]}</button>`
+            }
+            this.buttons = buttonsHTML;
         }
-        this.buttons = buttonsHTML;
     }
     afterRender(){
         let imageItem = this.element.querySelector(".image-item");

@@ -4,6 +4,12 @@
     "services": [],
     "components": [
         {
+            "name": "history-image",
+            "directory": "gallery",
+            "type": "components",
+            "presenterClassName": "HistoryImage"
+        },
+        {
             "name": "action-box-chapter",
             "directory": "document",
             "type": "components"
@@ -55,12 +61,6 @@
             "directory": "gallery",
             "type": "components",
             "presenterClassName": "ImageItem"
-        },
-        {
-            "name": "midjourney-image",
-            "directory": "gallery",
-            "type": "components",
-            "presenterClassName": "MidjourneyImage"
         },
         {
             "name": "generate-image-page",

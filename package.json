@@ -40,6 +40,7 @@
     "nodemailer": "^6.9.13",
     "octopus": "git+http://github.com/opendsu/octopus.git",
     "openai": "^4.46.1",
+    "sharp": "^0.33.4",
     "uuid": "^9.0.1"
   }
 }

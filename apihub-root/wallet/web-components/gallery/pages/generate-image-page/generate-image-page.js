@@ -1,5 +1,4 @@
 import {executorTimer} from "../../../../imports.js";
-
 const galleryModule = require("assistos").loadModule("gallery", {});
 const constants = require("assistos").constants;
 const llmModule = require("assistos").loadModule("llm", {});
@@ -50,20 +49,9 @@ export class GenerateImagePage {
     openAIBeforeRender() {
         let imagesHTML = "";
         for (let image of this.images) {
-            imagesHTML += `<div class="image-item">
-                                    <div class="image-menu">
-                                        <button class="general-button small" data-local-action="saveImage">Save</button>
-                                        <button class="general-button small" data-local-action="saveImageToDevice">Save to my device</button>
-                                        <button class="general-button small">History</button>
-                                    </div>
-                                    <img src="${image}" class="generated-image" alt="img">
-                                    <input type="checkbox" class="image-checkbox">
-                                </div>`;
+            imagesHTML += `<history-image data-id="${image.id}" data-has-buttons="false" data-presenter="history-image"></history-image>`;
         }
-        this.imagesSection = `
-            <div class="images-section">
-                ${imagesHTML}
-            </div>`;
+        this.imagesSection = imagesHTML;
         let variantsHTML = "";
         for (let i = 1; i <= this.currentModel.variants; i++) {
             variantsHTML += `<option value="${i}">${i}</option>`;
@@ -118,12 +106,9 @@ export class GenerateImagePage {
         this.qualitySelect = "";
         let imagesHTML = "";
         for (let image of this.images) {
-            imagesHTML += `<midjourney-image data-id="${image.id}" data-presenter="midjourney-image"></midjourney-image>`;
+            imagesHTML += `<history-image data-id="${image.id}" data-has-buttons="true" data-presenter="history-image"></history-image>`;
         }
-        this.imagesSection = `
-        <div class="midjourney-images-section">
-            ${imagesHTML}
-        </div>`;
+        this.imagesSection = imagesHTML;
     }
 
     beforeRender() {
@@ -171,14 +156,14 @@ export class GenerateImagePage {
         return image.src;
     }
 
-    async saveImage(_target) {
-        let imgSource = await this.getImageSrc(_target);
-        await galleryModule.addImage(assistOS.space.id, this.id, {
-            src: imgSource,
-            userId: assistOS.user.id,
-            timestamp: new Date().getTime(),
-            prompt: this.prompt || ""
-        });
+    async saveImage(_target, id, type) {
+        let image = this.images.find((image) => image.id === id);
+        image.saved = true;
+        if(type === "openAI") {
+            await galleryModule.updateOpenAIHistoryImage(assistOS.space.id, this.id, id, image);
+        } else {
+            await galleryModule.updateMidjourneyHistoryImage(assistOS.space.id, this.id, id, image);
+        }
         _target.insertAdjacentHTML("afterbegin", `<confirmation-popup data-presenter="confirmation-popup" 
                     data-message="Saved!" data-left="${_target.offsetWidth / 2}"></confirmation-popup>`);
     }
@@ -311,25 +296,16 @@ export class GenerateImagePage {
         }
         if (this.galleryConfig.mode === "OpenAI") {
             try {
-                let images = (await assistOS.callFlow("GenerateImage", flowContext, formData.data.personality)).data;
-                let pngPrefix = "data:image/png;base64,"
-                for (let i = 0; i < images.length; i++) {
-                    images[i] = pngPrefix + images[i];
-                }
-                await galleryModule.updateOpenAIHistoryImages(assistOS.space.id, this.id, images);
+                let imagesMetadata = (await assistOS.callFlow("GenerateImage", flowContext, formData.data.personality)).data;
+                await galleryModule.addOpenAIHistoryImages(assistOS.space.id, this.id, imagesMetadata);
+
             } catch (e) {
                 let message = assistOS.UI.sanitize(e.message);
                 await showApplicationError(message, message, message);
             }
-
         } else {
             let taskId = await galleryModule.addMidjourneyHistoryImage(assistOS.space.id, this.id, {});
             try {
-                flowContext.saveDataConfig = {
-                    module: "gallery",
-                    fnName: "updateMidjourneyHistoryImage",
-                    params: [assistOS.space.id, this.id, taskId]
-                }
                 let task = (await assistOS.callFlow("GenerateImage", flowContext, formData.data.personality)).data;
                 task.buttons = ["Cancel Job"];
                 //await galleryModule.updateMidjourneyHistoryImage(assistOS.space.id, this.id, taskId, task);
