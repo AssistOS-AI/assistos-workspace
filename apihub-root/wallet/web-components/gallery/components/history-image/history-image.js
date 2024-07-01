@@ -60,7 +60,7 @@ export class HistoryImage {
         if(this.hasButtons){
             this.type = "midjourney";
             for(let action of image.buttons){
-                buttonsHTML += `<button class="general-button midjourney-button" data-local-action="editImage ${image.messageId} ${image.id} ${assistOS.UI.sanitize(action)}">${this.parentPresenter.currentModel.buttons[action]}</button>`
+                buttonsHTML += `<button class="general-button midjourney-button" data-local-action="editImage ${image.messageId} ${assistOS.UI.sanitize(action)}">${this.parentPresenter.currentModel.buttons[action]}</button>`
             }
             this.buttons = buttonsHTML;
         }

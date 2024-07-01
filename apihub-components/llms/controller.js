@@ -225,9 +225,8 @@ async function getImageResponse(request, response) {
 async function editImage(request, response) {
     try {
         request.body.webhookSecret = getWebhookSecret();
+        request.body.spaceId = request.params.spaceId;
         request.body.userId = request.userId;
-        const SecurityContext = require("assistos").ServerSideSecurityContext;
-        request.body.__securityContext = new SecurityContext(request);
         const modelResponse = await sendRequest(`/apis/v1/image/edit`, "POST", request, response);
         utils.sendResponse(response, 200, "application/json", {
             success: true,

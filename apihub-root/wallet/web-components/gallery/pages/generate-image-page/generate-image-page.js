@@ -316,24 +316,17 @@ export class GenerateImagePage {
         assistOS.UI.hideLoading(loaderId);
     }
 
-    async editImage(_target, messageId, imageId, action) {
+    async editImage(_target, messageId, action) {
         let loaderId = await assistOS.UI.showLoading();
-        let taskId = await galleryModule.addMidjourneyHistoryImage(assistOS.space.id, this.id, {});
         try {
-            let task = await llmModule.editImage(assistOS.space.id, this.currentModel.name, {
+            let imageMetadata = await llmModule.editImage(assistOS.space.id, this.currentModel.name, {
                 messageId: messageId,
-                action: action,
-                saveDataConfig: {
-                    module: "gallery",
-                    fnName: "updateMidjourneyHistoryImage",
-                    params: [assistOS.space.id, this.id, taskId]
-                }
+                action: action
             });
-            task.buttons = ["Cancel Job"];
+            await galleryModule.addMidjourneyHistoryImage(assistOS.space.id, this.id, imageMetadata);
             assistOS.UI.hideLoading(loaderId);
         } catch (e) {
             let message = assistOS.UI.sanitize(e);
-            await galleryModule.deleteMidjourneyHistoryImage(assistOS.space.id, this.id, taskId);
             await showApplicationError(message, message, message);
         }
     }

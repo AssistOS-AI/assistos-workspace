@@ -11,7 +11,8 @@ const date = require('../apihub-component-utils/date.js');
 const file = require('../apihub-component-utils/file.js');
 const openAI = require('../apihub-component-utils/openAI.js');
 const secrets = require('../apihub-component-utils/secrets.js');
-const sharp = require('sharp');
+const https = require('https');
+const fs = require('fs');
 const spaceConstants = require('./constants.js');
 
 function getSpacePath(spaceId) {
@@ -482,15 +483,27 @@ async function getDefaultSpaceAgentId(spaceId) {
     const spaceStatusObject = await getSpaceStatusObject(spaceId);
     return spaceStatusObject.defaultSpaceAgent;
 }
-async function putImage(spaceId, imageId, base64Image){
+const downloadImage = (url, dest) => {
+    return new Promise((resolve, reject) => {
+        const file = fs.createWriteStream(dest);
+        https.get(url, (response) => {
+            response.pipe(file);
+            file.on('finish', () => {
+                file.close(resolve);
+            });
+        }).on('error', (err) => {
+            fs.unlink(dest);
+            reject(err);
+        });
+    });
+};
+async function putImage(spaceId, imageId, imageData){
     const imagesPath = path.join(getSpacePath(spaceId), 'images');
-    if(base64Image.startsWith("http")){
-        let response = await fetch(base64Image);
-        const uint8Array = await response.bytes();
-        const buffer = Buffer.from(uint8Array);
-        return await sharp(buffer).toFormat("png").toFile(`${imageId}.png`);
+    if(imageData.startsWith("http")){
+        await downloadImage(imageData, path.join(imagesPath, `${imageId}.png`));
+        return;
     }
-    const base64Data = base64Image.replace(/^data:image\/png;base64,/, "");
+    const base64Data = imageData.replace(/^data:image\/png;base64,/, "");
     const buffer = Buffer.from(base64Data, 'base64');
     await fsPromises.writeFile(path.join(imagesPath, `${imageId}.png`), buffer);
 }
