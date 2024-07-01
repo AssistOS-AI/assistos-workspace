@@ -195,6 +195,7 @@ export class GenerateImagePage {
         } else {
             this.galleryConfig.mode = newModel.companyName;
             await galleryModule.updateGalleryConfig(assistOS.space.id, this.id, this.galleryConfig);
+            this.invalidate(this.refreshHistory);
         }
         this.currentModel = newModel;
     }
@@ -304,14 +305,11 @@ export class GenerateImagePage {
                 await showApplicationError(message, message, message);
             }
         } else {
-            let taskId = await galleryModule.addMidjourneyHistoryImage(assistOS.space.id, this.id, {});
             try {
-                let task = (await assistOS.callFlow("GenerateImage", flowContext, formData.data.personality)).data;
-                task.buttons = ["Cancel Job"];
-                //await galleryModule.updateMidjourneyHistoryImage(assistOS.space.id, this.id, taskId, task);
+                let imageMetadata = (await assistOS.callFlow("GenerateImage", flowContext, formData.data.personality)).data;
+                await galleryModule.addMidjourneyHistoryImage(assistOS.space.id, this.id, imageMetadata);
             } catch (e) {
                 let message = assistOS.UI.sanitize(e.message);
-                await llmModule.deleteMidjourneyHistoryImage(assistOS.space.id, this.id, taskId);
                 await showApplicationError(message, message, message);
             }
         }

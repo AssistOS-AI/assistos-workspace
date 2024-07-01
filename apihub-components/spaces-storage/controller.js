@@ -1142,7 +1142,7 @@ async function storeImage(request, response) {
     const imageId = request.params.imageId;
     const objectData = request.body;
     try {
-        await space.APIs.putImage(request.userId, spaceId, imageId, objectData);
+        await space.APIs.putImage(spaceId, imageId, objectData);
         return utils.sendResponse(response, 200, "application/json", {
             success: true,
             data: imageId,

@@ -13,7 +13,6 @@ const openAI = require('../apihub-component-utils/openAI.js');
 const secrets = require('../apihub-component-utils/secrets.js');
 const sharp = require('sharp');
 const spaceConstants = require('./constants.js');
-const {eventPublisher} = require("../subscribers/controller");
 
 function getSpacePath(spaceId) {
     return path.join(volumeManager.paths.space, spaceId);
@@ -483,7 +482,7 @@ async function getDefaultSpaceAgentId(spaceId) {
     const spaceStatusObject = await getSpaceStatusObject(spaceId);
     return spaceStatusObject.defaultSpaceAgent;
 }
-async function putImage(userId, spaceId, imageId, base64Image){
+async function putImage(spaceId, imageId, base64Image){
     const imagesPath = path.join(getSpacePath(spaceId), 'images');
     if(base64Image.startsWith("http")){
         let response = await fetch(base64Image);
@@ -494,7 +493,6 @@ async function putImage(userId, spaceId, imageId, base64Image){
     const base64Data = base64Image.replace(/^data:image\/png;base64,/, "");
     const buffer = Buffer.from(base64Data, 'base64');
     await fsPromises.writeFile(path.join(imagesPath, `${imageId}.png`), buffer);
-    eventPublisher.notifyClient(userId, "content", imageId);
 }
 async function getImage(spaceId, imageId){
     const imagesPath = path.join(getSpacePath(spaceId), 'images');

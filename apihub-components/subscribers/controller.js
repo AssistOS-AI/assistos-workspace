@@ -150,10 +150,13 @@ const eventPublisher = (() => {
         };
         clients.set(userId, client);
     }
-    function notifyClient(userId, eventType, objectId) {
+    function notifyClient(userId, eventType, objectId, objectData) {
         for(let [key, value] of clients) {
             if(value.objectIds[objectId]) {
                 let data = {objectId: objectId};
+                if(objectData) {
+                    data.data = objectData;
+                }
                 if(key === userId) {
                     data.isSameUser = true;
                 }

@@ -11,11 +11,14 @@ export class HistoryImage {
         this.prompt = image.prompt;
         this.invalidate(async ()=>{
             if(image.status !== "DONE") {
-                await utilModule.subscribeToObject(this.imageId, async (data) => {
+                await utilModule.subscribeToObject(this.imageId, async (buttons) => {
                     let imgSrc = "/spaces/images/" + assistOS.space.id + "/" + this.imageId;
                     let image = this.getImage();
                     image.status = "DONE";
                     image.src = imgSrc;
+                    if(buttons){
+                        image.buttons = buttons;
+                    }
                     await galleryModule.updateOpenAIHistoryImage(assistOS.space.id, this.parentPresenter.id, this.imageId, image);
                     await utilModule.unsubscribeFromObject(this.imageId);
                     this.invalidate();

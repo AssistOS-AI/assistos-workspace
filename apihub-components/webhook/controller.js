@@ -3,6 +3,7 @@ const crypto = require('crypto');
 const utils = require("../apihub-component-utils/utils");
 const secret = generateId(32);
 const space = require("../spaces-storage/space.js");
+const {eventPublisher} = require("../subscribers/controller");
 function generateSignature(timestamp, nonce) {
     const data = timestamp + nonce + secret;
     return crypto.createHmac('sha256', secret).update(data).digest('hex');
@@ -16,12 +17,17 @@ async function dataHandler(request, response) {
             });
         }
         const ref = JSON.parse(request.body.ref);
-        const {timestamp, nonce, signature: receivedSignature, imageId, userId} = ref;
+        const {timestamp, nonce, signature: receivedSignature, objectId, userId} = ref;
         const generatedSignature = generateSignature(timestamp, nonce);
         if (receivedSignature === generatedSignature) {
-            if(imageId && request.body.status === "DONE"){
-                let spaceId = imageId.split("_")[0];
-                await space.APIs.putImage(userId, spaceId, imageId, request.body.uri || request.body.imageData);
+            if(objectId && request.body.status === "DONE"){
+                let spaceId = objectId.split("_")[0];
+                await space.APIs.putImage(spaceId, objectId, request.body.uri || request.body.imageData);
+                if(request.body.buttons){
+                    await eventPublisher.notifyClient(userId, "content", objectId, request.body.buttons);
+                } else {
+                    eventPublisher.notifyClient(userId, "content", objectId);
+                }
             }
             return utils.sendResponse(response, 200, "application/json", {
                 success: true
