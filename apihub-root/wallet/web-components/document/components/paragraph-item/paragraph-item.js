@@ -1,6 +1,5 @@
 import {unescapeHtmlEntities} from "../../../../imports.js";
-const {notificationService} = require("assistos").loadModule("util", {});
-const spaceModule = require("assistos").loadModule("space", {});
+const utilModule = require("assistos").loadModule("util", {});
 const documentModule = require("assistos").loadModule("document", {});
 export class ParagraphItem {
     constructor(element, invalidate) {
@@ -12,27 +11,27 @@ export class ParagraphItem {
         let chapterId = this.element.getAttribute("data-chapter-id");
         this.chapter = this._document.getChapter(chapterId);
         this.paragraph = this.chapter.getParagraph(paragraphId);
-        notificationService.on(this.paragraph.id + "/text", async () => {
-            let ttsItem = this.element.querySelector('text-to-speech');
-            if (ttsItem) {
-                this.openTTSItem = true;
-            }
-            let paragraphDiv = this.element.querySelector(".paragraph-text");
-            if (!paragraphDiv) {
-                //notification received before render
-                return this.invalidate();
-            }
-            let paragraph = await this.chapter.refreshParagraph(assistOS.space.id, this._document.id, this.paragraph.id);
-            if (paragraph.text !== this.paragraph.text) {
-                this.paragraph = paragraph;
-                this.invalidate();
-            }
-        });
-        notificationService.on(this.paragraph.id + "/audio", async () => {
-            this.paragraph.audio = await documentModule.getParagraphAudio(assistOS.space.id, this._document.id, this.paragraph.id);
-        });
         this.invalidate(async () => {
-            await spaceModule.subscribeToObject(assistOS.space.id, this.paragraph.id);
+            await utilModule.subscribeToObject(this.paragraph.id, async (type) => {
+                if(type === "text"){
+                    let ttsItem = this.element.querySelector('text-to-speech');
+                    if (ttsItem) {
+                        this.openTTSItem = true;
+                    }
+                    let paragraphDiv = this.element.querySelector(".paragraph-text");
+                    if (!paragraphDiv) {
+                        //notification received before render
+                        return this.invalidate();
+                    }
+                    let paragraph = await this.chapter.refreshParagraph(assistOS.space.id, this._document.id, this.paragraph.id);
+                    if (paragraph.text !== this.paragraph.text) {
+                        this.paragraph = paragraph;
+                        this.invalidate();
+                    }
+                } else if(type === "audio"){
+                    this.paragraph.audio = await documentModule.getParagraphAudio(assistOS.space.id, this._document.id, this.paragraph.id);
+                }
+            });
         });
     }
 
@@ -73,7 +72,7 @@ export class ParagraphItem {
     }
 
     async afterUnload() {
-        await spaceModule.unsubscribeFromObject(assistOS.space.id, this.paragraph.id);
+        await utilModule.unsubscribeFromObject(this.paragraph.id);
     }
 
     async moveParagraph(_target, direction) {

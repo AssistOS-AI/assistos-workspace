@@ -7,7 +7,7 @@ const enclave = require("opendsu").loadAPI("enclave");
 const crypto = require('../apihub-component-utils/crypto.js');
 const fsPromises = require('fs').promises;
 const path = require('path');
-const {subscribersModule, eventPublisher} = require("../subscribers/controller.js");
+const {eventPublisher} = require("../subscribers/controller.js");
 const {sendResponse} = require("../apihub-component-utils/utils");
 const dataVolumePaths = require('../volumeManager').paths;
 
@@ -76,8 +76,8 @@ async function addFileObject(request, response) {
 
         let filePath = getFileObjectPath(spaceId, objectType, objectId);
         await fsPromises.writeFile(filePath, JSON.stringify(objectData, null, 2), 'utf8');
-        subscribersModule.notifySubscribers(spaceId, request.userId, objectId, objectId);
-        subscribersModule.notifySubscribers(spaceId, request.userId, objectType, objectType);
+        eventPublisher.notifyClients(request.userId, objectType);
+        eventPublisher.notifyClients(request.userId, objectId);
 
         return utils.sendResponse(response, 200, "application/json", {
             success: true,
@@ -114,8 +114,8 @@ async function updateFileObject(request, response) {
             });
         }
         await fsPromises.writeFile(filePath, JSON.stringify(objectData, null, 2), 'utf8');
-        subscribersModule.notifySubscribers(spaceId, request.userId, objectId, objectId);
-        subscribersModule.notifySubscribers(spaceId, request.userId, objectType, objectType);
+        eventPublisher.notifyClients(request.userId, objectType);
+        eventPublisher.notifyClients(request.userId, objectId);
         return utils.sendResponse(response, 200, "application/json", {
             success: true,
             data: objectId,
@@ -142,8 +142,8 @@ async function deleteFileObject(request, response) {
             await fsPromises.writeFile(metadataPath, JSON.stringify(metadata), 'utf8');
         }
         let filePath = getFileObjectPath(spaceId, objectType, objectId);
-        subscribersModule.notifySubscribers(spaceId, request.userId, objectType, objectType);
-        subscribersModule.notifySubscribers(spaceId, request.userId, objectId, objectId + "/delete");
+        eventPublisher.notifyClients(request.userId, objectType);
+        eventPublisher.notifyClients(request.userId, objectId, "delete");
         await fsPromises.unlink(filePath);
         return utils.sendResponse(response, 200, "application/json", {
             success: true,
@@ -279,8 +279,7 @@ async function addContainerObject(request, response) {
     try {
         let lightDBEnclaveClient = enclave.initialiseLightDBEnclave(spaceId);
         let objectId = await addContainerObjectToTable(lightDBEnclaveClient, objectType, objectData);
-        eventPublisher.notifyClient(request.userId, "content", objectType);
-        subscribersModule.notifySubscribers(spaceId, request.userId, objectType, objectType);
+        eventPublisher.notifyClients(request.userId, objectType);
         return utils.sendResponse(response, 200, "application/json", {
             success: true,
             data: objectId,
@@ -303,10 +302,8 @@ async function updateContainerObject(request, response) {
         await deleteContainerObjectTable(lightDBEnclaveClient, objectId);
         let objectType = objectId.split('_')[0];
         await addContainerObjectToTable(lightDBEnclaveClient, objectType, objectData);
-        subscribersModule.notifySubscribers(spaceId, request.userId, objectId, objectId);
-        subscribersModule.notifySubscribers(spaceId, request.userId, objectType, objectType);
-        eventPublisher.notifyClient(request.userId, "content", objectType);
-        eventPublisher.notifyClient(request.userId, "content", objectId);
+        eventPublisher.notifyClients(request.userId, objectType);
+        eventPublisher.notifyClients(request.userId, objectId);
         return utils.sendResponse(response, 200, "application/json", {
             success: true,
             data: objectId,
@@ -333,10 +330,8 @@ async function deleteContainerObject(request, response) {
     try {
         let lightDBEnclaveClient = enclave.initialiseLightDBEnclave(spaceId);
         await deleteContainerObjectTable(lightDBEnclaveClient, objectId);
-        subscribersModule.notifySubscribers(spaceId, request.userId, objectId, objectId + "/delete");
-        subscribersModule.notifySubscribers(spaceId, request.userId, objectId.split('_')[0], objectId.split('_')[0]);
-        eventPublisher.notifyClient(request.userId, "content", objectId + "/delete");
-        eventPublisher.notifyClient(request.userId, "content", objectId.split('_')[0]);
+        eventPublisher.notifyClients(request.userId, objectId ,"delete");
+        eventPublisher.notifyClients(request.userId, objectId.split('_')[0]);
         return utils.sendResponse(response, 200, "application/json", {
             success: true,
             data: objectId,
@@ -485,8 +480,7 @@ async function addEmbeddedObject(request, response) {
         let parts = objectURI.split("/");
         let tableId = parts[0];
         let objectId = await insertEmbeddedObjectRecords(lightDBEnclaveClient, tableId, objectURI, objectData);
-        eventPublisher.notifyClient(request.userId, "content", parts[parts.length - 2]);
-        subscribersModule.notifySubscribers(spaceId, request.userId, tableId, parts[parts.length - 2]);
+        eventPublisher.notifyClients(request.userId, parts[parts.length - 2]);
         return utils.sendResponse(response, 200, "application/json", {
             success: true,
             data: objectId,
@@ -526,7 +520,7 @@ async function updateEmbeddedObject(request, response) {
                         object[propertyName].push(item.id);
                     }
                     await $$.promisify(lightDBEnclaveClient.updateRecord)($$.SYSTEM_IDENTIFIER, tableId, objectId, {data: object});
-                    eventPublisher.notifyClient(request.userId, "content", objectId + "/" + propertyName);
+                    eventPublisher.notifyClients(request.userId, objectId , propertyName);
                     return utils.sendResponse(response, 200, "application/json", {
                         success: true,
                         data: objectId,
@@ -537,17 +531,14 @@ async function updateEmbeddedObject(request, response) {
             object[propertyName] = objectData;
             await $$.promisify(lightDBEnclaveClient.updateRecord)($$.SYSTEM_IDENTIFIER, tableId, objectId, {data: object});
             if (segments.length === 3 || (segments.length === 2 && !Array.isArray(object[propertyName]))) {
-                eventPublisher.notifyClient(request.userId, "content", objectId + "/" + propertyName);
-                subscribersModule.notifySubscribers(spaceId, request.userId, tableId, objectId + "/" + propertyName);
+                eventPublisher.notifyClients(request.userId, objectId, propertyName);
             } else {
-                eventPublisher.notifyClient(request.userId, "content", objectId);
-                subscribersModule.notifySubscribers(spaceId, request.userId, tableId, objectId);
+                eventPublisher.notifyClients(request.userId, objectId);
             }
         } else {
             await deleteEmbeddedObjectDependencies(lightDBEnclaveClient, tableId, objectId);
             await insertEmbeddedObjectRecords(lightDBEnclaveClient, tableId, objectURI, objectData, true);
-            subscribersModule.notifySubscribers(spaceId, request.userId, tableId, objectId);
-            eventPublisher.notifyClient(request.userId, "content", objectId);
+            eventPublisher.notifyClients(request.userId, objectId);
         }
         return utils.sendResponse(response, 200, "application/json", {
             success: true,
@@ -606,8 +597,7 @@ async function deleteEmbeddedObject(request, response) {
         let parts = objectURI.split("/");
         let tableId = parts[0];
         await deleteEmbeddedObjectFromTable(lightDBEnclaveClient, tableId, objectURI);
-        subscribersModule.notifySubscribers(spaceId, request.userId, tableId, parts[parts.length - 2]);
-        eventPublisher.notifyClient(request.userId, "content", parts[parts.length - 2]);
+        eventPublisher.notifyClients(request.userId, parts[parts.length - 2]);
         return utils.sendResponse(response, 200, "application/json", {
             success: true,
             data: objectURI,
@@ -646,8 +636,7 @@ async function swapEmbeddedObjects(request, response) {
         object[propertyName][index1] = embeddedId2;
         object[propertyName][index2] = embeddedId1;
         await $$.promisify(lightDBEnclaveClient.updateRecord)($$.SYSTEM_IDENTIFIER, tableId, objectId, {data: object});
-        subscribersModule.notifySubscribers(spaceId, request.userId, tableId, objectId);
-        eventPublisher.notifyClient(request.userId, "content", objectId);
+        eventPublisher.notifyClients(request.userId, objectId);
         return utils.sendResponse(response, 200, "application/json", {
             success: true,
             data: objectURI,

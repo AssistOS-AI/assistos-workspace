@@ -1,8 +1,6 @@
 import {base64ToBlob, unescapeHtmlEntities} from "../../../../imports.js";
-
-const spaceModule = require("assistos").loadModule("space", {});
 const documentModule = require("assistos").loadModule("document", {});
-const {notificationService} = require("assistos").loadModule("util", {});
+const utilModule = require("assistos").loadModule("util", {});
 
 export class ChapterItem {
     constructor(element, invalidate) {
@@ -21,9 +19,8 @@ export class ChapterItem {
         this.addParagraphOnCtrlEnter = this.addParagraphOnCtrlEnter.bind(this);
         this.element.removeEventListener('keydown', this.addParagraphOnCtrlEnter);
         this.element.addEventListener('keydown', this.addParagraphOnCtrlEnter);
-        this.subscribeToChapterEvents();
         this.invalidate(async () => {
-            await spaceModule.subscribeToObject(assistOS.space.id, this.chapter.id);
+            await this.subscribeToChapterEvents();
         });
     }
 
@@ -56,31 +53,39 @@ export class ChapterItem {
     }
 
     subscribeToChapterEvents() {
-        notificationService.on(this.chapter.id + "/title", async () => {
-            let title = await documentModule.getChapterTitle(assistOS.space.id, this._document.id, this.chapter.id);
-            if (title !== this.chapter.title) {
-                this.chapter.title = title;
-                this.renderChapterTitle();
+        utilModule.subscribeToObject(this.chapter.id, async (type) => {
+            switch (type){
+                case "title": {
+                    let title = await documentModule.getChapterTitle(assistOS.space.id, this._document.id, this.chapter.id);
+                    if (title !== this.chapter.title) {
+                        this.chapter.title = title;
+                        this.renderChapterTitle();
+                    }
+                    return;
+                }
+                case "backgroundSound": {
+                    this.chapter.backgroundSound = await documentModule.getChapterBackgroundSound(assistOS.space.id, this._document.id, this.chapter.id);
+                    if (this.chapter.backgroundSound) {
+                        this.hasBackgroundSound = true;
+                        if (assistOS.space.currentChapterId === this.chapter.id) {
+                            this.switchPlayButtonDisplay("on");
+                        }
+                    } else {
+                        this.hasBackgroundSound = false;
+                        if (assistOS.space.currentChapterId === this.chapter.id) {
+                            this.switchPlayButtonDisplay("off");
+                        }
+                    }
+                    return;
+                }
+                default: {
+                    this.invalidate(this.refreshChapter);
+                }
             }
         });
-        notificationService.on(this.chapter.id, () => {
-            this.invalidate(this.refreshChapter);
-        });
-        notificationService.on(this.chapter.id + "/backgroundSound", async () => {
-            this.chapter.backgroundSound = await documentModule.getChapterBackgroundSound(assistOS.space.id, this._document.id, this.chapter.id);
-            if (this.chapter.backgroundSound) {
-                this.hasBackgroundSound = true;
-                if (assistOS.space.currentChapterId === this.chapter.id) {
-                    this.switchPlayButtonDisplay("on");
-                }
-            } else {
-                this.hasBackgroundSound = false;
-                if (assistOS.space.currentChapterId === this.chapter.id) {
-                    this.switchPlayButtonDisplay("off");
-                }
-            }
-
-        });
+    }
+    async afterUnload() {
+        await utilModule.unsubscribeFromObject(this.chapter.id);
     }
 
     async saveTitle(titleElement) {
@@ -117,10 +122,6 @@ export class ChapterItem {
             this.boundPasteHandler = this.pasteHandler.bind(this);
             this.element.addEventListener('paste', this.boundPasteHandler);
         }
-    }
-
-    async afterUnload() {
-        await spaceModule.unsubscribeFromObject(assistOS.space.id, this.chapter.id);
     }
 
     pasteHandler(event) {
@@ -265,7 +266,11 @@ export class ChapterItem {
                     chapterId: this.chapter.id,
                     paragraphData: {
                         position: position,
-                        image: image,
+                        image: {
+                            src: image.src,
+                            alt: image.alt,
+                            id: image.id
+                        },
                         dimensions: {
                             width: "",
                             height: ""

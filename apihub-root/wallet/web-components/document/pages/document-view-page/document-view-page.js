@@ -1,5 +1,5 @@
 const spaceAPIs = require("assistos").loadModule("space", {});
-const {notificationService} = require("assistos").loadModule("util", {});
+const utilModule = require("assistos").loadModule("util", {});
 const documentModule = require("assistos").loadModule("document", {});
 import {executorTimer, saveCaretPosition, unescapeHtmlEntities} from "../../../../imports.js";
 
@@ -14,29 +14,32 @@ export class DocumentViewPage {
         this.invalidate(async () => {
             let documentData = await documentModule.getDocument(assistOS.space.id, window.location.hash.split("/")[3]);
             this._document = new documentModule.Document(documentData);
-            await spaceAPIs.subscribeToObject(assistOS.space.id, this._document.id);
-            notificationService.on(this._document.id + "/delete", async () => {
-                await this.openDocumentsPage();
-                alert("The document has been deleted");
-            });
-            notificationService.on(this._document.id, () => {
-                this.invalidate(this.refreshDocument);
-            });
-            notificationService.on(this._document.id + "/title", async () => {
-                let title = await documentModule.getDocumentTitle(assistOS.space.id, this._document.id);
-                if(this._document.title !== title) {
-                    this._document.title = title;
-                    this.renderDocumentTitle();
+            await utilModule.subscribeToObject(this._document.id, async (type) => {
+                switch (type) {
+                    case "delete":
+                        await this.openDocumentsPage();
+                        alert("The document has been deleted");
+                        return;
+                    case "title":
+                        let title = await documentModule.getDocumentTitle(assistOS.space.id, this._document.id);
+                        if(this._document.title !== title) {
+                            this._document.title = title;
+                            this.renderDocumentTitle();
+                        }
+                        return;
+                    case "abstract":
+                        let abstract = await documentModule.getDocumentAbstract(assistOS.space.id, this._document.id);
+                        if(this._document.abstract !== abstract) {
+                            this._document.abstract = abstract;
+                            this.renderAbstract();
+                        }
+                        return;
+                    default:
+                        return this.invalidate(async () => {
+                            this.invalidate(this.refreshDocument);
+                        });
                 }
             });
-            notificationService.on(this._document.id + "/abstract", async () => {
-                let abstract = await documentModule.getDocumentAbstract(assistOS.space.id, this._document.id);
-                if(this._document.abstract !== abstract) {
-                    this._document.abstract = abstract;
-                    this.renderAbstract();
-                }
-            });
-            spaceAPIs.startCheckingUpdates(assistOS.space.id);
         });
     }
 
@@ -63,7 +66,6 @@ export class DocumentViewPage {
     afterRender() {
         this.renderDocumentTitle();
         this.renderAbstract();
-
         if(assistOS.space.currentChapterId){
             let chapter = this.element.querySelector(`chapter-item[data-chapter-id="${assistOS.space.currentChapterId}"]`);
             if(chapter){
@@ -74,8 +76,7 @@ export class DocumentViewPage {
     }
 
     async afterUnload() {
-        await spaceAPIs.unsubscribeFromObject(assistOS.space.id, this._document.id);
-        spaceAPIs.stopCheckingUpdates(assistOS.space.id);
+        await utilModule.unsubscribeFromObject(this._document.id);
     }
 
     async deleteChapter(_target) {

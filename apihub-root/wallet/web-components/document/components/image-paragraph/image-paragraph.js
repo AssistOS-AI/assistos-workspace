@@ -1,6 +1,5 @@
-const {notificationService} = require("assistos").loadModule("util", {});
+const utilModule = require("assistos").loadModule("util", {});
 const documentModule = require("assistos").loadModule("document", {});
-const spaceModule = require("assistos").loadModule("space", {});
 export class ImageParagraph{
     constructor(element, invalidate) {
         this.element = element;
@@ -11,15 +10,14 @@ export class ImageParagraph{
         let chapterId = this.element.getAttribute("data-chapter-id");
         this.chapter = this._document.getChapter(chapterId);
         this.paragraph = this.chapter.getParagraph(paragraphId);
-        notificationService.on(this.paragraph.id, async () => {
-            let paragraphImg = this.element.querySelector(".paragraph-image").src;
-            this.paragraph = await this.chapter.refreshParagraph(assistOS.space.id, this._document.id, this.paragraph.id);
-            if (paragraphImg !== this.paragraph.image.src) {
-                this.invalidate();
-            }
-        });
         this.invalidate(async ()=>{
-            await spaceModule.subscribeToObject(assistOS.space.id, this.paragraph.id);
+            await utilModule.subscribeToObject(this.paragraph.id, async () => {
+                let paragraph = await this.chapter.refreshParagraph(assistOS.space.id, this._document.id, this.paragraph.id);
+                if (JSON.stringify(this.paragraph.dimensions) !== JSON.stringify(paragraph.dimensions)) {
+                    this.paragraph = paragraph;
+                    this.invalidate();
+                }
+            });
         });
     }
 
@@ -38,7 +36,6 @@ export class ImageParagraph{
             setTimeout(() => {
                 this.initialized = true;
             }, 0);
-
         }
         this.imgContainer = this.element.querySelector('.img-container');
         let paragraphImage = this.element.querySelector(".paragraph-image");
@@ -62,7 +59,7 @@ export class ImageParagraph{
 
     }
     async afterUnload(){
-        await spaceModule.unsubscribeFromObject(assistOS.space.id, this.paragraph.id);
+        await utilModule.unsubscribeFromObject(this.paragraph.id);
     }
     mouseDownFn(handle, event) {
         event.preventDefault();

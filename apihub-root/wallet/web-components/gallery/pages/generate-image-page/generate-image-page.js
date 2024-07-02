@@ -33,15 +33,24 @@ export class GenerateImagePage {
             await this.refreshHistory();
         });
 
-        utilModule.subscribeToObject(this.id + "/config", async (data) => {
-            let galleryConfig = await galleryModule.getGalleryConfig(assistOS.space.id, this.id);
-            if (JSON.stringify(this.galleryConfig) !== JSON.stringify(galleryConfig)) {
-                this.galleryConfig = galleryConfig;
-                this.invalidate(this.refreshHistory);
+        utilModule.subscribeToObject(this.id, async (type) => {
+            switch (type) {
+                case "delete":
+                    return this.invalidate(async () => {
+                        await assistOS.UI.changeToDynamicPage("space-application-page", `${assistOS.space.id}/Space/galleries-page`);
+                        alert("The gallery has been deleted");
+                    });
+                case "config":
+                    let galleryConfig = await galleryModule.getGalleryConfig(assistOS.space.id, this.id);
+                    if (JSON.stringify(this.galleryConfig) !== JSON.stringify(galleryConfig)) {
+                        this.galleryConfig = galleryConfig;
+                        this.invalidate(this.refreshHistory);
+                    }
+                    return;
+                default:
+                    this.invalidate(this.refreshHistory);
+                    return;
             }
-        });
-        utilModule.subscribeToObject(this.id, async (data) => {
-            this.invalidate(this.refreshHistory);
         });
         this.selectInputs = [];
     }

@@ -1,5 +1,5 @@
 const spaceAPIs = require("assistos").loadModule("space", {});
-const {notificationService} = require("assistos").loadModule("util", {});
+const utilModule = require("assistos").loadModule("util", {});
 export class DocumentsPage {
     constructor(element, invalidate) {
         this.notificationId = "docs";
@@ -10,12 +10,9 @@ export class DocumentsPage {
         this.id = "documents";
         this.invalidate(async () => {
             await this.refreshDocuments();
-            await spaceAPIs.subscribeToObject(assistOS.space.id, this.id);
-            spaceAPIs.startCheckingUpdates(assistOS.space.id);
-        });
-
-        notificationService.on(this.id, ()=>{
-            this.invalidate(this.refreshDocuments);
+            await utilModule.subscribeToObject(this.id,(data)=>{
+                this.invalidate(this.refreshDocuments);
+            });
         });
     }
     beforeRender() {
@@ -34,8 +31,7 @@ export class DocumentsPage {
         this.setContext();
     }
     async afterUnload() {
-        await spaceAPIs.unsubscribeFromObject(assistOS.space.id, this.id);
-        spaceAPIs.stopCheckingUpdates(assistOS.space.id);
+        await utilModule.unsubscribeFromObject(this.id);
     }
     setContext(){
         assistOS.context = {

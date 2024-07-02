@@ -24,9 +24,9 @@ async function dataHandler(request, response) {
                 let spaceId = objectId.split("_")[0];
                 await space.APIs.putImage(spaceId, objectId, request.body.uri || request.body.imageData);
                 if(request.body.buttons){
-                    await eventPublisher.notifyClient(userId, "content", objectId, request.body.buttons);
+                    await eventPublisher.notifyClients(userId, objectId, request.body.buttons);
                 } else {
-                    eventPublisher.notifyClient(userId, "content", objectId);
+                    eventPublisher.notifyClients(userId, objectId);
                 }
             }
             return utils.sendResponse(response, 200, "application/json", {

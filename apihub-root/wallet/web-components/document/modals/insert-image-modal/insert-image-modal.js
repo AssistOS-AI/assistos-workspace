@@ -33,7 +33,7 @@ export class InsertImageModal {
         let galleriesHMTL = "";
         if(this.galleries.length > 0) {
             this.galleries.forEach((gallery) => {
-                galleriesHMTL += `<gallery-item data-name="${assistOS.UI.sanitize(gallery.name)}" 
+                galleriesHMTL += `<gallery-item data-name="${gallery.config.name}" 
                 data-id="${gallery.id}" data-local-action="openGallery ${gallery.id}"></gallery-item>`;
             });
         }
@@ -61,7 +61,7 @@ export class InsertImageModal {
                 image.addEventListener("click", (event) => {
                     let imgContainer = event.target.parentElement;
                     let imgId = event.target.getAttribute("id");
-                    let image = this.selectedGallery.images.find((img) => img.id === imgId);
+                    let image = this.allImages.find((img) => img.id === imgId);
                     let checkbox = imgContainer.querySelector(".image-checkbox");
                     event.target.classList.toggle("selected-image");
                     if(imgContainer.classList.contains("selected")){
@@ -93,8 +93,13 @@ export class InsertImageModal {
     }
     async openGallery(_target, galleryId){
         this.selectedGallery = await galleryModule.getGallery(assistOS.space.id, galleryId);
+        let allImages = this.selectedGallery.openAIHistory.concat(this.selectedGallery.midjourneyHistory);
+        allImages.sort((a, b) => {
+            return new Date(b.createdAt) - new Date(a.createdAt);
+        });
+        this.allImages = allImages.filter((image) => image.saved);
         let stringHTML = "";
-        for(let image of this.selectedGallery.images){
+        for(let image of this.allImages){
             stringHTML += `
             <div class="img-container">
                 <img class="gallery-image" src="${image.src}" alt="${image.timestamp}" id="${image.id}">
