@@ -1,6 +1,7 @@
 import {base64ToBlob, unescapeHtmlEntities} from "../../../../imports.js";
 const documentModule = require("assistos").loadModule("document", {});
 const utilModule = require("assistos").loadModule("util", {});
+const spaceModule = require("assistos").loadModule("space", {});
 
 export class ChapterItem {
     constructor(element, invalidate) {
@@ -241,7 +242,7 @@ export class ChapterItem {
     }
 
     async showActionBox(_target, primaryKey, componentName, insertionMode) {
-        await assistOS.UI.showActionBox(_target, primaryKey, componentName, insertionMode);
+        this.actionBox = await assistOS.UI.showActionBox(_target, primaryKey, componentName, insertionMode);
     }
 
     getParagraphPosition() {
@@ -284,16 +285,18 @@ export class ChapterItem {
 
     uploadSoundEffects(event) {
         const file = event.target.files[0];
-        const maxFileSize = 10 * 1024 * 1024;
+        const maxFileSize = 15 * 1024 * 1024;
         if (file) {
             if (file.size > maxFileSize) {
-                return showApplicationError("The file is too large.", "Maximum file size is 10MB.", "");
+                return showApplicationError("The file is too large.", "Maximum file size is 15MB.", "");
             }
             const reader = new FileReader();
             reader.onload = async (e) => {
+                let audioId = await spaceModule.addAudio(assistOS.space.id, e.target.result);
                 let backgroundSound = {
-                    base64Audio: e.target.result,
+                    id: audioId,
                     userId: assistOS.user.id,
+                    src: `spaces/audio/${assistOS.space.id}/${audioId}`,
                     volume: "default"
                 };
                 await assistOS.callFlow("UpdateChapterBackgroundSound", {
@@ -304,6 +307,7 @@ export class ChapterItem {
                 });
                 this.fileInput.remove();
                 delete this.fileInput;
+                assistOS.UI.removeActionBox(this.actionBox, this);
             };
             reader.readAsDataURL(file);
         }
@@ -345,7 +349,7 @@ export class ChapterItem {
                     documentId: this._document.id,
                     chapterId: this.chapter.id,
                     backgroundSound: {
-                        base64Audio: this.chapter.backgroundSound.base64Audio,
+                        src: this.chapter.backgroundSound.src,
                         userId: this.chapter.backgroundSound.userId,
                         volume: audio.volume
                     }
@@ -361,7 +365,7 @@ export class ChapterItem {
             let audioSection = this.element.querySelector('.chapter-audio-section');
             let audio = this.element.querySelector('.chapter-audio');
             if (!this.isAudioPlaying(audio)) {
-                audio.src = URL.createObjectURL(base64ToBlob(this.chapter.backgroundSound.base64Audio, "audio/mp3"));
+                audio.src = this.chapter.backgroundSound.src;
                 audio.load();
             }
             if (!this.boundSaveVolumeChanges) {

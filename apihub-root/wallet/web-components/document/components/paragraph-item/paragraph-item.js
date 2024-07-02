@@ -50,7 +50,7 @@ export class ParagraphItem {
             this.openTTSItem = false;
         }
         const audioIcon = this.element.querySelector('.audio-icon');
-        if (this.paragraph.audio.audioBlob) {
+        if (this.paragraph.audio.audioId) {
             this.hasAudio = true;
         }
         if (assistOS.space.currentParagraphId === this.paragraph.id) {

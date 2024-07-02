@@ -1128,7 +1128,7 @@ async function getChatVideoResponse(request, response) {
 
 async function storeImage(request, response) {
     const spaceId = request.params.spaceId;
-    const imageId = request.params.imageId;
+    const imageId = `${spaceId}_${crypto.generateId(8)}`;
     const objectData = request.body;
     try {
         await space.APIs.putImage(spaceId, imageId, objectData);
@@ -1162,11 +1162,60 @@ async function deleteImage(request, response) {
     const imageId = request.params.imageId;
     try {
         await space.APIs.deleteImage(spaceId, imageId);
-        return utils.sendResponse(response, 200, "image/png", image);
+        return utils.sendResponse(response, 200, "application/json", {
+            success: true,
+            data: imageId,
+        });
     } catch (error) {
         return utils.sendResponse(response, 500, "application/json", {
             success: false,
             message: error + ` Error at reading image: ${imageId}`
+        });
+    }
+}
+async function storeAudio(request, response) {
+    const spaceId = request.params.spaceId;
+    const audioId = `${spaceId}_${crypto.generateId(8)}`;
+    const objectData = request.body;
+    try {
+        await space.APIs.putAudio(spaceId, audioId, objectData);
+        return utils.sendResponse(response, 200, "application/json", {
+            success: true,
+            data: audioId,
+        });
+    } catch (error) {
+        return utils.sendResponse(response, 500, "application/json", {
+            success: false,
+            message: error + ` Error at writing audio: ${audioId}`
+        });
+    }
+}
+async function getAudio(request, response) {
+    const spaceId = request.params.spaceId;
+    const audioId = request.params.audioId;
+    try {
+        let audio = await space.APIs.getAudio(spaceId, audioId);
+        return utils.sendResponse(response, 200, "audio/mpeg", audio);
+    } catch (error) {
+        return utils.sendResponse(response, 500, "application/json", {
+            success: false,
+            message: error + ` Error at reading audio: ${audioId}`
+        });
+    }
+}
+async function deleteAudio(request, response) {
+    const spaceId = request.params.spaceId;
+    const audioId = request.params.audioId;
+    try {
+        await space.APIs.deleteAudio(spaceId, audioId);
+        return utils.sendResponse(response, 200, "application/json", {
+            success: true,
+            data: audioId,
+        });
+    } catch (error) {
+        return utils.sendResponse(response, 500, "application/json", {
+            success: false,
+            message: error + ` Error at reading audio: ${audioId}`
         });
     }
 }
@@ -1209,5 +1258,8 @@ module.exports = {
     getChatVideoResponse,
     storeImage,
     getImage,
-    deleteImage
+    deleteImage,
+    storeAudio,
+    deleteAudio,
+    getAudio
 }

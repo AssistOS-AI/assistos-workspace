@@ -1,4 +1,5 @@
 const galleryModule = require("assistos").loadModule("gallery", {});
+const spaceModule = require("assistos").loadModule("space", {});
 export class InsertImageModal {
     constructor(element, invalidate) {
         this.element = element;
@@ -133,18 +134,15 @@ export class InsertImageModal {
     selectFileHandler(_target, event){
         let file = event.target.files[0];
         let reader = new FileReader();
-        reader.onload = (e) => {
+        reader.onload = async (e) => {
+            let imageId = await spaceModule.addImage(assistOS.space.id, e.target.result);
             let data = {
-                src: e.target.result,
-                userId: assistOS.user.id,
-                timestamp: new Date().toISOString(),
-                id: this.generateUniqueId()
+                src: `spaces/images/${assistOS.space.id}/${imageId}`,
+                id: imageId,
+                alt: new Date().toISOString(),
             };
             assistOS.UI.closeModal(_target, [data]);
         };
         reader.readAsDataURL(file);
-    }
-    generateUniqueId() {
-        return 'images_' + Math.random().toString(36).substr(2, 9);
     }
 }

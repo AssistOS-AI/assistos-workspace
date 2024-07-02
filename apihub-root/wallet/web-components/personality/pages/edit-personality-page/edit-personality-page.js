@@ -1,6 +1,5 @@
 const constants = require("assistos").constants;
-const spaceAPIs = require("assistos").loadModule("space", {});
-const {notificationService} = require("assistos").loadModule("util", {});
+const utilModule = require("assistos").loadModule("util", {});
 const llmModule = require("assistos").loadModule("llm", {});
 
 export class EditPersonalityPage {
@@ -13,17 +12,14 @@ export class EditPersonalityPage {
         }
         this.invalidate(async () => {
             await this.refreshPersonality();
-            spaceAPIs.startCheckingUpdates(assistOS.space.id);
-            spaceAPIs.subscribeToObject(assistOS.space.id, this.personality.id);
-            notificationService.on(this.personality.id, () => {
-                this.invalidate(this.refreshPersonality);
+            await utilModule.subscribeToObject(this.personality.id, async (type) => {
+                if(type === "delete"){
+                    await this.openPersonalitiesPage();
+                    alert("The personality has been deleted");
+                } else {
+                    this.invalidate(this.refreshPersonality);
+                }
             });
-            notificationService.on(this.personality.id + "/delete", async () => {
-                await this.openPersonalitiesPage();
-                await spaceAPIs.unsubscribeFromObject(assistOS.space.id, this.personality.id);
-                spaceAPIs.stopCheckingUpdates(assistOS.space.id);
-                alert("The personality has been deleted");
-            })
             let configs = await llmModule.listVoicesAndEmotions(assistOS.space.id);
             this.voices = configs.voices;
             this.voices.sort((a, b) => {
@@ -74,8 +70,7 @@ export class EditPersonalityPage {
     }
 
     async afterUnload() {
-        await spaceAPIs.unsubscribeFromObject(assistOS.space.id, this.personality.id);
-        spaceAPIs.stopCheckingUpdates(assistOS.space.id);
+        await utilModule.unsubscribeFromObject(this.personality.id);
     }
 
     afterRender() {

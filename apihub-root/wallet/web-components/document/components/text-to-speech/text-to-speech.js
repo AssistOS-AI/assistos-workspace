@@ -2,6 +2,7 @@ import {base64ToBlob, blobToBase64, unescapeHtmlEntities} from "../../../../impo
 
 const llmModule = require("assistos").loadModule("llm", {});
 const documentModule = require("assistos").loadModule("document", {});
+const spaceModule = require("assistos").loadModule("space", {});
 
 export class TextToSpeech {
     constructor(element, invalidate) {
@@ -40,7 +41,7 @@ export class TextToSpeech {
         if (this.audioConfigs) {
             let audioSection = this.element.querySelector('.audio-section');
             let audioElement = this.element.querySelector('audio');
-            audioSource.src = URL.createObjectURL(base64ToBlob(this.audioConfigs.audioBlob, "audio/mp3"));
+            audioSource.src = this.audioConfigs.src;
             this.audioURL = audioSource.src;
             audioSection.classList.remove('hidden');
             audioSection.classList.add('visible-section');
@@ -109,7 +110,9 @@ export class TextToSpeech {
         audioSection.classList.add('visible-section');
         let audioElement = this.element.querySelector('audio');
         let audioSource = this.element.querySelector('.audio-source');
-        audioSource.src = URL.createObjectURL(audioBlob);
+        let audioId = await spaceModule.addAudio(assistOS.space.id, await blobToBase64(audioBlob));
+        let audioSrc = `spaces/audio/${assistOS.space.id}/${audioId}`;
+        audioSource.src = audioSrc;
         this.audioURL = audioSource.src;
         audioElement.load();
         let audioConfigs = {
@@ -119,7 +122,8 @@ export class TextToSpeech {
             styleGuidance: formData.data.styleGuidance,
             voiceGuidance: formData.data.voiceGuidance,
             temperature: formData.data.temperature,
-            audioBlob: await blobToBase64(audioBlob),
+            audioId: audioId,
+            src: audioSrc,
             prompt: prompt
         }
         await documentModule.updateParagraphAudio(assistOS.space.id, this._document.id, this.paragraphId, audioConfigs);
@@ -134,4 +138,18 @@ export class TextToSpeech {
         link.click();
         document.body.removeChild(link);
     }
+    // async deleteAudio(_target) {
+    //     let audioConfigs = {
+    //         personalityId: this.audioConfigs.personality,
+    //         voiceId: this.audioConfigs.voice,
+    //         emotion: this.audioConfigs.emotion,
+    //         styleGuidance: this.audioConfigs.styleGuidance,
+    //         voiceGuidance: this.audioConfigs.voiceGuidance,
+    //         temperature: this.audioConfigs.temperature,
+    //         audioId: null,
+    //         src: null,
+    //         prompt: null
+    //     }
+    //     await documentModule.updateParagraphAudio(assistOS.space.id, this._document.id, this.paragraphId, audioConfigs);
+    // }
 }

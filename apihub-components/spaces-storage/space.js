@@ -223,6 +223,7 @@ async function createSpace(spaceName, userId, apiKey) {
         () => copyDefaultPersonalities(spacePath),
         () => file.createDirectory(path.join(spacePath, 'documents')),
         () => file.createDirectory(path.join(spacePath, 'images')),
+        () => file.createDirectory(path.join(spacePath, 'audios')),
         () => file.createDirectory(path.join(spacePath, 'applications')),
         () => createSpaceStatus(spacePath, spaceObj),
         () => User.APIs.linkSpaceToUser(userId, spaceId),
@@ -483,7 +484,7 @@ async function getDefaultSpaceAgentId(spaceId) {
     const spaceStatusObject = await getSpaceStatusObject(spaceId);
     return spaceStatusObject.defaultSpaceAgent;
 }
-const downloadImage = (url, dest) => {
+const downloadData = (url, dest) => {
     return new Promise((resolve, reject) => {
         const file = fs.createWriteStream(dest);
         https.get(url, (response) => {
@@ -500,7 +501,7 @@ const downloadImage = (url, dest) => {
 async function putImage(spaceId, imageId, imageData){
     const imagesPath = path.join(getSpacePath(spaceId), 'images');
     if(imageData.startsWith("http")){
-        await downloadImage(imageData, path.join(imagesPath, `${imageId}.png`));
+        await downloadData(imageData, path.join(imagesPath, `${imageId}.png`));
         return;
     }
     const base64Data = imageData.replace(/^data:image\/png;base64,/, "");
@@ -516,6 +517,26 @@ async function deleteImage(spaceId, imageId){
     const imagesPath = path.join(getSpacePath(spaceId), 'images');
     const imagePath = path.join(imagesPath, `${imageId}.png`);
     await fsPromises.rm(imagePath);
+}
+async function putAudio(spaceId, audioId, audioData){
+    const audiosPath = path.join(getSpacePath(spaceId), 'audios');
+    if(audioData.startsWith("http")){
+        await downloadData(audioData, path.join(audiosPath, `${audioId}.mp3`));
+        return;
+    }
+    const base64Data = audioData.replace(/^data:audio\/mp3;base64,/, "");
+    const buffer = Buffer.from(base64Data, 'base64');
+    await fsPromises.writeFile(path.join(audiosPath, `${audioId}.mp3`), buffer);
+}
+async function getAudio(spaceId, audioId){
+    const audiosPath = path.join(getSpacePath(spaceId), 'audios');
+    const audioPath = path.join(audiosPath, `${audioId}.mp3`);
+    return await fsPromises.readFile(audioPath);
+}
+async function deleteAudio(spaceId, audioId){
+    const audiosPath = path.join(getSpacePath(spaceId), 'audios');
+    const audioPath = path.join(audiosPath, `${audioId}.mp3`);
+    await fsPromises.rm(audioPath);
 }
 module.exports = {
     APIs: {
@@ -543,7 +564,10 @@ module.exports = {
         getDefaultSpaceAgentId,
         putImage,
         getImage,
-        deleteImage
+        deleteImage,
+        putAudio,
+        getAudio,
+        deleteAudio
     },
     templates: {
         defaultSpaceAnnouncement: require('./templates/defaultSpaceAnnouncement.json'),

@@ -12,7 +12,7 @@ export class HistoryImage {
         this.invalidate(async ()=>{
             if(image.status !== "DONE") {
                 await utilModule.subscribeToObject(this.imageId, async (buttons) => {
-                    let imgSrc = "/spaces/images/" + assistOS.space.id + "/" + this.imageId;
+                    let imgSrc = "/spaces/image/" + assistOS.space.id + "/" + this.imageId;
                     let image = this.getImage();
                     image.status = "DONE";
                     image.src = imgSrc;

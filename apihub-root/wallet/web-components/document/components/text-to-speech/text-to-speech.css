@@ -48,18 +48,6 @@ audio:not([controls]) {
     width: 100%;
     position: relative;
 }
-.download-audio {
-    display: flex;
-    align-items: center;
-    justify-content: center;
-    right: 15px;
-    top: 14px;
-    position: absolute;
-    z-index: 2;
-    width: 25px;
-    height: 25px;
-    background-color: #f1f3f4;
-}
 .bottom-row{
     display: flex;
     align-items: center;
