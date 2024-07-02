@@ -192,15 +192,13 @@ export class ChapterItem {
     }
 
     switchPlayButtonDisplay(mode) {
-        if (this.hasBackgroundSound) {
-            let playButton = this.chapterItem.querySelector('.background-sound-play');
-            if (mode === "on") {
-                playButton.classList.remove("hidden");
-                playButton.classList.add("flex");
-            } else {
-                playButton.classList.add("hidden");
-                playButton.classList.remove("flex");
-            }
+        let playButton = this.chapterItem.querySelector('.background-sound-play');
+        if (mode === "on" && this.hasBackgroundSound) {
+            playButton.classList.remove("hidden");
+            playButton.classList.add("flex");
+        } else {
+            playButton.classList.add("hidden");
+            playButton.classList.remove("flex");
         }
     }
 
@@ -351,7 +349,8 @@ export class ChapterItem {
                     backgroundSound: {
                         src: this.chapter.backgroundSound.src,
                         userId: this.chapter.backgroundSound.userId,
-                        volume: audio.volume
+                        volume: audio.volume,
+                        id: this.chapter.backgroundSound.id,
                     }
 
                 });
@@ -385,6 +384,7 @@ export class ChapterItem {
 
     async deleteBackgroundSound() {
         this.switchPlayButtonDisplay("off");
+        await spaceModule.deleteAudio(assistOS.space.id, this.chapter.backgroundSound.id);
         await assistOS.callFlow("UpdateChapterBackgroundSound", {
             spaceId: assistOS.space.id,
             documentId: this._document.id,

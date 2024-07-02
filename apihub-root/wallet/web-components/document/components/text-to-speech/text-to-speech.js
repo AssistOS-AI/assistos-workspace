@@ -110,6 +110,10 @@ export class TextToSpeech {
         audioSection.classList.add('visible-section');
         let audioElement = this.element.querySelector('audio');
         let audioSource = this.element.querySelector('.audio-source');
+        if(this.audioConfigs){
+            let audioId = this.audioConfigs.audioId;
+            await spaceModule.deleteAudio(assistOS.space.id, audioId);
+        }
         let audioId = await spaceModule.addAudio(assistOS.space.id, await blobToBase64(audioBlob));
         let audioSrc = `spaces/audio/${assistOS.space.id}/${audioId}`;
         audioSource.src = audioSrc;
@@ -138,18 +142,4 @@ export class TextToSpeech {
         link.click();
         document.body.removeChild(link);
     }
-    // async deleteAudio(_target) {
-    //     let audioConfigs = {
-    //         personalityId: this.audioConfigs.personality,
-    //         voiceId: this.audioConfigs.voice,
-    //         emotion: this.audioConfigs.emotion,
-    //         styleGuidance: this.audioConfigs.styleGuidance,
-    //         voiceGuidance: this.audioConfigs.voiceGuidance,
-    //         temperature: this.audioConfigs.temperature,
-    //         audioId: null,
-    //         src: null,
-    //         prompt: null
-    //     }
-    //     await documentModule.updateParagraphAudio(assistOS.space.id, this._document.id, this.paragraphId, audioConfigs);
-    // }
 }
