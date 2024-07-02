@@ -6,5 +6,6 @@
   "creationDate": "$$currentDate",
   "verificationToken": "$$verificationToken",
   "verificationTokenIssueDate": "$$currentDate",
-  "verificationTokenExpirationDate": "$$verificationTokenExpirationDate"
+  "verificationTokenExpirationDate": "$$verificationTokenExpirationDate",
+  "inviteToken": "$$inviteToken"
 }
