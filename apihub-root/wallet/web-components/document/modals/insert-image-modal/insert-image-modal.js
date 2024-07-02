@@ -137,9 +137,10 @@ export class InsertImageModal {
         reader.onload = async (e) => {
             let imageId = await spaceModule.addImage(assistOS.space.id, e.target.result);
             let data = {
-                src: `spaces/images/${assistOS.space.id}/${imageId}`,
+                src: `spaces/image/${assistOS.space.id}/${imageId}`,
                 id: imageId,
                 alt: new Date().toISOString(),
+                isUploadedImage: true
             };
             assistOS.UI.closeModal(_target, [data]);
         };

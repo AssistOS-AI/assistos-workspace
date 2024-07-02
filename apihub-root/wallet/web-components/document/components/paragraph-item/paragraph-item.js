@@ -1,5 +1,5 @@
-import {unescapeHtmlEntities} from "../../../../imports.js";
 const utilModule = require("assistos").loadModule("util", {});
+const spaceModule = require("assistos").loadModule("space", {});
 const documentModule = require("assistos").loadModule("document", {});
 export class ParagraphItem {
     constructor(element, invalidate) {
@@ -50,7 +50,7 @@ export class ParagraphItem {
             this.openTTSItem = false;
         }
         const audioIcon = this.element.querySelector('.audio-icon');
-        if (this.paragraph.audio.audioId) {
+        if (this.paragraph.audio.id) {
             this.hasAudio = true;
         }
         if (assistOS.space.currentParagraphId === this.paragraph.id) {

@@ -79,16 +79,6 @@ export class DocumentViewPage {
         await utilModule.unsubscribeFromObject(this._document.id);
     }
 
-    async deleteChapter(_target) {
-        let chapter = assistOS.UI.reverseQuerySelector(_target, "chapter-item");
-        let chapterId = chapter.getAttribute("data-chapter-id");
-        await assistOS.callFlow("DeleteChapter", {
-            spaceId: assistOS.space.id,
-            documentId: this._document.id,
-            chapterId: chapterId
-        });
-    }
-
     setContext() {
         let focusedElement = "none";
         let highlightedElement = document.querySelector("#highlighted-element");

@@ -2,7 +2,6 @@ import {base64ToBlob, unescapeHtmlEntities} from "../../../../imports.js";
 const documentModule = require("assistos").loadModule("document", {});
 const utilModule = require("assistos").loadModule("util", {});
 const spaceModule = require("assistos").loadModule("space", {});
-
 export class ChapterItem {
     constructor(element, invalidate) {
         this.element = element;
@@ -32,7 +31,6 @@ export class ChapterItem {
             this.toggleSwapArrows = "show";
         }
         let chapterId = this.element.getAttribute("data-chapter-id");
-        this.chapter = this._document.getChapter(chapterId);
         this.titleMetadata = this.element.variables["data-title-metadata"];
         this.chapterContent = "";
         if (this.chapter) {
@@ -268,7 +266,8 @@ export class ChapterItem {
                         image: {
                             src: image.src,
                             alt: image.alt,
-                            id: image.id
+                            id: image.id,
+                            isUploadedImage: image.isUploadedImage || false
                         },
                         dimensions: {
                             width: "",
@@ -390,6 +389,13 @@ export class ChapterItem {
             documentId: this._document.id,
             chapterId: this.chapter.id,
             backgroundSound: null
+        });
+    }
+    async deleteChapter(_target) {
+        await assistOS.callFlow("DeleteChapter", {
+            spaceId: assistOS.space.id,
+            documentId: this._document.id,
+            chapterId: this.chapter.id
         });
     }
 }

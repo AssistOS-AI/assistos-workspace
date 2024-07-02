@@ -1,4 +1,5 @@
 const utilModule = require("assistos").loadModule("util", {});
+const spaceModule = require("assistos").loadModule("space", {});
 const documentModule = require("assistos").loadModule("document", {});
 export class ImageParagraph{
     constructor(element, invalidate) {
@@ -215,7 +216,7 @@ export class ImageParagraph{
         if (event.key === "Backspace") {
             if (assistOS.space.currentParagraphId === this.paragraph.id) {
                 await this.documentPresenter.stopTimer(false);
-                let curentParagraphIndex = this.chapter.getParagraphIndex(this.paragraph.id);
+                let currentParagraphIndex = this.chapter.getParagraphIndex(this.paragraph.id);
                 await assistOS.callFlow("DeleteParagraph", {
                     spaceId: assistOS.space.id,
                     documentId: this._document.id,
@@ -223,10 +224,10 @@ export class ImageParagraph{
                     paragraphId: this.paragraph.id
                 });
                 if (this.chapter.paragraphs.length > 0) {
-                    if (curentParagraphIndex === 0) {
+                    if (currentParagraphIndex === 0) {
                         assistOS.space.currentParagraphId = this.chapter.paragraphs[0].id;
                     } else {
-                        assistOS.space.currentParagraphId = this.chapter.paragraphs[curentParagraphIndex - 1].id;
+                        assistOS.space.currentParagraphId = this.chapter.paragraphs[currentParagraphIndex - 1].id;
                     }
                 } else {
                     assistOS.space.currentParagraphId = null;

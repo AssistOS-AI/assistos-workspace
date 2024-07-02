@@ -572,9 +572,9 @@ async function deleteEmbeddedObjectFromTable(lightDBEnclaveClient, tableId, obje
     let segments = objectURI.split("/");
     let pk = segments[0];
     segments = segments.slice(1);
-    let record = await $$.promisify(lightDBEnclaveClient.getRecord)($$.SYSTEM_IDENTIFIER, tableId, pk);
-    let object = record.data;
     if (segments.length === 1) {
+        let record = await $$.promisify(lightDBEnclaveClient.getRecord)($$.SYSTEM_IDENTIFIER, tableId, pk);
+        let object = record.data;
         let objectId = segments[0];
         let objectType = objectId.split('_')[0];
         if (object[objectType]) {

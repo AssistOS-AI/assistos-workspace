@@ -1,5 +1,4 @@
-import {base64ToBlob, blobToBase64, unescapeHtmlEntities} from "../../../../imports.js";
-
+import {blobToBase64, unescapeHtmlEntities} from "../../../../imports.js";
 const llmModule = require("assistos").loadModule("llm", {});
 const documentModule = require("assistos").loadModule("document", {});
 const spaceModule = require("assistos").loadModule("space", {});
@@ -11,6 +10,7 @@ export class TextToSpeech {
         this._document = document.querySelector("document-view-page").webSkelPresenter._document;
         this.chapterId = this.element.getAttribute("data-chapter-id");
         this.paragraphId = this.element.getAttribute("data-paragraph-id");
+        this.parentPresenter = this.element.parentElement.webSkelPresenter;
         this.generateBtnName = "Generate";
         this.invalidate(async () => {
             this.personalities = await assistOS.space.getPersonalitiesMetadata();
@@ -30,7 +30,7 @@ export class TextToSpeech {
             emotionsHTML += `<option value="${emotion}">${emotion}</option>`;
         }
         this.emotionsHTML = emotionsHTML;
-        this.audioConfigs = this._document.getParagraphAudio(this.chapterId, this.paragraphId);
+        this.audioConfigs = this.parentPresenter.paragraph.audio;
         if (this.audioConfigs) {
             this.generateBtnName = "Regenerate";
         }
@@ -111,7 +111,7 @@ export class TextToSpeech {
         let audioElement = this.element.querySelector('audio');
         let audioSource = this.element.querySelector('.audio-source');
         if(this.audioConfigs){
-            let audioId = this.audioConfigs.audioId;
+            let audioId = this.audioConfigs.id;
             await spaceModule.deleteAudio(assistOS.space.id, audioId);
         }
         let audioId = await spaceModule.addAudio(assistOS.space.id, await blobToBase64(audioBlob));
@@ -126,7 +126,7 @@ export class TextToSpeech {
             styleGuidance: formData.data.styleGuidance,
             voiceGuidance: formData.data.voiceGuidance,
             temperature: formData.data.temperature,
-            audioId: audioId,
+            id: audioId,
             src: audioSrc,
             prompt: prompt
         }
