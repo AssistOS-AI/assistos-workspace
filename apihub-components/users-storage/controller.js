@@ -54,12 +54,6 @@ async function registerUser(request, response) {
             message: "Name is required"
         });
     }
-    // if (!userData.email) {
-    //     return utils.sendResponse(response, 400, "application/json", {
-    //         success: false,
-    //         message: "Email is required"
-    //     });
-    // }
     if (!userData.password) {
         return utils.sendResponse(response, 400, "application/json", {
             success: false,
