@@ -20,7 +20,10 @@ export class ChapterItem {
         this.element.removeEventListener('keydown', this.addParagraphOnCtrlEnter);
         this.element.addEventListener('keydown', this.addParagraphOnCtrlEnter);
         this.invalidate(async () => {
-            await this.subscribeToChapterEvents();
+            if(!this.documentPresenter.childrenSubscriptions.has(this.chapter.id)){
+                await this.subscribeToChapterEvents();
+                this.documentPresenter.childrenSubscriptions.set(this.chapter.id, this.chapter.id);
+            }
         });
     }
 
@@ -82,9 +85,6 @@ export class ChapterItem {
                 }
             }
         });
-    }
-    async afterUnload() {
-        await utilModule.unsubscribeFromObject(this.chapter.id);
     }
 
     async saveTitle(titleElement) {

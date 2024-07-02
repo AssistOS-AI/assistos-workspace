@@ -12,29 +12,34 @@ export class ParagraphItem {
         this.chapter = this._document.getChapter(chapterId);
         this.paragraph = this.chapter.getParagraph(paragraphId);
         this.invalidate(async () => {
-            await utilModule.subscribeToObject(this.paragraph.id, async (type) => {
-                if(type === "text"){
-                    let ttsItem = this.element.querySelector('text-to-speech');
-                    if (ttsItem) {
-                        this.openTTSItem = true;
-                    }
-                    let paragraphDiv = this.element.querySelector(".paragraph-text");
-                    if (!paragraphDiv) {
-                        //notification received before render
-                        return this.invalidate();
-                    }
-                    let paragraph = await this.chapter.refreshParagraph(assistOS.space.id, this._document.id, this.paragraph.id);
-                    if (paragraph.text !== this.paragraph.text) {
-                        this.paragraph = paragraph;
-                        this.invalidate();
-                    }
-                } else if(type === "audio"){
-                    this.paragraph.audio = await documentModule.getParagraphAudio(assistOS.space.id, this._document.id, this.paragraph.id);
-                }
-            });
+            if(!this.documentPresenter.childrenSubscriptions.has(this.paragraph.id)){
+                await this.subscribeToParagraphEvents();
+                this.documentPresenter.childrenSubscriptions.set(this.paragraph.id, this.paragraph.id);
+            }
         });
     }
-
+    async subscribeToParagraphEvents(){
+        await utilModule.subscribeToObject(this.paragraph.id, async (type) => {
+            if(type === "text"){
+                let ttsItem = this.element.querySelector('text-to-speech');
+                if (ttsItem) {
+                    this.openTTSItem = true;
+                }
+                let paragraphDiv = this.element.querySelector(".paragraph-text");
+                if (!paragraphDiv) {
+                    //notification received before render
+                    return this.invalidate();
+                }
+                let paragraph = await this.chapter.refreshParagraph(assistOS.space.id, this._document.id, this.paragraph.id);
+                if (paragraph.text !== this.paragraph.text) {
+                    this.paragraph = paragraph;
+                    this.invalidate();
+                }
+            } else if(type === "audio"){
+                this.paragraph.audio = await documentModule.getParagraphAudio(assistOS.space.id, this._document.id, this.paragraph.id);
+            }
+        });
+    }
     beforeRender() {
 
     }
@@ -69,10 +74,6 @@ export class ParagraphItem {
         if (!this.boundMouseDownAudioIconHandler) {
             this.boundMouseDownAudioIconHandler = this.mouseDownAudioIconHandler.bind(this, paragraphText, audioIcon);
         }
-    }
-
-    async afterUnload() {
-        await utilModule.unsubscribeFromObject(this.paragraph.id);
     }
 
     async moveParagraph(_target, direction) {

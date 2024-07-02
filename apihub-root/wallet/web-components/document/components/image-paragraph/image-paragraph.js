@@ -12,16 +12,21 @@ export class ImageParagraph{
         this.chapter = this._document.getChapter(chapterId);
         this.paragraph = this.chapter.getParagraph(paragraphId);
         this.invalidate(async ()=>{
-            await utilModule.subscribeToObject(this.paragraph.id, async () => {
-                let paragraph = await this.chapter.refreshParagraph(assistOS.space.id, this._document.id, this.paragraph.id);
-                if (JSON.stringify(this.paragraph.dimensions) !== JSON.stringify(paragraph.dimensions)) {
-                    this.paragraph = paragraph;
-                    this.invalidate();
-                }
-            });
+            if(!this.documentPresenter.childrenSubscriptions.has(this.paragraph.id)){
+                await this.subscribeToParagraphEvents();
+                this.documentPresenter.childrenSubscriptions.set(this.paragraph.id, this.paragraph.id);
+            }
         });
     }
-
+    async subscribeToParagraphEvents(){
+        await utilModule.subscribeToObject(this.paragraph.id, async () => {
+            let paragraph = await this.chapter.refreshParagraph(assistOS.space.id, this._document.id, this.paragraph.id);
+            if (JSON.stringify(this.paragraph.dimensions) !== JSON.stringify(paragraph.dimensions)) {
+                this.paragraph = paragraph;
+                this.invalidate();
+            }
+        });
+    }
     beforeRender() {
         this.initialized = false;
         this.imageSrc = this.paragraph.image.src;
@@ -58,9 +63,6 @@ export class ImageParagraph{
             handles[key].addEventListener('mousedown', this.mouseDownFn.bind(this, key));
         }
 
-    }
-    async afterUnload(){
-        await utilModule.unsubscribeFromObject(this.paragraph.id);
     }
     mouseDownFn(handle, event) {
         event.preventDefault();

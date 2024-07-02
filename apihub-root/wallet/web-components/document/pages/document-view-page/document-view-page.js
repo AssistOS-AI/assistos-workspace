@@ -11,6 +11,7 @@ export class DocumentViewPage {
             let documentData = await documentModule.getDocument(assistOS.space.id, this._document.id);
             this._document = new documentModule.Document(documentData);
         }
+        this.childrenSubscriptions = new Map();
         this.invalidate(async () => {
             let documentData = await documentModule.getDocument(assistOS.space.id, window.location.hash.split("/")[3]);
             this._document = new documentModule.Document(documentData);
@@ -77,6 +78,9 @@ export class DocumentViewPage {
 
     async afterUnload() {
         await utilModule.unsubscribeFromObject(this._document.id);
+        for(let childId of this.childrenSubscriptions.keys()){
+            await utilModule.unsubscribeFromObject(childId);
+        }
     }
 
     setContext() {
