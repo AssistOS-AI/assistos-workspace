@@ -34,7 +34,7 @@ text-to-speech{
     margin-bottom: 10px;
 }
 .visible-section{
-    display: flex;
+    display: block;
     align-items: center;
 }
 .generated-audio{
