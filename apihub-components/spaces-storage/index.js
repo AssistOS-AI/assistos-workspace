@@ -40,7 +40,10 @@ const {
     deleteImage,
     storeAudio,
     deleteAudio,
-    getAudio
+    getAudio,
+    getVideo,
+    deleteVideo,
+    compileVideoFromDocument
 } = require("./controller");
 
 const bodyReader = require('../apihub-component-middlewares/bodyReader.js')
@@ -118,6 +121,10 @@ function SpaceStorage(server) {
     server.post("/spaces/audio/:spaceId", storeAudio);
     server.get("/spaces/audio/:spaceId/:audioId", getAudio);
     server.delete("/spaces/audio/:spaceId/:audioId", deleteAudio);
+
+    server.post("/spaces/video/compile/:spaceId/:documentId", compileVideoFromDocument);
+    server.get("/spaces/video/:spaceId/:videoId", getVideo);
+    server.delete("/spaces/video/:spaceId/:videoId", deleteVideo);
 }
 
 module.exports = SpaceStorage;

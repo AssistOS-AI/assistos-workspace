@@ -255,5 +255,17 @@ export class DocumentViewPage {
         this.timer = new executorTimer(saveFunction,1000);
         _target.addEventListener("keydown", resetTimerFunction);
     }
-
+    async documentToVideo(){
+        let videoId = await assistOS.callFlow("DocumentToVideo", {
+            spaceId: assistOS.space.id,
+            documentId: this._document.id
+        });
+        await utilModule.subscribeToObject(videoId, async () => {
+            let buttonsSection = this.element.querySelector(".buttons-section");
+            buttonsSection.insertAdjacentHTML("beforeend", `
+            <video>
+                <source src="/spaces/videos/${assistOS.space.id}/${videoId}" type="video/mp4">
+            </video>`);
+        });
+    }
 }

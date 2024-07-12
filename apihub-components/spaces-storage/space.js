@@ -14,7 +14,9 @@ const secrets = require('../apihub-component-utils/secrets.js');
 const https = require('https');
 const fs = require('fs');
 const spaceConstants = require('./constants.js');
-
+const {exec} = require("child_process");
+const ffmpegPath = require("ffmpeg-static");
+const {eventPublisher} = require("../subscribers/controller");
 function getSpacePath(spaceId) {
     return path.join(volumeManager.paths.space, spaceId);
 }
@@ -225,6 +227,7 @@ async function createSpace(spaceName, userId, apiKey) {
         () => file.createDirectory(path.join(spacePath, 'images')),
         () => file.createDirectory(path.join(spacePath, 'audios')),
         () => file.createDirectory(path.join(spacePath, 'applications')),
+        () => file.createDirectory(path.join(spacePath, 'videos')),
         () => createSpaceStatus(spacePath, spaceObj),
         () => User.APIs.linkSpaceToUser(userId, spaceId),
         () => addSpaceToSpaceMap(spaceId, spaceName),
@@ -538,6 +541,119 @@ async function deleteAudio(spaceId, audioId){
     const audioPath = path.join(audiosPath, `${audioId}.mp3`);
     await fsPromises.rm(audioPath);
 }
+async function getVideo(spaceId, videoId){
+    const videosPath = path.join(getSpacePath(spaceId), 'videos');
+    const videoPath = path.join(videosPath, `${videoId}.mp4`);
+    return await fsPromises.readFile(videoPath);
+}
+async function deleteVideo(spaceId, videoId){
+    const videosPath = path.join(getSpacePath(spaceId), 'videos');
+    const videoPath = path.join(videosPath, `${videoId}.mp4`);
+    await fsPromises.rm(videoPath);
+}
+function runFfmpeg(command) {
+    return new Promise((resolve, reject) => {
+        exec(command, (error, stdout, stderr) => {
+            if (error) {
+                reject(error);
+                return;
+            }
+            resolve(stdout || stderr);
+        });
+    });
+}
+
+async function concatenateAudioFiles(tempVideoDir, audioFilesPaths, outputAudioPath) {
+    const fileListPath = path.join(tempVideoDir, 'audio_files.txt');
+    const fileListContent = audioFilesPaths.map(file => `file '${file}'`).join('\n');
+    await fsPromises.writeFile(fileListPath, fileListContent);
+
+    const command = `${ffmpegPath} -f concat -safe 0 -i ${fileListPath} -c copy ${outputAudioPath}`;
+    await runFfmpeg(command);
+
+    await fsPromises.unlink(fileListPath);
+}
+
+
+async function createVideoFromImages(images, duration, outputVideoPath) {
+    const filterComplex = images.map((image, index) => `[${index}:v]`).join('') + `concat=n=${images.length}:v=1:a=0,format=yuv420p[v]`;
+    const inputs = images.map(image => `-loop 1 -t ${duration} -i ${image}`).join(' ');
+
+    const command = `${ffmpegPath} ${inputs} -filter_complex "${filterComplex}" -map "[v]" ${outputVideoPath}`;
+    await runFfmpeg(command);
+}
+
+async function combineVideoAndAudio(videoPath, audioPath, outputPath) {
+    const command = `${ffmpegPath} -i ${videoPath} -i ${audioPath} -c:v copy -c:a aac -strict experimental ${outputPath}`;
+    await runFfmpeg(command);
+}
+
+async function documentToVideo(spaceId, document, userId, videoId) {
+    const spacePath = getSpacePath(spaceId);
+    const audiosPath = path.join(spacePath, 'audios');
+    const imagesPath = path.join(spacePath, 'images');
+    const tempVideoDir = path.join(spacePath, "videos", `${videoId}_temp`);
+    await file.createDirectory(tempVideoDir);
+    const chapterVideos = [];
+    for (let i = 0; i < document.chapters.length; i++) {
+        const chapter = document.chapters[i];
+        let paragraphsAudioPath = [];
+        let chapterImagesPath = [];
+        for(let paragraph of chapter.paragraphs) {
+            if(paragraph.audio){
+                let audioPath = path.join(audiosPath, `${paragraph.audio.src.split("/").pop()}.mp3`);
+                paragraphsAudioPath.push(audioPath);
+            } else if(paragraph.image){
+                let imagePath = path.join(imagesPath, `${paragraph.image.src.split("/").pop()}.png`);
+                chapterImagesPath.push(imagePath);
+            }
+        }
+        const audioPath = path.join(tempVideoDir,`${document.id}_chapter_${i}_audio.mp3`);
+        const videoPath = path.join(tempVideoDir,`${document.id}_chapter_${i}_video.mp4`);
+        try{
+            await concatenateAudioFiles(tempVideoDir, paragraphsAudioPath, audioPath);
+        } catch (e) {
+            await fsPromises.rm(tempVideoDir, {recursive: true, force: true});
+            throw new Error(`Failed to concatenate audio files for chapter ${i}: ${e}`);
+        }
+        let audioDuration;
+        try{
+            audioDuration = (await runFfmpeg(`${ffmpegPath} -i ${audioPath} -hide_banner 2>&1 | grep "Duration"`)).match(/Duration: (\d+):(\d+):(\d+\.\d+)/);
+        }catch (e) {
+            await fsPromises.rm(tempVideoDir, {recursive: true, force: true});
+            throw new Error(`Failed to get audio duration for chapter ${i}: ${e}`);
+        }
+        const totalDuration = parseInt(audioDuration[1]) * 3600 + parseInt(audioDuration[2]) * 60 + parseFloat(audioDuration[3]);
+        const imageDuration = totalDuration / chapterImagesPath.length;
+        let combinedPath;
+        try {
+            await createVideoFromImages(chapterImagesPath, imageDuration, videoPath);
+            combinedPath = path.join(tempVideoDir, `chapter_${i}_combined.mp4`);
+            await combineVideoAndAudio(videoPath, audioPath, combinedPath);
+        } catch (e) {
+            await fsPromises.rm(tempVideoDir, {recursive: true, force: true});
+            throw new Error(`Failed to create video from images for chapter ${i}: ${e}`);
+        }
+
+        chapterVideos.push(combinedPath);
+    }
+
+    const fileListPath = path.join(tempVideoDir, 'chapter_videos.txt');
+    try{
+        const fileListContent = chapterVideos.map(file => `file '${file}'`).join('\n');
+        await fsPromises.writeFile(fileListPath, fileListContent);
+        let outputVideoPath = path.join(getSpacePath(spaceId), 'videos', `${videoId}.mp4`);
+        const command = `${ffmpegPath} -f concat -safe 0 -i ${fileListPath} -c copy ${outputVideoPath}`;
+        await runFfmpeg(command);
+        await fsPromises.unlink(fileListPath);
+        await fsPromises.rm(tempVideoDir, {recursive: true, force: true});
+    } catch (e) {
+        await fsPromises.rm(tempVideoDir, {recursive: true, force: true});
+        throw new Error(`Failed to concatenate chapter videos: ${e}`);
+    }
+    eventPublisher.notifyClientTask(userId, videoId);
+}
+
 module.exports = {
     APIs: {
         addSpaceAnnouncement,
@@ -567,7 +683,11 @@ module.exports = {
         deleteImage,
         putAudio,
         getAudio,
-        deleteAudio
+        deleteAudio,
+        getSpacePath,
+        getVideo,
+        deleteVideo,
+        documentToVideo
     },
     templates: {
         defaultSpaceAnnouncement: require('./templates/defaultSpaceAnnouncement.json'),

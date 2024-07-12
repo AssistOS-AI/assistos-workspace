@@ -44,6 +44,18 @@ const eventPublisher = (() => {
             }
         }
     }
+    function notifyClientTask(userId, objectId, objectData){
+        let client = clients.get(userId);
+        if(client && client.objectIds[objectId]){
+            let data = {objectId: objectId};
+            if(objectData) {
+                data.data = objectData;
+            }
+            let stringData = JSON.stringify(data);
+            client.res.write(`event: content\n`);
+            client.res.write(`data: ${stringData}\n\n`);
+        }
+    }
     function removeClient(userId) {
         let client = clients.get(userId);
         clearInterval(client.intervalId);
@@ -69,7 +81,8 @@ const eventPublisher = (() => {
         notifyClients,
         removeClient,
         subscribeToObject,
-        unsubscribeFromObject
+        unsubscribeFromObject,
+        notifyClientTask
     }
 })();
 function registerClient(request, response) {

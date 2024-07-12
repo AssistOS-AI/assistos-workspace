@@ -330,7 +330,7 @@ async function deleteContainerObject(request, response) {
     try {
         let lightDBEnclaveClient = enclave.initialiseLightDBEnclave(spaceId);
         await deleteContainerObjectTable(lightDBEnclaveClient, objectId);
-        eventPublisher.notifyClients(request.userId, objectId ,"delete");
+        eventPublisher.notifyClients(request.userId, objectId, "delete");
         eventPublisher.notifyClients(request.userId, objectId.split('_')[0]);
         return utils.sendResponse(response, 200, "application/json", {
             success: true,
@@ -437,12 +437,12 @@ async function insertEmbeddedObjectRecords(lightDBEnclaveClient, tableId, object
         }
         if (!isUpdate) {
             //array concatenate
-            if(Array.isArray(objectData)){
-                for(let item of objectData){
-                    if(!item.id){
+            if (Array.isArray(objectData)) {
+                for (let item of objectData) {
+                    if (!item.id) {
                         item.id = `${objectType}_${crypto.generateId()}`;
                     }
-                    if(item.position){
+                    if (item.position) {
                         object[objectType].splice(item.position, 0, item.id);
                     } else {
                         object[objectType].push(item.id);
@@ -453,7 +453,7 @@ async function insertEmbeddedObjectRecords(lightDBEnclaveClient, tableId, object
                 return objectData.map(item => item.id);
             }
             //single object
-            if(!objectData.id){
+            if (!objectData.id) {
                 objectData.id = `${objectType}_${crypto.generateId()}`;
             }
             if (objectData.position) {
@@ -509,18 +509,18 @@ async function updateEmbeddedObject(request, response) {
         if (propertyName) {
             let record = await $$.promisify(lightDBEnclaveClient.getRecord)($$.SYSTEM_IDENTIFIER, tableId, objectId);
             let object = record.data;
-            if(Array.isArray(objectData) && objectData.length !== 0){
-                if(typeof objectData[0] === "object"){
-                    for(let objectId of object[propertyName]){
+            if (Array.isArray(objectData) && objectData.length !== 0) {
+                if (typeof objectData[0] === "object") {
+                    for (let objectId of object[propertyName]) {
                         await deleteEmbeddedObjectDependencies(lightDBEnclaveClient, tableId, objectId);
                     }
                     object[propertyName] = [];
-                    for(let item of objectData){
+                    for (let item of objectData) {
                         await insertEmbeddedObjectRecords(lightDBEnclaveClient, tableId, objectURI, item, true);
                         object[propertyName].push(item.id);
                     }
                     await $$.promisify(lightDBEnclaveClient.updateRecord)($$.SYSTEM_IDENTIFIER, tableId, objectId, {data: object});
-                    eventPublisher.notifyClients(request.userId, objectId , propertyName);
+                    eventPublisher.notifyClients(request.userId, objectId, propertyName);
                     return utils.sendResponse(response, 200, "application/json", {
                         success: true,
                         data: objectId,
@@ -558,7 +558,7 @@ async function deleteEmbeddedObjectDependencies(lightDBEnclaveClient, tableId, o
     let object = record.data;
     for (let key of Object.keys(object)) {
         if (Array.isArray(object[key]) && object[key].length > 0) {
-            if(typeof object[key][0] === "string" && object[key][0].includes("_")){
+            if (typeof object[key][0] === "string" && object[key][0].includes("_")) {
                 for (let item of object[key]) {
                     await deleteEmbeddedObjectDependencies(lightDBEnclaveClient, tableId, item);
                 }
@@ -1144,6 +1144,7 @@ async function storeImage(request, response) {
     }
 
 }
+
 async function getImage(request, response) {
     const spaceId = request.params.spaceId;
     const imageId = request.params.imageId;
@@ -1157,6 +1158,7 @@ async function getImage(request, response) {
         });
     }
 }
+
 async function deleteImage(request, response) {
     const spaceId = request.params.spaceId;
     const imageId = request.params.imageId;
@@ -1173,6 +1175,7 @@ async function deleteImage(request, response) {
         });
     }
 }
+
 async function storeAudio(request, response) {
     const spaceId = request.params.spaceId;
     const audioId = `${spaceId}_${crypto.generateId(8)}`;
@@ -1190,6 +1193,7 @@ async function storeAudio(request, response) {
         });
     }
 }
+
 async function getAudio(request, response) {
     const spaceId = request.params.spaceId;
     const audioId = request.params.audioId;
@@ -1203,6 +1207,7 @@ async function getAudio(request, response) {
         });
     }
 }
+
 async function deleteAudio(request, response) {
     const spaceId = request.params.spaceId;
     const audioId = request.params.audioId;
@@ -1216,6 +1221,52 @@ async function deleteAudio(request, response) {
         return utils.sendResponse(response, 500, "application/json", {
             success: false,
             message: error + ` Error at reading audio: ${audioId}`
+        });
+    }
+}
+
+
+async function compileVideoFromDocument(request, response) {
+    let documentId = request.params.documentId;
+    let spaceId = request.params.spaceId;
+    let userId = request.userId;
+    let videoId = crypto.generateId(16);
+    sendResponse(response, 200, "application/json", {
+        success: true,
+        message: `Task in progress`
+    });
+    const SecurityContext = require("assistos").ServerSideSecurityContext;
+    let securityContext = new SecurityContext(request);
+    const documentModule = require("assistos").loadModule("document", securityContext);
+    let document = await documentModule.getDocument(spaceId, documentId);
+    space.APIs.documentToVideo(spaceId, document, userId, videoId);
+}
+async function getVideo(request, response) {
+    const spaceId = request.params.spaceId;
+    const videoId = request.params.videoId;
+    try {
+        let video = await space.APIs.getVideo(spaceId, videoId);
+        return utils.sendResponse(response, 200, "video/mp4", video);
+    } catch (error) {
+        return utils.sendResponse(response, 500, "application/json", {
+            success: false,
+            message: error + ` Error at reading video: ${videoId}`
+        });
+    }
+}
+async function deleteVideo(request, response) {
+    const spaceId = request.params.spaceId;
+    const videoId = request.params.videoId;
+    try {
+        await space.APIs.deleteVideo(spaceId, videoId);
+        return utils.sendResponse(response, 200, "application/json", {
+            success: true,
+            data: videoId,
+        });
+    } catch (error) {
+        return utils.sendResponse(response, 500, "application/json", {
+            success: false,
+            message: error + ` Error at reading video: ${videoId}`
         });
     }
 }
@@ -1261,5 +1312,8 @@ module.exports = {
     deleteImage,
     storeAudio,
     deleteAudio,
-    getAudio
+    getAudio,
+    getVideo,
+    deleteVideo,
+    compileVideoFromDocument
 }
