@@ -256,15 +256,15 @@ export class DocumentViewPage {
         _target.addEventListener("keydown", resetTimerFunction);
     }
     async documentToVideo(){
-        let videoId = await assistOS.callFlow("DocumentToVideo", {
+        let videoId = (await assistOS.callFlow("DocumentToVideo", {
             spaceId: assistOS.space.id,
             documentId: this._document.id
-        });
+        })).data;
         await utilModule.subscribeToObject(videoId, async () => {
-            let buttonsSection = this.element.querySelector(".buttons-section");
-            buttonsSection.insertAdjacentHTML("beforeend", `
-            <video>
-                <source src="/spaces/videos/${assistOS.space.id}/${videoId}" type="video/mp4">
+            let section = this.element.querySelector(".document-page-header");
+            section.insertAdjacentHTML("afterend", `
+            <video class="document-video" controls>
+                <source src="/spaces/video/${assistOS.space.id}/${videoId}" type="video/mp4">
             </video>`);
         });
     }

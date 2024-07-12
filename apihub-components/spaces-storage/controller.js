@@ -1233,7 +1233,8 @@ async function compileVideoFromDocument(request, response) {
     let videoId = crypto.generateId(16);
     sendResponse(response, 200, "application/json", {
         success: true,
-        message: `Task in progress`
+        message: `Task in progress`,
+        data: videoId
     });
     const SecurityContext = require("assistos").ServerSideSecurityContext;
     let securityContext = new SecurityContext(request);

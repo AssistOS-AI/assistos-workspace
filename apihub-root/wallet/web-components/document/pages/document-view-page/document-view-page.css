@@ -182,3 +182,7 @@ html[theme="dark"] .document-title-container {
 .document-to-video{
     margin-left: 10px;
 }
+.document-video{
+    width: 200px;
+    height: 200px;
+}
