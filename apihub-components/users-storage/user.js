@@ -474,8 +474,8 @@ async function rejectSpaceInvitation(invitationToken) {
 }
 
 async function getCreateAccountHTML(spaceName, invitationToken) {
-    let redirectURL = config.ENVIRONMENT_MODE === 'development' ? config.DEVELOPMENT_BASE_URL : config.PRODUCTION_BASE_URL
-    redirectURL = `${redirectURL}/#authentication-page/inviteToken/${invitationToken}`;
+    const baseURL=process.env.BASE_URL;
+    const redirectURL = `${baseURL}/#authentication-page/inviteToken/${invitationToken}`;
     return data.fillTemplate(await require('../email').getTemplate('createAccountTemplate'),
         {
             spaceName: spaceName,
@@ -483,29 +483,29 @@ async function getCreateAccountHTML(spaceName, invitationToken) {
         });
 }
 async function getSpaceInvitationSuccessfulHTML(spaceName) {
-    const redirectURL = config.ENVIRONMENT_MODE === 'development' ? config.DEVELOPMENT_BASE_URL : config.PRODUCTION_BASE_URL
+    const baseURL=process.env.BASE_URL;
     return data.fillTemplate(await require('../email').getTemplate('spaceInvitationAcceptedTemplate'),
         {
             spaceName: spaceName,
-            redirectURL: redirectURL
+            redirectURL: baseURL
         });
 }
 
 async function getSpaceInvitationRejectedHTML(spaceName) {
-    const redirectURL = config.ENVIRONMENT_MODE === 'development' ? config.DEVELOPMENT_BASE_URL : config.PRODUCTION_BASE_URL
+    const baseURL=process.env.BASE_URL;
     return data.fillTemplate(await require('../email').getTemplate('spaceInvitationRejectedTemplate'),
         {
             spaceName: spaceName,
-            redirectURL: redirectURL
+            redirectURL: baseURL
         });
 }
 
 async function getSpaceInvitationErrorHTML(error) {
-    const redirectURL = config.ENVIRONMENT_MODE === 'development' ? config.DEVELOPMENT_BASE_URL : config.PRODUCTION_BASE_URL
+    const baseURL=process.env.BASE_URL;
     return data.fillTemplate(await require('../email').getTemplate('spaceInvitationErrorTemplate'),
         {
             errorMessage: error,
-            redirectURL: redirectURL
+            redirectURL: baseURL
         });
 }
 async function getUserPrivateChatAgentId(userId,spaceId){

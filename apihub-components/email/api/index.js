@@ -66,7 +66,7 @@ class Email {
         const spaceInvitationTemplatePath = path.join(__dirname, '..', 'templates', 'spaceInvitationTemplate.html');
         const spaceInvitationTemplate = await fsPromises.readFile(spaceInvitationTemplatePath, 'utf8')
 
-        const baseURL=process.env.AOS_BASE_URL;
+        const baseURL=process.env.BASE_URL;
         const baseAcceptURL = `${baseURL}/spaces/invitations/accept?invitationToken=${encodeURIComponent(invitationToken)}`;
         const invitationLinkAccepted = `<a href="${baseAcceptURL}${newUser ? '&newUser=true' : ''}" class="button">Accept</a>`;
         const invitationLinkRejected = newUser === false ? `<a href="${baseURL}/spaces/invitations/reject?invitationToken=${encodeURIComponent(invitationToken)}" class="button">Reject</a>` : "";
