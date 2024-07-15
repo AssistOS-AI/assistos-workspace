@@ -6,7 +6,7 @@
   "SECURITY_MODULE_PATH": "./apihub-space-core/securityModule.json",
   "STORAGE_VOLUME_PATH": "./data-volume",
   "CLEAN_STORAGE_VOLUME_ON_RESTART": "true",
-  "CREATE_DEMO_USER": "true",
+  "CREATE_DEMO_USER": "false",
   "REGENERATE_TOKEN_SECRETS_ON_RESTART": "true",
   "LLMS_SERVER_DEVELOPMENT_BASE_URL": "http://localhost:8079",
   "LLMS_SERVER_PRODUCTION_BASE_URL": "http://localhost:8079"
