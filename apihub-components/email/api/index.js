@@ -39,16 +39,11 @@ class Email {
     async sendActivationEmail(emailAddress, username, activationToken) {
         const data = require('../../apihub-component-utils/data.js')
         const activationEmailTemplatePath = path.join(__dirname, '..', 'templates', 'activationEmailTemplate.html');
-        const {ENVIRONMENT_MODE, PRODUCTION_BASE_URL, DEVELOPMENT_BASE_URL} = require('../../config.json')
 
         const activationEmailTemplate = await fsPromises.readFile(activationEmailTemplatePath, 'utf8')
-        let baseURL;
 
-        if (ENVIRONMENT_MODE === 'development') {
-            baseURL = DEVELOPMENT_BASE_URL
-        } else {
-            baseURL = PRODUCTION_BASE_URL
-        }
+        const baseURL=process.env.BASE_URL;
+
         const activationLink = `${baseURL}/users/verify?activationToken=${encodeURIComponent(activationToken)}`;
         const emailHtml = data.fillTemplate(activationEmailTemplate, {
             username: username,
@@ -71,15 +66,7 @@ class Email {
         const spaceInvitationTemplatePath = path.join(__dirname, '..', 'templates', 'spaceInvitationTemplate.html');
         const spaceInvitationTemplate = await fsPromises.readFile(spaceInvitationTemplatePath, 'utf8')
 
-
-        const {ENVIRONMENT_MODE, PRODUCTION_BASE_URL, DEVELOPMENT_BASE_URL} = require('../../config.json')
-        let baseURL;
-        if (ENVIRONMENT_MODE === 'development') {
-            baseURL = DEVELOPMENT_BASE_URL
-        } else {
-            baseURL = PRODUCTION_BASE_URL
-        }
-
+        const baseURL=process.env.AOS_BASE_URL;
         const baseAcceptURL = `${baseURL}/spaces/invitations/accept?invitationToken=${encodeURIComponent(invitationToken)}`;
         const invitationLinkAccepted = `<a href="${baseAcceptURL}${newUser ? '&newUser=true' : ''}" class="button">Accept</a>`;
         const invitationLinkRejected = newUser === false ? `<a href="${baseURL}/spaces/invitations/reject?invitationToken=${encodeURIComponent(invitationToken)}" class="button">Reject</a>` : "";
