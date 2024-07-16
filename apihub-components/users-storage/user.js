@@ -362,17 +362,17 @@ async function getUserPendingActivation() {
 
 async function getActivationSuccessHTML() {
     const activationSuccessTemplate = await require('../email').getTemplate('activationSuccessTemplate')
-    let loginRedirectURL = config.ENVIRONMENT_MODE === 'development' ? config.DEVELOPMENT_BASE_URL : config.PRODUCTION_BASE_URL
+    const baseURL=process.env.BASE_URL;
     return data.fillTemplate(activationSuccessTemplate, {
-        loginRedirectURL: loginRedirectURL
+        loginRedirectURL: baseURL
     })
 }
 
 async function getActivationFailHTML(failReason) {
     const activationFailTemplate = await require('../email').getTemplate('activationFailTemplate')
-    let redirectURL = config.ENVIRONMENT_MODE === 'development' ? config.DEVELOPMENT_BASE_URL : config.PRODUCTION_BASE_URL
+    const baseURL=process.env.BASE_URL;
     return data.fillTemplate(activationFailTemplate, {
-        redirectURL: redirectURL,
+        redirectURL: baseURL,
         failReason: failReason
     })
 }
