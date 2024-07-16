@@ -314,10 +314,15 @@ function defineActions() {
 }
 
 async function handleHistory(event) {
-    if (!window.location.hash.includes("#authentication-page")) {
-        assistOS.UI.setDomElementForPages(mainContent);
-        window.location.hash = "#authentication-page";
-        await assistOS.UI.changeToDynamicPage("authentication-page", "authentication-page", "", true);
+    const removeSidebar = ()=>{
+        let sidebar = document.querySelector("left-sidebar");
+        if(sidebar){
+            sidebar.remove();
+        }
+    }
+    if (window.location.hash.includes("#authentication-page")) {
+        removeSidebar();
+        await assistOS.UI.changeToDynamicPage("authentication-page", "authentication-page");
     }
     let modal = document.querySelector("dialog");
     if (modal) {
