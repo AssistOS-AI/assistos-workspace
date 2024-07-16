@@ -102,16 +102,16 @@ async function activateUser(request, response) {
 async function loginUser(request, response) {
     const requestData = request.body;
     try {
-        const userId = await User.APIs.loginUser(requestData.email, requestData.password);
+        const {userId,verificationKey} = await User.APIs.loginUser(requestData.email, requestData.password);
         const userData = await User.APIs.getUserData(userId);
 
         utils.sendResponse(response, 200, "application/json", {
             data: userData,
             success: true,
             message: `User ${userData.name} logged in successfully`
-        }, [await cookie.createAuthCookie(userData), await cookie.createRefreshAuthCookie(userData), cookie.createCurrentSpaceCookie(userData.currentSpaceId)]);
+        }, [await cookie.createAuthCookie(userData,verificationKey), await cookie.createRefreshAuthCookie(userData,verificationKey), cookie.createCurrentSpaceCookie(userData.currentSpaceId)]);
     } catch (error) {
-        utils.sendResponse(response, 404, "application/json", {
+        utils.sendResponse(response, error.statusCode, "application/json", {
             success: false,
             message: error.message
         });

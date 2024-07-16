@@ -6,13 +6,12 @@ const {
     logoutUser,
     userSecretExists,
     getUserAvatar,
-    addAPIKey,
-    deleteAPIKey
 } = require("./controller");
 
 const bodyReader = require('../apihub-component-middlewares/bodyReader.js')
 const authentication = require('../apihub-component-middlewares/authentication.js')
-const User = require("./user");
+
+const enclave = require("opendsu").loadAPI("enclave");
 
 function UserStorage(server) {
 
@@ -41,6 +40,9 @@ function UserStorage(server) {
         await secretService.putSecretAsync('JWT', 'AccessToken', accessToken);
         await secretService.putSecretAsync('JWT', 'RefreshToken', refreshToken);
         await secretService.putSecretAsync('JWT', 'EmailToken', emailToken);
+
+        const dbName = "AuthSessionMDB";
+        $$.ActiveSessionsClient = enclave.initialiseMemoryEnclave(dbName);
 
     }, 0);
 

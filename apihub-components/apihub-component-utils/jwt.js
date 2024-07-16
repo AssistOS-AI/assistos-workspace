@@ -30,20 +30,22 @@ async function validateJWT(jwt, jwtType) {
 
 }
 
-async function createUserAccessJWT(userData) {
+async function createUserAccessJWT(userData,verificationKey) {
     const payloadData = {
         id: userData.id,
-        role: "user"
+        role: "user",
+        verificationKey: verificationKey
     }
     const accessToken = await createJWT(payloadData, "AccessToken");
     return accessToken
 
 }
 
-async function createUserRefreshAccessJWT(userData) {
+async function createUserRefreshAccessJWT(userData,verificationKey) {
     const payloadData = {
         id: userData.id,
-        role: "user"
+        role: "user",
+        verificationKey: verificationKey
     }
     const refreshToken = await createJWT(payloadData, "RefreshToken");
     return refreshToken
@@ -52,13 +54,15 @@ async function createUserRefreshAccessJWT(userData) {
 async function validateUserAccessJWT(jwt) {
     const jwtPayload = (await validateJWT(jwt, "AccessToken")).payload
     const userId = jwtPayload.id;
-    return userId;
+    const verificationKey = jwtPayload.verificationKey;
+    return {userId:userId,verificationKey:verificationKey};
 }
 
 async function validateUserRefreshAccessJWT(jwt) {
     const jwtPayload = (await validateJWT(jwt, "RefreshToken")).payload
     const userId = jwtPayload.id;
-    return userId;
+    const verificationKey = jwtPayload.verificationKey;
+    return {userId:userId,verificationKey:verificationKey};
 }
 
 module.exports = {

@@ -11,7 +11,9 @@ function generateId(length = DEFAULT_ID_LENGTH) {
     }
     return randomStringId;
 }
-
+function generateVerificationKey(){
+    return generateId(64);
+}
 async function generateVerificationToken() {
     return await crypto.getRandomSecret(64);
 }
@@ -31,5 +33,6 @@ module.exports = {
     hashPassword,
     generateSecret,
     generateVerificationToken,
-    generateId
+    generateId,
+    generateVerificationKey
 }

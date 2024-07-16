@@ -1,4 +1,5 @@
 import {getDemoUserCredentials} from "../../../../imports.js";
+
 let User = require("assistos").loadModule("user", {});
 User = {
     apis: User,
@@ -33,11 +34,6 @@ export class AuthenticationPage {
                         <label class="form-label" for="user-email">E-mail</label>
                         <input class="form-input" name="email" type="email" data-id="user-email" id="user-email" ${requiredEmail} placeholder="Add e-mail">
                     </div>
-                  <!--  <div class="form-item">
-                        <label class="form-label" for="user-phone">Phone</label>
-                        <input class="form-input" name="phone" data-id="user-phone" type="text" id="user-phone" required
-                            placeholder="Add phone">
-                    </div>-->
                     <div class="form-item">
                         <label class="form-label" for="user-password">Password</label>
                         <input class="form-input" name="password" type="password" data-id="user-password" id="user-password" required placeholder="Add password">
@@ -317,11 +313,20 @@ export class AuthenticationPage {
             try {
                 await assistOS.login(email, password);
             } catch (error) {
-                alert(`Login failed: Invalid email or password`);
+                /* TODO change statusCode from 404 to 401 after feature is completed */
+                switch (error.statusCode) {
+                    case 401:
+                        alert("Invalid Password");
+                        break;
+                    case 404:
+                        alert("User not found");
+                        break;
+                    case 500:
+                        alert("Internal server error");
+                }
             }
         }
     }
-
 
     async navigateToPasswordRecoveryPage() {
         await this.navigateToPage("password-recovery");

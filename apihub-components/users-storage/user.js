@@ -3,6 +3,7 @@ const path = require('path');
 
 const config = require('../config.json');
 
+
 const crypto = require("../apihub-component-utils/crypto");
 const data = require('../apihub-component-utils/data.js');
 const date = require('../apihub-component-utils/date.js');
@@ -11,6 +12,9 @@ const file = require('../apihub-component-utils/file.js');
 const volumeManager = require('../volumeManager.js');
 const Space = require("../spaces-storage/space");
 const {instance: emailService} = require("../email");
+
+const tableName = "UsersActiveSessions";
+
 
 async function registerUser(name, email, password, photo, inviteToken) {
     const currentDate = date.getCurrentUTCDate();
@@ -26,7 +30,7 @@ async function registerUser(name, email, password, photo, inviteToken) {
         verificationTokenExpirationDate: date.incrementUTCDate(currentDate, {minutes: 30}),
         currentDate: currentDate,
     })
-    if(inviteToken){
+    if (inviteToken) {
         const spacePendingInvitationsObj = await Space.APIs.getSpacesPendingInvitationsObject();
         const invitation = spacePendingInvitationsObj[inviteToken];
         registrationUserObject.email = invitation.email;
@@ -41,7 +45,7 @@ async function registerUser(name, email, password, photo, inviteToken) {
     const userPendingActivation = await getUserPendingActivation()
     userPendingActivation[registrationUserObject.verificationToken] = registrationUserObject
     await updateUserPendingActivation(userPendingActivation)
-    if(inviteToken){
+    if (inviteToken) {
         return await activateUser(registrationUserObject.verificationToken);
     }
     await sendActivationEmail(email, name, registrationUserObject.verificationToken);
@@ -79,7 +83,7 @@ async function createUser(username, email, photo, withDefaultSpace = false) {
         if (withDefaultSpace) {
             const createdSpaceId = (await Space.APIs.createSpace(spaceName, userId)).id;
             user.currentSpaceId = createdSpaceId
-            user.spaces[createdSpaceId]={};
+            user.spaces[createdSpaceId] = {};
         }
         await updateUserFile(userId, user)
         return user;
@@ -116,10 +120,10 @@ async function activateUser(activationToken) {
         userCredentials[userDataObject.id].activationDate = date.getCurrentUTCDate();
         await updateUserCredentials(userCredentials);
         let inviteToken = user.inviteToken;
-        if(inviteToken){
+        if (inviteToken) {
             const spacePendingInvitationsObj = await Space.APIs.getSpacesPendingInvitationsObject();
             const invitation = spacePendingInvitationsObj[inviteToken];
-            await acceptSpaceInvitation(inviteToken,false);
+            await acceptSpaceInvitation(inviteToken, false);
             let user = await getUserFile(userDataObject.id);
             user.currentSpaceId = invitation.spaceId;
             await updateUserFile(userDataObject.id, user);
@@ -134,17 +138,29 @@ async function activateUser(activationToken) {
 }
 
 async function loginUser(email, password) {
-    const userId = await getUserIdByEmail(email).catch(() => {
-        throw new Error('Invalid credentials');
-    });
-
+    const userId = await getUserIdByEmail(email);
     const userCredentials = await getUserCredentials();
     const hashedPassword = crypto.hashPassword(password);
     if (userCredentials[userId].password === hashedPassword) {
-        return userId;
-    }
+        const userVerificationKey = crypto.generateVerificationKey();
+        try {
+            /* check if someone is already logged in on that account */
+            const accountSessionData = await $$.promisify(await $$.ActiveSessionsClient.getRecord)($$.SYSTEM_IDENTIFIER, tableName, userId);
+            /* update the verification key and directly invalidate the other's user session */
+            await $$.promisify(await $$.ActiveSessionsClient.updateRecord)($$.SYSTEM_IDENTIFIER, tableName, userId, {data: {verificationKey: userVerificationKey}});
+            /* TODO close the SSE connection with the previous client and notify him that he has been logged out for his UI to update and notify*/
 
-    throw new Error('Invalid credentials');
+        } catch (error) {
+            /* ignore error, it means that the user is not logged in */
+            await $$.promisify($$.ActiveSessionsClient.insertRecord)($$.SYSTEM_IDENTIFIER, tableName, userId, {data: {verificationKey: userVerificationKey}});
+
+        }
+        return {userId: userId, verificationKey: userVerificationKey};
+    } else {
+        const error = new Error('Invalid credentials');
+        error.statusCode = 401;
+        throw error
+    }
 }
 
 async function addSpaceCollaborators(spaceId, userId, referrerId, role) {
@@ -175,11 +191,11 @@ async function getUserData(userId) {
     const Space = require('../spaces-storage/space.js');
     const userFile = await getUserFile(userId)
     const spacesMap = await Space.APIs.getSpaceMap();
-    userFile.spaces=Object.keys(userFile.spaces).map(spaceId => {
+    userFile.spaces = Object.keys(userFile.spaces).map(spaceId => {
         return {
             name: spacesMap[spaceId],
             id: spaceId,
-            data:userFile.spaces[spaceId]
+            data: userFile.spaces[spaceId]
         };
     });
     return userFile;
@@ -204,7 +220,7 @@ async function linkSpaceToUser(userId, spaceId) {
         error.statusCode = 400;
         throw error;
     }
-    userFile.spaces[spaceId]={};
+    userFile.spaces[spaceId] = {};
     userFile.currentSpaceId = spaceId;
     await updateUserFile(userId, userFile);
 
@@ -466,7 +482,7 @@ async function rejectSpaceInvitation(invitationToken) {
     if (!invitation) {
         return await getSpaceInvitationErrorHTML('Invalid invitation token');
     }
-    const {spaceId}=invitation
+    const {spaceId} = invitation
     const spaceName = await Space.APIs.getSpaceName(spaceId)
     delete spacePendingInvitationsObj[invitationToken];
     await Space.APIs.updateSpacePendingInvitations(invitation.spaceId, spacePendingInvitationsObj);
@@ -474,7 +490,7 @@ async function rejectSpaceInvitation(invitationToken) {
 }
 
 async function getCreateAccountHTML(spaceName, invitationToken) {
-    const baseURL=process.env.BASE_URL;
+    const baseURL = process.env.BASE_URL;
     const redirectURL = `${baseURL}/#authentication-page/inviteToken/${invitationToken}`;
     return data.fillTemplate(await require('../email').getTemplate('createAccountTemplate'),
         {
@@ -482,8 +498,9 @@ async function getCreateAccountHTML(spaceName, invitationToken) {
             redirectURL: redirectURL
         });
 }
+
 async function getSpaceInvitationSuccessfulHTML(spaceName) {
-    const baseURL=process.env.BASE_URL;
+    const baseURL = process.env.BASE_URL;
     return data.fillTemplate(await require('../email').getTemplate('spaceInvitationAcceptedTemplate'),
         {
             spaceName: spaceName,
@@ -492,7 +509,7 @@ async function getSpaceInvitationSuccessfulHTML(spaceName) {
 }
 
 async function getSpaceInvitationRejectedHTML(spaceName) {
-    const baseURL=process.env.BASE_URL;
+    const baseURL = process.env.BASE_URL;
     return data.fillTemplate(await require('../email').getTemplate('spaceInvitationRejectedTemplate'),
         {
             spaceName: spaceName,
@@ -501,24 +518,26 @@ async function getSpaceInvitationRejectedHTML(spaceName) {
 }
 
 async function getSpaceInvitationErrorHTML(error) {
-    const baseURL=process.env.BASE_URL;
+    const baseURL = process.env.BASE_URL;
     return data.fillTemplate(await require('../email').getTemplate('spaceInvitationErrorTemplate'),
         {
             errorMessage: error,
             redirectURL: baseURL
         });
 }
-async function getUserPrivateChatAgentId(userId,spaceId){
+
+async function getUserPrivateChatAgentId(userId, spaceId) {
     const userFile = await getUserFile(userId);
-    if(userFile.spaces[spaceId].privateChatAgentId){
+    if (userFile.spaces[spaceId].privateChatAgentId) {
         return userFile.spaces[spaceId].privateChatAgentId;
-    }else{
-        const defaultSpaceAgentId= await Space.APIs.getDefaultSpaceAgentId(spaceId);
-        userFile.spaces[spaceId].privateChatAgentId=defaultSpaceAgentId;
-        await updateUserFile(userId,userFile);
+    } else {
+        const defaultSpaceAgentId = await Space.APIs.getDefaultSpaceAgentId(spaceId);
+        userFile.spaces[spaceId].privateChatAgentId = defaultSpaceAgentId;
+        await updateUserFile(userId, userFile);
         return defaultSpaceAgentId;
     }
 }
+
 module.exports = {
     APIs: {
         registerUser,
