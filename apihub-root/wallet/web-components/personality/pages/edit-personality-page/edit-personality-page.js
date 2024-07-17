@@ -13,24 +13,30 @@ export class EditPersonalityPage {
         this.invalidate(async () => {
             await this.refreshPersonality();
             await utilModule.subscribeToObject(this.personality.id, async (type) => {
-                if(type === "delete"){
+                if (type === "delete") {
                     await this.openPersonalitiesPage();
                     alert("The personality has been deleted");
                 } else {
                     this.invalidate(this.refreshPersonality);
                 }
             });
-            let configs = await llmModule.listVoicesAndEmotions(assistOS.space.id);
-            this.voices = configs.voices;
-            this.voices.sort((a, b) => {
-                if (a.name < b.name) {
-                    return -1;
-                }
-                if (a.name > b.name) {
-                    return 1;
-                }
-                return 0;
-            });
+            /* TODO temporary fix endpoint should be called only if the api Key is set */
+            try {
+                this.configs = await llmModule.listVoicesAndEmotions(assistOS.space.id);
+                this.voices = this.configs.voices;
+                this.voices.sort((a, b) => {
+                    if (a.name < b.name) {
+                        return -1;
+                    }
+                    if (a.name > b.name) {
+                        return 1;
+                    }
+                    return 0;
+                });
+            } catch (error) {
+                this.configs = {}
+                this.voices=[]
+            }
         });
     }
 
@@ -88,7 +94,7 @@ export class EditPersonalityPage {
         this.boundShowPhoto = this.showPhoto.bind(this, photoInput)
         photoInput.addEventListener("input", this.boundShowPhoto);
         let voiceSelect = this.element.querySelector("#voiceId");
-        if(this.personality.voiceId){
+        if (this.personality.voiceId) {
             let audioSource = this.element.querySelector('.audio-source');
             let audioSection = this.element.querySelector(".audio-section");
             let voice = this.voices.find(voice => voice.id === this.personality.voiceId);
