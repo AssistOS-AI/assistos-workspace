@@ -5,7 +5,7 @@ export class ClientDisconnectModal{
         this.invalidate();
     }
     beforeRender(){
-        this.disconnectReason=this.element.getAttribute("reason");
+        this.disconnectReason=this.element.getAttribute("data-reason");
         this.redirectTime = 5;
     }
     afterRender(){

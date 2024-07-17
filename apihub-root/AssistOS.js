@@ -124,7 +124,7 @@ class AssistOS {
             url: `/events/updates`,
             withCredentials: true,
             onDisconnect: async (disconnectReason) => {
-                await assistOS.UI.showModal("client-disconnect-modal", {presenter:"client-disconnect-modal",reason: disconnectReason});
+                await assistOS.UI.showModal("client-disconnect-modal", {"presenter":"client-disconnect-modal",reason: disconnectReason.message});
             },
             onError: async (err) => {
                 console.error('EventSource failed:', err);
