@@ -321,8 +321,8 @@ export class AuthenticationPage {
                     case 404:
                         alert("User not found");
                         break;
-                    case 500:
-                        alert("Internal server error");
+                    default:
+                        alert(error);
                 }
             }
         }

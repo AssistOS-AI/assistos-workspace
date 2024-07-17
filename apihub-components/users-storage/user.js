@@ -1,9 +1,6 @@
 const fsPromises = require('fs').promises;
 const path = require('path');
 
-const config = require('../config.json');
-
-
 const crypto = require("../apihub-component-utils/crypto");
 const data = require('../apihub-component-utils/data.js');
 const date = require('../apihub-component-utils/date.js');
@@ -136,7 +133,7 @@ async function activateUser(activationToken) {
         await updateUserPendingActivation(userPendingActivation);
     }
 }
-
+const eventPublisher = require("../subscribers/eventPublisher");
 async function loginUser(email, password) {
     const userId = await getUserIdByEmail(email);
     const userCredentials = await getUserCredentials();
@@ -148,8 +145,9 @@ async function loginUser(email, password) {
             const accountSessionData = await $$.promisify(await $$.ActiveSessionsClient.getRecord)($$.SYSTEM_IDENTIFIER, tableName, userId);
             /* update the verification key and directly invalidate the other's user session */
             await $$.promisify(await $$.ActiveSessionsClient.updateRecord)($$.SYSTEM_IDENTIFIER, tableName, userId, {data: {verificationKey: userVerificationKey}});
-            /* TODO close the SSE connection with the previous client and notify him that he has been logged out for his UI to update and notify*/
-
+            /* close the SSE connection with the previous client and notify him that he has been logged out for his UI to update and notify*/
+            eventPublisher.sendClientEvent(userId, 'disconnect', {message: 'You have been logged out from another device'});
+            eventPublisher.removeClient(userId);
         } catch (error) {
             /* ignore error, it means that the user is not logged in */
             await $$.promisify($$.ActiveSessionsClient.insertRecord)($$.SYSTEM_IDENTIFIER, tableName, userId, {data: {verificationKey: userVerificationKey}});

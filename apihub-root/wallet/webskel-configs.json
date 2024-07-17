@@ -149,6 +149,12 @@
             "presenterClassName": "AddMarketplaceModal"
         },
         {
+            "name": "client-disconnect-modal",
+            "directory": "application",
+            "type": "modals",
+            "presenterClassName": "ClientDisconnectModal"
+        },
+        {
             "name": "action-box-marketplace",
             "directory": "application",
             "type": "components"

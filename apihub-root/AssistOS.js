@@ -6,8 +6,9 @@ const spaceModule = require('assistos').loadModule('space', {});
 const applicationModule = require('assistos').loadModule('application', {});
 const agentModule = require('assistos').loadModule('personality', {});
 const flowModule = require('assistos').loadModule('flow', {});
-const personalityModule=require('assistos').loadModule('personality',{})
+const personalityModule = require('assistos').loadModule('personality', {})
 const utilModule = require('assistos').loadModule('util', {});
+
 class AssistOS {
     constructor(configuration) {
         if (AssistOS.instance) {
@@ -117,11 +118,24 @@ class AssistOS {
             assistOS.currentApplicationName = appName;
         }
     }
-    async login(email, password){
+
+    async login(email, password) {
+        const SSEConfig = {
+            url: `/events/updates`,
+            withCredentials: true,
+            onDisconnect: async (disconnectReason) => {
+                await assistOS.UI.showModal("client-disconnect-modal", {presenter:"client-disconnect-modal",reason: disconnectReason});
+            },
+            onError: async (err) => {
+                console.error('EventSource failed:', err);
+            }
+        }
         await userModule.loginUser(email, password);
-        utilModule.createSSEConnection();
+        debugger
+        utilModule.createSSEConnection(SSEConfig);
         await assistOS.loadPage(true);
     }
+
     async logout() {
         await utilModule.closeSSEConnection();
         await userModule.logoutUser();
@@ -176,7 +190,7 @@ class AssistOS {
                 await assistOS.UI.changeToDynamicPage("space-application-page", `${assistOS.space.id}/Space/announcements-page`);
             }
         };
-        let {spaceIdURL,  applicationName, applicationLocation} = getURLData(window.location.hash);
+        let {spaceIdURL, applicationName, applicationLocation} = getURLData(window.location.hash);
         spaceId = spaceId ? spaceId : spaceIdURL;
         if (spaceId === "authentication-page" && skipAuth) {
             spaceId = undefined;
@@ -184,7 +198,7 @@ class AssistOS {
 
         if (spaceId === "authentication-page") {
             hidePlaceholders();
-            if(applicationName === "inviteToken"){
+            if (applicationName === "inviteToken") {
                 return assistOS.UI.changeToDynamicPage(spaceId, `${spaceId}/${applicationName}/${applicationLocation}`);
             }
             return assistOS.UI.changeToDynamicPage(spaceId, spaceId);
@@ -204,7 +218,7 @@ class AssistOS {
         return await this.loadifyFunction(spaceModule.inviteSpaceCollaborators, assistOS.space.id, collaboratorEmails);
     }
 
-   async callFlow(flowName, context, personalityId) {
+    async callFlow(flowName, context, personalityId) {
         return await flowModule.callFlow(assistOS.space.id, flowName, context, personalityId);
     }
 
@@ -256,7 +270,7 @@ export function changeSelectedPageFromSidebar(url) {
         element.removeAttribute('id');
         let paths = element.querySelectorAll("path");
         paths.forEach((path) => {
-            if(path.getAttribute("stroke-linejoin") === "round") {
+            if (path.getAttribute("stroke-linejoin") === "round") {
                 path.setAttribute("stroke", "var(--left-sidebar-icons)");
             } else {
                 path.setAttribute("fill", "var(--left-sidebar-icons)");
@@ -275,7 +289,7 @@ export function changeSelectedPageFromSidebar(url) {
             div.setAttribute('id', 'selected-page');
             let paths = div.querySelectorAll("path");
             paths.forEach((path) => {
-                if(path.getAttribute("stroke-linejoin") === "round") {
+                if (path.getAttribute("stroke-linejoin") === "round") {
                     path.setAttribute("stroke", "var(--white)");
                 } else {
                     path.setAttribute("fill", "var(--white)");
@@ -314,9 +328,9 @@ function defineActions() {
 }
 
 async function handleHistory(event) {
-    const removeSidebar = ()=>{
+    const removeSidebar = () => {
         let sidebar = document.querySelector("left-sidebar");
-        if(sidebar){
+        if (sidebar) {
             sidebar.remove();
         }
     }

@@ -10,8 +10,8 @@ const authentication = require('../apihub-component-middlewares/authentication.j
 
 function Subscribers(server) {
 
-    server.use("/events/*", authentication);
     server.use("/events/*", bodyReader);
+    server.use("/events/*", authentication);
     server.get("/events/updates", registerClient);
     server.get("/events/close", removeClient);
     server.get("/events/subscribe/:objectId", subscribeToObject);
