@@ -10,7 +10,7 @@ const path = require('path');
 const {eventPublisher} = require("../subscribers/controller.js");
 const {sendResponse} = require("../apihub-component-utils/utils");
 const dataVolumePaths = require('../volumeManager').paths;
-const archiver= require('archiver');
+const AdmZip = require('adm-zip');
 function getFileObjectsMetadataPath(spaceId, objectType) {
     return path.join(dataVolumePaths.space, `${spaceId}/${objectType}/metadata.json`);
 }
@@ -1274,7 +1274,7 @@ async function deleteVideo(request, response) {
 async function exportDocument(request, response) {
     const spaceId = request.params.spaceId;
     const documentId = request.params.documentId;
-    const archive = archiver('zip', { zlib: { level: 9 } });
+    const zip = new AdmZip();
 
     response.setHeader('Content-Disposition', `attachment; filename=${documentId}.docai`);
     response.setHeader('Content-Type', 'application/zip');
@@ -1308,14 +1308,8 @@ async function exportDocument(request, response) {
         contentFile: "content.json"
     };
 
-    archive.on('error', (err) => {
-        throw err;
-    });
-
-    archive.pipe(response);
-
-    archive.append(JSON.stringify(metadata, null, 2), { name: 'metadata.json' });
-    archive.append(JSON.stringify(documentContent, null, 2), { name: 'content.json' });
+    zip.addFile('metadata.json', Buffer.from(JSON.stringify(metadata, null, 2), 'utf-8'));
+    zip.addFile('content.json', Buffer.from(JSON.stringify(documentContent, null, 2), 'utf-8'));
 
     const dummyContent = "This is dummy content for testing purposes.";
 
@@ -1331,12 +1325,15 @@ async function exportDocument(request, response) {
     ];
 
     files.forEach(file => {
-        archive.append(file.content, { name: file.archivePath });
+        zip.addFile(file.archivePath, Buffer.from(file.content, 'utf-8'));
     });
 
-    archive.finalize();
+    const zipBuffer = zip.toBuffer();
 
-    return utils.sendResponse(response, 200, "application/zip", archive);
+    response.setHeader('Content-Length', zipBuffer.length);
+    response.end(zipBuffer);
+
+    return utils.sendResponse(response, 200, "application/zip", zipBuffer);
 }
 module.exports = {
     acceptSpaceInvitation,
