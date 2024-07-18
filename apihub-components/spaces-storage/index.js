@@ -43,7 +43,8 @@ const {
     getAudio,
     getVideo,
     deleteVideo,
-    compileVideoFromDocument
+    compileVideoFromDocument,
+    exportDocument
 } = require("./controller");
 
 const bodyReader = require('../apihub-component-middlewares/bodyReader.js')
@@ -125,6 +126,8 @@ function SpaceStorage(server) {
     server.post("/spaces/video/compile/:spaceId/:documentId", compileVideoFromDocument);
     server.get("/spaces/video/:spaceId/:videoId", getVideo);
     server.delete("/spaces/video/:spaceId/:videoId", deleteVideo);
+
+    server.get("/spaces/:spaceId/export/documents/:documentId", exportDocument);
 }
 
 module.exports = SpaceStorage;

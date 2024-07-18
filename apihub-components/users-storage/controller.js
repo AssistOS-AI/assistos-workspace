@@ -16,6 +16,7 @@ async function addSecret(request, response) {
         });
     }
 }
+
 async function deleteSecret(request, response) {
     try {
         await User.APIs.deleteSecret(request.params.spaceId, request.userId, request.body);
@@ -30,6 +31,7 @@ async function deleteSecret(request, response) {
         });
     }
 }
+
 async function userSecretExists(request, response) {
     try {
         const booleanResult = await User.APIs.userSecretExists(request.params.spaceId, request.userId, request.body);
@@ -102,16 +104,16 @@ async function activateUser(request, response) {
 async function loginUser(request, response) {
     const requestData = request.body;
     try {
-        const {userId,verificationKey} = await User.APIs.loginUser(requestData.email, requestData.password);
+        const {userId, verificationKey} = await User.APIs.loginUser(requestData.email, requestData.password);
         const userData = await User.APIs.getUserData(userId);
 
         utils.sendResponse(response, 200, "application/json", {
             data: userData,
             success: true,
             message: `User ${userData.name} logged in successfully`
-        }, [await cookie.createAuthCookie(userData,verificationKey), await cookie.createRefreshAuthCookie(userData,verificationKey), cookie.createCurrentSpaceCookie(userData.currentSpaceId)]);
+        }, [await cookie.createAuthCookie(userData, verificationKey), await cookie.createRefreshAuthCookie(userData, verificationKey), cookie.createCurrentSpaceCookie(userData.currentSpaceId)]);
     } catch (error) {
-        utils.sendResponse(response, error.statusCode, "application/json", {
+        utils.sendResponse(response, error.statusCode||500, "application/json", {
             success: false,
             message: error.message
         });
@@ -136,13 +138,9 @@ async function loadUser(request, response) {
 }
 
 async function logoutUser(request, response) {
-    if (!request.userId) {
-        return utils.sendResponse(response, 401, "application/json", {
-            success: false,
-            message: "Unauthorized"
-        });
-    }
-    try {
+        try {
+        const userId = request.userId;
+        await User.APIs.logoutUser(userId);
         utils.sendResponse(response, 200, "application/json", {
             success: true,
             message: "User logged out successfully"

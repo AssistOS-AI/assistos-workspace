@@ -131,8 +131,11 @@ class AssistOS {
             }
         }
         await userModule.loginUser(email, password);
-        debugger
-        utilModule.createSSEConnection(SSEConfig);
+        try {
+            utilModule.createSSEConnection(SSEConfig);
+        }catch(error){
+            throw new Error("Successful login, but failed to establish connection with the server. Please try again later");
+        }
         await assistOS.loadPage(true);
     }
 
@@ -336,7 +339,8 @@ async function handleHistory(event) {
     }
     if (window.location.hash.includes("#authentication-page")) {
         removeSidebar();
-        await assistOS.UI.changeToDynamicPage("authentication-page", "authentication-page");
+        await utilModule.closeSSEConnection();
+        await userModule.logoutUser();
     }
     let modal = document.querySelector("dialog");
     if (modal) {

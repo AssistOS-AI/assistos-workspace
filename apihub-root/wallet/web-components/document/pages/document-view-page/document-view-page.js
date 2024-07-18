@@ -268,4 +268,24 @@ export class DocumentViewPage {
             </video>`);
         });
     }
+    async exportDocument(_target) {
+        try {
+            const response = await fetch(`/spaces/${assistOS.space.id}/export/documents/${this._document.id}`);
+            if (!response.ok) {
+                throw new Error('Network response was not ok');
+            }
+            const blob = await response.blob();
+            const url = window.URL.createObjectURL(blob);
+            const a = document.createElement('a');
+            a.style.display = 'none';
+            a.href = url;
+            a.download = `${this._document.id}.docai`;
+            document.body.appendChild(a);
+            a.click();
+            window.URL.revokeObjectURL(url);
+        } catch (error) {
+            console.error('There has been a problem with your fetch operation:', error);
+        }
+    }
+
 }

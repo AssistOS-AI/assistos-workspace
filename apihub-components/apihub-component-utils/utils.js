@@ -6,6 +6,7 @@ function extractQueryParams(request) {
     }
     return params;
 }
+
 async function sendFileToClient(response, resource, fileType) {
     try {
         let contentType = "";
@@ -49,16 +50,20 @@ async function sendFileToClient(response, resource, fileType) {
                     success: false
                 });
         }
-        sendResponse(response, 200, contentType , resource);
+        sendResponse(response, 200, contentType, resource);
     } catch (error) {
         throw Error(error);
     }
 }
-function sendResponse(response, statusCode, contentType, message, cookies) {
+
+function sendResponse(response, statusCode, contentType, message, cookies, ...headers) {
     response.statusCode = statusCode;
     response.setHeader("Content-Type", contentType);
+    headers.forEach(header => {
+        response.setHeader(header.key, header.value);
+    });
 
-    switch(contentType) {
+    switch (contentType) {
         case 'application/json':
             message = JSON.stringify(message);
             break;
@@ -71,6 +76,7 @@ function sendResponse(response, statusCode, contentType, message, cookies) {
     response.write(message);
     response.end();
 }
+
 function setCacheControl(response, options = {}) {
     let cacheControl = options.private ? 'private' : 'public';
 
@@ -95,7 +101,7 @@ function setCacheControl(response, options = {}) {
 }
 
 
-module.exports={
+module.exports = {
     extractQueryParams,
     sendFileToClient,
     setCacheControl,

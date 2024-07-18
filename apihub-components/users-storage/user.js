@@ -9,6 +9,7 @@ const file = require('../apihub-component-utils/file.js');
 const volumeManager = require('../volumeManager.js');
 const Space = require("../spaces-storage/space");
 const {instance: emailService} = require("../email");
+const eventPublisher = require("../subscribers/eventPublisher");
 
 const tableName = "UsersActiveSessions";
 
@@ -133,7 +134,7 @@ async function activateUser(activationToken) {
         await updateUserPendingActivation(userPendingActivation);
     }
 }
-const eventPublisher = require("../subscribers/eventPublisher");
+
 async function loginUser(email, password) {
     const userId = await getUserIdByEmail(email);
     const userCredentials = await getUserCredentials();
@@ -141,17 +142,14 @@ async function loginUser(email, password) {
     if (userCredentials[userId].password === hashedPassword) {
         const userVerificationKey = crypto.generateVerificationKey();
         try {
-            /* check if someone is already logged in on that account */
-            const accountSessionData = await $$.promisify(await $$.ActiveSessionsClient.getRecord)($$.SYSTEM_IDENTIFIER, tableName, userId);
-            /* update the verification key and directly invalidate the other's user session */
-            await $$.promisify(await $$.ActiveSessionsClient.updateRecord)($$.SYSTEM_IDENTIFIER, tableName, userId, {data: {verificationKey: userVerificationKey}});
-            /* close the SSE connection with the previous client and notify him that he has been logged out for his UI to update and notify*/
+            /* check someone is already logged in */
+            await $$.promisify($$.ActiveSessionsClient.getRecord)($$.SYSTEM_IDENTIFIER, tableName, userId);
             eventPublisher.sendClientEvent(userId, 'disconnect', {message: 'You have been logged out from another device'});
             eventPublisher.removeClient(userId);
+            await $$.promisify($$.ActiveSessionsClient.updateRecord)($$.SYSTEM_IDENTIFIER, tableName, userId, {data: {verificationKey: userVerificationKey}});
         } catch (error) {
-            /* ignore error, it means that the user is not logged in */
+            /* no one is logged in */
             await $$.promisify($$.ActiveSessionsClient.insertRecord)($$.SYSTEM_IDENTIFIER, tableName, userId, {data: {verificationKey: userVerificationKey}});
-
         }
         return {userId: userId, verificationKey: userVerificationKey};
     } else {
@@ -159,6 +157,10 @@ async function loginUser(email, password) {
         error.statusCode = 401;
         throw error
     }
+}
+
+async function logoutUser(userId) {
+    await $$.promisify($$.ActiveSessionsClient.deleteRecord)($$.SYSTEM_IDENTIFIER, tableName, userId);
 }
 
 async function addSpaceCollaborators(spaceId, userId, referrerId, role) {
@@ -360,7 +362,7 @@ async function getUserPendingActivation() {
 
 async function getActivationSuccessHTML() {
     const activationSuccessTemplate = await require('../email').getTemplate('activationSuccessTemplate')
-    const baseURL=process.env.BASE_URL;
+    const baseURL = process.env.BASE_URL;
     return data.fillTemplate(activationSuccessTemplate, {
         loginRedirectURL: baseURL
     })
@@ -368,7 +370,7 @@ async function getActivationSuccessHTML() {
 
 async function getActivationFailHTML(failReason) {
     const activationFailTemplate = await require('../email').getTemplate('activationFailTemplate')
-    const baseURL=process.env.BASE_URL;
+    const baseURL = process.env.BASE_URL;
     return data.fillTemplate(activationFailTemplate, {
         redirectURL: baseURL,
         failReason: failReason
@@ -541,6 +543,7 @@ module.exports = {
         registerUser,
         activateUser,
         loginUser,
+        logoutUser,
         getActivationFailHTML,
         getActivationSuccessHTML,
         getUserData,
