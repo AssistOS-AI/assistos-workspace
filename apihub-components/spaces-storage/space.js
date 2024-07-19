@@ -1,5 +1,6 @@
 const path = require('path');
 const fsPromises = require('fs').promises;
+const AdmZip = require('adm-zip');
 
 const volumeManager = require('../volumeManager.js');
 
@@ -17,6 +18,7 @@ const spaceConstants = require('./constants.js');
 const {exec} = require("child_process");
 const ffmpegPath = require("ffmpeg-static");
 const {eventPublisher} = require("../subscribers/controller");
+
 function getSpacePath(spaceId) {
     return path.join(volumeManager.paths.space, spaceId);
 }
@@ -281,18 +283,20 @@ async function addSpaceChatMessage(spaceId, chatId, entityId, role, messageData)
     return messageId
 }
 
-async function createSpaceChat(spaceId,chatName,chatSettings){
+async function createSpaceChat(spaceId, chatName, chatSettings) {
     const lightDBEnclaveClient = enclave.initialiseLightDBEnclave(spaceId);
-    const entryMessagePk= `${spaceId}_${chatName}_entryMessage`;
-    const tableName= `chat_${chatName}`;
+    const entryMessagePk = `${spaceId}_${chatName}_entryMessage`;
+    const tableName = `chat_${chatName}`;
 }
-async function creatSpaceUserChat(spaceId,chatName,chatSettings){
-    const tableName= `chat_${userId}_${chatName}`;
+
+async function creatSpaceUserChat(spaceId, chatName, chatSettings) {
+    const tableName = `chat_${userId}_${chatName}`;
 }
+
 async function createDefaultSpaceChats(lightDBEnclaveClient, spaceId, spaceName) {
-    const createWorkspaceChat = async () =>{
-        const tableName =  "chat_Workspace";
-        const entryMessagePk= `${spaceId}_${tableName}_entryMessage`;
+    const createWorkspaceChat = async () => {
+        const tableName = "chat_Workspace";
+        const entryMessagePk = `${spaceId}_${tableName}_entryMessage`;
         const entryMessage = `Welcome to ${spaceName}! This is the workspace chat where you can discuss and collaborate with your team members.`
         await lightDBEnclaveClient.insertRecord($$.SYSTEM_IDENTIFIER, tableName, entryMessagePk, {
             data: {
@@ -301,9 +305,9 @@ async function createDefaultSpaceChats(lightDBEnclaveClient, spaceId, spaceName)
             }
         })
     }
-    const createDiscussionChat= async () =>{
-        const tableName= "chat_General";
-        const entryMessagePk= `${spaceId}_entryMessage`;
+    const createDiscussionChat = async () => {
+        const tableName = "chat_General";
+        const entryMessagePk = `${spaceId}_entryMessage`;
         const entryMessage = `Welcome to the discussion chat! Here you can discuss and share ideas with your team members.`
         await lightDBEnclaveClient.insertRecord($$.SYSTEM_IDENTIFIER, tableName, entryMessagePk, {
             data: {
@@ -312,7 +316,7 @@ async function createDefaultSpaceChats(lightDBEnclaveClient, spaceId, spaceName)
             }
         })
     }
-    await Promise.all([createWorkspaceChat(),createDiscussionChat()])
+    await Promise.all([createWorkspaceChat(), createDiscussionChat()])
 }
 
 async function getSpacePersonalities(spaceId) {
@@ -487,6 +491,7 @@ async function getDefaultSpaceAgentId(spaceId) {
     const spaceStatusObject = await getSpaceStatusObject(spaceId);
     return spaceStatusObject.defaultSpaceAgent;
 }
+
 const downloadData = (url, dest) => {
     return new Promise((resolve, reject) => {
         const file = fs.createWriteStream(dest);
@@ -501,9 +506,10 @@ const downloadData = (url, dest) => {
         });
     });
 };
-async function putImage(spaceId, imageId, imageData){
+
+async function putImage(spaceId, imageId, imageData) {
     const imagesPath = path.join(getSpacePath(spaceId), 'images');
-    if(imageData.startsWith("http")){
+    if (imageData.startsWith("http")) {
         await downloadData(imageData, path.join(imagesPath, `${imageId}.png`));
         return;
     }
@@ -511,19 +517,22 @@ async function putImage(spaceId, imageId, imageData){
     const buffer = Buffer.from(base64Data, 'base64');
     await fsPromises.writeFile(path.join(imagesPath, `${imageId}.png`), buffer);
 }
-async function getImage(spaceId, imageId){
+
+async function getImage(spaceId, imageId) {
     const imagesPath = path.join(getSpacePath(spaceId), 'images');
     const imagePath = path.join(imagesPath, `${imageId}.png`);
     return await fsPromises.readFile(imagePath);
 }
-async function deleteImage(spaceId, imageId){
+
+async function deleteImage(spaceId, imageId) {
     const imagesPath = path.join(getSpacePath(spaceId), 'images');
     const imagePath = path.join(imagesPath, `${imageId}.png`);
     await fsPromises.rm(imagePath);
 }
-async function putAudio(spaceId, audioId, audioData){
+
+async function putAudio(spaceId, audioId, audioData) {
     const audiosPath = path.join(getSpacePath(spaceId), 'audios');
-    if(audioData.startsWith("http")){
+    if (audioData.startsWith("http")) {
         await downloadData(audioData, path.join(audiosPath, `${audioId}.mp3`));
         return;
     }
@@ -531,26 +540,93 @@ async function putAudio(spaceId, audioId, audioData){
     const buffer = Buffer.from(base64Data, 'base64');
     await fsPromises.writeFile(path.join(audiosPath, `${audioId}.mp3`), buffer);
 }
-async function getAudio(spaceId, audioId){
+
+async function getAudio(spaceId, audioId) {
     const audiosPath = path.join(getSpacePath(spaceId), 'audios');
     const audioPath = path.join(audiosPath, `${audioId}.mp3`);
     return await fsPromises.readFile(audioPath);
 }
-async function deleteAudio(spaceId, audioId){
+
+async function deleteAudio(spaceId, audioId) {
     const audiosPath = path.join(getSpacePath(spaceId), 'audios');
     const audioPath = path.join(audiosPath, `${audioId}.mp3`);
     await fsPromises.rm(audioPath);
 }
-async function getVideo(spaceId, videoId){
+
+async function getVideo(spaceId, videoId) {
     const videosPath = path.join(getSpacePath(spaceId), 'videos');
     const videoPath = path.join(videosPath, `${videoId}.mp4`);
     return await fsPromises.readFile(videoPath);
 }
-async function deleteVideo(spaceId, videoId){
+
+async function deleteVideo(spaceId, videoId) {
     const videosPath = path.join(getSpacePath(spaceId), 'videos');
     const videoPath = path.join(videosPath, `${videoId}.mp4`);
     await fsPromises.rm(videoPath);
 }
+
+async function getDocumentData(spaceId, documentId) {
+    let lightDBEnclaveClient = enclave.initialiseLightDBEnclave(spaceId);
+    const documentRecords = await $$.promisify(lightDBEnclaveClient.getAllRecords)($$.SYSTEM_IDENTIFIER, documentId);
+
+    let documentRecordsContents = {};
+
+    /* access time optimization */
+    documentRecords.forEach(record => {
+        documentRecordsContents[record.pk] = record.data;
+    });
+
+    /* TODO there seems to be a bug where multiple chapters have position 0 - talk with Mircea */
+    const documentRecord = documentRecordsContents[documentId];
+
+    let audios = [];
+    let images = [];
+    let videos = [];
+
+    let documentData = {
+        title: documentRecord.title,
+        topic: documentRecord.topic,
+        metadata: documentRecord.metadata,
+        /* TODO documents dont have a saved abstract field - talk with Mircea */
+        abstract: documentRecord.abstract || "",
+        chapters: documentRecord.chapters.map(chapterId => {
+            let chapter = {}
+            chapter.title = documentRecordsContents[chapterId].title
+            if (documentRecordsContents[chapterId].backgroundSound) {
+                chapter.backgroundSound = documentRecordsContents[chapterId].backgroundSound
+                audios.push(documentRecordsContents[chapterId].backgroundSound.src)
+            }
+            chapter.position = documentRecordsContents[chapterId].position
+            chapter.id = chapterId
+            chapter.paragraphs = documentRecordsContents[chapterId].paragraphs.map(paragraphId => {
+                let paragraph = {}
+                paragraph.id = paragraphId;
+                if (documentRecordsContents[paragraphId].position) {
+                    paragraph.position = documentRecordsContents[paragraphId].position
+                }
+                if (documentRecordsContents[paragraphId].text) {
+                    paragraph.text = documentRecordsContents[paragraphId].text;
+                }
+                if (documentRecordsContents[paragraphId].audio) {
+                    paragraph.audio = documentRecordsContents[paragraphId].audio;
+                    audios.push(documentRecordsContents[paragraphId].audio.src)
+                }
+                if (documentRecordsContents[paragraphId].image) {
+                    paragraph.image = documentRecordsContents[paragraphId].image;
+                    images.push(documentRecordsContents[paragraphId].image.src)
+                    paragraph.dimensions = documentRecordsContents[paragraphId].dimensions;
+                }
+                return paragraph
+            })
+            return chapter;
+        })
+    }
+    documentData.images = images;
+    documentData.audios = audios;
+    documentData.videos = videos;
+    return documentData
+}
+
 function runFfmpeg(command) {
     return new Promise((resolve, reject) => {
         exec(command, (error, stdout, stderr) => {
@@ -599,27 +675,27 @@ async function documentToVideo(spaceId, document, userId, videoId) {
         const chapter = document.chapters[i];
         let paragraphsAudioPath = [];
         let chapterImagesPath = [];
-        for(let paragraph of chapter.paragraphs) {
-            if(paragraph.audio){
+        for (let paragraph of chapter.paragraphs) {
+            if (paragraph.audio) {
                 let audioPath = path.join(audiosPath, `${paragraph.audio.src.split("/").pop()}.mp3`);
                 paragraphsAudioPath.push(audioPath);
-            } else if(paragraph.image){
+            } else if (paragraph.image) {
                 let imagePath = path.join(imagesPath, `${paragraph.image.src.split("/").pop()}.png`);
                 chapterImagesPath.push(imagePath);
             }
         }
-        const audioPath = path.join(tempVideoDir,`${document.id}_chapter_${i}_audio.mp3`);
-        const videoPath = path.join(tempVideoDir,`${document.id}_chapter_${i}_video.mp4`);
-        try{
+        const audioPath = path.join(tempVideoDir, `${document.id}_chapter_${i}_audio.mp3`);
+        const videoPath = path.join(tempVideoDir, `${document.id}_chapter_${i}_video.mp4`);
+        try {
             await concatenateAudioFiles(tempVideoDir, paragraphsAudioPath, audioPath);
         } catch (e) {
             await fsPromises.rm(tempVideoDir, {recursive: true, force: true});
             throw new Error(`Failed to concatenate audio files for chapter ${i}: ${e}`);
         }
         let audioDuration;
-        try{
+        try {
             audioDuration = (await runFfmpeg(`${ffmpegPath} -i ${audioPath} -hide_banner 2>&1 | grep "Duration"`)).match(/Duration: (\d+):(\d+):(\d+\.\d+)/);
-        }catch (e) {
+        } catch (e) {
             await fsPromises.rm(tempVideoDir, {recursive: true, force: true});
             throw new Error(`Failed to get audio duration for chapter ${i}: ${e}`);
         }
@@ -639,7 +715,7 @@ async function documentToVideo(spaceId, document, userId, videoId) {
     }
 
     const fileListPath = path.join(tempVideoDir, 'chapter_videos.txt');
-    try{
+    try {
         const fileListContent = chapterVideos.map(file => `file '${file}'`).join('\n');
         await fsPromises.writeFile(fileListPath, fileListContent);
         let outputVideoPath = path.join(getSpacePath(spaceId), 'videos', `${videoId}.mp4`);
@@ -652,6 +728,42 @@ async function documentToVideo(spaceId, document, userId, videoId) {
         throw new Error(`Failed to concatenate chapter videos: ${e}`);
     }
     eventPublisher.notifyClientTask(userId, videoId);
+}
+
+async function archiveDocument(spaceId, documentId) {
+    const documentData = await getDocumentData(spaceId, documentId);
+
+    const zip = new AdmZip();
+
+    const contentBuffer = Buffer.from(JSON.stringify(documentData), 'utf-8');
+    const checksum = require('crypto')
+        .createHash('sha256')
+        .update(contentBuffer)
+        .digest('hex');
+
+    const metadata = {
+        title: documentData.title,
+        created: new Date().toISOString(),
+        modified: new Date().toISOString(),
+        version: "1.0",
+        checksum: checksum,
+        contentFile: "data.json",
+    };
+
+    for(let imageData of documentData.images){
+        let image=await getImage(spaceId,imageData.split("/").pop());
+        zip.addFile(`images/${imageData.split("/").pop()}.png`, image);
+    }
+
+    for(let audioData of documentData.audios){
+        let audio=await getAudio(spaceId,audioData.split("/").pop());
+        zip.addFile(`audios/${audioData.split("/").pop()}.mp3`, audio);
+    }
+
+    zip.addFile("metadata.json", Buffer.from(JSON.stringify(metadata), 'utf-8'));
+    zip.addFile("data.json", contentBuffer);
+
+    return zip.toBuffer();
 }
 
 module.exports = {
@@ -687,7 +799,9 @@ module.exports = {
         getSpacePath,
         getVideo,
         deleteVideo,
-        documentToVideo
+        documentToVideo,
+        getDocumentData,
+        archiveDocument
     },
     templates: {
         defaultSpaceAnnouncement: require('./templates/defaultSpaceAnnouncement.json'),

@@ -5,7 +5,6 @@ const axios = require('axios');
 const cache = {};
 const {pipeline} = require('stream');
 const {getWebhookSecret} = require("../webhook/controller");
-const crypto = require("../apihub-component-utils/crypto");
 let LLMConfigs;
 
 async function getLLMAuthRequirements() {

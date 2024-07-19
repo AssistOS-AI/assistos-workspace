@@ -10,7 +10,6 @@ const path = require('path');
 const {eventPublisher} = require("../subscribers/controller.js");
 const {sendResponse} = require("../apihub-component-utils/utils");
 const dataVolumePaths = require('../volumeManager').paths;
-const AdmZip = require('adm-zip');
 function getFileObjectsMetadataPath(spaceId, objectType) {
     return path.join(dataVolumePaths.space, `${spaceId}/${objectType}/metadata.json`);
 }
@@ -1078,6 +1077,7 @@ const {
     editImage,
     getImageVariants
 } = require('../llms/controller.js');
+const {APIs} = require("../../apihub-root/wallet/bundles/assistos_sdk");
 
 async function getChatTextResponse(request, response) {
 
@@ -1274,66 +1274,13 @@ async function deleteVideo(request, response) {
 async function exportDocument(request, response) {
     const spaceId = request.params.spaceId;
     const documentId = request.params.documentId;
-    const zip = new AdmZip();
+    const documentArchive = await space.APIs.archiveDocument(spaceId, documentId);
 
     response.setHeader('Content-Disposition', `attachment; filename=${documentId}.docai`);
     response.setHeader('Content-Type', 'application/zip');
 
-    const documentContent = {
-        text: "This is the main content of the document.",
-        images: [
-            "images/image1.png",
-            "images/image2.jpg"
-        ],
-        audio: [
-            "audio/audio1.mp3",
-            "audio/audio2.wav"
-        ],
-        videos: [
-            "videos/video1.mp4",
-            "videos/video2.avi"
-        ],
-        attachments: [
-            "attachments/file1.pdf",
-            "attachments/file2.docx"
-        ]
-    };
-
-    const metadata = {
-        title: "Document Title",
-        author: "Author Name",
-        created: new Date().toISOString(),
-        modified: new Date().toISOString(),
-        version: "1.0",
-        contentFile: "content.json"
-    };
-
-    zip.addFile('metadata.json', Buffer.from(JSON.stringify(metadata, null, 2), 'utf-8'));
-    zip.addFile('content.json', Buffer.from(JSON.stringify(documentContent, null, 2), 'utf-8'));
-
-    const dummyContent = "This is dummy content for testing purposes.";
-
-    const files = [
-        { path: 'audio/audio1.mp3', content: dummyContent, archivePath: 'audio/audio1.mp3' },
-        { path: 'audio/audio2.wav', content: dummyContent, archivePath: 'audio/audio2.wav' },
-        { path: 'images/image1.png', content: dummyContent, archivePath: 'images/image1.png' },
-        { path: 'images/image2.jpg', content: dummyContent, archivePath: 'images/image2.jpg' },
-        { path: 'videos/video1.mp4', content: dummyContent, archivePath: 'videos/video1.mp4' },
-        { path: 'videos/video2.avi', content: dummyContent, archivePath: 'videos/video2.avi' },
-        { path: 'attachments/file1.pdf', content: dummyContent, archivePath: 'attachments/file1.pdf' },
-        { path: 'attachments/file2.docx', content: dummyContent, archivePath: 'attachments/file2.docx' }
-    ];
-
-    files.forEach(file => {
-        zip.addFile(file.archivePath, Buffer.from(file.content, 'utf-8'));
-    });
-
-    const zipBuffer = zip.toBuffer();
-
-    response.setHeader('Content-Length', zipBuffer.length);
-    response.end(zipBuffer);
-
-    return utils.sendResponse(response, 200, "application/zip", zipBuffer);
+    response.setHeader('Content-Length', documentArchive.length);
+    return utils.sendResponse(response, 200, "application/zip", documentArchive);
 }
 module.exports = {
     acceptSpaceInvitation,
