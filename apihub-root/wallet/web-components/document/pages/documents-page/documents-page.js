@@ -1,63 +1,97 @@
 const spaceAPIs = require("assistos").loadModule("space", {});
 const utilModule = require("assistos").loadModule("util", {});
+
 export class DocumentsPage {
     constructor(element, invalidate) {
         this.notificationId = "docs";
-        this.refreshDocuments = async ()=>{
+        this.refreshDocuments = async () => {
             this.documents = await assistOS.space.getDocumentsMetadata(assistOS.space.id);
         };
         this.invalidate = invalidate;
         this.id = "documents";
         this.invalidate(async () => {
             await this.refreshDocuments();
-            await utilModule.subscribeToObject(this.id,(data)=>{
+            await utilModule.subscribeToObject(this.id, (data) => {
                 this.invalidate(this.refreshDocuments);
             });
         });
     }
+
     beforeRender() {
         this.tableRows = "";
-        if(this.documents.length > 0) {
+        if (this.documents.length > 0) {
             this.documents.forEach((document) => {
                 this.tableRows += `<document-item data-name="${document.title}" 
                 data-id="${document.id}" data-local-action="editAction"></document-item>`;
             });
-        }
-        else {
+        } else {
             this.tableRows = `<div> There are no documents yet </div>`;
         }
     }
-    afterRender(){
+
+    afterRender() {
         this.setContext();
     }
+
     async afterUnload() {
         await utilModule.unsubscribeFromObject(this.id);
     }
-    setContext(){
+
+    setContext() {
         assistOS.context = {
             "location and available actions": "We are in the Documents page in OS. Here you can see the documents available for the space. You can add or delete documents.",
             "available items": this.documents
         }
     }
+
     async showActionBox(_target, primaryKey, componentName, insertionMode) {
         await assistOS.UI.showActionBox(_target, primaryKey, componentName, insertionMode);
     }
-    getDocumentId(_target){
+
+    getDocumentId(_target) {
         return assistOS.UI.reverseQuerySelector(_target, "document-item").getAttribute("data-id");
     }
+
     async showAddDocumentModal() {
-        await assistOS.UI.showModal( "add-document-modal");
-    }
-    async editAction(_target) {
-        let documentId = this.getDocumentId(_target);
-        await assistOS.UI.changeToDynamicPage("space-application-page",`${assistOS.space.id}/Space/document-view-page/${documentId}`);
+        await assistOS.UI.showModal("add-document-modal");
     }
 
-    async deleteAction(_target){
+    async editAction(_target) {
+        let documentId = this.getDocumentId(_target);
+        await assistOS.UI.changeToDynamicPage("space-application-page", `${assistOS.space.id}/Space/document-view-page/${documentId}`);
+    }
+
+    async deleteAction(_target) {
         await assistOS.callFlow("DeleteDocument", {
             spaceId: assistOS.space.id,
             documentId: this.getDocumentId(_target)
         });
-       this.invalidate(this.refreshDocuments);
+        this.invalidate(this.refreshDocuments);
+    }
+
+    async importDocument(_target) {
+        async function handleFile(file) {
+            const formData= new FormData();
+            formData.append("file", file);
+            await spaceAPIs.importDocument(assistOS.space.id,formData);
+        }
+        let fileInput = document.createElement('input');
+        fileInput.type = 'file';
+        fileInput.accept = '.docai';
+        fileInput.style.display = 'none';
+        fileInput.onchange = async function (event) {
+            const file = event.target.files[0];
+            if (file) {
+                if (file.name.endsWith('.docai')) {
+                    await handleFile(file);
+                } else {
+                    alert('Only a .docai files are allowed!');
+                }
+            }
+        };
+        document.body.appendChild(fileInput);
+        fileInput.click();
+        fileInput.remove();
+
     }
 }

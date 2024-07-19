@@ -1274,13 +1274,38 @@ async function deleteVideo(request, response) {
 async function exportDocument(request, response) {
     const spaceId = request.params.spaceId;
     const documentId = request.params.documentId;
-    const documentArchive = await space.APIs.archiveDocument(spaceId, documentId);
+    try {
+        const documentArchive = await space.APIs.archiveDocument(spaceId, documentId);
 
-    response.setHeader('Content-Disposition', `attachment; filename=${documentId}.docai`);
-    response.setHeader('Content-Type', 'application/zip');
+        response.setHeader('Content-Disposition', `attachment; filename=${documentId}.docai`);
+        response.setHeader('Content-Type', 'application/zip');
+        response.setHeader('Content-Length', documentArchive.length);
+        return utils.sendResponse(response, 200, "application/zip", documentArchive);
+    }catch(error){
+        return utils.sendResponse(response, 500, "application/json", {
+            success: false,
+            message: error + ` Error at exporting document: ${documentId}`
+        });
+    }
+}
+async function importDocument(request, response) {
+    const spaceId = request.params.spaceId;
+    const documentId = request.params.documentId;
+    const documentArchive = request.body;
+    try {
+        await space.APIs.importDocument(spaceId, documentId, documentArchive);
+        return utils.sendResponse(response, 200, "application/json", {
+            success: true,
+            message: `Document imported successfully`,
+            data: documentId
+        });
+    } catch (error) {
+        return utils.sendResponse(response, 500, "application/json", {
+            success: false,
+            message: error + ` Error at importing document: ${documentId}`
+        });
+    }
 
-    response.setHeader('Content-Length', documentArchive.length);
-    return utils.sendResponse(response, 200, "application/zip", documentArchive);
 }
 module.exports = {
     acceptSpaceInvitation,
@@ -1328,5 +1353,6 @@ module.exports = {
     getVideo,
     deleteVideo,
     compileVideoFromDocument,
-    exportDocument
+    exportDocument,
+    importDocument
 }
