@@ -7,7 +7,7 @@ const enclave = require("opendsu").loadAPI("enclave");
 const crypto = require('../apihub-component-utils/crypto.js');
 const fsPromises = require('fs').promises;
 const path = require('path');
-const {eventPublisher} = require("../subscribers/controller.js");
+const eventPublisher = require("../subscribers/eventPublisher.js");
 const {sendResponse} = require("../apihub-component-utils/utils");
 const dataVolumePaths = require('../volumeManager').paths;
 function getFileObjectsMetadataPath(spaceId, objectType) {
@@ -1290,19 +1290,18 @@ async function exportDocument(request, response) {
 }
 async function importDocument(request, response) {
     const spaceId = request.params.spaceId;
-    const documentId = request.params.documentId;
-    const documentArchive = request.body;
+    const filePath=request.filePath;
+    const fileId=request.fileId;
     try {
-        await space.APIs.importDocument(spaceId, documentId, documentArchive);
+        await space.APIs.importDocument(request,spaceId, fileId,filePath);
         return utils.sendResponse(response, 200, "application/json", {
             success: true,
             message: `Document imported successfully`,
-            data: documentId
         });
     } catch (error) {
         return utils.sendResponse(response, 500, "application/json", {
             success: false,
-            message: error + ` Error at importing document: ${documentId}`
+            message: error + ` Error at importing document: ${error}`
         });
     }
 

@@ -750,13 +750,13 @@ async function archiveDocument(spaceId, documentId) {
         contentFile: "data.json",
     };
 
-    for(let imageData of documentData.images){
-        let image=await getImage(spaceId,imageData.split("/").pop());
+    for (let imageData of documentData.images) {
+        let image = await getImage(spaceId, imageData.split("/").pop());
         zip.addFile(`images/${imageData.split("/").pop()}.png`, image);
     }
 
-    for(let audioData of documentData.audios){
-        let audio=await getAudio(spaceId,audioData.split("/").pop());
+    for (let audioData of documentData.audios) {
+        let audio = await getAudio(spaceId, audioData.split("/").pop());
         zip.addFile(`audios/${audioData.split("/").pop()}.mp3`, audio);
     }
 
@@ -764,6 +764,114 @@ async function archiveDocument(spaceId, documentId) {
     zip.addFile("data.json", contentBuffer);
 
     return zip.toBuffer();
+}
+
+async function importDocument(request, spaceId, fileId, filePath) {
+    const zip = new AdmZip(filePath);
+    const extractedPath = path.join(__dirname, '../../data-volume/Temp/extracted', fileId);
+
+    zip.extractAllTo(extractedPath, true);
+    fs.unlinkSync(filePath);
+
+
+    const docMetadata = fs.readFileSync(path.join(extractedPath, 'metadata.json'), 'utf8');
+    const docMetadataObj = JSON.parse(docMetadata);
+
+    const docData = JSON.parse(fs.readFileSync(path.join(extractedPath, 'data.json'), 'utf8'));
+    const docDataObj = JSON.parse(fs.readFileSync(path.join(extractedPath, 'data.json'), 'utf8'));
+
+    const images = fs.readdirSync(path.join(extractedPath, 'images'));
+    const audios = fs.readdirSync(path.join(extractedPath, 'audios'));
+
+    for (let image of images) {
+        const imagePath = path.join(extractedPath, 'images', image);
+        const imageBase64Data = fs.readFileSync(imagePath, 'base64');
+
+        function getMimeType(filename) {
+            const ext = path.extname(filename).toLowerCase();
+            switch (ext) {
+                case '.jpg':
+                case '.jpeg':
+                    return 'image/jpeg';
+                case '.png':
+                    return 'image/png';
+                case '.gif':
+                    return 'image/gif';
+                default:
+                    return null;
+            }
+        }
+
+        const mimeType = getMimeType(image);
+        if (!mimeType) {
+            console.error(`Unsupported image type: ${image}`);
+            continue;
+        }
+
+        const dataUrl = `data:${mimeType};base64,${imageBase64Data}`;
+
+        const result = await fetch(`${process.env.BASE_URL}/spaces/image/${spaceId}`, {
+            method: 'POST',
+            headers: {
+                'Content-Type': 'application/json',
+                'Cookie': request.headers.cookie,
+            },
+            body: JSON.stringify(dataUrl)
+        });
+
+        const responseData = await result.json();
+        const imageId = responseData.data;
+        console.log(`Uploaded image ID: ${imageId}`);
+    }
+
+    for (let audio of audios) {
+        /* add each audio to the default audio library of the space */
+    }
+    const result = await fetch(`${process.env.BASE_URL}/spaces/containerObject/${spaceId}/documents`, {
+        method: 'POST',
+        headers: {
+            'Content-Type': 'application/json',
+            'Cookie': request.headers.cookie,
+        },
+        body: JSON.stringify({
+            title: docMetadataObj.title,
+            topic: docMetadataObj.topic,
+            metadata: ["id", "title"]
+        })
+    });
+    const docId = (await result.json()).data;
+
+    for (const chapter of docDataObj.chapters) {
+        let objectURI = encodeURIComponent(`${docId}/chapters`);
+
+        const result = await fetch(`${process.env.BASE_URL}/spaces/embeddedObject/${spaceId}/${objectURI}`, {
+            method: 'POST',
+            headers: {
+                'Content-Type': 'application/json',
+                'Cookie': request.headers.cookie,
+            },
+            body: JSON.stringify({
+                title: chapter.title,
+            })
+        });
+
+        const chapterId = (await result.json()).data;
+
+        for (const paragraph of chapter.paragraphs) {
+            let objectURI = encodeURIComponent(`${docId}/${chapterId}/paragraphs`);
+            const result = await fetch(`${process.env.BASE_URL}/spaces/embeddedObject/${spaceId}/${objectURI}`, {
+                method: 'POST',
+                headers: {
+                    'Content-Type': 'application/json',
+                    'Cookie': request.headers.cookie,
+                },
+                body: JSON.stringify({
+                    text: paragraph.text,
+                })
+            });
+        }
+    }
+
 }
 
 module.exports = {
@@ -801,7 +909,8 @@ module.exports = {
         deleteVideo,
         documentToVideo,
         getDocumentData,
-        archiveDocument
+        archiveDocument,
+        importDocument
     },
     templates: {
         defaultSpaceAnnouncement: require('./templates/defaultSpaceAnnouncement.json'),
