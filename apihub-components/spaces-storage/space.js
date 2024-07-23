@@ -783,45 +783,19 @@ async function importDocument(request, spaceId, fileId, filePath) {
     const images = fs.readdirSync(path.join(extractedPath, 'images'));
     const audios = fs.readdirSync(path.join(extractedPath, 'audios'));
 
-    for (let image of images) {
-        const imagePath = path.join(extractedPath, 'images', image);
-        const imageBase64Data = fs.readFileSync(imagePath, 'base64');
-
-        function getMimeType(filename) {
-            const ext = path.extname(filename).toLowerCase();
-            switch (ext) {
-                case '.jpg':
-                case '.jpeg':
-                    return 'image/jpeg';
-                case '.png':
-                    return 'image/png';
-                case '.gif':
-                    return 'image/gif';
-                default:
-                    return null;
-            }
-        }
-
-        const mimeType = getMimeType(image);
-        if (!mimeType) {
-            console.error(`Unsupported image type: ${image}`);
-            continue;
-        }
-
-        const dataUrl = `data:${mimeType};base64,${imageBase64Data}`;
-
+    async function uploadImage(spaceId, imageData) {
         const result = await fetch(`${process.env.BASE_URL}/spaces/image/${spaceId}`, {
             method: 'POST',
             headers: {
                 'Content-Type': 'application/json',
                 'Cookie': request.headers.cookie,
             },
-            body: JSON.stringify(dataUrl)
+            body: JSON.stringify(imageData)
         });
 
         const responseData = await result.json();
         const imageId = responseData.data;
-        console.log(`Uploaded image ID: ${imageId}`);
+        return imageId;
     }
 
     for (let audio of audios) {
@@ -859,15 +833,31 @@ async function importDocument(request, spaceId, fileId, filePath) {
 
         for (const paragraph of chapter.paragraphs) {
             let objectURI = encodeURIComponent(`${docId}/${chapterId}/paragraphs`);
+
+            if (paragraph.image) {
+                let image = fs.readFileSync(path.join(extractedPath, 'images', `${paragraph.image.id}.png`), 'base64');
+                const dataUrl = `data:image/png;base64,${image}`;
+                const imageId = await uploadImage(spaceId, dataUrl);
+                paragraph.image.id = imageId;
+                paragraph.image.src = `spaces/image/${spaceId}/${imageId}`;
+                paragraph.image.isUploadedImage = true;
+            }
+            let paragraphObject = {}
+            paragraphObject.text = paragraph.text;
+            if (paragraph.audio) {
+
+            }
+            if (paragraph.image) {
+                paragraphObject.image = paragraph.image;
+                paragraphObject.dimensions = paragraph.dimensions;
+            }
             const result = await fetch(`${process.env.BASE_URL}/spaces/embeddedObject/${spaceId}/${objectURI}`, {
                 method: 'POST',
                 headers: {
                     'Content-Type': 'application/json',
                     'Cookie': request.headers.cookie,
                 },
-                body: JSON.stringify({
-                    text: paragraph.text,
-                })
+                body: JSON.stringify(paragraphObject)
             });
         }
     }
