@@ -777,11 +777,7 @@ async function importDocument(request, spaceId, fileId, filePath) {
     const docMetadata = fs.readFileSync(path.join(extractedPath, 'metadata.json'), 'utf8');
     const docMetadataObj = JSON.parse(docMetadata);
 
-    const docData = JSON.parse(fs.readFileSync(path.join(extractedPath, 'data.json'), 'utf8'));
     const docDataObj = JSON.parse(fs.readFileSync(path.join(extractedPath, 'data.json'), 'utf8'));
-
-    const images = fs.readdirSync(path.join(extractedPath, 'images'));
-    const audios = fs.readdirSync(path.join(extractedPath, 'audios'));
 
     async function uploadImage(spaceId, imageData) {
         const result = await fetch(`${process.env.BASE_URL}/spaces/image/${spaceId}`, {
@@ -798,9 +794,6 @@ async function importDocument(request, spaceId, fileId, filePath) {
         return imageId;
     }
 
-    for (let audio of audios) {
-        /* add each audio to the default audio library of the space */
-    }
     const result = await fetch(`${process.env.BASE_URL}/spaces/containerObject/${spaceId}/documents`, {
         method: 'POST',
         headers: {
@@ -817,16 +810,37 @@ async function importDocument(request, spaceId, fileId, filePath) {
 
     for (const chapter of docDataObj.chapters) {
         let objectURI = encodeURIComponent(`${docId}/chapters`);
+        let chapterObject = {}
 
+        if (chapter.backgroundSound) {
+            chapterObject.backgroundSound = chapter.backgroundSound;
+            let audioId = chapter.backgroundSound.id;
+            const audioPath = path.join(extractedPath, 'audios', `${audioId}.mp3`);
+            const audioBase64Data = fs.readFileSync(audioPath, 'base64');
+            const result = await fetch(`${process.env.BASE_URL}/spaces/audio/${spaceId}`,
+                {
+                    method: 'POST',
+                    headers: {
+                        'Content-Type': 'application/json',
+                        'Cookie': request.headers.cookie,
+                    },
+                    body: JSON.stringify(audioBase64Data)
+                });
+            audioId = (await result.json()).data;
+            chapterObject.backgroundSound.id = audioId;
+            chapterObject.backgroundSound.src = `spaces/audio/${spaceId}/${audioId}`;
+        }
+        chapterObject.title = chapter.title;
+        chapterObject.position = chapter.position || 0
         const result = await fetch(`${process.env.BASE_URL}/spaces/embeddedObject/${spaceId}/${objectURI}`, {
             method: 'POST',
             headers: {
                 'Content-Type': 'application/json',
                 'Cookie': request.headers.cookie,
             },
-            body: JSON.stringify({
-                title: chapter.title,
-            })
+            body: JSON.stringify(
+                chapterObject
+            )
         });
 
         const chapterId = (await result.json()).data;
@@ -843,9 +857,25 @@ async function importDocument(request, spaceId, fileId, filePath) {
                 paragraph.image.isUploadedImage = true;
             }
             let paragraphObject = {}
-            paragraphObject.text = paragraph.text;
-            if (paragraph.audio) {
+            paragraphObject.text = paragraph.text || "";
 
+            if (paragraph.audio) {
+                paragraphObject.audio = paragraph.audio;
+                let audioId = paragraph.audio.id;
+                const audioPath = path.join(extractedPath, 'audios', `${audioId}.mp3`);
+                const audioBase64Data = fs.readFileSync(audioPath, 'base64');
+                const result = await fetch(`${process.env.BASE_URL}/spaces/audio/${spaceId}`,
+                    {
+                        method: 'POST',
+                        headers: {
+                            'Content-Type': 'application/json',
+                            'Cookie': request.headers.cookie,
+                        },
+                        body: JSON.stringify(audioBase64Data)
+                    });
+                audioId = (await result.json()).data;
+                paragraphObject.audio.id = audioId;
+                paragraphObject.audio.src = `spaces/audio/${spaceId}/${audioId}`;
             }
             if (paragraph.image) {
                 paragraphObject.image = paragraph.image;
@@ -861,7 +891,7 @@ async function importDocument(request, spaceId, fileId, filePath) {
             });
         }
     }
-
+    fs.rmSync(extractedPath, {recursive: true, force: true});
 }
 
 module.exports = {
