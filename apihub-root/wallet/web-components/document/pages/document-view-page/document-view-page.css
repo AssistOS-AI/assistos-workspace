@@ -12,7 +12,10 @@
     border-radius: 10px;
     margin-bottom: 10px;
 }
-
+.paragraph-arrows{
+    margin-left:4px;
+    margin-right:4px;
+}
 .abstract-content {
     display: flex;
     white-space: pre-line;

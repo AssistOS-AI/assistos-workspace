@@ -1,6 +1,6 @@
 const utilModule = require("assistos").loadModule("util", {});
-const spaceModule = require("assistos").loadModule("space", {});
 const documentModule = require("assistos").loadModule("document", {});
+
 export class ParagraphItem {
     constructor(element, invalidate) {
         this.element = element;
@@ -12,15 +12,16 @@ export class ParagraphItem {
         this.chapter = this._document.getChapter(chapterId);
         this.paragraph = this.chapter.getParagraph(paragraphId);
         this.invalidate(async () => {
-            if(!this.documentPresenter.childrenSubscriptions.has(this.paragraph.id)){
+            if (!this.documentPresenter.childrenSubscriptions.has(this.paragraph.id)) {
                 await this.subscribeToParagraphEvents();
                 this.documentPresenter.childrenSubscriptions.set(this.paragraph.id, this.paragraph.id);
             }
         });
     }
-    async subscribeToParagraphEvents(){
+
+    async subscribeToParagraphEvents() {
         await utilModule.subscribeToObject(this.paragraph.id, async (type) => {
-            if(type === "text"){
+            if (type === "text") {
                 let ttsItem = this.element.querySelector('text-to-speech');
                 if (ttsItem) {
                     this.openTTSItem = true;
@@ -35,11 +36,12 @@ export class ParagraphItem {
                     this.paragraph = paragraph;
                     this.invalidate();
                 }
-            } else if(type === "audio"){
+            } else if (type === "audio") {
                 this.paragraph.audio = await documentModule.getParagraphAudio(assistOS.space.id, this._document.id, this.paragraph.id);
             }
         });
     }
+
     beforeRender() {
 
     }
@@ -110,6 +112,51 @@ export class ParagraphItem {
             });
         }
     }
+    getParagraphPosition() {
+        if (this.chapter.paragraphs.length === 0) {
+            return 0;
+        }
+        if (assistOS.space.currentParagraphId) {
+            return this.chapter.paragraphs.findIndex(p => p.id === assistOS.space.currentParagraphId);
+        }
+        return this.chapter.paragraphs.length;
+    }
+    async openInsertImageModal(_target) {
+        let position = this.getParagraphPosition();
+        let imagesData = await assistOS.UI.showModal("insert-image-modal", {["chapter-id"]: this.chapter.id}, true);
+        if (imagesData) {
+            for (let image of imagesData) {
+                await assistOS.callFlow("AddImageParagraph", {
+                    spaceId: assistOS.space.id,
+                    documentId: this._document.id,
+                    chapterId: this.chapter.id,
+                    paragraphData: {
+                        position: position,
+                        image: {
+                            src: image.src,
+                            alt: image.alt,
+                            id: image.id,
+                            isUploadedImage: image.isUploadedImage || false
+                        },
+                        dimensions: {
+                            width: "",
+                            height: ""
+                        }
+                    }
+                });
+                position++;
+            }
+        }
+    }
+   async deleteParagraph(_target) {
+        await this.documentPresenter.stopTimer(true);
+        await assistOS.callFlow("DeleteParagraph", {
+            spaceId: assistOS.space.id,
+            documentId: this._document.id,
+            chapterId: this.chapter.id,
+            paragraphId: this.paragraph.id
+        });
+    }
 
     switchParagraphArrows(mode) {
         if (this.hasAudio) {
@@ -120,8 +167,6 @@ export class ParagraphItem {
                 audioIcon.classList.add("hidden");
             }
         }
-
-
         if (this.chapter.paragraphs.length <= 1) {
             return;
         }
@@ -185,8 +230,8 @@ export class ParagraphItem {
 
     showTTSPopup(_target, mode) {
         if (mode === "off") {
-            this.selectionText = window.getSelection().toString();
-            let ttsPopup = `<text-to-speech data-presenter="select-personality-tts" data-chapter-id="${this.chapter.id}" data-paragraph-id="${this.paragraph.id}"></text-to-speech>`;
+            this.selectionText =this.paragraph.text;
+            let ttsPopup = `<text-to-speech data-presenter= "select-personality-tts" data-chapter-id="${this.chapter.id}" data-paragraph-id="${this.paragraph.id}"></text-to-speech>`;
             this.element.insertAdjacentHTML('beforeend', ttsPopup);
             let controller = new AbortController();
             document.addEventListener("click", this.hideTTSPopup.bind(this, controller, _target), {signal: controller.signal});
@@ -232,4 +277,56 @@ export class ParagraphItem {
             await this.documentPresenter.resetTimer();
         }
     }
+    async copy(_target){
+        const paragraphText=this.element.querySelector('.paragraph-text')
+        navigator.clipboard.writeText(paragraphText.value);
+    }
+
+    async copyImage() {
+        try {
+            const image = document.getElementById('myImage');
+            const response = await fetch(image.src);
+            const blob = await response.blob();
+            const clipboardItem = new ClipboardItem({ 'image/png': blob });
+            await navigator.clipboard.write([clipboardItem]);
+            console.log('Image copied to clipboard');
+        } catch (err) {
+            console.error('Failed to copy image: ', err);
+        }
+    }
+
+    async openParagraphDropdown(_target) {
+        const generateDropdownMenu=()=>{
+            let baseDropdownMenuHTML =
+                `<div class="dropdown-item" data-local-action="moveParagraph up">Move Up</div>
+                 <div class="dropdown-item" data-local-action="moveParagraph down">Move Down</div>
+                 <div class="dropdown-item" data-local-action="deleteParagraph">Delete</div>
+                 <div class="dropdown-item" data-local-action="copy">Copy</div>
+                 <div class="dropdown-item" data-local-action="openInsertImageModal">Insert Image</div> 
+                 <div class="dropdown-item" data-local-action="showTTSPopup off">Add Audio</div>`
+
+            if(this.paragraph.audio){
+                baseDropdownMenuHTML+=`<div class="dropdown-item" data-local-action="deleteAudio">Delete Audio</div>`;
+            }
+            let dropdownMenuHTML=
+                `<div class="dropdown-menu">`+
+                baseDropdownMenuHTML+
+                `</div>`;
+
+            const dropdownMenu = document.createElement('div');
+            dropdownMenu.innerHTML = dropdownMenuHTML;
+            return dropdownMenu;
+        }
+
+        const dropdownMenu=generateDropdownMenu();
+        this.element.appendChild(dropdownMenu);
+
+        const removeDropdown = () => {
+            dropdownMenu.remove();
+        }
+
+        dropdownMenu.addEventListener('mouseleave', removeDropdown);
+        dropdownMenu.focus();
+    }
+
 }

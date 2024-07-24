@@ -89,3 +89,32 @@ paragraph-item{
 .warning-icon{
     margin-left: 5px;
 }
+#hide .optional {
+    display: none;
+}
+
+.dropdown-menu {
+    position: absolute;
+    z-index: 9999;
+    left:0px;
+    top: 25px;
+    box-shadow: 0px 1px 7.3px 0px #00000040;
+    font-size: 14px;
+    background: var(--white);
+}
+
+.dropdown-item {
+    display:flex;
+    padding: 2px;
+    cursor: pointer;
+    border-bottom: 1px solid #eaeaea;
+    z-index: 9999;
+}
+
+.dropdown-item:last-child {
+    border-bottom: none;
+}
+
+.dropdown-item:hover {
+    background-color: #f0f0f0;
+}

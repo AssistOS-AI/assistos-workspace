@@ -249,35 +249,6 @@ export class ChapterItem {
             return this.chapter.paragraphs.findIndex(p => p.id === assistOS.space.currentParagraphId);
         }
         return this.chapter.paragraphs.length;
-
-    }
-
-    async openInsertImageModal(_target) {
-        let position = this.getParagraphPosition();
-        let imagesData = await assistOS.UI.showModal("insert-image-modal", {["chapter-id"]: this.chapter.id}, true);
-        if (imagesData) {
-            for (let image of imagesData) {
-                await assistOS.callFlow("AddImageParagraph", {
-                    spaceId: assistOS.space.id,
-                    documentId: this._document.id,
-                    chapterId: this.chapter.id,
-                    paragraphData: {
-                        position: position,
-                        image: {
-                            src: image.src,
-                            alt: image.alt,
-                            id: image.id,
-                            isUploadedImage: image.isUploadedImage || false
-                        },
-                        dimensions: {
-                            width: "",
-                            height: ""
-                        }
-                    }
-                });
-                position++;
-            }
-        }
     }
 
     uploadSoundEffects(event) {
