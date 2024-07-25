@@ -278,7 +278,17 @@ export class AuthenticationPage {
         if (formInfo.isValid) {
             this.formData = formInfo.data;
             const {email, password, photo} = formInfo.data;
-            await User.apis.registerUser(email, password, photo || undefined, this.inviteToken);
+            try {
+                await User.apis.registerUser(email, password, photo || undefined, this.inviteToken);
+            }catch(error){
+                switch(error.statusCode){
+                    case 409:
+                        alert("User Already Registered with this Email Address");
+                        break;
+                    default:
+                        alert(error.message);
+                }
+            }
             if (this.inviteToken) {
                 this.invalidate(async () => {
                     this.element.setAttribute("data-subpage", "register-confirmation-with-invite")
