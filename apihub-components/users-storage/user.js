@@ -48,7 +48,7 @@ async function registerUser(email, password, photo, inviteToken) {
     await sendActivationEmail(email, registrationUserObject.verificationToken);
 }
 
-async function createUser(username, email, photo, withDefaultSpace = false) {
+async function createUser(email, photo, withDefaultSpace = false) {
     const Space = require('../spaces-storage/space.js');
     const defaultUserTemplate = require('./templates/defaultUserTemplate.json')
     const rollback = async () => {
@@ -59,6 +59,7 @@ async function createUser(username, email, photo, withDefaultSpace = false) {
     }
 
     const userId = crypto.generateId();
+    const username= email.split('@')[0];
     const spaceName = data.fillTemplate(
         Space.templates.defaultSpaceNameTemplate,
         {
@@ -68,7 +69,6 @@ async function createUser(username, email, photo, withDefaultSpace = false) {
     const user = data.fillTemplate(defaultUserTemplate,
         {
             id: userId,
-            username: username,
             email: email,
             photo: photo
         }
@@ -107,7 +107,7 @@ async function activateUser(activationToken) {
 
     const user = userPendingActivation[activationToken];
     try {
-        const userDataObject = await createUser(user.name, user.email, user.photo, true);
+        const userDataObject = await createUser( user.email, user.photo, true);
         const userMap = await getUserMap();
         userMap[user.email] = userDataObject.id;
         await updateUserMap(userMap);
