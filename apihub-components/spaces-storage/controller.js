@@ -1240,7 +1240,11 @@ async function compileVideoFromDocument(request, response) {
     let securityContext = new SecurityContext(request);
     const documentModule = require("assistos").loadModule("document", securityContext);
     let document = await documentModule.getDocument(spaceId, documentId);
-    space.APIs.documentToVideo(spaceId, document, userId, videoId);
+    try {
+        await space.APIs.documentToVideo(spaceId, document, userId, videoId);
+    } catch (error) {
+        eventPublisher.notifyClientTask(userId, videoId, {error: error.message});
+    }
 }
 async function getVideo(request, response) {
     const spaceId = request.params.spaceId;

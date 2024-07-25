@@ -11,7 +11,7 @@ export class InsertImageModal {
             <div class="modal-body">
                 <button data-local-action="openGallerySection">From Gallery</button>
                 <button data-local-action="openMyDevice">My device</button data-local-action="openMyDevice">
-                <input type="file" id="file" class="hidden" accept="image/*">
+                <input type="file" id="file" class="hidden" accept="image/png">
 <!--                <button data-local-action="openGenerateSection">Generate</button>-->
             </div>`;
         this.invalidate(async ()=>{

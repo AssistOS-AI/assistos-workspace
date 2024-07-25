@@ -227,7 +227,7 @@ export class ParagraphItem {
 
     showTTSPopup(_target, mode) {
         if (mode === "off") {
-            this.selectionText =this.paragraph.text;
+            this.selectionText = this.element.querySelector('.paragraph-text').value;
             let ttsPopup = `<text-to-speech data-presenter= "select-personality-tts" data-chapter-id="${this.chapter.id}" data-paragraph-id="${this.paragraph.id}"></text-to-speech>`;
             this.element.insertAdjacentHTML('beforeend', ttsPopup);
             let controller = new AbortController();

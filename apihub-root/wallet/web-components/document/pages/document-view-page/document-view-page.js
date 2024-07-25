@@ -255,18 +255,26 @@ export class DocumentViewPage {
         this.timer = new executorTimer(saveFunction,1000);
         _target.addEventListener("keydown", resetTimerFunction);
     }
-    async documentToVideo(){
+    async documentToVideo(button){
         let videoId = (await assistOS.callFlow("DocumentToVideo", {
             spaceId: assistOS.space.id,
             documentId: this._document.id
         })).data;
-        await utilModule.subscribeToObject(videoId, async () => {
+        await utilModule.subscribeToObject(videoId, async (data) => {
+            button.innerHTML = "Document to Video";
+            if(data){
+                if(data.error){
+                    return await showApplicationError("Error compiling video", data.error, "");
+                }
+            }
+
             let section = this.element.querySelector(".document-page-header");
             section.insertAdjacentHTML("afterend", `
             <video class="document-video" controls>
                 <source src="/spaces/video/${assistOS.space.id}/${videoId}" type="video/mp4">
             </video>`);
         });
+        button.innerHTML = `<div class="loading-mask"></div>`
     }
     async exportDocument(_target) {
         try {
