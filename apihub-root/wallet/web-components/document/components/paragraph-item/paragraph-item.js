@@ -42,10 +42,7 @@ export class ParagraphItem {
         });
     }
 
-    beforeRender() {
-
-    }
-
+    beforeRender() {}
     afterRender() {
         let chapterElement = this.element.closest("chapter-item");
         this.chapterPresenter = chapterElement.webSkelPresenter;

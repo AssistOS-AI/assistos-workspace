@@ -1,14 +1,13 @@
 const cookie = require('../apihub-component-utils/cookie.js');
 const jwt = require('../apihub-component-utils/jwt.js');
 const utils = require('../apihub-component-utils/utils.js');
-
-const config = require('../config.json')
+const config = require('../config.json');
 const User = require('../users-storage/user.js');
+const crypto = require('crypto');
 
 const dbName = "AuthSessionMDB";
 const tableName = "UsersActiveSessions";
 const enclave = require("opendsu").loadAPI("enclave");
-
 
 async function authentication(req, res, next) {
     const cookies = cookie.parseCookies(req);
@@ -20,6 +19,7 @@ async function authentication(req, res, next) {
         try {
             const { userId, verificationKey } = await jwt.validateUserAccessJWT(authToken, 'AccessToken');
             const accountSessionData = await $$.promisify($$.ActiveSessionsClient.getRecord)($$.SYSTEM_IDENTIFIER, tableName, userId);
+
             if (accountSessionData.data.verificationKey === verificationKey) {
                 req.userId = userId;
                 return next();
@@ -33,14 +33,15 @@ async function authentication(req, res, next) {
 
     if (refreshToken) {
         try {
-            const { userId, verificationKey } = await jwt.validateUserRefreshAccessJWT(refreshToken, 'RefreshToken');
-            const accountSessionData = await $$.promisify($$.ActiveSessionsClient.getRecord)($$.SYSTEM_IDENTIFIER,tableName, userId);
+            const { userId, verificationKey } = await jwt.validateUserAccessJWT(refreshToken, 'RefreshToken');
+            const accountSessionData = await $$.promisify($$.ActiveSessionsClient.getRecord)($$.SYSTEM_IDENTIFIER, tableName, userId);
+
             if (accountSessionData.data.verificationKey === verificationKey) {
                 const userData = await User.APIs.getUserData(userId);
-                const newVerificationKey = crypto.generateVerificationKey();
+                const newVerificationKey = crypto.randomBytes(16).toString('hex');
                 const newAuthCookie = await cookie.createAuthCookie(userData, newVerificationKey);
                 setCookies.push(newAuthCookie);
-                await $$.promisify($$.ActiveSessionsClient.updateRecord)($$.SYSTEM_IDENTIFIER,tableName, userId, { data: { verificationKey: newVerificationKey } });
+                await $$.promisify($$.ActiveSessionsClient.updateRecord)($$.SYSTEM_IDENTIFIER, tableName, userId, { data: { verificationKey: newVerificationKey } });
                 req.userId = userId;
                 res.setHeader('Set-Cookie', setCookies);
                 return next();
@@ -55,14 +56,13 @@ async function authentication(req, res, next) {
         res.setHeader('Set-Cookie', setCookies);
         return authenticationError(res, next);
     }
-
 }
 
 function authenticationError(res, next) {
     const error = new Error('Authentication failed');
     error.statusCode = 401;
     if (config.CREATE_DEMO_USER === 'true') {
-        const {email, password} = User.templates.demoUser;
+        const { email, password } = User.templates.demoUser;
         utils.sendResponse(res, 401, "application/json", {
             success: false,
             message: "Unauthorized"

@@ -50,12 +50,6 @@ async function userSecretExists(request, response) {
 
 async function registerUser(request, response) {
     const userData = request.body;
-    if (!userData.name) {
-        return utils.sendResponse(response, 400, "application/json", {
-            success: false,
-            message: "Name is required"
-        });
-    }
     if (!userData.password) {
         return utils.sendResponse(response, 400, "application/json", {
             success: false,
@@ -64,7 +58,6 @@ async function registerUser(request, response) {
     }
     try {
         await User.APIs.registerUser(
-            userData.name,
             userData.email,
             userData.password,
             userData.photo,

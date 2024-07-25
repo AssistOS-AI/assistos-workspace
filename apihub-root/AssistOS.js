@@ -136,7 +136,6 @@ class AssistOS {
         }catch(error){
             throw new Error("Successful login, but failed to establish connection with the server. Please try again later");
         }
-        await assistOS.loadPage(true);
     }
 
     async logout() {
@@ -214,6 +213,7 @@ class AssistOS {
             console.info(error);
             hidePlaceholders();
             await assistOS.UI.changeToDynamicPage("authentication-page", "authentication-page");
+            throw error
         }
     }
 

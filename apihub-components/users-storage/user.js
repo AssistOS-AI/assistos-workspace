@@ -14,13 +14,12 @@ const eventPublisher = require("../subscribers/eventPublisher");
 const tableName = "UsersActiveSessions";
 
 
-async function registerUser(name, email, password, photo, inviteToken) {
+async function registerUser(email, password, photo, inviteToken) {
     const currentDate = date.getCurrentUTCDate();
     const userRegistrationTemplate = require('./templates/userRegistrationTemplate.json')
     let userPhoto = photo || await getDefaultUserPhoto();
     const registrationUserObject = data.fillTemplate(userRegistrationTemplate, {
         email: email,
-        name: name,
         photo: userPhoto,
         inviteToken: inviteToken || null,
         passwordHash: crypto.hashPassword(password),
@@ -46,7 +45,7 @@ async function registerUser(name, email, password, photo, inviteToken) {
     if (inviteToken) {
         return await activateUser(registrationUserObject.verificationToken);
     }
-    await sendActivationEmail(email, name, registrationUserObject.verificationToken);
+    await sendActivationEmail(email, registrationUserObject.verificationToken);
 }
 
 async function createUser(username, email, photo, withDefaultSpace = false) {
@@ -248,9 +247,9 @@ function getUserPendingActivationPath() {
     return volumeManager.paths.userPendingActivation
 }
 
-async function sendActivationEmail(emailAddress, username, activationToken) {
+async function sendActivationEmail(emailAddress, activationToken) {
     const emailService = require('../email').instance
-    await emailService.sendActivationEmail(emailAddress, username, activationToken);
+    await emailService.sendActivationEmail(emailAddress, activationToken);
 }
 
 async function unlinkSpaceFromUser(userId, spaceId) {
@@ -434,7 +433,6 @@ async function inviteSpaceCollaborators(referrerId, spaceId, collaboratorsEmails
     const userMap = await getUserMap();
     const spaceStatusObject = await Space.APIs.getSpaceStatusObject(spaceId);
     const spaceName = spaceStatusObject.name;
-    const referrerName = (await getUserFile(referrerId)).name;
     const existingUserIds = Object.keys(spaceStatusObject.users)
     let collaborators = [];
     for (let email of collaboratorsEmails) {
@@ -447,9 +445,9 @@ async function inviteSpaceCollaborators(referrerId, spaceId, collaboratorsEmails
 
         const invitationToken = await registerInvite(referrerId, spaceId, email);
         if (userId) {
-            await emailService.sendSpaceInvitationEmail(email, invitationToken, spaceName, referrerName);
+            await emailService.sendSpaceInvitationEmail(email, invitationToken, spaceName);
         } else {
-            await emailService.sendSpaceInvitationEmail(email, invitationToken, spaceName, referrerName, true);
+            await emailService.sendSpaceInvitationEmail(email, invitationToken, spaceName, true);
         }
     }
     return collaborators;

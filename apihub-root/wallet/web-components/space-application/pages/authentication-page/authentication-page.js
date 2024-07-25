@@ -26,10 +26,6 @@ export class AuthenticationPage {
              Registration
              </div>
              <form>
-                    <div class="form-item">
-                        <label class="form-label" for="user-name">Name</label>
-                        <input class="form-input" name="name" data-id="user-name" type="text" id="user-name" required placeholder="Add name">
-                    </div>
                     <div class="form-item" id="${hiddenClass}">
                         <label class="form-label" for="user-email">E-mail</label>
                         <input class="form-input" name="email" type="email" data-id="user-email" id="user-email" ${requiredEmail} placeholder="Add e-mail">
@@ -281,8 +277,8 @@ export class AuthenticationPage {
         const formInfo = await assistOS.UI.extractFormInformation(_target, conditions);
         if (formInfo.isValid) {
             this.formData = formInfo.data;
-            const {name, email, password, photo} = formInfo.data;
-            await User.apis.registerUser(name, email, password, photo || undefined, this.inviteToken);
+            const {email, password, photo} = formInfo.data;
+            await User.apis.registerUser(email, password, photo || undefined, this.inviteToken);
             if (this.inviteToken) {
                 this.invalidate(async () => {
                     this.element.setAttribute("data-subpage", "register-confirmation-with-invite")
@@ -309,11 +305,16 @@ export class AuthenticationPage {
     async loginUser(_target) {
         const formInfo = await assistOS.UI.extractFormInformation(_target);
         if (formInfo.isValid) {
-            const {email, password} = formInfo.data;
+            const { email, password } = formInfo.data;
             try {
                 await assistOS.login(email, password);
+                try {
+                    await assistOS.loadPage(true);
+                } catch (error) {
+                    console.error("Failed to load Landing Page", error);
+                    alert(error);
+                }
             } catch (error) {
-                /* TODO change statusCode from 404 to 401 after feature is completed */
                 switch (error.statusCode) {
                     case 401:
                         alert("Invalid Password");
@@ -322,11 +323,12 @@ export class AuthenticationPage {
                         alert("User not found");
                         break;
                     default:
-                        alert(error);
+                        alert(error.message);
                 }
             }
         }
     }
+
 
     async navigateToPasswordRecoveryPage() {
         await this.navigateToPage("password-recovery");

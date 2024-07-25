@@ -36,7 +36,7 @@ class Email {
         await this.transporter.sendMail(mailOptions);
     }
 
-    async sendActivationEmail(emailAddress, username, activationToken) {
+    async sendActivationEmail(emailAddress, activationToken) {
         const data = require('../../apihub-component-utils/data.js')
         const activationEmailTemplatePath = path.join(__dirname, '..', 'templates', 'activationEmailTemplate.html');
 
@@ -46,7 +46,6 @@ class Email {
 
         const activationLink = `${baseURL}/users/verify?activationToken=${encodeURIComponent(activationToken)}`;
         const emailHtml = data.fillTemplate(activationEmailTemplate, {
-            username: username,
             companyLogoURL: emailConfig.companyLogoURL,
             activationLink: activationLink,
             companyName: emailConfig.companyName,
@@ -60,7 +59,7 @@ class Email {
         await this.sendEmail(emailConfig.email, emailAddress, 'Account Activation', emailHtml);
     }
 
-    async sendSpaceInvitationEmail(email, invitationToken, spaceName, referrerName, newUser = false) {
+    async sendSpaceInvitationEmail(email, invitationToken, spaceName, newUser = false) {
 
         const data = require('../../apihub-component-utils/data.js')
         const spaceInvitationTemplatePath = path.join(__dirname, '..', 'templates', 'spaceInvitationTemplate.html');
@@ -73,7 +72,6 @@ class Email {
 
         const emailHtml = data.fillTemplate(spaceInvitationTemplate, {
             spaceName: spaceName,
-            referrerName: referrerName,
             invitationLinkAccepted: invitationLinkAccepted,
             invitationLinkRejected: invitationLinkRejected,
             companyLogoURL: emailConfig.companyLogoURL,
