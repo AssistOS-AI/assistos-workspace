@@ -288,6 +288,7 @@ export class AuthenticationPage {
                     default:
                         alert(error.message);
                 }
+                await assistOS.UI.changeToDynamicPage("authentication-page", "authentication-page");
             }
             if (this.inviteToken) {
                 this.invalidate(async () => {
