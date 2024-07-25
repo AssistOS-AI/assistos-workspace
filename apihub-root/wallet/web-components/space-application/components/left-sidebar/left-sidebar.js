@@ -153,7 +153,6 @@ export class LeftSidebar {
 
     async logout() {
         await assistOS.logout();
-        await assistOS.loadPage();
     }
     async addSpace() {
         await assistOS.UI.showModal("add-space-modal", {presenter: "add-space-modal"});

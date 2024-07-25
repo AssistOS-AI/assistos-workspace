@@ -139,13 +139,21 @@ class AssistOS {
     }
 
     async logout() {
+        const removeSidebar = () => {
+            let sidebar = document.querySelector("left-sidebar");
+            if (sidebar) {
+                sidebar.remove();
+            }
+        }
+        removeSidebar();
         await utilModule.closeSSEConnection();
         await userModule.logoutUser();
         await this.refresh();
+
     }
 
     async refresh() {
-        window.location = "";
+        window.location= "/";
     }
 
     async initUser(spaceId) {
@@ -158,7 +166,6 @@ class AssistOS {
         assistOS.currentApplicationName = this.configuration.defaultApplicationName;
         await assistOS.space.loadFlows();
         await assistOS.loadAgent(assistOS.space.id);
-
     }
 
     async loadAgent(spaceId) {
@@ -330,23 +337,6 @@ function defineActions() {
     });
 }
 
-async function handleHistory(event) {
-    const removeSidebar = () => {
-        let sidebar = document.querySelector("left-sidebar");
-        if (sidebar) {
-            sidebar.remove();
-        }
-    }
-    if (window.location.hash.includes("#authentication-page")) {
-        removeSidebar();
-        await utilModule.closeSSEConnection();
-        await userModule.logoutUser();
-    }
-    let modal = document.querySelector("dialog");
-    if (modal) {
-        assistOS.UI.closeModal(modal);
-    }
-}
 
 function saveCurrentState() {
     assistOS.UI.currentState = Object.assign({}, history.state);
@@ -368,6 +358,18 @@ function closeDefaultLoader() {
     const ASSISTOS_CONFIGS_PATH = "./assistOS-configs.json";
     const UI_CONFIGS_PATH = "./wallet/webskel-configs.json"
 
+    window.handleHistory= async (event)=> {
+        if (window.location.hash.includes("#authentication-page")) {
+            await assistOS.logout();
+        }
+        let modal = document.querySelector("dialog");
+        if (modal) {
+            assistOS.UI.closeModal(modal);
+        }
+    }
+    window.addEventListener('popstate', window.handleHistory);
+    window.addEventListener('beforeunload', saveCurrentState);
+
     window.mainContent = document.querySelector("#app-wrapper");
 
     const configuration = await (await fetch(ASSISTOS_CONFIGS_PATH)).json();
@@ -381,7 +383,5 @@ function closeDefaultLoader() {
     defineActions();
     closeDefaultLoader()
     await assistOS.loadPage();
-    window.addEventListener('popstate', handleHistory);
-    window.addEventListener('beforeunload', saveCurrentState);
     assistOS.changeSelectedPageFromSidebar = changeSelectedPageFromSidebar;
 })();
