@@ -64,6 +64,7 @@ export class GalleriesPage{
         let galleryItem = _target.closest("gallery-item");
         let galleryId = galleryItem.getAttribute("data-id");
         await galleryModule.deleteGallery(assistOS.space.id, galleryId);
+        this.invalidate(this.refreshGalleries);
     }
     async openGallery(_target, galleryId){
         await assistOS.UI.changeToDynamicPage("space-application-page", `${assistOS.space.id}/Space/gallery-page/${galleryId}`);

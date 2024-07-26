@@ -23,22 +23,16 @@ export class DocumentViewPage {
                         return;
                     case "title":
                         let title = await documentModule.getDocumentTitle(assistOS.space.id, this._document.id);
-                        if(this._document.title !== title) {
-                            this._document.title = title;
-                            this.renderDocumentTitle();
-                        }
+                        this._document.title = title;
+                        this.renderDocumentTitle();
                         return;
                     case "abstract":
                         let abstract = await documentModule.getDocumentAbstract(assistOS.space.id, this._document.id);
-                        if(this._document.abstract !== abstract) {
-                            this._document.abstract = abstract;
-                            this.renderAbstract();
-                        }
+                        this._document.abstract = abstract;
+                        this.renderAbstract();
                         return;
                     default:
-                        return this.invalidate(async () => {
-                            this.invalidate(this.refreshDocument);
-                        });
+                        return this.invalidate(this.refreshDocument);
                 }
             });
         });
@@ -133,6 +127,7 @@ export class DocumentViewPage {
             chapterId1: currentChapterId,
             chapterId2: adjacentChapterId
         });
+        this.invalidate(this.refreshDocument);
     }
     async saveAbstract(abstractElement){
         let abstractText = assistOS.UI.sanitize(abstractElement.value);
@@ -159,6 +154,7 @@ export class DocumentViewPage {
             documentId: this._document.id,
             position: position
         })).data;
+        this.invalidate(this.refreshDocument);
     }
 
     async openDocumentsPage() {

@@ -1,6 +1,5 @@
 import {executorTimer} from "../../../../imports.js";
 const galleryModule = require("assistos").loadModule("gallery", {});
-const constants = require("assistos").constants;
 const llmModule = require("assistos").loadModule("llm", {});
 const utilModule = require("assistos").loadModule("util", {});
 
@@ -308,7 +307,7 @@ export class GenerateImagePage {
             try {
                 let imagesMetadata = (await assistOS.callFlow("GenerateImage", flowContext, formData.data.personality)).data;
                 await galleryModule.addOpenAIHistoryImages(assistOS.space.id, this.id, imagesMetadata);
-
+                this.invalidate(this.refreshHistory);
             } catch (e) {
                 let message = assistOS.UI.sanitize(e.message);
                 await showApplicationError(message, message, message);
@@ -317,6 +316,7 @@ export class GenerateImagePage {
             try {
                 let imageMetadata = (await assistOS.callFlow("GenerateImage", flowContext, formData.data.personality)).data;
                 await galleryModule.addMidjourneyHistoryImage(assistOS.space.id, this.id, imageMetadata);
+                this.invalidate(this.refreshHistory);
             } catch (e) {
                 let message = assistOS.UI.sanitize(e.message);
                 await showApplicationError(message, message, message);
@@ -334,6 +334,7 @@ export class GenerateImagePage {
             });
             await galleryModule.addMidjourneyHistoryImage(assistOS.space.id, this.id, imageMetadata);
             assistOS.UI.hideLoading(loaderId);
+            this.invalidate(this.refreshHistory);
         } catch (e) {
             let message = assistOS.UI.sanitize(e);
             await showApplicationError(message, message, message);

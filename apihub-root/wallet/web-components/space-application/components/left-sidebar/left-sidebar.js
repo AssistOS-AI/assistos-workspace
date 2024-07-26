@@ -79,7 +79,10 @@ export class LeftSidebar {
                 feature.addEventListener("mouseover", () => {
                     focusSection.style.visibility = "visible";
                     let currentSpace = focusSection.querySelector(`[data-name="${assistOS.space.name}"]`);
-                    currentSpace.firstChild.style.backgroundColor = "var(--black)";
+                    if(currentSpace) {
+                        currentSpace.style.backgroundColor = "var(--black)";
+                    }
+
                 });
                 feature.addEventListener("mouseout", () => {
                     focusSection.style.visibility = "hidden";

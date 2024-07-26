@@ -3,7 +3,7 @@ const crypto = require('crypto');
 const utils = require("../apihub-component-utils/utils");
 const secret = generateId(32);
 const space = require("../spaces-storage/space.js");
-const {eventPublisher} = require("../subscribers/controller");
+const eventPublisher = require("../subscribers/eventPublisher.js");
 function generateSignature(timestamp, nonce) {
     const data = timestamp + nonce + secret;
     return crypto.createHmac('sha256', secret).update(data).digest('hex');
@@ -24,9 +24,9 @@ async function dataHandler(request, response) {
                 let spaceId = objectId.split("_")[0];
                 await space.APIs.putImage(spaceId, objectId, request.body.uri || request.body.imageData);
                 if(request.body.buttons){
-                    eventPublisher.notifyClients(userId, objectId, request.body.buttons);
+                    eventPublisher.notifyClientTask(userId, objectId, request.body.buttons);
                 } else {
-                    eventPublisher.notifyClients(userId, objectId);
+                    eventPublisher.notifyClientTask(userId, objectId);
                 }
             }
             return utils.sendResponse(response, 200, "application/json", {

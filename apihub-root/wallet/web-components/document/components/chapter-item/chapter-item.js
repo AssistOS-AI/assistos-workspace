@@ -111,15 +111,12 @@ export class ChapterItem {
             this.chapterItem.click();
             //this.element.scrollIntoView({behavior: "smooth", block: "center", inline: "nearest"});
         }
-        if (this.chapter.visibility === "hide") {
-            let paragraphsContainer = this.element.querySelector(".chapter-paragraphs");
-            paragraphsContainer.classList.toggle('hidden');
-            let arrow = this.element.querySelector(".arrow");
-            arrow.classList.toggle('rotate');
-        }
         if (!this.boundPasteHandler) {
             this.boundPasteHandler = this.pasteHandler.bind(this);
             this.element.addEventListener('paste', this.boundPasteHandler);
+        }
+        if(this.chapter.visibility === "hide"){
+            this.changeChapterVisibility("hide");
         }
     }
 
@@ -153,6 +150,7 @@ export class ChapterItem {
 
                 reader.readAsDataURL(blob);
                 event.preventDefault();
+                this.invalidate(this.refreshChapter);
             }
         }
     }
@@ -178,6 +176,7 @@ export class ChapterItem {
             chapterId: this.chapter.id,
             position: position
         })).data;
+        this.invalidate(this.refreshChapter);
     }
 
     async highlightChapter(_target) {
@@ -209,10 +208,30 @@ export class ChapterItem {
     async changeChapterDisplay(_target) {
         await this.documentPresenter.changeCurrentElement(this.chapterItem, this.focusOutHandler.bind(this));
         await this.highlightChapter(_target);
-        this.chapter.visibility === "hide" ? this.chapter.visibility = "show" : this.chapter.visibility = "hide";
-        let paragraphsContainer = this.element.querySelector(".chapter-paragraphs");
-        paragraphsContainer.classList.toggle('hidden');
-        _target.classList.toggle('rotate');
+        if(this.chapter.visibility === "hide"){
+            this.changeChapterVisibility("show");
+        } else {
+            this.changeChapterVisibility("hide");
+        }
+        await documentModule.updateChapterVisibility(assistOS.space.id, this._document.id, this.chapter.id, this.chapter.visibility);
+    }
+    changeChapterVisibility(mode) {
+        this.chapter.visibility = mode;
+        if (mode === "hide") {
+            let paragraphsContainer = this.element.querySelector(".chapter-paragraphs");
+            paragraphsContainer.classList.add('hidden');
+            let arrow = this.element.querySelector(".chapter-visibility-arrow");
+            arrow.classList.add('rotate');
+        } else {
+            let paragraphsContainer = this.element.querySelector(".chapter-paragraphs");
+            paragraphsContainer.classList.remove('hidden');
+            let arrow = this.element.querySelector(".chapter-visibility-arrow");
+            arrow.classList.remove('rotate');
+            let paragraphs = this.element.querySelectorAll(".paragraph-text");
+            for(let paragraph of paragraphs){
+                paragraph.style.height = paragraph.scrollHeight + 'px';
+            }
+        }
     }
 
     downloadAllAudio() {
@@ -276,6 +295,10 @@ export class ChapterItem {
                 this.fileInput.remove();
                 delete this.fileInput;
                 assistOS.UI.removeActionBox(this.actionBox, this);
+
+                this.chapter.backgroundSound = await documentModule.getChapterBackgroundSound(assistOS.space.id, this._document.id, this.chapter.id);
+                this.hasBackgroundSound = true;
+                this.switchPlayButtonDisplay("on");
             };
             reader.readAsDataURL(file);
         }
@@ -361,6 +384,8 @@ export class ChapterItem {
             chapterId: this.chapter.id,
             backgroundSound: null
         });
+        this.hasBackgroundSound = false;
+        this.switchPlayButtonDisplay("off");
     }
     async deleteChapter(_target) {
         await assistOS.callFlow("DeleteChapter", {
@@ -368,6 +393,7 @@ export class ChapterItem {
             documentId: this._document.id,
             chapterId: this.chapter.id
         });
+        this.documentPresenter.invalidate(this.documentPresenter.refreshDocument);
     }
 }
 

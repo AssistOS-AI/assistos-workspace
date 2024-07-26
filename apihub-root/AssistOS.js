@@ -132,7 +132,7 @@ class AssistOS {
         }
         await userModule.loginUser(email, password);
         try {
-            utilModule.createSSEConnection(SSEConfig);
+            this.connectionSSE = utilModule.createSSEConnection(SSEConfig);
         }catch(error){
             throw new Error("Successful login, but failed to establish connection with the server. Please try again later");
         }
@@ -146,7 +146,8 @@ class AssistOS {
             }
         }
         removeSidebar();
-        await utilModule.closeSSEConnection();
+        await utilModule.closeSSEConnection(this.connectionSSE);
+        delete this.connectionSSE;
         await userModule.logoutUser();
         await this.refresh();
 

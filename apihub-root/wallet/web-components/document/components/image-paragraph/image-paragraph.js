@@ -20,11 +20,8 @@ export class ImageParagraph{
     }
     async subscribeToParagraphEvents(){
         await utilModule.subscribeToObject(this.paragraph.id, async () => {
-            let paragraph = await this.chapter.refreshParagraph(assistOS.space.id, this._document.id, this.paragraph.id);
-            if (JSON.stringify(this.paragraph.dimensions) !== JSON.stringify(paragraph.dimensions)) {
-                this.paragraph = paragraph;
-                this.invalidate();
-            }
+            this.paragraph = await this.chapter.refreshParagraph(assistOS.space.id, this._document.id, this.paragraph.id);
+            this.invalidate();
         });
     }
     beforeRender() {
@@ -181,6 +178,7 @@ export class ImageParagraph{
             paragraphId1: this.paragraph.id,
             paragraphId2: adjacentParagraphId
         });
+        this.chapterPresenter.invalidate(this.chapterPresenter.refreshChapter);
     }
     async saveParagraph() {
         if (!this.paragraph || assistOS.space.currentParagraphId !== this.paragraph.id) {
@@ -234,6 +232,7 @@ export class ImageParagraph{
                 } else {
                     assistOS.space.currentParagraphId = null;
                 }
+                this.chapterPresenter.invalidate(this.chapterPresenter.refreshChapter);
             }
         }
     }

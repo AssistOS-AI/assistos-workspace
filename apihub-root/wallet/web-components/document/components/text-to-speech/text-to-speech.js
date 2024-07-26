@@ -131,6 +131,8 @@ export class TextToSpeech {
             prompt: prompt
         }
         await documentModule.updateParagraphAudio(assistOS.space.id, this._document.id, this.paragraphId, audioConfigs);
+        this.parentPresenter.paragraph.audio = await documentModule.getParagraphAudio(assistOS.space.id, this._document.id, this.parentPresenter.paragraph.id);
+
         assistOS.UI.hideLoading(loaderId);
     }
 

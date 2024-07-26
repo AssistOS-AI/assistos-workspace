@@ -26,16 +26,9 @@ export class ParagraphItem {
                 if (ttsItem) {
                     this.openTTSItem = true;
                 }
-                let paragraphDiv = this.element.querySelector(".paragraph-text");
-                if (!paragraphDiv) {
-                    //notification received before render
-                    return this.invalidate();
-                }
-                let paragraph = await this.chapter.refreshParagraph(assistOS.space.id, this._document.id, this.paragraph.id);
-                if (paragraph.text !== this.paragraph.text) {
-                    this.paragraph = paragraph;
-                    this.invalidate();
-                }
+                this.paragraph = await this.chapter.refreshParagraph(assistOS.space.id, this._document.id, this.paragraph.id);
+                this.invalidate();
+
             } else if (type === "audio") {
                 this.paragraph.audio = await documentModule.getParagraphAudio(assistOS.space.id, this._document.id, this.paragraph.id);
             }
@@ -92,6 +85,7 @@ export class ParagraphItem {
             paragraphId1: this.paragraph.id,
             paragraphId2: adjacentParagraphId
         });
+        this.chapterPresenter.invalidate(this.chapterPresenter.refreshChapter);
     }
 
     async saveParagraph(paragraph, warningIcon) {
@@ -119,7 +113,7 @@ export class ParagraphItem {
         return this.chapter.paragraphs.length;
     }
     async openInsertImageModal(_target) {
-        let position = this.getParagraphPosition();
+        let position = this.getParagraphPosition() + 1;
         let imagesData = await assistOS.UI.showModal("insert-image-modal", {["chapter-id"]: this.chapter.id}, true);
         if (imagesData) {
             for (let image of imagesData) {
@@ -143,6 +137,7 @@ export class ParagraphItem {
                 });
                 position++;
             }
+            this.chapterPresenter.invalidate(this.chapterPresenter.refreshChapter);
         }
     }
    async deleteParagraph(_target) {
@@ -153,6 +148,7 @@ export class ParagraphItem {
             chapterId: this.chapter.id,
             paragraphId: this.paragraph.id
         });
+        this.chapterPresenter.invalidate(this.chapterPresenter.refreshChapter);
     }
 
     switchParagraphArrows(mode) {
@@ -269,6 +265,7 @@ export class ParagraphItem {
                 } else {
                     assistOS.space.currentParagraphId = null;
                 }
+                this.chapterPresenter.invalidate(this.chapterPresenter.refreshChapter);
             }
         } else {
             await this.documentPresenter.resetTimer();

@@ -443,6 +443,7 @@ async function insertEmbeddedObjectRecords(lightDBEnclaveClient, tableId, object
                     }
                     if (item.position) {
                         object[objectType].splice(item.position, 0, item.id);
+                        delete item.position;
                     } else {
                         object[objectType].push(item.id);
                     }
@@ -457,6 +458,7 @@ async function insertEmbeddedObjectRecords(lightDBEnclaveClient, tableId, object
             }
             if (objectData.position) {
                 object[objectType].splice(objectData.position, 0, objectData.id);
+                delete objectData.position;
             } else {
                 object[objectType].push(objectData.id);
             }
