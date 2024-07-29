@@ -7,24 +7,30 @@ export class HistoryImage {
         this.imageId = this.element.getAttribute("data-id");
         this.hasButtons = (this.element.getAttribute("data-has-buttons") === "true");
         this.parentPresenter = document.querySelector("generate-image-page").webSkelPresenter;
-        let image = this.parentPresenter.images.find((image)=> image.id === this.imageId);
-        this.prompt = image.prompt;
-        this.invalidate(async ()=>{
-            if(image.status !== "DONE") {
-                await utilModule.subscribeToObject(this.imageId, async (buttons) => {
-                    let imgSrc = "/spaces/image/" + assistOS.space.id + "/" + this.imageId;
-                    let image = this.getImage();
-                    image.status = "DONE";
-                    image.src = imgSrc;
-                    if(buttons){
-                        image.buttons = buttons;
-                    }
-                    await galleryModule.updateOpenAIHistoryImage(assistOS.space.id, this.parentPresenter.id, this.imageId, image);
-                    await utilModule.unsubscribeFromObject(this.imageId);
-                    this.invalidate();
-                });
-            }
-        });
+
+        const captureState = () => {
+            let image = this.parentPresenter.images.find((image)=> image.id === this.imageId);
+            this.prompt = image.prompt;
+            let imageId = this.imageId;
+            let galleryId = this.parentPresenter.id;
+            this.invalidate(async ()=>{
+                if(image.status !== "DONE") {
+                    await utilModule.subscribeToObject(imageId, async (buttons) => {
+                        let imgSrc = "/spaces/image/" + assistOS.space.id + "/" + imageId;
+                        image.status = "DONE";
+                        image.src = imgSrc;
+                        if(buttons){
+                            image.buttons = buttons;
+                        }
+                        await galleryModule.updateOpenAIHistoryImage(assistOS.space.id, galleryId, imageId, image);
+                        await utilModule.unsubscribeFromObject(imageId);
+                        this.invalidate();
+                    });
+                }
+            });
+        };
+
+        captureState();
     }
     getImage(){
         return this.parentPresenter.images.find((image)=> image.id === this.imageId);

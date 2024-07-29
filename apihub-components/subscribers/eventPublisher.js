@@ -6,9 +6,7 @@ class EventPublisher {
     registerClient(userId, request, response) {
 
         if (this.clients.has(userId)) {
-            const existingClient = this.clients.get(userId);
-            clearInterval(existingClient.intervalId);
-            existingClient.res.end();
+            this.closeClient(userId);
         }
 
         response.setHeader('Content-Type', 'text/event-stream');
@@ -42,6 +40,9 @@ class EventPublisher {
         let client = this.clients.get(userId);
         if (client) {
             clearInterval(client.intervalId);
+            client.res.statusCode = 204;
+            client.res.write(`event: close\n`);
+            client.res.write(`data: Connection closed\n\n`);
             client.res.end();
             this.clients.delete(userId);
         }

@@ -31,7 +31,6 @@ export class ImageParagraph{
 
     }
     afterRender() {
-        this.chapterPresenter = this.element.closest("chapter-item").webSkelPresenter;
         this.imgElement = this.element.querySelector(".paragraph-image");
         if(this.paragraph.dimensions){
             this.imgElement.style.width = this.paragraph.dimensions.width + "px";
@@ -178,7 +177,8 @@ export class ImageParagraph{
             paragraphId1: this.paragraph.id,
             paragraphId2: adjacentParagraphId
         });
-        this.chapterPresenter.invalidate(this.chapterPresenter.refreshChapter);
+        let chapterPresenter = this.element.closest("chapter-item").webSkelPresenter;
+        chapterPresenter.invalidate(chapterPresenter.refreshChapter);
     }
     async saveParagraph() {
         if (!this.paragraph || assistOS.space.currentParagraphId !== this.paragraph.id) {
@@ -206,7 +206,6 @@ export class ImageParagraph{
         assistOS.space.currentParagraphId = this.paragraph.id;
     }
     focusOutHandler() {
-        this.chapterPresenter.focusOutHandler();
         this.switchParagraphArrows("off");
         let dragBorder = this.element.querySelector(".drag-border");
         dragBorder.style.display = "none";
@@ -232,7 +231,8 @@ export class ImageParagraph{
                 } else {
                     assistOS.space.currentParagraphId = null;
                 }
-                this.chapterPresenter.invalidate(this.chapterPresenter.refreshChapter);
+                let chapterPresenter = this.element.closest("chapter-item").webSkelPresenter;
+                chapterPresenter.invalidate(chapterPresenter.refreshChapter);
             }
         }
     }

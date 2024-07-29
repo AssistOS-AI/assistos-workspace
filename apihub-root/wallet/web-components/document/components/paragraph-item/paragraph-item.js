@@ -27,18 +27,20 @@ export class ParagraphItem {
                     this.openTTSItem = true;
                 }
                 this.paragraph = await this.chapter.refreshParagraph(assistOS.space.id, this._document.id, this.paragraph.id);
+                this.hasExternalChanges = true;
                 this.invalidate();
 
             } else if (type === "audio") {
                 this.paragraph.audio = await documentModule.getParagraphAudio(assistOS.space.id, this._document.id, this.paragraph.id);
+                if(this.paragraph.audio){
+                    this.hasAudio = true;
+                }
             }
         });
     }
 
     beforeRender() {}
     afterRender() {
-        let chapterElement = this.element.closest("chapter-item");
-        this.chapterPresenter = chapterElement.webSkelPresenter;
         let paragraphText = this.element.querySelector(".paragraph-text");
         paragraphText.innerHTML = this.paragraph.text;
         paragraphText.style.height = paragraphText.scrollHeight + 'px';
@@ -85,15 +87,21 @@ export class ParagraphItem {
             paragraphId1: this.paragraph.id,
             paragraphId2: adjacentParagraphId
         });
-        this.chapterPresenter.invalidate(this.chapterPresenter.refreshChapter);
+        let chapterElement = this.element.closest("chapter-item");
+        let chapterPresenter = chapterElement.webSkelPresenter;
+        chapterPresenter.invalidate(chapterPresenter.refreshChapter);
     }
 
-    async saveParagraph(paragraph, warningIcon) {
+    async saveParagraph(paragraph) {
         if (!this.paragraph || assistOS.space.currentParagraphId !== this.paragraph.id || this.deleted) {
             return;
         }
         let paragraphText = assistOS.UI.sanitize(paragraph.value);
         if (paragraphText !== this.paragraph.text) {
+            if(this.hasExternalChanges){
+                this.hasExternalChanges = false;
+                return;
+            }
             this.paragraph.text = paragraphText;
             await assistOS.callFlow("UpdateParagraphText", {
                 spaceId: assistOS.space.id,
@@ -137,7 +145,9 @@ export class ParagraphItem {
                 });
                 position++;
             }
-            this.chapterPresenter.invalidate(this.chapterPresenter.refreshChapter);
+            let chapterElement = this.element.closest("chapter-item");
+            let chapterPresenter = chapterElement.webSkelPresenter;
+            chapterPresenter.invalidate(chapterPresenter.refreshChapter);
         }
     }
    async deleteParagraph(_target) {
@@ -148,7 +158,9 @@ export class ParagraphItem {
             chapterId: this.chapter.id,
             paragraphId: this.paragraph.id
         });
-        this.chapterPresenter.invalidate(this.chapterPresenter.refreshChapter);
+       let chapterElement = this.element.closest("chapter-item");
+       let chapterPresenter = chapterElement.webSkelPresenter;
+        chapterPresenter.invalidate(chapterPresenter.refreshChapter);
     }
 
     switchParagraphArrows(mode) {
@@ -159,9 +171,6 @@ export class ParagraphItem {
             } else {
                 audioIcon.classList.add("hidden");
             }
-        }
-        if (this.chapter.paragraphs.length <= 1) {
-            return;
         }
         let arrows = this.element.querySelector('.paragraph-arrows');
         if (mode === "on") {
@@ -185,7 +194,6 @@ export class ParagraphItem {
     }
 
     focusOutHandler() {
-        this.chapterPresenter.focusOutHandler();
         this.switchParagraphArrows("off");
         let paragraphText = this.element.querySelector('.paragraph-text');
         paragraphText.removeEventListener('mouseup', this.boundUpdateIconDisplay);
@@ -265,7 +273,9 @@ export class ParagraphItem {
                 } else {
                     assistOS.space.currentParagraphId = null;
                 }
-                this.chapterPresenter.invalidate(this.chapterPresenter.refreshChapter);
+                let chapterElement = this.element.closest("chapter-item");
+                let chapterPresenter = chapterElement.webSkelPresenter;
+                chapterPresenter.invalidate(chapterPresenter.refreshChapter);
             }
         } else {
             await this.documentPresenter.resetTimer();
@@ -292,13 +302,17 @@ export class ParagraphItem {
     async openParagraphDropdown(_target) {
         const generateDropdownMenu=()=>{
             let baseDropdownMenuHTML =
-                `<div class="dropdown-item" data-local-action="moveParagraph up">Move Up</div>
-                 <div class="dropdown-item" data-local-action="moveParagraph down">Move Down</div>
-                 <div class="dropdown-item" data-local-action="deleteParagraph">Delete</div>
+                `<div class="dropdown-item" data-local-action="deleteParagraph">Delete</div>
                  <div class="dropdown-item" data-local-action="copy">Copy</div>
                  <div class="dropdown-item" data-local-action="openInsertImageModal">Insert Image</div> 
-                 <div class="dropdown-item" data-local-action="showTTSPopup off">Add Audio</div>`
-
+                 <div class="dropdown-item" data-local-action="showTTSPopup off">Add Audio</div>`;
+            let chapterElement = this.element.closest("chapter-item");
+            let chapterPresenter = chapterElement.webSkelPresenter;
+            if(chapterPresenter.chapter.paragraphs.length > 1) {
+                baseDropdownMenuHTML = `
+                <div class="dropdown-item" data-local-action="moveParagraph up">Move Up</div>
+                <div class="dropdown-item" data-local-action="moveParagraph down">Move Down</div>` + baseDropdownMenuHTML;
+            }
             if(this.paragraph.audio){
                 baseDropdownMenuHTML+=`<div class="dropdown-item" data-local-action="deleteAudio">Delete Audio</div>`;
             }

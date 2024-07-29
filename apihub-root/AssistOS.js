@@ -120,22 +120,7 @@ class AssistOS {
     }
 
     async login(email, password) {
-        const SSEConfig = {
-            url: `/events/updates`,
-            withCredentials: true,
-            onDisconnect: async (disconnectReason) => {
-                await assistOS.UI.showModal("client-disconnect-modal", {"presenter":"client-disconnect-modal",reason: disconnectReason.message});
-            },
-            onError: async (err) => {
-                console.error('EventSource failed:', err);
-            }
-        }
         await userModule.loginUser(email, password);
-        try {
-            this.connectionSSE = utilModule.createSSEConnection(SSEConfig);
-        }catch(error){
-            throw new Error("Successful login, but failed to establish connection with the server. Please try again later");
-        }
     }
 
     async logout() {
@@ -216,12 +201,27 @@ class AssistOS {
 
         try {
             await (spaceId ? skipSpace ? assistOS.initUser() : assistOS.initUser(spaceId) : assistOS.initUser());
+            const SSEConfig = {
+                url: `/events/updates`,
+                withCredentials: true,
+                onDisconnect: async (disconnectReason) => {
+                    await assistOS.UI.showModal("client-disconnect-modal", {"presenter":"client-disconnect-modal",reason: disconnectReason.message});
+                },
+                onError: async (err) => {
+                    console.error('EventSource failed:', err);
+                }
+            }
+            try {
+                this.connectionSSE = utilModule.createSSEConnection(SSEConfig);
+            }catch(error){
+                await showApplicationError("Error", "Failed to establish connection to the server", error.message);
+            }
             await initPage();
         } catch (error) {
             console.info(error);
             hidePlaceholders();
             await assistOS.UI.changeToDynamicPage("authentication-page", "authentication-page");
-            throw error
+            throw error;
         }
     }
 

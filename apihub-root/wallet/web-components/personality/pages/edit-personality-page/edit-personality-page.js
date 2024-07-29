@@ -162,7 +162,7 @@ export class EditPersonalityPage {
         };
         let formInfo = await assistOS.UI.extractFormInformation(_target, conditions);
         if (formInfo.isValid) {
-            this.personality.name = formInfo.data.name;
+            this.personality.name = formInfo.data.name || this.personality.name;
             this.personality.description = formInfo.data.description;
             this.personality.image = this.photo;
             this.personality.voiceId = formInfo.data.voiceId;
