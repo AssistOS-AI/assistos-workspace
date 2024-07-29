@@ -10,6 +10,8 @@ const path = require('path');
 const eventPublisher = require("../subscribers/eventPublisher.js");
 const {sendResponse} = require("../apihub-component-utils/utils");
 const dataVolumePaths = require('../volumeManager').paths;
+const ffmpeg = require('../apihub-component-utils/ffmpeg.js');
+const Task = require('../apihub-component-utils/Task.js');
 function getFileObjectsMetadataPath(spaceId, objectType) {
     return path.join(dataVolumePaths.space, `${spaceId}/${objectType}/metadata.json`);
 }
@@ -1243,7 +1245,13 @@ async function compileVideoFromDocument(request, response) {
     const documentModule = require("assistos").loadModule("document", securityContext);
     let document = await documentModule.getDocument(spaceId, documentId);
     try {
-        await space.APIs.documentToVideo(spaceId, document, userId, videoId);
+        let task = new Task(async ()=>{
+           await ffmpeg.documentToVideo(spaceId, document, userId, videoId)
+        });
+        await task.run();
+        let videoPath = `/spaces/video/${spaceId}/${videoId}`;
+        await documentModule.updateVideo(spaceId, documentId, videoPath);
+        eventPublisher.notifyClientTask(userId, videoId);
     } catch (error) {
         eventPublisher.notifyClientTask(userId, videoId, {error: error.message});
     }

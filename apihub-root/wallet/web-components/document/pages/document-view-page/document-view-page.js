@@ -68,6 +68,9 @@ export class DocumentViewPage {
                 chapter.scrollIntoView({behavior: "smooth", block: "center"});
             }
         }
+        if(this._document.video){
+            this.insertVideoSection(this._document.video);
+        }
     }
 
     async afterUnload() {
@@ -263,14 +266,21 @@ export class DocumentViewPage {
                     return await showApplicationError("Error compiling video", data.error, "");
                 }
             }
-
-            let section = this.element.querySelector(".document-page-header");
-            section.insertAdjacentHTML("afterend", `
-            <video class="document-video" controls>
-                <source src="/spaces/video/${assistOS.space.id}/${videoId}" type="video/mp4">
-            </video>`);
+            let videoURL = `/spaces/video/${assistOS.space.id}/${videoId}`;
+            this.insertVideoSection(videoURL);
         });
         button.innerHTML = `<div class="loading-mask"></div>`
+    }
+    insertVideoSection(videoURL){
+        let videoSection = this.element.querySelector(".document-video");
+        if(videoSection){
+            videoSection.remove();
+        }
+        let section = this.element.querySelector(".document-page-header");
+        section.insertAdjacentHTML("afterend", `
+            <video class="document-video" controls>
+                <source src="${videoURL}" type="video/mp4">
+            </video>`);
     }
     async exportDocument(_target) {
         try {

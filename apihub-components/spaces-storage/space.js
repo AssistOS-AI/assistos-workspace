@@ -15,8 +15,6 @@ const secrets = require('../apihub-component-utils/secrets.js');
 const https = require('https');
 const fs = require('fs');
 const spaceConstants = require('./constants.js');
-const {exec} = require("child_process");
-const ffmpegPath = require("ffmpeg-static");
 const eventPublisher = require("../subscribers/eventPublisher");
 
 function getSpacePath(spaceId) {
@@ -626,131 +624,6 @@ async function getDocumentData(spaceId, documentId) {
     documentData.videos = videos;
     return documentData
 }
-
-function runFfmpeg(command) {
-    return new Promise((resolve, reject) => {
-        exec(command, (error, stdout, stderr) => {
-            if (error) {
-                reject(error);
-                return;
-            }
-            resolve(stdout || stderr);
-        });
-    });
-}
-
-async function concatenateAudioFiles(tempVideoDir, audioFilesPaths, outputAudioPath, fileName) {
-    const fileListPath = path.join(tempVideoDir, fileName);
-    const fileListContent = audioFilesPaths.map(file => `file '${file}'`).join('\n');
-    await fsPromises.writeFile(fileListPath, fileListContent);
-    const command = `${ffmpegPath} -f concat -safe 0 -i ${fileListPath} -c copy ${outputAudioPath}`;
-    await runFfmpeg(command);
-    await fsPromises.unlink(fileListPath);
-}
-
-
-async function createVideoFromImage(image, duration, outputVideoPath) {
-    const command = `${ffmpegPath} -loop 1 -i ${image} -c:v libx264 -t ${duration} -pix_fmt yuv420p ${outputVideoPath}`;
-    await runFfmpeg(command);
-}
-
-async function combineVideoAndAudio(videoPath, audioPath, outputPath) {
-    const command = `${ffmpegPath} -i ${videoPath} -i ${audioPath} -c:v copy -c:a aac -strict experimental ${outputPath}`;
-    await runFfmpeg(command);
-}
-
-async function documentToVideo(spaceId, document, userId, videoId) {
-    const spacePath = getSpacePath(spaceId);
-    const audiosPath = path.join(spacePath, 'audios');
-    const imagesPath = path.join(spacePath, 'images');
-    const tempVideoDir = path.join(spacePath, "videos", `${videoId}_temp`);
-    await file.createDirectory(tempVideoDir);
-    const chapterVideos = [];
-    for (let i = 0; i < document.chapters.length; i++) {
-        const chapter = document.chapters[i];
-        let chapterFrames = [];
-        let completedFramesPath = [];
-        let frame = {
-            imagePath: "",
-            audiosPath: [],
-        };
-        for (let paragraph of chapter.paragraphs) {
-            if (paragraph.image) {
-                frame = {
-                    imagePath: "",
-                    audiosPath: [],
-                };
-                frame.imagePath = path.join(imagesPath, `${paragraph.image.src.split("/").pop()}.png`);
-                chapterFrames.push(frame);
-            } else if (paragraph.audio) {
-                if(!frame.imagePath) {
-                    throw new Error(`Audio paragraph without image in chapter ${i}`);
-                }
-                let audioPath = path.join(audiosPath, `${paragraph.audio.src.split("/").pop()}.mp3`);
-                frame.audiosPath.push(audioPath);
-            }
-        }
-        if(chapterFrames.length === 0) {
-            continue;
-        }
-        let j = 0;
-        let promises = [];
-        for(let frame of chapterFrames) {
-            promises.push(createVideoFrame(frame, tempVideoDir, document.id, i, j));
-            j++;
-        }
-        try{
-            completedFramesPath = await Promise.all(promises);
-        } catch (e) {
-            await fsPromises.rm(tempVideoDir, {recursive: true, force: true});
-            throw new Error(`Failed to create video frames for chapter ${i}: ${e}`);
-        }
-        const fileListPath = path.join(tempVideoDir, `${document.id}_chapter_${i}_videos.txt`);
-        try {
-            const fileListContent = completedFramesPath.map(file => `file '${file}'`).join('\n');
-            await fsPromises.writeFile(fileListPath, fileListContent);
-            let chapterVideoPath = path.join(tempVideoDir, `chapter_${i}_video.mp4`);
-            const command = `${ffmpegPath} -f concat -safe 0 -i ${fileListPath} -c copy ${chapterVideoPath}`;
-            await runFfmpeg(command);
-            await fsPromises.unlink(fileListPath);
-            chapterVideos.push(chapterVideoPath);
-        } catch (e) {
-            await fsPromises.rm(tempVideoDir, {recursive: true, force: true});
-            throw new Error(`Failed to concatenate chapter videos: ${e}`);
-        }
-
-    }
-    const fileListPath = path.join(tempVideoDir, `chapter_videos.txt`);
-    try {
-        const fileListContent = chapterVideos.map(file => `file '${file}'`).join('\n');
-        await fsPromises.writeFile(fileListPath, fileListContent);
-        let outputVideoPath = path.join(getSpacePath(spaceId), 'videos', `${videoId}.mp4`);
-        const command = `${ffmpegPath} -f concat -safe 0 -i ${fileListPath} -c copy ${outputVideoPath}`;
-        await runFfmpeg(command);
-        await fsPromises.unlink(fileListPath);
-        await fsPromises.rm(tempVideoDir, {recursive: true, force: true});
-        eventPublisher.notifyClientTask(userId, videoId);
-    } catch (e) {
-        await fsPromises.rm(tempVideoDir, {recursive: true, force: true});
-        throw new Error(`Failed to concatenate chapter videos: ${e}`);
-    }
-
-}
-async function createVideoFrame(frame, tempVideoDir, documentId, chapterIndex, frameIndex){
-    const audioPath = path.join(tempVideoDir, `${documentId}_chapter_${chapterIndex}_frame_${frameIndex}_audio.mp3`);
-    const videoPath = path.join(tempVideoDir, `${documentId}_chapter_${chapterIndex}_frame_${frameIndex}_video.mp4`);
-    if(frame.audiosPath.length === 0) {
-        throw new Error(`No audio files for chapter ${chapterIndex} frame ${frameIndex}`);
-    }
-    await concatenateAudioFiles(tempVideoDir, frame.audiosPath, audioPath, `${documentId}_chapter_${chapterIndex}_frame_${frameIndex}_audios.txt`);
-    let audioDuration;
-    audioDuration = (await runFfmpeg(`${ffmpegPath} -i ${audioPath} -hide_banner 2>&1 | grep "Duration"`)).match(/Duration: (\d+):(\d+):(\d+\.\d+)/);
-    const totalDuration = parseInt(audioDuration[1]) * 3600 + parseInt(audioDuration[2]) * 60 + parseFloat(audioDuration[3]);
-    await createVideoFromImage(frame.imagePath, totalDuration, videoPath);
-    let combinedPath = path.join(tempVideoDir, `chapter_${chapterIndex}_frame_${frameIndex}_combined.mp4`);
-    await combineVideoAndAudio(videoPath, audioPath, combinedPath);
-    return combinedPath;
-}
 async function archiveDocument(spaceId, documentId) {
     const documentData = await getDocumentData(spaceId, documentId);
 
@@ -948,10 +821,9 @@ module.exports = {
         getSpacePath,
         getVideo,
         deleteVideo,
-        documentToVideo,
         getDocumentData,
         archiveDocument,
-        importDocument
+        importDocument,
     },
     templates: {
         defaultSpaceAnnouncement: require('./templates/defaultSpaceAnnouncement.json'),
