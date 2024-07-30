@@ -117,7 +117,18 @@ export class TextToSpeech {
         this.parentPresenter.paragraph.audio = await documentModule.getParagraphAudio(assistOS.space.id, this._document.id, this.parentPresenter.paragraph.id);
         const paragraphElement=assistOS.UI.reverseQuerySelector(_target, "paragraph-item");
         const chapterElement=assistOS.UI.reverseQuerySelector(paragraphElement, "chapter-item");
-        paragraphElement.webSkelPresenter.invalidate();
+
+        const paragraphPosition=chapterElement.webSkelPresenter.chapter.getParagraphIndex(assistOS.space.currentParagraphId);
+        const paragraphText=`!speech ${personality.name} ${audioConfigs.emotion}`
+        debugger
+        assistOS.space.currentParagraphId = (await assistOS.callFlow("AddParagraph", {
+            spaceId: assistOS.space.id,
+            documentId: this._document.id,
+            chapterId: chapterElement.webSkelPresenter.chapter.id,
+            position: paragraphPosition,
+            text: paragraphText
+        })).data;
+        chapterElement.webSkelPresenter.invalidate();
         assistOS.UI.hideLoading(loaderId);
     }
 

@@ -459,7 +459,7 @@ async function insertEmbeddedObjectRecords(lightDBEnclaveClient, tableId, object
             if (!objectData.id) {
                 objectData.id = `${objectType}_${crypto.generateId()}`;
             }
-            if (objectData.position) {
+            if (objectData.position!==undefined) {
                 object[objectType].splice(objectData.position, 0, objectData.id);
                 delete objectData.position;
             } else {

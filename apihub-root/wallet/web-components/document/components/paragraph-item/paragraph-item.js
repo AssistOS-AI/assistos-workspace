@@ -251,7 +251,9 @@ export class ParagraphItem {
         }
         arrow.setAttribute("data-local-action", "showTTSPopup off");
         let popup = this.element.querySelector("text-to-speech");
-        popup.remove();
+        if (popup) {
+            popup.remove();
+        }
         controller.abort();
     };
 

@@ -33,7 +33,7 @@ class AddParagraph extends IFlow {
         try {
             let documentModule = apis.loadModule("document");
             let paragraphObj = {
-                text: "",
+                text: parameters.text||"",
                 position: parameters.position
             }
             let paragraphId = await documentModule.addParagraph(parameters.spaceId, parameters.documentId, parameters.chapterId, paragraphObj);

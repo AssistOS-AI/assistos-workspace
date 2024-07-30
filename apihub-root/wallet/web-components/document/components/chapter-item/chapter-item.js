@@ -170,6 +170,7 @@ export class ChapterItem {
         if (assistOS.space.currentParagraphId) {
             position = this.chapter.getParagraphIndex(assistOS.space.currentParagraphId) + 1;
         }
+
         assistOS.space.currentParagraphId = (await assistOS.callFlow("AddParagraph", {
             spaceId: assistOS.space.id,
             documentId: this._document.id,
