@@ -70,29 +70,28 @@ export class DocumentsPage {
     }
 
     async importDocument(_target) {
-        const  handleFile=async (file) => {
+        const  handleFile= async (file) => {
             const formData= new FormData();
             formData.append("file", file);
             await spaceAPIs.importDocument(assistOS.space.id,formData);
-            this.invalidate();
         }
         let fileInput = document.createElement('input');
         fileInput.type = 'file';
         fileInput.accept = '.docai';
         fileInput.style.display = 'none';
-        fileInput.onchange = async function (event) {
+        fileInput.onchange = async (event)=> {
             const file = event.target.files[0];
             if (file) {
                 if (file.name.endsWith('.docai')) {
                     await handleFile(file);
+                    this.invalidate(this.refreshDocuments);
+                    document.body.appendChild(fileInput);
+                    fileInput.remove();
                 } else {
                     alert('Only a .docai files are allowed!');
                 }
             }
         };
-        document.body.appendChild(fileInput);
         fileInput.click();
-        fileInput.remove();
-
     }
 }

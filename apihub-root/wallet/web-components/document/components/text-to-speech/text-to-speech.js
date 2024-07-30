@@ -120,7 +120,7 @@ export class TextToSpeech {
 
         const paragraphPosition=chapterElement.webSkelPresenter.chapter.getParagraphIndex(assistOS.space.currentParagraphId);
         const paragraphText=`!speech ${personality.name} ${audioConfigs.emotion}`
-        debugger
+        const chapterPresenter=chapterElement.webSkelPresenter;
         assistOS.space.currentParagraphId = (await assistOS.callFlow("AddParagraph", {
             spaceId: assistOS.space.id,
             documentId: this._document.id,
@@ -128,7 +128,7 @@ export class TextToSpeech {
             position: paragraphPosition,
             text: paragraphText
         })).data;
-        chapterElement.webSkelPresenter.invalidate();
+        chapterPresenter.invalidate( chapterPresenter.refreshChapter);
         assistOS.UI.hideLoading(loaderId);
     }
 
