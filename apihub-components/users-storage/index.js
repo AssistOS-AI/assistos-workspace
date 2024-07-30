@@ -24,7 +24,6 @@ function UserStorage(server) {
         const accessToken = {
             ...jwtConfig.AccessToken,
             secret: crypto.generateSecret()
-
         }
         const refreshToken = {
             ...jwtConfig.RefreshToken,

@@ -1,8 +1,8 @@
 <div class="audio-section hidden">
-    <audio class="generated-audio" controls="controls">
+  <!--  <audio class="generated-audio" controls="controls">
         <source class="audio-source" src="" type="audio/mpeg">
-    </audio>
-    <button class="general-button" data-local-action="downloadAudio">Download</button>
+    </audio>-->
+  <!--  <button class="general-button" data-local-action="downloadAudio">Download</button>-->
 </div>
 <form class="tts-item">
     <div class="form-row">
@@ -36,8 +36,11 @@
             <label for="voiceGuidance" class="form-label">Voice Uniqueness</label>
             <input class="form-input" type="range" name="voiceGuidance" id="voiceGuidance" min="1" max="6" value="3">
         </div>
-        <div class="form-footer">
-            <button class="general-button" data-local-action="textToSpeech">$$generateBtnName</button>
+        <div class="form-item">
+            <button class="general-button button-wide" data-local-action="textToSpeech">Select</button>
         </div>
+       <!-- <div class="form-footer">
+            <button class="general-button" data-local-action="textToSpeech">$$generateBtnName</button>
+        </div>-->
     </div>
 </form>

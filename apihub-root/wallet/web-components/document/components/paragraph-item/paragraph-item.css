@@ -118,3 +118,17 @@ paragraph-item{
 .dropdown-item:hover {
     background-color: #f0f0f0;
 }
+.paragraph-audio-section {
+    z-index: 9999;
+    position: absolute;
+    top: 0;
+    right: 0;
+    width: auto;
+    height: auto;
+}
+
+.paragraph-audio {
+    position: relative;
+    top: -54px;
+    right: 0;
+}

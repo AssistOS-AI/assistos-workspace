@@ -56,3 +56,10 @@ audio:not([controls]) {
     width: 160px;
     margin-right: 17px;
 }
+.button-wide{
+    display:flex;
+    align-items:center;
+    justify-content: center;
+    width: 100%;
+    height:40px;
+}

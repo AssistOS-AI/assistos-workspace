@@ -32,14 +32,16 @@ export class ParagraphItem {
 
             } else if (type === "audio") {
                 this.paragraph.audio = await documentModule.getParagraphAudio(assistOS.space.id, this._document.id, this.paragraph.id);
-                if(this.paragraph.audio){
+                if (this.paragraph.audio) {
                     this.hasAudio = true;
                 }
             }
         });
     }
 
-    beforeRender() {}
+    beforeRender() {
+    }
+
     afterRender() {
         let paragraphText = this.element.querySelector(".paragraph-text");
         paragraphText.innerHTML = this.paragraph.text;
@@ -98,7 +100,7 @@ export class ParagraphItem {
         }
         let paragraphText = assistOS.UI.sanitize(paragraph.value);
         if (paragraphText !== this.paragraph.text) {
-            if(this.hasExternalChanges){
+            if (this.hasExternalChanges) {
                 this.hasExternalChanges = false;
                 return;
             }
@@ -111,6 +113,7 @@ export class ParagraphItem {
             });
         }
     }
+
     getParagraphPosition() {
         if (this.chapter.paragraphs.length === 0) {
             return 0;
@@ -120,6 +123,7 @@ export class ParagraphItem {
         }
         return this.chapter.paragraphs.length;
     }
+
     async openInsertImageModal(_target) {
         let position = this.getParagraphPosition() + 1;
         let imagesData = await assistOS.UI.showModal("insert-image-modal", {["chapter-id"]: this.chapter.id}, true);
@@ -150,7 +154,8 @@ export class ParagraphItem {
             chapterPresenter.invalidate(chapterPresenter.refreshChapter);
         }
     }
-   async deleteParagraph(_target) {
+
+    async deleteParagraph(_target) {
         await this.documentPresenter.stopTimer(true);
         await assistOS.callFlow("DeleteParagraph", {
             spaceId: assistOS.space.id,
@@ -158,8 +163,8 @@ export class ParagraphItem {
             chapterId: this.chapter.id,
             paragraphId: this.paragraph.id
         });
-       let chapterElement = this.element.closest("chapter-item");
-       let chapterPresenter = chapterElement.webSkelPresenter;
+        let chapterElement = this.element.closest("chapter-item");
+        let chapterPresenter = chapterElement.webSkelPresenter;
         chapterPresenter.invalidate(chapterPresenter.refreshChapter);
     }
 
@@ -184,13 +189,13 @@ export class ParagraphItem {
         this.switchParagraphArrows("on");
         assistOS.space.currentParagraphId = this.paragraph.id;
         let paragraphText = this.element.querySelector('.paragraph-text');
-        const audioIcon = this.element.querySelector('.audio-icon');
+        //const audioIcon = this.element.querySelector('.audio-icon');
         if (!this.hasAudio) {
             paragraphText.addEventListener('mouseup', this.boundUpdateIconDisplay);
             document.addEventListener('selectionchange', this.boundSelectionChangeHandler);
             document.addEventListener('mousedown', this.boundMouseDownAudioIconHandler);
         }
-        audioIcon.addEventListener('mousedown', this.boundPreventSelectionChange);
+        /* audioIcon.addEventListener('mousedown', this.boundPreventSelectionChange);*/
     }
 
     focusOutHandler() {
@@ -281,9 +286,12 @@ export class ParagraphItem {
             await this.documentPresenter.resetTimer();
         }
     }
-    async copy(_target){
-        const paragraphText=this.element.querySelector('.paragraph-text')
+
+    async copy(_target) {
+        const paragraphText = this.element.querySelector('.paragraph-text')
         navigator.clipboard.writeText(paragraphText.value);
+        const dropdownMenu = this.element.querySelector('.dropdown-menu');
+        dropdownMenu.remove();
     }
 
     async copyImage() {
@@ -291,7 +299,7 @@ export class ParagraphItem {
             const image = document.getElementById('myImage');
             const response = await fetch(image.src);
             const blob = await response.blob();
-            const clipboardItem = new ClipboardItem({ 'image/png': blob });
+            const clipboardItem = new ClipboardItem({'image/png': blob});
             await navigator.clipboard.write([clipboardItem]);
             console.log('Image copied to clipboard');
         } catch (err) {
@@ -299,26 +307,48 @@ export class ParagraphItem {
         }
     }
 
+    playParagraphAudio(_target) {
+        let audioSection = this.element.querySelector('.paragraph-audio-section');
+        let audio = this.element.querySelector('.paragraph-audio');
+        audio.src = this.paragraph.audio.src;
+        audio.load();
+        audio.play();
+        audioSection.classList.remove('hidden');
+        audioSection.classList.add('flex');
+        let controller = new AbortController();
+        document.addEventListener("click", this.hideAudioElement.bind(this, controller,audio), {signal: controller.signal});
+    }
+    hideAudioElement(controller,audio,event) {
+        if (event.target.closest(".paragraph-audio")) {
+            return;
+        }
+        audio.pause();
+        let audioSection = this.element.querySelector('.paragraph-audio-section');
+        audioSection.classList.add('hidden');
+        audioSection.classList.remove('flex');
+        controller.abort();
+    };
+
     async openParagraphDropdown(_target) {
-        const generateDropdownMenu=()=>{
+        const generateDropdownMenu = () => {
             let baseDropdownMenuHTML =
                 `<div class="dropdown-item" data-local-action="deleteParagraph">Delete</div>
                  <div class="dropdown-item" data-local-action="copy">Copy</div>
                  <div class="dropdown-item" data-local-action="openInsertImageModal">Insert Image</div> 
-                 <div class="dropdown-item" data-local-action="showTTSPopup off">Add Audio</div>`;
+                 <div class="dropdown-item" data-local-action="showTTSPopup off">Text To Speech</div>`;
             let chapterElement = this.element.closest("chapter-item");
             let chapterPresenter = chapterElement.webSkelPresenter;
-            if(chapterPresenter.chapter.paragraphs.length > 1) {
+            if (chapterPresenter.chapter.paragraphs.length > 1) {
                 baseDropdownMenuHTML = `
                 <div class="dropdown-item" data-local-action="moveParagraph up">Move Up</div>
                 <div class="dropdown-item" data-local-action="moveParagraph down">Move Down</div>` + baseDropdownMenuHTML;
             }
-            if(this.paragraph.audio){
-                baseDropdownMenuHTML+=`<div class="dropdown-item" data-local-action="deleteAudio">Delete Audio</div>`;
+            if (this.paragraph.audio) {
+                baseDropdownMenuHTML += `<div class="dropdown-item" data-local-action="deleteAudio">Delete Audio</div>`;
             }
-            let dropdownMenuHTML=
-                `<div class="dropdown-menu">`+
-                baseDropdownMenuHTML+
+            let dropdownMenuHTML =
+                `<div class="dropdown-menu">` +
+                baseDropdownMenuHTML +
                 `</div>`;
 
             const dropdownMenu = document.createElement('div');
@@ -326,7 +356,7 @@ export class ParagraphItem {
             return dropdownMenu;
         }
 
-        const dropdownMenu=generateDropdownMenu();
+        const dropdownMenu = generateDropdownMenu();
         this.element.appendChild(dropdownMenu);
 
         const removeDropdown = () => {
