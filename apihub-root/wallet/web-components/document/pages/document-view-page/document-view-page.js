@@ -1,4 +1,4 @@
-const spaceAPIs = require("assistos").loadModule("space", {});
+const spaceModule = require("assistos").loadModule("space", {});
 const utilModule = require("assistos").loadModule("util", {});
 const documentModule = require("assistos").loadModule("document", {});
 import {executorTimer, saveCaretPosition, unescapeHtmlEntities} from "../../../../imports.js";
@@ -255,21 +255,33 @@ export class DocumentViewPage {
         _target.addEventListener("keydown", resetTimerFunction);
     }
     async documentToVideo(button){
-        let videoId = (await assistOS.callFlow("DocumentToVideo", {
+        this.videoId = (await assistOS.callFlow("DocumentToVideo", {
             spaceId: assistOS.space.id,
             documentId: this._document.id
         })).data;
-        await utilModule.subscribeToObject(videoId, async (data) => {
+        await utilModule.subscribeToObject(this.videoId, async (data) => {
             button.innerHTML = "Document to Video";
+            button.setAttribute("data-local-action", "documentToVideo");
             if(data){
                 if(data.error){
                     return await showApplicationError("Error compiling video", data.error, "");
                 }
             }
-            let videoURL = `/spaces/video/${assistOS.space.id}/${videoId}`;
+            let videoURL = `/spaces/video/${assistOS.space.id}/${this.videoId}`;
             this.insertVideoSection(videoURL);
+            delete this.videoId;
         });
         button.innerHTML = `<div class="loading-mask"></div>`
+        button.setAttribute("data-local-action", "cancelVideoCompilation");
+    }
+    async cancelVideoCompilation(button){
+        try{
+            await spaceModule.cancelTask(assistOS.space.id, this.videoId);
+            button.innerHTML = "Document to Video";
+            button.setAttribute("data-local-action", "documentToVideo");
+        } catch (e) {
+            await showApplicationError("Error cancelling video compilation", e.message, "");
+        }
     }
     insertVideoSection(videoURL){
         let videoSection = this.element.querySelector(".document-video");
