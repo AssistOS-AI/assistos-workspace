@@ -1234,8 +1234,8 @@ async function compileVideoFromDocument(request, response) {
     let documentId = request.params.documentId;
     let spaceId = request.params.spaceId;
     let userId = request.userId;
-    let task = new Task(async ()=>{
-        await ffmpeg.documentToVideo(spaceId, document, userId, task.id)
+    let task = new Task(async function (){
+        await ffmpeg.documentToVideo(spaceId, document, userId, this);
     });
     TaskManager.addTask(task);
     sendResponse(response, 200, "application/json", {
