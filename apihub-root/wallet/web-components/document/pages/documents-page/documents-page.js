@@ -70,10 +70,11 @@ export class DocumentsPage {
     }
 
     async importDocument(_target) {
-        async function handleFile(file) {
+        const  handleFile=async (file) => {
             const formData= new FormData();
             formData.append("file", file);
             await spaceAPIs.importDocument(assistOS.space.id,formData);
+            this.invalidate();
         }
         let fileInput = document.createElement('input');
         fileInput.type = 'file';

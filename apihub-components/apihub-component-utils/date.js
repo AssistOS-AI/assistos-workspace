@@ -1,6 +1,9 @@
 function getCurrentUnixTime() {
     return Date.now()
 }
+function getCurrentUnixTimeSeconds() {
+    return Math.floor(Date.now() / 1000);
+}
 function incrementUnixTime(unixTimestamp, incrementObject) {
     const {seconds = 0, minutes = 0, hours = 0, days = 0, months = 0, years = 0} = incrementObject;
     const totalSeconds = seconds +
@@ -74,5 +77,6 @@ module.exports = {
     incrementUnixTime,
     compareUTCDates,
     compareUnixDates,
-    parseUnixDate
+    parseUnixDate,
+    getCurrentUnixTimeSeconds
 };

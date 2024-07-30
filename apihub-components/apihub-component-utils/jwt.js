@@ -12,8 +12,8 @@ async function createJWT(payloadData, jwtType) {
 
     const payload = {
         ...payloadData,
-        iat: date.getCurrentUnixTime(),
-        exp: date.incrementUnixTime(date.getCurrentUnixTime(), jwtConfig.expiresIn),
+        iat: date.getCurrentUnixTimeSeconds(),
+        exp: date.incrementUnixTime(date.getCurrentUnixTimeSeconds(), jwtConfig.expiresIn),
         iss: jwtConfig.issuer,
         aud: jwtConfig.audience
     };

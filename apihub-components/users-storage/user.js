@@ -143,9 +143,17 @@ async function loginUser(email, password) {
         try {
             /* check someone is already logged in */
             await $$.promisify($$.ActiveSessionsClient.getRecord)($$.SYSTEM_IDENTIFIER, tableName, userId);
-            eventPublisher.sendClientEvent(userId, 'disconnect', {message: 'You have been logged out from another device'});
-            eventPublisher.removeClient(userId);
+
+            /* someone is already logged in */
             await $$.promisify($$.ActiveSessionsClient.updateRecord)($$.SYSTEM_IDENTIFIER, tableName, userId, {data: {verificationKey: userVerificationKey}});
+
+            /* attempt to disconnect the other user logged on the account */
+            try {
+                eventPublisher.sendClientEvent(userId, 'disconnect', {message: 'You have been logged out from another device'});
+                eventPublisher.removeClient(userId);
+            }catch(error){
+                /* do nothing as the user manually closed the connection */
+            }
         } catch (error) {
             /* no one is logged in */
             await $$.promisify($$.ActiveSessionsClient.insertRecord)($$.SYSTEM_IDENTIFIER, tableName, userId, {data: {verificationKey: userVerificationKey}});
