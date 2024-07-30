@@ -26,9 +26,17 @@ async function concatenateAudioFiles(tempVideoDir, audioFilesPaths, outputAudioP
     await runFfmpeg(command);
     await fsPromises.unlink(fileListPath);
 }
-
+async function createSilentAudio(outputPath, duration) {
+    const command = `${ffmpegPath} -f lavfi -t ${duration} -i anullsrc=r=44100:cl=stereo -q:a 9 -acodec libmp3lame ${outputPath}`;
+    await runFfmpeg(command);
+}
 async function createVideoFromImage(image, duration, outputVideoPath) {
-    const command = `${ffmpegPath} -loop 1 -i ${image} -c:v libx264 -t ${duration} -pix_fmt yuv420p ${outputVideoPath}`;
+    let command;
+    if(image){
+        command = `${ffmpegPath} -loop 1 -i ${image} -c:v libx264 -t ${duration} -pix_fmt yuv420p ${outputVideoPath}`;
+    } else {
+        command = `${ffmpegPath} -f lavfi -i color=c=black:s=1920x1080:d=${duration} -c:v libx264 ${outputVideoPath}`;
+    }
     await runFfmpeg(command);
 }
 async function combineVideoAndAudio(videoPath, audioPath, outputPath) {
@@ -45,19 +53,20 @@ function splitChapterIntoFrames(spacePath, chapter, chapterIndex) {
     };
     for (let paragraph of chapter.paragraphs) {
         if (paragraph.image) {
+            if (frame.audiosPath.length > 0 || frame.imagePath) {
+                chapterFrames.push(frame);
+            }
             frame = {
-                imagePath: "",
+                imagePath: path.join(imagesPath, `${paragraph.image.src.split("/").pop()}.png`),
                 audiosPath: [],
             };
-            frame.imagePath = path.join(imagesPath, `${paragraph.image.src.split("/").pop()}.png`);
-            chapterFrames.push(frame);
         } else if (paragraph.audio) {
-            if(!frame.imagePath) {
-                throw new Error(`Audio paragraph without image in chapter ${chapterIndex}`);
-            }
             let audioPath = path.join(audiosPath, `${paragraph.audio.src.split("/").pop()}.mp3`);
             frame.audiosPath.push(audioPath);
         }
+    }
+    if (frame.audiosPath.length > 0 || frame.imagePath) {
+        chapterFrames.push(frame);
     }
     return chapterFrames;
 }
@@ -75,14 +84,9 @@ async function createChapterVideo(chapter, tempVideoDir, documentId, chapterInde
         parentTask.addChildTask(task);
         promises.push(task.run());
     }
-    function wait(ms) {
-        return new Promise((resolve) => setTimeout(resolve, ms));
-    }
-    await wait(10000);
     try{
         completedFramePaths = await Promise.all(promises);
     } catch (e) {
-        await fsPromises.rm(tempVideoDir, {recursive: true, force: true});
         throw new Error(`Failed to create video frames for chapter ${chapterIndex}: ${e}`);
     }
     return combineVideos(tempVideoDir, completedFramePaths, `chapter_${chapterIndex}_frames.txt`, `chapter_${chapterIndex}_video.mp4`);
@@ -135,10 +139,16 @@ async function documentToVideo(spaceId, document, userId, videoId) {
     }
 }
 async function createVideoFrame(frame, tempVideoDir, documentId, chapterIndex, frameIndex){
-    const audioPath = path.join(tempVideoDir, `${documentId}_chapter_${chapterIndex}_frame_${frameIndex}_audio.mp3`);
+    let audioPath = path.join(tempVideoDir, `${documentId}_chapter_${chapterIndex}_frame_${frameIndex}_audio.mp3`);
     const videoPath = path.join(tempVideoDir, `${documentId}_chapter_${chapterIndex}_frame_${frameIndex}_video.mp4`);
+    const defaultDuration = 0.25;
     if(frame.audiosPath.length === 0) {
-        throw new Error(`No audio files for chapter ${chapterIndex} frame ${frameIndex}`);
+        audioPath = path.join(tempVideoDir, `${documentId}_chapter_${chapterIndex}_frame_${frameIndex}_silent.mp3`);
+        await createSilentAudio(audioPath, defaultDuration);
+        await createVideoFromImage(frame.imagePath, defaultDuration, videoPath);
+        let combinedPath = path.join(tempVideoDir, `chapter_${chapterIndex}_frame_${frameIndex}_combined.mp4`);
+        await combineVideoAndAudio(videoPath, audioPath, combinedPath);
+        return combinedPath;
     }
     await concatenateAudioFiles(tempVideoDir, frame.audiosPath, audioPath, `${documentId}_chapter_${chapterIndex}_frame_${frameIndex}_audios.txt`);
     let audioDuration;

@@ -1250,6 +1250,14 @@ async function compileVideoFromDocument(request, response) {
     try {
         await task.run();
         let videoPath = `/spaces/video/${spaceId}/${task.id}`;
+        if(document.video){
+            const videoId = document.video.split("/").pop();
+            try {
+                await space.APIs.deleteVideo(spaceId, videoId);
+            } catch (e) {
+                //previous video not found
+            }
+        }
         await documentModule.updateVideo(spaceId, documentId, videoPath);
         eventPublisher.notifyClientTask(userId, task.id);
     } catch (error) {
