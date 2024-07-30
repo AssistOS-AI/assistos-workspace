@@ -5,6 +5,7 @@ const {exec} = require("child_process");
 const ffmpegPath = require("ffmpeg-static");
 const space = require("../spaces-storage/space.js").APIs;
 const Task = require('./Task.js');
+const TaskManager = require('./TaskManager.js');
 function runFfmpeg(command) {
     return new Promise((resolve, reject) => {
         exec(command, (error, stdout, stderr) => {
@@ -60,7 +61,7 @@ function splitChapterIntoFrames(spacePath, chapter, chapterIndex) {
     }
     return chapterFrames;
 }
-async function createChapterVideo(chapter, tempVideoDir, documentId, chapterIndex, spacePath){
+async function createChapterVideo(chapter, tempVideoDir, documentId, chapterIndex, spacePath, parentTask){
     let completedFramePaths = [];
     let chapterFrames = splitChapterIntoFrames(spacePath, chapter, chapterIndex);
     if(chapterFrames.length === 0) {
@@ -71,8 +72,13 @@ async function createChapterVideo(chapter, tempVideoDir, documentId, chapterInde
     }));
     let promises = [];
     for(let task of tasks) {
+        parentTask.addChildTask(task);
         promises.push(task.run());
     }
+    function wait(ms) {
+        return new Promise((resolve) => setTimeout(resolve, ms));
+    }
+    await wait(10000);
     try{
         completedFramePaths = await Promise.all(promises);
     } catch (e) {
@@ -100,11 +106,16 @@ async function documentToVideo(spaceId, document, userId, videoId) {
     const spacePath = space.getSpacePath(spaceId);
     const tempVideoDir = path.join(spacePath, "videos", `${videoId}_temp`);
     await file.createDirectory(tempVideoDir);
-    let tasks = document.chapters.map((chapter, index) => new Task(async ()=>{
-        return await createChapterVideo(chapter, tempVideoDir, document.id, index, spacePath)
-    }));
+    let tasks = document.chapters.map((chapter, index) => {
+        let task = new Task(async ()=>{
+            return await createChapterVideo(chapter, tempVideoDir, document.id, index, spacePath, task)
+        })
+        return task;
+    });
+    let parentTask = TaskManager.getTask(videoId);
     let promises = [];
     for(let task of tasks) {
+        parentTask.addChildTask(task);
         promises.push(task.run());
     }
     let chapterVideos = [];
