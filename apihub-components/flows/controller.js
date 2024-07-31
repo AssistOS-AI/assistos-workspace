@@ -149,7 +149,7 @@ async function callFlow(request, response) {
     let securityContext = new SecurityContext(request);
     const personalityModule = require("assistos").loadModule("personality", securityContext);
     const flowModule = require("assistos").loadModule("flow", securityContext);
-    try {
+
         let personality;
         if (personalityId) {
             personality = await personalityModule.getPersonality(spaceId, personalityId);
@@ -157,71 +157,36 @@ async function callFlow(request, response) {
             personality = await personalityModule.getPersonality(spaceId, constants.PERSONALITIES.DEFAULT_PERSONALITY_ID);
         }
         const flowPath = path.join(dataVolumePaths.space, `${spaceId}/flows/${flowName}.js`);
-        //const flowClass = await import(flowPath);
-        //let flowInstance = new flowClass[Object.keys(flowClass)[0]]();
-        const flowClass = require(flowPath);
-        let flowInstance = new flowClass();
-        if (flowInstance.start === undefined) {
-            return utils.sendResponse(response, 500, "application/json", {
+        let flowClass
+        try {
+            flowClass = require(flowPath);
+        } catch (error) {
+            return utils.sendResponse(response, 404, "application/json", {
                 success: false,
-                message: `Flow ${flowInstance.constructor.name} must have a function named 'start'`
-            });
+                message: error + `Flow not found: ${flowName}`})
         }
+
+        let flowInstance = new flowClass();
         const apis = Object.getOwnPropertyNames(flowModule.IFlow.prototype)
             .filter(method => method !== 'constructor');
         apis.forEach(methodName => {
             flowInstance[methodName] = flowModule.IFlow.prototype[methodName].bind(flowInstance);
         });
-        if (flowClass.inputSchema) {
-            // assistOS.services.validateSchema(context, flow.inputSchema, "input");
-        }
-
+        flowInstance.personality = personality;
+        flowInstance.__securityContext = securityContext;
         let result;
         try {
-            result = await ((context, personality) => {
-                let returnPromise = new Promise((resolve, reject) => {
-                    flowInstance.resolve = resolve;
-                    flowInstance.reject = reject;
-                });
-                flowInstance.personality = personality;
-                flowInstance.__securityContext = securityContext;
-                flowInstance.start(context, personality);
-                return returnPromise;
-            })(context, personality);
-        } catch (e) {
-            return utils.sendResponse(response, 500, "application/json", {
+            result = await flowInstance.execute(context);
+        } catch (error) {
+            return utils.sendResponse(response, error.statusCode||500, "application/json", {
                 success: false,
-                message: `Flow execution error: ${e}`
+                message: `Flow execution error: ${error.message}`
             });
-        }
-        if (flowClass.outputSchema) {
-            if (typeof flowClass.outputSchema.isValid === "undefined") {
-                try {
-                    let parsedResponse = JSON.parse(result);
-                    //assistOS.services.validateSchema(parsedResponse, flowObj.flowClass.outputSchema, "output");
-                    return utils.sendResponse(response, 200, "application/json", {
-                        success: true,
-                        data: parsedResponse
-                    });
-                } catch (e) {
-                    return utils.sendResponse(response, 500, "application/json", {
-                        success: false,
-                        message: e
-                    });
-                }
-            }
         }
         return utils.sendResponse(response, 200, "application/json", {
             success: true,
             data: result
         });
-    } catch (error) {
-        return utils.sendResponse(response, 500, "application/json", {
-            success: false,
-            message: error + ` Error at calling flow: ${flowName}`
-        });
-    }
-
 }
 
 module.exports = {
