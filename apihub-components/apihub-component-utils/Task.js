@@ -1,12 +1,13 @@
 const crypto = require('./crypto.js');
 const {exec} = require("child_process");
 class Task{
-    constructor(executeFn) {
+    constructor(executeFn, securityContext) {
         this.executeFn = executeFn.bind(this);
         this.status = 'pending';
         this.id = crypto.generateId(16);
         this.childTasks = [];
         this.processes = [];
+        this.securityContext = securityContext;
         // possible statuses: pending, running, completed, failed, cancelled
     }
     async run(){

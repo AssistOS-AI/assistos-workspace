@@ -1234,17 +1234,17 @@ async function compileVideoFromDocument(request, response) {
     let documentId = request.params.documentId;
     let spaceId = request.params.spaceId;
     let userId = request.userId;
+    const SecurityContext = require("assistos").ServerSideSecurityContext;
+    let securityContext = new SecurityContext(request);
     let task = new Task(async function (){
         await ffmpeg.documentToVideo(spaceId, document, userId, this);
-    });
+    }, securityContext);
     TaskManager.addTask(task);
     sendResponse(response, 200, "application/json", {
         success: true,
         message: `Task in progress`,
         data: task.id
     });
-    const SecurityContext = require("assistos").ServerSideSecurityContext;
-    let securityContext = new SecurityContext(request);
     const documentModule = require("assistos").loadModule("document", securityContext);
     let document = await documentModule.getDocument(spaceId, documentId);
     try {
