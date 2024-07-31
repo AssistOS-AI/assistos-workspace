@@ -4,7 +4,7 @@ const file = require('./file.js');
 const ffmpegPath = require("ffmpeg-static");
 const space = require("../spaces-storage/space.js").APIs;
 const Task = require('./Task.js');
-
+//const ttsCommands = require('./TTSCommands.js');
 async function concatenateAudioFiles(tempVideoDir, audioFilesPaths, outputAudioPath, fileName, task) {
     const fileListPath = path.join(tempVideoDir, fileName);
     const fileListContent = audioFilesPaths.map(file => `file '${file}'`).join('\n');
@@ -19,10 +19,12 @@ async function createSilentAudio(outputPath, duration, task) {
 }
 async function createVideoFromImage(image, duration, outputVideoPath, task) {
     let command;
-    if(image){
-        command = `${ffmpegPath} -loop 1 -i ${image} -c:v libx264 -t ${duration} -pix_fmt yuv420p ${outputVideoPath}`;
+    if (image) {
+        // Ensure the image dimensions are divisible by 2
+        command = `${ffmpegPath} -loop 1 -i ${image} -vf "scale=ceil(iw/2)*2:ceil(ih/2)*2" -c:v libx264 -t ${duration} -pix_fmt yuv420p ${outputVideoPath}`;
     } else {
-        command = `${ffmpegPath} -f lavfi -i color=c=black:s=1920x1080:d=${duration} -c:v libx264 ${outputVideoPath}`;
+        // Generate a black screen with the specified duration
+        command = `${ffmpegPath} -f lavfi -i color=c=black:s=1920x1080:d=${duration} -c:v libx264 -pix_fmt yuv420p ${outputVideoPath}`;
     }
     await task.runCommand(command);
 }
@@ -30,16 +32,20 @@ async function combineVideoAndAudio(videoPath, audioPath, outputPath, task) {
     const command = `${ffmpegPath} -i ${videoPath} -i ${audioPath} -c:v copy -c:a aac -strict experimental ${outputPath}`;
     await task.runCommand(command);
 }
-async function splitChapterIntoFrames(spacePath, chapter, chapterIndex) {
+async function splitChapterIntoFrames(spaceId, chapter) {
     let chapterFrames = [];
+    const spacePath = space.getSpacePath(spaceId);
     const audiosPath = path.join(spacePath, 'audios');
     const imagesPath = path.join(spacePath, 'images');
     let frame = {
         imagePath: "",
         audiosPath: [],
     };
-    for (let paragraph of chapter.paragraphs) {
-        //await parseParagraphForCommands(paragraph)
+    for (let [index, paragraph] of chapter.paragraphs.entries()) {
+        // let commandObject = ttsCommands.parseCommand(paragraph.text);
+        // if (commandObject) {
+        //     await ttsCommands[commandObject.executeFn](spaceId, commandObject.paramsObject, chapter.paragraphs[index + 1]);
+        // }
         if (paragraph.image) {
             if (frame.audiosPath.length > 0 || frame.imagePath) {
                 chapterFrames.push(frame);
@@ -58,9 +64,9 @@ async function splitChapterIntoFrames(spacePath, chapter, chapterIndex) {
     }
     return chapterFrames;
 }
-async function createChapterVideo(chapter, tempVideoDir, documentId, chapterIndex, spacePath, task){
+async function createChapterVideo(spaceId, chapter, tempVideoDir, documentId, chapterIndex, task){
     let completedFramePaths = [];
-    let chapterFrames = await splitChapterIntoFrames(spacePath, chapter, chapterIndex);
+    let chapterFrames = await splitChapterIntoFrames(spaceId, chapter);
     if(chapterFrames.length === 0) {
         return;
     }
@@ -105,7 +111,7 @@ async function documentToVideo(spaceId, document, userId, task) {
     await file.createDirectory(tempVideoDir);
     let childTasks = document.chapters.map((chapter, index) => {
         return new Task(async function(){
-            return await createChapterVideo(chapter, tempVideoDir, document.id, index, spacePath, this)
+            return await createChapterVideo(spaceId, chapter, tempVideoDir, document.id, index, this)
         });
     });
     let promises = [];
