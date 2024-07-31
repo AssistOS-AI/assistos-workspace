@@ -4,7 +4,7 @@ const file = require('./file.js');
 const ffmpegPath = require("ffmpeg-static");
 const space = require("../spaces-storage/space.js").APIs;
 const Task = require('./Task.js');
-//const ttsCommands = require('./TTSCommands.js');
+const ttsCommands = require('./TTSCommands.js');
 async function concatenateAudioFiles(tempVideoDir, audioFilesPaths, outputAudioPath, fileName, task) {
     const fileListPath = path.join(tempVideoDir, fileName);
     const fileListContent = audioFilesPaths.map(file => `file '${file}'`).join('\n');
@@ -32,7 +32,7 @@ async function combineVideoAndAudio(videoPath, audioPath, outputPath, task) {
     const command = `${ffmpegPath} -i ${videoPath} -i ${audioPath} -c:v copy -c:a aac -strict experimental ${outputPath}`;
     await task.runCommand(command);
 }
-async function splitChapterIntoFrames(spaceId, chapter) {
+async function splitChapterIntoFrames(spaceId, documentId, chapter, task) {
     let chapterFrames = [];
     const spacePath = space.getSpacePath(spaceId);
     const audiosPath = path.join(spacePath, 'audios');
@@ -41,11 +41,7 @@ async function splitChapterIntoFrames(spaceId, chapter) {
         imagePath: "",
         audiosPath: [],
     };
-    for (let [index, paragraph] of chapter.paragraphs.entries()) {
-        // let commandObject = ttsCommands.parseCommand(paragraph.text);
-        // if (commandObject) {
-        //     await ttsCommands[commandObject.executeFn](spaceId, commandObject.paramsObject, chapter.paragraphs[index + 1]);
-        // }
+    for (let paragraph of chapter.paragraphs) {
         if (paragraph.image) {
             if (frame.audiosPath.length > 0 || frame.imagePath) {
                 chapterFrames.push(frame);
@@ -58,6 +54,20 @@ async function splitChapterIntoFrames(spaceId, chapter) {
             let audioPath = path.join(audiosPath, `${paragraph.audio.src.split("/").pop()}.mp3`);
             frame.audiosPath.push(audioPath);
         }
+        else{
+            let commandObject = ttsCommands.parseCommand(paragraph.text);
+            if (commandObject) {
+                let childTask = new Task(async function () {
+                    return await ttsCommands.executeCommandOnParagraph(spaceId, documentId, chapter.id, paragraph, commandObject, this);
+                }, task.securityContext);
+                try {
+                    await childTask.run();
+                } catch (e) {
+                    throw new Error(`Failed to execute command on paragraph ${paragraph.id}: ${e}`);
+                    //command failed, stop video execution?
+                }
+            }
+        }
     }
     if (frame.audiosPath.length > 0 || frame.imagePath) {
         chapterFrames.push(frame);
@@ -66,13 +76,13 @@ async function splitChapterIntoFrames(spaceId, chapter) {
 }
 async function createChapterVideo(spaceId, chapter, tempVideoDir, documentId, chapterIndex, task){
     let completedFramePaths = [];
-    let chapterFrames = await splitChapterIntoFrames(spaceId, chapter);
+    let chapterFrames = await splitChapterIntoFrames(spaceId, documentId, chapter, task);
     if(chapterFrames.length === 0) {
         return;
     }
     let childTasks = chapterFrames.map((frame, index) => new Task(async function (){
         return await createVideoFrame(frame, tempVideoDir, documentId, chapterIndex, index, this);
-    }));
+    }, task.securityContext));
     let promises = [];
     for(let childTask of childTasks) {
         task.addChildTask(childTask);
@@ -112,7 +122,7 @@ async function documentToVideo(spaceId, document, userId, task) {
     let childTasks = document.chapters.map((chapter, index) => {
         return new Task(async function(){
             return await createChapterVideo(spaceId, chapter, tempVideoDir, document.id, index, this)
-        });
+        }, task.securityContext);
     });
     let promises = [];
     for(let childTask of childTasks) {

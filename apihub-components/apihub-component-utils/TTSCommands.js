@@ -1,46 +1,45 @@
 const constants = require("assistos").constants;
 const htmlEntities = require('html-entities');
-const Personality = require("../../assistos-sdk/modules/personality/models/Personality");
-let flowModule = require("assistos").loadModule("flow", {});
+
 function parseCommand(input) {
     input = htmlEntities.decode(input);
-    for(let command of constants.TTS_COMMANDS){
-        if(input.startsWith(command.NAME)){
-            let [commandName, ...params] = input.split(' ');
+    for (let command of constants.TTS_COMMANDS) {
+        if (input.startsWith(command.NAME)) {
+            let [foundCommand, remainingText] = input.split(":");
+            let [commandName, ...params] = foundCommand.trim().split(/\s+/);
             const paramsObject = {};
-            for(let i = 0; i < command.PARAMETERS.length; i++){
-                if(command.PARAMETERS[i].REQUIRED && !params[i]){
-                    throw new Error(`Missing required parameter ${command.PARAMETERS[i].NAME}`);
+            for (let param of params) {
+                if (param.includes('=')) {
+                    let [name, value] = param.split('=');
+                    let parameter = command.PARAMETERS.find(p => p.NAME === name);
+                    if (!parameter) {
+                        continue;
+                    }
+                    paramsObject[name] = value;
                 }
-                if(command.PARAMETERS[i].VALUES && !command.PARAMETERS[i].VALUES.includes(params[i])){
-                    throw new Error(`Invalid value for parameter ${command.PARAMETERS[i].NAME}`);
-                }
-                if(command.PARAMETERS[i].MIN_VALUE && params[i] < command.PARAMETERS[i].MIN_VALUE){
-                    throw new Error(`Value for parameter ${command.PARAMETERS[i].NAME} is too low`);
-                }
-                if(command.PARAMETERS[i].MAX_VALUE && params[i] > command.PARAMETERS[i].MAX_VALUE){
-                    throw new Error(`Value for parameter ${command.PARAMETERS[i].NAME} is too high`);
-                }
-                paramsObject[command.PARAMETERS[i].NAME] = params[i];
             }
             return {
                 executeFn: command.EXECUTE_FN,
-                paramsObject: paramsObject
+                paramsObject: paramsObject,
+                remainingText: remainingText
             };
         }
     }
 }
-async function textToSpeech(spaceId, configs, targetParagraph){
-    if(!targetParagraph){
+
+async function textToSpeech(spaceId, configs, text, task) {
+    let flowModule = require("assistos").loadModule("flow", task.securityContext);
+    const personalityModule = require("assistos").loadModule("personality", task.securityContext);
+    if (!text) {
         return;
     }
-    const personalityModule = require("assistos").loadModule("personality", {});
-    let personalityData = await personalityModule.getPersonality(this.id, id);
-     new Personality(personalityData);
-    let personality = await getPersonality(configs.personalityName);
-    let audio = (await flowModule.callFlow("TextToSpeech", {
-        spaceId: spaceId,
-        prompt: prompt,
+    let personalityData = await personalityModule.getPersonalityByName(spaceId, configs.personality);
+    let personality = new personalityModule.models.personality(personalityData);
+    if(!personality.voiceId){
+        throw new Error(`Personality ${personality.name} does not have a voice`);
+    }
+    let audio = (await flowModule.callFlow(spaceId, "TextToSpeech", {
+        prompt: text,
         voiceId: personality.voiceId,
         voiceConfigs: {
             emotion: configs.emotion,
@@ -50,7 +49,42 @@ async function textToSpeech(spaceId, configs, targetParagraph){
         },
         modelName: "PlayHT2.0"
     })).data;
+    return {
+        audio: audio,
+        personality: personality
+    };
 }
+
+async function executeCommandOnParagraph(spaceId, documentId, chapterId, paragraph, commandObject, task) {
+    if (commandObject.executeFn === "textToSpeech") {
+        const documentModule = require("assistos").loadModule("document", task.securityContext);
+        const spaceModule = require("assistos").loadModule("space", task.securityContext);
+
+        try {
+            let{audioBlob, personality} = await textToSpeech(spaceId, commandObject.paramsObject, commandObject.remainingText, task);
+            let audioId = await spaceModule.addAudio(spaceId, audioBlob.toString("base64"));
+            let audioSrc = `spaces/audio/${spaceId}/${audioId}`;
+            let audioConfigs = {
+                personalityId: personality.id,
+                voiceId: personality.voiceId,
+                emotion: commandObject.emotion,
+                styleGuidance: commandObject.styleGuidance,
+                voiceGuidance: commandObject.voiceGuidance,
+                temperature: commandObject.temperature,
+                id: audioId,
+                src: audioSrc,
+                prompt: paragraph.text
+            }
+            await documentModule.updateParagraphAudio(assistOS.space.id, this._document.id, this.paragraphId, audioConfigs);
+        } catch (e) {
+            throw new Error(`Text to speech failed: ${e}`);
+        }
+
+    }
+
+}
+
 module.exports = {
-    parseCommand
+    parseCommand,
+    executeCommandOnParagraph
 };
