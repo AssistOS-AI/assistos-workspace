@@ -1,7 +1,7 @@
 const constants = require("assistos").constants;
 const htmlEntities = require('html-entities');
-
-function parseCommand(input) {
+const dataUtils = require("./data.js");
+function findCommand(input) {
     input = htmlEntities.decode(input);
     for (let command of constants.TTS_COMMANDS) {
         if (input.startsWith(command.NAME)) {
@@ -19,12 +19,13 @@ function parseCommand(input) {
                 }
             }
             return {
-                executeFn: command.EXECUTE_FN,
+                action: command.ACTION,
                 paramsObject: paramsObject,
                 remainingText: remainingText
             };
         }
     }
+    return null;
 }
 
 async function textToSpeech(spaceId, configs, text, task) {
@@ -38,7 +39,8 @@ async function textToSpeech(spaceId, configs, text, task) {
     if(!personality.voiceId){
         throw new Error(`Personality ${personality.name} does not have a voice`);
     }
-    let audio = (await flowModule.callFlow(spaceId, "TextToSpeech", {
+    let audioBlob = (await flowModule.callFlow(spaceId, "TextToSpeech", {
+        spaceId: spaceId,
         prompt: text,
         voiceId: personality.voiceId,
         voiceConfigs: {
@@ -50,41 +52,38 @@ async function textToSpeech(spaceId, configs, text, task) {
         modelName: "PlayHT2.0"
     })).data;
     return {
-        audio: audio,
+        audioBlob: audioBlob,
         personality: personality
     };
 }
 
-async function executeCommandOnParagraph(spaceId, documentId, chapterId, paragraph, commandObject, task) {
-    if (commandObject.executeFn === "textToSpeech") {
-        const documentModule = require("assistos").loadModule("document", task.securityContext);
-        const spaceModule = require("assistos").loadModule("space", task.securityContext);
-
-        try {
-            let{audioBlob, personality} = await textToSpeech(spaceId, commandObject.paramsObject, commandObject.remainingText, task);
-            let audioId = await spaceModule.addAudio(spaceId, audioBlob.toString("base64"));
-            let audioSrc = `spaces/audio/${spaceId}/${audioId}`;
-            let audioConfigs = {
-                personalityId: personality.id,
-                voiceId: personality.voiceId,
-                emotion: commandObject.emotion,
-                styleGuidance: commandObject.styleGuidance,
-                voiceGuidance: commandObject.voiceGuidance,
-                temperature: commandObject.temperature,
-                id: audioId,
-                src: audioSrc,
-                prompt: paragraph.text
-            }
-            await documentModule.updateParagraphAudio(assistOS.space.id, this._document.id, this.paragraphId, audioConfigs);
-        } catch (e) {
-            throw new Error(`Text to speech failed: ${e}`);
+async function executeTextToSpeechOnParagraph(spaceId, documentId, paragraph, commandObject, task) {
+    const documentModule = require("assistos").loadModule("document", task.securityContext);
+    const spaceModule = require("assistos").loadModule("space", task.securityContext);
+    try {
+        let{audioBlob, personality} = await textToSpeech(spaceId, commandObject.paramsObject, commandObject.remainingText, task);
+        const base64String = await dataUtils.blobToBase64(audioBlob);
+        let audioId = await spaceModule.addAudio(spaceId, base64String);
+        let audioSrc = `spaces/audio/${spaceId}/${audioId}`;
+        let audioConfigs = {
+            personalityId: personality.id,
+            voiceId: personality.voiceId,
+            emotion: commandObject.emotion,
+            styleGuidance: commandObject.styleGuidance,
+            voiceGuidance: commandObject.voiceGuidance,
+            temperature: commandObject.temperature,
+            id: audioId,
+            src: audioSrc,
+            prompt: paragraph.text
         }
-
+        await documentModule.updateParagraphAudio(spaceId, documentId, paragraph.id, audioConfigs);
+        return audioId;
+    } catch (e) {
+        throw new Error(`Text to speech failed: ${e}`);
     }
-
 }
 
 module.exports = {
-    parseCommand,
-    executeCommandOnParagraph
+    findCommand,
+    executeTextToSpeechOnParagraph
 };

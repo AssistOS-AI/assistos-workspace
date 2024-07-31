@@ -4,7 +4,7 @@ const file = require('./file.js');
 const ffmpegPath = require("ffmpeg-static");
 const space = require("../spaces-storage/space.js").APIs;
 const Task = require('./Task.js');
-const ttsCommands = require('./TTSCommands.js');
+const audioCommands = require('./audioCommands.js');
 async function concatenateAudioFiles(tempVideoDir, audioFilesPaths, outputAudioPath, fileName, task) {
     const fileListPath = path.join(tempVideoDir, fileName);
     const fileListContent = audioFilesPaths.map(file => `file '${file}'`).join('\n');
@@ -55,16 +55,21 @@ async function splitChapterIntoFrames(spaceId, documentId, chapter, task) {
             frame.audiosPath.push(audioPath);
         }
         else{
-            let commandObject = ttsCommands.parseCommand(paragraph.text);
+            let commandObject = audioCommands.findCommand(paragraph.text);
             if (commandObject) {
-                let childTask = new Task(async function () {
-                    return await ttsCommands.executeCommandOnParagraph(spaceId, documentId, chapter.id, paragraph, commandObject, this);
-                }, task.securityContext);
-                try {
-                    await childTask.run();
-                } catch (e) {
-                    throw new Error(`Failed to execute command on paragraph ${paragraph.id}: ${e}`);
-                    //command failed, stop video execution?
+                if(commandObject.action === "textToSpeech"){
+                    let childTask = new Task(async function () {
+                        return await audioCommands.executeTextToSpeechOnParagraph(spaceId, documentId, paragraph, commandObject, this);
+                    }, task.securityContext);
+                    try {
+                        task.addChildTask(childTask);
+                        let audioId = await childTask.run();
+                        let audioPath = path.join(audiosPath, `${audioId}.mp3`);
+                        frame.audiosPath.push(audioPath);
+                    } catch (e) {
+                        throw new Error(`Failed to execute command on paragraph ${paragraph.id}: ${e}`);
+                        //command failed, stop video creation?
+                    }
                 }
             }
         }
