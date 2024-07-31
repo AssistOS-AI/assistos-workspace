@@ -530,12 +530,19 @@ async function deleteImage(spaceId, imageId) {
 
 async function putAudio(spaceId, audioId, audioData) {
     const audiosPath = path.join(getSpacePath(spaceId), 'audios');
-    if (audioData.startsWith("http")) {
-        await downloadData(audioData, path.join(audiosPath, `${audioId}.mp3`));
-        return;
+    let buffer;
+    if(typeof audioData === 'string'){
+        if(audioData.startsWith("data:audio/mp3;base64,")) {
+            const base64Data = audioData.replace(/^data:audio\/mp3;base64,/, "");
+            buffer = Buffer.from(base64Data, 'base64');
+            return await fsPromises.writeFile(path.join(audiosPath, `${audioId}.mp3`), buffer);
+        }
+        if (audioData.startsWith("http")) {
+            await downloadData(audioData, path.join(audiosPath, `${audioId}.mp3`));
+            return;
+        }
     }
-    const base64Data = audioData.replace(/^data:audio\/mp3;base64,/, "");
-    const buffer = Buffer.from(base64Data, 'base64');
+    buffer = Buffer.from(audioData);
     await fsPromises.writeFile(path.join(audiosPath, `${audioId}.mp3`), buffer);
 }
 

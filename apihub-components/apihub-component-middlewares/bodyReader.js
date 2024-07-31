@@ -1,48 +1,34 @@
-const fs = require('fs');
-const path = require('path');
-const crypto=require('../apihub-component-utils/crypto.js');
-
 function bodyReader(req, res, next) {
-    const data = [];
-
-    req.on('data', (chunk) => {
-        data.push(chunk);
-    });
-
-    req.on('end', () => {
+    convertReadableStreamToBuffer(req, (error, bodyAsBuffer) => {
+        if (error) {
+            logger.info(0x02, `Fail to convert Stream to Buffer!`, error.message);
+            logger.error("Fail to convert Stream to Buffer!", error.message);
+            return res.send(500);
+        }
         const contentType = req.headers['content-type'];
-        if (contentType && contentType.startsWith('multipart/form-data')) {
-            const boundary = contentType.split('boundary=')[1];
-            const body = Buffer.concat(data);
-            const parts = body.toString('binary').split(`--${boundary}`);
-
-            parts.forEach(part => {
-                if (part.indexOf('Content-Disposition') !== -1) {
-                    const start = part.indexOf('\r\n\r\n') + 4;
-                    const end = part.lastIndexOf('\r\n');
-                    const fileContent = part.slice(start, end);
-                    const fileId=crypto.generateSecret(64);
-                    const uploadPath = path.join(__dirname, '../../data-volume/Temp', `${fileId}.aos`);
-                    fs.writeFileSync(uploadPath, Buffer.from(fileContent, 'binary'));
-                    req.fileId=fileId;
-                    req.filePath = uploadPath;
-                }
-            });
-        } else {
+        if (contentType.startsWith('application/json')) {
             try {
-                req.body = JSON.parse(Buffer.concat(data).toString());
+                req.body = JSON.parse(bodyAsBuffer.toString());
             } catch (error) {
-                req.body = Buffer.concat(data).toString();
+                return res.send(500);
             }
+        } else if(contentType.startsWith('application/octet-stream')) {
+            req.body = bodyAsBuffer;
+        } else {
+            req.body = bodyAsBuffer.toString();
         }
         next();
-    });
+        });
 
-    req.on('error', (err) => {
-        console.error(err);
-        res.writeHead(500, {'Content-Type': 'text/plain'});
-        res.end('An error occurred');
-    });
+}
+function convertReadableStreamToBuffer(readStream, callback) {
+    let buffers = [];
+
+    readStream.on("data", (chunk) => buffers.push(chunk));
+
+    readStream.on("error", (error) => callback(error));
+
+    readStream.on("end", () => callback(undefined, $$.Buffer.concat(buffers)));
 }
 
 module.exports = bodyReader;
