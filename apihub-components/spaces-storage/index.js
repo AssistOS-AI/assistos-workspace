@@ -46,7 +46,8 @@ const {
     compileVideoFromDocument,
     exportDocument,
     importDocument,
-    cancelTask
+    cancelTask,
+    createTextToSpeechAudio
 } = require("./controller");
 
 const bodyReader = require('../apihub-component-middlewares/bodyReader.js')
@@ -122,6 +123,7 @@ function SpaceStorage(server) {
     server.get("/spaces/image/:spaceId/:imageId", getImage);
     server.delete("/spaces/image/:spaceId/:imageId", deleteImage);
     server.post("/spaces/audio/:spaceId", storeAudio);
+    server.post("/spaces/audio/:spaceId/:documentId/:paragraphId", createTextToSpeechAudio);
     server.get("/spaces/audio/:spaceId/:audioId", getAudio);
     server.delete("/spaces/audio/:spaceId/:audioId", deleteAudio);
 

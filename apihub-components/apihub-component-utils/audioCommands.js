@@ -1,32 +1,3 @@
-const constants = require("assistos").constants;
-const dataUtils = require("./data.js");
-function findCommand(input) {
-    input = dataUtils.unescapeHTML(input);
-    for (let command of constants.TTS_COMMANDS) {
-        if (input.startsWith(command.NAME)) {
-            let [foundCommand, remainingText] = input.split(":");
-            let [commandName, ...params] = foundCommand.trim().split(/\s+/);
-            const paramsObject = {};
-            for (let param of params) {
-                if (param.includes('=')) {
-                    let [name, value] = param.split('=');
-                    let parameter = command.PARAMETERS.find(p => p.NAME === name);
-                    if (!parameter) {
-                        continue;
-                    }
-                    paramsObject[name] = value;
-                }
-            }
-            return {
-                action: command.ACTION,
-                paramsObject: paramsObject,
-                remainingText: remainingText
-            };
-        }
-    }
-    return null;
-}
-
 async function textToSpeech(spaceId, configs, text, task) {
     let llmModule = require("assistos").loadModule("llm", task.securityContext);
     const personalityModule = require("assistos").loadModule("personality", task.securityContext);
@@ -79,6 +50,5 @@ async function executeTextToSpeechOnParagraph(spaceId, documentId, paragraph, co
 }
 
 module.exports = {
-    findCommand,
     executeTextToSpeechOnParagraph
 };
