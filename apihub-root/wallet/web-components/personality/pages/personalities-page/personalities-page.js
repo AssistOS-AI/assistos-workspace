@@ -1,13 +1,14 @@
-const spaceAPIs = require("assistos").loadModule("space", {});
 const utilModule = require("assistos").loadModule("util", {});
 export class PersonalitiesPage {
     constructor(element, invalidate) {
         this.modal = "showAddPersonalityModal";
         this.element = element;
+        this.invalidate = invalidate;
         this.refreshPersonalities = async ()=>{
             this.personalities = await assistOS.space.getPersonalitiesMetadata();
         }
-        this.invalidate = invalidate;
+        assistOS.space.observeChange(assistOS.space.getNotificationId(), invalidate, this.refreshPersonalities);
+
         this.id = "personalities";
         this.invalidate(async() =>{
             this.personalities = await assistOS.space.getPersonalitiesMetadata();

@@ -887,7 +887,7 @@ async function editAPIKey(request, response) {
 }
 
 async function deleteAPIKey(request, response) {
-    const {spaceId} = request.body;
+    const spaceId = request.params.spaceId;
     const keyType = request.params.keyType;
     if (!spaceId) {
         return utils.sendResponse(response, 400, "application/json", {

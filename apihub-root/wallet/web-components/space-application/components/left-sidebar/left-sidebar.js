@@ -1,4 +1,5 @@
 import {changeSelectedPageFromSidebar} from "../../../../imports.js";
+const utilModule = require("assistos").loadModule("util", {});
 export class LeftSidebar {
     constructor(element, invalidate) {
         this.element = element;
@@ -196,6 +197,7 @@ export class LeftSidebar {
         if(assistOS.space.id === id){
             return;
         }
-        await assistOS.loadPage(false,false, id);
+        window.location.href = window.location.href.split("#")[0] + `#${id}`;
+        window.location.reload();
     }
 }

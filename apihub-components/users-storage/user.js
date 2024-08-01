@@ -150,7 +150,7 @@ async function loginUser(email, password) {
             /* attempt to disconnect the other user logged on the account */
             try {
                 eventPublisher.sendClientEvent(userId, 'disconnect', {message: 'You have been logged out from another device'});
-                eventPublisher.removeClient(userId);
+                eventPublisher.closeClient(userId);
             }catch(error){
                 /* do nothing as the user manually closed the connection */
             }

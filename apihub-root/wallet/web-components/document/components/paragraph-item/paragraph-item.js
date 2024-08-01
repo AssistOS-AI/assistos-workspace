@@ -265,7 +265,7 @@ export class ParagraphItem {
                 this.documentPresenter.stopTimer(false);
                 this.deleted = true;
                 let currentParagraphIndex = this.chapter.getParagraphIndex(this.paragraph.id);
-                assistOS.callFlow("DeleteParagraph", {
+                await assistOS.callFlow("DeleteParagraph", {
                     spaceId: assistOS.space.id,
                     documentId: this._document.id,
                     chapterId: this.chapter.id,

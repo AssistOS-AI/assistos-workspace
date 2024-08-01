@@ -5,9 +5,9 @@ function registerClient(request, response) {
     eventPublisher.registerClient(request.userId, request, response);
 }
 
-function removeClient(request, response) {
+function closeClient(request, response) {
     try {
-        eventPublisher.removeClient(request.userId);
+        eventPublisher.closeClient(request.userId);
         sendResponse(response, 200, "application/json", {
             success: true
         });
@@ -55,5 +55,5 @@ module.exports = {
     subscribeToObject,
     unsubscribeFromObject,
     registerClient,
-    removeClient
+    closeClient
 };

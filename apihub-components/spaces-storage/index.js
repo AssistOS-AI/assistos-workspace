@@ -97,9 +97,9 @@ function SpaceStorage(server) {
 
     server.get("/spaces/:spaceId/secrets/keys",getAPIKeysMetadata);
     server.post("/spaces/secrets/keys", editAPIKey);
-    server.post("/spaces/:spaceId/secrets/keys",editAPIKey);
+    server.post("/spaces/:spaceId/secrets/keys", editAPIKey);
 
-    server.delete("/spaces/secrets/keys/:keyType",deleteAPIKey);
+    server.delete("/spaces/:spaceId/secrets/keys/:keyType",deleteAPIKey);
     server.delete("/spaces/:spaceId/secrets/keys/:keyType",deleteAPIKey);
 
 

@@ -32,6 +32,7 @@ export class AddPersonalityModal {
                 photo: formInfo.data.photo
             });
             assistOS.UI.closeModal(_target);
+            assistOS.space.notifyObservers(assistOS.space.getNotificationId());
         }
     }
 }

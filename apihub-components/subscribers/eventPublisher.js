@@ -88,12 +88,6 @@ class EventPublisher {
         }
     }
 
-    removeClient(userId) {
-        let client = this.clients.get(userId);
-        clearInterval(client.intervalId);
-        client.res.end();
-        this.clients.delete(userId);
-    }
 
     subscribeToObject(userId, objectId) {
         let client = this.clients.get(userId);

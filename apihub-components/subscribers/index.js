@@ -2,7 +2,7 @@ const {
     subscribeToObject,
     unsubscribeFromObject,
     registerClient,
-    removeClient
+    closeClient
 } = require("./controller");
 
 const bodyReader = require('../apihub-component-middlewares/bodyReader.js')
@@ -13,7 +13,7 @@ function Subscribers(server) {
     server.use("/events/*", bodyReader);
     server.use("/events/*", authentication);
     server.get("/events/updates", registerClient);
-    server.get("/events/close", removeClient);
+    server.get("/events/close", closeClient);
     server.get("/events/subscribe/:objectId", subscribeToObject);
     server.get("/events/unsubscribe/:objectId", unsubscribeFromObject);
 }

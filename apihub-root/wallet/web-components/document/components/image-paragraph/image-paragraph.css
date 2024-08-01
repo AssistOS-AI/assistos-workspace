@@ -5,6 +5,8 @@ image-paragraph {
 
 .image-paragraph {
     margin: 10px 0;
+    display: flex;
+    align-items: center;
 }
 .image-paragraph:focus{
     outline: none;
