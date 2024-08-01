@@ -150,11 +150,11 @@ export class AuthenticationPage {
                   <form>
                       <div class="form-item">
                           <label class="form-label" for="user-email">E-mail</label>
-                          <input class="form-input" name="email" type="email" data-id="user-email" id="user-email" required placeholder="Add e-mail" value="${this.demoUserEmail}">
+                          <input class="form-input" name="email" type="email" data-id="user-email" id="user-email" required placeholder="Add e-mail" value="${this.demoUserEmail}" autocomplete="email">
                       </div>
                       <div class="form-item">
                           <label class="form-label" for="user-password">Password</label>
-                          <input class="form-input" name="password" type="password" data-id="user-password" id="user-password" required placeholder="Add password" value="${this.demoUserPassword}">
+                          <input class="form-input" name="password" type="password" data-id="user-password" id="user-password" required placeholder="Add password" value="${this.demoUserPassword}" autocomplete="current-password">
                       </div>
                       <div class="forgot-password" data-local-action="navigateToPasswordRecoveryPage">
                           Forgot password?
