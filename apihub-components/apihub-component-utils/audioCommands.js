@@ -30,6 +30,7 @@ function findCommand(input) {
 
 async function textToSpeech(spaceId, configs, text, task) {
     let flowModule = require("assistos").loadModule("flow", task.securityContext);
+    let llmModule = require("assistos").loadModule("llm", task.securityContext);
     const personalityModule = require("assistos").loadModule("personality", task.securityContext);
     if (!text) {
         return;
@@ -39,20 +40,17 @@ async function textToSpeech(spaceId, configs, text, task) {
     if(!personality.voiceId){
         throw new Error(`Personality ${personality.name} does not have a voice`);
     }
-    let audioBlob = (await flowModule.callFlow(spaceId, "TextToSpeech", {
-        spaceId: spaceId,
+    let arrayBufferAudio = await llmModule.textToSpeech(spaceId,{
         prompt: text,
-        voiceId: personality.voiceId,
-        voiceConfigs: {
-            emotion: configs.emotion,
-            styleGuidance: configs.styleGuidance,
-            voiceGuidance: configs.voiceGuidance,
-            temperature: configs.temperature
-        },
+        voice: personality.voiceId,
+        emotion: configs.emotion,
+        styleGuidance: configs.styleGuidance,
+        voiceGuidance: configs.voiceGuidance,
+        temperature: configs.temperature,
         modelName: "PlayHT2.0"
-    })).data;
+    });
     return {
-        audioBlob: audioBlob,
+        arrayBufferAudio: arrayBufferAudio,
         personality: personality
     };
 }
@@ -61,9 +59,8 @@ async function executeTextToSpeechOnParagraph(spaceId, documentId, paragraph, co
     const documentModule = require("assistos").loadModule("document", task.securityContext);
     const spaceModule = require("assistos").loadModule("space", task.securityContext);
     try {
-        let{audioBlob, personality} = await textToSpeech(spaceId, commandObject.paramsObject, commandObject.remainingText, task);
-        const base64String = await dataUtils.blobToBase64(audioBlob);
-        let audioId = await spaceModule.addAudio(spaceId, base64String);
+        let{arrayBufferAudio, personality} = await textToSpeech(spaceId, commandObject.paramsObject, commandObject.remainingText, task);
+        let audioId = await spaceModule.addAudio(spaceId, arrayBufferAudio);
         let audioSrc = `spaces/audio/${spaceId}/${audioId}`;
         let audioConfigs = {
             personalityId: personality.id,
