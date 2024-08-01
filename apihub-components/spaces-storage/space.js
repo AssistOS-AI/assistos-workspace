@@ -281,16 +281,6 @@ async function addSpaceChatMessage(spaceId, chatId, entityId, role, messageData)
     return messageId
 }
 
-async function createSpaceChat(spaceId, chatName, chatSettings) {
-    const lightDBEnclaveClient = enclave.initialiseLightDBEnclave(spaceId);
-    const entryMessagePk = `${spaceId}_${chatName}_entryMessage`;
-    const tableName = `chat_${chatName}`;
-}
-
-async function creatSpaceUserChat(spaceId, chatName, chatSettings) {
-    const tableName = `chat_${userId}_${chatName}`;
-}
-
 async function createDefaultSpaceChats(lightDBEnclaveClient, spaceId, spaceName) {
     const createWorkspaceChat = async () => {
         const tableName = "chat_Workspace";
@@ -531,8 +521,8 @@ async function deleteImage(spaceId, imageId) {
 async function putAudio(spaceId, audioId, audioData) {
     const audiosPath = path.join(getSpacePath(spaceId), 'audios');
     let buffer;
-    if(typeof audioData === 'string'){
-        if(audioData.startsWith("data:audio/mp3;base64,")) {
+    if (typeof audioData === 'string') {
+        if (audioData.startsWith("data:audio/mp3;base64,")) {
             const base64Data = audioData.replace(/^data:audio\/mp3;base64,/, "");
             buffer = Buffer.from(base64Data, 'base64');
             return await fsPromises.writeFile(path.join(audiosPath, `${audioId}.mp3`), buffer);
@@ -631,6 +621,7 @@ async function getDocumentData(spaceId, documentId) {
     documentData.videos = videos;
     return documentData
 }
+
 async function archiveDocument(spaceId, documentId) {
     const documentData = await getDocumentData(spaceId, documentId);
 
@@ -795,6 +786,46 @@ async function importDocument(request, spaceId, fileId, filePath) {
     fs.rmSync(extractedPath, {recursive: true, force: true});
 }
 
+async function getDocumentParagraph(spaceId, documentId, paragraphId) {
+    const spaceDatabaseClient = enclave.initialiseLightDBEnclave(spaceId);
+    const paragraph = await $$.promisify(spaceDatabaseClient.getRecord)($$.SYSTEM_IDENTIFIER, documentId, paragraphId)
+    return paragraph.data;
+}
+
+async function updateParagraph(spaceId, documentId, paragraphId, paragraphData) {
+    const spaceDatabaseClient = enclave.initialiseLightDBEnclave(spaceId);
+    try {
+        await $$.promisify(spaceDatabaseClient.updateRecord)($$.SYSTEM_IDENTIFIER, documentId, paragraphId, paragraphData)
+    }catch(e){
+        let here=here;
+    }
+}
+
+async function createParagraphAudio(spaceId, documentId, paragraphId) {
+    const llmModule = require('assistos').loadModule("llm", this.securityContext);
+    const utilModule = require('assistos').loadModule("util", this.securityContext);
+    const spaceModule = require('assistos').loadModule("space", this.securityContext);
+
+    const paragraph = await getDocumentParagraph(spaceId, documentId, paragraphId);
+
+    const audioBuffer = await llmModule.textToSpeech(spaceId, {
+        prompt: paragraph.text,
+        voice: paragraph.audio.voiceId,
+        emotion: paragraph.audio.emotion,
+        styleGuidance: paragraph.audio.styleGuidance,
+        voiceGuidance: paragraph.audio.voiceGuidance,
+        temperature: paragraph.audio.temperature,
+        modelName: paragraph.audio.modelName || "PlayHT2.0"
+    });
+
+    const audioId = await spaceModule.addAudio(spaceId, utilModule.arrayBufferToBase64(audioBuffer));
+    paragraph.audio.id = audioId;
+    paragraph.audio.src = `spaces/audio/${spaceId}/${audioId}`;
+
+    await updateParagraph(spaceId,documentId,paragraphId,paragraph);
+    return paragraph.audio.src;
+}
+
 module.exports = {
     APIs: {
         addSpaceAnnouncement,
@@ -831,6 +862,7 @@ module.exports = {
         getDocumentData,
         archiveDocument,
         importDocument,
+        createParagraphAudio
     },
     templates: {
         defaultSpaceAnnouncement: require('./templates/defaultSpaceAnnouncement.json'),
