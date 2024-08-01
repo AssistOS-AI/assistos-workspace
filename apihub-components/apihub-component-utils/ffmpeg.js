@@ -15,6 +15,7 @@ async function concatenateAudioFiles(tempVideoDir, audioFilesPaths, outputAudioP
     await fsPromises.unlink(fileListPath);
 }
 async function createSilentAudio(outputPath, duration, task) {
+    //duration is in seconds
     const command = `${ffmpegPath} -f lavfi -t ${duration} -i anullsrc=r=44100:cl=stereo -q:a 9 -acodec libmp3lame ${outputPath}`;
     await task.runCommand(command);
 }
@@ -33,7 +34,7 @@ async function combineVideoAndAudio(videoPath, audioPath, outputPath, task) {
     const command = `${ffmpegPath} -i ${videoPath} -i ${audioPath} -c:v copy -c:a aac -strict experimental ${outputPath}`;
     await task.runCommand(command);
 }
-async function splitChapterIntoFrames(spaceId, documentId, chapter, task) {
+async function splitChapterIntoFrames(tempVideoDir, spaceId, documentId, chapter, task) {
     let chapterFrames = [];
     const spacePath = space.getSpacePath(spaceId);
     const audiosPath = path.join(spacePath, 'audios');
@@ -52,31 +53,22 @@ async function splitChapterIntoFrames(spaceId, documentId, chapter, task) {
                 audiosPath: [],
             };
         } else if (paragraph.audio) {
-            let audioSrc=paragraph.audio.src;
-            if(!paragraph.audio.src) {
-                /* audio configs are set, but the audio is not genereated yet -> generate the audio*/
-                audioSrc = await space.createParagraphAudio.bind({securityContext:task.securityContext})(spaceId, documentId, paragraph.id);
+            let audioSrc= paragraph.audio.src;
+            if(paragraph.audio.src) {
+                let audioPath = path.join(audiosPath, `${audioSrc.split("/").pop()}.mp3`);
+                frame.audiosPath.push(audioPath);
+            } else {
+                let audioId = await tryToExecuteCommandOnParagraph(spaceId, documentId, paragraph, task);
+                if(audioId){
+                    let audioPath = path.join(audiosPath, `${audioId}.mp3`);
+                    frame.audiosPath.push(audioPath);
+                }
             }
-            let audioPath = path.join(audiosPath, `${audioSrc.split("/").pop()}.mp3`);
-            frame.audiosPath.push(audioPath);
         }
         else{
-            let commandObject = utilsModule.findCommand(paragraph.text);
-            if (commandObject) {
-                if(commandObject.action === "textToSpeech"){
-                    let childTask = new Task(async function () {
-                        return await audioCommands.executeTextToSpeechOnParagraph(spaceId, documentId, paragraph, commandObject, this);
-                    }, task.securityContext);
-                    try {
-                        task.addChildTask(childTask);
-                        let audioId = await childTask.run();
-                        let audioPath = path.join(audiosPath, `${audioId}.mp3`);
-                        frame.audiosPath.push(audioPath);
-                    } catch (e) {
-                        throw new Error(`Failed to execute command on paragraph ${paragraph.id}: ${e}`);
-                        //command failed, stop video creation?
-                    }
-                }
+            let audioPath = await tryToExecuteCommandOnParagraph(tempVideoDir, spaceId, documentId, paragraph, task);
+            if(audioPath){
+                frame.audiosPath.push(audioPath);
             }
         }
     }
@@ -85,9 +77,57 @@ async function splitChapterIntoFrames(spaceId, documentId, chapter, task) {
     }
     return chapterFrames;
 }
+async function tryToExecuteCommandOnParagraph(tempVideoDir, spaceId, documentId, paragraph, task) {
+    let commandObject = utilsModule.findCommand(paragraph.text);
+    if (commandObject) {
+        let taskFunction;
+        if(commandObject.action === "textToSpeech"){
+            taskFunction = async function(){
+                return await audioCommands.executeTextToSpeechOnParagraph(spaceId, documentId, paragraph, commandObject, this);
+            }
+        } else if(commandObject.action === "createSilentAudio"){
+            taskFunction = async function(){
+                let audioPath = path.join(tempVideoDir, `${documentId}_paragraph_${paragraph.id}_silent.mp3`);
+                await createSilentAudio(audioPath, commandObject.paramsObject.duration, this);
+                return audioPath;
+            }
+        }
+        let childTask = new Task(taskFunction, task.securityContext);
+        try {
+            task.addChildTask(childTask);
+            return await childTask.run();
+        } catch (e) {
+            throw new Error(`Failed to execute command on paragraph ${paragraph.id}: ${e}`);
+            //command failed, stop video creation?
+        }
+    }
+}
+async function addBackgroundSoundToVideo(videoPath, backgroundSoundPath, backgroundSoundVolume, fadeDuration, outputPath, task) {
+    //backgroundSoundVolume is a float between 0 and 1
+    //backgroundSound fades out at the end of the video
+    backgroundSoundVolume = Math.max(0, Math.min(1, backgroundSoundVolume));
+    const { stdout: videoDurationOutput } = await task.runCommand(`${ffmpegPath} -i ${videoPath} 2>&1 | grep "Duration"`);
+    const videoDurationMatch = videoDurationOutput.match(/Duration: (\d+):(\d+):(\d+\.\d+)/);
+    if (!videoDurationMatch) {
+        throw new Error('Could not determine video duration');
+    }
+    const videoDuration =
+        parseInt(videoDurationMatch[1]) * 3600 +
+        parseInt(videoDurationMatch[2]) * 60 +
+        parseFloat(videoDurationMatch[3]);
+    // Ensure fadeDuration does not exceed videoDuration
+    fadeDuration = Math.min(fadeDuration, videoDuration);
+    const fadeOutStartTime = videoDuration - fadeDuration;
+    const command = `
+            ${ffmpegPath} -i ${videoPath} -i ${backgroundSoundPath} -filter_complex "
+                [1:a]volume=${backgroundSoundVolume},afade=t=out:st=${fadeOutStartTime}:d=${fadeDuration}[bk];
+                [0:a][bk]amix=inputs=2:duration=first[aout]
+            " -map 0:v -map "[aout]" -c:v copy -c:a aac -b:a 192k ${outputPath}`;
+    await task.runCommand(command);
+}
 async function createChapterVideo(spaceId, chapter, tempVideoDir, documentId, chapterIndex, task){
     let completedFramePaths = [];
-    let chapterFrames = await splitChapterIntoFrames(spaceId, documentId, chapter, task);
+    let chapterFrames = await splitChapterIntoFrames(tempVideoDir, spaceId, documentId, chapter, task);
     if(chapterFrames.length === 0) {
         return;
     }
@@ -104,12 +144,18 @@ async function createChapterVideo(spaceId, chapter, tempVideoDir, documentId, ch
     } catch (e) {
         throw new Error(`Failed to create video frames for chapter ${chapterIndex}: ${e}`);
     }
-    return combineVideos(
+    let videoPath = await combineVideos(
         tempVideoDir,
         completedFramePaths,
         `chapter_${chapterIndex}_frames.txt`,
         `chapter_${chapterIndex}_video.mp4`,
         task);
+    // if(chapter.backgroundSound){
+    //     let backgroundSoundPath = path.join(space.getSpacePath(spaceId), 'audios', `${chapter.backgroundSound.src.split("/").pop()}.mp3`);
+    //     let outputVideoPath = path.join(tempVideoDir, `chapter_${chapterIndex}_video.mp4`);
+    //     await addBackgroundSoundToVideo(videoPath, backgroundSoundPath, chapter.backgroundSound.volume, 1, outputVideoPath, task);
+    // }
+    return videoPath;
 }
 async function combineVideos(tempVideoDir, videoPaths, fileListName, outputVideoName, task, videoDir) {
     const fileListPath = path.join(tempVideoDir, fileListName);

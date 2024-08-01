@@ -522,8 +522,8 @@ async function putAudio(spaceId, audioId, audioData) {
     const audiosPath = path.join(getSpacePath(spaceId), 'audios');
     let buffer;
     if (typeof audioData === 'string') {
-        if (audioData.startsWith("data:audio/mp3;base64,")) {
-            const base64Data = audioData.replace(/^data:audio\/mp3;base64,/, "");
+        if (audioData.startsWith("data:audio")) {
+            const base64Data = audioData.split(",")[1];
             buffer = Buffer.from(base64Data, 'base64');
             return await fsPromises.writeFile(path.join(audiosPath, `${audioId}.mp3`), buffer);
         }
