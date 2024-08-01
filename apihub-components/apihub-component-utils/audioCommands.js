@@ -1,8 +1,7 @@
 const constants = require("assistos").constants;
-const htmlEntities = require('html-entities');
 const dataUtils = require("./data.js");
 function findCommand(input) {
-    input = htmlEntities.decode(input);
+    input = dataUtils.unescapeHTML(input);
     for (let command of constants.TTS_COMMANDS) {
         if (input.startsWith(command.NAME)) {
             let [foundCommand, remainingText] = input.split(":");
@@ -29,7 +28,6 @@ function findCommand(input) {
 }
 
 async function textToSpeech(spaceId, configs, text, task) {
-    let flowModule = require("assistos").loadModule("flow", task.securityContext);
     let llmModule = require("assistos").loadModule("llm", task.securityContext);
     const personalityModule = require("assistos").loadModule("personality", task.securityContext);
     if (!text) {

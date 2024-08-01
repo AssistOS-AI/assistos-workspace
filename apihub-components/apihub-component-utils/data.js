@@ -194,8 +194,21 @@ function bufferizeImage(image) {
     return Buffer.from(image, 'base64');
 }
 
+function unescapeHTML(value) {
+    if (value != null && typeof value === "string") {
+        return value.replace(/&amp;/g, '&')
+            .replace(/&#39;/g, `'`)
+            .replace(/&quot;/g, '"')
+            .replace(/&lt;/g, '<')
+            .replace(/&gt;/g, '>')
+            .replace(/&#13;/g, '\n')
+            .replace(/&nbsp;/g, ' ');
+    }
+    return value;
+}
 module.exports = {
     fillTemplate,
     validateObject,
-    bufferizeImage
+    bufferizeImage,
+    unescapeHTML
 }

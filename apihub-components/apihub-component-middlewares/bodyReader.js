@@ -1,21 +1,30 @@
 function bodyReader(req, res, next) {
     convertReadableStreamToBuffer(req, (error, bodyAsBuffer) => {
         if (error) {
-            logger.info(0x02, `Fail to convert Stream to Buffer!`, error.message);
-            logger.error("Fail to convert Stream to Buffer!", error.message);
-            return res.send(500);
+            console.info(0x02, `Fail to convert Stream to Buffer!`, error.message);
+            console.error("Fail to convert Stream to Buffer!", error.message);
+            res.writeHead(500, { 'Content-Type': 'application/json' });
+            res.end({success: false, message: "Fail to convert Stream to Buffer!"});
+            return;
         }
-        const contentType = req.headers['content-type'];
-        if (contentType.startsWith('application/json')) {
-            try {
-                req.body = JSON.parse(bodyAsBuffer.toString());
-            } catch (error) {
-                return res.send(500);
+        if(req.method === "PUT" || req.method === "POST"){
+            const contentType = req.headers['content-type'];
+            if (contentType.startsWith('application/json')) {
+                try {
+                    req.body = JSON.parse(bodyAsBuffer.toString());
+                } catch (error) {
+                    console.error("Failed to parse JSON body!", error.message);
+                    res.writeHead(500, { 'Content-Type': 'application/json' });
+                    res.end({
+                        success: false,
+                        message: "Failed to parse JSON body!" });
+                    return;
+                }
+            } else if(contentType.startsWith('application/octet-stream')) {
+                req.body = bodyAsBuffer;
+            } else {
+                req.body = bodyAsBuffer.toString();
             }
-        } else if(contentType.startsWith('application/octet-stream')) {
-            req.body = bodyAsBuffer;
-        } else {
-            req.body = bodyAsBuffer.toString();
         }
         next();
         });
