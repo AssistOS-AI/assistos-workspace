@@ -123,14 +123,12 @@ function SpaceStorage(server) {
     server.get("/spaces/image/:spaceId/:imageId", getImage);
     server.delete("/spaces/image/:spaceId/:imageId", deleteImage);
     server.post("/spaces/audio/:spaceId", storeAudio);
-    server.post("/spaces/audio/:spaceId/:documentId/:paragraphId", createTextToSpeechAudio);
     server.get("/spaces/audio/:spaceId/:audioId", getAudio);
     server.delete("/spaces/audio/:spaceId/:audioId", deleteAudio);
 
     server.post("/spaces/video/compile/:spaceId/:documentId", compileVideoFromDocument);
     server.get("/spaces/video/:spaceId/:videoId", getVideo);
     server.delete("/spaces/video/:spaceId/:videoId", deleteVideo);
-
     server.get("/spaces/:spaceId/export/documents/:documentId", exportDocument);
     server.post("/spaces/:spaceId/import/documents", importDocument);
 

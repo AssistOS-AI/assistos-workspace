@@ -1,5 +1,9 @@
+import {blobToBase64} from "../../../../imports.js";
+
 const utilModule = require("assistos").loadModule("util", {});
 const documentModule = require("assistos").loadModule("document", {});
+const spaceModule = require("assistos").loadModule("space", {});
+
 
 export class ParagraphItem {
     constructor(element, invalidate) {
@@ -40,7 +44,7 @@ export class ParagraphItem {
     }
 
     beforeRender() {
-        this.paragraphCommand= "!speech personality=Analyst emotion=female_happy intensity=30 variance=1.9 uniqueness=6";
+
     }
 
     afterRender() {
@@ -52,7 +56,7 @@ export class ParagraphItem {
             this.openTTSItem = false;
         }
         // const audioIcon = this.element.querySelector('.audio-icon');
-        if (this.paragraph.audio.id) {
+        if (this.paragraph.audioConfig) {
             this.hasAudio = true;
         }
         if (assistOS.space.currentParagraphId === this.paragraph.id) {
@@ -169,14 +173,14 @@ export class ParagraphItem {
     }
 
     switchParagraphArrows(mode) {
-       /* if (this.hasAudio) {
-            let audioIcon = this.element.querySelector('.audio-icon');
-            if (mode === "on") {
-                audioIcon.classList.remove("hidden");
-            } else {
-                audioIcon.classList.add("hidden");
-            }
-        }*/
+        /* if (this.hasAudio) {
+             let audioIcon = this.element.querySelector('.audio-icon');
+             if (mode === "on") {
+                 audioIcon.classList.remove("hidden");
+             } else {
+                 audioIcon.classList.add("hidden");
+             }
+         }*/
         let arrows = this.element.querySelector('.paragraph-arrows');
         if (mode === "on") {
             arrows.style.visibility = "visible";
@@ -309,10 +313,37 @@ export class ParagraphItem {
         }
     }
 
-    playParagraphAudio(_target) {
+    async playParagraphAudio(_target) {
         let audioSection = this.element.querySelector('.paragraph-audio-section');
         let audio = this.element.querySelector('.paragraph-audio');
-        audio.src = this.paragraph.audio.src;
+
+        if (this.paragraph.audio) {
+            audio.src = this.paragraph.audio.src
+        } else {
+            let cleanText = utilModule.findCommand(this.paragraph.text).remainingText;
+            let audioBlob = (await assistOS.callFlow("TextToSpeech", {
+                spaceId: assistOS.space.id,
+                prompt: cleanText,
+                voiceId: this.paragraph.audioConfig.voiceId,
+                voiceConfigs: {
+                    emotion: this.paragraph.audioConfig.emotion,
+                    styleGuidance: this.paragraph.audioConfig.styleGuidance,
+                    voiceGuidance: this.paragraph.audioConfig.voiceGuidance,
+                    temperature: this.paragraph.audioConfig.temperature
+                },
+                modelName: "PlayHT2.0"
+            })).data;
+            let audioId = await spaceModule.addAudio(assistOS.space.id, await blobToBase64(audioBlob));
+            let audioSrc = `spaces/audio/${assistOS.space.id}/${audioId}`;
+            documentModule.updateParagraphAudio(assistOS.space.id, this._document.id, this.paragraph.id, {
+                src: audioSrc,
+                id: audioId
+            });
+            this.paragraph.audio = {
+                src: audioSrc,
+                id: audioId
+            }
+        }
         audio.load();
         audio.play();
         audioSection.classList.remove('hidden');
@@ -346,9 +377,12 @@ export class ParagraphItem {
                 <div class="dropdown-item" data-local-action="moveParagraph up">Move Up</div>
                 <div class="dropdown-item" data-local-action="moveParagraph down">Move Down</div>` + baseDropdownMenuHTML;
             }
+            if (this.paragraph.audioConfig) {
+                baseDropdownMenuHTML += `<div class="dropdown-item" data-local-action="playParagraphAudio">Play Audio</div>`;
+            }
             if (this.paragraph.audio) {
                 baseDropdownMenuHTML += `<div class="dropdown-item" data-local-action="deleteAudio">Delete Audio</div>`;
-                baseDropdownMenuHTML += `<div class="dropdown-item" data-local-action="playParagraphAudio">Play Audio</div>`;
+
             }
             let dropdownMenuHTML =
                 `<div class="dropdown-menu">` +

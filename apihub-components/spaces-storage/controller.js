@@ -1341,24 +1341,7 @@ async function importDocument(request, response) {
         });
     }
 }
-async function createTextToSpeechAudio(request,response){
-    const spaceId=request.params.spaceId;
-    const documentId=request.params.documentId;
-    const paragraphId=request.params.paragraphId;
-    try{
-        const audioId= await space.APIs.createParagraphAudio(spaceId,documentId,paragraphId);
-        return utils.sendResponse(response, 200, "application/json", {
-            success: true,
-            data: {audioId:audioId},
-            message: `Audio created successfully`
-        });
-    }catch(error){
-        return utils.sendResponse(response,error.statusCode||500,"application/json",{
-            success:false,
-            message:`Error at creating audio for paragraph ${paragraphId}: ${error.message}`
-        })
-    }
-}
+
 module.exports = {
     acceptSpaceInvitation,
     rejectSpaceInvitation,
@@ -1408,5 +1391,4 @@ module.exports = {
     exportDocument,
     importDocument,
     cancelTask,
-    createTextToSpeechAudio
 }

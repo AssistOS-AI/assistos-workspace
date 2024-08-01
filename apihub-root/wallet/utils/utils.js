@@ -48,7 +48,7 @@ export function base64ToBlob(base64, contentType = '', sliceSize = 512) {
 export function blobToBase64(blob) {
     return new Promise((resolve, reject) => {
         const reader = new FileReader();
-        reader.onloadend = () => resolve(reader.result.split(',')[1]); // Get the Base64 string without the data URL prefix
+        reader.onloadend = () => resolve(reader.result); // Get the Base64 string without the data URL prefix
         reader.onerror = reject;
         reader.readAsDataURL(blob);
     });

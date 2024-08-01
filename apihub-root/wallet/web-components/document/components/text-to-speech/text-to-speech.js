@@ -121,8 +121,8 @@ export class TextToSpeech {
         const chapterElement=assistOS.UI.reverseQuerySelector(paragraphElement, "chapter-item");
 
         const paragraphText=paragraphElement.webSkelPresenter.paragraph.text;
-        debugger
-        let audioConfigs = {
+
+        let audioConfig = {
             personalityId: formData.data.personality,
             voiceId:personality.voiceId,
             emotion: formData.data.emotion,
@@ -131,8 +131,8 @@ export class TextToSpeech {
             temperature: formData.data.temperature,
             prompt: unescapeHtmlEntities(paragraphText)
         }
-        await documentModule.updateParagraphAudio(assistOS.space.id, this._document.id, this.paragraphId, audioConfigs);
 
+        await documentModule.updateParagraphAudioConfigs(assistOS.space.id, this._document.id, this.paragraphId, audioConfig);
 
         const paragraphCommand=`!speech personality=${personality.name} emotion=${formData.data.emotion} intensity=${formData.data.styleGuidance} variance=${formData.data.temperature} uniqueness=${formData.data.voiceGuidance}:`;
         const paragraphPosition=chapterElement.webSkelPresenter.chapter.getParagraphIndex(assistOS.space.currentParagraphId) +1;

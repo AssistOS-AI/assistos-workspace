@@ -522,7 +522,7 @@ async function putAudio(spaceId, audioId, audioData) {
     const audiosPath = path.join(getSpacePath(spaceId), 'audios');
     let buffer;
     if (typeof audioData === 'string') {
-        if (audioData.startsWith("data:audio")) {
+        if (audioData.startsWith("data:")) {
             const base64Data = audioData.split(",")[1];
             buffer = Buffer.from(base64Data, 'base64');
             return await fsPromises.writeFile(path.join(audiosPath, `${audioId}.mp3`), buffer);
@@ -785,47 +785,6 @@ async function importDocument(request, spaceId, fileId, filePath) {
     }
     fs.rmSync(extractedPath, {recursive: true, force: true});
 }
-
-async function getDocumentParagraph(spaceId, documentId, paragraphId) {
-    const spaceDatabaseClient = enclave.initialiseLightDBEnclave(spaceId);
-    const paragraph = await $$.promisify(spaceDatabaseClient.getRecord)($$.SYSTEM_IDENTIFIER, documentId, paragraphId)
-    return paragraph.data;
-}
-
-async function updateParagraph(spaceId, documentId, paragraphId, paragraphData) {
-    const spaceDatabaseClient = enclave.initialiseLightDBEnclave(spaceId);
-    try {
-        await $$.promisify(spaceDatabaseClient.updateRecord)($$.SYSTEM_IDENTIFIER, documentId, paragraphId, paragraphData)
-    }catch(e){
-        let here=here;
-    }
-}
-
-async function createParagraphAudio(spaceId, documentId, paragraphId) {
-    const llmModule = require('assistos').loadModule("llm", this.securityContext);
-    const utilModule = require('assistos').loadModule("util", this.securityContext);
-    const spaceModule = require('assistos').loadModule("space", this.securityContext);
-
-    const paragraph = await getDocumentParagraph(spaceId, documentId, paragraphId);
-
-    const audioBuffer = await llmModule.textToSpeech(spaceId, {
-        prompt: paragraph.text,
-        voice: paragraph.audio.voiceId,
-        emotion: paragraph.audio.emotion,
-        styleGuidance: paragraph.audio.styleGuidance,
-        voiceGuidance: paragraph.audio.voiceGuidance,
-        temperature: paragraph.audio.temperature,
-        modelName: paragraph.audio.modelName || "PlayHT2.0"
-    });
-
-    const audioId = await spaceModule.addAudio(spaceId, utilModule.arrayBufferToBase64(audioBuffer));
-    paragraph.audio.id = audioId;
-    paragraph.audio.src = `spaces/audio/${spaceId}/${audioId}`;
-
-    await updateParagraph(spaceId,documentId,paragraphId,paragraph);
-    return paragraph.audio.src;
-}
-
 module.exports = {
     APIs: {
         addSpaceAnnouncement,
@@ -862,7 +821,6 @@ module.exports = {
         getDocumentData,
         archiveDocument,
         importDocument,
-        createParagraphAudio
     },
     templates: {
         defaultSpaceAnnouncement: require('./templates/defaultSpaceAnnouncement.json'),
