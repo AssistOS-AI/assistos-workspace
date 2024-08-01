@@ -16,7 +16,6 @@ const TaskManager = require('../apihub-component-utils/TaskManager.js');
 function getFileObjectsMetadataPath(spaceId, objectType) {
     return path.join(dataVolumePaths.space, `${spaceId}/${objectType}/metadata.json`);
 }
-
 async function getFileObjectsMetadata(request, response) {
     const spaceId = request.params.spaceId;
     const objectType = request.params.objectType;
@@ -1338,10 +1337,27 @@ async function importDocument(request, response) {
     } catch (error) {
         return utils.sendResponse(response, 500, "application/json", {
             success: false,
-            message: error + ` Error at importing document: ${error}`
+            message: ` Error at importing document: ${error.message}`
         });
     }
-
+}
+async function createTextToSpeechAudio(request,response){
+    const spaceId=request.params.spaceId;
+    const documentId=request.params.documentId;
+    const paragraphId=request.params.paragraphId;
+    try{
+        const audioId= await space.APIs.createParagraphAudio(spaceId,documentId,paragraphId);
+        return utils.sendResponse(response, 200, "application/json", {
+            success: true,
+            data: {audioId:audioId},
+            message: `Audio created successfully`
+        });
+    }catch(error){
+        return utils.sendResponse(response,error.statusCode||500,"application/json",{
+            success:false,
+            message:`Error at creating audio for paragraph ${paragraphId}: ${error.message}`
+        })
+    }
 }
 module.exports = {
     acceptSpaceInvitation,
@@ -1391,5 +1407,6 @@ module.exports = {
     compileVideoFromDocument,
     exportDocument,
     importDocument,
-    cancelTask
+    cancelTask,
+    createTextToSpeechAudio
 }

@@ -40,6 +40,7 @@ export class ParagraphItem {
     }
 
     beforeRender() {
+        this.paragraphCommand= "!speech personality=Analyst emotion=female_happy intensity=30 variance=1.9 uniqueness=6";
     }
 
     afterRender() {
@@ -50,7 +51,7 @@ export class ParagraphItem {
             this.showTTSPopup(this.element, "off");
             this.openTTSItem = false;
         }
-        const audioIcon = this.element.querySelector('.audio-icon');
+        // const audioIcon = this.element.querySelector('.audio-icon');
         if (this.paragraph.audio.id) {
             this.hasAudio = true;
         }
@@ -61,15 +62,14 @@ export class ParagraphItem {
         if (!this.boundPreventSelectionChange) {
             this.boundPreventSelectionChange = this.preventSelectionChange.bind(this);
         }
-        if (!this.boundUpdateIconDisplay) {
-            this.boundUpdateIconDisplay = this.updateIconDisplay.bind(this, audioIcon);
-        }
-        if (!this.boundSelectionChangeHandler) {
-            this.boundSelectionChangeHandler = this.selectionChangeHandler.bind(this, paragraphText, audioIcon);
-        }
-        if (!this.boundMouseDownAudioIconHandler) {
-            this.boundMouseDownAudioIconHandler = this.mouseDownAudioIconHandler.bind(this, paragraphText, audioIcon);
-        }
+        /*   if (!this.boundUpdateIconDisplay) {
+               this.boundUpdateIconDisplay = this.updateIconDisplay.bind(this, audioIcon);
+           }
+           if (!this.boundSelectionChangeHandler) {
+               this.boundSelectionChangeHandler = this.selectionChangeHandler.bind(this, paragraphText, audioIcon);
+           }
+           if (!this.boundMouseDownAudioIconHandler) {
+               this.boundMouseDownAudioIconHandler = this.mouseDownAudioIconHandler.bind(this, paragraphText, audioIcon);*/
     }
 
     async moveParagraph(_target, direction) {
@@ -169,14 +169,14 @@ export class ParagraphItem {
     }
 
     switchParagraphArrows(mode) {
-        if (this.hasAudio) {
+       /* if (this.hasAudio) {
             let audioIcon = this.element.querySelector('.audio-icon');
             if (mode === "on") {
                 audioIcon.classList.remove("hidden");
             } else {
                 audioIcon.classList.add("hidden");
             }
-        }
+        }*/
         let arrows = this.element.querySelector('.paragraph-arrows');
         if (mode === "on") {
             arrows.style.visibility = "visible";
@@ -318,9 +318,10 @@ export class ParagraphItem {
         audioSection.classList.remove('hidden');
         audioSection.classList.add('flex');
         let controller = new AbortController();
-        document.addEventListener("click", this.hideAudioElement.bind(this, controller,audio), {signal: controller.signal});
+        document.addEventListener("click", this.hideAudioElement.bind(this, controller, audio), {signal: controller.signal});
     }
-    hideAudioElement(controller,audio,event) {
+
+    hideAudioElement(controller, audio, event) {
         if (event.target.closest(".paragraph-audio")) {
             return;
         }
@@ -347,6 +348,7 @@ export class ParagraphItem {
             }
             if (this.paragraph.audio) {
                 baseDropdownMenuHTML += `<div class="dropdown-item" data-local-action="deleteAudio">Delete Audio</div>`;
+                baseDropdownMenuHTML += `<div class="dropdown-item" data-local-action="playParagraphAudio">Play Audio</div>`;
             }
             let dropdownMenuHTML =
                 `<div class="dropdown-menu">` +
@@ -368,5 +370,4 @@ export class ParagraphItem {
         dropdownMenu.addEventListener('mouseleave', removeDropdown);
         dropdownMenu.focus();
     }
-
 }

@@ -4,6 +4,7 @@ const file = require('./file.js');
 const ffmpegPath = require("ffmpeg-static");
 const space = require("../spaces-storage/space.js").APIs;
 const Task = require('./Task.js');
+const utilsModule = require("assistos").loadModule("util",{});
 const audioCommands = require('./audioCommands.js');
 async function concatenateAudioFiles(tempVideoDir, audioFilesPaths, outputAudioPath, fileName, task) {
     const fileListPath = path.join(tempVideoDir, fileName);
@@ -51,11 +52,16 @@ async function splitChapterIntoFrames(spaceId, documentId, chapter, task) {
                 audiosPath: [],
             };
         } else if (paragraph.audio) {
-            let audioPath = path.join(audiosPath, `${paragraph.audio.src.split("/").pop()}.mp3`);
+            let audioSrc=paragraph.audio.src;
+            if(!paragraph.audio.src) {
+                /* audio configs are set, but the audio is not genereated yet -> generate the audio*/
+                audioSrc = await space.createParagraphAudio.bind({securityContext:task.securityContext})(spaceId, documentId, paragraph.id);
+            }
+            let audioPath = path.join(audiosPath, `${audioSrc.split("/").pop()}.mp3`);
             frame.audiosPath.push(audioPath);
         }
         else{
-            let commandObject = audioCommands.findCommand(paragraph.text);
+            let commandObject = utilsModule.findCommand(paragraph.text);
             if (commandObject) {
                 if(commandObject.action === "textToSpeech"){
                     let childTask = new Task(async function () {
