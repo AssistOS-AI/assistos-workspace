@@ -4,10 +4,10 @@ function bodyReader(req, res, next) {
             console.info(0x02, `Fail to convert Stream to Buffer!`, error.message);
             console.error("Fail to convert Stream to Buffer!", error.message);
             res.writeHead(500, { 'Content-Type': 'application/json' });
-            res.end({success: false, message: "Fail to convert Stream to Buffer!"});
+            res.end(JSON.stringify({ success: false, message: "Fail to convert Stream to Buffer!" }));
             return;
         }
-        if(req.method === "PUT" || req.method === "POST"){
+        if (req.method === "PUT" || req.method === "POST") {
             const contentType = req.headers['content-type'];
             if (contentType.startsWith('application/json')) {
                 try {
@@ -15,21 +15,24 @@ function bodyReader(req, res, next) {
                 } catch (error) {
                     console.error("Failed to parse JSON body!", error.message);
                     res.writeHead(500, { 'Content-Type': 'application/json' });
-                    res.end({
+                    res.end(JSON.stringify({
                         success: false,
-                        message: "Failed to parse JSON body!" });
+                        message: "Failed to parse JSON body!"
+                    }));
                     return;
                 }
-            } else if(contentType.startsWith('application/octet-stream')) {
+            } else if (contentType.startsWith('application/octet-stream')) {
                 req.body = bodyAsBuffer;
+            } else if (contentType.startsWith('multipart/form-data')) {
+                req.body=bodyAsBuffer
             } else {
                 req.body = bodyAsBuffer.toString();
             }
         }
         next();
-        });
-
+    });
 }
+
 function convertReadableStreamToBuffer(readStream, callback) {
     let buffers = [];
 
@@ -37,7 +40,7 @@ function convertReadableStreamToBuffer(readStream, callback) {
 
     readStream.on("error", (error) => callback(error));
 
-    readStream.on("end", () => callback(undefined, $$.Buffer.concat(buffers)));
+    readStream.on("end", () => callback(undefined, Buffer.concat(buffers)));
 }
 
 module.exports = bodyReader;

@@ -13,9 +13,11 @@ const dataVolumePaths = require('../volumeManager').paths;
 const ffmpeg = require('../apihub-component-utils/ffmpeg.js');
 const Task = require('../apihub-component-utils/Task.js');
 const TaskManager = require('../apihub-component-utils/TaskManager.js');
+
 function getFileObjectsMetadataPath(spaceId, objectType) {
     return path.join(dataVolumePaths.space, `${spaceId}/${objectType}/metadata.json`);
 }
+
 async function getFileObjectsMetadata(request, response) {
     const spaceId = request.params.spaceId;
     const objectType = request.params.objectType;
@@ -458,7 +460,7 @@ async function insertEmbeddedObjectRecords(lightDBEnclaveClient, tableId, object
             if (!objectData.id) {
                 objectData.id = `${objectType}_${crypto.generateId()}`;
             }
-            if (objectData.position!==undefined) {
+            if (objectData.position !== undefined) {
                 object[objectType].splice(objectData.position, 0, objectData.id);
                 delete objectData.position;
             } else {
@@ -1082,6 +1084,7 @@ const {
     getImageVariants
 } = require('../llms/controller.js');
 const {APIs} = require("../../apihub-root/wallet/bundles/assistos_sdk");
+const fs = require("fs");
 
 async function getChatTextResponse(request, response) {
 
@@ -1235,7 +1238,7 @@ async function compileVideoFromDocument(request, response) {
     let userId = request.userId;
     const SecurityContext = require("assistos").ServerSideSecurityContext;
     let securityContext = new SecurityContext(request);
-    let task = new Task(async function (){
+    let task = new Task(async function () {
         await ffmpeg.documentToVideo(spaceId, document, userId, this);
     }, securityContext);
     TaskManager.addTask(task);
@@ -1249,7 +1252,7 @@ async function compileVideoFromDocument(request, response) {
     try {
         await task.run();
         let videoPath = `/spaces/video/${spaceId}/${task.id}`;
-        if(document.video){
+        if (document.video) {
             const videoId = document.video.split("/").pop();
             try {
                 await space.APIs.deleteVideo(spaceId, videoId);
@@ -1263,6 +1266,7 @@ async function compileVideoFromDocument(request, response) {
         eventPublisher.notifyClientTask(userId, task.id, {error: error.message});
     }
 }
+
 async function cancelTask(request, response) {
     let taskId = request.params.taskId;
     try {
@@ -1278,6 +1282,7 @@ async function cancelTask(request, response) {
         });
     }
 }
+
 async function getVideo(request, response) {
     const spaceId = request.params.spaceId;
     const videoId = request.params.videoId;
@@ -1291,6 +1296,7 @@ async function getVideo(request, response) {
         });
     }
 }
+
 async function deleteVideo(request, response) {
     const spaceId = request.params.spaceId;
     const videoId = request.params.videoId;
@@ -1307,6 +1313,7 @@ async function deleteVideo(request, response) {
         });
     }
 }
+
 async function exportDocument(request, response) {
     const spaceId = request.params.spaceId;
     const documentId = request.params.documentId;
@@ -1317,19 +1324,34 @@ async function exportDocument(request, response) {
         response.setHeader('Content-Type', 'application/zip');
         response.setHeader('Content-Length', documentArchive.length);
         return utils.sendResponse(response, 200, "application/zip", documentArchive);
-    }catch(error){
+    } catch (error) {
         return utils.sendResponse(response, 500, "application/json", {
             success: false,
             message: error + ` Error at exporting document: ${documentId}`
         });
     }
 }
+
+
 async function importDocument(request, response) {
     const spaceId = request.params.spaceId;
-    const filePath=request.filePath;
-    const fileId=request.fileId;
+    let fileId, filePath;
+    const contentType = request.headers['content-type'];
+    const boundary = contentType.split('boundary=')[1];
+    const parts = request.body.toString('binary').split(`--${boundary}`);
+    parts.forEach(part => {
+        if (part.indexOf('Content-Disposition') !== -1) {
+            const start = part.indexOf('\r\n\r\n') + 4;
+            const end = part.lastIndexOf('\r\n');
+            const fileContent = part.slice(start, end);
+            fileId = crypto.generateSecret(64);
+            filePath = path.join(__dirname, '../../data-volume/Temp', `${fileId}.aos`);
+            fs.writeFileSync(filePath, Buffer.from(fileContent, 'binary'));
+
+        }
+    });
     try {
-        await space.APIs.importDocument(request,spaceId, fileId,filePath);
+        await space.APIs.importDocument(request, spaceId, fileId, filePath);
         return utils.sendResponse(response, 200, "application/json", {
             success: true,
             message: `Document imported successfully`,
@@ -1341,6 +1363,7 @@ async function importDocument(request, response) {
         });
     }
 }
+
 
 module.exports = {
     acceptSpaceInvitation,
