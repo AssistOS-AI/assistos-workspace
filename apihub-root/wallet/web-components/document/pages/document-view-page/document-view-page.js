@@ -260,16 +260,13 @@ export class DocumentViewPage {
             documentId: this._document.id
         })).data;
         await utilModule.subscribeToObject(this.videoId, async (data) => {
-            button.innerHTML = "Document to Video";
-            button.setAttribute("data-local-action", "documentToVideo");
             if(data){
                 if(data.error){
                     return await showApplicationError("Error compiling video", data.error, "");
                 }
             }
-            let videoURL = `/spaces/video/${assistOS.space.id}/${this.videoId}`;
-            this.insertVideoSection(videoURL);
             delete this.videoId;
+            this.invalidate(this.refreshDocument);
         });
         button.innerHTML = `<div class="loading-mask"></div>`
         button.setAttribute("data-local-action", "cancelVideoCompilation");

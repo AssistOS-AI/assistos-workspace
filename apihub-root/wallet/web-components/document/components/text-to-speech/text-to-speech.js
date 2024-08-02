@@ -41,11 +41,11 @@ export class TextToSpeech {
             let emotionOption = this.element.querySelector(`option[value="${this.audioConfig.emotion}"]`);
             emotionOption.selected = true;
             let styleGuidance = this.element.querySelector(`#styleGuidance`);
-            styleGuidance.value = this.audioConfig.styleGuidance;
+            styleGuidance.value = this.audioConfig.styleGuidance || 15;
             let temperature = this.element.querySelector(`#temperature`);
-            temperature.value = this.audioConfig.temperature;
+            temperature.value = this.audioConfig.temperature || 1;
             let voiceGuidance = this.element.querySelector(`#voiceGuidance`);
-            voiceGuidance.value = this.audioConfig.voiceGuidance;
+            voiceGuidance.value = this.audioConfig.voiceGuidance || 3;
         }
     }
 
@@ -71,7 +71,7 @@ export class TextToSpeech {
             prompt: unescapeHtmlEntities(paragraphText)
         }
 
-        const paragraphCommand = `!speech personality=${personality.name} emotion=${formData.data.emotion} intensity=${formData.data.styleGuidance} variance=${formData.data.temperature} uniqueness=${formData.data.voiceGuidance}:`;
+        const paragraphCommand = `!speech personality=${personality.name} emotion=${formData.data.emotion} styleGuidance=${formData.data.styleGuidance} temperature=${formData.data.temperature} voiceGuidance=${formData.data.voiceGuidance}:`;
         const paragraphPosition = chapterElement.webSkelPresenter.chapter.getParagraphIndex(assistOS.space.currentParagraphId) + 1;
 
         const chapterPresenter = chapterElement.webSkelPresenter;
@@ -82,7 +82,6 @@ export class TextToSpeech {
         } else {
             updatedText = paragraphCommand+utilModule.findCommand(paragraphText).remainingText
             audioConfig.toRegenerate = true;
-
         }
 
         await documentModule.updateParagraphAudioConfigs(assistOS.space.id, this._document.id, this.paragraphId, audioConfig);
@@ -99,13 +98,4 @@ export class TextToSpeech {
         chapterPresenter.invalidate(async()=>this.chapter=await chapterPresenter.refreshChapter(this._document.id,chapterPresenter.chapter.id));
         assistOS.UI.hideLoading(loaderId);
     }
-
-    /*  downloadAudio(_target) {
-          const link = document.createElement('a');
-          link.href = this.audioURL;
-          link.download = 'audio.mp3';
-          document.body.appendChild(link);
-          link.click();
-          document.body.removeChild(link);
-      }*/
 }

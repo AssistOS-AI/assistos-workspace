@@ -235,14 +235,16 @@ export class ChapterItem {
         }
     }
 
-    downloadAllAudio() {
+    async downloadAllAudio() {
         let i = 1;
         let hasAudio = false;
         for (let paragraph of this.chapter.paragraphs) {
             if (paragraph.audio) {
                 hasAudio = true;
                 let audioName = `audio${i}.mp3`;
-                let url = URL.createObjectURL(base64ToBlob(paragraph.audio.base64Audio, "audio/mp3"));
+                let audioBuffer = await spaceModule.getAudio(assistOS.space.id, paragraph.audio.id);
+                const blob = new Blob([audioBuffer], { type: 'audio/mp3' });
+                let url = URL.createObjectURL(blob);
                 const link = document.createElement('a');
                 link.href = url;
                 link.download = audioName;
@@ -387,6 +389,7 @@ export class ChapterItem {
         });
         this.hasBackgroundSound = false;
         this.switchPlayButtonDisplay("off");
+        this.invalidate(this.refreshChapter);
     }
     async deleteChapter(_target) {
         await assistOS.callFlow("DeleteChapter", {

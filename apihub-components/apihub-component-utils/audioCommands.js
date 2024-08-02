@@ -34,15 +34,18 @@ async function executeTextToSpeechOnParagraph(spaceId, documentId, paragraph, co
         let audioConfigs = {
             personalityId: personality.id,
             voiceId: personality.voiceId,
-            emotion: commandObject.emotion,
-            styleGuidance: commandObject.styleGuidance,
-            voiceGuidance: commandObject.voiceGuidance,
-            temperature: commandObject.temperature,
-            id: audioId,
-            src: audioSrc,
-            prompt: paragraph.text
+            emotion: commandObject.paramsObject.emotion,
+            styleGuidance: commandObject.paramsObject.styleGuidance,
+            voiceGuidance: commandObject.paramsObject.voiceGuidance,
+            temperature: commandObject.paramsObject.temperature,
+            prompt: commandObject.remainingText
         }
-        await documentModule.updateParagraphAudio(spaceId, documentId, paragraph.id, audioConfigs);
+        let audio = {
+            id: audioId,
+            src: audioSrc
+        }
+        await documentModule.updateParagraphAudioConfigs(spaceId, documentId, paragraph.id, audioConfigs);
+        await documentModule.updateParagraphAudio(spaceId, documentId, paragraph.id, audio);
         return audioId;
     } catch (e) {
         throw new Error(`Text to speech failed: ${e}`);

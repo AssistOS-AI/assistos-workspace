@@ -362,6 +362,9 @@ export class ParagraphItem {
     }
     async deleteAudio(_target) {
         documentModule.updateParagraphAudio(assistOS.space.id, this._document.id, this.paragraph.id, null);
+        this.invalidate(async () => {
+            this.paragraph = await this.chapter.refreshParagraph(assistOS.space.id, this._document.id, this.paragraph.id);
+        });
     }
 
     hideAudioElement(controller, audio, event) {
@@ -394,7 +397,8 @@ export class ParagraphItem {
                 baseDropdownMenuHTML += `<div class="dropdown-item" data-local-action="playParagraphAudio">Play Audio</div>`;
             }
             if (this.paragraph.audio) {
-                baseDropdownMenuHTML += `<div class="dropdown-item" data-local-action="deleteAudio">Delete Audio</div>`;
+                baseDropdownMenuHTML += `<div class="dropdown-item" data-local-action="deleteAudio">Delete Audio</div>
+                <div class="dropdown-item" data-local-action="downloadAudio">Download Audio</div>`;
 
             }
             let dropdownMenuHTML =
@@ -416,5 +420,13 @@ export class ParagraphItem {
 
         dropdownMenu.addEventListener('mouseleave', removeDropdown);
         dropdownMenu.focus();
+    }
+    downloadAudio(_target) {
+          const link = document.createElement('a');
+          link.href = this.paragraph.audio.src;
+          link.download = 'audio.mp3';
+          document.body.appendChild(link);
+          link.click();
+          document.body.removeChild(link);
     }
 }

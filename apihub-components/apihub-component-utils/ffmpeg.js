@@ -54,20 +54,13 @@ async function splitChapterIntoFrames(tempVideoDir, spaceId, documentId, chapter
             };
         } else if (paragraph.audio) {
             let audioSrc= paragraph.audio.src;
-            if(paragraph.audio.src) {
-                let audioPath = path.join(audiosPath, `${audioSrc.split("/").pop()}.mp3`);
-                frame.audiosPath.push(audioPath);
-            } else {
-                let audioId = await tryToExecuteCommandOnParagraph(spaceId, documentId, paragraph, task);
-                if(audioId){
-                    let audioPath = path.join(audiosPath, `${audioId}.mp3`);
-                    frame.audiosPath.push(audioPath);
-                }
-            }
+            let audioPath = path.join(audiosPath, `${audioSrc.split("/").pop()}.mp3`);
+            frame.audiosPath.push(audioPath);
         }
         else{
-            let audioPath = await tryToExecuteCommandOnParagraph(tempVideoDir, spaceId, documentId, paragraph, task);
-            if(audioPath){
+            let audioId = await tryToExecuteCommandOnParagraph(tempVideoDir, spaceId, documentId, paragraph, task);
+            if(audioId){
+                let audioPath = path.join(audiosPath, `${audioId}.mp3`);
                 frame.audiosPath.push(audioPath);
             }
         }
@@ -106,7 +99,7 @@ async function addBackgroundSoundToVideo(videoPath, backgroundSoundPath, backgro
     //backgroundSoundVolume is a float between 0 and 1
     //backgroundSound fades out at the end of the video
     backgroundSoundVolume = Math.max(0, Math.min(1, backgroundSoundVolume));
-    const { stdout: videoDurationOutput } = await task.runCommand(`${ffmpegPath} -i ${videoPath} 2>&1 | grep "Duration"`);
+    let videoDurationOutput= await task.runCommand(`${ffmpegPath} -i ${videoPath} 2>&1 | grep "Duration"`);
     const videoDurationMatch = videoDurationOutput.match(/Duration: (\d+):(\d+):(\d+\.\d+)/);
     if (!videoDurationMatch) {
         throw new Error('Could not determine video duration');
@@ -193,6 +186,7 @@ async function documentToVideo(spaceId, document, userId, task) {
         await fsPromises.rm(tempVideoDir, {recursive: true, force: true});
         throw new Error(`Failed to create chapter video: ${e}`);
     }
+    chapterVideos = chapterVideos.filter(videoPath => typeof videoPath !== "undefined")
     try {
         let videoPath = await combineVideos(
             tempVideoDir,
