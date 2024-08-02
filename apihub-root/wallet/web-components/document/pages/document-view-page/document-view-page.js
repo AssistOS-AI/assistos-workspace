@@ -262,6 +262,8 @@ export class DocumentViewPage {
         await utilModule.subscribeToObject(this.videoId, async (data) => {
             if(data){
                 if(data.error){
+                    button.innerHTML = "Document to Video";
+                    button.setAttribute("data-local-action", "documentToVideo");
                     return await showApplicationError("Error compiling video", data.error, "");
                 }
             }

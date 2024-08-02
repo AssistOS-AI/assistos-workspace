@@ -56,11 +56,9 @@ async function splitChapterIntoFrames(tempVideoDir, spaceId, documentId, chapter
             let audioSrc= paragraph.audio.src;
             let audioPath = path.join(audiosPath, `${audioSrc.split("/").pop()}.mp3`);
             frame.audiosPath.push(audioPath);
-        }
-        else{
-            let audioId = await tryToExecuteCommandOnParagraph(tempVideoDir, spaceId, documentId, paragraph, task);
-            if(audioId){
-                let audioPath = path.join(audiosPath, `${audioId}.mp3`);
+        } else{
+            let audioPath = await tryToExecuteCommandOnParagraph(tempVideoDir, spaceId, documentId, paragraph, task);
+            if(audioPath){
                 frame.audiosPath.push(audioPath);
             }
         }
@@ -75,8 +73,11 @@ async function tryToExecuteCommandOnParagraph(tempVideoDir, spaceId, documentId,
     if (commandObject) {
         let taskFunction;
         if(commandObject.action === "textToSpeech"){
+            const spacePath = space.getSpacePath(spaceId);
+            const audiosPath = path.join(spacePath, 'audios');
             taskFunction = async function(){
-                return await audioCommands.executeTextToSpeechOnParagraph(spaceId, documentId, paragraph, commandObject, this);
+                let audioId = await audioCommands.executeTextToSpeechOnParagraph(spaceId, documentId, paragraph, commandObject, this);
+                return path.join(audiosPath, `${audioId}.mp3`);
             }
         } else if(commandObject.action === "createSilentAudio"){
             taskFunction = async function(){
@@ -160,7 +161,8 @@ async function combineVideos(tempVideoDir, videoPaths, fileListName, outputVideo
     } else {
         videoPath = path.join(tempVideoDir, outputVideoName);
     }
-    const command = `${ffmpegPath} -f concat -safe 0 -i ${fileListPath} -c copy ${videoPath}`;
+    const command = `${ffmpegPath} -f concat -safe 0 -i ${fileListPath} -filter_complex "[0:a]aresample=async=1[a]" -map 0:v -map "[a]" -c:v copy -c:a aac -b:a 192k ${videoPath}`;
+    //const command = `${ffmpegPath} -f concat -safe 0 -i ${fileListPath} -filter_complex "aresample=async=1" -c:v copy -c:a aac -strict experimental ${videoPath}`;
     await task.runCommand(command);
     await fsPromises.unlink(fileListPath);
     return videoPath;
