@@ -526,10 +526,13 @@ async function putAudio(spaceId, audioId, audioData) {
             const base64Data = audioData.split(",")[1];
             buffer = Buffer.from(base64Data, 'base64');
             return await fsPromises.writeFile(path.join(audiosPath, `${audioId}.mp3`), buffer);
-        }
+        }else
         if (audioData.startsWith("http")) {
             await downloadData(audioData, path.join(audiosPath, `${audioId}.mp3`));
             return;
+        }else{
+            buffer = Buffer.from(audioData, 'base64');
+            return await fsPromises.writeFile(path.join(audiosPath, `${audioId}.mp3`), buffer);
         }
     }
     buffer = Buffer.from(audioData);
@@ -606,6 +609,9 @@ async function getDocumentData(spaceId, documentId) {
                     paragraph.audio = documentRecordsContents[paragraphId].audio;
                     audios.push(documentRecordsContents[paragraphId].audio.src)
                 }
+                if (documentRecordsContents[paragraphId].audioConfig) {
+                    paragraph.audioConfig= documentRecordsContents[paragraphId].audioConfig;
+                }
                 if (documentRecordsContents[paragraphId].image) {
                     paragraph.image = documentRecordsContents[paragraphId].image;
                     images.push(documentRecordsContents[paragraphId].image.src)
@@ -680,7 +686,6 @@ async function importDocument(request, spaceId, fileId, filePath) {
             },
             body: JSON.stringify(imageData)
         });
-
         const responseData = await result.json();
         const imageId = responseData.data;
         return imageId;
@@ -768,6 +773,9 @@ async function importDocument(request, spaceId, fileId, filePath) {
                 audioId = (await result.json()).data;
                 paragraphObject.audio.id = audioId;
                 paragraphObject.audio.src = `spaces/audio/${spaceId}/${audioId}`;
+            }
+            if(paragraph.audioConfig){
+                paragraphObject.audioConfig = paragraph.audioConfig;
             }
             if (paragraph.image) {
                 paragraphObject.image = paragraph.image;
