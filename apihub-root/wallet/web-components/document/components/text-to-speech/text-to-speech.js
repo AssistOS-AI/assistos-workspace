@@ -71,7 +71,6 @@ export class TextToSpeech {
             prompt: unescapeHtmlEntities(paragraphText)
         }
 
-        await documentModule.updateParagraphAudioConfigs(assistOS.space.id, this._document.id, this.paragraphId, audioConfig);
         const paragraphCommand = `!speech personality=${personality.name} emotion=${formData.data.emotion} intensity=${formData.data.styleGuidance} variance=${formData.data.temperature} uniqueness=${formData.data.voiceGuidance}:`;
         const paragraphPosition = chapterElement.webSkelPresenter.chapter.getParagraphIndex(assistOS.space.currentParagraphId) + 1;
 
@@ -82,7 +81,11 @@ export class TextToSpeech {
             updatedText = paragraphCommand + paragraphText;
         } else {
             updatedText = paragraphCommand+utilModule.findCommand(paragraphText).remainingText
+            audioConfig.toRegenerate = true;
+
         }
+
+        await documentModule.updateParagraphAudioConfigs(assistOS.space.id, this._document.id, this.paragraphId, audioConfig);
 
         await assistOS.callFlow("UpdateParagraphText", {
             spaceId: assistOS.space.id,

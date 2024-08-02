@@ -320,7 +320,7 @@ export class ParagraphItem {
         let audioSection = this.element.querySelector('.paragraph-audio-section');
         let audio = this.element.querySelector('.paragraph-audio');
 
-        if (this.paragraph.audio) {
+        if (this.paragraph.audio && !this.paragraph.audioConfig.toRegenerate) {
             audio.src = this.paragraph.audio.src
         } else {
             const loaderId = await assistOS.UI.showLoading();
@@ -343,6 +343,10 @@ export class ParagraphItem {
                 src: audioSrc,
                 id: audioId
             });
+            if(this.paragraph.audioConfig.toRegenerate){
+                this.paragraph.audioConfig.toRegenerate = false;
+                await documentModule.updateParagraphAudioConfigs(assistOS.space.id, this._document.id, this.paragraph.id, this.paragraph.audioConfig);
+            }
             this.isPlaying = true;
             assistOS.UI.hideLoading(loaderId);
             this.invalidate(async () => {
