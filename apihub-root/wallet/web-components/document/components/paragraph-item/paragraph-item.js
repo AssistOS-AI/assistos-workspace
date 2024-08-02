@@ -339,7 +339,7 @@ export class ParagraphItem {
             })).data;
             let audioId = await spaceModule.addAudio(assistOS.space.id, await blobToBase64(audioBlob));
             let audioSrc = `spaces/audio/${assistOS.space.id}/${audioId}`;
-            documentModule.updateParagraphAudio(assistOS.space.id, this._document.id, this.paragraph.id, {
+            await documentModule.updateParagraphAudio(assistOS.space.id, this._document.id, this.paragraph.id, {
                 src: audioSrc,
                 id: audioId
             });
