@@ -74,6 +74,9 @@ export class ParagraphItem {
            }
            if (!this.boundMouseDownAudioIconHandler) {
                this.boundMouseDownAudioIconHandler = this.mouseDownAudioIconHandler.bind(this, paragraphText, audioIcon);*/
+        if (this.isPlaying) {
+            this.playParagraphAudio();
+        }
     }
 
     async moveParagraph(_target, direction) {
@@ -320,6 +323,7 @@ export class ParagraphItem {
         if (this.paragraph.audio) {
             audio.src = this.paragraph.audio.src
         } else {
+            const loaderId = await assistOS.UI.showLoading();
             let cleanText = utilModule.findCommand(this.paragraph.text).remainingText;
             let audioBlob = (await assistOS.callFlow("TextToSpeech", {
                 spaceId: assistOS.space.id,
@@ -339,10 +343,12 @@ export class ParagraphItem {
                 src: audioSrc,
                 id: audioId
             });
-            this.paragraph.audio = {
-                src: audioSrc,
-                id: audioId
-            }
+            this.isPlaying = true;
+            assistOS.UI.hideLoading(loaderId);
+            this.invalidate(async () => {
+                this.paragraph = await this.chapter.refreshParagraph(assistOS.space.id, this._document.id, this.paragraph.id);
+            });
+            return;
         }
         audio.load();
         audio.play();
@@ -361,6 +367,7 @@ export class ParagraphItem {
         audioSection.classList.add('hidden');
         audioSection.classList.remove('flex');
         controller.abort();
+        this.isPlaying = false;
     };
 
     async openParagraphDropdown(_target) {
