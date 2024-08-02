@@ -16,7 +16,7 @@ async function concatenateAudioFiles(tempVideoDir, audioFilesPaths, outputAudioP
 }
 async function createSilentAudio(outputPath, duration, task) {
     //duration is in seconds
-    const command = `${ffmpegPath} -f lavfi -t ${duration} -i anullsrc=r=44100:cl=stereo -q:a 9 -acodec libmp3lame ${outputPath}`;
+    const command = `${ffmpegPath} -f lavfi -t ${duration} -i anullsrc=r=24000:cl=mono -c:a libmp3lame -b:a 160k ${outputPath}`
     await task.runCommand(command);
 }
 async function createVideoFromImage(image, duration, outputVideoPath, task) {
@@ -112,12 +112,14 @@ async function addBackgroundSoundToVideo(videoPath, backgroundSoundPath, backgro
     // Ensure fadeDuration does not exceed videoDuration
     fadeDuration = Math.min(fadeDuration, videoDuration);
     const fadeOutStartTime = videoDuration - fadeDuration;
-    const command = `
-            ${ffmpegPath} -i ${videoPath} -i ${backgroundSoundPath} -filter_complex "
-                [1:a]volume=${backgroundSoundVolume},afade=t=out:st=${fadeOutStartTime}:d=${fadeDuration}[bk];
-                [0:a][bk]amix=inputs=2:duration=first[aout]
-            " -map 0:v -map "[aout]" -c:v copy -c:a aac -b:a 192k ${outputPath}`;
+    const tempOutputPath = path.join(path.dirname(outputPath), `temp_${path.basename(outputPath)}`);
+    const command = `${ffmpegPath} -i ${videoPath} -i ${backgroundSoundPath} -filter_complex "
+            [1:a]volume=${backgroundSoundVolume},afade=t=out:st=${fadeOutStartTime}:d=${fadeDuration}[bk];
+            [0:a][bk]amix=inputs=2:duration=first[aout]
+            " -map 0:v -map "[aout]" -c:v copy -c:a aac -b:a 192k ${tempOutputPath}`;
     await task.runCommand(command);
+    await fsPromises.unlink(outputPath);
+    await fsPromises.rename(tempOutputPath, outputPath);
 }
 async function createChapterVideo(spaceId, chapter, tempVideoDir, documentId, chapterIndex, task){
     let completedFramePaths = [];
