@@ -319,7 +319,6 @@ export class ParagraphItem {
     async playParagraphAudio(_target) {
         let audioSection = this.element.querySelector('.paragraph-audio-section');
         let audio = this.element.querySelector('.paragraph-audio');
-        debugger
         if (this.paragraph.audio && !this.paragraph.audioConfig.toRegenerate) {
             audio.src = this.paragraph.audio.src
         } else {
@@ -360,6 +359,9 @@ export class ParagraphItem {
         audioSection.classList.add('flex');
         let controller = new AbortController();
         document.addEventListener("click", this.hideAudioElement.bind(this, controller, audio), {signal: controller.signal});
+    }
+    async deleteAudio(_target) {
+        documentModule.updateParagraphAudio(assistOS.space.id, this._document.id, this.paragraph.id, null);
     }
 
     hideAudioElement(controller, audio, event) {
