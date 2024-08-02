@@ -69,7 +69,7 @@ function UserStorage(server) {
     server.use("/users/*", authentication);
     server.get("/users", loadUser);
     server.get("/users/profileImage", getUserAvatar);
-    server.post("/users/logout", logoutUser);
+    server.get("/users/logout", logoutUser);
 
 
 }
