@@ -319,7 +319,7 @@ export class ParagraphItem {
     async playParagraphAudio(_target) {
         let audioSection = this.element.querySelector('.paragraph-audio-section');
         let audio = this.element.querySelector('.paragraph-audio');
-
+        debugger
         if (this.paragraph.audio && !this.paragraph.audioConfig.toRegenerate) {
             audio.src = this.paragraph.audio.src
         } else {

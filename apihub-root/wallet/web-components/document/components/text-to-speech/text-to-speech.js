@@ -96,7 +96,7 @@ export class TextToSpeech {
             text: updatedText
         });
 
-        chapterPresenter.invalidate(chapterPresenter.refreshChapter);
+        chapterPresenter.invalidate(async()=>this.chapter=await chapterPresenter.refreshChapter(this._document.id,chapterPresenter.chapter.id));
         assistOS.UI.hideLoading(loaderId);
     }
 
