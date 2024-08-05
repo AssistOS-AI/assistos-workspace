@@ -10,10 +10,6 @@ const {
 
 const bodyReader = require('../apihub-component-middlewares/bodyReader.js')
 const authentication = require('../apihub-component-middlewares/authentication.js')
-const securityConfig = require("../securityConfig.json");
-const crypto = require("../apihub-component-utils/crypto");
-
-const enclave = require("opendsu").loadAPI("enclave");
 
 function UserStorage(server) {
 

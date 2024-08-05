@@ -9,10 +9,6 @@ const file = require('../apihub-component-utils/file.js');
 const volumeManager = require('../volumeManager.js');
 const Space = require("../spaces-storage/space");
 const {instance: emailService} = require("../email");
-const eventPublisher = require("../subscribers/eventPublisher");
-
-const tableName = "UsersActiveSessions";
-
 
 async function registerUser(email, password, photo, inviteToken) {
     const currentDate = date.getCurrentUTCDate();

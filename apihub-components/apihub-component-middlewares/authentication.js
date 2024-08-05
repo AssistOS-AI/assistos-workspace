@@ -4,8 +4,6 @@ const utils = require('../apihub-component-utils/utils.js');
 const config = require('../config.json');
 const User = require('../users-storage/user.js');
 
-const tableName = "UsersActiveSessions";
-
 async function authentication(req, res, next) {
     const cookies = cookie.parseCookies(req);
     const authToken = cookies['authToken'];
