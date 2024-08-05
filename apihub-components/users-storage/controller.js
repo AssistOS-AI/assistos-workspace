@@ -2,6 +2,49 @@ const cookie = require('../apihub-component-utils/cookie.js');
 const utils = require('../apihub-component-utils/utils.js');
 const User = require('./user.js');
 
+async function resetPassword(request,response){
+    const email = request.body.email;
+    const password = request.body.password;
+    if(!email || !password){
+        return utils.sendResponse(response, 400, "application/json", {
+            success: false,
+            message: "Email and password are required"
+        });
+    }
+    try {
+        await User.APIs.resetPassword(requestData.email, requestData.password);
+        utils.sendResponse(response, 200, "application/json", {
+            success: true,
+            message: `Password reset successfully`
+        });
+    } catch (error) {
+        utils.sendResponse(response, error.statusCode, "application/json", {
+            success: false,
+            message: error.message
+        });
+    }
+}
+async function sendPasswordResetCode(request,response){
+    const email = request.body.email;
+    if(!email){
+        return utils.sendResponse(response, 400, "application/json", {
+            success: false,
+            message: "Email is required"
+        });
+    }
+    try {
+        await User.APIs.sendPasswordResetCode(email);
+        utils.sendResponse(response, 200, "application/json", {
+            success: true,
+            message: `Password reset code sent successfully`
+        });
+    } catch (error) {
+        utils.sendResponse(response, error.statusCode, "application/json", {
+            success: false,
+            message: error.message
+        });
+    }
+}
 async function addSecret(request, response) {
     try {
         await User.APIs.addSecret(request.params.spaceId, request.userId, request.body);
@@ -168,5 +211,7 @@ module.exports = {
     loginUser,
     loadUser,
     logoutUser,
-    getUserAvatar
+    getUserAvatar,
+    sendPasswordResetCode,
+    resetPassword
 };

@@ -88,8 +88,7 @@ export class AuthenticationPage {
               <div>
                    <div class="form-item">
                         <label class="form-label">
-                            <p>Account Created Successfully. You're being redirected to the login page</p>
-                            <!--<button class="general-button" data-local-action="navigateToLoginPage">Log in</button>-->
+                            <p>Account Created Successfully. You're being redirected to log in</p>
                         </label>
                     </div>
               </div>`;
@@ -102,45 +101,30 @@ export class AuthenticationPage {
                    Password Recovery
                   </div>
                   <div class="form-description">
-                  Before you introduce your email and new password, we will send you a verification link on your email.
+                  We will send you a verification code to reset your password
                   </div>
                   <form>
-                   <div class="form-item">
+                   <div class="form-item" id="email">
                         <label class="form-label" for="user-email">E-mail</label>
-                        <input class="form-input" name="email" type="email" data-id="user-email" id="user-email" required placeholder="Add e-mail">
+                        <input class="form-input" name="email" type="email" data-id="user-email" id="user-email" required placeholder="Add e-mail ">
                     </div>
-                    <div class="form-item">
+                    <div class="form-item" id="password">
                         <label class="form-label" for="user-password">New Password</label>
-                        <input class="form-input" name="password" type="password" data-id="user-password" id="user-password" required placeholder="Add new password">
+                        <input class="form-input" name="password" type="password" data-id="user-password" id="user-password" required placeholder="Add new password" autocomplete="new-password">
                     </div>
-                    <div class="form-item">
+                    <div class="form-item" id="confirm-password">
                         <label class="form-label" for="user-password-confirm">Confirm new Password</label>
-                        <input class="form-input" name="password-confirm" type="password" data-condition="checkPasswordConfirmation" data-id="user-password-confirm" id="user-password-confirm" required placeholder="Confirm new password">
+                        <input class="form-input" name="password-confirm" type="password" data-condition="checkPasswordConfirmation" data-id="user-password-confirm" id="user-password-confirm" required placeholder="Confirm new password" autocomplete="new-password">
                     </div>
-                    <div class="form-footer">
-                        <button type="button" class="general-button" data-local-action="beginPasswordRecovery">Set New Password</button>
+                       <div class="form-item" style="visibility:hidden">
+                        <label class="form-label" for="password-reset-code">Verification Code</label>
+                        <input class="form-input" name="password-reset-code" type="text" data-id="password-reset-code" id="password-reset-code" placeholder="Type your code">
                     </div>
-                </form>
-              </div>`;
-                break;
-            }
-            case "password-recovery-confirmation": {
-                this.subpage = `
-              <div>
-                  <div class="form-title">
-                   Password Recovery
-                  </div>
-                  <form>
-                   <div class="form-item">
-                        <label class="form-label" for="user-token">Enter the secret token or just click the link we just sent you by email.</label>
-                        <input class="form-input" name="token" type="text" data-id="user-token" id="user-token" required placeholder="Add secret token">
+
+                    <div class="form-footer spaced-buttons">
+                        <button type="button" class="general-button" data-local-action="generateVerificationCode">Get Verification Code </button>
+                    <button type="button"  style="visibility:hidden" id="reset-password-button" class="general-button" data-local-action="resetPassword">Reset Password </button>
                     </div>
-                    <div class="form-footer">
-                        <button type="button" class="general-button" data-local-action="finishPasswordRecovery">Log in</button>
-                    </div>
-                    <div class="development-mode" data-local-action="finishPasswordRecovery">
-                        Log in development mode
-                    </div>        
                 </form>
               </div>`;
                 break;
@@ -357,8 +341,7 @@ export class AuthenticationPage {
     async navigateToPasswordRecoveryPage() {
         await this.navigateToPage("password-recovery");
     }
-
-    async beginPasswordRecovery(_target) {
+    async generateVerificationCode(_target){
         const checkPasswordConfirmation = (confirmPassword) => {
             let password = document.querySelector("#user-password");
             return password.value === confirmPassword.value;
@@ -370,12 +353,39 @@ export class AuthenticationPage {
                 errorMessage: "Passwords do not match!"
             }
         };
+
         const formInfo = await assistOS.UI.extractFormInformation(_target, conditions);
         if (formInfo.isValid) {
-            if (await User.apis.recoverPassword(formInfo.data.email, formInfo.data.password)) {
-                await assistOS.UI.changeToDynamicPage("authentication-page", "authentication-page", {subpage: "password-recovery-confirmation"});
-            } else {
-                console.log("Failed to recover password");
+            const {email, password} = formInfo.data;
+            try {
+                await assistOS.loadifyFunction(User.apis.generateVerificationCode, email, password);
+                const resetCodeField=this.element.querySelector("#password-reset-code");
+                resetCodeField.style.visibility="visible";
+                resetCodeField.required=true;
+                const emailField=this.element.querySelector("#email");
+                emailField.remove();
+                const passwordField=this.element.querySelector("#password");
+                passwordField.remove();
+                const passwordConfirmField=this.element.querySelector("#confirm-password");
+                const resetPasswordButton=this.element.querySelector("#reset-password-button");
+                resetPasswordButton.style.visibility="visible";
+                passwordConfirmField.remove();
+                let timer = 60;
+                _target.innerHTML=`Regenerate Code (${timer}s)`;
+                let intervalId = setInterval(() => {
+                    timer--;
+                    if (timer === 0) {
+                        clearInterval(intervalId);
+                        _target.innerHTML="Get Verification Code";
+                        _target.disabled=false;
+                    } else {
+                        _target.innerHTML=`Regenerate Code (${timer}s)`;
+                        _target.disabled=true;
+                    }
+                }, 1000);
+
+            } catch (error) {
+                alert(error.message);
             }
         } else {
             console.log("Form invalid");
@@ -383,12 +393,12 @@ export class AuthenticationPage {
 
     }
 
-    async finishPasswordRecovery() {
+    /*async finishPasswordRecovery() {
         if (await User.apis.confirmRecoverPassword()) {
             window.location = "";
         } else {
             console.error("Failed to confirm password recovery");
         }
-    }
+    }*/
 
 }

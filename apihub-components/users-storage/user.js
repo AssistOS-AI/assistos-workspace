@@ -519,6 +519,10 @@ async function getUserPrivateChatAgentId(userId, spaceId) {
         return defaultSpaceAgentId;
     }
 }
+async function sendPasswordResetCode(email) {
+    const passwordResetCode = await crypto.generateVerificationCode();
+    await emailService.sendPasswordResetCode(email, passwordResetCode);
+}
 
 module.exports = {
     APIs: {
@@ -542,7 +546,9 @@ module.exports = {
         rejectSpaceInvitation,
         getSpaceInvitationErrorHTML,
         getUserFile,
-        getUserPrivateChatAgentId
+        getUserPrivateChatAgentId,
+        sendPasswordResetCode,
+
     },
     templates: {
         userRegistrationTemplate: require('./templates/userRegistrationTemplate.json'),

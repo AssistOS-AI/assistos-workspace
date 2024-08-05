@@ -218,3 +218,7 @@ authentication-page{
 #hidden{
     display: none;
 }
+.spaced-buttons{
+    display: flex;
+    justify-content: space-between;
+}

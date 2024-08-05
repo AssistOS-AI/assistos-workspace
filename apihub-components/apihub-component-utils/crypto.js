@@ -17,7 +17,9 @@ function generateVerificationKey(){
 async function generateVerificationToken() {
     return await crypto.getRandomSecret(64);
 }
-
+async function generateVerificationCode(){
+    return Math.floor(100000 + Math.random() * 900000);
+}
 function generateSecret(length = DEFAULT_SECRET_LENGTH) {
     return crypto.getRandomSecret(length);
 }
@@ -34,5 +36,6 @@ module.exports = {
     generateSecret,
     generateVerificationToken,
     generateId,
-    generateVerificationKey
+    generateVerificationKey,
+    generateVerificationCode
 }

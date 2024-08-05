@@ -6,20 +6,36 @@ const {
     logoutUser,
     userSecretExists,
     getUserAvatar,
+    resetPassword,
+    sendPasswordResetCode
 } = require("./controller");
 
 const bodyReader = require('../apihub-component-middlewares/bodyReader.js')
 const authentication = require('../apihub-component-middlewares/authentication.js')
 
 function UserStorage(server) {
-
     setTimeout(async () => {
         const config = require('../config.json');
+        const apihub = require('apihub');
+        const securityConfig = require('../securityConfig.json');
+        const secretService = await apihub.getSecretsServiceInstanceAsync(securityConfig.SERVER_ROOT_FOLDER);
+        const crypto = require("../apihub-component-utils/crypto.js");
+        const secrets = ['AccessToken', 'RefreshToken', 'EmailToken'];
+
+        for (const secret of secrets) {
+            try {
+                /* check if the secret exists */
+                secretService.getSecretSync('JWT', secret);
+            } catch (error) {
+                const tokenConfig = securityConfig.JWT[secret];
+                const token = {...tokenConfig, secret: crypto.generateSecret()};
+                await secretService.putSecretAsync('JWT', secret, token);
+            }
+        }
+
         if (config.REGENERATE_TOKEN_SECRETS_ON_RESTART === true) {
-            const securityConfig = require('../securityConfig.json');
+
             const jwtConfig = securityConfig.JWT;
-            const apihub = require('apihub');
-            const crypto = require("../apihub-component-utils/crypto.js");
 
             const accessToken = {
                 ...jwtConfig.AccessToken,
@@ -33,8 +49,6 @@ function UserStorage(server) {
                 ...jwtConfig.EmailToken,
                 secret: crypto.generateSecret()
             }
-
-            const secretService = await apihub.getSecretsServiceInstanceAsync(securityConfig.SERVER_ROOT_FOLDER);
 
             await secretService.putSecretAsync('JWT', 'AccessToken', accessToken);
             await secretService.putSecretAsync('JWT', 'RefreshToken', refreshToken);
@@ -63,6 +77,8 @@ function UserStorage(server) {
     server.post("/users", registerUser);
     server.post("/users/login", loginUser);
     server.get("/users/profileImage/:userId", getUserAvatar);
+    server.post("/users/password-reset/request",sendPasswordResetCode)
+    server.post("/users/password-reset/verify",resetPassword)
     server.use("/users/*", authentication);
     server.get("/users", loadUser);
     server.get("/users/profileImage", getUserAvatar);

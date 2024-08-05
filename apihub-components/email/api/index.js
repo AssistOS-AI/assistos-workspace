@@ -86,6 +86,24 @@ class Email {
 
         await this.sendEmail(emailConfig.email, email, `You have been invited to ${spaceName}`, emailHtml);
     }
+    async sendPasswordResetCode(email, resetToken) {
+        const data = require('../../apihub-component-utils/data.js')
+        const passwordResetTemplatePath = path.join(__dirname, '..', 'templates', 'passwordResetTemplate.html');
+        const passwordResetTemplate = await fsPromises.readFile(passwordResetTemplatePath, 'utf8')
+        const emailHtml = data.fillTemplate(passwordResetTemplate, {
+            companyLogoURL: emailConfig.companyLogoURL,
+            passwordResetCode: resetToken,
+            companyName: emailConfig.companyName,
+            streetAddress: emailConfig.streetAddress,
+            city: emailConfig.city,
+            country: emailConfig.country,
+            zipCode: emailConfig.zipCode,
+            supportEmail: emailConfig.supportEmail,
+            phoneNumber: emailConfig.phoneNumber,
+        });
+
+        await this.sendEmail(emailConfig.email, email, 'Password Reset', emailHtml);
+    }
 }
 
 module.exports = Email;

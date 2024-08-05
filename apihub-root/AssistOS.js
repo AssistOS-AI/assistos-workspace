@@ -130,10 +130,12 @@ class AssistOS {
                 sidebar.remove();
             }
         }
-        removeSidebar();
+        const loaderId=await assistOS.UI.showLoading();
         await utilModule.closeSSEConnection(this.connectionSSE);
         delete this.connectionSSE;
         await userModule.logoutUser();
+        removeSidebar();
+        await
         await this.refresh();
 
     }
@@ -234,7 +236,7 @@ class AssistOS {
     }
 
     async loadifyFunction(asyncFunc, ...args) {
-        await this.openLoader();
+        const loaderId=await this.UI.showLoading();
         try {
             return await asyncFunc(...args);
         } catch (error) {
@@ -245,16 +247,8 @@ class AssistOS {
                 params: args
             });
         } finally {
-            await this.closeLoader();
+            await this.UI.hideLoading(loaderId);
         }
-    }
-
-    async openLoader() {
-        await assistOS.UI.showLoading();
-    }
-
-    async closeLoader() {
-        await assistOS.UI.hideLoading();
     }
 
     loadModule(moduleName) {
