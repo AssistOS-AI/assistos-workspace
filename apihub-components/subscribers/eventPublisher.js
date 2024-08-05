@@ -5,6 +5,7 @@ class EventPublisher {
     constructor() {
         this.clients = new Map();
     }
+
     addClientConnection(userId, response) {
         const client = this.clients.get(userId);
 
@@ -31,11 +32,13 @@ class EventPublisher {
         client.connections.set(sessionId, {
             response: response,
             intervalId: intervalId,
-            objectIds: new Set()});
+            objectIds: new Set()
+        });
     }
+
     registerClient(userId, request, response) {
         if (this.clients.has(userId)) {
-           return this.addClientConnection(userId, response);
+            return this.addClientConnection(userId, response);
         }
         const client = {
             connections: new Map(),
@@ -44,6 +47,7 @@ class EventPublisher {
         this.clients.set(userId, client);
         this.addClientConnection(userId, response);
     }
+
     closeClientConnection(userId, sessionId) {
         let client = this.clients.get(userId);
         if (client) {
@@ -55,21 +59,18 @@ class EventPublisher {
                 clientConnection.response.write(`data: Connection closed\n\n`);
                 clientConnection.response.end();
                 client.connections.delete(sessionId);
-                if(client.connections.size === 0) {
+                if (client.connections.size === 0) {
                     this.clients.delete(userId);
                 }
-            } else {
-                throw new Error(`Client ${userId} connection ${sessionId} not found`);
             }
-        } else {
-            throw new Error(`Client ${userId} not found`);
         }
     }
+
     notifyClients(userId, sessionId, objectId, eventData) {
         for (let [clientUserId, client] of this.clients) {
-            for(let [connectionSessionId, connection] of client.connections) {
+            for (let [connectionSessionId, connection] of client.connections) {
                 if (connection.objectIds.has(objectId)) {
-                    let message = { objectId: objectId };
+                    let message = {objectId: objectId};
                     if (eventData) {
                         message.data = eventData;
                     }
@@ -84,12 +85,12 @@ class EventPublisher {
 
     notifyClientTask(userId, objectId, eventData) {
         let client = this.clients.get(userId);
-        if(!client){
+        if (!client) {
             return;
         }
-        for(let [sessionId, connection] of client.connections) {
-            if(connection.objectIds.has(objectId)) {
-                let message = { objectId: objectId };
+        for (let [sessionId, connection] of client.connections) {
+            if (connection.objectIds.has(objectId)) {
+                let message = {objectId: objectId};
                 if (eventData) {
                     message.data = eventData;
                 }
