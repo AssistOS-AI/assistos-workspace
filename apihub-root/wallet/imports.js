@@ -12,7 +12,6 @@ import {
     insertTextAtCursor,
     saveCaretPosition,
     base64ToBlob,
-    blobToBase64,
     executorTimer,
     unescapeHtmlEntities
 } from "./utils/utils.js";
@@ -26,7 +25,6 @@ export {
     insertTextAtCursor,
     saveCaretPosition,
     base64ToBlob,
-    blobToBase64,
     executorTimer,
     unescapeHtmlEntities,
     validateOpenAiKey,

@@ -45,15 +45,6 @@ export function base64ToBlob(base64, contentType = '', sliceSize = 512) {
     return new Blob(byteArrays, {type: contentType});
 }
 
-export function blobToBase64(blob) {
-    return new Promise((resolve, reject) => {
-        const reader = new FileReader();
-        reader.onloadend = () => resolve(reader.result); // Get the Base64 string without the data URL prefix
-        reader.onerror = reject;
-        reader.readAsDataURL(blob);
-    });
-}
-
 export function executorTimer(fn, t) {
     let intervalId = setInterval(fn, t);
     this.stop = async function (executeFn) {

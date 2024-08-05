@@ -1,5 +1,3 @@
-import {blobToBase64} from "../../../../imports.js";
-
 const utilModule = require("assistos").loadModule("util", {});
 const documentModule = require("assistos").loadModule("document", {});
 const spaceModule = require("assistos").loadModule("space", {});
@@ -324,7 +322,7 @@ export class ParagraphItem {
         } else {
             const loaderId = await assistOS.UI.showLoading();
             let cleanText = utilModule.findCommand(this.paragraph.text).remainingText;
-            let audioBlob = (await assistOS.callFlow("TextToSpeech", {
+            let arrayBufferAudio = (await assistOS.callFlow("TextToSpeech", {
                 spaceId: assistOS.space.id,
                 prompt: cleanText,
                 voiceId: this.paragraph.audioConfig.voiceId,
@@ -336,7 +334,7 @@ export class ParagraphItem {
                 },
                 modelName: "PlayHT2.0"
             })).data;
-            let audioId = await spaceModule.addAudio(assistOS.space.id, await blobToBase64(audioBlob));
+            let audioId = await spaceModule.addAudio(assistOS.space.id, arrayBufferAudio);
             let audioSrc = `spaces/audio/${assistOS.space.id}/${audioId}`;
             await documentModule.updateParagraphAudio(assistOS.space.id, this._document.id, this.paragraph.id, {
                 src: audioSrc,
