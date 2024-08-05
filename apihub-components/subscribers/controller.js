@@ -5,9 +5,9 @@ function registerClient(request, response) {
     eventPublisher.registerClient(request.userId, request, response);
 }
 
-function closeClient(request, response) {
+function closeClientConnection(request, response) {
     try {
-        eventPublisher.closeClient(request.userId);
+        eventPublisher.closeClientConnection(request.userId, request.sessionId);
         sendResponse(response, 200, "application/json", {
             success: true
         });
@@ -23,7 +23,7 @@ function subscribeToObject(request, response) {
     try {
         let objectId = decodeURIComponent(request.params.objectId);
         let userId = request.userId;
-        eventPublisher.subscribeToObject(userId, objectId);
+        eventPublisher.subscribeToObject(userId, request.sessionId, objectId);
         sendResponse(response, 200, "application/json", {
             success: true
         });
@@ -39,7 +39,7 @@ function unsubscribeFromObject(request, response) {
     try {
         let objectId = decodeURIComponent(request.params.objectId);
         let userId = request.userId;
-        eventPublisher.unsubscribeFromObject(userId, objectId);
+        eventPublisher.unsubscribeFromObject(userId, request.sessionId, objectId);
         sendResponse(response, 200, "application/json", {
             success: true
         });
@@ -55,5 +55,5 @@ module.exports = {
     subscribeToObject,
     unsubscribeFromObject,
     registerClient,
-    closeClient
+    closeClientConnection
 };

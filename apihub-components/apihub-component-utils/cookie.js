@@ -1,5 +1,13 @@
 const jwt = require("./jwt");
-
+function createSessionCookie(sessionId) {
+    return createCookieString('sessionId', sessionId, {
+        httpOnly: true,
+        sameSite: 'Strict',
+        maxAge: 60 * 60 * 24 * 7,
+        secure: true,
+        path: "/"
+    });
+}
 function parseCookies(request) {
     const list = {};
     const cookieHeader = request.headers.cookie;
@@ -119,6 +127,7 @@ function deleteDemoUserCookie() {
 }
 
 module.exports = {
+    createSessionCookie,
     parseCookies,
     createCookieString,
     createAuthCookie,

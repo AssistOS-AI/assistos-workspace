@@ -22,8 +22,8 @@ export class HistoryImage {
                         if(buttons){
                             image.buttons = buttons;
                         }
-                        await galleryModule.updateOpenAIHistoryImage(assistOS.space.id, galleryId, imageId, image);
                         await utilModule.unsubscribeFromObject(imageId);
+                        await galleryModule.updateOpenAIHistoryImage(assistOS.space.id, galleryId, imageId, image);
                         this.invalidate();
                     });
                 }

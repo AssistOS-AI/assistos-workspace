@@ -6,10 +6,13 @@ const User = require('../users-storage/user.js');
 
 async function authentication(req, res, next) {
     const cookies = cookie.parseCookies(req);
+    const sessionId = cookies['sessionId'];
     const authToken = cookies['authToken'];
     const refreshToken = cookies['refreshAuthToken'];
     let setCookies = [];
-
+    if(sessionId) {
+        req.sessionId = sessionId;
+    }
     if (authToken) {
         try {
             const {userId} = await jwt.validateUserAccessJWT(authToken, 'AccessToken');

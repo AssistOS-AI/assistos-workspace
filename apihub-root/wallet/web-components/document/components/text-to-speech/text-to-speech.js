@@ -80,7 +80,7 @@ export class TextToSpeech {
         if (!paragraphElement.webSkelPresenter.paragraph.audio) {
             updatedText = paragraphCommand + paragraphText;
         } else {
-            updatedText = paragraphCommand+utilModule.findCommand(paragraphText).remainingText
+            updatedText = paragraphCommand + utilModule.findCommand(paragraphText).remainingText
             audioConfig.toRegenerate = true;
         }
 
