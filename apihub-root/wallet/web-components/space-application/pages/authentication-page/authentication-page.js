@@ -13,11 +13,15 @@ export class AuthenticationPage {
         this.invalidate();
         this.rotations = 0;
         [this.demoUserEmail, this.demoUserPassword] = getDemoUserCredentials();
-        this.inviteToken = window.location.hash.split("/")[2];
     }
 
     beforeRender() {
-        switch (this.element.getAttribute("data-subpage")) {
+        this.inviteToken = window.location.hash.split("/")[2];
+        let dataSubpage = this.element.getAttribute("data-subpage");
+        if(this.inviteToken && dataSubpage!=="register-confirmation-with-invite"){
+            dataSubpage = "register-page";
+        }
+        switch (dataSubpage) {
             case "register-page": {
                 let hiddenClass = this.inviteToken ? "hidden" : "email";
                 let requiredEmail = this.inviteToken ? "" : "required";
@@ -279,6 +283,7 @@ export class AuthenticationPage {
             this.formData = formInfo.data;
             const {email, password, photo} = formInfo.data;
             try {
+                this.loader=assistOS.UI.showLoading();
                 await User.apis.registerUser(email, password, photo || undefined, this.inviteToken);
             }catch(error){
                 switch(error.statusCode){
@@ -289,6 +294,9 @@ export class AuthenticationPage {
                         alert(error.message);
                 }
                 await assistOS.UI.changeToDynamicPage("authentication-page", "authentication-page");
+            }finally {
+                await assistOS.UI.hideLoading(this.loader);
+                delete this.loader;
             }
             if (this.inviteToken) {
                 this.invalidate(async () => {

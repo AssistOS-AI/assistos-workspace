@@ -381,7 +381,6 @@ async function getSpacePersonalitiesObject(spaceId) {
         spacePersonalitiesObject.push(JSON.parse(personalityJson));
     }
     return spacePersonalitiesObject;
-
 }
 
 async function getSpaceStatusObject(spaceId) {
