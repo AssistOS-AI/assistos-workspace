@@ -139,26 +139,7 @@ async function loginUser(email, password) {
     const userCredentials = await getUserCredentials();
     const hashedPassword = crypto.hashPassword(password);
     if (userCredentials[userId].password === hashedPassword) {
-        const userVerificationKey = crypto.generateVerificationKey();
-        try {
-            /* check someone is already logged in */
-            await $$.promisify($$.ActiveSessionsClient.getRecord)($$.SYSTEM_IDENTIFIER, tableName, userId);
-
-            /* someone is already logged in */
-            await $$.promisify($$.ActiveSessionsClient.updateRecord)($$.SYSTEM_IDENTIFIER, tableName, userId, {data: {verificationKey: userVerificationKey}});
-
-            /* attempt to disconnect the other user logged on the account */
-            try {
-                eventPublisher.sendClientEvent(userId, 'disconnect', {message: 'You have been logged out from another device'});
-                eventPublisher.closeClient(userId);
-            }catch(error){
-                /* do nothing as the user manually closed the connection */
-            }
-        } catch (error) {
-            /* no one is logged in */
-            await $$.promisify($$.ActiveSessionsClient.insertRecord)($$.SYSTEM_IDENTIFIER, tableName, userId, {data: {verificationKey: userVerificationKey}});
-        }
-        return {userId: userId, verificationKey: userVerificationKey};
+        return {userId: userId};
     } else {
         const error = new Error('Invalid credentials');
         error.statusCode = 401;
@@ -167,7 +148,6 @@ async function loginUser(email, password) {
 }
 
 async function logoutUser(userId) {
-    await $$.promisify($$.ActiveSessionsClient.deleteRecord)($$.SYSTEM_IDENTIFIER, tableName, userId);
 }
 
 async function addSpaceCollaborators(spaceId, userId, referrerId, role) {

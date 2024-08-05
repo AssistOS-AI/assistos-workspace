@@ -14,15 +14,9 @@ async function authentication(req, res, next) {
 
     if (authToken) {
         try {
-            const { userId, verificationKey } = await jwt.validateUserAccessJWT(authToken, 'AccessToken');
-            const accountSessionData = await $$.promisify($$.ActiveSessionsClient.getRecord)($$.SYSTEM_IDENTIFIER, tableName, userId);
-
-            if (accountSessionData.data.verificationKey === verificationKey) {
-                req.userId = userId;
-                return next();
-            } else {
-                return authenticationError(res, next);
-            }
+            const {userId} = await jwt.validateUserAccessJWT(authToken, 'AccessToken');
+            req.userId = userId;
+            return next();
         } catch (error) {
             // invalid token, ignore error and attempt to generate a new authToken
         }
@@ -30,19 +24,13 @@ async function authentication(req, res, next) {
 
     if (refreshToken) {
         try {
-            const { userId, verificationKey } = await jwt.validateUserRefreshAccessJWT(refreshToken, 'RefreshToken');
-            const accountSessionData = await $$.promisify($$.ActiveSessionsClient.getRecord)($$.SYSTEM_IDENTIFIER, tableName, userId);
-            if (accountSessionData.data.verificationKey === verificationKey) {
-                const userData = await User.APIs.getUserData(userId);
-                const newAuthCookie = await cookie.createAuthCookie(userData, verificationKey);
-                setCookies.push(newAuthCookie);
-                req.userId = userId;
-                res.setHeader('Set-Cookie', setCookies);
-                return next();
-            } else {
-                res.setHeader('Set-Cookie', setCookies);
-                return authenticationError(res, next);
-            }
+            const {userId} = await jwt.validateUserRefreshAccessJWT(refreshToken, 'RefreshToken');
+            const userData = await User.APIs.getUserData(userId);
+            const newAuthCookie = await cookie.createAuthCookie(userData);
+            setCookies.push(newAuthCookie);
+            req.userId = userId;
+            res.setHeader('Set-Cookie', setCookies);
+            return next();
         } catch (error) {
             res.setHeader('Set-Cookie', setCookies);
             return authenticationError(res, next);
@@ -57,7 +45,7 @@ function authenticationError(res, next) {
     const error = new Error('Authentication failed');
     error.statusCode = 401;
     if (config.CREATE_DEMO_USER === true) {
-        const { email, password } = User.templates.demoUser;
+        const {email, password} = User.templates.demoUser;
         utils.sendResponse(res, 401, "application/json", {
             success: false,
             message: "Unauthorized"

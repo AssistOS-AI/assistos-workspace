@@ -17,11 +17,11 @@ export class AuthenticationPage {
 
     beforeRender() {
         this.inviteToken = window.location.hash.split("/")[2];
-        let dataSubpage = this.element.getAttribute("data-subpage");
-        if(this.inviteToken && dataSubpage!=="register-confirmation-with-invite"){
-            dataSubpage = "register-page";
+        this.dataSubpage = this.element.getAttribute("data-subpage");
+        if(this.inviteToken &&  this.dataSubpage!=="register-confirmation-with-invite"){
+            this.dataSubpage= "register-page";
         }
-        switch (dataSubpage) {
+        switch ( this.dataSubpage) {
             case "register-page": {
                 let hiddenClass = this.inviteToken ? "hidden" : "email";
                 let requiredEmail = this.inviteToken ? "" : "required";
@@ -88,8 +88,8 @@ export class AuthenticationPage {
               <div>
                    <div class="form-item">
                         <label class="form-label">
-                            <p>Account Created! Click here to login into your new account.</p>
-                            <button class="general-button" data-local-action="navigateToLoginPage">Log in</button>
+                            <p>Account Created Successfully. You're being redirected to the login page</p>
+                            <!--<button class="general-button" data-local-action="navigateToLoginPage">Log in</button>-->
                         </label>
                     </div>
               </div>`;
@@ -201,6 +201,11 @@ export class AuthenticationPage {
             this.lastInput.removeEventListener("keypress", this.boundFn);
             this.boundFn = this.sendFormOnEnter.bind(this);
             this.lastInput.addEventListener("keypress", this.boundFn);
+        }
+        if(this.dataSubpage==="register-confirmation-with-invite"){
+            setTimeout(async () => {
+                await this.navigateToLoginPage();
+            }, 3000);
         }
     }
 

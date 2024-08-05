@@ -42,8 +42,8 @@ function createCookieString(name, value, options = {}) {
     return cookieString;
 }
 
-async function createAuthCookie(userData,verificationKey) {
-    const accessToken = await jwt.createUserAccessJWT(userData,verificationKey)
+async function createAuthCookie(userData) {
+    const accessToken = await jwt.createUserAccessJWT(userData)
     return createCookieString('authToken', accessToken, {
         httpOnly: true,
         sameSite: 'Strict',
@@ -61,8 +61,8 @@ function deleteAuthCookie() {
     });
 }
 
-async function createRefreshAuthCookie(userData,verificationKey) {
-    const refreshToken = await jwt.createUserRefreshAccessJWT(userData,verificationKey)
+async function createRefreshAuthCookie(userData) {
+    const refreshToken = await jwt.createUserRefreshAccessJWT(userData)
     return createCookieString('refreshAuthToken', refreshToken, {
         httpOnly: true,
         sameSite: 'Strict',
