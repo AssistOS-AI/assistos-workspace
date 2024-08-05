@@ -3,7 +3,7 @@
   "version": "2023.1.0",
   "description": "",
   "scripts": {
-    "dev-install": "node ./bin/mkDevEnv.js && npm install && cd data-volume && mkdir spaces && mkdir users",
+    "dev-install": "node ./bin/mkDevEnv.js && npm install && cd data-volume && mkdir spaces && mkdir users && mkdir Temp",
     "postinstall": "node ./node_modules/octopus/scripts/setEnv --file=../../../env.json \"npm run do-install\"",
     "do-install": "node ./node_modules/octopus/scripts/ensureFreezeState.js && node ./node_modules/octopus/scripts/run",
     "update": "node ./node_modules/octopus/scripts/update",
