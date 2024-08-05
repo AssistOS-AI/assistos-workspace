@@ -70,30 +70,30 @@ async function splitChapterIntoFrames(tempVideoDir, spaceId, documentId, chapter
 }
 async function tryToExecuteCommandOnParagraph(tempVideoDir, spaceId, documentId, paragraph, task) {
     let commandObject = utilsModule.findCommand(paragraph.text);
-    if (commandObject) {
-        let taskFunction;
-        if(commandObject.action === "textToSpeech"){
-            const spacePath = space.getSpacePath(spaceId);
-            const audiosPath = path.join(spacePath, 'audios');
-            taskFunction = async function(){
-                let audioId = await audioCommands.executeTextToSpeechOnParagraph(spaceId, documentId, paragraph, commandObject, this);
-                return path.join(audiosPath, `${audioId}.mp3`);
-            }
-        } else if(commandObject.action === "createSilentAudio"){
-            taskFunction = async function(){
-                let audioPath = path.join(tempVideoDir, `${documentId}_paragraph_${paragraph.id}_silent.mp3`);
-                await createSilentAudio(audioPath, commandObject.paramsObject.duration, this);
-                return audioPath;
-            }
+    let taskFunction;
+    if(commandObject.action === "textToSpeech"){
+        const spacePath = space.getSpacePath(spaceId);
+        const audiosPath = path.join(spacePath, 'audios');
+        taskFunction = async function(){
+            let audioId = await audioCommands.executeTextToSpeechOnParagraph(spaceId, documentId, paragraph, commandObject, this);
+            return path.join(audiosPath, `${audioId}.mp3`);
         }
-        let childTask = new Task(taskFunction, task.securityContext);
-        try {
-            task.addChildTask(childTask);
-            return await childTask.run();
-        } catch (e) {
-            throw new Error(`Failed to execute command on paragraph ${paragraph.id}: ${e}`);
-            //command failed, stop video creation?
+    } else if(commandObject.action === "createSilentAudio"){
+        taskFunction = async function(){
+            let audioPath = path.join(tempVideoDir, `${documentId}_paragraph_${paragraph.id}_silent.mp3`);
+            await createSilentAudio(audioPath, commandObject.paramsObject.duration, this);
+            return audioPath;
         }
+    } else {
+        return;
+    }
+    let childTask = new Task(taskFunction, task.securityContext);
+    try {
+        task.addChildTask(childTask);
+        return await childTask.run();
+    } catch (e) {
+        throw new Error(`Failed to execute command on paragraph ${paragraph.id}: ${e}`);
+        //command failed, stop video creation?
     }
 }
 async function addBackgroundSoundToVideo(videoPath, backgroundSoundPath, backgroundSoundVolume, fadeDuration, outputPath, task) {

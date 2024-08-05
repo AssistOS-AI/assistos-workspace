@@ -79,8 +79,8 @@ async function addFileObject(request, response) {
 
         let filePath = getFileObjectPath(spaceId, objectType, objectId);
         await fsPromises.writeFile(filePath, JSON.stringify(objectData, null, 2), 'utf8');
-        eventPublisher.notifyClients(request.userId, objectType);
-        eventPublisher.notifyClients(request.userId, objectId);
+        eventPublisher.notifyClients(request.userId, request.sessionId, objectType);
+        eventPublisher.notifyClients(request.userId, request.sessionId, objectId);
 
         return utils.sendResponse(response, 200, "application/json", {
             success: true,
@@ -117,8 +117,8 @@ async function updateFileObject(request, response) {
             });
         }
         await fsPromises.writeFile(filePath, JSON.stringify(objectData, null, 2), 'utf8');
-        eventPublisher.notifyClients(request.userId, objectType);
-        eventPublisher.notifyClients(request.userId, objectId);
+        eventPublisher.notifyClients(request.userId, request.sessionId, objectType);
+        eventPublisher.notifyClients(request.userId, request.sessionId, objectId);
         return utils.sendResponse(response, 200, "application/json", {
             success: true,
             data: objectId,
@@ -145,8 +145,8 @@ async function deleteFileObject(request, response) {
             await fsPromises.writeFile(metadataPath, JSON.stringify(metadata), 'utf8');
         }
         let filePath = getFileObjectPath(spaceId, objectType, objectId);
-        eventPublisher.notifyClients(request.userId, objectType);
-        eventPublisher.notifyClients(request.userId, objectId, "delete");
+        eventPublisher.notifyClients(request.userId, request.sessionId, objectType);
+        eventPublisher.notifyClients(request.userId, request.sessionId, objectId, "delete");
         await fsPromises.unlink(filePath);
         return utils.sendResponse(response, 200, "application/json", {
             success: true,
@@ -282,7 +282,7 @@ async function addContainerObject(request, response) {
     try {
         let lightDBEnclaveClient = enclave.initialiseLightDBEnclave(spaceId);
         let objectId = await addContainerObjectToTable(lightDBEnclaveClient, objectType, objectData);
-        eventPublisher.notifyClients(request.userId, objectType);
+        eventPublisher.notifyClients(request.userId, request.sessionId, objectType);
         return utils.sendResponse(response, 200, "application/json", {
             success: true,
             data: objectId,
@@ -305,8 +305,8 @@ async function updateContainerObject(request, response) {
         await deleteContainerObjectTable(lightDBEnclaveClient, objectId);
         let objectType = objectId.split('_')[0];
         await addContainerObjectToTable(lightDBEnclaveClient, objectType, objectData);
-        eventPublisher.notifyClients(request.userId, objectType);
-        eventPublisher.notifyClients(request.userId, objectId);
+        eventPublisher.notifyClients(request.userId, request.sessionId, objectType);
+        eventPublisher.notifyClients(request.userId, request.sessionId, objectId);
         return utils.sendResponse(response, 200, "application/json", {
             success: true,
             data: objectId,
@@ -333,8 +333,8 @@ async function deleteContainerObject(request, response) {
     try {
         let lightDBEnclaveClient = enclave.initialiseLightDBEnclave(spaceId);
         await deleteContainerObjectTable(lightDBEnclaveClient, objectId);
-        eventPublisher.notifyClients(request.userId, objectId, "delete");
-        eventPublisher.notifyClients(request.userId, objectId.split('_')[0]);
+        eventPublisher.notifyClients(request.userId, request.sessionId, objectId, "delete");
+        eventPublisher.notifyClients(request.userId, request.sessionId, objectId.split('_')[0]);
         return utils.sendResponse(response, 200, "application/json", {
             success: true,
             data: objectId,
@@ -485,7 +485,7 @@ async function addEmbeddedObject(request, response) {
         let parts = objectURI.split("/");
         let tableId = parts[0];
         let objectId = await insertEmbeddedObjectRecords(lightDBEnclaveClient, tableId, objectURI, objectData);
-        eventPublisher.notifyClients(request.userId, parts[parts.length - 2]);
+        eventPublisher.notifyClients(request.userId, request.sessionId, parts[parts.length - 2]);
         return utils.sendResponse(response, 200, "application/json", {
             success: true,
             data: objectId,
@@ -525,7 +525,7 @@ async function updateEmbeddedObject(request, response) {
                         object[propertyName].push(item.id);
                     }
                     await $$.promisify(lightDBEnclaveClient.updateRecord)($$.SYSTEM_IDENTIFIER, tableId, objectId, {data: object});
-                    eventPublisher.notifyClients(request.userId, objectId, propertyName);
+                    eventPublisher.notifyClients(request.userId, request.sessionId, objectId, propertyName);
                     return utils.sendResponse(response, 200, "application/json", {
                         success: true,
                         data: objectId,
@@ -536,14 +536,14 @@ async function updateEmbeddedObject(request, response) {
             object[propertyName] = objectData;
             await $$.promisify(lightDBEnclaveClient.updateRecord)($$.SYSTEM_IDENTIFIER, tableId, objectId, {data: object});
             if (segments.length === 3 || (segments.length === 2 && !Array.isArray(object[propertyName]))) {
-                eventPublisher.notifyClients(request.userId, objectId, propertyName);
+                eventPublisher.notifyClients(request.userId, request.sessionId, objectId, propertyName);
             } else {
-                eventPublisher.notifyClients(request.userId, objectId);
+                eventPublisher.notifyClients(request.userId, request.sessionId, objectId);
             }
         } else {
             await deleteEmbeddedObjectDependencies(lightDBEnclaveClient, tableId, objectId);
             await insertEmbeddedObjectRecords(lightDBEnclaveClient, tableId, objectURI, objectData, true);
-            eventPublisher.notifyClients(request.userId, objectId);
+            eventPublisher.notifyClients(request.userId, request.sessionId, objectId);
         }
         return utils.sendResponse(response, 200, "application/json", {
             success: true,
@@ -602,7 +602,7 @@ async function deleteEmbeddedObject(request, response) {
         let parts = objectURI.split("/");
         let tableId = parts[0];
         await deleteEmbeddedObjectFromTable(lightDBEnclaveClient, tableId, objectURI);
-        eventPublisher.notifyClients(request.userId, parts[parts.length - 2]);
+        eventPublisher.notifyClients(request.userId, request.sessionId, parts[parts.length - 2]);
         return utils.sendResponse(response, 200, "application/json", {
             success: true,
             data: objectURI,
@@ -641,7 +641,7 @@ async function swapEmbeddedObjects(request, response) {
         object[propertyName][index1] = embeddedId2;
         object[propertyName][index2] = embeddedId1;
         await $$.promisify(lightDBEnclaveClient.updateRecord)($$.SYSTEM_IDENTIFIER, tableId, objectId, {data: object});
-        eventPublisher.notifyClients(request.userId, objectId);
+        eventPublisher.notifyClients(request.userId, request.sessionId, objectId);
         return utils.sendResponse(response, 200, "application/json", {
             success: true,
             data: objectURI,

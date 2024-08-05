@@ -273,6 +273,9 @@ export class GenerateImagePage {
 
     selectSavedInputs(object) {
         for (let key of Object.keys(object)) {
+            if(key === "prompt") {
+                continue;
+            }
             let value = object[key];
             let optionElement = this.element.querySelector(`[value="${value}"]`);
             if (optionElement) {
