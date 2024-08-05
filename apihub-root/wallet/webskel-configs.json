@@ -57,12 +57,6 @@
             "presenterClassName": "DocumentsPage"
         },
         {
-            "name": "image-item",
-            "directory": "gallery",
-            "type": "components",
-            "presenterClassName": "ImageItem"
-        },
-        {
             "name": "generate-image-page",
             "directory": "gallery",
             "type": "pages",

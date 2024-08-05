@@ -146,11 +146,11 @@ async function createChapterVideo(spaceId, chapter, tempVideoDir, documentId, ch
         `chapter_${chapterIndex}_frames.txt`,
         `chapter_${chapterIndex}_video.mp4`,
         task);
-    // if(chapter.backgroundSound){
-    //     let backgroundSoundPath = path.join(space.getSpacePath(spaceId), 'audios', `${chapter.backgroundSound.src.split("/").pop()}.mp3`);
-    //     let outputVideoPath = path.join(tempVideoDir, `chapter_${chapterIndex}_video.mp4`);
-    //     await addBackgroundSoundToVideo(videoPath, backgroundSoundPath, chapter.backgroundSound.volume, 1, outputVideoPath, task);
-    // }
+    if(chapter.backgroundSound){
+        let backgroundSoundPath = path.join(space.getSpacePath(spaceId), 'audios', `${chapter.backgroundSound.src.split("/").pop()}.mp3`);
+        let outputVideoPath = path.join(tempVideoDir, `chapter_${chapterIndex}_video.mp4`);
+        await addBackgroundSoundToVideo(videoPath, backgroundSoundPath, chapter.backgroundSound.volume, 1, outputVideoPath, task);
+    }
     return videoPath;
 }
 async function combineVideos(tempVideoDir, videoPaths, fileListName, outputVideoName, task, videoDir) {

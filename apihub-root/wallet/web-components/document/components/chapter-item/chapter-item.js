@@ -287,7 +287,7 @@ export class ChapterItem {
                     id: audioId,
                     userId: assistOS.user.id,
                     src: `spaces/audio/${assistOS.space.id}/${audioId}`,
-                    volume: "default"
+                    volume: "1"
                 };
                 await assistOS.callFlow("UpdateChapterBackgroundSound", {
                     spaceId: assistOS.space.id,
@@ -369,9 +369,8 @@ export class ChapterItem {
             }
             audioSection.classList.remove('hidden');
             audioSection.classList.add('flex');
-            if (this.chapter.backgroundSound.volume !== "default") {
-                audio.volume = this.chapter.backgroundSound.volume;
-            }
+            audio.volume = this.chapter.backgroundSound.volume;
+
             let controller = new AbortController();
             document.addEventListener("click", this.hideAudioElement.bind(this, controller, _target), {signal: controller.signal});
             _target.setAttribute("data-local-action", "playBackgroundAudio on");

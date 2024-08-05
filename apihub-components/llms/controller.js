@@ -283,6 +283,7 @@ async function getAudioResponse(request, response) {
             message: jsonMessage.message
         });
     }
+    response.setHeader("Content-Type", "audio/mpeg");
     await $$.promisify(pipeline)(modelResponse.body, response);
 }
 
