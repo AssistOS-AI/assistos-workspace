@@ -222,3 +222,11 @@ authentication-page{
     display: flex;
     justify-content: space-between;
 }
+#regenerate-verification-code:disabled{
+    background-color: grey;
+    cursor: not-allowed;
+}
+#reset-password-button:disabled{
+    background-color: grey;
+    cursor: not-allowed;
+}

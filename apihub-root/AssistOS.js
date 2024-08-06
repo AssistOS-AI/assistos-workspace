@@ -240,12 +240,7 @@ class AssistOS {
         try {
             return await asyncFunc(...args);
         } catch (error) {
-            await showApplicationError("Error", `Encountered an error during the execution of ${asyncFunc.name || "Undefined Function"}`, {
-                message: error.message,
-                stack: error.stack,
-                function: asyncFunc.name,
-                params: args
-            });
+            throw error;
         } finally {
             await this.UI.hideLoading(loaderId);
         }

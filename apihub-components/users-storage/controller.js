@@ -5,20 +5,21 @@ const User = require('./user.js');
 async function resetPassword(request,response){
     const email = request.body.email;
     const password = request.body.password;
-    if(!email || !password){
+    const code = request.body.code;
+    if(!email || !password|| !code){
         return utils.sendResponse(response, 400, "application/json", {
             success: false,
-            message: "Email and password are required"
+            message: "Email, password and code are required"
         });
     }
     try {
-        await User.APIs.resetPassword(requestData.email, requestData.password);
+        await User.APIs.resetPassword(email, password,code);
         utils.sendResponse(response, 200, "application/json", {
             success: true,
             message: `Password reset successfully`
         });
     } catch (error) {
-        utils.sendResponse(response, error.statusCode, "application/json", {
+        utils.sendResponse(response, error.statusCode||500, "application/json", {
             success: false,
             message: error.message
         });

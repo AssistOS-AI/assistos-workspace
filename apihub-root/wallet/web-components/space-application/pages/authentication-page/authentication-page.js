@@ -18,10 +18,10 @@ export class AuthenticationPage {
     beforeRender() {
         this.inviteToken = window.location.hash.split("/")[2];
         this.dataSubpage = this.element.getAttribute("data-subpage");
-        if(this.inviteToken &&  this.dataSubpage!=="register-confirmation-with-invite"){
-            this.dataSubpage= "register-page";
+        if (this.inviteToken && this.dataSubpage !== "register-confirmation-with-invite") {
+            this.dataSubpage = "register-page";
         }
-        switch ( this.dataSubpage) {
+        switch (this.dataSubpage) {
             case "register-page": {
                 let hiddenClass = this.inviteToken ? "hidden" : "email";
                 let requiredEmail = this.inviteToken ? "" : "required";
@@ -94,6 +94,17 @@ export class AuthenticationPage {
               </div>`;
                 break;
             }
+            case "password-reset-successfully": {
+                this.subpage = `
+              <div>
+                   <div class="form-item">
+                        <label class="form-label">
+                            <p>Password Reset Successfully. You're being redirected to log in</p>
+                        </label>
+                    </div>
+              </div>`;
+                break;
+            }
             case "password-recovery": {
                 this.subpage = `
               <div>
@@ -101,29 +112,29 @@ export class AuthenticationPage {
                    Password Recovery
                   </div>
                   <div class="form-description">
-                  We will send you a verification code to reset your password
+                  We will send you a verification code to reset your password. Make sure to also check your spam and trash folder.
                   </div>
                   <form>
                    <div class="form-item" id="email">
                         <label class="form-label" for="user-email">E-mail</label>
-                        <input class="form-input" name="email" type="email" data-id="user-email" id="user-email" required placeholder="Add e-mail ">
+                        <input class="form-input" name="email" type="email" data-id="user-email" id="user-email" required placeholder="E-mail Address">
                     </div>
                     <div class="form-item" id="password">
                         <label class="form-label" for="user-password">New Password</label>
-                        <input class="form-input" name="password" type="password" data-id="user-password" id="user-password" required placeholder="Add new password" autocomplete="new-password">
+                        <input class="form-input" name="password" type="password" data-id="user-password" id="user-password" required placeholder="New password" autocomplete="new-password">
                     </div>
                     <div class="form-item" id="confirm-password">
                         <label class="form-label" for="user-password-confirm">Confirm new Password</label>
-                        <input class="form-input" name="password-confirm" type="password" data-condition="checkPasswordConfirmation" data-id="user-password-confirm" id="user-password-confirm" required placeholder="Confirm new password" autocomplete="new-password">
+                        <input class="form-input" name="password-confirm" type="password" data-condition="checkPasswordConfirmation" data-id="user-password-confirm" id="user-password-confirm" required placeholder="Confirm password" autocomplete="new-password">
                     </div>
                        <div class="form-item" style="visibility:hidden">
                         <label class="form-label" for="password-reset-code">Verification Code</label>
-                        <input class="form-input" name="password-reset-code" type="text" data-id="password-reset-code" id="password-reset-code" placeholder="Type your code">
+                        <input class="form-input" name="password-reset-code" type="text" data-id="password-reset-code" id="password-reset-code" placeholder="Ex: 123456">
                     </div>
 
                     <div class="form-footer spaced-buttons">
-                        <button type="button" class="general-button" data-local-action="generateVerificationCode">Get Verification Code </button>
-                    <button type="button"  style="visibility:hidden" id="reset-password-button" class="general-button" data-local-action="resetPassword">Reset Password </button>
+                        <button type="button" id="regenerate-verification-code" class="general-button" data-local-action="generateVerificationCode">Get Verification Code </button>
+                        <button type="button"  style="visibility:hidden" id="reset-password-button" class="general-button" data-local-action="resetPassword" disabled>Reset Password</button>
                     </div>
                 </form>
               </div>`;
@@ -186,7 +197,12 @@ export class AuthenticationPage {
             this.boundFn = this.sendFormOnEnter.bind(this);
             this.lastInput.addEventListener("keypress", this.boundFn);
         }
-        if(this.dataSubpage==="register-confirmation-with-invite"){
+        if (this.dataSubpage === "register-confirmation-with-invite") {
+            setTimeout(async () => {
+                await this.navigateToLoginPage();
+            }, 3000);
+        }
+        if(this.dataSubpage === "password-reset-successfully"){
             setTimeout(async () => {
                 await this.navigateToLoginPage();
             }, 3000);
@@ -272,10 +288,10 @@ export class AuthenticationPage {
             this.formData = formInfo.data;
             const {email, password, photo} = formInfo.data;
             try {
-                this.loader=assistOS.UI.showLoading();
+                this.loader = assistOS.UI.showLoading();
                 await User.apis.registerUser(email, password, photo || undefined, this.inviteToken);
-            }catch(error){
-                switch(error.statusCode){
+            } catch (error) {
+                switch (error.statusCode) {
                     case 409:
                         alert("User Already Registered with this Email Address");
                         break;
@@ -283,7 +299,7 @@ export class AuthenticationPage {
                         alert(error.message);
                 }
                 await assistOS.UI.changeToDynamicPage("authentication-page", "authentication-page");
-            }finally {
+            } finally {
                 await assistOS.UI.hideLoading(this.loader);
                 delete this.loader;
             }
@@ -313,7 +329,7 @@ export class AuthenticationPage {
     async loginUser(_target) {
         const formInfo = await assistOS.UI.extractFormInformation(_target);
         if (formInfo.isValid) {
-            const { email, password } = formInfo.data;
+            const {email, password} = formInfo.data;
             try {
                 await assistOS.login(email, password);
                 try {
@@ -341,7 +357,10 @@ export class AuthenticationPage {
     async navigateToPasswordRecoveryPage() {
         await this.navigateToPage("password-recovery");
     }
-    async generateVerificationCode(_target){
+
+    async generateVerificationCode(_target) {
+        const regenerateCodeButton = _target
+        regenerateCodeButton.removeAttribute("data-local-action");
         const checkPasswordConfirmation = (confirmPassword) => {
             let password = document.querySelector("#user-password");
             return password.value === confirmPassword.value;
@@ -354,35 +373,62 @@ export class AuthenticationPage {
             }
         };
 
-        const formInfo = await assistOS.UI.extractFormInformation(_target, conditions);
+        const formInfo = await assistOS.UI.extractFormInformation(regenerateCodeButton, conditions);
         if (formInfo.isValid) {
-            const {email, password} = formInfo.data;
-            try {
+            const generateNewResetCode = async (email, password) => {
                 await assistOS.loadifyFunction(User.apis.generateVerificationCode, email, password);
-                const resetCodeField=this.element.querySelector("#password-reset-code");
-                resetCodeField.style.visibility="visible";
-                resetCodeField.required=true;
-                const emailField=this.element.querySelector("#email");
-                emailField.remove();
-                const passwordField=this.element.querySelector("#password");
-                passwordField.remove();
-                const passwordConfirmField=this.element.querySelector("#confirm-password");
-                const resetPasswordButton=this.element.querySelector("#reset-password-button");
-                resetPasswordButton.style.visibility="visible";
-                passwordConfirmField.remove();
                 let timer = 60;
-                _target.innerHTML=`Regenerate Code (${timer}s)`;
+                regenerateCodeButton.disabled = true;
+                regenerateCodeButton.innerHTML = `Regenerate Code (${timer}s)`;
                 let intervalId = setInterval(() => {
                     timer--;
                     if (timer === 0) {
                         clearInterval(intervalId);
-                        _target.innerHTML="Get Verification Code";
-                        _target.disabled=false;
+                        regenerateCodeButton.innerHTML = "Get Verification Code";
+                        regenerateCodeButton.disabled = false;
                     } else {
-                        _target.innerHTML=`Regenerate Code (${timer}s)`;
-                        _target.disabled=true;
+                        regenerateCodeButton.innerHTML = `Regenerate Code (${timer}s)`;
+                        regenerateCodeButton.disabled = true;
                     }
                 }, 1000);
+            }
+            const {email, password} = formInfo.data;
+            try {
+                await generateNewResetCode(email, password);
+
+                const resetPasswordButton = this.element.querySelector("#reset-password-button");
+                resetPasswordButton.style.visibility = "visible";
+                resetPasswordButton.addEventListener('click', async () => {
+                    try {
+                        const code= this.element.querySelector("#password-reset-code").value;
+                        await assistOS.loadifyFunction(User.apis.resetPassword, email, password,code);
+                       this.invalidate(async () => {
+                            this.element.setAttribute("data-subpage", "password-reset-successfully")
+                       });
+                    } catch (error) {
+                        alert(error.message || "Failed to reset password"+error);
+                    }
+                })
+                const resetCodeField = this.element.querySelector("#password-reset-code");
+                resetCodeField.style.visibility = "visible";
+                resetCodeField.required = true;
+                resetCodeField.addEventListener("input", (event) => {
+                    const regex = /^[0-9]{6}$/;
+                    if (regex.test(event.target.value)) {
+                        resetPasswordButton.removeAttribute("disabled");
+                    } else {
+                        resetPasswordButton.setAttribute("disabled", "true");
+                    }
+                });
+
+                const emailField = this.element.querySelector("#email");
+                emailField.remove();
+                const passwordField = this.element.querySelector("#password");
+                passwordField.remove();
+                const passwordConfirmField = this.element.querySelector("#confirm-password");
+                passwordConfirmField.remove();
+
+                regenerateCodeButton.addEventListener("click", async () => await generateNewResetCode(email, password));
 
             } catch (error) {
                 alert(error.message);
@@ -390,15 +436,7 @@ export class AuthenticationPage {
         } else {
             console.log("Form invalid");
         }
-
     }
 
-    /*async finishPasswordRecovery() {
-        if (await User.apis.confirmRecoverPassword()) {
-            window.location = "";
-        } else {
-            console.error("Failed to confirm password recovery");
-        }
-    }*/
 
 }

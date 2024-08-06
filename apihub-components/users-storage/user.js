@@ -55,7 +55,7 @@ async function createUser(email, photo, withDefaultSpace = false) {
     }
 
     const userId = crypto.generateId();
-    const username= email.split('@')[0];
+    const username = email.split('@')[0];
     const spaceName = data.fillTemplate(
         Space.templates.defaultSpaceNameTemplate,
         {
@@ -103,7 +103,7 @@ async function activateUser(activationToken) {
 
     const user = userPendingActivation[activationToken];
     try {
-        const userDataObject = await createUser( user.email, user.photo, true);
+        const userDataObject = await createUser(user.email, user.photo, true);
         const userMap = await getUserMap();
         userMap[user.email] = userDataObject.id;
         await updateUserMap(userMap);
@@ -519,9 +519,53 @@ async function getUserPrivateChatAgentId(userId, spaceId) {
         return defaultSpaceAgentId;
     }
 }
+
 async function sendPasswordResetCode(email) {
     const passwordResetCode = await crypto.generateVerificationCode();
+    const userMap = await getUserMap();
+    if (!userMap[email]) {
+        const error = new Error(`User with email ${email} does not exist`);
+        error.statusCode = 404;
+        throw error;
+    }
+    const userId = userMap[email];
+    /* TODO this causes concurrency issues when multiple users are reseting their passwords at the same time */
+    const userCredentials = await getUserCredentials();
+    userCredentials[userId].passwordReset = {
+        code: passwordResetCode,
+        expirationDate: date.incrementUnixTime(date.getCurrentUnixTimeSeconds(), {minutes: 30})
+    }
+    await updateUserCredentials(userCredentials);
     await emailService.sendPasswordResetCode(email, passwordResetCode);
+}
+
+async function resetPassword(email, password, code) {
+    const userMap = await getUserMap();
+    if (!userMap[email]) {
+        const error = new Error(`User with email ${email} does not exist`);
+        error.statusCode = 404;
+        throw error;
+    }
+    const userId = userMap[email];
+    const userCredentials = await getUserCredentials();
+    if(!userCredentials[userId].passwordReset){
+        const error = new Error(`No password reset code requested for this user`);
+        error.statusCode = 400;
+        throw error;
+    }
+    if (userCredentials[userId].passwordReset.code !== parseInt(code)) {
+        const error = new Error(`Invalid code`);
+        error.statusCode = 400;
+        throw error;
+    }
+    if (userCredentials[userId].passwordReset.expirationDate < date.getCurrentUnixTimeSeconds()) {
+        const error = new Error(`Code expired`);
+        error.statusCode = 400;
+        throw error;
+    }
+    delete userCredentials[userId].passwordReset;
+    userCredentials[userId].password = crypto.hashPassword(password);
+    await updateUserCredentials(userCredentials);
 }
 
 module.exports = {
@@ -548,6 +592,7 @@ module.exports = {
         getUserFile,
         getUserPrivateChatAgentId,
         sendPasswordResetCode,
+        resetPassword
 
     },
     templates: {
