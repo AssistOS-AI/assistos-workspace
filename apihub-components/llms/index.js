@@ -6,8 +6,9 @@ const {
     getImageVariants,
     getVideoResponse,
     getAudioResponse,
-    listVoicesAndEmotions,
-    sendLLMConfigs
+    listVoices,
+    sendLLMConfigs,
+    listEmotions
 } = require("./controller.js");
 
 const bodyReader = require("../apihub-component-middlewares/bodyReader");
@@ -28,7 +29,8 @@ function LLMStorage(server) {
     server.post("/apis/v1/spaces/:spaceId/llms/video/generate", getVideoResponse);
 
     server.post("/apis/v1/spaces/:spaceId/llms/audio/generate", getAudioResponse);
-    server.get("/apis/v1/spaces/:spaceId/llms/audio/listVoicesAndEmotions", listVoicesAndEmotions);
+    server.get("/apis/v1/spaces/:spaceId/llms/audio/listVoices", listVoices);
+    server.get("/apis/v1/spaces/:spaceId/llms/audio/listEmotions", listEmotions);
 }
 
 module.exports = LLMStorage;

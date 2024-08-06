@@ -14,8 +14,7 @@ export class TextToSpeech {
         this.parentPresenter = this.element.parentElement.webSkelPresenter;
         this.invalidate(async () => {
             this.personalities = await assistOS.space.getPersonalitiesMetadata();
-            let configs = await llmModule.listVoicesAndEmotions(assistOS.space.id);
-            this.emotions = configs.emotions;
+            this.emotions = await llmModule.listEmotions(assistOS.space.id);
         });
     }
 
