@@ -322,18 +322,25 @@ export class ParagraphItem {
         } else {
             const loaderId = await assistOS.UI.showLoading();
             let cleanText = utilModule.findCommand(this.paragraph.text).remainingText;
-            let arrayBufferAudio = (await assistOS.callFlow("TextToSpeech", {
-                spaceId: assistOS.space.id,
-                prompt: cleanText,
-                voiceId: this.paragraph.audioConfig.voiceId,
-                voiceConfigs: {
-                    emotion: this.paragraph.audioConfig.emotion,
-                    styleGuidance: this.paragraph.audioConfig.styleGuidance,
-                    voiceGuidance: this.paragraph.audioConfig.voiceGuidance,
-                    temperature: this.paragraph.audioConfig.temperature
-                },
-                modelName: "PlayHT2.0"
-            })).data;
+            let arrayBufferAudio;
+            try {
+                arrayBufferAudio = (await assistOS.callFlow("TextToSpeech", {
+                    spaceId: assistOS.space.id,
+                    prompt: cleanText,
+                    voiceId: this.paragraph.audioConfig.voiceId,
+                    voiceConfigs: {
+                        emotion: this.paragraph.audioConfig.emotion,
+                        styleGuidance: this.paragraph.audioConfig.styleGuidance,
+                        voiceGuidance: this.paragraph.audioConfig.voiceGuidance,
+                        temperature: this.paragraph.audioConfig.temperature
+                    },
+                    modelName: "PlayHT2.0"
+                })).data;
+            } catch (e) {
+                let message = assistOS.UI.sanitize(e.message);
+                return await showApplicationError("Audio generation failed",message,message)
+            }
+
             let audioId = await spaceModule.addAudio(assistOS.space.id, arrayBufferAudio);
             let audioSrc = `spaces/audio/${assistOS.space.id}/${audioId}`;
             await documentModule.updateParagraphAudio(assistOS.space.id, this._document.id, this.paragraph.id, {
