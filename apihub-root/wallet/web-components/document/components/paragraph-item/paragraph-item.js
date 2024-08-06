@@ -1,24 +1,10 @@
+import {BaseParagraph} from "../image-paragraph/BaseParagraph.js";
 const utilModule = require("assistos").loadModule("util", {});
 const documentModule = require("assistos").loadModule("document", {});
 const spaceModule = require("assistos").loadModule("space", {});
-
-
-export class ParagraphItem {
+export class ParagraphItem extends BaseParagraph{
     constructor(element, invalidate) {
-        this.element = element;
-        this.invalidate = invalidate;
-        this.documentPresenter = document.querySelector("document-view-page").webSkelPresenter;
-        this._document = this.documentPresenter._document;
-        let paragraphId = this.element.getAttribute("data-paragraph-id");
-        let chapterId = this.element.getAttribute("data-chapter-id");
-        this.chapter = this._document.getChapter(chapterId);
-        this.paragraph = this.chapter.getParagraph(paragraphId);
-        this.invalidate(async () => {
-            if (!this.documentPresenter.childrenSubscriptions.has(this.paragraph.id)) {
-                await this.subscribeToParagraphEvents();
-                this.documentPresenter.childrenSubscriptions.set(this.paragraph.id, this.paragraph.id);
-            }
-        });
+        super(element, invalidate);
     }
 
     async subscribeToParagraphEvents() {
@@ -37,6 +23,8 @@ export class ParagraphItem {
                 if (this.paragraph.audio) {
                     this.hasAudio = true;
                 }
+            } else if(type === "audioConfig"){
+                this.paragraph.audioConfig = await documentModule.getParagraphAudioConfigs(assistOS.space.id, this._document.id, this.paragraph.id);
             }
         });
     }
@@ -64,39 +52,9 @@ export class ParagraphItem {
         if (!this.boundPreventSelectionChange) {
             this.boundPreventSelectionChange = this.preventSelectionChange.bind(this);
         }
-        /*   if (!this.boundUpdateIconDisplay) {
-               this.boundUpdateIconDisplay = this.updateIconDisplay.bind(this, audioIcon);
-           }
-           if (!this.boundSelectionChangeHandler) {
-               this.boundSelectionChangeHandler = this.selectionChangeHandler.bind(this, paragraphText, audioIcon);
-           }
-           if (!this.boundMouseDownAudioIconHandler) {
-               this.boundMouseDownAudioIconHandler = this.mouseDownAudioIconHandler.bind(this, paragraphText, audioIcon);*/
         if (this.isPlaying) {
             this.playParagraphAudio();
         }
-    }
-
-    async moveParagraph(_target, direction) {
-        await this.documentPresenter.stopTimer(true);
-        const currentParagraphIndex = this.chapter.getParagraphIndex(this.paragraph.id);
-        const getAdjacentParagraphId = (index, paragraphs) => {
-            if (direction === "up") {
-                return index === 0 ? paragraphs[paragraphs.length - 1].id : paragraphs[index - 1].id;
-            }
-            return index === paragraphs.length - 1 ? paragraphs[0].id : paragraphs[index + 1].id;
-        };
-        const adjacentParagraphId = getAdjacentParagraphId(currentParagraphIndex, this.chapter.paragraphs);
-        await assistOS.callFlow("SwapParagraphs", {
-            spaceId: assistOS.space.id,
-            documentId: this._document.id,
-            chapterId: this.chapter.id,
-            paragraphId1: this.paragraph.id,
-            paragraphId2: adjacentParagraphId
-        });
-        let chapterElement = this.element.closest("chapter-item");
-        let chapterPresenter = chapterElement.webSkelPresenter;
-        chapterPresenter.invalidate(chapterPresenter.refreshChapter);
     }
 
     async saveParagraph(paragraph) {
@@ -119,69 +77,9 @@ export class ParagraphItem {
         }
     }
 
-    getParagraphPosition() {
-        if (this.chapter.paragraphs.length === 0) {
-            return 0;
-        }
-        if (assistOS.space.currentParagraphId) {
-            return this.chapter.paragraphs.findIndex(p => p.id === assistOS.space.currentParagraphId);
-        }
-        return this.chapter.paragraphs.length;
-    }
 
-    async openInsertImageModal(_target) {
-        let position = this.getParagraphPosition() + 1;
-        let imagesData = await assistOS.UI.showModal("insert-image-modal", {["chapter-id"]: this.chapter.id}, true);
-        if (imagesData) {
-            for (let image of imagesData) {
-                await assistOS.callFlow("AddImageParagraph", {
-                    spaceId: assistOS.space.id,
-                    documentId: this._document.id,
-                    chapterId: this.chapter.id,
-                    paragraphData: {
-                        position: position,
-                        image: {
-                            src: image.src,
-                            alt: image.alt,
-                            id: image.id,
-                            isUploadedImage: image.isUploadedImage || false
-                        },
-                        dimensions: {
-                            width: "",
-                            height: ""
-                        }
-                    }
-                });
-                position++;
-            }
-            let chapterElement = this.element.closest("chapter-item");
-            let chapterPresenter = chapterElement.webSkelPresenter;
-            chapterPresenter.invalidate(chapterPresenter.refreshChapter);
-        }
-    }
-
-    async deleteParagraph(_target) {
-        await this.documentPresenter.stopTimer(true);
-        await assistOS.callFlow("DeleteParagraph", {
-            spaceId: assistOS.space.id,
-            documentId: this._document.id,
-            chapterId: this.chapter.id,
-            paragraphId: this.paragraph.id
-        });
-        let chapterElement = this.element.closest("chapter-item");
-        let chapterPresenter = chapterElement.webSkelPresenter;
-        chapterPresenter.invalidate(chapterPresenter.refreshChapter);
-    }
 
     switchParagraphArrows(mode) {
-        /* if (this.hasAudio) {
-             let audioIcon = this.element.querySelector('.audio-icon');
-             if (mode === "on") {
-                 audioIcon.classList.remove("hidden");
-             } else {
-                 audioIcon.classList.add("hidden");
-             }
-         }*/
         let arrows = this.element.querySelector('.paragraph-arrows');
         if (mode === "on") {
             arrows.style.visibility = "visible";
@@ -193,22 +91,10 @@ export class ParagraphItem {
     highlightParagraph() {
         this.switchParagraphArrows("on");
         assistOS.space.currentParagraphId = this.paragraph.id;
-        let paragraphText = this.element.querySelector('.paragraph-text');
-        //const audioIcon = this.element.querySelector('.audio-icon');
-        if (!this.hasAudio) {
-            paragraphText.addEventListener('mouseup', this.boundUpdateIconDisplay);
-            document.addEventListener('selectionchange', this.boundSelectionChangeHandler);
-            document.addEventListener('mousedown', this.boundMouseDownAudioIconHandler);
-        }
-        /* audioIcon.addEventListener('mousedown', this.boundPreventSelectionChange);*/
     }
 
     focusOutHandler() {
         this.switchParagraphArrows("off");
-        let paragraphText = this.element.querySelector('.paragraph-text');
-        paragraphText.removeEventListener('mouseup', this.boundUpdateIconDisplay);
-        document.removeEventListener('selectionchange', this.boundSelectionChangeHandler);
-        document.removeEventListener('mousedown', this.boundMouseDownAudioIconHandler);
     }
 
     mouseDownAudioIconHandler(paragraphText, audioIcon, event) {
@@ -269,25 +155,7 @@ export class ParagraphItem {
             if (assistOS.space.currentParagraphId === this.paragraph.id) {
                 this.documentPresenter.stopTimer(false);
                 this.deleted = true;
-                let currentParagraphIndex = this.chapter.getParagraphIndex(this.paragraph.id);
-                await assistOS.callFlow("DeleteParagraph", {
-                    spaceId: assistOS.space.id,
-                    documentId: this._document.id,
-                    chapterId: this.chapter.id,
-                    paragraphId: this.paragraph.id
-                });
-                if (this.chapter.paragraphs.length > 0) {
-                    if (currentParagraphIndex === 0) {
-                        assistOS.space.currentParagraphId = this.chapter.paragraphs[0].id;
-                    } else {
-                        assistOS.space.currentParagraphId = this.chapter.paragraphs[currentParagraphIndex - 1].id;
-                    }
-                } else {
-                    assistOS.space.currentParagraphId = null;
-                }
-                let chapterElement = this.element.closest("chapter-item");
-                let chapterPresenter = chapterElement.webSkelPresenter;
-                chapterPresenter.invalidate(chapterPresenter.refreshChapter);
+                await this.deleteParagraph();
             }
         } else {
             await this.documentPresenter.resetTimer();

@@ -1,22 +1,9 @@
+import {BaseParagraph} from "./BaseParagraph.js";
 const utilModule = require("assistos").loadModule("util", {});
-const spaceModule = require("assistos").loadModule("space", {});
 const documentModule = require("assistos").loadModule("document", {});
-export class ImageParagraph{
+export class ImageParagraph extends BaseParagraph{
     constructor(element, invalidate) {
-        this.element = element;
-        this.invalidate = invalidate;
-        this.documentPresenter = document.querySelector("document-view-page").webSkelPresenter;
-        this._document = this.documentPresenter._document;
-        let paragraphId = this.element.getAttribute("data-paragraph-id");
-        let chapterId = this.element.getAttribute("data-chapter-id");
-        this.chapter = this._document.getChapter(chapterId);
-        this.paragraph = this.chapter.getParagraph(paragraphId);
-        this.invalidate(async ()=>{
-            if(!this.documentPresenter.childrenSubscriptions.has(this.paragraph.id)){
-                await this.subscribeToParagraphEvents();
-                this.documentPresenter.childrenSubscriptions.set(this.paragraph.id, this.paragraph.id);
-            }
-        });
+        super(element, invalidate);
     }
     async subscribeToParagraphEvents(){
         await utilModule.subscribeToObject(this.paragraph.id, async () => {
@@ -160,26 +147,7 @@ export class ImageParagraph{
         }
     }
 
-    async moveParagraph(_target, direction) {
-        await this.documentPresenter.stopTimer(false);
-        const currentParagraphIndex = this.chapter.getParagraphIndex(this.paragraph.id);
-        const getAdjacentParagraphId = (index, paragraphs) => {
-            if (direction === "up") {
-                return index === 0 ? paragraphs[paragraphs.length - 1].id : paragraphs[index - 1].id;
-            }
-            return index === paragraphs.length - 1 ? paragraphs[0].id : paragraphs[index + 1].id;
-        };
-        const adjacentParagraphId = getAdjacentParagraphId(currentParagraphIndex, this.chapter.paragraphs);
-        await assistOS.callFlow("SwapParagraphs", {
-            spaceId: assistOS.space.id,
-            documentId: this._document.id,
-            chapterId: this.chapter.id,
-            paragraphId1: this.paragraph.id,
-            paragraphId2: adjacentParagraphId
-        });
-        let chapterPresenter = this.element.closest("chapter-item").webSkelPresenter;
-        chapterPresenter.invalidate(chapterPresenter.refreshChapter);
-    }
+
     async saveParagraph() {
         if (!this.paragraph || assistOS.space.currentParagraphId !== this.paragraph.id) {
             await this.documentPresenter.stopTimer();
@@ -215,25 +183,51 @@ export class ImageParagraph{
         if (event.key === "Backspace") {
             if (assistOS.space.currentParagraphId === this.paragraph.id) {
                 await this.documentPresenter.stopTimer(false);
-                let currentParagraphIndex = this.chapter.getParagraphIndex(this.paragraph.id);
-                await assistOS.callFlow("DeleteParagraph", {
-                    spaceId: assistOS.space.id,
-                    documentId: this._document.id,
-                    chapterId: this.chapter.id,
-                    paragraphId: this.paragraph.id
-                });
-                if (this.chapter.paragraphs.length > 0) {
-                    if (currentParagraphIndex === 0) {
-                        assistOS.space.currentParagraphId = this.chapter.paragraphs[0].id;
-                    } else {
-                        assistOS.space.currentParagraphId = this.chapter.paragraphs[currentParagraphIndex - 1].id;
-                    }
-                } else {
-                    assistOS.space.currentParagraphId = null;
-                }
-                let chapterPresenter = this.element.closest("chapter-item").webSkelPresenter;
-                chapterPresenter.invalidate(chapterPresenter.refreshChapter);
+                await this.deleteParagraph();
             }
         }
+    }
+    async copy(){
+        try {
+            await navigator.clipboard.writeText(this.paragraph.image.src)
+        } catch (e) {
+            console.error(e);
+        }
+        const dropdownMenu = this.element.querySelector('.dropdown-menu-container');
+        dropdownMenu.remove();
+    }
+    openParagraphDropdown(element){
+        const generateDropdownMenu = () => {
+            let baseDropdownMenuHTML =
+                `<div class="dropdown-item" data-local-action="deleteParagraph">Delete</div>
+                 <div class="dropdown-item" data-local-action="copy">Copy</div>
+                 <div class="dropdown-item" data-local-action="openInsertImageModal">Insert Image</div>`;
+            let chapterElement = this.element.closest("chapter-item");
+            let chapterPresenter = chapterElement.webSkelPresenter;
+            if (chapterPresenter.chapter.paragraphs.length > 1) {
+                baseDropdownMenuHTML = `
+                <div class="dropdown-item" data-local-action="moveParagraph up">Move Up</div>
+                <div class="dropdown-item" data-local-action="moveParagraph down">Move Down</div>` + baseDropdownMenuHTML;
+            }
+            let dropdownMenuHTML =
+                `<div class="dropdown-menu">` +
+                baseDropdownMenuHTML +
+                `</div>`;
+
+            const dropdownMenu = document.createElement('div');
+            dropdownMenu.classList.add('dropdown-menu-container');
+            dropdownMenu.innerHTML = dropdownMenuHTML;
+            return dropdownMenu;
+        }
+
+        const dropdownMenu = generateDropdownMenu();
+        this.element.appendChild(dropdownMenu);
+
+        const removeDropdown = () => {
+            dropdownMenu.remove();
+        }
+
+        dropdownMenu.addEventListener('mouseleave', removeDropdown);
+        dropdownMenu.focus();
     }
 }
