@@ -109,7 +109,7 @@ export class AuthenticationPage {
                 this.subpage = `
               <div>
                   <div class="form-title">
-                   Password Recovery
+                   Password Reset
                   </div>
                   <div class="form-description">
                   We will send you a verification code to reset your password. Make sure to also check your spam and trash folder.
@@ -202,7 +202,7 @@ export class AuthenticationPage {
                 await this.navigateToLoginPage();
             }, 3000);
         }
-        if(this.dataSubpage === "password-reset-successfully"){
+        if (this.dataSubpage === "password-reset-successfully") {
             setTimeout(async () => {
                 await this.navigateToLoginPage();
             }, 3000);
@@ -400,13 +400,26 @@ export class AuthenticationPage {
                 resetPasswordButton.style.visibility = "visible";
                 resetPasswordButton.addEventListener('click', async () => {
                     try {
-                        const code= this.element.querySelector("#password-reset-code").value;
-                        await assistOS.loadifyFunction(User.apis.resetPassword, email, password,code);
-                       this.invalidate(async () => {
+                        const code = this.element.querySelector("#password-reset-code").value;
+                        await assistOS.loadifyFunction(User.apis.resetPassword, email, password, code);
+                        this.invalidate(async () => {
                             this.element.setAttribute("data-subpage", "password-reset-successfully")
-                       });
+                        });
                     } catch (error) {
-                        alert(error.message || "Failed to reset password"+error);
+                        switch(error.statusCode){
+                            case 401:
+                                alert("Invalid Verification Code");
+                                break;
+                            case 404:
+                                alert("No code has been generate for the user");
+                                break;
+                            case 410:
+                                alert("Verification code has expired");
+                                break;
+                            default:
+                                alert(error.message);
+                        }
+
                     }
                 })
                 const resetCodeField = this.element.querySelector("#password-reset-code");

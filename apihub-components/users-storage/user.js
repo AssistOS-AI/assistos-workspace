@@ -548,21 +548,24 @@ async function resetPassword(email, password, code) {
     }
     const userId = userMap[email];
     const userCredentials = await getUserCredentials();
-    if(!userCredentials[userId].passwordReset){
+    if (!userCredentials[userId].passwordReset) {
         const error = new Error(`No password reset code requested for this user`);
-        error.statusCode = 400;
+        error.statusCode = 404;
         throw error;
     }
+
     if (userCredentials[userId].passwordReset.code !== parseInt(code)) {
         const error = new Error(`Invalid code`);
-        error.statusCode = 400;
+        error.statusCode = 401;
         throw error;
     }
+
     if (userCredentials[userId].passwordReset.expirationDate < date.getCurrentUnixTimeSeconds()) {
         const error = new Error(`Code expired`);
-        error.statusCode = 400;
+        error.statusCode = 410;
         throw error;
     }
+
     delete userCredentials[userId].passwordReset;
     userCredentials[userId].password = crypto.hashPassword(password);
     await updateUserCredentials(userCredentials);

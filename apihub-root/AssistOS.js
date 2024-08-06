@@ -325,6 +325,9 @@ function defineActions() {
     assistOS.UI.registerAction("closeErrorModal", async (_target) => {
         assistOS.UI.closeModal(_target);
     });
+    assistOS.UI.registerAction("cleanState", async (_target) => {
+        await assistOS.refresh();
+    });
 }
 
 
