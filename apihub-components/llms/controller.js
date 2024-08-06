@@ -5,6 +5,7 @@ const axios = require('axios');
 const cache = {};
 const {pipeline} = require('stream');
 const {getWebhookSecret} = require("../webhook/controller");
+const configs = require("../config.json");
 let LLMConfigs;
 
 async function getLLMAuthRequirements() {
@@ -287,11 +288,11 @@ async function getAudioResponse(request, response) {
     await $$.promisify(pipeline)(modelResponse.body, response);
 }
 
-async function listVoicesAndEmotions(request, response) {
+async function listVoices(request, response) {
     try {
         request.body = {};
         request.body.company = "PlayHT";
-        let result = await sendRequest(`/apis/v1/audio/listVoicesAndEmotions`, "POST", request, response);
+        let result = await sendRequest(`/apis/v1/audio/listVoices`, "POST", request, response);
         return utils.sendResponse(response, 200, "application/json", {
             success: true,
             data: result
@@ -303,7 +304,44 @@ async function listVoicesAndEmotions(request, response) {
         });
     }
 }
+async function listEmotions(request, response){
+    try {
+        let url = `/apis/v1/audio/listEmotions`;
+        if (configs.ENVIRONMENT_MODE === "production") {
+            url = `${configs.LLMS_SERVER_PRODUCTION_BASE_URL}${url}`;
+        } else {
+            url = `${configs.LLMS_SERVER_DEVELOPMENT_BASE_URL}${url}`;
+        }
+        let llmResponse;
+        try {
+            llmResponse = await fetch(url, {
+                method: "GET",
+                headers: {
+                    "content-type": "application/json"
+                },
+            });
+        } catch (error) {
+            console.error(error);
+        }
 
+        let responseJSON = await llmResponse.json();
+        if (!responseJSON.success) {
+            utils.sendResponse(response, llmResponse.status || 500, "application/json", {
+                success: false,
+                message: responseJSON.message
+            });
+        }
+        return utils.sendResponse(response, 200, "application/json", {
+            success: true,
+            data: responseJSON.data
+        });
+    } catch (error) {
+        utils.sendResponse(response, error.statusCode || 500, "application/json", {
+            success: false,
+            message: error.message
+        });
+    }
+}
 module.exports = {
     getTextResponse,
     getTextStreamingResponse,
@@ -312,7 +350,8 @@ module.exports = {
     getImageVariants,
     getVideoResponse,
     getAudioResponse,
-    listVoicesAndEmotions,
+    listVoices,
     getLLMConfigs,
-    sendLLMConfigs
+    sendLLMConfigs,
+    listEmotions
 };

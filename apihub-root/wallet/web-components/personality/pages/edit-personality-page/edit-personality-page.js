@@ -22,8 +22,7 @@ export class EditPersonalityPage {
             });
             /* TODO temporary fix endpoint should be called only if the api Key is set */
             try {
-                this.configs = await llmModule.listVoicesAndEmotions(assistOS.space.id);
-                this.voices = this.configs.voices;
+                this.voices = await llmModule.listVoices(assistOS.space.id);
                 this.voices.sort((a, b) => {
                     if (a.name < b.name) {
                         return -1;
@@ -34,8 +33,8 @@ export class EditPersonalityPage {
                     return 0;
                 });
             } catch (error) {
-                this.configs = {}
-                this.voices=[]
+                this.voices=[];
+                this.voicesErrorMessage = error.message;
             }
         });
     }
@@ -94,7 +93,7 @@ export class EditPersonalityPage {
         this.boundShowPhoto = this.showPhoto.bind(this, photoInput)
         photoInput.addEventListener("input", this.boundShowPhoto);
         let voiceSelect = this.element.querySelector("#voiceId");
-        if (this.personality.voiceId) {
+        if (this.personality.voiceId && !this.voicesErrorMessage) {
             let audioSource = this.element.querySelector('.audio-source');
             let audioSection = this.element.querySelector(".audio-section");
             let voice = this.voices.find(voice => voice.id === this.personality.voiceId);
@@ -102,6 +101,9 @@ export class EditPersonalityPage {
             voiceSelect.value = this.personality.voiceId;
             audioSource.src = voice.sample;
             audioSource.load();
+        }
+        if(this.voicesErrorMessage){
+            voiceSelect.innerHTML = `<option value="" disabled selected hidden>${this.voicesErrorMessage}</option>`;
         }
 
         if (!this.boundSelectVoiceHndler) {

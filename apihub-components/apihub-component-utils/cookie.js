@@ -4,7 +4,6 @@ function createSessionCookie(sessionId) {
         httpOnly: true,
         sameSite: 'Strict',
         maxAge: 60 * 60 * 24 * 7,
-        secure: true,
         path: "/"
     });
 }
