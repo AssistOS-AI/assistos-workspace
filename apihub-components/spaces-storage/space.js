@@ -1,7 +1,7 @@
 const path = require('path');
 const fsPromises = require('fs').promises;
 const AdmZip = require('adm-zip');
-
+const yazl = require('yazl');
 const volumeManager = require('../volumeManager.js');
 
 const enclave = require('opendsu').loadAPI('enclave');
@@ -627,7 +627,7 @@ async function getDocumentData(spaceId, documentId) {
     return documentData
 }
 
-async function archiveDocument(spaceId, documentId) {
+/*async function archiveDocument(spaceId, documentId) {
     const documentData = await getDocumentData(spaceId, documentId);
 
     const zip = new AdmZip();
@@ -646,50 +646,78 @@ async function archiveDocument(spaceId, documentId) {
         checksum: checksum,
         contentFile: "data.json",
     };
+    let imagePromises = documentData.images.map(async (imageData) => {
+        let image = await getImage(spaceId, imageData.split("/").pop());
+        zip.addFile(`images/${imageData.split("/").pop()}.png`, image);
+    });
 
-    const sleep = (ms) => new Promise(resolve => setTimeout(resolve, ms));
+    let audioPromises = documentData.audios.map(async (audioData) => {
+        let audio = await getAudio(spaceId, audioData.split("/").pop());
+        zip.addFile(`audios/${audioData.split("/").pop()}.mp3`, audio);
+    });
 
-    const processImages = async (images, spaceId, zip) => {
-        for (let i = 0; i < images.length; i += 30) {
-            let chunk = images.slice(i, i + 30).map(async (imageData) => {
-                let image = await getImage(spaceId, imageData.split("/").pop());
-                zip.addFile(`images/${imageData.split("/").pop()}.png`, image);
-            });
-            await Promise.all(chunk);
-            if (i + 30 < images.length) {
-                await sleep(2000);
-            }
-        }
-    };
-
-    const processAudios = async (audios, spaceId, zip) => {
-        for (let i = 0; i < audios.length; i += 30) {
-            let chunk = audios.slice(i, i + 30).map(async (audioData) => {
-                let audio = await getAudio(spaceId, audioData.split("/").pop());
-                zip.addFile(`audios/${audioData.split("/").pop()}.mp3`, audio);
-            });
-            await Promise.all(chunk);
-            if (i + 30 < audios.length) {
-                await sleep(2000);
-            }
-        }
-    };
-
-    const processDocuments = async (documentData, spaceId, zip) => {
-        await Promise.all([
-            processImages(documentData.images, spaceId, zip),
-            processAudios(documentData.audios, spaceId, zip)
-        ]);
-    };
-
-    await processDocuments(documentData, spaceId, zip);
+    await Promise.all([...imagePromises, ...audioPromises]);
 
     zip.addFile("metadata.json", Buffer.from(JSON.stringify(metadata), 'utf-8'));
     zip.addFile("data.json", contentBuffer);
 
     return zip.toBuffer();
-}
+}*/
+async function archiveDocument(spaceId, documentId) {
+    const documentData = await getDocumentData(spaceId, documentId);
+    const archivePath = `${documentId}.docai`;
 
+    const zipfile = new yazl.ZipFile();
+    const output = fs.createWriteStream(archivePath);
+
+    zipfile.outputStream.pipe(output);
+
+    const contentBuffer = Buffer.from(JSON.stringify(documentData), 'utf-8');
+    const checksum = require('crypto')
+        .createHash('sha256')
+        .update(contentBuffer)
+        .digest('hex');
+
+    const metadata = {
+        title: documentData.title,
+        created: new Date().toISOString(),
+        modified: new Date().toISOString(),
+        version: "1.0",
+        checksum: checksum,
+        contentFile: "data.json",
+    };
+
+    zipfile.addBuffer(Buffer.from(JSON.stringify(metadata), 'utf-8'), 'metadata.json');
+    zipfile.addBuffer(contentBuffer, 'data.json');
+
+    for (let imageData of documentData.images) {
+        let imageName = imageData.split("/").pop();
+        let image = await getImage(spaceId, imageName);
+        zipfile.addBuffer(image, `images/${imageName}.png`);
+    }
+
+    for (let audioData of documentData.audios) {
+        let audioName = audioData.split("/").pop();
+        let audio = await getAudio(spaceId, audioName);
+        zipfile.addBuffer(audio, `audios/${audioName}.mp3`);
+    }
+
+    zipfile.end();
+
+    return new Promise((resolve, reject) => {
+        output.on('close', () => {
+            fs.readFile(archivePath, (err, data) => {
+                if (err) {
+                    return reject(err);
+                }
+                fs.unlinkSync(archivePath);
+                resolve(data);
+            });
+        });
+
+        output.on('error', reject);
+    });
+}
 async function importDocument(request, spaceId, fileId, filePath) {
     const zip = new AdmZip(filePath);
     const extractedPath = path.join(__dirname, '../../data-volume/Temp/extracted', fileId);
