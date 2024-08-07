@@ -293,24 +293,38 @@ export class DocumentViewPage {
                 <source src="${videoURL}" type="video/mp4">
             </video>`);
     }
-    async exportDocument(_target) {
+    async  exportDocument(_target) {
         try {
-            const response = await fetch(`/spaces/${assistOS.space.id}/export/documents/${this._document.id}`);
+            const response = await fetch(`/spaces/${assistOS.space.id}/export/documents/${this._document.id}`, {
+                method: 'GET',
+                headers: {
+                    'Accept': 'application/zip'
+                }
+            });
+
             if (!response.ok) {
-                throw new Error('Network response was not ok');
+                throw new Error(`Network response was not ok: ${response.statusText}`);
             }
+
             const blob = await response.blob();
             const url = window.URL.createObjectURL(blob);
+
             const a = document.createElement('a');
             a.style.display = 'none';
             a.href = url;
             a.download = `${this._document.id}.docai`;
+
             document.body.appendChild(a);
             a.click();
+
             window.URL.revokeObjectURL(url);
+            document.body.removeChild(a);
+
         } catch (error) {
             console.error('There has been a problem with your fetch operation:', error);
         }
     }
+
+
 
 }

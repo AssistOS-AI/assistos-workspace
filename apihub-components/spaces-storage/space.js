@@ -1,9 +1,8 @@
 const path = require('path');
 const fsPromises = require('fs').promises;
 const AdmZip = require('adm-zip');
-const yazl = require('yazl');
 const volumeManager = require('../volumeManager.js');
-
+const archiver= require('archiver');
 const enclave = require('opendsu').loadAPI('enclave');
 
 const crypto = require("../apihub-component-utils/crypto");
@@ -510,6 +509,11 @@ async function getImage(spaceId, imageId) {
     const imagePath = path.join(imagesPath, `${imageId}.png`);
     return await fsPromises.readFile(imagePath);
 }
+function getImageStream(spaceId, imageId) {
+    const imagesPath = path.join(getSpacePath(spaceId), 'images');
+    const imagePath = path.join(imagesPath, `${imageId}.png`);
+    return fs.createReadStream(imagePath);
+}
 
 async function deleteImage(spaceId, imageId) {
     const imagesPath = path.join(getSpacePath(spaceId), 'images');
@@ -543,6 +547,11 @@ async function getAudio(spaceId, audioId) {
     const audioPath = path.join(audiosPath, `${audioId}.mp3`);
     return await fsPromises.readFile(audioPath);
 }
+function getAudioStream(spaceId, audioId) {
+    const audiosPath = path.join(getSpacePath(spaceId), 'audios');
+    const audioPath = path.join(audiosPath, `${audioId}.mp3`);
+    return fs.createReadStream(audioPath);
+}
 
 async function deleteAudio(spaceId, audioId) {
     const audiosPath = path.join(getSpacePath(spaceId), 'audios');
@@ -554,6 +563,11 @@ async function getVideo(spaceId, videoId) {
     const videosPath = path.join(getSpacePath(spaceId), 'videos');
     const videoPath = path.join(videosPath, `${videoId}.mp4`);
     return await fsPromises.readFile(videoPath);
+}
+function getVideoStream(spaceId, videoId) {
+    const videosPath = path.join(getSpacePath(spaceId), 'videos');
+    const videoPath = path.join(videosPath, `${videoId}.mp4`);
+    return fs.createReadStream(videoPath);
 }
 
 async function deleteVideo(spaceId, videoId) {
@@ -663,15 +677,10 @@ async function getDocumentData(spaceId, documentId) {
 
     return zip.toBuffer();
 }*/
+
+
 async function archiveDocument(spaceId, documentId) {
     const documentData = await getDocumentData(spaceId, documentId);
-    const archivePath = `${documentId}.docai`;
-
-    const zipfile = new yazl.ZipFile();
-    const output = fs.createWriteStream(archivePath);
-
-    zipfile.outputStream.pipe(output);
-
     const contentBuffer = Buffer.from(JSON.stringify(documentData), 'utf-8');
     const checksum = require('crypto')
         .createHash('sha256')
@@ -687,36 +696,30 @@ async function archiveDocument(spaceId, documentId) {
         contentFile: "data.json",
     };
 
-    zipfile.addBuffer(Buffer.from(JSON.stringify(metadata), 'utf-8'), 'metadata.json');
-    zipfile.addBuffer(contentBuffer, 'data.json');
+    const archive = archiver('zip', { zlib: { level: 9 } });
+    const stream = new require('stream').PassThrough();
+    archive.pipe(stream);
 
-    for (let imageData of documentData.images) {
-        let imageName = imageData.split("/").pop();
-        let image = await getImage(spaceId, imageName);
-        zipfile.addBuffer(image, `images/${imageName}.png`);
-    }
+    archive.append(contentBuffer, { name: 'data.json' });
+    archive.append(Buffer.from(JSON.stringify(metadata), 'utf-8'), { name: 'metadata.json' });
 
-    for (let audioData of documentData.audios) {
-        let audioName = audioData.split("/").pop();
-        let audio = await getAudio(spaceId, audioName);
-        zipfile.addBuffer(audio, `audios/${audioName}.mp3`);
-    }
-
-    zipfile.end();
-
-    return new Promise((resolve, reject) => {
-        output.on('close', () => {
-            fs.readFile(archivePath, (err, data) => {
-                if (err) {
-                    return reject(err);
-                }
-                fs.unlinkSync(archivePath);
-                resolve(data);
-            });
-        });
-
-        output.on('error', reject);
+    const imagePromises = documentData.images.map(async (imageData) => {
+        const imageName = imageData.split("/").pop();
+        const imageStream = await getImageStream(spaceId, imageName);
+        archive.append(imageStream, { name: `images/${imageName}.png` });
     });
+
+    const audioPromises = documentData.audios.map(async (audioData) => {
+        const audioName = audioData.split("/").pop();
+        const audioStream = await getAudioStream(spaceId, audioName);
+        archive.append(audioStream, { name: `audios/${audioName}.mp3` });
+    });
+
+    await Promise.all([...imagePromises, ...audioPromises]);
+
+    archive.finalize();
+
+    return stream;
 }
 async function importDocument(request, spaceId, fileId, filePath) {
     const zip = new AdmZip(filePath);
@@ -883,6 +886,9 @@ module.exports = {
         getDocumentData,
         archiveDocument,
         importDocument,
+        getAudioStream,
+        getVideoStream,
+        getImageStream
     },
     templates: {
         defaultSpaceAnnouncement: require('./templates/defaultSpaceAnnouncement.json'),

@@ -1314,40 +1314,37 @@ async function deleteVideo(request, response) {
     }
 }
 
-/*async function exportDocument(request, response) {
-    const spaceId = request.params.spaceId;
-    const documentId = request.params.documentId;
-    try {
-        const documentArchive = await space.APIs.archiveDocument(spaceId, documentId);
 
-        response.setHeader('Content-Disposition', `attachment; filename=${documentId}.docai`);
-        response.setHeader('Content-Type', 'application/zip');
-        response.setHeader('Content-Length', documentArchive.length);
-        return utils.sendResponse(response, 200, "application/zip", documentArchive);
-    } catch (error) {
-        return utils.sendResponse(response, 500, "application/json", {
-            success: false,
-            message: error + ` Error at exporting document: ${documentId}`
-        });
-    }
-}*/
 async function exportDocument(request, response) {
     const spaceId = request.params.spaceId;
     const documentId = request.params.documentId;
+
     try {
-        const documentArchive = await space.APIs.archiveDocument(spaceId, documentId);
+        const archiveStream = await space.APIs.archiveDocument(spaceId, documentId);
 
         response.setHeader('Content-Disposition', `attachment; filename=${documentId}.docai`);
         response.setHeader('Content-Type', 'application/zip');
-        response.setHeader('Content-Length', documentArchive.length);
-        return utils.sendResponse(response, 200, "application/zip", documentArchive);
+
+        archiveStream.pipe(response);
+
+        archiveStream.on('end', () => {
+            response.end();
+        });
+
+        archiveStream.on('error', err => {
+            response.status(500).json({
+                success: false,
+                message: `Error at exporting document: ${documentId}. ${err.message}`
+            });
+        });
     } catch (error) {
-        return utils.sendResponse(response, 500, "application/json", {
+        response.status(500).json({
             success: false,
-            message: error + ` Error at exporting document: ${documentId}`
+            message: `Error at exporting document: ${documentId}. ${error.message}`
         });
     }
 }
+
 
 
 async function importDocument(request, response) {
