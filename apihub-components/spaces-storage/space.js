@@ -646,20 +646,43 @@ async function archiveDocument(spaceId, documentId) {
         checksum: checksum,
         contentFile: "data.json",
     };
-    let imagePromises = documentData.images.slice(0, 80).map(async (imageData) => {
-        let image = await getImage(spaceId, imageData.split("/").pop());
-        zip.addFile(`images/${imageData.split("/").pop()}.png`, image);
-    });
 
-    let audioPromises = documentData.audios.slice(0, 80).map(async (audioData) => {
-        let audio = await getAudio(spaceId, audioData.split("/").pop());
-        zip.addFile(`audios/${audioData.split("/").pop()}.mp3`, audio);
-    });
+    const sleep = (ms) => new Promise(resolve => setTimeout(resolve, ms));
 
-    await Promise.all([...imagePromises, ...audioPromises]);
+    const processImages = async (images, spaceId, zip) => {
+        for (let i = 0; i < images.length; i += 30) {
+            let chunk = images.slice(i, i + 30).map(async (imageData) => {
+                let image = await getImage(spaceId, imageData.split("/").pop());
+                zip.addFile(`images/${imageData.split("/").pop()}.png`, image);
+            });
+            await Promise.all(chunk);
+            if (i + 30 < images.length) {
+                await sleep(2000);
+            }
+        }
+    };
 
+    const processAudios = async (audios, spaceId, zip) => {
+        for (let i = 0; i < audios.length; i += 30) {
+            let chunk = audios.slice(i, i + 30).map(async (audioData) => {
+                let audio = await getAudio(spaceId, audioData.split("/").pop());
+                zip.addFile(`audios/${audioData.split("/").pop()}.mp3`, audio);
+            });
+            await Promise.all(chunk);
+            if (i + 30 < audios.length) {
+                await sleep(2000);
+            }
+        }
+    };
 
-    await Promise.all([...imagePromises, ...audioPromises]);
+    const processDocuments = async (documentData, spaceId, zip) => {
+        await Promise.all([
+            processImages(documentData.images, spaceId, zip),
+            processAudios(documentData.audios, spaceId, zip)
+        ]);
+    };
+
+    await processDocuments(documentData, spaceId, zip);
 
     zip.addFile("metadata.json", Buffer.from(JSON.stringify(metadata), 'utf-8'));
     zip.addFile("data.json", contentBuffer);
