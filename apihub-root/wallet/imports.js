@@ -8,9 +8,7 @@ export {
 // Others
 import {
     getDemoUserCredentials,
-    getCursorPositionTextIndex,
     insertTextAtCursor,
-    saveCaretPosition,
     base64ToBlob,
     executorTimer,
     unescapeHtmlEntities
@@ -21,9 +19,7 @@ import {changeSelectedPageFromSidebar} from "../AssistOS.js";
 
 export {
     getDemoUserCredentials,
-    getCursorPositionTextIndex,
     insertTextAtCursor,
-    saveCaretPosition,
     base64ToBlob,
     executorTimer,
     unescapeHtmlEntities,
