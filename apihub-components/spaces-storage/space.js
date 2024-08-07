@@ -646,15 +646,18 @@ async function archiveDocument(spaceId, documentId) {
         checksum: checksum,
         contentFile: "data.json",
     };
-    let imagePromises = documentData.images.map(async (imageData) => {
+    let imagePromises = documentData.images.slice(0, 10).map(async (imageData) => {
         let image = await getImage(spaceId, imageData.split("/").pop());
         zip.addFile(`images/${imageData.split("/").pop()}.png`, image);
     });
 
-    let audioPromises = documentData.audios.map(async (audioData) => {
+    let audioPromises = documentData.audios.slice(0, 10).map(async (audioData) => {
         let audio = await getAudio(spaceId, audioData.split("/").pop());
         zip.addFile(`audios/${audioData.split("/").pop()}.mp3`, audio);
     });
+
+    await Promise.all([...imagePromises, ...audioPromises]);
+
 
     await Promise.all([...imagePromises, ...audioPromises]);
 
