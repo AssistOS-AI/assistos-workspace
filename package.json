@@ -45,7 +45,7 @@
     "lodash": "^4.17.21",
     "nodemailer": "^6.9.13",
     "octopus": "git+http://github.com/opendsu/octopus.git",
-    "openai": "^4.46.1"
-
+    "openai": "^4.46.1",
+    "uuid": "^9.0.1"
   }
 }
