@@ -30,10 +30,10 @@ export class ParagraphItem extends BaseParagraph{
     }
 
     beforeRender() {
-
     }
 
     afterRender() {
+        this.audioIcon = this.element.querySelector('.audio-icon');
         let paragraphText = this.element.querySelector(".paragraph-text");
         paragraphText.innerHTML = this.paragraph.text;
         paragraphText.style.height = paragraphText.scrollHeight + 'px';
@@ -41,7 +41,7 @@ export class ParagraphItem extends BaseParagraph{
             this.showTTSPopup(this.element, "off");
             this.openTTSItem = false;
         }
-        // const audioIcon = this.element.querySelector('.audio-icon');
+
         if (this.paragraph.audioConfig) {
             this.hasAudio = true;
         }
@@ -90,11 +90,17 @@ export class ParagraphItem extends BaseParagraph{
 
     highlightParagraph() {
         this.switchParagraphArrows("on");
+        if(this.paragraph.audio){
+            this.audioIcon.classList.remove("hidden");
+        }
         assistOS.space.currentParagraphId = this.paragraph.id;
     }
 
     focusOutHandler() {
         this.switchParagraphArrows("off");
+        if(this.paragraph.audio){
+            this.audioIcon.classList.add("hidden");
+        }
     }
 
     mouseDownAudioIconHandler(paragraphText, audioIcon, event) {

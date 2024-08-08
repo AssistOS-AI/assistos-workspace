@@ -132,3 +132,8 @@ paragraph-item{
     top: -54px;
     right: 0;
 }
+.paragraph-item-container{
+    display:flex;
+    align-items:center;
+    width:fit-content;
+}
