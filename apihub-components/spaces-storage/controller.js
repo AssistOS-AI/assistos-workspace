@@ -1373,10 +1373,9 @@ async function importDocument(request, response) {
                     unzipper.Extract({ path: extractedPath })
                 );
 
-                const metadataPath = path.join(extractedPath, 'metadata.json');
-                const dataPath = path.join(extractedPath, 'data.json');
+                const extractedFiles = await fs.promises.readdir(extractedPath);
 
-                if (!fs.existsSync(metadataPath) || !fs.existsSync(dataPath)) {
+                if (!extractedFiles.includes('metadata.json') || !extractedFiles.includes('data.json')) {
                     throw new Error('metadata.json or data.json not found in the extracted files');
                 }
 

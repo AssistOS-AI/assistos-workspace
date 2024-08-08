@@ -800,7 +800,7 @@ async function importDocument(spaceId, extractedPath, request) {
         }
     }
 
-    fs.rmSync(extractedPath, { recursive: true, force: true })
+    fs.rmSync(extractedPath, { recursive: true, force: true });
 
     async function streamToJson(stream) {
         return new Promise((resolve, reject) => {
