@@ -1,6 +1,5 @@
 const path = require('path');
 const fsPromises = require('fs').promises;
-const AdmZip = require('adm-zip');
 const volumeManager = require('../volumeManager.js');
 const archiver= require('archiver');
 const enclave = require('opendsu').loadAPI('enclave');
@@ -641,51 +640,10 @@ async function getDocumentData(spaceId, documentId) {
     return documentData
 }
 
-/*async function archiveDocument(spaceId, documentId) {
-    const documentData = await getDocumentData(spaceId, documentId);
-
-    const zip = new AdmZip();
-
-    const contentBuffer = Buffer.from(JSON.stringify(documentData), 'utf-8');
-    const checksum = require('crypto')
-        .createHash('sha256')
-        .update(contentBuffer)
-        .digest('hex');
-
-    const metadata = {
-        title: documentData.title,
-        created: new Date().toISOString(),
-        modified: new Date().toISOString(),
-        version: "1.0",
-        checksum: checksum,
-        contentFile: "data.json",
-    };
-    let imagePromises = documentData.images.map(async (imageData) => {
-        let image = await getImage(spaceId, imageData.split("/").pop());
-        zip.addFile(`images/${imageData.split("/").pop()}.png`, image);
-    });
-
-    let audioPromises = documentData.audios.map(async (audioData) => {
-        let audio = await getAudio(spaceId, audioData.split("/").pop());
-        zip.addFile(`audios/${audioData.split("/").pop()}.mp3`, audio);
-    });
-
-    await Promise.all([...imagePromises, ...audioPromises]);
-
-    zip.addFile("metadata.json", Buffer.from(JSON.stringify(metadata), 'utf-8'));
-    zip.addFile("data.json", contentBuffer);
-
-    return zip.toBuffer();
-}*/
-
-
 async function archiveDocument(spaceId, documentId) {
     const documentData = await getDocumentData(spaceId, documentId);
     const contentBuffer = Buffer.from(JSON.stringify(documentData), 'utf-8');
-    const checksum = require('crypto')
-        .createHash('sha256')
-        .update(contentBuffer)
-        .digest('hex');
+    const checksum = require('crypto').createHash('sha256').update(contentBuffer).digest('hex');
 
     const metadata = {
         title: documentData.title,
@@ -703,36 +661,29 @@ async function archiveDocument(spaceId, documentId) {
     archive.append(contentBuffer, { name: 'data.json' });
     archive.append(Buffer.from(JSON.stringify(metadata), 'utf-8'), { name: 'metadata.json' });
 
-    const imagePromises = documentData.images.map(async (imageData) => {
+    documentData.images.forEach(imageData => {
         const imageName = imageData.split("/").pop();
-        const imageStream = await getImageStream(spaceId, imageName);
+        const imageStream = getImageStream(spaceId, imageName);
         archive.append(imageStream, { name: `images/${imageName}.png` });
     });
 
-    const audioPromises = documentData.audios.map(async (audioData) => {
+    documentData.audios.forEach(audioData => {
         const audioName = audioData.split("/").pop();
-        const audioStream = await getAudioStream(spaceId, audioName);
+        const audioStream = getAudioStream(spaceId, audioName);
         archive.append(audioStream, { name: `audios/${audioName}.mp3` });
     });
 
-    await Promise.all([...imagePromises, ...audioPromises]);
-
     archive.finalize();
-
     return stream;
 }
-async function importDocument(request, spaceId, fileId, filePath) {
-    const zip = new AdmZip(filePath);
-    const extractedPath = path.join(__dirname, '../../data-volume/Temp/extracted', fileId);
-
-    zip.extractAllTo(extractedPath, true);
-    fs.unlinkSync(filePath);
 
 
-    const docMetadata = fs.readFileSync(path.join(extractedPath, 'metadata.json'), 'utf8');
-    const docMetadataObj = JSON.parse(docMetadata);
+async function importDocument(spaceId, extractedPath, request) {
+    const docMetadataPath = path.join(extractedPath, 'metadata.json');
+    const docDataPath = path.join(extractedPath, 'data.json');
 
-    const docDataObj = JSON.parse(fs.readFileSync(path.join(extractedPath, 'data.json'), 'utf8'));
+    const docMetadata = JSON.parse(await fs.promises.readFile(docMetadataPath, 'utf8'));
+    const docData = JSON.parse(await fs.promises.readFile(docDataPath, 'utf8'));
 
     async function uploadImage(spaceId, imageData) {
         const result = await fetch(`${process.env.BASE_URL}/spaces/image/${spaceId}`, {
@@ -744,8 +695,7 @@ async function importDocument(request, spaceId, fileId, filePath) {
             body: JSON.stringify(imageData)
         });
         const responseData = await result.json();
-        const imageId = responseData.data;
-        return imageId;
+        return responseData.data;
     }
 
     const result = await fetch(`${process.env.BASE_URL}/spaces/containerObject/${spaceId}/documents`, {
@@ -755,24 +705,70 @@ async function importDocument(request, spaceId, fileId, filePath) {
             'Cookie': request.headers.cookie,
         },
         body: JSON.stringify({
-            title: docMetadataObj.title,
-            topic: docMetadataObj.topic,
+            title: docMetadata.title,
+            topic: docMetadata.topic,
             metadata: ["id", "title"]
         })
     });
     const docId = (await result.json()).data;
 
-    for (const chapter of docDataObj.chapters) {
+    for (const chapter of docData.chapters) {
         let objectURI = encodeURIComponent(`${docId}/chapters`);
-        let chapterObject = {}
+        let chapterObject = {
+            title: chapter.title,
+            position: chapter.position || 0
+        };
 
         if (chapter.backgroundSound) {
             chapterObject.backgroundSound = chapter.backgroundSound;
             let audioId = chapter.backgroundSound.id;
             const audioPath = path.join(extractedPath, 'audios', `${audioId}.mp3`);
-            const audioBase64Data = fs.readFileSync(audioPath, 'base64');
-            const result = await fetch(`${process.env.BASE_URL}/spaces/audio/${spaceId}`,
-                {
+            const audioBase64Data = await fs.promises.readFile(audioPath, 'base64');
+            const result = await fetch(`${process.env.BASE_URL}/spaces/audio/${spaceId}`, {
+                method: 'POST',
+                headers: {
+                    'Content-Type': 'application/json',
+                    'Cookie': request.headers.cookie,
+                },
+                body: JSON.stringify(audioBase64Data)
+            });
+            audioId = (await result.json()).data;
+            chapterObject.backgroundSound.id = audioId;
+            chapterObject.backgroundSound.src = `spaces/audio/${spaceId}/${audioId}`;
+        }
+
+        const chapterResult = await fetch(`${process.env.BASE_URL}/spaces/embeddedObject/${spaceId}/${objectURI}`, {
+            method: 'POST',
+            headers: {
+                'Content-Type': 'application/json',
+                'Cookie': request.headers.cookie,
+            },
+            body: JSON.stringify(chapterObject)
+        });
+
+        const chapterId = (await chapterResult.json()).data;
+
+        for (const paragraph of chapter.paragraphs) {
+            let paragraphObject = { text: paragraph.text || "" };
+            let objectURI = encodeURIComponent(`${docId}/${chapterId}/paragraphs`);
+
+            if (paragraph.image) {
+                let image = await fs.promises.readFile(path.join(extractedPath, 'images', `${paragraph.image.id}.png`), 'base64');
+                const dataUrl = `data:image/png;base64,${image}`;
+                const imageId = await uploadImage(spaceId, dataUrl);
+                paragraph.image.id = imageId;
+                paragraph.image.src = `spaces/image/${spaceId}/${imageId}`;
+                paragraph.image.isUploadedImage = true;
+                paragraphObject.image = paragraph.image;
+                paragraphObject.dimensions = paragraph.dimensions;
+            }
+
+            if (paragraph.audio) {
+                paragraphObject.audio = paragraph.audio;
+                let audioId = paragraph.audio.id;
+                const audioPath = path.join(extractedPath, 'audios', `${audioId}.mp3`);
+                const audioBase64Data = await fs.promises.readFile(audioPath, 'base64');
+                const result = await fetch(`${process.env.BASE_URL}/spaces/audio/${spaceId}`, {
                     method: 'POST',
                     headers: {
                         'Content-Type': 'application/json',
@@ -780,65 +776,16 @@ async function importDocument(request, spaceId, fileId, filePath) {
                     },
                     body: JSON.stringify(audioBase64Data)
                 });
-            audioId = (await result.json()).data;
-            chapterObject.backgroundSound.id = audioId;
-            chapterObject.backgroundSound.src = `spaces/audio/${spaceId}/${audioId}`;
-        }
-        chapterObject.title = chapter.title;
-        chapterObject.position = chapter.position || 0
-        const result = await fetch(`${process.env.BASE_URL}/spaces/embeddedObject/${spaceId}/${objectURI}`, {
-            method: 'POST',
-            headers: {
-                'Content-Type': 'application/json',
-                'Cookie': request.headers.cookie,
-            },
-            body: JSON.stringify(
-                chapterObject
-            )
-        });
-
-        const chapterId = (await result.json()).data;
-
-        for (const paragraph of chapter.paragraphs) {
-            let objectURI = encodeURIComponent(`${docId}/${chapterId}/paragraphs`);
-
-            if (paragraph.image) {
-                let image = fs.readFileSync(path.join(extractedPath, 'images', `${paragraph.image.id}.png`), 'base64');
-                const dataUrl = `data:image/png;base64,${image}`;
-                const imageId = await uploadImage(spaceId, dataUrl);
-                paragraph.image.id = imageId;
-                paragraph.image.src = `spaces/image/${spaceId}/${imageId}`;
-                paragraph.image.isUploadedImage = true;
-            }
-            let paragraphObject = {}
-            paragraphObject.text = paragraph.text || "";
-
-            if (paragraph.audio) {
-                paragraphObject.audio = paragraph.audio;
-                let audioId = paragraph.audio.id;
-                const audioPath = path.join(extractedPath, 'audios', `${audioId}.mp3`);
-                const audioBase64Data = fs.readFileSync(audioPath, 'base64');
-                const result = await fetch(`${process.env.BASE_URL}/spaces/audio/${spaceId}`,
-                    {
-                        method: 'POST',
-                        headers: {
-                            'Content-Type': 'application/json',
-                            'Cookie': request.headers.cookie,
-                        },
-                        body: JSON.stringify(audioBase64Data)
-                    });
                 audioId = (await result.json()).data;
                 paragraphObject.audio.id = audioId;
                 paragraphObject.audio.src = `spaces/audio/${spaceId}/${audioId}`;
             }
-            if(paragraph.audioConfig){
+
+            if (paragraph.audioConfig) {
                 paragraphObject.audioConfig = paragraph.audioConfig;
             }
-            if (paragraph.image) {
-                paragraphObject.image = paragraph.image;
-                paragraphObject.dimensions = paragraph.dimensions;
-            }
-            const result = await fetch(`${process.env.BASE_URL}/spaces/embeddedObject/${spaceId}/${objectURI}`, {
+
+            await fetch(`${process.env.BASE_URL}/spaces/embeddedObject/${spaceId}/${objectURI}`, {
                 method: 'POST',
                 headers: {
                     'Content-Type': 'application/json',
@@ -848,7 +795,8 @@ async function importDocument(request, spaceId, fileId, filePath) {
             });
         }
     }
-    fs.rmSync(extractedPath, {recursive: true, force: true});
+
+    fs.rmSync(extractedPath, { recursive: true, force: true });
 }
 module.exports = {
     APIs: {

@@ -1,4 +1,10 @@
 function bodyReader(req, res, next) {
+    const contentType = req.headers['content-type'];
+
+    // Skip bodyReader for multipart/form-data to avoid overloading buffer with large files
+    if (contentType && contentType.startsWith('multipart/form-data')) {
+        return next();
+    }
     convertReadableStreamToBuffer(req, (error, bodyAsBuffer) => {
         if (error) {
             console.info(0x02, `Fail to convert Stream to Buffer!`, error.message);
@@ -8,7 +14,6 @@ function bodyReader(req, res, next) {
             return;
         }
         if (req.method === "PUT" || req.method === "POST") {
-            const contentType = req.headers['content-type'];
             if (contentType.startsWith('application/json')) {
                 try {
                     req.body = JSON.parse(bodyAsBuffer.toString());
@@ -23,8 +28,6 @@ function bodyReader(req, res, next) {
                 }
             } else if (contentType.startsWith('application/octet-stream')) {
                 req.body = bodyAsBuffer;
-            } else if (contentType.startsWith('multipart/form-data')) {
-                req.body=bodyAsBuffer
             } else {
                 req.body = bodyAsBuffer.toString();
             }

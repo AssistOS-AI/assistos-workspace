@@ -13,10 +13,10 @@ const dataVolumePaths = require('../volumeManager').paths;
 const ffmpeg = require('../apihub-component-utils/ffmpeg.js');
 const Task = require('../apihub-component-utils/Task.js');
 const TaskManager = require('../apihub-component-utils/TaskManager.js');
-
 function getFileObjectsMetadataPath(spaceId, objectType) {
     return path.join(dataVolumePaths.space, `${spaceId}/${objectType}/metadata.json`);
 }
+const AdmZip = require('adm-zip');
 
 async function getFileObjectsMetadata(request, response) {
     const spaceId = request.params.spaceId;
@@ -1346,7 +1346,7 @@ async function exportDocument(request, response) {
 }
 
 
-
+/*
 async function importDocument(request, response) {
     const spaceId = request.params.spaceId;
     let fileId, filePath;
@@ -1376,6 +1376,69 @@ async function importDocument(request, response) {
             message: ` Error at importing document: ${error.message}`
         });
     }
+}
+*/
+
+
+async function importDocument(request, response) {
+    const spaceId = request.params.spaceId;
+    const fileId = crypto.generateSecret(64);
+    const tempDir = path.join(__dirname, '../../data-volume/Temp', fileId);
+    const filePath = path.join(tempDir, `${fileId}.docai`);
+
+    await fs.promises.mkdir(tempDir, { recursive: true });
+    const Busboy = require('busboy');
+    const busboy = Busboy({ headers: request.headers });
+
+    busboy.on('file', (fieldname, file, filename, encoding, mimetype) => {
+        const writeStream = fs.createWriteStream(filePath);
+        file.pipe(writeStream);
+
+        writeStream.on('finish', async () => {
+            try {
+                const extractedPath = path.join(tempDir, 'extracted');
+                await fs.promises.mkdir(extractedPath, { recursive: true });
+
+                const zip = new AdmZip(filePath);
+                zip.extractAllTo(extractedPath, true);
+
+                await space.APIs.importDocument(spaceId, extractedPath, request);
+
+                fs.unlinkSync(filePath);
+
+                utils.sendResponse(response, 200, "application/json", {
+                    success: true,
+                    message: 'Document imported successfully',
+                });
+            } catch (error) {
+                console.error('Error processing extracted files:', error);
+                utils.sendResponse(response, 500, "application/json", {
+                    success: false,
+                    message: `Error at importing document: ${error.message}`
+                });
+            } finally {
+                fs.rmSync(tempDir, { recursive: true, force: true });
+            }
+        });
+
+        writeStream.on('error', (error) => {
+            console.error('Error writing file:', error);
+            utils.sendResponse(response, 500, "application/json", {
+                success: false,
+                message: `Error writing file: ${error.message}`
+            });
+        });
+    });
+
+    busboy.on('error', (error) => {
+        console.error('Busboy error:', error);
+        utils.sendResponse(response, 500, "application/json", {
+            success: false,
+            message: `Busboy error: ${error.message}`
+        });
+    });
+
+    request.pipe(busboy);
 }
 
 
