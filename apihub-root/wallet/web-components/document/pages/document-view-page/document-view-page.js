@@ -1,7 +1,7 @@
 const spaceModule = require("assistos").loadModule("space", {});
 const utilModule = require("assistos").loadModule("util", {});
 const documentModule = require("assistos").loadModule("document", {});
-import {executorTimer, saveCaretPosition, unescapeHtmlEntities} from "../../../../imports.js";
+import {executorTimer, unescapeHtmlEntities} from "../../../../imports.js";
 
 export class DocumentViewPage {
     constructor(element, invalidate) {
@@ -149,8 +149,7 @@ export class DocumentViewPage {
         // Find the position to add the new chapter
         if (assistOS.space.currentChapterId) {
             position = this._document.chapters.findIndex(
-                (chapter) => chapter.id === assistOS.space.currentChapterId
-            ) + 1;
+                (chapter) => chapter.id === assistOS.space.currentChapterId) + 1;
         }
         assistOS.space.currentChapterId = (await assistOS.callFlow("AddChapter", {
             spaceId: assistOS.space.id,
@@ -292,6 +291,13 @@ export class DocumentViewPage {
             <video class="document-video" controls>
                 <source src="${videoURL}" type="video/mp4">
             </video>`);
+        // let buttonsSection = this.element.querySelector(".buttons-section");
+        // let shareButton = buttonsSection.querySelector(".share-video-button");
+        // if(!shareButton){
+        //     let shareVideoButton = `<button class="general-button share-video-button" data-local-action="shareVideo">Share Video</button>`;
+        //     buttonsSection.insertAdjacentHTML("beforeend", shareVideoButton);
+        // }
+
     }
     async  exportDocument(_target) {
         try {
