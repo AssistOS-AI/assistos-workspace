@@ -16,7 +16,11 @@ const TaskManager = require('../apihub-component-utils/TaskManager.js');
 function getFileObjectsMetadataPath(spaceId, objectType) {
     return path.join(dataVolumePaths.space, `${spaceId}/${objectType}/metadata.json`);
 }
-const AdmZip = require('adm-zip');
+const Busboy = require('busboy');
+const unzipper= require('unzipper');
+const { pipeline } = require('stream');
+const util = require('util');
+const pipelinePromise = util.promisify(pipeline);
 
 async function getFileObjectsMetadata(request, response) {
     const spaceId = request.params.spaceId;
@@ -1345,41 +1349,6 @@ async function exportDocument(request, response) {
     }
 }
 
-
-/*
-async function importDocument(request, response) {
-    const spaceId = request.params.spaceId;
-    let fileId, filePath;
-    const contentType = request.headers['content-type'];
-    const boundary = contentType.split('boundary=')[1];
-    const parts = request.body.toString('binary').split(`--${boundary}`);
-    parts.forEach(part => {
-        if (part.indexOf('Content-Disposition') !== -1) {
-            const start = part.indexOf('\r\n\r\n') + 4;
-            const end = part.lastIndexOf('\r\n');
-            const fileContent = part.slice(start, end);
-            fileId = crypto.generateSecret(64);
-            filePath = path.join(__dirname, '../../data-volume/Temp', `${fileId}.aos`);
-            fs.writeFileSync(filePath, Buffer.from(fileContent, 'binary'));
-
-        }
-    });
-    try {
-        await space.APIs.importDocument(request, spaceId, fileId, filePath);
-        return utils.sendResponse(response, 200, "application/json", {
-            success: true,
-            message: `Document imported successfully`,
-        });
-    } catch (error) {
-        return utils.sendResponse(response, 500, "application/json", {
-            success: false,
-            message: ` Error at importing document: ${error.message}`
-        });
-    }
-}
-*/
-
-
 async function importDocument(request, response) {
     const spaceId = request.params.spaceId;
     const fileId = crypto.generateSecret(64);
@@ -1387,7 +1356,7 @@ async function importDocument(request, response) {
     const filePath = path.join(tempDir, `${fileId}.docai`);
 
     await fs.promises.mkdir(tempDir, { recursive: true });
-    const Busboy = require('busboy');
+
     const busboy = Busboy({ headers: request.headers });
 
     busboy.on('file', (fieldname, file, filename, encoding, mimetype) => {
@@ -1399,8 +1368,17 @@ async function importDocument(request, response) {
                 const extractedPath = path.join(tempDir, 'extracted');
                 await fs.promises.mkdir(extractedPath, { recursive: true });
 
-                const zip = new AdmZip(filePath);
-                zip.extractAllTo(extractedPath, true);
+                await pipelinePromise(
+                    fs.createReadStream(filePath),
+                    unzipper.Extract({ path: extractedPath })
+                );
+
+                const metadataPath = path.join(extractedPath, 'metadata.json');
+                const dataPath = path.join(extractedPath, 'data.json');
+
+                if (!fs.existsSync(metadataPath) || !fs.existsSync(dataPath)) {
+                    throw new Error('metadata.json or data.json not found in the extracted files');
+                }
 
                 await space.APIs.importDocument(spaceId, extractedPath, request);
 

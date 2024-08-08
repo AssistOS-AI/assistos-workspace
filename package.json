@@ -46,6 +46,7 @@
     "nodemailer": "^6.9.13",
     "octopus": "git+http://github.com/opendsu/octopus.git",
     "openai": "^4.46.1",
+    "unzipper": "^0.10.14",
     "uuid": "^9.0.1"
   }
 }

@@ -682,8 +682,11 @@ async function importDocument(spaceId, extractedPath, request) {
     const docMetadataPath = path.join(extractedPath, 'metadata.json');
     const docDataPath = path.join(extractedPath, 'data.json');
 
-    const docMetadata = JSON.parse(await fs.promises.readFile(docMetadataPath, 'utf8'));
-    const docData = JSON.parse(await fs.promises.readFile(docDataPath, 'utf8'));
+    const docMetadataStream = fs.createReadStream(docMetadataPath, 'utf8');
+    const docDataStream = fs.createReadStream(docDataPath, 'utf8');
+
+    const docMetadata = await streamToJson(docMetadataStream);
+    const docData = await streamToJson(docDataStream);
 
     async function uploadImage(spaceId, imageData) {
         const result = await fetch(`${process.env.BASE_URL}/spaces/image/${spaceId}`, {
@@ -723,7 +726,7 @@ async function importDocument(spaceId, extractedPath, request) {
             chapterObject.backgroundSound = chapter.backgroundSound;
             let audioId = chapter.backgroundSound.id;
             const audioPath = path.join(extractedPath, 'audios', `${audioId}.mp3`);
-            const audioBase64Data = await fs.promises.readFile(audioPath, 'base64');
+            const audioBase64Data = await readFileAsBase64(audioPath);
             const result = await fetch(`${process.env.BASE_URL}/spaces/audio/${spaceId}`, {
                 method: 'POST',
                 headers: {
@@ -750,11 +753,12 @@ async function importDocument(spaceId, extractedPath, request) {
 
         for (const paragraph of chapter.paragraphs) {
             let paragraphObject = { text: paragraph.text || "" };
-            let objectURI = encodeURIComponent(`${docId}/${chapterId}/paragraphs`);
+            objectURI = encodeURIComponent(`${docId}/${chapterId}/paragraphs`);
 
             if (paragraph.image) {
-                let image = await fs.promises.readFile(path.join(extractedPath, 'images', `${paragraph.image.id}.png`), 'base64');
-                const dataUrl = `data:image/png;base64,${image}`;
+                const imagePath = path.join(extractedPath, 'images', `${paragraph.image.id}.png`);
+                const imageBase64Data = await readFileAsBase64(imagePath);
+                const dataUrl = `data:image/png;base64,${imageBase64Data}`;
                 const imageId = await uploadImage(spaceId, dataUrl);
                 paragraph.image.id = imageId;
                 paragraph.image.src = `spaces/image/${spaceId}/${imageId}`;
@@ -767,7 +771,7 @@ async function importDocument(spaceId, extractedPath, request) {
                 paragraphObject.audio = paragraph.audio;
                 let audioId = paragraph.audio.id;
                 const audioPath = path.join(extractedPath, 'audios', `${audioId}.mp3`);
-                const audioBase64Data = await fs.promises.readFile(audioPath, 'base64');
+                const audioBase64Data = await readFileAsBase64(audioPath);
                 const result = await fetch(`${process.env.BASE_URL}/spaces/audio/${spaceId}`, {
                     method: 'POST',
                     headers: {
@@ -796,7 +800,26 @@ async function importDocument(spaceId, extractedPath, request) {
         }
     }
 
-    fs.rmSync(extractedPath, { recursive: true, force: true });
+    fs.rmSync(extractedPath, { recursive: true, force: true })
+
+    async function streamToJson(stream) {
+        return new Promise((resolve, reject) => {
+            let data = '';
+            stream.on('data', chunk => data += chunk);
+            stream.on('end', () => resolve(JSON.parse(data)));
+            stream.on('error', err => reject(err));
+        });
+    }
+
+    async function readFileAsBase64(filePath) {
+        return new Promise((resolve, reject) => {
+            let data = '';
+            const stream = fs.createReadStream(filePath, { encoding: 'base64' });
+            stream.on('data', chunk => data += chunk);
+            stream.on('end', () => resolve(data));
+            stream.on('error', err => reject(err));
+        });
+    }
 }
 module.exports = {
     APIs: {
