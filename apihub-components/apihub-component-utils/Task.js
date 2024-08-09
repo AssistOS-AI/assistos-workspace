@@ -1,5 +1,6 @@
 const crypto = require('./crypto.js');
-const {exec} = require("child_process");
+const {exec, spawn} = require("child_process");
+const fs = require('fs');
 class Task{
     constructor(executeFn, securityContext) {
         this.executeFn = executeFn.bind(this);
@@ -15,7 +16,7 @@ class Task{
             throw new Error(`Cannot run task in status ${this.status}`);
         }
         this.status = 'running';
-        //TODO use something else to handle cancel instead of Promise to delete temp directory
+        //TODO use something else to handle cancel instead of Promise to delete temp directory video generation
         return new Promise((resolve, reject) => {
             this.reject = reject;
             this.executeFn()
@@ -58,6 +59,37 @@ class Task{
                 resolve(stdout || stderr);
             });
             this.processes.push(childProcess);
+        });
+    }
+    async streamCommandToFile(command, outputPath) {
+        return new Promise( (resolve, reject) => {
+            const childProcess = spawn(command, { shell: true });
+            this.processes.push(childProcess);
+            const outputStream = fs.createWriteStream(outputPath);
+
+            outputStream.on('error', (err) => {
+                childProcess.kill();
+                reject(`Error writing to file: ${err.message}`);
+            });
+            childProcess.on('error', (err) => {
+                outputStream.close();
+                reject(`Failed to start command: ${err.message}`);
+            });
+
+            // childProcess.stdout.on('data', (data) => {
+            //     console.log(`ffmpeg stderr: ${data.toString()}`);
+            // });
+            childProcess.stdout.pipe(outputStream);
+            let errorMessages = '';
+            childProcess.stderr.on('data', (data) => {
+                errorMessages += data.toString();
+            });
+            childProcess.on('close', (code) => {
+                if (code !== 0) {
+                    reject(errorMessages);
+                }
+                resolve();
+            });
         });
     }
 }

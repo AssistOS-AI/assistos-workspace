@@ -31,8 +31,9 @@ async function createVideoFromImage(image, duration, outputVideoPath, task) {
     await task.runCommand(command);
 }
 async function combineVideoAndAudio(videoPath, audioPath, outputPath, task) {
-    const command = `${ffmpegPath} -i ${videoPath} -i ${audioPath} -c:v copy -c:a aac -strict experimental ${outputPath}`;
-    await task.runCommand(command);
+    const command = `${ffmpegPath} -i ${videoPath} -i ${audioPath} -c:v copy -c:a aac -f matroska pipe:1`;
+    //const command = `${ffmpegPath} -i ${videoPath} -i ${audioPath} -c:v copy -c:a aac -strict experimental -f mp4 pipe:1`;
+    await task.streamCommandToFile(command, outputPath);
 }
 async function splitChapterIntoFrames(tempVideoDir, spaceId, documentId, chapter, task) {
     let chapterFrames = [];
@@ -144,7 +145,7 @@ async function createChapterVideo(spaceId, chapter, tempVideoDir, documentId, ch
         tempVideoDir,
         completedFramePaths,
         `chapter_${chapterIndex}_frames.txt`,
-        `chapter_${chapterIndex}_video.mp4`,
+        `chapter_${chapterIndex}_video.mkv`,
         task);
     if(chapter.backgroundSound){
         let backgroundSoundPath = path.join(space.getSpacePath(spaceId), 'audios', `${chapter.backgroundSound.src.split("/").pop()}.mp3`);
@@ -157,16 +158,17 @@ async function combineVideos(tempVideoDir, videoPaths, fileListName, outputVideo
     const fileListPath = path.join(tempVideoDir, fileListName);
     const fileListContent = videoPaths.map(file => `file '${file}'`).join('\n');
     await fsPromises.writeFile(fileListPath, fileListContent);
-    let videoPath;
+    let outputVideoPath;
     if(videoDir){
-        videoPath = path.join(videoDir, outputVideoName);
+        outputVideoPath = path.join(videoDir, outputVideoName);
     } else {
-        videoPath = path.join(tempVideoDir, outputVideoName);
+        outputVideoPath = path.join(tempVideoDir, outputVideoName);
     }
-    const command = `${ffmpegPath} -f concat -safe 0 -i ${fileListPath} -filter_complex "[0:a]aresample=async=1[a]" -map 0:v -map "[a]" -c:v copy -c:a aac -b:a 192k ${videoPath}`;
-    await task.runCommand(command);
+    const command = `${ffmpegPath} -f concat -safe 0 -i ${fileListPath} -filter_complex "[0:a]aresample=async=1[a]" -map 0:v -map "[a]" -c:v copy -c:a aac -b:a 192k -f matroska pipe:1`;
+    await task.streamCommandToFile(command, outputVideoPath);
     await fsPromises.unlink(fileListPath);
-    return videoPath;
+
+    return outputVideoPath;
 }
 async function documentToVideo(spaceId, document, userId, task) {
     const spacePath = space.getSpacePath(spaceId);
@@ -195,11 +197,15 @@ async function documentToVideo(spaceId, document, userId, task) {
             tempVideoDir,
             chapterVideos,
             `chapter_videos.txt`,
-            `${task.id}.mp4`,
+            `${task.id}.mkv`,
             task,
             path.join(spacePath, "videos"));
+        let mp4VideoPath = videoPath.replace('.mkv', '.mp4');
+        const convertCommand = `"${ffmpegPath}" -i "${videoPath}" -c:v copy -c:a copy "${mp4VideoPath}"`;
+        await task.runCommand(convertCommand);
         await fsPromises.rm(tempVideoDir, {recursive: true, force: true});
-        return videoPath;
+        await fsPromises.unlink(videoPath);
+        return mp4VideoPath;
     } catch (e) {
         await fsPromises.rm(tempVideoDir, {recursive: true, force: true});
         throw new Error(`Failed to combine chapter videos: ${e}`);
@@ -207,13 +213,13 @@ async function documentToVideo(spaceId, document, userId, task) {
 }
 async function createVideoFrame(frame, tempVideoDir, documentId, chapterIndex, frameIndex, task){
     let audioPath = path.join(tempVideoDir, `${documentId}_chapter_${chapterIndex}_frame_${frameIndex}_audio.mp3`);
-    const videoPath = path.join(tempVideoDir, `${documentId}_chapter_${chapterIndex}_frame_${frameIndex}_video.mp4`);
+    const videoPath = path.join(tempVideoDir, `${documentId}_chapter_${chapterIndex}_frame_${frameIndex}_video.mkv`);
     const defaultDuration = 0.25;
     if(frame.audiosPath.length === 0) {
         audioPath = path.join(tempVideoDir, `${documentId}_chapter_${chapterIndex}_frame_${frameIndex}_silent.mp3`);
         await createSilentAudio(audioPath, defaultDuration, task);
         await createVideoFromImage(frame.imagePath, defaultDuration, videoPath, task);
-        let combinedPath = path.join(tempVideoDir, `chapter_${chapterIndex}_frame_${frameIndex}_combined.mp4`);
+        let combinedPath = path.join(tempVideoDir, `chapter_${chapterIndex}_frame_${frameIndex}_combined.mkv`);
         await combineVideoAndAudio(videoPath, audioPath, combinedPath, task);
         return combinedPath;
     }
@@ -222,7 +228,7 @@ async function createVideoFrame(frame, tempVideoDir, documentId, chapterIndex, f
     audioDuration = (await task.runCommand(`${ffmpegPath} -i ${audioPath} -hide_banner 2>&1 | grep "Duration"`)).match(/Duration: (\d+):(\d+):(\d+\.\d+)/);
     const totalDuration = parseInt(audioDuration[1]) * 3600 + parseInt(audioDuration[2]) * 60 + parseFloat(audioDuration[3]);
     await createVideoFromImage(frame.imagePath, totalDuration, videoPath, task);
-    let combinedPath = path.join(tempVideoDir, `chapter_${chapterIndex}_frame_${frameIndex}_combined.mp4`);
+    let combinedPath = path.join(tempVideoDir, `chapter_${chapterIndex}_frame_${frameIndex}_combined.mkv`);
     await combineVideoAndAudio(videoPath, audioPath, combinedPath, task);
     return combinedPath;
 }
