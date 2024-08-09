@@ -279,7 +279,7 @@ async function getAudioResponse(request, response) {
     const modelResponse = await fetch(fullURL, init);
     if(!modelResponse.ok){
         let jsonMessage = await modelResponse.json();
-        return utils.sendResponse(response, modelResponse.statusCode || 500, "application/json", {
+        return utils.sendResponse(response, modelResponse.status || 500, "application/json", {
             success: false,
             message: jsonMessage.message
         });
@@ -291,7 +291,7 @@ async function getAudioResponse(request, response) {
 async function listVoices(request, response) {
     try {
         request.body = {};
-        request.body.company = "PlayHT";
+        request.body.modelName = "PlayHT2.0";
         let result = await sendRequest(`/apis/v1/audio/listVoices`, "POST", request, response);
         return utils.sendResponse(response, 200, "application/json", {
             success: true,
@@ -313,12 +313,16 @@ async function listEmotions(request, response){
             url = `${configs.LLMS_SERVER_DEVELOPMENT_BASE_URL}${url}`;
         }
         let llmResponse;
+        let body = {
+            modelName: "PlayHT2.0",
+        }
         try {
             llmResponse = await fetch(url, {
-                method: "GET",
+                method: "POST",
                 headers: {
                     "content-type": "application/json"
                 },
+                body: JSON.stringify(body)
             });
         } catch (error) {
             console.error(error);

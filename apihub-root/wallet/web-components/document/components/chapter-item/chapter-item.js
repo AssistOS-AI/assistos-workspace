@@ -33,16 +33,12 @@ export class ChapterItem {
         } else {
             this.toggleSwapArrows = "show";
         }
-        let chapterId = this.element.getAttribute("data-chapter-id");
         this.titleMetadata = this.element.variables["data-title-metadata"];
         this.chapterContent = "";
-        if (this.chapter) {
-            if (this.chapter.visibility === "hide") {
-                if (this.element.querySelector(".chapter-paragraphs")) {
-                    this.element.querySelector(".chapter-paragraphs").classList.add("hidden");
-                }
-            }
+        if (this.chapter.visibility === "hide") {
+            return;
         }
+
         let iterator = 0;
         this.chapter.paragraphs.forEach((paragraph) => {
             iterator++;
@@ -229,6 +225,9 @@ export class ChapterItem {
             let arrow = this.element.querySelector(".chapter-visibility-arrow");
             arrow.classList.remove('rotate');
             let paragraphs = this.element.querySelectorAll(".paragraph-text");
+            if(paragraphs.length === 0){
+                return this.invalidate();
+            }
             for(let paragraph of paragraphs){
                 paragraph.style.height = paragraph.scrollHeight + 'px';
             }

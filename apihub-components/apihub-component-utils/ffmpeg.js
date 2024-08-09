@@ -92,7 +92,7 @@ async function tryToExecuteCommandOnParagraph(tempVideoDir, spaceId, documentId,
         task.addChildTask(childTask);
         return await childTask.run();
     } catch (e) {
-        throw new Error(`Failed to execute command on paragraph ${paragraph.id}: ${e}`);
+        //throw new Error(`Failed to execute command on paragraph ${paragraph.id}: ${e}`);
         //command failed, stop video creation?
     }
 }
@@ -131,12 +131,12 @@ async function createChapterVideo(spaceId, chapter, tempVideoDir, documentId, ch
         return await createVideoFrame(frame, tempVideoDir, documentId, chapterIndex, index, this);
     }, task.securityContext));
     let promises = [];
-    for(let childTask of childTasks) {
-        task.addChildTask(childTask);
-        promises.push(childTask.run());
-    }
     try{
-        completedFramePaths = await Promise.all(promises);
+        for(let childTask of childTasks) {
+            task.addChildTask(childTask);
+            let frame = await childTask.run();
+            completedFramePaths.push(frame);
+        }
     } catch (e) {
         throw new Error(`Failed to create video frames for chapter ${chapterIndex}: ${e}`);
     }
@@ -164,7 +164,6 @@ async function combineVideos(tempVideoDir, videoPaths, fileListName, outputVideo
         videoPath = path.join(tempVideoDir, outputVideoName);
     }
     const command = `${ffmpegPath} -f concat -safe 0 -i ${fileListPath} -filter_complex "[0:a]aresample=async=1[a]" -map 0:v -map "[a]" -c:v copy -c:a aac -b:a 192k ${videoPath}`;
-    //const command = `${ffmpegPath} -f concat -safe 0 -i ${fileListPath} -filter_complex "aresample=async=1" -c:v copy -c:a aac -strict experimental ${videoPath}`;
     await task.runCommand(command);
     await fsPromises.unlink(fileListPath);
     return videoPath;

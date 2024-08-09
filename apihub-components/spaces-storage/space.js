@@ -13,7 +13,6 @@ const secrets = require('../apihub-component-utils/secrets.js');
 const https = require('https');
 const fs = require('fs');
 const spaceConstants = require('./constants.js');
-const eventPublisher = require("../subscribers/eventPublisher");
 
 function getSpacePath(spaceId) {
     return path.join(volumeManager.paths.space, spaceId);
