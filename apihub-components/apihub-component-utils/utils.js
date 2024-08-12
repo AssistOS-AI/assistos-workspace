@@ -99,11 +99,26 @@ function setCacheControl(response, options = {}) {
 
     response.setHeader('Cache-Control', cacheControl);
 }
+function ensureUniqueFileName(existingNames, baseName) {
+    if (!existingNames.includes(baseName)) {
+        return baseName;
+    }
 
+    let suffix = 1;
+    let newName;
+
+    do {
+        newName = `${baseName}(${suffix})`;
+        suffix++;
+    } while (existingNames.includes(newName));
+
+    return newName;
+}
 
 module.exports = {
     extractQueryParams,
     sendFileToClient,
     setCacheControl,
-    sendResponse
+    sendResponse,
+    ensureUniqueFileName
 }

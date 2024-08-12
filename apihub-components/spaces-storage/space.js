@@ -10,6 +10,7 @@ const date = require('../apihub-component-utils/date.js');
 const file = require('../apihub-component-utils/file.js');
 const openAI = require('../apihub-component-utils/openAI.js');
 const secrets = require('../apihub-component-utils/secrets.js');
+const utils= require('../apihub-component-utils/utils.js');
 const https = require('https');
 const fs = require('fs');
 const spaceConstants = require('./constants.js');
@@ -868,7 +869,13 @@ async function importPersonality(spaceId, extractedPath, request) {
     const personalityDataStream = fs.createReadStream(personalityDataPath, 'utf8');
 
     const personalityMetadata = await streamToJson(personalityMetadataStream);
+
     const personalityData = await streamToJson(personalityDataStream);
+    const spacePersonalities= await getSpacePersonalitiesObject(spaceId);
+
+
+    const personalityNames = spacePersonalities.map(personality => personality.name);
+    personalityData.name= utils.ensureUniqueFileName(personalityNames, personalityData.name);
 
     const result = await fetch(`${process.env.BASE_URL}/spaces/fileObject/${spaceId}/personalities`, {
         method: 'POST',
