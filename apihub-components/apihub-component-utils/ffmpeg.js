@@ -16,7 +16,7 @@ async function concatenateAudioFiles(tempVideoDir, audioFilesPaths, outputAudioP
 }
 async function createSilentAudio(outputPath, duration, task) {
     //duration is in seconds
-    const command = `${ffmpegPath} -f lavfi -t ${duration} -i anullsrc=r=24000:cl=mono -c:a libmp3lame -b:a 160k ${outputPath}`
+    const command = `${ffmpegPath} -f lavfi -t ${duration} -i anullsrc=r=44100:cl=stereo -c:a libmp3lame -b:a 192k ${outputPath}`;
     await task.runCommand(command);
 }
 async function createVideoFromImage(image, duration, outputVideoPath, task) {
@@ -32,8 +32,66 @@ async function createVideoFromImage(image, duration, outputVideoPath, task) {
 }
 async function combineVideoAndAudio(videoPath, audioPath, outputPath, task) {
     const command = `${ffmpegPath} -i ${videoPath} -i ${audioPath} -c:v copy -c:a aac -f matroska pipe:1`;
-    //const command = `${ffmpegPath} -i ${videoPath} -i ${audioPath} -c:v copy -c:a aac -strict experimental -f mp4 pipe:1`;
     await task.streamCommandToFile(command, outputPath);
+}
+const audioStandard = {
+    sampleRate: 44100,
+    channels: 2, //stereo
+    bitRate: 192,
+    codec: 'mp3'
+}
+async function convertAudioToStandard(inputAudioPath, task) {
+    let tempAudioPath = inputAudioPath.replace('.mp3', '_temp.mp3');
+    const command = `${ffmpegPath} -i ${inputAudioPath} -ar ${audioStandard.sampleRate} -ac ${audioStandard.channels} -ab ${audioStandard.bitRate}k -f ${audioStandard.codec} ${tempAudioPath}`;
+    await task.runCommand(command);
+
+    //check audio integrity
+    try{
+        const checkCommand = `${ffmpegPath} -v error -i ${tempAudioPath} -f null -`;
+        await task.runCommand(checkCommand);
+    } catch (e) {
+        await fsPromises.unlink(tempAudioPath);
+        throw new Error(`Failed to check converted file ${tempAudioPath}: ${e}`);
+    }
+    await fsPromises.unlink(inputAudioPath);
+    await fsPromises.rename(tempAudioPath, inputAudioPath);
+}
+function parseFFmpegInfoOutput(output) {
+    const result = {};
+    const streamPattern = /Stream #\d+:\d+.*Audio:\s*([^\s,]+),\s*(\d+) Hz,\s*(mono|stereo|5\.1|7\.1|quad|surround),.*?,\s*(\d+) kb\/s/;
+    const streamMatch = output.match(streamPattern);
+    const channelMapping = {
+        "mono": 1,
+        "stereo": 2,
+        "5.1": 6,
+        "7.1": 8,
+        "quad": 4,
+        "surround": 5
+    };
+    if (streamMatch) {
+        result.codec = streamMatch[1];
+        result.sampleRate = parseInt(streamMatch[2]);
+        result.bitRate = parseInt(streamMatch[4]);
+        result.channels = channelMapping[streamMatch[3]] || 0;
+    }
+    return result;
+}
+async function verifyAudioSettings(audioPath, task){
+    const infoCommand = `${ffmpegPath} -i ${audioPath} -f null -`;
+    let infoOutput = await task.runCommand(infoCommand);
+    const parsedOutput = parseFFmpegInfoOutput(infoOutput);
+    const needsReencoding = (
+        parsedOutput.sampleRate !== audioStandard.sampleRate ||
+        parsedOutput.channels !== audioStandard.channels ||
+        parsedOutput.bitRate !== audioStandard.bitRate
+    );
+    if(needsReencoding){
+        await convertAudioToStandard(audioPath, task);
+    }
+}
+async function verifyAudioIntegrity(audioPath, task){
+    const command = `${ffmpegPath} -v error -i ${audioPath} -f null -`;
+    await task.runCommand(command);
 }
 async function splitChapterIntoFrames(tempVideoDir, spaceId, documentId, chapter, task) {
     let chapterFrames = [];
@@ -56,7 +114,14 @@ async function splitChapterIntoFrames(tempVideoDir, spaceId, documentId, chapter
         } else if (paragraph.audio) {
             let audioSrc= paragraph.audio.src;
             let audioPath = path.join(audiosPath, `${audioSrc.split("/").pop()}.mp3`);
-            frame.audiosPath.push(audioPath);
+            //check audio integrity + convert to standard
+            try {
+                await verifyAudioIntegrity(audioPath, task);
+                await verifyAudioSettings(audioPath, task);
+                frame.audiosPath.push(audioPath);
+            } catch (e){
+                console.error(e);
+            }
         } else{
             let audioPath = await tryToExecuteCommandOnParagraph(tempVideoDir, spaceId, documentId, paragraph, task);
             if(audioPath){
@@ -77,7 +142,11 @@ async function tryToExecuteCommandOnParagraph(tempVideoDir, spaceId, documentId,
         const audiosPath = path.join(spacePath, 'audios');
         taskFunction = async function(){
             let audioId = await audioCommands.executeTextToSpeechOnParagraph(spaceId, documentId, paragraph, commandObject, this);
-            return path.join(audiosPath, `${audioId}.mp3`);
+            let audioPath = path.join(audiosPath, `${audioId}.mp3`);
+            //check audio integrity + convert to standard
+            await verifyAudioIntegrity(audioPath, this);
+            await verifyAudioSettings(audioPath, this);
+            return audioPath;
         }
     } else if(commandObject.action === "createSilentAudio"){
         taskFunction = async function(){
@@ -98,6 +167,8 @@ async function tryToExecuteCommandOnParagraph(tempVideoDir, spaceId, documentId,
     }
 }
 async function addBackgroundSoundToVideo(videoPath, backgroundSoundPath, backgroundSoundVolume, fadeDuration, outputPath, task) {
+    await verifyAudioIntegrity(backgroundSoundPath, task);
+    await verifyAudioSettings(backgroundSoundPath, task);
     //backgroundSoundVolume is a float between 0 and 1
     //backgroundSound fades out at the end of the video
     backgroundSoundVolume = Math.max(0, Math.min(1, backgroundSoundVolume));
@@ -179,6 +250,7 @@ async function documentToVideo(spaceId, document, userId, task) {
             return await createChapterVideo(spaceId, chapter, tempVideoDir, document.id, index, this)
         }, task.securityContext);
     });
+
     let promises = [];
     for(let childTask of childTasks) {
         task.addChildTask(childTask);

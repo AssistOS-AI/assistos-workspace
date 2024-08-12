@@ -1291,6 +1291,10 @@ async function getVideo(request, response) {
     const spaceId = request.params.spaceId;
     const videoId = request.params.videoId;
     try {
+        let range = request.headers.range;
+        if(range){
+            return await space.APIs.getVideoParts(response, spaceId, videoId, range);
+        }
         let video = await space.APIs.getVideo(spaceId, videoId);
         return utils.sendResponse(response, 200, "video/mp4", video);
     } catch (error) {

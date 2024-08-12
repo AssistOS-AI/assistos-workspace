@@ -53,7 +53,7 @@ class Task{
         return new Promise( (resolve, reject) => {
             let childProcess = exec(command, (error, stdout, stderr) => {
                 if (error) {
-                    reject(error);
+                    reject(stderr || error.message);
                     return;
                 }
                 resolve(stdout || stderr);
@@ -75,10 +75,6 @@ class Task{
                 outputStream.close();
                 reject(`Failed to start command: ${err.message}`);
             });
-
-            // childProcess.stdout.on('data', (data) => {
-            //     console.log(`ffmpeg stderr: ${data.toString()}`);
-            // });
             childProcess.stdout.pipe(outputStream);
             let errorMessages = '';
             childProcess.stderr.on('data', (data) => {
