@@ -325,8 +325,19 @@ async function getSpacePersonalities(spaceId) {
     } catch (error) {
         console.error('Failed to read directory or file:', error);
     }
-
     return personalities;
+}
+
+async function getPersonalityData(spaceId, personalityId) {
+    const personalityPath = path.join(getSpacePath(spaceId), 'personalities', `${personalityId}.json`);
+    try {
+        const personalityData = await fsPromises.readFile(personalityPath, 'utf8');
+        return JSON.parse(personalityData);
+    } catch (error) {
+        error.message = `Personality ${personalityId} not found.`;
+        error.statusCode = 404;
+        throw error;
+    }
 }
 
 async function createSpaceStatus(spacePath, spaceObject) {
@@ -820,6 +831,32 @@ async function importDocument(spaceId, extractedPath, request) {
         });
     }
 }
+
+async function archivePersonality(spaceId, personalityId) {
+    const personalityData = await getPersonalityData(spaceId, personalityId);
+    const contentBuffer = Buffer.from(JSON.stringify(personalityData), 'utf-8');
+    const checksum = require('crypto').createHash('sha256').update(contentBuffer).digest('hex');
+
+    const metadata = {
+        name: personalityData.name,
+        created: new Date().toISOString(),
+        modified: new Date().toISOString(),
+        version: "1.0",
+        checksum: checksum,
+        contentFile: "data.json",
+    };
+
+    const archive = archiver('zip', { zlib: { level: 9 } });
+    const stream = new require('stream').PassThrough();
+    archive.pipe(stream);
+
+    archive.append(contentBuffer, { name: 'data.json' });
+    archive.append(Buffer.from(JSON.stringify(metadata), 'utf-8'), { name: 'metadata.json' });
+
+    archive.finalize();
+    return stream;
+}
+
 module.exports = {
     APIs: {
         addSpaceAnnouncement,
@@ -858,7 +895,8 @@ module.exports = {
         importDocument,
         getAudioStream,
         getVideoStream,
-        getImageStream
+        getImageStream,
+        archivePersonality
     },
     templates: {
         defaultSpaceAnnouncement: require('./templates/defaultSpaceAnnouncement.json'),

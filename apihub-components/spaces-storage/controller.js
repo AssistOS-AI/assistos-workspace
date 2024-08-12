@@ -1336,13 +1336,13 @@ async function exportDocument(request, response) {
         });
 
         archiveStream.on('error', err => {
-            response.status(500).json({
+            utils.sendResponse(response, 500, "application/json", {
                 success: false,
                 message: `Error at exporting document: ${documentId}. ${err.message}`
-            });
+            })
         });
     } catch (error) {
-        response.status(500).json({
+        utils.sendResponse(response, error.statusCode||500, "application/json", {
             success: false,
             message: `Error at exporting document: ${documentId}. ${error.message}`
         });
@@ -1417,6 +1417,34 @@ async function importDocument(request, response) {
 
     request.pipe(busboy);
 }
+async function exportPersonality(request,response){
+    const spaceId = request.params.spaceId;
+    const personalityId = request.params.personalityId;
+    try {
+        const archiveStream = await space.APIs.archivePersonality(spaceId, personalityId);
+
+        response.setHeader('Content-Disposition', `attachment; filename=${personalityId}.docai`);
+        response.setHeader('Content-Type', 'application/zip');
+
+        archiveStream.pipe(response);
+
+        archiveStream.on('end', () => {
+            response.end();
+        });
+
+        archiveStream.on('error', err => {
+         utils.sendResponse(response, 500, "application/json", {
+                success: false,
+                message: `Error at exporting personality: ${personalityId}. ${err.message}`
+         })
+        });
+    } catch (error) {
+        utils.sendResponse(response, error.statusCode||500, "application/json", {
+            success: false,
+            message: `Error at exporting personality: ${personalityId}. ${error.message}`
+        });
+    }
+}
 
 
 module.exports = {
@@ -1468,4 +1496,5 @@ module.exports = {
     exportDocument,
     importDocument,
     cancelTask,
+    exportPersonality
 }

@@ -224,3 +224,9 @@ input[type="file"]{
 .wide{
     width: 220px;
 }
+.header{
+    width:calc(100% - 210px);
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+}
