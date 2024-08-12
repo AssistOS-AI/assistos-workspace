@@ -568,7 +568,28 @@ async function deleteAudio(spaceId, audioId) {
     const audioPath = path.join(audiosPath, `${audioId}.mp3`);
     await fsPromises.rm(audioPath);
 }
+async function getVideoParts(response, spaceId, videoId, range) {
+    const videosPath = path.join(getSpacePath(spaceId), 'videos');
+    const videoPath = path.join(videosPath, `${videoId}.mp4`);
+    const stat = await fs.promises.stat(videoPath);
+    const fileSize = stat.size;
+    const parts = range.replace(/bytes=/, "").split("-");
+    const start = parseInt(parts[0], 10);
+    const end = parts[1] ? parseInt(parts[1], 10) : fileSize - 1;
+    const chunkSize = (end - start) + 1;
 
+    const file = fs.createReadStream(videoPath, { start, end });
+    const head = {
+        'Content-Range': `bytes ${start}-${end}/${fileSize}`,
+        'Accept-Ranges': 'bytes',
+        'Content-Length': chunkSize,
+        'Content-Type': 'video/mp4',
+    };
+
+    response.writeHead(206, head); // Partial Content
+    return file.pipe(response);
+
+}
 async function getVideo(spaceId, videoId) {
     const videosPath = path.join(getSpacePath(spaceId), 'videos');
     const videoPath = path.join(videosPath, `${videoId}.mp4`);
@@ -923,7 +944,8 @@ module.exports = {
         getVideoStream,
         getImageStream,
         archivePersonality,
-        importPersonality
+        importPersonality,
+        getVideoParts
     },
     templates: {
         defaultSpaceAnnouncement: require('./templates/defaultSpaceAnnouncement.json'),
