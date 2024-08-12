@@ -1,6 +1,7 @@
 const constants = require("assistos").constants;
 const utilModule = require("assistos").loadModule("util", {});
 const llmModule = require("assistos").loadModule("llm", {});
+const spaceModule = require("assistos").loadModule("space", {});
 
 export class EditPersonalityPage {
     constructor(element, invalidate) {
@@ -33,7 +34,7 @@ export class EditPersonalityPage {
                     return 0;
                 });
             } catch (error) {
-                this.voices=[];
+                this.voices = [];
                 this.voicesErrorMessage = error.message;
             }
         });
@@ -102,7 +103,7 @@ export class EditPersonalityPage {
             audioSource.src = voice.sample;
             audioSource.load();
         }
-        if(this.voicesErrorMessage){
+        if (this.voicesErrorMessage) {
             voiceSelect.innerHTML = `<option value="" disabled selected hidden>${this.voicesErrorMessage}</option>`;
         }
 
@@ -199,5 +200,41 @@ export class EditPersonalityPage {
 
     async openPersonalitiesPage() {
         await assistOS.UI.changeToDynamicPage("space-application-page", `${assistOS.space.id}/Space/personalities-page`);
+    }
+
+    async exportPersonality(_target) {
+        try {
+            const spaceId = assistOS.space.id;
+            const personalityId = this.personality.id;
+
+            const response = await fetch(`/spaces/${spaceId}/export/personalities/${personalityId}`
+                , {
+                    method: 'GET',
+                    headers: {
+                        'Accept': 'application/zip'
+                    }
+                });
+
+            if (!response.ok) {
+                throw new Error(`Network response was not ok: ${response.statusText}`);
+            }
+
+            const blob = await response.blob();
+            const url = window.URL.createObjectURL(blob);
+
+            const a = document.createElement('a');
+            a.style.display = 'none';
+            a.href = url;
+            a.download = `${this.personality.name}.docai`;
+
+            document.body.appendChild(a);
+            a.click();
+
+            window.URL.revokeObjectURL(url);
+            document.body.removeChild(a);
+
+        } catch (error) {
+            alert("Exporting personality failed");
+        }
     }
 }
