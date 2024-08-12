@@ -48,7 +48,8 @@ const {
     importDocument,
     cancelTask,
     createTextToSpeechAudio,
-    exportPersonality
+    exportPersonality,
+    importPersonality
 } = require("./controller");
 
 const bodyReader = require('../apihub-component-middlewares/bodyReader.js')
@@ -133,6 +134,7 @@ function SpaceStorage(server) {
     server.get("/spaces/:spaceId/export/documents/:documentId", exportDocument);
     server.get("/spaces/:spaceId/export/personalities/:personalityId", exportPersonality);
     server.post("/spaces/:spaceId/import/documents", importDocument);
+    server.post("/spaces/:spaceId/import/personalities", importPersonality);
 
     server.delete("/spaces/tasks/:spaceId/:taskId", cancelTask);
 }

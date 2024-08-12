@@ -225,8 +225,10 @@ input[type="file"]{
     width: 220px;
 }
 .header{
-    width:calc(100% - 210px);
     display: flex;
     justify-content: space-between;
     align-items: center;
+}
+#export-personality-btn{
+    margin-right: 40px;
 }

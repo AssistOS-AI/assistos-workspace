@@ -1,7 +1,7 @@
 const path = require('path');
 const fsPromises = require('fs').promises;
 const volumeManager = require('../volumeManager.js');
-const archiver= require('archiver');
+const archiver = require('archiver');
 const enclave = require('opendsu').loadAPI('enclave');
 
 const crypto = require("../apihub-component-utils/crypto");
@@ -518,6 +518,7 @@ async function getImage(spaceId, imageId) {
     const imagePath = path.join(imagesPath, `${imageId}.png`);
     return await fsPromises.readFile(imagePath);
 }
+
 function getImageStream(spaceId, imageId) {
     const imagesPath = path.join(getSpacePath(spaceId), 'images');
     const imagePath = path.join(imagesPath, `${imageId}.png`);
@@ -538,11 +539,10 @@ async function putAudio(spaceId, audioId, audioData) {
             const base64Data = audioData.split(",")[1];
             buffer = Buffer.from(base64Data, 'base64');
             return await fsPromises.writeFile(path.join(audiosPath, `${audioId}.mp3`), buffer);
-        }else
-        if (audioData.startsWith("http")) {
+        } else if (audioData.startsWith("http")) {
             await downloadData(audioData, path.join(audiosPath, `${audioId}.mp3`));
             return;
-        }else{
+        } else {
             buffer = Buffer.from(audioData, 'base64');
             return await fsPromises.writeFile(path.join(audiosPath, `${audioId}.mp3`), buffer);
         }
@@ -556,6 +556,7 @@ async function getAudio(spaceId, audioId) {
     const audioPath = path.join(audiosPath, `${audioId}.mp3`);
     return await fsPromises.readFile(audioPath);
 }
+
 function getAudioStream(spaceId, audioId) {
     const audiosPath = path.join(getSpacePath(spaceId), 'audios');
     const audioPath = path.join(audiosPath, `${audioId}.mp3`);
@@ -573,6 +574,7 @@ async function getVideo(spaceId, videoId) {
     const videoPath = path.join(videosPath, `${videoId}.mp4`);
     return await fsPromises.readFile(videoPath);
 }
+
 function getVideoStream(spaceId, videoId) {
     const videosPath = path.join(getSpacePath(spaceId), 'videos');
     const videoPath = path.join(videosPath, `${videoId}.mp4`);
@@ -632,7 +634,7 @@ async function getDocumentData(spaceId, documentId) {
                     audios.push(documentRecordsContents[paragraphId].audio.src)
                 }
                 if (documentRecordsContents[paragraphId].audioConfig) {
-                    paragraph.audioConfig= documentRecordsContents[paragraphId].audioConfig;
+                    paragraph.audioConfig = documentRecordsContents[paragraphId].audioConfig;
                 }
                 if (documentRecordsContents[paragraphId].image) {
                     paragraph.image = documentRecordsContents[paragraphId].image;
@@ -664,23 +666,23 @@ async function archiveDocument(spaceId, documentId) {
         contentFile: "data.json",
     };
 
-    const archive = archiver('zip', { zlib: { level: 9 } });
+    const archive = archiver('zip', {zlib: {level: 9}});
     const stream = new require('stream').PassThrough();
     archive.pipe(stream);
 
-    archive.append(contentBuffer, { name: 'data.json' });
-    archive.append(Buffer.from(JSON.stringify(metadata), 'utf-8'), { name: 'metadata.json' });
+    archive.append(contentBuffer, {name: 'data.json'});
+    archive.append(Buffer.from(JSON.stringify(metadata), 'utf-8'), {name: 'metadata.json'});
 
     documentData.images.forEach(imageData => {
         const imageName = imageData.split("/").pop();
         const imageStream = getImageStream(spaceId, imageName);
-        archive.append(imageStream, { name: `images/${imageName}.png` });
+        archive.append(imageStream, {name: `images/${imageName}.png`});
     });
 
     documentData.audios.forEach(audioData => {
         const audioName = audioData.split("/").pop();
         const audioStream = getAudioStream(spaceId, audioName);
-        archive.append(audioStream, { name: `audios/${audioName}.mp3` });
+        archive.append(audioStream, {name: `audios/${audioName}.mp3`});
     });
 
     archive.finalize();
@@ -762,7 +764,7 @@ async function importDocument(spaceId, extractedPath, request) {
         const chapterId = (await chapterResult.json()).data;
 
         for (const paragraph of chapter.paragraphs) {
-            let paragraphObject = { text: paragraph.text || "" };
+            let paragraphObject = {text: paragraph.text || ""};
             objectURI = encodeURIComponent(`${docId}/${chapterId}/paragraphs`);
 
             if (paragraph.image) {
@@ -810,26 +812,27 @@ async function importDocument(spaceId, extractedPath, request) {
         }
     }
 
-    fs.rmSync(extractedPath, { recursive: true, force: true });
+    fs.rmSync(extractedPath, {recursive: true, force: true});
 
-    async function streamToJson(stream) {
-        return new Promise((resolve, reject) => {
-            let data = '';
-            stream.on('data', chunk => data += chunk);
-            stream.on('end', () => resolve(JSON.parse(data)));
-            stream.on('error', err => reject(err));
-        });
-    }
+}
 
-    async function readFileAsBase64(filePath) {
-        return new Promise((resolve, reject) => {
-            let data = '';
-            const stream = fs.createReadStream(filePath, { encoding: 'base64' });
-            stream.on('data', chunk => data += chunk);
-            stream.on('end', () => resolve(data));
-            stream.on('error', err => reject(err));
-        });
-    }
+async function streamToJson(stream) {
+    return new Promise((resolve, reject) => {
+        let data = '';
+        stream.on('data', chunk => data += chunk);
+        stream.on('end', () => resolve(JSON.parse(data)));
+        stream.on('error', err => reject(err));
+    });
+}
+
+async function readFileAsBase64(filePath) {
+    return new Promise((resolve, reject) => {
+        let data = '';
+        const stream = fs.createReadStream(filePath, {encoding: 'base64'});
+        stream.on('data', chunk => data += chunk);
+        stream.on('end', () => resolve(data));
+        stream.on('error', err => reject(err));
+    });
 }
 
 async function archivePersonality(spaceId, personalityId) {
@@ -846,15 +849,38 @@ async function archivePersonality(spaceId, personalityId) {
         contentFile: "data.json",
     };
 
-    const archive = archiver('zip', { zlib: { level: 9 } });
+    const archive = archiver('zip', {zlib: {level: 9}});
     const stream = new require('stream').PassThrough();
     archive.pipe(stream);
 
-    archive.append(contentBuffer, { name: 'data.json' });
-    archive.append(Buffer.from(JSON.stringify(metadata), 'utf-8'), { name: 'metadata.json' });
+    archive.append(contentBuffer, {name: 'data.json'});
+    archive.append(Buffer.from(JSON.stringify(metadata), 'utf-8'), {name: 'metadata.json'});
 
     archive.finalize();
     return stream;
+}
+
+async function importPersonality(spaceId, extractedPath, request) {
+    const personalityMetadataPath = path.join(extractedPath, 'metadata.json');
+    const personalityDataPath = path.join(extractedPath, 'data.json');
+
+    const personalityMetadataStream = fs.createReadStream(personalityMetadataPath, 'utf8');
+    const personalityDataStream = fs.createReadStream(personalityDataPath, 'utf8');
+
+    const personalityMetadata = await streamToJson(personalityMetadataStream);
+    const personalityData = await streamToJson(personalityDataStream);
+
+    const result = await fetch(`${process.env.BASE_URL}/spaces/fileObject/${spaceId}/personalities`, {
+        method: 'POST',
+        headers: {
+            'Content-Type': 'application/json',
+            'Cookie': request.headers.cookie,
+        },
+        body: JSON.stringify(personalityData)
+    });
+    const personalityId = (await result.json()).data;
+    return personalityId;
+
 }
 
 module.exports = {
@@ -896,7 +922,8 @@ module.exports = {
         getAudioStream,
         getVideoStream,
         getImageStream,
-        archivePersonality
+        archivePersonality,
+        importPersonality
     },
     templates: {
         defaultSpaceAnnouncement: require('./templates/defaultSpaceAnnouncement.json'),

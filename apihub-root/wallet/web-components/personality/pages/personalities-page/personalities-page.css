@@ -1,6 +1,14 @@
 personalities-page {
     overflow: scroll;
 }
+#header-container{
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+}
+#import-personality-btn{
+    margin-right:40px;
+}
 .personalities-header{
     font-size: 26px;
     font-weight: 600;

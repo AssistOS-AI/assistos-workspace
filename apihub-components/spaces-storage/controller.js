@@ -1417,13 +1417,75 @@ async function importDocument(request, response) {
 
     request.pipe(busboy);
 }
+async function importPersonality(request, response) {
+    const spaceId = request.params.spaceId;
+    const fileId = crypto.generateSecret(64);
+    const tempDir = path.join(__dirname, '../../data-volume/Temp', fileId);
+    const filePath = path.join(tempDir, `${fileId}.persai`);
+
+    await fs.promises.mkdir(tempDir, { recursive: true });
+
+    const busboy = Busboy({ headers: request.headers });
+
+    busboy.on('file', (fieldname, file, filename, encoding, mimetype) => {
+        const writeStream = fs.createWriteStream(filePath);
+        file.pipe(writeStream);
+
+        writeStream.on('finish', async () => {
+            try {
+                const extractedPath = path.join(tempDir, 'extracted');
+                await fs.promises.mkdir(extractedPath, { recursive: true });
+
+                await fs.createReadStream(filePath)
+                    .pipe(unzipper.Extract({ path: extractedPath }))
+                    .promise();
+
+                const personalityId=await space.APIs.importPersonality(spaceId, extractedPath, request);
+
+                utils.sendResponse(response, 200, "application/json", {
+                    success: true,
+                    message: 'Personality imported successfully',
+                    data:personalityId
+                });
+            } catch (error) {
+                utils.sendResponse(response, error.statusCode || 500, "application/json", {
+                    success: false,
+                    message: `Error at importing personality: ${error.message}`
+                });
+            } finally {
+                fs.rm(tempDir, { recursive: true }, err => {
+                    if (err) console.error(`Error removing directory: ${err}`);
+                });
+            }
+        });
+
+        writeStream.on('error', (error) => {
+            console.error('Error writing file:', error);
+            utils.sendResponse(response, 500, "application/json", {
+                success: false,
+                message: `Error writing file: ${error.message}`
+            });
+        });
+    });
+
+    busboy.on('error', (error) => {
+        console.error('Busboy error:', error);
+        utils.sendResponse(response, 500, "application/json", {
+            success: false,
+            message: `Busboy error: ${error.message}`
+        });
+    });
+
+    request.pipe(busboy);
+}
+
 async function exportPersonality(request,response){
     const spaceId = request.params.spaceId;
     const personalityId = request.params.personalityId;
     try {
         const archiveStream = await space.APIs.archivePersonality(spaceId, personalityId);
 
-        response.setHeader('Content-Disposition', `attachment; filename=${personalityId}.docai`);
+        response.setHeader('Content-Disposition', `attachment; filename=${personalityId}.persai`);
         response.setHeader('Content-Type', 'application/zip');
 
         archiveStream.pipe(response);
@@ -1496,5 +1558,7 @@ module.exports = {
     exportDocument,
     importDocument,
     cancelTask,
-    exportPersonality
+    exportPersonality,
+    importPersonality
+
 }

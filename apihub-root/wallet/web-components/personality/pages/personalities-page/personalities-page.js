@@ -1,4 +1,6 @@
 const utilModule = require("assistos").loadModule("util", {});
+const spaceAPIs = require("assistos").loadModule("space", {})
+
 export class PersonalitiesPage {
     constructor(element, invalidate) {
         this.modal = "showAddPersonalityModal";
@@ -45,5 +47,30 @@ export class PersonalitiesPage {
     async selectPersonality(_target){
         let personalityId = assistOS.UI.reverseQuerySelector(_target, "personality-item").getAttribute("data-id");
         await assistOS.UI.changeToDynamicPage("space-application-page", `${assistOS.space.id}/Space/edit-personality-page/${personalityId}`);
+    }
+    async importDocument(_target){
+        const  handleFile= async (file) => {
+            const formData= new FormData();
+            formData.append("file", file);
+            await spaceAPIs.importPersonality(assistOS.space.id,formData);
+        }
+        let fileInput = document.createElement('input');
+        fileInput.type = 'file';
+        fileInput.accept = '.persai';
+        fileInput.style.display = 'none';
+        fileInput.onchange = async (event)=> {
+            const file = event.target.files[0];
+            if (file) {
+                if (file.name.endsWith('.persai')) {
+                    await handleFile(file);
+                    this.invalidate(this.refreshPersonalities);
+                    document.body.appendChild(fileInput);
+                    fileInput.remove();
+                } else {
+                    alert('Only a .persai files are allowed!');
+                }
+            }
+        };
+        fileInput.click();
     }
 }
