@@ -8,19 +8,15 @@
                 </svg>
                 <div class="secondary-path-button pointer">$$docTitle</div>
             </div>
-            <div class="buttons-section">
-                <button class="general-button" data-local-action="addChapter">
-                    <svg width="12" height="12" viewBox="0 0 12 12" fill="none" xmlns="http://www.w3.org/2000/svg">
-                        <path d="M5.14286 6.85714H0V5.14286H5.14286V0H6.85714V5.14286H12V6.85714H6.85714V12H5.14286V6.85714Z" fill="white"></path>
-                    </svg>
-                    Add Chapter
-                </button>
-                <button class="general-button document-to-video" data-local-action="documentToVideo">
-                    Document to Video
-                </button>
-                <button class="general-button document-to-video" data-local-action="exportDocument">
-                    Export Document
-                </button>
+            <div class="document-menu-container" data-local-action="showMenu off">
+                <img src="./wallet/assets/icons/burger-menu.svg" alt="menu">
+                <div class="document-menu-dropdown">
+                    <list-item data-local-action="addChapter" data-name="Add Chapter" data-highlight="light-highlight"></list-item>
+                    <list-item data-local-action="documentToVideo" data-name="Export Video" data-highlight="light-highlight"></list-item>
+                    <list-item data-local-action="playVideoPreview" data-name="Preview Video" data-highlight="light-highlight"></list-item>
+                    <list-item data-local-action="exportDocument" data-name="Export Document" data-highlight="light-highlight"></list-item>
+                    <list-item data-local-action="shareVideo" data-name="Share Video" data-highlight="light-highlight"></list-item>
+                </div>
             </div>
         </div>
         <div class="document-title-container container-element" data-metadata="title of the document">

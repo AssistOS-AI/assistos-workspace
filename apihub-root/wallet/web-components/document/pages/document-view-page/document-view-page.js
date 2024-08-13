@@ -68,9 +68,6 @@ export class DocumentViewPage {
                 chapter.scrollIntoView({behavior: "smooth", block: "center"});
             }
         }
-        if(this._document.video){
-            this.insertVideoSection(this._document.video);
-        }
     }
 
     async afterUnload() {
@@ -261,15 +258,21 @@ export class DocumentViewPage {
         await utilModule.subscribeToObject(this.videoId, async (data) => {
             if(data){
                 if(data.error){
-                    button.innerHTML = "Document to Video";
+                    button.innerHTML = "Export Video";
                     button.setAttribute("data-local-action", "documentToVideo");
                     return await showApplicationError("Error compiling video", data.error, "");
                 }
             }
+            const a = document.createElement("a");
+            a.href = `/spaces/video/${assistOS.space.id}/${this.videoId}`;
+            a.download = "video.mp4";
+            document.body.appendChild(a);
+            a.click();
+            a.remove();
             delete this.videoId;
             this.invalidate(this.refreshDocument);
         });
-        button.innerHTML = `<div class="loading-mask"></div>`
+        button.innerHTML = `<div class="loading-mask"></div>`;
         button.setAttribute("data-local-action", "cancelVideoCompilation");
     }
     async cancelVideoCompilation(button){
@@ -280,24 +283,6 @@ export class DocumentViewPage {
         } catch (e) {
             await showApplicationError("Error cancelling video compilation", e.message, "");
         }
-    }
-    insertVideoSection(videoURL){
-        let videoSection = this.element.querySelector(".document-video");
-        if(videoSection){
-            videoSection.remove();
-        }
-        let section = this.element.querySelector(".document-page-header");
-        section.insertAdjacentHTML("afterend", `
-            <video class="document-video" controls>
-                <source src="${videoURL}" type="video/mp4">
-            </video>`);
-        // let buttonsSection = this.element.querySelector(".buttons-section");
-        // let shareButton = buttonsSection.querySelector(".share-video-button");
-        // if(!shareButton){
-        //     let shareVideoButton = `<button class="general-button share-video-button" data-local-action="shareVideo">Share Video</button>`;
-        //     buttonsSection.insertAdjacentHTML("beforeend", shareVideoButton);
-        // }
-
     }
     async  exportDocument(_target) {
         try {
@@ -331,6 +316,25 @@ export class DocumentViewPage {
         }
     }
 
+    hideMenu(controller, container, event) {
+        container.setAttribute("data-local-action", "showMenu off");
+        let target = this.element.querySelector(".document-menu-dropdown");
+        target.style.display = "none";
+        controller.abort();
+    }
 
-
+    showMenu(_target, mode) {
+        if (mode === "off") {
+            let target = this.element.querySelector(".document-menu-dropdown");
+            target.style.display = "flex";
+            let controller = new AbortController();
+            document.addEventListener("click", this.hideMenu.bind(this, controller, _target), {signal: controller.signal});
+            _target.setAttribute("data-local-action", "showMenu on");
+        }
+    }
+    playVideoPreview(targetElement){
+        let videoPlayer = `<document-video-preview data-presenter="document-video-preview"></document-video-preview>`;
+        let pageHeader = this.element.querySelector(".document-page-header");
+        pageHeader.insertAdjacentHTML("afterend", videoPlayer);
+    }
 }
