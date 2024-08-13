@@ -162,8 +162,7 @@ async function tryToExecuteCommandOnParagraph(tempVideoDir, spaceId, documentId,
         task.addChildTask(childTask);
         return await childTask.run();
     } catch (e) {
-        //throw new Error(`Failed to execute command on paragraph ${paragraph.id}: ${e}`);
-        //command failed, stop video creation?
+        //command failed, skip paragraph
     }
 }
 async function addBackgroundSoundToVideo(videoPath, backgroundSoundPath, backgroundSoundVolume, fadeDuration, outputPath, task) {
@@ -202,7 +201,6 @@ async function createChapterVideo(spaceId, chapter, tempVideoDir, documentId, ch
     let childTasks = chapterFrames.map((frame, index) => new Task(async function (){
         return await createVideoFrame(frame, tempVideoDir, documentId, chapterIndex, index, this);
     }, task.securityContext));
-    let promises = [];
     try{
         for(let childTask of childTasks) {
             task.addChildTask(childTask);

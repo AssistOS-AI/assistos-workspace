@@ -3,7 +3,9 @@ const fsPromises = require('fs').promises;
 const volumeManager = require('../volumeManager.js');
 const archiver = require('archiver');
 const enclave = require('opendsu').loadAPI('enclave');
-
+const { pipeline } = require('stream');
+const util = require('util');
+const pipelineAsync = util.promisify(pipeline);
 const crypto = require("../apihub-component-utils/crypto");
 const data = require('../apihub-component-utils/data.js');
 const date = require('../apihub-component-utils/date.js');
@@ -576,19 +578,20 @@ async function getVideoParts(response, spaceId, videoId, range) {
     const fileSize = stat.size;
     const parts = range.replace(/bytes=/, "").split("-");
     const start = parseInt(parts[0], 10);
-    const end = parts[1] ? parseInt(parts[1], 10) : fileSize - 1;
+    const DEFAULT_CHUNK_SIZE = 10 * 1024 * 1024; // 10 MB
+
+    const end = Math.min(start + DEFAULT_CHUNK_SIZE - 1, fileSize - 1);
     const chunkSize = (end - start) + 1;
 
-    const file = fs.createReadStream(videoPath, { start, end });
+    const fileStream = fs.createReadStream(videoPath, { start, end });
     const head = {
         'Content-Range': `bytes ${start}-${end}/${fileSize}`,
         'Accept-Ranges': 'bytes',
         'Content-Length': chunkSize,
         'Content-Type': 'video/mp4',
     };
-
     response.writeHead(206, head); // Partial Content
-    return file.pipe(response);
+    await pipelineAsync(fileStream, response);
 
 }
 async function getVideo(spaceId, videoId) {
