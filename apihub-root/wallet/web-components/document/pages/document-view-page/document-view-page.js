@@ -337,4 +337,15 @@ export class DocumentViewPage {
         let pageHeader = this.element.querySelector(".document-page-header");
         pageHeader.insertAdjacentHTML("afterend", videoPlayer);
     }
+    toggleEditingState(isEditable){
+        let chaptersContainer = this.element.querySelector(".chapters-container");
+        let disabledMask = this.element.querySelector(".disabled-mask");
+        if(!isEditable){
+            disabledMask.style.display = "block";
+            chaptersContainer.classList.add("disabled-editor");
+        } else {
+            chaptersContainer.classList.remove("disabled-editor");
+            disabledMask.style.display = "none";
+        }
+    }
 }
