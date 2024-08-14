@@ -31,14 +31,14 @@ export class DocumentVideoPreview {
             imageContainer.addEventListener("mouseout", this.boundHideControls);
         }
         this.audioPlayer = this.element.querySelector(".audio-player");
-        this.imagetTag = this.element.querySelector(".current-image");
+        this.imageTag = this.element.querySelector(".current-image");
         if (!this.boundPlayNext) {
             this.boundPlayNext = this.playNext.bind(this);
             this.audioPlayer.addEventListener("ended", this.boundPlayNext);
         }
         this.chapter = this.document.chapters[0];
         this.paragraph = this.chapter.paragraphs[0];
-        this.imagetTag.src = "./wallet/assets/images/black-screen.png";
+        this.imageTag.src = "./wallet/assets/images/black-screen.png";
         this.parentPresenter.toggleEditingState(false);
         this.playNext();
     }
@@ -121,7 +121,7 @@ export class DocumentVideoPreview {
     async playNext() {
         let currentChapterIndex = this.document.chapters.indexOf(this.chapter);
         let currentParagraphIndex = this.chapter.paragraphs.indexOf(this.paragraph);
-        let currentFrame= {
+        this.currentFrame= {
             imageSrc: "",
             audioSrc: ""
         };
@@ -135,14 +135,14 @@ export class DocumentVideoPreview {
                     });
                 }
                 if (paragraph.image) {
-                    if(!currentFrame.audioSrc && currentFrame.imageSrc){
+                    if(!this.currentFrame.audioSrc && this.currentFrame.imageSrc){
                         await this.wait(250);
                     }
-                    currentFrame = {
+                    this.currentFrame = {
                         imageSrc: paragraph.image.src,
                         audioSrc: ""
                     }
-                    this.imagetTag.src = paragraph.image.src;
+                    this.imageTag.src = paragraph.image.src;
                     this.chapter = chapter;
                     this.paragraph = chapter.paragraphs[j + 1];
                 } else if (paragraph.audio) {
@@ -151,9 +151,9 @@ export class DocumentVideoPreview {
                     this.audioPlayer.src = paragraph.audio.src;
                     this.audioPlayer.load();
                     this.audioPlayer.play();
-                    currentFrame.audioSrc = paragraph.audio.src;
-                    if(!currentFrame.imageSrc){
-                        this.imagetTag.src = "./wallet/assets/images/black-screen.png";
+                    this.currentFrame.audioSrc = paragraph.audio.src;
+                    if(!this.currentFrame.imageSrc){
+                        this.imageTag.src = "./wallet/assets/images/black-screen.png";
                     }
                     return;
                 } else {
@@ -181,8 +181,8 @@ export class DocumentVideoPreview {
     executeSilenceCommand(command) {
         this.silenceDuration = command.paramsObject.duration * 1000;
         this.silenceStartTime = Date.now();
-        if(!this.imagetTag.src){
-            this.imagetTag.src = "./wallet/assets/images/black-screen.png";
+        if(!this.imageTag.src){
+            this.imageTag.src = "./wallet/assets/images/black-screen.png";
         }
         this.silenceTimeout = setTimeout(async ()=>{
             this.remainingSilentDuration = 0;
@@ -194,26 +194,32 @@ export class DocumentVideoPreview {
         let currentParagraphIndex = this.chapter.paragraphs.indexOf(this.paragraph);
         let playPause = this.element.querySelector(".play-pause");
         let currentMode = playPause.getAttribute("data-mode");
-        let currentImageSrc;
+        if(this.silenceTimeout){
+            clearTimeout(this.silenceTimeout);
+            this.remainingSilentDuration = 0;
+        }
         //skip to the next scene with audio
         for(let i = currentChapterIndex; i < this.document.chapters.length; i++){
             let chapter = this.document.chapters[i];
             for(let j = currentParagraphIndex; j < chapter.paragraphs.length; j++){
                 let paragraph = chapter.paragraphs[j];
                 if(paragraph.image){
-                    currentImageSrc = paragraph.image.src;
+                    this.currentFrame = {
+                        imageSrc: paragraph.image.src,
+                        audioSrc: ""
+                    }
                 } else if(paragraph.audio){
                     this.chapter = chapter;
                     this.paragraph = paragraph;
-                    this.imagetTag.src = currentImageSrc;
+                    this.imageTag.src = this.currentFrame.imageSrc || "./wallet/assets/images/black-screen.png";
                     if(currentMode === "play"){
                         this.playNext();
                         return;
-                    } else {
-                        this.audioPlayer.src = paragraph.audio.src;
-                        this.audioPlayer.load();
-                        return;
                     }
+                    this.audioPlayer.load();
+                    //player is paused
+                    return;
+
                 }
             }
         }
@@ -241,7 +247,8 @@ export class DocumentVideoPreview {
                         this.playNext();
                         return;
                     } else {
-                        this.imagetTag.src = currentImageSrc;
+                        //player is paused
+                        this.imageTag.src = currentImageSrc;
                         this.audioPlayer.src = paragraph.audio.src;
                         this.audioPlayer.load();
                         return;
