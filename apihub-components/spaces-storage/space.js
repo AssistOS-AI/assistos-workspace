@@ -3,7 +3,7 @@ const fsPromises = require('fs').promises;
 const volumeManager = require('../volumeManager.js');
 const archiver = require('archiver');
 const enclave = require('opendsu').loadAPI('enclave');
-const { pipeline } = require('stream');
+const {pipeline} = require('stream');
 const util = require('util');
 const pipelineAsync = util.promisify(pipeline);
 const crypto = require("../apihub-component-utils/crypto");
@@ -12,10 +12,11 @@ const date = require('../apihub-component-utils/date.js');
 const file = require('../apihub-component-utils/file.js');
 const openAI = require('../apihub-component-utils/openAI.js');
 const secrets = require('../apihub-component-utils/secrets.js');
-const utils= require('../apihub-component-utils/utils.js');
+const utils = require('../apihub-component-utils/utils.js');
 const https = require('https');
 const fs = require('fs');
 const spaceConstants = require('./constants.js');
+const unzipper = require('unzipper');
 
 function getSpacePath(spaceId) {
     return path.join(volumeManager.paths.space, spaceId);
@@ -142,6 +143,18 @@ async function copyDefaultPersonalities(spacePath) {
         metadata.push(metaObj);
     }
     await fsPromises.writeFile(path.join(spacePath, 'personalities', 'metadata.json'), JSON.stringify(metadata), 'utf8');
+}
+
+async function getPersonalitiesIds(spaceId, personalityNames) {
+    const personalityIds= [];
+    const personalityPath = path.join(getSpacePath(spaceId), 'personalities', 'metadata.json');
+    const personalitiesData = JSON.parse(await fsPromises.readFile(personalityPath, 'utf8'));
+    for (let personality of personalitiesData) {
+        if (personalityNames.has(personality.name)) {
+            personalityIds.push(personality.id);
+        }
+    }
+    return personalityIds;
 }
 
 function createDefaultAnnouncement(spaceName) {
@@ -571,6 +584,7 @@ async function deleteAudio(spaceId, audioId) {
     const audioPath = path.join(audiosPath, `${audioId}.mp3`);
     await fsPromises.rm(audioPath);
 }
+
 async function getVideoParts(response, spaceId, videoId, range) {
     const videosPath = path.join(getSpacePath(spaceId), 'videos');
     const videoPath = path.join(videosPath, `${videoId}.mp4`);
@@ -583,7 +597,7 @@ async function getVideoParts(response, spaceId, videoId, range) {
     const end = Math.min(start + DEFAULT_CHUNK_SIZE - 1, fileSize - 1);
     const chunkSize = (end - start) + 1;
 
-    const fileStream = fs.createReadStream(videoPath, { start, end });
+    const fileStream = fs.createReadStream(videoPath, {start, end});
     const head = {
         'Content-Range': `bytes ${start}-${end}/${fileSize}`,
         'Accept-Ranges': 'bytes',
@@ -594,6 +608,7 @@ async function getVideoParts(response, spaceId, videoId, range) {
     await pipelineAsync(fileStream, response);
 
 }
+
 async function getVideo(spaceId, videoId) {
     const videosPath = path.join(getSpacePath(spaceId), 'videos');
     const videoPath = path.join(videosPath, `${videoId}.mp4`);
@@ -612,12 +627,11 @@ async function deleteVideo(spaceId, videoId) {
     await fsPromises.rm(videoPath);
 }
 
-async function getDocumentData(spaceId, documentId) {
+async function exportDocumentData(spaceId, documentId, request) {
     let lightDBEnclaveClient = enclave.initialiseLightDBEnclave(spaceId);
     const documentRecords = await $$.promisify(lightDBEnclaveClient.getAllRecords)($$.SYSTEM_IDENTIFIER, documentId);
-
     let documentRecordsContents = {};
-
+    const aosUtil = require('assistos').loadModule('util', {cookies: request.headers.cookie});
     /* access time optimization */
     documentRecords.forEach(record => {
         documentRecordsContents[record.pk] = record.data;
@@ -629,6 +643,7 @@ async function getDocumentData(spaceId, documentId) {
     let audios = [];
     let images = [];
     let videos = [];
+    let personalities = new Set();
 
     let documentData = {
         title: documentRecord.title,
@@ -654,13 +669,17 @@ async function getDocumentData(spaceId, documentId) {
                 if (documentRecordsContents[paragraphId].text) {
                     paragraph.text = documentRecordsContents[paragraphId].text;
                 }
+
                 if (documentRecordsContents[paragraphId].audio) {
+                    const audioConfig = aosUtil.findCommand(documentRecordsContents[paragraphId].text);
                     paragraph.audio = documentRecordsContents[paragraphId].audio;
                     audios.push(documentRecordsContents[paragraphId].audio.src)
+                    personalities.add(audioConfig.paramsObject.personality);
                 }
-                if (documentRecordsContents[paragraphId].audioConfig) {
-                    paragraph.audioConfig = documentRecordsContents[paragraphId].audioConfig;
-                }
+                /* TODO remove this after audio command extraction */
+                /* if (documentRecordsContents[paragraphId].audioConfig) {
+                     paragraph.audioConfig = documentRecordsContents[paragraphId].audioConfig;
+                 }*/
                 if (documentRecordsContents[paragraphId].image) {
                     paragraph.image = documentRecordsContents[paragraphId].image;
                     images.push(documentRecordsContents[paragraphId].image.src)
@@ -674,11 +693,12 @@ async function getDocumentData(spaceId, documentId) {
     documentData.images = images;
     documentData.audios = audios;
     documentData.videos = videos;
+    documentData.personalities=await getPersonalitiesIds(spaceId, personalities);
     return documentData
 }
 
-async function archiveDocument(spaceId, documentId) {
-    const documentData = await getDocumentData(spaceId, documentId);
+async function archiveDocument(spaceId, documentId, request) {
+    const documentData = await exportDocumentData(spaceId, documentId, request);
     const contentBuffer = Buffer.from(JSON.stringify(documentData), 'utf-8');
     const checksum = require('crypto').createHash('sha256').update(contentBuffer).digest('hex');
 
@@ -710,6 +730,29 @@ async function archiveDocument(spaceId, documentId) {
         archive.append(audioStream, {name: `audios/${audioName}.mp3`});
     });
 
+    function streamToBuffer(stream) {
+        return new Promise((resolve, reject) => {
+            const chunks = [];
+            stream.on('data', (chunk) => {
+                chunks.push(chunk);
+            });
+            stream.on('end', () => {
+                resolve(Buffer.concat(chunks));
+            });
+            stream.on('error', reject);
+        });
+    }
+    /* TODO could overflow the memory if there are too many personalities*/
+    const personalityPromises = documentData.personalities.map(async personalityId => {
+        const personalityStream = await archivePersonality(spaceId, personalityId);
+        const personalityBuffer = await streamToBuffer(personalityStream);
+        return { buffer: personalityBuffer, id: personalityId };
+    });
+    /* just copy the personality jsons from the space personalities folder into the personalities folder of the archive */
+    const personalities = await Promise.all(personalityPromises);
+    personalities.forEach(({ buffer, id }) => {
+        archive.append(buffer, {name: `personalities/${id}.persai`});
+    });
     archive.finalize();
     return stream;
 }
@@ -751,6 +794,22 @@ async function importDocument(spaceId, extractedPath, request) {
         })
     });
     const docId = (await result.json()).data;
+    const personalities=docData.personalities;
+    const personalityPath=path.join(extractedPath,'personalities');
+    for(let personality of personalities) {
+        for (let personality of personalities) {
+            const personalityFileName = `${personality}.persai`;
+            const filePath = path.join(personalityPath, personalityFileName);
+            const extractedPath = path.join(personalityPath, 'extracted', personality);
+            fs.mkdirSync(extractedPath, { recursive: true });
+
+            await fs.createReadStream(filePath)
+                .pipe(unzipper.Extract({ path: extractedPath }))
+                .promise();
+
+           await importPersonality(spaceId, extractedPath,request);
+        }
+    }
 
     for (const chapter of docData.chapters) {
         let objectURI = encodeURIComponent(`${docId}/chapters`);
@@ -822,10 +881,6 @@ async function importDocument(spaceId, extractedPath, request) {
                 paragraphObject.audio.src = `spaces/audio/${spaceId}/${audioId}`;
             }
 
-            if (paragraph.audioConfig) {
-                paragraphObject.audioConfig = paragraph.audioConfig;
-            }
-
             await fetch(`${process.env.BASE_URL}/spaces/embeddedObject/${spaceId}/${objectURI}`, {
                 method: 'POST',
                 headers: {
@@ -895,11 +950,11 @@ async function importPersonality(spaceId, extractedPath, request) {
     const personalityMetadata = await streamToJson(personalityMetadataStream);
 
     const personalityData = await streamToJson(personalityDataStream);
-    const spacePersonalities= await getSpacePersonalitiesObject(spaceId);
+    const spacePersonalities = await getSpacePersonalitiesObject(spaceId);
 
 
     const personalityNames = spacePersonalities.map(personality => personality.name);
-    personalityData.name= utils.ensureUniqueFileName(personalityNames, personalityData.name);
+    personalityData.name = utils.ensureUniqueFileName(personalityNames, personalityData.name);
 
     const result = await fetch(`${process.env.BASE_URL}/spaces/fileObject/${spaceId}/personalities`, {
         method: 'POST',
@@ -947,7 +1002,7 @@ module.exports = {
         getSpacePath,
         getVideo,
         deleteVideo,
-        getDocumentData,
+        exportDocumentData,
         archiveDocument,
         importDocument,
         getAudioStream,

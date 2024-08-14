@@ -1328,7 +1328,7 @@ async function exportDocument(request, response) {
     const documentId = request.params.documentId;
 
     try {
-        const archiveStream = await space.APIs.archiveDocument(spaceId, documentId);
+        const archiveStream = await space.APIs.archiveDocument(spaceId, documentId,request);
 
         response.setHeader('Content-Disposition', `attachment; filename=${documentId}.docai`);
         response.setHeader('Content-Type', 'application/zip');
