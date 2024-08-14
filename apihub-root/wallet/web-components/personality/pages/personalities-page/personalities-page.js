@@ -52,7 +52,10 @@ export class PersonalitiesPage {
         const  handleFile= async (file) => {
             const formData= new FormData();
             formData.append("file", file);
-            await spaceAPIs.importPersonality(assistOS.space.id,formData);
+           const importResult= await spaceAPIs.importPersonality(assistOS.space.id,formData);
+           if(importResult.overriden){
+                alert(`The personality ${importResult.name} has been overriden`);
+           }
         }
         let fileInput = document.createElement('input');
         fileInput.type = 'file';

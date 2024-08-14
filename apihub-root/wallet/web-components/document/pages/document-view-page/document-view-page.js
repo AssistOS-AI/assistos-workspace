@@ -303,7 +303,7 @@ export class DocumentViewPage {
             const a = document.createElement('a');
             a.style.display = 'none';
             a.href = url;
-            a.download = `${this._document.id}.docai`;
+            a.download = `${this._document.title}.docai`;
 
             document.body.appendChild(a);
             a.click();

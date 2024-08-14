@@ -146,7 +146,7 @@ async function copyDefaultPersonalities(spacePath) {
 }
 
 async function getPersonalitiesIds(spaceId, personalityNames) {
-    const personalityIds= [];
+    const personalityIds = [];
     const personalityPath = path.join(getSpacePath(spaceId), 'personalities', 'metadata.json');
     const personalitiesData = JSON.parse(await fsPromises.readFile(personalityPath, 'utf8'));
     for (let personality of personalitiesData) {
@@ -693,7 +693,7 @@ async function exportDocumentData(spaceId, documentId, request) {
     documentData.images = images;
     documentData.audios = audios;
     documentData.videos = videos;
-    documentData.personalities=await getPersonalitiesIds(spaceId, personalities);
+    documentData.personalities = await getPersonalitiesIds(spaceId, personalities);
     return documentData
 }
 
@@ -742,15 +742,15 @@ async function archiveDocument(spaceId, documentId, request) {
             stream.on('error', reject);
         });
     }
-    /* TODO could overflow the memory if there are too many personalities*/
+
+    /* TODO could overflow the memory if there are too many personalities with large amount of data*/
     const personalityPromises = documentData.personalities.map(async personalityId => {
         const personalityStream = await archivePersonality(spaceId, personalityId);
         const personalityBuffer = await streamToBuffer(personalityStream);
-        return { buffer: personalityBuffer, id: personalityId };
+        return {buffer: personalityBuffer, id: personalityId};
     });
-    /* just copy the personality jsons from the space personalities folder into the personalities folder of the archive */
     const personalities = await Promise.all(personalityPromises);
-    personalities.forEach(({ buffer, id }) => {
+    personalities.forEach(({buffer, id}) => {
         archive.append(buffer, {name: `personalities/${id}.persai`});
     });
     archive.finalize();
@@ -794,21 +794,23 @@ async function importDocument(spaceId, extractedPath, request) {
         })
     });
     const docId = (await result.json()).data;
-    const personalities=docData.personalities;
-    const personalityPath=path.join(extractedPath,'personalities');
-    for(let personality of personalities) {
-        for (let personality of personalities) {
+    const personalities = docData.personalities || [];
+    const personalityPath = path.join(extractedPath, 'personalities');
+    const overriddenPersonalities = new Set();
+    for (let personality of personalities) {
             const personalityFileName = `${personality}.persai`;
             const filePath = path.join(personalityPath, personalityFileName);
             const extractedPath = path.join(personalityPath, 'extracted', personality);
-            fs.mkdirSync(extractedPath, { recursive: true });
+            fs.mkdirSync(extractedPath, {recursive: true});
 
             await fs.createReadStream(filePath)
-                .pipe(unzipper.Extract({ path: extractedPath }))
+                .pipe(unzipper.Extract({path: extractedPath}))
                 .promise();
 
-           await importPersonality(spaceId, extractedPath,request);
-        }
+            const importResults= await importPersonality(spaceId, extractedPath, request);
+            if(importResults.overriden){
+                overriddenPersonalities.add(importResults.name);
+            }
     }
 
     for (const chapter of docData.chapters) {
@@ -893,7 +895,7 @@ async function importDocument(spaceId, extractedPath, request) {
     }
 
     fs.rmSync(extractedPath, {recursive: true, force: true});
-
+    return {id: docId, overriddenPersonalities: Array.from(overriddenPersonalities)};
 }
 
 async function streamToJson(stream) {
@@ -952,20 +954,32 @@ async function importPersonality(spaceId, extractedPath, request) {
     const personalityData = await streamToJson(personalityDataStream);
     const spacePersonalities = await getSpacePersonalitiesObject(spaceId);
 
+    const existingPersonality = spacePersonalities.find(personality => personality.name === personalityData.name);
 
-    const personalityNames = spacePersonalities.map(personality => personality.name);
-    personalityData.name = utils.ensureUniqueFileName(personalityNames, personalityData.name);
-
-    const result = await fetch(`${process.env.BASE_URL}/spaces/fileObject/${spaceId}/personalities`, {
-        method: 'POST',
-        headers: {
-            'Content-Type': 'application/json',
-            'Cookie': request.headers.cookie,
-        },
-        body: JSON.stringify(personalityData)
-    });
+    let result, overriden = false, personalityName=personalityData.name;
+    if (existingPersonality) {
+        personalityData.id=existingPersonality.id;
+        result = await fetch(`${process.env.BASE_URL}/spaces/fileObject/${spaceId}/personalities/${existingPersonality.id}`, {
+            method: 'PUT',
+            headers: {
+                'Content-Type': 'application/json',
+                'Cookie': request.headers.cookie,
+            },
+            body: JSON.stringify(personalityData)
+        });
+        overriden = true;
+    } else {
+        result = await fetch(`${process.env.BASE_URL}/spaces/fileObject/${spaceId}/personalities`, {
+            method: 'POST',
+            headers: {
+                'Content-Type': 'application/json',
+                'Cookie': request.headers.cookie,
+            },
+            body: JSON.stringify(personalityData)
+        });
+    }
     const personalityId = (await result.json()).data;
-    return personalityId;
+    return {id: personalityId, overriden: overriden, name:personalityName};
 
 }
 

@@ -70,16 +70,20 @@ export class DocumentsPage {
     }
 
     async importDocument(_target) {
-        const  handleFile= async (file) => {
-            const formData= new FormData();
+        const handleFile = async (file) => {
+            const formData = new FormData();
             formData.append("file", file);
-            await spaceAPIs.importDocument(assistOS.space.id,formData);
+            const importResult = await spaceAPIs.importDocument(assistOS.space.id, formData);
+            if (importResult.overriddenPersonalities.length > 0) {
+                /* TODO use notification system */
+                alert("The document has been imported. The following personalities have been overridden: " + importResult.overriddenPersonalities.join(", "));
+            }
         }
         let fileInput = document.createElement('input');
         fileInput.type = 'file';
         fileInput.accept = '.docai';
         fileInput.style.display = 'none';
-        fileInput.onchange = async (event)=> {
+        fileInput.onchange = async (event) => {
             const file = event.target.files[0];
             if (file) {
                 if (file.name.endsWith('.docai')) {

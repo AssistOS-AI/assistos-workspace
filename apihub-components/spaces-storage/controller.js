@@ -13,12 +13,14 @@ const dataVolumePaths = require('../volumeManager').paths;
 const ffmpeg = require('../apihub-component-utils/ffmpeg.js');
 const Task = require('../apihub-component-utils/Task.js');
 const TaskManager = require('../apihub-component-utils/TaskManager.js');
+
 function getFileObjectsMetadataPath(spaceId, objectType) {
     return path.join(dataVolumePaths.space, `${spaceId}/${objectType}/metadata.json`);
 }
+
 const Busboy = require('busboy');
-const unzipper= require('unzipper');
-const { pipeline } = require('stream');
+const unzipper = require('unzipper');
+const {pipeline} = require('stream');
 const util = require('util');
 const pipelinePromise = util.promisify(pipeline);
 
@@ -1292,7 +1294,7 @@ async function getVideo(request, response) {
     const videoId = request.params.videoId;
     try {
         let range = request.headers.range;
-        if(range){
+        if (range) {
             return await space.APIs.getVideoParts(response, spaceId, videoId, range);
         }
         let video = await space.APIs.getVideo(spaceId, videoId);
@@ -1326,9 +1328,8 @@ async function deleteVideo(request, response) {
 async function exportDocument(request, response) {
     const spaceId = request.params.spaceId;
     const documentId = request.params.documentId;
-
     try {
-        const archiveStream = await space.APIs.archiveDocument(spaceId, documentId,request);
+        const archiveStream = await space.APIs.archiveDocument(spaceId, documentId, request);
 
         response.setHeader('Content-Disposition', `attachment; filename=${documentId}.docai`);
         response.setHeader('Content-Type', 'application/zip');
@@ -1346,7 +1347,7 @@ async function exportDocument(request, response) {
             })
         });
     } catch (error) {
-        utils.sendResponse(response, error.statusCode||500, "application/json", {
+        utils.sendResponse(response, error.statusCode || 500, "application/json", {
             success: false,
             message: `Error at exporting document: ${documentId}. ${error.message}`
         });
@@ -1359,9 +1360,9 @@ async function importDocument(request, response) {
     const tempDir = path.join(__dirname, '../../data-volume/Temp', fileId);
     const filePath = path.join(tempDir, `${fileId}.docai`);
 
-    await fs.promises.mkdir(tempDir, { recursive: true });
+    await fs.promises.mkdir(tempDir, {recursive: true});
 
-    const busboy = Busboy({ headers: request.headers });
+    const busboy = Busboy({headers: request.headers});
 
     busboy.on('file', (fieldname, file, filename, encoding, mimetype) => {
         const writeStream = fs.createWriteStream(filePath);
@@ -1370,11 +1371,11 @@ async function importDocument(request, response) {
         writeStream.on('finish', async () => {
             try {
                 const extractedPath = path.join(tempDir, 'extracted');
-                await fs.promises.mkdir(extractedPath, { recursive: true });
+                await fs.promises.mkdir(extractedPath, {recursive: true});
 
                 await pipelinePromise(
                     fs.createReadStream(filePath),
-                    unzipper.Extract({ path: extractedPath })
+                    unzipper.Extract({path: extractedPath})
                 );
 
                 const extractedFiles = await fs.promises.readdir(extractedPath);
@@ -1383,13 +1384,14 @@ async function importDocument(request, response) {
                     throw new Error('metadata.json or data.json not found in the extracted files');
                 }
 
-                await space.APIs.importDocument(spaceId, extractedPath, request);
+                const importResults = await space.APIs.importDocument(spaceId, extractedPath, request);
 
                 fs.unlinkSync(filePath);
 
                 utils.sendResponse(response, 200, "application/json", {
                     success: true,
                     message: 'Document imported successfully',
+                    data: importResults
                 });
             } catch (error) {
                 console.error('Error processing extracted files:', error);
@@ -1398,7 +1400,7 @@ async function importDocument(request, response) {
                     message: `Error at importing document: ${error.message}`
                 });
             } finally {
-                fs.rmSync(tempDir, { recursive: true, force: true });
+                fs.rmSync(tempDir, {recursive: true, force: true});
             }
         });
 
@@ -1421,15 +1423,16 @@ async function importDocument(request, response) {
 
     request.pipe(busboy);
 }
+
 async function importPersonality(request, response) {
     const spaceId = request.params.spaceId;
     const fileId = crypto.generateSecret(64);
     const tempDir = path.join(__dirname, '../../data-volume/Temp', fileId);
     const filePath = path.join(tempDir, `${fileId}.persai`);
 
-    await fs.promises.mkdir(tempDir, { recursive: true });
+    await fs.promises.mkdir(tempDir, {recursive: true});
 
-    const busboy = Busboy({ headers: request.headers });
+    const busboy = Busboy({headers: request.headers});
 
     busboy.on('file', (fieldname, file, filename, encoding, mimetype) => {
         const writeStream = fs.createWriteStream(filePath);
@@ -1438,18 +1441,18 @@ async function importPersonality(request, response) {
         writeStream.on('finish', async () => {
             try {
                 const extractedPath = path.join(tempDir, 'extracted');
-                await fs.promises.mkdir(extractedPath, { recursive: true });
+                await fs.promises.mkdir(extractedPath, {recursive: true});
 
                 await fs.createReadStream(filePath)
-                    .pipe(unzipper.Extract({ path: extractedPath }))
+                    .pipe(unzipper.Extract({path: extractedPath}))
                     .promise();
 
-                const personalityId=await space.APIs.importPersonality(spaceId, extractedPath, request);
+                const importResult = await space.APIs.importPersonality(spaceId, extractedPath, request);
 
                 utils.sendResponse(response, 200, "application/json", {
                     success: true,
                     message: 'Personality imported successfully',
-                    data:personalityId
+                    data: importResult
                 });
             } catch (error) {
                 utils.sendResponse(response, error.statusCode || 500, "application/json", {
@@ -1457,7 +1460,7 @@ async function importPersonality(request, response) {
                     message: `Error at importing personality: ${error.message}`
                 });
             } finally {
-                fs.rm(tempDir, { recursive: true }, err => {
+                fs.rm(tempDir, {recursive: true}, err => {
                     if (err) console.error(`Error removing directory: ${err}`);
                 });
             }
@@ -1483,7 +1486,7 @@ async function importPersonality(request, response) {
     request.pipe(busboy);
 }
 
-async function exportPersonality(request,response){
+async function exportPersonality(request, response) {
     const spaceId = request.params.spaceId;
     const personalityId = request.params.personalityId;
     try {
@@ -1499,13 +1502,13 @@ async function exportPersonality(request,response){
         });
 
         archiveStream.on('error', err => {
-         utils.sendResponse(response, 500, "application/json", {
+            utils.sendResponse(response, 500, "application/json", {
                 success: false,
                 message: `Error at exporting personality: ${personalityId}. ${err.message}`
-         })
+            })
         });
     } catch (error) {
-        utils.sendResponse(response, error.statusCode||500, "application/json", {
+        utils.sendResponse(response, error.statusCode || 500, "application/json", {
             success: false,
             message: `Error at exporting personality: ${personalityId}. ${error.message}`
         });

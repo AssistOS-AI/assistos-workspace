@@ -1,8 +1,11 @@
 import {BaseParagraph} from "../image-paragraph/BaseParagraph.js";
+
 const utilModule = require("assistos").loadModule("util", {});
 const documentModule = require("assistos").loadModule("document", {});
+const personalityModule = require("assistos").loadModule("personality", {});
 const spaceModule = require("assistos").loadModule("space", {});
-export class ParagraphItem extends BaseParagraph{
+
+export class ParagraphItem extends BaseParagraph {
     constructor(element, invalidate) {
         super(element, invalidate);
     }
@@ -20,20 +23,17 @@ export class ParagraphItem extends BaseParagraph{
 
             } else if (type === "audio") {
                 this.paragraph.audio = await documentModule.getParagraphAudio(assistOS.space.id, this._document.id, this.paragraph.id);
-                if (this.paragraph.audio) {
-                    this.hasAudio = true;
-                }
-            } else if(type === "audioConfig"){
+            } else if (type === "audioConfig") {
                 this.paragraph.audioConfig = await documentModule.getParagraphAudioConfigs(assistOS.space.id, this._document.id, this.paragraph.id);
             }
         });
     }
 
     beforeRender() {
+        this.currentParagraphCommand = utilModule.findCommand(this.paragraph.text);
     }
 
     afterRender() {
-        this.audioIcon = this.element.querySelector('.audio-icon');
         let paragraphText = this.element.querySelector(".paragraph-text");
         paragraphText.innerHTML = this.paragraph.text;
         paragraphText.style.height = paragraphText.scrollHeight + 'px';
@@ -42,9 +42,6 @@ export class ParagraphItem extends BaseParagraph{
             this.openTTSItem = false;
         }
 
-        if (this.paragraph.audioConfig) {
-            this.hasAudio = true;
-        }
         if (assistOS.space.currentParagraphId === this.paragraph.id) {
             paragraphText.click();
         }
@@ -52,9 +49,7 @@ export class ParagraphItem extends BaseParagraph{
         if (!this.boundPreventSelectionChange) {
             this.boundPreventSelectionChange = this.preventSelectionChange.bind(this);
         }
-        if (this.isPlaying) {
-            this.playParagraphAudio();
-        }
+
     }
 
     async saveParagraph(paragraph) {
@@ -78,7 +73,6 @@ export class ParagraphItem extends BaseParagraph{
     }
 
 
-
     switchParagraphArrows(mode) {
         let arrows = this.element.querySelector('.paragraph-arrows');
         if (mode === "on") {
@@ -90,18 +84,78 @@ export class ParagraphItem extends BaseParagraph{
 
     highlightParagraph() {
         this.switchParagraphArrows("on");
-        if(this.paragraph.audio){
-            this.audioIcon.classList.remove("hidden");
-        }
         assistOS.space.currentParagraphId = this.paragraph.id;
     }
 
     focusOutHandler() {
         this.switchParagraphArrows("off");
-        if(this.paragraph.audio){
-            this.audioIcon.classList.add("hidden");
+        const paragraphText = this.element.querySelector('.paragraph-text').value;
+        const command = utilModule.findCommand(paragraphText);
+
+        if (command.action !== "textToSpeech" && this.currentParagraphCommand.action === "textToSpeech") {
+            /* was textToSpeech but no longer is textToSpeech or was removed */
+            documentModule.updateParagraphAudio(assistOS.space.id, this._document.id, this.paragraph.id, null)
+                .then(() => {
+                    this.invalidate(async () => {
+                        this.paragraph = await this.chapter.refreshParagraph(assistOS.space.id, this._document.id, this.paragraph.id);
+                    });
+                });
+            return;
+        }
+        if (command.action === "textToSpeech") {
+            const commandDifferences= utilModule.isSameCommand(command, this.currentParagraphCommand);
+            if (!commandDifferences.isEqual) {
+                /* The command has changed -> we regenerate the audio */
+                this.audioGenerating = true;
+                this.currentParagraphCommand = command;
+                personalityModule.getPersonalityByName(assistOS.space.id, command.paramsObject.personality)
+                    .then(personality => {
+                        assistOS.callFlow("TextToSpeech", {
+                            spaceId: assistOS.space.id,
+                            prompt: command.remainingText,
+                            voiceId: personality.voiceId,
+                            voiceConfigs: {
+                                emotion: command.paramsObject.emotion,
+                                styleGuidance: command.paramsObject.styleGuidance,
+                                voiceGuidance: command.paramsObject.voiceGuidance,
+                                temperature: command.paramsObject.temperature
+                            },
+                            modelName: "PlayHT2.0"
+                        })
+                            .then(response => {
+                                const audioBuffer = response.data;
+                                spaceModule.addAudio(assistOS.space.id, audioBuffer)
+                                    .then(audioId => {
+                                        const audioSrc = `spaces/audio/${assistOS.space.id}/${audioId}`;
+                                        documentModule.updateParagraphAudio(assistOS.space.id, this._document.id, this.paragraph.id, {
+                                            src: audioSrc,
+                                            id: audioId
+                                        })
+                                            .then(() => {
+                                                this.audioGenerating = false;
+                                                this.invalidate(async () => {
+                                                    this.paragraph = await this.chapter.refreshParagraph(assistOS.space.id, this._document.id, this.paragraph.id);
+                                                });
+                                            });
+                                    })
+                                    .catch(error => {
+                                        /* handle error or ignore for now */
+                                        this.audioGenerating = false;
+                                    });
+                            })
+                            .catch(error => {
+                                /* handle error or ignore for now */
+                                this.audioGenerating = false;
+                            });
+                    })
+                    .catch(error => {
+                        /* handle error or ignore for now */
+                        this.audioGenerating = false;
+                    });
+            }
         }
     }
+
 
     mouseDownAudioIconHandler(paragraphText, audioIcon, event) {
         if (!paragraphText.contains(event.target) && !audioIcon.contains(event.target)) {
@@ -191,47 +245,7 @@ export class ParagraphItem extends BaseParagraph{
     async playParagraphAudio(_target) {
         let audioSection = this.element.querySelector('.paragraph-audio-section');
         let audio = this.element.querySelector('.paragraph-audio');
-        if (this.paragraph.audio && !this.paragraph.audioConfig.toRegenerate) {
-            audio.src = this.paragraph.audio.src
-        } else {
-            const loaderId = await assistOS.UI.showLoading();
-            let cleanText = utilModule.findCommand(this.paragraph.text).remainingText;
-            let arrayBufferAudio;
-            try {
-                arrayBufferAudio = (await assistOS.callFlow("TextToSpeech", {
-                    spaceId: assistOS.space.id,
-                    prompt: cleanText,
-                    voiceId: this.paragraph.audioConfig.voiceId,
-                    voiceConfigs: {
-                        emotion: this.paragraph.audioConfig.emotion,
-                        styleGuidance: this.paragraph.audioConfig.styleGuidance,
-                        voiceGuidance: this.paragraph.audioConfig.voiceGuidance,
-                        temperature: this.paragraph.audioConfig.temperature
-                    },
-                    modelName: "PlayHT2.0"
-                })).data;
-            } catch (e) {
-                let message = assistOS.UI.sanitize(e.message);
-                return await showApplicationError("Audio generation failed",message,message)
-            }
-
-            let audioId = await spaceModule.addAudio(assistOS.space.id, arrayBufferAudio);
-            let audioSrc = `spaces/audio/${assistOS.space.id}/${audioId}`;
-            await documentModule.updateParagraphAudio(assistOS.space.id, this._document.id, this.paragraph.id, {
-                src: audioSrc,
-                id: audioId
-            });
-            if(this.paragraph.audioConfig.toRegenerate){
-                this.paragraph.audioConfig.toRegenerate = false;
-                await documentModule.updateParagraphAudioConfigs(assistOS.space.id, this._document.id, this.paragraph.id, this.paragraph.audioConfig);
-            }
-            this.isPlaying = true;
-            assistOS.UI.hideLoading(loaderId);
-            this.invalidate(async () => {
-                this.paragraph = await this.chapter.refreshParagraph(assistOS.space.id, this._document.id, this.paragraph.id);
-            });
-            return;
-        }
+        audio.src = this.paragraph.audio.src
         audio.load();
         audio.play();
         audioSection.classList.remove('hidden');
@@ -239,6 +253,7 @@ export class ParagraphItem extends BaseParagraph{
         let controller = new AbortController();
         document.addEventListener("click", this.hideAudioElement.bind(this, controller, audio), {signal: controller.signal});
     }
+
     async deleteAudio(_target) {
         documentModule.updateParagraphAudio(assistOS.space.id, this._document.id, this.paragraph.id, null);
         this.invalidate(async () => {
@@ -255,7 +270,6 @@ export class ParagraphItem extends BaseParagraph{
         audioSection.classList.add('hidden');
         audioSection.classList.remove('flex');
         controller.abort();
-        this.isPlaying = false;
     };
 
     async openParagraphDropdown(_target) {
@@ -272,13 +286,13 @@ export class ParagraphItem extends BaseParagraph{
                 <div class="dropdown-item" data-local-action="moveParagraph up">Move Up</div>
                 <div class="dropdown-item" data-local-action="moveParagraph down">Move Down</div>` + baseDropdownMenuHTML;
             }
-            if (this.paragraph.audioConfig) {
-                baseDropdownMenuHTML += `<div class="dropdown-item" data-local-action="playParagraphAudio">Play Audio</div>`;
-            }
-            if (this.paragraph.audio) {
-                baseDropdownMenuHTML += `<div class="dropdown-item" data-local-action="deleteAudio">Delete Audio</div>
-                <div class="dropdown-item" data-local-action="downloadAudio">Download Audio</div>`;
-
+            if (this.paragraph.audio || this.audioGenerating) {
+                if (this.audioGenerating) {
+                    baseDropdownMenuHTML += `<div class="dropdown-item" id="play-paragraph-audio-btn">Generating Audio...</div>`;
+                } else {
+                    baseDropdownMenuHTML += `<div class="dropdown-item" id="play-paragraph-audio-btn" data-local-action="playParagraphAudio">Play Audio</div>`;
+                    baseDropdownMenuHTML += ` <div class="dropdown-item" data-local-action="downloadAudio">Download Audio</div>`;
+                }
             }
             let dropdownMenuHTML =
                 `<div class="dropdown-menu">` +
@@ -300,12 +314,13 @@ export class ParagraphItem extends BaseParagraph{
         dropdownMenu.addEventListener('mouseleave', removeDropdown);
         dropdownMenu.focus();
     }
+
     downloadAudio(_target) {
-          const link = document.createElement('a');
-          link.href = this.paragraph.audio.src;
-          link.download = 'audio.mp3';
-          document.body.appendChild(link);
-          link.click();
-          document.body.removeChild(link);
+        const link = document.createElement('a');
+        link.href = this.paragraph.audio.src;
+        link.download = 'audio.mp3';
+        document.body.appendChild(link);
+        link.click();
+        document.body.removeChild(link);
     }
 }
