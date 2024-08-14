@@ -155,7 +155,7 @@ html[theme="dark"] .document-title-container {
 .disabled-editor{
     pointer-events: none;
 }
-.chapters-container{
+.document-editor{
     position: relative;
 }
 .disabled-mask{

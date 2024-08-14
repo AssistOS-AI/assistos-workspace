@@ -2,6 +2,7 @@ document-video-preview {
     display: block;
     width: 400px;
     height: 400px;
+    margin-bottom: 15px;
 }
 .close-player{
     top: 0;
