@@ -23,8 +23,12 @@ export class ParagraphItem extends BaseParagraph {
 
             } else if (type === "audio") {
                 this.paragraph.audio = await documentModule.getParagraphAudio(assistOS.space.id, this._document.id, this.paragraph.id);
-            } else if (type === "audioConfig") {
-                this.paragraph.audioConfig = await documentModule.getParagraphAudioConfigs(assistOS.space.id, this._document.id, this.paragraph.id);
+                if (this.paragraph.audio) {
+                    if (this.audioGenerating === true) {
+                        this.audioGenerating = false;
+                    }
+                }
+
             }
         });
     }
@@ -89,69 +93,50 @@ export class ParagraphItem extends BaseParagraph {
 
     focusOutHandler() {
         this.switchParagraphArrows("off");
+        /* We directly  extract the value as there can be synchronization issues with the setIntervel of saveParagraph fnc */
         const paragraphText = this.element.querySelector('.paragraph-text').value;
         const command = utilModule.findCommand(paragraphText);
-
-        if (command.action !== "textToSpeech" && this.currentParagraphCommand.action === "textToSpeech") {
-            /* was textToSpeech but no longer is textToSpeech or was removed */
+        if ((command.action !== "textToSpeech"||assistOS.UI.customTrim(command.remainingText) === "") && this.currentParagraphCommand.action === "textToSpeech") {
+            /* was textToSpeech but no longer is -> delete audio */
+            this.currentParagraphCommand = command;
             documentModule.updateParagraphAudio(assistOS.space.id, this._document.id, this.paragraph.id, null)
                 .then(() => {
                     this.invalidate(async () => {
-                        this.paragraph = await this.chapter.refreshParagraph(assistOS.space.id, this._document.id, this.paragraph.id);
+                        this.paragraph.audio = await documentModule.getParagraphAudio(assistOS.space.id, this._document.id, this.paragraph.id);
                     });
                 });
-            return;
-        }
-        if (command.action === "textToSpeech") {
-            const commandDifferences= utilModule.isSameCommand(command, this.currentParagraphCommand);
-            if (!commandDifferences.isEqual) {
-                /* The command has changed -> we regenerate the audio */
-                this.audioGenerating = true;
+        } else if (command.action === "textToSpeech" && assistOS.UI.customTrim(command.remainingText) !== "") {
+            /* generate TTS or update TTS */
+            if (this.currentParagraphCommand.action !== "textToSpeech") {
+                /* we generate it */
                 this.currentParagraphCommand = command;
-                personalityModule.getPersonalityByName(assistOS.space.id, command.paramsObject.personality)
-                    .then(personality => {
-                        assistOS.callFlow("TextToSpeech", {
-                            spaceId: assistOS.space.id,
-                            prompt: command.remainingText,
-                            voiceId: personality.voiceId,
-                            voiceConfigs: {
-                                emotion: command.paramsObject.emotion,
-                                styleGuidance: command.paramsObject.styleGuidance,
-                                voiceGuidance: command.paramsObject.voiceGuidance,
-                                temperature: command.paramsObject.temperature
-                            },
-                            modelName: "PlayHT2.0"
-                        })
-                            .then(response => {
-                                const audioBuffer = response.data;
-                                spaceModule.addAudio(assistOS.space.id, audioBuffer)
-                                    .then(audioId => {
-                                        const audioSrc = `spaces/audio/${assistOS.space.id}/${audioId}`;
-                                        documentModule.updateParagraphAudio(assistOS.space.id, this._document.id, this.paragraph.id, {
-                                            src: audioSrc,
-                                            id: audioId
-                                        })
-                                            .then(() => {
-                                                this.audioGenerating = false;
-                                                this.invalidate(async () => {
-                                                    this.paragraph = await this.chapter.refreshParagraph(assistOS.space.id, this._document.id, this.paragraph.id);
-                                                });
-                                            });
-                                    })
-                                    .catch(error => {
-                                        /* handle error or ignore for now */
-                                        this.audioGenerating = false;
-                                    });
-                            })
-                            .catch(error => {
-                                /* handle error or ignore for now */
-                                this.audioGenerating = false;
-                            });
-                    })
-                    .catch(error => {
-                        /* handle error or ignore for now */
+                this.audioGenerating = true;
+                documentModule.generateParagraphTTS(assistOS.space.id, this._document.id, this.paragraph.id, command).then(
+                    () => {
                         this.audioGenerating = false;
-                    });
+                        this.invalidate(async () => {
+                            this.paragraph.audio = await documentModule.getParagraphAudio(assistOS.space.id, this._document.id, this.paragraph.id);
+                        });
+                    }
+                )
+            } else {
+                /* check if we need to regenerate it */
+                const commandDifferences = utilModule.isSameCommand(command, this.currentParagraphCommand);
+                if (!commandDifferences.isEqual) {
+                    /* we regenerate it */
+                    this.currentParagraphCommand = command;
+                    this.audioGenerating = true;
+                    documentModule.generateParagraphTTS(assistOS.space.id, this._document.id, this.paragraph.id, command).then(
+                        () => {
+                            this.audioGenerating = false;
+                            this.invalidate(async () => {
+                                this.paragraph.audio = await documentModule.getParagraphAudio(assistOS.space.id, this._document.id, this.paragraph.id);
+                            });
+                        }
+                    )
+                } else {
+                    /* do nothing */
+                }
             }
         }
     }
@@ -206,7 +191,8 @@ export class ParagraphItem extends BaseParagraph {
             popup.remove();
         }
         controller.abort();
-    };
+    }
+    ;
 
     async resetTimer(paragraph, event) {
         paragraph.style.height = "auto";
@@ -270,7 +256,8 @@ export class ParagraphItem extends BaseParagraph {
         audioSection.classList.add('hidden');
         audioSection.classList.remove('flex');
         controller.abort();
-    };
+    }
+    ;
 
     async openParagraphDropdown(_target) {
         const generateDropdownMenu = () => {

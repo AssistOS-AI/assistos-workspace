@@ -1,7 +1,4 @@
-import {unescapeHtmlEntities} from "../../../../imports.js";
-
 const llmModule = require("assistos").loadModule("llm", {});
-const documentModule = require("assistos").loadModule("document", {});
 const utilModule = require("assistos").loadModule("util", {});
 
 export class TextToSpeech {
@@ -29,13 +26,15 @@ export class TextToSpeech {
             emotionsHTML += `<option value="${emotion}">${emotion}</option>`;
         }
         this.emotionsHTML = emotionsHTML;
-        this.audioConfig = this.parentPresenter.paragraph.audioConfig;
-
+        const command = utilModule.findCommand(this.parentPresenter.paragraph.text);
+        this.audioConfig = command.paramsObject || null;
+        this.paragraphText = command.remainingText;
+        this.audioConfig.personality=this.personalities.find(personality=>personality.name===this.audioConfig.personality).id;
     }
 
     afterRender() {
         if (this.audioConfig) {
-            let personalityOption = this.element.querySelector(`option[value="${this.audioConfig.personalityId}"]`);
+            let personalityOption = this.element.querySelector(`option[value="${this.audioConfig.personality}"]`);
             personalityOption.selected = true;
             let emotionOption = this.element.querySelector(`option[value="${this.audioConfig.emotion}"]`);
             emotionOption.selected = true;
@@ -49,52 +48,21 @@ export class TextToSpeech {
     }
 
     async textToSpeech(_target) {
-        let formData = await assistOS.UI.extractFormInformation(_target);
+        const formData = await assistOS.UI.extractFormInformation(_target);
         if (!formData.isValid) {
             return;
         }
-        let loaderId = await assistOS.UI.showLoading(_target);
-        let personality = await assistOS.space.getPersonality(formData.data.personality);
-        const paragraphElement = assistOS.UI.reverseQuerySelector(_target, "paragraph-item");
-        const chapterElement = assistOS.UI.reverseQuerySelector(paragraphElement, "chapter-item");
-
-        const paragraphText = paragraphElement.webSkelPresenter.paragraph.text;
-
-        let audioConfig = {
-            personalityId: formData.data.personality,
-            voiceId: personality.voiceId,
+        const commandConfig = {
+            personality: this.personalities.find((personality) => personality.id === formData.data.personality).name,
             emotion: formData.data.emotion,
             styleGuidance: formData.data.styleGuidance,
             voiceGuidance: formData.data.voiceGuidance,
             temperature: formData.data.temperature,
-            prompt: unescapeHtmlEntities(paragraphText)
         }
-
-        const paragraphCommand = `!speech personality=${personality.name} emotion=${formData.data.emotion} styleGuidance=${formData.data.styleGuidance} temperature=${formData.data.temperature} voiceGuidance=${formData.data.voiceGuidance}:`;
-        const paragraphPosition = chapterElement.webSkelPresenter.chapter.getParagraphIndex(assistOS.space.currentParagraphId) + 1;
-
-        const chapterPresenter = chapterElement.webSkelPresenter;
-        let updatedText = "";
-
-        if (!paragraphElement.webSkelPresenter.paragraph.audio) {
-            updatedText = paragraphCommand + paragraphText;
-        } else {
-            updatedText = paragraphCommand + utilModule.findCommand(paragraphText).remainingText
-            audioConfig.toRegenerate = true;
-        }
-
-        await documentModule.updateParagraphAudioConfigs(assistOS.space.id, this._document.id, this.paragraphId, audioConfig);
-
-        await assistOS.callFlow("UpdateParagraphText", {
-            spaceId: assistOS.space.id,
-            documentId: this._document.id,
-            chapterId: chapterElement.webSkelPresenter.chapter.id,
-            paragraphId: paragraphElement.webSkelPresenter.paragraph.id,
-            position: paragraphPosition,
-            text: updatedText
-        });
-
-        chapterPresenter.invalidate(async()=>this.chapter=await chapterPresenter.refreshChapter(this._document.id,chapterPresenter.chapter.id));
-        assistOS.UI.hideLoading(loaderId);
+        const updatedParagraphText=utilModule.buildCommandString("speech", commandConfig)+this.paragraphText;
+        this.parentPresenter.paragraph.text=updatedParagraphText;
+        const paragraphTextContainer=this.parentPresenter.element.querySelector(".paragraph-text");
+        paragraphTextContainer.innerHTML=updatedParagraphText;
+        this.element.remove();
     }
 }

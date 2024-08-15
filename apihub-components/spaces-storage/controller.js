@@ -1515,7 +1515,25 @@ async function exportPersonality(request, response) {
     }
 }
 
-
+async function generateParagraphTTS(request,response){
+    const spaceId=request.params.spaceId;
+    const documentId=request.params.documentId;
+    const paragraphId=request.params.paragraphId;
+    const command=request.body;
+    try{
+        const audioId = await space.APIs.updateParagraphTTS(request,spaceId,documentId,paragraphId,command);
+        utils.sendResponse(response,200,"application/json",{
+            success:true,
+            data:audioId,
+            message:"Paragraph TTS generated successfully"
+        });
+    }catch(error){
+        utils.sendResponse(response, error.statusCode||500, "application/json", {
+            success: false,
+            message: error
+        });
+    }
+}
 module.exports = {
     acceptSpaceInvitation,
     rejectSpaceInvitation,
@@ -1566,6 +1584,6 @@ module.exports = {
     importDocument,
     cancelTask,
     exportPersonality,
-    importPersonality
-
+    importPersonality,
+    generateParagraphTTS
 }
