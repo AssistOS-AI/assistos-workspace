@@ -346,6 +346,26 @@ async function listEmotions(request, response){
         });
     }
 }
+
+async function lipsync(request, response) {
+    try {
+        request.body = {};
+        request.body.modelName = "sync-1.6.0";
+        let result = await sendRequest(`/apis/v1/video/lipsync`, "POST", request, response);
+        return utils.sendResponse(response, 200, "application/json", {
+            success: true,
+            data: result
+        });
+    } catch (error) {
+        utils.sendResponse(response, error.statusCode || 500, "application/json", {
+            success: false,
+            message: error.message
+        });
+    }
+}
+
+
+
 module.exports = {
     getTextResponse,
     getTextStreamingResponse,
@@ -357,5 +377,6 @@ module.exports = {
     listVoices,
     getLLMConfigs,
     sendLLMConfigs,
-    listEmotions
+    listEmotions,
+    lipsync
 };

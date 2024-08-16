@@ -78,3 +78,16 @@
     #       builds/output/testsRuntime.js
     #       builds/output/versionLessBoot.js
     #       package.json
+    Merge branch 'refs/heads/master' into code-quality
+    
+    # Conflicts:
+    #       builds/output/iframeBoot.js
+    #       builds/output/loaderBoot.js
+    #       builds/output/nodeBoot.js
+    #       builds/output/openDSU.js
+    #       builds/output/pskWebServer.js
+    #       builds/output/testsRuntime.js
+    #       builds/output/versionLessBoot.js
+    #       package.json
+    add data-no-sanitize attribute
+    Paragraph Text to speech issue fixing, and automate generation
