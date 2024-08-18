@@ -651,16 +651,20 @@ async function exportDocumentData(spaceId, documentId, request) {
         metadata: documentRecord.metadata,
         /* TODO documents dont have a saved abstract field - talk with Mircea */
         abstract: documentRecord.abstract || "",
-        chapters: documentRecord.chapters.map(chapterId => {
+        chapters: documentRecord.chapters.map((chapterId, chapterIndex) => {
             let chapter = {}
             chapter.title = documentRecordsContents[chapterId].title
             if (documentRecordsContents[chapterId].backgroundSound) {
                 chapter.backgroundSound = documentRecordsContents[chapterId].backgroundSound
-                audios.push(documentRecordsContents[chapterId].backgroundSound.src)
+                chapter.backgroundSound.fileName= `Chapter_${chapterIndex+1}_audio`
+                audios.push({
+                    name:chapter.backgroundSound.fileName,
+                    id: documentRecordsContents[chapterId].backgroundSound.id
+                })
             }
             chapter.position = documentRecordsContents[chapterId].position
             chapter.id = chapterId
-            chapter.paragraphs = documentRecordsContents[chapterId].paragraphs.map(paragraphId => {
+            chapter.paragraphs = documentRecordsContents[chapterId].paragraphs.map((paragraphId, paragraphIndex) => {
                 let paragraph = {}
                 paragraph.id = paragraphId;
                 if (documentRecordsContents[paragraphId].position) {
@@ -673,7 +677,11 @@ async function exportDocumentData(spaceId, documentId, request) {
                 if (documentRecordsContents[paragraphId].audio) {
                     const audioConfig = aosUtil.findCommand(documentRecordsContents[paragraphId].text);
                     paragraph.audio = documentRecordsContents[paragraphId].audio;
-                    audios.push(documentRecordsContents[paragraphId].audio.src)
+                    paragraph.audio.fileName= `Chapter_${chapterIndex+1}_Paragraph_${paragraphIndex+1}_audio`
+                    audios.push({
+                        name: paragraph.audio.fileName,
+                        id: documentRecordsContents[paragraphId].audio.id
+                    })
                     personalities.add(audioConfig.paramsObject.personality);
                 }
                 /* TODO remove this after audio command extraction */
@@ -682,7 +690,11 @@ async function exportDocumentData(spaceId, documentId, request) {
                  }*/
                 if (documentRecordsContents[paragraphId].image) {
                     paragraph.image = documentRecordsContents[paragraphId].image;
-                    images.push(documentRecordsContents[paragraphId].image.src)
+                    paragraph.image.fileName = `Chapter_${chapterIndex+1}_Paragraph_${paragraphIndex+1}_image`
+                    images.push({
+                        name: paragraph.image.fileName,
+                        id: documentRecordsContents[paragraphId].image.id
+                    })
                     paragraph.dimensions = documentRecordsContents[paragraphId].dimensions;
                 }
                 return paragraph
@@ -719,14 +731,14 @@ async function archiveDocument(spaceId, documentId, request) {
     archive.append(Buffer.from(JSON.stringify(metadata), 'utf-8'), {name: 'metadata.json'});
 
     documentData.images.forEach(imageData => {
-        const imageName = imageData.split("/").pop();
-        const imageStream = getImageStream(spaceId, imageName);
+        const imageName = imageData.name
+        const imageStream = getImageStream(spaceId, imageData.id);
         archive.append(imageStream, {name: `images/${imageName}.png`});
     });
 
     documentData.audios.forEach(audioData => {
-        const audioName = audioData.split("/").pop();
-        const audioStream = getAudioStream(spaceId, audioName);
+        const audioName = audioData.name;
+        const audioStream = getAudioStream(spaceId, audioData.id);
         archive.append(audioStream, {name: `audios/${audioName}.mp3`});
     });
 
@@ -798,19 +810,19 @@ async function importDocument(spaceId, extractedPath, request) {
     const personalityPath = path.join(extractedPath, 'personalities');
     const overriddenPersonalities = new Set();
     for (let personality of personalities) {
-            const personalityFileName = `${personality}.persai`;
-            const filePath = path.join(personalityPath, personalityFileName);
-            const extractedPath = path.join(personalityPath, 'extracted', personality);
-            fs.mkdirSync(extractedPath, {recursive: true});
+        const personalityFileName = `${personality}.persai`;
+        const filePath = path.join(personalityPath, personalityFileName);
+        const extractedPath = path.join(personalityPath, 'extracted', personality);
+        fs.mkdirSync(extractedPath, {recursive: true});
 
-            await fs.createReadStream(filePath)
-                .pipe(unzipper.Extract({path: extractedPath}))
-                .promise();
+        await fs.createReadStream(filePath)
+            .pipe(unzipper.Extract({path: extractedPath}))
+            .promise();
 
-            const importResults= await importPersonality(spaceId, extractedPath, request);
-            if(importResults.overriden){
-                overriddenPersonalities.add(importResults.name);
-            }
+        const importResults = await importPersonality(spaceId, extractedPath, request);
+        if (importResults.overriden) {
+            overriddenPersonalities.add(importResults.name);
+        }
     }
 
     for (const chapter of docData.chapters) {
@@ -822,8 +834,9 @@ async function importDocument(spaceId, extractedPath, request) {
 
         if (chapter.backgroundSound) {
             chapterObject.backgroundSound = chapter.backgroundSound;
-            let audioId = chapter.backgroundSound.id;
-            const audioPath = path.join(extractedPath, 'audios', `${audioId}.mp3`);
+            /* preserve backwards compatibility */
+            const audioFileName = chapter.backgroundSound.fileName||chapter.backgroundSound.id;
+            const audioPath = path.join(extractedPath, 'audios', `${audioFileName}.mp3`);
             const audioBase64Data = await readFileAsBase64(audioPath);
             const result = await fetch(`${process.env.BASE_URL}/spaces/audio/${spaceId}`, {
                 method: 'POST',
@@ -833,7 +846,7 @@ async function importDocument(spaceId, extractedPath, request) {
                 },
                 body: JSON.stringify(audioBase64Data)
             });
-            audioId = (await result.json()).data;
+            const audioId = (await result.json()).data;
             chapterObject.backgroundSound.id = audioId;
             chapterObject.backgroundSound.src = `spaces/audio/${spaceId}/${audioId}`;
         }
@@ -854,7 +867,8 @@ async function importDocument(spaceId, extractedPath, request) {
             objectURI = encodeURIComponent(`${docId}/${chapterId}/paragraphs`);
 
             if (paragraph.image) {
-                const imagePath = path.join(extractedPath, 'images', `${paragraph.image.id}.png`);
+                /* preserve backwards compatibility */
+                const imagePath = path.join(extractedPath, 'images', `${paragraph.image.fileName||paragraph.image.id}.png`);
                 const imageBase64Data = await readFileAsBase64(imagePath);
                 const dataUrl = `data:image/png;base64,${imageBase64Data}`;
                 const imageId = await uploadImage(spaceId, dataUrl);
@@ -868,7 +882,8 @@ async function importDocument(spaceId, extractedPath, request) {
             if (paragraph.audio) {
                 paragraphObject.audio = paragraph.audio;
                 let audioId = paragraph.audio.id;
-                const audioPath = path.join(extractedPath, 'audios', `${audioId}.mp3`);
+                /* preserve backwards compatibility */
+                const audioPath = path.join(extractedPath, 'audios', `${paragraphObject.audio.fileName||paragraphObject.audio.id}.mp3`);
                 const audioBase64Data = await readFileAsBase64(audioPath);
                 const result = await fetch(`${process.env.BASE_URL}/spaces/audio/${spaceId}`, {
                     method: 'POST',
@@ -956,9 +971,9 @@ async function importPersonality(spaceId, extractedPath, request) {
 
     const existingPersonality = spacePersonalities.find(personality => personality.name === personalityData.name);
 
-    let result, overriden = false, personalityName=personalityData.name;
+    let result, overriden = false, personalityName = personalityData.name;
     if (existingPersonality) {
-        personalityData.id=existingPersonality.id;
+        personalityData.id = existingPersonality.id;
         result = await fetch(`${process.env.BASE_URL}/spaces/fileObject/${spaceId}/personalities/${existingPersonality.id}`, {
             method: 'PUT',
             headers: {
@@ -979,17 +994,19 @@ async function importPersonality(spaceId, extractedPath, request) {
         });
     }
     const personalityId = (await result.json()).data;
-    return {id: personalityId, overriden: overriden, name:personalityName};
+    return {id: personalityId, overriden: overriden, name: personalityName};
 }
+
 async function getPersonalityByName(spaceId, personalityName) {
     const personalities = await getSpacePersonalitiesObject(spaceId);
     return personalities.find(personality => personality.name === personalityName);
 }
-async function updateParagraphTTS(request,spaceId,documentId,paragraphId,command){
-    const llmModule=require('assistos').loadModule('llm',{cookies:request.headers.cookie});
-    const documentModule=require('assistos').loadModule('document',{cookies:request.headers.cookie});
-    const voiceId =  (await getPersonalityByName(spaceId,command.paramsObject.personality)).voiceId;
-    const audioBlob= await llmModule.textToSpeech(spaceId, {
+
+async function updateParagraphTTS(request, spaceId, documentId, paragraphId, command) {
+    const llmModule = require('assistos').loadModule('llm', {cookies: request.headers.cookie});
+    const documentModule = require('assistos').loadModule('document', {cookies: request.headers.cookie});
+    const voiceId = (await getPersonalityByName(spaceId, command.paramsObject.personality)).voiceId;
+    const audioBlob = await llmModule.textToSpeech(spaceId, {
         prompt: command.remainingText,
         voice: voiceId,
         emotion: command.paramsObject.emotion,
@@ -998,13 +1015,13 @@ async function updateParagraphTTS(request,spaceId,documentId,paragraphId,command
         temperature: command.paramsObject.temperature,
         modelName: "PlayHT2.0"
     });
-    const audioId=crypto.generateId();
+    const audioId = crypto.generateId();
     await putAudio(spaceId, audioId, audioBlob);
     let audioObj = {
         id: audioId,
-        src:`spaces/audio/${spaceId}/${audioId}`
+        src: `spaces/audio/${spaceId}/${audioId}`
     }
-    await documentModule.updateParagraphAudio(spaceId,documentId,paragraphId,audioObj);
+    await documentModule.updateParagraphAudio(spaceId, documentId, paragraphId, audioObj);
 }
 
 module.exports = {

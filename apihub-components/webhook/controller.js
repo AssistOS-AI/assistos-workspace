@@ -45,9 +45,7 @@ async function dataHandler(request, response) {
         });
     }
 }
-async function processBuffer() {
 
-}
 function getWebhookSecret() {
     return secret;
 }

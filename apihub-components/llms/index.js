@@ -33,7 +33,7 @@ function LLMStorage(server) {
     server.get("/apis/v1/spaces/:spaceId/llms/audio/listVoices", listVoices);
     server.get("/apis/v1/spaces/:spaceId/llms/audio/listEmotions", listEmotions);
 
-    server.get("/apis/v1/spaces/:spaceId/llms/video/lipsync", lipsync);
+    server.post("/apis/v1/spaces/:spaceId/llms/video/lipsync", lipsync);
 
 }
 

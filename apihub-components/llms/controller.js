@@ -60,18 +60,18 @@ async function constructRequestInitAndURL(url, method, request, response) {
             message: "Api key not set"
         });
     }
-    const APIKeyObj = await secrets.getModelAPIKey(spaceId, companyObj.company);
-    if (!APIKeyObj) {
-        return utils.sendResponse(response, 500, "application/json", {
-            success: false,
-            message: "API key not found"
-        });
-    }
+    /* const APIKeyObj = await secrets.getModelAPIKey(spaceId, companyObj.company);
+     if (!APIKeyObj) {
+         return utils.sendResponse(response, 500, "application/json", {
+             success: false,
+             message: "API key not found"
+         });
+     }*/
     let body = Object.assign({}, request.body);
 
-    for (let key of companyObj.authentication) {
+    /*for (let key of companyObj.authentication) {
         body[key] = APIKeyObj[key];
-    }
+    }*/
 
     let init = {
         method: method,
@@ -175,7 +175,10 @@ async function getTextStreamingResponse(request, response) {
                                         })}\n\n`);
                                         response.end();
                                         delete cache[sessionId];
-                                        resolve({success: true, data: {messages:dataObj.fullResponse, metadata: metadata}});
+                                        resolve({
+                                            success: true,
+                                            data: {messages: dataObj.fullResponse, metadata: metadata}
+                                        });
                                     }
                                 } else {
                                     if (dataObj.message) {
@@ -277,7 +280,7 @@ async function getAudioResponse(request, response) {
         init
     } = await constructRequestInitAndURL(`/apis/v1/audio/generate`, "POST", request, response);
     const modelResponse = await fetch(fullURL, init);
-    if(!modelResponse.ok){
+    if (!modelResponse.ok) {
         let jsonMessage = await modelResponse.json();
         return utils.sendResponse(response, modelResponse.status || 500, "application/json", {
             success: false,
@@ -304,7 +307,8 @@ async function listVoices(request, response) {
         });
     }
 }
-async function listEmotions(request, response){
+
+async function listEmotions(request, response) {
     try {
         let url = `/apis/v1/audio/listEmotions`;
         if (configs.ENVIRONMENT_MODE === "production") {
@@ -348,9 +352,15 @@ async function listEmotions(request, response){
 }
 
 async function lipsync(request, response) {
+    /* TODO replace with non-hardcoded data */
+
+    request.body.modelName = "sync-1.6.0";
+    request.body.spaceId=request.params.spaceId;
+    request.body.APIKey = "b2a758d8-f911-48d3-8916-eefb2d8c82a5"
+    request.body.webhookSecret = getWebhookSecret();
+    request.body.audioURL = "https://synchlabs-public.s3.us-west-2.amazonaws.com/david_demo_shortaud-27623a4f-edab-4c6a-8383-871b18961a4a.wav"
+    request.body.videoURL = "https://synchlabs-public.s3.us-west-2.amazonaws.com/david_demo_shortvid-03a10044-7741-4cfc-816a-5bccd392d1ee.mp4"
     try {
-        request.body = {};
-        request.body.modelName = "sync-1.6.0";
         let result = await sendRequest(`/apis/v1/video/lipsync`, "POST", request, response);
         return utils.sendResponse(response, 200, "application/json", {
             success: true,
@@ -363,7 +373,6 @@ async function lipsync(request, response) {
         });
     }
 }
-
 
 
 module.exports = {
