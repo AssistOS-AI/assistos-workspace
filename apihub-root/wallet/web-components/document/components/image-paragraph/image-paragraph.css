@@ -140,9 +140,13 @@ image-paragraph {
 .top-margin{
     margin-top: 5px;
 }
-.play-lipsync{
+.play-lip-sync{
+    display: none;
     position: absolute;
     width: 30px;
     bottom: 20px;
     left: 20px;
+}
+.disabled-pointer-events{
+    pointer-events: none;
 }

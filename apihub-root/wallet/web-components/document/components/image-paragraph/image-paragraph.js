@@ -17,6 +17,9 @@ export class ImageParagraph extends BaseParagraph{
         });
     }
     beforeRender() {
+        if(this.paragraph.lipSync){
+            this.lipSyncState = "done";
+        }
         this.initialized = false;
         this.imageSrc = this.paragraph.image.src;
         this.imageAlt = this.paragraph.image.timestamp;
@@ -49,10 +52,7 @@ export class ImageParagraph extends BaseParagraph{
         for(let key of Object.keys(handles)){
             handles[key].addEventListener('mousedown', this.mouseDownFn.bind(this, key));
         }
-        let playButton = this.element.querySelector('.play-button');
-        if(this.paragraph.lipSync){
-            playButton.style.display = "block";
-        }
+        this.changeLipSyncUIState();
     }
     mouseDownFn(handle, event) {
         event.preventDefault();
@@ -211,10 +211,13 @@ export class ImageParagraph extends BaseParagraph{
                     <list-item data-local-action="copy" data-name="Copy"
                            data-highlight="light-highlight"></list-item>
                     <list-item data-local-action="openInsertImageModal" data-name="Insert Image"
-                           data-highlight="light-highlight"></list-item>
-                    <list-item data-local-action="lipSync" data-name="Lip Sync"
-                           data-highlight="light-highlight"></list-item>              
+                           data-highlight="light-highlight"></list-item>           
                  `;
+            if(this.lipSyncState === "generating"){
+                baseDropdownMenuHTML += `<list-item class="disabled-pointer-events" data-local-action="lipSync" data-name="Generating Lip Sync..." data-highlight="light-highlight"></list-item>`;
+            } else {
+                baseDropdownMenuHTML += `<list-item data-local-action="lipSync" data-name="Lip Sync" data-highlight="light-highlight"></list-item>`;
+            }
             let chapterElement = this.element.closest("chapter-item");
             let chapterPresenter = chapterElement.webSkelPresenter;
             if (chapterPresenter.chapter.paragraphs.length > 1) {
@@ -245,7 +248,7 @@ export class ImageParagraph extends BaseParagraph{
         dropdownMenu.addEventListener('mouseleave', removeDropdown);
         dropdownMenu.focus();
     }
-    async lipSync(){
+    async lipSync(targetElement){
         let paragraphIndex = this.chapter.paragraphs.findIndex(paragraph => paragraph.id === this.paragraph.id);
         let nextParagraph = this.chapter.paragraphs[paragraphIndex + 1];
         if(!nextParagraph){
@@ -257,17 +260,27 @@ export class ImageParagraph extends BaseParagraph{
         const videoId = await llmModule.lipSync(assistOS.space.id,this.paragraph.image.src, nextParagraph.audio.src, "sync-1.6.0");
         await utilModule.subscribeToObject(videoId, async () => {
             await utilModule.unsubscribeFromObject(videoId);
-            let loadingIcon = this.element.querySelector('.loading-icon');
-            loadingIcon.remove();
             let paragraphLipSync = {
                 id: videoId,
                 src: `spaces/image/${assistOS.space.id}/${videoId}`
             }
             await documentModule.updateImageParagraphLipSync(assistOS.space.id, this._document.id, this.paragraph.id, paragraphLipSync);
             this.paragraph.lipSync = paragraphLipSync;
+            this.lipSyncState = "done";
             this.invalidate();
         });
+        this.lipSyncState = "generating";
+        this.changeLipSyncUIState();
+        let dropdownMenu = this.element.querySelector('.dropdown-menu-container');
+        dropdownMenu.remove();
+    }
+    changeLipSyncUIState(){
         let paragraphControls = this.element.querySelector('.paragraph-controls');
-        paragraphControls.insertAdjacentHTML('beforeend', `<div class="loading-icon small top-margin"></div>`);
+        if(this.lipSyncState === "generating"){
+            paragraphControls.insertAdjacentHTML('beforeend', `<div class="loading-icon small top-margin"></div>`);
+        } else if(this.lipSyncState === "done"){
+            let playButton = this.element.querySelector('.play-button');
+            playButton.style.display = "block";
+        }
     }
 }
