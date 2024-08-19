@@ -567,6 +567,22 @@ async function putAudio(spaceId, audioId, audioData) {
     await fsPromises.writeFile(path.join(audiosPath, `${audioId}.mp3`), buffer);
 }
 
+async function putVideo(spaceId, videoId, dataSource) {
+    if(typeof dataSource === 'string'){
+        if(dataSource.startsWith("http")){
+            const videosPath = path.join(getSpacePath(spaceId), 'videos');
+            await downloadData(dataSource, path.join(videosPath, `${videoId}.mp4`));
+            return;
+        }else{
+            throw new Error("Data source is not a valid URL");
+        }
+    }else{
+        const videosPath = path.join(getSpacePath(spaceId), 'videos');
+        const buffer = Buffer.from(dataSource);
+        await fsPromises.writeFile(path.join(videosPath, `${videoId}.mp4`), buffer);
+    }
+}
+
 async function getAudio(spaceId, audioId) {
     const audiosPath = path.join(getSpacePath(spaceId), 'audios');
     const audioPath = path.join(audiosPath, `${audioId}.mp3`);
@@ -656,9 +672,9 @@ async function exportDocumentData(spaceId, documentId, request) {
             chapter.title = documentRecordsContents[chapterId].title
             if (documentRecordsContents[chapterId].backgroundSound) {
                 chapter.backgroundSound = documentRecordsContents[chapterId].backgroundSound
-                chapter.backgroundSound.fileName= `Chapter_${chapterIndex+1}_audio`
+                chapter.backgroundSound.fileName = `Chapter_${chapterIndex + 1}_audio`
                 audios.push({
-                    name:chapter.backgroundSound.fileName,
+                    name: chapter.backgroundSound.fileName,
                     id: documentRecordsContents[chapterId].backgroundSound.id
                 })
             }
@@ -677,7 +693,7 @@ async function exportDocumentData(spaceId, documentId, request) {
                 if (documentRecordsContents[paragraphId].audio) {
                     const audioConfig = aosUtil.findCommand(documentRecordsContents[paragraphId].text);
                     paragraph.audio = documentRecordsContents[paragraphId].audio;
-                    paragraph.audio.fileName= `Chapter_${chapterIndex+1}_Paragraph_${paragraphIndex+1}_audio`
+                    paragraph.audio.fileName = `Chapter_${chapterIndex + 1}_Paragraph_${paragraphIndex + 1}_audio`
                     audios.push({
                         name: paragraph.audio.fileName,
                         id: documentRecordsContents[paragraphId].audio.id
@@ -690,7 +706,7 @@ async function exportDocumentData(spaceId, documentId, request) {
                  }*/
                 if (documentRecordsContents[paragraphId].image) {
                     paragraph.image = documentRecordsContents[paragraphId].image;
-                    paragraph.image.fileName = `Chapter_${chapterIndex+1}_Paragraph_${paragraphIndex+1}_image`
+                    paragraph.image.fileName = `Chapter_${chapterIndex + 1}_Paragraph_${paragraphIndex + 1}_image`
                     images.push({
                         name: paragraph.image.fileName,
                         id: documentRecordsContents[paragraphId].image.id
@@ -835,7 +851,7 @@ async function importDocument(spaceId, extractedPath, request) {
         if (chapter.backgroundSound) {
             chapterObject.backgroundSound = chapter.backgroundSound;
             /* preserve backwards compatibility */
-            const audioFileName = chapter.backgroundSound.fileName||chapter.backgroundSound.id;
+            const audioFileName = chapter.backgroundSound.fileName || chapter.backgroundSound.id;
             const audioPath = path.join(extractedPath, 'audios', `${audioFileName}.mp3`);
             const audioBase64Data = await readFileAsBase64(audioPath);
             const result = await fetch(`${process.env.BASE_URL}/spaces/audio/${spaceId}`, {
@@ -868,7 +884,7 @@ async function importDocument(spaceId, extractedPath, request) {
 
             if (paragraph.image) {
                 /* preserve backwards compatibility */
-                const imagePath = path.join(extractedPath, 'images', `${paragraph.image.fileName||paragraph.image.id}.png`);
+                const imagePath = path.join(extractedPath, 'images', `${paragraph.image.fileName || paragraph.image.id}.png`);
                 const imageBase64Data = await readFileAsBase64(imagePath);
                 const dataUrl = `data:image/png;base64,${imageBase64Data}`;
                 const imageId = await uploadImage(spaceId, dataUrl);
@@ -883,7 +899,7 @@ async function importDocument(spaceId, extractedPath, request) {
                 paragraphObject.audio = paragraph.audio;
                 let audioId = paragraph.audio.id;
                 /* preserve backwards compatibility */
-                const audioPath = path.join(extractedPath, 'audios', `${paragraphObject.audio.fileName||paragraphObject.audio.id}.mp3`);
+                const audioPath = path.join(extractedPath, 'audios', `${paragraphObject.audio.fileName || paragraphObject.audio.id}.mp3`);
                 const audioBase64Data = await readFileAsBase64(audioPath);
                 const result = await fetch(`${process.env.BASE_URL}/spaces/audio/${spaceId}`, {
                     method: 'POST',
@@ -1066,7 +1082,8 @@ module.exports = {
         archivePersonality,
         importPersonality,
         getVideoParts,
-        updateParagraphTTS
+        updateParagraphTTS,
+        putVideo
     },
     templates: {
         defaultSpaceAnnouncement: require('./templates/defaultSpaceAnnouncement.json'),

@@ -354,8 +354,9 @@ async function listEmotions(request, response) {
 async function lipsync(request, response) {
     /* TODO replace with non-hardcoded data */
 
-    request.body.modelName = "sync-1.6.0";
+    request.body.modelName = request.body.modelName||"sync-1.6.0";
     request.body.spaceId=request.params.spaceId;
+    request.body.userId=request.userId;
     request.body.APIKey = "b2a758d8-f911-48d3-8916-eefb2d8c82a5"
     request.body.webhookSecret = getWebhookSecret();
     request.body.audioURL = "https://synchlabs-public.s3.us-west-2.amazonaws.com/david_demo_shortaud-27623a4f-edab-4c6a-8383-871b18961a4a.wav"
