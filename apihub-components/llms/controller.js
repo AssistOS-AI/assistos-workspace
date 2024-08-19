@@ -60,18 +60,18 @@ async function constructRequestInitAndURL(url, method, request, response) {
             message: "Api key not set"
         });
     }
-    /* const APIKeyObj = await secrets.getModelAPIKey(spaceId, companyObj.company);
+     const APIKeyObj = await secrets.getModelAPIKey(spaceId, companyObj.company);
      if (!APIKeyObj) {
          return utils.sendResponse(response, 500, "application/json", {
              success: false,
              message: "API key not found"
          });
-     }*/
+     }
     let body = Object.assign({}, request.body);
 
-    /*for (let key of companyObj.authentication) {
+    for (let key of companyObj.authentication) {
         body[key] = APIKeyObj[key];
-    }*/
+    }
 
     let init = {
         method: method,
