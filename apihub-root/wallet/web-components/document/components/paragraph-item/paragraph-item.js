@@ -78,7 +78,7 @@ export class ParagraphItem extends BaseParagraph {
 
 
     switchParagraphArrows(mode) {
-        let arrows = this.element.querySelector('.paragraph-arrows');
+        let arrows = this.element.querySelector('.paragraph-controls');
         if (mode === "on") {
             arrows.style.visibility = "visible";
         } else {
@@ -96,7 +96,7 @@ export class ParagraphItem extends BaseParagraph {
         /* We directly  extract the value as there can be synchronization issues with the setIntervel of saveParagraph fnc */
         const paragraphText = this.element.querySelector('.paragraph-text').value;
         const command = utilModule.findCommand(paragraphText);
-        if ((command.action !== "textToSpeech"||assistOS.UI.customTrim(command.remainingText) === "") && this.currentParagraphCommand.action === "textToSpeech") {
+        if ((command.action !== "textToSpeech" || assistOS.UI.customTrim(command.remainingText) === "") && this.currentParagraphCommand.action === "textToSpeech") {
             /* was textToSpeech but no longer is -> delete audio */
             this.currentParagraphCommand = command;
             documentModule.updateParagraphAudio(assistOS.space.id, this._document.id, this.paragraph.id, null)
@@ -262,23 +262,33 @@ export class ParagraphItem extends BaseParagraph {
     async openParagraphDropdown(_target) {
         const generateDropdownMenu = () => {
             let baseDropdownMenuHTML =
-                `<div class="dropdown-item" data-local-action="deleteParagraph">Delete</div>
-                 <div class="dropdown-item" data-local-action="copy">Copy</div>
-                 <div class="dropdown-item" data-local-action="openInsertImageModal">Insert Image</div> 
-                 <div class="dropdown-item" data-local-action="showTTSPopup off">Text To Speech</div>`;
+                `<list-item data-local-action="deleteParagraph" data-name="Delete"
+                           data-highlight="light-highlight"></list-item>
+                 <list-item data-local-action="copy" data-name="Copy"
+                           data-highlight="light-highlight"></list-item>
+                 <list-item data-local-action="openInsertImageModal" data-name="Insert Image"
+                           data-highlight="light-highlight"></list-item>
+                 <list-item data-local-action="showTTSPopup off" data-name="Text To Speech"
+                           data-highlight="light-highlight"></list-item>
+                 <list-item data-local-action="openParagraphSettings" data-name="Settings" 
+                           data-highlight="light-highlight"></list-item>`;
             let chapterElement = this.element.closest("chapter-item");
             let chapterPresenter = chapterElement.webSkelPresenter;
             if (chapterPresenter.chapter.paragraphs.length > 1) {
                 baseDropdownMenuHTML = `
-                <div class="dropdown-item" data-local-action="moveParagraph up">Move Up</div>
-                <div class="dropdown-item" data-local-action="moveParagraph down">Move Down</div>` + baseDropdownMenuHTML;
+                <list-item data-local-action="moveParagraph up" data-name="Move Up" 
+                           data-highlight="light-highlight"></list-item>
+                <list-item data-local-action="moveParagraph down" data-name="Move Down" 
+                           data-highlight="light-highlight"></list-item>` + baseDropdownMenuHTML;
             }
             if (this.paragraph.audio || this.audioGenerating) {
                 if (this.audioGenerating) {
-                    baseDropdownMenuHTML += `<div class="dropdown-item" id="play-paragraph-audio-btn">Generating Audio...</div>`;
+                    baseDropdownMenuHTML += `
+                    <list-item  id="play-paragraph-audio-btn" data-name="Generating Audio..." 
+                                              data-highlight="light-highlight"></list-item>`;
                 } else {
-                    baseDropdownMenuHTML += `<div class="dropdown-item" id="play-paragraph-audio-btn" data-local-action="playParagraphAudio">Play Audio</div>`;
-                    baseDropdownMenuHTML += ` <div class="dropdown-item" data-local-action="downloadAudio">Download Audio</div>`;
+                    baseDropdownMenuHTML += `<list-item data-name="Play Audio" id="play-paragraph-audio-btn" data-local-action="playParagraphAudio" data-highlight="light-highlight"></list-item>`;
+                    baseDropdownMenuHTML += ` <list-item data-name="Download Audio" data-local-action="downloadAudio" data-highlight="light-highlight"></list-item>`;
                 }
             }
             let dropdownMenuHTML =

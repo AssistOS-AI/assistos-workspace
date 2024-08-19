@@ -17,7 +17,7 @@ image-paragraph {
     cursor: pointer;
 }
 
-.paragraph-arrows {
+.paragraph-controls {
     height: 45px;
     width: 30px;
     min-width: 30px;
@@ -136,4 +136,13 @@ image-paragraph {
     position: absolute;
     top: -5px;
     left: -5px;
+}
+.top-margin{
+    margin-top: 5px;
+}
+.play-lipsync{
+    position: absolute;
+    width: 30px;
+    bottom: 20px;
+    left: 20px;
 }

@@ -271,8 +271,9 @@ export class DocumentViewPage {
             a.remove();
             delete this.videoId;
             this.invalidate(this.refreshDocument);
+            //remove subscription
         });
-        button.innerHTML = `<div class="loading-mask"></div>`;
+        button.innerHTML = `<div class="loading-icon"></div>`;
         button.setAttribute("data-local-action", "cancelVideoCompilation");
     }
     async cancelVideoCompilation(button){

@@ -1,13 +1,21 @@
 import {BaseParagraph} from "./BaseParagraph.js";
 const utilModule = require("assistos").loadModule("util", {});
 const documentModule = require("assistos").loadModule("document", {});
+const llmModule = require("assistos").loadModule("llm", {});
 export class ImageParagraph extends BaseParagraph{
     constructor(element, invalidate) {
         super(element, invalidate);
     }
     async subscribeToParagraphEvents(){
-        await utilModule.subscribeToObject(this.paragraph.id, async () => {
-            this.paragraph = await this.chapter.refreshParagraph(assistOS.space.id, this._document.id, this.paragraph.id);
+        await utilModule.subscribeToObject(this.paragraph.id, async (type) => {
+            if (type === "lypSyncVideo") {
+                this.paragraph.lypSyncVideo = await documentModule.getImageParagraphLypSyncVideo(assistOS.space.id, this._document.id, this.paragraph.id);
+                if(this.paragraph.lypSyncVideo){
+                    this.hasLypSyncVideo = true;
+                }
+            } else {
+                this.paragraph = await this.chapter.refreshParagraph(assistOS.space.id, this._document.id, this.paragraph.id);
+            }
             this.invalidate();
         });
     }
@@ -15,7 +23,6 @@ export class ImageParagraph extends BaseParagraph{
         this.initialized = false;
         this.imageSrc = this.paragraph.image.src;
         this.imageAlt = this.paragraph.image.timestamp;
-
     }
     afterRender() {
         this.imgElement = this.element.querySelector(".paragraph-image");
@@ -45,7 +52,10 @@ export class ImageParagraph extends BaseParagraph{
         for(let key of Object.keys(handles)){
             handles[key].addEventListener('mousedown', this.mouseDownFn.bind(this, key));
         }
-
+        let playButton = this.element.querySelector('.play-button');
+        if(this.paragraph.lypSyncVideo){
+            playButton.style.display = "block";
+        }
     }
     mouseDownFn(handle, event) {
         event.preventDefault();
@@ -139,7 +149,7 @@ export class ImageParagraph extends BaseParagraph{
         if (this.chapter.paragraphs.length <= 1) {
             return;
         }
-        let arrows = this.element.querySelector('.paragraph-arrows');
+        let arrows = this.element.querySelector('.paragraph-controls');
         if (mode === "on") {
             arrows.style.visibility = "visible";
         } else {
@@ -199,15 +209,23 @@ export class ImageParagraph extends BaseParagraph{
     openParagraphDropdown(element){
         const generateDropdownMenu = () => {
             let baseDropdownMenuHTML =
-                `<div class="dropdown-item" data-local-action="deleteParagraph">Delete</div>
-                 <div class="dropdown-item" data-local-action="copy">Copy</div>
-                 <div class="dropdown-item" data-local-action="openInsertImageModal">Insert Image</div>`;
+                    `<list-item data-local-action="deleteParagraph" data-name="Delete"
+                           data-highlight="light-highlight"></list-item>
+                    <list-item data-local-action="copy" data-name="Copy"
+                           data-highlight="light-highlight"></list-item>
+                    <list-item data-local-action="openInsertImageModal" data-name="Insert Image"
+                           data-highlight="light-highlight"></list-item>
+                    <list-item data-local-action="lipSync" data-name="Lip Sync"
+                           data-highlight="light-highlight"></list-item>              
+                 `;
             let chapterElement = this.element.closest("chapter-item");
             let chapterPresenter = chapterElement.webSkelPresenter;
             if (chapterPresenter.chapter.paragraphs.length > 1) {
                 baseDropdownMenuHTML = `
-                <div class="dropdown-item" data-local-action="moveParagraph up">Move Up</div>
-                <div class="dropdown-item" data-local-action="moveParagraph down">Move Down</div>` + baseDropdownMenuHTML;
+                <list-item data-local-action="moveParagraph up" data-name="Move Up"
+                           data-highlight="light-highlight"></list-item>
+                <list-item data-local-action="moveParagraph down" data-name="Move Down"
+                           data-highlight="light-highlight"></list-item>` + baseDropdownMenuHTML;
             }
             let dropdownMenuHTML =
                 `<div class="dropdown-menu">` +
@@ -229,5 +247,25 @@ export class ImageParagraph extends BaseParagraph{
 
         dropdownMenu.addEventListener('mouseleave', removeDropdown);
         dropdownMenu.focus();
+    }
+    async lipSync(){
+        let paragraphIndex = this.chapter.paragraphs.findIndex(paragraph => paragraph.id === this.paragraph.id);
+        let nextParagraph = this.chapter.paragraphs[paragraphIndex + 1];
+        if(!nextParagraph){
+            return await showApplicationError("Lip Sync Error","No next paragraph found to extract audio from. This is the last paragraph in the chapter.");
+        }
+        if(!nextParagraph.audio){
+            return await showApplicationError("Lip Sync Error","No audio found in the next paragraph to lip sync to.");
+        }
+        const videoId = "abc"
+        //const videoId = await llmModule.lipSync(this.paragraph.image.src, nextParagraph.audio.src, "SYNC160");
+        await utilModule.subscribeToObject(videoId, async () => {
+            await utilModule.unsubscribeFromObject(videoId);
+            let loadingIcon = this.element.querySelector('.loading-icon');
+            loadingIcon.remove();
+            await documentModule.updateImageParagraphLypSyncVideo(assistOS.space.id, this._document.id, this.paragraph.id, videoId);
+        });
+        let paragraphControls = this.element.querySelector('.paragraph-controls');
+        paragraphControls.insertAdjacentHTML('beforeend', `<div class="loading-icon small top-margin"></div>`);
     }
 }
