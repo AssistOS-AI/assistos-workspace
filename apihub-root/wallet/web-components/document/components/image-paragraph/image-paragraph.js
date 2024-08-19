@@ -8,11 +8,8 @@ export class ImageParagraph extends BaseParagraph{
     }
     async subscribeToParagraphEvents(){
         await utilModule.subscribeToObject(this.paragraph.id, async (type) => {
-            if (type === "lypSyncVideo") {
-                this.paragraph.lypSyncVideo = await documentModule.getImageParagraphLypSyncVideo(assistOS.space.id, this._document.id, this.paragraph.id);
-                if(this.paragraph.lypSyncVideo){
-                    this.hasLypSyncVideo = true;
-                }
+            if (type === "lipSync") {
+                this.paragraph.lipSync = await documentModule.getImageParagraphLipSync(assistOS.space.id, this._document.id, this.paragraph.id);
             } else {
                 this.paragraph = await this.chapter.refreshParagraph(assistOS.space.id, this._document.id, this.paragraph.id);
             }
@@ -53,7 +50,7 @@ export class ImageParagraph extends BaseParagraph{
             handles[key].addEventListener('mousedown', this.mouseDownFn.bind(this, key));
         }
         let playButton = this.element.querySelector('.play-button');
-        if(this.paragraph.lypSyncVideo){
+        if(this.paragraph.lipSync){
             playButton.style.display = "block";
         }
     }
@@ -263,7 +260,13 @@ export class ImageParagraph extends BaseParagraph{
             await utilModule.unsubscribeFromObject(videoId);
             let loadingIcon = this.element.querySelector('.loading-icon');
             loadingIcon.remove();
-            await documentModule.updateImageParagraphLypSyncVideo(assistOS.space.id, this._document.id, this.paragraph.id, videoId);
+            let paragraphLipSync = {
+                id: videoId,
+                src: `spaces/image/${assistOS.space.id}/${videoId}`
+            }
+            await documentModule.updateImageParagraphLipSync(assistOS.space.id, this._document.id, this.paragraph.id, paragraphLipSync);
+            this.paragraph.lipSync = paragraphLipSync;
+            this.invalidate();
         });
         let paragraphControls = this.element.querySelector('.paragraph-controls');
         paragraphControls.insertAdjacentHTML('beforeend', `<div class="loading-icon small top-margin"></div>`);
