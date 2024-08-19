@@ -41,7 +41,6 @@ const {
     storeAudio,
     deleteAudio,
     getAudio,
-    getVideo,
     deleteVideo,
     compileVideoFromDocument,
     exportDocument,
@@ -49,7 +48,8 @@ const {
     cancelTask,
     exportPersonality,
     importPersonality,
-    generateParagraphTTS
+    generateParagraphTTS,
+    getVideo
 } = require("./controller");
 
 const bodyReader = require('../apihub-component-middlewares/bodyReader.js')
@@ -62,14 +62,16 @@ function SpaceStorage(server) {
     server.get("/spaces/invitations/reject", rejectSpaceInvitation);
     server.get("/spaces/invitations/accept", acceptSpaceInvitation);
 
+    server.get("/spaces/audio/:spaceId/:audioId", getAudio);
+    server.get("/spaces/image/:spaceId/:imageId", getImage);
+    server.get("/spaces/video/:spaceId/:videoId", getVideo);
+
     server.use("/spaces/*", authentication);
 
     server.get("/spaces", getSpace);
     server.get("/spaces/:spaceId", getSpace);
 
     server.post("/spaces", createSpace);
-
-
 
     server.get("/spaces/:spaceId/agents",getAgent)
     server.get("/spaces/:spaceId/agents/:agentId",getAgent)
@@ -105,8 +107,6 @@ function SpaceStorage(server) {
     server.delete("/spaces/:spaceId/secrets/keys/:keyType",deleteAPIKey);
     server.delete("/spaces/:spaceId/secrets/keys/:keyType",deleteAPIKey);
 
-
-
     server.post("/spaces/:spaceId/announcements",addSpaceAnnouncement)
     server.get("/spaces/:spaceId/announcements/:announcementId",getSpaceAnnouncement)
     server.get("/spaces/:spaceId/announcements",getSpaceAnnouncements)
@@ -122,14 +122,11 @@ function SpaceStorage(server) {
     server.post("/apis/v1/spaces/:spaceId/chats/:chatId/llms/video/generate", getChatVideoResponse);
 
     server.post("/spaces/image/:spaceId", storeImage);
-    server.get("/spaces/image/:spaceId/:imageId", getImage);
     server.delete("/spaces/image/:spaceId/:imageId", deleteImage);
     server.post("/spaces/audio/:spaceId", storeAudio);
-    server.get("/spaces/audio/:spaceId/:audioId", getAudio);
     server.delete("/spaces/audio/:spaceId/:audioId", deleteAudio);
 
     server.post("/spaces/video/compile/:spaceId/:documentId", compileVideoFromDocument);
-    server.get("/spaces/video/:spaceId/:videoId", getVideo);
     server.delete("/spaces/video/:spaceId/:videoId", deleteVideo);
     server.get("/spaces/:spaceId/export/documents/:documentId", exportDocument);
     server.get("/spaces/:spaceId/export/personalities/:personalityId", exportPersonality);

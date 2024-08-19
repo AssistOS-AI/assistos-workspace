@@ -7,7 +7,8 @@ const {pipeline} = require('stream');
 const {getWebhookSecret} = require("../webhook/controller");
 const configs = require("../config.json");
 let LLMConfigs;
-const space= require("../spaces-storage/space.js");
+const space = require("../spaces-storage/space.js");
+
 async function getLLMAuthRequirements() {
     try {
         const llmAuthRequirements = await fetch(`http://localhost:8079/apis/v1/authRequirements`, {
@@ -60,13 +61,13 @@ async function constructRequestInitAndURL(url, method, request, response) {
             message: "Api key not set"
         });
     }
-     const APIKeyObj = await secrets.getModelAPIKey(spaceId, companyObj.company);
-     if (!APIKeyObj) {
-         return utils.sendResponse(response, 500, "application/json", {
-             success: false,
-             message: "API key not found"
-         });
-     }
+    const APIKeyObj = await secrets.getModelAPIKey(spaceId, companyObj.company);
+    if (!APIKeyObj) {
+        return utils.sendResponse(response, 500, "application/json", {
+            success: false,
+            message: "API key not found"
+        });
+    }
     let body = Object.assign({}, request.body);
 
     for (let key of companyObj.authentication) {
@@ -353,19 +354,21 @@ async function listEmotions(request, response) {
 
 async function lipsync(request, response) {
     /* TODO replace with non-hardcoded data */
-    const spaceId=request.params.spaceId;
-
-    const requestBody={
-        modelName:request.body.modelName,
-        spaceId:request.params.spaceId,
-        userId:request.userId,
-        webhookSecret:getWebhookSecret()
+    const spaceId = request.params.spaceId;
+    const imageSrc = request.body.imageSrc;
+    const audioSrc = request.body.audioSrc;
+    const requestBody = {
+        modelName: request.body.modelName,
+        spaceId: request.params.spaceId,
+        userId: request.userId,
+        webhookSecret: getWebhookSecret()
     };
 
     try {
-        requestBody.audioURL=await space.APIs.createParagraphVideo(spaceId,documentId,paragraphId);
-        requestBody.videoURL=await space.APIs.getParagraphAudio(spaceId,documentId,paragraphId);
-        request.body=requestBody;
+        requestBody.audioURL = audioSrc;
+        requestBody.videoURL = await space.APIs.createVideo(imageSrc, audioSrc, spaceId);
+
+        request.body = requestBody;
         let result = await sendRequest(`/apis/v1/video/lipsync`, "POST", request, response);
         return utils.sendResponse(response, 200, "application/json", {
             success: true,

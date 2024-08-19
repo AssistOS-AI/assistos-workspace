@@ -1534,6 +1534,8 @@ async function generateParagraphTTS(request,response){
         });
     }
 }
+
+
 module.exports = {
     acceptSpaceInvitation,
     rejectSpaceInvitation,
@@ -1585,5 +1587,5 @@ module.exports = {
     cancelTask,
     exportPersonality,
     importPersonality,
-    generateParagraphTTS
+    generateParagraphTTS,
 }

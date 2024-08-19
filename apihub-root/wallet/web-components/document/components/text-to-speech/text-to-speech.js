@@ -35,7 +35,7 @@ export class TextToSpeech {
     }
 
     afterRender() {
-        if (this.audioConfig) {
+        if (this.audioConfig && this.audioConfig.personality) {
             let personalityOption = this.element.querySelector(`option[value="${this.audioConfig.personality}"]`);
             personalityOption.selected = true;
             let emotionOption = this.element.querySelector(`option[value="${this.audioConfig.emotion}"]`);
