@@ -28,8 +28,10 @@ export class TextToSpeech {
         this.emotionsHTML = emotionsHTML;
         const command = utilModule.findCommand(this.parentPresenter.paragraph.text);
         this.audioConfig = command.paramsObject || null;
+        if (this.audioConfig) {
+            this.audioConfig.personality = this.personalities.find(personality => personality.name === this.audioConfig.personality).id;
+        }
         this.paragraphText = command.remainingText;
-        this.audioConfig.personality=this.personalities.find(personality=>personality.name===this.audioConfig.personality).id;
     }
 
     afterRender() {
@@ -59,10 +61,10 @@ export class TextToSpeech {
             voiceGuidance: formData.data.voiceGuidance,
             temperature: formData.data.temperature,
         }
-        const updatedParagraphText=utilModule.buildCommandString("speech", commandConfig)+this.paragraphText;
-        this.parentPresenter.paragraph.text=updatedParagraphText;
-        const paragraphTextContainer=this.parentPresenter.element.querySelector(".paragraph-text");
-        paragraphTextContainer.innerHTML=updatedParagraphText;
+        const updatedParagraphText = utilModule.buildCommandString("speech", commandConfig) + this.paragraphText;
+        this.parentPresenter.paragraph.text = updatedParagraphText;
+        const paragraphTextContainer = this.parentPresenter.element.querySelector(".paragraph-text");
+        paragraphTextContainer.innerHTML = updatedParagraphText;
         this.element.remove();
     }
 }
