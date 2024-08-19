@@ -303,5 +303,8 @@ async function createVideoFrame(frame, tempVideoDir, documentId, chapterIndex, f
     return combinedPath;
 }
 module.exports = {
-    documentToVideo
+    documentToVideo,
+    createVideoFromImage,
+    combineVideoAndAudio
+
 }

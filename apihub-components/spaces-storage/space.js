@@ -17,6 +17,9 @@ const https = require('https');
 const fs = require('fs');
 const spaceConstants = require('./constants.js');
 const unzipper = require('unzipper');
+const Task = require("../apihub-component-utils/Task");
+const ffmpeg = require("../apihub-component-utils/ffmpeg");
+const ffmpegPath = require("ffmpeg-static");
 
 function getSpacePath(spaceId) {
     return path.join(volumeManager.paths.space, spaceId);
@@ -568,15 +571,15 @@ async function putAudio(spaceId, audioId, audioData) {
 }
 
 async function putVideo(spaceId, videoId, dataSource) {
-    if(typeof dataSource === 'string'){
-        if(dataSource.startsWith("http")){
+    if (typeof dataSource === 'string') {
+        if (dataSource.startsWith("http")) {
             const videosPath = path.join(getSpacePath(spaceId), 'videos');
             await downloadData(dataSource, path.join(videosPath, `${videoId}.mp4`));
             return;
-        }else{
+        } else {
             throw new Error("Data source is not a valid URL");
         }
-    }else{
+    } else {
         const videosPath = path.join(getSpacePath(spaceId), 'videos');
         const buffer = Buffer.from(dataSource);
         await fsPromises.writeFile(path.join(videosPath, `${videoId}.mp4`), buffer);
@@ -1040,13 +1043,27 @@ async function updateParagraphTTS(request, spaceId, documentId, paragraphId, com
     }
     await documentModule.updateParagraphAudio(spaceId, documentId, paragraphId, audioObj);
 }
+
 async function getParagraphAudio(spaceId, documentId, paragraphId) {
     const documentModule = require('assistos').loadModule('document');
     const paragraph = await documentModule.getParagraph(spaceId, documentId, paragraphId);
-    return paragraph.audio.src||null;
+    return paragraph.audio.src || null;
 }
-async function createParagraphVideo(){
 
+async function createVideo(imageSrc, audioSrc, spaceId) {
+    const videoId = crypto.generateId();
+    const audioId = audioSrc.split('/').pop().split('.')[0];
+    const imageId = imageSrc.split('/').pop().split('.')[0];
+    const audioPath = getSpacePath(spaceId) + `/audios/${audioId}.mp3`;
+    const imagePath = getSpacePath(spaceId) + `/images/${imageId}.png`;
+    const videoPath = getSpacePath(spaceId) + `/videos/${videoId}.mp4`;
+    let task = new Task(async function () {
+        const audioDuration = (await this.runCommand(`${ffmpegPath} -i ${audioPath} -hide_banner 2>&1 | grep "Duration"`)).match(/Duration: (\d+):(\d+):(\d+\.\d+)/);
+        await ffmpeg.createVideoFromImage(imagePath, audioDuration,videoPath,this);
+        await ffmpeg.combineVideoAndAudio(videoPath, audioPath, videoPath, this);
+    }, {});
+    await task.run();
+    return videoId;
 }
 
 module.exports = {
@@ -1094,7 +1111,7 @@ module.exports = {
         updateParagraphTTS,
         putVideo,
         getParagraphAudio,
-        createParagraphVideo
+        createVideo
     },
     templates: {
         defaultSpaceAnnouncement: require('./templates/defaultSpaceAnnouncement.json'),
