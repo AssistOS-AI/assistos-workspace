@@ -279,8 +279,21 @@ export class ImageParagraph extends BaseParagraph{
         if(this.lipSyncState === "generating"){
             paragraphControls.insertAdjacentHTML('beforeend', `<div class="loading-icon small top-margin"></div>`);
         } else if(this.lipSyncState === "done"){
-            let playButton = this.element.querySelector('.play-button');
+            let playButton = this.element.querySelector('.play-lip-sync');
             playButton.style.display = "block";
         }
+    }
+    playLipSyncVideo(playButton) {
+        let videoTagContainer = `
+        <div class="video-container">
+            <video controls autoplay class="lip-sync-video" src="${this.paragraph.lipSync.src}"></video>
+            <img src="./wallet/assets/icons/x-mark.svg" data-local-action="closePlayer" class="close-player pointer" alt="close"/>
+        </div>`;
+        playButton.insertAdjacentHTML('afterend', videoTagContainer);
+    }
+
+    closePlayer() {
+        let videoContainer = this.element.querySelector('.video-container');
+        videoContainer.remove();
     }
 }
