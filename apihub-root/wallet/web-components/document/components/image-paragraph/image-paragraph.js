@@ -254,8 +254,7 @@ export class ImageParagraph extends BaseParagraph{
         if(!nextParagraph.audio){
             return await showApplicationError("Lip Sync Error","No audio found in the next paragraph to lip sync to.");
         }
-        const videoId = "abc"
-        //const videoId = await llmModule.lipSync(this.paragraph.image.src, nextParagraph.audio.src, "SYNC160");
+        const videoId = await llmModule.lipSync(assistOS.space.id,this.paragraph.image.src, nextParagraph.audio.src, "sync-1.6.0");
         await utilModule.subscribeToObject(videoId, async () => {
             await utilModule.unsubscribeFromObject(videoId);
             let loadingIcon = this.element.querySelector('.loading-icon');

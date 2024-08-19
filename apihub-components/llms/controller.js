@@ -7,7 +7,7 @@ const {pipeline} = require('stream');
 const {getWebhookSecret} = require("../webhook/controller");
 const configs = require("../config.json");
 let LLMConfigs;
-
+const space= require("../spaces-storage/space.js");
 async function getLLMAuthRequirements() {
     try {
         const llmAuthRequirements = await fetch(`http://localhost:8079/apis/v1/authRequirements`, {
@@ -353,15 +353,19 @@ async function listEmotions(request, response) {
 
 async function lipsync(request, response) {
     /* TODO replace with non-hardcoded data */
+    const spaceId=request.params.spaceId;
 
-    request.body.modelName = request.body.modelName||"sync-1.6.0";
-    request.body.spaceId=request.params.spaceId;
-    request.body.userId=request.userId;
-    request.body.APIKey = "b2a758d8-f911-48d3-8916-eefb2d8c82a5"
-    request.body.webhookSecret = getWebhookSecret();
-    request.body.audioURL = "https://synchlabs-public.s3.us-west-2.amazonaws.com/david_demo_shortaud-27623a4f-edab-4c6a-8383-871b18961a4a.wav"
-    request.body.videoURL = "https://synchlabs-public.s3.us-west-2.amazonaws.com/david_demo_shortvid-03a10044-7741-4cfc-816a-5bccd392d1ee.mp4"
+    const requestBody={
+        modelName:request.body.modelName,
+        spaceId:request.params.spaceId,
+        userId:request.userId,
+        webhookSecret:getWebhookSecret()
+    };
+
     try {
+        requestBody.audioURL=await space.APIs.createParagraphVideo(spaceId,documentId,paragraphId);
+        requestBody.videoURL=await space.APIs.getParagraphAudio(spaceId,documentId,paragraphId);
+        request.body=requestBody;
         let result = await sendRequest(`/apis/v1/video/lipsync`, "POST", request, response);
         return utils.sendResponse(response, 200, "application/json", {
             success: true,

@@ -581,6 +581,7 @@ async function putVideo(spaceId, videoId, dataSource) {
         const buffer = Buffer.from(dataSource);
         await fsPromises.writeFile(path.join(videosPath, `${videoId}.mp4`), buffer);
     }
+    return videoId;
 }
 
 async function getAudio(spaceId, audioId) {
@@ -1039,6 +1040,14 @@ async function updateParagraphTTS(request, spaceId, documentId, paragraphId, com
     }
     await documentModule.updateParagraphAudio(spaceId, documentId, paragraphId, audioObj);
 }
+async function getParagraphAudio(spaceId, documentId, paragraphId) {
+    const documentModule = require('assistos').loadModule('document');
+    const paragraph = await documentModule.getParagraph(spaceId, documentId, paragraphId);
+    return paragraph.audio.src||null;
+}
+async function createParagraphVideo(){
+
+}
 
 module.exports = {
     APIs: {
@@ -1083,7 +1092,9 @@ module.exports = {
         importPersonality,
         getVideoParts,
         updateParagraphTTS,
-        putVideo
+        putVideo,
+        getParagraphAudio,
+        createParagraphVideo
     },
     templates: {
         defaultSpaceAnnouncement: require('./templates/defaultSpaceAnnouncement.json'),

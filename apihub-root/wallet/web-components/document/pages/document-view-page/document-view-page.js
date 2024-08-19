@@ -351,6 +351,6 @@ export class DocumentViewPage {
     }
     async lipsyncVideo(_target){
         const llmModule=require('assistos').loadModule('llm', {});
-        const response = (await llmModule.lipsync(assistOS.space.id, "SYNC160", {}))
+        const response = (await llmModule.lipsync(assistOS.space.id, "sync-1.6.0", {}))
     }
 }
