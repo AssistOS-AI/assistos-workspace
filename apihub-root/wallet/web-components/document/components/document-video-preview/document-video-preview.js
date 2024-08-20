@@ -33,16 +33,24 @@ export class DocumentVideoPreview {
         this.audioPlayer = this.element.querySelector(".audio-player");
         this.imageTag = this.element.querySelector(".current-image");
         if (!this.boundPlayNext) {
-            this.boundPlayNext = this.playNext.bind(this);
+            this.boundPlayNext = this.incrementParagraphIndexAndPlay.bind(this);
             this.audioPlayer.addEventListener("ended", this.boundPlayNext);
         }
         this.chapter = this.document.chapters[0];
         this.paragraph = this.chapter.paragraphs[0];
         this.imageTag.src = "./wallet/assets/images/black-screen.png";
         this.parentPresenter.toggleEditingState(false);
+        this.currentFrame= {
+            imageSrc: "",
+            audioSrc: ""
+        };
         this.playNext();
     }
-
+    incrementParagraphIndexAndPlay(){
+        let currentParagraphIndex = this.chapter.paragraphs.indexOf(this.paragraph);
+        this.paragraph = this.chapter.paragraphs[currentParagraphIndex + 1];
+        this.playNext();
+    }
     closePlayer() {
         this.parentPresenter.toggleEditingState(true);
         this.audioPlayer.pause();
@@ -65,6 +73,8 @@ export class DocumentVideoPreview {
         } else if(mode === "reload"){
             imgTag = `<img class="pointer" src="./wallet/assets/icons/pause.svg" alt="pause">`;
             mode = "play";
+            let nextButton = this.element.querySelector(".next");
+            nextButton.classList.remove("disabled");
             this.playNext();
         }
         targetElement.innerHTML = imgTag;
@@ -105,10 +115,6 @@ export class DocumentVideoPreview {
                     delete this.resumeCallback;
                 }
             }, this.remainingSilentDuration);
-        } else if(this.resumeCallback){
-            //resume the video
-            this.resumeCallback();
-            delete this.resumeCallback;
         }
     }
     async wait(duration) {
@@ -121,10 +127,6 @@ export class DocumentVideoPreview {
     async playNext() {
         let currentChapterIndex = this.document.chapters.indexOf(this.chapter);
         let currentParagraphIndex = this.chapter.paragraphs.indexOf(this.paragraph);
-        this.currentFrame= {
-            imageSrc: "",
-            audioSrc: ""
-        };
         for (let i = currentChapterIndex; i < this.document.chapters.length; i++) {
             let chapter = this.document.chapters[i];
             for (let j = currentParagraphIndex; j < chapter.paragraphs.length; j++) {
@@ -144,14 +146,15 @@ export class DocumentVideoPreview {
                     }
                     this.imageTag.src = paragraph.image.src;
                     this.chapter = chapter;
-                    this.paragraph = chapter.paragraphs[j + 1];
+                    this.paragraph = chapter.paragraphs[j];
                 } else if (paragraph.audio) {
                     this.chapter = chapter;
-                    this.paragraph = chapter.paragraphs[j + 1];
+                    this.paragraph = chapter.paragraphs[j];
                     this.audioPlayer.src = paragraph.audio.src;
                     this.audioPlayer.load();
                     this.audioPlayer.play();
                     this.currentFrame.audioSrc = paragraph.audio.src;
+                    this.handlePlayMode();
                     if(!this.currentFrame.imageSrc){
                         this.imageTag.src = "./wallet/assets/images/black-screen.png";
                     }
@@ -177,6 +180,12 @@ export class DocumentVideoPreview {
         this.chapter = this.document.chapters[0];
         this.paragraph = this.chapter.paragraphs[0];
         this.parentPresenter.toggleEditingState(true);
+        this.currentFrame = {
+            imageSrc: "",
+            audioSrc: ""
+        };
+        let nextButton = this.element.querySelector(".next");
+        nextButton.classList.add("disabled");
     }
     executeSilenceCommand(command) {
         this.silenceDuration = command.paramsObject.duration * 1000;
@@ -191,10 +200,11 @@ export class DocumentVideoPreview {
     }
     skipToNextScene(targetElement) {
         let currentChapterIndex = this.document.chapters.indexOf(this.chapter);
-        let currentParagraphIndex = this.chapter.paragraphs.indexOf(this.paragraph);
+        let currentParagraphIndex = this.chapter.paragraphs.indexOf(this.paragraph) + 1;
         let playPause = this.element.querySelector(".play-pause");
         let currentMode = playPause.getAttribute("data-mode");
         if(this.silenceTimeout){
+            delete this.silenceTimeout;
             clearTimeout(this.silenceTimeout);
             this.remainingSilentDuration = 0;
         }
@@ -216,7 +226,9 @@ export class DocumentVideoPreview {
                         this.playNext();
                         return;
                     }
+                    this.audioPlayer.src = paragraph.audio.src;
                     this.audioPlayer.load();
+                    this.handlePlayMode();
                     //player is paused
                     return;
 
@@ -224,35 +236,40 @@ export class DocumentVideoPreview {
             }
         }
         //reached end of document
-        this.audioPlayer.currentTime = this.audioPlayer.duration;
+        this.audioPlayer.pause();
         this.prepareVideoForReload();
     }
     skipToPreviousScene(targetElement) {
         let currentChapterIndex = this.document.chapters.indexOf(this.chapter);
-        let currentParagraphIndex = this.chapter.paragraphs.indexOf(this.paragraph);
+        let currentParagraphIndex = this.chapter.paragraphs.indexOf(this.paragraph) - 1;
         let playPause = this.element.querySelector(".play-pause");
         let currentMode = playPause.getAttribute("data-mode");
-        let currentImageSrc;
-        this.audioPlayer.pause();
-        for(let i = currentChapterIndex; i >= 0 ; i--){
+        if(this.silenceTimeout){
+            delete this.silenceTimeout;
+            clearTimeout(this.silenceTimeout);
+            this.remainingSilentDuration = 0;
+        }
+        //skip to the previous scene with audio
+        for(let i = currentChapterIndex; i >= 0; i--){
             let chapter = this.document.chapters[i];
             for(let j = currentParagraphIndex; j >= 0; j--){
                 let paragraph = chapter.paragraphs[j];
-                if(paragraph.image){
-                    currentImageSrc = paragraph.image.src;
-                } else if(paragraph.audio){
+                if(paragraph.audio){
                     this.chapter = chapter;
                     this.paragraph = paragraph;
+                    this.currentFrame.audioSrc = paragraph.audio.src;
+                    this.currentFrame.imageSrc = this.findPreviousFrameImage();
+                    this.imageTag.src = this.currentFrame.imageSrc;
                     if(currentMode === "play"){
                         this.playNext();
                         return;
-                    } else {
-                        //player is paused
-                        this.imageTag.src = currentImageSrc;
-                        this.audioPlayer.src = paragraph.audio.src;
-                        this.audioPlayer.load();
-                        return;
                     }
+                    this.audioPlayer.src = paragraph.audio.src;
+                    this.audioPlayer.load();
+                    this.handlePlayMode();
+                    //player is paused
+                    return;
+
                 }
             }
         }
@@ -260,5 +277,45 @@ export class DocumentVideoPreview {
         this.chapter = this.document.chapters[0];
         this.paragraph = this.chapter.paragraphs[0];
         this.audioPlayer.currentTime = 0;
+    }
+    findPreviousFrameImage(){
+        let currentChapterIndex = this.document.chapters.indexOf(this.chapter);
+        let currentParagraphIndex = this.chapter.paragraphs.indexOf(this.paragraph) - 1;
+        for(let i = currentChapterIndex; i >= 0; i--){
+            let chapter = this.document.chapters[i];
+            for(let j = currentParagraphIndex; j >= 0; j--){
+                let paragraph = chapter.paragraphs[j];
+                if(paragraph.image){
+                    return paragraph.image.src;
+                }
+            }
+        }
+        return "./wallet/assets/images/black-screen.png";
+    }
+    floatVideo(targetElement) {
+        if(this.isFloating){
+            this.isFloating = false;
+            this.element.style.position = "initial";
+            this.element.style.zIndex = "0";
+            this.element.style.top = "initial";
+            this.element.style.left = "initial";
+        } else {
+            this.isFloating = true;
+            this.element.style.position = "absolute";
+            this.element.style.zIndex = "999";
+            this.element.style.top = "25%";
+            this.element.style.left = "13%";
+            if(this.paragraph){
+                let currentParagraph = this.parentPresenter.element.querySelector(`[data-paragraph-id="${this.paragraph.id}"]`);
+                currentParagraph.scrollIntoView({behavior: "smooth", block: "center"});
+            }
+        }
+
+    }
+    handlePlayMode(){
+        if(this.isFloating){
+            let currentParagraph = this.parentPresenter.element.querySelector(`[data-paragraph-id="${this.paragraph.id}"]`);
+            currentParagraph.scrollIntoView({behavior: "smooth", block: "center"});
+        }
     }
 }

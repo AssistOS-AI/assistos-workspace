@@ -77,14 +77,17 @@ document-view-page {
     padding-left: 20px;
 }
 .document-menu-container{
+    border-radius: 50%;
     cursor: pointer;
     position: relative;
     width: 32px;
     height: 32px;
-    background-color: var(--medium-blue);
     display: flex;
     align-items: center;
     justify-content: center;
+}
+.document-menu-container:hover{
+    background-color: var(--very-light-gray);
 }
 .document-menu-dropdown {
     position: absolute;
@@ -222,4 +225,7 @@ html[theme="dark"] .document-title-container {
 .document-video{
     width: 200px;
     height: 200px;
+}
+.action-dots{
+    width: 5px;
 }
