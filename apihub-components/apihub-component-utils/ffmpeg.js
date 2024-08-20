@@ -310,13 +310,22 @@ async function createVideoFromImageAndAudio(imageSrc,audioSrc,spaceId){
     const audioPath = space.getSpacePath(spaceId) + `/audios/${audioId}.mp3`;
     const imagePath = space.getSpacePath(spaceId) + `/images/${imageId}.png`;
     const videoPath = space.getSpacePath(spaceId) + `/videos/${videoId}.mp4`;
+    console.log("LIPSYNC 2")
+
     let task = new Task(async function () {
+        console.log("LIPSYNC 3")
+
         const audioDuration = (await this.runCommand(`${ffmpegPath} -i ${audioPath} -hide_banner 2>&1 | grep "Duration"`)).match(/Duration: (\d+):(\d+):(\d+\.\d+)/);
+        console.log("LIPSYNC 4")
+
         const totalDuration = parseInt(audioDuration[1]) * 3600 + parseInt(audioDuration[2]) * 60 + parseFloat(audioDuration[3]);
         await createVideoFromImage(imagePath, totalDuration,videoPath,this);
-        //await combineVideoAndAudio(videoPath, audioPath, videoPath, this);
+        console.log("LIPSYNC 5")
+
     }, {});
     await task.run();
+    console.log("LIPSYNC 6")
+
     return videoId;
 }
 module.exports = {
