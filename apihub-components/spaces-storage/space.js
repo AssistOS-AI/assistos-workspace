@@ -18,8 +18,6 @@ const fs = require('fs');
 const spaceConstants = require('./constants.js');
 const unzipper = require('unzipper');
 const Task = require("../apihub-component-utils/Task");
-const ffmpeg = require("../apihub-component-utils/ffmpeg");
-const ffmpegPath = require("ffmpeg-static");
 
 function getSpacePath(spaceId) {
     return path.join(volumeManager.paths.space, spaceId);
@@ -1050,21 +1048,6 @@ async function getParagraphAudio(spaceId, documentId, paragraphId) {
     return paragraph.audio.src || null;
 }
 
-async function createVideo(imageSrc, audioSrc, spaceId) {
-    const videoId = crypto.generateId();
-    const audioId = audioSrc.split('/').pop().split('.')[0];
-    const imageId = imageSrc.split('/').pop().split('.')[0];
-    const audioPath = getSpacePath(spaceId) + `/audios/${audioId}.mp3`;
-    const imagePath = getSpacePath(spaceId) + `/images/${imageId}.png`;
-    const videoPath = getSpacePath(spaceId) + `/videos/${videoId}.mp4`;
-    let task = new Task(async function () {
-        const audioDuration = (await this.runCommand(`${ffmpegPath} -i ${audioPath} -hide_banner 2>&1 | grep "Duration"`)).match(/Duration: (\d+):(\d+):(\d+\.\d+)/);
-        await ffmpeg.createVideoFromImage(imagePath, audioDuration,videoPath,this);
-        await ffmpeg.combineVideoAndAudio(videoPath, audioPath, videoPath, this);
-    }, {});
-    await task.run();
-    return videoId;
-}
 
 module.exports = {
     APIs: {
@@ -1111,7 +1094,6 @@ module.exports = {
         updateParagraphTTS,
         putVideo,
         getParagraphAudio,
-        createVideo
     },
     templates: {
         defaultSpaceAnnouncement: require('./templates/defaultSpaceAnnouncement.json'),
