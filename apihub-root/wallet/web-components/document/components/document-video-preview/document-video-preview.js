@@ -179,6 +179,7 @@ export class DocumentVideoPreview {
         playButton.innerHTML = `<img class="pointer" src="./wallet/assets/icons/refresh.svg" alt="refresh">`;
         this.chapter = this.document.chapters[0];
         this.paragraph = this.chapter.paragraphs[0];
+        this.isPaused = false;
         this.parentPresenter.toggleEditingState(true);
         this.currentFrame = {
             imageSrc: "",
@@ -305,16 +306,17 @@ export class DocumentVideoPreview {
             this.element.style.zIndex = "999";
             this.element.style.top = "25%";
             this.element.style.left = "13%";
-            if(this.paragraph){
-                let currentParagraph = this.parentPresenter.element.querySelector(`[data-paragraph-id="${this.paragraph.id}"]`);
-                currentParagraph.scrollIntoView({behavior: "smooth", block: "center"});
-            }
+            this.handlePlayMode();
         }
 
     }
     handlePlayMode(){
         if(this.isFloating){
+            let currentParagraphIndex = this.chapter.paragraphs.indexOf(this.paragraph);
             let currentParagraph = this.parentPresenter.element.querySelector(`[data-paragraph-id="${this.paragraph.id}"]`);
+            if(currentParagraphIndex === this.chapter.paragraphs.length - 1){
+                return currentParagraph.scrollIntoView({behavior: "smooth", block: "nearest"});
+            }
             currentParagraph.scrollIntoView({behavior: "smooth", block: "center"});
         }
     }
