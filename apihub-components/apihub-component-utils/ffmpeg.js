@@ -4,8 +4,8 @@ const file = require('./file.js');
 const ffmpegPath = require("ffmpeg-static");
 const space = require("../spaces-storage/space.js").APIs;
 const Task = require('./Task.js');
-const utilsModule = require("assistos").loadModule("util",{});
 const audioCommands = require('./audioCommands.js');
+const crypto = require("./crypto");
 async function concatenateAudioFiles(tempVideoDir, audioFilesPaths, outputAudioPath, fileName, task) {
     const fileListPath = path.join(tempVideoDir, fileName);
     const fileListContent = audioFilesPaths.map(file => `file '${file}'`).join('\n');
@@ -135,6 +135,7 @@ async function splitChapterIntoFrames(tempVideoDir, spaceId, documentId, chapter
     return chapterFrames;
 }
 async function tryToExecuteCommandOnParagraph(tempVideoDir, spaceId, documentId, paragraph, task) {
+    const utilsModule = require("assistos").loadModule("util",{});
     let commandObject = utilsModule.findCommand(paragraph.text);
     let taskFunction;
     if(commandObject.action === "textToSpeech"){
@@ -302,9 +303,24 @@ async function createVideoFrame(frame, tempVideoDir, documentId, chapterIndex, f
     await combineVideoAndAudio(videoPath, audioPath, combinedPath, task);
     return combinedPath;
 }
+async function createVideoFromImageAndAudio(imageSrc,audioSrc,spaceId){
+    const videoId = crypto.generateId();
+    const audioId = audioSrc.split('/').pop().split('.')[0];
+    const imageId = imageSrc.split('/').pop().split('.')[0];
+    const audioPath = space.getSpacePath(spaceId) + `/audios/${audioId}.mp3`;
+    const imagePath = space.getSpacePath(spaceId) + `/images/${imageId}.png`;
+    const videoPath = space.getSpacePath(spaceId) + `/videos/${videoId}.mp4`;
+    let task = new Task(async function () {
+        const audioDuration = (await this.runCommand(`${ffmpegPath} -i ${audioPath} -hide_banner 2>&1 | grep "Duration"`)).match(/Duration: (\d+):(\d+):(\d+\.\d+)/);
+        await createVideoFromImage(imagePath, audioDuration,videoPath,this);
+        await combineVideoAndAudio(videoPath, audioPath, videoPath, this);
+    }, {});
+    await task.run();
+    return videoId;
+}
 module.exports = {
     documentToVideo,
     createVideoFromImage,
-    combineVideoAndAudio
-
+    combineVideoAndAudio,
+    createVideoFromImageAndAudio
 }

@@ -7,8 +7,7 @@ const {pipeline} = require('stream');
 const {getWebhookSecret} = require("../webhook/controller");
 const configs = require("../config.json");
 let LLMConfigs;
-const space = require("../spaces-storage/space.js");
-
+const ffmpeg = require("../apihub-component-utils/ffmpeg.js");
 async function getLLMAuthRequirements() {
     try {
         const llmAuthRequirements = await fetch(`http://localhost:8079/apis/v1/authRequirements`, {
@@ -366,7 +365,7 @@ async function lipsync(request, response) {
 
     try {
         requestBody.audioURL = audioSrc;
-        requestBody.videoURL = await space.APIs.createVideo(imageSrc, audioSrc, spaceId);
+        requestBody.videoURL = await ffmpeg.createVideoFromImageAndAudio(imageSrc, audioSrc, spaceId);
 
         request.body = requestBody;
         let result = await sendRequest(`/apis/v1/video/lipsync`, "POST", request, response);
