@@ -56,15 +56,21 @@ const bodyReader = require('../apihub-component-middlewares/bodyReader.js')
 const authentication = require('../apihub-component-middlewares/authentication.js')
 
 function SpaceStorage(server) {
+
+
+    server.head("/spaces/audio/:spaceId/:audioId",getAudio);
+    server.head("/spaces/image/:spaceId/:imageId",getImage);
+    server.head("/spaces/video/:spaceId/:videoId",getVideo);
+
+    server.get("/spaces/audio/:spaceId/:audioId", getAudio);
+    server.get("/spaces/image/:spaceId/:imageId", getImage);
+    server.get("/spaces/video/:spaceId/:videoId", getVideo);
+
     server.use("/spaces/*", bodyReader);
     server.use("/apis/v1/spaces/*", bodyReader);
     /* invitations */
     server.get("/spaces/invitations/reject", rejectSpaceInvitation);
     server.get("/spaces/invitations/accept", acceptSpaceInvitation);
-
-    server.get("/spaces/audio/:spaceId/:audioId", getAudio);
-    server.get("/spaces/image/:spaceId/:imageId", getImage);
-    server.get("/spaces/video/:spaceId/:videoId", getVideo);
 
     server.use("/spaces/*", authentication);
 
@@ -73,8 +79,8 @@ function SpaceStorage(server) {
 
     server.post("/spaces", createSpace);
 
-    server.get("/spaces/:spaceId/agents",getAgent)
-    server.get("/spaces/:spaceId/agents/:agentId",getAgent)
+    server.get("/spaces/:spaceId/agents", getAgent)
+    server.get("/spaces/:spaceId/agents/:agentId", getAgent)
 
     server.get("/spaces/fileObject/:spaceId/:objectType", getFileObjectsMetadata);
     server.get("/spaces/fileObject/:spaceId/:objectType/:objectId", getFileObject);
@@ -100,18 +106,18 @@ function SpaceStorage(server) {
     server.post("/spaces/:spaceId/collaborators", addCollaboratorsToSpace);
     server.post("/spaces/:spaceId/chat/:chatId", addSpaceChatMessage);
 
-    server.get("/spaces/:spaceId/secrets/keys",getAPIKeysMetadata);
+    server.get("/spaces/:spaceId/secrets/keys", getAPIKeysMetadata);
     server.post("/spaces/secrets/keys", editAPIKey);
     server.post("/spaces/:spaceId/secrets/keys", editAPIKey);
 
-    server.delete("/spaces/:spaceId/secrets/keys/:keyType",deleteAPIKey);
-    server.delete("/spaces/:spaceId/secrets/keys/:keyType",deleteAPIKey);
+    server.delete("/spaces/:spaceId/secrets/keys/:keyType", deleteAPIKey);
+    server.delete("/spaces/:spaceId/secrets/keys/:keyType", deleteAPIKey);
 
-    server.post("/spaces/:spaceId/announcements",addSpaceAnnouncement)
-    server.get("/spaces/:spaceId/announcements/:announcementId",getSpaceAnnouncement)
-    server.get("/spaces/:spaceId/announcements",getSpaceAnnouncements)
-    server.put("/spaces/:spaceId/announcements/:announcementId",updateSpaceAnnouncement)
-    server.delete("/spaces/:spaceId/announcements/:announcementId",deleteSpaceAnnouncement)
+    server.post("/spaces/:spaceId/announcements", addSpaceAnnouncement)
+    server.get("/spaces/:spaceId/announcements/:announcementId", getSpaceAnnouncement)
+    server.get("/spaces/:spaceId/announcements", getSpaceAnnouncements)
+    server.put("/spaces/:spaceId/announcements/:announcementId", updateSpaceAnnouncement)
+    server.delete("/spaces/:spaceId/announcements/:announcementId", deleteSpaceAnnouncement)
 
 
     server.post("/apis/v1/spaces/:spaceId/chats/:chatId/llms/text/generate", getChatTextResponse);

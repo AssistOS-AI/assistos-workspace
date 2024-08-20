@@ -1211,6 +1211,24 @@ async function getAudio(request, response) {
     const spaceId = request.params.spaceId;
     const audioId = request.params.audioId;
     try {
+        try {
+            if(request.method === "HEAD") {
+                let audioPath = path.join(space.APIs.getSpacePath(spaceId), 'audios', `${audioId}.mp3`);
+
+                const stats = await fsPromises.stat(audioPath);
+
+                response.setHeader("Content-Type", "audio/mpeg");
+                response.setHeader("Content-Length", stats.size);
+                response.setHeader("Last-Modified", stats.mtime.toUTCString());
+                response.setHeader("Accept-Ranges", "bytes");
+                return response.end();
+            }
+        } catch (error) {
+            return utils.sendResponse(response, 404, "application/json", {
+                success: false,
+                message: `Audio file not found or inaccessible: ${audioId}`
+            });
+        }
         let audio = await space.APIs.getAudio(spaceId, audioId);
         return utils.sendResponse(response, 200, "audio/mpeg", audio);
     } catch (error) {
@@ -1292,20 +1310,35 @@ async function cancelTask(request, response) {
 async function getVideo(request, response) {
     const spaceId = request.params.spaceId;
     const videoId = request.params.videoId;
+
     try {
+        let videoPath = path.join(space.APIs.getSpacePath(spaceId), 'videos', `${videoId}.mp4`);
+        const stats = await fsPromises.stat(videoPath);
+
+        if (request.method === "HEAD") {
+            response.setHeader("Content-Type", "video/mp4");
+            response.setHeader("Content-Length", stats.size);
+            response.setHeader("Last-Modified", stats.mtime.toUTCString());
+            response.setHeader("Accept-Ranges", "bytes");
+            return response.end();
+        }
+
         let range = request.headers.range;
         if (range) {
             return await space.APIs.getVideoParts(response, spaceId, videoId, range);
         }
+
         let video = await space.APIs.getVideo(spaceId, videoId);
         return utils.sendResponse(response, 200, "video/mp4", video);
+
     } catch (error) {
         return utils.sendResponse(response, 500, "application/json", {
             success: false,
-            message: error + ` Error at reading video: ${videoId}`
+            message: error.message + ` Error at reading video: ${videoId}`
         });
     }
 }
+
 
 async function deleteVideo(request, response) {
     const spaceId = request.params.spaceId;
