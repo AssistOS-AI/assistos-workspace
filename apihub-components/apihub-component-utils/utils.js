@@ -96,9 +96,9 @@ function setCacheControl(response, options = {}) {
             cacheControl += `, s-maxage=${options.sMaxAge}`;
         }
     }
-
     response.setHeader('Cache-Control', cacheControl);
 }
+
 function ensureUniqueFileName(existingNames, baseName) {
     if (!existingNames.includes(baseName)) {
         return baseName;

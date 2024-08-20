@@ -312,8 +312,9 @@ async function createVideoFromImageAndAudio(imageSrc,audioSrc,spaceId){
     const videoPath = space.getSpacePath(spaceId) + `/videos/${videoId}.mp4`;
     let task = new Task(async function () {
         const audioDuration = (await this.runCommand(`${ffmpegPath} -i ${audioPath} -hide_banner 2>&1 | grep "Duration"`)).match(/Duration: (\d+):(\d+):(\d+\.\d+)/);
-        await createVideoFromImage(imagePath, audioDuration,videoPath,this);
-        await combineVideoAndAudio(videoPath, audioPath, videoPath, this);
+        const totalDuration = parseInt(audioDuration[1]) * 3600 + parseInt(audioDuration[2]) * 60 + parseFloat(audioDuration[3]);
+        await createVideoFromImage(imagePath, totalDuration,videoPath,this);
+        //await combineVideoAndAudio(videoPath, audioPath, videoPath, this);
     }, {});
     await task.run();
     return videoId;

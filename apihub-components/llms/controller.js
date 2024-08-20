@@ -8,6 +8,7 @@ const {getWebhookSecret} = require("../webhook/controller");
 const configs = require("../config.json");
 let LLMConfigs;
 const ffmpeg = require("../apihub-component-utils/ffmpeg.js");
+
 async function getLLMAuthRequirements() {
     try {
         const llmAuthRequirements = await fetch(`http://localhost:8079/apis/v1/authRequirements`, {
@@ -364,9 +365,11 @@ async function lipsync(request, response) {
     };
 
     try {
-        requestBody.audioURL = audioSrc;
-        requestBody.videoURL = await ffmpeg.createVideoFromImageAndAudio(imageSrc, audioSrc, spaceId);
-
+        requestBody.audioURL = `http://demo.assistos.net:8080/${audioSrc}`;
+        const videoId = await ffmpeg.createVideoFromImageAndAudio(imageSrc, audioSrc, spaceId);
+        requestBody.videoURL = `http://demo.assistos.net:8080/spaces/video/${spaceId}/${videoId}`;
+       //requestBody.audioURL = "https://synchlabs-public.s3.us-west-2.amazonaws.com/david_demo_shortaud-27623a4f-edab-4c6a-8383-871b18961a4a.wav"
+        //requestBody.videoURL = "http://cdn-cf-east.streamable.com/video/mp4/a0wyj7.mp4?Expires=1724406841174&Key-Pair-Id=APKAIEYUVEN4EVB2OKEQ&Signature=Zd6zymsEpj~Qo558j67CdmI3g-JBUexKugRhJ5O2pcLcpCx4GGjjPdIdLQu2I7n-b1U1AAvei7pYrq-WMrbP7NOKaqwObJdP9J7wvy26zTi3ApJwCXfUMsG6Z4K6xDOEK4bRa5kE9HrmHjbnhgP~pJ5YXh--uiPjFqrgK0W7UeIzNhWliwB9eV2xhnTm5Z-VDmRLyV~2HolmqlQsBserx4uG27VI-Je2JM08O2d2HYi-4nWqO8gDV3G3455iIUuXp5po90hS8R7JkujpIDjfvc~wlptZ8GqHmQ3EsoWj4mIFySiqVocVRbcVisiiCmkZemdRiDWiRW0jRauwS4Y3fw__"
         request.body = requestBody;
         let result = await sendRequest(`/apis/v1/video/lipsync`, "POST", request, response);
         return utils.sendResponse(response, 200, "application/json", {
