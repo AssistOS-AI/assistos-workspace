@@ -24,6 +24,15 @@ export class ImageParagraph extends BaseParagraph{
         this.imageSrc = this.paragraph.image.src;
         this.imageAlt = this.paragraph.image.timestamp;
     }
+    renderImageMaxWidth(){
+        let originalWidth = parseFloat(getComputedStyle(this.imgElement, null).getPropertyValue('width').replace('px', ''));
+        let originalHeight = parseFloat(getComputedStyle(this.imgElement, null).getPropertyValue('height').replace('px', ''));
+        const aspectRatio = originalWidth / originalHeight;
+        const maxWidth = this.parentChapterElement.getBoundingClientRect().width - 78;
+        const maxHeight = maxWidth / aspectRatio;
+        this.imgElement.style.width = maxWidth + 'px';
+        this.imgElement.style.height = maxHeight + 'px';
+    }
     afterRender() {
         this.imgElement = this.element.querySelector(".paragraph-image");
         if(this.paragraph.dimensions){
@@ -32,13 +41,15 @@ export class ImageParagraph extends BaseParagraph{
             setTimeout(() => {
                 this.initialized = true;
             }, 0);
+        } else {
+            this.imgElement.addEventListener('load', this.renderImageMaxWidth.bind(this), {once: true});
         }
         this.imgContainer = this.element.querySelector('.img-container');
         let paragraphImage = this.element.querySelector(".paragraph-image");
         if (assistOS.space.currentParagraphId === this.paragraph.id) {
             paragraphImage.click();
         }
-        const handlesNames = ["n", "ne", "e", "se", "s", "sw", "w", "nw"];
+        const handlesNames = ["ne", "se", "sw", "nw"];
         let handles= {};
         for(let handleName of handlesNames){
             handles[handleName] = this.element.querySelector(`.${handleName}`);
@@ -49,12 +60,17 @@ export class ImageParagraph extends BaseParagraph{
         this.originalY = 0;
         this.originalMouseX = 0;
         this.originalMouseY = 0;
-        for(let key of Object.keys(handles)){
-            handles[key].addEventListener('mousedown', this.mouseDownFn.bind(this, key));
+        if(!this.boundMouseDownFN){
+            this.boundMouseDownFN = this.mouseDownFn.bind(this);
+            for(let key of Object.keys(handles)){
+                handles[key].addEventListener('mousedown', this.boundMouseDownFN);
+            }
         }
+
         this.changeLipSyncUIState();
+        this.parentChapterElement = this.element.closest("chapter-item");
     }
-    mouseDownFn(handle, event) {
+    mouseDownFn(event) {
         event.preventDefault();
         this.originalWidth = parseFloat(getComputedStyle(this.imgElement, null).getPropertyValue('width').replace('px', ''));
         this.originalHeight = parseFloat(getComputedStyle(this.imgElement, null).getPropertyValue('height').replace('px', ''));
@@ -62,90 +78,32 @@ export class ImageParagraph extends BaseParagraph{
         this.originalY = this.imgContainer.getBoundingClientRect().top;
         this.originalMouseX = event.pageX;
         this.originalMouseY = event.pageY;
-        let boundResize = this.resize[handle].bind(this);
-        this.resize[handle].boundFn = boundResize;
-        this.element.addEventListener('mousemove', boundResize);
-        document.addEventListener('mouseup', this.stopResize.bind(this, handle), {once: true});
+        this.boundResize = this.resize.bind(this);
+        document.addEventListener('mousemove', this.boundResize);
+        document.addEventListener('mouseup', this.stopResize.bind(this), {once: true});
     }
 
-    resize = {
-        nw: async function(e) {
-            const aspectRatio = this.originalWidth / this.originalHeight;
-            const width = this.originalWidth - (e.pageX - this.originalMouseX);
-            const height = width / aspectRatio;
-            if (width > 20 && height > 20) {
-                this.imgElement.style.width = width + 'px';
-                this.imgElement.style.height = height + 'px';
-            }
-            await this.documentPresenter.resetTimer();
-        },
-        ne: async function(e) {
-            const aspectRatio = this.originalWidth / this.originalHeight;
-            const width = this.originalWidth + (e.pageX - this.originalMouseX);
-            const height = width / aspectRatio;
-            if (width > 20 && height > 20) {
-                this.imgElement.style.width = width + 'px';
-                this.imgElement.style.height = height + 'px';
-            }
-            await this.documentPresenter.resetTimer();
-        },
-        sw: async function(e) {
-            const aspectRatio = this.originalWidth / this.originalHeight;
-            const width = this.originalWidth - (e.pageX - this.originalMouseX);
-            const height = width / aspectRatio;
-            if (width > 20 && height > 20) {
-                this.imgElement.style.width = width + 'px';
-                this.imgElement.style.height = height + 'px';
-            }
-            await this.documentPresenter.resetTimer();
-        },
-        se: async function(e) {
-            const aspectRatio = this.originalWidth / this.originalHeight;
-            const width = this.originalWidth + (e.pageX - this.originalMouseX);
-            const height = width / aspectRatio;
-            if (width > 20 && height > 20) {
-                this.imgElement.style.width = width + 'px';
-                this.imgElement.style.height = height + 'px';
-            }
-            await this.documentPresenter.resetTimer();
-        },
-        n: async function(e) {
-            const height = this.originalHeight - (e.pageY - this.originalMouseY);
-            if (height > 20) {
-                this.imgElement.style.height = height + 'px';
-            }
-            await this.documentPresenter.resetTimer();
-        },
-        e: async function(e) {
-            const width = this.originalWidth + (e.pageX - this.originalMouseX);
-            if (width > 20) {
-                this.imgElement.style.width = width + 'px';
-            }
-            await this.documentPresenter.resetTimer();
-        },
-        s: async function(e) {
-            const height = this.originalHeight + (e.pageY - this.originalMouseY);
-            if (height > 20) {
-                this.imgElement.style.height = height + 'px';
-            }
-            await this.documentPresenter.resetTimer();
-        },
-        w: async function(e) {
-            const width = this.originalWidth - (e.pageX - this.originalMouseX);
-            if (width > 20) {
-                this.imgElement.style.width = width + 'px';
-            }
-            await this.documentPresenter.resetTimer();
+    async resize(e) {
+        const aspectRatio = this.originalWidth / this.originalHeight;
+        let width = this.originalWidth + (e.pageX - this.originalMouseX);
+        let height = width / aspectRatio;
+
+        const maxWidth = this.parentChapterElement.getBoundingClientRect().width - 78;
+        if (width > maxWidth) {
+            width = maxWidth;
+            height = maxWidth / aspectRatio;
         }
-    };
-    async stopResize(handle, event) {
-        this.element.removeEventListener('mousemove', this.resize[handle].boundFn);
+        if (width > 20 && height > 20) {
+            this.imgElement.style.width = width + 'px';
+            this.imgElement.style.height = height + 'px';
+        }
+        await this.documentPresenter.resetTimer();
+    }
+    async stopResize() {
+        document.removeEventListener('mousemove', this.boundResize);
         await this.documentPresenter.stopTimer(true);
     }
     switchParagraphArrows(mode) {
-        if (this.chapter.paragraphs.length <= 1) {
-            return;
-        }
         let arrows = this.element.querySelector('.paragraph-controls');
         if (mode === "on") {
             arrows.style.visibility = "visible";
