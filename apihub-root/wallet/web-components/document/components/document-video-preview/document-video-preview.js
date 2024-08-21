@@ -32,10 +32,14 @@ export class DocumentVideoPreview {
         }
         this.audioPlayer = this.element.querySelector(".audio-player");
         this.imageTag = this.element.querySelector(".current-image");
+        this.nextButton = this.element.querySelector(".next");
+        this.previousButton = this.element.querySelector(".previous");
         if (!this.boundPlayNext) {
             this.boundPlayNext = this.incrementParagraphIndexAndPlay.bind(this);
             this.audioPlayer.addEventListener("ended", this.boundPlayNext);
         }
+        this.imageTag.addEventListener("load", this.checkImageLoaded.bind(this));
+        this.audioPlayer.addEventListener("canplay", this.checkAudioLoaded.bind(this));
         this.chapterIndex = 0;
         this.paragraphIndex = 0;
         this.imageTag.src = "./wallet/assets/images/black-screen.png";
@@ -46,6 +50,42 @@ export class DocumentVideoPreview {
         };
         this.playNext();
     }
+    checkImageLoaded(){
+        this.imageLoaded = true;
+        this.removeLoader();
+    }
+    checkAudioLoaded(){
+        this.audioLoaded = true;
+        this.removeLoader();
+    }
+    removeLoader(){
+        if(this.imageLoaded && this.audioLoaded){
+            let playPause = this.element.querySelector(".play-pause");
+            let mode = playPause.getAttribute("data-mode");
+            if(mode === "play"){
+                playPause.innerHTML = `<img class="pointer" src="./wallet/assets/icons/play.svg" alt="play">`;
+            } else if(mode === "pause"){
+                playPause.innerHTML = `<img class="pointer" src="./wallet/assets/icons/pause.svg" alt="pause">`;
+            } else if(mode === "reload"){
+                playPause.innerHTML = `<img class="pointer" src="./wallet/assets/icons/refresh.svg" alt="reload">`;
+            }
+        }
+    }
+    //call this when setting src
+    loadResource(type, src){
+        if(type === "image"){
+            this.imageLoaded = false;
+            this.imageTag.src = src;
+        } else {
+            this.audioLoaded = false;
+            this.audioPlayer.src = src;
+        }
+        let playPause = this.element.querySelector(".play-pause");
+        playPause.innerHTML = `<div class="loading-icon"><div>`;
+        this.nextButton.classList.add("disabled");
+        this.previousButton.classList.add("disabled");
+    }
+
     incrementParagraphIndexAndPlay(){
         this.paragraphIndex += 1;
         this.playNext();
@@ -72,10 +112,8 @@ export class DocumentVideoPreview {
         } else if(mode === "reload"){
             imgTag = `<img class="pointer" src="./wallet/assets/icons/pause.svg" alt="pause">`;
             mode = "play";
-            let nextButton = this.element.querySelector(".next");
-            nextButton.classList.remove("disabled");
-            let previousButton = this.element.querySelector(".previous");
-            previousButton.classList.remove("disabled");
+            this.nextButton.classList.remove("disabled");
+            this.previousButton.classList.remove("disabled");
             this.chapterIndex = 0;
             this.paragraphIndex = 0;
             this.currentFrame = {
@@ -181,11 +219,10 @@ export class DocumentVideoPreview {
     prepareVideoForReload(){
         let playButton = this.element.querySelector(".play-pause");
         playButton.setAttribute("data-mode", "reload");
-        playButton.innerHTML = `<img class="pointer" src="./wallet/assets/icons/refresh.svg" alt="refresh">`;
+        playButton.innerHTML = `<img class="pointer" src="./wallet/assets/icons/refresh.svg" alt="reload">`;
         this.isPaused = false;
         this.parentPresenter.toggleEditingState(true);
-        let nextButton = this.element.querySelector(".next");
-        nextButton.classList.add("disabled");
+        this.nextButton.classList.add("disabled");
     }
     executeSilenceCommand(command) {
         this.silenceDuration = command.paramsObject.duration * 1000;
@@ -200,8 +237,7 @@ export class DocumentVideoPreview {
         },this.silenceDuration);
     }
     skipToNextScene(targetElement) {
-        let previousButton = this.element.querySelector(".previous");
-        previousButton.classList.remove("disabled");
+        this.previousButton.classList.remove("disabled");
         this.paragraphIndex += 1;
         let playPause = this.element.querySelector(".play-pause");
         let currentMode = playPause.getAttribute("data-mode");
@@ -249,8 +285,7 @@ export class DocumentVideoPreview {
         if(currentMode === "reload"){
             playPause.setAttribute("data-mode", "play");
             playPause.innerHTML = `<img class="pointer" src="./wallet/assets/icons/pause.svg" alt="pause">`;
-            let nextButton = this.element.querySelector(".next");
-            nextButton.classList.remove("disabled");
+            this.nextButton.classList.remove("disabled");
             currentMode = "play";
         }
         if(this.silenceTimeout){
@@ -291,8 +326,7 @@ export class DocumentVideoPreview {
             imageSrc: "",
             audioSrc: ""
         }
-        let previousButton = this.element.querySelector(".previous");
-        previousButton.classList.add("disabled");
+        this.previousButton.classList.add("disabled");
 
         //pause the video at the beginning
         playPause.setAttribute("data-mode", "play");
