@@ -334,6 +334,9 @@ export class DocumentVideoPreview {
         if(this.isFloating){
             let paragraph = this.chapter.paragraphs[this.paragraphIndex];
             let currentParagraph = this.parentPresenter.element.querySelector(`[data-paragraph-id="${paragraph.id}"]`);
+            if(!currentParagraph){
+                return;
+            }
             let chapter = this.document.chapters[this.chapterIndex];
             if(this.paragraphIndex === chapter.paragraphs.length - 1){
                 return currentParagraph.scrollIntoView({behavior: "smooth", block: "nearest"});

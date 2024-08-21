@@ -1163,7 +1163,11 @@ async function getImage(request, response) {
     const imageId = request.params.imageId;
     try {
         let image = await space.APIs.getImage(spaceId, imageId);
-        return utils.sendResponse(response, 200, "image/png", image);
+        const cacheHeaders = {
+            key: 'Cache-Control',
+            value: 'public, max-age=3600' // Cache for 1 hour
+        };
+        return utils.sendResponse(response, 200, "image/png", image, null, cacheHeaders);
     } catch (error) {
         return utils.sendResponse(response, 500, "application/json", {
             success: false,
