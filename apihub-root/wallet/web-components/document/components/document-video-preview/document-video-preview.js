@@ -36,8 +36,8 @@ export class DocumentVideoPreview {
             this.boundPlayNext = this.incrementParagraphIndexAndPlay.bind(this);
             this.audioPlayer.addEventListener("ended", this.boundPlayNext);
         }
-        this.chapter = this.document.chapters[0];
-        this.paragraph = this.chapter.paragraphs[0];
+        this.chapterIndex = 0;
+        this.paragraphIndex = 0;
         this.imageTag.src = "./wallet/assets/images/black-screen.png";
         this.parentPresenter.toggleEditingState(false);
         this.currentFrame= {
@@ -47,8 +47,7 @@ export class DocumentVideoPreview {
         this.playNext();
     }
     incrementParagraphIndexAndPlay(){
-        let currentParagraphIndex = this.chapter.paragraphs.indexOf(this.paragraph);
-        this.paragraph = this.chapter.paragraphs[currentParagraphIndex + 1];
+        this.paragraphIndex += 1;
         this.playNext();
     }
     closePlayer() {
@@ -75,6 +74,14 @@ export class DocumentVideoPreview {
             mode = "play";
             let nextButton = this.element.querySelector(".next");
             nextButton.classList.remove("disabled");
+            let previousButton = this.element.querySelector(".previous");
+            previousButton.classList.remove("disabled");
+            this.chapterIndex = 0;
+            this.paragraphIndex = 0;
+            this.currentFrame = {
+                imageSrc: "",
+                audioSrc: ""
+            };
             this.playNext();
         }
         targetElement.innerHTML = imgTag;
@@ -125,11 +132,9 @@ export class DocumentVideoPreview {
         });
     }
     async playNext() {
-        let currentChapterIndex = this.document.chapters.indexOf(this.chapter);
-        let currentParagraphIndex = this.chapter.paragraphs.indexOf(this.paragraph);
-        for (let i = currentChapterIndex; i < this.document.chapters.length; i++) {
+        for (let i = this.chapterIndex; i < this.document.chapters.length; i++) {
             let chapter = this.document.chapters[i];
-            for (let j = currentParagraphIndex; j < chapter.paragraphs.length; j++) {
+            for (let j = this.paragraphIndex; j < chapter.paragraphs.length; j++) {
                 let paragraph = chapter.paragraphs[j];
                 if (this.isPaused) {
                     await new Promise(resolve => {
@@ -146,10 +151,10 @@ export class DocumentVideoPreview {
                     }
                     this.imageTag.src = paragraph.image.src;
                     this.chapter = chapter;
-                    this.paragraph = chapter.paragraphs[j];
+                    this.paragraphIndex = j;
                 } else if (paragraph.audio) {
                     this.chapter = chapter;
-                    this.paragraph = chapter.paragraphs[j];
+                    this.paragraphIndex = j;
                     this.audioPlayer.src = paragraph.audio.src;
                     this.audioPlayer.load();
                     this.audioPlayer.play();
@@ -163,7 +168,7 @@ export class DocumentVideoPreview {
                     let command = utilModule.findCommand(paragraph.text);
                     if (command.action === "createSilentAudio") {
                         this.chapter = chapter;
-                        this.paragraph = chapter.paragraphs[j + 1];
+                        this.paragraphIndex = j;
                         this.executeSilenceCommand(command);
                         return;
                     }
@@ -177,14 +182,8 @@ export class DocumentVideoPreview {
         let playButton = this.element.querySelector(".play-pause");
         playButton.setAttribute("data-mode", "reload");
         playButton.innerHTML = `<img class="pointer" src="./wallet/assets/icons/refresh.svg" alt="refresh">`;
-        this.chapter = this.document.chapters[0];
-        this.paragraph = this.chapter.paragraphs[0];
         this.isPaused = false;
         this.parentPresenter.toggleEditingState(true);
-        this.currentFrame = {
-            imageSrc: "",
-            audioSrc: ""
-        };
         let nextButton = this.element.querySelector(".next");
         nextButton.classList.add("disabled");
     }
@@ -196,23 +195,25 @@ export class DocumentVideoPreview {
         }
         this.silenceTimeout = setTimeout(async ()=>{
             this.remainingSilentDuration = 0;
+            this.paragraphIndex += 1;
             await this.playNext();
         },this.silenceDuration);
     }
     skipToNextScene(targetElement) {
-        let currentChapterIndex = this.document.chapters.indexOf(this.chapter);
-        let currentParagraphIndex = this.chapter.paragraphs.indexOf(this.paragraph) + 1;
+        let previousButton = this.element.querySelector(".previous");
+        previousButton.classList.remove("disabled");
+        this.paragraphIndex += 1;
         let playPause = this.element.querySelector(".play-pause");
         let currentMode = playPause.getAttribute("data-mode");
         if(this.silenceTimeout){
-            delete this.silenceTimeout;
             clearTimeout(this.silenceTimeout);
+            delete this.silenceTimeout;
             this.remainingSilentDuration = 0;
         }
         //skip to the next scene with audio
-        for(let i = currentChapterIndex; i < this.document.chapters.length; i++){
+        for(let i = this.chapterIndex; i < this.document.chapters.length; i++){
             let chapter = this.document.chapters[i];
-            for(let j = currentParagraphIndex; j < chapter.paragraphs.length; j++){
+            for(let j = this.paragraphIndex; j < chapter.paragraphs.length; j++){
                 let paragraph = chapter.paragraphs[j];
                 if(paragraph.image){
                     this.currentFrame = {
@@ -220,8 +221,8 @@ export class DocumentVideoPreview {
                         audioSrc: ""
                     }
                 } else if(paragraph.audio){
-                    this.chapter = chapter;
-                    this.paragraph = paragraph;
+                    this.chapterIndex = i;
+                    this.paragraphIndex = j;
                     this.imageTag.src = this.currentFrame.imageSrc || "./wallet/assets/images/black-screen.png";
                     if(currentMode === "play"){
                         this.playNext();
@@ -240,24 +241,31 @@ export class DocumentVideoPreview {
         this.audioPlayer.pause();
         this.prepareVideoForReload();
     }
-    skipToPreviousScene(targetElement) {
-        let currentChapterIndex = this.document.chapters.indexOf(this.chapter);
-        let currentParagraphIndex = this.chapter.paragraphs.indexOf(this.paragraph) - 1;
+    async skipToPreviousScene(targetElement) {
+        this.paragraphIndex -= 1;
         let playPause = this.element.querySelector(".play-pause");
         let currentMode = playPause.getAttribute("data-mode");
+        //skip previous is called at the end of the document
+        if(currentMode === "reload"){
+            playPause.setAttribute("data-mode", "play");
+            playPause.innerHTML = `<img class="pointer" src="./wallet/assets/icons/pause.svg" alt="pause">`;
+            let nextButton = this.element.querySelector(".next");
+            nextButton.classList.remove("disabled");
+            currentMode = "play";
+        }
         if(this.silenceTimeout){
             delete this.silenceTimeout;
             clearTimeout(this.silenceTimeout);
             this.remainingSilentDuration = 0;
         }
         //skip to the previous scene with audio
-        for(let i = currentChapterIndex; i >= 0; i--){
+        for(let i = this.chapterIndex; i >= 0; i--){
             let chapter = this.document.chapters[i];
-            for(let j = currentParagraphIndex; j >= 0; j--){
+            for(let j = this.paragraphIndex; j >= 0; j--){
                 let paragraph = chapter.paragraphs[j];
                 if(paragraph.audio){
-                    this.chapter = chapter;
-                    this.paragraph = paragraph;
+                    this.chapterIndex = i;
+                    this.paragraphIndex = j;
                     this.currentFrame.audioSrc = paragraph.audio.src;
                     this.currentFrame.imageSrc = this.findPreviousFrameImage();
                     this.imageTag.src = this.currentFrame.imageSrc;
@@ -275,16 +283,28 @@ export class DocumentVideoPreview {
             }
         }
         //reached start of document
-        this.chapter = this.document.chapters[0];
-        this.paragraph = this.chapter.paragraphs[0];
+        this.imageTag.src = "./wallet/assets/images/black-screen.png";
+        this.chapterIndex = 0;
+        this.paragraphIndex = 0;
         this.audioPlayer.currentTime = 0;
+        this.currentFrame = {
+            imageSrc: "",
+            audioSrc: ""
+        }
+        let previousButton = this.element.querySelector(".previous");
+        previousButton.classList.add("disabled");
+
+        //pause the video at the beginning
+        playPause.setAttribute("data-mode", "play");
+        await this.playPause(playPause);
+        playPause.setAttribute("data-mode", "reload");
+        this.isPaused = false;
     }
     findPreviousFrameImage(){
-        let currentChapterIndex = this.document.chapters.indexOf(this.chapter);
-        let currentParagraphIndex = this.chapter.paragraphs.indexOf(this.paragraph) - 1;
-        for(let i = currentChapterIndex; i >= 0; i--){
+        let previousParagraphIndex = this.paragraphIndex - 1;
+        for(let i = this.chapterIndex; i >= 0; i--){
             let chapter = this.document.chapters[i];
-            for(let j = currentParagraphIndex; j >= 0; j--){
+            for(let j = previousParagraphIndex; j >= 0; j--){
                 let paragraph = chapter.paragraphs[j];
                 if(paragraph.image){
                     return paragraph.image.src;
@@ -312,9 +332,10 @@ export class DocumentVideoPreview {
     }
     handlePlayMode(){
         if(this.isFloating){
-            let currentParagraphIndex = this.chapter.paragraphs.indexOf(this.paragraph);
-            let currentParagraph = this.parentPresenter.element.querySelector(`[data-paragraph-id="${this.paragraph.id}"]`);
-            if(currentParagraphIndex === this.chapter.paragraphs.length - 1){
+            let paragraph = this.chapter.paragraphs[this.paragraphIndex];
+            let currentParagraph = this.parentPresenter.element.querySelector(`[data-paragraph-id="${paragraph.id}"]`);
+            let chapter = this.document.chapters[this.chapterIndex];
+            if(this.paragraphIndex === chapter.paragraphs.length - 1){
                 return currentParagraph.scrollIntoView({behavior: "smooth", block: "nearest"});
             }
             currentParagraph.scrollIntoView({behavior: "smooth", block: "center"});
