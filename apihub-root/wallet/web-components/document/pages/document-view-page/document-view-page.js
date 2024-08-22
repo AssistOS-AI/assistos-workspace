@@ -334,7 +334,7 @@ export class DocumentViewPage {
         }
     }
     playVideoPreview(targetElement){
-        let videoPlayer = `<document-video-preview data-presenter="document-video-preview"></document-video-preview>`;
+        let videoPlayer = `<document-video-preview class="minimized" data-presenter="document-video-preview"></document-video-preview>`;
         let pageHeader = this.element.querySelector(".document-page-header");
         pageHeader.insertAdjacentHTML("afterend", videoPlayer);
     }

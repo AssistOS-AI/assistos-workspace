@@ -414,4 +414,16 @@ export class DocumentVideoPreview {
         }
         currentParagraph.scrollIntoView({behavior: "smooth", block: "center"});
     }
+    switchDisplayMode(targetElement){
+        let currentMode = targetElement.getAttribute("data-mode");
+        if(currentMode === "minimized"){
+            targetElement.setAttribute("data-mode", "fullscreen");
+            this.element.classList.remove("minimized");
+            this.element.classList.add("fullscreen");
+        } else {
+            targetElement.setAttribute("data-mode", "minimized");
+            this.element.classList.add("minimized");
+            this.element.classList.remove("fullscreen");
+        }
+    }
 }
