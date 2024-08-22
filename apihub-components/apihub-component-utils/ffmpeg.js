@@ -23,7 +23,7 @@ async function createVideoFromImage(image, duration, outputVideoPath, task) {
     let command;
     if (image) {
         // Ensure the image dimensions are divisible by 2
-        command = `${ffmpegPath} -loop 1 -i ${image} -vf "scale=ceil(iw/2)*2:ceil(ih/2)*2" -c:v libx264 -t ${duration} -pix_fmt yuv420p ${outputVideoPath}`;
+        command = `${ffmpegPath} -loop 1 -i ${image} -vf "scale=1920:1080" -c:v libx264 -t ${duration} -pix_fmt yuv420p ${outputVideoPath}`;
     } else {
         // Generate a black screen with the specified duration
         command = `${ffmpegPath} -f lavfi -i color=c=black:s=1920x1080:d=${duration} -c:v libx264 -pix_fmt yuv420p ${outputVideoPath}`;

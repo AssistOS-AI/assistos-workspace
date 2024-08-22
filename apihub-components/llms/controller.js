@@ -363,10 +363,15 @@ async function lipsync(request, response) {
         webhookSecret: getWebhookSecret()
     };
     try {
-        const audioId=audioSrc.split("/").pop();
-        requestBody.audioURL = `http://demo.assistos.net:9000/spaces/audio/${spaceId}/${audioId}`;
+
+       /* requestBody.audioURL = `http://demo.assistos.net:8000/${spaceId}/${audioId}.mp3`;
+
+        requestBody.videoURL = `http://demo.assistos.net:8000/${spaceId}/${videoId}.mp4`;*/
+
+        const audioId = audioSrc.split("/").pop();
         const videoId = await ffmpeg.createVideoFromImageAndAudio(imageSrc, audioSrc, spaceId);
-        requestBody.videoURL = `http://demo.assistos.net:9000/spaces/video/${spaceId}/${videoId}`;
+        requestBody.audioId=audioId;
+        requestBody.videoId=videoId;
         request.body = requestBody;
         let result = await sendRequest(`/apis/v1/video/lipsync`, "POST", request, response);
         return utils.sendResponse(response, 200, "application/json", {
