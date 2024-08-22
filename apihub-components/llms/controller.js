@@ -1,5 +1,4 @@
 const utils = require('../apihub-component-utils/utils.js');
-const {v4: uuidv4} = require('uuid');
 const secrets = require("../apihub-component-utils/secrets");
 const axios = require('axios');
 const cache = {};
@@ -8,7 +7,6 @@ const {getWebhookSecret} = require("../webhook/controller");
 const configs = require("../config.json");
 let LLMConfigs;
 const ffmpeg = require("../apihub-component-utils/ffmpeg.js");
-const {getAudio} = require("../spaces-storage/controller");
 
 async function getLLMAuthRequirements() {
     try {

@@ -35,9 +35,6 @@ export class ChapterItem {
         }
         this.titleMetadata = this.element.variables["data-title-metadata"];
         this.chapterContent = "";
-        if (this.chapter.visibility === "hide") {
-            return;
-        }
 
         let iterator = 0;
         this.chapter.paragraphs.forEach((paragraph) => {
@@ -225,9 +222,6 @@ export class ChapterItem {
             let arrow = this.element.querySelector(".chapter-visibility-arrow");
             arrow.classList.remove('rotate');
             let paragraphs = this.element.querySelectorAll(".paragraph-text");
-            if(paragraphs.length === 0){
-                return this.invalidate();
-            }
             for(let paragraph of paragraphs){
                 paragraph.style.height = paragraph.scrollHeight + 'px';
             }
