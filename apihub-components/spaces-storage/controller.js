@@ -1229,6 +1229,7 @@ async function getAudio(request, response) {
                 message: `Audio file not found or inaccessible: ${audioId}`
             });
         }
+        response.setHeader('Content-Disposition', `attachment; filename=${audioId}.mp3`);
         let audio = await space.APIs.getAudio(spaceId, audioId);
         return utils.sendResponse(response, 200, "audio/mpeg", audio);
     } catch (error) {
@@ -1310,7 +1311,6 @@ async function cancelTask(request, response) {
 async function getVideo(request, response) {
     const spaceId = request.params.spaceId;
     const videoId = request.params.videoId;
-
     try {
         let videoPath = path.join(space.APIs.getSpacePath(spaceId), 'videos', `${videoId}.mp4`);
         const stats = await fsPromises.stat(videoPath);
@@ -1323,12 +1323,12 @@ async function getVideo(request, response) {
             return response.end();
         }
 
-        let range = request.headers.range;
+        /*  let range = request.headers.range;
         if (range) {
             return await space.APIs.getVideoParts(response, spaceId, videoId, range);
-        }
-
+        }*/
         let video = await space.APIs.getVideo(spaceId, videoId);
+        response.setHeader('Content-Disposition', `attachment; filename=${videoId}.mp3`);
         return utils.sendResponse(response, 200, "video/mp4", video);
 
     } catch (error) {
