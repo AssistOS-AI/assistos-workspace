@@ -363,11 +363,6 @@ async function lipsync(request, response) {
         webhookSecret: getWebhookSecret()
     };
     try {
-
-       /* requestBody.audioURL = `http://demo.assistos.net:8000/${spaceId}/${audioId}.mp3`;
-
-        requestBody.videoURL = `http://demo.assistos.net:8000/${spaceId}/${videoId}.mp4`;*/
-
         const audioId = audioSrc.split("/").pop();
         const videoId = await ffmpeg.createVideoFromImageAndAudio(imageSrc, audioSrc, spaceId);
         requestBody.audioId=audioId;

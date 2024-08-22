@@ -1017,7 +1017,6 @@ async function getPersonalityByName(spaceId, personalityName) {
     const personalities = await getSpacePersonalitiesObject(spaceId);
     return personalities.find(personality => personality.name === personalityName);
 }
-
 async function updateParagraphTTS(request, spaceId, documentId, paragraphId, command) {
     const llmModule = require('assistos').loadModule('llm', {cookies: request.headers.cookie});
     const documentModule = require('assistos').loadModule('document', {cookies: request.headers.cookie});

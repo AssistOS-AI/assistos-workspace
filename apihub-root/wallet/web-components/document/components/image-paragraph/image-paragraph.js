@@ -223,8 +223,8 @@ export class ImageParagraph extends BaseParagraph{
         await utilModule.subscribeToObject(videoId, async () => {
             await utilModule.unsubscribeFromObject(videoId);
             let paragraphLipSync = {
-                id: videoId,
-                src: `spaces/image/${assistOS.space.id}/${videoId}`
+                id: videoId.split("_")[1],
+                src: `spaces/image/${assistOS.space.id}/${videoId.split("_")[1]}`
             }
             await documentModule.updateImageParagraphLipSync(assistOS.space.id, this._document.id, this.paragraph.id, paragraphLipSync);
             this.paragraph.lipSync = paragraphLipSync;
