@@ -49,7 +49,8 @@ const {
     exportPersonality,
     importPersonality,
     generateParagraphTTS,
-    getVideo
+    getVideo,
+    estimateDocumentVideoLength
 } = require("./controller");
 
 const bodyReader = require('../apihub-component-middlewares/bodyReader.js')
@@ -133,6 +134,8 @@ function SpaceStorage(server) {
     server.delete("/spaces/audio/:spaceId/:audioId", deleteAudio);
 
     server.post("/spaces/video/compile/:spaceId/:documentId", compileVideoFromDocument);
+    server.get("/spaces/video/estimate/:spaceId/:documentId", estimateDocumentVideoLength);
+
     server.delete("/spaces/video/:spaceId/:videoId", deleteVideo);
     server.get("/spaces/:spaceId/export/documents/:documentId", exportDocument);
     server.get("/spaces/:spaceId/export/personalities/:personalityId", exportPersonality);

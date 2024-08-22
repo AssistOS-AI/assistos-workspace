@@ -1,12 +1,14 @@
 const utilModule = require("assistos").loadModule("util", {});
-
+const documentModule = require("assistos").loadModule("document", {});
 export class DocumentVideoPreview {
     constructor(element, invalidate) {
         this.element = element;
         this.invalidate = invalidate;
-        this.invalidate();
         this.parentPresenter = this.element.closest("document-view-page").webSkelPresenter;
         this.document = this.parentPresenter._document;
+        this.invalidate(async ()=>{
+            this.videoLength = await documentModule.estimateDocumentVideoLength(assistOS.space.id, this.document.id);
+        });
     }
 
     beforeRender() {
@@ -15,6 +17,12 @@ export class DocumentVideoPreview {
             if(chapterPresenter.chapter.visibility === "hide"){
                 chapterPresenter.changeChapterVisibility("show");
             }
+        }
+        this.durationHTML = "";
+        if(this.videoLength.hours > 0){
+            this.durationHTML += `${this.videoLength.hours}:${this.videoLength.minutes}:${this.videoLength.seconds}`;
+        } else{
+            this.durationHTML += `${this.videoLength.minutes}:${this.videoLength.seconds}`;
         }
     }
 
@@ -40,6 +48,8 @@ export class DocumentVideoPreview {
         this.imageTag = this.element.querySelector(".current-image");
         this.nextButton = this.element.querySelector(".next");
         this.previousButton = this.element.querySelector(".previous");
+        this.currentChapterNumber = this.element.querySelector(".chapter-number");
+        this.currentParagraphNumber = this.element.querySelector(".paragraph-number");
         if (!this.boundPlayNext) {
             this.boundPlayNext = this.incrementParagraphIndexAndPlay.bind(this);
             this.audioPlayer.addEventListener("ended", this.boundPlayNext);
@@ -52,8 +62,7 @@ export class DocumentVideoPreview {
             this.boundCheckAudioLoaded = this.checkAudioLoaded.bind(this);
             this.audioPlayer.addEventListener("canplay", this.boundCheckAudioLoaded);
         }
-        this.chapterIndex = 0;
-        this.paragraphIndex = 0;
+        this.setCurrentParagraphAndChapter(0, 0);
         this.loadResource("image", "./wallet/assets/images/black-screen.png");
         this.parentPresenter.toggleEditingState(false);
         this.currentFrame= {
@@ -123,9 +132,28 @@ export class DocumentVideoPreview {
             playPause.innerHTML = `<div class="loading-icon"><div>`;
         }, 500);
     }
-
-    incrementParagraphIndexAndPlay(){
+    decrementParagraphIndex(){
+        this.paragraphIndex -= 1;
+        if(this.paragraphIndex < 0){
+            this.chapterIndex -= 1;
+            this.paragraphIndex = this.document.chapters[this.chapterIndex].paragraphs.length - 1;
+        }
+        if(this.chapterIndex < 0){
+            console.log("reached start of document");
+        }
+    }
+    incrementParagraphIndex(){
         this.paragraphIndex += 1;
+        if(this.paragraphIndex === this.document.chapters[this.chapterIndex].paragraphs.length){
+            this.chapterIndex += 1;
+            this.paragraphIndex = 0;
+        }
+        if(this.chapterIndex === this.document.chapters.length){
+            console.log("reached end of document");
+        }
+    }
+    incrementParagraphIndexAndPlay(){
+        this.incrementParagraphIndex();
         this.playNext();
     }
     closePlayer() {
@@ -152,8 +180,7 @@ export class DocumentVideoPreview {
             mode = "play";
             this.nextButton.classList.remove("disabled");
             this.previousButton.classList.remove("disabled");
-            this.chapterIndex = 0;
-            this.paragraphIndex = 0;
+            this.setCurrentParagraphAndChapter(0, 0);
             this.currentFrame = {
                 imageSrc: "",
                 audioSrc: ""
@@ -229,11 +256,11 @@ export class DocumentVideoPreview {
                         audioSrc: ""
                     }
                     this.loadResource("image", paragraph.image.src);
-                    this.chapterIndex = i;
-                    this.paragraphIndex = j;
+                    this.setCurrentParagraphAndChapter(i, j);
+
                 } else if (paragraph.audio) {
-                    this.chapterIndex = i;
-                    this.paragraphIndex = j;
+                    this.setCurrentParagraphAndChapter(i, j);
+
                     this.loadResource("audio", paragraph.audio.src);
                     this.handlePlayMode();
                     if(!this.currentFrame.imageSrc){
@@ -243,8 +270,7 @@ export class DocumentVideoPreview {
                 } else {
                     let command = utilModule.findCommand(paragraph.text);
                     if (command.action === "createSilentAudio") {
-                        this.chapterIndex = i;
-                        this.paragraphIndex = j;
+                        this.setCurrentParagraphAndChapter(i, j);
                         this.executeSilenceCommand(command);
                         return;
                     }
@@ -253,6 +279,12 @@ export class DocumentVideoPreview {
         }
         //reached end of document
         this.prepareVideoForReload();
+    }
+    setCurrentParagraphAndChapter(chapterIndex, paragraphIndex){
+        this.chapterIndex = chapterIndex;
+        this.paragraphIndex = paragraphIndex;
+        this.currentChapterNumber.innerHTML = chapterIndex;
+        this.currentParagraphNumber.innerHTML = paragraphIndex;
     }
     prepareVideoForReload(){
         let playButton = this.element.querySelector(".play-pause");
@@ -270,14 +302,14 @@ export class DocumentVideoPreview {
         }
         this.silenceTimeout = setTimeout(async ()=>{
             this.remainingSilentDuration = 0;
-            this.paragraphIndex += 1;
+            this.incrementParagraphIndex();
             delete this.silenceTimeout;
             this.playNext();
         },this.silenceDuration);
     }
     skipToNextScene(targetElement) {
         this.previousButton.classList.remove("disabled");
-        this.paragraphIndex += 1;
+        this.incrementParagraphIndex();
         let playPause = this.element.querySelector(".play-pause");
         let currentMode = playPause.getAttribute("data-mode");
 
@@ -305,8 +337,7 @@ export class DocumentVideoPreview {
                         audioSrc: ""
                     }
                 } else if(paragraph.audio){
-                    this.chapterIndex = i;
-                    this.paragraphIndex = j;
+                    this.setCurrentParagraphAndChapter(i, j);
                     this.loadResource("image", this.currentFrame.imageSrc || "./wallet/assets/images/black-screen.png");
                     if(currentMode === "play"){
                         this.playNext();
@@ -325,7 +356,7 @@ export class DocumentVideoPreview {
         this.prepareVideoForReload();
     }
     async skipToPreviousScene(targetElement) {
-        this.paragraphIndex -= 1;
+        this.decrementParagraphIndex();
         let playPause = this.element.querySelector(".play-pause");
         let currentMode = playPause.getAttribute("data-mode");
         //skip previous is called at the end of the document
@@ -354,8 +385,7 @@ export class DocumentVideoPreview {
             for(let j = this.paragraphIndex; j >= 0; j--){
                 let paragraph = chapter.paragraphs[j];
                 if(paragraph.audio){
-                    this.chapterIndex = i;
-                    this.paragraphIndex = j;
+                    this.setCurrentParagraphAndChapter(i, j);;
                     this.currentFrame.audioSrc = paragraph.audio.src;
                     this.currentFrame.imageSrc = this.findPreviousFrameImage();
                     this.loadResource("image", this.currentFrame.imageSrc);
@@ -374,8 +404,7 @@ export class DocumentVideoPreview {
         }
         //reached start of document
         this.loadResource("image", "./wallet/assets/images/black-screen.png");
-        this.chapterIndex = 0;
-        this.paragraphIndex = 0;
+        this.setCurrentParagraphAndChapter(0, 0);
         this.audioPlayer.currentTime = 0;
         this.currentFrame = {
             imageSrc: "",
@@ -391,7 +420,14 @@ export class DocumentVideoPreview {
     }
     findPreviousFrameImage(){
         let previousParagraphIndex = this.paragraphIndex - 1;
-        for(let i = this.chapterIndex; i >= 0; i--){
+        let chapterIndex = this.chapterIndex;
+        if(previousParagraphIndex < 0){
+            chapterIndex -= 1;
+        }
+        if(chapterIndex < 0){
+            console.log("reached start of document");
+        }
+        for(let i = chapterIndex; i >= 0; i--){
             let chapter = this.document.chapters[i];
             for(let j = previousParagraphIndex; j >= 0; j--){
                 let paragraph = chapter.paragraphs[j];

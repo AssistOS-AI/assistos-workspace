@@ -62,3 +62,13 @@ document-video-preview {
     bottom: 10px;
     width: 25px;
 }
+.bottom-info{
+    display: flex;
+    left: 10px;
+    bottom: 10px;
+    position: absolute;
+    color: var(--white);
+}
+.right-margin{
+    margin-right: 5px;
+}

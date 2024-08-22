@@ -2,6 +2,7 @@ const path = require('path');
 const fsPromises = require('fs').promises;
 const file = require('./file.js');
 const ffmpegPath = require("ffmpeg-static");
+const ffprobePath = require("ffprobe-static").path;
 const space = require("../spaces-storage/space.js").APIs;
 const Task = require('./Task.js');
 const audioCommands = require('./audioCommands.js');
@@ -135,7 +136,7 @@ async function splitChapterIntoFrames(tempVideoDir, spaceId, documentId, chapter
     return chapterFrames;
 }
 async function tryToExecuteCommandOnParagraph(tempVideoDir, spaceId, documentId, paragraph, task) {
-    const utilsModule = require("assistos").loadModule("util",{});
+    const utilsModule = require("assistos").loadModule("util", task.securityContext);
     let commandObject = utilsModule.findCommand(paragraph.text);
     let taskFunction;
     if(commandObject.action === "textToSpeech"){
@@ -323,9 +324,54 @@ async function createVideoFromImageAndAudio(imageSrc,audioSrc,spaceId){
 
     return videoId;
 }
+async function estimateChapterVideoLength(spaceId, chapter, task){
+    let totalDuration = 0;
+    for(let paragraph of chapter.paragraphs){
+        if(paragraph.audio){
+            let audioPath = path.join(space.getSpacePath(spaceId), 'audios', `${paragraph.audio.src.split("/").pop()}.mp3`);
+            const command = `${ffprobePath} -i "${audioPath}" -show_entries format=duration -v quiet -of csv="p=0"`;
+            let duration = await task.runCommand(command);
+            totalDuration += parseFloat(duration);
+        } else {
+            const utilsModule = require("assistos").loadModule("util",task.securityContext);
+            let commandObject = utilsModule.findCommand(paragraph.text);
+            if(commandObject.action === "createSilentAudio"){
+                //add silence duration
+                if(commandObject.paramsObject.duration){
+                    totalDuration += parseFloat(commandObject.paramsObject.duration);
+                }
+            }
+        }
+    }
+    return totalDuration;
+}
+async function estimateDocumentVideoLength(spaceId, document, task){
+    let totalDuration = 0;
+    let promises = [];
+    for(let chapter of document.chapters){
+        promises.push(estimateChapterVideoLength(spaceId, chapter, task));
+    }
+    let chapterDurations = await Promise.all(promises);
+    for(let duration of chapterDurations){
+        totalDuration += duration;
+    }
+    return formatDuration(totalDuration);
+}
+function formatDuration(seconds) {
+    const hours = Math.floor(seconds / 3600);
+    const minutes = Math.floor((seconds % 3600) / 60);
+    const remainingSeconds = Math.floor(seconds % 60);
+
+    return {
+        hours: hours,
+        minutes: minutes,
+        seconds: String(remainingSeconds).padStart(2, '0') // Ensure two digits
+    };
+}
 module.exports = {
     documentToVideo,
     createVideoFromImage,
     combineVideoAndAudio,
-    createVideoFromImageAndAudio
+    createVideoFromImageAndAudio,
+    estimateDocumentVideoLength
 }

@@ -1290,12 +1290,38 @@ async function compileVideoFromDocument(request, response) {
             }
         }
         await documentModule.updateVideo(spaceId, documentId, videoPath);
+        TaskManager.removeTask(task.id);
         eventPublisher.notifyClientTask(userId, task.id);
     } catch (error) {
         eventPublisher.notifyClientTask(userId, task.id, {error: error.message});
     }
 }
-
+async function estimateDocumentVideoLength(request, response){
+    let documentId = request.params.documentId;
+    let spaceId = request.params.spaceId;
+    const SecurityContext = require("assistos").ServerSideSecurityContext;
+    let securityContext = new SecurityContext(request);
+    const documentModule = require("assistos").loadModule("document", securityContext);
+    let document = await documentModule.getDocument(spaceId, documentId);
+    let task = new Task(async function () {
+        return await ffmpeg.estimateDocumentVideoLength(spaceId, document, this);
+    }, securityContext);
+    TaskManager.addTask(task);
+    try{
+        let durationObject = await task.run();
+        TaskManager.removeTask(task.id);
+        sendResponse(response, 200, "application/json", {
+            success: true,
+            message: `Estimation in progress`,
+            data: durationObject
+        });
+    } catch (e) {
+        sendResponse(response, 500, "application/json", {
+            success: false,
+            message: e.message
+        });
+    }
+}
 async function cancelTask(request, response) {
     let taskId = request.params.taskId;
     try {
@@ -1625,4 +1651,5 @@ module.exports = {
     exportPersonality,
     importPersonality,
     generateParagraphTTS,
+    estimateDocumentVideoLength
 }

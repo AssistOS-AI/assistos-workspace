@@ -20,6 +20,9 @@ class TaskManager {
         task.cancel();
         this.tasks = this.tasks.filter(task => task.id !== taskId);
     }
+    removeTask(taskId) {
+        this.tasks = this.tasks.filter(task => task.id !== taskId);
+    }
     getTask(taskId) {
         let task = this.tasks.find(task => task.id === taskId);
         if (!task) {
