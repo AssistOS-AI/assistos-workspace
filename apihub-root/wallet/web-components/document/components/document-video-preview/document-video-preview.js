@@ -80,22 +80,21 @@ export class DocumentVideoPreview {
     }
     removeLoader(){
         if(this.imageLoaded && this.audioLoaded){
-            if(!this.isPaused){
-                this.audioPlayer.play();
-            }
             let playPause = this.element.querySelector(".play-pause");
             playPause.setAttribute("data-local-action", "playPause");
             let mode = playPause.getAttribute("data-mode");
+
+            if(!this.isPaused && mode !== "playFromBeginning"){
+                this.audioPlayer.play();
+            }
             //remove loader callback
             clearTimeout(this.loaderTimeout);
             delete this.loaderTimeout;
 
             if(mode === "play"){
                 playPause.innerHTML = `<img class="pointer" src="./wallet/assets/icons/pause.svg" alt="pause">`;
-            } else if(mode === "pause"){
+            } else if(mode === "pause" || mode === "playFromBeginning"){
                 playPause.innerHTML = `<img class="pointer" src="./wallet/assets/icons/play.svg" alt="play">`;
-            } else if(mode === "reload"){
-                playPause.innerHTML = `<img class="pointer" src="./wallet/assets/icons/refresh.svg" alt="reload">`;
             }
         }
     }
@@ -114,6 +113,11 @@ export class DocumentVideoPreview {
             return;
         }
         this.loaderTimeout = setTimeout(()=>{
+            //dont show loader if silence
+            if(this.silenceTimeout){
+                return;
+            }
+
             let playPause = this.element.querySelector(".play-pause");
             playPause.removeAttribute("data-local-action");
             playPause.innerHTML = `<div class="loading-icon"><div>`;
@@ -143,7 +147,7 @@ export class DocumentVideoPreview {
             this.pauseVideo();
             mode = "pause";
             this.parentPresenter.toggleEditingState(true);
-        } else if(mode === "reload"){
+        } else if(mode === "reload" || mode === "playFromBeginning"){
             imgTag = `<img class="pointer" src="./wallet/assets/icons/pause.svg" alt="pause">`;
             mode = "play";
             this.nextButton.classList.remove("disabled");
@@ -154,6 +158,8 @@ export class DocumentVideoPreview {
                 imageSrc: "",
                 audioSrc: ""
             };
+            this.audioLoaded = false;
+            this.imageLoaded = false;
             this.playNext();
         }
         targetElement.innerHTML = imgTag;
@@ -188,6 +194,7 @@ export class DocumentVideoPreview {
             // Resume the silence with the remaining duration
             this.silenceStartTime = Date.now();
             this.silenceTimeout = setTimeout(async () => {
+                delete this.silenceTimeout;
                 this.remainingSilentDuration = 0; // Reset after completion
                 if (this.resumeCallback) {
                     this.resumeCallback();
@@ -264,7 +271,8 @@ export class DocumentVideoPreview {
         this.silenceTimeout = setTimeout(async ()=>{
             this.remainingSilentDuration = 0;
             this.paragraphIndex += 1;
-            await this.playNext();
+            delete this.silenceTimeout;
+            this.playNext();
         },this.silenceDuration);
     }
     skipToNextScene(targetElement) {
@@ -378,7 +386,7 @@ export class DocumentVideoPreview {
         //pause the video at the beginning
         playPause.setAttribute("data-mode", "play");
         await this.playPause(playPause);
-        playPause.setAttribute("data-mode", "reload");
+        playPause.setAttribute("data-mode", "playFromBeginning");
         this.isPaused = false;
     }
     findPreviousFrameImage(){
@@ -394,35 +402,16 @@ export class DocumentVideoPreview {
         }
         return "./wallet/assets/images/black-screen.png";
     }
-    floatVideo(targetElement) {
-        if(this.isFloating){
-            this.isFloating = false;
-            this.element.style.position = "initial";
-            this.element.style.zIndex = "0";
-            this.element.style.top = "initial";
-            this.element.style.left = "initial";
-        } else {
-            this.isFloating = true;
-            this.element.style.position = "absolute";
-            this.element.style.zIndex = "999";
-            this.element.style.top = "25%";
-            this.element.style.left = "13%";
-            this.handlePlayMode();
-        }
-
-    }
     handlePlayMode(){
-        if(this.isFloating){
-            let chapter = this.document.chapters[this.chapterIndex];
-            let paragraph = chapter.paragraphs[this.paragraphIndex];
-            let currentParagraph = this.parentPresenter.element.querySelector(`[data-paragraph-id="${paragraph.id}"]`);
-            if(!currentParagraph){
-                return;
-            }
-            if(this.paragraphIndex === chapter.paragraphs.length - 1){
-                return currentParagraph.scrollIntoView({behavior: "smooth", block: "nearest"});
-            }
-            currentParagraph.scrollIntoView({behavior: "smooth", block: "center"});
+        let chapter = this.document.chapters[this.chapterIndex];
+        let paragraph = chapter.paragraphs[this.paragraphIndex];
+        let currentParagraph = this.parentPresenter.element.querySelector(`[data-paragraph-id="${paragraph.id}"]`);
+        if(!currentParagraph){
+            return;
         }
+        if(this.paragraphIndex === chapter.paragraphs.length - 1){
+            return currentParagraph.scrollIntoView({behavior: "smooth", block: "nearest"});
+        }
+        currentParagraph.scrollIntoView({behavior: "smooth", block: "center"});
     }
 }
