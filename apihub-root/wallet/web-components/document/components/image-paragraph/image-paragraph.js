@@ -215,6 +215,10 @@ export class ImageParagraph extends BaseParagraph{
         if(!nextParagraph.audio){
             return await showApplicationError("Lip Sync Error","No audio found in the next paragraph to lip sync to.");
         }
+        this.lipSyncState = "generating";
+        this.changeLipSyncUIState();
+        let dropdownMenu = this.element.querySelector('.dropdown-menu-container');
+        dropdownMenu.remove();
         const videoId = await llmModule.lipSync(assistOS.space.id,this.paragraph.image.src, nextParagraph.audio.src, "sync-1.6.0");
         await utilModule.subscribeToObject(videoId, async () => {
             await utilModule.unsubscribeFromObject(videoId);
@@ -227,10 +231,6 @@ export class ImageParagraph extends BaseParagraph{
             this.lipSyncState = "done";
             this.invalidate();
         });
-        this.lipSyncState = "generating";
-        this.changeLipSyncUIState();
-        let dropdownMenu = this.element.querySelector('.dropdown-menu-container');
-        dropdownMenu.remove();
     }
     changeLipSyncUIState(){
         let paragraphControls = this.element.querySelector('.paragraph-controls');

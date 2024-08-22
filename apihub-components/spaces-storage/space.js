@@ -12,12 +12,10 @@ const date = require('../apihub-component-utils/date.js');
 const file = require('../apihub-component-utils/file.js');
 const openAI = require('../apihub-component-utils/openAI.js');
 const secrets = require('../apihub-component-utils/secrets.js');
-const utils = require('../apihub-component-utils/utils.js');
 const https = require('https');
 const fs = require('fs');
 const spaceConstants = require('./constants.js');
 const unzipper = require('unzipper');
-const Task = require("../apihub-component-utils/Task");
 
 function getSpacePath(spaceId) {
     return path.join(volumeManager.paths.space, spaceId);

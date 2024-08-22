@@ -1,5 +1,4 @@
 const utils = require('../apihub-component-utils/utils.js');
-const {v4: uuidv4} = require('uuid');
 const secrets = require("../apihub-component-utils/secrets");
 const axios = require('axios');
 const cache = {};
