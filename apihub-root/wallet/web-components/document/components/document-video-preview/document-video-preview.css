@@ -72,3 +72,15 @@ document-video-preview {
 .right-margin{
     margin-right: 5px;
 }
+.big-right-margin{
+    margin-right: 10px;
+}
+.time-section{
+    display: flex;
+}
+.current-time{
+    margin-right: 3px;
+}
+.time-separator{
+    margin-right: 3px;
+}

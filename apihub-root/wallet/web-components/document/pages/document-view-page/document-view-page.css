@@ -1,6 +1,24 @@
 document-view-page::-webkit-scrollbar {
    display: block;
 }
+document-view-page {
+    overflow-y: scroll;
+    min-width: 415px !important;
+    scrollbar-width: initial;
+    direction: rtl; /* This moves the scrollbar to the left */
+    text-align: left; /* Keeps content aligned normally */
+}
+document-view-page > * {
+    direction: ltr; /* Revert text direction back to normal for content */
+}
+document-view-page::-webkit-scrollbar-thumb {
+    height: 20px;
+    background-color: #888;
+}
+
+document-view-page::-webkit-scrollbar-track {
+    background: #f1f1f1;
+}
 .abstract-subtitle {
     color: var(--path-button);
     font-size: 18px;
@@ -55,11 +73,7 @@ document-view-page::-webkit-scrollbar {
     width: 100%;
 }
 
-document-view-page {
-    overflow: auto;
-    min-width: 415px !important;
-    scrollbar-width: initial;
-}
+
 
 .document-content {
     width: 100%;

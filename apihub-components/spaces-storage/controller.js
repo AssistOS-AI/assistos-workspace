@@ -1235,6 +1235,7 @@ async function getAudio(request, response) {
         }
         response.setHeader('Content-Disposition', `attachment; filename=${audioId}.mp3`);
         let audio = await space.APIs.getAudio(spaceId, audioId);
+        response.setHeader("Content-Length", audio.length);
         return utils.sendResponse(response, 200, "audio/mpeg", audio);
     } catch (error) {
         return utils.sendResponse(response, 500, "application/json", {

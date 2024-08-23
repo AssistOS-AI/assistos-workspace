@@ -355,18 +355,7 @@ async function estimateDocumentVideoLength(spaceId, document, task){
     for(let duration of chapterDurations){
         totalDuration += duration;
     }
-    return formatDuration(totalDuration);
-}
-function formatDuration(seconds) {
-    const hours = Math.floor(seconds / 3600);
-    const minutes = Math.floor((seconds % 3600) / 60);
-    const remainingSeconds = Math.floor(seconds % 60);
-
-    return {
-        hours: hours,
-        minutes: minutes,
-        seconds: String(remainingSeconds).padStart(2, '0') // Ensure two digits
-    };
+    return totalDuration;
 }
 module.exports = {
     documentToVideo,
