@@ -332,6 +332,8 @@ async function estimateChapterVideoLength(spaceId, chapter, task){
             const command = `${ffprobePath} -i "${audioPath}" -show_entries format=duration -v quiet -of csv="p=0"`;
             let duration = await task.runCommand(command);
             totalDuration += parseFloat(duration);
+        } else if(paragraph.image){
+            //do nothing
         } else {
             const utilsModule = require("assistos").loadModule("util",task.securityContext);
             let commandObject = utilsModule.findCommand(paragraph.text);
