@@ -372,6 +372,7 @@ export class DocumentVideoPreview {
                     }
                 } else if(paragraph.audio){
                     this.setCurrentParagraphAndChapter(i, j);
+                    this.nextButton.classList.add("disabled");
                     this.audioPlayer.addEventListener("loadedmetadata", this.skipTimeStamp.bind(this, silenceTimeSkipped), {once: true});
                     this.loadResource("image", this.currentFrame.imageSrc || "./wallet/assets/images/black-screen.png");
                     if(currentMode === "play"){
@@ -399,6 +400,7 @@ export class DocumentVideoPreview {
         this.prepareVideoForReload();
     }
     skipTimeStamp(silenceTimeSkipped, event){
+        this.nextButton.classList.remove("disabled");
         this.currentTime = this.currentTime + (this.audioPlayer.duration - this.audioPlayer.currentTime) + silenceTimeSkipped;
         this.currentTimeElement.innerHTML = this.formatTime(this.currentTime);
     }
@@ -446,6 +448,10 @@ export class DocumentVideoPreview {
                     this.currentFrame.audioSrc = paragraph.audio.src;
                     this.currentFrame.imageSrc = this.findPreviousFrameImage();
 
+                    this.audioPlayer.addEventListener("loadedmetadata", ()=>{
+                        this.previousButton.classList.remove("disabled");
+                    }, {once: true});
+                    this.previousButton.classList.add("disabled");
                     this.currentTime -= (this.audioPlayer.duration + silenceTimeSkipped);
                     this.currentTimeElement.innerHTML = this.formatTime(this.currentTime);
 
