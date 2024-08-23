@@ -268,10 +268,11 @@ export class ParagraphItem extends BaseParagraph {
                            data-highlight="light-highlight"></list-item>
                  <list-item data-local-action="openInsertImageModal" data-name="Insert Image"
                            data-highlight="light-highlight"></list-item>
+                 <list-item data-local-action="addParagraph" data-name="Insert Paragraph" 
+                           data-highlight="light-highlight"></list-item>
                  <list-item data-local-action="showTTSPopup off" data-name="Text To Speech"
                            data-highlight="light-highlight"></list-item>
-                 <list-item data-local-action="openParagraphSettings" data-name="Settings" 
-                           data-highlight="light-highlight"></list-item>`;
+                 `;
             let chapterElement = this.element.closest("chapter-item");
             let chapterPresenter = chapterElement.webSkelPresenter;
             if (chapterPresenter.chapter.paragraphs.length > 1) {

@@ -169,6 +169,8 @@ export class ImageParagraph extends BaseParagraph{
                     <list-item data-local-action="copy" data-name="Copy"
                            data-highlight="light-highlight"></list-item>
                     <list-item data-local-action="openInsertImageModal" data-name="Insert Image"
+                           data-highlight="light-highlight"></list-item>
+                    <list-item data-local-action="addParagraph" data-name="Insert Paragraph"
                            data-highlight="light-highlight"></list-item>           
                  `;
             if(this.lipSyncState === "generating"){

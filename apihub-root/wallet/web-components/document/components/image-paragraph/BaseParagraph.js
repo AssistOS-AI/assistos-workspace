@@ -1,5 +1,5 @@
-export class BaseParagraph{
-    constructor(element, invalidate){
+export class BaseParagraph {
+    constructor(element, invalidate) {
         this.element = element;
         this.invalidate = invalidate;
         this.documentPresenter = document.querySelector("document-view-page").webSkelPresenter;
@@ -8,13 +8,14 @@ export class BaseParagraph{
         let chapterId = this.element.getAttribute("data-chapter-id");
         this.chapter = this._document.getChapter(chapterId);
         this.paragraph = this.chapter.getParagraph(paragraphId);
-        this.invalidate(async ()=>{
-            if(!this.documentPresenter.childrenSubscriptions.has(this.paragraph.id)){
+        this.invalidate(async () => {
+            if (!this.documentPresenter.childrenSubscriptions.has(this.paragraph.id)) {
                 await this.subscribeToParagraphEvents();
                 this.documentPresenter.childrenSubscriptions.set(this.paragraph.id, this.paragraph.id);
             }
         });
     }
+
     getParagraphPosition() {
         if (this.chapter.paragraphs.length === 0) {
             return 0;
@@ -24,6 +25,7 @@ export class BaseParagraph{
         }
         return this.chapter.paragraphs.length;
     }
+
     async openInsertImageModal(_target) {
         let position = this.getParagraphPosition() + 1;
         let imagesData = await assistOS.UI.showModal("insert-image-modal", {["chapter-id"]: this.chapter.id}, true);
@@ -54,6 +56,7 @@ export class BaseParagraph{
             chapterPresenter.invalidate(chapterPresenter.refreshChapter);
         }
     }
+
     async deleteParagraph(_target) {
         await this.documentPresenter.stopTimer(true);
         let currentParagraphIndex = this.chapter.getParagraphIndex(this.paragraph.id);
@@ -76,6 +79,7 @@ export class BaseParagraph{
         let chapterPresenter = chapterElement.webSkelPresenter;
         chapterPresenter.invalidate(chapterPresenter.refreshChapter);
     }
+
     async moveParagraph(_target, direction) {
         await this.documentPresenter.stopTimer(false);
         const currentParagraphIndex = this.chapter.getParagraphIndex(this.paragraph.id);
@@ -96,7 +100,18 @@ export class BaseParagraph{
         let chapterPresenter = this.element.closest("chapter-item").webSkelPresenter;
         chapterPresenter.invalidate(chapterPresenter.refreshChapter);
     }
+
     subscribeToParagraphEvents() {
 
+    }
+
+    addParagraph() {
+        let chapterPresenter = this.element.closest("chapter-item").webSkelPresenter;
+        let mockEvent = {
+            ctrlKey: true,
+            key: "Enter",
+            target: this.element.querySelector(".paragraph-item")
+        }
+        chapterPresenter.addParagraphOnCtrlEnter(mockEvent);
     }
 }
