@@ -26,7 +26,7 @@ export class TextToSpeech {
             emotionsHTML += `<option value="${emotion}">${emotion}</option>`;
         }
         this.emotionsHTML = emotionsHTML;
-        const command = utilModule.findCommand(this.parentPresenter.paragraph.text);
+        const command = utilModule.findCommands(this.parentPresenter.paragraph.text);
         this.audioConfig = command.paramsObject || null;
         if (this.audioConfig && this.audioConfig.personality) {
             this.audioConfig.personality = this.personalities.find(personality => personality.name === this.audioConfig.personality).id;
@@ -61,10 +61,30 @@ export class TextToSpeech {
             voiceGuidance: formData.data.voiceGuidance,
             temperature: formData.data.temperature,
         }
-        const updatedParagraphText = utilModule.buildCommandString("speech", commandConfig) + this.paragraphText;
-        this.parentPresenter.paragraph.text = updatedParagraphText;
-        const paragraphTextContainer = this.parentPresenter.element.querySelector(".paragraph-text");
-        paragraphTextContainer.innerHTML = updatedParagraphText;
+        const paragraphHeaderElement = this.parentPresenter.element.querySelector(".paragraph-configs");
+        const currentCommandsString = paragraphHeaderElement.value
+            .replace(/\n/g, "");
+        const currentCommandsObj = utilModule.findCommands(currentCommandsString);
+        if (currentCommandsObj.invalid === true) {
+            /* invalid command string -> just append the !speech command*/
+            const errorElement = this.parentPresenter.element.querySelector(".error-message");
+            if (errorElement.classList.contains("hidden")) {
+                errorElement.classList.remove("hidden");
+            }
+            errorElement.innerText = currentCommandsObj.error;
+            // Todo : decide the correct behavior
+            //paragraphHeaderElement.innerText = `${currentCommandsString}` + "\n" + utilModule.buildCommandString("!speech", commandConfig)
+
+        } else {
+            /* valid command string */
+            if (currentCommandsObj["speech"]) {
+                /* !speech command already exists -> update it */
+                paragraphHeaderElement.value = utilModule.updateCommandsString("speech", commandConfig, currentCommandsString)
+            } else {
+                /* !speech command does not exist -> append it */
+                paragraphHeaderElement.value = `${currentCommandsString}` + "\n" + utilModule.buildCommandString("speech", commandConfig)
+            }
+        }
         this.element.remove();
     }
 }

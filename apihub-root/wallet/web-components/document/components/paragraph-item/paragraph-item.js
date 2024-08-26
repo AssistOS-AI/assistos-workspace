@@ -2,8 +2,7 @@ import {BaseParagraph} from "../image-paragraph/BaseParagraph.js";
 
 const utilModule = require("assistos").loadModule("util", {});
 const documentModule = require("assistos").loadModule("document", {});
-const personalityModule = require("assistos").loadModule("personality", {});
-const spaceModule = require("assistos").loadModule("space", {});
+
 
 export class ParagraphItem extends BaseParagraph {
     constructor(element, invalidate) {
@@ -28,18 +27,42 @@ export class ParagraphItem extends BaseParagraph {
                         this.audioGenerating = false;
                     }
                 }
-
             }
         });
     }
 
     beforeRender() {
-        this.currentParagraphCommand = utilModule.findCommand(this.paragraph.text);
+        this.paragraphConfigs = "";
+     /*   this.paragraph.config = {
+            "!speech": {
+                name: "!speech",
+                paramsObject: {
+                    personality: "Analyst",
+                    emotion: "female_happy",
+                    styleGuidance: 15,
+                    temperature: 1,
+                    voiceGuidance: 5
+                }
+            },
+            "!silence": {
+                name: "!silence",
+                paramsObject: {
+                    duration: 5
+                },
+            }
+        }*/
+        const commandCount = Object.keys(this.paragraph.config||{}).length
+        Object.keys(this.paragraph.config||{}).forEach((key, index) => {
+            this.paragraphConfigs += utilModule.buildCommandString(this.paragraph.config[key].name, this.paragraph.config[key].paramsObject);
+            if (index !== commandCount - 1) {
+                this.paragraphConfigs += `\n`;
+            }
+        })
     }
 
     afterRender() {
         let paragraphText = this.element.querySelector(".paragraph-text");
-        paragraphText.innerHTML = this.paragraph.text;
+        paragraphText.innerHTML = this.paragraph.text
         paragraphText.style.height = paragraphText.scrollHeight + 'px';
         if (this.openTTSItem) {
             this.showTTSPopup(this.element, "off");
@@ -53,7 +76,10 @@ export class ParagraphItem extends BaseParagraph {
         if (!this.boundPreventSelectionChange) {
             this.boundPreventSelectionChange = this.preventSelectionChange.bind(this);
         }
-
+        this.paragraphHeader = this.element.querySelector(".paragraph-configs");
+        this.paragraphHeader.style.height = this.paragraphHeader.scrollHeight + 'px';
+        const paragraphTextArea = this.element.querySelector('.paragraph-text');
+        this.paragraphHeader.addEventListener('click', () => paragraphTextArea.click());
     }
 
     async saveParagraph(paragraph) {
@@ -76,7 +102,6 @@ export class ParagraphItem extends BaseParagraph {
         }
     }
 
-
     switchParagraphArrows(mode) {
         let arrows = this.element.querySelector('.paragraph-controls');
         if (mode === "on") {
@@ -89,15 +114,25 @@ export class ParagraphItem extends BaseParagraph {
     highlightParagraph() {
         this.switchParagraphArrows("on");
         assistOS.space.currentParagraphId = this.paragraph.id;
+        this.paragraphHeader.removeAttribute('readonly');
+        this.paragraphHeader.classList.add("highlight-paragraph-header")
+        this.paragraphHeader.addEventListener('input', function () {
+            this.style.height = 'auto';
+            this.style.height = this.scrollHeight + 'px';
+        });
     }
 
     focusOutHandler() {
         this.switchParagraphArrows("off");
-        /* We directly  extract the value as there can be synchronization issues with the setIntervel of saveParagraph fnc */
+        this.paragraphHeader.setAttribute('readonly', 'true');
+        this.paragraphHeader.classList.remove("highlight-paragraph-header")
+        const commands= utilModule.findCommands(this.paragraphHeader.value);
+
+        /*/!* We directly  extract the value as there can be synchronization issues with the setIntervel of saveParagraph fnc *!/
         const paragraphText = this.element.querySelector('.paragraph-text').value;
-        const command = utilModule.findCommand(paragraphText);
+        const command = utilModule.findCommands(paragraphText);
         if ((command.action !== "textToSpeech" || assistOS.UI.customTrim(command.remainingText) === "") && this.currentParagraphCommand.action === "textToSpeech") {
-            /* was textToSpeech but no longer is -> delete audio */
+            /!* was textToSpeech but no longer is -> delete audio *!/
             this.currentParagraphCommand = command;
             documentModule.updateParagraphAudio(assistOS.space.id, this._document.id, this.paragraph.id, null)
                 .then(() => {
@@ -106,9 +141,9 @@ export class ParagraphItem extends BaseParagraph {
                     });
                 });
         } else if (command.action === "textToSpeech" && assistOS.UI.customTrim(command.remainingText) !== "") {
-            /* generate TTS or update TTS */
+            /!* generate TTS or update TTS *!/
             if (this.currentParagraphCommand.action !== "textToSpeech") {
-                /* we generate it */
+                /!* we generate it *!/
                 this.currentParagraphCommand = command;
                 this.audioGenerating = true;
                 documentModule.generateParagraphTTS(assistOS.space.id, this._document.id, this.paragraph.id, command).then(
@@ -120,10 +155,10 @@ export class ParagraphItem extends BaseParagraph {
                     }
                 )
             } else {
-                /* check if we need to regenerate it */
+                /!* check if we need to regenerate it *!/
                 const commandDifferences = utilModule.isSameCommand(command, this.currentParagraphCommand);
                 if (!commandDifferences.isEqual) {
-                    /* we regenerate it */
+                    /!* we regenerate it *!/
                     this.currentParagraphCommand = command;
                     this.audioGenerating = true;
                     documentModule.generateParagraphTTS(assistOS.space.id, this._document.id, this.paragraph.id, command).then(
@@ -135,10 +170,10 @@ export class ParagraphItem extends BaseParagraph {
                         }
                     )
                 } else {
-                    /* do nothing */
+                    /!* do nothing *!/
                 }
             }
-        }
+        }*/
     }
 
 

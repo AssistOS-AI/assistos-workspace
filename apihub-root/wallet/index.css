@@ -11,7 +11,7 @@
     --dark-text: #444444;
     --darker-text: #1D1D1D;
     --red: red;
-    --chat-background:  #F3F3F3;
+    --chat-background: #F3F3F3;
     --light-highlight: #E4E6F0;
 
     --form-border: #0000006E;
@@ -55,7 +55,7 @@
     --action-box-background: #FEFAFF;
     --left-sidebar: #3F88C5;
     --blue-button: #3478C6;
-    --left-sidebar-background:#2C2C2C;
+    --left-sidebar-background: #2C2C2C;
     --black-pin: #2C2C2C;
     --left-sidebar-icons: #7B7B7B;
     --chat-input-container: white;
@@ -88,17 +88,21 @@ html {
     font-weight: 400;
     font-family: var(--default-font);
 }
+
 input, textarea {
     font-family: var(--default-font);
     font-weight: 400;
 }
+
 html, body,
 .app-container {
     height: 100%;
 }
+
 .invisible {
     visibility: hidden;
 }
+
 .hidden {
     display: none;
 }
@@ -116,18 +120,22 @@ body {
     border: 1px solid var(--red) !important;
     border-radius: 8px !important;
 }
+
 /*modals*/
 dialog {
     padding: 0 !important;
     outline: none !important;
 }
+
 dialog.modal {
     box-shadow: 0px 1px 7.3px 0px #00000040;
 }
-dialog{
+
+dialog {
     border-radius: 5px;
 }
-.modal-header{
+
+.modal-header {
     align-items: center;
     padding: 5px 20px;
     background: var(--error-modal-border);
@@ -135,6 +143,7 @@ dialog{
     color: var(--light-gray-text);
     justify-content: space-between;
 }
+
 .close {
     padding: 0;
     color: var(--light-gray-text);
@@ -143,40 +152,48 @@ dialog{
     border: none;
     font-size: 30px;
 }
+
 .modal-title {
     font-size: 18px;
     display: flex;
     flex-direction: column;
     justify-content: center;
 }
+
 .modal-body {
     background-color: var(--modal-background);
     padding: 20px;
 }
-.modal-footer{
+
+.modal-footer {
     display: flex;
-    height:20%;
+    height: 20%;
     justify-content: center;
-    bottom:10px;
+    bottom: 10px;
     align-items: center;
 }
+
 .modal-footer > button {
     padding: 6px 30px;
     justify-content: center;
 }
+
 .modal {
     border: none;
 }
+
 /*forms*/
 .form-label {
     color: var(--gray-black);
     font-size: 12px;
     font-weight: 600;
 }
-.form-item{
+
+.form-item {
     display: flex;
     flex-direction: column;
 }
+
 .form-input {
     border: 0.5px solid var(--lighter-black);;
     width: 100%;
@@ -481,6 +498,7 @@ dialog{
     width: 14%;
     height: 100%;
 }
+
 /* TODO move to index.css(global application css) of AiAuthor after a proper solution is implemented */
 
 /* AiAuthor */
@@ -512,29 +530,50 @@ dialog{
     min-width: 7px;
     min-height: 12px;
 }
-.user-profile-image{
+
+.user-profile-image {
     width: 50px;
     height: 50px;
     border-radius: 50%;
 }
+
 .loading-icon {
     width: 35px;
     padding: 8px;
     aspect-ratio: 1;
     border-radius: 50%;
     background: #25b09b;
-    --_m:
-            conic-gradient(#0000 10%,#000),
-            linear-gradient(#000 0 0) content-box;
+    --_m: conic-gradient(#0000 10%, #000),
+    linear-gradient(#000 0 0) content-box;
     -webkit-mask: var(--_m);
     mask: var(--_m);
     -webkit-mask-composite: source-out;
     mask-composite: subtract;
     animation: l3 1s infinite linear;
 }
-.loading-icon.small{
+
+.loading-icon.small {
     width: 20px;
     padding: 5px;
 }
-@keyframes l3 {to{transform: rotate(1turn)}}
+
+@keyframes l3 {
+    to {
+        transform: rotate(1turn)
+    }
+}
+
+.error-message {
+    display: block;
+    color: #f8d7da;
+    background-color: darkred;
+    border: 1px solid #f5c6cb;
+    border-radius: 2px;
+    padding: 2px 8px;
+    font-family: Consolas, "Courier New", monospace;
+    white-space: pre-wrap;
+    word-wrap: break-word;
+    box-shadow: 0 2px 4px rgba(0, 0, 0, 0.1);
+}
+
 /* AiAuthor end*/

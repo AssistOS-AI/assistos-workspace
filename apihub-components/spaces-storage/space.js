@@ -691,7 +691,7 @@ async function exportDocumentData(spaceId, documentId, request) {
                 }
 
                 if (documentRecordsContents[paragraphId].audio) {
-                    const audioConfig = aosUtil.findCommand(documentRecordsContents[paragraphId].text);
+                    const audioConfig = aosUtil.findCommands(documentRecordsContents[paragraphId].text);
                     paragraph.audio = documentRecordsContents[paragraphId].audio;
                     paragraph.audio.fileName = `Chapter_${chapterIndex + 1}_Paragraph_${paragraphIndex + 1}_audio`
                     audios.push({

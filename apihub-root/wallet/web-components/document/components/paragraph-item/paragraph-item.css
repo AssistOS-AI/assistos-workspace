@@ -1,6 +1,30 @@
-paragraph-item{
+paragraph-item {
     position: relative;
 }
+
+.paragraph-header {
+    display: flex;
+    flex-direction: column;
+    width: 80%;
+    color: black;
+    padding: 4px 10px;
+    white-space: pre-wrap;
+    word-wrap: break-word;
+    overflow-wrap: break-word;
+    font-size: 11px;
+}
+
+.highlight-paragraph-header {
+    background: lightblue !important;
+}
+
+.paragraph-header-container {
+    display: flex;
+    border-radius: 4px 0;
+    width: 100%;
+    justify-content: center;
+}
+
 .paragraph-item {
     cursor: default;
     display: flex;
@@ -13,7 +37,18 @@ paragraph-item{
     margin-left: 4px;
     cursor: pointer;
 }
-
+.paragraph-configs{
+    overflow: hidden;                /* Hide overflow and remove scrollbars */
+    resize: none;                    /* Prevent manual resizing */
+    border: none;                    /* Remove border for a clean look */
+    outline: none;                   /* Remove outline, but consider accessibility */
+    white-space: pre-wrap;           /* Preserve whitespace and wrap text */
+    overflow-wrap: break-word;       /* Break long words to prevent overflow */
+    word-break: break-word;          /* Additional word breaking for non-breaking content */
+    height: auto;                    /* Automatically adjust height */
+    width: 100%;
+    background:inherit;
+}
 .paragraph-controls {
     height: 45px;
     width: 30px;
@@ -61,6 +96,7 @@ paragraph-item{
     width: 100%;
     height: 12px;
 }
+
 .paragraph-text {
     overflow: hidden;
     resize: none;
@@ -83,12 +119,15 @@ paragraph-item{
 .paragraph-text:empty {
     height: 45px;
 }
-.audio-icon{
+
+.audio-icon {
     margin-left: 5px;
 }
-.warning-icon{
+
+.warning-icon {
     margin-left: 5px;
 }
+
 #hide .optional {
     display: none;
 }
@@ -121,8 +160,9 @@ paragraph-item{
     top: -54px;
     right: 0;
 }
-.paragraph-item-container{
-    display:flex;
-    align-items:center;
-    width:fit-content;
+
+.paragraph-item-container {
+    display: flex;
+    align-items: center;
+    width: fit-content;
 }

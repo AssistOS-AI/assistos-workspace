@@ -132,6 +132,7 @@ export class ImageParagraph extends BaseParagraph{
                 dimensions);
         }
     }
+
     highlightParagraph() {
         let dragBorder = this.element.querySelector(".drag-border");
         dragBorder.style.display = "block";
@@ -226,7 +227,7 @@ export class ImageParagraph extends BaseParagraph{
             await utilModule.unsubscribeFromObject(videoId);
             let paragraphLipSync = {
                 id: videoId.split("_")[1],
-                src: `spaces/image/${assistOS.space.id}/${videoId.split("_")[1]}`
+                src: `spaces/video/${assistOS.space.id}/${videoId.split("_")[1]}`
             }
             await documentModule.updateImageParagraphLipSync(assistOS.space.id, this._document.id, this.paragraph.id, paragraphLipSync);
             this.paragraph.lipSync = paragraphLipSync;
@@ -244,14 +245,13 @@ export class ImageParagraph extends BaseParagraph{
         }
     }
     playLipSyncVideo(playButton) {
-        let videoTagContainer = `
+            let videoTagContainer = `
         <div class="video-container">
             <video controls autoplay class="lip-sync-video" src="${this.paragraph.lipSync.src}"></video>
             <img src="./wallet/assets/icons/x-mark.svg" data-local-action="closePlayer" class="close-player pointer" alt="close"/>
         </div>`;
-        playButton.insertAdjacentHTML('afterend', videoTagContainer);
-    }
-
+            playButton.insertAdjacentHTML('afterend', videoTagContainer);
+        }
     closePlayer() {
         let videoContainer = this.element.querySelector('.video-container');
         videoContainer.remove();

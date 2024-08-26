@@ -302,7 +302,7 @@ export class DocumentVideoPreview {
                     }
                     return;
                 } else {
-                    let command = utilModule.findCommand(paragraph.text);
+                    let command = utilModule.findCommands(paragraph.text);
                     if (command.action === "createSilentAudio") {
                         this.setCurrentParagraphAndChapter(i, j);
                         this.executeSilenceCommand(command);
@@ -387,7 +387,7 @@ export class DocumentVideoPreview {
                     return;
 
                 } else {
-                    let command = utilModule.findCommand(paragraph.text);
+                    let command = utilModule.findCommands(paragraph.text);
                     if (command.action === "createSilentAudio") {
                         this.setCurrentParagraphAndChapter(i, j);
                         if(command.paramsObject.duration){
@@ -470,7 +470,7 @@ export class DocumentVideoPreview {
                 } else if(paragraph.image){
                     //do nothing
                 } else {
-                    let command = utilModule.findCommand(paragraph.text);
+                    let command = utilModule.findCommands(paragraph.text);
                     if (command.action === "createSilentAudio") {
                         this.setCurrentParagraphAndChapter(i, j);
                         if(command.paramsObject.duration){

@@ -137,7 +137,7 @@ async function splitChapterIntoFrames(tempVideoDir, spaceId, documentId, chapter
 }
 async function tryToExecuteCommandOnParagraph(tempVideoDir, spaceId, documentId, paragraph, task) {
     const utilsModule = require("assistos").loadModule("util", task.securityContext);
-    let commandObject = utilsModule.findCommand(paragraph.text);
+    let commandObject = utilsModule.findCommands(paragraph.text);
     let taskFunction;
     if(commandObject.action === "textToSpeech"){
         const spacePath = space.getSpacePath(spaceId);
@@ -336,7 +336,7 @@ async function estimateChapterVideoLength(spaceId, chapter, task){
             //do nothing
         } else {
             const utilsModule = require("assistos").loadModule("util",task.securityContext);
-            let commandObject = utilsModule.findCommand(paragraph.text);
+            let commandObject = utilsModule.findCommands(paragraph.text);
             if(commandObject.action === "createSilentAudio"){
                 //add silence duration
                 if(commandObject.paramsObject.duration){
