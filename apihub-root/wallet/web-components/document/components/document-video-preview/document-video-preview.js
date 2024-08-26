@@ -1,3 +1,5 @@
+import {executorTimer} from "../../../../imports.js";
+
 const utilModule = require("assistos").loadModule("util", {});
 const documentModule = require("assistos").loadModule("document", {});
 export class DocumentVideoPreview {
@@ -540,10 +542,31 @@ export class DocumentVideoPreview {
             targetElement.setAttribute("data-mode", "fullscreen");
             this.element.classList.remove("minimized");
             this.element.classList.add("fullscreen");
+            let controls = this.element.querySelector(".controls-mask");
+            let timer = new executorTimer(()=>{
+                controls.style.display = "none";
+                this.element.style.cursor = "none";
+            }, 3000);
+            timer.start();
+            let boundHideControlsFullscreen = this.hideControlsFullscreen.bind(this, controls, timer);
+            this.element.addEventListener("mousemove", boundHideControlsFullscreen);
+            this.boundRemoveListeners = this.removeListeners.bind(this, timer, boundHideControlsFullscreen);
+            targetElement.addEventListener("click", this.boundRemoveListeners);
+
         } else {
             targetElement.setAttribute("data-mode", "minimized");
             this.element.classList.add("minimized");
             this.element.classList.remove("fullscreen");
+            targetElement.removeEventListener("click", this.boundRemoveListeners);
         }
+    }
+    hideControlsFullscreen(controls, timer, event){
+        this.element.style.cursor = "default";
+        controls.style.display = "flex";
+        timer.reset();
+    }
+    removeListeners(timer, boundHideControlsFullscreen, event){
+        timer.stop();
+        this.element.removeEventListener("mousemove", boundHideControlsFullscreen);
     }
 }
