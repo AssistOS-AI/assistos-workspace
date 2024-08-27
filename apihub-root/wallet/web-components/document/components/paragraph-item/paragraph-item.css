@@ -5,9 +5,9 @@ paragraph-item {
 .paragraph-header {
     display: flex;
     flex-direction: column;
-    width: 80%;
+    width: 100%;
+    margin-left:38px;
     color: black;
-    padding: 4px 10px;
     white-space: pre-wrap;
     word-wrap: break-word;
     overflow-wrap: break-word;
@@ -15,7 +15,7 @@ paragraph-item {
 }
 
 .highlight-paragraph-header {
-    background: lightblue !important;
+    background: lightgray !important;
 }
 
 .paragraph-header-container {
@@ -38,14 +38,13 @@ paragraph-item {
     cursor: pointer;
 }
 .paragraph-configs{
-    overflow: hidden;                /* Hide overflow and remove scrollbars */
-    resize: none;                    /* Prevent manual resizing */
-    border: none;                    /* Remove border for a clean look */
-    outline: none;                   /* Remove outline, but consider accessibility */
-    white-space: pre-wrap;           /* Preserve whitespace and wrap text */
-    overflow-wrap: break-word;       /* Break long words to prevent overflow */
-    word-break: break-word;          /* Additional word breaking for non-breaking content */
-    height: auto;                    /* Automatically adjust height */
+    overflow: hidden;
+    resize: none;
+    border: none;
+    outline: none;
+    white-space: pre-wrap;
+    overflow-wrap: break-word;
+    word-break: break-word;
     width: 100%;
     background:inherit;
 }

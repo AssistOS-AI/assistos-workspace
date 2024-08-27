@@ -33,9 +33,10 @@ export class ParagraphItem extends BaseParagraph {
 
     beforeRender() {
         this.paragraphConfigs = "";
-     /*   this.paragraph.config = {
-            "!speech": {
-                name: "!speech",
+        this.paragraph.config = {}
+        this.paragraph.config.commands = {
+            "speech": {
+                name: "speech",
                 paramsObject: {
                     personality: "Analyst",
                     emotion: "female_happy",
@@ -44,20 +45,25 @@ export class ParagraphItem extends BaseParagraph {
                     voiceGuidance: 5
                 }
             },
-            "!silence": {
-                name: "!silence",
-                paramsObject: {
-                    duration: 5
-                },
+            "video": {
+                name: "video"
+            },
+            "lipsync": {
+                name: "lipsync"
             }
-        }*/
-        const commandCount = Object.keys(this.paragraph.config||{}).length
-        Object.keys(this.paragraph.config||{}).forEach((key, index) => {
-            this.paragraphConfigs += utilModule.buildCommandString(this.paragraph.config[key].name, this.paragraph.config[key].paramsObject);
-            if (index !== commandCount - 1) {
-                this.paragraphConfigs += `\n`;
-            }
-        })
+        }
+
+        const commandCount = Object.keys(this.paragraph.config.commands || {}).length
+        Object.keys(this
+            .paragraph
+            .config
+            .commands || {})
+            .forEach((key, index) => {
+                this.paragraphConfigs += utilModule.buildCommandString(this.paragraph.config.commands[key].name, this.paragraph.config.commands[key].paramsObject || {});
+                if (index !== commandCount - 1) {
+                    this.paragraphConfigs += `\n`;
+                }
+            })
     }
 
     afterRender() {
@@ -80,6 +86,7 @@ export class ParagraphItem extends BaseParagraph {
         this.paragraphHeader.style.height = this.paragraphHeader.scrollHeight + 'px';
         const paragraphTextArea = this.element.querySelector('.paragraph-text');
         this.paragraphHeader.addEventListener('click', () => paragraphTextArea.click());
+        this.errorElement = this.element.querySelector(".error-message");
     }
 
     async saveParagraph(paragraph) {
@@ -126,54 +133,90 @@ export class ParagraphItem extends BaseParagraph {
         this.switchParagraphArrows("off");
         this.paragraphHeader.setAttribute('readonly', 'true');
         this.paragraphHeader.classList.remove("highlight-paragraph-header")
-        const commands= utilModule.findCommands(this.paragraphHeader.value);
+        const commands = utilModule.findCommands(this.paragraphHeader.value);
+        if (commands.invalid) {
+            if (this.errorElement.classList.contains("hidden")) {
+                this.errorElement.classList.remove("hidden");
+            }
+            this.errorElement.innerText = commands.error;
+        } else {
+            const commandsDifferences = utilModule.getCommandsDifferences(this.paragraph.config.commands, commands);
+            const existDifferences = Object.values(commandsDifferences).some(value => value !== 0);
+            if (!existDifferences) {
+                return;
+            }
+            this.errorElement.innerText = "";
+            this.errorElement.classList.add("hidden");
 
-        /*/!* We directly  extract the value as there can be synchronization issues with the setIntervel of saveParagraph fnc *!/
-        const paragraphText = this.element.querySelector('.paragraph-text').value;
-        const command = utilModule.findCommands(paragraphText);
-        if ((command.action !== "textToSpeech" || assistOS.UI.customTrim(command.remainingText) === "") && this.currentParagraphCommand.action === "textToSpeech") {
-            /!* was textToSpeech but no longer is -> delete audio *!/
-            this.currentParagraphCommand = command;
-            documentModule.updateParagraphAudio(assistOS.space.id, this._document.id, this.paragraph.id, null)
-                .then(() => {
-                    this.invalidate(async () => {
-                        this.paragraph.audio = await documentModule.getParagraphAudio(assistOS.space.id, this._document.id, this.paragraph.id);
-                    });
-                });
-        } else if (command.action === "textToSpeech" && assistOS.UI.customTrim(command.remainingText) !== "") {
-            /!* generate TTS or update TTS *!/
-            if (this.currentParagraphCommand.action !== "textToSpeech") {
-                /!* we generate it *!/
-                this.currentParagraphCommand = command;
-                this.audioGenerating = true;
-                documentModule.generateParagraphTTS(assistOS.space.id, this._document.id, this.paragraph.id, command).then(
-                    () => {
-                        this.audioGenerating = false;
-                        this.invalidate(async () => {
-                            this.paragraph.audio = await documentModule.getParagraphAudio(assistOS.space.id, this._document.id, this.paragraph.id);
-                        });
-                    }
-                )
-            } else {
-                /!* check if we need to regenerate it *!/
-                const commandDifferences = utilModule.isSameCommand(command, this.currentParagraphCommand);
-                if (!commandDifferences.isEqual) {
-                    /!* we regenerate it *!/
-                    this.currentParagraphCommand = command;
-                    this.audioGenerating = true;
-                    documentModule.generateParagraphTTS(assistOS.space.id, this._document.id, this.paragraph.id, command).then(
-                        () => {
-                            this.audioGenerating = false;
-                            this.invalidate(async () => {
-                                this.paragraph.audio = await documentModule.getParagraphAudio(assistOS.space.id, this._document.id, this.paragraph.id);
-                            });
+            const handleCommand = (commandType, commandStatus, command) => {
+                switch (commandType) {
+                    case "silence":
+                        if (commandStatus === "same") {
+                        }
+                        if (commandStatus === "new") {
+                        }
+                        if (commandStatus === "deleted") {
+                        }
+                        if (commandStatus === "changed") {
+                        }
+                        break;
+                    case "speech":
+                        const paragraphText = this.element.querySelector('.paragraph-text').value;
+                        if (commandStatus === "new" || commandStatus === "changed" || (commandStatus === "same" && assistOS.UI.customTrim(paragraphText) !== assistOS.UI.customTrim(this.paragraph.text))) {
+                            documentModule.generateParagraphAudio(assistOS.space.id, this._document.id, this.paragraph.id, command, paragraphText).then(
+                                () => {
+                                    this.invalidate(async () => {
+                                        this.paragraph.config = await documentModule.getParagraphConfig(assistOS.space.id, this._document.id, this.paragraph.id);
+                                    });
+                                }
+                            )
+                        }
+                        if (commandStatus === "deleted") {
+                            documentModule.deleteParagraphAudio(assistOS.space.id, this._document.id, this.paragraph.id).then(
+                                () => {
+                                    this.invalidate(async () => {
+                                        this.paragraph.config = await documentModule.getParagraphConfig(assistOS.space.id, this._document.id, this.paragraph.id);
+                                    });
+                                }
+                            )
+                        }
+                        break;
+                    case "video":
+                        if (commandStatus === "same") {
+                        }
+                        if (commandStatus === "new") {
+
+                        }
+                        if (commandStatus === "deleted") {
+
+                        }
+                        if (commandStatus === "changed") {
+                        }
+                        break;
+                    case "lipsync":
+                        if (commandStatus === "same") {
+                        }
+                        if (commandStatus === "new") {
+
+                        }
+                        if (commandStatus === "deleted") {
+
+                        }
+                        if (commandStatus === "changed") {
+                        }
+                        break;
+                }
+
+            }
+            this.paragraph.config.commands = commands;
+            documentModule.updateParagraphConfig(assistOS.space.id, this._document.id, this.paragraph.id, this.paragraph.config).then(() => {
+                    Object.entries(commandsDifferences).forEach(([commandType, commandStatus]) => {
+                            handleCommand(commandType, commandStatus, commands[commandType]);
                         }
                     )
-                } else {
-                    /!* do nothing *!/
                 }
-            }
-        }*/
+            )
+        }
     }
 
 
