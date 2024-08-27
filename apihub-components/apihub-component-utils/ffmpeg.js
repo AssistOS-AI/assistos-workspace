@@ -166,7 +166,7 @@ async function estimateChapterVideoLength(spaceId, chapter, task){
             //do nothing
         } else {
             const utilsModule = require("assistos").loadModule("util",task.securityContext);
-            let commandObject = utilsModule.findCommand(paragraph.text);
+            let commandObject = utilsModule.findCommands(paragraph.text);
             if(commandObject.action === "createSilentAudio"){
                 //add silence duration
                 if(commandObject.paramsObject.duration){

@@ -239,6 +239,7 @@ export class DocumentViewPage {
             await this.changeCurrentElement(_target, paragraphPresenter.focusOutHandler.bind(paragraphPresenter));
             await chapterPresenter.highlightChapter(_target);
             paragraphPresenter.highlightParagraph();
+            const paragraphTextElement=paragraphItem.querySelector(".paragraph-text");
             saveFunction = paragraphPresenter.saveParagraph.bind(paragraphPresenter, _target);
             resetTimerFunction = paragraphPresenter.resetTimer.bind(paragraphPresenter, _target);
         }

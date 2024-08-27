@@ -691,7 +691,7 @@ async function exportDocumentData(spaceId, documentId, request) {
                 }
 
                 if (documentRecordsContents[paragraphId].audio) {
-                    const audioConfig = aosUtil.findCommand(documentRecordsContents[paragraphId].text);
+                    const audioConfig = aosUtil.findCommands(documentRecordsContents[paragraphId].text);
                     paragraph.audio = documentRecordsContents[paragraphId].audio;
                     paragraph.audio.fileName = `Chapter_${chapterIndex + 1}_Paragraph_${paragraphIndex + 1}_audio`
                     audios.push({
@@ -1017,12 +1017,12 @@ async function getPersonalityByName(spaceId, personalityName) {
     const personalities = await getSpacePersonalitiesObject(spaceId);
     return personalities.find(personality => personality.name === personalityName);
 }
-async function updateParagraphTTS(request, spaceId, documentId, paragraphId, command) {
+async function updateParagraphTTS(request, spaceId, documentId, paragraphId, command,text) {
     const llmModule = require('assistos').loadModule('llm', {cookies: request.headers.cookie});
     const documentModule = require('assistos').loadModule('document', {cookies: request.headers.cookie});
     const voiceId = (await getPersonalityByName(spaceId, command.paramsObject.personality)).voiceId;
     const audioBlob = await llmModule.textToSpeech(spaceId, {
-        prompt: command.remainingText,
+        prompt:text,
         voice: voiceId,
         emotion: command.paramsObject.emotion,
         styleGuidance: command.paramsObject.styleGuidance,
