@@ -317,20 +317,23 @@ export class DocumentViewPage {
         }
     }
 
-    hideMenu(controller, container, event) {
-        container.setAttribute("data-local-action", "showMenu off");
-        let target = this.element.querySelector(".document-menu-dropdown");
-        target.style.display = "none";
+    hideMenu(controller, container, menuType, event) {
+        container.setAttribute("data-local-action", `showMenu ${menuType} off`);
+        let menu = this.element.querySelector(`#${menuType}`);
+        menu.style.display = "none";
         controller.abort();
     }
 
-    showMenu(_target, mode) {
+    async showMenu(_target, menuType, mode) {
         if (mode === "off") {
-            let target = this.element.querySelector(".document-menu-dropdown");
-            target.style.display = "flex";
+            let menu = this.element.querySelector(`#${menuType}`);
+            menu.style.display = "flex";
             let controller = new AbortController();
-            document.addEventListener("click", this.hideMenu.bind(this, controller, _target), {signal: controller.signal});
-            _target.setAttribute("data-local-action", "showMenu on");
+            document.addEventListener("click", this.hideMenu.bind(this, controller, _target, menuType), {signal: controller.signal});
+            _target.setAttribute("data-local-action", `showMenu on`);
+            if(menuType === "tasks-menu"){
+                await this.loadDocumentTasks();
+            }
         }
     }
     playVideoPreview(targetElement){
@@ -352,5 +355,12 @@ export class DocumentViewPage {
     async lipsyncVideo(_target){
         const llmModule=require('assistos').loadModule('llm', {});
         const response = (await llmModule.lipsync(assistOS.space.id, "sync-1.6.0", {}))
+    }
+    async loadDocumentTasks(){
+        let tasks = await documentModule.getDocumentTasks(assistOS.space.id, this._document.id);
+        let tasksMenu = this.element.querySelector("#tasks-menu");
+        for(let task of tasks){
+            tasksMenu.innerHTML += `<task-item data-task-id="${task.id}" data-task-title="${task.title}" data-presenter="task-item"></task-item>`;
+        }
     }
 }

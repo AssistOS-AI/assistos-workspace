@@ -1,4 +1,4 @@
-const Task = require('./Task');
+const Task = require('./tasks/Task');
 
 class TaskManager {
     constructor() {
@@ -30,13 +30,7 @@ class TaskManager {
         }
         return task;
     }
-    clearTasks() {
-        this.tasks = [];
-    }
 
-    getTasks() {
-        return this.tasks;
-    }
 }
 
 const taskManager = new TaskManager();

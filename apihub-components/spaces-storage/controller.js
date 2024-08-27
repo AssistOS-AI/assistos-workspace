@@ -11,9 +11,9 @@ const eventPublisher = require("../subscribers/eventPublisher.js");
 const {sendResponse} = require("../apihub-component-utils/utils");
 const dataVolumePaths = require('../volumeManager').paths;
 const ffmpeg = require('../apihub-component-utils/ffmpeg.js');
-const Task = require('../apihub-component-utils/Task.js');
 const TaskManager = require('../apihub-component-utils/TaskManager.js');
-
+const DocumentToVideo = require('../apihub-component-utils/tasks/DocumentToVideo.js');
+const AnonymousTask = require('../apihub-component-utils/tasks/AnonymousTask.js');
 function getFileObjectsMetadataPath(spaceId, objectType) {
     return path.join(dataVolumePaths.space, `${spaceId}/${objectType}/metadata.json`);
 }
@@ -1268,29 +1268,15 @@ async function compileVideoFromDocument(request, response) {
     let userId = request.userId;
     const SecurityContext = require("assistos").ServerSideSecurityContext;
     let securityContext = new SecurityContext(request);
-    let task = new Task(async function () {
-        await ffmpeg.documentToVideo(spaceId, document, userId, this);
-    }, securityContext);
+    let task = new DocumentToVideo(securityContext, spaceId, documentId);
     TaskManager.addTask(task);
     sendResponse(response, 200, "application/json", {
         success: true,
         message: `Task in progress`,
         data: task.id
     });
-    const documentModule = require("assistos").loadModule("document", securityContext);
-    let document = await documentModule.getDocument(spaceId, documentId);
     try {
         await task.run();
-        let videoPath = `/spaces/video/${spaceId}/${task.id}`;
-        if (document.video) {
-            const videoId = document.video.split("/").pop();
-            try {
-                await space.APIs.deleteVideo(spaceId, videoId);
-            } catch (e) {
-                //previous video not found
-            }
-        }
-        await documentModule.updateVideo(spaceId, documentId, videoPath);
         TaskManager.removeTask(task.id);
         eventPublisher.notifyClientTask(userId, task.id);
     } catch (error) {
@@ -1304,9 +1290,9 @@ async function estimateDocumentVideoLength(request, response){
     let securityContext = new SecurityContext(request);
     const documentModule = require("assistos").loadModule("document", securityContext);
     let document = await documentModule.getDocument(spaceId, documentId);
-    let task = new Task(async function () {
+    let task = new AnonymousTask(securityContext, async function () {
         return await ffmpeg.estimateDocumentVideoLength(spaceId, document, this);
-    }, securityContext);
+    });
     TaskManager.addTask(task);
     try{
         let durationObject = await task.run();

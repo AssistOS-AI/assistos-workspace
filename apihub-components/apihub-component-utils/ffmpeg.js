@@ -1,12 +1,10 @@
 const path = require('path');
 const fsPromises = require('fs').promises;
-const file = require('./file.js');
 const ffmpegPath = require("ffmpeg-static");
 const ffprobePath = require("ffprobe-static").path;
 const space = require("../spaces-storage/space.js").APIs;
-const Task = require('./Task.js');
-const audioCommands = require('./audioCommands.js');
 const crypto = require("./crypto");
+const AnonymousTask = require("./tasks/AnonymousTask");
 async function concatenateAudioFiles(tempVideoDir, audioFilesPaths, outputAudioPath, fileName, task) {
     const fileListPath = path.join(tempVideoDir, fileName);
     const fileListContent = audioFilesPaths.map(file => `file '${file}'`).join('\n');
@@ -94,79 +92,7 @@ async function verifyAudioIntegrity(audioPath, task){
     const command = `${ffmpegPath} -v error -i ${audioPath} -f null -`;
     await task.runCommand(command);
 }
-async function splitChapterIntoFrames(tempVideoDir, spaceId, documentId, chapter, task) {
-    let chapterFrames = [];
-    const spacePath = space.getSpacePath(spaceId);
-    const audiosPath = path.join(spacePath, 'audios');
-    const imagesPath = path.join(spacePath, 'images');
-    let frame = {
-        imagePath: "",
-        audiosPath: [],
-    };
-    for (let paragraph of chapter.paragraphs) {
-        if (paragraph.image) {
-            if (frame.audiosPath.length > 0 || frame.imagePath) {
-                chapterFrames.push(frame);
-            }
-            frame = {
-                imagePath: path.join(imagesPath, `${paragraph.image.src.split("/").pop()}.png`),
-                audiosPath: [],
-            };
-        } else if (paragraph.audio) {
-            let audioSrc= paragraph.audio.src;
-            let audioPath = path.join(audiosPath, `${audioSrc.split("/").pop()}.mp3`);
-            //check audio integrity + convert to standard
-            try {
-                await verifyAudioIntegrity(audioPath, task);
-                await verifyAudioSettings(audioPath, task);
-                frame.audiosPath.push(audioPath);
-            } catch (e){
-                console.error(e);
-            }
-        } else{
-            let audioPath = await tryToExecuteCommandOnParagraph(tempVideoDir, spaceId, documentId, paragraph, task);
-            if(audioPath){
-                frame.audiosPath.push(audioPath);
-            }
-        }
-    }
-    if (frame.audiosPath.length > 0 || frame.imagePath) {
-        chapterFrames.push(frame);
-    }
-    return chapterFrames;
-}
-async function tryToExecuteCommandOnParagraph(tempVideoDir, spaceId, documentId, paragraph, task) {
-    const utilsModule = require("assistos").loadModule("util", task.securityContext);
-    let commandObject = utilsModule.findCommand(paragraph.text);
-    let taskFunction;
-    if(commandObject.action === "textToSpeech"){
-        const spacePath = space.getSpacePath(spaceId);
-        const audiosPath = path.join(spacePath, 'audios');
-        taskFunction = async function(){
-            let audioId = await audioCommands.executeTextToSpeechOnParagraph(spaceId, documentId, paragraph, commandObject, this);
-            let audioPath = path.join(audiosPath, `${audioId}.mp3`);
-            //check audio integrity + convert to standard
-            await verifyAudioIntegrity(audioPath, this);
-            await verifyAudioSettings(audioPath, this);
-            return audioPath;
-        }
-    } else if(commandObject.action === "createSilentAudio"){
-        taskFunction = async function(){
-            let audioPath = path.join(tempVideoDir, `${documentId}_paragraph_${paragraph.id}_silent.mp3`);
-            await createSilentAudio(audioPath, commandObject.paramsObject.duration, this);
-            return audioPath;
-        }
-    } else {
-        return;
-    }
-    let childTask = new Task(taskFunction, task.securityContext);
-    try {
-        task.addChildTask(childTask);
-        return await childTask.run();
-    } catch (e) {
-        //command failed, skip paragraph
-    }
-}
+
 async function addBackgroundSoundToVideo(videoPath, backgroundSoundPath, backgroundSoundVolume, fadeDuration, outputPath, task) {
     await verifyAudioIntegrity(backgroundSoundPath, task);
     await verifyAudioSettings(backgroundSoundPath, task);
@@ -194,37 +120,7 @@ async function addBackgroundSoundToVideo(videoPath, backgroundSoundPath, backgro
     await fsPromises.unlink(outputPath);
     await fsPromises.rename(tempOutputPath, outputPath);
 }
-async function createChapterVideo(spaceId, chapter, tempVideoDir, documentId, chapterIndex, task){
-    let completedFramePaths = [];
-    let chapterFrames = await splitChapterIntoFrames(tempVideoDir, spaceId, documentId, chapter, task);
-    if(chapterFrames.length === 0) {
-        return;
-    }
-    let childTasks = chapterFrames.map((frame, index) => new Task(async function (){
-        return await createVideoFrame(frame, tempVideoDir, documentId, chapterIndex, index, this);
-    }, task.securityContext));
-    try{
-        for(let childTask of childTasks) {
-            task.addChildTask(childTask);
-            let frame = await childTask.run();
-            completedFramePaths.push(frame);
-        }
-    } catch (e) {
-        throw new Error(`Failed to create video frames for chapter ${chapterIndex}: ${e}`);
-    }
-    let videoPath = await combineVideos(
-        tempVideoDir,
-        completedFramePaths,
-        `chapter_${chapterIndex}_frames.txt`,
-        `chapter_${chapterIndex}_video.mkv`,
-        task);
-    if(chapter.backgroundSound){
-        let backgroundSoundPath = path.join(space.getSpacePath(spaceId), 'audios', `${chapter.backgroundSound.src.split("/").pop()}.mp3`);
-        let outputVideoPath = path.join(tempVideoDir, `chapter_${chapterIndex}_video.mp4`);
-        await addBackgroundSoundToVideo(videoPath, backgroundSoundPath, chapter.backgroundSound.volume, 1, outputVideoPath, task);
-    }
-    return videoPath;
-}
+
 async function combineVideos(tempVideoDir, videoPaths, fileListName, outputVideoName, task, videoDir) {
     const fileListPath = path.join(tempVideoDir, fileListName);
     const fileListContent = videoPaths.map(file => `file '${file}'`).join('\n');
@@ -241,69 +137,6 @@ async function combineVideos(tempVideoDir, videoPaths, fileListName, outputVideo
 
     return outputVideoPath;
 }
-async function documentToVideo(spaceId, document, userId, task) {
-    const spacePath = space.getSpacePath(spaceId);
-    const tempVideoDir = path.join(spacePath, "videos", `${task.id}_temp`);
-    await file.createDirectory(tempVideoDir);
-    let childTasks = document.chapters.map((chapter, index) => {
-        return new Task(async function(){
-            return await createChapterVideo(spaceId, chapter, tempVideoDir, document.id, index, this)
-        }, task.securityContext);
-    });
-
-    let promises = [];
-    for(let childTask of childTasks) {
-        task.addChildTask(childTask);
-        promises.push(childTask.run());
-    }
-    let chapterVideos = [];
-    try {
-        chapterVideos = await Promise.all(promises);
-    } catch (e) {
-        await fsPromises.rm(tempVideoDir, {recursive: true, force: true});
-        throw new Error(`Failed to create chapter video: ${e}`);
-    }
-    chapterVideos = chapterVideos.filter(videoPath => typeof videoPath !== "undefined")
-    try {
-        let videoPath = await combineVideos(
-            tempVideoDir,
-            chapterVideos,
-            `chapter_videos.txt`,
-            `${task.id}.mkv`,
-            task,
-            path.join(spacePath, "videos"));
-        let mp4VideoPath = videoPath.replace('.mkv', '.mp4');
-        const convertCommand = `"${ffmpegPath}" -i "${videoPath}" -c:v copy -c:a copy "${mp4VideoPath}"`;
-        await task.runCommand(convertCommand);
-        await fsPromises.rm(tempVideoDir, {recursive: true, force: true});
-        await fsPromises.unlink(videoPath);
-        return mp4VideoPath;
-    } catch (e) {
-        await fsPromises.rm(tempVideoDir, {recursive: true, force: true});
-        throw new Error(`Failed to combine chapter videos: ${e}`);
-    }
-}
-async function createVideoFrame(frame, tempVideoDir, documentId, chapterIndex, frameIndex, task){
-    let audioPath = path.join(tempVideoDir, `${documentId}_chapter_${chapterIndex}_frame_${frameIndex}_audio.mp3`);
-    const videoPath = path.join(tempVideoDir, `${documentId}_chapter_${chapterIndex}_frame_${frameIndex}_video.mkv`);
-    const defaultDuration = 0.25;
-    if(frame.audiosPath.length === 0) {
-        audioPath = path.join(tempVideoDir, `${documentId}_chapter_${chapterIndex}_frame_${frameIndex}_silent.mp3`);
-        await createSilentAudio(audioPath, defaultDuration, task);
-        await createVideoFromImage(frame.imagePath, defaultDuration, videoPath, task);
-        let combinedPath = path.join(tempVideoDir, `chapter_${chapterIndex}_frame_${frameIndex}_combined.mkv`);
-        await combineVideoAndAudio(videoPath, audioPath, combinedPath, task);
-        return combinedPath;
-    }
-    await concatenateAudioFiles(tempVideoDir, frame.audiosPath, audioPath, `${documentId}_chapter_${chapterIndex}_frame_${frameIndex}_audios.txt`, task);
-    let audioDuration;
-    audioDuration = (await task.runCommand(`${ffmpegPath} -i ${audioPath} -hide_banner 2>&1 | grep "Duration"`)).match(/Duration: (\d+):(\d+):(\d+\.\d+)/);
-    const totalDuration = parseInt(audioDuration[1]) * 3600 + parseInt(audioDuration[2]) * 60 + parseFloat(audioDuration[3]);
-    await createVideoFromImage(frame.imagePath, totalDuration, videoPath, task);
-    let combinedPath = path.join(tempVideoDir, `chapter_${chapterIndex}_frame_${frameIndex}_combined.mkv`);
-    await combineVideoAndAudio(videoPath, audioPath, combinedPath, task);
-    return combinedPath;
-}
 async function createVideoFromImageAndAudio(imageSrc,audioSrc,spaceId){
     const videoId = crypto.generateId();
     const audioId = audioSrc.split('/').pop().split('.')[0];
@@ -312,14 +145,11 @@ async function createVideoFromImageAndAudio(imageSrc,audioSrc,spaceId){
     const imagePath = space.getSpacePath(spaceId) + `/images/${imageId}.png`;
     const videoPath = space.getSpacePath(spaceId) + `/videos/${videoId}.mp4`;
 
-    let task = new Task(async function () {
-
+    let task = new AnonymousTask({},async function () {
         const audioDuration = (await this.runCommand(`${ffmpegPath} -i ${audioPath} -hide_banner 2>&1 | grep "Duration"`)).match(/Duration: (\d+):(\d+):(\d+\.\d+)/);
-
         const totalDuration = parseInt(audioDuration[1]) * 3600 + parseInt(audioDuration[2]) * 60 + parseFloat(audioDuration[3]);
         await createVideoFromImage(imagePath, totalDuration,videoPath,this);
-
-    }, {});
+    });
     await task.run();
 
     return videoId;
@@ -360,9 +190,14 @@ async function estimateDocumentVideoLength(spaceId, document, task){
     return totalDuration;
 }
 module.exports = {
-    documentToVideo,
     createVideoFromImage,
     combineVideoAndAudio,
     createVideoFromImageAndAudio,
-    estimateDocumentVideoLength
+    estimateDocumentVideoLength,
+    combineVideos,
+    concatenateAudioFiles,
+    createSilentAudio,
+    addBackgroundSoundToVideo,
+    verifyAudioIntegrity,
+    verifyAudioSettings
 }
