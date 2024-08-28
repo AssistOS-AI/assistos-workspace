@@ -26,12 +26,15 @@ export class TextToSpeech {
             emotionsHTML += `<option value="${emotion}">${emotion}</option>`;
         }
         this.emotionsHTML = emotionsHTML;
-        const command = utilModule.findCommands(this.parentPresenter.paragraph.text);
-        this.audioConfig = command.paramsObject || null;
+        const audioCommand=this.parentPresenter.paragraph.config.commands["speech"];
+        this.audioConfig=null;
+        if(audioCommand){
+            this.audioConfig = audioCommand.paramsObject;
+        }
         if (this.audioConfig && this.audioConfig.personality) {
             this.audioConfig.personality = this.personalities.find(personality => personality.name === this.audioConfig.personality).id;
         }
-        this.paragraphText = command.remainingText;
+        this.paragraphText = this.parentPresenter.paragraph.text;
     }
 
     afterRender() {
@@ -72,8 +75,6 @@ export class TextToSpeech {
                 errorElement.classList.remove("hidden");
             }
             errorElement.innerText = currentCommandsObj.error;
-            // Todo : decide the correct behavior
-            //paragraphHeaderElement.innerText = `${currentCommandsString}` + "\n" + utilModule.buildCommandString("!speech", commandConfig)
 
         } else {
             /* valid command string */

@@ -386,19 +386,31 @@ export class ParagraphItem extends BaseParagraph {
         let paragraphIndex = this.chapter.paragraphs.findIndex(paragraph => paragraph.id === this.paragraph.id);
         let previousParagraph = this.chapter.paragraphs[paragraphIndex - 1];
         if (!previousParagraph) {
-            return await showApplicationError("Lip Sync Error", "No next paragraph found to extract audio from. This is the last paragraph in the chapter.");
+            return await showApplicationError("Lip Sync Error", "No previous paragraph found to extract image from.");
         }
-        if (!previousParagraph.audio) {
-            return await showApplicationError("Lip Sync Error", "No audio found in the next paragraph to lip sync to.");
+        if (!previousParagraph.config.image) {
+            return await showApplicationError("Lip Sync Error", "No image found in the previous paragraph to lip sync to.");
         }
-        let dropdownMenu = this.element.querySelector('.dropdown-menu-container');
+
+        const currentCommandsString = this.paragraphHeader.value
+            .replace(/\n/g, "");
+        const currentCommandsObj = utilModule.findCommands(currentCommandsString);
+
+        if (currentCommandsObj.invalid === true) {
+            const errorElement = this.element.querySelector(".error-message");
+            if (errorElement.classList.contains("hidden")) {
+                errorElement.classList.remove("hidden");
+            }
+            errorElement.innerText = currentCommandsObj.error;
+        } else {
+            /* valid command string */
+            if (!currentCommandsObj["lipsync"]){
+                /* !speech command does not exist -> append it */
+                this.paragraphHeader.value = `${currentCommandsString}` + "\n" + utilModule.buildCommandString("lipsync", {})
+            }
+        }
+        let dropdownMenu = this.element.querySelector('.dropdown-menu');
         dropdownMenu.remove();
-
-        await llmModule.lipSync(assistOS.space.id, this.paragraph.config.image.src, nextParagraph.config.audio.src, "sync-1.6.0").then(async () => {
-            this.paragraph.config = await documentModule.getParagraphConfig(assistOS.space.id, this._document.id, this.paragraph.id);
-            this.invalidate();
-        })
-
     }
 
     changeLipSyncUIState() {
