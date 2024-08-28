@@ -260,16 +260,14 @@ html[theme="dark"] .document-title-container {
     min-height: 35px;
     font-size: 14px;
     align-items: flex-start;
-}
-.tasks-header-section{
-    width: 100%;
+    max-height: 350px;
 }
 .tasks-header{
     width: 100%;
     display: flex;
-    justify-content: space-between;
     align-items: center;
     padding: 10px 10px 0 10px;
+    font-weight: 700;
 }
 .run-all-tasks{
     font-size: 14px;
@@ -278,4 +276,28 @@ html[theme="dark"] .document-title-container {
     padding: 5px;
     height: initial;
     line-height: normal;
+}
+.name-header{
+    width: 48%;
+}
+.status-header{
+    width: 34%;
+}
+.action-header{
+    width: 15%;
+}
+.tasks-list{
+    overflow-y: auto;
+    scrollbar-width: initial;
+}
+.tasks-list::-webkit-scrollbar {
+    display: block;
+}
+.tasks-list::-webkit-scrollbar-thumb {
+    background-color: #888;
+    border-radius: 10px;
+}
+.tasks-list::-webkit-scrollbar-track {
+    background: #f1f1f1;
+    border-radius: 10px;
 }

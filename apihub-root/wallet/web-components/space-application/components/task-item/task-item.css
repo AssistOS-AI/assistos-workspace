@@ -3,13 +3,36 @@ task-item{
     padding: 10px;
     width: 400px;
     display: flex;
-    justify-content: space-between;
     align-items: center;
 }
-.green-button{
-    background-color: green;
+.task-button{
     padding: 5px;
     height: initial;
     font-size: 14px;
     line-height: normal;
+}
+.green{
+    background-color: green;
+}
+.yellow{
+    background-color: yellow;
+}
+.red{
+    background-color: red;
+    cursor: initial;
+}
+.grey{
+    background-color: grey;
+}
+.task-name{
+    width: 50%;
+    overflow: hidden;
+    text-overflow: ellipsis;
+    white-space: nowrap;
+}
+.task-status{
+    width: 35%;
+}
+.task-action{
+
 }

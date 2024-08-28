@@ -344,10 +344,19 @@ export class DocumentViewPage {
             tasksMenu.innerHTML = "No tasks yet";
             return;
         }
-        let tasksList = this.element.querySelector(".tasks-list");
-        tasksList.innerHTML = "";
+        let tasksList = "";
         for(let task of tasks){
-            tasksList.innerHTML += `<task-item data-id="${task.id}" data-name="${task.name}" data-status=${task.status} data-presenter="task-item"></task-item>`;
+            tasksList += `<task-item data-id="${task.id}" data-name="${task.name}" data-status=${task.status} data-presenter="task-item"></task-item>`;
         }
+        tasksMenu.innerHTML = `
+                        <button class="general-button run-all-tasks" data-local-action="runAllTasks">Run all</button>
+                        <div class="tasks-header">
+                            <div class="name-header">Name</div>
+                            <div class="status-header">Status</div>
+                            <div class="action-header">Action</div>
+                        </div>
+                        <div class="tasks-list">
+                            ${tasksList}
+                        </div>`;
     }
 }
