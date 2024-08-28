@@ -1,7 +1,8 @@
 const TaskManager = require("./TaskManager");
 const {sendResponse} = require("../apihub-component-utils/utils");
 const DocumentToVideo = require("./DocumentToVideo");
-
+const utils = require("../apihub-component-utils/utils");
+const TextToSpeech = require("./TextToSpeech");
 async function compileVideoFromDocument(request, response) {
     let documentId = request.params.documentId;
     let spaceId = request.params.spaceId;
@@ -16,6 +17,29 @@ async function compileVideoFromDocument(request, response) {
         data: task.id
     });
     TaskManager.runTask(task.id);
+}
+async function textToSpeechParagraph(request,response){
+    try{
+        const spaceId = request.params.spaceId;
+        const documentId = request.params.documentId;
+
+        const userId = request.userId;
+        const paragraphId = request.params.paragraphId;
+        const SecurityContext = require("assistos").ServerSideSecurityContext;
+        let securityContext = new SecurityContext(request);
+        let task = new TextToSpeech(securityContext, spaceId, userId, {documentId, paragraphId});
+        await TaskManager.addTask(task);
+        utils.sendResponse(response,200,"application/json",{
+            success:true,
+            data: task.id,
+            message:"Task added to the queue"
+        });
+    }catch(error){
+        utils.sendResponse(response, error.statusCode||500, "application/json", {
+            success: false,
+            message: error
+        });
+    }
 }
 function cancelTask(request, response) {
     let taskId = request.params.taskId;
@@ -66,7 +90,7 @@ function getDocumentTasks(request, response) {
     let spaceId = request.params.spaceId;
     let documentId = request.params.documentId;
     try {
-        let tasks = TaskManager.serializeTasks(spaceId).filter(task => task.configs.documentId === documentId);
+        let tasks = TaskManager.serializeTasks(spaceId).filter(task => task.documentId === documentId);
         sendResponse(response, 200, "application/json", {
             success: true,
             data: tasks
@@ -83,5 +107,6 @@ module.exports = {
     getTasks,
     runTask,
     getDocumentTasks,
-    compileVideoFromDocument
+    compileVideoFromDocument,
+    textToSpeechParagraph
 }

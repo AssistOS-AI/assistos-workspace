@@ -3,7 +3,8 @@ const {
     getTasks,
     runTask,
     getDocumentTasks,
-    compileVideoFromDocument
+    compileVideoFromDocument,
+    textToSpeechParagraph
 } = require("./controller");
 const bodyReader = require('../apihub-component-middlewares/bodyReader.js')
 const authentication = require('../apihub-component-middlewares/authentication.js')
@@ -15,6 +16,8 @@ function Tasks(server){
     server.get("/tasks/:spaceId/:documentId", getDocumentTasks);
     server.use("/tasks/*", bodyReader);
     server.post("/tasks/:taskId", runTask);
+
     server.post("/tasks/video/:spaceId/:documentId", compileVideoFromDocument);
+    server.post("/tasks/audio/:spaceId/:documentId/:paragraphId", textToSpeechParagraph);
 }
 module.exports = Tasks;

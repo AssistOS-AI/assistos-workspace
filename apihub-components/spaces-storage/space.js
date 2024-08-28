@@ -1013,28 +1013,6 @@ async function getPersonalityByName(spaceId, personalityName) {
     const personalities = await getSpacePersonalitiesObject(spaceId);
     return personalities.find(personality => personality.name === personalityName);
 }
-async function updateParagraphTTS(request, spaceId, documentId, paragraphId, command,text) {
-    const llmModule = require('assistos').loadModule('llm', {cookies: request.headers.cookie});
-    const documentModule = require('assistos').loadModule('document', {cookies: request.headers.cookie});
-    const voiceId = (await getPersonalityByName(spaceId, command.paramsObject.personality)).voiceId;
-    const audioBlob = await llmModule.textToSpeech(spaceId, {
-        prompt:text,
-        voice: voiceId,
-        emotion: command.paramsObject.emotion,
-        styleGuidance: command.paramsObject.styleGuidance,
-        voiceGuidance: command.paramsObject.voiceGuidance,
-        temperature: command.paramsObject.temperature,
-        modelName: "PlayHT2.0"
-    });
-    const audioId = crypto.generateId();
-    const paragraphConfig=await documentModule.getParagraphConfig(spaceId, documentId, paragraphId);
-    paragraphConfig.audio = {
-        id: audioId,
-        src: `spaces/audio/${spaceId}/${audioId}`
-    }
-    await putAudio(spaceId, audioId, audioBlob);
-    await documentModule.updateParagraphConfig(spaceId, documentId, paragraphId, paragraphConfig);
-}
 
 async function getParagraphAudio(spaceId, documentId, paragraphId) {
     const documentModule = require('assistos').loadModule('document');
@@ -1088,7 +1066,6 @@ module.exports = {
         archivePersonality,
         importPersonality,
         getVideoParts,
-        updateParagraphTTS,
         putVideo,
         getParagraphAudio,
         getSpaceMapPath

@@ -299,7 +299,7 @@ export class DocumentViewPage {
 
     hideMenu(controller, container, menuType, event) {
         let menu = event.target.closest(`#${menuType}`);
-        if(!menu && menuType !== "tasks-menu"){
+        if(!menu || menuType !== "tasks-menu"){
             container.setAttribute("data-local-action", `showMenu ${menuType} off`);
             let menu = this.element.querySelector(`#${menuType}`);
             menu.style.display = "none";

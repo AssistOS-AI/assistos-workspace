@@ -1528,44 +1528,6 @@ async function exportPersonality(request, response) {
     }
 }
 
-async function generateParagraphAudio(request,response){
-    const spaceId=request.params.spaceId;
-    const documentId=request.params.documentId;
-    const paragraphId=request.params.paragraphId;
-    const command=request.body.command;
-    const text=request.body.text;
-    try{
-        const audioId = await space.APIs.updateParagraphTTS(request,spaceId,documentId,paragraphId,command,text);
-        utils.sendResponse(response,200,"application/json",{
-            success:true,
-            data:audioId,
-            message:"Paragraph TTS generated successfully"
-        });
-    }catch(error){
-        utils.sendResponse(response, error.statusCode||500, "application/json", {
-            success: false,
-            message: error
-        });
-    }
-}
-async function deleteParagraphAudio(request,response){
-    const spaceId=request.params.spaceId;
-    const documentId=request.params.documentId;
-    const paragraphId=request.params.paragraphId;
-    try{
-        await space.APIs.deleteParagraphAudio(spaceId,documentId,paragraphId);
-        utils.sendResponse(response,200,"application/json",{
-            success:true,
-            message:"Paragraph TTS deleted successfully"
-        });
-    }catch(error){
-        utils.sendResponse(response, error.statusCode||500, "application/json", {
-            success: false,
-            message: error
-        });
-    }
-}
-
 
 module.exports = {
     acceptSpaceInvitation,
@@ -1616,7 +1578,5 @@ module.exports = {
     importDocument,
     exportPersonality,
     importPersonality,
-    generateParagraphAudio,
     estimateDocumentVideoLength,
-    deleteParagraphAudio
 }

@@ -139,22 +139,15 @@ export class ParagraphItem extends BaseParagraph {
                     case "speech":
                         const paragraphText = this.element.querySelector('.paragraph-text').value;
                         if (commandStatus === "new" || commandStatus === "changed" || (commandStatus === "same" && assistOS.UI.customTrim(paragraphText) !== assistOS.UI.customTrim(this.paragraph.text))) {
-                            documentModule.generateParagraphAudio(assistOS.space.id, this._document.id, this.paragraph.id, command, paragraphText).then(
-                                () => {
-                                    this.invalidate(async () => {
-                                        this.paragraph.config = await documentModule.getParagraphConfig(assistOS.space.id, this._document.id, this.paragraph.id);
-                                    });
-                                }
-                            )
+                            documentModule.generateParagraphAudio(assistOS.space.id, this._document.id, this.paragraph.id, command, paragraphText);
                         }
                         if (commandStatus === "deleted") {
-                            documentModule.deleteParagraphAudio(assistOS.space.id, this._document.id, this.paragraph.id).then(
-                                () => {
-                                    this.invalidate(async () => {
-                                        this.paragraph.config = await documentModule.getParagraphConfig(assistOS.space.id, this._document.id, this.paragraph.id);
-                                    });
-                                }
-                            )
+                            // documentModule.deleteParagraphAudio(assistOS.space.id, this._document.id, this.paragraph.id).then(
+                            //     () => {
+                            //         this.invalidate(async () => {
+                            //             this.paragraph.config = await documentModule.getParagraphConfig(assistOS.space.id, this._document.id, this.paragraph.id);
+                            //         });
+                            //     })
                         }
                         break;
                     case "video":

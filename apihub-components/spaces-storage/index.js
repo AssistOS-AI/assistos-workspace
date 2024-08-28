@@ -44,11 +44,8 @@ const {
     deleteVideo,
     exportDocument,
     importDocument,
-    cancelTask,
     exportPersonality,
     importPersonality,
-    generateParagraphAudio,
-    deleteParagraphAudio,
     getVideo,
     estimateDocumentVideoLength
 } = require("./controller");
@@ -57,9 +54,6 @@ const bodyReader = require('../apihub-component-middlewares/bodyReader.js')
 const authentication = require('../apihub-component-middlewares/authentication.js')
 
 function SpaceStorage(server) {
-
-
-
     server.head("/spaces/audio/:spaceId/:audioId",getAudio);
     server.head("/spaces/image/:spaceId/:imageId",getImage);
     server.head("/spaces/video/:spaceId/:videoId",getVideo);
@@ -140,8 +134,6 @@ function SpaceStorage(server) {
     server.get("/spaces/:spaceId/export/personalities/:personalityId", exportPersonality);
     server.post("/spaces/:spaceId/import/documents", importDocument);
     server.post("/spaces/:spaceId/import/personalities", importPersonality);
-    server.post("/spaces/audio/:spaceId/:documentId/:paragraphId", generateParagraphAudio);
-    server.delete("/spaces/audio/:spaceId/:documentId/:paragraphId", deleteParagraphAudio);
 }
 
 module.exports = SpaceStorage;
