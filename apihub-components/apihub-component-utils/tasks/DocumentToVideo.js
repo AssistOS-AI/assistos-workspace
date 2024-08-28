@@ -9,11 +9,11 @@ const ffmpegPath = require("ffmpeg-static");
 const audioCommands = require("../audioCommands");
 const ffmpegUtils = require("../ffmpeg");
 class DocumentToVideo extends Task {
-    constructor(securityContext, spaceId, documentId) {
+    constructor(securityContext, configs) {
         super(securityContext);
         this.processes = [];
-        this.spaceId = spaceId;
-        this.documentId = documentId;
+        this.spaceId = configs.spaceId;
+        this.documentId = configs.documentId;
         //TODO: gather all errors and return them in the end
     }
     async runTask(){
@@ -116,8 +116,10 @@ class DocumentToVideo extends Task {
             status: this.status,
             securityContext: this.securityContext,
             name: this.constructor.name,
-            spaceId: this.spaceId,
-            documentId: this.document.id,
+            configs:{
+                spaceId: this.spaceId,
+                documentId: this.documentId,
+            }
         }
     }
     async createChapterVideo(spaceId, chapter, tempVideoDir, documentId, chapterIndex){

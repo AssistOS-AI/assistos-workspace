@@ -1091,6 +1091,7 @@ module.exports = {
         updateParagraphTTS,
         putVideo,
         getParagraphAudio,
+        getSpaceMapPath
     },
     templates: {
         defaultSpaceAnnouncement: require('./templates/defaultSpaceAnnouncement.json'),

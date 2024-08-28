@@ -44,7 +44,7 @@ async function executeTextToSpeechOnParagraph(spaceId, documentId, paragraph, co
             id: audioId,
             src: audioSrc
         }
-        await documentModule.updateParagraphAudioConfigs(spaceId, documentId, paragraph.id, audioConfigs);
+        //await documentModule.updateParagraphAudioConfigs(spaceId, documentId, paragraph.id, audioConfigs);
         await documentModule.updateParagraphAudio(spaceId, documentId, paragraph.id, audio);
         return audioId;
     } catch (e) {

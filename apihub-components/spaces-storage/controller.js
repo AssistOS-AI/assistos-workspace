@@ -11,7 +11,7 @@ const eventPublisher = require("../subscribers/eventPublisher.js");
 const {sendResponse} = require("../apihub-component-utils/utils");
 const dataVolumePaths = require('../volumeManager').paths;
 const ffmpeg = require('../apihub-component-utils/ffmpeg.js');
-const TaskManager = require('../apihub-component-utils/TaskManager.js');
+const TaskManager = require('../apihub-component-utils/tasks/TaskManager.js');
 const DocumentToVideo = require('../apihub-component-utils/tasks/DocumentToVideo.js');
 const AnonymousTask = require('../apihub-component-utils/tasks/AnonymousTask.js');
 function getFileObjectsMetadataPath(spaceId, objectType) {
@@ -1268,8 +1268,8 @@ async function compileVideoFromDocument(request, response) {
     let userId = request.userId;
     const SecurityContext = require("assistos").ServerSideSecurityContext;
     let securityContext = new SecurityContext(request);
-    let task = new DocumentToVideo(securityContext, spaceId, documentId);
-    TaskManager.addTask(task);
+    let task = new DocumentToVideo(securityContext, {spaceId, documentId});
+    await TaskManager.addTask(task);
     sendResponse(response, 200, "application/json", {
         success: true,
         message: `Task in progress`,
@@ -1277,7 +1277,7 @@ async function compileVideoFromDocument(request, response) {
     });
     try {
         await task.run();
-        TaskManager.removeTask(task.id);
+        await TaskManager.removeTask(task.id);
         eventPublisher.notifyClientTask(userId, task.id);
     } catch (error) {
         eventPublisher.notifyClientTask(userId, task.id, {error: error.message});
@@ -1293,10 +1293,10 @@ async function estimateDocumentVideoLength(request, response){
     let task = new AnonymousTask(securityContext, async function () {
         return await ffmpeg.estimateDocumentVideoLength(spaceId, document, this);
     });
-    TaskManager.addTask(task);
+    await TaskManager.addTask(task);
     try{
         let durationObject = await task.run();
-        TaskManager.removeTask(task.id);
+        await TaskManager.removeTask(task.id);
         sendResponse(response, 200, "application/json", {
             success: true,
             message: `Estimation in progress`,
