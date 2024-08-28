@@ -20,7 +20,8 @@ class TaskManager {
             let records = await $$.promisify(lightDBEnclaveClient.getAllRecords)($$.SYSTEM_IDENTIFIER, this.tasksTable);
             for(let record of records){
                 let task = record.data;
-                let taskInstance = new [task.name](task.securityContext, task.userId, task.configs);
+                let taskClass = require(`./${task.name}`);
+                let taskInstance = new taskClass(task.securityContext, task.spaceId, task.userId, task.configs);
                 taskInstance.id = task.id; //set the original id
                 taskInstance.status = task.status; //set the original status
                 if(taskInstance.status === STATUS.RUNNING){

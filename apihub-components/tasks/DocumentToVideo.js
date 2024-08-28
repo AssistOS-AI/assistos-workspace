@@ -115,6 +115,7 @@ class DocumentToVideo extends Task {
             id: this.id,
             status: this.status,
             securityContext: this.securityContext,
+            spaceId: this.spaceId,
             userId: this.userId,
             name: this.constructor.name,
             configs:{
