@@ -1,30 +1,28 @@
 import {BaseParagraph} from "./BaseParagraph.js";
+
 const utilModule = require("assistos").loadModule("util", {});
 const documentModule = require("assistos").loadModule("document", {});
 const llmModule = require("assistos").loadModule("llm", {});
-export class ImageParagraph extends BaseParagraph{
+
+export class ImageParagraph extends BaseParagraph {
     constructor(element, invalidate) {
         super(element, invalidate);
     }
-    async subscribeToParagraphEvents(){
+
+    async subscribeToParagraphEvents() {
         await utilModule.subscribeToObject(this.paragraph.id, async (type) => {
-            if (type === "lipSync") {
-                this.paragraph.config.lipSync = await documentModule.getImageParagraphLipSync(assistOS.space.id, this._document.id, this.paragraph.id);
-            } else {
-                this.paragraph = await this.chapter.refreshParagraph(assistOS.space.id, this._document.id, this.paragraph.id);
-            }
+            this.paragraph = await this.chapter.refreshParagraph(assistOS.space.id, this._document.id, this.paragraph.id);
             this.invalidate();
         });
     }
+
     beforeRender() {
-        if(this.paragraph.lipSync){
-            this.lipSyncState = "done";
-        }
         this.initialized = false;
         this.imageSrc = this.paragraph.config.image.src;
         this.imageAlt = this.paragraph.config.image.timestamp;
     }
-    renderImageMaxWidth(){
+
+    renderImageMaxWidth() {
         let originalWidth = parseFloat(getComputedStyle(this.imgElement, null).getPropertyValue('width').replace('px', ''));
         let originalHeight = parseFloat(getComputedStyle(this.imgElement, null).getPropertyValue('height').replace('px', ''));
         const aspectRatio = originalWidth / originalHeight;
@@ -33,9 +31,10 @@ export class ImageParagraph extends BaseParagraph{
         this.imgElement.style.width = maxWidth + 'px';
         this.imgElement.style.height = maxHeight + 'px';
     }
+
     afterRender() {
         this.imgElement = this.element.querySelector(".paragraph-image");
-        if(this.paragraph.config.image.dimensions){
+        if (this.paragraph.config.image.dimensions) {
             this.imgElement.style.width = this.paragraph.config.image.dimensions.width + "px";
             this.imgElement.style.height = this.paragraph.config.image.dimensions.height + "px";
             setTimeout(() => {
@@ -50,8 +49,8 @@ export class ImageParagraph extends BaseParagraph{
             paragraphImage.click();
         }
         const handlesNames = ["ne", "se", "sw", "nw"];
-        let handles= {};
-        for(let handleName of handlesNames){
+        let handles = {};
+        for (let handleName of handlesNames) {
             handles[handleName] = this.element.querySelector(`.${handleName}`);
         }
         this.originalWidth = 0;
@@ -60,16 +59,15 @@ export class ImageParagraph extends BaseParagraph{
         this.originalY = 0;
         this.originalMouseX = 0;
         this.originalMouseY = 0;
-        if(!this.boundMouseDownFN){
+        if (!this.boundMouseDownFN) {
             this.boundMouseDownFN = this.mouseDownFn.bind(this);
-            for(let key of Object.keys(handles)){
+            for (let key of Object.keys(handles)) {
                 handles[key].addEventListener('mousedown', this.boundMouseDownFN);
             }
         }
-
-        this.changeLipSyncUIState();
         this.parentChapterElement = this.element.closest("chapter-item");
     }
+
     mouseDownFn(event) {
         event.preventDefault();
         this.originalWidth = parseFloat(getComputedStyle(this.imgElement, null).getPropertyValue('width').replace('px', ''));
@@ -99,10 +97,12 @@ export class ImageParagraph extends BaseParagraph{
         }
         await this.documentPresenter.resetTimer();
     }
+
     async stopResize() {
         document.removeEventListener('mousemove', this.boundResize);
         await this.documentPresenter.stopTimer(true);
     }
+
     switchParagraphArrows(mode) {
         let arrows = this.element.querySelector('.paragraph-controls');
         if (mode === "on") {
@@ -123,13 +123,15 @@ export class ImageParagraph extends BaseParagraph{
             width: imageElement.width,
             height: imageElement.height
         };
-        if ((dimensions.width !== this.paragraph.config.image.dimensions.width || dimensions.height!==this.paragraph.config.image.dimensions.height) && this.initialized) {
-            this.paragraph.dimensions.width = dimensions.width;
-            this.paragraph.dimensions.height = dimensions.height;
-            await documentModule.updateImageParagraphDimensions(assistOS.space.id,
+        if ((dimensions.width !== this.paragraph.config.image.dimensions.width || dimensions.height !== this.paragraph.config.image.dimensions.height) && this.initialized) {
+            this.paragraph.config.image.dimensions.width = dimensions.width;
+            this.paragraph.config.image.dimensions.height = dimensions.height;
+            await documentModule.updateParagraphConfig(
+                assistOS.space.id,
                 this._document.id,
                 this.paragraph.id,
-                dimensions);
+                this.paragraph.config
+            )
         }
     }
 
@@ -139,13 +141,14 @@ export class ImageParagraph extends BaseParagraph{
         this.switchParagraphArrows("on");
         assistOS.space.currentParagraphId = this.paragraph.id;
     }
+
     focusOutHandler() {
         this.switchParagraphArrows("off");
         let dragBorder = this.element.querySelector(".drag-border");
         dragBorder.style.display = "none";
     }
 
-    async resetTimer(paragraph, event){
+    async resetTimer(paragraph, event) {
         if (event.key === "Backspace") {
             if (assistOS.space.currentParagraphId === this.paragraph.id) {
                 await this.documentPresenter.stopTimer(false);
@@ -153,7 +156,8 @@ export class ImageParagraph extends BaseParagraph{
             }
         }
     }
-    async copy(){
+
+    async copy() {
         try {
             await navigator.clipboard.writeText(this.paragraph.image.src)
         } catch (e) {
@@ -162,10 +166,11 @@ export class ImageParagraph extends BaseParagraph{
         const dropdownMenu = this.element.querySelector('.dropdown-menu-container');
         dropdownMenu.remove();
     }
-    openParagraphDropdown(element){
+
+    openParagraphDropdown(element) {
         const generateDropdownMenu = () => {
             let baseDropdownMenuHTML =
-                    `<list-item data-local-action="deleteParagraph" data-name="Delete"
+                `<list-item data-local-action="deleteParagraph" data-name="Delete"
                            data-highlight="light-highlight"></list-item>
                     <list-item data-local-action="copy" data-name="Copy"
                            data-highlight="light-highlight"></list-item>
@@ -174,11 +179,6 @@ export class ImageParagraph extends BaseParagraph{
                     <list-item data-local-action="addParagraph" data-name="Insert Paragraph"
                            data-highlight="light-highlight"></list-item>           
                  `;
-            if(this.lipSyncState === "generating"){
-                baseDropdownMenuHTML += `<list-item class="disabled-pointer-events" data-local-action="lipSync" data-name="Generating Lip Sync..." data-highlight="light-highlight"></list-item>`;
-            } else {
-                baseDropdownMenuHTML += `<list-item data-local-action="lipSync" data-name="Lip Sync" data-highlight="light-highlight"></list-item>`;
-            }
             let chapterElement = this.element.closest("chapter-item");
             let chapterPresenter = chapterElement.webSkelPresenter;
             if (chapterPresenter.chapter.paragraphs.length > 1) {
@@ -208,52 +208,5 @@ export class ImageParagraph extends BaseParagraph{
 
         dropdownMenu.addEventListener('mouseleave', removeDropdown);
         dropdownMenu.focus();
-    }
-    async lipSync(targetElement){
-        let paragraphIndex = this.chapter.paragraphs.findIndex(paragraph => paragraph.id === this.paragraph.id);
-        let nextParagraph = this.chapter.paragraphs[paragraphIndex + 1];
-        if(!nextParagraph){
-            return await showApplicationError("Lip Sync Error","No next paragraph found to extract audio from. This is the last paragraph in the chapter.");
-        }
-        if(!nextParagraph.audio){
-            return await showApplicationError("Lip Sync Error","No audio found in the next paragraph to lip sync to.");
-        }
-        this.lipSyncState = "generating";
-        this.changeLipSyncUIState();
-        let dropdownMenu = this.element.querySelector('.dropdown-menu-container');
-        dropdownMenu.remove();
-        const videoId = await llmModule.lipSync(assistOS.space.id,this.paragraph.config.image.src, nextParagraph.config.audio.src, "sync-1.6.0");
-        await utilModule.subscribeToObject(videoId, async () => {
-            await utilModule.unsubscribeFromObject(videoId);
-            let paragraphLipSync = {
-                id: videoId.split("_")[1],
-                src: `spaces/video/${assistOS.space.id}/${videoId.split("_")[1]}`
-            }
-            await documentModule.updateImageParagraphLipSync(assistOS.space.id, this._document.id, this.paragraph.id, paragraphLipSync);
-            this.paragraph.config.lipSync = paragraphLipSync;
-            this.lipSyncState = "done";
-            this.invalidate();
-        });
-    }
-    changeLipSyncUIState(){
-        let paragraphControls = this.element.querySelector('.paragraph-controls');
-        if(this.lipSyncState === "generating"){
-            paragraphControls.insertAdjacentHTML('beforeend', `<div class="loading-icon small top-margin"></div>`);
-        } else if(this.lipSyncState === "done"){
-            let playButton = this.element.querySelector('.play-lip-sync');
-            playButton.style.display = "block";
-        }
-    }
-    playLipSyncVideo(playButton) {
-            let videoTagContainer = `
-        <div class="video-container">
-            <video controls autoplay class="lip-sync-video" src="${this.paragraph.config.lipSync.src}"></video>
-            <img src="./wallet/assets/icons/x-mark.svg" data-local-action="closePlayer" class="close-player pointer" alt="close"/>
-        </div>`;
-            playButton.insertAdjacentHTML('afterend', videoTagContainer);
-        }
-    closePlayer() {
-        let videoContainer = this.element.querySelector('.video-container');
-        videoContainer.remove();
     }
 }

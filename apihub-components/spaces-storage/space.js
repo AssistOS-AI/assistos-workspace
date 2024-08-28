@@ -1031,18 +1031,22 @@ async function updateParagraphTTS(request, spaceId, documentId, paragraphId, com
         modelName: "PlayHT2.0"
     });
     const audioId = crypto.generateId();
-    await putAudio(spaceId, audioId, audioBlob);
-    let audioObj = {
+    const paragraphConfig=await documentModule.getParagraphConfig(spaceId, documentId, paragraphId);
+    paragraphConfig.audio = {
         id: audioId,
         src: `spaces/audio/${spaceId}/${audioId}`
     }
-    await documentModule.updateParagraphAudio(spaceId, documentId, paragraphId, audioObj);
+    await putAudio(spaceId, audioId, audioBlob);
+    await documentModule.updateParagraphConfig(spaceId, documentId, paragraphId, paragraphConfig);
 }
 
 async function getParagraphAudio(spaceId, documentId, paragraphId) {
     const documentModule = require('assistos').loadModule('document');
     const paragraph = await documentModule.getParagraph(spaceId, documentId, paragraphId);
-    return paragraph.audio.src || null;
+    if(!paragraph.config.audio){
+        return null;
+    }
+    return paragraph.config.audio.src
 }
 
 

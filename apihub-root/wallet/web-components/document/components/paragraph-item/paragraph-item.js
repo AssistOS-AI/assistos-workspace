@@ -2,6 +2,7 @@ import {BaseParagraph} from "../image-paragraph/BaseParagraph.js";
 
 const utilModule = require("assistos").loadModule("util", {});
 const documentModule = require("assistos").loadModule("document", {});
+const llmModule = require("assistos").loadModule("llm", {});
 
 
 export class ParagraphItem extends BaseParagraph {
@@ -284,7 +285,7 @@ export class ParagraphItem extends BaseParagraph {
     async playParagraphAudio(_target) {
         let audioSection = this.element.querySelector('.paragraph-audio-section');
         let audio = this.element.querySelector('.paragraph-audio');
-        audio.src = this.paragraph.audio.src
+        audio.src = this.paragraph.config.audio.src
         audio.load();
         audio.play();
         audioSection.classList.remove('hidden');
@@ -345,6 +346,12 @@ export class ParagraphItem extends BaseParagraph {
                     baseDropdownMenuHTML += ` <list-item data-name="Download Audio" data-local-action="downloadAudio" data-highlight="light-highlight"></list-item>`;
                 }
             }
+            if (!this.paragraph.config.audio) {
+                baseDropdownMenuHTML += `<list-item data-name="Lip Sync" data-local-action="lipSync" data-highlight="light-highlight"></list-item>`;
+            }
+            if (this.paragraph.config.lipSync) {
+                baseDropdownMenuHTML += `<list-item data-name="Play Lip Sync" data-local-action="playLipSyncVideo" data-highlight="light-highlight"></list-item>`;
+            }
             let dropdownMenuHTML =
                 `<div class="dropdown-menu">` +
                 baseDropdownMenuHTML +
@@ -368,10 +375,53 @@ export class ParagraphItem extends BaseParagraph {
 
     downloadAudio(_target) {
         const link = document.createElement('a');
-        link.href = this.paragraph.audio.src;
+        link.href = this.paragraph.config.audio.src;
         link.download = 'audio.mp3';
         document.body.appendChild(link);
         link.click();
         document.body.removeChild(link);
+    }
+
+    async lipSync(targetElement) {
+        let paragraphIndex = this.chapter.paragraphs.findIndex(paragraph => paragraph.id === this.paragraph.id);
+        let previousParagraph = this.chapter.paragraphs[paragraphIndex - 1];
+        if (!previousParagraph) {
+            return await showApplicationError("Lip Sync Error", "No next paragraph found to extract audio from. This is the last paragraph in the chapter.");
+        }
+        if (!previousParagraph.audio) {
+            return await showApplicationError("Lip Sync Error", "No audio found in the next paragraph to lip sync to.");
+        }
+        let dropdownMenu = this.element.querySelector('.dropdown-menu-container');
+        dropdownMenu.remove();
+
+        await llmModule.lipSync(assistOS.space.id, this.paragraph.config.image.src, nextParagraph.config.audio.src, "sync-1.6.0").then(async () => {
+            this.paragraph.config = await documentModule.getParagraphConfig(assistOS.space.id, this._document.id, this.paragraph.id);
+            this.invalidate();
+        })
+
+    }
+
+    changeLipSyncUIState() {
+        let paragraphControls = this.element.querySelector('.paragraph-controls');
+        if (this.lipSyncState === "generating") {
+            paragraphControls.insertAdjacentHTML('beforeend', `<div class="loading-icon small top-margin"></div>`);
+        } else if (this.lipSyncState === "done") {
+            let playButton = this.element.querySelector('.play-lip-sync');
+            playButton.style.display = "block";
+        }
+    }
+
+    playLipSyncVideo(playButton) {
+        let videoTagContainer = `
+        <div class="video-container">
+            <video controls autoplay class="lip-sync-video" src="${this.paragraph.config.lipSync.src}"></video>
+            <img src="./wallet/assets/icons/x-mark.svg" data-local-action="closePlayer" class="close-player pointer" alt="close"/>
+        </div>`;
+        playButton.insertAdjacentHTML('afterend', videoTagContainer);
+    }
+
+    closePlayer() {
+        let videoContainer = this.element.querySelector('.video-container');
+        videoContainer.remove();
     }
 }
