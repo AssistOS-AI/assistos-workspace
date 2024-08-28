@@ -15,6 +15,7 @@ async function compileVideoFromDocument(request, response) {
         message: "Task added to the queue",
         data: task.id
     });
+    TaskManager.runTask(task.id);
 }
 function cancelTask(request, response) {
     let taskId = request.params.taskId;

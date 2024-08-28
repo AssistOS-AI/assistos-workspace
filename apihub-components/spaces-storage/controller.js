@@ -1272,10 +1272,8 @@ async function estimateDocumentVideoLength(request, response){
     let task = new AnonymousTask(securityContext, async function () {
         return await ffmpeg.estimateDocumentVideoLength(spaceId, document, this);
     });
-    await TaskManager.addTask(task);
     try{
         let durationObject = await task.run();
-        await TaskManager.removeTask(task.id);
         sendResponse(response, 200, "application/json", {
             success: true,
             message: `Estimation in progress`,

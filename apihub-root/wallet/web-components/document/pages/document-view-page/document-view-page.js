@@ -7,8 +7,7 @@ export class DocumentViewPage {
         this.element = element;
         this.invalidate = invalidate;
         this.refreshDocument = async () => {
-            let documentData = await documentModule.getDocument(assistOS.space.id, this._document.id);
-            this._document = new documentModule.Document(documentData);
+            this._document = await documentModule.getDocument(assistOS.space.id, this._document.id);
         }
         this.childrenSubscriptions = new Map();
         this.invalidate(async () => {
@@ -299,10 +298,13 @@ export class DocumentViewPage {
     }
 
     hideMenu(controller, container, menuType, event) {
-        container.setAttribute("data-local-action", `showMenu ${menuType} off`);
-        let menu = this.element.querySelector(`#${menuType}`);
-        menu.style.display = "none";
-        controller.abort();
+        let menu = event.target.closest(`#${menuType}`);
+        if(!menu && menuType !== "tasks-menu"){
+            container.setAttribute("data-local-action", `showMenu ${menuType} off`);
+            let menu = this.element.querySelector(`#${menuType}`);
+            menu.style.display = "none";
+            controller.abort();
+        }
     }
 
     async showMenu(_target, menuType, mode) {
@@ -341,7 +343,7 @@ export class DocumentViewPage {
         let tasks = await documentModule.getDocumentTasks(assistOS.space.id, this._document.id);
         let tasksMenu = this.element.querySelector("#tasks-menu");
         if(tasks.length === 0){
-            tasksMenu.innerHTML = "No tasks yet";
+            tasksMenu.innerHTML = `<div class="no-tasks">No tasks yet</div>`;
             return;
         }
         let tasksList = "";

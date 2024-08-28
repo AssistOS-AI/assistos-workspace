@@ -31,7 +31,6 @@ class AddImageParagraph extends IFlow {
 
     async userCode(apis, parameters) {
         try {
-            debugger
             let documentModule = apis.loadModule("document");
             await documentModule.addParagraph(parameters.spaceId, parameters.documentId, parameters.chapterId, parameters.paragraphData);
             apis.success(parameters.paragraphId);
