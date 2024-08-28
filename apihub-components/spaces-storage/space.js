@@ -700,10 +700,6 @@ async function exportDocumentData(spaceId, documentId, request) {
                     })
                     personalities.add(audioConfig.paramsObject.personality);
                 }
-                /* TODO remove this after audio command extraction */
-                /* if (documentRecordsContents[paragraphId].audioConfig) {
-                     paragraph.audioConfig = documentRecordsContents[paragraphId].audioConfig;
-                 }*/
                 if (documentRecordsContents[paragraphId].image) {
                     paragraph.image = documentRecordsContents[paragraphId].image;
                     paragraph.image.fileName = `Chapter_${chapterIndex + 1}_Paragraph_${paragraphIndex + 1}_image`
