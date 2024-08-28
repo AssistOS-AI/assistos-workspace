@@ -3,14 +3,14 @@ const fs = require('fs');
 const Task = require('./Task');
 const path = require('path');
 const fsPromises = fs.promises;
-const file = require('../file');
-const space = require('../../spaces-storage/space');
+const file = require('../apihub-component-utils/file');
+const space = require('../spaces-storage/space');
 const ffmpegPath = require("ffmpeg-static");
-const audioCommands = require("../audioCommands");
-const ffmpegUtils = require("../ffmpeg");
+const audioCommands = require("../apihub-component-utils/audioCommands");
+const ffmpegUtils = require("../apihub-component-utils/ffmpeg");
 class DocumentToVideo extends Task {
-    constructor(securityContext, configs) {
-        super(securityContext);
+    constructor(securityContext, spaceId, userId, configs) {
+        super(securityContext, spaceId, userId);
         this.processes = [];
         this.spaceId = configs.spaceId;
         this.documentId = configs.documentId;
@@ -115,6 +115,7 @@ class DocumentToVideo extends Task {
             id: this.id,
             status: this.status,
             securityContext: this.securityContext,
+            userId: this.userId,
             name: this.constructor.name,
             configs:{
                 spaceId: this.spaceId,

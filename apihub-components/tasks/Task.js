@@ -1,39 +1,38 @@
-const crypto = require('../crypto');
-const STATUS = {
-    PENDING: 'pending',
-    RUNNING: 'running',
-    COMPLETED: 'completed',
-    FAILED: 'failed',
-    CANCELLED: 'cancelled'
-};
+const crypto = require('../apihub-component-utils/crypto');
+const constants = require('./constants');
+const eventPublisher = require("../subscribers/eventPublisher");
+const STATUS = constants.STATUS;
+const EVENTS = constants.EVENTS;
 class Task {
-    constructor(securityContext) {
-        this.status = STATUS.PENDING;
+    constructor(securityContext, spaceId, userId) {
+        this.status = STATUS.CREATED;
         this.id = crypto.generateId(16);
         this.securityContext = securityContext;
+        this.userId = userId;
+        this.spaceId = spaceId;
         // possible statuses: pending, running, completed, failed, cancelled
     }
     async run(){
-        if (this.status !== STATUS.PENDING) {
+        if (this.status === STATUS.RUNNING) {
             throw new Error(`Cannot run task in status ${this.status}`);
         }
-        this.status = STATUS.RUNNING;
+        this.setStatus(STATUS.RUNNING);
         if(!this.runTask){
             throw new Error('executeTask method must be implemented');
         }
         try{
             let result = await this.runTask();
-            this.status = STATUS.COMPLETED;
+            this.setStatus(STATUS.COMPLETED);
             this.emit(STATUS.COMPLETED);
             return result;
         } catch (e) {
-            this.status = STATUS.FAILED;
+            this.setStatus(STATUS.FAILED);
             throw e;
         }
     }
     async cancel(){
         if (this.status === STATUS.RUNNING) {
-            this.status = STATUS.CANCELLED;
+            this.setStatus(STATUS.CANCELLED);
             if(this.cancelTask){
                await this.cancelTask();
             } else {
@@ -56,6 +55,10 @@ class Task {
             this.completeCallback();
         }
     }
-
+    setStatus(status){
+        this.status = status;
+        this.emit(EVENTS.UPDATE);
+        eventPublisher.notifyClientTask(this.userId, this.id, this.status);
+    }
 }
 module.exports = Task;

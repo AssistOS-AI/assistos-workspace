@@ -1,4 +1,3 @@
-const spaceModule = require("assistos").loadModule("space", {});
 const utilModule = require("assistos").loadModule("util", {});
 const documentModule = require("assistos").loadModule("document", {});
 import {executorTimer, unescapeHtmlEntities} from "../../../../imports.js";
@@ -252,41 +251,22 @@ export class DocumentViewPage {
         _target.addEventListener("keydown", resetTimerFunction);
     }
     async documentToVideo(button){
-        this.videoId = (await assistOS.callFlow("DocumentToVideo", {
-            spaceId: assistOS.space.id,
-            documentId: this._document.id
-        })).data;
-        await utilModule.subscribeToObject(this.videoId, async (data) => {
-            if(data){
-                if(data.error) {
-                    button.remove();
-                    button = `<list-item data-local-action="documentToVideo" data-name="Export Video"
-                               data-highlight="light-highlight"></list-item>`;
-                    return await showApplicationError("Error compiling video", data.error, "");
-                }
+        let videoId = await documentModule.documentToVideo(assistOS.space.id, this._document.id);
+        await utilModule.subscribeToObject(videoId, async (data) => {
+            if(data.error) {
+                return await showApplicationError("Error compiling video", data.error, "");
+            } else if(data.status === "completed"){
+                const a = document.createElement("a");
+                a.href = `/spaces/video/${assistOS.space.id}/${videoId}`;
+                a.download = "video.mp4";
+                document.body.appendChild(a);
+                a.click();
+                a.remove();
+                this.invalidate(this.refreshDocument);
             }
-            const a = document.createElement("a");
-            a.href = `/spaces/video/${assistOS.space.id}/${this.videoId}`;
-            a.download = "video.mp4";
-            document.body.appendChild(a);
-            a.click();
-            a.remove();
-            delete this.videoId;
-            this.invalidate(this.refreshDocument);
-            //remove subscription
         });
-        button.innerHTML = `<div class="loading-icon"></div>`;
-        button.setAttribute("data-local-action", "cancelVideoCompilation");
     }
-    async cancelVideoCompilation(button){
-        try{
-            await spaceModule.cancelTask(assistOS.space.id, this.videoId);
-            button.innerHTML = "Document to Video";
-            button.setAttribute("data-local-action", "documentToVideo");
-        } catch (e) {
-            await showApplicationError("Error cancelling video compilation", e.message, "");
-        }
-    }
+
     async  exportDocument(_target) {
         try {
             const response = await fetch(`/spaces/${assistOS.space.id}/export/documents/${this._document.id}`, {
@@ -361,8 +341,14 @@ export class DocumentViewPage {
     async loadDocumentTasks(){
         let tasks = await documentModule.getDocumentTasks(assistOS.space.id, this._document.id);
         let tasksMenu = this.element.querySelector("#tasks-menu");
+        if(tasks.length === 0){
+            tasksMenu.innerHTML = "No tasks yet";
+            return;
+        }
+        let tasksList = this.element.querySelector(".tasks-list");
+        tasksList.innerHTML = "";
         for(let task of tasks){
-            tasksMenu.innerHTML += `<task-item data-task-id="${task.id}" data-task-title="${task.title}" data-presenter="task-item"></task-item>`;
+            tasksList.innerHTML += `<task-item data-id="${task.id}" data-name="${task.name}" data-status=${task.status} data-presenter="task-item"></task-item>`;
         }
     }
 }

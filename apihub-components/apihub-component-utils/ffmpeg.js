@@ -4,7 +4,7 @@ const ffmpegPath = require("ffmpeg-static");
 const ffprobePath = require("ffprobe-static").path;
 const space = require("../spaces-storage/space.js").APIs;
 const crypto = require("./crypto");
-const AnonymousTask = require("./tasks/AnonymousTask");
+const AnonymousTask = require("../tasks/AnonymousTask");
 async function concatenateAudioFiles(tempVideoDir, audioFilesPaths, outputAudioPath, fileName, task) {
     const fileListPath = path.join(tempVideoDir, fileName);
     const fileListContent = audioFilesPaths.map(file => `file '${file}'`).join('\n');

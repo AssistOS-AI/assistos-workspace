@@ -11,9 +11,9 @@ const eventPublisher = require("../subscribers/eventPublisher.js");
 const {sendResponse} = require("../apihub-component-utils/utils");
 const dataVolumePaths = require('../volumeManager').paths;
 const ffmpeg = require('../apihub-component-utils/ffmpeg.js');
-const TaskManager = require('../apihub-component-utils/tasks/TaskManager.js');
-const DocumentToVideo = require('../apihub-component-utils/tasks/DocumentToVideo.js');
-const AnonymousTask = require('../apihub-component-utils/tasks/AnonymousTask.js');
+const TaskManager = require('../tasks/TaskManager.js');
+const DocumentToVideo = require('../tasks/DocumentToVideo.js');
+const AnonymousTask = require('../tasks/AnonymousTask.js');
 function getFileObjectsMetadataPath(spaceId, objectType) {
     return path.join(dataVolumePaths.space, `${spaceId}/${objectType}/metadata.json`);
 }
@@ -1262,27 +1262,6 @@ async function deleteAudio(request, response) {
     }
 }
 
-async function compileVideoFromDocument(request, response) {
-    let documentId = request.params.documentId;
-    let spaceId = request.params.spaceId;
-    let userId = request.userId;
-    const SecurityContext = require("assistos").ServerSideSecurityContext;
-    let securityContext = new SecurityContext(request);
-    let task = new DocumentToVideo(securityContext, {spaceId, documentId});
-    await TaskManager.addTask(task);
-    sendResponse(response, 200, "application/json", {
-        success: true,
-        message: `Task in progress`,
-        data: task.id
-    });
-    try {
-        await task.run();
-        await TaskManager.removeTask(task.id);
-        eventPublisher.notifyClientTask(userId, task.id);
-    } catch (error) {
-        eventPublisher.notifyClientTask(userId, task.id, {error: error.message});
-    }
-}
 async function estimateDocumentVideoLength(request, response){
     let documentId = request.params.documentId;
     let spaceId = request.params.spaceId;
@@ -1309,21 +1288,7 @@ async function estimateDocumentVideoLength(request, response){
         });
     }
 }
-async function cancelTask(request, response) {
-    let taskId = request.params.taskId;
-    try {
-        TaskManager.cancelTaskAndRemove(taskId);
-        sendResponse(response, 200, "application/json", {
-            success: true,
-            message: `Task ${taskId} cancelled`
-        });
-    } catch (error) {
-        sendResponse(response, 500, "application/json", {
-            success: false,
-            message: error.message
-        });
-    }
-}
+
 
 async function getVideo(request, response) {
     const spaceId = request.params.spaceId;
@@ -1649,10 +1614,8 @@ module.exports = {
     getAudio,
     getVideo,
     deleteVideo,
-    compileVideoFromDocument,
     exportDocument,
     importDocument,
-    cancelTask,
     exportPersonality,
     importPersonality,
     generateParagraphAudio,

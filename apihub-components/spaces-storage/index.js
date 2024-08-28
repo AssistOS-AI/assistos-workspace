@@ -42,7 +42,6 @@ const {
     deleteAudio,
     getAudio,
     deleteVideo,
-    compileVideoFromDocument,
     exportDocument,
     importDocument,
     cancelTask,
@@ -134,8 +133,6 @@ function SpaceStorage(server) {
     server.delete("/spaces/image/:spaceId/:imageId", deleteImage);
     server.post("/spaces/audio/:spaceId", storeAudio);
     server.delete("/spaces/audio/:spaceId/:audioId", deleteAudio);
-
-    server.post("/spaces/video/compile/:spaceId/:documentId", compileVideoFromDocument);
     server.get("/spaces/video/estimate/:spaceId/:documentId", estimateDocumentVideoLength);
 
     server.delete("/spaces/video/:spaceId/:videoId", deleteVideo);
@@ -145,7 +142,6 @@ function SpaceStorage(server) {
     server.post("/spaces/:spaceId/import/personalities", importPersonality);
     server.post("/spaces/audio/:spaceId/:documentId/:paragraphId", generateParagraphAudio);
     server.delete("/spaces/audio/:spaceId/:documentId/:paragraphId", deleteParagraphAudio);
-    server.delete("/spaces/tasks/:spaceId/:taskId", cancelTask);
 }
 
 module.exports = SpaceStorage;

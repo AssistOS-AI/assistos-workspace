@@ -1,7 +1,10 @@
 const Task = require('./Task');
 const enclave = require("opendsu").loadAPI("enclave");
 const fsPromises = require('fs').promises;
-const space = require('../../spaces-storage/space');
+const space = require('../spaces-storage/space');
+const constants = require('./constants');
+const STATUS = constants.STATUS;
+const EVENTS = constants.EVENTS;
 class TaskManager {
     constructor() {
         this.tasks = [];
@@ -17,21 +20,30 @@ class TaskManager {
             let records = await $$.promisify(lightDBEnclaveClient.getAllRecords)($$.SYSTEM_IDENTIFIER, this.tasksTable);
             for(let record of records){
                 let task = record.data;
-                if(task.status === "pending"){
-                    let taskInstance = new [task.name](task.configs);
-                    this.tasks.push(taskInstance);
+                let taskInstance = new [task.name](task.securityContext, task.userId, task.configs);
+                taskInstance.id = task.id; //set the original id
+                taskInstance.status = task.status; //set the original status
+                if(taskInstance.status === STATUS.RUNNING){
+                    taskInstance.setStatus(STATUS.CANCELLED);
+                }
+                this.tasks.push(taskInstance);
+                if(taskInstance.status === STATUS.PENDING){
+                    this.runTask(taskInstance.id);
                 }
             }
         }
     }
-    async addTask(task, spaceId) {
+    async addTask(task) {
         if (!(task instanceof Task)) {
             throw new Error('object provided is not an instance of Task');
         }
-        task.spaceId = spaceId;
         this.tasks.push(task);
-        let lightDBEnclaveClient = enclave.initialiseLightDBEnclave(spaceId);
+        let lightDBEnclaveClient = enclave.initialiseLightDBEnclave(task.spaceId);
         await $$.promisify(lightDBEnclaveClient.insertRecord)($$.SYSTEM_IDENTIFIER, this.tasksTable, task.id, {data: task.serialize()});
+
+        task.on(EVENTS.UPDATE, async () => {
+            await $$.promisify(lightDBEnclaveClient.updateRecord)($$.SYSTEM_IDENTIFIER, this.tasksTable, task.id, {data: task.serialize()});
+        });
     }
 
     cancelTaskAndRemove(taskId) {
@@ -40,7 +52,6 @@ class TaskManager {
             throw new Error('Task not found');
         }
         task.cancel();
-        this.tasks = this.tasks.filter(task => task.id !== taskId);
     }
     async removeTask(taskId) {
         let task = this.tasks.find(task => task.id === taskId);
@@ -59,32 +70,33 @@ class TaskManager {
         }
         return task;
     }
+    serializeTasks(spaceId) {
+        return this.tasks.filter(task => task.spaceId === spaceId).map(task => task.serialize());
+    }
     getRunningTasks() {
-        return this.tasks.filter(task => task.status === 'running');
+        return this.tasks.filter(task => task.status === STATUS.RUNNING);
     }
     runTask(taskId) {
         let runningTasks = this.getRunningTasks();
-
         let task = this.tasks.find(task => task.id === taskId);
         if (!task) {
             throw new Error('Task not found');
         }
         if (runningTasks.length >= this.maxRunningTasks) {
             this.queue.push(task);
-            return "Task added to queue";
+            task.setStatus(STATUS.PENDING);
         } else {
-            task.on('completed', () => {
+            task.on(STATUS.COMPLETED, () => {
                 this.runNextTask();
             });
             task.run();
         }
-
     }
 
     runNextTask() {
         if (this.queue.length > 0 && this.getRunningTasks().length < this.maxRunningTasks) {
             let nextTask = this.queue.shift();
-            nextTask.on('completed', () => {
+            nextTask.on(STATUS.COMPLETED, () => {
                 this.runNextTask();
             });
             nextTask.run();
