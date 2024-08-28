@@ -1,7 +1,9 @@
 import {base64ToBlob, unescapeHtmlEntities} from "../../../../imports.js";
+
 const documentModule = require("assistos").loadModule("document", {});
 const utilModule = require("assistos").loadModule("util", {});
 const spaceModule = require("assistos").loadModule("space", {});
+
 export class ChapterItem {
     constructor(element, invalidate) {
         this.element = element;
@@ -20,7 +22,7 @@ export class ChapterItem {
         this.element.removeEventListener('keydown', this.addParagraphOnCtrlEnter);
         this.element.addEventListener('keydown', this.addParagraphOnCtrlEnter);
         this.invalidate(async () => {
-            if(!this.documentPresenter.childrenSubscriptions.has(this.chapter.id)){
+            if (!this.documentPresenter.childrenSubscriptions.has(this.chapter.id)) {
                 await this.subscribeToChapterEvents();
                 this.documentPresenter.childrenSubscriptions.set(this.chapter.id, this.chapter.id);
             }
@@ -39,7 +41,7 @@ export class ChapterItem {
         let iterator = 0;
         this.chapter.paragraphs.forEach((paragraph) => {
             iterator++;
-            if (paragraph.image) {
+            if (paragraph.config.image) {
                 this.chapterContent += `<image-paragraph data-presenter="image-paragraph" data-metadata="paragraph nr. ${iterator} with id ${paragraph.id}" data-paragraph-id="${paragraph.id}" data-chapter-id="${this.chapter.id}"></image-paragraph>`
             } else {
                 this.chapterContent += `<paragraph-item data-presenter="paragraph-item" data-metadata="paragraph nr. ${iterator} with id ${paragraph.id}" data-paragraph-id="${paragraph.id}" data-chapter-id="${this.chapter.id}"></paragraph-item>`;
@@ -49,7 +51,7 @@ export class ChapterItem {
 
     subscribeToChapterEvents() {
         utilModule.subscribeToObject(this.chapter.id, async (type) => {
-            switch (type){
+            switch (type) {
                 case "title": {
                     let title = await documentModule.getChapterTitle(assistOS.space.id, this._document.id, this.chapter.id);
                     if (title !== this.chapter.title) {
@@ -108,7 +110,7 @@ export class ChapterItem {
             this.boundPasteHandler = this.pasteHandler.bind(this);
             this.element.addEventListener('paste', this.boundPasteHandler);
         }
-        if(this.chapter.visibility === "hide"){
+        if (this.chapter.visibility === "hide") {
             this.changeChapterVisibility("hide");
         }
     }
@@ -122,7 +124,6 @@ export class ChapterItem {
             if (item.type.indexOf('image') !== -1) {
                 let blob = item.getAsFile();
                 let reader = new FileReader();
-
                 reader.onload = async (event) => {
                     let base64String = event.target.result;
                     await assistOS.callFlow("AddImageParagraph", {
@@ -131,11 +132,17 @@ export class ChapterItem {
                         chapterId: this.chapter.id,
                         paragraphData: {
                             position: position,
-                            image: {src: base64String, alt: "pasted image"},
-                            dimensions: {
-                                width: "",
-                                height: ""
+                            config: {
+                                commands: {},
+                                image: {
+                                    src: base64String, alt: "pasted image",
+                                    dimensions: {
+                                        width: "",
+                                        height: ""
+                                    }
+                                }
                             }
+
                         }
                     });
                     position++;
@@ -202,13 +209,14 @@ export class ChapterItem {
     async changeChapterDisplay(_target) {
         await this.documentPresenter.changeCurrentElement(this.chapterItem, this.focusOutHandler.bind(this));
         await this.highlightChapter(_target);
-        if(this.chapter.visibility === "hide"){
+        if (this.chapter.visibility === "hide") {
             this.changeChapterVisibility("show");
         } else {
             this.changeChapterVisibility("hide");
         }
         await documentModule.updateChapterVisibility(assistOS.space.id, this._document.id, this.chapter.id, this.chapter.visibility);
     }
+
     changeChapterVisibility(mode) {
         this.chapter.visibility = mode;
         if (mode === "hide") {
@@ -222,7 +230,7 @@ export class ChapterItem {
             let arrow = this.element.querySelector(".chapter-visibility-arrow");
             arrow.classList.remove('rotate');
             let paragraphs = this.element.querySelectorAll(".paragraph-text");
-            for(let paragraph of paragraphs){
+            for (let paragraph of paragraphs) {
                 paragraph.style.height = paragraph.scrollHeight + 'px';
             }
         }
@@ -236,7 +244,7 @@ export class ChapterItem {
                 hasAudio = true;
                 let audioName = `audio${i}.mp3`;
                 let audioBuffer = await spaceModule.getAudio(assistOS.space.id, paragraph.audio.id);
-                const blob = new Blob([audioBuffer], { type: 'audio/mp3' });
+                const blob = new Blob([audioBuffer], {type: 'audio/mp3'});
                 let url = URL.createObjectURL(blob);
                 const link = document.createElement('a');
                 link.href = url;
@@ -383,6 +391,7 @@ export class ChapterItem {
         this.switchPlayButtonDisplay("off");
         this.invalidate(this.refreshChapter);
     }
+
     async deleteChapter(_target) {
         await assistOS.callFlow("DeleteChapter", {
             spaceId: assistOS.space.id,

@@ -37,17 +37,20 @@ export class BaseParagraph {
                     chapterId: this.chapter.id,
                     paragraphData: {
                         position: position,
-                        image: {
-                            src: image.src,
-                            alt: image.alt,
-                            id: image.id,
-                            isUploadedImage: image.isUploadedImage || false
-                        },
-                        dimensions: {
-                            width: "",
-                            height: ""
+                        config:{
+                            commands:{},
+                            image:{
+                                src:image.src,
+                                alt:image.alt,
+                                id:image.id,
+                                isUploadedImage:image.isUploadedImage || false,
+                                dimensions:{
+                                    width:"",
+                                    height:""
+                                }
+                            },
+                            }
                         }
-                    }
                 });
                 position++;
             }

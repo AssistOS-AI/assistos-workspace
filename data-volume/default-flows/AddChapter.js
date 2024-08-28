@@ -35,7 +35,7 @@ class AddChapter extends IFlow {
         }
         try {
             let documentModule = apis.loadModule("document");
-            let chapterData = { title: parameters.title, paragraphs: [{ text: "", position: 0 }] };
+            let chapterData = {title: parameters.title, paragraphs: [{text: "", position: 0, config: {commands: {}}}]};
             chapterData.position = parameters.position;
             let chapterId = await documentModule.addChapter(parameters.spaceId, parameters.documentId, chapterData);
             apis.success(chapterId);

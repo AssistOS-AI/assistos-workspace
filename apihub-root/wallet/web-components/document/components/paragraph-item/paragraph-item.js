@@ -20,39 +20,14 @@ export class ParagraphItem extends BaseParagraph {
                 this.hasExternalChanges = true;
                 this.invalidate();
 
-            } else if (type === "audio") {
-                this.paragraph.audio = await documentModule.getParagraphAudio(assistOS.space.id, this._document.id, this.paragraph.id);
-                if (this.paragraph.audio) {
-                    if (this.audioGenerating === true) {
-                        this.audioGenerating = false;
-                    }
-                }
+            } else if (type === "config") {
+                this.paragraph.config = await documentModule.getParagraphConfig(assistOS.space.id, this._document.id, this.paragraph.id);
             }
         });
     }
 
     beforeRender() {
         this.paragraphConfigs = "";
-        this.paragraph.config = {}
-        this.paragraph.config.commands = {
-            "speech": {
-                name: "speech",
-                paramsObject: {
-                    personality: "Analyst",
-                    emotion: "female_happy",
-                    styleGuidance: 15,
-                    temperature: 1,
-                    voiceGuidance: 5
-                }
-            },
-            "video": {
-                name: "video"
-            },
-            "lipsync": {
-                name: "lipsync"
-            }
-        }
-
         const commandCount = Object.keys(this.paragraph.config.commands || {}).length
         Object.keys(this
             .paragraph

@@ -9,7 +9,7 @@ export class ImageParagraph extends BaseParagraph{
     async subscribeToParagraphEvents(){
         await utilModule.subscribeToObject(this.paragraph.id, async (type) => {
             if (type === "lipSync") {
-                this.paragraph.lipSync = await documentModule.getImageParagraphLipSync(assistOS.space.id, this._document.id, this.paragraph.id);
+                this.paragraph.config.lipSync = await documentModule.getImageParagraphLipSync(assistOS.space.id, this._document.id, this.paragraph.id);
             } else {
                 this.paragraph = await this.chapter.refreshParagraph(assistOS.space.id, this._document.id, this.paragraph.id);
             }
@@ -21,8 +21,8 @@ export class ImageParagraph extends BaseParagraph{
             this.lipSyncState = "done";
         }
         this.initialized = false;
-        this.imageSrc = this.paragraph.image.src;
-        this.imageAlt = this.paragraph.image.timestamp;
+        this.imageSrc = this.paragraph.config.image.src;
+        this.imageAlt = this.paragraph.config.image.timestamp;
     }
     renderImageMaxWidth(){
         let originalWidth = parseFloat(getComputedStyle(this.imgElement, null).getPropertyValue('width').replace('px', ''));
@@ -35,9 +35,9 @@ export class ImageParagraph extends BaseParagraph{
     }
     afterRender() {
         this.imgElement = this.element.querySelector(".paragraph-image");
-        if(this.paragraph.dimensions){
-            this.imgElement.style.width = this.paragraph.dimensions.width + "px";
-            this.imgElement.style.height = this.paragraph.dimensions.height + "px";
+        if(this.paragraph.config.image.dimensions){
+            this.imgElement.style.width = this.paragraph.config.image.dimensions.width + "px";
+            this.imgElement.style.height = this.paragraph.config.image.dimensions.height + "px";
             setTimeout(() => {
                 this.initialized = true;
             }, 0);
@@ -123,7 +123,7 @@ export class ImageParagraph extends BaseParagraph{
             width: imageElement.width,
             height: imageElement.height
         };
-        if ((dimensions.width !== this.paragraph.dimensions.width || dimensions.height!==this.paragraph.dimensions.height) && this.initialized) {
+        if ((dimensions.width !== this.paragraph.config.image.dimensions.width || dimensions.height!==this.paragraph.config.image.dimensions.height) && this.initialized) {
             this.paragraph.dimensions.width = dimensions.width;
             this.paragraph.dimensions.height = dimensions.height;
             await documentModule.updateImageParagraphDimensions(assistOS.space.id,
@@ -222,7 +222,7 @@ export class ImageParagraph extends BaseParagraph{
         this.changeLipSyncUIState();
         let dropdownMenu = this.element.querySelector('.dropdown-menu-container');
         dropdownMenu.remove();
-        const videoId = await llmModule.lipSync(assistOS.space.id,this.paragraph.image.src, nextParagraph.audio.src, "sync-1.6.0");
+        const videoId = await llmModule.lipSync(assistOS.space.id,this.paragraph.config.image.src, nextParagraph.config.audio.src, "sync-1.6.0");
         await utilModule.subscribeToObject(videoId, async () => {
             await utilModule.unsubscribeFromObject(videoId);
             let paragraphLipSync = {
@@ -230,7 +230,7 @@ export class ImageParagraph extends BaseParagraph{
                 src: `spaces/video/${assistOS.space.id}/${videoId.split("_")[1]}`
             }
             await documentModule.updateImageParagraphLipSync(assistOS.space.id, this._document.id, this.paragraph.id, paragraphLipSync);
-            this.paragraph.lipSync = paragraphLipSync;
+            this.paragraph.config.lipSync = paragraphLipSync;
             this.lipSyncState = "done";
             this.invalidate();
         });
@@ -247,7 +247,7 @@ export class ImageParagraph extends BaseParagraph{
     playLipSyncVideo(playButton) {
             let videoTagContainer = `
         <div class="video-container">
-            <video controls autoplay class="lip-sync-video" src="${this.paragraph.lipSync.src}"></video>
+            <video controls autoplay class="lip-sync-video" src="${this.paragraph.config.lipSync.src}"></video>
             <img src="./wallet/assets/icons/x-mark.svg" data-local-action="closePlayer" class="close-player pointer" alt="close"/>
         </div>`;
             playButton.insertAdjacentHTML('afterend', videoTagContainer);

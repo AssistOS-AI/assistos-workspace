@@ -28,14 +28,13 @@ class AddParagraph extends IFlow {
     constructor() {
         super();
     }
-
     async userCode(apis, parameters) {
         try {
             let documentModule = apis.loadModule("document");
             let paragraphObj = {
-                text: parameters.text||"",
+                text: parameters.text || "",
                 position: parameters.position,
-                config: parameters.config||{}
+                config: parameters.config || {commands: {}}
             }
             let paragraphId = await documentModule.addParagraph(parameters.spaceId, parameters.documentId, parameters.chapterId, paragraphObj);
             apis.success(paragraphId);

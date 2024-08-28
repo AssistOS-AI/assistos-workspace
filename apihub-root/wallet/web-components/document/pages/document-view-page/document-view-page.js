@@ -143,7 +143,6 @@ export class DocumentViewPage {
 
     async addChapter() {
         let position = this._document.chapters.length;
-        // Find the position to add the new chapter
         if (assistOS.space.currentChapterId) {
             position = this._document.chapters.findIndex(
                 (chapter) => chapter.id === assistOS.space.currentChapterId) + 1;
