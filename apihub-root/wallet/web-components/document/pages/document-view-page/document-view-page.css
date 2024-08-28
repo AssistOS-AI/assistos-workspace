@@ -256,6 +256,7 @@ html[theme="dark"] .document-title-container {
     align-items: center;
 }
 #tasks-menu{
+    cursor: initial;
     min-width: 150px;
     min-height: 35px;
     font-size: 14px;
@@ -289,6 +290,7 @@ html[theme="dark"] .document-title-container {
 .tasks-list{
     overflow-y: auto;
     scrollbar-width: initial;
+    width: 400px;
 }
 .tasks-list::-webkit-scrollbar {
     display: block;
@@ -300,4 +302,7 @@ html[theme="dark"] .document-title-container {
 .tasks-list::-webkit-scrollbar-track {
     background: #f1f1f1;
     border-radius: 10px;
+}
+.no-tasks{
+    padding-left: 10px;
 }

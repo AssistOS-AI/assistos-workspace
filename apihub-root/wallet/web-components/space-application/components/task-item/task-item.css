@@ -1,7 +1,6 @@
 task-item{
     height: 45px;
     padding: 10px;
-    width: 400px;
     display: flex;
     align-items: center;
 }

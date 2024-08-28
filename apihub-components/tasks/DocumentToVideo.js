@@ -195,7 +195,7 @@ class DocumentToVideo extends Task {
     }
     async tryToExecuteCommandOnParagraph(tempVideoDir, spaceId, documentId, paragraph) {
         const utilsModule = require("assistos").loadModule("util", this.securityContext);
-        let commandObject = utilsModule.findCommand(paragraph.text);
+        let commandObject = utilsModule.findCommands(paragraph.text);
         let chapterIndex = this.document.chapters.findIndex(chapter => chapter.paragraphs.includes(paragraph));
         let paragraphIndex = this.document.chapters[chapterIndex].paragraphs.findIndex(p => p === paragraph);
         if(commandObject.action === "textToSpeech"){
