@@ -1,4 +1,3 @@
-const spaceModule = require("assistos").loadModule("space", {});
 const utilModule = require("assistos").loadModule("util", {});
 const documentModule = require("assistos").loadModule("document", {});
 import {executorTimer, unescapeHtmlEntities} from "../../../../imports.js";
@@ -251,40 +250,22 @@ export class DocumentViewPage {
         _target.addEventListener("keydown", resetTimerFunction);
     }
     async documentToVideo(button){
-        this.videoId = (await assistOS.callFlow("DocumentToVideo", {
-            spaceId: assistOS.space.id,
-            documentId: this._document.id
-        })).data;
-        await utilModule.subscribeToObject(this.videoId, async (data) => {
-            if(data){
-                if(data.error){
-                    button.innerHTML = "Export Video";
-                    button.setAttribute("data-local-action", "documentToVideo");
-                    return await showApplicationError("Error compiling video", data.error, "");
-                }
+        let videoId = await documentModule.documentToVideo(assistOS.space.id, this._document.id);
+        await utilModule.subscribeToObject(videoId, async (data) => {
+            if(data.error) {
+                return await showApplicationError("Error compiling video", data.error, "");
+            } else if(data.status === "completed"){
+                const a = document.createElement("a");
+                a.href = `/spaces/video/${assistOS.space.id}/${videoId}`;
+                a.download = "video.mp4";
+                document.body.appendChild(a);
+                a.click();
+                a.remove();
+                this.invalidate(this.refreshDocument);
             }
-            const a = document.createElement("a");
-            a.href = `/spaces/video/${assistOS.space.id}/${this.videoId}`;
-            a.download = "video.mp4";
-            document.body.appendChild(a);
-            a.click();
-            a.remove();
-            delete this.videoId;
-            this.invalidate(this.refreshDocument);
-            //remove subscription
         });
-        button.innerHTML = `<div class="loading-icon"></div>`;
-        button.setAttribute("data-local-action", "cancelVideoCompilation");
     }
-    async cancelVideoCompilation(button){
-        try{
-            await spaceModule.cancelTask(assistOS.space.id, this.videoId);
-            button.innerHTML = "Document to Video";
-            button.setAttribute("data-local-action", "documentToVideo");
-        } catch (e) {
-            await showApplicationError("Error cancelling video compilation", e.message, "");
-        }
-    }
+
     async  exportDocument(_target) {
         try {
             const response = await fetch(`/spaces/${assistOS.space.id}/export/documents/${this._document.id}`, {
@@ -317,20 +298,23 @@ export class DocumentViewPage {
         }
     }
 
-    hideMenu(controller, container, event) {
-        container.setAttribute("data-local-action", "showMenu off");
-        let target = this.element.querySelector(".document-menu-dropdown");
-        target.style.display = "none";
+    hideMenu(controller, container, menuType, event) {
+        container.setAttribute("data-local-action", `showMenu ${menuType} off`);
+        let menu = this.element.querySelector(`#${menuType}`);
+        menu.style.display = "none";
         controller.abort();
     }
 
-    showMenu(_target, mode) {
+    async showMenu(_target, menuType, mode) {
         if (mode === "off") {
-            let target = this.element.querySelector(".document-menu-dropdown");
-            target.style.display = "flex";
+            let menu = this.element.querySelector(`#${menuType}`);
+            menu.style.display = "flex";
             let controller = new AbortController();
-            document.addEventListener("click", this.hideMenu.bind(this, controller, _target), {signal: controller.signal});
-            _target.setAttribute("data-local-action", "showMenu on");
+            document.addEventListener("click", this.hideMenu.bind(this, controller, _target, menuType), {signal: controller.signal});
+            _target.setAttribute("data-local-action", `showMenu on`);
+            if(menuType === "tasks-menu"){
+                await this.loadDocumentTasks();
+            }
         }
     }
     playVideoPreview(targetElement){
@@ -352,5 +336,18 @@ export class DocumentViewPage {
     async lipsyncVideo(_target){
         const llmModule=require('assistos').loadModule('llm', {});
         const response = (await llmModule.lipsync(assistOS.space.id, "sync-1.6.0", {}))
+    }
+    async loadDocumentTasks(){
+        let tasks = await documentModule.getDocumentTasks(assistOS.space.id, this._document.id);
+        let tasksMenu = this.element.querySelector("#tasks-menu");
+        if(tasks.length === 0){
+            tasksMenu.innerHTML = "No tasks yet";
+            return;
+        }
+        let tasksList = this.element.querySelector(".tasks-list");
+        tasksList.innerHTML = "";
+        for(let task of tasks){
+            tasksList.innerHTML += `<task-item data-id="${task.id}" data-name="${task.name}" data-status=${task.status} data-presenter="task-item"></task-item>`;
+        }
     }
 }

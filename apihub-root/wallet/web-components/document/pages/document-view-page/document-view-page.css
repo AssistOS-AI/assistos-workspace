@@ -243,3 +243,39 @@ html[theme="dark"] .document-title-container {
 .action-dots{
     width: 5px;
 }
+.task-icon{
+    width: 25px;
+}
+.menu-section{
+    display: flex;
+    align-items: center;
+}
+.tasks-container{
+    display: flex;
+    position: relative;
+    align-items: center;
+}
+#tasks-menu{
+    min-width: 150px;
+    min-height: 35px;
+    font-size: 14px;
+    align-items: flex-start;
+}
+.tasks-header-section{
+    width: 100%;
+}
+.tasks-header{
+    width: 100%;
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    padding: 10px 10px 0 10px;
+}
+.run-all-tasks{
+    font-size: 14px;
+    margin-top: 5px;
+    margin-left: 10px;
+    padding: 5px;
+    height: initial;
+    line-height: normal;
+}

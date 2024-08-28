@@ -11,9 +11,9 @@ const eventPublisher = require("../subscribers/eventPublisher.js");
 const {sendResponse} = require("../apihub-component-utils/utils");
 const dataVolumePaths = require('../volumeManager').paths;
 const ffmpeg = require('../apihub-component-utils/ffmpeg.js');
-const Task = require('../apihub-component-utils/Task.js');
-const TaskManager = require('../apihub-component-utils/TaskManager.js');
-
+const TaskManager = require('../tasks/TaskManager.js');
+const DocumentToVideo = require('../tasks/DocumentToVideo.js');
+const AnonymousTask = require('../tasks/AnonymousTask.js');
 function getFileObjectsMetadataPath(spaceId, objectType) {
     return path.join(dataVolumePaths.space, `${spaceId}/${objectType}/metadata.json`);
 }
@@ -1262,41 +1262,6 @@ async function deleteAudio(request, response) {
     }
 }
 
-async function compileVideoFromDocument(request, response) {
-    let documentId = request.params.documentId;
-    let spaceId = request.params.spaceId;
-    let userId = request.userId;
-    const SecurityContext = require("assistos").ServerSideSecurityContext;
-    let securityContext = new SecurityContext(request);
-    let task = new Task(async function () {
-        await ffmpeg.documentToVideo(spaceId, document, userId, this);
-    }, securityContext);
-    TaskManager.addTask(task);
-    sendResponse(response, 200, "application/json", {
-        success: true,
-        message: `Task in progress`,
-        data: task.id
-    });
-    const documentModule = require("assistos").loadModule("document", securityContext);
-    let document = await documentModule.getDocument(spaceId, documentId);
-    try {
-        await task.run();
-        let videoPath = `/spaces/video/${spaceId}/${task.id}`;
-        if (document.video) {
-            const videoId = document.video.split("/").pop();
-            try {
-                await space.APIs.deleteVideo(spaceId, videoId);
-            } catch (e) {
-                //previous video not found
-            }
-        }
-        await documentModule.updateVideo(spaceId, documentId, videoPath);
-        TaskManager.removeTask(task.id);
-        eventPublisher.notifyClientTask(userId, task.id);
-    } catch (error) {
-        eventPublisher.notifyClientTask(userId, task.id, {error: error.message});
-    }
-}
 async function estimateDocumentVideoLength(request, response){
     let documentId = request.params.documentId;
     let spaceId = request.params.spaceId;
@@ -1304,13 +1269,13 @@ async function estimateDocumentVideoLength(request, response){
     let securityContext = new SecurityContext(request);
     const documentModule = require("assistos").loadModule("document", securityContext);
     let document = await documentModule.getDocument(spaceId, documentId);
-    let task = new Task(async function () {
+    let task = new AnonymousTask(securityContext, async function () {
         return await ffmpeg.estimateDocumentVideoLength(spaceId, document, this);
-    }, securityContext);
-    TaskManager.addTask(task);
+    });
+    await TaskManager.addTask(task);
     try{
         let durationObject = await task.run();
-        TaskManager.removeTask(task.id);
+        await TaskManager.removeTask(task.id);
         sendResponse(response, 200, "application/json", {
             success: true,
             message: `Estimation in progress`,
@@ -1323,21 +1288,7 @@ async function estimateDocumentVideoLength(request, response){
         });
     }
 }
-async function cancelTask(request, response) {
-    let taskId = request.params.taskId;
-    try {
-        TaskManager.cancelTaskAndRemove(taskId);
-        sendResponse(response, 200, "application/json", {
-            success: true,
-            message: `Task ${taskId} cancelled`
-        });
-    } catch (error) {
-        sendResponse(response, 500, "application/json", {
-            success: false,
-            message: error.message
-        });
-    }
-}
+
 
 async function getVideo(request, response) {
     const spaceId = request.params.spaceId;
@@ -1663,10 +1614,8 @@ module.exports = {
     getAudio,
     getVideo,
     deleteVideo,
-    compileVideoFromDocument,
     exportDocument,
     importDocument,
-    cancelTask,
     exportPersonality,
     importPersonality,
     generateParagraphAudio,

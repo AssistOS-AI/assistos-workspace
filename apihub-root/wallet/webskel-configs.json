@@ -4,6 +4,12 @@
     "services": [],
     "components": [
         {
+            "name": "task-item",
+            "directory": "space-application",
+            "type": "components",
+            "presenterClassName": "TaskItem"
+        },
+        {
             "name": "document-video-preview",
             "directory": "document",
             "type": "components",
