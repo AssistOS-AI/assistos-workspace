@@ -105,7 +105,7 @@ export class ParagraphItem extends BaseParagraph {
         });
     }
 
-    focusOutHandler() {
+    async focusOutHandler() {
         this.switchParagraphArrows("off");
         this.paragraphHeader.setAttribute('readonly', 'true');
         this.paragraphHeader.classList.remove("highlight-paragraph-header")
@@ -123,71 +123,99 @@ export class ParagraphItem extends BaseParagraph {
             }
             this.errorElement.innerText = "";
             this.errorElement.classList.add("hidden");
-
-            const handleCommand = (commandType, commandStatus, command) => {
-                switch (commandType) {
-                    case "silence":
-                        if (commandStatus === "same") {
-                        }
-                        if (commandStatus === "new") {
-                        }
-                        if (commandStatus === "deleted") {
-                        }
-                        if (commandStatus === "changed") {
-                        }
-                        break;
-                    case "speech":
-                        const paragraphText = this.element.querySelector('.paragraph-text').value;
-                        if (commandStatus === "new" || commandStatus === "changed" || (commandStatus === "same" && assistOS.UI.customTrim(paragraphText) !== assistOS.UI.customTrim(this.paragraph.text))) {
-                            documentModule.generateParagraphAudio(assistOS.space.id, this._document.id, this.paragraph.id, command, paragraphText);
-                        }
-                        if (commandStatus === "deleted") {
-                            // documentModule.deleteParagraphAudio(assistOS.space.id, this._document.id, this.paragraph.id).then(
-                            //     () => {
-                            //         this.invalidate(async () => {
-                            //             this.paragraph.config = await documentModule.getParagraphConfig(assistOS.space.id, this._document.id, this.paragraph.id);
-                            //         });
-                            //     })
-                        }
-                        break;
-                    case "video":
-                        if (commandStatus === "same") {
-                        }
-                        if (commandStatus === "new") {
-
-                        }
-                        if (commandStatus === "deleted") {
-
-                        }
-                        if (commandStatus === "changed") {
-                        }
-                        break;
-                    case "lipsync":
-                        if (commandStatus === "same") {
-                        }
-                        if (commandStatus === "new") {
-
-                        }
-                        if (commandStatus === "deleted") {
-
-                        }
-                        if (commandStatus === "changed") {
-                        }
-                        break;
+            if(Object.entries(this.paragraph.config.commands).length === 0){
+                this.paragraph.config.commands = commands
+            } else {
+                for(let [key, value] of Object.entries(commands)){
+                    for(let [innerKey, innerValue] of Object.entries(value)){
+                        this.paragraph.config.commands[key][innerKey] = innerValue;
+                    }
                 }
-
             }
-            this.paragraph.config.commands = commands;
-            documentModule.updateParagraphConfig(assistOS.space.id, this._document.id, this.paragraph.id, this.paragraph.config).then(() => {
-                    Object.entries(commandsDifferences).forEach(([commandType, commandStatus]) => {
-                            handleCommand(commandType, commandStatus, commands[commandType]);
-                        }
-                    )
-                }
-            )
+
+            //TODO: put loader here for long operations
+            documentModule.updateParagraphConfig(assistOS.space.id, this._document.id, this.paragraph.id, this.paragraph.config);
+            for(let [commandType, commandStatus] of Object.entries(commandsDifferences)){
+                await this.handleCommand(commandType, commandStatus, commands[commandType]);
+            }
         }
     }
+    async handleCommand(commandType, commandStatus, command){
+        switch (commandType) {
+            case "silence":
+                if (commandStatus === "same") {
+                }
+                if (commandStatus === "new") {
+                }
+                if (commandStatus === "deleted") {
+                }
+                if (commandStatus === "changed") {
+                }
+                break;
+            case "speech":
+                const paragraphText = this.element.querySelector('.paragraph-text').value;
+                if (commandStatus === "new" || commandStatus === "changed" || (commandStatus === "same" && assistOS.UI.customTrim(paragraphText) !== assistOS.UI.customTrim(this.paragraph.text))) {
+                    let configs = await documentModule.getParagraphConfig(assistOS.space.id, this._document.id, this.paragraph.id);
+                    if(configs.commands["speech"].taskId){
+                        await utilModule.cancelTaskAndRemove(configs.commands["speech"].taskId);
+                        await utilModule.unsubscribeFromObject(configs.commands["speech"].taskId);
+                    }
+                    let statusElement = this.element.querySelector('.task-status-icon');
+                    statusElement.innerHTML = "";
+                    let taskId = await documentModule.generateParagraphAudio(assistOS.space.id, this._document.id, this.paragraph.id, command, paragraphText);
+                    this.paragraph.config = await documentModule.getParagraphConfig(assistOS.space.id, this._document.id, this.paragraph.id);
+                    utilModule.subscribeToObject(taskId, async (status) => {
+                        await this.changeTaskStatus(taskId, status);
+                    });
+                }
+                if (commandStatus === "deleted") {
+                    // documentModule.deleteParagraphAudio(assistOS.space.id, this._document.id, this.paragraph.id).then(
+                    //     () => {
+                    //         this.invalidate(async () => {
+                    //             this.paragraph.config = await documentModule.getParagraphConfig(assistOS.space.id, this._document.id, this.paragraph.id);
+                    //         });
+                    //     })
+                }
+                break;
+            case "video":
+                if (commandStatus === "same") {
+                }
+                if (commandStatus === "new") {
 
+                }
+                if (commandStatus === "deleted") {
+
+                }
+                if (commandStatus === "changed") {
+                }
+                break;
+            case "lipsync":
+                if (commandStatus === "same") {
+                }
+                if (commandStatus === "new") {
+
+                }
+                if (commandStatus === "deleted") {
+
+                }
+                if (commandStatus === "changed") {
+                }
+                break;
+        }
+
+    }
+    async changeTaskStatus(taskId, status) {
+        let statusElement = this.element.querySelector('.task-status-icon');
+        if(status === "running"){
+            statusElement.innerHTML = `<div class="loading-icon small top-margin"></div>`;
+        } else if(status === "completed"){
+            statusElement.innerHTML = "";
+            this.paragraph.config = await documentModule.getParagraphConfig(assistOS.space.id, this._document.id, this.paragraph.id);
+        } else if(status === "failed"){
+            this.paragraph.config = await documentModule.getParagraphConfig(assistOS.space.id, this._document.id, this.paragraph.id);
+            statusElement.innerHTML = `<img src="./wallet/assets/icons/error.svg" class="error-icon" alt="error">`;
+        }
+    }
 
     mouseDownAudioIconHandler(paragraphText, audioIcon, event) {
         if (!paragraphText.contains(event.target) && !audioIcon.contains(event.target)) {

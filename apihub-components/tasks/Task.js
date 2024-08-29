@@ -57,7 +57,8 @@ class Task {
     }
     setStatus(status){
         this.status = status;
-        this.emit(EVENTS.UPDATE);
+        this.emit(status); //update queue
+        this.emit(EVENTS.UPDATE); //update database
         eventPublisher.notifyClientTask(this.userId, this.id, this.status);
     }
 }

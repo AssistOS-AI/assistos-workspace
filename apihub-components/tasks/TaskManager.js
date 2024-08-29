@@ -46,13 +46,20 @@ class TaskManager {
             await $$.promisify(lightDBEnclaveClient.updateRecord)($$.SYSTEM_IDENTIFIER, this.tasksTable, task.id, {data: task.serialize()});
         });
     }
-
-    cancelTaskAndRemove(taskId) {
+    cancelTask(taskId) {
         let task = this.tasks.find(task => task.id === taskId);
         if (!task) {
             throw new Error('Task not found');
         }
         task.cancel();
+    }
+    async cancelTaskAndRemove(taskId) {
+        let task = this.tasks.find(task => task.id === taskId);
+        if (!task) {
+            throw new Error('Task not found');
+        }
+        task.cancel();
+        await this.removeTask(taskId);
     }
     async removeTask(taskId) {
         let task = this.tasks.find(task => task.id === taskId);
@@ -88,6 +95,15 @@ class TaskManager {
             task.setStatus(STATUS.PENDING);
         } else {
             task.on(STATUS.COMPLETED, () => {
+                this.queue = this.queue.filter(t => t.id !== task.id);
+                this.runNextTask();
+            });
+            task.on(STATUS.FAILED, () => {
+                this.queue = this.queue.filter(t => t.id !== task.id);
+                this.runNextTask();
+            });
+            task.on(STATUS.CANCELLED, () => {
+                this.queue = this.queue.filter(t => t.id !== task.id);
                 this.runNextTask();
             });
             task.run();

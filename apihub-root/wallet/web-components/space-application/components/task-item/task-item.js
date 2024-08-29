@@ -7,8 +7,8 @@ export class TaskItem{
         this.status = this.element.getAttribute("data-status");
         this.id = this.element.getAttribute("data-id");
         this.invalidate(async ()=> {
-            await utilModule.subscribeToObject(this.id, async (data) => {
-                this.status = data.status;
+            await utilModule.subscribeToObject(this.id, async (status) => {
+                this.status = status;
                 this.invalidate();
             });
         })
