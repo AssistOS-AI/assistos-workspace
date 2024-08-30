@@ -33,28 +33,40 @@ export class DocumentTasksMenu{
         }
     }
     beforeRender(){
-        let tasksList = "";
-        for(let task of this.tasks){
-            tasksList += `<task-item data-id="${task.id}" data-name="${task.name}" data-status=${task.status} data-presenter="task-item"></task-item>`;
+        if(this.tasks.length > 0){
+            let tasksList = "";
+            for(let task of this.tasks){
+                tasksList += `<task-item data-id="${task.id}" data-name="${task.name}" data-status=${task.status} data-presenter="task-item"></task-item>`;
+            }
+            this.menuContent = `
+            <div class="tasks-list-container">
+                <button class="general-button run-all-tasks" data-local-action="runAllTasks">Run all</button>
+                <div class="tasks-header">
+                    <div class="name-header">Name</div>
+                    <div class="status-header">Status</div>
+                    <div class="action-header">Action</div>
+                </div>
+                <div class="tasks-list">
+                    ${tasksList}
+                </div>
+            </div>`;
+        } else {
+            this.menuContent = `<div class="no-tasks">No tasks yet</div>`;
         }
-        this.tasksList = tasksList;
-        this.renderBadge();
+
     }
     renderBadge(){
-        let newTasksBadge = document.querySelector(".new-tasks-badge");
+        let newTasksBadge = this.element.querySelector(".new-tasks-badge");
         if(newTasksBadge){
             newTasksBadge.remove();
         }
         if(this.newTasksCount > 0){
             let newTasksBadge = `<div class="new-tasks-badge">${this.newTasksCount}</div>`;
-            let tasksContainer = this.element.closest(".tasks-container");
-            tasksContainer.insertAdjacentHTML("afterbegin", newTasksBadge);
+            this.element.insertAdjacentHTML("afterbegin", newTasksBadge);
         }
     }
     afterRender(){
-        if(this.tasks.length === 0){
-            this.element.innerHTML = `<div class="no-tasks">No tasks yet</div>`;
-        }
+        this.renderBadge();
     }
     async runAllTasks(){
         for(let task of this.tasks){
@@ -65,5 +77,23 @@ export class DocumentTasksMenu{
     }
     async afterUnload(){
         await utilModule.unsubscribeFromObject(this.documentId + "/tasks");
+    }
+    showTasksMenu(tasksButton){
+        let tasksMenu = this.element.querySelector(".tasks-list-container");
+        tasksMenu.style.display = "flex";
+        this.newTasksCount = 0;
+        this.renderBadge();
+        let controller = new AbortController();
+        document.addEventListener("click", this.removeTasksMenu.bind(this, controller, tasksButton), {signal: controller.signal});
+        tasksButton.removeAttribute("data-local-action");
+    }
+    removeTasksMenu(controller, tasksButton, event){
+        let menu = event.target.closest(".tasks-list-container");
+        if(!menu){
+            let tasksMenu = this.element.querySelector(".tasks-list-container");
+            tasksMenu.style.display = "none";
+            controller.abort();
+            tasksButton.setAttribute("data-local-action", "showTasksMenu");
+        }
     }
 }

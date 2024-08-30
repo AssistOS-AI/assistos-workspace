@@ -335,23 +335,5 @@ export class DocumentViewPage {
         const llmModule=require('assistos').loadModule('llm', {});
         const response = (await llmModule.lipsync(assistOS.space.id, "sync-1.6.0", {}))
     }
-    showTasksMenu(tasksButton){
-        let tasksMenu = this.element.querySelector("document-tasks-menu");
-        tasksMenu.style.display = "flex";
-        tasksMenu.webSkelPresenter.newTasksCount = 0;
-        tasksMenu.webSkelPresenter.renderBadge();
-        let controller = new AbortController();
-        document.addEventListener("click", this.removeTasksMenu.bind(this, controller, tasksButton), {signal: controller.signal});
-        tasksButton.removeAttribute("data-local-action");
-    }
-    removeTasksMenu(controller, tasksButton, event){
-        let menu = event.target.closest("document-tasks-menu");
-        if(!menu){
-            let container = this.element.querySelector(".tasks-container");
-            let tasksMenu = container.querySelector("document-tasks-menu");
-            tasksMenu.style.display = "none";
-            controller.abort();
-            tasksButton.setAttribute("data-local-action", "showTasksMenu");
-        }
-    }
+
 }

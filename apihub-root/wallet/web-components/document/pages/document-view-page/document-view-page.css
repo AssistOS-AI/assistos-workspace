@@ -250,8 +250,4 @@ html[theme="dark"] .document-title-container {
     display: flex;
     align-items: center;
 }
-.tasks-container{
-    display: flex;
-    position: relative;
-    align-items: center;
-}
+
