@@ -10,7 +10,7 @@ class TaskManager {
         this.tasks = [];
         this.tasksTable = "tasks";
         this.queue = [];
-        this.maxRunningTasks = 10;
+        this.maxRunningTasks = 3;
     }
     async initialize() {
         let spaceMapPath = space.APIs.getSpaceMapPath();
@@ -23,7 +23,7 @@ class TaskManager {
                 let taskClass = require(`./${task.name}`);
                 let taskInstance = new taskClass(task.securityContext, task.spaceId, task.userId, task.configs);
                 taskInstance.id = task.id; //set the original id
-                taskInstance.status = task.status; //set the original status
+                taskInstance.setStatus(task.status) //set the original status
                 if(taskInstance.status === STATUS.RUNNING){
                     taskInstance.setStatus(STATUS.CANCELLED);
                 }
@@ -31,8 +31,14 @@ class TaskManager {
                 if(taskInstance.status === STATUS.PENDING){
                     this.runTask(taskInstance.id);
                 }
+                this.setUpdateDBHandler(lightDBEnclaveClient, taskInstance);
             }
         }
+    }
+    setUpdateDBHandler(lightDBEnclaveClient, task){
+        task.on(EVENTS.UPDATE, async () => {
+            await $$.promisify(lightDBEnclaveClient.updateRecord)($$.SYSTEM_IDENTIFIER, this.tasksTable, task.id, {data: task.serialize()});
+        });
     }
     async addTask(task) {
         if (!(task instanceof Task)) {
@@ -41,10 +47,7 @@ class TaskManager {
         this.tasks.push(task);
         let lightDBEnclaveClient = enclave.initialiseLightDBEnclave(task.spaceId);
         await $$.promisify(lightDBEnclaveClient.insertRecord)($$.SYSTEM_IDENTIFIER, this.tasksTable, task.id, {data: task.serialize()});
-
-        task.on(EVENTS.UPDATE, async () => {
-            await $$.promisify(lightDBEnclaveClient.updateRecord)($$.SYSTEM_IDENTIFIER, this.tasksTable, task.id, {data: task.serialize()});
-        });
+        this.setUpdateDBHandler(lightDBEnclaveClient, task);
     }
     cancelTask(taskId) {
         let task = this.tasks.find(task => task.id === taskId);
@@ -94,28 +97,29 @@ class TaskManager {
             this.queue.push(task);
             task.setStatus(STATUS.PENDING);
         } else {
-            task.on(STATUS.COMPLETED, () => {
-                this.queue = this.queue.filter(t => t.id !== task.id);
-                this.runNextTask();
-            });
-            task.on(STATUS.FAILED, () => {
-                this.queue = this.queue.filter(t => t.id !== task.id);
-                this.runNextTask();
-            });
-            task.on(STATUS.CANCELLED, () => {
-                this.queue = this.queue.filter(t => t.id !== task.id);
-                this.runNextTask();
-            });
+            this.setQueueCallbacks(task);
             task.run();
         }
+    }
+    setQueueCallbacks(task){
+        task.on(STATUS.COMPLETED, () => {
+            this.queue = this.queue.filter(t => t.id !== task.id);
+            this.runNextTask();
+        });
+        task.on(STATUS.FAILED, () => {
+            this.queue = this.queue.filter(t => t.id !== task.id);
+            this.runNextTask();
+        });
+        task.on(STATUS.CANCELLED, () => {
+            this.queue = this.queue.filter(t => t.id !== task.id);
+            this.runNextTask();
+        });
     }
 
     runNextTask() {
         if (this.queue.length > 0 && this.getRunningTasks().length < this.maxRunningTasks) {
             let nextTask = this.queue.shift();
-            nextTask.on(STATUS.COMPLETED, () => {
-                this.runNextTask();
-            });
+            this.setQueueCallbacks(nextTask);
             nextTask.run();
         }
     }

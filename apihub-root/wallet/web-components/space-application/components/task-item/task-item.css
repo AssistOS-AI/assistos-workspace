@@ -22,6 +22,7 @@ task-item{
 }
 .grey{
     background-color: grey;
+    pointer-events: none;
 }
 .task-name{
     width: 50%;

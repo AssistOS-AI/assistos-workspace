@@ -23,6 +23,8 @@ export class TaskItem{
             this.actionButton = `<button class="general-button task-button grey" disabled>Completed</button>`;
         } else if(this.status === "failed"){
             this.actionButton = `<button class="general-button task-button red" disabled>Failed</button>`;
+        } else if(this.status === "pending"){
+            this.actionButton = `<button class="general-button task-button grey" disabled>Pending</button>`;
         }
     }
     async runTask(){
@@ -30,5 +32,8 @@ export class TaskItem{
     }
     async cancelTask(){
         await utilModule.cancelTask(this.id);
+    }
+    afterUnload(){
+        utilModule.unsubscribeFromObject(this.id);
     }
 }

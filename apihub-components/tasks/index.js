@@ -5,7 +5,9 @@ const {
     getDocumentTasks,
     compileVideoFromDocument,
     textToSpeechParagraph,
-    cancelTaskAndRemove
+    cancelTaskAndRemove,
+    getTask,
+    runAllDocumentTasks
 } = require("./controller");
 const bodyReader = require('../apihub-component-middlewares/bodyReader.js')
 const authentication = require('../apihub-component-middlewares/authentication.js')
@@ -15,11 +17,13 @@ function Tasks(server){
     server.delete("/tasks/cancel/:taskId", cancelTask);
     server.delete("/tasks/remove/:taskId", cancelTaskAndRemove);
 
-    server.get("/tasks/:spaceId", getTasks);
-    server.get("/tasks/:spaceId/:documentId", getDocumentTasks);
+    server.get("/tasks/space/:spaceId", getTasks);
+    server.get("/tasks/:taskId", getTask);
     server.use("/tasks/*", bodyReader);
     server.post("/tasks/:taskId", runTask);
 
+    server.get("/tasks/:spaceId/:documentId", getDocumentTasks);
+    server.post("tasks/:spaceId/:documentId", runAllDocumentTasks);
     server.post("/tasks/video/:spaceId/:documentId", compileVideoFromDocument);
     server.post("/tasks/audio/:spaceId/:documentId/:paragraphId", textToSpeechParagraph);
 }

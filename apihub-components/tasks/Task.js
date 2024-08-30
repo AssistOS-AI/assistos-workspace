@@ -10,50 +10,50 @@ class Task {
         this.securityContext = securityContext;
         this.userId = userId;
         this.spaceId = spaceId;
+        this.callbacks = {};
         // possible statuses: pending, running, completed, failed, cancelled
     }
     async run(){
         if (this.status === STATUS.RUNNING) {
             throw new Error(`Cannot run task in status ${this.status}`);
         }
-        this.setStatus(STATUS.RUNNING);
         if(!this.runTask){
-            throw new Error('executeTask method must be implemented');
+            throw new Error('runTask method must be implemented');
         }
+        this.setStatus(STATUS.RUNNING);
         try{
             let result = await this.runTask();
+            //race condition
+            if(this.status === STATUS.CANCELLED){
+                return;
+            }
             this.setStatus(STATUS.COMPLETED);
-            this.emit(STATUS.COMPLETED);
             return result;
         } catch (e) {
             this.setStatus(STATUS.FAILED);
             throw e;
         }
     }
+
     async cancel(){
-        if (this.status === STATUS.RUNNING) {
-            this.setStatus(STATUS.CANCELLED);
-            if(this.cancelTask){
-               await this.cancelTask();
-            } else {
-                throw new Error('cancelTask method must be implemented');
-            }
-        } else {
+        if (this.status !== STATUS.RUNNING) {
             throw new Error(`Cannot cancel task in status ${this.status}`);
         }
+        if(!this.cancelTask){
+            throw new Error('cancelTask method must be implemented');
+        }
+        this.setStatus(STATUS.CANCELLED);
+        await this.cancelTask();
     }
     on(event, callback) {
-        if (event === STATUS.COMPLETED && this.status === STATUS.COMPLETED) {
-            callback();
-        } else {
-            this.completeCallback = callback;
-        }
+        this.callbacks[event] = callback;
     }
 
     emit(event) {
-        if (event === STATUS.COMPLETED && this.completeCallback) {
-            this.completeCallback();
+        if(!this.callbacks[event]){
+            return;
         }
+        this.callbacks[event]();
     }
     setStatus(status){
         this.status = status;

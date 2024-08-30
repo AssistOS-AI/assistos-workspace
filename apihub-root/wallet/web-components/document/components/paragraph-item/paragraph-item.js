@@ -1,9 +1,6 @@
 import {BaseParagraph} from "../image-paragraph/BaseParagraph.js";
-
 const utilModule = require("assistos").loadModule("util", {});
 const documentModule = require("assistos").loadModule("document", {});
-const llmModule = require("assistos").loadModule("llm", {});
-
 
 export class ParagraphItem extends BaseParagraph {
     constructor(element, invalidate) {
@@ -25,21 +22,34 @@ export class ParagraphItem extends BaseParagraph {
                 this.paragraph.config = await documentModule.getParagraphConfig(assistOS.space.id, this._document.id, this.paragraph.id);
             }
         });
+        await this.prepareTaskIcon();
     }
-
+    async prepareTaskIcon(){
+        let speechCommand = this.paragraph.config.commands["speech"];
+        if(speechCommand){
+            if(speechCommand.taskId){
+                let task = await utilModule.getTask(speechCommand.taskId);
+                if(task.status === "running"){
+                    this.taskIcon = `<div class="loading-icon small top-margin"></div>`;
+                } else if (task.status === "completed"){
+                    this.taskIcon = "";
+                } else if (task.status === "failed"){
+                    this.taskIcon = `<img src="./wallet/assets/icons/error.svg" class="error-icon" alt="error">`;
+                } else if (task.status === "cancelled"){
+                    this.taskIcon = "";
+                }
+            }
+        }
+    }
     beforeRender() {
         this.paragraphConfigs = "";
         const commandCount = Object.keys(this.paragraph.config.commands || {}).length
-        Object.keys(this
-            .paragraph
-            .config
-            .commands || {})
-            .forEach((key, index) => {
+        Object.keys(this.paragraph.config.commands || {}).forEach((key, index) => {
                 this.paragraphConfigs += utilModule.buildCommandString(this.paragraph.config.commands[key].name, this.paragraph.config.commands[key].paramsObject || {});
                 if (index !== commandCount - 1) {
                     this.paragraphConfigs += `\n`;
                 }
-            })
+        })
     }
 
     afterRender() {
@@ -76,6 +86,7 @@ export class ParagraphItem extends BaseParagraph {
                 return;
             }
             this.paragraph.text = paragraphText;
+            this.textIsDifferentFromAudio = true;
             await assistOS.callFlow("UpdateParagraphText", {
                 spaceId: assistOS.space.id,
                 documentId: this._document.id,
@@ -153,9 +164,17 @@ export class ParagraphItem extends BaseParagraph {
                 }
                 break;
             case "speech":
-                const paragraphText = this.element.querySelector('.paragraph-text').value;
-                if (commandStatus === "new" || commandStatus === "changed" || (commandStatus === "same" && assistOS.UI.customTrim(paragraphText) !== assistOS.UI.customTrim(this.paragraph.text))) {
-                    let configs = await documentModule.getParagraphConfig(assistOS.space.id, this._document.id, this.paragraph.id);
+                let paragraphText = this.element.querySelector('.paragraph-text').value;
+                let configs = await documentModule.getParagraphConfig(assistOS.space.id, this._document.id, this.paragraph.id);
+                let isValidTask = false;
+                if(configs.commands["speech"].taskId){
+                    let task = await utilModule.getTask(configs.commands["speech"].taskId);
+                    let validStatuses = ["created", "running", "pending"];
+                    if(validStatuses.includes(task.status)){
+                        isValidTask = true;
+                    }
+                }
+                if (commandStatus === "new" || commandStatus === "changed" || (commandStatus === "same" &&  this.textIsDifferentFromAudio && !isValidTask)) {
                     if(configs.commands["speech"].taskId){
                         await utilModule.cancelTaskAndRemove(configs.commands["speech"].taskId);
                         await utilModule.unsubscribeFromObject(configs.commands["speech"].taskId);
@@ -211,9 +230,12 @@ export class ParagraphItem extends BaseParagraph {
         } else if(status === "completed"){
             statusElement.innerHTML = "";
             this.paragraph.config = await documentModule.getParagraphConfig(assistOS.space.id, this._document.id, this.paragraph.id);
+            this.textIsDifferentFromAudio = false;
         } else if(status === "failed"){
             this.paragraph.config = await documentModule.getParagraphConfig(assistOS.space.id, this._document.id, this.paragraph.id);
             statusElement.innerHTML = `<img src="./wallet/assets/icons/error.svg" class="error-icon" alt="error">`;
+        } else if(status === "cancelled"){
+            statusElement.innerHTML = "";
         }
     }
 
@@ -267,7 +289,6 @@ export class ParagraphItem extends BaseParagraph {
         }
         controller.abort();
     }
-    ;
 
     async resetTimer(paragraph, event) {
         paragraph.style.height = "auto";
@@ -357,17 +378,11 @@ export class ParagraphItem extends BaseParagraph {
                 <list-item data-local-action="moveParagraph down" data-name="Move Down" 
                            data-highlight="light-highlight"></list-item>` + baseDropdownMenuHTML;
             }
-            if (this.paragraph.audio || this.audioGenerating) {
-                if (this.audioGenerating) {
-                    baseDropdownMenuHTML += `
-                    <list-item  id="play-paragraph-audio-btn" data-name="Generating Audio..." 
-                                              data-highlight="light-highlight"></list-item>`;
-                } else {
-                    baseDropdownMenuHTML += `<list-item data-name="Play Audio" id="play-paragraph-audio-btn" data-local-action="playParagraphAudio" data-highlight="light-highlight"></list-item>`;
-                    baseDropdownMenuHTML += ` <list-item data-name="Download Audio" data-local-action="downloadAudio" data-highlight="light-highlight"></list-item>`;
-                }
+            if (this.paragraph.config.audio) {
+                baseDropdownMenuHTML += `<list-item data-name="Play Audio" id="play-paragraph-audio-btn" data-local-action="playParagraphAudio" data-highlight="light-highlight"></list-item>`;
+                baseDropdownMenuHTML += ` <list-item data-name="Download Audio" data-local-action="downloadAudio" data-highlight="light-highlight"></list-item>`;
             }
-            if (!this.paragraph.config.audio) {
+            if (!this.paragraph.config.lipSync) {
                 baseDropdownMenuHTML += `<list-item data-name="Lip Sync" data-local-action="lipSync" data-highlight="light-highlight"></list-item>`;
             }
             if (this.paragraph.config.lipSync) {

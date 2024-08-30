@@ -122,6 +122,38 @@ function getDocumentTasks(request, response) {
         });
     }
 }
+function getTask(request, response) {
+    let taskId = request.params.taskId;
+    try {
+        let task = TaskManager.getTask(taskId);
+        sendResponse(response, 200, "application/json", {
+            success: true,
+            data: task.serialize()
+        });
+    } catch (e) {
+        sendResponse(response, 500, "application/json", {
+            success: false,
+            message: e.message
+        });
+    }
+}
+function runAllDocumentTasks(request, response) {
+    let spaceId = request.params.spaceId;
+    let documentId = request.params.documentId;
+    try {
+        let tasks = TaskManager.serializeTasks(spaceId).filter(task => task.configs.documentId === documentId);
+        tasks.forEach(task => TaskManager.runTask(task.id));
+        sendResponse(response, 200, "application/json", {
+            success: true,
+            message: "Tasks added to queue"
+        });
+    } catch (e) {
+        sendResponse(response, 500, "application/json", {
+            success: false,
+            message: e.message
+        });
+    }
+}
 module.exports = {
     cancelTask,
     cancelTaskAndRemove,
@@ -129,5 +161,7 @@ module.exports = {
     runTask,
     getDocumentTasks,
     compileVideoFromDocument,
-    textToSpeechParagraph
+    textToSpeechParagraph,
+    getTask,
+    runAllDocumentTasks
 }
