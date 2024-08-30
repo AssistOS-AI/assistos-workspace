@@ -3,14 +3,17 @@ const {sendResponse} = require("../apihub-component-utils/utils");
 const DocumentToVideo = require("./DocumentToVideo");
 const utils = require("../apihub-component-utils/utils");
 const TextToSpeech = require("./TextToSpeech");
+const eventPublisher = require("../subscribers/eventPublisher");
 async function compileVideoFromDocument(request, response) {
     let documentId = request.params.documentId;
     let spaceId = request.params.spaceId;
     let userId = request.userId;
+    let sessionId = request.sessionId;
     const SecurityContext = require("assistos").ServerSideSecurityContext;
     let securityContext = new SecurityContext(request);
     let task = new DocumentToVideo(securityContext, spaceId, userId, {spaceId, documentId});
     await TaskManager.addTask(task);
+    eventPublisher.notifyClients(sessionId, documentId + "/tasks");
     sendResponse(response, 200, "application/json", {
         success: true,
         message: "Task added to the queue",
@@ -27,10 +30,15 @@ async function textToSpeechParagraph(request,response){
         const SecurityContext = require("assistos").ServerSideSecurityContext;
         const ttsCommand = request.body.command;
         const prompt = request.body.text;
+        const sessionId = request.sessionId;
+
         let securityContext = new SecurityContext(request);
         let task = new TextToSpeech(securityContext, spaceId, userId, {documentId, paragraphId, ttsCommand, prompt});
         await TaskManager.addTask(task);
+
+        eventPublisher.notifyClients(sessionId, documentId + "/tasks");
         let documentModule = require("assistos").loadModule("document", securityContext);
+
         let paragraphConfig = await documentModule.getParagraphConfig(spaceId, documentId, paragraphId);
         paragraphConfig.commands["speech"].taskId = task.id;
         await documentModule.updateParagraphConfig(spaceId, documentId, paragraphId, paragraphConfig);
@@ -137,23 +145,7 @@ function getTask(request, response) {
         });
     }
 }
-function runAllDocumentTasks(request, response) {
-    let spaceId = request.params.spaceId;
-    let documentId = request.params.documentId;
-    try {
-        let tasks = TaskManager.serializeTasks(spaceId).filter(task => task.configs.documentId === documentId);
-        tasks.forEach(task => TaskManager.runTask(task.id));
-        sendResponse(response, 200, "application/json", {
-            success: true,
-            message: "Tasks added to queue"
-        });
-    } catch (e) {
-        sendResponse(response, 500, "application/json", {
-            success: false,
-            message: e.message
-        });
-    }
-}
+
 module.exports = {
     cancelTask,
     cancelTaskAndRemove,
@@ -163,5 +155,4 @@ module.exports = {
     compileVideoFromDocument,
     textToSpeechParagraph,
     getTask,
-    runAllDocumentTasks
 }

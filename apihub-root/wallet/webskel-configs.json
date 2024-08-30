@@ -4,6 +4,12 @@
     "services": [],
     "components": [
         {
+            "name": "document-tasks-menu",
+            "directory": "document",
+            "type": "components",
+            "presenterClassName": "DocumentTasksMenu"
+        },
+        {
             "name": "task-item",
             "directory": "space-application",
             "type": "components",

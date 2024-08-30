@@ -9,15 +9,13 @@
                 <div class="secondary-path-button pointer">$$docTitle</div>
             </div>
             <div class="menu-section">
-                <div class="tasks-container pointer" data-local-action="showMenu tasks-menu off">
+                <div class="tasks-container pointer" data-local-action="showTasksMenu">
                     <img class="task-icon"  src="./wallet/assets/icons/task.svg">
-                    <div class="document-menu-dropdown" id="tasks-menu">
-
-                    </div>
+                    <document-tasks-menu data-presenter="document-tasks-menu" data-document-id="$$documentId"></document-tasks-menu>
                 </div>
-                <div class="document-menu-container" data-local-action="showMenu settings-menu off">
+                <div class="document-menu-container" data-local-action="showSettingsMenu off">
                     <img class="action-dots" src="./wallet/assets/icons/action-dots.svg" alt="menu">
-                    <div class="document-menu-dropdown" id="settings-menu">
+                    <div class="document-menu-dropdown" id="actions-menu">
                         <list-item data-local-action="addChapter" data-name="Add Chapter" data-highlight="light-highlight"></list-item>
                         <list-item data-local-action="documentToVideo" data-name="Export Video" data-highlight="light-highlight"></list-item>
                         <list-item data-local-action="playVideoPreview" data-name="Preview Video" data-highlight="light-highlight"></list-item>

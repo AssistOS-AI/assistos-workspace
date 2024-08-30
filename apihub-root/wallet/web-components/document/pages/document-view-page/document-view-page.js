@@ -39,6 +39,7 @@ export class DocumentViewPage {
     beforeRender() {
         this.chaptersContainer = "";
         this.docTitle = this._document.title;
+        this.documentId = this._document.id; // tasks-menu
         this.abstractText = this._document.abstract || "No abstract has been set or generated for this document";
         if (this._document.chapters.length > 0) {
             let iterator = 0;
@@ -250,6 +251,7 @@ export class DocumentViewPage {
     }
     async documentToVideo(button){
         let videoId = await documentModule.documentToVideo(assistOS.space.id, this._document.id);
+        assistOS.space.notifyObservers(this._document.id + "/tasks");
         await utilModule.subscribeToObject(videoId, async (data) => {
             if(data.error) {
                 return await showApplicationError("Error compiling video", data.error, "");
@@ -297,26 +299,20 @@ export class DocumentViewPage {
         }
     }
 
-    hideMenu(controller, container, menuType, event) {
-        let menu = event.target.closest(`#${menuType}`);
-        if(!menu || menuType !== "tasks-menu"){
-            container.setAttribute("data-local-action", `showMenu ${menuType} off`);
-            let menu = this.element.querySelector(`#${menuType}`);
-            menu.style.display = "none";
-            controller.abort();
-        }
+    hideActionsMenu(controller, container, event) {
+        let menu = event.target.closest(`#actions-menu`);
+        container.setAttribute("data-local-action", `showActionsMenu off`);
+        menu.style.display = "none";
+        controller.abort();
     }
 
-    async showMenu(_target, menuType, mode) {
+    async showActionsMenu(_target, mode) {
         if (mode === "off") {
-            let menu = this.element.querySelector(`#${menuType}`);
+            let menu = this.element.querySelector(`#actions-menu`);
             menu.style.display = "flex";
             let controller = new AbortController();
-            document.addEventListener("click", this.hideMenu.bind(this, controller, _target, menuType), {signal: controller.signal});
-            _target.setAttribute("data-local-action", `showMenu on`);
-            if(menuType === "tasks-menu"){
-                await this.loadDocumentTasks();
-            }
+            document.addEventListener("click", this.hideActionsMenu.bind(this, controller, _target), {signal: controller.signal});
+            _target.setAttribute("data-local-action", `showActionsMenu on`);
         }
     }
     playVideoPreview(targetElement){
@@ -339,26 +335,23 @@ export class DocumentViewPage {
         const llmModule=require('assistos').loadModule('llm', {});
         const response = (await llmModule.lipsync(assistOS.space.id, "sync-1.6.0", {}))
     }
-    async loadDocumentTasks(){
-        let tasks = await documentModule.getDocumentTasks(assistOS.space.id, this._document.id);
-        let tasksMenu = this.element.querySelector("#tasks-menu");
-        if(tasks.length === 0){
-            tasksMenu.innerHTML = `<div class="no-tasks">No tasks yet</div>`;
-            return;
+    showTasksMenu(tasksButton){
+        let tasksMenu = this.element.querySelector("document-tasks-menu");
+        tasksMenu.style.display = "flex";
+        tasksMenu.webSkelPresenter.newTasksCount = 0;
+        tasksMenu.webSkelPresenter.renderBadge();
+        let controller = new AbortController();
+        document.addEventListener("click", this.removeTasksMenu.bind(this, controller, tasksButton), {signal: controller.signal});
+        tasksButton.removeAttribute("data-local-action");
+    }
+    removeTasksMenu(controller, tasksButton, event){
+        let menu = event.target.closest("document-tasks-menu");
+        if(!menu){
+            let container = this.element.querySelector(".tasks-container");
+            let tasksMenu = container.querySelector("document-tasks-menu");
+            tasksMenu.style.display = "none";
+            controller.abort();
+            tasksButton.setAttribute("data-local-action", "showTasksMenu");
         }
-        let tasksList = "";
-        for(let task of tasks){
-            tasksList += `<task-item data-id="${task.id}" data-name="${task.name}" data-status=${task.status} data-presenter="task-item"></task-item>`;
-        }
-        tasksMenu.innerHTML = `
-                        <button class="general-button run-all-tasks" data-local-action="runAllTasks">Run all</button>
-                        <div class="tasks-header">
-                            <div class="name-header">Name</div>
-                            <div class="status-header">Status</div>
-                            <div class="action-header">Action</div>
-                        </div>
-                        <div class="tasks-list">
-                            ${tasksList}
-                        </div>`;
     }
 }

@@ -182,6 +182,7 @@ export class ParagraphItem extends BaseParagraph {
                     let statusElement = this.element.querySelector('.task-status-icon');
                     statusElement.innerHTML = "";
                     let taskId = await documentModule.generateParagraphAudio(assistOS.space.id, this._document.id, this.paragraph.id, command, paragraphText);
+                    assistOS.space.notifyObservers(this._document.id + "/tasks");
                     this.paragraph.config = await documentModule.getParagraphConfig(assistOS.space.id, this._document.id, this.paragraph.id);
                     utilModule.subscribeToObject(taskId, async (status) => {
                         await this.changeTaskStatus(taskId, status);
@@ -353,7 +354,6 @@ export class ParagraphItem extends BaseParagraph {
         audioSection.classList.remove('flex');
         controller.abort();
     }
-    ;
 
     async openParagraphDropdown(_target) {
         const generateDropdownMenu = () => {

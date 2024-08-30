@@ -66,7 +66,7 @@ class EventPublisher {
         }
     }
 
-    notifyClients(userId, sessionId, objectId, eventData) {
+    notifyClients(sessionId, objectId, eventData) {
         for (let [clientUserId, client] of this.clients) {
             for (let [connectionSessionId, connection] of client.connections) {
                 if (connection.objectIds.has(objectId)) {
