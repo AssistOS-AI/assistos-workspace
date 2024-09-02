@@ -875,7 +875,7 @@ async function importDocument(spaceId, extractedPath, request) {
         const chapterId = (await chapterResult.json()).data;
 
         for (const paragraph of chapter.paragraphs) {
-            let paragraphObject = {text: paragraph.text || "", config: {}};
+            let paragraphObject = {text: paragraph.text || "", config: {commands: {}}};
             objectURI = encodeURIComponent(`${docId}/${chapterId}/paragraphs`);
 
             if (paragraph.image) {
