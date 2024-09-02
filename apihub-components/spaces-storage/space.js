@@ -783,7 +783,7 @@ async function archiveDocument(spaceId, documentId, request) {
 
 
 async function importDocument(spaceId, extractedPath, request) {
-    const utilModule= require('assistos').loadModule('util', {cookies: request.headers.cookie});
+    const utilModule = require('assistos').loadModule('util', {cookies: request.headers.cookie});
     const docMetadataPath = path.join(extractedPath, 'metadata.json');
     const docDataPath = path.join(extractedPath, 'data.json');
 
@@ -874,16 +874,22 @@ async function importDocument(spaceId, extractedPath, request) {
         });
 
         const chapterId = (await chapterResult.json()).data;
-        for (const paragraph of chapter.paragraphs) {
-             let paragraphObject = {text: "", config: {commands: {}}};
-             if(paragraph.position){
-                    paragraphObject.position = paragraph.position
-             }
+        for (let paragraph of chapter.paragraphs) {
+            let paragraphObject = {text: paragraph.text || "", config: {commands: {}}};
+            if (paragraph.position) {
+                paragraphObject.position = paragraph.position
+            }
             objectURI = encodeURIComponent(`${docId}/${chapterId}/paragraphs`);
-            if(paragraph.text && paragraph.text.startsWith("!")){
-                const commands = utilModule.findCommands(paragraph.text.substring(1).split(":")[0]);
+            if (paragraph.text && paragraph.text.startsWith("!")) {
+                const commands = utilModule.findCommands((paragraph.text.substring(1)).split(":")[0]);
+                if (Object.keys(commands).length !== 0) {
+                    const paragraphParts = paragraph.text.split(":");
+                    paragraphObject.text = "";
+                    for (let i = 1; i < paragraphParts.length; i++) {
+                        paragraphObject.text += paragraphParts[i];
+                    }
+                }
                 paragraphObject.config.commands = commands
-                paragraphObject.text = paragraph.text.split(":")[1];
             }
             if (paragraph.image) {
                 /* preserve backwards compatibility */

@@ -1373,22 +1373,25 @@ async function importDocument(request, response) {
     const tempDir = path.join(__dirname, '../../data-volume/Temp', fileId);
     const filePath = path.join(tempDir, `${fileId}.docai`);
 
-    await fs.promises.mkdir(tempDir, {recursive: true});
+    await fs.promises.mkdir(tempDir, { recursive: true });
 
-    const busboy = Busboy({headers: request.headers});
+    const busboy = Busboy({ headers: request.headers });
 
     busboy.on('file', (fieldname, file, filename, encoding, mimetype) => {
         const writeStream = fs.createWriteStream(filePath);
         file.pipe(writeStream);
 
-        writeStream.on('finish', async () => {
+        writeStream.on('close', async () => {
             try {
+                // Verifică dacă fișierul există după ce fluxul este închis
+                await fs.promises.access(filePath, fs.constants.F_OK);
+
                 const extractedPath = path.join(tempDir, 'extracted');
-                await fs.promises.mkdir(extractedPath, {recursive: true});
+                await fs.promises.mkdir(extractedPath, { recursive: true });
 
                 await pipelinePromise(
                     fs.createReadStream(filePath),
-                    unzipper.Extract({path: extractedPath})
+                    unzipper.Extract({ path: extractedPath })
                 );
 
                 const extractedFiles = await fs.promises.readdir(extractedPath);
@@ -1413,7 +1416,7 @@ async function importDocument(request, response) {
                     message: `Error at importing document: ${error.message}`
                 });
             } finally {
-                fs.rmSync(tempDir, {recursive: true, force: true});
+                fs.rmSync(tempDir, { recursive: true, force: true });
             }
         });
 
