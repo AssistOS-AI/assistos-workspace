@@ -43,7 +43,7 @@ export class AuthenticationPage {
                         <input class="form-input"  accept="image/png, image/jpeg" data-condition="verifyPhotoSize" name="photo" type="file" data-id="photo" id="photo" placeholder="Select a Profile Image">
                     </div>
                     <div class="form-footer">
-                        <button type="button" class="general-button" data-local-action="registerUser">Get Secret Token</button>
+                        <button type="button" class="general-button" data-local-action="registerUser">${this.inviteToken?"Create Account":"Get Secret Token"}</button>
                     </div>
                 </form>
            </div>`;
