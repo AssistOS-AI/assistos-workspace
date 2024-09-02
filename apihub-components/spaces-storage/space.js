@@ -875,7 +875,7 @@ async function importDocument(spaceId, extractedPath, request) {
         const chapterId = (await chapterResult.json()).data;
 
         for (const paragraph of chapter.paragraphs) {
-            let paragraphObject = {text: paragraph.text || ""};
+            let paragraphObject = {text: paragraph.text || "", config: {}};
             objectURI = encodeURIComponent(`${docId}/${chapterId}/paragraphs`);
 
             if (paragraph.image) {
@@ -887,15 +887,15 @@ async function importDocument(spaceId, extractedPath, request) {
                 paragraph.image.id = imageId;
                 paragraph.image.src = `spaces/image/${spaceId}/${imageId}`;
                 paragraph.image.isUploadedImage = true;
-                paragraphObject.image = paragraph.image;
-                paragraphObject.dimensions = paragraph.dimensions;
+                paragraphObject.config.image = paragraph.image;
+                paragraphObject.config.image.dimensions = paragraph.dimensions;
             }
 
             if (paragraph.audio) {
-                paragraphObject.audio = paragraph.audio;
+                paragraphObject.config.audio = paragraph.audio;
                 let audioId = paragraph.audio.id;
                 /* preserve backwards compatibility */
-                const audioPath = path.join(extractedPath, 'audios', `${paragraphObject.audio.fileName || paragraphObject.audio.id}.mp3`);
+                const audioPath = path.join(extractedPath, 'audios', `${paragraphObject.config.audio.fileName || paragraphObject.config.audio.id}.mp3`);
                 const audioBase64Data = await readFileAsBase64(audioPath);
                 const result = await fetch(`${process.env.BASE_URL}/spaces/audio/${spaceId}`, {
                     method: 'POST',
@@ -906,8 +906,8 @@ async function importDocument(spaceId, extractedPath, request) {
                     body: JSON.stringify(audioBase64Data)
                 });
                 audioId = (await result.json()).data;
-                paragraphObject.audio.id = audioId;
-                paragraphObject.audio.src = `spaces/audio/${spaceId}/${audioId}`;
+                paragraphObject.config.audio.id = audioId;
+                paragraphObject.config.audio.src = `spaces/audio/${spaceId}/${audioId}`;
             }
 
             await fetch(`${process.env.BASE_URL}/spaces/embeddedObject/${spaceId}/${objectURI}`, {
@@ -1017,7 +1017,7 @@ async function getPersonalityByName(spaceId, personalityName) {
 async function getParagraphAudio(spaceId, documentId, paragraphId) {
     const documentModule = require('assistos').loadModule('document');
     const paragraph = await documentModule.getParagraph(spaceId, documentId, paragraphId);
-    if(!paragraph.config.audio){
+    if (!paragraph.config.audio) {
         return null;
     }
     return paragraph.config.audio.src

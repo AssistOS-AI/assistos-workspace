@@ -49,20 +49,23 @@ export class DocumentViewPage {
             });
         }
     }
+
     renderDocumentTitle() {
         let documentTitle = this.element.querySelector(".document-title");
         documentTitle.value = unescapeHtmlEntities(this._document.title);
     }
-    renderAbstract(){
+
+    renderAbstract() {
         let abstract = this.element.querySelector(".abstract-text");
         abstract.innerHTML = this._document.abstract || "No abstract has been set or generated for this document";
     }
+
     afterRender() {
         this.renderDocumentTitle();
         this.renderAbstract();
-        if(assistOS.space.currentChapterId){
+        if (assistOS.space.currentChapterId) {
             let chapter = this.element.querySelector(`chapter-item[data-chapter-id="${assistOS.space.currentChapterId}"]`);
-            if(chapter){
+            if (chapter) {
                 chapter.click();
                 chapter.scrollIntoView({behavior: "smooth", block: "center"});
             }
@@ -71,7 +74,7 @@ export class DocumentViewPage {
 
     async afterUnload() {
         await utilModule.unsubscribeFromObject(this._document.id);
-        for(let childId of this.childrenSubscriptions.keys()){
+        for (let childId of this.childrenSubscriptions.keys()) {
             await utilModule.unsubscribeFromObject(childId);
         }
     }
@@ -128,7 +131,8 @@ export class DocumentViewPage {
         });
         this.invalidate(this.refreshDocument);
     }
-    async saveAbstract(abstractElement){
+
+    async saveAbstract(abstractElement) {
         let abstractText = assistOS.UI.sanitize(abstractElement.value);
         if (abstractText !== this._document.abstract) {
             this._document.abstract = abstractText;
@@ -158,7 +162,7 @@ export class DocumentViewPage {
         await assistOS.UI.changeToDynamicPage("space-application-page", `${assistOS.space.id}/Space/documents-page`);
     }
 
-    async saveTitle(textElement){
+    async saveTitle(textElement) {
         let titleText = assistOS.UI.sanitize(textElement.value);
         if (titleText !== this._document.title && titleText !== "") {
             this._document.title = titleText;
@@ -169,8 +173,9 @@ export class DocumentViewPage {
             });
         }
     }
+
     async changeCurrentElement(element, focusoutFunction) {
-        if(this.currentElement){
+        if (this.currentElement) {
             this.currentElement.element.removeAttribute("id");
             this.currentElement.containerElement.removeAttribute("id");
             await this.currentElement.focusoutFunction(this.currentElement.element);
@@ -185,77 +190,84 @@ export class DocumentViewPage {
             focusoutFunction: focusoutFunction
         };
     }
-    async titleKeyDownHandler(event){
+
+    async titleKeyDownHandler(event) {
         if (event.key === 'Enter') {
             event.preventDefault();
         }
     };
-    async resetTimer(){
+
+    async resetTimer() {
         await this.timer.reset(1000);
     }
-    async stopTimer(executeFn){
-        if(this.timer){
+
+    async stopTimer(executeFn) {
+        if (this.timer) {
             await this.timer.stop(executeFn);
         }
     }
-    focusOutHandler(element){
+
+    focusOutHandler(element) {
         element.removeEventListener('keydown', this.titleKeyDownHandler);
         element.removeEventListener('keydown', this.boundControlAbstractHeight);
         this.stopTimer.bind(this, true);
     }
-    async controlAbstractHeight(abstract){
+
+    async controlAbstractHeight(abstract) {
         abstract.style.height = "auto";
         abstract.style.height = abstract.scrollHeight + 'px';
     }
+
     async editItem(_target, type) {
-        if(_target.hasAttribute("id") && _target.getAttribute("id") === "current-selection"){
+        if (_target.hasAttribute("id") && _target.getAttribute("id") === "current-selection") {
             return;
         }
         let saveFunction;
         let resetTimerFunction = this.resetTimer.bind(this);
-        if(type === "title"){
+        if (type === "title") {
             await this.changeCurrentElement(_target, this.focusOutHandler.bind(this, _target));
             _target.addEventListener('keydown', this.titleKeyDownHandler);
             saveFunction = this.saveTitle.bind(this, _target);
-        }else if(type === "abstract"){
-            if(!this.boundControlAbstractHeight){
+        } else if (type === "abstract") {
+            if (!this.boundControlAbstractHeight) {
                 this.boundControlAbstractHeight = this.controlAbstractHeight.bind(this, _target);
             }
             _target.addEventListener('keydown', this.boundControlAbstractHeight);
             await this.changeCurrentElement(_target, this.focusOutHandler.bind(this, _target));
             saveFunction = this.saveAbstract.bind(this, _target);
-        } else if(type === "chapterTitle"){
+        } else if (type === "chapterTitle") {
             let chapterPresenter = _target.closest("chapter-item").webSkelPresenter;
             saveFunction = chapterPresenter.saveTitle.bind(chapterPresenter, _target);
             await this.changeCurrentElement(_target, chapterPresenter.focusOutHandler.bind(chapterPresenter));
             await chapterPresenter.highlightChapter(_target);
             _target.addEventListener('keydown', this.titleKeyDownHandler.bind(this, _target));
-        } else if(type === "paragraph"){
+        } else if (type === "paragraph") {
             let chapterPresenter = _target.closest("chapter-item").webSkelPresenter;
             let paragraphItem = _target.closest("paragraph-item") || _target.closest("image-paragraph");
             let paragraphPresenter = paragraphItem.webSkelPresenter;
             await this.changeCurrentElement(_target, paragraphPresenter.focusOutHandler.bind(paragraphPresenter));
             await chapterPresenter.highlightChapter(_target);
             paragraphPresenter.highlightParagraph();
-            const paragraphTextElement=paragraphItem.querySelector(".paragraph-text");
+            const paragraphTextElement = paragraphItem.querySelector(".paragraph-text");
             saveFunction = paragraphPresenter.saveParagraph.bind(paragraphPresenter, _target);
             resetTimerFunction = paragraphPresenter.resetTimer.bind(paragraphPresenter, _target);
         }
         _target.focus();
-        if(this.timer){
+        if (this.timer) {
             await this.timer.stop(true);
         }
         this.setContext();
-        this.timer = new executorTimer(saveFunction,1000);
+        this.timer = new executorTimer(saveFunction, 1000);
         _target.addEventListener("keydown", resetTimerFunction);
     }
-    async documentToVideo(button){
+
+    async documentToVideo(button) {
         let videoId = await documentModule.documentToVideo(assistOS.space.id, this._document.id);
         assistOS.space.notifyObservers(this._document.id + "/tasks");
         await utilModule.subscribeToObject(videoId, async (data) => {
-            if(data.error) {
+            if (data.error) {
                 return await showApplicationError("Error compiling video", data.error, "");
-            } else if(data.status === "completed"){
+            } else if (data.status === "completed") {
                 const a = document.createElement("a");
                 a.href = `/spaces/video/${assistOS.space.id}/${videoId}`;
                 a.download = "video.mp4";
@@ -267,7 +279,7 @@ export class DocumentViewPage {
         });
     }
 
-    async  exportDocument(_target) {
+    async exportDocument(_target) {
         try {
             const response = await fetch(`/spaces/${assistOS.space.id}/export/documents/${this._document.id}`, {
                 method: 'GET',
@@ -300,10 +312,12 @@ export class DocumentViewPage {
     }
 
     hideActionsMenu(controller, container, event) {
-        let menu = event.target.closest(`#actions-menu`);
-        container.setAttribute("data-local-action", `showActionsMenu off`);
-        menu.style.display = "none";
-        controller.abort();
+        let clickInsideMenu = event.target.closest(`#actions-menu`);
+        if (!clickInsideMenu) {
+            this.element.querySelector(`#actions-menu`).style.display = "none";
+            container.setAttribute("data-local-action", `showActionsMenu off`);
+            controller.abort();
+        }
     }
 
     async showActionsMenu(_target, mode) {
@@ -315,15 +329,17 @@ export class DocumentViewPage {
             _target.setAttribute("data-local-action", `showActionsMenu on`);
         }
     }
-    playVideoPreview(targetElement){
+
+    playVideoPreview(targetElement) {
         let videoPlayer = `<document-video-preview class="minimized" data-presenter="document-video-preview"></document-video-preview>`;
         let pageHeader = this.element.querySelector(".document-page-header");
         pageHeader.insertAdjacentHTML("afterend", videoPlayer);
     }
-    toggleEditingState(isEditable){
+
+    toggleEditingState(isEditable) {
         let documentEditor = this.element.querySelector(".document-editor");
         let disabledMask = this.element.querySelector(".disabled-mask");
-        if(!isEditable){
+        if (!isEditable) {
             disabledMask.style.display = "block";
             documentEditor.classList.add("disabled-editor");
         } else {
@@ -331,8 +347,9 @@ export class DocumentViewPage {
             disabledMask.style.display = "none";
         }
     }
-    async lipsyncVideo(_target){
-        const llmModule=require('assistos').loadModule('llm', {});
+
+    async lipsyncVideo(_target) {
+        const llmModule = require('assistos').loadModule('llm', {});
         const response = (await llmModule.lipsync(assistOS.space.id, "sync-1.6.0", {}))
     }
 

@@ -51,7 +51,9 @@ export class DocumentsPage {
     getDocumentId(_target) {
         return assistOS.UI.reverseQuerySelector(_target, "document-item").getAttribute("data-id");
     }
-
+    getDocumentTitle(_target) {
+        return assistOS.UI.reverseQuerySelector(_target, "document-item").getAttribute("data-name");
+    }
     async showAddDocumentModal() {
         await assistOS.UI.showModal("add-document-modal");
     }
@@ -68,7 +70,38 @@ export class DocumentsPage {
         });
         this.invalidate(this.refreshDocuments);
     }
+    async exportAction(_target) {
+        try {
+            const documentId=this.getDocumentId(_target);
+            const response = await fetch(`/spaces/${assistOS.space.id}/export/documents/${documentId}`, {
+                method: 'GET',
+                headers: {
+                    'Accept': 'application/zip'
+                }
+            });
 
+            if (!response.ok) {
+                throw new Error(`Network response was not ok: ${response.statusText}`);
+            }
+
+            const blob = await response.blob();
+            const url = window.URL.createObjectURL(blob);
+
+            const a = document.createElement('a');
+            a.style.display = 'none';
+            a.href = url;
+            a.download = `${this.getDocumentTitle(_target)}.docai`;
+
+            document.body.appendChild(a);
+            a.click();
+
+            window.URL.revokeObjectURL(url);
+            document.body.removeChild(a);
+
+        } catch (error) {
+            console.error('There has been a problem with your fetch operation:', error);
+        }
+    }
     async importDocument(_target) {
         const handleFile = async (file) => {
             const formData = new FormData();
