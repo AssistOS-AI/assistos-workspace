@@ -7,22 +7,24 @@ export class SpaceApplicationPage {
     }
 
     beforeRender() {
-        if(assistOS.UI.sidebarState==="closed"){
-            this.transformStyle="transform:translateX(80%);";
-            this.arrowRotationToggle="arrow-rotated"
-        }else{
-            this.transformStyle="transform:translateX(0%);";
-            this.arrowRotationToggle=""
+        if (assistOS.UI.sidebarState === "closed") {
+            this.transformStyle = "transform:translateX(80%);";
+            this.arrowRotationToggle = "arrow-rotated"
+        } else {
+            this.transformStyle = "transform:translateX(0%);";
+            this.arrowRotationToggle = ""
         }
     }
-    highlightSidebarItem(){
+
+    highlightSidebarItem() {
         let sidebarItems = this.element.querySelectorAll(".sidebar-item");
         sidebarItems.forEach((item) => {
-            if(item.getAttribute("data-local-action").split(" ")[1] === this.currentPage.componentName){
+            if (item.getAttribute("data-local-action").split(" ")[1] === this.currentPage.componentName) {
                 item.classList.add("highlighted");
             }
         });
     }
+
     afterRender() {
         this.sidebar = this.element.querySelector(".right-sidebar");
         this.currentPage = this.element.querySelector(".current-page");
