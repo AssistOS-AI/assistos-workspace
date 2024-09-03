@@ -681,14 +681,12 @@ async function exportDocumentData(spaceId, documentId, request) {
             chapter.position = documentRecordsContents[chapterId].position
             chapter.id = chapterId
             chapter.paragraphs = documentRecordsContents[chapterId].paragraphs.map((paragraphId, paragraphIndex) => {
-                let paragraph = {config: {commands: {}}}
-                paragraph.id = paragraphId;
-                if (documentRecordsContents[paragraphId].position) {
-                    paragraph.position = documentRecordsContents[paragraphId].position
-                }
-                if (documentRecordsContents[paragraphId].text) {
-                    paragraph.text = documentRecordsContents[paragraphId].text;
-                }
+                let paragraph = {
+                    text: documentRecordsContents[paragraphId].text,
+                    position: documentRecordsContents[paragraphId].position,
+                    id: paragraphId,
+                    config: {commands: {}}
+                };
 
                 if (documentRecordsContents[paragraphId].config.audio) {
                     const personality = documentRecordsContents.config.commands["speech"].paramsObject.personality;
