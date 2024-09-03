@@ -1,4 +1,3 @@
-import {unsanitize} from "../../../../../WebSkel/utils/dom-utils";
 
 const utilModule = require("assistos").loadModule("util", {});
 const documentModule = require("assistos").loadModule("document", {});
