@@ -647,7 +647,6 @@ async function exportDocumentData(spaceId, documentId, request) {
     let lightDBEnclaveClient = enclave.initialiseLightDBEnclave(spaceId);
     const documentRecords = await $$.promisify(lightDBEnclaveClient.getAllRecords)($$.SYSTEM_IDENTIFIER, documentId);
     let documentRecordsContents = {};
-    const aosUtil = require('assistos').loadModule('util', {cookies: request.headers.cookie});
     /* access time optimization */
     documentRecords.forEach(record => {
         documentRecordsContents[record.pk] = record.data;

@@ -51,9 +51,11 @@ export class DocumentsPage {
     getDocumentId(_target) {
         return assistOS.UI.reverseQuerySelector(_target, "document-item").getAttribute("data-id");
     }
+
     getDocumentTitle(_target) {
-        return assistOS.UI.reverseQuerySelector(_target, "document-item").getAttribute("data-name");
+        return assistOS.UI.unsanitize(assistOS.UI.reverseQuerySelector(_target, "document-item").getAttribute("data-name"));
     }
+
     async showAddDocumentModal() {
         await assistOS.UI.showModal("add-document-modal");
     }
@@ -70,9 +72,10 @@ export class DocumentsPage {
         });
         this.invalidate(this.refreshDocuments);
     }
+
     async exportAction(_target) {
         try {
-            const documentId=this.getDocumentId(_target);
+            const documentId = this.getDocumentId(_target);
             const response = await fetch(`/spaces/${assistOS.space.id}/export/documents/${documentId}`, {
                 method: 'GET',
                 headers: {
@@ -102,6 +105,7 @@ export class DocumentsPage {
             console.error('There has been a problem with your fetch operation:', error);
         }
     }
+
     async importDocument(_target) {
         const handleFile = async (file) => {
             const formData = new FormData();

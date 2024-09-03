@@ -1,3 +1,5 @@
+import {unsanitize} from "../../../../../WebSkel/utils/dom-utils";
+
 const utilModule = require("assistos").loadModule("util", {});
 const documentModule = require("assistos").loadModule("document", {});
 import {executorTimer, unescapeHtmlEntities} from "../../../../imports.js";
@@ -298,7 +300,7 @@ export class DocumentViewPage {
             const a = document.createElement('a');
             a.style.display = 'none';
             a.href = url;
-            a.download = `${this._document.title}.docai`;
+            a.download = `${assistOS.UI.unsanitize(this._document.title)}.docai`;
 
             document.body.appendChild(a);
             a.click();
