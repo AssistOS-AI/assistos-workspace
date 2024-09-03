@@ -689,7 +689,7 @@ async function exportDocumentData(spaceId, documentId, request) {
                 };
 
                 if (documentRecordsContents[paragraphId].config.audio) {
-                    const personality = documentRecordsContents.config.commands["speech"].paramsObject.personality;
+                    const personality = documentRecordsContents[paragraphId].config.commands["speech"].paramsObject.personality;
                     paragraph.config.audio = documentRecordsContents[paragraphId].config.audio;
                     paragraph.config.audio.fileName = `Chapter_${chapterIndex + 1}_Paragraph_${paragraphIndex + 1}_audio`
                     audios.push({
