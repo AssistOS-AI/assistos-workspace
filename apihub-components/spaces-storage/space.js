@@ -690,24 +690,24 @@ async function exportDocumentData(spaceId, documentId, request) {
                     paragraph.text = documentRecordsContents[paragraphId].text;
                 }
 
-                if (documentRecordsContents[paragraphId].audio) {
-                    const audioConfig = aosUtil.findCommands(documentRecordsContents[paragraphId].text);
-                    paragraph.audio = documentRecordsContents[paragraphId].audio;
-                    paragraph.audio.fileName = `Chapter_${chapterIndex + 1}_Paragraph_${paragraphIndex + 1}_audio`
+                if (documentRecordsContents[paragraphId].config.audio) {
+                    const personality= documentRecordsContents.config.commands["speech"].paramsObject.personality;
+                    paragraph.config.audio = documentRecordsContents[paragraphId].config.audio;
+                    paragraph.config.audio.fileName = `Chapter_${chapterIndex + 1}_Paragraph_${paragraphIndex + 1}_audio`
                     audios.push({
-                        name: paragraph.audio.fileName,
-                        id: documentRecordsContents[paragraphId].audio.id
+                        name: paragraph.config.audio.fileName,
+                        id: documentRecordsContents[paragraphId].config.audio.id
                     })
-                    personalities.add(audioConfig.paramsObject.personality);
+                    personalities.add(personality);
                 }
-                if (documentRecordsContents[paragraphId].image) {
-                    paragraph.image = documentRecordsContents[paragraphId].image;
-                    paragraph.image.fileName = `Chapter_${chapterIndex + 1}_Paragraph_${paragraphIndex + 1}_image`
+                if (documentRecordsContents[paragraphId].config.image) {
+                    paragraph.config.image = documentRecordsContents[paragraphId].config.image;
+                    paragraph.config.image.fileName = `Chapter_${chapterIndex + 1}_Paragraph_${paragraphIndex + 1}_image`
                     images.push({
-                        name: paragraph.image.fileName,
-                        id: documentRecordsContents[paragraphId].image.id
+                        name: paragraph.config.image.fileName,
+                        id: documentRecordsContents[paragraphId].config.image.id
                     })
-                    paragraph.dimensions = documentRecordsContents[paragraphId].dimensions;
+                    paragraph.config.image.dimensions = documentRecordsContents[paragraphId].config.image.dimensions;
                 }
                 return paragraph
             })
@@ -847,8 +847,7 @@ async function importDocument(spaceId, extractedPath, request) {
 
         if (chapter.backgroundSound) {
             chapterObject.backgroundSound = chapter.backgroundSound;
-            const audioFileName = chapter.backgroundSound.fileName || chapter.backgroundSound.id;
-            const audioPath = path.join(extractedPath, 'audios', `${audioFileName}.mp3`);
+            const audioPath = path.join(extractedPath, 'audios', `${chapter.backgroundSound.fileName}.mp3`);
             const audioBase64Data = await readFileAsBase64(audioPath);
             const result = await fetch(`${process.env.BASE_URL}/spaces/audio/${spaceId}`, {
                 method: 'POST',
@@ -874,40 +873,20 @@ async function importDocument(spaceId, extractedPath, request) {
 
         const chapterId = (await chapterResult.json()).data;
         for (let paragraph of chapter.paragraphs) {
-            let paragraphObject = {text: paragraph.text || "", config: {commands: {}}};
-            if (paragraph.position) {
-                paragraphObject.position = paragraph.position
-            }
+            let paragraphObject = paragraph;
             objectURI = encodeURIComponent(`${docId}/${chapterId}/paragraphs`);
-            if (paragraph.text && paragraph.text.startsWith("!")) {
-                const commands = utilModule.findCommands((paragraph.text.substring(1)).split(":")[0]);
-                if (Object.keys(commands).length !== 0) {
-                    const paragraphParts = paragraph.text.split(":");
-                    paragraphObject.text = "";
-                    for (let i = 1; i < paragraphParts.length; i++) {
-                        paragraphObject.text += paragraphParts[i];
-                    }
-                }
-                paragraphObject.config.commands = commands
-            }
-            if (paragraph.image) {
-                /* preserve backwards compatibility */
-                const imagePath = path.join(extractedPath, 'images', `${paragraph.image.fileName || paragraph.image.id}.png`);
+            if (paragraphObject.config.image) {
+                const imagePath = path.join(extractedPath, 'images', `${paragraphObject.config.image.fileName}.png`);
                 const imageBase64Data = await readFileAsBase64(imagePath);
                 const dataUrl = `data:image/png;base64,${imageBase64Data}`;
                 const imageId = await uploadImage(spaceId, dataUrl);
-                paragraph.image.id = imageId;
-                paragraph.image.src = `spaces/image/${spaceId}/${imageId}`;
-                paragraph.image.isUploadedImage = true;
-                paragraphObject.config.image = paragraph.image;
-                paragraphObject.config.image.dimensions = paragraph.dimensions;
+                paragraphObject.config.image.id = imageId;
+                paragraphObject.config.image.src = `spaces/image/${spaceId}/${imageId}`;
+                paragraphObject.config.image.isUploadedImage = true;
             }
 
-            if (paragraph.audio) {
-                paragraphObject.config.audio = paragraph.audio;
-                let audioId = paragraph.audio.id;
-                /* preserve backwards compatibility */
-                const audioPath = path.join(extractedPath, 'audios', `${paragraphObject.config.audio.fileName || paragraphObject.config.audio.id}.mp3`);
+            if (paragraphObject.config.audio) {
+                const audioPath = path.join(extractedPath, 'audios', `${paragraphObject.config.audio.fileName}.mp3`);
                 const audioBase64Data = await readFileAsBase64(audioPath);
                 const result = await fetch(`${process.env.BASE_URL}/spaces/audio/${spaceId}`, {
                     method: 'POST',
@@ -917,7 +896,7 @@ async function importDocument(spaceId, extractedPath, request) {
                     },
                     body: JSON.stringify(audioBase64Data)
                 });
-                audioId = (await result.json()).data;
+                const audioId = (await result.json()).data;
                 paragraphObject.config.audio.id = audioId;
                 paragraphObject.config.audio.src = `spaces/audio/${spaceId}/${audioId}`;
             }
