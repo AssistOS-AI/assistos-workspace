@@ -681,7 +681,7 @@ async function exportDocumentData(spaceId, documentId, request) {
             chapter.position = documentRecordsContents[chapterId].position
             chapter.id = chapterId
             chapter.paragraphs = documentRecordsContents[chapterId].paragraphs.map((paragraphId, paragraphIndex) => {
-                let paragraph = {}
+                let paragraph = {config: {commands: {}}}
                 paragraph.id = paragraphId;
                 if (documentRecordsContents[paragraphId].position) {
                     paragraph.position = documentRecordsContents[paragraphId].position
@@ -691,7 +691,7 @@ async function exportDocumentData(spaceId, documentId, request) {
                 }
 
                 if (documentRecordsContents[paragraphId].config.audio) {
-                    const personality= documentRecordsContents.config.commands["speech"].paramsObject.personality;
+                    const personality = documentRecordsContents.config.commands["speech"].paramsObject.personality;
                     paragraph.config.audio = documentRecordsContents[paragraphId].config.audio;
                     paragraph.config.audio.fileName = `Chapter_${chapterIndex + 1}_Paragraph_${paragraphIndex + 1}_audio`
                     audios.push({
