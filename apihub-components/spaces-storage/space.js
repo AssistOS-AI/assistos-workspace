@@ -847,7 +847,6 @@ async function importDocument(spaceId, extractedPath, request) {
 
         if (chapter.backgroundSound) {
             chapterObject.backgroundSound = chapter.backgroundSound;
-            /* preserve backwards compatibility */
             const audioFileName = chapter.backgroundSound.fileName || chapter.backgroundSound.id;
             const audioPath = path.join(extractedPath, 'audios', `${audioFileName}.mp3`);
             const audioBase64Data = await readFileAsBase64(audioPath);

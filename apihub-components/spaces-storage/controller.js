@@ -1383,26 +1383,30 @@ async function importDocument(request, response) {
 
         writeStream.on('close', async () => {
             try {
-                // Verifică dacă fișierul există după ce fluxul este închis
                 await fs.promises.access(filePath, fs.constants.F_OK);
 
                 const extractedPath = path.join(tempDir, 'extracted');
                 await fs.promises.mkdir(extractedPath, { recursive: true });
 
-                await pipelinePromise(
-                    fs.createReadStream(filePath),
-                    unzipper.Extract({ path: extractedPath })
-                );
+                // Wrap the unzipping process in a Promise
+                await new Promise((resolve, reject) => {
+                    fs.createReadStream(filePath)
+                        .pipe(unzipper.Extract({ path: extractedPath }))
+                        .on('close', resolve)
+                        .on('error', reject);
+                });
+
+                await new Promise(resolve => setTimeout(resolve, 0));
 
                 const extractedFiles = await fs.promises.readdir(extractedPath);
 
                 if (!extractedFiles.includes('metadata.json') || !extractedFiles.includes('data.json')) {
-                    throw new Error('metadata.json or data.json not found in the extracted files');
+                    throw new Error(`Required files not found. Files in directory: ${extractedFiles.join(', ')}`);
                 }
 
                 const importResults = await space.APIs.importDocument(spaceId, extractedPath, request);
 
-                fs.unlinkSync(filePath);
+                await fs.promises.unlink(filePath);
 
                 utils.sendResponse(response, 200, "application/json", {
                     success: true,
@@ -1416,7 +1420,7 @@ async function importDocument(request, response) {
                     message: `Error at importing document: ${error.message}`
                 });
             } finally {
-                fs.rmSync(tempDir, { recursive: true, force: true });
+                await fs.promises.rm(tempDir, { recursive: true, force: true });
             }
         });
 
