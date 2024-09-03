@@ -328,6 +328,19 @@ function defineActions() {
     assistOS.UI.registerAction("cleanState", async (_target) => {
         await assistOS.refresh();
     });
+    assistOS.UI.registerAction("toggleSidebar", async (_target) => {
+        const arrow = _target.querySelector(".point-arrow");
+        const sidebar = document.querySelector(".right-sidebar");
+        if(assistOS.UI.sidebarState ==="closed"){
+            sidebar.style.transform = "translateX(0%)";
+            arrow.classList.toggle("arrow-rotated");
+            assistOS.UI.sidebarState = "open";
+        }else {
+            sidebar.style.transform = "translateX(80%)";
+            arrow.classList.toggle("arrow-rotated");
+            assistOS.UI.sidebarState = "closed";
+        }
+    });
 }
 
 
@@ -373,6 +386,7 @@ function closeDefaultLoader() {
 
     assistOS.UI.setLoading(loader);
     assistOS.UI.setDomElementForPages(document.querySelector("#page-content"));
+    assistOS.UI.sidebarState = "closed";
     defineActions();
     closeDefaultLoader()
     await assistOS.loadPage();
