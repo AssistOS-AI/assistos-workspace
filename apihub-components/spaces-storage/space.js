@@ -685,7 +685,7 @@ async function exportDocumentData(spaceId, documentId, request) {
                     text: documentRecordsContents[paragraphId].text,
                     position: documentRecordsContents[paragraphId].position,
                     id: paragraphId,
-                    config: {commands: {}}
+                    config: {commands: documentRecordsContents[paragraphId].config.commands}
                 };
 
                 if (documentRecordsContents[paragraphId].config.audio) {
