@@ -10,9 +10,10 @@ export class AgentPage {
             conversationHistory: [],
         }
         this.invalidate(async () => {
-            await utilModule.subscribeToObject(this._document.id, async () => {
-                this.personalities = await assistOS.space.getPersonalitiesMetadata();
-            })
+            this.personalities = await assistOS.space.getPersonalitiesMetadata();
+
+           /* await utilModule.subscribeToObject(this._document.id, async () => {
+            })*/
         });
 
         this.private = "selected-chat";
