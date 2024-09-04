@@ -14,6 +14,7 @@ const ffmpeg = require('../apihub-component-utils/ffmpeg.js');
 const TaskManager = require('../tasks/TaskManager.js');
 const DocumentToVideo = require('../tasks/DocumentToVideo.js');
 const AnonymousTask = require('../tasks/AnonymousTask.js');
+
 function getFileObjectsMetadataPath(spaceId, objectType) {
     return path.join(dataVolumePaths.space, `${spaceId}/${objectType}/metadata.json`);
 }
@@ -165,6 +166,35 @@ async function deleteFileObject(request, response) {
             message: error + ` Error at deleting object: ${objectId}`
         });
     }
+}
+
+async function insertEmbeddedObject(request, response) {
+    const spaceId = request.params.spaceId;
+    const objectData = request.body;
+    const objectURI = decodeURIComponent(request.params.objectURI);
+    try {
+        let lightDBEnclaveClient = enclave.initialiseLightDBEnclave(spaceId);
+        /* objectURI : /documentId/chapterId/paragraphs/paragraphId */
+        let [tableId, containerObjectId, objectType, predecessorId] = objectURI.split("/");
+        const recordContainer = await $$.promisify(lightDBEnclaveClient.getRecord)($$.SYSTEM_IDENTIFIER, tableId, containerObjectId);
+        let containerObject = recordContainer.data;
+        const objectId = `${objectType}_${crypto.generateId()}`
+        let index = containerObject[objectType].indexOf(predecessorId) + 1;
+        containerObject[objectType].splice(index, 0, objectId);
+        /* update the container object */
+        await $$.promisify(lightDBEnclaveClient.updateRecord)($$.SYSTEM_IDENTIFIER, tableId, containerObjectId, {data: containerObject});
+        /* insert the embedded object */
+        await insertObjectRecords(lightDBEnclaveClient, tableId, objectId, objectData);
+    } catch (error) {
+        return utils.sendResponse(response, 500, "application/json", {
+            success: false,
+            message: error + ` Error at inserting object`
+        });
+    }
+}
+
+async function insertContainerObject(request, response) {
+
 }
 
 async function getContainerObjectsMetadata(request, response) {
@@ -1216,7 +1246,7 @@ async function getAudio(request, response) {
     const audioId = request.params.audioId;
     try {
         try {
-            if(request.method === "HEAD") {
+            if (request.method === "HEAD") {
                 let audioPath = path.join(space.APIs.getSpacePath(spaceId), 'audios', `${audioId}.mp3`);
 
                 const stats = await fsPromises.stat(audioPath);
@@ -1262,7 +1292,7 @@ async function deleteAudio(request, response) {
     }
 }
 
-async function estimateDocumentVideoLength(request, response){
+async function estimateDocumentVideoLength(request, response) {
     let documentId = request.params.documentId;
     let spaceId = request.params.spaceId;
     const SecurityContext = require("assistos").ServerSideSecurityContext;
@@ -1272,7 +1302,7 @@ async function estimateDocumentVideoLength(request, response){
     let task = new AnonymousTask(securityContext, async function () {
         return await ffmpeg.estimateDocumentVideoLength(spaceId, document, this);
     });
-    try{
+    try {
         let durationObject = await task.run();
         sendResponse(response, 200, "application/json", {
             success: true,
@@ -1373,9 +1403,9 @@ async function importDocument(request, response) {
     const tempDir = path.join(__dirname, '../../data-volume/Temp', fileId);
     const filePath = path.join(tempDir, `${fileId}.docai`);
 
-    await fs.promises.mkdir(tempDir, { recursive: true });
+    await fs.promises.mkdir(tempDir, {recursive: true});
 
-    const busboy = Busboy({ headers: request.headers });
+    const busboy = Busboy({headers: request.headers});
 
     busboy.on('file', (fieldname, file, filename, encoding, mimetype) => {
         const writeStream = fs.createWriteStream(filePath);
@@ -1386,12 +1416,12 @@ async function importDocument(request, response) {
                 await fs.promises.access(filePath, fs.constants.F_OK);
 
                 const extractedPath = path.join(tempDir, 'extracted');
-                await fs.promises.mkdir(extractedPath, { recursive: true });
+                await fs.promises.mkdir(extractedPath, {recursive: true});
 
                 // Wrap the unzipping process in a Promise
                 await new Promise((resolve, reject) => {
                     fs.createReadStream(filePath)
-                        .pipe(unzipper.Extract({ path: extractedPath }))
+                        .pipe(unzipper.Extract({path: extractedPath}))
                         .on('close', resolve)
                         .on('error', reject);
                 });
@@ -1420,7 +1450,7 @@ async function importDocument(request, response) {
                     message: `Error at importing document: ${error.message}`
                 });
             } finally {
-                await fs.promises.rm(tempDir, { recursive: true, force: true });
+                await fs.promises.rm(tempDir, {recursive: true, force: true});
             }
         });
 
@@ -1586,4 +1616,6 @@ module.exports = {
     exportPersonality,
     importPersonality,
     estimateDocumentVideoLength,
+    insertEmbeddedObject,
+    insertContainerObject
 }

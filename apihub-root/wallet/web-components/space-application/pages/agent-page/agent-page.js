@@ -1,4 +1,6 @@
+const utilModule = require("assistos").loadModule("util", {});
 const spaceModule = require("assistos").loadModule("space", {});
+
 export class AgentPage {
     constructor(element, invalidate) {
         this.element = element;
@@ -8,8 +10,11 @@ export class AgentPage {
             conversationHistory: [],
         }
         this.invalidate(async () => {
-            this.personalities = await assistOS.space.getPersonalitiesMetadata();
+            await utilModule.subscribeToObject(this._document.id, async () => {
+                this.personalities = await assistOS.space.getPersonalitiesMetadata();
+            })
         });
+
         this.private = "selected-chat";
     }
 
@@ -92,7 +97,6 @@ export class AgentPage {
     }
 
 
-
     async changePersonality(_target, id) {
         await assistOS.UI.showModal("change-personality-modal");
     }
@@ -131,7 +135,7 @@ export class AgentPage {
         for (const chatItem of chatItems) {
             let role = chatItem.getAttribute("role");
             role = role === "own" ? "user" : role;
-            if(role!=="undefined") {
+            if (role !== "undefined") {
                 chatHistory.push({role: role, content: chatItem.querySelector("#messageContainer").innerText});
             }
         }
@@ -149,14 +153,14 @@ export class AgentPage {
         }
         /* TODO remove hardoced chatId value */
         const chatId = "123456789";
-        const messageId = (await spaceModule.addSpaceChatMessage(assistOS.space.id, chatId,userMessage)).messageId
+        const messageId = (await spaceModule.addSpaceChatMessage(assistOS.space.id, chatId, userMessage)).messageId
         const context = {};
         context.chatHistory = this.getChatHistory();
         await this.displayMessage("own", userMessage);
         const conversationContainer = this.element.querySelector('.conversation');
 
         try {
-            await assistOS.agent.processUserRequest(userRequestMessage, context,  conversationContainer,messageId);
+            await assistOS.agent.processUserRequest(userRequestMessage, context, conversationContainer, messageId);
         } catch (error) {
             console.error('Failed to find element:', error);
         }

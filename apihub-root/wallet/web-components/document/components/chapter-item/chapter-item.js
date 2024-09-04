@@ -18,9 +18,9 @@ export class ChapterItem {
         this.refreshChapter = async () => {
             this.chapter = await this._document.refreshChapter(this._document.id, this.chapter.id);
         };
-        this.addParagraphOnCtrlEnter = this.addParagraphOnCtrlEnter.bind(this);
-        this.element.removeEventListener('keydown', this.addParagraphOnCtrlEnter);
-        this.element.addEventListener('keydown', this.addParagraphOnCtrlEnter);
+        this.addParagraphOrChapterOnKeyPress = this.addParagraphOrChapterOnKeyPress.bind(this);
+        this.element.removeEventListener('keydown', this.addParagraphOrChapterOnKeyPress);
+        this.element.addEventListener('keydown', this.addParagraphOrChapterOnKeyPress);
         this.invalidate(async () => {
             if (!this.documentPresenter.childrenSubscriptions.has(this.chapter.id)) {
                 await this.subscribeToChapterEvents();
@@ -100,6 +100,7 @@ export class ChapterItem {
     }
 
     afterRender() {
+        this.element.setAttribute("data-local-action", "highlightChapter");
         this.renderChapterTitle();
         this.chapterItem = this.element.querySelector(".chapter-item");
         if (this.chapter.id === assistOS.space.currentChapterId && !assistOS.space.currentParagraphId) {
@@ -155,35 +156,57 @@ export class ChapterItem {
         }
     }
 
-    async addParagraphOnCtrlEnter(event) {
-        if (!event.ctrlKey || event.key !== 'Enter') {
+    async addParagraphOrChapterOnKeyPress(event) {
+        if (!event.ctrlKey || event.key !== "Enter") {
             return;
         }
+
+        // Stop the timer
         this.documentPresenter.stopTimer(true);
+
         const fromParagraph = assistOS.UI.reverseQuerySelector(event.target, '[data-paragraph-id]', 'space-chapter-item');
         const fromChapter = assistOS.UI.reverseQuerySelector(event.target, '.chapter-item');
 
         if (!fromParagraph && !fromChapter) {
             return;
         }
-        let position = this.chapter.paragraphs.length;
-        if (assistOS.space.currentParagraphId) {
-            position = this.chapter.getParagraphIndex(assistOS.space.currentParagraphId) + 1;
-        }
 
-        assistOS.space.currentParagraphId = (await assistOS.callFlow("AddParagraph", {
-            spaceId: assistOS.space.id,
-            documentId: this._document.id,
-            chapterId: this.chapter.id,
-            position: position
-        })).data;
-        this.invalidate(this.refreshChapter);
+        // Check if Ctrl + Shift + Enter is pressed to add a chapter
+        if (event.ctrlKey && event.shiftKey && event.key === "Enter") {
+            let position = this._document.getChapterIndex(this.chapter.id);
+            if (assistOS.space.currentChapterId) {
+                position = this._document.getChapterIndex(assistOS.space.currentChapterId) + 1;
+            }
+            assistOS.space.currentChapterId = (await assistOS.callFlow("AddChapter", {
+                spaceId: assistOS.space.id,
+                documentId: this._document.id,
+                position: position
+            })).data;
+            this.documentPresenter.invalidate(this.documentPresenter.refreshDocument);
+
+            // Else, if only Ctrl + Enter is pressed, add a paragraph
+        } else if (event.ctrlKey && !event.shiftKey && event.key === "Enter") {
+            let position = this.chapter.paragraphs.length;
+            if (assistOS.space.currentParagraphId) {
+                position = this.chapter.getParagraphIndex(assistOS.space.currentParagraphId) + 1;
+            }
+
+            assistOS.space.currentParagraphId = (await assistOS.callFlow("AddParagraph", {
+                spaceId: assistOS.space.id,
+                documentId: this._document.id,
+                chapterId: this.chapter.id,
+                position: position
+            })).data;
+            this.invalidate(this.refreshChapter);
+        }
     }
+
 
     async highlightChapter(_target) {
         assistOS.space.currentChapterId = this.chapter.id;
         this.switchButtonsDisplay(this.chapterItem, "on");
     }
+
 
     focusOutHandler() {
         this.switchButtonsDisplay(this.chapterItem, "off");

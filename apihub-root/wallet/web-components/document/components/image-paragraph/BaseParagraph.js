@@ -115,6 +115,6 @@ export class BaseParagraph {
             key: "Enter",
             target: this.element.querySelector(".paragraph-item")
         }
-        chapterPresenter.addParagraphOnCtrlEnter(mockEvent);
+        chapterPresenter.addParagraphOrChapterOnKeyPress(mockEvent);
     }
 }

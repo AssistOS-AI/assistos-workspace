@@ -1,4 +1,6 @@
 const {
+    insertContainerObject,
+    insertEmbeddedObject,
     getFileObjectsMetadata,
     getFileObject,
     addFileObject,
@@ -87,11 +89,14 @@ function SpaceStorage(server) {
     server.get("/spaces/containerObject/meta/:spaceId/:objectType", getContainerObjectsMetadata);
     server.get("/spaces/containerObject/:spaceId/:objectId", getContainerObject);
     server.post("/spaces/containerObject/:spaceId/:objectType", addContainerObject);
+    server.post("/spaces/containerObject/insert/:spaceId/:objectURI", insertContainerObject);
     server.put("/spaces/containerObject/:spaceId/:objectId", updateContainerObject);
     server.delete("/spaces/containerObject/:spaceId/:objectId", deleteContainerObject);
 
+
     server.get("/spaces/embeddedObject/:spaceId/:objectURI", getEmbeddedObject);
     server.post("/spaces/embeddedObject/:spaceId/:objectURI", addEmbeddedObject);
+    server.post("/spaces/embeddedObject/insert/:spaceId/:objectURI", insertEmbeddedObject);
     server.put("/spaces/embeddedObject/:spaceId/:objectURI", updateEmbeddedObject);
     server.delete("/spaces/embeddedObject/:spaceId/:objectURI", deleteEmbeddedObject);
     server.put("/spaces/embeddedObject/swap/:spaceId/:objectURI", swapEmbeddedObjects);

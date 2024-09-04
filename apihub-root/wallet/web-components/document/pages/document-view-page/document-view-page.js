@@ -1,4 +1,3 @@
-
 const utilModule = require("assistos").loadModule("util", {});
 const documentModule = require("assistos").loadModule("document", {});
 import {executorTimer, unescapeHtmlEntities} from "../../../../imports.js";
