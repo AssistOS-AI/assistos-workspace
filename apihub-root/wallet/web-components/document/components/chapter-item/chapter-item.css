@@ -99,7 +99,7 @@ html[theme="dark"] .arrow svg {
 }
 
 .hidden {
-    display: none;
+    display: none !important;
 }
 
 

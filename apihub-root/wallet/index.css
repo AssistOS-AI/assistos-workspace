@@ -433,7 +433,13 @@ dialog {
     width: 100%;
     display: flex;
 }
+.unfocusable{
+    outline: none;
+}
 
+.unfocusable:focus {
+    outline: none;
+}
 .left-sidebar-placeholder {
     min-width: 270px;
     width: 14%;

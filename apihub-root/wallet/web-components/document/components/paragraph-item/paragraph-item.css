@@ -47,6 +47,7 @@ paragraph-item {
     word-break: break-word;
     width: 100%;
     background:inherit;
+    min-height:44px;
 }
 .paragraph-controls {
     height: 45px;
