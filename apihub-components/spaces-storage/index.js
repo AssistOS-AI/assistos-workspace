@@ -49,7 +49,8 @@ const {
     exportPersonality,
     importPersonality,
     getVideo,
-    estimateDocumentVideoLength
+    estimateDocumentVideoLength,
+    getSpaceChat
 } = require("./controller");
 
 const bodyReader = require('../apihub-component-middlewares/bodyReader.js')
@@ -105,7 +106,8 @@ function SpaceStorage(server) {
     server.get("/spaces/:spaceId", getSpace);
     server.post("/spaces", createSpace);
     server.post("/spaces/:spaceId/collaborators", addCollaboratorsToSpace);
-    server.post("/spaces/:spaceId/chat/:chatId", addSpaceChatMessage);
+    server.post("/spaces/:spaceId/chat", addSpaceChatMessage);
+    server.get("/spaces/:spaceId/chat", getSpaceChat);
 
     server.get("/spaces/:spaceId/secrets/keys", getAPIKeysMetadata);
     server.post("/spaces/secrets/keys", editAPIKey);

@@ -693,15 +693,31 @@ async function swapEmbeddedObjects(request, response) {
 
 async function addSpaceChatMessage(request, response) {
     const spaceId = request.params.spaceId;
-    const chatId = request.params.chatId;
     const userId = request.userId;
     const messageData = request.body;
     try {
-        const messageId = await space.APIs.addSpaceChatMessage(spaceId, chatId, userId, "user", messageData);
+        const messageId = await space.APIs.addSpaceChatMessage(spaceId, userId, "user", messageData);
         utils.sendResponse(response, 200, "application/json", {
             success: true,
             message: `Message added successfully`,
             data: {messageId: messageId}
+        });
+        eventPublisher.notifyClients(request.sessionId, `chat_${spaceId}`);
+    } catch (error) {
+        utils.sendResponse(response, 500, "application/json", {
+            success: false,
+            message: error
+        });
+    }
+}
+async function getSpaceChat(request, response) {
+    const spaceId = request.params.spaceId;
+    try {
+        const chat = await space.APIs.getSpaceChat(spaceId);
+        utils.sendResponse(response, 200, "application/json", {
+            success: true,
+            message: `Chat loaded successfully`,
+            data: chat
         });
     } catch (error) {
         utils.sendResponse(response, 500, "application/json", {
@@ -1125,27 +1141,27 @@ const fs = require("fs");
 async function getChatTextResponse(request, response) {
 
     const spaceId = request.params.spaceId;
-    const chatId = request.params.chatId;
     const agentId = request.body.agentId
     const modelResponse = await getTextResponse(request, response);
     if (modelResponse.success) {
         const chatMessages = modelResponse.data.messages
         for (const chatMessage of chatMessages) {
-            await space.APIs.addSpaceChatMessage(spaceId, chatId, agentId, "assistant", chatMessage);
+            await space.APIs.addSpaceChatMessage(spaceId, agentId, "assistant", chatMessage);
+            eventPublisher.notifyClients(request.sessionId, `chat_${spaceId}`);
         }
     }
 }
 
 async function getChatTextStreamingResponse(request, response) {
     const spaceId = request.params.spaceId;
-    const chatId = request.params.chatId;
     const agentId = request.body.agentId;
     try {
         const modelResponse = await getTextStreamingResponse(request, response);
         if (modelResponse.success) {
             const chatMessages = modelResponse.data.messages;
             for (const chatMessage of chatMessages) {
-                await space.APIs.addSpaceChatMessage(spaceId, chatId, agentId, "assistant", chatMessage);
+                await space.APIs.addSpaceChatMessage(spaceId, agentId, "assistant", chatMessage);
+                eventPublisher.notifyClients(request.sessionId, `chat_${spaceId}`);
             }
         }
     } catch (error) {
@@ -1617,5 +1633,6 @@ module.exports = {
     importPersonality,
     estimateDocumentVideoLength,
     insertEmbeddedObject,
-    insertContainerObject
+    insertContainerObject,
+    getSpaceChat
 }

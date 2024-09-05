@@ -144,11 +144,18 @@ export class DocumentViewPage {
         }
     }
 
-    async addChapter() {
+    async addChapter(_target,mode) {
         let position = this._document.chapters.length;
         if (assistOS.space.currentChapterId) {
-            position = this._document.chapters.findIndex(
-                (chapter) => chapter.id === assistOS.space.currentChapterId) + 1;
+            if (mode === "above") {
+                position = this._document.chapters.findIndex(
+                    (chapter) => chapter.id === assistOS.space.currentChapterId);
+
+            } else {
+                position = this._document.chapters.findIndex(
+                    (chapter) => chapter.id === assistOS.space.currentChapterId) + 1;
+            }
+
         }
         assistOS.space.currentChapterId = (await assistOS.callFlow("AddChapter", {
             spaceId: assistOS.space.id,

@@ -263,7 +263,7 @@ async function createSpace(spaceName, userId, apiKey) {
 
 async function getSpaceChat(spaceId) {
     const lightDBEnclaveClient = enclave.initialiseLightDBEnclave(spaceId);
-    const tableName = `spaceChat_${spaceId}`
+    const tableName = `chat_${spaceId}`
     let records = await $$.promisify(lightDBEnclaveClient.filter)($$.SYSTEM_IDENTIFIER, tableName);
     let chat = []
     for (let record of records) {
@@ -277,11 +277,11 @@ async function getSpaceChat(spaceId) {
     return chat;
 }
 
-async function addSpaceChatMessage(spaceId, chatId, entityId, role, messageData) {
+async function addSpaceChatMessage(spaceId,entityId, role, messageData) {
     const lightDBEnclaveClient = enclave.initialiseLightDBEnclave(spaceId);
     const messageId = crypto.generateId();
-    const tableName = `spaceChat_${spaceId}`
-    const primaryKey = `${entityId}_${date.getCurrentUnixTime()}`
+    const tableName = `chat_${spaceId}`
+    const primaryKey = `chat_${spaceId}_${entityId}_${messageId}`
     await lightDBEnclaveClient.insertRecord($$.SYSTEM_IDENTIFIER, tableName, primaryKey, {
         data: {
             role: role,
@@ -295,8 +295,8 @@ async function addSpaceChatMessage(spaceId, chatId, entityId, role, messageData)
 
 async function createDefaultSpaceChats(lightDBEnclaveClient, spaceId, spaceName) {
     const createWorkspaceChat = async () => {
-        const tableName = "chat_Workspace";
-        const entryMessagePk = `${spaceId}_${tableName}_entryMessage`;
+        const tableName = `chat_${spaceId}`;
+        const entryMessagePk = `chat_${spaceId}`;
         const entryMessage = `Welcome to ${spaceName}! This is the workspace chat where you can discuss and collaborate with your team members.`
         await lightDBEnclaveClient.insertRecord($$.SYSTEM_IDENTIFIER, tableName, entryMessagePk, {
             data: {
@@ -305,18 +305,7 @@ async function createDefaultSpaceChats(lightDBEnclaveClient, spaceId, spaceName)
             }
         })
     }
-    const createDiscussionChat = async () => {
-        const tableName = "chat_General";
-        const entryMessagePk = `${spaceId}_entryMessage`;
-        const entryMessage = `Welcome to the discussion chat! Here you can discuss and share ideas with your team members.`
-        await lightDBEnclaveClient.insertRecord($$.SYSTEM_IDENTIFIER, tableName, entryMessagePk, {
-            data: {
-                role: "Space",
-                message: entryMessage,
-            }
-        })
-    }
-    await Promise.all([createWorkspaceChat(), createDiscussionChat()])
+  await createWorkspaceChat();
 }
 
 async function getSpacePersonalities(spaceId) {

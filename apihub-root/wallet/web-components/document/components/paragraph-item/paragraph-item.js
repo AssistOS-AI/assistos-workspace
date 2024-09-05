@@ -137,15 +137,7 @@ export class ParagraphItem extends BaseParagraph {
             }
             this.errorElement.innerText = "";
             this.errorElement.classList.add("hidden");
-            if (Object.entries(this.paragraph.config.commands).length === 0) {
-                this.paragraph.config.commands = commands
-            } else {
-                for (let [key, value] of Object.entries(commands)) {
-                    for (let [innerKey, innerValue] of Object.entries(value)) {
-                        this.paragraph.config.commands[key][innerKey] = innerValue;
-                    }
-                }
-            }
+            this.paragraph.config.commands = commands
 
             //TODO: put loader here for long operations
             documentModule.updateParagraphConfig(assistOS.space.id, this._document.id, this.paragraph.id, this.paragraph.config);
@@ -361,6 +353,20 @@ export class ParagraphItem extends BaseParagraph {
     }
 
     async openParagraphDropdown(_target) {
+
+        let chapterElement = this.element.closest("chapter-item");
+        let chapterPresenter = chapterElement.webSkelPresenter;
+
+        const previousParagraphImage = () => {
+            const currentParagraphPosition = chapterPresenter.chapter.paragraphs.findIndex(paragraph => paragraph.id === this.paragraph.id);
+            if (currentParagraphPosition !== 0) {
+                if (chapterPresenter.chapter.paragraphs[currentParagraphPosition - 1].config.image) {
+                    return true;
+                }
+            }
+            return false;
+        }
+
         const generateDropdownMenu = () => {
             let baseDropdownMenuHTML =
                 `<list-item data-local-action="deleteParagraph" data-name="Delete"
@@ -376,8 +382,6 @@ export class ParagraphItem extends BaseParagraph {
                  <list-item data-local-action="addChapter" data-name="Add Chapter"
                            data-highlight="light-highlight"></list-item>
                  `;
-            let chapterElement = this.element.closest("chapter-item");
-            let chapterPresenter = chapterElement.webSkelPresenter;
             if (chapterPresenter.chapter.paragraphs.length > 1) {
                 baseDropdownMenuHTML = `
                 <list-item data-local-action="moveParagraph up" data-name="Move Up" 
@@ -388,9 +392,18 @@ export class ParagraphItem extends BaseParagraph {
             if (this.paragraph.config.audio) {
                 baseDropdownMenuHTML += `<list-item data-name="Play Audio" id="play-paragraph-audio-btn" data-local-action="playParagraphAudio" data-highlight="light-highlight"></list-item>`;
                 baseDropdownMenuHTML += ` <list-item data-name="Download Audio" data-local-action="downloadAudio" data-highlight="light-highlight"></list-item>`;
+
             }
-            if (!this.paragraph.config.lipSync) {
-                baseDropdownMenuHTML += `<list-item data-name="Lip Sync" data-local-action="lipSync" data-highlight="light-highlight"></list-item>`;
+            if (previousParagraphImage() && this.paragraph.config.commands.speech && !this.paragraph.config.lipSync) {
+                baseDropdownMenuHTML += `<list-item data-name="Generate Paragraph Video" data-local-action="addParagraphVideo" data-highlight="light-highlight"></list-item>`;
+            }
+            if (previousParagraphImage() && this.paragraph.config.commands.speech) {
+                const currentParagraphPosition = chapterPresenter.chapter.paragraphs.findIndex(paragraph => paragraph.id === this.paragraph.id);
+                if (currentParagraphPosition !== 0) {
+                    if (chapterPresenter.chapter.paragraphs[currentParagraphPosition - 1].config.image) {
+                        baseDropdownMenuHTML += `<list-item data-name="Lip Sync" data-local-action="lipSync" data-highlight="light-highlight"></list-item>`;
+                    }
+                }
             }
             if (this.paragraph.config.lipSync) {
                 baseDropdownMenuHTML += `<list-item data-name="Play Lip Sync" data-local-action="playLipSyncVideo" data-highlight="light-highlight"></list-item>`;
@@ -405,15 +418,26 @@ export class ParagraphItem extends BaseParagraph {
             return dropdownMenu;
         }
 
-        const dropdownMenu = generateDropdownMenu();
-        this.element.appendChild(dropdownMenu);
+        const
+            dropdownMenu = generateDropdownMenu();
+        this
+            .element
+            .appendChild(dropdownMenu);
 
-        const removeDropdown = () => {
-            dropdownMenu.remove();
-        }
+        const
+            removeDropdown = () => {
+                dropdownMenu.remove();
+            }
 
-        dropdownMenu.addEventListener('mouseleave', removeDropdown);
-        dropdownMenu.focus();
+        dropdownMenu
+            .addEventListener(
+                'mouseleave'
+                ,
+                removeDropdown
+            )
+        ;
+        dropdownMenu
+            .focus();
     }
 
     downloadAudio(_target) {
@@ -426,15 +450,6 @@ export class ParagraphItem extends BaseParagraph {
     }
 
     async lipSync(targetElement) {
-        let paragraphIndex = this.chapter.paragraphs.findIndex(paragraph => paragraph.id === this.paragraph.id);
-        let previousParagraph = this.chapter.paragraphs[paragraphIndex - 1];
-        if (!previousParagraph) {
-            return await showApplicationError("Lip Sync Error", "No previous paragraph found to extract image from.");
-        }
-        if (!previousParagraph.config.image) {
-            return await showApplicationError("Lip Sync Error", "No image found in the previous paragraph to lip sync to.");
-        }
-
         const currentCommandsString = this.paragraphHeader.value
             .replace(/\n/g, "");
         const currentCommandsObj = utilModule.findCommands(currentCommandsString);
@@ -450,6 +465,27 @@ export class ParagraphItem extends BaseParagraph {
             if (!currentCommandsObj["lipsync"]) {
                 /* !speech command does not exist -> append it */
                 this.paragraphHeader.value = `${currentCommandsString}` + "\n" + utilModule.buildCommandString("lipsync", {})
+            }
+        }
+        let dropdownMenu = this.element.querySelector('.dropdown-menu');
+        dropdownMenu.remove();
+    }
+
+    async addParagraphVideo(_target) {
+        const currentCommandsString = this.paragraphHeader.value
+            .replace(/\n/g, "");
+        const currentCommandsObj = utilModule.findCommands(currentCommandsString);
+
+        if (currentCommandsObj.invalid === true) {
+            const errorElement = this.element.querySelector(".error-message");
+            if (errorElement.classList.contains("hidden")) {
+                errorElement.classList.remove("hidden");
+            }
+            errorElement.innerText = currentCommandsObj.error;
+        } else {
+            /* valid command string */
+            if (!currentCommandsObj["video"]) {
+                this.paragraphHeader.value = this.paragraphHeader.value + "\n" + utilModule.buildCommandString("video", {})
             }
         }
         let dropdownMenu = this.element.querySelector('.dropdown-menu');
