@@ -11,15 +11,21 @@ export class AgentPage {
         }
         this.invalidate(async () => {
             this.personalities = await assistOS.space.getPersonalitiesMetadata();
-
-           /* await utilModule.subscribeToObject(this._document.id, async () => {
-            })*/
+            await utilModule.subscribeToObject(`chat_${assistOS.space.id}`, async () => {
+                this.invalidate(async () => assistOS.space.chat = await spaceModule.getSpaceChat(assistOS.space.id, "123456789"));
+            })
         });
 
         this.private = "selected-chat";
+        this.enabledAgents = true;
     }
 
     beforeRender() {
+        if (this.enabledAgents) {
+            this.agentsToggleButton = "Disable Agents"
+        } else {
+            this.agentsToggleButton = "Enable Agents"
+        }
         let stringHTML = "";
         for (let message of assistOS.space.chat) {
             let role;
@@ -33,7 +39,7 @@ export class AgentPage {
             } else if (message.role === "assistant") {
                 role = "assistant";
             }
-            stringHTML += `<chat-item role="${role}" message="${assistOS.UI.sanitize(message.message)}" user="${message.user}" data-presenter="chat-item"></chat-item>`;
+            stringHTML += `<chat-item role="${role}" message="${message.message}" user="${message.user}" data-presenter="chat-item"></chat-item>`;
         }
         let personalitiesHTML = "";
         for (let personality of this.personalities) {
@@ -46,9 +52,14 @@ export class AgentPage {
         this.spaceName = assistOS.space.name;
     }
 
-    resizeTextarea() {
-        //this.style.height = 'auto';
-        //this.style.height = (this.scrollHeight) + 'px';
+    async toggleAgentsState(_target) {
+        this.enabledAgents = !this.enabledAgents;
+        const buttonAgentItem = this.element.querySelector("[data-local-action=toggleAgentsState]");
+        if (this.enabledAgents) {
+            buttonAgentItem.querySelector('.list-item-name').innerText = "Disable Agents"
+        } else {
+            buttonAgentItem.querySelector('.list-item-name').innerText = "Enable Agents"
+        }
     }
 
     inviteCollaborators(_target) {
@@ -61,23 +72,6 @@ export class AgentPage {
         this.form = this.element.querySelector(".chat-input-container");
         this.boundFn = this.preventRefreshOnEnter.bind(this, this.form);
         this.userInput.addEventListener("keydown", this.boundFn);
-        /*      this.rightPanel = document.querySelector(".current-page");
-              this.conversation = this.element.querySelector(".conversation");
-              this.userInput = this.element.querySelector("#input");
-              let form = this.element.querySelector(".chat-input-container");
-              this.userInput.removeEventListener("keydown", this.boundFn);
-              this.boundFn = this.preventRefreshOnEnter.bind(this, form);
-              this.userInput.addEventListener("keydown", this.boundFn);
-           /!*   setTimeout(async () => {
-                  if (this.agent.conversationHistory.length === 0) {
-                      await assistOS.services.initOpeners();
-                      let message = this.agent.getRandomOpener();
-                      await this.displayMessage("assistant", message);
-                      await this.agent.addMessage("assistant", message);
-                      await assistOS.services.addCapabilities();
-                  }
-              }, 0);*!/*/
-
     }
 
     hideSettings(controller, container, event) {
@@ -152,18 +146,17 @@ export class AgentPage {
         if (!userMessage.trim()) {
             return;
         }
-        /* TODO remove hardoced chatId value */
-        const chatId = "123456789";
-        const messageId = (await spaceModule.addSpaceChatMessage(assistOS.space.id, chatId, userMessage)).messageId
+        const messageId = (await spaceModule.addSpaceChatMessage(assistOS.space.id, userMessage)).messageId
         const context = {};
         context.chatHistory = this.getChatHistory();
         await this.displayMessage("own", userMessage);
         const conversationContainer = this.element.querySelector('.conversation');
-
-        try {
-            await assistOS.agent.processUserRequest(userRequestMessage, context, conversationContainer, messageId);
-        } catch (error) {
-            console.error('Failed to find element:', error);
+        if (this.enabledAgents) {
+            try {
+                await assistOS.agent.processUserRequest(userRequestMessage, context, conversationContainer, messageId);
+            } catch (error) {
+                console.error('Failed to find element:', error);
+            }
         }
     }
 
