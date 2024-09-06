@@ -61,5 +61,14 @@ class Task {
         this.emit(EVENTS.UPDATE); //update database
         eventPublisher.notifyClientTask(this.userId, this.id, this.status);
     }
+    getData(){
+        return {
+            status: this.status,
+            id: this.id,
+            userId: this.userId,
+            spaceId: this.spaceId
+        }
+    }
+
 }
 module.exports = Task;

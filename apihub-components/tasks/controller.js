@@ -17,7 +17,7 @@ async function compileVideoFromDocument(request, response) {
     sendResponse(response, 200, "application/json", {
         success: true,
         message: "Task added to the queue",
-        data: task.id
+        data: task.getData()
     });
     TaskManager.runTask(task.id);
 }
@@ -40,11 +40,11 @@ async function textToSpeechParagraph(request,response){
         let documentModule = require("assistos").loadModule("document", securityContext);
 
         let paragraphConfig = await documentModule.getParagraphConfig(spaceId, documentId, paragraphId);
-        paragraphConfig.commands["speech"].taskId = task.id;
+        paragraphConfig.commands["speech"].task = task.getData();
         await documentModule.updateParagraphConfig(spaceId, documentId, paragraphId, paragraphConfig);
         utils.sendResponse(response,200,"application/json",{
             success:true,
-            data: task.id,
+            data: task.getData(),
             message:"Task added to the queue"
         });
     }catch(error){
@@ -58,6 +58,21 @@ async function cancelTaskAndRemove(request, response) {
     let taskId = request.params.taskId;
     try {
         await TaskManager.cancelTaskAndRemove(taskId);
+        sendResponse(response, 200, "application/json", {
+            success: true,
+            message: `Task ${taskId} removed`
+        });
+    } catch (error) {
+        sendResponse(response, 500, "application/json", {
+            success: false,
+            message: error.message
+        });
+    }
+}
+async function removeTask(request, response) {
+    let taskId = request.params.taskId;
+    try {
+        await TaskManager.removeTask(taskId);
         sendResponse(response, 200, "application/json", {
             success: true,
             message: `Task ${taskId} removed`
@@ -155,4 +170,5 @@ module.exports = {
     compileVideoFromDocument,
     textToSpeechParagraph,
     getTask,
+    removeTask
 }

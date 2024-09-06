@@ -277,7 +277,9 @@ async function getSpaceChat(spaceId) {
     return chat;
 }
 
-async function addSpaceChatMessage(spaceId,entityId, role, messageData) {
+async function addSpaceChatMessage(spaceId, entityId, role, messageData) {
+    const aosUtil = require('assistos').loadModule('util', {});
+    messageData = aosUtil.sanitize(messageData);
     const lightDBEnclaveClient = enclave.initialiseLightDBEnclave(spaceId);
     const messageId = crypto.generateId();
     const tableName = `chat_${spaceId}`
@@ -305,7 +307,7 @@ async function createDefaultSpaceChats(lightDBEnclaveClient, spaceId, spaceName)
             }
         })
     }
-  await createWorkspaceChat();
+    await createWorkspaceChat();
 }
 
 async function getSpacePersonalities(spaceId) {

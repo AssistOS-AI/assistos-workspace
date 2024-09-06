@@ -67,7 +67,30 @@ async function getFileObject(request, response) {
         });
     }
 }
-
+async function getFileObjects(request,response){
+    const spaceId = request.params.spaceId;
+    const objectType = request.params.objectType;
+    try{
+        let metadataPath = getFileObjectsMetadataPath(spaceId, objectType);
+        let metadata = JSON.parse(await fsPromises.readFile(metadataPath, {encoding: 'utf8'}));
+        let objects = [];
+        for(let item of metadata){
+            let filePath = getFileObjectPath(spaceId, objectType, item.id);
+            let object = JSON.parse(await fsPromises.readFile(filePath, {encoding: 'utf8'}));
+            objects.push(object);
+        }
+        return utils.sendResponse(response, 200, "application/json", {
+            success: true,
+            data: objects,
+            message: `Objects of type ${objectType} loaded successfully`
+        });
+    }catch (error) {
+        return utils.sendResponse(response, 500, "application/json", {
+            success: false,
+            message: error + ` Error at getting objects of type: ${objectType}`
+        });
+    }
+}
 async function addFileObject(request, response) {
     const spaceId = request.params.spaceId;
     const objectType = request.params.objectType;
@@ -1141,13 +1164,14 @@ const fs = require("fs");
 async function getChatTextResponse(request, response) {
 
     const spaceId = request.params.spaceId;
-    const agentId = request.body.agentId
+    const agentId = request.body.agentId;
+    const userId = request.userId;
     const modelResponse = await getTextResponse(request, response);
     if (modelResponse.success) {
         const chatMessages = modelResponse.data.messages
         for (const chatMessage of chatMessages) {
             await space.APIs.addSpaceChatMessage(spaceId, agentId, "assistant", chatMessage);
-            eventPublisher.notifyClients(request.sessionId, `chat_${spaceId}`);
+            eventPublisher.notifyClients(request.sessionId, `chat_${spaceId}`,{},[userId]);
         }
     }
 }
@@ -1155,13 +1179,14 @@ async function getChatTextResponse(request, response) {
 async function getChatTextStreamingResponse(request, response) {
     const spaceId = request.params.spaceId;
     const agentId = request.body.agentId;
+    const userId = request.userId;
     try {
         const modelResponse = await getTextStreamingResponse(request, response);
         if (modelResponse.success) {
             const chatMessages = modelResponse.data.messages;
             for (const chatMessage of chatMessages) {
                 await space.APIs.addSpaceChatMessage(spaceId, agentId, "assistant", chatMessage);
-                eventPublisher.notifyClients(request.sessionId, `chat_${spaceId}`);
+                eventPublisher.notifyClients(request.sessionId, `chat_${spaceId}`,{},[userId]);
             }
         }
     } catch (error) {
@@ -1587,6 +1612,7 @@ module.exports = {
     rejectSpaceInvitation,
     getFileObjectsMetadata,
     getFileObject,
+    getFileObjects,
     addFileObject,
     updateFileObject,
     deleteFileObject,

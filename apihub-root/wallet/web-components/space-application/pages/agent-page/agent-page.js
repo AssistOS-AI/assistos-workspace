@@ -140,16 +140,16 @@ export class AgentPage {
     async sendMessage(_target) {
         let formInfo = await assistOS.UI.extractFormInformation(_target);
         const userRequestMessage = assistOS.UI.customTrim(formInfo.data.input)
-        let userMessage = assistOS.UI.sanitize(userRequestMessage);
+        /* for a reason everything extracted out of a form is automatically sanitized */
+        const unsanitizedMessage = assistOS.UI.unsanitize(userRequestMessage);
         formInfo.elements.input.element.value = "";
-
-        if (!userMessage.trim()) {
+        if (!userRequestMessage.trim()) {
             return;
         }
-        const messageId = (await spaceModule.addSpaceChatMessage(assistOS.space.id, userMessage)).messageId
+        const messageId = (await spaceModule.addSpaceChatMessage(assistOS.space.id, unsanitizedMessage)).messageId
         const context = {};
         context.chatHistory = this.getChatHistory();
-        await this.displayMessage("own", userMessage);
+        await this.displayMessage("own", userRequestMessage);
         const conversationContainer = this.element.querySelector('.conversation');
         if (this.enabledAgents) {
             try {

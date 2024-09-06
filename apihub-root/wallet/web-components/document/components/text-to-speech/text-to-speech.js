@@ -1,5 +1,6 @@
 const llmModule = require("assistos").loadModule("llm", {});
 const utilModule = require("assistos").loadModule("util", {});
+const personalityModule = require("assistos").loadModule("personality", {});
 
 export class TextToSpeech {
     constructor(element, invalidate) {
@@ -10,32 +11,51 @@ export class TextToSpeech {
         this.paragraphId = this.element.getAttribute("data-paragraph-id");
         this.parentPresenter = this.element.parentElement.webSkelPresenter;
         this.invalidate(async () => {
-            this.personalities = await assistOS.space.getPersonalitiesMetadata();
+            this.personalities = await personalityModule.getPersonalities(assistOS.space.id);
             this.emotions = await llmModule.listEmotions(assistOS.space.id);
         });
     }
 
     beforeRender() {
         let personalitiesHTML = "";
+        let configuredPersonalitiesFound = 0;
         for (let personality of this.personalities) {
-            personalitiesHTML += `<option value="${personality.id}">${personality.name}</option>`;
+            if (personality.voiceId) {
+                personalitiesHTML += `<option value="${personality.id}">${personality.name}</option>`;
+                configuredPersonalitiesFound ++;
+            }
         }
+
+        if (configuredPersonalitiesFound===0) {
+            personalitiesHTML += `<option value="default" disabled>No personalities with voice</option>`;
+        }else if(configuredPersonalitiesFound<=this.personalities.length){
+            personalitiesHTML += `<option value="default" disabled>${this.personalities.length - configuredPersonalitiesFound} personalities unconfigured</option>`;
+        }
+
         this.personalitiesHTML = personalitiesHTML;
+
         let emotionsHTML = "";
         for (let emotion of this.emotions) {
             emotionsHTML += `<option value="${emotion}">${emotion}</option>`;
         }
         this.emotionsHTML = emotionsHTML;
-        const audioCommand=this.parentPresenter.paragraph.config.commands["speech"];
-        this.audioConfig=null;
-        if(audioCommand){
+
+        const audioCommand = this.parentPresenter.paragraph.config.commands["speech"];
+        this.audioConfig = null;
+
+        if (audioCommand) {
             this.audioConfig = audioCommand.paramsObject;
         }
+
         if (this.audioConfig && this.audioConfig.personality) {
-            this.audioConfig.personality = this.personalities.find(personality => personality.name === this.audioConfig.personality).id;
+            const selectedPersonality = this.personalities.find(personality => personality.name === this.audioConfig.personality);
+            if (selectedPersonality) {
+                this.audioConfig.personality = selectedPersonality.id;
+            }
         }
         this.paragraphText = this.parentPresenter.paragraph.text;
     }
+
 
     afterRender() {
         if (this.audioConfig && this.audioConfig.personality) {

@@ -6,7 +6,7 @@ export class ChatItem {
     }
 
     beforeRender() {
-        this.message = this.element.getAttribute("message");
+        this.message = assistOS.UI.sanitize(this.element.getAttribute("message"));
         this.role = this.element.getAttribute("role");
         if (this.role !== "own") {
             this.messageType = "user";

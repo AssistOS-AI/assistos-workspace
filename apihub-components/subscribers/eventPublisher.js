@@ -66,10 +66,10 @@ class EventPublisher {
         }
     }
 
-    notifyClients(sessionId, objectId, eventData) {
+    notifyClients(sessionId, objectId, eventData,skipList=[]) {
         for (let [clientUserId, client] of this.clients) {
             for (let [connectionSessionId, connection] of client.connections) {
-                if (connection.objectIds.has(objectId)) {
+                if (connection.objectIds.has(objectId) && !skipList.includes(clientUserId)) {
                     let message = {objectId: objectId};
                     if (eventData) {
                         message.data = eventData;

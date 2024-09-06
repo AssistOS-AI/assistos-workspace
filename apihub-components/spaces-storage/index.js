@@ -50,16 +50,17 @@ const {
     importPersonality,
     getVideo,
     estimateDocumentVideoLength,
-    getSpaceChat
+    getSpaceChat,
+    getFileObjects
 } = require("./controller");
 
 const bodyReader = require('../apihub-component-middlewares/bodyReader.js')
 const authentication = require('../apihub-component-middlewares/authentication.js')
 
 function SpaceStorage(server) {
-    server.head("/spaces/audio/:spaceId/:audioId",getAudio);
-    server.head("/spaces/image/:spaceId/:imageId",getImage);
-    server.head("/spaces/video/:spaceId/:videoId",getVideo);
+    server.head("/spaces/audio/:spaceId/:audioId", getAudio);
+    server.head("/spaces/image/:spaceId/:imageId", getImage);
+    server.head("/spaces/video/:spaceId/:videoId", getVideo);
 
     server.get("/spaces/audio/:spaceId/:audioId", getAudio);
     server.get("/spaces/image/:spaceId/:imageId", getImage);
@@ -71,6 +72,7 @@ function SpaceStorage(server) {
     server.get("/spaces/invitations/reject", rejectSpaceInvitation);
     server.get("/spaces/invitations/accept", acceptSpaceInvitation);
 
+    server.use("/apis/v1/spaces/*", authentication);
     server.use("/spaces/*", authentication);
 
     server.get("/spaces", getSpace);
@@ -80,7 +82,8 @@ function SpaceStorage(server) {
 
     server.get("/spaces/:spaceId/agents", getAgent)
     server.get("/spaces/:spaceId/agents/:agentId", getAgent)
-
+    /* TODO route to actually get all files of an objectType , or to pass some filtering function   */
+    server.get("/spaces/fileObject/:spaceId/:objectType/data", getFileObjects);
     server.get("/spaces/fileObject/:spaceId/:objectType", getFileObjectsMetadata);
     server.get("/spaces/fileObject/:spaceId/:objectType/:objectId", getFileObject);
     server.post("/spaces/fileObject/:spaceId/:objectType", addFileObject);

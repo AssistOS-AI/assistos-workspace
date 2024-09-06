@@ -1,7 +1,6 @@
 const Task = require('./Task');
 const crypto = require("../apihub-component-utils/crypto");
 const space = require("../spaces-storage/space");
-const constants = require('./constants');
 const {storeRequiredEnvironmentVariables} = require("../../opendsu-sdk/psknode/tests/util/ApiHubTestNodeLauncher/launcher-utils");
 class TextToSpeech extends Task {
     constructor(securityContext, spaceId, userId, configs) {
@@ -16,7 +15,8 @@ class TextToSpeech extends Task {
             const llmModule = require('assistos').loadModule('llm', this.securityContext);
             const documentModule = require('assistos').loadModule('document', this.securityContext);
             const personalityModule = require('assistos').loadModule('personality', this.securityContext);
-            const voiceId = (await personalityModule.getPersonalityByName(this.spaceId, this.ttsCommand.paramsObject.personality)).voiceId;
+            const personality= await personalityModule.getPersonalityByName(this.spaceId, this.ttsCommand.paramsObject.personality);
+            const voiceId = personality.voiceId;
             const audioBlob = await llmModule.textToSpeech(this.spaceId, {
                 prompt: this.prompt,
                 voice: voiceId,
