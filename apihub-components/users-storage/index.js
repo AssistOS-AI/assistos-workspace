@@ -15,9 +15,9 @@ const authentication = require('../apihub-component-middlewares/authentication.j
 
 function UserStorage(server) {
     setTimeout(async () => {
-        const config = require('../config.json');
+        const config = require('../../data-volume/config/config.json');
         const apihub = require('apihub');
-        const securityConfig = require('../securityConfig.json');
+        const securityConfig = require('../../data-volume/config/securityConfig.json');
         const secretService = await apihub.getSecretsServiceInstanceAsync(securityConfig.SERVER_ROOT_FOLDER);
         const crypto = require("../apihub-component-utils/crypto.js");
         const secrets = ['AccessToken', 'RefreshToken', 'EmailToken'];
@@ -57,7 +57,7 @@ function UserStorage(server) {
     }, 0);
 
     setTimeout(async () => {
-        const configs = require('../config.json');
+        const configs = require('../../data-volume/config/config.json');
         const createDefaultUser = configs.CREATE_DEMO_USER;
         if (createDefaultUser) {
             const User = require('./user.js');

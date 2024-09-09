@@ -1,6 +1,6 @@
 const path = require('path');
 
-const config = require('./config.json');
+const config = require('../data-volume/config/config.json');
 const STORAGE_VOLUME_PATH = path.join(__dirname, '../', config.STORAGE_VOLUME_PATH);
 const volume=require('../data-volume');
 

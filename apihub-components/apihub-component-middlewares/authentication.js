@@ -1,7 +1,7 @@
 const cookie = require('../apihub-component-utils/cookie.js');
 const jwt = require('../apihub-component-utils/jwt.js');
 const utils = require('../apihub-component-utils/utils.js');
-const config = require('../config.json');
+const config = require('../../data-volume/config/config.json');
 const User = require('../users-storage/user.js');
 
 async function authentication(req, res, next) {

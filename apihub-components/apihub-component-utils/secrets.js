@@ -1,6 +1,6 @@
 const apihub = require('apihub');
 
-const config = require("../config.json");
+const config = require("../../data-volume/config/config.json");
 
 
 function getSpaceSecretsContainerName(spaceId) {

@@ -5,7 +5,7 @@ const path = require('path');
 const fsPromises = fs.promises;
 const file = require('../apihub-component-utils/file');
 const space = require('../spaces-storage/space');
-const ffmpegPath = require("ffmpeg-static");
+const ffmpegPath = require("../../ffmpeg/packages/ffmpeg-static");
 const audioCommands = require("../apihub-component-utils/audioCommands");
 const ffmpegUtils = require("../apihub-component-utils/ffmpeg");
 class DocumentToVideo extends Task {

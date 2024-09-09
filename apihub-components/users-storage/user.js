@@ -367,27 +367,27 @@ function createContainerName(spaceId, userId) {
 
 async function getSecret(spaceId, userId, secretName) {
     let containerName = createContainerName(spaceId, userId);
-    let rootFolder = require("../securityConfig.json").SERVER_ROOT_FOLDER;
+    let rootFolder = require("../../data-volume/config/securityConfig.json").SERVER_ROOT_FOLDER;
     const secretsService = await require('apihub').getSecretsServiceInstanceAsync(rootFolder);
     return secretsService.getSecretSync(containerName, secretName);
 }
 
 async function addSecret(spaceId, userId, body) {
     let containerName = createContainerName(spaceId, userId);
-    let rootFolder = require("../securityConfig.json").SERVER_ROOT_FOLDER;
+    let rootFolder = require("../../data-volume/config/securityConfig.json").SERVER_ROOT_FOLDER;
     const secretsService = await require('apihub').getSecretsServiceInstanceAsync(rootFolder);
     await secretsService.putSecretAsync(containerName, body.secretName, body.secret);
 }
 
 async function deleteSecret(spaceId, userId, secretName) {
     let containerName = createContainerName(spaceId, userId);
-    let rootFolder = require("../securityConfig.json").SERVER_ROOT_FOLDER;
+    let rootFolder = require("../../data-volume/config/securityConfig.json").SERVER_ROOT_FOLDER;
     const secretsService = await require('apihub').getSecretsServiceInstanceAsync(rootFolder);
     await secretsService.deleteSecretAsync(containerName, secretName);
 }
 
 async function userSecretExists(spaceId, userId, secretName) {
-    let rootFolder = require("../securityConfig.json").SERVER_ROOT_FOLDER;
+    let rootFolder = require("../../data-volume/config/securityConfig.json").SERVER_ROOT_FOLDER;
     const secretsService = await require('apihub').getSecretsServiceInstanceAsync(rootFolder);
     let containerName = createContainerName(spaceId, userId);
     try {

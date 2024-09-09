@@ -1,7 +1,7 @@
 const fsPromises = require('fs').promises;
 const path = require('path');
 
-const emailConfig = require('../emailConfig.json');
+const emailConfig = require('../data-volume/config/emailConfig.json');
 
 class Email {
     constructor() {

@@ -4,7 +4,7 @@ const axios = require('axios');
 const cache = {};
 const {pipeline} = require('stream');
 const {getWebhookSecret} = require("../webhook/controller");
-const configs = require("../config.json");
+const configs = require("../../data-volume/config/config.json");
 let LLMConfigs;
 const ffmpeg = require("../apihub-component-utils/ffmpeg.js");
 
@@ -41,7 +41,7 @@ async function sendLLMConfigs(request, response) {
 
 async function constructRequestInitAndURL(url, method, request, response) {
     const spaceId = request.params.spaceId;
-    const configs = require("../config.json");
+    const configs = require("../../data-volume/config/config.json");
     let companyObj;
     let LLMConfigs = await getLLMConfigs();
     if (request.body.modelName) {

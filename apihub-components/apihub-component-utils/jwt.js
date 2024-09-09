@@ -2,7 +2,7 @@ const crypto = require('opendsu').loadAPI('crypto');
 
 const date=require('./date.js');
 
-const securityConfig = require('../securityConfig.json');
+const securityConfig = require('../../data-volume/config/securityConfig.json');
 const apihub = require('apihub');
 
 

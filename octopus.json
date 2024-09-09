@@ -2,6 +2,33 @@
     "workDir": ".",
     "dependencies": [
         {
+            "name": "ffmpeg",
+            "src": "https://github.com/AssistOS-AI/ffmpeg-static.git",
+            "actions": [
+                {
+                    "type": "smartClone",
+                    "target": ".",
+                    "collectLog": false
+                },
+                {
+                    "type": "execute",
+                    "cmd": "cd ffmpeg && npm install"
+                },
+                {
+                    "type": "execute",
+                    "cmd": "cd ffmpeg && npm run build"
+                },
+                {
+                    "type": "execute",
+                    "cmd": "cd ffmpeg/packages/ffmpeg-static && npm run install"
+                },
+                {
+                    "type": "execute",
+                    "cmd": "cd ffmpeg/packages/ffprobe-static && npm run install"
+                }
+            ]
+        },
+        {
             "name": "opendsu-sdk",
             "src": "http://github.com/opendsu/opendsu-sdk.git",
             "actions": [
