@@ -2,7 +2,7 @@
 .env
 apihub-root/external-volume
 latest-change-set.txt
-apihub-components/email/emailConfig.json
+data-volume/config/emailConfig.json
 apihub-root/external-volume/domains
 apihub-root/external-volume/fixed-urls
 apihub-root/external-volume/maindsu
