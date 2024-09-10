@@ -112,6 +112,16 @@ export class ParagraphItem extends BaseParagraph {
                     commandsDifferences[commandType] = "changed";
                 }
             }
+            //TODO: put loader here for long operations
+            for (let [commandType, commandStatus] of Object.entries(commandsDifferences)) {
+                try{
+                    await this.handleCommand(commandType, commandStatus, commands[commandType]);
+                }catch(error){
+                    this.showCommandsError(error);
+                    break;
+                }
+            }
+
             const existDifferences = Object.values(commandsDifferences).some(value => value !== "same");
             if (!existDifferences) {
                 return;
@@ -128,17 +138,7 @@ export class ParagraphItem extends BaseParagraph {
                     }
                 }
             }
-
-            //TODO: put loader here for long operations
             documentModule.updateParagraphConfig(assistOS.space.id, this._document.id, this.paragraph.id, this.paragraph.config);
-            for (let [commandType, commandStatus] of Object.entries(commandsDifferences)) {
-                try{
-                    await this.handleCommand(commandType, commandStatus, commands[commandType]);
-                }catch(error){
-                    this.showCommandsError(error);
-                    break;
-                }
-            }
         }
     }
 

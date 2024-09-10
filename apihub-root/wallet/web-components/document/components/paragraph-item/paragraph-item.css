@@ -165,4 +165,12 @@ paragraph-item {
     display: flex;
     align-items: center;
     width: fit-content;
+    position: relative;
+}
+.task-status-icon{
+    width: 100%;
+    display: flex;
+    justify-content: center;
+    position: absolute;
+    top:-10px
 }
