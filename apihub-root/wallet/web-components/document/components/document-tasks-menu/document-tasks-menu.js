@@ -6,18 +6,29 @@ export class DocumentTasksMenu{
         this.invalidate = invalidate;
         this.newTasksCount = 0;
         this.documentId = this.element.getAttribute("data-document-id");
-        this.loadTasks = async ()=>{
+        this.loadTasks = async () => {
             let tasks = await documentModule.getDocumentTasks(assistOS.space.id, this.documentId);
             if(this.tasks){
                 this.calculateNewTasks(tasks);
             }
             this.tasks = tasks;
-        }
-        assistOS.space.observeChange(this.documentId + "/tasks", this.invalidate, this.loadTasks);
+        };
+        this.renderNewTasks = async () => {
+            this.loadTasks().then(() => {
+                let tasksList = this.element.querySelector(".tasks-list");
+                let tasksItems = "";
+                for(let task of this.tasks){
+                    tasksItems += `<task-item data-id="${task.id}" data-name="${task.name}" data-status=${task.status} data-presenter="task-item"></task-item>`;
+                }
+                tasksList.innerHTML = tasksItems;
+                this.renderBadge();
+            });
+        };
+        assistOS.space.observeChange(this.documentId + "/tasks", this.renderNewTasks);
 
         this.invalidate(async () => {
             await utilModule.subscribeToObject(this.documentId + "/tasks", async (status) => {
-                this.invalidate(this.loadTasks);
+                this.renderNewTasks();
             });
             await this.loadTasks();
         })
@@ -29,6 +40,11 @@ export class DocumentTasksMenu{
             }
             if(!this.tasks.find(t => t.id === task.id)){
                 this.newTasksCount++;
+            }
+        }
+        for(let task of this.tasks){
+            if(task.status === "created" && !newTasks.find(t => t.id === task.id)){
+                this.newTasksCount--;
             }
         }
     }
@@ -51,7 +67,9 @@ export class DocumentTasksMenu{
                 </div>
             </div>`;
         } else {
-            this.menuContent = `<div class="no-tasks">No tasks yet</div>`;
+            this.menuContent = ` <div class="tasks-list-container">
+                                    <div class="no-tasks">No tasks yet</div> 
+                                </div>`;
         }
 
     }

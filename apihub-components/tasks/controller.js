@@ -17,7 +17,7 @@ async function compileVideoFromDocument(request, response) {
     sendResponse(response, 200, "application/json", {
         success: true,
         message: "Task added to the queue",
-        data: task.getData()
+        data: task.id
     });
     TaskManager.runTask(task.id);
 }
@@ -40,11 +40,11 @@ async function textToSpeechParagraph(request,response){
         let documentModule = require("assistos").loadModule("document", securityContext);
 
         let paragraphConfig = await documentModule.getParagraphConfig(spaceId, documentId, paragraphId);
-        paragraphConfig.commands["speech"].task = task.getData();
+        paragraphConfig.commands["speech"].taskId = task.id;
         await documentModule.updateParagraphConfig(spaceId, documentId, paragraphId, paragraphConfig);
         utils.sendResponse(response,200,"application/json",{
             success:true,
-            data: task.getData(),
+            data: task.id,
             message:"Task added to the queue"
         });
     }catch(error){

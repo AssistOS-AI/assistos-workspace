@@ -1,3 +1,4 @@
+const utilModule = require("assistos").loadModule("util", {});
 export class BaseParagraph {
     constructor(element, invalidate) {
         this.element = element;
@@ -80,6 +81,24 @@ export class BaseParagraph {
         }
         let chapterElement = this.element.closest("chapter-item");
         let chapterPresenter = chapterElement.webSkelPresenter;
+        let updateTasksMenu = false;
+        for(let [key, value] of Object.entries(this.paragraph.config.commands)){
+            for(let [innerKey, innerValue] of Object.entries(value)){
+                if(innerKey === "taskId") {
+                    try{
+                        utilModule.cancelTask(innerValue);
+                    } catch (e){
+                        //task is not running
+                    }
+                    await utilModule.removeTask(innerValue);
+                    await utilModule.unsubscribeFromObject(innerValue);
+                    updateTasksMenu = true;
+                }
+            }
+        }
+        if(updateTasksMenu){
+            assistOS.space.notifyObservers(this._document.id + "/tasks");
+        }
         chapterPresenter.invalidate(chapterPresenter.refreshChapter);
     }
 

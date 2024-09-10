@@ -84,7 +84,11 @@ export class ParagraphItem extends BaseParagraph {
             return;
         }
         let paragraphText = assistOS.UI.sanitize(paragraph.value);
+        let commandChanged = false;
         if (paragraphText !== this.paragraph.text) {
+            if(assistOS.UI.customTrim(paragraphText) !== assistOS.UI.customTrim(this.paragraph.text)){
+                commandChanged = true;
+            }
             if (this.hasExternalChanges) {
                 this.hasExternalChanges = false;
                 return;
@@ -97,6 +101,44 @@ export class ParagraphItem extends BaseParagraph {
                 paragraphId: this.paragraph.id,
                 text: paragraphText
             });
+        }
+        const commands = utilModule.findCommands(this.paragraphHeader.value);
+        if (commands.invalid) {
+            this.showCommandsError(commands.error);
+        } else {
+            const commandsDifferences = utilModule.getCommandsDifferences(this.paragraph.config.commands, commands);
+            if(commandChanged){
+                for(let [commandType, commandStatus] of Object.entries(commandsDifferences)){
+                    commandsDifferences[commandType] = "changed";
+                }
+            }
+            const existDifferences = Object.values(commandsDifferences).some(value => value !== "same");
+            if (!existDifferences) {
+                return;
+            }
+
+            this.errorElement.innerText = "";
+            this.errorElement.classList.add("hidden");
+            if(Object.entries(this.paragraph.config.commands).length === 0){
+                this.paragraph.config.commands = commands;
+            } else {
+                for(let [key, value] of Object.entries(commands)){
+                    for(let [innerKey, innerValue] of Object.entries(value)){
+                        this.paragraph.config.commands[key][innerKey] = innerValue;
+                    }
+                }
+            }
+
+            //TODO: put loader here for long operations
+            documentModule.updateParagraphConfig(assistOS.space.id, this._document.id, this.paragraph.id, this.paragraph.config);
+            for (let [commandType, commandStatus] of Object.entries(commandsDifferences)) {
+                try{
+                    await this.handleCommand(commandType, commandStatus, commands[commandType]);
+                }catch(error){
+                    this.showCommandsError(error);
+                    break;
+                }
+            }
         }
     }
 
@@ -129,30 +171,7 @@ export class ParagraphItem extends BaseParagraph {
         this.switchParagraphArrows("off");
         this.paragraphHeader.setAttribute('readonly', 'true');
         this.paragraphHeader.classList.remove("highlight-paragraph-header")
-        const commands = utilModule.findCommands(this.paragraphHeader.value);
-        if (commands.invalid) {
-            this.showCommandsError(commands.error);
-        } else {
-            const commandsDifferences = utilModule.getCommandsDifferences(this.paragraph.config.commands, commands);
-            const existDifferences = Object.values(commandsDifferences).some(value => value !== 0);
-            if (!existDifferences) {
-                return;
-            }
-            this.errorElement.innerText = "";
-            this.errorElement.classList.add("hidden");
-            this.paragraph.config.commands = commands
 
-            //TODO: put loader here for long operations
-            documentModule.updateParagraphConfig(assistOS.space.id, this._document.id, this.paragraph.id, this.paragraph.config);
-            for (let [commandType, commandStatus] of Object.entries(commandsDifferences)) {
-                try{
-                    await this.handleCommand(commandType, commandStatus, commands[commandType]);
-                }catch(error){
-                    this.showCommandsError(error);
-                    break;
-                }
-            }
-        }
     }
 
     async handleCommand(commandType, commandStatus, command) {
@@ -171,10 +190,12 @@ export class ParagraphItem extends BaseParagraph {
                 let paragraphText = this.element.querySelector('.paragraph-text').value;
                 let configs = await documentModule.getParagraphConfig(assistOS.space.id, this._document.id, this.paragraph.id);
                 let isValidTask = false;
-                if (configs.commands["speech"]) {
+                let speechCommand = configs.commands["speech"];
+                let task;
+                if (speechCommand) {
                     /* command already exists */
-                    if (configs.commands["speech"].taskId) {
-                        let task = await utilModule.getTask(configs.commands["speech"].taskId);
+                    if (speechCommand.taskId) {
+                        task = await utilModule.getTask(speechCommand.taskId);
                         let validStatuses = ["created", "running", "pending"];
                         if (validStatuses.includes(task.status)) {
                             isValidTask = true;
@@ -182,23 +203,22 @@ export class ParagraphItem extends BaseParagraph {
                     }
                 }
                 if (commandStatus === "new" || commandStatus === "changed" || (commandStatus === "same" && this.textIsDifferentFromAudio && !isValidTask)) {
-                    if (configs.commands["speech"]) {
-                        if (configs.commands["speech"].task) {
-                            if (configs.commands["speech"].task.status === "created") {
-                                await utilModule.removeTask(configs.commands["speech"].task.id);
-                                await utilModule.unsubscribeFromObject(configs.commands["speech"].taskId);
-                            }else if(configs.commands["speech"].task.status === "running"){
-                                await utilModule.cancelTask(configs.commands["speech"].task.id);
-                                await utilModule.removeTask(configs.commands["speech"].task.id);
-                                await utilModule.unsubscribeFromObject(configs.commands["speech"].taskId);
+                    if (speechCommand) {
+                        if (speechCommand.taskId) {
+                            if (task.status === "created") {
+                                await utilModule.removeTask(speechCommand.taskId);
+                                await utilModule.unsubscribeFromObject(speechCommand.taskId);
+                            }else if(task.status === "running"){
+                                await utilModule.cancelTaskAndRemove(speechCommand.taskId);
+                                await utilModule.unsubscribeFromObject(speechCommand.taskId);
                             }
                         }
                     }
                     let statusElement = this.element.querySelector('.task-status-icon');
                     statusElement.innerHTML = "";
-                    debugger
+
                     const personalitySelected = command.paramsObject.personality;
-                    const personalityMetadata=assistOS.space.personalitiesMetadata.find(personality=>personality.name===personalitySelected);
+                    const personalityMetadata = assistOS.space.personalitiesMetadata.find(personality=>personality.name===personalitySelected);
                     if(!personalityMetadata){
                         throw `Personality ${personalitySelected} not found`;
                     }
@@ -209,11 +229,11 @@ export class ParagraphItem extends BaseParagraph {
                     if(!personalityData.voiceId){
                         throw `Personality ${personalitySelected} has no voice configured`;
                     }
-                    let task = await documentModule.generateParagraphAudio(assistOS.space.id, this._document.id, this.paragraph.id, command, paragraphText);
+                    let taskId = await documentModule.generateParagraphAudio(assistOS.space.id, this._document.id, this.paragraph.id, command, paragraphText);
                     assistOS.space.notifyObservers(this._document.id + "/tasks");
                     this.paragraph.config = await documentModule.getParagraphConfig(assistOS.space.id, this._document.id, this.paragraph.id);
-                    utilModule.subscribeToObject(task.id, async (status) => {
-                        await this.changeTaskStatus(task.id, status);
+                    utilModule.subscribeToObject(taskId, async (status) => {
+                        await this.changeTaskStatus(taskId, status);
                     });
                 }
                 if (commandStatus === "deleted") {
