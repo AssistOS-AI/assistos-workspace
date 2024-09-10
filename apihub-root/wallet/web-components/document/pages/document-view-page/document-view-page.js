@@ -70,8 +70,24 @@ export class DocumentViewPage {
                 chapter.scrollIntoView({behavior: "smooth", block: "center"});
             }
         }
+        if(!this.boundRemoveFocusHandler){
+            this.boundRemoveFocusHandler = this.removeFocusHandler.bind(this);
+            document.addEventListener("click", this.boundRemoveFocusHandler);
+        }
     }
-
+    async removeFocusHandler(event){
+        let closestContainer = event.target.closest(".document-editor");
+        if(!closestContainer){
+            if(this.currentElement){
+                this.currentElement.element.removeAttribute("id");
+                this.currentElement.containerElement.removeAttribute("id");
+                await this.currentElement.focusoutFunction(this.currentElement.element);
+                await this.stopTimer(true);
+                delete this.currentElement;
+                delete this.timer;
+            }
+        }
+    }
     async afterUnload() {
         await utilModule.unsubscribeFromObject(this._document.id);
         for (let childId of this.childrenSubscriptions.keys()) {
@@ -255,7 +271,6 @@ export class DocumentViewPage {
             await this.changeCurrentElement(_target, paragraphPresenter.focusOutHandler.bind(paragraphPresenter));
             await chapterPresenter.highlightChapter(_target);
             paragraphPresenter.highlightParagraph();
-            const paragraphTextElement = paragraphItem.querySelector(".paragraph-text");
             saveFunction = paragraphPresenter.saveParagraph.bind(paragraphPresenter, _target);
             resetTimerFunction = paragraphPresenter.resetTimer.bind(paragraphPresenter, _target);
         }
