@@ -352,7 +352,6 @@ async function listEmotions(request, response) {
 }
 
 async function lipsync(request, response) {
-    /* TODO replace with non-hardcoded data */
     const spaceId = request.params.spaceId;
     const imageSrc = request.body.imageSrc;
     const audioSrc = request.body.audioSrc;

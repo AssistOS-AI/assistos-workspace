@@ -3,7 +3,9 @@ const {sendResponse} = require("../apihub-component-utils/utils");
 const DocumentToVideo = require("./DocumentToVideo");
 const utils = require("../apihub-component-utils/utils");
 const TextToSpeech = require("./TextToSpeech");
+const LipSync = require("./LipSync");
 const eventPublisher = require("../subscribers/eventPublisher");
+
 async function compileVideoFromDocument(request, response) {
     let documentId = request.params.documentId;
     let spaceId = request.params.spaceId;
@@ -21,8 +23,9 @@ async function compileVideoFromDocument(request, response) {
     });
     TaskManager.runTask(task.id);
 }
-async function textToSpeechParagraph(request,response){
-    try{
+
+async function textToSpeechParagraph(request, response) {
+    try {
         const spaceId = request.params.spaceId;
         const documentId = request.params.documentId;
         const userId = request.userId;
@@ -42,18 +45,50 @@ async function textToSpeechParagraph(request,response){
         let paragraphConfig = await documentModule.getParagraphConfig(spaceId, documentId, paragraphId);
         paragraphConfig.commands["speech"].taskId = task.id;
         await documentModule.updateParagraphConfig(spaceId, documentId, paragraphId, paragraphConfig);
-        utils.sendResponse(response,200,"application/json",{
-            success:true,
+        utils.sendResponse(response, 200, "application/json", {
+            success: true,
             data: task.id,
-            message:"Task added to the queue"
+            message: "Task added to the queue"
         });
-    }catch(error){
-        utils.sendResponse(response, error.statusCode||500, "application/json", {
+    } catch (error) {
+        utils.sendResponse(response, error.statusCode || 500, "application/json", {
             success: false,
             message: error
         });
     }
 }
+
+async function lipSyncParagraph(request, response) {
+    try {
+        const spaceId = request.params.spaceId;
+        const documentId = request.params.documentId;
+        const userId = request.userId;
+        const paragraphId = request.params.paragraphId;
+        const sessionId = request.sessionId;
+        const SecurityContext = require("assistos").ServerSideSecurityContext;
+        let securityContext = new SecurityContext(request);
+        let task = new LipSync(securityContext, spaceId, userId, {documentId, paragraphId});
+        await TaskManager.addTask(task);
+
+        eventPublisher.notifyClients(sessionId, documentId + "/tasks");
+        let documentModule = require("assistos").loadModule("document", securityContext);
+
+        let paragraphConfig = await documentModule.getParagraphConfig(spaceId, documentId, paragraphId);
+        paragraphConfig.commands["lipsync"].taskId = task.id;
+        await documentModule.updateParagraphConfig(spaceId, documentId, paragraphId, paragraphConfig);
+        utils.sendResponse(response, 200, "application/json", {
+            success: true,
+            data: task.id,
+            message: "Task added to the queue"
+        });
+    } catch (error) {
+        utils.sendResponse(response, error.statusCode || 500, "application/json", {
+            success: false,
+            message: error
+        });
+    }
+}
+
 async function cancelTaskAndRemove(request, response) {
     let taskId = request.params.taskId;
     try {
@@ -69,6 +104,7 @@ async function cancelTaskAndRemove(request, response) {
         });
     }
 }
+
 async function removeTask(request, response) {
     let taskId = request.params.taskId;
     try {
@@ -84,6 +120,7 @@ async function removeTask(request, response) {
         });
     }
 }
+
 function cancelTask(request, response) {
     let taskId = request.params.taskId;
     try {
@@ -99,6 +136,7 @@ function cancelTask(request, response) {
         });
     }
 }
+
 function getTasks(request, response) {
     let spaceId = request.params.spaceId;
     try {
@@ -114,6 +152,7 @@ function getTasks(request, response) {
         });
     }
 }
+
 function runTask(request, response) {
     let taskId = request.params.taskId;
     try {
@@ -129,6 +168,7 @@ function runTask(request, response) {
         });
     }
 }
+
 function getDocumentTasks(request, response) {
     let spaceId = request.params.spaceId;
     let documentId = request.params.documentId;
@@ -145,6 +185,7 @@ function getDocumentTasks(request, response) {
         });
     }
 }
+
 function getTask(request, response) {
     let taskId = request.params.taskId;
     try {
@@ -170,5 +211,6 @@ module.exports = {
     compileVideoFromDocument,
     textToSpeechParagraph,
     getTask,
-    removeTask
+    removeTask,
+    lipSyncParagraph
 }
