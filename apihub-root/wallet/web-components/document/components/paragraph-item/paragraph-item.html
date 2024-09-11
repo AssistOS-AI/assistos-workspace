@@ -1,8 +1,19 @@
-<div class="paragraph-container" >
+<div class="paragraph-container">
+    <div class="img-container focusable" data-local-action="editItem paragraphImage">
+        <img loading="lazy" class="paragraph-image" src="$$imageSrc" alt="$$imgAlt" tabindex="0">
+        <img class="play-lip-sync pointer" data-local-action="playLipSyncVideo" src="./wallet/assets/icons/play.svg" alt="play">
+        <div class="drag-border">
+            <div class="circle ne"></div>
+            <div class="circle se"></div>
+            <div class="circle sw"></div>
+            <div class="circle nw"></div>
+        </div>
+    </div>
     <div class="paragraph-header-container">
-    <div class="paragraph-header">
-        <textarea class="paragraph-configs" readonly data-local-action="editItem paragraphHeader">$$paragraphConfigs</textarea>
-        <code class="error-message hidden"></code></div>
+        <div class="paragraph-header">
+            <textarea class="paragraph-configs" readonly
+                      data-local-action="editItem paragraphHeader">$$paragraphConfigs</textarea>
+            <code class="error-message hidden"></code></div>
     </div>
     <div class="paragraph-audio-section hidden">
         <audio class="paragraph-audio" controls>
@@ -20,7 +31,8 @@
             </div>
             <div class="task-status-icon">$$taskIcon</div>
         </div>
-            <textarea class="paragraph-text focusable" data-metadata="$$data-metadata " data-local-action="editItem paragraph"></textarea>
+        <textarea class="paragraph-text focusable" data-metadata="$$data-metadata "
+                  data-local-action="editItem paragraph"></textarea>
     </div>
 </div>
 

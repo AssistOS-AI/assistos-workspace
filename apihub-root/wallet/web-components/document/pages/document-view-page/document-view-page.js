@@ -299,6 +299,15 @@ export class DocumentViewPage {
             paragraphPresenter.highlightParagraph();
             saveFunction = paragraphPresenter.saveParagraph.bind(paragraphPresenter, _target);
             resetTimerFunction = paragraphPresenter.resetTimer.bind(paragraphPresenter, _target);
+        } else if(type === "paragraphImage"){
+            let chapterPresenter = _target.closest("chapter-item").webSkelPresenter;
+            let paragraphItem = _target.closest("paragraph-item") || _target.closest("image-paragraph");
+            let paragraphPresenter = paragraphItem.webSkelPresenter;
+            await this.changeCurrentElement(_target, paragraphPresenter.focusOutHandlerImage.bind(paragraphPresenter));
+            await chapterPresenter.highlightChapter();
+            paragraphPresenter.highlightParagraphImage();
+            saveFunction = paragraphPresenter.saveParagraphImage.bind(paragraphPresenter, _target);
+            resetTimerFunction = paragraphPresenter.resetTimerImage.bind(paragraphPresenter, _target);
         }
         _target.focus();
         if (this.timer) {

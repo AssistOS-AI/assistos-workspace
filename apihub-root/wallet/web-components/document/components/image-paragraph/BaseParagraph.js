@@ -17,50 +17,6 @@ export class BaseParagraph {
         });
     }
 
-    getParagraphPosition() {
-        if (this.chapter.paragraphs.length === 0) {
-            return 0;
-        }
-        if (assistOS.space.currentParagraphId) {
-            return this.chapter.paragraphs.findIndex(p => p.id === assistOS.space.currentParagraphId);
-        }
-        return this.chapter.paragraphs.length;
-    }
-
-    async openInsertImageModal(_target) {
-        let position = this.getParagraphPosition() + 1;
-        let imagesData = await assistOS.UI.showModal("insert-image-modal", {["chapter-id"]: this.chapter.id}, true);
-        if (imagesData) {
-            for (let image of imagesData) {
-                await assistOS.callFlow("AddImageParagraph", {
-                    spaceId: assistOS.space.id,
-                    documentId: this._document.id,
-                    chapterId: this.chapter.id,
-                    paragraphData: {
-                        position: position,
-                        config:{
-                            commands:{},
-                            image:{
-                                src:image.src,
-                                alt:image.alt,
-                                id:image.id,
-                                isUploadedImage:image.isUploadedImage || false,
-                                dimensions:{
-                                    width:"",
-                                    height:""
-                                }
-                            },
-                            }
-                        }
-                });
-                position++;
-            }
-            let chapterElement = this.element.closest("chapter-item");
-            let chapterPresenter = chapterElement.webSkelPresenter;
-            chapterPresenter.invalidate(chapterPresenter.refreshChapter);
-        }
-    }
-
     async deleteParagraph(_target) {
         await this.documentPresenter.stopTimer(true);
         let currentParagraphIndex = this.chapter.getParagraphIndex(this.paragraph.id);

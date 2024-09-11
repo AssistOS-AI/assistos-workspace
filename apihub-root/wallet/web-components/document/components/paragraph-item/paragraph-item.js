@@ -75,8 +75,141 @@ export class ParagraphItem extends BaseParagraph {
         this.paragraphHeader = this.element.querySelector(".paragraph-configs");
         this.paragraphHeader.style.height = this.paragraphHeader.scrollHeight + 'px';
         this.errorElement = this.element.querySelector(".error-message");
+
+        if(this.paragraph.config.image){
+            this.setupImage();
+        }
+    }
+    renderImageMaxWidth() {
+        if (this.paragraph.config.image.dimensions) {
+            this.imgElement.style.width = this.paragraph.config.image.dimensions.width + "px";
+            this.imgElement.style.height = this.paragraph.config.image.dimensions.height + "px";
+            return;
+        }
+        let originalWidth = parseFloat(getComputedStyle(this.imgElement, null).getPropertyValue('width').replace('px', ''));
+        let originalHeight = parseFloat(getComputedStyle(this.imgElement, null).getPropertyValue('height').replace('px', ''));
+        const aspectRatio = originalWidth / originalHeight;
+        const maxWidth = this.parentChapterElement.getBoundingClientRect().width - 78;
+        const maxHeight = maxWidth / aspectRatio;
+        this.imgElement.style.width = maxWidth + 'px';
+        this.imgElement.style.height = maxHeight + 'px';
+        this.paragraph.config.image.dimensions = {
+            width: maxWidth,
+            height: maxHeight
+        };
+        this.initialized = true;
+        documentModule.updateParagraphConfig(assistOS.space.id, this._document.id, this.paragraph.id, this.paragraph.config);
+    }
+    setupImage(){
+        let imgContainer = this.element.querySelector(".img-container");
+        imgContainer.style.display = "flex";
+        this.imgElement = this.element.querySelector(".paragraph-image");
+        this.imgElement.addEventListener('load', this.renderImageMaxWidth.bind(this), {once: true});
+        this.initialized = false;
+        this.imgElement.src = this.paragraph.config.image.src;
+        this.imgElement.alt = this.paragraph.config.image.alt;
+        this.imgContainer = this.element.querySelector('.img-container');
+        let paragraphImage = this.element.querySelector(".paragraph-image");
+        if (assistOS.space.currentParagraphId === this.paragraph.id) {
+            paragraphImage.click();
+        }
+        const handlesNames = ["ne", "se", "sw", "nw"];
+        let handles = {};
+        for (let handleName of handlesNames) {
+            handles[handleName] = this.element.querySelector(`.${handleName}`);
+        }
+        this.originalWidth = 0;
+        this.originalHeight = 0;
+        this.originalX = 0;
+        this.originalY = 0;
+        this.originalMouseX = 0;
+        this.originalMouseY = 0;
+        if (!this.boundMouseDownFN) {
+            this.boundMouseDownFN = this.mouseDownFn.bind(this);
+            for (let key of Object.keys(handles)) {
+                handles[key].addEventListener('mousedown', this.boundMouseDownFN);
+            }
+        }
+        this.parentChapterElement = this.element.closest("chapter-item");
     }
 
+    mouseDownFn(event) {
+        event.preventDefault();
+        this.originalWidth = parseFloat(getComputedStyle(this.imgElement, null).getPropertyValue('width').replace('px', ''));
+        this.originalHeight = parseFloat(getComputedStyle(this.imgElement, null).getPropertyValue('height').replace('px', ''));
+        this.originalX = this.imgContainer.getBoundingClientRect().left;
+        this.originalY = this.imgContainer.getBoundingClientRect().top;
+        this.originalMouseX = event.pageX;
+        this.originalMouseY = event.pageY;
+        this.boundResize = this.resize.bind(this);
+        document.addEventListener('mousemove', this.boundResize);
+        document.addEventListener('mouseup', this.stopResize.bind(this), {once: true});
+    }
+
+    async resize(e) {
+        const aspectRatio = this.originalWidth / this.originalHeight;
+        let width = this.originalWidth + (e.pageX - this.originalMouseX);
+        let height = width / aspectRatio;
+
+        const maxWidth = this.parentChapterElement.getBoundingClientRect().width - 78;
+        if (width > maxWidth) {
+            width = maxWidth;
+            height = maxWidth / aspectRatio;
+        }
+        if (width > 20 && height > 20) {
+            this.imgElement.style.width = width + 'px';
+            this.imgElement.style.height = height + 'px';
+        }
+        await this.documentPresenter.resetTimer();
+    }
+
+    async stopResize() {
+        document.removeEventListener('mousemove', this.boundResize);
+        await this.documentPresenter.stopTimer(true);
+    }
+
+    highlightParagraphImage() {
+        let dragBorder = this.element.querySelector(".drag-border");
+        dragBorder.style.display = "block";
+        this.switchParagraphArrows("on");
+        assistOS.space.currentParagraphId = this.paragraph.id;
+    }
+
+    focusOutHandlerImage() {
+        this.switchParagraphArrows("off");
+        let dragBorder = this.element.querySelector(".drag-border");
+        dragBorder.style.display = "none";
+    }
+
+    async resetTimerImage(paragraph, event) {
+        if (event.key === "Backspace") {
+            if (assistOS.space.currentParagraphId === this.paragraph.id) {
+                await this.documentPresenter.stopTimer(false);
+                await this.deleteParagraph();
+            }
+        }
+    }
+    async saveParagraphImage() {
+        if (!this.paragraph || assistOS.space.currentParagraphId !== this.paragraph.id) {
+            await this.documentPresenter.stopTimer();
+            return;
+        }
+        let imageElement = this.element.querySelector(".paragraph-image");
+        let dimensions = {
+            width: imageElement.width,
+            height: imageElement.height
+        };
+        if ((dimensions.width !== this.paragraph.config.image.dimensions.width || dimensions.height !== this.paragraph.config.image.dimensions.height) && this.initialized) {
+            this.paragraph.config.image.dimensions.width = dimensions.width;
+            this.paragraph.config.image.dimensions.height = dimensions.height;
+            await documentModule.updateParagraphConfig(
+                assistOS.space.id,
+                this._document.id,
+                this.paragraph.id,
+                this.paragraph.config
+            )
+        }
+    }
     async saveParagraph(paragraph) {
         if (!this.paragraph || assistOS.space.currentParagraphId !== this.paragraph.id || this.deleted) {
             return;
@@ -594,5 +727,14 @@ export class ParagraphItem extends BaseParagraph {
     closePlayer() {
         let videoContainer = this.element.querySelector('.video-container');
         videoContainer.remove();
+    }
+
+    async openInsertImageModal(_target) {
+        let imageData = await assistOS.UI.showModal("insert-image-modal", {["chapter-id"]: this.chapter.id}, true);
+        if (imageData) {
+            this.paragraph.config.image = imageData;
+            await documentModule.updateParagraphConfig(assistOS.space.id, this._document.id, this.paragraph.id, this.paragraph.config);
+            this.invalidate();
+        }
     }
 }

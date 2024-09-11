@@ -17,7 +17,7 @@ export class InsertImageModal {
         this.invalidate(async ()=>{
             this.galleries = await galleryModule.getGalleriesMetadata(assistOS.space.id);
         });
-        this.selectedImages = [];
+        this.selectedImage = "";
     }
 
     beforeRender() {
@@ -69,12 +69,18 @@ export class InsertImageModal {
                         imgContainer.classList.remove("selected");
                         checkbox.checked = false;
                         checkbox.style.visibility = "hidden";
-                        this.selectedImages = this.selectedImages.filter((img) => img.id !== image.id);
+                        this.selectedImage = "";
                     } else {
                         imgContainer.classList.add("selected");
                         checkbox.checked = true;
                         checkbox.style.visibility = "visible";
-                        this.selectedImages.push(image);
+                        if(this.selectedImage){
+                            let selectedImgContainer = this.element.querySelector(`#${this.selectedImage.id}`).parentElement;
+                            selectedImgContainer.classList.remove("selected");
+                            selectedImgContainer.querySelector(".image-checkbox").checked = false;
+                            selectedImgContainer.querySelector(".image-checkbox").style.visibility = "hidden";
+                        }
+                        this.selectedImage = image;
                     }
                 });
             });
@@ -121,7 +127,7 @@ export class InsertImageModal {
         this.invalidate();
     }
     insertImages(_target){
-        assistOS.UI.closeModal(_target, this.selectedImages);
+        assistOS.UI.closeModal(_target, this.selectedImage);
     }
     openMyDevice(_target){
         let fileInput = this.element.querySelector("#file");
@@ -142,7 +148,7 @@ export class InsertImageModal {
                 alt: new Date().toISOString(),
                 isUploadedImage: true
             };
-            assistOS.UI.closeModal(_target, [data]);
+            assistOS.UI.closeModal(_target, data);
         };
         reader.readAsDataURL(file);
     }
