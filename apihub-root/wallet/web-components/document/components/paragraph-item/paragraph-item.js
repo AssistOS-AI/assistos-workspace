@@ -86,7 +86,7 @@ export class ParagraphItem extends BaseParagraph {
         let paragraphText = assistOS.UI.sanitize(paragraph.value);
         let commandChanged = false;
         if (paragraphText !== this.paragraph.text) {
-            if(assistOS.UI.customTrim(paragraphText) !== assistOS.UI.customTrim(this.paragraph.text)){
+            if (assistOS.UI.customTrim(paragraphText) !== assistOS.UI.customTrim(this.paragraph.text)) {
                 commandChanged = true;
             }
             if (this.hasExternalChanges) {
@@ -106,17 +106,19 @@ export class ParagraphItem extends BaseParagraph {
         if (commands.invalid) {
             this.showCommandsError(commands.error);
         } else {
+            this.errorElement.innerText = "";
+            this.errorElement.classList.add("hidden");
             const commandsDifferences = utilModule.getCommandsDifferences(this.paragraph.config.commands, commands);
-            if(commandChanged){
-                for(let [commandType, commandStatus] of Object.entries(commandsDifferences)){
+            if (commandChanged) {
+                for (let [commandType, commandStatus] of Object.entries(commandsDifferences)) {
                     commandsDifferences[commandType] = "changed";
                 }
             }
             //TODO: put loader here for long operations
             for (let [commandType, commandStatus] of Object.entries(commandsDifferences)) {
-                try{
+                try {
                     await this.handleCommand(commandType, commandStatus, commands[commandType]);
-                }catch(error){
+                } catch (error) {
                     this.showCommandsError(error);
                     break;
                 }
@@ -127,13 +129,11 @@ export class ParagraphItem extends BaseParagraph {
                 return;
             }
 
-            this.errorElement.innerText = "";
-            this.errorElement.classList.add("hidden");
-            if(Object.entries(this.paragraph.config.commands).length === 0){
+            if (Object.entries(this.paragraph.config.commands).length === 0) {
                 this.paragraph.config.commands = commands;
             } else {
-                for(let [key, value] of Object.entries(commands)){
-                    for(let [innerKey, innerValue] of Object.entries(value)){
+                for (let [key, value] of Object.entries(commands)) {
+                    for (let [innerKey, innerValue] of Object.entries(value)) {
                         this.paragraph.config.commands[key][innerKey] = innerValue;
                     }
                 }
@@ -161,12 +161,14 @@ export class ParagraphItem extends BaseParagraph {
             this.style.height = this.scrollHeight + 'px';
         });
     }
+
     showCommandsError(error) {
         if (this.errorElement.classList.contains("hidden")) {
             this.errorElement.classList.remove("hidden");
         }
         this.errorElement.innerText = error;
     }
+
     async focusOutHandler() {
         this.switchParagraphArrows("off");
         this.paragraphHeader.setAttribute('readonly', 'true');
@@ -208,7 +210,7 @@ export class ParagraphItem extends BaseParagraph {
                             if (task.status === "created") {
                                 await utilModule.removeTask(speechCommand.taskId);
                                 await utilModule.unsubscribeFromObject(speechCommand.taskId);
-                            }else if(task.status === "running"){
+                            } else if (task.status === "running") {
                                 await utilModule.cancelTaskAndRemove(speechCommand.taskId);
                                 await utilModule.unsubscribeFromObject(speechCommand.taskId);
                             }
@@ -218,15 +220,15 @@ export class ParagraphItem extends BaseParagraph {
                     statusElement.innerHTML = "";
 
                     const personalitySelected = command.paramsObject.personality;
-                    const personalityMetadata = assistOS.space.personalitiesMetadata.find(personality=>personality.name===personalitySelected);
-                    if(!personalityMetadata){
+                    const personalityMetadata = assistOS.space.personalitiesMetadata.find(personality => personality.name === personalitySelected);
+                    if (!personalityMetadata) {
                         throw `Personality ${personalitySelected} not found`;
                     }
                     const personalityData = await personalityModule.getPersonality(assistOS.space.id, personalityMetadata.id);
-                    if(!personalityData){
+                    if (!personalityData) {
                         throw `Personality ${personalitySelected} has been deleted`;
                     }
-                    if(!personalityData.voiceId){
+                    if (!personalityData.voiceId) {
                         throw `Personality ${personalitySelected} has no voice configured`;
                     }
                     let taskId = await documentModule.generateParagraphAudio(assistOS.space.id, this._document.id, this.paragraph.id, command, paragraphText);
@@ -259,14 +261,42 @@ export class ParagraphItem extends BaseParagraph {
                 break;
             case "lipsync":
                 if (commandStatus === "same") {
+
                 }
                 if (commandStatus === "new") {
+                    let configs = await documentModule.getParagraphConfig(assistOS.space.id, this._document.id, this.paragraph.id);
+                    if (configs.commands["speech"]) {
+                        let speechCommand = configs.commands["speech"];
+                        if (speechCommand.taskId) {
+                            let task = await utilModule.getTask(speechCommand.taskId);
+                            switch (task.status) {
+                                case "running":
+                                    throw ("Cannot lipSync paragraph while speech command is running");
+                                case "created":
+                                    throw ("Cannot lipSync paragraph before speech task is executed");
+                                case "canceled":
+                                    throw ("Cannot lipSync paragraph because speech task was canceled");
+                                case "failed":
+                                    throw ("Cannot lipSync paragraph because speech task failed");
+                                case "completed":
+                                    let taskId = await documentModule.generateParagraphLipSync(assistOS.space.id, this._document.id, this.paragraph.id, "PlayHT2.0");
+                                    assistOS.space.notifyObservers(this._document.id + "/tasks");
+                                    this.paragraph.config = await documentModule.getParagraphConfig(assistOS.space.id, this._document.id, this.paragraph.id);
+                                    utilModule.subscribeToObject(taskId, async (status) => {
+                                        await this.changeTaskStatus(taskId, status);
+                                    });
+                            }
+                        }
+                    } else {
+                        throw ("Paragraph Must have a speech command before adding a lip sync command");
+                    }
 
                 }
                 if (commandStatus === "deleted") {
 
                 }
                 if (commandStatus === "changed") {
+
                 }
                 break;
         }
