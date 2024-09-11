@@ -156,24 +156,43 @@ async function createVideoFromImageAndAudio(imageSrc,audioSrc,spaceId){
 }
 async function estimateChapterVideoLength(spaceId, chapter, task){
     let totalDuration = 0;
-    for(let paragraph of chapter.paragraphs){
-        if(paragraph.audio){
-            let audioPath = path.join(space.getSpacePath(spaceId), 'audios', `${paragraph.audio.src.split("/").pop()}.mp3`);
+    let chapterFrames = [];
+    let frame = {
+        hasImage: false,
+        audiosPath: [],
+        duration: 0
+    };
+    for (let paragraph of chapter.paragraphs) {
+        if (paragraph.config.image) {
+            if (frame.audiosPath.length > 0 || frame.hasImage) {
+                chapterFrames.push(frame);
+            }
+            frame = {
+                hasImage: true,
+                audiosPath: [],
+                duration: 0
+            };
+        } else if (paragraph.config.audio) {
+            let audioPath = path.join(space.getSpacePath(spaceId), 'audios', `${paragraph.config.audio.src.split("/").pop()}.mp3`);
             const command = `${ffprobePath} -i "${audioPath}" -show_entries format=duration -v quiet -of csv="p=0"`;
             let duration = await task.runCommand(command);
-            totalDuration += parseFloat(duration);
-        } else if(paragraph.image){
-            //do nothing
-        } else {
-            const utilsModule = require("assistos").loadModule("util",task.securityContext);
-
-            let commandObject = utilsModule.findCommands(paragraph.text);
-            if(paragraph.config.commands["silence"]){
-                if(paragraph.config.commands["silence"].paramsObject.duration){
-                    totalDuration += parseFloat(paragraph.config.commands["silence"].paramsObject.duration);
-                }
+            frame.audiosPath.push(audioPath);
+            frame.duration += parseFloat(duration);
+        } else if(paragraph.config.commands["silence"]){
+            if(paragraph.config.commands["silence"].paramsObject.duration){
+                frame.duration += parseFloat(paragraph.config.commands["silence"].paramsObject.duration);
             }
         }
+
+    }
+    if (frame.audiosPath.length > 0 || frame.hasImage || frame.duration > 0) {
+        chapterFrames.push(frame);
+    }
+    for(let frame of chapterFrames){
+        if(frame.hasImage && frame.duration === 0){
+            frame.duration = 1;
+        }
+        totalDuration += frame.duration;
     }
     return totalDuration;
 }
