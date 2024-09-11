@@ -202,7 +202,7 @@ export class ChapterItem {
     }
 
 
-    async highlightChapter(_target) {
+    async highlightChapter() {
         assistOS.space.currentChapterId = this.chapter.id;
         this.switchButtonsDisplay(this.chapterItem, "on");
     }

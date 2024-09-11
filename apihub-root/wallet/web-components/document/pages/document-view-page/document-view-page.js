@@ -213,6 +213,20 @@ export class DocumentViewPage {
             focusoutFunction: focusoutFunction
         };
     }
+    async changeContainerElement(element, focusoutFunction) {
+        if (this.currentElement) {
+            this.currentElement.element.removeAttribute("id");
+            this.currentElement.containerElement.removeAttribute("id");
+            await this.currentElement.focusoutFunction(this.currentElement.element);
+            await this.stopTimer(true);
+        }
+        element.setAttribute("id", "current-selection-parent");
+        this.currentElement = {
+            element: element,
+            containerElement: element,
+            focusoutFunction: focusoutFunction
+        };
+    }
 
     async titleKeyDownHandler(event) {
         if (event.key === 'Enter') {
@@ -245,6 +259,18 @@ export class DocumentViewPage {
         if (_target.hasAttribute("id") && _target.getAttribute("id") === "current-selection") {
             return;
         }
+        if(type === "chapter"){
+            let chapterPresenter = _target.closest("chapter-item").webSkelPresenter;
+            await chapterPresenter.highlightChapter();
+            _target.setAttribute("id", "current-selection-parent");
+            await this.changeContainerElement(_target, chapterPresenter.focusOutHandler.bind(chapterPresenter));
+            return;
+        } else if(type === "paragraphHeader"){
+            let paragraphComponent = _target.closest("paragraph-item");
+            let paragraphTextarea = paragraphComponent.querySelector(".paragraph-text");
+            paragraphTextarea.click();
+            return;
+        }
         let saveFunction;
         let resetTimerFunction = this.resetTimer.bind(this);
         if (type === "title") {
@@ -262,14 +288,14 @@ export class DocumentViewPage {
             let chapterPresenter = _target.closest("chapter-item").webSkelPresenter;
             saveFunction = chapterPresenter.saveTitle.bind(chapterPresenter, _target);
             await this.changeCurrentElement(_target, chapterPresenter.focusOutHandler.bind(chapterPresenter));
-            await chapterPresenter.highlightChapter(_target);
+            await chapterPresenter.highlightChapter();
             _target.addEventListener('keydown', this.titleKeyDownHandler.bind(this, _target));
         } else if (type === "paragraph") {
             let chapterPresenter = _target.closest("chapter-item").webSkelPresenter;
             let paragraphItem = _target.closest("paragraph-item") || _target.closest("image-paragraph");
             let paragraphPresenter = paragraphItem.webSkelPresenter;
             await this.changeCurrentElement(_target, paragraphPresenter.focusOutHandler.bind(paragraphPresenter));
-            await chapterPresenter.highlightChapter(_target);
+            await chapterPresenter.highlightChapter();
             paragraphPresenter.highlightParagraph();
             saveFunction = paragraphPresenter.saveParagraph.bind(paragraphPresenter, _target);
             resetTimerFunction = paragraphPresenter.resetTimer.bind(paragraphPresenter, _target);
