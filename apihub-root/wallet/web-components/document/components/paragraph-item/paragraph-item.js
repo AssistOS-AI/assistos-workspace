@@ -74,8 +74,6 @@ export class ParagraphItem extends BaseParagraph {
         }
         this.paragraphHeader = this.element.querySelector(".paragraph-configs");
         this.paragraphHeader.style.height = this.paragraphHeader.scrollHeight + 'px';
-        const paragraphTextArea = this.element.querySelector('.paragraph-text');
-        this.paragraphHeader.addEventListener('click', () => paragraphTextArea.click());
         this.errorElement = this.element.querySelector(".error-message");
     }
 
