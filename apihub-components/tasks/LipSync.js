@@ -23,14 +23,7 @@ class LipSync extends Task {
 
     async rollback() {
         try {
-            const documentModule = require('assistos').loadModule('document', this.securityContext);
-            const paragraphConfig = await documentModule.getParagraphConfig(this.spaceId, this.documentId, this.paragraphId);
-            delete paragraphConfig.audio;
-            delete paragraphConfig.commands["speech"].taskId;
-            await documentModule.updateParagraphConfig(this.spaceId, this.documentId, this.paragraphId, paragraphConfig);
-            if(this.audioId){
-                await space.APIs.deleteAudio(this.spaceId, this.audioId);
-            }
+
         } catch (e){
             //no audio to delete
         }

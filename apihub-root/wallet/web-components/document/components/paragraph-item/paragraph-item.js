@@ -46,14 +46,7 @@ export class ParagraphItem extends BaseParagraph {
     }
 
     beforeRender() {
-        this.paragraphConfigs = "";
-        const commandCount = Object.keys(this.paragraph.config.commands || {}).length
-        Object.keys(this.paragraph.config.commands || {}).forEach((key, index) => {
-            this.paragraphConfigs += utilModule.buildCommandString(this.paragraph.config.commands[key].name, this.paragraph.config.commands[key].paramsObject || {});
-            if (index !== commandCount - 1) {
-                this.paragraphConfigs += `\n`;
-            }
-        })
+        this.paragraphConfigs = utilModule.buildCommandsString(this.paragraph.config.commands);
     }
 
     afterRender() {
@@ -76,10 +69,11 @@ export class ParagraphItem extends BaseParagraph {
         this.paragraphHeader.style.height = this.paragraphHeader.scrollHeight + 'px';
         this.errorElement = this.element.querySelector(".error-message");
 
-        if(this.paragraph.config.image){
+        if (this.paragraph.config.image) {
             this.setupImage();
         }
     }
+
     renderImageMaxWidth() {
         if (this.paragraph.config.image.dimensions) {
             this.imgElement.style.width = this.paragraph.config.image.dimensions.width + "px";
@@ -100,7 +94,8 @@ export class ParagraphItem extends BaseParagraph {
         this.initialized = true;
         documentModule.updateParagraphConfig(assistOS.space.id, this._document.id, this.paragraph.id, this.paragraph.config);
     }
-    setupImage(){
+
+    setupImage() {
         let imgContainer = this.element.querySelector(".img-container");
         imgContainer.style.display = "flex";
         this.imgElement = this.element.querySelector(".paragraph-image");
@@ -189,6 +184,7 @@ export class ParagraphItem extends BaseParagraph {
             }
         }
     }
+
     async saveParagraphImage() {
         if (!this.paragraph || assistOS.space.currentParagraphId !== this.paragraph.id) {
             await this.documentPresenter.stopTimer();
@@ -210,6 +206,7 @@ export class ParagraphItem extends BaseParagraph {
             )
         }
     }
+
     async saveParagraph(paragraph) {
         if (!this.paragraph || assistOS.space.currentParagraphId !== this.paragraph.id || this.deleted) {
             return;
@@ -237,6 +234,7 @@ export class ParagraphItem extends BaseParagraph {
         if (commands.invalid) {
             this.showCommandsError(commands.error);
         } else {
+            this.paragraphHeader.value = utilModule.buildCommandsString(commands);
             this.errorElement.innerText = "";
             this.errorElement.classList.add("hidden");
             const commandsDifferences = utilModule.getCommandsDifferences(this.paragraph.config.commands, commands);
@@ -264,10 +262,21 @@ export class ParagraphItem extends BaseParagraph {
                 this.paragraph.config.commands = commands;
             } else {
                 for (let [key, value] of Object.entries(commands)) {
-                    for (let [innerKey, innerValue] of Object.entries(value)) {
-                        this.paragraph.config.commands[key][innerKey] = innerValue;
+                    if (commandsDifferences[key] !== "deleted") {
+                        if (!this.paragraph.config.commands[key]) {
+                            /* command has been added */
+                            this.paragraph.config.commands[key] = {};
+                        }
+                        for (let [innerKey, innerValue] of Object.entries(value)) {
+                            this.paragraph.config.commands[key][innerKey] = innerValue;
+                        }
+                    } else {
+                        /* command has been deleted */
+                        delete this.paragraph.config.commands[key];
                     }
                 }
+
+
             }
             documentModule.updateParagraphConfig(assistOS.space.id, this._document.id, this.paragraph.id, this.paragraph.config);
         }

@@ -314,7 +314,7 @@ export class DocumentViewPage {
             await this.timer.stop(true);
         }
         this.setContext();
-        this.timer = new executorTimer(saveFunction, 1000);
+        this.timer = new executorTimer(saveFunction, 10000);
         _target.addEventListener("keydown", resetTimerFunction);
     }
 
