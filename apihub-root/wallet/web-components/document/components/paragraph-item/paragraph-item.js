@@ -259,7 +259,7 @@ export class ParagraphItem {
         }
     }
     async saveParagraphImage() {
-        if (!this.paragraph || assistOS.space.currentParagraphId !== this.paragraph.id) {
+        if (!this.paragraph || !this.paragraph.config.image || assistOS.space.currentParagraphId !== this.paragraph.id) {
             await this.documentPresenter.stopTimer();
             return;
         }
@@ -701,6 +701,11 @@ export class ParagraphItem {
                  <list-item data-local-action="addChapter" data-name="Add Chapter"
                            data-highlight="light-highlight"></list-item>
                  `;
+            if(this.paragraph.config.image){
+                baseDropdownMenuHTML = `
+                <list-item data-local-action="deleteImage" data-name="Delete Image" 
+                           data-highlight="light-highlight"></list-item>` + baseDropdownMenuHTML;
+            }
             if (chapterPresenter.chapter.paragraphs.length > 1) {
                 baseDropdownMenuHTML = `
                 <list-item data-local-action="moveParagraph up" data-name="Move Up" 
@@ -713,6 +718,7 @@ export class ParagraphItem {
                 baseDropdownMenuHTML += ` <list-item data-name="Download Audio" data-local-action="downloadAudio" data-highlight="light-highlight"></list-item>`;
 
             }
+
             if (previousParagraphImage() && this.paragraph.config.commands.speech && !this.paragraph.config.lipSync) {
                 baseDropdownMenuHTML += `<list-item data-name="Generate Paragraph Video" data-local-action="addParagraphVideo" data-highlight="light-highlight"></list-item>`;
             }
@@ -842,5 +848,10 @@ export class ParagraphItem {
             await documentModule.updateParagraphConfig(assistOS.space.id, this._document.id, this.paragraph.id, this.paragraph.config);
             this.invalidate();
         }
+    }
+    async deleteImage(_target) {
+        delete this.paragraph.config.image;
+        await documentModule.updateParagraphConfig(assistOS.space.id, this._document.id, this.paragraph.id, this.paragraph.config);
+        this.invalidate();
     }
 }
