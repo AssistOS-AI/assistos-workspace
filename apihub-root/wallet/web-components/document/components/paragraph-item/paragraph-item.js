@@ -1,12 +1,23 @@
-import {BaseParagraph} from "../image-paragraph/BaseParagraph.js";
-
 const utilModule = require("assistos").loadModule("util", {});
 const personalityModule = require("assistos").loadModule("personality", {});
 const documentModule = require("assistos").loadModule("document", {});
 
-export class ParagraphItem extends BaseParagraph {
+export class ParagraphItem {
     constructor(element, invalidate) {
-        super(element, invalidate);
+        this.element = element;
+        this.invalidate = invalidate;
+        this.documentPresenter = document.querySelector("document-view-page").webSkelPresenter;
+        this._document = this.documentPresenter._document;
+        let paragraphId = this.element.getAttribute("data-paragraph-id");
+        let chapterId = this.element.getAttribute("data-chapter-id");
+        this.chapter = this._document.getChapter(chapterId);
+        this.paragraph = this.chapter.getParagraph(paragraphId);
+        this.invalidate(async () => {
+            if (!this.documentPresenter.childrenSubscriptions.has(this.paragraph.id)) {
+                await this.subscribeToParagraphEvents();
+                this.documentPresenter.childrenSubscriptions.set(this.paragraph.id, this.paragraph.id);
+            }
+        });
     }
 
     async subscribeToParagraphEvents() {
@@ -44,7 +55,76 @@ export class ParagraphItem extends BaseParagraph {
             }
         }
     }
+    async deleteParagraph(_target) {
+        await this.documentPresenter.stopTimer(true);
+        let currentParagraphIndex = this.chapter.getParagraphIndex(this.paragraph.id);
+        await assistOS.callFlow("DeleteParagraph", {
+            spaceId: assistOS.space.id,
+            documentId: this._document.id,
+            chapterId: this.chapter.id,
+            paragraphId: this.paragraph.id
+        });
+        if (this.chapter.paragraphs.length > 0) {
+            if (currentParagraphIndex === 0) {
+                assistOS.space.currentParagraphId = this.chapter.paragraphs[0].id;
+            } else {
+                assistOS.space.currentParagraphId = this.chapter.paragraphs[currentParagraphIndex - 1].id;
+            }
+        } else {
+            assistOS.space.currentParagraphId = null;
+        }
+        let chapterElement = this.element.closest("chapter-item");
+        let chapterPresenter = chapterElement.webSkelPresenter;
+        let updateTasksMenu = false;
+        for(let [key, value] of Object.entries(this.paragraph.config.commands)){
+            for(let [innerKey, innerValue] of Object.entries(value)){
+                if(innerKey === "taskId") {
+                    try{
+                        utilModule.cancelTask(innerValue);
+                    } catch (e){
+                        //task is not running
+                    }
+                    await utilModule.removeTask(innerValue);
+                    await utilModule.unsubscribeFromObject(innerValue);
+                    updateTasksMenu = true;
+                }
+            }
+        }
+        if(updateTasksMenu){
+            assistOS.space.notifyObservers(this._document.id + "/tasks");
+        }
+        chapterPresenter.invalidate(chapterPresenter.refreshChapter);
+    }
 
+    async moveParagraph(_target, direction) {
+        await this.documentPresenter.stopTimer(false);
+        const currentParagraphIndex = this.chapter.getParagraphIndex(this.paragraph.id);
+        const getAdjacentParagraphId = (index, paragraphs) => {
+            if (direction === "up") {
+                return index === 0 ? paragraphs[paragraphs.length - 1].id : paragraphs[index - 1].id;
+            }
+            return index === paragraphs.length - 1 ? paragraphs[0].id : paragraphs[index + 1].id;
+        };
+        const adjacentParagraphId = getAdjacentParagraphId(currentParagraphIndex, this.chapter.paragraphs);
+        await assistOS.callFlow("SwapParagraphs", {
+            spaceId: assistOS.space.id,
+            documentId: this._document.id,
+            chapterId: this.chapter.id,
+            paragraphId1: this.paragraph.id,
+            paragraphId2: adjacentParagraphId
+        });
+        let chapterPresenter = this.element.closest("chapter-item").webSkelPresenter;
+        chapterPresenter.invalidate(chapterPresenter.refreshChapter);
+    }
+    addParagraph() {
+        let chapterPresenter = this.element.closest("chapter-item").webSkelPresenter;
+        let mockEvent = {
+            ctrlKey: true,
+            key: "Enter",
+            target: this.element.querySelector(".paragraph-item")
+        }
+        chapterPresenter.addParagraphOrChapterOnKeyPress(mockEvent);
+    }
     beforeRender() {
         this.paragraphConfigs = utilModule.buildCommandsString(this.paragraph.config.commands);
     }
@@ -91,7 +171,6 @@ export class ParagraphItem extends BaseParagraph {
             width: maxWidth,
             height: maxHeight
         };
-        this.initialized = true;
         documentModule.updateParagraphConfig(assistOS.space.id, this._document.id, this.paragraph.id, this.paragraph.config);
     }
 
@@ -100,7 +179,6 @@ export class ParagraphItem extends BaseParagraph {
         imgContainer.style.display = "flex";
         this.imgElement = this.element.querySelector(".paragraph-image");
         this.imgElement.addEventListener('load', this.renderImageMaxWidth.bind(this), {once: true});
-        this.initialized = false;
         this.imgElement.src = this.paragraph.config.image.src;
         this.imgElement.alt = this.paragraph.config.image.alt;
         this.imgContainer = this.element.querySelector('.img-container');
@@ -163,18 +241,9 @@ export class ParagraphItem extends BaseParagraph {
         await this.documentPresenter.stopTimer(true);
     }
 
-    highlightParagraphImage() {
-        let dragBorder = this.element.querySelector(".drag-border");
-        dragBorder.style.display = "block";
-        this.switchParagraphArrows("on");
-        assistOS.space.currentParagraphId = this.paragraph.id;
-    }
 
-    focusOutHandlerImage() {
-        this.switchParagraphArrows("off");
-        let dragBorder = this.element.querySelector(".drag-border");
-        dragBorder.style.display = "none";
-    }
+
+
 
     async resetTimerImage(paragraph, event) {
         if (event.key === "Backspace") {
@@ -186,7 +255,7 @@ export class ParagraphItem extends BaseParagraph {
     }
 
     async saveParagraphImage() {
-        if (!this.paragraph || assistOS.space.currentParagraphId !== this.paragraph.id) {
+        if (!this.paragraph || !this.paragraph.config.image || assistOS.space.currentParagraphId !== this.paragraph.id) {
             await this.documentPresenter.stopTimer();
             return;
         }
@@ -195,7 +264,7 @@ export class ParagraphItem extends BaseParagraph {
             width: imageElement.width,
             height: imageElement.height
         };
-        if ((dimensions.width !== this.paragraph.config.image.dimensions.width || dimensions.height !== this.paragraph.config.image.dimensions.height) && this.initialized) {
+        if ((dimensions.width !== this.paragraph.config.image.dimensions.width || dimensions.height !== this.paragraph.config.image.dimensions.height)) {
             this.paragraph.config.image.dimensions.width = dimensions.width;
             this.paragraph.config.image.dimensions.height = dimensions.height;
             await documentModule.updateParagraphConfig(
@@ -291,15 +360,36 @@ export class ParagraphItem extends BaseParagraph {
         }
     }
 
-    highlightParagraph() {
+    highlightParagraphImage() {
+        let dragBorder = this.element.querySelector(".drag-border");
+        dragBorder.style.display = "block";
         this.switchParagraphArrows("on");
         assistOS.space.currentParagraphId = this.paragraph.id;
         this.paragraphHeader.removeAttribute('readonly');
-        this.paragraphHeader.classList.add("highlight-paragraph-header")
+        let paragraphHeaderContainer = this.element.querySelector('.paragraph-header');
+        paragraphHeaderContainer.classList.add("highlight-paragraph-header");
         this.paragraphHeader.addEventListener('input', function () {
             this.style.height = 'auto';
             this.style.height = this.scrollHeight + 'px';
         });
+        let paragraphText = this.element.querySelector('.paragraph-text');
+        paragraphText.classList.add("highlight-paragraph");
+        this.imgContainer.classList.add("highlight-image");
+    }
+
+    highlightParagraph() {
+        this.switchParagraphArrows("on");
+        assistOS.space.currentParagraphId = this.paragraph.id;
+        let paragraphHeaderContainer = this.element.querySelector('.paragraph-header');
+        paragraphHeaderContainer.classList.add("highlight-paragraph-header");
+        this.paragraphHeader.removeAttribute('readonly');
+        this.paragraphHeader.addEventListener('input', function () {
+            this.style.height = 'auto';
+            this.style.height = this.scrollHeight + 'px';
+        });
+        if(this.paragraph.config.image){
+            this.imgContainer.classList.add("highlight-image");
+        }
     }
 
     showCommandsError(error) {
@@ -312,8 +402,24 @@ export class ParagraphItem extends BaseParagraph {
     async focusOutHandler() {
         this.switchParagraphArrows("off");
         this.paragraphHeader.setAttribute('readonly', 'true');
-        this.paragraphHeader.classList.remove("highlight-paragraph-header")
-
+        let paragraphHeaderContainer = this.element.querySelector('.paragraph-header');
+        paragraphHeaderContainer.classList.remove("highlight-paragraph-header");
+        let dragBorder = this.element.querySelector(".drag-border");
+        dragBorder.style.display = "none";
+        if(this.paragraph.config.image) {
+            this.imgContainer.classList.remove("highlight-image");
+        }
+    }
+    focusOutHandlerImage() {
+        this.switchParagraphArrows("off");
+        let dragBorder = this.element.querySelector(".drag-border");
+        dragBorder.style.display = "none";
+        this.paragraphHeader.setAttribute('readonly', 'true');
+        let paragraphHeaderContainer = this.element.querySelector('.paragraph-header');
+        paragraphHeaderContainer.classList.remove("highlight-paragraph-header");
+        let paragraphText = this.element.querySelector('.paragraph-text');
+        paragraphText.classList.remove("highlight-paragraph");
+        this.imgContainer.classList.remove("highlight-image");
     }
 
     async handleCommand(commandType, commandStatus, command) {
@@ -604,6 +710,11 @@ export class ParagraphItem extends BaseParagraph {
                  <list-item data-local-action="addChapter" data-name="Add Chapter"
                            data-highlight="light-highlight"></list-item>
                  `;
+            if(this.paragraph.config.image){
+                baseDropdownMenuHTML = `
+                <list-item data-local-action="deleteImage" data-name="Delete Image" 
+                           data-highlight="light-highlight"></list-item>` + baseDropdownMenuHTML;
+            }
             if (chapterPresenter.chapter.paragraphs.length > 1) {
                 baseDropdownMenuHTML = `
                 <list-item data-local-action="moveParagraph up" data-name="Move Up" 
@@ -616,6 +727,7 @@ export class ParagraphItem extends BaseParagraph {
                 baseDropdownMenuHTML += ` <list-item data-name="Download Audio" data-local-action="downloadAudio" data-highlight="light-highlight"></list-item>`;
 
             }
+
             if (previousParagraphImage() && this.paragraph.config.commands.speech && !this.paragraph.config.lipSync) {
                 baseDropdownMenuHTML += `<list-item data-name="Generate Paragraph Video" data-local-action="addParagraphVideo" data-highlight="light-highlight"></list-item>`;
             }
@@ -745,5 +857,10 @@ export class ParagraphItem extends BaseParagraph {
             await documentModule.updateParagraphConfig(assistOS.space.id, this._document.id, this.paragraph.id, this.paragraph.config);
             this.invalidate();
         }
+    }
+    async deleteImage(_target) {
+        delete this.paragraph.config.image;
+        await documentModule.updateParagraphConfig(assistOS.space.id, this._document.id, this.paragraph.id, this.paragraph.config);
+        this.invalidate();
     }
 }
