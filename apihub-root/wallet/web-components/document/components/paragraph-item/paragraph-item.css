@@ -48,6 +48,7 @@ paragraph-item {
     width: 100%;
     background:inherit;
     min-height:44px;
+    padding-left: 10px;
 }
 .paragraph-controls {
     height: 45px;
@@ -179,14 +180,15 @@ paragraph-item {
     max-width: 100%;
     height: auto;
 }
-.img-container {
+.image-header-extension{
     margin-left: 38px;
+}
+.img-container {
     display: none;
     position: relative;
     width: fit-content;
     height: calc(100% - 45px);
     padding: 10px;
-    border-radius: 3px;
 }
 
 .drag-border {
@@ -195,7 +197,7 @@ paragraph-item {
     top: 10px;
     left: 10px;
     width: calc(100% - 20px);
-    height: calc(100% - 20px);
+    height: calc(100% - 19px);
     border: 2px dashed var(--left-sidebar);
 }
 
@@ -262,4 +264,10 @@ paragraph-item {
     color: var(--white);
     position: absolute;
     z-index: 13;
+}
+.highlight-paragraph{
+    background: var(--white) !important;
+}
+.highlight-image{
+    background: lightgray !important;
 }
