@@ -1,5 +1,4 @@
 const Task = require('./Task');
-const space = require("../spaces-storage/space");
 class LipSync extends Task {
     constructor(securityContext, spaceId, userId, configs) {
         super(securityContext, spaceId, userId);
@@ -10,11 +9,11 @@ class LipSync extends Task {
         try {
             const llmModule = require('assistos').loadModule('llm', this.securityContext);
             const documentModule = require('assistos').loadModule('document', this.securityContext);
-            const paragraph= await documentModule.getParagraph(this.spaceId, this.documentId, this.paragraphId);
-            /* the image of the precedent paragraph if it exists or throw error */
-            /* todo why dont we have everything in one place? => one type of paragraph, that contains everything */
-            await llmModule.lipSync(this.spaceId, paragraph.cparagraph.config.audio.src, this.audioSrc, "PlayHT2.0", this.configs);
-            await documentModule.updateParagraphConfig(this.spaceId, this.documentId, this.paragraphId, paragraphConfig);
+            const utilModule = require('assistos').loadModule('util', this.securityContext);
+            await utilModule.constants.COMMANDS_CONFIG.COMMANDS.find(command => command.NAME === "lipsync").VALIDATE(this.spaceId, this.documentId, this.paragraphId, this.securityContext);
+
+            const paragraphConfig= await documentModule.getParagraphConfig(this.spaceId, this.documentId, this.paragraphId);
+            await llmModule.lipSync(this.spaceId,paragraphConfig.image.src, paragraphConfig.audio.src, "PlayHT2.0");
         } catch (e) {
             await this.rollback();
             throw e;
@@ -43,8 +42,6 @@ class LipSync extends Task {
             configs: {
                 documentId: this.documentId,
                 paragraphId: this.paragraphId,
-                ttsCommand: this.ttsCommand,
-                prompt: this.prompt
             }
         }
     }

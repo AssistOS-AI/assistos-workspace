@@ -55,6 +55,7 @@ export class ParagraphItem {
             }
         }
     }
+
     async deleteParagraph(_target) {
         await this.documentPresenter.stopTimer(true);
         let currentParagraphIndex = this.chapter.getParagraphIndex(this.paragraph.id);
@@ -76,12 +77,12 @@ export class ParagraphItem {
         let chapterElement = this.element.closest("chapter-item");
         let chapterPresenter = chapterElement.webSkelPresenter;
         let updateTasksMenu = false;
-        for(let [key, value] of Object.entries(this.paragraph.config.commands)){
-            for(let [innerKey, innerValue] of Object.entries(value)){
-                if(innerKey === "taskId") {
-                    try{
+        for (let [key, value] of Object.entries(this.paragraph.config.commands)) {
+            for (let [innerKey, innerValue] of Object.entries(value)) {
+                if (innerKey === "taskId") {
+                    try {
                         utilModule.cancelTask(innerValue);
-                    } catch (e){
+                    } catch (e) {
                         //task is not running
                     }
                     await utilModule.removeTask(innerValue);
@@ -90,7 +91,7 @@ export class ParagraphItem {
                 }
             }
         }
-        if(updateTasksMenu){
+        if (updateTasksMenu) {
             assistOS.space.notifyObservers(this._document.id + "/tasks");
         }
         chapterPresenter.invalidate(chapterPresenter.refreshChapter);
@@ -116,6 +117,7 @@ export class ParagraphItem {
         let chapterPresenter = this.element.closest("chapter-item").webSkelPresenter;
         chapterPresenter.invalidate(chapterPresenter.refreshChapter);
     }
+
     addParagraph() {
         let chapterPresenter = this.element.closest("chapter-item").webSkelPresenter;
         let mockEvent = {
@@ -125,8 +127,10 @@ export class ParagraphItem {
         }
         chapterPresenter.addParagraphOrChapterOnKeyPress(mockEvent);
     }
+
     beforeRender() {
         this.paragraphConfigs = utilModule.buildCommandsString(this.paragraph.config.commands);
+        this.loadedParagraphText = this.paragraph.text;
     }
 
     afterRender() {
@@ -241,10 +245,6 @@ export class ParagraphItem {
         await this.documentPresenter.stopTimer(true);
     }
 
-
-
-
-
     async resetTimerImage(paragraph, event) {
         if (event.key === "Backspace") {
             if (assistOS.space.currentParagraphId === this.paragraph.id) {
@@ -281,11 +281,7 @@ export class ParagraphItem {
             return;
         }
         let paragraphText = assistOS.UI.sanitize(paragraph.value);
-        let commandChanged = false;
         if (paragraphText !== this.paragraph.text) {
-            if (assistOS.UI.customTrim(paragraphText) !== assistOS.UI.customTrim(this.paragraph.text)) {
-                commandChanged = true;
-            }
             if (this.hasExternalChanges) {
                 this.hasExternalChanges = false;
                 return;
@@ -298,56 +294,6 @@ export class ParagraphItem {
                 paragraphId: this.paragraph.id,
                 text: paragraphText
             });
-        }
-        const commands = utilModule.findCommands(this.paragraphHeader.value);
-        if (commands.invalid) {
-            this.showCommandsError(commands.error);
-        } else {
-            this.paragraphHeader.value = utilModule.buildCommandsString(commands);
-            this.errorElement.innerText = "";
-            this.errorElement.classList.add("hidden");
-            const commandsDifferences = utilModule.getCommandsDifferences(this.paragraph.config.commands, commands);
-            if (commandChanged) {
-                for (let [commandType, commandStatus] of Object.entries(commandsDifferences)) {
-                    commandsDifferences[commandType] = "changed";
-                }
-            }
-            //TODO: put loader here for long operations
-            for (let [commandType, commandStatus] of Object.entries(commandsDifferences)) {
-                try {
-                    await this.handleCommand(commandType, commandStatus, commands[commandType]);
-                } catch (error) {
-                    this.showCommandsError(error);
-                    break;
-                }
-            }
-
-            const existDifferences = Object.values(commandsDifferences).some(value => value !== "same");
-            if (!existDifferences) {
-                return;
-            }
-
-            if (Object.entries(this.paragraph.config.commands).length === 0) {
-                this.paragraph.config.commands = commands;
-            } else {
-                for (let [key, value] of Object.entries(commands)) {
-                    if (commandsDifferences[key] !== "deleted") {
-                        if (!this.paragraph.config.commands[key]) {
-                            /* command has been added */
-                            this.paragraph.config.commands[key] = {};
-                        }
-                        for (let [innerKey, innerValue] of Object.entries(value)) {
-                            this.paragraph.config.commands[key][innerKey] = innerValue;
-                        }
-                    } else {
-                        /* command has been deleted */
-                        delete this.paragraph.config.commands[key];
-                    }
-                }
-
-
-            }
-            documentModule.updateParagraphConfig(assistOS.space.id, this._document.id, this.paragraph.id, this.paragraph.config);
         }
     }
 
@@ -387,7 +333,7 @@ export class ParagraphItem {
             this.style.height = 'auto';
             this.style.height = this.scrollHeight + 'px';
         });
-        if(this.paragraph.config.image){
+        if (this.paragraph.config.image) {
             this.imgContainer.classList.add("highlight-image");
         }
     }
@@ -399,6 +345,81 @@ export class ParagraphItem {
         this.errorElement.innerText = error;
     }
 
+    addUITask(taskId) {
+        let statusElement = this.element.querySelector('.task-status-icon');
+        statusElement.innerHTML = "";
+        assistOS.space.notifyObservers(this._document.id + "/tasks");
+        utilModule.subscribeToObject(taskId, async (status) => {
+            await this.changeTaskStatus(taskId, status);
+        });
+    }
+
+    async handleCommand(commandType, commandStatus, command) {
+        const handleSpeechCommand = async (commandStatus, command) => {
+            switch (commandStatus) {
+                case "new":
+                    const taskId = await utilModule.constants.COMMANDS_CONFIG.COMMANDS.find(command => command.NAME === "speech").EXECUTE(assistOS.space.id, this._document.id, this.paragraph.id,{});
+                    this.addUITask(taskId);
+                    break;
+                case "changed":
+                case "deleted":
+                case "same":
+            }
+        }
+        const handleLipSyncCommand = async (commandStatus, command) => {
+            switch (commandStatus) {
+                case "new":
+                    const taskId = await utilModule.constants.COMMANDS_CONFIG.COMMANDS.find(command => command.NAME === "speech").EXECUTE(assistOS.space.id, this._document.id, this.paragraph.id,{});
+                    this.addUITask(taskId);
+                    break;
+                case "changed":
+                case "deleted":
+                case "same":
+            }
+
+        }
+        const handleVideoCommand = async (commandStatus, command) => {
+            switch (commandStatus) {
+                case "new":
+                case "changed":
+                case "deleted":
+                case "same":
+            }
+
+        }
+        const handleSilenceCommand = async (commandStatus, command) => {
+            switch (commandStatus) {
+                case "new":
+                case "changed":
+                case "deleted":
+                case "same":
+            }
+        }
+
+        switch (commandType) {
+            case "speech":
+                return await handleSpeechCommand(commandStatus, command);
+            case "lipsync":
+                return await handleLipSyncCommand(commandStatus, command);
+            case "video":
+                return await handleVideoCommand(commandStatus, command);
+            case "silence":
+                return await handleSilenceCommand(commandStatus, command);
+        }
+
+    }
+
+    async validateCommand(commandType, commandStatus, command) {
+        switch (commandType) {
+            case "speech":
+                return await utilModule.constants.COMMANDS_CONFIG.COMMANDS.find(command => command.NAME === "speech").VALIDATE(assistOS.space.id, this._document.id, this.paragraph.id,{});
+            case "video":
+                return await utilModule.constants.COMMANDS_CONFIG.COMMANDS.find(command => command.NAME === "video").VALIDATE(assistOS.space.id, this._document.id, this.paragraph.id, {});
+            case "lipsync":
+                return await utilModule.constants.COMMANDS_CONFIG.COMMANDS.find(command => command.NAME === "lipsync").VALIDATE(assistOS.space.id, this._document.id, this.paragraph.id,{});
+        }
+    }
+
     async focusOutHandler() {
         this.switchParagraphArrows("off");
         this.paragraphHeader.setAttribute('readonly', 'true');
@@ -406,10 +427,67 @@ export class ParagraphItem {
         paragraphHeaderContainer.classList.remove("highlight-paragraph-header");
         let dragBorder = this.element.querySelector(".drag-border");
         dragBorder.style.display = "none";
-        if(this.paragraph.config.image) {
+        if (this.paragraph.config.image) {
             this.imgContainer.classList.remove("highlight-image");
         }
+        const commands = utilModule.findCommands(this.paragraphHeader.value);
+        if (commands.invalid) {
+            this.showCommandsError(commands.error);
+        } else {
+            this.paragraphHeader.value = utilModule.buildCommandsString(commands);
+            const commandsDifferences = utilModule.getCommandsDifferences(this.paragraph.config.commands, commands);
+            const textChanged = assistOS.UI.customTrim(this.loadedParagraphText) !== assistOS.UI.customTrim(this.paragraph.text);
+            if (textChanged) {
+                for (let [commandType, commandStatus] of Object.entries(commandsDifferences)) {
+                    if (commandStatus !== "new") {
+                        commandsDifferences[commandType] = "changed";
+                    }
+                }
+            }
+            const existDifferences = Object.values(commandsDifferences).some(value => value !== "same");
+            if (!existDifferences) {
+                return;
+            }
+            if (Object.entries(this.paragraph.config.commands).length === 0) {
+                this.paragraph.config.commands = commands;
+            } else {
+                Object.entries(commandsDifferences).forEach(([commandName, commandState]) => {
+                    if (commandState === "deleted") {
+                        delete this.paragraph.config.commands[commandName];
+                    } else {
+                        /* command added,updated or same */
+                        if (!this.paragraph.config.commands[commandName]) {
+                            /* added */
+                            this.paragraph.config.commands[commandName] = {};
+                        }
+                        for (let [commandField, commandFieldValue] of Object.entries(commands[commandName])) {
+                            this.paragraph.config.commands[commandName][commandField] = commandFieldValue;
+                        }
+                    }
+                });
+            }
+            await documentModule.updateParagraphConfig(assistOS.space.id, this._document.id, this.paragraph.id, this.paragraph.config);
+            let errorHandlingCommands = false;
+            for (let [commandType, commandStatus] of Object.entries(commandsDifferences)) {
+                try {
+                    await this.validateCommand(commandType, commandStatus, commands[commandType]);
+                } catch (error) {
+                    this.showCommandsError(error);
+                    errorHandlingCommands = true;
+                    break;
+                }
+            }
+
+            if (!errorHandlingCommands) {
+                this.errorElement.innerText = "";
+                this.errorElement.classList.add("hidden");
+                for (let [commandType, commandStatus] of Object.entries(commandsDifferences)) {
+                    await this.handleCommand(commandType, commandStatus, commands[commandType]);
+                }
+            }
+        }
     }
+
     focusOutHandlerImage() {
         this.switchParagraphArrows("off");
         let dragBorder = this.element.querySelector(".drag-border");
@@ -422,132 +500,6 @@ export class ParagraphItem {
         this.imgContainer.classList.remove("highlight-image");
     }
 
-    async handleCommand(commandType, commandStatus, command) {
-        switch (commandType) {
-            case "silence":
-                if (commandStatus === "same") {
-                }
-                if (commandStatus === "new") {
-                }
-                if (commandStatus === "deleted") {
-                }
-                if (commandStatus === "changed") {
-                }
-                break;
-            case "speech":
-                let paragraphText = this.element.querySelector('.paragraph-text').value;
-                let configs = await documentModule.getParagraphConfig(assistOS.space.id, this._document.id, this.paragraph.id);
-                let isValidTask = false;
-                let speechCommand = configs.commands["speech"];
-                let task;
-                if (speechCommand) {
-                    /* command already exists */
-                    if (speechCommand.taskId) {
-                        task = await utilModule.getTask(speechCommand.taskId);
-                        let validStatuses = ["created", "running", "pending"];
-                        if (validStatuses.includes(task.status)) {
-                            isValidTask = true;
-                        }
-                    }
-                }
-                if (commandStatus === "new" || commandStatus === "changed" || (commandStatus === "same" && this.textIsDifferentFromAudio && !isValidTask)) {
-                    if (speechCommand) {
-                        if (speechCommand.taskId) {
-                            if (task.status === "created") {
-                                await utilModule.removeTask(speechCommand.taskId);
-                                await utilModule.unsubscribeFromObject(speechCommand.taskId);
-                            } else if (task.status === "running") {
-                                await utilModule.cancelTaskAndRemove(speechCommand.taskId);
-                                await utilModule.unsubscribeFromObject(speechCommand.taskId);
-                            }
-                        }
-                    }
-                    let statusElement = this.element.querySelector('.task-status-icon');
-                    statusElement.innerHTML = "";
-
-                    const personalitySelected = command.paramsObject.personality;
-                    const personalityMetadata = assistOS.space.personalitiesMetadata.find(personality => personality.name === personalitySelected);
-                    if (!personalityMetadata) {
-                        throw `Personality ${personalitySelected} not found`;
-                    }
-                    const personalityData = await personalityModule.getPersonality(assistOS.space.id, personalityMetadata.id);
-                    if (!personalityData) {
-                        throw `Personality ${personalitySelected} has been deleted`;
-                    }
-                    if (!personalityData.voiceId) {
-                        throw `Personality ${personalitySelected} has no voice configured`;
-                    }
-                    let taskId = await documentModule.generateParagraphAudio(assistOS.space.id, this._document.id, this.paragraph.id, command, paragraphText);
-                    assistOS.space.notifyObservers(this._document.id + "/tasks");
-                    this.paragraph.config = await documentModule.getParagraphConfig(assistOS.space.id, this._document.id, this.paragraph.id);
-                    utilModule.subscribeToObject(taskId, async (status) => {
-                        await this.changeTaskStatus(taskId, status);
-                    });
-                }
-                if (commandStatus === "deleted") {
-                    // documentModule.deleteParagraphAudio(assistOS.space.id, this._document.id, this.paragraph.id).then(
-                    //     () => {
-                    //         this.invalidate(async () => {
-                    //             this.paragraph.config = await documentModule.getParagraphConfig(assistOS.space.id, this._document.id, this.paragraph.id);
-                    //         });
-                    //     })
-                }
-                break;
-            case "video":
-                if (commandStatus === "same") {
-                }
-                if (commandStatus === "new") {
-
-                }
-                if (commandStatus === "deleted") {
-
-                }
-                if (commandStatus === "changed") {
-                }
-                break;
-            case "lipsync":
-                if (commandStatus === "same") {
-
-                }
-                if (commandStatus === "new") {
-                    let configs = await documentModule.getParagraphConfig(assistOS.space.id, this._document.id, this.paragraph.id);
-                    if (configs.commands["speech"]) {
-                        let speechCommand = configs.commands["speech"];
-                        if (speechCommand.taskId) {
-                            let task = await utilModule.getTask(speechCommand.taskId);
-                            switch (task.status) {
-                                case "running":
-                                    throw ("Cannot lipSync paragraph while speech command is running");
-                                case "created":
-                                    throw ("Cannot lipSync paragraph before speech task is executed");
-                                case "canceled":
-                                    throw ("Cannot lipSync paragraph because speech task was canceled");
-                                case "failed":
-                                    throw ("Cannot lipSync paragraph because speech task failed");
-                                case "completed":
-                                    let taskId = await documentModule.generateParagraphLipSync(assistOS.space.id, this._document.id, this.paragraph.id, "PlayHT2.0");
-                                    assistOS.space.notifyObservers(this._document.id + "/tasks");
-                                    this.paragraph.config = await documentModule.getParagraphConfig(assistOS.space.id, this._document.id, this.paragraph.id);
-                                    utilModule.subscribeToObject(taskId, async (status) => {
-                                        await this.changeTaskStatus(taskId, status);
-                                    });
-                            }
-                        }
-                    } else {
-                        throw ("Paragraph Must have a speech command before adding a lip sync command");
-                    }
-
-                }
-                if (commandStatus === "deleted") {
-
-                }
-                if (commandStatus === "changed") {
-
-                }
-                break;
-        }
-
-    }
 
     async changeTaskStatus(taskId, status) {
         let statusElement = this.element.querySelector('.task-status-icon');
@@ -710,7 +662,7 @@ export class ParagraphItem {
                  <list-item data-local-action="addChapter" data-name="Add Chapter"
                            data-highlight="light-highlight"></list-item>
                  `;
-            if(this.paragraph.config.image){
+            if (this.paragraph.config.image) {
                 baseDropdownMenuHTML = `
                 <list-item data-local-action="deleteImage" data-name="Delete Image" 
                            data-highlight="light-highlight"></list-item>` + baseDropdownMenuHTML;
@@ -858,6 +810,7 @@ export class ParagraphItem {
             this.invalidate();
         }
     }
+
     async deleteImage(_target) {
         delete this.paragraph.config.image;
         await documentModule.updateParagraphConfig(assistOS.space.id, this._document.id, this.paragraph.id, this.paragraph.config);

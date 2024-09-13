@@ -27,24 +27,43 @@ async function compileVideoFromDocument(request, response) {
 async function textToSpeechParagraph(request, response) {
     try {
         const spaceId = request.params.spaceId;
-        const documentId = request.params.documentId;
         const userId = request.userId;
-        const paragraphId = request.params.paragraphId;
-        const SecurityContext = require("assistos").ServerSideSecurityContext;
-        const ttsCommand = request.body.command;
-        const prompt = request.body.text;
         const sessionId = request.sessionId;
 
+        const documentId = request.params.documentId;
+        const paragraphId = request.params.paragraphId;
+
+        const SecurityContext = require("assistos").ServerSideSecurityContext;
         let securityContext = new SecurityContext(request);
-        let task = new TextToSpeech(securityContext, spaceId, userId, {documentId, paragraphId, ttsCommand, prompt});
+
+        const documentModule = require("assistos").loadModule("document", securityContext);
+
+        const paragraph = await documentModule.getParagraph(spaceId, documentId, paragraphId);
+        const paragraphConfig = await documentModule.getParagraphConfig(spaceId, documentId, paragraphId);
+
+        if(!paragraph){
+            return utils.sendResponse(response, 400, "application/json", {
+                success: false,
+                message: "Paragraph not found"
+            });
+        }
+        if(!paragraphConfig.commands["speech"]){
+            return utils.sendResponse(response, 400, "application/json", {
+                success: false,
+                message: "Paragraph does not have a speech command"
+            })
+        }
+        const task = new TextToSpeech(securityContext, spaceId, userId, {
+            documentId,
+            paragraphId,
+        });
         await TaskManager.addTask(task);
 
-        eventPublisher.notifyClients(sessionId, documentId + "/tasks");
-        let documentModule = require("assistos").loadModule("document", securityContext);
-
-        let paragraphConfig = await documentModule.getParagraphConfig(spaceId, documentId, paragraphId);
         paragraphConfig.commands["speech"].taskId = task.id;
         await documentModule.updateParagraphConfig(spaceId, documentId, paragraphId, paragraphConfig);
+
+        eventPublisher.notifyClients(sessionId, documentId + "/tasks");
+
         utils.sendResponse(response, 200, "application/json", {
             success: true,
             data: task.id,
@@ -61,12 +80,15 @@ async function textToSpeechParagraph(request, response) {
 async function lipSyncParagraph(request, response) {
     try {
         const spaceId = request.params.spaceId;
-        const documentId = request.params.documentId;
         const userId = request.userId;
-        const paragraphId = request.params.paragraphId;
         const sessionId = request.sessionId;
+
+        const documentId = request.params.documentId;
+        const paragraphId = request.params.paragraphId;
+
         const SecurityContext = require("assistos").ServerSideSecurityContext;
         let securityContext = new SecurityContext(request);
+
         let task = new LipSync(securityContext, spaceId, userId, {documentId, paragraphId});
         await TaskManager.addTask(task);
 
@@ -76,6 +98,7 @@ async function lipSyncParagraph(request, response) {
         let paragraphConfig = await documentModule.getParagraphConfig(spaceId, documentId, paragraphId);
         paragraphConfig.commands["lipsync"].taskId = task.id;
         await documentModule.updateParagraphConfig(spaceId, documentId, paragraphId, paragraphConfig);
+
         utils.sendResponse(response, 200, "application/json", {
             success: true,
             data: task.id,

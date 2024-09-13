@@ -5,6 +5,7 @@ const space = require('../spaces-storage/space');
 const constants = require('./constants');
 const STATUS = constants.STATUS;
 const EVENTS = constants.EVENTS;
+
 class TaskManager {
     constructor() {
         this.tasks = [];
@@ -12,34 +13,37 @@ class TaskManager {
         this.queue = [];
         this.maxRunningTasks = 3;
     }
+
     async initialize() {
         let spaceMapPath = space.APIs.getSpaceMapPath();
-        let spacesMap =  JSON.parse(await fsPromises.readFile(spaceMapPath, 'utf-8'));
-        for(let spaceId in spacesMap){
+        let spacesMap = JSON.parse(await fsPromises.readFile(spaceMapPath, 'utf-8'));
+        for (let spaceId in spacesMap) {
             let lightDBEnclaveClient = enclave.initialiseLightDBEnclave(spaceId);
             let records = await $$.promisify(lightDBEnclaveClient.getAllRecords)($$.SYSTEM_IDENTIFIER, this.tasksTable);
-            for(let record of records){
+            for (let record of records) {
                 let task = record.data;
                 let taskClass = require(`./${task.name}`);
                 let taskInstance = new taskClass(task.securityContext, task.spaceId, task.userId, task.configs);
                 taskInstance.id = task.id; //set the original id
                 taskInstance.setStatus(task.status) //set the original status
-                if(taskInstance.status === STATUS.RUNNING){
+                if (taskInstance.status === STATUS.RUNNING) {
                     taskInstance.setStatus(STATUS.CANCELLED);
                 }
                 this.tasks.push(taskInstance);
-                if(taskInstance.status === STATUS.PENDING){
+                if (taskInstance.status === STATUS.PENDING) {
                     this.runTask(taskInstance.id);
                 }
                 this.setUpdateDBHandler(lightDBEnclaveClient, taskInstance);
             }
         }
     }
-    setUpdateDBHandler(lightDBEnclaveClient, task){
+
+    setUpdateDBHandler(lightDBEnclaveClient, task) {
         task.on(EVENTS.UPDATE, async () => {
             await $$.promisify(lightDBEnclaveClient.updateRecord)($$.SYSTEM_IDENTIFIER, this.tasksTable, task.id, {data: task.serialize()});
         });
     }
+
     async addTask(task) {
         if (!(task instanceof Task)) {
             throw new Error('object provided is not an instance of Task');
@@ -49,6 +53,7 @@ class TaskManager {
         await $$.promisify(lightDBEnclaveClient.insertRecord)($$.SYSTEM_IDENTIFIER, this.tasksTable, task.id, {data: task.serialize()});
         this.setUpdateDBHandler(lightDBEnclaveClient, task);
     }
+
     cancelTask(taskId) {
         let task = this.tasks.find(task => task.id === taskId);
         if (!task) {
@@ -56,6 +61,7 @@ class TaskManager {
         }
         task.cancel();
     }
+
     async cancelTaskAndRemove(taskId) {
         let task = this.tasks.find(task => task.id === taskId);
         if (!task) {
@@ -64,9 +70,10 @@ class TaskManager {
         task.cancel();
         await this.removeTask(taskId);
     }
+
     async removeTask(taskId) {
         let task = this.tasks.find(task => task.id === taskId);
-        if(!task){
+        if (!task) {
             throw new Error('Task not found');
         }
         let spaceId = task.spaceId;
@@ -74,6 +81,7 @@ class TaskManager {
         let lightDBEnclaveClient = enclave.initialiseLightDBEnclave(spaceId);
         await $$.promisify(lightDBEnclaveClient.deleteRecord)($$.SYSTEM_IDENTIFIER, this.tasksTable, taskId);
     }
+
     getTask(taskId) {
         let task = this.tasks.find(task => task.id === taskId);
         if (!task) {
@@ -81,12 +89,15 @@ class TaskManager {
         }
         return task;
     }
+
     serializeTasks(spaceId) {
         return this.tasks.filter(task => task.spaceId === spaceId).map(task => task.serialize());
     }
+
     getRunningTasks() {
         return this.tasks.filter(task => task.status === STATUS.RUNNING);
     }
+
     runTask(taskId) {
         let runningTasks = this.getRunningTasks();
         let task = this.tasks.find(task => task.id === taskId);
@@ -101,7 +112,8 @@ class TaskManager {
             task.run();
         }
     }
-    setQueueCallbacks(task){
+
+    setQueueCallbacks(task) {
         task.on(STATUS.COMPLETED, () => {
             this.queue = this.queue.filter(t => t.id !== task.id);
             this.runNextTask();
@@ -126,7 +138,7 @@ class TaskManager {
 }
 
 const taskManager = new TaskManager();
-(async ()=>{
+(async () => {
     await taskManager.initialize();
 })();
 module.exports = taskManager;
