@@ -37,6 +37,13 @@ paragraph-item {
     margin-left: 4px;
     cursor: pointer;
 }
+.header-sections{
+    display: grid;
+    grid-template-columns: 1fr auto;
+    gap: 10px;
+    align-items: start;
+    width: 100%;
+}
 .paragraph-configs{
     overflow: hidden;
     resize: none;
@@ -45,10 +52,29 @@ paragraph-item {
     white-space: pre-wrap;
     overflow-wrap: break-word;
     word-break: break-word;
-    width: 100%;
     background:inherit;
-    min-height:44px;
     padding-left: 10px;
+}
+.paragraph-tasks{
+    height: 100%;
+    overflow: hidden;
+    white-space: pre-wrap;
+    overflow-wrap: break-word;
+    word-break: break-word;
+    background:inherit;
+    padding: 2px;
+    display: flex;
+    flex-direction: column;
+    justify-content: space-evenly;
+}
+.task-line{
+    display: flex;
+}
+.task-result{
+    margin-left: 3px;
+}
+.paragraph-tasks a{
+    text-align: center;
 }
 .paragraph-controls {
     height: 45px;
@@ -168,13 +194,7 @@ paragraph-item {
     width: fit-content;
     position: relative;
 }
-.task-status-icon{
-    width: 100%;
-    display: flex;
-    justify-content: center;
-    position: absolute;
-    top:-10px
-}
+
 /*image*/
 .paragraph-image {
     max-width: 100%;

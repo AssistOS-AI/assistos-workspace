@@ -35,6 +35,15 @@ export class ParagraphItem {
                 this.paragraph.config = await documentModule.getParagraphConfig(assistOS.space.id, this._document.id, this.paragraph.id);
             }
         });
+        for(let [commandType, commandDetails] of Object.entries(this.paragraph.config.commands)){
+            for(let [key, value] of Object.entries(commandDetails)){
+                if(key === "task") {
+                    utilModule.subscribeToObject(value.id, async (status) => {
+                        await this.changeTaskStatus(value.id, status);
+                    });
+                }
+            }
+        }
         await this.prepareTaskIcon();
     }
 
@@ -130,6 +139,7 @@ export class ParagraphItem {
 
     beforeRender() {
         this.paragraphConfigs = utilModule.buildCommandsString(this.paragraph.config.commands);
+        this.tasksInfo = this.buildTasksInfoHTML("view");
         this.loadedParagraphText = this.paragraph.text;
     }
 
@@ -321,6 +331,8 @@ export class ParagraphItem {
         let paragraphText = this.element.querySelector('.paragraph-text');
         paragraphText.classList.add("highlight-paragraph");
         this.imgContainer.classList.add("highlight-image");
+        let tasksInfo = this.element.querySelector('.tasks-info');
+        tasksInfo.innerHTML = this.buildTasksInfoHTML("edit");
     }
 
     highlightParagraph() {
@@ -336,6 +348,41 @@ export class ParagraphItem {
         if (this.paragraph.config.image) {
             this.imgContainer.classList.add("highlight-image");
         }
+        let tasksInfo = this.element.querySelector('.tasks-info');
+        tasksInfo.innerHTML = this.buildTasksInfoHTML("edit");
+    }
+    buildTasksInfoHTML(mode) {
+        let html = "";
+        if(mode === "view"){
+            for(let [commandType, commandDetails] of Object.entries(this.paragraph.config.commands)){
+                for(let [key, value] of Object.entries(commandDetails)) {
+                    if(key === "task") {
+                        html += `
+                        <div class="task-line" data-id="${value.id}">
+                            <div class="paragraph-task-status">Status: Unknown</div>
+                            <div class="task-result">Result:</div>
+                            <a href="${value.resultSrc}" class="tasks-info">${value.resultType}</a>
+                        </div> `;
+                    }
+                }
+            }
+        } else {
+            for(let [commandType, commandDetails] of Object.entries(this.paragraph.config.commands)){
+                for(let [key, value] of Object.entries(commandDetails)) {
+                    if(key === "task") {
+                        html += `
+                        <div class="task-line" data-id="${value.id}">
+                            <div>Task ID: ${value.id}</div>
+                            <div class="paragraph-task-status">Task Status: Unknown</div>
+                            <div class="task-result">Result ID: ${value.resultId}</div>
+                            <div class="task-result">Result Src:</div>
+                            <a href="${value.resultSrc}" class="tasks-info">${value.resultSrc}</a>
+                        </div> `;
+                    }
+                }
+            }
+        }
+        return html;
     }
 
     showCommandsError(error) {
@@ -421,6 +468,8 @@ export class ParagraphItem {
     }
 
     async focusOutHandler() {
+        let tasksInfo = this.element.querySelector('.tasks-info');
+        tasksInfo.innerHTML = this.buildTasksInfoHTML("view");
         this.switchParagraphArrows("off");
         this.paragraphHeader.setAttribute('readonly', 'true');
         let paragraphHeaderContainer = this.element.querySelector('.paragraph-header');
@@ -489,6 +538,8 @@ export class ParagraphItem {
     }
 
     focusOutHandlerImage() {
+        let tasksInfo = this.element.querySelector('.tasks-info');
+        tasksInfo.innerHTML = this.buildTasksInfoHTML("view");
         this.switchParagraphArrows("off");
         let dragBorder = this.element.querySelector(".drag-border");
         dragBorder.style.display = "none";
@@ -502,18 +553,13 @@ export class ParagraphItem {
 
 
     async changeTaskStatus(taskId, status) {
-        let statusElement = this.element.querySelector('.task-status-icon');
-        if (status === "running") {
-            statusElement.innerHTML = `<div class="loading-icon small top-margin"></div>`;
-        } else if (status === "completed") {
-            statusElement.innerHTML = "";
-            this.paragraph.config = await documentModule.getParagraphConfig(assistOS.space.id, this._document.id, this.paragraph.id);
-            this.textIsDifferentFromAudio = false;
-        } else if (status === "failed") {
-            this.paragraph.config = await documentModule.getParagraphConfig(assistOS.space.id, this._document.id, this.paragraph.id);
-            statusElement.innerHTML = `<img src="./wallet/assets/icons/error.svg" class="error-icon" alt="error">`;
-        } else if (status === "cancelled") {
-            statusElement.innerHTML = "";
+        let taskLine = this.element.querySelector(`.task-line[data-id="${taskId}"]`);
+        if (taskLine) {
+            let taskStatus = taskLine.querySelector(".paragraph-task-status");
+            taskStatus.innerText = `Status: ${status}`;
+            if (status === "completed") {
+                taskLine.classList.add("completed-task");
+            }
         }
     }
 
