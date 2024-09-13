@@ -159,15 +159,23 @@ export class ParagraphItem {
         if (!this.boundPreventSelectionChange) {
             this.boundPreventSelectionChange = this.preventSelectionChange.bind(this);
         }
+        let headerSection = this.element.querySelector(".header-sections");
+        headerSection.style.height = headerSection.scrollHeight + 'px';
         this.paragraphHeader = this.element.querySelector(".paragraph-configs");
-        this.paragraphHeader.style.height = this.paragraphHeader.scrollHeight + 'px';
+        if(!this.boundResizeHeader){
+            this.boundResizeHeader = this.resizeHeader.bind(this, headerSection);
+            this.paragraphHeader.addEventListener('input', this.boundResizeHeader);
+        }
         this.errorElement = this.element.querySelector(".error-message");
-
         if (this.paragraph.config.image) {
             this.setupImage();
         }
     }
-
+    resizeHeader(headerSection, event){
+        this.paragraphHeader.style.height = 'auto';
+        this.paragraphHeader.style.height = this.paragraphHeader.scrollHeight + 'px';
+        headerSection.style.height = headerSection.scrollHeight + 'px';
+    }
     renderImageMaxWidth() {
         if (this.paragraph.config.image.dimensions) {
             this.imgElement.style.width = this.paragraph.config.image.dimensions.width + "px";
@@ -324,14 +332,10 @@ export class ParagraphItem {
         this.paragraphHeader.removeAttribute('readonly');
         let paragraphHeaderContainer = this.element.querySelector('.paragraph-header');
         paragraphHeaderContainer.classList.add("highlight-paragraph-header");
-        this.paragraphHeader.addEventListener('input', function () {
-            this.style.height = 'auto';
-            this.style.height = this.scrollHeight + 'px';
-        });
         let paragraphText = this.element.querySelector('.paragraph-text');
         paragraphText.classList.add("highlight-paragraph");
         this.imgContainer.classList.add("highlight-image");
-        let tasksInfo = this.element.querySelector('.tasks-info');
+        let tasksInfo = this.element.querySelector('.paragraph-tasks');
         tasksInfo.innerHTML = this.buildTasksInfoHTML("edit");
     }
 
@@ -348,37 +352,29 @@ export class ParagraphItem {
         if (this.paragraph.config.image) {
             this.imgContainer.classList.add("highlight-image");
         }
-        let tasksInfo = this.element.querySelector('.tasks-info');
+        let tasksInfo = this.element.querySelector('.paragraph-tasks');
         tasksInfo.innerHTML = this.buildTasksInfoHTML("edit");
     }
     buildTasksInfoHTML(mode) {
         let html = "";
         if(mode === "view"){
             for(let [commandType, commandDetails] of Object.entries(this.paragraph.config.commands)){
-                for(let [key, value] of Object.entries(commandDetails)) {
-                    if(key === "task") {
-                        html += `
-                        <div class="task-line" data-id="${value.id}">
-                            <div class="paragraph-task-status">Status: Unknown</div>
-                            <div class="task-result">Result:</div>
-                            <a href="${value.resultSrc}" class="tasks-info">${value.resultType}</a>
-                        </div> `;
-                    }
+                if(commandType === "image"){
+                    html += `<a href="${commandDetails.src}" class="tasks-info" data-id="${commandDetails.id}">Image</a>`;
+                } else if(commandType === "audio"){
+                    html += `<a href="${commandDetails.src}" class="tasks-info" data-id="${commandDetails.id}">Audio</a>`;
+                } else if(commandType === "video"){
+                    html += `<a href="${commandDetails.src}" class="tasks-info" data-id="${commandDetails.id}">Video</a>`;
                 }
             }
         } else {
             for(let [commandType, commandDetails] of Object.entries(this.paragraph.config.commands)){
-                for(let [key, value] of Object.entries(commandDetails)) {
-                    if(key === "task") {
-                        html += `
-                        <div class="task-line" data-id="${value.id}">
-                            <div>Task ID: ${value.id}</div>
-                            <div class="paragraph-task-status">Task Status: Unknown</div>
-                            <div class="task-result">Result ID: ${value.resultId}</div>
-                            <div class="task-result">Result Src:</div>
-                            <a href="${value.resultSrc}" class="tasks-info">${value.resultSrc}</a>
-                        </div> `;
-                    }
+                if(commandType === "image"){
+                    html += `image src=${commandDetails.src} id=${commandDetails.id} width=${commandDetails.width} height=${commandDetails.height}\n`;
+                } else if(commandType === "audio"){
+                    html += `audio src=${commandDetails.src} id=${commandDetails.id}\n`;
+                } else if(commandType === "video"){
+                    html += `video src=${commandDetails.src} id=${commandDetails.id}\n`;
                 }
             }
         }
@@ -393,8 +389,6 @@ export class ParagraphItem {
     }
 
     addUITask(taskId) {
-        let statusElement = this.element.querySelector('.task-status-icon');
-        statusElement.innerHTML = "";
         assistOS.space.notifyObservers(this._document.id + "/tasks");
         utilModule.subscribeToObject(taskId, async (status) => {
             await this.changeTaskStatus(taskId, status);
@@ -468,7 +462,7 @@ export class ParagraphItem {
     }
 
     async focusOutHandler() {
-        let tasksInfo = this.element.querySelector('.tasks-info');
+        let tasksInfo = this.element.querySelector('.paragraph-tasks');
         tasksInfo.innerHTML = this.buildTasksInfoHTML("view");
         this.switchParagraphArrows("off");
         this.paragraphHeader.setAttribute('readonly', 'true');
@@ -534,6 +528,9 @@ export class ParagraphItem {
                     await this.handleCommand(commandType, commandStatus, commands[commandType]);
                 }
             }
+            this.invalidate(async () => {
+                this.paragraph.config = await documentModule.getParagraphConfig(assistOS.space.id, this._document.id, this.paragraph.id);
+            });
         }
     }
 

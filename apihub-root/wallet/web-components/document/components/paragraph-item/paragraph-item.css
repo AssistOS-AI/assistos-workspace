@@ -38,11 +38,10 @@ paragraph-item {
     cursor: pointer;
 }
 .header-sections{
-    display: grid;
-    grid-template-columns: 1fr auto;
-    gap: 10px;
-    align-items: start;
+    display: flex;
+    flex-direction: column;
     width: 100%;
+    height: auto;
 }
 .paragraph-configs{
     overflow: hidden;

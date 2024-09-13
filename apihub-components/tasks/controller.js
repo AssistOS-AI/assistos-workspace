@@ -63,7 +63,6 @@ async function textToSpeechParagraph(request, response) {
         await documentModule.updateParagraphConfig(spaceId, documentId, paragraphId, paragraphConfig);
 
         eventPublisher.notifyClients(sessionId, documentId + "/tasks");
-
         utils.sendResponse(response, 200, "application/json", {
             success: true,
             data: task.id,
