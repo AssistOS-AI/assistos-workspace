@@ -164,13 +164,13 @@ export class DocumentVideoPreview {
         this.paragraphIndex -= 1;
         if (this.paragraphIndex < 0) {
             this.chapterIndex -= 1;
+            if(this.chapterIndex < 0){
+                console.log("reached start of document");
+                return;
+            }
             this.paragraphIndex = this.document.chapters[this.chapterIndex].paragraphs.length - 1;
         }
-        if(this.chapterIndex < 0){
-            console.log("reached start of document");
-            this.paragraphIndex = 0;
-            this.chapterIndex = 0;
-        }
+
     }
 
     incrementParagraphIndex() {
@@ -181,8 +181,6 @@ export class DocumentVideoPreview {
         }
         if (this.chapterIndex === this.document.chapters.length) {
             console.log("reached end of document");
-            this.chapterIndex = this.document.chapters.length - 1;
-            this.paragraphIndex = this.document.chapters[this.chapterIndex].paragraphs.length - 1;
         }
     }
 
@@ -370,7 +368,7 @@ export class DocumentVideoPreview {
         let currentMode = playPause.getAttribute("data-mode");
         let paragraph = this.document.chapters[this.chapterIndex].paragraphs[this.paragraphIndex];
         this.incrementParagraphIndex();
-        if (this.chapterIndex === this.document.chapters.length - 1 && this.paragraphIndex === this.document.chapters[this.chapterIndex].paragraphs.length - 1) {
+        if (this.chapterIndex === this.document.chapters.length) {
             //reached end of document
             this.audioPlayer.pause();
             this.prepareVideoForReload();
@@ -389,6 +387,7 @@ export class DocumentVideoPreview {
             }
             //player is paused
             this.loadResource("audio", paragraph.config.audio.src);
+            this.loadResource("image", paragraph.config.image.src || "./wallet/assets/images/black-screen.png");
             this.scrollDocument();
         } else if (paragraph.config.commands["silence"]) {
             this.nextButton.classList.add("disabled");
@@ -439,27 +438,29 @@ export class DocumentVideoPreview {
         this.cancelTimeouts();
         let playPause = this.element.querySelector(".play-pause");
         let currentMode = playPause.getAttribute("data-mode");
+        let paragraph;
         //skip previous is called at the end of the document
         if (currentMode === "reload") {
             playPause.setAttribute("data-mode", "play");
             playPause.innerHTML = `<img class="pointer" src="./wallet/assets/icons/pause.svg" alt="pause">`;
             this.nextButton.classList.remove("disabled");
             currentMode = "play";
+            this.chapterIndex = this.document.chapters.length - 1;
+            this.paragraphIndex = this.document.chapters[this.document.chapters.length - 1].paragraphs.length - 1;
+
+            let lastChapter = this.document.chapters[this.chapterIndex];
+            paragraph = lastChapter.paragraphs[this.paragraphIndex];
+        } else {
+            paragraph = this.document.chapters[this.chapterIndex].paragraphs[this.paragraphIndex];
+            this.decrementParagraphIndex();
         }
 
-        let paragraph = this.document.chapters[this.chapterIndex].paragraphs[this.paragraphIndex];
-        this.decrementParagraphIndex();
-
-        if (this.paragraphIndex === 0 && this.chapterIndex === 0) {
+        if (this.chapterIndex < 0) {
             //reached start of document
             this.loadResource("image", "./wallet/assets/images/black-screen.png");
             this.setCurrentParagraphAndChapter(0, 0);
             this.audioPlayer.currentTime = 0;
             this.audioPlayer.src = "";
-            this.currentFrame = {
-                imageSrc: "",
-                audioSrc: ""
-            }
             this.previousButton.classList.add("disabled");
 
             this.resetTimestamp();
