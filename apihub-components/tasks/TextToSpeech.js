@@ -17,7 +17,7 @@ class TextToSpeech extends Task {
             await utilModule.constants.COMMANDS_CONFIG.COMMANDS.find(command => command.NAME === "speech").VALIDATE(this.spaceId, this.documentId, this.paragraphId, this.securityContext);
 
             const paragraphConfig = await documentModule.getParagraphConfig(this.spaceId, this.documentId, this.paragraphId);
-            const personalityData = await personalityModule.getPersonalityByName(this.spaceId, paragraphConfig.commands["speech"].personality);
+            const personalityData = await personalityModule.getPersonalityByName(this.spaceId, paragraphConfig.commands["speech"].paramsObject.personality);
 
             const audioBlob = await llmModule.textToSpeech(this.spaceId, {
                 prompt: this.prompt,
