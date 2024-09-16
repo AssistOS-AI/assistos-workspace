@@ -35,7 +35,6 @@ class TextToSpeech extends Task {
             this.audioId = crypto.generateId();
             paragraphConfig.audio = {
                 id: this.audioId,
-                src: `spaces/audio/${this.spaceId}/${this.audioId}`
             }
             await documentModule.updateParagraphCommands(this.spaceId, this.documentId, this.paragraphId, paragraphConfig);
             await space.APIs.putAudio(this.spaceId, this.audioId, audioBlob);
