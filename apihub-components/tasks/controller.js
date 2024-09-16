@@ -39,7 +39,7 @@ async function textToSpeechParagraph(request, response) {
         const documentModule = require("assistos").loadModule("document", securityContext);
 
         const paragraph = await documentModule.getParagraph(spaceId, documentId, paragraphId);
-        const paragraphConfig = await documentModule.getParagraphConfig(spaceId, documentId, paragraphId);
+        const paragraphConfig = await documentModule.getParagraphCommands(spaceId, documentId, paragraphId);
 
         if(!paragraph){
             return utils.sendResponse(response, 400, "application/json", {
@@ -60,7 +60,7 @@ async function textToSpeechParagraph(request, response) {
         await TaskManager.addTask(task);
 
         paragraphConfig.commands["speech"].taskId = task.id;
-        await documentModule.updateParagraphConfig(spaceId, documentId, paragraphId, paragraphConfig);
+        await documentModule.updateParagraphCommands(spaceId, documentId, paragraphId, paragraphConfig);
 
         eventPublisher.notifyClients(sessionId, documentId + "/tasks");
         utils.sendResponse(response, 200, "application/json", {
@@ -94,9 +94,9 @@ async function lipSyncParagraph(request, response) {
         eventPublisher.notifyClients(sessionId, documentId + "/tasks");
         let documentModule = require("assistos").loadModule("document", securityContext);
 
-        let paragraphConfig = await documentModule.getParagraphConfig(spaceId, documentId, paragraphId);
+        let paragraphConfig = await documentModule.getParagraphCommands(spaceId, documentId, paragraphId);
         paragraphConfig.commands["lipsync"].taskId = task.id;
-        await documentModule.updateParagraphConfig(spaceId, documentId, paragraphId, paragraphConfig);
+        await documentModule.updateParagraphCommands(spaceId, documentId, paragraphId, paragraphConfig);
 
         utils.sendResponse(response, 200, "application/json", {
             success: true,

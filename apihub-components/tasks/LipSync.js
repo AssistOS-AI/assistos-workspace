@@ -12,7 +12,7 @@ class LipSync extends Task {
             const utilModule = require('assistos').loadModule('util', this.securityContext);
             await utilModule.constants.COMMANDS_CONFIG.COMMANDS.find(command => command.NAME === "lipsync").VALIDATE(this.spaceId, this.documentId, this.paragraphId, this.securityContext);
 
-            const paragraphConfig= await documentModule.getParagraphConfig(this.spaceId, this.documentId, this.paragraphId);
+            const paragraphConfig= await documentModule.getParagraphCommands(this.spaceId, this.documentId, this.paragraphId);
             await llmModule.lipSync(this.spaceId,paragraphConfig.image.src, paragraphConfig.audio.src, "PlayHT2.0");
         } catch (e) {
             await this.rollback();

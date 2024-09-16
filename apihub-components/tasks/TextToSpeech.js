@@ -16,7 +16,7 @@ class TextToSpeech extends Task {
 
             await utilModule.constants.COMMANDS_CONFIG.COMMANDS.find(command => command.NAME === "speech").VALIDATE(this.spaceId, this.documentId, this.paragraphId, this.securityContext);
 
-            const paragraphConfig = await documentModule.getParagraphConfig(this.spaceId, this.documentId, this.paragraphId);
+            const paragraphConfig = await documentModule.getParagraphCommands(this.spaceId, this.documentId, this.paragraphId);
             const personalityData = await personalityModule.getPersonalityByName(this.spaceId, paragraphConfig.commands["speech"].paramsObject.personality);
 
             const audioBlob = await llmModule.textToSpeech(this.spaceId, {
@@ -34,7 +34,7 @@ class TextToSpeech extends Task {
                 id: this.audioId,
                 src: `spaces/audio/${this.spaceId}/${this.audioId}`
             }
-            await documentModule.updateParagraphConfig(this.spaceId, this.documentId, this.paragraphId, paragraphConfig);
+            await documentModule.updateParagraphCommands(this.spaceId, this.documentId, this.paragraphId, paragraphConfig);
             await space.APIs.putAudio(this.spaceId, this.audioId, audioBlob);
         } catch (e) {
             await this.rollback();
@@ -45,10 +45,10 @@ class TextToSpeech extends Task {
     async rollback() {
         try {
             const documentModule = require('assistos').loadModule('document', this.securityContext);
-            const paragraphConfig = await documentModule.getParagraphConfig(this.spaceId, this.documentId, this.paragraphId);
+            const paragraphConfig = await documentModule.getParagraphCommands(this.spaceId, this.documentId, this.paragraphId);
             delete paragraphConfig.audio;
             delete paragraphConfig.commands["speech"].taskId;
-            await documentModule.updateParagraphConfig(this.spaceId, this.documentId, this.paragraphId, paragraphConfig);
+            await documentModule.updateParagraphCommands(this.spaceId, this.documentId, this.paragraphId, paragraphConfig);
             if(this.audioId){
                 await space.APIs.deleteAudio(this.spaceId, this.audioId);
             }

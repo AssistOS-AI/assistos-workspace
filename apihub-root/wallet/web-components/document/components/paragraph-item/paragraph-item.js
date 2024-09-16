@@ -31,11 +31,11 @@ export class ParagraphItem {
                 this.hasExternalChanges = true;
                 this.invalidate();
 
-            } else if (type === "config") {
-                this.paragraph.config = await documentModule.getParagraphConfig(assistOS.space.id, this._document.id, this.paragraph.id);
+            } else if (type === "commands") {
+                this.paragraph.commands = await documentModule.getParagraphCommands(assistOS.space.id, this._document.id, this.paragraph.id);
             }
         });
-        for(let [commandType, commandDetails] of Object.entries(this.paragraph.config.commands)){
+        for(let [commandType, commandDetails] of Object.entries(this.paragraph.commands)){
             for(let [key, value] of Object.entries(commandDetails)){
                 if(key === "task") {
                     utilModule.subscribeToObject(value.id, async (status) => {
@@ -48,7 +48,7 @@ export class ParagraphItem {
     }
 
     async prepareTaskIcon() {
-        let speechCommand = this.paragraph.config.commands["speech"];
+        let speechCommand = this.paragraph.commands["speech"];
         if (speechCommand) {
             if (speechCommand.taskId) {
                 let task = await utilModule.getTask(speechCommand.taskId);
@@ -86,7 +86,7 @@ export class ParagraphItem {
         let chapterElement = this.element.closest("chapter-item");
         let chapterPresenter = chapterElement.webSkelPresenter;
         let updateTasksMenu = false;
-        for (let [key, value] of Object.entries(this.paragraph.config.commands)) {
+        for (let [key, value] of Object.entries(this.paragraph.commands)) {
             for (let [innerKey, innerValue] of Object.entries(value)) {
                 if (innerKey === "taskId") {
                     try {
@@ -138,7 +138,7 @@ export class ParagraphItem {
     }
 
     beforeRender() {
-        this.paragraphConfigs = utilModule.buildCommandsString(this.paragraph.config.commands);
+        this.paragraphConfigs = utilModule.buildCommandsString(this.paragraph.commands);
         this.tasksInfo = this.buildTasksInfoHTML("view");
         this.loadedParagraphText = this.paragraph.text;
     }
@@ -161,13 +161,13 @@ export class ParagraphItem {
         }
         let headerSection = this.element.querySelector(".header-sections");
         headerSection.style.height = headerSection.scrollHeight + 'px';
-        this.paragraphHeader = this.element.querySelector(".paragraph-configs");
+        this.paragraphHeader = this.element.querySelector(".paragraph-commands");
         if(!this.boundResizeHeader){
             this.boundResizeHeader = this.resizeHeader.bind(this, headerSection);
             this.paragraphHeader.addEventListener('input', this.boundResizeHeader);
         }
         this.errorElement = this.element.querySelector(".error-message");
-        if (this.paragraph.config.image) {
+        if (this.paragraph.commands.image) {
             this.setupImage();
         }
     }
@@ -177,9 +177,9 @@ export class ParagraphItem {
         headerSection.style.height = headerSection.scrollHeight + 'px';
     }
     renderImageMaxWidth() {
-        if (this.paragraph.config.image.dimensions) {
-            this.imgElement.style.width = this.paragraph.config.image.dimensions.width + "px";
-            this.imgElement.style.height = this.paragraph.config.image.dimensions.height + "px";
+        if (this.paragraph.commands.image.dimensions) {
+            this.imgElement.style.width = this.paragraph.commands.image.dimensions.width + "px";
+            this.imgElement.style.height = this.paragraph.commands.image.dimensions.height + "px";
             return;
         }
         let originalWidth = parseFloat(getComputedStyle(this.imgElement, null).getPropertyValue('width').replace('px', ''));
@@ -189,11 +189,11 @@ export class ParagraphItem {
         const maxHeight = maxWidth / aspectRatio;
         this.imgElement.style.width = maxWidth + 'px';
         this.imgElement.style.height = maxHeight + 'px';
-        this.paragraph.config.image.dimensions = {
+        this.paragraph.commands.image.dimensions = {
             width: maxWidth,
             height: maxHeight
         };
-        documentModule.updateParagraphConfig(assistOS.space.id, this._document.id, this.paragraph.id, this.paragraph.config);
+        documentModule.updateParagraphCommands(assistOS.space.id, this._document.id, this.paragraph.id, this.paragraph.commands);
     }
 
     setupImage() {
@@ -201,8 +201,8 @@ export class ParagraphItem {
         imgContainer.style.display = "flex";
         this.imgElement = this.element.querySelector(".paragraph-image");
         this.imgElement.addEventListener('load', this.renderImageMaxWidth.bind(this), {once: true});
-        this.imgElement.src = this.paragraph.config.image.src;
-        this.imgElement.alt = this.paragraph.config.image.alt;
+        this.imgElement.src = this.paragraph.image.src;
+        this.imgElement.alt = this.paragraph.image.alt;
         this.imgContainer = this.element.querySelector('.img-container');
         let paragraphImage = this.element.querySelector(".paragraph-image");
         if (assistOS.space.currentParagraphId === this.paragraph.id) {
@@ -273,7 +273,7 @@ export class ParagraphItem {
     }
 
     async saveParagraphImage() {
-        if (!this.paragraph || !this.paragraph.config.image || assistOS.space.currentParagraphId !== this.paragraph.id) {
+        if (!this.paragraph || !this.paragraph.commands.image || assistOS.space.currentParagraphId !== this.paragraph.id) {
             await this.documentPresenter.stopTimer();
             return;
         }
@@ -282,14 +282,14 @@ export class ParagraphItem {
             width: imageElement.width,
             height: imageElement.height
         };
-        if ((dimensions.width !== this.paragraph.config.image.dimensions.width || dimensions.height !== this.paragraph.config.image.dimensions.height)) {
-            this.paragraph.config.image.dimensions.width = dimensions.width;
-            this.paragraph.config.image.dimensions.height = dimensions.height;
-            await documentModule.updateParagraphConfig(
+        if ((dimensions.width !== this.paragraph.commands.image.dimensions.width || dimensions.height !== this.paragraph.commands.image.dimensions.height)) {
+            this.paragraph.commands.image.dimensions.width = dimensions.width;
+            this.paragraph.commands.image.dimensions.height = dimensions.height;
+            await documentModule.updateParagraphCommands(
                 assistOS.space.id,
                 this._document.id,
                 this.paragraph.id,
-                this.paragraph.config
+                this.paragraph.commands
             )
         }
     }
@@ -349,7 +349,7 @@ export class ParagraphItem {
             this.style.height = 'auto';
             this.style.height = this.scrollHeight + 'px';
         });
-        if (this.paragraph.config.image) {
+        if (this.paragraph.commands.image) {
             this.imgContainer.classList.add("highlight-image");
         }
         let tasksInfo = this.element.querySelector('.paragraph-tasks');
@@ -358,7 +358,7 @@ export class ParagraphItem {
     buildTasksInfoHTML(mode) {
         let html = "";
         if(mode === "view"){
-            for(let [commandType, commandDetails] of Object.entries(this.paragraph.config.commands)){
+            for(let [commandType, commandDetails] of Object.entries(this.paragraph.commands.commands)){
                 if(commandType === "image"){
                     html += `<a href="${commandDetails.src}" class="tasks-info" data-id="${commandDetails.id}">Image</a>`;
                 } else if(commandType === "audio"){
@@ -368,7 +368,7 @@ export class ParagraphItem {
                 }
             }
         } else {
-            for(let [commandType, commandDetails] of Object.entries(this.paragraph.config.commands)){
+            for(let [commandType, commandDetails] of Object.entries(this.paragraph.commands.commands)){
                 if(commandType === "image"){
                     html += `image src=${commandDetails.src} id=${commandDetails.id} width=${commandDetails.width} height=${commandDetails.height}\n`;
                 } else if(commandType === "audio"){
@@ -470,7 +470,7 @@ export class ParagraphItem {
         paragraphHeaderContainer.classList.remove("highlight-paragraph-header");
         let dragBorder = this.element.querySelector(".drag-border");
         dragBorder.style.display = "none";
-        if (this.paragraph.config.image) {
+        if (this.paragraph.commands.image) {
             this.imgContainer.classList.remove("highlight-image");
         }
         const commands = utilModule.findCommands(this.paragraphHeader.value);
@@ -478,7 +478,7 @@ export class ParagraphItem {
             this.showCommandsError(commands.error);
         } else {
             this.paragraphHeader.value = utilModule.buildCommandsString(commands);
-            const commandsDifferences = utilModule.getCommandsDifferences(this.paragraph.config.commands, commands);
+            const commandsDifferences = utilModule.getCommandsDifferences(this.paragraph.commands, commands);
             const textChanged = assistOS.UI.customTrim(this.loadedParagraphText) !== assistOS.UI.customTrim(this.paragraph.text);
             if (textChanged) {
                 for (let [commandType, commandStatus] of Object.entries(commandsDifferences)) {
@@ -491,25 +491,25 @@ export class ParagraphItem {
             if (!existDifferences) {
                 return;
             }
-            if (Object.entries(this.paragraph.config.commands).length === 0) {
-                this.paragraph.config.commands = commands;
+            if (Object.entries(this.paragraph.commands).length === 0) {
+                this.paragraph.commands = commands;
             } else {
                 Object.entries(commandsDifferences).forEach(([commandName, commandState]) => {
                     if (commandState === "deleted") {
-                        delete this.paragraph.config.commands[commandName];
+                        delete this.paragraph.commands[commandName];
                     } else {
                         /* command added,updated or same */
-                        if (!this.paragraph.config.commands[commandName]) {
+                        if (!this.paragraph.commands[commandName]) {
                             /* added */
-                            this.paragraph.config.commands[commandName] = {};
+                            this.paragraph.commands[commandName] = {};
                         }
                         for (let [commandField, commandFieldValue] of Object.entries(commands[commandName])) {
-                            this.paragraph.config.commands[commandName][commandField] = commandFieldValue;
+                            this.paragraph.commands[commandName][commandField] = commandFieldValue;
                         }
                     }
                 });
             }
-            await documentModule.updateParagraphConfig(assistOS.space.id, this._document.id, this.paragraph.id, this.paragraph.config);
+            await documentModule.updateParagraphCommands(assistOS.space.id, this._document.id, this.paragraph.id, this.paragraph.commands);
             let errorHandlingCommands = false;
             for (let [commandType, commandStatus] of Object.entries(commandsDifferences)) {
                 try {
@@ -529,7 +529,7 @@ export class ParagraphItem {
                 }
             }
             this.invalidate(async () => {
-                this.paragraph.config = await documentModule.getParagraphConfig(assistOS.space.id, this._document.id, this.paragraph.id);
+                this.paragraph.commands = await documentModule.getParagraphCommands(assistOS.space.id, this._document.id, this.paragraph.id);
             });
         }
     }
@@ -648,7 +648,7 @@ export class ParagraphItem {
     async playParagraphAudio(_target) {
         let audioSection = this.element.querySelector('.paragraph-audio-section');
         let audio = this.element.querySelector('.paragraph-audio');
-        audio.src = this.paragraph.config.audio.src
+        audio.src = this.paragraph.commands.audio.src
         audio.load();
         audio.play();
         audioSection.classList.remove('hidden');
@@ -683,7 +683,7 @@ export class ParagraphItem {
         const previousParagraphImage = () => {
             const currentParagraphPosition = chapterPresenter.chapter.paragraphs.findIndex(paragraph => paragraph.id === this.paragraph.id);
             if (currentParagraphPosition !== 0) {
-                if (chapterPresenter.chapter.paragraphs[currentParagraphPosition - 1].config.image) {
+                if (chapterPresenter.chapter.paragraphs[currentParagraphPosition - 1].commands.image) {
                     return true;
                 }
             }
@@ -705,7 +705,7 @@ export class ParagraphItem {
                  <list-item data-local-action="addChapter" data-name="Add Chapter"
                            data-highlight="light-highlight"></list-item>
                  `;
-            if (this.paragraph.config.image) {
+            if (this.paragraph.commands.image) {
                 baseDropdownMenuHTML = `
                 <list-item data-local-action="deleteImage" data-name="Delete Image" 
                            data-highlight="light-highlight"></list-item>` + baseDropdownMenuHTML;
@@ -717,24 +717,24 @@ export class ParagraphItem {
                 <list-item data-local-action="moveParagraph down" data-name="Move Down" 
                            data-highlight="light-highlight"></list-item>` + baseDropdownMenuHTML;
             }
-            if (this.paragraph.config.audio) {
+            if (this.paragraph.commands.audio) {
                 baseDropdownMenuHTML += `<list-item data-name="Play Audio" id="play-paragraph-audio-btn" data-local-action="playParagraphAudio" data-highlight="light-highlight"></list-item>`;
                 baseDropdownMenuHTML += ` <list-item data-name="Download Audio" data-local-action="downloadAudio" data-highlight="light-highlight"></list-item>`;
 
             }
 
-            if (previousParagraphImage() && this.paragraph.config.commands.speech && !this.paragraph.config.lipSync) {
+            if (previousParagraphImage() && this.paragraph.commands.speech && !this.paragraph.commands.lipSync) {
                 baseDropdownMenuHTML += `<list-item data-name="Generate Paragraph Video" data-local-action="addParagraphVideo" data-highlight="light-highlight"></list-item>`;
             }
-            if (previousParagraphImage() && this.paragraph.config.commands.speech) {
+            if (previousParagraphImage() && this.paragraph.commands.speech) {
                 const currentParagraphPosition = chapterPresenter.chapter.paragraphs.findIndex(paragraph => paragraph.id === this.paragraph.id);
                 if (currentParagraphPosition !== 0) {
-                    if (chapterPresenter.chapter.paragraphs[currentParagraphPosition - 1].config.image) {
+                    if (chapterPresenter.chapter.paragraphs[currentParagraphPosition - 1].commands.image) {
                         baseDropdownMenuHTML += `<list-item data-name="Lip Sync" data-local-action="lipSync" data-highlight="light-highlight"></list-item>`;
                     }
                 }
             }
-            if (this.paragraph.config.lipSync) {
+            if (this.paragraph.commands.lipSync) {
                 baseDropdownMenuHTML += `<list-item data-name="Play Lip Sync" data-local-action="playLipSyncVideo" data-highlight="light-highlight"></list-item>`;
             }
             let dropdownMenuHTML =
@@ -771,7 +771,7 @@ export class ParagraphItem {
 
     downloadAudio(_target) {
         const link = document.createElement('a');
-        link.href = this.paragraph.config.audio.src;
+        link.href = this.paragraph.commands.audio.src;
         link.download = 'audio.mp3';
         document.body.appendChild(link);
         link.click();
@@ -834,7 +834,7 @@ export class ParagraphItem {
     playLipSyncVideo(playButton) {
         let videoTagContainer = `
         <div class="video-container">
-            <video controls autoplay class="lip-sync-video" src="${this.paragraph.config.lipSync.src}"></video>
+            <video controls autoplay class="lip-sync-video" src="${this.paragraph.commands.lipSync.src}"></video>
             <img src="./wallet/assets/icons/x-mark.svg" data-local-action="closePlayer" class="close-player pointer" alt="close"/>
         </div>`;
         playButton.insertAdjacentHTML('afterend', videoTagContainer);
@@ -848,15 +848,15 @@ export class ParagraphItem {
     async openInsertImageModal(_target) {
         let imageData = await assistOS.UI.showModal("insert-image-modal", {["chapter-id"]: this.chapter.id}, true);
         if (imageData) {
-            this.paragraph.config.image = imageData;
-            await documentModule.updateParagraphConfig(assistOS.space.id, this._document.id, this.paragraph.id, this.paragraph.config);
+            this.paragraph.commands.image = imageData;
+            await documentModule.updateParagraphCommands(assistOS.space.id, this._document.id, this.paragraph.id, this.paragraph.commands);
             this.invalidate();
         }
     }
 
     async deleteImage(_target) {
-        delete this.paragraph.config.image;
-        await documentModule.updateParagraphConfig(assistOS.space.id, this._document.id, this.paragraph.id, this.paragraph.config);
+        delete this.paragraph.commands.image;
+        await documentModule.updateParagraphCommands(assistOS.space.id, this._document.id, this.paragraph.id, this.paragraph.commands);
         this.invalidate();
     }
 }
