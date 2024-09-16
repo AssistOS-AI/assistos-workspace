@@ -55,16 +55,15 @@ paragraph-item {
     padding-left: 10px;
 }
 .paragraph-tasks{
-    height: 100%;
     overflow: hidden;
     white-space: pre-wrap;
     overflow-wrap: break-word;
     word-break: break-word;
     background:inherit;
-    padding: 2px;
+    padding: 2px 2px 2px 10px;
     display: flex;
     flex-direction: column;
-    justify-content: space-evenly;
+    justify-content: flex-start;
 }
 .task-line{
     display: flex;
@@ -73,7 +72,7 @@ paragraph-item {
     margin-left: 3px;
 }
 .paragraph-tasks a{
-    text-align: center;
+
 }
 .paragraph-controls {
     height: 45px;

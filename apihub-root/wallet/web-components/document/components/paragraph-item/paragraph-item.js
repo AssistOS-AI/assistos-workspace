@@ -156,12 +156,10 @@ export class ParagraphItem {
             paragraphText.click();
         }
 
-        if (!this.boundPreventSelectionChange) {
-            this.boundPreventSelectionChange = this.preventSelectionChange.bind(this);
-        }
+        this.paragraphHeader = this.element.querySelector(".paragraph-configs");
+        this.paragraphHeader.style.height = this.paragraphHeader.scrollHeight + 'px';
         let headerSection = this.element.querySelector(".header-sections");
         headerSection.style.height = headerSection.scrollHeight + 'px';
-        this.paragraphHeader = this.element.querySelector(".paragraph-commands");
         if(!this.boundResizeHeader){
             this.boundResizeHeader = this.resizeHeader.bind(this, headerSection);
             this.paragraphHeader.addEventListener('input', this.boundResizeHeader);
@@ -201,8 +199,8 @@ export class ParagraphItem {
         imgContainer.style.display = "flex";
         this.imgElement = this.element.querySelector(".paragraph-image");
         this.imgElement.addEventListener('load', this.renderImageMaxWidth.bind(this), {once: true});
-        this.imgElement.src = this.paragraph.image.src;
-        this.imgElement.alt = this.paragraph.image.alt;
+        this.imgElement.src = this.paragraph.commands.image.src;
+        this.imgElement.alt = this.paragraph.commands.image.alt;
         this.imgContainer = this.element.querySelector('.img-container');
         let paragraphImage = this.element.querySelector(".paragraph-image");
         if (assistOS.space.currentParagraphId === this.paragraph.id) {
@@ -267,11 +265,23 @@ export class ParagraphItem {
         if (event.key === "Backspace") {
             if (assistOS.space.currentParagraphId === this.paragraph.id) {
                 await this.documentPresenter.stopTimer(false);
-                await this.deleteParagraph();
+                await this.deleteParagraphImage();
             }
         }
     }
-
+    async deleteParagraphImage() {
+        if (!this.paragraph || !this.paragraph.commands.image || assistOS.space.currentParagraphId !== this.paragraph.id) {
+            return;
+        }
+        delete this.paragraph.commands.image;
+        await documentModule.updateParagraphCommands(
+            assistOS.space.id,
+            this._document.id,
+            this.paragraph.id,
+            this.paragraph.commands
+        );
+        this.invalidate();
+    }
     async saveParagraphImage() {
         if (!this.paragraph || !this.paragraph.commands.image || assistOS.space.currentParagraphId !== this.paragraph.id) {
             await this.documentPresenter.stopTimer();
@@ -358,7 +368,7 @@ export class ParagraphItem {
     buildTasksInfoHTML(mode) {
         let html = "";
         if(mode === "view"){
-            for(let [commandType, commandDetails] of Object.entries(this.paragraph.commands.commands)){
+            for(let [commandType, commandDetails] of Object.entries(this.paragraph.commands)){
                 if(commandType === "image"){
                     html += `<a href="${commandDetails.src}" class="tasks-info" data-id="${commandDetails.id}">Image</a>`;
                 } else if(commandType === "audio"){
@@ -368,7 +378,7 @@ export class ParagraphItem {
                 }
             }
         } else {
-            for(let [commandType, commandDetails] of Object.entries(this.paragraph.commands.commands)){
+            for(let [commandType, commandDetails] of Object.entries(this.paragraph.commands)){
                 if(commandType === "image"){
                     html += `image src=${commandDetails.src} id=${commandDetails.id} width=${commandDetails.width} height=${commandDetails.height}\n`;
                 } else if(commandType === "audio"){
@@ -529,13 +539,13 @@ export class ParagraphItem {
                 }
             }
             this.invalidate(async () => {
-                this.paragraph.commands = await documentModule.getParagraphCommands(assistOS.space.id, this._document.id, this.paragraph.id);
+                this.paragraph.commands = await documentModule.getParagraphConfig(assistOS.space.id, this._document.id, this.paragraph.id);
             });
         }
     }
 
     focusOutHandlerImage() {
-        let tasksInfo = this.element.querySelector('.tasks-info');
+        let tasksInfo = this.element.querySelector('.paragraph-tasks');
         tasksInfo.innerHTML = this.buildTasksInfoHTML("view");
         this.switchParagraphArrows("off");
         let dragBorder = this.element.querySelector(".drag-border");
@@ -573,10 +583,6 @@ export class ParagraphItem {
         } else {
             audioIcon.classList.add("hidden");
         }
-    }
-
-    preventSelectionChange(event) {
-        event.preventDefault();
     }
 
     updateIconDisplay(audioIcon, event) {
@@ -683,7 +689,7 @@ export class ParagraphItem {
         const previousParagraphImage = () => {
             const currentParagraphPosition = chapterPresenter.chapter.paragraphs.findIndex(paragraph => paragraph.id === this.paragraph.id);
             if (currentParagraphPosition !== 0) {
-                if (chapterPresenter.chapter.paragraphs[currentParagraphPosition - 1].commands.image) {
+                if (chapterPresenter.chapter.paragraphs[currentParagraphPosition - 1].config.image) {
                     return true;
                 }
             }
@@ -729,7 +735,7 @@ export class ParagraphItem {
             if (previousParagraphImage() && this.paragraph.commands.speech) {
                 const currentParagraphPosition = chapterPresenter.chapter.paragraphs.findIndex(paragraph => paragraph.id === this.paragraph.id);
                 if (currentParagraphPosition !== 0) {
-                    if (chapterPresenter.chapter.paragraphs[currentParagraphPosition - 1].commands.image) {
+                    if (chapterPresenter.chapter.paragraphs[currentParagraphPosition - 1].config.image) {
                         baseDropdownMenuHTML += `<list-item data-name="Lip Sync" data-local-action="lipSync" data-highlight="light-highlight"></list-item>`;
                     }
                 }
