@@ -1,6 +1,4 @@
 import {executorTimer} from "../../../../imports.js";
-
-const utilModule = require("assistos").loadModule("util", {});
 const documentModule = require("assistos").loadModule("document", {});
 
 export class DocumentVideoPreview {
@@ -284,30 +282,30 @@ export class DocumentVideoPreview {
                     });
                 }
 
-                if (paragraph.config.audio) {
+                if (paragraph.commands.audio) {
                     let imageSrc= "./wallet/assets/images/black-screen.png"
-                    if(paragraph.config.image){
-                       imageSrc = paragraph.config.image.src;
+                    if(paragraph.commands.image){
+                       imageSrc = paragraph.commands.image.src;
                     }
 
                     this.setCurrentParagraphAndChapter(i, j);
                     this.loadResource("image", imageSrc);
-                    this.loadResource("audio", paragraph.config.audio.src);
+                    this.loadResource("audio", paragraph.commands.audio.src);
                     this.scrollDocument();
                     return;
-                } else if (paragraph.config.commands["silence"]){
-                    if(paragraph.config.image){
-                        this.loadResource("image", paragraph.config.image.src);
+                } else if (paragraph.commands["silence"]){
+                    if(paragraph.commands.image){
+                        this.loadResource("image", paragraph.commands.image.src);
                     } else {
                         this.loadResource("image", "./wallet/assets/images/black-screen.png");
                     }
                     this.setCurrentParagraphAndChapter(i, j);
-                    let duration = paragraph.config.commands["silence"].paramsObject.duration;
+                    let duration = paragraph.commands["silence"].paramsObject.duration;
                     this.executeSilenceCommand(duration);
                     return;
-                } else if(paragraph.config.image){
+                } else if(paragraph.commands.image){
                     this.setCurrentParagraphAndChapter(i, j);
-                    this.loadResource("image", paragraph.config.image.src);
+                    this.loadResource("image", paragraph.commands.image.src);
                     this.scrollDocument();
                     this.executeSilenceCommand(1);
                     return;
@@ -374,7 +372,7 @@ export class DocumentVideoPreview {
             this.prepareVideoForReload();
             return;
         }
-        if (paragraph.config.audio) {
+        if (paragraph.commands.audio) {
             this.nextButton.classList.add("disabled");
             this.currentTime = this.currentTime + this.audioPlayer.duration;
             this.currentTimeElement.innerHTML = this.formatTime(this.currentTime);
@@ -386,13 +384,13 @@ export class DocumentVideoPreview {
                 return;
             }
             //player is paused
-            this.loadResource("audio", paragraph.config.audio.src);
-            this.loadResource("image", paragraph.config.image.src || "./wallet/assets/images/black-screen.png");
+            this.loadResource("audio", paragraph.commands.audio.src);
+            this.loadResource("image", paragraph.commands.image.src || "./wallet/assets/images/black-screen.png");
             this.scrollDocument();
-        } else if (paragraph.config.commands["silence"]) {
+        } else if (paragraph.commands["silence"]) {
             this.nextButton.classList.add("disabled");
             this.audioPlayer.pause();
-            this.currentTime += parseFloat(paragraph.config.commands["silence"].paramsObject.duration);
+            this.currentTime += parseFloat(paragraph.commands["silence"].paramsObject.duration);
             this.currentTimeElement.innerHTML = this.formatTime(this.currentTime);
             this.nextButton.classList.remove("disabled");
             if (currentMode === "play") {
@@ -401,7 +399,7 @@ export class DocumentVideoPreview {
             }
             //player is paused
             this.scrollDocument();
-        } else if(paragraph.config.image){
+        } else if(paragraph.commands.image){
             this.currentTime += 1;
             this.currentTimeElement.innerHTML = this.formatTime(this.currentTime);
             if (currentMode === "play") {
@@ -472,7 +470,7 @@ export class DocumentVideoPreview {
             return;
         }
 
-        if (paragraph.config.audio) {
+        if (paragraph.commands.audio) {
             this.previousButton.classList.add("disabled");
             this.currentTime -= this.audioPlayer.duration;
             this.currentTimeElement.innerHTML = this.formatTime(this.currentTime);
@@ -484,12 +482,12 @@ export class DocumentVideoPreview {
                 return;
             }
             //player is paused
-            this.loadResource("audio", paragraph.config.audio.src);
+            this.loadResource("audio", paragraph.commands.audio.src);
             this.scrollDocument();
-        } else if (paragraph.config.commands["silence"]) {
+        } else if (paragraph.commands["silence"]) {
             this.previousButton.classList.add("disabled");
             this.audioPlayer.pause();
-            this.currentTime -= parseFloat(paragraph.config.commands["silence"].paramsObject.duration);
+            this.currentTime -= parseFloat(paragraph.commands["silence"].paramsObject.duration);
             this.currentTimeElement.innerHTML = this.formatTime(this.currentTime);
             this.previousButton.classList.remove("disabled");
             if (currentMode === "play") {
@@ -498,7 +496,7 @@ export class DocumentVideoPreview {
             }
             //player is paused
             this.scrollDocument();
-        } else if(paragraph.config.image){
+        } else if(paragraph.commands.image){
             this.currentTime -= 1;
             this.currentTimeElement.innerHTML = this.formatTime(this.currentTime);
             if (currentMode === "play") {
