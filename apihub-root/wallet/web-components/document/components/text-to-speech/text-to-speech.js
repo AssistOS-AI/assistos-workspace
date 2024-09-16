@@ -40,7 +40,7 @@ export class TextToSpeech {
         }
         this.emotionsHTML = emotionsHTML;
 
-        const audioCommand = this.parentPresenter.paragraph.config.commands["speech"];
+        const audioCommand = this.parentPresenter.paragraph.commands["speech"];
         this.audioConfig = null;
 
         if (audioCommand) {
@@ -84,7 +84,7 @@ export class TextToSpeech {
             voiceGuidance: formData.data.voiceGuidance,
             temperature: formData.data.temperature,
         }
-        const paragraphHeaderElement = this.parentPresenter.element.querySelector(".paragraph-configs");
+        const paragraphHeaderElement = this.parentPresenter.element.querySelector(".paragraph-commands");
         const currentCommandsString = paragraphHeaderElement.value
             .replace(/\n/g, "");
         const currentCommandsObj = utilModule.findCommands(currentCommandsString);

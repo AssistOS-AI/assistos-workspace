@@ -689,7 +689,7 @@ export class ParagraphItem {
         const previousParagraphImage = () => {
             const currentParagraphPosition = chapterPresenter.chapter.paragraphs.findIndex(paragraph => paragraph.id === this.paragraph.id);
             if (currentParagraphPosition !== 0) {
-                if (chapterPresenter.chapter.paragraphs[currentParagraphPosition - 1].config.image) {
+                if (chapterPresenter.chapter.paragraphs[currentParagraphPosition - 1].commands.image) {
                     return true;
                 }
             }
@@ -735,7 +735,7 @@ export class ParagraphItem {
             if (previousParagraphImage() && this.paragraph.commands.speech) {
                 const currentParagraphPosition = chapterPresenter.chapter.paragraphs.findIndex(paragraph => paragraph.id === this.paragraph.id);
                 if (currentParagraphPosition !== 0) {
-                    if (chapterPresenter.chapter.paragraphs[currentParagraphPosition - 1].config.image) {
+                    if (chapterPresenter.chapter.paragraphs[currentParagraphPosition - 1].commands.image) {
                         baseDropdownMenuHTML += `<list-item data-name="Lip Sync" data-local-action="lipSync" data-highlight="light-highlight"></list-item>`;
                     }
                 }
