@@ -1,7 +1,5 @@
 const utilModule = require("assistos").loadModule("util", {});
-const personalityModule = require("assistos").loadModule("personality", {});
 const documentModule = require("assistos").loadModule("document", {});
-
 export class ParagraphItem {
     constructor(element, invalidate) {
         this.element = element;
@@ -197,7 +195,7 @@ export class ParagraphItem {
         imgContainer.style.display = "flex";
         this.imgElement = this.element.querySelector(".paragraph-image");
         this.imgElement.addEventListener('load', this.renderImageDimensions.bind(this), {once: true});
-        this.imgElement.src = this.paragraph.commands.image.src;
+        this.imgElement.src = utilModule.constants.IMAGE_SRC_PREFIX + `${assistOS.space.id}/${this.paragraph.commands.image.id}`;
         this.imgElement.alt = this.paragraph.commands.image.alt;
         this.imgContainer = this.element.querySelector('.img-container');
         const handlesNames = ["ne", "se", "sw", "nw"];
@@ -378,14 +376,17 @@ export class ParagraphItem {
 
     buildTasksInfoHTML(mode) {
         let html = "";
-        if (mode === "view") {
-            for (let [commandType, commandDetails] of Object.entries(this.paragraph.commands)) {
-                if (commandType === "image") {
-                    html += `<a data-local-action="editItem link" href="${commandDetails.src}" class="tasks-info" data-id="${commandDetails.id}">Image</a>`;
-                } else if (commandType === "audio") {
-                    html += `<a href="${commandDetails.src}" class="tasks-info" data-id="${commandDetails.id}">Audio</a>`;
-                } else if (commandType === "video") {
-                    html += `<a href="${commandDetails.src}" class="tasks-info" data-id="${commandDetails.id}">Video</a>`;
+        if(mode === "view"){
+            for(let [commandType, commandDetails] of Object.entries(this.paragraph.commands)){
+                if(commandType === "image"){
+                    let imageSrc = utilModule.constants.IMAGE_SRC_PREFIX + `${assistOS.space.id}/${commandDetails.id}`;
+                    html += `<a data-local-action="editItem link" href="${imageSrc}" class="tasks-info" data-id="${commandDetails.id}">Image</a>`;
+                } else if(commandType === "audio"){
+                    let audioSrc = utilModule.constants.AUDIO_SRC_PREFIX + `${assistOS.space.id}/${commandDetails.id}`;
+                    html += `<a href="${audioSrc}" class="tasks-info" data-id="${commandDetails.id}">Audio</a>`;
+                } else if(commandType === "video"){
+                    let videoSrc = utilModule.constants.VIDEO_SRC_PREFIX + `${assistOS.space.id}/${commandDetails.id}`;
+                    html += `<a href="${videoSrc}" class="tasks-info" data-id="${commandDetails.id}">Video</a>`;
                 }
             }
         } else {

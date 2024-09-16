@@ -146,7 +146,6 @@ export class InsertImageModal {
                 const width = img.width;
                 const height = img.height;
                 let data = {
-                    src: `spaces/image/${assistOS.space.id}/${imageId}`,
                     id: imageId,
                     alt: new Date().toISOString(),
                     isUploadedImage: true,
