@@ -392,11 +392,11 @@ export class ParagraphItem {
         } else {
             for (let [commandType, commandDetails] of Object.entries(this.paragraph.commands)) {
                 if (commandType === "image") {
-                    html += `image src=${commandDetails.src} id=${commandDetails.id} width=${commandDetails.width} height=${commandDetails.height}\n`;
+                    html += `image id=${commandDetails.id} width=${commandDetails.width} height=${commandDetails.height}\n`;
                 } else if (commandType === "audio") {
-                    html += `audio src=${commandDetails.src} id=${commandDetails.id}\n`;
+                    html += `audio id=${commandDetails.id}\n`;
                 } else if (commandType === "video") {
-                    html += `video src=${commandDetails.src} id=${commandDetails.id}\n`;
+                    html += `video id=${commandDetails.id}\n`;
                 }
             }
         }
