@@ -157,16 +157,16 @@ async function createVideoFromImageAndAudio(imageSrc,audioSrc,spaceId){
 async function estimateChapterVideoLength(spaceId, chapter, task){
     let totalDuration = 0;
     for (let paragraph of chapter.paragraphs) {
-        if (paragraph.config.audio) {
-            let audioPath = path.join(space.getSpacePath(spaceId), 'audios', `${paragraph.config.audio.src.split("/").pop()}.mp3`);
+        if (paragraph.commands.audio) {
+            let audioPath = path.join(space.getSpacePath(spaceId), 'audios', `${paragraph.commands.audio.src.split("/").pop()}.mp3`);
             const command = `${ffprobePath} -i "${audioPath}" -show_entries format=duration -v quiet -of csv="p=0"`;
             let duration = await task.runCommand(command);
             totalDuration += parseFloat(duration);
-        } else if (paragraph.config.commands["silence"]) {
-            if (paragraph.config.commands["silence"].paramsObject.duration) {
-                totalDuration += parseFloat(paragraph.config.commands["silence"].paramsObject.duration);
+        } else if (paragraph.commands["silence"]) {
+            if (paragraph.commands["silence"].paramsObject.duration) {
+                totalDuration += parseFloat(paragraph.commands["silence"].paramsObject.duration);
             }
-        } else if (paragraph.config.image) {
+        } else if (paragraph.commands.image) {
             totalDuration += 1;
         }
     }

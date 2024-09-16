@@ -675,27 +675,27 @@ async function exportDocumentData(spaceId, documentId, request) {
                     text: documentRecordsContents[paragraphId].text,
                     position: documentRecordsContents[paragraphId].position,
                     id: paragraphId,
-                    config: {commands: documentRecordsContents[paragraphId].config.commands}
+                    commands: documentRecordsContents[paragraphId].commands
                 };
 
-                if (documentRecordsContents[paragraphId].config.audio) {
-                    const personality = documentRecordsContents[paragraphId].config.commands["speech"].paramsObject.personality;
-                    paragraph.config.audio = documentRecordsContents[paragraphId].config.audio;
-                    paragraph.config.audio.fileName = `Chapter_${chapterIndex + 1}_Paragraph_${paragraphIndex + 1}_audio`
+                if (documentRecordsContents[paragraphId].commands.audio) {
+                    const personality = documentRecordsContents[paragraphId].commands["speech"].paramsObject.personality;
+                    paragraph.commands.audio = documentRecordsContents[paragraphId].commands.audio;
+                    paragraph.commands.audio.fileName = `Chapter_${chapterIndex + 1}_Paragraph_${paragraphIndex + 1}_audio`
                     audios.push({
-                        name: paragraph.config.audio.fileName,
-                        id: documentRecordsContents[paragraphId].config.audio.id
+                        name: paragraph.commands.audio.fileName,
+                        id: documentRecordsContents[paragraphId].commands.audio.id
                     })
                     personalities.add(personality);
                 }
-                if (documentRecordsContents[paragraphId].config.image) {
-                    paragraph.config.image = documentRecordsContents[paragraphId].config.image;
-                    paragraph.config.image.fileName = `Chapter_${chapterIndex + 1}_Paragraph_${paragraphIndex + 1}_image`
+                if (documentRecordsContents[paragraphId].commands.image) {
+                    paragraph.commands.image = documentRecordsContents[paragraphId].commands.image;
+                    paragraph.commands.image.fileName = `Chapter_${chapterIndex + 1}_Paragraph_${paragraphIndex + 1}_image`
                     images.push({
-                        name: paragraph.config.image.fileName,
-                        id: documentRecordsContents[paragraphId].config.image.id
+                        name: paragraph.commands.image.fileName,
+                        id: documentRecordsContents[paragraphId].commands.image.id
                     })
-                    paragraph.config.image.dimensions = documentRecordsContents[paragraphId].config.image.dimensions;
+                    paragraph.commands.image.dimensions = documentRecordsContents[paragraphId].commands.image.dimensions;
                 }
                 return paragraph
             })
@@ -863,18 +863,18 @@ async function importDocument(spaceId, extractedPath, request) {
         for (let paragraph of chapter.paragraphs) {
             let paragraphObject = paragraph;
             objectURI = encodeURIComponent(`${docId}/${chapterId}/paragraphs`);
-            if (paragraphObject.config.image) {
-                const imagePath = path.join(extractedPath, 'images', `${paragraphObject.config.image.fileName}.png`);
+            if (paragraphObject.commands.image) {
+                const imagePath = path.join(extractedPath, 'images', `${paragraphObject.commands.image.fileName}.png`);
                 const imageBase64Data = await readFileAsBase64(imagePath);
                 const dataUrl = `data:image/png;base64,${imageBase64Data}`;
                 const imageId = await uploadImage(spaceId, dataUrl);
-                paragraphObject.config.image.id = imageId;
-                paragraphObject.config.image.src = `spaces/image/${spaceId}/${imageId}`;
-                paragraphObject.config.image.isUploadedImage = true;
+                paragraphObject.commands.image.id = imageId;
+                paragraphObject.commands.image.src = `spaces/image/${spaceId}/${imageId}`;
+                paragraphObject.commands.image.isUploadedImage = true;
             }
 
-            if (paragraphObject.config.audio) {
-                const audioPath = path.join(extractedPath, 'audios', `${paragraphObject.config.audio.fileName}.mp3`);
+            if (paragraphObject.commands.audio) {
+                const audioPath = path.join(extractedPath, 'audios', `${paragraphObject.commands.audio.fileName}.mp3`);
                 const audioBase64Data = await readFileAsBase64(audioPath);
                 const result = await fetch(`${process.env.BASE_URL}/spaces/audio/${spaceId}`, {
                     method: 'POST',
@@ -885,8 +885,8 @@ async function importDocument(spaceId, extractedPath, request) {
                     body: JSON.stringify(audioBase64Data)
                 });
                 const audioId = (await result.json()).data;
-                paragraphObject.config.audio.id = audioId;
-                paragraphObject.config.audio.src = `spaces/audio/${spaceId}/${audioId}`;
+                paragraphObject.commands.audio.id = audioId;
+                paragraphObject.commands.audio.src = `spaces/audio/${spaceId}/${audioId}`;
             }
 
             await fetch(`${process.env.BASE_URL}/spaces/embeddedObject/${spaceId}/${objectURI}`, {
@@ -997,10 +997,10 @@ async function getPersonalityByName(spaceId, personalityName) {
 async function getParagraphAudio(spaceId, documentId, paragraphId) {
     const documentModule = require('assistos').loadModule('document');
     const paragraph = await documentModule.getParagraph(spaceId, documentId, paragraphId);
-    if (!paragraph.config.audio) {
+    if (!paragraph.commands.audio) {
         return null;
     }
-    return paragraph.config.audio.src
+    return paragraph.commands.audio.src
 }
 
 

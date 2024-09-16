@@ -194,7 +194,7 @@ class DocumentToVideo extends Task {
         return chapterFrames;
     }
     async tryToExecuteCommandOnParagraph(tempVideoDir, spaceId, documentId, paragraph) {
-        let commandObject = paragraph.config.commands;
+        let commandObject = paragraph.commands;
         let chapterIndex = this.document.chapters.findIndex(chapter => chapter.paragraphs.includes(paragraph));
         let paragraphIndex = this.document.chapters[chapterIndex].paragraphs.findIndex(p => p === paragraph);
         if(commandObject.action === "textToSpeech"){
