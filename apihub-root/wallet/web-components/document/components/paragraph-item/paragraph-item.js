@@ -389,9 +389,12 @@ export class ParagraphItem {
                     let videoSrc = utilModule.constants.VIDEO_SRC_PREFIX + `${assistOS.space.id}/${commandDetails.id}`;
                     html += `<a href="${videoSrc}" class="tasks-info" data-id="${commandDetails.id}">Video</a>`;
                 }
+
             }
         } else {
+            let index = Object.keys(this.paragraph.commands).length;
             for (let [commandType, commandDetails] of Object.entries(this.paragraph.commands)) {
+                index--;
                 delete commandDetails.name
                 if (commandType === "image") {
                     html += utilModule.buildCommandString(commandType, commandDetails);
@@ -399,6 +402,9 @@ export class ParagraphItem {
                     html += utilModule.buildCommandString(commandType, commandDetails);
                 } else if (commandType === "video") {
                     html += utilModule.buildCommandString(commandType, commandDetails);
+                }
+                if (index > 0) {
+                    html += "\n";
                 }
             }
         }
@@ -474,7 +480,7 @@ export class ParagraphItem {
 
     }
 
-    async validateAttachment(attachmentType,resourceId) {
+    async validateAttachment(attachmentType, resourceId) {
         return await utilModule.constants.COMMANDS_CONFIG.ATTACHMENTS.find(attachment => attachment.NAME === attachmentType)
             .VALIDATE(assistOS.space.id, resourceId, {});
     }
