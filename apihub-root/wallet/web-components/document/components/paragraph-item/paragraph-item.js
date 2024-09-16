@@ -196,7 +196,6 @@ export class ParagraphItem {
         this.imgElement.src = this.paragraph.commands.image.src;
         this.imgElement.alt = this.paragraph.commands.image.alt;
         this.imgContainer = this.element.querySelector('.img-container');
-
         const handlesNames = ["ne", "se", "sw", "nw"];
         let handles = {};
         for (let handleName of handlesNames) {
@@ -336,7 +335,6 @@ export class ParagraphItem {
         let paragraphText = this.element.querySelector('.paragraph-text');
         paragraphText.classList.add("highlight-paragraph");
         this.imgContainer.classList.add("highlight-image");
-
         this.renderEditModeCommands();
     }
 
@@ -361,7 +359,7 @@ export class ParagraphItem {
         tasksInfo.remove();
         let textareaContainer = this.element.querySelector('.header-sections');
         let textareaValue = this.buildTasksInfoHTML("edit");
-        textareaContainer.insertAdjacentHTML('afterbegin', `<textarea class="paragraph-attachments"></textarea>`);
+        textareaContainer.insertAdjacentHTML('afterbegin', `<textarea class="paragraph-attachments maintain-focus"></textarea>`);
         let attachmentsElement = this.element.querySelector('.paragraph-attachments');
         attachmentsElement.value = textareaValue;
         attachmentsElement.style.height = attachmentsElement.scrollHeight + 'px';
