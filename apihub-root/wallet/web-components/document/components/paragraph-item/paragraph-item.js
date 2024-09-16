@@ -156,7 +156,7 @@ export class ParagraphItem {
             paragraphText.click();
         }
 
-        this.paragraphHeader = this.element.querySelector(".paragraph-configs");
+        this.paragraphHeader = this.element.querySelector(".paragraph-commands");
         this.paragraphHeader.style.height = this.paragraphHeader.scrollHeight + 'px';
         let headerSection = this.element.querySelector(".header-sections");
         headerSection.style.height = headerSection.scrollHeight + 'px';
