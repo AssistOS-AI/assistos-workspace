@@ -1,6 +1,6 @@
 <div class="paragraph-container">
     <div class="paragraph-header-container">
-        <div class="paragraph-header" data-local-action="editItem paragraphHeader">
+        <div class="paragraph-header">
             <div class="img-container focusable" data-local-action="editItem paragraphImage">
                 <img loading="lazy" class="paragraph-image" src="$$imageSrc" alt="$$imgAlt" tabindex="0">
                 <img class="play-lip-sync pointer" data-local-action="playLipSyncVideo" src="./wallet/assets/icons/play.svg" alt="play">
@@ -11,8 +11,8 @@
                     <div class="circle nw"></div>
                 </div>
             </div>
-            <div class="header-sections">
-                <div class="paragraph-attachments" >$$tasksInfo</div>
+            <div class="header-sections" data-local-action="editItem paragraphHeader">
+                <div class="paragraph-attachments maintain-focus" >$$tasksInfo</div>
                 <textarea class="paragraph-commands" readonly>$$paragraphConfigs</textarea>
             </div>
             <code class="error-message hidden"></code></div>

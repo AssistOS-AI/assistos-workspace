@@ -77,7 +77,7 @@ export class DocumentViewPage {
     }
     async removeFocusHandler(event){
         let closestContainer = event.target.closest(".document-editor");
-        if(!closestContainer){
+        if(!closestContainer && !event.target.classList.contains("maintain-focus")){
             if(this.currentElement){
                 this.currentElement.element.removeAttribute("id");
                 this.currentElement.containerElement.removeAttribute("id");
@@ -126,8 +126,8 @@ export class DocumentViewPage {
         }
     }
 
-    async moveChapter(_target, direction) {
-        const currentChapter = assistOS.UI.reverseQuerySelector(_target, "chapter-item");
+    async moveChapter(targetElement, direction) {
+        const currentChapter = assistOS.UI.reverseQuerySelector(targetElement, "chapter-item");
         const currentChapterId = currentChapter.getAttribute('data-chapter-id');
         const currentChapterIndex = this._document.getChapterIndex(currentChapterId);
 
@@ -160,7 +160,7 @@ export class DocumentViewPage {
         }
     }
 
-    async addChapter(_target,mode) {
+    async addChapter(targetElement,mode) {
         let position = this._document.chapters.length;
         if (assistOS.space.currentChapterId) {
             if (mode === "above") {
@@ -255,71 +255,70 @@ export class DocumentViewPage {
         abstract.style.height = abstract.scrollHeight + 'px';
     }
 
-    async editItem(_target, type) {
-        if (_target.hasAttribute("id") && _target.getAttribute("id") === "current-selection") {
+    async editItem(targetElement, type) {
+        if (targetElement.hasAttribute("id") && targetElement.getAttribute("id") === "current-selection") {
             return;
         }
         if(type === "chapter"){
-            let chapterPresenter = _target.closest("chapter-item").webSkelPresenter;
+            let chapterPresenter = targetElement.closest("chapter-item").webSkelPresenter;
             await chapterPresenter.highlightChapter();
-            _target.setAttribute("id", "current-selection-parent");
-            await this.changeContainerElement(_target, chapterPresenter.focusOutHandler.bind(chapterPresenter));
+            targetElement.setAttribute("id", "current-selection-parent");
+            await this.changeContainerElement(targetElement, chapterPresenter.focusOutHandler.bind(chapterPresenter));
             return;
-        } else if(type === "paragraphHeader"){
-            let paragraphComponent = _target.closest("paragraph-item");
-            let paragraphTextarea = paragraphComponent.querySelector(".paragraph-text");
-            paragraphTextarea.click();
-            return;
-        } else if(type === "link"){
-            let href = _target.getAttribute("href");
+        }else if(type === "link"){
+            let href = targetElement.getAttribute("href");
             window.open(href, "_blank");
             return;
+        } else if(type === "paragraphHeader"){
+            let paragraphItem = targetElement.closest("paragraph-item");
+            let paragraphText = paragraphItem.querySelector(".paragraph-text");
+            return paragraphText.click();
         }
         let saveFunction;
         let resetTimerFunction = this.resetTimer.bind(this);
         if (type === "title") {
-            await this.changeCurrentElement(_target, this.focusOutHandler.bind(this, _target));
-            _target.addEventListener('keydown', this.titleKeyDownHandler);
-            saveFunction = this.saveTitle.bind(this, _target);
+            await this.changeCurrentElement(targetElement, this.focusOutHandler.bind(this, targetElement));
+            targetElement.addEventListener('keydown', this.titleKeyDownHandler);
+            saveFunction = this.saveTitle.bind(this, targetElement);
         } else if (type === "abstract") {
             if (!this.boundControlAbstractHeight) {
-                this.boundControlAbstractHeight = this.controlAbstractHeight.bind(this, _target);
+                this.boundControlAbstractHeight = this.controlAbstractHeight.bind(this, targetElement);
             }
-            _target.addEventListener('keydown', this.boundControlAbstractHeight);
-            await this.changeCurrentElement(_target, this.focusOutHandler.bind(this, _target));
-            saveFunction = this.saveAbstract.bind(this, _target);
+            targetElement.addEventListener('keydown', this.boundControlAbstractHeight);
+            await this.changeCurrentElement(targetElement, this.focusOutHandler.bind(this, targetElement));
+            saveFunction = this.saveAbstract.bind(this, targetElement);
         } else if (type === "chapterTitle") {
-            let chapterPresenter = _target.closest("chapter-item").webSkelPresenter;
-            saveFunction = chapterPresenter.saveTitle.bind(chapterPresenter, _target);
-            await this.changeCurrentElement(_target, chapterPresenter.focusOutHandler.bind(chapterPresenter));
+            let chapterPresenter = targetElement.closest("chapter-item").webSkelPresenter;
+            saveFunction = chapterPresenter.saveTitle.bind(chapterPresenter, targetElement);
+            await this.changeCurrentElement(targetElement, chapterPresenter.focusOutHandler.bind(chapterPresenter));
             await chapterPresenter.highlightChapter();
-            _target.addEventListener('keydown', this.titleKeyDownHandler.bind(this, _target));
+            targetElement.addEventListener('keydown', this.titleKeyDownHandler.bind(this, targetElement));
         } else if (type === "paragraph") {
-            let chapterPresenter = _target.closest("chapter-item").webSkelPresenter;
-            let paragraphItem = _target.closest("paragraph-item") || _target.closest("image-paragraph");
+            let chapterPresenter = targetElement.closest("chapter-item").webSkelPresenter;
+            let paragraphItem = targetElement.closest("paragraph-item") || targetElement.closest("image-paragraph");
             let paragraphPresenter = paragraphItem.webSkelPresenter;
-            await this.changeCurrentElement(_target, paragraphPresenter.focusOutHandler.bind(paragraphPresenter));
+            await this.changeCurrentElement(targetElement, paragraphPresenter.focusOutHandler.bind(paragraphPresenter));
             await chapterPresenter.highlightChapter();
             paragraphPresenter.highlightParagraph();
-            saveFunction = paragraphPresenter.saveParagraph.bind(paragraphPresenter, _target);
-            resetTimerFunction = paragraphPresenter.resetTimer.bind(paragraphPresenter, _target);
+            saveFunction = paragraphPresenter.saveParagraph.bind(paragraphPresenter, targetElement);
+            resetTimerFunction = paragraphPresenter.resetTimer.bind(paragraphPresenter, targetElement);
         } else if(type === "paragraphImage"){
-            let chapterPresenter = _target.closest("chapter-item").webSkelPresenter;
-            let paragraphItem = _target.closest("paragraph-item") || _target.closest("image-paragraph");
+            let chapterPresenter = targetElement.closest("chapter-item").webSkelPresenter;
+            let paragraphItem = targetElement.closest("paragraph-item");
             let paragraphPresenter = paragraphItem.webSkelPresenter;
-            await this.changeCurrentElement(_target, paragraphPresenter.focusOutHandlerImage.bind(paragraphPresenter));
+            await this.changeCurrentElement(targetElement, paragraphPresenter.focusOutHandlerImage.bind(paragraphPresenter));
             await chapterPresenter.highlightChapter();
             paragraphPresenter.highlightParagraphImage();
-            saveFunction = paragraphPresenter.saveParagraphImage.bind(paragraphPresenter, _target);
-            resetTimerFunction = paragraphPresenter.resetTimerImage.bind(paragraphPresenter, _target);
+            saveFunction = paragraphPresenter.saveParagraphImage.bind(paragraphPresenter, targetElement);
+            resetTimerFunction = paragraphPresenter.resetTimerImage.bind(paragraphPresenter, targetElement);
         }
-        _target.focus();
+        targetElement.focus();
         if (this.timer) {
             await this.timer.stop(true);
         }
         this.setContext();
         this.timer = new executorTimer(saveFunction, 10000);
-        _target.addEventListener("keydown", resetTimerFunction);
+        targetElement.addEventListener("keydown", resetTimerFunction);
     }
 
     async documentToVideo(button) {
@@ -340,7 +339,7 @@ export class DocumentViewPage {
         });
     }
 
-    async exportDocument(_target) {
+    async exportDocument(targetElement) {
         try {
             const response = await fetch(`/spaces/${assistOS.space.id}/export/documents/${this._document.id}`, {
                 method: 'GET',
@@ -381,13 +380,13 @@ export class DocumentViewPage {
         }
     }
 
-    async showActionsMenu(_target, mode) {
+    async showActionsMenu(targetElement, mode) {
         if (mode === "off") {
             let menu = this.element.querySelector(`#actions-menu`);
             menu.style.display = "flex";
             let controller = new AbortController();
-            document.addEventListener("click", this.hideActionsMenu.bind(this, controller, _target), {signal: controller.signal});
-            _target.setAttribute("data-local-action", `showActionsMenu on`);
+            document.addEventListener("click", this.hideActionsMenu.bind(this, controller, targetElement), {signal: controller.signal});
+            targetElement.setAttribute("data-local-action", `showActionsMenu on`);
         }
     }
 
@@ -409,7 +408,7 @@ export class DocumentViewPage {
         }
     }
 
-    async lipsyncVideo(_target) {
+    async lipsyncVideo(targetElement) {
         const llmModule = require('assistos').loadModule('llm', {});
         const response = (await llmModule.lipsync(assistOS.space.id, "sync-1.6.0", {}))
     }
