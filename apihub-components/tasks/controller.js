@@ -47,7 +47,7 @@ async function textToSpeechParagraph(request, response) {
                 message: "Paragraph not found"
             });
         }
-        if(!paragraphConfig.commands["speech"]){
+        if(!paragraphConfig.speech){
             return utils.sendResponse(response, 400, "application/json", {
                 success: false,
                 message: "Paragraph does not have a speech command"
@@ -59,7 +59,7 @@ async function textToSpeechParagraph(request, response) {
         });
         await TaskManager.addTask(task);
 
-        paragraphConfig.commands["speech"].taskId = task.id;
+        paragraphConfig.speech.taskId = task.id;
         await documentModule.updateParagraphCommands(spaceId, documentId, paragraphId, paragraphConfig);
 
         eventPublisher.notifyClients(sessionId, documentId + "/tasks");
