@@ -1,5 +1,6 @@
 const utilModule = require("assistos").loadModule("util", {});
 const documentModule = require("assistos").loadModule("document", {});
+
 export class ParagraphItem {
     constructor(element, invalidate) {
         this.element = element;
@@ -376,27 +377,28 @@ export class ParagraphItem {
 
     buildTasksInfoHTML(mode) {
         let html = "";
-        if(mode === "view"){
-            for(let [commandType, commandDetails] of Object.entries(this.paragraph.commands)){
-                if(commandType === "image"){
+        if (mode === "view") {
+            for (let [commandType, commandDetails] of Object.entries(this.paragraph.commands)) {
+                if (commandType === "image") {
                     let imageSrc = utilModule.constants.IMAGE_SRC_PREFIX + `${assistOS.space.id}/${commandDetails.id}`;
                     html += `<a data-local-action="editItem link" href="${imageSrc}" class="tasks-info" data-id="${commandDetails.id}">Image</a>`;
-                } else if(commandType === "audio"){
+                } else if (commandType === "audio") {
                     let audioSrc = utilModule.constants.AUDIO_SRC_PREFIX + `${assistOS.space.id}/${commandDetails.id}`;
                     html += `<a href="${audioSrc}" class="tasks-info" data-id="${commandDetails.id}">Audio</a>`;
-                } else if(commandType === "video"){
+                } else if (commandType === "video") {
                     let videoSrc = utilModule.constants.VIDEO_SRC_PREFIX + `${assistOS.space.id}/${commandDetails.id}`;
                     html += `<a href="${videoSrc}" class="tasks-info" data-id="${commandDetails.id}">Video</a>`;
                 }
             }
         } else {
             for (let [commandType, commandDetails] of Object.entries(this.paragraph.commands)) {
+                delete commandDetails.name
                 if (commandType === "image") {
-                    html += `image id=${commandDetails.id} width=${commandDetails.width} height=${commandDetails.height}\n`;
+                    html += utilModule.buildCommandString(commandType, commandDetails);
                 } else if (commandType === "audio") {
-                    html += `audio id=${commandDetails.id}\n`;
+                    html += utilModule.buildCommandString(commandType, commandDetails);
                 } else if (commandType === "video") {
-                    html += `video id=${commandDetails.id}\n`;
+                    html += utilModule.buildCommandString(commandType, commandDetails);
                 }
             }
         }
@@ -472,15 +474,15 @@ export class ParagraphItem {
 
     }
 
-    async validateCommand(commandType, commandStatus, command) {
-        switch (commandType) {
-            case "speech":
-                return await utilModule.constants.COMMANDS_CONFIG.COMMANDS.find(command => command.NAME === "speech").VALIDATE(assistOS.space.id, this._document.id, this.paragraph.id, {});
-            case "video":
-                return await utilModule.constants.COMMANDS_CONFIG.COMMANDS.find(command => command.NAME === "video").VALIDATE(assistOS.space.id, this._document.id, this.paragraph.id, {});
-            case "lipsync":
-                return await utilModule.constants.COMMANDS_CONFIG.COMMANDS.find(command => command.NAME === "lipsync").VALIDATE(assistOS.space.id, this._document.id, this.paragraph.id, {});
-        }
+    async validateAttachment(attachmentType,resourceId) {
+        return await utilModule.constants.COMMANDS_CONFIG.ATTACHMENTS.find(attachment => attachment.NAME === attachmentType)
+            .VALIDATE(assistOS.space.id, resourceId, {});
+    }
+
+    async validateCommand(commandType) {
+        return await utilModule.constants.COMMANDS_CONFIG.COMMANDS.find(command => command.NAME === commandType)
+            .VALIDATE(assistOS.space.id, this._document.id, this.paragraph.id, {});
+
     }
 
     renderViewModeCommands() {
@@ -525,40 +527,55 @@ export class ParagraphItem {
                     }
                 }
             }
-            const existDifferences = Object.values(commandsDifferences).some(value => value !== "same");
-            if (!existDifferences) {
-                return;
-            }
-            if (Object.entries(this.paragraph.commands).length === 0) {
-                this.paragraph.commands = commands;
-            } else {
-                Object.entries(commandsDifferences).forEach(([commandName, commandState]) => {
-                    if (commandState === "deleted") {
-                        delete this.paragraph.commands[commandName];
-                    } else {
-                        /* command added,updated or same */
-                        if (!this.paragraph.commands[commandName]) {
-                            /* added */
-                            this.paragraph.commands[commandName] = {};
-                        }
-                        for (let [commandField, commandFieldValue] of Object.entries(commands[commandName])) {
-                            this.paragraph.commands[commandName][commandField] = commandFieldValue;
-                        }
-                    }
-                });
-            }
             const attachments = utilModule.findAttachments(this.getParagraphAttachmentsText());
             this.renderViewModeCommands();
             if (attachments.invalid) {
                 this.showCommandsError(attachments.error);
                 return;
             }
+            const attachmentsDifferences = utilModule.getAttachmentsDifferences(utilModule.getAttachmentsFromCommandsObject(this.paragraph.commands), attachments);
+            const existAttachmentsDifferences = Object.values(attachmentsDifferences).some(value => value !== "same");
+            const existCommandsDifferences = Object.values(commandsDifferences).some(value => value !== "same");
+
+            if (!existCommandsDifferences && !existAttachmentsDifferences) {
+                return;
+            }
+            if (existCommandsDifferences) {
+                if (Object.entries(this.paragraph.commands).length === 0) {
+                    this.paragraph.commands = commands;
+                } else {
+                    Object.entries(commandsDifferences).forEach(([commandName, commandState]) => {
+                        if (commandState === "deleted") {
+                            delete this.paragraph.commands[commandName];
+                        } else {
+                            /* command added,updated or same */
+                            if (!this.paragraph.commands[commandName]) {
+                                /* added */
+                                this.paragraph.commands[commandName] = {};
+                            }
+                            for (let [commandField, commandFieldValue] of Object.entries(commands[commandName])) {
+                                this.paragraph.commands[commandName][commandField] = commandFieldValue;
+                            }
+                        }
+                    });
+                }
+            }
             this.paragraph.commands = {...this.paragraph.commands, ...attachments};
             await documentModule.updateParagraphCommands(assistOS.space.id, this._document.id, this.paragraph.id, this.paragraph.commands);
             let errorHandlingCommands = false;
-            for (let [commandType, commandStatus] of Object.entries(commandsDifferences)) {
+            for (const [commandType, commandStatus] of Object.entries(commandsDifferences)) {
                 try {
                     await this.validateCommand(commandType, commandStatus, commands[commandType]);
+                } catch (error) {
+                    this.showCommandsError(error);
+                    errorHandlingCommands = true;
+                    break;
+                }
+            }
+            for (const [attachmentType, attachmentStatus] of Object.entries(attachmentsDifferences)) {
+                try {
+                    const resourceId = attachments[attachmentType].id;
+                    await this.validateAttachment(attachmentType, resourceId);
                 } catch (error) {
                     this.showCommandsError(error);
                     errorHandlingCommands = true;
