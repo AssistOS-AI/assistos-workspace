@@ -539,7 +539,7 @@ export class ParagraphItem {
                 }
             }
             this.invalidate(async () => {
-                this.paragraph.commands = await documentModule.getParagraphConfig(assistOS.space.id, this._document.id, this.paragraph.id);
+                this.paragraph.commands = await documentModule.getParagraphCommands(assistOS.space.id, this._document.id, this.paragraph.id);
             });
         }
     }
