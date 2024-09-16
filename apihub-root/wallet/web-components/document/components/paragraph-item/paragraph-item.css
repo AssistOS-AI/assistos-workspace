@@ -54,7 +54,10 @@ paragraph-item {
     background:inherit;
     padding-left: 10px;
 }
-.paragraph-tasks{
+.paragraph-attachments{
+    resize: none;
+    border: none;
+    outline: none;
     overflow: hidden;
     white-space: pre-wrap;
     overflow-wrap: break-word;
@@ -71,8 +74,8 @@ paragraph-item {
 .task-result{
     margin-left: 3px;
 }
-.paragraph-tasks a{
-
+.paragraph-attachments a{
+ width: fit-content;
 }
 .paragraph-controls {
     height: 45px;

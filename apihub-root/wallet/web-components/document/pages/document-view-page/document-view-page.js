@@ -270,6 +270,10 @@ export class DocumentViewPage {
             let paragraphTextarea = paragraphComponent.querySelector(".paragraph-text");
             paragraphTextarea.click();
             return;
+        } else if(type === "link"){
+            let href = _target.getAttribute("href");
+            window.open(href, "_blank");
+            return;
         }
         let saveFunction;
         let resetTimerFunction = this.resetTimer.bind(this);

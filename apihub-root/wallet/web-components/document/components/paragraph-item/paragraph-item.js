@@ -174,38 +174,29 @@ export class ParagraphItem {
         this.paragraphHeader.style.height = this.paragraphHeader.scrollHeight + 'px';
         headerSection.style.height = headerSection.scrollHeight + 'px';
     }
-    renderImageMaxWidth() {
-        if (this.paragraph.commands.image.dimensions) {
-            this.imgElement.style.width = this.paragraph.commands.image.dimensions.width + "px";
-            this.imgElement.style.height = this.paragraph.commands.image.dimensions.height + "px";
-            return;
-        }
-        let originalWidth = parseFloat(getComputedStyle(this.imgElement, null).getPropertyValue('width').replace('px', ''));
-        let originalHeight = parseFloat(getComputedStyle(this.imgElement, null).getPropertyValue('height').replace('px', ''));
-        const aspectRatio = originalWidth / originalHeight;
-        const maxWidth = this.parentChapterElement.getBoundingClientRect().width - 78;
-        const maxHeight = maxWidth / aspectRatio;
-        this.imgElement.style.width = maxWidth + 'px';
-        this.imgElement.style.height = maxHeight + 'px';
-        this.paragraph.commands.image.dimensions = {
-            width: maxWidth,
-            height: maxHeight
-        };
-        documentModule.updateParagraphCommands(assistOS.space.id, this._document.id, this.paragraph.id, this.paragraph.commands);
+    renderImageDimensions() {
+        this.imgElement.style.width = this.paragraph.commands.image.width + "px";
+        this.imgElement.style.height = this.paragraph.commands.image.height + "px";
+
+        //render max width
+        // let originalWidth = parseFloat(getComputedStyle(this.imgElement, null).getPropertyValue('width').replace('px', ''));
+        // let originalHeight = parseFloat(getComputedStyle(this.imgElement, null).getPropertyValue('height').replace('px', ''));
+        // const aspectRatio = originalWidth / originalHeight;
+        // const maxWidth = this.parentChapterElement.getBoundingClientRect().width - 78;
+        // const maxHeight = maxWidth / aspectRatio;
+        // this.imgElement.style.width = maxWidth + 'px';
+        // this.imgElement.style.height = maxHeight + 'px';
     }
 
     setupImage() {
         let imgContainer = this.element.querySelector(".img-container");
         imgContainer.style.display = "flex";
         this.imgElement = this.element.querySelector(".paragraph-image");
-        this.imgElement.addEventListener('load', this.renderImageMaxWidth.bind(this), {once: true});
+        this.imgElement.addEventListener('load', this.renderImageDimensions.bind(this), {once: true});
         this.imgElement.src = this.paragraph.commands.image.src;
         this.imgElement.alt = this.paragraph.commands.image.alt;
         this.imgContainer = this.element.querySelector('.img-container');
-        let paragraphImage = this.element.querySelector(".paragraph-image");
-        if (assistOS.space.currentParagraphId === this.paragraph.id) {
-            paragraphImage.click();
-        }
+
         const handlesNames = ["ne", "se", "sw", "nw"];
         let handles = {};
         for (let handleName of handlesNames) {
@@ -292,9 +283,9 @@ export class ParagraphItem {
             width: imageElement.width,
             height: imageElement.height
         };
-        if ((dimensions.width !== this.paragraph.commands.image.dimensions.width || dimensions.height !== this.paragraph.commands.image.dimensions.height)) {
-            this.paragraph.commands.image.dimensions.width = dimensions.width;
-            this.paragraph.commands.image.dimensions.height = dimensions.height;
+        if ((dimensions.width !== this.paragraph.commands.image.width || dimensions.height !== this.paragraph.commands.image.height)) {
+            this.paragraph.commands.image.width = dimensions.width;
+            this.paragraph.commands.image.height = dimensions.height;
             await documentModule.updateParagraphCommands(
                 assistOS.space.id,
                 this._document.id,
@@ -345,8 +336,8 @@ export class ParagraphItem {
         let paragraphText = this.element.querySelector('.paragraph-text');
         paragraphText.classList.add("highlight-paragraph");
         this.imgContainer.classList.add("highlight-image");
-        let tasksInfo = this.element.querySelector('.paragraph-tasks');
-        tasksInfo.innerHTML = this.buildTasksInfoHTML("edit");
+
+        this.renderEditModeCommands();
     }
 
     highlightParagraph() {
@@ -362,15 +353,29 @@ export class ParagraphItem {
         if (this.paragraph.commands.image) {
             this.imgContainer.classList.add("highlight-image");
         }
-        let tasksInfo = this.element.querySelector('.paragraph-tasks');
-        tasksInfo.innerHTML = this.buildTasksInfoHTML("edit");
+        this.renderEditModeCommands();
+    }
+
+    renderEditModeCommands() {
+        let tasksInfo = this.element.querySelector('.paragraph-attachments');
+        tasksInfo.remove();
+        let textareaContainer = this.element.querySelector('.header-sections');
+        let textareaValue = this.buildTasksInfoHTML("edit");
+        textareaContainer.insertAdjacentHTML('afterbegin', `<textarea class="paragraph-attachments"></textarea>`);
+        let attachmentsElement = this.element.querySelector('.paragraph-attachments');
+        attachmentsElement.value = textareaValue;
+        attachmentsElement.style.height = attachmentsElement.scrollHeight + 'px';
+        attachmentsElement.addEventListener('input', function () {
+            this.style.height = 'auto';
+            this.style.height = this.scrollHeight + 'px';
+        });
     }
     buildTasksInfoHTML(mode) {
         let html = "";
         if(mode === "view"){
             for(let [commandType, commandDetails] of Object.entries(this.paragraph.commands)){
                 if(commandType === "image"){
-                    html += `<a href="${commandDetails.src}" class="tasks-info" data-id="${commandDetails.id}">Image</a>`;
+                    html += `<a data-local-action="editItem link" href="${commandDetails.src}" class="tasks-info" data-id="${commandDetails.id}">Image</a>`;
                 } else if(commandType === "audio"){
                     html += `<a href="${commandDetails.src}" class="tasks-info" data-id="${commandDetails.id}">Audio</a>`;
                 } else if(commandType === "video"){
@@ -470,10 +475,17 @@ export class ParagraphItem {
                 return await utilModule.constants.COMMANDS_CONFIG.COMMANDS.find(command => command.NAME === "lipsync").VALIDATE(assistOS.space.id, this._document.id, this.paragraph.id,{});
         }
     }
-
+    renderViewModeCommands(){
+        let paragraphAttachments = this.element.querySelector('.paragraph-attachments');
+        paragraphAttachments.remove();
+        let divText = this.buildTasksInfoHTML("view");
+        let headerSection = this.element.querySelector('.header-sections');
+        headerSection.insertAdjacentHTML('afterbegin', `<div class="paragraph-attachments">${divText}</div>`);
+        paragraphAttachments = this.element.querySelector('.paragraph-attachments');
+        paragraphAttachments.style.height = paragraphAttachments.scrollHeight + 'px';
+    }
     async focusOutHandler() {
-        let tasksInfo = this.element.querySelector('.paragraph-tasks');
-        tasksInfo.innerHTML = this.buildTasksInfoHTML("view");
+        this.renderViewModeCommands();
         this.switchParagraphArrows("off");
         this.paragraphHeader.setAttribute('readonly', 'true');
         let paragraphHeaderContainer = this.element.querySelector('.paragraph-header');
@@ -545,8 +557,7 @@ export class ParagraphItem {
     }
 
     focusOutHandlerImage() {
-        let tasksInfo = this.element.querySelector('.paragraph-tasks');
-        tasksInfo.innerHTML = this.buildTasksInfoHTML("view");
+        this.renderViewModeCommands();
         this.switchParagraphArrows("off");
         let dragBorder = this.element.querySelector(".drag-border");
         dragBorder.style.display = "none";

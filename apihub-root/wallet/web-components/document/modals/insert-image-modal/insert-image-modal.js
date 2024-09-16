@@ -140,15 +140,23 @@ export class InsertImageModal {
     selectFileHandler(_target, event){
         let file = event.target.files[0];
         let reader = new FileReader();
+        const img = new Image();
         reader.onload = async (e) => {
-            let imageId = await spaceModule.addImage(assistOS.space.id, e.target.result);
-            let data = {
-                src: `spaces/image/${assistOS.space.id}/${imageId}`,
-                id: imageId,
-                alt: new Date().toISOString(),
-                isUploadedImage: true
+            img.onload = function() {
+                const width = img.width;
+                const height = img.height;
+                let data = {
+                    src: `spaces/image/${assistOS.space.id}/${imageId}`,
+                    id: imageId,
+                    alt: new Date().toISOString(),
+                    isUploadedImage: true,
+                    width: width,
+                    height: height
+                };
+                assistOS.UI.closeModal(_target, data);
             };
-            assistOS.UI.closeModal(_target, data);
+            let imageId = await spaceModule.addImage(assistOS.space.id, e.target.result);
+            img.src = e.target.result;
         };
         reader.readAsDataURL(file);
     }
