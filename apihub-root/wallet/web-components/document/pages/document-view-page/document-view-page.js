@@ -276,8 +276,9 @@ export class DocumentViewPage {
             let paragraphItem = targetElement.closest("paragraph-item");
             let paragraphText = paragraphItem.querySelector(".paragraph-text");
             let paragraphPresenter = paragraphItem.webSkelPresenter;
-            await paragraphPresenter.highlightParagraph();
+
             await this.changeCurrentElement(paragraphItem, paragraphPresenter.focusOutHandler.bind(paragraphPresenter, paragraphText));
+            await paragraphPresenter.highlightParagraph();
             await chapterPresenter.highlightChapter();
             return;
         }
@@ -307,7 +308,7 @@ export class DocumentViewPage {
             let chapterPresenter = targetElement.closest("chapter-item").webSkelPresenter;
             let paragraphItem = targetElement.closest("paragraph-item");
             let paragraphPresenter = paragraphItem.webSkelPresenter;
-            await this.changeCurrentElement(paragraphItem, paragraphPresenter.focusOutHandler.bind(paragraphPresenter, targetElement));
+            await this.changeCurrentElement(targetElement, paragraphPresenter.focusOutHandler.bind(paragraphPresenter, targetElement));
             await chapterPresenter.highlightChapter();
             paragraphPresenter.highlightParagraph();
 
@@ -317,7 +318,7 @@ export class DocumentViewPage {
             let chapterPresenter = targetElement.closest("chapter-item").webSkelPresenter;
             let paragraphItem = targetElement.closest("paragraph-item");
             let paragraphPresenter = paragraphItem.webSkelPresenter;
-            await this.changeCurrentElement(paragraphItem, paragraphPresenter.focusOutHandlerImage.bind(paragraphPresenter, targetElement));
+            await this.changeCurrentElement(targetElement, paragraphPresenter.focusOutHandlerImage.bind(paragraphPresenter, targetElement));
             await chapterPresenter.highlightChapter();
             paragraphPresenter.highlightParagraph();
             let dragBorder = paragraphItem.querySelector(".drag-border");
