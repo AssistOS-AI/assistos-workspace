@@ -1,10 +1,11 @@
 const documentModule = require("assistos").loadModule("document", {});
 const utilModule = require("assistos").loadModule("util", {});
-export class DocumentTasksMenu{
+export class DocumentTasksModal {
     constructor(element, invalidate) {
         this.element = element;
         this.invalidate = invalidate;
         this.newTasksCount = 0;
+        this.runningTasks = 0;
         this.documentId = this.element.getAttribute("data-document-id");
         this.loadTasks = async () => {
             let tasks = await documentModule.getDocumentTasks(assistOS.space.id, this.documentId);
@@ -12,6 +13,12 @@ export class DocumentTasksMenu{
                 this.calculateNewTasks(tasks);
             }
             this.tasks = tasks;
+            this.runningTasks = 0;
+            for(let task of this.tasks){
+                if(task.status === "running"){
+                    this.runningTasks++;
+                }
+            }
         };
         this.renderNewTasks = async () => {
             this.loadTasks().then(() => {
@@ -49,28 +56,25 @@ export class DocumentTasksMenu{
         }
     }
     beforeRender(){
-        this.menuContent = ` 
-        <div class="tasks-list-container">
-             <div class="tasks-list">
-             </div>
-        </div>`;
+        this.modalContent = `<div class="tasks-list"></div>`;
         if(this.tasks.length > 0){
             let tasksList = "";
             for(let task of this.tasks){
                 tasksList += `<task-item data-id="${task.id}" data-name="${task.name}" data-status=${task.status} data-presenter="task-item"></task-item>`;
             }
-            this.menuContent = `
-            <div class="tasks-list-container">
-                <button class="general-button run-all-tasks" data-local-action="runAllTasks">Run all</button>
+            this.modalContent = `
+                <div class="tasks-buttons">
+                    <button class="general-button run-all-tasks" data-local-action="runAllTasks">Run all</button>
+                    <button class="general-button cancel-all-tasks" data-local-action="cancelAllTasks">Cancel all</button>
+                </div>
                 <div class="tasks-header">
                     <div class="name-header">Name</div>
                     <div class="status-header">Status</div>
-                    <div class="action-header">Action</div>
+                    <div class="action-header">Info</div>
                 </div>
                 <div class="tasks-list">
                     ${tasksList}
-                </div>
-            </div>`;
+                </div>`;
         }
     }
     renderBadge(){
@@ -85,33 +89,51 @@ export class DocumentTasksMenu{
     }
     afterRender(){
         this.renderBadge();
+        this.checkRunningTasks();
     }
-    async runAllTasks(){
+    async runAllTasks(button){
+        this.runningTasks = 0;
         for(let task of this.tasks){
             if(task.status === "created" || task.status === "cancelled"){
+                this.runningTasks++;
                 utilModule.runTask(task.id);
             }
+        }
+        if(this.runningTasks > 1){
+            button.classList.add("disabled");
+        }
+    }
+    async cancelAllTasks(button){
+        for(let task of this.tasks){
+            if(task.status === "running"){
+                utilModule.cancelTask(task.id);
+            }
+        }
+        if(this.runningTasks > 1){
+            button.classList.add("disabled");
+        }
+    }
+    checkRunningTasks(){
+        if(this.runningTasks === 0){
+            let runAllButton = this.element.querySelector(".run-all-tasks");
+            runAllButton.classList.remove("disabled");
+            let cancelAllButton = this.element.querySelector(".cancel-all-tasks");
+            cancelAllButton.classList.add("disabled");
+        } else {
+            let runAllButton = this.element.querySelector(".run-all-tasks");
+            runAllButton.classList.add("disabled");
+            let cancelAllButton = this.element.querySelector(".cancel-all-tasks");
+            cancelAllButton.classList.remove("disabled");
         }
     }
     async afterUnload(){
         await utilModule.unsubscribeFromObject(this.documentId + "/tasks");
     }
-    showTasksMenu(tasksButton){
-        let tasksMenu = this.element.querySelector(".tasks-list-container");
-        tasksMenu.style.display = "flex";
-        this.newTasksCount = 0;
-        this.renderBadge();
-        let controller = new AbortController();
-        document.addEventListener("click", this.removeTasksMenu.bind(this, controller, tasksButton), {signal: controller.signal});
-        tasksButton.removeAttribute("data-local-action");
+    closeModal(){
+        assistOS.UI.closeModal(this.element);
     }
-    removeTasksMenu(controller, tasksButton, event){
-        let menu = event.target.closest(".tasks-list-container");
-        if(!menu){
-            let tasksMenu = this.element.querySelector(".tasks-list-container");
-            tasksMenu.style.display = "none";
-            controller.abort();
-            tasksButton.setAttribute("data-local-action", "showTasksMenu");
-        }
+    updateTaskInList(taskId, status){
+        let task = this.tasks.find(t => t.id === taskId);
+        task.status = status;
     }
 }

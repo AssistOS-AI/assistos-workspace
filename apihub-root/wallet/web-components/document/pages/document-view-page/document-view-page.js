@@ -39,7 +39,6 @@ export class DocumentViewPage {
     beforeRender() {
         this.chaptersContainer = "";
         this.docTitle = this._document.title;
-        this.documentId = this._document.id; // tasks-menu
         this.abstractText = this._document.abstract || "No abstract has been set or generated for this document";
         if (this._document.chapters.length > 0) {
             let iterator = 0;
@@ -427,5 +426,7 @@ export class DocumentViewPage {
         const llmModule = require('assistos').loadModule('llm', {});
         const response = (await llmModule.lipsync(assistOS.space.id, "sync-1.6.0", {}))
     }
-
+    async openTasksModal(targetElement){
+        await assistOS.UI.showModal("document-tasks-modal", {["document-id"]: this._document.id});
+    }
 }

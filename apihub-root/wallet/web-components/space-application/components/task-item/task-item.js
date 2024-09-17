@@ -9,31 +9,39 @@ export class TaskItem{
         this.invalidate(async ()=> {
             await utilModule.subscribeToObject(this.id, async (status) => {
                 this.status = status;
+                let stopStatuses = ["cancelled", "failed", "completed"];
+                if(stopStatuses.includes(status)){
+                    this.tasksModalPresenter.runningTasks--;
+                    this.tasksModalPresenter.updateTaskInList(this.id, status);
+                    this.tasksModalPresenter.checkRunningTasks();
+                }
                 this.invalidate();
             });
         })
     }
     beforeRender(){
-        let runButtonStatuses = ["created", "cancelled"];
-        if(runButtonStatuses.includes(this.status)){
-            this.actionButton = `<button class="general-button task-button green" data-local-action="runTask">Run</button>`;
-        } else if(this.status === "running"){
-            this.actionButton = `<button class="general-button task-button yellow" data-local-action="cancelTask">Cancel</button>`;
-        } else if(this.status === "completed"){
-            this.actionButton = `<button class="general-button task-button grey" disabled>Completed</button>`;
-        } else if(this.status === "failed"){
-            this.actionButton = `<button class="general-button task-button red" disabled>Failed</button>`;
-        } else if(this.status === "pending"){
-            this.actionButton = `<button class="general-button task-button grey" disabled>Pending</button>`;
-        }
+
     }
-    async runTask(){
-        await utilModule.runTask(this.id);
-    }
-    async cancelTask(){
-        await utilModule.cancelTask(this.id);
+    afterRender(){
+        let tasksModal = this.element.closest("document-tasks-modal");
+        this.tasksModalPresenter = tasksModal.webSkelPresenter;
     }
     afterUnload(){
         utilModule.unsubscribeFromObject(this.id);
+    }
+    async showTaskInfo(){
+        let task = await utilModule.getTask(this.id);
+        let info= "";
+        for(let [key,value] of Object.entries(task.configs)){
+            info += `${key}: ${value}\n`;
+        }
+        let taskInfo = `<div class="info-pop-up">${info}</div>`;
+        let taskAction = this.element.querySelector(".task-action");
+        taskAction.insertAdjacentHTML("beforeend", taskInfo);
+        document.addEventListener("click", this.removeInfoPopUp.bind(this), {once: true});
+    }
+    removeInfoPopUp(){
+        let taskInfo = this.element.querySelector(".info-pop-up");
+        taskInfo.remove();
     }
 }

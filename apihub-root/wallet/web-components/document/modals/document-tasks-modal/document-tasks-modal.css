@@ -1,8 +1,9 @@
-document-tasks-menu{
-    display: flex;
-    position: relative;
-    align-items: center;
-    cursor: pointer;
+document-tasks-modal{
+    width: 400px;
+    height: fit-content;
+}
+dialog{
+    overflow: visible;
 }
 .tasks-list-container {
     cursor: initial;
@@ -11,10 +12,6 @@ document-tasks-menu{
     font-size: 14px;
     align-items: flex-start;
     max-height: 350px;
-    position: absolute;
-    top: 0;
-    right: 35px;
-    display: none;
     flex-direction: column;
     box-shadow: 0px 1px 5.5px 0px #65666754;
     padding: 5px 0;
@@ -29,7 +26,8 @@ document-tasks-menu{
     padding: 10px 10px 0 10px;
     font-weight: 700;
 }
-.run-all-tasks{
+.run-all-tasks,
+.cancel-all-tasks{
     font-size: 14px;
     margin-top: 5px;
     margin-left: 10px;
@@ -41,13 +39,12 @@ document-tasks-menu{
     width: 48%;
 }
 .status-header{
-    width: 34%;
+    width: 36%;
 }
 .action-header{
     width: 15%;
 }
 .tasks-list{
-    overflow-y: auto;
     scrollbar-width: initial;
     width: 400px;
 }
@@ -75,4 +72,12 @@ document-tasks-menu{
     padding: 0 7px;
     width: 19px;
     border-radius: 50%;
+}
+.disabled{
+    pointer-events: none;
+    cursor: initial;
+    background-color: var(--very-light-gray);
+}
+.tasks-buttons{
+    display: flex;
 }

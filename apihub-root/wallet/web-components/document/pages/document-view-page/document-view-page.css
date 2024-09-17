@@ -244,6 +244,7 @@ html[theme="dark"] .document-title-container {
 }
 .task-icon{
     width: 25px;
+    cursor: pointer;
 }
 .menu-section{
     display: flex;
