@@ -338,7 +338,7 @@ export class ParagraphItem {
         let paragraphHeaderContainer = this.element.querySelector('.paragraph-header');
         paragraphHeaderContainer.classList.add("highlight-paragraph-header");
         let paragraphText = this.element.querySelector('.paragraph-text');
-        paragraphText.classList.add("highlight-paragraph");
+        paragraphText.classList.add("focused")
         this.imgContainer.classList.add("highlight-image");
         this.renderEditModeCommands();
     }
@@ -348,6 +348,8 @@ export class ParagraphItem {
         assistOS.space.currentParagraphId = this.paragraph.id;
         let paragraphHeaderContainer = this.element.querySelector('.paragraph-header');
         paragraphHeaderContainer.classList.add("highlight-paragraph-header");
+        let paragraphText = this.element.querySelector('.paragraph-text');
+        paragraphText.classList.add("focused")
         this.paragraphHeader.removeAttribute('readonly');
         this.paragraphHeader.addEventListener('input', function () {
             this.style.height = 'auto';
@@ -495,7 +497,7 @@ export class ParagraphItem {
         paragraphAttachments.remove();
         let divText = this.buildTasksInfoHTML("view");
         let headerSection = this.element.querySelector('.header-sections');
-        headerSection.insertAdjacentHTML('afterbegin', `<div class="paragraph-attachments">${divText}</div>`);
+        headerSection.insertAdjacentHTML('afterbegin', `<div class="paragraph-attachments maintain-focus">${divText}</div>`);
         paragraphAttachments = this.element.querySelector('.paragraph-attachments');
         paragraphAttachments.style.height = paragraphAttachments.scrollHeight + 'px';
         this.paragraphAtachments = paragraphAttachments;
@@ -509,6 +511,8 @@ export class ParagraphItem {
 
     async focusOutHandler() {
         this.switchParagraphArrows("off");
+        let paragraphText = this.element.querySelector(".paragraph-text");
+        paragraphText.classList.remove("focused");
         this.paragraphHeader.setAttribute('readonly', 'true');
         let paragraphHeaderContainer = this.element.querySelector('.paragraph-header');
         paragraphHeaderContainer.classList.remove("highlight-paragraph-header");
@@ -602,7 +606,7 @@ export class ParagraphItem {
         }
     }
 
-    focusOutHandlerImage() {
+    focusOutHandlerImage(imageContainer) {
         this.renderViewModeCommands();
         this.switchParagraphArrows("off");
         let dragBorder = this.element.querySelector(".drag-border");
@@ -611,8 +615,8 @@ export class ParagraphItem {
         let paragraphHeaderContainer = this.element.querySelector('.paragraph-header');
         paragraphHeaderContainer.classList.remove("highlight-paragraph-header");
         let paragraphText = this.element.querySelector('.paragraph-text');
-        paragraphText.classList.remove("highlight-paragraph");
-        this.imgContainer.classList.remove("highlight-image");
+        paragraphText.classList.remove("focused");
+        imageContainer.classList.remove("highlight-image");
     }
 
 

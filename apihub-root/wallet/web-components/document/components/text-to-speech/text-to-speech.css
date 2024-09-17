@@ -2,7 +2,6 @@ text-to-speech{
     width: 350px;
     z-index: 4;
     position: absolute;
-    top: 0;
     left: 0;
     background-color: var(--white);
     padding: 10px;

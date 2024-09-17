@@ -286,9 +286,6 @@ paragraph-item {
     position: absolute;
     z-index: 13;
 }
-.highlight-paragraph{
-    background: var(--white) !important;
-}
-.highlight-image{
-    background: lightgray !important;
+#current-selection-parent .focusable.highlight-image{
+    background-color: lightgray;
 }

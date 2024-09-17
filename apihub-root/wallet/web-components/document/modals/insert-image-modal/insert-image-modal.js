@@ -158,3 +158,4 @@ export class InsertImageModal {
         reader.readAsDataURL(file);
     }
 }
+

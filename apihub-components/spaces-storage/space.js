@@ -870,7 +870,6 @@ async function importDocument(spaceId, extractedPath, request) {
                 const imageId = await uploadImage(spaceId, dataUrl);
                 paragraphObject.commands.image.id = imageId;
                 paragraphObject.commands.image.src = `spaces/image/${spaceId}/${imageId}`;
-                paragraphObject.commands.image.isUploadedImage = true;
             }
 
             if (paragraphObject.commands.audio) {
