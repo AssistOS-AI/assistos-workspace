@@ -15,12 +15,11 @@ class TextToSpeech extends Task {
             const documentModule = require('assistos').loadModule('document', this.securityContext);
             const personalityModule = require('assistos').loadModule('personality', this.securityContext);
             const utilModule = require('assistos').loadModule('util', this.securityContext);
-
-            await utilModule.constants.COMMANDS_CONFIG.COMMANDS.find(command => command.NAME === "speech").VALIDATE(this.spaceId, this.documentId, this.paragraphId, this.securityContext);
+            const paragraph = await documentModule.getParagraph(this.spaceId, this.documentId, this.paragraphId);
+            await utilModule.constants.COMMANDS_CONFIG.COMMANDS.find(command => command.NAME === "speech").VALIDATE(this.spaceId, paragraph, this.securityContext);
 
             const paragraphConfig = await documentModule.getParagraphCommands(this.spaceId, this.documentId, this.paragraphId);
             const personalityData = await personalityModule.getPersonalityByName(this.spaceId, paragraphConfig.speech.paramsObject.personality);
-            const paragraph = await documentModule.getParagraph(this.spaceId, this.documentId, this.paragraphId);
 
             const audioBlob = await llmModule.textToSpeech(this.spaceId, {
                 prompt: paragraph.text,
@@ -34,7 +33,7 @@ class TextToSpeech extends Task {
 
             this.audioId = crypto.generateId();
             paragraphConfig.audio = {
-                id: this.audioId,
+                id: this.audioId
             }
             await documentModule.updateParagraphCommands(this.spaceId, this.documentId, this.paragraphId, paragraphConfig);
             await space.APIs.putAudio(this.spaceId, this.audioId, audioBlob);
