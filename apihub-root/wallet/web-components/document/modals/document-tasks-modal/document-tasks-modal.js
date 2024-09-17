@@ -99,7 +99,7 @@ export class DocumentTasksModal {
                 utilModule.runTask(task.id);
             }
         }
-        if(this.runningTasks > 1){
+        if(this.runningTasks > 0){
             button.classList.add("disabled");
         }
     }
@@ -109,8 +109,8 @@ export class DocumentTasksModal {
                 utilModule.cancelTask(task.id);
             }
         }
-        if(this.runningTasks > 1){
-            button.classList.add("disabled");
+        if(this.runningTasks > 0){
+            button.classList.remove("disabled");
         }
     }
     checkRunningTasks(){
