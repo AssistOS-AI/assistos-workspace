@@ -529,6 +529,9 @@ export class ParagraphItem {
             const existCommandsDifferences = Object.values(commandsDifferences).some(value => value !== "same");
 
             if (!existCommandsDifferences && !existAttachmentsDifferences) {
+                /* there is nothing further to do, and there are no syntax errors */
+                this.errorElement.innerText = "";
+                this.errorElement.classList.add("hidden");
                 return;
             }
             this.paragraph.commands = {...this.paragraph.commands, ...attachments};
@@ -582,7 +585,6 @@ export class ParagraphItem {
                     await this.handleCommand(commandType, commandStatus, commands[commandType]);
                 }
             }
-            this.paragraph.commands = await documentModule.getParagraphCommands(assistOS.space.id, this._document.id, this.paragraph.id);
         }
     }
 
