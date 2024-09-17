@@ -38,27 +38,14 @@ async function textToSpeechParagraph(request, response) {
 
         const documentModule = require("assistos").loadModule("document", securityContext);
 
-        const paragraph = await documentModule.getParagraph(spaceId, documentId, paragraphId);
-        const paragraphConfig = await documentModule.getParagraphCommands(spaceId, documentId, paragraphId);
 
-        if(!paragraph){
-            return utils.sendResponse(response, 400, "application/json", {
-                success: false,
-                message: "Paragraph not found"
-            });
-        }
-        if(!paragraphConfig.speech){
-            return utils.sendResponse(response, 400, "application/json", {
-                success: false,
-                message: "Paragraph does not have a speech command"
-            })
-        }
         const task = new TextToSpeech(securityContext, spaceId, userId, {
             documentId,
             paragraphId,
         });
         await TaskManager.addTask(task);
 
+        const paragraphConfig = await documentModule.getParagraphCommands(spaceId, documentId, paragraphId);
         paragraphConfig.speech.taskId = task.id;
         await documentModule.updateParagraphCommands(spaceId, documentId, paragraphId, paragraphConfig);
 
@@ -95,7 +82,7 @@ async function lipSyncParagraph(request, response) {
         let documentModule = require("assistos").loadModule("document", securityContext);
 
         let paragraphConfig = await documentModule.getParagraphCommands(spaceId, documentId, paragraphId);
-        paragraphConfig.commands["lipsync"].taskId = task.id;
+        paragraphConfig.lipsync.taskId = task.id;
         await documentModule.updateParagraphCommands(spaceId, documentId, paragraphId, paragraphConfig);
 
         utils.sendResponse(response, 200, "application/json", {

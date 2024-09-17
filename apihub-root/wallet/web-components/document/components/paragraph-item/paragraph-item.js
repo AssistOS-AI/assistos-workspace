@@ -487,9 +487,9 @@ export class ParagraphItem {
             .VALIDATE(assistOS.space.id, resourceId, {});
     }
 
-    async validateCommand(commandType) {
+    async validateCommand(commandType,paragraph) {
         return await utilModule.constants.COMMANDS_CONFIG.COMMANDS.find(command => command.NAME === commandType)
-            .VALIDATE(assistOS.space.id, this._document.id, this.paragraph.id, {});
+            .VALIDATE(assistOS.space.id, paragraph, {});
     }
 
     renderViewModeCommands() {
@@ -546,10 +546,11 @@ export class ParagraphItem {
             const existAttachmentsDifferences = Object.values(attachmentsDifferences).some(value => value !== "same");
             const existCommandsDifferences = Object.values(commandsDifferences).some(value => value !== "same");
 
-
             if (!existCommandsDifferences && !existAttachmentsDifferences) {
                 return;
             }
+            this.paragraph.commands = {...this.paragraph.commands, ...attachments};
+
             if (existCommandsDifferences) {
                 if (Object.entries(this.paragraph.commands).length === 0) {
                     this.paragraph.commands = commands;
@@ -573,7 +574,7 @@ export class ParagraphItem {
             let errorHandlingCommands = false;
             for (const [commandType, commandStatus] of Object.entries(commandsDifferences)) {
                 try {
-                    await this.validateCommand(commandType, commandStatus, commands[commandType]);
+                    await this.validateCommand(commandType, this.paragraph);
                 } catch (error) {
                     this.showCommandsError(error);
                     errorHandlingCommands = true;
@@ -594,11 +595,10 @@ export class ParagraphItem {
             if (!errorHandlingCommands) {
                 this.errorElement.innerText = "";
                 this.errorElement.classList.add("hidden");
+                await documentModule.updateParagraphCommands(assistOS.space.id, this._document.id, this.paragraph.id, this.paragraph.commands);
                 for (let [commandType, commandStatus] of Object.entries(commandsDifferences)) {
                     await this.handleCommand(commandType, commandStatus, commands[commandType]);
                 }
-                this.paragraph.commands = {...this.paragraph.commands, ...attachments};
-                await documentModule.updateParagraphCommands(assistOS.space.id, this._document.id, this.paragraph.id, this.paragraph.commands);
             }
             this.invalidate(async () => {
                 this.paragraph.commands = await documentModule.getParagraphCommands(assistOS.space.id, this._document.id, this.paragraph.id);
