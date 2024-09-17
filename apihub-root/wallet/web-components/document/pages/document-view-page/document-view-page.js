@@ -317,14 +317,11 @@ export class DocumentViewPage {
             let chapterPresenter = targetElement.closest("chapter-item").webSkelPresenter;
             let paragraphItem = targetElement.closest("paragraph-item");
             let paragraphPresenter = paragraphItem.webSkelPresenter;
-            let dragBorder = paragraphItem.querySelector(".drag-border");
-            dragBorder.style.display = "block";
-            // if(paragraphItem.getAttribute("id") === "current-selection-"){
-            //     return;
-            // }
             await this.changeCurrentElement(paragraphItem, paragraphPresenter.focusOutHandlerImage.bind(paragraphPresenter, targetElement));
             await chapterPresenter.highlightChapter();
             paragraphPresenter.highlightParagraph();
+            let dragBorder = paragraphItem.querySelector(".drag-border");
+            dragBorder.style.display = "block";
 
             saveFunction = paragraphPresenter.saveParagraphImage.bind(paragraphPresenter, targetElement);
             resetTimerFunction = paragraphPresenter.resetTimerImage.bind(paragraphPresenter, targetElement);

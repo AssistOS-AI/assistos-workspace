@@ -178,9 +178,6 @@ export class ParagraphItem {
     }
 
     renderImageDimensions() {
-        //this.imgElement.style.width = this.paragraph.commands.image.width + "px";
-        //this.imgElement.style.height = this.paragraph.commands.image.height + "px";
-
         let originalWidth = parseFloat(getComputedStyle(this.imgElement, null).getPropertyValue('width').replace('px', ''));
         let originalHeight = parseFloat(getComputedStyle(this.imgElement, null).getPropertyValue('height').replace('px', ''));
         const aspectRatio = originalWidth / originalHeight;
@@ -188,6 +185,10 @@ export class ParagraphItem {
         const maxHeight = maxWidth / aspectRatio;
         this.imgElement.style.width = maxWidth + 'px';
         this.imgElement.style.height = maxHeight + 'px';
+
+        this.paragraph.commands.image.width = maxWidth;
+        this.paragraph.commands.image.height = maxHeight;
+        documentModule.updateParagraphCommands(assistOS.space.id, this._document.id, this.paragraph.id, this.paragraph.commands);
     }
 
     setupImage() {
