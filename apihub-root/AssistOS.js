@@ -130,18 +130,18 @@ class AssistOS {
                 sidebar.remove();
             }
         }
-        const loaderId=await assistOS.UI.showLoading();
+        const loaderId = await assistOS.UI.showLoading();
         await utilModule.closeSSEConnection(this.connectionSSE);
         delete this.connectionSSE;
         await userModule.logoutUser();
         removeSidebar();
         await
-        await this.refresh();
+            await this.refresh();
 
     }
 
     async refresh() {
-        window.location= "/";
+        window.location = "/";
     }
 
     async initUser(spaceId) {
@@ -207,7 +207,10 @@ class AssistOS {
                 url: `/events/updates`,
                 withCredentials: true,
                 onDisconnect: async (disconnectReason) => {
-                    await assistOS.UI.showModal("client-disconnect-modal", {"presenter":"client-disconnect-modal",reason: disconnectReason.message});
+                    await assistOS.UI.showModal("client-disconnect-modal", {
+                        "presenter": "client-disconnect-modal",
+                        reason: disconnectReason.message
+                    });
                 },
                 onError: async (err) => {
                     console.error('EventSource failed:', err);
@@ -215,7 +218,7 @@ class AssistOS {
             }
             try {
                 this.connectionSSE = utilModule.createSSEConnection(SSEConfig);
-            }catch(error){
+            } catch (error) {
                 await showApplicationError("Error", "Failed to establish connection to the server", error.message);
             }
             await initPage();
@@ -235,8 +238,33 @@ class AssistOS {
         return await flowModule.callFlow(assistOS.space.id, flowName, context, personalityId);
     }
 
+    async loadifyComponent(componentElement, asyncFunc, ...args) {
+        const removeComponentLoader = (componentElement) => {
+            const loader = componentElement.querySelector('.component-loader');
+            if (loader) loader.remove();
+        }
+        const addComponentLoader = (componentElement) => {
+            const loader = document.createElement('div');
+            loader.classList.add('component-loader');
+            componentElement.style.position = 'relative';
+            componentElement.appendChild(loader);
+            componentElement.style.pointerEvents = 'none';
+            return loader
+        }
+
+        try {
+            addComponentLoader(componentElement);
+            return await asyncFunc(...args);
+        } catch (error) {
+            throw error;
+        } finally {
+            removeComponentLoader(componentElement);
+            componentElement.style.pointerEvents = 'auto';
+        }
+    }
+
     async loadifyFunction(asyncFunc, ...args) {
-        const loaderId=await this.UI.showLoading();
+        const loaderId = await this.UI.showLoading();
         try {
             return await asyncFunc(...args);
         } catch (error) {
@@ -331,11 +359,11 @@ function defineActions() {
     assistOS.UI.registerAction("toggleSidebar", async (_target) => {
         const arrow = _target.querySelector(".point-arrow");
         const sidebar = document.querySelector(".right-sidebar");
-        if(assistOS.UI.sidebarState ==="closed"){
+        if (assistOS.UI.sidebarState === "closed") {
             sidebar.style.transform = "translateX(0%)";
             arrow.classList.toggle("arrow-rotated");
             assistOS.UI.sidebarState = "open";
-        }else {
+        } else {
             sidebar.style.transform = "translateX(80%)";
             arrow.classList.toggle("arrow-rotated");
             assistOS.UI.sidebarState = "closed";
@@ -364,7 +392,7 @@ function closeDefaultLoader() {
     const ASSISTOS_CONFIGS_PATH = "./assistOS-configs.json";
     const UI_CONFIGS_PATH = "./wallet/webskel-configs.json"
 
-    window.handleHistory= async (event)=> {
+    window.handleHistory = async (event) => {
         if (window.location.hash.includes("#authentication-page")) {
             await assistOS.logout();
         }

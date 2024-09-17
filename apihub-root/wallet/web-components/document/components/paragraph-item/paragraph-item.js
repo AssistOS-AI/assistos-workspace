@@ -20,6 +20,7 @@ export class ParagraphItem {
     }
 
     beforeRender() {
+
         this.paragraphConfigs = utilModule.buildCommandsString(this.paragraph.commands);
         this.paragraphAttachments = this.buildAttachmentsHTML("view");
         this.loadedParagraphText = this.paragraph.text;
@@ -492,102 +493,109 @@ export class ParagraphItem {
     }
 
     async focusOutHandler() {
-        this.switchParagraphArrows("off");
-        let paragraphText = this.element.querySelector(".paragraph-text");
-        paragraphText.classList.remove("focused");
-        this.paragraphHeader.setAttribute('readonly', 'true');
-        let paragraphHeaderContainer = this.element.querySelector('.paragraph-header');
-        paragraphHeaderContainer.classList.remove("highlight-paragraph-header");
-        let dragBorder = this.element.querySelector(".drag-border");
-        dragBorder.style.display = "none";
-        if (this.paragraph.commands.image) {
-            this.imgContainer.classList.remove("highlight-image");
-        }
-        const commands = utilModule.findCommands(this.paragraphHeader.value);
-        assistOS.space.currentParagraphId = null;
-        if (commands.invalid) {
-            this.showCommandsError(commands.error);
-        } else {
-            this.paragraphHeader.value = utilModule.buildCommandsString(commands);
-            const commandsDifferences = utilModule.getCommandsDifferences(this.paragraph.commands, commands);
-            const cachedText= assistOS.UI.customTrim(assistOS.UI.unsanitize(this.paragraph.text));
-            const currentUIText= assistOS.UI.customTrim(paragraphText.value);
-            const textChanged = assistOS.UI.normalizeSpaces(cachedText) !== assistOS.UI.normalizeSpaces(currentUIText);
-            if (textChanged) {
-                for (let [commandType, commandStatus] of Object.entries(commandsDifferences)) {
-                    if (commandStatus !== "new") {
-                        commandsDifferences[commandType] = "changed";
-                    }
+        await assistOS.loadifyComponent(
+            this.element,
+            async () => {
+                this.switchParagraphArrows("off");
+                let paragraphText = this.element.querySelector(".paragraph-text");
+                paragraphText.classList.remove("focused");
+                this.paragraphHeader.setAttribute('readonly', 'true');
+                let paragraphHeaderContainer = this.element.querySelector('.paragraph-header');
+                paragraphHeaderContainer.classList.remove("highlight-paragraph-header");
+                let dragBorder = this.element.querySelector(".drag-border");
+                dragBorder.style.display = "none";
+                if (this.paragraph.commands.image) {
+                    this.imgContainer.classList.remove("highlight-image");
                 }
-            }
-            const attachments = utilModule.findAttachments(this.getParagraphAttachmentsText());
-            this.renderViewModeCommands();
-            if (attachments.invalid) {
-                this.showCommandsError(attachments.error);
-                return;
-            }
-            const attachmentsDifferences = utilModule.getAttachmentsDifferences(utilModule.getAttachmentsFromCommandsObject(this.paragraph.commands), attachments);
-            const existAttachmentsDifferences = Object.values(attachmentsDifferences).some(value => value !== "same");
-            const existCommandsDifferences = Object.values(commandsDifferences).some(value => value !== "same");
+                const commands = utilModule.findCommands(this.paragraphHeader.value);
 
-            if (!existCommandsDifferences && !existAttachmentsDifferences) {
-                /* there is nothing further to do, and there are no syntax errors */
-                this.errorElement.innerText = "";
-                this.errorElement.classList.add("hidden");
-                return;
-            }
-            this.paragraph.commands = {...this.paragraph.commands, ...attachments};
-
-            if (existCommandsDifferences) {
-                if (Object.entries(this.paragraph.commands).length === 0) {
-                    this.paragraph.commands = commands;
+                if (commands.invalid) {
+                    this.showCommandsError(commands.error);
                 } else {
-                    Object.entries(commandsDifferences).forEach(([commandName, commandState]) => {
-                        if (commandState === "deleted") {
-                            delete this.paragraph.commands[commandName];
-                        } else {
-                            /* command added,updated or same */
-                            if (!this.paragraph.commands[commandName]) {
-                                /* added */
-                                this.paragraph.commands[commandName] = {};
-                            }
-                            for (let [commandField, commandFieldValue] of Object.entries(commands[commandName])) {
-                                this.paragraph.commands[commandName][commandField] = commandFieldValue;
+                    this.paragraphHeader.value = utilModule.buildCommandsString(commands);
+                    const commandsDifferences = utilModule.getCommandsDifferences(this.paragraph.commands, commands);
+                    const cachedText = assistOS.UI.customTrim(assistOS.UI.unsanitize(this.paragraph.text));
+                    const currentUIText = assistOS.UI.customTrim(paragraphText.value);
+                    const textChanged = assistOS.UI.normalizeSpaces(cachedText) !== assistOS.UI.normalizeSpaces(currentUIText);
+                    if (textChanged) {
+                        for (let [commandType, commandStatus] of Object.entries(commandsDifferences)) {
+                            if (commandStatus !== "new") {
+                                commandsDifferences[commandType] = "changed";
                             }
                         }
-                    });
-                }
-            }
-            let errorHandlingCommands = false;
-            for (const [commandType, commandStatus] of Object.entries(commandsDifferences)) {
-                try {
-                    await this.validateCommand(commandType, this.paragraph);
-                } catch (error) {
-                    this.showCommandsError(error);
-                    errorHandlingCommands = true;
-                    break;
-                }
-            }
-            for (const [attachmentType, attachmentStatus] of Object.entries(attachmentsDifferences)) {
-                try {
-                    const resourceId = attachments[attachmentType].id;
-                    await this.validateAttachment(attachmentType, resourceId);
-                } catch (error) {
-                    this.showCommandsError(error);
-                    errorHandlingCommands = true;
-                    break;
-                }
-            }
+                    }
+                    const attachments = utilModule.findAttachments(this.getParagraphAttachmentsText());
+                    this.renderViewModeCommands();
+                    if (attachments.invalid) {
+                        this.showCommandsError(attachments.error);
+                        return;
+                    }
+                    const attachmentsDifferences = utilModule.getAttachmentsDifferences(utilModule.getAttachmentsFromCommandsObject(this.paragraph.commands), attachments);
+                    const existAttachmentsDifferences = Object.values(attachmentsDifferences).some(value => value !== "same");
+                    const existCommandsDifferences = Object.values(commandsDifferences).some(value => value !== "same");
 
-            if (!errorHandlingCommands) {
-                this.errorElement.innerText = "";
-                this.errorElement.classList.add("hidden");
-                await documentModule.updateParagraphCommands(assistOS.space.id, this._document.id, this.paragraph.id, this.paragraph.commands);
-                for (let [commandType, commandStatus] of Object.entries(commandsDifferences)) {
-                    await this.handleCommand(commandType, commandStatus, commands[commandType]);
+                    if (!existCommandsDifferences && !existAttachmentsDifferences) {
+                        /* there is nothing further to do, and there are no syntax errors */
+                        this.errorElement.innerText = "";
+                        this.errorElement.classList.add("hidden");
+                        return;
+                    }
+                    this.paragraph.commands = {...this.paragraph.commands, ...attachments};
+
+                    if (existCommandsDifferences) {
+                        if (Object.entries(this.paragraph.commands).length === 0) {
+                            this.paragraph.commands = commands;
+                        } else {
+                            Object.entries(commandsDifferences).forEach(([commandName, commandState]) => {
+                                if (commandState === "deleted") {
+                                    delete this.paragraph.commands[commandName];
+                                } else {
+                                    /* command added,updated or same */
+                                    if (!this.paragraph.commands[commandName]) {
+                                        /* added */
+                                        this.paragraph.commands[commandName] = {};
+                                    }
+                                    for (let [commandField, commandFieldValue] of Object.entries(commands[commandName])) {
+                                        this.paragraph.commands[commandName][commandField] = commandFieldValue;
+                                    }
+                                }
+                            });
+                        }
+                    }
+                    let errorHandlingCommands = false;
+                    for (const [commandType, commandStatus] of Object.entries(commandsDifferences)) {
+                        try {
+                            await this.validateCommand(commandType, this.paragraph);
+                        } catch (error) {
+                            this.showCommandsError(error);
+                            errorHandlingCommands = true;
+                            break;
+                        }
+                    }
+                    for (const [attachmentType, attachmentStatus] of Object.entries(attachmentsDifferences)) {
+                        try {
+                            const resourceId = attachments[attachmentType].id;
+                            await this.validateAttachment(attachmentType, resourceId);
+                        } catch (error) {
+                            this.showCommandsError(error);
+                            errorHandlingCommands = true;
+                            break;
+                        }
+                    }
+
+                    if (!errorHandlingCommands) {
+                        this.errorElement.innerText = "";
+                        this.errorElement.classList.add("hidden");
+                        await documentModule.updateParagraphCommands(assistOS.space.id, this._document.id, this.paragraph.id, this.paragraph.commands);
+                        for (let [commandType, commandStatus] of Object.entries(commandsDifferences)) {
+                            await this.handleCommand(commandType, commandStatus, commands[commandType]);
+                        }
+                    }
                 }
+                await this.saveParagraph(paragraphText);
+                assistOS.space.currentParagraphId = null;
             }
-        }
+            );
     }
 
     focusOutHandlerImage(imageContainer) {
