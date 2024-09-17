@@ -285,18 +285,18 @@ export class DocumentVideoPreview {
                 if (paragraph.commands.audio) {
                     let imageSrc= "./wallet/assets/images/black-screen.png"
                     if(paragraph.commands.image){
-                       imageSrc = utilModule.constants.IMAGE_SRC_PREFIX + `${assistOS.space.id}/${paragraph.commands.image.id}`;
+                        imageSrc=utilModule.constants.getImageSrc(assistOS.space.id, paragraph.commands.image.id);
                     }
 
                     this.setCurrentParagraphAndChapter(i, j);
                     this.loadResource("image", imageSrc);
-                    let audioSrc = utilModule.constants.AUDIO_SRC_PREFIX + `${assistOS.space.id}/${paragraph.commands.audio.id}`;
+                    let audioSrc=utilModule.constants.getAudioSrc(assistOS.space.id, paragraph.commands.audio.id);
                     this.loadResource("audio", audioSrc);
                     this.scrollDocument();
                     return;
                 } else if (paragraph.commands["silence"]){
                     if(paragraph.commands.image){
-                        let imageSrc = utilModule.constants.IMAGE_SRC_PREFIX + `${assistOS.space.id}/${paragraph.commands.image.id}`;
+                        let imageSrc=utilModule.constants.getImageSrc(assistOS.space.id, paragraph.commands.image.id);
                         this.loadResource("image", imageSrc);
                     } else {
                         this.loadResource("image", "./wallet/assets/images/black-screen.png");
@@ -307,7 +307,7 @@ export class DocumentVideoPreview {
                     return;
                 } else if(paragraph.commands.image){
                     this.setCurrentParagraphAndChapter(i, j);
-                    let imageSrc = utilModule.constants.IMAGE_SRC_PREFIX + `${assistOS.space.id}/${paragraph.commands.image.id}`;
+                    let imageSrc=utilModule.constants.getImageSrc(assistOS.space.id, paragraph.commands.image.id);
                     this.loadResource("image", imageSrc);
                     this.scrollDocument();
                     this.executeSilenceCommand(1);
@@ -387,8 +387,8 @@ export class DocumentVideoPreview {
                 return;
             }
             //player is paused
-            let imageSrc = paragraph.commands.image.id ? utilModule.constants.IMAGE_SRC_PREFIX + `${assistOS.space.id}/${paragraph.commands.image.id}` : "./wallet/assets/images/black-screen.png";
-            let audioSrc = utilModule.constants.AUDIO_SRC_PREFIX + `${assistOS.space.id}/${paragraph.commands.audio.id}`;
+            let imageSrc = paragraph.commands.image.id ? utilModule.constants(assistOS.space.id,paragraph.commands.image.id) : "./wallet/assets/images/black-screen.png";
+            let audioSrc = utilModule.constants.getAudioSrc(assistOS.space.id,paragraph.commands.audio.id);
             this.loadResource("audio", audioSrc);
             this.loadResource("image", imageSrc);
             this.scrollDocument();
@@ -487,7 +487,7 @@ export class DocumentVideoPreview {
                 return;
             }
             //player is paused
-            let audioSrc = utilModule.constants.AUDIO_SRC_PREFIX + `${assistOS.space.id}/${paragraph.commands.audio.id}`;
+            let audioSrc=utilModule.constants.getAudioSrc(assistOS.space.id,paragraph.commands.audio.id);
             this.loadResource("audio", audioSrc);
             this.scrollDocument();
         } else if (paragraph.commands["silence"]) {
