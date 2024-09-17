@@ -35,6 +35,7 @@ class TextToSpeech extends Task {
             paragraphConfig.audio = {
                 id: this.audioId
             }
+            delete paragraphConfig.speech.taskId;
             await documentModule.updateParagraphCommands(this.spaceId, this.documentId, this.paragraphId, paragraphConfig);
             await space.APIs.putAudio(this.spaceId, this.audioId, audioBlob);
         } catch (e) {

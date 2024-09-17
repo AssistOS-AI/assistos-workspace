@@ -196,7 +196,7 @@ export class ParagraphItem {
         imgContainer.style.display = "flex";
         this.imgElement = this.element.querySelector(".paragraph-image");
         this.imgElement.addEventListener('load', this.renderImageDimensions.bind(this), {once: true});
-        this.imgElement.src =utilModule.constants.getImageSrc(assistOS.space.id, this.paragraph.commands.image.id);
+        this.imgElement.src = utilModule.constants.getImageSrc(assistOS.space.id, this.paragraph.commands.image.id);
         this.imgContainer = this.element.querySelector('.img-container');
         const handlesNames = ["ne", "se", "sw", "nw"];
         let handles = {};
@@ -308,7 +308,7 @@ export class ParagraphItem {
                 this.hasExternalChanges = false;
                 return;
             }
-            this.paragraph.text = paragraphText;
+            this.paragraph.text = paragraphText
             this.textIsDifferentFromAudio = true;
             await assistOS.callFlow("UpdateParagraphText", {
                 spaceId: assistOS.space.id,
@@ -364,13 +364,13 @@ export class ParagraphItem {
         if (mode === "view") {
             for (let [commandType, commandDetails] of Object.entries(this.paragraph.commands)) {
                 if (commandType === "image") {
-                    let imageSrc=utilModule.constants.getImageSrc(assistOS.space.id,commandDetails.id);
+                    let imageSrc = utilModule.constants.getImageSrc(assistOS.space.id, commandDetails.id);
                     html += `<a data-local-action="editItem link" href="${imageSrc}" class="tasks-info" data-id="${commandDetails.id}">Image</a>`;
                 } else if (commandType === "audio") {
-                    let audioSrc=utilModule.constants.getAudioSrc(assistOS.space.id,commandDetails.id);
+                    let audioSrc = utilModule.constants.getAudioSrc(assistOS.space.id, commandDetails.id);
                     html += `<a href="${audioSrc}" class="tasks-info" data-id="${commandDetails.id}">Audio</a>`;
                 } else if (commandType === "video") {
-                    let videoSrc=utilModule.constants.getVideoSrc(assistOS.space.id,commandDetails.id);
+                    let videoSrc = utilModule.constants.getVideoSrc(assistOS.space.id, commandDetails.id);
                     html += `<a href="${videoSrc}" class="tasks-info" data-id="${commandDetails.id}">Video</a>`;
                 }
 
@@ -413,10 +413,10 @@ export class ParagraphItem {
         const handleSpeechCommand = async (commandStatus, command) => {
             switch (commandStatus) {
                 case "new":
+                case "changed":
                     const taskId = await utilModule.constants.COMMANDS_CONFIG.COMMANDS.find(command => command.NAME === "speech").EXECUTE(assistOS.space.id, this._document.id, this.paragraph.id, {});
                     this.addUITask(taskId);
                     break;
-                case "changed":
                 case "deleted":
                 case "same":
             }
@@ -469,7 +469,7 @@ export class ParagraphItem {
             .VALIDATE(assistOS.space.id, resourceId, {});
     }
 
-    async validateCommand(commandType,paragraph) {
+    async validateCommand(commandType, paragraph) {
         return await utilModule.constants.COMMANDS_CONFIG.COMMANDS.find(command => command.NAME === commandType)
             .VALIDATE(assistOS.space.id, paragraph, {});
     }
@@ -510,7 +510,9 @@ export class ParagraphItem {
         } else {
             this.paragraphHeader.value = utilModule.buildCommandsString(commands);
             const commandsDifferences = utilModule.getCommandsDifferences(this.paragraph.commands, commands);
-            const textChanged = assistOS.UI.customTrim(this.loadedParagraphText) !== assistOS.UI.customTrim(this.paragraph.text);
+            const cachedText= assistOS.UI.customTrim(assistOS.UI.unsanitize(this.paragraph.text));
+            const currentUIText= assistOS.UI.customTrim(paragraphText.value);
+            const textChanged = assistOS.UI.normalizeSpaces(cachedText) !== assistOS.UI.normalizeSpaces(currentUIText);
             if (textChanged) {
                 for (let [commandType, commandStatus] of Object.entries(commandsDifferences)) {
                     if (commandStatus !== "new") {
@@ -697,7 +699,7 @@ export class ParagraphItem {
     async playParagraphAudio(_target) {
         let audioSection = this.element.querySelector('.paragraph-audio-section');
         let audio = this.element.querySelector('.paragraph-audio');
-        audio.src = utilModule.constants.getAudioSrc(assistOS.space.id,this.paragraph.commands.audio.id);
+        audio.src = utilModule.constants.getAudioSrc(assistOS.space.id, this.paragraph.commands.audio.id);
         audio.load();
         audio.play();
         audioSection.classList.remove('hidden');
@@ -908,6 +910,7 @@ export class ParagraphItem {
         await documentModule.updateParagraphCommands(assistOS.space.id, this._document.id, this.paragraph.id, this.paragraph.commands);
         this.invalidate();
     }
+
     async deleteAudio() {
         delete this.paragraph.commands.audio;
         await documentModule.updateParagraphCommands(assistOS.space.id, this._document.id, this.paragraph.id, this.paragraph.commands);
