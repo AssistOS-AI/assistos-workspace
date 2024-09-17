@@ -4,10 +4,10 @@
     "services": [],
     "components": [
         {
-            "name": "document-tasks-menu",
+            "name": "document-tasks-modal",
             "directory": "document",
-            "type": "components",
-            "presenterClassName": "DocumentTasksMenu"
+            "type": "modals",
+            "presenterClassName": "DocumentTasksModal"
         },
         {
             "name": "task-item",
