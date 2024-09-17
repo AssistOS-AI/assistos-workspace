@@ -488,7 +488,6 @@ export class ParagraphItem {
     async validateCommand(commandType) {
         return await utilModule.constants.COMMANDS_CONFIG.COMMANDS.find(command => command.NAME === commandType)
             .VALIDATE(assistOS.space.id, this._document.id, this.paragraph.id, {});
-
     }
 
     renderViewModeCommands() {
@@ -543,6 +542,7 @@ export class ParagraphItem {
             const existAttachmentsDifferences = Object.values(attachmentsDifferences).some(value => value !== "same");
             const existCommandsDifferences = Object.values(commandsDifferences).some(value => value !== "same");
 
+
             if (!existCommandsDifferences && !existAttachmentsDifferences) {
                 return;
             }
@@ -566,8 +566,6 @@ export class ParagraphItem {
                     });
                 }
             }
-            this.paragraph.commands = {...this.paragraph.commands, ...attachments};
-            await documentModule.updateParagraphCommands(assistOS.space.id, this._document.id, this.paragraph.id, this.paragraph.commands);
             let errorHandlingCommands = false;
             for (const [commandType, commandStatus] of Object.entries(commandsDifferences)) {
                 try {
@@ -595,6 +593,8 @@ export class ParagraphItem {
                 for (let [commandType, commandStatus] of Object.entries(commandsDifferences)) {
                     await this.handleCommand(commandType, commandStatus, commands[commandType]);
                 }
+                this.paragraph.commands = {...this.paragraph.commands, ...attachments};
+                await documentModule.updateParagraphCommands(assistOS.space.id, this._document.id, this.paragraph.id, this.paragraph.commands);
             }
             this.invalidate(async () => {
                 this.paragraph.commands = await documentModule.getParagraphCommands(assistOS.space.id, this._document.id, this.paragraph.id);

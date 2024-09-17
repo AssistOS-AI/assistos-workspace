@@ -147,8 +147,6 @@ export class InsertImageModal {
                 const height = img.height;
                 let data = {
                     id: imageId,
-                    alt: new Date().toISOString(),
-                    isUploadedImage: true,
                     width: width,
                     height: height
                 };
