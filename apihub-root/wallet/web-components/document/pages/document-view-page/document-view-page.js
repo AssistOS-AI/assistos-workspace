@@ -247,6 +247,8 @@ export class DocumentViewPage {
     focusOutHandler(element) {
         element.removeEventListener('keydown', this.titleKeyDownHandler);
         element.removeEventListener('keydown', this.boundControlAbstractHeight);
+        element.classList.remove("focused");
+
         this.stopTimer.bind(this, true);
     }
 
@@ -256,7 +258,7 @@ export class DocumentViewPage {
     }
 
     async editItem(targetElement, type) {
-        if (targetElement.hasAttribute("id") && targetElement.getAttribute("id") === "current-selection") {
+        if (targetElement.getAttribute("id") === "current-selection") {
             return;
         }
         if(type === "chapter"){
@@ -277,6 +279,7 @@ export class DocumentViewPage {
         let saveFunction;
         let resetTimerFunction = this.resetTimer.bind(this);
         if (type === "title") {
+            targetElement.classList.add("focused")
             await this.changeCurrentElement(targetElement, this.focusOutHandler.bind(this, targetElement));
             targetElement.addEventListener('keydown', this.titleKeyDownHandler);
             saveFunction = this.saveTitle.bind(this, targetElement);
@@ -284,29 +287,32 @@ export class DocumentViewPage {
             if (!this.boundControlAbstractHeight) {
                 this.boundControlAbstractHeight = this.controlAbstractHeight.bind(this, targetElement);
             }
+            targetElement.classList.add("focused")
             targetElement.addEventListener('keydown', this.boundControlAbstractHeight);
             await this.changeCurrentElement(targetElement, this.focusOutHandler.bind(this, targetElement));
             saveFunction = this.saveAbstract.bind(this, targetElement);
         } else if (type === "chapterTitle") {
+            targetElement.classList.add("focused")
             let chapterPresenter = targetElement.closest("chapter-item").webSkelPresenter;
             saveFunction = chapterPresenter.saveTitle.bind(chapterPresenter, targetElement);
-            await this.changeCurrentElement(targetElement, chapterPresenter.focusOutHandler.bind(chapterPresenter));
+            await this.changeCurrentElement(targetElement, chapterPresenter.focusOutHandler.bind(chapterPresenter, targetElement));
             await chapterPresenter.highlightChapter();
             targetElement.addEventListener('keydown', this.titleKeyDownHandler.bind(this, targetElement));
         } else if (type === "paragraph") {
             let chapterPresenter = targetElement.closest("chapter-item").webSkelPresenter;
-            let paragraphItem = targetElement.closest("paragraph-item") || targetElement.closest("image-paragraph");
-            let paragraphPresenter = paragraphItem.webSkelPresenter;
-            await this.changeCurrentElement(targetElement, paragraphPresenter.focusOutHandler.bind(paragraphPresenter));
+            let paragraphText = targetElement.querySelector(".paragraph-text");
+            let paragraphPresenter = targetElement.webSkelPresenter;
+            await this.changeCurrentElement(targetElement, paragraphPresenter.focusOutHandler.bind(paragraphPresenter, paragraphText));
             await chapterPresenter.highlightChapter();
             paragraphPresenter.highlightParagraph();
-            saveFunction = paragraphPresenter.saveParagraph.bind(paragraphPresenter, targetElement);
-            resetTimerFunction = paragraphPresenter.resetTimer.bind(paragraphPresenter, targetElement);
+
+            saveFunction = paragraphPresenter.saveParagraph.bind(paragraphPresenter, paragraphText);
+            resetTimerFunction = paragraphPresenter.resetTimer.bind(paragraphPresenter, paragraphText);
         } else if(type === "paragraphImage"){
             let chapterPresenter = targetElement.closest("chapter-item").webSkelPresenter;
             let paragraphItem = targetElement.closest("paragraph-item");
             let paragraphPresenter = paragraphItem.webSkelPresenter;
-            await this.changeCurrentElement(targetElement, paragraphPresenter.focusOutHandlerImage.bind(paragraphPresenter));
+            await this.changeCurrentElement(targetElement, paragraphPresenter.focusOutHandlerImage.bind(paragraphPresenter, targetElement));
             await chapterPresenter.highlightChapter();
             paragraphPresenter.highlightParagraphImage();
             saveFunction = paragraphPresenter.saveParagraphImage.bind(paragraphPresenter, targetElement);

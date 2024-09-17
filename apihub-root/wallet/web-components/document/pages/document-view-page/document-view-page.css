@@ -221,9 +221,8 @@ html[theme="dark"] .document-title-container {
 #current-selection-parent .focusable {
     background-color: var(--white-blue-tint);
 }
-
-#current-selection-parent .focusable#current-selection {
-    background-color: white;
+#current-selection-parent .focusable.focused {
+    background-color: white; !important;
 }
 
 .insert-image{
