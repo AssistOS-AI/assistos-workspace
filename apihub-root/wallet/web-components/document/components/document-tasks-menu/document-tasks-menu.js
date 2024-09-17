@@ -49,6 +49,11 @@ export class DocumentTasksMenu{
         }
     }
     beforeRender(){
+        this.menuContent = ` 
+        <div class="tasks-list-container">
+             <div class="tasks-list">
+             </div>
+        </div>`;
         if(this.tasks.length > 0){
             let tasksList = "";
             for(let task of this.tasks){
@@ -66,12 +71,7 @@ export class DocumentTasksMenu{
                     ${tasksList}
                 </div>
             </div>`;
-        } else {
-            this.menuContent = ` <div class="tasks-list-container">
-                                    <div class="no-tasks">No tasks yet</div> 
-                                </div>`;
         }
-
     }
     renderBadge(){
         let newTasksBadge = this.element.querySelector(".new-tasks-badge");
