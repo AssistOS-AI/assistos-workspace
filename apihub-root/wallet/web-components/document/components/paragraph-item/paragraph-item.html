@@ -11,8 +11,8 @@
                     <div class="circle nw"></div>
                 </div>
             </div>
-            <div class="header-sections" data-local-action="editItem paragraphHeader">
-                <div class="paragraph-attachments maintain-focus" >$$tasksInfo</div>
+            <div class="header-sections">
+                <div class="paragraph-attachments maintain-focus" >$$paragraphAttachments</div>
                 <textarea class="paragraph-commands" readonly>$$paragraphConfigs</textarea>
             </div>
             <code class="error-message hidden"></code></div>
@@ -33,7 +33,7 @@
             </div>
             <div class="task-status-icon">$$taskIcon</div>
         </div>
-        <textarea class="paragraph-text focusable" data-metadata="$$data-metadata "></textarea>
+        <textarea class="paragraph-text focusable" data-local-action="editItem paragraphText" data-metadata="$$data-metadata "></textarea>
     </div>
 </div>
 

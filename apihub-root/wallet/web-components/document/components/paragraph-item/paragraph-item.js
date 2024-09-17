@@ -21,7 +21,7 @@ export class ParagraphItem {
 
     beforeRender() {
         this.paragraphConfigs = utilModule.buildCommandsString(this.paragraph.commands);
-        this.tasksInfo = this.buildTasksInfoHTML("view");
+        this.paragraphAttachments = this.buildAttachmentsHTML("view");
         this.loadedParagraphText = this.paragraph.text;
     }
 
@@ -36,13 +36,13 @@ export class ParagraphItem {
 
         if (assistOS.space.currentParagraphId === this.paragraph.id) {
             paragraphText.click();
+            //this.element.scrollIntoView({behavior: "smooth", block: "center"});
         }
 
         this.paragraphHeader = this.element.querySelector(".paragraph-commands");
         this.paragraphAtachments = this.element.querySelector(".paragraph-attachments");
         this.paragraphHeader.style.height = this.paragraphHeader.scrollHeight + 'px';
         let headerSection = this.element.querySelector(".header-sections");
-        headerSection.style.height = headerSection.scrollHeight + 'px';
         if (!this.boundResizeHeader) {
             this.boundResizeHeader = this.resizeHeader.bind(this, headerSection);
             this.paragraphHeader.addEventListener('input', this.boundResizeHeader);
@@ -178,17 +178,16 @@ export class ParagraphItem {
     }
 
     renderImageDimensions() {
-        this.imgElement.style.width = this.paragraph.commands.image.width + "px";
-        this.imgElement.style.height = this.paragraph.commands.image.height + "px";
+        //this.imgElement.style.width = this.paragraph.commands.image.width + "px";
+        //this.imgElement.style.height = this.paragraph.commands.image.height + "px";
 
-        //render max width
-        // let originalWidth = parseFloat(getComputedStyle(this.imgElement, null).getPropertyValue('width').replace('px', ''));
-        // let originalHeight = parseFloat(getComputedStyle(this.imgElement, null).getPropertyValue('height').replace('px', ''));
-        // const aspectRatio = originalWidth / originalHeight;
-        // const maxWidth = this.parentChapterElement.getBoundingClientRect().width - 78;
-        // const maxHeight = maxWidth / aspectRatio;
-        // this.imgElement.style.width = maxWidth + 'px';
-        // this.imgElement.style.height = maxHeight + 'px';
+        let originalWidth = parseFloat(getComputedStyle(this.imgElement, null).getPropertyValue('width').replace('px', ''));
+        let originalHeight = parseFloat(getComputedStyle(this.imgElement, null).getPropertyValue('height').replace('px', ''));
+        const aspectRatio = originalWidth / originalHeight;
+        const maxWidth = this.parentChapterElement.getBoundingClientRect().width - 78;
+        const maxHeight = maxWidth / aspectRatio;
+        this.imgElement.style.width = maxWidth + 'px';
+        this.imgElement.style.height = maxHeight + 'px';
     }
 
     setupImage() {
@@ -329,19 +328,6 @@ export class ParagraphItem {
         }
     }
 
-    highlightParagraphImage() {
-        let dragBorder = this.element.querySelector(".drag-border");
-        dragBorder.style.display = "block";
-        this.switchParagraphArrows("on");
-        assistOS.space.currentParagraphId = this.paragraph.id;
-        this.paragraphHeader.removeAttribute('readonly');
-        let paragraphHeaderContainer = this.element.querySelector('.paragraph-header');
-        paragraphHeaderContainer.classList.add("highlight-paragraph-header");
-        let paragraphText = this.element.querySelector('.paragraph-text');
-        paragraphText.classList.add("focused")
-        this.imgContainer.classList.add("highlight-image");
-        this.renderEditModeCommands();
-    }
 
     highlightParagraph() {
         this.switchParagraphArrows("on");
@@ -351,10 +337,6 @@ export class ParagraphItem {
         let paragraphText = this.element.querySelector('.paragraph-text');
         paragraphText.classList.add("focused")
         this.paragraphHeader.removeAttribute('readonly');
-        this.paragraphHeader.addEventListener('input', function () {
-            this.style.height = 'auto';
-            this.style.height = this.scrollHeight + 'px';
-        });
         if (this.paragraph.commands.image) {
             this.imgContainer.classList.add("highlight-image");
         }
@@ -362,10 +344,10 @@ export class ParagraphItem {
     }
 
     renderEditModeCommands() {
-        let tasksInfo = this.element.querySelector('.paragraph-attachments');
-        tasksInfo.remove();
+        let paragraphAttachments = this.element.querySelector('.paragraph-attachments');
+        paragraphAttachments.remove();
         let textareaContainer = this.element.querySelector('.header-sections');
-        let textareaValue = this.buildTasksInfoHTML("edit");
+        let textareaValue = this.buildAttachmentsHTML("edit");
         textareaContainer.insertAdjacentHTML('afterbegin', `<textarea class="paragraph-attachments maintain-focus"></textarea>`);
         let attachmentsElement = this.element.querySelector('.paragraph-attachments');
         attachmentsElement.value = textareaValue;
@@ -377,7 +359,7 @@ export class ParagraphItem {
         this.paragraphAtachments = attachmentsElement;
     }
 
-    buildTasksInfoHTML(mode) {
+    buildAttachmentsHTML(mode) {
         let html = "";
         if (mode === "view") {
             for (let [commandType, commandDetails] of Object.entries(this.paragraph.commands)) {
@@ -495,7 +477,7 @@ export class ParagraphItem {
     renderViewModeCommands() {
         let paragraphAttachments = this.element.querySelector('.paragraph-attachments');
         paragraphAttachments.remove();
-        let divText = this.buildTasksInfoHTML("view");
+        let divText = this.buildAttachmentsHTML("view");
         let headerSection = this.element.querySelector('.header-sections');
         headerSection.insertAdjacentHTML('afterbegin', `<div class="paragraph-attachments maintain-focus">${divText}</div>`);
         paragraphAttachments = this.element.querySelector('.paragraph-attachments');
@@ -522,7 +504,7 @@ export class ParagraphItem {
             this.imgContainer.classList.remove("highlight-image");
         }
         const commands = utilModule.findCommands(this.paragraphHeader.value);
-
+        assistOS.space.currentParagraphId = null;
         if (commands.invalid) {
             this.showCommandsError(commands.error);
         } else {
@@ -600,9 +582,7 @@ export class ParagraphItem {
                     await this.handleCommand(commandType, commandStatus, commands[commandType]);
                 }
             }
-            this.invalidate(async () => {
-                this.paragraph.commands = await documentModule.getParagraphCommands(assistOS.space.id, this._document.id, this.paragraph.id);
-            });
+            this.paragraph.commands = await documentModule.getParagraphCommands(assistOS.space.id, this._document.id, this.paragraph.id);
         }
     }
 
@@ -787,7 +767,7 @@ export class ParagraphItem {
             if (this.paragraph.commands.audio) {
                 baseDropdownMenuHTML += `<list-item data-name="Play Audio" id="play-paragraph-audio-btn" data-local-action="playParagraphAudio" data-highlight="light-highlight"></list-item>`;
                 baseDropdownMenuHTML += ` <list-item data-name="Download Audio" data-local-action="downloadAudio" data-highlight="light-highlight"></list-item>`;
-
+                baseDropdownMenuHTML += ` <list-item data-name="Delete Audio" data-local-action="deleteAudio" data-highlight="light-highlight"></list-item>`;
             }
 
             if (previousParagraphImage() && this.paragraph.commands.speech && !this.paragraph.commands.lipSync) {
@@ -923,6 +903,11 @@ export class ParagraphItem {
 
     async deleteImage(_target) {
         delete this.paragraph.commands.image;
+        await documentModule.updateParagraphCommands(assistOS.space.id, this._document.id, this.paragraph.id, this.paragraph.commands);
+        this.invalidate();
+    }
+    async deleteAudio() {
+        delete this.paragraph.commands.audio;
         await documentModule.updateParagraphCommands(assistOS.space.id, this._document.id, this.paragraph.id, this.paragraph.commands);
         this.invalidate();
     }
