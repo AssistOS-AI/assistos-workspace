@@ -77,6 +77,14 @@ class TextToSpeech extends Task {
             }
         }
     }
+    async getRelevantInfo() {
+        const documentModule = require('assistos').loadModule('document', this.securityContext);
+        let paragraph = await documentModule.getParagraph(this.spaceId, this.documentId, this.paragraphId);
+        return {
+            paragraphId: paragraph.id,
+            text: paragraph.text
+        }
+    }
 }
 
 module.exports = TextToSpeech;

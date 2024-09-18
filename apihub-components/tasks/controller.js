@@ -161,7 +161,27 @@ function getTasks(request, response) {
         });
     }
 }
-
+async function getTaskRelevantInfo(request, response) {
+    let taskId = request.params.taskId;
+    try {
+        let task = TaskManager.getTask(taskId);
+        let taskInfo;
+        if(typeof task.getRelevantInfo !== "function"){
+            taskInfo = task.serialize();
+        } else {
+            taskInfo = await task.getRelevantInfo();
+        }
+        sendResponse(response, 200, "application/json", {
+            success: true,
+            data: taskInfo
+        });
+    } catch (e) {
+        sendResponse(response, 500, "application/json", {
+            success: false,
+            message: e.message
+        });
+    }
+}
 function runTask(request, response) {
     let taskId = request.params.taskId;
     try {
@@ -221,5 +241,6 @@ module.exports = {
     textToSpeechParagraph,
     getTask,
     removeTask,
-    lipSyncParagraph
+    lipSyncParagraph,
+    getTaskRelevantInfo
 }
