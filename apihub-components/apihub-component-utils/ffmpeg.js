@@ -158,7 +158,7 @@ async function estimateChapterVideoLength(spaceId, chapter, task){
     let totalDuration = 0;
     for (let paragraph of chapter.paragraphs) {
         if (paragraph.commands.audio) {
-            let audioPath = path.join(space.getSpacePath(spaceId), 'audios', `${paragraph.commands.audio.src.split("/").pop()}.mp3`);
+            let audioPath = path.join(space.getSpacePath(spaceId), 'audios', `${paragraph.commands.audio.id}.mp3`);
             const command = `${ffprobePath} -i "${audioPath}" -show_entries format=duration -v quiet -of csv="p=0"`;
             let duration = await task.runCommand(command);
             totalDuration += parseFloat(duration);

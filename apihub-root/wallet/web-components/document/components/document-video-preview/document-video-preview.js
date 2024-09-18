@@ -185,6 +185,7 @@ export class DocumentVideoPreview {
     incrementParagraphIndexAndPlay() {
         this.currentTime += this.audioPlayer.duration;
         this.incrementParagraphIndex();
+        this.audioPlayer.src = "";
         this.playNext();
     }
 
@@ -290,7 +291,7 @@ export class DocumentVideoPreview {
 
                     this.setCurrentParagraphAndChapter(i, j);
                     this.loadResource("image", imageSrc);
-                    let audioSrc=utilModule.constants.getAudioSrc(assistOS.space.id, paragraph.commands.audio.id);
+                    let audioSrc = utilModule.constants.getAudioSrc(assistOS.space.id, paragraph.commands.audio.id);
                     this.loadResource("audio", audioSrc);
                     this.scrollDocument();
                     return;
@@ -363,57 +364,54 @@ export class DocumentVideoPreview {
     }
 
     skipToNextScene(targetElement) {
+        this.nextButton.classList.add("disabled");
         this.cancelTimeouts();
-        this.previousButton.classList.remove("disabled");
         let playPause = this.element.querySelector(".play-pause");
         let currentMode = playPause.getAttribute("data-mode");
         let paragraph = this.document.chapters[this.chapterIndex].paragraphs[this.paragraphIndex];
-        this.incrementParagraphIndex();
-        if (this.chapterIndex === this.document.chapters.length) {
-            //reached end of document
-            this.audioPlayer.pause();
-            this.prepareVideoForReload();
-            return;
-        }
+
+        this.audioPlayer.pause();
+        //clean up before moving on to the next scene
         if (paragraph.commands.audio) {
-            this.nextButton.classList.add("disabled");
             this.currentTime = this.currentTime + this.audioPlayer.duration;
             this.currentTimeElement.innerHTML = this.formatTime(this.currentTime);
-            this.nextButton.classList.remove("disabled");
-            this.audioPlayer.pause();
-            this.audioPlayer.src = "";
-            if (currentMode === "play") {
-                this.playNext();
-                return;
-            }
-            //player is paused
-            let imageSrc = paragraph.commands.image.id ? utilModule.constants(assistOS.space.id,paragraph.commands.image.id) : "./wallet/assets/images/black-screen.png";
-            let audioSrc = utilModule.constants.getAudioSrc(assistOS.space.id,paragraph.commands.audio.id);
-            this.loadResource("audio", audioSrc);
-            this.loadResource("image", imageSrc);
-            this.scrollDocument();
         } else if (paragraph.commands["silence"]) {
-            this.nextButton.classList.add("disabled");
-            this.audioPlayer.pause();
             this.currentTime += parseFloat(paragraph.commands["silence"].paramsObject.duration);
             this.currentTimeElement.innerHTML = this.formatTime(this.currentTime);
-            this.nextButton.classList.remove("disabled");
-            if (currentMode === "play") {
-                this.playNext();
-                return;
-            }
-            //player is paused
-            this.scrollDocument();
         } else if(paragraph.commands.image){
             this.currentTime += 1;
             this.currentTimeElement.innerHTML = this.formatTime(this.currentTime);
-            if (currentMode === "play") {
-                this.playNext();
-                return;
-            }
-            //player is paused
-            this.scrollDocument();
         }
+
+        this.incrementParagraphIndex();
+        if (this.chapterIndex === this.document.chapters.length) {
+            //reached end of document
+            this.prepareVideoForReload();
+            return;
+        }
+
+        let nextParagraph = this.document.chapters[this.chapterIndex].paragraphs[this.paragraphIndex];
+        if(nextParagraph.commands.audio){
+            this.audioPlayer.addEventListener("loadedmetadata", this.waitAudioLoad.bind(this), {once: true});
+            let audioSrc = utilModule.constants.getAudioSrc(assistOS.space.id, nextParagraph.commands.audio.id);
+            this.loadResource("audio", audioSrc);
+        }
+        if(nextParagraph.commands.image){
+            let imageSrc = utilModule.constants.getImageSrc(assistOS.space.id, nextParagraph.commands.image.id);
+            this.loadResource("image", imageSrc);
+        } else {
+            this.loadResource("image", "./wallet/assets/images/black-screen.png");
+        }
+        this.nextButton.classList.remove("disabled");
+        if(currentMode === "play") {
+            this.playNext();
+            return;
+        }
+        //player is paused
+        this.scrollDocument();
+    }
+    waitAudioLoad(event) {
+        this.nextButton.classList.remove("disabled");
     }
 
     cancelTimeouts() {
