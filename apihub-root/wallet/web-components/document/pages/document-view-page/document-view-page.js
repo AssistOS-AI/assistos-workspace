@@ -427,6 +427,19 @@ export class DocumentViewPage {
         const response = (await llmModule.lipsync(assistOS.space.id, "sync-1.6.0", {}))
     }
     async openTasksModal(targetElement){
+        let newTasksBadge = this.element.querySelector(".new-tasks-badge");
+        if(newTasksBadge){
+            newTasksBadge.remove();
+        }
         await assistOS.UI.showModal("document-tasks-modal", {["document-id"]: this._document.id});
+    }
+    renderNewTasksBadge(){
+        let newTasksBadge = this.element.querySelector(".new-tasks-badge");
+        if(newTasksBadge){
+            return;
+        }
+        newTasksBadge = `<div class="new-tasks-badge"></div>`;
+        const tasksMenu = this.element.querySelector(".tasks-menu");
+        tasksMenu.insertAdjacentHTML("beforeend", newTasksBadge);
     }
 }

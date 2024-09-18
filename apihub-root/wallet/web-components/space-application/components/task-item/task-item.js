@@ -9,15 +9,7 @@ export class TaskItem{
         this.invalidate(async ()=> {
             await utilModule.subscribeToObject(this.id, async (status) => {
                 this.status = status;
-                let stopStatuses = ["cancelled", "failed", "completed"];
                 this.tasksModalPresenter.updateTaskInList(this.id, status);
-                if(this.status === "running"){
-                    this.tasksModalPresenter.checkRunningTasks();
-                }
-                if(stopStatuses.includes(status)){
-                    this.tasksModalPresenter.runningTasks--;
-                    this.tasksModalPresenter.checkRunningTasks();
-                }
                 this.invalidate();
             });
         })
