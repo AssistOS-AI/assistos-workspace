@@ -251,7 +251,6 @@ class AssistOS {
             componentElement.style.pointerEvents = 'none';
             return loader
         }
-
         try {
             addComponentLoader(componentElement);
             return await asyncFunc(...args);

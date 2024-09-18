@@ -355,14 +355,21 @@ async function lipsync(request, response) {
     const spaceId = request.params.spaceId;
     const imageSrc = request.body.imageSrc;
     const audioSrc = request.body.audioSrc;
+    const documentId=request.body.documentId;
+    const paragraphId=request.body.paragraphId;
     const requestBody = {
         modelName: request.body.modelName,
         spaceId: request.params.spaceId,
         userId: request.userId,
-        webhookSecret: getWebhookSecret()
+        webHookData:{
+            webhookSecret: getWebhookSecret(),
+            documentId: documentId,
+            paragraphId: paragraphId,
+        }
     };
     try {
         const audioId = audioSrc.split("/").pop();
+        /* TODO check if video already exists */
         const videoId = await ffmpeg.createVideoFromImageAndAudio(imageSrc, audioSrc, spaceId);
         requestBody.audioId=audioId;
         requestBody.videoId=videoId;

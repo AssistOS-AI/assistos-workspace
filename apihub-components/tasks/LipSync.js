@@ -1,19 +1,25 @@
 const Task = require('./Task');
+
 class LipSync extends Task {
     constructor(securityContext, spaceId, userId, configs) {
         super(securityContext, spaceId, userId);
         this.documentId = configs.documentId;
         this.paragraphId = configs.paragraphId;
     }
+
     async runTask() {
         try {
             const llmModule = require('assistos').loadModule('llm', this.securityContext);
             const documentModule = require('assistos').loadModule('document', this.securityContext);
             const utilModule = require('assistos').loadModule('util', this.securityContext);
-            await utilModule.constants.COMMANDS_CONFIG.COMMANDS.find(command => command.NAME === "lipsync").VALIDATE(this.spaceId, this.documentId, this.paragraphId, this.securityContext);
 
-            const paragraphConfig= await documentModule.getParagraphCommands(this.spaceId, this.documentId, this.paragraphId);
-            await llmModule.lipSync(this.spaceId,paragraphConfig.image.src, paragraphConfig.audio.src, "PlayHT2.0");
+            const paragraph = await documentModule.getParagraph(this.spaceId, this.documentId, this.paragraphId);
+            await utilModule.constants.COMMANDS_CONFIG.COMMANDS.find(command => command.NAME === "lipsync").VALIDATE(this.spaceId, paragraph, this.securityContext);
+
+            const paragraphConfig = paragraph.commands;
+
+            await llmModule.lipSync(this.spaceId, this.documentId, this.paragraphId, utilModule.constants.getImageSrc(this.spaceId,paragraphConfig.image.id),
+                utilModule.constants.getAudioSrc(this.spaceId,paragraphConfig.audio.id), "PlayHT2.0");
         } catch (e) {
             await this.rollback();
             throw e;
@@ -23,10 +29,11 @@ class LipSync extends Task {
     async rollback() {
         try {
 
-        } catch (e){
+        } catch (e) {
             //no audio to delete
         }
     }
+
     async cancelTask() {
         await this.rollback();
     }
@@ -46,4 +53,5 @@ class LipSync extends Task {
         }
     }
 }
+
 module.exports = LipSync;

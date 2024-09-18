@@ -1,6 +1,6 @@
 const path = require('path');
 const fsPromises = require('fs').promises;
-const ffmpegPath = require("../../ffmpeg/packages/ffmpeg-static").path;
+const ffmpegPath = require("../../ffmpeg/packages/ffmpeg-static");
 const ffprobePath = require("../../ffmpeg/packages/ffprobe-static");
 const space = require("../spaces-storage/space.js").APIs;
 const crypto = require("./crypto");
