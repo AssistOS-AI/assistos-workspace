@@ -4,57 +4,21 @@ export class DocumentTasksModal {
     constructor(element, invalidate) {
         this.element = element;
         this.invalidate = invalidate;
-        this.newTasksCount = 0;
-        this.runningTasks = 0;
         this.documentId = this.element.getAttribute("data-document-id");
         this.loadTasks = async () => {
-            let tasks = await documentModule.getDocumentTasks(assistOS.space.id, this.documentId);
-            if(this.tasks){
-                this.calculateNewTasks(tasks);
-            }
-            this.tasks = tasks;
-            this.runningTasks = 0;
-            for(let task of this.tasks){
-                if(task.status === "running"){
-                    this.runningTasks++;
-                }
-            }
+            this.tasks = await documentModule.getDocumentTasks(assistOS.space.id, this.documentId);
         };
-        this.renderNewTasks = async () => {
-            this.loadTasks().then(() => {
-                let tasksList = this.element.querySelector(".tasks-list");
-                let tasksItems = "";
-                for(let task of this.tasks){
-                    tasksItems += `<task-item data-id="${task.id}" data-name="${task.name}" data-status=${task.status} data-presenter="task-item"></task-item>`;
-                }
-                tasksList.innerHTML = tasksItems;
-                this.renderBadge();
-            });
-        };
-        assistOS.space.observeChange(this.documentId + "/tasks", this.renderNewTasks);
+        assistOS.space.observeChange(this.documentId + "/tasks", this.invalidate, this.loadTasks);
 
         this.invalidate(async () => {
             await utilModule.subscribeToObject(this.documentId + "/tasks", async (status) => {
-                this.renderNewTasks();
+                await this.loadTasks();
+                this.invalidate();
             });
             await this.loadTasks();
         })
     }
-    calculateNewTasks(newTasks){
-        for(let task of newTasks){
-            if(task.status !== "created"){
-                continue;
-            }
-            if(!this.tasks.find(t => t.id === task.id)){
-                this.newTasksCount++;
-            }
-        }
-        for(let task of this.tasks){
-            if(task.status === "created" && !newTasks.find(t => t.id === task.id)){
-                this.newTasksCount--;
-            }
-        }
-    }
+
     beforeRender(){
         this.modalContent = `<div class="tasks-list"></div>`;
         if(this.tasks.length > 0){
@@ -77,49 +41,42 @@ export class DocumentTasksModal {
                 </div>`;
         }
     }
-    renderBadge(){
-        let newTasksBadge = this.element.querySelector(".new-tasks-badge");
-        if(newTasksBadge){
-            newTasksBadge.remove();
-        }
-        if(this.newTasksCount > 0){
-            let newTasksBadge = `<div class="new-tasks-badge">${this.newTasksCount}</div>`;
-            this.element.insertAdjacentHTML("afterbegin", newTasksBadge);
-        }
-    }
+
     afterRender(){
-        this.renderBadge();
-        this.checkRunningTasks();
+        this.checkButtonsState();
     }
     async runAllTasks(button){
-        this.runningTasks = 0;
+        button.classList.add("disabled");
         for(let task of this.tasks){
-            if(task.status === "created" || task.status === "cancelled"){
-                this.runningTasks++;
+            if(task.status === "created" || task.status === "cancelled" || task.status === "failed"){
                 utilModule.runTask(task.id);
             }
         }
-        if(this.runningTasks > 0){
-            button.classList.add("disabled");
-        }
     }
     async cancelAllTasks(button){
+        button.classList.add("disabled");
         for(let task of this.tasks){
             if(task.status === "running"){
                 utilModule.cancelTask(task.id);
             }
         }
-        if(this.runningTasks > 0){
-            button.classList.remove("disabled");
-        }
     }
-    checkRunningTasks(){
-        if(this.runningTasks === 0){
+    checkButtonsState(){
+        let runningTasks = 0;
+        let readyToRunTasks = 0;
+        for(let task of this.tasks){
+            if(task.status === "running"){
+                runningTasks++;
+            } else if(task.status === "created" || task.status === "cancelled" || task.status === "failed"){
+                readyToRunTasks++;
+            }
+        }
+        if(runningTasks === 0 && readyToRunTasks > 0){
             let runAllButton = this.element.querySelector(".run-all-tasks");
             runAllButton.classList.remove("disabled");
             let cancelAllButton = this.element.querySelector(".cancel-all-tasks");
             cancelAllButton.classList.add("disabled");
-        } else {
+        } else if(runningTasks > 0){
             let runAllButton = this.element.querySelector(".run-all-tasks");
             runAllButton.classList.add("disabled");
             let cancelAllButton = this.element.querySelector(".cancel-all-tasks");
@@ -135,5 +92,6 @@ export class DocumentTasksModal {
     updateTaskInList(taskId, status){
         let task = this.tasks.find(t => t.id === taskId);
         task.status = status;
+        this.checkButtonsState();
     }
 }

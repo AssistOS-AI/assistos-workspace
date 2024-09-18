@@ -14,6 +14,8 @@ export class TextToSpeech {
             this.personalities = await personalityModule.getPersonalities(assistOS.space.id);
             this.emotions = await llmModule.listEmotions(assistOS.space.id);
         });
+        this.element.setAttribute("data-local-action", "editItem textToSpeech");
+        this.element.setAttribute("id", "current-selection");
     }
 
     beforeRender() {

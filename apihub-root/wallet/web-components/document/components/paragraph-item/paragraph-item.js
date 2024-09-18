@@ -408,6 +408,7 @@ export class ParagraphItem {
         utilModule.subscribeToObject(taskId, async (status) => {
             await this.changeTaskStatus(taskId, status);
         });
+        this.documentPresenter.renderNewTasksBadge();
     }
 
     async handleCommand(commandType, commandStatus, command) {
