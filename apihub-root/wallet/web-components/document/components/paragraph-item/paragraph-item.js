@@ -426,7 +426,7 @@ export class ParagraphItem {
         const handleLipSyncCommand = async (commandStatus, command) => {
             switch (commandStatus) {
                 case "new":
-                    const taskId = await utilModule.constants.COMMANDS_CONFIG.COMMANDS.find(command => command.NAME === "speech").EXECUTE(assistOS.space.id, this._document.id, this.paragraph.id, {});
+                    const taskId = await utilModule.constants.COMMANDS_CONFIG.COMMANDS.find(command => command.NAME ==="lipsync").EXECUTE(assistOS.space.id, this._document.id, this.paragraph.id, {});
                     this.addUITask(taskId);
                     break;
                 case "changed":
@@ -740,16 +740,6 @@ export class ParagraphItem {
         let chapterElement = this.element.closest("chapter-item");
         let chapterPresenter = chapterElement.webSkelPresenter;
 
-        const previousParagraphImage = () => {
-            const currentParagraphPosition = chapterPresenter.chapter.paragraphs.findIndex(paragraph => paragraph.id === this.paragraph.id);
-            if (currentParagraphPosition !== 0) {
-                if (chapterPresenter.chapter.paragraphs[currentParagraphPosition - 1].commands.image) {
-                    return true;
-                }
-            }
-            return false;
-        }
-
         const generateDropdownMenu = () => {
             let baseDropdownMenuHTML =
                 `<list-item data-local-action="deleteParagraph" data-name="Delete"
@@ -783,16 +773,11 @@ export class ParagraphItem {
                 baseDropdownMenuHTML += ` <list-item data-name="Delete Audio" data-local-action="deleteAudio" data-highlight="light-highlight"></list-item>`;
             }
 
-            if (previousParagraphImage() && this.paragraph.commands.speech && !this.paragraph.commands.lipSync) {
+            if ( this.paragraph.commands.speech && !this.paragraph.commands.lipSync) {
                 baseDropdownMenuHTML += `<list-item data-name="Generate Paragraph Video" data-local-action="addParagraphVideo" data-highlight="light-highlight"></list-item>`;
             }
-            if (previousParagraphImage() && this.paragraph.commands.speech) {
-                const currentParagraphPosition = chapterPresenter.chapter.paragraphs.findIndex(paragraph => paragraph.id === this.paragraph.id);
-                if (currentParagraphPosition !== 0) {
-                    if (chapterPresenter.chapter.paragraphs[currentParagraphPosition - 1].commands.image) {
+            if (this.paragraph.commands.speech && this.paragraph.commands.image) {
                         baseDropdownMenuHTML += `<list-item data-name="Lip Sync" data-local-action="lipSync" data-highlight="light-highlight"></list-item>`;
-                    }
-                }
             }
             if (this.paragraph.commands.lipSync) {
                 baseDropdownMenuHTML += `<list-item data-name="Play Lip Sync" data-local-action="playLipSyncVideo" data-highlight="light-highlight"></list-item>`;
