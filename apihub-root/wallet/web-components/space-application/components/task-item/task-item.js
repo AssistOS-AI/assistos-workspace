@@ -25,14 +25,14 @@ export class TaskItem{
         utilModule.unsubscribeFromObject(this.id);
     }
     async showTaskInfo(){
-        let task = await utilModule.getTask(this.id);
+        let taskInfo = await utilModule.getTaskRelevantInfo(this.id);
         let info= "";
-        for(let [key,value] of Object.entries(task.configs)){
+        for(let [key,value] of Object.entries(taskInfo)){
             info += `${key}: ${value}\n`;
         }
-        let taskInfo = `<div class="info-pop-up">${info}</div>`;
+        let taskInfoHTML = `<div class="info-pop-up">${info}</div>`;
         let taskAction = this.element.querySelector(".task-action");
-        taskAction.insertAdjacentHTML("beforeend", taskInfo);
+        taskAction.insertAdjacentHTML("beforeend", taskInfoHTML);
         document.addEventListener("click", this.removeInfoPopUp.bind(this), {once: true});
     }
     removeInfoPopUp(){

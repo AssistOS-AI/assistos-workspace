@@ -44,7 +44,16 @@ task-item{
     position: absolute;
     background-color: white;
     width: 350px;
-    bottom: 0;
-    left: 25px;
     box-shadow: 0px 1px 7.3px 0px #00000040;
+    top: 26px;
+    right: -38px;
+    z-index: 1;
+    display: -webkit-box;
+    -webkit-box-orient: vertical;
+    -webkit-line-clamp: 3;
+    overflow: hidden;
+    text-overflow: ellipsis;
+    white-space: normal;
+    line-height: 1.5;
+    height: 60px;
 }
