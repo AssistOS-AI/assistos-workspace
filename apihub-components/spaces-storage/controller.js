@@ -1358,6 +1358,23 @@ async function estimateDocumentVideoLength(request, response) {
     }
 }
 
+async function addVideo(request,response){
+    const spaceId = request.params.spaceId;
+    const objectData=request.body;
+    const videoId = crypto.generateId();
+    try {
+       await space.APIs.putVideo(spaceId, videoId,objectData);
+        return utils.sendResponse(response, 200, "application/json", {
+            success: true,
+            data: videoId,
+        });
+    } catch (error) {
+        return utils.sendResponse(response, 500, "application/json", {
+            success: false,
+            message: error + ` Error adding video`
+        });
+    }
+}
 
 async function getVideo(request, response) {
     const spaceId = request.params.spaceId;
@@ -1651,6 +1668,7 @@ module.exports = {
     storeAudio,
     deleteAudio,
     getAudio,
+    addVideo,
     getVideo,
     deleteVideo,
     exportDocument,

@@ -355,16 +355,14 @@ async function lipsync(request, response) {
     const spaceId = request.params.spaceId;
     const imageSrc = request.body.imageSrc;
     const audioSrc = request.body.audioSrc;
-    const documentId=request.body.documentId;
-    const paragraphId=request.body.paragraphId;
+    const taskId=request.body.taskId;
     const requestBody = {
         modelName: request.body.modelName,
         spaceId: request.params.spaceId,
         userId: request.userId,
         webHookData:{
             webhookSecret: getWebhookSecret(),
-            documentId: documentId,
-            paragraphId: paragraphId,
+            taskId:taskId
         }
     };
     try {

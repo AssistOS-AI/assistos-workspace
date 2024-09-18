@@ -8,6 +8,10 @@ const EVENTS = constants.EVENTS;
 
 class TaskManager {
     constructor() {
+        if(TaskManager.instance){
+            return TaskManager.instance;
+        }
+        TaskManager.instance = this;
         this.tasks = [];
         this.tasksTable = "tasks";
         this.queue = [];
@@ -137,8 +141,12 @@ class TaskManager {
     }
 }
 
-const taskManager = new TaskManager();
+const taskManager = TaskManager.instance || new TaskManager();
+
 (async () => {
-    await taskManager.initialize();
+    if (!TaskManager.instance) {
+        await taskManager.initialize();
+    }
 })();
+
 module.exports = taskManager;

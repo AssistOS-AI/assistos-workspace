@@ -20,10 +20,18 @@ function extractRefFromRequest(request) {
     return ref;
 }
 
-async function saveResult(type, spaceId, objectId, userId, requestBody) {
-    switch (type) {
+async function saveResult(ref,requestBody) {
+    const userId = ref.userId;
+    const objectId = ref.objectId;
+    const spaceId = objectId.split("_")[0];
+
+    switch (ref.type) {
         case "video":
-            await space.APIs.putVideo(spaceId, objectId, requestBody.videoUrl);
+            const taskId = ref.taskId;
+            const videoURL=requestBody.result.videoUrl;
+            const taskManager = require("../tasks/TaskManager.js");
+            const task=taskManager.getTask(taskId);
+            await task.completeTaskExecution(videoURL);
             eventPublisher.notifyClientTask(userId, spaceId+"_"+objectId);
             break;
         case "image":
@@ -48,15 +56,12 @@ async function dataHandler(request, response) {
                 message: "Unauthorized request"
             });
         }
-        let {timestamp, nonce, signature: receivedSignature, objectId, userId, type} = ref;
+        let {timestamp, nonce, signature, objectId} = ref;
         const generatedSignature = generateSignature(timestamp, nonce);
-        if (receivedSignature === generatedSignature) {
+        if (signature === generatedSignature) {
             const requestStatus = request.body.result ? request.body.result.status : request.body.status;
             if (objectId && (requestStatus === "DONE" || requestStatus === "COMPLETED")) {
-                let spaceId = objectId.split("_")[0];
-                const requestBody = request.body.result ? request.body.result : request.body;
-                objectId=objectId.split("_")[1];
-                await saveResult(ref.type, spaceId, objectId, userId, requestBody);
+                await saveResult(ref, request.body);
             }
             return utils.sendResponse(response, 200, "application/json", {
                 success: true
