@@ -9,8 +9,14 @@ let LLMConfigs;
 const ffmpeg = require("../apihub-component-utils/ffmpeg.js");
 
 async function getLLMAuthRequirements() {
+    let baseURL;
+    if (configs.ENVIRONMENT_MODE === "production") {
+        baseURL = configs.LLMS_SERVER_PRODUCTION_BASE_URL;
+    } else {
+        baseURL = configs.LLMS_SERVER_DEVELOPMENT_BASE_URL;
+    }
     try {
-        const llmAuthRequirements = await fetch(`http://localhost:8079/apis/v1/authRequirements`, {
+        const llmAuthRequirements = await fetch(`${baseURL}/apis/v1/authRequirements`, {
             method: "GET",
             headers: {
                 "content-type": "application/json"
