@@ -4,15 +4,11 @@ export class InsertImageModal {
     constructor(element, invalidate) {
         this.element = element;
         this.invalidate = invalidate;
-        let chapterId = this.element.getAttribute("data-chapter-id");
-        this._document = document.querySelector("document-view-page").webSkelPresenter._document;
-        this.chapter = this._document.getChapter(chapterId);
         this.modalBody = `
             <div class="modal-body">
                 <button data-local-action="openGallerySection">From Gallery</button>
                 <button data-local-action="openMyDevice">My device</button data-local-action="openMyDevice">
                 <input type="file" id="file" class="hidden" accept="image/png">
-<!--                <button data-local-action="openGenerateSection">Generate</button>-->
             </div>`;
         this.invalidate(async ()=>{
             this.galleries = await galleryModule.getGalleriesMetadata(assistOS.space.id);
@@ -48,14 +44,6 @@ export class InsertImageModal {
     }
 
     afterRender() {
-        if(this.modalBody === this.generateSection){
-            let input = this.element.querySelector('#prompt');
-            let inputValue = "";
-            for (let paragraph of this.chapter.paragraphs) {
-                inputValue += paragraph.text;
-            }
-            input.value = inputValue;
-        }
         if(this.modalBody === this.galleryImagesSection){
             let images = this.element.querySelectorAll(".gallery-image");
             images.forEach((image) => {
@@ -86,10 +74,6 @@ export class InsertImageModal {
             });
         }
 
-    }
-    openGenerateSection(){
-        this.modalBody = this.generateSection;
-        this.invalidate();
     }
     openGallerySection(){
         this.modalBody = this.gallerySection;

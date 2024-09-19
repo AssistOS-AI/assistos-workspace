@@ -1358,24 +1358,77 @@ async function estimateDocumentVideoLength(request, response) {
     }
 }
 
-async function addVideo(request,response){
+async function addVideo(request, response){
     const spaceId = request.params.spaceId;
-    const objectData=request.body;
     const videoId = crypto.generateId();
-    try {
-       await space.APIs.putVideo(spaceId, videoId,objectData);
-        return utils.sendResponse(response, 200, "application/json", {
+    const contentType = request.headers['content-type'];
+    if (contentType.startsWith('multipart/form-data')) {
+        uploadVideoAsChunks(request, response);
+    } else {
+        const objectData = request.body;
+        try {
+            await space.APIs.putVideo(spaceId, videoId, objectData);
+            return utils.sendResponse(response, 200, "application/json", {
+                success: true,
+                data: videoId,
+            });
+        } catch (error) {
+            return utils.sendResponse(response, 500, "application/json", {
+                success: false,
+                message: error + ` Error adding video`
+            });
+        }
+    }
+}
+function uploadVideoAsChunks(request, response) {
+    const spaceId = request.params.spaceId;
+    const videoId = crypto.generateId();
+    const SecurityContext = require("assistos").ServerSideSecurityContext;
+    let securityContext = new SecurityContext(request);
+    const busboy = Busboy({ headers: request.headers });
+    const videoPath = path.join(space.APIs.getSpacePath(spaceId), 'videos', `${videoId}.mp4`);
+    busboy.on('file', (fieldname, file, filename, encoding, mimetype) => {
+        const writeStream = fs.createWriteStream(videoPath);
+        writeStream.on('error', (error) => {
+            utils.sendResponse(response, 500, "application/json", {
+                success: false,
+                message: 'Error writing file: ' + error.message
+            });
+        });
+        file.on('end', () => {
+            writeStream.end();
+        });
+        file.pipe(writeStream);
+    });
+    busboy.on('finish', async () => {
+        utils.sendResponse(response, 200, "application/json", {
             success: true,
             data: videoId,
         });
-    } catch (error) {
-        return utils.sendResponse(response, 500, "application/json", {
+        // let task = new AnonymousTask(securityContext, async function () {
+        //     await ffmpeg.convertVideoToMp4(videoPath, this);
+        // });
+        // task.run().then(() => {
+        //     utils.sendResponse(response, 200, "application/json", {
+        //         success: true,
+        //         data: videoId,
+        //     });
+        // }).catch((error) => {
+        //     utils.sendResponse(response, 500, "application/json", {
+        //         success: false,
+        //         message: error + ` Error adding video`
+        //     });
+        // });
+
+    });
+    busboy.on('error', (error) => {
+        utils.sendResponse(response, 500, "application/json", {
             success: false,
             message: error + ` Error adding video`
         });
-    }
+    });
+    request.pipe(busboy);
 }
-
 async function getVideo(request, response) {
     const spaceId = request.params.spaceId;
     const videoId = request.params.videoId;

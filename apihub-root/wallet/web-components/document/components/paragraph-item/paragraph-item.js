@@ -748,6 +748,8 @@ export class ParagraphItem {
                            data-highlight="light-highlight"></list-item>
                  <list-item data-local-action="openInsertImageModal" data-name="Insert Image"
                            data-highlight="light-highlight"></list-item>
+                 <list-item data-local-action="openInsertVideoModal" data-name="Insert Video"
+                           data-highlight="light-highlight"></list-item>
                  <list-item data-local-action="addParagraph" data-name="Insert Paragraph" 
                            data-highlight="light-highlight"></list-item>
                  <list-item data-local-action="showTTSPopup off" data-name="Text To Speech"
@@ -891,9 +893,17 @@ export class ParagraphItem {
     }
 
     async openInsertImageModal(_target) {
-        let imageData = await assistOS.UI.showModal("insert-image-modal", {["chapter-id"]: this.chapter.id}, true);
+        let imageData = await assistOS.UI.showModal("insert-image-modal", true);
         if (imageData) {
             this.paragraph.commands.image = imageData;
+            await documentModule.updateParagraphCommands(assistOS.space.id, this._document.id, this.paragraph.id, this.paragraph.commands);
+            this.invalidate();
+        }
+    }
+    async openInsertVideoModal(){
+        let videoData = await assistOS.UI.showModal("insert-video-modal", true);
+        if (videoData) {
+            this.paragraph.commands.video = videoData;
             await documentModule.updateParagraphCommands(assistOS.space.id, this._document.id, this.paragraph.id, this.paragraph.commands);
             this.invalidate();
         }

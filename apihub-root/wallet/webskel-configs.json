@@ -4,6 +4,12 @@
     "services": [],
     "components": [
         {
+            "name": "insert-video-modal",
+            "directory": "document",
+            "type": "modals",
+            "presenterClassName": "InsertVideoModal"
+        },
+        {
             "name": "document-tasks-modal",
             "directory": "document",
             "type": "modals",
