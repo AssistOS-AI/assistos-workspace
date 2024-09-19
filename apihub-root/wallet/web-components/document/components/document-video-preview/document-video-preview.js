@@ -113,6 +113,8 @@ export class DocumentVideoPreview {
 
     removeLoader() {
         if (this.imageLoaded && this.audioLoaded) {
+            this.nextButton.classList.remove("disabled");
+
             let playPause = this.element.querySelector(".play-pause");
             playPause.setAttribute("data-local-action", "playPause");
             let mode = playPause.getAttribute("data-mode");
@@ -135,9 +137,11 @@ export class DocumentVideoPreview {
     //call this when setting src
     loadResource(type, src) {
         if (type === "image") {
+            this.nextButton.classList.add("disabled");
             this.imageLoaded = false;
             this.imageTag.src = src;
         } else {
+            this.nextButton.classList.add("disabled");
             this.audioLoaded = false;
             this.currentTime += this.audioPlayer.currentTime;
             this.audioPlayer.src = src;
@@ -172,6 +176,10 @@ export class DocumentVideoPreview {
     }
 
     incrementParagraphIndex() {
+        if(!this.document.chapters[this.chapterIndex]){
+            //end of document
+            return;
+        }
         this.paragraphIndex += 1;
         if (this.paragraphIndex === this.document.chapters[this.chapterIndex].paragraphs.length) {
             this.chapterIndex += 1;
@@ -240,7 +248,7 @@ export class DocumentVideoPreview {
                 const totalSilentDuration = this.silenceDuration || 0;
 
                 // Calculate the remaining silent duration
-                this.remainingSilentDuration = totalSilentDuration - elapsedTime;
+                this.remainingSilentDuration = Math.ceil((totalSilentDuration - elapsedTime) / 1000) * 1000;
             }
         }
         //safeguard, when you pause during silence
@@ -263,6 +271,7 @@ export class DocumentVideoPreview {
                 clearInterval(this.incrementTimeInterval);
                 delete this.incrementTimeInterval;
                 delete this.silenceTimeout;
+                this.incrementParagraphIndex();
                 this.remainingSilentDuration = 0; // Reset after completion
                 if (this.resumeCallback) {
                     this.resumeCallback();
@@ -286,7 +295,7 @@ export class DocumentVideoPreview {
                 if (paragraph.commands.audio) {
                     let imageSrc= "./wallet/assets/images/black-screen.png"
                     if(paragraph.commands.image){
-                        imageSrc=utilModule.constants.getImageSrc(assistOS.space.id, paragraph.commands.image.id);
+                        imageSrc = utilModule.constants.getImageSrc(assistOS.space.id, paragraph.commands.image.id);
                     }
 
                     this.setCurrentParagraphAndChapter(i, j);
@@ -297,7 +306,7 @@ export class DocumentVideoPreview {
                     return;
                 } else if (paragraph.commands["silence"]){
                     if(paragraph.commands.image){
-                        let imageSrc=utilModule.constants.getImageSrc(assistOS.space.id, paragraph.commands.image.id);
+                        let imageSrc = utilModule.constants.getImageSrc(assistOS.space.id, paragraph.commands.image.id);
                         this.loadResource("image", imageSrc);
                     } else {
                         this.loadResource("image", "./wallet/assets/images/black-screen.png");
@@ -308,7 +317,7 @@ export class DocumentVideoPreview {
                     return;
                 } else if(paragraph.commands.image){
                     this.setCurrentParagraphAndChapter(i, j);
-                    let imageSrc=utilModule.constants.getImageSrc(assistOS.space.id, paragraph.commands.image.id);
+                    let imageSrc = utilModule.constants.getImageSrc(assistOS.space.id, paragraph.commands.image.id);
                     this.loadResource("image", imageSrc);
                     this.scrollDocument();
                     this.executeSilenceCommand(1);
@@ -354,7 +363,7 @@ export class DocumentVideoPreview {
             this.remainingSilentDuration = 0;
             this.incrementParagraphIndex();
             delete this.silenceTimeout;
-            this.playNext();
+            await this.playNext();
         }, this.silenceDuration);
     }
 
@@ -371,10 +380,12 @@ export class DocumentVideoPreview {
         let paragraph = this.document.chapters[this.chapterIndex].paragraphs[this.paragraphIndex];
 
         this.audioPlayer.pause();
+
         //clean up before moving on to the next scene
         if (paragraph.commands.audio) {
             this.currentTime = this.currentTime + this.audioPlayer.duration;
             this.currentTimeElement.innerHTML = this.formatTime(this.currentTime);
+            this.audioPlayer.src = "";
         } else if (paragraph.commands["silence"]) {
             this.currentTime += parseFloat(paragraph.commands["silence"].paramsObject.duration);
             this.currentTimeElement.innerHTML = this.formatTime(this.currentTime);
@@ -391,10 +402,22 @@ export class DocumentVideoPreview {
         }
 
         let nextParagraph = this.document.chapters[this.chapterIndex].paragraphs[this.paragraphIndex];
+        if(!nextParagraph.commands.audio && !nextParagraph.commands["silence"] && !nextParagraph.commands.image){
+            return this.skipToNextScene();
+        }
         if(nextParagraph.commands.audio){
             this.audioPlayer.addEventListener("loadedmetadata", this.waitAudioLoad.bind(this), {once: true});
+            if(currentMode === "play") {
+                this.playNext();
+                return;
+            }
             let audioSrc = utilModule.constants.getAudioSrc(assistOS.space.id, nextParagraph.commands.audio.id);
             this.loadResource("audio", audioSrc);
+        }
+        if(currentMode === "play") {
+            this.nextButton.classList.remove("disabled");
+            this.playNext();
+            return;
         }
         if(nextParagraph.commands.image){
             let imageSrc = utilModule.constants.getImageSrc(assistOS.space.id, nextParagraph.commands.image.id);
@@ -402,18 +425,17 @@ export class DocumentVideoPreview {
         } else {
             this.loadResource("image", "./wallet/assets/images/black-screen.png");
         }
-        this.nextButton.classList.remove("disabled");
-        if(currentMode === "play") {
-            this.playNext();
-            return;
-        }
-        //player is paused
         this.scrollDocument();
+        this.nextButton.classList.remove("disabled");
     }
     waitAudioLoad(event) {
         this.nextButton.classList.remove("disabled");
     }
-
+    skipTimeStampStart(event) {
+        this.currentTime = this.currentTime - this.audioPlayer.duration;
+        this.currentTimeElement.innerHTML = this.formatTime(this.currentTime);
+        this.nextButton.classList.remove("disabled");
+    }
     cancelTimeouts() {
         //skip during loading of a scene
         if (this.loaderTimeout) {
@@ -424,8 +446,8 @@ export class DocumentVideoPreview {
         }
         //skip during pause
         if (this.silenceTimeout) {
-            delete this.silenceTimeout;
             clearTimeout(this.silenceTimeout);
+            delete this.silenceTimeout;
             this.remainingSilentDuration = 0;
         }
         //stop incrementing timestamp
@@ -436,16 +458,17 @@ export class DocumentVideoPreview {
     }
 
     async skipToPreviousScene(targetElement) {
+        this.previousButton.classList.add("disabled");
         this.cancelTimeouts();
         let playPause = this.element.querySelector(".play-pause");
         let currentMode = playPause.getAttribute("data-mode");
         let paragraph;
         //skip previous is called at the end of the document
         if (currentMode === "reload") {
-            playPause.setAttribute("data-mode", "play");
-            playPause.innerHTML = `<img class="pointer" src="./wallet/assets/icons/pause.svg" alt="pause">`;
-            this.nextButton.classList.remove("disabled");
-            currentMode = "play";
+            playPause.setAttribute("data-mode", "pause");
+            playPause.innerHTML = `<img class="pointer" src="./wallet/assets/icons/play.svg" alt="play">`;
+            currentMode = "pause";
+            this.isPaused = true;
             this.chapterIndex = this.document.chapters.length - 1;
             this.paragraphIndex = this.document.chapters[this.document.chapters.length - 1].paragraphs.length - 1;
 
@@ -453,10 +476,26 @@ export class DocumentVideoPreview {
             paragraph = lastChapter.paragraphs[this.paragraphIndex];
         } else {
             paragraph = this.document.chapters[this.chapterIndex].paragraphs[this.paragraphIndex];
-            this.decrementParagraphIndex();
         }
 
-        if (this.chapterIndex < 0) {
+
+        if (currentMode === "play"){
+            this.playPause(playPause);
+        }
+        //clean up before moving on to the previous scene
+        if (paragraph.commands.audio) {
+            this.currentTimeElement.innerHTML = this.formatTime(this.currentTime);
+            this.audioPlayer.src = "";
+        } else if (paragraph.commands["silence"]) {
+            const elapsedTime = Math.floor((this.silenceDuration - this.remainingSilentDuration) / 1000);
+            this.currentTime -= elapsedTime;
+            this.currentTimeElement.innerHTML = this.formatTime(this.currentTime);
+        } else if(paragraph.commands.image){
+            this.currentTime -= 1;
+            this.currentTimeElement.innerHTML = this.formatTime(this.currentTime);
+        }
+        this.decrementParagraphIndex();
+        if (this.chapterIndex === 0 && this.paragraphIndex === 0) {
             //reached start of document
             this.loadResource("image", "./wallet/assets/images/black-screen.png");
             this.setCurrentParagraphAndChapter(0, 0);
@@ -472,45 +511,48 @@ export class DocumentVideoPreview {
             this.isPaused = false;
             return;
         }
-
-        if (paragraph.commands.audio) {
-            this.previousButton.classList.add("disabled");
-            this.currentTime -= this.audioPlayer.duration;
-            this.currentTimeElement.innerHTML = this.formatTime(this.currentTime);
-            this.previousButton.classList.remove("disabled");
-            this.audioPlayer.pause();
-            this.audioPlayer.src = "";
-            if (currentMode === "play") {
-                this.playNext();
-                return;
-            }
-            //player is paused
-            let audioSrc=utilModule.constants.getAudioSrc(assistOS.space.id,paragraph.commands.audio.id);
+        let previousParagraph = this.document.chapters[this.chapterIndex].paragraphs[this.paragraphIndex];
+        //empty paragraph
+        if(!previousParagraph.commands.audio && !previousParagraph.commands["silence"] && !previousParagraph.commands.image){
+            return this.skipToPreviousScene();
+        }
+        //load previous scene from beginning
+        if (previousParagraph.commands.audio) {
+            this.audioPlayer.addEventListener("loadedmetadata", this.skipTimeStampStart.bind(this), {once: true});
+            let audioSrc = utilModule.constants.getAudioSrc(assistOS.space.id, previousParagraph.commands.audio.id);
             this.loadResource("audio", audioSrc);
-            this.scrollDocument();
-        } else if (paragraph.commands["silence"]) {
-            this.previousButton.classList.add("disabled");
-            this.audioPlayer.pause();
-            this.currentTime -= parseFloat(paragraph.commands["silence"].paramsObject.duration);
-            this.currentTimeElement.innerHTML = this.formatTime(this.currentTime);
-            this.previousButton.classList.remove("disabled");
-            if (currentMode === "play") {
-                this.playNext();
-                return;
+            if(previousParagraph.commands.image){
+                let imageSrc = utilModule.constants.getImageSrc(assistOS.space.id, previousParagraph.commands.image.id);
+                this.loadResource("image", imageSrc);
+            } else {
+                this.loadResource("image", "./wallet/assets/images/black-screen.png");
             }
-            //player is paused
-            this.scrollDocument();
-        } else if(paragraph.commands.image){
+        } else if (previousParagraph.commands["silence"]) {
+            this.currentTime -= parseFloat(previousParagraph.commands["silence"].paramsObject.duration);
+            this.currentTimeElement.innerHTML = this.formatTime(this.currentTime);
+            //to be able to resume the video with the remaining silent duration
+            this.remainingSilentDuration = previousParagraph.commands["silence"].paramsObject.duration * 1000;
+            this.silenceDuration = this.remainingSilentDuration;
+            this.resumeCallback = () => {
+                this.isPaused = false;
+                this.playNext();
+            };
+
+            if(previousParagraph.commands.image){
+                let imageSrc = utilModule.constants.getImageSrc(assistOS.space.id, previousParagraph.commands.image.id);
+                this.loadResource("image", imageSrc);
+            } else {
+                this.loadResource("image", "./wallet/assets/images/black-screen.png");
+            }
+        } else if(previousParagraph.commands.image){
             this.currentTime -= 1;
             this.currentTimeElement.innerHTML = this.formatTime(this.currentTime);
-            if (currentMode === "play") {
-                this.playNext();
-                return;
-            }
-            //player is paused
-            this.scrollDocument();
+            let imageSrc = utilModule.constants.getImageSrc(assistOS.space.id, previousParagraph.commands.image.id);
+            this.loadResource("image", imageSrc);
         }
 
+        this.scrollDocument();
+        this.previousButton.classList.remove("disabled");
     }
 
     resetTimestamp() {
