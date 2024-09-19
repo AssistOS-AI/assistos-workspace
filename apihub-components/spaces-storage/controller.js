@@ -1478,7 +1478,9 @@ async function deleteVideo(request, response) {
     }
 }
 
+async function exportDocumentReference(request,response){
 
+}
 async function exportDocument(request, response) {
     const spaceId = request.params.spaceId;
     const documentId = request.params.documentId;
@@ -1729,6 +1731,7 @@ module.exports = {
     exportPersonality,
     importPersonality,
     estimateDocumentVideoLength,
+    exportDocumentReference,
     insertEmbeddedObject,
     insertContainerObject,
     getSpaceChat

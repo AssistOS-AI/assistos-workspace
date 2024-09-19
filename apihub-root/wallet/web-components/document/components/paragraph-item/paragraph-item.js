@@ -102,6 +102,13 @@ export class ParagraphItem {
     async deleteParagraph(_target) {
         await this.documentPresenter.stopTimer(true);
         let currentParagraphIndex = this.chapter.getParagraphIndex(this.paragraph.id);
+        await Promise.all(Object.entries(this.paragraph.commands)
+            .map(async ([command, commandParams]) => {
+                if (commandParams.taskId) {
+                    return utilModule.cancelTaskAndRemove(commandParams.taskId);
+                }
+            }));
+
         await assistOS.callFlow("DeleteParagraph", {
             spaceId: assistOS.space.id,
             documentId: this._document.id,
@@ -426,7 +433,7 @@ export class ParagraphItem {
         const handleLipSyncCommand = async (commandStatus, command) => {
             switch (commandStatus) {
                 case "new":
-                    const taskId = await utilModule.constants.COMMANDS_CONFIG.COMMANDS.find(command => command.NAME ==="lipsync").EXECUTE(assistOS.space.id, this._document.id, this.paragraph.id, {});
+                    const taskId = await utilModule.constants.COMMANDS_CONFIG.COMMANDS.find(command => command.NAME === "lipsync").EXECUTE(assistOS.space.id, this._document.id, this.paragraph.id, {});
                     this.addUITask(taskId);
                     break;
                 case "changed":
@@ -596,7 +603,7 @@ export class ParagraphItem {
                 await this.saveParagraph(paragraphText);
                 assistOS.space.currentParagraphId = null;
             }
-            );
+        );
     }
 
     focusOutHandlerImage(imageContainer) {
@@ -775,11 +782,11 @@ export class ParagraphItem {
                 baseDropdownMenuHTML += ` <list-item data-name="Delete Audio" data-local-action="deleteAudio" data-highlight="light-highlight"></list-item>`;
             }
 
-            if ( this.paragraph.commands.speech && !this.paragraph.commands.lipsync) {
+            if (this.paragraph.commands.speech && !this.paragraph.commands.lipsync) {
                 baseDropdownMenuHTML += `<list-item data-name="Generate Paragraph Video" data-local-action="addParagraphVideo" data-highlight="light-highlight"></list-item>`;
             }
             if (this.paragraph.commands.speech && this.paragraph.commands.image) {
-                        baseDropdownMenuHTML += `<list-item data-name="Lip Sync" data-local-action="lipSync" data-highlight="light-highlight"></list-item>`;
+                baseDropdownMenuHTML += `<list-item data-name="Lip Sync" data-local-action="lipSync" data-highlight="light-highlight"></list-item>`;
             }
             if (this.paragraph.commands.lipsync) {
                 baseDropdownMenuHTML += `<list-item data-name="Play Lip Sync" data-local-action="playLipSyncVideo" data-highlight="light-highlight"></list-item>`;

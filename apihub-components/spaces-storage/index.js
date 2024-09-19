@@ -52,7 +52,8 @@ const {
     estimateDocumentVideoLength,
     getSpaceChat,
     getFileObjects,
-    addVideo
+    addVideo,
+    exportDocumentReference
 } = require("./controller");
 
 const bodyReader = require('../apihub-component-middlewares/bodyReader.js')
@@ -141,6 +142,7 @@ function SpaceStorage(server) {
     server.get("/spaces/video/estimate/:spaceId/:documentId", estimateDocumentVideoLength);
     server.post("/spaces/video/:spaceId", addVideo);
     server.delete("/spaces/video/:spaceId/:videoId", deleteVideo);
+    server.get("/spaces/:spaceId/export/documents/:documentId/reference", exportDocumentRefference);
     server.get("/spaces/:spaceId/export/documents/:documentId", exportDocument);
     server.get("/spaces/:spaceId/export/personalities/:personalityId", exportPersonality);
     server.post("/spaces/:spaceId/import/documents", importDocument);

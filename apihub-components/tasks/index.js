@@ -17,7 +17,7 @@ const authentication = require('../apihub-component-middlewares/authentication.j
 function Tasks(server){
     server.use("/tasks/*", authentication);
     server.delete("/tasks/cancel/:taskId", cancelTask);
-    server.delete("/tasks/remove/:taskId", removeTask);
+    server.delete("/tasks/remove/:taskId", cancelTaskAndRemove);
 
     server.get("/tasks/space/:spaceId", getTasks);
     server.get("/tasks/:taskId", getTask);

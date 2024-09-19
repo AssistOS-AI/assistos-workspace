@@ -634,7 +634,7 @@ async function deleteVideo(spaceId, videoId) {
     await fsPromises.rm(videoPath);
 }
 
-async function exportDocumentData(spaceId, documentId, request) {
+async function exportDocumentData(spaceId, documentId) {
     let lightDBEnclaveClient = enclave.initialiseLightDBEnclave(spaceId);
     const documentRecords = await $$.promisify(lightDBEnclaveClient.getAllRecords)($$.SYSTEM_IDENTIFIER, documentId);
     let documentRecordsContents = {};
@@ -710,7 +710,7 @@ async function exportDocumentData(spaceId, documentId, request) {
 }
 
 async function archiveDocument(spaceId, documentId, request) {
-    const documentData = await exportDocumentData(spaceId, documentId, request);
+    const documentData = await exportDocumentData(spaceId, documentId);
     const contentBuffer = Buffer.from(JSON.stringify(documentData), 'utf-8');
     const checksum = require('crypto').createHash('sha256').update(contentBuffer).digest('hex');
 
