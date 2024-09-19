@@ -71,7 +71,9 @@ class TaskManager {
         if (!task) {
             throw new Error('Task not found');
         }
-        task.cancel();
+        if(task.status === STATUS.RUNNING){
+            task.cancel();
+        }
         await this.removeTask(taskId);
     }
 
