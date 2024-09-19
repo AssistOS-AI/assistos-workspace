@@ -773,13 +773,13 @@ export class ParagraphItem {
                 baseDropdownMenuHTML += ` <list-item data-name="Delete Audio" data-local-action="deleteAudio" data-highlight="light-highlight"></list-item>`;
             }
 
-            if ( this.paragraph.commands.speech && !this.paragraph.commands.lipSync) {
+            if ( this.paragraph.commands.speech && !this.paragraph.commands.lipsync) {
                 baseDropdownMenuHTML += `<list-item data-name="Generate Paragraph Video" data-local-action="addParagraphVideo" data-highlight="light-highlight"></list-item>`;
             }
             if (this.paragraph.commands.speech && this.paragraph.commands.image) {
                         baseDropdownMenuHTML += `<list-item data-name="Lip Sync" data-local-action="lipSync" data-highlight="light-highlight"></list-item>`;
             }
-            if (this.paragraph.commands.lipSync) {
+            if (this.paragraph.commands.lipsync) {
                 baseDropdownMenuHTML += `<list-item data-name="Play Lip Sync" data-local-action="playLipSyncVideo" data-highlight="light-highlight"></list-item>`;
             }
             let dropdownMenuHTML =
@@ -879,7 +879,7 @@ export class ParagraphItem {
     playLipSyncVideo(playButton) {
         let videoTagContainer = `
         <div class="video-container">
-            <video controls autoplay class="lip-sync-video" src="${this.paragraph.commands.lipSync.src}"></video>
+            <video controls autoplay class="lip-sync-video" src="${this.paragraph.commands.lipsync.src}"></video>
             <img src="./wallet/assets/icons/x-mark.svg" data-local-action="closePlayer" class="close-player pointer" alt="close"/>
         </div>`;
         playButton.insertAdjacentHTML('afterend', videoTagContainer);

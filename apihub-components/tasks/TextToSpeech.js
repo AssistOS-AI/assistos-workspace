@@ -22,7 +22,7 @@ class TextToSpeech extends Task {
             const personalityData = await personalityModule.getPersonalityByName(this.spaceId, paragraphConfig.speech.paramsObject.personality);
 
             const audioBlob = await llmModule.textToSpeech(this.spaceId, {
-                prompt: paragraph.text,
+                prompt: utilModule.unsanitize(paragraph.text),
                 voice: personalityData.voiceId,
                 emotion: paragraphConfig.speech.paramsObject.emotion,
                 styleGuidance: paragraphConfig.speech.paramsObject.styleGuidance,
