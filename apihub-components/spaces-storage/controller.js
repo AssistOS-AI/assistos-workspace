@@ -1396,7 +1396,7 @@ async function getVideo(request, response) {
             return await space.APIs.getVideoParts(response, spaceId, videoId, range);
         }*/
         let video = await space.APIs.getVideo(spaceId, videoId);
-        response.setHeader('Content-Disposition', `attachment; filename=${videoId}.mp3`);
+        response.setHeader('Content-Disposition', `attachment; filename=${videoId}.mp4`);
         return utils.sendResponse(response, 200, "video/mp4", video);
 
     } catch (error) {
