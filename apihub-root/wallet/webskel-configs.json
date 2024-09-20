@@ -4,6 +4,12 @@
     "services": [],
     "components": [
         {
+            "name": "show-attachment-modal",
+            "directory": "document",
+            "type": "modals",
+            "presenterClassName": "ShowAttachmentModal"
+        },
+        {
             "name": "insert-video-modal",
             "directory": "document",
             "type": "modals",

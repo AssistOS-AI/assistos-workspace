@@ -266,11 +266,7 @@ export class DocumentViewPage {
             targetElement.setAttribute("id", "current-selection-parent");
             await this.changeContainerElement(targetElement, chapterPresenter.focusOutHandler.bind(chapterPresenter));
             return;
-        }else if(type === "link"){
-            let href = targetElement.getAttribute("href");
-            window.open(href, "_blank");
-            return;
-        } else if(type === "paragraph"){
+        }else if(type === "paragraph"){
             let chapterPresenter = targetElement.closest("chapter-item").webSkelPresenter;
             let paragraphItem = targetElement.closest("paragraph-item");
             let paragraphText = paragraphItem.querySelector(".paragraph-text");

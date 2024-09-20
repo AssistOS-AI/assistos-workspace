@@ -373,13 +373,13 @@ export class ParagraphItem {
             for (let [commandType, commandDetails] of Object.entries(this.paragraph.commands)) {
                 if (commandType === "image") {
                     let imageSrc = utilModule.constants.getImageSrc(assistOS.space.id, commandDetails.id);
-                    html += `<a data-local-action="editItem link" href="${imageSrc}" class="tasks-info" data-id="${commandDetails.id}">Image</a>`;
+                    html += `<a data-local-action="showAttachment image" href="${imageSrc}" class="tasks-info" data-id="${commandDetails.id}">Image</a>`;
                 } else if (commandType === "audio") {
                     let audioSrc = utilModule.constants.getAudioSrc(assistOS.space.id, commandDetails.id);
-                    html += `<a data-local-action="editItem link" href="${audioSrc}" class="tasks-info" data-id="${commandDetails.id}">Audio</a>`;
+                    html += `<a data-local-action="showAttachment audio" href="${audioSrc}" class="tasks-info" data-id="${commandDetails.id}">Audio</a>`;
                 } else if (commandType === "video") {
                     let videoSrc = utilModule.constants.getVideoSrc(assistOS.space.id, commandDetails.id);
-                    html += `<a data-local-action="editItem link" href="${videoSrc}" class="tasks-info" data-id="${commandDetails.id}">Video</a>`;
+                    html += `<a data-local-action="showAttachment video" href="${videoSrc}" class="tasks-info" data-id="${commandDetails.id}">Video</a>`;
                 }
 
             }
@@ -712,38 +712,7 @@ export class ParagraphItem {
         }
     }
 
-    async playParagraphAudio(_target) {
-        let audioSection = this.element.querySelector('.paragraph-audio-section');
-        let audio = this.element.querySelector('.paragraph-audio');
-        audio.src = utilModule.constants.getAudioSrc(assistOS.space.id, this.paragraph.commands.audio.id);
-        audio.load();
-        audio.play();
-        audioSection.classList.remove('hidden');
-        audioSection.classList.add('flex');
-        let controller = new AbortController();
-        document.addEventListener("click", this.hideAudioElement.bind(this, controller, audio), {signal: controller.signal});
-    }
-
-    async deleteAudio(_target) {
-        documentModule.updateParagraphAudio(assistOS.space.id, this._document.id, this.paragraph.id, null);
-        this.invalidate(async () => {
-            this.paragraph = await this.chapter.refreshParagraph(assistOS.space.id, this._document.id, this.paragraph.id);
-        });
-    }
-
-    hideAudioElement(controller, audio, event) {
-        if (event.target.closest(".paragraph-audio")) {
-            return;
-        }
-        audio.pause();
-        let audioSection = this.element.querySelector('.paragraph-audio-section');
-        audioSection.classList.add('hidden');
-        audioSection.classList.remove('flex');
-        controller.abort();
-    }
-
     async openParagraphDropdown(_target) {
-
         let chapterElement = this.element.closest("chapter-item");
         let chapterPresenter = chapterElement.webSkelPresenter;
 
@@ -777,23 +746,16 @@ export class ParagraphItem {
                            data-highlight="light-highlight"></list-item>` + baseDropdownMenuHTML;
             }
             if (this.paragraph.commands.audio) {
-                baseDropdownMenuHTML += `<list-item data-name="Play Audio" id="play-paragraph-audio-btn" data-local-action="playParagraphAudio" data-highlight="light-highlight"></list-item>`;
-                baseDropdownMenuHTML += ` <list-item data-name="Download Audio" data-local-action="downloadAudio" data-highlight="light-highlight"></list-item>`;
                 baseDropdownMenuHTML += ` <list-item data-name="Delete Audio" data-local-action="deleteAudio" data-highlight="light-highlight"></list-item>`;
             }
             if(this.paragraph.commands.video){
                 baseDropdownMenuHTML += `<list-item data-name="Delete Video" data-local-action="deleteVideo" data-highlight="light-highlight"></list-item>`;
-
             }
-
-            if (this.paragraph.commands.speech && !this.paragraph.commands.lipsync) {
+            if (this.paragraph.commands.speech && !this.paragraph.commands.lipsync && this.paragraph.commands.image) {
                 baseDropdownMenuHTML += `<list-item data-name="Generate Paragraph Video" data-local-action="addParagraphVideo" data-highlight="light-highlight"></list-item>`;
             }
             if (this.paragraph.commands.speech && this.paragraph.commands.image) {
                 baseDropdownMenuHTML += `<list-item data-name="Lip Sync" data-local-action="lipSync" data-highlight="light-highlight"></list-item>`;
-            }
-            if (this.paragraph.commands.lipsync) {
-                baseDropdownMenuHTML += `<list-item data-name="Play Lip Sync" data-local-action="playLipSyncVideo" data-highlight="light-highlight"></list-item>`;
             }
             let dropdownMenuHTML =
                 `<div class="dropdown-menu">` +
@@ -805,36 +767,15 @@ export class ParagraphItem {
             return dropdownMenu;
         }
 
-        const
-            dropdownMenu = generateDropdownMenu();
-        this
-            .element
-            .appendChild(dropdownMenu);
-
-        const
-            removeDropdown = () => {
+        const dropdownMenu = generateDropdownMenu();
+        this.element.appendChild(dropdownMenu);
+        const removeDropdown = () => {
                 dropdownMenu.remove();
             }
-
-        dropdownMenu
-            .addEventListener(
-                'mouseleave'
-                ,
-                removeDropdown
-            )
-        ;
-        dropdownMenu
-            .focus();
+        dropdownMenu.addEventListener('mouseleave', removeDropdown);
+        dropdownMenu.focus();
     }
 
-    downloadAudio(_target) {
-        const link = document.createElement('a');
-        link.href = utilModule.constants.getAudioSrc(assistOS.space.id, this.paragraph.commands.audio.id);
-        link.download = 'audio.mp3';
-        document.body.appendChild(link);
-        link.click();
-        document.body.removeChild(link);
-    }
 
     async lipSync(targetElement) {
         const currentCommandsString = this.paragraphHeader.value
@@ -879,30 +820,6 @@ export class ParagraphItem {
         dropdownMenu.remove();
     }
 
-    changeLipSyncUIState() {
-        let paragraphControls = this.element.querySelector('.paragraph-controls');
-        if (this.lipSyncState === "generating") {
-            paragraphControls.insertAdjacentHTML('beforeend', `<div class="loading-icon small top-margin"></div>`);
-        } else if (this.lipSyncState === "done") {
-            let playButton = this.element.querySelector('.play-lip-sync');
-            playButton.style.display = "block";
-        }
-    }
-
-    playLipSyncVideo(playButton) {
-        let videoTagContainer = `
-        <div class="video-container">
-            <video controls autoplay class="lip-sync-video" src="${this.paragraph.commands.lipsync.src}"></video>
-            <img src="./wallet/assets/icons/x-mark.svg" data-local-action="closePlayer" class="close-player pointer" alt="close"/>
-        </div>`;
-        playButton.insertAdjacentHTML('afterend', videoTagContainer);
-    }
-
-    closePlayer() {
-        let videoContainer = this.element.querySelector('.video-container');
-        videoContainer.remove();
-    }
-
     async openInsertImageModal(_target) {
         let imageData = await assistOS.UI.showModal("insert-image-modal", true);
         if (imageData) {
@@ -935,5 +852,8 @@ export class ParagraphItem {
         delete this.paragraph.commands.video;
         await documentModule.updateParagraphCommands(assistOS.space.id, this._document.id, this.paragraph.id, this.paragraph.commands);
         this.invalidate();
+    }
+    async showAttachment(element, type){
+        await assistOS.UI.showModal("show-attachment-modal", {type: type, id: this.paragraph.commands[type].id});
     }
 }
