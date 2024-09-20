@@ -376,10 +376,10 @@ export class ParagraphItem {
                     html += `<a data-local-action="editItem link" href="${imageSrc}" class="tasks-info" data-id="${commandDetails.id}">Image</a>`;
                 } else if (commandType === "audio") {
                     let audioSrc = utilModule.constants.getAudioSrc(assistOS.space.id, commandDetails.id);
-                    html += `<a href="${audioSrc}" class="tasks-info" data-id="${commandDetails.id}">Audio</a>`;
+                    html += `<a data-local-action="editItem link" href="${audioSrc}" class="tasks-info" data-id="${commandDetails.id}">Audio</a>`;
                 } else if (commandType === "video") {
                     let videoSrc = utilModule.constants.getVideoSrc(assistOS.space.id, commandDetails.id);
-                    html += `<a href="${videoSrc}" class="tasks-info" data-id="${commandDetails.id}">Video</a>`;
+                    html += `<a data-local-action="editItem link" href="${videoSrc}" class="tasks-info" data-id="${commandDetails.id}">Video</a>`;
                 }
 
             }
@@ -781,6 +781,10 @@ export class ParagraphItem {
                 baseDropdownMenuHTML += ` <list-item data-name="Download Audio" data-local-action="downloadAudio" data-highlight="light-highlight"></list-item>`;
                 baseDropdownMenuHTML += ` <list-item data-name="Delete Audio" data-local-action="deleteAudio" data-highlight="light-highlight"></list-item>`;
             }
+            if(this.paragraph.commands.video){
+                baseDropdownMenuHTML += `<list-item data-name="Delete Video" data-local-action="deleteVideo" data-highlight="light-highlight"></list-item>`;
+
+            }
 
             if (this.paragraph.commands.speech && !this.paragraph.commands.lipsync) {
                 baseDropdownMenuHTML += `<list-item data-name="Generate Paragraph Video" data-local-action="addParagraphVideo" data-highlight="light-highlight"></list-item>`;
@@ -924,6 +928,11 @@ export class ParagraphItem {
 
     async deleteAudio() {
         delete this.paragraph.commands.audio;
+        await documentModule.updateParagraphCommands(assistOS.space.id, this._document.id, this.paragraph.id, this.paragraph.commands);
+        this.invalidate();
+    }
+    async deleteVideo(){
+        delete this.paragraph.commands.video;
         await documentModule.updateParagraphCommands(assistOS.space.id, this._document.id, this.paragraph.id, this.paragraph.commands);
         this.invalidate();
     }

@@ -183,7 +183,12 @@ async function createVideoFromImageAndAudio(imageSrc,audioSrc,spaceId){
 async function estimateChapterVideoLength(spaceId, chapter, task){
     let totalDuration = 0;
     for (let paragraph of chapter.paragraphs) {
-        if (paragraph.commands.audio) {
+        if(paragraph.commands.video){
+            let videoPath = path.join(space.getSpacePath(spaceId), 'videos', `${paragraph.commands.video.id}.mp4`);
+            const command = `${ffprobePath} -i "${videoPath}" -show_entries format=duration -v quiet -of csv="p=0"`;
+            let duration = await task.runCommand(command);
+            totalDuration += parseFloat(duration);
+        } else if (paragraph.commands.audio) {
             let audioPath = path.join(space.getSpacePath(spaceId), 'audios', `${paragraph.commands.audio.id}.mp3`);
             const command = `${ffprobePath} -i "${audioPath}" -show_entries format=duration -v quiet -of csv="p=0"`;
             let duration = await task.runCommand(command);
