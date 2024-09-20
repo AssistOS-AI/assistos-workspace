@@ -179,7 +179,7 @@ html[theme="dark"] .document-title-container {
     display: none;
     position: absolute;
     pointer-events: none;
-    z-index: 800;
+    z-index: 3;
     border-radius: 10px;
     background-color: var(--very-light-gray);
     opacity: 0.5;

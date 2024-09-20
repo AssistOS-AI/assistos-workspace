@@ -55,6 +55,32 @@ async function convertAudioToStandard(inputAudioPath, task) {
     await fsPromises.unlink(inputAudioPath);
     await fsPromises.rename(tempAudioPath, inputAudioPath);
 }
+const videoStandard = {
+    codec: 'libx264',      // H.264 codec for video
+    audioCodec: 'aac',     // AAC codec for audio
+    format: 'mp4',         // MP4 format
+    bitRate: 1000,         // Video bitrate in kbps (adjust as necessary)
+    audioBitRate: 192,     // Audio bitrate in kbps
+    frameRate: 30          // Standard frame rate (adjust as necessary)
+};
+async function convertVideoToMp4(inputVideoPath, task) {
+    const tempVideoPath = inputVideoPath.replace(path.extname(inputVideoPath), '_temp.mp4');
+    const conversionCommand = `${ffmpegPath} -i ${inputVideoPath} -c:v ${videoStandard.codec} -b:v ${videoStandard.bitRate}k -r ${videoStandard.frameRate} -c:a ${videoStandard.audioCodec} -b:a ${videoStandard.audioBitRate}k -f ${videoStandard.format} ${tempVideoPath}`;
+    try {
+        await task.runCommand(conversionCommand);
+    } catch (e) {
+        throw new Error(`Video conversion failed: ${e.message}`);
+    }
+    try {
+        const checkCommand = `${ffmpegPath} -v error -i ${tempVideoPath} -f null -`;
+        await task.runCommand(checkCommand);
+    } catch (e) {
+        await fsPromises.unlink(tempVideoPath);
+        throw new Error(`Failed to check converted file ${tempVideoPath}: ${e}`);
+    }
+    await fsPromises.unlink(inputVideoPath);
+    await fsPromises.rename(tempVideoPath, inputVideoPath);
+}
 function parseFFmpegInfoOutput(output) {
     const result = {};
     const streamPattern = /Stream #\d+:\d+.*Audio:\s*([^\s,]+),\s*(\d+) Hz,\s*(mono|stereo|5\.1|7\.1|quad|surround),.*?,\s*(\d+) kb\/s/;
@@ -157,7 +183,12 @@ async function createVideoFromImageAndAudio(imageSrc,audioSrc,spaceId){
 async function estimateChapterVideoLength(spaceId, chapter, task){
     let totalDuration = 0;
     for (let paragraph of chapter.paragraphs) {
-        if (paragraph.commands.audio) {
+        if(paragraph.commands.video){
+            let videoPath = path.join(space.getSpacePath(spaceId), 'videos', `${paragraph.commands.video.id}.mp4`);
+            const command = `${ffprobePath} -i "${videoPath}" -show_entries format=duration -v quiet -of csv="p=0"`;
+            let duration = await task.runCommand(command);
+            totalDuration += parseFloat(duration);
+        } else if (paragraph.commands.audio) {
             let audioPath = path.join(space.getSpacePath(spaceId), 'audios', `${paragraph.commands.audio.id}.mp3`);
             const command = `${ffprobePath} -i "${audioPath}" -show_entries format=duration -v quiet -of csv="p=0"`;
             let duration = await task.runCommand(command);
@@ -194,5 +225,6 @@ module.exports = {
     createSilentAudio,
     addBackgroundSoundToVideo,
     verifyAudioIntegrity,
-    verifyAudioSettings
+    verifyAudioSettings,
+    convertVideoToMp4
 }
