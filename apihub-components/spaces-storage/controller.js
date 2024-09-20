@@ -377,7 +377,6 @@ async function updateContainerObject(request, response) {
             message: e + ` Error at updating object: ${objectId}`
         });
     }
-
 }
 
 async function deleteContainerObjectTable(lightDBEnclaveClient, objectId) {
