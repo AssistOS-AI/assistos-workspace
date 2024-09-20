@@ -11,8 +11,6 @@ const eventPublisher = require("../subscribers/eventPublisher.js");
 const {sendResponse} = require("../apihub-component-utils/utils");
 const dataVolumePaths = require('../volumeManager').paths;
 const ffmpeg = require('../apihub-component-utils/ffmpeg.js');
-const TaskManager = require('../tasks/TaskManager.js');
-const DocumentToVideo = require('../tasks/DocumentToVideo.js');
 const AnonymousTask = require('../tasks/AnonymousTask.js');
 
 function getFileObjectsMetadataPath(spaceId, objectType) {
@@ -1400,25 +1398,24 @@ function uploadVideoAsChunks(request, response) {
         file.pipe(writeStream);
     });
     busboy.on('finish', async () => {
-        utils.sendResponse(response, 200, "application/json", {
-            success: true,
-            data: videoId,
+        // utils.sendResponse(response, 200, "application/json", {
+        //     success: true,
+        //     data: videoId,
+        // });
+        let task = new AnonymousTask(securityContext, async function () {
+            await ffmpeg.convertVideoToMp4(videoPath, this);
         });
-        // let task = new AnonymousTask(securityContext, async function () {
-        //     await ffmpeg.convertVideoToMp4(videoPath, this);
-        // });
-        // task.run().then(() => {
-        //     utils.sendResponse(response, 200, "application/json", {
-        //         success: true,
-        //         data: videoId,
-        //     });
-        // }).catch((error) => {
-        //     utils.sendResponse(response, 500, "application/json", {
-        //         success: false,
-        //         message: error + ` Error adding video`
-        //     });
-        // });
-
+        task.run().then(() => {
+            utils.sendResponse(response, 200, "application/json", {
+                success: true,
+                data: videoId,
+            });
+        }).catch((error) => {
+            utils.sendResponse(response, 500, "application/json", {
+                success: false,
+                message: error + ` Error adding video`
+            });
+        });
     });
     busboy.on('error', (error) => {
         utils.sendResponse(response, 500, "application/json", {

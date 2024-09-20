@@ -9,6 +9,7 @@ export class InsertVideoModal{
 
     }
     closeModal(_target){
+        this.videoElement.remove();
         assistOS.UI.closeModal(_target);
     }
     openMyDevice(_target){
@@ -19,26 +20,31 @@ export class InsertVideoModal{
             fileInput.addEventListener("change", this.boundFileHandler);
         }
     }
-    selectFileHandler(_target, event){
+    async selectFileHandler(_target, event){
         let file = event.target.files[0];
-
-        const videoElement = document.createElement('video');
-        videoElement.onloadedmetadata = async function() {
-            const duration = videoElement.duration;
-            const width = videoElement.videoWidth;
-            const height = videoElement.videoHeight;
+        this.videoElement = document.createElement('video');
+        this.videoElement.src = URL.createObjectURL(file);
+        this.videoElement.addEventListener("loadedmetadata", async () => {
+            const duration = this.videoElement.duration;
+            const width = this.videoElement.videoWidth;
+            const height = this.videoElement.videoHeight;
             let formData = new FormData();
             formData.append('videoFile', file);
-            let videoId = await spaceModule.addVideo(assistOS.space.id, formData);
+            await assistOS.loadifyComponent(this.element, async ()=>{
+                let videoId = await spaceModule.addVideo(assistOS.space.id, formData);
+                let data = {
+                    id: videoId,
+                    width: width,
+                    height: height,
+                    duration: duration
+                };
+                this.videoElement.remove();
+                URL.revokeObjectURL(this.videoElement.src);
+                assistOS.UI.closeModal(_target, data);
+            });
 
-            let data = {
-                id: videoId,
-                width: width,
-                height: height,
-                duration: duration
-            };
-            assistOS.UI.closeModal(_target, data);
-        };
-        videoElement.src = URL.createObjectURL(file);
+        });
+
+
     }
 }
