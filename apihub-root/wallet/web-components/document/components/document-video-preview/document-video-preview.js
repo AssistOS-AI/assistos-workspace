@@ -208,6 +208,8 @@ export class DocumentVideoPreview {
             this.chapterIndex -= 1;
             if(this.chapterIndex < 0){
                 console.log("reached start of document");
+                this.paragraphIndex = 0;
+                this.chapterIndex = 0;
                 return;
             }
             this.paragraphIndex = this.document.chapters[this.chapterIndex].paragraphs.length - 1;
@@ -535,8 +537,9 @@ export class DocumentVideoPreview {
         if (this.silenceTimeout) {
             clearTimeout(this.silenceTimeout);
             delete this.silenceTimeout;
+            this.remainingSilentDuration = 0;
         }
-        this.remainingSilentDuration = 0;
+
         //stop incrementing timestamp
         if (this.incrementTimeInterval) {
             clearInterval(this.incrementTimeInterval);
@@ -596,6 +599,7 @@ export class DocumentVideoPreview {
             if(previousParagraph.commands.video){
                 let videoSrc = utilModule.constants.getVideoSrc(assistOS.space.id, previousParagraph.commands.video.id);
                 this.loadResource("video", videoSrc);
+                this.videoPlayer.classList.remove("hidden");
             } else if(previousParagraph.commands.audio){
                 let audioSrc = utilModule.constants.getAudioSrc(assistOS.space.id, previousParagraph.commands.audio.id);
                 this.loadResource("audio", audioSrc);
