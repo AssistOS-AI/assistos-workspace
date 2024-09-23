@@ -2,7 +2,7 @@ const crypto = require("../apihub-component-utils/crypto.js");
 const eventPublisher = require("../subscribers/eventPublisher");
 const config= require("../../data-volume/config/config.json");
 
-const storageClient = config.S3 ? require('S3') : require('fileSys');
+const storageClient = config.S3 ? require('./S3.js') : require('./fileSys.js');
 
 //Container Objects
 async function insertObjectRecords(spaceId, tableId, objectId, objectData) {
