@@ -11,10 +11,8 @@ const eventPublisher = require("../subscribers/eventPublisher.js");
 const {sendResponse} = require("../apihub-component-utils/utils");
 const dataVolumePaths = require('../volumeManager').paths;
 const ffmpeg = require('../apihub-component-utils/ffmpeg.js');
-const TaskManager = require('../tasks/TaskManager.js');
-const DocumentToVideo = require('../tasks/DocumentToVideo.js');
 const AnonymousTask = require('../tasks/AnonymousTask.js');
-
+const Storage= require('../apihub-component-utils/storage.js');
 function getFileObjectsMetadataPath(spaceId, objectType) {
     return path.join(dataVolumePaths.space, `${spaceId}/${objectType}/metadata.json`);
 }

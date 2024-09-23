@@ -1,6 +1,5 @@
 const path = require('path');
 const fsPromises = require('fs').promises;
-const volumeManager = require('../volumeManager.js');
 const archiver = require('archiver');
 const enclave = require('opendsu').loadAPI('enclave');
 const {pipeline} = require('stream');
@@ -16,6 +15,8 @@ const https = require('https');
 const fs = require('fs');
 const spaceConstants = require('./constants.js');
 const unzipper = require('unzipper');
+const volumeManager = require('../volumeManager.js');
+const Storage = require('../apihub-component-utils/storage.js');
 
 function getSpacePath(spaceId) {
     return path.join(volumeManager.paths.space, spaceId);
@@ -493,103 +494,49 @@ async function getDefaultSpaceAgentId(spaceId) {
     return spaceStatusObject.defaultSpaceAgent;
 }
 
-const downloadData = (url, dest) => {
-    return new Promise((resolve, reject) => {
-        const file = fs.createWriteStream(dest);
-        https.get(url, (response) => {
-            response.pipe(file);
-            file.on('finish', () => {
-                file.close(resolve);
-            });
-        }).on('error', (err) => {
-            fs.unlink(dest);
-            reject(err);
-        });
-    });
-};
-
 async function putImage(spaceId, imageId, imageData) {
-    const imagesPath = path.join(getSpacePath(spaceId), 'images');
-    if (imageData.startsWith("http")) {
-        await downloadData(imageData, path.join(imagesPath, `${imageId}.png`));
-        return;
-    }
-    const base64Data = imageData.replace(/^data:image\/png;base64,/, "");
-    const buffer = Buffer.from(base64Data, 'base64');
-    await fsPromises.writeFile(path.join(imagesPath, `${imageId}.png`), buffer);
+    return await Storage.insertImage(spaceId, imageId, imageData);
 }
 
 async function getImage(spaceId, imageId) {
-    const imagesPath = path.join(getSpacePath(spaceId), 'images');
-    const imagePath = path.join(imagesPath, `${imageId}.png`);
-    return await fsPromises.readFile(imagePath);
+    return await Storage.getImage(spaceId, imageId);
 }
 
 function getImageStream(spaceId, imageId) {
-    const imagesPath = path.join(getSpacePath(spaceId), 'images');
-    const imagePath = path.join(imagesPath, `${imageId}.png`);
-    return fs.createReadStream(imagePath);
+    return Storage.getImageStream(spaceId, imageId);
 }
 
 async function deleteImage(spaceId, imageId) {
-    const imagesPath = path.join(getSpacePath(spaceId), 'images');
-    const imagePath = path.join(imagesPath, `${imageId}.png`);
-    await fsPromises.rm(imagePath);
+    return Storage.deleteImage(spaceId, imageId);
 }
 
 async function putAudio(spaceId, audioId, audioData) {
-    const audiosPath = path.join(getSpacePath(spaceId), 'audios');
-    let buffer;
-    if (typeof audioData === 'string') {
-        if (audioData.startsWith("data:")) {
-            const base64Data = audioData.split(",")[1];
-            buffer = Buffer.from(base64Data, 'base64');
-            return await fsPromises.writeFile(path.join(audiosPath, `${audioId}.mp3`), buffer);
-        } else if (audioData.startsWith("http")) {
-            await downloadData(audioData, path.join(audiosPath, `${audioId}.mp3`));
-            return;
-        } else {
-            buffer = Buffer.from(audioData, 'base64');
-            return await fsPromises.writeFile(path.join(audiosPath, `${audioId}.mp3`), buffer);
-        }
-    }
-    buffer = Buffer.from(audioData);
-    await fsPromises.writeFile(path.join(audiosPath, `${audioId}.mp3`), buffer);
-}
-
-async function putVideo(spaceId, videoId, dataSource) {
-    if (typeof dataSource === 'string') {
-        if (dataSource.startsWith("http")) {
-            const videosPath = path.join(getSpacePath(spaceId), 'videos');
-            await downloadData(dataSource, path.join(videosPath, `${videoId}.mp4`));
-            return;
-        } else {
-            throw new Error("Data source is not a valid URL");
-        }
-    } else {
-        const videosPath = path.join(getSpacePath(spaceId), 'videos');
-        const buffer = Buffer.from(dataSource);
-        await fsPromises.writeFile(path.join(videosPath, `${videoId}.mp4`), buffer);
-    }
-    return videoId;
+    return await Storage.insertAudio(spaceId, audioId, audioData);
 }
 
 async function getAudio(spaceId, audioId) {
-    const audiosPath = path.join(getSpacePath(spaceId), 'audios');
-    const audioPath = path.join(audiosPath, `${audioId}.mp3`);
-    return await fsPromises.readFile(audioPath);
+    return await Storage.getAudio(spaceId, audioId);
 }
 
 function getAudioStream(spaceId, audioId) {
-    const audiosPath = path.join(getSpacePath(spaceId), 'audios');
-    const audioPath = path.join(audiosPath, `${audioId}.mp3`);
-    return fs.createReadStream(audioPath);
+    return Storage.getAudioStream(spaceId, audioId);
 }
 
 async function deleteAudio(spaceId, audioId) {
-    const audiosPath = path.join(getSpacePath(spaceId), 'audios');
-    const audioPath = path.join(audiosPath, `${audioId}.mp3`);
-    await fsPromises.rm(audioPath);
+    return Storage.deleteAudio(spaceId, audioId);
+}
+
+
+async function putVideo(spaceId, videoId, dataSource) {
+    return await Storage.insertVideo(spaceId, videoId, dataSource);
+}
+
+async function getVideo(spaceId, videoId) {
+    return await Storage.getVideo(spaceId, videoId);
+}
+
+function getVideoStream(spaceId, videoId) {
+    return Storage.getVideoStream(spaceId, videoId);
 }
 
 async function getVideoParts(response, spaceId, videoId, range) {
@@ -616,23 +563,10 @@ async function getVideoParts(response, spaceId, videoId, range) {
 
 }
 
-async function getVideo(spaceId, videoId) {
-    const videosPath = path.join(getSpacePath(spaceId), 'videos');
-    const videoPath = path.join(videosPath, `${videoId}.mp4`);
-    return await fsPromises.readFile(videoPath);
-}
-
-function getVideoStream(spaceId, videoId) {
-    const videosPath = path.join(getSpacePath(spaceId), 'videos');
-    const videoPath = path.join(videosPath, `${videoId}.mp4`);
-    return fs.createReadStream(videoPath);
-}
-
 async function deleteVideo(spaceId, videoId) {
-    const videosPath = path.join(getSpacePath(spaceId), 'videos');
-    const videoPath = path.join(videosPath, `${videoId}.mp4`);
-    await fsPromises.rm(videoPath);
+    return Storage.deleteVideo(spaceId, videoId);
 }
+
 
 async function exportDocumentData(spaceId, documentId) {
     let lightDBEnclaveClient = enclave.initialiseLightDBEnclave(spaceId);

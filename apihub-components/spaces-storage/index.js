@@ -103,7 +103,6 @@ function SpaceStorage(server) {
     server.put("/spaces/containerObject/:spaceId/:objectId", updateContainerObject);
     server.delete("/spaces/containerObject/:spaceId/:objectId", deleteContainerObject);
 
-
     server.get("/spaces/embeddedObject/:spaceId/:objectURI", getEmbeddedObject);
     server.post("/spaces/embeddedObject/:spaceId/:objectURI", addEmbeddedObject);
     server.post("/spaces/embeddedObject/insert/:spaceId/:objectURI", insertEmbeddedObject);

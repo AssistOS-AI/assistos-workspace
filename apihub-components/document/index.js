@@ -1,6 +1,3 @@
-const bodyReader = require("../apihub-component-middlewares/bodyReader");
-const authentication = require("../apihub-component-middlewares/authentication");
-
 const documentHandler = require("./controllers/document.js");
 const chapterHandler = require("./controllers/chapter.js");
 const paragraphHandler = require("./controllers/paragraph.js");
@@ -26,9 +23,6 @@ function document(server) {
     server.post("/spaces/:spaceId/documents/:documentId/chapters/:chapterId/paragraphs", paragraphHandler.createParagraph);
     server.put("/spaces/:spaceId/documents/:documentId/chapters/:chapterId/paragraphs/:paragraphId", paragraphHandler.updateParagraph);
     server.delete("/spaces/:spaceId/documents/:documentId/chapters/:chapterId/paragraphs/:paragraphId", paragraphHandler.deleteParagraph);
-
-
-
 }
 
 module.exports = document;
