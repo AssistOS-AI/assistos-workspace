@@ -1,16 +1,19 @@
 const documentHandler = require("./controllers/document.js");
 const chapterHandler = require("./controllers/chapter.js");
 const paragraphHandler = require("./controllers/paragraph.js");
-
+const bodyReader = require('../apihub-component-middlewares/bodyReader.js')
+const authentication = require('../apihub-component-middlewares/authentication.js')
 function document(server) {
+    server.use("/documents/*", bodyReader);
+    server.use("/documents/*", authentication);
     // Document
     server.get("/spaces/:spaceId/documents/:documentId", documentHandler.getDocument);
     server.post("/spaces/:spaceId/documents", documentHandler.createDocument);
     server.put("/spaces/:spaceId/documents/:documentId", documentHandler.updateDocument);
     server.delete("/spaces/:spaceId/documents/:documentId", documentHandler.deleteDocument);
     //Export & Import
-    server.post("/spaces/:spaceId/documents/:documentId/export", documentHandler.exportDocument);
-    server.post("/spaces/:spaceId/documents/:documentId/import", documentHandler.importDocument);
+    server.post("/documents/export/:spaceId/:documentId", documentHandler.exportDocument);
+    server.post("/documents/import/:spaceId", documentHandler.importDocument);
 
     //Chapter
     server.get("/spaces/:spaceId/documents/:documentId/chapters/:chapterId", chapterHandler.getChapter);

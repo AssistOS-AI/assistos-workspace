@@ -772,7 +772,7 @@ async function getSpace(request, response) {
     } catch (error) {
         utils.sendResponse(response, 500, "application/json", {
             success: false,
-            message: error
+            message: error.message
         });
     }
 }
@@ -1474,117 +1474,6 @@ async function deleteVideo(request, response) {
     }
 }
 
-async function exportDocumentReference(request,response){
-
-}
-async function exportDocument(request, response) {
-    const spaceId = request.params.spaceId;
-    const documentId = request.params.documentId;
-    const exportType = request.body.exportType;
-    //TODO: use this full/partial export
-    try {
-        const archiveStream = await space.APIs.archiveDocument(spaceId, documentId, request);
-
-        response.setHeader('Content-Disposition', `attachment; filename=${documentId}.docai`);
-        response.setHeader('Content-Type', 'application/zip');
-
-        archiveStream.pipe(response);
-
-        archiveStream.on('end', () => {
-            response.end();
-        });
-
-        archiveStream.on('error', err => {
-            utils.sendResponse(response, 500, "application/json", {
-                success: false,
-                message: `Error at exporting document: ${documentId}. ${err.message}`
-            })
-        });
-    } catch (error) {
-        utils.sendResponse(response, error.statusCode || 500, "application/json", {
-            success: false,
-            message: `Error at exporting document: ${documentId}. ${error.message}`
-        });
-    }
-}
-
-async function importDocument(request, response) {
-    const spaceId = request.params.spaceId;
-    const fileId = crypto.generateSecret(64);
-    const tempDir = path.join(__dirname, '../../data-volume/Temp', fileId);
-    const filePath = path.join(tempDir, `${fileId}.docai`);
-
-    await fs.promises.mkdir(tempDir, {recursive: true});
-
-    const busboy = Busboy({headers: request.headers});
-
-    busboy.on('file', (fieldname, file, filename, encoding, mimetype) => {
-        const writeStream = fs.createWriteStream(filePath);
-        file.pipe(writeStream);
-
-        writeStream.on('close', async () => {
-            try {
-                await fs.promises.access(filePath, fs.constants.F_OK);
-
-                const extractedPath = path.join(tempDir, 'extracted');
-                await fs.promises.mkdir(extractedPath, {recursive: true});
-
-                // Wrap the unzipping process in a Promise
-                await new Promise((resolve, reject) => {
-                    fs.createReadStream(filePath)
-                        .pipe(unzipper.Extract({path: extractedPath}))
-                        .on('close', resolve)
-                        .on('error', reject);
-                });
-
-                await new Promise(resolve => setTimeout(resolve, 0));
-
-                const extractedFiles = await fs.promises.readdir(extractedPath);
-
-                if (!extractedFiles.includes('metadata.json') || !extractedFiles.includes('data.json')) {
-                    throw new Error(`Required files not found. Files in directory: ${extractedFiles.join(', ')}`);
-                }
-
-                const importResults = await space.APIs.importDocument(spaceId, extractedPath, request);
-
-                await fs.promises.unlink(filePath);
-
-                utils.sendResponse(response, 200, "application/json", {
-                    success: true,
-                    message: 'Document imported successfully',
-                    data: importResults
-                });
-            } catch (error) {
-                console.error('Error processing extracted files:', error);
-                utils.sendResponse(response, 500, "application/json", {
-                    success: false,
-                    message: `Error at importing document: ${error.message}`
-                });
-            } finally {
-                await fs.promises.rm(tempDir, {recursive: true, force: true});
-            }
-        });
-
-        writeStream.on('error', (error) => {
-            console.error('Error writing file:', error);
-            utils.sendResponse(response, 500, "application/json", {
-                success: false,
-                message: `Error writing file: ${error.message}`
-            });
-        });
-    });
-
-    busboy.on('error', (error) => {
-        console.error('Busboy error:', error);
-        utils.sendResponse(response, 500, "application/json", {
-            success: false,
-            message: `Busboy error: ${error.message}`
-        });
-    });
-
-    request.pipe(busboy);
-}
-
 async function importPersonality(request, response) {
     const spaceId = request.params.spaceId;
     const fileId = crypto.generateSecret(64);
@@ -1724,12 +1613,9 @@ module.exports = {
     addVideo,
     getVideo,
     deleteVideo,
-    exportDocument,
-    importDocument,
     exportPersonality,
     importPersonality,
     estimateDocumentVideoLength,
-    exportDocumentReference,
     insertEmbeddedObject,
     insertContainerObject,
     getSpaceChat
