@@ -358,10 +358,7 @@ async function listEmotions(request, response) {
 }
 
 async function lipsync(request, response) {
-    const spaceId = request.params.spaceId;
-    const imageSrc = request.body.imageSrc;
-    const audioSrc = request.body.audioSrc;
-    const taskId=request.body.taskId;
+    const taskId = request.body.taskId;
     const requestBody = {
         modelName: request.body.modelName,
         spaceId: request.params.spaceId,
@@ -372,11 +369,8 @@ async function lipsync(request, response) {
         }
     };
     try {
-        const audioId = audioSrc.split("/").pop();
-        /* TODO check if video already exists */
-        const videoId = await ffmpeg.createVideoFromImageAndAudio(imageSrc, audioSrc, spaceId);
-        requestBody.audioId=audioId;
-        requestBody.videoId=videoId;
+        requestBody.audioId =  request.body.audioId;
+        requestBody.videoId = request.body.videoId;
         request.body = requestBody;
         let result = await sendRequest(`/apis/v1/video/lipsync`, "POST", request, response);
         return utils.sendResponse(response, 200, "application/json", {

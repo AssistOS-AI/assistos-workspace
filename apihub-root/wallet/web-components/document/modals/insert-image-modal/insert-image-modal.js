@@ -8,7 +8,7 @@ export class InsertImageModal {
             <div class="modal-body">
                 <button data-local-action="openGallerySection">From Gallery</button>
                 <button data-local-action="openMyDevice">My device</button data-local-action="openMyDevice">
-                <input type="file" id="file" class="hidden" accept="image/png">
+                <input type="file" id="file" class="hidden" accept="image/*">
             </div>`;
         this.invalidate(async ()=>{
             this.galleries = await galleryModule.getGalleriesMetadata(assistOS.space.id);
@@ -126,17 +126,26 @@ export class InsertImageModal {
         let reader = new FileReader();
         const img = new Image();
         reader.onload = async (e) => {
-            img.onload = function() {
-                const width = img.width;
-                const height = img.height;
-                let data = {
-                    id: imageId,
-                    width: width,
-                    height: height
-                };
-                assistOS.UI.closeModal(_target, data);
+            img.onload = async ()=> {
+                const canvas = document.createElement('canvas');
+                const ctx = canvas.getContext('2d');
+                canvas.width = img.width;
+                canvas.height = img.height;
+                ctx.drawImage(img, 0, 0);
+                const base64String = canvas.toDataURL('image/png');
+                canvas.remove();
+                await assistOS.loadifyComponent(this.element, async ()=>{
+                    let imageId = await spaceModule.addImage(assistOS.space.id, base64String);
+                    const width = img.width;
+                    const height = img.height;
+                    let data = {
+                        id: imageId,
+                        width: width,
+                        height: height
+                    };
+                    assistOS.UI.closeModal(_target, data);
+                });
             };
-            let imageId = await spaceModule.addImage(assistOS.space.id, e.target.result);
             img.src = e.target.result;
         };
         reader.readAsDataURL(file);

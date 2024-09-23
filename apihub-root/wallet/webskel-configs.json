@@ -4,6 +4,12 @@
     "services": [],
     "components": [
         {
+            "name": "export-document-modal",
+            "directory": "document",
+            "type": "modals",
+            "presenterClassName": "ExportDocumentModal"
+        },
+        {
             "name": "show-attachment-modal",
             "directory": "document",
             "type": "modals",

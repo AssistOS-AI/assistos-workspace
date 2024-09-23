@@ -9,7 +9,7 @@ function document(server) {
     server.put("/spaces/:spaceId/documents/:documentId", documentHandler.updateDocument);
     server.delete("/spaces/:spaceId/documents/:documentId", documentHandler.deleteDocument);
     //Export & Import
-    server.get("/spaces/:spaceId/documents/:documentId/export", documentHandler.exportDocument);
+    server.post("/spaces/:spaceId/documents/:documentId/export", documentHandler.exportDocument);
     server.post("/spaces/:spaceId/documents/:documentId/import", documentHandler.importDocument);
 
     //Chapter

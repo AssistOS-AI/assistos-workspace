@@ -1,5 +1,9 @@
 const Task = require('./Task');
-
+const ffmpeg = require("../apihub-component-utils/ffmpeg");
+const constants = require('./constants');
+const STATUS = constants.STATUS;
+const EVENTS = constants.EVENTS;
+const TaskManager = require('./TaskManager');
 class LipSync extends Task {
     constructor(securityContext, spaceId, userId, configs) {
         super(securityContext, spaceId, userId);
@@ -19,10 +23,27 @@ class LipSync extends Task {
                 const paragraph = await documentModule.getParagraph(this.spaceId, this.documentId, this.paragraphId);
                 await utilModule.constants.COMMANDS_CONFIG.COMMANDS.find(command => command.NAME === "lipsync").VALIDATE(this.spaceId, paragraph, this.securityContext);
 
-                const paragraphConfig = paragraph.commands;
-
-                await llmModule.lipSync(this.spaceId, this.id, utilModule.constants.getImageSrc(this.spaceId, paragraphConfig.image.id),
-                    utilModule.constants.getAudioSrc(this.spaceId, paragraphConfig.audio.id), "sync-1.6.0");
+                const paragraphCommands = paragraph.commands;
+                let speechCommand = paragraphCommands.speech;
+                if(!paragraphCommands.audio){
+                    if(!speechCommand){
+                        await this.rollback();
+                        this.rejectTask("Paragraph Must have a speech command before adding lip sync");
+                    } else {
+                        let taskId = speechCommand.taskId;
+                        let task = TaskManager.getTask(taskId);
+                        task.removeListener(EVENTS.DEPENDENCY_COMPLETED);
+                        task.on(EVENTS.DEPENDENCY_COMPLETED, async () => {
+                            this.setStatus(STATUS.RUNNING);
+                            let paragraphCommands = await documentModule.getParagraphCommands(this.spaceId, this.documentId, this.paragraphId);
+                            paragraphCommands.audio = {id: paragraphCommands.audio.id};
+                            await this.executeLipSync(llmModule, utilModule, paragraphCommands);
+                        });
+                        this.setStatus(STATUS.PENDING);
+                        return this.taskPromise;
+                    }
+                }
+                await this.executeLipSync(llmModule, utilModule, paragraphCommands);
             } catch (e) {
                 await this.rollback();
                 this.rejectTask(e);
@@ -30,8 +51,24 @@ class LipSync extends Task {
         });
         return this.taskPromise;
     }
+    async executeLipSync(llmModule, utilModule, paragraphCommands) {
+        this.timeout = setTimeout(async () => {
+            await this.rollback();
+            this.rejectTask("Task took too long to complete");
+        }, 60000 * 10);
+        if(paragraphCommands.video){
+            await llmModule.lipSync(this.spaceId, this.id, paragraphCommands.video.id, paragraphCommands.audio.id, "sync-1.6.0");
+        } else {
+            const imageSrc = utilModule.constants.getImageSrc(this.spaceId, paragraphCommands.image.id);
+            const audioSrc = utilModule.constants.getAudioSrc(this.spaceId, paragraphCommands.audio.id);
 
+            const videoId = await ffmpeg.createVideoFromImageAndAudio(imageSrc, audioSrc, this.spaceId);
+            await llmModule.lipSync(this.spaceId, this.id, videoId, paragraphCommands.audio.id, "sync-1.6.0");
+        }
+    }
     async completeTaskExecution(videoURL) {
+        clearTimeout(this.timeout);
+        delete this.timeout;
         const spaceModule = require('assistos').loadModule('space', this.securityContext);
         const documentModule = require('assistos').loadModule('document', this.securityContext);
         const videoId = await spaceModule.addVideo(this.spaceId, videoURL);
@@ -70,6 +107,16 @@ class LipSync extends Task {
                 paragraphId: this.paragraphId,
             }
         }
+    }
+    async getRelevantInfo() {
+        let info = {
+            documentId: this.documentId,
+            paragraphId: this.paragraphId
+        }
+        if(this.status === STATUS.FAILED){
+            info.failMessage = this.failMessage;
+        }
+        return info;
     }
 }
 

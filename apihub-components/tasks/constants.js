@@ -8,6 +8,7 @@ module.exports = {
         CANCELLED: 'cancelled'
     },
     EVENTS: {
-        UPDATE: "update"
+        UPDATE: "update",
+        DEPENDENCY_COMPLETED: "dependency_completed"
     }
 }

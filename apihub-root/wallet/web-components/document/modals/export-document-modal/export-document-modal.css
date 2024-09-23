@@ -1,0 +1,10 @@
+.export-button{
+    cursor: pointer;
+    padding: 6px;
+    background-color: var(--blue-button);
+    font-size: 16px;
+    font-weight: 600;
+    line-height: 24px;
+    text-align: center;
+    color: var(--white);
+}
