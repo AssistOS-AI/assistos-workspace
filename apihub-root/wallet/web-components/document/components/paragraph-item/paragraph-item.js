@@ -754,7 +754,7 @@ export class ParagraphItem {
             if (this.paragraph.commands.speech && !this.paragraph.commands.lipsync && this.paragraph.commands.image) {
                 baseDropdownMenuHTML += `<list-item data-name="Generate Paragraph Video" data-local-action="addParagraphVideo" data-highlight="light-highlight"></list-item>`;
             }
-            if (this.paragraph.commands.speech && this.paragraph.commands.image) {
+            if (this.paragraph.commands.speech && (this.paragraph.commands.image || this.paragraph.commands.video)) {
                 baseDropdownMenuHTML += `<list-item data-name="Lip Sync" data-local-action="lipSync" data-highlight="light-highlight"></list-item>`;
             }
             let dropdownMenuHTML =

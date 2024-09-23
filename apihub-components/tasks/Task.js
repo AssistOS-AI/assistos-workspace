@@ -21,6 +21,7 @@ class Task {
             throw new Error('runTask method must be implemented');
         }
         this.setStatus(STATUS.RUNNING);
+        this.failMessage = null;
         try{
             let result = await this.runTask();
             //race condition
@@ -31,6 +32,7 @@ class Task {
             return result;
         } catch (e) {
             this.setStatus(STATUS.FAILED);
+            this.failMessage = e.message;
             throw e;
         }
     }
@@ -54,6 +56,10 @@ class Task {
             return;
         }
         this.callbacks[event]();
+    }
+
+    removeListener(event){
+        this.callbacks[event] = null;
     }
     setStatus(status){
         this.status = status;

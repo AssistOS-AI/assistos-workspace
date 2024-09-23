@@ -1,7 +1,9 @@
 const Task = require('./Task');
 const crypto = require("../apihub-component-utils/crypto");
 const space = require("../spaces-storage/space");
-
+const constants = require('./constants');
+const STATUS = constants.STATUS;
+const EVENTS = constants.EVENTS;
 class TextToSpeech extends Task {
     constructor(securityContext, spaceId, userId, configs) {
         super(securityContext, spaceId, userId);
@@ -35,9 +37,10 @@ class TextToSpeech extends Task {
             paragraphConfig.audio = {
                 id: this.audioId
             }
-            delete paragraphConfig.speech.taskId;
             await documentModule.updateParagraphCommands(this.spaceId, this.documentId, this.paragraphId, paragraphConfig);
             await space.APIs.putAudio(this.spaceId, this.audioId, audioBlob);
+            this.emit(EVENTS.DEPENDENCY_COMPLETED);
+            delete paragraphConfig.speech.taskId;
         } catch (e) {
             await this.rollback();
             throw e;
@@ -80,10 +83,14 @@ class TextToSpeech extends Task {
     async getRelevantInfo() {
         const documentModule = require('assistos').loadModule('document', this.securityContext);
         let paragraph = await documentModule.getParagraph(this.spaceId, this.documentId, this.paragraphId);
-        return {
+        let info = {
             paragraphId: paragraph.id,
             text: paragraph.text
         }
+        if(this.status === STATUS.FAILED){
+            info.failMessage = this.failMessage;
+        }
+        return info;
     }
 }
 

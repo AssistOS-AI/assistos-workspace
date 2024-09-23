@@ -28,9 +28,9 @@ async function saveResult(ref,requestBody) {
     switch (ref.type) {
         case "video":
             const taskId = ref.taskId;
-            const videoURL=requestBody.result.videoUrl;
+            const videoURL = requestBody.result.videoUrl;
             const taskManager = require("../tasks/TaskManager.js");
-            const task=taskManager.getTask(taskId);
+            const task = taskManager.getTask(taskId);
             await task.completeTaskExecution(videoURL);
             eventPublisher.notifyClientTask(userId, spaceId+"_"+objectId);
             break;
