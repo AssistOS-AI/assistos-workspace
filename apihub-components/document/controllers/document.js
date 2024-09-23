@@ -7,7 +7,8 @@ const fs = require("fs");
 const Busboy = require("busboy");
 const unzipper = require("unzipper");
 const enclave = require('opendsu').loadAPI('enclave');
-
+const TaskManager = require('../../tasks/TaskManager');
+const Task = require('../../tasks/Task');
 async function getDocument() {
 
 }
@@ -30,7 +31,7 @@ async function exportDocument(request, response) {
     const exportType = request.body.exportType;
     //TODO: use this full/partial export
     try {
-        const archiveStream = await archiveDocument(spaceId, documentId, exportType);
+        const archiveStream = await archiveDocument(spaceId, documentId, exportType, request);
 
         response.setHeader('Content-Disposition', `attachment; filename=${documentId}.docai`);
         response.setHeader('Content-Type', 'application/zip');
@@ -52,8 +53,17 @@ async function exportDocument(request, response) {
         });
     }
 }
-async function archiveDocument(spaceId, documentId, exportType) {
-    const documentData = await exportDocumentData(spaceId, documentId);
+async function archiveDocument(spaceId, documentId, exportType, request) {
+    let documentData;
+    const SecurityContext = require("assistos").ServerSideSecurityContext;
+    let securityContext = new SecurityContext(request);
+    const documentModule = require('assistos').loadModule('document', securityContext);
+    if(exportType === 'full') {
+        documentData = await exportDocumentData(documentModule, spaceId, documentId);
+    } else {
+        documentData = await exportDocumentDataPartially(documentModule, spaceId, documentId);
+    }
+
     const contentBuffer = Buffer.from(JSON.stringify(documentData), 'utf-8');
     const checksum = require('crypto').createHash('sha256').update(contentBuffer).digest('hex');
 
@@ -84,6 +94,11 @@ async function archiveDocument(spaceId, documentId, exportType) {
         const audioStream = space.APIs.getAudioStream(spaceId, audioData.id);
         archive.append(audioStream, {name: `audios/${audioName}.mp3`});
     });
+    documentData.videos.forEach(videoData => {
+        const videoName = videoData.name;
+        const videoStream = space.APIs.getVideoStream(spaceId, videoData.id);
+        archive.append(videoStream, {name: `videos/${videoName}.mp4`});
+    });
 
     function streamToBuffer(stream) {
         return new Promise((resolve, reject) => {
@@ -111,73 +126,66 @@ async function archiveDocument(spaceId, documentId, exportType) {
     archive.finalize();
     return stream;
 }
-async function exportDocumentData(spaceId, documentId) {
-    let lightDBEnclaveClient = enclave.initialiseLightDBEnclave(spaceId);
-    const documentRecords = await $$.promisify(lightDBEnclaveClient.getAllRecords)($$.SYSTEM_IDENTIFIER, documentId);
-    let documentRecordsContents = {};
-    /* access time optimization */
-    documentRecords.forEach(record => {
-        documentRecordsContents[record.pk] = record.data;
-    });
-
+async function exportDocumentDataPartially(documentModule, spaceId, documentId){
+    let personalities = new Set();
+    let documentData = await documentModule.getDocument(spaceId, documentId);
+    documentData.images = [];
+    documentData.audios = [];
+    documentData.videos = [];
+    for(let chapter of documentData.chapters) {
+        for(let paragraph of chapter.paragraphs) {
+            if(paragraph.commands.audio) {
+                const personality = paragraph.commands["speech"].paramsObject.personality;
+                personalities.add(personality);
+            }
+        }
+    }
+    documentData.personalities = await space.APIs.getPersonalitiesIds(spaceId, personalities);
+    return documentData;
+}
+async function exportDocumentData(documentModule, spaceId, documentId) {
+    let documentData = await documentModule.getDocument(spaceId, documentId);
     /* TODO there seems to be a bug where multiple chapters have position 0 - talk with Mircea */
-    const documentRecord = documentRecordsContents[documentId];
 
     let audios = [];
     let images = [];
     let videos = [];
     let personalities = new Set();
-
-    let documentData = {
-        title: documentRecord.title,
-        topic: documentRecord.topic,
-        metadata: documentRecord.metadata,
-        /* TODO documents dont have a saved abstract field - talk with Mircea */
-        abstract: documentRecord.abstract || "",
-        chapters: documentRecord.chapters.map((chapterId, chapterIndex) => {
-            let chapter = {}
-            chapter.title = documentRecordsContents[chapterId].title
-            if (documentRecordsContents[chapterId].backgroundSound) {
-                chapter.backgroundSound = documentRecordsContents[chapterId].backgroundSound
-                chapter.backgroundSound.fileName = `Chapter_${chapterIndex + 1}_audio`
+    for(let chapter of documentData.chapters) {
+        const chapterIndex = documentData.chapters.indexOf(chapter);
+        if(chapter.backgroundSound) {
+            chapter.backgroundSound.fileName = `Chapter_${chapterIndex + 1}_audio`
+            audios.push({
+                name: chapter.backgroundSound.fileName,
+                id: chapter.backgroundSound.id
+            })
+        }
+        for(let paragraph of chapter.paragraphs) {
+            const paragraphIndex = chapter.paragraphs.indexOf(paragraph);
+            if(paragraph.commands.audio) {
+                const personality = paragraph.commands["speech"].paramsObject.personality;
+                paragraph.commands.audio.fileName = `Chapter_${chapterIndex + 1}_Paragraph_${paragraphIndex + 1}_audio`
                 audios.push({
-                    name: chapter.backgroundSound.fileName,
-                    id: documentRecordsContents[chapterId].backgroundSound.id
+                    name: paragraph.commands.audio.fileName,
+                    id: paragraph.commands.audio.id
+                })
+                personalities.add(personality);
+            }
+            if(paragraph.commands.image) {
+                paragraph.commands.image.fileName = `Chapter_${chapterIndex + 1}_Paragraph_${paragraphIndex + 1}_image`
+                images.push({
+                    name: paragraph.commands.image.fileName,
+                    id: paragraph.commands.image.id
                 })
             }
-            chapter.position = documentRecordsContents[chapterId].position
-            chapter.id = chapterId
-            chapter.paragraphs = documentRecordsContents[chapterId].paragraphs.map((paragraphId, paragraphIndex) => {
-                let paragraph = {
-                    text: documentRecordsContents[paragraphId].text,
-                    position: documentRecordsContents[paragraphId].position,
-                    id: paragraphId,
-                    commands: documentRecordsContents[paragraphId].commands
-                };
-
-                if (documentRecordsContents[paragraphId].commands.audio) {
-                    const personality = documentRecordsContents[paragraphId].commands["speech"].paramsObject.personality;
-                    paragraph.commands.audio = documentRecordsContents[paragraphId].commands.audio;
-                    paragraph.commands.audio.fileName = `Chapter_${chapterIndex + 1}_Paragraph_${paragraphIndex + 1}_audio`
-                    audios.push({
-                        name: paragraph.commands.audio.fileName,
-                        id: documentRecordsContents[paragraphId].commands.audio.id
-                    })
-                    personalities.add(personality);
-                }
-                if (documentRecordsContents[paragraphId].commands.image) {
-                    paragraph.commands.image = documentRecordsContents[paragraphId].commands.image;
-                    paragraph.commands.image.fileName = `Chapter_${chapterIndex + 1}_Paragraph_${paragraphIndex + 1}_image`
-                    images.push({
-                        name: paragraph.commands.image.fileName,
-                        id: documentRecordsContents[paragraphId].commands.image.id
-                    })
-                    paragraph.commands.image.dimensions = documentRecordsContents[paragraphId].commands.image.dimensions;
-                }
-                return paragraph
-            })
-            return chapter;
-        })
+            if(paragraph.commands.video){
+                paragraph.commands.video.fileName = `Chapter_${chapterIndex + 1}_Paragraph_${paragraphIndex + 1}_video`
+                videos.push({
+                    name: paragraph.commands.video.fileName,
+                    id: paragraph.commands.video.id
+                })
+            }
+        }
     }
     documentData.images = images;
     documentData.audios = audios;
@@ -316,21 +324,31 @@ async function storeDocument(spaceId, extractedPath, request) {
         const chapterId = await documentModule.addChapter(spaceId, docId, chapterObject);
         for (let paragraph of chapter.paragraphs) {
             let paragraphObject = paragraph;
+            if (paragraphObject.commands.speech) {
+                if(paragraphObject.commands.speech.taskId) {
+                    paragraphObject.commands.speech.taskId = await documentModule.generateParagraphAudio(spaceId, docData.id, paragraphObject.id);
+                }
+            }
+            if(paragraphObject.commands.lipsync){
+                if(paragraphObject.commands.lipsync.taskId){
+                    paragraphObject.commands.lipsync.taskId = await documentModule.generateParagraphLipSync(spaceId, docData.id, paragraphObject.id);
+                }
+            }
             if (paragraphObject.commands.image) {
                 const imagePath = path.join(extractedPath, 'images', `${paragraphObject.commands.image.fileName}.png`);
                 const imageBase64Data = await space.APIs.readFileAsBase64(imagePath);
                 const dataUrl = `data:image/png;base64,${imageBase64Data}`;
-                const imageId = await spaceModule.addImage(spaceId, dataUrl);
-                paragraphObject.commands.image.id = imageId;
-                paragraphObject.commands.image.src = `spaces/image/${spaceId}/${imageId}`;
+                paragraphObject.commands.image.id = await spaceModule.addImage(spaceId, dataUrl);
             }
-
             if (paragraphObject.commands.audio) {
                 const audioPath = path.join(extractedPath, 'audios', `${paragraphObject.commands.audio.fileName}.mp3`);
                 const audioBase64Data = await space.APIs.readFileAsBase64(audioPath);
-                const audioId = await spaceModule.addAudio(spaceId, audioBase64Data);
-                paragraphObject.commands.audio.id = audioId;
-                paragraphObject.commands.audio.src = `spaces/audio/${spaceId}/${audioId}`;
+                paragraphObject.commands.audio.id = await spaceModule.addAudio(spaceId, audioBase64Data);
+            }
+            if(paragraphObject.commands.video) {
+                const videoPath = path.join(extractedPath, 'videos', `${paragraphObject.commands.video.fileName}.mp4`);
+                const videoBase64Data = await space.APIs.readFileAsBase64(videoPath);
+                paragraphObject.commands.video.id = await spaceModule.addVideo(spaceId, videoBase64Data);
             }
             await documentModule.addParagraph(spaceId, docId, chapterId, paragraphObject);
         }
