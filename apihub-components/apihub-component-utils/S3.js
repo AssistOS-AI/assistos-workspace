@@ -1,22 +1,111 @@
+const fetch = require('node-fetch');
+const config = require('../../data-volume/config/config.json');
+
+const llmAdapterUrl = config.LLMS_SERVER_DEVELOPMENT_BASE_URL;
+
+const llmAdapterRoutes = {
+    DELETE: {
+        RECORD: '/apis/v1/record',
+        IMAGE: '/apis/v1/image',
+        AUDIO: '/apis/v1/audio',
+        VIDEO: '/apis/v1/video'
+    },
+    GET: {
+        RECORD: '/apis/v1/record',
+        IMAGE: '/apis/v1/image',
+        AUDIO: '/apis/v1/audio',
+        VIDEO: '/apis/v1/video',
+        IMAGE_STREAM: '/apis/v1/image/stream',
+        AUDIO_STREAM: '/apis/v1/audio/stream',
+        VIDEO_STREAM: '/apis/v1/video/stream'
+    },
+    POST: {
+        RECORD: '/apis/v1/record',
+        IMAGE: '/apis/v1/image',
+        AUDIO: '/apis/v1/audio',
+        VIDEO: '/apis/v1/video',
+    },
+    PUT: {
+        RECORD: '/apis/v1/record'
+    },
+};
+
+// Function to map tableId to route keys
+function getRouteKey(tableId, isStream = false) {
+    const mapping = {
+        images: 'IMAGE',
+        audios: 'AUDIO',
+        videos: 'VIDEO',
+        records: 'RECORD'
+    };
+    let routeKey = mapping[tableId.toLowerCase()];
+    if (isStream && routeKey) {
+        routeKey += '_STREAM';
+    }
+    return routeKey;
+}
+
+async function sendLLMAdapterRequest(url, method, body = null, headers = {}) {
+    const options = {
+        method: method,
+        headers: headers,
+    };
+    if (body) {
+        options.body = body;
+    }
+    const response = await fetch(url, options);
+
+    if (!response.ok) {
+        const errorText = await response.text();
+        throw new Error(`HTTP error ${response.status}: ${errorText}`);
+    }
+
+    return response;
+}
+
 function getS3FileName(spaceId, tableId, objectId) {
     return `${spaceId}/${tableId}/${objectId}`;
 }
 
 async function getObject(spaceId, tableId, objectId) {
     const fileName = getS3FileName(spaceId, tableId, objectId);
+    const routeKey = getRouteKey(tableId, true);
+    const route = llmAdapterRoutes.GET[routeKey];
+    const url = `${llmAdapterUrl}${route}?fileName=${encodeURIComponent(fileName)}`;
 
+    const response = await sendLLMAdapterRequest(url, 'GET');
+
+    const data = await response.buffer();
+    return data;
 }
 
 async function insertObject(spaceId, tableId, objectId, objectData) {
     const fileName = getS3FileName(spaceId, tableId, objectId);
+    const routeKey = getRouteKey(tableId);
+    const route = llmAdapterRoutes.POST[routeKey];
+    const url = `${llmAdapterUrl}${route}?fileName=${encodeURIComponent(fileName)}`;
 
+    const headers = {
+        'Content-Type': 'application/octet-stream',
+    };
+
+    const response = await sendLLMAdapterRequest(url, 'POST', objectData, headers);
+
+    return response.status === 200;
 }
 
 async function deleteObject(spaceId, tableId, objectId) {
     const fileName = getS3FileName(spaceId, tableId, objectId);
+    const routeKey = getRouteKey(tableId);
+    const route = llmAdapterRoutes.DELETE[routeKey];
+    const url = `${llmAdapterUrl}${route}?fileName=${encodeURIComponent(fileName)}`;
 
+    const response = await sendLLMAdapterRequest(url, 'DELETE');
+
+    return response.status === 200;
 }
 
+// Specific functions using the generic ones
 async function getImage(spaceId, imageId) {
     return getObject(spaceId, 'images', imageId);
 }
