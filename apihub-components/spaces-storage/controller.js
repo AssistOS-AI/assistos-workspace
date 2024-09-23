@@ -1480,6 +1480,8 @@ async function exportDocumentReference(request,response){
 async function exportDocument(request, response) {
     const spaceId = request.params.spaceId;
     const documentId = request.params.documentId;
+    const exportType = request.body.exportType;
+    //TODO: use this full/partial export
     try {
         const archiveStream = await space.APIs.archiveDocument(spaceId, documentId, request);
 

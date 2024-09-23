@@ -143,12 +143,9 @@ class TaskManager {
     }
 }
 
-const taskManager = TaskManager.instance || new TaskManager();
-
+const taskManager = new TaskManager();
 (async () => {
-    if (!TaskManager.instance) {
-        await taskManager.initialize();
-    }
+    await taskManager.initialize();
 })();
 
 module.exports = taskManager;
