@@ -1209,10 +1209,13 @@ async function getChatVideoResponse(request, response) {
 
 async function storeImage(request, response) {
     const spaceId = request.params.spaceId;
-    const imageId = `${spaceId}_${crypto.generateId(8)}`;
+    const imageId = crypto.generateId(8);
     const objectData = request.body;
     try {
-        await space.APIs.putImage(spaceId, imageId, objectData);
+        const base64String = objectData.replace(/^data:image\/\w+;base64,/, '');
+
+        const imageBuffer = Buffer.from(base64String, 'base64');
+        await space.APIs.putImage(spaceId, imageId, imageBuffer);
         return utils.sendResponse(response, 200, "application/json", {
             success: true,
             data: imageId,
@@ -1223,7 +1226,6 @@ async function storeImage(request, response) {
             message: error + ` Error at writing image: ${imageId}`
         });
     }
-
 }
 
 async function getImage(request, response) {
@@ -1231,11 +1233,7 @@ async function getImage(request, response) {
     const imageId = request.params.imageId;
     try {
         let image = await space.APIs.getImage(spaceId, imageId);
-        const cacheHeaders = {
-            key: 'Cache-Control',
-            value: 'public, max-age=3600' // Cache for 1 hour
-        };
-        return utils.sendResponse(response, 200, "image/png", image, null, cacheHeaders);
+        return utils.sendResponse(response, 200, "image/png", image, null,);
     } catch (error) {
         return utils.sendResponse(response, 500, "application/json", {
             success: false,
@@ -1263,7 +1261,7 @@ async function deleteImage(request, response) {
 
 async function storeAudio(request, response) {
     const spaceId = request.params.spaceId;
-    const audioId = `${spaceId}_${crypto.generateId(8)}`;
+    const audioId = crypto.generateId(8);
     const objectData = request.body;
     try {
         await space.APIs.putAudio(spaceId, audioId, objectData);

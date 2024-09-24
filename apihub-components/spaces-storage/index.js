@@ -1,7 +1,3 @@
-//const AWS = require('aws-sdk');
-//const AWS=$$.require('aws-sdk');
-//const AWS=$$.__originalRequire('aws-sdk');
-//const AWS=global.require('aws-sdk');
 const {
     insertContainerObject,
     insertEmbeddedObject,

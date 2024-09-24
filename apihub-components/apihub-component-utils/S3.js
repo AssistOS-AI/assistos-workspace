@@ -69,7 +69,7 @@ function getS3FileName(spaceId, tableId, objectId) {
 
 async function getObject(spaceId, tableId, objectId) {
     const fileName = getS3FileName(spaceId, tableId, objectId);
-    const routeKey = getRouteKey(tableId, true);
+    const routeKey = getRouteKey(tableId, false);
     const route = llmAdapterRoutes.GET[routeKey];
     const url = `${llmAdapterUrl}${route}?fileName=${encodeURIComponent(fileName)}`;
 
@@ -105,7 +105,6 @@ async function deleteObject(spaceId, tableId, objectId) {
     return response.status === 200;
 }
 
-// Specific functions using the generic ones
 async function getImage(spaceId, imageId) {
     return getObject(spaceId, 'images', imageId);
 }
