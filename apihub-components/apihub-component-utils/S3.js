@@ -69,7 +69,7 @@ function getS3FileName(spaceId, tableId, objectId) {
 
 async function getObject(spaceId, tableId, objectId) {
     const fileName = getS3FileName(spaceId, tableId, objectId);
-    const routeKey = getRouteKey(tableId, true);
+    const routeKey = getRouteKey(tableId, false);
     const route = llmAdapterRoutes.GET[routeKey];
     const url = `${llmAdapterUrl}${route}?fileName=${encodeURIComponent(fileName)}`;
 
@@ -79,14 +79,14 @@ async function getObject(spaceId, tableId, objectId) {
     return data;
 }
 
-async function insertObject(spaceId, tableId, objectId, objectData) {
+async function insertObject(spaceId, tableId, objectId, objectData,contentType) {
     const fileName = getS3FileName(spaceId, tableId, objectId);
     const routeKey = getRouteKey(tableId);
     const route = llmAdapterRoutes.POST[routeKey];
     const url = `${llmAdapterUrl}${route}?fileName=${encodeURIComponent(fileName)}`;
 
     const headers = {
-        'Content-Type': 'application/octet-stream',
+        'Content-Type': contentType
     };
 
     const response = await sendLLMAdapterRequest(url, 'POST', objectData, headers);
@@ -105,7 +105,6 @@ async function deleteObject(spaceId, tableId, objectId) {
     return response.status === 200;
 }
 
-// Specific functions using the generic ones
 async function getImage(spaceId, imageId) {
     return getObject(spaceId, 'images', imageId);
 }
@@ -119,15 +118,15 @@ async function getVideo(spaceId, videoId) {
 }
 
 async function insertImage(spaceId, imageId, imageData) {
-    return insertObject(spaceId, 'images', imageId, imageData);
+    return insertObject(spaceId, 'images', imageId, imageData,'image/png');
 }
 
 async function insertAudio(spaceId, audioId, audioData) {
-    return insertObject(spaceId, 'audios', audioId, audioData);
+    return insertObject(spaceId, 'audios', audioId, audioData,'audio/mp3');
 }
 
 async function insertVideo(spaceId, videoId, videoData) {
-    return insertObject(spaceId, 'videos', videoId, videoData);
+    return insertObject(spaceId, 'videos', videoId, videoData,'video/mp4');
 }
 
 async function deleteImage(spaceId, imageId) {
