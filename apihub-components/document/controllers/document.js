@@ -325,21 +325,20 @@ async function storeDocument(spaceId, extractedPath, request) {
 
         const chapterId = await documentModule.addChapter(spaceId, docId, chapterObject);
         for (let paragraph of chapter.paragraphs) {
-            let paragraphObject = paragraph;
             if(exportType === 'full') {
-                await storeAttachments(extractedPath, spaceModule, paragraphObject, spaceId);
+                await storeAttachments(extractedPath, spaceModule, paragraph, spaceId);
             }
-            await documentModule.addParagraph(spaceId, docId, chapterId, paragraphObject);
-            if (paragraphObject.commands.speech) {
-                if(paragraphObject.commands.speech.taskId) {
-                    paragraphObject.commands.speech.taskId = await documentModule.generateParagraphAudio(spaceId, docId, paragraphObject.id);
-                    await documentModule.updateParagraphCommands(spaceId, docId, paragraphObject.id, paragraphObject.commands);
+            await documentModule.addParagraph(spaceId, docId, chapterId, paragraph);
+            if (paragraph.commands.speech) {
+                if(paragraph.commands.speech.taskId) {
+                    paragraph.commands.speech.taskId = await documentModule.generateParagraphAudio(spaceId, docId, paragraph.id);
+                    await documentModule.updateParagraphCommands(spaceId, docId, paragraph.id, paragraph.commands);
                 }
             }
-            if(paragraphObject.commands.lipsync){
-                if(paragraphObject.commands.lipsync.taskId){
-                    paragraphObject.commands.lipsync.taskId = await documentModule.generateParagraphLipSync(spaceId, docId, paragraphObject.id);
-                    await documentModule.updateParagraphCommands(spaceId, docId, paragraphObject.id, paragraphObject.commands);
+            if(paragraph.commands.lipsync){
+                if(paragraph.commands.lipsync.taskId){
+                    paragraph.commands.lipsync.taskId = await documentModule.generateParagraphLipSync(spaceId, docId, paragraph.id);
+                    await documentModule.updateParagraphCommands(spaceId, docId, paragraph.id, paragraph.commands);
                 }
             }
         }
@@ -348,25 +347,25 @@ async function storeDocument(spaceId, extractedPath, request) {
     fs.rmSync(extractedPath, {recursive: true, force: true});
     return {id: docId, overriddenPersonalities: Array.from(overriddenPersonalities)};
 }
-async function storeAttachments(extractedPath, spaceModule, paragraphObject, spaceId){
-    if (paragraphObject.commands.image) {
-        const imagePath = path.join(extractedPath, 'images', `${paragraphObject.commands.image.fileName}.png`);
+async function storeAttachments(extractedPath, spaceModule, paragraph, spaceId){
+    if (paragraph.commands.image) {
+        const imagePath = path.join(extractedPath, 'images', `${paragraph.commands.image.fileName}.png`);
         const imageBase64Data = await space.APIs.readFileAsBase64(imagePath);
         const dataUrl = `data:image/png;base64,${imageBase64Data}`;
-        paragraphObject.commands.image.id = await spaceModule.addImage(spaceId, dataUrl);
-        delete paragraphObject.commands.image.fileName;
+        paragraph.commands.image.id = await spaceModule.addImage(spaceId, dataUrl);
+        delete paragraph.commands.image.fileName;
     }
-    if (paragraphObject.commands.audio) {
-        const audioPath = path.join(extractedPath, 'audios', `${paragraphObject.commands.audio.fileName}.mp3`);
+    if (paragraph.commands.audio) {
+        const audioPath = path.join(extractedPath, 'audios', `${paragraph.commands.audio.fileName}.mp3`);
         const audioBase64Data = await space.APIs.readFileAsBase64(audioPath);
-        paragraphObject.commands.audio.id = await spaceModule.addAudio(spaceId, audioBase64Data);
-        delete paragraphObject.commands.audio.fileName;
+        paragraph.commands.audio.id = await spaceModule.addAudio(spaceId, audioBase64Data);
+        delete paragraph.commands.audio.fileName;
     }
-    if(paragraphObject.commands.video) {
-        const videoPath = path.join(extractedPath, 'videos', `${paragraphObject.commands.video.fileName}.mp4`);
+    if(paragraph.commands.video) {
+        const videoPath = path.join(extractedPath, 'videos', `${paragraph.commands.video.fileName}.mp4`);
         const videoBase64Data = await space.APIs.readFileAsBase64(videoPath);
-        paragraphObject.commands.video.id = await spaceModule.addVideo(spaceId, videoBase64Data);
-        delete paragraphObject.commands.video.fileName;
+        paragraph.commands.video.id = await spaceModule.addVideo(spaceId, videoBase64Data);
+        delete paragraph.commands.video.fileName;
     }
 }
 
