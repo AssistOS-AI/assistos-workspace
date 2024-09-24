@@ -350,7 +350,7 @@ export class DocumentViewPage {
     }
 
     async exportDocument(targetElement) {
-        await assistOS.UI.showModal("export-document-modal", {["document-id"]: this._document.id, title: this._document.title});
+        await assistOS.UI.showModal("export-document-modal", {id: this._document.id, title: this._document.title});
     }
 
     hideActionsMenu(controller, container, event) {
