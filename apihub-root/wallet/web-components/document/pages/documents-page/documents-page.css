@@ -82,3 +82,15 @@ documents-page{
 .right-margin{
  margin-right: 10px;
 }
+.placeholder-document{
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    border-top: 1px solid var(--very-light-gray);
+    color: var(--medium-gray);
+    font-size: 16px;
+    font-style: normal;
+    font-weight: 500;
+    line-height: normal;
+    padding: 20px 40px 20px 0;
+}

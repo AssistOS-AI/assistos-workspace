@@ -20,10 +20,9 @@ export class ParagraphItem {
     }
 
     beforeRender() {
-
         this.paragraphConfigs = utilModule.buildCommandsString(this.paragraph.commands);
         this.paragraphAttachments = this.buildAttachmentsHTML("view");
-        this.loadedParagraphText = this.paragraph.text;
+        this.loadedParagraphText = this.paragraph.text || "";
     }
 
     afterRender() {
@@ -191,8 +190,8 @@ export class ParagraphItem {
         const aspectRatio = originalWidth / originalHeight;
         const maxWidth = this.parentChapterElement.getBoundingClientRect().width - 78;
         const maxHeight = maxWidth / aspectRatio;
-        this.imgElement.style.width = maxWidth + 'px';
-        this.imgElement.style.height = maxHeight + 'px';
+        this.imgElement.style.width = Math.floor(maxWidth) + 'px';
+        this.imgElement.style.height =  Math.floor(maxHeight) + 'px';
 
         this.paragraph.commands.image.width = maxWidth;
         this.paragraph.commands.image.height = maxHeight;

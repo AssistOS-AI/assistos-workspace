@@ -6,9 +6,7 @@ const path = require("path");
 const fs = require("fs");
 const Busboy = require("busboy");
 const unzipper = require("unzipper");
-const enclave = require('opendsu').loadAPI('enclave');
-const TaskManager = require('../../tasks/TaskManager');
-const Task = require('../../tasks/Task');
+const eventPublisher = require("../../subscribers/eventPublisher");
 async function getDocument() {
 
 }
@@ -200,13 +198,11 @@ async function importDocument(request, response) {
     const filePath = path.join(tempDir, `${fileId}.docai`);
 
     await fs.promises.mkdir(tempDir, {recursive: true});
-
     const busboy = Busboy({headers: request.headers});
-
+    const taskId = crypto.generateId(16);
     busboy.on('file', (fieldname, file, filename, encoding, mimetype) => {
         const writeStream = fs.createWriteStream(filePath);
         file.pipe(writeStream);
-
         writeStream.on('close', async () => {
             try {
                 await fs.promises.access(filePath, fs.constants.F_OK);
@@ -233,41 +229,32 @@ async function importDocument(request, response) {
                 const importResults = await storeDocument(spaceId, extractedPath, request);
 
                 await fs.promises.unlink(filePath);
-
-                utils.sendResponse(response, 200, "application/json", {
-                    success: true,
-                    message: 'Document imported successfully',
-                    data: importResults
-                });
+                eventPublisher.notifyClientTask(request.userId, taskId, importResults)
             } catch (error) {
                 console.error('Error processing extracted files:', error);
-                utils.sendResponse(response, 500, "application/json", {
-                    success: false,
-                    message: `Error at importing document: ${error.message}`
-                });
+                eventPublisher.notifyClientTask(request.userId, taskId, {error: error.message});
             } finally {
                 await fs.promises.rm(tempDir, {recursive: true, force: true});
             }
         });
 
-        writeStream.on('error', (error) => {
+        writeStream.on('error', async (error) => {
             console.error('Error writing file:', error);
-            utils.sendResponse(response, 500, "application/json", {
-                success: false,
-                message: `Error writing file: ${error.message}`
-            });
+            eventPublisher.notifyClientTask(request.userId, taskId, {error: error.message});
         });
     });
 
-    busboy.on('error', (error) => {
+    busboy.on('error', async (error) => {
         console.error('Busboy error:', error);
-        utils.sendResponse(response, 500, "application/json", {
-            success: false,
-            message: `Busboy error: ${error.message}`
-        });
+        eventPublisher.notifyClientTask(request.userId, taskId, {error: error.message});
     });
 
     request.pipe(busboy);
+    utils.sendResponse(response, 200, "application/json", {
+        success: true,
+        message: 'Document imported successfully',
+        data: taskId
+    });
 }
 async function storeDocument(spaceId, extractedPath, request) {
     const SecurityContext = require("assistos").ServerSideSecurityContext;
@@ -324,6 +311,8 @@ async function storeDocument(spaceId, extractedPath, request) {
         }
 
         const chapterId = await documentModule.addChapter(spaceId, docId, chapterObject);
+        //convertParagraphs(chapter);
+
         for (let paragraph of chapter.paragraphs) {
             if(exportType === 'full') {
                 await storeAttachments(extractedPath, spaceModule, paragraph, spaceId);
@@ -346,6 +335,86 @@ async function storeDocument(spaceId, extractedPath, request) {
 
     fs.rmSync(extractedPath, {recursive: true, force: true});
     return {id: docId, overriddenPersonalities: Array.from(overriddenPersonalities)};
+}
+function convertParagraphs(chapter){
+    let chapterFrames = [];
+    let frame = {
+        imageParagraphId: "",
+        audiosParagraphIds: [],
+    };
+    for (let paragraph of chapter.paragraphs) {
+        paragraph = restructureParagraph(paragraph);
+        if (paragraph.commands.image) {
+            if (frame.audiosParagraphIds.length > 0 || frame.imageParagraphId) {
+                chapterFrames.push(frame);
+            }
+            frame = {
+                imageParagraphId: paragraph.id,
+                audiosParagraphIds: [],
+            };
+        } else if (paragraph.commands.audio) {
+            frame.audiosParagraphIds.push(paragraph.id);
+        } else if(paragraph.commands.speech || paragraph.commands.silence || paragraph.commands.audio || paragraph.text) {
+            //speech silence
+            frame.audiosParagraphIds.push(paragraph.id);
+        }
+    }
+    if (frame.audiosParagraphIds.length > 0 || frame.imageParagraphId) {
+        chapterFrames.push(frame);
+    }
+    for(let frame of chapterFrames) {
+        if(frame.imageParagraphId) {
+            let paragraph = chapter.paragraphs.find(paragraph => paragraph.id === frame.imageParagraphId);
+            if(frame.audiosParagraphIds.length > 0){
+                let firstParagraph = chapter.paragraphs.find(paragraph => paragraph.id === frame.audiosParagraphIds[0]);
+                paragraph.text = firstParagraph.text;
+                if(firstParagraph.commands.audio){
+                    paragraph.commands.audio = JSON.parse(JSON.stringify(firstParagraph.commands.audio));
+                }
+                if(firstParagraph.commands.speech){
+                    paragraph.commands.speech = JSON.parse(JSON.stringify(firstParagraph.commands.speech));
+                }
+                if(firstParagraph.commands.silence){
+                    paragraph.commands.silence = JSON.parse(JSON.stringify(firstParagraph.commands.silence));
+                }
+
+                chapter.paragraphs = chapter.paragraphs.filter(paragraph => paragraph.id !== firstParagraph.id);
+                frame.audiosParagraphIds.shift();
+                for(let remainingParagraphId of frame.audiosParagraphIds){
+                    let remainingParagraph = chapter.paragraphs.find(paragraph => paragraph.id === remainingParagraphId);
+                    remainingParagraph.commands.image = JSON.parse(JSON.stringify(paragraph.commands.image));
+                }
+            }
+        }
+    }
+}
+function restructureParagraph(paragraph){
+    const commands = JSON.parse(JSON.stringify(paragraph.config.commands));
+    paragraph.commands = commands;
+    delete paragraph.config.commands;
+    if(paragraph.config.image){
+        const image = JSON.parse(JSON.stringify(paragraph.config.image));
+        paragraph.commands.image = image;
+        delete paragraph.commands.image.alt;
+        delete paragraph.commands.image.src;
+        if(paragraph.commands.image.isUploadedImage){
+            delete paragraph.commands.image.isUploadedImage;
+        }
+        if(paragraph.commands.image.dimensions){
+            paragraph.commands.image.width = paragraph.commands.image.dimensions.width;
+            paragraph.commands.image.height = paragraph.commands.image.dimensions.height;
+            delete paragraph.commands.image.dimensions;
+        }
+        delete paragraph.config.image;
+    }
+    if(paragraph.config.audio){
+        const audio = JSON.parse(JSON.stringify(paragraph.config.audio));
+        paragraph.commands.audio = audio;
+        delete paragraph.commands.audio.src;
+        delete paragraph.config.audio;
+    }
+    delete paragraph.config;
+    return paragraph;
 }
 async function storeAttachments(extractedPath, spaceModule, paragraph, spaceId){
     if (paragraph.commands.image) {

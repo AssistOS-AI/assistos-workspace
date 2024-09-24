@@ -24,6 +24,13 @@ export class DocumentsPage {
                 this.tableRows += `<document-item data-name="${document.title}" 
                 data-id="${document.id}" data-local-action="editAction"></document-item>`;
             });
+            if(assistOS.space.loadingDocuments && assistOS.space.loadingDocuments.length > 0){
+                assistOS.space.loadingDocuments.forEach((taskId) => {
+                    this.tableRows += `<div data-id="${taskId}" class="placeholder-document">
+                    <div class="loading-icon small"></div>
+                </div>`;
+                });
+            }
         } else {
             this.tableRows = `<div> There are no documents yet </div>`;
         }
@@ -76,18 +83,38 @@ export class DocumentsPage {
     async exportAction(_target) {
         const documentId = this.getDocumentId(_target);
         const documentTitle = assistOS.UI.reverseQuerySelector(_target, "document-item").getAttribute("data-name");
-        await assistOS.UI.showModal("export-document-modal", {["document-id"]: documentId, title: documentTitle});
+        await assistOS.UI.showModal("export-document-modal", {id: documentId, title: documentTitle});
     }
 
     async importDocument(_target) {
         const handleFile = async (file) => {
             const formData = new FormData();
             formData.append("file", file);
-            const importResult = await documentModule.importDocument(assistOS.space.id, formData);
-            if (importResult.overriddenPersonalities.length > 0) {
-                /* TODO use notification system */
-                alert("The document has been imported. The following personalities have been overridden: " + importResult.overriddenPersonalities.join(", "));
+            const taskId = await documentModule.importDocument(assistOS.space.id, formData);
+            if(!assistOS.space.loadingDocuments) {
+                assistOS.space.loadingDocuments = [];
             }
+            assistOS.space.loadingDocuments.push(taskId);
+            await utilModule.subscribeToObject(taskId, async (importResult) => {
+                if(importResult.error) {
+                    alert("An error occurred while importing the document: " + importResult.error);
+                } else if (importResult.overriddenPersonalities) {
+                    /* TODO use notification system */
+                    if(importResult.overriddenPersonalities.length > 0){
+                        alert("The document has been imported. The following personalities have been overridden: " + importResult.overriddenPersonalities.join(", "));
+                    }
+                    assistOS.space.loadingDocuments = assistOS.space.loadingDocuments.filter((taskId) => taskId !== taskId);
+                    let placeholder = document.querySelector(`.placeholder-document[data-id="${taskId}"]`);
+                    if(placeholder){
+                        placeholder.remove();
+                    }
+                }
+                await utilModule.unsubscribeFromObject(taskId);
+                this.invalidate(this.refreshDocuments);
+                //TODO navigating to another page and back changes the instance of the presenter, beforeRender doesnt do anything
+                fileInput.remove();
+            });
+            this.invalidate(this.refreshDocuments);
         }
         let fileInput = document.createElement('input');
         fileInput.type = 'file';
@@ -98,9 +125,6 @@ export class DocumentsPage {
             if (file) {
                 if (file.name.endsWith('.docai')) {
                     await handleFile(file);
-                    this.invalidate(this.refreshDocuments);
-                    document.body.appendChild(fileInput);
-                    fileInput.remove();
                 } else {
                     alert('Only a .docai files are allowed!');
                 }
