@@ -1,4 +1,4 @@
-const spaceAPIs = require("assistos").loadModule("space", {});
+const documentModule = require("assistos").loadModule("document", {});
 const utilModule = require("assistos").loadModule("util", {});
 
 export class DocumentsPage {
@@ -74,43 +74,16 @@ export class DocumentsPage {
     }
 
     async exportAction(_target) {
-        try {
-            const documentId = this.getDocumentId(_target);
-            const response = await fetch(`/spaces/${assistOS.space.id}/export/documents/${documentId}`, {
-                method: 'GET',
-                headers: {
-                    'Accept': 'application/zip'
-                }
-            });
-
-            if (!response.ok) {
-                throw new Error(`Network response was not ok: ${response.statusText}`);
-            }
-
-            const blob = await response.blob();
-            const url = window.URL.createObjectURL(blob);
-
-            const a = document.createElement('a');
-            a.style.display = 'none';
-            a.href = url;
-            a.download = `${this.getDocumentTitle(_target)}.docai`;
-
-            document.body.appendChild(a);
-            a.click();
-
-            window.URL.revokeObjectURL(url);
-            document.body.removeChild(a);
-
-        } catch (error) {
-            console.error('There has been a problem with your fetch operation:', error);
-        }
+        const documentId = this.getDocumentId(_target);
+        const documentTitle = assistOS.UI.reverseQuerySelector(_target, "document-item").getAttribute("data-name");
+        await assistOS.UI.showModal("export-document-modal", {["document-id"]: documentId, title: documentTitle});
     }
 
     async importDocument(_target) {
         const handleFile = async (file) => {
             const formData = new FormData();
             formData.append("file", file);
-            const importResult = await spaceAPIs.importDocument(assistOS.space.id, formData);
+            const importResult = await documentModule.importDocument(assistOS.space.id, formData);
             if (importResult.overriddenPersonalities.length > 0) {
                 /* TODO use notification system */
                 alert("The document has been imported. The following personalities have been overridden: " + importResult.overriddenPersonalities.join(", "));

@@ -55,11 +55,16 @@ async function insertAudio(spaceId, audioId, audioData) {
 async function insertVideo(spaceId, videoId, dataSource) {
     const storagePath = path.join(getSpacePath(spaceId), "videos");
     if (typeof dataSource === 'string') {
-        if (dataSource.startsWith("http")) {
+        if (dataSource.startsWith("data:")) {
+            const base64Data = dataSource.split(",")[1];
+            let buffer = Buffer.from(base64Data, 'base64');
+            await fsPromises.writeFile(path.join(storagePath, `${videoId}.mp4`), buffer);
+        } else if (dataSource.startsWith("http")) {
             await downloadData(dataSource, path.join(storagePath, `${videoId}.mp4`));
             return;
         } else {
-            throw new Error("Data source is not a valid URL");
+            const buffer = Buffer.from(dataSource, 'base64');
+            await fsPromises.writeFile(path.join(storagePath, `${videoId}.mp4`), buffer);
         }
     } else {
         const buffer = Buffer.from(dataSource);

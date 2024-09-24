@@ -428,13 +428,13 @@ async function getVideo(spaceId, fileId) {
 async function getAudio(spaceId, fileId) {
     return await storageClient.getAudio(spaceId, fileId);
 }
-async function getImageStream(spaceId, fileId) {
+function getImageStream(spaceId, fileId) {
     return storageClient.getImageStream(spaceId, fileId);
 }
-async function getVideoStream(spaceId, fileId) {
+function getVideoStream(spaceId, fileId) {
     return storageClient.getVideoStream(spaceId, fileId);
 }
-async function getAudioStream(spaceId, fileId) {
+function getAudioStream(spaceId, fileId) {
     return storageClient.getAudioStream(spaceId, fileId);
 }
 async function deleteImage(spaceId, fileId) {

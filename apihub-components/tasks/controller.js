@@ -58,7 +58,7 @@ async function textToSpeechParagraph(request, response) {
     } catch (error) {
         utils.sendResponse(response, error.statusCode || 500, "application/json", {
             success: false,
-            message: error
+            message: error.message
         });
     }
 }
