@@ -1,5 +1,6 @@
 const galleryModule = require("assistos").loadModule("gallery", {});
 const spaceModule = require("assistos").loadModule("space", {});
+
 export class InsertImageModal {
     constructor(element, invalidate) {
         this.element = element;
@@ -10,7 +11,7 @@ export class InsertImageModal {
                 <button data-local-action="openMyDevice">My device</button data-local-action="openMyDevice">
                 <input type="file" id="file" class="hidden" accept="image/*">
             </div>`;
-        this.invalidate(async ()=>{
+        this.invalidate(async () => {
             this.galleries = await galleryModule.getGalleriesMetadata(assistOS.space.id);
         });
         this.selectedImage = "";
@@ -28,13 +29,12 @@ export class InsertImageModal {
             </div>
         </form>`;
         let galleriesHMTL = "";
-        if(this.galleries.length > 0) {
+        if (this.galleries.length > 0) {
             this.galleries.forEach((gallery) => {
                 galleriesHMTL += `<gallery-item data-name="${gallery.config.name}" 
                 data-id="${gallery.id}" data-local-action="openGallery ${gallery.id}"></gallery-item>`;
             });
-        }
-        else {
+        } else {
             galleriesHMTL = `<div> There are no galleries yet </div>`;
         }
         this.gallerySection = `
@@ -44,7 +44,7 @@ export class InsertImageModal {
     }
 
     afterRender() {
-        if(this.modalBody === this.galleryImagesSection){
+        if (this.modalBody === this.galleryImagesSection) {
             let images = this.element.querySelectorAll(".gallery-image");
             images.forEach((image) => {
                 image.addEventListener("click", (event) => {
@@ -53,7 +53,7 @@ export class InsertImageModal {
                     let image = this.allImages.find((img) => img.id === imgId);
                     let checkbox = imgContainer.querySelector(".image-checkbox");
                     event.target.classList.toggle("selected-image");
-                    if(imgContainer.classList.contains("selected")){
+                    if (imgContainer.classList.contains("selected")) {
                         imgContainer.classList.remove("selected");
                         checkbox.checked = false;
                         checkbox.style.visibility = "hidden";
@@ -62,7 +62,7 @@ export class InsertImageModal {
                         imgContainer.classList.add("selected");
                         checkbox.checked = true;
                         checkbox.style.visibility = "visible";
-                        if(this.selectedImage){
+                        if (this.selectedImage) {
                             let selectedImgContainer = this.element.querySelector(`#${this.selectedImage.id}`).parentElement;
                             selectedImgContainer.classList.remove("selected");
                             selectedImgContainer.querySelector(".image-checkbox").checked = false;
@@ -75,14 +75,17 @@ export class InsertImageModal {
         }
 
     }
-    openGallerySection(){
+
+    openGallerySection() {
         this.modalBody = this.gallerySection;
         this.invalidate();
     }
-    closeModal(_target){
+
+    closeModal(_target) {
         assistOS.UI.closeModal(_target);
     }
-    async openGallery(_target, galleryId){
+
+    async openGallery(_target, galleryId) {
         this.selectedGallery = await galleryModule.getGallery(assistOS.space.id, galleryId);
         let allImages = this.selectedGallery.openAIHistory.concat(this.selectedGallery.midjourneyHistory);
         allImages.sort((a, b) => {
@@ -90,7 +93,7 @@ export class InsertImageModal {
         });
         this.allImages = allImages.filter((image) => image.saved);
         let stringHTML = "";
-        for(let image of this.allImages){
+        for (let image of this.allImages) {
             stringHTML += `
             <div class="img-container">
                 <img class="gallery-image" src="${image.src}" alt="${image.timestamp}" id="${image.id}">
@@ -110,23 +113,26 @@ export class InsertImageModal {
         this.modalBody = this.galleryImagesSection;
         this.invalidate();
     }
-    insertImages(_target){
+
+    insertImages(_target) {
         assistOS.UI.closeModal(_target, this.selectedImage);
     }
-    openMyDevice(_target){
+
+    openMyDevice(_target) {
         let fileInput = this.element.querySelector("#file");
         fileInput.click();
-        if(!this.boundFileHandler){
+        if (!this.boundFileHandler) {
             this.boundFileHandler = this.selectFileHandler.bind(this, _target);
             fileInput.addEventListener("change", this.boundFileHandler);
         }
     }
-    selectFileHandler(_target, event){
+
+    selectFileHandler(_target, event) {
         let file = event.target.files[0];
         let reader = new FileReader();
         const img = new Image();
         reader.onload = async (e) => {
-            img.onload = async ()=> {
+            img.onload = async () => {
                 const canvas = document.createElement('canvas');
                 const ctx = canvas.getContext('2d');
                 canvas.width = img.width;
@@ -134,8 +140,8 @@ export class InsertImageModal {
                 ctx.drawImage(img, 0, 0);
                 const base64String = canvas.toDataURL('image/png');
                 canvas.remove();
-                await assistOS.loadifyComponent(this.element, async ()=>{
-                    let imageId = await spaceModule.addImage(assistOS.space.id, base64String);
+                await assistOS.loadifyComponent(this.element, async () => {
+                    let imageId = await spaceModule.addImage(assistOS.space.id, {base64Data: base64String});
                     const width = img.width;
                     const height = img.height;
                     let data = {

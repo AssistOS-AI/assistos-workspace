@@ -23,7 +23,7 @@ class TextToSpeech extends Task {
             const paragraphConfig = await documentModule.getParagraphCommands(this.spaceId, this.documentId, this.paragraphId);
             const personalityData = await personalityModule.getPersonalityByName(this.spaceId, paragraphConfig.speech.paramsObject.personality);
 
-            const audioBlob = await llmModule.textToSpeech(this.spaceId, {
+            const arrayBuffer = await llmModule.textToSpeech(this.spaceId, {
                 prompt: utilModule.unsanitize(paragraph.text),
                 voice: personalityData.voiceId,
                 emotion: paragraphConfig.speech.paramsObject.emotion,
@@ -32,13 +32,13 @@ class TextToSpeech extends Task {
                 temperature: paragraphConfig.speech.paramsObject.temperature,
                 modelName: "PlayHT2.0"
             });
-
             this.audioId = crypto.generateId();
             paragraphConfig.audio = {
                 id: this.audioId
             }
+            const audioBuffer = Buffer.from(arrayBuffer);
             await documentModule.updateParagraphCommands(this.spaceId, this.documentId, this.paragraphId, paragraphConfig);
-            await space.APIs.putAudio(this.spaceId, this.audioId, audioBlob);
+            await space.APIs.putAudio(this.spaceId, this.audioId, audioBuffer);
             this.emit(EVENTS.DEPENDENCY_COMPLETED);
             delete paragraphConfig.speech.taskId;
         } catch (e) {

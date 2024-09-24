@@ -12,7 +12,8 @@ const {sendResponse} = require("../apihub-component-utils/utils");
 const dataVolumePaths = require('../volumeManager').paths;
 const ffmpeg = require('../apihub-component-utils/ffmpeg.js');
 const AnonymousTask = require('../tasks/AnonymousTask.js');
-const Storage= require('../apihub-component-utils/storage.js');
+const Storage = require('../apihub-component-utils/storage.js');
+
 function getFileObjectsMetadataPath(spaceId, objectType) {
     return path.join(dataVolumePaths.space, `${spaceId}/${objectType}/metadata.json`);
 }
@@ -65,14 +66,15 @@ async function getFileObject(request, response) {
         });
     }
 }
-async function getFileObjects(request,response){
+
+async function getFileObjects(request, response) {
     const spaceId = request.params.spaceId;
     const objectType = request.params.objectType;
-    try{
+    try {
         let metadataPath = getFileObjectsMetadataPath(spaceId, objectType);
         let metadata = JSON.parse(await fsPromises.readFile(metadataPath, {encoding: 'utf8'}));
         let objects = [];
-        for(let item of metadata){
+        for (let item of metadata) {
             let filePath = getFileObjectPath(spaceId, objectType, item.id);
             let object = JSON.parse(await fsPromises.readFile(filePath, {encoding: 'utf8'}));
             objects.push(object);
@@ -82,13 +84,14 @@ async function getFileObjects(request,response){
             data: objects,
             message: `Objects of type ${objectType} loaded successfully`
         });
-    }catch (error) {
+    } catch (error) {
         return utils.sendResponse(response, 500, "application/json", {
             success: false,
             message: error + ` Error at getting objects of type: ${objectType}`
         });
     }
 }
+
 async function addFileObject(request, response) {
     const spaceId = request.params.spaceId;
     const objectType = request.params.objectType;
@@ -730,6 +733,7 @@ async function addSpaceChatMessage(request, response) {
         });
     }
 }
+
 async function getSpaceChat(request, response) {
     const spaceId = request.params.spaceId;
     try {
@@ -1168,7 +1172,7 @@ async function getChatTextResponse(request, response) {
         const chatMessages = modelResponse.data.messages
         for (const chatMessage of chatMessages) {
             await space.APIs.addSpaceChatMessage(spaceId, agentId, "assistant", chatMessage);
-            eventPublisher.notifyClients(request.sessionId, `chat_${spaceId}`,{},[userId]);
+            eventPublisher.notifyClients(request.sessionId, `chat_${spaceId}`, {}, [userId]);
         }
     }
 }
@@ -1183,7 +1187,7 @@ async function getChatTextStreamingResponse(request, response) {
             const chatMessages = modelResponse.data.messages;
             for (const chatMessage of chatMessages) {
                 await space.APIs.addSpaceChatMessage(spaceId, agentId, "assistant", chatMessage);
-                eventPublisher.notifyClients(request.sessionId, `chat_${spaceId}`,{},[userId]);
+                eventPublisher.notifyClients(request.sessionId, `chat_${spaceId}`, {}, [userId]);
             }
         }
     } catch (error) {
@@ -1212,8 +1216,7 @@ async function storeImage(request, response) {
     const imageId = crypto.generateId(8);
     const objectData = request.body;
     try {
-        const base64String = objectData.replace(/^data:image\/\w+;base64,/, '');
-
+        const base64String = objectData.base64Data.replace(/^data:image\/\w+;base64,/, '');
         const imageBuffer = Buffer.from(base64String, 'base64');
         await space.APIs.putImage(spaceId, imageId, imageBuffer);
         return utils.sendResponse(response, 200, "application/json", {
@@ -1233,7 +1236,7 @@ async function getImage(request, response) {
     const imageId = request.params.imageId;
     try {
         let image = await space.APIs.getImage(spaceId, imageId);
-        return utils.sendResponse(response, 200, "image/png", image, null,);
+        return utils.sendResponse(response, 200, "application/octet-stream", image, null,);
     } catch (error) {
         return utils.sendResponse(response, 500, "application/json", {
             success: false,
@@ -1353,7 +1356,7 @@ async function estimateDocumentVideoLength(request, response) {
     }
 }
 
-async function addVideo(request, response){
+async function addVideo(request, response) {
     const spaceId = request.params.spaceId;
     const videoId = crypto.generateId();
     const contentType = request.headers['content-type'];
@@ -1375,12 +1378,13 @@ async function addVideo(request, response){
         }
     }
 }
+
 function uploadVideoAsChunks(request, response) {
     const spaceId = request.params.spaceId;
     const videoId = crypto.generateId();
     const SecurityContext = require("assistos").ServerSideSecurityContext;
     let securityContext = new SecurityContext(request);
-    const busboy = Busboy({ headers: request.headers });
+    const busboy = Busboy({headers: request.headers});
     const videoPath = path.join(space.APIs.getSpacePath(spaceId), 'videos', `${videoId}.mp4`);
     busboy.on('file', (fieldname, file, filename, encoding, mimetype) => {
         const writeStream = fs.createWriteStream(videoPath);
@@ -1423,6 +1427,7 @@ function uploadVideoAsChunks(request, response) {
     });
     request.pipe(busboy);
 }
+
 async function getVideo(request, response) {
     const spaceId = request.params.spaceId;
     const videoId = request.params.videoId;
@@ -1442,7 +1447,8 @@ async function getVideo(request, response) {
         if (range) {
             return await space.APIs.getVideoParts(response, spaceId, videoId, range);
         }*/
-        let video = await space.APIs.getVideo(spaceId, videoId);
+        const fileSys = require('../apihub-component-utils/fileSys.js');
+        const video = await fileSys.getVideo(spaceId, videoId);
         response.setHeader('Content-Disposition', `attachment; filename=${videoId}.mp4`);
         return utils.sendResponse(response, 200, "video/mp4", video);
 
