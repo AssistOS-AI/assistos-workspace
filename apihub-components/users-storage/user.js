@@ -175,11 +175,8 @@ async function getDefaultUserPhoto() {
 
 async function getUserData(userId) {
     const Space = require('../spaces-storage/space.js');
-    console.log("---------------------- Before get user file ----------------------");
     const userFile = await getUserFile(userId)
-    console.log("---------------------- After get user file ----------------------");
     const spacesMap = await Space.APIs.getSpaceMap();
-    console.log("---------------------- After get space map ----------------------");
     userFile.spaces = Object.keys(userFile.spaces).map(spaceId => {
         return {
             name: spacesMap[spaceId],
@@ -191,13 +188,10 @@ async function getUserData(userId) {
 }
 
 async function getUserIdByEmail(email) {
-    console.log("---------------------- Before get user map ----------------------");
     const userMap = await getUserMap()
-    console.log("---------------------- After get user map ----------------------");
     if (userMap[email]) {
         return userMap[email];
     } else {
-        console.log("---------------------- email not found in userMap ----------------------");
         const error = new Error('No user found with this email');
         error.statusCode = 404;
         throw error;
