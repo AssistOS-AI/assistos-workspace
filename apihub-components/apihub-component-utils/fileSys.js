@@ -25,6 +25,9 @@ async function downloadData(url, dest) {
 
 async function insertImage(spaceId, imageId, imageData) {
     const storagePath = path.join(getSpacePath(spaceId), "images");
+    if(imageData instanceof Buffer){
+        return await fsPromises.writeFile(path.join(storagePath, `${imageId}.png`), imageData);
+    }
     if (imageData.startsWith("http")) {
         await downloadData(imageData, path.join(storagePath, `${imageId}.png`));
         return;
