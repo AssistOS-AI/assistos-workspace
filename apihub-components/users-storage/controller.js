@@ -142,8 +142,9 @@ async function loginUser(request, response) {
     const requestData = request.body;
     try {
         const {userId} = await User.APIs.loginUser(requestData.email, requestData.password);
+        console.log("-----AFTER LOGIN USER-----");
         const userData = await User.APIs.getUserData(userId);
-
+        console.log("-----AFTER getUserData-----");
         utils.sendResponse(response, 200, "application/json", {
             data: userData,
             success: true,
