@@ -20,7 +20,7 @@ export class DocumentTasksModal {
     }
 
     beforeRender(){
-        this.modalContent = `<div class="tasks-list"></div>`;
+        this.modalContent = `<div class="tasks-list no-tasks">No tasks created</div>`;
         if(this.tasks.length > 0){
             let tasksList = "";
             for(let task of this.tasks){

@@ -7,7 +7,7 @@ export class TaskItem{
         this.status = this.element.getAttribute("data-status");
         this.id = this.element.getAttribute("data-id");
         this.invalidate(async ()=> {
-            await utilModule.subscribeToObject(this.id, async (status) => {
+            await utilModule.subscribeToObject(this.id + "taskList", async (status) => {
                 this.status = status;
                 this.tasksModalPresenter.updateTaskInList(this.id, status);
                 this.invalidate();
@@ -22,7 +22,7 @@ export class TaskItem{
         this.tasksModalPresenter = tasksModal.webSkelPresenter;
     }
     afterUnload(){
-        utilModule.unsubscribeFromObject(this.id);
+        utilModule.unsubscribeFromObject(this.id + "taskList");
     }
     async showTaskInfo(){
         let taskInfo = await utilModule.getTaskRelevantInfo(this.id);

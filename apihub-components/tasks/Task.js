@@ -3,6 +3,7 @@ const constants = require('./constants');
 const eventPublisher = require("../subscribers/eventPublisher");
 const STATUS = constants.STATUS;
 const EVENTS = constants.EVENTS;
+const deleteTaskOnCompleteDuration = 60000 * 5; //5 minutes
 class Task {
     constructor(securityContext, spaceId, userId) {
         this.status = STATUS.CREATED;
@@ -29,6 +30,10 @@ class Task {
                 return;
             }
             this.setStatus(STATUS.COMPLETED);
+            setTimeout(() => {
+                const TaskManager = require('./TaskManager');
+                TaskManager.removeTask(this.id);
+            }, deleteTaskOnCompleteDuration);
             return result;
         } catch (e) {
             this.setStatus(STATUS.FAILED);
@@ -66,6 +71,7 @@ class Task {
         this.emit(status); //update queue
         this.emit(EVENTS.UPDATE); //update database
         eventPublisher.notifyClientTask(this.userId, this.id, this.status);
+        eventPublisher.notifyClientTask(this.userId, this.id + "taskList", this.status);
     }
 
 }

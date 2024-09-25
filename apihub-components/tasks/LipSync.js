@@ -74,6 +74,7 @@ class LipSync extends Task {
         const videoId = await spaceModule.addVideo(this.spaceId, videoURL);
         const paragraphCommands = await documentModule.getParagraphCommands(this.spaceId, this.documentId, this.paragraphId);
         paragraphCommands.video = {id: videoId};
+        delete paragraphCommands.lipsync.taskId;
         await documentModule.updateParagraphCommands(this.spaceId, this.documentId, this.paragraphId, paragraphCommands);
         if (this.resolveTask) {
             this.resolveTask();

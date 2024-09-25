@@ -101,13 +101,27 @@ export class ParagraphItem {
     async deleteParagraph(_target) {
         await this.documentPresenter.stopTimer(true);
         let currentParagraphIndex = this.chapter.getParagraphIndex(this.paragraph.id);
-        await Promise.all(Object.entries(this.paragraph.commands)
-            .map(async ([command, commandParams]) => {
-                if (commandParams.taskId) {
-                    return utilModule.cancelTaskAndRemove(commandParams.taskId);
-                }
-            }));
-
+        let updateTasksMenu = false;
+        try {
+            await Promise.all(Object.entries(this.paragraph.commands)
+                .map(async ([command, commandParams]) => {
+                    if (commandParams.taskId) {
+                        try{
+                            utilModule.cancelTask(commandParams.taskId);
+                        } catch (e) {
+                            // task is not running
+                        }
+                        await utilModule.removeTask(commandParams.taskId);
+                        updateTasksMenu = true;
+                        return await utilModule.unsubscribeFromObject(commandParams.taskId);
+                    }
+                }));
+        }catch (e) {
+            //task not found (probably already deleted)
+        }
+        if (updateTasksMenu) {
+            assistOS.space.notifyObservers(this._document.id + "/tasks");
+        }
         await assistOS.callFlow("DeleteParagraph", {
             spaceId: assistOS.space.id,
             documentId: this._document.id,
@@ -125,24 +139,6 @@ export class ParagraphItem {
         }
         let chapterElement = this.element.closest("chapter-item");
         let chapterPresenter = chapterElement.webSkelPresenter;
-        let updateTasksMenu = false;
-        for (let [key, value] of Object.entries(this.paragraph.commands)) {
-            for (let [innerKey, innerValue] of Object.entries(value)) {
-                if (innerKey === "taskId") {
-                    try {
-                        utilModule.cancelTask(innerValue);
-                    } catch (e) {
-                        //task is not running
-                    }
-                    await utilModule.removeTask(innerValue);
-                    await utilModule.unsubscribeFromObject(innerValue);
-                    updateTasksMenu = true;
-                }
-            }
-        }
-        if (updateTasksMenu) {
-            assistOS.space.notifyObservers(this._document.id + "/tasks");
-        }
         chapterPresenter.invalidate(chapterPresenter.refreshChapter);
     }
 
@@ -188,11 +184,10 @@ export class ParagraphItem {
         let originalWidth = parseFloat(getComputedStyle(this.imgElement, null).getPropertyValue('width').replace('px', ''));
         let originalHeight = parseFloat(getComputedStyle(this.imgElement, null).getPropertyValue('height').replace('px', ''));
         const aspectRatio = originalWidth / originalHeight;
-        const maxWidth = this.parentChapterElement.getBoundingClientRect().width - 78;
-        const maxHeight = maxWidth / aspectRatio;
-        this.imgElement.style.width = Math.floor(maxWidth) + 'px';
-        this.imgElement.style.height =  Math.floor(maxHeight) + 'px';
-
+        const maxWidth =  Math.floor(this.parentChapterElement.getBoundingClientRect().width - 78);
+        const maxHeight = Math.floor(maxWidth / aspectRatio);
+        this.imgElement.style.width = maxWidth + 'px';
+        this.imgElement.style.height =  maxHeight + 'px';
         this.paragraph.commands.image.width = maxWidth;
         this.paragraph.commands.image.height = maxHeight;
         documentModule.updateParagraphCommands(assistOS.space.id, this._document.id, this.paragraph.id, this.paragraph.commands);
@@ -621,12 +616,9 @@ export class ParagraphItem {
 
     async changeTaskStatus(taskId, status) {
         let taskLine = this.element.querySelector(`.task-line[data-id="${taskId}"]`);
-        if (taskLine) {
-            let taskStatus = taskLine.querySelector(".paragraph-task-status");
-            taskStatus.innerText = `Status: ${status}`;
-            if (status === "completed") {
-                taskLine.classList.add("completed-task");
-            }
+        if (status === "completed") {
+            this.paragraph.commands = await documentModule.getParagraphCommands(assistOS.space.id, this._document.id, this.paragraph.id);
+            this.invalidate();
         }
     }
 
