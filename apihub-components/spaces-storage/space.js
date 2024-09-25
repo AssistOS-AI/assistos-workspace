@@ -582,7 +582,7 @@ async function readFileAsBuffer(filePath) {
         let data = '';
         const stream = fs.createReadStream(filePath, {encoding: 'binary'});
         stream.on('data', chunk => data += chunk);
-        stream.on('end', () => resolve(data));
+        stream.on('end', () => resolve(Buffer.from(data, "binary")));
         stream.on('error', err => reject(err));
     });
 }

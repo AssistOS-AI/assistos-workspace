@@ -1216,9 +1216,7 @@ async function storeImage(request, response) {
     const imageId = crypto.generateId(8);
     const objectData = request.body;
     try {
-        const base64String = objectData.base64Data.replace(/^data:image\/\w+;base64,/, '');
-        const imageBuffer = Buffer.from(base64String, 'base64');
-        await space.APIs.putImage(spaceId, imageId, imageBuffer);
+        await space.APIs.putImage(spaceId, imageId, objectData);
         return utils.sendResponse(response, 200, "application/json", {
             success: true,
             data: imageId,

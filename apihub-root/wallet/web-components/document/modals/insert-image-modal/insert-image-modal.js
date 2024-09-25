@@ -132,29 +132,34 @@ export class InsertImageModal {
         let reader = new FileReader();
         const img = new Image();
         reader.onload = async (e) => {
-            img.onload = async () => {
-                const canvas = document.createElement('canvas');
-                const ctx = canvas.getContext('2d');
-                canvas.width = img.width;
-                canvas.height = img.height;
-                ctx.drawImage(img, 0, 0);
-                const base64String = canvas.toDataURL('image/png');
-                canvas.remove();
-                await assistOS.loadifyComponent(this.element, async () => {
-                    let imageId = await spaceModule.addImage(assistOS.space.id, {base64Data: base64String});
-                    const width = img.width;
-                    const height = img.height;
-                    let data = {
-                        id: imageId,
-                        width: width,
-                        height: height
-                    };
-                    assistOS.UI.closeModal(_target, data);
-                });
+            const uint8Array = new Uint8Array(e.target.result);
+            let imageId = await spaceModule.addImage(assistOS.space.id, uint8Array);
+            reader.onload = async (e) => {
+                img.onload = async () => {
+                    const canvas = document.createElement('canvas');
+                    const ctx = canvas.getContext('2d');
+                    canvas.width = img.width;
+                    canvas.height = img.height;
+                    ctx.drawImage(img, 0, 0);
+                    canvas.remove();
+                    await assistOS.loadifyComponent(this.element, async () => {
+                        const width = img.width;
+                        const height = img.height;
+                        let data = {
+                            id: imageId,
+                            width: width,
+                            height: height
+                        };
+                        assistOS.UI.closeModal(_target, data);
+                    });
+                };
+                img.src = e.target.result;
             };
-            img.src = e.target.result;
-        };
-        reader.readAsDataURL(file);
+            reader.readAsDataURL(file);
+
+        }
+        reader.readAsArrayBuffer(file);
     }
+
 }
 
