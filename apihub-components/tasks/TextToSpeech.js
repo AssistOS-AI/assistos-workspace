@@ -37,10 +37,10 @@ class TextToSpeech extends Task {
                 id: this.audioId
             }
             const audioBuffer = Buffer.from(arrayBuffer);
+            delete paragraphConfig.speech.taskId;
             await documentModule.updateParagraphCommands(this.spaceId, this.documentId, this.paragraphId, paragraphConfig);
             await space.APIs.putAudio(this.spaceId, this.audioId, audioBuffer);
             this.emit(EVENTS.DEPENDENCY_COMPLETED);
-            delete paragraphConfig.speech.taskId;
         } catch (e) {
             await this.rollback();
             throw e;
