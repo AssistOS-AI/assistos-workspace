@@ -154,5 +154,6 @@ module.exports = {
     getVideoStream,
     headAudio,
     headVideo,
-    headImage
+    headImage,
+    downloadData
 }
