@@ -1357,23 +1357,18 @@ async function estimateDocumentVideoLength(request, response) {
 async function addVideo(request, response) {
     const spaceId = request.params.spaceId;
     const videoId = crypto.generateId();
-    const contentType = request.headers['content-type'];
-    if (contentType.startsWith('multipart/form-data')) {
-        uploadVideoAsChunks(request, response);
-    } else {
-        const objectData = request.body;
-        try {
-            await space.APIs.putVideo(spaceId, videoId, objectData);
-            return utils.sendResponse(response, 200, "application/json", {
-                success: true,
-                data: videoId,
-            });
-        } catch (error) {
-            return utils.sendResponse(response, 500, "application/json", {
-                success: false,
-                message: error + ` Error adding video`
-            });
-        }
+    const objectData = request.body;
+    try {
+        await space.APIs.putVideo(spaceId, videoId, objectData);
+        return utils.sendResponse(response, 200, "application/json", {
+            success: true,
+            data: videoId,
+        });
+    } catch (error) {
+        return utils.sendResponse(response, 500, "application/json", {
+            success: false,
+            message: error + ` Error adding video`
+        });
     }
 }
 
@@ -1430,8 +1425,6 @@ async function getVideo(request, response) {
     const spaceId = request.params.spaceId;
     const videoId = request.params.videoId;
     try {
-
-
         if (request.method === "HEAD") {
             let videoPath = path.join(space.APIs.getSpacePath(spaceId), 'videos', `${videoId}.mp4`);
             const stats = await fsPromises.stat(videoPath);
@@ -1446,7 +1439,7 @@ async function getVideo(request, response) {
         if (range) {
             return await space.APIs.getVideoParts(response, spaceId, videoId, range);
         }*/
-        const video= await space.APIs.getVideo(spaceId, videoId);
+        const video = await space.APIs.getVideo(spaceId, videoId);
         response.setHeader('Content-Disposition', `attachment; filename=${videoId}.mp4`);
         return utils.sendResponse(response, 200, "video/mp4", video);
 
