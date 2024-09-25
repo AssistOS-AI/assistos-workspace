@@ -131,16 +131,12 @@ async function activateUser(activationToken) {
 }
 
 async function loginUser(email, password) {
-    console.log("-----BEFORE getUserIdByEmail-----");
     const userId = await getUserIdByEmail(email);
-    console.log("-----AFTER getUserIdByEmail-----");
     const userCredentials = await getUserCredentials();
-    console.log("-----AFTER getUserCredentials-----");
     const hashedPassword = crypto.hashPassword(password);
     if (userCredentials[userId].password === hashedPassword) {
         return {userId: userId};
     } else {
-        console.log("-----PASSWORD INCORRECT-----");
         const error = new Error('Invalid credentials');
         error.statusCode = 401;
         throw error
