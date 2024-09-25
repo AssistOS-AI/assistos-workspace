@@ -446,7 +446,15 @@ async function deleteVideo(spaceId, fileId) {
 async function deleteAudio(spaceId, fileId) {
     return await storageClient.deleteAudio(spaceId, fileId);
 }
-
+async function headAudio(spaceId, fileId) {
+    return await storageClient.headAudio(spaceId, fileId);
+}
+async function headVideo(spaceId, fileId) {
+    return await storageClient.headVideo(spaceId, fileId);
+}
+async function headImage(spaceId, fileId) {
+    return await storageClient.headImage(spaceId, fileId);
+}
 module.exports = {
     getContainerObject,
     getContainerObjectsMetadata,
@@ -469,5 +477,8 @@ module.exports = {
     getVideoStream,
     deleteImage,
     deleteAudio,
-    deleteVideo
+    deleteVideo,
+    headAudio,
+    headVideo,
+    headImage
 }

@@ -66,7 +66,16 @@ async function sendLLMAdapterRequest(url, method, body = null, headers = {}) {
 function getS3FileName(spaceId, tableId, objectId) {
     return `${spaceId}/${tableId}/${objectId}`;
 }
+async function headObject(spaceId, tableId, objectId) {
+    const fileName = getS3FileName(spaceId, tableId, objectId);
+    const routeKey = getRouteKey(tableId, false);
+    const route = llmAdapterRoutes.GET[routeKey];
+    const url = `${llmAdapterUrl}${route}?fileName=${encodeURIComponent(fileName)}`;
 
+    const response = await sendLLMAdapterRequest(url, 'HEAD');
+
+    return response.status === 200;
+}
 async function getObject(spaceId, tableId, objectId) {
     const fileName = getS3FileName(spaceId, tableId, objectId);
     const routeKey = getRouteKey(tableId, false);
@@ -141,6 +150,16 @@ async function deleteVideo(spaceId, videoId) {
     return deleteObject(spaceId, 'videos', videoId);
 }
 
+async function headAudio(spaceId, audioId) {
+    return headObject(spaceId, 'audios', audioId);
+}
+async function headVideo(spaceId, videoId) {
+    return headObject(spaceId, 'videos', videoId);
+}
+async function headImage(spaceId, imageId) {
+    return headObject(spaceId, 'images', imageId);
+}
+
 module.exports = {
     insertImage,
     insertAudio,
@@ -150,5 +169,8 @@ module.exports = {
     getVideo,
     deleteImage,
     deleteAudio,
-    deleteVideo
+    deleteVideo,
+    headAudio,
+    headVideo,
+    headImage
 };

@@ -1432,10 +1432,11 @@ async function getVideo(request, response) {
     const spaceId = request.params.spaceId;
     const videoId = request.params.videoId;
     try {
-        let videoPath = path.join(space.APIs.getSpacePath(spaceId), 'videos', `${videoId}.mp4`);
-        const stats = await fsPromises.stat(videoPath);
+
 
         if (request.method === "HEAD") {
+            let videoPath = path.join(space.APIs.getSpacePath(spaceId), 'videos', `${videoId}.mp4`);
+            const stats = await fsPromises.stat(videoPath);
             response.setHeader("Content-Type", "video/mp4");
             response.setHeader("Content-Length", stats.size);
             response.setHeader("Last-Modified", stats.mtime.toUTCString());
@@ -1447,8 +1448,7 @@ async function getVideo(request, response) {
         if (range) {
             return await space.APIs.getVideoParts(response, spaceId, videoId, range);
         }*/
-        const fileSys = require('../apihub-component-utils/fileSys.js');
-        const video = await fileSys.getVideo(spaceId, videoId);
+        const video= await space.APIs.getVideo(spaceId, videoId);
         response.setHeader('Content-Disposition', `attachment; filename=${videoId}.mp4`);
         return utils.sendResponse(response, 200, "video/mp4", video);
 

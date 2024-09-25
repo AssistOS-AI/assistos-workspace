@@ -19,6 +19,7 @@ class LipSync extends Task {
                 const llmModule = require('assistos').loadModule('llm', this.securityContext);
                 const documentModule = require('assistos').loadModule('document', this.securityContext);
                 const utilModule = require('assistos').loadModule('util', this.securityContext);
+                const spaceModule = require('assistos').loadModule('space', this.securityContext);
 
                 const paragraph = await documentModule.getParagraph(this.spaceId, this.documentId, this.paragraphId);
                 await utilModule.constants.COMMANDS_CONFIG.COMMANDS.find(command => command.NAME === "lipsync").VALIDATE(this.spaceId, paragraph, this.securityContext);
@@ -37,13 +38,13 @@ class LipSync extends Task {
                             this.setStatus(STATUS.RUNNING);
                             let paragraphCommands = await documentModule.getParagraphCommands(this.spaceId, this.documentId, this.paragraphId);
                             paragraphCommands.audio = {id: paragraphCommands.audio.id};
-                            await this.executeLipSync(llmModule, utilModule, paragraphCommands);
+                            await this.executeLipSync(spaceModule,llmModule, utilModule, paragraphCommands);
                         });
                         this.setStatus(STATUS.PENDING);
                         return this.taskPromise;
                     }
                 }
-                await this.executeLipSync(llmModule, utilModule, paragraphCommands);
+                await this.executeLipSync(spaceModule,llmModule, utilModule, paragraphCommands);
             } catch (e) {
                 await this.rollback();
                 this.rejectTask(e);
@@ -51,7 +52,7 @@ class LipSync extends Task {
         });
         return this.taskPromise;
     }
-    async executeLipSync(llmModule, utilModule, paragraphCommands) {
+    async executeLipSync(spaceModule,llmModule, utilModule, paragraphCommands) {
         this.timeout = setTimeout(async () => {
             await this.rollback();
             this.rejectTask("Task took too long to complete");
@@ -61,8 +62,7 @@ class LipSync extends Task {
         } else {
             const imageSrc = utilModule.constants.getImageSrc(this.spaceId, paragraphCommands.image.id);
             const audioSrc = utilModule.constants.getAudioSrc(this.spaceId, paragraphCommands.audio.id);
-
-            const videoId = await ffmpeg.createVideoFromImageAndAudio(imageSrc, audioSrc, this.spaceId);
+            const videoId = await ffmpeg.createVideoFromImageAndAudio(imageSrc, audioSrc, this.spaceId,this.securityContext);
             await llmModule.lipSync(this.spaceId, this.id, videoId, paragraphCommands.audio.id, "sync-1.6.0");
         }
     }

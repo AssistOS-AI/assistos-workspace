@@ -123,7 +123,22 @@ async function deleteVideo(spaceId, videoId) {
     const videoPath = path.join(videosPath, `${videoId}.mp4`);
     await fsPromises.rm(videoPath);
 }
-
+/* TODO use ffmpeg */
+async function headImage(spaceId, imageId) {
+    const imagesPath = path.join(getSpacePath(spaceId), 'images');
+    const imagePath = path.join(imagesPath, `${imageId}.png`);
+    return await fsPromises.stat(imagePath);
+}
+async function headAudio(spaceId, audioId) {
+    const audiosPath = path.join(getSpacePath(spaceId), 'audios');
+    const audioPath = path.join(audiosPath, `${audioId}.mp3`);
+    return await fsPromises.stat(audioPath);
+}
+async function headVideo(spaceId, videoId) {
+    const videosPath = path.join(getSpacePath(spaceId), 'videos');
+    const videoPath = path.join(videosPath, `${videoId}.mp4`);
+    return await fsPromises.stat(videoPath);
+}
 module.exports = {
     insertImage,
     insertAudio,
@@ -136,5 +151,8 @@ module.exports = {
     getVideo,
     getImageStream,
     getAudioStream,
-    getVideoStream
+    getVideoStream,
+    headAudio,
+    headVideo,
+    headImage
 }
