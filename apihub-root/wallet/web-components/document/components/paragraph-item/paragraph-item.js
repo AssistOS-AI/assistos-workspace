@@ -837,12 +837,12 @@ export class ParagraphItem {
     async deleteAudio() {
         delete this.paragraph.commands.audio;
         await documentModule.updateParagraphCommands(assistOS.space.id, this._document.id, this.paragraph.id, this.paragraph.commands);
-        this.invalidate();
+        this.renderEditModeCommands();
     }
     async deleteVideo(){
         delete this.paragraph.commands.video;
         await documentModule.updateParagraphCommands(assistOS.space.id, this._document.id, this.paragraph.id, this.paragraph.commands);
-        this.invalidate();
+        this.renderEditModeCommands();
     }
     async showAttachment(element, type){
         await assistOS.UI.showModal("show-attachment-modal", {type: type, id: this.paragraph.commands[type].id});
