@@ -257,14 +257,7 @@ paragraph-item {
 .top-margin{
     margin-top: 5px;
 }
-.play-lip-sync{
-    display: none;
-    position: absolute;
-    width: 30px;
-    bottom: 20px;
-    left: 20px;
-    z-index:99999;
-}
+
 .disabled-pointer-events{
     pointer-events: none;
 }

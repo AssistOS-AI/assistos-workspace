@@ -54,7 +54,7 @@ class LipSync extends Task {
     async executeLipSync(llmModule, utilModule, paragraphCommands) {
         this.timeout = setTimeout(async () => {
             await this.rollback();
-            this.rejectTask("Task took too long to complete");
+            this.rejectTask(new Error("Task took too long to complete"));
         }, 60000 * 10);
         if(paragraphCommands.video){
             await llmModule.lipSync(this.spaceId, this.id, paragraphCommands.video.id, paragraphCommands.audio.id, "sync-1.6.0");

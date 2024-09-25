@@ -831,7 +831,9 @@ export class ParagraphItem {
     async deleteImage(_target) {
         delete this.paragraph.commands.image;
         await documentModule.updateParagraphCommands(assistOS.space.id, this._document.id, this.paragraph.id, this.paragraph.commands);
-        this.invalidate();
+        this.renderEditModeCommands();
+        let imgContainer = this.element.querySelector(".img-container");
+        imgContainer.style.display = "none";
     }
 
     async deleteAudio() {
