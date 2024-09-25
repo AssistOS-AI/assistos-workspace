@@ -421,7 +421,7 @@ async function storeAttachments(extractedPath, spaceModule, paragraph, spaceId){
         const imagePath = path.join(extractedPath, 'images', `${paragraph.commands.image.fileName}.png`);
         const imageBase64Data = await space.APIs.readFileAsBase64(imagePath);
         const dataUrl = `data:image/png;base64,${imageBase64Data}`;
-        paragraph.commands.image.id = await spaceModule.addImage(spaceId, dataUrl);
+        paragraph.commands.image.id = await spaceModule.addImage(spaceId, {base64Data:dataUrl});
         delete paragraph.commands.image.fileName;
     }
     if (paragraph.commands.audio) {
