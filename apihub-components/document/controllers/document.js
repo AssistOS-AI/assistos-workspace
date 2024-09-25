@@ -304,8 +304,8 @@ async function storeDocument(spaceId, extractedPath, request) {
         if (chapter.backgroundSound) {
             chapterObject.backgroundSound = chapter.backgroundSound;
             const audioPath = path.join(extractedPath, 'audios', `${chapter.backgroundSound.fileName}.mp3`);
-            const audioBase64Data = await space.APIs.readFileAsBase64(audioPath);
-            const audioId = await spaceModule.addAudio(spaceId, audioBase64Data);
+            const buffer = await space.APIs.readFileAsBuffer(audioPath);
+            const audioId = await spaceModule.addAudio(spaceId, buffer);
             chapterObject.backgroundSound.id = audioId;
             chapterObject.backgroundSound.src = `spaces/audio/${spaceId}/${audioId}`;
         }
@@ -419,21 +419,20 @@ function restructureParagraph(paragraph){
 async function storeAttachments(extractedPath, spaceModule, paragraph, spaceId){
     if (paragraph.commands.image) {
         const imagePath = path.join(extractedPath, 'images', `${paragraph.commands.image.fileName}.png`);
-        const imageBase64Data = await space.APIs.readFileAsBase64(imagePath);
-        const dataUrl = `data:image/png;base64,${imageBase64Data}`;
-        paragraph.commands.image.id = await spaceModule.addImage(spaceId, {base64Data:dataUrl});
+        const buffer = await space.APIs.readFileAsBuffer(imagePath);
+        paragraph.commands.image.id = await spaceModule.addImage(spaceId, buffer);
         delete paragraph.commands.image.fileName;
     }
     if (paragraph.commands.audio) {
         const audioPath = path.join(extractedPath, 'audios', `${paragraph.commands.audio.fileName}.mp3`);
-        const audioBase64Data = await space.APIs.readFileAsBase64(audioPath);
-        paragraph.commands.audio.id = await spaceModule.addAudio(spaceId, audioBase64Data);
+        const buffer = await space.APIs.readFileAsBuffer(audioPath);
+        paragraph.commands.audio.id = await spaceModule.addAudio(spaceId, buffer);
         delete paragraph.commands.audio.fileName;
     }
     if(paragraph.commands.video) {
         const videoPath = path.join(extractedPath, 'videos', `${paragraph.commands.video.fileName}.mp4`);
-        const videoBase64Data = await space.APIs.readFileAsBase64(videoPath);
-        paragraph.commands.video.id = await spaceModule.addVideo(spaceId, videoBase64Data);
+        const buffer = await space.APIs.readFileAsBuffer(videoPath);
+        paragraph.commands.video.id = await spaceModule.addVideo(spaceId, buffer);
         delete paragraph.commands.video.fileName;
     }
 }

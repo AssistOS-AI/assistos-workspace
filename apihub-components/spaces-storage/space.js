@@ -577,10 +577,10 @@ async function streamToJson(stream) {
     });
 }
 
-async function readFileAsBase64(filePath) {
+async function readFileAsBuffer(filePath) {
     return new Promise((resolve, reject) => {
         let data = '';
-        const stream = fs.createReadStream(filePath, {encoding: 'base64'});
+        const stream = fs.createReadStream(filePath, {encoding: 'binary'});
         stream.on('data', chunk => data += chunk);
         stream.on('end', () => resolve(data));
         stream.on('error', err => reject(err));
@@ -711,7 +711,7 @@ module.exports = {
         getSpaceMapPath,
         getPersonalitiesIds,
         streamToJson,
-        readFileAsBase64
+        readFileAsBuffer
     },
     templates: {
         defaultSpaceAnnouncement: require('./templates/defaultSpaceAnnouncement.json'),
