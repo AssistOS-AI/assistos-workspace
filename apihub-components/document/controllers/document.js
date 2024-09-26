@@ -7,6 +7,10 @@ const fs = require("fs");
 const Busboy = require("busboy");
 const unzipper = require("unzipper");
 const eventPublisher = require("../../subscribers/eventPublisher");
+const AnonymousTask = require("../../tasks/AnonymousTask");
+const ffmpeg = require("../../apihub-component-utils/ffmpeg");
+const {sendResponse} = require("../../apihub-component-utils/utils");
+async function getDocument() {
 
 const documentService = require("../services/document");
 
@@ -56,7 +60,7 @@ async function createDocument(req, res) {
         });
     }
 
-}
+async function updateDocument() {
 
 async function updateDocument(req, res) {
     const {spaceId, documentId} = req.params;
@@ -82,7 +86,7 @@ async function updateDocument(req, res) {
         });
     }
 
-}
+async function deleteDocument() {
 
 async function deleteDocument(req, res) {
     const {spaceId, documentId} = req.params;
@@ -108,9 +112,6 @@ async function deleteDocument(req, res) {
     }
 
 }
-
-
-
 
 async function exportDocument(request, response) {
     const spaceId = request.params.spaceId;
@@ -144,7 +145,7 @@ async function archiveDocument(spaceId, documentId, exportType, request) {
     const SecurityContext = require("assistos").ServerSideSecurityContext;
     let securityContext = new SecurityContext(request);
     const documentModule = require('assistos').loadModule('document', securityContext);
-    if (exportType === 'full') {
+    if(exportType === 'full') {
         documentData = await exportDocumentData(documentModule, spaceId, documentId);
     } else {
         documentData = await exportDocumentDataPartially(documentModule, spaceId, documentId);
@@ -212,17 +213,16 @@ async function archiveDocument(spaceId, documentId, exportType, request) {
     archive.finalize();
     return stream;
 }
-
-async function exportDocumentDataPartially(documentModule, spaceId, documentId) {
+async function exportDocumentDataPartially(documentModule, spaceId, documentId){
     let personalities = new Set();
     let documentData = await documentModule.getDocument(spaceId, documentId);
     documentData.exportType = "partial";
     documentData.images = [];
     documentData.audios = [];
     documentData.videos = [];
-    for (let chapter of documentData.chapters) {
-        for (let paragraph of chapter.paragraphs) {
-            if (paragraph.commands.audio) {
+    for(let chapter of documentData.chapters) {
+        for(let paragraph of chapter.paragraphs) {
+            if(paragraph.commands.audio) {
                 const personality = paragraph.commands["speech"].paramsObject.personality;
                 personalities.add(personality);
             }
@@ -231,7 +231,6 @@ async function exportDocumentDataPartially(documentModule, spaceId, documentId) 
     documentData.personalities = await space.APIs.getPersonalitiesIds(spaceId, personalities);
     return documentData;
 }
-
 async function exportDocumentData(documentModule, spaceId, documentId) {
     let documentData = await documentModule.getDocument(spaceId, documentId);
     /* TODO there seems to be a bug where multiple chapters have position 0 - talk with Mircea */
@@ -240,18 +239,18 @@ async function exportDocumentData(documentModule, spaceId, documentId) {
     let images = [];
     let videos = [];
     let personalities = new Set();
-    for (let chapter of documentData.chapters) {
+    for(let chapter of documentData.chapters) {
         const chapterIndex = documentData.chapters.indexOf(chapter);
-        if (chapter.backgroundSound) {
+        if(chapter.backgroundSound) {
             chapter.backgroundSound.fileName = `Chapter_${chapterIndex + 1}_audio`
             audios.push({
                 name: chapter.backgroundSound.fileName,
                 id: chapter.backgroundSound.id
             })
         }
-        for (let paragraph of chapter.paragraphs) {
+        for(let paragraph of chapter.paragraphs) {
             const paragraphIndex = chapter.paragraphs.indexOf(paragraph);
-            if (paragraph.commands.audio) {
+            if(paragraph.commands.audio) {
                 const personality = paragraph.commands["speech"].paramsObject.personality;
                 paragraph.commands.audio.fileName = `Chapter_${chapterIndex + 1}_Paragraph_${paragraphIndex + 1}_audio`
                 audios.push({
@@ -260,14 +259,14 @@ async function exportDocumentData(documentModule, spaceId, documentId) {
                 })
                 personalities.add(personality);
             }
-            if (paragraph.commands.image) {
+            if(paragraph.commands.image) {
                 paragraph.commands.image.fileName = `Chapter_${chapterIndex + 1}_Paragraph_${paragraphIndex + 1}_image`
                 images.push({
                     name: paragraph.commands.image.fileName,
                     id: paragraph.commands.image.id
                 })
             }
-            if (paragraph.commands.video) {
+            if(paragraph.commands.video){
                 paragraph.commands.video.fileName = `Chapter_${chapterIndex + 1}_Paragraph_${paragraphIndex + 1}_video`
                 videos.push({
                     name: paragraph.commands.video.fileName,
@@ -282,7 +281,6 @@ async function exportDocumentData(documentModule, spaceId, documentId) {
     documentData.personalities = await space.APIs.getPersonalitiesIds(spaceId, personalities);
     return documentData;
 }
-
 async function importDocument(request, response) {
     const spaceId = request.params.spaceId;
     const fileId = crypto.generateSecret(64);
@@ -348,7 +346,6 @@ async function importDocument(request, response) {
         data: taskId
     });
 }
-
 async function storeDocument(spaceId, extractedPath, request) {
     const SecurityContext = require("assistos").ServerSideSecurityContext;
     let securityContext = new SecurityContext(request);
@@ -407,18 +404,18 @@ async function storeDocument(spaceId, extractedPath, request) {
         //convertParagraphs(chapter);
 
         for (let paragraph of chapter.paragraphs) {
-            if (exportType === 'full') {
+            if(exportType === 'full') {
                 await storeAttachments(extractedPath, spaceModule, paragraph, spaceId);
             }
             await documentModule.addParagraph(spaceId, docId, chapterId, paragraph);
             if (paragraph.commands.speech) {
-                if (paragraph.commands.speech.taskId) {
+                if(paragraph.commands.speech.taskId) {
                     paragraph.commands.speech.taskId = await documentModule.generateParagraphAudio(spaceId, docId, paragraph.id);
                     await documentModule.updateParagraphCommands(spaceId, docId, paragraph.id, paragraph.commands);
                 }
             }
-            if (paragraph.commands.lipsync) {
-                if (paragraph.commands.lipsync.taskId) {
+            if(paragraph.commands.lipsync){
+                if(paragraph.commands.lipsync.taskId){
                     paragraph.commands.lipsync.taskId = await documentModule.generateParagraphLipSync(spaceId, docId, paragraph.id);
                     await documentModule.updateParagraphCommands(spaceId, docId, paragraph.id, paragraph.commands);
                 }
@@ -429,8 +426,7 @@ async function storeDocument(spaceId, extractedPath, request) {
     fs.rmSync(extractedPath, {recursive: true, force: true});
     return {id: docId, overriddenPersonalities: Array.from(overriddenPersonalities)};
 }
-
-function convertParagraphs(chapter) {
+function convertParagraphs(chapter){
     let chapterFrames = [];
     let frame = {
         imageParagraphId: "",
@@ -448,7 +444,7 @@ function convertParagraphs(chapter) {
             };
         } else if (paragraph.commands.audio) {
             frame.audiosParagraphIds.push(paragraph.id);
-        } else if (paragraph.commands.speech || paragraph.commands.silence || paragraph.commands.audio || paragraph.text) {
+        } else if(paragraph.commands.speech || paragraph.commands.silence || paragraph.commands.audio || paragraph.text) {
             //speech silence
             frame.audiosParagraphIds.push(paragraph.id);
         }
@@ -456,25 +452,25 @@ function convertParagraphs(chapter) {
     if (frame.audiosParagraphIds.length > 0 || frame.imageParagraphId) {
         chapterFrames.push(frame);
     }
-    for (let frame of chapterFrames) {
-        if (frame.imageParagraphId) {
+    for(let frame of chapterFrames) {
+        if(frame.imageParagraphId) {
             let paragraph = chapter.paragraphs.find(paragraph => paragraph.id === frame.imageParagraphId);
-            if (frame.audiosParagraphIds.length > 0) {
+            if(frame.audiosParagraphIds.length > 0){
                 let firstParagraph = chapter.paragraphs.find(paragraph => paragraph.id === frame.audiosParagraphIds[0]);
                 paragraph.text = firstParagraph.text;
-                if (firstParagraph.commands.audio) {
+                if(firstParagraph.commands.audio){
                     paragraph.commands.audio = JSON.parse(JSON.stringify(firstParagraph.commands.audio));
                 }
-                if (firstParagraph.commands.speech) {
+                if(firstParagraph.commands.speech){
                     paragraph.commands.speech = JSON.parse(JSON.stringify(firstParagraph.commands.speech));
                 }
-                if (firstParagraph.commands.silence) {
+                if(firstParagraph.commands.silence){
                     paragraph.commands.silence = JSON.parse(JSON.stringify(firstParagraph.commands.silence));
                 }
 
                 chapter.paragraphs = chapter.paragraphs.filter(paragraph => paragraph.id !== firstParagraph.id);
                 frame.audiosParagraphIds.shift();
-                for (let remainingParagraphId of frame.audiosParagraphIds) {
+                for(let remainingParagraphId of frame.audiosParagraphIds){
                     let remainingParagraph = chapter.paragraphs.find(paragraph => paragraph.id === remainingParagraphId);
                     remainingParagraph.commands.image = JSON.parse(JSON.stringify(paragraph.commands.image));
                 }
@@ -482,27 +478,26 @@ function convertParagraphs(chapter) {
         }
     }
 }
-
-function restructureParagraph(paragraph) {
+function restructureParagraph(paragraph){
     const commands = JSON.parse(JSON.stringify(paragraph.config.commands));
     paragraph.commands = commands;
     delete paragraph.config.commands;
-    if (paragraph.config.image) {
+    if(paragraph.config.image){
         const image = JSON.parse(JSON.stringify(paragraph.config.image));
         paragraph.commands.image = image;
         delete paragraph.commands.image.alt;
         delete paragraph.commands.image.src;
-        if (paragraph.commands.image.isUploadedImage) {
+        if(paragraph.commands.image.isUploadedImage){
             delete paragraph.commands.image.isUploadedImage;
         }
-        if (paragraph.commands.image.dimensions) {
+        if(paragraph.commands.image.dimensions){
             paragraph.commands.image.width = paragraph.commands.image.dimensions.width;
             paragraph.commands.image.height = paragraph.commands.image.dimensions.height;
             delete paragraph.commands.image.dimensions;
         }
         delete paragraph.config.image;
     }
-    if (paragraph.config.audio) {
+    if(paragraph.config.audio){
         const audio = JSON.parse(JSON.stringify(paragraph.config.audio));
         paragraph.commands.audio = audio;
         delete paragraph.commands.audio.src;
@@ -511,8 +506,7 @@ function restructureParagraph(paragraph) {
     delete paragraph.config;
     return paragraph;
 }
-
-async function storeAttachments(extractedPath, spaceModule, paragraph, spaceId) {
+async function storeAttachments(extractedPath, spaceModule, paragraph, spaceId){
     if (paragraph.commands.image) {
         const imagePath = path.join(extractedPath, 'images', `${paragraph.commands.image.fileName}.png`);
         const buffer = await space.APIs.readFileAsBuffer(imagePath);
@@ -525,19 +519,40 @@ async function storeAttachments(extractedPath, spaceModule, paragraph, spaceId) 
         paragraph.commands.audio.id = await spaceModule.addAudio(spaceId, buffer);
         delete paragraph.commands.audio.fileName;
     }
-    if (paragraph.commands.video) {
+    if(paragraph.commands.video) {
         const videoPath = path.join(extractedPath, 'videos', `${paragraph.commands.video.fileName}.mp4`);
         const buffer = await space.APIs.readFileAsBuffer(videoPath);
         paragraph.commands.video.id = await spaceModule.addVideo(spaceId, buffer);
         delete paragraph.commands.video.fileName;
     }
 }
-
+async function estimateDocumentVideoLength(request, response) {
+    let documentId = request.params.documentId;
+    let spaceId = request.params.spaceId;
+    const SecurityContext = require("assistos").ServerSideSecurityContext;
+    let securityContext = new SecurityContext(request);
+    const documentModule = require("assistos").loadModule("document", securityContext);
+    let document = await documentModule.getDocument(spaceId, documentId);
+    try {
+        let durationObject = await ffmpeg.estimateDocumentVideoLength(spaceId, document);
+        sendResponse(response, 200, "application/json", {
+            success: true,
+            message: `Estimation in progress`,
+            data: durationObject
+        });
+    } catch (e) {
+        sendResponse(response, 500, "application/json", {
+            success: false,
+            message: e.message
+        });
+    }
+}
 module.exports = {
     getDocument,
     createDocument,
     updateDocument,
     deleteDocument,
     exportDocument,
-    importDocument
+    importDocument,
+    estimateDocumentVideoLength
 }

@@ -14,7 +14,8 @@ function document(server) {
     //Export & Import
     server.post("/documents/export/:spaceId/:documentId", documentHandler.exportDocument);
     server.post("/documents/import/:spaceId", documentHandler.importDocument);
-
+    //Video
+    server.get("/documents/video/estimate/:spaceId/:documentId", documentHandler.estimateDocumentVideoLength);
     //Chapter
     server.get("/documents/chapters/:spaceId/:documentId/:chapterId", chapterHandler.getChapter);
     server.post("/documents/chapters/:spaceId/:documentId", chapterHandler.createChapter);

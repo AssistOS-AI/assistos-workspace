@@ -1329,30 +1329,7 @@ async function deleteAudio(request, response) {
     }
 }
 
-async function estimateDocumentVideoLength(request, response) {
-    let documentId = request.params.documentId;
-    let spaceId = request.params.spaceId;
-    const SecurityContext = require("assistos").ServerSideSecurityContext;
-    let securityContext = new SecurityContext(request);
-    const documentModule = require("assistos").loadModule("document", securityContext);
-    let document = await documentModule.getDocument(spaceId, documentId);
-    let task = new AnonymousTask(securityContext, async function () {
-        return await ffmpeg.estimateDocumentVideoLength(spaceId, document, this);
-    });
-    try {
-        let durationObject = await task.run();
-        sendResponse(response, 200, "application/json", {
-            success: true,
-            message: `Estimation in progress`,
-            data: durationObject
-        });
-    } catch (e) {
-        sendResponse(response, 500, "application/json", {
-            success: false,
-            message: e.message
-        });
-    }
-}
+
 
 async function addVideo(request, response) {
     const spaceId = request.params.spaceId;
@@ -1610,7 +1587,6 @@ module.exports = {
     deleteVideo,
     exportPersonality,
     importPersonality,
-    estimateDocumentVideoLength,
     insertEmbeddedObject,
     insertContainerObject,
     getSpaceChat

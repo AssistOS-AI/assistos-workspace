@@ -101,54 +101,9 @@ export class ChapterItem {
         this.chapterItem = this.element.querySelector(".chapter-item");
         if (this.chapter.id === assistOS.space.currentChapterId && !assistOS.space.currentParagraphId) {
             this.chapterItem.click();
-            //this.element.scrollIntoView({behavior: "smooth", block: "center", inline: "nearest"});
-        }
-        if (!this.boundPasteHandler) {
-            this.boundPasteHandler = this.pasteHandler.bind(this);
-            this.element.addEventListener('paste', this.boundPasteHandler);
         }
         if (this.chapter.visibility === "hide") {
             this.changeChapterVisibility("hide");
-        }
-    }
-
-    pasteHandler(event) {
-        let clipboardData = event.clipboardData || window.clipboardData;
-        let items = clipboardData.items;
-        let position = this.getParagraphPosition();
-        for (let i = 0; i < items.length; i++) {
-            let item = items[i];
-            if (item.type.indexOf('image') !== -1) {
-                let blob = item.getAsFile();
-                let reader = new FileReader();
-                reader.onload = async (event) => {
-                    let base64String = event.target.result;
-                    await assistOS.callFlow("AddImageParagraph", {
-                        spaceId: assistOS.space.id,
-                        documentId: this._document.id,
-                        chapterId: this.chapter.id,
-                        paragraphData: {
-                            position: position,
-                            config: {
-                                commands: {},
-                                image: {
-                                    src: base64String, alt: "pasted image",
-                                    dimensions: {
-                                        width: "",
-                                        height: ""
-                                    }
-                                }
-                            }
-
-                        }
-                    });
-                    position++;
-                }
-
-                reader.readAsDataURL(blob);
-                event.preventDefault();
-                this.invalidate(this.refreshChapter);
-            }
         }
     }
 
@@ -156,13 +111,11 @@ export class ChapterItem {
         if (!event.ctrlKey || event.key !== "Enter") {
             return;
         }
-
         // Stop the timer
         this.documentPresenter.stopTimer(true);
 
         const fromParagraph = assistOS.UI.reverseQuerySelector(event.target, '[data-paragraph-id]', 'space-chapter-item');
         const fromChapter = assistOS.UI.reverseQuerySelector(event.target, '.chapter-item');
-
         if (!fromParagraph && !fromChapter) {
             return;
         }
@@ -173,11 +126,14 @@ export class ChapterItem {
             if (assistOS.space.currentChapterId) {
                 position = this._document.getChapterIndex(assistOS.space.currentChapterId) + 1;
             }
-            assistOS.space.currentChapterId = (await assistOS.callFlow("AddChapter", {
-                spaceId: assistOS.space.id,
-                documentId: this._document.id,
+            let chapterData = {title: "NewChapter", paragraphs: [{
+                    text: "",
+                    position: 0,
+                    commands: {}
+                }],
                 position: position
-            })).data;
+            };
+            assistOS.space.currentChapterId = await documentModule.addChapter(assistOS.space.id, this._document.id, chapterData);
             this.documentPresenter.invalidate(this.documentPresenter.refreshDocument);
 
             // Else, if only Ctrl + Enter is pressed, add a paragraph
@@ -186,13 +142,12 @@ export class ChapterItem {
             if (assistOS.space.currentParagraphId) {
                 position = this.chapter.getParagraphIndex(assistOS.space.currentParagraphId) + 1;
             }
-
-            assistOS.space.currentParagraphId = (await assistOS.callFlow("AddParagraph", {
-                spaceId: assistOS.space.id,
-                documentId: this._document.id,
-                chapterId: this.chapter.id,
-                position: position
-            })).data;
+            let paragraphObj = {
+                text: "",
+                position: position,
+                commands: {}
+            }
+            assistOS.space.currentParagraphId = await documentModule.addParagraph(assistOS.space.id, this._document.id, this.chapter.id, paragraphObj);
             this.invalidate(this.refreshChapter);
         }
     }
@@ -260,7 +215,7 @@ export class ChapterItem {
         let i = 1;
         let hasAudio = false;
         for (let paragraph of this.chapter.paragraphs) {
-            if (paragraph.audio) {
+            if (paragraph.commands.audio) {
                 hasAudio = true;
                 let audioName = `audio${i}.mp3`;
                 let audioBuffer = await spaceModule.getAudio(assistOS.space.id, paragraph.audio.id);
