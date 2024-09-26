@@ -44,6 +44,8 @@ paragraph-item {
     height: auto;
 }
 .paragraph-commands{
+    line-height: 1;
+    min-height: 20px;
     overflow: hidden;
     resize: none;
     border: none;
@@ -281,4 +283,24 @@ paragraph-item {
 }
 #current-selection-parent .focusable.highlight-image{
     background-color: lightgray;
+}
+.command-line{
+    display: flex;
+    flex-direction: row;
+    align-items: center;
+}
+.command-icon{
+    margin-right: 5px;
+    width: 20px;
+}
+.personality-name{
+    font-size: 14px;
+    margin-right: 5px;
+}
+.emotion{
+    font-size: large;
+}
+.silence-duration{
+    font-size: 14px;
+    margin-left: 5px;
 }

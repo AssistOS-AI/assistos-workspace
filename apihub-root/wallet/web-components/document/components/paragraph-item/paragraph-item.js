@@ -20,7 +20,7 @@ export class ParagraphItem {
     }
 
     beforeRender() {
-        this.paragraphConfigs = utilModule.buildCommandsString(this.paragraph.commands);
+        this.paragraphCommands = this.buildCommandsHTML("view");
         this.paragraphAttachments = this.buildAttachmentsHTML("view");
         this.loadedParagraphText = this.paragraph.text || "";
     }
@@ -41,12 +41,6 @@ export class ParagraphItem {
 
         this.paragraphHeader = this.element.querySelector(".paragraph-commands");
         this.paragraphAtachments = this.element.querySelector(".paragraph-attachments");
-        this.paragraphHeader.style.height = this.paragraphHeader.scrollHeight + 'px';
-        let headerSection = this.element.querySelector(".header-sections");
-        if (!this.boundResizeHeader) {
-            this.boundResizeHeader = this.resizeHeader.bind(this, headerSection);
-            this.paragraphHeader.addEventListener('input', this.boundResizeHeader);
-        }
         this.errorElement = this.element.querySelector(".error-message");
         if (this.paragraph.commands.image) {
             this.setupImage();
@@ -173,13 +167,6 @@ export class ParagraphItem {
         chapterPresenter.addParagraphOrChapterOnKeyPress(mockEvent);
     }
 
-
-    resizeHeader(headerSection, event) {
-        this.paragraphHeader.style.height = 'auto';
-        this.paragraphHeader.style.height = this.paragraphHeader.scrollHeight + 'px';
-        headerSection.style.height = headerSection.scrollHeight + 'px';
-    }
-
     renderImageDimensions() {
         let originalWidth = parseFloat(getComputedStyle(this.imgElement, null).getPropertyValue('width').replace('px', ''));
         let originalHeight = parseFloat(getComputedStyle(this.imgElement, null).getPropertyValue('height').replace('px', ''));
@@ -295,8 +282,7 @@ export class ParagraphItem {
                 assistOS.space.id,
                 this._document.id,
                 this.paragraph.id,
-                this.paragraph.commands
-            )
+                this.paragraph.commands);
         }
     }
 
@@ -369,6 +355,37 @@ export class ParagraphItem {
             this.style.height = this.scrollHeight + 'px';
         });
         this.paragraphAtachments = attachmentsElement;
+
+        let commandsElement = this.element.querySelector('.paragraph-commands');
+        commandsElement.remove();
+        let commandsHTML = this.buildCommandsHTML("edit");
+        textareaContainer.insertAdjacentHTML('beforeend', `<textarea class="paragraph-commands maintain-focus"></textarea>`);
+        let paragraphCommands = this.element.querySelector('.paragraph-commands');
+        paragraphCommands.value = commandsHTML;
+        paragraphCommands.style.height = paragraphCommands.scrollHeight + 'px';
+        paragraphCommands.addEventListener('input', function () {
+            this.style.height = 'auto';
+            this.style.height = this.scrollHeight + 'px';
+        });
+        this.paragraphHeader = paragraphCommands;
+    }
+    renderViewModeCommands() {
+        let paragraphAttachments = this.element.querySelector('.paragraph-attachments');
+        paragraphAttachments.remove();
+        let divText = this.buildAttachmentsHTML("view");
+        let headerSection = this.element.querySelector('.header-sections');
+        headerSection.insertAdjacentHTML('afterbegin', `<div class="paragraph-attachments maintain-focus">${divText}</div>`);
+        paragraphAttachments = this.element.querySelector('.paragraph-attachments');
+        paragraphAttachments.style.height = paragraphAttachments.scrollHeight + 'px';
+        this.paragraphAtachments = paragraphAttachments;
+
+        let commandsElement = this.element.querySelector('.paragraph-commands');
+        commandsElement.remove();
+        let commandsHTML = this.buildCommandsHTML("view");
+        headerSection.insertAdjacentHTML('beforeend', `<div class="paragraph-commands maintain-focus">${commandsHTML}</div>`);
+        let paragraphHeader = this.element.querySelector('.paragraph-commands');
+        paragraphHeader.style.height = "initial";
+        this.paragraphHeader = paragraphHeader;
     }
 
     buildAttachmentsHTML(mode) {
@@ -403,6 +420,38 @@ export class ParagraphItem {
                     html += "\n";
                 }
             }
+        }
+        return html;
+    }
+    buildCommandsHTML(mode) {
+        let html = "";
+        if(mode === "view") {
+            for(let [commandType, commandDetails] of Object.entries(this.paragraph.commands)) {
+                if (commandType === "speech") {
+                    let speechHTML = `
+                    <div class="command-line maintain-focus">
+                        <img src="./wallet/assets/icons/speech.svg" class="command-icon maintain-focus" alt="speech">
+                        <span class="personality-name maintain-focus">${commandDetails.paramsObject.personality}</span>
+                        <span class="emotion maintain-focus">${utilModule.constants.COMMANDS_CONFIG.EMOJIS[commandDetails.paramsObject.emotion]}</span>
+                    </div>`;
+                    html += speechHTML;
+                }else if(commandType === "lipsync"){
+                    let lipsyncHTML = `
+                    <div class="command-line maintain-focus">
+                        <img src="./wallet/assets/icons/lipsync.svg" class="command-icon maintain-focus" alt="lipsync">
+                    </div>`;
+                    html += lipsyncHTML;
+                } else if(commandType === "silence"){
+                    let silenceHTML = `
+                    <div class="command-line maintain-focus">
+                        <img src="./wallet/assets/icons/silence.svg" class="command-icon maintain-focus" alt="silence">
+                        <span class="silence-duration maintain-focus">${commandDetails.paramsObject.duration} sec</span>
+                    </div>`;
+                    html += silenceHTML;
+                }
+            }
+        } else {
+            html = utilModule.buildCommandsString(this.paragraph.commands);
         }
         return html;
     }
@@ -487,16 +536,6 @@ export class ParagraphItem {
             .VALIDATE(assistOS.space.id, paragraph, {});
     }
 
-    renderViewModeCommands() {
-        let paragraphAttachments = this.element.querySelector('.paragraph-attachments');
-        paragraphAttachments.remove();
-        let divText = this.buildAttachmentsHTML("view");
-        let headerSection = this.element.querySelector('.header-sections');
-        headerSection.insertAdjacentHTML('afterbegin', `<div class="paragraph-attachments maintain-focus">${divText}</div>`);
-        paragraphAttachments = this.element.querySelector('.paragraph-attachments');
-        paragraphAttachments.style.height = paragraphAttachments.scrollHeight + 'px';
-        this.paragraphAtachments = paragraphAttachments;
-    }
 
     getParagraphAttachmentsText() {
         return this.paragraphAtachments.tagName === "DIV" ?
@@ -633,34 +672,9 @@ export class ParagraphItem {
     }
 
     async changeTaskStatus(taskId, status) {
-        let taskLine = this.element.querySelector(`.task-line[data-id="${taskId}"]`);
         if (status === "completed") {
             this.paragraph.commands = await documentModule.getParagraphCommands(assistOS.space.id, this._document.id, this.paragraph.id);
             this.invalidate();
-        }
-    }
-
-    mouseDownAudioIconHandler(paragraphText, audioIcon, event) {
-        if (!paragraphText.contains(event.target) && !audioIcon.contains(event.target)) {
-            audioIcon.classList.add("hidden");
-        }
-    }
-
-    selectionChangeHandler(paragraphText, audioIcon, event) {
-        const selection = window.getSelection();
-        if (selection.rangeCount > 0 && selection.toString().length > 0 && paragraphText.contains(selection.anchorNode)) {
-            this.updateIconDisplay(audioIcon);
-        } else {
-            audioIcon.classList.add("hidden");
-        }
-    }
-
-    updateIconDisplay(audioIcon, event) {
-        const selection = window.getSelection();
-        if (selection.rangeCount > 0 && selection.toString().length > 0) {
-            audioIcon.classList.remove("hidden");
-        } else {
-            audioIcon.classList.add("hidden");
         }
     }
 
@@ -849,7 +863,12 @@ export class ParagraphItem {
     async deleteImage(_target) {
         delete this.paragraph.commands.image;
         await documentModule.updateParagraphCommands(assistOS.space.id, this._document.id, this.paragraph.id, this.paragraph.commands);
-        this.renderEditModeCommands();
+        let attachments = this.element.querySelector('.paragraph-attachments');
+        if(attachments.tagName === "DIV"){
+            this.renderViewModeCommands();
+        } else {
+            this.renderEditModeCommands();
+        }
         let imgContainer = this.element.querySelector(".img-container");
         imgContainer.style.display = "none";
     }
@@ -857,12 +876,22 @@ export class ParagraphItem {
     async deleteAudio() {
         delete this.paragraph.commands.audio;
         await documentModule.updateParagraphCommands(assistOS.space.id, this._document.id, this.paragraph.id, this.paragraph.commands);
-        this.renderEditModeCommands();
+        let attachments = this.element.querySelector('.paragraph-attachments');
+        if(attachments.tagName === "DIV"){
+            this.renderViewModeCommands();
+        } else {
+            this.renderEditModeCommands();
+        }
     }
     async deleteVideo(){
         delete this.paragraph.commands.video;
         await documentModule.updateParagraphCommands(assistOS.space.id, this._document.id, this.paragraph.id, this.paragraph.commands);
-        this.renderEditModeCommands();
+        let attachments = this.element.querySelector('.paragraph-attachments');
+        if(attachments.tagName === "DIV"){
+            this.renderViewModeCommands();
+        } else {
+            this.renderEditModeCommands();
+        }
     }
     async showAttachment(element, type){
         await assistOS.UI.showModal("show-attachment-modal", {type: type, id: this.paragraph.commands[type].id});
