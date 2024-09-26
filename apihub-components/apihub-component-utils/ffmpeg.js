@@ -1,11 +1,12 @@
 const path = require('path');
 const fsPromises = require('fs').promises;
 const ffmpegPath = require("../../ffmpeg/packages/ffmpeg-static");
-const ffprobePath = require("../../ffmpeg/packages/ffprobe-static");
 const space = require("../spaces-storage/space.js").APIs;
 const crypto = require("./crypto");
 const AnonymousTask = require("../tasks/AnonymousTask");
-
+const { spawn } = require('child_process');
+const { Readable } = require('stream');
+const { once } = require('events');
 async function concatenateAudioFiles(tempVideoDir, audioFilesPaths, outputAudioPath, fileName, task) {
     const fileListPath = path.join(tempVideoDir, fileName);
     const fileListContent = audioFilesPaths.map(file => `file '${file}'`).join('\n');
@@ -215,19 +216,13 @@ async function createVideoFromImageAndAudio(imageSrc, audioSrc, spaceId, securit
     return videoId;
 }
 
-async function estimateChapterVideoLength(spaceId, chapter, task) {
+async function estimateChapterVideoLength(spaceId, chapter) {
     let totalDuration = 0;
     for (let paragraph of chapter.paragraphs) {
         if (paragraph.commands.video) {
-            let videoPath = path.join(space.getSpacePath(spaceId), 'videos', `${paragraph.commands.video.id}.mp4`);
-            const command = `${ffprobePath} -i "${videoPath}" -show_entries format=duration -v quiet -of csv="p=0"`;
-            let duration = await task.runCommand(command);
-            totalDuration += parseFloat(duration);
+            totalDuration += parseFloat(paragraph.commands.video.duration);
         } else if (paragraph.commands.audio) {
-            let audioPath = path.join(space.getSpacePath(spaceId), 'audios', `${paragraph.commands.audio.id}.mp3`);
-            const command = `${ffprobePath} -i "${audioPath}" -show_entries format=duration -v quiet -of csv="p=0"`;
-            let duration = await task.runCommand(command);
-            totalDuration += parseFloat(duration);
+            totalDuration += parseFloat(paragraph.commands.audio.duration);
         } else if (paragraph.commands["silence"]) {
             if (paragraph.commands["silence"].paramsObject.duration) {
                 totalDuration += parseFloat(paragraph.commands["silence"].paramsObject.duration);
@@ -238,12 +233,41 @@ async function estimateChapterVideoLength(spaceId, chapter, task) {
     }
     return totalDuration;
 }
+async function getAudioDuration(audioBuffer) {
+    const stream = new Readable();
+    stream.push(audioBuffer);
+    stream.push(null);
+    const ffmpegProcess = spawn(ffmpegPath, [
+        '-i', 'pipe:0', // Input from stdin (the buffer)
+        '-f', 'null',   // No output file
+        '-'             // Output to null
+    ]);
+    let stderr = '';
+    stream.pipe(ffmpegProcess.stdin);
+    ffmpegProcess.stderr.on('data', (data) => {
+        stderr += data.toString();
+    });
+    await once(ffmpegProcess, 'close');
+    const timeMatches = [...stderr.matchAll(/time=(\d{2}):(\d{2}):(\d{2}\.\d{2})/g)];
+    let latestTime = 0;
+    if (timeMatches.length > 0) {
+        const lastMatch = timeMatches[timeMatches.length - 1]; // Get the last occurrence
 
-async function estimateDocumentVideoLength(spaceId, document, task) {
+        const hours = parseFloat(lastMatch[1]);
+        const minutes = parseFloat(lastMatch[2]);
+        const seconds = parseFloat(lastMatch[3]);
+        latestTime = hours * 3600 + minutes * 60 + seconds;
+        return latestTime;
+    } else {
+        throw new Error('Could not determine audio duration');
+    }
+}
+
+async function estimateDocumentVideoLength(spaceId, document) {
     let totalDuration = 0;
     let promises = [];
     for (let chapter of document.chapters) {
-        promises.push(estimateChapterVideoLength(spaceId, chapter, task));
+        promises.push(estimateChapterVideoLength(spaceId, chapter));
     }
     let chapterDurations = await Promise.all(promises);
     for (let duration of chapterDurations) {
@@ -263,5 +287,6 @@ module.exports = {
     addBackgroundSoundToVideo,
     verifyAudioIntegrity,
     verifyAudioSettings,
-    convertVideoToMp4
+    convertVideoToMp4,
+    getAudioDuration
 }

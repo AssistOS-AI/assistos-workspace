@@ -19,19 +19,18 @@ export class DocumentsPage {
 
     beforeRender() {
         this.tableRows = "";
-        if (this.documents.length > 0) {
-            this.documents.forEach((document) => {
-                this.tableRows += `<document-item data-name="${document.title}" 
-                data-id="${document.id}" data-local-action="editAction"></document-item>`;
+        this.documents.forEach((document) => {
+            this.tableRows += `<document-item data-name="${document.title}" 
+            data-id="${document.id}" data-local-action="editAction"></document-item>`;
+        });
+        if(assistOS.space.loadingDocuments){
+            assistOS.space.loadingDocuments.forEach((taskId) => {
+                this.tableRows += `<div data-id="${taskId}" class="placeholder-document">
+                <div class="loading-icon small"></div>
+            </div>`;
             });
-            if(assistOS.space.loadingDocuments && assistOS.space.loadingDocuments.length > 0){
-                assistOS.space.loadingDocuments.forEach((taskId) => {
-                    this.tableRows += `<div data-id="${taskId}" class="placeholder-document">
-                    <div class="loading-icon small"></div>
-                </div>`;
-                });
-            }
-        } else {
+        }
+        if(this.tableRows === ""){
             this.tableRows = `<div> There are no documents yet </div>`;
         }
     }

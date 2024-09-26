@@ -47,7 +47,6 @@ const {
     exportPersonality,
     importPersonality,
     getVideo,
-    estimateDocumentVideoLength,
     getSpaceChat,
     getFileObjects,
     addVideo,
@@ -135,7 +134,7 @@ function SpaceStorage(server) {
     server.delete("/spaces/image/:spaceId/:imageId", deleteImage);
     server.post("/spaces/audio/:spaceId", storeAudio);
     server.delete("/spaces/audio/:spaceId/:audioId", deleteAudio);
-    server.get("/spaces/video/estimate/:spaceId/:documentId", estimateDocumentVideoLength);
+
     server.post("/spaces/video/:spaceId", addVideo);
     server.delete("/spaces/video/:spaceId/:videoId", deleteVideo);
     server.get("/spaces/:spaceId/export/personalities/:personalityId", exportPersonality);

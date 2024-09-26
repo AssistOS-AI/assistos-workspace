@@ -7,6 +7,9 @@ const fs = require("fs");
 const Busboy = require("busboy");
 const unzipper = require("unzipper");
 const eventPublisher = require("../../subscribers/eventPublisher");
+const AnonymousTask = require("../../tasks/AnonymousTask");
+const ffmpeg = require("../../apihub-component-utils/ffmpeg");
+const {sendResponse} = require("../../apihub-component-utils/utils");
 async function getDocument() {
 
 }
@@ -436,12 +439,33 @@ async function storeAttachments(extractedPath, spaceModule, paragraph, spaceId){
         delete paragraph.commands.video.fileName;
     }
 }
-
+async function estimateDocumentVideoLength(request, response) {
+    let documentId = request.params.documentId;
+    let spaceId = request.params.spaceId;
+    const SecurityContext = require("assistos").ServerSideSecurityContext;
+    let securityContext = new SecurityContext(request);
+    const documentModule = require("assistos").loadModule("document", securityContext);
+    let document = await documentModule.getDocument(spaceId, documentId);
+    try {
+        let durationObject = await ffmpeg.estimateDocumentVideoLength(spaceId, document);
+        sendResponse(response, 200, "application/json", {
+            success: true,
+            message: `Estimation in progress`,
+            data: durationObject
+        });
+    } catch (e) {
+        sendResponse(response, 500, "application/json", {
+            success: false,
+            message: e.message
+        });
+    }
+}
 module.exports = {
     getDocument,
     createDocument,
     updateDocument,
     deleteDocument,
     exportDocument,
-    importDocument
+    importDocument,
+    estimateDocumentVideoLength
 }

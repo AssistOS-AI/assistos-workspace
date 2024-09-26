@@ -4,6 +4,7 @@ const space = require("../spaces-storage/space");
 const constants = require('./constants');
 const STATUS = constants.STATUS;
 const EVENTS = constants.EVENTS;
+const ffmpeg = require('../apihub-component-utils/ffmpeg');
 class TextToSpeech extends Task {
     constructor(securityContext, spaceId, userId, configs) {
         super(securityContext, spaceId, userId);
@@ -33,8 +34,10 @@ class TextToSpeech extends Task {
                 modelName: "PlayHT2.0"
             });
             this.audioId = crypto.generateId();
+            let audioDuration = await ffmpeg.getAudioDuration(Buffer.from(arrayBuffer));
             paragraphConfig.audio = {
-                id: this.audioId
+                id: this.audioId,
+                duration: audioDuration
             }
             const audioBuffer = Buffer.from(arrayBuffer);
             delete paragraphConfig.speech.taskId;
