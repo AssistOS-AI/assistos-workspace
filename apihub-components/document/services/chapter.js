@@ -22,8 +22,8 @@ class ChapterService {
        return await lightDB.addEmbeddedObject(spaceId,"chapters",this.constructChapterURI(documentId, "chapters"),chapterData)
     }
 
-    async updateChapter(spaceId,documentId,chapterId,chapterData) {
-        return await lightDB.updateEmbeddedObject()
+    async updateChapter(spaceId,documentId,chapterId,chapterData,sessionId) {
+        return await lightDB.updateEmbeddedObject(spaceId,this.constructChapterURI(documentId, chapterId),chapterData,sessionId)
     }
 }
 

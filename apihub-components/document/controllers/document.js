@@ -10,7 +10,6 @@ const eventPublisher = require("../../subscribers/eventPublisher");
 const AnonymousTask = require("../../tasks/AnonymousTask");
 const ffmpeg = require("../../apihub-component-utils/ffmpeg");
 const {sendResponse} = require("../../apihub-component-utils/utils");
-async function getDocument() {
 
 const documentService = require("../services/document");
 
@@ -59,8 +58,7 @@ async function createDocument(req, res) {
             message: "Failed to create document" + error.message
         });
     }
-
-async function updateDocument() {
+}
 
 async function updateDocument(req, res) {
     const {spaceId, documentId} = req.params;
@@ -85,8 +83,8 @@ async function updateDocument(req, res) {
             message: `Failed to update document ${documentId}` + error.message
         });
     }
+}
 
-async function deleteDocument() {
 
 async function deleteDocument(req, res) {
     const {spaceId, documentId} = req.params;

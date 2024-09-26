@@ -284,7 +284,7 @@ async function addEmbeddedObject(spaceId, objectType, objectURI, objectData) {
     }
 }
 
-async function updateEmbeddedObject(spaceId, objectURI, objectData, sessionId) {
+async function updateEmbeddedObject(spaceId, objectURI, objectData,sessionId) {
     async function deleteEmbeddedObjectDependencies(spaceId, tableId, objectId) {
         let record = await getRecord(spaceId, tableId, objectId);
         let object = record.data;

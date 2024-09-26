@@ -1,30 +1,29 @@
 const lightDB = require('../../apihub-component-utils/lightDB.js');
 
-class DocumentService {
-    constructor() {
-        if(DocumentService.instance){
-            return DocumentService.instance
-        }
-        DocumentService.instance=this;
-    }
-    constructDocumentURI(documentId,property) {
-        return `${documentId}${property ? `/${property}` : ''}`
-    }
-    async deleteDocument(spaceId,documentId) {
-        return await lightDB.deleteContainerObject(spaceId, documentId);
-    }
-
-    async getDocument(spaceId,documentId) {
-        return await lightDB.getContainerObject(spaceId, documentId)
-    }
-
-    async createDocument(spaceId,documentData) {
-        return await lightDB.addContainerObject(spaceId,"documents",documentData)
-    }
-
-    async updateDocument(spaceId,documentId,documentData) {
-        return await lightDB.updateContainerObject(spaceId, documentId, documentData)
-    }
+function constructDocumentURI(documentId, property) {
+    return `${documentId}${property ? `/${property}` : ''}`
 }
 
-module.exports = new DocumentService()
+async function deleteDocument(spaceId, documentId) {
+    return await lightDB.deleteContainerObject(spaceId, documentId);
+}
+
+async function getDocument(spaceId, documentId) {
+    return await lightDB.getContainerObject(spaceId, documentId)
+}
+
+async function createDocument(spaceId, documentData) {
+    return await lightDB.addContainerObject(spaceId, "documents", documentData)
+}
+
+async function updateDocument(spaceId, documentId, documentData) {
+    return await lightDB.updateContainerObject(spaceId, documentId, documentData)
+}
+
+module.exports = {
+    deleteDocument,
+    getDocument,
+    createDocument,
+    updateDocument
+}
+

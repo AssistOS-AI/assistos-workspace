@@ -657,16 +657,6 @@ async function getPersonalityByName(spaceId, personalityName) {
     return personalities.find(personality => personality.name === personalityName);
 }
 
-async function getParagraphAudio(spaceId, documentId, paragraphId) {
-    const documentModule = require('assistos').loadModule('document');
-    const paragraph = await documentModule.getParagraph(spaceId, documentId, paragraphId);
-    if (!paragraph.commands.audio) {
-        return null;
-    }
-    return paragraph.commands.audio.src
-}
-
-
 module.exports = {
     APIs: {
         addSpaceAnnouncement,
@@ -707,7 +697,6 @@ module.exports = {
         importPersonality,
         getVideoParts,
         putVideo,
-        getParagraphAudio,
         getSpaceMapPath,
         getPersonalitiesIds,
         streamToJson,

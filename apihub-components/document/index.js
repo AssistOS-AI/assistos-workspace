@@ -23,10 +23,10 @@ function document(server) {
     server.delete("/documents/chapters/:spaceId/:documentId/:chapterId", chapterHandler.deleteChapter);
 
     //Paragraph
-    server.get("/spaces/:spaceId/documents/:documentId/chapters/:chapterId/paragraphs/:paragraphId", paragraphHandler.getParagraph);
-    server.post("/spaces/:spaceId/documents/:documentId/chapters/:chapterId/paragraphs", paragraphHandler.createParagraph);
-    server.put("/spaces/:spaceId/documents/:documentId/chapters/:chapterId/paragraphs/:paragraphId", paragraphHandler.updateParagraph);
-    server.delete("/spaces/:spaceId/documents/:documentId/chapters/:chapterId/paragraphs/:paragraphId", paragraphHandler.deleteParagraph);
+    server.get("/documents/chapters/paragraphs/:spaceId/:documentId/:paragraphId", paragraphHandler.getParagraph);
+    server.post("/documents/chapters/paragraphs/:spaceId/:documentId/:chapterId", paragraphHandler.createParagraph);
+    server.put("/documents/chapters/paragraphs/:spaceId/:documentId/:paragraphId", paragraphHandler.updateParagraph);
+    server.delete("/documents/chapters/paragraphs/:spaceId/:documentId/:chapterId/:paragraphId", paragraphHandler.deleteParagraph);
 }
 
 module.exports = document;

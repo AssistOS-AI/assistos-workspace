@@ -1,23 +1,25 @@
 const utils = require('../../apihub-component-utils/utils.js');
 const paragraphService = require('../services/paragraph.js');
+const eventPublisher = require("../../subscribers/eventPublisher");
+
 
 async function getParagraph(req, res) {
-    const {spaceId, documentId, chapterId, paragraphId} = req.params;
-    if (!spaceId || !documentId || !chapterId || !paragraphId) {
+    const {spaceId, documentId, paragraphId} = req.params;
+    if (!spaceId || !documentId || !paragraphId) {
         return utils.sendResponse(res, 400, "application/json", {
-            message: "Invalid request",
+            missing: "Invalid request" + `Missing ${spaceId ? 'spaceId ' : ''}${documentId ? 'documentId ' : ''}${paragraphId ? 'paragraphId ' : ''}`,
             success: false
         });
     }
     try {
-        const paragraph = await paragraphService.getParagraph(spaceId, documentId, chapterId, paragraphId);
+        const paragraph = await paragraphService.getParagraph(spaceId, documentId, paragraphId);
         return utils.sendResponse(res, 200, "application/json", {
             success: true,
             data: paragraph
         });
     } catch (error) {
         return utils.sendResponse(res, error.statusCode || 500, "application/json", {
-            message: error.message || "Failed to retrieve paragraph",
+            message: "Failed to get paragraph" + error.message,
             success: false
         });
     }
@@ -25,43 +27,46 @@ async function getParagraph(req, res) {
 
 async function createParagraph(req, res) {
     const {spaceId, documentId, chapterId} = req.params;
-    if (!spaceId || !documentId || !chapterId) {
+    const paragraphData = req.body;
+    if (!spaceId || !documentId || !chapterId || !paragraphData) {
         return utils.sendResponse(res, 400, "application/json", {
-            message: "Invalid request",
+            message: "Invalid request" + `Missing ${spaceId ? 'spaceId ' : ''}${documentId ? 'documentId ' : ''}${chapterId ? 'chapterId ' : ''}${paragraphData ? 'request body' : ''}`,
             success: false
         });
     }
     try {
-        const paragraphId = await paragraphService.createParagraph(spaceId, documentId, chapterId);
+        const paragraphId = await paragraphService.createParagraph(spaceId, documentId, chapterId, paragraphData);
+        eventPublisher.notifyClients(req.sessionId, chapterId);
         return utils.sendResponse(res, 200, "application/json", {
             success: true,
             data: paragraphId
         });
     } catch (error) {
         return utils.sendResponse(res, error.statusCode || 500, "application/json", {
-            message: error.message || "Failed to create paragraph",
+            message: "Failed to create paragraph" + error.message,
             success: false
         });
     }
 }
 
 async function updateParagraph(req, res) {
-    const {spaceId, documentId, chapterId, paragraphId} = req.params;
-    if (!spaceId || !documentId || !chapterId || !paragraphId) {
+    const {spaceId, documentId, paragraphId} = req.params;
+    const paragraphData = req.body;
+    if (!spaceId || !documentId || !paragraphId || !paragraphData) {
         return utils.sendResponse(res, 400, "application/json", {
-            message: "Invalid request",
+            message: "Invalid request" + `Missing ${spaceId ? 'spaceId ' : ''}${documentId ? 'documentId ' : ''}${paragraphId ? 'paragraphId ' : ''}${paragraphData ? 'request body' : ''}`,
             success: false
         });
     }
     try {
-        await paragraphService.updateParagraph(spaceId, documentId, chapterId, paragraphId);
+        await paragraphService.updateParagraph(spaceId, documentId, paragraphId, paragraphData);
         return utils.sendResponse(res, 200, "application/json", {
             success: true,
             message: "Paragraph updated successfully"
         });
     } catch (error) {
         return utils.sendResponse(res, error.statusCode || 500, "application/json", {
-            message: error.message || "Failed to update paragraph",
+            message: "Failed to update paragraph" + error.message,
             success: false
         });
     }
@@ -71,7 +76,7 @@ async function deleteParagraph(req, res) {
     const {spaceId, documentId, chapterId, paragraphId} = req.params;
     if (!spaceId || !documentId || !chapterId || !paragraphId) {
         return utils.sendResponse(res, 400, "application/json", {
-            message: "Invalid request",
+            message: "Invalid request" + `Missing ${spaceId ? 'spaceId ' : ''}${documentId ? 'documentId ' : ''}${chapterId ? 'chapterId ' : ''}${paragraphId ? 'paragraphId ' : ''}`,
             success: false
         });
     }
@@ -83,7 +88,7 @@ async function deleteParagraph(req, res) {
         });
     } catch (error) {
         return utils.sendResponse(res, error.statusCode || 500, "application/json", {
-            message: error.message || "Failed to delete paragraph",
+            message: "Failed to delete paragraph" + error.message,
             success: false
         });
     }
