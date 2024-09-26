@@ -330,19 +330,29 @@ export class ParagraphItem {
         }
     }
 
-
-    highlightParagraph() {
-        this.switchParagraphArrows("on");
+    highlightParagraphHeader(){
         assistOS.space.currentParagraphId = this.paragraph.id;
+        this.switchParagraphArrows("on");
+        let paragraphHeaderContainer = this.element.querySelector('.paragraph-header');
+        paragraphHeaderContainer.classList.add("highlight-paragraph-header");
+        this.paragraphHeader.removeAttribute('readonly');
+        this.renderEditModeCommands();
+        let paragraphText = this.element.querySelector('.paragraph-text');
+        paragraphText.classList.add("focused")
+        if (this.paragraph.commands.image) {
+            this.imgContainer.classList.add("highlight-image");
+        }
+    }
+    highlightParagraph() {
+        assistOS.space.currentParagraphId = this.paragraph.id;
+        this.switchParagraphArrows("on");
         let paragraphHeaderContainer = this.element.querySelector('.paragraph-header');
         paragraphHeaderContainer.classList.add("highlight-paragraph-header");
         let paragraphText = this.element.querySelector('.paragraph-text');
         paragraphText.classList.add("focused")
-        this.paragraphHeader.removeAttribute('readonly');
         if (this.paragraph.commands.image) {
             this.imgContainer.classList.add("highlight-image");
         }
-        this.renderEditModeCommands();
     }
 
     renderEditModeCommands() {
@@ -495,124 +505,132 @@ export class ParagraphItem {
     }
 
     async focusOutHandler() {
-        await assistOS.loadifyComponent(
-            this.element,
-            async () => {
+        await assistOS.loadifyComponent(this.element, async () => {
                 this.switchParagraphArrows("off");
                 let paragraphText = this.element.querySelector(".paragraph-text");
                 paragraphText.classList.remove("focused");
-                this.paragraphHeader.setAttribute('readonly', 'true');
-                let paragraphHeaderContainer = this.element.querySelector('.paragraph-header');
-                paragraphHeaderContainer.classList.remove("highlight-paragraph-header");
-                let dragBorder = this.element.querySelector(".drag-border");
-                dragBorder.style.display = "none";
                 if (this.paragraph.commands.image) {
                     this.imgContainer.classList.remove("highlight-image");
                 }
-                const commands = utilModule.findCommands(this.paragraphHeader.value);
-
-                if (commands.invalid) {
-                    this.showCommandsError(commands.error);
-                } else {
-                    this.paragraphHeader.value = utilModule.buildCommandsString(commands);
-                    const commandsDifferences = utilModule.getCommandsDifferences(this.paragraph.commands, commands);
-                    const cachedText = assistOS.UI.customTrim(assistOS.UI.unsanitize(this.paragraph.text));
-                    const currentUIText = assistOS.UI.customTrim(paragraphText.value);
-                    const textChanged = assistOS.UI.normalizeSpaces(cachedText) !== assistOS.UI.normalizeSpaces(currentUIText);
-                    if (textChanged) {
-                        for (let [commandType, commandStatus] of Object.entries(commandsDifferences)) {
-                            if (commandStatus !== "new") {
-                                commandsDifferences[commandType] = "changed";
-                            }
-                        }
-                    }
-                    const attachments = utilModule.findAttachments(this.getParagraphAttachmentsText());
-                    this.renderViewModeCommands();
-                    if (attachments.invalid) {
-                        this.showCommandsError(attachments.error);
-                        return;
-                    }
-                    const attachmentsDifferences = utilModule.getAttachmentsDifferences(utilModule.getAttachmentsFromCommandsObject(this.paragraph.commands), attachments);
-                    const existAttachmentsDifferences = Object.values(attachmentsDifferences).some(value => value !== "same");
-                    const existCommandsDifferences = Object.values(commandsDifferences).some(value => value !== "same");
-
-                    if (!existCommandsDifferences && !existAttachmentsDifferences) {
-                        /* there is nothing further to do, and there are no syntax errors */
-                        this.errorElement.innerText = "";
-                        this.errorElement.classList.add("hidden");
-                        return;
-                    }
-                    this.paragraph.commands = {...this.paragraph.commands, ...attachments};
-
-                    if (existCommandsDifferences) {
-                        if (Object.entries(this.paragraph.commands).length === 0) {
-                            this.paragraph.commands = commands;
-                        } else {
-                            Object.entries(commandsDifferences).forEach(([commandName, commandState]) => {
-                                if (commandState === "deleted") {
-                                    delete this.paragraph.commands[commandName];
-                                } else {
-                                    /* command added,updated or same */
-                                    if (!this.paragraph.commands[commandName]) {
-                                        /* added */
-                                        this.paragraph.commands[commandName] = {};
-                                    }
-                                    for (let [commandField, commandFieldValue] of Object.entries(commands[commandName])) {
-                                        this.paragraph.commands[commandName][commandField] = commandFieldValue;
-                                    }
-                                }
-                            });
-                        }
-                    }
-                    let errorHandlingCommands = false;
-                    for (const [commandType, commandStatus] of Object.entries(commandsDifferences)) {
-                        try {
-                            await this.validateCommand(commandType, this.paragraph);
-                        } catch (error) {
-                            this.showCommandsError(error);
-                            errorHandlingCommands = true;
-                            break;
-                        }
-                    }
-                    for (const [attachmentType, attachmentStatus] of Object.entries(attachmentsDifferences)) {
-                        try {
-                            const resourceId = attachments[attachmentType].id;
-                            await this.validateAttachment(attachmentType, resourceId);
-                        } catch (error) {
-                            this.showCommandsError(error);
-                            errorHandlingCommands = true;
-                            break;
-                        }
-                    }
-
-                    if (!errorHandlingCommands) {
-                        this.errorElement.innerText = "";
-                        this.errorElement.classList.add("hidden");
-                        await documentModule.updateParagraphCommands(assistOS.space.id, this._document.id, this.paragraph.id, this.paragraph.commands);
-                        for (let [commandType, commandStatus] of Object.entries(commandsDifferences)) {
-                            await this.handleCommand(commandType, commandStatus, commands[commandType]);
+                let paragraphHeaderContainer = this.element.querySelector('.paragraph-header');
+                paragraphHeaderContainer.classList.remove("highlight-paragraph-header");
+                const cachedText = assistOS.UI.customTrim(assistOS.UI.unsanitize(this.paragraph.text));
+                const currentUIText = assistOS.UI.customTrim(paragraphText.value);
+                const textChanged = assistOS.UI.normalizeSpaces(cachedText) !== assistOS.UI.normalizeSpaces(currentUIText);
+                if (textChanged || this.textIsDifferentFromAudio) {
+                    for(let command of Object.keys(this.paragraph.commands)) {
+                        if(!this.paragraph.commands[command].taskId){
+                            await this.handleCommand(command, "changed", this.paragraph.commands[command]);
                         }
                     }
                 }
+                this.paragraph.commands = await documentModule.getParagraphCommands(assistOS.space.id, this._document.id, this.paragraph.id);
+                this.textIsDifferentFromAudio = false;
                 await this.saveParagraph(paragraphText);
                 assistOS.space.currentParagraphId = null;
             }
         );
     }
+    async focusOutHandlerHeader(){
+        await assistOS.loadifyComponent(this.element, async () => {
+            this.switchParagraphArrows("off");
+            this.paragraphHeader.setAttribute('readonly', 'true');
+            let paragraphHeaderContainer = this.element.querySelector('.paragraph-header');
+            paragraphHeaderContainer.classList.remove("highlight-paragraph-header");
+            let paragraphText = this.element.querySelector('.paragraph-text');
+            paragraphText.classList.remove("focused");
+            const commands = utilModule.findCommands(this.paragraphHeader.value);
+            if (this.paragraph.commands.image) {
+                this.imgContainer.classList.remove("highlight-image");
+            }
+            if (commands.invalid) {
+                this.showCommandsError(commands.error);
+            } else {
+                this.paragraphHeader.value = utilModule.buildCommandsString(commands);
+                const commandsDifferences = utilModule.getCommandsDifferences(this.paragraph.commands, commands);
 
+                const attachments = utilModule.findAttachments(this.getParagraphAttachmentsText());
+                this.renderViewModeCommands();
+                if (attachments.invalid) {
+                    this.showCommandsError(attachments.error);
+                    return;
+                }
+                const attachmentsDifferences = utilModule.getAttachmentsDifferences(utilModule.getAttachmentsFromCommandsObject(this.paragraph.commands), attachments);
+                const existAttachmentsDifferences = Object.values(attachmentsDifferences).some(value => value !== "same");
+                const existCommandsDifferences = Object.values(commandsDifferences).some(value => value !== "same");
+
+                if (!existCommandsDifferences && !existAttachmentsDifferences) {
+                    /* there is nothing further to do, and there are no syntax errors */
+                    this.errorElement.innerText = "";
+                    this.errorElement.classList.add("hidden");
+                    return;
+                }
+                this.paragraph.commands = {...this.paragraph.commands, ...attachments};
+
+                if (existCommandsDifferences) {
+                    if (Object.entries(this.paragraph.commands).length === 0) {
+                        this.paragraph.commands = commands;
+                    } else {
+                        Object.entries(commandsDifferences).forEach(([commandName, commandState]) => {
+                            if (commandState === "deleted") {
+                                delete this.paragraph.commands[commandName];
+                            } else {
+                                /* command added,updated or same */
+                                if (!this.paragraph.commands[commandName]) {
+                                    /* added */
+                                    this.paragraph.commands[commandName] = {};
+                                }
+                                for (let [commandField, commandFieldValue] of Object.entries(commands[commandName])) {
+                                    this.paragraph.commands[commandName][commandField] = commandFieldValue;
+                                }
+                            }
+                        });
+                    }
+                }
+                let errorHandlingCommands = false;
+                for (const [commandType, commandStatus] of Object.entries(commandsDifferences)) {
+                    try {
+                        await this.validateCommand(commandType, this.paragraph);
+                    } catch (error) {
+                        this.showCommandsError(error);
+                        errorHandlingCommands = true;
+                        break;
+                    }
+                }
+                for (const [attachmentType, attachmentStatus] of Object.entries(attachmentsDifferences)) {
+                    try {
+                        const resourceId = attachments[attachmentType].id;
+                        await this.validateAttachment(attachmentType, resourceId);
+                    } catch (error) {
+                        this.showCommandsError(error);
+                        errorHandlingCommands = true;
+                        break;
+                    }
+                }
+
+                if (!errorHandlingCommands) {
+                    this.errorElement.innerText = "";
+                    this.errorElement.classList.add("hidden");
+                    await documentModule.updateParagraphCommands(assistOS.space.id, this._document.id, this.paragraph.id, this.paragraph.commands);
+                    for (let [commandType, commandStatus] of Object.entries(commandsDifferences)) {
+                        await this.handleCommand(commandType, commandStatus, commands[commandType]);
+                    }
+                }
+            }
+            assistOS.space.currentParagraphId = null;
+        });
+    }
     focusOutHandlerImage(imageContainer) {
-        this.renderViewModeCommands();
         this.switchParagraphArrows("off");
         let dragBorder = this.element.querySelector(".drag-border");
         dragBorder.style.display = "none";
-        this.paragraphHeader.setAttribute('readonly', 'true');
         let paragraphHeaderContainer = this.element.querySelector('.paragraph-header');
         paragraphHeaderContainer.classList.remove("highlight-paragraph-header");
         let paragraphText = this.element.querySelector('.paragraph-text');
         paragraphText.classList.remove("focused");
         imageContainer.classList.remove("highlight-image");
+        assistOS.space.currentParagraphId = null;
     }
-
 
     async changeTaskStatus(taskId, status) {
         let taskLine = this.element.querySelector(`.task-line[data-id="${taskId}"]`);

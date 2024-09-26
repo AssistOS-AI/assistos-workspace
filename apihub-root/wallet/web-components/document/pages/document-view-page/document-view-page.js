@@ -276,6 +276,15 @@ export class DocumentViewPage {
             await paragraphPresenter.highlightParagraph();
             await chapterPresenter.highlightChapter();
             return;
+        } else if(type === "paragraphHeader"){
+            let chapterPresenter = targetElement.closest("chapter-item").webSkelPresenter;
+            let paragraphItem = targetElement.closest("paragraph-item");
+            let paragraphPresenter = paragraphItem.webSkelPresenter;
+
+            await this.changeCurrentElement(targetElement, paragraphPresenter.focusOutHandlerHeader.bind(paragraphPresenter));
+            await chapterPresenter.highlightChapter();
+            await paragraphPresenter.highlightParagraphHeader();
+            return;
         }
         let saveFunction;
         let resetTimerFunction = this.resetTimer.bind(this);
