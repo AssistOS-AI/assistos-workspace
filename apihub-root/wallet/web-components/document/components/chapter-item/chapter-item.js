@@ -126,14 +126,12 @@ export class ChapterItem {
             if (assistOS.space.currentChapterId) {
                 position = this._document.getChapterIndex(assistOS.space.currentChapterId) + 1;
             }
-            let chapterData = {title: "NewChapter", paragraphs: [{
-                    text: "",
-                    position: 0,
-                    commands: {}
-                }],
+
+            assistOS.space.currentChapterId = (await assistOS.callFlow("AddChapter", {
+                spaceId: assistOS.space.id,
+                documentId: this._document.id,
                 position: position
-            };
-            assistOS.space.currentChapterId = await documentModule.addChapter(assistOS.space.id, this._document.id, chapterData);
+            })).data;
             this.documentPresenter.invalidate(this.documentPresenter.refreshDocument);
 
             // Else, if only Ctrl + Enter is pressed, add a paragraph
@@ -147,6 +145,7 @@ export class ChapterItem {
                 position: position,
                 commands: {}
             }
+
             assistOS.space.currentParagraphId = await documentModule.addParagraph(assistOS.space.id, this._document.id, this.chapter.id, paragraphObj);
             this.invalidate(this.refreshChapter);
         }

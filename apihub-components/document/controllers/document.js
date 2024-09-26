@@ -10,19 +10,104 @@ const eventPublisher = require("../../subscribers/eventPublisher");
 const AnonymousTask = require("../../tasks/AnonymousTask");
 const ffmpeg = require("../../apihub-component-utils/ffmpeg");
 const {sendResponse} = require("../../apihub-component-utils/utils");
-async function getDocument() {
+
+const documentService = require("../services/document");
+
+async function getDocument(req, res) {
+    const {spaceId, documentId} = req.params;
+    if (!spaceId || !documentId) {
+        return utils.sendResponse(res, 400, "application/json", {
+            success: false,
+            message: "Invalid request" + `Missing ${!spaceId ? "spaceId" : ""} ${!documentId ? "documentId" : ""}`
+        });
+    }
+    try {
+        const document = await documentService.getDocument(spaceId, documentId);
+        utils.sendResponse(res, 200, "application/json", {
+            success: true,
+            data: document
+        });
+    } catch (error) {
+        utils.sendResponse(res, error.statusCode || 500, "application/json", {
+            success: false,
+            message: `Failed to retrieve document ${documentId}` + error.message
+        });
+    }
 
 }
 
-async function createDocument() {
-
+async function createDocument(req, res) {
+    const {spaceId} = req.params;
+    const documentData = req.body;
+    if (!spaceId || !documentData) {
+        return utils.sendResponse(res, 400, "application/json", {
+            success: false,
+            message: "Invalid request" + `Missing ${!spaceId ? "spaceId" : ""} ${!documentData ? "documentData" : ""}`
+        });
+    }
+    try {
+        const documentId = await documentService.createDocument(spaceId, documentData);
+        eventPublisher.notifyClients(req.sessionId, "documents");
+        utils.sendResponse(res, 200, "application/json", {
+            success: true,
+            data: documentId
+        });
+    } catch (error) {
+        utils.sendResponse(res, error.statusCode || 500, "application/json", {
+            success: false,
+            message: "Failed to create document" + error.message
+        });
+    }
 }
 
-async function updateDocument() {
-
+async function updateDocument(req, res) {
+    const {spaceId, documentId} = req.params;
+    const documentData = req.body;
+    if (!spaceId || !documentId || !documentData) {
+        return utils.sendResponse(res, 400, "application/json", {
+            success: false,
+            message: "Invalid request" + `Missing ${!spaceId ? "spaceId" : ""} ${!documentId ? "documentId" : ""} ${!documentData ? "request body" : ""}`
+        });
+    }
+    try {
+        await documentService.updateDocument(spaceId, documentId, documentData);
+        eventPublisher.notifyClients(req.sessionId, documentId);
+        eventPublisher.notifyClients(req.sessionId, "documents");
+        utils.sendResponse(res, 200, "application/json", {
+            success: true,
+            message: `Document ${documentId} updated successfully`
+        });
+    } catch (error) {
+        utils.sendResponse(res, error.statusCode || 500, "application/json", {
+            success: false,
+            message: `Failed to update document ${documentId}` + error.message
+        });
+    }
 }
 
-async function deleteDocument() {
+
+async function deleteDocument(req, res) {
+    const {spaceId, documentId} = req.params;
+    if (!spaceId || !documentId) {
+        return utils.sendResponse(res, 400, "application/json", {
+            success: false,
+            message: "Invalid request" + `Missing ${!spaceId ? "spaceId" : ""} ${!documentId ? "documentId" : ""}`
+        });
+    }
+    try {
+        await documentService.deleteDocument(spaceId, documentId);
+        eventPublisher.notifyClients(req.sessionId, documentId, "delete");
+        eventPublisher.notifyClients(req.sessionId, "documents");
+        utils.sendResponse(res, 200, "application/json", {
+            success: true,
+            message: `Document ${documentId} deleted successfully`
+        });
+    } catch (error) {
+        utils.sendResponse(res, error.statusCode || 500, "application/json", {
+            success: false,
+            message: `Failed to delete document ${documentId}` + error.message
+        });
+    }
 
 }
 
