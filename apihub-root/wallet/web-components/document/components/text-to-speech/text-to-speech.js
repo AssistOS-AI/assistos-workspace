@@ -24,13 +24,13 @@ export class TextToSpeech {
         for (let personality of this.personalities) {
             if (personality.voiceId) {
                 personalitiesHTML += `<option value="${personality.id}">${personality.name}</option>`;
-                configuredPersonalitiesFound ++;
+                configuredPersonalitiesFound++;
             }
         }
 
-        if (configuredPersonalitiesFound===0) {
+        if (configuredPersonalitiesFound === 0) {
             personalitiesHTML += `<option value="default" disabled>No personalities with voice</option>`;
-        }else if(configuredPersonalitiesFound<=this.personalities.length){
+        } else if (configuredPersonalitiesFound <= this.personalities.length) {
             personalitiesHTML += `<option value="default" disabled>${this.personalities.length - configuredPersonalitiesFound} personalities unconfigured</option>`;
         }
 
@@ -87,7 +87,7 @@ export class TextToSpeech {
             temperature: formData.data.temperature,
         }
         const paragraphHeaderElement = this.parentPresenter.element.querySelector(".paragraph-commands");
-        const currentCommandsString = paragraphHeaderElement.value
+        const currentCommandsString = paragraphHeaderElement.value || paragraphHeaderElement.innerText
             .replace(/\n/g, "");
         const currentCommandsObj = utilModule.findCommands(currentCommandsString);
         if (currentCommandsObj.invalid === true) {
@@ -97,16 +97,9 @@ export class TextToSpeech {
                 errorElement.classList.remove("hidden");
             }
             errorElement.innerText = currentCommandsObj.error;
-
         } else {
-            /* valid command string */
-            if (currentCommandsObj["speech"]) {
-                /* !speech command already exists -> update it */
-                paragraphHeaderElement.value = utilModule.updateCommandsString("speech", commandConfig, currentCommandsString)
-            } else {
-                /* !speech command does not exist -> append it */
-                paragraphHeaderElement.value = `${currentCommandsString}` + "\n" + utilModule.buildCommandString("speech", commandConfig)
-            }
+            this.parentPresenter.paragraph.commands["speech"] = utilModule.buildCommandObject("speech", commandConfig)
+            this.parentPresenter.renderEditModeCommands();
         }
         this.element.remove();
     }
