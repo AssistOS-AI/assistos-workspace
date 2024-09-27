@@ -5,7 +5,9 @@ const utils = require("../apihub-component-utils/utils");
 const TextToSpeech = require("./TextToSpeech");
 const LipSync = require("./LipSync");
 const eventPublisher = require("../subscribers/eventPublisher");
-
+const ffmpeg = require("../apihub-component-utils/ffmpeg");
+const AnonymousTask = require("./AnonymousTask");
+const crypto = require("../apihub-component-utils/crypto");
 async function compileVideoFromDocument(request, response) {
     let documentId = request.params.documentId;
     let spaceId = request.params.spaceId;
@@ -230,7 +232,42 @@ function getTask(request, response) {
         });
     }
 }
+async function addVideoScreenshot(request, response) {
+    try {
+        const spaceId = request.params.spaceId;
+        const documentId = request.params.documentId;
+        const paragraphId = request.params.paragraphId;
+        const SecurityContext = require("assistos").ServerSideSecurityContext;
+        let securityContext = new SecurityContext(request);
+        let documentModule = require("assistos").loadModule("document", securityContext);
+        let spaceModule = require("assistos").loadModule("space", securityContext);
 
+        let task = new AnonymousTask(securityContext, async ()=>{
+            let paragraphCommands = await documentModule.getParagraphCommands(spaceId, documentId, paragraphId);
+            let videoArrayBuffer = await spaceModule.getVideo(spaceId, paragraphCommands.videoScreenshot.inputId);
+            let imageBuffer = await ffmpeg.createScreenshotFromVideo(Buffer.from(videoArrayBuffer), paragraphCommands.videoScreenshot.time);
+            let imageId = await spaceModule.addImage(spaceId, documentId, imageBuffer);
+            let {width, height} = await ffmpeg.getImageDimensions(imageBuffer);
+            paragraphCommands.image = {
+                id: imageId,
+                width,
+                height
+            };
+            paragraphCommands.videoScreenshot.outputId = imageId;
+            await documentModule.updateParagraphCommands(spaceId, documentId, paragraphId, paragraphCommands);
+        });
+        await task.run();
+        sendResponse(response, 200, "application/json", {
+            success: true,
+            message: "Screenshot added"
+        });
+    } catch (error) {
+        sendResponse(response, error.statusCode || 500, "application/json", {
+            success: false,
+            message: error.message
+        });
+    }
+}
 module.exports = {
     cancelTask,
     cancelTaskAndRemove,
@@ -242,5 +279,6 @@ module.exports = {
     getTask,
     removeTask,
     lipSyncParagraph,
-    getTaskRelevantInfo
+    getTaskRelevantInfo,
+    addVideoScreenshot
 }

@@ -11,10 +11,8 @@ const date = require('../apihub-component-utils/date.js');
 const file = require('../apihub-component-utils/file.js');
 const openAI = require('../apihub-component-utils/openAI.js');
 const secrets = require('../apihub-component-utils/secrets.js');
-const https = require('https');
 const fs = require('fs');
 const spaceConstants = require('./constants.js');
-const unzipper = require('unzipper');
 const volumeManager = require('../volumeManager.js');
 const Storage = require('../apihub-component-utils/storage.js');
 
@@ -589,6 +587,7 @@ async function readFileAsBuffer(filePath) {
 
 async function archivePersonality(spaceId, personalityId) {
     const personalityData = await getPersonalityData(spaceId, personalityId);
+
     const contentBuffer = Buffer.from(JSON.stringify(personalityData), 'utf-8');
     const checksum = require('crypto').createHash('sha256').update(contentBuffer).digest('hex');
 
@@ -607,6 +606,8 @@ async function archivePersonality(spaceId, personalityId) {
 
     archive.append(contentBuffer, {name: 'data.json'});
     archive.append(Buffer.from(JSON.stringify(metadata), 'utf-8'), {name: 'metadata.json'});
+    let imageStream = await Storage.getImageStream(spaceId, personalityData.imageId);
+    archive.append(imageStream, {name: `personality-images/${personalityData.imageId}.png`});
 
     archive.finalize();
     return stream;

@@ -1,6 +1,7 @@
 const path = require('path');
 const fsPromises = require('fs').promises;
 const ffmpegPath = require("../../ffmpeg/packages/ffmpeg-static");
+const ffprobePath = require("../../ffmpeg/packages/ffprobe-static");
 const space = require("../spaces-storage/space.js").APIs;
 const crypto = require("./crypto");
 const AnonymousTask = require("../tasks/AnonymousTask");
@@ -275,7 +276,77 @@ async function estimateDocumentVideoLength(spaceId, document) {
     }
     return totalDuration;
 }
+async function createScreenshotFromVideo(videoBuffer, timeInSeconds){
+    return new Promise((resolve, reject) => {
+        const ffmpeg = spawn(ffmpegPath, [
+            '-report',                       // Add this for logging
+            '-ss', `${timeInSeconds}`, // Time to capture the screenshot
+            '-i', 'pipe:0',                  // Use stdin as the input
+            '-frames:v', '1',                // Capture only one frame
+            '-f', 'image2',                  // Force format as image
+            '-vcodec', 'png',                // Specify PNG format
+            'pipe:1'                         // Output to stdout
+        ]);
+        let imageBuffer = [];
+        let errorData = '';
+        ffmpeg.stdin.write(videoBuffer);
+        ffmpeg.stdin.end();
+        ffmpeg.stdin.on('error', (err) => {
+            reject(new Error(`Stdin error: ${err.message}`));
+        });
+        ffmpeg.stderr.on('data', (data) => {
+            errorData += data.toString();
+            console.error(`FFmpeg stderr: ${data}`); // Log stderr data
+        });
+        ffmpeg.stdout.on('data', (data) => {
+            imageBuffer.push(data);
+        });
+        ffmpeg.on('close', (code) => {
+            if (code === 0) {
+                resolve(Buffer.concat(imageBuffer));
+            } else {
+                reject(new Error(`FFmpeg process exited with code ${code}`));
+            }
+        });
+    });
+}
+async function getImageDimensions(imageBuffer) {
+    return new Promise((resolve, reject) => {
+        const ffprobe = spawn(ffprobePath, [
+            '-v', 'error',
+            '-select_streams', 'v:0',
+            '-show_entries', 'stream=width,height',
+            '-of', 'json',
+            'pipe:0' // Input via stdin
+        ]);
 
+        let ffprobeOutput = '';
+        let errorData = '';
+
+        ffprobe.stdin.write(imageBuffer);
+        ffprobe.stdin.end();
+        ffprobe.stdout.on('data', (data) => {
+            ffprobeOutput += data.toString();
+        });
+        ffprobe.stderr.on('data', (data) => {
+            errorData += data.toString();
+        });
+        ffprobe.on('close', (code) => {
+            if (code === 0) {
+                try {
+                    const metadata = JSON.parse(ffprobeOutput);
+                    const width = metadata.streams[0].width;
+                    const height = metadata.streams[0].height;
+                    resolve({ width, height });
+                } catch (err) {
+                    reject(new Error(`Error parsing ffprobe output: ${err.message}`));
+                }
+            } else {
+                reject(new Error(`ffprobe exited with code ${code}: ${errorData}`));
+            }
+        });
+    });
+}
 module.exports = {
     createVideoFromImage,
     combineVideoAndAudio,
@@ -288,5 +359,7 @@ module.exports = {
     verifyAudioIntegrity,
     verifyAudioSettings,
     convertVideoToMp4,
-    getAudioDuration
+    getAudioDuration,
+    createScreenshotFromVideo,
+    getImageDimensions
 }

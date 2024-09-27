@@ -22,8 +22,14 @@ export class PersonalitiesPage {
     beforeRender() {
         this.personalityBlocks = "";
         if (this.personalities.length > 0) {
-            this.personalities.forEach((item) => {
-                this.personalityBlocks += `<personality-item data-name="${item.name}" data-id="${item.id}" data-image="${item.image || "./wallet/assets/images/default-personality.png"}"></personality-item>`;
+            this.personalities.forEach((pers) => {
+                let imageSrc;
+                if(pers.imageId){
+                    imageSrc = utilModule.constants.getImageSrc(assistOS.space.id, pers.imageId);
+                } else {
+                    imageSrc = "./wallet/assets/images/default-personality.png";
+                }
+                this.personalityBlocks += `<personality-item data-name="${pers.name}" data-id="${pers.id}" data-image="${imageSrc}"></personality-item>`;
             });
         }
     }
@@ -52,7 +58,7 @@ export class PersonalitiesPage {
         const  handleFile= async (file) => {
             const formData= new FormData();
             formData.append("file", file);
-           const importResult= await spaceAPIs.importPersonality(assistOS.space.id,formData);
+           const importResult= await spaceAPIs.importPersonality(assistOS.space.id, formData);
            if(importResult.overriden){
                 alert(`The personality ${importResult.name} has been overriden`);
            }
