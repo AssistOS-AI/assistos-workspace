@@ -60,6 +60,7 @@ async function updateParagraph(req, res) {
     }
     try {
         await paragraphService.updateParagraph(spaceId, documentId, paragraphId, paragraphData);
+        eventPublisher.notifyClients(req.sessionId, paragraphId);
         return utils.sendResponse(res, 200, "application/json", {
             success: true,
             message: "Paragraph updated successfully"
@@ -82,6 +83,7 @@ async function deleteParagraph(req, res) {
     }
     try {
         await paragraphService.deleteParagraph(spaceId, documentId, chapterId, paragraphId);
+        eventPublisher.notifyClients(req.sessionId, chapterId);
         return utils.sendResponse(res, 200, "application/json", {
             success: true,
             message: "Paragraph deleted successfully"
