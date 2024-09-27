@@ -607,49 +607,38 @@ async function archivePersonality(spaceId, personalityId) {
     archive.append(contentBuffer, {name: 'data.json'});
     archive.append(Buffer.from(JSON.stringify(metadata), 'utf-8'), {name: 'metadata.json'});
     let imageStream = await Storage.getImageStream(spaceId, personalityData.imageId);
-    archive.append(imageStream, {name: `personality-images/${personalityData.imageId}.png`});
+    archive.append(imageStream, {name: `${personalityData.imageId}.png`});
 
     archive.finalize();
     return stream;
 }
 
 async function importPersonality(spaceId, extractedPath, request) {
-    const personalityMetadataPath = path.join(extractedPath, 'metadata.json');
     const personalityDataPath = path.join(extractedPath, 'data.json');
 
-    const personalityMetadataStream = fs.createReadStream(personalityMetadataPath, 'utf8');
+    const SecurityContext = require("assistos").ServerSideSecurityContext;
+    let securityContext = new SecurityContext(request);
+    let spaceModule = require("assistos").loadModule("space", securityContext);
+    let personalityModule = require("assistos").loadModule("personality", securityContext);
     const personalityDataStream = fs.createReadStream(personalityDataPath, 'utf8');
 
-    const personalityMetadata = await streamToJson(personalityMetadataStream);
 
     const personalityData = await streamToJson(personalityDataStream);
     const spacePersonalities = await getSpacePersonalitiesObject(spaceId);
 
+    const personalityImagePath = path.join(extractedPath, `${personalityData.imageId}.png`);
+    let image = await readFileAsBuffer(personalityImagePath);
+    await spaceModule.addImage(spaceId, personalityData.imageId, image);
     const existingPersonality = spacePersonalities.find(personality => personality.name === personalityData.name);
 
-    let result, overriden = false, personalityName = personalityData.name;
+    let personalityId, overriden = false, personalityName = personalityData.name;
     if (existingPersonality) {
         personalityData.id = existingPersonality.id;
-        result = await fetch(`${process.env.BASE_URL}/spaces/fileObject/${spaceId}/personalities/${existingPersonality.id}`, {
-            method: 'PUT',
-            headers: {
-                'Content-Type': 'application/json',
-                'Cookie': request.headers.cookie,
-            },
-            body: JSON.stringify(personalityData)
-        });
+        personalityId = await personalityModule.updatePersonality(spaceId, existingPersonality.id, personalityData);
         overriden = true;
     } else {
-        result = await fetch(`${process.env.BASE_URL}/spaces/fileObject/${spaceId}/personalities`, {
-            method: 'POST',
-            headers: {
-                'Content-Type': 'application/json',
-                'Cookie': request.headers.cookie,
-            },
-            body: JSON.stringify(personalityData)
-        });
+        personalityId = await personalityModule.addPersonality(spaceId, personalityData);
     }
-    const personalityId = (await result.json()).data;
     return {id: personalityId, overriden: overriden, name: personalityName};
 }
 
