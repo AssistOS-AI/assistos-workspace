@@ -22,14 +22,14 @@ function document(server) {
     server.get("/documents/chapters/:spaceId/:documentId/:chapterId", chapterHandler.getChapter);
     server.post("/documents/chapters/:spaceId/:documentId", chapterHandler.createChapter);
     server.put("/documents/chapters/:spaceId/:documentId/:chapterId", chapterHandler.updateChapter);
-    //server.put("/documents/chapters/swap/:spaceId/:documentId/:chapterId", chapterHandler.swapChapters);
+    server.put("/documents/chapters/swap/:spaceId/:documentId/:chapterId1/:chapterId2", chapterHandler.swapChapters);
     server.delete("/documents/chapters/:spaceId/:documentId/:chapterId", chapterHandler.deleteChapter);
 
     //Paragraph
     server.get("/documents/chapters/paragraphs/:spaceId/:documentId/:paragraphId", paragraphHandler.getParagraph);
     server.post("/documents/chapters/paragraphs/:spaceId/:documentId/:chapterId", paragraphHandler.createParagraph);
     server.put("/documents/chapters/paragraphs/:spaceId/:documentId/:paragraphId", paragraphHandler.updateParagraph);
-    //server.put("/documents/chapters/paragraphs/swap/:spaceId/:documentId/:chapterId", paragraphHandler.swapChapters);
+    server.put("/documents/chapters/paragraphs/swap/:spaceId/:documentId/:chapterId/:paragraphId1/:paragraphId2", paragraphHandler.swapParagraphs);
     server.delete("/documents/chapters/paragraphs/:spaceId/:documentId/:chapterId/:paragraphId", paragraphHandler.deleteParagraph);
 }
 

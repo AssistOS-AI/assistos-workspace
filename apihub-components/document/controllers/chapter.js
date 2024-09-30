@@ -94,10 +94,33 @@ async function deleteChapter(req, res) {
         });
     }
 }
+async function swapChapters(req, res) {
+    const {spaceId, documentId, chapterId1, chapterId2} = req.params;
+    if (!spaceId || !documentId || !chapterId1 || !chapterId2) {
+        return util.sendResponse(res, 400, "application/json", {
+            message: "Invalid request" + `Missing ${spaceId ? 'spaceId ' : ''}${documentId ? 'documentId ' : ''}${chapterId1 ? 'chapterId1 ' : ''}${chapterId2 ? 'chapterId2 ' : ''}`,
+            success: false
+        });
+    }
+    try {
+        await chapterService.swapChapters(spaceId, documentId, chapterId1, chapterId2);
+        eventPublisher.notifyClients(req.sessionId, documentId)
+        return util.sendResponse(res, 200, "application/json", {
+            success: true,
+            data: "Chapters swapped successfully"
+        });
+    } catch (error) {
+        return util.sendResponse(res, error.statusCode || 500, "application/json", {
+            message: "Failed to swap chapters" + error.message,
+            success: false
+        });
+    }
+}
 
 module.exports = {
     getChapter,
     createChapter,
     updateChapter,
-    deleteChapter
+    deleteChapter,
+    swapChapters
 }

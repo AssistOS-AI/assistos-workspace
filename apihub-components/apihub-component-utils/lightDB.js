@@ -390,7 +390,7 @@ async function deleteEmbeddedObject(spaceId, objectURI) {
     }
 }
 
-async function swapEmbeddedObjects(spaceId, objectURI, embeddedIds, sessionId) {
+async function swapEmbeddedObjects(spaceId, objectURI, embeddedIds) {
     try {
         let [embeddedId1, embeddedId2] = Object.values(embeddedIds);
         let parts = objectURI.split("/");

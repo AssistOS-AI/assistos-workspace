@@ -87,10 +87,22 @@ async function updateParagraph(spaceId, documentId, paragraphId, paragraphData, 
     }
 }
 
+async function swapParagraphs(spaceId, documentId, chapterId, paragraphId, paragraphId2) {
+    return await lightDB.swapEmbeddedObjects(spaceId, constructParagraphURI({
+        documentId: documentId,
+        chapterId: chapterId,
+        paragraphId: "paragraphs"
+    }), {
+        item1: paragraphId,
+        item2: paragraphId2
+    })
+}
+
 
 module.exports = {
     deleteParagraph,
     getParagraph,
     createParagraph,
-    updateParagraph
+    updateParagraph,
+    swapParagraphs
 }
