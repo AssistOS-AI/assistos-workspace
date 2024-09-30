@@ -59,6 +59,7 @@ async function updateChapter(req, res) {
     }
     try {
         await chapterService.updateChapter(spaceId, documentId, chapterId, chapterData,req.query, req.sessionId);
+        eventPublisher.notifyClients(req.sessionId, chapterId);
         return util.sendResponse(res, 200, "application/json", {
             success: true,
             data: "Chapter updated successfully"

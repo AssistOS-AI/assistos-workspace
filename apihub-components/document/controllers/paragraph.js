@@ -60,7 +60,7 @@ async function updateParagraph(req, res) {
     }
     try {
         await paragraphService.updateParagraph(spaceId, documentId, paragraphId, paragraphData,req.query);
-        eventPublisher.notifyClients(req.sessionId, paragraphId);
+        eventPublisher.notifyClients(req.sessionId, paragraphId,"text");
         return utils.sendResponse(res, 200, "application/json", {
             success: true,
             message: "Paragraph updated successfully"

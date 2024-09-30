@@ -17,7 +17,12 @@ function bodyReader(req, res, next) {
         if (req.method === "PUT" || req.method === "POST") {
             if (contentType.startsWith('application/json')) {
                 try {
-                    req.body = JSON.parse(bodyAsBuffer.toString());
+                    bodyAsBuffer = bodyAsBuffer.toString();
+                    if(bodyAsBuffer !== "") {
+                        req.body = JSON.parse(bodyAsBuffer.toString());
+                    }else{
+                        req.body = {};
+                    }
                 } catch (error) {
                     console.error("Failed to parse JSON body!", error.message);
                     res.writeHead(500, { 'Content-Type': 'application/json' });
