@@ -437,7 +437,6 @@ export class ParagraphItem {
                     let imageSrc = utilModule.constants.getImageSrc(assistOS.space.id, personalityImageId);
                     let speechHTML = `
                     <div class="command-line maintain-focus">
-                        <img src="./wallet/assets/icons/speech.svg" class="command-icon maintain-focus" alt="speech">
                         <img src="${imageSrc}" class="personality-icon maintain-focus" alt="personality">
                         <span class="personality-name maintain-focus">${commandDetails.paramsObject.personality}</span>
                         <span class="emotion maintain-focus">${utilModule.constants.COMMANDS_CONFIG.EMOJIS[commandDetails.paramsObject.emotion]}</span>
