@@ -48,6 +48,9 @@ async function headVideo(spaceId, fileId) {
 async function headImage(spaceId, fileId) {
     return await storageClient.headImage(spaceId, fileId);
 }
+async function getUploadURL(spaceId){
+    return await storageClient.getUploadURL(spaceId);
+}
 module.exports = {
     insertImage,
     insertAudio,
@@ -63,5 +66,6 @@ module.exports = {
     deleteVideo,
     headAudio,
     headVideo,
-    headImage
+    headImage,
+    getUploadURL
 }

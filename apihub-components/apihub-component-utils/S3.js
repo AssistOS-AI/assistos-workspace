@@ -11,6 +11,7 @@ const llmAdapterRoutes = {
         VIDEO: '/apis/v1/video'
     },
     GET: {
+        UPLOAD_URL: '/apis/v1/upload-url',
         RECORD: '/apis/v1/record',
         IMAGE: '/apis/v1/image',
         AUDIO: '/apis/v1/audio',
@@ -159,6 +160,9 @@ async function headVideo(spaceId, videoId) {
 async function headImage(spaceId, imageId) {
     return headObject(spaceId, 'images', imageId);
 }
+async function getUploadURL(spaceId){
+    return await sendLLMAdapterRequest(`${llmAdapterUrl}${llmAdapterRoutes.GET.UPLOAD_URL}?spaceId=${spaceId}`, 'GET');
+}
 
 module.exports = {
     insertImage,
@@ -172,5 +176,6 @@ module.exports = {
     deleteVideo,
     headAudio,
     headVideo,
-    headImage
+    headImage,
+    getUploadURL
 };

@@ -139,6 +139,9 @@ async function headVideo(spaceId, videoId) {
     const videoPath = path.join(videosPath, `${videoId}.mp4`);
     return await fsPromises.stat(videoPath);
 }
+async function getUploadURL(spaceId){
+    return await storageClient.getUploadURL(spaceId);
+}
 module.exports = {
     insertImage,
     insertAudio,
@@ -155,5 +158,6 @@ module.exports = {
     headAudio,
     headVideo,
     headImage,
-    downloadData
+    downloadData,
+    getUploadURL
 }
