@@ -2,10 +2,19 @@ function extractQueryParams(request) {
     const queryObject = new URL(request.url, `http://${request.headers.host}`).searchParams;
     let params = {};
     for (let [key, value] of queryObject.entries()) {
-        params[key] = value;
+        if (value.includes(',')) {
+            params[key] = value.split(',');
+        }
+        else if (!isNaN(value)) {
+            params[key] = Number(value);
+        }
+        else {
+            params[key] = value;
+        }
     }
     return params;
 }
+
 
 async function sendFileToClient(response, resource, fileType) {
     try {

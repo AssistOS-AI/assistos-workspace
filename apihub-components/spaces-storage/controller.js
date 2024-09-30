@@ -890,9 +890,8 @@ async function getAgent(request, response) {
 }
 
 async function acceptSpaceInvitation(request, response) {
-    const queryParams = utils.extractQueryParams(request);
-    const invitationToken = queryParams.invitationToken;
-    const newUser = queryParams.newUser || false;
+    const invitationToken = request.query.invitationToken;
+    const newUser =  request.query.newUser || false;
     try {
         const HTMLResponse = await user.APIs.acceptSpaceInvitation(invitationToken, newUser);
         utils.sendResponse(response, 200, "text/html", HTMLResponse);
@@ -903,8 +902,7 @@ async function acceptSpaceInvitation(request, response) {
 }
 
 async function rejectSpaceInvitation(request, response) {
-    const queryParams = utils.extractQueryParams(request);
-    const invitationToken = queryParams.invitationToken;
+    const invitationToken = request.query.invitationToken;
     try {
         const HTMLResponse = await user.APIs.rejectSpaceInvitation(invitationToken);
         utils.sendResponse(response, 200, "text/html", HTMLResponse);

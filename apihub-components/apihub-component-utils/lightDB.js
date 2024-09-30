@@ -321,21 +321,21 @@ async function updateEmbeddedObject(spaceId, objectURI, objectData,sessionId) {
                         object[propertyName].push(item.id);
                     }
                     await updateRecord(spaceId, tableId, objectId, object);
-                    eventPublisher.notifyClients(sessionId, objectId, propertyName);
+                    //eventPublisher.notifyClients(sessionId, objectId, propertyName);
                     return objectId;
                 }
             }
             object[propertyName] = objectData;
             await updateRecord(spaceId, tableId, objectId, object);
             if (segments.length === 3 || (segments.length === 2 && !Array.isArray(object[propertyName]))) {
-                eventPublisher.notifyClients(sessionId, objectId, propertyName);
+                //eventPublisher.notifyClients(sessionId, objectId, propertyName);
             } else {
-                eventPublisher.notifyClients(sessionId, objectId);
+              //  eventPublisher.notifyClients(sessionId, objectId);
             }
         } else {
             await deleteEmbeddedObjectDependencies(spaceId, tableId, objectId);
             await insertEmbeddedObjectRecords(spaceId, tableId, objectURI, objectData, true);
-            eventPublisher.notifyClients(sessionId, objectId);
+            //eventPublisher.notifyClients(sessionId, objectId);
         }
         return objectId;
     } catch (error) {

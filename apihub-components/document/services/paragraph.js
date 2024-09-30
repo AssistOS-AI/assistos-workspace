@@ -25,11 +25,32 @@ async function deleteParagraph(spaceId, documentId, chapterId, paragraphId) {
     }))
 }
 
-async function getParagraph(spaceId, documentId, paragraphId) {
-    return await lightDB.getEmbeddedObject(spaceId, "paragraphs", constructParagraphURI({
-        documentId: documentId,
-        paragraphId: paragraphId
-    }))
+async function getParagraph(spaceId, documentId, paragraphId, queryParams) {
+    if (Object.keys(queryParams).length === 0) {
+        return await lightDB.getEmbeddedObject(spaceId, "paragraphs", constructParagraphURI({
+            documentId: documentId,
+            paragraphId: paragraphId
+        }))
+    }
+    if (queryParams.fields) {
+        if (Array.isArray(queryParams.fields)) {
+            let paragraphSegments = {}
+            for (const field of queryParams.fields) {
+                paragraphSegments[field] = await lightDB.getEmbeddedObject(spaceId, "paragraphs", constructParagraphURI({
+                    documentId: documentId,
+                    paragraphId: paragraphId,
+                    property: field
+                }))
+            }
+            return paragraphSegments
+        } else {
+            return await lightDB.getEmbeddedObject(spaceId, "paragraphs", constructParagraphURI({
+                documentId: documentId,
+                paragraphId: paragraphId,
+                property: queryParams.fields
+            }))
+        }
+    }
 }
 
 async function createParagraph(spaceId, documentId, chapterId, paragraphData) {
@@ -40,12 +61,32 @@ async function createParagraph(spaceId, documentId, chapterId, paragraphData) {
     }), paragraphData)
 }
 
-async function updateParagraph(spaceId, documentId, paragraphId, paragraphData) {
-    return await lightDB.updateEmbeddedObject(spaceId, constructParagraphURI({
-        documentId: documentId,
-        paragraphId: paragraphId
-    }), paragraphData)
+async function updateParagraph(spaceId, documentId, paragraphId, paragraphData, queryParams) {
+    if (Object.keys(queryParams).length === 0) {
+        return await lightDB.updateEmbeddedObject(spaceId, constructParagraphURI({
+            documentId: documentId,
+            paragraphId: paragraphId
+        }), paragraphData)
+    }
+    if (queryParams.fields) {
+        if (Array.isArray(queryParams.fields)) {
+            for (const field of queryParams.fields) {
+                await lightDB.updateEmbeddedObject(spaceId, constructParagraphURI({
+                    documentId: documentId,
+                    paragraphId: paragraphId,
+                    property: field
+                }), paragraphData[field])
+            }
+        } else {
+            return await lightDB.updateEmbeddedObject(spaceId, constructParagraphURI({
+                documentId: documentId,
+                paragraphId: paragraphId,
+                property: queryParams.fields
+            }), paragraphData)
+        }
+    }
 }
+
 
 module.exports = {
     deleteParagraph,
