@@ -1,3 +1,4 @@
+const constants = require("assistos").constants;
 export class ChatItem {
     constructor(element, invalidate) {
         this.element = element;
@@ -12,7 +13,11 @@ export class ChatItem {
             this.messageType = "user";
             this.messageTypeBox = "user-box";
             this.user = this.element.getAttribute("user");
-            this.imageContainer = `<div class="user-profile-image-container"><img class="user-profile-image" src="${this.role === "assistant" ? assistOS.agent.agentData.image : (this.role === "user" ? `/users/profileImage/${this.user}` : "")}" alt="userImage"></div>`;
+            let assistantImgSrc;
+            if(this.role === "assistant"){
+                assistantImgSrc = constants.getImageSrc(assistOS.space.id, assistOS.agent.agentData.imageId);
+            }
+            this.imageContainer = `<div class="user-profile-image-container"><img class="user-profile-image" src="${this.role === "assistant" ? assistantImgSrc : (this.role === "user" ? `/users/profileImage/${this.user}` : "")}" alt="userImage"></div>`;
         } else {
             this.messageType = "robot";
             this.messageTypeBox = "robot-box";

@@ -28,7 +28,7 @@ export class AgentPage {
         }
         let stringHTML = "";
         for (let message of assistOS.space.chat) {
-            let role;
+            let role = "Space";
 
             if (message.role === "user") {
                 if (message.user === assistOS.user.id) {

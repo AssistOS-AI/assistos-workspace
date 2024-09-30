@@ -814,7 +814,7 @@ async function createSpace(request, response) {
                 return;
         }
         utils.sendResponse(response, 500, "application/json", {
-            message: `Internal Server Error: ${error}`,
+            message: `Internal Server Error: ${error.message}`,
             success: false
         });
     }

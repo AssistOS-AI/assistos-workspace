@@ -41,7 +41,7 @@ export class AddSpaceModal {
 
             } catch (error) {
                 showApplicationError('Failed Creating Space', `Encountered an Issue creating the space ${formData.data.name}`,
-                    error);
+                    assistOS.UI.sanitize(error.message));
             }
         }
     }

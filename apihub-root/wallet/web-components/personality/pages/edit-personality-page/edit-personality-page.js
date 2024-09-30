@@ -9,7 +9,7 @@ export class EditPersonalityPage {
         this.invalidate = invalidate;
         this.knowledgeArray = [];
         this.refreshPersonality = async () => {
-            this.personality = await assistOS.space.getPersonality(window.location.hash.split("/")[3]);
+            this.personality = await personalityModule.getPersonality(assistOS.space.id, window.location.hash.split("/")[3]);
         }
         this.invalidate(async () => {
             await this.refreshPersonality();
@@ -46,7 +46,7 @@ export class EditPersonalityPage {
             voicesHTML += `<option value="${voice.id}">${voice.name}, accent: ${voice.accent}, age: ${voice.age}, gender: ${voice.gender}, loudness: ${voice.loudness}, tempo: ${voice.tempo}</option>`;
         }
         this.voicesOptions = voicesHTML;
-        if (this.personality.name === constants.PERSONALITIES.DEFAULT_PERSONALITY_NAME) {
+        if (this.personality.name === constants.DEFAULT_PERSONALITY_NAME) {
             this.disabled = "disabled";
         }
         if (this.personality.imageId) {
@@ -152,7 +152,7 @@ export class EditPersonalityPage {
     async saveChanges(_target) {
         const verifyPhotoSize = (element) => {
             if (element.files.length > 0) {
-                return element.files[0].size <= 1048576;
+                return element.files[0].size <= 1048576 * 20; // 20MB
             }
             return true;
         };
@@ -216,19 +216,7 @@ export class EditPersonalityPage {
             const spaceId = assistOS.space.id;
             const personalityId = this.personality.id;
 
-            const response = await fetch(`/spaces/${spaceId}/export/personalities/${personalityId}`
-                , {
-                    method: 'GET',
-                    headers: {
-                        'Accept': 'application/zip'
-                    }
-                });
-
-            if (!response.ok) {
-                throw new Error(`Network response was not ok: ${response.statusText}`);
-            }
-
-            const blob = await response.blob();
+            const blob = await personalityModule.exportPersonality(spaceId, personalityId);
             const url = window.URL.createObjectURL(blob);
 
             const a = document.createElement('a');

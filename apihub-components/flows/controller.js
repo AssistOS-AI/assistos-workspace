@@ -154,7 +154,7 @@ async function callFlow(request, response) {
         if (personalityId) {
             personality = await personalityModule.getPersonality(spaceId, personalityId);
         } else {
-            personality = await personalityModule.getPersonality(spaceId, constants.PERSONALITIES.DEFAULT_PERSONALITY_ID);
+            personality = await personalityModule.getPersonalityByName(spaceId, constants.DEFAULT_PERSONALITY_NAME);
         }
         const flowPath = path.join(dataVolumePaths.space, `${spaceId}/flows/${flowName}.js`);
         let flowClass
