@@ -11,7 +11,7 @@ async function getChapter(req, res) {
         });
     }
     try {
-        const chapter = await chapterService.getChapter(spaceId, documentId, chapterId);
+        const chapter = await chapterService.getChapter(spaceId, documentId, chapterId,req.query);
         return util.sendResponse(res, 200, "application/json", {
             success: true,
             data: chapter
@@ -58,7 +58,7 @@ async function updateChapter(req, res) {
         });
     }
     try {
-        await chapterService.updateChapter(spaceId, documentId, chapterId, chapterData, req.sessionId);
+        await chapterService.updateChapter(spaceId, documentId, chapterId, chapterData,req.query, req.sessionId);
         return util.sendResponse(res, 200, "application/json", {
             success: true,
             data: "Chapter updated successfully"

@@ -7,10 +7,12 @@ function document(server) {
     server.use("/documents/*", bodyReader);
     server.use("/documents/*", authentication);
     // Document
+    server.get("/documents/metadata/:spaceId", documentHandler.getDocumentsMetadata);
     server.get("/documents/:spaceId/:documentId", documentHandler.getDocument);
     server.post("/documents/:spaceId", documentHandler.createDocument);
     server.put("/documents/:spaceId/:documentId", documentHandler.updateDocument);
     server.delete("/documents/:spaceId/:documentId", documentHandler.deleteDocument);
+
     //Export & Import
     server.post("/documents/export/:spaceId/:documentId", documentHandler.exportDocument);
     server.post("/documents/import/:spaceId", documentHandler.importDocument);
@@ -20,12 +22,14 @@ function document(server) {
     server.get("/documents/chapters/:spaceId/:documentId/:chapterId", chapterHandler.getChapter);
     server.post("/documents/chapters/:spaceId/:documentId", chapterHandler.createChapter);
     server.put("/documents/chapters/:spaceId/:documentId/:chapterId", chapterHandler.updateChapter);
+    //server.put("/documents/chapters/swap/:spaceId/:documentId/:chapterId", chapterHandler.swapChapters);
     server.delete("/documents/chapters/:spaceId/:documentId/:chapterId", chapterHandler.deleteChapter);
 
     //Paragraph
     server.get("/documents/chapters/paragraphs/:spaceId/:documentId/:paragraphId", paragraphHandler.getParagraph);
     server.post("/documents/chapters/paragraphs/:spaceId/:documentId/:chapterId", paragraphHandler.createParagraph);
     server.put("/documents/chapters/paragraphs/:spaceId/:documentId/:paragraphId", paragraphHandler.updateParagraph);
+    //server.put("/documents/chapters/paragraphs/swap/:spaceId/:documentId/:chapterId", paragraphHandler.swapChapters);
     server.delete("/documents/chapters/paragraphs/:spaceId/:documentId/:chapterId/:paragraphId", paragraphHandler.deleteParagraph);
 }
 

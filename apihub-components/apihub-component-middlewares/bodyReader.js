@@ -3,6 +3,7 @@ function bodyReader(req, res, next) {
 
     // Skip bodyReader for multipart/form-data to avoid overloading buffer with large files
     if (contentType && contentType.startsWith('multipart/form-data')) {
+        req.query = extractQueryParams(req);
         return next();
     }
     convertReadableStreamToBuffer(req, (error, bodyAsBuffer) => {
@@ -32,6 +33,8 @@ function bodyReader(req, res, next) {
                 req.body = bodyAsBuffer.toString();
             }
         }
+        req.query = extractQueryParams(req);
+
         next();
     });
 }
@@ -45,5 +48,22 @@ function convertReadableStreamToBuffer(readStream, callback) {
 
     readStream.on("end", () => callback(undefined, Buffer.concat(buffers)));
 }
+function extractQueryParams(request) {
+    const queryObject = new URL(request.url, `http://${request.headers.host}`).searchParams;
+    let params = {};
+    for (let [key, value] of queryObject.entries()) {
+        if (value.includes(',')) {
+            params[key] = value.split(',');
+        }
+        else if (!isNaN(value)) {
+            params[key] = Number(value);
+        }
+        else {
+            params[key] = value;
+        }
+    }
+    return params;
+}
+
 
 module.exports = bodyReader;

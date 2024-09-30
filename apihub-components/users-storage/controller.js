@@ -119,9 +119,7 @@ async function registerUser(request, response) {
 }
 
 async function activateUser(request, response) {
-
-    const queryParams = utils.extractQueryParams(request);
-    const activationToken = queryParams['activationToken'];
+    const activationToken = request.query['activationToken'];
     if (!activationToken) {
         return utils.sendResponse(response, 400, "application/json", {
             success: false,

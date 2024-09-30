@@ -12,7 +12,7 @@ async function getParagraph(req, res) {
         });
     }
     try {
-        const paragraph = await paragraphService.getParagraph(spaceId, documentId, paragraphId);
+        const paragraph = await paragraphService.getParagraph(spaceId, documentId, paragraphId,req.query);
         return utils.sendResponse(res, 200, "application/json", {
             success: true,
             data: paragraph
@@ -59,7 +59,7 @@ async function updateParagraph(req, res) {
         });
     }
     try {
-        await paragraphService.updateParagraph(spaceId, documentId, paragraphId, paragraphData);
+        await paragraphService.updateParagraph(spaceId, documentId, paragraphId, paragraphData,req.query);
         eventPublisher.notifyClients(req.sessionId, paragraphId);
         return utils.sendResponse(res, 200, "application/json", {
             success: true,
