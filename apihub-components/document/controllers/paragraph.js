@@ -60,7 +60,7 @@ async function updateParagraph(req, res) {
     }
     try {
         await paragraphService.updateParagraph(spaceId, documentId, paragraphId, paragraphData,req.query);
-        eventPublisher.notifyClients(req.sessionId, paragraphId);
+        eventPublisher.notifyClients(req.sessionId, paragraphId,"text");
         return utils.sendResponse(res, 200, "application/json", {
             success: true,
             message: "Paragraph updated successfully"
@@ -95,10 +95,33 @@ async function deleteParagraph(req, res) {
         });
     }
 }
+async function swapParagraphs(req, res) {
+    const {spaceId, documentId, chapterId, paragraphId1, paragraphId2} = req.params;
+    if (!spaceId || !documentId || !chapterId || !paragraphId1 || !paragraphId2) {
+        return utils.sendResponse(res, 400, "application/json", {
+            message: "Invalid request" + `Missing ${spaceId ? 'spaceId ' : ''}${documentId ? 'documentId ' : ''}${chapterId ? 'chapterId ' : ''}${paragraphId1 ? 'paragraphId1 ' : ''}${paragraphId2 ? 'paragraphId2 ' : ''}`,
+            success: false
+        });
+    }
+    try {
+        await paragraphService.swapParagraphs(spaceId, documentId, chapterId, paragraphId1, paragraphId2);
+        eventPublisher.notifyClients(req.sessionId, chapterId);
+        return utils.sendResponse(res, 200, "application/json", {
+            success: true,
+            message: "Paragraphs swapped successfully"
+        });
+    } catch (error) {
+        return utils.sendResponse(res, error.statusCode || 500, "application/json", {
+            message: "Failed to swap paragraphs" + error.message,
+            success: false
+        });
+    }
+}
 
 module.exports = {
     getParagraph,
     createParagraph,
     updateParagraph,
-    deleteParagraph
+    deleteParagraph,
+    swapParagraphs
 }
