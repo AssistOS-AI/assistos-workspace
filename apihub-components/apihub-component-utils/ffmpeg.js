@@ -217,11 +217,17 @@ async function createVideoFromImageAndAudio(imageSrc, audioSrc, spaceId, securit
     return videoId;
 }
 
-async function estimateChapterVideoLength(spaceId, chapter) {
+function estimateChapterVideoLength(spaceId, chapter) {
     let totalDuration = 0;
     for (let paragraph of chapter.paragraphs) {
         if (paragraph.commands.video) {
-            totalDuration += parseFloat(paragraph.commands.video.duration);
+            if(paragraph.commands.audio){
+                //has both audio and video
+                let maxDuration = Math.max(parseFloat(paragraph.commands.audio.duration), parseFloat(paragraph.commands.video.duration));
+                totalDuration += maxDuration;
+            } else {
+                totalDuration += parseFloat(paragraph.commands.video.duration);
+            }
         } else if (paragraph.commands.audio) {
             totalDuration += parseFloat(paragraph.commands.audio.duration);
         } else if (paragraph.commands["silence"]) {
@@ -266,13 +272,8 @@ async function getAudioDuration(audioBuffer) {
 
 async function estimateDocumentVideoLength(spaceId, document) {
     let totalDuration = 0;
-    let promises = [];
     for (let chapter of document.chapters) {
-        promises.push(estimateChapterVideoLength(spaceId, chapter));
-    }
-    let chapterDurations = await Promise.all(promises);
-    for (let duration of chapterDurations) {
-        totalDuration += duration;
+        totalDuration += estimateChapterVideoLength(spaceId, chapter);
     }
     return totalDuration;
 }

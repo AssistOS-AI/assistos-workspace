@@ -45,6 +45,16 @@ export class ParagraphItem {
         if (this.paragraph.commands.image) {
             this.setupImage();
         }
+
+        // if(this.paragraph.commands.audio){
+        //     let audioTag = document.createElement("audio");
+        //     audioTag.addEventListener("loadedmetadata", async () => {
+        //         this.paragraph.commands.audio.duration = audioTag.duration;
+        //         await documentModule.updateParagraphCommands(assistOS.space.id, this._document.id, this.paragraph.id, this.paragraph.commands);
+        //         audioTag.remove();
+        //     }, {once: true});
+        //     audioTag.src = utilModule.constants.getAudioSrc(assistOS.space.id, this.paragraph.commands.audio.id);
+        // }
     }
 
     async subscribeToParagraphEvents() {
