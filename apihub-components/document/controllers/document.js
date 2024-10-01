@@ -309,7 +309,7 @@ async function exportDocumentData(documentModule, spaceId, documentId) {
 async function importDocument(request, response) {
     const spaceId = request.params.spaceId;
     const fileId = crypto.generateSecret(64);
-    const tempDir = path.join(__dirname, '../../data-volume/Temp', fileId);
+    const tempDir = path.join(__dirname, '../../../data-volume/Temp', fileId);
     const filePath = path.join(tempDir, `${fileId}.docai`);
 
     await fs.promises.mkdir(tempDir, {recursive: true});
@@ -451,88 +451,6 @@ async function storeDocument(spaceId, extractedPath, request) {
 
     fs.rmSync(extractedPath, {recursive: true, force: true});
     return {id: docId, overriddenPersonalities: Array.from(overriddenPersonalities)};
-}
-
-function convertParagraphs(chapter) {
-    let chapterFrames = [];
-    let frame = {
-        imageParagraphId: "",
-        audiosParagraphIds: [],
-    };
-    for (let paragraph of chapter.paragraphs) {
-        paragraph = restructureParagraph(paragraph);
-        if (paragraph.commands.image) {
-            if (frame.audiosParagraphIds.length > 0 || frame.imageParagraphId) {
-                chapterFrames.push(frame);
-            }
-            frame = {
-                imageParagraphId: paragraph.id,
-                audiosParagraphIds: [],
-            };
-        } else if (paragraph.commands.audio) {
-            frame.audiosParagraphIds.push(paragraph.id);
-        } else if (paragraph.commands.speech || paragraph.commands.silence || paragraph.commands.audio || paragraph.text) {
-            //speech silence
-            frame.audiosParagraphIds.push(paragraph.id);
-        }
-    }
-    if (frame.audiosParagraphIds.length > 0 || frame.imageParagraphId) {
-        chapterFrames.push(frame);
-    }
-    for (let frame of chapterFrames) {
-        if (frame.imageParagraphId) {
-            let paragraph = chapter.paragraphs.find(paragraph => paragraph.id === frame.imageParagraphId);
-            if (frame.audiosParagraphIds.length > 0) {
-                let firstParagraph = chapter.paragraphs.find(paragraph => paragraph.id === frame.audiosParagraphIds[0]);
-                paragraph.text = firstParagraph.text;
-                if (firstParagraph.commands.audio) {
-                    paragraph.commands.audio = JSON.parse(JSON.stringify(firstParagraph.commands.audio));
-                }
-                if (firstParagraph.commands.speech) {
-                    paragraph.commands.speech = JSON.parse(JSON.stringify(firstParagraph.commands.speech));
-                }
-                if (firstParagraph.commands.silence) {
-                    paragraph.commands.silence = JSON.parse(JSON.stringify(firstParagraph.commands.silence));
-                }
-
-                chapter.paragraphs = chapter.paragraphs.filter(paragraph => paragraph.id !== firstParagraph.id);
-                frame.audiosParagraphIds.shift();
-                for (let remainingParagraphId of frame.audiosParagraphIds) {
-                    let remainingParagraph = chapter.paragraphs.find(paragraph => paragraph.id === remainingParagraphId);
-                    remainingParagraph.commands.image = JSON.parse(JSON.stringify(paragraph.commands.image));
-                }
-            }
-        }
-    }
-}
-
-function restructureParagraph(paragraph) {
-    const commands = JSON.parse(JSON.stringify(paragraph.config.commands));
-    paragraph.commands = commands;
-    delete paragraph.config.commands;
-    if (paragraph.config.image) {
-        const image = JSON.parse(JSON.stringify(paragraph.config.image));
-        paragraph.commands.image = image;
-        delete paragraph.commands.image.alt;
-        delete paragraph.commands.image.src;
-        if (paragraph.commands.image.isUploadedImage) {
-            delete paragraph.commands.image.isUploadedImage;
-        }
-        if (paragraph.commands.image.dimensions) {
-            paragraph.commands.image.width = paragraph.commands.image.dimensions.width;
-            paragraph.commands.image.height = paragraph.commands.image.dimensions.height;
-            delete paragraph.commands.image.dimensions;
-        }
-        delete paragraph.config.image;
-    }
-    if (paragraph.config.audio) {
-        const audio = JSON.parse(JSON.stringify(paragraph.config.audio));
-        paragraph.commands.audio = audio;
-        delete paragraph.commands.audio.src;
-        delete paragraph.config.audio;
-    }
-    delete paragraph.config;
-    return paragraph;
 }
 
 async function storeAttachments(extractedPath, spaceModule, paragraph, spaceId) {
