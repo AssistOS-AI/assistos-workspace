@@ -293,6 +293,13 @@ paragraph-item {
     margin-right: 5px;
     width: 20px;
 }
+.personality-icon{
+    margin-right: 5px;
+    width: 30px;
+    object-fit: cover;
+    height: 30px;
+    border-radius: 50%;
+}
 .personality-name{
     font-size: 14px;
     margin-right: 5px;

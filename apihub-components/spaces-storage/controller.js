@@ -12,7 +12,7 @@ const {sendResponse} = require("../apihub-component-utils/utils");
 const dataVolumePaths = require('../volumeManager').paths;
 const ffmpeg = require('../apihub-component-utils/ffmpeg.js');
 const AnonymousTask = require('../tasks/AnonymousTask.js');
-
+const Storage = require('../apihub-component-utils/storage.js');
 
 function getFileObjectsMetadataPath(spaceId, objectType) {
     return path.join(dataVolumePaths.space, `${spaceId}/${objectType}/metadata.json`);
@@ -814,7 +814,7 @@ async function createSpace(request, response) {
                 return;
         }
         utils.sendResponse(response, 500, "application/json", {
-            message: `Internal Server Error: ${error}`,
+            message: `Internal Server Error: ${error.message}`,
             success: false
         });
     }
@@ -1408,11 +1408,13 @@ async function getVideo(request, response) {
             response.setHeader("Accept-Ranges", "bytes");
             return response.end();
         }
-
-        /*  let range = request.headers.range;
-        if (range) {
-            return await space.APIs.getVideoParts(response, spaceId, videoId, range);
-        }*/
+        let range = request.headers.range;
+        if(range){
+            let {fileStream, head} =  await Storage.getVideoRange(spaceId, videoId, range, response);
+            response.writeHead(206, head); // Partial Content
+            await pipelinePromise(fileStream, response);
+            response.end();
+        }
         const video = await space.APIs.getVideo(spaceId, videoId);
         response.setHeader('Content-Disposition', `attachment; filename=${videoId}.mp4`);
         return utils.sendResponse(response, 200, "video/mp4", video);

@@ -272,13 +272,15 @@ async function exportDocumentData(documentModule, spaceId, documentId) {
         }
         for (let paragraph of chapter.paragraphs) {
             const paragraphIndex = chapter.paragraphs.indexOf(paragraph);
-            if (paragraph.commands.audio) {
-                const personality = paragraph.commands["speech"].paramsObject.personality;
+            if(paragraph.commands.audio) {
                 paragraph.commands.audio.fileName = `Chapter_${chapterIndex + 1}_Paragraph_${paragraphIndex + 1}_audio`
                 audios.push({
                     name: paragraph.commands.audio.fileName,
                     id: paragraph.commands.audio.id
                 })
+            }
+            if(paragraph.commands.speech) {
+                const personality = paragraph.commands["speech"].paramsObject.personality;
                 personalities.add(personality);
             }
             if (paragraph.commands.image) {

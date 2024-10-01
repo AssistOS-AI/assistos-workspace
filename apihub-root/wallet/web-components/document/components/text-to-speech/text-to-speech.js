@@ -87,20 +87,25 @@ export class TextToSpeech {
             temperature: formData.data.temperature,
         }
         const paragraphHeaderElement = this.parentPresenter.element.querySelector(".paragraph-commands");
-        const currentCommandsString = paragraphHeaderElement.value || paragraphHeaderElement.innerText
-            .replace(/\n/g, "");
-        const currentCommandsObj = utilModule.findCommands(currentCommandsString);
-        if (currentCommandsObj.invalid === true) {
-            /* invalid command string -> just append the !speech command*/
-            const errorElement = this.parentPresenter.element.querySelector(".error-message");
-            if (errorElement.classList.contains("hidden")) {
-                errorElement.classList.remove("hidden");
-            }
-            errorElement.innerText = currentCommandsObj.error;
+        if(paragraphHeaderElement.tagName === "div"){
+            this.parentPresenter.paragraph.commands.speech = utilModule.buildCommandObject("speech", commandConfig)
+            this.parentPresenter.renderViewModeCommands();
         } else {
-            this.parentPresenter.paragraph.commands["speech"] = utilModule.buildCommandObject("speech", commandConfig)
-            this.parentPresenter.renderEditModeCommands();
+            const currentCommandsString = paragraphHeaderElement.value.replace(/\n/g, "");
+            const currentCommandsObj = utilModule.findCommands(currentCommandsString);
+            if (currentCommandsObj.invalid === true) {
+                /* invalid command string -> just append the !speech command*/
+                const errorElement = this.parentPresenter.element.querySelector(".error-message");
+                if (errorElement.classList.contains("hidden")) {
+                    errorElement.classList.remove("hidden");
+                }
+                errorElement.innerText = currentCommandsObj.error;
+            } else {
+                this.parentPresenter.paragraph.commands["speech"] = utilModule.buildCommandObject("speech", commandConfig)
+                this.parentPresenter.renderEditModeCommands();
+            }
         }
+
         this.element.remove();
     }
 }

@@ -398,13 +398,13 @@ export class ParagraphItem {
             for (let [commandType, commandDetails] of Object.entries(this.paragraph.commands)) {
                 if (commandType === "image") {
                     let imageSrc = utilModule.constants.getImageSrc(assistOS.space.id, commandDetails.id);
-                    html += `<a data-local-action="showAttachment image" href="${imageSrc}" class="tasks-info" data-id="${commandDetails.id}">Image</a>`;
+                    html += `<a data-local-action="showAttachment image" href="${imageSrc}" data-id="${commandDetails.id}">Image</a>`;
                 } else if (commandType === "audio") {
                     let audioSrc = utilModule.constants.getAudioSrc(assistOS.space.id, commandDetails.id);
-                    html += `<a data-local-action="showAttachment audio" href="${audioSrc}" class="tasks-info" data-id="${commandDetails.id}">Audio</a>`;
+                    html += `<a data-local-action="showAttachment audio" href="${audioSrc}" data-id="${commandDetails.id}">Audio</a>`;
                 } else if (commandType === "video") {
                     let videoSrc = utilModule.constants.getVideoSrc(assistOS.space.id, commandDetails.id);
-                    html += `<a data-local-action="showAttachment video" href="${videoSrc}" class="tasks-info" data-id="${commandDetails.id}">Video</a>`;
+                    html += `<a data-local-action="showAttachment video" href="${videoSrc}" data-id="${commandDetails.id}">Video</a>`;
                 }
 
             }
@@ -433,9 +433,11 @@ export class ParagraphItem {
         if (mode === "view") {
             for (let [commandType, commandDetails] of Object.entries(this.paragraph.commands)) {
                 if (commandType === "speech") {
+                    let personalityImageId = this.documentPresenter.personalitiesMetadata.find(personality => personality.name === commandDetails.paramsObject.personality).imageId;
+                    let imageSrc = utilModule.constants.getImageSrc(assistOS.space.id, personalityImageId);
                     let speechHTML = `
                     <div class="command-line maintain-focus">
-                        <img src="./wallet/assets/icons/speech.svg" class="command-icon maintain-focus" alt="speech">
+                        <img src="${imageSrc}" class="personality-icon maintain-focus" alt="personality">
                         <span class="personality-name maintain-focus">${commandDetails.paramsObject.personality}</span>
                         <span class="emotion maintain-focus">${utilModule.constants.COMMANDS_CONFIG.EMOJIS[commandDetails.paramsObject.emotion]}</span>
                     </div>`;
@@ -858,7 +860,12 @@ export class ParagraphItem {
         let videoData = await assistOS.UI.showModal("insert-video-modal", true);
         if (videoData) {
             this.paragraph.commands.video = videoData;
+            this.paragraph.commands.videoScreenshot = {
+                inputId : videoData.id,
+                time: 1
+            }
             await documentModule.updateParagraphCommands(assistOS.space.id, this._document.id, this.paragraph.id, this.paragraph.commands);
+            await utilModule.constants.COMMANDS_CONFIG.COMMANDS.find(command => command.NAME === "videoScreenshot").EXECUTE(assistOS.space.id, this._document.id, this.paragraph.id, {});
             this.invalidate();
         }
     }

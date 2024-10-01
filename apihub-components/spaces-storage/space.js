@@ -2,19 +2,14 @@ const path = require('path');
 const fsPromises = require('fs').promises;
 const archiver = require('archiver');
 const enclave = require('opendsu').loadAPI('enclave');
-const {pipeline} = require('stream');
-const util = require('util');
-const pipelineAsync = util.promisify(pipeline);
 const crypto = require("../apihub-component-utils/crypto");
 const data = require('../apihub-component-utils/data.js');
 const date = require('../apihub-component-utils/date.js');
 const file = require('../apihub-component-utils/file.js');
 const openAI = require('../apihub-component-utils/openAI.js');
 const secrets = require('../apihub-component-utils/secrets.js');
-const https = require('https');
 const fs = require('fs');
 const spaceConstants = require('./constants.js');
-const unzipper = require('unzipper');
 const volumeManager = require('../volumeManager.js');
 const Storage = require('../apihub-component-utils/storage.js');
 
@@ -121,30 +116,47 @@ async function copyDefaultFlows(spacePath) {
     }
 }
 
-async function copyDefaultPersonalities(spacePath) {
+async function copyDefaultPersonalities(spacePath, spaceId, defaultSpaceAgentId) {
 
     const defaultPersonalitiesPath = volumeManager.paths.defaultPersonalities;
     const personalitiesPath = path.join(spacePath, 'personalities');
 
     await file.createDirectory(personalitiesPath);
 
-    const files = await fsPromises.readdir(defaultPersonalitiesPath);
+    const files = await fsPromises.readdir(defaultPersonalitiesPath, { withFileTypes: true });
     let metadata = [];
-    for (const file of files) {
-        const filePath = path.join(defaultPersonalitiesPath, file);
-        let personality = JSON.parse(await fsPromises.readFile(filePath, 'utf8'));
-        const destFilePath = path.join(personalitiesPath, file);
-        await fsPromises.copyFile(filePath, destFilePath);
-        let metaObj = {};
-        for (let key of personality.metadata) {
-            metaObj[key] = personality[key];
+    let promises = [];
+    for (const entry of files) {
+        if (entry.isFile()) {
+            promises.push(preparePersonalityData(defaultPersonalitiesPath , personalitiesPath, entry, spaceId, defaultSpaceAgentId));
         }
-        metaObj.fileName = file;
-        metadata.push(metaObj);
     }
+    metadata = await Promise.all(promises);
     await fsPromises.writeFile(path.join(spacePath, 'personalities', 'metadata.json'), JSON.stringify(metadata), 'utf8');
 }
+async function preparePersonalityData(defaultPersonalitiesPath, personalitiesPath, entry, spaceId, defaultSpaceAgentId) {
+    const filePath = path.join(defaultPersonalitiesPath, entry.name);
+    let personality = JSON.parse(await fsPromises.readFile(filePath, 'utf8'));
+    const constants = require("assistos").constants;
+    if(personality.name === constants.DEFAULT_PERSONALITY_NAME){
+        personality.id = defaultSpaceAgentId;
+    } else {
+        personality.id = crypto.generateId(16);
+    }
+    let imagesPath = path.join(defaultPersonalitiesPath, 'images');
+    let image = await fsPromises.readFile(path.join(imagesPath, `${personality.imageId}.png`));
+    const imageId = crypto.generateId(8);
+    personality.imageId = imageId;
 
+    await Storage.insertImage(spaceId, imageId, image);
+    await fsPromises.writeFile(path.join(personalitiesPath, `${personality.id}.json`), JSON.stringify(personality), 'utf8');
+
+    return {
+        id: personality.id,
+        name: personality.name,
+        imageId: personality.imageId,
+    };
+}
 async function getPersonalitiesIds(spaceId, personalityNames) {
     const personalityIds = [];
     const personalityPath = path.join(getSpacePath(spaceId), 'personalities', 'metadata.json');
@@ -194,6 +206,7 @@ async function createSpace(spaceName, userId, apiKey) {
             addedDate: date.getCurrentUTCDate()
         };
     }
+    const defaultSpaceAgentId = crypto.generateId(16);
     try {
         spaceObj = data.fillTemplate(defaultSpaceTemplate, {
             spaceName: spaceName,
@@ -204,7 +217,7 @@ async function createSpace(spaceName, userId, apiKey) {
                     joinDate: date.getCurrentUnixTime()
                 }
             },
-            defaultSpaceAgentId: "2idYvpTEKXM5",
+            defaultSpaceAgentId: defaultSpaceAgentId,
             defaultAnnouncement: createDefaultAnnouncement(spaceName),
             creationDate:
                 date.getCurrentUTCDate()
@@ -235,7 +248,7 @@ async function createSpace(spaceName, userId, apiKey) {
 
     const filesPromises = [
         () => copyDefaultFlows(spacePath),
-        () => copyDefaultPersonalities(spacePath),
+        () => copyDefaultPersonalities(spacePath, spaceId, defaultSpaceAgentId),
         () => file.createDirectory(path.join(spacePath, 'documents')),
         () => file.createDirectory(path.join(spacePath, 'images')),
         () => file.createDirectory(path.join(spacePath, 'audios')),
@@ -539,30 +552,6 @@ function getVideoStream(spaceId, videoId) {
     return Storage.getVideoStream(spaceId, videoId);
 }
 
-async function getVideoParts(response, spaceId, videoId, range) {
-    const videosPath = path.join(getSpacePath(spaceId), 'videos');
-    const videoPath = path.join(videosPath, `${videoId}.mp4`);
-    const stat = await fs.promises.stat(videoPath);
-    const fileSize = stat.size;
-    const parts = range.replace(/bytes=/, "").split("-");
-    const start = parseInt(parts[0], 10);
-    const DEFAULT_CHUNK_SIZE = 10 * 1024 * 1024; // 10 MB
-
-    const end = Math.min(start + DEFAULT_CHUNK_SIZE - 1, fileSize - 1);
-    const chunkSize = (end - start) + 1;
-
-    const fileStream = fs.createReadStream(videoPath, {start, end});
-    const head = {
-        'Content-Range': `bytes ${start}-${end}/${fileSize}`,
-        'Accept-Ranges': 'bytes',
-        'Content-Length': chunkSize,
-        'Content-Type': 'video/mp4',
-    };
-    response.writeHead(206, head); // Partial Content
-    await pipelineAsync(fileStream, response);
-
-}
-
 async function deleteVideo(spaceId, videoId) {
     return Storage.deleteVideo(spaceId, videoId);
 }
@@ -589,6 +578,7 @@ async function readFileAsBuffer(filePath) {
 
 async function archivePersonality(spaceId, personalityId) {
     const personalityData = await getPersonalityData(spaceId, personalityId);
+
     const contentBuffer = Buffer.from(JSON.stringify(personalityData), 'utf-8');
     const checksum = require('crypto').createHash('sha256').update(contentBuffer).digest('hex');
 
@@ -607,48 +597,39 @@ async function archivePersonality(spaceId, personalityId) {
 
     archive.append(contentBuffer, {name: 'data.json'});
     archive.append(Buffer.from(JSON.stringify(metadata), 'utf-8'), {name: 'metadata.json'});
+    let imageStream = await Storage.getImageStream(spaceId, personalityData.imageId);
+    archive.append(imageStream, {name: `${personalityData.imageId}.png`});
 
     archive.finalize();
     return stream;
 }
 
 async function importPersonality(spaceId, extractedPath, request) {
-    const personalityMetadataPath = path.join(extractedPath, 'metadata.json');
     const personalityDataPath = path.join(extractedPath, 'data.json');
 
-    const personalityMetadataStream = fs.createReadStream(personalityMetadataPath, 'utf8');
+    const SecurityContext = require("assistos").ServerSideSecurityContext;
+    let securityContext = new SecurityContext(request);
+    let spaceModule = require("assistos").loadModule("space", securityContext);
+    let personalityModule = require("assistos").loadModule("personality", securityContext);
     const personalityDataStream = fs.createReadStream(personalityDataPath, 'utf8');
 
-    const personalityMetadata = await streamToJson(personalityMetadataStream);
 
     const personalityData = await streamToJson(personalityDataStream);
     const spacePersonalities = await getSpacePersonalitiesObject(spaceId);
 
+    const personalityImagePath = path.join(extractedPath, `${personalityData.imageId}.png`);
+    let image = await readFileAsBuffer(personalityImagePath);
+    await spaceModule.addImage(spaceId, personalityData.imageId, image);
     const existingPersonality = spacePersonalities.find(personality => personality.name === personalityData.name);
 
-    let result, overriden = false, personalityName = personalityData.name;
+    let personalityId, overriden = false, personalityName = personalityData.name;
     if (existingPersonality) {
         personalityData.id = existingPersonality.id;
-        result = await fetch(`${process.env.BASE_URL}/spaces/fileObject/${spaceId}/personalities/${existingPersonality.id}`, {
-            method: 'PUT',
-            headers: {
-                'Content-Type': 'application/json',
-                'Cookie': request.headers.cookie,
-            },
-            body: JSON.stringify(personalityData)
-        });
+        personalityId = await personalityModule.updatePersonality(spaceId, existingPersonality.id, personalityData);
         overriden = true;
     } else {
-        result = await fetch(`${process.env.BASE_URL}/spaces/fileObject/${spaceId}/personalities`, {
-            method: 'POST',
-            headers: {
-                'Content-Type': 'application/json',
-                'Cookie': request.headers.cookie,
-            },
-            body: JSON.stringify(personalityData)
-        });
+        personalityId = await personalityModule.addPersonality(spaceId, personalityData);
     }
-    const personalityId = (await result.json()).data;
     return {id: personalityId, overriden: overriden, name: personalityName};
 }
 
@@ -699,7 +680,6 @@ module.exports = {
         getImageStream,
         archivePersonality,
         importPersonality,
-        getVideoParts,
         putVideo,
         getSpaceMapPath,
         getPersonalitiesIds,

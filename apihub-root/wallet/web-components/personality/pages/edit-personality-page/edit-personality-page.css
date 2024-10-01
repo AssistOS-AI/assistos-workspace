@@ -67,7 +67,8 @@ hr{
     padding: 8px;
 }
 #photo{
-    display: none;
+    position: absolute;
+    opacity: 0;
 }
 .input-file-container{
     position: relative;
@@ -103,8 +104,9 @@ hr{
 .personality-photo{
     border-radius: 8px;
     object-fit: cover;
-    height: 130px;
-    width: 130px;
+    height: 127px;
+    width: 127px;
+    margin-top: 1px;
 }
 .upload-arrow{
     position: absolute;

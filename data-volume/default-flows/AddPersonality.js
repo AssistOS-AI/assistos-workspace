@@ -35,8 +35,8 @@ class AddPersonality extends IFlow {
             let personalityData = {
                 name: parameters.name,
                 description: parameters.description,
-                image: parameters.photo,
-                metadata: ["name", "id", "photo"]
+                image: parameters.imageId,
+                metadata: ["name", "id", "imageId"]
             };
             await personalityModule.addPersonality(parameters.spaceId, personalityData);
             apis.success(personalityData);

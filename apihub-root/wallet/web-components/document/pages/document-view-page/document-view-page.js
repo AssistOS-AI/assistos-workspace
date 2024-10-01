@@ -1,5 +1,6 @@
 const utilModule = require("assistos").loadModule("util", {});
 const documentModule = require("assistos").loadModule("document", {});
+const personalityModule = require("assistos").loadModule("personality", {});
 import {executorTimer, unescapeHtmlEntities} from "../../../../imports.js";
 
 export class DocumentViewPage {
@@ -32,6 +33,11 @@ export class DocumentViewPage {
                     default:
                         return this.invalidate(this.refreshDocument);
                 }
+            });
+            this.personalitiesMetadata = await personalityModule.getPersonalitiesMetadata(assistOS.space.id);
+            this.personalitiesId = "personalities";
+            await utilModule.subscribeToObject(this.personalitiesId, async (type) => {
+                this.personalitiesMetadata = await utilModule.getPersonalitiesMetadata(assistOS.space.id);
             });
         });
     }
@@ -89,6 +95,7 @@ export class DocumentViewPage {
     }
     async afterUnload() {
         await utilModule.unsubscribeFromObject(this._document.id);
+        await utilModule.unsubscribeFromObject(this.personalitiesId);
         for (let childId of this.childrenSubscriptions.keys()) {
             await utilModule.unsubscribeFromObject(childId);
         }
