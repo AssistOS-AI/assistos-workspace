@@ -15,6 +15,7 @@ export class InsertImageModal {
             this.galleries = await galleryModule.getGalleriesMetadata(assistOS.space.id);
         });
         this.selectedImage = "";
+        this.element.classList.add("maintain-focus");
     }
 
     beforeRender() {

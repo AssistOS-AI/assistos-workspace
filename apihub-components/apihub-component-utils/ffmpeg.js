@@ -280,7 +280,7 @@ async function createScreenshotFromVideoRange(videoStream, timeInSeconds) {
     return new Promise((resolve, reject) => {
         const ffmpeg = spawn( ffmpegPath, [
             '-i', 'pipe:0',                  // Use stdin as the input
-            '-ss', `${timeInSeconds}`,       // Time to capture the screenshot
+            '-ss', '00:00:01',       // Time to capture the screenshot
             '-frames:v', '1',                // Capture only one frame
             '-f', 'image2',                  // Force format as image
             '-vcodec', 'png',                // Specify PNG format

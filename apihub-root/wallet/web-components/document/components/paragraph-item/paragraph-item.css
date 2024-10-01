@@ -288,6 +288,7 @@ paragraph-item {
     display: flex;
     flex-direction: row;
     align-items: center;
+    font-size: 14px;
 }
 .command-icon{
     margin-right: 5px;
@@ -301,13 +302,8 @@ paragraph-item {
     border-radius: 50%;
 }
 .personality-name{
-    font-size: 14px;
     margin-right: 5px;
 }
-.emotion{
-    font-size: large;
-}
 .silence-duration{
-    font-size: 14px;
     margin-left: 5px;
 }

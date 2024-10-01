@@ -4,6 +4,7 @@ export class InsertVideoModal {
     constructor(element, invalidate) {
         this.element = element;
         this.invalidate = invalidate;
+        this.element.classList.add("maintain-focus");
         this.invalidate();
     }
 
