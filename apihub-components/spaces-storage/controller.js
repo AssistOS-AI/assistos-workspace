@@ -1413,8 +1413,8 @@ async function getVideo(request, response) {
         if (range) {
             let {fileStream, head} = await Storage.getVideoRange(spaceId, videoId, range, response);
             response.writeHead(206, head); // Partial Content
-            await pipelinePromise(fileStream, response);
-            response.end();
+            fileStream.pipe(response);
+            return;
         }
         const video = await space.APIs.getVideo(spaceId, videoId);
         response.setHeader('Content-Disposition', `attachment; filename=${videoId}.mp4`);

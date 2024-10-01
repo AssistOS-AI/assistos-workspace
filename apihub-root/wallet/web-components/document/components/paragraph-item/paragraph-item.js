@@ -244,15 +244,6 @@ export class ParagraphItem {
         await this.documentPresenter.stopTimer(true);
     }
 
-    /*  async resetTimerImage(paragraph, event) {
-          if (event.key === "Backspace") {
-              if (assistOS.space.currentParagraphId === this.paragraph.id) {
-                  await this.documentPresenter.stopTimer(false);
-                  await this.deleteParagraphImage();
-              }
-          }
-      }*/
-
     async deleteParagraphImage() {
         if (!this.paragraph || !this.paragraph.commands.image || assistOS.space.currentParagraphId !== this.paragraph.id) {
             return;
@@ -437,21 +428,21 @@ export class ParagraphItem {
                     let imageSrc = utilModule.constants.getImageSrc(assistOS.space.id, personalityImageId);
                     let speechHTML = `
                     <div class="command-line maintain-focus">
-                        <img src="${imageSrc}" class="personality-icon maintain-focus" alt="personality">
-                        <span class="personality-name maintain-focus">${commandDetails.paramsObject.personality}</span>
-                        <span class="emotion maintain-focus">${utilModule.constants.COMMANDS_CONFIG.EMOJIS[commandDetails.paramsObject.emotion]}</span>
+                        <img src="${imageSrc}" class="personality-icon" alt="personality">
+                        <span class="personality-name">${commandDetails.paramsObject.personality}</span>
+                        <span class="emotion">${utilModule.constants.COMMANDS_CONFIG.EMOJIS[commandDetails.paramsObject.emotion]}</span>
                     </div>`;
                     html += speechHTML;
                 } else if (commandType === "lipsync") {
                     let lipsyncHTML = `
                     <div class="command-line maintain-focus">
-                        <img src="./wallet/assets/icons/lipsync.svg" class="command-icon maintain-focus" alt="lipsync">
+                        <span class="lipsync-text">Lipsync</span>
                     </div>`;
                     html += lipsyncHTML;
                 } else if (commandType === "silence") {
                     let silenceHTML = `
                     <div class="command-line maintain-focus">
-                        <img src="./wallet/assets/icons/silence.svg" class="command-icon maintain-focus" alt="silence">
+                        <img src="./wallet/assets/icons/silence.svg" class="command-icon" alt="silence">
                         <span class="silence-duration maintain-focus">${commandDetails.paramsObject.duration} sec</span>
                     </div>`;
                     html += silenceHTML;
@@ -600,7 +591,7 @@ export class ParagraphItem {
                 const commandsDifferences = utilModule.getCommandsDifferences(this.paragraph.commands, commands);
 
                 const attachments = utilModule.findAttachments(this.getParagraphAttachmentsText());
-                this.renderViewModeCommands();
+
                 if (attachments.invalid) {
                     this.showCommandsError(attachments.error);
                     return;
@@ -668,6 +659,7 @@ export class ParagraphItem {
                 }
             }
             assistOS.space.currentParagraphId = null;
+            this.renderViewModeCommands();
         });
     }
 
@@ -860,13 +852,18 @@ export class ParagraphItem {
         let videoData = await assistOS.UI.showModal("insert-video-modal", true);
         if (videoData) {
             this.paragraph.commands.video = videoData;
-            this.paragraph.commands.videoScreenshot = {
-                inputId : videoData.id,
-                time: 1
-            }
+            // this.paragraph.commands.videoScreenshot = {
+            //     inputId : videoData.id,
+            //     time: 1
+            // }
             await documentModule.updateParagraphCommands(assistOS.space.id, this._document.id, this.paragraph.id, this.paragraph.commands);
-            await utilModule.constants.COMMANDS_CONFIG.COMMANDS.find(command => command.NAME === "videoScreenshot").EXECUTE(assistOS.space.id, this._document.id, this.paragraph.id, {});
-            this.invalidate();
+            //await utilModule.constants.COMMANDS_CONFIG.COMMANDS.find(command => command.NAME === "videoScreenshot").EXECUTE(assistOS.space.id, this._document.id, this.paragraph.id, {});
+            let attachments = this.element.querySelector('.paragraph-attachments');
+            if (attachments.tagName === "DIV") {
+                this.renderViewModeCommands();
+            } else {
+                this.renderEditModeCommands();
+            }
         }
     }
 

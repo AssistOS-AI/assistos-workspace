@@ -245,7 +245,7 @@ async function addVideoScreenshot(request, response) {
 
         let task = new AnonymousTask(securityContext, async ()=>{
             let paragraphCommands = await documentModule.getParagraphCommands(spaceId, documentId, paragraphId);
-            const rangeEnd = 1024 * 1024 * 2; //2mb
+            const rangeEnd = 1024 * 1024 * 5; //5mb
             let {fileStream, head} = await Storage.getVideoRange(spaceId, paragraphCommands.videoScreenshot.inputId, `bytes=0-${rangeEnd}`);
             let imageBuffer = await ffmpeg.createScreenshotFromVideoRange(fileStream, 0);
             let imageId = await spaceModule.addImage(spaceId, documentId, imageBuffer);

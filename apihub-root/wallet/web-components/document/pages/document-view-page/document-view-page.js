@@ -82,7 +82,7 @@ export class DocumentViewPage {
     }
     async removeFocusHandler(event){
         let closestContainer = event.target.closest(".document-editor");
-        if(!closestContainer && !event.target.classList.contains("maintain-focus")){
+        if(!closestContainer && !event.target.closest(".maintain-focus")){
             if(this.currentElement){
                 this.currentElement.element.removeAttribute("id");
                 this.currentElement.containerElement.removeAttribute("id");

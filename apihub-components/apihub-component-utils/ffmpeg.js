@@ -278,58 +278,44 @@ async function estimateDocumentVideoLength(spaceId, document) {
 }
 async function createScreenshotFromVideoRange(videoStream, timeInSeconds) {
     return new Promise((resolve, reject) => {
-        const ffmpeg = spawn(ffmpegPath, [
-            '-i', 'pipe:0',                  // Input from stdin
-            '-ss', timeInSeconds.toString(), // Output seeking (after -i)
-            '-frames:v', '1',                // Capture one frame
-            '-f', 'image2',                  // Output format
-            '-vcodec', 'png',                // Output codec
+        const ffmpeg = spawn( ffmpegPath, [
+            '-i', 'pipe:0',                  // Use stdin as the input
+            '-ss', '00:00:01',       // Time to capture the screenshot
+            '-frames:v', '1',                // Capture only one frame
+            '-f', 'image2',                  // Force format as image
+            '-vcodec', 'png',                // Specify PNG format
+            '-update', '1',                  //  Avoid the need for image sequence patterns
             'pipe:1'                         // Output to stdout
         ]);
-
         let imageBuffer = [];
         let errorData = '';
-
-        ffmpeg.stdout.on('data', (data) => {
-            imageBuffer.push(data);
+        ffmpeg.stdin.on('error', (err) => {
+            reject(new Error(`Stdin error: ${err.message}`));
         });
-
         ffmpeg.stderr.on('data', (data) => {
             errorData += data.toString();
         });
-
+        ffmpeg.stdout.on('data', (buffer) => {
+            imageBuffer.push(buffer);
+        });
         ffmpeg.on('close', (code) => {
             if (code === 0) {
                 if (imageBuffer.length > 0) {
-                    const buffer = Buffer.concat(imageBuffer);
-                    resolve(buffer);
+                    let concatBuffer = Buffer.concat(imageBuffer);
+                    resolve(concatBuffer);
                 } else {
-                    reject(new Error('No image data was generated.'));
+                    reject(new Error('FFmpeg completed but no image data was generated.'));
                 }
             } else {
-                reject(new Error(`FFmpeg exited with code ${code}: ${errorData}`));
+                reject(new Error(`FFmpeg process exited with code ${code}: ${errorData}`));
             }
         });
-
         ffmpeg.on('error', (err) => {
             reject(new Error(`Failed to start FFmpeg process: ${err.message}`));
         });
-
-        ffmpeg.stdin.on('error', (err) => {
-            // Handle EPIPE errors when FFmpeg closes stdin
-            if (err.code !== 'EPIPE') {
-                reject(new Error(`Stdin error: ${err.message}`));
-            }
-        });
-
-        // Pipe the video stream into FFmpeg's stdin
         videoStream.pipe(ffmpeg.stdin);
     });
 }
-
-
-
-
 async function getImageDimensions(imageBuffer) {
     return new Promise((resolve, reject) => {
         const ffprobe = spawn(ffprobePath, [
