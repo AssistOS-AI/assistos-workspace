@@ -1211,7 +1211,7 @@ async function getChatVideoResponse(request, response) {
 
 async function storeImage(request, response) {
     const spaceId = request.params.spaceId;
-    const imageId = crypto.generateId(8);
+    const imageId = request.params.fileId;
     const objectData = request.body;
     try {
         await space.APIs.putImage(spaceId, imageId, objectData);
@@ -1223,6 +1223,42 @@ async function storeImage(request, response) {
         return utils.sendResponse(response, 500, "application/json", {
             success: false,
             message: error + ` Error at writing image: ${imageId}`
+        });
+    }
+}
+
+async function storeAudio(request, response) {
+    const spaceId = request.params.spaceId;
+    const audioId = request.params.audioId;
+    const objectData = request.body;
+    try {
+        await space.APIs.putAudio(spaceId, audioId, objectData);
+        return utils.sendResponse(response, 200, "application/json", {
+            success: true,
+            data: audioId,
+        });
+    } catch (error) {
+        return utils.sendResponse(response, 500, "application/json", {
+            success: false,
+            message: error + ` Error at writing audio: ${audioId}`
+        });
+    }
+}
+
+async function storeVideo(request, response) {
+    const spaceId = request.params.spaceId;
+    const videoId = request.params.videoId;
+    const objectData = request.body;
+    try {
+        await space.APIs.putVideo(spaceId, videoId, objectData);
+        return utils.sendResponse(response, 200, "application/json", {
+            success: true,
+            data: videoId,
+        });
+    } catch (error) {
+        return utils.sendResponse(response, 500, "application/json", {
+            success: false,
+            message: error + ` Error adding video`
         });
     }
 }
@@ -1258,23 +1294,6 @@ async function deleteImage(request, response) {
     }
 }
 
-async function storeAudio(request, response) {
-    const spaceId = request.params.spaceId;
-    const audioId = crypto.generateId(8);
-    const objectData = request.body;
-    try {
-        await space.APIs.putAudio(spaceId, audioId, objectData);
-        return utils.sendResponse(response, 200, "application/json", {
-            success: true,
-            data: audioId,
-        });
-    } catch (error) {
-        return utils.sendResponse(response, 500, "application/json", {
-            success: false,
-            message: error + ` Error at writing audio: ${audioId}`
-        });
-    }
-}
 
 async function getAudio(request, response) {
     const spaceId = request.params.spaceId;
@@ -1327,24 +1346,6 @@ async function deleteAudio(request, response) {
     }
 }
 
-
-async function addVideo(request, response) {
-    const spaceId = request.params.spaceId;
-    const videoId = crypto.generateId();
-    const objectData = request.body;
-    try {
-        await space.APIs.putVideo(spaceId, videoId, objectData);
-        return utils.sendResponse(response, 200, "application/json", {
-            success: true,
-            data: videoId,
-        });
-    } catch (error) {
-        return utils.sendResponse(response, 500, "application/json", {
-            success: false,
-            message: error + ` Error adding video`
-        });
-    }
-}
 
 function uploadVideoAsChunks(request, response) {
     const spaceId = request.params.spaceId;
@@ -1409,8 +1410,8 @@ async function getVideo(request, response) {
             return response.end();
         }
         let range = request.headers.range;
-        if(range){
-            let {fileStream, head} =  await Storage.getVideoRange(spaceId, videoId, range, response);
+        if (range) {
+            let {fileStream, head} = await Storage.getVideoRange(spaceId, videoId, range, response);
             response.writeHead(206, head); // Partial Content
             await pipelinePromise(fileStream, response);
             response.end();
@@ -1545,17 +1546,21 @@ async function getUploadURL(request, response) {
             message: `Bad Request: Space ID is required`
         });
     }
-    if (!["video", "audio", "image"].includes(uploadType)) {
+    if (!["videos", "audios", "images"].includes(uploadType)) {
         return utils.sendResponse(response, 400, "application/json", {
             success: false,
             message: `Bad Request: Invalid upload type`
         });
     }
     try {
-        const uploadURL = await space.APIs.getUploadURL(spaceId,uploadType);
+        const fileId = crypto.generateId();
+        const uploadURL = await space.APIs.getUploadURL(spaceId, uploadType, fileId);
         return utils.sendResponse(response, 200, "application/json", {
             success: true,
-            data: uploadURL,
+            data: {
+                uploadURL: uploadURL,
+                fileId: fileId
+            },
             message: `Upload URL retrieved successfully`
         });
     } catch (error) {
@@ -1611,7 +1616,7 @@ module.exports = {
     storeAudio,
     deleteAudio,
     getAudio,
-    addVideo,
+    storeVideo,
     getVideo,
     deleteVideo,
     exportPersonality,

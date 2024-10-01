@@ -51,8 +51,8 @@ async function headVideo(spaceId, fileId) {
 async function headImage(spaceId, fileId) {
     return await storageClient.headImage(spaceId, fileId);
 }
-async function getUploadURL(spaceId,uploadType){
-    return await storageClient.getUploadURL(spaceId,uploadType);
+async function getUploadURL(spaceId,uploadType,fileId){
+    return await storageClient.getUploadURL(spaceId,uploadType,fileId);
 }
 module.exports = {
     insertImage,

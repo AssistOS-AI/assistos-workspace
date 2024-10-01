@@ -637,8 +637,8 @@ async function getPersonalityByName(spaceId, personalityName) {
     const personalities = await getSpacePersonalitiesObject(spaceId);
     return personalities.find(personality => personality.name === personalityName);
 }
-async function getUploadURL(spaceId,uploadType) {
-    return await Storage.getUploadURL(spaceId,uploadType);
+async function getUploadURL(spaceId,uploadType,fileId) {
+    return await Storage.getUploadURL(spaceId,uploadType,fileId);
 }
 
 module.exports = {

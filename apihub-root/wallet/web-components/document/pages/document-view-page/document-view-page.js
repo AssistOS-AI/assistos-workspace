@@ -334,9 +334,7 @@ export class DocumentViewPage {
             paragraphPresenter.highlightParagraph();
             let dragBorder = paragraphItem.querySelector(".drag-border");
             dragBorder.style.display = "block";
-
             saveFunction = paragraphPresenter.saveParagraphImage.bind(paragraphPresenter, targetElement);
-            resetTimerFunction = paragraphPresenter.resetTimerImage.bind(paragraphPresenter, targetElement);
         }
         targetElement.focus();
         if (this.timer) {
