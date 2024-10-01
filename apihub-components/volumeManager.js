@@ -9,6 +9,10 @@ function resolveVolumePath(volumeResourcePath) {
 }
 
 module.exports = {
+    getBaseURL:()=>{
+        return config.ENVIRONMENT_MODE==='development'?config.DEVELOPMENT_BASE_URL:config.PRODUCTION_BASE_URL;
+    },
+    config: config,
     paths: {
         space: resolveVolumePath(volume.configs.SPACE_FOLDER_PATH),
         spaceMap: resolveVolumePath(volume.configs.SPACE_MAP_PATH),
