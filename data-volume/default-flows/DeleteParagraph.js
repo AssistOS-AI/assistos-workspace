@@ -31,7 +31,7 @@ class DeleteParagraph extends IFlow {
 
     async userCode(apis, parameters) {
         try {
-            let documentModule = this.loadModule("document");
+            const documentModule = this.loadModule("document");
             await documentModule.deleteParagraph(parameters.spaceId, parameters.documentId, parameters.chapterId, parameters.paragraphId);
             apis.success(parameters.paragraphId);
         } catch (e) {
