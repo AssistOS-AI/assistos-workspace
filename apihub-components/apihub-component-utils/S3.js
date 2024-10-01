@@ -160,7 +160,7 @@ async function headVideo(spaceId, videoId) {
 async function headImage(spaceId, imageId) {
     return headObject(spaceId, 'images', imageId);
 }
-async function getUploadURL(spaceId){
+async function getUploadURL(spaceId,uploadType){
     return await sendLLMAdapterRequest(`${llmAdapterUrl}${llmAdapterRoutes.GET.UPLOAD_URL}?spaceId=${spaceId}`, 'GET');
 }
 

@@ -131,7 +131,7 @@ function SpaceStorage(server) {
     server.post("/apis/v1/spaces/:spaceId/chats/:chatId/llms/image/variants", getChatImageVariants);
     server.post("/apis/v1/spaces/:spaceId/chats/:chatId/llms/video/generate", getChatVideoResponse);
 
-    server.get("/spaces/uploads/:spaceId",getUploadURL);
+    server.get("/spaces/uploads/:spaceId/:uploadType",getUploadURL);
 
     server.post("/spaces/image/:spaceId", storeImage);
     server.delete("/spaces/image/:spaceId/:imageId", deleteImage);

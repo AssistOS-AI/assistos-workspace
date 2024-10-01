@@ -1536,8 +1536,21 @@ async function exportPersonality(request, response) {
 
 async function getUploadURL(request, response) {
     const spaceId = request.params.spaceId;
+    const uploadType = request.params.uploadType;
+    if (!spaceId) {
+        return utils.sendResponse(response, 400, "application/json", {
+            success: false,
+            message: `Bad Request: Space ID is required`
+        });
+    }
+    if (!["video", "audio", "image"].includes(uploadType)) {
+        return utils.sendResponse(response, 400, "application/json", {
+            success: false,
+            message: `Bad Request: Invalid upload type`
+        });
+    }
     try {
-        const uploadURL= await space.APIs.getUploadURL(spaceId);
+        const uploadURL = await space.APIs.getUploadURL(spaceId,uploadType);
         return utils.sendResponse(response, 200, "application/json", {
             success: true,
             data: uploadURL,
