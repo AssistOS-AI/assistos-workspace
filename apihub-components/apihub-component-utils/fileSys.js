@@ -91,6 +91,27 @@ async function getVideo(spaceId, videoId) {
     const videoPath = path.join(videosPath, `${videoId}.mp4`);
     return await fsPromises.readFile(videoPath);
 }
+async function getVideoRange(spaceId, videoId, range) {
+    const videosPath = path.join(getSpacePath(spaceId), 'videos');
+    const videoPath = path.join(videosPath, `${videoId}.mp4`);
+    const stat = await fs.promises.stat(videoPath);
+    const fileSize = stat.size;
+    const parts = range.replace(/bytes=/, "").split("-");
+    const start = parseInt(parts[0], 10);
+    const end = parts[1] ? parseInt(parts[1], 10) : fileSize - 1;
+    const validEnd = Math.min(end, fileSize - 1);
+
+    const chunkSize = (validEnd - start) + 1;
+
+    const fileStream = fs.createReadStream(videoPath, {start, end: validEnd});
+    const head = {
+        'Content-Range': `bytes ${start}-${end}/${fileSize}`,
+        'Accept-Ranges': 'bytes',
+        'Content-Length': chunkSize,
+        'Content-Type': 'video/mp4',
+    };
+    return {fileStream, head};
+}
 
 function getImageStream(spaceId, imageId) {
     const imagesPath = path.join(getSpacePath(spaceId), 'images');
@@ -155,5 +176,6 @@ module.exports = {
     headAudio,
     headVideo,
     headImage,
-    downloadData
+    downloadData,
+    getVideoRange
 }

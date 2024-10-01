@@ -76,13 +76,13 @@ async function headObject(spaceId, tableId, objectId) {
 
     return response.status === 200;
 }
-async function getObject(spaceId, tableId, objectId) {
+async function getObject(spaceId, tableId, objectId, headers = {}) {
     const fileName = getS3FileName(spaceId, tableId, objectId);
     const routeKey = getRouteKey(tableId, false);
     const route = llmAdapterRoutes.GET[routeKey];
     const url = `${llmAdapterUrl}${route}?fileName=${encodeURIComponent(fileName)}`;
 
-    const response = await sendLLMAdapterRequest(url, 'GET');
+    const response = await sendLLMAdapterRequest(url, 'GET', null, headers);
 
     const data = await response.buffer();
     return data;
@@ -124,6 +124,24 @@ async function getAudio(spaceId, audioId) {
 
 async function getVideo(spaceId, videoId) {
     return getObject(spaceId, 'videos', videoId);
+}
+async function getVideoRange(spaceId, videoId, range) {
+    const fileName = getS3FileName(spaceId, "videos", videoId);
+    const routeKey = getRouteKey("videos", true);
+    const route = llmAdapterRoutes.GET[routeKey];
+    const url = `${llmAdapterUrl}${route}?fileName=${encodeURIComponent(fileName)}`;
+
+    const response = await sendLLMAdapterRequest(url, 'GET', null, {
+        Range: range
+    });
+
+    let head = {
+        'Content-Range': response.headers.get('Content-Range'),
+        'Accept-Ranges': 'bytes',
+        'Content-Length': response.headers.get('Content-Length'),
+        'Content-Type': response.headers.get('Content-Type')
+    };
+    return {fileStream: response.body, head};
 }
 
 async function insertImage(spaceId, imageId, imageData) {
@@ -167,6 +185,7 @@ module.exports = {
     getAudio,
     getImage,
     getVideo,
+    getVideoRange,
     deleteImage,
     deleteAudio,
     deleteVideo,

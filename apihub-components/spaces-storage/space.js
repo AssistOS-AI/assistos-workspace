@@ -2,9 +2,6 @@ const path = require('path');
 const fsPromises = require('fs').promises;
 const archiver = require('archiver');
 const enclave = require('opendsu').loadAPI('enclave');
-const {pipeline} = require('stream');
-const util = require('util');
-const pipelineAsync = util.promisify(pipeline);
 const crypto = require("../apihub-component-utils/crypto");
 const data = require('../apihub-component-utils/data.js');
 const date = require('../apihub-component-utils/date.js');
@@ -555,30 +552,6 @@ function getVideoStream(spaceId, videoId) {
     return Storage.getVideoStream(spaceId, videoId);
 }
 
-async function getVideoParts(response, spaceId, videoId, range) {
-    const videosPath = path.join(getSpacePath(spaceId), 'videos');
-    const videoPath = path.join(videosPath, `${videoId}.mp4`);
-    const stat = await fs.promises.stat(videoPath);
-    const fileSize = stat.size;
-    const parts = range.replace(/bytes=/, "").split("-");
-    const start = parseInt(parts[0], 10);
-    const DEFAULT_CHUNK_SIZE = 10 * 1024 * 1024; // 10 MB
-
-    const end = Math.min(start + DEFAULT_CHUNK_SIZE - 1, fileSize - 1);
-    const chunkSize = (end - start) + 1;
-
-    const fileStream = fs.createReadStream(videoPath, {start, end});
-    const head = {
-        'Content-Range': `bytes ${start}-${end}/${fileSize}`,
-        'Accept-Ranges': 'bytes',
-        'Content-Length': chunkSize,
-        'Content-Type': 'video/mp4',
-    };
-    response.writeHead(206, head); // Partial Content
-    await pipelineAsync(fileStream, response);
-
-}
-
 async function deleteVideo(spaceId, videoId) {
     return Storage.deleteVideo(spaceId, videoId);
 }
@@ -703,7 +676,6 @@ module.exports = {
         getImageStream,
         archivePersonality,
         importPersonality,
-        getVideoParts,
         putVideo,
         getSpaceMapPath,
         getPersonalitiesIds,

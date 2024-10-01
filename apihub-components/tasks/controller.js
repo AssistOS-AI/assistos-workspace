@@ -7,7 +7,8 @@ const LipSync = require("./LipSync");
 const eventPublisher = require("../subscribers/eventPublisher");
 const ffmpeg = require("../apihub-component-utils/ffmpeg");
 const AnonymousTask = require("./AnonymousTask");
-const crypto = require("../apihub-component-utils/crypto");
+const Storage = require("../apihub-component-utils/storage");
+const openDsuUtils = require("opendsu").loadApi("utils");
 async function compileVideoFromDocument(request, response) {
     let documentId = request.params.documentId;
     let spaceId = request.params.spaceId;
@@ -244,8 +245,9 @@ async function addVideoScreenshot(request, response) {
 
         let task = new AnonymousTask(securityContext, async ()=>{
             let paragraphCommands = await documentModule.getParagraphCommands(spaceId, documentId, paragraphId);
-            let videoArrayBuffer = await spaceModule.getVideo(spaceId, paragraphCommands.videoScreenshot.inputId);
-            let imageBuffer = await ffmpeg.createScreenshotFromVideo(Buffer.from(videoArrayBuffer), paragraphCommands.videoScreenshot.time);
+            const rangeEnd = 1024 * 1024 * 2; //2mb
+            let {fileStream, head} = await Storage.getVideoRange(spaceId, paragraphCommands.videoScreenshot.inputId, `bytes=0-${rangeEnd}`);
+            let imageBuffer = await ffmpeg.createScreenshotFromVideoRange(fileStream, 0);
             let imageId = await spaceModule.addImage(spaceId, documentId, imageBuffer);
             let {width, height} = await ffmpeg.getImageDimensions(imageBuffer);
             paragraphCommands.image = {
@@ -255,6 +257,7 @@ async function addVideoScreenshot(request, response) {
             };
             paragraphCommands.videoScreenshot.outputId = imageId;
             await documentModule.updateParagraphCommands(spaceId, documentId, paragraphId, paragraphCommands);
+
         });
         await task.run();
         sendResponse(response, 200, "application/json", {

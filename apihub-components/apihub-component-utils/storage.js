@@ -18,6 +18,9 @@ async function getImage(spaceId, fileId) {
 async function getVideo(spaceId, fileId) {
     return await storageClient.getVideo(spaceId, fileId);
 }
+async function getVideoRange(spaceId, fileId, range) {
+    return await storageClient.getVideoRange(spaceId, fileId, range);
+}
 async function getAudio(spaceId, fileId) {
     return await storageClient.getAudio(spaceId, fileId);
 }
@@ -63,5 +66,6 @@ module.exports = {
     deleteVideo,
     headAudio,
     headVideo,
-    headImage
+    headImage,
+    getVideoRange
 }
