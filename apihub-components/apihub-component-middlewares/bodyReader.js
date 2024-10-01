@@ -18,6 +18,7 @@ function bodyReader(req, res, next) {
             if (contentType.startsWith('application/json')) {
                 try {
                     bodyAsBuffer = bodyAsBuffer.toString();
+                    /* To allow PUT and POST requests with empty body */
                     if(bodyAsBuffer !== "") {
                         req.body = JSON.parse(bodyAsBuffer.toString());
                     }else{
@@ -53,6 +54,7 @@ function convertReadableStreamToBuffer(readStream, callback) {
 
     readStream.on("end", () => callback(undefined, Buffer.concat(buffers)));
 }
+
 function extractQueryParams(request) {
     const queryObject = new URL(request.url, `http://${request.headers.host}`).searchParams;
     let params = {};

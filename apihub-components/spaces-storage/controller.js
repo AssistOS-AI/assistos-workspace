@@ -891,7 +891,7 @@ async function getAgent(request, response) {
 
 async function acceptSpaceInvitation(request, response) {
     const invitationToken = request.query.invitationToken;
-    const newUser =  request.query.newUser || false;
+    const newUser = request.query.newUser || false;
     try {
         const HTMLResponse = await user.APIs.acceptSpaceInvitation(invitationToken, newUser);
         utils.sendResponse(response, 200, "text/html", HTMLResponse);
@@ -1328,7 +1328,6 @@ async function deleteAudio(request, response) {
 }
 
 
-
 async function addVideo(request, response) {
     const spaceId = request.params.spaceId;
     const videoId = crypto.generateId();
@@ -1537,8 +1536,25 @@ async function exportPersonality(request, response) {
     }
 }
 
+async function getUploadURL(request, response) {
+    const spaceId = request.params.spaceId;
+    try {
+        const uploadURL= await space.APIs.getUploadURL(spaceId);
+        return utils.sendResponse(response, 200, "application/json", {
+            success: true,
+            data: uploadURL,
+            message: `Upload URL retrieved successfully`
+        });
+    } catch (error) {
+        utils.sendResponse(response, error.statusCode || 500, "application/json", {
+            success: false,
+            message: `Error getting an upload URL:` + error.message
+        });
+    }
+}
 
 module.exports = {
+    getUploadURL,
     acceptSpaceInvitation,
     rejectSpaceInvitation,
     getFileObjectsMetadata,
