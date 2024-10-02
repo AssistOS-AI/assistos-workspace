@@ -7,7 +7,6 @@ const fs = require("fs");
 const Busboy = require("busboy");
 const unzipper = require("unzipper");
 const eventPublisher = require("../../subscribers/eventPublisher");
-const AnonymousTask = require("../../tasks/AnonymousTask");
 const ffmpeg = require("../../apihub-component-utils/ffmpeg");
 const {sendResponse} = require("../../apihub-component-utils/utils");
 
@@ -482,11 +481,11 @@ async function estimateDocumentVideoLength(request, response) {
     const documentModule = require("assistos").loadModule("document", securityContext);
     let document = await documentModule.getDocument(spaceId, documentId);
     try {
-        let durationObject = await ffmpeg.estimateDocumentVideoLength(spaceId, document);
+        let duration = await ffmpeg.estimateDocumentVideoLength(spaceId, document);
         sendResponse(response, 200, "application/json", {
             success: true,
             message: `Estimation in progress`,
-            data: durationObject
+            data: duration
         });
     } catch (e) {
         sendResponse(response, 500, "application/json", {

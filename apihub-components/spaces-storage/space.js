@@ -616,10 +616,11 @@ async function importPersonality(spaceId, extractedPath, request) {
 
     const personalityData = await streamToJson(personalityDataStream);
     const spacePersonalities = await getSpacePersonalitiesObject(spaceId);
-
-    const personalityImagePath = path.join(extractedPath, `${personalityData.imageId}.png`);
-    let image = await readFileAsBuffer(personalityImagePath);
-    await spaceModule.addImage(spaceId, personalityData.imageId, image);
+    if(personalityData.imageId){
+        const personalityImagePath = path.join(extractedPath, `${personalityData.imageId}.png`);
+        let image = await readFileAsBuffer(personalityImagePath);
+        await spaceModule.addImage(spaceId, personalityData.imageId, image);
+    }
     const existingPersonality = spacePersonalities.find(personality => personality.name === personalityData.name);
 
     let personalityId, overriden = false, personalityName = personalityData.name;
