@@ -539,7 +539,6 @@ async function deleteAudio(spaceId, audioId) {
     return Storage.deleteAudio(spaceId, audioId);
 }
 
-
 async function putVideo(spaceId, videoId, dataSource) {
     return await Storage.insertVideo(spaceId, videoId, dataSource);
 }

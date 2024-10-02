@@ -144,7 +144,7 @@ export class ParagraphItem {
         let chapterElement = this.element.closest("chapter-item");
         let chapterPresenter = chapterElement.webSkelPresenter;
         chapterPresenter.invalidate(chapterPresenter.refreshChapter);
-        this.deleted= true;
+        this.deleted = true;
         this.element.remove();
     }
 
@@ -552,7 +552,7 @@ export class ParagraphItem {
     }
 
     async focusOutHandler() {
-        if(this.deleted) {
+        if (this.deleted) {
             return;
         }
         await assistOS.loadifyComponent(this.element, async () => {
@@ -721,35 +721,29 @@ export class ParagraphItem {
         await this.documentPresenter.resetTimer();
     }
 
-    async copy(_target) {
-        const paragraphText = this.element.querySelector('.paragraph-text')
-        navigator.clipboard.writeText(paragraphText.value);
-        const dropdownMenu = this.element.querySelector('.dropdown-menu');
-        dropdownMenu.remove();
+    async cutParagraph(_target) {
+        window.cutParagraph = this.paragraph;
+        await this.deleteParagraph(_target);
+        delete window.cutParagraph.id;
     }
 
-    async copyImage() {
-        try {
-            const image = document.getElementById('myImage');
-            const response = await fetch(image.src);
-            const blob = await response.blob();
-            const clipboardItem = new ClipboardItem({'image/png': blob});
-            await navigator.clipboard.write([clipboardItem]);
-            console.log('Image copied to clipboard');
-        } catch (err) {
-            console.error('Failed to copy image: ', err);
-        }
+    async pasteParagraph(_target) {
+        window.cutParagraph.id= this.paragraph.id;
+        await documentModule.updateParagraph(assistOS.space.id, this._document.id, this.paragraph.id, window.cutParagraph);
+        delete window.cutParagraph;
+        this.invalidate(async () => {
+            this.paragraph = await this.chapter.refreshParagraph(assistOS.space.id, this._document.id, this.paragraph.id);
+        });
     }
 
     async openParagraphDropdown(_target) {
         let chapterElement = this.element.closest("chapter-item");
         let chapterPresenter = chapterElement.webSkelPresenter;
-
         const generateDropdownMenu = () => {
             let baseDropdownMenuHTML =
                 `<list-item data-local-action="deleteParagraph" data-name="Delete"
                            data-highlight="light-highlight"></list-item>
-                 <list-item data-local-action="copy" data-name="Copy"
+                 <list-item data-local-action="cutParagraph" data-name="Cut Paragraph"
                            data-highlight="light-highlight"></list-item>
                  <list-item data-local-action="openInsertImageModal" data-name="Insert Image"
                            data-highlight="light-highlight"></list-item>
@@ -762,6 +756,10 @@ export class ParagraphItem {
                  <list-item data-local-action="addChapter" data-name="Add Chapter"
                            data-highlight="light-highlight"></list-item>
                  `;
+            if (window.cutParagraph) {
+                baseDropdownMenuHTML += `<list-item data-local-action="pasteParagraph" data-name="Paste Paragraph"
+                           data-highlight="light-highlight"></list-item>`;
+            }
             if (this.paragraph.commands.image) {
                 baseDropdownMenuHTML = `
                 <list-item data-local-action="deleteImage" data-name="Delete Image" 

@@ -341,7 +341,6 @@ async function importDocument(request, response) {
                 }
 
                 const importResults = await storeDocument(spaceId, extractedPath, request);
-
                 await fs.promises.unlink(filePath);
                 eventPublisher.notifyClientTask(request.userId, taskId, importResults)
             } catch (error) {
