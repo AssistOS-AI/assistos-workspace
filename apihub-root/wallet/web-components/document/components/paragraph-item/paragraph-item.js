@@ -606,6 +606,7 @@ export class ParagraphItem {
                     /* there is nothing further to do, and there are no syntax errors */
                     this.errorElement.innerText = "";
                     this.errorElement.classList.add("hidden");
+                    this.renderViewModeCommands();
                     return;
                 }
                 commands = {...commands, ...attachments};
@@ -661,12 +662,12 @@ export class ParagraphItem {
                         await this.handleCommand(commandType, commandStatus, commands[commandType]);
                     }
                 }
+                this.renderViewModeCommands();
+                if(this.paragraph.commands.image){
+                    this.setupImage();
+                }
             }
             assistOS.space.currentParagraphId = null;
-            this.renderViewModeCommands();
-            if(this.paragraph.commands.image){
-                this.setupImage();
-            }
         });
     }
 
