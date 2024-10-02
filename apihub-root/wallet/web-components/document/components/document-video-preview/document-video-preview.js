@@ -106,10 +106,14 @@ export class DocumentVideoPreview {
     }
 
     incrementTimestampAudio() {
-        this.currentTimeElement.innerHTML = this.formatTime(this.currentTime + this.audioPlayer.currentTime);
+        if(this.playNextHandler === "audio"){
+            this.currentTimeElement.innerHTML = this.formatTime(this.currentTime + this.audioPlayer.currentTime);
+        }
     }
     incrementTimestampVideo() {
-        this.currentTimeElement.innerHTML = this.formatTime(this.currentTime + this.videoPlayer.currentTime);
+        if(this.playNextHandler === "video"){
+            this.currentTimeElement.innerHTML = this.formatTime(this.currentTime + this.videoPlayer.currentTime);
+        }
     }
 
     afterUnload() {
@@ -189,7 +193,6 @@ export class DocumentVideoPreview {
         } else if(type === "audio") {
             this.nextButton.classList.add("disabled");
             this.audioLoaded = false;
-            this.currentTime += this.audioPlayer.currentTime;
             this.audioPlayer.src = src;
             this.audioPlayer.load();
         } else {
@@ -640,6 +643,9 @@ export class DocumentVideoPreview {
 
             let lastChapter = this.document.chapters[this.chapterIndex];
             paragraph = lastChapter.paragraphs[this.paragraphIndex];
+            const { video, audio } = paragraph.commands;
+            const maxDuration = Math.max(video?.duration || 0, audio?.duration || 0);
+            this.currentTime -= maxDuration;
         } else {
             paragraph = this.document.chapters[this.chapterIndex].paragraphs[this.paragraphIndex];
         }
