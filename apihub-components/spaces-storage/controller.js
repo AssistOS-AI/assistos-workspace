@@ -1263,19 +1263,6 @@ async function storeVideo(request, response) {
     }
 }
 
-async function getImage(request, response) {
-    const spaceId = request.params.spaceId;
-    const imageId = request.params.imageId;
-    try {
-        let image = await space.APIs.getImage(spaceId, imageId);
-        return utils.sendResponse(response, 200, "application/octet-stream", image, null,);
-    } catch (error) {
-        return utils.sendResponse(response, 500, "application/json", {
-            success: false,
-            message: error + ` Error at reading image: ${imageId}`
-        });
-    }
-}
 
 async function deleteImage(request, response) {
     const spaceId = request.params.spaceId;
@@ -1294,6 +1281,26 @@ async function deleteImage(request, response) {
     }
 }
 
+async function getImage(request, response) {
+    const spaceId = request.params.spaceId;
+    const imageId = request.params.imageId;
+    try {
+        const imageStream = await space.APIs.getImageStream(spaceId, imageId);
+        response.setHeader('Content-Disposition', `attachment; filename=${imageId}.mp3`);
+        response.setHeader('Content-Type', 'audio/mpeg');
+        response.writeHead(200);
+        imageStream.pipe(response);
+        /*      let image = await space.APIs.getImage(spaceId, imageId);
+              response.setHeader('Content-Disposition', `attachment; filename=${imageId}.mp3`);
+              response.setHeader('Content-Type', 'audio/mpeg');
+              return utils.sendResponse(response, 200, "application/octet-stream", image, null,);*/
+    } catch (error) {
+        return utils.sendResponse(response, 500, "application/json", {
+            success: false,
+            message: error + ` Error at reading image: ${imageId}`
+        });
+    }
+}
 
 async function getAudio(request, response) {
     const spaceId = request.params.spaceId;
@@ -1317,14 +1324,55 @@ async function getAudio(request, response) {
                 message: `Audio file not found or inaccessible: ${audioId}`
             });
         }
+        const audioStream = await space.APIs.getAudioStream(spaceId, audioId);
         response.setHeader('Content-Disposition', `attachment; filename=${audioId}.mp3`);
-        let audio = await space.APIs.getAudio(spaceId, audioId);
+        response.setHeader('Content-Type', 'audio/mpeg');
+        response.writeHead(200);
+        audioStream.pipe(response);
+        /*let audio = await space.APIs.getAudio(spaceId, audioId);
         response.setHeader("Content-Length", audio.length);
-        return utils.sendResponse(response, 200, "audio/mpeg", audio);
+        return utils.sendResponse(response, 200, "audio/mpeg", audio);*/
     } catch (error) {
         return utils.sendResponse(response, 500, "application/json", {
             success: false,
             message: error + ` Error at reading audio: ${audioId}`
+        });
+    }
+}
+
+async function getVideo(request, response) {
+    const spaceId = request.params.spaceId;
+    const videoId = request.params.videoId;
+    try {
+        if (request.method === "HEAD") {
+            let videoPath = path.join(space.APIs.getSpacePath(spaceId), 'videos', `${videoId}.mp4`);
+            const stats = await fsPromises.stat(videoPath);
+            response.setHeader("Content-Type", "video/mp4");
+            response.setHeader("Content-Length", stats.size);
+            response.setHeader("Last-Modified", stats.mtime.toUTCString());
+            response.setHeader("Accept-Ranges", "bytes");
+            return response.end();
+        }
+        let range = request.headers.range;
+        if (range) {
+            let {fileStream, head} = await Storage.getVideoRange(spaceId, videoId, range, response);
+            response.writeHead(206, head); // Partial Content
+            fileStream.pipe(response);
+            return;
+        }
+        const videoStream = await space.APIs.getVideoStream(spaceId, videoId);
+        response.setHeader('Content-Disposition', `attachment; filename=${videoId}.mp4`);
+        response.setHeader('Content-Type', 'video/mp4');
+        response.writeHead(200);
+        videoStream.pipe(response);
+        /* const video = await space.APIs.getVideo(spaceId, videoId);
+           return utils.sendResponse(response, 200, "video/mp4", video);
+           */
+
+    } catch (error) {
+        return utils.sendResponse(response, error.statusCode || 500, "application/json", {
+            success: false,
+            message: error.message + ` Error at reading video: ${videoId}`
         });
     }
 }
@@ -1394,38 +1442,6 @@ function uploadVideoAsChunks(request, response) {
         });
     });
     request.pipe(busboy);
-}
-
-async function getVideo(request, response) {
-    const spaceId = request.params.spaceId;
-    const videoId = request.params.videoId;
-    try {
-        if (request.method === "HEAD") {
-            let videoPath = path.join(space.APIs.getSpacePath(spaceId), 'videos', `${videoId}.mp4`);
-            const stats = await fsPromises.stat(videoPath);
-            response.setHeader("Content-Type", "video/mp4");
-            response.setHeader("Content-Length", stats.size);
-            response.setHeader("Last-Modified", stats.mtime.toUTCString());
-            response.setHeader("Accept-Ranges", "bytes");
-            return response.end();
-        }
-        let range = request.headers.range;
-        if (range) {
-            let {fileStream, head} = await Storage.getVideoRange(spaceId, videoId, range, response);
-            response.writeHead(206, head); // Partial Content
-            fileStream.pipe(response);
-            return;
-        }
-        const video = await space.APIs.getVideo(spaceId, videoId);
-        response.setHeader('Content-Disposition', `attachment; filename=${videoId}.mp4`);
-        return utils.sendResponse(response, 200, "video/mp4", video);
-
-    } catch (error) {
-        return utils.sendResponse(response, 500, "application/json", {
-            success: false,
-            message: error.message + ` Error at reading video: ${videoId}`
-        });
-    }
 }
 
 

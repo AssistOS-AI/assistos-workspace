@@ -1,5 +1,6 @@
 const fetch = require('node-fetch');
 const config = require('../../data-volume/config/config.json');
+const {Readable} = require('stream');
 
 const llmAdapterUrl = config.LLMS_SERVER_DEVELOPMENT_BASE_URL;
 
@@ -67,6 +68,7 @@ async function sendLLMAdapterRequest(url, method, body = null, headers = {}) {
 function getS3FileName(spaceId, tableId, objectId) {
     return `${spaceId}/${tableId}/${objectId}`;
 }
+
 async function headObject(spaceId, tableId, objectId) {
     const fileName = getS3FileName(spaceId, tableId, objectId);
     const routeKey = getRouteKey(tableId, false);
@@ -77,6 +79,18 @@ async function headObject(spaceId, tableId, objectId) {
 
     return response.status === 200;
 }
+
+async function getObjectStream(spaceId, tableId, objectId, headers = {}) {
+    const fileName = getS3FileName(spaceId, tableId, objectId);
+    const routeKey = getRouteKey(tableId, true);
+    const route = llmAdapterRoutes.GET[routeKey];
+    const url = `${llmAdapterUrl}${route}?fileName=${encodeURIComponent(fileName)}`;
+
+    const response = await sendLLMAdapterRequest(url, 'GET');
+
+    return Readable.fromWeb(response.body);
+}
+
 async function getObject(spaceId, tableId, objectId, headers = {}) {
     const fileName = getS3FileName(spaceId, tableId, objectId);
     const routeKey = getRouteKey(tableId, false);
@@ -89,7 +103,7 @@ async function getObject(spaceId, tableId, objectId, headers = {}) {
     return data;
 }
 
-async function insertObject(spaceId, tableId, objectId, objectData,contentType) {
+async function insertObject(spaceId, tableId, objectId, objectData, contentType) {
     const fileName = getS3FileName(spaceId, tableId, objectId);
     const routeKey = getRouteKey(tableId);
     const route = llmAdapterRoutes.POST[routeKey];
@@ -126,6 +140,19 @@ async function getAudio(spaceId, audioId) {
 async function getVideo(spaceId, videoId) {
     return getObject(spaceId, 'videos', videoId);
 }
+
+async function getVideoStream(spaceId, videoId) {
+    return await getObjectStream(spaceId, 'videos', videoId);
+}
+
+async function getAudioStream(spaceId, audioId) {
+    return await getObjectStream(spaceId, 'audios', audioId);
+}
+
+async function getImageStream(spaceId, imageId) {
+    return await getObjectStream(spaceId, 'images', imageId);
+}
+
 async function getVideoRange(spaceId, videoId, range) {
     const fileName = getS3FileName(spaceId, "videos", videoId);
     const routeKey = getRouteKey("videos", true);
@@ -146,15 +173,15 @@ async function getVideoRange(spaceId, videoId, range) {
 }
 
 async function insertImage(spaceId, imageId, imageData) {
-    return insertObject(spaceId, 'images', imageId, imageData,'image/png');
+    return insertObject(spaceId, 'images', imageId, imageData, 'image/png');
 }
 
 async function insertAudio(spaceId, audioId, audioData) {
-    return insertObject(spaceId, 'audios', audioId, audioData,'audio/mp3');
+    return insertObject(spaceId, 'audios', audioId, audioData, 'audio/mp3');
 }
 
 async function insertVideo(spaceId, videoId, videoData) {
-    return insertObject(spaceId, 'videos', videoId, videoData,'video/mp4');
+    return insertObject(spaceId, 'videos', videoId, videoData, 'video/mp4');
 }
 
 async function deleteImage(spaceId, imageId) {
@@ -172,14 +199,17 @@ async function deleteVideo(spaceId, videoId) {
 async function headAudio(spaceId, audioId) {
     return headObject(spaceId, 'audios', audioId);
 }
+
 async function headVideo(spaceId, videoId) {
     return headObject(spaceId, 'videos', videoId);
 }
+
 async function headImage(spaceId, imageId) {
     return headObject(spaceId, 'images', imageId);
 }
-async function getUploadURL(spaceId,uploadType,fileId){
-    const response=  await sendLLMAdapterRequest(`${llmAdapterUrl}${llmAdapterRoutes.GET.UPLOAD_URL}?spaceId=${spaceId}&uploadType=${uploadType}&fileId=${fileId}`, 'GET');
+
+async function getUploadURL(spaceId, uploadType, fileId) {
+    const response = await sendLLMAdapterRequest(`${llmAdapterUrl}${llmAdapterRoutes.GET.UPLOAD_URL}?spaceId=${spaceId}&uploadType=${uploadType}&fileId=${fileId}`, 'GET');
     return (await response.json()).data;
 }
 
@@ -190,6 +220,9 @@ module.exports = {
     getAudio,
     getImage,
     getVideo,
+    getAudioStream,
+    getImageStream,
+    getVideoStream,
     getVideoRange,
     deleteImage,
     deleteAudio,
