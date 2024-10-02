@@ -4,6 +4,12 @@
     "services": [],
     "components": [
         {
+            "name": "silence-popup",
+            "directory": "document",
+            "type": "components",
+            "presenterClassName": "SilencePopup"
+        },
+        {
             "name": "export-document-modal",
             "directory": "document",
             "type": "modals",
