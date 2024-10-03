@@ -4,6 +4,12 @@
     "services": [],
     "components": [
         {
+            "name": "silence-popup",
+            "directory": "document",
+            "type": "components",
+            "presenterClassName": "SilencePopup"
+        },
+        {
             "name": "export-document-modal",
             "directory": "document",
             "type": "modals",
@@ -14,6 +20,12 @@
             "directory": "document",
             "type": "modals",
             "presenterClassName": "ShowAttachmentModal"
+        },
+        {
+            "name": "insert-audio-modal",
+            "directory": "document",
+            "type": "modals",
+            "presenterClassName": "InsertAudioModal"
         },
         {
             "name": "insert-video-modal",

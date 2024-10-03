@@ -9,8 +9,7 @@ const {
     cancelTaskAndRemove,
     getTask,
     removeTask,
-    getTaskRelevantInfo,
-    addVideoScreenshot
+    getTaskRelevantInfo
 } = require("./controller");
 const bodyReader = require('../apihub-component-middlewares/bodyReader.js')
 const authentication = require('../apihub-component-middlewares/authentication.js')
@@ -30,6 +29,5 @@ function Tasks(server){
     server.post("/tasks/video/:spaceId/:documentId", compileVideoFromDocument);
     server.post("/tasks/audio/:spaceId/:documentId/:paragraphId", textToSpeechParagraph);
     server.post("/tasks/lipsync/:spaceId/:documentId/:paragraphId", lipSyncParagraph);
-    server.post("/tasks/videoScreenshot/:spaceId/:documentId/:paragraphId", addVideoScreenshot);
 }
 module.exports = Tasks;

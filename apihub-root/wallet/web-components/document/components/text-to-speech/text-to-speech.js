@@ -1,13 +1,12 @@
 const llmModule = require("assistos").loadModule("llm", {});
 const utilModule = require("assistos").loadModule("util", {});
 const personalityModule = require("assistos").loadModule("personality", {});
-
+const documentModule = require("assistos").loadModule("document", {});
 export class TextToSpeech {
     constructor(element, invalidate) {
         this.element = element;
         this.invalidate = invalidate;
         this._document = document.querySelector("document-view-page").webSkelPresenter._document;
-        this.chapterId = this.element.getAttribute("data-chapter-id");
         this.paragraphId = this.element.getAttribute("data-paragraph-id");
         this.parentPresenter = this.element.parentElement.webSkelPresenter;
         this.invalidate(async () => {
@@ -35,19 +34,12 @@ export class TextToSpeech {
         }
 
         this.personalitiesHTML = personalitiesHTML;
-
         let emotionsHTML = "";
         for (let emotion of this.emotions) {
             emotionsHTML += `<option value="${emotion}">${emotion}</option>`;
         }
         this.emotionsHTML = emotionsHTML;
-
-        const audioCommand = this.parentPresenter.paragraph.commands["speech"];
-        this.audioConfig = null;
-
-        if (audioCommand) {
-            this.audioConfig = audioCommand.paramsObject;
-        }
+        this.audioConfig = this.parentPresenter.paragraph.commands["speech"] || {};
 
         if (this.audioConfig && this.audioConfig.personality) {
             const selectedPersonality = this.personalities.find(personality => personality.name === this.audioConfig.personality);
@@ -63,8 +55,10 @@ export class TextToSpeech {
         if (this.audioConfig && this.audioConfig.personality) {
             let personalityOption = this.element.querySelector(`option[value="${this.audioConfig.personality}"]`);
             personalityOption.selected = true;
-            let emotionOption = this.element.querySelector(`option[value="${this.audioConfig.emotion}"]`);
-            emotionOption.selected = true;
+            if(this.audioConfig.emotion){
+                let emotionOption = this.element.querySelector(`option[value="${this.audioConfig.emotion}"]`);
+                emotionOption.selected = true;
+            }
             let styleGuidance = this.element.querySelector(`#styleGuidance`);
             styleGuidance.value = this.audioConfig.styleGuidance || 15;
             let temperature = this.element.querySelector(`#temperature`);
@@ -87,23 +81,27 @@ export class TextToSpeech {
             temperature: formData.data.temperature,
         }
         const paragraphHeaderElement = this.parentPresenter.element.querySelector(".paragraph-commands");
-        if(paragraphHeaderElement.tagName === "div"){
-            this.parentPresenter.paragraph.commands.speech = utilModule.buildCommandObject("speech", commandConfig)
-            this.parentPresenter.renderViewModeCommands();
-        } else {
-            const currentCommandsString = paragraphHeaderElement.value.replace(/\n/g, "");
+        if(paragraphHeaderElement.tagName === "DIV"){
+            const testCommands = JSON.parse(JSON.stringify(this.parentPresenter.paragraph.commands));
+            testCommands.speech = commandConfig;
+
+            const currentCommandsString = utilModule.buildCommandsString(testCommands);
             const currentCommandsObj = utilModule.findCommands(currentCommandsString);
             if (currentCommandsObj.invalid === true) {
-                /* invalid command string -> just append the !speech command*/
                 const errorElement = this.parentPresenter.element.querySelector(".error-message");
                 if (errorElement.classList.contains("hidden")) {
                     errorElement.classList.remove("hidden");
                 }
                 errorElement.innerText = currentCommandsObj.error;
             } else {
-                this.parentPresenter.paragraph.commands["speech"] = utilModule.buildCommandObject("speech", commandConfig)
-                this.parentPresenter.renderEditModeCommands();
+                this.parentPresenter.paragraph.commands.speech = commandConfig;
+                await documentModule.updateParagraphCommands(assistOS.space.id, this._document.id, this.paragraphId, this.parentPresenter.paragraph.commands);
+                this.parentPresenter.renderViewModeCommands();
             }
+        } else {
+            paragraphHeaderElement.value += '\n';
+            paragraphHeaderElement.value += utilModule.buildCommandString("speech", commandConfig);
+            paragraphHeaderElement.style.height = paragraphHeaderElement.scrollHeight + "px";
         }
 
         this.element.remove();

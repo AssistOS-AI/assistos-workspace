@@ -145,6 +145,7 @@ function SpaceStorage(server) {
 
     server.delete("/spaces/image/:spaceId/:imageId", deleteImage);
     server.delete("/spaces/audio/:spaceId/:audioId", deleteAudio);
+    server.post("/spaces/videos/:spaceId/:videoId", storeVideo);
 
     server.delete("/spaces/video/:spaceId/:videoId", deleteVideo);
     server.get("/spaces/:spaceId/export/personalities/:personalityId", exportPersonality);

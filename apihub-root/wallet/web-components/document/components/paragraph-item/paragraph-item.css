@@ -37,7 +37,7 @@ paragraph-item {
     margin-left: 4px;
     cursor: pointer;
 }
-.header-sections{
+.header-section{
     display: flex;
     flex-direction: column;
     width: 100%;
@@ -54,7 +54,7 @@ paragraph-item {
     overflow-wrap: break-word;
     word-break: break-word;
     background:inherit;
-    padding-left: 10px;
+    padding: 5px 0 5px 10px;
 }
 .paragraph-attachments{
     resize: none;

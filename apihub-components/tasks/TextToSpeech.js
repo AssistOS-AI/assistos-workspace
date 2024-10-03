@@ -22,15 +22,15 @@ class TextToSpeech extends Task {
             await utilModule.constants.COMMANDS_CONFIG.COMMANDS.find(command => command.NAME === "speech").VALIDATE(this.spaceId, paragraph, this.securityContext);
 
             const paragraphConfig = await documentModule.getParagraphCommands(this.spaceId, this.documentId, this.paragraphId);
-            const personalityData = await personalityModule.getPersonalityByName(this.spaceId, paragraphConfig.speech.paramsObject.personality);
+            const personalityData = await personalityModule.getPersonalityByName(this.spaceId, paragraphConfig.speech.personality);
 
             const arrayBuffer = await llmModule.textToSpeech(this.spaceId, {
                 prompt: utilModule.unsanitize(paragraph.text),
                 voice: personalityData.voiceId,
-                emotion: paragraphConfig.speech.paramsObject.emotion,
-                styleGuidance: paragraphConfig.speech.paramsObject.styleGuidance,
-                voiceGuidance: paragraphConfig.speech.paramsObject.voiceGuidance,
-                temperature: paragraphConfig.speech.paramsObject.temperature,
+                emotion: paragraphConfig.speech.emotion,
+                styleGuidance: paragraphConfig.speech.styleGuidance,
+                voiceGuidance: paragraphConfig.speech.voiceGuidance,
+                temperature: paragraphConfig.speech.temperature,
                 modelName: "PlayHT2.0"
             });
             this.audioId = crypto.generateId();

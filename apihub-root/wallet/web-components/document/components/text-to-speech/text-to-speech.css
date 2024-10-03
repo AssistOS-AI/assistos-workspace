@@ -36,16 +36,9 @@ text-to-speech{
     display: block;
     align-items: center;
 }
-.generated-audio{
-    width: 100%;
-    margin-bottom: 10px;
-}
+
 audio:not([controls]) {
     display: block;
-}
-.audio-section{
-    width: 100%;
-    position: relative;
 }
 .bottom-row{
     display: flex;

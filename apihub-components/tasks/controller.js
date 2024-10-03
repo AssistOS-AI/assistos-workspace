@@ -233,44 +233,6 @@ function getTask(request, response) {
         });
     }
 }
-async function addVideoScreenshot(request, response) {
-    try {
-        const spaceId = request.params.spaceId;
-        const documentId = request.params.documentId;
-        const paragraphId = request.params.paragraphId;
-        const SecurityContext = require("assistos").ServerSideSecurityContext;
-        let securityContext = new SecurityContext(request);
-        let documentModule = require("assistos").loadModule("document", securityContext);
-        let spaceModule = require("assistos").loadModule("space", securityContext);
-
-        let task = new AnonymousTask(securityContext, async ()=>{
-            let paragraphCommands = await documentModule.getParagraphCommands(spaceId, documentId, paragraphId);
-            const rangeEnd = 1024 * 1024 * 5; //5mb
-            let {fileStream, head} = await Storage.getVideoRange(spaceId, paragraphCommands.videoScreenshot.inputId, `bytes=0-${rangeEnd}`);
-            let imageBuffer = await ffmpeg.createScreenshotFromVideoRange(fileStream, 0);
-            let imageId = await spaceModule.addImage(spaceId, documentId, imageBuffer);
-            let {width, height} = await ffmpeg.getImageDimensions(imageBuffer);
-            paragraphCommands.image = {
-                id: imageId,
-                width,
-                height
-            };
-            paragraphCommands.videoScreenshot.outputId = imageId;
-            await documentModule.updateParagraphCommands(spaceId, documentId, paragraphId, paragraphCommands);
-
-        });
-        await task.run();
-        sendResponse(response, 200, "application/json", {
-            success: true,
-            message: "Screenshot added"
-        });
-    } catch (error) {
-        sendResponse(response, error.statusCode || 500, "application/json", {
-            success: false,
-            message: error.message
-        });
-    }
-}
 module.exports = {
     cancelTask,
     cancelTaskAndRemove,
@@ -282,6 +244,5 @@ module.exports = {
     getTask,
     removeTask,
     lipSyncParagraph,
-    getTaskRelevantInfo,
-    addVideoScreenshot
+    getTaskRelevantInfo
 }
