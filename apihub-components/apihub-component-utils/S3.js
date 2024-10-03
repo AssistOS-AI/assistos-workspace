@@ -13,6 +13,7 @@ const llmAdapterRoutes = {
     },
     GET: {
         UPLOAD_URL: '/apis/v1/uploads',
+        DOWNLOAD_URL: '/apis/v1/downloads',
         RECORD: '/apis/v1/record',
         IMAGE: '/apis/v1/image',
         AUDIO: '/apis/v1/audio',
@@ -80,16 +81,6 @@ async function headObject(spaceId, tableId, objectId) {
     return response.status === 200;
 }
 
-async function getObjectStream(spaceId, tableId, objectId, headers = {}) {
-    const fileName = getS3FileName(spaceId, tableId, objectId);
-    const routeKey = getRouteKey(tableId, true);
-    const route = llmAdapterRoutes.GET[routeKey];
-    const url = `${llmAdapterUrl}${route}?fileName=${encodeURIComponent(fileName)}`;
-
-    const response = await sendLLMAdapterRequest(url, 'GET');
-
-    return Readable.fromWeb(response.body);
-}
 
 async function getObject(spaceId, tableId, objectId, headers = {}) {
     const fileName = getS3FileName(spaceId, tableId, objectId);
@@ -141,16 +132,31 @@ async function getVideo(spaceId, videoId) {
     return getObject(spaceId, 'videos', videoId);
 }
 
-async function getVideoStream(spaceId, videoId) {
-    return await getObjectStream(spaceId, 'videos', videoId);
+async function getVideoStream(spaceId, videoId, range) {
+    const headers={};
+    if (range) {
+        headers['Range'] = range;
+    }
+    return await getObjectStream(spaceId, 'videos', videoId, headers);
 }
 
-async function getAudioStream(spaceId, audioId) {
-    return await getObjectStream(spaceId, 'audios', audioId);
-}
+async function getObjectStream(spaceId, tableId, objectId,range,  headers = {}) {
+    const fileName = getS3FileName(spaceId, tableId, objectId);
+    const routeKey = getRouteKey(tableId, true);
+    const route = llmAdapterRoutes.GET[routeKey];
+    const url = `${llmAdapterUrl}${route}?fileName=${encodeURIComponent(fileName)}`;
 
-async function getImageStream(spaceId, imageId) {
-    return await getObjectStream(spaceId, 'images', imageId);
+    if (range) {
+        headers['Range'] = range;
+    }
+    const response = await sendLLMAdapterRequest(url, 'GET', null,  headers);
+    const responseHeaders = {
+        'Content-Range': response.headers.get('Content-Range'),
+        'Accept-Ranges': 'bytes',
+        'Content-Length': response.headers.get('Content-Length'),
+        'Content-Type': response.headers.get('Content-Type')
+    }
+    return {fileStream: response.body, headers: responseHeaders};
 }
 
 async function getVideoRange(spaceId, videoId, range) {
@@ -171,6 +177,15 @@ async function getVideoRange(spaceId, videoId, range) {
     };
     return {fileStream: response.body, head};
 }
+
+async function getAudioStream(spaceId, audioId, range) {
+    return await getObjectStream(spaceId, 'audios', audioId, range);
+}
+
+async function getImageStream(spaceId, imageId, range) {
+    return await getObjectStream(spaceId, 'images', imageId, range);
+}
+
 
 async function insertImage(spaceId, imageId, imageData) {
     return insertObject(spaceId, 'images', imageId, imageData, 'image/png');
@@ -213,6 +228,11 @@ async function getUploadURL(spaceId, uploadType, fileId) {
     return (await response.json()).data;
 }
 
+async function getDownloadURL(spaceId, downloadType, fileId) {
+    const response = await sendLLMAdapterRequest(`${llmAdapterUrl}${llmAdapterRoutes.GET.DOWNLOAD_URL}?spaceId=${spaceId}&downloadType=${downloadType}&fileId=${fileId}`, 'GET');
+    return (await response.json()).data;
+}
+
 module.exports = {
     insertImage,
     insertAudio,
@@ -230,5 +250,6 @@ module.exports = {
     headAudio,
     headVideo,
     headImage,
-    getUploadURL
+    getUploadURL,
+    getDownloadURL
 };

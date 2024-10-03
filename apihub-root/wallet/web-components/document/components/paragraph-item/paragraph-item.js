@@ -723,14 +723,13 @@ export class ParagraphItem {
 
     async cutParagraph(_target) {
         window.cutParagraph = this.paragraph;
-        await this.deleteParagraph(_target);
         delete window.cutParagraph.id;
+        await this.deleteParagraph(_target);
     }
 
     async pasteParagraph(_target) {
         window.cutParagraph.id= this.paragraph.id;
         await documentModule.updateParagraph(assistOS.space.id, this._document.id, this.paragraph.id, window.cutParagraph);
-        delete window.cutParagraph;
         this.invalidate(async () => {
             this.paragraph = await this.chapter.refreshParagraph(assistOS.space.id, this._document.id, this.paragraph.id);
         });

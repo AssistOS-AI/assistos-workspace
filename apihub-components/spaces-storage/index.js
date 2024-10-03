@@ -51,6 +51,7 @@ const {
     getFileObjects,
     storeVideo,
     getUploadURL,
+    getDownloadURL
 } = require("./controller");
 
 const bodyReader = require('../apihub-component-middlewares/bodyReader.js')
@@ -131,14 +132,20 @@ function SpaceStorage(server) {
     server.post("/apis/v1/spaces/:spaceId/chats/:chatId/llms/image/variants", getChatImageVariants);
     server.post("/apis/v1/spaces/:spaceId/chats/:chatId/llms/video/generate", getChatVideoResponse);
 
-    server.get("/spaces/uploads/:spaceId/:uploadType",getUploadURL);
+    server.get("/spaces/uploads/:spaceId/:uploadType", getUploadURL);
+    server.get("/spaces/downloads/:spaceId/:downloadType/:fileId", getDownloadURL);
 
     server.post("/spaces/images/:spaceId/:fileId", storeImage);
-    server.delete("/spaces/image/:spaceId/:imageId", deleteImage);
     server.post("/spaces/audios/:spaceId/:fileId", storeAudio);
+    server.post("/spaces/videos/:spaceId", storeVideo);
+
+    server.put("/spaces/images/:spaceId/:fileId", storeImage);
+    server.put("/spaces/audios/:spaceId/:fileId", storeAudio);
+    server.put("/spaces/videos/:spaceId", storeVideo);
+
+    server.delete("/spaces/image/:spaceId/:imageId", deleteImage);
     server.delete("/spaces/audio/:spaceId/:audioId", deleteAudio);
 
-    server.post("/spaces/videos/:spaceId", storeVideo);
     server.delete("/spaces/video/:spaceId/:videoId", deleteVideo);
     server.get("/spaces/:spaceId/export/personalities/:personalityId", exportPersonality);
     server.post("/spaces/:spaceId/import/personalities", importPersonality);

@@ -515,8 +515,8 @@ async function getImage(spaceId, imageId) {
     return await Storage.getImage(spaceId, imageId);
 }
 
-function getImageStream(spaceId, imageId) {
-    return Storage.getImageStream(spaceId, imageId);
+function getImageStream(spaceId, imageId,range) {
+    return Storage.getImageStream(spaceId, imageId,range);
 }
 
 async function deleteImage(spaceId, imageId) {
@@ -531,8 +531,8 @@ async function getAudio(spaceId, audioId) {
     return await Storage.getAudio(spaceId, audioId);
 }
 
-function getAudioStream(spaceId, audioId) {
-    return Storage.getAudioStream(spaceId, audioId);
+function getAudioStream(spaceId, audioId,range) {
+    return Storage.getAudioStream(spaceId, audioId,range);
 }
 
 async function deleteAudio(spaceId, audioId) {
@@ -547,8 +547,8 @@ async function getVideo(spaceId, videoId) {
     return await Storage.getVideo(spaceId, videoId);
 }
 
-function getVideoStream(spaceId, videoId) {
-    return Storage.getVideoStream(spaceId, videoId);
+function getVideoStream(spaceId, videoId,range) {
+    return Storage.getVideoStream(spaceId, videoId,range);
 }
 
 async function deleteVideo(spaceId, videoId) {
@@ -640,10 +640,14 @@ async function getPersonalityByName(spaceId, personalityName) {
 async function getUploadURL(spaceId,uploadType,fileId) {
     return await Storage.getUploadURL(spaceId,uploadType,fileId);
 }
+async function getDownloadURL(spaceId,downloadType,fileId) {
+    return await Storage.getDownloadURL(spaceId,downloadType,fileId);
+}
 
 module.exports = {
     APIs: {
         getUploadURL,
+        getDownloadURL,
         addSpaceAnnouncement,
         getSpaceAnnouncement,
         getSpaceAnnouncements,

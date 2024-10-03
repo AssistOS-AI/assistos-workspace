@@ -178,6 +178,10 @@ async function getUploadURL(spaceId, uploadType, fileId) {
     const baseURL = volumeManager.getBaseURL();
     return `${baseURL}/spaces/${uploadType}/${spaceId}/${fileId}`;
 }
+async function getDownloadURL(spaceId, downloadType, fileId) {
+    const baseURL = volumeManager.getBaseURL();
+    return `${baseURL}/spaces/${downloadType}/${spaceId}/${fileId}`;
+}
 
 module.exports = {
     insertImage,
@@ -197,5 +201,6 @@ module.exports = {
     headImage,
     downloadData,
     getUploadURL,
+    getDownloadURL,
     getVideoRange
 }

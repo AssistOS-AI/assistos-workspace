@@ -24,14 +24,14 @@ async function getVideoRange(spaceId, fileId, range) {
 async function getAudio(spaceId, fileId) {
     return await storageClient.getAudio(spaceId, fileId);
 }
-function getImageStream(spaceId, fileId) {
-    return storageClient.getImageStream(spaceId, fileId);
+function getImageStream(spaceId, fileId,range) {
+    return storageClient.getImageStream(spaceId, fileId,range);
 }
-function getVideoStream(spaceId, fileId) {
-    return storageClient.getVideoStream(spaceId, fileId);
+function getVideoStream(spaceId, fileId,range) {
+    return storageClient.getVideoStream(spaceId, fileId,range);
 }
-function getAudioStream(spaceId, fileId) {
-    return storageClient.getAudioStream(spaceId, fileId);
+function getAudioStream(spaceId, fileId,range) {
+    return storageClient.getAudioStream(spaceId, fileId,range);
 }
 async function deleteImage(spaceId, fileId) {
     return await storageClient.deleteImage(spaceId, fileId);
@@ -54,6 +54,9 @@ async function headImage(spaceId, fileId) {
 async function getUploadURL(spaceId,uploadType,fileId){
     return await storageClient.getUploadURL(spaceId,uploadType,fileId);
 }
+async function getDownloadURL(spaceId,downloadType,fileId){
+    return await storageClient.getDownloadURL(spaceId,downloadType,fileId);
+}
 module.exports = {
     insertImage,
     insertAudio,
@@ -71,5 +74,6 @@ module.exports = {
     headVideo,
     headImage,
     getUploadURL,
+    getDownloadURL,
     getVideoRange
 }
