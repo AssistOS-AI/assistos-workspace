@@ -34,19 +34,12 @@ export class TextToSpeech {
         }
 
         this.personalitiesHTML = personalitiesHTML;
-
         let emotionsHTML = "";
         for (let emotion of this.emotions) {
             emotionsHTML += `<option value="${emotion}">${emotion}</option>`;
         }
         this.emotionsHTML = emotionsHTML;
-
-        const audioCommand = this.parentPresenter.paragraph.commands["speech"];
-        this.audioConfig = null;
-
-        if (audioCommand) {
-            this.audioConfig = audioCommand.paramsObject;
-        }
+        this.audioConfig = this.parentPresenter.paragraph.commands["speech"] || {};
 
         if (this.audioConfig && this.audioConfig.personality) {
             const selectedPersonality = this.personalities.find(personality => personality.name === this.audioConfig.personality);
@@ -90,7 +83,7 @@ export class TextToSpeech {
         const paragraphHeaderElement = this.parentPresenter.element.querySelector(".paragraph-commands");
         if(paragraphHeaderElement.tagName === "DIV"){
             const testCommands = JSON.parse(JSON.stringify(this.parentPresenter.paragraph.commands));
-            testCommands.speech = utilModule.buildCommandObject("speech", commandConfig);
+            testCommands.speech = commandConfig;
 
             const currentCommandsString = utilModule.buildCommandsString(testCommands);
             const currentCommandsObj = utilModule.findCommands(currentCommandsString);
@@ -101,7 +94,7 @@ export class TextToSpeech {
                 }
                 errorElement.innerText = currentCommandsObj.error;
             } else {
-                this.parentPresenter.paragraph.commands.speech = utilModule.buildCommandObject("speech", commandConfig);
+                this.parentPresenter.paragraph.commands.speech = commandConfig;
                 await documentModule.updateParagraphCommands(assistOS.space.id, this._document.id, this.paragraphId, this.parentPresenter.paragraph.commands);
                 this.parentPresenter.renderViewModeCommands();
             }

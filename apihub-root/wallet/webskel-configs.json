@@ -22,6 +22,12 @@
             "presenterClassName": "ShowAttachmentModal"
         },
         {
+            "name": "insert-audio-modal",
+            "directory": "document",
+            "type": "modals",
+            "presenterClassName": "InsertAudioModal"
+        },
+        {
             "name": "insert-video-modal",
             "directory": "document",
             "type": "modals",

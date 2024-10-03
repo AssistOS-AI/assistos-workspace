@@ -23,7 +23,7 @@ export class SilencePopup{
         let commandsElement = this.parentPresenter.element.querySelector('.paragraph-commands');
         if (commandsElement.tagName === "DIV") {
             const testCommands = JSON.parse(JSON.stringify(this.parentPresenter.paragraph.commands));
-            testCommands.silence = utilModule.buildCommandObject("silence", silenceCommand);
+            testCommands.silence = silenceCommand;
 
             const currentCommandsString = utilModule.buildCommandsString(testCommands);
             const currentCommandsObj = utilModule.findCommands(currentCommandsString);
@@ -34,7 +34,7 @@ export class SilencePopup{
                 }
                 errorElement.innerText = currentCommandsObj.error;
             } else {
-                this.parentPresenter.paragraph.commands.silence = utilModule.buildCommandObject("silence", silenceCommand);
+                this.parentPresenter.paragraph.commands.silence = silenceCommand;
                 await documentModule.updateParagraphCommands(assistOS.space.id, this._document.id, this.paragraphId, this.parentPresenter.paragraph.commands);
                 this.parentPresenter.renderViewModeCommands();
             }

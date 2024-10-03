@@ -398,7 +398,7 @@ export class DocumentVideoPreview {
                         this.loadResource("image", blackScreen);
                     }
                     this.setCurrentParagraphAndChapter(i, j);
-                    let duration = paragraph.commands["silence"].paramsObject.duration;
+                    let duration = paragraph.commands["silence"].duration;
                     this.executeSilenceCommand(duration);
                     return;
                 } else if(paragraph.commands.image){
@@ -493,7 +493,7 @@ export class DocumentVideoPreview {
             this.currentTimeElement.innerHTML = this.formatTime(this.currentTime);
             this.audioPlayer.src = "";
         } else if (paragraph.commands["silence"]) {
-            this.currentTime += parseFloat(paragraph.commands["silence"].paramsObject.duration);
+            this.currentTime += parseFloat(paragraph.commands["silence"].duration);
             this.currentTimeElement.innerHTML = this.formatTime(this.currentTime);
         } else if(paragraph.commands.image){
             this.currentTime += 1;
@@ -538,7 +538,7 @@ export class DocumentVideoPreview {
             let audioSrc = utilModule.constants.getAudioSrc(assistOS.space.id, nextParagraph.commands.audio.id);
             this.loadResource("audio", audioSrc);
         } else if(nextParagraph.commands["silence"]){
-            this.remainingSilentDuration = parseFloat(nextParagraph.commands["silence"].paramsObject.duration) * 1000;
+            this.remainingSilentDuration = parseFloat(nextParagraph.commands["silence"].duration) * 1000;
             this.silenceDuration = this.remainingSilentDuration;
         }
         if(currentMode === "play") {
@@ -729,10 +729,10 @@ export class DocumentVideoPreview {
                 this.loadResource("image", blackScreen);
             }
         } else if (previousParagraph.commands["silence"]) {
-            this.currentTime -= parseFloat(previousParagraph.commands["silence"].paramsObject.duration);
+            this.currentTime -= parseFloat(previousParagraph.commands["silence"].duration);
             this.currentTimeElement.innerHTML = this.formatTime(this.currentTime);
             //to be able to resume the video with the remaining silent duration
-            this.remainingSilentDuration = previousParagraph.commands["silence"].paramsObject.duration * 1000;
+            this.remainingSilentDuration = previousParagraph.commands["silence"].duration * 1000;
             this.silenceDuration = this.remainingSilentDuration;
             this.resumeCallback = () => {
                 this.isPaused = false;

@@ -243,7 +243,7 @@ async function exportDocumentDataPartially(documentModule, spaceId, documentId) 
     for (let chapter of documentData.chapters) {
         for (let paragraph of chapter.paragraphs) {
             if (paragraph.commands.audio) {
-                const personality = paragraph.commands["speech"].paramsObject.personality;
+                const personality = paragraph.commands["speech"].personality;
                 personalities.add(personality);
             }
         }
@@ -279,7 +279,7 @@ async function exportDocumentData(documentModule, spaceId, documentId) {
                 })
             }
             if(paragraph.commands.speech) {
-                const personality = paragraph.commands["speech"].paramsObject.personality;
+                const personality = paragraph.commands["speech"].personality;
                 personalities.add(personality);
             }
             if (paragraph.commands.image) {
