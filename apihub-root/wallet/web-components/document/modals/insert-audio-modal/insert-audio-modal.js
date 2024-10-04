@@ -30,15 +30,15 @@ export class InsertAudioModal {
         let file = event.target.files[0];
         let reader = new FileReader();
         this.audioElement = document.createElement('audio');
-        let videoId;
+        let audioId;
         reader.onload = async (e) => {
             const uint8Array = new Uint8Array(e.target.result);
-            videoId = await spaceModule.addAudio(assistOS.space.id, uint8Array);
+            audioId = await spaceModule.addAudio(assistOS.space.id, uint8Array);
             this.audioElement.addEventListener("loadedmetadata", async () => {
                 const duration = this.audioElement.duration;
                 await assistOS.loadifyComponent(this.element, async () => {
                     let data = {
-                        id: videoId,
+                        id: audioId,
                         duration: duration
                     };
                     this.audioElement.remove();
