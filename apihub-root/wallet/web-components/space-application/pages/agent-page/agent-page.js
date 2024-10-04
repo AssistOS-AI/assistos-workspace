@@ -129,6 +129,9 @@ export class AgentPage {
         const chatHistory = [];
         for (const chatItem of chatItems) {
             let role = chatItem.getAttribute("role");
+            if (role === "Space") {
+                continue;
+            }
             role = role === "own" ? "user" : role;
             if (role !== "undefined") {
                 chatHistory.push({role: role, content: chatItem.querySelector("#messageContainer").innerText});
