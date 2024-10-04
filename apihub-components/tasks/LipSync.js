@@ -5,7 +5,6 @@ const STATUS = constants.STATUS;
 const EVENTS = constants.EVENTS;
 const TaskManager = require('./TaskManager');
 const path = require('path');
-const space = require("../spaces-storage/space");
 const fsPromises = require('fs').promises;
 
 class LipSync extends Task {
@@ -109,6 +108,7 @@ class LipSync extends Task {
     }
 
     async cancelTask() {
+        clearTimeout(this.timeout);
         await this.rollback();
     }
 

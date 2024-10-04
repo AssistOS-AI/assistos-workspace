@@ -552,13 +552,15 @@ export class ParagraphItem {
             this.errorElement.innerText = "";
             this.errorElement.classList.add("hidden");
             for (let [commandName, commandStatus] of Object.entries(commandsDifferences)) {
-                if(commandStatus === "changed"){
+                if(commandStatus === "changed" || commandStatus === "deleted"){
                     await this.handleCommand(commandName, commandStatus);
                 }
             }
             this.paragraph.commands = commands;
             for (let [commandName, commandStatus] of Object.entries(commandsDifferences)) {
-                await this.handleCommand(commandName, commandStatus);
+                if(commandStatus === "new"){
+                    await this.handleCommand(commandName, commandStatus);
+                }
             }
 
             await documentModule.updateParagraphCommands(assistOS.space.id, this._document.id, this.paragraph.id, this.paragraph.commands);
