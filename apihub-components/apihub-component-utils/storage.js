@@ -1,5 +1,4 @@
-
-const config= require("../../data-volume/config/config.json");
+const config = require("../../data-volume/config/config.json");
 
 const storageClient = config.S3 ? require('./S3.js') : require('./fileSys.js');
 

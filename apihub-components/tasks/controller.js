@@ -5,10 +5,6 @@ const utils = require("../apihub-component-utils/utils");
 const TextToSpeech = require("./TextToSpeech");
 const LipSync = require("./LipSync");
 const eventPublisher = require("../subscribers/eventPublisher");
-const ffmpeg = require("../apihub-component-utils/ffmpeg");
-const AnonymousTask = require("./AnonymousTask");
-const Storage = require("../apihub-component-utils/storage");
-const openDsuUtils = require("opendsu").loadApi("utils");
 async function compileVideoFromDocument(request, response) {
     let documentId = request.params.documentId;
     let spaceId = request.params.spaceId;
@@ -38,20 +34,11 @@ async function textToSpeechParagraph(request, response) {
 
         const SecurityContext = require("assistos").ServerSideSecurityContext;
         let securityContext = new SecurityContext(request);
-
-        const documentModule = require("assistos").loadModule("document", securityContext);
-
-
         const task = new TextToSpeech(securityContext, spaceId, userId, {
             documentId,
             paragraphId,
         });
         await TaskManager.addTask(task);
-
-        const paragraphConfig = await documentModule.getParagraphCommands(spaceId, documentId, paragraphId);
-        paragraphConfig.speech.taskId = task.id;
-        await documentModule.updateParagraphCommands(spaceId, documentId, paragraphId, paragraphConfig);
-
         eventPublisher.notifyClients(sessionId, documentId + "/tasks");
         utils.sendResponse(response, 200, "application/json", {
             success: true,
@@ -71,23 +58,14 @@ async function lipSyncParagraph(request, response) {
         const spaceId = request.params.spaceId;
         const userId = request.userId;
         const sessionId = request.sessionId;
-
         const documentId = request.params.documentId;
         const paragraphId = request.params.paragraphId;
 
         const SecurityContext = require("assistos").ServerSideSecurityContext;
         let securityContext = new SecurityContext(request);
-
         let task = new LipSync(securityContext, spaceId, userId, {documentId, paragraphId});
         await TaskManager.addTask(task);
-
         eventPublisher.notifyClients(sessionId, documentId + "/tasks");
-        let documentModule = require("assistos").loadModule("document", securityContext);
-
-        let paragraphConfig = await documentModule.getParagraphCommands(spaceId, documentId, paragraphId);
-        paragraphConfig.lipsync.taskId = task.id;
-        await documentModule.updateParagraphCommands(spaceId, documentId, paragraphId, paragraphConfig);
-
         utils.sendResponse(response, 200, "application/json", {
             success: true,
             data: task.id,

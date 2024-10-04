@@ -41,7 +41,6 @@ class LipSync extends Task {
                         task.on(EVENTS.DEPENDENCY_COMPLETED, async () => {
                             this.setStatus(STATUS.RUNNING);
                             let paragraphCommands = await documentModule.getParagraphCommands(this.spaceId, this.documentId, this.paragraphId);
-                            paragraphCommands.audio = {id: paragraphCommands.audio.id};
                             await this.executeLipSync(spaceModule, llmModule, utilModule, paragraphCommands);
                         });
                         this.setStatus(STATUS.PENDING);
@@ -65,9 +64,7 @@ class LipSync extends Task {
         if (paragraphCommands.video) {
             await llmModule.lipSync(this.spaceId, this.id, paragraphCommands.video.id, paragraphCommands.audio.id, "sync-1.6.0");
         } else {
-            const imageSrc = utilModule.constants.getImageSrc(this.spaceId, paragraphCommands.image.id);
-            const audioSrc = utilModule.constants.getAudioSrc(this.spaceId, paragraphCommands.audio.id);
-            const videoId = await ffmpeg.createVideoFromImageAndAudio(imageSrc, audioSrc, this.spaceId, this.securityContext);
+            const videoId = await ffmpeg.createVideoFromImageAndAudio(paragraphCommands.image.id, paragraphCommands.audio.duration, this.spaceId, this.securityContext);
             await llmModule.lipSync(this.spaceId, this.id, videoId, paragraphCommands.audio.id, "sync-1.6.0");
         }
     }
@@ -87,9 +84,13 @@ class LipSync extends Task {
         await fileSys.downloadData(videoURL, tempFilePath);
 
         const videoBuffer = await fsPromises.readFile(tempFilePath);
+        const videoDuration = await ffmpeg.getVideoDuration(tempFilePath);
         const videoId = await spaceModule.addVideo(this.spaceId, videoBuffer);
         const paragraphCommands = await documentModule.getParagraphCommands(this.spaceId, this.documentId, this.paragraphId);
-        paragraphCommands.video = {id: videoId};
+        paragraphCommands.video = {
+            id: videoId,
+            duration: videoDuration
+        };
         delete paragraphCommands.lipsync.taskId;
         await documentModule.updateParagraphCommands(this.spaceId, this.documentId, this.paragraphId, paragraphCommands);
         if (this.resolveTask) {

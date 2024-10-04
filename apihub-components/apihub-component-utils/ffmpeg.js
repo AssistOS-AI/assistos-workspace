@@ -8,6 +8,9 @@ const AnonymousTask = require("../tasks/AnonymousTask");
 const { spawn } = require('child_process');
 const { Readable } = require('stream');
 const { once } = require('events');
+const { execFile } = require('child_process');
+const { promisify } = require('util');
+const execFileAsync = promisify(execFile);
 async function concatenateAudioFiles(tempVideoDir, audioFilesPaths, outputAudioPath, fileName, task) {
     const fileListPath = path.join(tempVideoDir, fileName);
     const fileListContent = audioFilesPaths.map(file => `file '${file}'`).join('\n');
@@ -23,7 +26,7 @@ async function createSilentAudio(outputPath, duration, task) {
     await task.runCommand(command);
 }
 
-async function createVideoFromImage(spaceId, image, duration, videoUploadCallback, task) {
+async function createVideoFromImage(spaceId, image, duration, task) {
     const videoTempId = crypto.generateId(16);
     const outputVideoPath = path.join(space.getSpacePath(spaceId), 'temp', `${videoTempId}.mp4`);
     let command;
@@ -37,7 +40,7 @@ async function createVideoFromImage(spaceId, image, duration, videoUploadCallbac
     await task.runCommand(command);
     const videoBuffer = await fsPromises.readFile(outputVideoPath);
     await fsPromises.rm(outputVideoPath);
-    return await videoUploadCallback(videoBuffer);
+    return videoBuffer;
 }
 
 async function combineVideoAndAudio(videoPath, audioPath, outputPath, task) {
@@ -136,7 +139,19 @@ async function verifyAudioIntegrity(audioPath, task) {
     const command = `${ffmpegPath} -v error -i ${audioPath} -f null -`;
     await task.runCommand(command);
 }
+async function getVideoDuration(videoPath){
+    const { stdout } = await execFileAsync(ffmpegPath, ['-i', videoPath, '-hide_banner']);
+    const durationMatch = stdout.match(/Duration: (\d{2}):(\d{2}):(\d{2}\.\d+)/);
+    if (!durationMatch) {
+        throw new Error('Could not parse the video duration');
+    }
 
+    // Convert duration (hh:mm:ss.ss) to seconds
+    const hours = parseFloat(durationMatch[1]);
+    const minutes = parseFloat(durationMatch[2]);
+    const seconds = parseFloat(durationMatch[3]);
+    return hours * 3600 + minutes * 60 + seconds;
+}
 async function addBackgroundSoundToVideo(videoPath, backgroundSoundPath, backgroundSoundVolume, fadeDuration, outputPath, task) {
     await verifyAudioIntegrity(backgroundSoundPath, task);
     await verifyAudioSettings(backgroundSoundPath, task);
@@ -182,39 +197,30 @@ async function combineVideos(tempVideoDir, videoPaths, fileListName, outputVideo
     return outputVideoPath;
 }
 
-async function createVideoFromImageAndAudio(imageSrc, audioSrc, spaceId, securityContext) {
+async function createVideoFromImageAndAudio(imageId, audioDuration, spaceId, securityContext) {
     const spaceModule = require('assistos').loadModule('space', securityContext);
-    const audioId = audioSrc.split('/').pop();
-    const imageId = imageSrc.split('/').pop();
-    const audioBuffer = Buffer.from(await spaceModule.getAudio(spaceId, audioId));
     const imageBuffer = Buffer.from(await spaceModule.getImage(spaceId, imageId));
-
-    const videoUploadCallback = async function (videoBuffer) {
-        return await spaceModule.addVideo(spaceId, videoBuffer);
-    }
     const taskCallback = async function (){
-        const tempAudioId = crypto.generateId(16);
         try {
             await fsPromises.stat(path.join(space.getSpacePath(spaceId), 'temp'))
         } catch (error) {
             await fsPromises.mkdir(path.join(space.getSpacePath(spaceId), 'temp'));
         }
-        const tempAudioPath = path.join(space.getSpacePath(spaceId), 'temp', `${tempAudioId}.mp3`);
-        await fsPromises.writeFile(tempAudioPath, audioBuffer);
-        const audioDuration = (await this.runCommand(`${ffmpegPath} -i ${tempAudioPath} -hide_banner 2>&1 | grep "Duration"`)).match(/Duration: (\d+):(\d+):(\d+\.\d+)/);
-        const totalDuration = parseInt(audioDuration[1]) * 3600 + parseInt(audioDuration[2]) * 60 + parseFloat(audioDuration[3]);
-        await fsPromises.rm(tempAudioPath);
         const tempImageId = crypto.generateId(16);
         const tempImagePath = path.join(space.getSpacePath(spaceId), 'temp', `${tempImageId}.png`);
         await fsPromises.writeFile(tempImagePath, imageBuffer);
-        const videoId = await createVideoFromImage(spaceId,tempImagePath, totalDuration, videoUploadCallback, this);
+        const videoBuffer = await createVideoFromImage(spaceId, tempImagePath, audioDuration, this);
+        let videoId = await spaceModule.addVideo(spaceId, videoBuffer);
         await fsPromises.rm(tempImagePath);
         return videoId;
     }
     let task = new AnonymousTask(securityContext, taskCallback);
-    const videoId = await task.run();
-
-    return videoId;
+    try {
+        const videoId = await task.run();
+        return videoId;
+    } catch (e) {
+        throw new Error(`Failed to create video from image and audio: ${e.message}`);
+    }
 }
 
 function estimateChapterVideoLength(spaceId, chapter) {
@@ -327,5 +333,6 @@ module.exports = {
     verifyAudioSettings,
     convertVideoToMp4,
     getAudioDuration,
-    getImageDimensions
+    getImageDimensions,
+    getVideoDuration
 }

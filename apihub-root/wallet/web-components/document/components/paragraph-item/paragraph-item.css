@@ -307,3 +307,6 @@ paragraph-item {
 .silence-duration{
     margin-left: 5px;
 }
+.command-link{
+    display: block;
+}

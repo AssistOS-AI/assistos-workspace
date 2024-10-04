@@ -124,12 +124,7 @@ export class ParagraphItem {
         if (updateTasksMenu) {
             assistOS.space.notifyObservers(this._document.id + "/tasks");
         }
-        await assistOS.callFlow("DeleteParagraph", {
-            spaceId: assistOS.space.id,
-            documentId: this._document.id,
-            chapterId: this.chapter.id,
-            paragraphId: this.paragraph.id
-        });
+        await documentModule.deleteParagraph(assistOS.space.id, this._document.id, this.chapter.id, this.paragraph.id);
         if (this.chapter.paragraphs.length > 0) {
             if (currentParagraphIndex === 0) {
                 assistOS.space.currentParagraphId = this.chapter.paragraphs[0].id;
@@ -323,7 +318,11 @@ export class ParagraphItem {
         let paragraphHeaderContainer = this.element.querySelector('.paragraph-header');
         paragraphHeaderContainer.classList.add("highlight-paragraph-header");
         this.paragraphHeader.removeAttribute('readonly');
-        this.renderEditModeCommands();
+        let commandsElement = this.element.querySelector('.paragraph-commands');
+        if(commandsElement.tagName === "DIV"){
+            this.renderEditModeCommands();
+        }
+
         let paragraphText = this.element.querySelector('.paragraph-text');
         paragraphText.classList.add("focused")
         if (this.paragraph.commands.image) {
@@ -377,16 +376,19 @@ export class ParagraphItem {
             for (let command of commands) {
               if (command.name === "image") {
                     let imageSrc = utilModule.constants.getImageSrc(assistOS.space.id, command.id);
-                    html += `<a data-local-action="showAttachment image" href="${imageSrc}" data-id="${command.id}">Image</a>`;
+                    html += `<a class="command-link" data-local-action="showAttachment image" href="${imageSrc}" data-id="${command.id}">Image</a>`;
                 } else if (command.name === "audio") {
                     let audioSrc = utilModule.constants.getAudioSrc(assistOS.space.id, command.id);
-                    html += `<a data-local-action="showAttachment audio" href="${audioSrc}" data-id="${command.id}">Audio</a>`;
+                    html += `<a class="command-link" data-local-action="showAttachment audio" href="${audioSrc}" data-id="${command.id}">Audio</a>`;
                 } else if (command.name === "video") {
                     let videoSrc = utilModule.constants.getVideoSrc(assistOS.space.id, command.id);
-                    html += `<a data-local-action="showAttachment video" href="${videoSrc}" data-id="${command.id}">Video</a>`;
+                    html += `<a class="command-link" data-local-action="showAttachment video" href="${videoSrc}" data-id="${command.id}">Video</a>`;
                 } else if (command.name === "speech") {
                     let personalityImageId = this.documentPresenter.personalitiesMetadata.find(personality => personality.name === command.personality).imageId;
-                    let imageSrc = utilModule.constants.getImageSrc(assistOS.space.id, personalityImageId);
+                    let imageSrc = "./wallet/assets/images/default-personality.png"
+                    if(personalityImageId){
+                        imageSrc = utilModule.constants.getImageSrc(assistOS.space.id, personalityImageId);
+                    }
                     let speechHTML = `
                     <div class="command-line maintain-focus">
                         <img src="${imageSrc}" class="personality-icon" alt="personality">
@@ -430,64 +432,51 @@ export class ParagraphItem {
         this.documentPresenter.renderNewTasksBadge();
     }
 
-    async handleCommand(commandType, commandStatus, command) {
-        const handleSpeechCommand = async (commandStatus, command) => {
-            switch (commandStatus) {
-                case "new":
-                case "changed":
-                    const taskId = await utilModule.constants.COMMANDS_CONFIG.COMMANDS.find(command => command.NAME === "speech").EXECUTE(assistOS.space.id, this._document.id, this.paragraph.id, {});
-                    this.addUITask(taskId);
-                    break;
-                case "deleted":
-                case "same":
+    async handleCommand(commandName, commandStatus) {
+        let attachments = ["image", "audio", "video"];
+        if(attachments.includes(commandName)){
+            return;
+        }
+        if(commandStatus === "new"){
+            const taskId = await utilModule.constants.COMMANDS_CONFIG.COMMANDS.find(command => command.NAME === commandName).EXECUTE(assistOS.space.id, this._document.id, this.paragraph.id, {});
+            this.paragraph.commands[commandName].taskId = taskId;
+            this.addUITask(taskId);
+        } else if(commandStatus === "changed"){
+            if(this.paragraph.commands[commandName].taskId){
+                //cancel the task so it can be re-executed, same if it was cancelled, failed, pending
+                let taskId = this.paragraph.commands[commandName].taskId;
+                try {
+                    utilModule.cancelTask(taskId);
+                } catch (e) {
+                    // task is not running
+                }
+            } else {
+                const taskId = await utilModule.constants.COMMANDS_CONFIG.COMMANDS.find(command => command.NAME === commandName).EXECUTE(assistOS.space.id, this._document.id, this.paragraph.id, {});
+                this.paragraph.commands[commandName].taskId = taskId;
+                this.addUITask(taskId);
             }
+        } else if(commandStatus === "deleted"){
+            await this.deleteTaskFromCommand(commandName);
         }
-        const handleLipSyncCommand = async (commandStatus, command) => {
-            switch (commandStatus) {
-                case "new":
-                    const taskId = await utilModule.constants.COMMANDS_CONFIG.COMMANDS.find(command => command.NAME === "lipsync").EXECUTE(assistOS.space.id, this._document.id, this.paragraph.id, {});
-                    this.addUITask(taskId);
-                    break;
-                case "changed":
-                case "deleted":
-                case "same":
-            }
-
-        }
-        const handleVideoCommand = async (commandStatus, command) => {
-            switch (commandStatus) {
-                case "new":
-                case "changed":
-                case "deleted":
-                case "same":
-            }
-
-        }
-        const handleSilenceCommand = async (commandStatus, command) => {
-            switch (commandStatus) {
-                case "new":
-                case "changed":
-                case "deleted":
-                case "same":
-            }
-        }
-
-        switch (commandType) {
-            case "speech":
-                return await handleSpeechCommand(commandStatus, command);
-            case "lipsync":
-                return await handleLipSyncCommand(commandStatus, command);
-            case "video":
-                return await handleVideoCommand(commandStatus, command);
-            case "silence":
-                return await handleSilenceCommand(commandStatus, command);
-        }
-
     }
-
-    async validateCommand(commandType, paragraph) {
+    async deleteTaskFromCommand(commandName) {
+        if(this.paragraph.commands[commandName].taskId){
+            let taskId = this.paragraph.commands[commandName].taskId;
+            try {
+                utilModule.cancelTask(taskId);
+            } catch (e) {
+                // task is not running
+            }
+            await utilModule.removeTask(taskId);
+            await utilModule.unsubscribeFromObject(taskId);
+            assistOS.space.notifyObservers(this._document.id + "/tasks");
+        }
+    }
+    async validateCommand(commandType, commands) {
+        let testParagraph = JSON.parse(JSON.stringify(this.paragraph));
+        testParagraph.commands = commands;
         return await utilModule.constants.COMMANDS_CONFIG.COMMANDS.find(command => command.NAME === commandType)
-            .VALIDATE(assistOS.space.id, paragraph, {});
+            .VALIDATE(assistOS.space.id, testParagraph, {});
     }
 
     async focusOutHandler() {
@@ -508,12 +497,10 @@ export class ParagraphItem {
                 const textChanged = assistOS.UI.normalizeSpaces(cachedText) !== assistOS.UI.normalizeSpaces(currentUIText);
                 if (textChanged || this.textIsDifferentFromAudio) {
                     for (let command of Object.keys(this.paragraph.commands)) {
-                        if (!this.paragraph.commands[command].taskId) {
-                            await this.handleCommand(command, "changed", this.paragraph.commands[command]);
-                        }
+                        await this.handleCommand(command, "changed");
                     }
                 }
-                this.paragraph.commands = await documentModule.getParagraphCommands(assistOS.space.id, this._document.id, this.paragraph.id);
+                await documentModule.updateParagraphCommands(assistOS.space.id, this._document.id, this.paragraph.id, this.paragraph.commands);
                 this.textIsDifferentFromAudio = false;
                 await this.saveParagraph(paragraphText);
                 assistOS.space.currentParagraphId = null;
@@ -535,41 +522,52 @@ export class ParagraphItem {
             }
             if (commands.invalid) {
                 this.showCommandsError(commands.error);
-            } else {
-                this.paragraphHeader.value = utilModule.buildCommandsString(commands);
-                const commandsDifferences = utilModule.getCommandsDifferences(this.paragraph.commands, commands);
-                const existCommandsDifferences = Object.values(commandsDifferences).some(value => value !== "same");
+                assistOS.space.currentParagraphId = null;
+                return;
+            }
+            this.paragraphHeader.value = utilModule.buildCommandsString(commands);
+            const commandsDifferences = utilModule.getCommandsDifferences(this.paragraph.commands, commands);
+            const existCommandsDifferences = Object.values(commandsDifferences).some(value => value !== "same");
 
-                if (!existCommandsDifferences) {
-                    /* there is nothing further to do, and there are no syntax errors */
-                    this.errorElement.innerText = "";
-                    this.errorElement.classList.add("hidden");
-                    this.renderViewModeCommands();
+            if (!existCommandsDifferences) {
+                /* there is nothing further to do, and there are no syntax errors */
+                this.errorElement.innerText = "";
+                this.errorElement.classList.add("hidden");
+                this.renderViewModeCommands();
+                assistOS.space.currentParagraphId = null;
+                return;
+            }
+            for (const [commandType, commandStatus] of Object.entries(commandsDifferences)) {
+                try {
+                    if(commandStatus === "deleted") {
+                        continue;
+                    }
+                    await this.validateCommand(commandType, commands);
+                } catch (error) {
+                    this.showCommandsError(error);
+                    assistOS.space.currentParagraphId = null;
                     return;
                 }
-                this.paragraph.commands = commands;
-                let errorHandlingCommands = false;
-                for (const [commandType, commandStatus] of Object.entries(commandsDifferences)) {
-                    try {
-                        await this.validateCommand(commandType, this.paragraph);
-                    } catch (error) {
-                        this.showCommandsError(error);
-                        errorHandlingCommands = true;
-                        break;
-                    }
+            }
+            this.errorElement.innerText = "";
+            this.errorElement.classList.add("hidden");
+            for (let [commandName, commandStatus] of Object.entries(commandsDifferences)) {
+                if(commandStatus === "changed"){
+                    await this.handleCommand(commandName, commandStatus);
                 }
-                if (!errorHandlingCommands) {
-                    this.errorElement.innerText = "";
-                    this.errorElement.classList.add("hidden");
-                    await documentModule.updateParagraphCommands(assistOS.space.id, this._document.id, this.paragraph.id, this.paragraph.commands);
-                    for (let [commandType, commandStatus] of Object.entries(commandsDifferences)) {
-                        await this.handleCommand(commandType, commandStatus, commands[commandType]);
-                    }
-                }
-                this.renderViewModeCommands();
-                if(this.paragraph.commands.image){
-                    this.setupImage();
-                }
+            }
+            this.paragraph.commands = commands;
+            for (let [commandName, commandStatus] of Object.entries(commandsDifferences)) {
+                await this.handleCommand(commandName, commandStatus);
+            }
+
+            await documentModule.updateParagraphCommands(assistOS.space.id, this._document.id, this.paragraph.id, this.paragraph.commands);
+            this.renderViewModeCommands();
+            if(this.paragraph.commands.image){
+                this.setupImage();
+            } else {
+                let imgContainer = this.element.querySelector(".img-container");
+                imgContainer.style.display = "none";
             }
             assistOS.space.currentParagraphId = null;
         });
@@ -596,10 +594,6 @@ export class ParagraphItem {
 
     showPopup(targetElement, mode) {
         if (mode === "off") {
-            // let dropdownMenu = this.element.querySelector('.dropdown-menu');
-            // if (dropdownMenu) {
-            //     dropdownMenu.remove();
-            // }
             let type = targetElement.getAttribute("data-type");
             let popup;
             let selector = "text-to-speech";
@@ -641,7 +635,7 @@ export class ParagraphItem {
     }
 
     async pasteParagraph(_target) {
-        window.cutParagraph.id= this.paragraph.id;
+        window.cutParagraph.id = this.paragraph.id;
         await documentModule.updateParagraph(assistOS.space.id, this._document.id, this.paragraph.id, window.cutParagraph);
         this.invalidate(async () => {
             this.paragraph = await this.chapter.refreshParagraph(assistOS.space.id, this._document.id, this.paragraph.id);
@@ -673,6 +667,9 @@ export class ParagraphItem {
                  <list-item data-local-action="openInsertAttachmentModal video" data-name="Insert Video"
                            data-highlight="light-highlight"></list-item>
                  `;
+            if (this.paragraph.commands.speech && (this.paragraph.commands.image || this.paragraph.commands.video)) {
+                baseDropdownMenuHTML += `<list-item data-name="Insert Lip Sync" data-local-action="insertLipsync" data-highlight="light-highlight"></list-item>`;
+            }
             if (window.cutParagraph) {
                 baseDropdownMenuHTML += `<list-item data-local-action="pasteParagraph" data-name="Paste Paragraph"
                            data-highlight="light-highlight"></list-item>`;
@@ -695,9 +692,6 @@ export class ParagraphItem {
             if (this.paragraph.commands.video) {
                 baseDropdownMenuHTML += `<list-item data-name="Delete Video" data-local-action="deleteCommand video" data-highlight="light-highlight"></list-item>`;
             }
-            if (this.paragraph.commands.speech && (this.paragraph.commands.image || this.paragraph.commands.video)) {
-                baseDropdownMenuHTML += `<list-item data-name="Lip Sync" data-local-action="lipSync" data-highlight="light-highlight"></list-item>`;
-            }
             let dropdownMenuHTML =
                 `<div class="dropdown-menu">` +
                 baseDropdownMenuHTML +
@@ -718,10 +712,15 @@ export class ParagraphItem {
     }
 
 
-    async lipSync(targetElement) {
+    async insertLipsync(targetElement) {
         let commands = this.element.querySelector('.paragraph-commands');
         if (commands.tagName === "DIV") {
-            this.paragraph.commands.lipsync = {};
+            if(this.paragraph.commands.lipsync){
+                await this.handleCommand("lipsync", "changed");
+            } else {
+                this.paragraph.commands.lipsync = {};
+                await this.handleCommand("lipsync", "new");
+            }
             await documentModule.updateParagraphCommands(assistOS.space.id, this._document.id, this.paragraph.id, this.paragraph.commands);
             this.renderViewModeCommands();
         } else {
@@ -729,8 +728,6 @@ export class ParagraphItem {
             this.paragraphHeader.value = `${currentCommandsString}` + "\n" + utilModule.buildCommandString("lipsync", {});
             this.paragraphHeader.style.height = this.paragraphHeader.scrollHeight + 'px';
         }
-        let dropdownMenu = this.element.querySelector('.dropdown-menu');
-        dropdownMenu.remove();
     }
 
     async openInsertAttachmentModal(_target, type) {

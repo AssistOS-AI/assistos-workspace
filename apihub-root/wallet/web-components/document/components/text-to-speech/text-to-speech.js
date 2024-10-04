@@ -73,8 +73,9 @@ export class TextToSpeech {
         if (!formData.isValid) {
             return;
         }
+        let personalityName = this.personalities.find(personality => personality.id === formData.data.personality).name;
         const commandConfig = {
-            personality: this.personalities.find((personality) => personality.id === formData.data.personality).name,
+            personality: personalityName,
             emotion: formData.data.emotion,
             styleGuidance: formData.data.styleGuidance,
             voiceGuidance: formData.data.voiceGuidance,
@@ -94,7 +95,15 @@ export class TextToSpeech {
                 }
                 errorElement.innerText = currentCommandsObj.error;
             } else {
-                this.parentPresenter.paragraph.commands.speech = commandConfig;
+                if(this.parentPresenter.paragraph.commands.speech){
+                    await this.parentPresenter.handleCommand("speech", "changed");
+                    commandConfig.taskId = this.parentPresenter.paragraph.commands.speech.taskId;
+                    this.parentPresenter.paragraph.commands.speech = commandConfig;
+                } else {
+                    this.parentPresenter.paragraph.commands.speech = commandConfig;
+                    await this.parentPresenter.handleCommand("speech", "new");
+                }
+
                 await documentModule.updateParagraphCommands(assistOS.space.id, this._document.id, this.paragraphId, this.parentPresenter.paragraph.commands);
                 this.parentPresenter.renderViewModeCommands();
             }

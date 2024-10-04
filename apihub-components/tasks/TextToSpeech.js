@@ -38,10 +38,10 @@ class TextToSpeech extends Task {
             paragraphConfig.audio = {
                 id: this.audioId,
                 duration: audioDuration
-            }
-            const audioBuffer = Buffer.from(arrayBuffer);
+            };
             delete paragraphConfig.speech.taskId;
             await documentModule.updateParagraphCommands(this.spaceId, this.documentId, this.paragraphId, paragraphConfig);
+            const audioBuffer = Buffer.from(arrayBuffer);
             await space.APIs.putAudio(this.spaceId, this.audioId, audioBuffer);
             this.emit(EVENTS.DEPENDENCY_COMPLETED);
         } catch (e) {

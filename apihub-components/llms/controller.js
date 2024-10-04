@@ -6,7 +6,6 @@ const {pipeline} = require('stream');
 const {getWebhookSecret} = require("../webhook/controller");
 const configs = require("../../data-volume/config/config.json");
 let LLMConfigs;
-const ffmpeg = require("../apihub-component-utils/ffmpeg.js");
 
 async function getLLMAuthRequirements() {
     let baseURL;

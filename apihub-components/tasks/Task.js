@@ -3,7 +3,7 @@ const constants = require('./constants');
 const eventPublisher = require("../subscribers/eventPublisher");
 const STATUS = constants.STATUS;
 const EVENTS = constants.EVENTS;
-const deleteTaskOnCompleteDuration = 60000 * 5; //5 minutes
+const deleteTaskOnCompleteDuration = 10000; //5 minutes
 class Task {
     constructor(securityContext, spaceId, userId) {
         this.status = STATUS.CREATED;
