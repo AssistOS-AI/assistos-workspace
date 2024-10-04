@@ -1,12 +1,10 @@
 const fetch = require('node-fetch');
 const config = require('../../data-volume/config/config.json');
-const {Readable} = require('stream');
 
 const llmAdapterUrl = config.LLMS_SERVER_DEVELOPMENT_BASE_URL;
 
 const llmAdapterRoutes = {
     DELETE: {
-        RECORD: '/apis/v1/record',
         IMAGE: '/apis/v1/image',
         AUDIO: '/apis/v1/audio',
         VIDEO: '/apis/v1/video'
@@ -14,38 +12,25 @@ const llmAdapterRoutes = {
     GET: {
         UPLOAD_URL: '/apis/v1/uploads',
         DOWNLOAD_URL: '/apis/v1/downloads',
-        RECORD: '/apis/v1/record',
         IMAGE: '/apis/v1/image',
         AUDIO: '/apis/v1/audio',
         VIDEO: '/apis/v1/video',
-        IMAGE_STREAM: '/apis/v1/image/stream',
-        AUDIO_STREAM: '/apis/v1/audio/stream',
-        VIDEO_STREAM: '/apis/v1/video/stream'
     },
     POST: {
-        RECORD: '/apis/v1/record',
         IMAGE: '/apis/v1/image',
         AUDIO: '/apis/v1/audio',
         VIDEO: '/apis/v1/video',
     },
-    PUT: {
-        RECORD: '/apis/v1/record'
-    },
+    PUT: {},
 };
 
-// Function to map tableId to route keys
-function getRouteKey(tableId, isStream = false) {
+function getRouteKey(tableId) {
     const mapping = {
         images: 'IMAGE',
         audios: 'AUDIO',
         videos: 'VIDEO',
-        records: 'RECORD'
     };
-    let routeKey = mapping[tableId.toLowerCase()];
-    if (isStream && routeKey) {
-        routeKey += '_STREAM';
-    }
-    return routeKey;
+   return mapping[tableId.toLowerCase()];
 }
 
 async function sendLLMAdapterRequest(url, method, body = null, headers = {}) {
@@ -72,7 +57,7 @@ function getS3FileName(spaceId, tableId, objectId) {
 
 async function headObject(spaceId, tableId, objectId) {
     const fileName = getS3FileName(spaceId, tableId, objectId);
-    const routeKey = getRouteKey(tableId, false);
+    const routeKey = getRouteKey(tableId);
     const route = llmAdapterRoutes.GET[routeKey];
     const url = `${llmAdapterUrl}${route}?fileName=${encodeURIComponent(fileName)}`;
 
@@ -81,18 +66,6 @@ async function headObject(spaceId, tableId, objectId) {
     return response.status === 200;
 }
 
-
-async function getObject(spaceId, tableId, objectId, headers = {}) {
-    const fileName = getS3FileName(spaceId, tableId, objectId);
-    const routeKey = getRouteKey(tableId, false);
-    const route = llmAdapterRoutes.GET[routeKey];
-    const url = `${llmAdapterUrl}${route}?fileName=${encodeURIComponent(fileName)}`;
-
-    const response = await sendLLMAdapterRequest(url, 'GET', null, headers);
-
-    const data = await response.buffer();
-    return data;
-}
 
 async function insertObject(spaceId, tableId, objectId, objectData, contentType) {
     const fileName = getS3FileName(spaceId, tableId, objectId);
@@ -120,72 +93,48 @@ async function deleteObject(spaceId, tableId, objectId) {
     return response.status === 200;
 }
 
-async function getImage(spaceId, imageId) {
-    return getObject(spaceId, 'images', imageId);
+
+async function getObjectStream(spaceId, tableId, objectId,  headers = {}) {
+    const fileName = getS3FileName(spaceId, tableId, objectId);
+    const routeKey = getRouteKey(tableId);
+    const route = llmAdapterRoutes.GET[routeKey];
+    const url = `${llmAdapterUrl}${route}?fileName=${encodeURIComponent(fileName)}`;
+
+    const response = await sendLLMAdapterRequest(url, 'GET', null, headers);
+    /* response.headers is as instance of Headers class, and not a normal object that can be further passed to another response headers
+    * without processing
+    * */
+    const responseHeaders = {};
+    response.headers.forEach((value, key) => {
+        responseHeaders[key] = value;
+    });
+    return { fileStream: response.body, headers: responseHeaders };
 }
 
-async function getAudio(spaceId, audioId) {
-    return getObject(spaceId, 'audios', audioId);
+
+async function getAudio(spaceId, audioId, range) {
+    const headers = {};
+    if (range) {
+        headers['Range'] = range;
+    }
+    return await getObjectStream(spaceId, 'audios', audioId, headers);
 }
 
-async function getVideo(spaceId, videoId) {
-    return getObject(spaceId, 'videos', videoId);
+async function getImage(spaceId, imageId, range) {
+    const headers = {};
+    if (range) {
+        headers['Range'] = range;
+    }
+    return await getObjectStream(spaceId, 'images', imageId, headers);
 }
 
-async function getVideoStream(spaceId, videoId, range) {
-    const headers={};
+async function getVideo(spaceId, videoId, range) {
+    const headers = {};
     if (range) {
         headers['Range'] = range;
     }
     return await getObjectStream(spaceId, 'videos', videoId, headers);
 }
-
-async function getObjectStream(spaceId, tableId, objectId,range,  headers = {}) {
-    const fileName = getS3FileName(spaceId, tableId, objectId);
-    const routeKey = getRouteKey(tableId, true);
-    const route = llmAdapterRoutes.GET[routeKey];
-    const url = `${llmAdapterUrl}${route}?fileName=${encodeURIComponent(fileName)}`;
-
-    if (range) {
-        headers['Range'] = range;
-    }
-    const response = await sendLLMAdapterRequest(url, 'GET', null,  headers);
-    const responseHeaders = {
-        'Content-Range': response.headers.get('Content-Range'),
-        'Accept-Ranges': 'bytes',
-        'Content-Length': response.headers.get('Content-Length'),
-        'Content-Type': response.headers.get('Content-Type')
-    }
-    return {fileStream: response.body, headers: responseHeaders};
-}
-
-async function getVideoRange(spaceId, videoId, range) {
-    const fileName = getS3FileName(spaceId, "videos", videoId);
-    const routeKey = getRouteKey("videos", true);
-    const route = llmAdapterRoutes.GET[routeKey];
-    const url = `${llmAdapterUrl}${route}?fileName=${encodeURIComponent(fileName)}`;
-
-    const response = await sendLLMAdapterRequest(url, 'GET', null, {
-        Range: range
-    });
-
-    let head = {
-        'Content-Range': response.headers.get('Content-Range'),
-        'Accept-Ranges': 'bytes',
-        'Content-Length': response.headers.get('Content-Length'),
-        'Content-Type': response.headers.get('Content-Type')
-    };
-    return {fileStream: response.body, head};
-}
-
-async function getAudioStream(spaceId, audioId, range) {
-    return await getObjectStream(spaceId, 'audios', audioId, range);
-}
-
-async function getImageStream(spaceId, imageId, range) {
-    return await getObjectStream(spaceId, 'images', imageId, range);
-}
-
 
 async function insertImage(spaceId, imageId, imageData) {
     return insertObject(spaceId, 'images', imageId, imageData, 'image/png');
@@ -240,10 +189,6 @@ module.exports = {
     getAudio,
     getImage,
     getVideo,
-    getAudioStream,
-    getImageStream,
-    getVideoStream,
-    getVideoRange,
     deleteImage,
     deleteAudio,
     deleteVideo,

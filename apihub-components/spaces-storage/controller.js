@@ -1287,7 +1287,7 @@ async function getImage(request, response) {
     try {
         /* TODO add HEAD method handler */
         let range=request.headers.range;
-        const {fileStream,headers} = await space.APIs.getImageStream(spaceId, imageId,range);
+        const {fileStream,headers} = await space.APIs.getImage(spaceId, imageId,range);
         response.writeHead(range ? 206 : 200, headers);
         fileStream.pipe(response);
     } catch (error) {
@@ -1306,9 +1306,7 @@ async function getAudio(request, response) {
             if (request.method === "HEAD") {
                 /* TODO refactor to use generic Storage */
                 let audioPath = path.join(space.APIs.getSpacePath(spaceId), 'audios', `${audioId}.mp3`);
-
                 const stats = await fsPromises.stat(audioPath);
-
                 response.setHeader("Content-Type", "audio/mpeg");
                 response.setHeader("Content-Length", stats.size);
                 response.setHeader("Last-Modified", stats.mtime.toUTCString());
@@ -1322,7 +1320,7 @@ async function getAudio(request, response) {
             });
         }
         let range = request.headers.range;
-        const {fileStream,headers} = await space.APIs.getAudioStream(spaceId, audioId,range);
+        const {fileStream,headers} = await space.APIs.getAudio(spaceId, audioId,range);
         response.writeHead(range ? 206 : 200, headers);
         fileStream.pipe(response);
     } catch (error) {
@@ -1348,7 +1346,7 @@ async function getVideo(request, response) {
             return response.end();
         }
         let range = request.headers.range;
-        const {fileStream, headers} = await space.APIs.getVideoStream(spaceId, videoId, range);
+        const {fileStream, headers} = await space.APIs.getVideo(spaceId, videoId, range);
         response.writeHead(range ? 206 : 200, headers);
         fileStream.pipe(response);
     } catch (error) {

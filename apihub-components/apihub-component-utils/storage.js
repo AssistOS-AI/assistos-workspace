@@ -12,26 +12,14 @@ async function insertVideo(spaceId, fileId, videoData) {
 async function insertAudio(spaceId, fileId, audioData) {
     return await storageClient.insertAudio(spaceId, fileId, audioData);
 }
-async function getImage(spaceId, fileId) {
-    return await storageClient.getImage(spaceId, fileId);
+async function getImage(spaceId, fileId,range) {
+    return await storageClient.getImage(spaceId, fileId,range);
 }
-async function getVideo(spaceId, fileId) {
-    return await storageClient.getVideo(spaceId, fileId);
+async function getVideo(spaceId, fileId,range) {
+    return await storageClient.getVideo(spaceId, fileId,range);
 }
-async function getVideoRange(spaceId, fileId, range) {
-    return await storageClient.getVideoRange(spaceId, fileId, range);
-}
-async function getAudio(spaceId, fileId) {
-    return await storageClient.getAudio(spaceId, fileId);
-}
-function getImageStream(spaceId, fileId,range) {
-    return storageClient.getImageStream(spaceId, fileId,range);
-}
-function getVideoStream(spaceId, fileId,range) {
-    return storageClient.getVideoStream(spaceId, fileId,range);
-}
-function getAudioStream(spaceId, fileId,range) {
-    return storageClient.getAudioStream(spaceId, fileId,range);
+async function getAudio(spaceId, fileId,range) {
+    return await storageClient.getAudio(spaceId, fileId,range);
 }
 async function deleteImage(spaceId, fileId) {
     return await storageClient.deleteImage(spaceId, fileId);
@@ -64,9 +52,6 @@ module.exports = {
     getImage,
     getAudio,
     getVideo,
-    getImageStream,
-    getAudioStream,
-    getVideoStream,
     deleteImage,
     deleteAudio,
     deleteVideo,
@@ -75,5 +60,4 @@ module.exports = {
     headImage,
     getUploadURL,
     getDownloadURL,
-    getVideoRange
 }

@@ -511,13 +511,7 @@ async function putImage(spaceId, imageId, imageData) {
     return await Storage.insertImage(spaceId, imageId, imageData);
 }
 
-async function getImage(spaceId, imageId) {
-    return await Storage.getImage(spaceId, imageId);
-}
 
-function getImageStream(spaceId, imageId,range) {
-    return Storage.getImageStream(spaceId, imageId,range);
-}
 
 async function deleteImage(spaceId, imageId) {
     return Storage.deleteImage(spaceId, imageId);
@@ -527,13 +521,6 @@ async function putAudio(spaceId, audioId, audioData) {
     return await Storage.insertAudio(spaceId, audioId, audioData);
 }
 
-async function getAudio(spaceId, audioId) {
-    return await Storage.getAudio(spaceId, audioId);
-}
-
-function getAudioStream(spaceId, audioId,range) {
-    return Storage.getAudioStream(spaceId, audioId,range);
-}
 
 async function deleteAudio(spaceId, audioId) {
     return Storage.deleteAudio(spaceId, audioId);
@@ -542,19 +529,19 @@ async function deleteAudio(spaceId, audioId) {
 async function putVideo(spaceId, videoId, dataSource) {
     return await Storage.insertVideo(spaceId, videoId, dataSource);
 }
-
-async function getVideo(spaceId, videoId) {
-    return await Storage.getVideo(spaceId, videoId);
+async function getAudio(spaceId, audioId,range) {
+    return await Storage.getAudio(spaceId, audioId,range);
 }
-
-function getVideoStream(spaceId, videoId,range) {
-    return Storage.getVideoStream(spaceId, videoId,range);
+async function getImage(spaceId, imageId,range) {
+    return await Storage.getImage(spaceId, imageId,range);
+}
+async function getVideo(spaceId, videoId,range) {
+    return await Storage.getVideo(spaceId, videoId,range);
 }
 
 async function deleteVideo(spaceId, videoId) {
     return Storage.deleteVideo(spaceId, videoId);
 }
-
 
 async function streamToJson(stream) {
     return new Promise((resolve, reject) => {
@@ -679,9 +666,6 @@ module.exports = {
         getSpacePath,
         getVideo,
         deleteVideo,
-        getAudioStream,
-        getVideoStream,
-        getImageStream,
         archivePersonality,
         importPersonality,
         putVideo,
