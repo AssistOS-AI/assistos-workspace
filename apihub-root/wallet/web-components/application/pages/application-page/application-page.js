@@ -43,7 +43,7 @@ export class ApplicationPage {
         this.tags = string;
     }
     async uninstallApplication() {
-        const loadingId = await assistOS.UI.showLoading();
+        const loadingId = assistOS.UI.showLoading();
         let response = await applicationModule.uninstallApplication(assistOS.space.id, this.appName);
         if (response.status === 401) {
             let confirmation = await assistOS.UI.showModal("git-credentials-modal", true);

@@ -19,12 +19,12 @@ export class ParagraphItem {
         });
     }
 
-    beforeRender() {
+    async beforeRender() {
         this.paragraphCommands = this.buildCommandsHTML("view");
         this.loadedParagraphText = this.paragraph.text || "";
     }
 
-    afterRender() {
+    async afterRender() {
         let paragraphText = this.element.querySelector(".paragraph-text");
         paragraphText.innerHTML = this.paragraph.text
         paragraphText.style.height = paragraphText.scrollHeight + 'px';

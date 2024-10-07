@@ -104,7 +104,7 @@ class AssistOS {
             return;
         }
         if (!assistOS.initialisedApplications[appName]) {
-            await assistOS.UI.showLoading();
+            assistOS.UI.showLoading();
             await initialiseApplication(appName);
             assistOS.UI.hideLoading();
         }
@@ -130,13 +130,12 @@ class AssistOS {
                 sidebar.remove();
             }
         }
-        const loaderId = await assistOS.UI.showLoading();
+        const loaderId = assistOS.UI.showLoading();
         await utilModule.closeSSEConnection(this.connectionSSE);
         delete this.connectionSSE;
         await userModule.logoutUser();
         removeSidebar();
-        await
-            await this.refresh();
+        await this.refresh();
 
     }
 
@@ -263,7 +262,7 @@ class AssistOS {
     }
 
     async loadifyFunction(asyncFunc, ...args) {
-        const loaderId = await this.UI.showLoading();
+        const loaderId =  this.UI.showLoading();
         try {
             return await asyncFunc(...args);
         } catch (error) {

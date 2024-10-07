@@ -293,7 +293,7 @@ export class GenerateImagePage {
         if (!formData.isValid) {
             return;
         }
-        let loaderId = await assistOS.UI.showLoading();
+        let loaderId = assistOS.UI.showLoading();
         this.prompt = formData.data.prompt;
         let flowContext = {
             spaceId: assistOS.space.id,
@@ -329,7 +329,7 @@ export class GenerateImagePage {
     }
 
     async editImage(_target, messageId, action) {
-        let loaderId = await assistOS.UI.showLoading();
+        let loaderId =  assistOS.UI.showLoading();
         try {
             let imageMetadata = await llmModule.editImage(assistOS.space.id, this.currentModel.name, {
                 messageId: messageId,

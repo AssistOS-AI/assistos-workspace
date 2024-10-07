@@ -10,9 +10,9 @@ export class AuthenticationPage {
     constructor(element, invalidate) {
         this.element = element;
         this.invalidate = invalidate;
-        this.invalidate();
         this.rotations = 0;
         [this.demoUserEmail, this.demoUserPassword] = getDemoUserCredentials();
+        this.invalidate();
     }
 
     beforeRender() {
