@@ -2,14 +2,14 @@ const config = require("../../data-volume/config/config.json");
 
 const storageClient = config.S3 ? require('./S3.js') : require('./fileSys.js');
 
-async function insertImage(spaceId, fileId, imageData) {
-    return await storageClient.insertImage(spaceId, fileId, imageData);
+async function putImage(spaceId, fileId, request) {
+    return await storageClient.putImage(spaceId, fileId, request);
 }
-async function insertVideo(spaceId, fileId, videoSource, request) {
-    return await storageClient.insertVideo(spaceId, fileId, videoSource, request);
+async function putVideo(spaceId, fileId, request) {
+    return await storageClient.putVideo(spaceId, fileId, request);
 }
-async function insertAudio(spaceId, fileId, audioData) {
-    return await storageClient.insertAudio(spaceId, fileId, audioData);
+async function putAudio(spaceId, fileId, request) {
+    return await storageClient.putAudio(spaceId, fileId, request);
 }
 async function getImage(spaceId, fileId,range) {
     return await storageClient.getImage(spaceId, fileId,range);
@@ -45,9 +45,9 @@ async function getDownloadURL(spaceId,downloadType,fileId){
     return await storageClient.getDownloadURL(spaceId,downloadType,fileId);
 }
 module.exports = {
-    insertImage,
-    insertAudio,
-    insertVideo,
+    putImage,
+    putVideo,
+    putAudio,
     getImage,
     getAudio,
     getVideo,

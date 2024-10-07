@@ -210,7 +210,7 @@ async function createVideoFromImageAndAudio(imageId, audioDuration, spaceId, sec
         const tempImagePath = path.join(space.getSpacePath(spaceId), 'temp', `${tempImageId}.png`);
         await fsPromises.writeFile(tempImagePath, imageBuffer);
         const videoBuffer = await createVideoFromImage(spaceId, tempImagePath, audioDuration, this);
-        let videoId = await spaceModule.addVideo(spaceId, videoBuffer);
+        let videoId = await spaceModule.putVideo(spaceId, videoBuffer);
         await fsPromises.rm(tempImagePath);
         return videoId;
     }

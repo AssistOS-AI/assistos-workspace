@@ -1,6 +1,6 @@
 const fetch = require('node-fetch');
 const config = require('../../data-volume/config/config.json');
-
+const { Readable } = require('stream');
 const llmAdapterUrl = config.LLMS_SERVER_DEVELOPMENT_BASE_URL;
 
 const llmAdapterRoutes = {
@@ -67,7 +67,7 @@ async function headObject(spaceId, tableId, objectId) {
 }
 
 
-async function insertObject(spaceId, tableId, objectId, objectData, contentType) {
+async function putObject(spaceId, tableId, objectId, request, contentType) {
     const fileName = getS3FileName(spaceId, tableId, objectId);
     const routeKey = getRouteKey(tableId);
     const route = llmAdapterRoutes.POST[routeKey];
@@ -76,8 +76,8 @@ async function insertObject(spaceId, tableId, objectId, objectData, contentType)
     const headers = {
         'Content-Type': contentType
     };
-
-    const response = await sendLLMAdapterRequest(url, 'POST', objectData, headers);
+    const stream = Readable.from(request);
+    const response = await sendLLMAdapterRequest(url, 'POST', stream, headers);
 
     return response.status === 200;
 }
@@ -136,16 +136,16 @@ async function getVideo(spaceId, videoId, range) {
     return await getObjectStream(spaceId, 'videos', videoId, headers);
 }
 
-async function insertImage(spaceId, imageId, imageData) {
-    return insertObject(spaceId, 'images', imageId, imageData, 'image/png');
+async function putImage(spaceId, imageId, request) {
+    return putObject(spaceId, 'images', imageId, request, 'image/png');
 }
 
-async function insertAudio(spaceId, audioId, audioData) {
-    return insertObject(spaceId, 'audios', audioId, audioData, 'audio/mp3');
+async function putAudio(spaceId, audioId, request) {
+    return putObject(spaceId, 'audios', audioId, request, 'audio/mp3');
 }
 
-async function insertVideo(spaceId, videoId, videoData) {
-    return insertObject(spaceId, 'videos', videoId, videoData, 'video/mp4');
+async function putVideo(spaceId, videoId, request) {
+    return putObject(spaceId, 'videos', videoId, request, 'video/mp4');
 }
 
 async function deleteImage(spaceId, imageId) {
@@ -183,9 +183,9 @@ async function getDownloadURL(spaceId, downloadType, fileId) {
 }
 
 module.exports = {
-    insertImage,
-    insertAudio,
-    insertVideo,
+    putImage,
+    putVideo,
+    putAudio,
     getAudio,
     getImage,
     getVideo,

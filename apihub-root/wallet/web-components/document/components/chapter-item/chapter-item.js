@@ -257,7 +257,7 @@ export class ChapterItem {
             }
             const reader = new FileReader();
             reader.onload = async (e) => {
-                let audioId = await spaceModule.addAudio(assistOS.space.id, e.target.result);
+                let audioId = await spaceModule.putAudio(assistOS.space.id, e.target.result);
                 let backgroundSound = {
                     id: audioId,
                     userId: assistOS.user.id,

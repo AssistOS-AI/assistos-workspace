@@ -33,7 +33,7 @@ export class InsertVideoModal {
         let videoId;
         reader.onload = async (e) => {
             const uint8Array = new Uint8Array(e.target.result);
-            videoId = await spaceModule.addVideo(assistOS.space.id, uint8Array);
+            videoId = await spaceModule.putVideo(assistOS.space.id, uint8Array);
             this.videoElement.addEventListener("loadedmetadata", async () => {
                 const duration = this.videoElement.duration;
                 const width = this.videoElement.videoWidth;

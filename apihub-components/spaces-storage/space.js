@@ -507,40 +507,34 @@ async function getDefaultSpaceAgentId(spaceId) {
     return spaceStatusObject.defaultSpaceAgent;
 }
 
-async function putImage(spaceId, imageId, imageData) {
-    return await Storage.insertImage(spaceId, imageId, imageData);
+async function getImage(spaceId, imageId, range) {
+    return await Storage.getImage(spaceId, imageId,range);
+}
+async function getVideo(spaceId, videoId, range) {
+    return await Storage.getVideo(spaceId, videoId,range);
+}
+async function getAudio(spaceId, audioId, range) {
+    return await Storage.getAudio(spaceId, audioId,range);
 }
 
-
+async function putImage(spaceId, imageId, request) {
+    return await Storage.putImage(spaceId, imageId, request);
+}
+async function putVideo(spaceId, videoId, request) {
+    return await Storage.putVideo(spaceId, videoId, request);
+}
+async function putAudio(spaceId, audioId, request) {
+    return await Storage.putAudio(spaceId, audioId, request);
+}
 
 async function deleteImage(spaceId, imageId) {
     return Storage.deleteImage(spaceId, imageId);
 }
-
-async function putAudio(spaceId, audioId, audioData) {
-    return await Storage.insertAudio(spaceId, audioId, audioData);
-}
-
-
-async function deleteAudio(spaceId, audioId) {
-    return Storage.deleteAudio(spaceId, audioId);
-}
-
-async function putVideo(spaceId, videoId, dataSource, request) {
-    return await Storage.insertVideo(spaceId, videoId, dataSource, request);
-}
-async function getAudio(spaceId, audioId,range) {
-    return await Storage.getAudio(spaceId, audioId,range);
-}
-async function getImage(spaceId, imageId,range) {
-    return await Storage.getImage(spaceId, imageId,range);
-}
-async function getVideo(spaceId, videoId,range) {
-    return await Storage.getVideo(spaceId, videoId,range);
-}
-
 async function deleteVideo(spaceId, videoId) {
     return Storage.deleteVideo(spaceId, videoId);
+}
+async function deleteAudio(spaceId, audioId) {
+    return Storage.deleteAudio(spaceId, audioId);
 }
 
 async function streamToJson(stream) {
@@ -605,7 +599,7 @@ async function importPersonality(spaceId, extractedPath, request) {
     if(personalityData.imageId){
         const personalityImagePath = path.join(extractedPath, `${personalityData.imageId}.png`);
         let image = await readFileAsBuffer(personalityImagePath);
-        await spaceModule.addImage(spaceId, personalityData.imageId, image);
+        await spaceModule.putImage(spaceId, personalityData.imageId, image);
     }
     const existingPersonality = spacePersonalities.find(personality => personality.name === personalityData.name);
 

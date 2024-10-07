@@ -1209,12 +1209,11 @@ async function getChatVideoResponse(request, response) {
 
 }
 
-async function storeImage(request, response) {
+async function putImage(request, response) {
     const spaceId = request.params.spaceId;
-    const imageId = request.params.fileId;
-    const objectData = request.body;
+    const imageId = request.params.imageId;
     try {
-        await space.APIs.putImage(spaceId, imageId, objectData);
+        await space.APIs.putImage(spaceId, imageId, request);
         return utils.sendResponse(response, 200, "application/json", {
             success: true,
             data: imageId,
@@ -1227,12 +1226,11 @@ async function storeImage(request, response) {
     }
 }
 
-async function storeAudio(request, response) {
+async function putAudio(request, response) {
     const spaceId = request.params.spaceId;
     const audioId = request.params.audioId;
-    const objectData = request.body;
     try {
-        await space.APIs.putAudio(spaceId, audioId, objectData);
+        await space.APIs.putAudio(spaceId, audioId, request);
         return utils.sendResponse(response, 200, "application/json", {
             success: true,
             data: audioId,
@@ -1245,12 +1243,11 @@ async function storeAudio(request, response) {
     }
 }
 
-async function storeVideo(request, response) {
+async function putVideo(request, response) {
     const spaceId = request.params.spaceId;
     const videoId = request.params.videoId;
-    const objectData = request.body;
     try {
-        await space.APIs.putVideo(spaceId, videoId, objectData, request);
+        await space.APIs.putVideo(spaceId, videoId, request);
         return utils.sendResponse(response, 200, "application/json", {
             success: true,
             data: videoId,
@@ -1348,11 +1345,6 @@ async function getVideo(request, response) {
 
         let range = request.headers.range;
         const { fileStream, headers } = await space.APIs.getVideo(spaceId, videoId, range);
-    /*    headers['cache-control'] = 'no-cache, no-store, must-revalidate';
-        headers['pragma'] = 'no-cache';
-        headers['expires'] = '0';
-        headers['Accept-Ranges'] = 'bytes';*/
-
         response.writeHead(206, headers);
         fileStream.pipe(response);
 
@@ -1592,13 +1584,13 @@ module.exports = {
     editChatImage,
     getChatImageVariants,
     getChatVideoResponse,
-    storeImage,
+    putImage,
     getImage,
     deleteImage,
-    storeAudio,
+    putAudio,
     deleteAudio,
     getAudio,
-    storeVideo,
+    putVideo,
     getVideo,
     deleteVideo,
     exportPersonality,
