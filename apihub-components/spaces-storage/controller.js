@@ -1320,7 +1320,7 @@ async function getAudio(request, response) {
             });
         }
         let range = request.headers.range;
-        const {fileStream,headers} = await space.APIs.getAudio(spaceId, audioId,range);
+        const {fileStream, headers} = await space.APIs.getAudio(spaceId, audioId, range);
         response.writeHead(range ? 206 : 200, headers);
         fileStream.pipe(response);
     } catch (error) {
@@ -1334,9 +1334,9 @@ async function getAudio(request, response) {
 async function getVideo(request, response) {
     const spaceId = request.params.spaceId;
     const videoId = request.params.videoId;
+
     try {
         if (request.method === "HEAD") {
-            /* TODO refactor to use generic Storage */
             let videoPath = path.join(space.APIs.getSpacePath(spaceId), 'videos', `${videoId}.mp4`);
             const stats = await fsPromises.stat(videoPath);
             response.setHeader("Content-Type", "video/mp4");
@@ -1345,10 +1345,17 @@ async function getVideo(request, response) {
             response.setHeader("Accept-Ranges", "bytes");
             return response.end();
         }
+
         let range = request.headers.range;
-        const {fileStream, headers} = await space.APIs.getVideo(spaceId, videoId, range);
-        response.writeHead(range ? 206 : 200, headers);
+        const { fileStream, headers } = await space.APIs.getVideo(spaceId, videoId, range);
+    /*    headers['cache-control'] = 'no-cache, no-store, must-revalidate';
+        headers['pragma'] = 'no-cache';
+        headers['expires'] = '0';
+        headers['Accept-Ranges'] = 'bytes';*/
+
+        response.writeHead(206, headers);
         fileStream.pipe(response);
+
     } catch (error) {
         return utils.sendResponse(response, error.statusCode || 500, "application/json", {
             success: false,
@@ -1356,6 +1363,7 @@ async function getVideo(request, response) {
         });
     }
 }
+
 
 async function deleteAudio(request, response) {
     const spaceId = request.params.spaceId;
