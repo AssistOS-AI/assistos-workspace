@@ -1250,7 +1250,7 @@ async function storeVideo(request, response) {
     const videoId = request.params.videoId;
     const objectData = request.body;
     try {
-        await space.APIs.putVideo(spaceId, videoId, objectData);
+        await space.APIs.putVideo(spaceId, videoId, objectData, request);
         return utils.sendResponse(response, 200, "application/json", {
             success: true,
             data: videoId,

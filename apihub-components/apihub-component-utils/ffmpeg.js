@@ -140,8 +140,8 @@ async function verifyAudioIntegrity(audioPath, task) {
     await task.runCommand(command);
 }
 async function getVideoDuration(videoPath){
-    const { stdout } = await execFileAsync(ffmpegPath, ['-i', videoPath, '-hide_banner']);
-    const durationMatch = stdout.match(/Duration: (\d{2}):(\d{2}):(\d{2}\.\d+)/);
+    const { stdout, stderr } = await execFileAsync(ffmpegPath, ['-i', videoPath, '-f', 'null', '-']);
+    const durationMatch = stderr.match(/Duration: (\d{2}):(\d{2}):(\d{2}\.\d+)/);
     if (!durationMatch) {
         throw new Error('Could not parse the video duration');
     }
