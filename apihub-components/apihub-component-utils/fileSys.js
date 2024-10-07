@@ -74,25 +74,19 @@ async function insertAudio(spaceId, audioId, audioData) {
     await fsPromises.writeFile(path.join(storagePath, `${audioId}.mp3`), buffer);
 }
 
-async function insertVideo(spaceId, videoId, dataSource) {
-    const storagePath = path.join(getSpacePath(spaceId), "videos");
-    if (typeof dataSource === 'string') {
-        if (dataSource.startsWith("data:")) {
-            const base64Data = dataSource.split(",")[1];
-            let buffer = Buffer.from(base64Data, 'base64');
-            await fsPromises.writeFile(path.join(storagePath, `${videoId}.mp4`), buffer);
-        } else if (dataSource.startsWith("http")) {
-            await downloadData(dataSource, path.join(storagePath, `${videoId}.mp4`));
-            return;
-        } else {
-            const buffer = Buffer.from(dataSource, 'base64');
-            await fsPromises.writeFile(path.join(storagePath, `${videoId}.mp4`), buffer);
-        }
-    } else {
-        const buffer = Buffer.from(dataSource);
-        await fsPromises.writeFile(path.join(storagePath, `${videoId}.mp4`), buffer);
-    }
-    return videoId;
+async function insertVideo(spaceId, videoId, videoData, req) {
+    return new Promise((resolve, reject) => {
+        const storagePath = path.join(getSpacePath(spaceId), "videos");
+        const filePath = path.join(storagePath, `${videoId}.mp4`);
+        const fileStream = fs.createWriteStream(filePath);
+        req.pipe(fileStream);
+        fileStream.on('finish', () => {
+            resolve(videoId);
+        });
+        fileStream.on('error', (err) => {
+            reject(err);
+        });
+    });
 }
 
 

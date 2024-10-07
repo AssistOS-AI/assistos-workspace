@@ -526,8 +526,8 @@ async function deleteAudio(spaceId, audioId) {
     return Storage.deleteAudio(spaceId, audioId);
 }
 
-async function putVideo(spaceId, videoId, dataSource) {
-    return await Storage.insertVideo(spaceId, videoId, dataSource);
+async function putVideo(spaceId, videoId, dataSource, request) {
+    return await Storage.insertVideo(spaceId, videoId, dataSource, request);
 }
 async function getAudio(spaceId, audioId,range) {
     return await Storage.getAudio(spaceId, audioId,range);
