@@ -134,7 +134,7 @@ export class InsertImageModal {
         const img = new Image();
         reader.onload = async (e) => {
             const uint8Array = new Uint8Array(e.target.result);
-            let imageId = await spaceModule.addImage(assistOS.space.id, uint8Array);
+            let imageId = await spaceModule.putImage(assistOS.space.id, uint8Array);
             reader.onload = async (e) => {
                 img.onload = async () => {
                     const canvas = document.createElement('canvas');

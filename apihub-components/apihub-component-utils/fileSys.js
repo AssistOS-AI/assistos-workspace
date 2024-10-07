@@ -40,41 +40,37 @@ async function downloadData(url, dest) {
     });
 }
 
-async function insertImage(spaceId, imageId, imageData) {
-    const storagePath = path.join(getSpacePath(spaceId), "images");
-    if (Buffer.isBuffer(imageData)) {
-        return await fsPromises.writeFile(path.join(storagePath, `${imageId}.png`), imageData);
-    }
-    if (imageData.startsWith("http")) {
-        await downloadData(imageData, path.join(storagePath, `${imageId}.png`));
-        return;
-    }
-    const base64Data = imageData.replace(/^data:image\/png;base64,/, "");
-    const buffer = Buffer.from(base64Data, 'base64');
-    await fsPromises.writeFile(path.join(storagePath, `${imageId}.png`), buffer);
+async function putImage(spaceId, imageId, req) {
+    return new Promise((resolve, reject) => {
+        const storagePath = path.join(getSpacePath(spaceId), "images");
+        const filePath = path.join(storagePath, `${imageId}.png`);
+        const fileStream = fs.createWriteStream(filePath);
+        req.pipe(fileStream);
+        fileStream.on('finish', () => {
+            resolve(imageId);
+        });
+        fileStream.on('error', (err) => {
+            reject(err);
+        });
+    });
 }
 
-async function insertAudio(spaceId, audioId, audioData) {
-    const storagePath = path.join(getSpacePath(spaceId), "audios");
-    let buffer;
-    if (typeof audioData === 'string') {
-        if (audioData.startsWith("data:")) {
-            const base64Data = audioData.split(",")[1];
-            buffer = Buffer.from(base64Data, 'base64');
-            return await fsPromises.writeFile(path.join(storagePath, `${audioId}.mp3`), buffer);
-        } else if (audioData.startsWith("http")) {
-            await downloadData(audioData, path.join(storagePath, `${audioId}.mp3`));
-            return;
-        } else {
-            buffer = Buffer.from(audioData, 'base64');
-            return await fsPromises.writeFile(path.join(storagePath, `${audioId}.mp3`), buffer);
-        }
-    }
-    buffer = Buffer.from(audioData);
-    await fsPromises.writeFile(path.join(storagePath, `${audioId}.mp3`), buffer);
+async function putAudio(spaceId, audioId, req) {
+    return new Promise((resolve, reject) => {
+        const storagePath = path.join(getSpacePath(spaceId), "audios");
+        const filePath = path.join(storagePath, `${audioId}.mp3`);
+        const fileStream = fs.createWriteStream(filePath);
+        req.pipe(fileStream);
+        fileStream.on('finish', () => {
+            resolve(audioId);
+        });
+        fileStream.on('error', (err) => {
+            reject(err);
+        });
+    });
 }
 
-async function insertVideo(spaceId, videoId, videoData, req) {
+async function putVideo(spaceId, videoId, req) {
     return new Promise((resolve, reject) => {
         const storagePath = path.join(getSpacePath(spaceId), "videos");
         const filePath = path.join(storagePath, `${videoId}.mp4`);
@@ -113,13 +109,13 @@ async function getFile(spaceId, fileType, fileId, range) {
     const {start, end, fileSize} = await getFileRange(filePath, range);
 
     const fileStream = fs.createReadStream(filePath, {start, end});
-    const head = {
+    const headers = {
         'Content-Range': `bytes ${start}-${end}/${fileSize}`,
         'Accept-Ranges': 'bytes',
         'Content-Length': (end - start) + 1,
         'Content-Type': fileTypes[fileType].contentType,
     };
-    return {fileStream, head};
+    return {fileStream, headers};
 }
 
 
@@ -183,9 +179,9 @@ async function getDownloadURL(spaceId, downloadType, fileId) {
 }
 
 module.exports = {
-    insertImage,
-    insertAudio,
-    insertVideo,
+    putImage,
+    putVideo,
+    putAudio,
     deleteImage,
     deleteAudio,
     deleteVideo,

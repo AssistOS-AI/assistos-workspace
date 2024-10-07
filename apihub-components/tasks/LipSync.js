@@ -84,7 +84,7 @@ class LipSync extends Task {
 
         const videoBuffer = await fsPromises.readFile(tempFilePath);
         const videoDuration = await ffmpeg.getVideoDuration(tempFilePath);
-        const videoId = await spaceModule.addVideo(this.spaceId, videoBuffer);
+        const videoId = await spaceModule.putVideo(this.spaceId, videoBuffer);
         const paragraphCommands = await documentModule.getParagraphCommands(this.spaceId, this.documentId, this.paragraphId);
         paragraphCommands.video = {
             id: videoId,

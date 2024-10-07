@@ -16,6 +16,7 @@ class TextToSpeech extends Task {
         try {
             const llmModule = require('assistos').loadModule('llm', this.securityContext);
             const documentModule = require('assistos').loadModule('document', this.securityContext);
+            const spaceModule = require('assistos').loadModule('space', this.securityContext);
             const personalityModule = require('assistos').loadModule('personality', this.securityContext);
             const utilModule = require('assistos').loadModule('util', this.securityContext);
             const paragraph = await documentModule.getParagraph(this.spaceId, this.documentId, this.paragraphId);
@@ -42,7 +43,8 @@ class TextToSpeech extends Task {
             delete paragraphConfig.speech.taskId;
             await documentModule.updateParagraphCommands(this.spaceId, this.documentId, this.paragraphId, paragraphConfig);
             const audioBuffer = Buffer.from(arrayBuffer);
-            await space.APIs.putAudio(this.spaceId, this.audioId, audioBuffer);
+            await spaceModule.putAudio(this.spaceId, this.audioId, audioBuffer);
+
             this.emit(EVENTS.DEPENDENCY_COMPLETED);
         } catch (e) {
             await this.rollback();

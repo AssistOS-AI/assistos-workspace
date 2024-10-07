@@ -419,7 +419,7 @@ async function storeDocument(spaceId, extractedPath, request) {
             chapterObject.backgroundSound = chapter.backgroundSound;
             const audioPath = path.join(extractedPath, 'audios', `${chapter.backgroundSound.fileName}.mp3`);
             const buffer = await space.APIs.readFileAsBuffer(audioPath);
-            const audioId = await spaceModule.addAudio(spaceId, buffer);
+            const audioId = await spaceModule.putAudio(spaceId, buffer);
             chapterObject.backgroundSound.id = audioId;
             chapterObject.backgroundSound.src = `spaces/audio/${spaceId}/${audioId}`;
         }
@@ -455,19 +455,19 @@ async function storeAttachments(extractedPath, spaceModule, paragraph, spaceId) 
     if (paragraph.commands.image) {
         const imagePath = path.join(extractedPath, 'images', `${paragraph.commands.image.fileName}.png`);
         const buffer = await space.APIs.readFileAsBuffer(imagePath);
-        paragraph.commands.image.id = await spaceModule.addImage(spaceId, buffer);
+        paragraph.commands.image.id = await spaceModule.putImage(spaceId, buffer);
         delete paragraph.commands.image.fileName;
     }
     if (paragraph.commands.audio) {
         const audioPath = path.join(extractedPath, 'audios', `${paragraph.commands.audio.fileName}.mp3`);
         const buffer = await space.APIs.readFileAsBuffer(audioPath);
-        paragraph.commands.audio.id = await spaceModule.addAudio(spaceId, buffer);
+        paragraph.commands.audio.id = await spaceModule.putAudio(spaceId, buffer);
         delete paragraph.commands.audio.fileName;
     }
     if (paragraph.commands.video) {
         const videoPath = path.join(extractedPath, 'videos', `${paragraph.commands.video.fileName}.mp4`);
         const buffer = await space.APIs.readFileAsBuffer(videoPath);
-        paragraph.commands.video.id = await spaceModule.addVideo(spaceId, buffer);
+        paragraph.commands.video.id = await spaceModule.putVideo(spaceId, buffer);
         delete paragraph.commands.video.fileName;
     }
 }

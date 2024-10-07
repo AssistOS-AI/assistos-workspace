@@ -35,6 +35,7 @@ async function saveResult(ref,requestBody) {
             eventPublisher.notifyClientTask(userId, spaceId+"_"+objectId);
             break;
         case "image":
+            //TODO use spaceModule or convert image to a stream
             await space.APIs.putImage(spaceId, objectId, requestBody.uri || requestBody.imageData);
             if (requestBody.buttons) {
                 eventPublisher.notifyClientTask(userId, objectId, requestBody.buttons);
@@ -42,8 +43,6 @@ async function saveResult(ref,requestBody) {
                 eventPublisher.notifyClientTask(userId, objectId);
             }
             break;
-        case "audio":
-            await space.APIs.putAudio(objectId, userId, requestBody.data);
     }
 }
 

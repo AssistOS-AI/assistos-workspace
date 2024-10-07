@@ -30,7 +30,7 @@ export class AddPersonalityModal {
             let reader = new FileReader();
             reader.onload = async (e) => {
                 const uint8Array = new Uint8Array(e.target.result);
-                let imageId = await spaceModule.addImage(assistOS.space.id, uint8Array);
+                let imageId = await spaceModule.putImage(assistOS.space.id, uint8Array);
                 let personalityData = {
                     name: formInfo.data.name,
                     description: formInfo.data.description,

@@ -137,7 +137,6 @@ export class ParagraphItem {
         let chapterElement = this.element.closest("chapter-item");
         let chapterPresenter = chapterElement.webSkelPresenter;
         chapterPresenter.invalidate(chapterPresenter.refreshChapter);
-        this.deleted = true;
         this.element.remove();
     }
 
@@ -283,7 +282,7 @@ export class ParagraphItem {
     }
 
     async saveParagraph(paragraph) {
-        if (!this.paragraph || assistOS.space.currentParagraphId !== this.paragraph.id || this.deleted) {
+        if (!this.paragraph || assistOS.space.currentParagraphId !== this.paragraph.id || !this.element.closest("body")) {
             return;
         }
         let paragraphText = assistOS.UI.sanitize(paragraph.value);
@@ -480,7 +479,7 @@ export class ParagraphItem {
     }
 
     async focusOutHandler() {
-        if (this.deleted) {
+        if (!this.element.closest("body")) {
             return;
         }
         await assistOS.loadifyComponent(this.element, async () => {

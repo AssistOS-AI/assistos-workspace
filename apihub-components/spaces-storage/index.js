@@ -37,10 +37,10 @@ const {
     editChatImage,
     getChatImageVariants,
     getChatVideoResponse,
-    storeImage,
+    putImage,
     getImage,
     deleteImage,
-    storeAudio,
+    putAudio,
     deleteAudio,
     getAudio,
     deleteVideo,
@@ -49,7 +49,7 @@ const {
     getVideo,
     getSpaceChat,
     getFileObjects,
-    storeVideo,
+    putVideo,
     getUploadURL,
     getDownloadURL
 } = require("./controller");
@@ -124,7 +124,6 @@ function SpaceStorage(server) {
     server.put("/spaces/:spaceId/announcements/:announcementId", updateSpaceAnnouncement)
     server.delete("/spaces/:spaceId/announcements/:announcementId", deleteSpaceAnnouncement)
 
-
     server.post("/apis/v1/spaces/:spaceId/chats/:chatId/llms/text/generate", getChatTextResponse);
     server.post("/apis/v1/spaces/:spaceId/chats/:chatId/llms/text/streaming/generate", getChatTextStreamingResponse);
     server.post("/apis/v1/spaces/:spaceId/chats/:chatId/llms/image/generate", getChatImageResponse);
@@ -135,15 +134,14 @@ function SpaceStorage(server) {
     server.get("/spaces/uploads/:spaceId/:uploadType", getUploadURL);
     server.get("/spaces/downloads/:spaceId/:downloadType/:fileId", getDownloadURL);
 
-
-    server.put("/spaces/images/:spaceId/:fileId", storeImage);
-    server.put("/spaces/audios/:spaceId/:fileId", storeAudio);
-    server.put("/spaces/videos/:spaceId/:videoId", storeVideo);
+    server.put("/spaces/images/:spaceId/:imageId", putImage);
+    server.put("/spaces/audios/:spaceId/:audioId", putAudio);
+    server.put("/spaces/videos/:spaceId/:videoId", putVideo);
 
     server.delete("/spaces/image/:spaceId/:imageId", deleteImage);
     server.delete("/spaces/audio/:spaceId/:audioId", deleteAudio);
-
     server.delete("/spaces/video/:spaceId/:videoId", deleteVideo);
+
     server.get("/spaces/:spaceId/export/personalities/:personalityId", exportPersonality);
     server.post("/spaces/:spaceId/import/personalities", importPersonality);
 }

@@ -2,7 +2,10 @@ function bodyReader(req, res, next) {
     const contentType = req.headers['content-type'];
 
     // Skip bodyReader for multipart/form-data to avoid overloading buffer with large files
-    if (contentType && contentType.startsWith('multipart/form-data')) {
+    if (contentType && (contentType.startsWith('multipart/form-data') ||
+        contentType.startsWith('video/') ||
+        contentType.startsWith('audio/') ||
+        contentType.startsWith('image/'))) {
         req.query = extractQueryParams(req);
         return next();
     }
