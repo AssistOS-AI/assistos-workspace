@@ -22,27 +22,25 @@ class TextToSpeech extends Task {
             const paragraph = await documentModule.getParagraph(this.spaceId, this.documentId, this.paragraphId);
             await utilModule.constants.COMMANDS_CONFIG.COMMANDS.find(command => command.NAME === "speech").VALIDATE(this.spaceId, paragraph, this.securityContext);
 
-            const paragraphConfig = await documentModule.getParagraphCommands(this.spaceId, this.documentId, this.paragraphId);
-            const personalityData = await personalityModule.getPersonalityByName(this.spaceId, paragraphConfig.speech.personality);
+            const paragraphCommands = await documentModule.getParagraphCommands(this.spaceId, this.documentId, this.paragraphId);
+            const personalityData = await personalityModule.getPersonalityByName(this.spaceId, paragraphCommands.speech.personality);
 
             const arrayBuffer = await llmModule.textToSpeech(this.spaceId, {
                 prompt: utilModule.unsanitize(paragraph.text),
                 voice: personalityData.voiceId,
-                emotion: paragraphConfig.speech.emotion,
-                styleGuidance: paragraphConfig.speech.styleGuidance,
+                emotion: paragraphCommands.speech.emotion,
+                styleGuidance: paragraphCommands.speech.styleGuidance,
                 modelName: "PlayHT2.0"
             });
-            this.audioId = crypto.generateId();
-            let audioDuration = await ffmpeg.getAudioDuration(Buffer.from(arrayBuffer));
-            paragraphConfig.audio = {
+            const audioBuffer = Buffer.from(arrayBuffer);
+            let audioDuration = await ffmpeg.getAudioDuration(audioBuffer);
+            delete paragraphCommands.speech.taskId;
+            this.audioId = await spaceModule.putAudio(this.spaceId, audioBuffer);
+            paragraphCommands.audio = {
                 id: this.audioId,
                 duration: audioDuration
             };
-            delete paragraphConfig.speech.taskId;
-            await documentModule.updateParagraphCommands(this.spaceId, this.documentId, this.paragraphId, paragraphConfig);
-            const audioBuffer = Buffer.from(arrayBuffer);
-            await spaceModule.putAudio(this.spaceId, this.audioId, audioBuffer);
-
+            await documentModule.updateParagraphCommands(this.spaceId, this.documentId, this.paragraphId, paragraphCommands);
             this.emit(EVENTS.DEPENDENCY_COMPLETED);
         } catch (e) {
             await this.rollback();

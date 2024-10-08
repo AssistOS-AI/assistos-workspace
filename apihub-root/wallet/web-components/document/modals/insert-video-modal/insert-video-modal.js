@@ -13,7 +13,10 @@ export class InsertVideoModal {
     }
 
     closeModal(_target) {
-        this.videoElement.remove();
+        if(this.videoElement){
+            this.videoElement.remove();
+        }
+
         assistOS.UI.closeModal(_target);
     }
 
