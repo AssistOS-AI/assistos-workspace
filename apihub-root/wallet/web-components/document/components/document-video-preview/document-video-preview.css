@@ -5,9 +5,9 @@ document-video-preview {
 }
 .minimized{
     top: 25%;
-    left: 13%;
-    width: 400px;
-    height: 400px;
+    left: 4%;
+    width: 600px;
+    height: 338px;
 }
 .fullscreen{
     position: fixed;
