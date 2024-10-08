@@ -30,8 +30,6 @@ class TextToSpeech extends Task {
                 voice: personalityData.voiceId,
                 emotion: paragraphCommands.speech.emotion,
                 styleGuidance: paragraphCommands.speech.styleGuidance,
-                voiceGuidance: paragraphCommands.speech.voiceGuidance,
-                temperature: paragraphCommands.speech.temperature,
                 modelName: "PlayHT2.0"
             });
             const audioBuffer = Buffer.from(arrayBuffer);

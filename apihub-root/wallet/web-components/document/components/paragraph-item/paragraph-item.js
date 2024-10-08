@@ -1,7 +1,7 @@
 import {executorTimer} from "../../../../imports.js";
 const utilModule = require("assistos").loadModule("util", {});
-const spaceModule = require("assistos").loadModule("space", {});
 const documentModule = require("assistos").loadModule("document", {});
+const spaceModule = require("assistos").loadModule("space", {});
 const blackScreen = "./wallet/assets/images/black-screen.png";
 export class ParagraphItem {
     constructor(element, invalidate) {
@@ -22,6 +22,7 @@ export class ParagraphItem {
     }
 
     async beforeRender() {
+        this.paragraphCommands = await this.buildCommandsHTML("view");
         this.loadedParagraphText = this.paragraph.text || "";
     }
 
@@ -464,19 +465,19 @@ export class ParagraphItem {
         this.paragraphHeader = paragraphHeader;
     }
 
-    buildCommandsHTML(mode) {
+    async buildCommandsHTML(mode) {
         let html = "";
         if (mode === "view") {
             let commands = utilModule.getSortedCommandsArray(this.paragraph.commands);
             for (let command of commands) {
               if (command.name === "image") {
-                    let imageSrc = utilModule.constants.getImageSrc(assistOS.space.id, command.id);
+                    let imageSrc = await spaceModule.getImageURL(assistOS.space.id, command.id);
                     html += `<a class="command-link" data-local-action="showAttachment image" href="${imageSrc}" data-id="${command.id}">Image</a>`;
                 } else if (command.name === "audio") {
-                    let audioSrc = utilModule.constants.getAudioSrc(assistOS.space.id, command.id);
+                    let audioSrc = await spaceModule.getAudioURL(assistOS.space.id, command.id);
                     html += `<a class="command-link" data-local-action="showAttachment audio" href="${audioSrc}" data-id="${command.id}">Audio</a>`;
                 } else if (command.name === "video") {
-                    let videoSrc = utilModule.constants.getVideoSrc(assistOS.space.id, command.id);
+                    let videoSrc = await spaceModule.getVideoURL(assistOS.space.id, command.id);
                     html += `<a class="command-link" data-local-action="showAttachment video" href="${videoSrc}" data-id="${command.id}">Video</a>`;
                 } else if (command.name === "speech") {
                     let personality = this.documentPresenter.personalitiesMetadata.find(personality => personality.name === command.personality);
@@ -489,7 +490,7 @@ export class ParagraphItem {
                     }
                     let imageSrc = "./wallet/assets/images/default-personality.png"
                     if(personalityImageId){
-                        imageSrc = utilModule.constants.getImageSrc(assistOS.space.id, personalityImageId);
+                        imageSrc = await spaceModule.getImageURL(assistOS.space.id, personalityImageId);
                     }
                     let speechHTML = `
                     <div class="command-line maintain-focus">
