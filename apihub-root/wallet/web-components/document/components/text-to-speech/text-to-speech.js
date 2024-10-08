@@ -97,7 +97,6 @@ export class TextToSpeech {
                     this.parentPresenter.paragraph.commands.speech = commandConfig;
                     await this.parentPresenter.handleCommand("speech", "new");
                 }
-
                 await documentModule.updateParagraphCommands(assistOS.space.id, this._document.id, this.paragraphId, this.parentPresenter.paragraph.commands);
                 await this.parentPresenter.renderViewModeCommands();
             }

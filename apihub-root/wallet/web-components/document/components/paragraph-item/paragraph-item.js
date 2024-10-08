@@ -825,6 +825,10 @@ export class ParagraphItem {
             let commands = this.element.querySelector('.paragraph-commands');
             if (commands.tagName === "DIV") {
                 this.paragraph.commands[type] = attachmentData;
+                if(this.paragraph.commands.lipsync){
+                    await this.handleCommand("lipsync", "changed");
+                }
+
                 await documentModule.updateParagraphCommands(assistOS.space.id, this._document.id, this.paragraph.id, this.paragraph.commands);
                 await this.renderViewModeCommands();
                 await this.setupVideoPreview();
