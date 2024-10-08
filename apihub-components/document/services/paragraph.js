@@ -20,7 +20,8 @@ function constructParagraphURI(pathSegments) {
 
 async function getParagraphTasks(spaceId, documentId, paragraphId) {
     const paragraphCommands = await getParagraph(spaceId, documentId, paragraphId, {fields: "commands"});
-    return paragraphCommands.reduce((acc, command) => {
+    const paragraphCommandsValues = Object.values(paragraphCommands)
+    return paragraphCommandsValues.reduce((acc, command) => {
         if (command.taskId) {
             acc.push(command.taskId);
         }

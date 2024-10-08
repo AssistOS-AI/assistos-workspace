@@ -103,27 +103,7 @@ export class ParagraphItem {
     async deleteParagraph(_target) {
         await this.documentPresenter.stopTimer(true);
         let currentParagraphIndex = this.chapter.getParagraphIndex(this.paragraph.id);
-        let updateTasksMenu = false;
-        try {
-            await Promise.all(Object.entries(this.paragraph.commands)
-                .map(async ([command, commandParams]) => {
-                    if (commandParams.taskId) {
-                        try {
-                            utilModule.cancelTask(commandParams.taskId);
-                        } catch (e) {
-                            // task is not running
-                        }
-                        await utilModule.removeTask(commandParams.taskId);
-                        updateTasksMenu = true;
-                        return await utilModule.unsubscribeFromObject(commandParams.taskId);
-                    }
-                }));
-        } catch (e) {
-            //task not found (probably already deleted)
-        }
-        if (updateTasksMenu) {
-            assistOS.space.notifyObservers(this._document.id + "/tasks");
-        }
+
         await documentModule.deleteParagraph(assistOS.space.id, this._document.id, this.chapter.id, this.paragraph.id);
         if (this.chapter.paragraphs.length > 0) {
             if (currentParagraphIndex === 0) {

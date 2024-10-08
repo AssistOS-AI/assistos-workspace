@@ -6,7 +6,8 @@ function constructChapterURI(documentId, chapterId, property) {
     return `${documentId}/${chapterId}${property ? `/${property}` : ''}`
 }
 async function getChapterParagraphIds(spaceId, documentId, chapterId) {
-    return await getChapter(spaceId, documentId, chapterId, {fields: "paragraphs"});
+    const chapterParagraphs=await getChapter(spaceId, documentId, chapterId, {fields: "paragraphs"});
+    return chapterParagraphs.map(paragraph => paragraph.id);
 }
 async function getChapterTasks(spaceId, documentId, chapterId) {
     const chapterParagraphIds = await getChapterParagraphIds(spaceId, documentId, chapterId);

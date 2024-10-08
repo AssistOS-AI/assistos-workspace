@@ -7,8 +7,8 @@ function constructDocumentURI(documentId, property) {
 
 async function getDocumentTasks(spaceId, documentId) {
     const documentChapters=await getDocument(spaceId, documentId, {fields: "chapters"});
-    const chapterTasks = await Promise.allSettled(documentChapters.map(chapterId => {
-        return chapterService.getChapterTasks(spaceId, documentId, chapterId);
+    const chapterTasks = await Promise.allSettled(documentChapters.map(chapter => {
+        return chapterService.getChapterTasks(spaceId, documentId, chapter.id);
     }));
     return chapterTasks
         .filter(result => result.status === 'fulfilled')
