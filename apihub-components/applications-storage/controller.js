@@ -3,13 +3,14 @@ const util = require('util');
 const execAsync = util.promisify(exec);
 const path = require('path');
 const fsPromises = require('fs').promises;
-const {sendResponse,sendFileToClient} = require('../apihub-component-utils/utils.js')
+const {sendResponse, sendFileToClient} = require('../apihub-component-utils/utils.js')
 const crypto = require('../apihub-component-utils/crypto.js');
 const dataVolumePaths = require('../volumeManager').paths;
-const Space=require('../spaces-storage/space.js');
+const Space = require('../spaces-storage/space.js');
+const applications = require("./applications.json");
 
 async function updateSpaceStatus(spaceId, applicationName, description, deleteMode = false) {
-    const statusPath = path.join(dataVolumePaths.space,`${spaceId}/status/status.json`);
+    const statusPath = path.join(dataVolumePaths.space, `${spaceId}/status/status.json`);
     let status;
     try {
         await fsPromises.access(statusPath);
@@ -82,18 +83,14 @@ async function processFile(filePath, applicationId, components) {
 async function installApplication(request, response) {
     const spaceId = request.params.spaceId;
     let applicationId = request.params.applicationId;
-
     try {
-        const applications = require("./applications.json");
         const application = applications.find(app => app.id === applicationId);
-        const folderPath = path.join(dataVolumePaths.space,`${spaceId}/applications/${application.name}`);
+        const folderPath = path.join(dataVolumePaths.space, `${spaceId}/applications/${application.name}`);
         if (!application || !application.repository) {
-            console.error("Application or repository not found");
-            sendResponse(response, 404, "application/json", {
-                message: "Application or repository not found",
+            return sendResponse(response, 404, "application/json", {
+                message: "Application or repository not found for applicationId: " + applicationId,
                 success: false
             });
-            return;
         }
         await execAsync(`git clone ${application.repository} ${folderPath}`);
 
@@ -119,38 +116,38 @@ async function installApplication(request, response) {
         // await fsPromises.writeFile(manifestPath, JSON.stringify(manifest, null, 2), 'utf8')
 
         if (application.flowsRepository) {
-            const applicationPath = path.join(dataVolumePaths.space,`${spaceId}/applications/${application.name}/flows`);
+            const applicationPath = path.join(dataVolumePaths.space, `${spaceId}/applications/${application.name}/flows`);
             await execAsync(`git clone ${application.flowsRepository} ${applicationPath}`);
             try {
                 await execAsync(`rm ${applicationPath}/README.md`);
-            }catch(error){}
+            } catch (error) {/* NO README: Ignore */
+            }
         }
         await updateSpaceStatus(spaceId, application.name, manifest.description);
-        sendResponse(response, 200, "application/json", {
+        return sendResponse(response, 200, "application/json", {
             message: "Application installed successfully",
             success: true
         });
     } catch (error) {
-        console.error("Error in installing application:", error);
-        sendResponse(response, 500, "application/json", {
-            message: error.toString(),
+        return sendResponse(response, 500, "application/json", {
+            message: error.message,
             success: false
         });
     }
 }
 
-async function uninstallApplication(request,response) {
-    const spaceId=request.params.spaceId;
-    const applicationId=request.params.applicationId;
+async function uninstallApplication(request, response) {
+    const spaceId = request.params.spaceId;
+    const applicationId = request.params.applicationId;
     try {
         await Space.APIs.uninstallApplication(spaceId, applicationId);
-        sendResponse(response, 200, "application/json", {
+        return sendResponse(response, 200, "application/json", {
             message: "Application uninstalled successfully",
             success: true
         });
-    }catch(error){
-        sendResponse(response, 500, "application/json", {
-            message: "Application or repository not found",
+    } catch (error) {
+        return sendResponse(response, 500, "application/json", {
+            message: `Application or repository not found:${error}`,
             success: false
         });
     }
@@ -189,7 +186,7 @@ async function storeObject(request, response) {
     const applicationId = request.params.applicationId;
     const objectType = request.params.objectType;
     const objectId = decodeURIComponent(request.params.objectId);
-    const filePath = path.join(dataVolumePaths.space,`${spaceId}/applications/${applicationId}/${objectType}/${objectId}.json`);
+    const filePath = path.join(dataVolumePaths.space, `${spaceId}/applications/${applicationId}/${objectType}/${objectId}.json`);
     if (request.body.toString() === "") {
         await fsPromises.unlink(filePath);
         sendResponse(response, 200, "application/json", {
@@ -207,31 +204,29 @@ async function storeObject(request, response) {
     }
 
 }
+
 async function loadApplicationsMetadata(request, response) {
     try {
-        const applications = require("./applications.json");
-        sendResponse(response, 200, "application/json", {
-            message: "",
+        return sendResponse(response, 200, "application/json", {
             success: true,
             data: applications
         });
     } catch (error) {
-        console.error('Error reading applications metadata:', error);
-        sendResponse(response, 500, "application/json", {
-            message: "Internal Server Error",
+        return sendResponse(response, 500, "application/json", {
+            message: `Internal Server Error:${error.message}`,
             success: false
         });
     }
 }
+
 async function loadApplicationConfig(request, response) {
     try {
         const spaceId = request.params.spaceId;
         const applicationId = request.params.applicationId;
 
-        const applications = require("./applications.json");
         const application = applications.find(app => app.id === applicationId);
 
-        const folderPath = path.join(dataVolumePaths.space,`${spaceId}/applications/${application.name}`);
+        const folderPath = path.join(dataVolumePaths.space, `${spaceId}/applications/${application.name}`);
         const manifestPath = `${folderPath}/manifest.json`;
 
         const manifest = await fsPromises.readFile(manifestPath, 'utf8');
@@ -250,7 +245,7 @@ async function loadApplicationConfig(request, response) {
 }
 
 async function loadObjects(request, response) {
-    const filePath = path.join(dataVolumePaths.space,`${request.params.spaceId}/applications/${request.params.appName}/${request.params.objectType}`);
+    const filePath = path.join(dataVolumePaths.space, `${request.params.spaceId}/applications/${request.params.appName}/${request.params.objectType}`);
     try {
         await fsPromises.access(filePath);
     } catch (e) {
@@ -302,7 +297,7 @@ async function loadApplicationFile(request, response) {
         const relativeFilePath = request.url.substring(baseUrl.length);
 
         const fileType = relativeFilePath.substring(relativeFilePath.lastIndexOf('.') + 1) || '';
-        const filePath = path.join(dataVolumePaths.space,`${spaceId}/applications/${applicationName}/${relativeFilePath}`);
+        const filePath = path.join(dataVolumePaths.space, `${spaceId}/applications/${applicationName}/${relativeFilePath}`);
         const file = await fsPromises.readFile(filePath, 'utf8');
         await sendFileToClient(response, file, fileType);
     } catch (error) {
@@ -324,9 +319,10 @@ function handleFileError(response, error) {
         });
     }
 }
+
 async function storeAppFlow(request, response) {
     let objectId = decodeURIComponent(request.params.objectId);
-    const filePath = path.join(dataVolumePaths.space,`${request.params.spaceId}/applications/${request.params.applicationId}/flows/${objectId}.js`);
+    const filePath = path.join(dataVolumePaths.space, `${request.params.spaceId}/applications/${request.params.applicationId}/flows/${objectId}.js`);
     if (request.body.toString() === "") {
         await fsPromises.unlink(filePath);
         sendResponse(response, 200, "application/json", {
@@ -351,10 +347,11 @@ async function storeAppFlow(request, response) {
 }
 
 async function loadAppFlows(request, response) {
-    const filePath = path.join(dataVolumePaths.space,`${request.params.spaceId}/applications/${request.params.applicationId}/flows`);
+    const filePath = path.join(dataVolumePaths.space, `${request.params.spaceId}/applications/${request.params.applicationId}/flows`);
     let flows = await loadObjects(filePath);
     return sendResponse(response, 200, "application/javascript", flows);
 }
+
 module.exports = {
     loadApplicationsMetadata,
     installApplication,
