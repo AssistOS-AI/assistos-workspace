@@ -99,7 +99,7 @@ export class TextToSpeech {
                 }
 
                 await documentModule.updateParagraphCommands(assistOS.space.id, this._document.id, this.paragraphId, this.parentPresenter.paragraph.commands);
-                this.parentPresenter.renderViewModeCommands();
+                await this.parentPresenter.renderViewModeCommands();
             }
         } else {
             paragraphHeaderElement.value += '\n';

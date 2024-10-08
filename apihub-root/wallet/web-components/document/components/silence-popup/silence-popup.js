@@ -36,7 +36,7 @@ export class SilencePopup{
             } else {
                 this.parentPresenter.paragraph.commands.silence = silenceCommand;
                 await documentModule.updateParagraphCommands(assistOS.space.id, this._document.id, this.paragraphId, this.parentPresenter.paragraph.commands);
-                this.parentPresenter.renderViewModeCommands();
+                await this.parentPresenter.renderViewModeCommands();
                 await this.parentPresenter.setupVideoPreview();
             }
         } else {

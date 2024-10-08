@@ -120,9 +120,9 @@ export class ParagraphItem {
                 this.paragraph.commands = await documentModule.getParagraphCommands(assistOS.space.id, this._document.id, this.paragraph.id);
                 let commandsElement = this.element.querySelector('.paragraph-commands');
                 if(commandsElement.tagName === "DIV"){
-                    this.renderViewModeCommands();
+                    await this.renderViewModeCommands();
                 } else {
-                    this.renderEditModeCommands();
+                    await this.renderEditModeCommands();
                 }
             }
         });
@@ -408,7 +408,7 @@ export class ParagraphItem {
         }
     }
 
-    highlightParagraphHeader() {
+    async highlightParagraphHeader() {
         assistOS.space.currentParagraphId = this.paragraph.id;
         this.switchParagraphArrows("on");
         let paragraphHeaderContainer = this.element.querySelector('.paragraph-header');
@@ -416,7 +416,7 @@ export class ParagraphItem {
         this.paragraphHeader.removeAttribute('readonly');
         let commandsElement = this.element.querySelector('.paragraph-commands');
         if(commandsElement.tagName === "DIV"){
-            this.renderEditModeCommands();
+            await this.renderEditModeCommands();
         }
 
         let paragraphText = this.element.querySelector('.paragraph-text');
@@ -439,11 +439,11 @@ export class ParagraphItem {
         }
     }
 
-    renderEditModeCommands() {
+    async renderEditModeCommands() {
         let textareaContainer = this.element.querySelector('.header-section');
         let commandsElement = this.element.querySelector('.paragraph-commands');
         commandsElement.remove();
-        let commandsHTML = this.buildCommandsHTML("edit");
+        let commandsHTML = await this.buildCommandsHTML("edit");
         textareaContainer.insertAdjacentHTML('beforeend', `<textarea class="paragraph-commands maintain-focus"></textarea>`);
         let paragraphCommands = this.element.querySelector('.paragraph-commands');
         paragraphCommands.value = commandsHTML;
@@ -455,11 +455,11 @@ export class ParagraphItem {
         this.paragraphHeader = paragraphCommands;
     }
 
-    renderViewModeCommands() {
+    async renderViewModeCommands() {
         let headerSection = this.element.querySelector('.header-section');
         let commandsElement = this.element.querySelector('.paragraph-commands');
         commandsElement.remove();
-        let commandsHTML = this.buildCommandsHTML("view");
+        let commandsHTML = await this.buildCommandsHTML("view");
         headerSection.insertAdjacentHTML('beforeend', `<div class="paragraph-commands maintain-focus">${commandsHTML}</div>`);
         let paragraphHeader = this.element.querySelector('.paragraph-commands');
         paragraphHeader.style.height = "initial";
@@ -637,7 +637,7 @@ export class ParagraphItem {
                 /* there is nothing further to do, and there are no syntax errors */
                 this.errorElement.innerText = "";
                 this.errorElement.classList.add("hidden");
-                this.renderViewModeCommands();
+                await this.renderViewModeCommands();
                 assistOS.space.currentParagraphId = null;
                 return;
             }
@@ -668,7 +668,7 @@ export class ParagraphItem {
             }
 
             await documentModule.updateParagraphCommands(assistOS.space.id, this._document.id, this.paragraph.id, this.paragraph.commands);
-            this.renderViewModeCommands();
+            await this.renderViewModeCommands();
             await this.setupVideoPreview();
             assistOS.space.currentParagraphId = null;
         });
@@ -811,7 +811,7 @@ export class ParagraphItem {
                 await this.handleCommand("lipsync", "new");
             }
             await documentModule.updateParagraphCommands(assistOS.space.id, this._document.id, this.paragraph.id, this.paragraph.commands);
-            this.renderViewModeCommands();
+            await this.renderViewModeCommands();
         } else {
             const currentCommandsString = this.paragraphHeader.value.replace(/\n/g, "");
             this.paragraphHeader.value = `${currentCommandsString}` + "\n" + utilModule.buildCommandString("lipsync", {});
@@ -826,7 +826,7 @@ export class ParagraphItem {
             if (commands.tagName === "DIV") {
                 this.paragraph.commands[type] = attachmentData;
                 await documentModule.updateParagraphCommands(assistOS.space.id, this._document.id, this.paragraph.id, this.paragraph.commands);
-                this.renderViewModeCommands();
+                await this.renderViewModeCommands();
                 await this.setupVideoPreview();
             } else {
                 let commandString = utilModule.buildCommandString(type, attachmentData);
@@ -841,7 +841,7 @@ export class ParagraphItem {
         if (commands.tagName === "DIV") {
             delete this.paragraph.commands[type];
             await documentModule.updateParagraphCommands(assistOS.space.id, this._document.id, this.paragraph.id, this.paragraph.commands);
-            this.renderViewModeCommands();
+            await this.renderViewModeCommands();
             await this.setupVideoPreview();
         } else {
             let currentCommands = utilModule.findCommands(commands.value);
