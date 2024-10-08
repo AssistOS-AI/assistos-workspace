@@ -61,10 +61,6 @@ export class TextToSpeech {
             }
             let styleGuidance = this.element.querySelector(`#styleGuidance`);
             styleGuidance.value = this.audioConfig.styleGuidance || 15;
-            let temperature = this.element.querySelector(`#temperature`);
-            temperature.value = this.audioConfig.temperature || 1;
-            let voiceGuidance = this.element.querySelector(`#voiceGuidance`);
-            voiceGuidance.value = this.audioConfig.voiceGuidance || 3;
         }
     }
 
@@ -77,9 +73,7 @@ export class TextToSpeech {
         const commandConfig = {
             personality: personalityName,
             emotion: formData.data.emotion,
-            styleGuidance: formData.data.styleGuidance,
-            voiceGuidance: formData.data.voiceGuidance,
-            temperature: formData.data.temperature,
+            styleGuidance: formData.data.styleGuidance
         }
         const paragraphHeaderElement = this.parentPresenter.element.querySelector(".paragraph-commands");
         if(paragraphHeaderElement.tagName === "DIV"){

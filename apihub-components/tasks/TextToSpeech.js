@@ -30,8 +30,6 @@ class TextToSpeech extends Task {
                 voice: personalityData.voiceId,
                 emotion: paragraphConfig.speech.emotion,
                 styleGuidance: paragraphConfig.speech.styleGuidance,
-                voiceGuidance: paragraphConfig.speech.voiceGuidance,
-                temperature: paragraphConfig.speech.temperature,
                 modelName: "PlayHT2.0"
             });
             this.audioId = crypto.generateId();
