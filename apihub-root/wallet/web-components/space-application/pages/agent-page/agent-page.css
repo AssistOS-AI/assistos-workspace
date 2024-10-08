@@ -1,6 +1,6 @@
 
 agent-page {
-    width: calc(50% - 135px);
+    width: 0;
     height: 100%;
     transition: width 0.3s;
     min-width: 0;
@@ -38,7 +38,7 @@ agent-page {
 .space-controls {
     z-index: 1;
     position: absolute;
-    display: flex;
+    display: none;
     align-items: center;
     justify-content: space-between;
     margin: 15px;
@@ -150,6 +150,7 @@ agent-page {
 
 
 .chat-input-container {
+    z-index: -1;
     height:120px;
     min-height:120px;
     max-height:120px;

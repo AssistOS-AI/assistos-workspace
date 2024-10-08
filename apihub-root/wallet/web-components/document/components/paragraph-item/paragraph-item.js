@@ -38,7 +38,7 @@ export class ParagraphItem {
 
         this.paragraphHeader = this.element.querySelector(".paragraph-commands");
         this.errorElement = this.element.querySelector(".error-message");
-        this.paragraphHeader.innerHTML = this.buildCommandsHTML("view");
+        this.paragraphHeader.innerHTML = await this.buildCommandsHTML("view");
         this.initVideoElements();
         await this.setupVideoPreview();
 
@@ -340,6 +340,7 @@ export class ParagraphItem {
         } else {
             this.videoElement.classList.add("hidden");
         }
+
         if(this.paragraph.commands.image && !this.paragraph.commands.video){
             this.imgElement.src = await spaceModule.getImageURL(assistOS.space.id, this.paragraph.commands.image.id);
         } else {
