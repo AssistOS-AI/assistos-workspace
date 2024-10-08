@@ -824,14 +824,14 @@ async function addCollaboratorsToSpace(request, response) {
     /* TODO Check if the user has access to that space and has the right to add an user */
     const userId = request.userId;
     const spaceId = request.params.spaceId;
-    if (!request.body.emails) {
+    const collaboratorsEmails = request.body.emails;
+
+    if (!collaboratorsEmails) {
         utils.sendResponse(response, 400, "application/json", {
             message: "Bad Request: Collaborator Emails is required",
             success: false
         });
     }
-
-    const collaboratorsEmails = request.body.emails;
 
     try {
         let collaborators = await user.APIs.inviteSpaceCollaborators(userId, spaceId, collaboratorsEmails);

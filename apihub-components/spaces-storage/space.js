@@ -148,7 +148,7 @@ async function preparePersonalityData(defaultPersonalitiesPath, personalitiesPat
     const imageId = crypto.generateId(8);
     personality.imageId = imageId;
 
-    await Storage.insertImage(spaceId, imageId, image);
+    await Storage.putImage(spaceId, imageId, image);
     await fsPromises.writeFile(path.join(personalitiesPath, `${personality.id}.json`), JSON.stringify(personality), 'utf8');
 
     return {

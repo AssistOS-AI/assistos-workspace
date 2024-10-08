@@ -1,10 +1,25 @@
 const lightDB = require('../../apihub-component-utils/lightDB.js');
-
+const chapterService= require('../services/chapter.js');
+const TaskManager = require('../../tasks/TaskManager');
 function constructDocumentURI(documentId, property) {
     return `${documentId}${property ? `/${property}` : ''}`
 }
 
+async function getDocumentTasks(spaceId, documentId) {
+    const documentChapters=await getDocument(spaceId, documentId, {fields: "chapters"});
+    const chapterTasks = await Promise.allSettled(documentChapters.map(chapterId => {
+        return chapterService.getChapterTasks(spaceId, documentId, chapterId);
+    }));
+    return chapterTasks
+        .filter(result => result.status === 'fulfilled')
+        .map(result => result.value)
+        .flat();
+}
 async function deleteDocument(spaceId, documentId) {
+    const documentTasks = await getDocumentTasks(spaceId, documentId);
+    await Promise.allSettled(documentTasks.map(async taskId => {
+        return TaskManager.cancelTaskAndRemove(taskId);
+    }));
     return await lightDB.deleteContainerObject(spaceId, documentId);
 }
 

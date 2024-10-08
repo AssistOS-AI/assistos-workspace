@@ -33,7 +33,7 @@ async function saveResult(ref,requestBody) {
             const task = taskManager.getTask(taskId);
             await task.completeTaskExecution(videoURL);
             eventPublisher.notifyClientTask(userId, spaceId+"_"+objectId);
-            break;
+           return;
         case "image":
             //TODO use spaceModule or convert image to a stream
             await space.APIs.putImage(spaceId, objectId, requestBody.uri || requestBody.imageData);
@@ -42,7 +42,9 @@ async function saveResult(ref,requestBody) {
             } else {
                 eventPublisher.notifyClientTask(userId, objectId);
             }
-            break;
+            return;
+        case "audio":
+            return await space.APIs.putAudio(objectId, userId, requestBody.data);
     }
 }
 

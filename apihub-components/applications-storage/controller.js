@@ -121,7 +121,9 @@ async function installApplication(request, response) {
         if (application.flowsRepository) {
             const applicationPath = path.join(dataVolumePaths.space,`${spaceId}/applications/${application.name}/flows`);
             await execAsync(`git clone ${application.flowsRepository} ${applicationPath}`);
-            await execAsync(`rm ${applicationPath}/README.md`);
+            try {
+                await execAsync(`rm ${applicationPath}/README.md`);
+            }catch(error){}
         }
         await updateSpaceStatus(spaceId, application.name, manifest.description);
         sendResponse(response, 200, "application/json", {

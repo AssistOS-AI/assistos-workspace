@@ -2,7 +2,6 @@ const utils = require('../../apihub-component-utils/utils.js');
 const paragraphService = require('../services/paragraph.js');
 const eventPublisher = require("../../subscribers/eventPublisher");
 
-
 async function getParagraph(req, res) {
     const {spaceId, documentId, paragraphId} = req.params;
     if (!spaceId || !documentId || !paragraphId) {
@@ -84,6 +83,7 @@ async function deleteParagraph(req, res) {
     try {
         await paragraphService.deleteParagraph(spaceId, documentId, chapterId, paragraphId);
         eventPublisher.notifyClients(req.sessionId, chapterId);
+        eventPublisher.notifyClients(req.sessionId, documentId,"/tasks");
         return utils.sendResponse(res, 200, "application/json", {
             success: true,
             message: "Paragraph deleted successfully"

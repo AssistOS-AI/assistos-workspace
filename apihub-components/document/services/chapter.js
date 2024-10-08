@@ -1,10 +1,29 @@
 const lightDB = require('../../apihub-component-utils/lightDB.js');
+const paragraphService = require('../services/paragraph.js');
+const TaskManager = require('../../tasks/TaskManager');
 
 function constructChapterURI(documentId, chapterId, property) {
     return `${documentId}/${chapterId}${property ? `/${property}` : ''}`
 }
+async function getChapterParagraphIds(spaceId, documentId, chapterId) {
+    return await getChapter(spaceId, documentId, chapterId, {fields: "paragraphs"});
+}
+async function getChapterTasks(spaceId, documentId, chapterId) {
+    const chapterParagraphIds = await getChapterParagraphIds(spaceId, documentId, chapterId);
+    const paragraphTasks = await Promise.allSettled(chapterParagraphIds.map(paragraphId => {
+        return paragraphService.getParagraphTasks(spaceId, documentId, paragraphId);
+    }));
+    return paragraphTasks
+        .filter(result => result.status === 'fulfilled')
+        .map(result => result.value)
+        .flat();
+}
 
 async function deleteChapter(spaceId, documentId, chapterId) {
+    const chapterTasks = await getChapterTasks(spaceId, documentId, chapterId);
+    await Promise.allSettled(chapterTasks.map(async taskId => {
+        return TaskManager.cancelTaskAndRemove(taskId);
+    }));
     return await lightDB.deleteEmbeddedObject(spaceId, constructChapterURI(documentId, chapterId))
 }
 
@@ -57,5 +76,6 @@ module.exports = {
     createChapter,
     updateChapter,
     deleteChapter,
-    swapChapters
+    swapChapters,
+    getChapterTasks
 }

@@ -1,4 +1,5 @@
 const lightDB = require('../../apihub-component-utils/lightDB.js');
+const TaskManager = require('../../tasks/TaskManager');
 
 function constructParagraphURI(pathSegments) {
     let paragraphURI = "";
@@ -17,7 +18,25 @@ function constructParagraphURI(pathSegments) {
     return paragraphURI;
 }
 
+async function getParagraphTasks(spaceId, documentId, paragraphId) {
+    const paragraphCommands = await getParagraph(spaceId, documentId, paragraphId, {fields: "commands"});
+    return paragraphCommands.reduce((acc, command) => {
+        if (command.taskId) {
+            acc.push(command.taskId);
+        }
+        return acc;
+    }, []);
+}
+
+async function deleteParagraphTasks(spaceId, documentId, paragraphId) {
+    const paragraphTasks = await getParagraphTasks(spaceId, documentId, paragraphId);
+    await Promise.allSettled(paragraphTasks.map(async taskId => {
+        return TaskManager.cancelTaskAndRemove(taskId);
+    }))
+}
+
 async function deleteParagraph(spaceId, documentId, chapterId, paragraphId) {
+    await deleteParagraphTasks(spaceId, documentId, paragraphId);
     return await lightDB.deleteEmbeddedObject(spaceId, constructParagraphURI({
         documentId: documentId,
         chapterId: chapterId,
@@ -104,5 +123,6 @@ module.exports = {
     getParagraph,
     createParagraph,
     updateParagraph,
-    swapParagraphs
+    swapParagraphs,
+    getParagraphTasks
 }
