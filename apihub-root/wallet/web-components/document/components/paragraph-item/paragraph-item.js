@@ -22,7 +22,6 @@ export class ParagraphItem {
     }
 
     async beforeRender() {
-        this.paragraphCommands = this.buildCommandsHTML("view");
         this.loadedParagraphText = this.paragraph.text || "";
     }
 
@@ -37,8 +36,8 @@ export class ParagraphItem {
         }
 
         this.paragraphHeader = this.element.querySelector(".paragraph-commands");
-        this.paragraphAtachments = this.element.querySelector(".paragraph-attachments");
         this.errorElement = this.element.querySelector(".error-message");
+        this.paragraphHeader.innerHTML = this.buildCommandsHTML("view");
         this.initVideoElements();
         await this.setupVideoPreview();
 
@@ -247,7 +246,7 @@ export class ParagraphItem {
     }
     playVideoPreview(){
         if(this.paragraph.commands.video){
-            if(this.paragraph.commands.video.duration >= this.paragraph.commands.audio.duration){
+            if(this.paragraph.commands.audio && this.paragraph.commands.video.duration >= this.paragraph.commands.audio.duration){
                 this.setupMediaPlayerEventListeners(this.videoElement);
             } else {
                 this.setupMediaPlayerEventListeners(this.audioElement);
@@ -324,6 +323,18 @@ export class ParagraphItem {
         }
         if(this.paragraph.commands.video){
             this.videoElement.classList.remove("hidden");
+            const canvas = document.createElement('canvas');
+            const context = canvas.getContext('2d');
+            this.videoElement.addEventListener("loadedmetadata", () => {
+                this.videoElement.currentTime = 0;
+            }, {once: true});
+            this.videoElement.addEventListener('seeked', () => {
+                canvas.width = this.videoElement.videoWidth;
+                canvas.height = this.videoElement.videoHeight;
+                context.drawImage(this.videoElement, 0, 0, canvas.width, canvas.height);
+                const dataUrl = canvas.toDataURL('image/png');
+                this.videoElement.setAttribute('poster', dataUrl);
+            }, {once: true});
             this.videoElement.src = await spaceModule.getVideoURL(assistOS.space.id, this.paragraph.commands.video.id);
         } else {
             this.videoElement.classList.add("hidden");
@@ -468,7 +479,14 @@ export class ParagraphItem {
                     let videoSrc = utilModule.constants.getVideoSrc(assistOS.space.id, command.id);
                     html += `<a class="command-link" data-local-action="showAttachment video" href="${videoSrc}" data-id="${command.id}">Video</a>`;
                 } else if (command.name === "speech") {
-                    let personalityImageId = this.documentPresenter.personalitiesMetadata.find(personality => personality.name === command.personality).imageId;
+                    let personality = this.documentPresenter.personalitiesMetadata.find(personality => personality.name === command.personality);
+                    let personalityImageId;
+                    if(personality){
+                        personalityImageId = personality.imageId;
+                    } else {
+                        personalityImageId = null;
+                        this.showCommandsError("Personality not found");
+                    }
                     let imageSrc = "./wallet/assets/images/default-personality.png"
                     if(personalityImageId){
                         imageSrc = utilModule.constants.getImageSrc(assistOS.space.id, personalityImageId);

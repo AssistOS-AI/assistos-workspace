@@ -20,11 +20,11 @@
                     <img class="fullscreen-icon pointer" data-local-action="switchDisplayMode" data-mode="minimized" src="./wallet/assets/icons/fullscreen.svg" alt="fullscreen">
                 </div>
                 <img loading="lazy" class="paragraph-image" src="$$imageSrc" alt="$$imgAlt" tabindex="0">
-                <video class="video-player hidden"></video>
-                <audio class="audio-player hidden"></audio>
+                <video class="video-player hidden" preload="metadata" crossorigin="anonymous"></video>
+                <audio class="audio-player hidden" preload="metadata"></audio>
             </div>
             <div class="header-section" data-local-action="editItem paragraphHeader">
-                <div class="paragraph-commands maintain-focus">$$paragraphCommands</div>
+                <div class="paragraph-commands maintain-focus"></div>
             </div>
             <code class="error-message hidden"></code></div>
         </div>
