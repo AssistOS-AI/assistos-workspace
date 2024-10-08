@@ -32,11 +32,10 @@ export class SpaceApplicationPage {
         let resizeBar = this.element.querySelector('.drag-separator');
         this.isResizing = false;
         this.highlightSidebarItem();
-        if (this.boundMouseDownFn) {
-            resizeBar.removeEventListener("mousedown", this.boundMouseDownFn);
+        if (!this.boundMouseDownFn) {
+            this.boundMouseDownFn = this.MouseDownFn.bind(this);
+            resizeBar.addEventListener("mousedown", this.boundMouseDownFn);
         }
-        this.boundMouseDownFn = this.MouseDownFn.bind(this);
-        resizeBar.addEventListener("mousedown", this.boundMouseDownFn);
 
         if (this.agentPageWidth) {
             this.agentPage.style.width = this.agentPageWidth + 'px';
@@ -50,11 +49,28 @@ export class SpaceApplicationPage {
             let firstNewWidth = firstPanelWidth + (mouseX - startX);
             let secondNewWidth = secondPanelWidth - (mouseX - startX);
             let minimumSize = 350;
-            if (firstNewWidth >= minimumSize && secondNewWidth >= minimumSize) {
+            let minimumSizeAgent = 0;
+            if (firstNewWidth >= minimumSizeAgent && secondNewWidth >= minimumSize) {
                 this.agentPage.style.width = firstNewWidth + 'px';
                 this.currentPage.style.width = secondNewWidth + 'px';
                 this.agentPageWidth = firstNewWidth;
                 this.currentPageWidth = secondNewWidth;
+            }
+            if(this.agentPageWidth < 350){
+                let chatControls = this.element.querySelector(".space-controls");
+                chatControls.style.display = "none";
+            } else {
+                let chatControls = this.element.querySelector(".space-controls");
+                chatControls.style.display = "flex";
+            }
+            if(this.agentPageWidth < 20){
+                let chatContainer = this.element.querySelector(".chat-input-container");
+                chatContainer.style.zIndex = -1;
+                this.agentPage.style.width = 0 + 'px';
+                this.agentPageWidth = 0;
+            } else {
+                let chatContainer = this.element.querySelector(".chat-input-container");
+                chatContainer.style.zIndex = "initial";
             }
         }
     }
@@ -71,17 +87,17 @@ export class SpaceApplicationPage {
         let startX = event.clientX;
         let firstPanelWidth = parseFloat(getComputedStyle(this.agentPage, null).width);
         let secondPanelWidth = parseFloat(getComputedStyle(this.currentPage, null).width);
-        if (this.boundMouseMoveFn) {
-            this.element.removeEventListener("mousemove", this.boundMouseMoveFn);
-        }
-        this.boundMouseMoveFn = this.resizePanels.bind(this, startX, firstPanelWidth, secondPanelWidth);
-        this.element.addEventListener("mousemove", this.boundMouseMoveFn);
 
-        if (this.boundMouseUp) {
-            this.element.removeEventListener("mouseup", this.boundMouseUp);
+        if (!this.boundMouseMoveFn) {
+            this.boundMouseMoveFn = this.resizePanels.bind(this, startX, firstPanelWidth, secondPanelWidth);
+            this.element.addEventListener("mousemove", this.boundMouseMoveFn);
         }
-        this.boundMouseUp = this.stopResize.bind(this);
-        this.element.addEventListener("mouseup", this.boundMouseUp);
+
+        if (!this.boundMouseUp) {
+            this.boundMouseUp = this.stopResize.bind(this);
+        }
+        document.addEventListener("mouseup", this.boundMouseUp, {once: true});
+
     }
 
     async navigateToPage(_target, page) {

@@ -76,7 +76,7 @@ space-application-page {
 
 .drag-separator {
     cursor: grab;
-    width: 1px;
+    width: 5px;
     height: 100%;
     position: relative;
     background: var(--right-sidebar-border);
