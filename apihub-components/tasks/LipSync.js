@@ -29,22 +29,21 @@ class LipSync extends Task {
 
                 const paragraphCommands = paragraph.commands;
                 let speechCommand = paragraphCommands.speech;
-                if (!paragraphCommands.audio) {
-                    if (!speechCommand) {
-                        await this.rollback();
-                        this.rejectTask("Paragraph Must have a speech command before adding lip sync");
-                    } else {
-                        let taskId = speechCommand.taskId;
-                        let task = TaskManager.getTask(taskId);
-                        task.removeListener(EVENTS.DEPENDENCY_COMPLETED);
-                        task.on(EVENTS.DEPENDENCY_COMPLETED, async () => {
-                            this.setStatus(STATUS.RUNNING);
-                            let paragraphCommands = await documentModule.getParagraphCommands(this.spaceId, this.documentId, this.paragraphId);
-                            await this.executeLipSync(spaceModule, llmModule, utilModule, paragraphCommands);
-                        });
-                        this.setStatus(STATUS.PENDING);
-                        return this.taskPromise;
-                    }
+                if (!speechCommand) {
+                    await this.rollback();
+                    return this.rejectTask("Paragraph Must have a speech command before adding lip sync");
+                }
+                let taskId = speechCommand.taskId;
+                if (taskId) {
+                    const task = TaskManager.getTask(taskId);
+                    task.removeListener(EVENTS.DEPENDENCY_COMPLETED);
+                    task.on(EVENTS.DEPENDENCY_COMPLETED, async () => {
+                        this.setStatus(STATUS.RUNNING);
+                        const paragraphCommands = await documentModule.getParagraphCommands(this.spaceId, this.documentId, this.paragraphId);
+                        await this.executeLipSync(spaceModule, llmModule, utilModule, paragraphCommands);
+                    });
+                    this.setStatus(STATUS.PENDING);
+                    return this.taskPromise;
                 }
                 await this.executeLipSync(spaceModule, llmModule, utilModule, paragraphCommands);
             } catch (e) {
@@ -60,6 +59,10 @@ class LipSync extends Task {
             await this.rollback();
             this.rejectTask(new Error("Task took too long to complete"));
         }, 60000 * 10);
+        if(!paragraphCommands.audio){
+            await this.rollback();
+            return this.rejectTask(new Error("Audio File is missing"));
+        }
         if (paragraphCommands.video) {
             await llmModule.lipSync(this.spaceId, this.id, paragraphCommands.video.id, paragraphCommands.audio.id, "sync-1.6.0");
         } else {
