@@ -55,7 +55,7 @@ space-application-page {
 }
 
 .current-page {
-    width: 100%;
+    width: calc(100% - 42px);
     transition: width 0.3s;
     min-width: 35%;
     background: var(--white);
