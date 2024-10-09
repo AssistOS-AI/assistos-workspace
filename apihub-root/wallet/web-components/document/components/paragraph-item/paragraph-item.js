@@ -22,7 +22,6 @@ export class ParagraphItem {
     }
 
     async beforeRender() {
-        this.paragraphCommands = await this.buildCommandsHTML("view");
         this.loadedParagraphText = this.paragraph.text || "";
     }
 
