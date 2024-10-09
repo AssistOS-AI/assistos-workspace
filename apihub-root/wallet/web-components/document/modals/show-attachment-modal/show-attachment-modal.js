@@ -1,4 +1,5 @@
 const utilModule = require("assistos").loadModule("util", {});
+const spaceModule = require("assistos").loadModule("space", {});
 export class ShowAttachmentModal{
     constructor(element, invalidate) {
         this.element = element;
@@ -12,19 +13,19 @@ export class ShowAttachmentModal{
         });
         this.invalidate();
     }
-    beforeRender(){
+    async beforeRender(){
         if(this.type === 'image'){
             this.downloadFileName = `image-${this.id}.png`;
-            this.src = utilModule.constants.getImageSrc(assistOS.space.id, this.id);
+            this.src = await spaceModule.getImageURL(assistOS.space.id, this.id);
             this.modalBodyContent = `
             <img class="image-attachment" src="${this.src}" alt="image">`;
         } else if(this.type === 'audio'){
             this.downloadFileName = `audio-${this.id}.mp3`;
-            this.src = utilModule.constants.getAudioSrc(assistOS.space.id, this.id);
+            this.src = await spaceModule.getAudioURL(assistOS.space.id, this.id);
             this.modalBodyContent = `<audio class="audio-attachment" src="${this.src}" controls></audio>`;
         } else if(this.type === 'video'){
             this.downloadFileName = `video-${this.id}.mp4`;
-            this.src = utilModule.constants.getVideoSrc(assistOS.space.id, this.id);
+            this.src = await spaceModule.getVideoURL(assistOS.space.id, this.id);
             this.modalBodyContent = `<video class="video-attachment" src="${this.src}" controls></video>`;
         }
         this.modalBodyContent += `<button class="general-button download-button" data-local-action="downloadAttachment">Download</button>`;
