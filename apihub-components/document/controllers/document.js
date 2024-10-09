@@ -9,7 +9,7 @@ const unzipper = require("unzipper");
 const eventPublisher = require("../../subscribers/eventPublisher");
 const ffmpeg = require("../../apihub-component-utils/ffmpeg");
 const {sendResponse} = require("../../apihub-component-utils/utils");
-
+const Storage = require("../../apihub-component-utils/storage");
 const documentService = require("../services/document");
 
 async function getDocument(req, res) {
@@ -189,46 +189,28 @@ async function archiveDocument(spaceId, documentId, exportType, request) {
     archive.append(contentBuffer, {name: 'data.json'});
     archive.append(Buffer.from(JSON.stringify(metadata), 'utf-8'), {name: 'metadata.json'});
 
-    documentData.images.forEach(imageData => {
-        const imageName = imageData.name
-        const imageStream = space.APIs.getImageStream(spaceId, imageData.id);
-        archive.append(imageStream, {name: `images/${imageName}.png`});
-    });
-
-    documentData.audios.forEach(audioData => {
-        const audioName = audioData.name;
-        const audioStream = space.APIs.getAudioStream(spaceId, audioData.id);
-        archive.append(audioStream, {name: `audios/${audioName}.mp3`});
-    });
-    documentData.videos.forEach(videoData => {
-        const videoName = videoData.name;
-        const videoStream = space.APIs.getVideoStream(spaceId, videoData.id);
-        archive.append(videoStream, {name: `videos/${videoName}.mp4`});
-    });
-
-    function streamToBuffer(stream) {
-        return new Promise((resolve, reject) => {
-            const chunks = [];
-            stream.on('data', (chunk) => {
-                chunks.push(chunk);
-            });
-            stream.on('end', () => {
-                resolve(Buffer.concat(chunks));
-            });
-            stream.on('error', reject);
-        });
+    for(let imageData of documentData.images){
+        const imageName = imageData.name;
+        const {fileStream, headers} = await Storage.getImage(spaceId, audioData.id);
+        archive.append(fileStream, {name: `images/${imageName}.png`});
     }
 
-    /* TODO could overflow the memory if there are too many personalities with large amount of data*/
-    const personalityPromises = documentData.personalities.map(async personalityId => {
+    for(let audioData of documentData.audios){
+        const audioName = audioData.name;
+        const {fileStream, headers} = await Storage.getAudio(spaceId, audioData.id);
+        archive.append(fileStream, {name: `audios/${audioName}.mp3`});
+    }
+    for(let videoData of documentData.videos){
+        const videoName = videoData.name;
+        const {fileStream, headers} = await Storage.getVideo(spaceId, videoData.id);
+        archive.append(fileStream, {name: `videos/${videoName}.mp4`});
+    }
+
+    for(let personalityId of documentData.personalities){
         const personalityStream = await space.APIs.archivePersonality(spaceId, personalityId);
-        const personalityBuffer = await streamToBuffer(personalityStream);
-        return {buffer: personalityBuffer, id: personalityId};
-    });
-    const personalities = await Promise.all(personalityPromises);
-    personalities.forEach(({buffer, id}) => {
-        archive.append(buffer, {name: `personalities/${id}.persai`});
-    });
+        archive.append(personalityStream, {name: `personalities/${personalityId}.persai`});
+    }
+
     archive.finalize();
     return stream;
 }

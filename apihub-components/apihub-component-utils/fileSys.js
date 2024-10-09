@@ -40,46 +40,46 @@ async function downloadData(url, dest) {
     });
 }
 
-async function putImage(spaceId, imageId, req) {
+async function putImage(spaceId, imageId, stream) {
     return new Promise((resolve, reject) => {
         const storagePath = path.join(getSpacePath(spaceId), "images");
         const filePath = path.join(storagePath, `${imageId}.png`);
-        const fileStream = fs.createWriteStream(filePath);
-        req.pipe(fileStream);
-        fileStream.on('finish', () => {
+        const writeStream = fs.createWriteStream(filePath);
+        stream.pipe(writeStream);
+        writeStream.on('finish', () => {
             resolve(imageId);
         });
-        fileStream.on('error', (err) => {
+        writeStream.on('error', (err) => {
             reject(err);
         });
     });
 }
 
-async function putAudio(spaceId, audioId, req) {
+async function putAudio(spaceId, audioId, stream) {
     return new Promise((resolve, reject) => {
         const storagePath = path.join(getSpacePath(spaceId), "audios");
         const filePath = path.join(storagePath, `${audioId}.mp3`);
-        const fileStream = fs.createWriteStream(filePath);
-        req.pipe(fileStream);
-        fileStream.on('finish', () => {
+        const writeStream = fs.createWriteStream(filePath);
+        stream.pipe(writeStream);
+        writeStream.on('finish', () => {
             resolve(audioId);
         });
-        fileStream.on('error', (err) => {
+        writeStream.on('error', (err) => {
             reject(err);
         });
     });
 }
 
-async function putVideo(spaceId, videoId, req) {
+async function putVideo(spaceId, videoId, stream) {
     return new Promise((resolve, reject) => {
         const storagePath = path.join(getSpacePath(spaceId), "videos");
         const filePath = path.join(storagePath, `${videoId}.mp4`);
-        const fileStream = fs.createWriteStream(filePath);
-        req.pipe(fileStream);
-        fileStream.on('finish', () => {
+        const writeStream = fs.createWriteStream(filePath);
+        stream.pipe(writeStream);
+        writeStream.on('finish', () => {
             resolve(videoId);
         });
-        fileStream.on('error', (err) => {
+        writeStream.on('error', (err) => {
             reject(err);
         });
     });
