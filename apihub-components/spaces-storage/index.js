@@ -58,13 +58,13 @@ const bodyReader = require('../apihub-component-middlewares/bodyReader.js')
 const authentication = require('../apihub-component-middlewares/authentication.js')
 
 function SpaceStorage(server) {
-    server.head("/spaces/audio/:spaceId/:audioId", getAudio);
-    server.head("/spaces/image/:spaceId/:imageId", getImage);
-    server.head("/spaces/video/:spaceId/:videoId", getVideo);
+    server.head("/spaces/audios/:spaceId/:audioId", getAudio);
+    server.head("/spaces/images/:spaceId/:imageId", getImage);
+    server.head("/spaces/videos/:spaceId/:videoId", getVideo);
 
-    server.get("/spaces/audio/:spaceId/:audioId", getAudio);
-    server.get("/spaces/image/:spaceId/:imageId", getImage);
-    server.get("/spaces/video/:spaceId/:videoId", getVideo);
+    server.get("/spaces/audios/:spaceId/:audioId", getAudio);
+    server.get("/spaces/images/:spaceId/:imageId", getImage);
+    server.get("/spaces/videos/:spaceId/:videoId", getVideo);
 
     server.use("/spaces/*", bodyReader);
     server.use("/apis/v1/spaces/*", bodyReader);
@@ -138,9 +138,9 @@ function SpaceStorage(server) {
     server.put("/spaces/audios/:spaceId/:audioId", putAudio);
     server.put("/spaces/videos/:spaceId/:videoId", putVideo);
 
-    server.delete("/spaces/image/:spaceId/:imageId", deleteImage);
-    server.delete("/spaces/audio/:spaceId/:audioId", deleteAudio);
-    server.delete("/spaces/video/:spaceId/:videoId", deleteVideo);
+    server.delete("/spaces/images/:spaceId/:imageId", deleteImage);
+    server.delete("/spaces/audios/:spaceId/:audioId", deleteAudio);
+    server.delete("/spaces/videos/:spaceId/:videoId", deleteVideo);
 
     server.get("/spaces/:spaceId/export/personalities/:personalityId", exportPersonality);
     server.post("/spaces/:spaceId/import/personalities", importPersonality);

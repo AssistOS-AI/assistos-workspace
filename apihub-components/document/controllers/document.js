@@ -403,7 +403,7 @@ async function storeDocument(spaceId, extractedPath, request) {
             const buffer = await space.APIs.readFileAsBuffer(audioPath);
             const audioId = await spaceModule.putAudio(spaceId, buffer);
             chapterObject.backgroundSound.id = audioId;
-            chapterObject.backgroundSound.src = `spaces/audio/${spaceId}/${audioId}`;
+            chapterObject.backgroundSound.src = `spaces/audios/${spaceId}/${audioId}`;
         }
 
         const chapterId = await documentModule.addChapter(spaceId, docId, chapterObject);

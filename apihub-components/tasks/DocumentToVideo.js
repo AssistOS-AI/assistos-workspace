@@ -51,7 +51,7 @@ class DocumentToVideo extends Task {
             await fsPromises.rm(tempVideoDir, {recursive: true, force: true});
             throw new Error(`Failed to combine chapter videos: ${e}`);
         }
-        let videoURL = `/spaces/video/${this.spaceId}/${this.id}`;
+        let videoURL = `/spaces/videos/${this.spaceId}/${this.id}`;
         if (this.document.video) {
             const videoId = document.video.split("/").pop();
             try {
