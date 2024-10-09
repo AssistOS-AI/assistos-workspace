@@ -67,7 +67,7 @@ async function headObject(spaceId, tableId, objectId) {
 }
 
 
-async function putObject(spaceId, tableId, objectId, request, contentType) {
+async function putObject(spaceId, tableId, objectId, stream, contentType) {
     const fileName = getS3FileName(spaceId, tableId, objectId);
     const routeKey = getRouteKey(tableId);
     const route = llmAdapterRoutes.POST[routeKey];
@@ -76,7 +76,6 @@ async function putObject(spaceId, tableId, objectId, request, contentType) {
     const headers = {
         'Content-Type': contentType
     };
-    const stream = Readable.from(request);
     const response = await sendLLMAdapterRequest(url, 'POST', stream, headers);
 
     return response.status === 200;

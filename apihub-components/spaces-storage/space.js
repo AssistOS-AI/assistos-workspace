@@ -144,11 +144,11 @@ async function preparePersonalityData(defaultPersonalitiesPath, personalitiesPat
         personality.id = crypto.generateId(16);
     }
     let imagesPath = path.join(defaultPersonalitiesPath, 'images');
-    let image = await fsPromises.readFile(path.join(imagesPath, `${personality.imageId}.png`));
+    let imageStream = fs.createReadStream(path.join(imagesPath, `${personality.imageId}.png`));
     const imageId = crypto.generateId(8);
     personality.imageId = imageId;
 
-    await Storage.putImage(spaceId, imageId, image);
+    await Storage.putImage(spaceId, imageId, imageStream);
     await fsPromises.writeFile(path.join(personalitiesPath, `${personality.id}.json`), JSON.stringify(personality), 'utf8');
 
     return {
@@ -517,14 +517,14 @@ async function getAudio(spaceId, audioId, range) {
     return await Storage.getAudio(spaceId, audioId,range);
 }
 
-async function putImage(spaceId, imageId, request) {
-    return await Storage.putImage(spaceId, imageId, request);
+async function putImage(spaceId, imageId, stream) {
+    return await Storage.putImage(spaceId, imageId, stream);
 }
-async function putVideo(spaceId, videoId, request) {
-    return await Storage.putVideo(spaceId, videoId, request);
+async function putVideo(spaceId, videoId, stream) {
+    return await Storage.putVideo(spaceId, videoId, stream);
 }
-async function putAudio(spaceId, audioId, request) {
-    return await Storage.putAudio(spaceId, audioId, request);
+async function putAudio(spaceId, audioId, stream) {
+    return await Storage.putAudio(spaceId, audioId, stream);
 }
 
 async function deleteImage(spaceId, imageId) {
@@ -558,7 +558,6 @@ async function readFileAsBuffer(filePath) {
 
 async function archivePersonality(spaceId, personalityId) {
     const personalityData = await getPersonalityData(spaceId, personalityId);
-
     const contentBuffer = Buffer.from(JSON.stringify(personalityData), 'utf-8');
     const checksum = require('crypto').createHash('sha256').update(contentBuffer).digest('hex');
 
@@ -577,8 +576,8 @@ async function archivePersonality(spaceId, personalityId) {
 
     archive.append(contentBuffer, {name: 'data.json'});
     archive.append(Buffer.from(JSON.stringify(metadata), 'utf-8'), {name: 'metadata.json'});
-    let imageStream = await Storage.getImageStream(spaceId, personalityData.imageId);
-    archive.append(imageStream, {name: `${personalityData.imageId}.png`});
+    let {fileStream, headers} = await Storage.getImage(spaceId, personalityData.imageId);
+    archive.append(fileStream, {name: `${personalityData.imageId}.png`});
 
     archive.finalize();
     return stream;
