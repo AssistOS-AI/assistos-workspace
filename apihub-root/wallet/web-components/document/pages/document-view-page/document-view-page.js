@@ -343,7 +343,7 @@ export class DocumentViewPage {
                 return await showApplicationError("Error compiling video", data.error, "");
             } else if (data.status === "completed") {
                 const a = document.createElement("a");
-                a.href = `/spaces/video/${assistOS.space.id}/${videoId}`;
+                a.href = `/spaces/videos/${assistOS.space.id}/${videoId}`;
                 a.download = "video.mp4";
                 document.body.appendChild(a);
                 a.click();

@@ -261,7 +261,7 @@ export class ChapterItem {
                 let backgroundSound = {
                     id: audioId,
                     userId: assistOS.user.id,
-                    src: `spaces/audio/${assistOS.space.id}/${audioId}`,
+                    src: `spaces/audios/${assistOS.space.id}/${audioId}`,
                     volume: "1"
                 };
                 await assistOS.callFlow("UpdateChapterBackgroundSound", {
