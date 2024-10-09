@@ -1,5 +1,6 @@
 import {executorTimer} from "../../../../imports.js";
 const documentModule = require("assistos").loadModule("document", {});
+const spaceModule = require("assistos").loadModule("space", {});
 const utilModule = require("assistos").loadModule("util", {});
 const blackScreen = "./wallet/assets/images/black-screen.png";
 export class DocumentVideoPreview {
@@ -369,30 +370,30 @@ export class DocumentVideoPreview {
                     });
                 }
                 if(paragraph.commands.video){
-                    let videoSrc = utilModule.constants.getVideoSrc(assistOS.space.id, paragraph.commands.video.id);
+                    let videoSrc = await spaceModule.getVideoURL(assistOS.space.id, paragraph.commands.video.id);
                     this.setCurrentParagraphAndChapter(i, j);
                     this.scrollDocument();
                     this.loadResource("video", videoSrc);
                     if (paragraph.commands.audio){
-                        let audioSrc = utilModule.constants.getAudioSrc(assistOS.space.id, paragraph.commands.audio.id);
+                        let audioSrc = await spaceModule.getAudioURL(assistOS.space.id, paragraph.commands.audio.id);
                         this.loadResource("audio", audioSrc);
                     }
                     return;
                 } else if (paragraph.commands.audio) {
                     let imageSrc= blackScreen
                     if(paragraph.commands.image){
-                        imageSrc = utilModule.constants.getImageSrc(assistOS.space.id, paragraph.commands.image.id);
+                        imageSrc = await spaceModule.getImageURL(assistOS.space.id, paragraph.commands.image.id);
                     }
 
                     this.setCurrentParagraphAndChapter(i, j);
                     this.loadResource("image", imageSrc);
-                    let audioSrc = utilModule.constants.getAudioSrc(assistOS.space.id, paragraph.commands.audio.id);
+                    let audioSrc = await spaceModule.getAudioURL(assistOS.space.id, paragraph.commands.audio.id);
                     this.loadResource("audio", audioSrc);
                     this.scrollDocument();
                     return;
                 } else if (paragraph.commands["silence"]){
                     if(paragraph.commands.image){
-                        let imageSrc = utilModule.constants.getImageSrc(assistOS.space.id, paragraph.commands.image.id);
+                        let imageSrc = await spaceModule.getImageURL(assistOS.space.id, paragraph.commands.image.id);
                         this.loadResource("image", imageSrc);
                     } else {
                         this.loadResource("image", blackScreen);
@@ -403,7 +404,7 @@ export class DocumentVideoPreview {
                     return;
                 } else if(paragraph.commands.image){
                     this.setCurrentParagraphAndChapter(i, j);
-                    let imageSrc = utilModule.constants.getImageSrc(assistOS.space.id, paragraph.commands.image.id);
+                    let imageSrc = await spaceModule.getImageURL(assistOS.space.id, paragraph.commands.image.id);
                     this.loadResource("image", imageSrc);
                     this.scrollDocument();
                     this.executeSilenceCommand(1);
@@ -458,7 +459,7 @@ export class DocumentVideoPreview {
         this.currentTimeElement.innerHTML = this.formatTime(this.currentTime);
     }
 
-    skipToNextScene(targetElement) {
+    async skipToNextScene(targetElement) {
         this.nextButton.classList.add("disabled");
         //skip is called at the beginning of the document
         if(this.chapterIndex === 0 && this.paragraphIndex === 0){
@@ -516,7 +517,7 @@ export class DocumentVideoPreview {
             let hasAudio = false;
             if(nextParagraph.commands.audio){
                 this.audioPlayer.addEventListener("loadedmetadata", this.waitAudioLoad.bind(this), {once: true});
-                let audioSrc = utilModule.constants.getAudioSrc(assistOS.space.id, nextParagraph.commands.audio.id);
+                let audioSrc = await spaceModule.getAudioURL(assistOS.space.id, nextParagraph.commands.audio.id);
                 this.loadResource("audio", audioSrc);
                 hasAudio = true;
             }
@@ -525,7 +526,7 @@ export class DocumentVideoPreview {
                 this.playNext();
                 return;
             }
-            let videoSrc = utilModule.constants.getVideoSrc(assistOS.space.id, nextParagraph.commands.video.id);
+            let videoSrc = await spaceModule.getVideoURL(assistOS.space.id, nextParagraph.commands.video.id);
             this.loadResource("video", videoSrc);
             this.scrollDocument();
             return;
@@ -535,7 +536,7 @@ export class DocumentVideoPreview {
                 this.playNext();
                 return;
             }
-            let audioSrc = utilModule.constants.getAudioSrc(assistOS.space.id, nextParagraph.commands.audio.id);
+            let audioSrc = await spaceModule.getAudioURL(assistOS.space.id, nextParagraph.commands.audio.id);
             this.loadResource("audio", audioSrc);
         } else if(nextParagraph.commands["silence"]){
             this.remainingSilentDuration = parseFloat(nextParagraph.commands["silence"].duration) * 1000;
@@ -547,7 +548,7 @@ export class DocumentVideoPreview {
             return;
         }
         if(nextParagraph.commands.image){
-            let imageSrc = utilModule.constants.getImageSrc(assistOS.space.id, nextParagraph.commands.image.id);
+            let imageSrc = await spaceModule.getImageURL(assistOS.space.id, nextParagraph.commands.image.id);
             this.loadResource("image", imageSrc);
         } else {
             this.loadResource("image", blackScreen);
@@ -683,12 +684,12 @@ export class DocumentVideoPreview {
             this.audioPlayer.src = "";
             this.previousButton.classList.add("disabled");
             if(previousParagraph.commands.video){
-                let videoSrc = utilModule.constants.getVideoSrc(assistOS.space.id, previousParagraph.commands.video.id);
+                let videoSrc = await spaceModule.getVideoURL(assistOS.space.id, previousParagraph.commands.video.id);
                 this.loadResource("video", videoSrc);
                 this.videoPlayer.classList.remove("hidden");
             }
             if(previousParagraph.commands.audio){
-                let audioSrc = utilModule.constants.getAudioSrc(assistOS.space.id, previousParagraph.commands.audio.id);
+                let audioSrc = await spaceModule.getAudioURL(assistOS.space.id, previousParagraph.commands.audio.id);
                 this.loadResource("audio", audioSrc);
             }
             this.resetTimestamp();
@@ -709,21 +710,21 @@ export class DocumentVideoPreview {
             let hasAudio = false;
             this.timestampUpdated = false;
             if(previousParagraph.commands.audio){
-                let audioSrc = utilModule.constants.getAudioSrc(assistOS.space.id, previousParagraph.commands.audio.id);
+                let audioSrc = await spaceModule.getAudioURL(assistOS.space.id, previousParagraph.commands.audio.id);
                 this.loadResource("audio", audioSrc);
                 this.videoPlayer.addEventListener("loadedmetadata", this.skipTimeStampStartAudio.bind(this), {once: true});
                 hasAudio = true;
             }
             this.videoPlayer.addEventListener("loadedmetadata", this.skipTimeStampStartVideo.bind(this, hasAudio), {once: true});
-            let videoSrc = utilModule.constants.getVideoSrc(assistOS.space.id, previousParagraph.commands.video.id);
+            let videoSrc = await spaceModule.getVideoURL(assistOS.space.id, previousParagraph.commands.video.id);
             this.loadResource("video", videoSrc);
 
         } else if (previousParagraph.commands.audio) {
             this.audioPlayer.addEventListener("loadedmetadata", this.skipTimeStampStartAudioOnly.bind(this), {once: true});
-            let audioSrc = utilModule.constants.getAudioSrc(assistOS.space.id, previousParagraph.commands.audio.id);
+            let audioSrc = await spaceModule.getAudioURL(assistOS.space.id, previousParagraph.commands.audio.id);
             this.loadResource("audio", audioSrc);
             if(previousParagraph.commands.image){
-                let imageSrc = utilModule.constants.getImageSrc(assistOS.space.id, previousParagraph.commands.image.id);
+                let imageSrc = await spaceModule.getImageURL(assistOS.space.id, previousParagraph.commands.image.id);
                 this.loadResource("image", imageSrc);
             } else {
                 this.loadResource("image", blackScreen);
@@ -740,7 +741,7 @@ export class DocumentVideoPreview {
             };
 
             if(previousParagraph.commands.image){
-                let imageSrc = utilModule.constants.getImageSrc(assistOS.space.id, previousParagraph.commands.image.id);
+                let imageSrc = await spaceModule.getImageURL(assistOS.space.id, previousParagraph.commands.image.id);
                 this.loadResource("image", imageSrc);
             } else {
                 this.loadResource("image", blackScreen);
@@ -748,7 +749,7 @@ export class DocumentVideoPreview {
         } else if(previousParagraph.commands.image){
             this.currentTime -= 1;
             this.currentTimeElement.innerHTML = this.formatTime(this.currentTime);
-            let imageSrc = utilModule.constants.getImageSrc(assistOS.space.id, previousParagraph.commands.image.id);
+            let imageSrc = await spaceModule.getImageURL(assistOS.space.id, previousParagraph.commands.image.id);
             this.loadResource("image", imageSrc);
         }
 

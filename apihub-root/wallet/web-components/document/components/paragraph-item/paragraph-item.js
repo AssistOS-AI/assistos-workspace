@@ -26,6 +26,7 @@ export class ParagraphItem {
     }
 
     async afterRender() {
+        this.initVideoElements();
         let paragraphText = this.element.querySelector(".paragraph-text");
         paragraphText.innerHTML = this.paragraph.text
         paragraphText.style.height = paragraphText.scrollHeight + 'px';
@@ -38,7 +39,7 @@ export class ParagraphItem {
         this.paragraphHeader = this.element.querySelector(".paragraph-commands");
         this.errorElement = this.element.querySelector(".error-message");
         this.paragraphHeader.innerHTML = await this.buildCommandsHTML("view");
-        this.initVideoElements();
+
         await this.setupVideoPreview();
 
         //for testing ONLY
@@ -361,19 +362,6 @@ export class ParagraphItem {
             return `${hours}:${minutes}:${remainingSeconds}`;
         }
         return `${minutes}:${remainingSeconds}`;
-    }
-    async deleteParagraphImage() {
-        if (!this.paragraph || !this.paragraph.commands.image || assistOS.space.currentParagraphId !== this.paragraph.id) {
-            return;
-        }
-        delete this.paragraph.commands.image;
-        await documentModule.updateParagraphCommands(
-            assistOS.space.id,
-            this._document.id,
-            this.paragraph.id,
-            this.paragraph.commands
-        );
-        this.invalidate();
     }
 
 
