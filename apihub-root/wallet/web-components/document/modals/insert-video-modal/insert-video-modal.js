@@ -35,13 +35,13 @@ export class InsertVideoModal {
         this.videoElement = document.createElement('video');
         let videoId;
         reader.onload = async (e) => {
-            const uint8Array = new Uint8Array(e.target.result);
-            videoId = await spaceModule.putVideo(assistOS.space.id, uint8Array);
-            this.videoElement.addEventListener("loadedmetadata", async () => {
-                const duration = this.videoElement.duration;
-                const width = this.videoElement.videoWidth;
-                const height = this.videoElement.videoHeight;
-                await assistOS.loadifyComponent(this.element, async () => {
+            await assistOS.loadifyComponent(this.element, async () => {
+                const uint8Array = new Uint8Array(e.target.result);
+                videoId = await spaceModule.putVideo(assistOS.space.id, uint8Array);
+                this.videoElement.addEventListener("loadedmetadata", async () => {
+                    const duration = this.videoElement.duration;
+                    const width = this.videoElement.videoWidth;
+                    const height = this.videoElement.videoHeight;
                     let data = {
                         id: videoId,
                         width: width,
@@ -52,8 +52,8 @@ export class InsertVideoModal {
                     URL.revokeObjectURL(this.videoElement.src);
                     assistOS.UI.closeModal(_target, data);
                 });
+                this.videoElement.src = URL.createObjectURL(file);
             });
-            this.videoElement.src = URL.createObjectURL(file);
         }
         reader.readAsArrayBuffer(file);
     }
