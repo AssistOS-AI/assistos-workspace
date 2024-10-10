@@ -407,7 +407,7 @@ async function storeDocument(spaceId, extractedPath, request) {
         }
 
         const chapterId = await documentModule.addChapter(spaceId, docId, chapterObject);
-        //convertParagraphs(chapter);
+        convertParagraphs(chapter);
 
         for (let paragraph of chapter.paragraphs) {
             if (exportType === 'full') {
@@ -432,7 +432,31 @@ async function storeDocument(spaceId, extractedPath, request) {
     fs.rmSync(extractedPath, {recursive: true, force: true});
     return {id: docId, overriddenPersonalities: Array.from(overriddenPersonalities)};
 }
-
+function convertParagraphs(chapter){
+    for (let paragraph of chapter.paragraphs) {
+        for(let key in paragraph.commands){
+            delete paragraph.commands[key].name;
+            if(key === "speech"){
+                delete paragraph.commands.speech.action;
+                delete paragraph.commands.speech.paramsObject.temperature;
+                delete paragraph.commands.speech.paramsObject.voiceGuidance;
+                for(let key in paragraph.commands.speech.paramsObject){
+                    paragraph.commands.speech[key] = paragraph.commands.speech.paramsObject[key];
+                }
+                delete paragraph.commands.speech.paramsObject;
+            }
+            if(key === "silence"){
+                delete paragraph.commands.silence.action;
+                paragraph.commands.silence.duration = paragraph.commands.silence.paramsObject.duration;
+                delete paragraph.commands.silence.paramsObject;
+            }
+            if(key === "lipsync"){
+                delete paragraph.commands.lipsync.action;
+                delete paragraph.commands.lipsync.paramsObject
+            }
+        }
+    }
+}
 async function storeAttachments(extractedPath, spaceModule, paragraph, spaceId) {
     if (paragraph.commands.image) {
         const imagePath = path.join(extractedPath, 'images', `${paragraph.commands.image.fileName}.png`);

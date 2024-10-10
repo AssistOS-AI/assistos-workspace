@@ -83,6 +83,9 @@ export class InsertImageModal {
     }
 
     closeModal(_target) {
+        if(this.imgElement){
+            this.imgElement.remove();
+        }
         assistOS.UI.closeModal(_target);
     }
 
@@ -131,21 +134,21 @@ export class InsertImageModal {
     selectFileHandler(_target, event) {
         let file = event.target.files[0];
         let reader = new FileReader();
-        const img = new Image();
+        this.imgElement = new Image();
         reader.onload = async (e) => {
             const uint8Array = new Uint8Array(e.target.result);
             let imageId = await spaceModule.putImage(assistOS.space.id, uint8Array);
             reader.onload = async (e) => {
-                img.onload = async () => {
+                this.imgElement.onload = async () => {
                     const canvas = document.createElement('canvas');
                     const ctx = canvas.getContext('2d');
-                    canvas.width = img.width;
-                    canvas.height = img.height;
-                    ctx.drawImage(img, 0, 0);
+                    canvas.width = this.imgElement.width;
+                    canvas.height = this.imgElement.height;
+                    ctx.drawImage(this.imgElement, 0, 0);
                     canvas.remove();
                     await assistOS.loadifyComponent(this.element, async () => {
-                        const width = img.width;
-                        const height = img.height;
+                        const width = this.imgElement.width;
+                        const height = this.imgElement.height;
                         let data = {
                             id: imageId,
                             width: width,
@@ -154,7 +157,7 @@ export class InsertImageModal {
                         assistOS.UI.closeModal(_target, data);
                     });
                 };
-                img.src = e.target.result;
+                this.imgElement.src = e.target.result;
             };
             reader.readAsDataURL(file);
 

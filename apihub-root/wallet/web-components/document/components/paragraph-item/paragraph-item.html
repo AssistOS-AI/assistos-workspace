@@ -3,7 +3,9 @@
         <div class="paragraph-header">
             <div class="video-container">
                 <div class="controls-mask-paragraph">
-                    <img data-local-action="playPause" data-next-mode="play" class="play-pause pointer" src="./wallet/assets/icons/play.svg" alt="playPause">
+                    <div class="play-pause-container">
+                        <img data-local-action="playPause" data-next-mode="play" class="play-pause pointer" src="./wallet/assets/icons/play.svg" alt="playPause">
+                    </div>
                     <div class="bottom-info-paragraph">
                         <div class="right-margin">
                             Chapter <span class="chapter-number"></span>
@@ -21,7 +23,7 @@
                 </div>
                 <img loading="lazy" class="paragraph-image" src="$$imageSrc" alt="$$imgAlt" tabindex="0">
                 <video class="video-player hidden" preload="metadata" crossorigin="anonymous"></video>
-                <audio class="audio-player hidden" preload="metadata"></audio>
+                <audio class="audio-player hidden" preload="metadata" crossorigin="anonymous"></audio>
             </div>
             <div class="header-section" data-local-action="editItem paragraphHeader">
                 <div class="paragraph-commands maintain-focus"></div>

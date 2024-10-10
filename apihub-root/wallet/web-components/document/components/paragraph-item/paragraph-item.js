@@ -39,7 +39,6 @@ export class ParagraphItem {
         this.paragraphHeader = this.element.querySelector(".paragraph-commands");
         this.errorElement = this.element.querySelector(".error-message");
         this.paragraphHeader.innerHTML = await this.buildCommandsHTML("view");
-
         await this.setupVideoPreview();
 
         //for testing ONLY
@@ -55,6 +54,7 @@ export class ParagraphItem {
     }
     initVideoElements() {
         this.videoContainer = this.element.querySelector('.video-container');
+        this.playPauseContainer = this.element.querySelector('.play-pause-container');
         this.playPauseIcon = this.element.querySelector(".play-pause");
         this.videoElement = this.element.querySelector(".video-player");
         this.imgElement = this.element.querySelector(".paragraph-image");
@@ -234,53 +234,101 @@ export class ParagraphItem {
         }, {signal: stopTimeUpdateController.signal});
 
         mediaPlayer.addEventListener("ended", () => {
-            setTimeout(() => {
+            setTimeout(async () => {
                 stopTimeUpdateController.abort();
                 this.playPauseIcon.setAttribute("data-next-mode", "play");
                 this.playPauseIcon.src = "./wallet/assets/icons/play.svg";
                 this.currentTimeElement.innerHTML = this.formatTime(0);
-                this.videoElement.classList.remove("hidden");
+                this.videoElement.classList.add("hidden");
+                await this.setVideoThumbnail();
                 this.videoElement.currentTime = 0;
                 this.audioElement.currentTime = 0;
             }, 1000);
         }, {once: true});
     }
-    playVideoPreview(){
-        if(this.paragraph.commands.video){
-            if(this.paragraph.commands.audio && this.paragraph.commands.video.duration >= this.paragraph.commands.audio.duration){
-                this.setupMediaPlayerEventListeners(this.videoElement);
-            } else {
-                this.setupMediaPlayerEventListeners(this.audioElement);
-                this.videoElement.addEventListener("ended", () => {
-                    this.videoElement.classList.add("hidden");
-                }, {once: true});
+    async playVideoAndAudio(){
+        if(this.paragraph.commands.video.duration >= this.paragraph.commands.audio.duration){
+            this.setupMediaPlayerEventListeners(this.videoElement);
+        } else {
+            this.setupMediaPlayerEventListeners(this.audioElement);
+            this.videoElement.addEventListener("ended", () => {
+                this.videoElement.classList.add("hidden");
+                this.imgElement.src = blackScreen;
+            }, {once: true});
+        }
+        let played = false;
+        this.audioElement.addEventListener("canplaythrough", async () => {
+            if(this.videoElement.readyState >= 4 && !played){
+                played = true;
+                this.hideLoaderAttachment();
+                await this.playMediaSynchronously();
             }
-            this.videoElement.play();
+        }, {once: true});
+        this.videoElement.addEventListener("canplaythrough", async () => {
+            if(this.audioElement.readyState >= 4 && !played){
+                played = true;
+                this.hideLoaderAttachment();
+                await this.playMediaSynchronously();
+            }
+        }, {once: true});
+        this.showLoaderAttachment();
+        this.videoElement.src = await spaceModule.getVideoURL(assistOS.space.id, this.paragraph.commands.video.id);
+        this.audioElement.src = await spaceModule.getAudioURL(assistOS.space.id, this.paragraph.commands.audio.id);
+        // Prevents automatic playback
+        this.videoElement.pause();
+        this.audioElement.pause();
+        //small syncronization issue with the video and audio
+    }
+    async playMediaSynchronously() {
+        const syncTime = Math.max(this.audioElement.currentTime, this.videoElement.currentTime);
+        this.audioElement.currentTime = syncTime;
+        this.videoElement.currentTime = syncTime;
+        await Promise.all([this.audioElement.play(), this.videoElement.play()]);
+    }
+    showLoaderAttachment(){
+        if (this.loaderTimeout) {
+            return;
+        }
+        this.loaderTimeout = setTimeout(() => {
+            this.playPauseIconSrc = this.playPauseIcon.src;
+            this.playPauseNextMode = this.playPauseIcon.getAttribute("data-next-mode");
+            this.playPauseContainer.innerHTML = `<div class="loading-icon"><div>`;
+        }, 500);
+    }
+    hideLoaderAttachment(){
+        clearTimeout(this.loaderTimeout);
+        delete this.loaderTimeout;
+        if(this.playPauseNextMode){
+            this.playPauseContainer.innerHTML = `<img data-local-action="playPause" data-next-mode="${this.playPauseNextMode}" class="play-pause pointer" src="${this.playPauseIconSrc}" alt="playPause">`;
+            this.playPauseIcon = this.element.querySelector(".play-pause");
+            delete this.playPauseNextMode;
+            delete this.playPauseIconSrc;
+        }
+    }
+    async playVideoPreview(){
+        if(this.paragraph.commands.video){
+            this.videoElement.classList.remove("hidden");
             if(this.paragraph.commands.audio){
-                this.audioElement.play();
+                await this.playVideoAndAudio();
+            } else {
+                this.setupMediaPlayerEventListeners(this.videoElement);
+                this.videoElement.addEventListener("canplay", () => {
+                    this.hideLoaderAttachment();
+                    this.videoElement.play();
+                }, {once: true});
+                this.showLoaderAttachment();
+                this.videoElement.src = await spaceModule.getVideoURL(assistOS.space.id, this.paragraph.commands.video.id);
             }
         } else if(this.paragraph.commands.audio){
             this.setupMediaPlayerEventListeners(this.audioElement);
-            this.audioElement.play();
+            this.audioElement.addEventListener("canplay", () => {
+                this.hideLoaderAttachment();
+                this.audioElement.play();
+            }, {once: true});
+            this.showLoaderAttachment();
+            this.audioElement.src = await spaceModule.getAudioURL(assistOS.space.id, this.paragraph.commands.audio.id);
         } else if(this.paragraph.commands.silence){
-            let silenceDuration = this.paragraph.commands.silence.duration;
-            if(!this.silenceElapsedTime){
-                this.silenceElapsedTime = 0;
-            }
-            this.silenceInterval = setInterval(() => {
-                this.silenceElapsedTime += 1;
-                this.currentTimeElement.innerHTML = this.formatTime(this.silenceElapsedTime);
-                if(this.silenceElapsedTime === silenceDuration){
-                    setTimeout(() => {
-                        clearInterval(this.silenceInterval);
-                        delete this.silenceInterval;
-                        delete this.silenceElapsedTime;
-                        this.playPauseIcon.setAttribute("data-next-mode", "play");
-                        this.playPauseIcon.src = "./wallet/assets/icons/play.svg";
-                        this.currentTimeElement.innerHTML = this.formatTime(0);
-                    }, 1000);
-                }
-            }, 1000);
+            this.playSilence();
         } else if(this.paragraph.commands.image){
             this.imageTimeout = setTimeout(() => {
                 this.currentTimeElement.innerHTML = this.formatTime(1);
@@ -291,6 +339,26 @@ export class ParagraphItem {
                 }, 1000);
             }, 1000);
         }
+    }
+    playSilence(){
+        let silenceDuration = this.paragraph.commands.silence.duration;
+        if(!this.silenceElapsedTime){
+            this.silenceElapsedTime = 0;
+        }
+        this.silenceInterval = setInterval(() => {
+            this.silenceElapsedTime += 1;
+            this.currentTimeElement.innerHTML = this.formatTime(this.silenceElapsedTime);
+            if(this.silenceElapsedTime === silenceDuration){
+                setTimeout(() => {
+                    clearInterval(this.silenceInterval);
+                    delete this.silenceInterval;
+                    delete this.silenceElapsedTime;
+                    this.playPauseIcon.setAttribute("data-next-mode", "play");
+                    this.playPauseIcon.src = "./wallet/assets/icons/play.svg";
+                    this.currentTimeElement.innerHTML = this.formatTime(0);
+                }, 1000);
+            }
+        }, 1000);
     }
     getVideoPreviewDuration(){
         if(this.paragraph.commands.video || this.paragraph.commands.audio){
@@ -322,35 +390,21 @@ export class ParagraphItem {
         } else {
             this.videoContainer.style.display = "none";
         }
-        if(this.paragraph.commands.video){
-            this.videoElement.classList.remove("hidden");
-            const canvas = document.createElement('canvas');
-            const context = canvas.getContext('2d');
-            this.videoElement.addEventListener("loadedmetadata", () => {
-                this.videoElement.currentTime = 0;
-            }, {once: true});
-            this.videoElement.addEventListener('seeked', () => {
-                canvas.width = this.videoElement.videoWidth;
-                canvas.height = this.videoElement.videoHeight;
-                context.drawImage(this.videoElement, 0, 0, canvas.width, canvas.height);
-                const dataUrl = canvas.toDataURL('image/png');
-                this.videoElement.setAttribute('poster', dataUrl);
-            }, {once: true});
-            this.videoElement.src = await spaceModule.getVideoURL(assistOS.space.id, this.paragraph.commands.video.id);
-        } else {
-            this.videoElement.classList.add("hidden");
-        }
+        this.videoElement.classList.add("hidden");
+        await this.setVideoThumbnail();
 
+    }
+    async setVideoThumbnail(){
+        let imageSrc = blackScreen;
+        if(this.paragraph.commands.video){
+            if(this.paragraph.commands.video.thumbnailId){
+                imageSrc = await spaceModule.getImageURL(assistOS.space.id, this.paragraph.commands.video.thumbnailId);
+            }
+        }
         if(this.paragraph.commands.image && !this.paragraph.commands.video){
-            this.imgElement.src = await spaceModule.getImageURL(assistOS.space.id, this.paragraph.commands.image.id);
-        } else {
-            this.imgElement.src = blackScreen;
+            imageSrc = await spaceModule.getImageURL(assistOS.space.id, this.paragraph.commands.image.id);
         }
-        if(this.paragraph.commands.audio){
-            this.audioElement.src = await spaceModule.getAudioURL(assistOS.space.id, this.paragraph.commands.audio.id);
-        } else {
-            this.audioElement.src = "";
-        }
+        this.imgElement.src = imageSrc;
     }
     formatTime(seconds) {
         const hours = Math.floor(seconds / 3600);

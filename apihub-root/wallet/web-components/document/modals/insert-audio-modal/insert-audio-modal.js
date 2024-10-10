@@ -13,7 +13,9 @@ export class InsertAudioModal {
     }
 
     closeModal(_target) {
-        this.audioElement.remove();
+        if(this.audioElement){
+            this.audioElement.remove();
+        }
         assistOS.UI.closeModal(_target);
     }
 
