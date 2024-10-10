@@ -51,9 +51,9 @@ async function createChapter(req, res) {
 async function updateChapter(req, res) {
     const {spaceId, documentId, chapterId} = req.params;
     const chapterData = req.body;
-    if (!spaceId || !documentId || !chapterId || !chapterData) {
+    if (!spaceId || !documentId || !chapterId ) {
         return util.sendResponse(res, 400, "application/json", {
-            message: "Invalid request" + `Missing ${spaceId ? 'spaceId ' : ''}${documentId ? 'documentId ' : ''}${chapterId ? 'chapterId ' : ''}${chapterData ? 'request body' : ''}`,
+            message: "Invalid request" + `Missing ${spaceId ? 'spaceId ' : ''}${documentId ? 'documentId ' : ''}${chapterId ? 'chapterId ' : ''}`,
             success: false
         });
     }

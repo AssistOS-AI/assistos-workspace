@@ -1,8 +1,10 @@
 import {executorTimer} from "../../../../imports.js";
+
 const utilModule = require("assistos").loadModule("util", {});
 const documentModule = require("assistos").loadModule("document", {});
 const spaceModule = require("assistos").loadModule("space", {});
 const blackScreen = "./wallet/assets/images/black-screen.png";
+
 export class ParagraphItem {
     constructor(element, invalidate) {
         this.element = element;
@@ -52,6 +54,7 @@ export class ParagraphItem {
         //     audioTag.src = utilModule.constants.getAudioSrc(assistOS.space.id, this.paragraph.commands.audio.id);
         // }
     }
+
     initVideoElements() {
         this.videoContainer = this.element.querySelector('.video-container');
         this.playPauseIcon = this.element.querySelector(".play-pause");
@@ -66,6 +69,7 @@ export class ParagraphItem {
             this.videoContainer.addEventListener("mouseout", this.boundHideControls);
         }
     }
+
     showControls() {
         let controls = this.element.querySelector(".controls-mask-paragraph");
         controls.style.display = "flex";
@@ -75,6 +79,7 @@ export class ParagraphItem {
         let controls = this.element.querySelector(".controls-mask-paragraph");
         controls.style.display = "none";
     }
+
     switchDisplayMode(targetElement) {
         let currentMode = targetElement.getAttribute("data-mode");
         if (currentMode === "minimized") {
@@ -97,6 +102,7 @@ export class ParagraphItem {
             targetElement.removeEventListener("click", this.boundRemoveListeners);
         }
     }
+
     hideControlsFullscreen(controls, timer, event) {
         this.videoContainer.style.cursor = "default";
         controls.style.display = "flex";
@@ -107,6 +113,7 @@ export class ParagraphItem {
         timer.stop();
         this.videoContainer.removeEventListener("mousemove", boundHideControlsFullscreen);
     }
+
     async subscribeToParagraphEvents() {
         await utilModule.subscribeToObject(this.paragraph.id, async (type) => {
             if (type === "text") {
@@ -118,7 +125,7 @@ export class ParagraphItem {
             } else if (type === "commands") {
                 this.paragraph.commands = await documentModule.getParagraphCommands(assistOS.space.id, this._document.id, this.paragraph.id);
                 let commandsElement = this.element.querySelector('.paragraph-commands');
-                if(commandsElement.tagName === "DIV"){
+                if (commandsElement.tagName === "DIV") {
                     await this.renderViewModeCommands();
                 } else {
                     await this.renderEditModeCommands();
@@ -205,28 +212,30 @@ export class ParagraphItem {
         }
         chapterPresenter.addParagraphOrChapterOnKeyPress(mockEvent);
     }
+
     playPause(targetElement) {
-       let nextMode = targetElement.getAttribute("data-next-mode");
-       if(nextMode === "play"){
-           targetElement.setAttribute("data-next-mode", "pause");
-           targetElement.src = "./wallet/assets/icons/pause.svg";
-           this.playVideoPreview();
-       } else if(nextMode === "pause"){
-          targetElement.setAttribute("data-next-mode", "play");
-          targetElement.src = "./wallet/assets/icons/play.svg";
-          this.audioElement.pause();
-          this.videoElement.pause();
-          if(this.silenceInterval){
-              clearInterval(this.silenceInterval);
-              delete this.silenceInterval;
-          }
-          if(this.imageTimeout){
-              clearTimeout(this.imageTimeout);
-              delete this.imageTimeout;
-          }
-       }
+        let nextMode = targetElement.getAttribute("data-next-mode");
+        if (nextMode === "play") {
+            targetElement.setAttribute("data-next-mode", "pause");
+            targetElement.src = "./wallet/assets/icons/pause.svg";
+            this.playVideoPreview();
+        } else if (nextMode === "pause") {
+            targetElement.setAttribute("data-next-mode", "play");
+            targetElement.src = "./wallet/assets/icons/play.svg";
+            this.audioElement.pause();
+            this.videoElement.pause();
+            if (this.silenceInterval) {
+                clearInterval(this.silenceInterval);
+                delete this.silenceInterval;
+            }
+            if (this.imageTimeout) {
+                clearTimeout(this.imageTimeout);
+                delete this.imageTimeout;
+            }
+        }
     }
-    setupMediaPlayerEventListeners(mediaPlayer){
+
+    setupMediaPlayerEventListeners(mediaPlayer) {
         let stopTimeUpdateController = new AbortController();
         mediaPlayer.addEventListener("timeupdate", () => {
             this.currentTimeElement.innerHTML = this.formatTime(mediaPlayer.currentTime);
@@ -244,9 +253,10 @@ export class ParagraphItem {
             }, 1000);
         }, {once: true});
     }
-    playVideoPreview(){
-        if(this.paragraph.commands.video){
-            if(this.paragraph.commands.audio && this.paragraph.commands.video.duration >= this.paragraph.commands.audio.duration){
+
+    playVideoPreview() {
+        if (this.paragraph.commands.video) {
+            if (this.paragraph.commands.audio && this.paragraph.commands.video.duration >= this.paragraph.commands.audio.duration) {
                 this.setupMediaPlayerEventListeners(this.videoElement);
             } else {
                 this.setupMediaPlayerEventListeners(this.audioElement);
@@ -255,21 +265,21 @@ export class ParagraphItem {
                 }, {once: true});
             }
             this.videoElement.play();
-            if(this.paragraph.commands.audio){
+            if (this.paragraph.commands.audio) {
                 this.audioElement.play();
             }
-        } else if(this.paragraph.commands.audio){
+        } else if (this.paragraph.commands.audio) {
             this.setupMediaPlayerEventListeners(this.audioElement);
             this.audioElement.play();
-        } else if(this.paragraph.commands.silence){
+        } else if (this.paragraph.commands.silence) {
             let silenceDuration = this.paragraph.commands.silence.duration;
-            if(!this.silenceElapsedTime){
+            if (!this.silenceElapsedTime) {
                 this.silenceElapsedTime = 0;
             }
             this.silenceInterval = setInterval(() => {
                 this.silenceElapsedTime += 1;
                 this.currentTimeElement.innerHTML = this.formatTime(this.silenceElapsedTime);
-                if(this.silenceElapsedTime === silenceDuration){
+                if (this.silenceElapsedTime === silenceDuration) {
                     setTimeout(() => {
                         clearInterval(this.silenceInterval);
                         delete this.silenceInterval;
@@ -280,7 +290,7 @@ export class ParagraphItem {
                     }, 1000);
                 }
             }, 1000);
-        } else if(this.paragraph.commands.image){
+        } else if (this.paragraph.commands.image) {
             this.imageTimeout = setTimeout(() => {
                 this.currentTimeElement.innerHTML = this.formatTime(1);
                 setTimeout(() => {
@@ -291,23 +301,25 @@ export class ParagraphItem {
             }, 1000);
         }
     }
-    getVideoPreviewDuration(){
-        if(this.paragraph.commands.video || this.paragraph.commands.audio){
+
+    getVideoPreviewDuration() {
+        if (this.paragraph.commands.video || this.paragraph.commands.audio) {
             let audioDuration = this.paragraph.commands.audio ? this.paragraph.commands.audio.duration : 0;
             let videoDuration = this.paragraph.commands.video ? this.paragraph.commands.video.duration : 0;
             return Math.max(audioDuration, videoDuration);
-        } else if(this.paragraph.commands.silence){
+        } else if (this.paragraph.commands.silence) {
             return this.paragraph.commands.silence.duration;
-        } else if(this.paragraph.commands.image){
+        } else if (this.paragraph.commands.image) {
             return 1;
         }
         return 0;
     }
+
     async setupVideoPreview() {
         let hasAttachment = this.paragraph.commands.image || this.paragraph.commands.video ||
             this.paragraph.commands.audio || this.paragraph.commands.silence;
         this.currentTime = 0;
-        if(hasAttachment){
+        if (hasAttachment) {
             this.videoContainer.style.display = "flex";
             let chapterNumber = this.element.querySelector(".chapter-number");
             let chapterIndex = this._document.getChapterIndex(this.chapter.id);
@@ -321,7 +333,7 @@ export class ParagraphItem {
         } else {
             this.videoContainer.style.display = "none";
         }
-        if(this.paragraph.commands.video){
+        if (this.paragraph.commands.video) {
             this.videoElement.classList.remove("hidden");
             const canvas = document.createElement('canvas');
             const context = canvas.getContext('2d');
@@ -340,17 +352,18 @@ export class ParagraphItem {
             this.videoElement.classList.add("hidden");
         }
 
-        if(this.paragraph.commands.image && !this.paragraph.commands.video){
+        if (this.paragraph.commands.image && !this.paragraph.commands.video) {
             this.imgElement.src = await spaceModule.getImageURL(assistOS.space.id, this.paragraph.commands.image.id);
         } else {
             this.imgElement.src = blackScreen;
         }
-        if(this.paragraph.commands.audio){
+        if (this.paragraph.commands.audio) {
             this.audioElement.src = await spaceModule.getAudioURL(assistOS.space.id, this.paragraph.commands.audio.id);
         } else {
             this.audioElement.src = "";
         }
     }
+
     formatTime(seconds) {
         const hours = Math.floor(seconds / 3600);
         const minutes = Math.floor((seconds % 3600) / 60);
@@ -362,6 +375,7 @@ export class ParagraphItem {
         }
         return `${minutes}:${remainingSeconds}`;
     }
+
     async deleteParagraphImage() {
         if (!this.paragraph || !this.paragraph.commands.image || assistOS.space.currentParagraphId !== this.paragraph.id) {
             return;
@@ -414,7 +428,7 @@ export class ParagraphItem {
         paragraphHeaderContainer.classList.add("highlight-paragraph-header");
         this.paragraphHeader.removeAttribute('readonly');
         let commandsElement = this.element.querySelector('.paragraph-commands');
-        if(commandsElement.tagName === "DIV"){
+        if (commandsElement.tagName === "DIV") {
             await this.renderEditModeCommands();
         }
 
@@ -470,7 +484,7 @@ export class ParagraphItem {
         if (mode === "view") {
             let commands = utilModule.getSortedCommandsArray(this.paragraph.commands);
             for (let command of commands) {
-              if (command.name === "image") {
+                if (command.name === "image") {
                     let imageSrc = await spaceModule.getImageURL(assistOS.space.id, command.id);
                     html += `<a class="command-link" data-local-action="showAttachment image" href="${imageSrc}" data-id="${command.id}">Image</a>`;
                 } else if (command.name === "audio") {
@@ -479,17 +493,20 @@ export class ParagraphItem {
                 } else if (command.name === "video") {
                     let videoSrc = await spaceModule.getVideoURL(assistOS.space.id, command.id);
                     html += `<a class="command-link" data-local-action="showAttachment video" href="${videoSrc}" data-id="${command.id}">Video</a>`;
+                } else if (command.name === "backgroundsound") {
+                    let backgroundAudioSRC = await spaceModule.getAudioURL(assistOS.space.id, command.id);
+                    html += `<a class="command-link" data-local-action="showAttachment backgroundsound" href="${backgroundAudioSRC}" data-id="${command.id}">Background Audio</a>`;
                 } else if (command.name === "speech") {
                     let personality = this.documentPresenter.personalitiesMetadata.find(personality => personality.name === command.personality);
                     let personalityImageId;
-                    if(personality){
+                    if (personality) {
                         personalityImageId = personality.imageId;
                     } else {
                         personalityImageId = null;
                         this.showCommandsError("Personality not found");
                     }
                     let imageSrc = "./wallet/assets/images/default-personality.png"
-                    if(personalityImageId){
+                    if (personalityImageId) {
                         imageSrc = await spaceModule.getImageURL(assistOS.space.id, personalityImageId);
                     }
                     let speechHTML = `
@@ -536,16 +553,17 @@ export class ParagraphItem {
     }
 
     async handleCommand(commandName, commandStatus) {
-        let attachments = ["image", "audio", "video", "silence"];
-        if(attachments.includes(commandName)){
+        /* TODO: get the attachments from a central point in constants instead of hardcoding them */
+        let attachments = ["image", "audio", "video", "silence", "backgroundsound"];
+        if (attachments.includes(commandName)) {
             return;
         }
-        if(commandStatus === "new"){
+        if (commandStatus === "new") {
             const taskId = await utilModule.constants.COMMANDS_CONFIG.COMMANDS.find(command => command.NAME === commandName).EXECUTE(assistOS.space.id, this._document.id, this.paragraph.id, {});
             this.paragraph.commands[commandName].taskId = taskId;
             this.addUITask(taskId);
-        } else if(commandStatus === "changed"){
-            if(this.paragraph.commands[commandName].taskId){
+        } else if (commandStatus === "changed") {
+            if (this.paragraph.commands[commandName].taskId) {
                 //cancel the task so it can be re-executed, same if it was cancelled, failed, pending
                 let taskId = this.paragraph.commands[commandName].taskId;
                 try {
@@ -558,12 +576,13 @@ export class ParagraphItem {
                 this.paragraph.commands[commandName].taskId = taskId;
                 this.addUITask(taskId);
             }
-        } else if(commandStatus === "deleted"){
+        } else if (commandStatus === "deleted") {
             await this.deleteTaskFromCommand(commandName);
         }
     }
+
     async deleteTaskFromCommand(commandName) {
-        if(this.paragraph.commands[commandName].taskId){
+        if (this.paragraph.commands[commandName].taskId) {
             let taskId = this.paragraph.commands[commandName].taskId;
             try {
                 utilModule.cancelTask(taskId);
@@ -575,6 +594,7 @@ export class ParagraphItem {
             assistOS.space.notifyObservers(this._document.id + "/tasks");
         }
     }
+
     async validateCommand(commandType, commands) {
         let testParagraph = JSON.parse(JSON.stringify(this.paragraph));
         testParagraph.commands = commands;
@@ -642,7 +662,7 @@ export class ParagraphItem {
             }
             for (const [commandType, commandStatus] of Object.entries(commandsDifferences)) {
                 try {
-                    if(commandStatus === "deleted") {
+                    if (commandStatus === "deleted") {
                         continue;
                     }
                     await this.validateCommand(commandType, commands);
@@ -655,13 +675,13 @@ export class ParagraphItem {
             this.errorElement.innerText = "";
             this.errorElement.classList.add("hidden");
             for (let [commandName, commandStatus] of Object.entries(commandsDifferences)) {
-                if(commandStatus === "changed" || commandStatus === "deleted"){
+                if (commandStatus === "changed" || commandStatus === "deleted") {
                     await this.handleCommand(commandName, commandStatus);
                 }
             }
             this.paragraph.commands = commands;
             for (let [commandName, commandStatus] of Object.entries(commandsDifferences)) {
-                if(commandStatus === "new"){
+                if (commandStatus === "new") {
                     await this.handleCommand(commandName, commandStatus);
                 }
             }
@@ -685,9 +705,9 @@ export class ParagraphItem {
             let type = targetElement.getAttribute("data-type");
             let popup;
             let selector = "text-to-speech";
-            if(type === "speech"){
+            if (type === "speech") {
                 popup = `<text-to-speech data-presenter="text-to-speech" data-paragraph-id="${this.paragraph.id}"></text-to-speech>`;
-            } else if(type === "silence"){
+            } else if (type === "silence") {
                 selector = "silence-popup";
                 popup = `<silence-popup data-presenter="silence-popup" data-paragraph-id="${this.paragraph.id}"></silence-popup>`;
             }
@@ -743,12 +763,14 @@ export class ParagraphItem {
                            data-highlight="light-highlight"></list-item>
                  <list-item data-local-action="addChapter" data-name="Add Chapter"
                            data-highlight="light-highlight"></list-item>
-                           
                  <list-item data-local-action="showPopup off" data-type="speech" data-name="Text To Speech"
                            data-highlight="light-highlight"></list-item>
                  <list-item data-local-action="showPopup off" data-type="silence" data-name="Insert Silence"
                            data-highlight="light-highlight"></list-item>
+                     
                  <list-item data-local-action="openInsertAttachmentModal audio" data-name="Insert Audio"
+                           data-highlight="light-highlight"></list-item>
+                 <list-item data-local-action="openInsertAttachmentModal backgroundsound" data-name="Insert Background Sound"
                            data-highlight="light-highlight"></list-item>
                  <list-item data-local-action="openInsertAttachmentModal image" data-name="Insert Image"
                            data-highlight="light-highlight"></list-item>
@@ -803,7 +825,7 @@ export class ParagraphItem {
     async insertLipsync(targetElement) {
         let commands = this.element.querySelector('.paragraph-commands');
         if (commands.tagName === "DIV") {
-            if(this.paragraph.commands.lipsync){
+            if (this.paragraph.commands.lipsync) {
                 await this.handleCommand("lipsync", "changed");
             } else {
                 this.paragraph.commands.lipsync = {};
@@ -824,10 +846,9 @@ export class ParagraphItem {
             let commands = this.element.querySelector('.paragraph-commands');
             if (commands.tagName === "DIV") {
                 this.paragraph.commands[type] = attachmentData;
-                if(this.paragraph.commands.lipsync){
+                if (this.paragraph.commands.lipsync) {
                     await this.handleCommand("lipsync", "changed");
                 }
-
                 await documentModule.updateParagraphCommands(assistOS.space.id, this._document.id, this.paragraph.id, this.paragraph.commands);
                 await this.renderViewModeCommands();
                 await this.setupVideoPreview();

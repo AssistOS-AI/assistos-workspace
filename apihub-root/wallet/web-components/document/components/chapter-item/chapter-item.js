@@ -257,28 +257,22 @@ export class ChapterItem {
             }
             const reader = new FileReader();
             reader.onload = async (e) => {
-                let audioId = await spaceModule.putAudio(assistOS.space.id, e.target.result);
+                debugger
+                const uint8Array = new Uint8Array(e.target.result);
+                let audioId = await spaceModule.putAudio(assistOS.space.id, uint8Array);
                 let backgroundSound = {
                     id: audioId,
-                    userId: assistOS.user.id,
-                    src: `spaces/audios/${assistOS.space.id}/${audioId}`,
-                    volume: "1"
+                    volume: "0.2"
                 };
-                await assistOS.callFlow("UpdateChapterBackgroundSound", {
-                    spaceId: assistOS.space.id,
-                    documentId: this._document.id,
-                    chapterId: this.chapter.id,
-                    backgroundSound: backgroundSound
-                });
+                await documentModule.updateChapterBackgroundSound(assistOS.space.id, this._document.id, this.chapter.id, backgroundSound);
+                this.chapter.backgroundSound = backgroundSound;
+                this.hasBackgroundSound = true;
                 this.fileInput.remove();
                 delete this.fileInput;
                 assistOS.UI.removeActionBox(this.actionBox, this);
-
-                this.chapter.backgroundSound = await documentModule.getChapterBackgroundSound(assistOS.space.id, this._document.id, this.chapter.id);
-                this.hasBackgroundSound = true;
                 this.switchPlayButtonDisplay("on");
             };
-            reader.readAsDataURL(file);
+            reader.readAsArrayBuffer(file);
         }
 
     }
@@ -313,30 +307,23 @@ export class ChapterItem {
     saveVolumeChanges(audio, event) {
         if (!this.timeoutId) {
             this.timeoutId = setTimeout(async () => {
-                await assistOS.callFlow("UpdateChapterBackgroundSound", {
-                    spaceId: assistOS.space.id,
-                    documentId: this._document.id,
-                    chapterId: this.chapter.id,
-                    backgroundSound: {
-                        src: this.chapter.backgroundSound.src,
-                        userId: this.chapter.backgroundSound.userId,
-                        volume: audio.volume,
-                        id: this.chapter.backgroundSound.id,
-                    }
-
+                await documentModule.updateChapterBackgroundSound(assistOS.space.id, this._document.id, this.chapter.id, {
+                    id: this.chapter.backgroundSound.id,
+                    volume: audio.volume
                 });
                 this.timeoutId = null;
             }, 2000);
         }
     }
 
-    playBackgroundAudio(_target, mode) {
+    async playBackgroundAudio(_target, mode) {
         if (mode === "off") {
             let audioSection = this.element.querySelector('.chapter-audio-section');
             let audio = this.element.querySelector('.chapter-audio');
             if (!this.isAudioPlaying(audio)) {
-                audio.src = this.chapter.backgroundSound.src;
+                audio.src = await spaceModule.getAudioURL(assistOS.space.id, this.chapter.backgroundSound.id);
                 audio.load();
+                audio.play();
             }
             if (!this.boundSaveVolumeChanges) {
                 this.boundSaveVolumeChanges = this.saveVolumeChanges.bind(this, audio);
@@ -354,13 +341,7 @@ export class ChapterItem {
 
     async deleteBackgroundSound() {
         this.switchPlayButtonDisplay("off");
-        await spaceModule.deleteAudio(assistOS.space.id, this.chapter.backgroundSound.id);
-        await assistOS.callFlow("UpdateChapterBackgroundSound", {
-            spaceId: assistOS.space.id,
-            documentId: this._document.id,
-            chapterId: this.chapter.id,
-            backgroundSound: null
-        });
+        await documentModule.updateChapterBackgroundSound(assistOS.space.id, this._document.id, this.chapter.id, null);
         this.hasBackgroundSound = false;
         this.switchPlayButtonDisplay("off");
         this.invalidate(this.refreshChapter);
