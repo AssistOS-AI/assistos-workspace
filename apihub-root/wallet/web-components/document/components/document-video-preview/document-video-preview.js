@@ -1,8 +1,8 @@
 import {executorTimer} from "../../../../imports.js";
 const documentModule = require("assistos").loadModule("document", {});
 const spaceModule = require("assistos").loadModule("space", {});
-const utilModule = require("assistos").loadModule("util", {});
 const blackScreen = "./wallet/assets/images/black-screen.png";
+import { formatTime } from "../../../../utils/videoUtils.js";
 export class DocumentVideoPreview {
     constructor(element, invalidate) {
         this.element = element;
@@ -22,7 +22,7 @@ export class DocumentVideoPreview {
                 chapterPresenter.changeChapterVisibility("show");
             }
         }
-        this.durationHTML = this.formatTime(this.videoLength);
+        this.durationHTML = formatTime(this.videoLength);
         this.currentTime = 0;
     }
 
@@ -94,26 +94,14 @@ export class DocumentVideoPreview {
         this.playNext();
     }
 
-    formatTime(seconds) {
-        const hours = Math.floor(seconds / 3600);
-        const minutes = Math.floor((seconds % 3600) / 60);
-        let remainingSeconds = Math.floor(seconds % 60);
-        remainingSeconds = String(remainingSeconds).padStart(2, '0');
-
-        if (hours > 0) {
-            return `${hours}:${minutes}:${remainingSeconds}`;
-        }
-        return `${minutes}:${remainingSeconds}`;
-    }
-
     incrementTimestampAudio() {
         if(this.playNextHandler === "audio"){
-            this.currentTimeElement.innerHTML = this.formatTime(this.currentTime + this.audioPlayer.currentTime);
+            this.currentTimeElement.innerHTML = formatTime(this.currentTime + this.audioPlayer.currentTime);
         }
     }
     incrementTimestampVideo() {
         if(this.playNextHandler === "video"){
-            this.currentTimeElement.innerHTML = this.formatTime(this.currentTime + this.videoPlayer.currentTime);
+            this.currentTimeElement.innerHTML = formatTime(this.currentTime + this.videoPlayer.currentTime);
         }
     }
 
@@ -299,7 +287,7 @@ export class DocumentVideoPreview {
             this.audioLoaded = true;
             this.imageLoaded = true;
             this.currentTime = 0;
-            this.currentTimeElement.innerHTML = this.formatTime(this.currentTime);
+            this.currentTimeElement.innerHTML = formatTime(this.currentTime);
             this.playNext();
         }
         targetElement.innerHTML = imgTag;
@@ -433,7 +421,7 @@ export class DocumentVideoPreview {
         this.currentTime = this.videoLength;
         //end of the player changes the time to 0
         setTimeout(() => {
-            this.currentTimeElement.innerHTML = this.formatTime(this.currentTime);
+            this.currentTimeElement.innerHTML = formatTime(this.currentTime);
         }, 100);
     }
     executeSilenceCommand(duration) {
@@ -456,7 +444,7 @@ export class DocumentVideoPreview {
 
     incrementTimestamp() {
         this.currentTime += 1;
-        this.currentTimeElement.innerHTML = this.formatTime(this.currentTime);
+        this.currentTimeElement.innerHTML = formatTime(this.currentTime);
     }
 
     async skipToNextScene(targetElement) {
@@ -486,19 +474,19 @@ export class DocumentVideoPreview {
                 this.currentTime += this.videoPlayer.duration;
             }
 
-            this.currentTimeElement.innerHTML = this.formatTime(this.currentTime);
+            this.currentTimeElement.innerHTML = formatTime(this.currentTime);
             this.videoPlayer.src = "";
             this.videoPlayer.classList.add("hidden");
         } else if (paragraph.commands.audio) {
             this.currentTime = this.currentTime + this.audioPlayer.duration;
-            this.currentTimeElement.innerHTML = this.formatTime(this.currentTime);
+            this.currentTimeElement.innerHTML = formatTime(this.currentTime);
             this.audioPlayer.src = "";
         } else if (paragraph.commands["silence"]) {
             this.currentTime += parseFloat(paragraph.commands["silence"].duration);
-            this.currentTimeElement.innerHTML = this.formatTime(this.currentTime);
+            this.currentTimeElement.innerHTML = formatTime(this.currentTime);
         } else if(paragraph.commands.image){
             this.currentTime += 1;
-            this.currentTimeElement.innerHTML = this.formatTime(this.currentTime);
+            this.currentTimeElement.innerHTML = formatTime(this.currentTime);
         }
 
         this.incrementParagraphIndex();
@@ -581,13 +569,13 @@ export class DocumentVideoPreview {
                 this.nextButton.classList.remove("disabled");
                 let maxDuration = Math.max(this.audioPlayer.duration, this.videoPlayer.duration);
                 this.currentTime = this.currentTime - maxDuration;
-                this.currentTimeElement.innerHTML = this.formatTime(this.currentTime);
+                this.currentTimeElement.innerHTML = formatTime(this.currentTime);
             }
             // else audio metadata not loaded yet
         } else {
             this.timestampUpdated = true;
             this.currentTime = this.currentTime - this.videoPlayer.duration;
-            this.currentTimeElement.innerHTML = this.formatTime(this.currentTime);
+            this.currentTimeElement.innerHTML = formatTime(this.currentTime);
             this.nextButton.classList.remove("disabled");
         }
     }
@@ -596,13 +584,13 @@ export class DocumentVideoPreview {
             this.timestampUpdated = true;
             let maxDuration = Math.max(this.audioPlayer.duration, this.videoPlayer.duration);
             this.currentTime = this.currentTime - maxDuration;
-            this.currentTimeElement.innerHTML = this.formatTime(this.currentTime);
+            this.currentTimeElement.innerHTML = formatTime(this.currentTime);
             this.nextButton.classList.remove("disabled");
         }
     }
     skipTimeStampStartAudioOnly(event) {
         this.currentTime = this.currentTime - this.audioPlayer.duration;
-        this.currentTimeElement.innerHTML = this.formatTime(this.currentTime);
+        this.currentTimeElement.innerHTML = formatTime(this.currentTime);
         this.nextButton.classList.remove("disabled");
     }
     cancelTimeouts() {
@@ -658,21 +646,21 @@ export class DocumentVideoPreview {
         //clean up before moving on to the previous scene
         this.imageTag.src = blackScreen;
         if(paragraph.commands.video){
-            this.currentTimeElement.innerHTML = this.formatTime(this.currentTime);
+            this.currentTimeElement.innerHTML = formatTime(this.currentTime);
             this.videoPlayer.src = "";
             if(paragraph.commands.audio){
                 this.audioPlayer.src = "";
             }
         }else if (paragraph.commands.audio) {
-            this.currentTimeElement.innerHTML = this.formatTime(this.currentTime);
+            this.currentTimeElement.innerHTML = formatTime(this.currentTime);
             this.audioPlayer.src = "";
         } else if (paragraph.commands["silence"]) {
             const elapsedTime = Math.floor((this.silenceDuration - this.remainingSilentDuration) / 1000);
             this.currentTime -= elapsedTime;
-            this.currentTimeElement.innerHTML = this.formatTime(this.currentTime);
+            this.currentTimeElement.innerHTML = formatTime(this.currentTime);
         } else if(paragraph.commands.image){
             this.currentTime -= 1;
-            this.currentTimeElement.innerHTML = this.formatTime(this.currentTime);
+            this.currentTimeElement.innerHTML = formatTime(this.currentTime);
         }
         this.decrementParagraphIndex();
         let previousParagraph = this.document.chapters[this.chapterIndex].paragraphs[this.paragraphIndex];
@@ -731,7 +719,7 @@ export class DocumentVideoPreview {
             }
         } else if (previousParagraph.commands["silence"]) {
             this.currentTime -= parseFloat(previousParagraph.commands["silence"].duration);
-            this.currentTimeElement.innerHTML = this.formatTime(this.currentTime);
+            this.currentTimeElement.innerHTML = formatTime(this.currentTime);
             //to be able to resume the video with the remaining silent duration
             this.remainingSilentDuration = previousParagraph.commands["silence"].duration * 1000;
             this.silenceDuration = this.remainingSilentDuration;
@@ -748,7 +736,7 @@ export class DocumentVideoPreview {
             }
         } else if(previousParagraph.commands.image){
             this.currentTime -= 1;
-            this.currentTimeElement.innerHTML = this.formatTime(this.currentTime);
+            this.currentTimeElement.innerHTML = formatTime(this.currentTime);
             let imageSrc = await spaceModule.getImageURL(assistOS.space.id, previousParagraph.commands.image.id);
             this.loadResource("image", imageSrc);
         }
@@ -760,7 +748,7 @@ export class DocumentVideoPreview {
     resetTimestamp() {
         clearInterval(this.incrementTimeInterval);
         delete this.incrementTimeInterval;
-        this.currentTimeElement.innerHTML = this.formatTime(0);
+        this.currentTimeElement.innerHTML = formatTime(0);
         this.currentTime = 0;
     }
 

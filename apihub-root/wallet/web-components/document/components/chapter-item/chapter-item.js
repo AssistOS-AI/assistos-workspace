@@ -105,6 +105,7 @@ export class ChapterItem {
         if (this.chapter.visibility === "hide") {
             this.changeChapterVisibility("hide");
         }
+        //for release 3.0
         // this.limit = 3;
         // this.queue = [];
         // this.activeFunctions = 0;
@@ -120,7 +121,7 @@ export class ChapterItem {
         //             let hasExecutedAfterRender = paragraph.getAttribute("data-initialized");
         //             if(hasExecutedAfterRender) {
         //                 let paragraphPresenter = paragraph.webSkelPresenter;
-        //                 await this.addAsyncLoadDataFN(paragraphPresenter.setupVideoPreview.bind(paragraphPresenter))
+        //                 await this.addAsyncLoadDataFN(paragraphPresenter.uploadVideoThumbnail.bind(paragraphPresenter))
         //                 this.visibilityObserver.unobserve(paragraph);
         //             } else {
         //                 paragraph.executeSetupVideoPreview = true;
@@ -133,30 +134,30 @@ export class ChapterItem {
         //     this.visibilityObserver.observe(paragraph);
         // });
     }
-    async addAsyncLoadDataFN(executeFN) {
-        return new Promise((resolve, reject) => {
-            this.queue.push({ executeFN, resolve, reject });
-            console.log("queue" + this.queue.length);
-            this.runNext();
-        });
-    }
-
-    async runNext() {
-        if (this.activeFunctions < this.limit && this.queue.length > 0) {
-            const { executeFN, resolve, reject } = this.queue.shift();
-            this.activeFunctions++;
-            console.log("active fns" + this.activeFunctions);
-            try {
-                const result = await executeFN();
-                resolve(result);
-            } catch (error) {
-                reject(error);
-            } finally {
-                this.activeFunctions--;
-                setTimeout(() => this.runNext(), 500);
-            }
-        }
-    }
+    // async addAsyncLoadDataFN(executeFN) {
+    //     return new Promise((resolve, reject) => {
+    //         this.queue.push({ executeFN, resolve, reject });
+    //         console.log("queue" + this.queue.length);
+    //         this.runNext();
+    //     });
+    // }
+    //
+    // async runNext() {
+    //     if (this.activeFunctions < this.limit && this.queue.length > 0) {
+    //         const { executeFN, resolve, reject } = this.queue.shift();
+    //         this.activeFunctions++;
+    //         console.log("active fns" + this.activeFunctions);
+    //         try {
+    //             const result = await executeFN();
+    //             resolve(result);
+    //         } catch (error) {
+    //             reject(error);
+    //         } finally {
+    //             this.activeFunctions--;
+    //             setTimeout(() => this.runNext(), 500);
+    //         }
+    //     }
+    // }
 
     async addParagraphOrChapterOnKeyPress(event) {
         if (!event.ctrlKey || event.key !== "Enter") {
