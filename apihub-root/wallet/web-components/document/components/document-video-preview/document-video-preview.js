@@ -383,7 +383,7 @@ export class DocumentVideoPreview {
                 const audioSrc = await spaceModule.getAudioURL(assistOS.space.id, chapter.backgroundSound.id);
                 this.loadResource("chapterAudio", audioSrc);
                 this.chapterAudioPlayer.volume = chapter.backgroundSound.volume ? chapter.backgroundSound.volume : 0.3;
-                this.chapterAudioPlayer.loop = true;
+                this.chapterAudioPlayer.loop = chapter.backgroundSound.loop === true;
                 this.currentChapterBackgroundSound = chapter.backgroundSound.id;
             }
         } else {
@@ -668,7 +668,7 @@ export class DocumentVideoPreview {
     }
     incrementChapterAudioTime(chapter, elapsedTime){
         if(chapter.backgroundSound){
-            if(elapsedTime > this.chapterAudioPlayer.duration){
+            if(elapsedTime > this.chapterAudioPlayer.duration && this.chapterAudioPlayer.loop){
                 this.chapterAudioPlayer.currentTime = elapsedTime - this.chapterAudioPlayer.duration;
             } else {
                 this.chapterAudioPlayer.currentTime = elapsedTime;
@@ -677,7 +677,7 @@ export class DocumentVideoPreview {
     }
     decrementChapterAudioTime(chapter, elapsedTime){
         if(chapter.backgroundSound){
-            if(this.chapterAudioPlayer.currentTime < elapsedTime){
+            if(this.chapterAudioPlayer.currentTime < elapsedTime && this.chapterAudioPlayer.loop){
                 this.chapterAudioPlayer.currentTime = this.chapterAudioPlayer.duration - elapsedTime;
             } else {
                 this.chapterAudioPlayer.currentTime -= elapsedTime;
@@ -817,6 +817,11 @@ export class DocumentVideoPreview {
             this.currentTimeElement.innerHTML = formatTime(this.currentTime);
             let imageSrc = await spaceModule.getImageURL(assistOS.space.id, previousParagraph.commands.image.id);
             this.loadResource("image", imageSrc);
+            this.remainingSilentDuration = 1000;
+            this.resumeCallback = () => {
+                this.isPaused = false;
+                this.playNext();
+            };
         }
 
         this.scrollDocument();
