@@ -24,7 +24,7 @@ export class ShowAttachmentModal {
             this.downloadFileName = `audio-${this.id}.mp3`;
             this.src = await spaceModule.getAudioURL(assistOS.space.id, this.id);
             this.modalBodyContent = `<audio class="audio-attachment" src="${this.src}" controls></audio>`;
-        } else if (this.type === 'backgroundsound') {
+        } else if (this.type === 'soundEffect') {
             this.downloadFileName = `audio-${this.id}.mp3`;
             this.src = await spaceModule.getAudioURL(assistOS.space.id, this.id);
             this.modalBodyContent = `<audio class="audio-attachment" src="${this.src}" controls></audio>`;

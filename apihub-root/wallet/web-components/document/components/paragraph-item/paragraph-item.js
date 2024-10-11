@@ -255,9 +255,9 @@ export class ParagraphItem {
                 } else if (command.name === "video") {
                     let videoSrc = await spaceModule.getVideoURL(assistOS.space.id, command.id);
                     html += `<a class="command-link" data-local-action="showAttachment video" href="${videoSrc}" data-id="${command.id}">Video</a>`;
-                } else if (command.name === "backgroundsound") {
-                    let backgroundAudioSRC = await spaceModule.getAudioURL(assistOS.space.id, command.id);
-                    html += `<a class="command-link" data-local-action="showAttachment backgroundsound" href="${backgroundAudioSRC}" data-id="${command.id}">Background Audio</a>`;
+                } else if (command.name === "soundEffect") {
+                    let soundEffectSrc = await spaceModule.getAudioURL(assistOS.space.id, command.id);
+                    html += `<a class="command-link" data-local-action="showAttachment soundEffect" href="${soundEffectSrc}" data-id="${command.id}">Sound Effect</a>`;
                 } else if (command.name === "speech") {
                     let personality = this.documentPresenter.personalitiesMetadata.find(personality => personality.name === command.personality);
                     let personalityImageId;
@@ -316,7 +316,7 @@ export class ParagraphItem {
 
     async handleCommand(commandName, commandStatus) {
         /* TODO: get the attachments from a central point in constants instead of hardcoding them */
-        let attachments = ["image", "audio", "video", "silence", "backgroundsound"];
+        let attachments = ["image", "audio", "video", "silence", "soundEffect"];
         if (attachments.includes(commandName)) {
             return;
         }
@@ -530,7 +530,7 @@ export class ParagraphItem {
                      
                  <list-item data-local-action="openInsertAttachmentModal audio" data-name="Insert Audio"
                            data-highlight="light-highlight"></list-item>
-                 <list-item data-local-action="openInsertAttachmentModal backgroundsound" data-name="Insert Background Sound"
+                 <list-item data-local-action="openInsertAttachmentModal soundEffect" data-name="Insert Sound Effects"
                            data-highlight="light-highlight"></list-item>
                  <list-item data-local-action="openInsertAttachmentModal image" data-name="Insert Image"
                            data-highlight="light-highlight"></list-item>
@@ -561,6 +561,9 @@ export class ParagraphItem {
             }
             if (this.paragraph.commands.video) {
                 baseDropdownMenuHTML += `<list-item data-name="Delete Video" data-local-action="deleteCommand video" data-highlight="light-highlight"></list-item>`;
+            }
+            if(this.paragraph.commands.soundEffect){
+                baseDropdownMenuHTML += `<list-item data-name="Delete Sound Effect" data-local-action="deleteCommand soundEffect" data-highlight="light-highlight"></list-item>`;
             }
             let dropdownMenuHTML =
                 `<div class="dropdown-menu">` +
@@ -600,7 +603,7 @@ export class ParagraphItem {
     }
 
     async openInsertAttachmentModal(_target, type) {
-        let attachmentData = await assistOS.UI.showModal(`insert-${type}-modal`, true);
+        let attachmentData = await assistOS.UI.showModal(`insert-${type.toLowerCase()}-modal`, true);
         if (attachmentData) {
             let commands = this.element.querySelector('.paragraph-commands');
             if (commands.tagName === "DIV") {
