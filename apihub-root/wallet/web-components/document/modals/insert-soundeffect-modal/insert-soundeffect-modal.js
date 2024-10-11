@@ -29,6 +29,7 @@ export class InsertSoundEffectModal {
     async selectFileHandler(_target, event) {
         let file = event.target.files[0];
         const loopAudio = this.element.querySelector("#loop").checked;
+        let startTime = this.element.querySelector("#start").value;
         let reader = new FileReader();
         this.audioElement = document.createElement('audio');
 
@@ -36,13 +37,13 @@ export class InsertSoundEffectModal {
             const uint8Array = new Uint8Array(e.target.result);
             await assistOS.loadifyComponent(this.element, async () => {
                 let audioId = await spaceModule.putAudio(assistOS.space.id, uint8Array);
-                let data = await this.loadAudioMetadata(file, loopAudio, audioId);
+                let data = await this.loadAudioMetadata(file, loopAudio, startTime, audioId);
                 assistOS.UI.closeModal(_target, data);
             });
         }
         reader.readAsArrayBuffer(file);
     }
-    loadAudioMetadata(file, loopAudio, audioId) {
+    loadAudioMetadata(file, loopAudio, startTime, audioId) {
         return new Promise(async (resolve, reject) => {
             this.audioElement.addEventListener("loadedmetadata", async () => {
                 const duration = this.audioElement.duration;
@@ -50,6 +51,7 @@ export class InsertSoundEffectModal {
                     id: audioId,
                     duration: duration,
                     loop:loopAudio,
+                    start:startTime
                 };
                 this.audioElement.remove();
                 URL.revokeObjectURL(this.audioElement.src);
