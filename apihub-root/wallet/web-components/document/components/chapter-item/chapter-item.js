@@ -1,4 +1,4 @@
-import {base64ToBlob, unescapeHtmlEntities} from "../../../../imports.js";
+import {unescapeHtmlEntities} from "../../../../imports.js";
 
 const documentModule = require("assistos").loadModule("document", {});
 const utilModule = require("assistos").loadModule("util", {});
@@ -332,7 +332,7 @@ export class ChapterItem {
         if (!this.fileInput) {
             this.fileInput = document.createElement('input');
             this.fileInput.type = 'file';
-            this.fileInput.accept = 'audio/*';
+            this.fileInput.accept = 'audio/mp3';
             this.fileInput.classList.add('hidden');
         }
         this.fileInput.addEventListener('change', this.uploadSoundEffects.bind(this), {once: true});
@@ -341,9 +341,11 @@ export class ChapterItem {
 
 
     hideAudioElement(controller, playAudioButton, event) {
-        if (event.target.closest("audio") || event.target.closest(".background-sound-play")) {
+        if (event.target.closest(".chapter-audio-section")) {
             return;
         }
+        let audio = this.element.querySelector('.chapter-audio');
+        audio.pause();
         playAudioButton.setAttribute("data-local-action", "playBackgroundAudio off");
         let audioSection = this.element.querySelector('.chapter-audio-section');
         audioSection.classList.add('hidden');
@@ -377,26 +379,59 @@ export class ChapterItem {
                 audio.load();
                 audio.play();
             }
+            audio.removeEventListener('volumechange', this.boundSaveVolumeChanges);
             if (!this.boundSaveVolumeChanges) {
                 this.boundSaveVolumeChanges = this.saveVolumeChanges.bind(this, audio);
-                audio.addEventListener('volumechange', this.boundSaveVolumeChanges, {passive: true});
             }
+            audio.addEventListener('volumechange', this.boundSaveVolumeChanges, {passive: true});
+            let loopInput = this.element.querySelector('#loop');
+            loopInput.removeEventListener('change', this.boundSaveLoopChanges);
+
+            if(typeof this.chapter.backgroundSound.loop === "undefined") {
+                loopInput.checked = true;
+                audio.loop = true;
+            } else {
+                loopInput.checked = this.chapter.backgroundSound.loop;
+                audio.loop = this.chapter.backgroundSound.loop;
+            }
+            loopInput.removeEventListener('change', this.boundSaveLoopChanges);
+            if(!this.boundSaveLoopChanges) {
+                this.boundSaveLoopChanges = this.saveLoopChanges.bind(this);
+            }
+            loopInput.addEventListener('change', this.boundSaveLoopChanges);
+
             audioSection.classList.remove('hidden');
             audioSection.classList.add('flex');
             audio.volume = this.chapter.backgroundSound.volume;
+
+
 
             let controller = new AbortController();
             document.addEventListener("click", this.hideAudioElement.bind(this, controller, _target), {signal: controller.signal});
             _target.setAttribute("data-local-action", "playBackgroundAudio on");
         }
     }
-
+    saveLoopChanges(){
+        let audio = this.element.querySelector('.chapter-audio');
+        let loopInput = this.element.querySelector('#loop');
+        const isLooping = this.chapter.backgroundSound.loop === true;
+        if(loopInput.checked !== isLooping) {
+            this.chapter.backgroundSound.loop = loopInput.checked;
+            documentModule.updateChapterBackgroundSound(assistOS.space.id, this._document.id, this.chapter.id, {
+                id: this.chapter.backgroundSound.id,
+                loop: loopInput.checked,
+                volume: this.chapter.backgroundSound.volume
+            });
+            audio.loop = loopInput.checked;
+        }
+    }
     async deleteBackgroundSound() {
         this.switchPlayButtonDisplay("off");
+        delete this.chapter.backgroundSound;
         await documentModule.updateChapterBackgroundSound(assistOS.space.id, this._document.id, this.chapter.id, null);
         this.hasBackgroundSound = false;
         this.switchPlayButtonDisplay("off");
-        this.invalidate(this.refreshChapter);
+        document.click();
     }
 
     async deleteChapter(_target) {
