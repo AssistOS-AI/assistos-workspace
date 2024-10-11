@@ -309,12 +309,11 @@ export class ChapterItem {
             }
             const reader = new FileReader();
             reader.onload = async (e) => {
-                debugger
                 const uint8Array = new Uint8Array(e.target.result);
                 let audioId = await spaceModule.putAudio(assistOS.space.id, uint8Array);
                 let backgroundSound = {
                     id: audioId,
-                    volume: "0.2"
+                    volume: "0.3"
                 };
                 await documentModule.updateChapterBackgroundSound(assistOS.space.id, this._document.id, this.chapter.id, backgroundSound);
                 this.chapter.backgroundSound = backgroundSound;
@@ -359,11 +358,12 @@ export class ChapterItem {
     saveVolumeChanges(audio, event) {
         if (!this.timeoutId) {
             this.timeoutId = setTimeout(async () => {
+                this.chapter.backgroundSound.volume = audio.volume;
                 await documentModule.updateChapterBackgroundSound(assistOS.space.id, this._document.id, this.chapter.id, {
                     id: this.chapter.backgroundSound.id,
                     volume: audio.volume
                 });
-                this.timeoutId = null;
+                delete this.timeoutId;
             }, 2000);
         }
     }

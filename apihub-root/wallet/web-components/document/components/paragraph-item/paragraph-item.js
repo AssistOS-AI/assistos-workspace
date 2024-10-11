@@ -690,9 +690,9 @@ export class ParagraphItem {
         if (!this.boundShowControls) {
             this.boundShowControls = this.showControls.bind(this);
             this.boundHideControls = this.hideControls.bind(this);
-            this.videoContainer.addEventListener("mouseover", this.boundShowControls);
-            this.videoContainer.addEventListener("mouseout", this.boundHideControls);
         }
+        this.videoContainer.addEventListener("mouseover", this.boundShowControls);
+        this.videoContainer.addEventListener("mouseout", this.boundHideControls);
     }
     async playPause(targetElement) {
         let nextMode = targetElement.getAttribute("data-next-mode");
