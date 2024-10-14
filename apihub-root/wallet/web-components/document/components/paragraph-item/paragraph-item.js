@@ -42,15 +42,13 @@ export class ParagraphItem {
         this.paragraphHeader.innerHTML = await this.buildCommandsHTML("view");
         await this.setupVideoPreview();
 
-        //for testing ONLY
-        // if(this.paragraph.commands.audio){
-        //     let audioTag = document.createElement("audio");
-        //     audioTag.addEventListener("loadedmetadata", async () => {
-        //         this.paragraph.commands.audio.duration = audioTag.duration;
-        //         await documentModule.updateParagraphCommands(assistOS.space.id, this._document.id, this.paragraph.id, this.paragraph.commands);
-        //         audioTag.remove();
-        //     }, {once: true});
-        //     audioTag.src = utilModule.constants.getAudioSrc(assistOS.space.id, this.paragraph.commands.audio.id);
+        //this.element.setAttribute("data-initialized", "true");
+        // if(this.element.executeUploadThumbnail && this.paragraph.commands.video && !this.paragraph.commands.video.thumbnailId){
+        //     await this.uploadVideoThumbnail();
+        // }
+        //this.element.style.height = "auto";
+        // if(this.paragraph.commands.video && !this.paragraph.commands.video.thumbnailId){
+        //     await this.uploadVideoThumbnail();
         // }
     }
 
@@ -530,7 +528,7 @@ export class ParagraphItem {
                      
                  <list-item data-local-action="openInsertAttachmentModal audio" data-name="Insert Audio"
                            data-highlight="light-highlight"></list-item>
-                 <list-item data-local-action="openInsertAttachmentModal soundEffect" data-name="Insert Sound Effects"
+                 <list-item data-local-action="openInsertAttachmentModal soundEffect" data-name="Insert Sound Effect"
                            data-highlight="light-highlight"></list-item>
                  <list-item data-local-action="openInsertAttachmentModal image" data-name="Insert Image"
                            data-highlight="light-highlight"></list-item>
@@ -925,7 +923,7 @@ export class ParagraphItem {
     //                 let blob = await this.canvasToBlobAsync(canvas);
     //                 canvas.remove();
     //                 let arrayBuffer = await blob.arrayBuffer();
-    //                 let thumbnailId = await spaceModule.putImage(assistOS.space.id, arrayBuffer);
+    //                 let thumbnailId = await spaceModule.putImage("4TcRae17k6rrNqs6", arrayBuffer);
     //                 this.paragraph.commands.video.thumbnailId = thumbnailId;
     //                 await documentModule.updateParagraphCommands(assistOS.space.id, this._document.id, this.paragraph.id, this.paragraph.commands);
     //                 resolve(thumbnailId);
