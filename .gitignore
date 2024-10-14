@@ -26,6 +26,7 @@ apihub-root/wallet/bundles/
 /data-volume/[MAP]Users.json
 /data-volume/user-credentials.json
 /data-volume/UsersPendingActivation.json
+/data-volume/SpacesPendingInvitations.json
 
 node_modules
 opendsu-sdk/
