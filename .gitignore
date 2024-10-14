@@ -33,5 +33,5 @@ env.json.devel
 initialEncryptionTest
 
 **/.DS_Store
-/data-volume/[MAP]Spaces.json
-/data-volume/[MAP]Users.json
+/data-volume/\[MAP\]Spaces.json
+/data-volume/\[MAP\]Users.json
