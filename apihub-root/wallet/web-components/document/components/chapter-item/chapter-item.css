@@ -174,9 +174,26 @@ p {
 .chapter-audio{
     margin-right: 5px;
 }
-.chapter-audio-section{
+.top-audio-section{
+    display: flex;
     align-items: center;
+}
+.icon-container{
+    display: flex;
+    align-items: center;
+}
+.loop-input-container{
+    display: flex;
+    align-items: center;
+    margin-top: 10px;
+}
+.chapter-audio-section{
+    flex-direction: column;
+    justify-content: center;
     position: absolute;
     bottom: 57px;
     right: -10px;
+    background-color: var(--white);
+    padding: 10px;
+    box-shadow: 0px 1px 7.3px 0px #00000040;
 }

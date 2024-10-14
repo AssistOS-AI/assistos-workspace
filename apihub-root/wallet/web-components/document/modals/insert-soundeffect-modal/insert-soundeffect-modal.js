@@ -1,6 +1,6 @@
 const spaceModule = require("assistos").loadModule("space", {});
 
-export class InsertBackgroundSoundModal {
+export class InsertSoundEffectModal {
     constructor(element, invalidate) {
         this.element = element;
         this.invalidate = invalidate;
@@ -28,29 +28,36 @@ export class InsertBackgroundSoundModal {
 
     async selectFileHandler(_target, event) {
         let file = event.target.files[0];
-        const loopAudio =this.element.querySelector("#loop").checked;
+        const loopAudio = this.element.querySelector("#loop").checked;
+        let startTime = this.element.querySelector("#start").value;
         let reader = new FileReader();
         this.audioElement = document.createElement('audio');
-        let audioId;
+
         reader.onload = async (e) => {
             const uint8Array = new Uint8Array(e.target.result);
-            debugger
-            audioId = await spaceModule.putAudio(assistOS.space.id, uint8Array);
-            this.audioElement.addEventListener("loadedmetadata", async () => {
-                const duration = this.audioElement.duration;
-                await assistOS.loadifyComponent(this.element, async () => {
-                    let data = {
-                        id: audioId,
-                        duration: duration,
-                        loop:loopAudio,
-                    };
-                    this.audioElement.remove();
-                    URL.revokeObjectURL(this.audioElement.src);
-                    assistOS.UI.closeModal(_target, data);
-                });
+            await assistOS.loadifyComponent(this.element, async () => {
+                let audioId = await spaceModule.putAudio(assistOS.space.id, uint8Array);
+                let data = await this.loadAudioMetadata(file, loopAudio, startTime, audioId);
+                assistOS.UI.closeModal(_target, data);
             });
-            this.audioElement.src = URL.createObjectURL(file);
         }
         reader.readAsArrayBuffer(file);
+    }
+    loadAudioMetadata(file, loopAudio, startTime, audioId) {
+        return new Promise(async (resolve, reject) => {
+            this.audioElement.addEventListener("loadedmetadata", async () => {
+                const duration = this.audioElement.duration;
+                let data = {
+                    id: audioId,
+                    duration: duration,
+                    loop:loopAudio,
+                    start:startTime
+                };
+                this.audioElement.remove();
+                URL.revokeObjectURL(this.audioElement.src);
+                resolve(data);
+            });
+            this.audioElement.src = URL.createObjectURL(file);
+        });
     }
 }

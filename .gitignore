@@ -22,10 +22,9 @@ apihub-root/wallet/bundles/
 /data-volume/lightDB
 /data-volume/maindsu
 /data-volume/versionlessdsu
-/data-volume/[MAP]Spaces.json
-/data-volume/[MAP]Users.json
 /data-volume/user-credentials.json
 /data-volume/UsersPendingActivation.json
+/data-volume/SpacesPendingInvitations.json
 
 node_modules
 opendsu-sdk/
@@ -34,3 +33,5 @@ env.json.devel
 initialEncryptionTest
 
 **/.DS_Store
+/data-volume/\[MAP\]Spaces.json
+/data-volume/\[MAP\]Users.json

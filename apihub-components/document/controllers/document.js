@@ -407,7 +407,7 @@ async function storeDocument(spaceId, extractedPath, request) {
         }
 
         const chapterId = await documentModule.addChapter(spaceId, docId, chapterObject);
-        convertParagraphs(chapter);
+        //convertParagraphs(chapter);
 
         for (let paragraph of chapter.paragraphs) {
             if (exportType === 'full') {

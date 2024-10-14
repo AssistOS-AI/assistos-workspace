@@ -28,10 +28,10 @@
             "presenterClassName": "InsertAudioModal"
         },
         {
-            "name": "insert-backgroundsound-modal",
+            "name": "insert-soundeffect-modal",
             "directory": "document",
             "type": "modals",
-            "presenterClassName": "InsertBackgroundSoundModal"
+            "presenterClassName": "InsertSoundEffectModal"
         },
         {
             "name": "insert-video-modal",
