@@ -3,6 +3,7 @@ const fsPromises = require("fs/promises");
 const volumeManager = require('../volumeManager.js');
 const fs = require("fs");
 const https = require("https");
+const { Readable } = require('stream');
 
 const fileTypes = Object.freeze({
         audios: {
@@ -16,10 +17,14 @@ const fileTypes = Object.freeze({
         videos: {
             contentType: "video/mp4",
             extension: "mp4"
+        },
+        json: {
+            contentType: "application/json",
+            extension: "json"
         }
+
     }
 )
-
 
 function getSpacePath(spaceId) {
     return path.join(volumeManager.paths.space, spaceId);
@@ -38,6 +43,55 @@ async function downloadData(url, dest) {
             reject(err);
         });
     });
+}
+
+
+
+function isReadableStream(obj) {
+    return obj instanceof Readable && typeof obj._read === 'function';
+}
+
+async function putFile(spaceId, fileId, stream, fileType, location) {
+    const storagePath = path.join(getSpacePath(spaceId), location);
+
+    try {
+        await fsPromises.mkdir(storagePath, { recursive: true });
+
+        const filePath = path.join(storagePath, `${fileId}.${fileTypes[fileType].extension}`);
+
+        return new Promise((resolve, reject) => {
+            const writeStream = fs.createWriteStream(filePath);
+
+            if (!isReadableStream(stream)) {
+                stream = Readable.from([JSON.stringify(stream)]);
+            }
+
+            stream.pipe(writeStream);
+
+            writeStream.on('finish', () => resolve(fileId));
+            writeStream.on('error', reject);
+        });
+
+    } catch (err) {
+        throw new Error(`Error writing file: ${err.message}`);
+    }
+}
+
+async function getFile(spaceId, location, fileId) {
+    const filePath = path.join(getSpacePath(spaceId), location, `${fileId}.${fileTypes[location].extension}`);
+    const fileStream = fs.createReadStream(filePath);
+    return fileStream;
+}
+
+async function getFiles(spaceId, location) {
+    const filesPath = path.join(getSpacePath(spaceId), location);
+    const files = await fsPromises.readdir(filesPath);
+    return files.map(file => file.split(".")[0]);
+}
+
+async function deleteFile(spaceId, location, fileId) {
+    const filePath = path.join(getSpacePath(spaceId), location, `${fileId}.${fileTypes[location].extension}`);
+    await fsPromises.rm(filePath);
 }
 
 async function putImage(spaceId, imageId, stream) {
@@ -179,6 +233,10 @@ async function getDownloadURL(spaceId, downloadType, fileId) {
 }
 
 module.exports = {
+    putFile,
+    getFile,
+    deleteFile,
+    getFiles,
     putImage,
     putVideo,
     putAudio,

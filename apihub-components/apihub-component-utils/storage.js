@@ -2,6 +2,18 @@ const config = require("../../data-volume/config/config.json");
 
 const storageClient = config.S3 ? require('./S3.js') : require('./fileSys.js');
 
+async function getFiles(spaceId,location){
+    return await storageClient.getFiles(spaceId,location);
+}
+async function putFile(spaceId,fileId,stream,fileType,location){
+    return await storageClient.putFile(spaceId,fileId,stream,fileType,location);
+}
+async function getFile(spaceId,location,fileId){
+    return await storageClient.getFile(spaceId,location,fileId);
+}
+async function deleteFile(spaceId,location,fileId){
+    return await storageClient.deleteFile(spaceId,location,fileId);
+}
 async function putImage(spaceId, fileId, stream) {
     return await storageClient.putImage(spaceId, fileId, stream);
 }
@@ -45,6 +57,9 @@ async function getDownloadURL(spaceId,downloadType,fileId){
     return await storageClient.getDownloadURL(spaceId,downloadType,fileId);
 }
 module.exports = {
+    putFile,
+    getFile,
+    deleteFile,
     putImage,
     putVideo,
     putAudio,
@@ -59,4 +74,5 @@ module.exports = {
     headImage,
     getUploadURL,
     getDownloadURL,
+
 }

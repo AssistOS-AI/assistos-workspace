@@ -1,8 +1,20 @@
 const fetch = require('node-fetch');
 const config = require('../../data-volume/config/config.json');
-const { Readable } = require('stream');
 const llmAdapterUrl = config.LLMS_SERVER_DEVELOPMENT_BASE_URL;
 
+function mapFileTypeToContentType(fileType) {
+    const mapping = {
+        'image': 'image/png',
+        'audio': 'audio/mp3',
+        'video': 'video/mp4',
+        'json': 'application/json',
+        'pdf': 'application/pdf',
+    };
+    if(!mapping[fileType]){
+        throw new Error('Invalid file type ${fileType}');
+    }
+    return mapping[fileType];
+}
 const llmAdapterRoutes = {
     DELETE: {
         IMAGE: '/apis/v1/image',
@@ -30,7 +42,7 @@ function getRouteKey(tableId) {
         audios: 'AUDIO',
         videos: 'VIDEO',
     };
-   return mapping[tableId.toLowerCase()];
+    return mapping[tableId.toLowerCase()];
 }
 
 async function sendLLMAdapterRequest(url, method, body = null, headers = {}) {
@@ -93,7 +105,7 @@ async function deleteObject(spaceId, tableId, objectId) {
 }
 
 
-async function getObjectStream(spaceId, tableId, objectId,  headers = {}) {
+async function getObjectStream(spaceId, tableId, objectId, headers = {}) {
     const fileName = getS3FileName(spaceId, tableId, objectId);
     const routeKey = getRouteKey(tableId);
     const route = llmAdapterRoutes.GET[routeKey];
@@ -107,7 +119,7 @@ async function getObjectStream(spaceId, tableId, objectId,  headers = {}) {
     response.headers.forEach((value, key) => {
         responseHeaders[key] = value;
     });
-    return { fileStream: response.body, headers: responseHeaders };
+    return {fileStream: response.body, headers: responseHeaders};
 }
 
 
@@ -135,6 +147,15 @@ async function getVideo(spaceId, videoId, range) {
     return await getObjectStream(spaceId, 'videos', videoId, headers);
 }
 
+async function putFile(spaceId, fileId,  stream,fileType,location) {
+    return putObject(spaceId, location, fileId, stream, mapFileTypeToContentType(fileType));
+}
+async function getFile(spaceId,location,fileId){
+    return getObjectStream(spaceId,location,fileId);
+}
+async function deleteFile(spaceId,location,fileId){
+    return deleteObject(spaceId,location,fileId);
+}
 async function putImage(spaceId, imageId, request) {
     return putObject(spaceId, 'images', imageId, request, 'image/png');
 }
@@ -182,6 +203,10 @@ async function getDownloadURL(spaceId, downloadType, fileId) {
 }
 
 module.exports = {
+    putFile,
+    getFile,
+    deleteFile,
+    getFiles,
     putImage,
     putVideo,
     putAudio,
