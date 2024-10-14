@@ -77,12 +77,6 @@ async function putFile(spaceId, fileId, stream, fileType, location) {
     }
 }
 
-async function getFile(spaceId, location, fileId) {
-    const filePath = path.join(getSpacePath(spaceId), location, `${fileId}.${fileTypes[location].extension}`);
-    const fileStream = fs.createReadStream(filePath);
-    return fileStream;
-}
-
 async function getFiles(spaceId, location) {
     const filesPath = path.join(getSpacePath(spaceId), location);
     const files = await fsPromises.readdir(filesPath);

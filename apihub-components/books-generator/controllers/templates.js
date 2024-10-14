@@ -1,8 +1,8 @@
 const util = require('../../apihub-component-utils/utils.js')
 const templateService = require('../services/templates.js')
-const crypto=require('../../apihub-component-utils/crypto.js')
+const crypto = require('../../apihub-component-utils/crypto.js')
 
-async function getTemplates(req,res){
+async function getTemplates(req, res) {
     const spaceId = req.params.spaceId;
     try {
         const templates = await templateService.getTemplates(spaceId);
@@ -18,15 +18,13 @@ async function getTemplates(req,res){
     }
 }
 
-async function getTemplate(req,res){
+async function getTemplate(req, res) {
     const spaceId = req.params.spaceId;
     const templateId = req.params.templateId;
     try {
-        const template = await templateService.getTemplate(spaceId, templateId);
-        return util.sendResponse(res, 200, 'application/json', {
-            data: template,
-            success: true
-        });
+        const {fileStream,headers} = await templateService.getTemplate(spaceId, templateId);
+        res.writeHead(200, headers);
+       fileStream.pipe(res);
     } catch (error) {
         return util.sendResponse(res, error.statusCode || 500, 'application/json', {
             message: error.message,
@@ -35,12 +33,12 @@ async function getTemplate(req,res){
     }
 }
 
-async function addTemplate(req,res){
+async function addTemplate(req, res) {
     const spaceId = req.params.spaceId;
     const templateData = req.body;
     const templateId = crypto.generateId();
     try {
-        const template = await templateService.addTemplate(spaceId,templateId, templateData);
+        const template = await templateService.addTemplate(spaceId, templateId, templateData);
         return util.sendResponse(res, 200, 'application/json', {
             data: template,
             success: true
@@ -53,7 +51,7 @@ async function addTemplate(req,res){
     }
 }
 
-async function updateTemplate(req,res){
+async function updateTemplate(req, res) {
     const spaceId = req.params.spaceId;
     const templateId = req.params.templateId;
     const templateData = req.body;
@@ -71,7 +69,7 @@ async function updateTemplate(req,res){
     }
 }
 
-async function deleteTemplate(req,res){
+async function deleteTemplate(req, res) {
     const spaceId = req.params.spaceId;
     const templateId = req.params.templateId;
     try {

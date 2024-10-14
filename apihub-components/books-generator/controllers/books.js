@@ -22,7 +22,8 @@ async function getBook(req, res) {
     const spaceId = req.params.spaceId;
     const bookId = req.params.bookId;
     try {
-        const book = await booksService.getBook(spaceId, bookId);
+        const bookResponse = await booksService.getBook(spaceId, bookId);
+        bookResponse.fileStream.pipe(res);
         return util.sendResponse(res, 200, 'application/json', {
             data: book,
             success: true
