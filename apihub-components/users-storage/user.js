@@ -501,26 +501,24 @@ async function resetPassword(email, password, code) {
 }
 
 module.exports = {
-    APIs: {
-        registerUser,
-        activateUser,
-        loginUser,
-        logoutUser,
-        getActivationFailHTML,
-        getActivationSuccessHTML,
-        getUserData,
-        createDemoUser,
-        linkSpaceToUser,
-        getDefaultSpaceId,
-        updateUsersCurrentSpace,
-        inviteSpaceCollaborators,
-        getSecret,
-        userSecretExists,
-        addSecret,
-        deleteSecret,
-        getUserFile,
-        getUserPrivateChatAgentId,
-        sendPasswordResetCode,
-        resetPassword
-    }
+    registerUser,
+    activateUser,
+    loginUser,
+    logoutUser,
+    getActivationFailHTML,
+    getActivationSuccessHTML,
+    getUserData,
+    createDemoUser,
+    linkSpaceToUser,
+    getDefaultSpaceId,
+    updateUsersCurrentSpace,
+    inviteSpaceCollaborators,
+    getSecret,
+    userSecretExists,
+    addSecret,
+    deleteSecret,
+    getUserFile,
+    getUserPrivateChatAgentId,
+    sendPasswordResetCode,
+    resetPassword
 }

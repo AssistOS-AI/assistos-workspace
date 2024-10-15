@@ -255,7 +255,7 @@ async function createSpace(spaceName, userId, apiKey) {
         () => file.createDirectory(path.join(spacePath, 'applications')),
         () => file.createDirectory(path.join(spacePath, 'videos')),
         () => createSpaceStatus(spacePath, spaceObj),
-        () => User.APIs.linkSpaceToUser(userId, spaceId),
+        () => User.linkSpaceToUser(userId, spaceId),
         () => addSpaceToSpaceMap(spaceId, spaceName),
     ].concat(apiKey ? [() => secrets.putSpaceKey(spaceId, "OpenAI", OpenAPIKeyObj)] : []);
 

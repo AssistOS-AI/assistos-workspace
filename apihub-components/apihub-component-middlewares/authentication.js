@@ -26,7 +26,7 @@ async function authentication(req, res, next) {
     if (refreshToken) {
         try {
             const {userId} = await jwt.validateUserRefreshAccessJWT(refreshToken, 'RefreshToken');
-            const userData = await User.APIs.getUserData(userId);
+            const userData = await User.getUserData(userId);
             const newAuthCookie = await cookie.createAuthCookie(userData);
             setCookies.push(newAuthCookie);
             req.userId = userId;

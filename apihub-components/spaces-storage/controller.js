@@ -10,9 +10,7 @@ const path = require('path');
 const eventPublisher = require("../subscribers/eventPublisher.js");
 const {sendResponse} = require("../apihub-component-utils/utils");
 const dataVolumePaths = require('../volumeManager').paths;
-const ffmpeg = require('../apihub-component-utils/ffmpeg.js');
-const AnonymousTask = require('../tasks/AnonymousTask.js');
-const Storage = require('../apihub-component-utils/storage.js');
+
 
 function getFileObjectsMetadataPath(spaceId, objectType) {
     return path.join(dataVolumePaths.space, `${spaceId}/${objectType}/metadata.json`);
@@ -762,12 +760,12 @@ async function getSpace(request, response) {
         } else if (cookie.parseCookies(request).currentSpaceId) {
             spaceId = cookie.parseCookies(request).currentSpaceId;
         } else {
-            spaceId = user.APIs.getDefaultSpaceId(userId);
+            spaceId = user.getDefaultSpaceId(userId);
         }
 
         let spaceObject = await space.APIs.getSpaceStatusObject(spaceId);
         spaceObject.chat = await space.APIs.getSpaceChat(spaceId);
-        await user.APIs.updateUsersCurrentSpace(userId, spaceId);
+        await user.updateUsersCurrentSpace(userId, spaceId);
         utils.sendResponse(response, 200, "application/json", {
             success: true,
             data: spaceObject,
@@ -834,7 +832,7 @@ async function addCollaboratorsToSpace(request, response) {
     }
 
     try {
-        let collaborators = await user.APIs.inviteSpaceCollaborators(userId, spaceId, collaboratorsEmails);
+        let collaborators = await user.inviteSpaceCollaborators(userId, spaceId, collaboratorsEmails);
         utils.sendResponse(response, 200, "application/json", {
             message: `Collaborators invited successfully`,
             success: true,
@@ -868,7 +866,7 @@ async function getAgent(request, response) {
     const spaceId = request.params.spaceId;
     const userId = request.userId;
     if (!agentId) {
-        agentId = await user.APIs.getUserPrivateChatAgentId(userId, spaceId)
+        agentId = await user.getUserPrivateChatAgentId(userId, spaceId)
     }
     if (!agentId) {
         agentId = await space.APIs.getDefaultSpaceAgentId(spaceId)

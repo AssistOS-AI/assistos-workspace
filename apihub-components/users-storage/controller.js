@@ -13,7 +13,7 @@ async function resetPassword(request,response){
         });
     }
     try {
-        await User.APIs.resetPassword(email, password,code);
+        await User.resetPassword(email, password,code);
         utils.sendResponse(response, 200, "application/json", {
             success: true,
             message: `Password reset successfully`
@@ -34,7 +34,7 @@ async function sendPasswordResetCode(request,response){
         });
     }
     try {
-        await User.APIs.sendPasswordResetCode(email);
+        await User.sendPasswordResetCode(email);
         utils.sendResponse(response, 200, "application/json", {
             success: true,
             message: `Password reset code sent successfully`
@@ -48,7 +48,7 @@ async function sendPasswordResetCode(request,response){
 }
 async function addSecret(request, response) {
     try {
-        await User.APIs.addSecret(request.params.spaceId, request.userId, request.body);
+        await User.addSecret(request.params.spaceId, request.userId, request.body);
         utils.sendResponse(response, 200, "application/json", {
             success: true,
             message: "Secret stored successfully"
@@ -63,7 +63,7 @@ async function addSecret(request, response) {
 
 async function deleteSecret(request, response) {
     try {
-        await User.APIs.deleteSecret(request.params.spaceId, request.userId, request.body);
+        await User.deleteSecret(request.params.spaceId, request.userId, request.body);
         utils.sendResponse(response, 200, "application/json", {
             success: true,
             message: "Secret deleted successfully"
@@ -78,7 +78,7 @@ async function deleteSecret(request, response) {
 
 async function userSecretExists(request, response) {
     try {
-        const booleanResult = await User.APIs.userSecretExists(request.params.spaceId, request.userId, request.body);
+        const booleanResult = await User.userSecretExists(request.params.spaceId, request.userId, request.body);
         utils.sendResponse(response, 200, "application/json", {
             data: booleanResult,
             success: true,
@@ -101,7 +101,7 @@ async function registerUser(request, response) {
         });
     }
     try {
-        await User.APIs.registerUser(
+        await User.registerUser(
             userData.email,
             userData.password,
             userData.photo,
@@ -127,11 +127,11 @@ async function activateUser(request, response) {
         });
     }
     try {
-        await User.APIs.activateUser(activationToken);
-        const activationSuccessHTML = await User.APIs.getActivationSuccessHTML();
+        await User.activateUser(activationToken);
+        const activationSuccessHTML = await User.getActivationSuccessHTML();
         await utils.sendFileToClient(response, activationSuccessHTML, "html")
     } catch (error) {
-        const activationFailHTML = await User.APIs.getActivationFailHTML(error.message);
+        const activationFailHTML = await User.getActivationFailHTML(error.message);
         await utils.sendFileToClient(response, activationFailHTML, "html")
     }
 }
@@ -139,8 +139,8 @@ async function activateUser(request, response) {
 async function loginUser(request, response) {
     const requestData = request.body;
     try {
-        const {userId} = await User.APIs.loginUser(requestData.email, requestData.password);
-        const userData = await User.APIs.getUserData(userId);
+        const {userId} = await User.loginUser(requestData.email, requestData.password);
+        const userData = await User.getUserData(userId);
 
         utils.sendResponse(response, 200, "application/json", {
             data: userData,
@@ -158,7 +158,7 @@ async function loginUser(request, response) {
 async function loadUser(request, response) {
     try {
         const userId = request.userId
-        const userData = await User.APIs.getUserData(userId);
+        const userData = await User.getUserData(userId);
         utils.sendResponse(response, 200, "application/json", {
             data: userData,
             success: true,
@@ -175,7 +175,7 @@ async function loadUser(request, response) {
 async function logoutUser(request, response) {
         try {
         const userId = request.userId;
-        await User.APIs.logoutUser(userId);
+        await User.logoutUser(userId);
         utils.sendResponse(response, 200, "application/json", {
             success: true,
             message: "User logged out successfully"
@@ -190,14 +190,19 @@ async function logoutUser(request, response) {
 
 async function getUserAvatar(request, response) {
     const userId = request.params.userId;
-    const user = await User.APIs.getUserFile(userId);
-    const base64Data = user.photo.split(",")[1];
-    const imageBuffer = Buffer.from(base64Data, 'base64');
-    utils.setCacheControl(response, {
-        maxAge: 60 * 60 * 24 * 7,
-        public: true
-    });
-    utils.sendResponse(response, 200, "image/png", imageBuffer);
+    const user = await User.getUserFile(userId);
+    const SecurityContext = require("assistos").ServerSideSecurityContext;
+    let securityContext = new SecurityContext(request);
+    const spaceModule = require("assistos").loadModule("space", securityContext);
+    try {
+        let image = await spaceModule.getImage("", user.imageId);
+        utils.sendResponse(response, 200, "image/png", image);
+    } catch (e) {
+        utils.sendResponse(response, 500, "application/json", {
+            success: false,
+            message: e.message
+        });
+    }
 
 }
 
