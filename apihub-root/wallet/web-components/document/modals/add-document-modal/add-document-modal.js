@@ -1,11 +1,13 @@
 const documentModule = require("assistos").loadModule("document", {});
+
 export class AddDocumentModal {
-    constructor(element,invalidate) {
-       this.invalidate=invalidate;
-       this.invalidate();
+    constructor(element, invalidate) {
+        this.invalidate = invalidate;
+        this.invalidate();
     }
 
-    beforeRender() {}
+    beforeRender() {
+    }
 
     closeModal(_target) {
         assistOS.UI.closeModal(_target);
@@ -13,7 +15,7 @@ export class AddDocumentModal {
 
     async addDocument(_target) {
         let formData = await assistOS.UI.extractFormInformation(_target);
-        if(formData.isValid) {
+        if (formData.isValid) {
             let docId = await documentModule.addDocument(assistOS.space.id, {
                 title: formData.data.documentTitle,
                 topic: formData.data.documentTopic

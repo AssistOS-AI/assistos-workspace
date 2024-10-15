@@ -414,4 +414,12 @@ export class DocumentViewPage {
         const tasksMenu = this.element.querySelector(".tasks-menu");
         tasksMenu.insertAdjacentHTML("beforeend", newTasksBadge);
     }
+
+    async openGenerateBookModal(_target) {
+        await assistOS.UI.showModal("books-generator-modal", {
+            "presenter": "books-generator-modal",
+            "documentId": this._document.id
+        });
+        this
+    }
 }

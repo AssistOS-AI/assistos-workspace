@@ -16,7 +16,7 @@ async function getDocumentTasks(spaceId, documentId) {
         .flat();
 }
 async function deleteDocument(spaceId, documentId) {
-    const documentTasks = await getDocumentTasks(spaceId, documentId);
+        const documentTasks = await getDocumentTasks(spaceId, documentId);
     await Promise.allSettled(documentTasks.map(async taskId => {
         return TaskManager.cancelTaskAndRemove(taskId);
     }));

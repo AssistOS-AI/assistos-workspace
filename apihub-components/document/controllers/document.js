@@ -90,9 +90,20 @@ async function updateDocument(req, res) {
         });
     }
     try {
+        const updatedFields=req.query.fields;
+        /* TODO remove this jk and make something generic for all notifications */
         await documentService.updateDocument(spaceId, documentId, documentData,req.query);
         eventPublisher.notifyClients(req.sessionId, documentId);
         eventPublisher.notifyClients(req.sessionId, "documents");
+       if (updatedFields) {
+           if (Array.isArray(updatedFields)) {
+               updatedFields.forEach(field => {
+                     eventPublisher.notifyClients(req.sessionId, documentId, field);
+               })
+           }else{
+               eventPublisher.notifyClients(req.sessionId, documentId, updatedFields);
+           }
+        }
         utils.sendResponse(res, 200, "application/json", {
             success: true,
             message: `Document ${documentId} updated successfully`
