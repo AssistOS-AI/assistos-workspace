@@ -42,7 +42,7 @@ class Email {
 
         const activationEmailTemplate = await fsPromises.readFile(activationEmailTemplatePath, 'utf8')
 
-        const baseURL=process.env.BASE_URL;
+        const baseURL= process.env.BASE_URL;
 
         const activationLink = `${baseURL}/users/verify?activationToken=${encodeURIComponent(activationToken)}`;
         const emailHtml = data.fillTemplate(activationEmailTemplate, {
@@ -59,21 +59,21 @@ class Email {
         await this.sendEmail(emailConfig.email, emailAddress, 'Account Activation', emailHtml);
     }
 
-    async sendSpaceInvitationEmail(email, invitationToken, spaceName, newUser = false) {
-
+    async sendUserAddedToSpaceEmail(email, spaceName, invitationToken) {
         const data = require('../../apihub-component-utils/data.js')
         const spaceInvitationTemplatePath = path.join(__dirname, '..', 'templates', 'spaceInvitationTemplate.html');
         const spaceInvitationTemplate = await fsPromises.readFile(spaceInvitationTemplatePath, 'utf8')
 
-        const baseURL=process.env.BASE_URL;
-        const baseAcceptURL = `${baseURL}/spaces/invitations/accept?invitationToken=${encodeURIComponent(invitationToken)}`;
-        const invitationLinkAccepted = `<a href="${baseAcceptURL}${newUser ? '&newUser=true' : ''}" class="button">Accept</a>`;
-        const invitationLinkRejected = newUser === false ? `<a href="${baseURL}/spaces/invitations/reject?invitationToken=${encodeURIComponent(invitationToken)}" class="button">Reject</a>` : "";
-
+        const baseURL= process.env.BASE_URL;
+        let appLink;
+        if(invitationToken){
+            appLink = `<a class="button" href="${baseURL}/#authentication-page/inviteToken/${encodeURIComponent(invitationToken)}">Create an account</a>`;
+        } else {
+            appLink = `<a class="button" href="${baseURL}">Take me there</a>`;
+        }
         const emailHtml = data.fillTemplate(spaceInvitationTemplate, {
             spaceName: spaceName,
-            invitationLinkAccepted: invitationLinkAccepted,
-            invitationLinkRejected: invitationLinkRejected,
+            appLink: appLink,
             companyLogoURL: emailConfig.companyLogoURL,
             companyName: emailConfig.companyName,
             streetAddress: emailConfig.streetAddress,
@@ -84,7 +84,7 @@ class Email {
             phoneNumber: emailConfig.phoneNumber,
         });
 
-        await this.sendEmail(emailConfig.email, email, `You have been invited to ${spaceName}`, emailHtml);
+        await this.sendEmail(emailConfig.email, email, `You have been added to ${spaceName}`, emailHtml);
     }
     async sendPasswordResetCode(email, resetToken) {
         const data = require('../../apihub-component-utils/data.js')

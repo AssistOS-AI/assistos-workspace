@@ -111,7 +111,7 @@ async function registerUser(request, response) {
             message: `User ${userData.name} registered successfully. Please check your email for the verification code`
         });
     } catch (error) {
-        utils.sendResponse(response, error.statusCode, "application/json", {
+        utils.sendResponse(response, error.statusCode || 500, "application/json", {
             success: false,
             message: error.message
         });

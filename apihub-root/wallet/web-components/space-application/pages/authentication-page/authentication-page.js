@@ -1,6 +1,7 @@
 import {getDemoUserCredentials} from "../../../../imports.js";
 
 let User = require("assistos").loadModule("user", {});
+const spaceModule = require("assistos").loadModule("space", {});
 User = {
     apis: User,
     constants: User.constants
@@ -288,8 +289,12 @@ export class AuthenticationPage {
             this.formData = formInfo.data;
             const {email, password, photo} = formInfo.data;
             try {
+                let imageId;
+                if(photo){
+                    imageId = await spaceModule.putImage(photo);
+                }
                 this.loader = assistOS.UI.showLoading();
-                await User.apis.registerUser(email, password, photo || undefined, this.inviteToken);
+                await User.apis.registerUser(email, password, imageId, this.inviteToken);
             } catch (error) {
                 switch (error.statusCode) {
                     case 409:

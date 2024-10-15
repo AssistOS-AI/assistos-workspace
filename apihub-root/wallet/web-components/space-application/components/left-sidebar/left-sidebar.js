@@ -1,5 +1,5 @@
 import {changeSelectedPageFromSidebar} from "../../../../imports.js";
-const utilModule = require("assistos").loadModule("util", {});
+const spaceModule = require("assistos").loadModule("space", {});
 export class LeftSidebar {
     constructor(element, invalidate) {
         this.element = element;
@@ -8,9 +8,13 @@ export class LeftSidebar {
         this.invalidate();
     }
 
-    beforeRender() {
+    async beforeRender() {
         this.applications = "";
-        this.userImage = assistOS.user.photo;
+        let userImageURL = "./wallet/assets/images/defaultUserPhoto.png";
+        if(assistOS.user.imageId){
+            userImageURL = await spaceModule.getImageURL(assistOS.space.id, assistOS.user.imageId);
+        }
+        this.userImage = userImageURL;
         this.userName = assistOS.user.name;
         for (let application of assistOS.space.installedApplications) {
             let applicationData = assistOS.applications[application.name];

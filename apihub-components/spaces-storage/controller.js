@@ -889,29 +889,6 @@ async function getAgent(request, response) {
     }
 }
 
-async function acceptSpaceInvitation(request, response) {
-    const invitationToken = request.query.invitationToken;
-    const newUser = request.query.newUser || false;
-    try {
-        const HTMLResponse = await user.APIs.acceptSpaceInvitation(invitationToken, newUser);
-        utils.sendResponse(response, 200, "text/html", HTMLResponse);
-    } catch (error) {
-        const spaceInvitationError = await user.APIs.getSpaceInvitationErrorHTML(error);
-        utils.sendResponse(response, 500, "text/html", spaceInvitationError);
-    }
-}
-
-async function rejectSpaceInvitation(request, response) {
-    const invitationToken = request.query.invitationToken;
-    try {
-        const HTMLResponse = await user.APIs.rejectSpaceInvitation(invitationToken);
-        utils.sendResponse(response, 200, "text/html", HTMLResponse);
-    } catch (error) {
-        const spaceInvitationError = await user.APIs.getSpaceInvitationErrorHTML(error);
-        utils.sendResponse(response, 500, "text/html", spaceInvitationError);
-    }
-}
-
 async function editAPIKey(request, response) {
     const spaceId = request.params.spaceId || cookie.parseCookies(request).currentSpaceId;
     if (!spaceId) {
@@ -1547,8 +1524,6 @@ async function getDownloadURL(request, response) {
 module.exports = {
     getUploadURL,
     getDownloadURL,
-    acceptSpaceInvitation,
-    rejectSpaceInvitation,
     getFileObjectsMetadata,
     getFileObject,
     getFileObjects,
