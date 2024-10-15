@@ -1,5 +1,4 @@
 import WebSkel from "../WebSkel/webSkel.js";
-import * as dependencies from "./wallet/imports.js";
 
 const userModule = require('assistos').loadModule('user', {});
 const spaceModule = require('assistos').loadModule('space', {});

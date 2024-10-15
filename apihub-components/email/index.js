@@ -6,10 +6,6 @@ const templateRegistry = {
     'activationFailTemplate': 'activationFailTemplate.html',
     'activationSuccessTemplate': 'activationSuccessTemplate.html',
     'activationEmailTemplate': 'activationEmailTemplate.html',
-    'spaceInvitationAcceptedTemplate': 'spaceInvitationAcceptedTemplate.html',
-    'spaceInvitationRejectedTemplate': 'spaceInvitationRejectedTemplate.html',
-    'spaceInvitationErrorTemplate': 'spaceInvitationErrorTemplate.html',
-    'createAccountTemplate': 'createAccountTemplate.html',
 };
 
 const getTemplate = async (templateName) => {

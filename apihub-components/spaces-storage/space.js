@@ -255,7 +255,7 @@ async function createSpace(spaceName, userId, apiKey) {
         () => file.createDirectory(path.join(spacePath, 'applications')),
         () => file.createDirectory(path.join(spacePath, 'videos')),
         () => createSpaceStatus(spacePath, spaceObj),
-        () => User.APIs.linkSpaceToUser(userId, spaceId),
+        () => User.linkSpaceToUser(userId, spaceId),
         () => addSpaceToSpaceMap(spaceId, spaceName),
     ].concat(apiKey ? [() => secrets.putSpaceKey(spaceId, "OpenAI", OpenAPIKeyObj)] : []);
 
@@ -446,13 +446,9 @@ async function getSpacesPendingInvitationsObject() {
     return JSON.parse(await fsPromises.readFile(path, 'utf8'));
 }
 
-async function updateSpacePendingInvitations(spaceId, pendingInvitationsObject) {
+async function updateSpacePendingInvitations(pendingInvitationsObject) {
     const path = getSpacePendingInvitationsPath();
     await fsPromises.writeFile(path, JSON.stringify(pendingInvitationsObject, null, 2), 'utf8');
-}
-
-async function getAPIKey(spaceId, modelName) {
-
 }
 
 async function editAPIKey(spaceId, userId, APIkeyObj) {
@@ -643,7 +639,6 @@ module.exports = {
         getSpaceChat,
         addSpaceChatMessage,
         getSpaceName,
-        getAPIKey,
         editAPIKey,
         deleteAPIKey,
         getAPIKeysMetadata,

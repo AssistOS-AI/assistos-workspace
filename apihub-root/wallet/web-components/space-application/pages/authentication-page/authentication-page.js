@@ -1,10 +1,6 @@
 import {getDemoUserCredentials} from "../../../../imports.js";
-
-let User = require("assistos").loadModule("user", {});
-User = {
-    apis: User,
-    constants: User.constants
-}
+let userModule = require("assistos").loadModule("user", {});
+const spaceModule = require("assistos").loadModule("space", {});
 
 export class AuthenticationPage {
     constructor(element, invalidate) {
@@ -272,15 +268,23 @@ export class AuthenticationPage {
     async navigateToLoginPage() {
         await this.navigateToPage("login-page");
     }
-
+    base64ToArrayBuffer(base64) {
+        const binaryString = window.atob(base64.split(',')[1]);
+        const len = binaryString.length;
+        const bytes = new Uint8Array(len);
+        for (let i = 0; i < len; i++) {
+            bytes[i] = binaryString.charCodeAt(i);
+        }
+        return bytes.buffer;
+    }
     async registerUser(_target) {
         const verifyPhotoSize = (element) => {
-            return !element.files[0] ? true : element.files[0].size <= 1048576;
+            return !element.files[0] ? true : element.files[0].size <= 1048576 * 5;
         };
         const conditions = {
             "verifyPhotoSize": {
                 fn: verifyPhotoSize,
-                errorMessage: "Image too large! Image max size: 1MB"
+                errorMessage: "Image too large! Image max size: 5MB"
             }
         };
         const formInfo = await assistOS.UI.extractFormInformation(_target, conditions);
@@ -288,8 +292,17 @@ export class AuthenticationPage {
             this.formData = formInfo.data;
             const {email, password, photo} = formInfo.data;
             try {
+                let imageId;
+                if(photo){
+                    let arrayBuffer = this.base64ToArrayBuffer(photo);
+                    try {
+                        imageId = await spaceModule.putImage("", arrayBuffer);
+                    } catch (e) {
+                      alert("User image upload failed");
+                    }
+                }
                 this.loader = assistOS.UI.showLoading();
-                await User.apis.registerUser(email, password, photo || undefined, this.inviteToken);
+                await userModule.registerUser(email, password, imageId, this.inviteToken);
             } catch (error) {
                 switch (error.statusCode) {
                     case 409:
@@ -319,7 +332,7 @@ export class AuthenticationPage {
     async activateUser() {
         const activationToken = this.element.querySelector("#user-token").value;
         try {
-            await User.apis.activateUser(activationToken);
+            await userModule.activateUser(activationToken);
             await assistOS.UI.changeToDynamicPage("authentication-page", "authentication-page");
         } catch (error) {
             alert(`Activation failed: Invalid Activation Token`)
@@ -376,7 +389,7 @@ export class AuthenticationPage {
         const formInfo = await assistOS.UI.extractFormInformation(regenerateCodeButton, conditions);
         if (formInfo.isValid) {
             const generateNewResetCode = async (email, password) => {
-                await assistOS.loadifyFunction(User.apis.generateVerificationCode, email, password);
+                await assistOS.loadifyFunction(userModule.generateVerificationCode, email, password);
                 let timer = 60;
                 regenerateCodeButton.disabled = true;
                 regenerateCodeButton.innerHTML = `Regenerate Code (${timer}s)`;
@@ -401,7 +414,7 @@ export class AuthenticationPage {
                 resetPasswordButton.addEventListener('click', async () => {
                     try {
                         const code = this.element.querySelector("#password-reset-code").value;
-                        await assistOS.loadifyFunction(User.apis.resetPassword, email, password, code);
+                        await assistOS.loadifyFunction(userModule.resetPassword, email, password, code);
                         this.invalidate(async () => {
                             this.element.setAttribute("data-subpage", "password-reset-successfully")
                         });

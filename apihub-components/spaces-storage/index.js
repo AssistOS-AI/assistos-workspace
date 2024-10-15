@@ -21,8 +21,6 @@ const {
     addCollaboratorsToSpace,
     getAgent,
     addSpaceChatMessage,
-    rejectSpaceInvitation,
-    acceptSpaceInvitation,
     editAPIKey,
     deleteAPIKey,
     getAPIKeysMetadata,
@@ -68,9 +66,6 @@ function SpaceStorage(server) {
 
     server.use("/spaces/*", bodyReader);
     server.use("/apis/v1/spaces/*", bodyReader);
-    /* invitations */
-    server.get("/spaces/invitations/reject", rejectSpaceInvitation);
-    server.get("/spaces/invitations/accept", acceptSpaceInvitation);
 
     server.use("/apis/v1/spaces/*", authentication);
     server.use("/spaces/*", authentication);
