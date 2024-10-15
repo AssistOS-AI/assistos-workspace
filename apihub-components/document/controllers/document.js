@@ -146,22 +146,26 @@ async function exportDocument(request, response) {
     const spaceId = request.params.spaceId;
     const documentId = request.params.documentId;
     const exportType = request.body.exportType;
+
+    const SecurityContext = require("assistos").ServerSideSecurityContext;
+    let securityContext = new SecurityContext(request);
+    const documentModule = require('assistos').loadModule('document', securityContext);
+
+    const archive = archiver('zip', {zlib: {level: 9}});
+    response.setHeader('Content-Disposition', `attachment; filename=${documentId}.docai`);
+    response.setHeader('Content-Type', 'application/zip');
+    archive.on('end', () => {
+        response.end();
+    });
+    archive.on('error', err => {
+        utils.sendResponse(response, 500, "application/json", {
+            success: false,
+            message: `Error at exporting document: ${documentId}. ${err.message}`
+        })
+    });
+    archive.pipe(response);
     try {
-        const archiveStream = await archiveDocument(spaceId, documentId, exportType, request);
-
-        response.setHeader('Content-Disposition', `attachment; filename=${documentId}.docai`);
-        response.setHeader('Content-Type', 'application/zip');
-
-        archiveStream.pipe(response);
-        archiveStream.on('end', () => {
-            response.end();
-        });
-        archiveStream.on('error', err => {
-            utils.sendResponse(response, 500, "application/json", {
-                success: false,
-                message: `Error at exporting document: ${documentId}. ${err.message}`
-            })
-        });
+        await archiveDocument(spaceId, archive, documentModule, documentId, exportType);
     } catch (error) {
         utils.sendResponse(response, error.statusCode || 500, "application/json", {
             success: false,
@@ -170,11 +174,8 @@ async function exportDocument(request, response) {
     }
 }
 
-async function archiveDocument(spaceId, documentId, exportType, request) {
+async function archiveDocument(spaceId, archive, documentModule, documentId, exportType) {
     let documentData;
-    const SecurityContext = require("assistos").ServerSideSecurityContext;
-    let securityContext = new SecurityContext(request);
-    const documentModule = require('assistos').loadModule('document', securityContext);
     if (exportType === 'full') {
         documentData = await exportDocumentData(documentModule, spaceId, documentId);
     } else {
@@ -183,7 +184,6 @@ async function archiveDocument(spaceId, documentId, exportType, request) {
 
     const contentBuffer = Buffer.from(JSON.stringify(documentData), 'utf-8');
     const checksum = require('crypto').createHash('sha256').update(contentBuffer).digest('hex');
-
     const metadata = {
         title: documentData.title,
         created: new Date().toISOString(),
@@ -192,17 +192,16 @@ async function archiveDocument(spaceId, documentId, exportType, request) {
         checksum: checksum,
         contentFile: "data.json",
     };
-
-    const archive = archiver('zip', {zlib: {level: 9}});
-    const stream = new require('stream').PassThrough();
-    archive.pipe(stream);
-
     archive.append(contentBuffer, {name: 'data.json'});
     archive.append(Buffer.from(JSON.stringify(metadata), 'utf-8'), {name: 'metadata.json'});
-
+    for(let personalityId of documentData.personalities){
+        const personalityStream = await space.APIs.archivePersonality(spaceId, personalityId);
+        archive.append(personalityStream, {name: `personalities/${personalityId}.persai`});
+    }
+    // spaceId = "4TcRae17k6rrNqs6";
     for(let imageData of documentData.images){
         const imageName = imageData.name;
-        const {fileStream, headers} = await Storage.getImage(spaceId, audioData.id);
+        const {fileStream, headers} = await Storage.getImage(spaceId, imageData.id);
         archive.append(fileStream, {name: `images/${imageName}.png`});
     }
 
@@ -216,14 +215,7 @@ async function archiveDocument(spaceId, documentId, exportType, request) {
         const {fileStream, headers} = await Storage.getVideo(spaceId, videoData.id);
         archive.append(fileStream, {name: `videos/${videoName}.mp4`});
     }
-
-    for(let personalityId of documentData.personalities){
-        const personalityStream = await space.APIs.archivePersonality(spaceId, personalityId);
-        archive.append(personalityStream, {name: `personalities/${personalityId}.persai`});
-    }
-
     archive.finalize();
-    return stream;
 }
 
 async function exportDocumentDataPartially(documentModule, spaceId, documentId) {
@@ -288,6 +280,13 @@ async function exportDocumentData(documentModule, spaceId, documentId) {
                     name: paragraph.commands.video.fileName,
                     id: paragraph.commands.video.id
                 })
+                if(paragraph.commands.video.thumbnailId){
+                    paragraph.commands.video.thumbnailFileName = `${paragraph.commands.video.fileName}_thumbnail`
+                    images.push({
+                        name: paragraph.commands.video.thumbnailFileName,
+                        id: paragraph.commands.video.thumbnailId
+                    })
+                }
             }
         }
     }
@@ -358,7 +357,7 @@ async function importDocument(request, response) {
     request.pipe(busboy);
     utils.sendResponse(response, 200, "application/json", {
         success: true,
-        message: 'Document imported successfully',
+        message: 'Document import started',
         data: taskId
     });
 }
@@ -408,13 +407,13 @@ async function storeDocument(spaceId, extractedPath, request) {
             position: chapter.position || 0
         };
 
-        if (chapter.backgroundSound) {
+        if (exportType === 'full' && chapter.backgroundSound) {
             chapterObject.backgroundSound = chapter.backgroundSound;
             const audioPath = path.join(extractedPath, 'audios', `${chapter.backgroundSound.fileName}.mp3`);
-            const buffer = await space.APIs.readFileAsBuffer(audioPath);
-            const audioId = await spaceModule.putAudio(spaceId, buffer);
-            chapterObject.backgroundSound.id = audioId;
-            chapterObject.backgroundSound.src = `spaces/audios/${spaceId}/${audioId}`;
+            const stream = await fs.createReadStream(audioPath);
+            chapterObject.backgroundSound.id = crypto.generateId();
+            await Storage.putAudio(spaceId, chapterObject.backgroundSound.id, stream);
+            delete chapterObject.backgroundSound.fileName;
         }
 
         const chapterId = await documentModule.addChapter(spaceId, docId, chapterObject);
@@ -471,21 +470,32 @@ function convertParagraphs(chapter){
 async function storeAttachments(extractedPath, spaceModule, paragraph, spaceId) {
     if (paragraph.commands.image) {
         const imagePath = path.join(extractedPath, 'images', `${paragraph.commands.image.fileName}.png`);
-        const buffer = await space.APIs.readFileAsBuffer(imagePath);
-        paragraph.commands.image.id = await spaceModule.putImage(spaceId, buffer);
+        const readStream = fs.createReadStream(imagePath);
+        paragraph.commands.image.id = crypto.generateId();
+        await Storage.putImage(spaceId, paragraph.commands.image.id, readStream);
         delete paragraph.commands.image.fileName;
     }
     if (paragraph.commands.audio) {
         const audioPath = path.join(extractedPath, 'audios', `${paragraph.commands.audio.fileName}.mp3`);
-        const buffer = await space.APIs.readFileAsBuffer(audioPath);
-        paragraph.commands.audio.id = await spaceModule.putAudio(spaceId, buffer);
+        const readStream = fs.createReadStream(audioPath);
+        paragraph.commands.audio.id = crypto.generateId();
+        await Storage.putAudio(spaceId, paragraph.commands.audio.id, readStream);
         delete paragraph.commands.audio.fileName;
     }
     if (paragraph.commands.video) {
         const videoPath = path.join(extractedPath, 'videos', `${paragraph.commands.video.fileName}.mp4`);
-        const buffer = await space.APIs.readFileAsBuffer(videoPath);
-        paragraph.commands.video.id = await spaceModule.putVideo(spaceId, buffer);
+        const readStream = fs.createReadStream(videoPath);
+        paragraph.commands.video.id = crypto.generateId();
+        await Storage.putVideo(spaceId, paragraph.commands.video.id, readStream);
         delete paragraph.commands.video.fileName;
+
+        if(paragraph.commands.video.thumbnailId){
+            const thumbnailPath = path.join(extractedPath, 'images', `${paragraph.commands.video.thumbnailFileName}.png`);
+            const readStream = fs.createReadStream(thumbnailPath);
+            paragraph.commands.video.thumbnailId = crypto.generateId();
+            await Storage.putImage(spaceId, paragraph.commands.video.thumbnailId, readStream);
+            delete paragraph.commands.video.thumbnailFileName;
+        }
     }
 }
 

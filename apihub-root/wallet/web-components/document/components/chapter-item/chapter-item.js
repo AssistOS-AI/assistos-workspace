@@ -300,7 +300,7 @@ export class ChapterItem {
         return this.chapter.paragraphs.length;
     }
 
-    uploadSoundEffects(event) {
+    uploadBackgroundSound(event) {
         const file = event.target.files[0];
         const maxFileSize = 15 * 1024 * 1024;
         if (file) {
@@ -335,7 +335,7 @@ export class ChapterItem {
             this.fileInput.accept = 'audio/mp3';
             this.fileInput.classList.add('hidden');
         }
-        this.fileInput.addEventListener('change', this.uploadSoundEffects.bind(this), {once: true});
+        this.fileInput.addEventListener('change', this.uploadBackgroundSound.bind(this), {once: true});
         this.fileInput.click();
     }
 
