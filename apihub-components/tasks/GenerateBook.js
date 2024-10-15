@@ -6,7 +6,6 @@ class GenerateBook extends Task {
     constructor(securityContext, spaceId, userId, configs) {
         super(securityContext, spaceId, userId);
         this.configs = configs
-
     }
 
     async runTask() {

@@ -90,8 +90,9 @@ async function deleteBook(req, res) {
 async function generateBook(req, res) {
     const spaceId = req.params.spaceId;
     const templateId = req.params.templateId;
+    const bookGenerationConfig=req.body;
     try {
-        const bookId = await booksService.generateBook(req,spaceId, templateId);
+        const bookId = await booksService.generateBook(req,spaceId, templateId,bookGenerationConfig);
         return util.sendResponse(res, 200, 'application/json', {
             data: bookId,
             success: true
