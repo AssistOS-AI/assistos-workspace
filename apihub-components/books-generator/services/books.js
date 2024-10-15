@@ -21,53 +21,25 @@ async function deleteBook(spaceId, bookId) {
     return await Storage.deleteFile(spaceId, 'books', bookId);
 }
 
-async function generateBook(request, spaceId, templateId) {
-
-    function readableToBuffer(readableStream) {
-        return new Promise((resolve, reject) => {
-            const chunks = [];
-
-            readableStream.on('data', (chunk) => {
-                chunks.push(chunk);
-            });
-
-            readableStream.on('end', () => {
-                resolve(Buffer.concat(chunks));
-            });
-
-            readableStream.on('error', (err) => {
-                reject(err);
-            });
-        });
-    }
-
-    async function convertBufferToJson(readableStream) {
-        try {
-            const buffer = await readableToBuffer(readableStream);
-
-            const jsonString = buffer.toString('utf-8');
-
-            const jsonObject = JSON.parse(jsonString);
-
-            return jsonObject;
-        } catch (err) {
-            console.error('Error during conversion:', err);
-        }
-    }
-
-    const fileResponse = await Storage.getFile(spaceId, 'templates', templateId);
-
-    const bookTemplate = await convertBufferToJson(fileResponse);
+async function generateBook(request, spaceId, templateId,bookGenerationConfig) {
 
     const securityContext = {
         userId: request.userId,
         spaceId: spaceId,
-        cookie: request.cookie,
+        cookies: request.headers.cookie,
     };
 
-    const generateBookTask = new GenerateBookTask(securityContext, spaceId, 'userId', bookTemplate);
-    const bookData = await generateBookTask.runTask();
+    const documentModule= require("assistos").loadModule("document", securityContext);
+    const bookTemplate = await documentModule.getDocument(spaceId, templateId);
+    const utilModule= require("assistos").loadModule("util", securityContext);
 
+    bookGenerationConfig={
+        ...bookGenerationConfig,
+        ...JSON.parse(utilModule.unsanitize(bookTemplate.abstract))
+    }
+    const generateBookTask = new GenerateBookTask(securityContext, spaceId, 'userId', bookGenerationConfig);
+    const bookData = generateBookTask.runTask();
+    return generateBookTask.id;
 }
 
 module.exports = {

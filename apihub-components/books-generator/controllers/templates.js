@@ -84,11 +84,28 @@ async function deleteTemplate(req, res) {
         });
     }
 }
+async function generateTemplate(req, res) {
+    const spaceId = req.params.spaceId;
+    const templateData = req.body;
+    try {
+        const template = await templateService.generateTemplate(req,spaceId, templateData);
+        return util.sendResponse(res, 200, 'application/json', {
+            data: template,
+            success: true
+        });
+    } catch (error) {
+        return util.sendResponse(res, error.statusCode || 500, 'application/json', {
+            message: error.message,
+            success: false
+        });
+    }
+}
 
 module.exports = {
     getTemplates,
     getTemplate,
     addTemplate,
     updateTemplate,
-    deleteTemplate
+    deleteTemplate,
+    generateTemplate
 }

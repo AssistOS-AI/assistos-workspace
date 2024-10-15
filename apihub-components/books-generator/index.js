@@ -16,6 +16,7 @@ function booksGenerator(server) {
     server.put("/books-generator/templates/:spaceId/:templateId", templateHandler.updateTemplate);
     server.delete("/books-generator/templates/:spaceId/:templateId", templateHandler.deleteTemplate);
 
+    server.post("/books-generator/templates/generate/:spaceId", templateHandler.generateTemplate);
     // Books
     server.get("/books-generator/books/:spaceId", bookHandler.getBooks);
     server.get("/books-generator/books/:spaceId/:bookId", bookHandler.getBook);
