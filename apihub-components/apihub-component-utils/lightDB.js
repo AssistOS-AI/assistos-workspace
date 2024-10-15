@@ -1,20 +1,22 @@
 const enclave = require("opendsu").loadAPI("enclave");
 const crypto = require("../apihub-component-utils/crypto.js");
-const eventPublisher = require("../subscribers/eventPublisher");
-
+let lightDBClients = {};
 function loadDatabaseClient(spaceId) {
-    return enclave.initialiseLightDBEnclave(spaceId);
+    if(!lightDBClients[spaceId]){
+        lightDBClients[spaceId] = enclave.initialiseLightDBEnclave(spaceId);
+    }
+    return lightDBClients[spaceId];
 }
 async function insertRecord(spaceId, tableId, objectId, objectData) {
-    const dbClient =  loadDatabaseClient(spaceId);
-    return   await $$.promisify(dbClient.insertRecord)($$.SYSTEM_IDENTIFIER, tableId, objectId, {data: objectData});
+    const dbClient = loadDatabaseClient(spaceId);
+    return await $$.promisify(dbClient.insertRecord)($$.SYSTEM_IDENTIFIER, tableId, objectId, {data: objectData});
 }
 async function updateRecord(spaceId,tableId,objectId,objectData) {
     const dbClient = loadDatabaseClient(spaceId);
     return await $$.promisify(dbClient.updateRecord)($$.SYSTEM_IDENTIFIER, tableId, objectId, {data: objectData});
 }
 async function deleteRecord(spaceId,tableId,objectId) {
-    const dbClient= loadDatabaseClient(spaceId);
+    const dbClient = loadDatabaseClient(spaceId);
     return await $$.promisify(dbClient.deleteRecord)($$.SYSTEM_IDENTIFIER, tableId, objectId);
 }
 async function getRecord(spaceId,tableId,objectId) {
@@ -24,6 +26,10 @@ async function getRecord(spaceId,tableId,objectId) {
 async function getAllRecords(spaceId,objectId) {
     const dbClient = loadDatabaseClient(spaceId);
     return await $$.promisify(dbClient.getAllRecords)($$.SYSTEM_IDENTIFIER, objectId);
+}
+async function deleteTable(spaceId,tableId) {
+    const dbClient = loadDatabaseClient(spaceId);
+    return await $$.promisify(dbClient.removeCollection)($$.SYSTEM_IDENTIFIER, tableId);
 }
 
 //Container Objects
@@ -147,10 +153,11 @@ async function updateContainerObject(spaceId, objectId, objectData) {
     }
 }
 
-async function deleteContainerObject(spaceId, objectId, sessionId) {
+async function deleteContainerObject(spaceId, objectId) {
     async function deleteContainerObjectTable(spaceId, objectId) {
         let objectType = objectId.split('_')[0];
         await deleteRecord(spaceId, objectType, objectId);
+        await deleteTable(spaceId, objectId);
         return objectId;
     }
     try {
