@@ -148,7 +148,7 @@ async function loginUser(request, response) {
             message: `User ${userData.name} logged in successfully`
         }, [await cookie.createAuthCookie(userData), await cookie.createRefreshAuthCookie(userData), cookie.createCurrentSpaceCookie(userData.currentSpaceId)]);
     } catch (error) {
-        utils.sendResponse(response, error.statusCode||500, "application/json", {
+        utils.sendResponse(response, error.statusCode || 500, "application/json", {
             success: false,
             message: error.message
         });

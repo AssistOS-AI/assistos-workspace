@@ -20,7 +20,6 @@ export class AuthenticationPage {
         switch (this.dataSubpage) {
             case "register-page": {
                 let hiddenClass = this.inviteToken ? "hidden" : "email";
-                let requiredEmail = this.inviteToken ? "" : "required";
                 this.subpage = ` <div>
              <div class="form-title">
              Registration
@@ -28,7 +27,7 @@ export class AuthenticationPage {
              <form>
                     <div class="form-item" id="${hiddenClass}">
                         <label class="form-label" for="user-email">E-mail</label>
-                        <input class="form-input" name="email" type="email" data-id="user-email" id="user-email" ${requiredEmail} placeholder="Add e-mail">
+                        <input class="form-input" name="email" type="email" data-id="user-email" id="user-email" placeholder="Add e-mail">
                     </div>
                     <div class="form-item">
                         <label class="form-label" for="user-password">Password</label>
@@ -268,64 +267,78 @@ export class AuthenticationPage {
     async navigateToLoginPage() {
         await this.navigateToPage("login-page");
     }
-    base64ToArrayBuffer(base64) {
-        const binaryString = window.atob(base64.split(',')[1]);
-        const len = binaryString.length;
-        const bytes = new Uint8Array(len);
-        for (let i = 0; i < len; i++) {
-            bytes[i] = binaryString.charCodeAt(i);
-        }
-        return bytes.buffer;
+    uploadImage(file) {
+        return new Promise((resolve, reject) => {
+            const reader = new FileReader();
+            reader.onload = (event) => {
+                resolve(event.target.result);
+            };
+            reader.onerror = (error) => {
+                reject(error);
+            };
+            reader.readAsArrayBuffer(file);
+        });
     }
     async registerUser(_target) {
-        const verifyPhotoSize = (element) => {
-            return !element.files[0] ? true : element.files[0].size <= 1048576 * 5;
-        };
-        const conditions = {
-            "verifyPhotoSize": {
-                fn: verifyPhotoSize,
-                errorMessage: "Image too large! Image max size: 5MB"
-            }
-        };
-        const formInfo = await assistOS.UI.extractFormInformation(_target, conditions);
-        if (formInfo.isValid) {
-            this.formData = formInfo.data;
-            const {email, password, photo} = formInfo.data;
-            try {
-                let imageId;
-                if(photo){
-                    let arrayBuffer = this.base64ToArrayBuffer(photo);
-                    try {
-                        imageId = await spaceModule.putImage("", arrayBuffer);
-                    } catch (e) {
-                      alert("User image upload failed");
-                    }
+        let email = this.element.querySelector("#user-email").value;
+        let password = this.element.querySelector("#user-password").value;
+        let photoFile = this.element.querySelector("#photo").files[0];
+        let imageId;
+        if(this.inviteToken){
+            email = "";
+        }else if(!email){
+            alert("Email is required");
+            return;
+        }
+        if(!password){
+            alert("Password is required");
+            return;
+        }
+        if(photoFile){
+            if(photoFile.size <= 1048576 * 5){
+                let arrayBuffer = await this.uploadImage(photoFile);
+                try {
+                    imageId = await spaceModule.putImage("", arrayBuffer);
+                } catch (e) {
+                    alert("User image upload failed");
                 }
-                this.loader = assistOS.UI.showLoading();
-                await userModule.registerUser(email, password, imageId, this.inviteToken);
-            } catch (error) {
-                switch (error.statusCode) {
-                    case 409:
-                        alert("User Already Registered with this Email Address");
-                        break;
-                    default:
-                        alert(error.message);
-                }
-                await assistOS.UI.changeToDynamicPage("authentication-page", "authentication-page");
-            } finally {
-                await assistOS.UI.hideLoading(this.loader);
-                delete this.loader;
-            }
-            if (this.inviteToken) {
-                this.invalidate(async () => {
-                    this.element.setAttribute("data-subpage", "register-confirmation-with-invite")
-                })
             } else {
-                this.invalidate(async () => {
-                    this.element.setAttribute("data-subpage", "register-confirmation")
-                })
+                alert("Image too large! Image max size: 5MB");
+                return;
             }
+        }
+        try {
+            this.loader = assistOS.UI.showLoading();
+            await userModule.registerUser(email, password, imageId, this.inviteToken);
+        } catch (error) {
+            let message = JSON.parse(error.message);
+            switch (message.status) {
+                case 409:
+                    alert("User Already Registered with this Email Address");
+                    break;
+                default:
+                    alert(message.message);
+            }
+            this.invalidate(async () => {
+                if(this.inviteToken){
+                    this.element.setAttribute("data-subpage", "register-confirmation-with-invite")
+                }else {
+                    this.element.setAttribute("data-subpage", "register-page")
+                }
+            });
+        } finally {
+            await assistOS.UI.hideLoading(this.loader);
+            delete this.loader;
+        }
 
+        if (this.inviteToken) {
+            this.invalidate(async () => {
+                this.element.setAttribute("data-subpage", "register-confirmation-with-invite")
+            })
+        } else {
+            this.invalidate(async () => {
+                this.element.setAttribute("data-subpage", "register-confirmation")
+            })
         }
     }
 
