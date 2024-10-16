@@ -206,7 +206,6 @@ module.exports = {
     putFile,
     getFile,
     deleteFile,
-    getFiles,
     putImage,
     putVideo,
     putAudio,
