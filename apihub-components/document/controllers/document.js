@@ -198,7 +198,7 @@ async function archiveDocument(spaceId, archive, documentModule, documentId, exp
         const personalityStream = await space.APIs.archivePersonality(spaceId, personalityId);
         archive.append(personalityStream, {name: `personalities/${personalityId}.persai`});
     }
-    // spaceId = "4TcRae17k6rrNqs6";
+    //spaceId = "4TcRae17k6rrNqs6";
     for(let imageData of documentData.images){
         const imageName = imageData.name;
         const {fileStream, headers} = await Storage.getImage(spaceId, imageData.id);

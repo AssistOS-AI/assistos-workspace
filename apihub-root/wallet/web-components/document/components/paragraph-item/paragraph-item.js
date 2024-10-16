@@ -1,9 +1,11 @@
 import {executorTimer} from "../../../../imports.js";
+import {formatTime} from "../../../../utils/videoUtils.js";
+
 const utilModule = require("assistos").loadModule("util", {});
 const documentModule = require("assistos").loadModule("document", {});
 const spaceModule = require("assistos").loadModule("space", {});
 const blackScreen = "./wallet/assets/images/black-screen.png";
-import { formatTime } from "../../../../utils/videoUtils.js";
+
 export class ParagraphItem {
     constructor(element, invalidate) {
         this.element = element;
@@ -688,6 +690,7 @@ export class ParagraphItem {
         this.imgElement = this.element.querySelector(".paragraph-image");
         this.audioElement = this.element.querySelector(".audio-player");
         this.currentTimeElement = this.element.querySelector(".current-time");
+        this.chapterAudioElement = this.element.querySelector(".chapter-audio");
         if (!this.boundShowControls) {
             this.boundShowControls = this.showControls.bind(this);
             this.boundHideControls = this.hideControls.bind(this);
@@ -701,19 +704,37 @@ export class ParagraphItem {
             targetElement.setAttribute("data-next-mode", "pause");
             targetElement.src = "./wallet/assets/icons/pause.svg";
             await this.playVideoPreview();
-        } else if(nextMode === "pause"){
-            targetElement.setAttribute("data-next-mode", "play");
+        } if(nextMode === "resume"){
+            targetElement.setAttribute("data-next-mode", "pause");
+            targetElement.src = "./wallet/assets/icons/pause.svg";
+            await this.resumeVideo();
+        }else if(nextMode === "pause"){
+            targetElement.setAttribute("data-next-mode", "resume");
             targetElement.src = "./wallet/assets/icons/play.svg";
             this.audioElement.pause();
             this.videoElement.pause();
+            this.chapterAudioElement.pause();
             if(this.silenceInterval){
                 clearInterval(this.silenceInterval);
                 delete this.silenceInterval;
             }
-            if(this.imageTimeout){
-                clearTimeout(this.imageTimeout);
-                delete this.imageTimeout;
+        }
+    }
+    async resumeVideo(){
+        if(this.chapterAudioStartTime > -1){
+            this.chapterAudioElement.play();
+        }
+        if(this.paragraph.commands.video){
+            if(this.paragraph.commands.audio){
+                this.audioElement.play();
             }
+            this.videoElement.play();
+        }else if(this.paragraph.commands.audio){
+            this.audioElement.play();
+        } else if(this.paragraph.commands.silence){
+            await this.playSilence(this.paragraph.commands.silence.duration);
+        } else if(this.paragraph.commands.image){
+            await this.playSilence(1);
         }
     }
     setupMediaPlayerEventListeners(mediaPlayer){
@@ -723,6 +744,7 @@ export class ParagraphItem {
         }, {signal: stopTimeUpdateController.signal});
 
         mediaPlayer.addEventListener("ended", () => {
+            this.chapterAudioElement.pause();
             setTimeout(async () => {
                 stopTimeUpdateController.abort();
                 this.playPauseIcon.setAttribute("data-next-mode", "play");
@@ -735,44 +757,51 @@ export class ParagraphItem {
             }, 1000);
         }, {once: true});
     }
-    async playVideoAndAudio(){
-        if(this.paragraph.commands.video.duration >= this.paragraph.commands.audio.duration){
-            this.setupMediaPlayerEventListeners(this.videoElement);
-        } else {
-            this.setupMediaPlayerEventListeners(this.audioElement);
-            this.videoElement.addEventListener("ended", () => {
-                this.videoElement.classList.add("hidden");
-                this.imgElement.src = blackScreen;
+    playMediaSynchronously(mediaPlayers){
+        let played = false;
+        let readyCount = 0;
+        const totalPlayers = mediaPlayers.length;
+        for(let mediaPlayer of mediaPlayers){
+            mediaPlayer.addEventListener("canplaythrough", () => {
+                readyCount++;
+                if (readyCount === totalPlayers && !played) {
+                    played = true;
+                    this.hideLoaderAttachment();
+                    for (let mediaPlayer of mediaPlayers) {
+                        mediaPlayer.play();
+                    }
+                }
             }, {once: true});
         }
-        let played = false;
-        this.audioElement.addEventListener("canplaythrough", async () => {
-            if(this.videoElement.readyState >= 4 && !played){
-                played = true;
-                this.hideLoaderAttachment();
-                await this.playMediaSynchronously();
-            }
-        }, {once: true});
-        this.videoElement.addEventListener("canplaythrough", async () => {
-            if(this.audioElement.readyState >= 4 && !played){
-                played = true;
-                this.hideLoaderAttachment();
-                await this.playMediaSynchronously();
-            }
-        }, {once: true});
-        this.showLoaderAttachment();
-        this.videoElement.src = await spaceModule.getVideoURL(assistOS.space.id, this.paragraph.commands.video.id);
-        this.audioElement.src = await spaceModule.getAudioURL(assistOS.space.id, this.paragraph.commands.audio.id);
-        // Prevents automatic playback
-        this.videoElement.pause();
-        this.audioElement.pause();
-        //small syncronization issue with the video and audio
     }
-    async playMediaSynchronously() {
-        const syncTime = Math.max(this.audioElement.currentTime, this.videoElement.currentTime);
-        this.audioElement.currentTime = syncTime;
-        this.videoElement.currentTime = syncTime;
-        await Promise.all([this.audioElement.play(), this.videoElement.play()]);
+    async playMedia(mediaPlayers){
+        this.showLoaderAttachment();
+        if(this.chapterAudioStartTime > -1){
+            await this.setChapterAudioTime();
+            mediaPlayers.push(this.chapterAudioElement);
+            this.playMediaSynchronously(mediaPlayers);
+        }else {
+            this.playMediaSynchronously(mediaPlayers);
+        }
+        for(let mediaPlayer of mediaPlayers){
+            let id = mediaPlayer.getAttribute("data-id");
+            if(id === "paragraph-video"){
+                mediaPlayer.src = await spaceModule.getVideoURL(assistOS.space.id, this.paragraph.commands.video.id);
+            } else if(id === "paragraph-audio"){
+                mediaPlayer.src = await spaceModule.getAudioURL(assistOS.space.id, this.paragraph.commands.audio.id);
+            } else if(id === "chapter-audio"){
+                mediaPlayer.src = await spaceModule.getAudioURL(assistOS.space.id, this.chapter.backgroundSound.id);
+            }
+            mediaPlayer.load();
+        }
+    }
+    async setChapterAudioTime(){
+        this.chapterAudioElement.addEventListener("loadedmetadata", () => {
+            this.chapterAudioElement.currentTime = this.chapterAudioStartTime;
+        });
+        this.chapterAudioElement.src = await spaceModule.getAudioURL(assistOS.space.id, this.chapter.backgroundSound.id);
+        this.chapterAudioElement.pause();
+        this.chapterAudioElement.volume = this.chapter.backgroundSound.volume;
     }
     showLoaderAttachment(){
         if (this.loaderTimeout) {
@@ -794,50 +823,69 @@ export class ParagraphItem {
             delete this.playPauseIconSrc;
         }
     }
+    getChapterAudioStartTime(){
+        let totalDuration = 0;
+        let paragraphIndex = this.chapter.getParagraphIndex(this.paragraph.id);
+        for(let i = paragraphIndex - 1; i >= 0; i--){
+            let paragraph = this.chapter.paragraphs[i];
+            let paragraphVideoDuration = this.getVideoPreviewDuration(paragraph);
+            totalDuration += paragraphVideoDuration;
+        }
+        let chapterAudioDuration = this.chapter.backgroundSound.duration;
+        if(this.chapter.backgroundSound.loop){
+            return totalDuration % chapterAudioDuration;
+        } else if(chapterAudioDuration >= totalDuration){
+            return totalDuration;
+        } else {
+            return -1;
+        }
+    }
     async playVideoPreview(){
+        if(this.chapter.backgroundSound){
+            this.chapterAudioStartTime = this.getChapterAudioStartTime();
+        }
         if(this.paragraph.commands.video){
             this.videoElement.classList.remove("hidden");
             if(this.paragraph.commands.audio){
-                await this.playVideoAndAudio();
+                if(this.paragraph.commands.video.duration >= this.paragraph.commands.audio.duration){
+                    this.setupMediaPlayerEventListeners(this.videoElement);
+                } else {
+                    this.setupMediaPlayerEventListeners(this.audioElement);
+                    this.videoElement.addEventListener("ended", () => {
+                        this.videoElement.classList.add("hidden");
+                        this.imgElement.src = blackScreen;
+                    }, {once: true});
+                }
+                await this.playMedia([this.videoElement, this.audioElement]);
             } else {
                 this.setupMediaPlayerEventListeners(this.videoElement);
-                this.videoElement.addEventListener("canplay", () => {
-                    this.hideLoaderAttachment();
-                    this.videoElement.play();
-                }, {once: true});
-                this.showLoaderAttachment();
-                this.videoElement.src = await spaceModule.getVideoURL(assistOS.space.id, this.paragraph.commands.video.id);
+                await this.playMedia([this.videoElement]);
             }
         } else if(this.paragraph.commands.audio){
             this.setupMediaPlayerEventListeners(this.audioElement);
-            this.audioElement.addEventListener("canplay", () => {
-                this.hideLoaderAttachment();
-                this.audioElement.play();
-            }, {once: true});
-            this.showLoaderAttachment();
-            this.audioElement.src = await spaceModule.getAudioURL(assistOS.space.id, this.paragraph.commands.audio.id);
+            await this.playMedia([this.audioElement]);
         } else if(this.paragraph.commands.silence){
-            this.playSilence();
+            await this.playSilence(this.paragraph.commands.silence.duration);
         } else if(this.paragraph.commands.image){
-            this.imageTimeout = setTimeout(() => {
-                this.currentTimeElement.innerHTML = formatTime(1);
-                setTimeout(() => {
-                    this.playPauseIcon.setAttribute("data-next-mode", "play");
-                    this.playPauseIcon.src = "./wallet/assets/icons/play.svg";
-                    this.currentTimeElement.innerHTML = formatTime(0);
-                }, 1000);
-            }, 1000);
+            //play chapter audio if it exists
+            await this.playSilence(1);
         }
     }
-    playSilence(){
-        let silenceDuration = this.paragraph.commands.silence.duration;
+
+    async playSilence(silenceDuration){
         if(!this.silenceElapsedTime){
             this.silenceElapsedTime = 0;
+            if(this.chapterAudioStartTime > -1){
+                await this.setChapterAudioTime();
+            }
         }
+        await this.playMedia([]);
+        this.chapterAudioElement.play();
         this.silenceInterval = setInterval(() => {
             this.silenceElapsedTime += 1;
             this.currentTimeElement.innerHTML = formatTime(this.silenceElapsedTime);
             if(this.silenceElapsedTime === silenceDuration){
+                this.chapterAudioElement.pause();
                 setTimeout(() => {
                     clearInterval(this.silenceInterval);
                     delete this.silenceInterval;
@@ -849,13 +897,13 @@ export class ParagraphItem {
             }
         }, 1000);
     }
-    getVideoPreviewDuration(){
-        if(this.paragraph.commands.video || this.paragraph.commands.audio){
-            let audioDuration = this.paragraph.commands.audio ? this.paragraph.commands.audio.duration : 0;
-            let videoDuration = this.paragraph.commands.video ? this.paragraph.commands.video.duration : 0;
+    getVideoPreviewDuration(paragraph){
+        if(paragraph.commands.video || paragraph.commands.audio){
+            let audioDuration = paragraph.commands.audio ? paragraph.commands.audio.duration : 0;
+            let videoDuration = paragraph.commands.video ? paragraph.commands.video.duration : 0;
             return Math.max(audioDuration, videoDuration);
         } else if(this.paragraph.commands.silence){
-            return this.paragraph.commands.silence.duration;
+            return paragraph.commands.silence.duration;
         } else if(this.paragraph.commands.image){
             return 1;
         }
@@ -874,7 +922,7 @@ export class ParagraphItem {
             let paragraphIndex = this.chapter.getParagraphIndex(this.paragraph.id);
             paragraphNumber.innerHTML = paragraphIndex + 1;
             let videoDurationElement = this.element.querySelector(".video-duration");
-            let duration = this.getVideoPreviewDuration();
+            let duration = this.getVideoPreviewDuration(this.paragraph);
             videoDurationElement.innerHTML = formatTime(duration);
         } else {
             this.videoContainer.style.display = "none";
@@ -895,44 +943,4 @@ export class ParagraphItem {
         }
         this.imgElement.src = imageSrc;
     }
-
-    //for release 3.0
-    // canvasToBlobAsync(canvas) {
-    //     return new Promise((resolve, reject) => {
-    //         canvas.toBlob((blob) => {
-    //             if (blob) {
-    //                 resolve(blob);
-    //             } else {
-    //                 reject(new Error('Canvas to Blob conversion failed.'));
-    //             }
-    //         });
-    //     });
-    // }
-    // uploadVideoThumbnail() {
-    //     return new Promise(async (resolve, reject) => {
-    //         const canvas = document.createElement('canvas');
-    //         const context = canvas.getContext('2d');
-    //         this.videoElement.addEventListener("loadedmetadata", async () => {
-    //             this.videoElement.currentTime = 0;
-    //         });
-    //         this.videoElement.addEventListener('seeked', async () => {
-    //             canvas.width = this.videoElement.videoWidth;
-    //             canvas.height = this.videoElement.videoHeight;
-    //             context.drawImage(this.videoElement, 0, 0, canvas.width, canvas.height);
-    //             try {
-    //                 let blob = await this.canvasToBlobAsync(canvas);
-    //                 canvas.remove();
-    //                 let arrayBuffer = await blob.arrayBuffer();
-    //                 let thumbnailId = await spaceModule.putImage("4TcRae17k6rrNqs6", arrayBuffer);
-    //                 this.paragraph.commands.video.thumbnailId = thumbnailId;
-    //                 await documentModule.updateParagraphCommands(assistOS.space.id, this._document.id, this.paragraph.id, this.paragraph.commands);
-    //                 resolve(thumbnailId);
-    //             } catch (e) {
-    //                 reject(e);
-    //             }
-    //
-    //         }, {once: true});
-    //         this.videoElement.src = await spaceModule.getVideoURL(assistOS.space.id, this.paragraph.commands.video.id);
-    //     });
-    // }
 }
