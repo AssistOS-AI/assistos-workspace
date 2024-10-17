@@ -19,6 +19,25 @@ document-view-page::-webkit-scrollbar-thumb {
 document-view-page::-webkit-scrollbar-track {
     background: #f1f1f1;
 }
+
+.document-editor{
+    position: relative;
+    margin-top: 72px;
+    padding-left: 50px;
+    padding-right: 20px;
+}
+.document-page-header {
+    z-index: 10;
+    border-bottom: 1px solid var(--very-light-gray);
+    width: 100%;
+    position: sticky;
+    top: 0;
+    padding: 15px 15px 15px 70px;
+    display: flex;
+    justify-content: space-between;
+    background-color: var(--white);
+}
+
 .abstract-subtitle {
     color: var(--path-button);
     font-size: 18px;
@@ -68,28 +87,6 @@ document-view-page::-webkit-scrollbar-track {
     background: var(--white-text);
 }
 
-.document-view-page {
-    display: flex;
-    width: 100%;
-}
-
-
-
-.document-content {
-    width: 100%;
-    padding-left: 50px;
-    padding-right: 20px;
-    height: 100%;
-    margin-bottom: 20px;
-    min-height: 100%;
-}
-
-.document-page-header {
-    display: flex;
-    justify-content: space-between;
-    padding-top: 15px;
-    padding-left: 20px;
-}
 .document-menu-container{
     border-radius: 50%;
     cursor: pointer;
@@ -172,9 +169,7 @@ html[theme="dark"] .document-title-container {
 .disabled-editor{
     pointer-events: none;
 }
-.document-editor{
-    position: relative;
-}
+
 .disabled-mask{
     display: none;
     position: absolute;
