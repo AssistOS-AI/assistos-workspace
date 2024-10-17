@@ -23,7 +23,6 @@
         "webhook",
         "tasks",
         "flows",
-        "books-generator",
         "lightDBEnclave",
         "staticServer"
     ],
@@ -68,9 +67,6 @@
         },
         "tasks": {
             "module": "./../../apihub-components/tasks"
-        },
-        "books-generator": {
-            "module": "./../../apihub-components/books-generator"
         }
     },
     "responseHeaders": {
