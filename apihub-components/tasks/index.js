@@ -8,7 +8,6 @@ const {
     lipSyncParagraph,
     cancelTaskAndRemove,
     getTask,
-    removeTask,
     getTaskRelevantInfo
 } = require("./controller");
 const bodyReader = require('../apihub-component-middlewares/bodyReader.js')

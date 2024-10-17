@@ -2,7 +2,7 @@ const path = require('path');
 const fsPromises = require('fs').promises;
 const {sendResponse, sendFileToClient} = require('../apihub-component-utils/utils.js')
 const dataVolumePaths = require('../volumeManager').paths;
-
+const eventPublisher = require('../subscribers/eventPublisher.js');
 const ApplicationHandler = require("./handler.js");
 
 async function installApplication(request, response) {
@@ -97,9 +97,28 @@ async function loadApplicationConfig(request, response) {
     }
 }
 
+async function runApplicationTask(request, response) {
+    const {spaceId, applicationId, taskName} = request.params;
+    try {
+        const taskData = request.body;
+        const taskId = await ApplicationHandler.runApplicationTask(request, spaceId, applicationId, taskName, taskData);
+        const sessionId = request.sessionId;
+        eventPublisher.notifyClients(sessionId, applicationId, "tasks");
+        return sendResponse(response, 200, "application/json", {
+            message: `Task ${taskId} started`,
+            data: taskId,
+            success: true
+        });
+    } catch (error) {
+        return sendResponse(response, error.statusCode || 500, "application/json", {
+            message: `Failed to run application task:${error}`,
+            success: false
+        });
+    }
+}
 
 async function storeObject(request, response) {
-    const {spaceId,applicationId,objectType} = request.params
+    const {spaceId, applicationId, objectType} = request.params
     const objectId = decodeURIComponent(request.params.objectId);
     const filePath = path.join(dataVolumePaths.space, `${spaceId}/applications/${applicationId}/${objectType}/${objectId}.json`);
     if (request.body.toString() === "") {
@@ -118,6 +137,7 @@ async function storeObject(request, response) {
         });
     }
 }
+
 async function loadObjects(request, response) {
     const filePath = path.join(dataVolumePaths.space, `${request.params.spaceId}/applications/${request.params.appName}/${request.params.objectType}`);
     try {
@@ -178,11 +198,12 @@ async function loadApplicationFile(request, response) {
             });
         }
     }
+
     try {
         let {spaceId, applicationId} = request.params;
 
-        const filePath=request.url.split(`${applicationId}/`)[1];
-        const fullPath= path.join(dataVolumePaths.space, `${spaceId}/applications/${applicationId}/${filePath}`);
+        const filePath = request.url.split(`${applicationId}/`)[1];
+        const fullPath = path.join(dataVolumePaths.space, `${spaceId}/applications/${applicationId}/${filePath}`);
 
         const fileType = filePath.substring(filePath.lastIndexOf('.') + 1) || '';
         const file = await fsPromises.readFile(fullPath, 'utf8');
@@ -233,5 +254,6 @@ module.exports = {
     loadApplicationFile,
     loadObjects,
     loadAppFlows,
-    storeAppFlow
+    storeAppFlow,
+    runApplicationTask
 }

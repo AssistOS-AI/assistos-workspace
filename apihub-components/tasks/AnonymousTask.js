@@ -9,6 +9,7 @@ class AnonymousTask extends Task {
     async runTask() {
         return await this.executeFn();
     }
+
     runCommand(command) {
         return new Promise((resolve, reject) => {
             exec(command, (error, stdout, stderr) => {

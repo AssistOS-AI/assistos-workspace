@@ -68,7 +68,6 @@ async function getFlow(request, response) {
 
         return content;
     }
-
     const spaceId = request.params.spaceId;
     const flowName = request.params.flowName;
     try {

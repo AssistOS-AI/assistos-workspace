@@ -5,6 +5,7 @@ const CustomError = require("../apihub-component-utils/CustomError.js");
 const {paths: dataVolumePaths} = require("../volumeManager");
 const git = require("../apihub-component-utils/git.js");
 const Space = require("../spaces-storage/space.js");
+const TaskManager = require("../tasks/TaskManager");
 
 function getApplicationPath(spaceId, applicationName) {
     return path.join(dataVolumePaths.space, `${spaceId}/applications/${applicationName}`);
@@ -16,6 +17,12 @@ function getApplicationManifestPath(spaceId, applicationName) {
 
 function getApplicationFlowsPath(spaceId, applicationName) {
     return path.join(getApplicationPath(spaceId, applicationName), "flows");
+}
+function getApplicationTasksPath(spaceId, applicationName) {
+    return path.join(getApplicationPath(spaceId, applicationName), "tasks");
+}
+function getApplicationTaskPath(spaceId, applicationName, taskName) {
+    return path.join(getApplicationPath(spaceId, applicationName), "tasks", `${taskName}.js`);
 }
 
 function loadApplicationsMetadata() {
@@ -57,6 +64,19 @@ async function installApplication(spaceId, applicationId) {
             /* ignore */
         }
     }
+    if(application.tasksRepository) {
+        const tasksFolderPath = getApplicationTasksPath(spaceId, application.name);
+        try {
+            await git.clone(application.tasksRepository, tasksFolderPath);
+        } catch (error) {
+            CustomError.throwServerError("Failed to clone Application tasks repository", error);
+        }
+        try {
+            await fsPromises.unlink(path.join(applicationFolderPath, "README.md"));
+        } catch (error) {
+            /* ignore */
+        }
+    }
     application.lastUpdate = await git.getLastCommitDate(applicationFolderPath);
     await Space.APIs.addApplicationToSpaceObject(spaceId, application, manifest);
 }
@@ -87,10 +107,21 @@ async function loadApplicationConfig(spaceId, applicationId) {
     return JSON.parse(manifest);
 }
 
+async function runApplicationTask(request, spaceId, applicationId, taskName, taskData) {
+    const taskPath = getApplicationTaskPath(spaceId, applicationId, taskName);
+    const SecurityContextClass = require('assistos').ServerSideSecurityContext;
+    const TaskClass = require(taskPath);
+    const Task = new TaskClass(new SecurityContextClass(request), spaceId, request.userId, taskData);
+    await TaskManager.addTask(Task);
+    TaskManager.runTask(Task.id);
+    return Task.Id;
+}
+
 module.exports = {
     installApplication,
     uninstallApplication,
     getApplicationsMetadata,
-    loadApplicationConfig
+    loadApplicationConfig,
+    runApplicationTask,
 };
 

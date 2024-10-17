@@ -57,7 +57,7 @@ async function lipSyncParagraph(request, response) {
     try {
         const spaceId = request.params.spaceId;
         const userId = request.userId;
-        const sessionId = request.sessionId;
+
         const documentId = request.params.documentId;
         const paragraphId = request.params.paragraphId;
 
