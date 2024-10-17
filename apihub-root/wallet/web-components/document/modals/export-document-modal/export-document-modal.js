@@ -31,8 +31,6 @@ export class ExportDocumentModal{
             else {
                 a.download = `${assistOS.UI.unsanitize(this.documentTitle)}_partial.docai`;
             }
-
-
             document.body.appendChild(a);
             a.click();
 

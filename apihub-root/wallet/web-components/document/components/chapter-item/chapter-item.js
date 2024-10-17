@@ -105,59 +105,7 @@ export class ChapterItem {
         if (this.chapter.visibility === "hide") {
             this.changeChapterVisibility("hide");
         }
-        //for release 3.0
-        // this.limit = 3;
-        // this.queue = [];
-        // this.activeFunctions = 0;
-        // const paragraphs = this.element.querySelectorAll('paragraph-item[data-loaded="false"]');
-        // const options = {
-        //     root: null, // Use the viewport
-        //     threshold: 0.5 // Trigger when 10% of paragraph is visible
-        // };
-        // this.visibilityObserver = new IntersectionObserver(async (entries, observer) => {
-        //     for(let entry of entries) {
-        //         if (entry.isIntersecting) {
-        //             const paragraph = entry.target;
-        //             let hasExecutedAfterRender = paragraph.getAttribute("data-initialized");
-        //             if(hasExecutedAfterRender) {
-        //                 let paragraphPresenter = paragraph.webSkelPresenter;
-        //                 if(paragraphPresenter.paragraph.commands.video && !paragraphPresenter.paragraph.commands.video.thumbnailId) {
-        //                     await this.addAsyncLoadDataFN(paragraphPresenter.uploadVideoThumbnail.bind(paragraphPresenter));
-        //                 }
-        //                 this.visibilityObserver.unobserve(paragraph);
-        //             } else {
-        //                 paragraph.executeUploadThumbnail = true;
-        //             }
-        //             paragraph.setAttribute("data-loaded", "true");
-        //         }
-        //     }
-        // }, options);
-        // paragraphs.forEach(paragraph => {
-        //     this.visibilityObserver.observe(paragraph);
-        // });
     }
-    // async addAsyncLoadDataFN(executeFN) {
-    //     return new Promise((resolve, reject) => {
-    //         this.queue.push({ executeFN, resolve, reject });
-    //         this.runNext();
-    //     });
-    // }
-    //
-    // async runNext() {
-    //     if (this.activeFunctions < this.limit && this.queue.length > 0) {
-    //         const { executeFN, resolve, reject } = this.queue.shift();
-    //         this.activeFunctions++;
-    //         try {
-    //             const result = await executeFN();
-    //             resolve(result);
-    //         } catch (error) {
-    //             reject(error);
-    //         } finally {
-    //             this.activeFunctions--;
-    //             setTimeout(() => this.runNext(), 500);
-    //         }
-    //     }
-    // }
 
     async addParagraphOrChapterOnKeyPress(event) {
         if (!event.ctrlKey || event.key !== "Enter") {
@@ -300,28 +248,34 @@ export class ChapterItem {
         return this.chapter.paragraphs.length;
     }
 
-    uploadSoundEffects(event) {
+    uploadBackgroundSound(event) {
         const file = event.target.files[0];
-        const maxFileSize = 15 * 1024 * 1024;
+        const maxFileSize = 100 * 1024 * 1024;
         if (file) {
             if (file.size > maxFileSize) {
-                return showApplicationError("The file is too large.", "Maximum file size is 15MB.", "");
+                return showApplicationError("The file is too large.", "Maximum file size is 100MB.", "");
             }
             const reader = new FileReader();
+            //TODO add duration to the background sound for demo documents
             reader.onload = async (e) => {
                 const uint8Array = new Uint8Array(e.target.result);
                 let audioId = await spaceModule.putAudio(assistOS.space.id, uint8Array);
-                let backgroundSound = {
-                    id: audioId,
-                    volume: "0.3"
-                };
-                await documentModule.updateChapterBackgroundSound(assistOS.space.id, this._document.id, this.chapter.id, backgroundSound);
-                this.chapter.backgroundSound = backgroundSound;
-                this.hasBackgroundSound = true;
-                this.fileInput.remove();
-                delete this.fileInput;
-                assistOS.UI.removeActionBox(this.actionBox, this);
-                this.switchPlayButtonDisplay("on");
+                let audioPlayer = new Audio();
+                audioPlayer.addEventListener("loadedmetadata", async () => {
+                    let backgroundSound = {
+                        id: audioId,
+                        volume: "0.3",
+                        duration: audioPlayer.duration
+                    };
+                    await documentModule.updateChapterBackgroundSound(assistOS.space.id, this._document.id, this.chapter.id, backgroundSound);
+                    this.chapter.backgroundSound = backgroundSound;
+                    this.hasBackgroundSound = true;
+                    this.fileInput.remove();
+                    delete this.fileInput;
+                    assistOS.UI.removeActionBox(this.actionBox, this);
+                    this.switchPlayButtonDisplay("on");
+                });
+                audioPlayer.src = URL.createObjectURL(file);
             };
             reader.readAsArrayBuffer(file);
         }
@@ -335,7 +289,7 @@ export class ChapterItem {
             this.fileInput.accept = 'audio/mp3';
             this.fileInput.classList.add('hidden');
         }
-        this.fileInput.addEventListener('change', this.uploadSoundEffects.bind(this), {once: true});
+        this.fileInput.addEventListener('change', this.uploadBackgroundSound.bind(this), {once: true});
         this.fileInput.click();
     }
 
@@ -363,7 +317,9 @@ export class ChapterItem {
                 this.chapter.backgroundSound.volume = audio.volume;
                 await documentModule.updateChapterBackgroundSound(assistOS.space.id, this._document.id, this.chapter.id, {
                     id: this.chapter.backgroundSound.id,
-                    volume: audio.volume
+                    volume: audio.volume,
+                    loop: this.chapter.backgroundSound.loop,
+                    duration: this.chapter.backgroundSound.duration
                 });
                 delete this.timeoutId;
             }, 2000);
@@ -404,8 +360,6 @@ export class ChapterItem {
             audioSection.classList.add('flex');
             audio.volume = this.chapter.backgroundSound.volume;
 
-
-
             let controller = new AbortController();
             document.addEventListener("click", this.hideAudioElement.bind(this, controller, _target), {signal: controller.signal});
             _target.setAttribute("data-local-action", "playBackgroundAudio on");
@@ -420,7 +374,8 @@ export class ChapterItem {
             documentModule.updateChapterBackgroundSound(assistOS.space.id, this._document.id, this.chapter.id, {
                 id: this.chapter.backgroundSound.id,
                 loop: loopInput.checked,
-                volume: this.chapter.backgroundSound.volume
+                volume: this.chapter.backgroundSound.volume,
+                duration: this.chapter.backgroundSound.duration
             });
             audio.loop = loopInput.checked;
         }
