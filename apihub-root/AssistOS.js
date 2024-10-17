@@ -60,7 +60,7 @@ class AssistOS {
 
     async startApplication(appName, applicationLocation, isReadOnly) {
         const initialiseApplication = async () => {
-            assistOS.initialisedApplications[appName] = await applicationModule.getApplicationConfigs(assistOS.space.id, appName);
+            assistOS.initialisedApplications[appName] = await applicationModule.getApplicationConfig(assistOS.space.id, appName);
             if (assistOS.initialisedApplications[appName].manager) {
                 let ManagerModule = await applicationModule.getApplicationFile(assistOS.space.id, appName, assistOS.initialisedApplications[appName].manager.path)
                 assistOS.initialisedApplications[appName].manager = new ManagerModule[assistOS.initialisedApplications[appName].manager.name](appName);

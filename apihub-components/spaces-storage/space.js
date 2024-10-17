@@ -12,6 +12,7 @@ const fs = require('fs');
 const spaceConstants = require('./constants.js');
 const volumeManager = require('../volumeManager.js');
 const Storage = require('../apihub-component-utils/storage.js');
+const git = require("../apihub-component-utils/git");
 
 function getSpacePath(spaceId) {
     return path.join(volumeManager.paths.space, spaceId);
@@ -433,12 +434,6 @@ async function updateSpaceStatus(spaceId, spaceStatusObject) {
     await fsPromises.writeFile(spaceStatusPath, JSON.stringify(spaceStatusObject, null, 2), {encoding: 'utf8'});
 }
 
-async function uninstallApplication(spaceId, appName) {
-    const spaceStatusObject = await getSpaceStatusObject(spaceId);
-    spaceStatusObject.installedApplications = spaceStatusObject.installedApplications.filter(application => application.name !== appName);
-    await updateSpaceStatus(spaceId, spaceStatusObject);
-    await fsPromises.rm(getApplicationPath(spaceId, appName), {recursive: true, force: true});
-}
 
 
 async function getSpacesPendingInvitationsObject() {
@@ -618,9 +613,28 @@ async function getUploadURL(spaceId,uploadType,fileId) {
 async function getDownloadURL(spaceId,downloadType,fileId) {
     return await Storage.getDownloadURL(spaceId,downloadType,fileId);
 }
+async function addApplicationToSpaceObject(spaceId, applicationData,manifest){
+    const spaceStatusObject = await getSpaceStatusObject(spaceId);
+    spaceStatusObject.installedApplications.push({
+        name: applicationData.name,
+        description: manifest.description || "No description provided",
+        installationDate: date.getCurrentUnixTimeSeconds(),
+        lastUpdate: applicationData.lastUpdate,
+        flowsBranch: applicationData.flowsRepository || "No flows repository provided"
+    });
+    await updateSpaceStatus(spaceId, spaceStatusObject);
+}
+
+async function removeApplicationFromSpaceObject(spaceId, applicationId){
+    const spaceStatusObject = await getSpaceStatusObject(spaceId);
+    spaceStatusObject.installedApplications = spaceStatusObject.installedApplications.filter(application => application.name !== applicationId);
+    await updateSpaceStatus(spaceId, spaceStatusObject);
+}
 
 module.exports = {
     APIs: {
+        addApplicationToSpaceObject,
+        removeApplicationFromSpaceObject,
         getUploadURL,
         getDownloadURL,
         addSpaceAnnouncement,
@@ -635,7 +649,6 @@ module.exports = {
         updateSpacePendingInvitations,
         updateSpaceStatus,
         deleteSpace,
-        uninstallApplication,
         getSpaceChat,
         addSpaceChatMessage,
         getSpaceName,

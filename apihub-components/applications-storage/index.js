@@ -1,48 +1,29 @@
-const {
-    installApplication,
-    uninstallApplication,
-    storeObject,
-    loadApplicationConfig,
-    loadApplicationFile,
-    loadObjects,
-    loadAppFlows,
-    storeAppFlow,
-    loadApplicationsMetadata
-} = require("./controller");
+const Application = require("./controller.js");
 
-function bodyReaderMiddleware(req, res, next) {
-    const data = [];
-
-    req.on('data', (chunk) => {
-        data.push(chunk);
-    });
-
-    req.on('end', () => {
-        req.body = Buffer.concat(data);
-        next();
-    });
-}
+const bodyReader=require("../apihub-component-middlewares/bodyReader.js");
+const authentication=require("../apihub-component-middlewares/authentication.js");
 
 function ApplicationsStorage(server) {
-    server.get("/space/:spaceId/applications/:applicationId/configs", loadApplicationConfig);
-    server.get("/app/:spaceId/applications/:appName/:objectType", loadObjects);
+    server.use("/applications/*", authentication);
+    server.use("/applications/*", bodyReader);
 
-    /* :variable e pana intalneste un "/" */
+    server.get("/applications/config/:spaceId/:applicationId", Application.loadApplicationConfig);
+    server.get("/applications/metadata/:spaceId", Application.loadApplicationsMetadata);
+
+    server.post("/applications/:spaceId/:applicationId", Application.installApplication);
+    server.delete("/applications/:spaceId/:applicationId", Application.uninstallApplication);
+
+    server.get("/applications/files/:spaceId/:applicationId/*", Application.loadApplicationFile);
 
 
-    server.get("/app/:spaceId/applications/:applicationName/file/*", loadApplicationFile);
+    server.get("/app/:spaceId/applications/:appName/:objectType", Application.loadObjects);
 
 
-    server.use("/space/*", bodyReaderMiddleware);
-    server.use("/app/*", bodyReaderMiddleware);
-    server.get("/app/:spaceId", loadApplicationsMetadata);
-    server.post("/space/:spaceId/applications/:applicationId", installApplication);
-    server.delete("/space/:spaceId/applications/:applicationId", uninstallApplication);
-    server.put("/app/:spaceId/applications/:applicationId/:objectType/:objectId", storeObject);
-    server.put("/space/:spaceId/applications/:applicationId/:objectType/:objectId", storeObject);
+    server.put("/app/:spaceId/applications/:applicationId/:objectType/:objectId", Application.storeObject);
+    server.put("/space/:spaceId/applications/:applicationId/:objectType/:objectId", Application.storeObject);
 
-    server.get("/app/:spaceId/applications/:applicationId", loadAppFlows);
-    server.put("/app/:spaceId/applications/:applicationId/:objectId", storeAppFlow);
+    server.get("/app/:spaceId/applications/:applicationId", Application.loadAppFlows);
+    server.put("/app/:spaceId/applications/:applicationId/:objectId", Application.storeAppFlow);
 }
 
 module.exports = ApplicationsStorage;
