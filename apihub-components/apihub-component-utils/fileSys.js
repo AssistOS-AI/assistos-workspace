@@ -26,10 +26,6 @@ const fileTypes = Object.freeze({
     }
 )
 
-function getSpacePath(spaceId) {
-    return path.join(volumeManager.paths.space, spaceId);
-}
-
 async function downloadData(url, dest) {
     return new Promise((resolve, reject) => {
         const file = fs.createWriteStream(dest);
@@ -45,96 +41,44 @@ async function downloadData(url, dest) {
     });
 }
 
-
+function getFilePath(relativeDir, fileId) {
+    let extension = fileTypes[relativeDir].extension;
+    return path.join(volumeManager.paths.assets, relativeDir, `${fileId}.${extension}`);
+}
 
 function isReadableStream(obj) {
     return obj instanceof Readable && typeof obj._read === 'function';
 }
 
-async function putFile(spaceId, fileId, stream, fileType, location) {
-    const storagePath = path.join(getSpacePath(spaceId), location);
-
-    try {
-        await fsPromises.mkdir(storagePath, { recursive: true });
-
-        const filePath = path.join(storagePath, `${fileId}.${fileTypes[fileType].extension}`);
-
-        return new Promise((resolve, reject) => {
-            const writeStream = fs.createWriteStream(filePath);
-
-            if (!isReadableStream(stream)) {
-                stream = Readable.from([JSON.stringify(stream)]);
-            }
-
-            stream.pipe(writeStream);
-
-            writeStream.on('finish', () => resolve(fileId));
-            writeStream.on('error', reject);
+function putFile(relativeDir, fileId, stream) {
+    return new Promise((resolve, reject) => {
+        if (!isReadableStream(stream)) {
+            stream = Readable.from([JSON.stringify(stream)]);
+        }
+        const filePath = getFilePath(relativeDir, fileId);
+        const writeStream = fs.createWriteStream(filePath);
+        stream.pipe(writeStream);
+        writeStream.on('finish', () => {
+            resolve(fileId);
         });
-
-    } catch (err) {
-        throw new Error(`Error writing file: ${err.message}`);
-    }
+        writeStream.on('error', (err) => {
+            reject(err);
+        });
+    });
 }
 
-async function getFiles(spaceId, location) {
-    const filesPath = path.join(getSpacePath(spaceId), location);
+async function getFiles(relativeDir) {
+    const filesPath = path.join(volumeManager.paths.assets, relativeDir);
     const files = await fsPromises.readdir(filesPath);
     return files.map(file => file.split(".")[0]);
 }
 
-async function deleteFile(spaceId, location, fileId) {
-    const filePath = path.join(getSpacePath(spaceId), location, `${fileId}.${fileTypes[location].extension}`);
+async function deleteFile(relativeDir, fileId) {
+    const filePath = getFilePath(relativeDir, fileId);
     await fsPromises.rm(filePath);
 }
 
-async function putImage(spaceId, imageId, stream) {
-    return new Promise((resolve, reject) => {
-        const storagePath = path.join(getSpacePath(spaceId), "images");
-        const filePath = path.join(storagePath, `${imageId}.png`);
-        const writeStream = fs.createWriteStream(filePath);
-        stream.pipe(writeStream);
-        writeStream.on('finish', () => {
-            resolve(imageId);
-        });
-        writeStream.on('error', (err) => {
-            reject(err);
-        });
-    });
-}
-
-async function putAudio(spaceId, audioId, stream) {
-    return new Promise((resolve, reject) => {
-        const storagePath = path.join(getSpacePath(spaceId), "audios");
-        const filePath = path.join(storagePath, `${audioId}.mp3`);
-        const writeStream = fs.createWriteStream(filePath);
-        stream.pipe(writeStream);
-        writeStream.on('finish', () => {
-            resolve(audioId);
-        });
-        writeStream.on('error', (err) => {
-            reject(err);
-        });
-    });
-}
-
-async function putVideo(spaceId, videoId, stream) {
-    return new Promise((resolve, reject) => {
-        const storagePath = path.join(getSpacePath(spaceId), "videos");
-        const filePath = path.join(storagePath, `${videoId}.mp4`);
-        const writeStream = fs.createWriteStream(filePath);
-        stream.pipe(writeStream);
-        writeStream.on('finish', () => {
-            resolve(videoId);
-        });
-        writeStream.on('error', (err) => {
-            reject(err);
-        });
-    });
-}
-
-
-async function getFile(spaceId, fileType, fileId, range) {
+async function getFile(relativeDir, fileId, range) {
     async function getFileRange(filePath, range, defaultChunkSize = 1024 * 1024 * 3) {
         const stat = await fs.promises.stat(filePath);
         const fileSize = stat.size;
@@ -150,10 +94,10 @@ async function getFile(spaceId, fileType, fileId, range) {
         return {start: 0, end: fileSize - 1, fileSize};
     }
 
-    if (!fileTypes[fileType]) {
-        throw new Error(`Invalid file type: ${fileType}`);
+    if (!fileTypes[relativeDir]) {
+        throw new Error(`Invalid file type: ${relativeDir}`);
     }
-    const filePath = path.join(getSpacePath(spaceId), fileType, `${fileId}.${fileTypes[fileType].extension}`);
+    const filePath = getFilePath(relativeDir, fileId);
     const {start, end, fileSize} = await getFileRange(filePath, range);
 
     const fileStream = fs.createReadStream(filePath, {start, end});
@@ -161,69 +105,24 @@ async function getFile(spaceId, fileType, fileId, range) {
         'Content-Range': `bytes ${start}-${end}/${fileSize}`,
         'Accept-Ranges': 'bytes',
         'Content-Length': (end - start) + 1,
-        'Content-Type': fileTypes[fileType].contentType,
+        'Content-Type': fileTypes[relativeDir].contentType,
     };
     return {fileStream, headers};
 }
 
-
-async function getVideo(spaceId, videoId, range) {
-    return await getFile(spaceId, 'videos', videoId, range);
+async function headFile(relativeDir, fileId) {
+    const filePath = getFilePath(relativeDir, fileId);
+    return await fsPromises.stat(filePath);
 }
 
-async function getImage(spaceId, imageId, range) {
-    return await getFile(spaceId, 'images', imageId, range);
-}
-
-async function getAudio(spaceId, audioId, range) {
-    return await getFile(spaceId, 'audios', audioId, range);
-}
-
-async function deleteImage(spaceId, imageId) {
-    const imagesPath = path.join(getSpacePath(spaceId), 'images');
-    const imagePath = path.join(imagesPath, `${imageId}.png`);
-    await fsPromises.rm(imagePath);
-}
-
-async function deleteAudio(spaceId, audioId) {
-    const audiosPath = path.join(getSpacePath(spaceId), 'audios');
-    const audioPath = path.join(audiosPath, `${audioId}.mp3`);
-    await fsPromises.rm(audioPath);
-}
-
-async function deleteVideo(spaceId, videoId) {
-    const videosPath = path.join(getSpacePath(spaceId), 'videos');
-    const videoPath = path.join(videosPath, `${videoId}.mp4`);
-    await fsPromises.rm(videoPath);
-}
-
-/* TODO use ffmpeg */
-async function headImage(spaceId, imageId) {
-    const imagesPath = path.join(getSpacePath(spaceId), 'images');
-    const imagePath = path.join(imagesPath, `${imageId}.png`);
-    return await fsPromises.stat(imagePath);
-}
-
-async function headAudio(spaceId, audioId) {
-    const audiosPath = path.join(getSpacePath(spaceId), 'audios');
-    const audioPath = path.join(audiosPath, `${audioId}.mp3`);
-    return await fsPromises.stat(audioPath);
-}
-
-async function headVideo(spaceId, videoId) {
-    const videosPath = path.join(getSpacePath(spaceId), 'videos');
-    const videoPath = path.join(videosPath, `${videoId}.mp4`);
-    return await fsPromises.stat(videoPath);
-}
-
-async function getUploadURL(spaceId, uploadType, fileId) {
+async function getUploadURL(uploadType, fileId) {
     const baseURL = volumeManager.getBaseURL();
-    return `${baseURL}/spaces/${uploadType}/${spaceId}/${fileId}`;
+    return `${baseURL}/spaces/${uploadType}/${fileId}`;
 }
 
-async function getDownloadURL(spaceId, downloadType, fileId) {
+async function getDownloadURL(downloadType, fileId) {
     const baseURL = volumeManager.getBaseURL();
-    return `${baseURL}/spaces/${downloadType}/${spaceId}/${fileId}`;
+    return `${baseURL}/spaces/${downloadType}/${fileId}`;
 }
 
 module.exports = {
@@ -231,18 +130,7 @@ module.exports = {
     getFile,
     deleteFile,
     getFiles,
-    putImage,
-    putVideo,
-    putAudio,
-    deleteImage,
-    deleteAudio,
-    deleteVideo,
-    getImage,
-    getAudio,
-    getVideo,
-    headAudio,
-    headVideo,
-    headImage,
+    headFile,
     downloadData,
     getUploadURL,
     getDownloadURL,

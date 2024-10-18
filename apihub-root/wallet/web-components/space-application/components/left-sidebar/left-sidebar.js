@@ -12,7 +12,7 @@ export class LeftSidebar {
         this.applications = "";
         let userImageURL = "./wallet/assets/images/defaultUserPhoto.png";
         if(assistOS.user.imageId){
-            userImageURL = await spaceModule.getImageURL(assistOS.space.id, assistOS.user.imageId);
+            userImageURL = await spaceModule.getImageURL(assistOS.user.imageId);
         }
         this.userImage = userImageURL;
         this.userName = assistOS.user.name;

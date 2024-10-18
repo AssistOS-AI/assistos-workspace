@@ -217,7 +217,7 @@ export class ChapterItem {
             if (paragraph.commands.audio) {
                 hasAudio = true;
                 let audioName = `audio${i}.mp3`;
-                let audioBuffer = await spaceModule.getAudio(assistOS.space.id, paragraph.audio.id);
+                let audioBuffer = await spaceModule.getAudio(paragraph.audio.id);
                 const blob = new Blob([audioBuffer], {type: 'audio/mp3'});
                 let url = URL.createObjectURL(blob);
                 const link = document.createElement('a');
@@ -259,7 +259,7 @@ export class ChapterItem {
             //TODO add duration to the background sound for demo documents
             reader.onload = async (e) => {
                 const uint8Array = new Uint8Array(e.target.result);
-                let audioId = await spaceModule.putAudio(assistOS.space.id, uint8Array);
+                let audioId = await spaceModule.putAudio(uint8Array);
                 let audioPlayer = new Audio();
                 audioPlayer.addEventListener("loadedmetadata", async () => {
                     let backgroundSound = {
@@ -331,7 +331,7 @@ export class ChapterItem {
             let audioSection = this.element.querySelector('.chapter-audio-section');
             let audio = this.element.querySelector('.chapter-audio');
             if (!this.isAudioPlaying(audio)) {
-                audio.src = await spaceModule.getAudioURL(assistOS.space.id, this.chapter.backgroundSound.id);
+                audio.src = await spaceModule.getAudioURL(this.chapter.backgroundSound.id);
                 audio.load();
                 audio.play();
             }

@@ -31,10 +31,6 @@ const {
     deleteSpaceAnnouncement,
     getChatTextResponse,
     getChatTextStreamingResponse,
-    getChatImageResponse,
-    editChatImage,
-    getChatImageVariants,
-    getChatVideoResponse,
     putImage,
     getImage,
     deleteImage,
@@ -42,6 +38,9 @@ const {
     deleteAudio,
     getAudio,
     deleteVideo,
+    headAudio,
+    headImage,
+    headVideo,
     exportPersonality,
     importPersonality,
     getVideo,
@@ -56,13 +55,13 @@ const bodyReader = require('../apihub-component-middlewares/bodyReader.js')
 const authentication = require('../apihub-component-middlewares/authentication.js')
 
 function SpaceStorage(server) {
-    server.head("/spaces/audios/:spaceId/:audioId", getAudio);
-    server.head("/spaces/images/:spaceId/:imageId", getImage);
-    server.head("/spaces/videos/:spaceId/:videoId", getVideo);
+    server.head("/spaces/audios/:audioId", headAudio);
+    server.head("/spaces/images/:imageId", headImage);
+    server.head("/spaces/videos/:videoId", headVideo);
 
-    server.get("/spaces/audios/:spaceId/:audioId", getAudio);
-    server.get("/spaces/images/:spaceId/:imageId", getImage);
-    server.get("/spaces/videos/:spaceId/:videoId", getVideo);
+    server.get("/spaces/audios/:audioId", getAudio);
+    server.get("/spaces/images/:imageId", getImage);
+    server.get("/spaces/videos/:videoId", getVideo);
 
     server.use("/spaces/*", bodyReader);
     server.use("/apis/v1/spaces/*", bodyReader);
@@ -121,21 +120,17 @@ function SpaceStorage(server) {
 
     server.post("/apis/v1/spaces/:spaceId/chats/:chatId/llms/text/generate", getChatTextResponse);
     server.post("/apis/v1/spaces/:spaceId/chats/:chatId/llms/text/streaming/generate", getChatTextStreamingResponse);
-    server.post("/apis/v1/spaces/:spaceId/chats/:chatId/llms/image/generate", getChatImageResponse);
-    server.post("/apis/v1/spaces/:spaceId/chats/:chatId/llms/image/edit", editChatImage);
-    server.post("/apis/v1/spaces/:spaceId/chats/:chatId/llms/image/variants", getChatImageVariants);
-    server.post("/apis/v1/spaces/:spaceId/chats/:chatId/llms/video/generate", getChatVideoResponse);
 
-    server.get("/spaces/uploads/:spaceId/:uploadType", getUploadURL);
-    server.get("/spaces/downloads/:spaceId/:downloadType/:fileId", getDownloadURL);
+    server.get("/spaces/uploads/:type", getUploadURL);
+    server.get("/spaces/downloads/:type/:fileId", getDownloadURL);
 
-    server.put("/spaces/images/:spaceId/:imageId", putImage);
-    server.put("/spaces/audios/:spaceId/:audioId", putAudio);
-    server.put("/spaces/videos/:spaceId/:videoId", putVideo);
+    server.put("/spaces/images/:imageId", putImage);
+    server.put("/spaces/audios/:audioId", putAudio);
+    server.put("/spaces/videos/:videoId", putVideo);
 
-    server.delete("/spaces/images/:spaceId/:imageId", deleteImage);
-    server.delete("/spaces/audios/:spaceId/:audioId", deleteAudio);
-    server.delete("/spaces/videos/:spaceId/:videoId", deleteVideo);
+    server.delete("/spaces/images/:imageId", deleteImage);
+    server.delete("/spaces/audios/:audioId", deleteAudio);
+    server.delete("/spaces/videos/:videoId", deleteVideo);
 
     server.get("/spaces/:spaceId/export/personalities/:personalityId", exportPersonality);
     server.post("/spaces/:spaceId/import/personalities", importPersonality);

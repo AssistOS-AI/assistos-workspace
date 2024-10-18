@@ -201,18 +201,18 @@ async function archiveDocument(spaceId, archive, documentModule, documentId, exp
     //spaceId = "4TcRae17k6rrNqs6";
     for(let imageData of documentData.images){
         const imageName = imageData.name;
-        const {fileStream, headers} = await Storage.getImage(spaceId, imageData.id);
+        const {fileStream, headers} = await Storage.getFile(Storage.fileTypes.images, imageData.id);
         archive.append(fileStream, {name: `images/${imageName}.png`});
     }
 
     for(let audioData of documentData.audios){
         const audioName = audioData.name;
-        const {fileStream, headers} = await Storage.getAudio(spaceId, audioData.id);
+        const {fileStream, headers} = await Storage.getFile(Storage.fileTypes.audios, audioData.id);
         archive.append(fileStream, {name: `audios/${audioName}.mp3`});
     }
     for(let videoData of documentData.videos){
         const videoName = videoData.name;
-        const {fileStream, headers} = await Storage.getVideo(spaceId, videoData.id);
+        const {fileStream, headers} = await Storage.getFile(Storage.fileTypes.videos, videoData.id);
         archive.append(fileStream, {name: `videos/${videoName}.mp4`});
     }
     archive.finalize();

@@ -1,78 +1,38 @@
 const config = require("../../data-volume/config/config.json");
-
+const fileTypes= {
+    images: "images",
+    audios: "audios",
+    videos: "videos"
+}
 const storageClient = config.S3 ? require('./S3.js') : require('./fileSys.js');
 
-async function getFiles(spaceId,location){
-    return await storageClient.getFiles(spaceId,location);
+async function getFiles(spaceId, location){
+    return await storageClient.getFiles(spaceId, location);
 }
-async function putFile(spaceId,fileId,stream,fileType,location){
-    return await storageClient.putFile(spaceId,fileId,stream,fileType,location);
+async function putFile(type, fileId, stream){
+    return await storageClient.putFile(type, fileId, stream);
 }
-async function getFile(spaceId,location,fileId){
-    return await storageClient.getFile(spaceId,location,fileId);
+async function getFile(type, fileId, range){
+    return await storageClient.getFile(type, fileId, range);
 }
-async function deleteFile(spaceId,location,fileId){
-    return await storageClient.deleteFile(spaceId,location,fileId);
+async function deleteFile(type, fileId){
+    return await storageClient.deleteFile(type, fileId);
 }
-async function putImage(spaceId, fileId, stream) {
-    return await storageClient.putImage(spaceId, fileId, stream);
+async function headFile(type, fileId){
+    return await storageClient.headFile(type, fileId);
 }
-async function putVideo(spaceId, fileId, stream) {
-    return await storageClient.putVideo(spaceId, fileId, stream);
+async function getUploadURL(type, fileId){
+    return await storageClient.getUploadURL(type, fileId);
 }
-async function putAudio(spaceId, fileId, stream) {
-    return await storageClient.putAudio(spaceId, fileId, stream);
-}
-async function getImage(spaceId, fileId,range) {
-    return await storageClient.getImage(spaceId, fileId,range);
-}
-async function getVideo(spaceId, fileId,range) {
-    return await storageClient.getVideo(spaceId, fileId,range);
-}
-async function getAudio(spaceId, fileId,range) {
-    return await storageClient.getAudio(spaceId, fileId,range);
-}
-async function deleteImage(spaceId, fileId) {
-    return await storageClient.deleteImage(spaceId, fileId);
-}
-async function deleteVideo(spaceId, fileId) {
-    return await storageClient.deleteVideo(spaceId, fileId);
-}
-async function deleteAudio(spaceId, fileId) {
-    return await storageClient.deleteAudio(spaceId, fileId);
-}
-async function headAudio(spaceId, fileId) {
-    return await storageClient.headAudio(spaceId, fileId);
-}
-async function headVideo(spaceId, fileId) {
-    return await storageClient.headVideo(spaceId, fileId);
-}
-async function headImage(spaceId, fileId) {
-    return await storageClient.headImage(spaceId, fileId);
-}
-async function getUploadURL(spaceId,uploadType,fileId){
-    return await storageClient.getUploadURL(spaceId,uploadType,fileId);
-}
-async function getDownloadURL(spaceId,downloadType,fileId){
-    return await storageClient.getDownloadURL(spaceId,downloadType,fileId);
+async function getDownloadURL(type, fileId){
+    return await storageClient.getDownloadURL(type, fileId);
 }
 module.exports = {
     putFile,
     getFile,
     deleteFile,
-    putImage,
-    putVideo,
-    putAudio,
-    getImage,
-    getAudio,
-    getVideo,
-    deleteImage,
-    deleteAudio,
-    deleteVideo,
-    headAudio,
-    headVideo,
-    headImage,
+    headFile,
     getUploadURL,
     getDownloadURL,
-
+    fileTypes
 }

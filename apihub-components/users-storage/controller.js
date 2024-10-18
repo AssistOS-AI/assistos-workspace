@@ -195,7 +195,7 @@ async function getUserAvatar(request, response) {
     let securityContext = new SecurityContext(request);
     const spaceModule = require("assistos").loadModule("space", securityContext);
     try {
-        let image = await spaceModule.getImage("", user.imageId);
+        let image = await spaceModule.getImage(user.imageId);
         utils.sendResponse(response, 200, "image/png", image);
     } catch (e) {
         utils.sendResponse(response, 500, "application/json", {
