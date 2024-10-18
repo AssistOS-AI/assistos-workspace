@@ -179,11 +179,10 @@ export class DocumentViewPage {
             }
 
         }
-        assistOS.space.currentChapterId = (await assistOS.callFlow("AddChapter", {
-            spaceId: assistOS.space.id,
-            documentId: this._document.id,
-            position: position
-        })).data;
+        let chapterData = {title: "New Chapter", paragraphs: []};
+        chapterData.position = position;
+        let chapterId = await documentModule.addChapter(assistOS.space.id, this._document.id, chapterData);
+        await documentModule.addParagraph(assistOS.space.id, this._document.id, chapterId, {text: "", position: 0, commands: {}});
         this.invalidate(this.refreshDocument);
     }
 
