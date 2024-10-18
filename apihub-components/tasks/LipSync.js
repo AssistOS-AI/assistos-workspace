@@ -25,15 +25,14 @@ class LipSync extends Task {
                 const spaceModule = require('assistos').loadModule('space', this.securityContext);
 
                 const paragraph = await documentModule.getParagraph(this.spaceId, this.documentId, this.paragraphId);
-                await utilModule.constants.COMMANDS_CONFIG.COMMANDS.find(command => command.NAME === "lipsync").VALIDATE(this.spaceId, paragraph, this.securityContext);
 
-                const paragraphCommands = paragraph.commands;
-                let speechCommand = paragraphCommands.speech;
-                if (!speechCommand) {
+                try{
+                    await utilModule.constants.COMMANDS_CONFIG.COMMANDS.find(command => command.NAME === "lipsync").VALIDATE(this.spaceId, paragraph, this.securityContext);
+                }catch(error){
                     await this.rollback();
                     return this.rejectTask("Paragraph Must have a speech command before adding lip sync");
                 }
-                let taskId = speechCommand.taskId;
+                let taskId = paragraph.speech?.taskId;
                 if (taskId) {
                     const task = TaskManager.getTask(taskId);
                     task.removeListener(EVENTS.DEPENDENCY_COMPLETED);
@@ -45,7 +44,7 @@ class LipSync extends Task {
                     this.setStatus(STATUS.PENDING);
                     return this.taskPromise;
                 }
-                await this.executeLipSync(spaceModule, llmModule, utilModule, paragraphCommands);
+                await this.executeLipSync(spaceModule, llmModule, utilModule, paragraph.commands);
             } catch (e) {
                 await this.rollback();
                 this.rejectTask(e);

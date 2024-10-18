@@ -537,7 +537,7 @@ export class ParagraphItem {
                  <list-item data-local-action="openInsertAttachmentModal video" data-name="Insert Video"
                            data-highlight="light-highlight"></list-item>
                  `;
-            if (this.paragraph.commands.speech && (this.paragraph.commands.image || this.paragraph.commands.video)) {
+            if ((this.paragraph.commands.audio || this.paragraph.commands.speech) && (this.paragraph.commands.image || this.paragraph.commands.video)) {
                 baseDropdownMenuHTML += `<list-item data-name="Insert Lip Sync" data-local-action="insertLipsync" data-highlight="light-highlight"></list-item>`;
             }
             if (window.cutParagraph) {

@@ -65,7 +65,7 @@ async function lipSyncParagraph(request, response) {
         let securityContext = new SecurityContext(request);
         let task = new LipSync(securityContext, spaceId, userId, {documentId, paragraphId});
         await TaskManager.addTask(task);
-        eventPublisher.notifyClients(sessionId, documentId + "/tasks");
+        eventPublisher.notifyClients(request.sessionId, documentId + "/tasks");
         utils.sendResponse(response, 200, "application/json", {
             success: true,
             data: task.id,

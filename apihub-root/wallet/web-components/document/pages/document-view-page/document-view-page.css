@@ -1,6 +1,7 @@
 document-view-page::-webkit-scrollbar {
-   display: block;
+    display: block;
 }
+
 document-view-page {
     overflow-y: scroll;
     min-width: 415px !important;
@@ -8,9 +9,11 @@ document-view-page {
     direction: rtl; /* This moves the scrollbar to the left */
     text-align: left; /* Keeps content aligned normally */
 }
+
 document-view-page > * {
     direction: ltr; /* Revert text direction back to normal for content */
 }
+
 document-view-page::-webkit-scrollbar-thumb {
     height: 20px;
     background-color: #888;
@@ -20,12 +23,16 @@ document-view-page::-webkit-scrollbar-track {
     background: #f1f1f1;
 }
 
-.document-editor{
+.document-editor-container {
     position: relative;
     margin-top: 72px;
     padding-left: 50px;
     padding-right: 20px;
 }
+
+.document-editor {
+}
+
 .document-page-header {
     z-index: 10;
     border-bottom: 1px solid var(--very-light-gray);
@@ -52,10 +59,12 @@ document-view-page::-webkit-scrollbar-track {
     border-radius: 10px;
     margin-bottom: 10px;
 }
-.paragraph-controls{
-    margin-left:4px;
-    margin-right:4px;
+
+.paragraph-controls {
+    margin-left: 4px;
+    margin-right: 4px;
 }
+
 .abstract-content {
     display: flex;
     white-space: pre-line;
@@ -87,7 +96,7 @@ document-view-page::-webkit-scrollbar-track {
     background: var(--white-text);
 }
 
-.document-menu-container{
+.document-menu-container {
     border-radius: 50%;
     cursor: pointer;
     position: relative;
@@ -97,9 +106,11 @@ document-view-page::-webkit-scrollbar-track {
     align-items: center;
     justify-content: center;
 }
-.document-menu-container:hover{
+
+.document-menu-container:hover {
     background-color: var(--very-light-gray);
 }
+
 .document-menu-dropdown {
     position: absolute;
     top: 0;
@@ -166,11 +177,12 @@ html[theme="dark"] .document-title-container {
     background-color: #2D9FFF;
     /*TODO: change to another color*/
 }
-.disabled-editor{
+
+.disabled-editor {
     pointer-events: none;
 }
 
-.disabled-mask{
+.disabled-mask {
     display: none;
     position: absolute;
     pointer-events: none;
@@ -216,39 +228,49 @@ html[theme="dark"] .document-title-container {
 #current-selection-parent .focusable {
     background-color: var(--white-blue-tint);
 }
+
 #current-selection-parent .focusable.focused {
-    background-color: white; !important;
+    background-color: white;
+!important;
 }
 
-.insert-image{
+.insert-image {
     margin-left: 10px;
     cursor: pointer;
 }
-.document-to-video{
+
+.document-to-video {
     margin-left: 10px;
 }
-.share-video-button{
+
+.share-video-button {
     margin-left: 10px;
 }
-.document-video{
+
+.document-video {
     width: 200px;
     height: 200px;
 }
-.action-dots{
+
+.action-dots {
     width: 5px;
 }
-.task-icon{
+
+.task-icon {
     width: 25px;
     cursor: pointer;
 }
-.menu-section{
+
+.menu-section {
     display: flex;
     align-items: center;
 }
-.tasks-menu{
+
+.tasks-menu {
     position: relative;
 }
-.new-tasks-badge{
+
+.new-tasks-badge {
     position: absolute;
     top: -2px;
     left: 0;

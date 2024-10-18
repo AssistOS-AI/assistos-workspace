@@ -38,7 +38,6 @@ class Task {
         } catch (e) {
             this.setStatus(STATUS.FAILED);
             this.failMessage = e.message;
-            throw e;
         }
     }
 
