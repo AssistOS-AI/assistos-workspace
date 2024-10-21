@@ -18,6 +18,8 @@ function ApplicationsStorage(server) {
     server.get("/app/:spaceId/applications/:appName/:objectType", Application.loadObjects);
 
     server.post("/applications/tasks/:spaceId/:applicationId/:taskName", Application.runApplicationTask);
+    server.post("/applications/flows/:spaceId/:applicationId/:flowId", Application.runApplicationFlow);
+
     server.put("/app/:spaceId/applications/:applicationId/:objectType/:objectId", Application.storeObject);
     server.put("/space/:spaceId/applications/:applicationId/:objectType/:objectId", Application.storeObject);
 

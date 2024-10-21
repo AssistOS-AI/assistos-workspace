@@ -5,7 +5,7 @@ const path = require('path');
 const {subscribersModule} = require("../subscribers/controller.js");
 const dataVolumePaths = require('../volumeManager').paths;
 const flows = require('./flows.js');
-
+const CustomError = require('../apihub-component-utils/CustomError.js');
 async function loadJSFiles(filePath) {
     let localData = "";
     const files = await fsPromises.readdir(filePath);
@@ -59,6 +59,32 @@ async function getSpaceFlowNames(spaceId) {
 }
 
 async function getFlow(request, response) {
+    async function findFlowFilePath(spaceId, flowName) {
+        let filePath = path.join(dataVolumePaths.space, `${spaceId}/flows/${flowName}.js`);
+        try {
+            await fsPromises.access(filePath);
+            return filePath;
+        } catch (error) {
+            const applicationsFolder = path.join(dataVolumePaths.space, `${spaceId}/applications`);
+            const applications = await fsPromises.readdir(applicationsFolder);
+            for (const application of applications) {
+                const applicationFlowsFolder = path.join(applicationsFolder, application, "flows");
+                try {
+                    await fsPromises.access(applicationFlowsFolder);
+                    const files = await fsPromises.readdir(applicationFlowsFolder);
+                    for (const file of files) {
+                        if (file === `${flowName}.js`) {
+                            return path.join(applicationFlowsFolder, file);
+                        }
+                    }
+                } catch (error) {
+
+                }
+            }
+        }
+        CustomError.throwNotFoundError(`Flow not found: ${flowName}`, "Flow is not part of the space or any application in the space");
+    }
+
     async function transformCommonJSToES6(filePath) {
         let content = await fsPromises.readFile(filePath, 'utf8');
 
@@ -68,14 +94,15 @@ async function getFlow(request, response) {
 
         return content;
     }
+
     const spaceId = request.params.spaceId;
     const flowName = request.params.flowName;
     try {
-        let filePath = path.join(dataVolumePaths.space, `${spaceId}/flows/${flowName}.js`);
-        let flow = await transformCommonJSToES6(filePath);
+        const flowFilePath = await findFlowFilePath(spaceId, flowName);
+        let flow = await transformCommonJSToES6(flowFilePath);
         return utils.sendResponse(response, 200, "application/javascript", flow);
     } catch (error) {
-        return utils.sendResponse(response, 500, "application/javascript", error.message);
+        return utils.sendResponse(response, error.statusCode||500, "application/javascript", error.message);
     }
 }
 
@@ -149,43 +176,44 @@ async function callFlow(request, response) {
     const personalityModule = require("assistos").loadModule("personality", securityContext);
     const flowModule = require("assistos").loadModule("flow", securityContext);
 
-        let personality;
-        if (personalityId) {
-            personality = await personalityModule.getPersonality(spaceId, personalityId);
-        } else {
-            personality = await personalityModule.getPersonalityByName(spaceId, constants.DEFAULT_PERSONALITY_NAME);
-        }
-        const flowPath = path.join(dataVolumePaths.space, `${spaceId}/flows/${flowName}.js`);
-        let flowClass
-        try {
-            flowClass = require(flowPath);
-        } catch (error) {
-            return utils.sendResponse(response, 404, "application/json", {
-                success: false,
-                message: error + `Flow not found: ${flowName}`})
-        }
+    let personality;
+    if (personalityId) {
+        personality = await personalityModule.getPersonality(spaceId, personalityId);
+    } else {
+        personality = await personalityModule.getPersonalityByName(spaceId, constants.DEFAULT_PERSONALITY_NAME);
+    }
+    const flowPath = path.join(dataVolumePaths.space, `${spaceId}/flows/${flowName}.js`);
+    let flowClass
+    try {
+        flowClass = require(flowPath);
+    } catch (error) {
+        return utils.sendResponse(response, 404, "application/json", {
+            success: false,
+            message: error + `Flow not found: ${flowName}`
+        })
+    }
 
-        let flowInstance = new flowClass();
-        const apis = Object.getOwnPropertyNames(flowModule.IFlow.prototype)
-            .filter(method => method !== 'constructor');
-        apis.forEach(methodName => {
-            flowInstance[methodName] = flowModule.IFlow.prototype[methodName].bind(flowInstance);
+    let flowInstance = new flowClass();
+    const apis = Object.getOwnPropertyNames(flowModule.IFlow.prototype)
+        .filter(method => method !== 'constructor');
+    apis.forEach(methodName => {
+        flowInstance[methodName] = flowModule.IFlow.prototype[methodName].bind(flowInstance);
+    });
+    flowInstance.personality = personality;
+    flowInstance.__securityContext = securityContext;
+    let result;
+    try {
+        result = await flowInstance.execute(context);
+    } catch (error) {
+        return utils.sendResponse(response, error.statusCode || 500, "application/json", {
+            success: false,
+            message: `Flow execution error: ${error.message}`
         });
-        flowInstance.personality = personality;
-        flowInstance.__securityContext = securityContext;
-        let result;
-        try {
-            result = await flowInstance.execute(context);
-        } catch (error) {
-            return utils.sendResponse(response, error.statusCode||500, "application/json", {
-                success: false,
-                message: `Flow execution error: ${error.message}`
-            });
-        }
-        return utils.sendResponse(response, 200, "application/json", {
-            success: true,
-            data: result
-        });
+    }
+    return utils.sendResponse(response, 200, "application/json", {
+        success: true,
+        data: result
+    });
 }
 
 module.exports = {

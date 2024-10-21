@@ -7,7 +7,7 @@ class FlowTask extends Task {
             this.configs = configs;
             this.flowId = flowId;
             const flowModule = require('assistos').loadModule('flow', this.securityContext);
-            const FlowClass = await flowModule.getFlow(this.flowId);
+            const FlowClass = await flowModule.getFlow(spaceId,this.flowId);
             this.flow = new FlowClass();
             return this;
         })();
@@ -18,15 +18,7 @@ class FlowTask extends Task {
     }
 
     async cancelTask() {
-        await this.rollback();
-    }
 
-    async rollback() {
-        try {
-
-        } catch (e) {
-
-        }
     }
 
     serialize() {

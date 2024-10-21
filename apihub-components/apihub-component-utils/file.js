@@ -59,6 +59,7 @@ async function convertImageToBase64(imageBuffer, mimeType) {
     return base64Prefix + base64Image;
 }
 
+
 module.exports = {
     sortFiles,
     createDirectory,

@@ -116,7 +116,25 @@ async function runApplicationTask(request, response) {
         });
     }
 }
-
+async function runApplicationFlow(request, response) {
+    const {spaceId, applicationId, flowId} = request.params;
+    try {
+        const flowData = request.body;
+        const taskId = await ApplicationHandler.runApplicationFlow(request, spaceId, applicationId, flowId, flowData);
+        const sessionId = request.sessionId;
+        eventPublisher.notifyClients(sessionId, applicationId, "flows");
+        return sendResponse(response, 200, "application/json", {
+            message: `Task ${taskId} started`,
+            data: taskId,
+            success: true
+        });
+    } catch (error) {
+        return sendResponse(response, error.statusCode || 500, "application/json", {
+            message: `Failed to run application task:${error}`,
+            success: false
+        });
+    }
+}
 async function storeObject(request, response) {
     const {spaceId, applicationId, objectType} = request.params
     const objectId = decodeURIComponent(request.params.objectId);
@@ -255,5 +273,6 @@ module.exports = {
     loadObjects,
     loadAppFlows,
     storeAppFlow,
-    runApplicationTask
+    runApplicationTask,
+    runApplicationFlow
 }
