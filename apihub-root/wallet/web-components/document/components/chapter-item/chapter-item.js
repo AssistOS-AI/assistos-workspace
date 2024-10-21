@@ -95,7 +95,7 @@ export class ChapterItem {
         chapterTitle.value = unescapeHtmlEntities(this.chapter.title);
     }
 
-    afterRender() {
+    async afterRender() {
         this.element.setAttribute("data-local-action", "highlightChapter");
         this.renderChapterTitle();
         this.chapterItem = this.element.querySelector(".chapter-item");
@@ -104,6 +104,17 @@ export class ChapterItem {
         }
         if (this.chapter.visibility === "hide") {
             this.changeChapterVisibility("hide");
+        }
+        //for demo documents
+        if(this.chapter.backgroundSound && !this.chapter.backgroundSound.duration){
+            let audio = new Audio();
+            audio.addEventListener("loadedmetadata", async () => {
+                this.chapter.backgroundSound.duration = audio.duration;
+                await documentModule.updateChapterBackgroundSound(assistOS.space.id, this._document.id, this.chapter.id, this.chapter.backgroundSound);
+                audio.remove();
+            });
+            audio.src = await spaceModule.getAudioURL(this.chapter.backgroundSound.id);
+            audio.load();
         }
     }
 
@@ -256,7 +267,6 @@ export class ChapterItem {
                 return showApplicationError("The file is too large.", "Maximum file size is 100MB.", "");
             }
             const reader = new FileReader();
-            //TODO add duration to the background sound for demo documents
             reader.onload = async (e) => {
                 const uint8Array = new Uint8Array(e.target.result);
                 let audioId = await spaceModule.putAudio(uint8Array);

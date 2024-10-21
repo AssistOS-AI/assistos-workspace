@@ -23,7 +23,10 @@ async function sendLLMAdapterRequest(url, method, body = null, headers = {}) {
 async function headFile(type, fileId) {
     const url = `${llmAdapterUrl}/apis/v1/${type}?fileName=${encodeURIComponent(fileId)}`;
     const response = await sendLLMAdapterRequest(url, 'HEAD');
-    return response.status === 200;
+    return {
+        size: parseInt(response.headers.get('Content-Length')),
+        mtime: new Date(response.headers.get('Last-Modified'))
+    }
 }
 
 async function putFile(type, fileId, stream) {

@@ -412,7 +412,7 @@ async function storeDocument(spaceId, extractedPath, request) {
             const audioPath = path.join(extractedPath, 'audios', `${chapter.backgroundSound.fileName}.mp3`);
             const stream = await fs.createReadStream(audioPath);
             chapterObject.backgroundSound.id = crypto.generateId();
-            await Storage.putAudio(spaceId, chapterObject.backgroundSound.id, stream);
+            await Storage.putFile( Storage.fileTypes.audios, chapterObject.backgroundSound.id, stream);
             delete chapterObject.backgroundSound.fileName;
         }
 
@@ -472,28 +472,28 @@ async function storeAttachments(extractedPath, spaceModule, paragraph, spaceId) 
         const imagePath = path.join(extractedPath, 'images', `${paragraph.commands.image.fileName}.png`);
         const readStream = fs.createReadStream(imagePath);
         paragraph.commands.image.id = crypto.generateId();
-        await Storage.putImage(spaceId, paragraph.commands.image.id, readStream);
+        await Storage.putFile(Storage.fileTypes.images, paragraph.commands.image.id, readStream);
         delete paragraph.commands.image.fileName;
     }
     if (paragraph.commands.audio) {
         const audioPath = path.join(extractedPath, 'audios', `${paragraph.commands.audio.fileName}.mp3`);
         const readStream = fs.createReadStream(audioPath);
         paragraph.commands.audio.id = crypto.generateId();
-        await Storage.putAudio(spaceId, paragraph.commands.audio.id, readStream);
+        await Storage.putFile(Storage.fileTypes.audios, paragraph.commands.audio.id, readStream);
         delete paragraph.commands.audio.fileName;
     }
     if (paragraph.commands.video) {
         const videoPath = path.join(extractedPath, 'videos', `${paragraph.commands.video.fileName}.mp4`);
         const readStream = fs.createReadStream(videoPath);
         paragraph.commands.video.id = crypto.generateId();
-        await Storage.putVideo(spaceId, paragraph.commands.video.id, readStream);
+        await Storage.putFile(Storage.fileTypes.videos, paragraph.commands.video.id, readStream);
         delete paragraph.commands.video.fileName;
 
         if(paragraph.commands.video.thumbnailId){
             const thumbnailPath = path.join(extractedPath, 'images', `${paragraph.commands.video.thumbnailFileName}.png`);
             const readStream = fs.createReadStream(thumbnailPath);
             paragraph.commands.video.thumbnailId = crypto.generateId();
-            await Storage.putImage(spaceId, paragraph.commands.video.thumbnailId, readStream);
+            await Storage.putFile(Storage.fileTypes.images, paragraph.commands.video.thumbnailId, readStream);
             delete paragraph.commands.video.thumbnailFileName;
         }
     }

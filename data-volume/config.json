@@ -1,4 +1,5 @@
 {
+  "ASSETS_FOLDER_PATH": "assets",
   "SPACE_FOLDER_PATH": "spaces",
   "SPACE_MAP_PATH": "[MAP]Spaces.json",
   "SPACE_PENDING_INVITATIONS_PATH": "SpacesPendingInvitations.json",
