@@ -96,7 +96,6 @@ async function loadApplicationConfig(request, response) {
         });
     }
 }
-
 async function runApplicationTask(request, response) {
     const {spaceId, applicationId, taskName} = request.params;
     try {
@@ -120,17 +119,17 @@ async function runApplicationFlow(request, response) {
     const {spaceId, applicationId, flowId} = request.params;
     try {
         const flowData = request.body;
-        const taskId = await ApplicationHandler.runApplicationFlow(request, spaceId, applicationId, flowId, flowData);
+        const data = await ApplicationHandler.runApplicationFlow(request, spaceId, applicationId, flowId, flowData);
         const sessionId = request.sessionId;
         eventPublisher.notifyClients(sessionId, applicationId, "flows");
         return sendResponse(response, 200, "application/json", {
-            message: `Task ${taskId} started`,
-            data: taskId,
+            message: `Flow executed successfully`,
+            data: data,
             success: true
         });
     } catch (error) {
         return sendResponse(response, error.statusCode || 500, "application/json", {
-            message: `Failed to run application task:${error}`,
+            message: `Failed to run application flow:${error}`,
             success: false
         });
     }
@@ -155,7 +154,6 @@ async function storeObject(request, response) {
         });
     }
 }
-
 async function loadObjects(request, response) {
     const filePath = path.join(dataVolumePaths.space, `${request.params.spaceId}/applications/${request.params.appName}/${request.params.objectType}`);
     try {
@@ -201,7 +199,6 @@ async function loadObjects(request, response) {
         data: localData
     });
 }
-
 async function loadApplicationFile(request, response) {
     function handleFileError(response, error) {
         if (error.code === 'ENOENT') {

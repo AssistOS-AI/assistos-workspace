@@ -18,9 +18,11 @@ function getApplicationManifestPath(spaceId, applicationName) {
 function getApplicationFlowsPath(spaceId, applicationName) {
     return path.join(getApplicationPath(spaceId, applicationName), "flows");
 }
+
 function getApplicationTasksPath(spaceId, applicationName) {
     return path.join(getApplicationPath(spaceId, applicationName), "tasks");
 }
+
 function getApplicationTaskPath(spaceId, applicationName, taskName) {
     return path.join(getApplicationPath(spaceId, applicationName), "tasks", `${taskName}.js`);
 }
@@ -64,7 +66,7 @@ async function installApplication(spaceId, applicationId) {
             /* ignore */
         }
     }
-    if(application.tasksRepository) {
+    if (application.tasksRepository) {
         const tasksFolderPath = getApplicationTasksPath(spaceId, application.name);
         try {
             await git.clone(application.tasksRepository, tasksFolderPath);
@@ -116,11 +118,12 @@ async function runApplicationTask(request, spaceId, applicationId, taskName, tas
     TaskManager.runTask(Task.id);
     return Task.Id;
 }
-async function runApplicationFlow(request, spaceId, applicationId, flowId, flowData){
+
+async function runApplicationFlow(request, spaceId, applicationId, flowId, flowData) {
     const FlowTask = require("../tasks/FlowTask.js");
     const SecurityContextClass = require('assistos').ServerSideSecurityContext;
-    const flowInstance=await new FlowTask(new SecurityContextClass(request), spaceId, request.userId, flowData, flowId);
-    await flowInstance.runTask();
+    const flowInstance = await new FlowTask(new SecurityContextClass(request), spaceId, request.userId, flowData, flowId);
+    return await flowInstance.runTask();
 }
 
 module.exports = {

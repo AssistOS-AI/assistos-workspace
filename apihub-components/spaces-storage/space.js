@@ -12,7 +12,6 @@ const fs = require('fs');
 const spaceConstants = require('./constants.js');
 const volumeManager = require('../volumeManager.js');
 const Storage = require('../apihub-component-utils/storage.js');
-const git = require("../apihub-component-utils/git");
 
 function getSpacePath(spaceId) {
     return path.join(volumeManager.paths.space, spaceId);
