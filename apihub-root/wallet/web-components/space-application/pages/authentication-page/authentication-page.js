@@ -298,7 +298,7 @@ export class AuthenticationPage {
             if(photoFile.size <= 1048576 * 5){
                 let arrayBuffer = await this.uploadImage(photoFile);
                 try {
-                    imageId = await spaceModule.putImage("", arrayBuffer);
+                    imageId = await spaceModule.putImage(arrayBuffer);
                 } catch (e) {
                     alert("User image upload failed");
                 }

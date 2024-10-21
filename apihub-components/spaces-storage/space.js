@@ -18,10 +18,6 @@ function getSpacePath(spaceId) {
     return path.join(volumeManager.paths.space, spaceId);
 }
 
-function getSpaceFolderPath() {
-    return volumeManager.paths.space;
-}
-
 function getSpaceMapPath() {
     return volumeManager.paths.spaceMap;
 }
@@ -149,7 +145,7 @@ async function preparePersonalityData(defaultPersonalitiesPath, personalitiesPat
     const imageId = crypto.generateId(8);
     personality.imageId = imageId;
 
-    await Storage.putImage(spaceId, imageId, imageStream);
+    await Storage.putFile(Storage.fileTypes.images, imageId, imageStream);
     await fsPromises.writeFile(path.join(personalitiesPath, `${personality.id}.json`), JSON.stringify(personality), 'utf8');
 
     return {
@@ -251,10 +247,7 @@ async function createSpace(spaceName, userId, apiKey) {
         () => copyDefaultFlows(spacePath),
         () => copyDefaultPersonalities(spacePath, spaceId, defaultSpaceAgentId),
         () => file.createDirectory(path.join(spacePath, 'documents')),
-        () => file.createDirectory(path.join(spacePath, 'images')),
-        () => file.createDirectory(path.join(spacePath, 'audios')),
         () => file.createDirectory(path.join(spacePath, 'applications')),
-        () => file.createDirectory(path.join(spacePath, 'videos')),
         () => createSpaceStatus(spacePath, spaceObj),
         () => User.linkSpaceToUser(userId, spaceId),
         () => addSpaceToSpaceMap(spaceId, spaceName),
@@ -498,36 +491,6 @@ async function getDefaultSpaceAgentId(spaceId) {
     return spaceStatusObject.defaultSpaceAgent;
 }
 
-async function getImage(spaceId, imageId, range) {
-    return await Storage.getImage(spaceId, imageId,range);
-}
-async function getVideo(spaceId, videoId, range) {
-    return await Storage.getVideo(spaceId, videoId,range);
-}
-async function getAudio(spaceId, audioId, range) {
-    return await Storage.getAudio(spaceId, audioId,range);
-}
-
-async function putImage(spaceId, imageId, stream) {
-    return await Storage.putImage(spaceId, imageId, stream);
-}
-async function putVideo(spaceId, videoId, stream) {
-    return await Storage.putVideo(spaceId, videoId, stream);
-}
-async function putAudio(spaceId, audioId, stream) {
-    return await Storage.putAudio(spaceId, audioId, stream);
-}
-
-async function deleteImage(spaceId, imageId) {
-    return Storage.deleteImage(spaceId, imageId);
-}
-async function deleteVideo(spaceId, videoId) {
-    return Storage.deleteVideo(spaceId, videoId);
-}
-async function deleteAudio(spaceId, audioId) {
-    return Storage.deleteAudio(spaceId, audioId);
-}
-
 async function streamToJson(stream) {
     return new Promise((resolve, reject) => {
         let data = '';
@@ -568,10 +531,9 @@ async function archivePersonality(spaceId, personalityId) {
     archive.append(contentBuffer, {name: 'data.json'});
     archive.append(Buffer.from(JSON.stringify(metadata), 'utf-8'), {name: 'metadata.json'});
     if(personalityData.imageId){
-        let {fileStream, headers} = await Storage.getImage(spaceId, personalityData.imageId);
+        let {fileStream, headers} = await Storage.getFile(Storage.fileTypes.images, personalityData.imageId);
         archive.append(fileStream, {name: `${personalityData.imageId}.png`});
     }
-
 
     archive.finalize();
     return stream;
@@ -582,7 +544,6 @@ async function importPersonality(spaceId, extractedPath, request) {
 
     const SecurityContext = require("assistos").ServerSideSecurityContext;
     let securityContext = new SecurityContext(request);
-    let spaceModule = require("assistos").loadModule("space", securityContext);
     let personalityModule = require("assistos").loadModule("personality", securityContext);
     const personalityDataStream = fs.createReadStream(personalityDataPath, 'utf8');
 
@@ -591,8 +552,8 @@ async function importPersonality(spaceId, extractedPath, request) {
     const spacePersonalities = await getSpacePersonalitiesObject(spaceId);
     if(personalityData.imageId){
         const personalityImagePath = path.join(extractedPath, `${personalityData.imageId}.png`);
-        let image = await readFileAsBuffer(personalityImagePath);
-        await spaceModule.putImage(spaceId, personalityData.imageId, image);
+        let imageStream =  fs.createReadStream(personalityImagePath);
+        await Storage.putFile(Storage.fileTypes.images, personalityData.imageId, imageStream);
     }
     const existingPersonality = spacePersonalities.find(personality => personality.name === personalityData.name);
 
@@ -605,13 +566,6 @@ async function importPersonality(spaceId, extractedPath, request) {
         personalityId = await personalityModule.addPersonality(spaceId, personalityData);
     }
     return {id: personalityId, overriden: overriden, name: personalityName};
-}
-
-async function getUploadURL(spaceId,uploadType,fileId) {
-    return await Storage.getUploadURL(spaceId,uploadType,fileId);
-}
-async function getDownloadURL(spaceId,downloadType,fileId) {
-    return await Storage.getDownloadURL(spaceId,downloadType,fileId);
 }
 async function addApplicationToSpaceObject(spaceId, applicationData,manifest){
     const spaceStatusObject = await getSpaceStatusObject(spaceId);
@@ -635,8 +589,6 @@ module.exports = {
     APIs: {
         addApplicationToSpaceObject,
         removeApplicationFromSpaceObject,
-        getUploadURL,
-        getDownloadURL,
         addSpaceAnnouncement,
         getSpaceAnnouncement,
         getSpaceAnnouncements,
@@ -657,18 +609,9 @@ module.exports = {
         getAPIKeysMetadata,
         getSpaceAgent,
         getDefaultSpaceAgentId,
-        putImage,
-        getImage,
-        deleteImage,
-        putAudio,
-        getAudio,
-        deleteAudio,
         getSpacePath,
-        getVideo,
-        deleteVideo,
         archivePersonality,
         importPersonality,
-        putVideo,
         getSpaceMapPath,
         getPersonalitiesIds,
         streamToJson,

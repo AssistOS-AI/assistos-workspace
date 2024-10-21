@@ -247,16 +247,16 @@ export class ParagraphItem {
             let commands = utilModule.getSortedCommandsArray(this.paragraph.commands);
             for (let command of commands) {
               if (command.name === "image") {
-                    let imageSrc = await spaceModule.getImageURL(assistOS.space.id, command.id);
+                    let imageSrc = await spaceModule.getImageURL(command.id);
                     html += `<a class="command-link" data-local-action="showAttachment image" href="${imageSrc}" data-id="${command.id}">Image</a>`;
                 } else if (command.name === "audio") {
-                    let audioSrc = await spaceModule.getAudioURL(assistOS.space.id, command.id);
+                    let audioSrc = await spaceModule.getAudioURL(command.id);
                     html += `<a class="command-link" data-local-action="showAttachment audio" href="${audioSrc}" data-id="${command.id}">Audio</a>`;
                 } else if (command.name === "video") {
-                    let videoSrc = await spaceModule.getVideoURL(assistOS.space.id, command.id);
+                    let videoSrc = await spaceModule.getVideoURL(command.id);
                     html += `<a class="command-link" data-local-action="showAttachment video" href="${videoSrc}" data-id="${command.id}">Video</a>`;
                 } else if (command.name === "soundEffect") {
-                    let soundEffectSrc = await spaceModule.getAudioURL(assistOS.space.id, command.id);
+                    let soundEffectSrc = await spaceModule.getAudioURL(command.id);
                     html += `<a class="command-link" data-local-action="showAttachment soundEffect" href="${soundEffectSrc}" data-id="${command.id}">Sound Effect</a>`;
                 } else if (command.name === "speech") {
                     let personality = this.documentPresenter.personalitiesMetadata.find(personality => personality.name === command.personality);
@@ -269,7 +269,7 @@ export class ParagraphItem {
                     }
                     let imageSrc = "./wallet/assets/images/default-personality.png"
                     if(personalityImageId){
-                        imageSrc = await spaceModule.getImageURL(assistOS.space.id, personalityImageId);
+                        imageSrc = await spaceModule.getImageURL(personalityImageId);
                     }
                     let speechHTML = `
                     <div class="command-line maintain-focus">
@@ -786,11 +786,11 @@ export class ParagraphItem {
         for(let mediaPlayer of mediaPlayers){
             let id = mediaPlayer.getAttribute("data-id");
             if(id === "paragraph-video"){
-                mediaPlayer.src = await spaceModule.getVideoURL(assistOS.space.id, this.paragraph.commands.video.id);
+                mediaPlayer.src = await spaceModule.getVideoURL(this.paragraph.commands.video.id);
             } else if(id === "paragraph-audio"){
-                mediaPlayer.src = await spaceModule.getAudioURL(assistOS.space.id, this.paragraph.commands.audio.id);
+                mediaPlayer.src = await spaceModule.getAudioURL(this.paragraph.commands.audio.id);
             } else if(id === "chapter-audio"){
-                mediaPlayer.src = await spaceModule.getAudioURL(assistOS.space.id, this.chapter.backgroundSound.id);
+                mediaPlayer.src = await spaceModule.getAudioURL(this.chapter.backgroundSound.id);
             }
             mediaPlayer.load();
         }
@@ -799,7 +799,7 @@ export class ParagraphItem {
         this.chapterAudioElement.addEventListener("loadedmetadata", () => {
             this.chapterAudioElement.currentTime = this.chapterAudioStartTime;
         });
-        this.chapterAudioElement.src = await spaceModule.getAudioURL(assistOS.space.id, this.chapter.backgroundSound.id);
+        this.chapterAudioElement.src = await spaceModule.getAudioURL(this.chapter.backgroundSound.id);
         this.chapterAudioElement.pause();
         this.chapterAudioElement.volume = this.chapter.backgroundSound.volume;
     }
@@ -935,11 +935,11 @@ export class ParagraphItem {
         let imageSrc = blackScreen;
         if(this.paragraph.commands.video){
             if(this.paragraph.commands.video.thumbnailId){
-                imageSrc = await spaceModule.getImageURL(assistOS.space.id, this.paragraph.commands.video.thumbnailId);
+                imageSrc = await spaceModule.getImageURL(this.paragraph.commands.video.thumbnailId);
             }
         }
         if(this.paragraph.commands.image && !this.paragraph.commands.video){
-            imageSrc = await spaceModule.getImageURL(assistOS.space.id, this.paragraph.commands.image.id);
+            imageSrc = await spaceModule.getImageURL(this.paragraph.commands.image.id);
         }
         this.imgElement.src = imageSrc;
     }

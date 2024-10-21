@@ -3,7 +3,10 @@ const path = require('path');
 const directoriesToCreate = [
     "spaces",
     "users",
-    "Temp"
+    "Temp",
+    "assets/images",
+    "assets/audios",
+    "assets/videos"
 ];
 const mainDir = "data-volume";
 const filesToCreate = [
@@ -20,7 +23,7 @@ const filesToCreate = [
             try {
                 await fs.promises.access(dirPath);
             } catch (error) {
-                await fs.promises.mkdir(dirPath);
+                await fs.promises.mkdir(dirPath,{recursive: true});
                 console.log(`Created dir: ${dirPath}`);
             }
         }));

@@ -4,7 +4,7 @@ const utils = require("../apihub-component-utils/utils");
 const secret = generateId(32);
 const space = require("../spaces-storage/space.js");
 const eventPublisher = require("../subscribers/eventPublisher.js");
-
+const Storage = require("../apihub-component-utils/storage.js");
 function generateSignature(timestamp, nonce) {
     const data = timestamp + nonce + secret;
     return crypto.createHmac('sha256', secret).update(data).digest('hex');
@@ -36,7 +36,7 @@ async function saveResult(ref,requestBody) {
            return;
         case "image":
             //TODO use spaceModule or convert image to a stream
-            await space.APIs.putImage(spaceId, objectId, requestBody.uri || requestBody.imageData);
+            await Storage.putFile(Storage.fileTypes.images, objectId, requestBody.uri || requestBody.imageData);
             if (requestBody.buttons) {
                 eventPublisher.notifyClientTask(userId, objectId, requestBody.buttons);
             } else {
@@ -44,7 +44,7 @@ async function saveResult(ref,requestBody) {
             }
             return;
         case "audio":
-            return await space.APIs.putAudio(objectId, userId, requestBody.data);
+            return await Storage.putFile(Storage.fileTypes.audios, objectId, requestBody.data);
     }
 }
 

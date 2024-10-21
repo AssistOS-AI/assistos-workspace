@@ -38,7 +38,7 @@ export class InsertVideoModal {
         reader.onload = async (e) => {
             await assistOS.loadifyComponent(this.element, async () => {
                 const uint8Array = new Uint8Array(e.target.result);
-                videoId = await spaceModule.putVideo(assistOS.space.id, uint8Array);
+                videoId = await spaceModule.putVideo(uint8Array);
                 let thumbnailId = await this.uploadVideoThumbnail(file);
                 const duration = this.videoElement.duration;
                 const width = this.videoElement.videoWidth;
@@ -83,7 +83,7 @@ export class InsertVideoModal {
                     let blob = await this.canvasToBlobAsync(canvas);
                     canvas.remove();
                     let arrayBuffer = await blob.arrayBuffer();
-                    let thumbnailId = await spaceModule.putImage(assistOS.space.id, arrayBuffer);
+                    let thumbnailId = await spaceModule.putImage(arrayBuffer);
                     resolve(thumbnailId);
                 } catch (e) {
                     reject(e);

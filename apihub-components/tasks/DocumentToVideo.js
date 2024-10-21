@@ -7,6 +7,7 @@ const file = require('../apihub-component-utils/file');
 const space = require('../spaces-storage/space');
 const ffmpegPath = require("../../ffmpeg/packages/ffmpeg-static");
 const ffmpegUtils = require("../apihub-component-utils/ffmpeg");
+const Storage = require("../apihub-component-utils/storage");
 class DocumentToVideo extends Task {
     constructor(securityContext, spaceId, userId, configs) {
         super(securityContext, spaceId, userId);
@@ -55,7 +56,7 @@ class DocumentToVideo extends Task {
         if (this.document.video) {
             const videoId = document.video.split("/").pop();
             try {
-                await space.APIs.deleteVideo(this.spaceId, videoId);
+                await Storage.deleteFile(Storage.fileTypes.videos, videoId);
             } catch (e) {
                 //previous video not found
             }

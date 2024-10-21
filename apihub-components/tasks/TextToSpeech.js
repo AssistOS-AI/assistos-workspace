@@ -1,10 +1,9 @@
 const Task = require('./Task');
-const crypto = require("../apihub-component-utils/crypto");
-const space = require("../spaces-storage/space");
 const constants = require('./constants');
 const STATUS = constants.STATUS;
 const EVENTS = constants.EVENTS;
 const ffmpeg = require('../apihub-component-utils/ffmpeg');
+const Storage = require('../apihub-component-utils/storage');
 class TextToSpeech extends Task {
     constructor(securityContext, spaceId, userId, configs) {
         super(securityContext, spaceId, userId);
@@ -35,7 +34,7 @@ class TextToSpeech extends Task {
             const audioBuffer = Buffer.from(arrayBuffer);
             let audioDuration = await ffmpeg.getAudioDuration(audioBuffer);
             delete paragraphCommands.speech.taskId;
-            this.audioId = await spaceModule.putAudio(this.spaceId, audioBuffer);
+            this.audioId = await spaceModule.putAudio(audioBuffer);
             paragraphCommands.audio = {
                 id: this.audioId,
                 duration: audioDuration
@@ -56,7 +55,7 @@ class TextToSpeech extends Task {
             delete paragraphConfig.speech.taskId;
             await documentModule.updateParagraphCommands(this.spaceId, this.documentId, this.paragraphId, paragraphConfig);
             if (this.audioId) {
-                await space.APIs.deleteAudio(this.spaceId, this.audioId);
+                await Storage.deleteFile(Storage.fileTypes.audios, this.audioId);
             }
         } catch (e) {
             //no audio to delete

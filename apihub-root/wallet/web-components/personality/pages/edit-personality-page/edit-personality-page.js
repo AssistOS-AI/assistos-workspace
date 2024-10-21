@@ -168,7 +168,7 @@ export class EditPersonalityPage {
                 let reader = new FileReader();
                 reader.onload = async (e) => {
                     const uint8Array = new Uint8Array(e.target.result);
-                    let imageId = await spaceModule.putImage(assistOS.space.id, uint8Array);
+                    let imageId = await spaceModule.putImage(uint8Array);
                     this.personality.name = formInfo.data.name || this.personality.name;
                     this.personality.description = formInfo.data.description;
                     this.personality.imageId = imageId;

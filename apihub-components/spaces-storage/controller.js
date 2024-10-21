@@ -10,7 +10,15 @@ const path = require('path');
 const eventPublisher = require("../subscribers/eventPublisher.js");
 const {sendResponse} = require("../apihub-component-utils/utils");
 const dataVolumePaths = require('../volumeManager').paths;
-
+const Storage = require("../apihub-component-utils/storage.js");
+const {
+    getTextResponse,
+    getTextStreamingResponse,
+    getImageResponse,
+    editImage,
+    getImageVariants
+} = require('../llms/controller.js');
+const fs = require("fs");
 
 function getFileObjectsMetadataPath(spaceId, objectType) {
     return path.join(dataVolumePaths.space, `${spaceId}/${objectType}/metadata.json`);
@@ -18,9 +26,7 @@ function getFileObjectsMetadataPath(spaceId, objectType) {
 
 const Busboy = require('busboy');
 const unzipper = require('unzipper');
-const {pipeline} = require('stream');
-const util = require('util');
-const pipelinePromise = util.promisify(pipeline);
+
 
 async function getFileObjectsMetadata(request, response) {
     const spaceId = request.params.spaceId;
@@ -1125,15 +1131,7 @@ async function deleteSpaceAnnouncement(request, response) {
     }
 }
 
-const {
-    getTextResponse,
-    getTextStreamingResponse,
-    getImageResponse,
-    editImage,
-    getImageVariants
-} = require('../llms/controller.js');
-const {APIs} = require("../../apihub-root/wallet/bundles/assistos_sdk");
-const fs = require("fs");
+
 
 async function getChatTextResponse(request, response) {
 
@@ -1168,27 +1166,105 @@ async function getChatTextStreamingResponse(request, response) {
     }
 }
 
-
-async function getChatImageResponse(request, response) {
+async function headImage(request, response) {
+    const imageId = request.params.imageId;
+    try {
+        const stats = await Storage.headFile(Storage.fileTypes.images, imageId);
+        response.setHeader("Content-Type", "image/png");
+        response.setHeader("Content-Length", stats.size);
+        response.setHeader("Last-Modified", stats.mtime.toUTCString());
+        response.setHeader("Accept-Ranges", "bytes");
+        return response.end();
+    } catch (error) {
+        response.status = error.statusCode || 500;
+        response.statusMessage = error.message;
+        response.end();
+    }
 }
 
-
-async function editChatImage(request, response) {
+async function headAudio(request, response) {
+    const audioId = request.params.audioId;
+    try {
+        if (request.method === "HEAD") {
+            const stats = await Storage.headFile(Storage.fileTypes.audios, audioId);
+            response.setHeader("Content-Type", "audio/mpeg");
+            response.setHeader("Content-Length", stats.size);
+            response.setHeader("Last-Modified", stats.mtime.toUTCString());
+            response.setHeader("Accept-Ranges", "bytes");
+            return response.end();
+        }
+    } catch (error) {
+        response.status = error.statusCode || 500;
+        response.statusMessage = error.message;
+        response.end();
+    }
 }
 
-
-async function getChatImageVariants(request, response) {
+async function headVideo(request, response) {
+    const videoId = request.params.videoId;
+    try {
+        const stats = await Storage.headFile(Storage.fileTypes.videos, videoId);
+        response.setHeader("Content-Type", "video/mp4");
+        response.setHeader("Content-Length", stats.size);
+        response.setHeader("Last-Modified", stats.mtime.toUTCString());
+        response.setHeader("Accept-Ranges", "bytes");
+        return response.end();
+    } catch (error) {
+        response.status = error.statusCode || 500;
+        response.statusMessage = error.message;
+        response.end();
+    }
 }
 
-async function getChatVideoResponse(request, response) {
+async function getImage(request, response) {
+    const imageId = request.params.imageId;
+    try {
+        let range=request.headers.range;
+        const {fileStream, headers} = await Storage.getFile(Storage.fileTypes.images, imageId, range);
+        response.writeHead(range ? 206 : 200, headers);
+        fileStream.pipe(response);
+    } catch (error) {
+        return utils.sendResponse(response, 500, "application/json", {
+            success: false,
+            message: error + ` Error at reading image: ${imageId}`
+        });
+    }
+}
 
+async function getAudio(request, response) {
+    const audioId = request.params.audioId;
+    try {
+        let range = request.headers.range;
+        const {fileStream, headers} = await Storage.getFile(Storage.fileTypes.audios, audioId, range);
+        response.writeHead(range ? 206 : 200, headers);
+        fileStream.pipe(response);
+    } catch (error) {
+        return utils.sendResponse(response, 500, "application/json", {
+            success: false,
+            message: error + ` Error at reading audio: ${audioId}`
+        });
+    }
+}
+
+async function getVideo(request, response) {
+    const videoId = request.params.videoId;
+    try {
+        let range = request.headers.range;
+        const { fileStream, headers } = await Storage.getFile(Storage.fileTypes.videos, videoId, range);
+        response.writeHead(206, headers);
+        fileStream.pipe(response);
+    } catch (error) {
+        return utils.sendResponse(response, error.statusCode || 500, "application/json", {
+            success: false,
+            message: error.message + ` Error at reading video: ${videoId}`
+        });
+    }
 }
 
 async function putImage(request, response) {
-    const spaceId = request.params.spaceId;
     const imageId = request.params.imageId;
     try {
-        await space.APIs.putImage(spaceId, imageId, request);
+        await Storage.putFile(Storage.fileTypes.images, imageId, request);
         return utils.sendResponse(response, 200, "application/json", {
             success: true,
             data: imageId,
@@ -1202,10 +1278,9 @@ async function putImage(request, response) {
 }
 
 async function putAudio(request, response) {
-    const spaceId = request.params.spaceId;
     const audioId = request.params.audioId;
     try {
-        await space.APIs.putAudio(spaceId, audioId, request);
+        await Storage.putFile(Storage.fileTypes.audios, audioId, request);
         return utils.sendResponse(response, 200, "application/json", {
             success: true,
             data: audioId,
@@ -1219,10 +1294,9 @@ async function putAudio(request, response) {
 }
 
 async function putVideo(request, response) {
-    const spaceId = request.params.spaceId;
     const videoId = request.params.videoId;
     try {
-        await space.APIs.putVideo(spaceId, videoId, request);
+        await Storage.putFile(Storage.fileTypes.videos, videoId, request);
         return utils.sendResponse(response, 200, "application/json", {
             success: true,
             data: videoId,
@@ -1235,12 +1309,10 @@ async function putVideo(request, response) {
     }
 }
 
-
 async function deleteImage(request, response) {
-    const spaceId = request.params.spaceId;
     const imageId = request.params.imageId;
     try {
-        await space.APIs.deleteImage(spaceId, imageId);
+        await Storage.deleteFile(Storage.fileTypes.images, imageId);
         return utils.sendResponse(response, 200, "application/json", {
             success: true,
             data: imageId,
@@ -1253,90 +1325,10 @@ async function deleteImage(request, response) {
     }
 }
 
-async function getImage(request, response) {
-    const spaceId = request.params.spaceId;
-    const imageId = request.params.imageId;
-    try {
-        /* TODO add HEAD method handler */
-        let range=request.headers.range;
-        const {fileStream,headers} = await space.APIs.getImage(spaceId, imageId,range);
-        response.writeHead(range ? 206 : 200, headers);
-        fileStream.pipe(response);
-    } catch (error) {
-        return utils.sendResponse(response, 500, "application/json", {
-            success: false,
-            message: error + ` Error at reading image: ${imageId}`
-        });
-    }
-}
-
-async function getAudio(request, response) {
-    const spaceId = request.params.spaceId;
-    const audioId = request.params.audioId;
-    try {
-        try {
-            if (request.method === "HEAD") {
-                /* TODO refactor to use generic Storage */
-                let audioPath = path.join(space.APIs.getSpacePath(spaceId), 'audios', `${audioId}.mp3`);
-                const stats = await fsPromises.stat(audioPath);
-                response.setHeader("Content-Type", "audio/mpeg");
-                response.setHeader("Content-Length", stats.size);
-                response.setHeader("Last-Modified", stats.mtime.toUTCString());
-                response.setHeader("Accept-Ranges", "bytes");
-                return response.end();
-            }
-        } catch (error) {
-            return utils.sendResponse(response, 404, "application/json", {
-                success: false,
-                message: `Audio file not found or inaccessible: ${audioId}`
-            });
-        }
-        let range = request.headers.range;
-        const {fileStream, headers} = await space.APIs.getAudio(spaceId, audioId, range);
-        response.writeHead(range ? 206 : 200, headers);
-        fileStream.pipe(response);
-    } catch (error) {
-        return utils.sendResponse(response, 500, "application/json", {
-            success: false,
-            message: error + ` Error at reading audio: ${audioId}`
-        });
-    }
-}
-
-async function getVideo(request, response) {
-    const spaceId = request.params.spaceId;
-    const videoId = request.params.videoId;
-
-    try {
-        if (request.method === "HEAD") {
-            let videoPath = path.join(space.APIs.getSpacePath(spaceId), 'videos', `${videoId}.mp4`);
-            const stats = await fsPromises.stat(videoPath);
-            response.setHeader("Content-Type", "video/mp4");
-            response.setHeader("Content-Length", stats.size);
-            response.setHeader("Last-Modified", stats.mtime.toUTCString());
-            response.setHeader("Accept-Ranges", "bytes");
-            return response.end();
-        }
-
-        let range = request.headers.range;
-        const { fileStream, headers } = await space.APIs.getVideo(spaceId, videoId, range);
-        response.writeHead(206, headers);
-        fileStream.pipe(response);
-
-    } catch (error) {
-        return utils.sendResponse(response, error.statusCode || 500, "application/json", {
-            success: false,
-            message: error.message + ` Error at reading video: ${videoId}`
-        });
-    }
-}
-
-
 async function deleteAudio(request, response) {
-    const spaceId = request.params.spaceId;
     const audioId = request.params.audioId;
     try {
-        await space.APIs.deleteAudio(spaceId, audioId);
+        await Storage.deleteFile(Storage.fileTypes.audios, audioId);
         return utils.sendResponse(response, 200, "application/json", {
             success: true,
             data: audioId,
@@ -1349,12 +1341,10 @@ async function deleteAudio(request, response) {
     }
 }
 
-
 async function deleteVideo(request, response) {
-    const spaceId = request.params.spaceId;
     const videoId = request.params.videoId;
     try {
-        await space.APIs.deleteVideo(spaceId, videoId);
+        await Storage.deleteFile(Storage.fileTypes.videos, videoId);
         return utils.sendResponse(response, 200, "application/json", {
             success: true,
             data: videoId,
@@ -1459,14 +1449,7 @@ async function exportPersonality(request, response) {
 }
 
 async function getUploadURL(request, response) {
-    const spaceId = request.params.spaceId;
-    const uploadType = request.params.uploadType;
-    if (!spaceId) {
-        return utils.sendResponse(response, 400, "application/json", {
-            success: false,
-            message: `Bad Request: Space ID is required`
-        });
-    }
+    const uploadType = request.params.type;
     if (!["videos", "audios", "images"].includes(uploadType)) {
         return utils.sendResponse(response, 400, "application/json", {
             success: false,
@@ -1475,7 +1458,7 @@ async function getUploadURL(request, response) {
     }
     try {
         const fileId = crypto.generateId();
-        const uploadURL = await space.APIs.getUploadURL(spaceId, uploadType, fileId);
+        const uploadURL = await Storage.getUploadURL(uploadType, fileId);
         return utils.sendResponse(response, 200, "application/json", {
             success: true,
             data: {
@@ -1493,8 +1476,7 @@ async function getUploadURL(request, response) {
 }
 
 async function getDownloadURL(request, response) {
-    const spaceId = request.params.spaceId;
-    const downloadType = request.params.downloadType;
+    const downloadType = request.params.type;
     const fileId = request.params.fileId;
     if (!["videos", "audios", "images"].includes(downloadType)) {
         return utils.sendResponse(response, 400, "application/json", {
@@ -1503,7 +1485,7 @@ async function getDownloadURL(request, response) {
         });
     }
     try {
-        const downloadURL = await space.APIs.getDownloadURL(spaceId, downloadType, fileId);
+        const downloadURL = await Storage.getDownloadURL(downloadType, fileId);
         return utils.sendResponse(response, 200, "application/json", {
             success: true,
             data: {
@@ -1553,10 +1535,6 @@ module.exports = {
     deleteSpaceAnnouncement,
     getChatTextResponse,
     getChatTextStreamingResponse,
-    getChatImageResponse,
-    editChatImage,
-    getChatImageVariants,
-    getChatVideoResponse,
     putImage,
     getImage,
     deleteImage,
@@ -1565,6 +1543,9 @@ module.exports = {
     getAudio,
     putVideo,
     getVideo,
+    headImage,
+    headAudio,
+    headVideo,
     deleteVideo,
     exportPersonality,
     importPersonality,

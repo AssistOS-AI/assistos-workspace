@@ -17,20 +17,20 @@ export class ShowAttachmentModal {
     async beforeRender() {
         if (this.type === 'image') {
             this.downloadFileName = `image-${this.id}.png`;
-            this.src = await spaceModule.getImageURL(assistOS.space.id, this.id);
+            this.src = await spaceModule.getImageURL(this.id);
             this.modalBodyContent = `
             <img class="image-attachment" src="${this.src}" alt="image">`;
         } else if (this.type === 'audio') {
             this.downloadFileName = `audio-${this.id}.mp3`;
-            this.src = await spaceModule.getAudioURL(assistOS.space.id, this.id);
+            this.src = await spaceModule.getAudioURL(this.id);
             this.modalBodyContent = `<audio class="audio-attachment" src="${this.src}" controls></audio>`;
         } else if (this.type === 'soundEffect') {
             this.downloadFileName = `audio-${this.id}.mp3`;
-            this.src = await spaceModule.getAudioURL(assistOS.space.id, this.id);
+            this.src = await spaceModule.getAudioURL(this.id);
             this.modalBodyContent = `<audio class="audio-attachment" src="${this.src}" controls></audio>`;
         } else if (this.type === 'video') {
             this.downloadFileName = `video-${this.id}.mp4`;
-            this.src = await spaceModule.getVideoURL(assistOS.space.id, this.id);
+            this.src = await spaceModule.getVideoURL(this.id);
             this.modalBodyContent = `<video class="video-attachment" src="${this.src}" controls></video>`;
         }
         this.modalBodyContent += `<button class="general-button download-button" data-local-action="downloadAttachment">Download</button>`;

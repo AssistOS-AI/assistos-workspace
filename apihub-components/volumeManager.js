@@ -14,6 +14,7 @@ module.exports = {
     },
     config: config,
     paths: {
+        assets: resolveVolumePath(volume.configs.ASSETS_FOLDER_PATH),
         space: resolveVolumePath(volume.configs.SPACE_FOLDER_PATH),
         spaceMap: resolveVolumePath(volume.configs.SPACE_MAP_PATH),
         spacePendingInvitations: resolveVolumePath(volume.configs.SPACE_PENDING_INVITATIONS_PATH),

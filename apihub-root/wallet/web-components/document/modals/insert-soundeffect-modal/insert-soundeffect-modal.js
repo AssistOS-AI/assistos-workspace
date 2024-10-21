@@ -36,7 +36,7 @@ export class InsertSoundEffectModal {
         reader.onload = async (e) => {
             const uint8Array = new Uint8Array(e.target.result);
             await assistOS.loadifyComponent(this.element, async () => {
-                let audioId = await spaceModule.putAudio(assistOS.space.id, uint8Array);
+                let audioId = await spaceModule.putAudio(uint8Array);
                 let data = await this.loadAudioMetadata(file, loopAudio, startTime, audioId);
                 assistOS.UI.closeModal(_target, data);
             });
