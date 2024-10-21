@@ -87,10 +87,10 @@
             "presenterClassName": "ParagraphItem"
         },
         {
-            "name": "text-to-speech",
+            "name": "audio-menu",
             "directory": "document",
             "type": "components",
-            "presenterClassName": "TextToSpeech"
+            "presenterClassName": "AudioMenu"
         },
         {
             "name": "insert-image-modal",

@@ -13,7 +13,7 @@
     --red: red;
     --chat-background: #F3F3F3;
     --light-highlight: #E4E6F0;
-
+    --commands-background: #C1D8EC;
     --form-border: #0000006E;
     --lighter-black: #0000003d;
     --chatbots-shadow: #00000047;
@@ -349,6 +349,7 @@ dialog {
     padding: 6px 11px 6px 11px;
     gap: 5px;
     cursor: pointer;
+    border-radius: 5px;
 }
 
 .app-logo {

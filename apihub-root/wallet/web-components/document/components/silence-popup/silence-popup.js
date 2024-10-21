@@ -6,8 +6,8 @@ export class SilencePopup{
         this.element = element;
         this.invalidate = invalidate;
         this._document = document.querySelector("document-view-page").webSkelPresenter._document;
-        this.paragraphId = this.element.getAttribute("data-paragraph-id");
-        this.parentPresenter = this.element.parentElement.webSkelPresenter;
+        this.parentPresenter = this.element.closest("paragraph-item").webSkelPresenter;
+        this.paragraphId = this.parentPresenter.paragraph.id;
         this.invalidate();
         this.element.setAttribute("data-local-action", "editItem silencePopup");
         this.element.setAttribute("id", "current-selection");

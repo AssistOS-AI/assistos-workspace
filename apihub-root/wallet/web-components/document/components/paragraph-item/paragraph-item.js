@@ -43,15 +43,6 @@ export class ParagraphItem {
         this.errorElement = this.element.querySelector(".error-message");
         this.paragraphHeader.innerHTML = await this.buildCommandsHTML("view");
         await this.setupVideoPreview();
-
-        //this.element.setAttribute("data-initialized", "true");
-        // if(this.element.executeUploadThumbnail && this.paragraph.commands.video && !this.paragraph.commands.video.thumbnailId){
-        //     await this.uploadVideoThumbnail();
-        // }
-        //this.element.style.height = "auto";
-        // if(this.paragraph.commands.video && !this.paragraph.commands.video.thumbnailId){
-        //     await this.uploadVideoThumbnail();
-        // }
     }
 
     async subscribeToParagraphEvents() {
@@ -102,7 +93,7 @@ export class ParagraphItem {
         }
     }
 
-    async deleteParagraph(_target) {
+    async deleteParagraph() {
         await this.documentPresenter.stopTimer(true);
         let currentParagraphIndex = this.chapter.getParagraphIndex(this.paragraph.id);
 
@@ -123,6 +114,9 @@ export class ParagraphItem {
     }
 
     async moveParagraph(_target, direction) {
+        if(this.chapter.paragraphs.length === 1){
+            return;
+        }
         await this.documentPresenter.stopTimer(false);
         const currentParagraphIndex = this.chapter.getParagraphIndex(this.paragraph.id);
         const getAdjacentParagraphId = (index, paragraphs) => {
@@ -174,18 +168,22 @@ export class ParagraphItem {
         }
     }
 
-    switchParagraphArrows(mode) {
-        let arrows = this.element.querySelector('.paragraph-controls');
+    switchParagraphToolbar(mode) {
+        let toolbar = this.element.querySelector('.paragraph-toolbar');
         if (mode === "on") {
-            arrows.style.visibility = "visible";
+            toolbar.style.display = "flex";
+            if (window.cutParagraph) {
+                let pasteIcon = this.element.querySelector(".paste-icon");
+                pasteIcon.classList.remove("hidden");
+            }
         } else {
-            arrows.style.visibility = "hidden";
+            toolbar.style.display = "none";
         }
     }
 
     async highlightParagraphHeader() {
         assistOS.space.currentParagraphId = this.paragraph.id;
-        this.switchParagraphArrows("on");
+        this.switchParagraphToolbar("on");
         let paragraphHeaderContainer = this.element.querySelector('.paragraph-header');
         paragraphHeaderContainer.classList.add("highlight-paragraph-header");
         this.paragraphHeader.removeAttribute('readonly');
@@ -204,7 +202,7 @@ export class ParagraphItem {
 
     highlightParagraph() {
         assistOS.space.currentParagraphId = this.paragraph.id;
-        this.switchParagraphArrows("on");
+        this.switchParagraphToolbar("on");
         let paragraphHeaderContainer = this.element.querySelector('.paragraph-header');
         paragraphHeaderContainer.classList.add("highlight-paragraph-header");
         let paragraphText = this.element.querySelector('.paragraph-text');
@@ -245,16 +243,20 @@ export class ParagraphItem {
         let html = "";
         if (mode === "view") {
             let commands = utilModule.getSortedCommandsArray(this.paragraph.commands);
+            let allAttachmentHighlights = this.element.querySelectorAll(".attachment-circle");
+            allAttachmentHighlights.forEach(attachment => {
+                attachment.classList.remove("highlight-attachment");
+            });
             for (let command of commands) {
               if (command.name === "image") {
-                    let imageSrc = await spaceModule.getImageURL(command.id);
-                    html += `<a class="command-link" data-local-action="showAttachment image" href="${imageSrc}" data-id="${command.id}">Image</a>`;
+                    let attachmentHighlight = this.element.querySelector(".attachment-circle.image");
+                    attachmentHighlight.classList.add("highlight-attachment");
                 } else if (command.name === "audio") {
-                    let audioSrc = await spaceModule.getAudioURL(command.id);
-                    html += `<a class="command-link" data-local-action="showAttachment audio" href="${audioSrc}" data-id="${command.id}">Audio</a>`;
+                  let attachmentHighlight = this.element.querySelector(".attachment-circle.audio");
+                  attachmentHighlight.classList.add("highlight-attachment");
                 } else if (command.name === "video") {
-                    let videoSrc = await spaceModule.getVideoURL(command.id);
-                    html += `<a class="command-link" data-local-action="showAttachment video" href="${videoSrc}" data-id="${command.id}">Video</a>`;
+                  let attachmentHighlight = this.element.querySelector(".attachment-circle.video");
+                  attachmentHighlight.classList.add("highlight-attachment");
                 } else if (command.name === "soundEffect") {
                     let soundEffectSrc = await spaceModule.getAudioURL(command.id);
                     html += `<a class="command-link" data-local-action="showAttachment soundEffect" href="${soundEffectSrc}" data-id="${command.id}">Sound Effect</a>`;
@@ -367,7 +369,7 @@ export class ParagraphItem {
             return;
         }
         await assistOS.loadifyComponent(this.element, async () => {
-                this.switchParagraphArrows("off");
+                this.switchParagraphToolbar("off");
                 let paragraphText = this.element.querySelector(".paragraph-text");
                 paragraphText.classList.remove("focused");
                 if (this.paragraph.commands.image || this.paragraph.commands.video || this.paragraph.commands.audio) {
@@ -393,7 +395,7 @@ export class ParagraphItem {
 
     async focusOutHandlerHeader() {
         await assistOS.loadifyComponent(this.element, async () => {
-            this.switchParagraphArrows("off");
+            this.switchParagraphToolbar("off");
             this.paragraphHeader.setAttribute('readonly', 'true');
             let paragraphHeaderContainer = this.element.querySelector('.paragraph-header');
             paragraphHeaderContainer.classList.remove("highlight-paragraph-header");
@@ -460,30 +462,22 @@ export class ParagraphItem {
         }
     }
 
-    showPopup(targetElement, mode) {
+    showSilencePopup(targetElement, mode) {
         if (mode === "off") {
-            let type = targetElement.getAttribute("data-type");
-            let popup;
-            let selector = "text-to-speech";
-            if(type === "speech"){
-                popup = `<text-to-speech data-presenter="text-to-speech" data-paragraph-id="${this.paragraph.id}"></text-to-speech>`;
-            } else if(type === "silence"){
-                selector = "silence-popup";
-                popup = `<silence-popup data-presenter="silence-popup" data-paragraph-id="${this.paragraph.id}"></silence-popup>`;
-            }
+            let popup = `<silence-popup data-presenter="silence-popup" data-paragraph-id="${this.paragraph.id}"></silence-popup>`;
             this.element.insertAdjacentHTML('beforeend', popup);
             let controller = new AbortController();
-            document.addEventListener("click", this.hidePopup.bind(this, controller, targetElement, selector), {signal: controller.signal});
-            targetElement.setAttribute("data-local-action", "showPopup on");
+            document.addEventListener("click", this.hidePopup.bind(this, controller, targetElement), {signal: controller.signal});
+            targetElement.setAttribute("data-local-action", "showSilencePopup on");
         }
     }
 
-    hidePopup(controller, targetElement, selector, event) {
-        if (event.target.closest(selector) || event.target.tagName === "A") {
+    hidePopup(controller, targetElement, event) {
+        if (event.target.closest("silence-popup") || event.target.tagName === "A") {
             return;
         }
-        targetElement.setAttribute("data-local-action", "showPopup off");
-        let popup = this.element.querySelector(selector);
+        targetElement.setAttribute("data-local-action", "showSilencePopup off");
+        let popup = this.element.querySelector("silence-popup");
         if (popup) {
             popup.remove();
         }
@@ -498,8 +492,8 @@ export class ParagraphItem {
 
     async cutParagraph(_target) {
         window.cutParagraph = this.paragraph;
+        await this.deleteParagraph();
         delete window.cutParagraph.id;
-        await this.deleteParagraph(_target);
     }
 
     async pasteParagraph(_target) {
@@ -507,81 +501,44 @@ export class ParagraphItem {
         await documentModule.updateParagraph(assistOS.space.id, this._document.id, this.paragraph.id, window.cutParagraph);
         this.invalidate(async () => {
             this.paragraph = await this.chapter.refreshParagraph(assistOS.space.id, this._document.id, this.paragraph.id);
+            delete window.cutParagraph;
         });
     }
-
-    async openParagraphDropdown(_target) {
-        let chapterElement = this.element.closest("chapter-item");
-        let chapterPresenter = chapterElement.webSkelPresenter;
-        const generateDropdownMenu = () => {
-            let baseDropdownMenuHTML =
-                `<list-item data-local-action="deleteParagraph" data-name="Delete"
-                           data-highlight="light-highlight"></list-item>
-                 <list-item data-local-action="cutParagraph" data-name="Cut Paragraph"
-                           data-highlight="light-highlight"></list-item>
-                 <list-item data-local-action="addParagraph" data-name="Insert Paragraph" 
-                           data-highlight="light-highlight"></list-item>
-                 <list-item data-local-action="addChapter" data-name="Add Chapter"
-                           data-highlight="light-highlight"></list-item>
-                 <list-item data-local-action="showPopup off" data-type="speech" data-name="Text To Speech"
-                           data-highlight="light-highlight"></list-item>
-                 <list-item data-local-action="showPopup off" data-type="silence" data-name="Insert Silence"
-                           data-highlight="light-highlight"></list-item>
-                     
-                 <list-item data-local-action="openInsertAttachmentModal audio" data-name="Insert Audio"
-                           data-highlight="light-highlight"></list-item>
-                 <list-item data-local-action="openInsertAttachmentModal soundEffect" data-name="Insert Sound Effect"
-                           data-highlight="light-highlight"></list-item>
-                 <list-item data-local-action="openInsertAttachmentModal image" data-name="Insert Image"
-                           data-highlight="light-highlight"></list-item>
-                 <list-item data-local-action="openInsertAttachmentModal video" data-name="Insert Video"
-                           data-highlight="light-highlight"></list-item>
-                 `;
-            if ((this.paragraph.commands.audio || this.paragraph.commands.speech) && (this.paragraph.commands.image || this.paragraph.commands.video)) {
-                baseDropdownMenuHTML += `<list-item data-name="Insert Lip Sync" data-local-action="insertLipsync" data-highlight="light-highlight"></list-item>`;
-            }
-            if (window.cutParagraph) {
-                baseDropdownMenuHTML += `<list-item data-local-action="pasteParagraph" data-name="Paste Paragraph"
-                           data-highlight="light-highlight"></list-item>`;
-            }
-            if (this.paragraph.commands.image) {
-                baseDropdownMenuHTML += `
-                <list-item data-local-action="deleteCommand image" data-name="Delete Image" 
-                           data-highlight="light-highlight"></list-item>`;
-            }
-            if (chapterPresenter.chapter.paragraphs.length > 1) {
-                baseDropdownMenuHTML = `
-                <list-item data-local-action="moveParagraph up" data-name="Move Up" 
-                           data-highlight="light-highlight"></list-item>
-                <list-item data-local-action="moveParagraph down" data-name="Move Down" 
-                           data-highlight="light-highlight"></list-item>` + baseDropdownMenuHTML;
-            }
-            if (this.paragraph.commands.audio) {
-                baseDropdownMenuHTML += ` <list-item data-name="Delete Audio" data-local-action="deleteCommand audio" data-highlight="light-highlight"></list-item>`;
-            }
-            if (this.paragraph.commands.video) {
-                baseDropdownMenuHTML += `<list-item data-name="Delete Video" data-local-action="deleteCommand video" data-highlight="light-highlight"></list-item>`;
-            }
-            if(this.paragraph.commands.soundEffect){
-                baseDropdownMenuHTML += `<list-item data-name="Delete Sound Effect" data-local-action="deleteCommand soundEffect" data-highlight="light-highlight"></list-item>`;
-            }
-            let dropdownMenuHTML =
-                `<div class="dropdown-menu">` +
-                baseDropdownMenuHTML +
-                `</div>`;
-
-            const dropdownMenu = document.createElement('div');
-            dropdownMenu.innerHTML = dropdownMenuHTML;
-            return dropdownMenu;
+    menus = {
+        "insert-document-element": `
+                <list-item data-local-action="addParagraph" data-name="Insert Paragraph After" data-highlight="light-highlight"></list-item>
+                <list-item data-local-action="addChapter" data-name="Add Chapter" data-highlight="light-highlight"></list-item>`,
+        "image-menu":`
+                <list-item data-local-action="openInsertAttachmentModal image" data-name="Insert Image" data-highlight="light-highlight"></list-item>  
+                <list-item data-local-action="deleteCommand image" data-name="Delete Image" data-highlight="light-highlight"></list-item>`,
+        "audio-menu":`
+                <audio-menu data-presenter="audio-menu"></audio-menu>`,
+        "video-menu":`
+                <list-item data-local-action="openInsertAttachmentModal video" data-name="Insert Video" data-highlight="light-highlight"></list-item>
+                <list-item data-local-action="deleteCommand video" data-name="Delete Video" data-highlight="light-highlight"></list-item>
+                <list-item data-name="Insert Lip Sync" data-local-action="insertLipsync" data-highlight="light-highlight"></list-item>`,
+    }
+    openMenu(targetElement, menuName) {
+        if(targetElement.hasAttribute("data-menu-open")){
+            return;
         }
-
-        const dropdownMenu = generateDropdownMenu();
-        this.element.appendChild(dropdownMenu);
-        const removeDropdown = () => {
-            dropdownMenu.remove();
+        targetElement.setAttribute("data-menu-open", "true");
+        let menuContent = this.menus[menuName];
+        let menu = `<div class="toolbar-menu ${menuName}">${menuContent}</div>`
+        targetElement.insertAdjacentHTML('beforeend', menu);
+        let controller = new AbortController();
+        document.addEventListener("click", this.closeMenu.bind(this, controller, targetElement, menuName), {signal: controller.signal});
+    }
+    closeMenu(controller, targetElement, menuName, event) {
+        if (event.target.closest(`.toolbar-menu.${menuName}`)) {
+            return;
         }
-        dropdownMenu.addEventListener('mouseleave', removeDropdown);
-        dropdownMenu.focus();
+        let menu = this.element.querySelector(`.toolbar-menu.${menuName}`);
+        if (menu) {
+            menu.remove();
+        }
+        controller.abort();
+        targetElement.removeAttribute("data-menu-open");
     }
 
     async insertLipsync(targetElement) {
@@ -602,7 +559,7 @@ export class ParagraphItem {
         }
     }
 
-    async openInsertAttachmentModal(_target, type) {
+    async openInsertAttachmentModal(targetElement, type) {
         let attachmentData = await assistOS.UI.showModal(`insert-${type.toLowerCase()}-modal`, true);
         if (attachmentData) {
             let commands = this.element.querySelector('.paragraph-commands');
@@ -622,7 +579,7 @@ export class ParagraphItem {
         }
     }
 
-    async deleteCommand(_target, type) {
+    async deleteCommand(targetElement, type) {
         let commands = this.element.querySelector('.paragraph-commands');
         if (commands.tagName === "DIV") {
             delete this.paragraph.commands[type];
