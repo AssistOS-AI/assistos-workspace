@@ -116,6 +116,12 @@ async function runApplicationTask(request, spaceId, applicationId, taskName, tas
     TaskManager.runTask(Task.id);
     return Task.Id;
 }
+async function runApplicationFlow(request, spaceId, applicationId, flowId, flowData){
+    const FlowTask = require("../tasks/FlowTask.js");
+    const SecurityContextClass = require('assistos').ServerSideSecurityContext;
+    const flowInstance=await new FlowTask(new SecurityContextClass(request), spaceId, request.userId, flowData, flowId);
+    await flowInstance.runTask();
+}
 
 module.exports = {
     installApplication,
@@ -123,5 +129,6 @@ module.exports = {
     getApplicationsMetadata,
     loadApplicationConfig,
     runApplicationTask,
+    runApplicationFlow
 };
 
