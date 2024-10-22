@@ -40,9 +40,6 @@ export class LeftSidebar {
     }
 
     async startApplication(_target, appName) {
-        if(appName === assistOS.currentApplicationName){
-            return;
-        }
         await assistOS.startApplication(appName);
         changeSelectedPageFromSidebar(window.location.hash);
     }
