@@ -5,7 +5,7 @@ audio-menu{
     left: 0;
     background-color: var(--white);
     padding: 15px;
-    border-radius: 10px;
+    border-radius: 5px;
     box-shadow: 0px 1px 7.3px 0px #00000040;
 }
 .buttons-container{

@@ -34,7 +34,7 @@ html[theme="dark"] .arrow svg {
 
 .chapter-item {
     cursor: default;
-    border-radius: 10px;
+    border-radius: 5px;
     display: flex;
     flex-direction: column;
     min-width: 0;
@@ -69,6 +69,7 @@ html[theme="dark"] .arrow svg {
 }
 
 .chapter-title {
+    border-radius: 5px;
     border: none;
     width: 100%;
     padding: 5px 5px 5px 5px;
@@ -94,7 +95,9 @@ html[theme="dark"] .arrow svg {
     width: 100%;
     gap:8px;
 }
-
+.chapter-visibility-arrow{
+    margin-right: 10px;
+}
 .chapter-content {
     width: 100%;
 }
