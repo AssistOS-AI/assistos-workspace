@@ -58,10 +58,7 @@ async function lipSyncParagraph(request, response) {
 
         const documentId = request.params.documentId;
         const paragraphId = request.params.paragraphId;
-
-        const SecurityContext = require("assistos").ServerSideSecurityContext;
-        let securityContext = new SecurityContext(request);
-        let task = new LipSync(securityContext, spaceId, userId, {documentId, paragraphId});
+        let task = new LipSync(spaceId, userId, {documentId, paragraphId});
         await TaskManager.addTask(task);
         eventPublisher.notifyClients(request.sessionId, documentId + "/tasks");
         utils.sendResponse(response, 200, "application/json", {
