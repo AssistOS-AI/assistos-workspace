@@ -40,7 +40,7 @@ export class AudioMenu {
             emotionsHTML += `<option value="${emotion}">${emotion}</option>`;
         }
         this.emotionsHTML = emotionsHTML;
-        this.audioConfig = this.parentPresenter.paragraph.commands["speech"] || {};
+        this.audioConfig = JSON.parse(JSON.stringify(this.parentPresenter.paragraph.commands["speech"] || {}));
 
         if (this.audioConfig && this.audioConfig.personality) {
             const selectedPersonality = this.personalities.find(personality => personality.name === this.audioConfig.personality);

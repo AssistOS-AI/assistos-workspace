@@ -249,8 +249,8 @@ export class ParagraphItem {
             });
             for (let command of commands) {
               if (command.name === "image") {
-                    let attachmentHighlight = this.element.querySelector(".attachment-circle.image");
-                    attachmentHighlight.classList.add("highlight-attachment");
+                  let attachmentHighlight = this.element.querySelector(".attachment-circle.image");
+                  attachmentHighlight.classList.add("highlight-attachment");
                 } else if (command.name === "audio") {
                   let attachmentHighlight = this.element.querySelector(".attachment-circle.audio");
                   attachmentHighlight.classList.add("highlight-attachment");
