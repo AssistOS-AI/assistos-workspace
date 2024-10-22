@@ -419,6 +419,5 @@ export class DocumentViewPage {
             "presenter": "books-generator-modal",
             "documentId": this._document.id
         });
-        this
     }
 }

@@ -2,13 +2,14 @@ const llmModule = require("assistos").loadModule("llm", {});
 const utilModule = require("assistos").loadModule("util", {});
 const personalityModule = require("assistos").loadModule("personality", {});
 const documentModule = require("assistos").loadModule("document", {});
-export class TextToSpeech {
+const spaceModule = require("assistos").loadModule("space", {});
+export class AudioMenu {
     constructor(element, invalidate) {
         this.element = element;
         this.invalidate = invalidate;
         this._document = document.querySelector("document-view-page").webSkelPresenter._document;
-        this.paragraphId = this.element.getAttribute("data-paragraph-id");
-        this.parentPresenter = this.element.parentElement.webSkelPresenter;
+        this.parentPresenter = this.element.closest("paragraph-item").webSkelPresenter;
+        this.paragraphId = this.parentPresenter.paragraph.id;
         this.invalidate(async () => {
             this.personalities = await personalityModule.getPersonalities(assistOS.space.id);
             this.emotions = await llmModule.listEmotions(assistOS.space.id);
@@ -39,7 +40,7 @@ export class TextToSpeech {
             emotionsHTML += `<option value="${emotion}">${emotion}</option>`;
         }
         this.emotionsHTML = emotionsHTML;
-        this.audioConfig = this.parentPresenter.paragraph.commands["speech"] || {};
+        this.audioConfig = JSON.parse(JSON.stringify(this.parentPresenter.paragraph.commands["speech"] || {}));
 
         if (this.audioConfig && this.audioConfig.personality) {
             const selectedPersonality = this.personalities.find(personality => personality.name === this.audioConfig.personality);
@@ -51,7 +52,7 @@ export class TextToSpeech {
     }
 
 
-    afterRender() {
+    async afterRender() {
         if (this.audioConfig && this.audioConfig.personality) {
             let personalityOption = this.element.querySelector(`option[value="${this.audioConfig.personality}"]`);
             personalityOption.selected = true;
@@ -61,6 +62,12 @@ export class TextToSpeech {
             }
             let styleGuidance = this.element.querySelector(`#styleGuidance`);
             styleGuidance.value = this.audioConfig.styleGuidance || 15;
+        }
+        if(this.parentPresenter.paragraph.commands.audio){
+            let audioElement = this.element.querySelector(".paragraph-audio");
+            audioElement.classList.remove("hidden");
+            this.element.querySelector(".delete-audio").classList.remove("hidden");
+            audioElement.src = await spaceModule.getAudioURL(this.parentPresenter.paragraph.commands.audio.id);
         }
     }
 
@@ -107,5 +114,17 @@ export class TextToSpeech {
         }
 
         this.element.remove();
+    }
+    async insertAudio(){
+        await this.parentPresenter.openInsertAttachmentModal("", "audio");
+    }
+    async deleteAudio(){
+        await this.parentPresenter.deleteCommand("", "audio");
+    }
+    async insertSoundEffect(){
+        await this.parentPresenter.openInsertAttachmentModal("", "soundEffect");
+    }
+    showSilencePopup(targetElement, mode){
+        this.parentPresenter.showSilencePopup(targetElement, mode);
     }
 }

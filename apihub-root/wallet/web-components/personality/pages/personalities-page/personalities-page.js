@@ -1,5 +1,5 @@
 const utilModule = require("assistos").loadModule("util", {});
-const spaceAPIs = require("assistos").loadModule("space", {})
+const spaceModule = require("assistos").loadModule("space", {})
 
 export class PersonalitiesPage {
     constructor(element, invalidate) {
@@ -19,18 +19,16 @@ export class PersonalitiesPage {
             });
         });
     }
-    beforeRender() {
+    async beforeRender() {
         this.personalityBlocks = "";
-        if (this.personalities.length > 0) {
-            this.personalities.forEach((pers) => {
-                let imageSrc;
-                if(pers.imageId){
-                    imageSrc = utilModule.constants.getImageSrc(assistOS.space.id, pers.imageId);
-                } else {
-                    imageSrc = "./wallet/assets/images/default-personality.png";
-                }
-                this.personalityBlocks += `<personality-item data-name="${pers.name}" data-id="${pers.id}" data-image="${imageSrc}"></personality-item>`;
-            });
+        for(let pers of this.personalities){
+            let imageSrc;
+            if(pers.imageId){
+                imageSrc = await spaceModule.getImageURL(pers.imageId);
+            } else {
+                imageSrc = "./wallet/assets/images/default-personality.png";
+            }
+            this.personalityBlocks += `<personality-item data-name="${pers.name}" data-id="${pers.id}" data-image="${imageSrc}"></personality-item>`;
         }
     }
     async afterUnload() {
@@ -58,7 +56,7 @@ export class PersonalitiesPage {
         const  handleFile= async (file) => {
             const formData= new FormData();
             formData.append("file", file);
-           const importResult= await spaceAPIs.importPersonality(assistOS.space.id, formData);
+           const importResult= await spaceModule.importPersonality(assistOS.space.id, formData);
            if(importResult.overriden){
                 alert(`The personality ${importResult.name} has been overriden`);
            }

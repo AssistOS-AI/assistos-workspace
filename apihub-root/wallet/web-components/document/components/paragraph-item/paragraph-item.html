@@ -1,53 +1,70 @@
 <div class="paragraph-container">
     <div class="paragraph-header-container">
-        <div class="paragraph-header">
-            <div class="video-container">
-                <div class="controls-mask-paragraph">
-                    <div class="play-pause-container">
-                        <img data-local-action="playPause" data-next-mode="play" class="play-pause pointer" src="./wallet/assets/icons/play.svg" alt="playPause">
-                    </div>
-                    <div class="bottom-info-paragraph">
-                        <div class="right-margin">
-                            Chapter <span class="chapter-number"></span>
-                        </div>
-                        <div class="big-right-margin">
-                            Paragraph <span class="paragraph-number"></span>
-                        </div>
-                        <div class="time-section-paragraph">
-                            <div class="current-time">0:00</div>
-                            <span class="time-separator">/</span>
-                            <div class="video-duration"></div>
-                        </div>
-                    </div>
-                    <img class="fullscreen-icon pointer" data-local-action="switchDisplayMode" data-mode="minimized" src="./wallet/assets/icons/fullscreen.svg" alt="fullscreen">
+        <div class="paragraph-toolbar">
+            <div class="toolbar-left-section">
+                <img data-local-action="pasteParagraph" class="paste-icon toolbar-margin pointer hidden" src="./wallet/assets/icons/paste.svg" alt="icon">
+                <img data-local-action="moveParagraph up" class="toolbar-margin pointer" src="./wallet/assets/icons/arrow-up.svg" alt="icon">
+                <img data-local-action="moveParagraph down" class="toolbar-margin rotate-down pointer" src="./wallet/assets/icons/arrow-up.svg" alt="icon">
+                <img class="toolbar-margin pointer" src="./wallet/assets/icons/copy.svg" alt="icon">
+                <img data-local-action="cutParagraph" class="toolbar-margin pointer" src="./wallet/assets/icons/cut.svg" alt="icon">
+                <div data-local-action="openMenu insert-document-element" class="toolbar-margin pointer menu-container">
+                    <img src="./wallet/assets/icons/square-plus.svg" alt="icon">
                 </div>
-                <img loading="lazy" class="paragraph-image" src="$$imageSrc" alt="$$imgAlt" tabindex="0">
-                <video class="video-player hidden" preload="metadata" data-id="paragraph-video"></video>
-                <audio class="audio-player hidden" preload="metadata" data-id="paragraph-audio"></audio>
-                <audio class="chapter-audio hidden" preload="metadata" data-id="chapter-audio"></audio>
+
+                <div data-local-action="openMenu image-menu" class="attachment-circle menu-container image">
+                    <img class="pointer" src="./wallet/assets/icons/image.svg" alt="icon">
+                </div>
+                <div data-local-action="openMenu audio-menu" class="attachment-circle menu-container audio">
+                    <img class="pointer" src="./wallet/assets/icons/audio.svg" alt="icon">
+                </div>
+                <div data-local-action="openMenu video-menu" class="attachment-circle menu-container video">
+                    <img class="pointer" src="./wallet/assets/icons/video.svg" alt="icon">
+                </div>
+
+                <img class="pointer" src="./wallet/assets/icons/light-bulb.svg" alt="icon">
             </div>
+            <div class="pointer toolbar-right-section">
+                <div class="commands-icon toolbar-margin">
+                    <img class="pointer" src="./wallet/assets/icons/angle-brackets.svg" alt="icon">
+                    <span class="commands-icon-text">Commands</span>
+                </div>
+                <img data-local-action="deleteParagraph" class="pointer" src="./wallet/assets/icons/trash-can.svg" alt="icon">
+            </div>
+        </div>
+        <div class="paragraph-header">
             <div class="header-section" data-local-action="editItem paragraphHeader">
                 <div class="paragraph-commands maintain-focus"></div>
             </div>
-            <code class="error-message hidden"></code></div>
+            <code class="error-message hidden"></code>
         </div>
-    <div class="paragraph-audio-section hidden">
-        <audio class="paragraph-audio" controls>
-            <source src="" type="audio/mpeg">
-        </audio>
     </div>
     <div class="paragraph-item" data-paragraph-id="$$data-paragraph-id" tabindex="0">
-        <div class="paragraph-item-container">
-            <div class="paragraph-controls pointer" data-local-action="openParagraphDropdown">
-                <svg class="action-icon" width="4" height="16" viewBox="0 0 4 16" fill="none"
-                     xmlns="http://www.w3.org/2000/svg">
-                    <path d="M2 12C2.53043 12 3.03914 12.2107 3.41421 12.5858C3.78929 12.9609 4 13.4696 4 14C4 14.5304 3.78929 15.0391 3.41421 15.4142C3.03914 15.7893 2.53043 16 2 16C1.46957 16 0.960859 15.7893 0.585786 15.4142C0.210713 15.0391 -6.35145e-07 14.5304 -6.11959e-07 14C-5.88773e-07 13.4696 0.210714 12.9609 0.585786 12.5858C0.960859 12.2107 1.46957 12 2 12ZM2 6C2.53043 6 3.03914 6.21071 3.41421 6.58579C3.78929 6.96086 4 7.46957 4 8C4 8.53043 3.78929 9.03914 3.41421 9.41421C3.03914 9.78929 2.53043 10 2 10C1.46957 10 0.960859 9.78929 0.585786 9.41421C0.210714 9.03914 -3.72877e-07 8.53043 -3.49691e-07 8C-3.26505e-07 7.46957 0.210714 6.96086 0.585787 6.58579C0.960859 6.21071 1.46957 6 2 6ZM2 -8.74228e-08C2.53043 -6.42368e-08 3.03914 0.210714 3.41421 0.585786C3.78929 0.960859 4 1.46957 4 2C4 2.53043 3.78929 3.03914 3.41421 3.41421C3.03914 3.78929 2.53043 4 2 4C1.46957 4 0.960859 3.78929 0.585787 3.41421C0.210714 3.03914 -1.10609e-07 2.53043 -8.74228e-08 2C-6.42368e-08 1.46957 0.210714 0.960859 0.585787 0.585786C0.96086 0.210713 1.46957 -1.10609e-07 2 -8.74228e-08Z"
-                          fill="#494949"></path>
-                </svg>
-            </div>
-            <div class="task-status-icon">$$taskIcon</div>
-        </div>
         <textarea class="paragraph-text focusable" data-local-action="editItem paragraphText" data-metadata="$$data-metadata "></textarea>
+    </div>
+    <div class="video-container">
+        <div class="controls-mask-paragraph">
+            <div class="play-pause-container">
+                <img data-local-action="playPause" data-next-mode="play" class="play-pause pointer" src="./wallet/assets/icons/play.svg" alt="playPause">
+            </div>
+            <div class="bottom-info-paragraph">
+                <div class="right-margin">
+                    Chapter <span class="chapter-number"></span>
+                </div>
+                <div class="big-right-margin">
+                    Paragraph <span class="paragraph-number"></span>
+                </div>
+                <div class="time-section-paragraph">
+                    <div class="current-time">0:00</div>
+                    <span class="time-separator">/</span>
+                    <div class="video-duration"></div>
+                </div>
+            </div>
+            <img class="fullscreen-icon pointer" data-local-action="switchDisplayMode" data-mode="minimized" src="./wallet/assets/icons/fullscreen.svg" alt="fullscreen">
+        </div>
+        <img loading="lazy" class="paragraph-image" src="$$imageSrc" alt="$$imgAlt" tabindex="0">
+        <video class="video-player hidden" preload="metadata" data-id="paragraph-video"></video>
+        <audio class="audio-player hidden" preload="metadata" data-id="paragraph-audio"></audio>
+        <audio class="chapter-audio hidden" preload="metadata" data-id="chapter-audio"></audio>
     </div>
 </div>
 
