@@ -1,4 +1,5 @@
 const jwt = require("./jwt");
+const secrets = require("./secrets");
 function createSessionCookie(sessionId) {
     return createCookieString('sessionId', sessionId, {
         httpOnly: true,
@@ -124,6 +125,21 @@ function deleteDemoUserCookie() {
     });
 
 }
+function createApiHubAuthCookies(apiHubAuthSecret, userId, spaceId) {
+    let apiHubSecretCookie = createCookieString('ApiHubAuth', apiHubAuthSecret, {
+        httpOnly: true,
+        sameSite: 'Strict',
+        path: "/"});
+    let userIdCookie = createCookieString('userId', userId, {
+        httpOnly: true,
+        sameSite: 'Strict',
+    });
+    let spaceIdCookie = createCookieString('spaceId', spaceId, {
+        httpOnly: true,
+        sameSite: 'Strict',
+    });
+    return apiHubSecretCookie + " " + userIdCookie + " " + spaceIdCookie;
+}
 
 module.exports = {
     createSessionCookie,
@@ -136,5 +152,6 @@ module.exports = {
     deleteDemoUserCookie,
     deleteAuthCookie,
     deleteRefreshAuthCookie,
-    deleteCurrentSpaceCookie
+    deleteCurrentSpaceCookie,
+    createApiHubAuthCookies
 }

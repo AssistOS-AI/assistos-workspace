@@ -4,15 +4,30 @@ const eventPublisher = require("../subscribers/eventPublisher");
 const STATUS = constants.STATUS;
 const EVENTS = constants.EVENTS;
 const deleteTaskOnCompleteDuration = 60000 * 5; //5 minutes
+const cookie = require('../apihub-component-utils/cookie.js');
+const secrets = require("../apihub-component-utils/secrets");
 class Task {
-    constructor(securityContext, spaceId, userId) {
+    constructor(spaceId, userId) {
         this.status = STATUS.CREATED;
         this.id = crypto.generateId(16);
-        this.securityContext = securityContext;
         this.userId = userId;
         this.spaceId = spaceId;
         this.callbacks = {};
         // possible statuses: pending, running, completed, failed, cancelled
+    }
+    async loadModule(moduleName){
+        if(!this.securityContext){
+            let authSecret = await secrets.getApiHubAuthSecret();
+            let securityContextConfig = {
+                headers:{
+                    cookie: cookie.createApiHubAuthCookies(authSecret, this.userId, this.spaceId)
+                }
+            }
+            const SecurityContext = require('assistos').ServerSideSecurityContext;
+            this.securityContext = new SecurityContext(securityContextConfig);
+        }
+        const module = require('assistos').loadModule(moduleName, this.securityContext);
+        return module;
     }
     async run(){
         if (this.status === STATUS.RUNNING) {

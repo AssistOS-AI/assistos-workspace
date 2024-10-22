@@ -3,15 +3,26 @@ const jwt = require('../apihub-component-utils/jwt.js');
 const utils = require('../apihub-component-utils/utils.js');
 const config = require('../../data-volume/config/config.json');
 const User = require('../users-storage/user.js');
-
+const secrets = require('../apihub-component-utils/secrets.js');
 async function authentication(req, res, next) {
     const cookies = cookie.parseCookies(req);
     const sessionId = cookies['sessionId'];
     const authToken = cookies['authToken'];
+    const apiHubToken = cookies['ApiHubAuth'];
     const refreshToken = cookies['refreshAuthToken'];
     let setCookies = [];
     if(sessionId) {
         req.sessionId = sessionId;
+    }
+    if(apiHubToken) {
+        let secret = await secrets.getApiHubAuthSecret();
+        if(secret === apiHubToken) {
+            req.userId = cookies.userId;
+            req.apiHubToken = apiHubToken;
+            return next();
+        }else {
+            return authenticationError(res, next);
+        }
     }
     if (authToken) {
         try {

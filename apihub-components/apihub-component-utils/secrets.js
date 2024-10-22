@@ -1,6 +1,7 @@
 const apihub = require('apihub');
 
 const config = require("../../data-volume/config/config.json");
+const crypto = require("./crypto");
 
 
 function getSpaceSecretsContainerName(spaceId) {
@@ -86,11 +87,24 @@ async function getAPIKeys(spaceId) {
     const secretsService = await apihub.getSecretsServiceInstanceAsync(config.SERVER_ROOT_FOLDER);
     return secretsService.getSecretSync(getSpaceSecretsContainerName(spaceId), "apiKeys")
 }
+async function getApiHubAuthSecret(){
+    const secretName = "ApiHubAuth";
+    const secretsService = await apihub.getSecretsServiceInstanceAsync(config.SERVER_ROOT_FOLDER);
+    let authSecret;
+    try {
+        authSecret = secretsService.getSecretSync('JWT', secretName);
+    } catch (error) {
+        authSecret = crypto.generateSecret();
+        await secretsService.putSecretAsync('JWT', secretName, authSecret);
+    }
+    return authSecret;
+}
 module.exports = {
     createSpaceSecretsContainer,
     keyAlreadyExists,
     putSpaceKey,
     deleteSpaceKey,
     getModelAPIKey,
-    getAPIKeys
+    getAPIKeys,
+    getApiHubAuthSecret
 }

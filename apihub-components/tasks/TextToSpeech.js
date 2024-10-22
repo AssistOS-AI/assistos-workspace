@@ -5,19 +5,19 @@ const EVENTS = constants.EVENTS;
 const ffmpeg = require('../apihub-component-utils/ffmpeg');
 const Storage = require('../apihub-component-utils/storage');
 class TextToSpeech extends Task {
-    constructor(securityContext, spaceId, userId, configs) {
-        super(securityContext, spaceId, userId);
+    constructor(spaceId, userId, configs) {
+        super(spaceId, userId);
         this.documentId = configs.documentId;
         this.paragraphId = configs.paragraphId;
     }
 
     async runTask() {
         try {
-            const llmModule = require('assistos').loadModule('llm', this.securityContext);
-            const documentModule = require('assistos').loadModule('document', this.securityContext);
-            const spaceModule = require('assistos').loadModule('space', this.securityContext);
-            const personalityModule = require('assistos').loadModule('personality', this.securityContext);
-            const utilModule = require('assistos').loadModule('util', this.securityContext);
+            const llmModule = await this.loadModule('llm');
+            const documentModule = await this.loadModule('document');
+            const spaceModule = await this.loadModule('space');
+            const personalityModule = await this.loadModule('personality');
+            const utilModule = await this.loadModule('util');
             const paragraph = await documentModule.getParagraph(this.spaceId, this.documentId, this.paragraphId);
             await utilModule.constants.COMMANDS_CONFIG.COMMANDS.find(command => command.NAME === "speech").VALIDATE(this.spaceId, paragraph, this.securityContext);
 
@@ -49,7 +49,7 @@ class TextToSpeech extends Task {
 
     async rollback() {
         try {
-            const documentModule = require('assistos').loadModule('document', this.securityContext);
+            const documentModule = await this.loadModule('document');
             const paragraphConfig = await documentModule.getParagraphCommands(this.spaceId, this.documentId, this.paragraphId);
             delete paragraphConfig.audio;
             delete paragraphConfig.speech.taskId;
@@ -72,7 +72,6 @@ class TextToSpeech extends Task {
             id: this.id,
             spaceId: this.spaceId,
             userId: this.userId,
-            securityContext: {...this.securityContext},
             name: this.constructor.name,
             configs: {
                 documentId: this.documentId,
@@ -81,7 +80,7 @@ class TextToSpeech extends Task {
         }
     }
     async getRelevantInfo() {
-        const documentModule = require('assistos').loadModule('document', this.securityContext);
+        const documentModule = await this.loadModule('document');
         let paragraph = await documentModule.getParagraph(this.spaceId, this.documentId, this.paragraphId);
         let info = {
             paragraphId: paragraph.id,

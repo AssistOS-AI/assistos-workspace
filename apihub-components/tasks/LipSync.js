@@ -8,8 +8,8 @@ const path = require('path');
 const fsPromises = require('fs').promises;
 
 class LipSync extends Task {
-    constructor(securityContext, spaceId, userId, configs) {
-        super(securityContext, spaceId, userId);
+    constructor(spaceId, userId, configs) {
+        super(spaceId, userId);
         this.documentId = configs.documentId;
         this.paragraphId = configs.paragraphId;
     }
@@ -19,10 +19,10 @@ class LipSync extends Task {
             this.resolveTask = resolve;
             this.rejectTask = reject;
             try {
-                const llmModule = require('assistos').loadModule('llm', this.securityContext);
-                const documentModule = require('assistos').loadModule('document', this.securityContext);
-                const utilModule = require('assistos').loadModule('util', this.securityContext);
-                const spaceModule = require('assistos').loadModule('space', this.securityContext);
+                const llmModule = await this.loadModule('llm');
+                const documentModule = await this.loadModule('document');
+                const utilModule = await this.loadModule('util');
+                const spaceModule = await this.loadModule('space');
 
                 const paragraph = await documentModule.getParagraph(this.spaceId, this.documentId, this.paragraphId);
 
@@ -65,7 +65,8 @@ class LipSync extends Task {
         if (paragraphCommands.video) {
             await llmModule.lipSync(this.spaceId, this.id, paragraphCommands.video.id, paragraphCommands.audio.id, "sync-1.6.0");
         } else {
-            const videoId = await ffmpeg.createVideoFromImageAndAudio(paragraphCommands.image.id, paragraphCommands.audio.duration, this.spaceId, this.securityContext);
+            const imageBuffer = Buffer.from(await spaceModule.getImage(paragraphCommands.image.id));
+            const videoId = await ffmpeg.createVideoFromImageAndAudio(imageBuffer, paragraphCommands.audio.duration, this.spaceId);
             await llmModule.lipSync(this.spaceId, this.id, videoId, paragraphCommands.audio.id, "sync-1.6.0");
         }
     }
@@ -73,8 +74,8 @@ class LipSync extends Task {
     async completeTaskExecution(videoURL) {
         clearTimeout(this.timeout);
         delete this.timeout;
-        const spaceModule = require('assistos').loadModule('space', this.securityContext);
-        const documentModule = require('assistos').loadModule('document', this.securityContext);
+        const spaceModule = await this.loadModule('space');
+        const documentModule =  await this.loadModule('document');
 
         const fileSys = require('../apihub-component-utils/fileSys.js')
         const space = require('../spaces-storage/space.js')
@@ -120,7 +121,6 @@ class LipSync extends Task {
             id: this.id,
             spaceId: this.spaceId,
             userId: this.userId,
-            securityContext: this.securityContext,
             name: this.constructor.name,
             configs: {
                 documentId: this.documentId,

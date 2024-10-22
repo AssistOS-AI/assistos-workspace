@@ -197,9 +197,7 @@ async function combineVideos(tempVideoDir, videoPaths, fileListName, outputVideo
     return outputVideoPath;
 }
 
-async function createVideoFromImageAndAudio(imageId, audioDuration, spaceId, securityContext) {
-    const spaceModule = require('assistos').loadModule('space', securityContext);
-    const imageBuffer = Buffer.from(await spaceModule.getImage(imageId));
+async function createVideoFromImageAndAudio(imageBuffer, audioDuration, spaceId) {
     const taskCallback = async function (){
         try {
             await fsPromises.stat(path.join(space.getSpacePath(spaceId), 'temp'))
@@ -210,11 +208,12 @@ async function createVideoFromImageAndAudio(imageId, audioDuration, spaceId, sec
         const tempImagePath = path.join(space.getSpacePath(spaceId), 'temp', `${tempImageId}.png`);
         await fsPromises.writeFile(tempImagePath, imageBuffer);
         const videoBuffer = await createVideoFromImage(spaceId, tempImagePath, audioDuration, this);
+        const spaceModule = await this.loadModule('space');
         let videoId = await spaceModule.putVideo(videoBuffer);
         await fsPromises.rm(tempImagePath);
         return videoId;
     }
-    let task = new AnonymousTask(securityContext, taskCallback);
+    let task = new AnonymousTask(taskCallback);
     try {
         const videoId = await task.run();
         return videoId;

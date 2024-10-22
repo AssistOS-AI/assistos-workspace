@@ -32,9 +32,7 @@ async function textToSpeechParagraph(request, response) {
         const documentId = request.params.documentId;
         const paragraphId = request.params.paragraphId;
 
-        const SecurityContext = require("assistos").ServerSideSecurityContext;
-        let securityContext = new SecurityContext(request);
-        const task = new TextToSpeech(securityContext, spaceId, userId, {
+        const task = new TextToSpeech(spaceId, userId, {
             documentId,
             paragraphId,
         });

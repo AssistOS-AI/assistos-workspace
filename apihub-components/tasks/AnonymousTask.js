@@ -1,8 +1,8 @@
 const { exec } = require("child_process");
 const Task = require("./Task");
 class AnonymousTask extends Task {
-    constructor(securityContext, executeFn) {
-        super(securityContext);
+    constructor(executeFn) {
+        super();
         this.executeFn = executeFn;
     }
 
