@@ -360,7 +360,6 @@ async function lipsync(request, response) {
     const taskId = request.body.taskId;
     const requestBody = {
         modelName: request.body.modelName,
-        spaceId: request.params.spaceId,
         userId: request.userId,
         webHookData:{
             webhookSecret: getWebhookSecret(),
