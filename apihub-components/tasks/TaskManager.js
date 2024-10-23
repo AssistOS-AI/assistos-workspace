@@ -31,13 +31,10 @@ class TaskManager {
                 let taskInstance = new taskClass(task.spaceId, task.userId, task.configs);
                 taskInstance.id = task.id; //set the original id
                 taskInstance.setStatus(task.status) //set the original status
-                if (taskInstance.status === STATUS.RUNNING) {
+                if (taskInstance.status === STATUS.RUNNING || taskInstance.status === STATUS.PENDING) {
                     taskInstance.setStatus(STATUS.CANCELLED);
                 }
                 this.tasks.push(taskInstance);
-                if (taskInstance.status === STATUS.PENDING) {
-                    this.runTask(taskInstance.id);
-                }
                 this.setUpdateDBHandler(lightDBEnclaveClient, taskInstance);
             }
         }
