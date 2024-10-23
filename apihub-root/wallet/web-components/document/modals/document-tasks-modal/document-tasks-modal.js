@@ -47,19 +47,11 @@ export class DocumentTasksModal {
     }
     async runAllTasks(button){
         button.classList.add("disabled");
-        for(let task of this.tasks){
-            if(task.status === "created" || task.status === "cancelled" || task.status === "failed"){
-                utilModule.runTask(task.id);
-            }
-        }
+        await utilModule.runAllDocumentTasks(assistOS.space.id, this.documentId);
     }
     async cancelAllTasks(button){
         button.classList.add("disabled");
-        for(let task of this.tasks){
-            if(task.status === "running"){
-                utilModule.cancelTask(task.id);
-            }
-        }
+        await utilModule.cancelAllDocumentTasks(assistOS.space.id, this.documentId);
     }
     checkButtonsState(){
         let runningTasks = 0;

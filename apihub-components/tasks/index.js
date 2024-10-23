@@ -8,7 +8,9 @@ const {
     lipSyncParagraph,
     cancelTaskAndRemove,
     getTask,
-    getTaskRelevantInfo
+    getTaskRelevantInfo,
+    runAllDocumentTasks,
+    cancelAllDocumentTasks
 } = require("./controller");
 const bodyReader = require('../apihub-component-middlewares/bodyReader.js')
 const authentication = require('../apihub-component-middlewares/authentication.js')
@@ -23,6 +25,9 @@ function Tasks(server){
     server.get("/tasks/info/:taskId", getTaskRelevantInfo);
     server.use("/tasks/*", bodyReader);
     server.post("/tasks/:taskId", runTask);
+
+    server.delete("/tasks/cancel-all/:spaceId/:documentId", cancelAllDocumentTasks);
+    server.post("/tasks/run-all/:spaceId/:documentId", runAllDocumentTasks);
 
     server.get("/tasks/:spaceId/:documentId", getDocumentTasks);
     server.post("/tasks/video/:spaceId/:documentId", compileVideoFromDocument);

@@ -206,6 +206,48 @@ function getTask(request, response) {
         });
     }
 }
+function runAllDocumentTasks(request, response) {
+    let documentId = request.params.documentId;
+    let spaceId = request.params.spaceId;
+    try {
+        let tasks = TaskManager.serializeTasks(spaceId).filter(task => task.configs.documentId === documentId);
+        for (let task of tasks) {
+            if(task.status === "created" || task.status === "cancelled" || task.status === "failed"){
+                TaskManager.runTask(task.id);
+            }
+        }
+        sendResponse(response, 200, "application/json", {
+            success: true,
+            message: "All tasks added to the queue"
+        });
+    } catch (e) {
+        sendResponse(response, 500, "application/json", {
+            success: false,
+            message: e.message
+        });
+    }
+}
+function cancelAllDocumentTasks(request, response) {
+    let documentId = request.params.documentId;
+    let spaceId = request.params.spaceId;
+    try {
+        let tasks = TaskManager.serializeTasks(spaceId).filter(task => task.configs.documentId === documentId);
+        for (let task of tasks) {
+            if(task.status === "running"){
+                TaskManager.cancelTask(task.id);
+            }
+        }
+        sendResponse(response, 200, "application/json", {
+            success: true,
+            message: "All tasks cancelled"
+        });
+    } catch (e) {
+        sendResponse(response, 500, "application/json", {
+            success: false,
+            message: e.message
+        });
+    }
+}
 module.exports = {
     cancelTask,
     cancelTaskAndRemove,
@@ -217,5 +259,7 @@ module.exports = {
     getTask,
     removeTask,
     lipSyncParagraph,
-    getTaskRelevantInfo
+    getTaskRelevantInfo,
+    runAllDocumentTasks,
+    cancelAllDocumentTasks
 }
