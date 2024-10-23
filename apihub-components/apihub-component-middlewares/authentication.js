@@ -18,7 +18,7 @@ async function authentication(req, res, next) {
         let secret = await secrets.getApiHubAuthSecret();
         if(secret === apiHubToken) {
             req.userId = cookies.userId;
-            req.apiHubToken = apiHubToken;
+            req.skipAuthorisation = true;
             return next();
         }else {
             return authenticationError(res, next);
