@@ -221,12 +221,12 @@ function runAllDocumentTasks(request, response) {
                 }
             }
         }
-        sendResponse(response, 200, "application/json", {
+        return sendResponse(response, 200, "application/json", {
             success: true,
             message: "All tasks added to the queue"
         });
     } catch (e) {
-        sendResponse(response, 500, "application/json", {
+        return sendResponse(response, 500, "application/json", {
             success: false,
             message: e.message
         });
