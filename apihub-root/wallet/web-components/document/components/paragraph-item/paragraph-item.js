@@ -39,9 +39,12 @@ export class ParagraphItem {
             //this.element.scrollIntoView({behavior: "smooth", block: "center"});
         }
 
-        this.paragraphHeader = this.element.querySelector(".paragraph-commands");
+        let commands = this.element.querySelector(".paragraph-commands");
         this.errorElement = this.element.querySelector(".error-message");
-        this.paragraphHeader.innerHTML = await this.buildCommandsHTML("view");
+        commands.innerHTML = await this.buildCommandsHTML("view");
+        if(commands.innerHTML !== ""){
+            commands.style.padding = "5px 10px";
+        }
         await this.setupVideoPreview();
     }
 
@@ -181,23 +184,18 @@ export class ParagraphItem {
         }
     }
 
-    async highlightParagraphHeader() {
-        assistOS.space.currentParagraphId = this.paragraph.id;
-        this.switchParagraphToolbar("on");
-        let paragraphHeaderContainer = this.element.querySelector('.paragraph-header');
-        paragraphHeaderContainer.classList.add("highlight-paragraph-header");
-        this.paragraphHeader.removeAttribute('readonly');
+    async enterEditModeCommands() {
         let commandsElement = this.element.querySelector('.paragraph-commands');
         if(commandsElement.tagName === "DIV"){
             await this.renderEditModeCommands();
+            let controller = new AbortController();
+            document.addEventListener("click", (event) => {
+                if (!event.target.closest(".paragraph-commands")) {
+                    this.focusOutHandlerHeader(controller);
+                }
+            }, {signal: controller.signal});
         }
 
-        let paragraphText = this.element.querySelector('.paragraph-text');
-        paragraphText.classList.add("focused")
-
-        if (this.paragraph.commands.image || this.paragraph.commands.video || this.paragraph.commands.audio) {
-            this.videoContainer.classList.add("highlight-video");
-        }
     }
 
     highlightParagraph() {
@@ -207,9 +205,6 @@ export class ParagraphItem {
         paragraphHeaderContainer.classList.add("highlight-paragraph-header");
         let paragraphText = this.element.querySelector('.paragraph-text');
         paragraphText.classList.add("focused")
-        if (this.paragraph.commands.image || this.paragraph.commands.video || this.paragraph.commands.audio) {
-            this.videoContainer.classList.add("highlight-video");
-        }
     }
 
     async renderEditModeCommands() {
@@ -217,15 +212,16 @@ export class ParagraphItem {
         let commandsElement = this.element.querySelector('.paragraph-commands');
         commandsElement.remove();
         let commandsHTML = await this.buildCommandsHTML("edit");
-        textareaContainer.insertAdjacentHTML('beforeend', `<textarea class="paragraph-commands maintain-focus"></textarea>`);
+        textareaContainer.insertAdjacentHTML('beforeend', `<textarea class="paragraph-commands"></textarea>`);
         let paragraphCommands = this.element.querySelector('.paragraph-commands');
         paragraphCommands.value = commandsHTML;
+        paragraphCommands.style.padding = `5px 10px`;
         paragraphCommands.style.height = paragraphCommands.scrollHeight + 'px';
         paragraphCommands.addEventListener('input', function () {
             this.style.height = 'auto';
             this.style.height = this.scrollHeight + 'px';
         });
-        this.paragraphHeader = paragraphCommands;
+
     }
 
     async renderViewModeCommands() {
@@ -233,10 +229,14 @@ export class ParagraphItem {
         let commandsElement = this.element.querySelector('.paragraph-commands');
         commandsElement.remove();
         let commandsHTML = await this.buildCommandsHTML("view");
-        headerSection.insertAdjacentHTML('beforeend', `<div class="paragraph-commands maintain-focus">${commandsHTML}</div>`);
+        headerSection.insertAdjacentHTML('beforeend', `<div class="paragraph-commands">${commandsHTML}</div>`);
         let paragraphHeader = this.element.querySelector('.paragraph-commands');
         paragraphHeader.style.height = "initial";
-        this.paragraphHeader = paragraphHeader;
+        if(paragraphHeader.innerHTML === ""){
+            paragraphHeader.style.padding = "0";
+        } else {
+            paragraphHeader.style.padding = "5px 10px";
+        }
     }
 
     async buildCommandsHTML(mode) {
@@ -372,9 +372,6 @@ export class ParagraphItem {
                 this.switchParagraphToolbar("off");
                 let paragraphText = this.element.querySelector(".paragraph-text");
                 paragraphText.classList.remove("focused");
-                if (this.paragraph.commands.image || this.paragraph.commands.video || this.paragraph.commands.audio) {
-                    this.videoContainer.classList.remove("highlight-video");
-                }
                 let paragraphHeaderContainer = this.element.querySelector('.paragraph-header');
                 paragraphHeaderContainer.classList.remove("highlight-paragraph-header");
                 const cachedText = assistOS.UI.customTrim(assistOS.UI.unsanitize(this.paragraph.text));
@@ -393,24 +390,15 @@ export class ParagraphItem {
         );
     }
 
-    async focusOutHandlerHeader() {
+    async focusOutHandlerHeader(eventController) {
         await assistOS.loadifyComponent(this.element, async () => {
-            this.switchParagraphToolbar("off");
-            this.paragraphHeader.setAttribute('readonly', 'true');
-            let paragraphHeaderContainer = this.element.querySelector('.paragraph-header');
-            paragraphHeaderContainer.classList.remove("highlight-paragraph-header");
-            let paragraphText = this.element.querySelector('.paragraph-text');
-            paragraphText.classList.remove("focused");
-            let commands = utilModule.findCommands(this.paragraphHeader.value);
-            if (this.paragraph.commands.image || this.paragraph.commands.video || this.paragraph.commands.audio) {
-                this.videoContainer.classList.remove("highlight-video");
-            }
+            let commandsElement = this.element.querySelector('.paragraph-commands');
+            let commands = utilModule.findCommands(commandsElement.value);
             if (commands.invalid) {
                 this.showCommandsError(commands.error);
-                assistOS.space.currentParagraphId = null;
                 return;
             }
-            this.paragraphHeader.value = utilModule.buildCommandsString(commands);
+            commandsElement.value = utilModule.buildCommandsString(commands);
             const commandsDifferences = utilModule.getCommandsDifferences(this.paragraph.commands, commands);
             const existCommandsDifferences = Object.values(commandsDifferences).some(value => value !== "same");
 
@@ -419,7 +407,7 @@ export class ParagraphItem {
                 this.errorElement.innerText = "";
                 this.errorElement.classList.add("hidden");
                 await this.renderViewModeCommands();
-                assistOS.space.currentParagraphId = null;
+                eventController.abort();
                 return;
             }
             for (const [commandType, commandStatus] of Object.entries(commandsDifferences)) {
@@ -430,10 +418,10 @@ export class ParagraphItem {
                     await this.validateCommand(commandType, commands);
                 } catch (error) {
                     this.showCommandsError(error);
-                    assistOS.space.currentParagraphId = null;
                     return;
                 }
             }
+            eventController.abort();
             this.errorElement.innerText = "";
             this.errorElement.classList.add("hidden");
             for (let [commandName, commandStatus] of Object.entries(commandsDifferences)) {
@@ -447,11 +435,9 @@ export class ParagraphItem {
                     await this.handleCommand(commandName, commandStatus);
                 }
             }
-
             await documentModule.updateParagraphCommands(assistOS.space.id, this._document.id, this.paragraph.id, this.paragraph.commands);
             await this.renderViewModeCommands();
             await this.setupVideoPreview();
-            assistOS.space.currentParagraphId = null;
         });
     }
 
@@ -553,9 +539,9 @@ export class ParagraphItem {
             await documentModule.updateParagraphCommands(assistOS.space.id, this._document.id, this.paragraph.id, this.paragraph.commands);
             await this.renderViewModeCommands();
         } else {
-            const currentCommandsString = this.paragraphHeader.value.replace(/\n/g, "");
-            this.paragraphHeader.value = `${currentCommandsString}` + "\n" + utilModule.buildCommandString("lipsync", {});
-            this.paragraphHeader.style.height = this.paragraphHeader.scrollHeight + 'px';
+            const currentCommandsString = commands.value.replace(/\n/g, "");
+            commands.value = `${currentCommandsString}` + "\n" + utilModule.buildCommandString("lipsync", {});
+            commands.style.height = commands.scrollHeight + 'px';
         }
     }
 

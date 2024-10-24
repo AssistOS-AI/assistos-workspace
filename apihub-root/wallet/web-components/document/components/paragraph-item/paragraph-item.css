@@ -79,7 +79,6 @@ paragraph-item {
 }
 .paragraph-commands{
     line-height: 1;
-    min-height: 20px;
     overflow: hidden;
     resize: none;
     border: none;
@@ -88,7 +87,6 @@ paragraph-item {
     overflow-wrap: break-word;
     word-break: break-word;
     background:inherit;
-    padding: 5px 0 5px 10px;
 }
 .task-line{
     display: flex;
@@ -195,9 +193,7 @@ paragraph-item {
 .disabled-pointer-events{
     pointer-events: none;
 }
-#current-selection-parent .focusable.highlight-video{
-    background-color: lightgray;
-}
+
 .command-line{
     display: flex;
     flex-direction: row;
