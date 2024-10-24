@@ -357,19 +357,16 @@ async function listEmotions(request, response) {
 }
 
 async function lipsync(request, response) {
-    const taskId = request.body.taskId;
-    const requestBody = {
-        modelName: request.body.modelName,
-        userId: request.userId,
-        webHookData:{
-            webhookSecret: getWebhookSecret(),
-            taskId:taskId
-        }
-    };
     try {
-        requestBody.audioId =  request.body.audioId;
-        requestBody.videoId = request.body.videoId;
-        request.body = requestBody;
+        request.body = {
+            modelName: request.body.modelName,
+            webHookData:{
+                webhookSecret: getWebhookSecret(),
+                taskId: request.body.taskId
+            },
+            audioId: request.body.audioId,
+            videoId: request.body.videoId
+        };
         let result = await sendRequest(`/apis/v1/video/lipsync`, "POST", request, response);
         return utils.sendResponse(response, 200, "application/json", {
             success: true,

@@ -5,8 +5,12 @@ const STATUS = constants.STATUS;
 const EVENTS = constants.EVENTS;
 const TaskManager = require('./TaskManager');
 const path = require('path');
-const fsPromises = require('fs').promises;
-
+const fs = require('fs');
+const fsPromises = fs.promises;
+const Storage = require('../apihub-component-utils/storage');
+const volumeManager = require('../volumeManager.js');
+const crypto = require('../apihub-component-utils/crypto');
+const fileSys = require('../apihub-component-utils/fileSys.js')
 class LipSync extends Task {
     constructor(spaceId, userId, configs) {
         super(spaceId, userId);
@@ -77,24 +81,25 @@ class LipSync extends Task {
         const spaceModule = await this.loadModule('space');
         const documentModule =  await this.loadModule('document');
 
-        const fileSys = require('../apihub-component-utils/fileSys.js')
-        const space = require('../spaces-storage/space.js')
-        const crypto = require('../apihub-component-utils/crypto.js')
-
         const tempFileId = crypto.generateId();
-        const tempFilePath = path.join(space.APIs.getSpacePath(this.spaceId), "temp", `${tempFileId}.mp4`);
+        const tempFilePath = path.join(volumeManager.paths.assets, Storage.fileTypes.videos, tempFileId);
         await fileSys.downloadData(videoURL, tempFilePath);
 
-        const videoBuffer = await fsPromises.readFile(tempFilePath);
         const videoDuration = await ffmpeg.getVideoDuration(tempFilePath);
+        const videoBuffer = await fsPromises.readFile(tempFilePath);
         const videoId = await spaceModule.putVideo(videoBuffer);
+        let imageBuffer = await ffmpeg.createVideoThumbnail(tempFilePath);
+        const imageId = await spaceModule.putImage(imageBuffer);
+
         const paragraphCommands = await documentModule.getParagraphCommands(this.spaceId, this.documentId, this.paragraphId);
         paragraphCommands.video = {
             id: videoId,
-            duration: videoDuration
+            duration: videoDuration,
+            thumbnailId: imageId
         };
         delete paragraphCommands.lipsync.taskId;
         await documentModule.updateParagraphCommands(this.spaceId, this.documentId, this.paragraphId, paragraphCommands);
+        await fsPromises.unlink(tempFilePath);
         if (this.resolveTask) {
             this.resolveTask();
             this.resolveTask = null;

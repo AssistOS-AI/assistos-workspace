@@ -23,16 +23,14 @@ function extractRefFromRequest(request) {
 async function saveResult(ref,requestBody) {
     const userId = ref.userId;
     const objectId = ref.objectId;
-    const spaceId = objectId.split("_")[0];
 
     switch (ref.type) {
         case "video":
             const taskId = ref.taskId;
-            const videoURL = requestBody.result.videoUrl;
+            const videoURL = requestBody.outputUrl;
             const taskManager = require("../tasks/TaskManager.js");
             const task = taskManager.getTask(taskId);
             await task.completeTaskExecution(videoURL);
-            eventPublisher.notifyClientTask(userId, spaceId+"_"+objectId);
            return;
         case "image":
             //TODO use spaceModule or convert image to a stream
@@ -61,7 +59,7 @@ async function dataHandler(request, response) {
         const generatedSignature = generateSignature(timestamp, nonce);
         if (signature === generatedSignature) {
             const requestStatus = request.body.result ? request.body.result.status : request.body.status;
-            if (objectId && (requestStatus === "DONE" || requestStatus === "COMPLETED")) {
+            if (requestStatus === "DONE" || requestStatus === "COMPLETED") {
                 await saveResult(ref, request.body);
             }
             return utils.sendResponse(response, 200, "application/json", {

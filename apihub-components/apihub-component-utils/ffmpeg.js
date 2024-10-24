@@ -319,6 +319,38 @@ async function getImageDimensions(imageBuffer) {
         });
     });
 }
+function createVideoThumbnail(filePath) {
+    return new Promise((resolve, reject) => {
+        const ffmpegProcess = spawn(ffmpegPath, [
+            '-i', filePath,     // Input video file
+            '-ss', '00:00:00',  // Seek to second 0
+            '-vframes', '1',    // Capture 1 frame
+            '-q:v', '2',        // Set quality of the image
+            '-f', 'image2pipe', // Output as an image stream
+            '-vcodec', 'png',   // Use PNG format
+            'pipe:1'            // Output to stdout
+        ]);
+
+        const chunks = [];
+
+        ffmpegProcess.stdout.on('data', (chunk) => {
+            chunks.push(chunk);
+        });
+
+        ffmpegProcess.on('close', (code) => {
+            if (code === 0) {
+                const buffer = Buffer.concat(chunks);
+                resolve(buffer);
+            } else {
+                reject(new Error(`FFmpeg process exited with code ${code}`));
+            }
+        });
+
+        ffmpegProcess.on('error', (err) => {
+            reject(err);
+        });
+    });
+}
 module.exports = {
     createVideoFromImage,
     combineVideoAndAudio,
@@ -333,5 +365,6 @@ module.exports = {
     convertVideoToMp4,
     getAudioDuration,
     getImageDimensions,
-    getVideoDuration
+    getVideoDuration,
+    createVideoThumbnail
 }
