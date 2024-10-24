@@ -220,19 +220,12 @@ html[theme="dark"] .document-title-container {
     font-weight: 600;
 }
 
-#current-selection-parent {
+.focusable.focused {
+    background-color: white; !important;
+}
+.container-element.focused{
     background-color: var(--white-blue-tint);
 }
-
-#current-selection-parent .focusable {
-    background-color: var(--white-blue-tint);
-}
-
-#current-selection-parent .focusable.focused {
-    background-color: white;
-!important;
-}
-
 .insert-image {
     margin-left: 10px;
     cursor: pointer;

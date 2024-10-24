@@ -63,10 +63,12 @@ paragraph-item {
     background-color: var(--white);
 }
 .paragraph-item {
+    padding: 0 10px 10px 10px;
     position: relative;
     cursor: default;
     display: flex;
-    border-radius: 10px;
+    border-bottom-left-radius: 5px;
+    border-bottom-right-radius: 5px;
     width: 100%;
     align-items: center;
 }
@@ -282,4 +284,7 @@ paragraph-item {
     display: flex;
     align-items: center;
     justify-content: center;
+}
+.highlighted-paragraph{
+    background-color: var(--white-blue-tint);
 }
