@@ -249,7 +249,6 @@ html[theme="dark"] .document-title-container {
 }
 
 .task-icon {
-    width: 25px;
     cursor: pointer;
 }
 
@@ -260,8 +259,13 @@ html[theme="dark"] .document-title-container {
 
 .tasks-menu {
     position: relative;
+    display: flex;
+    align-items: center;
 }
-
+.play-video-preview{
+    margin-right: 15px;
+    cursor: pointer;
+}
 .new-tasks-badge {
     position: absolute;
     top: -2px;
