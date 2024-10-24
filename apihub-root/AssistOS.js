@@ -6,7 +6,7 @@ const applicationModule = require('assistos').loadModule('application', {});
 const agentModule = require('assistos').loadModule('personality', {});
 const flowModule = require('assistos').loadModule('flow', {});
 const personalityModule = require('assistos').loadModule('personality', {})
-const utilModule = require('assistos').loadModule('util', {});
+const notificationModule = require('assistos').loadModule('notification', {});
 
 class AssistOS {
     constructor(configuration) {
@@ -130,7 +130,7 @@ class AssistOS {
             }
         }
         const loaderId = assistOS.UI.showLoading();
-        await utilModule.closeSSEConnection(this.connectionSSE);
+        await notificationModule.closeSSEConnection(this.connectionSSE);
         delete this.connectionSSE;
         await userModule.logoutUser();
         removeSidebar();
@@ -215,7 +215,7 @@ class AssistOS {
                 }
             }
             try {
-                this.connectionSSE = utilModule.createSSEConnection(SSEConfig);
+                this.connectionSSE = notificationModule.createSSEConnection(SSEConfig);
             } catch (error) {
                 await showApplicationError("Error", "Failed to establish connection to the server", error.message);
             }
