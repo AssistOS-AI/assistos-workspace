@@ -206,6 +206,7 @@ export class ParagraphItem {
         let paragraphText = this.element.querySelector('.paragraph-text');
         paragraphText.classList.add("focused");
         let paragraphTextContainer = this.element.querySelector('.paragraph-item');
+        paragraphTextContainer.style.padding = "0 10px 10px 10px";
         paragraphTextContainer.classList.add("highlighted-paragraph");
     }
 
@@ -376,6 +377,7 @@ export class ParagraphItem {
                 chapterPresenter.focusOutHandler();
                 let paragraphTextContainer = this.element.querySelector('.paragraph-item');
                 paragraphTextContainer.classList.remove("highlighted-paragraph");
+                paragraphTextContainer.style.padding= "0";
                 let paragraphText = this.element.querySelector(".paragraph-text");
                 paragraphText.classList.remove("focused");
                 let paragraphHeaderContainer = this.element.querySelector('.paragraph-header');

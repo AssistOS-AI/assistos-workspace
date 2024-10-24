@@ -93,7 +93,6 @@ html[theme="dark"] .arrow svg {
     display:flex;
     flex-direction: column;
     width: 100%;
-    gap:8px;
 }
 .chapter-visibility-arrow{
     margin-right: 10px;

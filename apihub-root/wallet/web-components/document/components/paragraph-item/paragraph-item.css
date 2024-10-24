@@ -7,9 +7,6 @@ paragraph-item {
     flex-direction: column;
     width: 100%;
     color: black;
-    white-space: pre-wrap;
-    word-wrap: break-word;
-    overflow-wrap: break-word;
     font-size: 11px;
 }
 
@@ -63,7 +60,6 @@ paragraph-item {
     background-color: var(--white);
 }
 .paragraph-item {
-    padding: 0 10px 10px 10px;
     position: relative;
     cursor: default;
     display: flex;
@@ -79,8 +75,8 @@ paragraph-item {
     width: 100%;
     height: auto;
 }
-.paragraph-commands{
-    line-height: 1;
+textarea.paragraph-commands{
+    line-height: 1.5;
     overflow: hidden;
     resize: none;
     border: none;
@@ -118,6 +114,7 @@ paragraph-item {
 }
 
 .paragraph-text {
+    text-indent: 20px;
     overflow: hidden;
     resize: none;
     border: none;
