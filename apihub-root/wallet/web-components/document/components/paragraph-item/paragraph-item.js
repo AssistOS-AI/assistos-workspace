@@ -204,7 +204,9 @@ export class ParagraphItem {
         let paragraphHeaderContainer = this.element.querySelector('.paragraph-header');
         paragraphHeaderContainer.classList.add("highlight-paragraph-header");
         let paragraphText = this.element.querySelector('.paragraph-text');
-        paragraphText.classList.add("focused")
+        paragraphText.classList.add("focused");
+        let paragraphTextContainer = this.element.querySelector('.paragraph-item');
+        paragraphTextContainer.classList.add("highlighted-paragraph");
     }
 
     async renderEditModeCommands() {
@@ -370,6 +372,10 @@ export class ParagraphItem {
         }
         await assistOS.loadifyComponent(this.element, async () => {
                 this.switchParagraphToolbar("off");
+                let chapterPresenter = this.element.closest("chapter-item").webSkelPresenter;
+                chapterPresenter.focusOutHandler();
+                let paragraphTextContainer = this.element.querySelector('.paragraph-item');
+                paragraphTextContainer.classList.remove("highlighted-paragraph");
                 let paragraphText = this.element.querySelector(".paragraph-text");
                 paragraphText.classList.remove("focused");
                 let paragraphHeaderContainer = this.element.querySelector('.paragraph-header');

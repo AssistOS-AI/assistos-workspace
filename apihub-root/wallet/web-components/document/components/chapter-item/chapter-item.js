@@ -168,10 +168,13 @@ export class ChapterItem {
         this.switchButtonsDisplay(this.chapterItem, "on");
     }
 
-
-    focusOutHandler(chapterTitle) {
-        this.switchButtonsDisplay(this.chapterItem, "off");
+    focusOutHandlerTitle(chapterTitle){
+        this.focusOutHandler()
         chapterTitle.classList.remove("focused");
+    }
+    focusOutHandler() {
+        assistOS.space.currentChapterId = null;
+        this.switchButtonsDisplay(this.chapterItem, "off");
     }
 
     switchPlayButtonDisplay(mode) {
@@ -185,8 +188,8 @@ export class ChapterItem {
         }
     }
 
-    switchButtonsDisplay(target, mode) {
-        let actionCell = this.chapterItem.querySelector('.action-cell');
+    switchButtonsDisplay(targetElement, mode) {
+        let actionCell = this.element.querySelector('.action-cell');
         mode === "on" ? actionCell.style.visibility = "visible" : actionCell.style.visibility = "hidden";
         this.switchPlayButtonDisplay(mode);
     }

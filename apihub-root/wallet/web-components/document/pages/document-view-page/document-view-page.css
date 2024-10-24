@@ -220,19 +220,12 @@ html[theme="dark"] .document-title-container {
     font-weight: 600;
 }
 
-#current-selection-parent {
+.focusable.focused {
+    background-color: white; !important;
+}
+.container-element.focused{
     background-color: var(--white-blue-tint);
 }
-
-#current-selection-parent .focusable {
-    background-color: var(--white-blue-tint);
-}
-
-#current-selection-parent .focusable.focused {
-    background-color: white;
-!important;
-}
-
 .insert-image {
     margin-left: 10px;
     cursor: pointer;
@@ -256,7 +249,6 @@ html[theme="dark"] .document-title-container {
 }
 
 .task-icon {
-    width: 25px;
     cursor: pointer;
 }
 
@@ -267,8 +259,13 @@ html[theme="dark"] .document-title-container {
 
 .tasks-menu {
     position: relative;
+    display: flex;
+    align-items: center;
 }
-
+.play-video-preview{
+    margin-right: 15px;
+    cursor: pointer;
+}
 .new-tasks-badge {
     position: absolute;
     top: -2px;
