@@ -362,9 +362,13 @@ export class ParagraphItem {
             } catch (e) {
                 // task is not running
             }
-            await utilModule.removeTask(taskId);
-            await utilModule.unsubscribeFromObject(taskId);
-            assistOS.space.notifyObservers(this._document.id + "/tasks");
+            try {
+                await utilModule.removeTask(taskId);
+                await utilModule.unsubscribeFromObject(taskId);
+                assistOS.space.notifyObservers(this._document.id + "/tasks");
+            } catch (e) {
+                //task has already been removed
+            }
         }
     }
     async validateCommand(commandType, commands) {
