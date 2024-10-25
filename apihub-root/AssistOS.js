@@ -6,7 +6,8 @@ const applicationModule = require('assistos').loadModule('application', {});
 const agentModule = require('assistos').loadModule('personality', {});
 const flowModule = require('assistos').loadModule('flow', {});
 const personalityModule = require('assistos').loadModule('personality', {})
-const notificationModule = require('assistos').loadModule('notification', {});
+const notificationModule=require('assistos').loadModule('notification', {})
+const NotificationRouter = new notificationModule.NotificationRouter(2000);
 
 class AssistOS {
     constructor(configuration) {
@@ -130,8 +131,8 @@ class AssistOS {
             }
         }
         const loaderId = assistOS.UI.showLoading();
-        await notificationModule.closeSSEConnection(this.connectionSSE);
-        delete this.connectionSSE;
+        await NotificationRouter.closeConnection(this.connectionId);
+        delete this.connectionId;
         await userModule.logoutUser();
         removeSidebar();
         await this.refresh();
@@ -202,7 +203,7 @@ class AssistOS {
         try {
             await (spaceId ? skipSpace ? assistOS.initUser() : assistOS.initUser(spaceId) : assistOS.initUser());
             const SSEConfig = {
-                url: `/events/updates`,
+                url: `/events`,
                 withCredentials: true,
                 onDisconnect: async (disconnectReason) => {
                     await assistOS.UI.showModal("client-disconnect-modal", {
@@ -215,7 +216,7 @@ class AssistOS {
                 }
             }
             try {
-                this.connectionSSE = notificationModule.createSSEConnection(SSEConfig);
+                this.connectionId= NotificationRouter.registerConnection(`/events`,SSEConfig);
             } catch (error) {
                 await showApplicationError("Error", "Failed to establish connection to the server", error.message);
             }

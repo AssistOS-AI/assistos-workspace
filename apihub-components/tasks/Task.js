@@ -29,6 +29,7 @@ class Task {
         const module = require('assistos').loadModule(moduleName, this.securityContext);
         return module;
     }
+
     async run(){
         if (this.status === STATUS.RUNNING) {
             throw new Error(`Cannot run task in status ${this.status}`);

@@ -1,4 +1,6 @@
-const utilModule = require("assistos").loadModule("util", {});
+const notificationModule = require('assistos').loadModule('notification', {})
+const NotificationRouter = new notificationModule.NotificationRouter(2000);
+
 const documentModule = require("assistos").loadModule("document", {});
 const personalityModule = require("assistos").loadModule("personality", {});
 import {executorTimer, unescapeHtmlEntities} from "../../../../imports.js";
@@ -14,7 +16,9 @@ export class DocumentViewPage {
         this.invalidate(async () => {
             let documentData = await documentModule.getDocument(assistOS.space.id, window.location.hash.split("/")[3]);
             this._document = new documentModule.Document(documentData);
-            await utilModule.subscribeToObject(this._document.id, async (type) => {
+            const subscriptionPath = `/documents/${this._document.id}`
+            debugger
+            this.subscribtionId = await NotificationRouter.subscribeToObject(subscriptionPath, async (data, type) => {
                 switch (type) {
                     case "delete":
                         await this.openDocumentsPage();
@@ -36,9 +40,9 @@ export class DocumentViewPage {
             });
             this.personalitiesMetadata = await personalityModule.getPersonalitiesMetadata(assistOS.space.id);
             this.personalitiesId = "personalities";
-            await utilModule.subscribeToObject(this.personalitiesId, async (type) => {
+          /*  await utilModule.subscribeToObject(this.personalitiesId, async (type) => {
                 this.personalitiesMetadata = await utilModule.getPersonalitiesMetadata(assistOS.space.id);
-            });
+            });*/
         });
     }
 
@@ -75,15 +79,16 @@ export class DocumentViewPage {
                 chapter.scrollIntoView({behavior: "smooth", block: "center"});
             }
         }
-        if(!this.boundRemoveFocusHandler){
+        if (!this.boundRemoveFocusHandler) {
             this.boundRemoveFocusHandler = this.removeFocusHandler.bind(this);
             document.addEventListener("click", this.boundRemoveFocusHandler);
         }
     }
-    async removeFocusHandler(event){
+
+    async removeFocusHandler(event) {
         let closestContainer = event.target.closest(".document-editor");
-        if(!closestContainer && !event.target.closest(".maintain-focus")){
-            if(this.currentElement){
+        if (!closestContainer && !event.target.closest(".maintain-focus")) {
+            if (this.currentElement) {
                 this.currentElement.element.removeAttribute("id");
                 this.currentElement.containerElement.removeAttribute("id");
                 await this.currentElement.focusoutFunction(this.currentElement.element);
@@ -93,12 +98,13 @@ export class DocumentViewPage {
             }
         }
     }
+
     async afterUnload() {
-        await utilModule.unsubscribeFromObject(this._document.id);
-        await utilModule.unsubscribeFromObject(this.personalitiesId);
+       /* await utilModule.unsubscribeFromObject(this._document.id, this.subscribtionId);
+        await utilModule.unsubscribeFromObject(this.personalitiesId, this.subscribtionId);
         for (let childId of this.childrenSubscriptions.keys()) {
             await utilModule.unsubscribeFromObject(childId);
-        }
+        }*/
     }
 
     setContext() {
@@ -166,7 +172,7 @@ export class DocumentViewPage {
         }
     }
 
-    async addChapter(targetElement,mode) {
+    async addChapter(targetElement, mode) {
         let position = this._document.chapters.length;
         if (assistOS.space.currentChapterId) {
             if (mode === "above") {
@@ -182,7 +188,11 @@ export class DocumentViewPage {
         let chapterData = {title: "New Chapter", paragraphs: []};
         chapterData.position = position;
         let chapterId = await documentModule.addChapter(assistOS.space.id, this._document.id, chapterData);
-        await documentModule.addParagraph(assistOS.space.id, this._document.id, chapterId, {text: "", position: 0, commands: {}});
+        await documentModule.addParagraph(assistOS.space.id, this._document.id, chapterId, {
+            text: "",
+            position: 0,
+            commands: {}
+        });
         this.invalidate(this.refreshDocument);
     }
 
@@ -218,6 +228,7 @@ export class DocumentViewPage {
             focusoutFunction: focusoutFunction
         };
     }
+
     async changeContainerElement(element, focusoutFunction) {
         if (this.currentElement) {
             this.currentElement.element.removeAttribute("id");
@@ -266,13 +277,13 @@ export class DocumentViewPage {
         if (targetElement.getAttribute("id") === "current-selection") {
             return;
         }
-        if(type === "chapter"){
+        if (type === "chapter") {
             let chapterPresenter = targetElement.closest("chapter-item").webSkelPresenter;
             await chapterPresenter.highlightChapter();
             targetElement.setAttribute("id", "current-selection-parent");
             await this.changeContainerElement(targetElement, chapterPresenter.focusOutHandler.bind(chapterPresenter));
             return;
-        }else if(type === "paragraph"){
+        } else if (type === "paragraph") {
             let chapterPresenter = targetElement.closest("chapter-item").webSkelPresenter;
             let paragraphItem = targetElement.closest("paragraph-item");
             let paragraphText = paragraphItem.querySelector(".paragraph-text");
@@ -282,7 +293,7 @@ export class DocumentViewPage {
             await paragraphPresenter.highlightParagraph();
             await chapterPresenter.highlightChapter();
             return;
-        } else if(type === "paragraphHeader"){
+        } else if (type === "paragraphHeader") {
             let chapterPresenter = targetElement.closest("chapter-item").webSkelPresenter;
             let paragraphItem = targetElement.closest("paragraph-item");
             let paragraphPresenter = paragraphItem.webSkelPresenter;
@@ -337,7 +348,7 @@ export class DocumentViewPage {
     async documentToVideo(button) {
         let videoId = await documentModule.documentToVideo(assistOS.space.id, this._document.id);
         assistOS.space.notifyObservers(this._document.id + "/tasks");
-        await utilModule.subscribeToObject(videoId, async (data) => {
+       /* await utilModule.subscribeToObject(videoId, async (data) => {
             if (data.error) {
                 return await showApplicationError("Error compiling video", data.error, "");
             } else if (data.status === "completed") {
@@ -349,7 +360,7 @@ export class DocumentViewPage {
                 a.remove();
                 this.invalidate(this.refreshDocument);
             }
-        });
+        });*/
     }
 
     async exportDocument(targetElement) {
@@ -397,16 +408,18 @@ export class DocumentViewPage {
         const llmModule = require('assistos').loadModule('llm', {});
         const response = (await llmModule.lipsync(assistOS.space.id, "sync-1.6.0", {}))
     }
-    async openTasksModal(targetElement){
+
+    async openTasksModal(targetElement) {
         let newTasksBadge = this.element.querySelector(".new-tasks-badge");
-        if(newTasksBadge){
+        if (newTasksBadge) {
             newTasksBadge.remove();
         }
         await assistOS.UI.showModal("document-tasks-modal", {["document-id"]: this._document.id});
     }
-    renderNewTasksBadge(){
+
+    renderNewTasksBadge() {
         let newTasksBadge = this.element.querySelector(".new-tasks-badge");
-        if(newTasksBadge){
+        if (newTasksBadge) {
             return;
         }
         newTasksBadge = `<div class="new-tasks-badge"></div>`;

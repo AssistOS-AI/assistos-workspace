@@ -1,4 +1,4 @@
-const utilModule = require("assistos").loadModule("util", {});
+//const utilModule = require("assistos").loadModule("util", {});
 const spaceModule = require("assistos").loadModule("space", {});
 
 export class AgentPage {
@@ -11,9 +11,9 @@ export class AgentPage {
         }
         this.invalidate(async () => {
             this.personalities = await assistOS.space.getPersonalitiesMetadata();
-            await utilModule.subscribeToObject(`chat_${assistOS.space.id}`, async () => {
+            /*await utilModule.subscribeToObject(`chat_${assistOS.space.id}`, async () => {
                 this.invalidate(async () => assistOS.space.chat = await spaceModule.getSpaceChat(assistOS.space.id, "123456789"));
-            })
+            })*/
         });
 
         this.private = "selected-chat";
