@@ -514,14 +514,11 @@ export class ParagraphItem {
                 <list-item data-local-action="addParagraph" data-name="Insert Paragraph After" data-highlight="light-highlight"></list-item>
                 <list-item data-local-action="addChapter" data-name="Add Chapter" data-highlight="light-highlight"></list-item>`,
         "image-menu":`
-                <list-item data-local-action="openInsertAttachmentModal image" data-name="Insert Image" data-highlight="light-highlight"></list-item>  
-                <list-item data-local-action="deleteCommand image" data-name="Delete Image" data-highlight="light-highlight"></list-item>`,
+                <image-menu data-presenter="image-menu"></image-menu>`,
         "audio-menu":`
                 <audio-menu data-presenter="audio-menu"></audio-menu>`,
         "video-menu":`
-                <list-item data-local-action="openInsertAttachmentModal video" data-name="Insert Video" data-highlight="light-highlight"></list-item>
-                <list-item data-local-action="deleteCommand video" data-name="Delete Video" data-highlight="light-highlight"></list-item>
-                <list-item data-name="Insert Lip Sync" data-local-action="insertLipsync" data-highlight="light-highlight"></list-item>`,
+                <video-menu data-presenter="video-menu"></video-menu>`,
     }
     openMenu(targetElement, menuName) {
         if(targetElement.hasAttribute("data-menu-open")){
@@ -546,7 +543,7 @@ export class ParagraphItem {
         targetElement.removeAttribute("data-menu-open");
     }
 
-    async insertLipsync(targetElement) {
+    async insertLipSync(targetElement) {
         let commands = this.element.querySelector('.paragraph-commands');
         if (commands.tagName === "DIV") {
             if (this.paragraph.commands.lipsync) {

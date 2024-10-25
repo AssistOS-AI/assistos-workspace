@@ -4,6 +4,18 @@
     "services": [],
     "components": [
         {
+            "name": "video-menu",
+            "directory": "document",
+            "type": "components",
+            "presenterClassName": "VideoMenu"
+        },
+        {
+            "name": "image-menu",
+            "directory": "document",
+            "type": "components",
+            "presenterClassName": "ImageMenu"
+        },
+        {
             "name": "silence-popup",
             "directory": "document",
             "type": "components",

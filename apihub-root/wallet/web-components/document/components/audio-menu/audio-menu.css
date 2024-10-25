@@ -1,8 +1,6 @@
 audio-menu{
+    display: block;
     width: 450px;
-    z-index: 4;
-    position: absolute;
-    left: 0;
     background-color: var(--white);
     padding: 15px;
     border-radius: 5px;

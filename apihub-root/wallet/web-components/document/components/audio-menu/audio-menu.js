@@ -120,6 +120,7 @@ export class AudioMenu {
     }
     async deleteAudio(){
         await this.parentPresenter.deleteCommand("", "audio");
+        this.invalidate();
     }
     async insertSoundEffect(){
         await this.parentPresenter.openInsertAttachmentModal("", "soundEffect");
