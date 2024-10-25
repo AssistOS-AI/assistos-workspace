@@ -127,6 +127,7 @@ class LipSync extends Task {
             spaceId: this.spaceId,
             userId: this.userId,
             name: this.constructor.name,
+            failMessage: this.failMessage,
             configs: {
                 documentId: this.documentId,
                 paragraphId: this.paragraphId,

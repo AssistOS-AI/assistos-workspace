@@ -24,7 +24,7 @@ export class DocumentTasksModal {
         if(this.tasks.length > 0){
             let tasksList = "";
             for(let task of this.tasks){
-                tasksList += `<task-item data-id="${task.id}" data-name="${task.name}" data-status=${task.status} data-presenter="task-item"></task-item>`;
+                tasksList += `<task-item data-id="${task.id}" data-presenter="task-item"></task-item>`;
             }
             this.modalContent = `
                 <div class="tasks-buttons">
@@ -32,9 +32,10 @@ export class DocumentTasksModal {
                     <button class="general-button cancel-all-tasks" data-local-action="cancelAllTasks">Cancel all</button>
                 </div>
                 <div class="tasks-header">
+                    <div class="agent-header">Agent</div>
                     <div class="name-header">Name</div>
                     <div class="status-header">Status</div>
-                    <div class="action-header">Info</div>
+                    <div class="link-header">Paragraph</div>
                 </div>
                 <div class="tasks-list">
                     ${tasksList}
@@ -85,5 +86,8 @@ export class DocumentTasksModal {
         let task = this.tasks.find(t => t.id === taskId);
         task.status = status;
         this.checkButtonsState();
+    }
+    getTask(taskId){
+        return this.tasks.find(t => t.id === taskId);
     }
 }

@@ -73,6 +73,7 @@ class TextToSpeech extends Task {
             spaceId: this.spaceId,
             userId: this.userId,
             name: this.constructor.name,
+            failMessage: this.failMessage,
             configs: {
                 documentId: this.documentId,
                 paragraphId: this.paragraphId,
@@ -83,8 +84,7 @@ class TextToSpeech extends Task {
         const documentModule = await this.loadModule('document');
         let paragraph = await documentModule.getParagraph(this.spaceId, this.documentId, this.paragraphId);
         let info = {
-            paragraphId: paragraph.id,
-            text: paragraph.text
+            paragraphId: paragraph.id
         }
         if(this.status === STATUS.FAILED){
             info.failMessage = this.failMessage;

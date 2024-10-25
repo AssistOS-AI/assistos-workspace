@@ -264,21 +264,15 @@ export class ParagraphItem {
                     let soundEffectSrc = await spaceModule.getAudioURL(command.id);
                     html += `<a class="command-link" data-local-action="showAttachment soundEffect" href="${soundEffectSrc}" data-id="${command.id}">Sound Effect</a>`;
                 } else if (command.name === "speech") {
-                    let personality = this.documentPresenter.personalitiesMetadata.find(personality => personality.name === command.personality);
-                    let personalityImageId;
-                    if(personality){
-                        personalityImageId = personality.imageId;
-                    } else {
-                        personalityImageId = null;
-                        this.showCommandsError("Personality not found");
-                    }
-                    let imageSrc = "./wallet/assets/images/default-personality.png"
-                    if(personalityImageId){
-                        imageSrc = await spaceModule.getImageURL(personalityImageId);
+                    this.speechPersonalityImageSrc = "./wallet/assets/images/default-personality.png"
+                    try {
+                        this.speechPersonalityImageSrc = await this.getPersonalityImageSrc(command.personality);
+                    } catch (e){
+                        this.showCommandsError(e.message);
                     }
                     let speechHTML = `
                     <div class="command-line maintain-focus">
-                        <img src="${imageSrc}" class="personality-icon" alt="personality">
+                        <img src="${this.speechPersonalityImageSrc}" class="personality-icon" alt="personality">
                         <span class="personality-name">${command.personality}</span>
                         <span class="emotion">${utilModule.constants.COMMANDS_CONFIG.EMOTIONS[command.emotion]}</span>
                     </div>`;
@@ -303,7 +297,20 @@ export class ParagraphItem {
         }
         return html;
     }
-
+    async getPersonalityImageSrc(personalityName) {
+        let personality = this.documentPresenter.personalitiesMetadata.find(personality => personality.name === personalityName);
+        let personalityImageId;
+        if(personality){
+            personalityImageId = personality.imageId;
+        } else {
+            personalityImageId = null;
+            throw new Error("Personality not found");
+        }
+        if(personalityImageId){
+            return await spaceModule.getImageURL(personalityImageId);
+        }
+        return "./wallet/assets/images/default-personality.png"
+    }
     showCommandsError(error) {
         if (this.errorElement.classList.contains("hidden")) {
             this.errorElement.classList.remove("hidden");

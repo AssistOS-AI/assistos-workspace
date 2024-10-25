@@ -47,7 +47,7 @@
         },
         {
             "name": "task-item",
-            "directory": "space-application",
+            "directory": "document",
             "type": "components",
             "presenterClassName": "TaskItem"
         },
