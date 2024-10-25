@@ -75,7 +75,7 @@ export class ParagraphItem {
                 }
             }
         }
-        await this.prepareTaskIcon();
+        //await this.prepareTaskIcon();
     }
 
     async prepareTaskIcon() {
