@@ -10,8 +10,7 @@ video-menu{
     display: flex;
     margin-bottom: 10px;
 }
-.delete-video,
-.delete-lipsync{
+.delete-video{
     margin-left: 10px;
 }
 .paragraph-video{

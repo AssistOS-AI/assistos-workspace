@@ -28,12 +28,6 @@
             "presenterClassName": "ExportDocumentModal"
         },
         {
-            "name": "show-attachment-modal",
-            "directory": "document",
-            "type": "modals",
-            "presenterClassName": "ShowAttachmentModal"
-        },
-        {
             "name": "insert-audio-modal",
             "directory": "document",
             "type": "modals",

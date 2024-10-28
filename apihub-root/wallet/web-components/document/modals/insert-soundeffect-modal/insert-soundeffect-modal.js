@@ -5,6 +5,7 @@ export class InsertSoundEffectModal {
         this.element = element;
         this.invalidate = invalidate;
         this.element.classList.add("maintain-focus");
+        this.element.classList.add("insert-modal");
         this.invalidate();
     }
 

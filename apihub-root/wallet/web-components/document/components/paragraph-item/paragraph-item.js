@@ -263,27 +263,8 @@ export class ParagraphItem {
                 } else if (command.name === "soundEffect") {
                     let soundEffectSrc = await spaceModule.getAudioURL(command.id);
                     html += `<a class="command-link" data-local-action="showAttachment soundEffect" href="${soundEffectSrc}" data-id="${command.id}">Sound Effect</a>`;
-                } else if (command.name === "speech") {
-                    this.speechPersonalityImageSrc = "./wallet/assets/images/default-personality.png"
-                    try {
-                        this.speechPersonalityImageSrc = await this.getPersonalityImageSrc(command.personality);
-                    } catch (e){
-                        this.showCommandsError(e.message);
-                    }
-                    let speechHTML = `
-                    <div class="command-line maintain-focus">
-                        <img src="${this.speechPersonalityImageSrc}" class="personality-icon" alt="personality">
-                        <span class="personality-name">${command.personality}</span>
-                        <span class="emotion">${utilModule.constants.COMMANDS_CONFIG.EMOTIONS[command.emotion]}</span>
-                    </div>`;
-                    html += speechHTML;
-                } else if (command.name === "lipsync") {
-                    let lipsyncHTML = `
-                    <div class="command-line maintain-focus">
-                        <span class="lipsync-text">Lipsync</span>
-                    </div>`;
-                    html += lipsyncHTML;
-                } else if (command.name === "silence") {
+                }
+              else if (command.name === "silence") {
                     let silenceHTML = `
                     <div class="command-line maintain-focus">
                         <img src="./wallet/assets/icons/silence.svg" class="command-icon" alt="silence">
@@ -470,28 +451,6 @@ export class ParagraphItem {
         }
     }
 
-    showSilencePopup(targetElement, mode) {
-        if (mode === "off") {
-            let popup = `<silence-popup data-presenter="silence-popup" data-paragraph-id="${this.paragraph.id}"></silence-popup>`;
-            this.element.insertAdjacentHTML('beforeend', popup);
-            let controller = new AbortController();
-            document.addEventListener("click", this.hidePopup.bind(this, controller, targetElement), {signal: controller.signal});
-            targetElement.setAttribute("data-local-action", "showSilencePopup on");
-        }
-    }
-
-    hidePopup(controller, targetElement, event) {
-        if (event.target.closest("silence-popup") || event.target.tagName === "A") {
-            return;
-        }
-        targetElement.setAttribute("data-local-action", "showSilencePopup off");
-        let popup = this.element.querySelector("silence-popup");
-        if (popup) {
-            popup.remove();
-        }
-        controller.abort();
-    }
-
     async resetTimer(paragraph, event) {
         paragraph.style.height = "auto";
         paragraph.style.height = paragraph.scrollHeight + 'px';
@@ -535,7 +494,7 @@ export class ParagraphItem {
         document.addEventListener("click", this.closeMenu.bind(this, controller, targetElement, menuName), {signal: controller.signal});
     }
     closeMenu(controller, targetElement, menuName, event) {
-        if (event.target.closest(`.toolbar-menu.${menuName}`)) {
+        if (event.target.closest(`.toolbar-menu.${menuName}`) || event.target.closest(".insert-modal")) {
             return;
         }
         let menu = this.element.querySelector(`.toolbar-menu.${menuName}`);
@@ -544,25 +503,6 @@ export class ParagraphItem {
         }
         controller.abort();
         targetElement.removeAttribute("data-menu-open");
-    }
-
-    async insertLipSync(targetElement) {
-        let commands = this.element.querySelector('.paragraph-commands');
-        if (commands.tagName === "DIV") {
-            if (this.paragraph.commands.lipsync) {
-                await this.handleCommand("lipsync", "changed");
-            } else {
-                this.paragraph.commands.lipsync = {};
-                await this.handleCommand("lipsync", "new");
-            }
-            await documentModule.updateParagraphCommands(assistOS.space.id, this._document.id, this.paragraph.id, this.paragraph.commands);
-            await this.renderViewModeCommands();
-        } else {
-            const currentCommandsString = commands.value.replace(/\n/g, "");
-            commands.value = `${currentCommandsString}` + "\n" + utilModule.buildCommandString("lipsync", {});
-            commands.style.height = commands.scrollHeight + 'px';
-        }
-        this.showUnfinishedTasks();
     }
 
     async openInsertAttachmentModal(targetElement, type) {
@@ -602,10 +542,6 @@ export class ParagraphItem {
             commands.style.height = commands.scrollHeight + 'px';
         }
         this.showUnfinishedTasks();
-    }
-
-    async showAttachment(element, type) {
-        await assistOS.UI.showModal("show-attachment-modal", {type: type, id: this.paragraph.commands[type].id});
     }
 
     showControls() {
