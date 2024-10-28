@@ -17,7 +17,6 @@ export class DocumentViewPage {
             let documentData = await documentModule.getDocument(assistOS.space.id, window.location.hash.split("/")[3]);
             this._document = new documentModule.Document(documentData);
             const subscriptionPath = `/documents/${this._document.id}`
-            debugger
             this.subscribtionId = await NotificationRouter.subscribeToObject(subscriptionPath, async (data, type) => {
                 switch (type) {
                     case "delete":
