@@ -117,6 +117,7 @@ export class AudioMenu {
     }
     async insertAudio(){
         await this.parentPresenter.openInsertAttachmentModal("", "audio");
+        this.invalidate();
     }
     async deleteAudio(){
         await this.parentPresenter.deleteCommand("", "audio");
@@ -124,8 +125,27 @@ export class AudioMenu {
     }
     async insertSoundEffect(){
         await this.parentPresenter.openInsertAttachmentModal("", "soundEffect");
+        this.invalidate();
     }
-    showSilencePopup(targetElement, mode){
-        this.parentPresenter.showSilencePopup(targetElement, mode);
+    showSilencePopup(targetElement, mode) {
+        if (mode === "off") {
+            let popup = `<silence-popup data-presenter="silence-popup" data-paragraph-id="${this.parentPresenter.paragraph.id}"></silence-popup>`;
+            this.parentPresenter.element.insertAdjacentHTML('beforeend', popup);
+            let controller = new AbortController();
+            document.addEventListener("click", this.hidePopupSilencePopup.bind(this, controller, targetElement), {signal: controller.signal});
+            targetElement.setAttribute("data-local-action", "showSilencePopup on");
+        }
+    }
+
+    hidePopupSilencePopup(controller, targetElement, event) {
+        if (event.target.closest("silence-popup") || event.target.tagName === "A") {
+            return;
+        }
+        targetElement.setAttribute("data-local-action", "showSilencePopup off");
+        let popup = this.parentPresenter.element.querySelector("silence-popup");
+        if (popup) {
+            popup.remove();
+        }
+        controller.abort();
     }
 }

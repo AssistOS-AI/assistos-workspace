@@ -16,6 +16,7 @@ export class InsertImageModal {
         });
         this.selectedImage = "";
         this.element.classList.add("maintain-focus");
+        this.element.classList.add("insert-modal");
     }
 
     beforeRender() {
