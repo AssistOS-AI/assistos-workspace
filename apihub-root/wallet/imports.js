@@ -1,9 +1,3 @@
-//Models
-import {PageModel} from "./core/models/PageModel.js";
-
-export {
-    PageModel,
-};
 
 // Others
 import {

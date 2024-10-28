@@ -131,8 +131,7 @@ class AssistOS {
             }
         }
         const loaderId = assistOS.UI.showLoading();
-        await NotificationRouter.closeConnection(this.connectionId);
-        delete this.connectionId;
+        await NotificationRouter.closeConnection();
         await userModule.logoutUser();
         removeSidebar();
         await this.refresh();
@@ -202,21 +201,8 @@ class AssistOS {
 
         try {
             await (spaceId ? skipSpace ? assistOS.initUser() : assistOS.initUser(spaceId) : assistOS.initUser());
-            const SSEConfig = {
-                url: `/events`,
-                withCredentials: true,
-                onDisconnect: async (disconnectReason) => {
-                    await assistOS.UI.showModal("client-disconnect-modal", {
-                        "presenter": "client-disconnect-modal",
-                        reason: disconnectReason.message
-                    });
-                },
-                onError: async (err) => {
-                    console.error('EventSource failed:', err);
-                }
-            }
             try {
-                this.connectionId= NotificationRouter.registerConnection(`/events`,SSEConfig);
+                this.connection = NotificationRouter.createSSEConnection();
             } catch (error) {
                 await showApplicationError("Error", "Failed to establish connection to the server", error.message);
             }
