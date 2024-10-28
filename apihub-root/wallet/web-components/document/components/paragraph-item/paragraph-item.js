@@ -75,25 +75,6 @@ export class ParagraphItem {
                 }
             }
         }
-        //await this.prepareTaskIcon();
-    }
-
-    async prepareTaskIcon() {
-        let speechCommand = this.paragraph.commands["speech"];
-        if (speechCommand) {
-            if (speechCommand.taskId) {
-                let task = await utilModule.getTask(speechCommand.taskId);
-                if (task.status === "running") {
-                    this.taskIcon = `<div class="loading-icon small top-margin"></div>`;
-                } else if (task.status === "completed") {
-                    this.taskIcon = "";
-                } else if (task.status === "failed") {
-                    this.taskIcon = `<img src="./wallet/assets/icons/error.svg" class="error-icon" alt="error">`;
-                } else if (task.status === "cancelled") {
-                    this.taskIcon = "";
-                }
-            }
-        }
     }
 
     async deleteParagraph() {
@@ -208,8 +189,27 @@ export class ParagraphItem {
         let paragraphTextContainer = this.element.querySelector('.paragraph-item');
         paragraphTextContainer.style.padding = "0 10px 10px 10px";
         paragraphTextContainer.classList.add("highlighted-paragraph");
+        this.showUnfinishedTasks();
     }
-
+    showUnfinishedTasks(){
+        if(assistOS.space.currentParagraphId !== this.paragraph.id){
+            return;
+        }
+        let unfinishedTasks = 0;
+        for(let commandName of Object.keys(this.paragraph.commands)){
+            if(this.paragraph.commands[commandName].taskId){
+                unfinishedTasks++;
+            }
+        }
+        if(unfinishedTasks > 0){
+            this.showCommandsInfo(`${unfinishedTasks} tasks unfinished`);
+        } else {
+            let tasksInfo = this.element.querySelector(".commands-info");
+            if(tasksInfo){
+                tasksInfo.remove();
+            }
+        }
+    }
     async renderEditModeCommands() {
         let textareaContainer = this.element.querySelector('.header-section');
         let commandsElement = this.element.querySelector('.paragraph-commands');
@@ -358,12 +358,7 @@ export class ParagraphItem {
         if (this.paragraph.commands[commandName].taskId) {
             let taskId = this.paragraph.commands[commandName].taskId;
             try {
-                utilModule.cancelTask(taskId);
-            } catch (e) {
-                // task is not running
-            }
-            try {
-                await utilModule.removeTask(taskId);
+                await utilModule.cancelTaskAndRemove(taskId);
                 await utilModule.unsubscribeFromObject(taskId);
                 assistOS.space.notifyObservers(this._document.id + "/tasks");
             } catch (e) {
@@ -377,22 +372,28 @@ export class ParagraphItem {
         return await utilModule.constants.COMMANDS_CONFIG.COMMANDS.find(command => command.NAME === commandType)
             .VALIDATE(assistOS.space.id, testParagraph, {});
     }
-
+    deselectParagraph() {
+        this.switchParagraphToolbar("off");
+        let chapterPresenter = this.element.closest("chapter-item").webSkelPresenter;
+        chapterPresenter.focusOutHandler();
+        let paragraphTextContainer = this.element.querySelector('.paragraph-item');
+        paragraphTextContainer.classList.remove("highlighted-paragraph");
+        paragraphTextContainer.style.padding= "0";
+        let paragraphHeaderContainer = this.element.querySelector('.paragraph-header');
+        paragraphHeaderContainer.classList.remove("highlight-paragraph-header");
+        let tasksInfo = this.element.querySelector(".commands-info");
+        if(tasksInfo){
+            tasksInfo.remove();
+        }
+    }
     async focusOutHandler() {
         if (!this.element.closest("body")) {
             return;
         }
         await assistOS.loadifyComponent(this.element, async () => {
-                this.switchParagraphToolbar("off");
-                let chapterPresenter = this.element.closest("chapter-item").webSkelPresenter;
-                chapterPresenter.focusOutHandler();
-                let paragraphTextContainer = this.element.querySelector('.paragraph-item');
-                paragraphTextContainer.classList.remove("highlighted-paragraph");
-                paragraphTextContainer.style.padding= "0";
+                this.deselectParagraph();
                 let paragraphText = this.element.querySelector(".paragraph-text");
                 paragraphText.classList.remove("focused");
-                let paragraphHeaderContainer = this.element.querySelector('.paragraph-header');
-                paragraphHeaderContainer.classList.remove("highlight-paragraph-header");
                 const cachedText = assistOS.UI.customTrim(assistOS.UI.unsanitize(this.paragraph.text));
                 const currentUIText = assistOS.UI.customTrim(paragraphText.value);
                 const textChanged = assistOS.UI.normalizeSpaces(cachedText) !== assistOS.UI.normalizeSpaces(currentUIText);
@@ -457,6 +458,7 @@ export class ParagraphItem {
             await documentModule.updateParagraphCommands(assistOS.space.id, this._document.id, this.paragraph.id, this.paragraph.commands);
             await this.renderViewModeCommands();
             await this.setupVideoPreview();
+            this.showUnfinishedTasks();
         });
     }
 
@@ -464,6 +466,7 @@ export class ParagraphItem {
         if (status === "completed") {
             this.paragraph.commands = await documentModule.getParagraphCommands(assistOS.space.id, this._document.id, this.paragraph.id);
             this.invalidate();
+            this.showUnfinishedTasks();
         }
     }
 
@@ -559,6 +562,7 @@ export class ParagraphItem {
             commands.value = `${currentCommandsString}` + "\n" + utilModule.buildCommandString("lipsync", {});
             commands.style.height = commands.scrollHeight + 'px';
         }
+        this.showUnfinishedTasks();
     }
 
     async openInsertAttachmentModal(targetElement, type) {
@@ -584,6 +588,9 @@ export class ParagraphItem {
     async deleteCommand(targetElement, type) {
         let commands = this.element.querySelector('.paragraph-commands');
         if (commands.tagName === "DIV") {
+            if(this.paragraph.commands[type].taskId){
+                await this.deleteTaskFromCommand(type);
+            }
             delete this.paragraph.commands[type];
             await documentModule.updateParagraphCommands(assistOS.space.id, this._document.id, this.paragraph.id, this.paragraph.commands);
             await this.renderViewModeCommands();
@@ -594,6 +601,7 @@ export class ParagraphItem {
             commands.value = utilModule.buildCommandsString(currentCommands);
             commands.style.height = commands.scrollHeight + 'px';
         }
+        this.showUnfinishedTasks();
     }
 
     async showAttachment(element, type) {
@@ -901,5 +909,18 @@ export class ParagraphItem {
             imageSrc = await spaceModule.getImageURL(this.paragraph.commands.image.id);
         }
         this.imgElement.src = imageSrc;
+    }
+    showCommandsInfo(message){
+        let tasksInfo = this.element.querySelector(".commands-info");
+        if(tasksInfo){
+            tasksInfo.remove();
+        }
+        let info = `
+                <div class="commands-info">
+                    <img loading="lazy" src="./wallet/assets/icons/info.svg" class="tasks-warning-icon">
+                    <div class="info-text">${message}</div>
+                </div>`;
+        let paragraphHeader = this.element.querySelector(".header-section");
+        paragraphHeader.insertAdjacentHTML('beforeend', info);
     }
 }

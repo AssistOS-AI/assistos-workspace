@@ -21,10 +21,13 @@ export class TaskItem{
         this.status = this.task.status;
         this.paragraphItem = document.querySelector(`paragraph-item[data-paragraph-id="${this.task.configs.paragraphId}"]`);
         this.paragraphPresenter = this.paragraphItem.webSkelPresenter;
-        this.paragraphText = this.paragraphPresenter.paragraph.text;
+        this.paragraphText = this.paragraphPresenter.paragraph.text || "...........";
         if(this.paragraphPresenter.paragraph.commands.speech){
             this.agent = this.paragraphPresenter.paragraph.commands.speech.personality;
             this.personalityImageSrc = this.paragraphPresenter.speechPersonalityImageSrc;
+        } else {
+            this.agent = "none";
+            this.personalityImageSrc = "./wallet/assets/images/default-personality.png";
         }
     }
     afterRender(){

@@ -26,6 +26,10 @@ class TaskManager {
             let records = await $$.promisify(lightDBEnclaveClient.getAllRecords)($$.SYSTEM_IDENTIFIER, this.tasksTable);
             for (let record of records) {
                 let task = record.data;
+                if(task.status === STATUS.COMPLETED){
+                    await $$.promisify(lightDBEnclaveClient.deleteRecord)($$.SYSTEM_IDENTIFIER, this.tasksTable, task.id);
+                    continue;
+                }
                 // TODO: this assumes that all task classes are in the same folder
                 let taskClass = require(`./${task.name}`);
                 let taskInstance = new taskClass(task.spaceId, task.userId, task.configs);

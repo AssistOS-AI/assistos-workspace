@@ -112,7 +112,7 @@ export class AudioMenu {
             paragraphHeaderElement.value += utilModule.buildCommandString("speech", commandConfig);
             paragraphHeaderElement.style.height = paragraphHeaderElement.scrollHeight + "px";
         }
-
+        this.parentPresenter.showUnfinishedTasks();
         this.element.remove();
     }
     async insertAudio(){

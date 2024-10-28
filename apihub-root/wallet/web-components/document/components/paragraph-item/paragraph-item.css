@@ -11,7 +11,7 @@ paragraph-item {
 }
 
 .highlight-paragraph-header {
-    background: var(--commands-background) !important;
+    background: var(--white-blue-tint) !important;
 }
 
 .paragraph-header-container {
@@ -70,6 +70,7 @@ paragraph-item {
 }
 
 .header-section{
+    position: relative;
     display: flex;
     flex-direction: column;
     width: 100%;
@@ -284,4 +285,15 @@ textarea.paragraph-commands{
 }
 .highlighted-paragraph{
     background-color: var(--white-blue-tint);
+}
+.info-text{
+    margin-left: 5px;
+}
+.commands-info{
+    position: absolute;
+    display: flex;
+    font-size: 14px;
+    font-weight: 600;
+    right: 10px;
+    top: 10px;
 }
