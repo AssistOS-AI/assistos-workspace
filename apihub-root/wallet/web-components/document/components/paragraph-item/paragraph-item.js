@@ -39,9 +39,12 @@ export class ParagraphItem {
             //this.element.scrollIntoView({behavior: "smooth", block: "center"});
         }
 
-        this.paragraphHeader = this.element.querySelector(".paragraph-commands");
+        let commands = this.element.querySelector(".paragraph-commands");
         this.errorElement = this.element.querySelector(".error-message");
-        this.paragraphHeader.innerHTML = await this.buildCommandsHTML("view");
+        commands.innerHTML = await this.buildCommandsHTML("view");
+        if(commands.innerHTML !== ""){
+            commands.style.padding = "5px 10px";
+        }
         await this.setupVideoPreview();
     }
 
@@ -69,25 +72,6 @@ export class ParagraphItem {
                     utilModule.subscribeToObject(value, async (status) => {
                         await this.changeTaskStatus(value, status);
                     });
-                }
-            }
-        }
-        await this.prepareTaskIcon();
-    }
-
-    async prepareTaskIcon() {
-        let speechCommand = this.paragraph.commands["speech"];
-        if (speechCommand) {
-            if (speechCommand.taskId) {
-                let task = await utilModule.getTask(speechCommand.taskId);
-                if (task.status === "running") {
-                    this.taskIcon = `<div class="loading-icon small top-margin"></div>`;
-                } else if (task.status === "completed") {
-                    this.taskIcon = "";
-                } else if (task.status === "failed") {
-                    this.taskIcon = `<img src="./wallet/assets/icons/error.svg" class="error-icon" alt="error">`;
-                } else if (task.status === "cancelled") {
-                    this.taskIcon = "";
                 }
             }
         }
@@ -181,23 +165,18 @@ export class ParagraphItem {
         }
     }
 
-    async highlightParagraphHeader() {
-        assistOS.space.currentParagraphId = this.paragraph.id;
-        this.switchParagraphToolbar("on");
-        let paragraphHeaderContainer = this.element.querySelector('.paragraph-header');
-        paragraphHeaderContainer.classList.add("highlight-paragraph-header");
-        this.paragraphHeader.removeAttribute('readonly');
+    async enterEditModeCommands() {
         let commandsElement = this.element.querySelector('.paragraph-commands');
         if(commandsElement.tagName === "DIV"){
             await this.renderEditModeCommands();
+            let controller = new AbortController();
+            document.addEventListener("click", (event) => {
+                if (!event.target.closest(".paragraph-commands")) {
+                    this.focusOutHandlerHeader(controller);
+                }
+            }, {signal: controller.signal});
         }
 
-        let paragraphText = this.element.querySelector('.paragraph-text');
-        paragraphText.classList.add("focused")
-
-        if (this.paragraph.commands.image || this.paragraph.commands.video || this.paragraph.commands.audio) {
-            this.videoContainer.classList.add("highlight-video");
-        }
     }
 
     highlightParagraph() {
@@ -206,26 +185,46 @@ export class ParagraphItem {
         let paragraphHeaderContainer = this.element.querySelector('.paragraph-header');
         paragraphHeaderContainer.classList.add("highlight-paragraph-header");
         let paragraphText = this.element.querySelector('.paragraph-text');
-        paragraphText.classList.add("focused")
-        if (this.paragraph.commands.image || this.paragraph.commands.video || this.paragraph.commands.audio) {
-            this.videoContainer.classList.add("highlight-video");
+        paragraphText.classList.add("focused");
+        let paragraphTextContainer = this.element.querySelector('.paragraph-item');
+        paragraphTextContainer.style.padding = "0 10px 10px 10px";
+        paragraphTextContainer.classList.add("highlighted-paragraph");
+        this.showUnfinishedTasks();
+    }
+    showUnfinishedTasks(){
+        if(assistOS.space.currentParagraphId !== this.paragraph.id){
+            return;
+        }
+        let unfinishedTasks = 0;
+        for(let commandName of Object.keys(this.paragraph.commands)){
+            if(this.paragraph.commands[commandName].taskId){
+                unfinishedTasks++;
+            }
+        }
+        if(unfinishedTasks > 0){
+            this.showCommandsInfo(`${unfinishedTasks} tasks unfinished`);
+        } else {
+            let tasksInfo = this.element.querySelector(".commands-info");
+            if(tasksInfo){
+                tasksInfo.remove();
+            }
         }
     }
-
     async renderEditModeCommands() {
         let textareaContainer = this.element.querySelector('.header-section');
         let commandsElement = this.element.querySelector('.paragraph-commands');
         commandsElement.remove();
         let commandsHTML = await this.buildCommandsHTML("edit");
-        textareaContainer.insertAdjacentHTML('beforeend', `<textarea class="paragraph-commands maintain-focus"></textarea>`);
+        textareaContainer.insertAdjacentHTML('beforeend', `<textarea class="paragraph-commands"></textarea>`);
         let paragraphCommands = this.element.querySelector('.paragraph-commands');
         paragraphCommands.value = commandsHTML;
+        paragraphCommands.style.padding = `5px 10px`;
         paragraphCommands.style.height = paragraphCommands.scrollHeight + 'px';
         paragraphCommands.addEventListener('input', function () {
             this.style.height = 'auto';
             this.style.height = this.scrollHeight + 'px';
         });
-        this.paragraphHeader = paragraphCommands;
+
     }
 
     async renderViewModeCommands() {
@@ -233,10 +232,14 @@ export class ParagraphItem {
         let commandsElement = this.element.querySelector('.paragraph-commands');
         commandsElement.remove();
         let commandsHTML = await this.buildCommandsHTML("view");
-        headerSection.insertAdjacentHTML('beforeend', `<div class="paragraph-commands maintain-focus">${commandsHTML}</div>`);
+        headerSection.insertAdjacentHTML('beforeend', `<div class="paragraph-commands">${commandsHTML}</div>`);
         let paragraphHeader = this.element.querySelector('.paragraph-commands');
         paragraphHeader.style.height = "initial";
-        this.paragraphHeader = paragraphHeader;
+        if(paragraphHeader.innerHTML === ""){
+            paragraphHeader.style.padding = "0";
+        } else {
+            paragraphHeader.style.padding = "5px 10px";
+        }
     }
 
     async buildCommandsHTML(mode) {
@@ -261,21 +264,15 @@ export class ParagraphItem {
                     let soundEffectSrc = await spaceModule.getAudioURL(command.id);
                     html += `<a class="command-link" data-local-action="showAttachment soundEffect" href="${soundEffectSrc}" data-id="${command.id}">Sound Effect</a>`;
                 } else if (command.name === "speech") {
-                    let personality = this.documentPresenter.personalitiesMetadata.find(personality => personality.name === command.personality);
-                    let personalityImageId;
-                    if(personality){
-                        personalityImageId = personality.imageId;
-                    } else {
-                        personalityImageId = null;
-                        this.showCommandsError("Personality not found");
-                    }
-                    let imageSrc = "./wallet/assets/images/default-personality.png"
-                    if(personalityImageId){
-                        imageSrc = await spaceModule.getImageURL(personalityImageId);
+                    this.speechPersonalityImageSrc = "./wallet/assets/images/default-personality.png"
+                    try {
+                        this.speechPersonalityImageSrc = await this.getPersonalityImageSrc(command.personality);
+                    } catch (e){
+                        this.showCommandsError(e.message);
                     }
                     let speechHTML = `
                     <div class="command-line maintain-focus">
-                        <img src="${imageSrc}" class="personality-icon" alt="personality">
+                        <img src="${this.speechPersonalityImageSrc}" class="personality-icon" alt="personality">
                         <span class="personality-name">${command.personality}</span>
                         <span class="emotion">${utilModule.constants.COMMANDS_CONFIG.EMOTIONS[command.emotion]}</span>
                     </div>`;
@@ -300,7 +297,20 @@ export class ParagraphItem {
         }
         return html;
     }
-
+    async getPersonalityImageSrc(personalityName) {
+        let personality = this.documentPresenter.personalitiesMetadata.find(personality => personality.name === personalityName);
+        let personalityImageId;
+        if(personality){
+            personalityImageId = personality.imageId;
+        } else {
+            personalityImageId = null;
+            throw new Error("Personality not found");
+        }
+        if(personalityImageId){
+            return await spaceModule.getImageURL(personalityImageId);
+        }
+        return "./wallet/assets/images/default-personality.png"
+    }
     showCommandsError(error) {
         if (this.errorElement.classList.contains("hidden")) {
             this.errorElement.classList.remove("hidden");
@@ -348,13 +358,12 @@ export class ParagraphItem {
         if (this.paragraph.commands[commandName].taskId) {
             let taskId = this.paragraph.commands[commandName].taskId;
             try {
-                utilModule.cancelTask(taskId);
+                await utilModule.cancelTaskAndRemove(taskId);
+                await utilModule.unsubscribeFromObject(taskId);
+                assistOS.space.notifyObservers(this._document.id + "/tasks");
             } catch (e) {
-                // task is not running
+                //task has already been removed
             }
-            await utilModule.removeTask(taskId);
-            await utilModule.unsubscribeFromObject(taskId);
-            assistOS.space.notifyObservers(this._document.id + "/tasks");
         }
     }
     async validateCommand(commandType, commands) {
@@ -363,20 +372,28 @@ export class ParagraphItem {
         return await utilModule.constants.COMMANDS_CONFIG.COMMANDS.find(command => command.NAME === commandType)
             .VALIDATE(assistOS.space.id, testParagraph, {});
     }
-
+    deselectParagraph() {
+        this.switchParagraphToolbar("off");
+        let chapterPresenter = this.element.closest("chapter-item").webSkelPresenter;
+        chapterPresenter.focusOutHandler();
+        let paragraphTextContainer = this.element.querySelector('.paragraph-item');
+        paragraphTextContainer.classList.remove("highlighted-paragraph");
+        paragraphTextContainer.style.padding= "0";
+        let paragraphHeaderContainer = this.element.querySelector('.paragraph-header');
+        paragraphHeaderContainer.classList.remove("highlight-paragraph-header");
+        let tasksInfo = this.element.querySelector(".commands-info");
+        if(tasksInfo){
+            tasksInfo.remove();
+        }
+    }
     async focusOutHandler() {
         if (!this.element.closest("body")) {
             return;
         }
         await assistOS.loadifyComponent(this.element, async () => {
-                this.switchParagraphToolbar("off");
+                this.deselectParagraph();
                 let paragraphText = this.element.querySelector(".paragraph-text");
                 paragraphText.classList.remove("focused");
-                if (this.paragraph.commands.image || this.paragraph.commands.video || this.paragraph.commands.audio) {
-                    this.videoContainer.classList.remove("highlight-video");
-                }
-                let paragraphHeaderContainer = this.element.querySelector('.paragraph-header');
-                paragraphHeaderContainer.classList.remove("highlight-paragraph-header");
                 const cachedText = assistOS.UI.customTrim(assistOS.UI.unsanitize(this.paragraph.text));
                 const currentUIText = assistOS.UI.customTrim(paragraphText.value);
                 const textChanged = assistOS.UI.normalizeSpaces(cachedText) !== assistOS.UI.normalizeSpaces(currentUIText);
@@ -393,24 +410,15 @@ export class ParagraphItem {
         );
     }
 
-    async focusOutHandlerHeader() {
+    async focusOutHandlerHeader(eventController) {
         await assistOS.loadifyComponent(this.element, async () => {
-            this.switchParagraphToolbar("off");
-            this.paragraphHeader.setAttribute('readonly', 'true');
-            let paragraphHeaderContainer = this.element.querySelector('.paragraph-header');
-            paragraphHeaderContainer.classList.remove("highlight-paragraph-header");
-            let paragraphText = this.element.querySelector('.paragraph-text');
-            paragraphText.classList.remove("focused");
-            let commands = utilModule.findCommands(this.paragraphHeader.value);
-            if (this.paragraph.commands.image || this.paragraph.commands.video || this.paragraph.commands.audio) {
-                this.videoContainer.classList.remove("highlight-video");
-            }
+            let commandsElement = this.element.querySelector('.paragraph-commands');
+            let commands = utilModule.findCommands(commandsElement.value);
             if (commands.invalid) {
                 this.showCommandsError(commands.error);
-                assistOS.space.currentParagraphId = null;
                 return;
             }
-            this.paragraphHeader.value = utilModule.buildCommandsString(commands);
+            commandsElement.value = utilModule.buildCommandsString(commands);
             const commandsDifferences = utilModule.getCommandsDifferences(this.paragraph.commands, commands);
             const existCommandsDifferences = Object.values(commandsDifferences).some(value => value !== "same");
 
@@ -419,7 +427,7 @@ export class ParagraphItem {
                 this.errorElement.innerText = "";
                 this.errorElement.classList.add("hidden");
                 await this.renderViewModeCommands();
-                assistOS.space.currentParagraphId = null;
+                eventController.abort();
                 return;
             }
             for (const [commandType, commandStatus] of Object.entries(commandsDifferences)) {
@@ -430,10 +438,10 @@ export class ParagraphItem {
                     await this.validateCommand(commandType, commands);
                 } catch (error) {
                     this.showCommandsError(error);
-                    assistOS.space.currentParagraphId = null;
                     return;
                 }
             }
+            eventController.abort();
             this.errorElement.innerText = "";
             this.errorElement.classList.add("hidden");
             for (let [commandName, commandStatus] of Object.entries(commandsDifferences)) {
@@ -447,11 +455,10 @@ export class ParagraphItem {
                     await this.handleCommand(commandName, commandStatus);
                 }
             }
-
             await documentModule.updateParagraphCommands(assistOS.space.id, this._document.id, this.paragraph.id, this.paragraph.commands);
             await this.renderViewModeCommands();
             await this.setupVideoPreview();
-            assistOS.space.currentParagraphId = null;
+            this.showUnfinishedTasks();
         });
     }
 
@@ -459,6 +466,7 @@ export class ParagraphItem {
         if (status === "completed") {
             this.paragraph.commands = await documentModule.getParagraphCommands(assistOS.space.id, this._document.id, this.paragraph.id);
             this.invalidate();
+            this.showUnfinishedTasks();
         }
     }
 
@@ -509,14 +517,11 @@ export class ParagraphItem {
                 <list-item data-local-action="addParagraph" data-name="Insert Paragraph After" data-highlight="light-highlight"></list-item>
                 <list-item data-local-action="addChapter" data-name="Add Chapter" data-highlight="light-highlight"></list-item>`,
         "image-menu":`
-                <list-item data-local-action="openInsertAttachmentModal image" data-name="Insert Image" data-highlight="light-highlight"></list-item>  
-                <list-item data-local-action="deleteCommand image" data-name="Delete Image" data-highlight="light-highlight"></list-item>`,
+                <image-menu data-presenter="image-menu"></image-menu>`,
         "audio-menu":`
                 <audio-menu data-presenter="audio-menu"></audio-menu>`,
         "video-menu":`
-                <list-item data-local-action="openInsertAttachmentModal video" data-name="Insert Video" data-highlight="light-highlight"></list-item>
-                <list-item data-local-action="deleteCommand video" data-name="Delete Video" data-highlight="light-highlight"></list-item>
-                <list-item data-name="Insert Lip Sync" data-local-action="insertLipsync" data-highlight="light-highlight"></list-item>`,
+                <video-menu data-presenter="video-menu"></video-menu>`,
     }
     openMenu(targetElement, menuName) {
         if(targetElement.hasAttribute("data-menu-open")){
@@ -541,7 +546,7 @@ export class ParagraphItem {
         targetElement.removeAttribute("data-menu-open");
     }
 
-    async insertLipsync(targetElement) {
+    async insertLipSync(targetElement) {
         let commands = this.element.querySelector('.paragraph-commands');
         if (commands.tagName === "DIV") {
             if (this.paragraph.commands.lipsync) {
@@ -553,10 +558,11 @@ export class ParagraphItem {
             await documentModule.updateParagraphCommands(assistOS.space.id, this._document.id, this.paragraph.id, this.paragraph.commands);
             await this.renderViewModeCommands();
         } else {
-            const currentCommandsString = this.paragraphHeader.value.replace(/\n/g, "");
-            this.paragraphHeader.value = `${currentCommandsString}` + "\n" + utilModule.buildCommandString("lipsync", {});
-            this.paragraphHeader.style.height = this.paragraphHeader.scrollHeight + 'px';
+            const currentCommandsString = commands.value.replace(/\n/g, "");
+            commands.value = `${currentCommandsString}` + "\n" + utilModule.buildCommandString("lipsync", {});
+            commands.style.height = commands.scrollHeight + 'px';
         }
+        this.showUnfinishedTasks();
     }
 
     async openInsertAttachmentModal(targetElement, type) {
@@ -582,6 +588,9 @@ export class ParagraphItem {
     async deleteCommand(targetElement, type) {
         let commands = this.element.querySelector('.paragraph-commands');
         if (commands.tagName === "DIV") {
+            if(this.paragraph.commands[type].taskId){
+                await this.deleteTaskFromCommand(type);
+            }
             delete this.paragraph.commands[type];
             await documentModule.updateParagraphCommands(assistOS.space.id, this._document.id, this.paragraph.id, this.paragraph.commands);
             await this.renderViewModeCommands();
@@ -592,6 +601,7 @@ export class ParagraphItem {
             commands.value = utilModule.buildCommandsString(currentCommands);
             commands.style.height = commands.scrollHeight + 'px';
         }
+        this.showUnfinishedTasks();
     }
 
     async showAttachment(element, type) {
@@ -899,5 +909,18 @@ export class ParagraphItem {
             imageSrc = await spaceModule.getImageURL(this.paragraph.commands.image.id);
         }
         this.imgElement.src = imageSrc;
+    }
+    showCommandsInfo(message){
+        let tasksInfo = this.element.querySelector(".commands-info");
+        if(tasksInfo){
+            tasksInfo.remove();
+        }
+        let info = `
+                <div class="commands-info">
+                    <img loading="lazy" src="./wallet/assets/icons/info.svg" class="tasks-warning-icon">
+                    <div class="info-text">${message}</div>
+                </div>`;
+        let paragraphHeader = this.element.querySelector(".header-section");
+        paragraphHeader.insertAdjacentHTML('beforeend', info);
     }
 }

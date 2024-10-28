@@ -52,8 +52,8 @@ class Task {
             }, deleteTaskOnCompleteDuration);
             return result;
         } catch (e) {
-            this.setStatus(STATUS.FAILED);
             this.failMessage = e.message;
+            this.setStatus(STATUS.FAILED);
         }
     }
 

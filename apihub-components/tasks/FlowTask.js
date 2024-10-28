@@ -30,7 +30,7 @@ const getFlowPath = async (spaceId, flowName) => {
 
 class FlowTask extends Task {
     constructor(securityContext, spaceId, userId, configs, flowId) {
-        super(securityContext, spaceId, userId);
+        super(spaceId, userId);
         return (async () => {
             this.configs = configs;
             this.flowId = flowId;

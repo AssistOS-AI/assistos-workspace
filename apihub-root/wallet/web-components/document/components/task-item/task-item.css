@@ -11,32 +11,22 @@ task-item{
     line-height: normal;
 }
 .green{
-    background-color: green;
-}
-.yellow{
-    background-color: #ffad02;
-}
-.red{
-    background-color: red;
-    cursor: initial;
-}
-.grey{
-    background-color: grey;
-    pointer-events: none;
+    color: green;
 }
 .task-name{
-    width: 50%;
+    width: 27%;
     overflow: hidden;
     text-overflow: ellipsis;
     white-space: nowrap;
 }
 .task-status{
-    width: 35%;
+    position: relative;
+    width: 22%;
 }
-.task-action{
+.task-link{
     position: relative;
 }
-.task-action-icon{
+.task-link-icon{
     width: 20px;
     cursor: pointer;
 }
@@ -44,6 +34,7 @@ task-item{
     position: absolute;
     background-color: white;
     width: 350px;
+    color: black;
     box-shadow: 0px 1px 7.3px 0px #00000040;
     top: 26px;
     right: -38px;
@@ -55,5 +46,37 @@ task-item{
     text-overflow: ellipsis;
     white-space: normal;
     line-height: 1.5;
-    height: 250px;
+    padding: 10px;
+}
+.agent-image{
+    width: 30px;
+    height: 30px;
+    border-radius: 50%;
+    margin-right: 10px;
+}
+.task-agent{
+    display: contents;
+}
+.agent-name{
+    width: 20%;
+    overflow: hidden;
+    text-overflow: ellipsis;
+    white-space: nowrap;
+}
+.task-link{
+    cursor: pointer;
+    width: 20%;
+    overflow: hidden;
+    text-overflow: ellipsis;
+    white-space: nowrap;
+    text-decoration: underline;
+    color: var(--left-sidebar);
+}
+.task-link:hover{
+    color: var(--medium-blue);
+}
+.failed-link{
+    cursor: pointer;
+    text-decoration: underline;
+    color: var(--red);
 }

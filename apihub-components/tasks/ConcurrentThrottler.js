@@ -45,5 +45,5 @@ class ConcurrentThrottler {
         }
     }
 }
-const instance = new ConcurrentThrottler(1);
+const instance = new ConcurrentThrottler(3);
 module.exports = instance;

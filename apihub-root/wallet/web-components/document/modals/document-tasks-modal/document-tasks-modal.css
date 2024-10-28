@@ -1,5 +1,6 @@
 document-tasks-modal{
-    width: 400px;
+    display: block;
+    width: 500px;
     height: fit-content;
 }
 dialog{
@@ -37,17 +38,16 @@ dialog{
     line-height: normal;
 }
 .name-header{
-    width: 48%;
+    width: 27%;
 }
 .status-header{
-    width: 36%;
+    width: 22%;
 }
-.action-header{
-    width: 15%;
+.link-header{
+    width: 17%;
 }
 .tasks-list{
     scrollbar-width: initial;
-    width: 400px;
 }
 .tasks-list::-webkit-scrollbar {
     display: block;
@@ -71,4 +71,7 @@ dialog{
 }
 .tasks-buttons{
     display: flex;
+}
+.agent-header{
+    width: 28%;
 }
