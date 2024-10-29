@@ -1,6 +1,4 @@
-const notificationModule = require('assistos').loadModule('notification', {})
-const NotificationRouter = new notificationModule.NotificationRouter(2000);
-
+import {NotificationRouter} from "../../../../imports.js";
 const documentModule = require("assistos").loadModule("document", {});
 const personalityModule = require("assistos").loadModule("personality", {});
 import {executorTimer, unescapeHtmlEntities} from "../../../../imports.js";
@@ -14,35 +12,47 @@ export class DocumentViewPage {
         }
         this.childrenSubscriptions = new Map();
         this.invalidate(async () => {
-            let documentData = await documentModule.getDocument(assistOS.space.id, window.location.hash.split("/")[3]);
-            this._document = new documentModule.Document(documentData);
-            const subscriptionPath = `/documents/${this._document.id}`
-            this.subscribtionId = await NotificationRouter.subscribeToObject(subscriptionPath, async (data, type) => {
-                switch (type) {
-                    case "delete":
-                        await this.openDocumentsPage();
-                        alert("The document has been deleted");
-                        return;
-                    case "title":
-                        let title = await documentModule.getDocumentTitle(assistOS.space.id, this._document.id);
-                        this._document.title = title;
-                        this.renderDocumentTitle();
-                        return;
-                    case "abstract":
-                        let abstract = await documentModule.getDocumentAbstract(assistOS.space.id, this._document.id);
-                        this._document.abstract = abstract;
-                        this.renderAbstract();
-                        return;
-                    default:
-                        return this.invalidate(this.refreshDocument);
-                }
-            });
+            this._document = await documentModule.getDocument(assistOS.space.id, window.location.hash.split("/")[3]);
+            await NotificationRouter.subscribeToSpace(assistOS.space.id, this._document.id, this.onDocumentUpdate);
             this.personalitiesMetadata = await personalityModule.getPersonalitiesMetadata(assistOS.space.id);
-            this.personalitiesId = "personalities";
-          /*  await utilModule.subscribeToObject(this.personalitiesId, async (type) => {
-                this.personalitiesMetadata = await utilModule.getPersonalitiesMetadata(assistOS.space.id);
-            });*/
+            await NotificationRouter.subscribeToSpace(assistOS.space.id, "personalities", this.refreshPersonalitiesMetadata);
         });
+    }
+    async refreshPersonalitiesMetadata() {
+        this.personalitiesMetadata = await personalityModule.getPersonalitiesMetadata(assistOS.space.id);
+    }
+    async onDocumentUpdate(data){
+        if(typeof data === "object"){
+            if(data.operationType === "add"){
+                let newChapter = await documentModule.getChapter(assistOS.space.id, this._document.id, data.objectId);
+                return;
+            }
+            if(data.operationType === "delete"){
+                return;
+            }
+            if(data.operationType === "swap"){
+
+            }
+            return
+        }
+        switch (data) {
+            case "delete":
+                await this.openDocumentsPage();
+                alert("The document has been deleted");
+                return;
+            case "title":
+                let title = await documentModule.getDocumentTitle(assistOS.space.id, this._document.id);
+                this._document.title = title;
+                this.renderDocumentTitle();
+                return;
+            case "abstract":
+                let abstract = await documentModule.getDocumentAbstract(assistOS.space.id, this._document.id);
+                this._document.abstract = abstract;
+                this.renderAbstract();
+                return;
+            default:
+                return this.invalidate(this.refreshDocument);
+        }
     }
 
     beforeRender() {

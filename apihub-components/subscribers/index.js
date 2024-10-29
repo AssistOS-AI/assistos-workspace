@@ -13,8 +13,6 @@ function Subscribers(server) {
     server.use("/events/*", authentication);
 
     server.get("/events", registerClient);
-    //server.post("/events/subscribe", subscribeToObject);
-    //server.post("/events/unsubscribe", unsubscribeFromObject);
     server.get("/events/close", closeClientConnection);
     server.get("/events/subscribe/:objectId", subscribeToObject);
     server.get("/events/unsubscribe/:objectId", unsubscribeFromObject);

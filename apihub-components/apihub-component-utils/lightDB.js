@@ -1,5 +1,6 @@
 const enclave = require("opendsu").loadAPI("enclave");
 const crypto = require("../apihub-component-utils/crypto.js");
+const SubscriptionManager = require("../subscribers/SubscriptionManager.js");
 let lightDBClients = {};
 function loadDatabaseClient(spaceId) {
     if(!lightDBClients[spaceId]){
@@ -180,7 +181,9 @@ async function insertEmbeddedObjectRecords(spaceId, tableId, objectURI, objectDa
         if (!object[objectType]) {
             object[objectType] = [];
         }
+        let position;
         if (!isUpdate) {
+            //TODO: check if its used
             //array concatenate
             if (Array.isArray(objectData)) {
                 for (let item of objectData) {
@@ -203,15 +206,17 @@ async function insertEmbeddedObjectRecords(spaceId, tableId, objectURI, objectDa
                 objectData.id = `${objectType}_${crypto.generateId()}`;
             }
             if (objectData.position !== undefined) {
+                position = objectData.position;
                 object[objectType].splice(objectData.position, 0, objectData.id);
                 delete objectData.position;
             } else {
                 object[objectType].push(objectData.id);
+                position = object[objectType].length - 1;
             }
             await updateRecord(spaceId, tableId, pk, object);
         }
         await insertObjectRecords(spaceId, tableId, objectData.id, objectData);
-        return objectData.id;
+        return {id:objectData.id, position:position};
     } else {
         objectURI = segments.join("/");
         return await insertEmbeddedObjectRecords(spaceId, tableId, objectURI, objectData);
@@ -328,21 +333,21 @@ async function updateEmbeddedObject(spaceId, objectURI, objectData,sessionId) {
                         object[propertyName].push(item.id);
                     }
                     await updateRecord(spaceId, tableId, objectId, object);
-                    //eventPublisher.notifyClients(sessionId, objectId, propertyName);
+                    SubscriptionManager.notifyClients(sessionId, objectId, propertyName);
                     return objectId;
                 }
             }
             object[propertyName] = objectData;
             await updateRecord(spaceId, tableId, objectId, object);
             if (segments.length === 3 || (segments.length === 2 && !Array.isArray(object[propertyName]))) {
-                //eventPublisher.notifyClients(sessionId, objectId, propertyName);
+                SubscriptionManager.notifyClients(sessionId, objectId, propertyName);
             } else {
-              //  eventPublisher.notifyClients(sessionId, objectId);
+                SubscriptionManager.notifyClients(sessionId, objectId);
             }
         } else {
             await deleteEmbeddedObjectDependencies(spaceId, tableId, objectId);
             await insertEmbeddedObjectRecords(spaceId, tableId, objectURI, objectData, true);
-            //eventPublisher.notifyClients(sessionId, objectId);
+            SubscriptionManager.notifyClients(sessionId, objectId);
         }
         return objectId;
     } catch (error) {

@@ -1,10 +1,7 @@
 const documentModule = require("assistos").loadModule("document", {});
-const notificationModule = require('assistos').loadModule('notification', {})
-const NotificationRouter = new notificationModule.NotificationRouter(2000);
-
+import {NotificationRouter} from "../../../../imports.js";
 export class DocumentsPage {
     constructor(element, invalidate) {
-        this.notificationId = "docs";
         this.refreshDocuments = async () => {
             this.documents = await assistOS.space.getDocumentsMetadata(assistOS.space.id);
         };
@@ -12,7 +9,7 @@ export class DocumentsPage {
         this.id = "documents";
         this.invalidate(async () => {
             await this.refreshDocuments();
-            this.subscribtionId = NotificationRouter.subscribeToObject(this.notificationId, async (data) => {
+            await NotificationRouter.subscribeToSpace(assistOS.space.id, this.id, async (data) => {
                 this.invalidate(this.refreshDocuments);
             })
         });

@@ -4,7 +4,7 @@ const DocumentToVideo = require("./DocumentToVideo");
 const utils = require("../apihub-component-utils/utils");
 const TextToSpeech = require("./TextToSpeech");
 const LipSync = require("./LipSync");
-const eventPublisher = require("../subscribers/eventPublisher");
+const subscriptionManager = require("../subscribers/SubscriptionManager");
 async function compileVideoFromDocument(request, response) {
     let documentId = request.params.documentId;
     let spaceId = request.params.spaceId;
@@ -14,7 +14,7 @@ async function compileVideoFromDocument(request, response) {
     let securityContext = new SecurityContext(request);
     let task = new DocumentToVideo(securityContext, spaceId, userId, {spaceId, documentId});
     await TaskManager.addTask(task);
-    eventPublisher.notifyClients(sessionId, documentId + "/tasks");
+    subscriptionManager.notifyClients(sessionId, documentId + "/tasks");
     sendResponse(response, 200, "application/json", {
         success: true,
         message: "Task added to the queue",
@@ -37,7 +37,7 @@ async function textToSpeechParagraph(request, response) {
             paragraphId,
         });
         await TaskManager.addTask(task);
-        eventPublisher.notifyClients(sessionId, documentId + "/tasks");
+        subscriptionManager.notifyClients(sessionId, documentId + "/tasks");
         utils.sendResponse(response, 200, "application/json", {
             success: true,
             data: task.id,
@@ -60,7 +60,7 @@ async function lipSyncParagraph(request, response) {
         const paragraphId = request.params.paragraphId;
         let task = new LipSync(spaceId, userId, {documentId, paragraphId});
         await TaskManager.addTask(task);
-        eventPublisher.notifyClients(request.sessionId, documentId + "/tasks");
+        subscriptionManager.notifyClients(request.sessionId, documentId + "/tasks");
         utils.sendResponse(response, 200, "application/json", {
             success: true,
             data: task.id,

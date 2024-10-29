@@ -1,7 +1,7 @@
 const utils = require('../../apihub-component-utils/utils.js');
 const paragraphService = require('../services/paragraph.js');
-const eventPublisher = require("../../subscribers/eventPublisher");
-
+const SubscriptionManager = require("../../subscribers/SubscriptionManager");
+const objectType = "paragraph";
 async function getParagraph(req, res) {
     const {spaceId, documentId, paragraphId} = req.params;
     if (!spaceId || !documentId || !paragraphId) {
@@ -24,6 +24,17 @@ async function getParagraph(req, res) {
     }
 }
 
+function notifyParagraphChange(sessionId, documentId, chapterId, operationType, paragraphId, paragraphId2) {
+    //TODO here
+    let objectId = SubscriptionManager.getObjectId(documentId, chapterId, paragraphId);
+    let eventData = {
+        operationType: operationType,
+        objectType: objectType,
+        objectId: paragraphId,
+        swapObjectId: paragraphId2
+    }
+    SubscriptionManager.notifyClients(sessionId, objectId, eventData);
+}
 async function createParagraph(req, res) {
     const {spaceId, documentId, chapterId} = req.params;
     const paragraphData = req.body;
@@ -34,11 +45,11 @@ async function createParagraph(req, res) {
         });
     }
     try {
-        const paragraphId = await paragraphService.createParagraph(spaceId, documentId, chapterId, paragraphData);
-        eventPublisher.notifyClients(req.sessionId, chapterId);
+        const {id, position} = await paragraphService.createParagraph(spaceId, documentId, chapterId, paragraphData);
+        notifyParagraphChange(req.sessionId, documentId, chapterId, "add", id);
         return utils.sendResponse(res, 200, "application/json", {
             success: true,
-            data: paragraphId
+            data: id
         });
     } catch (error) {
         return utils.sendResponse(res, error.statusCode || 500, "application/json", {
@@ -59,7 +70,8 @@ async function updateParagraph(req, res) {
     }
     try {
         await paragraphService.updateParagraph(spaceId, documentId, paragraphId, paragraphData,req.query);
-        eventPublisher.notifyClients(req.sessionId, paragraphId,"text");
+        let objectId = SubscriptionManager.getObjectId(documentId, paragraphId);
+        SubscriptionManager.notifyClients(req.sessionId, objectId,"text");
         return utils.sendResponse(res, 200, "application/json", {
             success: true,
             message: "Paragraph updated successfully"
@@ -82,8 +94,8 @@ async function deleteParagraph(req, res) {
     }
     try {
         await paragraphService.deleteParagraph(spaceId, documentId, chapterId, paragraphId);
-        eventPublisher.notifyClients(req.sessionId, chapterId);
-        eventPublisher.notifyClients(req.sessionId, documentId,"/tasks");
+        notifyParagraphChange(req.sessionId, documentId, chapterId, "delete", paragraphId);
+        SubscriptionManager.notifyClients(req.sessionId, documentId,"/tasks");
         return utils.sendResponse(res, 200, "application/json", {
             success: true,
             message: "Paragraph deleted successfully"
@@ -105,7 +117,7 @@ async function swapParagraphs(req, res) {
     }
     try {
         await paragraphService.swapParagraphs(spaceId, documentId, chapterId, paragraphId1, paragraphId2);
-        eventPublisher.notifyClients(req.sessionId, chapterId);
+        notifyParagraphChange(req.sessionId, documentId, chapterId, "swap", paragraphId1, paragraphId2);
         return utils.sendResponse(res, 200, "application/json", {
             success: true,
             message: "Paragraphs swapped successfully"

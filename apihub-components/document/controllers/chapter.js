@@ -1,7 +1,6 @@
 const chapterService = require('../services/chapter.js')
 const util = require('../../apihub-component-utils/utils.js')
-const eventPublisher = require("../../subscribers/eventPublisher");
-
+const SubscriptionManager = require("../../subscribers/SubscriptionManager");
 async function getChapter(req, res) {
     const {spaceId, documentId, chapterId} = req.params;
     if (!spaceId || !documentId || !chapterId) {
@@ -34,11 +33,17 @@ async function createChapter(req, res) {
         });
     }
     try {
-        const chapterId = await chapterService.createChapter(spaceId, documentId, chapterData);
-        eventPublisher.notifyClients(req.sessionId, documentId);
+        const {id, position} = await chapterService.createChapter(spaceId, documentId, chapterData);
+        let objectId = SubscriptionManager.getObjectId(spaceId, documentId);
+        let eventData = {
+            operationType: "add",
+            chapterId: id,
+            position: position
+        }
+        SubscriptionManager.notifyClients(req.sessionId, objectId, eventData);
         return util.sendResponse(res, 200, "application/json", {
             success: true,
-            data: chapterId
+            data: id
         });
     } catch (error) {
         return util.sendResponse(res, error.statusCode || 500, "application/json", {
@@ -59,7 +64,8 @@ async function updateChapter(req, res) {
     }
     try {
         await chapterService.updateChapter(spaceId, documentId, chapterId, chapterData,req.query, req.sessionId);
-        eventPublisher.notifyClients(req.sessionId, chapterId);
+        let objectId = SubscriptionManager.getObjectId(documentId, chapterId);
+        SubscriptionManager.notifyClients(req.sessionId, objectId);
         return util.sendResponse(res, 200, "application/json", {
             success: true,
             data: "Chapter updated successfully"
@@ -82,8 +88,12 @@ async function deleteChapter(req, res) {
     }
     try {
         await chapterService.deleteChapter(spaceId, documentId, chapterId);
-        eventPublisher.notifyClients(req.sessionId, chapterId, "delete")
-        eventPublisher.notifyClients(req.sessionId, documentId)
+        let objectId = SubscriptionManager.getObjectId(spaceId, documentId);
+        let eventData = {
+            operationType: "delete",
+            chapterId: chapterId
+        }
+        SubscriptionManager.notifyClients(req.sessionId, objectId, eventData);
         return util.sendResponse(res, 200, "application/json", {
             success: true,
             data: "Chapter deleted successfully"
@@ -105,7 +115,13 @@ async function swapChapters(req, res) {
     }
     try {
         await chapterService.swapChapters(spaceId, documentId, chapterId1, chapterId2);
-        eventPublisher.notifyClients(req.sessionId, documentId)
+        let objectId = SubscriptionManager.getObjectId(spaceId, documentId);
+        let eventData = {
+            operationType: "swap",
+            chapterId: chapterId1,
+            swapChapterId: chapterId2
+        }
+        SubscriptionManager.notifyClients(req.sessionId, objectId, eventData);
         return util.sendResponse(res, 200, "application/json", {
             success: true,
             data: "Chapters swapped successfully"
