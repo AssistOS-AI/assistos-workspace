@@ -72,10 +72,7 @@ export class DocumentsPage {
     }
 
     async deleteAction(_target) {
-        await assistOS.callFlow("DeleteDocument", {
-            spaceId: assistOS.space.id,
-            documentId: this.getDocumentId(_target)
-        });
+        await documentModule.deleteDocument(assistOS.space.id, this.getDocumentId(_target));
         this.invalidate(this.refreshDocuments);
     }
 
