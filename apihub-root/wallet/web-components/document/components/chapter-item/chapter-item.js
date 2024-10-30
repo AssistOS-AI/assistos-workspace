@@ -404,6 +404,11 @@ export class ChapterItem {
         await documentModule.deleteChapter(assistOS.space.id, this._document.id, this.chapter.id);
         this.documentPresenter.deleteChapter(this.chapter.id);
     }
+    updateChapterNumber(){
+        let chapterIndex = this._document.getChapterIndex(this.chapter.id);
+        let chapterNumber = this.element.querySelector(".data-chapter-number");
+        chapterNumber.innerHTML = `${chapterIndex + 1}.`;
+    }
 }
 
 

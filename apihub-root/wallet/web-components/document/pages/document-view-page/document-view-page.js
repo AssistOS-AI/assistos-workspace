@@ -48,20 +48,32 @@ export class DocumentViewPage {
         if (direction === "up") {
             if(adjacentChapterIndex === this._document.chapters.length - 1){
                 chapters.push(chapters.shift());
+                let newIndex = this._document.chapters.length;
+                chapter1.setAttribute("data-chapter-number", newIndex);
                 chapter2.insertAdjacentElement('afterend', chapter1);
                 return;
             }
             [chapters[currentChapterIndex], chapters[adjacentChapterIndex]] = [chapters[adjacentChapterIndex], chapters[currentChapterIndex]];
+            let newIndex = adjacentChapterIndex + 1;
+            chapter1.setAttribute("data-chapter-number", newIndex);
             chapter2.insertAdjacentElement('beforebegin', chapter1);
         } else {
             // Insert the current chapter after the adjacent one
             if(adjacentChapterIndex === 0){
                 chapters.unshift(chapters.pop());
+                let newIndex = 1;
+                chapter1.setAttribute("data-chapter-number", newIndex);
                 chapter2.insertAdjacentElement('beforebegin', chapter1);
                 return;
             }
             [chapters[currentChapterIndex], chapters[adjacentChapterIndex]] = [chapters[adjacentChapterIndex], chapters[currentChapterIndex]];
+            let newIndex = adjacentChapterIndex + 1;
+            chapter1.setAttribute("data-chapter-number", newIndex);
             chapter2.insertAdjacentElement('afterend', chapter1);
+        }
+        let allChapters = this.element.querySelectorAll("chapter-item");
+        for(let chapter of allChapters){
+            chapter.webSkelPresenter.updateChapterNumber();
         }
     }
     deleteChapter(chapterId) {
