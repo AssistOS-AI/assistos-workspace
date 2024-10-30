@@ -1,7 +1,6 @@
 const utils = require('../../apihub-component-utils/utils.js');
 const paragraphService = require('../services/paragraph.js');
 const SubscriptionManager = require("../../subscribers/SubscriptionManager");
-const objectType = "paragraph";
 async function getParagraph(req, res) {
     const {spaceId, documentId, paragraphId} = req.params;
     if (!spaceId || !documentId || !paragraphId) {
@@ -24,17 +23,6 @@ async function getParagraph(req, res) {
     }
 }
 
-function notifyParagraphChange(sessionId, documentId, chapterId, operationType, paragraphId, paragraphId2) {
-    //TODO here
-    let objectId = SubscriptionManager.getObjectId(documentId, chapterId, paragraphId);
-    let eventData = {
-        operationType: operationType,
-        objectType: objectType,
-        objectId: paragraphId,
-        swapObjectId: paragraphId2
-    }
-    SubscriptionManager.notifyClients(sessionId, objectId, eventData);
-}
 async function createParagraph(req, res) {
     const {spaceId, documentId, chapterId} = req.params;
     const paragraphData = req.body;
@@ -46,7 +34,13 @@ async function createParagraph(req, res) {
     }
     try {
         const {id, position} = await paragraphService.createParagraph(spaceId, documentId, chapterId, paragraphData);
-        notifyParagraphChange(req.sessionId, documentId, chapterId, "add", id);
+        let objectId = SubscriptionManager.getObjectId(documentId, chapterId);
+        let eventData = {
+            operationType: "add",
+            paragraphId: id,
+            position: position
+        }
+        SubscriptionManager.notifyClients(req.sessionId, objectId, eventData);
         return utils.sendResponse(res, 200, "application/json", {
             success: true,
             data: id
@@ -94,7 +88,12 @@ async function deleteParagraph(req, res) {
     }
     try {
         await paragraphService.deleteParagraph(spaceId, documentId, chapterId, paragraphId);
-        notifyParagraphChange(req.sessionId, documentId, chapterId, "delete", paragraphId);
+        let objectId = SubscriptionManager.getObjectId(documentId, chapterId);
+        let eventData = {
+            operationType: "delete",
+            paragraphId: paragraphId
+        }
+        SubscriptionManager.notifyClients(req.sessionId, objectId, eventData);
         SubscriptionManager.notifyClients(req.sessionId, documentId,"/tasks");
         return utils.sendResponse(res, 200, "application/json", {
             success: true,
@@ -117,7 +116,13 @@ async function swapParagraphs(req, res) {
     }
     try {
         await paragraphService.swapParagraphs(spaceId, documentId, chapterId, paragraphId1, paragraphId2);
-        notifyParagraphChange(req.sessionId, documentId, chapterId, "swap", paragraphId1, paragraphId2);
+        let objectId = SubscriptionManager.getObjectId(documentId, chapterId, paragraphId1);
+        let eventData = {
+            operationType: "swap",
+            paragraphId: paragraphId1,
+            swapChapterId: paragraphId2
+        }
+        SubscriptionManager.notifyClients(req.sessionId, objectId, eventData);
         return utils.sendResponse(res, 200, "application/json", {
             success: true,
             message: "Paragraphs swapped successfully"

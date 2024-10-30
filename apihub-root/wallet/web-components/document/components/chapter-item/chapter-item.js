@@ -1,7 +1,6 @@
 import {unescapeHtmlEntities} from "../../../../imports.js";
-
+import {NotificationRouter} from "../../../../imports.js";
 const documentModule = require("assistos").loadModule("document", {});
-const utilModule = require("assistos").loadModule("util", {});
 const spaceModule = require("assistos").loadModule("space", {});
 
 export class ChapterItem {
@@ -22,10 +21,8 @@ export class ChapterItem {
         this.element.removeEventListener('keydown', this.addParagraphOrChapterOnKeyPress);
         this.element.addEventListener('keydown', this.addParagraphOrChapterOnKeyPress);
         this.invalidate(async () => {
-            if (!this.documentPresenter.childrenSubscriptions.has(this.chapter.id)) {
-                await this.subscribeToChapterEvents();
-                this.documentPresenter.childrenSubscriptions.set(this.chapter.id, this.chapter.id);
-            }
+            this.boundOnChapterUpdate = this.onChapterUpdate.bind(this);
+            await NotificationRouter.subscribeToDocument(this._document.id, this.chapter.id, this.boundOnChapterUpdate);
         });
     }
 
@@ -45,37 +42,38 @@ export class ChapterItem {
         });
     }
 
-    subscribeToChapterEvents() {
-        utilModule.subscribeToObject(this.chapter.id, async (type) => {
-            switch (type) {
-                case "title": {
-                    let title = await documentModule.getChapterTitle(assistOS.space.id, this._document.id, this.chapter.id);
-                    if (title !== this.chapter.title) {
-                        this.chapter.title = title;
-                        this.renderChapterTitle();
-                    }
-                    return;
+    async onChapterUpdate(data) {
+        if(typeof data === "object") {
+
+        }
+        switch (data) {
+            case "title": {
+                let title = await documentModule.getChapterTitle(assistOS.space.id, this._document.id, this.chapter.id);
+                if (title !== this.chapter.title) {
+                    this.chapter.title = title;
+                    this.renderChapterTitle();
                 }
-                case "backgroundSound": {
-                    this.chapter.backgroundSound = await documentModule.getChapterBackgroundSound(assistOS.space.id, this._document.id, this.chapter.id);
-                    if (this.chapter.backgroundSound) {
-                        this.hasBackgroundSound = true;
-                        if (assistOS.space.currentChapterId === this.chapter.id) {
-                            this.switchPlayButtonDisplay("on");
-                        }
-                    } else {
-                        this.hasBackgroundSound = false;
-                        if (assistOS.space.currentChapterId === this.chapter.id) {
-                            this.switchPlayButtonDisplay("off");
-                        }
-                    }
-                    return;
-                }
-                default: {
-                    this.invalidate(this.refreshChapter);
-                }
+                return;
             }
-        });
+            case "backgroundSound": {
+                this.chapter.backgroundSound = await documentModule.getChapterBackgroundSound(assistOS.space.id, this._document.id, this.chapter.id);
+                if (this.chapter.backgroundSound) {
+                    this.hasBackgroundSound = true;
+                    if (assistOS.space.currentChapterId === this.chapter.id) {
+                        this.switchPlayButtonDisplay("on");
+                    }
+                } else {
+                    this.hasBackgroundSound = false;
+                    if (assistOS.space.currentChapterId === this.chapter.id) {
+                        this.switchPlayButtonDisplay("off");
+                    }
+                }
+                return;
+            }
+            default: {
+                this.invalidate(this.refreshChapter);
+            }
+        }
     }
 
     async saveTitle(titleElement) {
@@ -403,12 +401,8 @@ export class ChapterItem {
     }
 
     async deleteChapter(_target) {
-        await assistOS.callFlow("DeleteChapter", {
-            spaceId: assistOS.space.id,
-            documentId: this._document.id,
-            chapterId: this.chapter.id
-        });
-        this.documentPresenter.invalidate(this.documentPresenter.refreshDocument);
+        await documentModule.deleteChapter(assistOS.space.id, this._document.id, this.chapter.id);
+        this.documentPresenter.deleteChapter(this.chapter.id);
     }
 }
 

@@ -113,8 +113,9 @@ async function swapChapters(req, res) {
             success: false
         });
     }
+    let direction = req.body.direction;
     try {
-        await chapterService.swapChapters(spaceId, documentId, chapterId1, chapterId2);
+        await chapterService.swapChapters(spaceId, documentId, chapterId1, chapterId2, direction);
         let objectId = SubscriptionManager.getObjectId(spaceId, documentId);
         let eventData = {
             operationType: "swap",

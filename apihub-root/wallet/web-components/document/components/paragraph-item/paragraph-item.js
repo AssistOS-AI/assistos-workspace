@@ -1,6 +1,6 @@
 import {executorTimer} from "../../../../imports.js";
 import {formatTime} from "../../../../utils/videoUtils.js";
-
+import {NotificationRouter} from "../../../../imports.js";
 const utilModule = require("assistos").loadModule("util", {});
 const documentModule = require("assistos").loadModule("document", {});
 const spaceModule = require("assistos").loadModule("space", {});
@@ -17,9 +17,15 @@ export class ParagraphItem {
         this.chapter = this._document.getChapter(chapterId);
         this.paragraph = this.chapter.getParagraph(paragraphId);
         this.invalidate(async () => {
-            if (!this.documentPresenter.childrenSubscriptions.has(this.paragraph.id)) {
-                await this.subscribeToParagraphEvents();
-                this.documentPresenter.childrenSubscriptions.set(this.paragraph.id, this.paragraph.id);
+            this.boundOnParagraphUpdate = this.onParagraphUpdate.bind(this);
+            await NotificationRouter.subscribeToDocument(this._document.id, this.paragraph.id, this.boundOnParagraphUpdate);
+            this.boundChangeTaskStatus = this.changeTaskStatus.bind(this);
+            for (let [commandType, commandDetails] of Object.entries(this.paragraph.commands)) {
+                for (let [key, value] of Object.entries(commandDetails)) {
+                    if (key === "taskId") {
+                        NotificationRouter.subscribeToSpace(assistOS.space.id, value, this.boundChangeTaskStatus);
+                    }
+                }
             }
         });
     }
@@ -48,31 +54,20 @@ export class ParagraphItem {
         await this.setupVideoPreview();
     }
 
-    async subscribeToParagraphEvents() {
-        await utilModule.subscribeToObject(this.paragraph.id, async (type) => {
-            if (type === "text") {
-                this.paragraph.text = await documentModule.getParagraphText(assistOS.space.id, this._document.id, this.paragraph.id);
-                this.hasExternalChanges = true;
-                let paragraphText = this.element.querySelector(".paragraph-text");
-                paragraphText.innerHTML = this.paragraph.text;
+    async onParagraphUpdate(type) {
+        if (type === "text") {
+            this.paragraph.text = await documentModule.getParagraphText(assistOS.space.id, this._document.id, this.paragraph.id);
+            this.hasExternalChanges = true;
+            let paragraphText = this.element.querySelector(".paragraph-text");
+            paragraphText.innerHTML = this.paragraph.text;
 
-            } else if (type === "commands") {
-                this.paragraph.commands = await documentModule.getParagraphCommands(assistOS.space.id, this._document.id, this.paragraph.id);
-                let commandsElement = this.element.querySelector('.paragraph-commands');
-                if(commandsElement.tagName === "DIV"){
-                    await this.renderViewModeCommands();
-                } else {
-                    await this.renderEditModeCommands();
-                }
-            }
-        });
-        for (let [commandType, commandDetails] of Object.entries(this.paragraph.commands)) {
-            for (let [key, value] of Object.entries(commandDetails)) {
-                if (key === "taskId") {
-                    utilModule.subscribeToObject(value, async (status) => {
-                        await this.changeTaskStatus(value, status);
-                    });
-                }
+        } else if (type === "commands") {
+            this.paragraph.commands = await documentModule.getParagraphCommands(assistOS.space.id, this._document.id, this.paragraph.id);
+            let commandsElement = this.element.querySelector('.paragraph-commands');
+            if(commandsElement.tagName === "DIV"){
+                await this.renderViewModeCommands();
+            } else {
+                await this.renderEditModeCommands();
             }
         }
     }

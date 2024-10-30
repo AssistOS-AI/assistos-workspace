@@ -64,11 +64,11 @@ async function updateChapter(spaceId, documentId, chapterId, chapterData, queryP
     }
 }
 
-async function swapChapters(spaceId, documentId, chapterId1, chapterId2) {
+async function swapChapters(spaceId, documentId, chapterId1, chapterId2, direction) {
     return await lightDB.swapEmbeddedObjects(spaceId, constructChapterURI(documentId, "chapters"),{
         item1: chapterId1,
         item2: chapterId2
-    } )
+    }, direction)
 }
 
 

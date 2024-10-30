@@ -402,7 +402,7 @@ async function deleteEmbeddedObject(spaceId, objectURI) {
     }
 }
 
-async function swapEmbeddedObjects(spaceId, objectURI, embeddedIds) {
+async function swapEmbeddedObjects(spaceId, objectURI, embeddedIds, direction) {
     try {
         let [embeddedId1, embeddedId2] = Object.values(embeddedIds);
         let parts = objectURI.split("/");
@@ -412,15 +412,26 @@ async function swapEmbeddedObjects(spaceId, objectURI, embeddedIds) {
             objectId = tableId;
         }
         let record = await getRecord(spaceId, tableId, objectId);
-        let object = record.data;
-        let index1 = object[propertyName].indexOf(embeddedId1);
-        let index2 = object[propertyName].indexOf(embeddedId2);
+        let array = record.data[propertyName];
+        let index1 = array.indexOf(embeddedId1);
+        let index2 = array.indexOf(embeddedId2);
         if (index1 === -1 || index2 === -1) {
             throw (`Embedded objects not found in ${objectURI}`);
         }
-        object[propertyName][index1] = embeddedId2;
-        object[propertyName][index2] = embeddedId1;
-        await updateRecord(spaceId, tableId, objectId, object);
+        if (direction === "up") {
+            if(index2 === array.length - 1){
+                array.push(array.shift());
+            } else{
+                [array[index1], array[index2]] = [array[index2], array[index1]];
+            }
+        } else {
+            if(index2 === 0){
+                array.unshift(array.pop());
+            } else{
+                [array[index1], array[index2]] = [array[index2], array[index1]];
+            }
+        }
+        await updateRecord(spaceId, tableId, objectId, record.data);
         return objectURI;
     } catch (error) {
         throw (error);
