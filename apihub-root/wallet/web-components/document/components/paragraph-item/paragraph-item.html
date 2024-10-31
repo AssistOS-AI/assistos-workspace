@@ -1,4 +1,29 @@
 <div class="paragraph-container">
+    <div class="video-container">
+        <div class="controls-mask-paragraph">
+            <div class="play-pause-container">
+                <img loading="lazy" data-local-action="playPause" data-next-mode="play" class="play-pause pointer" src="./wallet/assets/icons/play.svg" alt="playPause">
+            </div>
+            <div class="bottom-info-paragraph">
+                <div class="right-margin">
+                    Chapter <span class="chapter-number"></span>
+                </div>
+                <div class="big-right-margin">
+                    Paragraph <span class="paragraph-number"></span>
+                </div>
+                <div class="time-section-paragraph">
+                    <div class="current-time">0:00</div>
+                    <span class="time-separator">/</span>
+                    <div class="video-duration"></div>
+                </div>
+            </div>
+            <img loading="lazy" class="fullscreen-icon pointer" data-local-action="switchDisplayMode" data-mode="minimized" src="./wallet/assets/icons/fullscreen.svg" alt="fullscreen">
+        </div>
+        <img loading="lazy" class="paragraph-image" src="$$imageSrc" alt="$$imgAlt" tabindex="0">
+        <video class="video-player hidden" preload="metadata" data-id="paragraph-video"></video>
+        <audio class="audio-player hidden" preload="metadata" data-id="paragraph-audio"></audio>
+        <audio class="chapter-audio hidden" preload="metadata" data-id="chapter-audio"></audio>
+    </div>
     <div class="paragraph-header-container">
         <div class="paragraph-toolbar">
             <div class="toolbar-left-section">
@@ -39,31 +64,6 @@
     </div>
     <div class="paragraph-item" data-paragraph-id="$$data-paragraph-id" tabindex="0">
         <textarea class="paragraph-text focusable" data-local-action="editItem paragraphText" data-metadata="$$data-metadata "></textarea>
-    </div>
-    <div class="video-container">
-        <div class="controls-mask-paragraph">
-            <div class="play-pause-container">
-                <img loading="lazy" data-local-action="playPause" data-next-mode="play" class="play-pause pointer" src="./wallet/assets/icons/play.svg" alt="playPause">
-            </div>
-            <div class="bottom-info-paragraph">
-                <div class="right-margin">
-                    Chapter <span class="chapter-number"></span>
-                </div>
-                <div class="big-right-margin">
-                    Paragraph <span class="paragraph-number"></span>
-                </div>
-                <div class="time-section-paragraph">
-                    <div class="current-time">0:00</div>
-                    <span class="time-separator">/</span>
-                    <div class="video-duration"></div>
-                </div>
-            </div>
-            <img loading="lazy" class="fullscreen-icon pointer" data-local-action="switchDisplayMode" data-mode="minimized" src="./wallet/assets/icons/fullscreen.svg" alt="fullscreen">
-        </div>
-        <img loading="lazy" class="paragraph-image" src="$$imageSrc" alt="$$imgAlt" tabindex="0">
-        <video class="video-player hidden" preload="metadata" data-id="paragraph-video"></video>
-        <audio class="audio-player hidden" preload="metadata" data-id="paragraph-audio"></audio>
-        <audio class="chapter-audio hidden" preload="metadata" data-id="chapter-audio"></audio>
     </div>
 </div>
 

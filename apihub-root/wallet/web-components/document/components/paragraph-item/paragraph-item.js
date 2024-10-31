@@ -644,6 +644,10 @@ export class ParagraphItem {
         let played = false;
         let readyCount = 0;
         const totalPlayers = mediaPlayers.length;
+        if(totalPlayers === 0){
+            this.hideLoaderAttachment();
+            return;
+        }
         for(let mediaPlayer of mediaPlayers){
             mediaPlayer.addEventListener("canplaythrough", () => {
                 readyCount++;
@@ -785,9 +789,9 @@ export class ParagraphItem {
             let audioDuration = paragraph.commands.audio ? paragraph.commands.audio.duration : 0;
             let videoDuration = paragraph.commands.video ? paragraph.commands.video.duration : 0;
             return Math.max(audioDuration, videoDuration);
-        } else if(this.paragraph.commands.silence){
+        } else if(paragraph.commands.silence){
             return paragraph.commands.silence.duration;
-        } else if(this.paragraph.commands.image){
+        } else if(paragraph.commands.image){
             return 1;
         }
         return 0;
