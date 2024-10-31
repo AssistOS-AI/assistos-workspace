@@ -9,8 +9,8 @@ export class SilencePopup{
         this.parentPresenter = this.element.closest("paragraph-item").webSkelPresenter;
         this.paragraphId = this.parentPresenter.paragraph.id;
         this.invalidate();
-        this.element.setAttribute("data-local-action", "editItem silencePopup");
-        this.element.setAttribute("id", "current-selection");
+        this.element.classList.add("maintain-focus");
+        this.element.classList.add("insert-modal");
     }
     beforeRender() {
 

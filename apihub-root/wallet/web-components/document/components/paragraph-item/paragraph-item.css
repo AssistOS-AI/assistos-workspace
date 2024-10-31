@@ -205,7 +205,6 @@ textarea.paragraph-commands{
     width: 20px;
 }
 .personality-icon{
-    margin-right: 5px;
     width: 30px;
     object-fit: cover;
     height: 30px;
@@ -290,10 +289,8 @@ textarea.paragraph-commands{
     margin-left: 5px;
 }
 .commands-info{
-    position: absolute;
     display: flex;
     font-size: 14px;
     font-weight: 600;
-    right: 10px;
-    top: 10px;
+    padding: 10px;
 }

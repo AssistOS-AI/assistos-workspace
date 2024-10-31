@@ -16,6 +16,7 @@ export class AudioMenu {
         });
         this.element.setAttribute("data-local-action", "editItem textToSpeech");
         this.element.setAttribute("id", "current-selection");
+        this.menuIcon = `<img class="pointer" loading="lazy" src="./wallet/assets/icons/audio.svg" alt="icon">`;
     }
 
     beforeRender() {
@@ -69,6 +70,14 @@ export class AudioMenu {
             this.element.querySelector(".delete-audio").classList.remove("hidden");
             audioElement.src = await spaceModule.getAudioURL(this.parentPresenter.paragraph.commands.audio.id);
         }
+        if(this.parentPresenter.paragraph.commands.speech){
+            let deleteSpeechButton = this.element.querySelector(".delete-speech");
+            deleteSpeechButton.classList.remove("hidden");
+        }
+        if(this.parentPresenter.paragraph.commands.silence){
+            let deleteSilenceButton = this.element.querySelector(".delete-silence");
+            deleteSilenceButton.classList.remove("hidden");
+        }
     }
 
     async textToSpeech(_target) {
@@ -121,6 +130,14 @@ export class AudioMenu {
     }
     async deleteAudio(){
         await this.parentPresenter.deleteCommand("", "audio");
+        this.invalidate();
+    }
+    async deleteSpeech(){
+        await this.parentPresenter.deleteCommand("", "speech");
+        this.invalidate();
+    }
+    async deleteSilence(){
+        await this.parentPresenter.deleteCommand("", "silence");
         this.invalidate();
     }
     async insertSoundEffect(){

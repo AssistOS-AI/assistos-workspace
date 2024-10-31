@@ -484,6 +484,10 @@ export class ParagraphItem {
         controller.abort();
         targetElement.removeAttribute("data-menu-open");
     }
+    changeMenuIcon(menuName, html){
+        let menuContainer = this.element.querySelector(`.menu-container.${menuName}`);
+        menuContainer.innerHTML = html;
+    }
 
     async openInsertAttachmentModal(targetElement, type) {
         let attachmentData = await assistOS.UI.showModal(`insert-${type.toLowerCase()}-modal`, true);

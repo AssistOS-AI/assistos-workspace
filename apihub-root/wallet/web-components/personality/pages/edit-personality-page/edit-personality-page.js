@@ -42,7 +42,7 @@ export class EditPersonalityPage {
             this.invalidate(this.refreshPersonality);
         }
     }
-    beforeRender() {
+    async beforeRender() {
         let voicesHTML = "";
         for (let voice of this.voices) {
             voicesHTML += `<option value="${voice.id}">${voice.name}, accent: ${voice.accent}, age: ${voice.age}, gender: ${voice.gender}, loudness: ${voice.loudness}, tempo: ${voice.tempo}</option>`;
@@ -52,7 +52,7 @@ export class EditPersonalityPage {
             this.disabled = "disabled";
         }
         if (this.personality.imageId) {
-            this.photo = utilModule.constants.getImageSrc(assistOS.space.id, this.personality.imageId);
+            this.photo = await spaceModule.getImageURL(this.personality.imageId);
         } else {
             this.photo = "./wallet/assets/images/default-personality.png";
         }

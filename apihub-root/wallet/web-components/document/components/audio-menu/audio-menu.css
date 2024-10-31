@@ -68,3 +68,10 @@ audio:not([controls]) {
 .paragraph-audio{
     width: 100%;
 }
+.delete-speech{
+    margin-bottom: 10px;
+}
+.section-content{
+    display: flex;
+    margin-bottom: 10px;
+}
