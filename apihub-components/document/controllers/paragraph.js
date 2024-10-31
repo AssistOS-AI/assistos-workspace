@@ -114,13 +114,15 @@ async function swapParagraphs(req, res) {
             success: false
         });
     }
+    let direction = req.body.direction;
     try {
-        await paragraphService.swapParagraphs(spaceId, documentId, chapterId, paragraphId1, paragraphId2);
+        await paragraphService.swapParagraphs(spaceId, documentId, chapterId, paragraphId1, paragraphId2, direction);
         let objectId = SubscriptionManager.getObjectId(documentId, chapterId, paragraphId1);
         let eventData = {
             operationType: "swap",
             paragraphId: paragraphId1,
-            swapChapterId: paragraphId2
+            swapChapterId: paragraphId2,
+            direction: direction
         }
         SubscriptionManager.notifyClients(req.sessionId, objectId, eventData);
         return utils.sendResponse(res, 200, "application/json", {

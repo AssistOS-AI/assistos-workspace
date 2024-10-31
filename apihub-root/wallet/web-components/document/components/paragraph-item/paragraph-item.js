@@ -105,13 +105,7 @@ export class ParagraphItem {
             return index === paragraphs.length - 1 ? paragraphs[0].id : paragraphs[index + 1].id;
         };
         const adjacentParagraphId = getAdjacentParagraphId(currentParagraphIndex, this.chapter.paragraphs);
-        await assistOS.callFlow("SwapParagraphs", {
-            spaceId: assistOS.space.id,
-            documentId: this._document.id,
-            chapterId: this.chapter.id,
-            paragraphId1: this.paragraph.id,
-            paragraphId2: adjacentParagraphId
-        });
+        await documentModule.swapParagraphs(assistOS.space.id, this._document.id, this.chapter.id, this.paragraph.id, adjacentParagraphId, direction);
         let chapterPresenter = this.element.closest("chapter-item").webSkelPresenter;
         chapterPresenter.invalidate(chapterPresenter.refreshChapter);
     }
@@ -138,12 +132,7 @@ export class ParagraphItem {
             }
             this.paragraph.text = paragraphText
             this.textIsDifferentFromAudio = true;
-            await assistOS.callFlow("UpdateParagraphText", {
-                spaceId: assistOS.space.id,
-                documentId: this._document.id,
-                paragraphId: this.paragraph.id,
-                text: paragraphText
-            });
+            await documentModule.updateParagraphText(assistOS.space.id, this._document.id, this.paragraph.id, paragraphText);
         }
     }
 

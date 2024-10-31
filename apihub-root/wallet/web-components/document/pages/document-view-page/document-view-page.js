@@ -100,19 +100,20 @@ export class DocumentViewPage {
             case "delete":
                 await this.openDocumentsPage();
                 alert("The document has been deleted");
-                return;
+                break;
             case "title":
                 let title = await documentModule.getDocumentTitle(assistOS.space.id, this._document.id);
                 this._document.title = title;
                 this.renderDocumentTitle();
-                return;
+                break;
             case "abstract":
                 let abstract = await documentModule.getDocumentAbstract(assistOS.space.id, this._document.id);
                 this._document.abstract = abstract;
                 this.renderAbstract();
-                return;
+                break;
             default:
-                return this.invalidate(this.refreshDocument);
+                console.error("Document: Unknown update type ", data);
+                break;
         }
     }
 
@@ -221,11 +222,7 @@ export class DocumentViewPage {
         let abstractText = assistOS.UI.sanitize(abstractElement.value);
         if (abstractText !== this._document.abstract) {
             this._document.abstract = abstractText;
-            await assistOS.callFlow("UpdateAbstract", {
-                spaceId: assistOS.space.id,
-                documentId: this._document.id,
-                text: abstractText
-            });
+            await documentModule.updateDocumentAbstract(assistOS.space.id, this._document.id, abstractText);
         }
     }
 
@@ -244,13 +241,13 @@ export class DocumentViewPage {
         }
         let chapterData = {title: "New Chapter", paragraphs: []};
         chapterData.position = position;
-        let chapterId = await documentModule.addChapter(assistOS.space.id, this._document.id, chapterData);
-        await documentModule.addParagraph(assistOS.space.id, this._document.id, chapterId, {
+        assistOS.space.currentChapterId = await documentModule.addChapter(assistOS.space.id, this._document.id, chapterData);
+        assistOS.space.currentParagraphId = await documentModule.addParagraph(assistOS.space.id, this._document.id, assistOS.space.currentChapterId, {
             text: "",
             position: 0,
             commands: {}
         });
-        await this.insertNewChapter(chapterId, position);
+        await this.insertNewChapter(assistOS.space.currentChapterId, position);
     }
 
     async openDocumentsPage() {
@@ -261,11 +258,7 @@ export class DocumentViewPage {
         let titleText = assistOS.UI.sanitize(textElement.value);
         if (titleText !== this._document.title && titleText !== "") {
             this._document.title = titleText;
-            await assistOS.callFlow("UpdateDocumentTitle", {
-                spaceId: assistOS.space.id,
-                documentId: this._document.id,
-                title: titleText
-            });
+            await documentModule.updateDocumentTitle(assistOS.space.id, this._document.id, titleText);
         }
     }
 

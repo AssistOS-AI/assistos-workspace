@@ -63,9 +63,9 @@ async function updateChapter(req, res) {
         });
     }
     try {
-        await chapterService.updateChapter(spaceId, documentId, chapterId, chapterData,req.query, req.sessionId);
+        await chapterService.updateChapter(spaceId, documentId, chapterId, chapterData, req.query, req.sessionId);
         let objectId = SubscriptionManager.getObjectId(documentId, chapterId);
-        SubscriptionManager.notifyClients(req.sessionId, objectId);
+        SubscriptionManager.notifyClients(req.sessionId, objectId, req.query.fields);
         return util.sendResponse(res, 200, "application/json", {
             success: true,
             data: "Chapter updated successfully"
@@ -120,7 +120,8 @@ async function swapChapters(req, res) {
         let eventData = {
             operationType: "swap",
             chapterId: chapterId1,
-            swapChapterId: chapterId2
+            swapChapterId: chapterId2,
+            direction: direction
         }
         SubscriptionManager.notifyClients(req.sessionId, objectId, eventData);
         return util.sendResponse(res, 200, "application/json", {
