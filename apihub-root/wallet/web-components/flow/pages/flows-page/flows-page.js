@@ -1,4 +1,6 @@
 const utilModule = require("assistos").loadModule("util", {});
+import {NotificationRouter} from "../../../../imports.js";
+
 export class FlowsPage {
     constructor(element, invalidate) {
         this.refreshFlows = async () =>{
@@ -10,12 +12,13 @@ export class FlowsPage {
         this.spaceChecked = "checked";
         this.invalidate(async()=>{
             this.flows = await assistOS.space.flows;
-            await utilModule.subscribeToObject(this.id, ()=>{
-                this.invalidate(this.refreshFlows);
-            });
+            this.boundsOnListUpdate = this.onListUpdate.bind(this);
+            await NotificationRouter.subscribeToSpace(assistOS.space.id, this.id, this.boundsOnListUpdate);
         });
     }
-
+    onListUpdate(){
+        this.invalidate(this.refreshFlows);
+    }
     beforeRender() {
         const generateTableRow = (item) => `
         <flow-item data-name="${item.constructor.name}"  data-action="${item.constructor.flowMetadata.action}" data-local-action="editAction"></flow-item>`;
@@ -31,9 +34,6 @@ export class FlowsPage {
         }
     }
 
-    async afterUnload() {
-        await utilModule.unsubscribeFromObject(this.id);
-    }
     async showActionBox(_target, primaryKey, componentName, insertionMode) {
         await assistOS.UI.showActionBox(_target, primaryKey, componentName, insertionMode);
     }

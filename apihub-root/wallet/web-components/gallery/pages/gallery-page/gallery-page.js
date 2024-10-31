@@ -10,17 +10,19 @@ export class GalleryPage {
         }
         this.invalidate(async () => {
             await this.refreshGallery();
-            await utilModule.subscribeToObject(this.id, (data) => {
-                if(data === "delete"){
-                    return this.invalidate(async () => {
-                        await this.openGalleriesPage();
-                        alert("The gallery has been deleted");
-                    });
-                }
-                this.invalidate(async () => {
-                    await this.refreshGallery();
-                });
+            this.boundsOnGalleryUpdate = this.onGalleryUpdate.bind(this);
+            await utilModule.subscribeToSpace(assistOS.space.id, this.id, this.boundsOnGalleryUpdate);
+        });
+    }
+    onGalleryUpdate(data){
+        if(data === "delete"){
+            return this.invalidate(async () => {
+                await this.openGalleriesPage();
+                alert("The gallery has been deleted");
             });
+        }
+        this.invalidate(async () => {
+            await this.refreshGallery();
         });
     }
 
@@ -41,10 +43,6 @@ export class GalleryPage {
 
     async openGalleriesPage() {
         await assistOS.UI.changeToDynamicPage("space-application-page", `${assistOS.space.id}/Space/galleries-page`);
-    }
-
-    async afterUnload() {
-       await utilModule.unsubscribeFromObject(this.id);
     }
     async generateImage() {
         await assistOS.UI.changeToDynamicPage("space-application-page", `${assistOS.space.id}/Space/generate-image-page/${this.id}`);

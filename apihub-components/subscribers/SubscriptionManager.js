@@ -1,7 +1,7 @@
 const {generateId} = require("../apihub-component-utils/crypto");
 const {createSessionCookie} = require("../apihub-component-utils/cookie");
 
-class EventPublisher {
+class SubscriptionManager {
     constructor() {
         this.clients = new Map();
     }
@@ -66,36 +66,23 @@ class EventPublisher {
         }
     }
 
-    notifyClients(sessionId, objectId, eventData,skipList=[]) {
+    notifyClients(sessionId, objectId, eventData = null, skipList=[]) {
         for (let [clientUserId, client] of this.clients) {
+            if(skipList.includes(clientUserId)){
+                continue;
+            }
             for (let [connectionSessionId, connection] of client.connections) {
-                if (connection.objectIds.has(objectId) && !skipList.includes(clientUserId)) {
+                const isSubscribed = Array.from(connection.objectIds).some(existingId =>
+                    objectId.startsWith(existingId)
+                );
+                if (isSubscribed && sessionId !== connectionSessionId) {
                     let message = {objectId: objectId};
                     if (eventData) {
                         message.data = eventData;
                     }
-                    if (sessionId !== connectionSessionId) {
-                        connection.response.write(`event: content\n`);
-                        connection.response.write(`data: ${JSON.stringify(message)}\n\n`);
-                    }
+                    connection.response.write(`event: content\n`);
+                    connection.response.write(`data: ${JSON.stringify(message)}\n\n`);
                 }
-            }
-        }
-    }
-
-    notifyClientTask(userId, objectId, eventData) {
-        let client = this.clients.get(userId);
-        if (!client) {
-            return;
-        }
-        for (let [sessionId, connection] of client.connections) {
-            if (connection.objectIds.has(objectId)) {
-                let message = {objectId: objectId};
-                if (eventData) {
-                    message.data = eventData;
-                }
-                connection.response.write(`event: content\n`);
-                connection.response.write(`data: ${JSON.stringify(message)}\n\n`);
             }
         }
     }
@@ -123,8 +110,11 @@ class EventPublisher {
         }
         connection.objectIds.delete(objectId);
     }
+    getObjectId(...parts) {
+        return parts.join("/");
+    }
 }
 
-const eventPublisher = new EventPublisher();
+const subscriptionManager = new SubscriptionManager();
 
-module.exports = eventPublisher;
+module.exports = subscriptionManager;

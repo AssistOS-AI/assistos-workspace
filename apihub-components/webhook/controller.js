@@ -3,7 +3,7 @@ const crypto = require('crypto');
 const utils = require("../apihub-component-utils/utils");
 const secret = generateId(32);
 const space = require("../spaces-storage/space.js");
-const eventPublisher = require("../subscribers/eventPublisher.js");
+const subscriptionManager = require("../subscribers/SubscriptionManager.js");
 const Storage = require("../apihub-component-utils/storage.js");
 function generateSignature(timestamp, nonce) {
     const data = timestamp + nonce + secret;
@@ -36,9 +36,9 @@ async function saveResult(ref,requestBody) {
             //TODO use spaceModule or convert image to a stream
             await Storage.putFile(Storage.fileTypes.images, objectId, requestBody.uri || requestBody.imageData);
             if (requestBody.buttons) {
-                eventPublisher.notifyClientTask(userId, objectId, requestBody.buttons);
+                subscriptionManager.notifyClients("", objectId, requestBody.buttons);
             } else {
-                eventPublisher.notifyClientTask(userId, objectId);
+                subscriptionManager.notifyClients("", objectId);
             }
             return;
         case "audio":

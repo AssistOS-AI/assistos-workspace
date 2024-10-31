@@ -1,6 +1,6 @@
 const crypto = require('../apihub-component-utils/crypto');
 const constants = require('./constants');
-const eventPublisher = require("../subscribers/eventPublisher");
+const SubscriptionManager = require("../subscribers/SubscriptionManager");
 const STATUS = constants.STATUS;
 const EVENTS = constants.EVENTS;
 const deleteTaskOnCompleteDuration = 60000 * 5; //5 minutes
@@ -29,6 +29,7 @@ class Task {
         const module = require('assistos').loadModule(moduleName, this.securityContext);
         return module;
     }
+
     async run(){
         if (this.status === STATUS.RUNNING) {
             throw new Error(`Cannot run task in status ${this.status}`);
@@ -84,8 +85,10 @@ class Task {
         this.status = status;
         this.emit(status); //update queue
         this.emit(EVENTS.UPDATE); //update database
-        eventPublisher.notifyClientTask(this.userId, this.id, this.status);
-        eventPublisher.notifyClientTask(this.userId, this.id + "taskList", this.status);
+        let objectId = SubscriptionManager.getObjectId(this.spaceId, this.id);
+        SubscriptionManager.notifyClients("", objectId, this.status);
+        let listObjectId = SubscriptionManager.getObjectId(this.spaceId, "tasks");
+        SubscriptionManager.notifyClients("", listObjectId, this.status);
     }
 
 }

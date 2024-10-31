@@ -1,6 +1,6 @@
 import {executorTimer} from "../../../../imports.js";
 import {formatTime} from "../../../../utils/videoUtils.js";
-
+import {NotificationRouter} from "../../../../imports.js";
 const utilModule = require("assistos").loadModule("util", {});
 const documentModule = require("assistos").loadModule("document", {});
 const spaceModule = require("assistos").loadModule("space", {});
@@ -17,9 +17,15 @@ export class ParagraphItem {
         this.chapter = this._document.getChapter(chapterId);
         this.paragraph = this.chapter.getParagraph(paragraphId);
         this.invalidate(async () => {
-            if (!this.documentPresenter.childrenSubscriptions.has(this.paragraph.id)) {
-                await this.subscribeToParagraphEvents();
-                this.documentPresenter.childrenSubscriptions.set(this.paragraph.id, this.paragraph.id);
+            this.boundOnParagraphUpdate = this.onParagraphUpdate.bind(this);
+            await NotificationRouter.subscribeToDocument(this._document.id, this.paragraph.id, this.boundOnParagraphUpdate);
+            this.boundChangeTaskStatus = this.changeTaskStatus.bind(this);
+            for (let [commandType, commandDetails] of Object.entries(this.paragraph.commands)) {
+                for (let [key, value] of Object.entries(commandDetails)) {
+                    if (key === "taskId") {
+                        NotificationRouter.subscribeToSpace(assistOS.space.id, value, this.boundChangeTaskStatus);
+                    }
+                }
             }
         });
     }
@@ -48,31 +54,20 @@ export class ParagraphItem {
         await this.setupVideoPreview();
     }
 
-    async subscribeToParagraphEvents() {
-        await utilModule.subscribeToObject(this.paragraph.id, async (type) => {
-            if (type === "text") {
-                this.paragraph.text = await documentModule.getParagraphText(assistOS.space.id, this._document.id, this.paragraph.id);
-                this.hasExternalChanges = true;
-                let paragraphText = this.element.querySelector(".paragraph-text");
-                paragraphText.innerHTML = this.paragraph.text;
+    async onParagraphUpdate(type) {
+        if (type === "text") {
+            this.paragraph.text = await documentModule.getParagraphText(assistOS.space.id, this._document.id, this.paragraph.id);
+            this.hasExternalChanges = true;
+            let paragraphText = this.element.querySelector(".paragraph-text");
+            paragraphText.innerHTML = this.paragraph.text;
 
-            } else if (type === "commands") {
-                this.paragraph.commands = await documentModule.getParagraphCommands(assistOS.space.id, this._document.id, this.paragraph.id);
-                let commandsElement = this.element.querySelector('.paragraph-commands');
-                if(commandsElement.tagName === "DIV"){
-                    await this.renderViewModeCommands();
-                } else {
-                    await this.renderEditModeCommands();
-                }
-            }
-        });
-        for (let [commandType, commandDetails] of Object.entries(this.paragraph.commands)) {
-            for (let [key, value] of Object.entries(commandDetails)) {
-                if (key === "taskId") {
-                    utilModule.subscribeToObject(value, async (status) => {
-                        await this.changeTaskStatus(value, status);
-                    });
-                }
+        } else if (type === "commands") {
+            this.paragraph.commands = await documentModule.getParagraphCommands(assistOS.space.id, this._document.id, this.paragraph.id);
+            let commandsElement = this.element.querySelector('.paragraph-commands');
+            if(commandsElement.tagName === "DIV"){
+                await this.renderViewModeCommands();
+            } else {
+                await this.renderEditModeCommands();
             }
         }
     }
@@ -93,8 +88,7 @@ export class ParagraphItem {
         }
         let chapterElement = this.element.closest("chapter-item");
         let chapterPresenter = chapterElement.webSkelPresenter;
-        chapterPresenter.invalidate(chapterPresenter.refreshChapter);
-        this.element.remove();
+        chapterPresenter.deleteParagraph(this.paragraph.id);
     }
 
     async moveParagraph(_target, direction) {
@@ -110,15 +104,9 @@ export class ParagraphItem {
             return index === paragraphs.length - 1 ? paragraphs[0].id : paragraphs[index + 1].id;
         };
         const adjacentParagraphId = getAdjacentParagraphId(currentParagraphIndex, this.chapter.paragraphs);
-        await assistOS.callFlow("SwapParagraphs", {
-            spaceId: assistOS.space.id,
-            documentId: this._document.id,
-            chapterId: this.chapter.id,
-            paragraphId1: this.paragraph.id,
-            paragraphId2: adjacentParagraphId
-        });
+        await documentModule.swapParagraphs(assistOS.space.id, this._document.id, this.chapter.id, this.paragraph.id, adjacentParagraphId, direction);
         let chapterPresenter = this.element.closest("chapter-item").webSkelPresenter;
-        chapterPresenter.invalidate(chapterPresenter.refreshChapter);
+        chapterPresenter.swapParagraphs(this.paragraph.id, adjacentParagraphId, direction);
     }
 
     addParagraph() {
@@ -143,12 +131,7 @@ export class ParagraphItem {
             }
             this.paragraph.text = paragraphText
             this.textIsDifferentFromAudio = true;
-            await assistOS.callFlow("UpdateParagraphText", {
-                spaceId: assistOS.space.id,
-                documentId: this._document.id,
-                paragraphId: this.paragraph.id,
-                text: paragraphText
-            });
+            await documentModule.updateParagraphText(assistOS.space.id, this._document.id, this.paragraph.id, paragraphText);
         }
     }
 
@@ -299,11 +282,9 @@ export class ParagraphItem {
         this.errorElement.innerText = error;
     }
 
-    addUITask(taskId) {
+    async addUITask(taskId) {
         assistOS.space.notifyObservers(this._document.id + "/tasks");
-        utilModule.subscribeToObject(taskId, async (status) => {
-            await this.changeTaskStatus(taskId, status);
-        });
+        await NotificationRouter.subscribeToSpace(assistOS.space.id, taskId, this.boundChangeTaskStatus);
         this.documentPresenter.renderNewTasksBadge();
     }
 
@@ -316,7 +297,7 @@ export class ParagraphItem {
         if (commandStatus === "new") {
             const taskId = await utilModule.constants.COMMANDS_CONFIG.COMMANDS.find(command => command.NAME === commandName).EXECUTE(assistOS.space.id, this._document.id, this.paragraph.id, {});
             this.paragraph.commands[commandName].taskId = taskId;
-            this.addUITask(taskId);
+            await this.addUITask(taskId);
         } else if (commandStatus === "changed") {
             if (this.paragraph.commands[commandName].taskId) {
                 //cancel the task so it can be re-executed, same if it was cancelled, failed, pending
@@ -329,7 +310,7 @@ export class ParagraphItem {
             } else {
                 const taskId = await utilModule.constants.COMMANDS_CONFIG.COMMANDS.find(command => command.NAME === commandName).EXECUTE(assistOS.space.id, this._document.id, this.paragraph.id, {});
                 this.paragraph.commands[commandName].taskId = taskId;
-                this.addUITask(taskId);
+                await this.addUITask(taskId);
             }
         } else if (commandStatus === "deleted") {
             await this.deleteTaskFromCommand(commandName);
@@ -340,7 +321,6 @@ export class ParagraphItem {
             let taskId = this.paragraph.commands[commandName].taskId;
             try {
                 await utilModule.cancelTaskAndRemove(taskId);
-                await utilModule.unsubscribeFromObject(taskId);
                 assistOS.space.notifyObservers(this._document.id + "/tasks");
             } catch (e) {
                 //task has already been removed

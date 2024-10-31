@@ -2,7 +2,7 @@ import {executorTimer} from "../../../../imports.js";
 const galleryModule = require("assistos").loadModule("gallery", {});
 const llmModule = require("assistos").loadModule("llm", {});
 const utilModule = require("assistos").loadModule("util", {});
-
+import {NotificationRouter} from "../../../../imports.js";
 export class GenerateImagePage {
     constructor(element, invalidate) {
         this.element = element;
@@ -31,29 +31,29 @@ export class GenerateImagePage {
             this.galleryConfig = await galleryModule.getGalleryConfig(assistOS.space.id, this.id);
             await this.refreshHistory();
         });
-
-        utilModule.subscribeToObject(this.id, async (type) => {
-            switch (type) {
-                case "delete":
-                    return this.invalidate(async () => {
-                        await assistOS.UI.changeToDynamicPage("space-application-page", `${assistOS.space.id}/Space/galleries-page`);
-                        alert("The gallery has been deleted");
-                    });
-                case "config":
-                    let galleryConfig = await galleryModule.getGalleryConfig(assistOS.space.id, this.id);
-                    if (JSON.stringify(this.galleryConfig) !== JSON.stringify(galleryConfig)) {
-                        this.galleryConfig = galleryConfig;
-                        this.invalidate(this.refreshHistory);
-                    }
-                    return;
-                default:
-                    this.invalidate(this.refreshHistory);
-                    return;
-            }
-        });
+        this.boundOnImageUpdate = this.onImageUpdate.bind(this);
+        NotificationRouter.subscribeToSpace(assistOS.space.id, this.id, this.boundOnImageUpdate);
         this.selectInputs = [];
     }
-
+    async onImageUpdate(type) {
+        switch (type) {
+            case "delete":
+                return this.invalidate(async () => {
+                    await assistOS.UI.changeToDynamicPage("space-application-page", `${assistOS.space.id}/Space/galleries-page`);
+                    alert("The gallery has been deleted");
+                });
+            case "config":
+                let galleryConfig = await galleryModule.getGalleryConfig(assistOS.space.id, this.id);
+                if (JSON.stringify(this.galleryConfig) !== JSON.stringify(galleryConfig)) {
+                    this.galleryConfig = galleryConfig;
+                    this.invalidate(this.refreshHistory);
+                }
+                return;
+            default:
+                this.invalidate(this.refreshHistory);
+                return;
+        }
+    }
     openAIBeforeRender() {
         let imagesHTML = "";
         for (let image of this.images) {
@@ -134,10 +134,6 @@ export class GenerateImagePage {
         } else {
             this.midjourneyBeforeRender();
         }
-    }
-
-    async afterUnload() {
-        await utilModule.unsubscribeFromObject(this.id);
     }
 
     async getImageSrc(_target) {

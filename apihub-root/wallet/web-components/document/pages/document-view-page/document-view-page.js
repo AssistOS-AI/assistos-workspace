@@ -1,4 +1,4 @@
-const utilModule = require("assistos").loadModule("util", {});
+import {NotificationRouter} from "../../../../imports.js";
 const documentModule = require("assistos").loadModule("document", {});
 const personalityModule = require("assistos").loadModule("personality", {});
 import {executorTimer, unescapeHtmlEntities} from "../../../../imports.js";
@@ -10,36 +10,111 @@ export class DocumentViewPage {
         this.refreshDocument = async () => {
             this._document = await documentModule.getDocument(assistOS.space.id, this._document.id);
         }
-        this.childrenSubscriptions = new Map();
         this.invalidate(async () => {
-            let documentData = await documentModule.getDocument(assistOS.space.id, window.location.hash.split("/")[3]);
-            this._document = new documentModule.Document(documentData);
-            await utilModule.subscribeToObject(this._document.id, async (type) => {
-                switch (type) {
-                    case "delete":
-                        await this.openDocumentsPage();
-                        alert("The document has been deleted");
-                        return;
-                    case "title":
-                        let title = await documentModule.getDocumentTitle(assistOS.space.id, this._document.id);
-                        this._document.title = title;
-                        this.renderDocumentTitle();
-                        return;
-                    case "abstract":
-                        let abstract = await documentModule.getDocumentAbstract(assistOS.space.id, this._document.id);
-                        this._document.abstract = abstract;
-                        this.renderAbstract();
-                        return;
-                    default:
-                        return this.invalidate(this.refreshDocument);
-                }
-            });
+            this._document = await documentModule.getDocument(assistOS.space.id, window.location.hash.split("/")[3]);
+            this.boundOnDocumentUpdate = this.onDocumentUpdate.bind(this);
+            await NotificationRouter.subscribeToSpace(assistOS.space.id, this._document.id, this.boundOnDocumentUpdate);
             this.personalitiesMetadata = await personalityModule.getPersonalitiesMetadata(assistOS.space.id);
-            this.personalitiesId = "personalities";
-            await utilModule.subscribeToObject(this.personalitiesId, async (type) => {
-                this.personalitiesMetadata = await utilModule.getPersonalitiesMetadata(assistOS.space.id);
-            });
+            this.boundRefreshPersonalitiesMetadata = this.refreshPersonalitiesMetadata.bind(this);
+            await NotificationRouter.subscribeToSpace(assistOS.space.id, "personalities", this.boundRefreshPersonalitiesMetadata);
         });
+    }
+    async refreshPersonalitiesMetadata() {
+        this.personalitiesMetadata = await personalityModule.getPersonalitiesMetadata(assistOS.space.id);
+    }
+    async insertNewChapter(chapterId, position) {
+        let newChapter = await documentModule.getChapter(assistOS.space.id, this._document.id, chapterId);
+        this._document.chapters.splice(position, 0, newChapter);
+        let previousChapterIndex = position - 1;
+        if(previousChapterIndex < 0){
+            previousChapterIndex = 0;
+        }
+        let previousChapterId = this._document.chapters[previousChapterIndex].id;
+        let previousChapter = this.element.querySelector(`chapter-item[data-chapter-id="${previousChapterId}"]`);
+        if(!previousChapter){
+            let chapterContainer = this.element.querySelector(".chapters-container");
+            chapterContainer.insertAdjacentHTML("afterbegin", `<chapter-item data-chapter-number="${position + 1}" data-chapter-id="${newChapter.id}" data-metadata="chapter nr. ${position + 1} with title ${newChapter.title} and id ${newChapter.id}" data-title-metadata="title of the current chapter" data-presenter="chapter-item"></chapter-item>`);
+            return;
+        }
+        previousChapter.insertAdjacentHTML("afterend", `<chapter-item data-chapter-number="${position + 1}" data-chapter-id="${newChapter.id}" data-metadata="chapter nr. ${position + 1} with title ${newChapter.title} and id ${newChapter.id}" data-title-metadata="title of the current chapter" data-presenter="chapter-item"></chapter-item>`);
+    }
+    swapChapters(chapterId, swapChapterId, direction) {
+        let chapters = this._document.chapters;
+        let currentChapterIndex = this._document.getChapterIndex(chapterId);
+        let adjacentChapterIndex = this._document.getChapterIndex(swapChapterId);
+
+        let chapter1 = this.element.querySelector(`chapter-item[data-chapter-id="${chapterId}"]`);
+        let chapter2 = this.element.querySelector(`chapter-item[data-chapter-id="${swapChapterId}"]`);
+        if (direction === "up") {
+            if(adjacentChapterIndex === this._document.chapters.length - 1){
+                chapters.push(chapters.shift());
+                let newIndex = this._document.chapters.length;
+                chapter1.setAttribute("data-chapter-number", newIndex);
+                chapter2.insertAdjacentElement('afterend', chapter1);
+                return;
+            }
+            [chapters[currentChapterIndex], chapters[adjacentChapterIndex]] = [chapters[adjacentChapterIndex], chapters[currentChapterIndex]];
+            let newIndex = adjacentChapterIndex + 1;
+            chapter1.setAttribute("data-chapter-number", newIndex);
+            chapter2.insertAdjacentElement('beforebegin', chapter1);
+        } else {
+            // Insert the current chapter after the adjacent one
+            if(adjacentChapterIndex === 0){
+                chapters.unshift(chapters.pop());
+                let newIndex = 1;
+                chapter1.setAttribute("data-chapter-number", newIndex);
+                chapter2.insertAdjacentElement('beforebegin', chapter1);
+                return;
+            }
+            [chapters[currentChapterIndex], chapters[adjacentChapterIndex]] = [chapters[adjacentChapterIndex], chapters[currentChapterIndex]];
+            let newIndex = adjacentChapterIndex + 1;
+            chapter1.setAttribute("data-chapter-number", newIndex);
+            chapter2.insertAdjacentElement('afterend', chapter1);
+        }
+        let allChapters = this.element.querySelectorAll("chapter-item");
+        for(let chapter of allChapters){
+            chapter.webSkelPresenter.updateChapterNumber();
+        }
+    }
+    deleteChapter(chapterId) {
+        let chapter = this.element.querySelector(`chapter-item[data-chapter-id="${chapterId}"]`);
+        chapter.remove();
+        this._document.chapters = this._document.chapters.filter((chapter) => chapter.id !== chapterId);
+    }
+    async onDocumentUpdate(data){
+        if(typeof data === "object"){
+            if(data.operationType === "add"){
+                await this.insertNewChapter(data.chapterId, data.position);
+                return;
+            }
+            if(data.operationType === "delete"){
+                this.deleteChapter(data.chapterId);
+                return;
+            }
+            if(data.operationType === "swap"){
+                this.swapChapters(data.chapterId, data.swapChapterId, data.direction);
+                return;
+            }
+        }
+        switch (data) {
+            case "delete":
+                await this.openDocumentsPage();
+                alert("The document has been deleted");
+                break;
+            case "title":
+                let title = await documentModule.getDocumentTitle(assistOS.space.id, this._document.id);
+                this._document.title = title;
+                this.renderDocumentTitle();
+                break;
+            case "abstract":
+                let abstract = await documentModule.getDocumentAbstract(assistOS.space.id, this._document.id);
+                this._document.abstract = abstract;
+                this.renderAbstract();
+                break;
+            default:
+                console.error("Document: Unknown update type ", data);
+                break;
+        }
     }
 
     beforeRender() {
@@ -75,28 +150,22 @@ export class DocumentViewPage {
                 chapter.scrollIntoView({behavior: "smooth", block: "center"});
             }
         }
-        if(!this.boundRemoveFocusHandler){
+        if (!this.boundRemoveFocusHandler) {
             this.boundRemoveFocusHandler = this.removeFocusHandler.bind(this);
             document.addEventListener("click", this.boundRemoveFocusHandler);
         }
     }
-    async removeFocusHandler(event){
+
+    async removeFocusHandler(event) {
         let closestContainer = event.target.closest(".document-editor");
-        if(!closestContainer && !event.target.closest(".maintain-focus")){
-            if(this.currentElement){
+        if (!closestContainer && !event.target.closest(".maintain-focus")) {
+            if (this.currentElement) {
                 this.currentElement.element.removeAttribute("id");
                 await this.currentElement.focusoutFunction(this.currentElement.element);
                 await this.stopTimer(true);
                 delete this.currentElement;
                 delete this.timer;
             }
-        }
-    }
-    async afterUnload() {
-        await utilModule.unsubscribeFromObject(this._document.id);
-        await utilModule.unsubscribeFromObject(this.personalitiesId);
-        for (let childId of this.childrenSubscriptions.keys()) {
-            await utilModule.unsubscribeFromObject(childId);
         }
     }
 
@@ -132,40 +201,32 @@ export class DocumentViewPage {
     }
 
     async moveChapter(targetElement, direction) {
-        const currentChapter = assistOS.UI.reverseQuerySelector(targetElement, "chapter-item");
-        const currentChapterId = currentChapter.getAttribute('data-chapter-id');
+        const currentChapterElement = assistOS.UI.reverseQuerySelector(targetElement, "chapter-item");
+        const currentChapterId = currentChapterElement.getAttribute('data-chapter-id');
         const currentChapterIndex = this._document.getChapterIndex(currentChapterId);
 
         const getAdjacentChapterId = (index, chapters) => {
             if (direction === "up") {
                 return index === 0 ? chapters[chapters.length - 1].id : chapters[index - 1].id;
+            } else {
+                return index === chapters.length - 1 ? chapters[0].id : chapters[index + 1].id;
             }
-            return index === chapters.length - 1 ? chapters[0].id : chapters[index + 1].id;
         };
 
         const adjacentChapterId = getAdjacentChapterId(currentChapterIndex, this._document.chapters);
-        await assistOS.callFlow("SwapChapters", {
-            spaceId: assistOS.space.id,
-            documentId: this._document.id,
-            chapterId1: currentChapterId,
-            chapterId2: adjacentChapterId
-        });
-        this.invalidate(this.refreshDocument);
+        await documentModule.swapChapters(assistOS.space.id, this._document.id, currentChapterId, adjacentChapterId, direction);
+        this.swapChapters(currentChapterId, adjacentChapterId, direction);
     }
 
     async saveAbstract(abstractElement) {
         let abstractText = assistOS.UI.sanitize(abstractElement.value);
         if (abstractText !== this._document.abstract) {
             this._document.abstract = abstractText;
-            await assistOS.callFlow("UpdateAbstract", {
-                spaceId: assistOS.space.id,
-                documentId: this._document.id,
-                text: abstractText
-            });
+            await documentModule.updateDocumentAbstract(assistOS.space.id, this._document.id, abstractText);
         }
     }
 
-    async addChapter(targetElement,mode) {
+    async addChapter(targetElement, mode) {
         let position = this._document.chapters.length;
         if (assistOS.space.currentChapterId) {
             if (mode === "above") {
@@ -180,9 +241,13 @@ export class DocumentViewPage {
         }
         let chapterData = {title: "New Chapter", paragraphs: []};
         chapterData.position = position;
-        let chapterId = await documentModule.addChapter(assistOS.space.id, this._document.id, chapterData);
-        await documentModule.addParagraph(assistOS.space.id, this._document.id, chapterId, {text: "", position: 0, commands: {}});
-        this.invalidate(this.refreshDocument);
+        assistOS.space.currentChapterId = await documentModule.addChapter(assistOS.space.id, this._document.id, chapterData);
+        assistOS.space.currentParagraphId = await documentModule.addParagraph(assistOS.space.id, this._document.id, assistOS.space.currentChapterId, {
+            text: "",
+            position: 0,
+            commands: {}
+        });
+        await this.insertNewChapter(assistOS.space.currentChapterId, position);
     }
 
     async openDocumentsPage() {
@@ -193,11 +258,7 @@ export class DocumentViewPage {
         let titleText = assistOS.UI.sanitize(textElement.value);
         if (titleText !== this._document.title && titleText !== "") {
             this._document.title = titleText;
-            await assistOS.callFlow("UpdateDocumentTitle", {
-                spaceId: assistOS.space.id,
-                documentId: this._document.id,
-                title: titleText
-            });
+            await documentModule.updateDocumentTitle(assistOS.space.id, this._document.id, titleText);
         }
     }
 
@@ -309,19 +370,7 @@ export class DocumentViewPage {
     async documentToVideo(button) {
         let videoId = await documentModule.documentToVideo(assistOS.space.id, this._document.id);
         assistOS.space.notifyObservers(this._document.id + "/tasks");
-        await utilModule.subscribeToObject(videoId, async (data) => {
-            if (data.error) {
-                return await showApplicationError("Error compiling video", data.error, "");
-            } else if (data.status === "completed") {
-                const a = document.createElement("a");
-                a.href = `/spaces/videos/${assistOS.space.id}/${videoId}`;
-                a.download = "video.mp4";
-                document.body.appendChild(a);
-                a.click();
-                a.remove();
-                this.invalidate(this.refreshDocument);
-            }
-        });
+
     }
 
     async exportDocument(targetElement) {
@@ -369,16 +418,18 @@ export class DocumentViewPage {
         const llmModule = require('assistos').loadModule('llm', {});
         const response = (await llmModule.lipsync(assistOS.space.id, "sync-1.6.0", {}))
     }
-    async openTasksModal(targetElement){
+
+    async openTasksModal(targetElement) {
         let newTasksBadge = this.element.querySelector(".new-tasks-badge");
-        if(newTasksBadge){
+        if (newTasksBadge) {
             newTasksBadge.remove();
         }
         await assistOS.UI.showModal("document-tasks-modal", {["document-id"]: this._document.id});
     }
-    renderNewTasksBadge(){
+
+    renderNewTasksBadge() {
         let newTasksBadge = this.element.querySelector(".new-tasks-badge");
-        if(newTasksBadge){
+        if (newTasksBadge) {
             return;
         }
         newTasksBadge = `<div class="new-tasks-badge"></div>`;

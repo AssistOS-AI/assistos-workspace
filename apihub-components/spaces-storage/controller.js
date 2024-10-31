@@ -7,7 +7,7 @@ const enclave = require("opendsu").loadAPI("enclave");
 const crypto = require('../apihub-component-utils/crypto.js');
 const fsPromises = require('fs').promises;
 const path = require('path');
-const eventPublisher = require("../subscribers/eventPublisher.js");
+const subscriptionManager = require("../subscribers/SubscriptionManager.js");
 const {sendResponse} = require("../apihub-component-utils/utils");
 const dataVolumePaths = require('../volumeManager').paths;
 const Storage = require("../apihub-component-utils/storage.js");
@@ -114,8 +114,9 @@ async function addFileObject(request, response) {
 
         let filePath = getFileObjectPath(spaceId, objectType, objectId);
         await fsPromises.writeFile(filePath, JSON.stringify(objectData, null, 2), 'utf8');
-        eventPublisher.notifyClients(request.sessionId, objectType);
-        eventPublisher.notifyClients(request.sessionId, objectId);
+
+        subscriptionManager.notifyClients(request.sessionId, subscriptionManager.getObjectId(spaceId, objectType));
+        subscriptionManager.notifyClients(request.sessionId, subscriptionManager.getObjectId(spaceId, objectId));
 
         return utils.sendResponse(response, 200, "application/json", {
             success: true,
@@ -152,8 +153,8 @@ async function updateFileObject(request, response) {
             });
         }
         await fsPromises.writeFile(filePath, JSON.stringify(objectData, null, 2), 'utf8');
-        eventPublisher.notifyClients(request.sessionId, objectType);
-        eventPublisher.notifyClients(request.sessionId, objectId);
+        subscriptionManager.notifyClients(request.sessionId, subscriptionManager.getObjectId(spaceId, objectType));
+        subscriptionManager.notifyClients(request.sessionId, subscriptionManager.getObjectId(spaceId, objectId));
         return utils.sendResponse(response, 200, "application/json", {
             success: true,
             data: objectId,
@@ -180,8 +181,8 @@ async function deleteFileObject(request, response) {
             await fsPromises.writeFile(metadataPath, JSON.stringify(metadata), 'utf8');
         }
         let filePath = getFileObjectPath(spaceId, objectType, objectId);
-        eventPublisher.notifyClients(request.sessionId, objectType);
-        eventPublisher.notifyClients(request.sessionId, objectId, "delete");
+        subscriptionManager.notifyClients(request.sessionId, subscriptionManager.getObjectId(spaceId, objectType));
+        subscriptionManager.notifyClients(request.sessionId, subscriptionManager.getObjectId(spaceId, objectId), "delete");
         await fsPromises.unlink(filePath);
         return utils.sendResponse(response, 200, "application/json", {
             success: true,
@@ -346,7 +347,7 @@ async function addContainerObject(request, response) {
     try {
         let lightDBEnclaveClient = enclave.initialiseLightDBEnclave(spaceId);
         let objectId = await addContainerObjectToTable(lightDBEnclaveClient, objectType, objectData);
-        eventPublisher.notifyClients(request.sessionId, objectType);
+        subscriptionManager.notifyClients(request.sessionId, subscriptionManager.getObjectId(spaceId, objectType));
         return utils.sendResponse(response, 200, "application/json", {
             success: true,
             data: objectId,
@@ -369,8 +370,8 @@ async function updateContainerObject(request, response) {
         await deleteContainerObjectTable(lightDBEnclaveClient, objectId);
         let objectType = objectId.split('_')[0];
         await addContainerObjectToTable(lightDBEnclaveClient, objectType, objectData);
-        eventPublisher.notifyClients(request.sessionId, objectType);
-        eventPublisher.notifyClients(request.sessionId, objectId);
+        subscriptionManager.notifyClients(request.sessionId, subscriptionManager.getObjectId(spaceId, objectType));
+        subscriptionManager.notifyClients(request.sessionId, subscriptionManager.getObjectId(spaceId, objectId));
         return utils.sendResponse(response, 200, "application/json", {
             success: true,
             data: objectId,
@@ -396,8 +397,8 @@ async function deleteContainerObject(request, response) {
     try {
         let lightDBEnclaveClient = enclave.initialiseLightDBEnclave(spaceId);
         await deleteContainerObjectTable(lightDBEnclaveClient, objectId);
-        eventPublisher.notifyClients(request.sessionId, objectId, "delete");
-        eventPublisher.notifyClients(request.sessionId, objectId.split('_')[0]);
+        subscriptionManager.notifyClients(request.sessionId, subscriptionManager.getObjectId(spaceId, objectId), "delete");
+        subscriptionManager.notifyClients(request.sessionId, subscriptionManager.getObjectId(spaceId, objectId.split('_')[0]));
         return utils.sendResponse(response, 200, "application/json", {
             success: true,
             data: objectId,
@@ -548,7 +549,7 @@ async function addEmbeddedObject(request, response) {
         let parts = objectURI.split("/");
         let tableId = parts[0];
         let objectId = await insertEmbeddedObjectRecords(lightDBEnclaveClient, tableId, objectURI, objectData);
-        eventPublisher.notifyClients(request.sessionId, parts[parts.length - 2]);
+        subscriptionManager.notifyClients(request.sessionId, subscriptionManager.getObjectId(spaceId, parts[parts.length - 2]));
         return utils.sendResponse(response, 200, "application/json", {
             success: true,
             data: objectId,
@@ -588,7 +589,7 @@ async function updateEmbeddedObject(request, response) {
                         object[propertyName].push(item.id);
                     }
                     await $$.promisify(lightDBEnclaveClient.updateRecord)($$.SYSTEM_IDENTIFIER, tableId, objectId, {data: object});
-                    eventPublisher.notifyClients(request.sessionId, objectId, propertyName);
+                    subscriptionManager.notifyClients(request.sessionId, subscriptionManager.getObjectId(spaceId, objectId), propertyName);
                     return utils.sendResponse(response, 200, "application/json", {
                         success: true,
                         data: objectId,
@@ -599,14 +600,14 @@ async function updateEmbeddedObject(request, response) {
             object[propertyName] = objectData;
             await $$.promisify(lightDBEnclaveClient.updateRecord)($$.SYSTEM_IDENTIFIER, tableId, objectId, {data: object});
             if (segments.length === 3 || (segments.length === 2 && !Array.isArray(object[propertyName]))) {
-                eventPublisher.notifyClients(request.sessionId, objectId, propertyName);
+                subscriptionManager.notifyClients(request.sessionId, subscriptionManager.getObjectId(spaceId, objectId), propertyName);
             } else {
-                eventPublisher.notifyClients(request.sessionId, objectId);
+                subscriptionManager.notifyClients(request.sessionId, subscriptionManager.getObjectId(spaceId, objectId));
             }
         } else {
             await deleteEmbeddedObjectDependencies(lightDBEnclaveClient, tableId, objectId);
             await insertEmbeddedObjectRecords(lightDBEnclaveClient, tableId, objectURI, objectData, true);
-            eventPublisher.notifyClients(request.sessionId, objectId);
+            subscriptionManager.notifyClients(request.sessionId, subscriptionManager.getObjectId(spaceId, objectId));
         }
         return utils.sendResponse(response, 200, "application/json", {
             success: true,
@@ -665,7 +666,7 @@ async function deleteEmbeddedObject(request, response) {
         let parts = objectURI.split("/");
         let tableId = parts[0];
         await deleteEmbeddedObjectFromTable(lightDBEnclaveClient, tableId, objectURI);
-        eventPublisher.notifyClients(request.sessionId, parts[parts.length - 2]);
+        subscriptionManager.notifyClients(request.sessionId, subscriptionManager.getObjectId(spaceId, parts[parts.length - 2]));
         return utils.sendResponse(response, 200, "application/json", {
             success: true,
             data: objectURI,
@@ -704,7 +705,7 @@ async function swapEmbeddedObjects(request, response) {
         object[propertyName][index1] = embeddedId2;
         object[propertyName][index2] = embeddedId1;
         await $$.promisify(lightDBEnclaveClient.updateRecord)($$.SYSTEM_IDENTIFIER, tableId, objectId, {data: object});
-        eventPublisher.notifyClients(request.sessionId, objectId);
+        subscriptionManager.notifyClients(request.sessionId, subscriptionManager.getObjectId(spaceId, objectId));
         return utils.sendResponse(response, 200, "application/json", {
             success: true,
             data: objectURI,
@@ -729,7 +730,7 @@ async function addSpaceChatMessage(request, response) {
             message: `Message added successfully`,
             data: {messageId: messageId}
         });
-        eventPublisher.notifyClients(request.sessionId, `chat_${spaceId}`);
+        subscriptionManager.notifyClients(request.sessionId, subscriptionManager.getObjectId(spaceId, `chat_${spaceId}`));
     } catch (error) {
         utils.sendResponse(response, 500, "application/json", {
             success: false,
@@ -1143,7 +1144,7 @@ async function getChatTextResponse(request, response) {
         const chatMessages = modelResponse.data.messages
         for (const chatMessage of chatMessages) {
             await space.APIs.addSpaceChatMessage(spaceId, agentId, "assistant", chatMessage);
-            eventPublisher.notifyClients(request.sessionId, `chat_${spaceId}`, {}, [userId]);
+            subscriptionManager.notifyClients(request.sessionId, subscriptionManager.getObjectId(spaceId, `chat_${spaceId}`), {}, [userId]);
         }
     }
 }
@@ -1158,7 +1159,7 @@ async function getChatTextStreamingResponse(request, response) {
             const chatMessages = modelResponse.data.messages;
             for (const chatMessage of chatMessages) {
                 await space.APIs.addSpaceChatMessage(spaceId, agentId, "assistant", chatMessage);
-                eventPublisher.notifyClients(request.sessionId, `chat_${spaceId}`, {}, [userId]);
+                subscriptionManager.notifyClients(request.sessionId, subscriptionManager.getObjectId(spaceId, `chat_${spaceId}`), {}, [userId]);
             }
         }
     } catch (error) {

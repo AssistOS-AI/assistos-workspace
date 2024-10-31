@@ -1,12 +1,12 @@
 import WebSkel from "../WebSkel/webSkel.js";
-
 const userModule = require('assistos').loadModule('user', {});
 const spaceModule = require('assistos').loadModule('space', {});
 const applicationModule = require('assistos').loadModule('application', {});
 const agentModule = require('assistos').loadModule('personality', {});
 const flowModule = require('assistos').loadModule('flow', {});
-const personalityModule = require('assistos').loadModule('personality', {})
-const utilModule= require('assistos').loadModule('util', {});
+const personalityModule = require('assistos').loadModule('personality', {});
+import {NotificationRouter} from "./wallet/imports.js";
+
 class AssistOS {
     constructor(configuration) {
         if (AssistOS.instance) {
@@ -129,8 +129,7 @@ class AssistOS {
             }
         }
         const loaderId = assistOS.UI.showLoading();
-        await utilModule.closeSSEConnection(this.connectionSSE);
-        delete this.connectionSSE;
+        await NotificationRouter.closeConnection();
         await userModule.logoutUser();
         removeSidebar();
         await this.refresh();
@@ -166,24 +165,24 @@ class AssistOS {
         await spaceModule.createSpace(spaceName, apiKey);
         await this.loadPage(false, true);
     }
+    async initPage (applicationName, applicationLocation) {
+        const insertSidebar = () => {
+            if (!document.querySelector("left-sidebar")) {
+                document.querySelector("#page-content").insertAdjacentHTML("beforebegin", `<left-sidebar data-presenter="left-sidebar"></left-sidebar>`);
+            } else {
+                document.querySelector("left-sidebar").webSkelPresenter.invalidate();
+            }
+        }
+        hidePlaceholders();
+        insertSidebar();
+        if (applicationName) {
+            await assistOS.startApplication(applicationName, applicationLocation);
+        } else {
+            await assistOS.UI.changeToDynamicPage("space-application-page", `${assistOS.space.id}/Space/announcements-page`);
+        }
+    };
 
     async loadPage(skipAuth = false, skipSpace = false, spaceId) {
-        const initPage = async () => {
-            const insertSidebar = () => {
-                if (!document.querySelector("left-sidebar")) {
-                    document.querySelector("#page-content").insertAdjacentHTML("beforebegin", `<left-sidebar data-presenter="left-sidebar"></left-sidebar>`);
-                } else {
-                    document.querySelector("left-sidebar").webSkelPresenter.invalidate();
-                }
-            }
-            hidePlaceholders();
-            insertSidebar();
-            if (applicationName) {
-                await assistOS.startApplication(applicationName, applicationLocation);
-            } else {
-                await assistOS.UI.changeToDynamicPage("space-application-page", `${assistOS.space.id}/Space/announcements-page`);
-            }
-        };
         let {spaceIdURL, applicationName, applicationLocation} = getURLData(window.location.hash);
         spaceId = spaceId ? spaceId : spaceIdURL;
         if (spaceId === "authentication-page" && skipAuth) {
@@ -200,25 +199,12 @@ class AssistOS {
 
         try {
             await (spaceId ? skipSpace ? assistOS.initUser() : assistOS.initUser(spaceId) : assistOS.initUser());
-            const SSEConfig = {
-                url: `/events/updates`,
-                withCredentials: true,
-                onDisconnect: async (disconnectReason) => {
-                    await assistOS.UI.showModal("client-disconnect-modal", {
-                        "presenter": "client-disconnect-modal",
-                        reason: disconnectReason.message
-                    });
-                },
-                onError: async (err) => {
-                    console.error('EventSource failed:', err);
-                }
-            }
             try {
-                this.connectionSSE = utilModule.createSSEConnection(SSEConfig);
+                NotificationRouter.createSSEConnection();
             } catch (error) {
                 await showApplicationError("Error", "Failed to establish connection to the server", error.message);
             }
-            await initPage();
+            await this.initPage(applicationName, applicationLocation);
         } catch (error) {
             console.info(error);
             hidePlaceholders();

@@ -2,7 +2,7 @@ const path = require('path');
 const fsPromises = require('fs').promises;
 const {sendResponse, sendFileToClient} = require('../apihub-component-utils/utils.js')
 const dataVolumePaths = require('../volumeManager').paths;
-const eventPublisher = require('../subscribers/eventPublisher.js');
+const subscriptionManager = require('../subscribers/SubscriptionManager.js');
 const ApplicationHandler = require("./handler.js");
 
 async function installApplication(request, response) {
@@ -102,7 +102,7 @@ async function runApplicationTask(request, response) {
         const taskData = request.body;
         const taskId = await ApplicationHandler.runApplicationTask(request, spaceId, applicationId, taskName, taskData);
         const sessionId = request.sessionId;
-        eventPublisher.notifyClients(sessionId, applicationId, "tasks");
+        subscriptionManager.notifyClients(sessionId, applicationId, "tasks");
         return sendResponse(response, 200, "application/json", {
             message: `Task ${taskId} started`,
             data: taskId,
@@ -121,7 +121,7 @@ async function runApplicationFlow(request, response) {
         const flowData = request.body;
         const data = await ApplicationHandler.runApplicationFlow(request, spaceId, applicationId, flowId, flowData);
         const sessionId = request.sessionId;
-        eventPublisher.notifyClients(sessionId, applicationId, "flows");
+        subscriptionManager.notifyClients(sessionId, applicationId, "flows");
         return sendResponse(response, 200, "application/json", {
             message: `Flow executed successfully`,
             data: data,

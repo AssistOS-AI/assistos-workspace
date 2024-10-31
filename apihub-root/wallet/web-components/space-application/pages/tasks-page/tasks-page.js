@@ -6,14 +6,14 @@ export class TasksPage {
     }
     beforeRender() {
         let string = "";
-        this.tasksNr = assistOS.space.getAgent().tasks.length;
-        for(let task of assistOS.space.getAgent().tasks){
-            string+= `<div class="task">
-                       <div class="description">${task.description}</div> 
-                       <div class="date">${task.date}</div>
-                      </div>`;
-        }
-        this.tasks = string;
+        // this.tasksNr = assistOS.space.getAgent().tasks.length;
+        // for(let task of assistOS.space.getAgent().tasks){
+        //     string+= `<div class="task">
+        //                <div class="description">${task.description}</div>
+        //                <div class="date">${task.date}</div>
+        //               </div>`;
+        // }
+        // this.tasks = string;
     }
     afterRender(){
         this.setContext();

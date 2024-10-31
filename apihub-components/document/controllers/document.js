@@ -6,7 +6,7 @@ const path = require("path");
 const fs = require("fs");
 const Busboy = require("busboy");
 const unzipper = require("unzipper");
-const eventPublisher = require("../../subscribers/eventPublisher");
+const SubscriptionManager = require("../../subscribers/SubscriptionManager");
 const ffmpeg = require("../../apihub-component-utils/ffmpeg");
 const {sendResponse} = require("../../apihub-component-utils/utils");
 const Storage = require("../../apihub-component-utils/storage");
@@ -67,7 +67,7 @@ async function createDocument(req, res) {
     }
     try {
         const documentId = await documentService.createDocument(spaceId, documentData);
-        eventPublisher.notifyClients(req.sessionId, "documents");
+        SubscriptionManager.notifyClients(req.sessionId, SubscriptionManager.getObjectId(spaceId, "documents"));
         utils.sendResponse(res, 200, "application/json", {
             success: true,
             data: documentId
@@ -90,18 +90,18 @@ async function updateDocument(req, res) {
         });
     }
     try {
-        const updatedFields=req.query.fields;
+        const updatedFields = req.query.fields;
         /* TODO remove this jk and make something generic for all notifications */
         await documentService.updateDocument(spaceId, documentId, documentData,req.query);
-        eventPublisher.notifyClients(req.sessionId, documentId);
-        eventPublisher.notifyClients(req.sessionId, "documents");
+        SubscriptionManager.notifyClients(req.sessionId, SubscriptionManager.getObjectId(spaceId, documentId));
+        SubscriptionManager.notifyClients(req.sessionId, SubscriptionManager.getObjectId(spaceId, "documents"));
        if (updatedFields) {
            if (Array.isArray(updatedFields)) {
                updatedFields.forEach(field => {
-                     eventPublisher.notifyClients(req.sessionId, documentId, field);
+                     SubscriptionManager.notifyClients(req.sessionId, SubscriptionManager.getObjectId(spaceId, documentId), field);
                })
            }else{
-               eventPublisher.notifyClients(req.sessionId, documentId, updatedFields);
+               SubscriptionManager.notifyClients(req.sessionId, SubscriptionManager.getObjectId(spaceId, documentId), updatedFields);
            }
         }
         utils.sendResponse(res, 200, "application/json", {
@@ -116,7 +116,6 @@ async function updateDocument(req, res) {
     }
 }
 
-
 async function deleteDocument(req, res) {
     const {spaceId, documentId} = req.params;
     if (!spaceId || !documentId) {
@@ -127,8 +126,8 @@ async function deleteDocument(req, res) {
     }
     try {
         await documentService.deleteDocument(spaceId, documentId);
-        eventPublisher.notifyClients(req.sessionId, documentId, "delete");
-        eventPublisher.notifyClients(req.sessionId, "documents");
+        SubscriptionManager.notifyClients(req.sessionId, SubscriptionManager.getObjectId(spaceId, documentId), "delete");
+        SubscriptionManager.notifyClients(req.sessionId, SubscriptionManager.getObjectId(spaceId, "documents"));
         utils.sendResponse(res, 200, "application/json", {
             success: true,
             message: `Document ${documentId} deleted successfully`
@@ -306,6 +305,7 @@ async function importDocument(request, response) {
     await fs.promises.mkdir(tempDir, {recursive: true});
     const busboy = Busboy({headers: request.headers});
     const taskId = crypto.generateId(16);
+    let objectId = SubscriptionManager.getObjectId(spaceId, taskId);
     busboy.on('file', (fieldname, file, filename, encoding, mimetype) => {
         const writeStream = fs.createWriteStream(filePath);
         file.pipe(writeStream);
@@ -334,10 +334,10 @@ async function importDocument(request, response) {
 
                 const importResults = await storeDocument(spaceId, extractedPath, request);
                 await fs.promises.unlink(filePath);
-                eventPublisher.notifyClientTask(request.userId, taskId, importResults)
+                SubscriptionManager.notifyClients("", objectId, importResults)
             } catch (error) {
                 console.error('Error processing extracted files:', error);
-                eventPublisher.notifyClientTask(request.userId, taskId, {error: error.message});
+                SubscriptionManager.notifyClients("", objectId, {error: error.message});
             } finally {
                 await fs.promises.rm(tempDir, {recursive: true, force: true});
             }
@@ -345,13 +345,13 @@ async function importDocument(request, response) {
 
         writeStream.on('error', async (error) => {
             console.error('Error writing file:', error);
-            eventPublisher.notifyClientTask(request.userId, taskId, {error: error.message});
+            SubscriptionManager.notifyClients("", objectId, {error: error.message});
         });
     });
 
     busboy.on('error', async (error) => {
         console.error('Busboy error:', error);
-        eventPublisher.notifyClientTask(request.userId, taskId, {error: error.message});
+        SubscriptionManager.notifyClients("", objectId, {error: error.message});
     });
 
     request.pipe(busboy);
@@ -442,31 +442,7 @@ async function storeDocument(spaceId, extractedPath, request) {
     fs.rmSync(extractedPath, {recursive: true, force: true});
     return {id: docId, overriddenPersonalities: Array.from(overriddenPersonalities)};
 }
-function convertParagraphs(chapter){
-    for (let paragraph of chapter.paragraphs) {
-        for(let key in paragraph.commands){
-            delete paragraph.commands[key].name;
-            if(key === "speech"){
-                delete paragraph.commands.speech.action;
-                delete paragraph.commands.speech.paramsObject.temperature;
-                delete paragraph.commands.speech.paramsObject.voiceGuidance;
-                for(let key in paragraph.commands.speech.paramsObject){
-                    paragraph.commands.speech[key] = paragraph.commands.speech.paramsObject[key];
-                }
-                delete paragraph.commands.speech.paramsObject;
-            }
-            if(key === "silence"){
-                delete paragraph.commands.silence.action;
-                paragraph.commands.silence.duration = paragraph.commands.silence.paramsObject.duration;
-                delete paragraph.commands.silence.paramsObject;
-            }
-            if(key === "lipsync"){
-                delete paragraph.commands.lipsync.action;
-                delete paragraph.commands.lipsync.paramsObject
-            }
-        }
-    }
-}
+
 async function storeAttachments(extractedPath, spaceModule, paragraph, spaceId) {
     if (paragraph.commands.image) {
         const imagePath = path.join(extractedPath, 'images', `${paragraph.commands.image.fileName}.png`);

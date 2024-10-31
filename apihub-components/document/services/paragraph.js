@@ -107,7 +107,7 @@ async function updateParagraph(spaceId, documentId, paragraphId, paragraphData, 
     }
 }
 
-async function swapParagraphs(spaceId, documentId, chapterId, paragraphId, paragraphId2) {
+async function swapParagraphs(spaceId, documentId, chapterId, paragraphId, paragraphId2, direction) {
     return await lightDB.swapEmbeddedObjects(spaceId, constructParagraphURI({
         documentId: documentId,
         chapterId: chapterId,
@@ -115,7 +115,7 @@ async function swapParagraphs(spaceId, documentId, chapterId, paragraphId, parag
     }), {
         item1: paragraphId,
         item2: paragraphId2
-    })
+    }, direction);
 }
 
 
