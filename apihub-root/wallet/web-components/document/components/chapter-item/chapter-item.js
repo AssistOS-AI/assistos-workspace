@@ -61,8 +61,8 @@ export class ChapterItem {
     }
     swapParagraphs(paragraphId, swapParagraphId, direction) {
         let paragraphs = this.chapter.paragraphs;
-        let currentParagraphIndex = this._document.getChapterIndex(paragraphId);
-        let adjacentParagraphIndex = this._document.getChapterIndex(swapParagraphId);
+        let currentParagraphIndex = this.chapter.getParagraphIndex(paragraphId);
+        let adjacentParagraphIndex = this.chapter.getParagraphIndex(swapParagraphId);
 
         let paragraph1 = this.element.querySelector(`paragraph-item[data-paragraph-id="${paragraphId}"]`);
         let paragraph2 = this.element.querySelector(`paragraph-item[data-paragraph-id="${swapParagraphId}"]`);

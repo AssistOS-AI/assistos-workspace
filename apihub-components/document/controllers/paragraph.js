@@ -65,7 +65,7 @@ async function updateParagraph(req, res) {
     try {
         await paragraphService.updateParagraph(spaceId, documentId, paragraphId, paragraphData,req.query);
         let objectId = SubscriptionManager.getObjectId(documentId, paragraphId);
-        SubscriptionManager.notifyClients(req.sessionId, objectId,"text");
+        SubscriptionManager.notifyClients(req.sessionId, objectId, req.query.fields);
         return utils.sendResponse(res, 200, "application/json", {
             success: true,
             message: "Paragraph updated successfully"
@@ -117,11 +117,11 @@ async function swapParagraphs(req, res) {
     let direction = req.body.direction;
     try {
         await paragraphService.swapParagraphs(spaceId, documentId, chapterId, paragraphId1, paragraphId2, direction);
-        let objectId = SubscriptionManager.getObjectId(documentId, chapterId, paragraphId1);
+        let objectId = SubscriptionManager.getObjectId(documentId, chapterId);
         let eventData = {
             operationType: "swap",
             paragraphId: paragraphId1,
-            swapChapterId: paragraphId2,
+            swapParagraphId: paragraphId2,
             direction: direction
         }
         SubscriptionManager.notifyClients(req.sessionId, objectId, eventData);

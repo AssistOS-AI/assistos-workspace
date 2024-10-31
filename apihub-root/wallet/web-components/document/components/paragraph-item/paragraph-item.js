@@ -88,8 +88,7 @@ export class ParagraphItem {
         }
         let chapterElement = this.element.closest("chapter-item");
         let chapterPresenter = chapterElement.webSkelPresenter;
-        chapterPresenter.invalidate(chapterPresenter.refreshChapter);
-        this.element.remove();
+        chapterPresenter.deleteParagraph(this.paragraph.id);
     }
 
     async moveParagraph(_target, direction) {
@@ -107,7 +106,7 @@ export class ParagraphItem {
         const adjacentParagraphId = getAdjacentParagraphId(currentParagraphIndex, this.chapter.paragraphs);
         await documentModule.swapParagraphs(assistOS.space.id, this._document.id, this.chapter.id, this.paragraph.id, adjacentParagraphId, direction);
         let chapterPresenter = this.element.closest("chapter-item").webSkelPresenter;
-        chapterPresenter.invalidate(chapterPresenter.refreshChapter);
+        chapterPresenter.swapParagraphs(this.paragraph.id, adjacentParagraphId, direction);
     }
 
     addParagraph() {
