@@ -1,6 +1,6 @@
 const crypto = require('../apihub-component-utils/crypto');
 const constants = require('./constants');
-const subscriptionManager = require("../subscribers/SubscriptionManager");
+const SubscriptionManager = require("../subscribers/SubscriptionManager");
 const STATUS = constants.STATUS;
 const EVENTS = constants.EVENTS;
 const deleteTaskOnCompleteDuration = 60000 * 5; //5 minutes
@@ -85,8 +85,10 @@ class Task {
         this.status = status;
         this.emit(status); //update queue
         this.emit(EVENTS.UPDATE); //update database
-        subscriptionManager.notifyClientTask(this.userId, this.id, this.status);
-        subscriptionManager.notifyClientTask(this.userId, this.id + "taskList", this.status);
+        let objectId = SubscriptionManager.getObjectId(this.spaceId, this.id);
+        SubscriptionManager.notifyClients("", objectId, this.status);
+        let listObjectId = SubscriptionManager.getObjectId(this.spaceId, "tasks");
+        SubscriptionManager.notifyClients("", listObjectId, this.status);
     }
 
 }

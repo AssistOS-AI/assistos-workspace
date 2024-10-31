@@ -3,6 +3,7 @@ const utilModule = require("assistos").loadModule("util", {});
 const llmModule = require("assistos").loadModule("llm", {});
 const spaceModule = require("assistos").loadModule("space", {});
 const personalityModule = require("assistos").loadModule("personality", {});
+import {NotificationRouter} from "../../../../imports.js";
 export class EditPersonalityPage {
     constructor(element, invalidate) {
         this.element = element;
@@ -13,14 +14,8 @@ export class EditPersonalityPage {
         }
         this.invalidate(async () => {
             await this.refreshPersonality();
-            await utilModule.subscribeToObject(this.personality.id, async (type) => {
-                if (type === "delete") {
-                    await this.openPersonalitiesPage();
-                    alert("The personality has been deleted");
-                } else {
-                    this.invalidate(this.refreshPersonality);
-                }
-            });
+            this.boundOnPersonalityUpdate = this.onPersonalityUpdate.bind(this);
+            await NotificationRouter.subscribeToSpace(assistOS.space.id, this.personality.id, this.boundOnPersonalityUpdate);
             /* TODO temporary fix endpoint should be called only if the api Key is set */
             try {
                 this.voices = await llmModule.listVoices(assistOS.space.id);
@@ -39,7 +34,14 @@ export class EditPersonalityPage {
             }
         });
     }
-
+    async onPersonalityUpdate(type) {
+        if (type === "delete") {
+            await this.openPersonalitiesPage();
+            alert("The personality has been deleted");
+        } else {
+            this.invalidate(this.refreshPersonality);
+        }
+    }
     beforeRender() {
         let voicesHTML = "";
         for (let voice of this.voices) {
@@ -73,10 +75,6 @@ export class EditPersonalityPage {
             event.preventDefault();
             this.element.querySelector(".magnifier-container").click();
         }
-    }
-
-    async afterUnload() {
-        await utilModule.unsubscribeFromObject(this.personality.id);
     }
 
     afterRender() {

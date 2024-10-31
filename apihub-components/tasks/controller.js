@@ -4,7 +4,7 @@ const DocumentToVideo = require("./DocumentToVideo");
 const utils = require("../apihub-component-utils/utils");
 const TextToSpeech = require("./TextToSpeech");
 const LipSync = require("./LipSync");
-const subscriptionManager = require("../subscribers/SubscriptionManager");
+const SubscriptionManager = require("../subscribers/SubscriptionManager");
 async function compileVideoFromDocument(request, response) {
     let documentId = request.params.documentId;
     let spaceId = request.params.spaceId;
@@ -14,7 +14,7 @@ async function compileVideoFromDocument(request, response) {
     let securityContext = new SecurityContext(request);
     let task = new DocumentToVideo(securityContext, spaceId, userId, {spaceId, documentId});
     await TaskManager.addTask(task);
-    subscriptionManager.notifyClients(sessionId, documentId + "/tasks");
+    SubscriptionManager.notifyClients(sessionId, documentId + "/tasks");
     sendResponse(response, 200, "application/json", {
         success: true,
         message: "Task added to the queue",
@@ -22,7 +22,10 @@ async function compileVideoFromDocument(request, response) {
     });
     TaskManager.runTask(task.id);
 }
-
+function notifyTasksListUpdate(sessionId, spaceId) {
+    let objectId = SubscriptionManager.getObjectId(spaceId, "tasks");
+    SubscriptionManager.notifyClients(sessionId, objectId);
+}
 async function textToSpeechParagraph(request, response) {
     try {
         const spaceId = request.params.spaceId;
@@ -37,7 +40,7 @@ async function textToSpeechParagraph(request, response) {
             paragraphId,
         });
         await TaskManager.addTask(task);
-        subscriptionManager.notifyClients(sessionId, documentId + "/tasks");
+        notifyTasksListUpdate(sessionId, spaceId);
         utils.sendResponse(response, 200, "application/json", {
             success: true,
             data: task.id,
@@ -60,7 +63,7 @@ async function lipSyncParagraph(request, response) {
         const paragraphId = request.params.paragraphId;
         let task = new LipSync(spaceId, userId, {documentId, paragraphId});
         await TaskManager.addTask(task);
-        subscriptionManager.notifyClients(request.sessionId, documentId + "/tasks");
+        notifyTasksListUpdate(request.sessionId, documentId);
         utils.sendResponse(response, 200, "application/json", {
             success: true,
             data: task.id,

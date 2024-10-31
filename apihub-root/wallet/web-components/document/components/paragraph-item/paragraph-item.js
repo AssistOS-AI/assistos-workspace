@@ -282,11 +282,9 @@ export class ParagraphItem {
         this.errorElement.innerText = error;
     }
 
-    addUITask(taskId) {
+    async addUITask(taskId) {
         assistOS.space.notifyObservers(this._document.id + "/tasks");
-        utilModule.subscribeToObject(taskId, async (status) => {
-            await this.changeTaskStatus(taskId, status);
-        });
+        await NotificationRouter.subscribeToSpace(assistOS.space.id, taskId, this.boundChangeTaskStatus);
         this.documentPresenter.renderNewTasksBadge();
     }
 
@@ -299,7 +297,7 @@ export class ParagraphItem {
         if (commandStatus === "new") {
             const taskId = await utilModule.constants.COMMANDS_CONFIG.COMMANDS.find(command => command.NAME === commandName).EXECUTE(assistOS.space.id, this._document.id, this.paragraph.id, {});
             this.paragraph.commands[commandName].taskId = taskId;
-            this.addUITask(taskId);
+            await this.addUITask(taskId);
         } else if (commandStatus === "changed") {
             if (this.paragraph.commands[commandName].taskId) {
                 //cancel the task so it can be re-executed, same if it was cancelled, failed, pending
@@ -312,7 +310,7 @@ export class ParagraphItem {
             } else {
                 const taskId = await utilModule.constants.COMMANDS_CONFIG.COMMANDS.find(command => command.NAME === commandName).EXECUTE(assistOS.space.id, this._document.id, this.paragraph.id, {});
                 this.paragraph.commands[commandName].taskId = taskId;
-                this.addUITask(taskId);
+                await this.addUITask(taskId);
             }
         } else if (commandStatus === "deleted") {
             await this.deleteTaskFromCommand(commandName);
@@ -323,7 +321,6 @@ export class ParagraphItem {
             let taskId = this.paragraph.commands[commandName].taskId;
             try {
                 await utilModule.cancelTaskAndRemove(taskId);
-                await utilModule.unsubscribeFromObject(taskId);
                 assistOS.space.notifyObservers(this._document.id + "/tasks");
             } catch (e) {
                 //task has already been removed

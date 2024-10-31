@@ -1,5 +1,6 @@
 const documentModule = require("assistos").loadModule("document", {});
 const utilModule = require("assistos").loadModule("util", {});
+import {NotificationRouter} from "../../../../imports.js";
 export class DocumentTasksModal {
     constructor(element, invalidate) {
         this.element = element;
@@ -11,14 +12,15 @@ export class DocumentTasksModal {
         assistOS.space.observeChange(this.documentId + "/tasks", this.invalidate, this.loadTasks);
 
         this.invalidate(async () => {
-            await utilModule.subscribeToObject(this.documentId + "/tasks", async (status) => {
-                await this.loadTasks();
-                this.invalidate();
-            });
+            this.boundOnTasksUpdate = this.onTasksUpdate.bind(this);
+            await NotificationRouter.subscribeToSpace(assistOS.space.id, "tasks", this.boundOnTasksUpdate);
             await this.loadTasks();
         })
     }
-
+    async onTasksUpdate(){
+        await this.loadTasks();
+        this.invalidate();
+    }
     beforeRender(){
         this.modalContent = `<div class="tasks-list no-tasks">No tasks created</div>`;
         if(this.tasks.length > 0){
@@ -76,9 +78,7 @@ export class DocumentTasksModal {
             cancelAllButton.classList.remove("disabled");
         }
     }
-    async afterUnload(){
-        await utilModule.unsubscribeFromObject(this.documentId + "/tasks");
-    }
+
     closeModal(){
         assistOS.UI.closeModal(this.element);
     }

@@ -305,6 +305,7 @@ async function importDocument(request, response) {
     await fs.promises.mkdir(tempDir, {recursive: true});
     const busboy = Busboy({headers: request.headers});
     const taskId = crypto.generateId(16);
+    let objectId = SubscriptionManager.getObjectId(spaceId, taskId);
     busboy.on('file', (fieldname, file, filename, encoding, mimetype) => {
         const writeStream = fs.createWriteStream(filePath);
         file.pipe(writeStream);
@@ -333,10 +334,10 @@ async function importDocument(request, response) {
 
                 const importResults = await storeDocument(spaceId, extractedPath, request);
                 await fs.promises.unlink(filePath);
-                SubscriptionManager.notifyClientTask(request.userId, taskId, importResults)
+                SubscriptionManager.notifyClients("", objectId, importResults)
             } catch (error) {
                 console.error('Error processing extracted files:', error);
-                SubscriptionManager.notifyClientTask(request.userId, taskId, {error: error.message});
+                SubscriptionManager.notifyClients("", objectId, {error: error.message});
             } finally {
                 await fs.promises.rm(tempDir, {recursive: true, force: true});
             }
@@ -344,13 +345,13 @@ async function importDocument(request, response) {
 
         writeStream.on('error', async (error) => {
             console.error('Error writing file:', error);
-            SubscriptionManager.notifyClientTask(request.userId, taskId, {error: error.message});
+            SubscriptionManager.notifyClients("", objectId, {error: error.message});
         });
     });
 
     busboy.on('error', async (error) => {
         console.error('Busboy error:', error);
-        SubscriptionManager.notifyClientTask(request.userId, taskId, {error: error.message});
+        SubscriptionManager.notifyClients("", objectId, {error: error.message});
     });
 
     request.pipe(busboy);

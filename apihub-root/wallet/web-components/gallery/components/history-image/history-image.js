@@ -1,5 +1,7 @@
 const utilModule = require("assistos").loadModule("util", {});
 const galleryModule = require("assistos").loadModule("gallery", {});
+import {NotificationRouter} from "../../../../imports.js";
+
 export class HistoryImage {
     constructor(element, invalidate) {
         this.element = element;
@@ -8,29 +10,26 @@ export class HistoryImage {
         this.hasButtons = (this.element.getAttribute("data-has-buttons") === "true");
         this.parentPresenter = document.querySelector("generate-image-page").webSkelPresenter;
 
-        const captureState = () => {
-            let image = this.parentPresenter.images.find((image)=> image.id === this.imageId);
-            this.prompt = image.prompt;
-            let imageId = this.imageId;
-            let galleryId = this.parentPresenter.id;
-            this.invalidate(async ()=>{
-                if(image.status !== "DONE") {
-                    await utilModule.subscribeToObject(imageId, async (buttons) => {
-                        let imgSrc = "/spaces/images/" + assistOS.space.id + "/" + imageId;
-                        image.status = "DONE";
-                        image.src = imgSrc;
-                        if(buttons){
-                            image.buttons = buttons;
-                        }
-                        await utilModule.unsubscribeFromObject(imageId);
-                        await galleryModule.updateOpenAIHistoryImage(assistOS.space.id, galleryId, imageId, image);
-                        this.invalidate();
-                    });
-                }
-            });
-        };
-
-        captureState();
+        let image = this.parentPresenter.images.find((image)=> image.id === this.imageId);
+        this.prompt = image.prompt;
+        let imageId = this.imageId;
+        let galleryId = this.parentPresenter.id;
+        this.invalidate(async ()=>{
+            if(image.status !== "DONE") {
+                this.boundsOnImageUpdate = this.onImageUpdate.bind(this, image, imageId, galleryId);
+                await NotificationRouter.subscribeToSpace(assistOS.space.id, imageId, this.boundsOnImageUpdate);
+            }
+        });
+    }
+    async onImageUpdate(image, imageId, galleryId, buttons){
+        let imgSrc = "/spaces/images/" + assistOS.space.id + "/" + imageId;
+        image.status = "DONE";
+        image.src = imgSrc;
+        if(buttons){
+            image.buttons = buttons;
+        }
+        await galleryModule.updateOpenAIHistoryImage(assistOS.space.id, galleryId, imageId, image);
+        this.invalidate();
     }
     getImage(){
         return this.parentPresenter.images.find((image)=> image.id === this.imageId);

@@ -37,9 +37,6 @@ export class DocumentsPage {
         this.setContext();
     }
 
-    async afterUnload() {
-        //await utilModule.unsubscribeFromObject(this.id);
-    }
 
     setContext() {
         assistOS.context = {
@@ -88,29 +85,33 @@ export class DocumentsPage {
             const formData = new FormData();
             formData.append("file", file);
             const taskId = await documentModule.importDocument(assistOS.space.id, formData);
+            fileInput.remove();
             if (!assistOS.space.loadingDocuments) {
                 assistOS.space.loadingDocuments = [];
             }
             assistOS.space.loadingDocuments.push(taskId);
-            await utilModule.subscribeToObject(taskId, async (importResult) => {
-                if (importResult.error) {
-                    alert("An error occurred while importing the document: " + importResult.error);
-                } else if (importResult.overriddenPersonalities) {
-                    /* TODO use notification system */
-                    if (importResult.overriddenPersonalities.length > 0) {
-                        alert("The document has been imported. The following personalities have been overridden: " + importResult.overriddenPersonalities.join(", "));
+
+            if(!this.boundOnImportFinish){
+                this.onImportFinish = (taskId, importResult) => {
+                    if (importResult.error) {
+                        alert("An error occurred while importing the document: " + importResult.error);
+                    } else if (importResult.overriddenPersonalities) {
+                        /* TODO use notification system */
+                        if (importResult.overriddenPersonalities.length > 0) {
+                            alert("The document has been imported. The following personalities have been overridden: " + importResult.overriddenPersonalities.join(", "));
+                        }
+                        assistOS.space.loadingDocuments = assistOS.space.loadingDocuments.filter((taskId) => taskId !== taskId);
+                        let placeholder = document.querySelector(`.placeholder-document[data-id="${taskId}"]`);
+                        if (placeholder) {
+                            placeholder.remove();
+                        }
                     }
-                    assistOS.space.loadingDocuments = assistOS.space.loadingDocuments.filter((taskId) => taskId !== taskId);
-                    let placeholder = document.querySelector(`.placeholder-document[data-id="${taskId}"]`);
-                    if (placeholder) {
-                        placeholder.remove();
-                    }
+                    this.invalidate(this.refreshDocuments);
                 }
-                await utilModule.unsubscribeFromObject(taskId);
-                this.invalidate(this.refreshDocuments);
-                //TODO navigating to another page and back changes the instance of the presenter, beforeRender doesnt do anything
-                fileInput.remove();
-            });
+                this.boundOnImportFinish = this.onImportFinish.bind(this);
+            }
+
+            await NotificationRouter.subscribeToSpace(assistOS.space.id, taskId, this.boundOnImportFinish);
             this.invalidate(this.refreshDocuments);
         }
         let fileInput = document.createElement('input');

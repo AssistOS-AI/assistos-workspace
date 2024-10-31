@@ -1,4 +1,6 @@
 const utilModule = require("assistos").loadModule("util", {});
+import {NotificationRouter} from "../../../../imports.js";
+
 export class TaskItem{
     constructor(element, invalidate){
         this.element = element;
@@ -9,12 +11,14 @@ export class TaskItem{
         this.task = this.tasksModalPresenter.getTask(id);
 
         this.invalidate(async ()=> {
-            await utilModule.subscribeToObject(id + "taskList", async (status) => {
-                this.status = status;
-                this.tasksModalPresenter.updateTaskInList(this.task.id, status);
-                this.invalidate();
-            });
+            this.boundOnTasksUpdate = this.onTasksUpdate.bind(this);
+            await NotificationRouter.subscribeToSpace(assistOS.space.id , "id", this.boundOnTasksUpdate);
         })
+    }
+    onTasksUpdate(status){
+        this.status = status;
+        this.tasksModalPresenter.updateTaskInList(this.task.id, status);
+        this.invalidate();
     }
     beforeRender(){
         this.name = this.task.name;
@@ -40,9 +44,7 @@ export class TaskItem{
             taskStatus.classList.add("green");
         }
     }
-    afterUnload(){
-        utilModule.unsubscribeFromObject(this.task.id + "taskList");
-    }
+
     scrollDocument(){
         let paragraphId = this.paragraphPresenter.paragraph.id;
         let paragraphIndex = this.paragraphPresenter.chapter.getParagraphIndex(paragraphId);

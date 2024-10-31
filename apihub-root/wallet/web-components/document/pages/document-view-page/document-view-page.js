@@ -370,19 +370,7 @@ export class DocumentViewPage {
     async documentToVideo(button) {
         let videoId = await documentModule.documentToVideo(assistOS.space.id, this._document.id);
         assistOS.space.notifyObservers(this._document.id + "/tasks");
-       /* await utilModule.subscribeToObject(videoId, async (data) => {
-            if (data.error) {
-                return await showApplicationError("Error compiling video", data.error, "");
-            } else if (data.status === "completed") {
-                const a = document.createElement("a");
-                a.href = `/spaces/videos/${assistOS.space.id}/${videoId}`;
-                a.download = "video.mp4";
-                document.body.appendChild(a);
-                a.click();
-                a.remove();
-                this.invalidate(this.refreshDocument);
-            }
-        });*/
+
     }
 
     async exportDocument(targetElement) {

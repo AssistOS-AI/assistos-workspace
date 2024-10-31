@@ -36,9 +36,9 @@ async function saveResult(ref,requestBody) {
             //TODO use spaceModule or convert image to a stream
             await Storage.putFile(Storage.fileTypes.images, objectId, requestBody.uri || requestBody.imageData);
             if (requestBody.buttons) {
-                subscriptionManager.notifyClientTask(userId, objectId, requestBody.buttons);
+                subscriptionManager.notifyClients("", objectId, requestBody.buttons);
             } else {
-                subscriptionManager.notifyClientTask(userId, objectId);
+                subscriptionManager.notifyClients("", objectId);
             }
             return;
         case "audio":

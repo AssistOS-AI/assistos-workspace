@@ -1,5 +1,6 @@
 const utilModule = require("assistos").loadModule("util", {});
 const galleryModule = require("assistos").loadModule("gallery", {});
+import {NotificationRouter} from "../../../../imports.js";
 export class GalleriesPage{
     constructor(element, invalidate) {
         this.element = element;
@@ -10,10 +11,12 @@ export class GalleriesPage{
         this.id = "galleries";
         this.invalidate(async () => {
             await this.refreshGalleries();
-            await utilModule.subscribeToObject(this.id,(data)=>{
-                this.invalidate(this.refreshGalleries);
-            });
+            this.boundsOnGalleriesUpdate = this.onGalleriesUpdate.bind(this);
+            await NotificationRouter.subscribeToSpace(assistOS.space.id, this.id, this.boundsOnGalleriesUpdate);
         });
+    }
+    onGalleriesUpdate(){
+        this.invalidate(this.refreshGalleries);
     }
     beforeRender(){
         this.tableRows = "";
@@ -27,9 +30,7 @@ export class GalleriesPage{
             this.tableRows = `<div> There are no galleries yet </div>`;
         }
     }
-    async afterUnload(){
-        await utilModule.unsubscribeFromObject(this.id);
-    }
+
     async showActionBox(_target, primaryKey, componentName, insertionMode) {
         this.actionBox = await assistOS.UI.showActionBox(_target, primaryKey, componentName, insertionMode);
     }

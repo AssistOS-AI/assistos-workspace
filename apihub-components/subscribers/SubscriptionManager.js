@@ -87,23 +87,6 @@ class SubscriptionManager {
         }
     }
 
-    notifyClientTask(userId, objectId, eventData) {
-        let client = this.clients.get(userId);
-        if (!client) {
-            return;
-        }
-        for (let [sessionId, connection] of client.connections) {
-            if (connection.objectIds.has(objectId)) {
-                let message = {objectId: objectId};
-                if (eventData) {
-                    message.data = eventData;
-                }
-                connection.response.write(`event: content\n`);
-                connection.response.write(`data: ${JSON.stringify(message)}\n\n`);
-            }
-        }
-    }
-
     subscribeToObject(userId, sessionId, objectId) {
         let client = this.clients.get(userId);
         if (!client) {

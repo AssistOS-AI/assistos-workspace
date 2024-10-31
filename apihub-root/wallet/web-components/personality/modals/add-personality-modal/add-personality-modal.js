@@ -41,7 +41,23 @@ export class AddPersonalityModal {
                 assistOS.UI.closeModal(_target);
                 assistOS.space.notifyObservers(assistOS.space.getNotificationId());
             };
-            reader.readAsArrayBuffer(formInfo.data.photo);
+            if(!formInfo.data.photo){
+                let image = document.createElement("img");
+                image.src = "./wallet/assets/images/default-personality.png";
+                image.addEventListener("load", () => {
+                    let canvas = document.createElement("canvas");
+                    canvas.width = image.width;
+                    canvas.height = image.height;
+                    let ctx = canvas.getContext("2d");
+                    ctx.drawImage(image, 0, 0);
+                    canvas.toBlob((blob) => {
+                        formInfo.data.photo = new File([blob], "default-personality.png", {type: "image/png"});
+                        reader.readAsArrayBuffer(formInfo.data.photo);
+                    });
+                }, {once: true});
+            } else {
+                reader.readAsArrayBuffer(formInfo.data.photo);
+            }
         }
     }
 }

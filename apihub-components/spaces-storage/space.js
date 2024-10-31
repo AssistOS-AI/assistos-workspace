@@ -141,7 +141,7 @@ async function preparePersonalityData(defaultPersonalitiesPath, personalitiesPat
     }
     let imagesPath = path.join(defaultPersonalitiesPath, 'images');
     let imageStream = fs.createReadStream(path.join(imagesPath, `${personality.imageId}.png`));
-    const imageId = crypto.generateId(8);
+    const imageId = crypto.generateId(16);
     personality.imageId = imageId;
 
     await Storage.putFile(Storage.fileTypes.images, imageId, imageStream);
