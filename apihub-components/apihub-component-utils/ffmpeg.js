@@ -150,7 +150,9 @@ async function getVideoDuration(videoPath){
     const hours = parseFloat(durationMatch[1]);
     const minutes = parseFloat(durationMatch[2]);
     const seconds = parseFloat(durationMatch[3]);
-    return hours * 3600 + minutes * 60 + seconds;
+    let duration = hours * 3600 + minutes * 60 + seconds;
+    // Round to one decimal place
+    return parseFloat(duration.toFixed(1));
 }
 async function addBackgroundSoundToVideo(videoPath, backgroundSoundPath, backgroundSoundVolume, fadeDuration, outputPath, task) {
     await verifyAudioIntegrity(backgroundSoundPath, task);
@@ -226,12 +228,13 @@ function estimateChapterVideoLength(spaceId, chapter) {
     let totalDuration = 0;
     for (let paragraph of chapter.paragraphs) {
         if (paragraph.commands.video) {
+            let videoDuration = paragraph.commands.video.end - paragraph.commands.video.start;
             if(paragraph.commands.audio){
                 //has both audio and video
-                let maxDuration = Math.max(parseFloat(paragraph.commands.audio.duration), parseFloat(paragraph.commands.video.duration));
+                let maxDuration = Math.max(paragraph.commands.audio.duration, videoDuration);
                 totalDuration += maxDuration;
             } else {
-                totalDuration += parseFloat(paragraph.commands.video.duration);
+                totalDuration += parseFloat(videoDuration);
             }
         } else if (paragraph.commands.audio) {
             totalDuration += parseFloat(paragraph.commands.audio.duration);

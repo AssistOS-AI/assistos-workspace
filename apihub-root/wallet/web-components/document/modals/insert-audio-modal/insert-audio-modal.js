@@ -38,7 +38,7 @@ export class InsertAudioModal {
             const uint8Array = new Uint8Array(e.target.result);
             audioId = await spaceModule.putAudio(uint8Array);
             this.audioElement.addEventListener("loadedmetadata", async () => {
-                const duration = this.audioElement.duration;
+                const duration = parseFloat(this.audioElement.duration.toFixed(1));
                 await assistOS.loadifyComponent(this.element, async () => {
                     let data = {
                         id: audioId,

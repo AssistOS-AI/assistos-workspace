@@ -52,6 +52,11 @@ export class ParagraphItem {
             commands.style.padding = "5px 10px";
         }
         await this.setupVideoPreview();
+        if(this.paragraph.commands.video && !this.paragraph.commands.video.start){
+            this.paragraph.commands.video.start = 0;
+            this.paragraph.commands.video.end = this.paragraph.commands.video.duration;
+            await documentModule.updateParagraphCommands(assistOS.space.id, this._document.id, this.paragraph.id, this.paragraph.commands);
+        }
     }
 
     async onParagraphUpdate(type) {
@@ -615,6 +620,12 @@ export class ParagraphItem {
         let stopTimeUpdateController = new AbortController();
         mediaPlayer.addEventListener("timeupdate", () => {
             this.currentTimeElement.innerHTML = formatTime(mediaPlayer.currentTime);
+            if(mediaPlayer.endTime && mediaPlayer.currentTime >= mediaPlayer.endTime){
+                mediaPlayer.pause();
+                mediaPlayer.currentTime = mediaPlayer.endTime;
+                const endedEvent = new Event('ended');
+                mediaPlayer.dispatchEvent(endedEvent);
+            }
         }, {signal: stopTimeUpdateController.signal});
 
         mediaPlayer.addEventListener("ended", () => {
@@ -646,6 +657,9 @@ export class ParagraphItem {
                     played = true;
                     this.hideLoaderAttachment();
                     for (let mediaPlayer of mediaPlayers) {
+                        if(mediaPlayer.startTime){
+                            mediaPlayer.currentTime = mediaPlayer.startTime;
+                        }
                         mediaPlayer.play();
                     }
                 }
@@ -724,6 +738,8 @@ export class ParagraphItem {
         }
         if(this.paragraph.commands.video){
             this.videoElement.classList.remove("hidden");
+            this.videoElement.startTime = this.paragraph.commands.video.start;
+            this.videoElement.endTime = this.paragraph.commands.video.end;
             if(this.paragraph.commands.audio){
                 if(this.paragraph.commands.video.duration >= this.paragraph.commands.audio.duration){
                     this.setupMediaPlayerEventListeners(this.videoElement);
@@ -778,7 +794,7 @@ export class ParagraphItem {
     getVideoPreviewDuration(paragraph){
         if(paragraph.commands.video || paragraph.commands.audio){
             let audioDuration = paragraph.commands.audio ? paragraph.commands.audio.duration : 0;
-            let videoDuration = paragraph.commands.video ? paragraph.commands.video.duration : 0;
+            let videoDuration = paragraph.commands.video ? paragraph.commands.video.end - paragraph.commands.video.start : 0;
             return Math.max(audioDuration, videoDuration);
         } else if(paragraph.commands.silence){
             return paragraph.commands.silence.duration;
@@ -799,16 +815,18 @@ export class ParagraphItem {
             let paragraphNumber = this.element.querySelector(".paragraph-number");
             let paragraphIndex = this.chapter.getParagraphIndex(this.paragraph.id);
             paragraphNumber.innerHTML = paragraphIndex + 1;
-            let videoDurationElement = this.element.querySelector(".video-duration");
-            let duration = this.getVideoPreviewDuration(this.paragraph);
-            videoDurationElement.innerHTML = formatTime(duration);
+            this.setVideoPreviewDuration();
         } else {
             this.videoContainer.style.display = "none";
         }
         this.videoElement.classList.add("hidden");
         await this.setVideoThumbnail();
     }
-
+    setVideoPreviewDuration(){
+        let videoDurationElement = this.element.querySelector(".video-duration");
+        let duration = this.getVideoPreviewDuration(this.paragraph);
+        videoDurationElement.innerHTML = formatTime(duration);
+    }
     async setVideoThumbnail(){
         let imageSrc = blackScreen;
         if(this.paragraph.commands.video){
@@ -842,8 +860,13 @@ export class ParagraphItem {
     }
     checkVideoAndAudioDuration(){
         if(this.paragraph.commands.video && this.paragraph.commands.audio){
-            if(this.paragraph.commands.audio.duration >= this.paragraph.commands.video.duration){
-                this.showVideoWarning("Audio is longer than the video")
+            let videoDuration = this.paragraph.commands.video.end - this.paragraph.commands.video.start;
+            if(this.paragraph.commands.audio.duration > videoDuration){
+                let diff = parseFloat((this.paragraph.commands.audio.duration - videoDuration).toFixed(1));
+                this.showVideoWarning(`Audio is longer than the video by ${diff} seconds`);
+            } else if(this.paragraph.commands.audio.duration < videoDuration){
+                let diff = parseFloat((videoDuration - this.paragraph.commands.audio.duration).toFixed(1));
+                this.showVideoWarning(`Video is longer than the Audio by ${diff} seconds`);
             } else {
                 this.hideVideoWarning();
             }

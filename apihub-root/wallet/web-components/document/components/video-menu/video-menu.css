@@ -24,3 +24,13 @@ video-menu{
 .section-content{
     display: flex;
 }
+.video-duration{
+    display: flex;
+}
+.start-time{
+    margin-right: 10px;
+}
+.save-video-duration{
+    margin-top: 23px;
+    margin-left: 10px;
+}

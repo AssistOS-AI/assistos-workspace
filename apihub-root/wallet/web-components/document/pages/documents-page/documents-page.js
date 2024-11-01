@@ -89,7 +89,7 @@ export class DocumentsPage {
             assistOS.space.loadingDocuments.push(taskId);
 
             if(!this.boundOnImportFinish){
-                this.onImportFinish = (taskId, importResult) => {
+                this.onImportFinish = (importResult) => {
                     if (importResult.error) {
                         alert("An error occurred while importing the document: " + importResult.error);
                     } else if (importResult.overriddenPersonalities) {
