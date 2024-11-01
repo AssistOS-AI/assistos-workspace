@@ -77,6 +77,10 @@ export class AudioMenu {
         if(this.parentPresenter.paragraph.commands.silence){
             let deleteSilenceButton = this.element.querySelector(".delete-silence");
             deleteSilenceButton.classList.remove("hidden");
+            let currentSilenceElement = this.element.querySelector(".current-silence-time");
+            currentSilenceElement.classList.remove("hidden");
+            let silenceTime = this.element.querySelector(".silence-time");
+            silenceTime.innerHTML = this.parentPresenter.paragraph.commands.silence.duration;
         }
     }
 
@@ -122,7 +126,7 @@ export class AudioMenu {
             paragraphHeaderElement.style.height = paragraphHeaderElement.scrollHeight + "px";
         }
         this.parentPresenter.showUnfinishedTasks();
-        this.element.remove();
+        this.invalidate();
     }
     async insertAudio(){
         await this.parentPresenter.openInsertAttachmentModal("", "audio");

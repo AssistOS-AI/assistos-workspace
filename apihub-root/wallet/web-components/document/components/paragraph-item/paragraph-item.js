@@ -173,6 +173,7 @@ export class ParagraphItem {
         paragraphTextContainer.style.padding = "0 10px 10px 10px";
         paragraphTextContainer.classList.add("highlighted-paragraph");
         this.showUnfinishedTasks();
+        this.checkVideoAndAudioDuration();
     }
     showUnfinishedTasks(){
         if(assistOS.space.currentParagraphId !== this.paragraph.id){
@@ -187,10 +188,7 @@ export class ParagraphItem {
         if(unfinishedTasks > 0){
             this.showCommandsInfo(`${unfinishedTasks} tasks unfinished`);
         } else {
-            let tasksInfo = this.element.querySelector(".commands-info");
-            if(tasksInfo){
-                tasksInfo.remove();
-            }
+            this.hideCommandsInfo();
         }
     }
     async renderEditModeCommands() {
@@ -243,17 +241,6 @@ export class ParagraphItem {
                 } else if (command.name === "video") {
                   let attachmentHighlight = this.element.querySelector(".attachment-circle.video");
                   attachmentHighlight.classList.add("highlight-attachment");
-                } else if (command.name === "soundEffect") {
-                    let soundEffectSrc = await spaceModule.getAudioURL(command.id);
-                    html += `<a class="command-link" data-local-action="showAttachment soundEffect" href="${soundEffectSrc}" data-id="${command.id}">Sound Effect</a>`;
-                }
-              else if (command.name === "silence") {
-                    let silenceHTML = `
-                    <div class="command-line maintain-focus">
-                        <img src="./wallet/assets/icons/silence.svg" class="command-icon" alt="silence">
-                        <span class="silence-duration maintain-focus">${command.duration} sec</span>
-                    </div>`;
-                    html += silenceHTML;
                 }
             }
         } else {
@@ -342,10 +329,8 @@ export class ParagraphItem {
         paragraphTextContainer.style.padding= "0";
         let paragraphHeaderContainer = this.element.querySelector('.paragraph-header');
         paragraphHeaderContainer.classList.remove("highlight-paragraph-header");
-        let tasksInfo = this.element.querySelector(".commands-info");
-        if(tasksInfo){
-            tasksInfo.remove();
-        }
+        this.hideCommandsInfo();
+        this.hideVideoWarning();
     }
     async focusOutHandler() {
         if (!this.element.closest("body")) {
@@ -501,6 +486,7 @@ export class ParagraphItem {
                 await documentModule.updateParagraphCommands(assistOS.space.id, this._document.id, this.paragraph.id, this.paragraph.commands);
                 await this.renderViewModeCommands();
                 await this.setupVideoPreview();
+                this.checkVideoAndAudioDuration();
             } else {
                 let commandString = utilModule.buildCommandString(type, attachmentData);
                 commands.value += "\n" + commandString;
@@ -519,6 +505,7 @@ export class ParagraphItem {
             await documentModule.updateParagraphCommands(assistOS.space.id, this._document.id, this.paragraph.id, this.paragraph.commands);
             await this.renderViewModeCommands();
             await this.setupVideoPreview();
+            this.checkVideoAndAudioDuration();
         } else {
             let currentCommands = utilModule.findCommands(commands.value);
             delete currentCommands[type];
@@ -820,8 +807,8 @@ export class ParagraphItem {
         }
         this.videoElement.classList.add("hidden");
         await this.setVideoThumbnail();
-
     }
+
     async setVideoThumbnail(){
         let imageSrc = blackScreen;
         if(this.paragraph.commands.video){
@@ -834,6 +821,12 @@ export class ParagraphItem {
         }
         this.imgElement.src = imageSrc;
     }
+    hideCommandsInfo(){
+        let tasksInfo = this.element.querySelector(".commands-info");
+        if(tasksInfo){
+            tasksInfo.remove();
+        }
+    }
     showCommandsInfo(message){
         let tasksInfo = this.element.querySelector(".commands-info");
         if(tasksInfo){
@@ -841,10 +834,40 @@ export class ParagraphItem {
         }
         let info = `
                 <div class="commands-info">
-                    <img loading="lazy" src="./wallet/assets/icons/info.svg" class="tasks-warning-icon">
+                    <img loading="lazy" src="./wallet/assets/icons/info.svg" class="tasks-warning-icon" alt="info">
                     <div class="info-text">${message}</div>
                 </div>`;
         let paragraphHeader = this.element.querySelector(".header-section");
         paragraphHeader.insertAdjacentHTML('beforeend', info);
+    }
+    checkVideoAndAudioDuration(){
+        if(this.paragraph.commands.video && this.paragraph.commands.audio){
+            if(this.paragraph.commands.audio.duration >= this.paragraph.commands.video.duration){
+                this.showVideoWarning("Audio is longer than the video")
+            } else {
+                this.hideVideoWarning();
+            }
+        } else {
+            this.hideVideoWarning();
+        }
+    }
+    hideVideoWarning(){
+        let warningElement = this.element.querySelector(".video-warning");
+        if(warningElement){
+            warningElement.remove();
+        }
+    }
+    showVideoWarning(message){
+        let warningElement = this.element.querySelector(".video-warning");
+        if(warningElement){
+            warningElement.remove();
+        }
+        let warning = `
+                <div class="video-warning">
+                    <img loading="lazy" src="./wallet/assets/icons/warning.svg" class="video-warning-icon" alt="warn">
+                    <div class="warning-text">${message}</div>
+                </div>`;
+        let paragraphHeader = this.element.querySelector(".header-section");
+        paragraphHeader.insertAdjacentHTML('afterbegin', warning);
     }
 }

@@ -119,8 +119,7 @@ textarea.paragraph-commands{
     overflow: hidden;
     resize: none;
     border: none;
-    border-bottom-left-radius: 5px;
-    border-bottom-right-radius: 5px;
+    border-radius: 5px;
     display: inline-block;
     cursor: text;
     padding: 10px;
@@ -285,10 +284,12 @@ textarea.paragraph-commands{
 .highlighted-paragraph{
     background-color: var(--white-blue-tint);
 }
-.info-text{
+.info-text,
+.warning-text{
     margin-left: 5px;
 }
-.commands-info{
+.commands-info,
+.video-warning{
     display: flex;
     font-size: 14px;
     font-weight: 600;
