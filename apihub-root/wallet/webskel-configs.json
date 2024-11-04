@@ -4,6 +4,12 @@
     "services": [],
     "components": [
         {
+            "name": "llm-demo-page",
+            "directory": "space-application",
+            "type": "pages",
+            "presenterClassName": "LlmDemoPage"
+        },
+        {
             "name": "video-menu",
             "directory": "document",
             "type": "components",
