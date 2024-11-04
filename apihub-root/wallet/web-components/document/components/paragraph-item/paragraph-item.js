@@ -16,20 +16,22 @@ export class ParagraphItem {
         let chapterId = this.element.getAttribute("data-chapter-id");
         this.chapter = this._document.getChapter(chapterId);
         this.paragraph = this.chapter.getParagraph(paragraphId);
-        this.invalidate(async () => {
-            this.boundOnParagraphUpdate = this.onParagraphUpdate.bind(this);
-            await NotificationRouter.subscribeToDocument(this._document.id, this.paragraph.id, this.boundOnParagraphUpdate);
-            this.boundChangeTaskStatus = this.changeTaskStatus.bind(this);
-            for (let [commandType, commandDetails] of Object.entries(this.paragraph.commands)) {
-                for (let [key, value] of Object.entries(commandDetails)) {
-                    if (key === "taskId") {
-                        NotificationRouter.subscribeToSpace(assistOS.space.id, value, this.boundChangeTaskStatus);
-                    }
+        this.invalidate(this.subscribeToParagraphEvents.bind(this));
+    }
+    async subscribeToParagraphEvents(){
+        this.boundOnParagraphUpdate = this.onParagraphUpdate.bind(this);
+        await NotificationRouter.subscribeToDocument(this._document.id, this.paragraph.id, this.boundOnParagraphUpdate);
+        this.boundHandleUserSelection = this.handleUserSelection.bind(this);
+        await NotificationRouter.subscribeToDocument(this._document.id, this.paragraph.id, this.boundHandleUserSelection);
+        this.boundChangeTaskStatus = this.changeTaskStatus.bind(this);
+        for (let [commandType, commandDetails] of Object.entries(this.paragraph.commands)) {
+            for (let [key, value] of Object.entries(commandDetails)) {
+                if (key === "taskId") {
+                    NotificationRouter.subscribeToSpace(assistOS.space.id, value, this.boundChangeTaskStatus);
                 }
             }
-        });
+        }
     }
-
     async beforeRender() {
         this.loadedParagraphText = this.paragraph.text || "";
     }
@@ -39,7 +41,7 @@ export class ParagraphItem {
         let paragraphText = this.element.querySelector(".paragraph-text");
         paragraphText.innerHTML = this.paragraph.text
         paragraphText.style.height = paragraphText.scrollHeight + 'px';
-
+        //paragraphText.addEventListener("input", this.lockTextForUsers.bind(this));
         if (assistOS.space.currentParagraphId === this.paragraph.id) {
             paragraphText.click();
             //this.element.scrollIntoView({behavior: "smooth", block: "center"});
@@ -56,6 +58,10 @@ export class ParagraphItem {
             this.paragraph.commands.video.start = 0;
             this.paragraph.commands.video.end = this.paragraph.commands.video.duration;
             await documentModule.updateParagraphCommands(assistOS.space.id, this._document.id, this.paragraph.id, this.paragraph.commands);
+        }
+        let selected = this.documentPresenter.selectedParagraphs.filter(paragraph => paragraph.paragraphId === this.paragraph.id);
+        for(let paragraph of selected){
+            await this.setUserIcon(paragraph.userId, paragraph.imageId);
         }
     }
 
@@ -167,7 +173,7 @@ export class ParagraphItem {
 
     }
 
-    highlightParagraph() {
+    async highlightParagraph() {
         assistOS.space.currentParagraphId = this.paragraph.id;
         this.switchParagraphToolbar("on");
         let paragraphHeaderContainer = this.element.querySelector('.paragraph-header');
@@ -179,6 +185,7 @@ export class ParagraphItem {
         paragraphTextContainer.classList.add("highlighted-paragraph");
         this.showUnfinishedTasks();
         this.checkVideoAndAudioDuration();
+        await documentModule.selectParagraph(assistOS.space.id, this._document.id, this.paragraph.id);
     }
     showUnfinishedTasks(){
         if(assistOS.space.currentParagraphId !== this.paragraph.id){
@@ -352,11 +359,12 @@ export class ParagraphItem {
                     for (let command of Object.keys(this.paragraph.commands)) {
                         await this.handleCommand(command, "changed");
                     }
+                    await documentModule.updateParagraphCommands(assistOS.space.id, this._document.id, this.paragraph.id, this.paragraph.commands);
+                    await this.saveParagraph(paragraphText);
                 }
-                await documentModule.updateParagraphCommands(assistOS.space.id, this._document.id, this.paragraph.id, this.paragraph.commands);
                 this.textIsDifferentFromAudio = false;
-                await this.saveParagraph(paragraphText);
                 assistOS.space.currentParagraphId = null;
+                await documentModule.deselectParagraph(assistOS.space.id, this._document.id, this.paragraph.id);
             }
         );
     }
@@ -907,4 +915,39 @@ export class ParagraphItem {
             fixWarning.addEventListener("click", fixCb.bind(this), {once: true});
         }
     }
+
+    async setUserIcon(userId, imageId){
+        let imageSrc;
+        if(imageId){
+            imageSrc = await spaceModule.getImageURL(imageId);
+        } else {
+            imageSrc = "./wallet/assets/images/defaultUserPhoto.png";
+        }
+        let userIcon = `<img loading="lazy" src="${imageSrc}" class="user-icon" alt="user-icon" data-id="${userId}">`;
+        let paragraphItem = this.element.querySelector(".paragraph-item");
+        paragraphItem.insertAdjacentHTML('beforeend', userIcon);
+    }
+    removeUserIcon(userId){
+        let userIcon = this.element.querySelector(`.user-icon[data-id="${userId}"]`);
+        if(userIcon){
+            userIcon.remove();
+        }
+    }
+    async handleUserSelection(data){
+        if(data.selected){
+            await this.setUserIcon(data.userId, data.imageId);
+        } else {
+            this.removeUserIcon(data.userId);
+        }
+    }
+    // async lockTextForUsers(event){
+    //     if(!this.textLocked){
+    //         this.textLocked = true;
+    //         await documentModule.selectParagraph(assistOS.space.id, this._document.id, this.paragraph.id);
+    //     }
+    // };
+    // lockText(){
+    //     let paragraphText = this.element.querySelector(".paragraph-text");
+    //     paragraphText.setAttribute("readonly", "true");
+    // }
 }

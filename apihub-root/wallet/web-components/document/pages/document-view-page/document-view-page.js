@@ -17,6 +17,7 @@ export class DocumentViewPage {
             this.personalitiesMetadata = await personalityModule.getPersonalitiesMetadata(assistOS.space.id);
             this.boundRefreshPersonalitiesMetadata = this.refreshPersonalitiesMetadata.bind(this);
             await NotificationRouter.subscribeToSpace(assistOS.space.id, "personalities", this.boundRefreshPersonalitiesMetadata);
+            this.selectedParagraphs = await documentModule.getSelectedParagraphs(assistOS.space.id, this._document.id);
         });
     }
     async refreshPersonalitiesMetadata() {
@@ -354,7 +355,7 @@ export class DocumentViewPage {
             let paragraphPresenter = paragraphItem.webSkelPresenter;
             await this.changeCurrentElement(targetElement, paragraphPresenter.focusOutHandler.bind(paragraphPresenter, targetElement));
             await chapterPresenter.highlightChapter();
-            paragraphPresenter.highlightParagraph();
+            await paragraphPresenter.highlightParagraph();
             saveFunction = paragraphPresenter.saveParagraph.bind(paragraphPresenter, targetElement);
             resetTimerFunction = paragraphPresenter.resetTimer.bind(paragraphPresenter, targetElement);
         }

@@ -27,9 +27,12 @@ function document(server) {
 
     //Paragraph
     server.get("/documents/chapters/paragraphs/:spaceId/:documentId/:paragraphId", paragraphHandler.getParagraph);
+    server.get("/documents/chapters/paragraphs/:spaceId/:documentId/:paragraphId/select", paragraphHandler.getSelectedParagraphs);
     server.post("/documents/chapters/paragraphs/:spaceId/:documentId/:chapterId", paragraphHandler.createParagraph);
     server.put("/documents/chapters/paragraphs/:spaceId/:documentId/:paragraphId", paragraphHandler.updateParagraph);
     server.put("/documents/chapters/paragraphs/swap/:spaceId/:documentId/:chapterId/:paragraphId1/:paragraphId2", paragraphHandler.swapParagraphs);
+    server.put("/documents/chapters/paragraphs/:spaceId/:documentId/:paragraphId/select", paragraphHandler.selectParagraph);
+    server.delete("/documents/chapters/paragraphs/:spaceId/:documentId/:paragraphId/select", paragraphHandler.deselectParagraph);
     server.delete("/documents/chapters/paragraphs/:spaceId/:documentId/:chapterId/:paragraphId", paragraphHandler.deleteParagraph);
 }
 

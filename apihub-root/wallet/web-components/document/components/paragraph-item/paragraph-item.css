@@ -305,3 +305,8 @@ textarea.paragraph-commands{
 .fix-warning:hover{
     color: var(--medium-blue);
 }
+.user-icon{
+    position: absolute;
+    left: -50px;
+    width: 40px;
+}

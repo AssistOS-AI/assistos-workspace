@@ -136,11 +136,96 @@ async function swapParagraphs(req, res) {
         });
     }
 }
+let selectedParagraphs = new Map();
+function getSelectedParagraphs(req, res) {
+    try {
+        let spaceId = req.params.spaceId;
+        let documentId = req.params.documentId;
 
+        let selected = [];
+        for (let [key, value] of selectedParagraphs) {
+            if(value.spaceId === spaceId && value.documentId === documentId){
+                selected.push(value);
+            }
+        }
+        return utils.sendResponse(res, 200, "application/json", {
+            success: true,
+            data: selected
+        });
+    } catch (e) {
+        return utils.sendResponse(res, 500, "application/json", {
+            success: false,
+            message: e.message
+        });
+    }
+}
+function selectParagraph(req, res) {
+    try {
+        let paragraphId = req.params.paragraphId;
+        let documentId = req.params.documentId;
+        let userId = req.userId;
+        let sessionId = req.sessionId;
+        if(selectedParagraphs.has(sessionId)){
+            return utils.sendResponse(res, 200, "application/json", {
+                success: true
+            });
+        }
+        selectedParagraphs.set(sessionId, {
+            spaceId: req.params.spaceId,
+            documentId: documentId,
+            paragraphId: paragraphId,
+            userId: userId,
+            userImageId: ""
+        });
+        let objectId = SubscriptionManager.getObjectId(documentId, paragraphId);
+        let eventData = {
+            selected: true,
+            userId: userId,
+            userImageId: ""
+        }
+        SubscriptionManager.notifyClients(req.sessionId, objectId, eventData);
+        return utils.sendResponse(res, 200, "application/json", {
+            success: true
+        });
+    } catch (e) {
+        return utils.sendResponse(res, 500, "application/json", {
+            success: false,
+            message: e.message
+        });
+    }
+
+}
+function deselectParagraph(req, res) {
+    try {
+        let paragraphId = req.params.paragraphId;
+        let documentId = req.params.documentId;
+        let sessionId = req.sessionId;
+        let userId = req.userId;
+        selectedParagraphs.delete(sessionId);
+
+        let objectId = SubscriptionManager.getObjectId(documentId, paragraphId);
+        let eventData = {
+            selected: false,
+            userId: userId,
+        }
+        SubscriptionManager.notifyClients(req.sessionId, objectId, eventData);
+        return utils.sendResponse(res, 200, "application/json", {
+            success: true
+        });
+    } catch (e) {
+        return utils.sendResponse(res, 500, "application/json", {
+            success: false,
+            message: e.message
+        });
+    }
+}
 module.exports = {
     getParagraph,
     createParagraph,
     updateParagraph,
     deleteParagraph,
-    swapParagraphs
+    swapParagraphs,
+    selectParagraph,
+    deselectParagraph,
+    getSelectedParagraphs
 }

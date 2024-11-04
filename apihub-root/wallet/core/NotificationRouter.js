@@ -60,16 +60,8 @@ class NotificationRouter{
         console.log("SSE Connection created");
     }
     startRefreshInterval(){
-        this.objectsToRefresh.sort((a, b) => a.timestamp - b.timestamp);
-        let latestObjects = new Map();
-
         for (let object of this.objectsToRefresh) {
-            //overwrite the object with the latest data
-            latestObjects.set(object.objectId, object.data);
-        }
-
-        for (let [objectId, data] of latestObjects) {
-            this.emit(objectId, data);
+            this.emit(object.objectId, object.data);
         }
 
         this.objectsToRefresh = [];
@@ -79,11 +71,23 @@ class NotificationRouter{
         clearInterval(this.garbageInterval)
         await utilModule.request("/events/close", "GET");
     }
-
+    isDuplicateObject(objectId, data){
+        let foundObj = this.objectsToRefresh.find(obj => obj.objectId === objectId);
+        if(foundObj){
+            if(typeof data === "object" && typeof foundObj.data === "object"){
+                return JSON.stringify(foundObj.data) === JSON.stringify(data);
+            }
+            return foundObj.data === data;
+        }
+        return false;
+    }
     handleContentEvent(event) {
         console.log("Notification received");
         let parsedMessage = JSON.parse(event.data);
-        this.objectsToRefresh.push({objectId: parsedMessage.objectId, data: parsedMessage.data, timestamp: Date.now()});
+        // if(this.isDuplicateObject(parsedMessage.objectId, parsedMessage.data)){
+        //     return;
+        // }
+        this.objectsToRefresh.push({objectId: parsedMessage.objectId, data: parsedMessage.data});
     }
     async handleDisconnectEvent(event) {
         let disconnectReason = JSON.parse(event.data);
