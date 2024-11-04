@@ -288,10 +288,20 @@ textarea.paragraph-commands{
 .warning-text{
     margin-left: 5px;
 }
-.commands-info,
-.video-warning{
+.paragraph-info,
+.paragraph-warning{
     display: flex;
     font-size: 14px;
     font-weight: 600;
     padding: 10px;
+}
+.fix-warning{
+    font-size: 12px;
+    margin-left: 5px;
+    cursor: pointer;
+    text-decoration: underline;
+    color: var(--left-sidebar);
+}
+.fix-warning:hover{
+    color: var(--medium-blue);
 }

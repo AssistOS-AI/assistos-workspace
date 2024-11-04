@@ -52,7 +52,7 @@ export class ParagraphItem {
             commands.style.padding = "5px 10px";
         }
         await this.setupVideoPreview();
-        if(this.paragraph.commands.video && !this.paragraph.commands.video.start){
+        if(this.paragraph.commands.video && !this.paragraph.commands.video.hasOwnProperty("start")){
             this.paragraph.commands.video.start = 0;
             this.paragraph.commands.video.end = this.paragraph.commands.video.duration;
             await documentModule.updateParagraphCommands(assistOS.space.id, this._document.id, this.paragraph.id, this.paragraph.commands);
@@ -191,9 +191,9 @@ export class ParagraphItem {
             }
         }
         if(unfinishedTasks > 0){
-            this.showCommandsInfo(`${unfinishedTasks} tasks unfinished`);
+            this.showParagraphInfo(`${unfinishedTasks} tasks unfinished`);
         } else {
-            this.hideCommandsInfo();
+            this.hideParagraphInfo();
         }
     }
     async renderEditModeCommands() {
@@ -334,8 +334,8 @@ export class ParagraphItem {
         paragraphTextContainer.style.padding= "0";
         let paragraphHeaderContainer = this.element.querySelector('.paragraph-header');
         paragraphHeaderContainer.classList.remove("highlight-paragraph-header");
-        this.hideCommandsInfo();
-        this.hideVideoWarning();
+        this.hideParagraphInfo();
+        this.hideParagraphWarning();
     }
     async focusOutHandler() {
         if (!this.element.closest("body")) {
@@ -839,19 +839,19 @@ export class ParagraphItem {
         }
         this.imgElement.src = imageSrc;
     }
-    hideCommandsInfo(){
-        let tasksInfo = this.element.querySelector(".commands-info");
+    hideParagraphInfo(){
+        let tasksInfo = this.element.querySelector(".paragraph-info");
         if(tasksInfo){
             tasksInfo.remove();
         }
     }
-    showCommandsInfo(message){
-        let tasksInfo = this.element.querySelector(".commands-info");
+    showParagraphInfo(message){
+        let tasksInfo = this.element.querySelector(".paragraph-info");
         if(tasksInfo){
             tasksInfo.remove();
         }
         let info = `
-                <div class="commands-info">
+                <div class="paragraph-info">
                     <img loading="lazy" src="./wallet/assets/icons/info.svg" class="tasks-warning-icon" alt="info">
                     <div class="info-text">${message}</div>
                 </div>`;
@@ -863,34 +863,48 @@ export class ParagraphItem {
             let videoDuration = this.paragraph.commands.video.end - this.paragraph.commands.video.start;
             if(this.paragraph.commands.audio.duration > videoDuration){
                 let diff = parseFloat((this.paragraph.commands.audio.duration - videoDuration).toFixed(1));
-                this.showVideoWarning(`Audio is longer than the video by ${diff} seconds`);
+                this.showParagraphWarning(`Audio is longer than the video by ${diff} seconds`);
             } else if(this.paragraph.commands.audio.duration < videoDuration){
                 let diff = parseFloat((videoDuration - this.paragraph.commands.audio.duration).toFixed(1));
-                this.showVideoWarning(`Video is longer than the Audio by ${diff} seconds`);
+                this.showParagraphWarning(`Video is longer than the Audio by ${diff} seconds`, async (event)=>{
+                    this.paragraph.commands.video.end = this.paragraph.commands.video.start + this.paragraph.commands.audio.duration;
+                    await documentModule.updateParagraphCommands(assistOS.space.id, this._document.id, this.paragraph.id, this.paragraph.commands);
+                    this.checkVideoAndAudioDuration();
+                    this.setVideoPreviewDuration();
+                });
             } else {
-                this.hideVideoWarning();
+                this.hideParagraphWarning();
             }
         } else {
-            this.hideVideoWarning();
+            this.hideParagraphWarning();
         }
     }
-    hideVideoWarning(){
-        let warningElement = this.element.querySelector(".video-warning");
+    hideParagraphWarning(){
+        let warningElement = this.element.querySelector(".paragraph-warning");
         if(warningElement){
             warningElement.remove();
         }
     }
-    showVideoWarning(message){
-        let warningElement = this.element.querySelector(".video-warning");
+    showParagraphWarning(message, fixCb){
+        let warningElement = this.element.querySelector(".paragraph-warning");
         if(warningElement){
             warningElement.remove();
+        }
+        let fixHTML = "";
+        if(fixCb){
+            fixHTML = `<div class="fix-warning">fix this</div>`;
         }
         let warning = `
-                <div class="video-warning">
+                <div class="paragraph-warning">
                     <img loading="lazy" src="./wallet/assets/icons/warning.svg" class="video-warning-icon" alt="warn">
                     <div class="warning-text">${message}</div>
+                    ${fixHTML}
                 </div>`;
         let paragraphHeader = this.element.querySelector(".header-section");
         paragraphHeader.insertAdjacentHTML('afterbegin', warning);
+        if(fixCb){
+            let fixWarning = paragraphHeader.querySelector(".fix-warning");
+            fixWarning.addEventListener("click", fixCb.bind(this), {once: true});
+        }
     }
 }
