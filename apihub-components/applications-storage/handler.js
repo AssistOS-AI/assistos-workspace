@@ -122,7 +122,7 @@ async function runApplicationTask(request, spaceId, applicationId, taskName, tas
 async function runApplicationFlow(request, spaceId, applicationId, flowId, flowData) {
     const FlowTask = require("../tasks/FlowTask.js");
     const SecurityContextClass = require('assistos').ServerSideSecurityContext;
-    const flowInstance = await new FlowTask(new SecurityContextClass(request), spaceId, request.userId, flowData, flowId);
+    const flowInstance = await new FlowTask(new SecurityContextClass(request), spaceId, request.userId, applicationId,flowData, flowId);
     return await flowInstance.runTask();
 }
 

@@ -3,13 +3,13 @@ const path = require('path');
 const fsPromises = require('fs').promises;
 const {paths: dataVolumePaths} = require('../volumeManager');
 
-const getFlow = async (spaceId, flowName) => {
-    const flowPath = await getFlowPath(spaceId, flowName);
+const getFlow = async (spaceId,applicationId, flowName) => {
+    const flowPath = await getFlowPath(spaceId,applicationId, flowName);
     return require(flowPath);
 }
 
-const getFlowPath = async (spaceId, flowName) => {
-    const initialPath = path.join(dataVolumePaths.space, `${spaceId}/flows`);
+const getFlowPath = async (spaceId,applicationId, flowName) => {
+    const initialPath = path.join(dataVolumePaths.space, `${spaceId}/applications/${applicationId}/flows`);
     const files = await fsPromises.readdir(initialPath);
     const flowFile = files.find(file => file === `${flowName}.js`);
     if (flowFile) {
@@ -29,12 +29,12 @@ const getFlowPath = async (spaceId, flowName) => {
 }
 
 class FlowTask extends Task {
-    constructor(securityContext, spaceId, userId, configs, flowId) {
+    constructor(securityContext, spaceId, userId,applicationId,configs, flowId) {
         super(spaceId, userId);
         return (async () => {
             this.configs = configs;
             this.flowId = flowId;
-            this.flow = new (await getFlow(spaceId, this.flowId))
+            this.flow = new (await getFlow(spaceId, applicationId,this.flowId))
             this.flow.__securityContext = securityContext;
             this.getFlow = getFlow;
             return this;
