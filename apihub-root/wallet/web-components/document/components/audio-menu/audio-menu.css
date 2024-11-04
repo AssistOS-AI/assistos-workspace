@@ -1,6 +1,6 @@
 audio-menu{
     display: block;
-    width: 450px;
+    width: 350px;
     background-color: var(--white);
     padding: 15px;
     border-radius: 5px;
@@ -14,6 +14,10 @@ audio-menu{
     font-size: 18px;
     font-weight: 600;
     margin-bottom: 10px;
+}
+.section-subheader{
+    font-size: 16px;
+    font-weight: 600;
 }
 .tts-section{
     display: flex;

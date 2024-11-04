@@ -41,7 +41,7 @@ export class InsertVideoModal {
                 const uint8Array = new Uint8Array(e.target.result);
                 videoId = await spaceModule.putVideo(uint8Array);
                 let thumbnailId = await this.uploadVideoThumbnail(file);
-                const duration = this.videoElement.duration;
+                const duration = parseFloat(this.videoElement.duration.toFixed(1));
                 const width = this.videoElement.videoWidth;
                 const height = this.videoElement.videoHeight;
                 let data = {
@@ -49,7 +49,9 @@ export class InsertVideoModal {
                     thumbnailId: thumbnailId,
                     width: width,
                     height: height,
-                    duration: duration
+                    duration: duration,
+                    start: 0,
+                    end: duration
                 };
                 this.videoElement.remove();
                 URL.revokeObjectURL(this.videoElement.src);

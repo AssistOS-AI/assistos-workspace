@@ -90,19 +90,19 @@ export class DocumentVideoPreview {
     }
     attachLoadEventListeners() {
         if (!this.boundCheckImageLoaded) {
-            this.boundCheckImageLoaded = this.checkImageLoaded.bind(this);
+            this.boundCheckImageLoaded = this.checkResourceLoad.bind(this, "image");
             this.imageTag.addEventListener("load", this.boundCheckImageLoaded);
         }
         if (!this.boundCheckAudioLoaded) {
-            this.boundCheckAudioLoaded = this.checkAudioLoaded.bind(this);
+            this.boundCheckAudioLoaded = this.checkResourceLoad.bind(this, "audio");
             this.audioPlayer.addEventListener("canplay", this.boundCheckAudioLoaded);
         }
         if(!this.boundCheckChapterAudioLoaded){
-            this.boundCheckChapterAudioLoaded = this.checkChapterAudioLoaded.bind(this);
+            this.boundCheckChapterAudioLoaded = this.checkResourceLoad.bind(this, "chapterAudio");
             this.chapterAudioPlayer.addEventListener("canplay", this.boundCheckChapterAudioLoaded);
         }
         if(!this.boundCheckVideoLoaded){
-            this.boundCheckVideoLoaded = this.checkVideoLoaded.bind(this);
+            this.boundCheckVideoLoaded = this.checkResourceLoad.bind(this, "video");
             this.videoPlayer.addEventListener("canplay", this.boundCheckVideoLoaded);
         }
     }
@@ -115,6 +115,12 @@ export class DocumentVideoPreview {
     incrementTimestampVideo() {
         if(this.playNextHandler === "video"){
             this.currentTimeElement.innerHTML = formatTime(this.currentTime + this.videoPlayer.currentTime);
+            if(this.videoPlayer.currentTime >= this.videoPlayer.endTime){
+                this.videoPlayer.pause();
+                this.videoPlayer.currentTime = this.videoPlayer.endTime;
+                const endedEvent = new Event('ended');
+                this.videoPlayer.dispatchEvent(endedEvent);
+            }
         }
     }
 
@@ -129,22 +135,24 @@ export class DocumentVideoPreview {
         return !mediaElement.paused && !mediaElement.ended && mediaElement.readyState > 2;
     }
 
-    checkVideoLoaded() {
-        this.videoLoaded = true;
+    checkResourceLoad(resourceType) {
+        switch (resourceType) {
+            case "image":
+                this.imageLoaded = true;
+                break;
+            case "audio":
+                this.audioLoaded = true;
+                break;
+            case "chapterAudio":
+                this.chapterAudioLoaded = true;
+                break;
+            case "video":
+                this.videoLoaded = true;
+                break;
+        }
         this.removeLoader();
     }
-    checkChapterAudioLoaded() {
-        this.chapterAudioLoaded = true;
-        this.removeLoader();
-    }
-    checkImageLoaded() {
-        this.imageLoaded = true;
-        this.removeLoader();
-    }
-    checkAudioLoaded() {
-        this.audioLoaded = true;
-        this.removeLoader();
-    }
+
 
     removeLoader() {
         if (this.imageLoaded && this.audioLoaded && this.chapterAudioLoaded && this.videoLoaded && this.loaderTimeout) {
@@ -161,9 +169,9 @@ export class DocumentVideoPreview {
 
             let currentParagraph = this.document.chapters[this.chapterIndex].paragraphs[this.paragraphIndex];
             let currentChapter = this.document.chapters[this.chapterIndex];
-            let videoDuration = currentParagraph.commands.video ? currentParagraph.commands.video.duration : 0;
+            let videoDuration = currentParagraph.commands.video ? currentParagraph.commands.video.end - currentParagraph.commands.video.start : 0;
             let audioDuration = currentParagraph.commands.audio ? currentParagraph.commands.audio.duration : 0;
-            if(videoDuration > audioDuration){
+            if(videoDuration >= audioDuration){
                 this.playNextHandler = "video";
             } else {
                 this.playNextHandler = "audio";
@@ -171,6 +179,7 @@ export class DocumentVideoPreview {
 
             if (!this.isPaused && mode !== "playFromBeginning") {
                 if(currentParagraph.commands.video){
+                    this.videoPlayer.currentTime = currentParagraph.commands.video.start;
                     this.videoPlayer.play();
                 }
                 if(currentParagraph.commands.audio){
@@ -191,7 +200,7 @@ export class DocumentVideoPreview {
     }
 
     //call this when setting src
-    loadResource(type, src) {
+    loadResource(type, src, start, end) {
         this.nextButton.classList.add("disabled");
         if (type === "image") {
             this.imageLoaded = false;
@@ -203,6 +212,8 @@ export class DocumentVideoPreview {
         } else if(type === "video") {
             this.videoLoaded = false;
             this.videoPlayer.src = src;
+            this.videoPlayer.startTime = parseFloat(start);
+            this.videoPlayer.endTime = parseFloat(end);
             this.videoPlayer.load();
             this.videoPlayer.classList.remove("hidden");
         } else if(type === "chapterAudio") {
@@ -264,7 +275,7 @@ export class DocumentVideoPreview {
     }
     incrementParagraphIndexAndPlayVideo() {
         if(this.playNextHandler === "video"){
-            this.currentTime += this.videoPlayer.duration;
+            this.currentTime += this.getVideoDuration();
             this.incrementParagraphIndex();
         }
         this.videoPlayer.src = "";
@@ -406,7 +417,7 @@ export class DocumentVideoPreview {
                     let videoSrc = await spaceModule.getVideoURL(paragraph.commands.video.id);
                     this.setCurrentParagraphAndChapter(i, j);
                     this.scrollDocument();
-                    this.loadResource("video", videoSrc);
+                    this.loadResource("video", videoSrc, paragraph.commands.video.start, paragraph.commands.video.end);
                     if (paragraph.commands.audio){
                         let audioSrc = await spaceModule.getAudioURL(paragraph.commands.audio.id);
                         this.loadResource("audio", audioSrc);
@@ -512,11 +523,11 @@ export class DocumentVideoPreview {
         //clean up before moving on to the next scene
         if(paragraph.commands.video){
             if(paragraph.commands.audio){
-                let maxDuration = Math.max(this.audioPlayer.duration, this.videoPlayer.duration);
+                let maxDuration = Math.max(this.audioPlayer.duration, this.getVideoDuration());
                 this.currentTime += maxDuration;
                 this.audioPlayer.src = "";
             } else {
-                this.currentTime += this.videoPlayer.duration;
+                this.currentTime += this.getVideoDuration();
             }
             this.currentTimeElement.innerHTML = formatTime(this.currentTime);
             this.videoPlayer.src = "";
@@ -613,7 +624,7 @@ export class DocumentVideoPreview {
             if(this.audioPlayer.readyState >= 1 && !this.timestampUpdated){
                 this.timestampUpdated = true;
                 this.nextButton.classList.remove("disabled");
-                let maxDuration = Math.max(this.audioPlayer.duration, this.videoPlayer.duration);
+                let maxDuration = Math.max(this.audioPlayer.duration, this.getVideoDuration());
                 this.currentTime = this.currentTime - maxDuration;
                 this.currentTimeElement.innerHTML = formatTime(this.currentTime);
                 this.decrementChapterAudioTime(this.document.chapters[this.chapterIndex], maxDuration);
@@ -621,16 +632,16 @@ export class DocumentVideoPreview {
             // else audio metadata not loaded yet
         } else {
             this.timestampUpdated = true;
-            this.currentTime = this.currentTime - this.videoPlayer.duration;
+            this.currentTime = this.currentTime - this.getVideoDuration();
             this.currentTimeElement.innerHTML = formatTime(this.currentTime);
             this.nextButton.classList.remove("disabled");
-            this.decrementChapterAudioTime(this.document.chapters[this.chapterIndex], this.videoPlayer.duration);
+            this.decrementChapterAudioTime(this.document.chapters[this.chapterIndex], this.getVideoDuration());
         }
     }
     skipTimeAudioAndVideo(event) {
         if(this.videoPlayer.readyState >= 1 && !this.timestampUpdated){
             this.timestampUpdated = true;
-            let maxDuration = Math.max(this.audioPlayer.duration, this.videoPlayer.duration);
+            let maxDuration = Math.max(this.audioPlayer.duration, this.getVideoDuration());
             this.currentTime = this.currentTime - maxDuration;
             this.currentTimeElement.innerHTML = formatTime(this.currentTime);
             this.nextButton.classList.remove("disabled");
@@ -882,5 +893,8 @@ export class DocumentVideoPreview {
     removeListeners(timer, boundHideControlsFullscreen, event) {
         timer.stop();
         this.element.removeEventListener("mousemove", boundHideControlsFullscreen);
+    }
+    getVideoDuration() {
+        return this.videoPlayer.endTime - this.videoPlayer.startTime;
     }
 }
