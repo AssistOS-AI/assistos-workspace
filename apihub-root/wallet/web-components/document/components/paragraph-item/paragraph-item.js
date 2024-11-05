@@ -41,7 +41,6 @@ export class ParagraphItem {
         let paragraphText = this.element.querySelector(".paragraph-text");
         paragraphText.innerHTML = this.paragraph.text
         paragraphText.style.height = paragraphText.scrollHeight + 'px';
-        //paragraphText.addEventListener("input", this.lockTextForUsers.bind(this));
         if (assistOS.space.currentParagraphId === this.paragraph.id) {
             paragraphText.click();
             //this.element.scrollIntoView({behavior: "smooth", block: "center"});
@@ -62,6 +61,10 @@ export class ParagraphItem {
         let selected = this.documentPresenter.selectedParagraphs.filter(paragraph => paragraph.paragraphId === this.paragraph.id);
         for(let paragraph of selected){
             await this.setUserIcon(paragraph.userId, paragraph.imageId);
+        }
+        let shouldLockText = selected.some(paragraph => paragraph.lockText);
+        if(shouldLockText){
+            this.lockText();
         }
     }
 
@@ -185,7 +188,6 @@ export class ParagraphItem {
         paragraphTextContainer.classList.add("highlighted-paragraph");
         this.showUnfinishedTasks();
         this.checkVideoAndAudioDuration();
-        await documentModule.selectParagraph(assistOS.space.id, this._document.id, this.paragraph.id);
     }
     showUnfinishedTasks(){
         if(assistOS.space.currentParagraphId !== this.paragraph.id){
@@ -365,6 +367,8 @@ export class ParagraphItem {
                 this.textIsDifferentFromAudio = false;
                 assistOS.space.currentParagraphId = null;
                 await documentModule.deselectParagraph(assistOS.space.id, this._document.id, this.paragraph.id);
+                clearTimeout(this.selectionTimeout);
+                delete this.selectionTimeout;
             }
         );
     }
@@ -916,38 +920,69 @@ export class ParagraphItem {
         }
     }
 
-    async setUserIcon(userId, imageId){
+    async setUserIcon(imageId, sessionId){
+        let userIconElement = this.element.querySelector(`.user-icon[data-id="${sessionId}"]`);
+        if(userIconElement){
+            return;
+        }
         let imageSrc;
         if(imageId){
             imageSrc = await spaceModule.getImageURL(imageId);
         } else {
             imageSrc = "./wallet/assets/images/defaultUserPhoto.png";
         }
-        let userIcon = `<img loading="lazy" src="${imageSrc}" class="user-icon" alt="user-icon" data-id="${userId}">`;
+        let userIcon = `<img loading="lazy" src="${imageSrc}" class="user-icon" alt="user-icon" data-id="${sessionId}">`;
         let paragraphItem = this.element.querySelector(".paragraph-item");
         paragraphItem.insertAdjacentHTML('beforeend', userIcon);
     }
-    removeUserIcon(userId){
-        let userIcon = this.element.querySelector(`.user-icon[data-id="${userId}"]`);
+    removeUserIcon(sessionId){
+        let userIcon = this.element.querySelector(`.user-icon[data-id="${sessionId}"]`);
         if(userIcon){
             userIcon.remove();
         }
     }
+    async selectParagraph(skipText){
+        if(this.selectionTimeout){
+            clearTimeout(this.selectionTimeout);
+            delete this.selectionTimeout;
+        }
+        let paragraphText = this.element.querySelector(".paragraph-text");
+        let lockText = false;
+        if(paragraphText.getAttribute("readonly") === "true" || skipText){
+            lockText = true;
+        }
+        await documentModule.selectParagraph(assistOS.space.id, this._document.id, this.paragraph.id, {lockText: lockText});
+        this.selectionTimeout = setTimeout(async () => {
+            await documentModule.selectParagraph(assistOS.space.id, this._document.id, this.paragraph.id, {lockText: lockText});
+        }, 1000 * 10);
+    }
     async handleUserSelection(data){
         if(data.selected){
-            await this.setUserIcon(data.userId, data.imageId);
+            await this.setUserIcon(data.imageId, data.sessionId);
+            if(data.lockText){
+                return this.lockText();
+            }
         } else {
-            this.removeUserIcon(data.userId);
+            this.removeUserIcon(data.sessionId);
+            this.unlockText();
         }
     }
-    // async lockTextForUsers(event){
-    //     if(!this.textLocked){
-    //         this.textLocked = true;
-    //         await documentModule.selectParagraph(assistOS.space.id, this._document.id, this.paragraph.id);
-    //     }
-    // };
-    // lockText(){
-    //     let paragraphText = this.element.querySelector(".paragraph-text");
-    //     paragraphText.setAttribute("readonly", "true");
-    // }
+
+    lockText(){
+        let paragraphText = this.element.querySelector(".paragraph-text");
+        paragraphText.setAttribute("readonly", "true");
+        paragraphText.classList.add("locked-text");
+    }
+    unlockText(){
+        let paragraphText = this.element.querySelector(".paragraph-text");
+        paragraphText.removeAttribute("readonly");
+        paragraphText.classList.remove("locked-text");
+    }
+    async afterUnload(){
+        if (assistOS.space.currentParagraphId === this.paragraph.id) {
+            await documentModule.deselectParagraph(assistOS.space.id, this._document.id, this.paragraph.id);
+            clearTimeout(this.selectionTimeout);
+            delete this.selectionTimeout;
+        }
+    }
 }

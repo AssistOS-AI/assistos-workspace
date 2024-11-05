@@ -1,6 +1,7 @@
 const utils = require('../../apihub-component-utils/utils.js');
 const paragraphService = require('../services/paragraph.js');
 const SubscriptionManager = require("../../subscribers/SubscriptionManager");
+const crypto = require('../../apihub-component-utils/crypto.js');
 async function getParagraph(req, res) {
     const {spaceId, documentId, paragraphId} = req.params;
     if (!spaceId || !documentId || !paragraphId) {
@@ -136,21 +137,22 @@ async function swapParagraphs(req, res) {
         });
     }
 }
+
 let selectedParagraphs = new Map();
 function getSelectedParagraphs(req, res) {
     try {
         let spaceId = req.params.spaceId;
         let documentId = req.params.documentId;
+        let otherUsersSelected = [];
 
-        let selected = [];
         for (let [key, value] of selectedParagraphs) {
             if(value.spaceId === spaceId && value.documentId === documentId){
-                selected.push(value);
+                otherUsersSelected.push(value);
             }
         }
         return utils.sendResponse(res, 200, "application/json", {
             success: true,
-            data: selected
+            data: otherUsersSelected
         });
     } catch (e) {
         return utils.sendResponse(res, 500, "application/json", {
@@ -164,24 +166,38 @@ function selectParagraph(req, res) {
         let paragraphId = req.params.paragraphId;
         let documentId = req.params.documentId;
         let userId = req.userId;
+        let lockText = req.body.lockText;
         let sessionId = req.sessionId;
         if(selectedParagraphs.has(sessionId)){
-            return utils.sendResponse(res, 200, "application/json", {
-                success: true
-            });
+            let selection = selectedParagraphs.get(sessionId);
+            clearTimeout(selection.timeoutId);
         }
+        let timeoutId = setTimeout(() => {
+            selectedParagraphs.delete(sessionId);
+            let objectId = SubscriptionManager.getObjectId(documentId, paragraphId);
+            let eventData = {
+                selected: false,
+                userId: userId,
+            }
+            SubscriptionManager.notifyClients(req.sessionId, objectId, eventData);
+        }, 1000 * 10);
+
         selectedParagraphs.set(sessionId, {
+            timeoutId: timeoutId,
             spaceId: req.params.spaceId,
             documentId: documentId,
             paragraphId: paragraphId,
             userId: userId,
-            userImageId: ""
+            userImageId: "",
+            lockText: lockText
         });
         let objectId = SubscriptionManager.getObjectId(documentId, paragraphId);
         let eventData = {
             selected: true,
             userId: userId,
-            userImageId: ""
+            sessionId: sessionId,
+            userImageId: "",
+            lockText: lockText
         }
         SubscriptionManager.notifyClients(req.sessionId, objectId, eventData);
         return utils.sendResponse(res, 200, "application/json", {
@@ -200,13 +216,17 @@ function deselectParagraph(req, res) {
         let paragraphId = req.params.paragraphId;
         let documentId = req.params.documentId;
         let sessionId = req.sessionId;
-        let userId = req.userId;
-        selectedParagraphs.delete(sessionId);
+
+        let selection = selectedParagraphs.get(sessionId);
+        if(selection){
+            clearTimeout(selection.timeoutId);
+            selectedParagraphs.delete(sessionId);
+        }
 
         let objectId = SubscriptionManager.getObjectId(documentId, paragraphId);
         let eventData = {
             selected: false,
-            userId: userId,
+            sessionId: sessionId
         }
         SubscriptionManager.notifyClients(req.sessionId, objectId, eventData);
         return utils.sendResponse(res, 200, "application/json", {

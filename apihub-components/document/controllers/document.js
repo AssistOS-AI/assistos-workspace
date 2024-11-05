@@ -93,7 +93,6 @@ async function updateDocument(req, res) {
         const updatedFields = req.query.fields;
         /* TODO remove this jk and make something generic for all notifications */
         await documentService.updateDocument(spaceId, documentId, documentData,req.query);
-        SubscriptionManager.notifyClients(req.sessionId, SubscriptionManager.getObjectId(spaceId, documentId));
         SubscriptionManager.notifyClients(req.sessionId, SubscriptionManager.getObjectId(spaceId, "documents"));
        if (updatedFields) {
            if (Array.isArray(updatedFields)) {
