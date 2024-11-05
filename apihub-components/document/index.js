@@ -26,8 +26,8 @@ function document(server) {
     server.delete("/documents/chapters/:spaceId/:documentId/:chapterId", chapterHandler.deleteChapter);
 
     //Paragraph
-    server.get("/documents/chapters/paragraphs/:spaceId/:documentId/:paragraphId", paragraphHandler.getParagraph);
     server.get("/documents/chapters/paragraphs/:spaceId/:documentId/select", paragraphHandler.getSelectedParagraphs);
+    server.get("/documents/chapters/paragraphs/:spaceId/:documentId/:paragraphId", paragraphHandler.getParagraph);
     server.post("/documents/chapters/paragraphs/:spaceId/:documentId/:chapterId", paragraphHandler.createParagraph);
     server.put("/documents/chapters/paragraphs/:spaceId/:documentId/:paragraphId", paragraphHandler.updateParagraph);
     server.put("/documents/chapters/paragraphs/swap/:spaceId/:documentId/:chapterId/:paragraphId1/:paragraphId2", paragraphHandler.swapParagraphs);
