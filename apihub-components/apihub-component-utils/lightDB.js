@@ -155,14 +155,10 @@ async function updateContainerObject(spaceId, objectId, objectData) {
 }
 
 async function deleteContainerObject(spaceId, objectId) {
-    async function deleteContainerObjectTable(spaceId, objectId) {
+    try {
         let objectType = objectId.split('_')[0];
         await deleteRecord(spaceId, objectType, objectId);
         await deleteTable(spaceId, objectId);
-        return objectId;
-    }
-    try {
-        await deleteContainerObjectTable(spaceId, objectId);
         return objectId;
     } catch (error) {
         throw error
