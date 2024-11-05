@@ -70,6 +70,7 @@ class NotificationRouter{
         clearInterval(this.intervalId);
         clearInterval(this.garbageInterval)
         await utilModule.request("/events/close", "GET");
+        console.log("SSE Connection closed");
     }
     isDuplicateObject(objectId, data){
         let foundObj = this.objectsToRefresh.find(obj => obj.objectId === objectId);

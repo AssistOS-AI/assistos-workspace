@@ -128,12 +128,10 @@ class AssistOS {
                 sidebar.remove();
             }
         }
-        const loaderId = assistOS.UI.showLoading();
-        await NotificationRouter.closeConnection();
+        await NotificationRouter.closeSSEConnection();
         await userModule.logoutUser();
         removeSidebar();
         await this.refresh();
-
     }
 
     async refresh() {
