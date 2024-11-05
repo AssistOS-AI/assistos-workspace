@@ -6,7 +6,7 @@ space-application-page {
 }
 
 .right-sidebar {
-    z-index: 5;
+    z-index: 10;
     position: absolute;
     display: inline-block;
     transition: transform 0.3s ease;

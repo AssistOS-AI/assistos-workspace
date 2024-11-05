@@ -86,7 +86,35 @@ export class DocumentVideoPreview {
         this.imageLoaded = true;
         this.audioLoaded = true;
         this.videoLoaded = true;
+        let tasks = this.getParagraphsTasksNumber();
+        if(tasks > 0){
+            let info = `
+                <div class="vide-preview-info">
+                    <img loading="lazy" src="./wallet/assets/icons/info.svg" class="tasks-warning-icon" alt="info">
+                    <div class="info-text">There are ${tasks} unfinished tasks.</div>
+                </div>`;
+            let closeSection = this.element.querySelector(".close-player");
+            closeSection.insertAdjacentHTML('afterbegin', info);
+        }
         this.playNext();
+    }
+    getParagraphsTasksNumber(){
+        let tasks = 0;
+        for (let chapter of this.document.chapters) {
+            for (let paragraph of chapter.paragraphs) {
+                if(paragraph.commands.speech){
+                    if(paragraph.commands.speech.taskId){
+                        tasks++;
+                    }
+                }
+                if(paragraph.commands.lipsync){
+                    if(paragraph.commands.lipsync.taskId){
+                        tasks++;
+                    }
+                }
+            }
+        }
+        return tasks;
     }
     attachLoadEventListeners() {
         if (!this.boundCheckImageLoaded) {
