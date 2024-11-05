@@ -45,7 +45,7 @@ class NotificationRouter{
         });
     }
     hasSubscription(objectId){
-        return this.listeners[objectId] && this.listeners[objectId].length > 0;
+        return Object.keys(this.listeners).some(id => id.startsWith(objectId) && this.listeners[id].length > 0);
     }
 
     createSSEConnection() {
@@ -116,20 +116,22 @@ class NotificationRouter{
         return `${prefix}/${suffix}`;
     }
     async subscribeToDocument(documentId, suffix, presenterFN) {
-        this.on(this.getObjectId(documentId, suffix), presenterFN);
         if(this.hasSubscription(documentId)){
+            this.on(this.getObjectId(documentId, suffix), presenterFN);
             return;
         }
         let encodedObjectId = encodeURIComponent(documentId);
         await utilModule.request(`/events/subscribe/${encodedObjectId}`, "GET");
+        this.on(this.getObjectId(documentId, suffix), presenterFN);
     }
     async subscribeToSpace(spaceId, suffix, presenterFN) {
-        this.on(this.getObjectId(spaceId, suffix), presenterFN);
         if(this.hasSubscription(spaceId)){
+            this.on(this.getObjectId(spaceId, suffix), presenterFN);
             return;
         }
         let encodedObjectId = encodeURIComponent(spaceId);
         await utilModule.request(`/events/subscribe/${encodedObjectId}`, "GET");
+        this.on(this.getObjectId(spaceId, suffix), presenterFN);
     }
 }
 export default new NotificationRouter();
