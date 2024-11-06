@@ -46,7 +46,7 @@ async function getChapter(spaceId, documentId, chapterId, queryParams) {
 }
 
 async function createChapter(spaceId, documentId, chapterData) {
-    return await lightDB.addEmbeddedObject(spaceId, "chapters", constructChapterURI(documentId, "chapters"), chapterData)
+    return await lightDB.addEmbeddedObject(spaceId, constructChapterURI(documentId, "chapters"), chapterData)
 }
 
 async function updateChapter(spaceId, documentId, chapterId, chapterData, queryParams, sessionId) {

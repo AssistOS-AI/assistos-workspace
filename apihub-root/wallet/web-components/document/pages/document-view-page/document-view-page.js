@@ -52,12 +52,12 @@ export class DocumentViewPage {
                 let newIndex = this._document.chapters.length;
                 chapter1.setAttribute("data-chapter-number", newIndex);
                 chapter2.insertAdjacentElement('afterend', chapter1);
-                return;
+            } else{
+                [chapters[currentChapterIndex], chapters[adjacentChapterIndex]] = [chapters[adjacentChapterIndex], chapters[currentChapterIndex]];
+                let newIndex = adjacentChapterIndex + 1;
+                chapter1.setAttribute("data-chapter-number", newIndex);
+                chapter2.insertAdjacentElement('beforebegin', chapter1);
             }
-            [chapters[currentChapterIndex], chapters[adjacentChapterIndex]] = [chapters[adjacentChapterIndex], chapters[currentChapterIndex]];
-            let newIndex = adjacentChapterIndex + 1;
-            chapter1.setAttribute("data-chapter-number", newIndex);
-            chapter2.insertAdjacentElement('beforebegin', chapter1);
         } else {
             // Insert the current chapter after the adjacent one
             if(adjacentChapterIndex === 0){
@@ -65,12 +65,12 @@ export class DocumentViewPage {
                 let newIndex = 1;
                 chapter1.setAttribute("data-chapter-number", newIndex);
                 chapter2.insertAdjacentElement('beforebegin', chapter1);
-                return;
+            } else{
+                [chapters[currentChapterIndex], chapters[adjacentChapterIndex]] = [chapters[adjacentChapterIndex], chapters[currentChapterIndex]];
+                let newIndex = adjacentChapterIndex + 1;
+                chapter1.setAttribute("data-chapter-number", newIndex);
+                chapter2.insertAdjacentElement('afterend', chapter1);
             }
-            [chapters[currentChapterIndex], chapters[adjacentChapterIndex]] = [chapters[adjacentChapterIndex], chapters[currentChapterIndex]];
-            let newIndex = adjacentChapterIndex + 1;
-            chapter1.setAttribute("data-chapter-number", newIndex);
-            chapter2.insertAdjacentElement('afterend', chapter1);
         }
         let allChapters = this.element.querySelectorAll("chapter-item");
         for(let chapter of allChapters){

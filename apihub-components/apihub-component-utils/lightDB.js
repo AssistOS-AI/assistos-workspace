@@ -116,7 +116,7 @@ async function getContainerObjectsMetadata(spaceId, objectType) {
     }
 }
 
-async function addContainerObject(spaceId, objectType, objectData, sessionId) {
+async function addContainerObject(spaceId, objectType, objectData) {
     async function addContainerObjectToTable(spaceId, objectType, objectData) {
         let objectId = `${objectType}_${crypto.generateId()}`;
         await insertRecord(spaceId, objectType, objectId, objectId);
@@ -282,7 +282,7 @@ async function getEmbeddedObject(spaceId, objectType, objectURI) {
     }
 }
 
-async function addEmbeddedObject(spaceId, objectType, objectURI, objectData) {
+async function addEmbeddedObject(spaceId, objectURI, objectData) {
     try {
         let parts = objectURI.split("/");
         let tableId = parts[0];
@@ -428,7 +428,7 @@ async function swapEmbeddedObjects(spaceId, objectURI, embeddedIds, direction) {
             }
         }
         await updateRecord(spaceId, tableId, objectId, record.data);
-        return objectURI;
+        return objectId;
     } catch (error) {
         throw (error);
     }
