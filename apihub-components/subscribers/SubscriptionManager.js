@@ -72,10 +72,11 @@ class SubscriptionManager {
                 continue;
             }
             for (let [connectionSessionId, connection] of client.connections) {
-                const isSubscribed = Array.from(connection.objectIds).some(existingId =>
-                    objectId.startsWith(existingId)
-                );
-                if (isSubscribed && sessionId !== connectionSessionId) {
+                if(sessionId === connectionSessionId){
+                    continue;
+                }
+                const isSubscribed = Array.from(connection.objectIds).some(existingId => objectId.startsWith(existingId));
+                if (isSubscribed) {
                     let message = {objectId: objectId};
                     if (eventData) {
                         message.data = eventData;
