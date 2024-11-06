@@ -320,7 +320,7 @@ export class DocumentViewPage {
             let paragraphPresenter = paragraphItem.webSkelPresenter;
             await this.changeCurrentElement(paragraphItem, paragraphPresenter.focusOutHandler.bind(paragraphPresenter, paragraphText));
             await paragraphPresenter.highlightParagraph();
-            await paragraphPresenter.selectParagraph(true);
+            await paragraphPresenter.selectParagraph(false);
             await chapterPresenter.highlightChapter();
             return;
         }
@@ -357,7 +357,7 @@ export class DocumentViewPage {
             await this.changeCurrentElement(targetElement, paragraphPresenter.focusOutHandler.bind(paragraphPresenter, targetElement));
             await chapterPresenter.highlightChapter();
             await paragraphPresenter.highlightParagraph();
-            await paragraphPresenter.selectParagraph();
+            await paragraphPresenter.selectParagraph(true);
             saveFunction = paragraphPresenter.saveParagraph.bind(paragraphPresenter, targetElement);
             resetTimerFunction = paragraphPresenter.resetTimer.bind(paragraphPresenter, targetElement);
         }
