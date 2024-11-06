@@ -5,7 +5,7 @@ const utilModule = require("assistos").loadModule("util", {});
 const documentModule = require("assistos").loadModule("document", {});
 const spaceModule = require("assistos").loadModule("space", {});
 const blackScreen = "./wallet/assets/images/black-screen.png";
-
+const constants = require("assistos").constants;
 export class ParagraphItem {
     constructor(element, invalidate) {
         this.element = element;
@@ -296,7 +296,7 @@ export class ParagraphItem {
             return;
         }
         if (commandStatus === "new") {
-            const taskId = await utilModule.constants.COMMANDS_CONFIG.COMMANDS.find(command => command.NAME === commandName).EXECUTE(assistOS.space.id, this._document.id, this.paragraph.id, {});
+            const taskId = await constants.COMMANDS_CONFIG.COMMANDS.find(command => command.NAME === commandName).EXECUTE(assistOS.space.id, this._document.id, this.paragraph.id, {});
             this.paragraph.commands[commandName].taskId = taskId;
             await this.addUITask(taskId);
         } else if (commandStatus === "changed") {
@@ -309,7 +309,7 @@ export class ParagraphItem {
                     // task is not running
                 }
             } else {
-                const taskId = await utilModule.constants.COMMANDS_CONFIG.COMMANDS.find(command => command.NAME === commandName).EXECUTE(assistOS.space.id, this._document.id, this.paragraph.id, {});
+                const taskId = await constants.COMMANDS_CONFIG.COMMANDS.find(command => command.NAME === commandName).EXECUTE(assistOS.space.id, this._document.id, this.paragraph.id, {});
                 this.paragraph.commands[commandName].taskId = taskId;
                 await this.addUITask(taskId);
             }
@@ -331,7 +331,7 @@ export class ParagraphItem {
     async validateCommand(commandType, commands) {
         let testParagraph = JSON.parse(JSON.stringify(this.paragraph));
         testParagraph.commands = commands;
-        return await utilModule.constants.COMMANDS_CONFIG.COMMANDS.find(command => command.NAME === commandType)
+        return await constants.COMMANDS_CONFIG.COMMANDS.find(command => command.NAME === commandType)
             .VALIDATE(assistOS.space.id, testParagraph, {});
     }
     removeHighlightParagraph() {
