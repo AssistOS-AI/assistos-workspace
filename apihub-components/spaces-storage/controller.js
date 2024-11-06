@@ -797,7 +797,10 @@ async function createSpace(request, response) {
         return;
     }
     try {
-        let newSpace = await space.APIs.createSpace(spaceName, userId);
+        let SecurityContext = require("assistos").ServerSideSecurityContext;
+        let securityContext = new SecurityContext(request);
+        const spaceModule = require("assistos").loadModule("space", securityContext);
+        let newSpace = await space.APIs.createSpace(spaceName, userId, spaceModule);
         utils.sendResponse(response, 201, "application/json", {
             message: `Space created successfully: ${newSpace.id}`,
             data: newSpace,

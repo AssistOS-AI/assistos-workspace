@@ -32,10 +32,6 @@ export class AddSpaceModal {
             const [spaceName,apiKey]=[formData.data.name,formData.data.spaceAPIKey]
 
             try {
-                const keyValidation = await validateOpenAiKey(apiKey);
-                if (!keyValidation.success) {
-                    throw Error(keyValidation.error);
-                }
                 await assistOS.createSpace(spaceName,apiKey);
                 assistOS.UI.closeModal(_target);
 

@@ -7,7 +7,7 @@ const date = require('../apihub-component-utils/date.js');
 const volumeManager = require('../volumeManager.js');
 const Space = require("../spaces-storage/space");
 const {instance: emailService} = require("../email");
-
+const AnonymousTask = require('../tasks/AnonymousTask.js');
 async function registerUser(email, password, imageId, inviteToken) {
     const currentDate = date.getCurrentUTCDate();
     if(!email && inviteToken){
@@ -68,9 +68,14 @@ async function createUser(email, imageId, withDefaultSpace = false) {
     try {
         await updateUserFile(userId, user);
         if (withDefaultSpace) {
-            const createdSpaceId = (await Space.APIs.createSpace(spaceName, userId)).id;
-            user.currentSpaceId = createdSpaceId
-            user.spaces[createdSpaceId] = {};
+            let taskFunction = async function () {
+                let spaceModule = await this.loadModule('space');
+                const createdSpaceId = (await Space.APIs.createSpace(spaceName, userId, spaceModule)).id;
+                user.currentSpaceId = createdSpaceId
+                user.spaces[createdSpaceId] = {};
+            }
+            let task = new AnonymousTask(taskFunction);
+            await task.run();
         }
         await updateUserFile(userId, user)
         return user;
