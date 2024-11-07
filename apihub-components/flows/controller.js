@@ -39,7 +39,6 @@ async function listFlows(request, response) {
         return utils.sendResponse(response, 200, "application/json",
             {
                 data: JSON.stringify(flowNames),
-                success: true
             });
     } catch (e) {
         return utils.sendResponse(response, 500, "application/json", e);
@@ -113,12 +112,10 @@ async function addFlow(request, response) {
     try {
         await flows.APIs.addFlow(spaceId, flowData);
         return utils.sendResponse(response, 200, "application/json", {
-            success: true,
             message: `Flow ${flowData.name} added successfully`
         });
     } catch (error) {
         return utils.sendResponse(response, 500, "application/json", {
-            success: false,
             message: error + ` Error at adding flow: ${flowData.name}`
         });
     }
@@ -134,12 +131,10 @@ async function updateFlow(request, response) {
         subscribersModule.notifySubscribers(spaceId, request.userId, flowName, flowName);
         subscribersModule.notifySubscribers(spaceId, request.userId, "flows", "flows");
         return utils.sendResponse(response, 200, "application/json", {
-            success: true,
             message: `Flow ${flowName} updated successfully`
         });
     } catch (error) {
         return utils.sendResponse(response, 500, "application/json", {
-            success: false,
             message: error + ` Error at updating flow: ${flowName}`
         });
     }
@@ -154,12 +149,10 @@ async function deleteFlow(request, response) {
         subscribersModule.notifySubscribers(spaceId, request.userId, "flows", "flows");
         subscribersModule.notifySubscribers(spaceId, request.userId, flowName, flowName);
         return utils.sendResponse(response, 200, "application/json", {
-            success: true,
             message: `Flow ${flowName} deleted successfully`
         });
     } catch (error) {
         return utils.sendResponse(response, 500, "application/json", {
-            success: false,
             message: error + ` Error at deleting flow: ${flowName}`
         });
     }
@@ -188,7 +181,6 @@ async function callFlow(request, response) {
         flowClass = require(flowPath);
     } catch (error) {
         return utils.sendResponse(response, 404, "application/json", {
-            success: false,
             message: error + `Flow not found: ${flowName}`
         })
     }
@@ -206,12 +198,10 @@ async function callFlow(request, response) {
         result = await flowInstance.execute(context);
     } catch (error) {
         return utils.sendResponse(response, error.statusCode || 500, "application/json", {
-            success: false,
             message: `Flow execution error: ${error.message}`
         });
     }
     return utils.sendResponse(response, 200, "application/json", {
-        success: true,
         data: result
     });
 }

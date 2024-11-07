@@ -39,7 +39,6 @@ async function getLLMConfigs() {
 async function sendLLMConfigs(request, response) {
     let configs = await getLLMConfigs();
     return utils.sendResponse(response, 200, "application/json", {
-        success: true,
         data: configs
     });
 }
@@ -55,20 +54,17 @@ async function constructRequestInitAndURL(url, method, request, response) {
         companyObj = LLMConfigs.find((companyObj) => companyObj.company === request.body.company);
     } else {
         return utils.sendResponse(response, 500, "application/json", {
-            success: false,
             message: "LLM name or company name must be provided in the request body"
         });
     }
     if (!companyObj) {
         return utils.sendResponse(response, 404, "application/json", {
-            success: false,
             message: "Api key not set"
         });
     }
     const APIKeyObj = await secrets.getModelAPIKey(spaceId, companyObj.company);
     if (!APIKeyObj) {
         return utils.sendResponse(response, 500, "application/json", {
-            success: false,
             message: "API key not found"
         });
     }
@@ -104,8 +100,8 @@ async function sendRequest(url, method, request, response) {
         console.error(error);
     }
 
-    let llmResponse = JSON.parse(await result.text());
-    if (!llmResponse.success) {
+    let llmResponse = await result.json();
+    if (!result.ok) {
         throw new Error(llmResponse.message);
     }
     return llmResponse.data;
@@ -115,13 +111,11 @@ async function getTextResponse(request, response) {
     try {
         const modelResponse = await sendRequest(`/apis/v1/text/generate`, "POST", request, response);
         utils.sendResponse(response, 200, "application/json", {
-            success: true,
             data: modelResponse
         });
         return {success: true, data: modelResponse};
     } catch (error) {
         utils.sendResponse(response, error.statusCode || 500, "application/json", {
-            success: false,
             message: error.message
         });
         return {success: false, message: error.message};
@@ -206,7 +200,7 @@ async function getTextStreamingResponse(request, response) {
             if (!response.headersSent) {
                 response.writeHead(500, {'Content-Type': 'application/json'});
             }
-            response.end(JSON.stringify({success: false, message: error.message}));
+            response.end(JSON.stringify({message: error.message}));
             reject(error);
         });
     });
@@ -219,12 +213,10 @@ async function getImageResponse(request, response) {
         request.body.userId = request.userId;
         let imagesIds = await sendRequest(`/apis/v1/image/generate`, "POST", request, response);
         utils.sendResponse(response, 200, "application/json", {
-            success: true,
             data: imagesIds
         });
     } catch (error) {
         utils.sendResponse(response, error.statusCode || 500, "application/json", {
-            success: false,
             message: error.message
         });
     }
@@ -237,12 +229,10 @@ async function editImage(request, response) {
         request.body.userId = request.userId;
         const modelResponse = await sendRequest(`/apis/v1/image/edit`, "POST", request, response);
         utils.sendResponse(response, 200, "application/json", {
-            success: true,
             data: modelResponse
         });
     } catch (error) {
         utils.sendResponse(response, error.statusCode || 500, "application/json", {
-            success: false,
             message: error.message
         });
     }
@@ -252,12 +242,10 @@ async function getImageVariants(request, response) {
     try {
         const modelResponse = await sendRequest(`/apis/v1/image/variants`, "POST", request, response);
         utils.sendResponse(response, 200, "application/json", {
-            success: true,
             data: modelResponse
         });
     } catch (error) {
         utils.sendResponse(response, error.statusCode || 500, "application/json", {
-            success: false,
             message: error.message
         });
     }
@@ -267,13 +255,11 @@ async function getVideoResponse(request, response) {
     try {
         const modelResponse = await sendRequest(`/apis/v1/video/generate`, "POST", request, response);
         utils.sendResponse(response, 200, "application/json", {
-            success: true,
             data: modelResponse
         });
         modelResponse.body.pipe(response);
     } catch (error) {
         utils.sendResponse(response, error.statusCode || 500, "application/json", {
-            success: false,
             message: error.message
         });
     }
@@ -288,7 +274,6 @@ async function getAudioResponse(request, response) {
     if (!modelResponse.ok) {
         let jsonMessage = await modelResponse.json();
         return utils.sendResponse(response, modelResponse.status || 500, "application/json", {
-            success: false,
             message: jsonMessage.message
         });
     }
@@ -302,12 +287,10 @@ async function listVoices(request, response) {
         request.body.modelName = "PlayHT2.0";
         let result = await sendRequest(`/apis/v1/audio/listVoices`, "POST", request, response);
         return utils.sendResponse(response, 200, "application/json", {
-            success: true,
             data: result
         });
     } catch (error) {
         utils.sendResponse(response, error.statusCode || 500, "application/json", {
-            success: false,
             message: error.message
         });
     }
@@ -338,19 +321,16 @@ async function listEmotions(request, response) {
         }
 
         let responseJSON = await llmResponse.json();
-        if (!responseJSON.success) {
+        if (!llmResponse.ok) {
             utils.sendResponse(response, llmResponse.status || 500, "application/json", {
-                success: false,
                 message: responseJSON.message
             });
         }
         return utils.sendResponse(response, 200, "application/json", {
-            success: true,
             data: responseJSON.data
         });
     } catch (error) {
         utils.sendResponse(response, error.statusCode || 500, "application/json", {
-            success: false,
             message: error.message
         });
     }
@@ -369,13 +349,11 @@ async function lipsync(request, response) {
         };
         let result = await sendRequest(`/apis/v1/video/lipsync`, "POST", request, response);
         return utils.sendResponse(response, 200, "application/json", {
-            success: true,
             data: result
         });
     } catch (error) {
         console.error(error)
         utils.sendResponse(response, error.statusCode || 500, "application/json", {
-            success: false,
             message: error.message
         });
     }

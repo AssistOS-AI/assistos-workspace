@@ -8,19 +8,14 @@ async function resetPassword(request,response){
     const code = request.body.code;
     if(!email || !password|| !code){
         return utils.sendResponse(response, 400, "application/json", {
-            success: false,
             message: "Email, password and code are required"
         });
     }
     try {
         await User.resetPassword(email, password,code);
-        utils.sendResponse(response, 200, "application/json", {
-            success: true,
-            message: `Password reset successfully`
-        });
+        utils.sendResponse(response, 200, "application/json", {});
     } catch (error) {
         utils.sendResponse(response, error.statusCode||500, "application/json", {
-            success: false,
             message: error.message
         });
     }
@@ -29,19 +24,14 @@ async function sendPasswordResetCode(request,response){
     const email = request.body.email;
     if(!email){
         return utils.sendResponse(response, 400, "application/json", {
-            success: false,
             message: "Email is required"
         });
     }
     try {
         await User.sendPasswordResetCode(email);
-        utils.sendResponse(response, 200, "application/json", {
-            success: true,
-            message: `Password reset code sent successfully`
-        });
+        utils.sendResponse(response, 200, "application/json", {});
     } catch (error) {
         utils.sendResponse(response, error.statusCode, "application/json", {
-            success: false,
             message: error.message
         });
     }
@@ -49,13 +39,9 @@ async function sendPasswordResetCode(request,response){
 async function addSecret(request, response) {
     try {
         await User.addSecret(request.params.spaceId, request.userId, request.body);
-        utils.sendResponse(response, 200, "application/json", {
-            success: true,
-            message: "Secret stored successfully"
-        });
+        utils.sendResponse(response, 200, "application/json", {});
     } catch (error) {
         utils.sendResponse(response, 500, "application/json", {
-            success: false,
             message: error.message
         });
     }
@@ -64,13 +50,9 @@ async function addSecret(request, response) {
 async function deleteSecret(request, response) {
     try {
         await User.deleteSecret(request.params.spaceId, request.userId, request.body);
-        utils.sendResponse(response, 200, "application/json", {
-            success: true,
-            message: "Secret deleted successfully"
-        });
+        utils.sendResponse(response, 200, "application/json", {});
     } catch (error) {
         utils.sendResponse(response, 500, "application/json", {
-            success: false,
             message: error.message
         });
     }
@@ -81,12 +63,9 @@ async function userSecretExists(request, response) {
         const booleanResult = await User.userSecretExists(request.params.spaceId, request.userId, request.body);
         utils.sendResponse(response, 200, "application/json", {
             data: booleanResult,
-            success: true,
-            message: "Secrets exist status loaded successfully"
         });
     } catch (e) {
         utils.sendResponse(response, 500, "application/json", {
-            success: false,
             message: JSON.stringify(e)
         });
     }
@@ -96,7 +75,6 @@ async function registerUser(request, response) {
     const userData = request.body;
     if (!userData.password) {
         return utils.sendResponse(response, 400, "application/json", {
-            success: false,
             message: "Password is required"
         });
     }
@@ -107,12 +85,10 @@ async function registerUser(request, response) {
             userData.photo,
             userData.inviteToken);
         utils.sendResponse(response, 200, "application/json", {
-            success: true,
             message: `User ${userData.name} registered successfully. Please check your email for the verification code`
         });
     } catch (error) {
         utils.sendResponse(response, error.statusCode || 500, "application/json", {
-            success: false,
             message: error.message
         });
     }
@@ -122,7 +98,6 @@ async function activateUser(request, response) {
     const activationToken = request.query['activationToken'];
     if (!activationToken) {
         return utils.sendResponse(response, 400, "application/json", {
-            success: false,
             message: "No activation token provided."
         });
     }
@@ -144,12 +119,10 @@ async function loginUser(request, response) {
 
         utils.sendResponse(response, 200, "application/json", {
             data: userData,
-            success: true,
             message: `User ${userData.name} logged in successfully`
         }, [await cookie.createAuthCookie(userData), await cookie.createRefreshAuthCookie(userData), cookie.createCurrentSpaceCookie(userData.currentSpaceId)]);
     } catch (error) {
         utils.sendResponse(response, error.statusCode || 500, "application/json", {
-            success: false,
             message: error.message
         });
     }
@@ -161,12 +134,10 @@ async function loadUser(request, response) {
         const userData = await User.getUserData(userId);
         utils.sendResponse(response, 200, "application/json", {
             data: userData,
-            success: true,
             message: `User ${userData.name} loaded successfully`
         });
     } catch (error) {
         utils.sendResponse(response, error.statusCode, "application/json", {
-            success: false,
             message: error.message
         }, [cookie.createCurrentSpaceCookie(), cookie.createAuthCookie()]);
     }
@@ -177,12 +148,10 @@ async function logoutUser(request, response) {
         const userId = request.userId;
         await User.logoutUser(userId);
         utils.sendResponse(response, 200, "application/json", {
-            success: true,
             message: "User logged out successfully"
         }, [cookie.deleteAuthCookie(), cookie.deleteRefreshAuthCookie(), cookie.deleteCurrentSpaceCookie()]);
     } catch (error) {
         utils.sendResponse(response, error.statusCode, "application/json", {
-            success: false,
             message: error.message
         });
     }
@@ -199,7 +168,6 @@ async function getUserAvatar(request, response) {
         utils.sendResponse(response, 200, "image/png", image);
     } catch (e) {
         utils.sendResponse(response, 500, "application/json", {
-            success: false,
             message: e.message
         });
     }

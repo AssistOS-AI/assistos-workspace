@@ -14,7 +14,7 @@ function bodyReader(req, res, next) {
             console.info(0x02, `Fail to convert Stream to Buffer!`, error.message);
             console.error("Fail to convert Stream to Buffer!", error.message);
             res.writeHead(500, { 'Content-Type': 'application/json' });
-            res.end(JSON.stringify({ success: false, message: "Fail to convert Stream to Buffer!" }));
+            res.end(JSON.stringify({message: "Fail to convert Stream to Buffer!" }));
             return;
         }
         if (req.method === "PUT" || req.method === "POST") {
@@ -31,7 +31,6 @@ function bodyReader(req, res, next) {
                     console.error("Failed to parse JSON body!", error.message);
                     res.writeHead(500, { 'Content-Type': 'application/json' });
                     res.end(JSON.stringify({
-                        success: false,
                         message: "Failed to parse JSON body!"
                     }));
                     return;

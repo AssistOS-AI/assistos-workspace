@@ -7,19 +7,16 @@ async function getParagraph(req, res) {
     if (!spaceId || !documentId || !paragraphId) {
         return utils.sendResponse(res, 400, "application/json", {
             missing: "Invalid request" + `Missing ${spaceId ? 'spaceId ' : ''}${documentId ? 'documentId ' : ''}${paragraphId ? 'paragraphId ' : ''}`,
-            success: false
         });
     }
     try {
         const paragraph = await paragraphService.getParagraph(spaceId, documentId, paragraphId,req.query);
         return utils.sendResponse(res, 200, "application/json", {
-            success: true,
             data: paragraph
         });
     } catch (error) {
         return utils.sendResponse(res, error.statusCode || 500, "application/json", {
             message: "Failed to get paragraph" + error.message,
-            success: false
         });
     }
 }
@@ -30,7 +27,6 @@ async function createParagraph(req, res) {
     if (!spaceId || !documentId || !chapterId || !paragraphData) {
         return utils.sendResponse(res, 400, "application/json", {
             message: "Invalid request" + `Missing ${spaceId ? 'spaceId ' : ''}${documentId ? 'documentId ' : ''}${chapterId ? 'chapterId ' : ''}${paragraphData ? 'request body' : ''}`,
-            success: false
         });
     }
     try {
@@ -43,13 +39,11 @@ async function createParagraph(req, res) {
         }
         SubscriptionManager.notifyClients(req.sessionId, objectId, eventData);
         return utils.sendResponse(res, 200, "application/json", {
-            success: true,
             data: id
         });
     } catch (error) {
         return utils.sendResponse(res, error.statusCode || 500, "application/json", {
             message: "Failed to create paragraph" + error.message,
-            success: false
         });
     }
 }
@@ -60,7 +54,6 @@ async function updateParagraph(req, res) {
     if (!spaceId || !documentId || !paragraphId || !paragraphData) {
         return utils.sendResponse(res, 400, "application/json", {
             message: "Invalid request" + `Missing ${spaceId ? 'spaceId ' : ''}${documentId ? 'documentId ' : ''}${paragraphId ? 'paragraphId ' : ''}${paragraphData ? 'request body' : ''}`,
-            success: false
         });
     }
     try {
@@ -68,13 +61,11 @@ async function updateParagraph(req, res) {
         let objectId = SubscriptionManager.getObjectId(documentId, paragraphId);
         SubscriptionManager.notifyClients(req.sessionId, objectId, req.query.fields);
         return utils.sendResponse(res, 200, "application/json", {
-            success: true,
             message: "Paragraph updated successfully"
         });
     } catch (error) {
         return utils.sendResponse(res, error.statusCode || 500, "application/json", {
             message: "Failed to update paragraph" + error.message,
-            success: false
         });
     }
 }
@@ -84,7 +75,6 @@ async function deleteParagraph(req, res) {
     if (!spaceId || !documentId || !chapterId || !paragraphId) {
         return utils.sendResponse(res, 400, "application/json", {
             message: "Invalid request" + `Missing ${spaceId ? 'spaceId ' : ''}${documentId ? 'documentId ' : ''}${chapterId ? 'chapterId ' : ''}${paragraphId ? 'paragraphId ' : ''}`,
-            success: false
         });
     }
     try {
@@ -97,13 +87,11 @@ async function deleteParagraph(req, res) {
         SubscriptionManager.notifyClients(req.sessionId, objectId, eventData);
         SubscriptionManager.notifyClients(req.sessionId, documentId,"/tasks");
         return utils.sendResponse(res, 200, "application/json", {
-            success: true,
             message: "Paragraph deleted successfully"
         });
     } catch (error) {
         return utils.sendResponse(res, error.statusCode || 500, "application/json", {
             message: "Failed to delete paragraph" + error.message,
-            success: false
         });
     }
 }
@@ -112,7 +100,6 @@ async function swapParagraphs(req, res) {
     if (!spaceId || !documentId || !chapterId || !paragraphId1 || !paragraphId2) {
         return utils.sendResponse(res, 400, "application/json", {
             message: "Invalid request" + `Missing ${spaceId ? 'spaceId ' : ''}${documentId ? 'documentId ' : ''}${chapterId ? 'chapterId ' : ''}${paragraphId1 ? 'paragraphId1 ' : ''}${paragraphId2 ? 'paragraphId2 ' : ''}`,
-            success: false
         });
     }
     let direction = req.body.direction;
@@ -127,13 +114,11 @@ async function swapParagraphs(req, res) {
         }
         SubscriptionManager.notifyClients(req.sessionId, objectId, eventData);
         return utils.sendResponse(res, 200, "application/json", {
-            success: true,
             message: "Paragraphs swapped successfully"
         });
     } catch (error) {
         return utils.sendResponse(res, error.statusCode || 500, "application/json", {
             message: "Failed to swap paragraphs" + error.message,
-            success: false
         });
     }
 }
@@ -167,12 +152,10 @@ function getSelectedParagraphs(req, res) {
         }
 
         return utils.sendResponse(res, 200, "application/json", {
-            success: true,
             data: otherUsersSelected
         });
     } catch (e) {
         return utils.sendResponse(res, 500, "application/json", {
-            success: false,
             message: e.message
         });
     }
@@ -240,11 +223,9 @@ function deselectParagraph(req, res) {
         let paragraphSelectionId = getParagraphSelectId(spaceId, documentId, paragraphId);
         deleteSelection(paragraphSelectionId, selectId, req.sessionId, documentId, paragraphId);
         return utils.sendResponse(res, 200, "application/json", {
-            success: true
         });
     } catch (e) {
         return utils.sendResponse(res, 500, "application/json", {
-            success: false,
             message: e.message
         });
     }
@@ -269,12 +250,9 @@ function selectParagraph(req, res) {
             lockOwner: lockOwner
         }
         SubscriptionManager.notifyClients(req.sessionId, objectId, eventData);
-        return utils.sendResponse(res, 200, "application/json", {
-            success: true
-        });
+        return utils.sendResponse(res, 200, "application/json", {});
     } catch (e) {
         return utils.sendResponse(res, 500, "application/json", {
-            success: false,
             message: e.message
         });
     }
