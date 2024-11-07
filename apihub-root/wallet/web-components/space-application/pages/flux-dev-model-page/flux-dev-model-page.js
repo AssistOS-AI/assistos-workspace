@@ -1,8 +1,9 @@
-export class FluxModelPage {
+export class FluxDevModelPage {
     constructor(element, invalidate) {
         this.element = element;
         this.invalidate = invalidate;
         this.isGenerating = false;
+        this.STORAGE_KEY = 'flux_api_key';  // Key for localStorage
 
         // Force an initial render
         this.invalidate(() => {
@@ -33,6 +34,12 @@ export class FluxModelPage {
         this.generatedImage = this.element.querySelector('#generatedImage');
         this.initialPlaceholder = this.element.querySelector('#initialPlaceholder');
 
+        // Load cached API key if it exists
+        this.loadCachedApiKey();
+
+        // Add event listener for API key changes
+        this.apiKeyInput.addEventListener('change', () => this.cacheApiKey());
+
         // Make sure your loading indicator is hidden initially
         if (this.loadingIndicator) {
             this.loadingIndicator.classList.add('hidden');
@@ -43,6 +50,32 @@ export class FluxModelPage {
         if (inputSection) {
             inputSection.style.display = 'block';
             inputSection.style.opacity = '1';
+        }
+    }
+
+    // Load the cached API key from localStorage
+    loadCachedApiKey() {
+        try {
+            const cachedApiKey = localStorage.getItem(this.STORAGE_KEY);
+            if (cachedApiKey) {
+                this.apiKeyInput.value = cachedApiKey;
+            }
+        } catch (error) {
+            console.warn('Failed to load cached API key:', error);
+        }
+    }
+
+    // Cache the current API key in localStorage
+    cacheApiKey() {
+        try {
+            const currentApiKey = this.apiKeyInput.value.trim();
+            if (currentApiKey) {
+                localStorage.setItem(this.STORAGE_KEY, currentApiKey);
+            } else {
+                localStorage.removeItem(this.STORAGE_KEY);
+            }
+        } catch (error) {
+            console.warn('Failed to cache API key:', error);
         }
     }
 

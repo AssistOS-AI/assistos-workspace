@@ -1,0 +1,36 @@
+<div class="model-demo-container">
+    <div class="input-section">
+        <div class="input-header">
+            <h2>Flux.1 Dev</h2>
+            <p>Generate images from text descriptions</p>
+        </div>
+
+        <div class="input-form">
+            <div class="input-group">
+                <label for="api-key">Hugging Face API Key</label>
+                <input type="password" id="api-key" name="api-key" placeholder="hf_xxxxxxxxxxxxxxxx" />
+            </div>
+
+            <div class="input-group">
+                <label for="prompt">Prompt</label>
+                <textarea id="prompt" name="prompt" placeholder="Describe the image you want to generate..."></textarea>
+            </div>
+
+            <button class="submit-btn" data-local-action="generateImage">Generate Image</button>
+        </div>
+
+        <div class="loading-indicator hidden">
+            <div class="flux-spinner"></div>
+            <p>Generating image...</p>
+        </div>
+    </div>
+
+    <div class="result-section">
+        <div class="result-placeholder" id="initialPlaceholder">
+            <p>Your generated image will appear here</p>
+        </div>
+        <div class="generated-image hidden" id="imageContainer">
+            <img id="generatedImage" alt="Generated image" />
+        </div>
+    </div>
+</div>

@@ -64,15 +64,61 @@ llm-demo-page {
 .model-card {
     background: var(--white);
     border-radius: 12px;
-    padding: 1.5rem;
+    padding: 1rem;
     box-shadow: 0 2px 8px rgba(0, 0, 0, 0.1);
     transition: transform 0.2s, box-shadow 0.2s;
     cursor: pointer;
+    display: flex;
+    flex-direction: column;
+    min-height: 140px;
 }
 
 .model-card:hover {
     transform: translateY(-4px);
     box-shadow: 0 4px 12px rgba(0, 0, 0, 0.15);
+}
+
+.model-card-content {
+    flex-grow: 1;
+}
+
+.model-footer {
+    border-top: 1px solid var(--border-color);
+    display: flex;
+    justify-content: flex-end;
+}
+
+.badge-container {
+    display: flex;
+    gap: 0.5rem;
+    align-items: center;
+}
+
+.model-connecting-method-s {
+    background: var(--light-green);
+    color: var(--green);
+    padding: 0.25rem 0.75rem;
+    border-radius: 1rem;
+    font-size: 0.8rem;
+    font-weight: 500;
+}
+
+.model-license-g {
+    background: var(--light-green);
+    color: var(--green);
+    padding: 0.25rem 0.75rem;
+    border-radius: 1rem;
+    font-size: 0.8rem;
+    font-weight: 500;
+}
+
+.model-license-r {
+    background: var(--light-red);
+    color: var(--red);
+    padding: 0.25rem 0.75rem;
+    border-radius: 1rem;
+    font-size: 0.8rem;
+    font-weight: 500;
 }
 
 .model-header {
@@ -84,16 +130,16 @@ llm-demo-page {
 
 .model-header h3 {
     color: var(--dark-text);
-    font-size: 1.25rem;
+    font-size: 1rem;
     margin: 0;
 }
 
 .model-badge {
     background: var(--light-blue);
-    color: var(--medium-blue);
+    color: var(--blue);
     padding: 0.25rem 0.75rem;
     border-radius: 1rem;
-    font-size: 0.875rem;
+    font-size: 0.8rem;
     font-weight: 500;
 }
 

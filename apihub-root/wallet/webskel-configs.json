@@ -4,10 +4,16 @@
     "services": [],
     "components": [
         {
-            "name": "flux-model-page",
+            "name": "flux-dev-model-page",
             "directory": "space-application",
             "type": "pages",
-            "presenterClassName": "FluxModelPage"
+            "presenterClassName": "FluxDevModelPage"
+        },
+        {
+            "name": "flux-schnell-model-page",
+            "directory": "space-application",
+            "type": "pages",
+            "presenterClassName": "FluxSchnellModelPage"
         },
         {
             "name": "llm-demo-page",
