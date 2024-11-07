@@ -1,11 +1,13 @@
 import {executorTimer} from "../../../../imports.js";
 import {formatTime} from "../../../../utils/videoUtils.js";
 import {NotificationRouter} from "../../../../imports.js";
+
 const utilModule = require("assistos").loadModule("util", {});
 const documentModule = require("assistos").loadModule("document", {});
 const spaceModule = require("assistos").loadModule("space", {});
 const blackScreen = "./wallet/assets/images/black-screen.png";
 const constants = require("assistos").constants;
+
 export class ParagraphItem {
     constructor(element, invalidate) {
         this.element = element;
@@ -18,7 +20,8 @@ export class ParagraphItem {
         this.paragraph = this.chapter.getParagraph(paragraphId);
         this.invalidate(this.subscribeToParagraphEvents.bind(this));
     }
-    async subscribeToParagraphEvents(){
+
+    async subscribeToParagraphEvents() {
         this.boundOnParagraphUpdate = this.onParagraphUpdate.bind(this);
         await NotificationRouter.subscribeToDocument(this._document.id, this.paragraph.id, this.boundOnParagraphUpdate);
         this.boundHandleUserSelection = this.handleUserSelection.bind(this);
@@ -32,6 +35,7 @@ export class ParagraphItem {
             }
         }
     }
+
     async beforeRender() {
         this.loadedParagraphText = this.paragraph.text || "";
     }
@@ -49,21 +53,21 @@ export class ParagraphItem {
         let commands = this.element.querySelector(".paragraph-commands");
         this.errorElement = this.element.querySelector(".error-message");
         commands.innerHTML = await this.buildCommandsHTML("view");
-        if(commands.innerHTML !== ""){
+        if (commands.innerHTML !== "") {
             commands.style.padding = "5px 10px";
         }
         await this.setupVideoPreview();
-        if(this.paragraph.commands.video && !this.paragraph.commands.video.hasOwnProperty("start")){
+        if (this.paragraph.commands.video && !this.paragraph.commands.video.hasOwnProperty("start")) {
             this.paragraph.commands.video.start = 0;
             this.paragraph.commands.video.end = this.paragraph.commands.video.duration;
             await documentModule.updateParagraphCommands(assistOS.space.id, this._document.id, this.paragraph.id, this.paragraph.commands);
         }
         let selected = this.documentPresenter.selectedParagraphs.filter(paragraph => paragraph.paragraphId === this.paragraph.id);
-        for(let paragraph of selected){
+        for (let paragraph of selected) {
             await this.setUserIcon(paragraph.userId, paragraph.imageId);
         }
         let shouldLockText = selected.some(paragraph => paragraph.lockText);
-        if(shouldLockText){
+        if (shouldLockText) {
             this.lockText();
         }
     }
@@ -78,7 +82,7 @@ export class ParagraphItem {
         } else if (type === "commands") {
             this.paragraph.commands = await documentModule.getParagraphCommands(assistOS.space.id, this._document.id, this.paragraph.id);
             let commandsElement = this.element.querySelector('.paragraph-commands');
-            if(commandsElement.tagName === "DIV"){
+            if (commandsElement.tagName === "DIV") {
                 await this.renderViewModeCommands();
             } else {
                 await this.renderEditModeCommands();
@@ -106,7 +110,7 @@ export class ParagraphItem {
     }
 
     async moveParagraph(_target, direction) {
-        if(this.chapter.paragraphs.length === 1){
+        if (this.chapter.paragraphs.length === 1) {
             return;
         }
         await this.documentPresenter.stopTimer(false);
@@ -164,7 +168,7 @@ export class ParagraphItem {
 
     async enterEditModeCommands() {
         let commandsElement = this.element.querySelector('.paragraph-commands');
-        if(commandsElement.tagName === "DIV"){
+        if (commandsElement.tagName === "DIV") {
             await this.renderEditModeCommands();
             let controller = new AbortController();
             document.addEventListener("click", (event) => {
@@ -189,22 +193,24 @@ export class ParagraphItem {
         this.showUnfinishedTasks();
         this.checkVideoAndAudioDuration();
     }
-    showUnfinishedTasks(){
-        if(assistOS.space.currentParagraphId !== this.paragraph.id){
+
+    showUnfinishedTasks() {
+        if (assistOS.space.currentParagraphId !== this.paragraph.id) {
             return;
         }
         let unfinishedTasks = 0;
-        for(let commandName of Object.keys(this.paragraph.commands)){
-            if(this.paragraph.commands[commandName].taskId){
+        for (let commandName of Object.keys(this.paragraph.commands)) {
+            if (this.paragraph.commands[commandName].taskId) {
                 unfinishedTasks++;
             }
         }
-        if(unfinishedTasks > 0){
+        if (unfinishedTasks > 0) {
             this.showParagraphInfo(`${unfinishedTasks} tasks unfinished`);
         } else {
             this.hideParagraphInfo();
         }
     }
+
     async renderEditModeCommands() {
         let textareaContainer = this.element.querySelector('.header-section');
         let commandsElement = this.element.querySelector('.paragraph-commands');
@@ -230,7 +236,7 @@ export class ParagraphItem {
         headerSection.insertAdjacentHTML('beforeend', `<div class="paragraph-commands">${commandsHTML}</div>`);
         let paragraphHeader = this.element.querySelector('.paragraph-commands');
         paragraphHeader.style.height = "initial";
-        if(paragraphHeader.innerHTML === ""){
+        if (paragraphHeader.innerHTML === "") {
             paragraphHeader.style.padding = "0";
         } else {
             paragraphHeader.style.padding = "5px 10px";
@@ -246,15 +252,15 @@ export class ParagraphItem {
                 attachment.classList.remove("highlight-attachment");
             });
             for (let command of commands) {
-              if (command.name === "image") {
-                  let attachmentHighlight = this.element.querySelector(".attachment-circle.image");
-                  attachmentHighlight.classList.add("highlight-attachment");
+                if (command.name === "image") {
+                    let attachmentHighlight = this.element.querySelector(".attachment-circle.image");
+                    attachmentHighlight.classList.add("highlight-attachment");
                 } else if (command.name === "audio") {
-                  let attachmentHighlight = this.element.querySelector(".attachment-circle.audio");
-                  attachmentHighlight.classList.add("highlight-attachment");
+                    let attachmentHighlight = this.element.querySelector(".attachment-circle.audio");
+                    attachmentHighlight.classList.add("highlight-attachment");
                 } else if (command.name === "video") {
-                  let attachmentHighlight = this.element.querySelector(".attachment-circle.video");
-                  attachmentHighlight.classList.add("highlight-attachment");
+                    let attachmentHighlight = this.element.querySelector(".attachment-circle.video");
+                    attachmentHighlight.classList.add("highlight-attachment");
                 }
             }
         } else {
@@ -262,20 +268,22 @@ export class ParagraphItem {
         }
         return html;
     }
+
     async getPersonalityImageSrc(personalityName) {
         let personality = this.documentPresenter.personalitiesMetadata.find(personality => personality.name === personalityName);
         let personalityImageId;
-        if(personality){
+        if (personality) {
             personalityImageId = personality.imageId;
         } else {
             personalityImageId = null;
             throw new Error("Personality not found");
         }
-        if(personalityImageId){
+        if (personalityImageId) {
             return await spaceModule.getImageURL(personalityImageId);
         }
         return "./wallet/assets/images/default-personality.png"
     }
+
     showCommandsError(error) {
         if (this.errorElement.classList.contains("hidden")) {
             this.errorElement.classList.remove("hidden");
@@ -317,6 +325,7 @@ export class ParagraphItem {
             await this.deleteTaskFromCommand(commandName);
         }
     }
+
     async deleteTaskFromCommand(commandName) {
         if (this.paragraph.commands[commandName].taskId) {
             let taskId = this.paragraph.commands[commandName].taskId;
@@ -328,24 +337,27 @@ export class ParagraphItem {
             }
         }
     }
+
     async validateCommand(commandType, commands) {
         let testParagraph = JSON.parse(JSON.stringify(this.paragraph));
         testParagraph.commands = commands;
         return await constants.COMMANDS_CONFIG.COMMANDS.find(command => command.NAME === commandType)
             .VALIDATE(assistOS.space.id, testParagraph, {});
     }
+
     removeHighlightParagraph() {
         this.switchParagraphToolbar("off");
         let chapterPresenter = this.element.closest("chapter-item").webSkelPresenter;
         chapterPresenter.focusOutHandler();
         let paragraphTextContainer = this.element.querySelector('.paragraph-item');
         paragraphTextContainer.classList.remove("highlighted-paragraph");
-        paragraphTextContainer.style.padding= "0";
+        paragraphTextContainer.style.padding = "0";
         let paragraphHeaderContainer = this.element.querySelector('.paragraph-header');
         paragraphHeaderContainer.classList.remove("highlight-paragraph-header");
         this.hideParagraphInfo();
         this.hideParagraphWarning();
     }
+
     async focusOutHandler() {
         if (!this.element.closest("body")) {
             return;
@@ -393,7 +405,7 @@ export class ParagraphItem {
             }
             for (const [commandType, commandStatus] of Object.entries(commandsDifferences)) {
                 try {
-                    if(commandStatus === "deleted") {
+                    if (commandStatus === "deleted") {
                         continue;
                     }
                     await this.validateCommand(commandType, commands);
@@ -406,13 +418,13 @@ export class ParagraphItem {
             this.errorElement.innerText = "";
             this.errorElement.classList.add("hidden");
             for (let [commandName, commandStatus] of Object.entries(commandsDifferences)) {
-                if(commandStatus === "changed" || commandStatus === "deleted"){
+                if (commandStatus === "changed" || commandStatus === "deleted") {
                     await this.handleCommand(commandName, commandStatus);
                 }
             }
             this.paragraph.commands = commands;
             for (let [commandName, commandStatus] of Object.entries(commandsDifferences)) {
-                if(commandStatus === "new"){
+                if (commandStatus === "new") {
                     await this.handleCommand(commandName, commandStatus);
                 }
             }
@@ -451,21 +463,25 @@ export class ParagraphItem {
             delete window.cutParagraph;
         });
     }
+
     menus = {
         "insert-document-element": `
                 <list-item data-local-action="addParagraph" data-name="Insert Paragraph After" data-highlight="light-highlight"></list-item>
                 <list-item data-local-action="addChapter" data-name="Add Chapter" data-highlight="light-highlight"></list-item>`,
-        "image-menu":`
+        "image-menu": `
                 <image-menu data-presenter="image-menu"></image-menu>`,
-        "audio-menu":`
+        "audio-menu": `
                 <audio-menu data-presenter="audio-menu"></audio-menu>`,
-        "video-menu":`
+        "video-menu": `
                 <video-menu data-presenter="video-menu"></video-menu>`,
+        "paragraph-comment-menu":`<paragraph-comment-menu data-presenter="paragraph-comment-modal"></paragraph-comment-menu>`
     }
+
     openMenu(targetElement, menuName) {
-        if(targetElement.hasAttribute("data-menu-open")){
+        if (targetElement.hasAttribute("data-menu-open")) {
             return;
         }
+
         targetElement.setAttribute("data-menu-open", "true");
         let menuContent = this.menus[menuName];
         let menu = `<div class="toolbar-menu ${menuName}">${menuContent}</div>`
@@ -473,6 +489,7 @@ export class ParagraphItem {
         let controller = new AbortController();
         document.addEventListener("click", this.closeMenu.bind(this, controller, targetElement, menuName), {signal: controller.signal});
     }
+
     closeMenu(controller, targetElement, menuName, event) {
         if (event.target.closest(`.toolbar-menu.${menuName}`) || event.target.closest(".insert-modal")) {
             return;
@@ -484,7 +501,8 @@ export class ParagraphItem {
         controller.abort();
         targetElement.removeAttribute("data-menu-open");
     }
-    changeMenuIcon(menuName, html){
+
+    changeMenuIcon(menuName, html) {
         let menuContainer = this.element.querySelector(`.menu-container.${menuName}`);
         menuContainer.innerHTML = html;
     }
@@ -513,7 +531,7 @@ export class ParagraphItem {
     async deleteCommand(targetElement, type) {
         let commands = this.element.querySelector('.paragraph-commands');
         if (commands.tagName === "DIV") {
-            if(this.paragraph.commands[type].taskId){
+            if (this.paragraph.commands[type].taskId) {
                 await this.deleteTaskFromCommand(type);
             }
             delete this.paragraph.commands[type];
@@ -539,6 +557,7 @@ export class ParagraphItem {
         let controls = this.element.querySelector(".controls-mask-paragraph");
         controls.style.display = "none";
     }
+
     switchDisplayMode(targetElement) {
         let currentMode = targetElement.getAttribute("data-mode");
         if (currentMode === "minimized") {
@@ -561,6 +580,7 @@ export class ParagraphItem {
             targetElement.removeEventListener("click", this.boundRemoveListeners);
         }
     }
+
     hideControlsFullscreen(controls, timer, event) {
         this.videoContainer.style.cursor = "default";
         controls.style.display = "flex";
@@ -571,6 +591,7 @@ export class ParagraphItem {
         timer.stop();
         this.videoContainer.removeEventListener("mousemove", boundHideControlsFullscreen);
     }
+
     initVideoElements() {
         this.videoContainer = this.element.querySelector('.video-container');
         this.playPauseContainer = this.element.querySelector('.play-pause-container');
@@ -587,50 +608,54 @@ export class ParagraphItem {
         this.videoContainer.addEventListener("mouseover", this.boundShowControls);
         this.videoContainer.addEventListener("mouseout", this.boundHideControls);
     }
+
     async playPause(targetElement) {
         let nextMode = targetElement.getAttribute("data-next-mode");
-        if(nextMode === "play"){
+        if (nextMode === "play") {
             targetElement.setAttribute("data-next-mode", "pause");
             targetElement.src = "./wallet/assets/icons/pause.svg";
             await this.playVideoPreview();
-        } if(nextMode === "resume"){
+        }
+        if (nextMode === "resume") {
             targetElement.setAttribute("data-next-mode", "pause");
             targetElement.src = "./wallet/assets/icons/pause.svg";
             await this.resumeVideo();
-        }else if(nextMode === "pause"){
+        } else if (nextMode === "pause") {
             targetElement.setAttribute("data-next-mode", "resume");
             targetElement.src = "./wallet/assets/icons/play.svg";
             this.audioElement.pause();
             this.videoElement.pause();
             this.chapterAudioElement.pause();
-            if(this.silenceInterval){
+            if (this.silenceInterval) {
                 clearInterval(this.silenceInterval);
                 delete this.silenceInterval;
             }
         }
     }
-    async resumeVideo(){
-        if(this.chapterAudioStartTime > -1){
+
+    async resumeVideo() {
+        if (this.chapterAudioStartTime > -1) {
             this.chapterAudioElement.play();
         }
-        if(this.paragraph.commands.video){
-            if(this.paragraph.commands.audio){
+        if (this.paragraph.commands.video) {
+            if (this.paragraph.commands.audio) {
                 this.audioElement.play();
             }
             this.videoElement.play();
-        }else if(this.paragraph.commands.audio){
+        } else if (this.paragraph.commands.audio) {
             this.audioElement.play();
-        } else if(this.paragraph.commands.silence){
+        } else if (this.paragraph.commands.silence) {
             await this.playSilence(this.paragraph.commands.silence.duration);
-        } else if(this.paragraph.commands.image){
+        } else if (this.paragraph.commands.image) {
             await this.playSilence(1);
         }
     }
-    setupMediaPlayerEventListeners(mediaPlayer){
+
+    setupMediaPlayerEventListeners(mediaPlayer) {
         let stopTimeUpdateController = new AbortController();
         mediaPlayer.addEventListener("timeupdate", () => {
             this.currentTimeElement.innerHTML = formatTime(mediaPlayer.currentTime);
-            if(mediaPlayer.endTime && mediaPlayer.currentTime >= mediaPlayer.endTime){
+            if (mediaPlayer.endTime && mediaPlayer.currentTime >= mediaPlayer.endTime) {
                 mediaPlayer.pause();
                 mediaPlayer.currentTime = mediaPlayer.endTime;
                 const endedEvent = new Event('ended');
@@ -652,22 +677,23 @@ export class ParagraphItem {
             }, 1000);
         }, {once: true});
     }
-    playMediaSynchronously(mediaPlayers){
+
+    playMediaSynchronously(mediaPlayers) {
         let played = false;
         let readyCount = 0;
         const totalPlayers = mediaPlayers.length;
-        if(totalPlayers === 0){
+        if (totalPlayers === 0) {
             this.hideLoaderAttachment();
             return;
         }
-        for(let mediaPlayer of mediaPlayers){
+        for (let mediaPlayer of mediaPlayers) {
             mediaPlayer.addEventListener("canplaythrough", () => {
                 readyCount++;
                 if (readyCount === totalPlayers && !played) {
                     played = true;
                     this.hideLoaderAttachment();
                     for (let mediaPlayer of mediaPlayers) {
-                        if(mediaPlayer.startTime){
+                        if (mediaPlayer.startTime) {
                             mediaPlayer.currentTime = mediaPlayer.startTime;
                         }
                         mediaPlayer.play();
@@ -676,28 +702,30 @@ export class ParagraphItem {
             }, {once: true});
         }
     }
-    async playMedia(mediaPlayers){
+
+    async playMedia(mediaPlayers) {
         this.showLoaderAttachment();
-        if(this.chapterAudioStartTime > -1){
+        if (this.chapterAudioStartTime > -1) {
             await this.setChapterAudioTime();
             mediaPlayers.push(this.chapterAudioElement);
             this.playMediaSynchronously(mediaPlayers);
-        }else {
+        } else {
             this.playMediaSynchronously(mediaPlayers);
         }
-        for(let mediaPlayer of mediaPlayers){
+        for (let mediaPlayer of mediaPlayers) {
             let id = mediaPlayer.getAttribute("data-id");
-            if(id === "paragraph-video"){
+            if (id === "paragraph-video") {
                 mediaPlayer.src = await spaceModule.getVideoURL(this.paragraph.commands.video.id);
-            } else if(id === "paragraph-audio"){
+            } else if (id === "paragraph-audio") {
                 mediaPlayer.src = await spaceModule.getAudioURL(this.paragraph.commands.audio.id);
-            } else if(id === "chapter-audio"){
+            } else if (id === "chapter-audio") {
                 mediaPlayer.src = await spaceModule.getAudioURL(this.chapter.backgroundSound.id);
             }
             mediaPlayer.load();
         }
     }
-    async setChapterAudioTime(){
+
+    async setChapterAudioTime() {
         this.chapterAudioElement.addEventListener("loadedmetadata", () => {
             this.chapterAudioElement.currentTime = this.chapterAudioStartTime;
         });
@@ -705,7 +733,8 @@ export class ParagraphItem {
         this.chapterAudioElement.pause();
         this.chapterAudioElement.volume = this.chapter.backgroundSound.volume;
     }
-    showLoaderAttachment(){
+
+    showLoaderAttachment() {
         if (this.loaderTimeout) {
             return;
         }
@@ -715,43 +744,46 @@ export class ParagraphItem {
             this.playPauseContainer.innerHTML = `<div class="loading-icon"><div>`;
         }, 500);
     }
-    hideLoaderAttachment(){
+
+    hideLoaderAttachment() {
         clearTimeout(this.loaderTimeout);
         delete this.loaderTimeout;
-        if(this.playPauseNextMode){
+        if (this.playPauseNextMode) {
             this.playPauseContainer.innerHTML = `<img data-local-action="playPause" data-next-mode="${this.playPauseNextMode}" class="play-pause pointer" src="${this.playPauseIconSrc}" alt="playPause">`;
             this.playPauseIcon = this.element.querySelector(".play-pause");
             delete this.playPauseNextMode;
             delete this.playPauseIconSrc;
         }
     }
-    getChapterAudioStartTime(){
+
+    getChapterAudioStartTime() {
         let totalDuration = 0;
         let paragraphIndex = this.chapter.getParagraphIndex(this.paragraph.id);
-        for(let i = paragraphIndex - 1; i >= 0; i--){
+        for (let i = paragraphIndex - 1; i >= 0; i--) {
             let paragraph = this.chapter.paragraphs[i];
             let paragraphVideoDuration = this.getVideoPreviewDuration(paragraph);
             totalDuration += paragraphVideoDuration;
         }
         let chapterAudioDuration = this.chapter.backgroundSound.duration;
-        if(this.chapter.backgroundSound.loop){
+        if (this.chapter.backgroundSound.loop) {
             return totalDuration % chapterAudioDuration;
-        } else if(chapterAudioDuration >= totalDuration){
+        } else if (chapterAudioDuration >= totalDuration) {
             return totalDuration;
         } else {
             return -1;
         }
     }
-    async playVideoPreview(){
-        if(this.chapter.backgroundSound){
+
+    async playVideoPreview() {
+        if (this.chapter.backgroundSound) {
             this.chapterAudioStartTime = this.getChapterAudioStartTime();
         }
-        if(this.paragraph.commands.video){
+        if (this.paragraph.commands.video) {
             this.videoElement.classList.remove("hidden");
             this.videoElement.startTime = this.paragraph.commands.video.start;
             this.videoElement.endTime = this.paragraph.commands.video.end;
-            if(this.paragraph.commands.audio){
-                if(this.paragraph.commands.video.duration >= this.paragraph.commands.audio.duration){
+            if (this.paragraph.commands.audio) {
+                if (this.paragraph.commands.video.duration >= this.paragraph.commands.audio.duration) {
                     this.setupMediaPlayerEventListeners(this.videoElement);
                 } else {
                     this.setupMediaPlayerEventListeners(this.audioElement);
@@ -765,21 +797,21 @@ export class ParagraphItem {
                 this.setupMediaPlayerEventListeners(this.videoElement);
                 await this.playMedia([this.videoElement]);
             }
-        } else if(this.paragraph.commands.audio){
+        } else if (this.paragraph.commands.audio) {
             this.setupMediaPlayerEventListeners(this.audioElement);
             await this.playMedia([this.audioElement]);
-        } else if(this.paragraph.commands.silence){
+        } else if (this.paragraph.commands.silence) {
             await this.playSilence(this.paragraph.commands.silence.duration);
-        } else if(this.paragraph.commands.image){
+        } else if (this.paragraph.commands.image) {
             //play chapter audio if it exists
             await this.playSilence(1);
         }
     }
 
-    async playSilence(silenceDuration){
-        if(!this.silenceElapsedTime){
+    async playSilence(silenceDuration) {
+        if (!this.silenceElapsedTime) {
             this.silenceElapsedTime = 0;
-            if(this.chapterAudioStartTime > -1){
+            if (this.chapterAudioStartTime > -1) {
                 await this.setChapterAudioTime();
             }
         }
@@ -788,7 +820,7 @@ export class ParagraphItem {
         this.silenceInterval = setInterval(() => {
             this.silenceElapsedTime += 1;
             this.currentTimeElement.innerHTML = formatTime(this.silenceElapsedTime);
-            if(this.silenceElapsedTime === silenceDuration){
+            if (this.silenceElapsedTime === silenceDuration) {
                 this.chapterAudioElement.pause();
                 setTimeout(() => {
                     clearInterval(this.silenceInterval);
@@ -801,23 +833,25 @@ export class ParagraphItem {
             }
         }, 1000);
     }
-    getVideoPreviewDuration(paragraph){
-        if(paragraph.commands.video || paragraph.commands.audio){
+
+    getVideoPreviewDuration(paragraph) {
+        if (paragraph.commands.video || paragraph.commands.audio) {
             let audioDuration = paragraph.commands.audio ? paragraph.commands.audio.duration : 0;
             let videoDuration = paragraph.commands.video ? paragraph.commands.video.end - paragraph.commands.video.start : 0;
             return Math.max(audioDuration, videoDuration);
-        } else if(paragraph.commands.silence){
+        } else if (paragraph.commands.silence) {
             return paragraph.commands.silence.duration;
-        } else if(paragraph.commands.image){
+        } else if (paragraph.commands.image) {
             return 1;
         }
         return 0;
     }
+
     async setupVideoPreview() {
         let hasAttachment = this.paragraph.commands.image || this.paragraph.commands.video ||
             this.paragraph.commands.audio || this.paragraph.commands.silence;
         this.currentTime = 0;
-        if(hasAttachment){
+        if (hasAttachment) {
             this.videoContainer.style.display = "flex";
             let chapterNumber = this.element.querySelector(".chapter-number");
             let chapterIndex = this._document.getChapterIndex(this.chapter.id);
@@ -832,32 +866,36 @@ export class ParagraphItem {
         this.videoElement.classList.add("hidden");
         await this.setVideoThumbnail();
     }
-    setVideoPreviewDuration(){
+
+    setVideoPreviewDuration() {
         let videoDurationElement = this.element.querySelector(".video-duration");
         let duration = this.getVideoPreviewDuration(this.paragraph);
         videoDurationElement.innerHTML = formatTime(duration);
     }
-    async setVideoThumbnail(){
+
+    async setVideoThumbnail() {
         let imageSrc = blackScreen;
-        if(this.paragraph.commands.video){
-            if(this.paragraph.commands.video.thumbnailId){
+        if (this.paragraph.commands.video) {
+            if (this.paragraph.commands.video.thumbnailId) {
                 imageSrc = await spaceModule.getImageURL(this.paragraph.commands.video.thumbnailId);
             }
         }
-        if(this.paragraph.commands.image && !this.paragraph.commands.video){
+        if (this.paragraph.commands.image && !this.paragraph.commands.video) {
             imageSrc = await spaceModule.getImageURL(this.paragraph.commands.image.id);
         }
         this.imgElement.src = imageSrc;
     }
-    hideParagraphInfo(){
+
+    hideParagraphInfo() {
         let tasksInfo = this.element.querySelector(".paragraph-info");
-        if(tasksInfo){
+        if (tasksInfo) {
             tasksInfo.remove();
         }
     }
-    showParagraphInfo(message){
+
+    showParagraphInfo(message) {
         let tasksInfo = this.element.querySelector(".paragraph-info");
-        if(tasksInfo){
+        if (tasksInfo) {
             tasksInfo.remove();
         }
         let info = `
@@ -868,15 +906,16 @@ export class ParagraphItem {
         let paragraphHeader = this.element.querySelector(".header-section");
         paragraphHeader.insertAdjacentHTML('beforeend', info);
     }
-    checkVideoAndAudioDuration(){
-        if(this.paragraph.commands.video && this.paragraph.commands.audio){
+
+    checkVideoAndAudioDuration() {
+        if (this.paragraph.commands.video && this.paragraph.commands.audio) {
             let videoDuration = this.paragraph.commands.video.end - this.paragraph.commands.video.start;
-            if(this.paragraph.commands.audio.duration > videoDuration){
+            if (this.paragraph.commands.audio.duration > videoDuration) {
                 let diff = parseFloat((this.paragraph.commands.audio.duration - videoDuration).toFixed(1));
                 this.showParagraphWarning(`Audio is longer than the video by ${diff} seconds`);
-            } else if(this.paragraph.commands.audio.duration < videoDuration){
+            } else if (this.paragraph.commands.audio.duration < videoDuration) {
                 let diff = parseFloat((videoDuration - this.paragraph.commands.audio.duration).toFixed(1));
-                this.showParagraphWarning(`Video is longer than the Audio by ${diff} seconds`, async (event)=>{
+                this.showParagraphWarning(`Video is longer than the Audio by ${diff} seconds`, async (event) => {
                     this.paragraph.commands.video.end = this.paragraph.commands.video.start + this.paragraph.commands.audio.duration;
                     await documentModule.updateParagraphCommands(assistOS.space.id, this._document.id, this.paragraph.id, this.paragraph.commands);
                     this.checkVideoAndAudioDuration();
@@ -889,19 +928,21 @@ export class ParagraphItem {
             this.hideParagraphWarning();
         }
     }
-    hideParagraphWarning(){
+
+    hideParagraphWarning() {
         let warningElement = this.element.querySelector(".paragraph-warning");
-        if(warningElement){
+        if (warningElement) {
             warningElement.remove();
         }
     }
-    showParagraphWarning(message, fixCb){
+
+    showParagraphWarning(message, fixCb) {
         let warningElement = this.element.querySelector(".paragraph-warning");
-        if(warningElement){
+        if (warningElement) {
             warningElement.remove();
         }
         let fixHTML = "";
-        if(fixCb){
+        if (fixCb) {
             fixHTML = `<div class="fix-warning">fix this</div>`;
         }
         let warning = `
@@ -912,19 +953,19 @@ export class ParagraphItem {
                 </div>`;
         let paragraphHeader = this.element.querySelector(".header-section");
         paragraphHeader.insertAdjacentHTML('afterbegin', warning);
-        if(fixCb){
+        if (fixCb) {
             let fixWarning = paragraphHeader.querySelector(".fix-warning");
             fixWarning.addEventListener("click", fixCb.bind(this), {once: true});
         }
     }
 
-    async setUserIcon(imageId, sessionId){
+    async setUserIcon(imageId, sessionId) {
         let userIconElement = this.element.querySelector(`.user-icon[data-id="${sessionId}"]`);
-        if(userIconElement){
+        if (userIconElement) {
             return;
         }
         let imageSrc;
-        if(imageId){
+        if (imageId) {
             imageSrc = await spaceModule.getImageURL(imageId);
         } else {
             imageSrc = "./wallet/assets/images/defaultUserPhoto.png";
@@ -933,19 +974,22 @@ export class ParagraphItem {
         let paragraphItem = this.element.querySelector(".paragraph-item");
         paragraphItem.insertAdjacentHTML('beforeend', userIcon);
     }
-    removeUserIcon(sessionId){
+
+    removeUserIcon(sessionId) {
         let userIcon = this.element.querySelector(`.user-icon[data-id="${sessionId}"]`);
-        if(userIcon){
+        if (userIcon) {
             userIcon.remove();
         }
     }
-    async deselectParagraph(){
+
+    async deselectParagraph() {
         await documentModule.deselectParagraph(assistOS.space.id, this._document.id, this.paragraph.id);
         clearInterval(this.selectionInterval);
         delete this.selectionInterval;
     }
-    async selectParagraph(lockText){
-        if(this.selectionInterval){
+
+    async selectParagraph(lockText) {
+        if (this.selectionInterval) {
             clearInterval(this.selectionInterval);
             delete this.selectionInterval;
         }
@@ -956,10 +1000,11 @@ export class ParagraphItem {
             await documentModule.selectParagraph(assistOS.space.id, this._document.id, this.paragraph.id, {lockText: lockText});
         }, 1000 * 10);
     }
-    async handleUserSelection(data){
-        if(data.selected){
+
+    async handleUserSelection(data) {
+        if (data.selected) {
             await this.setUserIcon(data.imageId, data.sessionId);
-            if(data.lockText){
+            if (data.lockText) {
                 return this.lockText();
             }
         } else {
@@ -968,19 +1013,25 @@ export class ParagraphItem {
         }
     }
 
-    lockText(){
+    lockText() {
         let paragraphText = this.element.querySelector(".paragraph-text");
         paragraphText.setAttribute("readonly", true);
         paragraphText.classList.add("locked-text");
     }
-    unlockText(){
+
+    unlockText() {
         let paragraphText = this.element.querySelector(".paragraph-text");
         paragraphText.removeAttribute("readonly");
         paragraphText.classList.remove("locked-text");
     }
-    async afterUnload(){
+
+    async afterUnload() {
         if (assistOS.space.currentParagraphId === this.paragraph.id) {
             await this.deselectParagraph();
         }
+    }
+
+    async openParagraphComment(_target) {
+        await assistOS.UI.showModal(`paragraph-comment-modal`, false, {comment: this.paragraph.comment});
     }
 }

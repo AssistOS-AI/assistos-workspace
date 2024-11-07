@@ -27,6 +27,13 @@
             "type": "components",
             "presenterClassName": "ImageMenu"
         },
+
+        {
+            "name": "paragraph-comment-menu",
+            "directory": "document",
+            "type": "components",
+            "presenterClassName": "ParagraphCommentMenu"
+        },
         {
             "name": "silence-popup",
             "directory": "document",
