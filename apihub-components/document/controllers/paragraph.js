@@ -144,12 +144,19 @@ function getSelectedParagraphs(req, res) {
         let spaceId = req.params.spaceId;
         let documentId = req.params.documentId;
         let otherUsersSelected = [];
-
+        let userId = req.userId;
         for (let [key, value] of selectedParagraphs) {
             if(value.spaceId === spaceId && value.documentId === documentId){
-                otherUsersSelected.push(value);
+                if(value.userId === userId){
+                    continue;
+                }
+                otherUsersSelected.push({...value});
             }
         }
+        otherUsersSelected = otherUsersSelected.map((selection) => {
+            delete selection.timeoutId;
+            return selection;
+        });
         return utils.sendResponse(res, 200, "application/json", {
             success: true,
             data: otherUsersSelected
@@ -161,6 +168,35 @@ function getSelectedParagraphs(req, res) {
         });
     }
 }
+function setNewSelection(sessionId, spaceId, documentId, paragraphId, userId, userImageId, lockText){
+    let timeoutId = setTimeout(() => {
+        selectedParagraphs.delete(sessionId);
+        let objectId = SubscriptionManager.getObjectId(documentId, paragraphId);
+        let eventData = {
+            selected: false,
+            sessionId: sessionId
+        }
+        SubscriptionManager.notifyClients(sessionId, objectId, eventData);
+    }, 1000 * 10);
+
+    selectedParagraphs.set(sessionId, {
+        timeoutId: timeoutId,
+        spaceId: spaceId,
+        documentId: documentId,
+        paragraphId: paragraphId,
+        userId: userId,
+        userImageId: userImageId,
+        lockText: lockText
+    });
+}
+function isParagraphLocked(spaceId, documentId, paragraphId){
+    for (let [key, value] of selectedParagraphs) {
+        if(value.paragraphId === paragraphId && value.lockText && value.spaceId === spaceId && value.documentId === documentId){
+            return true;
+        }
+    }
+    return false;
+}
 function selectParagraph(req, res) {
     try {
         let paragraphId = req.params.paragraphId;
@@ -168,29 +204,17 @@ function selectParagraph(req, res) {
         let userId = req.userId;
         let lockText = req.body.lockText;
         let sessionId = req.sessionId;
+        let spaceId = req.params.spaceId;
+        if(lockText){
+            if(isParagraphLocked(spaceId, documentId, paragraphId)){
+                lockText = false;
+            }
+        }
         if(selectedParagraphs.has(sessionId)){
             let selection = selectedParagraphs.get(sessionId);
             clearTimeout(selection.timeoutId);
         }
-        let timeoutId = setTimeout(() => {
-            selectedParagraphs.delete(sessionId);
-            let objectId = SubscriptionManager.getObjectId(documentId, paragraphId);
-            let eventData = {
-                selected: false,
-                userId: userId,
-            }
-            SubscriptionManager.notifyClients(req.sessionId, objectId, eventData);
-        }, 1000 * 10);
-
-        selectedParagraphs.set(sessionId, {
-            timeoutId: timeoutId,
-            spaceId: req.params.spaceId,
-            documentId: documentId,
-            paragraphId: paragraphId,
-            userId: userId,
-            userImageId: "",
-            lockText: lockText
-        });
+        setNewSelection(sessionId, spaceId, documentId, paragraphId, userId, "", lockText);
         let objectId = SubscriptionManager.getObjectId(documentId, paragraphId);
         let eventData = {
             selected: true,

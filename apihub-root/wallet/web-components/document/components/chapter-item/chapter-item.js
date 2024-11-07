@@ -119,6 +119,10 @@ export class ChapterItem {
                 }
                 return;
             }
+            case "visibility": {
+                //dont do anything
+                return;
+            }
             default: {
                 let chapterIndex = this._document.getChapterIndex(this.chapter.id);
                 console.error(`chapterItem index ${chapterIndex}: Unknown update type: ${data}`);

@@ -311,5 +311,5 @@ textarea.paragraph-commands{
     width: 40px;
 }
 .focused.locked-text{
-    background-color: #3C3C3D;
+    background-color: var(--very-light-gray);
 }

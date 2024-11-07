@@ -5,7 +5,7 @@ const utilModule = require("assistos").loadModule("util", {});
 const documentModule = require("assistos").loadModule("document", {});
 const spaceModule = require("assistos").loadModule("space", {});
 const blackScreen = "./wallet/assets/images/black-screen.png";
-
+const constants = require("assistos").constants;
 export class ParagraphItem {
     constructor(element, invalidate) {
         this.element = element;
@@ -296,7 +296,7 @@ export class ParagraphItem {
             return;
         }
         if (commandStatus === "new") {
-            const taskId = await utilModule.constants.COMMANDS_CONFIG.COMMANDS.find(command => command.NAME === commandName).EXECUTE(assistOS.space.id, this._document.id, this.paragraph.id, {});
+            const taskId = await constants.COMMANDS_CONFIG.COMMANDS.find(command => command.NAME === commandName).EXECUTE(assistOS.space.id, this._document.id, this.paragraph.id, {});
             this.paragraph.commands[commandName].taskId = taskId;
             await this.addUITask(taskId);
         } else if (commandStatus === "changed") {
@@ -309,7 +309,7 @@ export class ParagraphItem {
                     // task is not running
                 }
             } else {
-                const taskId = await utilModule.constants.COMMANDS_CONFIG.COMMANDS.find(command => command.NAME === commandName).EXECUTE(assistOS.space.id, this._document.id, this.paragraph.id, {});
+                const taskId = await constants.COMMANDS_CONFIG.COMMANDS.find(command => command.NAME === commandName).EXECUTE(assistOS.space.id, this._document.id, this.paragraph.id, {});
                 this.paragraph.commands[commandName].taskId = taskId;
                 await this.addUITask(taskId);
             }
@@ -331,10 +331,10 @@ export class ParagraphItem {
     async validateCommand(commandType, commands) {
         let testParagraph = JSON.parse(JSON.stringify(this.paragraph));
         testParagraph.commands = commands;
-        return await utilModule.constants.COMMANDS_CONFIG.COMMANDS.find(command => command.NAME === commandType)
+        return await constants.COMMANDS_CONFIG.COMMANDS.find(command => command.NAME === commandType)
             .VALIDATE(assistOS.space.id, testParagraph, {});
     }
-    deselectParagraph() {
+    removeHighlightParagraph() {
         this.switchParagraphToolbar("off");
         let chapterPresenter = this.element.closest("chapter-item").webSkelPresenter;
         chapterPresenter.focusOutHandler();
@@ -351,7 +351,7 @@ export class ParagraphItem {
             return;
         }
         await assistOS.loadifyComponent(this.element, async () => {
-                this.deselectParagraph();
+                this.removeHighlightParagraph();
                 let paragraphText = this.element.querySelector(".paragraph-text");
                 paragraphText.classList.remove("focused");
                 const cachedText = assistOS.UI.customTrim(assistOS.UI.unsanitize(this.paragraph.text));
@@ -366,9 +366,7 @@ export class ParagraphItem {
                 }
                 this.textIsDifferentFromAudio = false;
                 assistOS.space.currentParagraphId = null;
-                await documentModule.deselectParagraph(assistOS.space.id, this._document.id, this.paragraph.id);
-                clearTimeout(this.selectionTimeout);
-                delete this.selectionTimeout;
+                await this.deselectParagraph();
             }
         );
     }
@@ -941,18 +939,20 @@ export class ParagraphItem {
             userIcon.remove();
         }
     }
-    async selectParagraph(skipText){
-        if(this.selectionTimeout){
-            clearTimeout(this.selectionTimeout);
-            delete this.selectionTimeout;
-        }
-        let paragraphText = this.element.querySelector(".paragraph-text");
-        let lockText = false;
-        if(paragraphText.getAttribute("readonly") === "true" || skipText){
-            lockText = true;
+    async deselectParagraph(){
+        await documentModule.deselectParagraph(assistOS.space.id, this._document.id, this.paragraph.id);
+        clearInterval(this.selectionInterval);
+        delete this.selectionInterval;
+    }
+    async selectParagraph(lockText){
+        if(this.selectionInterval){
+            clearInterval(this.selectionInterval);
+            delete this.selectionInterval;
         }
         await documentModule.selectParagraph(assistOS.space.id, this._document.id, this.paragraph.id, {lockText: lockText});
-        this.selectionTimeout = setTimeout(async () => {
+        this.selectionInterval = setInterval(async () => {
+            let paragraphText = this.element.querySelector(".paragraph-text");
+            lockText = !paragraphText.hasAttribute("readonly");
             await documentModule.selectParagraph(assistOS.space.id, this._document.id, this.paragraph.id, {lockText: lockText});
         }, 1000 * 10);
     }
@@ -970,7 +970,7 @@ export class ParagraphItem {
 
     lockText(){
         let paragraphText = this.element.querySelector(".paragraph-text");
-        paragraphText.setAttribute("readonly", "true");
+        paragraphText.setAttribute("readonly", true);
         paragraphText.classList.add("locked-text");
     }
     unlockText(){
@@ -980,9 +980,7 @@ export class ParagraphItem {
     }
     async afterUnload(){
         if (assistOS.space.currentParagraphId === this.paragraph.id) {
-            await documentModule.deselectParagraph(assistOS.space.id, this._document.id, this.paragraph.id);
-            clearTimeout(this.selectionTimeout);
-            delete this.selectionTimeout;
+            await this.deselectParagraph();
         }
     }
 }

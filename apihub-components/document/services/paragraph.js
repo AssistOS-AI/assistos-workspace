@@ -74,7 +74,7 @@ async function getParagraph(spaceId, documentId, paragraphId, queryParams) {
 }
 
 async function createParagraph(spaceId, documentId, chapterId, paragraphData) {
-    return await lightDB.addEmbeddedObject(spaceId, "paragraphs", constructParagraphURI({
+    return await lightDB.addEmbeddedObject(spaceId, constructParagraphURI({
         documentId: documentId,
         chapterId: chapterId,
         paragraphId: "paragraphs"

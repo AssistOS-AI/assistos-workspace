@@ -27,11 +27,11 @@ class LipSync extends Task {
                 const documentModule = await this.loadModule('document');
                 const utilModule = await this.loadModule('util');
                 const spaceModule = await this.loadModule('space');
-
+                const constants = require("assistos").constants;
                 const paragraph = await documentModule.getParagraph(this.spaceId, this.documentId, this.paragraphId);
 
                 try{
-                    await utilModule.constants.COMMANDS_CONFIG.COMMANDS.find(command => command.NAME === "lipsync").VALIDATE(this.spaceId, paragraph, this.securityContext);
+                    await constants.COMMANDS_CONFIG.COMMANDS.find(command => command.NAME === "lipsync").VALIDATE(this.spaceId, paragraph, this.securityContext);
                 }catch(error){
                     await this.rollback();
                     return this.rejectTask("Paragraph Must have a speech command before adding lip sync");

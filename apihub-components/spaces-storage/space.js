@@ -112,25 +112,24 @@ async function copyDefaultFlows(spacePath) {
     }
 }
 
-async function copyDefaultPersonalities(spacePath, spaceId, defaultSpaceAgentId) {
+async function copyDefaultPersonalities(spacePath, spaceId, defaultSpaceAgentId, spaceModule) {
 
     const defaultPersonalitiesPath = volumeManager.paths.defaultPersonalities;
     const personalitiesPath = path.join(spacePath, 'personalities');
 
     await file.createDirectory(personalitiesPath);
-
     const files = await fsPromises.readdir(defaultPersonalitiesPath, { withFileTypes: true });
     let metadata = [];
     let promises = [];
     for (const entry of files) {
         if (entry.isFile()) {
-            promises.push(preparePersonalityData(defaultPersonalitiesPath , personalitiesPath, entry, spaceId, defaultSpaceAgentId));
+            promises.push(preparePersonalityData(defaultPersonalitiesPath , personalitiesPath, entry, spaceId, defaultSpaceAgentId, spaceModule));
         }
     }
     metadata = await Promise.all(promises);
     await fsPromises.writeFile(path.join(spacePath, 'personalities', 'metadata.json'), JSON.stringify(metadata), 'utf8');
 }
-async function preparePersonalityData(defaultPersonalitiesPath, personalitiesPath, entry, spaceId, defaultSpaceAgentId) {
+async function preparePersonalityData(defaultPersonalitiesPath, personalitiesPath, entry, spaceId, defaultSpaceAgentId, spaceModule) {
     const filePath = path.join(defaultPersonalitiesPath, entry.name);
     let personality = JSON.parse(await fsPromises.readFile(filePath, 'utf8'));
     const constants = require("assistos").constants;
@@ -140,11 +139,9 @@ async function preparePersonalityData(defaultPersonalitiesPath, personalitiesPat
         personality.id = crypto.generateId(16);
     }
     let imagesPath = path.join(defaultPersonalitiesPath, 'images');
-    let imageStream = fs.createReadStream(path.join(imagesPath, `${personality.imageId}.png`));
-    const imageId = crypto.generateId(16);
-    personality.imageId = imageId;
+    let imageBuffer = await fsPromises.readFile(path.join(imagesPath, `${personality.imageId}.png`));
 
-    await Storage.putFile(Storage.fileTypes.images, imageId, imageStream);
+    personality.imageId = await spaceModule.putImage(imageBuffer);
     await fsPromises.writeFile(path.join(personalitiesPath, `${personality.id}.json`), JSON.stringify(personality), 'utf8');
 
     return {
@@ -177,7 +174,7 @@ function createDefaultAnnouncement(spaceName) {
         })
 }
 
-async function createSpace(spaceName, userId, apiKey) {
+async function createSpace(spaceName, userId, spaceModule) {
     const defaultSpaceTemplate = require('./templates/defaultSpaceTemplate.json');
     const spaceValidationSchema = require('./templates/spaceValidationSchema.json');
 
@@ -193,15 +190,6 @@ async function createSpace(spaceName, userId, apiKey) {
 
     const spaceId = crypto.generateId();
     let spaceObj = {};
-    let OpenAPIKeyObj = {};
-    if (apiKey) {
-        await openAI.confirmOpenAiKeyValidation(apiKey);
-        OpenAPIKeyObj = {
-            ownerId: userId,
-            APIkey: apiKey,
-            addedDate: date.getCurrentUTCDate()
-        };
-    }
     const defaultSpaceAgentId = crypto.generateId(16);
     try {
         spaceObj = data.fillTemplate(defaultSpaceTemplate, {
@@ -244,13 +232,13 @@ async function createSpace(spaceName, userId, apiKey) {
 
     const filesPromises = [
         () => copyDefaultFlows(spacePath),
-        () => copyDefaultPersonalities(spacePath, spaceId, defaultSpaceAgentId),
+        () => copyDefaultPersonalities(spacePath, spaceId, defaultSpaceAgentId, spaceModule),
         () => file.createDirectory(path.join(spacePath, 'documents')),
         () => file.createDirectory(path.join(spacePath, 'applications')),
         () => createSpaceStatus(spacePath, spaceObj),
         () => User.linkSpaceToUser(userId, spaceId),
         () => addSpaceToSpaceMap(spaceId, spaceName),
-    ].concat(apiKey ? [() => secrets.putSpaceKey(spaceId, "OpenAI", OpenAPIKeyObj)] : []);
+    ];
 
     const results = await Promise.allSettled(filesPromises.map(fn => fn()));
     const failed = results.filter(r => r.status === 'rejected');

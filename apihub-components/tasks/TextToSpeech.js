@@ -18,8 +18,9 @@ class TextToSpeech extends Task {
             const spaceModule = await this.loadModule('space');
             const personalityModule = await this.loadModule('personality');
             const utilModule = await this.loadModule('util');
+            const constants = require("assistos").constants;
             const paragraph = await documentModule.getParagraph(this.spaceId, this.documentId, this.paragraphId);
-            await utilModule.constants.COMMANDS_CONFIG.COMMANDS.find(command => command.NAME === "speech").VALIDATE(this.spaceId, paragraph, this.securityContext);
+            await constants.COMMANDS_CONFIG.COMMANDS.find(command => command.NAME === "speech").VALIDATE(this.spaceId, paragraph, this.securityContext);
 
             const paragraphCommands = await documentModule.getParagraphCommands(this.spaceId, this.documentId, this.paragraphId);
             const personalityData = await personalityModule.getPersonalityByName(this.spaceId, paragraphCommands.speech.personality);
