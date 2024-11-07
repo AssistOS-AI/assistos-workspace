@@ -6,6 +6,7 @@ const documentModule = require("assistos").loadModule("document", {});
 const spaceModule = require("assistos").loadModule("space", {});
 const blackScreen = "./wallet/assets/images/black-screen.png";
 const constants = require("assistos").constants;
+import {crypto} from "../../../../imports.js";
 export class ParagraphItem {
     constructor(element, invalidate) {
         this.element = element;
@@ -58,13 +59,14 @@ export class ParagraphItem {
             this.paragraph.commands.video.end = this.paragraph.commands.video.duration;
             await documentModule.updateParagraphCommands(assistOS.space.id, this._document.id, this.paragraph.id, this.paragraph.commands);
         }
-        let selected = this.documentPresenter.selectedParagraphs.filter(paragraph => paragraph.paragraphId === this.paragraph.id);
-        for(let paragraph of selected){
-            await this.setUserIcon(paragraph.userId, paragraph.imageId);
-        }
-        let shouldLockText = selected.some(paragraph => paragraph.lockText);
-        if(shouldLockText){
-            this.lockText();
+        let selected = this.documentPresenter.selectedParagraphs[this.paragraph.id];
+        if(selected){
+            for(let selection of selected.users){
+                await this.setUserIcon(selection.userId, selection.imageId);
+            }
+            if(selected.lockOwner){
+                this.lockText();
+            }
         }
     }
 
@@ -918,8 +920,8 @@ export class ParagraphItem {
         }
     }
 
-    async setUserIcon(imageId, sessionId){
-        let userIconElement = this.element.querySelector(`.user-icon[data-id="${sessionId}"]`);
+    async setUserIcon(imageId, selectId){
+        let userIconElement = this.element.querySelector(`.user-icon[data-id="${selectId}"]`);
         if(userIconElement){
             return;
         }
@@ -929,42 +931,61 @@ export class ParagraphItem {
         } else {
             imageSrc = "./wallet/assets/images/defaultUserPhoto.png";
         }
-        let userIcon = `<img loading="lazy" src="${imageSrc}" class="user-icon" alt="user-icon" data-id="${sessionId}">`;
+        let userIcon = `<img loading="lazy" src="${imageSrc}" class="user-icon" alt="user-icon" data-id="${selectId}">`;
         let paragraphItem = this.element.querySelector(".paragraph-item");
         paragraphItem.insertAdjacentHTML('beforeend', userIcon);
     }
-    removeUserIcon(sessionId){
-        let userIcon = this.element.querySelector(`.user-icon[data-id="${sessionId}"]`);
+    removeUserIcon(selectId){
+        let userIcon = this.element.querySelector(`.user-icon[data-id="${selectId}"]`);
         if(userIcon){
             userIcon.remove();
         }
     }
-    async deselectParagraph(){
-        await documentModule.deselectParagraph(assistOS.space.id, this._document.id, this.paragraph.id);
-        clearInterval(this.selectionInterval);
-        delete this.selectionInterval;
+    generateId(length) {
+        let random = crypto.getRandomSecret(length);
+        let randomStringId = "";
+        while (randomStringId.length < length) {
+            randomStringId = crypto.encodeBase58(random).slice(0, length);
+        }
+        return randomStringId;
     }
-    async selectParagraph(lockText){
+    async deselectParagraph(){
         if(this.selectionInterval){
             clearInterval(this.selectionInterval);
             delete this.selectionInterval;
         }
-        await documentModule.selectParagraph(assistOS.space.id, this._document.id, this.paragraph.id, {lockText: lockText});
+        await documentModule.deselectParagraph(assistOS.space.id, this._document.id, this.paragraph.id, this.selectId);
+    }
+    async selectParagraph(lockText){
+        this.selectId = this.generateId(8);
+        if(this.selectionInterval){
+            clearInterval(this.selectionInterval);
+            delete this.selectionInterval;
+        }
+        await documentModule.selectParagraph(assistOS.space.id, this._document.id, this.paragraph.id, {
+            lockText: lockText,
+            selectId: this.selectId
+        });
         this.selectionInterval = setInterval(async () => {
             let paragraphText = this.element.querySelector(".paragraph-text");
             lockText = !paragraphText.hasAttribute("readonly");
-            await documentModule.selectParagraph(assistOS.space.id, this._document.id, this.paragraph.id, {lockText: lockText});
+            await documentModule.selectParagraph(assistOS.space.id, this._document.id, this.paragraph.id, {
+                lockText: lockText,
+                selectId: this.selectId
+            });
         }, 1000 * 10);
     }
     async handleUserSelection(data){
         if(data.selected){
-            await this.setUserIcon(data.imageId, data.sessionId);
-            if(data.lockText){
+            await this.setUserIcon(data.imageId, data.selectId);
+            if(data.lockOwner &&  data.lockOwner !== this.selectId){
                 return this.lockText();
             }
         } else {
-            this.removeUserIcon(data.sessionId);
-            this.unlockText();
+            this.removeUserIcon(data.selectId);
+            if(!data.lockOwner){
+                this.unlockText();
+            }
         }
     }
 
@@ -977,10 +998,5 @@ export class ParagraphItem {
         let paragraphText = this.element.querySelector(".paragraph-text");
         paragraphText.removeAttribute("readonly");
         paragraphText.classList.remove("locked-text");
-    }
-    async afterUnload(){
-        if (assistOS.space.currentParagraphId === this.paragraph.id) {
-            await this.deselectParagraph();
-        }
     }
 }
