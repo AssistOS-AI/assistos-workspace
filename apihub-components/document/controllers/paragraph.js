@@ -217,7 +217,6 @@ function deselectParagraph(req, res) {
     try {
         let paragraphId = req.params.paragraphId;
         let documentId = req.params.documentId;
-        let userId = req.userId;
         let selectId = req.params.selectId;
         let spaceId = req.params.spaceId;
         let paragraphSelectionId = getParagraphSelectId(spaceId, documentId, paragraphId);

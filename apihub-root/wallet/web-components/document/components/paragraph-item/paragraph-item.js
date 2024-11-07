@@ -1016,6 +1016,9 @@ export class ParagraphItem {
         }, 1000 * 10);
     }
     async handleUserSelection(data){
+        if(typeof data === "string"){
+            return ;
+        }
         if(data.selected){
             await this.setUserIcon(data.imageId, data.selectId);
             if(data.lockOwner &&  data.lockOwner !== this.selectId){
