@@ -7,7 +7,7 @@ const documentModule = require("assistos").loadModule("document", {});
 const spaceModule = require("assistos").loadModule("space", {});
 const blackScreen = "./wallet/assets/images/black-screen.png";
 const constants = require("assistos").constants;
-import {crypto} from "../../../../imports.js";
+import {generateId} from "../../../../imports.js";
 export class ParagraphItem {
     constructor(element, invalidate) {
         this.element = element;
@@ -981,14 +981,7 @@ export class ParagraphItem {
             userIcon.remove();
         }
     }
-    generateId(length) {
-        let random = crypto.getRandomSecret(length);
-        let randomStringId = "";
-        while (randomStringId.length < length) {
-            randomStringId = crypto.encodeBase58(random).slice(0, length);
-        }
-        return randomStringId;
-    }
+
     async deselectParagraph(){
         if(this.selectionInterval){
             clearInterval(this.selectionInterval);
@@ -997,7 +990,7 @@ export class ParagraphItem {
         await documentModule.deselectParagraph(assistOS.space.id, this._document.id, this.paragraph.id, this.selectId);
     }
     async selectParagraph(lockText){
-        this.selectId = this.generateId(8);
+        this.selectId = generateId(8);
         if(this.selectionInterval){
             clearInterval(this.selectionInterval);
             delete this.selectionInterval;

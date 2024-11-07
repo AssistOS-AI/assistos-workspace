@@ -1,3 +1,4 @@
+const crypto = require("opendsu").loadAPI("crypto");
 export function getDemoUserCredentials() {
     try {
         const demoUserCredentials = JSON.parse(getCookieValue("demoCredentials"));
@@ -97,4 +98,12 @@ export function unescapeHtmlEntities(value) {
     const tempElement = document.createElement('textarea');
     tempElement.innerHTML = value;
     return tempElement.value;
+}
+export function generateId(length) {
+    let random = crypto.getRandomSecret(length);
+    let randomStringId = "";
+    while (randomStringId.length < length) {
+        randomStringId = crypto.encodeBase58(random).slice(0, length);
+    }
+    return randomStringId;
 }
