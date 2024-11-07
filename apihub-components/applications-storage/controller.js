@@ -118,6 +118,7 @@ async function runApplicationTask(request, response) {
 async function runApplicationFlow(request, response) {
     const {spaceId, applicationId, flowId} = request.params;
     try {
+        request.setTimeout(0);
         const flowData = request.body;
         const data = await ApplicationHandler.runApplicationFlow(request, spaceId, applicationId, flowId, flowData);
         const sessionId = request.sessionId;
