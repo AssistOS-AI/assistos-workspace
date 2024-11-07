@@ -5,13 +5,14 @@ import {
     insertTextAtCursor,
     base64ToBlob,
     executorTimer,
-    unescapeHtmlEntities
+    unescapeHtmlEntities,
+    generateId
 } from "./utils/utils.js";
 import {validateOpenAiKey} from "./utils/OpenAiUtils/validateAPIKey.js";
 import WebSkel from "../WebSkel/webSkel.js";
 import {changeSelectedPageFromSidebar} from "../AssistOS.js";
 import NotificationRouter from "./core/NotificationRouter.js";
-const crypto = require("opendsu").loadAPI("crypto");
+
 export {
     getDemoUserCredentials,
     insertTextAtCursor,
@@ -22,5 +23,5 @@ export {
     changeSelectedPageFromSidebar,
     WebSkel,
     NotificationRouter,
-    crypto
+    generateId
 };
