@@ -7,19 +7,16 @@ async function getParagraph(req, res) {
     if (!spaceId || !documentId || !paragraphId) {
         return utils.sendResponse(res, 400, "application/json", {
             missing: "Invalid request" + `Missing ${spaceId ? 'spaceId ' : ''}${documentId ? 'documentId ' : ''}${paragraphId ? 'paragraphId ' : ''}`,
-            success: false
         });
     }
     try {
         const paragraph = await paragraphService.getParagraph(spaceId, documentId, paragraphId,req.query);
         return utils.sendResponse(res, 200, "application/json", {
-            success: true,
             data: paragraph
         });
     } catch (error) {
         return utils.sendResponse(res, error.statusCode || 500, "application/json", {
             message: "Failed to get paragraph" + error.message,
-            success: false
         });
     }
 }
@@ -30,7 +27,6 @@ async function createParagraph(req, res) {
     if (!spaceId || !documentId || !chapterId || !paragraphData) {
         return utils.sendResponse(res, 400, "application/json", {
             message: "Invalid request" + `Missing ${spaceId ? 'spaceId ' : ''}${documentId ? 'documentId ' : ''}${chapterId ? 'chapterId ' : ''}${paragraphData ? 'request body' : ''}`,
-            success: false
         });
     }
     try {
@@ -43,13 +39,11 @@ async function createParagraph(req, res) {
         }
         SubscriptionManager.notifyClients(req.sessionId, objectId, eventData);
         return utils.sendResponse(res, 200, "application/json", {
-            success: true,
             data: id
         });
     } catch (error) {
         return utils.sendResponse(res, error.statusCode || 500, "application/json", {
             message: "Failed to create paragraph" + error.message,
-            success: false
         });
     }
 }
@@ -60,7 +54,6 @@ async function updateParagraph(req, res) {
     if (!spaceId || !documentId || !paragraphId || !paragraphData) {
         return utils.sendResponse(res, 400, "application/json", {
             message: "Invalid request" + `Missing ${spaceId ? 'spaceId ' : ''}${documentId ? 'documentId ' : ''}${paragraphId ? 'paragraphId ' : ''}${paragraphData ? 'request body' : ''}`,
-            success: false
         });
     }
     try {
@@ -68,13 +61,11 @@ async function updateParagraph(req, res) {
         let objectId = SubscriptionManager.getObjectId(documentId, paragraphId);
         SubscriptionManager.notifyClients(req.sessionId, objectId, req.query.fields);
         return utils.sendResponse(res, 200, "application/json", {
-            success: true,
             message: "Paragraph updated successfully"
         });
     } catch (error) {
         return utils.sendResponse(res, error.statusCode || 500, "application/json", {
             message: "Failed to update paragraph" + error.message,
-            success: false
         });
     }
 }
@@ -84,7 +75,6 @@ async function deleteParagraph(req, res) {
     if (!spaceId || !documentId || !chapterId || !paragraphId) {
         return utils.sendResponse(res, 400, "application/json", {
             message: "Invalid request" + `Missing ${spaceId ? 'spaceId ' : ''}${documentId ? 'documentId ' : ''}${chapterId ? 'chapterId ' : ''}${paragraphId ? 'paragraphId ' : ''}`,
-            success: false
         });
     }
     try {
@@ -97,13 +87,11 @@ async function deleteParagraph(req, res) {
         SubscriptionManager.notifyClients(req.sessionId, objectId, eventData);
         SubscriptionManager.notifyClients(req.sessionId, documentId,"/tasks");
         return utils.sendResponse(res, 200, "application/json", {
-            success: true,
             message: "Paragraph deleted successfully"
         });
     } catch (error) {
         return utils.sendResponse(res, error.statusCode || 500, "application/json", {
             message: "Failed to delete paragraph" + error.message,
-            success: false
         });
     }
 }
@@ -112,7 +100,6 @@ async function swapParagraphs(req, res) {
     if (!spaceId || !documentId || !chapterId || !paragraphId1 || !paragraphId2) {
         return utils.sendResponse(res, 400, "application/json", {
             message: "Invalid request" + `Missing ${spaceId ? 'spaceId ' : ''}${documentId ? 'documentId ' : ''}${chapterId ? 'chapterId ' : ''}${paragraphId1 ? 'paragraphId1 ' : ''}${paragraphId2 ? 'paragraphId2 ' : ''}`,
-            success: false
         });
     }
     let direction = req.body.direction;
@@ -127,75 +114,120 @@ async function swapParagraphs(req, res) {
         }
         SubscriptionManager.notifyClients(req.sessionId, objectId, eventData);
         return utils.sendResponse(res, 200, "application/json", {
-            success: true,
             message: "Paragraphs swapped successfully"
         });
     } catch (error) {
         return utils.sendResponse(res, error.statusCode || 500, "application/json", {
             message: "Failed to swap paragraphs" + error.message,
-            success: false
         });
     }
 }
 
-let selectedParagraphs = new Map();
+let selectedParagraphs = {};
 function getSelectedParagraphs(req, res) {
     try {
         let spaceId = req.params.spaceId;
         let documentId = req.params.documentId;
-        let otherUsersSelected = [];
+        let otherUsersSelected = {};
         let userId = req.userId;
-        for (let [key, value] of selectedParagraphs) {
-            if(value.spaceId === spaceId && value.documentId === documentId){
-                if(value.userId === userId){
+        for (let [key, value] of Object.entries(selectedParagraphs)) {
+            if(key.startsWith(`${spaceId}/${documentId}`)){
+                if(value.users.find((selection) => selection.userId === userId)){
                     continue;
                 }
-                otherUsersSelected.push({...value});
+                let paragraphId = key.split("/")[2];
+                otherUsersSelected[paragraphId] = {
+                    lockOwner: value.lockOwner,
+                    users: JSON.parse(JSON.stringify(value.users))
+                };
             }
         }
-        otherUsersSelected = otherUsersSelected.map((selection) => {
-            delete selection.timeoutId;
-            return selection;
-        });
+        if(otherUsersSelected !== {}){
+            for(let paragraphId in otherUsersSelected) {
+                otherUsersSelected[paragraphId].users = otherUsersSelected[paragraphId].users.map((selection) => {
+                    delete selection.timeoutId;
+                    return selection;
+                });
+            }
+        }
+
         return utils.sendResponse(res, 200, "application/json", {
-            success: true,
             data: otherUsersSelected
         });
     } catch (e) {
         return utils.sendResponse(res, 500, "application/json", {
-            success: false,
             message: e.message
         });
     }
 }
-function setNewSelection(sessionId, spaceId, documentId, paragraphId, userId, userImageId, lockText){
-    let timeoutId = setTimeout(() => {
-        selectedParagraphs.delete(sessionId);
-        let objectId = SubscriptionManager.getObjectId(documentId, paragraphId);
-        let eventData = {
-            selected: false,
-            sessionId: sessionId
-        }
-        SubscriptionManager.notifyClients(sessionId, objectId, eventData);
+function getParagraphSelectId(spaceId, documentId, paragraphId){
+    return `${spaceId}/${documentId}/${paragraphId}`;
+}
+function setNewSelection(sessionId, selectId, spaceId, documentId, paragraphId, userId, userImageId, lockText) {
+    const paragraphSelectId = getParagraphSelectId(spaceId, documentId, paragraphId);
+    const timeoutId = setTimeout(() => {
+        deleteSelection(paragraphSelectId, selectId, sessionId, documentId, paragraphId);
     }, 1000 * 10);
 
-    selectedParagraphs.set(sessionId, {
-        timeoutId: timeoutId,
-        spaceId: spaceId,
-        documentId: documentId,
-        paragraphId: paragraphId,
-        userId: userId,
-        userImageId: userImageId,
-        lockText: lockText
-    });
-}
-function isParagraphLocked(spaceId, documentId, paragraphId){
-    for (let [key, value] of selectedParagraphs) {
-        if(value.paragraphId === paragraphId && value.lockText && value.spaceId === spaceId && value.documentId === documentId){
-            return true;
+    let paragraph = selectedParagraphs[paragraphSelectId];
+    let lockOwner;
+
+    if (!paragraph) {
+        // If paragraph doesn't exist, create a new entry with the initial user
+        lockOwner = lockText ? selectId : undefined;
+        selectedParagraphs[paragraphSelectId] = {
+            lockOwner,
+            users: [{
+                selectId,
+                timeoutId,
+                userId,
+                userImageId
+            }]
+        };
+    } else {
+        // If paragraph exists, check if user selection already exists
+        const existingSelection = paragraph.users.find(selection => selection.selectId === selectId);
+
+        if (existingSelection) {
+            // Update existing user's timeout
+            clearTimeout(existingSelection.timeoutId);
+            existingSelection.timeoutId = timeoutId;
+        } else {
+            // Add new user to paragraph's user list
+            paragraph.users.push({
+                selectId,
+                timeoutId,
+                userId,
+                userImageId
+            });
+        }
+
+        // Determine lock owner
+        if (!paragraph.lockOwner && lockText) {
+            lockOwner = selectId;
+            paragraph.lockOwner = lockOwner;
+        } else {
+            lockOwner = paragraph.lockOwner;
         }
     }
-    return false;
+
+    return lockOwner;
+}
+function deselectParagraph(req, res) {
+    try {
+        let paragraphId = req.params.paragraphId;
+        let documentId = req.params.documentId;
+        let selectId = req.params.selectId;
+        let spaceId = req.params.spaceId;
+        let paragraphSelectionId = getParagraphSelectId(spaceId, documentId, paragraphId);
+        deleteSelection(paragraphSelectionId, selectId, req.sessionId, documentId, paragraphId);
+        return utils.sendResponse(res, 200, "application/json", {
+        });
+    } catch (e) {
+        return utils.sendResponse(res, 500, "application/json", {
+            message: e.message
+        });
+    }
 }
 function selectParagraph(req, res) {
     try {
@@ -203,66 +235,54 @@ function selectParagraph(req, res) {
         let documentId = req.params.documentId;
         let userId = req.userId;
         let lockText = req.body.lockText;
-        let sessionId = req.sessionId;
+        let selectId = req.body.selectId;
         let spaceId = req.params.spaceId;
-        if(lockText){
-            if(isParagraphLocked(spaceId, documentId, paragraphId)){
-                lockText = false;
-            }
-        }
-        if(selectedParagraphs.has(sessionId)){
-            let selection = selectedParagraphs.get(sessionId);
-            clearTimeout(selection.timeoutId);
-        }
-        setNewSelection(sessionId, spaceId, documentId, paragraphId, userId, "", lockText);
+
+        let lockOwner = setNewSelection(req.sessionId, selectId, spaceId, documentId, paragraphId, userId, "", lockText);
         let objectId = SubscriptionManager.getObjectId(documentId, paragraphId);
+
         let eventData = {
             selected: true,
             userId: userId,
-            sessionId: sessionId,
+            selectId: selectId,
             userImageId: "",
-            lockText: lockText
+            lockOwner: lockOwner
         }
         SubscriptionManager.notifyClients(req.sessionId, objectId, eventData);
-        return utils.sendResponse(res, 200, "application/json", {
-            success: true
-        });
+        return utils.sendResponse(res, 200, "application/json", {});
     } catch (e) {
         return utils.sendResponse(res, 500, "application/json", {
-            success: false,
             message: e.message
         });
     }
 
 }
-function deselectParagraph(req, res) {
-    try {
-        let paragraphId = req.params.paragraphId;
-        let documentId = req.params.documentId;
-        let sessionId = req.sessionId;
-
-        let selection = selectedParagraphs.get(sessionId);
-        if(selection){
-            clearTimeout(selection.timeoutId);
-            selectedParagraphs.delete(sessionId);
-        }
-
-        let objectId = SubscriptionManager.getObjectId(documentId, paragraphId);
-        let eventData = {
-            selected: false,
-            sessionId: sessionId
-        }
-        SubscriptionManager.notifyClients(req.sessionId, objectId, eventData);
-        return utils.sendResponse(res, 200, "application/json", {
-            success: true
-        });
-    } catch (e) {
-        return utils.sendResponse(res, 500, "application/json", {
-            success: false,
-            message: e.message
-        });
+function deleteSelection(paragraphSelectId, selectId, sessionId, documentId, paragraphId){
+    let paragraph = selectedParagraphs[paragraphSelectId];
+    if(!paragraph){
+        return;
+    }
+    let userSelection = paragraph.users.find((selection) => selection.selectId === selectId);
+    if(!userSelection){
+        return;
+    }
+    let index = paragraph.users.indexOf(userSelection);
+    paragraph.users.splice(index, 1);
+    let objectId = SubscriptionManager.getObjectId(documentId, paragraphId);
+    if(userSelection.selectId === paragraph.lockOwner){
+        paragraph.lockOwner = undefined;
+    }
+    let eventData = {
+        selected: false,
+        selectId: selectId,
+        lockOwner: paragraph.lockOwner
+    }
+    SubscriptionManager.notifyClients(sessionId, objectId, eventData);
+    if(paragraph.users.length === 0){
+        delete selectedParagraphs[paragraphSelectId];
     }
 }
+
 module.exports = {
     getParagraph,
     createParagraph,
@@ -270,6 +290,6 @@ module.exports = {
     deleteParagraph,
     swapParagraphs,
     selectParagraph,
-    deselectParagraph,
-    getSelectedParagraphs
+    getSelectedParagraphs,
+    deselectParagraph
 }

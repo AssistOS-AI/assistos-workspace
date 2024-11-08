@@ -16,7 +16,6 @@ async function authorization(req, res, next){
         const error = new Error('Authorization failed. User is not authorized to access this space.');
         error.statusCode = 403;
         utils.sendResponse(res, 403, "application/json", {
-            success: false,
             message: "User is not authorized to access this space."
         })
         next(error);

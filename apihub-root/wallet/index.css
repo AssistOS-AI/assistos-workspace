@@ -11,6 +11,7 @@
     --dark-text: #444444;
     --darker-text: #1D1D1D;
     --red: red;
+    --light-red: #CF9A9A;
     --chat-background: #F3F3F3;
     --light-highlight: #E4E6F0;
     --commands-background: #C1D8EC;
@@ -37,7 +38,11 @@
     --light-brown: #372B2B;
     --lighter-brown: #6B574E;
     --spinner-l-r-b: #00aeef26;
+    --green: green;
+    --light-green: #9ACFBD;
+    --medium-green: #097C55;
     --spinner-t: #00aeefcc;
+    --blue: blue;
     --light-blue: #E1ECF4;
     --medium-blue: #0C5C9E;
     --chatbots-history-blue: #98BFE0;

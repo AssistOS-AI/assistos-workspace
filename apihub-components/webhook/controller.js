@@ -51,7 +51,6 @@ async function dataHandler(request, response) {
         const ref = extractRefFromRequest(request);
         if (!ref) {
             return utils.sendResponse(response, 401, "application/json", {
-                success: false,
                 message: "Unauthorized request"
             });
         }
@@ -62,20 +61,12 @@ async function dataHandler(request, response) {
             if (requestStatus === "DONE" || requestStatus === "COMPLETED") {
                 await saveResult(ref, request.body);
             }
-            return utils.sendResponse(response, 200, "application/json", {
-                success: true
-            });
+            return utils.sendResponse(response, 200, "application/json", {});
         } else {
-            return utils.sendResponse(response, 401, "application/json", {
-                success: false,
-                message: "Unauthorized request"
-            });
+            return utils.sendResponse(response, 401, "application/json", "Unauthorized request");
         }
     } catch (error) {
-        utils.sendResponse(response, error.statusCode || 500, "application/json", {
-            success: false,
-            message: "Internal server error"
-        });
+        utils.sendResponse(response, error.statusCode || 500, "text/plain", "Internal server error");
     }
 }
 

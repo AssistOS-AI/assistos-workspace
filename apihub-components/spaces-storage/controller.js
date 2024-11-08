@@ -36,13 +36,11 @@ async function getFileObjectsMetadata(request, response) {
         let filePath = getFileObjectsMetadataPath(spaceId, objectType);
         let metadata = JSON.parse(await fsPromises.readFile(filePath, {encoding: 'utf8'}));
         return utils.sendResponse(response, 200, "application/json", {
-            success: true,
             data: metadata,
             message: `Objects metadata of type ${objectType} loaded successfully`
         });
     } catch (error) {
         return utils.sendResponse(response, 500, "application/json", {
-            success: false,
             message: error + ` Error at getting objects metadata of type: ${objectType}`
         });
     }
@@ -60,13 +58,11 @@ async function getFileObject(request, response) {
         let filePath = getFileObjectPath(spaceId, objectType, objectId);
         let data = await fsPromises.readFile(filePath, {encoding: 'utf8'});
         return utils.sendResponse(response, 200, "application/json", {
-            success: true,
             data: JSON.parse(data),
             message: `Object with id: ${objectId} loaded successfully`
         });
     } catch (error) {
         return utils.sendResponse(response, 500, "application/json", {
-            success: false,
             message: error + ` Error at getting object with id: ${objectId}`
         });
     }
@@ -85,13 +81,11 @@ async function getFileObjects(request, response) {
             objects.push(object);
         }
         return utils.sendResponse(response, 200, "application/json", {
-            success: true,
             data: objects,
             message: `Objects of type ${objectType} loaded successfully`
         });
     } catch (error) {
         return utils.sendResponse(response, 500, "application/json", {
-            success: false,
             message: error + ` Error at getting objects of type: ${objectType}`
         });
     }
@@ -120,13 +114,11 @@ async function addFileObject(request, response) {
         subscriptionManager.notifyClients(request.sessionId, subscriptionManager.getObjectId(spaceId, objectId));
 
         return utils.sendResponse(response, 200, "application/json", {
-            success: true,
             data: objectId,
             message: `Object ${objectType} added successfully`
         });
     } catch (error) {
         return utils.sendResponse(response, 500, "application/json", {
-            success: false,
             message: error + ` Error at adding object: ${objectType}`
         });
     }
@@ -149,7 +141,6 @@ async function updateFileObject(request, response) {
             await fsPromises.writeFile(metadataPath, JSON.stringify(metadata), 'utf8');
         } else {
             return utils.sendResponse(response, 500, "application/json", {
-                success: false,
                 message: `Error at updating object: ${objectId}: metadata not found`
             });
         }
@@ -157,13 +148,11 @@ async function updateFileObject(request, response) {
         subscriptionManager.notifyClients(request.sessionId, subscriptionManager.getObjectId(spaceId, objectType));
         subscriptionManager.notifyClients(request.sessionId, subscriptionManager.getObjectId(spaceId, objectId));
         return utils.sendResponse(response, 200, "application/json", {
-            success: true,
             data: objectId,
             message: `Object ${objectId} updated successfully`
         });
     } catch (error) {
         return utils.sendResponse(response, 500, "application/json", {
-            success: false,
             message: error + ` Error at updating object: ${objectId}`
         });
     }
@@ -186,13 +175,11 @@ async function deleteFileObject(request, response) {
         subscriptionManager.notifyClients(request.sessionId, subscriptionManager.getObjectId(spaceId, objectId), "delete");
         await fsPromises.unlink(filePath);
         return utils.sendResponse(response, 200, "application/json", {
-            success: true,
             data: objectId,
             message: `Object ${objectId} deleted successfully`
         });
     } catch (error) {
         return utils.sendResponse(response, 500, "application/json", {
-            success: false,
             message: error + ` Error at deleting object: ${objectId}`
         });
     }
@@ -204,13 +191,11 @@ async function getContainerObjectsMetadata(request, response) {
     try {
         const metadata = await lightDB.getContainerObjectsMetadata(spaceId, objectType);
         return utils.sendResponse(response, 200, "application/json", {
-            success: true,
             data: metadata,
             message: `Objects metadata of type ${objectType} loaded successfully`
         });
     } catch (error) {
         return utils.sendResponse(response, 500, "application/json", {
-            success: false,
             message: error + ` Error at getting objects metadata of type: ${objectType}`
         });
     }
@@ -222,13 +207,11 @@ async function getContainerObject(request, response) {
     try {
         let object = await lightDB.getContainerObject(spaceId, objectId);
         return utils.sendResponse(response, 200, "application/json", {
-            success: true,
             data: object,
             message: `Object with id: ${objectId} loaded successfully`
         });
     } catch (error) {
         return utils.sendResponse(response, 500, "application/json", {
-            success: false,
             message: error + ` Error at getting object with id: ${objectId}`
         });
     }
@@ -242,13 +225,11 @@ async function addContainerObject(request, response) {
         let objectId = await lightDB.addContainerObject(spaceId, objectType, objectData);
         subscriptionManager.notifyClients(request.sessionId, subscriptionManager.getObjectId(spaceId, objectType));
         return utils.sendResponse(response, 200, "application/json", {
-            success: true,
             data: objectId,
             message: `Object ${objectType} added successfully`
         });
     } catch (error) {
         return utils.sendResponse(response, 500, "application/json", {
-            success: false,
             message: error + ` Error at adding object: ${objectType}`
         });
     }
@@ -263,13 +244,11 @@ async function updateContainerObject(request, response) {
         subscriptionManager.notifyClients(request.sessionId, subscriptionManager.getObjectId(spaceId, objectType));
         subscriptionManager.notifyClients(request.sessionId, subscriptionManager.getObjectId(spaceId, objectId));
         return utils.sendResponse(response, 200, "application/json", {
-            success: true,
             data: objectId,
             message: `Object ${objectId} updated successfully`
         });
     } catch (e) {
         return utils.sendResponse(response, 500, "application/json", {
-            success: false,
             message: e + ` Error at updating object: ${objectId}`
         });
     }
@@ -283,13 +262,11 @@ async function deleteContainerObject(request, response) {
         subscriptionManager.notifyClients(request.sessionId, subscriptionManager.getObjectId(spaceId, objectId), "delete");
         subscriptionManager.notifyClients(request.sessionId, subscriptionManager.getObjectId(spaceId, objectId.split('_')[0]));
         return utils.sendResponse(response, 200, "application/json", {
-            success: true,
             data: objectId,
             message: `Object ${objectId} deleted successfully`
         });
     } catch (error) {
         return utils.sendResponse(response, 500, "application/json", {
-            success: false,
             message: error + ` Error at deleting object: ${objectId}`
         });
     }
@@ -302,13 +279,11 @@ async function getEmbeddedObject(request, response) {
     try {
         let embeddedObject = await lightDB.getEmbeddedObject(spaceId, objectType, objectURI);
         return utils.sendResponse(response, 200, "application/json", {
-            success: true,
             data: embeddedObject,
             message: `Object ${objectType} loaded successfully`
         });
     } catch (error) {
         return utils.sendResponse(response, 500, "application/json", {
-            success: false,
             message: error + ` Error at loading object: ${objectType}: ${objectURI}`
         });
     }
@@ -323,13 +298,11 @@ async function addEmbeddedObject(request, response) {
         let objectId = await lightDB.addEmbeddedObject(spaceId, objectURI, objectData);
         subscriptionManager.notifyClients(request.sessionId, subscriptionManager.getObjectId(spaceId, parts[parts.length - 2]));
         return utils.sendResponse(response, 200, "application/json", {
-            success: true,
             data: objectId,
             message: `Object ${objectId} added successfully`
         });
     } catch (error) {
         return utils.sendResponse(response, 500, "application/json", {
-            success: false,
             message: error + ` Error at adding object: ${objectURI}`
         });
     }
@@ -342,13 +315,11 @@ async function updateEmbeddedObject(request, response) {
     try {
         let objectId = await lightDB.updateEmbeddedObject(spaceId, objectURI, objectData);
         return utils.sendResponse(response, 200, "application/json", {
-            success: true,
             data: objectId,
             message: `Object ${objectId} updated successfully`
         })
     } catch (e) {
         return utils.sendResponse(response, 500, "application/json", {
-            success: false,
             message: e + ` Error at updating object: ${objectURI}`
         });
     }
@@ -362,13 +333,11 @@ async function deleteEmbeddedObject(request, response) {
         await lightDB.deleteEmbeddedObject(spaceId, objectURI);
         subscriptionManager.notifyClients(request.sessionId, subscriptionManager.getObjectId(spaceId, parts[parts.length - 2]));
         return utils.sendResponse(response, 200, "application/json", {
-            success: true,
             data: objectURI,
             message: `Object ${objectURI} deleted successfully`
         });
     } catch (error) {
         return utils.sendResponse(response, 500, "application/json", {
-            success: false,
             message: error + ` Error at deleting object: ${objectURI}`
         });
     }
@@ -382,13 +351,11 @@ async function swapEmbeddedObjects(request, response) {
         let objectId = await lightDBEnclaveClient.swapEmbeddedObjects(spaceId, objectURI, request.body);
         subscriptionManager.notifyClients(request.sessionId, subscriptionManager.getObjectId(spaceId, objectId));
         return utils.sendResponse(response, 200, "application/json", {
-            success: true,
             data: objectURI,
             message: `Objects from ${objectURI} swapped successfully`
         });
     } catch (error) {
         return utils.sendResponse(response, 500, "application/json", {
-            success: false,
             message: error + ` Error at swapping objects: ${objectURI}`
         });
     }
@@ -401,14 +368,12 @@ async function addSpaceChatMessage(request, response) {
     try {
         const messageId = await space.APIs.addSpaceChatMessage(spaceId, userId, "user", messageData);
         utils.sendResponse(response, 200, "application/json", {
-            success: true,
             message: `Message added successfully`,
             data: {messageId: messageId}
         });
         subscriptionManager.notifyClients(request.sessionId, subscriptionManager.getObjectId(spaceId, `chat_${spaceId}`));
     } catch (error) {
         utils.sendResponse(response, 500, "application/json", {
-            success: false,
             message: error
         });
     }
@@ -419,13 +384,11 @@ async function getSpaceChat(request, response) {
     try {
         const chat = await space.APIs.getSpaceChat(spaceId);
         utils.sendResponse(response, 200, "application/json", {
-            success: true,
             message: `Chat loaded successfully`,
             data: chat
         });
     } catch (error) {
         utils.sendResponse(response, 500, "application/json", {
-            success: false,
             message: error
         });
     }
@@ -449,13 +412,11 @@ async function getSpace(request, response) {
         spaceObject.chat = await space.APIs.getSpaceChat(spaceId);
         await user.updateUsersCurrentSpace(userId, spaceId);
         utils.sendResponse(response, 200, "application/json", {
-            success: true,
             data: spaceObject,
             message: `Space ${spaceId} loaded successfully`
         }, cookie.createCurrentSpaceCookie(spaceId));
     } catch (error) {
         utils.sendResponse(response, 500, "application/json", {
-            success: false,
             message: error.message
         });
     }
@@ -467,7 +428,6 @@ async function createSpace(request, response) {
     if (!spaceName) {
         utils.sendResponse(response, 400, "application/json", {
             message: "Bad Request: Space Name is required",
-            success: false
         });
         return;
     }
@@ -479,26 +439,22 @@ async function createSpace(request, response) {
         utils.sendResponse(response, 201, "application/json", {
             message: `Space created successfully: ${newSpace.id}`,
             data: newSpace,
-            success: true
         }, cookie.createCurrentSpaceCookie(newSpace.id));
     } catch (error) {
         switch (error.statusCode) {
             case 409:
                 utils.sendResponse(response, 409, "application/json", {
                     message: "Conflict: Space already exists",
-                    success: false
                 });
                 return;
             case 401:
                 utils.sendResponse(response, 401, "application/json", {
                     message: "Unauthorized: Invalid API Key",
-                    success: false
                 });
                 return;
         }
         utils.sendResponse(response, 500, "application/json", {
             message: `Internal Server Error: ${error.message}`,
-            success: false
         });
     }
 }
@@ -512,7 +468,6 @@ async function addCollaboratorsToSpace(request, response) {
     if (!collaboratorsEmails) {
         utils.sendResponse(response, 400, "application/json", {
             message: "Bad Request: Collaborator Emails is required",
-            success: false
         });
     }
 
@@ -520,7 +475,6 @@ async function addCollaboratorsToSpace(request, response) {
         let collaborators = await user.inviteSpaceCollaborators(userId, spaceId, collaboratorsEmails);
         utils.sendResponse(response, 200, "application/json", {
             message: `Collaborators invited successfully`,
-            success: true,
             data: collaborators
         });
     } catch (error) {
@@ -528,19 +482,16 @@ async function addCollaboratorsToSpace(request, response) {
             case 404:
                 utils.sendResponse(response, 404, "application/json", {
                     message: "Not Found: Space not found",
-                    success: false
                 });
                 return;
             case 409:
                 utils.sendResponse(response, 409, "application/json", {
                     message: "Conflict: Collaborators already exists",
-                    success: false
                 });
                 return;
         }
         utils.sendResponse(response, 500, "application/json", {
             message: `Internal Server Error: ${error}`,
-            success: false
         });
     }
 
@@ -560,13 +511,11 @@ async function getAgent(request, response) {
         const agent = await space.APIs.getSpaceAgent(spaceId, agentId)
         utils.sendResponse(response, 200, "application/json", {
             message: "Success retrieving Agent",
-            success: true,
             data: agent
         })
     } catch (error) {
         utils.sendResponse(response, error.statusCode, "application/json", {
             message: "Error retrieving Agent",
-            success: false,
             data: error.message
         })
     }
@@ -577,13 +526,11 @@ async function editAPIKey(request, response) {
     if (!spaceId) {
         return utils.sendResponse(response, 400, "application/json", {
             message: "Bad Request: Space ID or a valid currentSpaceId cookie is required",
-            success: false
         });
     }
     if (!request.body.type || !request.body.APIKey) {
         return utils.sendResponse(response, 400, "application/json", {
             message: "Bad Request: Key Type and API Key are required in the request body",
-            success: false
         });
     }
     const userId = request.userId;
@@ -591,32 +538,27 @@ async function editAPIKey(request, response) {
         await space.APIs.editAPIKey(spaceId, userId, request.body);
         utils.sendResponse(response, 200, "application/json", {
             message: `API Key added successfully to space ${spaceId}`,
-            success: true
         });
     } catch (error) {
         switch (error.statusCode) {
             case 400:
                 utils.sendResponse(response, 400, "application/json", {
                     message: "Bad Request: Invalid Key Type",
-                    success: false
                 });
                 return;
             case 404:
                 utils.sendResponse(response, 404, "application/json", {
                     message: "Not Found: Space not found",
-                    success: false
                 });
                 return;
             case 409:
                 utils.sendResponse(response, 409, "application/json", {
                     message: "Conflict: API Key already exists",
-                    success: false
                 });
                 return;
         }
         utils.sendResponse(response, 500, "application/json", {
             message: `Internal Server Error: ${error}`,
-            success: false
         });
     }
 }
@@ -627,39 +569,33 @@ async function deleteAPIKey(request, response) {
     if (!spaceId) {
         return utils.sendResponse(response, 400, "application/json", {
             message: "Bad Request: Space ID or a valid currentSpaceId cookie is required",
-            success: false
         });
     }
     if (!keyType) {
         return utils.sendResponse(response, 400, "application/json", {
             message: "Bad Request: Key Type and Key Id are required in the request body",
-            success: false
         });
     }
     try {
         await space.APIs.deleteAPIKey(spaceId, keyType);
         utils.sendResponse(response, 200, "application/json", {
             message: `API Key deleted successfully from space ${spaceId}`,
-            success: true
         });
     } catch (error) {
         switch (error.statusCode) {
             case 404:
                 utils.sendResponse(response, 404, "application/json", {
                     message: "Not Found: Space not found",
-                    success: false
                 });
                 return;
             case 409:
                 utils.sendResponse(response, 409, "application/json", {
                     message: "Conflict: API Key not found",
-                    success: false
                 });
                 return;
         }
         utils.sendResponse(response, 500, "application/json", {
             message: `Internal Server Error: ${error}`,
-            success: false
         });
     }
 }
@@ -669,12 +605,10 @@ async function getAPIKeysMetadata(request, response) {
     try {
         let keys = await space.APIs.getAPIKeysMetadata(spaceId);
         return sendResponse(response, 200, "application/json", {
-            success: true,
             data: keys,
         });
     } catch (e) {
         return sendResponse(response, 500, "application/json", {
-            success: false,
             message: e
         });
     }
@@ -685,20 +619,17 @@ async function addSpaceAnnouncement(request, response) {
     const announcementData = request.body;
     if (!announcementData.text || !announcementData.title) {
         utils.sendResponse(response, 400, "application/json", {
-            success: false,
             message: "Bad Request: title and text are required"
         })
     }
     try {
         const announcementId = await space.APIs.addSpaceAnnouncement(spaceId, announcementData);
         utils.sendResponse(response, 200, "application/json", {
-            success: true,
             message: `Announcement added successfully`,
             data: {announcementId: announcementId}
         });
     } catch (error) {
         utils.sendResponse(response, 500, "application/json", {
-            success: false,
             message: error
         });
     }
@@ -709,26 +640,22 @@ async function getSpaceAnnouncement(request, response) {
     const announcementId = request.params.announcementId;
     if (!announcementId) {
         utils.sendResponse(response, 400, "application/json", {
-            success: false,
             message: "Bad Request: announcementId is required"
         })
     }
     if (!spaceId) {
         utils.sendResponse(response, 400, "application/json", {
-            success: false,
             message: "Bad Request: spaceId is required"
         })
     }
     try {
         const announcement = await space.APIs.getSpaceAnnouncement(spaceId, announcementId);
         utils.sendResponse(response, 200, "application/json", {
-            success: true,
             message: `Announcement loaded successfully`,
             data: announcement
         });
     } catch (error) {
         utils.sendResponse(response, error.statusCode, "application/json", {
-            success: false,
             message: error.message
         });
     }
@@ -738,20 +665,17 @@ async function getSpaceAnnouncements(request, response) {
     const spaceId = request.params.spaceId;
     if (!spaceId) {
         utils.sendResponse(response, 400, "application/json", {
-            success: false,
             message: "Bad Request: spaceId is required"
         })
     }
     try {
         const announcements = await space.APIs.getSpaceAnnouncements(spaceId);
         utils.sendResponse(response, 200, "application/json", {
-            success: true,
             message: `Announcements loaded successfully`,
             data: announcements
         });
     } catch (error) {
         utils.sendResponse(response, 500, "application/json", {
-            success: false,
             message: error.message
         });
     }
@@ -763,25 +687,21 @@ async function updateSpaceAnnouncement(request, response) {
     const announcementData = request.body;
     if (!spaceId || !announcementId) {
         utils.sendResponse(response, 400, "application/json", {
-            success: false,
             message: "Bad Request: spaceId and announcementId are required"
         })
     }
     if (!announcementData.text || !announcementData.title) {
         utils.sendResponse(response, 400, "application/json", {
-            success: false,
             message: "Bad Request: title and text are required"
         })
     }
     try {
         await space.APIs.updateSpaceAnnouncement(spaceId, announcementId, announcementData);
         utils.sendResponse(response, 200, "application/json", {
-            success: true,
             message: `Announcement updated successfully`
         });
     } catch (error) {
         utils.sendResponse(response, error.statusCode, "application/json", {
-            success: false,
             message: error.message
         });
     }
@@ -792,19 +712,16 @@ async function deleteSpaceAnnouncement(request, response) {
     const announcementId = request.params.announcementId;
     if (!spaceId || !announcementId) {
         utils.sendResponse(response, 400, "application/json", {
-            success: false,
             message: "Bad Request: spaceId and announcementId are required"
         })
     }
     try {
         await space.APIs.deleteSpaceAnnouncement(spaceId, announcementId);
         utils.sendResponse(response, 200, "application/json", {
-            success: true,
             message: `Announcement deleted successfully`
         });
     } catch (error) {
         utils.sendResponse(response, error.statusCode, "application/json", {
-            success: false,
             message: error.message
         });
     }
@@ -813,7 +730,6 @@ async function deleteSpaceAnnouncement(request, response) {
 
 
 async function getChatTextResponse(request, response) {
-
     const spaceId = request.params.spaceId;
     const agentId = request.body.agentId;
     const userId = request.userId;
@@ -904,7 +820,6 @@ async function getImage(request, response) {
         fileStream.pipe(response);
     } catch (error) {
         return utils.sendResponse(response, 500, "application/json", {
-            success: false,
             message: error + ` Error at reading image: ${imageId}`
         });
     }
@@ -919,7 +834,6 @@ async function getAudio(request, response) {
         fileStream.pipe(response);
     } catch (error) {
         return utils.sendResponse(response, 500, "application/json", {
-            success: false,
             message: error + ` Error at reading audio: ${audioId}`
         });
     }
@@ -934,7 +848,6 @@ async function getVideo(request, response) {
         fileStream.pipe(response);
     } catch (error) {
         return utils.sendResponse(response, error.statusCode || 500, "application/json", {
-            success: false,
             message: error.message + ` Error at reading video: ${videoId}`
         });
     }
@@ -945,12 +858,10 @@ async function putImage(request, response) {
     try {
         await Storage.putFile(Storage.fileTypes.images, imageId, request);
         return utils.sendResponse(response, 200, "application/json", {
-            success: true,
             data: imageId,
         });
     } catch (error) {
         return utils.sendResponse(response, 500, "application/json", {
-            success: false,
             message: error + ` Error at writing image: ${imageId}`
         });
     }
@@ -961,12 +872,10 @@ async function putAudio(request, response) {
     try {
         await Storage.putFile(Storage.fileTypes.audios, audioId, request);
         return utils.sendResponse(response, 200, "application/json", {
-            success: true,
             data: audioId,
         });
     } catch (error) {
         return utils.sendResponse(response, 500, "application/json", {
-            success: false,
             message: error + ` Error at writing audio: ${audioId}`
         });
     }
@@ -977,12 +886,10 @@ async function putVideo(request, response) {
     try {
         await Storage.putFile(Storage.fileTypes.videos, videoId, request);
         return utils.sendResponse(response, 200, "application/json", {
-            success: true,
             data: videoId,
         });
     } catch (error) {
         return utils.sendResponse(response, 500, "application/json", {
-            success: false,
             message: error + ` Error adding video`
         });
     }
@@ -993,12 +900,10 @@ async function deleteImage(request, response) {
     try {
         await Storage.deleteFile(Storage.fileTypes.images, imageId);
         return utils.sendResponse(response, 200, "application/json", {
-            success: true,
             data: imageId,
         });
     } catch (error) {
         return utils.sendResponse(response, 500, "application/json", {
-            success: false,
             message: error + ` Error at reading image: ${imageId}`
         });
     }
@@ -1009,12 +914,10 @@ async function deleteAudio(request, response) {
     try {
         await Storage.deleteFile(Storage.fileTypes.audios, audioId);
         return utils.sendResponse(response, 200, "application/json", {
-            success: true,
             data: audioId,
         });
     } catch (error) {
         return utils.sendResponse(response, 500, "application/json", {
-            success: false,
             message: error + ` Error at reading audio: ${audioId}`
         });
     }
@@ -1025,12 +928,10 @@ async function deleteVideo(request, response) {
     try {
         await Storage.deleteFile(Storage.fileTypes.videos, videoId);
         return utils.sendResponse(response, 200, "application/json", {
-            success: true,
             data: videoId,
         });
     } catch (error) {
         return utils.sendResponse(response, 500, "application/json", {
-            success: false,
             message: error + ` Error at reading video: ${videoId}`
         });
     }
@@ -1062,13 +963,11 @@ async function importPersonality(request, response) {
                 const importResult = await space.APIs.importPersonality(spaceId, extractedPath, request);
 
                 utils.sendResponse(response, 200, "application/json", {
-                    success: true,
                     message: 'Personality imported successfully',
                     data: importResult
                 });
             } catch (error) {
                 utils.sendResponse(response, error.statusCode || 500, "application/json", {
-                    success: false,
                     message: `Error at importing personality: ${error.message}`
                 });
             } finally {
@@ -1081,7 +980,6 @@ async function importPersonality(request, response) {
         writeStream.on('error', (error) => {
             console.error('Error writing file:', error);
             utils.sendResponse(response, 500, "application/json", {
-                success: false,
                 message: `Error writing file: ${error.message}`
             });
         });
@@ -1090,7 +988,6 @@ async function importPersonality(request, response) {
     busboy.on('error', (error) => {
         console.error('Busboy error:', error);
         utils.sendResponse(response, 500, "application/json", {
-            success: false,
             message: `Busboy error: ${error.message}`
         });
     });
@@ -1115,13 +1012,11 @@ async function exportPersonality(request, response) {
 
         archiveStream.on('error', err => {
             utils.sendResponse(response, 500, "application/json", {
-                success: false,
                 message: `Error at exporting personality: ${personalityId}. ${err.message}`
             })
         });
     } catch (error) {
         utils.sendResponse(response, error.statusCode || 500, "application/json", {
-            success: false,
             message: `Error at exporting personality: ${personalityId}. ${error.message}`
         });
     }
@@ -1131,7 +1026,6 @@ async function getUploadURL(request, response) {
     const uploadType = request.params.type;
     if (!["videos", "audios", "images"].includes(uploadType)) {
         return utils.sendResponse(response, 400, "application/json", {
-            success: false,
             message: `Bad Request: Invalid upload type`
         });
     }
@@ -1139,7 +1033,6 @@ async function getUploadURL(request, response) {
         const fileId = crypto.generateId();
         const uploadURL = await Storage.getUploadURL(uploadType, fileId);
         return utils.sendResponse(response, 200, "application/json", {
-            success: true,
             data: {
                 uploadURL: uploadURL,
                 fileId: fileId
@@ -1148,7 +1041,6 @@ async function getUploadURL(request, response) {
         });
     } catch (error) {
         utils.sendResponse(response, error.statusCode || 500, "application/json", {
-            success: false,
             message: `Error getting an upload URL:` + error.message
         });
     }
@@ -1159,14 +1051,12 @@ async function getDownloadURL(request, response) {
     const fileId = request.params.fileId;
     if (!["videos", "audios", "images"].includes(downloadType)) {
         return utils.sendResponse(response, 400, "application/json", {
-            success: false,
             message: `Bad Request: Invalid download type`
         });
     }
     try {
         const downloadURL = await Storage.getDownloadURL(downloadType, fileId);
         return utils.sendResponse(response, 200, "application/json", {
-            success: true,
             data: {
                 downloadURL: downloadURL
             },
@@ -1174,7 +1064,6 @@ async function getDownloadURL(request, response) {
         });
     } catch (error) {
         utils.sendResponse(response, error.statusCode || 500, "application/json", {
-            success: false,
             message: `Error getting a download URL:` + error.message
         });
     }

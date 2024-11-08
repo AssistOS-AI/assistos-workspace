@@ -1,5 +1,4 @@
 const fsPromises = require('fs').promises;
-const path = require('path');
 const{ sendResponse } = require('../apihub-component-utils/utils');
 async function saveJSON(response, spaceData, filePath) {
     try {

@@ -16,19 +16,16 @@ async function getDocument(req, res) {
     const {spaceId, documentId} = req.params;
     if (!spaceId || !documentId) {
         return utils.sendResponse(res, 400, "application/json", {
-            success: false,
             message: "Invalid request" + `Missing ${!spaceId ? "spaceId" : ""} ${!documentId ? "documentId" : ""}`
         });
     }
     try {
         const document = await documentService.getDocument(spaceId, documentId,req.query);
         utils.sendResponse(res, 200, "application/json", {
-            success: true,
             data: document
         });
     } catch (error) {
         utils.sendResponse(res, error.statusCode || 500, "application/json", {
-            success: false,
             message: `Failed to retrieve document ${documentId}` + error.message
         });
     }
@@ -38,19 +35,16 @@ async function getDocumentsMetadata(req,res){
     const {spaceId} = req.params;
     if(!spaceId){
         return utils.sendResponse(res, 400, "application/json", {
-            success: false,
             message: "Invalid request" + `Missing ${!spaceId ? "spaceId" : ""}`
         });
     }
     try{
         const metadata = await documentService.getDocumentsMetadata(spaceId);
         utils.sendResponse(res, 200, "application/json", {
-            success: true,
             data: metadata
         });
     }catch(error){
         utils.sendResponse(res, error.statusCode || 500, "application/json", {
-            success: false,
             message: `Failed to retrieve document metadata` + error.message
         });
     }
@@ -61,7 +55,6 @@ async function createDocument(req, res) {
     const documentData = req.body;
     if (!spaceId || !documentData) {
         return utils.sendResponse(res, 400, "application/json", {
-            success: false,
             message: "Invalid request" + `Missing ${!spaceId ? "spaceId" : ""} ${!documentData ? "documentData" : ""}`
         });
     }
@@ -69,12 +62,10 @@ async function createDocument(req, res) {
         const documentId = await documentService.createDocument(spaceId, documentData);
         SubscriptionManager.notifyClients(req.sessionId, SubscriptionManager.getObjectId(spaceId, "documents"));
         utils.sendResponse(res, 200, "application/json", {
-            success: true,
             data: documentId
         });
     } catch (error) {
         utils.sendResponse(res, error.statusCode || 500, "application/json", {
-            success: false,
             message: "Failed to create document" + error.message
         });
     }
@@ -85,7 +76,6 @@ async function updateDocument(req, res) {
     const documentData = req.body;
     if (!spaceId || !documentId || !documentData) {
         return utils.sendResponse(res, 400, "application/json", {
-            success: false,
             message: "Invalid request" + `Missing ${!spaceId ? "spaceId" : ""} ${!documentId ? "documentId" : ""} ${!documentData ? "request body" : ""}`
         });
     }
@@ -104,12 +94,10 @@ async function updateDocument(req, res) {
            }
         }
         utils.sendResponse(res, 200, "application/json", {
-            success: true,
             message: `Document ${documentId} updated successfully`
         });
     } catch (error) {
         utils.sendResponse(res, error.statusCode || 500, "application/json", {
-            success: false,
             message: `Failed to update document ${documentId}` + error.message
         });
     }
@@ -119,7 +107,6 @@ async function deleteDocument(req, res) {
     const {spaceId, documentId} = req.params;
     if (!spaceId || !documentId) {
         return utils.sendResponse(res, 400, "application/json", {
-            success: false,
             message: "Invalid request" + `Missing ${!spaceId ? "spaceId" : ""} ${!documentId ? "documentId" : ""}`
         });
     }
@@ -128,12 +115,10 @@ async function deleteDocument(req, res) {
         SubscriptionManager.notifyClients(req.sessionId, SubscriptionManager.getObjectId(spaceId, documentId), "delete");
         SubscriptionManager.notifyClients(req.sessionId, SubscriptionManager.getObjectId(spaceId, "documents"));
         utils.sendResponse(res, 200, "application/json", {
-            success: true,
             message: `Document ${documentId} deleted successfully`
         });
     } catch (error) {
         utils.sendResponse(res, error.statusCode || 500, "application/json", {
-            success: false,
             message: `Failed to delete document ${documentId}` + error.message
         });
     }
@@ -157,7 +142,6 @@ async function exportDocument(request, response) {
     });
     archive.on('error', err => {
         utils.sendResponse(response, 500, "application/json", {
-            success: false,
             message: `Error at exporting document: ${documentId}. ${err.message}`
         })
     });
@@ -166,7 +150,6 @@ async function exportDocument(request, response) {
         await archiveDocument(spaceId, archive, documentModule, documentId, exportType);
     } catch (error) {
         utils.sendResponse(response, error.statusCode || 500, "application/json", {
-            success: false,
             message: `Error at exporting document: ${documentId}. ${error.message}`
         });
     }
@@ -355,7 +338,6 @@ async function importDocument(request, response) {
 
     request.pipe(busboy);
     utils.sendResponse(response, 200, "application/json", {
-        success: true,
         message: 'Document import started',
         data: taskId
     });
@@ -484,13 +466,11 @@ async function estimateDocumentVideoLength(request, response) {
     try {
         let duration = await ffmpeg.estimateDocumentVideoLength(spaceId, document);
         sendResponse(response, 200, "application/json", {
-            success: true,
             message: `Estimation in progress`,
             data: duration
         });
     } catch (e) {
         sendResponse(response, 500, "application/json", {
-            success: false,
             message: e.message
         });
     }

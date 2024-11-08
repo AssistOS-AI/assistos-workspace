@@ -16,7 +16,6 @@ async function compileVideoFromDocument(request, response) {
     await TaskManager.addTask(task);
     SubscriptionManager.notifyClients(sessionId, documentId + "/tasks");
     sendResponse(response, 200, "application/json", {
-        success: true,
         message: "Task added to the queue",
         data: task.id
     });
@@ -42,13 +41,11 @@ async function textToSpeechParagraph(request, response) {
         await TaskManager.addTask(task);
         notifyTasksListUpdate(sessionId, spaceId);
         utils.sendResponse(response, 200, "application/json", {
-            success: true,
             data: task.id,
             message: "Task added to the queue"
         });
     } catch (error) {
         utils.sendResponse(response, error.statusCode || 500, "application/json", {
-            success: false,
             message: error.message
         });
     }
@@ -65,13 +62,11 @@ async function lipSyncParagraph(request, response) {
         await TaskManager.addTask(task);
         notifyTasksListUpdate(request.sessionId, documentId);
         utils.sendResponse(response, 200, "application/json", {
-            success: true,
             data: task.id,
             message: "Task added to the queue"
         });
     } catch (error) {
         utils.sendResponse(response, error.statusCode || 500, "application/json", {
-            success: false,
             message: error
         });
     }
@@ -82,12 +77,10 @@ async function cancelTaskAndRemove(request, response) {
     try {
         await TaskManager.cancelTaskAndRemove(taskId);
         sendResponse(response, 200, "application/json", {
-            success: true,
             message: `Task ${taskId} removed`
         });
     } catch (error) {
         sendResponse(response, 500, "application/json", {
-            success: false,
             message: error.message
         });
     }
@@ -98,12 +91,10 @@ async function removeTask(request, response) {
     try {
         await TaskManager.removeTask(taskId);
         sendResponse(response, 200, "application/json", {
-            success: true,
             message: `Task ${taskId} removed`
         });
     } catch (error) {
         sendResponse(response, 500, "application/json", {
-            success: false,
             message: error.message
         });
     }
@@ -114,12 +105,10 @@ function cancelTask(request, response) {
     try {
         TaskManager.cancelTask(taskId);
         sendResponse(response, 200, "application/json", {
-            success: true,
             message: `Task ${taskId} cancelled`
         });
     } catch (error) {
         sendResponse(response, 500, "application/json", {
-            success: false,
             message: error.message
         });
     }
@@ -130,12 +119,10 @@ function getTasks(request, response) {
     try {
         let tasks = TaskManager.serializeTasks(spaceId);
         sendResponse(response, 200, "application/json", {
-            success: true,
             data: tasks
         });
     } catch (e) {
         sendResponse(response, 500, "application/json", {
-            success: false,
             message: e.message
         });
     }
@@ -151,12 +138,10 @@ async function getTaskRelevantInfo(request, response) {
             taskInfo = await task.getRelevantInfo();
         }
         sendResponse(response, 200, "application/json", {
-            success: true,
             data: taskInfo
         });
     } catch (e) {
         sendResponse(response, 500, "application/json", {
-            success: false,
             message: e.message
         });
     }
@@ -166,12 +151,10 @@ function runTask(request, response) {
     try {
         TaskManager.runTask(taskId);
         sendResponse(response, 200, "application/json", {
-            success: true,
             message: `Task ${taskId} added`
         });
     } catch (error) {
         sendResponse(response, 500, "application/json", {
-            success: false,
             message: error.message
         });
     }
@@ -183,12 +166,10 @@ function getDocumentTasks(request, response) {
     try {
         let tasks = TaskManager.serializeTasks(spaceId).filter(task => task.configs.documentId === documentId);
         sendResponse(response, 200, "application/json", {
-            success: true,
             data: tasks
         });
     } catch (e) {
         sendResponse(response, 500, "application/json", {
-            success: false,
             message: e.message
         });
     }
@@ -199,12 +180,10 @@ function getTask(request, response) {
     try {
         let task = TaskManager.getTask(taskId);
         sendResponse(response, 200, "application/json", {
-            success: true,
             data: task.serialize()
         });
     } catch (e) {
         sendResponse(response, 500, "application/json", {
-            success: false,
             message: e.message
         });
     }
@@ -225,12 +204,10 @@ function runAllDocumentTasks(request, response) {
             }
         }
         return sendResponse(response, 200, "application/json", {
-            success: true,
             message: "All tasks added to the queue"
         });
     } catch (e) {
         return sendResponse(response, 500, "application/json", {
-            success: false,
             message: e.message
         });
     }
@@ -246,12 +223,10 @@ function cancelAllDocumentTasks(request, response) {
             }
         }
         sendResponse(response, 200, "application/json", {
-            success: true,
             message: "All tasks cancelled"
         });
     } catch (e) {
         sendResponse(response, 500, "application/json", {
-            success: false,
             message: e.message
         });
     }

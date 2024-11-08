@@ -56,7 +56,6 @@ async function sendFileToClient(response, resource, fileType) {
             default:
                 return sendResponse(response, 500, "text/plain", {
                     message: "File type not supported",
-                    success: false
                 });
         }
         sendResponse(response, 200, contentType, resource);

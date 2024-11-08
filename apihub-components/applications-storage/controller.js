@@ -11,12 +11,10 @@ async function installApplication(request, response) {
         await ApplicationHandler.installApplication(spaceId, applicationId);
         return sendResponse(response, 200, "application/json", {
             message: `Application ${applicationId} installed successfully in space ${spaceId}`,
-            success: true
         });
     } catch (error) {
         return sendResponse(response, error.statusCode || 500, "application/json", {
             message: `Failed to install application. Error:` + error.message,
-            success: false
         });
     }
 }
@@ -27,12 +25,10 @@ async function uninstallApplication(request, response) {
         await ApplicationHandler.uninstallApplication(spaceId, applicationId);
         return sendResponse(response, 200, "application/json", {
             message: "Application uninstalled successfully",
-            success: true
         });
     } catch (error) {
         return sendResponse(response, error.statusCode || 500, "application/json", {
             message: `Failed to uninstall Application: ${error}`,
-            success: false
         });
     }
 }
@@ -47,7 +43,6 @@ async function saveJSON(response, spaceData, filePath) {
         } catch (error) {
             sendResponse(response, 500, "application/json", {
                 message: error + ` Error at creating folder: ${folderPath}`,
-                success: false
             });
             return false;
         }
@@ -57,7 +52,6 @@ async function saveJSON(response, spaceData, filePath) {
     } catch (error) {
         sendResponse(response, 500, "application/json", {
             message: error + ` Error at writing file: ${filePath}`,
-            success: false
         });
         return false;
     }
@@ -69,13 +63,11 @@ async function loadApplicationsMetadata(request, response) {
     try {
         const applicationsMetadata = await ApplicationHandler.getApplicationsMetadata();
         return sendResponse(response, 200, "application/json", {
-            success: true,
             data: applicationsMetadata
         });
     } catch (error) {
         return sendResponse(response, 500, "application/json", {
             message: `Failed to load applications metadata: ${error}`,
-            success: false
         });
     }
 }
@@ -86,13 +78,11 @@ async function loadApplicationConfig(request, response) {
         const applicationManifest = await ApplicationHandler.loadApplicationConfig(spaceId, applicationId);
         return sendResponse(response, 200, "application/json", {
             message: "",
-            success: true,
             data: applicationManifest
         });
     } catch (error) {
         return sendResponse(response, error.statusCode || 500, "application/json", {
             message: `Failed to load application config:${error}`,
-            success: false
         });
     }
 }
@@ -106,12 +96,10 @@ async function runApplicationTask(request, response) {
         return sendResponse(response, 200, "application/json", {
             message: `Task ${taskId} started`,
             data: taskId,
-            success: true
         });
     } catch (error) {
         return sendResponse(response, error.statusCode || 500, "application/json", {
             message: `Failed to run application task:${error}`,
-            success: false
         });
     }
 }
@@ -126,12 +114,10 @@ async function runApplicationFlow(request, response) {
         return sendResponse(response, 200, "application/json", {
             message: `Flow executed successfully`,
             data: data,
-            success: true
         });
     } catch (error) {
         return sendResponse(response, error.statusCode || 500, "application/json", {
             message: `Failed to run application flow:${error}`,
-            success: false
         });
     }
 }
@@ -143,7 +129,6 @@ async function storeObject(request, response) {
         await fsPromises.unlink(filePath);
         sendResponse(response, 200, "application/json", {
             message: "Deleted successfully " + objectId,
-            success: true
         });
         return;
     }
@@ -151,7 +136,6 @@ async function storeObject(request, response) {
     if (await saveJSON(response, JSON.stringify(jsonData), filePath)) {
         sendResponse(response, 200, "application/json", {
             message: `Success, write ${objectId}`,
-            success: true
         });
     }
 }
@@ -165,7 +149,6 @@ async function loadObjects(request, response) {
         } catch (error) {
             return sendResponse(response, 500, "application/json", {
                 message: error + ` Error at creating folder: ${filePath}`,
-                success: false
             });
         }
     }
@@ -190,13 +173,11 @@ async function loadObjects(request, response) {
     } catch (e) {
         sendResponse(response, 500, "application/json", {
             message: JSON.stringify(e),
-            success: false
         });
     }
 
     sendResponse(response, 200, "application/json", {
         message: "Application or repository not found",
-        success: true,
         data: localData
     });
 }
@@ -205,12 +186,10 @@ async function loadApplicationFile(request, response) {
         if (error.code === 'ENOENT') {
             sendResponse(response, 404, "application/json", {
                 message: "File not found",
-                success: false
             });
         } else {
             sendResponse(response, 500, "application/json", {
                 message: "Internal Server Error",
-                success: false
             });
         }
     }
@@ -236,7 +215,6 @@ async function storeAppFlow(request, response) {
         await fsPromises.unlink(filePath);
         sendResponse(response, 200, "application/json", {
             message: "Deleted successfully " + objectId,
-            success: true
         });
         return;
     }
@@ -246,12 +224,10 @@ async function storeAppFlow(request, response) {
     } catch (error) {
         return sendResponse(response, 500, "application/json", {
             message: error + ` Error at writing file: ${filePath}`,
-            success: false
         });
     }
     return sendResponse(response, 200, "application/json", {
         message: `Success, write ${objectId}`,
-        success: true
     });
 }
 

@@ -6,19 +6,16 @@ async function getChapter(req, res) {
     if (!spaceId || !documentId || !chapterId) {
         return util.sendResponse(res, 400, "application/json", {
             missing: `${spaceId ? 'spaceId ' : ''}${documentId ? 'documentId ' : ''}${chapterId ? 'chapterId ' : ''}`,
-            success: false
         });
     }
     try {
         const chapter = await chapterService.getChapter(spaceId, documentId, chapterId,req.query);
         return util.sendResponse(res, 200, "application/json", {
-            success: true,
             data: chapter
         });
     } catch (error) {
         return util.sendResponse(res, error.statusCode || 500, "application/json", {
             message: "Failed to get chapter" + error.message,
-            success: false
         });
     }
 }
@@ -29,7 +26,6 @@ async function createChapter(req, res) {
     if (!spaceId || !documentId || !chapterData) {
         return util.sendResponse(res, 400, "application/json", {
             message: "Invalid request" + `Missing ${spaceId ? 'spaceId ' : ''}${documentId ? 'documentId ' : ''}${chapterData ? 'request body' : ''}`,
-            success: false
         });
     }
     try {
@@ -42,13 +38,11 @@ async function createChapter(req, res) {
         }
         SubscriptionManager.notifyClients(req.sessionId, objectId, eventData);
         return util.sendResponse(res, 200, "application/json", {
-            success: true,
             data: id
         });
     } catch (error) {
         return util.sendResponse(res, error.statusCode || 500, "application/json", {
             message: "Failed to create chapter" + error.message,
-            success: false
         });
     }
 }
@@ -59,7 +53,6 @@ async function updateChapter(req, res) {
     if (!spaceId || !documentId || !chapterId ) {
         return util.sendResponse(res, 400, "application/json", {
             message: "Invalid request" + `Missing ${spaceId ? 'spaceId ' : ''}${documentId ? 'documentId ' : ''}${chapterId ? 'chapterId ' : ''}`,
-            success: false
         });
     }
     try {
@@ -67,13 +60,11 @@ async function updateChapter(req, res) {
         let objectId = SubscriptionManager.getObjectId(documentId, chapterId);
         SubscriptionManager.notifyClients(req.sessionId, objectId, req.query.fields);
         return util.sendResponse(res, 200, "application/json", {
-            success: true,
             data: "Chapter updated successfully"
         });
     } catch (error) {
         return util.sendResponse(res, error.statusCode || 500, "application/json", {
             message: "Failed to update chapter" + error.message,
-            success: false
         });
     }
 }
@@ -83,7 +74,6 @@ async function deleteChapter(req, res) {
     if (!spaceId || !documentId || !chapterId) {
         return util.sendResponse(res, 400, "application/json", {
             message: "Invalid request" + `Missing ${spaceId ? 'spaceId ' : ''}${documentId ? 'documentId ' : ''}${chapterId ? 'chapterId ' : ''}`,
-            success: false
         });
     }
     try {
@@ -95,13 +85,11 @@ async function deleteChapter(req, res) {
         }
         SubscriptionManager.notifyClients(req.sessionId, objectId, eventData);
         return util.sendResponse(res, 200, "application/json", {
-            success: true,
             data: "Chapter deleted successfully"
         });
     } catch (error) {
         return util.sendResponse(res, error.statusCode || 500, "application/json", {
             message: "Failed to delete chapter" + error.message,
-            success: false
         });
     }
 }
@@ -110,7 +98,6 @@ async function swapChapters(req, res) {
     if (!spaceId || !documentId || !chapterId1 || !chapterId2) {
         return util.sendResponse(res, 400, "application/json", {
             message: "Invalid request" + `Missing ${spaceId ? 'spaceId ' : ''}${documentId ? 'documentId ' : ''}${chapterId1 ? 'chapterId1 ' : ''}${chapterId2 ? 'chapterId2 ' : ''}`,
-            success: false
         });
     }
     let direction = req.body.direction;
@@ -125,13 +112,11 @@ async function swapChapters(req, res) {
         }
         SubscriptionManager.notifyClients(req.sessionId, objectId, eventData);
         return util.sendResponse(res, 200, "application/json", {
-            success: true,
             data: "Chapters swapped successfully"
         });
     } catch (error) {
         return util.sendResponse(res, error.statusCode || 500, "application/json", {
             message: "Failed to swap chapters" + error.message,
-            success: false
         });
     }
 }

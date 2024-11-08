@@ -10,10 +10,15 @@ export class LlmDemoPage {
                 type: 'text',
                 description: 'Anthropic\'s AI model focused on helpful and honest interactions',
             },
-            flux: {
+            'flux-schnell': {
                 name: 'Flux.1 Schnell',
                 type: 'image',
                 description: 'Image generation from text descriptions based on Flux.1 schnell',
+            },
+            'flux-dev': {
+                name: 'Flux.1 Dev',
+                type: 'image',
+                description: 'Image generation from text descriptions based on Flux.1 dev',
             },
             coqui: {
                 name: 'Coqui.XTTS',

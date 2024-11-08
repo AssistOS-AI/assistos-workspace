@@ -59,12 +59,10 @@ function authenticationError(res, next) {
     if (config.CREATE_DEMO_USER === true) {
         const {email, password} = User.templates.demoUser;
         utils.sendResponse(res, 401, "application/json", {
-            success: false,
             message: "Unauthorized"
         }, [cookie.createDemoUserCookie(email, password), cookie.deleteAuthCookie(), cookie.deleteRefreshAuthCookie(), cookie.deleteCurrentSpaceCookie()]);
     } else {
         utils.sendResponse(res, 401, "application/json", {
-            success: false,
             message: "Unauthorized"
         }, [cookie.deleteDemoUserCookie(), cookie.deleteAuthCookie(), cookie.deleteRefreshAuthCookie(), cookie.deleteCurrentSpaceCookie()]);
     }
