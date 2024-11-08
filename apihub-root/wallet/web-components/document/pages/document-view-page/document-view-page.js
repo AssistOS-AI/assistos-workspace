@@ -18,7 +18,7 @@ export class DocumentViewPage {
             this.personalitiesMetadata = await personalityModule.getPersonalitiesMetadata(assistOS.space.id);
             this.boundRefreshPersonalitiesMetadata = this.refreshPersonalitiesMetadata.bind(this);
             await NotificationRouter.subscribeToSpace(assistOS.space.id, "personalities", this.boundRefreshPersonalitiesMetadata);
-            this.selectedParagraphs = await documentModule.getSelectedParagraphs(assistOS.space.id, this._document.id);
+            this.selectedParagraphs = await documentModule.getSelectedDocumentItems(assistOS.space.id, this._document.id);
             await this.initTitleAbstractSelection();
         });
     }
@@ -315,6 +315,7 @@ export class DocumentViewPage {
 
         this.stopTimer.bind(this, true);
         await selectionUtils.deselectItem(itemId, this);
+        delete this.currentSelectItem;
     }
 
     async controlAbstractHeight(abstract) {
@@ -347,6 +348,7 @@ export class DocumentViewPage {
             targetElement.addEventListener('keydown', this.titleKeyDownHandler);
             saveFunction = this.saveTitle.bind(this, targetElement);
             await selectionUtils.selectItem(true, this.titleId, this.titleClass, this);
+            this.currentSelectItem = this.titleId;
         } else if (type === "abstract") {
             if (!this.boundControlAbstractHeight) {
                 this.boundControlAbstractHeight = this.controlAbstractHeight.bind(this, targetElement);
@@ -358,6 +360,7 @@ export class DocumentViewPage {
             await this.changeCurrentElement(targetElement, this.focusOutHandler.bind(this, targetElement, this.abstractId));
             saveFunction = this.saveAbstract.bind(this, targetElement);
             await selectionUtils.selectItem(true, this.abstractId, this.abstractClass, this);
+            this.currentSelectItem = this.titleId;
         } else if (type === "chapterTitle") {
             targetElement.classList.add("focused")
             let chapterPresenter = targetElement.closest("chapter-item").webSkelPresenter;
@@ -491,6 +494,11 @@ export class DocumentViewPage {
             if(!data.lockOwner){
                 selectionUtils.unlockText(itemClass, this);
             }
+        }
+    }
+    async afterUnload(){
+        if(this.selectionInterval){
+            await selectionUtils.deselectItem(this.currentSelectItem ,this);
         }
     }
 }

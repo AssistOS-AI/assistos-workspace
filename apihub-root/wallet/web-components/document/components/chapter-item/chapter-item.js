@@ -498,6 +498,11 @@ export class ChapterItem {
             }
         }
     }
+    async afterUnload(){
+        if(this.selectionInterval){
+            await selectionUtils.deselectItem(this.titleId, this);
+        }
+    }
 }
 
 

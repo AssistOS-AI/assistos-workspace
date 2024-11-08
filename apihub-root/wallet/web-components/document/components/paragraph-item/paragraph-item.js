@@ -1,13 +1,12 @@
 import {executorTimer} from "../../../../imports.js";
 import {formatTime} from "../../../../utils/videoUtils.js";
 import {NotificationRouter} from "../../../../imports.js";
-
 const utilModule = require("assistos").loadModule("util", {});
 const documentModule = require("assistos").loadModule("document", {});
 const spaceModule = require("assistos").loadModule("space", {});
 const blackScreen = "./wallet/assets/images/black-screen.png";
 const constants = require("assistos").constants;
-import {generateId} from "../../../../imports.js";
+
 import selectionUtils from "../../pages/document-view-page/selectionUtils.js";
 export class ParagraphItem {
     constructor(element, invalidate) {
@@ -67,10 +66,10 @@ export class ParagraphItem {
         let selected = this.documentPresenter.selectedParagraphs[this.paragraph.id];
         if(selected){
             for(let selection of selected.users){
-                await this.setUserIcon(selection.userId, selection.imageId);
+                await selectionUtils.setUserIcon(selection.imageId, selection.selectId, this.textClass, this);
             }
             if(selected.lockOwner){
-                this.lockText();
+                selectionUtils.lockText(this.textClass, this);
             }
         }
     }
@@ -962,27 +961,6 @@ export class ParagraphItem {
         }
     }
 
-    async setUserIcon(imageId, selectId){
-        let userIconElement = this.element.querySelector(`.user-icon[data-id="${selectId}"]`);
-        if(userIconElement){
-            return;
-        }
-        let imageSrc;
-        if (imageId) {
-            imageSrc = await spaceModule.getImageURL(imageId);
-        } else {
-            imageSrc = "./wallet/assets/images/defaultUserPhoto.png";
-        }
-        let userIcon = `<img loading="lazy" src="${imageSrc}" class="user-icon" alt="user-icon" data-id="${selectId}">`;
-        let paragraphItem = this.element.querySelector(".paragraph-text-container");
-        paragraphItem.insertAdjacentHTML('beforeend', userIcon);
-    }
-    removeUserIcon(selectId){
-        let userIcon = this.element.querySelector(`.user-icon[data-id="${selectId}"]`);
-        if(userIcon){
-            userIcon.remove();
-        }
-    }
     async handleUserSelection(itemClass, data){
         if(typeof data === "string"){
             return ;
@@ -999,5 +977,9 @@ export class ParagraphItem {
             }
         }
     }
-
+    async afterUnload(){
+        if(this.selectionInterval){
+            await selectionUtils.deselectItem(this.paragraph.id, this);
+        }
+    }
 }

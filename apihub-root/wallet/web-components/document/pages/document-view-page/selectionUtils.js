@@ -38,7 +38,7 @@ async function deselectItem(itemId, presenter){
         clearInterval(presenter.selectionInterval);
         delete presenter.selectionInterval;
     }
-    await documentModule.deselectParagraph(assistOS.space.id, presenter._document.id, itemId, presenter.selectId);
+    await documentModule.deselectDocumentItem(assistOS.space.id, presenter._document.id, itemId, presenter.selectId);
 }
 async function selectItem(lockText, itemId, itemClass, presenter){
     presenter.selectId = generateId(8);
@@ -46,14 +46,14 @@ async function selectItem(lockText, itemId, itemClass, presenter){
         clearInterval(presenter.selectionInterval);
         delete presenter.selectionInterval;
     }
-    await documentModule.selectParagraph(assistOS.space.id, presenter._document.id, itemId, {
+    await documentModule.selectDocumentItem(assistOS.space.id, presenter._document.id, itemId, {
         lockText: lockText,
         selectId: presenter.selectId
     });
     presenter.selectionInterval = setInterval(async () => {
         let itemText = presenter.element.querySelector(`.${itemClass}`);
         lockText = !itemText.hasAttribute("readonly");
-        await documentModule.selectParagraph(assistOS.space.id, presenter._document.id, itemId, {
+        await documentModule.selectDocumentItem(assistOS.space.id, presenter._document.id, itemId, {
             lockText: lockText,
             selectId: presenter.selectId
         });
