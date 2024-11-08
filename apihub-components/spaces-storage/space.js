@@ -347,27 +347,37 @@ async function createSpaceStatus(spacePath, spaceObject) {
     await fsPromises.writeFile(statusPath, JSON.stringify(spaceObject, null, 2));
 }
 
-async function deleteSpace() {
-
-}
-
-async function getSpaceDocumentsObject(spaceId) {
-    let lightDBEnclaveClient = enclave.initialiseLightDBEnclave(spaceId);
-    let documents = [];
-    let records;
-    try {
-        records = await $$.promisify(lightDBEnclaveClient.getAllRecords)($$.SYSTEM_IDENTIFIER, 'documents');
-    } catch (e) {
-        console.log(e + "no documents yet");
-        return documents;
+async function deleteSpace(userId, spaceId) {
+    let user = require('../users-storage/user.js');
+    const documentService = require("../document/services/document");
+    let userFile = await user.getUserFile(userId);
+    let spacesNr = Object.keys(userFile.spaces).length;
+    if(spacesNr === 1){
+        return "You can't delete your last space";
     }
-    let documentIds = records.map(record => record.data);
-    for (let documentId of documentIds) {
-        documents.push(documentAPIs.document.get(spaceId, documentId));
+    let spaceStatus = await getSpaceStatusObject(spaceId);
+    if(!spaceStatus.admins[userId]){
+        return "You dont have permission to delete this space";
     }
-    documents = await Promise.all(documents);
-    documents.sort((a, b) => a.position - b.position);
-    return documents;
+    //unlink space from all users
+    for(let userId of Object.keys(spaceStatus.users)){
+        await user.unlinkSpaceFromUser(userId, spaceId);
+    }
+    //delete space folder
+    let spacePath = getSpacePath(spaceId);
+    await fsPromises.rm(spacePath, {recursive: true, force: true});
+    //delete documents
+    let documentsList = await documentService.getDocumentsMetadata(spaceId);
+    for(let document of documentsList){
+        await documentService.deleteDocument(spaceId, document.id);
+    }
+    //delete api keys
+    let keys = await secrets.getAPIKeys(spaceId);
+    for(let keyType in keys){
+        await secrets.deleteSpaceKey(spaceId, keyType);
+    }
+    //delete chat
+    //TODO delete lightdb chat and folder
 }
 
 async function getSpaceName(spaceId) {

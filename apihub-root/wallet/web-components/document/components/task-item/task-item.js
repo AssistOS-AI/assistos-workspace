@@ -12,7 +12,7 @@ export class TaskItem{
 
         this.invalidate(async ()=> {
             this.boundOnTasksUpdate = this.onTasksUpdate.bind(this);
-            await NotificationRouter.subscribeToSpace(assistOS.space.id , "id", this.boundOnTasksUpdate);
+            await NotificationRouter.subscribeToSpace(assistOS.space.id , id, this.boundOnTasksUpdate);
         })
     }
     onTasksUpdate(status){

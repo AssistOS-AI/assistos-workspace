@@ -4,6 +4,12 @@
     "services": [],
     "components": [
         {
+            "name": "confirm-action-modal",
+            "directory": "space-application",
+            "type": "modals",
+            "presenterClassName": "ConfirmActionModal"
+        },
+        {
             "name": "flux-dev-model-page",
             "directory": "space-application",
             "type": "pages",

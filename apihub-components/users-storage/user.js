@@ -243,17 +243,13 @@ async function sendActivationEmail(emailAddress, activationToken) {
 async function unlinkSpaceFromUser(userId, spaceId) {
     const userFile = await getUserFile(userId)
 
-    const spaceIndex = userFile.spaces.findIndex(space => space.id === spaceId);
-    if (spaceIndex === -1) {
-        return;
-    }
-
-    userFile.spaces.splice(spaceIndex, 1);
+    delete userFile.spaces[spaceId];
 
     if (userFile.currentSpaceId === spaceId) {
-        delete userFile.currentSpaceId;
+        let spaces = Object.keys(userFile.spaces);
+        userFile.currentSpaceId = spaces.length > 0 ? spaces[0] : null;
     }
-    await updateUserFile(userId, userFile)
+    await updateUserFile(userId, userFile);
 }
 
 async function updateUserPendingActivation(userPendingActivationObject) {
@@ -515,6 +511,7 @@ module.exports = {
     getUserData,
     createDemoUser,
     linkSpaceToUser,
+    unlinkSpaceFromUser,
     getDefaultSpaceId,
     updateUsersCurrentSpace,
     inviteSpaceCollaborators,

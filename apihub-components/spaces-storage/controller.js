@@ -7,7 +7,7 @@ const enclave = require("opendsu").loadAPI("enclave");
 const crypto = require('../apihub-component-utils/crypto.js');
 const fsPromises = require('fs').promises;
 const path = require('path');
-const subscriptionManager = require("../subscribers/SubscriptionManager.js");
+const SubscriptionManager = require("../subscribers/SubscriptionManager.js");
 const {sendResponse} = require("../apihub-component-utils/utils");
 const dataVolumePaths = require('../volumeManager').paths;
 const Storage = require("../apihub-component-utils/storage.js");
@@ -110,8 +110,8 @@ async function addFileObject(request, response) {
         let filePath = getFileObjectPath(spaceId, objectType, objectId);
         await fsPromises.writeFile(filePath, JSON.stringify(objectData, null, 2), 'utf8');
 
-        subscriptionManager.notifyClients(request.sessionId, subscriptionManager.getObjectId(spaceId, objectType));
-        subscriptionManager.notifyClients(request.sessionId, subscriptionManager.getObjectId(spaceId, objectId));
+        SubscriptionManager.notifyClients(request.sessionId, SubscriptionManager.getObjectId(spaceId, objectType));
+        SubscriptionManager.notifyClients(request.sessionId, SubscriptionManager.getObjectId(spaceId, objectId));
 
         return utils.sendResponse(response, 200, "application/json", {
             data: objectId,
@@ -145,8 +145,8 @@ async function updateFileObject(request, response) {
             });
         }
         await fsPromises.writeFile(filePath, JSON.stringify(objectData, null, 2), 'utf8');
-        subscriptionManager.notifyClients(request.sessionId, subscriptionManager.getObjectId(spaceId, objectType));
-        subscriptionManager.notifyClients(request.sessionId, subscriptionManager.getObjectId(spaceId, objectId));
+        SubscriptionManager.notifyClients(request.sessionId, SubscriptionManager.getObjectId(spaceId, objectType));
+        SubscriptionManager.notifyClients(request.sessionId, SubscriptionManager.getObjectId(spaceId, objectId));
         return utils.sendResponse(response, 200, "application/json", {
             data: objectId,
             message: `Object ${objectId} updated successfully`
@@ -171,8 +171,8 @@ async function deleteFileObject(request, response) {
             await fsPromises.writeFile(metadataPath, JSON.stringify(metadata), 'utf8');
         }
         let filePath = getFileObjectPath(spaceId, objectType, objectId);
-        subscriptionManager.notifyClients(request.sessionId, subscriptionManager.getObjectId(spaceId, objectType));
-        subscriptionManager.notifyClients(request.sessionId, subscriptionManager.getObjectId(spaceId, objectId), "delete");
+        SubscriptionManager.notifyClients(request.sessionId, SubscriptionManager.getObjectId(spaceId, objectType));
+        SubscriptionManager.notifyClients(request.sessionId, SubscriptionManager.getObjectId(spaceId, objectId), "delete");
         await fsPromises.unlink(filePath);
         return utils.sendResponse(response, 200, "application/json", {
             data: objectId,
@@ -223,7 +223,7 @@ async function addContainerObject(request, response) {
     const objectData = request.body;
     try {
         let objectId = await lightDB.addContainerObject(spaceId, objectType, objectData);
-        subscriptionManager.notifyClients(request.sessionId, subscriptionManager.getObjectId(spaceId, objectType));
+        SubscriptionManager.notifyClients(request.sessionId, SubscriptionManager.getObjectId(spaceId, objectType));
         return utils.sendResponse(response, 200, "application/json", {
             data: objectId,
             message: `Object ${objectType} added successfully`
@@ -241,8 +241,8 @@ async function updateContainerObject(request, response) {
     const objectData = request.body;
     try {
         await lightDB.updateContainerObject(spaceId, objectId, objectData);
-        subscriptionManager.notifyClients(request.sessionId, subscriptionManager.getObjectId(spaceId, objectType));
-        subscriptionManager.notifyClients(request.sessionId, subscriptionManager.getObjectId(spaceId, objectId));
+        SubscriptionManager.notifyClients(request.sessionId, SubscriptionManager.getObjectId(spaceId, objectType));
+        SubscriptionManager.notifyClients(request.sessionId, SubscriptionManager.getObjectId(spaceId, objectId));
         return utils.sendResponse(response, 200, "application/json", {
             data: objectId,
             message: `Object ${objectId} updated successfully`
@@ -259,8 +259,8 @@ async function deleteContainerObject(request, response) {
     const objectId = request.params.objectId;
     try {
         await lightDB.deleteContainerObject(spaceId, objectId);
-        subscriptionManager.notifyClients(request.sessionId, subscriptionManager.getObjectId(spaceId, objectId), "delete");
-        subscriptionManager.notifyClients(request.sessionId, subscriptionManager.getObjectId(spaceId, objectId.split('_')[0]));
+        SubscriptionManager.notifyClients(request.sessionId, SubscriptionManager.getObjectId(spaceId, objectId), "delete");
+        SubscriptionManager.notifyClients(request.sessionId, SubscriptionManager.getObjectId(spaceId, objectId.split('_')[0]));
         return utils.sendResponse(response, 200, "application/json", {
             data: objectId,
             message: `Object ${objectId} deleted successfully`
@@ -296,7 +296,7 @@ async function addEmbeddedObject(request, response) {
     try {
         let parts = objectURI.split("/");
         let objectId = await lightDB.addEmbeddedObject(spaceId, objectURI, objectData);
-        subscriptionManager.notifyClients(request.sessionId, subscriptionManager.getObjectId(spaceId, parts[parts.length - 2]));
+        SubscriptionManager.notifyClients(request.sessionId, SubscriptionManager.getObjectId(spaceId, parts[parts.length - 2]));
         return utils.sendResponse(response, 200, "application/json", {
             data: objectId,
             message: `Object ${objectId} added successfully`
@@ -331,7 +331,7 @@ async function deleteEmbeddedObject(request, response) {
     try {
         let parts = objectURI.split("/");
         await lightDB.deleteEmbeddedObject(spaceId, objectURI);
-        subscriptionManager.notifyClients(request.sessionId, subscriptionManager.getObjectId(spaceId, parts[parts.length - 2]));
+        SubscriptionManager.notifyClients(request.sessionId, SubscriptionManager.getObjectId(spaceId, parts[parts.length - 2]));
         return utils.sendResponse(response, 200, "application/json", {
             data: objectURI,
             message: `Object ${objectURI} deleted successfully`
@@ -349,7 +349,7 @@ async function swapEmbeddedObjects(request, response) {
     let lightDBEnclaveClient = enclave.initialiseLightDBEnclave(spaceId);
     try {
         let objectId = await lightDBEnclaveClient.swapEmbeddedObjects(spaceId, objectURI, request.body);
-        subscriptionManager.notifyClients(request.sessionId, subscriptionManager.getObjectId(spaceId, objectId));
+        SubscriptionManager.notifyClients(request.sessionId, SubscriptionManager.getObjectId(spaceId, objectId));
         return utils.sendResponse(response, 200, "application/json", {
             data: objectURI,
             message: `Objects from ${objectURI} swapped successfully`
@@ -371,7 +371,7 @@ async function addSpaceChatMessage(request, response) {
             message: `Message added successfully`,
             data: {messageId: messageId}
         });
-        subscriptionManager.notifyClients(request.sessionId, subscriptionManager.getObjectId(spaceId, `chat_${spaceId}`));
+        SubscriptionManager.notifyClients(request.sessionId, SubscriptionManager.getObjectId(spaceId, `chat_${spaceId}`));
     } catch (error) {
         utils.sendResponse(response, 500, "application/json", {
             message: error
@@ -458,7 +458,19 @@ async function createSpace(request, response) {
         });
     }
 }
-
+async function deleteSpace(request, response){
+    const spaceId = request.params.spaceId;
+    let userId = request.userId;
+    try {
+        let message = await space.APIs.deleteSpace(userId, spaceId);
+        if(message){
+            SubscriptionManager.notifyClients(request.sessionId, spaceId);
+        }
+        utils.sendResponse(response, 200, "text/plain", message || "");
+    } catch (error) {
+        utils.sendResponse(response, 500, "text/plain", error.message);
+    }
+}
 async function addCollaboratorsToSpace(request, response) {
     /* TODO Check if the user has access to that space and has the right to add an user */
     const userId = request.userId;
@@ -738,7 +750,7 @@ async function getChatTextResponse(request, response) {
         const chatMessages = modelResponse.data.messages
         for (const chatMessage of chatMessages) {
             await space.APIs.addSpaceChatMessage(spaceId, agentId, "assistant", chatMessage);
-            subscriptionManager.notifyClients(request.sessionId, subscriptionManager.getObjectId(spaceId, `chat_${spaceId}`), {}, [userId]);
+            SubscriptionManager.notifyClients(request.sessionId, SubscriptionManager.getObjectId(spaceId, `chat_${spaceId}`), {}, [userId]);
         }
     }
 }
@@ -753,7 +765,7 @@ async function getChatTextStreamingResponse(request, response) {
             const chatMessages = modelResponse.data.messages;
             for (const chatMessage of chatMessages) {
                 await space.APIs.addSpaceChatMessage(spaceId, agentId, "assistant", chatMessage);
-                subscriptionManager.notifyClients(request.sessionId, subscriptionManager.getObjectId(spaceId, `chat_${spaceId}`), {}, [userId]);
+                SubscriptionManager.notifyClients(request.sessionId, SubscriptionManager.getObjectId(spaceId, `chat_${spaceId}`), {}, [userId]);
             }
         }
     } catch (error) {
@@ -1091,6 +1103,7 @@ module.exports = {
     getSpace,
     addSpaceChatMessage,
     createSpace,
+    deleteSpace,
     addCollaboratorsToSpace,
     getAgent,
     editAPIKey,
