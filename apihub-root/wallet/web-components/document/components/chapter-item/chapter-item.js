@@ -21,6 +21,7 @@ export class ChapterItem {
         this.titleId = `${this.chapter.id}_title`;
         this.titleClass = "chapter-title";
         this.boundHandleUserSelection = this.handleUserSelection.bind(this);
+        this.boundCloseChapterComment = this.closeChapterComment.bind(this);
         this.invalidate(async () => {
             this.boundOnChapterUpdate = this.onChapterUpdate.bind(this);
             await NotificationRouter.subscribeToDocument(this._document.id, this.chapter.id, this.boundOnChapterUpdate);
@@ -464,7 +465,7 @@ export class ChapterItem {
 
     openChapterComment(_target) {
         const chapterMenu = `<chapter-comment-menu data-presenter="chapter-comment-menu"></chapter-comment-menu>`;
-        this.element.querySelector('.chapter-title-section')?.insertAdjacentHTML('beforeend', chapterMenu);
+        this.element.querySelector('.chapter-title-container')?.insertAdjacentHTML('beforeend', chapterMenu);
         document.addEventListener('click', this.boundCloseChapterComment);
     }
 
