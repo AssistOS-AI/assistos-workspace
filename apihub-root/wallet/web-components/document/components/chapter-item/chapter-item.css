@@ -7,8 +7,17 @@
     font-weight: 600;
     padding: 0 0 10px 8px;
     line-height: normal;
+    overflow: visible;
 }
-
+.chapter-actions{
+    display: flex;
+    align-items: center;
+    gap:5px;
+}
+.chapter-comment{
+    display:flex;
+    align-items:center;
+}
 .arrow {
     margin-right: 5px;
     cursor: pointer;

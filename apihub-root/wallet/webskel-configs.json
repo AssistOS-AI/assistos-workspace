@@ -35,6 +35,18 @@
             "presenterClassName": "ParagraphCommentMenu"
         },
         {
+            "name": "chapter-comment-menu",
+            "directory": "document",
+            "type": "components",
+            "presenterClassName": "ChapterCommentMenu"
+        },
+        {
+            "name": "document-comment-menu",
+            "directory": "document",
+            "type": "components",
+            "presenterClassName": "DocumentCommentMenu"
+        },
+        {
             "name": "silence-popup",
             "directory": "document",
             "type": "components",

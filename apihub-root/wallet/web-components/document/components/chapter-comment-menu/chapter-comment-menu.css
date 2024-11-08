@@ -1,0 +1,33 @@
+chapter-comment-menu {
+    display: block;
+    position: absolute;
+    top:0;
+    right:0;
+    height:200px;
+    z-index:2;
+    cursor: pointer;
+    width:600px;
+    background-color: var(--white);
+    padding: 15px;
+    border-radius: 5px;
+    box-shadow: 0px 1px 7.3px 0px rgba(0, 0, 0, 0.25);
+}
+
+.commentText {
+    padding: 10px;
+    width: 95%; /* Allow dynamic resizing */
+    height:95%;
+    min-width: 100%; /* Ensure it starts as full width */
+    max-width: 100%; /* Constrain width within container */
+    line-height: 1.5;
+    resize: none; /* Disable manual resizing by user */
+    overflow: hidden; /* Prevent scrollbars from appearing */
+    border: 1px solid #ddd;
+    border-radius: 4px;
+    box-sizing: border-box;
+    font-size: 1rem;
+    color: #333;
+}
+.commentText:focus {
+    outline: none;
+}

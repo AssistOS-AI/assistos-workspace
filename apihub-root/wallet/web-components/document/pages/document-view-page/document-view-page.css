@@ -9,7 +9,15 @@ document-view-page {
     direction: rtl; /* This moves the scrollbar to the left */
     text-align: left; /* Keeps content aligned normally */
 }
-
+.abstract-header-section{
+    display: flex;
+    justify-content: space-between;
+}
+.book-comment-container{
+    display: flex;
+    align-items: center;
+    justify-content: center;
+}
 document-view-page > * {
     direction: ltr; /* Revert text direction back to normal for content */
 }
@@ -152,6 +160,7 @@ document-view-page::-webkit-scrollbar-track {
     padding: 10px;
     border-radius: 5px;
     display: flex;
+    position:relative;
 }
 
 html[theme="dark"] .document-title-container {

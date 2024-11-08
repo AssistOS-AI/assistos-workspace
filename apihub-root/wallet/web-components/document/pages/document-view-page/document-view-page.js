@@ -10,6 +10,7 @@ export class DocumentViewPage {
         this.refreshDocument = async () => {
             this._document = await documentModule.getDocument(assistOS.space.id, this._document.id);
         }
+        this.boundCloseDocumentComment = this.closeDocumentComment.bind(this);
         this.invalidate(async () => {
             this._document = await documentModule.getDocument(assistOS.space.id, window.location.hash.split("/")[3]);
             this.boundOnDocumentUpdate = this.onDocumentUpdate.bind(this);
@@ -445,5 +446,19 @@ export class DocumentViewPage {
             "presenter": "books-generator-modal",
             "documentId": this._document.id
         });
+    }
+
+    openDocumentComment(_target){
+        const chapterMenu = `<document-comment-menu data-presenter="document-comment-menu"></document-comment-menu>`;
+        this.element.querySelector('.document-title-container')?.insertAdjacentHTML('beforeend', chapterMenu);
+        document.addEventListener('click', this.boundCloseDocumentComment);
+    }
+
+    closeDocumentComment(event) {
+        if (event.target.closest('document-comment-menu')) {
+            return;
+        }
+        document.removeEventListener('click', this.boundCloseDocumentComment);
+        this.element.querySelector('document-comment-menu')?.remove();
     }
 }

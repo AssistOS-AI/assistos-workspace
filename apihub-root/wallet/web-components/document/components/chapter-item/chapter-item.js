@@ -1,5 +1,6 @@
 import {unescapeHtmlEntities} from "../../../../imports.js";
 import {NotificationRouter} from "../../../../imports.js";
+
 const documentModule = require("assistos").loadModule("document", {});
 const spaceModule = require("assistos").loadModule("space", {});
 
@@ -21,6 +22,7 @@ export class ChapterItem {
             this.boundOnChapterUpdate = this.onChapterUpdate.bind(this);
             await NotificationRouter.subscribeToDocument(this._document.id, this.chapter.id, this.boundOnChapterUpdate);
         });
+        this.boundCloseChapterComment = this.closeChapterComment.bind(this);
     }
 
     beforeRender() {
@@ -38,27 +40,30 @@ export class ChapterItem {
             this.chapterContent += `<paragraph-item data-local-action="editItem paragraph" data-presenter="paragraph-item" data-metadata="paragraph nr. ${iterator} with id ${paragraph.id}" data-paragraph-id="${paragraph.id}" data-chapter-id="${this.chapter.id}"></paragraph-item>`;
         });
     }
-    async insertNewParagraph(paragraphId, position){
+
+    async insertNewParagraph(paragraphId, position) {
         let newParagraph = await documentModule.getParagraph(assistOS.space.id, this._document.id, paragraphId);
         this.chapter.paragraphs.splice(position, 0, newParagraph);
         let previousParagraphIndex = position - 1;
-        if(previousParagraphIndex < 0){
+        if (previousParagraphIndex < 0) {
             previousParagraphIndex = 0;
         }
         let previousParagraphId = this.chapter.paragraphs[previousParagraphIndex].id;
         let previousParagraph = this.element.querySelector(`paragraph-item[data-paragraph-id="${previousParagraphId}"]`);
-        if(!previousParagraph){
+        if (!previousParagraph) {
             let paragraphsContainer = this.element.querySelector(".chapter-paragraphs");
             paragraphsContainer.insertAdjacentHTML("afterbegin", `<paragraph-item data-local-action="editItem paragraph" data-presenter="paragraph-item" data-metadata="paragraph nr. ${position + 1} with id ${newParagraph.id}" data-paragraph-id="${newParagraph.id}" data-chapter-id="${this.chapter.id}"></paragraph-item>`);
             return;
         }
         previousParagraph.insertAdjacentHTML("afterend", `<paragraph-item data-local-action="editItem paragraph" data-presenter="paragraph-item" data-metadata="paragraph nr. ${position + 1} with id ${newParagraph.id}" data-paragraph-id="${newParagraph.id}" data-chapter-id="${this.chapter.id}"></paragraph-item>`);
     }
-    deleteParagraph(paragraphId){
+
+    deleteParagraph(paragraphId) {
         this.chapter.paragraphs = this.chapter.paragraphs.filter(paragraph => paragraph.id !== paragraphId);
         let paragraph = this.element.querySelector(`paragraph-item[data-paragraph-id="${paragraphId}"]`);
         paragraph.remove();
     }
+
     swapParagraphs(paragraphId, swapParagraphId, direction) {
         let paragraphs = this.chapter.paragraphs;
         let currentParagraphIndex = this.chapter.getParagraphIndex(paragraphId);
@@ -67,7 +72,7 @@ export class ChapterItem {
         let paragraph1 = this.element.querySelector(`paragraph-item[data-paragraph-id="${paragraphId}"]`);
         let paragraph2 = this.element.querySelector(`paragraph-item[data-paragraph-id="${swapParagraphId}"]`);
         if (direction === "up") {
-            if(adjacentParagraphIndex === this.chapter.paragraphs.length - 1){
+            if (adjacentParagraphIndex === this.chapter.paragraphs.length - 1) {
                 paragraphs.push(paragraphs.shift());
                 paragraph2.insertAdjacentElement('afterend', paragraph1);
                 return;
@@ -76,7 +81,7 @@ export class ChapterItem {
             paragraph2.insertAdjacentElement('beforebegin', paragraph1);
         } else {
             // Insert the current paragraph after the adjacent one
-            if(adjacentParagraphIndex === 0){
+            if (adjacentParagraphIndex === 0) {
                 paragraphs.unshift(paragraphs.pop());
                 paragraph2.insertAdjacentElement('beforebegin', paragraph1);
                 return;
@@ -85,15 +90,16 @@ export class ChapterItem {
             paragraph2.insertAdjacentElement('afterend', paragraph1);
         }
     }
+
     async onChapterUpdate(data) {
-        if(typeof data === "object") {
-            if(data.operationType === "add"){
+        if (typeof data === "object") {
+            if (data.operationType === "add") {
                 return await this.insertNewParagraph(data.paragraphId, data.position);
             }
-            if(data.operationType === "delete"){
+            if (data.operationType === "delete") {
                 return this.deleteParagraph(data.paragraphId);
             }
-            if(data.operationType === "swap"){
+            if (data.operationType === "swap") {
                 return this.swapParagraphs(data.paragraphId, data.swapParagraphId, data.direction);
             }
         }
@@ -154,7 +160,7 @@ export class ChapterItem {
             this.changeChapterVisibility("hide");
         }
         //for demo documents
-        if(this.chapter.backgroundSound && !this.chapter.backgroundSound.duration){
+        if (this.chapter.backgroundSound && !this.chapter.backgroundSound.duration) {
             let audio = new Audio();
             audio.addEventListener("loadedmetadata", async () => {
                 this.chapter.backgroundSound.duration = audio.duration;
@@ -204,10 +210,11 @@ export class ChapterItem {
         this.switchButtonsDisplay(this.chapterItem, "on");
     }
 
-    focusOutHandlerTitle(chapterTitle){
+    focusOutHandlerTitle(chapterTitle) {
         this.focusOutHandler()
         chapterTitle.classList.remove("focused");
     }
+
     focusOutHandler() {
         assistOS.space.currentChapterId = null;
         this.switchButtonsDisplay(this.chapterItem, "off");
@@ -374,7 +381,7 @@ export class ChapterItem {
 
     async playBackgroundAudio(_target) {
         let chapterAudio = this.element.querySelector('.chapter-audio-section');
-        if(chapterAudio){
+        if (chapterAudio) {
             return;
         }
         let audioSection = `<div class="chapter-audio-section flex">
@@ -404,7 +411,7 @@ export class ChapterItem {
         audio.addEventListener('volumechange', this.saveVolumeChanges.bind(this, audio), {passive: true});
         let loopInput = this.element.querySelector('#loop');
 
-        if(typeof this.chapter.backgroundSound.loop === "undefined") {
+        if (typeof this.chapter.backgroundSound.loop === "undefined") {
             loopInput.checked = true;
             audio.loop = true;
         } else {
@@ -418,11 +425,12 @@ export class ChapterItem {
         this.boundHideAudioElement = this.hideAudioElement.bind(this, controller, _target);
         document.addEventListener("click", this.boundHideAudioElement, {signal: controller.signal});
     }
-    saveLoopChanges(){
+
+    saveLoopChanges() {
         let audio = this.element.querySelector('.chapter-audio');
         let loopInput = this.element.querySelector('#loop');
         const isLooping = this.chapter.backgroundSound.loop === true;
-        if(loopInput.checked !== isLooping) {
+        if (loopInput.checked !== isLooping) {
             this.chapter.backgroundSound.loop = loopInput.checked;
             documentModule.updateChapterBackgroundSound(assistOS.space.id, this._document.id, this.chapter.id, {
                 id: this.chapter.backgroundSound.id,
@@ -433,6 +441,7 @@ export class ChapterItem {
             audio.loop = loopInput.checked;
         }
     }
+
     async deleteBackgroundSound() {
         this.switchPlayButtonDisplay("off");
         delete this.chapter.backgroundSound;
@@ -447,7 +456,22 @@ export class ChapterItem {
         await documentModule.deleteChapter(assistOS.space.id, this._document.id, this.chapter.id);
         this.documentPresenter.deleteChapter(this.chapter.id);
     }
-    updateChapterNumber(){
+
+    openChapterComment(_target) {
+        const chapterMenu = `<chapter-comment-menu data-presenter="chapter-comment-menu"></chapter-comment-menu>`;
+        this.element.querySelector('.chapter-title-section')?.insertAdjacentHTML('beforeend', chapterMenu);
+        document.addEventListener('click', this.boundCloseChapterComment);
+    }
+
+    closeChapterComment(event) {
+        if (event.target.closest('chapter-comment-menu')) {
+            return;
+        }
+        document.removeEventListener('click', this.boundCloseChapterComment);
+        this.element.querySelector('chapter-comment-menu')?.remove();
+    }
+
+    updateChapterNumber() {
         let chapterIndex = this._document.getChapterIndex(this.chapter.id);
         let chapterNumber = this.element.querySelector(".data-chapter-number");
         chapterNumber.innerHTML = `${chapterIndex + 1}.`;
