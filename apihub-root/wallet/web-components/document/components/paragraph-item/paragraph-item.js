@@ -8,6 +8,7 @@ const spaceModule = require("assistos").loadModule("space", {});
 const blackScreen = "./wallet/assets/images/black-screen.png";
 const constants = require("assistos").constants;
 import {generateId} from "../../../../imports.js";
+import selectionUtils from "../../pages/document-view-page/selectionUtils.js";
 export class ParagraphItem {
     constructor(element, invalidate) {
         this.element = element;
@@ -24,7 +25,8 @@ export class ParagraphItem {
     async subscribeToParagraphEvents() {
         this.boundOnParagraphUpdate = this.onParagraphUpdate.bind(this);
         await NotificationRouter.subscribeToDocument(this._document.id, this.paragraph.id, this.boundOnParagraphUpdate);
-        this.boundHandleUserSelection = this.handleUserSelection.bind(this);
+        this.textClass = "paragraph-text"
+        this.boundHandleUserSelection = this.handleUserSelection.bind(this, this.textClass);
         await NotificationRouter.subscribeToDocument(this._document.id, this.paragraph.id, this.boundHandleUserSelection);
         this.boundChangeTaskStatus = this.changeTaskStatus.bind(this);
         for (let [commandType, commandDetails] of Object.entries(this.paragraph.commands)) {
@@ -133,7 +135,7 @@ export class ParagraphItem {
         let mockEvent = {
             ctrlKey: true,
             key: "Enter",
-            target: this.element.querySelector(".paragraph-item")
+            target: this.element.querySelector(".paragraph-text-container")
         }
         chapterPresenter.addParagraphOrChapterOnKeyPress(mockEvent);
     }
@@ -188,7 +190,7 @@ export class ParagraphItem {
         paragraphHeaderContainer.classList.add("highlight-paragraph-header");
         let paragraphText = this.element.querySelector('.paragraph-text');
         paragraphText.classList.add("focused");
-        let paragraphTextContainer = this.element.querySelector('.paragraph-item');
+        let paragraphTextContainer = this.element.querySelector('.paragraph-text-container');
         paragraphTextContainer.style.padding = "0 10px 10px 10px";
         paragraphTextContainer.classList.add("highlighted-paragraph");
         this.showUnfinishedTasks();
@@ -350,7 +352,7 @@ export class ParagraphItem {
         this.switchParagraphToolbar("off");
         let chapterPresenter = this.element.closest("chapter-item").webSkelPresenter;
         chapterPresenter.focusOutHandler();
-        let paragraphTextContainer = this.element.querySelector('.paragraph-item');
+        let paragraphTextContainer = this.element.querySelector('.paragraph-text-container');
         paragraphTextContainer.classList.remove("highlighted-paragraph");
         paragraphTextContainer.style.padding = "0";
         let paragraphHeaderContainer = this.element.querySelector('.paragraph-header');
@@ -379,7 +381,7 @@ export class ParagraphItem {
                 }
                 this.textIsDifferentFromAudio = false;
                 assistOS.space.currentParagraphId = null;
-                await this.deselectParagraph();
+                await selectionUtils.deselectItem(this.paragraph.id, this);
             }
         );
     }
@@ -972,7 +974,7 @@ export class ParagraphItem {
             imageSrc = "./wallet/assets/images/defaultUserPhoto.png";
         }
         let userIcon = `<img loading="lazy" src="${imageSrc}" class="user-icon" alt="user-icon" data-id="${selectId}">`;
-        let paragraphItem = this.element.querySelector(".paragraph-item");
+        let paragraphItem = this.element.querySelector(".paragraph-text-container");
         paragraphItem.insertAdjacentHTML('beforeend', userIcon);
     }
     removeUserIcon(selectId){
@@ -981,59 +983,21 @@ export class ParagraphItem {
             userIcon.remove();
         }
     }
-
-    async deselectParagraph(){
-        if(this.selectionInterval){
-            clearInterval(this.selectionInterval);
-            delete this.selectionInterval;
-        }
-        await documentModule.deselectParagraph(assistOS.space.id, this._document.id, this.paragraph.id, this.selectId);
-    }
-    async selectParagraph(lockText){
-        this.selectId = generateId(8);
-        if(this.selectionInterval){
-            clearInterval(this.selectionInterval);
-            delete this.selectionInterval;
-        }
-        await documentModule.selectParagraph(assistOS.space.id, this._document.id, this.paragraph.id, {
-            lockText: lockText,
-            selectId: this.selectId
-        });
-        this.selectionInterval = setInterval(async () => {
-            let paragraphText = this.element.querySelector(".paragraph-text");
-            lockText = !paragraphText.hasAttribute("readonly");
-            await documentModule.selectParagraph(assistOS.space.id, this._document.id, this.paragraph.id, {
-                lockText: lockText,
-                selectId: this.selectId
-            });
-        }, 1000 * 10);
-    }
-    async handleUserSelection(data){
+    async handleUserSelection(itemClass, data){
         if(typeof data === "string"){
             return ;
         }
         if(data.selected){
-            await this.setUserIcon(data.imageId, data.selectId);
+            await selectionUtils.setUserIcon(data.imageId, data.selectId, itemClass, this);
             if(data.lockOwner &&  data.lockOwner !== this.selectId){
-                return this.lockText();
+                return selectionUtils.lockText(itemClass, this);
             }
         } else {
-            this.removeUserIcon(data.selectId);
+            selectionUtils.removeUserIcon(data.selectId, this);
             if(!data.lockOwner){
-                this.unlockText();
+                selectionUtils.unlockText(itemClass, this);
             }
         }
     }
 
-    lockText() {
-        let paragraphText = this.element.querySelector(".paragraph-text");
-        paragraphText.setAttribute("readonly", true);
-        paragraphText.classList.add("locked-text");
-    }
-
-    unlockText() {
-        let paragraphText = this.element.querySelector(".paragraph-text");
-        paragraphText.removeAttribute("readonly");
-        paragraphText.classList.remove("locked-text");
-    }
 }

@@ -2,7 +2,7 @@ import {NotificationRouter} from "../../../../imports.js";
 const documentModule = require("assistos").loadModule("document", {});
 const personalityModule = require("assistos").loadModule("personality", {});
 import {executorTimer, unescapeHtmlEntities} from "../../../../imports.js";
-
+import selectionUtils from "./selectionUtils.js";
 export class DocumentViewPage {
     constructor(element, invalidate) {
         this.element = element;
@@ -19,7 +19,18 @@ export class DocumentViewPage {
             this.boundRefreshPersonalitiesMetadata = this.refreshPersonalitiesMetadata.bind(this);
             await NotificationRouter.subscribeToSpace(assistOS.space.id, "personalities", this.boundRefreshPersonalitiesMetadata);
             this.selectedParagraphs = await documentModule.getSelectedParagraphs(assistOS.space.id, this._document.id);
+            await this.initTitleAbstractSelection();
         });
+    }
+    async initTitleAbstractSelection(){
+        this.abstractClass = "document-abstract";
+        this.titleClass = "document-title";
+        this.abstractId = "abstract";
+        this.titleId = "title";
+        this.boundSelectAbstractHandler = this.handleUserSelection.bind(this, this.abstractClass);
+        this.boundSelectTitleHandler = this.handleUserSelection.bind(this, this.titleClass);
+        await NotificationRouter.subscribeToDocument(this._document.id, this.abstractId, this.boundSelectAbstractHandler);
+        await NotificationRouter.subscribeToDocument(this._document.id, this.titleId, this.boundSelectTitleHandler);
     }
     async refreshPersonalitiesMetadata() {
         this.personalitiesMetadata = await personalityModule.getPersonalitiesMetadata(assistOS.space.id);
@@ -138,7 +149,7 @@ export class DocumentViewPage {
     }
 
     renderAbstract() {
-        let abstract = this.element.querySelector(".abstract-text");
+        let abstract = this.element.querySelector(".document-abstract");
         abstract.innerHTML = this._document.abstract || "No abstract has been set or generated for this document";
     }
 
@@ -295,7 +306,7 @@ export class DocumentViewPage {
         }
     }
 
-    focusOutHandler(element) {
+    async focusOutHandler(element, itemId) {
         let container = element.closest(".container-element");
         container.classList.remove("focused");
         element.removeEventListener('keydown', this.titleKeyDownHandler);
@@ -303,6 +314,7 @@ export class DocumentViewPage {
         element.classList.remove("focused");
 
         this.stopTimer.bind(this, true);
+        await selectionUtils.deselectItem(itemId, this);
     }
 
     async controlAbstractHeight(abstract) {
@@ -321,7 +333,7 @@ export class DocumentViewPage {
             let paragraphPresenter = paragraphItem.webSkelPresenter;
             await this.changeCurrentElement(paragraphItem, paragraphPresenter.focusOutHandler.bind(paragraphPresenter, paragraphText));
             await paragraphPresenter.highlightParagraph();
-            await paragraphPresenter.selectParagraph(false);
+            await selectionUtils.selectItem(false, paragraphPresenter.paragraph.id, paragraphPresenter.textClass, paragraphPresenter);
             await chapterPresenter.highlightChapter();
             return;
         }
@@ -331,9 +343,10 @@ export class DocumentViewPage {
             targetElement.classList.add("focused");
             let containerElement = targetElement.closest(".container-element");
             containerElement.classList.add("focused");
-            await this.changeCurrentElement(targetElement, this.focusOutHandler.bind(this, targetElement));
+            await this.changeCurrentElement(targetElement, this.focusOutHandler.bind(this, targetElement, this.titleId));
             targetElement.addEventListener('keydown', this.titleKeyDownHandler);
             saveFunction = this.saveTitle.bind(this, targetElement);
+            await selectionUtils.selectItem(true, this.titleId, this.titleClass, this);
         } else if (type === "abstract") {
             if (!this.boundControlAbstractHeight) {
                 this.boundControlAbstractHeight = this.controlAbstractHeight.bind(this, targetElement);
@@ -342,8 +355,9 @@ export class DocumentViewPage {
             containerElement.classList.add("focused");
             targetElement.classList.add("focused")
             targetElement.addEventListener('keydown', this.boundControlAbstractHeight);
-            await this.changeCurrentElement(targetElement, this.focusOutHandler.bind(this, targetElement));
+            await this.changeCurrentElement(targetElement, this.focusOutHandler.bind(this, targetElement, this.abstractId));
             saveFunction = this.saveAbstract.bind(this, targetElement);
+            await selectionUtils.selectItem(true, this.abstractId, this.abstractClass, this);
         } else if (type === "chapterTitle") {
             targetElement.classList.add("focused")
             let chapterPresenter = targetElement.closest("chapter-item").webSkelPresenter;
@@ -351,6 +365,7 @@ export class DocumentViewPage {
             await this.changeCurrentElement(targetElement, chapterPresenter.focusOutHandlerTitle.bind(chapterPresenter, targetElement));
             await chapterPresenter.highlightChapter();
             targetElement.addEventListener('keydown', this.titleKeyDownHandler.bind(this, targetElement));
+            await selectionUtils.selectItem(true, chapterPresenter.titleId, chapterPresenter.titleClass, chapterPresenter);
         } else if (type === "paragraphText") {
             let chapterPresenter = targetElement.closest("chapter-item").webSkelPresenter;
             let paragraphItem = targetElement.closest("paragraph-item");
@@ -358,7 +373,7 @@ export class DocumentViewPage {
             await this.changeCurrentElement(targetElement, paragraphPresenter.focusOutHandler.bind(paragraphPresenter, targetElement));
             await chapterPresenter.highlightChapter();
             await paragraphPresenter.highlightParagraph();
-            await paragraphPresenter.selectParagraph(true);
+            await selectionUtils.selectItem(true, paragraphPresenter.paragraph.id, paragraphPresenter.textClass, paragraphPresenter);
             saveFunction = paragraphPresenter.saveParagraph.bind(paragraphPresenter, targetElement);
             resetTimerFunction = paragraphPresenter.resetTimer.bind(paragraphPresenter, targetElement);
         }
@@ -460,5 +475,22 @@ export class DocumentViewPage {
         }
         document.removeEventListener('click', this.boundCloseDocumentComment);
         this.element.querySelector('document-comment-menu')?.remove();
+    }
+
+    async handleUserSelection(itemClass, data){
+        if(typeof data === "string"){
+            return ;
+        }
+        if(data.selected){
+            await selectionUtils.setUserIcon(data.imageId, data.selectId, itemClass, this);
+            if(data.lockOwner &&  data.lockOwner !== this.selectId){
+                return selectionUtils.lockText(itemClass, this);
+            }
+        } else {
+            selectionUtils.removeUserIcon(data.selectId, this);
+            if(!data.lockOwner){
+                selectionUtils.unlockText(itemClass, this);
+            }
+        }
     }
 }

@@ -59,7 +59,7 @@ paragraph-item {
 .highlight-attachment{
     background-color: var(--white);
 }
-.paragraph-item {
+.paragraph-text-container {
     position: relative;
     cursor: default;
     display: flex;
@@ -106,7 +106,6 @@ textarea.paragraph-commands{
 
 .paragraph-text:focus {
     outline: none;
-    background-color: var(--white-text);
 }
 
 .arrow-vertical-spacing-div {
@@ -304,12 +303,4 @@ textarea.paragraph-commands{
 }
 .fix-warning:hover{
     color: var(--medium-blue);
-}
-.user-icon{
-    position: absolute;
-    left: -50px;
-    width: 40px;
-}
-.focused.locked-text{
-    background-color: var(--very-light-gray);
 }
