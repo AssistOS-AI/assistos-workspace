@@ -30,6 +30,7 @@ async function saveResult(ref,requestBody) {
             const videoURL = requestBody.outputUrl;
             const taskManager = require("../tasks/TaskManager.js");
             const task = taskManager.getTask(taskId);
+            console.log("-------------------------------- COMPLETING TASK  --------------------------------");
             await task.completeTaskExecution(videoURL);
            return;
         case "image":
@@ -48,6 +49,7 @@ async function saveResult(ref,requestBody) {
 
 async function dataHandler(request, response) {
     try {
+        console.log("-------------------------------- ENTERED WEBHOOK --------------------------------");
         const ref = extractRefFromRequest(request);
         if (!ref) {
             return utils.sendResponse(response, 401, "application/json", {
@@ -56,9 +58,11 @@ async function dataHandler(request, response) {
         }
         let {timestamp, nonce, signature, objectId} = ref;
         const generatedSignature = generateSignature(timestamp, nonce);
+        console.log("-------------------------------- VERIFYING SIGNATURE  --------------------------------");
         if (signature === generatedSignature) {
             const requestStatus = request.body.result ? request.body.result.status : request.body.status;
             if (requestStatus === "DONE" || requestStatus === "COMPLETED") {
+                console.log("-------------------------------- SAVING RESULT --------------------------------");
                 await saveResult(ref, request.body);
             }
             return utils.sendResponse(response, 200, "application/json", {});
