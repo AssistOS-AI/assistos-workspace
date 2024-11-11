@@ -4,6 +4,7 @@ const llmModule = require("assistos").loadModule("llm", {});
 const spaceModule = require("assistos").loadModule("space", {});
 const personalityModule = require("assistos").loadModule("personality", {});
 import {NotificationRouter} from "../../../../imports.js";
+
 export class EditPersonalityPage {
     constructor(element, invalidate) {
         this.element = element;
@@ -34,6 +35,7 @@ export class EditPersonalityPage {
             }
         });
     }
+
     async onPersonalityUpdate(type) {
         if (type === "delete") {
             await this.openPersonalitiesPage();
@@ -42,7 +44,30 @@ export class EditPersonalityPage {
             this.invalidate(this.refreshPersonality);
         }
     }
+
     async beforeRender() {
+        const constructLlmOptions = (llmModels, llmType) => {
+            let options = [];
+
+            if (this.personality.llms[llmType]) {
+                options.push(`<option value="${this.personality.llms[llmType]}" selected>${this.personality.llms[llmType]}</option>`);
+            } else {
+                options.push(`<option value="" disabled selected hidden>Select ${llmType} Model</option>`);
+            }
+
+            llmModels.forEach(llm => {
+                options.push(`<option value="${llm}">${llm}</option>`);
+            });
+            return options.join('');
+        };
+
+        const availableLlms = await llmModule.listLlms(assistOS.space.id);
+
+        this.audioLlmOptions = constructLlmOptions(availableLlms.audio, "audio");
+        this.textLlmOptions = constructLlmOptions(availableLlms.text, "text");
+        this.imageLlmOptions = constructLlmOptions(availableLlms.image, "image");
+        this.videoLlmOptions = constructLlmOptions(availableLlms.video, "video");
+
         let voicesHTML = "";
         for (let voice of this.voices) {
             voicesHTML += `<option value="${voice.id}">${voice.name}, accent: ${voice.accent}, age: ${voice.age}, gender: ${voice.gender}, loudness: ${voice.loudness}, tempo: ${voice.tempo}</option>`;
@@ -62,22 +87,26 @@ export class EditPersonalityPage {
             string += `<div class="fact">${fact}</div>`;
         }
         this.filteredKnowledge = string;
-
-        // let llmOptions = `<option value="" disabled selected hidden>Select LLM</option>`;
-        // for(let llm of llmModule.models){
-        //     llmOptions += `<option value="${llm.id}">${llm.name}</option>`;
-        // }
-        // this.llmOptions = llmOptions;
     }
 
-    preventRefreshOnEnter(event) {
-        if (event.key === "Enter") {
-            event.preventDefault();
-            this.element.querySelector(".magnifier-container").click();
+    async updateLlm(llmType,event) {
+        let llm = this.element.querySelector(`#${llmType}LLM`).value;
+        this.personality.llms[llmType] = llm;
+        await personalityModule.updatePersonality(assistOS.space.id, this.personality.id, this.personality);
+    }
+    async afterRender() {
+        const attachSelectHandlers = () => {
+            const textLlmSelector= this.element.querySelector("#textLLM");
+            const audioLlmSelector = this.element.querySelector("#audioLLM");
+            const imageLlmSelector = this.element.querySelector("#imageLLM");
+            const videoLlmSelector = this.element.querySelector("#videoLLM");
+
+            textLlmSelector.addEventListener("change", this.updateLlm.bind(this, "text"));
+            audioLlmSelector.addEventListener("change", this.updateLlm.bind(this, "audio"));
+            imageLlmSelector.addEventListener("change", this.updateLlm.bind(this, "image"));
+            videoLlmSelector.addEventListener("change", this.updateLlm.bind(this, "video"));
         }
-    }
-
-    afterRender() {
+        attachSelectHandlers();
         let description = this.element.querySelector("textarea");
         description.innerHTML = this.personality.description;
         this.userInput = this.element.querySelector("#search");
@@ -108,6 +137,13 @@ export class EditPersonalityPage {
         if (!this.boundSelectVoiceHndler) {
             this.boundSelectVoiceHndler = this.selectVoiceHandler.bind(this, voiceSelect);
             voiceSelect.addEventListener("change", this.boundSelectVoiceHndler);
+        }
+    }
+
+    preventRefreshOnEnter(event) {
+        if (event.key === "Enter") {
+            event.preventDefault();
+            this.element.querySelector(".magnifier-container").click();
         }
     }
 
@@ -162,7 +198,7 @@ export class EditPersonalityPage {
         };
         let formInfo = await assistOS.UI.extractFormInformation(_target, conditions);
         if (formInfo.isValid) {
-            if(this.photoAsFile){
+            if (this.photoAsFile) {
                 let reader = new FileReader();
                 reader.onload = async (e) => {
                     const uint8Array = new Uint8Array(e.target.result);

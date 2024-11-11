@@ -7,6 +7,7 @@ const {getWebhookSecret} = require("../webhook/controller");
 const configs = require("../../data-volume/config/config.json");
 let LLMConfigs;
 
+
 async function getLLMAuthRequirements() {
     let baseURL;
     if (configs.ENVIRONMENT_MODE === "production") {
@@ -48,37 +49,35 @@ async function constructRequestInitAndURL(url, method, request, response) {
     const configs = require("../../data-volume/config/config.json");
     let companyObj;
     let LLMConfigs = await getLLMConfigs();
-    if (request.body.modelName) {
-        companyObj = LLMConfigs.find(company => company.models.some(model => model.name === request.body.modelName));
-    } else if (request.body.company) {
-        companyObj = LLMConfigs.find((companyObj) => companyObj.company === request.body.company);
-    } else {
-        return utils.sendResponse(response, 500, "application/json", {
-            message: "LLM name or company name must be provided in the request body"
-        });
-    }
-    if (!companyObj) {
-        return utils.sendResponse(response, 404, "application/json", {
-            message: "Api key not set"
-        });
-    }
-    const APIKeyObj = await secrets.getModelAPIKey(spaceId, companyObj.company);
-    if (!APIKeyObj) {
-        return utils.sendResponse(response, 500, "application/json", {
-            message: "API key not found"
-        });
-    }
-    let body = Object.assign({}, request.body);
 
-    for (let key of companyObj.authentication) {
-        body[key] = APIKeyObj[key];
+    if (request.body?.modelName) {
+        companyObj = LLMConfigs.find(company => company.models.some(model => model.name === request.body.modelName));
+    } else if (request.body?.company) {
+        companyObj = LLMConfigs.find((companyObj) => companyObj.company === request.body.company);
+    }
+
+    let body = Object.assign({}, request.body || {});
+
+    if (companyObj) {
+        const APIKeyObj = await secrets.getModelAPIKey(spaceId, companyObj.company);
+        if (!APIKeyObj) {
+            return utils.sendResponse(response, 500, "application/json", {
+                message: "API key not found"
+            });
+        }
+        for (let key of companyObj.authentication) {
+            body[key] = APIKeyObj[key];
+        }
     }
 
     let init = {
         method: method,
         headers: {}
     };
-    init.body = JSON.stringify(body);
+
+    if (Object.keys(body).length !== 0) {
+        init.body = JSON.stringify(body);
+    }
     init.headers = {
         "Content-type": "application/json; charset=UTF-8"
     };
@@ -340,7 +339,7 @@ async function lipsync(request, response) {
     try {
         request.body = {
             modelName: request.body.modelName,
-            webHookData:{
+            webHookData: {
                 webhookSecret: getWebhookSecret(),
                 taskId: request.body.taskId
             },
@@ -359,6 +358,18 @@ async function lipsync(request, response) {
     }
 }
 
+async function listLlms(request, response) {
+    try {
+        let result = await sendRequest(`/apis/v1/llms`, "GET", request, response);
+        return utils.sendResponse(response, 200, "application/json", {
+            data: result
+        });
+    } catch (error) {
+        return utils.sendResponse(response, error.statusCode || 500, "application/json", {
+            message: error.message
+        })
+    }
+}
 
 module.exports = {
     getTextResponse,
@@ -372,5 +383,6 @@ module.exports = {
     getLLMConfigs,
     sendLLMConfigs,
     listEmotions,
-    lipsync
+    lipsync,
+    listLlms
 };

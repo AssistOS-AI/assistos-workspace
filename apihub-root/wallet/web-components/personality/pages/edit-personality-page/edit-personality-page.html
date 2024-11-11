@@ -32,12 +32,7 @@
                 </div>
             </div>
         </div>
-<!--        <div class="form-item">-->
-<!--            <label class="form-label" for="llm">Select LLM</label>-->
-<!--            <select class="form-input" id="llm">-->
-<!--                $$llmOptions-->
-<!--            </select>-->
-<!--        </div>-->
+
         <div class="form-item">
             <label class="form-label" for="voiceId">Select voice</label>
             <select class="form-input" id="voiceId" name="voiceId" data-id="voiceId">
@@ -50,6 +45,30 @@
             <audio class="audio-source" controls controlsList="nodownload">
                 <source class="audio-source" src="" type="audio/mpeg">
             </audio>
+        </div>
+        <div class="form-item">
+            <label class="form-label" for="textLLM">Text LLM</label>
+            <select name="textLLM" id="textLLM">
+                $$textLlmOptions
+            </select>
+        </div>
+        <div class="form-item">
+            <label class="form-label" for="audioLLM">Audio LLM</label>
+            <select name="audioLLM" id="audioLLM">
+                $$audioLlmOptions
+            </select>
+        </div>
+        <div class="form-item">
+            <label class="form-label" for="imageLLM">Image LLM</label>
+            <select name="imageLLM" id="imageLLM">
+                $$imageLlmOptions
+            </select>
+        </div>
+        <div class="form-item">
+            <label class="form-label" for="videoLLM">Video LLM</label>
+            <select name="videoLLM" id="videoLLM">
+                $$videoLlmOptions
+            </select>
         </div>
         <div class="form-footer">
             <button type="button" class="general-button right-margin" data-local-action="saveChanges">Save</button>
