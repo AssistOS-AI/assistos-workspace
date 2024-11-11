@@ -231,7 +231,18 @@ export class ParagraphItem {
     }
 
     async renderViewModeCommands() {
-        await this.buildCommandsHTML("view");
+        let headerSection = this.element.querySelector('.header-section');
+        let commandsElement = this.element.querySelector('.paragraph-commands');
+        commandsElement.remove();
+        let commandsHTML = await this.buildCommandsHTML("view");
+        headerSection.insertAdjacentHTML('beforeend', `<div class="paragraph-commands">${commandsHTML}</div>`);
+        let paragraphHeader = this.element.querySelector('.paragraph-commands');
+        paragraphHeader.style.height = "initial";
+        if (paragraphHeader.innerHTML === "") {
+            paragraphHeader.style.padding = "0";
+        } else {
+            paragraphHeader.style.padding = "5px 10px";
+        }
     }
 
     async buildCommandsHTML(mode) {
@@ -881,27 +892,6 @@ export class ParagraphItem {
         this.imgElement.src = imageSrc;
     }
 
-    hideParagraphInfo() {
-        let tasksInfo = this.element.querySelector(".paragraph-info");
-        if (tasksInfo) {
-            tasksInfo.remove();
-        }
-    }
-
-    showParagraphInfo(message) {
-        let tasksInfo = this.element.querySelector(".paragraph-info");
-        if (tasksInfo) {
-            tasksInfo.remove();
-        }
-        let info = `
-                <div class="paragraph-info">
-                    <img loading="lazy" src="./wallet/assets/icons/info.svg" class="tasks-warning-icon" alt="info">
-                    <div class="info-text">${message}</div>
-                </div>`;
-        let paragraphHeader = this.element.querySelector(".header-section");
-        paragraphHeader.insertAdjacentHTML('beforeend', info);
-    }
-
     checkVideoAndAudioDuration() {
         if (this.paragraph.commands.video && this.paragraph.commands.audio) {
             let videoDuration = this.paragraph.commands.video.end - this.paragraph.commands.video.start;
@@ -954,6 +944,27 @@ export class ParagraphItem {
         }
     }
 
+    hideParagraphInfo() {
+        let tasksInfo = this.element.querySelector(".paragraph-info");
+        if (tasksInfo) {
+            tasksInfo.remove();
+        }
+    }
+
+    showParagraphInfo(message) {
+        let tasksInfo = this.element.querySelector(".paragraph-info");
+        if (tasksInfo) {
+            tasksInfo.remove();
+        }
+        let info = `
+                <div class="paragraph-info">
+                    <img loading="lazy" src="./wallet/assets/icons/info.svg" class="tasks-warning-icon" alt="info">
+                    <div class="info-text">${message}</div>
+                </div>`;
+        let paragraphHeader = this.element.querySelector(".header-section");
+        paragraphHeader.insertAdjacentHTML('beforeend', info);
+    }
+
     async handleUserSelection(itemClass, data){
         if(typeof data === "string"){
             return ;
@@ -970,6 +981,7 @@ export class ParagraphItem {
             }
         }
     }
+
     async afterUnload(){
         if(this.selectionInterval){
             await selectionUtils.deselectItem(this.paragraph.id, this);
