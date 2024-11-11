@@ -4,7 +4,9 @@ dialog{
     width: 50%;
     overflow: hidden;
 }
-
+edit-personality-page{
+    overflow-y: auto;
+}
 * {
     font-family: Poppins;
 }
