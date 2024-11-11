@@ -51,7 +51,7 @@ async function createParagraph(req, res) {
 async function updateParagraph(req, res) {
     const {spaceId, documentId, paragraphId} = req.params;
     const paragraphData = req.body;
-    if (!spaceId || !documentId || !paragraphId || !paragraphData) {
+    if (!spaceId || !documentId || !paragraphId) {
         return utils.sendResponse(res, 400, "application/json", {
             message: "Invalid request" + `Missing ${spaceId ? 'spaceId ' : ''}${documentId ? 'documentId ' : ''}${paragraphId ? 'paragraphId ' : ''}${paragraphData ? 'request body' : ''}`,
         });

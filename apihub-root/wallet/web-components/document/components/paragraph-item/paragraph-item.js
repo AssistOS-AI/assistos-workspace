@@ -231,18 +231,7 @@ export class ParagraphItem {
     }
 
     async renderViewModeCommands() {
-        let headerSection = this.element.querySelector('.header-section');
-        let commandsElement = this.element.querySelector('.paragraph-commands');
-        commandsElement.remove();
-        let commandsHTML = await this.buildCommandsHTML("view");
-        headerSection.insertAdjacentHTML('beforeend', `<div class="paragraph-commands">${commandsHTML}</div>`);
-        let paragraphHeader = this.element.querySelector('.paragraph-commands');
-        paragraphHeader.style.height = "initial";
-        if (paragraphHeader.innerHTML === "") {
-            paragraphHeader.style.padding = "0";
-        } else {
-            paragraphHeader.style.padding = "5px 10px";
-        }
+        await this.buildCommandsHTML("view");
     }
 
     async buildCommandsHTML(mode) {
@@ -264,6 +253,10 @@ export class ParagraphItem {
                     let attachmentHighlight = this.element.querySelector(".attachment-circle.video");
                     attachmentHighlight.classList.add("highlight-attachment");
                 }
+            }
+            if(this.paragraph.comment.trim() !== ""){
+                let commentHighlight = this.element.querySelector(".attachment-circle.comment");
+                commentHighlight.classList.add("highlight-attachment");
             }
         } else {
             html = utilModule.buildCommandsString(this.paragraph.commands);
