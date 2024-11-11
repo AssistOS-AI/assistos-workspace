@@ -1,13 +1,13 @@
 import {executorTimer} from "../../../../imports.js";
 import {formatTime} from "../../../../utils/videoUtils.js";
 import {NotificationRouter} from "../../../../imports.js";
-
 const utilModule = require("assistos").loadModule("util", {});
 const documentModule = require("assistos").loadModule("document", {});
 const spaceModule = require("assistos").loadModule("space", {});
 const blackScreen = "./wallet/assets/images/black-screen.png";
 const constants = require("assistos").constants;
-import {generateId} from "../../../../imports.js";
+
+import selectionUtils from "../../pages/document-view-page/selectionUtils.js";
 export class ParagraphItem {
     constructor(element, invalidate) {
         this.element = element;
@@ -24,7 +24,8 @@ export class ParagraphItem {
     async subscribeToParagraphEvents() {
         this.boundOnParagraphUpdate = this.onParagraphUpdate.bind(this);
         await NotificationRouter.subscribeToDocument(this._document.id, this.paragraph.id, this.boundOnParagraphUpdate);
-        this.boundHandleUserSelection = this.handleUserSelection.bind(this);
+        this.textClass = "paragraph-text"
+        this.boundHandleUserSelection = this.handleUserSelection.bind(this, this.textClass);
         await NotificationRouter.subscribeToDocument(this._document.id, this.paragraph.id, this.boundHandleUserSelection);
         this.boundChangeTaskStatus = this.changeTaskStatus.bind(this);
         for (let [commandType, commandDetails] of Object.entries(this.paragraph.commands)) {
@@ -65,10 +66,10 @@ export class ParagraphItem {
         let selected = this.documentPresenter.selectedParagraphs[this.paragraph.id];
         if(selected){
             for(let selection of selected.users){
-                await this.setUserIcon(selection.userId, selection.imageId);
+                await selectionUtils.setUserIcon(selection.imageId, selection.selectId, this.textClass, this);
             }
             if(selected.lockOwner){
-                this.lockText();
+                selectionUtils.lockText(this.textClass, this);
             }
         }
     }
@@ -133,7 +134,7 @@ export class ParagraphItem {
         let mockEvent = {
             ctrlKey: true,
             key: "Enter",
-            target: this.element.querySelector(".paragraph-item")
+            target: this.element.querySelector(".paragraph-text-container")
         }
         chapterPresenter.addParagraphOrChapterOnKeyPress(mockEvent);
     }
@@ -188,7 +189,7 @@ export class ParagraphItem {
         paragraphHeaderContainer.classList.add("highlight-paragraph-header");
         let paragraphText = this.element.querySelector('.paragraph-text');
         paragraphText.classList.add("focused");
-        let paragraphTextContainer = this.element.querySelector('.paragraph-item');
+        let paragraphTextContainer = this.element.querySelector('.paragraph-text-container');
         paragraphTextContainer.style.padding = "0 10px 10px 10px";
         paragraphTextContainer.classList.add("highlighted-paragraph");
         this.showUnfinishedTasks();
@@ -263,6 +264,10 @@ export class ParagraphItem {
                     let attachmentHighlight = this.element.querySelector(".attachment-circle.video");
                     attachmentHighlight.classList.add("highlight-attachment");
                 }
+            }
+            if(this.paragraph.comment.trim() !== ""){
+                let commentHighlight = this.element.querySelector(".attachment-circle.comment");
+                commentHighlight.classList.add("highlight-attachment");
             }
         } else {
             html = utilModule.buildCommandsString(this.paragraph.commands);
@@ -350,7 +355,7 @@ export class ParagraphItem {
         this.switchParagraphToolbar("off");
         let chapterPresenter = this.element.closest("chapter-item").webSkelPresenter;
         chapterPresenter.focusOutHandler();
-        let paragraphTextContainer = this.element.querySelector('.paragraph-item');
+        let paragraphTextContainer = this.element.querySelector('.paragraph-text-container');
         paragraphTextContainer.classList.remove("highlighted-paragraph");
         paragraphTextContainer.style.padding = "0";
         let paragraphHeaderContainer = this.element.querySelector('.paragraph-header');
@@ -379,7 +384,7 @@ export class ParagraphItem {
                 }
                 this.textIsDifferentFromAudio = false;
                 assistOS.space.currentParagraphId = null;
-                await this.deselectParagraph();
+                await selectionUtils.deselectItem(this.paragraph.id, this);
             }
         );
     }
@@ -887,27 +892,6 @@ export class ParagraphItem {
         this.imgElement.src = imageSrc;
     }
 
-    hideParagraphInfo() {
-        let tasksInfo = this.element.querySelector(".paragraph-info");
-        if (tasksInfo) {
-            tasksInfo.remove();
-        }
-    }
-
-    showParagraphInfo(message) {
-        let tasksInfo = this.element.querySelector(".paragraph-info");
-        if (tasksInfo) {
-            tasksInfo.remove();
-        }
-        let info = `
-                <div class="paragraph-info">
-                    <img loading="lazy" src="./wallet/assets/icons/info.svg" class="tasks-warning-icon" alt="info">
-                    <div class="info-text">${message}</div>
-                </div>`;
-        let paragraphHeader = this.element.querySelector(".header-section");
-        paragraphHeader.insertAdjacentHTML('beforeend', info);
-    }
-
     checkVideoAndAudioDuration() {
         if (this.paragraph.commands.video && this.paragraph.commands.audio) {
             let videoDuration = this.paragraph.commands.video.end - this.paragraph.commands.video.start;
@@ -960,80 +944,47 @@ export class ParagraphItem {
         }
     }
 
-    async setUserIcon(imageId, selectId){
-        let userIconElement = this.element.querySelector(`.user-icon[data-id="${selectId}"]`);
-        if(userIconElement){
-            return;
-        }
-        let imageSrc;
-        if (imageId) {
-            imageSrc = await spaceModule.getImageURL(imageId);
-        } else {
-            imageSrc = "./wallet/assets/images/defaultUserPhoto.png";
-        }
-        let userIcon = `<img loading="lazy" src="${imageSrc}" class="user-icon" alt="user-icon" data-id="${selectId}">`;
-        let paragraphItem = this.element.querySelector(".paragraph-item");
-        paragraphItem.insertAdjacentHTML('beforeend', userIcon);
-    }
-    removeUserIcon(selectId){
-        let userIcon = this.element.querySelector(`.user-icon[data-id="${selectId}"]`);
-        if(userIcon){
-            userIcon.remove();
+    hideParagraphInfo() {
+        let tasksInfo = this.element.querySelector(".paragraph-info");
+        if (tasksInfo) {
+            tasksInfo.remove();
         }
     }
 
-    async deselectParagraph(){
-        if(this.selectionInterval){
-            clearInterval(this.selectionInterval);
-            delete this.selectionInterval;
+    showParagraphInfo(message) {
+        let tasksInfo = this.element.querySelector(".paragraph-info");
+        if (tasksInfo) {
+            tasksInfo.remove();
         }
-        await documentModule.deselectParagraph(assistOS.space.id, this._document.id, this.paragraph.id, this.selectId);
+        let info = `
+                <div class="paragraph-info">
+                    <img loading="lazy" src="./wallet/assets/icons/info.svg" class="tasks-warning-icon" alt="info">
+                    <div class="info-text">${message}</div>
+                </div>`;
+        let paragraphHeader = this.element.querySelector(".header-section");
+        paragraphHeader.insertAdjacentHTML('beforeend', info);
     }
-    async selectParagraph(lockText){
-        this.selectId = generateId(8);
-        if(this.selectionInterval){
-            clearInterval(this.selectionInterval);
-            delete this.selectionInterval;
-        }
-        await documentModule.selectParagraph(assistOS.space.id, this._document.id, this.paragraph.id, {
-            lockText: lockText,
-            selectId: this.selectId
-        });
-        this.selectionInterval = setInterval(async () => {
-            let paragraphText = this.element.querySelector(".paragraph-text");
-            lockText = !paragraphText.hasAttribute("readonly");
-            await documentModule.selectParagraph(assistOS.space.id, this._document.id, this.paragraph.id, {
-                lockText: lockText,
-                selectId: this.selectId
-            });
-        }, 1000 * 10);
-    }
-    async handleUserSelection(data){
+
+    async handleUserSelection(itemClass, data){
         if(typeof data === "string"){
             return ;
         }
         if(data.selected){
-            await this.setUserIcon(data.imageId, data.selectId);
+            await selectionUtils.setUserIcon(data.imageId, data.selectId, itemClass, this);
             if(data.lockOwner &&  data.lockOwner !== this.selectId){
-                return this.lockText();
+                return selectionUtils.lockText(itemClass, this);
             }
         } else {
-            this.removeUserIcon(data.selectId);
+            selectionUtils.removeUserIcon(data.selectId, this);
             if(!data.lockOwner){
-                this.unlockText();
+                selectionUtils.unlockText(itemClass, this);
             }
         }
     }
 
-    lockText() {
-        let paragraphText = this.element.querySelector(".paragraph-text");
-        paragraphText.setAttribute("readonly", true);
-        paragraphText.classList.add("locked-text");
-    }
-
-    unlockText() {
-        let paragraphText = this.element.querySelector(".paragraph-text");
-        paragraphText.removeAttribute("readonly");
-        paragraphText.classList.remove("locked-text");
+    async afterUnload(){
+        if(this.selectionInterval){
+            await selectionUtils.deselectItem(this.paragraph.id, this);
+        }
     }
 }

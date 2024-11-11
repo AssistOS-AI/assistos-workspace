@@ -476,6 +476,157 @@ async function estimateDocumentVideoLength(request, response) {
     }
 }
 
+let selectedDocumentItems = {};
+function getSelectedDocumentItems(req, res) {
+    try {
+        let spaceId = req.params.spaceId;
+        let documentId = req.params.documentId;
+        let otherUsersSelected = {};
+        let userId = req.userId;
+        for (let [key, value] of Object.entries(selectedDocumentItems)) {
+            if(key.startsWith(`${spaceId}/${documentId}`)){
+                if(value.users.find((selection) => selection.userId === userId)){
+                    continue;
+                }
+                let itemId = key.split("/")[2];
+                otherUsersSelected[itemId] = {
+                    lockOwner: value.lockOwner,
+                    users: JSON.parse(JSON.stringify(value.users.map(({ timeoutId, ...user }) => user)))
+                };
+            }
+        }
+
+        return utils.sendResponse(res, 200, "application/json", {
+            data: otherUsersSelected
+        });
+    } catch (e) {
+        return utils.sendResponse(res, 500, "application/json", {
+            message: e.message
+        });
+    }
+}
+function getItemSelectId(spaceId, documentId, itemId){
+    return `${spaceId}/${documentId}/${itemId}`;
+}
+function setNewSelection(sessionId, selectId, spaceId, documentId, itemId, userId, userImageId, lockText) {
+    const paragraphSelectId = getItemSelectId(spaceId, documentId, itemId);
+    const timeoutId = setTimeout(() => {
+        deleteSelection(paragraphSelectId, selectId, sessionId, documentId, itemId);
+    }, 1000 * 10);
+
+    let paragraph = selectedDocumentItems[paragraphSelectId];
+    let lockOwner;
+
+    if (!paragraph) {
+        // If item doesn't exist, create a new entry with the initial user
+        lockOwner = lockText ? selectId : undefined;
+        selectedDocumentItems[paragraphSelectId] = {
+            lockOwner,
+            users: [{
+                selectId,
+                timeoutId,
+                userId,
+                userImageId
+            }]
+        };
+    } else {
+        // If item exists, check if user selection already exists
+        const existingSelection = paragraph.users.find(selection => selection.selectId === selectId);
+
+        if (existingSelection) {
+            // Update existing user's timeout
+            clearTimeout(existingSelection.timeoutId);
+            existingSelection.timeoutId = timeoutId;
+        } else {
+            // Add new user to paragraph's user list
+            paragraph.users.push({
+                selectId,
+                timeoutId,
+                userId,
+                userImageId
+            });
+        }
+
+        // Determine lock owner
+        if (!paragraph.lockOwner && lockText) {
+            lockOwner = selectId;
+            paragraph.lockOwner = lockOwner;
+        } else {
+            lockOwner = paragraph.lockOwner;
+        }
+    }
+
+    return lockOwner;
+}
+function deselectDocumentItem(req, res) {
+    try {
+        let itemId = req.params.itemId;
+        let documentId = req.params.documentId;
+        let selectId = req.params.selectId;
+        let spaceId = req.params.spaceId;
+        let paragraphSelectionId = getItemSelectId(spaceId, documentId, itemId);
+        deleteSelection(paragraphSelectionId, selectId, req.sessionId, documentId, itemId);
+        return utils.sendResponse(res, 200, "application/json", {
+        });
+    } catch (e) {
+        return utils.sendResponse(res, 500, "application/json", {
+            message: e.message
+        });
+    }
+}
+function selectDocumentItem(req, res) {
+    try {
+        let itemId = req.params.itemId;
+        let documentId = req.params.documentId;
+        let userId = req.userId;
+        let lockText = req.body.lockText;
+        let selectId = req.body.selectId;
+        let spaceId = req.params.spaceId;
+
+        let lockOwner = setNewSelection(req.sessionId, selectId, spaceId, documentId, itemId, userId, "", lockText);
+        let objectId = SubscriptionManager.getObjectId(documentId, itemId);
+
+        let eventData = {
+            selected: true,
+            userId: userId,
+            selectId: selectId,
+            userImageId: "",
+            lockOwner: lockOwner
+        }
+        SubscriptionManager.notifyClients(req.sessionId, objectId, eventData);
+        return utils.sendResponse(res, 200, "application/json", {});
+    } catch (e) {
+        return utils.sendResponse(res, 500, "application/json", {
+            message: e.message
+        });
+    }
+
+}
+function deleteSelection(itemSelectId, selectId, sessionId, documentId, itemId){
+    let item = selectedDocumentItems[itemSelectId];
+    if(!item){
+        return;
+    }
+    let userSelection = item.users.find((selection) => selection.selectId === selectId);
+    if(!userSelection){
+        return;
+    }
+    let index = item.users.indexOf(userSelection);
+    item.users.splice(index, 1);
+    let objectId = SubscriptionManager.getObjectId(documentId, itemId);
+    if(userSelection.selectId === item.lockOwner){
+        item.lockOwner = undefined;
+    }
+    let eventData = {
+        selected: false,
+        selectId: selectId,
+        lockOwner: item.lockOwner
+    }
+    SubscriptionManager.notifyClients(sessionId, objectId, eventData);
+    if(item.users.length === 0){
+        delete selectedDocumentItems[item];
+    }
+}
 module.exports = {
     getDocument,
     getDocumentsMetadata,
@@ -484,5 +635,8 @@ module.exports = {
     deleteDocument,
     exportDocument,
     importDocument,
-    estimateDocumentVideoLength
+    estimateDocumentVideoLength,
+    selectDocumentItem,
+    deselectDocumentItem,
+    getSelectedDocumentItems
 }

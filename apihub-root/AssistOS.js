@@ -199,6 +199,17 @@ class AssistOS {
             await (spaceId ? skipSpace ? assistOS.initUser() : assistOS.initUser(spaceId) : assistOS.initUser());
             try {
                 NotificationRouter.createSSEConnection();
+                NotificationRouter.eventSource.onopen = async () => {
+                    //this = assistOS
+                    this.spaceEventsHandler = async (event) => {
+                        if(event === "delete"){
+                            alert("Space has been deleted. You will be logged out");
+                            await assistOS.logout();
+                        }
+                    };
+                    await NotificationRouter.subscribeToSpace(assistOS.space.id, "space", this.spaceEventsHandler);
+                }
+
             } catch (error) {
                 await showApplicationError("Error", "Failed to establish connection to the server", error.message);
             }

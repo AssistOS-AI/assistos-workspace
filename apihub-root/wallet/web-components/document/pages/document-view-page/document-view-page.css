@@ -72,7 +72,8 @@ document-view-page::-webkit-scrollbar-track {
     margin-right: 4px;
 }
 
-.abstract-content {
+.document-abstract-container {
+    position: relative;
     display: flex;
     white-space: pre-line;
     text-align: justify;
@@ -83,7 +84,7 @@ document-view-page::-webkit-scrollbar-track {
     color: var(--user-text);
 }
 
-.abstract-text {
+.document-abstract {
     resize: none;
     border: none;
     display: inline-block;
@@ -98,7 +99,7 @@ document-view-page::-webkit-scrollbar-track {
     color: var(--user-text);
 }
 
-.abstract-text:focus {
+.document-abstract:focus {
     outline: none;
     background: var(--white-text);
 }
@@ -157,6 +158,7 @@ document-view-page::-webkit-scrollbar-track {
 }
 
 .document-title-container {
+    position: relative;
     padding: 10px;
     border-radius: 5px;
     display: flex;
@@ -286,3 +288,12 @@ html[theme="dark"] .document-title-container {
     border-radius: 50%;
 }
 
+/*selections*/
+.user-icon{
+    position: absolute;
+    left: -50px;
+    width: 40px;
+}
+.focused.locked-text{
+    background-color: var(--very-light-gray);
+}

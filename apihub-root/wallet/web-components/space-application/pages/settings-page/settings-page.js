@@ -78,7 +78,18 @@ export class SettingsPage {
         }
     }
     async deleteSpace() {
-        return await assistOS.callFlow("DeleteSpace", { spaceId: assistOS.space.id });
+        let message = `Are you sure you want to delete the space: ${assistOS.space.name}?`;
+        let confirmation = await assistOS.UI.showModal("confirm-action-modal", {message}, true);
+        if(confirmation){
+            let message = await assistOS.loadifyComponent(this.element, async ()=>{
+                return await spaceModule.deleteSpace(assistOS.space.id);
+            });
+            if(message){
+                await showApplicationError("Error deleting space", message, "");
+            } else {
+                window.location.reload();
+            }
+        }
     }
 
     async deleteAPIKey(_eventTarget, type) {

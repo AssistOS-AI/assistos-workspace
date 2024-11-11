@@ -4,6 +4,24 @@
     "services": [],
     "components": [
         {
+            "name": "fb-musicgen-sm-model-page",
+            "directory": "space-application",
+            "type": "pages",
+            "presenterClassName": "FbMusicgenSmModelPage"
+        },
+        {
+            "name": "fb-mms-tts-bht-model-page",
+            "directory": "space-application",
+            "type": "pages",
+            "presenterClassName": "FbMmsTtsBhtModelPage"
+        },
+        {
+            "name": "confirm-action-modal",
+            "directory": "space-application",
+            "type": "modals",
+            "presenterClassName": "ConfirmActionModal"
+        },
+        {
             "name": "flux-dev-model-page",
             "directory": "space-application",
             "type": "pages",

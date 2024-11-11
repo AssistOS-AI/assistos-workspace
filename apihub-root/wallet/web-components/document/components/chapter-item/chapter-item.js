@@ -1,6 +1,6 @@
 import {unescapeHtmlEntities} from "../../../../imports.js";
 import {NotificationRouter} from "../../../../imports.js";
-
+import selectionUtils from "../../pages/document-view-page/selectionUtils.js";
 const documentModule = require("assistos").loadModule("document", {});
 const spaceModule = require("assistos").loadModule("space", {});
 
@@ -18,11 +18,16 @@ export class ChapterItem {
         this.addParagraphOrChapterOnKeyPress = this.addParagraphOrChapterOnKeyPress.bind(this);
         this.element.removeEventListener('keydown', this.addParagraphOrChapterOnKeyPress);
         this.element.addEventListener('keydown', this.addParagraphOrChapterOnKeyPress);
+        this.titleId = `${this.chapter.id}_title`;
+        this.titleClass = "chapter-title";
+        this.boundHandleUserSelection = this.handleUserSelection.bind(this);
+        this.boundCloseChapterComment = this.closeChapterComment.bind(this);
         this.invalidate(async () => {
             this.boundOnChapterUpdate = this.onChapterUpdate.bind(this);
             await NotificationRouter.subscribeToDocument(this._document.id, this.chapter.id, this.boundOnChapterUpdate);
+            await NotificationRouter.subscribeToDocument(this._document.id, this.titleId, this.boundHandleUserSelection);
         });
-        this.boundCloseChapterComment = this.closeChapterComment.bind(this);
+
     }
 
     beforeRender() {
@@ -210,9 +215,10 @@ export class ChapterItem {
         this.switchButtonsDisplay(this.chapterItem, "on");
     }
 
-    focusOutHandlerTitle(chapterTitle) {
+    async focusOutHandlerTitle(chapterTitle){
         this.focusOutHandler()
         chapterTitle.classList.remove("focused");
+        await selectionUtils.deselectItem(this.titleId, this);
     }
 
     focusOutHandler() {
@@ -459,7 +465,7 @@ export class ChapterItem {
 
     openChapterComment(_target) {
         const chapterMenu = `<chapter-comment-menu data-presenter="chapter-comment-menu"></chapter-comment-menu>`;
-        this.element.querySelector('.chapter-title-section')?.insertAdjacentHTML('beforeend', chapterMenu);
+        this.element.querySelector('.chapter-title-container')?.insertAdjacentHTML('beforeend', chapterMenu);
         document.addEventListener('click', this.boundCloseChapterComment);
     }
 
@@ -475,6 +481,27 @@ export class ChapterItem {
         let chapterIndex = this._document.getChapterIndex(this.chapter.id);
         let chapterNumber = this.element.querySelector(".data-chapter-number");
         chapterNumber.innerHTML = `${chapterIndex + 1}.`;
+    }
+    async handleUserSelection(data){
+        if(typeof data === "string"){
+            return;
+        }
+        if(data.selected){
+            await selectionUtils.setUserIcon(data.imageId, data.selectId, this.titleClass, this);
+            if(data.lockOwner &&  data.lockOwner !== this.selectId){
+                return selectionUtils.lockText(this.titleClass, this);
+            }
+        } else {
+            selectionUtils.removeUserIcon(data.selectId, this);
+            if(!data.lockOwner){
+                selectionUtils.unlockText(this.titleClass, this);
+            }
+        }
+    }
+    async afterUnload(){
+        if(this.selectionInterval){
+            await selectionUtils.deselectItem(this.titleId, this);
+        }
     }
 }
 

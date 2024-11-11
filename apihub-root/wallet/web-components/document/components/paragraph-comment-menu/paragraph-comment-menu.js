@@ -59,6 +59,11 @@ export class ParagraphCommentMenu {
         this.paragraphComment = this.textArea.value;
         this.paragraphPresenter.paragraph.comment = this.textArea.value;
         showSaveToolTip();
-
+        let commentHighlight = this.paragraphPresenter.element.querySelector(".attachment-circle.comment");
+        if(this.paragraphPresenter.paragraph.comment.trim() !== ""){
+            commentHighlight.classList.add("highlight-attachment");
+        } else {
+            commentHighlight.classList.remove("highlight-attachment");
+        }
     }
 }
