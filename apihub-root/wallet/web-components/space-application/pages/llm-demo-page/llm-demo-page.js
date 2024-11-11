@@ -20,10 +20,15 @@ export class LlmDemoPage {
                 type: 'image',
                 description: 'Image generation from text descriptions based on Flux.1 dev',
             },
-            coqui: {
-                name: 'Coqui.XTTS',
+            'fb-mms-tts-bht': {
+                name: 'Facebook mms-tts-bht',
                 type: 'audio',
-                description: 'Text-to-speech model based on Coqui.XTTS',
+                description: 'Text-to-speech model based on Facebook mms-tts-bht from HuggingFace',
+            },
+            'fb-musicgen-sm': {
+                name: 'Facebook musicgen-small',
+                type: 'audio',
+                description: 'Text-to-music model based on Facebook musicgen-small from HuggingFace',
             }
         };
 

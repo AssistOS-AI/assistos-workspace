@@ -1,0 +1,38 @@
+<div class="model-demo-container">
+    <div class="input-section">
+        <div class="input-header">
+            <h2>Facebook mms-tts-bht</h2>
+            <p>Generate text to speech</p>
+        </div>
+
+        <div class="input-form">
+            <div class="input-group">
+                <label for="api-key">Hugging Face API Key</label>
+                <input type="password" id="api-key" name="api-key" placeholder="hf_xxxxxxxxxxxxxxxx" />
+            </div>
+
+            <div class="input-group">
+                <label for="prompt">Text to Speech</label>
+                <textarea id="prompt" name="prompt" placeholder="Enter the text you want to convert to speech..."></textarea>
+            </div>
+
+            <button class="submit-btn" data-local-action="generateSpeech">Generate Speech</button>
+        </div>
+
+        <div class="loading-indicator hidden">
+            <div class="flux-spinner"></div>
+            <p>Generating audio...</p>
+        </div>
+    </div>
+
+    <div class="result-section">
+        <div class="result-placeholder" id="initialPlaceholder">
+            <p>Your generated audio will appear here</p>
+        </div>
+        <div class="audio-player hidden" id="audioContainer">
+            <audio id="generatedAudio" controls>
+                Your browser does not support the audio element.
+            </audio>
+        </div>
+    </div>
+</div>
