@@ -33,7 +33,6 @@ class LipSync extends Task {
                 try{
                     await constants.COMMANDS_CONFIG.COMMANDS.find(command => command.NAME === "lipsync").VALIDATE(this.spaceId, paragraph, this.securityContext);
                 }catch(error){
-                    await this.rollback();
                     return this.rejectTask("Paragraph Must have a speech command before adding lip sync");
                 }
                 let taskId = paragraph.speech?.taskId;
@@ -50,7 +49,6 @@ class LipSync extends Task {
                 }
                 await this.executeLipSync(spaceModule, llmModule, utilModule, paragraph.commands);
             } catch (e) {
-                await this.rollback();
                 this.rejectTask(e);
             }
         });
@@ -59,11 +57,9 @@ class LipSync extends Task {
 
     async executeLipSync(spaceModule, llmModule, utilModule, paragraphCommands) {
         this.timeout = setTimeout(async () => {
-            await this.rollback();
             this.rejectTask(new Error("Task took too long to complete"));
         }, 60000 * 10);
         if(!paragraphCommands.audio){
-            await this.rollback();
             return this.rejectTask(new Error("Audio File is missing"));
         }
         if (paragraphCommands.video) {
@@ -109,17 +105,9 @@ class LipSync extends Task {
     }
 
 
-    async rollback() {
-        try {
-
-        } catch (e) {
-            //no audio to delete
-        }
-    }
 
     async cancelTask() {
         clearTimeout(this.timeout);
-        await this.rollback();
     }
 
     serialize() {
@@ -138,10 +126,7 @@ class LipSync extends Task {
     }
 
     async getRelevantInfo() {
-        let info = {
-            documentId: this.documentId,
-            paragraphId: this.paragraphId
-        }
+        let info = {}
         if (this.status === STATUS.FAILED) {
             info.failMessage = this.failMessage;
         }

@@ -346,12 +346,9 @@ async function lipsync(request, response) {
             audioId: request.body.audioId,
             videoId: request.body.videoId
         };
-        let result = await sendRequest(`/apis/v1/video/lipsync`, "POST", request, response);
-        return utils.sendResponse(response, 200, "application/json", {
-            data: result
-        });
+        await sendRequest(`/apis/v1/video/lipsync`, "POST", request, response);
+        return utils.sendResponse(response, 200, "application/json", {});
     } catch (error) {
-        console.error(error)
         utils.sendResponse(response, error.statusCode || 500, "application/json", {
             message: error.message
         });

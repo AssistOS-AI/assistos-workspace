@@ -82,11 +82,7 @@ class TextToSpeech extends Task {
         }
     }
     async getRelevantInfo() {
-        const documentModule = await this.loadModule('document');
-        let paragraph = await documentModule.getParagraph(this.spaceId, this.documentId, this.paragraphId);
-        let info = {
-            paragraphId: paragraph.id
-        }
+        let info = {}
         if(this.status === STATUS.FAILED){
             info.failMessage = this.failMessage;
         }
