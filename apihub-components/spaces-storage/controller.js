@@ -463,8 +463,10 @@ async function deleteSpace(request, response){
     let userId = request.userId;
     try {
         let message = await space.APIs.deleteSpace(userId, spaceId);
-        if(message){
-            SubscriptionManager.notifyClients(request.sessionId, spaceId);
+        if(!message){
+            //space deleted
+            let objectId = SubscriptionManager.getObjectId(spaceId, `space`);
+            SubscriptionManager.notifyClients(request.sessionId, objectId, "delete");
         }
         utils.sendResponse(response, 200, "text/plain", message || "");
     } catch (error) {
