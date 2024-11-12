@@ -485,16 +485,19 @@ export class ParagraphItem {
     }
 
     openMenu(targetElement, menuName) {
-        if (targetElement.hasAttribute("data-menu-open")) {
+        let menuOpen = this.element.querySelector(`.toolbar-menu.${menuName}`);
+        if (menuOpen) {
             return;
         }
 
-        targetElement.setAttribute("data-menu-open", "true");
         let menuContent = this.menus[menuName];
         let menu = `<div class="toolbar-menu ${menuName}">${menuContent}</div>`
         targetElement.insertAdjacentHTML('beforeend', menu);
         let controller = new AbortController();
-        document.addEventListener("click", this.closeMenu.bind(this, controller, targetElement, menuName), {signal: controller.signal});
+        let boundCloseMenu = this.closeMenu.bind(this, controller, targetElement, menuName);
+        document.addEventListener("click", boundCloseMenu, {signal: controller.signal});
+        let menuComponent = this.element.querySelector(`${menuName}`);
+        menuComponent.boundCloseMenu = boundCloseMenu;
     }
 
     closeMenu(controller, targetElement, menuName, event) {
@@ -506,7 +509,6 @@ export class ParagraphItem {
             menu.remove();
         }
         controller.abort();
-        targetElement.removeAttribute("data-menu-open");
     }
 
     changeMenuIcon(menuName, html) {

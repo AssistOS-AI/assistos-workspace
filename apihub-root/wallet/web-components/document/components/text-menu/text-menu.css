@@ -15,7 +15,8 @@ text-menu{
 .form-item.select-item{
     width: 200px;
 }
-text-menu #text{
+text-menu #text,
+text-menu .generated-text{
     height: 150px;
     overflow-y: scroll;
     resize: none;
@@ -25,10 +26,23 @@ text-menu #prompt{
     overflow-y: scroll;
     resize: none;
 }
+
 text-menu .form-footer{
     display: flex;
 }
 text-menu .buttons-section{
     margin-top: 22px;
     margin-left: 10px;
+    display: flex;
+}
+text-menu .decision-buttons{
+    display: flex;
+}
+text-menu .right-margin{
+    margin-right: 10px;
+}
+.decline-text{
+    background: var(--white-text);
+    color: var(--medium-blue);
+    box-shadow: inset 0 0 0 2px var(--medium-blue);
 }

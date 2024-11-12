@@ -14,8 +14,18 @@
             </select>
         </div>
         <div class="buttons-section">
-            <button class="general-button" data-local-action="improveText">Improve Text</button>
-            <button class="general-button hidden" data-local-action="replaceText">Accept</button>
+            <button class="general-button right-margin improve-text" data-local-action="improveText">Improve Text</button>
+            <button class="general-button hidden retry-text" data-local-action="retryWithResult">Retry with Result</button>
         </div>
     </div>
 </form>
+<div class="result-section hidden">
+    <div class="form-item text-menu">
+        <label class="form-label" for="result">Result</label>
+        <textarea class="form-input generated-text" id="result"></textarea>
+    </div>
+    <div class="decision-buttons">
+        <button class="general-button hidden right-margin accept-text" data-local-action="acceptText">Accept</button>
+        <button class="general-button hidden decline-text" data-local-action="closeMenu">Decline</button>
+    </div>
+</div>
