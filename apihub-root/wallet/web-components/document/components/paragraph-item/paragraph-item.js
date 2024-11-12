@@ -480,7 +480,8 @@ export class ParagraphItem {
                 <audio-menu data-presenter="audio-menu"></audio-menu>`,
         "video-menu": `
                 <video-menu data-presenter="video-menu"></video-menu>`,
-        "paragraph-comment-menu":`<paragraph-comment-menu data-presenter="paragraph-comment-modal"></paragraph-comment-menu>`
+        "paragraph-comment-menu":`<paragraph-comment-menu data-presenter="paragraph-comment-modal"></paragraph-comment-menu>`,
+        "text-menu": `<text-menu data-presenter="text-menu"></text-menu>`
     }
 
     openMenu(targetElement, menuName) {
