@@ -272,7 +272,7 @@ async function getAudioDuration(audioBuffer) {
         const minutes = parseFloat(lastMatch[2]);
         const seconds = parseFloat(lastMatch[3]);
         latestTime = hours * 3600 + minutes * 60 + seconds;
-        return latestTime;
+        return parseFloat(latestTime.toFixed(1));
     } else {
         throw new Error('Could not determine audio duration');
     }
