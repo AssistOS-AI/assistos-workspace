@@ -530,6 +530,9 @@ export class ParagraphItem {
         if (commands.tagName === "DIV") {
             let commandConfig = constants.COMMANDS_CONFIG.COMMANDS.find(command => command.NAME === type);
             if(commandConfig.TYPE === "array"){
+                if(!this.paragraph.commands[type]){
+                    this.paragraph.commands[type] = [];
+                }
                 this.paragraph.commands[type].push(attachmentData);
             } else {
                 this.paragraph.commands[type] = attachmentData;
