@@ -2,7 +2,8 @@ silence-popup{
     width: 350px;
     z-index: 11;
     position: absolute;
-    right: 0;
+    top: 0;
+    left: 350px;
     border-radius: 10px;
     background-color: var(--white);
     padding: 10px;

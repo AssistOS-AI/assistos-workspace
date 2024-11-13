@@ -43,7 +43,7 @@ export class TextMenu{
             prompt: prompt
         })).data;
         let resultElement = this.element.querySelector(".generated-text");
-        resultElement.innerHTML = textResult.message;
+        resultElement.innerHTML = textResult;
     }
     async improveText(button){
         let buttonText = this.showLoadingResult(button);
@@ -63,8 +63,11 @@ export class TextMenu{
 
 
         button.classList.remove('loading-icon');
-        button.innerHTML = "Retry";
+        button.innerHTML = buttonText;
         this.element.style.pointerEvents = "initial";
+        button.classList.add('hidden');
+        let retryButton = this.element.querySelector(".retry-text");
+        retryButton.classList.remove('hidden');
 
         let resultSection = this.element.querySelector(".result-section");
         resultSection.classList.remove("hidden");
@@ -72,8 +75,7 @@ export class TextMenu{
         acceptButton.classList.remove("hidden");
         let declineButton = this.element.querySelector(".decline-text");
         declineButton.classList.remove("hidden");
-        let retryButton = this.element.querySelector(".retry-text");
-        retryButton.classList.remove("hidden");
+
 
     }
     showLoadingResult(button){
@@ -83,11 +85,15 @@ export class TextMenu{
         button.innerHTML = '';
         return buttonText;
     }
-    async retryWithResult(button){
+    async retry(button){
         let buttonText = this.showLoadingResult(button)
-        let resultText = this.element.querySelector(".generated-text");
+        let text = this.element.querySelector("#text").value;
+        if(!text){
+            alert("Please enter text to improve");
+            return;
+        }
         try {
-            await this.generateText(resultText.value);
+            await this.generateText(text.value);
         } catch (e) {
             button.classList.remove('loading-icon');
             button.innerHTML = buttonText;
@@ -99,9 +105,13 @@ export class TextMenu{
         this.element.style.pointerEvents = "initial";
     }
     async acceptText(){
-        this.parentPresenter.paragraph.text = this.element.querySelector(".generated-text").value;
         let textElement = this.parentPresenter.element.querySelector(".paragraph-text");
-        textElement.innerHTML = this.parentPresenter.paragraph.text;
+        let newText = this.element.querySelector(".generated-text").value;
+        requestAnimationFrame(() => {
+            textElement.innerHTML = newText;
+            textElement.style.height = textElement.scrollHeight + "px";
+        });
+        this.parentPresenter.paragraph.text = newText;
         await documentModule.updateParagraphText(assistOS.space.id, this.parentPresenter._document.id, this.parentPresenter.paragraph.id, this.parentPresenter.paragraph.text);
         this.closeMenu();
     }
