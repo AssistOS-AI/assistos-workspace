@@ -94,6 +94,11 @@ export class ParagraphItem {
 
     async deleteParagraph() {
         await this.documentPresenter.stopTimer(true);
+        let message = "Are you sure you want to delete this paragraph?";
+        let confirmation = await assistOS.UI.showModal("confirm-action-modal", {message}, true);
+        if(!confirmation){
+            return;
+        }
         let currentParagraphIndex = this.chapter.getParagraphIndex(this.paragraph.id);
 
         await documentModule.deleteParagraph(assistOS.space.id, this._document.id, this.chapter.id, this.paragraph.id);
