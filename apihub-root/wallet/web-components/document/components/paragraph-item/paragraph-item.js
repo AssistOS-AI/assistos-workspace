@@ -698,7 +698,7 @@ export class ParagraphItem {
                 this.showParagraphWarning(`Audio is longer than the video by ${diff} seconds`);
             } else if (this.paragraph.commands.audio.duration < videoDuration) {
                 let diff = parseFloat((videoDuration - this.paragraph.commands.audio.duration).toFixed(1));
-                this.showParagraphWarning(`Video is longer than the Audio by ${diff} seconds`, async (event) => {
+                this.showParagraphWarning(`Video is longer than the audio by ${diff} seconds`, async (event) => {
                     this.paragraph.commands.video.end = this.paragraph.commands.video.start + this.paragraph.commands.audio.duration;
                     await documentModule.updateParagraphCommands(assistOS.space.id, this._document.id, this.paragraph.id, this.paragraph.commands);
                     this.checkVideoAndAudioDuration();

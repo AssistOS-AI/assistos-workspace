@@ -39,6 +39,7 @@ export class AudioMenu {
                                     <img data-local-action="deleteEffect ${effect.id}" class="delete-effect" src="./wallet/assets/icons/trash-can.svg" alt="trash">
                                 </div>
                                 <img data-local-action="playEffect ${effect.id}" class="effect-play" src="./wallet/assets/icons/play.svg" alt="play">
+                                <audio class="effect-source hidden"></audio>
                             </div>`;
             }
         }
@@ -132,9 +133,42 @@ export class AudioMenu {
         await this.commandsEditor.insertAttachmentCommand("effects");
         this.invalidate();
     }
-    async deleteEffect(effectId){
+    async deleteEffect(button, effectId){
         await this.commandsEditor.deleteCommand("effects", effectId);
         this.invalidate();
+    }
+    async playEffect(button, effectId){
+        button.src = "./wallet/assets/icons/pause.svg";
+        button.setAttribute("data-local-action", `pauseEffect ${effectId}`);
+        let effect = this.paragraphPresenter.paragraph.commands.effects.find(effect => effect.id === effectId);
+        let audio = button.nextElementSibling;
+        if(!audio.hasHandlers){
+            audio.hasHandlers = true;
+            audio.addEventListener("play", this.handlePlay);
+            audio.addEventListener("timeupdate", this.handleEnd.bind(audio, button));
+        }
+        audio.src = await spaceModule.getAudioURL(effect.id);
+        audio.startTime = effect.start;
+        audio.endTime = effect.end;
+        await audio.play();
+    }
+    pauseEffect(button, effectId){
+        let audio = button.nextElementSibling;
+        audio.pause();
+        button.src = "./wallet/assets/icons/play.svg";
+        button.setAttribute("data-local-action", `playEffect ${effectId}`);
+    }
+    handlePlay(event){
+        let start = this.startTime;
+        if (this.currentTime < start) {
+            this.currentTime = start;
+        }
+    }
+    handleEnd(button, event){
+        if (this.currentTime >= this.endTime) {
+            button.src = "./wallet/assets/icons/play.svg";
+            this.pause();
+        }
     }
     showSilencePopup(targetElement, mode) {
         if (mode === "off") {
