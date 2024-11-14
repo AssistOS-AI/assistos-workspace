@@ -3,7 +3,6 @@ const apihub = require('apihub');
 const config = require("../../data-volume/config/config.json");
 const crypto = require("./crypto");
 
-
 function getSpaceSecretsContainerName(spaceId) {
     return `${spaceId}`
 }
@@ -36,7 +35,6 @@ async function keyAlreadyExists(spaceId, keyType, apiKey) {
     }
     return Object.values(spaceAPIKeyObject[keyType]).includes(apiKey);
 }
-
 async function putSpaceKey(spaceId, keyType, apiKeyObj) {
     const secretsService = await apihub.getSecretsServiceInstanceAsync(config.SERVER_ROOT_FOLDER);
     const spaceAPIKeyObject = secretsService.getSecretSync(getSpaceSecretsContainerName(spaceId), "apiKeys")
@@ -83,8 +81,50 @@ async function getModelAPIKey(spaceId, keyType) {
     }
     return spaceAPIKeyObject[keyType];
 }
-async function getAPIKeys(spaceId) {
+
+
+async function addSecretTypeToSpace(spaceId, secretType) {
     const secretsService = await apihub.getSecretsServiceInstanceAsync(config.SERVER_ROOT_FOLDER);
+    const spaceAPIKeyObject = secretsService.getSecretSync(getSpaceSecretsContainerName(spaceId), "apiKeys")
+
+    if(spaceAPIKeyObject[secretType]){
+        throw new Error("Secret Type already exists")
+    }
+    spaceAPIKeyObject[secretType] = {
+        ownerId: "",
+        addedAt: ""
+    };
+    await secretsService.putSecretAsync(getSpaceSecretsContainerName(spaceId), "apiKeys", spaceAPIKeyObject)
+}
+
+async function getAPIKeys(spaceId) {
+    //TODO: this is a quick fix for the issue where new llm companies are added to llmAdapter and we need to update the existing spaces with the new companies
+    //TODO: a better solution needs to be implemented
+
+    //opening the settings-page triggers this check
+    const checkForNewCompanies = async (secretsObject) =>{
+        const {getLLMConfigs} = require('../llms/controller.js');
+        async function addCompanySecretsToSpace(secretsObject, companyObj) {
+            secretsObject[companyObj.company] = {
+                ownerId: "",
+                addedAt: ""
+            };
+            for (const key of companyObj.authentication) {
+                secretsObject[companyObj.company][key] = "";
+            }
+            await secretsService.putSecretAsync(getSpaceSecretsContainerName(spaceId), "apiKeys", secretsObject)
+        }
+
+        let LLMConfigs = await getLLMConfigs();
+        for (const companyObj of LLMConfigs) {
+            if(!secretsObject[companyObj.company]){
+             await addCompanySecretsToSpace(secretsObject, companyObj)
+            }
+        }
+    }
+    const secretsService = await apihub.getSecretsServiceInstanceAsync(config.SERVER_ROOT_FOLDER);
+    const secretsObject= secretsService.getSecretSync(getSpaceSecretsContainerName(spaceId), "apiKeys")
+    await checkForNewCompanies(secretsObject);
     return secretsService.getSecretSync(getSpaceSecretsContainerName(spaceId), "apiKeys")
 }
 async function getApiHubAuthSecret(){
@@ -106,5 +146,6 @@ module.exports = {
     deleteSpaceKey,
     getModelAPIKey,
     getAPIKeys,
-    getApiHubAuthSecret
+    getApiHubAuthSecret,
+    addSecretTypeToSpace
 }
