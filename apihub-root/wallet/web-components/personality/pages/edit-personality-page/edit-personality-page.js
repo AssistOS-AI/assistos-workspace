@@ -46,6 +46,7 @@ export class EditPersonalityPage {
     }
 
     async beforeRender() {
+        // Generate Dynamically the LLM selection section to automatize the process of adding new LLMs and new LLM types and make it more extensible
         const constructLlmOptions = (llmModels, llmType) => {
             let options = [];
 
@@ -60,13 +61,26 @@ export class EditPersonalityPage {
             });
             return options.join('');
         };
+        const generateLlmSelectHtml = (llmModels,llmType) => {
+            return `<div class="form-item">
+            <label class="form-label" for="${llmType}LLM">${llmType} LLM</label>
+            <select name="${llmType}LLM" id="${llmType}LLM">
+                ${constructLlmOptions(llmModels, llmType)}
+            </select>
+        </div>`
+        }
+        const generateLlmSection = (availableLlms) => {
+            let HTML = "";
+            Object.keys(availableLlms).forEach(llmType => {
+                HTML += generateLlmSelectHtml(availableLlms[llmType], llmType);
+            })
+            return HTML;
+        }
 
-        const availableLlms = await llmModule.listLlms(assistOS.space.id);
+        this.availableLlms = await llmModule.listLlms(assistOS.space.id);
 
-        this.audioLlmOptions = constructLlmOptions(availableLlms.audio, "audio");
-        this.textLlmOptions = constructLlmOptions(availableLlms.text, "text");
-        this.imageLlmOptions = constructLlmOptions(availableLlms.image, "image");
-        this.videoLlmOptions = constructLlmOptions(availableLlms.video, "video");
+        this.llmSelectionSection=generateLlmSection(this.availableLlms);
+
 
         let voicesHTML = "";
         for (let voice of this.voices) {
@@ -88,23 +102,11 @@ export class EditPersonalityPage {
         }
         this.filteredKnowledge = string;
     }
-
-    async updateLlm(llmType,event) {
-        let llm = this.element.querySelector(`#${llmType}LLM`).value;
-        this.personality.llms[llmType] = llm;
-        await personalityModule.updatePersonality(assistOS.space.id, this.personality.id, this.personality);
-    }
     async afterRender() {
         const attachSelectHandlers = () => {
-            const textLlmSelector= this.element.querySelector("#textLLM");
-            const audioLlmSelector = this.element.querySelector("#audioLLM");
-            const imageLlmSelector = this.element.querySelector("#imageLLM");
-            const videoLlmSelector = this.element.querySelector("#videoLLM");
-
-            textLlmSelector.addEventListener("change", this.updateLlm.bind(this, "text"));
-            audioLlmSelector.addEventListener("change", this.updateLlm.bind(this, "audio"));
-            imageLlmSelector.addEventListener("change", this.updateLlm.bind(this, "image"));
-            videoLlmSelector.addEventListener("change", this.updateLlm.bind(this, "video"));
+            Object.keys(this.availableLlms).forEach(llmType => {
+                this.element.querySelector(`#${llmType}LLM`).addEventListener("change", this.updateLlm.bind(this, llmType));
+            });
         }
         attachSelectHandlers();
         let description = this.element.querySelector("textarea");
@@ -139,6 +141,13 @@ export class EditPersonalityPage {
             voiceSelect.addEventListener("change", this.boundSelectVoiceHndler);
         }
     }
+
+    async updateLlm(llmType,event) {
+        let llm = this.element.querySelector(`#${llmType}LLM`).value;
+        this.personality.llms[llmType] = llm;
+        await personalityModule.updatePersonality(assistOS.space.id, this.personality.id, this.personality);
+    }
+
 
     preventRefreshOnEnter(event) {
         if (event.key === "Enter") {
