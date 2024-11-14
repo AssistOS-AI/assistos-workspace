@@ -188,9 +188,8 @@ export class ParagraphItem {
         paragraphHeaderContainer.classList.add("highlight-paragraph-header");
         let paragraphText = this.element.querySelector('.paragraph-text');
         paragraphText.classList.add("focused");
-        let paragraphTextContainer = this.element.querySelector('.paragraph-text-container');
-        paragraphTextContainer.style.padding = "0 10px 10px 10px";
-        paragraphTextContainer.classList.add("highlighted-paragraph");
+        let paragraphContainer = this.element.querySelector('.paragraph-container');
+        paragraphContainer.classList.add("highlighted-paragraph");
         this.showUnfinishedTasks();
         this.checkVideoAndAudioDuration();
     }
@@ -237,9 +236,8 @@ export class ParagraphItem {
         this.switchParagraphToolbar("off");
         let chapterPresenter = this.element.closest("chapter-item").webSkelPresenter;
         chapterPresenter.focusOutHandler();
-        let paragraphTextContainer = this.element.querySelector('.paragraph-text-container');
-        paragraphTextContainer.classList.remove("highlighted-paragraph");
-        paragraphTextContainer.style.padding = "0";
+        let paragraphContainer = this.element.querySelector('.paragraph-container');
+        paragraphContainer.classList.remove("highlighted-paragraph");
         let paragraphHeaderContainer = this.element.querySelector('.paragraph-header');
         paragraphHeaderContainer.classList.remove("highlight-paragraph-header");
         this.hideParagraphInfo();
