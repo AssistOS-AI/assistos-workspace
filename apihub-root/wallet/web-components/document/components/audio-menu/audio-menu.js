@@ -8,8 +8,8 @@ export class AudioMenu {
         this.element = element;
         this.invalidate = invalidate;
         this._document = document.querySelector("document-view-page").webSkelPresenter._document;
-        this.parentPresenter = this.element.closest("paragraph-item").webSkelPresenter;
-        this.paragraphId = this.parentPresenter.paragraph.id;
+        this.paragraphPresenter = this.element.closest("paragraph-item").webSkelPresenter;
+        this.paragraphId = this.paragraphPresenter.paragraph.id;
         this.invalidate(async () => {
             this.personalities = await personalityModule.getPersonalities(assistOS.space.id);
             this.emotions = await llmModule.listEmotions(assistOS.space.id);
@@ -28,6 +28,16 @@ export class AudioMenu {
                 configuredPersonalitiesFound++;
             }
         }
+        this.currentEffects = "";
+        if(this.paragraphPresenter.paragraph.commands.effects){
+            // for(let effect of this.paragraphPresenter.paragraph.commands.effects){
+            //     this.currentEffects += `
+            //                 <div class="effect pointer" data-local-action="editEffect">
+            //                     <div class="effect-name">${effect.name}</div>
+            //                     <div class="effect-time">${effect.time}</div>
+            //                 </div>`;
+            // }
+        }
 
         if (configuredPersonalitiesFound === 0) {
             personalitiesHTML += `<option value="default" disabled>No personalities with voice</option>`;
@@ -41,7 +51,7 @@ export class AudioMenu {
             emotionsHTML += `<option value="${emotion}">${emotion}</option>`;
         }
         this.emotionsHTML = emotionsHTML;
-        this.audioConfig = JSON.parse(JSON.stringify(this.parentPresenter.paragraph.commands["speech"] || {}));
+        this.audioConfig = JSON.parse(JSON.stringify(this.paragraphPresenter.paragraph.commands["speech"] || {}));
 
         if (this.audioConfig && this.audioConfig.personality) {
             const selectedPersonality = this.personalities.find(personality => personality.name === this.audioConfig.personality);
@@ -49,7 +59,7 @@ export class AudioMenu {
                 this.audioConfig.personality = selectedPersonality.id;
             }
         }
-        this.paragraphText = this.parentPresenter.paragraph.text;
+        this.paragraphText = this.paragraphPresenter.paragraph.text;
     }
 
 
@@ -64,23 +74,23 @@ export class AudioMenu {
             let styleGuidance = this.element.querySelector(`#styleGuidance`);
             styleGuidance.value = this.audioConfig.styleGuidance || 15;
         }
-        if(this.parentPresenter.paragraph.commands.audio){
+        if(this.paragraphPresenter.paragraph.commands.audio){
             let audioElement = this.element.querySelector(".paragraph-audio");
             audioElement.classList.remove("hidden");
             this.element.querySelector(".delete-audio").classList.remove("hidden");
-            audioElement.src = await spaceModule.getAudioURL(this.parentPresenter.paragraph.commands.audio.id);
+            audioElement.src = await spaceModule.getAudioURL(this.paragraphPresenter.paragraph.commands.audio.id);
         }
-        if(this.parentPresenter.paragraph.commands.speech){
+        if(this.paragraphPresenter.paragraph.commands.speech){
             let deleteSpeechButton = this.element.querySelector(".delete-speech");
             deleteSpeechButton.classList.remove("hidden");
         }
-        if(this.parentPresenter.paragraph.commands.silence){
+        if(this.paragraphPresenter.paragraph.commands.silence){
             let deleteSilenceButton = this.element.querySelector(".delete-silence");
             deleteSilenceButton.classList.remove("hidden");
             let currentSilenceElement = this.element.querySelector(".current-silence-time");
             currentSilenceElement.classList.remove("hidden");
             let silenceTime = this.element.querySelector(".silence-time");
-            silenceTime.innerHTML = this.parentPresenter.paragraph.commands.silence.duration;
+            silenceTime.innerHTML = this.paragraphPresenter.paragraph.commands.silence.duration;
         }
     }
 
@@ -95,63 +105,59 @@ export class AudioMenu {
             emotion: formData.data.emotion,
             styleGuidance: formData.data.styleGuidance
         }
-        const paragraphHeaderElement = this.parentPresenter.element.querySelector(".paragraph-commands");
+        const paragraphHeaderElement = this.paragraphPresenter.element.querySelector(".paragraph-commands");
         if(paragraphHeaderElement.tagName === "DIV"){
-            const testCommands = JSON.parse(JSON.stringify(this.parentPresenter.paragraph.commands));
+            const testCommands = JSON.parse(JSON.stringify(this.paragraphPresenter.paragraph.commands));
             testCommands.speech = commandConfig;
 
             const currentCommandsString = utilModule.buildCommandsString(testCommands);
-            const currentCommandsObj = utilModule.findCommands(currentCommandsString);
-            if (currentCommandsObj.invalid === true) {
-                const errorElement = this.parentPresenter.element.querySelector(".error-message");
-                if (errorElement.classList.contains("hidden")) {
-                    errorElement.classList.remove("hidden");
-                }
-                errorElement.innerText = currentCommandsObj.error;
-            } else {
-                if(this.parentPresenter.paragraph.commands.speech){
-                    await this.parentPresenter.handleCommand("speech", "changed");
-                    commandConfig.taskId = this.parentPresenter.paragraph.commands.speech.taskId;
-                    this.parentPresenter.paragraph.commands.speech = commandConfig;
+            try{
+                const currentCommandsObj = utilModule.findCommands(currentCommandsString);
+                if(this.paragraphPresenter.paragraph.commands.speech){
+                    await this.paragraphPresenter.handleCommand("speech", "changed");
+                    commandConfig.taskId = this.paragraphPresenter.paragraph.commands.speech.taskId;
+                    this.paragraphPresenter.paragraph.commands.speech = commandConfig;
                 } else {
-                    this.parentPresenter.paragraph.commands.speech = commandConfig;
-                    await this.parentPresenter.handleCommand("speech", "new");
+                    this.paragraphPresenter.paragraph.commands.speech = commandConfig;
+                    await this.paragraphPresenter.handleCommand("speech", "new");
                 }
-                await documentModule.updateParagraphCommands(assistOS.space.id, this._document.id, this.paragraphId, this.parentPresenter.paragraph.commands);
-                await this.parentPresenter.renderViewModeCommands();
+                await documentModule.updateParagraphCommands(assistOS.space.id, this._document.id, this.paragraphId, this.paragraphPresenter.paragraph.commands);
+                await this.paragraphPresenter.renderViewModeCommands();
+            } catch (e) {
+                return this.paragraphPresenter.showCommandsError(e.message);
             }
         } else {
             paragraphHeaderElement.value += '\n';
             paragraphHeaderElement.value += utilModule.buildCommandString("speech", commandConfig);
             paragraphHeaderElement.style.height = paragraphHeaderElement.scrollHeight + "px";
         }
-        this.parentPresenter.showUnfinishedTasks();
+        this.paragraphPresenter.showUnfinishedTasks();
         this.invalidate();
     }
     async insertAudio(){
-        await this.parentPresenter.openInsertAttachmentModal("", "audio");
+        await this.paragraphPresenter.openInsertAttachmentModal("", "audio");
         this.invalidate();
     }
     async deleteAudio(){
-        await this.parentPresenter.deleteCommand("", "audio");
+        await this.paragraphPresenter.deleteCommand("", "audio");
         this.invalidate();
     }
     async deleteSpeech(){
-        await this.parentPresenter.deleteCommand("", "speech");
+        await this.paragraphPresenter.deleteCommand("", "speech");
         this.invalidate();
     }
     async deleteSilence(){
-        await this.parentPresenter.deleteCommand("", "silence");
+        await this.paragraphPresenter.deleteCommand("", "silence");
         this.invalidate();
     }
     async insertSoundEffect(){
-        await this.parentPresenter.openInsertAttachmentModal("", "soundEffect");
+        await this.paragraphPresenter.openInsertAttachmentModal("", "effects");
         this.invalidate();
     }
     showSilencePopup(targetElement, mode) {
         if (mode === "off") {
-            let popup = `<silence-popup data-presenter="silence-popup" data-paragraph-id="${this.parentPresenter.paragraph.id}"></silence-popup>`;
-            this.parentPresenter.element.insertAdjacentHTML('beforeend', popup);
+            let popup = `<silence-popup data-presenter="silence-popup" data-paragraph-id="${this.paragraphPresenter.paragraph.id}"></silence-popup>`;
+            this.element.insertAdjacentHTML('beforeend', popup);
             let controller = new AbortController();
             document.addEventListener("click", this.hidePopupSilencePopup.bind(this, controller, targetElement), {signal: controller.signal});
             targetElement.setAttribute("data-local-action", "showSilencePopup on");
@@ -163,7 +169,7 @@ export class AudioMenu {
             return;
         }
         targetElement.setAttribute("data-local-action", "showSilencePopup off");
-        let popup = this.parentPresenter.element.querySelector("silence-popup");
+        let popup = this.paragraphPresenter.element.querySelector("silence-popup");
         if (popup) {
             popup.remove();
         }

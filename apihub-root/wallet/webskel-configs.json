@@ -89,22 +89,10 @@
             "presenterClassName": "ExportDocumentModal"
         },
         {
-            "name": "insert-audio-modal",
+            "name": "insert-attachment-modal",
             "directory": "document",
             "type": "modals",
-            "presenterClassName": "InsertAudioModal"
-        },
-        {
-            "name": "insert-soundeffect-modal",
-            "directory": "document",
-            "type": "modals",
-            "presenterClassName": "InsertSoundEffectModal"
-        },
-        {
-            "name": "insert-video-modal",
-            "directory": "document",
-            "type": "modals",
-            "presenterClassName": "InsertVideoModal"
+            "presenterClassName": "InsertAttachmentModal"
         },
         {
             "name": "document-tasks-modal",
@@ -158,12 +146,6 @@
             "directory": "document",
             "type": "components",
             "presenterClassName": "AudioMenu"
-        },
-        {
-            "name": "insert-image-modal",
-            "directory": "document",
-            "type": "modals",
-            "presenterClassName": "InsertImageModal"
         },
         {
             "name": "document-view-page",

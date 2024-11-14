@@ -1,7 +1,6 @@
 <div class="audio-options">
     <div class="buttons-container">
         <button data-local-action="insertAudio" class="general-button right-margin">Insert Audio</button>
-        <button data-local-action="insertSoundEffect" class="general-button right-margin hidden">Insert Sound Effect</button>
         <button data-local-action="deleteAudio" class="general-button delete-audio hidden">Delete Audio</button>
     </div>
     <audio controls class="paragraph-audio hidden"></audio>
@@ -17,6 +16,11 @@
         <button data-local-action="showSilencePopup off" class="general-button right-margin">Insert Silence</button>
         <button data-local-action="deleteSilence" class="general-button delete-silence hidden">Delete Silence</button>
     </div>
+</div>
+<div class="effects-section">
+    <div class="section-header">Effects</div>
+    <button data-local-action="insertSoundEffect" class="general-button">Insert Sound Effect</button>
+    <div class="current-effects">$$currentEffects</div>
 </div>
 <form class="tts-section">
     <div class="section-header">Text to Speech</div>

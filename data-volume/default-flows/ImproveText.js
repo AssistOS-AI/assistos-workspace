@@ -40,8 +40,9 @@ class ImproveText extends IFlow {
             if(parameters.prompt){
                 additionalPrompt = "Additionally, respect the following instructions " + parameters.prompt;
             }
+            const structurePrompt = "Return only the corrected text. Do not add any new information or markings.";
             const llmModule = apis.loadModule("llm");
-            let systemPrompt = personaltyPrompt + improveTextPrompt + parameters.text + " " + additionalPrompt;
+            let systemPrompt = personaltyPrompt + improveTextPrompt + parameters.text + " " + additionalPrompt + " " + structurePrompt;
             let textResult = await llmModule.generateText({
                 prompt: systemPrompt,
                 modelName: personalityLLM || "Qwen"

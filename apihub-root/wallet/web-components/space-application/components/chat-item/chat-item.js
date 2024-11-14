@@ -1,4 +1,4 @@
-const constants = require("assistos").constants;
+const spaceModule = require("assistos").loadModule("space", {});
 export class ChatItem {
     constructor(element, invalidate) {
         this.element = element;
@@ -6,7 +6,7 @@ export class ChatItem {
         this.invalidate();
     }
 
-    beforeRender() {
+    async beforeRender() {
         this.message = assistOS.UI.sanitize(this.element.getAttribute("message"));
         this.role = this.element.getAttribute("role");
         if (this.role !== "own") {
@@ -15,7 +15,7 @@ export class ChatItem {
             this.user = this.element.getAttribute("user");
             let assistantImgSrc;
             if(this.role === "assistant"){
-                assistantImgSrc = constants.getImageSrc(assistOS.space.id, assistOS.agent.agentData.imageId);
+                assistantImgSrc = await spaceModule.getImageURL(assistOS.agent.agentData.imageId);
             }
             this.imageContainer = `<div class="user-profile-image-container"><img class="user-profile-image" src="${this.role === "assistant" ? assistantImgSrc : (this.role === "user" ? `/users/profileImage/${this.user}` : "")}" alt="userImage"></div>`;
         } else {

@@ -94,6 +94,11 @@ export class ParagraphItem {
 
     async deleteParagraph() {
         await this.documentPresenter.stopTimer(true);
+        let message = "Are you sure you want to delete this paragraph?";
+        let confirmation = await assistOS.UI.showModal("confirm-action-modal", {message}, true);
+        if(!confirmation){
+            return;
+        }
         let currentParagraphIndex = this.chapter.getParagraphIndex(this.paragraph.id);
 
         await documentModule.deleteParagraph(assistOS.space.id, this._document.id, this.chapter.id, this.paragraph.id);
@@ -291,10 +296,12 @@ export class ParagraphItem {
     }
 
     showCommandsError(error) {
-        if (this.errorElement.classList.contains("hidden")) {
-            this.errorElement.classList.remove("hidden");
-        }
+        this.errorElement.classList.remove("hidden");
         this.errorElement.innerText = error;
+    }
+    hideCommandsError() {
+        this.errorElement.classList.add("hidden");
+        this.errorElement.innerText = "";
     }
 
     async addUITask(taskId) {
@@ -304,9 +311,7 @@ export class ParagraphItem {
     }
 
     async handleCommand(commandName, commandStatus) {
-        /* TODO: get the attachments from a central point in constants instead of hardcoding them */
-        let attachments = ["image", "audio", "video", "silence", "soundEffect"];
-        if (attachments.includes(commandName)) {
+        if (constants.COMMANDS_CONFIG.ATTACHMENTS.includes(commandName)) {
             return;
         }
         if (commandStatus === "new") {
@@ -392,10 +397,11 @@ export class ParagraphItem {
     async focusOutHandlerHeader(eventController) {
         await assistOS.loadifyComponent(this.element, async () => {
             let commandsElement = this.element.querySelector('.paragraph-commands');
-            let commands = utilModule.findCommands(commandsElement.value);
-            if (commands.invalid) {
-                this.showCommandsError(commands.error);
-                return;
+            let commands;
+            try {
+                commands = utilModule.findCommands(commandsElement.value);
+            } catch (e) {
+                return this.showCommandsError(e.message);
             }
             commandsElement.value = utilModule.buildCommandsString(commands);
             const commandsDifferences = utilModule.getCommandsDifferences(this.paragraph.commands, commands);
@@ -403,8 +409,7 @@ export class ParagraphItem {
 
             if (!existCommandsDifferences) {
                 /* there is nothing further to do, and there are no syntax errors */
-                this.errorElement.innerText = "";
-                this.errorElement.classList.add("hidden");
+                this.hideCommandsError();
                 await this.renderViewModeCommands();
                 eventController.abort();
                 return;
@@ -412,17 +417,17 @@ export class ParagraphItem {
             for (const [commandType, commandStatus] of Object.entries(commandsDifferences)) {
                 try {
                     if (commandStatus === "deleted") {
-                        continue;
+
+                    } else if(commandStatus !== "same") {
+                        await this.validateCommand(commandType, commands);
                     }
-                    await this.validateCommand(commandType, commands);
                 } catch (error) {
                     this.showCommandsError(error);
                     return;
                 }
             }
             eventController.abort();
-            this.errorElement.innerText = "";
-            this.errorElement.classList.add("hidden");
+            this.hideCommandsError();
             for (let [commandName, commandStatus] of Object.entries(commandsDifferences)) {
                 if (commandStatus === "changed" || commandStatus === "deleted") {
                     await this.handleCommand(commandName, commandStatus);
@@ -517,23 +522,32 @@ export class ParagraphItem {
     }
 
     async openInsertAttachmentModal(targetElement, type) {
-        let attachmentData = await assistOS.UI.showModal(`insert-${type.toLowerCase()}-modal`, true);
-        if (attachmentData) {
-            let commands = this.element.querySelector('.paragraph-commands');
-            if (commands.tagName === "DIV") {
+        let attachmentData = await assistOS.UI.showModal(`insert-attachment-modal`, {type: type}, true);
+        if (!attachmentData) {
+            return
+        }
+        let commands = this.element.querySelector('.paragraph-commands');
+        if (commands.tagName === "DIV") {
+            let commandConfig = constants.COMMANDS_CONFIG.COMMANDS.find(command => command.NAME === type);
+            if(commandConfig.TYPE === "array"){
+                if(!this.paragraph.commands[type]){
+                    this.paragraph.commands[type] = [];
+                }
+                this.paragraph.commands[type].push(attachmentData);
+            } else {
                 this.paragraph.commands[type] = attachmentData;
                 if (this.paragraph.commands.lipsync) {
                     await this.handleCommand("lipsync", "changed");
                 }
-                await documentModule.updateParagraphCommands(assistOS.space.id, this._document.id, this.paragraph.id, this.paragraph.commands);
-                await this.renderViewModeCommands();
-                await this.setupVideoPreview();
-                this.checkVideoAndAudioDuration();
-            } else {
-                let commandString = utilModule.buildCommandString(type, attachmentData);
-                commands.value += "\n" + commandString;
-                commands.style.height = commands.scrollHeight + 'px';
             }
+            await documentModule.updateParagraphCommands(assistOS.space.id, this._document.id, this.paragraph.id, this.paragraph.commands);
+            await this.renderViewModeCommands();
+            await this.setupVideoPreview();
+            this.checkVideoAndAudioDuration();
+        } else {
+            let commandString = utilModule.buildCommandString(type, attachmentData);
+            commands.value += "\n" + commandString;
+            commands.style.height = commands.scrollHeight + 'px';
         }
     }
 
@@ -549,10 +563,15 @@ export class ParagraphItem {
             await this.setupVideoPreview();
             this.checkVideoAndAudioDuration();
         } else {
-            let currentCommands = utilModule.findCommands(commands.value);
-            delete currentCommands[type];
-            commands.value = utilModule.buildCommandsString(currentCommands);
-            commands.style.height = commands.scrollHeight + 'px';
+            let currentCommands;
+            try {
+                currentCommands = utilModule.findCommands(commands.value);
+                delete currentCommands[type];
+                commands.value = utilModule.buildCommandsString(currentCommands);
+                commands.style.height = commands.scrollHeight + 'px';
+            } catch (e){
+                return this.showCommandsError(e.message);
+            }
         }
         this.showUnfinishedTasks();
     }
@@ -899,10 +918,10 @@ export class ParagraphItem {
         if (this.paragraph.commands.video && this.paragraph.commands.audio) {
             let videoDuration = this.paragraph.commands.video.end - this.paragraph.commands.video.start;
             if (this.paragraph.commands.audio.duration > videoDuration) {
-                let diff = parseFloat((this.paragraph.commands.audio.duration - videoDuration).toFixed(2));
+                let diff = parseFloat((this.paragraph.commands.audio.duration - videoDuration).toFixed(1));
                 this.showParagraphWarning(`Audio is longer than the video by ${diff} seconds`);
             } else if (this.paragraph.commands.audio.duration < videoDuration) {
-                let diff = parseFloat((videoDuration - this.paragraph.commands.audio.duration).toFixed(2));
+                let diff = parseFloat((videoDuration - this.paragraph.commands.audio.duration).toFixed(1));
                 this.showParagraphWarning(`Video is longer than the Audio by ${diff} seconds`, async (event) => {
                     this.paragraph.commands.video.end = this.paragraph.commands.video.start + this.paragraph.commands.audio.duration;
                     await documentModule.updateParagraphCommands(assistOS.space.id, this._document.id, this.paragraph.id, this.paragraph.commands);

@@ -5,9 +5,10 @@ export class SilencePopup{
     constructor(element, invalidate) {
         this.element = element;
         this.invalidate = invalidate;
-        this._document = document.querySelector("document-view-page").webSkelPresenter._document;
-        this.parentPresenter = this.element.closest("paragraph-item").webSkelPresenter;
-        this.paragraphId = this.parentPresenter.paragraph.id;
+        this.paragraphPresenter = this.element.closest("paragraph-item").webSkelPresenter;
+        this._document = this.paragraphPresenter._document;
+        this.audioMenuPresenter = this.element.closest("audio-menu").webSkelPresenter;
+        this.paragraphId = this.paragraphPresenter.paragraph.id;
         this.invalidate();
         this.element.classList.add("maintain-focus");
         this.element.classList.add("insert-modal");
@@ -20,30 +21,26 @@ export class SilencePopup{
         let silenceCommand = {
             duration: parseInt(durationInput.value)
         }
-        let commandsElement = this.parentPresenter.element.querySelector('.paragraph-commands');
+        let commandsElement = this.paragraphPresenter.element.querySelector('.paragraph-commands');
         if (commandsElement.tagName === "DIV") {
-            const testCommands = JSON.parse(JSON.stringify(this.parentPresenter.paragraph.commands));
+            const testCommands = JSON.parse(JSON.stringify(this.paragraphPresenter.paragraph.commands));
             testCommands.silence = silenceCommand;
-
             const currentCommandsString = utilModule.buildCommandsString(testCommands);
-            const currentCommandsObj = utilModule.findCommands(currentCommandsString);
-            if (currentCommandsObj.invalid === true) {
-                const errorElement = this.parentPresenter.element.querySelector(".error-message");
-                if (errorElement.classList.contains("hidden")) {
-                    errorElement.classList.remove("hidden");
-                }
-                errorElement.innerText = currentCommandsObj.error;
-            } else {
-                this.parentPresenter.paragraph.commands.silence = silenceCommand;
-                await documentModule.updateParagraphCommands(assistOS.space.id, this._document.id, this.paragraphId, this.parentPresenter.paragraph.commands);
-                await this.parentPresenter.renderViewModeCommands();
-                await this.parentPresenter.setupVideoPreview();
+            try {
+                const currentCommandsObj = utilModule.findCommands(currentCommandsString);
+                this.paragraphPresenter.paragraph.commands.silence = silenceCommand;
+                await documentModule.updateParagraphCommands(assistOS.space.id, this._document.id, this.paragraphId, this.paragraphPresenter.paragraph.commands);
+                await this.paragraphPresenter.renderViewModeCommands();
+                await this.paragraphPresenter.setupVideoPreview();
+            } catch (e){
+                return this.paragraphPresenter.showCommandsError(e.message);
             }
         } else {
             commandsElement.value += "\n";
             commandsElement.value += utilModule.buildCommandString("silence", silenceCommand);
             commandsElement.style.height = commandsElement.scrollHeight + "px";
         }
+        this.audioMenuPresenter.invalidate();
         this.element.remove();
     }
 }
