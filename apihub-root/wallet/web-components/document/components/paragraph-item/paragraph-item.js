@@ -1,12 +1,10 @@
 import {executorTimer} from "../../../../imports.js";
 import {formatTime} from "../../../../utils/videoUtils.js";
 import {NotificationRouter} from "../../../../imports.js";
-const utilModule = require("assistos").loadModule("util", {});
 const documentModule = require("assistos").loadModule("document", {});
 const spaceModule = require("assistos").loadModule("space", {});
 const blackScreen = "./wallet/assets/images/black-screen.png";
-const constants = require("assistos").constants;
-
+import CommandsEditor from "./CommandsEditor.js";
 import selectionUtils from "../../pages/document-view-page/selectionUtils.js";
 export class ParagraphItem {
     constructor(element, invalidate) {
@@ -18,6 +16,7 @@ export class ParagraphItem {
         let chapterId = this.element.getAttribute("data-chapter-id");
         this.chapter = this._document.getChapter(chapterId);
         this.paragraph = this.chapter.getParagraph(paragraphId);
+        this.commandsEditor = new CommandsEditor(this._document.id, this.paragraph, this);
         this.invalidate(this.subscribeToParagraphEvents.bind(this));
     }
 
@@ -53,7 +52,7 @@ export class ParagraphItem {
 
         let commands = this.element.querySelector(".paragraph-commands");
         this.errorElement = this.element.querySelector(".error-message");
-        commands.innerHTML = await this.buildCommandsHTML("view");
+        commands.innerHTML = await this.commandsEditor.buildCommandsHTML();
         if (commands.innerHTML !== "") {
             commands.style.padding = "5px 10px";
         }
@@ -83,12 +82,7 @@ export class ParagraphItem {
 
         } else if (type === "commands") {
             this.paragraph.commands = await documentModule.getParagraphCommands(assistOS.space.id, this._document.id, this.paragraph.id);
-            let commandsElement = this.element.querySelector('.paragraph-commands');
-            if (commandsElement.tagName === "DIV") {
-                await this.renderViewModeCommands();
-            } else {
-                await this.renderEditModeCommands();
-            }
+            this.commandsEditor.renderCommands();
         }
     }
 
@@ -176,7 +170,7 @@ export class ParagraphItem {
     async enterEditModeCommands() {
         let commandsElement = this.element.querySelector('.paragraph-commands');
         if (commandsElement.tagName === "DIV") {
-            await this.renderEditModeCommands();
+            await this.commandsEditor.renderEditModeCommands();
             let controller = new AbortController();
             document.addEventListener("click", (event) => {
                 if (!event.target.closest(".paragraph-commands")) {
@@ -218,68 +212,6 @@ export class ParagraphItem {
         }
     }
 
-    async renderEditModeCommands() {
-        let textareaContainer = this.element.querySelector('.header-section');
-        let commandsElement = this.element.querySelector('.paragraph-commands');
-        commandsElement.remove();
-        let commandsHTML = await this.buildCommandsHTML("edit");
-        textareaContainer.insertAdjacentHTML('beforeend', `<textarea class="paragraph-commands"></textarea>`);
-        let paragraphCommands = this.element.querySelector('.paragraph-commands');
-        paragraphCommands.value = commandsHTML;
-        paragraphCommands.style.padding = `5px 10px`;
-        paragraphCommands.style.height = paragraphCommands.scrollHeight + 'px';
-        paragraphCommands.addEventListener('input', function () {
-            this.style.height = 'auto';
-            this.style.height = this.scrollHeight + 'px';
-        });
-
-    }
-
-    async renderViewModeCommands() {
-        let headerSection = this.element.querySelector('.header-section');
-        let commandsElement = this.element.querySelector('.paragraph-commands');
-        commandsElement.remove();
-        let commandsHTML = await this.buildCommandsHTML("view");
-        headerSection.insertAdjacentHTML('beforeend', `<div class="paragraph-commands">${commandsHTML}</div>`);
-        let paragraphHeader = this.element.querySelector('.paragraph-commands');
-        paragraphHeader.style.height = "initial";
-        if (paragraphHeader.innerHTML === "") {
-            paragraphHeader.style.padding = "0";
-        } else {
-            paragraphHeader.style.padding = "5px 10px";
-        }
-    }
-
-    async buildCommandsHTML(mode) {
-        let html = "";
-        if (mode === "view") {
-            let commands = utilModule.getSortedCommandsArray(this.paragraph.commands);
-            let allAttachmentHighlights = this.element.querySelectorAll(".attachment-circle");
-            allAttachmentHighlights.forEach(attachment => {
-                attachment.classList.remove("highlight-attachment");
-            });
-            for (let command of commands) {
-                if (command.name === "image") {
-                    let attachmentHighlight = this.element.querySelector(".attachment-circle.image");
-                    attachmentHighlight.classList.add("highlight-attachment");
-                } else if (command.name === "audio") {
-                    let attachmentHighlight = this.element.querySelector(".attachment-circle.audio");
-                    attachmentHighlight.classList.add("highlight-attachment");
-                } else if (command.name === "video") {
-                    let attachmentHighlight = this.element.querySelector(".attachment-circle.video");
-                    attachmentHighlight.classList.add("highlight-attachment");
-                }
-            }
-            if(this.paragraph.comment.trim() !== ""){
-                let commentHighlight = this.element.querySelector(".attachment-circle.comment");
-                commentHighlight.classList.add("highlight-attachment");
-            }
-        } else {
-            html = utilModule.buildCommandsString(this.paragraph.commands);
-        }
-        return html;
-    }
-
     async getPersonalityImageSrc(personalityName) {
         let personality = this.documentPresenter.personalitiesMetadata.find(personality => personality.name === personalityName);
         let personalityImageId;
@@ -295,65 +227,10 @@ export class ParagraphItem {
         return "./wallet/assets/images/default-personality.png"
     }
 
-    showCommandsError(error) {
-        this.errorElement.classList.remove("hidden");
-        this.errorElement.innerText = error;
-    }
-    hideCommandsError() {
-        this.errorElement.classList.add("hidden");
-        this.errorElement.innerText = "";
-    }
-
     async addUITask(taskId) {
         assistOS.space.notifyObservers(this._document.id + "/tasks");
         await NotificationRouter.subscribeToSpace(assistOS.space.id, taskId, this.boundChangeTaskStatus);
         this.documentPresenter.renderNewTasksBadge();
-    }
-
-    async handleCommand(commandName, commandStatus) {
-        if (constants.COMMANDS_CONFIG.ATTACHMENTS.includes(commandName)) {
-            return;
-        }
-        if (commandStatus === "new") {
-            const taskId = await constants.COMMANDS_CONFIG.COMMANDS.find(command => command.NAME === commandName).EXECUTE(assistOS.space.id, this._document.id, this.paragraph.id, {});
-            this.paragraph.commands[commandName].taskId = taskId;
-            await this.addUITask(taskId);
-        } else if (commandStatus === "changed") {
-            if (this.paragraph.commands[commandName].taskId) {
-                //cancel the task so it can be re-executed, same if it was cancelled, failed, pending
-                let taskId = this.paragraph.commands[commandName].taskId;
-                try {
-                    utilModule.cancelTask(taskId);
-                } catch (e) {
-                    // task is not running
-                }
-            } else {
-                const taskId = await constants.COMMANDS_CONFIG.COMMANDS.find(command => command.NAME === commandName).EXECUTE(assistOS.space.id, this._document.id, this.paragraph.id, {});
-                this.paragraph.commands[commandName].taskId = taskId;
-                await this.addUITask(taskId);
-            }
-        } else if (commandStatus === "deleted") {
-            await this.deleteTaskFromCommand(commandName);
-        }
-    }
-
-    async deleteTaskFromCommand(commandName) {
-        if (this.paragraph.commands[commandName].taskId) {
-            let taskId = this.paragraph.commands[commandName].taskId;
-            try {
-                await utilModule.cancelTaskAndRemove(taskId);
-                assistOS.space.notifyObservers(this._document.id + "/tasks");
-            } catch (e) {
-                //task has already been removed
-            }
-        }
-    }
-
-    async validateCommand(commandType, commands) {
-        let testParagraph = JSON.parse(JSON.stringify(this.paragraph));
-        testParagraph.commands = commands;
-        return await constants.COMMANDS_CONFIG.COMMANDS.find(command => command.NAME === commandType)
-            .VALIDATE(assistOS.space.id, testParagraph, {});
     }
 
     removeHighlightParagraph() {
@@ -382,7 +259,7 @@ export class ParagraphItem {
                 const textChanged = assistOS.UI.normalizeSpaces(cachedText) !== assistOS.UI.normalizeSpaces(currentUIText);
                 if (textChanged || this.textIsDifferentFromAudio) {
                     for (let command of Object.keys(this.paragraph.commands)) {
-                        await this.handleCommand(command, "changed");
+                        await this.commandsEditor.handleCommand(command, "changed");
                     }
                     await documentModule.updateParagraphCommands(assistOS.space.id, this._document.id, this.paragraph.id, this.paragraph.commands);
                     await this.saveParagraph(paragraphText);
@@ -396,53 +273,7 @@ export class ParagraphItem {
 
     async focusOutHandlerHeader(eventController) {
         await assistOS.loadifyComponent(this.element, async () => {
-            let commandsElement = this.element.querySelector('.paragraph-commands');
-            let commands;
-            try {
-                commands = utilModule.findCommands(commandsElement.value);
-            } catch (e) {
-                return this.showCommandsError(e.message);
-            }
-            commandsElement.value = utilModule.buildCommandsString(commands);
-            const commandsDifferences = utilModule.getCommandsDifferences(this.paragraph.commands, commands);
-            const existCommandsDifferences = Object.values(commandsDifferences).some(value => value !== "same");
-
-            if (!existCommandsDifferences) {
-                /* there is nothing further to do, and there are no syntax errors */
-                this.hideCommandsError();
-                await this.renderViewModeCommands();
-                eventController.abort();
-                return;
-            }
-            for (const [commandType, commandStatus] of Object.entries(commandsDifferences)) {
-                try {
-                    if (commandStatus === "deleted") {
-
-                    } else if(commandStatus !== "same") {
-                        await this.validateCommand(commandType, commands);
-                    }
-                } catch (error) {
-                    this.showCommandsError(error);
-                    return;
-                }
-            }
-            eventController.abort();
-            this.hideCommandsError();
-            for (let [commandName, commandStatus] of Object.entries(commandsDifferences)) {
-                if (commandStatus === "changed" || commandStatus === "deleted") {
-                    await this.handleCommand(commandName, commandStatus);
-                }
-            }
-            this.paragraph.commands = commands;
-            for (let [commandName, commandStatus] of Object.entries(commandsDifferences)) {
-                if (commandStatus === "new") {
-                    await this.handleCommand(commandName, commandStatus);
-                }
-            }
-            await documentModule.updateParagraphCommands(assistOS.space.id, this._document.id, this.paragraph.id, this.paragraph.commands);
-            await this.renderViewModeCommands();
-            await this.setupVideoPreview();
-            this.showUnfinishedTasks();
+            await this.commandsEditor.saveCommands(eventController);
         });
     }
 
@@ -519,61 +350,6 @@ export class ParagraphItem {
     changeMenuIcon(menuName, html) {
         let menuContainer = this.element.querySelector(`.menu-container.${menuName}`);
         menuContainer.innerHTML = html;
-    }
-
-    async openInsertAttachmentModal(targetElement, type) {
-        let attachmentData = await assistOS.UI.showModal(`insert-attachment-modal`, {type: type}, true);
-        if (!attachmentData) {
-            return
-        }
-        let commands = this.element.querySelector('.paragraph-commands');
-        if (commands.tagName === "DIV") {
-            let commandConfig = constants.COMMANDS_CONFIG.COMMANDS.find(command => command.NAME === type);
-            if(commandConfig.TYPE === "array"){
-                if(!this.paragraph.commands[type]){
-                    this.paragraph.commands[type] = [];
-                }
-                this.paragraph.commands[type].push(attachmentData);
-            } else {
-                this.paragraph.commands[type] = attachmentData;
-                if (this.paragraph.commands.lipsync) {
-                    await this.handleCommand("lipsync", "changed");
-                }
-            }
-            await documentModule.updateParagraphCommands(assistOS.space.id, this._document.id, this.paragraph.id, this.paragraph.commands);
-            await this.renderViewModeCommands();
-            await this.setupVideoPreview();
-            this.checkVideoAndAudioDuration();
-        } else {
-            let commandString = utilModule.buildCommandString(type, attachmentData);
-            commands.value += "\n" + commandString;
-            commands.style.height = commands.scrollHeight + 'px';
-        }
-    }
-
-    async deleteCommand(targetElement, type) {
-        let commands = this.element.querySelector('.paragraph-commands');
-        if (commands.tagName === "DIV") {
-            if (this.paragraph.commands[type].taskId) {
-                await this.deleteTaskFromCommand(type);
-            }
-            delete this.paragraph.commands[type];
-            await documentModule.updateParagraphCommands(assistOS.space.id, this._document.id, this.paragraph.id, this.paragraph.commands);
-            await this.renderViewModeCommands();
-            await this.setupVideoPreview();
-            this.checkVideoAndAudioDuration();
-        } else {
-            let currentCommands;
-            try {
-                currentCommands = utilModule.findCommands(commands.value);
-                delete currentCommands[type];
-                commands.value = utilModule.buildCommandsString(currentCommands);
-                commands.style.height = commands.scrollHeight + 'px';
-            } catch (e){
-                return this.showCommandsError(e.message);
-            }
-        }
-        this.showUnfinishedTasks();
     }
 
     showControls() {

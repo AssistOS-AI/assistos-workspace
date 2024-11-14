@@ -4,6 +4,7 @@ export class ImageMenu{
         this.element = element;
         this.invalidate = invalidate;
         this.parentPresenter = this.element.closest("paragraph-item").webSkelPresenter;
+        this.commandsEditor = this.parentPresenter.commandsEditor;
         this.paragraphId = this.parentPresenter.paragraph.id;
         this.invalidate();
     }
@@ -20,11 +21,11 @@ export class ImageMenu{
         }
     }
     async insertImage(){
-        await this.parentPresenter.openInsertAttachmentModal("", "image");
+        await this.commandsEditor.insertAttachmentCommand("image");
         this.invalidate();
     }
     async deleteImage(){
-        await this.parentPresenter.deleteCommand("","image");
+        await this.commandsEditor.deleteCommand("image");
         this.invalidate();
     }
 }

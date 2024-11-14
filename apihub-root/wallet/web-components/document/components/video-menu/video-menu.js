@@ -6,6 +6,7 @@ export class VideoMenu{
         this.element = element;
         this.invalidate = invalidate;
         this.parentPresenter = this.element.closest("paragraph-item").webSkelPresenter;
+        this.commandsEditor = this.parentPresenter.commandsEditor;
         this.paragraphId = this.parentPresenter.paragraph.id;
         this.invalidate();
     }
@@ -95,35 +96,20 @@ export class VideoMenu{
             await this.insertLipSync();
             targetElement.checked = true;
         }else{
-            await this.parentPresenter.deleteCommand("","lipsync");
+            await this.commandsEditor.deleteCommand("lipsync");
             targetElement.checked = false;
         }
     }
     async insertVideo(){
-        await this.parentPresenter.openInsertAttachmentModal("", "video");
+        await this.commandsEditor.insertAttachmentCommand("video");
         this.invalidate();
     }
     async deleteVideo(){
-        await this.parentPresenter.deleteCommand("","video");
+        await this.commandsEditor.deleteCommand("video");
         this.invalidate();
     }
     async insertLipSync(targetElement) {
-        let commands = this.parentPresenter.element.querySelector('.paragraph-commands');
-        if (commands.tagName === "DIV") {
-            if (this.parentPresenter.paragraph.commands.lipsync) {
-                await this.parentPresenter.handleCommand("lipsync", "changed");
-            } else {
-                this.parentPresenter.paragraph.commands.lipsync = {};
-                await this.parentPresenter.handleCommand("lipsync", "new");
-            }
-            await documentModule.updateParagraphCommands(assistOS.space.id, this.parentPresenter._document.id, this.parentPresenter.paragraph.id, this.parentPresenter.paragraph.commands);
-            await this.parentPresenter.renderViewModeCommands();
-        } else {
-            const currentCommandsString = commands.value.replace(/\n/g, "");
-            commands.value = `${currentCommandsString}` + "\n" + utilModule.buildCommandString("lipsync", {});
-            commands.style.height = commands.scrollHeight + 'px';
-        }
-        this.parentPresenter.showUnfinishedTasks();
+        await this.commandsEditor.insertCommandWithTask("lipsync", {});
     }
 
     async saveVideoDuration(targetElement){

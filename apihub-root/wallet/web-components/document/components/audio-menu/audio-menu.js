@@ -9,6 +9,7 @@ export class AudioMenu {
         this.invalidate = invalidate;
         this._document = document.querySelector("document-view-page").webSkelPresenter._document;
         this.paragraphPresenter = this.element.closest("paragraph-item").webSkelPresenter;
+        this.commandsEditor = this.paragraphPresenter.commandsEditor;
         this.paragraphId = this.paragraphPresenter.paragraph.id;
         this.invalidate(async () => {
             this.personalities = await personalityModule.getPersonalities(assistOS.space.id);
@@ -30,13 +31,16 @@ export class AudioMenu {
         }
         this.currentEffects = "";
         if(this.paragraphPresenter.paragraph.commands.effects){
-            // for(let effect of this.paragraphPresenter.paragraph.commands.effects){
-            //     this.currentEffects += `
-            //                 <div class="effect pointer" data-local-action="editEffect">
-            //                     <div class="effect-name">${effect.name}</div>
-            //                     <div class="effect-time">${effect.time}</div>
-            //                 </div>`;
-            // }
+            for(let effect of this.paragraphPresenter.paragraph.commands.effects){
+                this.currentEffects += `
+                            <div class="effect pointer" data-local-action="editEffect ${effect.id}">
+                                <div class="effect-row">
+                                    <span class="effect-name">${effect.name}</span>
+                                    <img data-local-action="deleteEffect ${effect.id}" class="delete-effect" src="./wallet/assets/icons/trash-can.svg" alt="trash">
+                                </div>
+                                <img data-local-action="playEffect ${effect.id}" class="effect-play" src="./wallet/assets/icons/play.svg" alt="play">
+                            </div>`;
+            }
         }
 
         if (configuredPersonalitiesFound === 0) {
@@ -105,53 +109,31 @@ export class AudioMenu {
             emotion: formData.data.emotion,
             styleGuidance: formData.data.styleGuidance
         }
-        const paragraphHeaderElement = this.paragraphPresenter.element.querySelector(".paragraph-commands");
-        if(paragraphHeaderElement.tagName === "DIV"){
-            const testCommands = JSON.parse(JSON.stringify(this.paragraphPresenter.paragraph.commands));
-            testCommands.speech = commandConfig;
-
-            const currentCommandsString = utilModule.buildCommandsString(testCommands);
-            try{
-                const currentCommandsObj = utilModule.findCommands(currentCommandsString);
-                if(this.paragraphPresenter.paragraph.commands.speech){
-                    await this.paragraphPresenter.handleCommand("speech", "changed");
-                    commandConfig.taskId = this.paragraphPresenter.paragraph.commands.speech.taskId;
-                    this.paragraphPresenter.paragraph.commands.speech = commandConfig;
-                } else {
-                    this.paragraphPresenter.paragraph.commands.speech = commandConfig;
-                    await this.paragraphPresenter.handleCommand("speech", "new");
-                }
-                await documentModule.updateParagraphCommands(assistOS.space.id, this._document.id, this.paragraphId, this.paragraphPresenter.paragraph.commands);
-                await this.paragraphPresenter.renderViewModeCommands();
-            } catch (e) {
-                return this.paragraphPresenter.showCommandsError(e.message);
-            }
-        } else {
-            paragraphHeaderElement.value += '\n';
-            paragraphHeaderElement.value += utilModule.buildCommandString("speech", commandConfig);
-            paragraphHeaderElement.style.height = paragraphHeaderElement.scrollHeight + "px";
-        }
-        this.paragraphPresenter.showUnfinishedTasks();
+        await this.commandsEditor.insertCommandWithTask("speech", commandConfig);
         this.invalidate();
     }
     async insertAudio(){
-        await this.paragraphPresenter.openInsertAttachmentModal("", "audio");
+        await this.commandsEditor.insertAttachmentCommand("audio");
         this.invalidate();
     }
     async deleteAudio(){
-        await this.paragraphPresenter.deleteCommand("", "audio");
+        await this.commandsEditor.deleteCommand("audio");
         this.invalidate();
     }
     async deleteSpeech(){
-        await this.paragraphPresenter.deleteCommand("", "speech");
+        await this.commandsEditor.deleteCommand("speech");
         this.invalidate();
     }
     async deleteSilence(){
-        await this.paragraphPresenter.deleteCommand("", "silence");
+        await this.commandsEditor.deleteCommand("silence");
         this.invalidate();
     }
     async insertSoundEffect(){
-        await this.paragraphPresenter.openInsertAttachmentModal("", "effects");
+        await this.commandsEditor.insertAttachmentCommand("effects");
+        this.invalidate();
+    }
+    async deleteEffect(effectId){
+        await this.commandsEditor.deleteCommand("effects");
         this.invalidate();
     }
     showSilencePopup(targetElement, mode) {

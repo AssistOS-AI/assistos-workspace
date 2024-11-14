@@ -81,15 +81,29 @@ audio:not([controls]) {
 }
 
 .effect{
-    width: 150px;
+    width: 300px;
     padding: 5px;
     border: 1px solid var(--blue-button);
     border-radius: 5px;
 }
-
+.effect-name{
+    overflow: hidden;
+    text-overflow: ellipsis;
+    white-space: nowrap;
+}
 .current-effects{
+    margin-top: 10px;
+    margin-bottom: 10px;
     display: grid;
     grid-template-columns: repeat(2, 1fr);
-    grid-template-rows: repeat(2, 1fr);
     gap: 10px;
+}
+.effect-play{
+    width: 30px;
+    background: black;
+}
+.effect-row{
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
 }
