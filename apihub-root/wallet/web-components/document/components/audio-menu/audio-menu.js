@@ -133,7 +133,7 @@ export class AudioMenu {
         this.invalidate();
     }
     async deleteEffect(effectId){
-        await this.commandsEditor.deleteCommand("effects");
+        await this.commandsEditor.deleteCommand("effects", effectId);
         this.invalidate();
     }
     showSilencePopup(targetElement, mode) {

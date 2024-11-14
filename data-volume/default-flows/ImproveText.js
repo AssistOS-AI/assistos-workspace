@@ -45,7 +45,7 @@ class ImproveText extends IFlow {
             let systemPrompt = personaltyPrompt + improveTextPrompt + parameters.text + " " + additionalPrompt + " " + structurePrompt;
             let textResult = await llmModule.generateText({
                 prompt: systemPrompt,
-                modelName: personalityLLM || "Qwen"
+                modelName: personalityLLM || "meta-llama/Meta-Llama-3.1-8B-Instruct"
             }, parameters.spaceId);
             apis.success(textResult);
         } catch (e) {
