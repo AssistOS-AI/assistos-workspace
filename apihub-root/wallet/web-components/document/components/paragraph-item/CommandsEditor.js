@@ -275,6 +275,7 @@ export default class CommandsEditor {
             this.appendCommandAdvancedMode(name, data);
         }
         this.presenter.showUnfinishedTasks();
+        await documentModule.updateParagraphCommands(assistOS.space.id, this.documentId, this.paragraph.id, this.paragraph.commands);
     }
     appendCommandAdvancedMode(name, data) {
         let commands = this.presenter.element.querySelector('.paragraph-commands');
