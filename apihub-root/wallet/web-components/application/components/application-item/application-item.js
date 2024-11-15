@@ -48,6 +48,7 @@ export class ApplicationItem {
     async updateApplication(_target) {
         await assistOS.loadifyFunction(async (spaceId,appName) => {
             await applicationModule.updateApplication(spaceId, appName);
+            const applicationsMarketplacePresenter= document.querySelector("applications-marketplace-page").webSkelPresenter.invalidate();
         }, assistOS.space.id, this.appName);
 
     }
