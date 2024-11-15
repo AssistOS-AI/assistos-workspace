@@ -57,9 +57,19 @@ export class ParagraphItem {
             commands.style.padding = "5px 10px";
         }
         await this.setupVideoPreview();
+        let updateCommands;
         if (this.paragraph.commands.video && !this.paragraph.commands.video.hasOwnProperty("start")) {
             this.paragraph.commands.video.start = 0;
             this.paragraph.commands.video.end = this.paragraph.commands.video.duration;
+            updateCommands = true;
+        }
+        if(this.paragraph.commands.audio && !this.paragraph.commands.audio.hasOwnProperty("volume")){
+            this.paragraph.commands.audio.volume = 1;
+        }
+        if(this.paragraph.commands.video && !this.paragraph.commands.video.hasOwnProperty("volume")){
+            this.paragraph.commands.video.volume = 1;
+        }
+        if(updateCommands){
             await documentModule.updateParagraphCommands(assistOS.space.id, this._document.id, this.paragraph.id, this.paragraph.commands);
         }
         let selected = this.documentPresenter.selectedParagraphs[this.paragraph.id];
@@ -306,16 +316,18 @@ export class ParagraphItem {
 
     menus = {
         "insert-document-element": `
-                <list-item data-local-action="addParagraph" data-name="Insert Paragraph After" data-highlight="light-highlight"></list-item>
-                <list-item data-local-action="addChapter" data-name="Add Chapter" data-highlight="light-highlight"></list-item>`,
+                <div class="insert-document-element">
+                    <list-item data-local-action="addParagraph" data-name="Insert Paragraph After" data-highlight="light-highlight"></list-item>
+                    <list-item data-local-action="addChapter" data-name="Add Chapter" data-highlight="light-highlight"></list-item>
+                </div>`,
         "image-menu": `
-                <image-menu data-presenter="image-menu"></image-menu>`,
+                <image-menu class="image-menu" data-presenter="image-menu"></image-menu>`,
         "audio-menu": `
-                <audio-menu data-presenter="audio-menu"></audio-menu>`,
+                <audio-menu class="audio-menu" data-presenter="audio-menu"></audio-menu>`,
         "video-menu": `
-                <video-menu data-presenter="video-menu"></video-menu>`,
-        "paragraph-comment-menu":`<paragraph-comment-menu data-presenter="paragraph-comment-modal"></paragraph-comment-menu>`,
-        "text-menu": `<text-menu data-presenter="text-menu"></text-menu>`
+                <video-menu class="video-menu" data-presenter="video-menu"></video-menu>`,
+        "paragraph-comment-menu":`<paragraph-comment-menu class="paragraph-comment-menu" data-presenter="paragraph-comment-modal"></paragraph-comment-menu>`,
+        "text-menu": `<text-menu class="text-menu" data-presenter="text-menu"></text-menu>`
     }
 
     openMenu(targetElement, menuName) {
@@ -330,7 +342,7 @@ export class ParagraphItem {
         let controller = new AbortController();
         let boundCloseMenu = this.closeMenu.bind(this, controller, targetElement, menuName);
         document.addEventListener("click", boundCloseMenu, {signal: controller.signal});
-        let menuComponent = this.element.querySelector(`${menuName}`);
+        let menuComponent = this.element.querySelector(`.${menuName}`);
         menuComponent.boundCloseMenu = boundCloseMenu;
     }
 
@@ -584,7 +596,9 @@ export class ParagraphItem {
             this.videoElement.classList.remove("hidden");
             this.videoElement.startTime = this.paragraph.commands.video.start;
             this.videoElement.endTime = this.paragraph.commands.video.end;
+            this.videoElement.volume = this.paragraph.commands.video.volume;
             if (this.paragraph.commands.audio) {
+                this.audioElement.volume = this.paragraph.commands.audio.volume;
                 if (this.paragraph.commands.video.duration >= this.paragraph.commands.audio.duration) {
                     this.setupMediaPlayerEventListeners(this.videoElement);
                 } else {
@@ -600,6 +614,7 @@ export class ParagraphItem {
                 await this.playMedia([this.videoElement]);
             }
         } else if (this.paragraph.commands.audio) {
+            this.audioElement.volume = this.paragraph.commands.audio.volume;
             this.setupMediaPlayerEventListeners(this.audioElement);
             await this.playMedia([this.audioElement]);
         } else if (this.paragraph.commands.silence) {

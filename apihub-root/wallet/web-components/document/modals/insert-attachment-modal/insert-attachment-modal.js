@@ -105,7 +105,8 @@ export class InsertAttachmentModal {
                 const duration = this.attachmentElement.duration;
                 let data = {
                     id: audioId,
-                    duration: duration
+                    duration: duration,
+                    volume: 1
                 };
                 if(this.type === "effects") {
                     data.start = 0;
@@ -141,7 +142,8 @@ export class InsertAttachmentModal {
                     height: height,
                     duration: duration,
                     start: 0,
-                    end: duration
+                    end: duration,
+                    volume: 1
                 };
                 this.attachmentElement.remove();
                 URL.revokeObjectURL(this.attachmentElement.src);

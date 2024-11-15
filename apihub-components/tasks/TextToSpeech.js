@@ -38,7 +38,8 @@ class TextToSpeech extends Task {
             this.audioId = await spaceModule.putAudio(audioBuffer);
             paragraphCommands.audio = {
                 id: this.audioId,
-                duration: audioDuration
+                duration: audioDuration,
+                volume: 1
             };
             await documentModule.updateParagraphCommands(this.spaceId, this.documentId, this.paragraphId, paragraphCommands);
             this.emit(EVENTS.DEPENDENCY_COMPLETED);

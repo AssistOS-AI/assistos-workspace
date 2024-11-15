@@ -228,7 +228,7 @@ export class DocumentVideoPreview {
     }
 
     //call this when setting src
-    loadResource(type, src, start, end) {
+    loadResource(type, src, start, end, volume) {
         this.nextButton.classList.add("disabled");
         if (type === "image") {
             this.imageLoaded = false;
@@ -236,10 +236,12 @@ export class DocumentVideoPreview {
         } else if(type === "audio") {
             this.audioLoaded = false;
             this.audioPlayer.src = src;
+            this.audioPlayer.volume = volume;
             this.audioPlayer.load();
         } else if(type === "video") {
             this.videoLoaded = false;
             this.videoPlayer.src = src;
+            this.videoPlayer.volume = volume;
             this.videoPlayer.startTime = parseFloat(start);
             this.videoPlayer.endTime = parseFloat(end);
             this.videoPlayer.load();
@@ -442,13 +444,15 @@ export class DocumentVideoPreview {
                 }
                 await this.playChapterBackgroundSound(chapter);
                 if(paragraph.commands.video){
-                    let videoSrc = await spaceModule.getVideoURL(paragraph.commands.video.id);
+                    let videoCommand = paragraph.commands.video;
+                    let videoSrc = await spaceModule.getVideoURL(videoCommand.id);
                     this.setCurrentParagraphAndChapter(i, j);
                     this.scrollDocument();
-                    this.loadResource("video", videoSrc, paragraph.commands.video.start, paragraph.commands.video.end);
+                    this.loadResource("video", videoSrc, videoCommand.start, videoCommand.end, videoCommand.volume);
                     if (paragraph.commands.audio){
-                        let audioSrc = await spaceModule.getAudioURL(paragraph.commands.audio.id);
-                        this.loadResource("audio", audioSrc);
+                        let audioCommand = paragraph.commands.audio;
+                        let audioSrc = await spaceModule.getAudioURL(audioCommand.id);
+                        this.loadResource("audio", audioSrc, "", "", audioCommand.volume);
                     }
                     return;
                 } else if (paragraph.commands.audio) {
@@ -459,7 +463,7 @@ export class DocumentVideoPreview {
                     this.setCurrentParagraphAndChapter(i, j);
                     this.loadResource("image", imageSrc);
                     let audioSrc = await spaceModule.getAudioURL(paragraph.commands.audio.id);
-                    this.loadResource("audio", audioSrc);
+                    this.loadResource("audio", audioSrc, "", "", paragraph.commands.audio.volume);
                     this.scrollDocument();
                     return;
                 } else if (paragraph.commands["silence"]){
@@ -591,7 +595,7 @@ export class DocumentVideoPreview {
             if(nextParagraph.commands.audio){
                 this.audioPlayer.addEventListener("loadedmetadata", this.waitAudioLoad.bind(this), {once: true});
                 let audioSrc = await spaceModule.getAudioURL(nextParagraph.commands.audio.id);
-                this.loadResource("audio", audioSrc);
+                this.loadResource("audio", audioSrc, "", "", nextParagraph.commands.audio.volume);
                 hasAudio = true;
             }
             this.videoPlayer.addEventListener("loadedmetadata", this.waitVideoLoad.bind(this, hasAudio), {once: true});
@@ -600,7 +604,7 @@ export class DocumentVideoPreview {
                 return;
             }
             let videoSrc = await spaceModule.getVideoURL(nextParagraph.commands.video.id);
-            this.loadResource("video", videoSrc);
+            this.loadResource("video", videoSrc, nextParagraph.commands.video.start, nextParagraph.commands.video.end, nextParagraph.commands.video.volume);
             this.scrollDocument();
             return;
         } else if(nextParagraph.commands.audio){
@@ -610,7 +614,7 @@ export class DocumentVideoPreview {
                 return;
             }
             let audioSrc = await spaceModule.getAudioURL(nextParagraph.commands.audio.id);
-            this.loadResource("audio", audioSrc);
+            this.loadResource("audio", audioSrc, "", "", nextParagraph.commands.audio.volume);
         } else if(nextParagraph.commands["silence"]){
             this.remainingSilentDuration = parseFloat(nextParagraph.commands["silence"].duration) * 1000;
             this.silenceDuration = this.remainingSilentDuration;
@@ -790,12 +794,12 @@ export class DocumentVideoPreview {
             this.previousButton.classList.add("disabled");
             if(previousParagraph.commands.video){
                 let videoSrc = await spaceModule.getVideoURL(previousParagraph.commands.video.id);
-                this.loadResource("video", videoSrc);
+                this.loadResource("video", videoSrc, previousParagraph.commands.video.start, previousParagraph.commands.video.end, previousParagraph.commands.video.volume);
                 this.videoPlayer.classList.remove("hidden");
             }
             if(previousParagraph.commands.audio){
                 let audioSrc = await spaceModule.getAudioURL(previousParagraph.commands.audio.id);
-                this.loadResource("audio", audioSrc);
+                this.loadResource("audio", audioSrc, "", "", previousParagraph.commands.audio.volume);
             }
             this.resetTimestamp();
             //pause the video at the beginning
@@ -816,18 +820,18 @@ export class DocumentVideoPreview {
             this.timestampUpdated = false;
             if(previousParagraph.commands.audio){
                 let audioSrc = await spaceModule.getAudioURL(previousParagraph.commands.audio.id);
-                this.loadResource("audio", audioSrc);
+                this.loadResource("audio", audioSrc, "", "", previousParagraph.commands.audio.volume);
                 this.videoPlayer.addEventListener("loadedmetadata", this.skipTimeAudioAndVideo.bind(this), {once: true});
                 hasAudio = true;
             }
             this.videoPlayer.addEventListener("loadedmetadata", this.skipTimeVideo.bind(this, hasAudio), {once: true});
             let videoSrc = await spaceModule.getVideoURL(previousParagraph.commands.video.id);
-            this.loadResource("video", videoSrc);
+            this.loadResource("video", videoSrc, previousParagraph.commands.video.start, previousParagraph.commands.video.end, previousParagraph.commands.video.volume);
 
         } else if (previousParagraph.commands.audio) {
             this.audioPlayer.addEventListener("loadedmetadata", this.skipTimeAudioOnly.bind(this), {once: true});
             let audioSrc = await spaceModule.getAudioURL(previousParagraph.commands.audio.id);
-            this.loadResource("audio", audioSrc);
+            this.loadResource("audio", audioSrc, "", "", previousParagraph.commands.audio.volume);
             if(previousParagraph.commands.image){
                 let imageSrc = await spaceModule.getImageURL(previousParagraph.commands.image.id);
                 this.loadResource("image", imageSrc);

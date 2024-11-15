@@ -93,7 +93,8 @@ class LipSync extends Task {
             duration: videoDuration,
             thumbnailId: imageId,
             start: 0,
-            end: videoDuration
+            end: videoDuration,
+            volume: 1
         };
         delete paragraphCommands.lipsync.taskId;
         await documentModule.updateParagraphCommands(this.spaceId, this.documentId, this.paragraphId, paragraphCommands);
