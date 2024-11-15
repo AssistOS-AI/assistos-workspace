@@ -32,7 +32,33 @@ async function uninstallApplication(request, response) {
         });
     }
 }
-
+async function updateApplication(request, response) {
+    const {spaceId, applicationId} = request.params;
+    try {
+        await ApplicationHandler.updateApplication(spaceId, applicationId);
+        return sendResponse(response, 200, "application/json", {
+            message: "Application updated successfully",
+        });
+    } catch (error) {
+        return sendResponse(response, error.statusCode || 500, "application/json", {
+            message: `Failed to update Application: ${error}`,
+        });
+    }
+}
+async function requiresUpdate(request, response) {
+    const {spaceId, applicationId} = request.params;
+    try {
+        const needsUpdate = await ApplicationHandler.requiresUpdate(spaceId, applicationId);
+        return sendResponse(response, 200, "application/json", {
+            message: "Application requires update",
+            data: needsUpdate,
+        });
+    } catch (error) {
+        return sendResponse(response, error.statusCode || 500, "application/json", {
+            message: `Failed to check for updates: ${error}`,
+        });
+    }
+}
 async function saveJSON(response, spaceData, filePath) {
     const folderPath = path.dirname(filePath);
     try {
@@ -248,5 +274,7 @@ module.exports = {
     loadAppFlows,
     storeAppFlow,
     runApplicationTask,
-    runApplicationFlow
+    runApplicationFlow,
+    requiresUpdate,
+    updateApplication
 }
