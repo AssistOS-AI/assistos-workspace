@@ -12,7 +12,8 @@ import {validateOpenAiKey} from "./utils/OpenAiUtils/validateAPIKey.js";
 import WebSkel from "../WebSkel/webSkel.js";
 import {changeSelectedPageFromSidebar} from "../AssistOS.js";
 import NotificationRouter from "./core/NotificationRouter.js";
-
+//mediaPlayers
+import CustomAudio from "./core/mediaPlayers/CustomAudio.js";
 export {
     getDemoUserCredentials,
     insertTextAtCursor,
@@ -23,5 +24,6 @@ export {
     changeSelectedPageFromSidebar,
     WebSkel,
     NotificationRouter,
-    generateId
+    generateId,
+    CustomAudio
 };

@@ -102,7 +102,7 @@ export class InsertAttachmentModal {
     loadAudioMetadata(file, audioId) {
         return new Promise(async (resolve, reject) => {
             this.attachmentElement.addEventListener("loadedmetadata", async () => {
-                const duration = this.attachmentElement.duration;
+                const duration = this.attachmentElement.duration.toFixed(1);
                 let data = {
                     id: audioId,
                     duration: duration,
@@ -112,6 +112,7 @@ export class InsertAttachmentModal {
                     data.start = 0;
                     data.end = duration;
                     data.name = file.name.replace(/\s+/g, "_");
+                    data.playAt = 0;
                 }
                 this.attachmentElement.remove();
                 URL.revokeObjectURL(this.attachmentElement.src);

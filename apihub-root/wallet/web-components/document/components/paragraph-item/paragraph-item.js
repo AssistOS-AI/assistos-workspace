@@ -6,6 +6,7 @@ const spaceModule = require("assistos").loadModule("space", {});
 const blackScreen = "./wallet/assets/images/black-screen.png";
 import CommandsEditor from "./CommandsEditor.js";
 import selectionUtils from "../../pages/document-view-page/selectionUtils.js";
+import {CustomAudio} from "../../../../imports.js";
 export class ParagraphItem {
     constructor(element, invalidate) {
         this.element = element;
@@ -466,6 +467,28 @@ export class ParagraphItem {
     }
 
     setupMediaPlayerEventListeners(mediaPlayer) {
+        // if(this.paragraph.commands.effects){
+        //     let effectsCopy = JSON.parse(JSON.stringify(this.paragraph.commands.effects));
+        //     effectsCopy.sort((a, b) => a.playAt - b.playAt);
+        //     let controller = new AbortController();
+        //     mediaPlayer.addEventListener("timeupdate", async () => {
+        //         if(effectsCopy.length === 0){
+        //             controller.abort();
+        //             return;
+        //         }
+        //         if(mediaPlayer.currentTime >= (effectsCopy[0].playAt - 2) && !effectsCopy[0].audio){
+        //             effectsCopy[0].audio = new CustomAudio(effectsCopy[0].start, effectsCopy[0].end);
+        //             effectsCopy[0].audio.audio.volume = effectsCopy[0].volume;
+        //             effectsCopy[0].audio.audio.src = await spaceModule.getAudioURL(effectsCopy[0].id);
+        //         }
+        //         if(mediaPlayer.currentTime >= effectsCopy[0].playAt && !effectsCopy[0].audio.audio.isPaused){
+        //             effectsCopy[0].audio.audio.addEventListener("ended", () => {
+        //                 effectsCopy.shift();
+        //             });
+        //             await effectsCopy[0].audio.audio.play();
+        //         }
+        //     }, {signal: controller.signal});
+        // }
         let stopTimeUpdateController = new AbortController();
         mediaPlayer.addEventListener("timeupdate", () => {
             this.currentTimeElement.innerHTML = formatTime(mediaPlayer.currentTime);
@@ -599,7 +622,8 @@ export class ParagraphItem {
             this.videoElement.volume = this.paragraph.commands.video.volume;
             if (this.paragraph.commands.audio) {
                 this.audioElement.volume = this.paragraph.commands.audio.volume;
-                if (this.paragraph.commands.video.duration >= this.paragraph.commands.audio.duration) {
+                let videoDuration = this.paragraph.commands.video.end - this.paragraph.commands.video.start;
+                if (videoDuration >= this.paragraph.commands.audio.duration) {
                     this.setupMediaPlayerEventListeners(this.videoElement);
                 } else {
                     this.setupMediaPlayerEventListeners(this.audioElement);
