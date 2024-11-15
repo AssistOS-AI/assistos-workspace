@@ -98,10 +98,11 @@ async function sendRequest(url, method, request, response) {
     } catch (error) {
         console.error(error);
     }
-
     let llmResponse = await result.json();
     if (!result.ok) {
-        throw new Error(llmResponse.message);
+        const error = new Error(llmResponse.message);
+        error.statusCode = result.status;
+        throw error
     }
     return llmResponse.data;
 }
@@ -121,6 +122,18 @@ async function getTextResponse(request, response) {
     }
 }
 
+async function getChatResponse(request, response) {
+    try {
+        const modelResponse= await sendRequest(`/apis/v1/chat/generate`, "POST", request, response);
+        return utils.sendResponse(response, 200, "application/json", {
+            data: modelResponse
+        });
+    }catch(error){
+        return utils.sendResponse(response,error.statusCode || 500, "application/json", {
+            message: error.message
+        })
+    }
+}
 
 async function getTextStreamingResponse(request, response) {
     const requestData = {...request.body};
@@ -370,6 +383,7 @@ async function listLlms(request, response) {
 
 module.exports = {
     getTextResponse,
+    getChatResponse,
     getTextStreamingResponse,
     getImageResponse,
     editImage,
