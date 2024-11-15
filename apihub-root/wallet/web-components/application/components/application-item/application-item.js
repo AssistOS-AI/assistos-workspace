@@ -25,7 +25,7 @@ export class ApplicationItem {
                 this.installed = true;
             }
         }
-        if(this.installed) {
+        if (this.installed) {
             this.requiresUpdate = await applicationModule.requiresUpdate(assistOS.space.id, this.appName);
         }
         //this.description = this.element.getAttribute("data-description");
@@ -46,9 +46,9 @@ export class ApplicationItem {
     }
 
     async updateApplication(_target) {
-        await assistOS.loadifyFunction(async (spaceId,appName) => {
+        await assistOS.loadifyFunction(async (spaceId, appName) => {
             await applicationModule.updateApplication(spaceId, appName);
-            const applicationsMarketplacePresenter= document.querySelector("applications-marketplace-page").webSkelPresenter.invalidate();
+            assistOS.UI.reverseQuerSelector(this.element, "applications-marketplace-page")?.webSkelPresenter?.invalidate();
         }, assistOS.space.id, this.appName);
 
     }
