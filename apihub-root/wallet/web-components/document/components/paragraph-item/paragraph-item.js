@@ -1,12 +1,11 @@
 import {executorTimer} from "../../../../imports.js";
-import {formatTime} from "../../../../utils/videoUtils.js";
 import {NotificationRouter} from "../../../../imports.js";
 const documentModule = require("assistos").loadModule("document", {});
 const spaceModule = require("assistos").loadModule("space", {});
 const blackScreen = "./wallet/assets/images/black-screen.png";
 import CommandsEditor from "./CommandsEditor.js";
 import selectionUtils from "../../pages/document-view-page/selectionUtils.js";
-import {CustomAudio} from "../../../../imports.js";
+import {videoUtils} from "../../../../imports.js";
 export class ParagraphItem {
     constructor(element, invalidate) {
         this.element = element;
@@ -468,61 +467,14 @@ export class ParagraphItem {
             await this.playSilence(1);
         }
     }
-    async setupAndPlayEffects(effectsCopy, mediaPlayer, controller) {
-        if (effectsCopy.length === 0) {
-            controller.abort();
-            return;
-        }
 
-        const currentEffect = effectsCopy[0];
-        const { playAt, audioInstance, id, volume, start, end } = currentEffect;
-
-        // Check if we need to initialize the audio instance
-        if (!audioInstance && mediaPlayer.currentTime >= (playAt - 2)) {
-            currentEffect.audioInstance = new CustomAudio(start, end);
-            currentEffect.audioInstance.audio.volume = volume;
-            currentEffect.audioInstance.audio.isSetUp = false; // Ensure setup state is tracked
-
-            currentEffect.audioInstance.audio.addEventListener("canplaythrough", async () => {
-                if (currentEffect.audioInstance.audio.playWhenReady) {
-                    this.hideLoaderAttachment();
-                    await this.resumeVideo();
-                    await currentEffect.audioInstance.audio.play();
-                }
-            }, { once: true });
-            currentEffect.audioInstance.audio.src = await spaceModule.getAudioURL(id);
-            currentEffect.audioInstance.audio.load();
-        }
-
-        // Check if the audio instance is ready to play
-        if (audioInstance && !audioInstance.audio.isSetUp && mediaPlayer.currentTime >= playAt) {
-            audioInstance.audio.isSetUp = true;
-            audioInstance.audio.addEventListener("ended", () => {
-                effectsCopy.shift(); // Move to the next effect
-            }, { once: true });
-
-            // If the audio isn't fully buffered, pause and show loader
-            if (audioInstance.audio.readyState < 4) {
-                audioInstance.audio.playWhenReady = true;
-                this.pauseVideoPreview();
-                this.showLoaderAttachment();
-                return;
-            }
-            await audioInstance.audio.play();
-        }
-    }
     setupMediaPlayerEventListeners(mediaPlayer) {
         if(this.paragraph.commands.effects){
-            let effectsCopy = JSON.parse(JSON.stringify(this.paragraph.commands.effects));
-            effectsCopy.sort((a, b) => a.playAt - b.playAt);
-            let controller = new AbortController();
-            mediaPlayer.addEventListener("timeupdate", async () => {
-                await this.setupAndPlayEffects(effectsCopy, mediaPlayer, controller);
-            }, {signal: controller.signal});
+            videoUtils.setupEffects(mediaPlayer, this.paragraph.commands.effects, this);
         }
         let stopTimeUpdateController = new AbortController();
         mediaPlayer.addEventListener("timeupdate", () => {
-            this.currentTimeElement.innerHTML = formatTime(mediaPlayer.currentTime);
+            this.currentTimeElement.innerHTML = videoUtils.formatTime(mediaPlayer.currentTime);
             if (mediaPlayer.endTime && mediaPlayer.currentTime >= mediaPlayer.endTime) {
                 mediaPlayer.pause();
                 mediaPlayer.currentTime = mediaPlayer.endTime;
@@ -537,7 +489,7 @@ export class ParagraphItem {
                 stopTimeUpdateController.abort();
                 this.playPauseIcon.setAttribute("data-next-mode", "play");
                 this.playPauseIcon.src = "./wallet/assets/icons/play.svg";
-                this.currentTimeElement.innerHTML = formatTime(0);
+                this.currentTimeElement.innerHTML = videoUtils.formatTime(0);
                 this.videoElement.classList.add("hidden");
                 await this.setVideoThumbnail();
                 this.videoElement.currentTime = 0;
@@ -551,7 +503,7 @@ export class ParagraphItem {
         let readyCount = 0;
         const totalPlayers = mediaPlayers.length;
         if (totalPlayers === 0) {
-            this.hideLoaderAttachment();
+            this.hideLoader();
             return;
         }
         for (let mediaPlayer of mediaPlayers) {
@@ -559,7 +511,7 @@ export class ParagraphItem {
                 readyCount++;
                 if (readyCount === totalPlayers && !played) {
                     played = true;
-                    this.hideLoaderAttachment();
+                    this.hideLoader();
                     for (let mediaPlayer of mediaPlayers) {
                         if (mediaPlayer.startTime) {
                             mediaPlayer.currentTime = mediaPlayer.startTime;
@@ -572,7 +524,7 @@ export class ParagraphItem {
     }
 
     async playMedia(mediaPlayers) {
-        this.showLoaderAttachment();
+        this.showLoader();
         if (this.chapterAudioStartTime > -1) {
             await this.setChapterAudioTime();
             mediaPlayers.push(this.chapterAudioElement);
@@ -602,7 +554,7 @@ export class ParagraphItem {
         this.chapterAudioElement.volume = this.chapter.backgroundSound.volume;
     }
 
-    showLoaderAttachment() {
+    showLoader() {
         if (this.loaderTimeout) {
             return;
         }
@@ -613,7 +565,7 @@ export class ParagraphItem {
         }, 500);
     }
 
-    hideLoaderAttachment() {
+    hideLoader() {
         clearTimeout(this.loaderTimeout);
         delete this.loaderTimeout;
         if (this.playPauseNextMode) {
@@ -691,7 +643,7 @@ export class ParagraphItem {
         this.chapterAudioElement.play();
         this.silenceInterval = setInterval(() => {
             this.silenceElapsedTime += 1;
-            this.currentTimeElement.innerHTML = formatTime(this.silenceElapsedTime);
+            this.currentTimeElement.innerHTML = videoUtils.formatTime(this.silenceElapsedTime);
             if (this.silenceElapsedTime === silenceDuration) {
                 this.chapterAudioElement.pause();
                 setTimeout(() => {
@@ -700,7 +652,7 @@ export class ParagraphItem {
                     delete this.silenceElapsedTime;
                     this.playPauseIcon.setAttribute("data-next-mode", "play");
                     this.playPauseIcon.src = "./wallet/assets/icons/play.svg";
-                    this.currentTimeElement.innerHTML = formatTime(0);
+                    this.currentTimeElement.innerHTML = videoUtils.formatTime(0);
                 }, 1000);
             }
         }, 1000);
@@ -742,7 +694,7 @@ export class ParagraphItem {
     setVideoPreviewDuration() {
         let videoDurationElement = this.element.querySelector(".video-duration");
         let duration = this.getVideoPreviewDuration(this.paragraph);
-        videoDurationElement.innerHTML = formatTime(duration);
+        videoDurationElement.innerHTML = videoUtils.formatTime(duration);
     }
 
     async setVideoThumbnail() {

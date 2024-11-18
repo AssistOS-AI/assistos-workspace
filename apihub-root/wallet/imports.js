@@ -13,7 +13,8 @@ import WebSkel from "../WebSkel/webSkel.js";
 import {changeSelectedPageFromSidebar} from "../AssistOS.js";
 import NotificationRouter from "./core/NotificationRouter.js";
 //mediaPlayers
-import CustomAudio from "./core/mediaPlayers/CustomAudio.js";
+import CustomAudio from "./core/media/CustomAudio.js";
+import videoUtils from "./core/media/videoUtils.js";
 export {
     getDemoUserCredentials,
     insertTextAtCursor,
@@ -25,5 +26,6 @@ export {
     WebSkel,
     NotificationRouter,
     generateId,
-    CustomAudio
+    CustomAudio,
+    videoUtils
 };

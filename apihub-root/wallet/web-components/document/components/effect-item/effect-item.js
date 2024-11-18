@@ -1,4 +1,5 @@
-import {formatTime} from "../../../../utils/videoUtils.js";
+import {videoUtils} from "../../../../imports.js";
+
 const documentModule = require("assistos").loadModule("document", {});
 const spaceModule = require("assistos").loadModule("space", {});
 export class EffectItem{
@@ -16,10 +17,11 @@ export class EffectItem{
     }
     beforeRender() {
         this.effectName = this.effect.name;
-        this.effectPlayAt = formatTime(this.effect.playAt);
+        this.effectPlayAt = videoUtils.formatTime(this.effect.playAt);
     }
     afterRender() {
         this.audioElement = this.element.querySelector("audio");
+        this.audioElement.volume = this.effect.volume;
     }
     async editEffect(button){
         let paragraphVideoDuration = this.paragraphPresenter.getVideoPreviewDuration(this.paragraphPresenter.paragraph);
@@ -29,7 +31,7 @@ export class EffectItem{
                 <form class="effect-parameters">
                     <div class="form-item margin-right">
                         <label class="form-label" for="name">Name</label>
-                        <input class="form-input" type="text" id="name" name="name" value="${this.effect.name}" required>
+                        <input class="form-input" type="text" id="name" name="name" value="${this.effect.name}" required data-condition="checkName">
                     </div>
                     <div class="form-row">
                         <div class="form-item margin-right">
@@ -66,13 +68,20 @@ export class EffectItem{
             button.closest(".effect-edit-menu").remove();
         }, 0);
     }
+    checkName(element, formData){
+        let string = formData.data.name.trim();
+        return !/\s/.test(string);
+    }
     async saveEffect(button){
         let menu = button.closest(".effect-edit-menu");
-        let formData = await assistOS.UI.extractFormInformation(menu.querySelector("form"));
+        const conditions = {
+            "checkName": {fn: this.checkName, errorMessage: "Name cannot contain spaces"}
+        }
+        let formData = await assistOS.UI.extractFormInformation(menu.querySelector("form"), conditions);
         if (!formData.isValid) {
             return;
         }
-        this.effect.name = formData.data.name;
+        this.effect.name = formData.data.name.trim();
         this.effect.start = parseFloat(formData.data.start);
         this.effect.end = parseFloat(formData.data.end);
         this.effect.volume = parseFloat(formData.data.volume);
