@@ -462,9 +462,9 @@ export class ParagraphItem {
         } else if (this.paragraph.commands.audio) {
             this.audioElement.play();
         } else if (this.paragraph.commands.silence) {
-            await this.playSilence(this.paragraph.commands.silence.duration);
+            this.playSilence(this.paragraph.commands.silence.duration);
         } else if (this.paragraph.commands.image) {
-            await this.playSilence(1);
+            this.playSilence(1);
         }
     }
 
