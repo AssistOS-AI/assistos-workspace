@@ -438,13 +438,16 @@ export class ParagraphItem {
         } else if (nextMode === "pause") {
             targetElement.setAttribute("data-next-mode", "resume");
             targetElement.src = "./wallet/assets/icons/play.svg";
-            this.audioElement.pause();
-            this.videoElement.pause();
-            this.chapterAudioElement.pause();
-            if (this.silenceInterval) {
-                clearInterval(this.silenceInterval);
-                delete this.silenceInterval;
-            }
+            this.pauseVideoPreview();
+        }
+    }
+    pauseVideoPreview(){
+        this.audioElement.pause();
+        this.videoElement.pause();
+        this.chapterAudioElement.pause();
+        if (this.silenceInterval) {
+            clearInterval(this.silenceInterval);
+            delete this.silenceInterval;
         }
     }
 
@@ -465,30 +468,58 @@ export class ParagraphItem {
             await this.playSilence(1);
         }
     }
+    async setupAndPlayEffects(effectsCopy, mediaPlayer, controller) {
+        if (effectsCopy.length === 0) {
+            controller.abort();
+            return;
+        }
 
+        const currentEffect = effectsCopy[0];
+        const { playAt, audioInstance, id, volume, start, end } = currentEffect;
+
+        // Check if we need to initialize the audio instance
+        if (!audioInstance && mediaPlayer.currentTime >= (playAt - 2)) {
+            currentEffect.audioInstance = new CustomAudio(start, end);
+            currentEffect.audioInstance.audio.volume = volume;
+            currentEffect.audioInstance.audio.isSetUp = false; // Ensure setup state is tracked
+
+            currentEffect.audioInstance.audio.addEventListener("canplaythrough", async () => {
+                if (currentEffect.audioInstance.audio.playWhenReady) {
+                    this.hideLoaderAttachment();
+                    await this.resumeVideo();
+                    await currentEffect.audioInstance.audio.play();
+                }
+            }, { once: true });
+            currentEffect.audioInstance.audio.src = await spaceModule.getAudioURL(id);
+            currentEffect.audioInstance.audio.load();
+        }
+
+        // Check if the audio instance is ready to play
+        if (audioInstance && !audioInstance.audio.isSetUp && mediaPlayer.currentTime >= playAt) {
+            audioInstance.audio.isSetUp = true;
+            audioInstance.audio.addEventListener("ended", () => {
+                effectsCopy.shift(); // Move to the next effect
+            }, { once: true });
+
+            // If the audio isn't fully buffered, pause and show loader
+            if (audioInstance.audio.readyState < 4) {
+                audioInstance.audio.playWhenReady = true;
+                this.pauseVideoPreview();
+                this.showLoaderAttachment();
+                return;
+            }
+            await audioInstance.audio.play();
+        }
+    }
     setupMediaPlayerEventListeners(mediaPlayer) {
-        // if(this.paragraph.commands.effects){
-        //     let effectsCopy = JSON.parse(JSON.stringify(this.paragraph.commands.effects));
-        //     effectsCopy.sort((a, b) => a.playAt - b.playAt);
-        //     let controller = new AbortController();
-        //     mediaPlayer.addEventListener("timeupdate", async () => {
-        //         if(effectsCopy.length === 0){
-        //             controller.abort();
-        //             return;
-        //         }
-        //         if(mediaPlayer.currentTime >= (effectsCopy[0].playAt - 2) && !effectsCopy[0].audio){
-        //             effectsCopy[0].audio = new CustomAudio(effectsCopy[0].start, effectsCopy[0].end);
-        //             effectsCopy[0].audio.audio.volume = effectsCopy[0].volume;
-        //             effectsCopy[0].audio.audio.src = await spaceModule.getAudioURL(effectsCopy[0].id);
-        //         }
-        //         if(mediaPlayer.currentTime >= effectsCopy[0].playAt && !effectsCopy[0].audio.audio.isPaused){
-        //             effectsCopy[0].audio.audio.addEventListener("ended", () => {
-        //                 effectsCopy.shift();
-        //             });
-        //             await effectsCopy[0].audio.audio.play();
-        //         }
-        //     }, {signal: controller.signal});
-        // }
+        if(this.paragraph.commands.effects){
+            let effectsCopy = JSON.parse(JSON.stringify(this.paragraph.commands.effects));
+            effectsCopy.sort((a, b) => a.playAt - b.playAt);
+            let controller = new AbortController();
+            mediaPlayer.addEventListener("timeupdate", async () => {
+                await this.setupAndPlayEffects(effectsCopy, mediaPlayer, controller);
+            }, {signal: controller.signal});
+        }
         let stopTimeUpdateController = new AbortController();
         mediaPlayer.addEventListener("timeupdate", () => {
             this.currentTimeElement.innerHTML = formatTime(mediaPlayer.currentTime);

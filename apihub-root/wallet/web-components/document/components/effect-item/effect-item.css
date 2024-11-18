@@ -23,6 +23,7 @@ effect-item{
     justify-content: space-between;
 }
 .effect-edit-menu{
+    z-index: 1;
     top: -1px;
     width: 465px;
     position: absolute;
