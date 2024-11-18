@@ -11,7 +11,8 @@ const {
     listEmotions,
     lipsync,
     listLlms,
-    getChatResponse
+    getChatResponse,
+    getChatStreamingResponse,
 } = require("./controller.js");
 
 const bodyReader = require("../apihub-component-middlewares/bodyReader");
@@ -24,9 +25,14 @@ function LLMStorage(server) {
     server.use("/apis/v1/spaces/:spaceId/llms/*", authorization);
     server.get("/apis/v1/spaces/:spaceId/llms/configs", sendLLMConfigs);
 
-    server.post("/apis/v1/spaces/:spaceId/llms/text/generate", getTextResponse);
+    /* Chat */
     server.post("/apis/v1/spaces/:spaceId/llms/chat/generate", getChatResponse);
-    //server.post("/apis/v1/spaces/:spaceId/llms/text/streaming/generate", getTextStreamingResponse);
+    server.post("/apis/v1/spaces/:spaceId/llms/chat/streaming/generate", getChatStreamingResponse);
+
+    /* Text */
+    server.post("/apis/v1/spaces/:spaceId/llms/text/generate", getTextResponse);
+    server.post("/apis/v1/spaces/:spaceId/llms/text/streaming/generate", getTextStreamingResponse);
+
     server.post("/apis/v1/spaces/:spaceId/llms/image/generate", getImageResponse);
     server.post("/apis/v1/spaces/:spaceId/llms/image/edit", editImage);
     server.post("/apis/v1/spaces/:spaceId/llms/image/variants", getImageVariants);
