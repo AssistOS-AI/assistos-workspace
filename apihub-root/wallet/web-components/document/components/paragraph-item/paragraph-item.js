@@ -1,11 +1,11 @@
 import {executorTimer} from "../../../../imports.js";
-import {formatTime} from "../../../../utils/videoUtils.js";
 import {NotificationRouter} from "../../../../imports.js";
 const documentModule = require("assistos").loadModule("document", {});
 const spaceModule = require("assistos").loadModule("space", {});
 const blackScreen = "./wallet/assets/images/black-screen.png";
 import CommandsEditor from "./CommandsEditor.js";
 import selectionUtils from "../../pages/document-view-page/selectionUtils.js";
+import {videoUtils} from "../../../../imports.js";
 export class ParagraphItem {
     constructor(element, invalidate) {
         this.element = element;
@@ -437,13 +437,16 @@ export class ParagraphItem {
         } else if (nextMode === "pause") {
             targetElement.setAttribute("data-next-mode", "resume");
             targetElement.src = "./wallet/assets/icons/play.svg";
-            this.audioElement.pause();
-            this.videoElement.pause();
-            this.chapterAudioElement.pause();
-            if (this.silenceInterval) {
-                clearInterval(this.silenceInterval);
-                delete this.silenceInterval;
-            }
+            this.pauseVideoPreview();
+        }
+    }
+    pauseVideoPreview(){
+        this.audioElement.pause();
+        this.videoElement.pause();
+        this.chapterAudioElement.pause();
+        if (this.silenceInterval) {
+            clearInterval(this.silenceInterval);
+            delete this.silenceInterval;
         }
     }
 
@@ -466,9 +469,12 @@ export class ParagraphItem {
     }
 
     setupMediaPlayerEventListeners(mediaPlayer) {
+        if(this.paragraph.commands.effects){
+            videoUtils.setupEffects(mediaPlayer, this.paragraph.commands.effects, this);
+        }
         let stopTimeUpdateController = new AbortController();
         mediaPlayer.addEventListener("timeupdate", () => {
-            this.currentTimeElement.innerHTML = formatTime(mediaPlayer.currentTime);
+            this.currentTimeElement.innerHTML = videoUtils.formatTime(mediaPlayer.currentTime);
             if (mediaPlayer.endTime && mediaPlayer.currentTime >= mediaPlayer.endTime) {
                 mediaPlayer.pause();
                 mediaPlayer.currentTime = mediaPlayer.endTime;
@@ -483,7 +489,7 @@ export class ParagraphItem {
                 stopTimeUpdateController.abort();
                 this.playPauseIcon.setAttribute("data-next-mode", "play");
                 this.playPauseIcon.src = "./wallet/assets/icons/play.svg";
-                this.currentTimeElement.innerHTML = formatTime(0);
+                this.currentTimeElement.innerHTML = videoUtils.formatTime(0);
                 this.videoElement.classList.add("hidden");
                 await this.setVideoThumbnail();
                 this.videoElement.currentTime = 0;
@@ -497,7 +503,7 @@ export class ParagraphItem {
         let readyCount = 0;
         const totalPlayers = mediaPlayers.length;
         if (totalPlayers === 0) {
-            this.hideLoaderAttachment();
+            this.hideLoader();
             return;
         }
         for (let mediaPlayer of mediaPlayers) {
@@ -505,7 +511,7 @@ export class ParagraphItem {
                 readyCount++;
                 if (readyCount === totalPlayers && !played) {
                     played = true;
-                    this.hideLoaderAttachment();
+                    this.hideLoader();
                     for (let mediaPlayer of mediaPlayers) {
                         if (mediaPlayer.startTime) {
                             mediaPlayer.currentTime = mediaPlayer.startTime;
@@ -518,7 +524,7 @@ export class ParagraphItem {
     }
 
     async playMedia(mediaPlayers) {
-        this.showLoaderAttachment();
+        this.showLoader();
         if (this.chapterAudioStartTime > -1) {
             await this.setChapterAudioTime();
             mediaPlayers.push(this.chapterAudioElement);
@@ -548,7 +554,7 @@ export class ParagraphItem {
         this.chapterAudioElement.volume = this.chapter.backgroundSound.volume;
     }
 
-    showLoaderAttachment() {
+    showLoader() {
         if (this.loaderTimeout) {
             return;
         }
@@ -559,7 +565,7 @@ export class ParagraphItem {
         }, 500);
     }
 
-    hideLoaderAttachment() {
+    hideLoader() {
         clearTimeout(this.loaderTimeout);
         delete this.loaderTimeout;
         if (this.playPauseNextMode) {
@@ -599,7 +605,8 @@ export class ParagraphItem {
             this.videoElement.volume = this.paragraph.commands.video.volume;
             if (this.paragraph.commands.audio) {
                 this.audioElement.volume = this.paragraph.commands.audio.volume;
-                if (this.paragraph.commands.video.duration >= this.paragraph.commands.audio.duration) {
+                let videoDuration = this.paragraph.commands.video.end - this.paragraph.commands.video.start;
+                if (videoDuration >= this.paragraph.commands.audio.duration) {
                     this.setupMediaPlayerEventListeners(this.videoElement);
                 } else {
                     this.setupMediaPlayerEventListeners(this.audioElement);
@@ -636,7 +643,7 @@ export class ParagraphItem {
         this.chapterAudioElement.play();
         this.silenceInterval = setInterval(() => {
             this.silenceElapsedTime += 1;
-            this.currentTimeElement.innerHTML = formatTime(this.silenceElapsedTime);
+            this.currentTimeElement.innerHTML = videoUtils.formatTime(this.silenceElapsedTime);
             if (this.silenceElapsedTime === silenceDuration) {
                 this.chapterAudioElement.pause();
                 setTimeout(() => {
@@ -645,7 +652,7 @@ export class ParagraphItem {
                     delete this.silenceElapsedTime;
                     this.playPauseIcon.setAttribute("data-next-mode", "play");
                     this.playPauseIcon.src = "./wallet/assets/icons/play.svg";
-                    this.currentTimeElement.innerHTML = formatTime(0);
+                    this.currentTimeElement.innerHTML = videoUtils.formatTime(0);
                 }, 1000);
             }
         }, 1000);
@@ -687,7 +694,7 @@ export class ParagraphItem {
     setVideoPreviewDuration() {
         let videoDurationElement = this.element.querySelector(".video-duration");
         let duration = this.getVideoPreviewDuration(this.paragraph);
-        videoDurationElement.innerHTML = formatTime(duration);
+        videoDurationElement.innerHTML = videoUtils.formatTime(duration);
     }
 
     async setVideoThumbnail() {

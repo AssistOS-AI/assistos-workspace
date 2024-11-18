@@ -4,6 +4,12 @@
     "services": [],
     "components": [
         {
+            "name": "effect-item",
+            "directory": "document",
+            "type": "components",
+            "presenterClassName": "EffectItem"
+        },
+        {
             "name": "fb-musicgen-sm-model-page",
             "directory": "space-application",
             "type": "pages",
