@@ -137,13 +137,14 @@ export class AgentPage {
                 chatHistory.push({role: role, content: chatItem.querySelector("#messageContainer").innerText});
             }
         }
-        return chatHistory;
+        //TODO:Redo quick fix to allow huggingface models to work due to constraint on user/assistant role consecutive requirement in chat structure
+        return [chatHistory[0]];
     }
 
     async sendMessage(_target) {
         let formInfo = await assistOS.UI.extractFormInformation(_target);
         const userRequestMessage = assistOS.UI.customTrim(formInfo.data.input)
-        /* for a reason everything extracted out of a form is automatically sanitized */
+        /* for some reason everything extracted out of a form is automatically sanitized */
         const unsanitizedMessage = assistOS.UI.unsanitize(userRequestMessage);
         formInfo.elements.input.element.value = "";
         if (!userRequestMessage.trim()) {
