@@ -96,8 +96,45 @@ function formatTime(seconds) {
     }
     return `${minutes}:${remainingSeconds}`;
 }
+function uploadVideoThumbnail(url, videoElement) {
+    return new Promise((resolve, reject) => {
+        const canvas = document.createElement('canvas');
+        const context = canvas.getContext('2d');
+        videoElement.addEventListener("loadedmetadata", async () => {
+            videoElement.currentTime = 0;
+        });
+        videoElement.addEventListener('seeked', async () => {
+            canvas.width = videoElement.videoWidth;
+            canvas.height = videoElement.videoHeight;
+            context.drawImage(videoElement, 0, 0, canvas.width, canvas.height);
+            try {
+                let blob = await canvasToBlobAsync(canvas);
+                canvas.remove();
+                let arrayBuffer = await blob.arrayBuffer();
+                let thumbnailId = await spaceModule.putImage(arrayBuffer);
+                resolve(thumbnailId);
+            } catch (e) {
+                reject(e);
+            }
+
+        }, {once: true});
+        videoElement.src = url;
+    });
+}
+function canvasToBlobAsync(canvas) {
+    return new Promise((resolve, reject) => {
+        canvas.toBlob((blob) => {
+            if (blob) {
+                resolve(blob);
+            } else {
+                reject(new Error('Canvas to Blob conversion failed.'));
+            }
+        });
+    });
+}
 export default {
     playEffects,
     setupEffects,
-    formatTime
+    formatTime,
+    uploadVideoThumbnail
 }

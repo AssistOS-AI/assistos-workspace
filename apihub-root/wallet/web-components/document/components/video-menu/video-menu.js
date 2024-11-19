@@ -1,6 +1,6 @@
+import {videoUtils} from "../../../../imports.js";
 const spaceModule = require("assistos").loadModule("space", {});
 const documentModule = require("assistos").loadModule("document", {});
-const utilModule = require("assistos").loadModule("util", {});
 export class VideoMenu{
     constructor(element, invalidate) {
         this.element = element;
@@ -23,9 +23,26 @@ export class VideoMenu{
             await this.initViewVideo();
             this.initDurationInputs();
         }
+        let commands = this.parentPresenter.paragraph.commands;
+        let disableLipSync = false;
+        if(!commands.video && !commands.image){
+            let warnMessage = `No visual source added`;
+            this.showLipSyncWarning(warnMessage);
+            disableLipSync = true;
+        }
         if(this.parentPresenter.paragraph.commands.lipsync){
             lipSyncCheckbox.checked = true;
         }
+        lipSyncCheckbox.disableLipSync = disableLipSync;
+    }
+    showLipSyncWarning(message){
+        let warning = `
+                <div class="paragraph-warning">
+                    <img loading="lazy" src="./wallet/assets/icons/warning.svg" class="video-warning-icon" alt="warn">
+                    <div class="warning-text">${message}</div>
+                </div>`;
+        let lipSyncSection = this.element.querySelector(".lip-sync-section");
+        lipSyncSection.insertAdjacentHTML("afterend", warning);
     }
     async initViewVideo(){
         let videoElement = this.element.querySelector("video");
@@ -92,6 +109,9 @@ export class VideoMenu{
         }
     }
     async handleCheckbox(targetElement){
+        if(targetElement.disableLipSync){
+            return
+        }
         if(targetElement.checked){
             await this.insertLipSync();
             targetElement.checked = true;
@@ -101,15 +121,57 @@ export class VideoMenu{
         }
     }
     async insertVideo(){
-        await this.commandsEditor.insertAttachmentCommand("video");
-        this.invalidate();
+        let videoId = await this.commandsEditor.insertAttachmentCommand("video");
+        if(videoId){
+            if(this.parentPresenter.paragraph.commands.lipsync){
+                this.parentPresenter.paragraph.commands.lipsync.videoId = videoId;
+                if(this.parentPresenter.paragraph.commands.lipsync.imageId){
+                    delete this.parentPresenter.paragraph.commands.lipsync.imageId;
+                }
+                await documentModule.updateParagraphCommands(assistOS.space.id, this.parentPresenter._document.id, this.parentPresenter.paragraph.id, this.parentPresenter.paragraph.commands);
+            }
+            this.invalidate();
+        }
     }
     async deleteVideo(){
         await this.commandsEditor.deleteCommand("video");
+        let commands = this.parentPresenter.paragraph.commands;
+        if(commands.lipsync && commands.lipsync.videoId){
+            await this.insertVideoSource(commands);
+        }
         this.invalidate();
     }
+    async insertVideoSource(commands){
+        await assistOS.loadifyComponent(this.element, async () => {
+            let video = document.createElement("video");
+            video.crossOrigin = "anonymous";
+            let videoURL = await spaceModule.getVideoURL(commands.lipsync.videoId);
+            let thumbnailId = await videoUtils.uploadVideoThumbnail(videoURL, video);
+            const duration = parseFloat(video.duration.toFixed(1));
+            const width = video.videoWidth;
+            const height = video.videoHeight;
+            let data = {
+                id: commands.lipsync.videoId,
+                thumbnailId: thumbnailId,
+                width: width,
+                height: height,
+                duration: duration,
+                start: 0,
+                end: duration,
+                volume: 1
+            };
+            await this.commandsEditor.insertSimpleCommand("video", data);
+        });
+    }
     async insertLipSync(targetElement) {
-        await this.commandsEditor.insertCommandWithTask("lipsync", {});
+        let commands = this.parentPresenter.paragraph.commands;
+        let commandData = {};
+        if(commands.video){
+            commandData.videoId = commands.video.id;
+        } else{
+            commandData.imageId = commands.image.id;
+        }
+        await this.commandsEditor.insertCommandWithTask("lipsync", commandData);
     }
 
     async saveVideoDuration(targetElement){

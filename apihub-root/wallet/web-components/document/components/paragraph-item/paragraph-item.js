@@ -631,7 +631,27 @@ export class ParagraphItem {
             await this.playSilence(1);
         }
     }
-
+    // async playSilenceV2(silenceDuration) {
+    //     const audioPlayer = new Audio();
+    //     audioPlayer.src = "./wallet/assets/audios/silence.mp3";
+    //     audioPlayer.load();
+    //     audioPlayer.loop = true;
+    //     audioPlayer.volume = 0;
+    //     audioPlayer.elapsedTime = 0;
+    //     if (this.chapterAudioStartTime > -1) {
+    //         await this.setChapterAudioTime();
+    //     }
+    //     audioPlayer.addEventListener("timeupdate", () => {
+    //         if (audioPlayer.elapsedTime >= silenceDuration) {
+    //             audioPlayer.pause();
+    //         }
+    //     });
+    //     audioPlayer.addEventListener("ended", () => {
+    //         audioPlayer.elapsedTime += 1;
+    //     });
+    //     this.setupMediaPlayerEventListeners(audioPlayer);
+    //     await this.playMedia([audioPlayer]);
+    // }
     async playSilence(silenceDuration) {
         if (!this.silenceElapsedTime) {
             this.silenceElapsedTime = 0;
