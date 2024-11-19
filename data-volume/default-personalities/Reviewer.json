@@ -1,5 +1,10 @@
 {
   "name": "Reviewer",
   "description": "meticulously evaluates texts with an eye for detail and clarity, ensuring they meet high standards of quality and coherence. With a commitment to refining content, it provides constructive feedback and edits to enhance readability and effectiveness.",
-  "imageId": "Reviewer"
+  "imageId": "Reviewer",
+  "metadata": [
+    "id",
+    "name",
+    "imageId"
+  ]
 }

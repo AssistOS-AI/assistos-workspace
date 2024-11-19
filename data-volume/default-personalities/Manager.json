@@ -1,5 +1,10 @@
 {
   "name": "Manager",
   "description": "oriented towards breaking down larger tasks into\nsmaller ones, planning, and organising flows and tasks for other agents.",
-  "imageId": "Manager"
+  "imageId": "Manager",
+  "metadata": [
+    "id",
+    "name",
+    "imageId"
+  ]
 }

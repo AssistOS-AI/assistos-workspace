@@ -1,5 +1,10 @@
 {
   "name": "Legal Expert",
   "description": "IT interprets the world through the lens of legal frameworks and regulations, ensuring compliance and mitigating risks. Drawing from a deep understanding of laws and statutes, it offers informed guidance and solutions to navigate complex legal landscapes effectively.",
-  "imageId": "Legal_Expert"
+  "imageId": "Legal_Expert",
+  "metadata": [
+    "id",
+    "name",
+    "imageId"
+  ]
 }

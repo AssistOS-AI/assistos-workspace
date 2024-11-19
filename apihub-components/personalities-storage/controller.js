@@ -1,59 +1,39 @@
-const fsPromises = require('fs').promises;
-const{ sendResponse } = require('../apihub-component-utils/utils');
-async function saveJSON(response, spaceData, filePath) {
+const SpaceHandler = require('../spaces-storage/space.js');
+const Request = require('../apihub-component-utils/utils.js');
+const { ServerSideSecurityContext, loadModule } = require('assistos');
+
+async function ensurePersonalitiesDefaultLllms(request, response) {
     try {
-        await fsPromises.writeFile(filePath, spaceData, 'utf8');
-    } catch(error) {
-        sendResponse(response, 500, "text/html", error+ ` Error at writing space: ${filePath}`);
-        return false;
-    }
-    return true;
-}
-//UNSUPPORTED
-async function loadFilteredKnowledge(request, response){
-    let queryParams = request.query.param1;
-    let searchedWords = queryParams.split(" ");
-    const filePath = `../data-volume/spaces/${request.params.spaceId}/agents/${request.params.personalityId}/knowledge.json`;
-    let knowledge =  JSON.parse(await fsPromises.readFile(filePath, 'utf8'));
-    const regexPattern = new RegExp(searchedWords.join("|"), "gim"); // "i" flag for case-insensitive matching
+        const spaceId = request.params.spaceId;
+        const personalities = await SpaceHandler.APIs.getSpacePersonalitiesObject(spaceId);
 
-    const filteredKnowledge = knowledge.agentIntent.filter((text) => {
-        regexPattern.lastIndex = 0; // Reset lastIndex before each test
-        return regexPattern.test(text);
-    });
-    sendResponse(response, 200, "text/html", JSON.stringify(filteredKnowledge));
-}
-async function addKnowledge(request, response){
-    const filePath = `../data-volume/spaces/${request.params.spaceId}/agents/${request.params.personalityId}/knowledge.json`;
-    let jsonData = JSON.parse(request.body.toString());
-    let knowledge =  JSON.parse(await fsPromises.readFile(filePath, 'utf8'));
-    knowledge.push(jsonData);
-    if(await saveJSON(response, JSON.stringify(knowledge), filePath)){
-        sendResponse(response, 200, "text/html", `Success, ${request.body.toString()}`);
-    }
-}
+        const notUpdatedPersonalities = personalities.filter(personality => !personality.llms);
 
-async function loadKnowledge(request, response){
-    const filePath = `../data-volume/spaces/${request.params.spaceId}/agents/${request.params.personalityId}/knowledge.json`;
-    let knowledge =  JSON.parse(await fsPromises.readFile(filePath, 'utf8'));
-    sendResponse(response, 200, "text/html", JSON.stringify(knowledge));
-}
-async function storeKnowledge(request, response){
-    const filePath = `../data-volume/spaces/${request.params.spaceId}/agents/${request.params.personalityId}.json`;
-    if(request.body.toString() === "") {
-        await fsPromises.unlink(filePath);
-        sendResponse(response, 200, "text/html", `Deleted successfully agent: ${request.params.personalityId}`);
-        return;
-    }
-    let jsonData = JSON.parse(request.body.toString());
-    if(await saveJSON(response, JSON.stringify(jsonData), filePath)){
-        sendResponse(response, 200, "text/html", `Success, ${request.body.toString()}`);
+        if (notUpdatedPersonalities.length === 0) {
+            return Request.sendResponse(response, 200, "application/json", { message: "All personalities have default llms" });
+        }
+
+        const defaultLlmsRes = await fetch(`${process.env.BASE_URL}/apis/v1/llms/defaults`);
+        if (!defaultLlmsRes.ok) {
+            return Request.sendResponse(response, 500, "application/json", { message: "Failed to fetch default LLMs" });
+        }
+
+        const defaultLlms = (await defaultLlmsRes.json()).data;
+        notUpdatedPersonalities.forEach(personality => {
+            personality.llms = defaultLlms;
+        });
+
+        const securityContext = new ServerSideSecurityContext(request);
+        const personalityModule = loadModule("personality", securityContext);
+        for(const personality of notUpdatedPersonalities){
+            await personalityModule.updatePersonality(spaceId, personality.id, personality);
+        }
+        return Request.sendResponse(response, 200, "application/json", { message: "Personalities updated with default llms" });
+    } catch (error) {
+        return Request.sendResponse(response, 500, "application/json", { message: `An error occurred while updating personalities:${error.message}` });
     }
 }
 
 module.exports = {
-    loadKnowledge,
-    loadFilteredKnowledge,
-    addKnowledge,
-    storeKnowledge,
-}
+    ensurePersonalitiesDefaultLllms
+};

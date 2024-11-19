@@ -20,7 +20,7 @@ export class AgentPage {
     onChatUpdate() {
         this.invalidate(async () => assistOS.space.chat = await spaceModule.getSpaceChat(assistOS.space.id, "123456789"));
     }
-    beforeRender() {
+    async beforeRender() {
         if (this.enabledAgents) {
             this.agentsToggleButton = "Disable Agents"
         } else {
@@ -51,6 +51,13 @@ export class AgentPage {
         this.personalityLLM = "GPT-4o";
         this.spaceName = assistOS.space.name;
     }
+    async afterRender() {
+        this.conversation = this.element.querySelector(".conversation");
+        this.userInput = this.element.querySelector("#input");
+        this.form = this.element.querySelector(".chat-input-container");
+        this.boundFn = this.preventRefreshOnEnter.bind(this, this.form);
+        this.userInput.addEventListener("keydown", this.boundFn);
+    }
 
     async toggleAgentsState(_target) {
         this.enabledAgents = !this.enabledAgents;
@@ -66,13 +73,6 @@ export class AgentPage {
         assistOS.UI.showModal("add-space-collaborator-modal", {presenter: "add-space-collaborator-modal"});
     }
 
-    afterRender() {
-        this.conversation = this.element.querySelector(".conversation");
-        this.userInput = this.element.querySelector("#input");
-        this.form = this.element.querySelector(".chat-input-container");
-        this.boundFn = this.preventRefreshOnEnter.bind(this, this.form);
-        this.userInput.addEventListener("keydown", this.boundFn);
-    }
 
     hideSettings(controller, container, event) {
         container.setAttribute("data-local-action", "showSettings off");
@@ -171,8 +171,8 @@ export class AgentPage {
     }
 
     async resetConversation() {
-        await assistOS.services.resetConversation();
-        this.invalidate();
+        /*await assistOS.services.resetConversation();
+        this.invalidate();*/
     }
 
     uploadFile(_target) {

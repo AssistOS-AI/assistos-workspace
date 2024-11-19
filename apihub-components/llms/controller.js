@@ -462,6 +462,18 @@ async function listLlms(request, response) {
     }
 }
 
+async function getDefaultModels(request, response) {
+    try {
+        let result = await sendRequest(`/apis/v1/llms/defaults`, "GET", request, response);
+        return utils.sendResponse(response, 200, "application/json", {
+            data: result
+        });
+    } catch (error) {
+        return utils.sendResponse(response, error.statusCode || 500, "application/json", {
+            message: error.message
+        })
+    }
+}
 module.exports = {
     getTextResponse,
     getChatResponse,
@@ -478,4 +490,5 @@ module.exports = {
     listEmotions,
     lipsync,
     listLlms,
+    getDefaultModels
 };

@@ -1,5 +1,4 @@
 const constants = require("assistos").constants;
-const utilModule = require("assistos").loadModule("util", {});
 const llmModule = require("assistos").loadModule("llm", {});
 const spaceModule = require("assistos").loadModule("space", {});
 const personalityModule = require("assistos").loadModule("personality", {});
@@ -9,7 +8,6 @@ export class EditPersonalityPage {
     constructor(element, invalidate) {
         this.element = element;
         this.invalidate = invalidate;
-        this.knowledgeArray = [];
         this.refreshPersonality = async () => {
             this.personality = await personalityModule.getPersonality(assistOS.space.id, window.location.hash.split("/")[3]);
         }
@@ -57,11 +55,13 @@ export class EditPersonalityPage {
             }
 
             llmModels.forEach(llm => {
-                options.push(`<option value="${llm}">${llm}</option>`);
+                if(this.personality.llms[llmType] !== llm) {
+                    options.push(`<option value="${llm}">${llm}</option>`);
+                }
             });
             return options.join('');
         };
-        const generateLlmSelectHtml = (llmModels,llmType) => {
+        const generateLlmSelectHtml = (llmModels, llmType) => {
             return `<div class="form-item">
             <label class="form-label" for="${llmType}LLM">${llmType} LLM</label>
             <select name="${llmType}LLM" id="${llmType}LLM">
@@ -79,8 +79,7 @@ export class EditPersonalityPage {
 
         this.availableLlms = await llmModule.listLlms(assistOS.space.id);
 
-        this.llmSelectionSection=generateLlmSection(this.availableLlms);
-
+        this.llmSelectionSection = generateLlmSection(this.availableLlms);
 
         let voicesHTML = "";
         for (let voice of this.voices) {
@@ -96,12 +95,8 @@ export class EditPersonalityPage {
             this.photo = "./wallet/assets/images/default-personality.png";
         }
         this.personalityName = this.personality.name;
-        let string = "";
-        for (let fact of this.knowledgeArray) {
-            string += `<div class="fact">${fact}</div>`;
-        }
-        this.filteredKnowledge = string;
     }
+
     async afterRender() {
         const attachSelectHandlers = () => {
             Object.keys(this.availableLlms).forEach(llmType => {
@@ -111,10 +106,7 @@ export class EditPersonalityPage {
         attachSelectHandlers();
         let description = this.element.querySelector("textarea");
         description.innerHTML = this.personality.description;
-        this.userInput = this.element.querySelector("#search");
-        this.userInput.removeEventListener("keypress", this.boundFn);
         this.boundFn = this.preventRefreshOnEnter.bind(this);
-        this.userInput.addEventListener("keypress", this.boundFn);
 
         let photoInput = this.element.querySelector("#photo");
         if (this.boundShowPhoto) {
@@ -142,7 +134,7 @@ export class EditPersonalityPage {
         }
     }
 
-    async updateLlm(llmType,event) {
+    async updateLlm(llmType, event) {
         let llm = this.element.querySelector(`#${llmType}LLM`).value;
         this.personality.llms[llmType] = llm;
         await personalityModule.updatePersonality(assistOS.space.id, this.personality.id, this.personality);
@@ -175,15 +167,6 @@ export class EditPersonalityPage {
         photoContainer.src = await assistOS.UI.imageUpload(photoInput.files[0]);
     }
 
-    async search(_target) {
-        let form = this.element.querySelector(".search");
-        let formInfo = await assistOS.UI.extractFormInformation(form);
-        this.knowledgeArray = JSON.parse(await assistOS.space.getAgent().loadFilteredKnowledge(assistOS.space.id, formInfo.data.search));
-        if (this.knowledgeArray.length === 0) {
-            this.knowledgeArray = ["Nothing found"];
-        }
-        this.invalidate();
-    }
 
     triggerInputFileOpen(_target, id) {
         _target.removeAttribute("data-local-action");
@@ -227,18 +210,6 @@ export class EditPersonalityPage {
                 await personalityModule.updatePersonality(assistOS.space.id, this.personality.id, this.personality);
                 await this.openPersonalitiesPage();
             }
-        }
-    }
-
-    async addKnowledge(_target) {
-        let formInfo = await assistOS.UI.extractFormInformation(_target);
-        let promiseArray = [];
-        if (formInfo.isValid) {
-            for (let file of formInfo.data.files) {
-                promiseArray.push(await assistOS.UI.uploadFileAsText(file));
-            }
-            let files = await Promise.all(promiseArray);
-            alert("save knowledge TBD")
         }
     }
 
