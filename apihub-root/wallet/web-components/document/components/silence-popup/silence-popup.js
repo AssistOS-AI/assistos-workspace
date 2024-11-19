@@ -22,7 +22,7 @@ export class SilencePopup{
         let silenceCommand = {
             duration: parseInt(durationInput.value)
         }
-        let refreshVideo = this.commandsEditor.insertSimpleCommand("silence", silenceCommand);
+        let refreshVideo = await this.commandsEditor.insertSimpleCommand("silence", silenceCommand);
         if(refreshVideo) {
             await this.paragraphPresenter.setupVideoPreview();
         }

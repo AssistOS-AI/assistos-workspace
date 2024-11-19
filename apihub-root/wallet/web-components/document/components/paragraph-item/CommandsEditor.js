@@ -70,6 +70,7 @@ export default class CommandsEditor {
             commands.value += "\n" + commandString;
             commands.style.height = commands.scrollHeight + 'px';
         }
+        return attachmentData.id;
     }
     deleteCommandArrayItem(type, itemId){
         let index = this.paragraph.commands[type].findIndex(command => command.id === itemId);
@@ -283,10 +284,12 @@ export default class CommandsEditor {
         commands.value += "\n" + commandString;
         commands.style.height = commands.scrollHeight + 'px';
     }
-    insertSimpleCommand(name, data) {
+    async insertSimpleCommand(name, data) {
         if (this.editMode === modes.NORMAL) {
             this.paragraph.commands[name] = data;
             this.renderViewModeCommands();
+            await documentModule.updateParagraphCommands(assistOS.space.id, this.documentId, this.paragraph.id, this.paragraph.commands);
+            await this.presenter.setupVideoPreview();
             return true;
         } else {
             this.appendCommandAdvancedMode(name, data);
