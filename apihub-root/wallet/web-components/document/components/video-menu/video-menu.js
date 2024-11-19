@@ -5,9 +5,10 @@ export class VideoMenu{
     constructor(element, invalidate) {
         this.element = element;
         this.invalidate = invalidate;
-        this.parentPresenter = this.element.closest("paragraph-item").webSkelPresenter;
-        this.commandsEditor = this.parentPresenter.commandsEditor;
-        this.paragraphId = this.parentPresenter.paragraph.id;
+        this.paragraphPresenter = this.element.closest("paragraph-item").webSkelPresenter;
+        this.videoPresenter = this.paragraphPresenter.videoPresenter;
+        this.commandsEditor = this.paragraphPresenter.commandsEditor;
+        this.paragraphId = this.paragraphPresenter.paragraph.id;
         this.invalidate();
     }
     beforeRender(){
@@ -17,23 +18,20 @@ export class VideoMenu{
         let viewVideoSection = this.element.querySelector(".view-section");
         let deleteVideoButton = this.element.querySelector(".delete-video");
         let lipSyncCheckbox = this.element.querySelector("#lip-sync");
-        if(this.parentPresenter.paragraph.commands.video){
+        if(this.paragraphPresenter.paragraph.commands.video){
             viewVideoSection.classList.remove("hidden");
             deleteVideoButton.classList.remove("hidden");
             await this.initViewVideo();
             this.initDurationInputs();
         }
-        let commands = this.parentPresenter.paragraph.commands;
-        let disableLipSync = false;
+        let commands = this.paragraphPresenter.paragraph.commands;
         if(!commands.video && !commands.image){
             let warnMessage = `No visual source added`;
             this.showLipSyncWarning(warnMessage);
-            disableLipSync = true;
         }
-        if(this.parentPresenter.paragraph.commands.lipsync){
+        if(this.paragraphPresenter.paragraph.commands.lipsync){
             lipSyncCheckbox.checked = true;
         }
-        lipSyncCheckbox.disableLipSync = disableLipSync;
     }
     showLipSyncWarning(message){
         let warning = `
@@ -46,7 +44,7 @@ export class VideoMenu{
     }
     async initViewVideo(){
         let videoElement = this.element.querySelector("video");
-        videoElement.src = await spaceModule.getVideoURL(this.parentPresenter.paragraph.commands.video.id);
+        videoElement.src = await spaceModule.getVideoURL(this.paragraphPresenter.paragraph.commands.video.id);
 
         if(!this.boundHandlePlay){
             this.boundHandlePlay = this.handlePlay.bind(this, videoElement);
@@ -60,8 +58,8 @@ export class VideoMenu{
 
     initDurationInputs(){
         let startInput = this.element.querySelector("#start");
-        startInput.max = this.parentPresenter.paragraph.commands.video.duration;
-        this.videoStartTime = this.parentPresenter.paragraph.commands.video.start;
+        startInput.max = this.paragraphPresenter.paragraph.commands.video.duration;
+        this.videoStartTime = this.paragraphPresenter.paragraph.commands.video.start;
         startInput.value = this.videoStartTime;
         if(!this.boundHandleStartInput){
             this.boundHandleStartInput = this.handleStartInput.bind(this, startInput);
@@ -69,8 +67,8 @@ export class VideoMenu{
         startInput.addEventListener("input", this.boundHandleStartInput);
 
         let endInput = this.element.querySelector("#end");
-        endInput.max = this.parentPresenter.paragraph.commands.video.duration;
-        this.videoEndTime = this.parentPresenter.paragraph.commands.video.end;
+        endInput.max = this.paragraphPresenter.paragraph.commands.video.duration;
+        this.videoEndTime = this.paragraphPresenter.paragraph.commands.video.end;
         endInput.value = this.videoEndTime;
         if(!this.boundHandleEndInput){
             this.boundHandleEndInput = this.handleEndInput.bind(this, endInput);
@@ -100,7 +98,7 @@ export class VideoMenu{
         this.toggleSaveButton();
     }
     toggleSaveButton(){
-        if(this.videoStartTime !== this.parentPresenter.paragraph.commands.video.start || this.videoEndTime !== this.parentPresenter.paragraph.commands.video.end){
+        if(this.videoStartTime !== this.paragraphPresenter.paragraph.commands.video.start || this.videoEndTime !== this.paragraphPresenter.paragraph.commands.video.end){
             let button = this.element.querySelector(".save-video-duration");
             button.classList.remove("hidden");
         } else {
@@ -109,9 +107,6 @@ export class VideoMenu{
         }
     }
     async handleCheckbox(targetElement){
-        if(targetElement.disableLipSync){
-            return
-        }
         if(targetElement.checked){
             await this.insertLipSync();
             targetElement.checked = true;
@@ -123,21 +118,16 @@ export class VideoMenu{
     async insertVideo(){
         let videoId = await this.commandsEditor.insertAttachmentCommand("video");
         if(videoId){
-            if(this.parentPresenter.paragraph.commands.lipsync){
-                this.parentPresenter.paragraph.commands.lipsync.videoId = videoId;
-                if(this.parentPresenter.paragraph.commands.lipsync.imageId){
-                    delete this.parentPresenter.paragraph.commands.lipsync.imageId;
-                }
-                await documentModule.updateParagraphCommands(assistOS.space.id, this.parentPresenter._document.id, this.parentPresenter.paragraph.id, this.parentPresenter.paragraph.commands);
-            }
             this.invalidate();
         }
     }
     async deleteVideo(){
         await this.commandsEditor.deleteCommand("video");
-        let commands = this.parentPresenter.paragraph.commands;
-        if(commands.lipsync && commands.lipsync.videoId){
-            await this.insertVideoSource(commands);
+        let commands = this.paragraphPresenter.paragraph.commands;
+        if(commands.lipsync){
+            if(commands.lipsync.videoId){
+                await this.insertVideoSource(commands);
+            }
         }
         this.invalidate();
     }
@@ -164,22 +154,15 @@ export class VideoMenu{
         });
     }
     async insertLipSync(targetElement) {
-        let commands = this.parentPresenter.paragraph.commands;
-        let commandData = {};
-        if(commands.video){
-            commandData.videoId = commands.video.id;
-        } else{
-            commandData.imageId = commands.image.id;
-        }
-        await this.commandsEditor.insertCommandWithTask("lipsync", commandData);
+        await this.commandsEditor.insertCommandWithTask("lipsync", {});
     }
 
     async saveVideoDuration(targetElement){
-        this.parentPresenter.paragraph.commands.video.start = this.videoStartTime;
-        this.parentPresenter.paragraph.commands.video.end = this.videoEndTime;
-        await documentModule.updateParagraphCommands(assistOS.space.id, this.parentPresenter._document.id, this.parentPresenter.paragraph.id, this.parentPresenter.paragraph.commands);
-        this.parentPresenter.checkVideoAndAudioDuration();
-        this.parentPresenter.setVideoPreviewDuration();
+        this.paragraphPresenter.paragraph.commands.video.start = this.videoStartTime;
+        this.paragraphPresenter.paragraph.commands.video.end = this.videoEndTime;
+        await documentModule.updateParagraphCommands(assistOS.space.id, this.paragraphPresenter._document.id, this.paragraphPresenter.paragraph.id, this.paragraphPresenter.paragraph.commands);
+        this.paragraphPresenter.checkVideoAndAudioDuration();
+        this.videoPresenter.setVideoPreviewDuration();
         targetElement.classList.add("hidden");
     }
 }

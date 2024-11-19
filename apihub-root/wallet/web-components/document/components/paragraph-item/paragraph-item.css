@@ -170,23 +170,6 @@ textarea.paragraph-commands{
     background-color: white;
 }
 
-.paragraph-image {
-    width: 100%;
-    height: 100%;
-    object-fit: contain;
-}
-.video-container {
-    font-size: 16px;
-    background-color: var(--black);
-    display: none;
-    position: relative;
-    width: 100%;
-    height: 400px;
-    border-radius: 5px;
-    margin-bottom: 10px;
-    /*height: calc(1080 / 1920 * 100%);*/
-}
-
 .top-margin{
     margin-top: 5px;
 }
@@ -220,68 +203,9 @@ textarea.paragraph-commands{
 .command-link{
     display: block;
 }
-.video-player{
-    z-index: 1;
-    top: 0;
-    left: 0;
-    position: absolute;
-    width: 100%;
-    height: 100%;
-}
+
 .img-tag{
     padding: 10px;
-}
-.controls-mask-paragraph{
-    z-index: 2;
-    position: absolute;
-    width: 100%;
-    height: 100%;
-    display: none;
-    justify-content: center;
-    align-items: center;
-}
-.bottom-info-paragraph{
-    white-space: initial;
-    position: absolute;
-    display: flex;
-    left: 10px;
-    bottom: 10px;
-    color: var(--white);
-}
-.right-margin{
-    margin-right: 5px;
-}
-.big-right-margin{
-    margin-right: 10px;
-}
-.time-section-paragraph{
-    display: flex;
-    align-items: center;
-}
-.current-time{
-    margin-right: 3px;
-}
-.time-separator{
-    margin-right: 3px;
-}
-.fullscreen-icon{
-    position: absolute;
-    right: 10px;
-    bottom: 10px;
-    width: 25px;
-}
-.fullscreen-paragraph-video{
-    z-index: 6;
-    position: fixed;
-    top: 0;
-    left: 0;
-    width: 100%;
-    height: 100%;
-}
-.play-pause-container{
-    display: flex;
-    align-items: center;
-    justify-content: center;
 }
 
 .info-text,

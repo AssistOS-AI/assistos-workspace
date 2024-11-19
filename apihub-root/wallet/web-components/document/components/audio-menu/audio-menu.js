@@ -89,8 +89,20 @@ export class AudioMenu {
             let silenceTime = this.element.querySelector(".silence-time");
             silenceTime.innerHTML = this.paragraphPresenter.paragraph.commands.silence.duration;
         }
+        if(this.paragraphPresenter.paragraph.text.trim() === ""){
+            let warnMessage = `No text to convert to speech`;
+            this.showSpeechWarning(warnMessage);
+        }
     }
-
+    showSpeechWarning(message){
+        let warning = `
+                <div class="paragraph-warning">
+                    <img loading="lazy" src="./wallet/assets/icons/warning.svg" class="video-warning-icon" alt="warn">
+                    <div class="warning-text">${message}</div>
+                </div>`;
+        let ttsSection = this.element.querySelector(".tts-section");
+        ttsSection.insertAdjacentHTML("afterend", warning);
+    }
     async textToSpeech(_target) {
         const formData = await assistOS.UI.extractFormInformation(_target);
         if (!formData.isValid) {

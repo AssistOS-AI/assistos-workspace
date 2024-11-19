@@ -1,6 +1,3 @@
-const documentModule = require("assistos").loadModule("document", {});
-const utilModule = require("assistos").loadModule("util", {});
-
 export class SilencePopup{
     constructor(element, invalidate) {
         this.element = element;
@@ -9,6 +6,7 @@ export class SilencePopup{
         this.commandsEditor = this.paragraphPresenter.commandsEditor;
         this._document = this.paragraphPresenter._document;
         this.audioMenuPresenter = this.element.closest("audio-menu").webSkelPresenter;
+        this.videoPresenter = this.paragraphPresenter.videoPresenter;
         this.paragraphId = this.paragraphPresenter.paragraph.id;
         this.invalidate();
         this.element.classList.add("maintain-focus");
@@ -24,7 +22,7 @@ export class SilencePopup{
         }
         let refreshVideo = await this.commandsEditor.insertSimpleCommand("silence", silenceCommand);
         if(refreshVideo) {
-            await this.paragraphPresenter.setupVideoPreview();
+            await this.videoPresenter.setupVideoPreview();
         }
         this.audioMenuPresenter.invalidate();
         this.element.remove();

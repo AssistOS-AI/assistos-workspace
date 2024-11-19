@@ -4,6 +4,12 @@
     "services": [],
     "components": [
         {
+            "name": "paragraph-video-preview",
+            "directory": "document",
+            "type": "components",
+            "presenterClassName": "ParagraphVideoPreview"
+        },
+        {
             "name": "effect-item",
             "directory": "document",
             "type": "components",

@@ -7,6 +7,7 @@ export class EffectItem{
         this.element = element;
         this.invalidate = invalidate;
         this.paragraphPresenter = this.element.closest("paragraph-item").webSkelPresenter;
+        this.videoPresenter = this.paragraphPresenter.videoPresenter;
         this.commandsEditor = this.paragraphPresenter.commandsEditor;
         this._document = this.paragraphPresenter._document;
         this.audioMenuPresenter = this.element.closest("audio-menu").webSkelPresenter;
@@ -24,7 +25,7 @@ export class EffectItem{
         this.audioElement.volume = this.effect.volume;
     }
     async editEffect(button){
-        let paragraphVideoDuration = this.paragraphPresenter.getVideoPreviewDuration(this.paragraphPresenter.paragraph);
+        let paragraphVideoDuration = this.videoPresenter.getVideoPreviewDuration(this.paragraphPresenter.paragraph);
         let audioSrc = await spaceModule.getAudioURL(this.effect.id);
         let editMenu = `
             <div class="effect-edit-menu">

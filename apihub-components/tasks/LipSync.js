@@ -88,6 +88,12 @@ class LipSync extends Task {
         const imageId = await spaceModule.putImage(imageBuffer);
 
         const paragraphCommands = await documentModule.getParagraphCommands(this.spaceId, this.documentId, this.paragraphId);
+        //save source id in lipsync command
+        if(paragraphCommands.video){
+            paragraphCommands.lipsync.videoId = paragraphCommands.video.id;
+        } else if(paragraphCommands.image){
+            paragraphCommands.lipsync.imageId = paragraphCommands.image.id;
+        }
         paragraphCommands.video = {
             id: videoId,
             duration: videoDuration,
