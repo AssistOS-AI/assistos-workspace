@@ -301,16 +301,6 @@ export class ChapterItem {
         this.actionBox = await assistOS.UI.showActionBox(_target, primaryKey, componentName, insertionMode);
     }
 
-    getParagraphPosition() {
-        if (this.chapter.paragraphs.length === 0) {
-            return 0;
-        }
-        if (assistOS.space.currentParagraphId) {
-            return this.chapter.paragraphs.findIndex(p => p.id === assistOS.space.currentParagraphId);
-        }
-        return this.chapter.paragraphs.length;
-    }
-
     uploadBackgroundSound(event) {
         const file = event.target.files[0];
         const maxFileSize = 100 * 1024 * 1024;
@@ -327,7 +317,8 @@ export class ChapterItem {
                     let backgroundSound = {
                         id: audioId,
                         volume: "0.3",
-                        duration: audioPlayer.duration
+                        duration: audioPlayer.duration,
+                        loop: false
                     };
                     await documentModule.updateChapterBackgroundSound(assistOS.space.id, this._document.id, this.chapter.id, backgroundSound);
                     this.chapter.backgroundSound = backgroundSound;
@@ -369,28 +360,7 @@ export class ChapterItem {
     isAudioPlaying(audioElement) {
         return audioElement.paused === false && audioElement.currentTime > 0;
     }
-
-    saveVolumeChanges(audio, event) {
-        if (!this.timeoutId) {
-            this.timeoutId = setTimeout(async () => {
-                this.chapter.backgroundSound.volume = audio.volume;
-                await documentModule.updateChapterBackgroundSound(assistOS.space.id, this._document.id, this.chapter.id, {
-                    id: this.chapter.backgroundSound.id,
-                    volume: audio.volume,
-                    loop: this.chapter.backgroundSound.loop,
-                    duration: this.chapter.backgroundSound.duration
-                });
-                delete this.timeoutId;
-            }, 2000);
-        }
-    }
-
-    async playBackgroundAudio(_target) {
-        let chapterAudio = this.element.querySelector('.chapter-audio-section');
-        if (chapterAudio) {
-            return;
-        }
-        let audioSection = `<div class="chapter-audio-section flex">
+    audioSection = `<div class="chapter-audio-section flex">
             <div class="top-audio-section">
                 <audio class="chapter-audio" controls preload="metadata"></audio>
                 <div class="icon-container">
@@ -400,13 +370,25 @@ export class ChapterItem {
                 </div>
 
             </div>
-            <div class="loop-input-container">
-                <label for="loop" class="form-label">Loop</label>
-                <input type="checkbox" id="loop">
+            <div class="bottom-audio-section">
+                <div class="form-item">
+                    <label for="loop" class="form-label">Loop</label>
+                    <input data-local-action="handleCheckbox" type="checkbox" id="loop">
+                </div>
+                <div class="form-item">
+                    <label for="volume" class="form-label">Volume</label>
+                    <input class="form-input" type="number" id="volume" min="0" max="1" step="0.1">
+                </div>
+                <button class="general-button" data-local-action="saveBackgroundSoundChanges">Save</button>
             </div>
         </div>`;
+    async playBackgroundAudio(_target) {
+        let chapterAudio = this.element.querySelector('.chapter-audio-section');
+        if (chapterAudio) {
+            return;
+        }
         let chapterTitle = this.element.querySelector(".chapter-title");
-        chapterTitle.insertAdjacentHTML("afterend", audioSection);
+        chapterTitle.insertAdjacentHTML("afterend", this.audioSection);
 
         let audio = this.element.querySelector('.chapter-audio');
         if (!this.isAudioPlaying(audio)) {
@@ -414,38 +396,43 @@ export class ChapterItem {
             audio.load();
             audio.play();
         }
-        audio.addEventListener('volumechange', this.saveVolumeChanges.bind(this, audio), {passive: true});
         let loopInput = this.element.querySelector('#loop');
-
-        if (typeof this.chapter.backgroundSound.loop === "undefined") {
+        if (this.chapter.backgroundSound.loop) {
             loopInput.checked = true;
             audio.loop = true;
-        } else {
-            loopInput.checked = this.chapter.backgroundSound.loop;
-            audio.loop = this.chapter.backgroundSound.loop;
         }
-        loopInput.addEventListener('change', this.saveLoopChanges.bind(this));
+
+        let volumeInput = this.element.querySelector('#volume');
+        volumeInput.value = this.chapter.backgroundSound.volume;
+        volumeInput.addEventListener("input", () => {
+            audio.volume = volumeInput.value;
+        });
         audio.volume = this.chapter.backgroundSound.volume;
 
         let controller = new AbortController();
         this.boundHideAudioElement = this.hideAudioElement.bind(this, controller, _target);
         document.addEventListener("click", this.boundHideAudioElement, {signal: controller.signal});
     }
-
-    saveLoopChanges() {
+    async handleCheckbox(targetElement){
         let audio = this.element.querySelector('.chapter-audio');
-        let loopInput = this.element.querySelector('#loop');
-        const isLooping = this.chapter.backgroundSound.loop === true;
-        if (loopInput.checked !== isLooping) {
-            this.chapter.backgroundSound.loop = loopInput.checked;
-            documentModule.updateChapterBackgroundSound(assistOS.space.id, this._document.id, this.chapter.id, {
-                id: this.chapter.backgroundSound.id,
-                loop: loopInput.checked,
-                volume: this.chapter.backgroundSound.volume,
-                duration: this.chapter.backgroundSound.duration
-            });
-            audio.loop = loopInput.checked;
+        if(targetElement.checked){
+            audio.loop = true;
+            targetElement.checked = true;
+        }else{
+            audio.loop = false;
+            targetElement.checked = false;
         }
+    }
+    saveBackgroundSoundChanges(targetElement){
+        let loopInput = this.element.querySelector('#loop');
+        let volumeInput = this.element.querySelector('#volume');
+
+        documentModule.updateChapterBackgroundSound(assistOS.space.id, this._document.id, this.chapter.id, {
+            id: this.chapter.backgroundSound.id,
+            loop: loopInput.checked,
+            volume: volumeInput.volume,
+            duration: this.chapter.backgroundSound.duration
+        });
     }
 
     async deleteBackgroundSound() {

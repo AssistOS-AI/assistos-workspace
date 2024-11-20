@@ -146,10 +146,10 @@ html[theme="dark"] .arrow svg {
     display: flex;
     align-items: center;
 }
-.loop-input-container{
+.chapter-audio-section .form-item{
     display: flex;
     align-items: center;
-    margin-top: 10px;
+    flex-direction: row;
 }
 .chapter-audio-section{
     flex-direction: column;
@@ -163,4 +163,14 @@ html[theme="dark"] .arrow svg {
 }
 .chapter-title.focused{
     box-shadow: inset 0 0 0 2px var(--commands-background);
+}
+.bottom-audio-section{
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    margin-top: 10px;
+}
+.chapter-audio-section #volume{
+    width: 60px;
+    margin-left: 5px;
 }
