@@ -1,0 +1,22 @@
+.insert-audio{
+    margin-bottom: 10px;
+}
+chapter-background-audio .form-item{
+    display: flex;
+    align-items: center;
+    flex-direction: row;
+}
+chapter-background-audio{
+
+}
+
+.bottom-audio-section{
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    margin-top: 10px;
+}
+chapter-background-audio #volume{
+    width: 60px;
+    margin-left: 5px;
+}

@@ -4,6 +4,12 @@
     "services": [],
     "components": [
         {
+            "name": "chapter-background-audio",
+            "directory": "document",
+            "type": "modals",
+            "presenterClassName": "ChapterBackgroundAudio"
+        },
+        {
             "name": "paragraph-video-preview",
             "directory": "document",
             "type": "components",

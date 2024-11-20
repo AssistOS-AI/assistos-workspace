@@ -22,7 +22,7 @@ export class VideoMenu{
             viewVideoSection.classList.remove("hidden");
             deleteVideoButton.classList.remove("hidden");
             await this.initViewVideo();
-            this.initDurationInputs();
+            this.initInputs();
         }
         let commands = this.paragraphPresenter.paragraph.commands;
         if(!commands.video && !commands.image){
@@ -45,7 +45,7 @@ export class VideoMenu{
     async initViewVideo(){
         let videoElement = this.element.querySelector("video");
         videoElement.src = await spaceModule.getVideoURL(this.paragraphPresenter.paragraph.commands.video.id);
-
+        videoElement.volume = this.paragraphPresenter.paragraph.commands.video.volume;
         if(!this.boundHandlePlay){
             this.boundHandlePlay = this.handlePlay.bind(this, videoElement);
         }
@@ -56,7 +56,7 @@ export class VideoMenu{
         videoElement.addEventListener("timeupdate", this.boundHandleEnd);
     }
 
-    initDurationInputs(){
+    initInputs(){
         let startInput = this.element.querySelector("#start");
         startInput.max = this.paragraphPresenter.paragraph.commands.video.duration;
         this.videoStartTime = this.paragraphPresenter.paragraph.commands.video.start;
@@ -74,8 +74,16 @@ export class VideoMenu{
             this.boundHandleEndInput = this.handleEndInput.bind(this, endInput);
         }
         endInput.addEventListener("input", this.boundHandleEndInput);
-    }
 
+        let videoElement = this.element.querySelector("video");
+        let volumeInput = this.element.querySelector("#volume");
+        volumeInput.value = this.paragraphPresenter.paragraph.commands.video.volume;
+        volumeInput.addEventListener("input", this.handleVolume.bind(this, volumeInput, videoElement));
+    }
+    handleVolume(input, videoElement, event){
+        videoElement.volume = parseFloat(input.value);
+        this.toggleSaveButton();
+    }
     handlePlay(videoElement, event){
         let start = this.videoStartTime;
         if (videoElement.currentTime < start) {
@@ -157,9 +165,10 @@ export class VideoMenu{
         await this.commandsEditor.insertCommandWithTask("lipsync", {});
     }
 
-    async saveVideoDuration(targetElement){
+    async saveVideoChanges(targetElement){
         this.paragraphPresenter.paragraph.commands.video.start = this.videoStartTime;
         this.paragraphPresenter.paragraph.commands.video.end = this.videoEndTime;
+        this.paragraphPresenter.paragraph.commands.video.volume = this.videoEndTime;
         await documentModule.updateParagraphCommands(assistOS.space.id, this.paragraphPresenter._document.id, this.paragraphPresenter.paragraph.id, this.paragraphPresenter.paragraph.commands);
         this.paragraphPresenter.checkVideoAndAudioDuration();
         this.videoPresenter.setVideoPreviewDuration();
