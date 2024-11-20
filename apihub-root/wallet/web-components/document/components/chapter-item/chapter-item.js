@@ -373,7 +373,7 @@ export class ChapterItem {
             <div class="bottom-audio-section">
                 <div class="form-item">
                     <label for="loop" class="form-label">Loop</label>
-                    <input data-local-action="handleCheckbox" type="checkbox" id="loop">
+                    <input type="checkbox" id="loop">
                 </div>
                 <div class="form-item">
                     <label for="volume" class="form-label">Volume</label>
@@ -394,14 +394,15 @@ export class ChapterItem {
         if (!this.isAudioPlaying(audio)) {
             audio.src = await spaceModule.getAudioURL(this.chapter.backgroundSound.id);
             audio.load();
-            audio.play();
         }
         let loopInput = this.element.querySelector('#loop');
         if (this.chapter.backgroundSound.loop) {
             loopInput.checked = true;
             audio.loop = true;
         }
-
+        loopInput.addEventListener("change", () => {
+            audio.loop = loopInput.checked;
+        });
         let volumeInput = this.element.querySelector('#volume');
         volumeInput.value = this.chapter.backgroundSound.volume;
         volumeInput.addEventListener("input", () => {
@@ -413,16 +414,7 @@ export class ChapterItem {
         this.boundHideAudioElement = this.hideAudioElement.bind(this, controller, _target);
         document.addEventListener("click", this.boundHideAudioElement, {signal: controller.signal});
     }
-    async handleCheckbox(targetElement){
-        let audio = this.element.querySelector('.chapter-audio');
-        if(targetElement.checked){
-            audio.loop = true;
-            targetElement.checked = true;
-        }else{
-            audio.loop = false;
-            targetElement.checked = false;
-        }
-    }
+
     saveBackgroundSoundChanges(targetElement){
         let loopInput = this.element.querySelector('#loop');
         let volumeInput = this.element.querySelector('#volume');
@@ -430,7 +422,7 @@ export class ChapterItem {
         documentModule.updateChapterBackgroundSound(assistOS.space.id, this._document.id, this.chapter.id, {
             id: this.chapter.backgroundSound.id,
             loop: loopInput.checked,
-            volume: volumeInput.volume,
+            volume: parseFloat(volumeInput.value),
             duration: this.chapter.backgroundSound.duration
         });
     }
