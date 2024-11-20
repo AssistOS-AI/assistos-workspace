@@ -12,5 +12,6 @@ module.exports = {
         Collaborator: "collaborator",
         Auditor: "auditor",
         Viewer: "viewer"
-    }
+    },
+    defaultPersonality:"Assistant",
 }

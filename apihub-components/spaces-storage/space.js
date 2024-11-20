@@ -111,7 +111,21 @@ async function copyDefaultFlows(spacePath) {
         await fsPromises.copyFile(filePath, destFilePath);
     }
 }
-
+async function getDefaultPersonality(spaceId){
+    const spacePath= getSpacePath(spaceId);
+    const personalityPath = path.join(spacePath, 'personalities', 'metadata.json');
+    const personalitiesData = JSON.parse(await fsPromises.readFile(personalityPath, 'utf8'));
+    const defaultPersonalityId= personalitiesData.find(personality => personality.name === spaceConstants.defaultPersonality).id;
+    const defaultPersonalityPath = path.join(spacePath, 'personalities', `${defaultPersonalityId}.json`);
+    try {
+        const defaultPersonalityData = await fsPromises.readFile(defaultPersonalityPath, 'utf8');
+        return JSON.parse(defaultPersonalityData);
+    } catch (error) {
+        error.message = `Default Personality ${spaceConstants.defaultPersonality} not found.`;
+        error.statusCode = 404;
+        throw error;
+    }
+}
 async function copyDefaultPersonalities(spacePath, spaceId, defaultSpaceAgentId, spaceModule) {
 
     const defaultPersonalitiesPath = volumeManager.paths.defaultPersonalities;
@@ -597,6 +611,7 @@ module.exports = {
         getPersonalitiesIds,
         streamToJson,
         readFileAsBuffer,
+        getDefaultPersonality,
         getSpacePersonalitiesObject
     },
     templates: {

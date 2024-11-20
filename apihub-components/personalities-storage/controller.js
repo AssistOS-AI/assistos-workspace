@@ -33,7 +33,16 @@ async function ensurePersonalitiesDefaultLllms(request, response) {
         return Request.sendResponse(response, 500, "application/json", { message: `An error occurred while updating personalities:${error.message}` });
     }
 }
-
+async function getDefaultPersonality(request,response){
+    try{
+        const spaceId = request.params.spaceId;
+        const personality = await SpaceHandler.APIs.getDefaultPersonality(spaceId);
+        return Request.sendResponse(response, 200, "application/json", {data:personality});
+    }catch(error){
+        return Request.sendResponse(response, error.statusCode||500, "application/json", { message: `An error occurred while updating personalities:${error.message}` });
+    }
+}
 module.exports = {
-    ensurePersonalitiesDefaultLllms
+    ensurePersonalitiesDefaultLllms,
+    getDefaultPersonality
 };
