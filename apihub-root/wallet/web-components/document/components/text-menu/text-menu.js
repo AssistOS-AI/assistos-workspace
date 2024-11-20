@@ -32,13 +32,9 @@ export class TextMenu{
     async generateText(text){
         let prompt = this.element.querySelector("#prompt").value;
         let personalitySelect = this.element.querySelector("#personality").value;
-        let personality;
-        if(personalitySelect){
-            personality = this.personalities.find(personality => personality.id === personalitySelect);
-        }
         let textResult = (await assistOS.callFlow("ImproveText", {
             spaceId: assistOS.space.id,
-            personality: personality,
+            personality: personalitySelect,
             text: text,
             prompt: prompt
         })).data;

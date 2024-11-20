@@ -63,11 +63,11 @@ class LipSync extends Task {
             return this.rejectTask(new Error("Audio File is missing"));
         }
         if (paragraphCommands.video) {
-            await llmModule.lipSync(this.spaceId, this.id, paragraphCommands.video.id, paragraphCommands.audio.id, "sync-1.7.1");
+            await llmModule.lipSync(this.spaceId, this.id, paragraphCommands.video.id, paragraphCommands.audio.id);
         } else {
             const imageBuffer = Buffer.from(await spaceModule.getImage(paragraphCommands.image.id));
             const videoId = await ffmpeg.createVideoFromImageAndAudio(imageBuffer, paragraphCommands.audio.duration, this.spaceId);
-            await llmModule.lipSync(this.spaceId, this.id, videoId, paragraphCommands.audio.id, "sync-1.7.1");
+            await llmModule.lipSync(this.spaceId, this.id, videoId, paragraphCommands.audio.id);
         }
     }
 
