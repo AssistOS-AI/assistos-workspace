@@ -1,6 +1,7 @@
 const llmModule = require("assistos").loadModule("llm", {});
 const personalityModule = require("assistos").loadModule("personality", {});
 const spaceModule = require("assistos").loadModule("space", {});
+const documentModule = require("assistos").loadModule("document", {});
 
 export class AudioMenu {
     constructor(element, invalidate) {
@@ -48,12 +49,12 @@ export class AudioMenu {
             emotionsHTML += `<option value="${emotion}">${emotion}</option>`;
         }
         this.emotionsHTML = emotionsHTML;
-        this.audioConfig = JSON.parse(JSON.stringify(this.paragraphPresenter.paragraph.commands["speech"] || {}));
+        this.speechCommand = this.paragraphPresenter.paragraph.commands["speech"];
 
-        if (this.audioConfig && this.audioConfig.personality) {
-            const selectedPersonality = this.personalities.find(personality => personality.name === this.audioConfig.personality);
+        if (this.speechCommand && this.speechCommand.personality) {
+            const selectedPersonality = this.personalities.find(personality => personality.name === this.speechCommand.personality);
             if (selectedPersonality) {
-                this.audioConfig.personality = selectedPersonality.id;
+                this.speechCommand.personality = selectedPersonality.id;
             }
         }
         this.paragraphText = this.paragraphPresenter.paragraph.text;
@@ -61,20 +62,33 @@ export class AudioMenu {
 
 
     async afterRender() {
-        if (this.audioConfig && this.audioConfig.personality) {
-            let personalityOption = this.element.querySelector(`option[value="${this.audioConfig.personality}"]`);
+        if (this.speechCommand && this.speechCommand.personality) {
+            let personalityOption = this.element.querySelector(`option[value="${this.speechCommand.personality}"]`);
             personalityOption.selected = true;
-            if(this.audioConfig.emotion){
-                let emotionOption = this.element.querySelector(`option[value="${this.audioConfig.emotion}"]`);
+            if(this.speechCommand.emotion){
+                let emotionOption = this.element.querySelector(`option[value="${this.speechCommand.emotion}"]`);
                 emotionOption.selected = true;
             }
             let styleGuidance = this.element.querySelector(`#styleGuidance`);
-            styleGuidance.value = this.audioConfig.styleGuidance || 15;
+            styleGuidance.value = this.speechCommand.styleGuidance || 15;
         }
         if(this.paragraphPresenter.paragraph.commands.audio){
             let audioElement = this.element.querySelector(".paragraph-audio");
             audioElement.classList.remove("hidden");
             this.element.querySelector(".delete-audio").classList.remove("hidden");
+            this.element.querySelector(".volume-item").classList.remove("hidden");
+            let volumeInput = this.element.querySelector("#volume");
+            volumeInput.value = this.paragraphPresenter.paragraph.commands.audio.volume;
+            let saveVolumeButton = this.element.querySelector(".save-volume");
+            volumeInput.addEventListener("input", async () => {
+                let volume = parseFloat(volumeInput.value);
+                audioElement.volume = volume;
+                if(volume !== this.paragraphPresenter.paragraph.commands.audio.volume){
+                    saveVolumeButton.classList.remove("hidden");
+                } else {
+                    saveVolumeButton.classList.add("hidden");
+                }
+            });
             audioElement.src = await spaceModule.getAudioURL(this.paragraphPresenter.paragraph.commands.audio.id);
         }
         if(this.paragraphPresenter.paragraph.commands.speech){
@@ -93,6 +107,12 @@ export class AudioMenu {
             let warnMessage = `No text to convert to speech`;
             this.showSpeechWarning(warnMessage);
         }
+    }
+    async saveVolume(button){
+        let volumeInput = this.element.querySelector("#volume");
+        this.paragraphPresenter.paragraph.commands.audio.volume = parseFloat(volumeInput.value);
+        await documentModule.updateParagraphCommands(assistOS.space.id, this._document.id, this.paragraphId, this.paragraphPresenter.paragraph.commands);
+        button.classList.add("hidden");
     }
     showSpeechWarning(message){
         let warning = `

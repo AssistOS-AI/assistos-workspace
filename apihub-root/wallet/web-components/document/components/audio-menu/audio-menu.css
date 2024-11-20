@@ -79,11 +79,19 @@ audio:not([controls]) {
     display: flex;
     margin-bottom: 10px;
 }
-
-
 .current-effects{
     margin-top: 10px;
     margin-bottom: 10px;
     display: grid;
     gap: 10px;
+}
+.volume-item{
+}
+audio-menu #volume{
+    margin-right: 10px;
+    width: 60px;
+}
+.volume-section{
+    display: flex;
+    align-items: center;
 }

@@ -339,7 +339,7 @@ export class DocumentVideoPreview {
             this.parentPresenter.toggleEditingState(false);
         } else if (mode === "play") {
             imgTag = `<img class="pointer" src="./wallet/assets/icons/play.svg" alt="play">`;
-            this.pauseVideo();
+            this.pauseVideoPreview();
             mode = "pause";
             this.parentPresenter.toggleEditingState(true);
         } else if (mode === "reload" || mode === "playFromBeginning") {
@@ -361,7 +361,7 @@ export class DocumentVideoPreview {
         targetElement.setAttribute("data-mode", mode);
     }
 
-    pauseVideo() {
+    pauseVideoPreview() {
         this.audioPlayer.pause();
         this.videoPlayer.pause();
         this.chapterAudioPlayer.pause();
@@ -556,7 +556,7 @@ export class DocumentVideoPreview {
         if(currentMode === "playFromBeginning"){
             currentMode = "pause";
             playPause.setAttribute("data-mode", currentMode);
-            this.pauseVideo();
+            this.pauseVideoPreview();
         }
         this.audioPlayer.pause();
 
