@@ -120,6 +120,10 @@ export class ParagraphItem {
         chapterPresenter.deleteParagraph(this.paragraph.id);
     }
 
+    // async getDiagramCOde(){
+    //     this.paragraph.commands.image={assistOS.space.id}
+    // }
+
     async moveParagraph(_target, direction) {
         if (this.chapter.paragraphs.length === 1) {
             return;
@@ -322,6 +326,7 @@ export class ParagraphItem {
                 </div>`,
         "image-menu": `
                 <image-menu class="image-menu" data-presenter="image-menu"></image-menu>`,
+
         "audio-menu": `
                 <audio-menu class="audio-menu" data-presenter="audio-menu"></audio-menu>`,
         "video-menu": `
