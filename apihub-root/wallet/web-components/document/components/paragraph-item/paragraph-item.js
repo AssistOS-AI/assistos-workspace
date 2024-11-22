@@ -17,29 +17,25 @@ export class ParagraphItem {
         this.invalidate(this.subscribeToParagraphEvents.bind(this));
     }
     plugins = {
-        image: {
-            icon: `<div data-local-action="openPlugin image-menu" class="attachment-circle menu-container image">
+        "image-menu": {
+            icon: `<div data-local-action="openPlugin image-menu" class="attachment-circle menu-container image-menu">
                     <img class="pointer" loading="lazy" src="./wallet/assets/icons/image.svg" alt="icon">
-                </div>`,
-            pluginClass: "image-menu"
+                </div>`
         },
-        audio: {
-            icon: `<div data-local-action="openPlugin audio-menu" class="attachment-circle menu-container audio">
+        "audio-menu": {
+            icon: `<div data-local-action="openPlugin audio-menu" class="attachment-circle menu-container audio-menu">
                     <img class="pointer" loading="lazy" src="./wallet/assets/icons/audio.svg" alt="icon">
-                </div>`,
-            pluginClass: "audio-menu"
+                </div>`
         },
-        video: {
-            icon: `<div data-local-action="openPlugin video-menu" class="attachment-circle menu-container video">
+        "video-menu": {
+            icon: `<div data-local-action="openPlugin video-menu" class="attachment-circle menu-container video-menu">
                     <img class="pointer" loading="lazy" src="./wallet/assets/icons/video.svg" alt="icon">
-                </div>`,
-            pluginClass: "video-menu"
+                </div>`
         },
-        text: {
-            icon: `<div data-local-action="openPlugin text-menu" class="attachment-circle menu-container text">
+        "text-menu": {
+            icon: `<div data-local-action="openPlugin text-menu" class="attachment-circle menu-container text-menu">
                     <img class="pointer" loading="lazy" src="./wallet/assets/icons/light-bulb.svg" alt="icon">
-                </div>`,
-            pluginClass: "text-menu"
+                </div>`
         }
     }
     async subscribeToParagraphEvents() {
@@ -47,11 +43,10 @@ export class ParagraphItem {
         await NotificationRouter.subscribeToDocument(this._document.id, this.paragraph.id, this.boundOnParagraphUpdate);
         this.textClass = "paragraph-text";
         this.boundHandleUserSelection = this.handleUserSelection.bind(this, this.textClass);
-        // for(let pluginName of Object.keys(this.plugins)){
-        //     let pluginClass = this.plugins[pluginName].pluginClass;
-        //     let boundHandleSelection = this.handleUserSelection.bind(this, pluginClass);
-        //     NotificationRouter.subscribeToDocument(this._document.id, `${this.paragraph.id}_${pluginClass}`, boundHandleSelection);
-        // }
+        for(let pluginName of Object.keys(this.plugins)){
+            this.plugins[pluginName].boundHandleSelection = this.handleUserSelection.bind(this, pluginName);
+            NotificationRouter.subscribeToDocument(this._document.id, `${this.paragraph.id}_${pluginName}`, this.plugins[pluginName].boundHandleSelection);
+        }
         await NotificationRouter.subscribeToDocument(this._document.id, this.paragraph.id, this.boundHandleUserSelection);
         this.boundChangeTaskStatus = this.changeTaskStatus.bind(this);
         for (let [commandType, commandDetails] of Object.entries(this.paragraph.commands)) {
@@ -373,12 +368,12 @@ export class ParagraphItem {
         "paragraph-comment-menu":`<paragraph-comment-menu class="paragraph-comment-menu" data-presenter="paragraph-comment-modal"></paragraph-comment-menu>`,
     }
     async openPlugin(targetElement, pluginClass) {
-        //await selectionUtils.selectItem(true, `${this.paragraph.id}_${pluginClass}`, pluginClass, this);
+        await selectionUtils.selectItem(true, `${this.paragraph.id}_${pluginClass}`, pluginClass, this);
         let refresh = await assistOS.UI.showModal(pluginClass, {
             "chapter-id": this.chapter.id,
             "paragraph-id": this.paragraph.id
         }, true);
-        //await selectionUtils.deselectItem(pluginClass, this);
+        await selectionUtils.deselectItem(`${this.paragraph.id}_${pluginClass}`, this);
         if(refresh){
             await documentModule.updateParagraphCommands(assistOS.space.id, this._document.id, this.paragraph.id, this.paragraph.commands);
             this.commandsEditor.renderViewModeCommands();
@@ -474,12 +469,17 @@ export class ParagraphItem {
             return;
         }
         if(data.selected){
-            await selectionUtils.setUserIcon(data.imageId, data.selectId, itemClass, this);
+            if(!this.plugins[itemClass]){
+                await selectionUtils.setUserIcon(data.imageId, data.selectId, itemClass, this);
+            }
             if(data.lockOwner &&  data.lockOwner !== this.selectId){
                 return selectionUtils.lockItem(itemClass, this);
             }
         } else {
-            selectionUtils.removeUserIcon(data.selectId, this);
+            if(!this.plugins[itemClass]){
+                selectionUtils.removeUserIcon(data.selectId, this);
+            }
+
             if(!data.lockOwner){
                 selectionUtils.unlockItem(itemClass, this);
             }

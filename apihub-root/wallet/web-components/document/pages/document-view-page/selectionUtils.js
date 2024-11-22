@@ -3,14 +3,12 @@ const spaceModule = require("assistos").loadModule("space", {});
 const documentModule = require("assistos").loadModule("document", {});
 function lockItem(itemClass, presenter) {
     let editableItem = presenter.element.querySelector(`.${itemClass}`);
-    editableItem.setAttribute("readonly", true);
-    editableItem.classList.add("locked-text");
+    editableItem.classList.add("locked-item");
 }
 
 function unlockItem(itemClass, presenter) {
     let editableItem = presenter.element.querySelector(`.${itemClass}`);
-    editableItem.removeAttribute("readonly");
-    editableItem.classList.remove("locked-text");
+    editableItem.classList.remove("locked-item");
 }
 async function setUserIcon(imageId, selectId, itemClass, presenter){
     let userIconElement = presenter.element.querySelector(`.user-icon[data-id="${selectId}"]`);

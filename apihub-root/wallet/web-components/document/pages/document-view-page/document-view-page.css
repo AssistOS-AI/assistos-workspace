@@ -294,6 +294,7 @@ html[theme="dark"] .document-title-container {
     left: -50px;
     width: 40px;
 }
-.focused.locked-text{
+.focused.locked-item{
     background-color: var(--very-light-gray);
+    pointer-events: none;
 }

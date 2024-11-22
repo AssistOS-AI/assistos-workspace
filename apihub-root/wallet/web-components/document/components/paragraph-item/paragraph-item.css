@@ -229,3 +229,8 @@ textarea.paragraph-commands{
 .fix-warning:hover{
     color: var(--medium-blue);
 }
+
+.menu-container.locked-item{
+    background-color: var(--very-light-gray);
+    pointer-events: none;
+}
