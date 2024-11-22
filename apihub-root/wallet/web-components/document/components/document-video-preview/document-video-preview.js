@@ -329,14 +329,14 @@ export class DocumentVideoPreview {
         this.element.remove();
     }
 
-    playPause(targetElement) {
+    async playPause(targetElement) {
         let mode = targetElement.getAttribute("data-mode");
         let imgTag;
         if (mode === "pause") {
             imgTag = `<img class="pointer" src="./wallet/assets/icons/pause.svg" alt="pause">`;
-            this.resumeVideo();
             mode = "play";
             this.parentPresenter.toggleEditingState(false);
+            await this.resumeVideo();
         } else if (mode === "play") {
             imgTag = `<img class="pointer" src="./wallet/assets/icons/play.svg" alt="play">`;
             this.pauseVideoPreview();
@@ -390,19 +390,21 @@ export class DocumentVideoPreview {
         }
     }
 
-    resumeVideo() {
+    async resumeVideo() {
         this.isPaused = false;
         let currentChapter = this.document.chapters[this.chapterIndex];
+        let playPromises = [];
         if(currentChapter.backgroundSound){
-            this.chapterAudioPlayer.play();
+            playPromises.push(this.chapterAudioPlayer.play());
         }
         let currentParagraph = currentChapter.paragraphs[this.paragraphIndex];
         if(currentParagraph.commands.audio){
-            this.audioPlayer.play();
+            playPromises.push(this.audioPlayer.play());
         }
         if(currentParagraph.commands.video){
-            this.audioPlayer.play();
+            playPromises.push(this.videoPlayer.play());
         }
+        await Promise.all(playPromises);
 
         if (this.remainingSilentDuration > 0) {
             // Resume the silence with the remaining duration
@@ -764,7 +766,7 @@ export class DocumentVideoPreview {
 
 
         if (currentMode === "play"){
-            this.playPause(playPause);
+            await this.playPause(playPause);
         }
         //clean up before moving on to the previous scene
         this.imageTag.src = blackScreen;
