@@ -486,13 +486,13 @@ export class DocumentViewPage {
         }
         if(data.selected){
             await selectionUtils.setUserIcon(data.imageId, data.selectId, itemClass, this);
-            if(data.lockOwner &&  data.lockOwner !== this.selectId){
-                return selectionUtils.lockText(itemClass, this);
+            if(data.lockOwner && data.lockOwner !== this.selectId){
+                return selectionUtils.lockItem(itemClass, this);
             }
         } else {
             selectionUtils.removeUserIcon(data.selectId, this);
             if(!data.lockOwner){
-                selectionUtils.unlockText(itemClass, this);
+                selectionUtils.unlockItem(itemClass, this);
             }
         }
     }

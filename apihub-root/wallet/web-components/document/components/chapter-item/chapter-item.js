@@ -313,12 +313,12 @@ export class ChapterItem {
         if(data.selected){
             await selectionUtils.setUserIcon(data.imageId, data.selectId, this.titleClass, this);
             if(data.lockOwner &&  data.lockOwner !== this.selectId){
-                return selectionUtils.lockText(this.titleClass, this);
+                return selectionUtils.lockItem(this.titleClass, this);
             }
         } else {
             selectionUtils.removeUserIcon(data.selectId, this);
             if(!data.lockOwner){
-                selectionUtils.unlockText(this.titleClass, this);
+                selectionUtils.unlockItem(this.titleClass, this);
             }
         }
     }

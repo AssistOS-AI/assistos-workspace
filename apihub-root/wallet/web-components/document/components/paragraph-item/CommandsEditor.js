@@ -166,13 +166,13 @@ export default class CommandsEditor {
             });
             for (let command of commands) {
                 if (command.name === "image") {
-                    let attachmentHighlight = this.paragraphPresenter.element.querySelector(".attachment-circle.image");
+                    let attachmentHighlight = this.paragraphPresenter.element.querySelector(".attachment-circle.image-menu");
                     attachmentHighlight.classList.add("highlight-attachment");
                 } else if (command.name === "audio") {
-                    let attachmentHighlight = this.paragraphPresenter.element.querySelector(".attachment-circle.audio");
+                    let attachmentHighlight = this.paragraphPresenter.element.querySelector(".attachment-circle.audio-menu");
                     attachmentHighlight.classList.add("highlight-attachment");
                 } else if (command.name === "video") {
-                    let attachmentHighlight = this.paragraphPresenter.element.querySelector(".attachment-circle.video");
+                    let attachmentHighlight = this.paragraphPresenter.element.querySelector(".attachment-circle.video-menu");
                     attachmentHighlight.classList.add("highlight-attachment");
                 }
             }

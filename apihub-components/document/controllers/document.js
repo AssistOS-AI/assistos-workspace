@@ -508,18 +508,18 @@ function getSelectedDocumentItems(req, res) {
 function getItemSelectId(spaceId, documentId, itemId){
     return `${spaceId}/${documentId}/${itemId}`;
 }
-function setNewSelection(sessionId, selectId, spaceId, documentId, itemId, userId, userImageId, lockText) {
+function setNewSelection(sessionId, selectId, spaceId, documentId, itemId, userId, userImageId, lockItem) {
     const paragraphSelectId = getItemSelectId(spaceId, documentId, itemId);
     const timeoutId = setTimeout(() => {
         deleteSelection(paragraphSelectId, selectId, sessionId, documentId, itemId);
-    }, 1000 * 10);
+    }, 6000 * 10);
 
     let paragraph = selectedDocumentItems[paragraphSelectId];
     let lockOwner;
 
     if (!paragraph) {
         // If item doesn't exist, create a new entry with the initial user
-        lockOwner = lockText ? selectId : undefined;
+        lockOwner = lockItem ? selectId : undefined;
         selectedDocumentItems[paragraphSelectId] = {
             lockOwner,
             users: [{
@@ -548,7 +548,7 @@ function setNewSelection(sessionId, selectId, spaceId, documentId, itemId, userI
         }
 
         // Determine lock owner
-        if (!paragraph.lockOwner && lockText) {
+        if (!paragraph.lockOwner && lockItem) {
             lockOwner = selectId;
             paragraph.lockOwner = lockOwner;
         } else {
@@ -579,11 +579,11 @@ function selectDocumentItem(req, res) {
         let itemId = req.params.itemId;
         let documentId = req.params.documentId;
         let userId = req.userId;
-        let lockText = req.body.lockText;
+        let lockItem = req.body.lockItem;
         let selectId = req.body.selectId;
         let spaceId = req.params.spaceId;
 
-        let lockOwner = setNewSelection(req.sessionId, selectId, spaceId, documentId, itemId, userId, "", lockText);
+        let lockOwner = setNewSelection(req.sessionId, selectId, spaceId, documentId, itemId, userId, "", lockItem);
         let objectId = SubscriptionManager.getObjectId(documentId, itemId);
 
         let eventData = {
