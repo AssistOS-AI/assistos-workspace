@@ -4,6 +4,30 @@
     "services": [],
     "components": [
         {
+            "name": "edit-effect-modal",
+            "directory": "document",
+            "type": "modals",
+            "presenterClassName": "EditEffectModal"
+        },
+        {
+            "name": "chapter-background-audio",
+            "directory": "document",
+            "type": "modals",
+            "presenterClassName": "ChapterBackgroundAudio"
+        },
+        {
+            "name": "paragraph-video-preview",
+            "directory": "document",
+            "type": "components",
+            "presenterClassName": "ParagraphVideoPreview"
+        },
+        {
+            "name": "effect-item",
+            "directory": "document",
+            "type": "components",
+            "presenterClassName": "EffectItem"
+        },
+        {
             "name": "fb-musicgen-sm-model-page",
             "directory": "space-application",
             "type": "pages",
@@ -42,19 +66,19 @@
         {
             "name": "text-menu",
             "directory": "document",
-            "type": "components",
+            "type": "modals",
             "presenterClassName": "TextMenu"
         },
         {
             "name": "video-menu",
             "directory": "document",
-            "type": "components",
+            "type": "modals",
             "presenterClassName": "VideoMenu"
         },
         {
             "name": "image-menu",
             "directory": "document",
-            "type": "components",
+            "type": "modals",
             "presenterClassName": "ImageMenu"
         },
 
@@ -75,12 +99,6 @@
             "directory": "document",
             "type": "components",
             "presenterClassName": "DocumentCommentMenu"
-        },
-        {
-            "name": "silence-popup",
-            "directory": "document",
-            "type": "components",
-            "presenterClassName": "SilencePopup"
         },
         {
             "name": "export-document-modal",
@@ -144,7 +162,7 @@
         {
             "name": "audio-menu",
             "directory": "document",
-            "type": "components",
+            "type": "modals",
             "presenterClassName": "AudioMenu"
         },
         {

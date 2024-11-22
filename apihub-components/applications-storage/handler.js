@@ -31,6 +31,44 @@ function loadApplicationsMetadata() {
     return require("./applications.json");
 }
 
+async function updateApplication(spaceId, applicationId) {
+    const applicationMetadata = loadApplicationsMetadata().find(app => app.id === applicationId);
+    if(!applicationMetadata){
+        CustomError.throwNotFoundError("Application not Found");
+    }
+
+    const applicationPath= getApplicationPath(spaceId, applicationId);
+    const applicationFlowsPath = getApplicationFlowsPath(spaceId, applicationId);
+
+
+    const applicationNeedsUpdate = await git.checkForUpdates(applicationPath, applicationMetadata.repository);
+    const flowsNeedsUpdate = await git.checkForUpdates(applicationFlowsPath, applicationMetadata.flowsRepository);
+
+    if(!applicationNeedsUpdate && !flowsNeedsUpdate){
+        CustomError.throwBadRequestError("No updates available");
+    }
+
+    if(applicationNeedsUpdate){
+        await git.updateRepo(applicationPath);
+    }
+    if(flowsNeedsUpdate){
+        await git.updateRepo(applicationFlowsPath);
+    }
+}
+async function requiresUpdate(spaceId, applicationId) {
+    const applicationMetadata = loadApplicationsMetadata().find(app => app.id === applicationId);
+    if(!applicationMetadata){
+        CustomError.throwNotFoundError("Application not Found");
+    }
+
+    const applicationPath= getApplicationPath(spaceId, applicationId);
+    const applicationFlowsPath = getApplicationFlowsPath(spaceId, applicationId);
+    const applicationNeedsUpdate = await git.checkForUpdates(applicationPath, applicationMetadata.repository);
+    const flowsNeedsUpdate = await git.checkForUpdates(applicationFlowsPath, applicationMetadata.flowsRepository);
+
+    return applicationNeedsUpdate || flowsNeedsUpdate
+}
+
 async function installApplication(spaceId, applicationId) {
     const applications = loadApplicationsMetadata();
 
@@ -132,6 +170,8 @@ module.exports = {
     getApplicationsMetadata,
     loadApplicationConfig,
     runApplicationTask,
-    runApplicationFlow
+    runApplicationFlow,
+    updateApplication,
+    requiresUpdate
 };
 

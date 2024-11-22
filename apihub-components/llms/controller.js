@@ -98,15 +98,16 @@ async function sendRequest(url, method, request, response) {
     } catch (error) {
         console.error(error);
     }
-
     let llmResponse = await result.json();
     if (!result.ok) {
-        throw new Error(llmResponse.message);
+        const error = new Error(llmResponse.message);
+        error.statusCode = result.status;
+        throw error
     }
     return llmResponse.data;
 }
 
-async function getTextResponse(request, response) {
+async function getTextResponse(request,response) {
     try {
         const modelResponse = await sendRequest(`/apis/v1/text/generate`, "POST", request, response);
         utils.sendResponse(response, 200, "application/json", {
@@ -120,8 +121,6 @@ async function getTextResponse(request, response) {
         return {success: false, message: error.message};
     }
 }
-
-
 async function getTextStreamingResponse(request, response) {
     const requestData = {...request.body};
     let sessionId = requestData.sessionId || null;
@@ -203,6 +202,101 @@ async function getTextStreamingResponse(request, response) {
             reject(error);
         });
     });
+}
+
+async function getChatStreamingResponse(request, response) {
+    const requestData = {...request.body};
+    let sessionId = requestData.sessionId || null;
+    const {
+        fullURL,
+        init
+    } = await constructRequestInitAndURL(`/apis/v1/chat/streaming/generate`, "POST", request, response);
+
+    response.writeHead(200, {
+        'Content-Type': 'text/event-stream',
+        'Cache-Control': 'no-cache',
+        'Connection': 'keep-alive'
+    });
+
+    init.responseType = 'stream';
+    const requestBody = init.body;
+    delete init.body;
+
+    return new Promise((resolve, reject) => {
+        axios.post(fullURL, requestBody, init).then(llmRes => {
+            let metadata = null;
+
+            llmRes.data.on('data', chunk => {
+                try {
+                    const dataStr = chunk.toString();
+                    const lines = dataStr.split('\n');
+                    let eventName = null;
+                    let eventData = '';
+
+                    lines.forEach(line => {
+                        if (line.startsWith('event:')) {
+                            eventName = line.replace('event: ', '').trim();
+                        } else if (line.startsWith('data:')) {
+                            eventData += line.replace('data: ', '').trim();
+                        } else if (line.trim() === '') {
+                            if (eventData) {
+                                const dataObj = JSON.parse(eventData);
+
+                                if (eventName === 'beginSession' && dataObj.sessionId && !sessionId) {
+                                    sessionId = dataObj.sessionId;
+                                    cache[sessionId] = {data: "", lastSentIndex: 0, end: false};
+                                    response.write(`event: beginSession\ndata: ${JSON.stringify({sessionId})}\n\n`);
+                                } else if (eventName === 'end') {
+                                    if (sessionId) {
+                                        cache[sessionId].end = true;
+                                        response.write(`event: end\ndata: ${JSON.stringify({
+                                            fullResponse: dataObj.fullResponse,
+                                            metadata: dataObj.metadata
+                                        })}\n\n`);
+                                        response.end();
+                                        delete cache[sessionId];
+                                        resolve({
+                                            success: true,
+                                            data: {messages: dataObj.fullResponse, metadata: metadata}
+                                        });
+                                    }
+                                } else {
+                                    if (dataObj.message) {
+                                        cache[sessionId].data += dataObj.message;
+                                        response.write(`data: ${JSON.stringify({message: dataObj.message})}\n\n`);
+                                    }
+                                }
+                                eventName = null;
+                                eventData = '';
+                            }
+                        }
+                    });
+                } catch (err) {
+                    console.error('Failed to parse JSON:', err);
+                }
+            });
+        }).catch(error => {
+            console.error(error);
+            if (!response.headersSent) {
+                response.writeHead(500, {'Content-Type': 'application/json'});
+            }
+            response.end(JSON.stringify({message: error.message}));
+            reject(error);
+        });
+    });
+}
+
+async function getChatResponse(request, response) {
+    try {
+        const modelResponse= await sendRequest(`/apis/v1/chat/generate`, "POST", request, response);
+        return utils.sendResponse(response, 200, "application/json", {
+            data: modelResponse
+        });
+    }catch(error){
+        return utils.sendResponse(response,error.statusCode || 500, "application/json", {
+            message: error.message
+        })
+    }
 }
 
 async function getImageResponse(request, response) {
@@ -368,8 +462,22 @@ async function listLlms(request, response) {
     }
 }
 
+async function getDefaultModels(request, response) {
+    try {
+        let result = await sendRequest(`/apis/v1/llms/defaults`, "GET", request, response);
+        return utils.sendResponse(response, 200, "application/json", {
+            data: result
+        });
+    } catch (error) {
+        return utils.sendResponse(response, error.statusCode || 500, "application/json", {
+            message: error.message
+        })
+    }
+}
 module.exports = {
     getTextResponse,
+    getChatResponse,
+    getChatStreamingResponse,
     getTextStreamingResponse,
     getImageResponse,
     editImage,
@@ -381,5 +489,6 @@ module.exports = {
     sendLLMConfigs,
     listEmotions,
     lipsync,
-    listLlms
+    listLlms,
+    getDefaultModels
 };

@@ -7,10 +7,10 @@ const utilModule = require("assistos").loadModule("util", {});
 const documentModule = require("assistos").loadModule("document", {});
 
 export default class CommandsEditor {
-    constructor(documentId, paragraph, presenter) {
+    constructor(documentId, paragraph, paragraphPresenter) {
         this.documentId = documentId;
         this.paragraph = paragraph;
-        this.presenter = presenter;
+        this.paragraphPresenter = paragraphPresenter;
         this.editMode = modes.NORMAL;
     }
     renderCommands(){
@@ -43,8 +43,8 @@ export default class CommandsEditor {
         }
     }
     async insertAttachmentCommand(type) {
-        let attachmentData = await assistOS.UI.showModal(`insert-attachment-modal`, {type: type}, true);
-        if (!attachmentData) {
+        let data = await assistOS.UI.showModal(`insert-attachment-modal`, {type: type}, true);
+        if (!data) {
             return;
         }
         if (this.editMode === modes.NORMAL) {
@@ -53,23 +53,24 @@ export default class CommandsEditor {
                 if(!this.paragraph.commands[type]){
                     this.paragraph.commands[type] = [];
                 }
-                this.paragraph.commands[type].push(attachmentData);
+                this.paragraph.commands[type].push(data);
             } else {
-                this.paragraph.commands[type] = attachmentData;
+                this.paragraph.commands[type] = data;
                 if (this.paragraph.commands.lipsync) {
                     await this.handleCommand("lipsync", "changed");
                 }
             }
             await documentModule.updateParagraphCommands(assistOS.space.id, this.documentId, this.paragraph.id, this.paragraph.commands);
             this.renderViewModeCommands();
-            await this.presenter.setupVideoPreview();
-            this.presenter.checkVideoAndAudioDuration();
+            this.videoPresenter.refreshVideoPreview();
+            this.paragraphPresenter.checkVideoAndAudioDuration();
         } else {
-            let commands = this.presenter.element.querySelector('.paragraph-commands');
-            let commandString = utilModule.buildCommandString(type, attachmentData);
+            let commands = this.paragraphPresenter.element.querySelector('.paragraph-commands');
+            let commandString = utilModule.buildCommandString(type, data);
             commands.value += "\n" + commandString;
             commands.style.height = commands.scrollHeight + 'px';
         }
+        return data.id;
     }
     deleteCommandArrayItem(type, itemId){
         let index = this.paragraph.commands[type].findIndex(command => command.id === itemId);
@@ -90,10 +91,10 @@ export default class CommandsEditor {
             }
             await documentModule.updateParagraphCommands(assistOS.space.id, this.documentId, this.paragraph.id, this.paragraph.commands);
             this.renderViewModeCommands();
-            await this.presenter.setupVideoPreview();
-            this.presenter.checkVideoAndAudioDuration();
+            this.videoPresenter.refreshVideoPreview();
+            this.paragraphPresenter.checkVideoAndAudioDuration();
         } else {
-            let commands = this.presenter.element.querySelector('.paragraph-commands');
+            let commands = this.paragraphPresenter.element.querySelector('.paragraph-commands');
             let currentCommands;
             let commandConfig = constants.COMMANDS_CONFIG.COMMANDS.find(command => command.NAME === type);
             try {
@@ -112,24 +113,24 @@ export default class CommandsEditor {
                 return this.showCommandsError(e.message);
             }
         }
-        this.presenter.showUnfinishedTasks();
+        this.paragraphPresenter.showUnfinishedTasks();
     }
     showCommandsError(error) {
-        this.presenter.errorElement.classList.remove("hidden");
-        this.presenter.errorElement.innerText = error;
+        this.paragraphPresenter.errorElement.classList.remove("hidden");
+        this.paragraphPresenter.errorElement.innerText = error;
     }
     hideCommandsError() {
-        this.presenter.errorElement.classList.add("hidden");
-        this.presenter.errorElement.innerText = "";
+        this.paragraphPresenter.errorElement.classList.add("hidden");
+        this.paragraphPresenter.errorElement.innerText = "";
     }
     renderEditModeCommands() {
         this.enterAdvancedEditMode();
-        let textareaContainer = this.presenter.element.querySelector('.header-section');
-        let commandsElement = this.presenter.element.querySelector('.paragraph-commands');
+        let textareaContainer = this.paragraphPresenter.element.querySelector('.header-section');
+        let commandsElement = this.paragraphPresenter.element.querySelector('.paragraph-commands');
         commandsElement.remove();
         let commandsHTML = this.buildCommandsHTML();
         textareaContainer.insertAdjacentHTML('beforeend', `<textarea class="paragraph-commands"></textarea>`);
-        let paragraphCommands = this.presenter.element.querySelector('.paragraph-commands');
+        let paragraphCommands = this.paragraphPresenter.element.querySelector('.paragraph-commands');
         paragraphCommands.value = commandsHTML;
         paragraphCommands.style.padding = `5px 10px`;
         paragraphCommands.style.height = paragraphCommands.scrollHeight + 'px';
@@ -142,12 +143,12 @@ export default class CommandsEditor {
 
     renderViewModeCommands() {
         this.exitAdvancedEditMode();
-        let headerSection = this.presenter.element.querySelector('.header-section');
-        let commandsElement = this.presenter.element.querySelector('.paragraph-commands');
+        let headerSection = this.paragraphPresenter.element.querySelector('.header-section');
+        let commandsElement = this.paragraphPresenter.element.querySelector('.paragraph-commands');
         commandsElement.remove();
         let commandsHTML = this.buildCommandsHTML();
         headerSection.insertAdjacentHTML('beforeend', `<div class="paragraph-commands">${commandsHTML}</div>`);
-        let paragraphHeader = this.presenter.element.querySelector('.paragraph-commands');
+        let paragraphHeader = this.paragraphPresenter.element.querySelector('.paragraph-commands');
         paragraphHeader.style.height = "initial";
         if (paragraphHeader.innerHTML === "") {
             paragraphHeader.style.padding = "0";
@@ -159,24 +160,24 @@ export default class CommandsEditor {
         let html = "";
         if (this.editMode === modes.NORMAL) {
             let commands = utilModule.getSortedCommandsArray(this.paragraph.commands);
-            let allAttachmentHighlights = this.presenter.element.querySelectorAll(".attachment-circle");
+            let allAttachmentHighlights = this.paragraphPresenter.element.querySelectorAll(".attachment-circle");
             allAttachmentHighlights.forEach(attachment => {
                 attachment.classList.remove("highlight-attachment");
             });
             for (let command of commands) {
                 if (command.name === "image") {
-                    let attachmentHighlight = this.presenter.element.querySelector(".attachment-circle.image");
+                    let attachmentHighlight = this.paragraphPresenter.element.querySelector(".attachment-circle.image");
                     attachmentHighlight.classList.add("highlight-attachment");
                 } else if (command.name === "audio") {
-                    let attachmentHighlight = this.presenter.element.querySelector(".attachment-circle.audio");
+                    let attachmentHighlight = this.paragraphPresenter.element.querySelector(".attachment-circle.audio");
                     attachmentHighlight.classList.add("highlight-attachment");
                 } else if (command.name === "video") {
-                    let attachmentHighlight = this.presenter.element.querySelector(".attachment-circle.video");
+                    let attachmentHighlight = this.paragraphPresenter.element.querySelector(".attachment-circle.video");
                     attachmentHighlight.classList.add("highlight-attachment");
                 }
             }
             if(this.paragraph.comment.trim() !== ""){
-                let commentHighlight = this.presenter.element.querySelector(".attachment-circle.comment");
+                let commentHighlight = this.paragraphPresenter.element.querySelector(".attachment-circle.comment");
                 commentHighlight.classList.add("highlight-attachment");
             }
         } else {
@@ -185,7 +186,7 @@ export default class CommandsEditor {
         return html;
     }
     async saveCommands(eventController){
-        let commandsElement = this.presenter.element.querySelector('.paragraph-commands');
+        let commandsElement = this.paragraphPresenter.element.querySelector('.paragraph-commands');
         let commands;
         try {
             commands = utilModule.findCommands(commandsElement.value);
@@ -231,8 +232,8 @@ export default class CommandsEditor {
         }
         await documentModule.updateParagraphCommands(assistOS.space.id, this.documentId, this.paragraph.id, this.paragraph.commands);
         this.renderViewModeCommands();
-        await this.presenter.setupVideoPreview();
-        this.presenter.showUnfinishedTasks();
+        await this.videoPresenter.setupVideoPreview();
+        this.paragraphPresenter.showUnfinishedTasks();
     }
     async handleCommand(commandName, commandStatus) {
         if (constants.COMMANDS_CONFIG.ATTACHMENTS.includes(commandName)) {
@@ -241,7 +242,7 @@ export default class CommandsEditor {
         if (commandStatus === "new") {
             const taskId = await constants.COMMANDS_CONFIG.COMMANDS.find(command => command.NAME === commandName).EXECUTE(assistOS.space.id, this.documentId, this.paragraph.id, {});
             this.paragraph.commands[commandName].taskId = taskId;
-            await this.presenter.addUITask(taskId);
+            await this.paragraphPresenter.addUITask(taskId);
         } else if (commandStatus === "changed") {
             if (this.paragraph.commands[commandName].taskId) {
                 //cancel the task so it can be re-executed, same if it was cancelled, failed, pending
@@ -254,7 +255,7 @@ export default class CommandsEditor {
             } else {
                 const taskId = await constants.COMMANDS_CONFIG.COMMANDS.find(command => command.NAME === commandName).EXECUTE(assistOS.space.id, this.documentId, this.paragraph.id, {});
                 this.paragraph.commands[commandName].taskId = taskId;
-                await this.presenter.addUITask(taskId);
+                await this.paragraphPresenter.addUITask(taskId);
             }
         } else if (commandStatus === "deleted") {
             await this.deleteTaskFromCommand(commandName);
@@ -274,18 +275,21 @@ export default class CommandsEditor {
         } else {
             this.appendCommandAdvancedMode(name, data);
         }
-        this.presenter.showUnfinishedTasks();
+        this.paragraphPresenter.showUnfinishedTasks();
+        await documentModule.updateParagraphCommands(assistOS.space.id, this.documentId, this.paragraph.id, this.paragraph.commands);
     }
     appendCommandAdvancedMode(name, data) {
-        let commands = this.presenter.element.querySelector('.paragraph-commands');
+        let commands = this.paragraphPresenter.element.querySelector('.paragraph-commands');
         let commandString = utilModule.buildCommandString(name, data);
         commands.value += "\n" + commandString;
         commands.style.height = commands.scrollHeight + 'px';
     }
-    insertSimpleCommand(name, data) {
+    async insertSimpleCommand(name, data) {
         if (this.editMode === modes.NORMAL) {
             this.paragraph.commands[name] = data;
             this.renderViewModeCommands();
+            await documentModule.updateParagraphCommands(assistOS.space.id, this.documentId, this.paragraph.id, this.paragraph.commands);
+            await this.videoPresenter.setupVideoPreview();
             return true;
         } else {
             this.appendCommandAdvancedMode(name, data);

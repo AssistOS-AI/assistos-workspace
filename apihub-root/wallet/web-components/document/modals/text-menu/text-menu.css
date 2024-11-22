@@ -1,0 +1,49 @@
+text-menu{
+    display: block;
+    width: 700px;
+    background-color: var(--white);
+    border-radius: 5px;
+    box-shadow: 0px 1px 7.3px 0px #00000040;
+    text-align: initial;
+}
+.section-header{
+    font-size: 18px;
+    font-weight: 600;
+    margin-bottom: 10px;
+}
+.form-item.select-item{
+    width: 200px;
+}
+text-menu #text,
+text-menu .generated-text{
+    height: 150px;
+    overflow-y: scroll;
+    resize: none;
+}
+text-menu #prompt{
+    height: 100px;
+    overflow-y: scroll;
+    resize: none;
+}
+
+text-menu .form-footer{
+    display: flex;
+}
+text-menu .buttons-section{
+    margin-top: 22px;
+    margin-left: 10px;
+    display: flex;
+}
+text-menu .decision-buttons{
+    display: flex;
+}
+text-menu .right-margin{
+    margin-right: 10px;
+}
+.form-label.result{
+    font-size: 18px;
+}
+.result-header{
+    display: flex;
+    align-items: baseline;
+}

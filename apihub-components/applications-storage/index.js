@@ -14,6 +14,7 @@ function ApplicationsStorage(server) {
     server.delete("/applications/:spaceId/:applicationId", Application.uninstallApplication);
 
     server.get("/applications/files/:spaceId/:applicationId/*", Application.loadApplicationFile);
+    server.get("/applications/updates/:spaceId/:applicationId", Application.requiresUpdate);
 
     server.get("/app/:spaceId/applications/:appName/:objectType", Application.loadObjects);
 
@@ -22,6 +23,7 @@ function ApplicationsStorage(server) {
 
     server.put("/app/:spaceId/applications/:applicationId/:objectType/:objectId", Application.storeObject);
     server.put("/space/:spaceId/applications/:applicationId/:objectType/:objectId", Application.storeObject);
+    server.put("/applications/updates/:spaceId/:applicationId", Application.updateApplication);
 
     server.get("/app/:spaceId/applications/:applicationId", Application.loadAppFlows);
     server.put("/app/:spaceId/applications/:applicationId/:objectId", Application.storeAppFlow);

@@ -1,5 +1,10 @@
 {
   "name": "Analyst",
   "description": "it's a meticulous observer, methodically dissecting information to uncover patterns and insights. With a keen eye for detail and a logical approach, it sifts through data to provide comprehensive understanding and actionable recommendations.",
-  "imageId": "Analyst"
+  "imageId": "Analyst",
+  "metadata": [
+    "id",
+    "name",
+    "imageId"
+  ]
 }

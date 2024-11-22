@@ -1,0 +1,73 @@
+<div class="modal-header">
+    <div>Edit Audio</div>
+    <div class="close" data-local-action="closeModal">
+        <span aria-hidden="true">&times;</span>
+    </div>
+</div>
+<div class="modal-body">
+    <div class="audio-options">
+        <div class="buttons-container">
+            <button data-local-action="insertAudio" class="general-button right-margin">Insert Audio</button>
+            <button data-local-action="deleteAudio" class="general-button delete-audio hidden">Delete Audio</button>
+        </div>
+        <div class="form-item volume-item hidden">
+            <label for="volume" class="form-label">Volume</label>
+            <div class="volume-container">
+                <input type="number" id="volume" class="form-input" min="0" step="0.1" max="1">
+                <button class="general-button hidden save-volume" data-local-action="saveVolume">Save</button>
+            </div>
+
+        </div>
+
+        <audio controls class="paragraph-audio hidden"></audio>
+
+    </div>
+    <div class="silence-section">
+        <div class="section-header">Silence</div>
+        <div class="current-silence-time hidden">
+            <span class="section-subheader">Current Time:</span>
+            <span class="silence-time"></span>
+            <span> seconds</span>
+            <span data-local-action="deleteSilence" class="general-button delete-silence">Delete</span>
+        </div>
+        <div class="section-content">
+            <div class="form-item right-margin">
+                <label class="form-label" for="silence">Duration</label>
+                <input class="form-input" type="number" id="silence" name="silence" min="1" max="3600" value="1">
+            </div>
+            <button data-local-action="insertSilence" class="general-button insert-silence">Insert Silence</button>
+        </div>
+    </div>
+    <div class="effects-section">
+        <div class="section-header">Effects</div>
+        <button data-local-action="insertSoundEffect" class="general-button">Insert Sound Effect</button>
+        <div class="current-effects">$$currentEffects</div>
+    </div>
+    <form class="tts-section">
+        <div class="section-header">Text to Speech</div>
+        <button class="general-button delete-speech hidden" data-local-action="deleteSpeech">Delete Speech</button>
+        <div class="form-row">
+            <div class="form-item personality-item">
+                <label for="personality" class="form-label">Select Personality</label>
+                <select class="form-input" id="personality" data-id="personality" name="personality" required>
+                    <option disabled selected value="">Select Personality</option>
+                    $$personalitiesHTML
+                </select>
+            </div>
+            <div class="form-item">
+                <label for="emotion" class="form-label">Select Emotion</label>
+                <select class="form-input" id="emotion" data-id="emotion" name="emotion" required>
+                    <option disabled selected value="">Select Emotion</option>
+                    $$emotionsHTML
+                </select>
+            </div>
+        </div>
+        <div class="bottom-row">
+            <div class="form-item">
+                <label for="styleGuidance" class="form-label">Emotion Intensity</label>
+                <input type="range" name="styleGuidance" id="styleGuidance" min="1" max="30" value="15">
+            </div>
+            <button class="general-button maintain-focus" data-local-action="insertSpeech">Insert Task</button>
+        </div>
+    </form>
+</div>

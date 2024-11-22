@@ -1,5 +1,6 @@
 const spaceModule = require("assistos").loadModule("space", {});
 const galleryModule = require("assistos").loadModule("gallery", {});
+import {videoUtils} from "../../../../imports.js";
 export class InsertAttachmentModal {
     constructor(element, invalidate) {
         this.element = element;
@@ -102,7 +103,7 @@ export class InsertAttachmentModal {
     loadAudioMetadata(file, audioId) {
         return new Promise(async (resolve, reject) => {
             this.attachmentElement.addEventListener("loadedmetadata", async () => {
-                const duration = this.attachmentElement.duration;
+                const duration = this.attachmentElement.duration.toFixed(1);
                 let data = {
                     id: audioId,
                     duration: duration,
@@ -112,6 +113,7 @@ export class InsertAttachmentModal {
                     data.start = 0;
                     data.end = duration;
                     data.name = file.name.replace(/\s+/g, "_");
+                    data.playAt = 0;
                 }
                 this.attachmentElement.remove();
                 URL.revokeObjectURL(this.attachmentElement.src);
@@ -131,7 +133,8 @@ export class InsertAttachmentModal {
             await assistOS.loadifyComponent(this.element, async () => {
                 const uint8Array = new Uint8Array(e.target.result);
                 videoId = await spaceModule.putVideo(uint8Array);
-                let thumbnailId = await this.uploadVideoThumbnail(file);
+                let videoURL = URL.createObjectURL(file);
+                let thumbnailId = await videoUtils.uploadVideoThumbnail(videoURL, this.attachmentElement);
                 const duration = parseFloat(this.attachmentElement.duration.toFixed(1));
                 const width = this.attachmentElement.videoWidth;
                 const height = this.attachmentElement.videoHeight;
@@ -146,48 +149,13 @@ export class InsertAttachmentModal {
                     volume: 1
                 };
                 this.attachmentElement.remove();
-                URL.revokeObjectURL(this.attachmentElement.src);
+                URL.revokeObjectURL(videoURL);
                 assistOS.UI.closeModal(modal, data);
             });
         }
         reader.readAsArrayBuffer(file);
     }
-    canvasToBlobAsync(canvas) {
-        return new Promise((resolve, reject) => {
-            canvas.toBlob((blob) => {
-                if (blob) {
-                    resolve(blob);
-                } else {
-                    reject(new Error('Canvas to Blob conversion failed.'));
-                }
-            });
-        });
-    }
-    uploadVideoThumbnail(file) {
-        return new Promise((resolve, reject) => {
-            const canvas = document.createElement('canvas');
-            const context = canvas.getContext('2d');
-            this.attachmentElement.addEventListener("loadedmetadata", async () => {
-                this.attachmentElement.currentTime = 0;
-            });
-            this.attachmentElement.addEventListener('seeked', async () => {
-                canvas.width = this.attachmentElement.videoWidth;
-                canvas.height = this.attachmentElement.videoHeight;
-                context.drawImage(this.attachmentElement, 0, 0, canvas.width, canvas.height);
-                try {
-                    let blob = await this.canvasToBlobAsync(canvas);
-                    canvas.remove();
-                    let arrayBuffer = await blob.arrayBuffer();
-                    let thumbnailId = await spaceModule.putImage(arrayBuffer);
-                    resolve(thumbnailId);
-                } catch (e) {
-                    reject(e);
-                }
 
-            }, {once: true});
-            this.attachmentElement.src = URL.createObjectURL(file);
-        });
-    }
     selectImageHandler(modal, event) {
         let file = event.target.files[0];
         let reader = new FileReader();

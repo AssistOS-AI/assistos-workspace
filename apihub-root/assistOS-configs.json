@@ -2,14 +2,6 @@
     "defaultApplicationName": "Space",
     "services": [
         {
-            "name": "AgentService",
-            "path": "./wallet/core/services/AgentService.js"
-        },
-        {
-            "name": "LlmAnimationService",
-            "path": "./wallet/core/services/LlmAnimationService.js"
-        },
-        {
             "name": "ValidationService",
             "path": "./wallet/core/services/ValidationService.js"
         }

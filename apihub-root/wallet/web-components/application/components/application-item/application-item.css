@@ -29,7 +29,12 @@ application-item {
     padding: 5px;
     border-radius: 50%;
 }
-
+.application-buttons{
+    display: flex;
+    flex-direction:column;
+    margin-left:10px;
+    gap:15px;
+}
 .application-image-container img {
     height: 99%;
 }
@@ -41,7 +46,12 @@ application-item {
     color: white;
     padding: 10px;
 }
-
+.update:disabled{
+    background-color:gray;
+    color: white;
+    padding: 10px;
+    cursor: not-allowed;
+}
 .details {
     display: flex;
     flex-direction: column;

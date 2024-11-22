@@ -764,7 +764,12 @@ async function getChatTextStreamingResponse(request, response) {
     try {
         const modelResponse = await getTextStreamingResponse(request, response);
         if (modelResponse.success) {
-            const chatMessages = modelResponse.data.messages;
+            let chatMessages;
+            if (Array.isArray(modelResponse.data.messages)){
+                chatMessages = modelResponse.data.messages;
+            }else{
+                chatMessages = [modelResponse.data.messages];
+            }
             for (const chatMessage of chatMessages) {
                 await space.APIs.addSpaceChatMessage(spaceId, agentId, "assistant", chatMessage);
                 SubscriptionManager.notifyClients(request.sessionId, SubscriptionManager.getObjectId(spaceId, `chat_${spaceId}`), {}, [userId]);

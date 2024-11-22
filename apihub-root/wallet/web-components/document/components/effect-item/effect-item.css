@@ -1,0 +1,29 @@
+effect-item{
+    width: 300px;
+    padding: 5px;
+    border: 1px solid var(--blue-button);
+    border-radius: 5px;
+    position: relative;
+}
+.effect-name{
+    overflow: hidden;
+    text-overflow: ellipsis;
+    white-space: nowrap;
+}
+.effect-play{
+    width: 30px;
+    background: black;
+    margin-right: 10px;
+}
+.effect-row{
+    display: flex;
+    align-items: center;
+}
+.space-between{
+    justify-content: space-between;
+}
+
+.flex{
+    display: flex;
+    align-items: center;
+}

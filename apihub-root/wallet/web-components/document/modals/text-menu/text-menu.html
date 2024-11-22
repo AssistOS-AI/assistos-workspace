@@ -1,0 +1,41 @@
+<div class="modal-header">
+    <div>Edit Text</div>
+    <div class="close" data-local-action="closeModal">
+        <span aria-hidden="true">&times;</span>
+    </div>
+</div>
+<div class="modal-body">
+    <form class="text-container-form">
+        <label for="text" class="section-header">Improve your text</label>
+        <textarea class="form-input" id="text" data-id="text" required></textarea>
+        <div class="form-item text-menu">
+            <label class="form-label" for="prompt">Additional Indications</label>
+            <textarea id="prompt" data-id="prompt" class="form-input"></textarea>
+        </div>
+        <div class="form-footer">
+            <div class="form-item select-item">
+                <label class="form-label" for="personality">Personality</label>
+                <select class="form-input" id="personality" name="personality" data-id="personality">
+                    <option selected value="">None</option>
+                    $$personalitiesHTML
+                </select>
+            </div>
+            <div class="buttons-section">
+                <button class="general-button right-margin improve-text" data-local-action="improveText">Improve Text</button>
+            </div>
+        </div>
+    </form>
+    <div class="result-section hidden">
+        <div class="form-item text-menu">
+            <div class="result-header">
+                <label class="form-label result right-margin" for="result">Result</label>
+                <button class="general-button retry-text" data-local-action="improveText">Retry</button>
+            </div>
+            <textarea class="form-input generated-text" id="result"></textarea>
+        </div>
+        <div class="decision-buttons">
+            <button class="general-button hidden right-margin accept-text" data-local-action="acceptText">Insert</button>
+            <button class="general-button hidden cancel-button" data-local-action="closeModal">Cancel</button>
+        </div>
+    </div>
+</div>

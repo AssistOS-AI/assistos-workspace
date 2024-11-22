@@ -111,29 +111,47 @@ async function copyDefaultFlows(spacePath) {
         await fsPromises.copyFile(filePath, destFilePath);
     }
 }
-
+async function getDefaultPersonality(spaceId){
+    const spacePath= getSpacePath(spaceId);
+    const personalityPath = path.join(spacePath, 'personalities', 'metadata.json');
+    const personalitiesData = JSON.parse(await fsPromises.readFile(personalityPath, 'utf8'));
+    const defaultPersonalityId= personalitiesData.find(personality => personality.name === spaceConstants.defaultPersonality).id;
+    const defaultPersonalityPath = path.join(spacePath, 'personalities', `${defaultPersonalityId}.json`);
+    try {
+        const defaultPersonalityData = await fsPromises.readFile(defaultPersonalityPath, 'utf8');
+        return JSON.parse(defaultPersonalityData);
+    } catch (error) {
+        error.message = `Default Personality ${spaceConstants.defaultPersonality} not found.`;
+        error.statusCode = 404;
+        throw error;
+    }
+}
 async function copyDefaultPersonalities(spacePath, spaceId, defaultSpaceAgentId, spaceModule) {
 
     const defaultPersonalitiesPath = volumeManager.paths.defaultPersonalities;
     const personalitiesPath = path.join(spacePath, 'personalities');
 
     await file.createDirectory(personalitiesPath);
-    const files = await fsPromises.readdir(defaultPersonalitiesPath, { withFileTypes: true });
+    const files = await fsPromises.readdir(defaultPersonalitiesPath, {withFileTypes: true});
     let metadata = [];
     let promises = [];
+    const defaultLlmsRes = await fetch(`${process.env.BASE_URL}/apis/v1/llms/defaults`);
+    const defaultLlms = (await defaultLlmsRes.json()).data;
     for (const entry of files) {
         if (entry.isFile()) {
-            promises.push(preparePersonalityData(defaultPersonalitiesPath , personalitiesPath, entry, spaceId, defaultSpaceAgentId, spaceModule));
+            promises.push(preparePersonalityData(defaultPersonalitiesPath, personalitiesPath, entry, spaceId, defaultSpaceAgentId, spaceModule, defaultLlms));
         }
     }
     metadata = await Promise.all(promises);
     await fsPromises.writeFile(path.join(spacePath, 'personalities', 'metadata.json'), JSON.stringify(metadata), 'utf8');
 }
-async function preparePersonalityData(defaultPersonalitiesPath, personalitiesPath, entry, spaceId, defaultSpaceAgentId, spaceModule) {
+
+async function preparePersonalityData(defaultPersonalitiesPath, personalitiesPath, entry, spaceId, defaultSpaceAgentId, spaceModule, defaultLlms) {
     const filePath = path.join(defaultPersonalitiesPath, entry.name);
     let personality = JSON.parse(await fsPromises.readFile(filePath, 'utf8'));
     const constants = require("assistos").constants;
-    if(personality.name === constants.DEFAULT_PERSONALITY_NAME){
+    personality.llms = defaultLlms;
+    if (personality.name === constants.DEFAULT_PERSONALITY_NAME) {
         personality.id = defaultSpaceAgentId;
     } else {
         personality.id = crypto.generateId(16);
@@ -150,6 +168,7 @@ async function preparePersonalityData(defaultPersonalitiesPath, personalitiesPat
         imageId: personality.imageId,
     };
 }
+
 async function getPersonalitiesIds(spaceId, personalityNames) {
     const personalityIds = [];
     const personalityPath = path.join(getSpacePath(spaceId), 'personalities', 'metadata.json');
@@ -305,29 +324,6 @@ async function createDefaultSpaceChats(lightDBEnclaveClient, spaceId, spaceName)
     await createWorkspaceChat();
 }
 
-async function getSpacePersonalities(spaceId) {
-    const personalitiesFolder = path.join(getSpacePath(spaceId), 'personalities');
-    const personalities = {};
-
-    try {
-        const files = await fsPromises.readdir(personalitiesFolder);
-        for (const file of files) {
-            const filePath = path.join(personalitiesFolder, file);
-            const data = await fsPromises.readFile(filePath, 'utf8');
-            const personality = JSON.parse(data);
-            personalities[personality.id] = {
-                name: personality.name,
-                description: personality.description,
-                metadata: personality.metadata,
-                image: personality.image,
-                welcomingMessage: `Welcome! As a ${personality.name}, I'm here to help you navigate and thrive in this space.`
-            };
-        }
-    } catch (error) {
-        console.error('Failed to read directory or file:', error);
-    }
-    return personalities;
-}
 
 async function getPersonalityData(spaceId, personalityId) {
     const personalityPath = path.join(getSpacePath(spaceId), 'personalities', `${personalityId}.json`);
@@ -352,15 +348,15 @@ async function deleteSpace(userId, spaceId) {
     const documentService = require("../document/services/document");
     let userFile = await user.getUserFile(userId);
     let spacesNr = Object.keys(userFile.spaces).length;
-    if(spacesNr === 1){
+    if (spacesNr === 1) {
         return "You can't delete your last space";
     }
     let spaceStatus = await getSpaceStatusObject(spaceId);
-    if(!spaceStatus.admins[userId]){
+    if (!spaceStatus.admins[userId]) {
         return "You dont have permission to delete this space";
     }
     //unlink space from all users
-    for(let userId of Object.keys(spaceStatus.users)){
+    for (let userId of Object.keys(spaceStatus.users)) {
         await user.unlinkSpaceFromUser(userId, spaceId);
     }
     //delete space folder
@@ -368,12 +364,12 @@ async function deleteSpace(userId, spaceId) {
     await fsPromises.rm(spacePath, {recursive: true, force: true});
     //delete documents
     let documentsList = await documentService.getDocumentsMetadata(spaceId);
-    for(let document of documentsList){
+    for (let document of documentsList) {
         await documentService.deleteDocument(spaceId, document.id);
     }
     //delete api keys
     let keys = await secrets.getAPIKeys(spaceId);
-    for(let keyType in keys){
+    for (let keyType in keys) {
         await secrets.deleteSpaceKey(spaceId, keyType);
     }
     //delete chat
@@ -396,8 +392,10 @@ async function getSpacePersonalitiesObject(spaceId) {
     let spacePersonalitiesObject = [];
 
     for (const fileName of sortedPersonalitiesFiles) {
-        const personalityJson = await fsPromises.readFile(path.join(personalitiesDirectoryPath, fileName), 'utf8');
-        spacePersonalitiesObject.push(JSON.parse(personalityJson));
+        if (!fileName.includes('metadata')) {
+            const personalityJson = await fsPromises.readFile(path.join(personalitiesDirectoryPath, fileName), 'utf8');
+            spacePersonalitiesObject.push(JSON.parse(personalityJson));
+        }
     }
     return spacePersonalitiesObject;
 }
@@ -423,7 +421,6 @@ async function updateSpaceStatus(spaceId, spaceStatusObject) {
     const spaceStatusPath = path.join(spacePath, 'status', `status.json`);
     await fsPromises.writeFile(spaceStatusPath, JSON.stringify(spaceStatusObject, null, 2), {encoding: 'utf8'});
 }
-
 
 
 async function getSpacesPendingInvitationsObject() {
@@ -527,7 +524,7 @@ async function archivePersonality(spaceId, personalityId) {
 
     archive.append(contentBuffer, {name: 'data.json'});
     archive.append(Buffer.from(JSON.stringify(metadata), 'utf-8'), {name: 'metadata.json'});
-    if(personalityData.imageId){
+    if (personalityData.imageId) {
         let {fileStream, headers} = await Storage.getFile(Storage.fileTypes.images, personalityData.imageId);
         archive.append(fileStream, {name: `${personalityData.imageId}.png`});
     }
@@ -547,9 +544,9 @@ async function importPersonality(spaceId, extractedPath, request) {
 
     const personalityData = await streamToJson(personalityDataStream);
     const spacePersonalities = await getSpacePersonalitiesObject(spaceId);
-    if(personalityData.imageId){
+    if (personalityData.imageId) {
         const personalityImagePath = path.join(extractedPath, `${personalityData.imageId}.png`);
-        let imageStream =  fs.createReadStream(personalityImagePath);
+        let imageStream = fs.createReadStream(personalityImagePath);
         await Storage.putFile(Storage.fileTypes.images, personalityData.imageId, imageStream);
     }
     const existingPersonality = spacePersonalities.find(personality => personality.name === personalityData.name);
@@ -564,7 +561,8 @@ async function importPersonality(spaceId, extractedPath, request) {
     }
     return {id: personalityId, overriden: overriden, name: personalityName};
 }
-async function addApplicationToSpaceObject(spaceId, applicationData,manifest){
+
+async function addApplicationToSpaceObject(spaceId, applicationData, manifest) {
     const spaceStatusObject = await getSpaceStatusObject(spaceId);
     spaceStatusObject.installedApplications.push({
         name: applicationData.name,
@@ -576,7 +574,7 @@ async function addApplicationToSpaceObject(spaceId, applicationData,manifest){
     await updateSpaceStatus(spaceId, spaceStatusObject);
 }
 
-async function removeApplicationFromSpaceObject(spaceId, applicationId){
+async function removeApplicationFromSpaceObject(spaceId, applicationId) {
     const spaceStatusObject = await getSpaceStatusObject(spaceId);
     spaceStatusObject.installedApplications = spaceStatusObject.installedApplications.filter(application => application.name !== applicationId);
     await updateSpaceStatus(spaceId, spaceStatusObject);
@@ -612,7 +610,9 @@ module.exports = {
         getSpaceMapPath,
         getPersonalitiesIds,
         streamToJson,
-        readFileAsBuffer
+        readFileAsBuffer,
+        getDefaultPersonality,
+        getSpacePersonalitiesObject
     },
     templates: {
         defaultSpaceAnnouncement: require('./templates/defaultSpaceAnnouncement.json'),
