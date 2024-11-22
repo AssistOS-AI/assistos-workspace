@@ -1,16 +1,16 @@
 import {generateId} from "../../../../imports.js";
 const spaceModule = require("assistos").loadModule("space", {});
 const documentModule = require("assistos").loadModule("document", {});
-function lockText(itemClass, presenter) {
-    let textItem = presenter.element.querySelector(`.${itemClass}`);
-    textItem.setAttribute("readonly", true);
-    textItem.classList.add("locked-text");
+function lockItem(itemClass, presenter) {
+    let editableItem = presenter.element.querySelector(`.${itemClass}`);
+    editableItem.setAttribute("readonly", true);
+    editableItem.classList.add("locked-text");
 }
 
-function unlockText(itemClass, presenter) {
-    let textItem = presenter.element.querySelector(`.${itemClass}`);
-    textItem.removeAttribute("readonly");
-    textItem.classList.remove("locked-text");
+function unlockItem(itemClass, presenter) {
+    let editableItem = presenter.element.querySelector(`.${itemClass}`);
+    editableItem.removeAttribute("readonly");
+    editableItem.classList.remove("locked-text");
 }
 async function setUserIcon(imageId, selectId, itemClass, presenter){
     let userIconElement = presenter.element.querySelector(`.user-icon[data-id="${selectId}"]`);
@@ -40,28 +40,28 @@ async function deselectItem(itemId, presenter){
     }
     await documentModule.deselectDocumentItem(assistOS.space.id, presenter._document.id, itemId, presenter.selectId);
 }
-async function selectItem(lockText, itemId, itemClass, presenter){
+async function selectItem(lockItem, itemId, itemClass, presenter){
     presenter.selectId = generateId(8);
     if(presenter.selectionInterval){
         clearInterval(presenter.selectionInterval);
         delete presenter.selectionInterval;
     }
     await documentModule.selectDocumentItem(assistOS.space.id, presenter._document.id, itemId, {
-        lockText: lockText,
+        lockItem: lockItem,
         selectId: presenter.selectId
     });
     presenter.selectionInterval = setInterval(async () => {
         let itemText = presenter.element.querySelector(`.${itemClass}`);
-        lockText = !itemText.hasAttribute("readonly");
+        lockItem = !itemText.hasAttribute("readonly");
         await documentModule.selectDocumentItem(assistOS.space.id, presenter._document.id, itemId, {
-            lockText: lockText,
+            lockItem: lockItem,
             selectId: presenter.selectId
         });
-    }, 1000 * 10);
+    }, 6000 * 10);
 }
 export default {
-    lockText,
-    unlockText,
+    lockItem,
+    unlockItem,
     setUserIcon,
     removeUserIcon,
     deselectItem,

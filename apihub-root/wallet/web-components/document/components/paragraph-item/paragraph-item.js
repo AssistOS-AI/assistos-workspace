@@ -16,12 +16,42 @@ export class ParagraphItem {
         this.commandsEditor = new CommandsEditor(this._document.id, this.paragraph, this);
         this.invalidate(this.subscribeToParagraphEvents.bind(this));
     }
-
+    plugins = {
+        image: {
+            icon: `<div data-local-action="openPlugin image-menu" class="attachment-circle menu-container image">
+                    <img class="pointer" loading="lazy" src="./wallet/assets/icons/image.svg" alt="icon">
+                </div>`,
+            pluginClass: "image-menu"
+        },
+        audio: {
+            icon: `<div data-local-action="openPlugin audio-menu" class="attachment-circle menu-container audio">
+                    <img class="pointer" loading="lazy" src="./wallet/assets/icons/audio.svg" alt="icon">
+                </div>`,
+            pluginClass: "audio-menu"
+        },
+        video: {
+            icon: `<div data-local-action="openPlugin video-menu" class="attachment-circle menu-container video">
+                    <img class="pointer" loading="lazy" src="./wallet/assets/icons/video.svg" alt="icon">
+                </div>`,
+            pluginClass: "video-menu"
+        },
+        text: {
+            icon: `<div data-local-action="openPlugin text-menu" class="attachment-circle menu-container text">
+                    <img class="pointer" loading="lazy" src="./wallet/assets/icons/light-bulb.svg" alt="icon">
+                </div>`,
+            pluginClass: "text-menu"
+        }
+    }
     async subscribeToParagraphEvents() {
         this.boundOnParagraphUpdate = this.onParagraphUpdate.bind(this);
         await NotificationRouter.subscribeToDocument(this._document.id, this.paragraph.id, this.boundOnParagraphUpdate);
-        this.textClass = "paragraph-text"
+        this.textClass = "paragraph-text";
         this.boundHandleUserSelection = this.handleUserSelection.bind(this, this.textClass);
+        // for(let pluginName of Object.keys(this.plugins)){
+        //     let pluginClass = this.plugins[pluginName].pluginClass;
+        //     let boundHandleSelection = this.handleUserSelection.bind(this, pluginClass);
+        //     NotificationRouter.subscribeToDocument(this._document.id, `${this.paragraph.id}_${pluginClass}`, boundHandleSelection);
+        // }
         await NotificationRouter.subscribeToDocument(this._document.id, this.paragraph.id, this.boundHandleUserSelection);
         this.boundChangeTaskStatus = this.changeTaskStatus.bind(this);
         for (let [commandType, commandDetails] of Object.entries(this.paragraph.commands)) {
@@ -35,6 +65,10 @@ export class ParagraphItem {
 
     async beforeRender() {
         this.loadedParagraphText = this.paragraph.text || "";
+        this.pluginsIcons = "";
+        for(let pluginName of Object.keys(this.plugins)){
+            this.pluginsIcons += this.plugins[pluginName].icon;
+        }
     }
 
     async afterRender() {
@@ -75,7 +109,7 @@ export class ParagraphItem {
                 await selectionUtils.setUserIcon(selection.imageId, selection.selectId, this.textClass, this);
             }
             if(selected.lockOwner){
-                selectionUtils.lockText(this.textClass, this);
+                selectionUtils.lockItem(this.textClass, this);
             }
         }
     }
@@ -338,13 +372,15 @@ export class ParagraphItem {
                 </div>`,
         "paragraph-comment-menu":`<paragraph-comment-menu class="paragraph-comment-menu" data-presenter="paragraph-comment-modal"></paragraph-comment-menu>`,
     }
-    async openPlugin(targetElement, pluginName) {
-        let refresh = await assistOS.UI.showModal(pluginName, {
-            "chapter-id":this.chapter.id,
+    async openPlugin(targetElement, pluginClass) {
+        //await selectionUtils.selectItem(true, `${this.paragraph.id}_${pluginClass}`, pluginClass, this);
+        let refresh = await assistOS.UI.showModal(pluginClass, {
+            "chapter-id": this.chapter.id,
             "paragraph-id": this.paragraph.id
         }, true);
+        //await selectionUtils.deselectItem(pluginClass, this);
         if(refresh){
-            await documentModule.updateParagraphCommands(assistOS.space.id, this.documentId, this.paragraph.id, this.paragraph.commands);
+            await documentModule.updateParagraphCommands(assistOS.space.id, this._document.id, this.paragraph.id, this.paragraph.commands);
             this.commandsEditor.renderViewModeCommands();
             this.videoPresenter.refreshVideoPreview();
             this.checkVideoAndAudioDuration();
@@ -435,17 +471,17 @@ export class ParagraphItem {
 
     async handleUserSelection(itemClass, data){
         if(typeof data === "string"){
-            return ;
+            return;
         }
         if(data.selected){
             await selectionUtils.setUserIcon(data.imageId, data.selectId, itemClass, this);
             if(data.lockOwner &&  data.lockOwner !== this.selectId){
-                return selectionUtils.lockText(itemClass, this);
+                return selectionUtils.lockItem(itemClass, this);
             }
         } else {
             selectionUtils.removeUserIcon(data.selectId, this);
             if(!data.lockOwner){
-                selectionUtils.unlockText(itemClass, this);
+                selectionUtils.unlockItem(itemClass, this);
             }
         }
     }
