@@ -132,9 +132,22 @@ function canvasToBlobAsync(canvas) {
         });
     });
 }
+function getParagraphVideoDuration(commands) {
+    if (commands.video || commands.audio) {
+        let audioDuration = commands.audio ? commands.audio.duration : 0;
+        let videoDuration = commands.video ? commands.video.end - commands.video.start : 0;
+        return Math.max(audioDuration, videoDuration);
+    } else if (commands.silence) {
+        return commands.silence.duration;
+    } else if (commands.image) {
+        return 1;
+    }
+    return 0;
+}
 export default {
     playEffects,
     setupEffects,
     formatTime,
-    uploadVideoThumbnail
+    uploadVideoThumbnail,
+    getParagraphVideoDuration
 }

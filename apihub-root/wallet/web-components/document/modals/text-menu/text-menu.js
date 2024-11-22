@@ -4,7 +4,10 @@ export class TextMenu{
     constructor(element, invalidate){
         this.element = element;
         this.invalidate = invalidate;
-        this.parentPresenter = this.element.closest("paragraph-item").webSkelPresenter;
+        let documentPresenter = document.querySelector("document-view-page").webSkelPresenter;
+        let paragraphId = this.element.getAttribute("data-paragraph-id");
+        this.paragraphPresenter = documentPresenter.element.querySelector(`paragraph-item[data-paragraph-id="${paragraphId}"]`).webSkelPresenter;
+        this.element.classList.add("maintain-focus");
         this.invalidate();
     }
     async beforeRender(){
@@ -27,17 +30,16 @@ export class TextMenu{
     }
     afterRender(){
         let paragraphText = this.element.querySelector('#text');
-        paragraphText.innerHTML = this.parentPresenter.paragraph.text;
+        paragraphText.innerHTML = this.paragraphPresenter.paragraph.text;
     }
     async generateText(text){
         let prompt = this.element.querySelector("#prompt").value;
-        let personalitySelect = this.element.querySelector("#personality").value;
+        let personalityId = this.element.querySelector("#personality").value;
         let textResult = (await assistOS.callFlow("ImproveText", {
             spaceId: assistOS.space.id,
-            personality: personalitySelect,
             text: text,
             prompt: prompt
-        })).data;
+        }, personalityId)).data;
         let resultElement = this.element.querySelector(".generated-text");
         resultElement.innerHTML = textResult;
     }
@@ -57,7 +59,6 @@ export class TextMenu{
             await showApplicationError("Failed to generate text ", assistOS.UI.sanitize(e.message));
         }
 
-
         button.classList.remove('loading-icon');
         button.innerHTML = buttonText;
         this.element.style.pointerEvents = "initial";
@@ -71,7 +72,6 @@ export class TextMenu{
         acceptButton.classList.remove("hidden");
         let declineButton = this.element.querySelector(".decline-text");
         declineButton.classList.remove("hidden");
-
 
     }
     showLoadingResult(button){
@@ -101,19 +101,17 @@ export class TextMenu{
         this.element.style.pointerEvents = "initial";
     }
     async acceptText(){
-        let textElement = this.parentPresenter.element.querySelector(".paragraph-text");
+        let textElement = this.paragraphPresenter.element.querySelector(".paragraph-text");
         let newText = this.element.querySelector(".generated-text").value;
         requestAnimationFrame(() => {
             textElement.innerHTML = newText;
             textElement.style.height = textElement.scrollHeight + "px";
         });
-        this.parentPresenter.paragraph.text = newText;
-        await documentModule.updateParagraphText(assistOS.space.id, this.parentPresenter._document.id, this.parentPresenter.paragraph.id, this.parentPresenter.paragraph.text);
-        this.closeMenu();
+        this.paragraphPresenter.paragraph.text = newText;
+        await documentModule.updateParagraphText(assistOS.space.id, this.paragraphPresenter._document.id, this.paragraphPresenter.paragraph.id, this.paragraphPresenter.paragraph.text);
+        this.closeModal();
     }
-    closeMenu(){
-        let menuContainer = this.element.closest(".toolbar-menu");
-        document.removeEventListener("click", this.element.boundCloseMenu);
-        menuContainer.remove();
+    closeModal(button){
+        assistOS.UI.closeModal(this.element);
     }
 }

@@ -407,13 +407,13 @@ async function storeDocument(spaceId, extractedPath, request) {
             await documentModule.addParagraph(spaceId, docId, chapterId, paragraph);
             if (paragraph.commands.speech) {
                 if (paragraph.commands.speech.taskId) {
-                    paragraph.commands.speech.taskId = await documentModule.generateParagraphAudio(spaceId, docId, paragraph.id);
+                    paragraph.commands.speech.taskId = await documentModule.createTextToSpeechTask(spaceId, docId, paragraph.id);
                     await documentModule.updateParagraphCommands(spaceId, docId, paragraph.id, paragraph.commands);
                 }
             }
             if (paragraph.commands.lipsync) {
                 if (paragraph.commands.lipsync.taskId) {
-                    paragraph.commands.lipsync.taskId = await documentModule.generateParagraphLipSync(spaceId, docId, paragraph.id);
+                    paragraph.commands.lipsync.taskId = await documentModule.createLipSyncTask(spaceId, docId, paragraph.id);
                     await documentModule.updateParagraphCommands(spaceId, docId, paragraph.id, paragraph.commands);
                 }
             }

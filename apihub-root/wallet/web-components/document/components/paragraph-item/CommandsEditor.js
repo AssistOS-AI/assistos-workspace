@@ -43,8 +43,8 @@ export default class CommandsEditor {
         }
     }
     async insertAttachmentCommand(type) {
-        let attachmentData = await assistOS.UI.showModal(`insert-attachment-modal`, {type: type}, true);
-        if (!attachmentData) {
+        let data = await assistOS.UI.showModal(`insert-attachment-modal`, {type: type}, true);
+        if (!data) {
             return;
         }
         if (this.editMode === modes.NORMAL) {
@@ -53,9 +53,9 @@ export default class CommandsEditor {
                 if(!this.paragraph.commands[type]){
                     this.paragraph.commands[type] = [];
                 }
-                this.paragraph.commands[type].push(attachmentData);
+                this.paragraph.commands[type].push(data);
             } else {
-                this.paragraph.commands[type] = attachmentData;
+                this.paragraph.commands[type] = data;
                 if (this.paragraph.commands.lipsync) {
                     await this.handleCommand("lipsync", "changed");
                 }
@@ -66,11 +66,11 @@ export default class CommandsEditor {
             this.paragraphPresenter.checkVideoAndAudioDuration();
         } else {
             let commands = this.paragraphPresenter.element.querySelector('.paragraph-commands');
-            let commandString = utilModule.buildCommandString(type, attachmentData);
+            let commandString = utilModule.buildCommandString(type, data);
             commands.value += "\n" + commandString;
             commands.style.height = commands.scrollHeight + 'px';
         }
-        return attachmentData.id;
+        return data.id;
     }
     deleteCommandArrayItem(type, itemId){
         let index = this.paragraph.commands[type].findIndex(command => command.id === itemId);

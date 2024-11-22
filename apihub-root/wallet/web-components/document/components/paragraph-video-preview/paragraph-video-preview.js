@@ -242,7 +242,7 @@ export class ParagraphVideoPreview{
         let paragraphIndex = this.chapter.getParagraphIndex(this.paragraph.id);
         for (let i = paragraphIndex - 1; i >= 0; i--) {
             let paragraph = this.chapter.paragraphs[i];
-            let paragraphVideoDuration = this.getVideoPreviewDuration(paragraph);
+            let paragraphVideoDuration = videoUtils.getParagraphVideoDuration(paragraph.commands);
             totalDuration += paragraphVideoDuration;
         }
         let chapterAudioDuration = this.chapter.backgroundSound.duration;
@@ -339,18 +339,7 @@ export class ParagraphVideoPreview{
         }, 1000);
     }
 
-    getVideoPreviewDuration(paragraph) {
-        if (paragraph.commands.video || paragraph.commands.audio) {
-            let audioDuration = paragraph.commands.audio ? paragraph.commands.audio.duration : 0;
-            let videoDuration = paragraph.commands.video ? paragraph.commands.video.end - paragraph.commands.video.start : 0;
-            return Math.max(audioDuration, videoDuration);
-        } else if (paragraph.commands.silence) {
-            return paragraph.commands.silence.duration;
-        } else if (paragraph.commands.image) {
-            return 1;
-        }
-        return 0;
-    }
+
 
     async setupVideoPreview() {
         let hasAttachment = this.paragraph.commands.image || this.paragraph.commands.video ||
@@ -374,7 +363,7 @@ export class ParagraphVideoPreview{
 
     setVideoPreviewDuration() {
         let videoDurationElement = this.element.querySelector(".video-duration");
-        let duration = this.getVideoPreviewDuration(this.paragraph);
+        let duration = videoUtils.getParagraphVideoDuration(this.paragraph.commands);
         videoDurationElement.innerHTML = videoUtils.formatTime(duration);
     }
 

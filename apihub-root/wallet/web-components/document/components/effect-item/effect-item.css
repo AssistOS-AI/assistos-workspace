@@ -22,27 +22,8 @@ effect-item{
 .space-between{
     justify-content: space-between;
 }
-.effect-edit-menu{
-    z-index: 1;
-    top: -1px;
-    width: 465px;
-    position: absolute;
-    left: -70px;
-    background-color: var(--white);
-    padding: 10px;
-    border-radius: 5px;
-    box-shadow: 0px 1px 7.3px 0px #00000040;
-}
-.effect-edit-menu .margin-right{
-    margin-right: 5px;
-}
-.effect-edit-menu .form-label{
-    margin-bottom: 0;
-}
+
 .flex{
     display: flex;
     align-items: center;
-}
-.effect-edit-menu .top-margin{
-    margin-top: 15px;
 }

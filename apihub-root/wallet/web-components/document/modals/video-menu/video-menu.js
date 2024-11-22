@@ -5,10 +5,11 @@ export class VideoMenu{
     constructor(element, invalidate) {
         this.element = element;
         this.invalidate = invalidate;
-        this.paragraphPresenter = this.element.closest("paragraph-item").webSkelPresenter;
-        this.videoPresenter = this.paragraphPresenter.videoPresenter;
+        let documentPresenter = document.querySelector("document-view-page").webSkelPresenter;
+        this.paragraphId = this.element.getAttribute("data-paragraph-id");
+        this.paragraphPresenter = documentPresenter.element.querySelector(`paragraph-item[data-paragraph-id="${this.paragraphId}"]`).webSkelPresenter;
         this.commandsEditor = this.paragraphPresenter.commandsEditor;
-        this.paragraphId = this.paragraphPresenter.paragraph.id;
+        this.element.classList.add("maintain-focus");
         this.invalidate();
     }
     beforeRender(){
@@ -79,9 +80,19 @@ export class VideoMenu{
         let volumeInput = this.element.querySelector("#volume");
         volumeInput.value = this.paragraphPresenter.paragraph.commands.video.volume;
         volumeInput.addEventListener("input", this.handleVolume.bind(this, volumeInput, videoElement));
+
+        let lipSyncCheckbox = this.element.querySelector("#lip-sync");
+        lipSyncCheckbox.addEventListener("change", async () => {
+            if(lipSyncCheckbox.checked){
+                await this.insertLipSync();
+            }else{
+                await this.commandsEditor.deleteCommand("lipsync");
+            }
+        });
     }
     handleVolume(input, videoElement, event){
         videoElement.volume = parseFloat(input.value);
+        this.videoVolume = videoElement.volume;
         this.toggleSaveButton();
     }
     handlePlay(videoElement, event){
@@ -106,7 +117,8 @@ export class VideoMenu{
         this.toggleSaveButton();
     }
     toggleSaveButton(){
-        if(this.videoStartTime !== this.paragraphPresenter.paragraph.commands.video.start || this.videoEndTime !== this.paragraphPresenter.paragraph.commands.video.end){
+        let videoCommand = this.paragraphPresenter.paragraph.commands.video;
+        if(this.videoStartTime !== videoCommand.start || this.videoEndTime !== videoCommand.end || this.videoVolume !== videoCommand.volume){
             let button = this.element.querySelector(".save-video-duration");
             button.classList.remove("hidden");
         } else {
@@ -114,15 +126,7 @@ export class VideoMenu{
             button.classList.add("hidden");
         }
     }
-    async handleCheckbox(targetElement){
-        if(targetElement.checked){
-            await this.insertLipSync();
-            targetElement.checked = true;
-        }else{
-            await this.commandsEditor.deleteCommand("lipsync");
-            targetElement.checked = false;
-        }
-    }
+
     async insertVideo(){
         let videoId = await this.commandsEditor.insertAttachmentCommand("video");
         if(videoId){
@@ -168,10 +172,13 @@ export class VideoMenu{
     async saveVideoChanges(targetElement){
         this.paragraphPresenter.paragraph.commands.video.start = this.videoStartTime;
         this.paragraphPresenter.paragraph.commands.video.end = this.videoEndTime;
-        this.paragraphPresenter.paragraph.commands.video.volume = this.videoEndTime;
+        this.paragraphPresenter.paragraph.commands.video.volume = this.videoVolume;
         await documentModule.updateParagraphCommands(assistOS.space.id, this.paragraphPresenter._document.id, this.paragraphPresenter.paragraph.id, this.paragraphPresenter.paragraph.commands);
         this.paragraphPresenter.checkVideoAndAudioDuration();
         this.videoPresenter.setVideoPreviewDuration();
         targetElement.classList.add("hidden");
+    }
+    closeModal(button){
+        assistOS.UI.closeModal(this.element);
     }
 }

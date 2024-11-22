@@ -330,23 +330,26 @@ export class ParagraphItem {
             delete window.cutParagraph;
         });
     }
-
     menus = {
         "insert-document-element": `
                 <div class="insert-document-element">
                     <list-item data-local-action="addParagraph" data-name="Insert Paragraph After" data-highlight="light-highlight"></list-item>
                     <list-item data-local-action="addChapter" data-name="Add Chapter" data-highlight="light-highlight"></list-item>
                 </div>`,
-        "image-menu": `
-                <image-menu class="image-menu" data-presenter="image-menu"></image-menu>`,
-        "audio-menu": `
-                <audio-menu class="audio-menu" data-presenter="audio-menu"></audio-menu>`,
-        "video-menu": `
-                <video-menu class="video-menu" data-presenter="video-menu"></video-menu>`,
         "paragraph-comment-menu":`<paragraph-comment-menu class="paragraph-comment-menu" data-presenter="paragraph-comment-modal"></paragraph-comment-menu>`,
-        "text-menu": `<text-menu class="text-menu" data-presenter="text-menu"></text-menu>`
     }
-
+    async openPlugin(targetElement, pluginName) {
+        let refresh = await assistOS.UI.showModal(pluginName, {
+            "chapter-id":this.chapter.id,
+            "paragraph-id": this.paragraph.id
+        }, true);
+        if(refresh){
+            await documentModule.updateParagraphCommands(assistOS.space.id, this.documentId, this.paragraph.id, this.paragraph.commands);
+            this.commandsEditor.renderViewModeCommands();
+            this.videoPresenter.refreshVideoPreview();
+            this.checkVideoAndAudioDuration();
+        }
+    }
     openMenu(targetElement, menuName) {
         let menuOpen = this.element.querySelector(`.toolbar-menu.${menuName}`);
         if (menuOpen) {

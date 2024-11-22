@@ -3,9 +3,11 @@ export class ImageMenu{
     constructor(element, invalidate) {
         this.element = element;
         this.invalidate = invalidate;
-        this.parentPresenter = this.element.closest("paragraph-item").webSkelPresenter;
-        this.commandsEditor = this.parentPresenter.commandsEditor;
-        this.paragraphId = this.parentPresenter.paragraph.id;
+        let documentPresenter = document.querySelector("document-view-page").webSkelPresenter;
+        this.paragraphId = this.element.getAttribute("data-paragraph-id");
+        this.paragraphPresenter = documentPresenter.element.querySelector(`paragraph-item[data-paragraph-id="${this.paragraphId}"]`).webSkelPresenter;
+        this.commandsEditor = this.paragraphPresenter.commandsEditor;
+        this.element.classList.add("maintain-focus");
         this.invalidate();
     }
     beforeRender(){
@@ -14,10 +16,10 @@ export class ImageMenu{
     async afterRender(){
         let imageElement = this.element.querySelector(".paragraph-image");
         let deleteImgButton = this.element.querySelector(".delete-image");
-        if(this.parentPresenter.paragraph.commands.image){
+        if(this.paragraphPresenter.paragraph.commands.image){
             imageElement.classList.remove("hidden");
             deleteImgButton.classList.remove("hidden");
-            imageElement.src = await spaceModule.getImageURL(this.parentPresenter.paragraph.commands.image.id);
+            imageElement.src = await spaceModule.getImageURL(this.paragraphPresenter.paragraph.commands.image.id);
         }
     }
     async insertImage(){
@@ -27,5 +29,8 @@ export class ImageMenu{
     async deleteImage(){
         await this.commandsEditor.deleteCommand("image");
         this.invalidate();
+    }
+    closeModal(button){
+        assistOS.UI.closeModal(this.element);
     }
 }

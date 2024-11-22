@@ -2,7 +2,6 @@ audio-menu{
     display: block;
     width: 350px;
     background-color: var(--white);
-    padding: 15px;
     border-radius: 5px;
     box-shadow: 0px 1px 7.3px 0px #00000040;
 }
@@ -52,25 +51,16 @@ audio-menu{
 audio:not([controls]) {
     display: block;
 }
-.range{
+.personality-item{
     width: 160px;
-    display: flex;
-    flex-direction: column;
 }
-.equal-width{
-    width: 50%;
-}
-.wide-button{
-    width: 100px;
-    justify-content: center;
-}
+
 .bottom-row{
     display: flex;
     justify-content: space-between;
     align-items: end;
 }
 .paragraph-audio{
-    width: 100%;
 }
 .delete-speech{
     margin-bottom: 10px;
@@ -91,7 +81,20 @@ audio-menu #volume{
     margin-right: 10px;
     width: 60px;
 }
-.volume-section{
+
+#styleGuidance{
+    height: 43px;
+}
+audio-menu .right-margin{
+    margin-right: 10px;
+}
+.delete-silence{
+    display: initial;
+}
+.insert-silence{
+    margin-top: 39px;
+}
+.volume-container{
     display: flex;
     align-items: center;
 }
