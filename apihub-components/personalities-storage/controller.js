@@ -7,7 +7,7 @@ async function ensurePersonalitiesDefaultLllms(request, response) {
         const spaceId = request.params.spaceId;
         const personalities = await SpaceHandler.APIs.getSpacePersonalitiesObject(spaceId);
 
-        const notUpdatedPersonalities = personalities.filter(personality => !personality.llms);
+        const notUpdatedPersonalities = personalities.filter(personality => !personality.llms||!personality.metadata);
 
         if (notUpdatedPersonalities.length === 0) {
             return Request.sendResponse(response, 200, "application/json", { message: "All personalities have default llms" });
@@ -21,6 +21,11 @@ async function ensurePersonalitiesDefaultLllms(request, response) {
         const defaultLlms = (await defaultLlmsRes.json()).data;
         notUpdatedPersonalities.forEach(personality => {
             personality.llms = defaultLlms;
+            personality.metadata= [
+                "id",
+                "name",
+                "imageId"
+            ]
         });
 
         const securityContext = new ServerSideSecurityContext(request);
