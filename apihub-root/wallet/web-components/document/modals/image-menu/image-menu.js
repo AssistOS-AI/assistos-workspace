@@ -1,6 +1,11 @@
 const spaceModule = require("assistos").loadModule("space", {});
 const llmModule= require('assistos').loadModule('llm',{})
 const documentModule=require('assistos').loadModule('document',{})
+// import mermaid from '/home/user/AssistOS/assistos-workspace/node_modules/mermaid/dist/mermaid.js';
+// const math = await import('/home/user/AssistOS/assistos-workspace/node_modules/mermaid/dist/mermaid.js');
+import mermaid from "mermaid";
+
+
 
 export class ImageMenu{
     constructor(element, invalidate) {
@@ -66,6 +71,8 @@ export class ImageMenu{
         document.body.removeChild(a);
 
         URL.revokeObjectURL(url);
+        this.processMermaidResponse(content);
+
     }
     closeModal(button){
         assistOS.UI.closeModal(this.element);
