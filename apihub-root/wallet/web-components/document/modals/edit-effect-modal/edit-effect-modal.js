@@ -1,4 +1,5 @@
 const spaceModule = require("assistos").loadModule("space", {});
+const documentModule = require("assistos").loadModule("document", {});
 export class EditEffectModal{
     constructor(element, invalidate) {
         this.element = element;
@@ -37,7 +38,8 @@ export class EditEffectModal{
         this.effect.end = parseFloat(formData.data.end);
         this.effect.volume = parseFloat(formData.data.volume);
         this.effect.playAt = parseFloat(formData.data.playAt);
-        assistOS.UI.closeModal(this.element, true);
+        await documentModule.updateParagraphCommands(assistOS.space.id, this.audioMenuPresenter._document.id, this.audioMenuPresenter.paragraphId, this.audioMenuPresenter.commands);
+        assistOS.UI.closeModal(this.element);
     }
     closeModal(button){
         assistOS.UI.closeModal(this.element);
