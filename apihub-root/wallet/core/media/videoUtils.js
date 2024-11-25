@@ -8,17 +8,8 @@ async function playEffects(effectsCopy, mediaPlayer, self) {
         const { playAt, audioInstance, id } = effect;
         if (mediaPlayer.currentTime >= (playAt - 2) && !audioInstance.audio.sourceLoaded) {
             audioInstance.audio.sourceLoaded = true;
-
-            effect.audioInstance.audio.addEventListener("canplaythrough", async () => {
-                if (effect.audioInstance.audio.playWhenReady) {
-                    self.hideLoader();
-                    self.resumeVideo();
-                    await effect.audioInstance.audio.play();
-                }
-            }, { once: true });
             effect.audioInstance.audio.src = await spaceModule.getAudioURL(id);
             effect.audioInstance.audio.load();
-
         }
 
         // Check if the audio instance is ready to play
@@ -53,6 +44,13 @@ function setupEffects(mediaPlayer, effects, self){
     for(let effect of effectsCopy){
         effect.audioInstance = new CustomAudio(effect.start, effect.end);
         effect.audioInstance.audio.volume = effect.volume;
+        effect.audioInstance.audio.addEventListener("canplaythrough", async () => {
+            if (effect.audioInstance.audio.playWhenReady) {
+                self.hideLoader();
+                await self.resumeVideo();
+                await effect.audioInstance.audio.play();
+            }
+        }, { once: true });
     }
     mediaPlayer.addEventListener("timeupdate", async () => {
         await videoUtils.playEffects(effectsCopy, mediaPlayer, self);

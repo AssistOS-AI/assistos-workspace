@@ -1,6 +1,6 @@
 audio-menu{
     display: block;
-    width: 350px;
+    width: 670px;
     background-color: var(--white);
     border-radius: 5px;
     box-shadow: 0px 1px 7.3px 0px #00000040;
@@ -97,4 +97,19 @@ audio-menu .right-margin{
 .volume-container{
     display: flex;
     align-items: center;
+}
+.top-modal-body{
+    display: flex;
+    margin-bottom: 10px;
+}
+.bottom-modal-body{
+    display: flex;
+}
+.effects-section,
+.audio-options{
+    margin-right: 20px;
+    width: 300px;
+}
+audio-menu .video-warning-icon{
+    width: 30px;
 }
