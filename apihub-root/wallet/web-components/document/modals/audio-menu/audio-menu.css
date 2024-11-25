@@ -110,3 +110,6 @@ audio-menu .right-margin{
     margin-right: 20px;
     width: 300px;
 }
+audio-menu .video-warning-icon{
+    width: 30px;
+}

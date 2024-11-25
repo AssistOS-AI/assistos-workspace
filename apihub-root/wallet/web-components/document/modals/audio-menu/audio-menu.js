@@ -112,7 +112,7 @@ export class AudioMenu {
                     <div class="warning-text">${message}</div>
                 </div>`;
         let ttsSection = this.element.querySelector(".tts-section");
-        ttsSection.insertAdjacentHTML("afterend", warning);
+        ttsSection.insertAdjacentHTML("beforeend", warning);
     }
     async insertSpeech(_target) {
         const formData = await assistOS.UI.extractFormInformation(_target);
