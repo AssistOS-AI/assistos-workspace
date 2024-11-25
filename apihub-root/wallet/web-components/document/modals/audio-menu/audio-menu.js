@@ -12,7 +12,7 @@ export class AudioMenu {
         let chapterId = this.element.getAttribute("data-chapter-id");
         let chapter = this._document.chapters.find(chapter => chapter.id === chapterId);
         this.paragraphId = this.element.getAttribute("data-paragraph-id");
-        let paragraphPresenter = documentPresenter.element.querySelector("paragraph-item").webSkelPresenter;
+        let paragraphPresenter = documentPresenter.element.querySelector(`paragraph-item[data-paragraph-id="${this.paragraphId}"]`).webSkelPresenter;
         this.commandsEditor = paragraphPresenter.commandsEditor;
         this.paragraph = chapter.paragraphs.find(paragraph => paragraph.id === this.paragraphId);
         this.commands = this.paragraph.commands;
