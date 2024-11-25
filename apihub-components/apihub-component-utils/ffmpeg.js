@@ -26,21 +26,16 @@ async function createSilentAudio(outputPath, duration, task) {
     await task.runCommand(command);
 }
 
-async function createVideoFromImage(spaceId, image, duration, task) {
-    const videoTempId = crypto.generateId(16);
-    const outputVideoPath = path.join(space.getSpacePath(spaceId), 'temp', `${videoTempId}.mp4`);
+async function createVideoFromImage(outputVideoPath, imagePath, duration, task) {
     let command;
-    if (image) {
+    if (imagePath) {
         // Ensure the image dimensions are divisible by 2
-        command = `${ffmpegPath} -loop 1 -i ${image} -vf "scale=1920:1080" -c:v libx264 -t ${duration} -pix_fmt yuv420p ${outputVideoPath}`;
+        command = `${ffmpegPath} -loop 1 -i ${imagePath} -vf "scale=1920:1080" -c:v libx264 -t ${duration} -pix_fmt yuv420p ${outputVideoPath}`;
     } else {
         // Generate a black screen with the specified duration
         command = `${ffmpegPath} -f lavfi -i color=c=black:s=1920x1080:d=${duration} -c:v libx264 -pix_fmt yuv420p ${outputVideoPath}`;
     }
     await task.runCommand(command);
-    const videoBuffer = await fsPromises.readFile(outputVideoPath);
-    await fsPromises.rm(outputVideoPath);
-    return videoBuffer;
 }
 
 async function combineVideoAndAudio(videoPath, audioPath, outputPath, task) {
@@ -209,8 +204,10 @@ async function createVideoFromImageAndAudio(imageBuffer, audioDuration, spaceId)
         const tempImageId = crypto.generateId(16);
         const tempImagePath = path.join(space.getSpacePath(spaceId), 'temp', `${tempImageId}.png`);
         await fsPromises.writeFile(tempImagePath, imageBuffer);
-        const videoBuffer = await createVideoFromImage(spaceId, tempImagePath, audioDuration, this);
+        let outputVideoPath = path.join(space.getSpacePath(spaceId), 'temp', `${tempImageId}.mp4`);
+        await createVideoFromImage(outputVideoPath, tempImagePath, audioDuration, this);
         const spaceModule = await this.loadModule('space');
+        let videoBuffer = await fsPromises.readFile(outputVideoPath);
         let videoId = await spaceModule.putVideo(videoBuffer);
         await fsPromises.rm(tempImagePath);
         return videoId;
@@ -223,7 +220,15 @@ async function createVideoFromImageAndAudio(imageBuffer, audioDuration, spaceId)
         throw new Error(`Failed to create video from image and audio: ${e.message}`);
     }
 }
-
+//creates a blackscreen video from audio
+async function createVideoFromAudio(outputVideoPath, audioPath, task) {
+    const command = `${ffmpegPath} -f lavfi -i color=c=black:s=1920x1080:r=30 -i ${audioPath} -c:v libx264 -c:a aac -pix_fmt yuv420p -shortest ${outputVideoPath}`;
+    await task.runCommand(command);
+}
+async function downloadAndAdjustVolume(url, outputPath, volume, task) {
+    const command = `${ffmpegPath} -i pipe:0 -af "volume=${volume}" ${outputPath}`;
+    await task.downloadAndExecuteCommand(url, command);
+}
 function estimateChapterVideoLength(spaceId, chapter) {
     let totalDuration = 0;
     for (let paragraph of chapter.paragraphs) {
@@ -369,5 +374,7 @@ module.exports = {
     getAudioDuration,
     getImageDimensions,
     getVideoDuration,
-    createVideoThumbnail
+    createVideoThumbnail,
+    downloadAndAdjustVolume,
+    createVideoFromAudio
 }

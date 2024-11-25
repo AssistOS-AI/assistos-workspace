@@ -187,3 +187,14 @@ html[theme="dark"] {
     align-items: center;
     padding: 5px 0;
 }
+.toasts-container{
+    position: absolute;
+    width: 400px;
+    left: 75px;
+    height: 100vh;
+    top: 0;
+    display: flex;
+    padding: 10px;
+    flex-direction: column;
+    justify-content: end;
+}

@@ -1,11 +1,29 @@
-import {changeSelectedPageFromSidebar} from "../../../../imports.js";
+import {changeSelectedPageFromSidebar, NotificationRouter} from "../../../../imports.js";
 const spaceModule = require("assistos").loadModule("space", {});
 export class LeftSidebar {
     constructor(element, invalidate) {
         this.element = element;
         this.invalidate = invalidate;
         this.themeIcon = "wallet/assets/icons/moon.svg";
+        this.tasksHandlers = {};
+        for(let task of assistOS.space.tasks){
+            if(task.name === "DocumentToVideo"){
+                this.tasksHandlers[task.id] = this.showTaskNotification.bind(this, task);
+                NotificationRouter.subscribeToSpace(assistOS.space.id, task.id, this.tasksHandlers[task.id]);
+            }
+        }
         this.invalidate();
+    }
+
+    showNotificationToast(message) {
+        this.toastsContainer.insertAdjacentHTML("beforeend", `<notification-toast data-message="${message}" data-presenter="notification-toast"></notification-toast>`);
+    }
+    showTaskNotification(task, status) {
+        if(status === "completed"){
+            this.showNotificationToast(`Task ${task.name} has been completed`);
+        } else if(status === "failed"){
+            this.showNotificationToast(`Task ${task.name} has failed`);
+        }
     }
 
     async beforeRender() {
@@ -36,9 +54,7 @@ export class LeftSidebar {
             stringHTML += `<list-item data-local-action="swapSpace ${space.id}" data-name="${space.name}" data-highlight="dark-highlight"></list-item>`;
         }
         this.spaces = stringHTML;
-
     }
-
     async startApplication(_target, appName) {
         await assistOS.startApplication(appName);
         changeSelectedPageFromSidebar(window.location.hash);
@@ -73,6 +89,7 @@ export class LeftSidebar {
         await assistOS.UI.changeToDynamicPage("space-application-page", `${assistOS.space.id}/Space/account-settings-page`);
     }
     afterRender() {
+        this.toastsContainer = this.element.querySelector(".toasts-container");
         let features = this.element.querySelectorAll(".feature");
         features.forEach((feature) => {
             let timeoutId;
