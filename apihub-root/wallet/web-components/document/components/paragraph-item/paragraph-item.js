@@ -369,17 +369,11 @@ export class ParagraphItem {
     }
     async openPlugin(targetElement, pluginClass) {
         await selectionUtils.selectItem(true, `${this.paragraph.id}_${pluginClass}`, pluginClass, this);
-        let refresh = await assistOS.UI.showModal(pluginClass, {
+        await assistOS.UI.showModal(pluginClass, {
             "chapter-id": this.chapter.id,
             "paragraph-id": this.paragraph.id
         }, true);
         await selectionUtils.deselectItem(`${this.paragraph.id}_${pluginClass}`, this);
-        if(refresh){
-            await documentModule.updateParagraphCommands(assistOS.space.id, this._document.id, this.paragraph.id, this.paragraph.commands);
-            this.commandsEditor.renderViewModeCommands();
-            this.videoPresenter.refreshVideoPreview();
-            this.checkVideoAndAudioDuration();
-        }
     }
     openMenu(targetElement, menuName) {
         let menuOpen = this.element.querySelector(`.toolbar-menu.${menuName}`);
