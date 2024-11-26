@@ -24,6 +24,10 @@ export class TaskItem{
         this.name = this.task.name;
         this.status = this.task.status;
         this.paragraphItem = document.querySelector(`paragraph-item[data-paragraph-id="${this.task.configs.paragraphId}"]`);
+        if(!this.paragraphItem){
+            this.paragraphText = "...........";
+            return;
+        }
         this.paragraphPresenter = this.paragraphItem.webSkelPresenter;
         this.paragraphText = this.paragraphPresenter.paragraph.text || "...........";
         if(this.paragraphPresenter.paragraph.commands.speech){
@@ -43,6 +47,10 @@ export class TaskItem{
         if(this.status === "completed"){
             taskStatus.classList.add("green");
         }
+        if(!this.paragraphItem){
+            let taskLink = this.element.querySelector(".task-link");
+            taskLink.style.pointerEvents = "none";
+        }
     }
 
     scrollDocument(){
@@ -56,8 +64,12 @@ export class TaskItem{
     async showTaskFailInfo(){
         let taskInfo = await utilModule.getTaskRelevantInfo(this.task.id);
         let info= "";
-        for(let [key,value] of Object.entries(taskInfo)){
-            info += `${key}: ${value}\n`;
+        if(typeof taskInfo === "object"){
+            for(let [key,value] of Object.entries(taskInfo)){
+                info += `${key}: ${value}\n`;
+            }
+        } else {
+            info = taskInfo;
         }
         let taskInfoHTML = `<div class="info-pop-up">${info}</div>`;
         let taskAction = this.element.querySelector(".task-status");

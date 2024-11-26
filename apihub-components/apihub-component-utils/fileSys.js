@@ -4,7 +4,9 @@ const volumeManager = require('../volumeManager.js');
 const fs = require("fs");
 const https = require("https");
 const { Readable } = require('stream');
-
+const { pipeline } = require('stream');
+const util = require('util');
+const pipe = util.promisify(pipeline);
 const fileTypes = Object.freeze({
         audios: {
             contentType: "audio/mp3",
@@ -27,18 +29,18 @@ const fileTypes = Object.freeze({
 )
 
 async function downloadData(url, dest) {
-    return new Promise((resolve, reject) => {
-        const file = fs.createWriteStream(dest);
-        https.get(url, (response) => {
-            response.pipe(file);
-            file.on('finish', () => {
-                file.close(resolve);
-            });
-        }).on('error', (err) => {
-            fs.unlink(dest);
-            reject(err);
-        });
-    });
+    const response = await fetch(url);
+    if (!response.ok) {
+        throw new Error(`Failed to fetch: ${response.statusText}`);
+    }
+    const file = fs.createWriteStream(dest);
+    try {
+        // Pipe the response body into the file
+        await pipe(response.body, file);
+    } catch (err) {
+        fs.unlink(dest, () => {});  // Clean up the file in case of error
+        throw err;
+    }
 }
 
 function getFilePath(relativeDir, fileId) {

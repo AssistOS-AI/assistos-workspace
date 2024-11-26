@@ -8,7 +8,6 @@ const space = require('../spaces-storage/space');
 const ffmpegPath = require("../../ffmpeg/packages/ffmpeg-static");
 const ffmpegUtils = require("../apihub-component-utils/ffmpeg");
 const Storage = require("../apihub-component-utils/storage");
-const https = require("https");
 const constants = require('./constants');
 const STATUS = constants.STATUS;
 class DocumentToVideo extends Task {
@@ -48,22 +47,13 @@ class DocumentToVideo extends Task {
             let mp4VideoPath = videoPath.replace('.mkv', '.mp4');
             const convertCommand = `"${ffmpegPath}" -i "${videoPath}" -c:v copy -c:a copy "${mp4VideoPath}"`;
             await this.runCommand(convertCommand);
+
             await fsPromises.rm(tempVideoDir, {recursive: true, force: true});
             await fsPromises.unlink(videoPath);
         } catch (e) {
             await fsPromises.rm(tempVideoDir, {recursive: true, force: true});
             throw new Error(`Failed to combine chapter videos: ${e}`);
         }
-        let videoURL = `/spaces/videos/${this.spaceId}/${this.id}`;
-        if (this.document.video) {
-            const videoId = document.video.split("/").pop();
-            try {
-                await Storage.deleteFile(Storage.fileTypes.videos, videoId);
-            } catch (e) {
-                //previous video not found
-            }
-        }
-        await documentModule.updateVideo(this.spaceId, this.documentId, videoURL);
     }
     async cancelTask(){
         for(let process of this.processes){
@@ -76,6 +66,7 @@ class DocumentToVideo extends Task {
     runCommand(command) {
         return new Promise((resolve, reject) => {
             let childProcess = exec(command, (error, stdout, stderr) => {
+                this.processes = this.processes.filter(p => p !== childProcess);
                 if (error) {
                     reject(stderr || error.message);
                     return;
@@ -116,21 +107,17 @@ class DocumentToVideo extends Task {
             this.createChildProcess(command, outputPath, resolve, reject);
         });
     }
-    async downloadAndExecuteCommand(url, command, outputPath) {
-        return new Promise((resolve, reject) => {
-            // Start the FFmpeg process
-            let childProcess = this.createChildProcess(command, outputPath, resolve, reject);
-            https.get(url, (response) => {
-                if (response.statusCode === 200) {
-                    response.pipe(childProcess.stdin); // Pipe downloaded file to FFmpeg
-                } else {
-                    reject(new Error(`Failed to fetch URL: ${response.statusCode}`));
-                }
-            }).on('error', (err) => {
-                reject(new Error(`Error downloading file: ${err.message}`));
-            });
-        });
-    }
+    // async downloadAndExecuteCommand(url, command, outputPath) {
+    //     return new Promise((resolve, reject) => {
+    //         // Start the FFmpeg process
+    //         let childProcess = this.createChildProcess(command, outputPath, resolve, reject);
+    //         http.get(url, (response) => {
+    //             response.pipe(childProcess.stdin); // Pipe downloaded file to FFmpeg
+    //         }).on('error', (err) => {
+    //             reject(new Error(`Error downloading file: ${err.message}`));
+    //         });
+    //     });
+    // }
     serialize() {
         return{
             id: this.id,
@@ -147,15 +134,16 @@ class DocumentToVideo extends Task {
     async createChapterVideo(spaceId, chapter, tempVideoDir, documentId, chapterIndex){
         let completedFramePaths = [];
         let pathPrefix = path.join(tempVideoDir, `chapter_${chapterIndex}`);
-        try{
-            let promises = chapter.paragraphs.map(async (paragraph, index) => {
-                    let videoPath = await this.createBaseParagraphVideo(paragraph, `${pathPrefix}_paragraph_${index}`);
-                    await this.attachEffectsToParagraphVideo(videoPath, paragraph.commands, `${pathPrefix}_paragraph_${index}`);
-            });
-            completedFramePaths = await Promise.all(promises);
-        } catch (e) {
-            throw new Error(`Failed to create video frames for chapter ${chapterIndex}: ${e}`);
+        for(let i = 0; i < chapter.paragraphs.length; i++){
+            try{
+                let videoPath = await this.createBaseParagraphVideo(chapter.paragraphs[i], `${pathPrefix}_paragraph_${i}`);
+                //await this.attachEffectsToParagraphVideo(videoPath, paragraph.commands, `${pathPrefix}_paragraph_${index}`);
+                completedFramePaths.push(videoPath);
+            } catch (e) {
+                throw new Error(`Failed to create video for chapter ${chapterIndex}, paragraph ${i}: ${e}`);
+            }
         }
+
         let videoPath = await ffmpegUtils.combineVideos(
             tempVideoDir,
             completedFramePaths,
@@ -179,12 +167,12 @@ class DocumentToVideo extends Task {
         let commands = paragraph.commands;
         if(commands.video){
             let videoURL = await Storage.getDownloadURL(Storage.fileTypes.videos, commands.video.id);
-            await ffmpegUtils.downloadAndAdjustVolume(videoURL, videoPath, commands.video.volume, this);
+            await fileSys.downloadData(videoURL, videoPath);
             if(commands.audio){
                 let audioURL = await Storage.getDownloadURL(Storage.fileTypes.audios, commands.audio.id);
-                await ffmpegUtils.downloadAndAdjustVolume(audioURL, audioPath, commands.audio.volume, this);
+                await fileSys.downloadData(audioURL, audioPath);
                 let combinedPath = `${pathPrefix}_combined.mkv`;
-                await ffmpegUtils.combineVideoAndAudio(videoPath, audioPath, combinedPath, this);
+                await ffmpegUtils.combineVideoAndAudio(videoPath, commands.video.duration, audioPath, commands.audio.duration, combinedPath, this);
                 await fsPromises.unlink(videoPath);
                 await fsPromises.unlink(audioPath);
                 return combinedPath;
@@ -193,7 +181,7 @@ class DocumentToVideo extends Task {
             }
         } else if(commands.audio){
             let audioURL = await Storage.getDownloadURL(Storage.fileTypes.audios, commands.audio.id);
-            await ffmpegUtils.downloadAndAdjustVolume(audioURL, audioPath, commands.audio.volume, this);
+            await fileSys.downloadData(audioURL, audioPath);
             await ffmpegUtils.createVideoFromAudio(videoPath, audioPath, this);
             await fsPromises.unlink(audioPath);
             return videoPath;
@@ -216,7 +204,7 @@ class DocumentToVideo extends Task {
         for(let effect of commands.effects){
             let effectPath = path.join(effectsPathPrefix, `_effect_${effect.id}.mp3`);
             let effectURL = await Storage.getDownloadURL(Storage.fileTypes.audios, effect.id);
-            await ffmpegUtils.downloadAndAdjustVolume(effectURL, effectPath, effect.volume, this);
+            await fileSys.downloadData(effectURL, effectPath);
             await ffmpegUtils.addEffectToVideo(videoPath, tempVideoPath, effect.start, effect.end, effect.volume, outputVideoPath, this);
             videoPath = outputVideoPath;
         }
