@@ -183,9 +183,7 @@ async function insertEmbeddedObjectRecords(spaceId, tableId, objectURI, objectDa
             //array concatenate
             if (Array.isArray(objectData)) {
                 for (let item of objectData) {
-                    if (!item.id) {
-                        item.id = `${objectType}_${crypto.generateId()}`;
-                    }
+                    item.id = `${objectType}_${crypto.generateId()}`;
                     if (item.position) {
                         object[objectType].splice(item.position, 0, item.id);
                         delete item.position;
@@ -198,9 +196,7 @@ async function insertEmbeddedObjectRecords(spaceId, tableId, objectURI, objectDa
                 return objectData.map(item => item.id);
             }
             //single object
-            if (!objectData.id) {
-                objectData.id = `${objectType}_${crypto.generateId()}`;
-            }
+            objectData.id = `${objectType}_${crypto.generateId()}`;
             if (objectData.position !== undefined) {
                 position = objectData.position;
                 object[objectType].splice(objectData.position, 0, objectData.id);
