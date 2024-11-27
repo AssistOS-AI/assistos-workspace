@@ -91,7 +91,7 @@
           },
           {
             "type": "execute",
-            "target": "npm uninstall mermaid"
+            "cmd": "npm uninstall mermaid"
           }
         ]
       }
