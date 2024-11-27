@@ -3,6 +3,7 @@ const fsPromises = require('fs').promises;
 const ffmpegPath = require("../../ffmpeg/packages/ffmpeg-static");
 const ffprobePath = require("../../ffmpeg/packages/ffprobe-static");
 const ffmpeg = require('fluent-ffmpeg');
+ffmpeg.setFfmpegPath(ffmpegPath);
 const space = require("../spaces-storage/space.js").APIs;
 const crypto = require("./crypto");
 const AnonymousTask = require("../tasks/AnonymousTask");
@@ -62,40 +63,35 @@ async function getVideoProperties(videoPath, task) {
 }
 async function combineVideoAndAudio(videoPath, videoDuration, audioPath, audioDuration, outputPath, task) {
     let command = '';
-    let videoHasAudio = await hasAudioStream(videoPath, task);
+    let hasAudio = await hasAudioStream(videoPath, task);
     if (videoDuration > audioDuration) {
-        // If the video is longer than the audio, play the video normally and stop the audio when it finishes
-        if (videoHasAudio) {
-            // Combine both audio streams
-            command = `${ffmpegPath} -i ${videoPath} -i ${audioPath} -filter_complex "[0:a][1:a]amix=inputs=2:duration=first:dropout_transition=2" -c:v libx264 -c:a aac -f matroska pipe:1`;
+        if(hasAudio){
+            command = `${ffmpegPath} -i ${videoPath} -i ${audioPath} -filter_complex "[0:a][1:a]amix=inputs=2:duration=first:dropout_transition=2" -c:v libx264 -c:a aac -f matroska ${outputPath}`;
         } else {
-            // Use only the external audio if video lacks audio
-            command = `${ffmpegPath} -i ${videoPath} -i ${audioPath} -c:v copy -c:a aac -map 0:v -map 1:a -f matroska pipe:1`;
+            command = `${ffmpegPath} -i ${videoPath} -i ${audioPath} -map 0:v -map 1:a -c:v libx264 -c:a aac -f matroska ${outputPath}`;
         }
     } else {
-        const paddingDuration = audioDuration - videoDuration;
-        let {videoWidth, videoHeight, videoFrameRate} = await getVideoProperties(videoPath, task);
-        if (videoHasAudio) {
-            // Combine video and both audio streams
+        // If the audio is longer than the video, pad the video with black screen to match the audio duration
+        let { videoWidth, videoHeight, videoFrameRate } = await getVideoProperties(videoPath, task);
+        if(hasAudio){
             command = `${ffmpegPath} -i ${videoPath} -i ${audioPath} -filter_complex "
-            [0:v]scale=${videoWidth}:${videoHeight},format=pix_fmts=yuv420p[v0];  # Scale video to videoWidth and videoHeight
-            color=black:s=${videoWidth}x${videoHeight}:r=${videoFrameRate}[black];  # Black background with video dimensions and frame rate
-            [black]trim=duration=${paddingDuration}[v1];  # Trim black background to padding duration
-            [v0][v1]concat=n=2:v=1:a=0[v];  # Concatenate video and black background
+            [0:v]format=pix_fmts=yuv420p[v0];
+            color=black:s=${videoWidth}x${videoHeight}:r=${videoFrameRate}[black];
+            [black]trim=duration=${audioDuration-videoDuration}[v1];
+            [v0][v1]concat=n=2:v=1:a=0[v];
             [0:a][1:a]amix=inputs=2:duration=longest:dropout_transition=2[a]" \
-            -map "[v]" -map "[a]" -c:v libx264 -c:a aac -f matroska pipe:1`;
-
+            -map "[v]" -map "[a]" -c:v libx264 -c:a aac -f matroska ${outputPath}`;
         } else {
-            // Use external audio only, pad the video with a black screen
             command = `${ffmpegPath} -i ${videoPath} -i ${audioPath} -filter_complex "
-            [0:v]format=pix_fmts=yuv420p[v0];  # Convert video format to yuv420p
-            color=black:s=${videoWidth}x${videoHeight}:r=${videoFrameRate}:d=${paddingDuration}[black];  # Black background with video dimensions and frame rate
-            [black][0:v]concat=n=2:v=1:a=0[v];  # Concatenate black background and input video
-            [1:a]anull[a]" \
-            -map "[v]" -map "[a]" -c:v libx264 -c:a aac -f matroska pipe:1`;
+            [0:v]format=pix_fmts=yuv420p[v0];
+            color=black:s=${videoWidth}x${videoHeight}:r=${videoFrameRate}[black];
+            [black]trim=duration=${audioDuration-videoDuration}[v1];
+            [v0][v1]concat=n=2:v=1:a=0[v]" \
+            -map "[v]" -map "1:a" -c:v libx264 -c:a aac -f matroska ${outputPath}`;
         }
     }
-    await task.streamCommandToFile(command, outputPath);
+    await task.runCommand(command);
+
 }
 
 const audioStandard = {
