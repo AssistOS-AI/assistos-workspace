@@ -2,8 +2,6 @@ const path = require('path');
 const fsPromises = require('fs').promises;
 const ffmpegPath = require("../../ffmpeg/packages/ffmpeg-static");
 const ffprobePath = require("../../ffmpeg/packages/ffprobe-static");
-const ffmpeg = require('fluent-ffmpeg');
-ffmpeg.setFfmpegPath(ffmpegPath);
 const space = require("../spaces-storage/space.js").APIs;
 const crypto = require("./crypto");
 const AnonymousTask = require("../tasks/AnonymousTask");
@@ -180,7 +178,23 @@ async function verifyAudioSettings(audioPath, task) {
         await convertAudioToStandard(audioPath, task);
     }
 }
+async function verifyVideoSettings(videoPath, task){
+    const command = `${ffprobePath} -v quiet -print_format json -show_format -show_streams "${videoPath}"`;
+    let result = await task.runCommand(command);
+    const metadata = JSON.parse(result);
+    const videoStream = metadata.streams.find(s => s.codec_type === 'video');
+    const audioStream = metadata.streams.find(s => s.codec_type === 'audio');
 
+    const needsConversion =
+        videoStream.codec_name !== "h264" ||
+        (audioStream && audioStream.codec_name !== videoStandard.audioCodec) ||
+        !metadata.format.format_name.split(",").includes(videoStandard.format) ||
+        videoStream.avg_frame_rate.split('/').reduce((a, b) => a / b) !== videoStandard.frameRate;
+
+    if (needsConversion) {
+        await convertVideoToMp4(videoPath, task);
+    }
+}
 async function verifyAudioIntegrity(audioPath, task) {
     const command = `${ffmpegPath} -v error -i ${audioPath} -f null -`;
     await task.runCommand(command);
@@ -238,8 +252,10 @@ async function combineVideos(tempVideoDir, videoPaths, fileListName, outputVideo
     } else {
         outputVideoPath = path.join(tempVideoDir, outputVideoName);
     }
-    const command = `${ffmpegPath} -f concat -safe 0 -i ${fileListPath} -filter_complex "[0:a]aresample=async=1[a]" -map 0:v -map "[a]" -c:v copy -c:a aac -b:a 192k -f matroska pipe:1`;
-    await task.streamCommandToFile(command, outputVideoPath);
+    const command = `${ffmpegPath} -f concat -safe 0 -i ${fileListPath} -filter_complex "[0:a]aresample=async=1[a]" -map 0:v -map "[a]" -c:v copy -c:a aac -b:a 192k -f matroska ${outputVideoPath}`;
+
+    //const command = `${ffmpegPath} -f concat -safe 0 -i ${fileListPath} -filter_complex "[0:a]aresample=async=1[a]" -map 0:v -map "[a]" -c:v copy -c:a aac -b:a 192k -f matroska ${outputVideoPath}`;
+    await task.runCommand(command);
     await fsPromises.unlink(fileListPath);
 
     return outputVideoPath;
@@ -427,5 +443,6 @@ module.exports = {
     getVideoDuration,
     createVideoThumbnail,
     //downloadAndAdjustVolume,
-    createVideoFromAudio
+    createVideoFromAudio,
+    verifyVideoSettings
 }

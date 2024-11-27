@@ -143,7 +143,7 @@ class DocumentToVideo extends Task {
                 throw new Error(`Failed to create video for chapter ${chapterIndex}, paragraph ${i}: ${e}`);
             }
         }
-
+        completedFramePaths = completedFramePaths.filter(videoPath => typeof videoPath !== "undefined")
         let videoPath = await ffmpegUtils.combineVideos(
             tempVideoDir,
             completedFramePaths,
@@ -168,9 +168,14 @@ class DocumentToVideo extends Task {
         if(commands.video){
             let videoURL = await Storage.getDownloadURL(Storage.fileTypes.videos, commands.video.id);
             await fileSys.downloadData(videoURL, videoPath);
+            await ffmpegUtils.verifyVideoSettings(videoPath, this);
             if(commands.audio){
                 let audioURL = await Storage.getDownloadURL(Storage.fileTypes.audios, commands.audio.id);
                 await fileSys.downloadData(audioURL, audioPath);
+
+                await ffmpegUtils.verifyAudioIntegrity(audioPath, this);
+                await ffmpegUtils.verifyAudioSettings(audioPath, this);
+
                 let combinedPath = `${pathPrefix}_combined.mkv`;
                 await ffmpegUtils.combineVideoAndAudio(videoPath, commands.video.duration, audioPath, commands.audio.duration, combinedPath, this);
                 await fsPromises.unlink(videoPath);
@@ -192,7 +197,7 @@ class DocumentToVideo extends Task {
             let imagePath = `${pathPrefix}_image.png`;
             let imageURL = await Storage.getDownloadURL(Storage.fileTypes.images, commands.image.id);
             await fileSys.downloadData(imageURL, imagePath);
-            await ffmpegUtils.createVideoFromImage(videoPath, "", commands.silence.duration, this);
+            await ffmpegUtils.createVideoFromImage(videoPath, "", 1, this);
             await fsPromises.unlink(imagePath);
             return videoPath;
         }
