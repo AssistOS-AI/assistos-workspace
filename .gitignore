@@ -12,7 +12,7 @@ apihub-root/external-volume/versionlessdsu
 apihub-root/external-volume/secrets
 assistos-sdk/builds/tmp/assistos_sdk_intermediar.js
 apihub-root/keys-secret
-
+apihub-root/wallet/lib
 apihub-root/wallet/scripts/bundles/
 apihub-root/wallet/bundles/
 
