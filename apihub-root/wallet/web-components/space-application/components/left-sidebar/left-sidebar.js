@@ -1,28 +1,29 @@
 import {changeSelectedPageFromSidebar, NotificationRouter} from "../../../../imports.js";
 const spaceModule = require("assistos").loadModule("space", {});
+const utilModule = require("assistos").loadModule("util", {});
 export class LeftSidebar {
     constructor(element, invalidate) {
         this.element = element;
         this.invalidate = invalidate;
         this.themeIcon = "wallet/assets/icons/moon.svg";
         this.tasksHandlers = {};
-        for(let task of assistOS.space.tasks){
-            if(task.name === "DocumentToVideo"){
-                this.tasksHandlers[task.id] = this.showTaskNotification.bind(this, task);
-                NotificationRouter.subscribeToSpace(assistOS.space.id, task.id, this.tasksHandlers[task.id]);
-            }
-        }
-        this.invalidate();
+        this.boundShowTaskNotification = this.showTaskNotification.bind(this);
+        this.invalidate(async ()=>{
+            this.tasks = await utilModule.getTasks(assistOS.space.id);
+            await NotificationRouter.subscribeToSpace(assistOS.space.id, "sidebar-tasks", this.boundShowTaskNotification);
+        });
     }
 
     showNotificationToast(message) {
         this.toastsContainer.insertAdjacentHTML("beforeend", `<notification-toast data-message="${message}" data-presenter="notification-toast"></notification-toast>`);
     }
-    showTaskNotification(task, status) {
-        if(status === "completed"){
-            this.showNotificationToast(`Task ${task.name} has been completed`);
-        } else if(status === "failed"){
-            this.showNotificationToast(`Task ${task.name} has failed`);
+    showTaskNotification(data) {
+        if(data.name === "DocumentToVideo"){
+            if(data.status === "completed"){
+                this.showNotificationToast(`Task ${data.name} has been completed`);
+            } else if(data.status === "failed"){
+                this.showNotificationToast(`Task ${data.name} has failed`);
+            }
         }
     }
 

@@ -87,8 +87,8 @@ class Task {
         this.emit(EVENTS.UPDATE); //update database
         let objectId = SubscriptionManager.getObjectId(this.spaceId, this.id);
         SubscriptionManager.notifyClients("", objectId, this.status);
-        let listObjectId = SubscriptionManager.getObjectId(this.spaceId, "tasks");
-        SubscriptionManager.notifyClients("", listObjectId, this.status);
+        let sideBarObjectId = SubscriptionManager.getObjectId(this.spaceId, "sidebar-tasks");
+        SubscriptionManager.notifyClients("", sideBarObjectId, {name: this.constructor.name, status: this.status});
     }
 
 }

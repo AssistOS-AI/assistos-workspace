@@ -104,3 +104,15 @@
     #       package.json
     Space sanitization issue fix, skipList for SSE notification, check if personality exists and has a voice before executing startTask request
     Space sanitization issue fix, skipList for SSE notification, check if personality exists and has a voice before executing startTask request
+    CI: adapt to workspace repo structure 💚
+    
+    follow-up of e5900c5
+    follow-up of 741474e
+    Add http-wrapper dependency in octopus.json
+    
+    Included the "apihub/http-wrapper" repository to the dependencies in octopus.json. This change is necessary to enable HTTP functionalities needed for upcoming features.
+    Replace Array.from with faster for of iteration loop
+    refactor(Personality,LLM): move request logic to LLM Module
+    
+    - Removes generation functions from Personality model
+    - Rename getCurrentModel function to getCurrentSettings

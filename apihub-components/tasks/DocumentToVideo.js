@@ -33,25 +33,27 @@ class DocumentToVideo extends Task {
             chapterVideos = await Promise.all(promises);
         } catch (e) {
             await fsPromises.rm(tempVideoDir, {recursive: true, force: true});
+            for(let process of this.processes){
+                process.kill();
+            }
             throw new Error(`Failed to create chapter video: ${e}`);
         }
-        chapterVideos = chapterVideos.filter(videoPath => typeof videoPath !== "undefined")
+        chapterVideos = chapterVideos.filter(videoPath => typeof videoPath !== "undefined");
         try {
-            let videoPath = await ffmpegUtils.combineVideos(
+            let videoPath = path.join(spacePath, "videos", `${this.id}.mp4`);
+            await ffmpegUtils.combineVideos(
                 tempVideoDir,
                 chapterVideos,
                 `chapter_videos.txt`,
-                `${this.id}.mkv`,
-                this,
-                path.join(spacePath, "videos"));
-            let mp4VideoPath = videoPath.replace('.mkv', '.mp4');
-            const convertCommand = `"${ffmpegPath}" -i "${videoPath}" -c:v copy -c:a copy "${mp4VideoPath}"`;
-            await this.runCommand(convertCommand);
-
+                videoPath,
+                this);
             await fsPromises.rm(tempVideoDir, {recursive: true, force: true});
-            await fsPromises.unlink(videoPath);
+            return videoPath;
         } catch (e) {
             await fsPromises.rm(tempVideoDir, {recursive: true, force: true});
+            for(let process of this.processes){
+                process.kill();
+            }
             throw new Error(`Failed to combine chapter videos: ${e}`);
         }
     }
@@ -102,22 +104,6 @@ class DocumentToVideo extends Task {
         });
         return childProcess;
     }
-    async streamCommandToFile(command, outputPath) {
-        return new Promise( (resolve, reject) => {
-            this.createChildProcess(command, outputPath, resolve, reject);
-        });
-    }
-    // async downloadAndExecuteCommand(url, command, outputPath) {
-    //     return new Promise((resolve, reject) => {
-    //         // Start the FFmpeg process
-    //         let childProcess = this.createChildProcess(command, outputPath, resolve, reject);
-    //         http.get(url, (response) => {
-    //             response.pipe(childProcess.stdin); // Pipe downloaded file to FFmpeg
-    //         }).on('error', (err) => {
-    //             reject(new Error(`Error downloading file: ${err.message}`));
-    //         });
-    //     });
-    // }
     serialize() {
         return{
             id: this.id,
@@ -143,63 +129,85 @@ class DocumentToVideo extends Task {
                 throw new Error(`Failed to create video for chapter ${chapterIndex}, paragraph ${i}: ${e}`);
             }
         }
-        completedFramePaths = completedFramePaths.filter(videoPath => typeof videoPath !== "undefined")
-        let videoPath = await ffmpegUtils.combineVideos(
+        completedFramePaths = completedFramePaths.filter(videoPath => typeof videoPath !== "undefined");
+        let outputVideoPath = path.join(tempVideoDir, `chapter_${chapterIndex}_video.mkv`);
+        await ffmpegUtils.combineVideos(
             tempVideoDir,
             completedFramePaths,
             `chapter_${chapterIndex}_frames.txt`,
-            `chapter_${chapterIndex}_video.mkv`,
+            outputVideoPath,
             this);
         if(chapter.backgroundSound){
             let tempChapterAudioPath = path.join(tempVideoDir, `chapter_${chapterIndex}_audio.mp3`);
             let chapterAudioURL = await Storage.getDownloadURL(Storage.fileTypes.audios, chapter.backgroundSound.id);
             await fileSys.downloadData(chapterAudioURL, tempChapterAudioPath);
             let outputVideoPath = path.join(tempVideoDir, `chapter_${chapterIndex}_video.mp4`);
-            await ffmpegUtils.addBackgroundSoundToVideo(videoPath, tempChapterAudioPath, chapter.backgroundSound.volume, 1, outputVideoPath, this);
+            await ffmpegUtils.addBackgroundSoundToVideo(outputVideoPath, tempChapterAudioPath, chapter.backgroundSound.volume, 1, outputVideoPath, this);
         }
-        return videoPath;
+        return outputVideoPath;
     }
 
     async createBaseParagraphVideo(paragraph, pathPrefix){
-        let audioPath = `${pathPrefix}_audio.mp3`;
-        const videoPath = `${pathPrefix}_video.mkv`;
+        const finalVideoPath = `${pathPrefix}_final.mp4`;
 
         let commands = paragraph.commands;
         if(commands.video){
+            const videoPath = `${pathPrefix}_video.mp4`;
             let videoURL = await Storage.getDownloadURL(Storage.fileTypes.videos, commands.video.id);
             await fileSys.downloadData(videoURL, videoPath);
             await ffmpegUtils.verifyVideoSettings(videoPath, this);
             if(commands.audio){
+                if(commands.video.duration < commands.audio.duration){
+                    throw new Error(`Audio duration is longer than video duration`);
+                }
+
+                let audioPath = `${pathPrefix}_audio.mp3`;
                 let audioURL = await Storage.getDownloadURL(Storage.fileTypes.audios, commands.audio.id);
                 await fileSys.downloadData(audioURL, audioPath);
-
                 await ffmpegUtils.verifyAudioIntegrity(audioPath, this);
                 await ffmpegUtils.verifyAudioSettings(audioPath, this);
 
-                let combinedPath = `${pathPrefix}_combined.mkv`;
-                await ffmpegUtils.combineVideoAndAudio(videoPath, commands.video.duration, audioPath, commands.audio.duration, combinedPath, this);
+                await ffmpegUtils.combineVideoAndAudio(videoPath, audioPath, finalVideoPath, this, commands.video.volume, commands.audio.volume);
                 await fsPromises.unlink(videoPath);
                 await fsPromises.unlink(audioPath);
-                return combinedPath;
+                return finalVideoPath;
             } else {
-                return videoPath;
+                await fsPromises.rename(videoPath, finalVideoPath);
+                return finalVideoPath;
             }
         } else if(commands.audio){
+            if(!commands.image){
+                throw new Error("Paragraph doesnt have a visual source");
+            }
             let audioURL = await Storage.getDownloadURL(Storage.fileTypes.audios, commands.audio.id);
+            let audioPath = `${pathPrefix}_audio.mp3`;
             await fileSys.downloadData(audioURL, audioPath);
-            await ffmpegUtils.createVideoFromAudio(videoPath, audioPath, this);
+            await ffmpegUtils.verifyAudioIntegrity(audioPath, this);
+            await ffmpegUtils.verifyAudioSettings(audioPath, this);
+
+            let imageURL = await Storage.getDownloadURL(Storage.fileTypes.images, commands.image.id);
+            let imagePath = `${pathPrefix}_image.png`;
+            await fileSys.downloadData(imageURL, imagePath);
+
+            await ffmpegUtils.createVideoFromAudioAndImage(finalVideoPath, audioPath, imagePath, this);
             await fsPromises.unlink(audioPath);
-            return videoPath;
+            return finalVideoPath;
         }else if(commands.silence){
-            await ffmpegUtils.createVideoFromImage(videoPath, "", commands.silence.duration, this);
-            return videoPath;
+            if(!commands.image){
+                throw new Error("Paragraph doesnt have a visual source");
+            }
+            let imageURL = await Storage.getDownloadURL(Storage.fileTypes.images, commands.image.id);
+            let imagePath = `${pathPrefix}_image.png`;
+            await fileSys.downloadData(imageURL, imagePath);
+            await ffmpegUtils.createVideoFromImage(finalVideoPath, imagePath, commands.silence.duration, this);
+            return finalVideoPath;
         } else if(commands.image){
             let imagePath = `${pathPrefix}_image.png`;
             let imageURL = await Storage.getDownloadURL(Storage.fileTypes.images, commands.image.id);
             await fileSys.downloadData(imageURL, imagePath);
-            await ffmpegUtils.createVideoFromImage(videoPath, "", 1, this);
+            await ffmpegUtils.createVideoFromImage(finalVideoPath, imagePath, 1, this);
             await fsPromises.unlink(imagePath);
-            return videoPath;
+            return finalVideoPath;
         }
     }
     async attachEffectsToParagraphVideo(videoPath, commands, effectsPathPrefix){

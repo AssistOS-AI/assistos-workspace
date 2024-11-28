@@ -10,16 +10,9 @@ export class DocumentTasksModal {
             this.tasks = await documentModule.getDocumentTasks(assistOS.space.id, this.documentId);
         };
         assistOS.space.observeChange(this.documentId + "/tasks", this.invalidate, this.loadTasks);
-
         this.invalidate(async () => {
-            this.boundOnTasksUpdate = this.onTasksUpdate.bind(this);
-            await NotificationRouter.subscribeToSpace(assistOS.space.id, "tasks", this.boundOnTasksUpdate);
             await this.loadTasks();
         })
-    }
-    async onTasksUpdate(){
-        await this.loadTasks();
-        this.invalidate();
     }
     beforeRender(){
         this.modalContent = `<div class="tasks-list no-tasks">No tasks created</div>`;

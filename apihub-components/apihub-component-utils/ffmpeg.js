@@ -44,52 +44,18 @@ async function hasAudioStream(videoPath, task) {
     return result.includes('codec_type=audio');
 }
 
-async function getVideoProperties(videoPath, task) {
-    const command = `${ffprobePath} -v quiet -print_format json -show_streams -i ${videoPath}`;
-    let result = await task.runCommand(command);
-    const data = JSON.parse(result);
-    const videoStream = data.streams.find(stream => stream.codec_type === 'video');
-
-    if (videoStream) {
-        const videoWidth = videoStream.width;
-        const videoHeight = videoStream.height;
-        const videoFrameRate = eval(videoStream.r_frame_rate);  // Frame rate is returned as a fraction like "24/1"
-        return { videoWidth, videoHeight, videoFrameRate };
-    } else {
-        throw new Error('Video stream not found');
-    }
-}
-async function combineVideoAndAudio(videoPath, videoDuration, audioPath, audioDuration, outputPath, task) {
+async function combineVideoAndAudio(videoPath, audioPath, outputPath, task, videoVolume, audioVolume) {
     let command = '';
     let hasAudio = await hasAudioStream(videoPath, task);
-    if (videoDuration > audioDuration) {
-        if(hasAudio){
-            command = `${ffmpegPath} -i ${videoPath} -i ${audioPath} -filter_complex "[0:a][1:a]amix=inputs=2:duration=first:dropout_transition=2" -c:v libx264 -c:a aac -f matroska ${outputPath}`;
-        } else {
-            command = `${ffmpegPath} -i ${videoPath} -i ${audioPath} -map 0:v -map 1:a -c:v libx264 -c:a aac -f matroska ${outputPath}`;
-        }
+
+    const videoVolumeFilter = `[0:a]volume=${videoVolume || 1}[videoAudio];`;
+    const audioVolumeFilter = `[1:a]volume=${audioVolume || 1}[externalAudio];`;
+    if(hasAudio){
+        command = `${ffmpegPath} -i ${videoPath} -i ${audioPath} -filter_complex "${videoVolumeFilter}${audioVolumeFilter}[videoAudio][externalAudio]amix=inputs=2:duration=first:dropout_transition=2" -c:v libx264 -c:a aac ${outputPath}`;
     } else {
-        // If the audio is longer than the video, pad the video with black screen to match the audio duration
-        let { videoWidth, videoHeight, videoFrameRate } = await getVideoProperties(videoPath, task);
-        if(hasAudio){
-            command = `${ffmpegPath} -i ${videoPath} -i ${audioPath} -filter_complex "
-            [0:v]format=pix_fmts=yuv420p[v0];
-            color=black:s=${videoWidth}x${videoHeight}:r=${videoFrameRate}[black];
-            [black]trim=duration=${audioDuration-videoDuration}[v1];
-            [v0][v1]concat=n=2:v=1:a=0[v];
-            [0:a][1:a]amix=inputs=2:duration=longest:dropout_transition=2[a]" \
-            -map "[v]" -map "[a]" -c:v libx264 -c:a aac -f matroska ${outputPath}`;
-        } else {
-            command = `${ffmpegPath} -i ${videoPath} -i ${audioPath} -filter_complex "
-            [0:v]format=pix_fmts=yuv420p[v0];
-            color=black:s=${videoWidth}x${videoHeight}:r=${videoFrameRate}[black];
-            [black]trim=duration=${audioDuration-videoDuration}[v1];
-            [v0][v1]concat=n=2:v=1:a=0[v]" \
-            -map "[v]" -map "1:a" -c:v libx264 -c:a aac -f matroska ${outputPath}`;
-        }
+        command = `${ffmpegPath} -i ${videoPath} -i ${audioPath} -filter_complex "${audioVolumeFilter}" -map 0:v -map [externalAudio] -c:v libx264 -c:a aac ${outputPath}`;
     }
     await task.runCommand(command);
-
 }
 
 const audioStandard = {
@@ -242,23 +208,13 @@ async function addBackgroundSoundToVideo(videoPath, backgroundSoundPath, backgro
     await fsPromises.rename(tempOutputPath, outputPath);
 }
 
-async function combineVideos(tempVideoDir, videoPaths, fileListName, outputVideoName, task, videoDir) {
+async function combineVideos(tempVideoDir, videoPaths, fileListName, outputVideoPath, task) {
     const fileListPath = path.join(tempVideoDir, fileListName);
     const fileListContent = videoPaths.map(file => `file '${file}'`).join('\n');
     await fsPromises.writeFile(fileListPath, fileListContent);
-    let outputVideoPath;
-    if (videoDir) {
-        outputVideoPath = path.join(videoDir, outputVideoName);
-    } else {
-        outputVideoPath = path.join(tempVideoDir, outputVideoName);
-    }
-    const command = `${ffmpegPath} -f concat -safe 0 -i ${fileListPath} -filter_complex "[0:a]aresample=async=1[a]" -map 0:v -map "[a]" -c:v copy -c:a aac -b:a 192k -f matroska ${outputVideoPath}`;
-
-    //const command = `${ffmpegPath} -f concat -safe 0 -i ${fileListPath} -filter_complex "[0:a]aresample=async=1[a]" -map 0:v -map "[a]" -c:v copy -c:a aac -b:a 192k -f matroska ${outputVideoPath}`;
+    const command = `${ffmpegPath} -f concat -safe 0 -i ${fileListPath} -filter_complex "[0:a]aresample=async=1[a]" -map 0:v -map "[a]" -c:v copy -c:a aac -b:a 192k ${outputVideoPath}`;
     await task.runCommand(command);
     await fsPromises.unlink(fileListPath);
-
-    return outputVideoPath;
 }
 
 async function createVideoFromImageAndAudio(imageBuffer, audioDuration, spaceId) {
@@ -288,14 +244,15 @@ async function createVideoFromImageAndAudio(imageBuffer, audioDuration, spaceId)
     }
 }
 //creates a blackscreen video from audio
-async function createVideoFromAudio(outputVideoPath, audioPath, task) {
-    const command = `${ffmpegPath} -f lavfi -i color=c=black:s=1920x1080:r=30 -i ${audioPath} -c:v libx264 -c:a aac -pix_fmt yuv420p -shortest ${outputVideoPath}`;
+async function createVideoFromAudioAndImage(outputVideoPath, audioPath, imagePath, task) {
+    const command = `${ffmpegPath} -loop 1 -i ${imagePath} -i ${audioPath} \
+      -c:v libx264 -b:v 1000k -r 30 \
+      -c:a aac -b:a 192k \
+      -pix_fmt yuv420p -shortest -movflags +faststart \
+       ${outputVideoPath}`;
     await task.runCommand(command);
 }
-// async function downloadAndAdjustVolume(url, outputPath, volume, task) {
-//     const command = `${ffmpegPath} -re -analyzeduration 50M -probesize 10M -f mp4 -i pipe:0 -pix_fmt yuv420p -af "volume=${volume}" -f matroska pipe:1`;
-//     await task.downloadAndExecuteCommand(url, command, outputPath);
-// }
+
 function estimateChapterVideoLength(spaceId, chapter) {
     let totalDuration = 0;
     for (let paragraph of chapter.paragraphs) {
@@ -442,7 +399,6 @@ module.exports = {
     getImageDimensions,
     getVideoDuration,
     createVideoThumbnail,
-    //downloadAndAdjustVolume,
-    createVideoFromAudio,
+    createVideoFromAudioAndImage,
     verifyVideoSettings
 }
