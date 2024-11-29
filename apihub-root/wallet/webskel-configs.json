@@ -4,6 +4,12 @@
     "services": [],
     "components": [
         {
+            "name": "notification-toast",
+            "directory": "space-application",
+            "type": "components",
+            "presenterClassName": "NotificationToast"
+        },
+        {
             "name": "edit-effect-modal",
             "directory": "document",
             "type": "modals",

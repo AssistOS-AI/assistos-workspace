@@ -103,7 +103,7 @@ export class InsertAttachmentModal {
     loadAudioMetadata(file, audioId) {
         return new Promise(async (resolve, reject) => {
             this.attachmentElement.addEventListener("loadedmetadata", async () => {
-                const duration = this.attachmentElement.duration.toFixed(1);
+                const duration = parseFloat(this.attachmentElement.duration.toFixed(1));
                 let data = {
                     id: audioId,
                     duration: duration,

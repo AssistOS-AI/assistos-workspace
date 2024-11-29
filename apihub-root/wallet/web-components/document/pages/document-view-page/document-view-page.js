@@ -390,9 +390,7 @@ export class DocumentViewPage {
     }
 
     async documentToVideo(button) {
-        let videoId = await documentModule.documentToVideo(assistOS.space.id, this._document.id);
-        assistOS.space.notifyObservers(this._document.id + "/tasks");
-
+        await documentModule.documentToVideo(assistOS.space.id, this._document.id);
     }
 
     async exportDocument(targetElement) {

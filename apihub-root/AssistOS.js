@@ -1,6 +1,7 @@
 import WebSkel from "../WebSkel/webSkel.js";
 const userModule = require('assistos').loadModule('user', {});
 const spaceModule = require('assistos').loadModule('space', {});
+const utilModule = require('assistos').loadModule('util', {});
 const applicationModule = require('assistos').loadModule('application', {});
 const agentModule = require('assistos').loadModule('personality', {});
 const flowModule = require('assistos').loadModule('flow', {});
@@ -164,22 +165,21 @@ class AssistOS {
         await this.loadPage(false, true);
     }
     async initPage (applicationName, applicationLocation) {
-        const insertSidebar = () => {
-            if (!document.querySelector("left-sidebar")) {
-                document.querySelector("#page-content").insertAdjacentHTML("beforebegin", `<left-sidebar data-presenter="left-sidebar"></left-sidebar>`);
-            } else {
-                document.querySelector("left-sidebar").webSkelPresenter.invalidate();
-            }
-        }
         hidePlaceholders();
-        insertSidebar();
+        this.insertSidebar();
         if (applicationName) {
             await assistOS.startApplication(applicationName, applicationLocation);
         } else {
             await assistOS.UI.changeToDynamicPage("space-application-page", `${assistOS.space.id}/Space/announcements-page`);
         }
     };
-
+    insertSidebar = () => {
+        if (!document.querySelector("left-sidebar")) {
+            document.querySelector("#page-content").insertAdjacentHTML("beforebegin", `<left-sidebar data-presenter="left-sidebar"></left-sidebar>`);
+        } else {
+            document.querySelector("left-sidebar").webSkelPresenter.invalidate();
+        }
+    }
     async loadPage(skipAuth = false, skipSpace = false, spaceId) {
         let {spaceIdURL, applicationName, applicationLocation} = getURLData(window.location.hash);
         spaceId = spaceId ? spaceId : spaceIdURL;
@@ -221,7 +221,6 @@ class AssistOS {
             throw error;
         }
     }
-
     async inviteCollaborators(collaboratorEmails) {
         return await this.loadifyFunction(spaceModule.inviteSpaceCollaborators, assistOS.space.id, collaboratorEmails);
     }

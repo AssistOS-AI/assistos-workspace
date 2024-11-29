@@ -76,6 +76,24 @@
             "cmd": "cd assistos-sdk && npm install"
           }
         ]
+      },
+      {
+        "name": "mermaid",
+        "actions": [
+          {
+            "type": "execute",
+            "cmd": "npm install mermaid --no-save"
+          },
+          {
+            "type": "copy",
+            "src": "node_modules/mermaid/dist",
+            "target": "apihub-root/wallet/lib/mermaid"
+          },
+          {
+            "type": "execute",
+            "cmd": "npm uninstall mermaid"
+          }
+        ]
       }
     ],
     "postinstall": [

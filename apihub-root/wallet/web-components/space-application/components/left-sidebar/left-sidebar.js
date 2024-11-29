@@ -1,11 +1,30 @@
-import {changeSelectedPageFromSidebar} from "../../../../imports.js";
+import {changeSelectedPageFromSidebar, NotificationRouter} from "../../../../imports.js";
 const spaceModule = require("assistos").loadModule("space", {});
+const utilModule = require("assistos").loadModule("util", {});
 export class LeftSidebar {
     constructor(element, invalidate) {
         this.element = element;
         this.invalidate = invalidate;
         this.themeIcon = "wallet/assets/icons/moon.svg";
-        this.invalidate();
+        this.tasksHandlers = {};
+        this.boundShowTaskNotification = this.showTaskNotification.bind(this);
+        this.invalidate(async ()=>{
+            this.tasks = await utilModule.getTasks(assistOS.space.id);
+            await NotificationRouter.subscribeToSpace(assistOS.space.id, "sidebar-tasks", this.boundShowTaskNotification);
+        });
+    }
+
+    showNotificationToast(message) {
+        this.toastsContainer.insertAdjacentHTML("beforeend", `<notification-toast data-message="${message}" data-presenter="notification-toast"></notification-toast>`);
+    }
+    showTaskNotification(data) {
+        if(data.name === "DocumentToVideo"){
+            if(data.status === "completed"){
+                this.showNotificationToast(`Task ${data.name} has been completed`);
+            } else if(data.status === "failed"){
+                this.showNotificationToast(`Task ${data.name} has failed`);
+            }
+        }
     }
 
     async beforeRender() {
@@ -36,9 +55,7 @@ export class LeftSidebar {
             stringHTML += `<list-item data-local-action="swapSpace ${space.id}" data-name="${space.name}" data-highlight="dark-highlight"></list-item>`;
         }
         this.spaces = stringHTML;
-
     }
-
     async startApplication(_target, appName) {
         await assistOS.startApplication(appName);
         changeSelectedPageFromSidebar(window.location.hash);
@@ -73,6 +90,7 @@ export class LeftSidebar {
         await assistOS.UI.changeToDynamicPage("space-application-page", `${assistOS.space.id}/Space/account-settings-page`);
     }
     afterRender() {
+        this.toastsContainer = this.element.querySelector(".toasts-container");
         let features = this.element.querySelectorAll(".feature");
         features.forEach((feature) => {
             let timeoutId;

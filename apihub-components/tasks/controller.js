@@ -10,16 +10,19 @@ async function compileVideoFromDocument(request, response) {
     let spaceId = request.params.spaceId;
     let userId = request.userId;
     let sessionId = request.sessionId;
-    const SecurityContext = require("assistos").ServerSideSecurityContext;
-    let securityContext = new SecurityContext(request);
-    let task = new DocumentToVideo(securityContext, spaceId, userId, {spaceId, documentId});
-    await TaskManager.addTask(task);
-    SubscriptionManager.notifyClients(sessionId, documentId + "/tasks");
-    sendResponse(response, 200, "application/json", {
-        message: "Task added to the queue",
-        data: task.id
-    });
-    TaskManager.runTask(task.id);
+    try {
+        let task = new DocumentToVideo(spaceId, userId, {documentId});
+        await TaskManager.addTask(task);
+        notifyTasksListUpdate(sessionId, spaceId);
+        sendResponse(response, 200, "application/json", {
+            data: task.id
+        });
+        TaskManager.runTask(task.id);
+    }catch (e) {
+        utils.sendResponse(response, 500, "application/json", {
+            message: e.message
+        });
+    }
 }
 function notifyTasksListUpdate(sessionId, spaceId) {
     let objectId = SubscriptionManager.getObjectId(spaceId, "tasks");

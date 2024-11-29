@@ -1,3 +1,5 @@
+import {videoUtils} from "../../../../imports.js";
+
 const constants = require("assistos").constants;
 const modes = {
     NORMAL: "normal",
@@ -42,6 +44,12 @@ export default class CommandsEditor {
             }
         }
     }
+    checkEffectDuration(effect) {
+        let paragraphVideoDuration = videoUtils.getParagraphVideoDuration(this.paragraph.commands);
+        if(effect.end > paragraphVideoDuration - effect.playAt){
+            effect.end = paragraphVideoDuration - effect.playAt;
+        }
+    }
     async insertAttachmentCommand(type) {
         let data = await assistOS.UI.showModal(`insert-attachment-modal`, {type: type}, true);
         if (!data) {
@@ -52,6 +60,9 @@ export default class CommandsEditor {
             if(commandConfig.TYPE === "array"){
                 if(!this.paragraph.commands[type]){
                     this.paragraph.commands[type] = [];
+                }
+                if(commandConfig.NAME === "effects"){
+                    this.checkEffectDuration(data);
                 }
                 this.paragraph.commands[type].push(data);
             } else {

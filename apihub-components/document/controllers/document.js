@@ -244,6 +244,15 @@ async function exportDocumentData(documentModule, spaceId, documentId) {
                     id: paragraph.commands.audio.id
                 })
             }
+            if (paragraph.commands.effects) {
+                for(let effect of paragraph.commands.effects){
+                    effect.fileName = `Chapter_${chapterIndex + 1}_Paragraph_${paragraphIndex + 1}_effect_${effect.name}_${effect.id}`;
+                    audios.push({
+                        name: effect.fileName,
+                        id: effect.id
+                    })
+                }
+            }
             if(paragraph.commands.speech) {
                 const personality = paragraph.commands["speech"].personality;
                 personalities.add(personality);
@@ -404,7 +413,7 @@ async function storeDocument(spaceId, extractedPath, request) {
             if (exportType === 'full') {
                 await storeAttachments(extractedPath, spaceModule, paragraph, spaceId);
             }
-            await documentModule.addParagraph(spaceId, docId, chapterId, paragraph);
+            paragraph.id = await documentModule.addParagraph(spaceId, docId, chapterId, paragraph);
             if (paragraph.commands.speech) {
                 if (paragraph.commands.speech.taskId) {
                     paragraph.commands.speech.taskId = await documentModule.createTextToSpeechTask(spaceId, docId, paragraph.id);
@@ -438,6 +447,15 @@ async function storeAttachments(extractedPath, spaceModule, paragraph, spaceId) 
         paragraph.commands.audio.id = crypto.generateId();
         await Storage.putFile(Storage.fileTypes.audios, paragraph.commands.audio.id, readStream);
         delete paragraph.commands.audio.fileName;
+    }
+    if(paragraph.commands.effects){
+        for(let effect of paragraph.commands.effects){
+            const audioPath = path.join(extractedPath, 'audios', `${effect.fileName}.mp3`);
+            const readStream = fs.createReadStream(audioPath);
+            effect.id = crypto.generateId();
+            await Storage.putFile(Storage.fileTypes.audios, effect.id, readStream);
+            delete effect.fileName;
+        }
     }
     if (paragraph.commands.video) {
         const videoPath = path.join(extractedPath, 'videos', `${paragraph.commands.video.fileName}.mp4`);

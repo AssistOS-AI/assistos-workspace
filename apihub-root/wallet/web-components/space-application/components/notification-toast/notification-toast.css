@@ -1,0 +1,22 @@
+notification-toast{
+    display: block;
+    padding: 10px;
+    z-index: 12;
+    max-width: 400px;
+    background-color: #fff;
+    box-shadow: 0px 1px 7.3px 0px #00000040;
+    border-radius: 5px;
+    overflow: hidden;
+    margin: 10px 0;
+}
+.notification-message{
+    overflow: hidden;
+    border-radius: 5px;
+    padding: 10px;
+    white-space: pre-wrap;
+    height: fit-content;
+    flex-wrap: wrap;
+    overflow-wrap: break-word;
+    hyphens: auto;
+    word-break: break-word;
+}

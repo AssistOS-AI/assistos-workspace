@@ -26,26 +26,36 @@ async function createSilentAudio(outputPath, duration, task) {
     await task.runCommand(command);
 }
 
-async function createVideoFromImage(spaceId, image, duration, task) {
-    const videoTempId = crypto.generateId(16);
-    const outputVideoPath = path.join(space.getSpacePath(spaceId), 'temp', `${videoTempId}.mp4`);
+async function createVideoFromImage(outputVideoPath, imagePath, duration, task) {
     let command;
-    if (image) {
+    if (imagePath) {
         // Ensure the image dimensions are divisible by 2
-        command = `${ffmpegPath} -loop 1 -i ${image} -vf "scale=1920:1080" -c:v libx264 -t ${duration} -pix_fmt yuv420p ${outputVideoPath}`;
+        command = `${ffmpegPath} -loop 1 -i ${imagePath} -vf "scale=1920:1080" -c:v libx264 -t ${duration} -pix_fmt yuv420p ${outputVideoPath}`;
     } else {
         // Generate a black screen with the specified duration
         command = `${ffmpegPath} -f lavfi -i color=c=black:s=1920x1080:d=${duration} -c:v libx264 -pix_fmt yuv420p ${outputVideoPath}`;
     }
     await task.runCommand(command);
-    const videoBuffer = await fsPromises.readFile(outputVideoPath);
-    await fsPromises.rm(outputVideoPath);
-    return videoBuffer;
 }
 
-async function combineVideoAndAudio(videoPath, audioPath, outputPath, task) {
-    const command = `${ffmpegPath} -i ${videoPath} -i ${audioPath} -c:v copy -c:a aac -f matroska pipe:1`;
-    await task.streamCommandToFile(command, outputPath);
+async function hasAudioStream(videoPath, task) {
+    const ffprobeCommand = `${ffprobePath} -i "${videoPath}" -show_streams -select_streams a -loglevel error`;
+    let result = await task.runCommand(ffprobeCommand);
+    return result.includes('codec_type=audio');
+}
+
+async function combineVideoAndAudio(videoPath, audioPath, outputPath, task, videoVolume, audioVolume) {
+    let command = '';
+    let hasAudio = await hasAudioStream(videoPath, task);
+
+    const videoVolumeFilter = `[0:a]volume=${videoVolume || 1}[videoAudio];`;
+    const audioVolumeFilter = `[1:a]volume=${audioVolume || 1}[externalAudio];`;
+    if(hasAudio){
+        command = `${ffmpegPath} -i ${videoPath} -i ${audioPath} -filter_complex "${videoVolumeFilter}${audioVolumeFilter}[videoAudio][externalAudio]amix=inputs=2:duration=first:dropout_transition=2" -c:v libx264 -c:a aac ${outputPath}`;
+    } else {
+        command = `${ffmpegPath} -i ${videoPath} -i ${audioPath} -filter_complex "${audioVolumeFilter}" -map 0:v -map [externalAudio] -c:v libx264 -c:a aac ${outputPath}`;
+    }
+    await task.runCommand(command);
 }
 
 const audioStandard = {
@@ -134,7 +144,23 @@ async function verifyAudioSettings(audioPath, task) {
         await convertAudioToStandard(audioPath, task);
     }
 }
+async function verifyVideoSettings(videoPath, task){
+    const command = `${ffprobePath} -v quiet -print_format json -show_format -show_streams "${videoPath}"`;
+    let result = await task.runCommand(command);
+    const metadata = JSON.parse(result);
+    const videoStream = metadata.streams.find(s => s.codec_type === 'video');
+    const audioStream = metadata.streams.find(s => s.codec_type === 'audio');
 
+    const needsConversion =
+        videoStream.codec_name !== "h264" ||
+        (audioStream && audioStream.codec_name !== videoStandard.audioCodec) ||
+        !metadata.format.format_name.split(",").includes(videoStandard.format) ||
+        videoStream.avg_frame_rate.split('/').reduce((a, b) => a / b) !== videoStandard.frameRate;
+
+    if (needsConversion) {
+        await convertVideoToMp4(videoPath, task);
+    }
+}
 async function verifyAudioIntegrity(audioPath, task) {
     const command = `${ffmpegPath} -v error -i ${audioPath} -f null -`;
     await task.runCommand(command);
@@ -182,21 +208,13 @@ async function addBackgroundSoundToVideo(videoPath, backgroundSoundPath, backgro
     await fsPromises.rename(tempOutputPath, outputPath);
 }
 
-async function combineVideos(tempVideoDir, videoPaths, fileListName, outputVideoName, task, videoDir) {
+async function combineVideos(tempVideoDir, videoPaths, fileListName, outputVideoPath, task) {
     const fileListPath = path.join(tempVideoDir, fileListName);
     const fileListContent = videoPaths.map(file => `file '${file}'`).join('\n');
     await fsPromises.writeFile(fileListPath, fileListContent);
-    let outputVideoPath;
-    if (videoDir) {
-        outputVideoPath = path.join(videoDir, outputVideoName);
-    } else {
-        outputVideoPath = path.join(tempVideoDir, outputVideoName);
-    }
-    const command = `${ffmpegPath} -f concat -safe 0 -i ${fileListPath} -filter_complex "[0:a]aresample=async=1[a]" -map 0:v -map "[a]" -c:v copy -c:a aac -b:a 192k -f matroska pipe:1`;
-    await task.streamCommandToFile(command, outputVideoPath);
+    const command = `${ffmpegPath} -f concat -safe 0 -i ${fileListPath} -filter_complex "[0:a]aresample=async=1[a]" -map 0:v -map "[a]" ${outputVideoPath}`;
+    await task.runCommand(command);
     await fsPromises.unlink(fileListPath);
-
-    return outputVideoPath;
 }
 
 async function createVideoFromImageAndAudio(imageBuffer, audioDuration, spaceId) {
@@ -209,8 +227,10 @@ async function createVideoFromImageAndAudio(imageBuffer, audioDuration, spaceId)
         const tempImageId = crypto.generateId(16);
         const tempImagePath = path.join(space.getSpacePath(spaceId), 'temp', `${tempImageId}.png`);
         await fsPromises.writeFile(tempImagePath, imageBuffer);
-        const videoBuffer = await createVideoFromImage(spaceId, tempImagePath, audioDuration, this);
+        let outputVideoPath = path.join(space.getSpacePath(spaceId), 'temp', `${tempImageId}.mp4`);
+        await createVideoFromImage(outputVideoPath, tempImagePath, audioDuration, this);
         const spaceModule = await this.loadModule('space');
+        let videoBuffer = await fsPromises.readFile(outputVideoPath);
         let videoId = await spaceModule.putVideo(videoBuffer);
         await fsPromises.rm(tempImagePath);
         return videoId;
@@ -224,6 +244,18 @@ async function createVideoFromImageAndAudio(imageBuffer, audioDuration, spaceId)
     }
 }
 
+async function createVideoFromAudioAndImage(outputVideoPath, audioPath, audioDuration, imagePath, task) {
+    const command = `${ffmpegPath} -loop 1 -framerate 30 -i ${imagePath} -i ${audioPath} -c:v libx264 -tune stillimage -c:a aac -b:a 192k -pix_fmt yuv420p -t ${audioDuration} -vf "fps=30,format=yuv420p" ${outputVideoPath}`;
+    await task.runCommand(command);
+}
+
+async function trimAudioAdjustVolume(effectPath, start, end, volume, task) {
+    let tempOutputPath = effectPath.replace('.mp3', '_temp.mp3');
+    const command = `${ffmpegPath} -i ${effectPath} -ss ${start} -to ${end} -af "volume=${volume}" ${tempOutputPath}`;
+    await task.runCommand(command);
+    await fsPromises.unlink(effectPath);
+    await fsPromises.rename(tempOutputPath, effectPath);
+}
 function estimateChapterVideoLength(spaceId, chapter) {
     let totalDuration = 0;
     for (let paragraph of chapter.paragraphs) {
@@ -369,5 +401,8 @@ module.exports = {
     getAudioDuration,
     getImageDimensions,
     getVideoDuration,
-    createVideoThumbnail
+    createVideoThumbnail,
+    createVideoFromAudioAndImage,
+    verifyVideoSettings,
+    trimAudioAdjustVolume
 }
