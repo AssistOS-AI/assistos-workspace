@@ -42,6 +42,7 @@ class FlowTask extends Task {
     }
 
     async runTask() {
+        this.flow.loadModule = this.loadModule;
         return await this.flow.execute(this);
     }
 
