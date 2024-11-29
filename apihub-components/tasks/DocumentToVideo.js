@@ -123,14 +123,14 @@ class DocumentToVideo extends Task {
         for(let i = 0; i < chapter.paragraphs.length; i++){
             try{
                 let videoPath = await this.createBaseParagraphVideo(chapter.paragraphs[i], `${pathPrefix}_paragraph_${i}`);
-                //await this.attachEffectsToParagraphVideo(videoPath, paragraph.commands, `${pathPrefix}_paragraph_${index}`);
+                await this.attachEffectsToParagraphVideo(videoPath, chapter.paragraphs[i].commands.effects, `${pathPrefix}_paragraph_${i}`);
                 completedFramePaths.push(videoPath);
             } catch (e) {
                 throw new Error(`Failed to create video for chapter ${chapterIndex}, paragraph ${i}: ${e}`);
             }
         }
         completedFramePaths = completedFramePaths.filter(videoPath => typeof videoPath !== "undefined");
-        let outputVideoPath = path.join(tempVideoDir, `chapter_${chapterIndex}_video.mkv`);
+        let outputVideoPath = path.join(tempVideoDir, `chapter_${chapterIndex}_video.mp4`);
         await ffmpegUtils.combineVideos(
             tempVideoDir,
             completedFramePaths,
@@ -189,7 +189,7 @@ class DocumentToVideo extends Task {
             let imagePath = `${pathPrefix}_image.png`;
             await fileSys.downloadData(imageURL, imagePath);
 
-            await ffmpegUtils.createVideoFromAudioAndImage(finalVideoPath, audioPath, imagePath, this);
+            await ffmpegUtils.createVideoFromAudioAndImage(finalVideoPath, audioPath, commands.audio.duration, imagePath, this);
             await fsPromises.unlink(audioPath);
             return finalVideoPath;
         }else if(commands.silence){
@@ -210,16 +210,41 @@ class DocumentToVideo extends Task {
             return finalVideoPath;
         }
     }
-    async attachEffectsToParagraphVideo(videoPath, commands, effectsPathPrefix){
-        if(!commands.effects){
+    async attachEffectsToParagraphVideo(videoPath, effects, effectsPathPrefix){
+        if(!effects){
             return;
         }
-        for(let effect of commands.effects){
-            let effectPath = path.join(effectsPathPrefix, `_effect_${effect.id}.mp3`);
+        for(let effect of effects){
+            let effectPath = `${effectsPathPrefix}_effect_${effect.id}.mp3`;
             let effectURL = await Storage.getDownloadURL(Storage.fileTypes.audios, effect.id);
             await fileSys.downloadData(effectURL, effectPath);
-            await ffmpegUtils.addEffectToVideo(videoPath, tempVideoPath, effect.start, effect.end, effect.volume, outputVideoPath, this);
-            videoPath = outputVideoPath;
+            await ffmpegUtils.verifyAudioIntegrity(effectPath, this);
+            await ffmpegUtils.verifyAudioSettings(effectPath, this);
+            await ffmpegUtils.trimAudioAdjustVolume(effectPath, effect.start, effect.end, effect.volume, this);
+            effect.path = effectPath;
+        }
+
+        let tempVideoPath =`${effectsPathPrefix}_with_effects_temp.mp4`;
+
+        let command = `${ffmpegPath} -i ${videoPath} `;
+        for(let effect of effects){
+            command += `-i ${effect.path} `;
+        }
+        command += `-filter_complex "`;
+        for(let i = 0; i < effects.length; i++){
+            command += `[${i+1}]adelay=${effects[i].playAt * 1000}|${effects[i].playAt * 1000}[a${i+1}];`;
+        }
+        for(let i = 0; i < effects.length; i++){
+            command += `[a${i+1}]`;
+        }
+        command += `amix=inputs=${effects.length}:duration=longest[mixed_audio];
+        [0:a][mixed_audio]amix=inputs=2:duration=longest[audio_out]" -map 0:v -map "[audio_out]" ${tempVideoPath}`;
+        await this.runCommand(command);
+        await fsPromises.unlink(videoPath);
+        await fsPromises.rename(tempVideoPath, videoPath);
+        for(let effect of effects){
+            await fsPromises.unlink(effect.path);
+            delete effect.path;
         }
     }
     async getRelevantInfo() {

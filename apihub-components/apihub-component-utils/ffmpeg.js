@@ -212,7 +212,7 @@ async function combineVideos(tempVideoDir, videoPaths, fileListName, outputVideo
     const fileListPath = path.join(tempVideoDir, fileListName);
     const fileListContent = videoPaths.map(file => `file '${file}'`).join('\n');
     await fsPromises.writeFile(fileListPath, fileListContent);
-    const command = `${ffmpegPath} -f concat -safe 0 -i ${fileListPath} -filter_complex "[0:a]aresample=async=1[a]" -map 0:v -map "[a]" -c:v copy -c:a aac -b:a 192k ${outputVideoPath}`;
+    const command = `${ffmpegPath} -f concat -safe 0 -i ${fileListPath} -filter_complex "[0:a]aresample=async=1[a]" -map 0:v -map "[a]" ${outputVideoPath}`;
     await task.runCommand(command);
     await fsPromises.unlink(fileListPath);
 }
@@ -243,16 +243,19 @@ async function createVideoFromImageAndAudio(imageBuffer, audioDuration, spaceId)
         throw new Error(`Failed to create video from image and audio: ${e.message}`);
     }
 }
-//creates a blackscreen video from audio
-async function createVideoFromAudioAndImage(outputVideoPath, audioPath, imagePath, task) {
-    const command = `${ffmpegPath} -loop 1 -i ${imagePath} -i ${audioPath} \
-      -c:v libx264 -b:v 1000k -r 30 \
-      -c:a aac -b:a 192k \
-      -pix_fmt yuv420p -shortest -movflags +faststart \
-       ${outputVideoPath}`;
+
+async function createVideoFromAudioAndImage(outputVideoPath, audioPath, audioDuration, imagePath, task) {
+    const command = `${ffmpegPath} -loop 1 -framerate 30 -i ${imagePath} -i ${audioPath} -c:v libx264 -tune stillimage -c:a aac -b:a 192k -pix_fmt yuv420p -t ${audioDuration} -vf "fps=30,format=yuv420p" ${outputVideoPath}`;
     await task.runCommand(command);
 }
 
+async function trimAudioAdjustVolume(effectPath, start, end, volume, task) {
+    let tempOutputPath = effectPath.replace('.mp3', '_temp.mp3');
+    const command = `${ffmpegPath} -i ${effectPath} -ss ${start} -to ${end} -af "volume=${volume}" ${tempOutputPath}`;
+    await task.runCommand(command);
+    await fsPromises.unlink(effectPath);
+    await fsPromises.rename(tempOutputPath, effectPath);
+}
 function estimateChapterVideoLength(spaceId, chapter) {
     let totalDuration = 0;
     for (let paragraph of chapter.paragraphs) {
@@ -400,5 +403,6 @@ module.exports = {
     getVideoDuration,
     createVideoThumbnail,
     createVideoFromAudioAndImage,
-    verifyVideoSettings
+    verifyVideoSettings,
+    trimAudioAdjustVolume
 }
