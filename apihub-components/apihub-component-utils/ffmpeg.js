@@ -256,6 +256,27 @@ async function trimAudioAdjustVolume(effectPath, start, end, volume, task) {
     await fsPromises.unlink(effectPath);
     await fsPromises.rename(tempOutputPath, effectPath);
 }
+async function addEffectsToVideo(effects, videoPath, outputPath, task) {
+    let command = `${ffmpegPath} -i ${videoPath} `;
+    if(!effects.some(effect => effect.path)){
+        throw new Error('Effects must have a path');
+    }
+    for(let effect of effects){
+        command += `-i ${effect.path} `;
+    }
+    command += `-filter_complex "`;
+    for(let i = 0; i < effects.length; i++){
+        command += `[${i+1}]adelay=${effects[i].playAt * 1000}|${effects[i].playAt * 1000}[a${i+1}];`;
+    }
+    for(let i = 0; i < effects.length; i++){
+        command += `[a${i+1}]`;
+    }
+    command += `amix=inputs=${effects.length}:duration=longest[mixed_audio];
+        [0:a][mixed_audio]amix=inputs=2:duration=longest[audio_out]" -map 0:v -map "[audio_out]" ${outputPath}`;
+    await task.runCommand(command);
+    await fsPromises.unlink(videoPath);
+    await fsPromises.rename(outputPath, videoPath);
+}
 function estimateChapterVideoLength(spaceId, chapter) {
     let totalDuration = 0;
     for (let paragraph of chapter.paragraphs) {
@@ -404,5 +425,6 @@ module.exports = {
     createVideoThumbnail,
     createVideoFromAudioAndImage,
     verifyVideoSettings,
-    trimAudioAdjustVolume
+    trimAudioAdjustVolume,
+    addEffectsToVideo
 }

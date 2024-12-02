@@ -138,11 +138,17 @@ class DocumentToVideo extends Task {
             outputVideoPath,
             this);
         if(chapter.backgroundSound){
-            let tempChapterAudioPath = path.join(tempVideoDir, `chapter_${chapterIndex}_audio.mp3`);
+            let chapterAudioPath = path.join(tempVideoDir, `chapter_${chapterIndex}_audio.mp3`);
             let chapterAudioURL = await Storage.getDownloadURL(Storage.fileTypes.audios, chapter.backgroundSound.id);
-            await fileSys.downloadData(chapterAudioURL, tempChapterAudioPath);
-            let outputVideoPath = path.join(tempVideoDir, `chapter_${chapterIndex}_video.mp4`);
-            await ffmpegUtils.addBackgroundSoundToVideo(outputVideoPath, tempChapterAudioPath, chapter.backgroundSound.volume, 1, outputVideoPath, this);
+            await fileSys.downloadData(chapterAudioURL, chapterAudioPath);
+            await ffmpegUtils.verifyAudioIntegrity(chapterAudioPath, this);
+            await ffmpegUtils.verifyAudioSettings(chapterAudioPath, this);
+            let tempOutputPath = path.join(tempVideoDir, `chapter_${chapterIndex}_video_temp.mp4`);
+            await ffmpegUtils.addBackgroundSoundToVideo(outputVideoPath, chapterAudioPath, chapter.backgroundSound.volume, 1, tempOutputPath, this);
+
+            await fsPromises.unlink(chapterAudioPath);
+            await fsPromises.unlink(outputVideoPath);
+            await fsPromises.rename(tempOutputPath, outputVideoPath);
         }
         return outputVideoPath;
     }
@@ -225,23 +231,7 @@ class DocumentToVideo extends Task {
         }
 
         let tempVideoPath =`${effectsPathPrefix}_with_effects_temp.mp4`;
-
-        let command = `${ffmpegPath} -i ${videoPath} `;
-        for(let effect of effects){
-            command += `-i ${effect.path} `;
-        }
-        command += `-filter_complex "`;
-        for(let i = 0; i < effects.length; i++){
-            command += `[${i+1}]adelay=${effects[i].playAt * 1000}|${effects[i].playAt * 1000}[a${i+1}];`;
-        }
-        for(let i = 0; i < effects.length; i++){
-            command += `[a${i+1}]`;
-        }
-        command += `amix=inputs=${effects.length}:duration=longest[mixed_audio];
-        [0:a][mixed_audio]amix=inputs=2:duration=longest[audio_out]" -map 0:v -map "[audio_out]" ${tempVideoPath}`;
-        await this.runCommand(command);
-        await fsPromises.unlink(videoPath);
-        await fsPromises.rename(tempVideoPath, videoPath);
+        await ffmpegUtils.addEffectsToVideo(videoPath, effects, tempVideoPath, this);
         for(let effect of effects){
             await fsPromises.unlink(effect.path);
             delete effect.path;

@@ -25,6 +25,13 @@ export class VideoMenu{
             await this.initViewVideo();
             this.initInputs();
         }
+        lipSyncCheckbox.addEventListener("change", async () => {
+            if(lipSyncCheckbox.checked){
+                await this.insertLipSync();
+            }else{
+                await this.commandsEditor.deleteCommand("lipsync");
+            }
+        });
         let commands = this.paragraphPresenter.paragraph.commands;
         if(!commands.video && !commands.image){
             let warnMessage = `No visual source added`;
@@ -80,15 +87,6 @@ export class VideoMenu{
         let volumeInput = this.element.querySelector("#volume");
         volumeInput.value = this.paragraphPresenter.paragraph.commands.video.volume;
         volumeInput.addEventListener("input", this.handleVolume.bind(this, volumeInput, videoElement));
-
-        let lipSyncCheckbox = this.element.querySelector("#lip-sync");
-        lipSyncCheckbox.addEventListener("change", async () => {
-            if(lipSyncCheckbox.checked){
-                await this.insertLipSync();
-            }else{
-                await this.commandsEditor.deleteCommand("lipsync");
-            }
-        });
     }
     handleVolume(input, videoElement, event){
         videoElement.volume = parseFloat(input.value);
