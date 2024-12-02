@@ -157,7 +157,6 @@ async function downloadDocumentArchive(request, response) {
 
     response.setHeader('Content-Length', archiveSize);
     response.setHeader('Content-Type', 'application/zip');
-    response.setHeader('Content-Disposition', `attachment; filename=${fileName}.docai`);
     readStream.on('error', (error) => {
         utils.sendResponse(response, 500, "application/json", {
             message: `Error reading file: ${error.message}`

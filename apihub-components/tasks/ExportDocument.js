@@ -5,7 +5,6 @@ const space = require('../spaces-storage/space');
 const Storage = require("../apihub-component-utils/storage");
 const constants = require('./constants');
 const archiver = require("archiver");
-const crypto = require("../apihub-component-utils/crypto");
 const STATUS = constants.STATUS;
 class ExportDocument extends Task {
     constructor(spaceId, userId, configs) {
@@ -21,9 +20,9 @@ class ExportDocument extends Task {
 
             let documentData;
             if (this.exportType === 'full') {
-                documentData = await this.exportDocumentData(document, this.spaceId);
+                documentData = await this.exportDocumentData(document);
             } else {
-                documentData = await this.exportDocumentDataPartially(document, this.spaceId);
+                documentData = await this.exportDocumentDataPartially(document);
             }
 
             const archive = archiver('zip', {zlib: {level: 9}});
@@ -81,7 +80,7 @@ class ExportDocument extends Task {
             await archive.finalize();
         });
     }
-    async exportDocumentDataPartially(document, spaceId) {
+    async exportDocumentDataPartially(document) {
         let personalities = new Set();
         document.exportType = "partial";
         document.images = [];
@@ -95,11 +94,11 @@ class ExportDocument extends Task {
                 }
             }
         }
-        document.personalities = await space.APIs.getPersonalitiesIds(spaceId, personalities);
+        document.personalities = await space.APIs.getPersonalitiesIds(this.spaceId, personalities);
         return document;
     }
 
-    async exportDocumentData(document, spaceId) {
+    async exportDocumentData(document) {
         document.exportType = "full";
         let audios = [];
         let images = [];
@@ -162,7 +161,7 @@ class ExportDocument extends Task {
         document.images = images;
         document.audios = audios;
         document.videos = videos;
-        document.personalities = await space.APIs.getPersonalitiesIds(spaceId, personalities);
+        document.personalities = await space.APIs.getPersonalitiesIds(this.spaceId, personalities);
         return document;
     }
     async cancelTask(){
