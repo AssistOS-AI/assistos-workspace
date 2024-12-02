@@ -27,8 +27,10 @@ export class ChapterBackgroundAudio {
             if (this.chapter.backgroundSound.loop) {
                 loopInput.checked = true;
             }
-            loopInput.addEventListener("change", () => {
+            loopInput.addEventListener("change", async () => {
                 audio.loop = loopInput.checked;
+                this.chapter.backgroundSound.loop = loopInput.checked;
+                await documentModule.updateChapterBackgroundSound(assistOS.space.id, this._document.id, this.chapter.id, this.chapter.backgroundSound);
             });
             let volumeInput = this.element.querySelector('#volume');
             volumeInput.value = this.chapter.backgroundSound.volume;

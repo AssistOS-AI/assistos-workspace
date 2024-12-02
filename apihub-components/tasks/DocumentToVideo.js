@@ -78,32 +78,6 @@ class DocumentToVideo extends Task {
             this.processes.push(childProcess);
         });
     }
-    createChildProcess(command, outputPath, resolve, reject) {
-        const childProcess = spawn(command, { shell: true });
-        this.processes.push(childProcess);
-        const outputStream = fs.createWriteStream(outputPath);
-
-        outputStream.on('error', (err) => {
-            childProcess.kill();
-            reject(`Error writing to file: ${err.message}`);
-        });
-        childProcess.on('error', (err) => {
-            outputStream.close();
-            reject(`Failed to start command: ${err.message}`);
-        });
-        childProcess.stdout.pipe(outputStream);
-        let errorMessages = '';
-        childProcess.stderr.on('data', (data) => {
-            errorMessages += data.toString();
-        });
-        childProcess.on('close', (code) => {
-            if (code !== 0) {
-                reject(errorMessages);
-            }
-            resolve();
-        });
-        return childProcess;
-    }
     serialize() {
         return{
             id: this.id,
@@ -141,14 +115,8 @@ class DocumentToVideo extends Task {
             let chapterAudioPath = path.join(tempVideoDir, `chapter_${chapterIndex}_audio.mp3`);
             let chapterAudioURL = await Storage.getDownloadURL(Storage.fileTypes.audios, chapter.backgroundSound.id);
             await fileSys.downloadData(chapterAudioURL, chapterAudioPath);
-            await ffmpegUtils.verifyAudioIntegrity(chapterAudioPath, this);
-            await ffmpegUtils.verifyAudioSettings(chapterAudioPath, this);
-            let tempOutputPath = path.join(tempVideoDir, `chapter_${chapterIndex}_video_temp.mp4`);
-            await ffmpegUtils.addBackgroundSoundToVideo(outputVideoPath, chapterAudioPath, chapter.backgroundSound.volume, 1, tempOutputPath, this);
-
+            await ffmpegUtils.addBackgroundSoundToVideo(outputVideoPath, chapterAudioPath, chapter.backgroundSound.volume, chapter.backgroundSound.loop, this);
             await fsPromises.unlink(chapterAudioPath);
-            await fsPromises.unlink(outputVideoPath);
-            await fsPromises.rename(tempOutputPath, outputVideoPath);
         }
         return outputVideoPath;
     }
@@ -229,9 +197,7 @@ class DocumentToVideo extends Task {
             await ffmpegUtils.trimAudioAdjustVolume(effectPath, effect.start, effect.end, effect.volume, this);
             effect.path = effectPath;
         }
-
-        let tempVideoPath =`${effectsPathPrefix}_with_effects_temp.mp4`;
-        await ffmpegUtils.addEffectsToVideo(videoPath, effects, tempVideoPath, this);
+        await ffmpegUtils.addEffectsToVideo(effects, videoPath, this);
         for(let effect of effects){
             await fsPromises.unlink(effect.path);
             delete effect.path;

@@ -30,10 +30,17 @@ async function createVideoFromImage(outputVideoPath, imagePath, duration, task) 
     let command;
     if (imagePath) {
         // Ensure the image dimensions are divisible by 2
-        command = `${ffmpegPath} -loop 1 -i ${imagePath} -vf "scale=1920:1080" -c:v libx264 -t ${duration} -pix_fmt yuv420p ${outputVideoPath}`;
+        command = `${ffmpegPath} -loop 1 -i ${imagePath} \
+        -f lavfi -i anullsrc=channel_layout=stereo:sample_rate=44100 \
+        -vf "scale=1920:1080,setsar=1" -t ${duration} \
+        -shortest -c:v libx264 -pix_fmt yuv420p -c:a libmp3lame ${outputVideoPath}`;
+
     } else {
         // Generate a black screen with the specified duration
-        command = `${ffmpegPath} -f lavfi -i color=c=black:s=1920x1080:d=${duration} -c:v libx264 -pix_fmt yuv420p ${outputVideoPath}`;
+        command = `${ffmpegPath} -f lavfi -i color=c=black:s=1920x1080:d=${duration} \
+        -f lavfi -t ${duration} -i anullsrc=channel_layout=stereo:sample_rate=44100 \
+        -vf "setsar=1" -shortest -c:v libx264 -pix_fmt yuv420p -c:a libmp3lame ${outputVideoPath}`;
+
     }
     await task.runCommand(command);
 }
@@ -51,18 +58,11 @@ async function combineVideoAndAudio(videoPath, audioPath, outputPath, task, vide
     const videoVolumeFilter = `[0:a]volume=${videoVolume || 1}[videoAudio];`;
     const audioVolumeFilter = `[1:a]volume=${audioVolume || 1}[externalAudio];`;
     if(hasAudio){
-        command = `${ffmpegPath} -i ${videoPath} -i ${audioPath} -filter_complex "${videoVolumeFilter}${audioVolumeFilter}[videoAudio][externalAudio]amix=inputs=2:duration=first:dropout_transition=2" -c:v libx264 -c:a aac ${outputPath}`;
+        command = `${ffmpegPath} -i ${videoPath} -i ${audioPath} -filter_complex "${videoVolumeFilter}${audioVolumeFilter}[videoAudio][externalAudio]amix=inputs=2:duration=first:dropout_transition=2" -c:v libx264 -c:a libmp3lame ${outputPath}`;
     } else {
-        command = `${ffmpegPath} -i ${videoPath} -i ${audioPath} -filter_complex "${audioVolumeFilter}" -map 0:v -map [externalAudio] -c:v libx264 -c:a aac ${outputPath}`;
+        command = `${ffmpegPath} -i ${videoPath} -i ${audioPath} -filter_complex "${audioVolumeFilter}" -map 0:v -map [externalAudio] -c:v libx264 -c:a libmp3lame ${outputPath}`;
     }
     await task.runCommand(command);
-}
-
-const audioStandard = {
-    sampleRate: 44100,
-    channels: 2, //stereo
-    bitRate: 192,
-    codec: 'mp3'
 }
 
 async function convertAudioToStandard(inputAudioPath, task) {
@@ -84,16 +84,23 @@ async function convertAudioToStandard(inputAudioPath, task) {
 
 const videoStandard = {
     codec: 'libx264',      // H.264 codec for video
-    audioCodec: 'aac',     // AAC codec for audio
+    audioCodec: 'mp3',     // mp3 codec for audio
     format: 'mp4',         // MP4 format
-    bitRate: 1000,         // Video bitrate in kbps (adjust as necessary)
+    bitRate: 1000,         // Video bitrate in kbps
     audioBitRate: 192,     // Audio bitrate in kbps
-    frameRate: 30          // Standard frame rate (adjust as necessary)
+    frameRate: 30,          // Standard frame rate
+    width: 1920,
+    height: 1080
 };
-
+const audioStandard = {
+    sampleRate: 44100,
+    channels: 2, //stereo
+    bitRate: 192,
+    codec: 'mp3'
+}
 async function convertVideoToMp4(inputVideoPath, task) {
     const tempVideoPath = inputVideoPath.replace(path.extname(inputVideoPath), '_temp.mp4');
-    const conversionCommand = `${ffmpegPath} -i ${inputVideoPath} -c:v ${videoStandard.codec} -b:v ${videoStandard.bitRate}k -r ${videoStandard.frameRate} -c:a ${videoStandard.audioCodec} -b:a ${videoStandard.audioBitRate}k -f ${videoStandard.format} ${tempVideoPath}`;
+    const conversionCommand = `${ffmpegPath} -i ${inputVideoPath} -c:v ${videoStandard.codec} -b:v ${videoStandard.bitRate}k -r ${videoStandard.frameRate} -s ${videoStandard.width}x${videoStandard.height} -c:a ${videoStandard.audioCodec} -b:a ${videoStandard.audioBitRate}k -f ${videoStandard.format} ${tempVideoPath}`;
     try {
         await task.runCommand(conversionCommand);
     } catch (e) {
@@ -136,6 +143,7 @@ async function verifyAudioSettings(audioPath, task) {
     let infoOutput = await task.runCommand(infoCommand);
     const parsedOutput = parseFFmpegInfoOutput(infoOutput);
     const needsReencoding = (
+        parsedOutput.codec !== audioStandard.codec ||
         parsedOutput.sampleRate !== audioStandard.sampleRate ||
         parsedOutput.channels !== audioStandard.channels ||
         parsedOutput.bitRate !== audioStandard.bitRate
@@ -155,7 +163,9 @@ async function verifyVideoSettings(videoPath, task){
         videoStream.codec_name !== "h264" ||
         (audioStream && audioStream.codec_name !== videoStandard.audioCodec) ||
         !metadata.format.format_name.split(",").includes(videoStandard.format) ||
-        videoStream.avg_frame_rate.split('/').reduce((a, b) => a / b) !== videoStandard.frameRate;
+        videoStream.avg_frame_rate.split('/').reduce((a, b) => a / b) !== videoStandard.frameRate ||
+        videoStream.width !== videoStandard.width ||
+        videoStream.height !== videoStandard.height;
 
     if (needsConversion) {
         await convertVideoToMp4(videoPath, task);
@@ -180,32 +190,20 @@ async function getVideoDuration(videoPath){
     // Round to one decimal place
     return parseFloat(duration.toFixed(1));
 }
-async function addBackgroundSoundToVideo(videoPath, backgroundSoundPath, backgroundSoundVolume, fadeDuration, outputPath, task) {
+async function addBackgroundSoundToVideo(videoPath, backgroundSoundPath, backgroundSoundVolume, loop, task) {
     await verifyAudioIntegrity(backgroundSoundPath, task);
     await verifyAudioSettings(backgroundSoundPath, task);
-    //backgroundSoundVolume is a float between 0 and 1
-    //backgroundSound fades out at the end of the video
-    backgroundSoundVolume = Math.max(0, Math.min(1, backgroundSoundVolume));
-    let videoDurationOutput = await task.runCommand(`${ffmpegPath} -i ${videoPath} 2>&1 | grep "Duration"`);
-    const videoDurationMatch = videoDurationOutput.match(/Duration: (\d+):(\d+):(\d+\.\d+)/);
-    if (!videoDurationMatch) {
-        throw new Error('Could not determine video duration');
-    }
-    const videoDuration =
-        parseInt(videoDurationMatch[1]) * 3600 +
-        parseInt(videoDurationMatch[2]) * 60 +
-        parseFloat(videoDurationMatch[3]);
-    // Ensure fadeDuration does not exceed videoDuration
-    fadeDuration = Math.min(fadeDuration, videoDuration);
-    const fadeOutStartTime = videoDuration - fadeDuration;
-    const tempOutputPath = path.join(path.dirname(outputPath), `temp_${path.basename(outputPath)}`);
-    const command = `${ffmpegPath} -i ${videoPath} -i ${backgroundSoundPath} -filter_complex "
-            [1:a]volume=${backgroundSoundVolume},afade=t=out:st=${fadeOutStartTime}:d=${fadeDuration}[bk];
-            [0:a][bk]amix=inputs=2:duration=first[aout]
-            " -map 0:v -map "[aout]" -c:v copy -c:a aac -b:a 192k ${tempOutputPath}`;
+
+    const tempOutputPath = videoPath.replace('.mp4', '_temp.mp4');
+    let loopOption = loop ? "-stream_loop -1" : "";
+    const command = `${ffmpegPath} ${loopOption} -i ${backgroundSoundPath} -i ${videoPath} \
+    -filter_complex "[0:a]volume=${backgroundSoundVolume}[bg]; \
+    [1:a][bg]amix=inputs=2:duration=first[aout]" \
+    -map 1:v -map "[aout]" -c:v copy ${tempOutputPath}`;
+
     await task.runCommand(command);
-    await fsPromises.unlink(outputPath);
-    await fsPromises.rename(tempOutputPath, outputPath);
+    await fsPromises.unlink(videoPath);
+    await fsPromises.rename(tempOutputPath, videoPath);
 }
 
 async function combineVideos(tempVideoDir, videoPaths, fileListName, outputVideoPath, task) {
@@ -217,6 +215,16 @@ async function combineVideos(tempVideoDir, videoPaths, fileListName, outputVideo
     await fsPromises.unlink(fileListPath);
 }
 
+
+// async function combineVideos(tempVideoDir, videoPaths, fileListName, outputVideoPath, task) {
+//     let inputsOption = "";
+//     for(let videoPath of videoPaths){
+//         inputsOption += `-i ${videoPath} `;
+//     }
+//     const filterComplex = videoPaths.map((_, index) => `[${index}:v][${index}:a]`).join('');
+//     const command = `${ffmpegPath} ${inputsOption} -filter_complex "${filterComplex}concat=n=${videoPaths.length}:v=1:a=1[v][a]" -map "[v]" -map "[a]" ${outputVideoPath}`;
+//     await task.runCommand(command);
+// }
 async function createVideoFromImageAndAudio(imageBuffer, audioDuration, spaceId) {
     const taskCallback = async function (){
         try {
@@ -245,7 +253,7 @@ async function createVideoFromImageAndAudio(imageBuffer, audioDuration, spaceId)
 }
 
 async function createVideoFromAudioAndImage(outputVideoPath, audioPath, audioDuration, imagePath, task) {
-    const command = `${ffmpegPath} -loop 1 -framerate 30 -i ${imagePath} -i ${audioPath} -c:v libx264 -tune stillimage -c:a aac -b:a 192k -pix_fmt yuv420p -t ${audioDuration} -vf "fps=30,format=yuv420p" ${outputVideoPath}`;
+    const command = `${ffmpegPath} -loop 1 -framerate ${videoStandard.frameRate} -i ${imagePath} -i ${audioPath} -c:v libx264 -tune stillimage -c:a libmp3lame -b:a 192k -pix_fmt yuv420p -t ${audioDuration} -vf "fps=30,format=yuv420p,scale=${videoStandard.width}:${videoStandard.height}" ${outputVideoPath}`;
     await task.runCommand(command);
 }
 
@@ -256,11 +264,12 @@ async function trimAudioAdjustVolume(effectPath, start, end, volume, task) {
     await fsPromises.unlink(effectPath);
     await fsPromises.rename(tempOutputPath, effectPath);
 }
-async function addEffectsToVideo(effects, videoPath, outputPath, task) {
-    let command = `${ffmpegPath} -i ${videoPath} `;
+async function addEffectsToVideo(effects, videoPath, task) {
     if(!effects.some(effect => effect.path)){
         throw new Error('Effects must have a path');
     }
+
+    let command = `${ffmpegPath} -i ${videoPath} `;
     for(let effect of effects){
         command += `-i ${effect.path} `;
     }
@@ -271,11 +280,12 @@ async function addEffectsToVideo(effects, videoPath, outputPath, task) {
     for(let i = 0; i < effects.length; i++){
         command += `[a${i+1}]`;
     }
+    let tempVideoPath = videoPath.replace('.mp4', '_temp.mp4');
     command += `amix=inputs=${effects.length}:duration=longest[mixed_audio];
-        [0:a][mixed_audio]amix=inputs=2:duration=longest[audio_out]" -map 0:v -map "[audio_out]" ${outputPath}`;
+        [0:a][mixed_audio]amix=inputs=2:duration=longest[audio_out]" -map 0:v -map "[audio_out]" ${tempVideoPath}`;
     await task.runCommand(command);
     await fsPromises.unlink(videoPath);
-    await fsPromises.rename(outputPath, videoPath);
+    await fsPromises.rename(tempVideoPath, videoPath);
 }
 function estimateChapterVideoLength(spaceId, chapter) {
     let totalDuration = 0;
