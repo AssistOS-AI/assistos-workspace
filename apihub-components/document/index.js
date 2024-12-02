@@ -20,6 +20,7 @@ function document(server) {
 
     //Export & Import
     server.post("/documents/export/:spaceId/:documentId", documentHandler.exportDocument);
+    server.get("/documents/export/:spaceId/:fileName", documentHandler.downloadDocumentArchive);
     server.post("/documents/import/:spaceId", documentHandler.importDocument);
 
     //Video

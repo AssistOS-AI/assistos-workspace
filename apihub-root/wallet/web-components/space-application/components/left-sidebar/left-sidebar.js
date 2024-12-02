@@ -17,8 +17,10 @@ export class LeftSidebar {
     showNotificationToast(message) {
         this.toastsContainer.insertAdjacentHTML("beforeend", `<notification-toast data-message="${message}" data-presenter="notification-toast"></notification-toast>`);
     }
+    tasksName = ["DocumentToVideo",
+    "ExportDocument"]
     showTaskNotification(data) {
-        if(data.name === "DocumentToVideo"){
+        if(this.tasksName.includes(data.name)){
             if(data.status === "completed"){
                 this.showNotificationToast(`Task ${data.name} has been completed`);
             } else if(data.status === "failed"){

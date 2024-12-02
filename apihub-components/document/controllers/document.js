@@ -1,6 +1,5 @@
 const space = require("../../spaces-storage/space");
 const utils = require("../../apihub-component-utils/utils");
-const archiver = require("archiver");
 const crypto = require("../../apihub-component-utils/crypto");
 const path = require("path");
 const fs = require("fs");
@@ -11,7 +10,9 @@ const ffmpeg = require("../../apihub-component-utils/ffmpeg");
 const {sendResponse} = require("../../apihub-component-utils/utils");
 const Storage = require("../../apihub-component-utils/storage");
 const documentService = require("../services/document");
-
+const ExportDocument = require("../../tasks/ExportDocument");
+const TaskManager = require("../../tasks/TaskManager");
+const fsPromises = fs.promises;
 async function getDocument(req, res) {
     const {spaceId, documentId} = req.params;
     if (!spaceId || !documentId) {
@@ -129,162 +130,44 @@ async function exportDocument(request, response) {
     const spaceId = request.params.spaceId;
     const documentId = request.params.documentId;
     const exportType = request.body.exportType;
-
-    const SecurityContext = require("assistos").ServerSideSecurityContext;
-    let securityContext = new SecurityContext(request);
-    const documentModule = require('assistos').loadModule('document', securityContext);
-
-    const archive = archiver('zip', {zlib: {level: 9}});
-    response.setHeader('Content-Disposition', `attachment; filename=${documentId}.docai`);
-    response.setHeader('Content-Type', 'application/zip');
-    archive.on('end', () => {
-        response.end();
-    });
-    archive.on('error', err => {
-        utils.sendResponse(response, 500, "application/json", {
-            message: `Error at exporting document: ${documentId}. ${err.message}`
-        })
-    });
-    archive.pipe(response);
+    const userId = request.userId;
+    const sessionId = request.sessionId;
     try {
-        await archiveDocument(spaceId, archive, documentModule, documentId, exportType);
+        let task = new ExportDocument(spaceId, userId, {documentId, exportType});
+        await TaskManager.addTask(task);
+        let objectId = SubscriptionManager.getObjectId(spaceId, "tasks");
+        SubscriptionManager.notifyClients(sessionId, objectId);
+        sendResponse(response, 200, "application/json", {
+            data: task.id
+        });
+        TaskManager.runTask(task.id);
     } catch (error) {
         utils.sendResponse(response, error.statusCode || 500, "application/json", {
-            message: `Error at exporting document: ${documentId}. ${error.message}`
+            message: `Error at getting document: ${documentId}. ${error.message}`
         });
     }
 }
+async function downloadDocumentArchive(request, response) {
+    let spaceId = request.params.spaceId;
+    let fileName = request.params.fileName;
+    let spacePath = space.APIs.getSpacePath(spaceId);
+    let filePath = path.join(spacePath, "temp", `${fileName}.docai`);
+    let readStream = fs.createReadStream(filePath);
+    let archiveSize = fs.statSync(filePath).size;
 
-async function archiveDocument(spaceId, archive, documentModule, documentId, exportType) {
-    let documentData;
-    if (exportType === 'full') {
-        documentData = await exportDocumentData(documentModule, spaceId, documentId);
-    } else {
-        documentData = await exportDocumentDataPartially(documentModule, spaceId, documentId);
-    }
+    response.setHeader('Content-Length', archiveSize);
+    response.setHeader('Content-Type', 'application/zip');
+    response.setHeader('Content-Disposition', `attachment; filename=${fileName}.docai`);
+    readStream.on('error', (error) => {
+        utils.sendResponse(response, 500, "application/json", {
+            message: `Error reading file: ${error.message}`
+        });
+    });
+    readStream.on('end', async () => {
+        await fsPromises.unlink(filePath);
+    });
 
-    const contentBuffer = Buffer.from(JSON.stringify(documentData), 'utf-8');
-    const checksum = require('crypto').createHash('sha256').update(contentBuffer).digest('hex');
-    const metadata = {
-        title: documentData.title,
-        created: new Date().toISOString(),
-        modified: new Date().toISOString(),
-        version: "1.0",
-        checksum: checksum,
-        contentFile: "data.json",
-    };
-    archive.append(contentBuffer, {name: 'data.json'});
-    archive.append(Buffer.from(JSON.stringify(metadata), 'utf-8'), {name: 'metadata.json'});
-    for(let personalityId of documentData.personalities){
-        const personalityStream = await space.APIs.archivePersonality(spaceId, personalityId);
-        archive.append(personalityStream, {name: `personalities/${personalityId}.persai`});
-    }
-    //spaceId = "4TcRae17k6rrNqs6";
-    for(let imageData of documentData.images){
-        const imageName = imageData.name;
-        const {fileStream, headers} = await Storage.getFile(Storage.fileTypes.images, imageData.id);
-        archive.append(fileStream, {name: `images/${imageName}.png`});
-    }
-
-    for(let audioData of documentData.audios){
-        const audioName = audioData.name;
-        const {fileStream, headers} = await Storage.getFile(Storage.fileTypes.audios, audioData.id);
-        archive.append(fileStream, {name: `audios/${audioName}.mp3`});
-    }
-    for(let videoData of documentData.videos){
-        const videoName = videoData.name;
-        const {fileStream, headers} = await Storage.getFile(Storage.fileTypes.videos, videoData.id);
-        archive.append(fileStream, {name: `videos/${videoName}.mp4`});
-    }
-    archive.finalize();
-}
-
-async function exportDocumentDataPartially(documentModule, spaceId, documentId) {
-    let personalities = new Set();
-    let documentData = await documentModule.getDocument(spaceId, documentId);
-    documentData.exportType = "partial";
-    documentData.images = [];
-    documentData.audios = [];
-    documentData.videos = [];
-    for (let chapter of documentData.chapters) {
-        for (let paragraph of chapter.paragraphs) {
-            if (paragraph.commands.audio) {
-                const personality = paragraph.commands["speech"].personality;
-                personalities.add(personality);
-            }
-        }
-    }
-    documentData.personalities = await space.APIs.getPersonalitiesIds(spaceId, personalities);
-    return documentData;
-}
-
-async function exportDocumentData(documentModule, spaceId, documentId) {
-    let documentData = await documentModule.getDocument(spaceId, documentId);
-    /* TODO there seems to be a bug where multiple chapters have position 0 - talk with Mircea */
-    documentData.exportType = "full";
-    let audios = [];
-    let images = [];
-    let videos = [];
-    let personalities = new Set();
-    for (let chapter of documentData.chapters) {
-        const chapterIndex = documentData.chapters.indexOf(chapter);
-        if (chapter.backgroundSound) {
-            chapter.backgroundSound.fileName = `Chapter_${chapterIndex + 1}_audio`
-            audios.push({
-                name: chapter.backgroundSound.fileName,
-                id: chapter.backgroundSound.id
-            })
-        }
-        for (let paragraph of chapter.paragraphs) {
-            const paragraphIndex = chapter.paragraphs.indexOf(paragraph);
-            if(paragraph.commands.audio) {
-                paragraph.commands.audio.fileName = `Chapter_${chapterIndex + 1}_Paragraph_${paragraphIndex + 1}_audio`
-                audios.push({
-                    name: paragraph.commands.audio.fileName,
-                    id: paragraph.commands.audio.id
-                })
-            }
-            if (paragraph.commands.effects) {
-                for(let effect of paragraph.commands.effects){
-                    effect.fileName = `Chapter_${chapterIndex + 1}_Paragraph_${paragraphIndex + 1}_effect_${effect.name}_${effect.id}`;
-                    audios.push({
-                        name: effect.fileName,
-                        id: effect.id
-                    })
-                }
-            }
-            if(paragraph.commands.speech) {
-                const personality = paragraph.commands["speech"].personality;
-                personalities.add(personality);
-            }
-            if (paragraph.commands.image) {
-                paragraph.commands.image.fileName = `Chapter_${chapterIndex + 1}_Paragraph_${paragraphIndex + 1}_image`
-                images.push({
-                    name: paragraph.commands.image.fileName,
-                    id: paragraph.commands.image.id
-                })
-            }
-            if (paragraph.commands.video) {
-                paragraph.commands.video.fileName = `Chapter_${chapterIndex + 1}_Paragraph_${paragraphIndex + 1}_video`
-                videos.push({
-                    name: paragraph.commands.video.fileName,
-                    id: paragraph.commands.video.id
-                })
-                if(paragraph.commands.video.thumbnailId){
-                    paragraph.commands.video.thumbnailFileName = `${paragraph.commands.video.fileName}_thumbnail`
-                    images.push({
-                        name: paragraph.commands.video.thumbnailFileName,
-                        id: paragraph.commands.video.thumbnailId
-                    })
-                }
-            }
-        }
-    }
-    documentData.images = images;
-    documentData.audios = audios;
-    documentData.videos = videos;
-    documentData.personalities = await space.APIs.getPersonalitiesIds(spaceId, personalities);
-    return documentData;
+    readStream.pipe(response);
 }
 
 async function importDocument(request, response) {
@@ -656,5 +539,6 @@ module.exports = {
     estimateDocumentVideoLength,
     selectDocumentItem,
     deselectDocumentItem,
-    getSelectedDocumentItems
+    getSelectedDocumentItems,
+    downloadDocumentArchive
 }
