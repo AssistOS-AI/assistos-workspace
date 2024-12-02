@@ -5,7 +5,17 @@ const fs = require("fs");
 const path = require("path");
 
 async function clone(repository, folderPath) {
-    await execAsync(`git clone ${repository} ${folderPath}`);
+    const token = process.env.GITHUB_TOKEN;
+    if (!token) {
+        throw new Error("GITHUB_TOKEN is not set in environment variables.");
+    }
+
+    const authenticatedRepo = repository.replace(
+        "https://github.com/",
+        `https://${token}@github.com/`
+    );
+
+    await execAsync(`git clone ${authenticatedRepo} ${folderPath}`);
 }
 
 async function getLastCommitDate(repoPath) {
@@ -25,10 +35,15 @@ async function checkForUpdates(localPath, remoteUrl) {
         throw new Error("The specified path is not a Git repository.");
     }
 
+    const token = process.env.GITHUB_TOKEN;
+    const remoteUrlWithToken = token
+        ? remoteUrl.replace("https://github.com/", `https://${token}@github.com/`)
+        : remoteUrl;
+
     try {
         const { stdout: currentRemoteUrl } = await execAsync(`git -C ${localPath} remote get-url origin`);
-        if (currentRemoteUrl.trim() !== remoteUrl) {
-            throw new Error(`Remote URL mismatch. Expected: ${remoteUrl}, Found: ${currentRemoteUrl.trim()}`);
+        if (currentRemoteUrl.trim() !== remoteUrl && currentRemoteUrl.trim() !== remoteUrlWithToken) {
+            throw new Error(`Remote URL mismatch. Expected: ${remoteUrl} or ${remoteUrlWithToken}, Found: ${currentRemoteUrl.trim()}`);
         }
 
         await execAsync(`git -C ${localPath} fetch`);
@@ -37,18 +52,33 @@ async function checkForUpdates(localPath, remoteUrl) {
         const branch = branchStdout.trim();
 
         const { stdout: localCommit } = await execAsync(`git -C ${localPath} rev-parse ${branch}`);
-
         const { stdout: remoteCommit } = await execAsync(`git -C ${localPath} rev-parse origin/${branch}`);
 
-        if (localCommit.trim() === remoteCommit.trim()) {
-            return false
-        } else {
-            return true
-        }
+        return localCommit.trim() !== remoteCommit.trim();
     } catch (error) {
-        throw new Error(`Failed to check for updates: ${error.message}`);
+        if (!token) {
+            throw new Error(`Failed to check for updates: ${error.message}`);
+        }
+
+        try {
+            const { stdout: currentRemoteUrl } = await execAsync(`git -C ${localPath} remote get-url origin`);
+            if (currentRemoteUrl.trim() !== remoteUrlWithToken) {
+                throw new Error(`Remote URL mismatch even after retry. Expected: ${remoteUrlWithToken}, Found: ${currentRemoteUrl.trim()}`);
+            }
+
+            await execAsync(`git -C ${localPath} fetch`);
+            const { stdout: branchStdout } = await execAsync(`git -C ${localPath} rev-parse --abbrev-ref HEAD`);
+            const branch = branchStdout.trim();
+            const { stdout: localCommit } = await execAsync(`git -C ${localPath} rev-parse ${branch}`);
+            const { stdout: remoteCommit } = await execAsync(`git -C ${localPath} rev-parse origin/${branch}`);
+
+            return localCommit.trim() !== remoteCommit.trim();
+        } catch (retryError) {
+            throw new Error(`Failed to check for updates after retry with token: ${retryError.message}`);
+        }
     }
 }
+
 async function updateRepo(localPath) {
     try {
         const { stdout: branchStdout } = await execAsync(`git -C ${localPath} rev-parse --abbrev-ref HEAD`);
