@@ -1,5 +1,6 @@
 .idea
 .env
+env.json
 apihub-root/external-volume
 latest-change-set.txt
 data-volume/config/emailConfig.json
