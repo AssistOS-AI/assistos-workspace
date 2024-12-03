@@ -57,7 +57,7 @@ export class ImageMenu{
         await documentModule.updateParagraphComment(assistOS.space.id, this.paragraphPresenter._document.id,  this.paragraphPresenter.paragraph.id,response)
         this.element.remove();
 
-        this.downloadCode(response, "diagram.mmd");
+        // this.downloadCode(response, "diagram.mmd");
         const mermaidCode = `
             \`\`\`mermaid
                     graph TD
@@ -100,72 +100,42 @@ export class ImageMenu{
     }
 
     async validateMermaidCode(input) {
-        // try {
+        const parseOptions = {suppressErrors: true};
 
-            const parseOptions = { suppressErrors: true };
+        if (!(await mermaid.parse(input, parseOptions) === false)) {
+            console.log("The mermaid code is correct!");
+            await this.generateGraphicalDiagram(input);
+            // this.closeModal();
 
-            if(!(await mermaid.parse(input, parseOptions) === false)){
-                console.log("The mermaid code is correct!");
-                await this.generateGraphicalDiagram(input);
-            }
-
-            else{
-                console.log("Mermaid syntax error!");
-                cnt += 1;
-                console.log(cnt);
-                if(cnt > 20){
-                    console.log("We reached a final, the mermaid code is too wrong to be corrected.");
-                    // return;
-                }
-                else{
-                    console.log("Attempting to correct the Mermaid code.");
-                    const prompt_2 = `Fix and validate the given Mermaid "graph TD" code:
+        } else {
+            console.log("Mermaid syntax error!");
+            cnt += 1;
+            console.log(cnt);
+            if (cnt > 20) {
+                console.log("We reached a final, the mermaid code is too wrong to be corrected.");
+                return;
+            } else {
+                console.log("Attempting to correct the Mermaid code.");
+                const prompt_2 = `Fix and validate the given Mermaid "graph TD" code:
                   - Correct syntax errors and relationships.
+                  - Do not include any code block markers (e.g., \`\`\`mermaid).
                   - Replace spaces in node names with underscores or camelCase.
                   - Exclude "classDef" or style definitions.
                   - Return only the corrected Mermaid code, no text or explanations. Input: ${input}`;
 
-                    let response = await llmModule.generateText(assistOS.space.id, prompt_2);
-                    response = response.message;
-                    // const response_2 = await this.removeFirstAndLastLine(response);
-                    console.log("Corrected Mermaid code:", response);
+                let response = await llmModule.generateText(assistOS.space.id, prompt_2);
+                response = response.message;
+                // const response_2 = await this.removeFirstAndLastLine(response);
+                // console.log(response_2);
+                console.log("Corrected Mermaid code:", response);
 
-                    await this.validateMermaidCode(response);
-                }
-
+                await this.validateMermaidCode(response);
             }
 
-
-        // } catch (error) {
-        //     console.error("Mermaid syntax error:", error);
-        //
-        //     this.cnt += 1;
-        //
-        //     if (this.cnt !== 1) {
-        //         console.log("We reached a final, the mermaid code is too wrong to be corrected.");
-        //     } else {
-        //         console.log("Attempting to correct the Mermaid code.");
-        //
-        //         const prompt_2 = `Validate and correct the given Mermaid diagram code.
-        //         - Ensure the Mermaid code follows the "graph TD" syntax for a vertical diagram.
-        //         - Fix any syntax errors or invalid relationships in the code.
-        //         - Replace spaces in node names with underscores (_) or camelCase to ensure compatibility.
-        //         - Ensure all node names are simple and comply with Mermaid's syntax rules.
-        //         - Avoid using special characters like :, >, or | in node labels or relationships.
-        //         - Provide only the corrected and well-formed Mermaid diagram code as output, no additional text.
-        //         Input Mermaid code: ${input}`;
-        //
-        //         let response = await llmModule.generateText(assistOS.space.id, prompt_2);
-        //         response = response.message;
-        //         console.log("Corrected Mermaid code:", response);
-        //
-        //         // await this.validateMermaidCode(response);
-        //     }
         }
-    //}
+        // this.closeModal();
 
-
-
+    }
 
     async generateGraphicalDiagram(input) {
         const { svg } = await mermaid.render('graphDiv', input);
@@ -183,7 +153,154 @@ export class ImageMenu{
         document.body.removeChild(downloadLink);
 
         URL.revokeObjectURL(url);
+        await this.downloadCode(svg, input);
     }
+
+    async downloadCode(content, mermaidCode) {
+        try {
+            const svgCode = content;
+
+            const img = new Image();
+            img.src = 'data:image/svg+xml;base64,' + btoa(unescape(encodeURIComponent(svgCode)));
+
+            img.onload = async () => {
+                // Setăm dimensiuni mai mari pentru canvas
+                const targetWidth = 1920; // Lățimea dorită
+                const targetHeight = 1080; // Înălțimea dorită
+
+                const canvas = document.createElement('canvas');
+                canvas.width = targetWidth;
+                canvas.height = targetHeight;
+
+                const ctx = canvas.getContext('2d');
+
+                // Calculăm factorul de scalare
+                const scaleX = targetWidth / img.width;
+                const scaleY = targetHeight / img.height;
+                const scale = Math.min(scaleX, scaleY); // Menținem proporțiile
+
+                // Scalăm imaginea și centrăm pe canvas
+                const offsetX = (targetWidth - img.width * scale) / 2;
+                const offsetY = (targetHeight - img.height * scale) / 2;
+                ctx.clearRect(0, 0, canvas.width, canvas.height);
+                ctx.drawImage(img, offsetX, offsetY, img.width * scale, img.height * scale);
+
+                canvas.toBlob(async (blob) => {
+                    if (!blob) {
+                        console.error('Error: Generated blob is null.');
+                        return;
+                    }
+
+                    // Convert Blob to ArrayBuffer for internal processing
+                    const arrayBuffer = await blob.arrayBuffer();
+                    const uint8Array = new Uint8Array(arrayBuffer);
+
+                    // Upload the image
+                    const imageId = await spaceModule.putImage(uint8Array);
+
+                    // Update paragraph commands with the image metadata
+                    this.paragraphPresenter.paragraph.commands.image = {
+                        id: imageId,
+                        width: canvas.width, // Dimensiuni noi
+                        height: canvas.height,
+                    };
+
+                    const documentId = this.paragraphPresenter._document.id;
+                    const paragraphId = this.paragraphPresenter.paragraph.id;
+
+                    await documentModule.updateParagraphCommands(
+                        assistOS.space.id,
+                        documentId,
+                        paragraphId,
+                        this.paragraphPresenter.paragraph.commands
+                    );
+
+                    // Trigger PNG download
+                    const downloadLink = document.createElement('a');
+                    const url = URL.createObjectURL(blob);
+                    downloadLink.href = url;
+                    downloadLink.download = 'diagram.png'; // Specify the file name
+                    document.body.appendChild(downloadLink);
+                    downloadLink.click();
+                    document.body.removeChild(downloadLink);
+                    URL.revokeObjectURL(url);
+
+                    // Clean up the canvas
+                    canvas.remove();
+                }, 'image/png');
+            };
+
+            img.onerror = () => {
+                console.error('Error: Could not load SVG image.');
+            };
+        } catch (error) {
+            console.error('Error during code processing:', error);
+        }
+        // this.closeModal();
+    }
+
+
+
+    // async downloadCode(content, mermaidCode) {
+    //     try {
+    //         const svgCode = content;
+    //
+    //         const img = new Image();
+    //         img.src = 'data:image/svg+xml;base64,' + btoa(unescape(encodeURIComponent(svgCode)));
+    //
+    //         img.onload = async () => {
+    //             const scaleFactor = 2;
+    //             const canvas = document.createElement('canvas');
+    //             canvas.width = img.width * scaleFactor;
+    //             canvas.height = img.height * scaleFactor;
+    //             const ctx = canvas.getContext('2d');
+    //
+    //             // Scalăm imaginea pe canvas
+    //             ctx.scale(scaleFactor, scaleFactor);
+    //             ctx.drawImage(img, 0, 0);
+    //
+    //             canvas.toBlob(async (blob) => {
+    //                 if (!blob) {
+    //                     console.error('Error: Generated blob is null.');
+    //                     return;
+    //                 }
+    //
+    //                 const arrayBuffer = await blob.arrayBuffer();
+    //                 const uint8Array = new Uint8Array(arrayBuffer);
+    //
+    //                 const imageId = await spaceModule.putImage(uint8Array);
+    //
+    //                 this.paragraphPresenter.paragraph.commands.image = {
+    //                     id: imageId,
+    //                     width: canvas.width,
+    //                     height: canvas.height,
+    //                 };
+    //
+    //                 const documentId = this.paragraphPresenter._document.id;
+    //                 const paragraphId = this.paragraphPresenter.paragraph.id;
+    //
+    //                 await documentModule.updateParagraphCommands(
+    //                     assistOS.space.id,
+    //                     documentId,
+    //                     paragraphId,
+    //                     this.paragraphPresenter.paragraph.commands
+    //                 );
+    //
+    //                 canvas.remove();
+    //             }, 'image/png');
+    //         };
+    //
+    //         img.onerror = () => {
+    //             console.error('Error: Could not load SVG image.');
+    //         };
+    //     } catch (error) {
+    //         console.error('Error during code processing:', error);
+    //     }
+    //     // this.closeModal();
+    // }
+
+
+
 
 
 
@@ -203,23 +320,23 @@ export class ImageMenu{
 
 
 
-    downloadCode(content, fileName) {
-        const blob = new Blob([content], { type: 'text/plain' });
-        const url = URL.createObjectURL(blob);
-
-        const a = document.createElement('a');
-        a.href = url;
-        a.download = fileName;
-        document.body.appendChild(a);
-        a.click();
-        document.body.removeChild(a);
-
-        URL.revokeObjectURL(url);
-
-        // this.renderMermaidDiagram(response.message);
-
-
-    }
+    // downloadCode(content, fileName) {
+    //     const blob = new Blob([content], { type: 'text/plain' });
+    //     const url = URL.createObjectURL(blob);
+    //
+    //     const a = document.createElement('a');
+    //     a.href = url;
+    //     a.download = fileName;
+    //     document.body.appendChild(a);
+    //     a.click();
+    //     document.body.removeChild(a);
+    //
+    //     URL.revokeObjectURL(url);
+    //
+    //     // this.renderMermaidDiagram(response.message);
+    //
+    //
+    // }
 
     closeModal(button){
         assistOS.UI.closeModal(this.element);
