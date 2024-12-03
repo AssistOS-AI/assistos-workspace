@@ -5,7 +5,6 @@ const path = require('path');
 const fsPromises = fs.promises;
 const fileSys = require('../apihub-component-utils/fileSys');
 const space = require('../spaces-storage/space');
-const ffmpegPath = require("../../ffmpeg/packages/ffmpeg-static");
 const ffmpegUtils = require("../apihub-component-utils/ffmpeg");
 const Storage = require("../apihub-component-utils/storage");
 const constants = require('./constants');
@@ -130,16 +129,15 @@ class DocumentToVideo extends Task {
             let videoURL = await Storage.getDownloadURL(Storage.fileTypes.videos, commands.video.id);
             await fileSys.downloadData(videoURL, videoPath);
             await ffmpegUtils.verifyVideoSettings(videoPath, this);
+            await ffmpegUtils.verifyMediaFileIntegrity(videoPath, this);
+            await ffmpegUtils.adjustVideoVolume(videoPath, commands.video.volume, this);
             if(commands.audio){
                 if(commands.video.duration < commands.audio.duration){
                     throw new Error(`Audio duration is longer than video duration`);
                 }
 
                 let audioPath = `${pathPrefix}_audio.mp3`;
-                let audioURL = await Storage.getDownloadURL(Storage.fileTypes.audios, commands.audio.id);
-                await fileSys.downloadData(audioURL, audioPath);
-                await ffmpegUtils.verifyAudioIntegrity(audioPath, this);
-                await ffmpegUtils.verifyAudioSettings(audioPath, this);
+                await this.downloadAndPrepareAudio(commands.audio.id, commands.audio.volume, audioPath);
 
                 await ffmpegUtils.combineVideoAndAudio(videoPath, audioPath, finalVideoPath, this, commands.video.volume, commands.audio.volume);
                 await fsPromises.unlink(videoPath);
@@ -153,11 +151,8 @@ class DocumentToVideo extends Task {
             if(!commands.image){
                 throw new Error("Paragraph doesnt have a visual source");
             }
-            let audioURL = await Storage.getDownloadURL(Storage.fileTypes.audios, commands.audio.id);
             let audioPath = `${pathPrefix}_audio.mp3`;
-            await fileSys.downloadData(audioURL, audioPath);
-            await ffmpegUtils.verifyAudioIntegrity(audioPath, this);
-            await ffmpegUtils.verifyAudioSettings(audioPath, this);
+            await this.downloadAndPrepareAudio(commands.audio.id, commands.audio.volume, audioPath);
 
             let imageURL = await Storage.getDownloadURL(Storage.fileTypes.images, commands.image.id);
             let imagePath = `${pathPrefix}_image.png`;
@@ -170,6 +165,7 @@ class DocumentToVideo extends Task {
             if(!commands.image){
                 throw new Error("Paragraph doesnt have a visual source");
             }
+
             let imageURL = await Storage.getDownloadURL(Storage.fileTypes.images, commands.image.id);
             let imagePath = `${pathPrefix}_image.png`;
             await fileSys.downloadData(imageURL, imagePath);
@@ -184,6 +180,15 @@ class DocumentToVideo extends Task {
             return finalVideoPath;
         }
     }
+
+    async downloadAndPrepareAudio(audioId, volume, path){
+        let audioURL = await Storage.getDownloadURL(Storage.fileTypes.audios, audioId);
+        await fileSys.downloadData(audioURL, path);
+        await ffmpegUtils.verifyMediaFileIntegrity(path, this);
+        await ffmpegUtils.verifyAudioSettings(path, this);
+        await ffmpegUtils.adjustAudioVolume(path, volume, this);
+    }
+
     async attachEffectsToParagraphVideo(videoPath, effects, effectsPathPrefix){
         if(!effects){
             return;
@@ -192,7 +197,7 @@ class DocumentToVideo extends Task {
             let effectPath = `${effectsPathPrefix}_effect_${effect.id}.mp3`;
             let effectURL = await Storage.getDownloadURL(Storage.fileTypes.audios, effect.id);
             await fileSys.downloadData(effectURL, effectPath);
-            await ffmpegUtils.verifyAudioIntegrity(effectPath, this);
+            await ffmpegUtils.verifyMediaFileIntegrity(effectPath, this);
             await ffmpegUtils.verifyAudioSettings(effectPath, this);
             await ffmpegUtils.trimAudioAdjustVolume(effectPath, effect.start, effect.end, effect.volume, this);
             effect.path = effectPath;

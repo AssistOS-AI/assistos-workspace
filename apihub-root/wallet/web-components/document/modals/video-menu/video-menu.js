@@ -8,6 +8,7 @@ export class VideoMenu{
         let documentPresenter = document.querySelector("document-view-page").webSkelPresenter;
         this.paragraphId = this.element.getAttribute("data-paragraph-id");
         this.paragraphPresenter = documentPresenter.element.querySelector(`paragraph-item[data-paragraph-id="${this.paragraphId}"]`).webSkelPresenter;
+        this.videoPresenter = this.paragraphPresenter.videoPresenter;
         this.commandsEditor = this.paragraphPresenter.commandsEditor;
         this.element.classList.add("maintain-focus");
         this.invalidate();
