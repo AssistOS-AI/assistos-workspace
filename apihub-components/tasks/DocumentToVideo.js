@@ -39,7 +39,7 @@ class DocumentToVideo extends Task {
             setTimeout(() => {
                 let TaskManager = require('./TaskManager');
                 TaskManager.removeTask(this.id);
-            }, 5000);
+            }, 20000);
             throw new Error(`Failed to create chapter video: ${e}`);
         }
         chapterVideos = chapterVideos.filter(videoPath => typeof videoPath !== "undefined");
@@ -61,7 +61,7 @@ class DocumentToVideo extends Task {
             setTimeout(() => {
                 let TaskManager = require('./TaskManager');
                 TaskManager.removeTask(this.id);
-            }, 5000);
+            }, 20000);
             throw new Error(`Failed to combine chapter videos: ${e}`);
         }
     }
