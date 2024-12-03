@@ -72,6 +72,10 @@ class DocumentToVideo extends Task {
         const spacePath = space.APIs.getSpacePath(this.spaceId);
         let tempVideoDir = path.join(spacePath, "videos", `${this.id}_temp`);
         await fsPromises.rm(tempVideoDir, {recursive: true, force: true});
+        setTimeout(() => {
+            const TaskManager = require('./TaskManager');
+            TaskManager.removeTask(this.id);
+        }, 5000);
     }
     runCommand(command) {
         return new Promise((resolve, reject) => {

@@ -168,6 +168,10 @@ class ExportDocument extends Task {
     }
     async cancelTask(){
         this.archive.emit('error', "Task was cancelled");
+        setTimeout(() => {
+            const TaskManager = require('./TaskManager');
+            TaskManager.removeTask(this.id);
+        }, 5000);
     }
 
 
