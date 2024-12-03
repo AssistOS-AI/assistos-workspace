@@ -179,13 +179,13 @@ async function getVideoDuration(videoPath){
 async function addBackgroundSoundToVideo(videoPath, backgroundSoundPath, backgroundSoundVolume, loop, task) {
     await verifyMediaFileIntegrity(backgroundSoundPath, task);
     await verifyAudioSettings(backgroundSoundPath, task);
-
+    let videoDuration = await getVideoDuration(videoPath);
     const tempOutputPath = videoPath.replace('.mp4', '_temp.mp4');
     let loopOption = loop ? "-stream_loop -1" : "";
     const command = `${ffmpegPath} ${loopOption} -i ${backgroundSoundPath} -i ${videoPath} \
     -filter_complex "[0:a]volume=${backgroundSoundVolume}[bg]; \
-    [1:a][bg]amix=inputs=2:duration=first[aout]" \
-    -map 1:v -map "[aout]" -c:v copy ${tempOutputPath}`;
+    [1:a][bg]amix=inputs=2:duration=longest[aout]" \
+    -map 1:v -map "[aout]" -c:v copy -t ${videoDuration} ${tempOutputPath}`;
 
     await task.runCommand(command);
     await fsPromises.unlink(videoPath);
