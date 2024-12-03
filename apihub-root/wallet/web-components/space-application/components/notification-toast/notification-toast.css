@@ -20,3 +20,9 @@ notification-toast{
     hyphens: auto;
     word-break: break-word;
 }
+.buttons-section{
+    display: flex;
+}
+notification-toast .right-margin{
+    margin-right: 10px;
+}

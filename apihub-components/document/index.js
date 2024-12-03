@@ -24,6 +24,7 @@ function document(server) {
     server.post("/documents/import/:spaceId", documentHandler.importDocument);
 
     //Video
+    server.get("/documents/video/:spaceId/:fileName", documentHandler.downloadDocumentVideo);
     server.get("/documents/video/estimate/:spaceId/:documentId", documentHandler.estimateDocumentVideoLength);
 
     //Chapter

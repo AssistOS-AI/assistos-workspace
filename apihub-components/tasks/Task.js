@@ -45,7 +45,7 @@ class Task {
             if(this.status === STATUS.CANCELLED){
                 return;
             }
-            this.setStatus(STATUS.COMPLETED);
+            this.setStatus(STATUS.COMPLETED, result);
             setTimeout(() => {
                 const TaskManager = require('./TaskManager');
                 TaskManager.removeTask(this.id);
@@ -81,14 +81,14 @@ class Task {
     removeListener(event){
         this.callbacks[event] = null;
     }
-    setStatus(status){
+    setStatus(status, result){
         this.status = status;
         this.emit(status); //update queue
         this.emit(EVENTS.UPDATE); //update database
         let objectId = SubscriptionManager.getObjectId(this.spaceId, this.id);
         SubscriptionManager.notifyClients("", objectId, this.status);
         let sideBarObjectId = SubscriptionManager.getObjectId(this.spaceId, "sidebar-tasks");
-        SubscriptionManager.notifyClients("", sideBarObjectId, {name: this.constructor.name, status: this.status});
+        SubscriptionManager.notifyClients("", sideBarObjectId, {name: this.constructor.name, status: this.status, id: this.id, result: result});
     }
 
 }

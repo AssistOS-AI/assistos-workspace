@@ -8,6 +8,7 @@ const space = require('../spaces-storage/space');
 const ffmpegUtils = require("../apihub-component-utils/ffmpeg");
 const Storage = require("../apihub-component-utils/storage");
 const constants = require('./constants');
+const TaskManager = require("./TaskManager");
 const STATUS = constants.STATUS;
 class DocumentToVideo extends Task {
     constructor(spaceId, userId, configs) {
@@ -18,7 +19,7 @@ class DocumentToVideo extends Task {
     }
     async runTask(){
         const spacePath = space.APIs.getSpacePath(this.spaceId);
-        let tempVideoDir = path.join(spacePath, "videos", `${this.id}_temp`);
+        let tempVideoDir = path.join(spacePath, "temp", `${this.id}_temp`);
         await fsPromises.mkdir(tempVideoDir, {recursive: true});
         let promises = [];
         const documentModule = await this.loadModule("document", this.securityContext);
@@ -35,11 +36,15 @@ class DocumentToVideo extends Task {
             for(let process of this.processes){
                 process.kill();
             }
+            setTimeout(() => {
+                let TaskManager = require('./TaskManager');
+                TaskManager.removeTask(this.id);
+            }, 5000);
             throw new Error(`Failed to create chapter video: ${e}`);
         }
         chapterVideos = chapterVideos.filter(videoPath => typeof videoPath !== "undefined");
         try {
-            let videoPath = path.join(spacePath, "videos", `${this.id}.mp4`);
+            let videoPath = path.join(spacePath, "temp", `${this.id}.mp4`);
             await ffmpegUtils.combineVideos(
                 tempVideoDir,
                 chapterVideos,
@@ -47,12 +52,16 @@ class DocumentToVideo extends Task {
                 videoPath,
                 this);
             await fsPromises.rm(tempVideoDir, {recursive: true, force: true});
-            return videoPath;
+            return `/documents/video/${this.spaceId}/${this.id}`;
         } catch (e) {
             await fsPromises.rm(tempVideoDir, {recursive: true, force: true});
             for(let process of this.processes){
                 process.kill();
             }
+            setTimeout(() => {
+                let TaskManager = require('./TaskManager');
+                TaskManager.removeTask(this.id);
+            }, 5000);
             throw new Error(`Failed to combine chapter videos: ${e}`);
         }
     }

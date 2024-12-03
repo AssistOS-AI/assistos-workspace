@@ -298,3 +298,6 @@ html[theme="dark"] .document-title-container {
     background-color: var(--very-light-gray);
     pointer-events: none;
 }
+document-view-page .right-margin {
+    margin-right: 10px;
+}

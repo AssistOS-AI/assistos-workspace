@@ -41,7 +41,8 @@ class ExportDocument extends Task {
                 reject(err);
             });
             archive.on('finish', () => {
-                resolve(archiveName);
+                let downloadURL =`/documents/export/${this.spaceId}/${this.id}`;
+                resolve(downloadURL);
             });
 
             const contentBuffer = Buffer.from(JSON.stringify(documentData), 'utf-8');
