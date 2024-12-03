@@ -35,6 +35,10 @@ class ExportDocument extends Task {
 
             archive.pipe(outputStream);
             archive.on('error', err => {
+                setTimeout(() => {
+                    const TaskManager = require('./TaskManager');
+                    TaskManager.removeTask(this.id);
+                }, 20000);
                 reject(err);
             });
             outputStream.on('error', err => {
@@ -62,24 +66,21 @@ class ExportDocument extends Task {
                 archive.append(personalityStream, {name: `personalities/${personalityId}.persai`});
             }
 
-            for(let imageData of documentData.images){
-                const imageName = imageData.name;
-                const {fileStream, headers} = await Storage.getFile(Storage.fileTypes.images, imageData.id);
-                archive.append(fileStream, {name: `images/${imageName}.png`});
-            }
+            await this.appendFilesInBatches(archive, documentData.images, Storage.fileTypes.images);
+            await this.appendFilesInBatches(archive, documentData.audios, Storage.fileTypes.audios);
+            await this.appendFilesInBatches(archive, documentData.videos, Storage.fileTypes.videos);
 
-            for(let audioData of documentData.audios){
-                const audioName = audioData.name;
-                const {fileStream, headers} = await Storage.getFile(Storage.fileTypes.audios, audioData.id);
-                archive.append(fileStream, {name: `audios/${audioName}.mp3`});
-            }
-            for(let videoData of documentData.videos){
-                const videoName = videoData.name;
-                const {fileStream, headers} = await Storage.getFile(Storage.fileTypes.videos, videoData.id);
-                archive.append(fileStream, {name: `videos/${videoName}.mp4`});
-            }
             await archive.finalize();
         });
+    }
+    async appendFilesInBatches(archive, fileDataList, fileType, batchSize = 10) {
+        for (let i = 0; i < fileDataList.length; i += batchSize) {
+            const batch = fileDataList.slice(i, i + batchSize);
+            await Promise.all(batch.map(async (data) => {
+                const {fileStream, headers} = await Storage.getFile(fileType, data.id);
+                archive.append(fileStream, {name: `${fileType}/${data.name}.${fileType === Storage.fileTypes.images ? 'png' : fileType === Storage.fileTypes.audios ? 'mp3' : 'mp4'}`});
+            }));
+        }
     }
     async exportDocumentDataPartially(document) {
         let personalities = new Set();

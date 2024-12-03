@@ -31,7 +31,7 @@ async function headFile(type, fileId) {
 
 async function putFile(type, fileId, stream) {
     const url = `${llmAdapterUrl}/apis/v1/${type}?fileName=${encodeURIComponent(fileId)}`;
-    const response = await sendLLMAdapterRequest(url, 'PUT', stream);
+    const response = await sendLLMAdapterRequest(url, 'PUT', stream, {'Content-Type': 'application/octet-stream'});
     return response.status === 200;
 }
 
