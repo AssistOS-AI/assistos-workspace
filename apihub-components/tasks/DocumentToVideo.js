@@ -30,7 +30,7 @@ class DocumentToVideo extends Task {
                 chapterVideos.push(await this.createChapterVideo(chapter, tempVideoDir));
             }
         } catch (e) {
-            //await fsPromises.rm(tempVideoDir, {recursive: true, force: true});
+            await fsPromises.rm(tempVideoDir, {recursive: true, force: true});
             for(let process of this.processes){
                 process.kill();
             }
