@@ -62,10 +62,12 @@ class ExportDocument extends Task {
             archive.append(contentBuffer, {name: 'data.json'});
             archive.append(Buffer.from(JSON.stringify(metadata), 'utf-8'), {name: 'metadata.json'});
             try {
+                console.log("appending personalities");
                 for(let personalityId of documentData.personalities){
                     const personalityStream = await space.APIs.archivePersonality(this.spaceId, personalityId);
                     archive.append(personalityStream, {name: `personalities/${personalityId}.persai`});
                 }
+                console.log("appending images");
                 await this.appendFilesInBatches(archive, documentData.images, Storage.fileTypes.images);
                 await this.appendFilesInBatches(archive, documentData.audios, Storage.fileTypes.audios);
                 await this.appendFilesInBatches(archive, documentData.videos, Storage.fileTypes.videos);
@@ -77,7 +79,7 @@ class ExportDocument extends Task {
     }
     async appendFilesInBatches(archive, fileDataList, fileType, batchSize = 10) {
         for (let i = 0; i < fileDataList.length; i += batchSize) {
-            //console.log(`processing ${fileType} ${i} to ${i + batchSize}`);
+            console.log(`processing ${fileType} ${i} to ${i + batchSize}`);
             const batch = fileDataList.slice(i, i + batchSize);
             try {
                 await Promise.all(batch.map(async (data) => {
