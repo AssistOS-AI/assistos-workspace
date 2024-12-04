@@ -171,7 +171,7 @@ class DocumentToVideo extends Task {
             let imagePath = `${pathPrefix}_image.png`;
             await fileSys.downloadData(imageURL, imagePath);
 
-            await ffmpegUtils.createVideoFromAudioAndImage(finalVideoPath, audioPath, commands.audio.duration, imagePath, this);
+            await ffmpegUtils.createVideoFromAudioAndImage(finalVideoPath, audioPath, imagePath, this);
             await fsPromises.unlink(audioPath);
             return finalVideoPath;
         }else if(commands.silence){

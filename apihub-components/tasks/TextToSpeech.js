@@ -33,7 +33,7 @@ class TextToSpeech extends Task {
                 modelName: "PlayHT2.0"
             });
             const audioBuffer = Buffer.from(arrayBuffer);
-            let audioDuration = await ffmpeg.getAudioDuration(audioBuffer);
+            let audioDuration = await ffmpeg.getAudioDurationFromBuffer(audioBuffer);
             delete paragraphCommands.speech.taskId;
             this.audioId = await spaceModule.putAudio(audioBuffer);
             paragraphCommands.audio = {

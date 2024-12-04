@@ -244,13 +244,19 @@ async function createVideoFromImageAndAudio(imageBuffer, audioDuration, spaceId)
     }
 }
 //preserve original aspect ratio but pad to fit the standard dimensions
-async function createVideoFromAudioAndImage(outputVideoPath, audioPath, audioDuration, imagePath, task) {
+async function createVideoFromAudioAndImage(outputVideoPath, audioPath, imagePath, task) {
+    let audioDuration = await getAudioDuration(audioPath, task);
     const command = `${ffmpegPath} -loop 1 -framerate ${videoStandard.frameRate} -i ${imagePath} -i ${audioPath} \
     -c:v libx264 -tune stillimage -c:a ${audioStandard.codec} -b:a ${audioStandard.bitRate}k -pix_fmt yuv420p \
     -t ${audioDuration} -vf "fps=${videoStandard.frameRate},format=yuv420p,scale=${videoStandard.width}:${videoStandard.height}:force_original_aspect_ratio=decrease,pad=${videoStandard.width}:${videoStandard.height}:(ow-iw)/2:(oh-ih)/2" ${outputVideoPath}`;
     await task.runCommand(command);
 }
-
+async function getAudioDuration(filePath, task){
+    const command = `ffmpeg -i ${filePath} 2>&1 | grep "Duration" | awk '{print $2}' | tr -d ,`;
+    let result = await task.runCommand(command);
+    const [hours, minutes, seconds] = result.split(':').map(Number);
+    return hours * 3600 + minutes * 60 + seconds;
+}
 async function trimAudioAdjustVolume(effectPath, start, end, volume, task) {
     let tempOutputPath = effectPath.replace('.mp3', '_temp.mp3');
     const command = `${ffmpegPath} -i ${effectPath} -ss ${start} -to ${end} -af "volume=${volume}" ${tempOutputPath}`;
@@ -305,7 +311,7 @@ function estimateChapterVideoLength(spaceId, chapter) {
     }
     return totalDuration;
 }
-async function getAudioDuration(audioBuffer) {
+async function getAudioDurationFromBuffer(audioBuffer) {
     const stream = new Readable();
     stream.push(audioBuffer);
     stream.push(null);
@@ -423,7 +429,7 @@ module.exports = {
     verifyMediaFileIntegrity,
     verifyAudioSettings,
     convertVideoToStandard,
-    getAudioDuration,
+    getAudioDurationFromBuffer,
     getImageDimensions,
     getVideoDuration,
     createVideoThumbnail,
