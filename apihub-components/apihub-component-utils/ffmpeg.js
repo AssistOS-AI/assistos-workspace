@@ -255,6 +255,9 @@ async function getAudioDuration(filePath, task){
     const command = `ffmpeg -i ${filePath} 2>&1 | grep "Duration" | awk '{print $2}' | tr -d ,`;
     let result = await task.runCommand(command);
     const [hours, minutes, seconds] = result.split(':').map(Number);
+    if (isNaN(hours) || isNaN(minutes) || isNaN(seconds)) {
+        throw new Error(`Could not parse the audio duration: ${result}, filePath: ${filePath}`);
+    }
     return hours * 3600 + minutes * 60 + seconds;
 }
 async function trimAudioAdjustVolume(effectPath, start, end, volume, task) {
