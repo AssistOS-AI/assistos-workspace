@@ -91,9 +91,11 @@ export class ParagraphItem {
         }
         if(this.paragraph.commands.audio && !this.paragraph.commands.audio.hasOwnProperty("volume")){
             this.paragraph.commands.audio.volume = 1;
+            updateCommands = true;
         }
         if(this.paragraph.commands.video && !this.paragraph.commands.video.hasOwnProperty("volume")){
             this.paragraph.commands.video.volume = 1;
+            updateCommands = true;
         }
         if(updateCommands){
             await documentModule.updateParagraphCommands(assistOS.space.id, this._document.id, this.paragraph.id, this.paragraph.commands);
