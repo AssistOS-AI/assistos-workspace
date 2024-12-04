@@ -243,9 +243,11 @@ async function createVideoFromImageAndAudio(imageBuffer, audioDuration, spaceId)
         throw new Error(`Failed to create video from image and audio: ${e.message}`);
     }
 }
-
+//preserve original aspect ratio but pad to fit the standard dimensions
 async function createVideoFromAudioAndImage(outputVideoPath, audioPath, audioDuration, imagePath, task) {
-    const command = `${ffmpegPath} -loop 1 -framerate ${videoStandard.frameRate} -i ${imagePath} -i ${audioPath} -c:v libx264 -tune stillimage -c:a ${audioStandard.codec} -b:a ${audioStandard.bitRate}k -pix_fmt yuv420p -t ${audioDuration} -vf "fps=${videoStandard.frameRate},format=yuv420p,scale=${videoStandard.width}:${videoStandard.height}" ${outputVideoPath}`;
+    const command = `${ffmpegPath} -loop 1 -framerate ${videoStandard.frameRate} -i ${imagePath} -i ${audioPath} \
+    -c:v libx264 -tune stillimage -c:a ${audioStandard.codec} -b:a ${audioStandard.bitRate}k -pix_fmt yuv420p \
+    -t ${audioDuration} -vf "fps=${videoStandard.frameRate},format=yuv420p,scale=${videoStandard.width}:${videoStandard.height}:force_original_aspect_ratio=decrease,pad=${videoStandard.width}:${videoStandard.height}:(ow-iw)/2:(oh-ih)/2" ${outputVideoPath}`;
     await task.runCommand(command);
 }
 
