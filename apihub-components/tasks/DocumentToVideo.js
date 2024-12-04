@@ -21,16 +21,14 @@ class DocumentToVideo extends Task {
         const spacePath = space.APIs.getSpacePath(this.spaceId);
         let tempVideoDir = path.join(spacePath, "temp", `${this.id}_temp`);
         await fsPromises.mkdir(tempVideoDir, {recursive: true});
-        let promises = [];
         const documentModule = await this.loadModule("document", this.securityContext);
         this.document = await documentModule.getDocument(this.spaceId, this.documentId);
-        this.document.chapters.map(async (chapter, index) => {
-            promises.push(this.createChapterVideo(this.spaceId, chapter, tempVideoDir, this.document.id, index));
-        });
 
         let chapterVideos = [];
         try {
-            chapterVideos = await Promise.all(promises);
+            for(let chapter of this.document.chapters){
+                chapterVideos.push(await this.createChapterVideo(chapter, tempVideoDir));
+            }
         } catch (e) {
             await fsPromises.rm(tempVideoDir, {recursive: true, force: true});
             for(let process of this.processes){
@@ -103,7 +101,8 @@ class DocumentToVideo extends Task {
             }
         }
     }
-    async createChapterVideo(spaceId, chapter, tempVideoDir, documentId, chapterIndex){
+    async createChapterVideo(chapter, tempVideoDir){
+        let chapterIndex = this.document.chapters.indexOf(chapter);
         let completedFramePaths = [];
         let pathPrefix = path.join(tempVideoDir, `chapter_${chapterIndex}`);
         for(let i = 0; i < chapter.paragraphs.length; i++){
@@ -173,6 +172,7 @@ class DocumentToVideo extends Task {
 
             await ffmpegUtils.createVideoFromAudioAndImage(finalVideoPath, audioPath, imagePath, this);
             await fsPromises.unlink(audioPath);
+            await fsPromises.unlink(imagePath);
             return finalVideoPath;
         }else if(commands.silence){
             if(!commands.image){
@@ -183,6 +183,7 @@ class DocumentToVideo extends Task {
             let imagePath = `${pathPrefix}_image.png`;
             await fileSys.downloadData(imageURL, imagePath);
             await ffmpegUtils.createVideoFromImage(finalVideoPath, imagePath, commands.silence.duration, this);
+            await fsPromises.unlink(imagePath);
             return finalVideoPath;
         } else if(commands.image){
             let imagePath = `${pathPrefix}_image.png`;

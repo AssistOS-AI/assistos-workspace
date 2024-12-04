@@ -26,6 +26,8 @@ export class TaskItem{
         this.paragraphItem = document.querySelector(`paragraph-item[data-paragraph-id="${this.task.configs.paragraphId}"]`);
         if(!this.paragraphItem){
             this.paragraphText = "...........";
+            this.agent = "none";
+            this.personalityImageSrc = "./wallet/assets/images/default-personality.png";
             return;
         }
         this.paragraphPresenter = this.paragraphItem.webSkelPresenter;

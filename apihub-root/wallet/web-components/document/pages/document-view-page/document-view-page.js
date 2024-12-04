@@ -392,7 +392,7 @@ export class DocumentViewPage {
         let a = document.createElement('a');
         a.style.display = 'none';
         a.href = url;
-        a.download = `${this._document.title}.mp4`;
+        a.download = `${assistOS.UI.unsanitize(this._document.title)}.mp4`;
         document.body.appendChild(a);
         a.click();
         document.body.removeChild(a);

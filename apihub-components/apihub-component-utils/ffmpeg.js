@@ -32,14 +32,15 @@ async function createVideoFromImage(outputVideoPath, imagePath, duration, task) 
         // Ensure the image dimensions are divisible by 2
         command = `${ffmpegPath} -loop 1 -i ${imagePath} \
         -f lavfi -i anullsrc=channel_layout=stereo:sample_rate=${audioStandard.sampleRate} \
-        -vf "scale=${videoStandard.width}:${videoStandard.height},setsar=${videoStandard.SAR}" -t ${duration} \
-        -shortest -c:v libx264 -pix_fmt yuv420p -c:a ${audioStandard.codec} ${outputVideoPath}`;
+        -vf "scale=${videoStandard.width}:${videoStandard.height},setsar=${videoStandard.SAR}" \
+        -r ${videoStandard.frameRate} -t ${duration} -shortest -c:v libx264 -pix_fmt yuv420p  \
+        -c:a ${audioStandard.codec} ${outputVideoPath}`;
 
     } else {
         // Generate a black screen with the specified duration
         command = `${ffmpegPath} -f lavfi -i color=c=black:s=${videoStandard.width}x${videoStandard.height}:d=${duration} \
         -f lavfi -t ${duration} -i anullsrc=channel_layout=stereo:sample_rate=${audioStandard.sampleRate} \
-        -vf "setsar=${videoStandard.SAR}" -shortest -c:v libx264 -pix_fmt yuv420p -c:a ${audioStandard.codec} ${outputVideoPath}`;
+        -vf "setsar=${videoStandard.SAR}" -r ${videoStandard.frameRate} -shortest -c:v libx264 -pix_fmt yuv420p -c:a ${audioStandard.codec} ${outputVideoPath}`;
 
     }
     await task.runCommand(command);
@@ -209,12 +210,47 @@ async function adjustAudioVolume(audioPath, volume, task) {
 }
 
 async function combineVideos(tempVideoDir, videoPaths, fileListName, outputVideoPath, task) {
-    const fileListPath = path.join(tempVideoDir, fileListName);
-    const fileListContent = videoPaths.map(file => `file '${file}'`).join('\n');
-    await fsPromises.writeFile(fileListPath, fileListContent);
-    const command = `${ffmpegPath} -f concat -safe 0 -i ${fileListPath} -filter_complex "[0:a]aresample=async=1[a]" -map 0:v -map "[a]" ${outputVideoPath}`;
-    await task.runCommand(command);
-    await fsPromises.unlink(fileListPath);
+    const batchSize = 10;
+    let videoBatches = [];
+    for (let i = 0; i < videoPaths.length; i += batchSize) {
+        videoBatches.push(videoPaths.slice(i, i + batchSize));
+    }
+    let intermediateFiles = [];
+    for (let i = 0; i < videoBatches.length; i++) {
+        let batch = videoBatches[i];
+        const fileListPath = path.join(tempVideoDir, fileListName);
+        const fileListContent = batch.map(file => `file '${file}'`).join('\n');
+        await fsPromises.writeFile(fileListPath, fileListContent);
+
+        const intermediateOutput = path.join(tempVideoDir, `batch_${i}_${crypto.generateId(8)}.mp4`);
+        intermediateFiles.push(intermediateOutput);
+
+        // Run FFmpeg command to concatenate the batch
+        const command = `${ffmpegPath} -f concat -safe 0 -i ${fileListPath} -filter_complex "[0:v]setpts=PTS-STARTPTS[v];[0:a]aresample=async=1[a]" -map "[v]" -map "[a]" ${intermediateOutput}`;
+        await task.runCommand(command);
+
+        // Clean up the temporary file list
+        await fsPromises.unlink(fileListPath);
+    }
+
+    if (intermediateFiles.length > batchSize) {
+        return combineVideos(ffmpegPath, tempVideoDir, intermediateFiles, 'finalFileList.txt', outputVideoPath, task);
+    }
+
+    // After processing all batches, concatenate the intermediate files into the final output
+    const intermediateFileList = intermediateFiles.map(file => `file '${file}'`).join('\n');
+    const finalFileListPath = path.join(tempVideoDir, 'finalFileList.txt');
+    await fsPromises.writeFile(finalFileListPath, intermediateFileList);
+
+    // Run FFmpeg command to concatenate all intermediate files into the final output
+    const finalCommand = `${ffmpegPath} -f concat -safe 0 -i ${finalFileListPath} -filter_complex "[0:v]setpts=PTS-STARTPTS[v];[0:a]aresample=async=1[a]" -map "[v]" -map "[a]" ${outputVideoPath}`;
+    await task.runCommand(finalCommand);
+
+    // Clean up the final file list and intermediate files
+    await fsPromises.unlink(finalFileListPath);
+    for (const intermediateFile of intermediateFiles) {
+        await fsPromises.unlink(intermediateFile);
+    }
 }
 
 async function createVideoFromImageAndAudio(imageBuffer, audioDuration, spaceId) {
