@@ -2,9 +2,6 @@ export class NotificationToast {
     constructor(element, invalidate) {
         this.element = element;
         this.invalidate = invalidate;
-        this.timeout = setTimeout(() => {
-            this.element.remove();
-        }, 5000);
         this.invalidate();
         this.downloadURL = this.element.getAttribute('data-url');
         this.fileName = decodeURIComponent(this.element.getAttribute('data-file-name'));
@@ -28,7 +25,6 @@ export class NotificationToast {
         document.body.removeChild(a);
     }
     removeComponent(){
-        clearTimeout(this.timeout);
         this.element.remove();
     }
 }

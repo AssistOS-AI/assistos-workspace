@@ -225,12 +225,12 @@ export class DocumentVideoPreview {
         } else if(type === "audio") {
             this.audioLoaded = false;
             this.audioPlayer.src = src;
-            this.audioPlayer.volume = volume;
+            this.audioPlayer.volume = volume / 100;
             this.audioPlayer.load();
         } else if(type === "video") {
             this.videoLoaded = false;
             this.videoPlayer.src = src;
-            this.videoPlayer.volume = volume;
+            this.videoPlayer.volume = volume / 100;
             this.videoPlayer.startTime = parseFloat(start);
             this.videoPlayer.endTime = parseFloat(end);
             this.videoPlayer.load();
@@ -238,7 +238,7 @@ export class DocumentVideoPreview {
         } else if(type === "chapterAudio") {
             this.chapterAudioLoaded = false;
             this.chapterAudioPlayer.src = src;
-            this.chapterAudioPlayer.volume = volume;
+            this.chapterAudioPlayer.volume = volume / 100;
             this.chapterAudioPlayer.load();
         }
         this.showLoader();

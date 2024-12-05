@@ -31,6 +31,7 @@ export class DocumentTasksModal {
                     <div class="name-header">Name</div>
                     <div class="status-header">Status</div>
                     <div class="link-header">Paragraph</div>
+                    <div class="action-header">Action</div>
                 </div>
                 <div class="tasks-list">
                     ${tasksList}

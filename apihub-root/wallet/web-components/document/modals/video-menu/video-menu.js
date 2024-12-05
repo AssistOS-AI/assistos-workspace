@@ -54,7 +54,7 @@ export class VideoMenu{
     async initViewVideo(){
         let videoElement = this.element.querySelector("video");
         videoElement.src = await spaceModule.getVideoURL(this.paragraphPresenter.paragraph.commands.video.id);
-        videoElement.volume = this.paragraphPresenter.paragraph.commands.video.volume;
+        videoElement.volume = this.paragraphPresenter.paragraph.commands.video.volume / 100;
         if(!this.boundHandlePlay){
             this.boundHandlePlay = this.handlePlay.bind(this, videoElement);
         }
@@ -90,8 +90,8 @@ export class VideoMenu{
         volumeInput.addEventListener("input", this.handleVolume.bind(this, volumeInput, videoElement));
     }
     handleVolume(input, videoElement, event){
-        videoElement.volume = parseFloat(input.value);
-        this.videoVolume = videoElement.volume;
+        videoElement.volume = parseFloat(input.value) / 100;
+        this.videoVolume = parseFloat(input.value);
         this.toggleSaveButton();
     }
     handlePlay(videoElement, event){

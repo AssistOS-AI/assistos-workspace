@@ -1,7 +1,6 @@
 import {executorTimer} from "../../../../utils/utils.js";
 import {videoUtils} from "../../../../imports.js";
 const spaceModule = require("assistos").loadModule("space", {});
-const documentModule = require("assistos").loadModule("document", {});
 const blackScreen = "./wallet/assets/images/black-screen.png";
 export class ParagraphVideoPreview{
     constructor(element, invalidate) {
@@ -212,7 +211,7 @@ export class ParagraphVideoPreview{
         });
         this.chapterAudioElement.src = await spaceModule.getAudioURL(this.chapter.backgroundSound.id);
         this.chapterAudioElement.pause();
-        this.chapterAudioElement.volume = this.chapter.backgroundSound.volume;
+        this.chapterAudioElement.volume = this.chapter.backgroundSound.volume / 100;
     }
 
     showLoader() {
@@ -263,9 +262,9 @@ export class ParagraphVideoPreview{
             this.videoElement.classList.remove("hidden");
             this.videoElement.startTime = this.paragraph.commands.video.start;
             this.videoElement.endTime = this.paragraph.commands.video.end;
-            this.videoElement.volume = this.paragraph.commands.video.volume;
+            this.videoElement.volume = this.paragraph.commands.video.volume / 100;
             if (this.paragraph.commands.audio) {
-                this.audioElement.volume = this.paragraph.commands.audio.volume;
+                this.audioElement.volume = this.paragraph.commands.audio.volume / 100;
                 let videoDuration = this.paragraph.commands.video.end - this.paragraph.commands.video.start;
                 if (videoDuration >= this.paragraph.commands.audio.duration) {
                     this.setupMediaPlayerEventListeners(this.videoElement);
@@ -282,7 +281,7 @@ export class ParagraphVideoPreview{
                 await this.playMedia([this.videoElement]);
             }
         } else if (this.paragraph.commands.audio) {
-            this.audioElement.volume = this.paragraph.commands.audio.volume;
+            this.audioElement.volume = this.paragraph.commands.audio.volume / 100;
             this.setupMediaPlayerEventListeners(this.audioElement);
             await this.playMedia([this.audioElement]);
         } else if (this.paragraph.commands.silence) {

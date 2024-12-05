@@ -75,7 +75,7 @@ export class AudioMenu {
             let saveVolumeButton = this.element.querySelector(".save-volume");
             volumeInput.addEventListener("input", async () => {
                 let volume = parseFloat(volumeInput.value);
-                audioElement.volume = volume;
+                audioElement.volume = volume / 100;
                 if(volume !== this.commands.audio.volume){
                     saveVolumeButton.classList.remove("hidden");
                 } else {

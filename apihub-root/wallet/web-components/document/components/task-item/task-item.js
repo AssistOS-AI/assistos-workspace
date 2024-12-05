@@ -1,4 +1,5 @@
 const utilModule = require("assistos").loadModule("util", {});
+const documentModule = require("assistos").loadModule("document", {});
 import {NotificationRouter} from "../../../../imports.js";
 
 export class TaskItem{
@@ -81,5 +82,13 @@ export class TaskItem{
     removeInfoPopUp(){
         let taskInfo = this.element.querySelector(".info-pop-up");
         taskInfo.remove();
+    }
+    async deleteTask(){
+        await utilModule.removeTask(this.task.id);
+        if(this.task.configs.sourceCommand){
+            delete this.paragraphPresenter.paragraph.commands[this.task.configs.sourceCommand].taskId;
+            await documentModule.updateParagraphCommands(assistOS.space.id, this.paragraphPresenter._document.id, this.paragraphPresenter.paragraph.id, this.paragraphPresenter.paragraph.commands);
+        }
+        this.element.remove();
     }
 }

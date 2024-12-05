@@ -16,7 +16,7 @@ export class LeftSidebar {
 
     showNotificationToast(message, downloadURL, fileName) {
         this.toastsContainer.insertAdjacentHTML("beforeend",
-            `<notification-toast data-message="${message}" data-url="${downloadURL}" data-file-name="${encodeURIComponent(fileName)}" data-presenter="notification-toast"></notification-toast>`);
+            `<notification-toast data-message="${message}" data-url="${downloadURL || ""}" data-file-name="${encodeURIComponent(fileName) || ""}" data-presenter="notification-toast"></notification-toast>`);
     }
 
     showTaskNotification(data) {

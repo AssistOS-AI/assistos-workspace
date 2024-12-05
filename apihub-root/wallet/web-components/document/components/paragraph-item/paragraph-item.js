@@ -83,23 +83,7 @@ export class ParagraphItem {
             commands.style.padding = "5px 10px";
         }
 
-        let updateCommands;
-        if (this.paragraph.commands.video && !this.paragraph.commands.video.hasOwnProperty("start")) {
-            this.paragraph.commands.video.start = 0;
-            this.paragraph.commands.video.end = this.paragraph.commands.video.duration;
-            updateCommands = true;
-        }
-        if(this.paragraph.commands.audio && !this.paragraph.commands.audio.hasOwnProperty("volume")){
-            this.paragraph.commands.audio.volume = 1;
-            updateCommands = true;
-        }
-        if(this.paragraph.commands.video && !this.paragraph.commands.video.hasOwnProperty("volume")){
-            this.paragraph.commands.video.volume = 1;
-            updateCommands = true;
-        }
-        if(updateCommands){
-            await documentModule.updateParagraphCommands(assistOS.space.id, this._document.id, this.paragraph.id, this.paragraph.commands);
-        }
+        await this.updateCommands();
         let selected = this.documentPresenter.selectedParagraphs[this.paragraph.id];
         if(selected){
             for(let selection of selected.users){
@@ -108,6 +92,32 @@ export class ParagraphItem {
             if(selected.lockOwner){
                 selectionUtils.lockItem(this.textClass, this);
             }
+        }
+    }
+    async updateCommands(){
+        let updateCommands;
+        let commands = this.paragraph.commands;
+        let updateVolumeCommands = ["audio", "video"];
+        for(let command of updateVolumeCommands){
+            if(commands[command] && (commands[command].volume <= 1)){
+                commands[command].volume = commands[command].volume * 100;
+                updateCommands = true;
+            }
+            if(commands[command] && !commands[command].hasOwnProperty("volume")){
+                commands[command].volume = 100;
+                updateCommands = true;
+            }
+        }
+        if(commands.effects){
+            for(let effect of commands.effects){
+                if(effect.volume <= 1){
+                    effect.volume = effect.volume * 100;
+                    updateCommands = true;
+                }
+            }
+        }
+        if(updateCommands){
+            await documentModule.updateParagraphCommands(assistOS.space.id, this._document.id, this.paragraph.id, this.paragraph.commands);
         }
     }
     checkVideoAndAudioDuration() {

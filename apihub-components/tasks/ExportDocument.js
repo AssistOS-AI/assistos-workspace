@@ -35,10 +35,6 @@ class ExportDocument extends Task {
 
             archive.pipe(outputStream);
             archive.on('error', err => {
-                setTimeout(() => {
-                    const TaskManager = require('./TaskManager');
-                    TaskManager.removeTask(this.id);
-                }, 20000);
                 reject(err);
             });
             outputStream.on('error', err => {
