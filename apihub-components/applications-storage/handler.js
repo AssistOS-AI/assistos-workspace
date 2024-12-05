@@ -39,12 +39,18 @@ async function updateApplication(spaceId, applicationId) {
 
     const applicationPath = getApplicationPath(spaceId, applicationId);
     const applicationFlowsPath = getApplicationFlowsPath(spaceId, applicationId);
-
+    const applicationTasksPath = getApplicationTasksPath(spaceId, applicationId);
 
     const applicationNeedsUpdate = await git.checkForUpdates(applicationPath, applicationMetadata.repository);
-    const flowsNeedsUpdate = await git.checkForUpdates(applicationFlowsPath, applicationMetadata.flowsRepository);
 
-    if (!applicationNeedsUpdate && !flowsNeedsUpdate) {
+    const flowsNeedsUpdate = applicationMetadata.flowsRepository ?
+        await git.checkForUpdates(applicationFlowsPath, applicationMetadata.flowsRepository)
+        : false;
+    const tasksNeedsUpdate = applicationMetadata.tasksRepository ?
+        await git.checkForUpdates(applicationTasksPath, applicationMetadata.tasksRepository)
+        : false;
+
+    if (!applicationNeedsUpdate && !flowsNeedsUpdate && !tasksNeedsUpdate) {
         CustomError.throwBadRequestError("No updates available");
     }
 
@@ -53,6 +59,9 @@ async function updateApplication(spaceId, applicationId) {
     }
     if (flowsNeedsUpdate) {
         await git.updateRepo(applicationFlowsPath);
+    }
+    if (tasksNeedsUpdate) {
+        await git.updateRepo(applicationTasksPath);
     }
 }
 
