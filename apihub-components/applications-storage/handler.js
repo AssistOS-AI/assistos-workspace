@@ -33,41 +33,59 @@ function loadApplicationsMetadata() {
 
 async function updateApplication(spaceId, applicationId) {
     const applicationMetadata = loadApplicationsMetadata().find(app => app.id === applicationId);
-    if(!applicationMetadata){
+    if (!applicationMetadata) {
         CustomError.throwNotFoundError("Application not Found");
     }
 
-    const applicationPath= getApplicationPath(spaceId, applicationId);
+    const applicationPath = getApplicationPath(spaceId, applicationId);
     const applicationFlowsPath = getApplicationFlowsPath(spaceId, applicationId);
-
+    const applicationTasksPath = getApplicationTasksPath(spaceId, applicationId);
 
     const applicationNeedsUpdate = await git.checkForUpdates(applicationPath, applicationMetadata.repository);
-    const flowsNeedsUpdate = await git.checkForUpdates(applicationFlowsPath, applicationMetadata.flowsRepository);
 
-    if(!applicationNeedsUpdate && !flowsNeedsUpdate){
+    const flowsNeedsUpdate = applicationMetadata.flowsRepository ?
+        await git.checkForUpdates(applicationFlowsPath, applicationMetadata.flowsRepository)
+        : false;
+    const tasksNeedsUpdate = applicationMetadata.tasksRepository ?
+        await git.checkForUpdates(applicationTasksPath, applicationMetadata.tasksRepository)
+        : false;
+
+    if (!applicationNeedsUpdate && !flowsNeedsUpdate && !tasksNeedsUpdate) {
         CustomError.throwBadRequestError("No updates available");
     }
 
-    if(applicationNeedsUpdate){
+    if (applicationNeedsUpdate) {
         await git.updateRepo(applicationPath);
     }
-    if(flowsNeedsUpdate){
+    if (flowsNeedsUpdate) {
         await git.updateRepo(applicationFlowsPath);
     }
+    if (tasksNeedsUpdate) {
+        await git.updateRepo(applicationTasksPath);
+    }
 }
+
 async function requiresUpdate(spaceId, applicationId) {
     const applicationMetadata = loadApplicationsMetadata().find(app => app.id === applicationId);
-    if(!applicationMetadata){
+    if (!applicationMetadata) {
         CustomError.throwNotFoundError("Application not Found");
     }
 
-    const applicationPath= getApplicationPath(spaceId, applicationId);
+    const applicationPath = getApplicationPath(spaceId, applicationId);
     const applicationFlowsPath = getApplicationFlowsPath(spaceId, applicationId);
-    const applicationNeedsUpdate = await git.checkForUpdates(applicationPath, applicationMetadata.repository);
-    const flowsNeedsUpdate = await git.checkForUpdates(applicationFlowsPath, applicationMetadata.flowsRepository);
+    const applicationTasksPath = getApplicationTasksPath(spaceId, applicationId);
 
-    return applicationNeedsUpdate || flowsNeedsUpdate
+    const applicationNeedsUpdate = await git.checkForUpdates(applicationPath, applicationMetadata.repository);
+    const flowsNeedsUpdate = applicationMetadata.flowsRepository
+        ? await git.checkForUpdates(applicationFlowsPath, applicationMetadata.flowsRepository)
+        : false;
+    const tasksNeedsUpdate = applicationMetadata.tasksRepository
+        ? await git.checkForUpdates(applicationTasksPath, applicationMetadata.tasksRepository)
+        : false;
+
+    return applicationNeedsUpdate || flowsNeedsUpdate || tasksNeedsUpdate;
 }
+
 
 async function installApplication(spaceId, applicationId) {
     const applications = loadApplicationsMetadata();
@@ -148,19 +166,40 @@ async function loadApplicationConfig(spaceId, applicationId) {
 }
 
 async function runApplicationTask(request, spaceId, applicationId, taskName, taskData) {
+    const ensureAllFunctionsExist = (taskFunctions) => {
+        if (!taskFunctions.runTask) {
+            throw new Error('runTask method must be implemented');
+        }
+        if (!taskFunctions.cancelTask) {
+            throw new Error('cancelTask method must be implemented');
+        }
+    }
+    const bindTaskFunctions = (ITaskInstance, taskFunctions) => {
+        Object.entries(taskFunctions).forEach(([key, value]) => {
+            ITaskInstance[key] = value.bind(ITaskInstance);
+        })
+    }
+    const bindTaskParameters = (ITaskInstance, taskData) => {
+        ITaskInstance.parameters = taskData;
+    }
+
+    const ITask = require('../tasks/Task.js')
+    const ITaskInstance = new ITask(spaceId, request.userId, taskData);
+
     const taskPath = getApplicationTaskPath(spaceId, applicationId, taskName);
-    const SecurityContextClass = require('assistos').ServerSideSecurityContext;
-    const TaskClass = require(taskPath);
-    const Task = new TaskClass(new SecurityContextClass(request), spaceId, request.userId, taskData);
-    await TaskManager.addTask(Task);
-    TaskManager.runTask(Task.id);
-    return Task.Id;
+    const taskFunctions = require(taskPath);
+    ensureAllFunctionsExist(taskFunctions);
+    bindTaskFunctions(ITaskInstance, taskFunctions);
+    bindTaskParameters(ITaskInstance, taskData);
+    await TaskManager.addTask(ITaskInstance);
+    TaskManager.runTask(ITaskInstance.id);
+    return ITaskInstance.id;
 }
 
 async function runApplicationFlow(request, spaceId, applicationId, flowId, flowData) {
     const FlowTask = require("../tasks/FlowTask.js");
     const SecurityContextClass = require('assistos').ServerSideSecurityContext;
-    const flowInstance = await new FlowTask(new SecurityContextClass(request), spaceId, request.userId, applicationId,flowData, flowId);
+    const flowInstance = await new FlowTask(new SecurityContextClass(request), spaceId, request.userId, applicationId, flowData, flowId);
     return await flowInstance.runTask();
 }
 
