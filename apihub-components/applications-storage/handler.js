@@ -64,11 +64,19 @@ async function requiresUpdate(spaceId, applicationId) {
 
     const applicationPath = getApplicationPath(spaceId, applicationId);
     const applicationFlowsPath = getApplicationFlowsPath(spaceId, applicationId);
-    const applicationNeedsUpdate = await git.checkForUpdates(applicationPath, applicationMetadata.repository);
-    const flowsNeedsUpdate = await git.checkForUpdates(applicationFlowsPath, applicationMetadata.flowsRepository);
+    const applicationTasksPath = getApplicationTasksPath(spaceId, applicationId);
 
-    return applicationNeedsUpdate || flowsNeedsUpdate
+    const applicationNeedsUpdate = await git.checkForUpdates(applicationPath, applicationMetadata.repository);
+    const flowsNeedsUpdate = applicationMetadata.flowsRepository
+        ? await git.checkForUpdates(applicationFlowsPath, applicationMetadata.flowsRepository)
+        : false;
+    const tasksNeedsUpdate = applicationMetadata.tasksRepository
+        ? await git.checkForUpdates(applicationTasksPath, applicationMetadata.tasksRepository)
+        : false;
+
+    return applicationNeedsUpdate || flowsNeedsUpdate || tasksNeedsUpdate;
 }
+
 
 async function installApplication(spaceId, applicationId) {
     const applications = loadApplicationsMetadata();
