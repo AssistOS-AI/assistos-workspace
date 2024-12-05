@@ -8,7 +8,7 @@ const space = require('../spaces-storage/space');
 const ffmpegUtils = require("../apihub-component-utils/ffmpeg");
 const Storage = require("../apihub-component-utils/storage");
 const constants = require('./constants');
-const TaskManager = require("./TaskManager");
+const {seekableVideoFormat} = require("../apihub-component-utils/ffmpeg");
 const STATUS = constants.STATUS;
 class DocumentToVideo extends Task {
     constructor(spaceId, userId, configs) {
@@ -38,7 +38,7 @@ class DocumentToVideo extends Task {
         }
         chapterVideos = chapterVideos.filter(videoPath => typeof videoPath !== "undefined");
         try {
-            let videoPath = path.join(spacePath, "temp", `${this.id}.mp4`);
+            let videoPath = path.join(spacePath, "temp", `${this.id}.mkv`);
             await ffmpegUtils.combineVideos(
                 tempVideoDir,
                 chapterVideos,
@@ -80,6 +80,35 @@ class DocumentToVideo extends Task {
             this.processes.push(childProcess);
         });
     }
+    async streamCommandToFile(command, outputPath) {
+        return new Promise( (resolve, reject) => {
+            const childProcess = spawn(command, { shell: true });
+            this.processes.push(childProcess);
+            const outputStream = fs.createWriteStream(outputPath);
+
+            outputStream.on('error', (err) => {
+                childProcess.kill();
+                this.processes = this.processes.filter(p => p !== childProcess);
+                reject(`Error writing to file: ${err.message}`);
+            });
+            childProcess.on('error', (err) => {
+                outputStream.close();
+                reject(`Failed to start command: ${err.message}`);
+            });
+            childProcess.stdout.pipe(outputStream);
+            let errorMessages = '';
+            childProcess.stderr.on('data', (data) => {
+                errorMessages += data.toString();
+            });
+            childProcess.on('close', (code) => {
+                this.processes = this.processes.filter(p => p !== childProcess);
+                if (code !== 0) {
+                    reject(errorMessages);
+                }
+                resolve();
+            });
+        });
+    }
     serialize() {
         return{
             id: this.id,
@@ -107,7 +136,7 @@ class DocumentToVideo extends Task {
             }
         }
         completedFramePaths = completedFramePaths.filter(videoPath => typeof videoPath !== "undefined");
-        let outputVideoPath = path.join(tempVideoDir, `chapter_${chapterIndex}_video.mp4`);
+        let outputVideoPath = path.join(tempVideoDir, `chapter_${chapterIndex}_video.mkv`);
         await ffmpegUtils.combineVideos(
             tempVideoDir,
             completedFramePaths,
@@ -125,7 +154,7 @@ class DocumentToVideo extends Task {
     }
 
     async createBaseParagraphVideo(paragraph, pathPrefix){
-        const finalVideoPath = `${pathPrefix}_final.mp4`;
+        const finalVideoPath = `${pathPrefix}_final.mkv`;
 
         let commands = paragraph.commands;
         if(commands.video){
