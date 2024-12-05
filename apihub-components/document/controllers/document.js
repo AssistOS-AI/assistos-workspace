@@ -175,8 +175,8 @@ function downloadDocumentVideo(request, response) {
     let spaceId = request.params.spaceId;
     let fileName = request.params.fileName;
     let spacePath = space.APIs.getSpacePath(spaceId);
-    let filePath = path.join(spacePath, "temp", `${fileName}.mkv`);
-    streamFile(filePath, response, "video/mkv");
+    let filePath = path.join(spacePath, "temp", `${fileName}.mp4`);
+    streamFile(filePath, response, "video/mp4");
 }
 
 async function importDocument(request, response) {
