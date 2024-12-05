@@ -41,7 +41,8 @@ class ExportDocument extends Task {
                 reject(err);
             });
             archive.on('finish', () => {
-                resolve(archiveName);
+                let downloadURL =`/documents/export/${this.spaceId}/${this.id}`;
+                resolve(downloadURL);
             });
 
             const contentBuffer = Buffer.from(JSON.stringify(documentData), 'utf-8');
@@ -56,29 +57,39 @@ class ExportDocument extends Task {
             };
             archive.append(contentBuffer, {name: 'data.json'});
             archive.append(Buffer.from(JSON.stringify(metadata), 'utf-8'), {name: 'metadata.json'});
-            for(let personalityId of documentData.personalities){
-                const personalityStream = await space.APIs.archivePersonality(this.spaceId, personalityId);
-                archive.append(personalityStream, {name: `personalities/${personalityId}.persai`});
+            try {
+                console.log("appending personalities");
+                for(let personalityId of documentData.personalities){
+                    const personalityStream = await space.APIs.archivePersonality(this.spaceId, personalityId);
+                    archive.append(personalityStream, {name: `personalities/${personalityId}.persai`});
+                }
+                console.log("appending images");
+                await this.appendFilesInBatches(archive, documentData.images, Storage.fileTypes.images);
+                await this.appendFilesInBatches(archive, documentData.audios, Storage.fileTypes.audios);
+                await this.appendFilesInBatches(archive, documentData.videos, Storage.fileTypes.videos);
+                await archive.finalize();
+            } catch (e) {
+                reject(e);
             }
-
-            for(let imageData of documentData.images){
-                const imageName = imageData.name;
-                const {fileStream, headers} = await Storage.getFile(Storage.fileTypes.images, imageData.id);
-                archive.append(fileStream, {name: `images/${imageName}.png`});
-            }
-
-            for(let audioData of documentData.audios){
-                const audioName = audioData.name;
-                const {fileStream, headers} = await Storage.getFile(Storage.fileTypes.audios, audioData.id);
-                archive.append(fileStream, {name: `audios/${audioName}.mp3`});
-            }
-            for(let videoData of documentData.videos){
-                const videoName = videoData.name;
-                const {fileStream, headers} = await Storage.getFile(Storage.fileTypes.videos, videoData.id);
-                archive.append(fileStream, {name: `videos/${videoName}.mp4`});
-            }
-            await archive.finalize();
         });
+    }
+    async appendFilesInBatches(archive, fileDataList, fileType, batchSize = 10) {
+        for (let i = 0; i < fileDataList.length; i += batchSize) {
+            console.log(`processing ${fileType} ${i} to ${i + batchSize}`);
+            const batch = fileDataList.slice(i, i + batchSize);
+            try {
+                await Promise.all(batch.map(async (data) => {
+                    const {fileStream, headers} = await Storage.getFile(fileType, data.id);
+                    await new Promise((resolve, reject) => {
+                        archive.append(fileStream, {name: `${fileType}/${data.name}.${fileType === Storage.fileTypes.images ? 'png' : fileType === Storage.fileTypes.audios ? 'mp3' : 'mp4'}`});
+                        fileStream.on('end', resolve);
+                        fileStream.on('error', reject);
+                    });
+                }));
+            } catch (e) {
+                throw new Error(`Batch ${i + batchSize} -> ${batch.length} failed. file type: ${fileType} : ${e.message}`);
+            }
+        }
     }
     async exportDocumentDataPartially(document) {
         let personalities = new Set();
@@ -166,6 +177,10 @@ class ExportDocument extends Task {
     }
     async cancelTask(){
         this.archive.emit('error', "Task was cancelled");
+        setTimeout(() => {
+            const TaskManager = require('./TaskManager');
+            TaskManager.removeTask(this.id);
+        }, 5000);
     }
 
 

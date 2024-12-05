@@ -14,14 +14,14 @@ task-item{
     color: green;
 }
 .task-name{
-    width: 27%;
+    width: 30%;
     overflow: hidden;
     text-overflow: ellipsis;
     white-space: nowrap;
 }
 .task-status{
     position: relative;
-    width: 22%;
+    width: 15%;
 }
 .task-link{
     position: relative;
@@ -54,10 +54,11 @@ task-item{
     margin-right: 10px;
 }
 .task-agent{
-    display: contents;
+    width: 25%;
+    display: flex;
+    align-items: center;
 }
 .agent-name{
-    width: 20%;
     overflow: hidden;
     text-overflow: ellipsis;
     white-space: nowrap;

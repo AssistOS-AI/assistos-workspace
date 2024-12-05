@@ -20,20 +20,22 @@ export class ChapterBackgroundAudio {
             audioConfigs.classList.remove("hidden");
             audio.src = await spaceModule.getAudioURL(this.chapter.backgroundSound.id);
             audio.load();
-            audio.volume = this.chapter.backgroundSound.volume;
+            audio.volume = this.chapter.backgroundSound.volume / 100;
             audio.loop = this.chapter.backgroundSound.loop;
 
             let loopInput = this.element.querySelector('#loop');
             if (this.chapter.backgroundSound.loop) {
                 loopInput.checked = true;
             }
-            loopInput.addEventListener("change", () => {
+            loopInput.addEventListener("change", async () => {
                 audio.loop = loopInput.checked;
+                this.chapter.backgroundSound.loop = loopInput.checked;
+                await documentModule.updateChapterBackgroundSound(assistOS.space.id, this._document.id, this.chapter.id, this.chapter.backgroundSound);
             });
             let volumeInput = this.element.querySelector('#volume');
             volumeInput.value = this.chapter.backgroundSound.volume;
             volumeInput.addEventListener("input", () => {
-                audio.volume = volumeInput.value;
+                audio.volume = volumeInput.value / 100;
             });
         }
         this.fileInput = this.element.querySelector('.file-input');
@@ -56,7 +58,7 @@ export class ChapterBackgroundAudio {
             audioPlayer.addEventListener("loadedmetadata", async () => {
                 let backgroundSound = {
                     id: audioId,
-                    volume: 0.5,
+                    volume: 50,
                     duration: audioPlayer.duration,
                     loop: false,
                     start: 0,

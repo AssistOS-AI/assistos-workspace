@@ -76,9 +76,9 @@ export class EditEffectModal{
         this.effect.volume = parseFloat(formData.data.volume);
         this.effect.playAt = playAt;
         await documentModule.updateParagraphCommands(assistOS.space.id, this.audioMenuPresenter._document.id, this.audioMenuPresenter.paragraphId, this.audioMenuPresenter.commands);
-        assistOS.UI.closeModal(this.element);
+        assistOS.UI.closeModal(this.element, true);
     }
     closeModal(button){
-        assistOS.UI.closeModal(this.element);
+        assistOS.UI.closeModal(this.element, false);
     }
 }

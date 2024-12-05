@@ -8,6 +8,7 @@ export class VideoMenu{
         let documentPresenter = document.querySelector("document-view-page").webSkelPresenter;
         this.paragraphId = this.element.getAttribute("data-paragraph-id");
         this.paragraphPresenter = documentPresenter.element.querySelector(`paragraph-item[data-paragraph-id="${this.paragraphId}"]`).webSkelPresenter;
+        this.videoPresenter = this.paragraphPresenter.videoPresenter;
         this.commandsEditor = this.paragraphPresenter.commandsEditor;
         this.element.classList.add("maintain-focus");
         this.invalidate();
@@ -25,6 +26,13 @@ export class VideoMenu{
             await this.initViewVideo();
             this.initInputs();
         }
+        lipSyncCheckbox.addEventListener("change", async () => {
+            if(lipSyncCheckbox.checked){
+                await this.insertLipSync();
+            }else{
+                await this.commandsEditor.deleteCommand("lipsync");
+            }
+        });
         let commands = this.paragraphPresenter.paragraph.commands;
         if(!commands.video && !commands.image){
             let warnMessage = `No visual source added`;
@@ -46,7 +54,7 @@ export class VideoMenu{
     async initViewVideo(){
         let videoElement = this.element.querySelector("video");
         videoElement.src = await spaceModule.getVideoURL(this.paragraphPresenter.paragraph.commands.video.id);
-        videoElement.volume = this.paragraphPresenter.paragraph.commands.video.volume;
+        videoElement.volume = this.paragraphPresenter.paragraph.commands.video.volume / 100;
         if(!this.boundHandlePlay){
             this.boundHandlePlay = this.handlePlay.bind(this, videoElement);
         }
@@ -80,19 +88,10 @@ export class VideoMenu{
         let volumeInput = this.element.querySelector("#volume");
         volumeInput.value = this.paragraphPresenter.paragraph.commands.video.volume;
         volumeInput.addEventListener("input", this.handleVolume.bind(this, volumeInput, videoElement));
-
-        let lipSyncCheckbox = this.element.querySelector("#lip-sync");
-        lipSyncCheckbox.addEventListener("change", async () => {
-            if(lipSyncCheckbox.checked){
-                await this.insertLipSync();
-            }else{
-                await this.commandsEditor.deleteCommand("lipsync");
-            }
-        });
     }
     handleVolume(input, videoElement, event){
-        videoElement.volume = parseFloat(input.value);
-        this.videoVolume = videoElement.volume;
+        videoElement.volume = parseFloat(input.value) / 100;
+        this.videoVolume = parseFloat(input.value);
         this.toggleSaveButton();
     }
     handlePlay(videoElement, event){

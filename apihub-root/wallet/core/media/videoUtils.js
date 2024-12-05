@@ -43,7 +43,7 @@ function setupEffects(mediaPlayer, effects, self){
     let timeUpdateController = new AbortController();
     for(let effect of effectsCopy){
         effect.audioInstance = new CustomAudio(effect.start, effect.end);
-        effect.audioInstance.audio.volume = effect.volume;
+        effect.audioInstance.audio.volume = effect.volume / 100;
         effect.audioInstance.audio.addEventListener("canplaythrough", async () => {
             if (effect.audioInstance.audio.playWhenReady) {
                 self.hideLoader();

@@ -156,15 +156,11 @@ export class ChapterItem {
             this.changeChapterVisibility("hide");
         }
         //for demo documents
-        if (this.chapter.backgroundSound && !this.chapter.backgroundSound.duration) {
-            let audio = new Audio();
-            audio.addEventListener("loadedmetadata", async () => {
-                this.chapter.backgroundSound.duration = audio.duration;
+        if (this.chapter.backgroundSound) {
+           if(this.chapter.backgroundSound.volume <= 1){
+                this.chapter.backgroundSound.volume = this.chapter.backgroundSound.volume * 100;
                 await documentModule.updateChapterBackgroundSound(assistOS.space.id, this._document.id, this.chapter.id, this.chapter.backgroundSound);
-                audio.remove();
-            });
-            audio.src = await spaceModule.getAudioURL(this.chapter.backgroundSound.id);
-            audio.load();
+           }
         }
     }
 

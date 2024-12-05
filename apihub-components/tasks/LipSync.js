@@ -128,6 +128,7 @@ class LipSync extends Task {
             configs: {
                 documentId: this.documentId,
                 paragraphId: this.paragraphId,
+                sourceCommand: "lipsync"
             }
         }
     }

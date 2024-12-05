@@ -147,16 +147,19 @@ async function exportDocument(request, response) {
         });
     }
 }
-async function downloadDocumentArchive(request, response) {
+function downloadDocumentArchive(request, response) {
     let spaceId = request.params.spaceId;
     let fileName = request.params.fileName;
     let spacePath = space.APIs.getSpacePath(spaceId);
     let filePath = path.join(spacePath, "temp", `${fileName}.docai`);
+    streamFile(filePath, response, "application/zip");
+}
+function streamFile(filePath, response, contentType) {
     let readStream = fs.createReadStream(filePath);
-    let archiveSize = fs.statSync(filePath).size;
+    let fileSize = fs.statSync(filePath).size;
 
-    response.setHeader('Content-Length', archiveSize);
-    response.setHeader('Content-Type', 'application/zip');
+    response.setHeader('Content-Length', fileSize);
+    response.setHeader('Content-Type', contentType);
     readStream.on('error', (error) => {
         utils.sendResponse(response, 500, "application/json", {
             message: `Error reading file: ${error.message}`
@@ -167,6 +170,13 @@ async function downloadDocumentArchive(request, response) {
     });
 
     readStream.pipe(response);
+}
+function downloadDocumentVideo(request, response) {
+    let spaceId = request.params.spaceId;
+    let fileName = request.params.fileName;
+    let spacePath = space.APIs.getSpacePath(spaceId);
+    let filePath = path.join(spacePath, "temp", `${fileName}.mp4`);
+    streamFile(filePath, response, "video/mp4");
 }
 
 async function importDocument(request, response) {
@@ -539,5 +549,6 @@ module.exports = {
     selectDocumentItem,
     deselectDocumentItem,
     getSelectedDocumentItems,
-    downloadDocumentArchive
+    downloadDocumentArchive,
+    downloadDocumentVideo
 }

@@ -388,9 +388,28 @@ export class DocumentViewPage {
         this.timer = new executorTimer(saveFunction, 10000);
         targetElement.addEventListener("keydown", resetTimerFunction);
     }
+    executeDownload(targetElement, url) {
+        let a = document.createElement('a');
+        a.style.display = 'none';
+        a.href = url;
+        a.download = `${assistOS.UI.unsanitize(this._document.title)}.mp4`;
+        document.body.appendChild(a);
+        a.click();
+        document.body.removeChild(a);
+        targetElement.remove();
+    }
+    showDownloadVideoButton(taskId, status){
+        if(status === "completed"){
+            let downloadURL = `/documents/video/${assistOS.space.id}/${taskId}`;
+            let downloadButton = `<button class="general-button download-video-button right-margin" data-local-action="executeDownload ${downloadURL}">Download Video</button>`
+            this.element.querySelector(".menu-section").insertAdjacentHTML("afterbegin", downloadButton);
+        }
+    }
 
     async documentToVideo(button) {
-        await documentModule.documentToVideo(assistOS.space.id, this._document.id);
+        let taskId = await documentModule.documentToVideo(assistOS.space.id, this._document.id);
+        this.boundShowDownloadVideoButton = this.showDownloadVideoButton.bind(this, taskId);
+        await NotificationRouter.subscribeToSpace(assistOS.space.id, taskId, this.boundShowDownloadVideoButton);
     }
 
     async exportDocument(targetElement) {

@@ -525,8 +525,12 @@ async function archivePersonality(spaceId, personalityId) {
     archive.append(contentBuffer, {name: 'data.json'});
     archive.append(Buffer.from(JSON.stringify(metadata), 'utf-8'), {name: 'metadata.json'});
     if (personalityData.imageId) {
-        let {fileStream, headers} = await Storage.getFile(Storage.fileTypes.images, personalityData.imageId);
-        archive.append(fileStream, {name: `${personalityData.imageId}.png`});
+        try {
+            let {fileStream, headers} = await Storage.getFile(Storage.fileTypes.images, personalityData.imageId);
+            archive.append(fileStream, {name: `${personalityData.imageId}.png`});
+        } catch (e) {
+          delete personalityData.imageId;
+        }
     }
 
     archive.finalize();

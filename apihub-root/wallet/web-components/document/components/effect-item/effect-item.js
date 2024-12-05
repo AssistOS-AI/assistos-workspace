@@ -18,7 +18,7 @@ export class EffectItem{
     }
     afterRender() {
         this.audioElement = this.element.querySelector("audio");
-        this.audioElement.volume = this.effect.volume;
+        this.audioElement.volume = this.effect.volume / 100;
     }
     async editEffect(button){
         let paragraphVideoDuration = videoUtils.getParagraphVideoDuration(this.audioMenuPresenter.commands);

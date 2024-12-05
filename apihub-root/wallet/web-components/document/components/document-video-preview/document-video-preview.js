@@ -210,7 +210,6 @@ export class DocumentVideoPreview {
                     this.audioPlayer.play();
                 }
                 if(!this.isPlaying(this.chapterAudioPlayer) && currentChapter.backgroundSound){
-                    this.chapterAudioPlayer.volume = currentChapter.backgroundSound.volume ? currentChapter.backgroundSound.volume : 0.3;
                     this.chapterAudioPlayer.play();
                 }
             }
@@ -226,12 +225,12 @@ export class DocumentVideoPreview {
         } else if(type === "audio") {
             this.audioLoaded = false;
             this.audioPlayer.src = src;
-            this.audioPlayer.volume = volume;
+            this.audioPlayer.volume = volume / 100;
             this.audioPlayer.load();
         } else if(type === "video") {
             this.videoLoaded = false;
             this.videoPlayer.src = src;
-            this.videoPlayer.volume = volume;
+            this.videoPlayer.volume = volume / 100;
             this.videoPlayer.startTime = parseFloat(start);
             this.videoPlayer.endTime = parseFloat(end);
             this.videoPlayer.load();
@@ -239,6 +238,7 @@ export class DocumentVideoPreview {
         } else if(type === "chapterAudio") {
             this.chapterAudioLoaded = false;
             this.chapterAudioPlayer.src = src;
+            this.chapterAudioPlayer.volume = volume / 100;
             this.chapterAudioPlayer.load();
         }
         this.showLoader();
@@ -428,9 +428,8 @@ export class DocumentVideoPreview {
             if (this.currentChapterBackgroundSound !== chapter.backgroundSound.id) {
                 this.chapterAudioPlayer.pause();
                 const audioSrc = await spaceModule.getAudioURL(chapter.backgroundSound.id);
-                this.loadResource("chapterAudio", audioSrc);
-                this.chapterAudioPlayer.volume = chapter.backgroundSound.volume ? chapter.backgroundSound.volume : 0.3;
-                this.chapterAudioPlayer.loop = chapter.backgroundSound.loop === true;
+                this.loadResource("chapterAudio", audioSrc, "", "", chapter.backgroundSound.volume);
+                this.chapterAudioPlayer.loop = chapter.backgroundSound.loop;
                 this.currentChapterBackgroundSound = chapter.backgroundSound.id;
             }
         } else {

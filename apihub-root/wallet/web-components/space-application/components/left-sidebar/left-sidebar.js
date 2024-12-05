@@ -14,21 +14,32 @@ export class LeftSidebar {
         });
     }
 
-    showNotificationToast(message) {
-        this.toastsContainer.insertAdjacentHTML("beforeend", `<notification-toast data-message="${message}" data-presenter="notification-toast"></notification-toast>`);
-    }
-    tasksName = ["DocumentToVideo",
-    "ExportDocument"]
-    showTaskNotification(data) {
-        if(this.tasksName.includes(data.name)){
-            if(data.status === "completed"){
-                this.showNotificationToast(`Task ${data.name} has been completed`);
-            } else if(data.status === "failed"){
-                this.showNotificationToast(`Task ${data.name} has failed`);
-            }
-        }
+    showNotificationToast(message, downloadURL, fileName) {
+        this.toastsContainer.insertAdjacentHTML("beforeend",
+            `<notification-toast data-message="${message}" data-url="${downloadURL || ""}" data-file-name="${encodeURIComponent(fileName) || ""}" data-presenter="notification-toast"></notification-toast>`);
     }
 
+    showTaskNotification(data) {
+        if(data.name === "DocumentToVideo"){
+           this.handleDocumentToVideoTask(data);
+        } else if(data.name === "ExportDocument"){
+            this.handleExportDocumentTask(data);
+        }
+    }
+    handleDocumentToVideoTask(task) {
+        if(task.status === "completed"){
+            this.showNotificationToast(`Task ${task.name} has been completed`, task.result, "video.mp4");
+        } else if(task.status === "failed"){
+            this.showNotificationToast(`Task ${task.name} has failed`);
+        }
+    }
+    handleExportDocumentTask(task){
+        if(task.status === "completed"){
+            this.showNotificationToast(`Task ${task.name} has been completed`, task.result, "document.docai");
+        } else if(task.status === "failed"){
+            this.showNotificationToast(`Task ${task.name} has failed`);
+        }
+    }
     async beforeRender() {
         this.applications = "";
         let userImageURL = "./wallet/assets/images/defaultUserPhoto.png";
