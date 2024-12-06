@@ -129,7 +129,9 @@ async function verifyAudioSettings(audioPath, task) {
     const audioStream = metadata.streams.find(s => s.codec_type === 'audio');
     if (needsAudioConversion(audioStream)) {
         await convertAudioToStandard(audioPath, task);
+        return true;
     }
+    return false;
 }
 function needsAudioConversion(audioStreamInfo) {
     return audioStreamInfo && (
@@ -156,7 +158,9 @@ async function verifyVideoSettings(videoPath, task){
 
     if (needsVideoConversion || needsAudioConversion(audioStream)) {
         await convertVideoToStandard(videoPath, task);
+        return true;
     }
+    return false;
 }
 async function verifyMediaFileIntegrity(filePath, task) {
     const command = `${ffmpegPath} -v error -i ${filePath} -f null -`;
@@ -178,8 +182,6 @@ async function getVideoDuration(videoPath){
     return parseFloat(duration.toFixed(1));
 }
 async function addBackgroundSoundToVideo(videoPath, backgroundSoundPath, backgroundSoundVolume, loop, task) {
-    await verifyMediaFileIntegrity(backgroundSoundPath, task);
-    await verifyAudioSettings(backgroundSoundPath, task);
     let videoDuration = await getVideoDuration(videoPath);
     const tempOutputPath = videoPath.replace('.mp4', '_temp.mp4');
     let loopOption = loop ? "-stream_loop -1" : "";
