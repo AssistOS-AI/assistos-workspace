@@ -121,6 +121,21 @@ async function getTextResponse(request,response) {
         return {success: false, message: error.message};
     }
 }
+async function getTextResponseAdvanced(request,response) {
+    try {
+        const modelResponse = await sendRequest(`/apis/v1/text/generate/advanced`, "POST", request, response);
+        utils.sendResponse(response, 200, "application/json", {
+            data: modelResponse
+        });
+        return {success: true, data: modelResponse};
+    } catch (error) {
+        utils.sendResponse(response, error.statusCode || 500, "application/json", {
+            message: error.message
+        });
+        return {success: false, message: error.message};
+    }
+}
+
 async function getTextStreamingResponse(request, response) {
     const requestData = {...request.body};
     let sessionId = requestData.sessionId || null;
@@ -476,6 +491,7 @@ async function getDefaultModels(request, response) {
 }
 module.exports = {
     getTextResponse,
+    getTextResponseAdvanced,
     getChatResponse,
     getChatStreamingResponse,
     getTextStreamingResponse,

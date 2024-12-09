@@ -19,6 +19,7 @@ const {
 const bodyReader = require("../apihub-component-middlewares/bodyReader");
 const authentication = require("../apihub-component-middlewares/authentication");
 const authorization = require("../apihub-component-middlewares/authorization");
+const {getTextResponseAdvanced} = require("./controller");
 
 function LLMStorage(server) {
     server.use("/apis/v1/spaces/:spaceId/llms/*", bodyReader);
@@ -34,6 +35,7 @@ function LLMStorage(server) {
 
     /* Text */
     server.post("/apis/v1/spaces/:spaceId/llms/text/generate", getTextResponse);
+    server.post("/apis/v1/spaces/:spaceId/llms/text/generate/advanced", getTextResponseAdvanced);
     server.post("/apis/v1/spaces/:spaceId/llms/text/streaming/generate", getTextStreamingResponse);
 
     server.post("/apis/v1/spaces/:spaceId/llms/image/generate", getImageResponse);
