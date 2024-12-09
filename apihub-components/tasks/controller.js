@@ -5,6 +5,7 @@ const utils = require("../apihub-component-utils/utils");
 const TextToSpeech = require("./TextToSpeech");
 const LipSync = require("./LipSync");
 const SubscriptionManager = require("../subscribers/SubscriptionManager");
+const ParagraphToVideo = require("./ParagraphToVideo");
 async function compileVideoFromDocument(request, response) {
     let documentId = request.params.documentId;
     let spaceId = request.params.spaceId;
@@ -23,6 +24,20 @@ async function compileVideoFromDocument(request, response) {
             message: e.message
         });
     }
+}
+function compileVideoFromParagraph(request, response) {
+    let documentId = request.params.documentId;
+    let paragraphId = request.params.paragraphId;
+    let spaceId = request.params.spaceId;
+    let userId = request.userId;
+    let sessionId = request.sessionId;
+    let task = new ParagraphToVideo(spaceId, userId, {documentId, paragraphId});
+    TaskManager.addTask(task);
+    notifyTasksListUpdate(sessionId, spaceId);
+    sendResponse(response, 200, "application/json", {
+        data: task.id
+    });
+    TaskManager.runTask(task.id);
 }
 function notifyTasksListUpdate(sessionId, spaceId) {
     let objectId = SubscriptionManager.getObjectId(spaceId, "tasks");
@@ -247,5 +262,6 @@ module.exports = {
     lipSyncParagraph,
     getTaskRelevantInfo,
     runAllDocumentTasks,
-    cancelAllDocumentTasks
+    cancelAllDocumentTasks,
+    compileVideoFromParagraph
 }

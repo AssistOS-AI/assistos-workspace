@@ -23,24 +23,31 @@ class DocumentToVideo extends Task {
         this.document = await documentModule.getDocument(this.spaceId, this.documentId);
         let TaskManager = require('./TaskManager');
         let chapterVideos = [];
-        try {
-            for(let chapter of this.document.chapters){
-                let chapterTask = new ChapterToVideo(this.spaceId, this.userId, {
-                    documentId: this.documentId,
-                    chapterId: chapter.id,
-                    workingDir: tempVideoDir,
-                    documentTaskId: this.id
-                });
-                await TaskManager.addTask(chapterTask);
+        let completedTasks = [];
+        for(let chapter of this.document.chapters){
+            let chapterTask = new ChapterToVideo(this.spaceId, this.userId, {
+                documentId: this.documentId,
+                chapterId: chapter.id,
+                workingDir: tempVideoDir,
+                documentTaskId: this.id
+            });
+            await TaskManager.addTask(chapterTask);
+            try {
                 let videoPath = await chapterTask.run();
                 chapterVideos.push(videoPath);
+                completedTasks.push("");
+            } catch (e) {
+                completedTasks.push("Failed");
             }
-        } catch (e) {
-            await fsPromises.rm(tempVideoDir, {recursive: true, force: true});
+        }
+        if(completedTasks.includes("Failed")){
+            let failedChapters = completedTasks.map((task, index) => task === "Failed" ? index : null);
+            failedChapters.filter(chapter => typeof chapter !== null);
             for(let process of this.processes){
-                process.kill();
+                     process.kill();
             }
-            throw new Error(`Failed to create chapter video: ${e}`);
+            await fsPromises.rm(tempVideoDir, {recursive: true, force: true});
+            throw new Error(`Failed to create videos for chapters: ${failedChapters.join(", ")}`);
         }
         chapterVideos = chapterVideos.filter(videoPath => typeof videoPath !== "undefined");
         try {
@@ -93,6 +100,7 @@ class DocumentToVideo extends Task {
             spaceId: this.spaceId,
             userId: this.userId,
             name: this.constructor.name,
+            failMessage: this.failMessage,
             configs:{
                 spaceId: this.spaceId,
                 documentId: this.documentId,

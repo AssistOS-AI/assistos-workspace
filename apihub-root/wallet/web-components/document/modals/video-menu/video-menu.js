@@ -41,6 +41,13 @@ export class VideoMenu{
         if(this.paragraphPresenter.paragraph.commands.lipsync){
             lipSyncCheckbox.checked = true;
         }
+        let compileButton = this.element.querySelector(".compile-video");
+        let deleteCompileButton = this.element.querySelector(".delete-compile-video");
+        if(this.paragraphPresenter.paragraph.commands.compileVideo){
+            compileButton.classList.add("hidden");
+        } else {
+            deleteCompileButton.classList.add("hidden");
+        }
     }
     showLipSyncWarning(message){
         let warning = `
@@ -176,6 +183,14 @@ export class VideoMenu{
         this.paragraphPresenter.checkVideoAndAudioDuration();
         this.videoPresenter.setVideoPreviewDuration();
         targetElement.classList.add("hidden");
+    }
+    async compileVideo(){
+        await this.commandsEditor.insertCommandWithTask("compileVideo", {});
+        this.invalidate();
+    }
+    async deleteCompiledVideo(){
+        await this.commandsEditor.deleteCommand("compileVideo");
+        this.invalidate();
     }
     closeModal(button){
         assistOS.UI.closeModal(this.element);
