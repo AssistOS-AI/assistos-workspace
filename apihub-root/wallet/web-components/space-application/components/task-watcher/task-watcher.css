@@ -1,0 +1,224 @@
+/* Task Watcher Styles */
+
+/* Container */
+#logViewer {
+    position: fixed;
+    bottom: 30px;
+    right: 30px;
+    width: 400px;
+    max-height: 500px;
+    background: linear-gradient(135deg, #3F88C5 0%, #1E1E1E 100%);
+    border: 1px solid rgba(255, 255, 255, 0.2);
+    border-radius: 16px;
+    overflow: hidden;
+    z-index: 10000;
+    display: flex;
+    flex-direction: column;
+    box-shadow: 0 8px 32px rgba(0, 0, 0, 0.25);
+    color: #ffffff;
+    font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+    animation: slideUp 0.5s ease-out;
+}
+
+/* Header */
+#logViewerHeader {
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    padding: 16px;
+    background: rgba(0, 0, 0, 0.2);
+    backdrop-filter: blur(5px);
+}
+
+#logViewerTitle {
+    font-size: 20px;
+    font-weight: 600;
+}
+
+#logViewerClose {
+    background: none;
+    border: none;
+    color: #ffffff;
+    font-size: 24px;
+    cursor: pointer;
+    transition: color 0.2s;
+}
+
+#logViewerClose:hover {
+    color: #FF6B6B;
+}
+
+/* Content */
+#logViewerContent {
+    padding: 16px;
+    overflow-y: auto;
+    flex-grow: 1;
+    scrollbar-width: thin;
+    scrollbar-color: #3F88C5 transparent;
+}
+
+#logViewerContent::-webkit-scrollbar {
+    width: 8px;
+}
+
+#logViewerContent::-webkit-scrollbar-thumb {
+    background: #3F88C5;
+    border-radius: 4px;
+}
+
+/* Log Entry */
+.logEntry {
+    position: relative;
+    padding: 12px;
+    margin-bottom: 12px;
+    border-radius: 8px;
+    font-family: 'Consolas', 'Courier New', monospace;
+    font-size: 14px;
+    line-height: 1.5;
+    word-break: break-word;
+    white-space: pre-wrap;
+    box-shadow: 0 4px 6px rgba(0, 0, 0, 0.1);
+    animation: fadeIn 0.5s ease-in;
+    display: flex;
+    align-items: center;
+}
+
+/* Iconițe pentru Tipurile de Log */
+.logEntry::before {
+    margin-right: 8px;
+    font-size: 18px;
+    flex-shrink: 0;
+}
+
+.logError::before {
+    content: "❌";
+}
+
+.logWarning::before {
+    content: "⚠️";
+}
+
+.logInfo::before {
+    content: "ℹ️";
+}
+
+.logSuccess::before {
+    content: "✅";
+}
+
+.logProgress::before {
+    content: "⏳";
+}
+
+.logDefault::before {
+    content: "📝";
+}
+
+.logEntry:last-child {
+    margin-bottom: 0;
+}
+
+.logError {
+    color: #FF4C4C;
+    background: rgba(255, 76, 76, 0.1);
+    border-left: 4px solid #FF4C4C;
+}
+
+.logWarning {
+    color: #FFA500;
+    background: rgba(255, 165, 0, 0.1);
+    border-left: 4px solid #FFA500;
+}
+
+.logInfo {
+    color: #FFFFFF;
+    background: rgba(255, 255, 255, 0.05);
+    border-left: 4px solid #FFFFFF;
+}
+
+.logSuccess {
+    color: #4CAF50;
+    background: rgba(76, 175, 80, 0.1);
+    border-left: 4px solid #4CAF50;
+}
+
+.logProgress {
+    color: #FFD700;
+    background: rgba(255, 215, 0, 0.1);
+    border-left: 4px solid #FFD700;
+}
+
+.logDefault {
+    color: #E0E0E0; /* Culoare implicită */
+    background: rgba(224, 224, 224, 0.1);
+    border-left: 4px solid #E0E0E0;
+}
+
+/* Stiluri pentru Progress Bar */
+.progressBarContainer {
+    width: 100%;
+    background: rgba(255, 255, 255, 0.2);
+    border-radius: 8px;
+    overflow: hidden;
+    margin-top: 8px;
+}
+
+.progressBar {
+    height: 20px;
+    background: #FFD700; /* Galben auriu */
+    width: 0%;
+    color: #000000;
+    text-align: center;
+    line-height: 20px;
+    transition: width 0.3s ease;
+    border-radius: 4px 0 0 4px;
+}
+
+/* Loading Spinner */
+#loadingSpinner {
+    width: 40px;
+    height: 40px;
+    margin: 20px auto;
+    border: 4px solid rgba(255, 255, 255, 0.2);
+    border-top-color: #3F88C5;
+    border-radius: 50%;
+    animation: spin 1s linear infinite;
+}
+
+/* Animations */
+@keyframes spin {
+    to {
+        transform: rotate(360deg);
+    }
+}
+
+@keyframes slideUp {
+    from {
+        transform: translateY(100%);
+        opacity: 0;
+    }
+    to {
+        transform: translateY(0);
+        opacity: 1;
+    }
+}
+
+@keyframes fadeIn {
+    from {
+        opacity: 0;
+        transform: translateY(10px);
+    }
+    to {
+        opacity: 1;
+        transform: translateY(0);
+    }
+}
+
+/* Responsive Design */
+@media screen and (max-width: 500px) {
+    #logViewer {
+        width: 90%;
+        right: 5%;
+        bottom: 20px;
+    }
+}

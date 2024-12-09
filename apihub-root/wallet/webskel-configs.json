@@ -40,6 +40,12 @@
             "presenterClassName": "FbMusicgenSmModelPage"
         },
         {
+            "name": "task-watcher",
+            "directory": "space-application",
+            "type": "components",
+            "presenterClassName": "TaskWatcher"
+        },
+        {
             "name": "fb-mms-tts-bht-model-page",
             "directory": "space-application",
             "type": "pages",
