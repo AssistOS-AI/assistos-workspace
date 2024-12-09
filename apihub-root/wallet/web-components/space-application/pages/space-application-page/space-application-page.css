@@ -76,9 +76,12 @@ space-application-page {
 
 .drag-separator {
     cursor: grab;
-    width: 5px;
+    width: 25px;
     height: 100%;
     position: relative;
+    display:flex;
+    align-items: center;
+    justify-content: center;
     background: var(--right-sidebar-border);
 }
 
@@ -107,9 +110,7 @@ space-application-page {
 
 .drag-icon {
     z-index: 2;
-    visibility: hidden;
     top: 50%;
-    right: -7px;
     position: absolute;
 }
 
