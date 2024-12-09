@@ -81,6 +81,32 @@ class Task {
     removeListener(event){
         this.callbacks[event] = null;
     }
+
+
+    logError(message="",data={}){
+        this.log("ERROR",message,data);
+    }
+
+    logInfo(message="",data={}){
+        this.log("INFO",message,data);
+    }
+
+    logWarning(message="",data={}){
+        this.log("WARNING",message,data);
+    }
+
+    logSuccess(message="",data={}){
+        this.log("SUCCESS",message,data);
+    }
+    logProgress(message="",data={}){
+        this.log("PROGRESS",message,data);
+    }
+
+    log(logType,message="",data={}){
+        let objectId = SubscriptionManager.getObjectId(this.spaceId, this.id);
+        SubscriptionManager.notifyClients("", objectId, {logType: logType, message: message, data: data});
+    }
+
     setStatus(status, result){
         this.status = status;
         this.emit(status); //update queue
