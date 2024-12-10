@@ -29,17 +29,17 @@ class ChapterToVideo extends Task {
         await fsPromises.mkdir(pathPrefix, {recursive: true});
 
         let outputVideoPath = path.join(pathPrefix, `video.mp4`);
-        if(chapter.commands.compileVideo){
-            try {
-                await fsPromises.access(outputVideoPath);
-            } catch (e){
-                let url = await Storage.getDownloadURL(Storage.fileTypes.videos, chapter.commands.compileVideo.id);
-                await fileSys.downloadData(url, outputVideoPath);
-                await ffmpegUtils.verifyMediaFileIntegrity(outputVideoPath, documentTask);
-                await ffmpegUtils.verifyVideoSettings(outputVideoPath, documentTask);
-            }
-            return outputVideoPath;
-        }
+        // if(chapter.commands.compileVideo){
+        //     try {
+        //         await fsPromises.access(outputVideoPath);
+        //     } catch (e){
+        //         let url = await Storage.getDownloadURL(Storage.fileTypes.videos, chapter.commands.compileVideo.id);
+        //         await fileSys.downloadData(url, outputVideoPath);
+        //         await ffmpegUtils.verifyMediaFileIntegrity(outputVideoPath, documentTask);
+        //         await ffmpegUtils.verifyVideoSettings(outputVideoPath, documentTask);
+        //     }
+        //     return outputVideoPath;
+        // }
         let failedTasks = [];
         for(let i = 0; i < chapter.paragraphs.length; i++){
             try{
@@ -88,7 +88,7 @@ class ChapterToVideo extends Task {
                 throw new Error(`Failed to add background sound to chapter ${chapterIndex}: ${e}`);
             }
         }
-        await this.uploadFinalVideo(outputVideoPath);
+        //await this.uploadFinalVideo(outputVideoPath);
         return outputVideoPath;
     }
     async uploadFinalVideo(videoPath){
@@ -100,7 +100,7 @@ class ChapterToVideo extends Task {
         commands.compileVideo = {
             id: videoId
         };
-        await documentModule.updateChapterCommands(this.spaceId, this.documentId, this.paragraphId, commands);
+        await documentModule.updateChapterCommands(this.spaceId, this.documentId, this.chapterId, commands);
     }
     serialize() {
         return{
