@@ -43,10 +43,12 @@ export class VideoMenu{
         }
         let compileButton = this.element.querySelector(".compile-video");
         let deleteCompileButton = this.element.querySelector(".delete-compile-video");
+        let downloadButton = this.element.querySelector(".download-compiled-video");
         if(this.paragraphPresenter.paragraph.commands.compileVideo){
             compileButton.classList.add("hidden");
         } else {
             deleteCompileButton.classList.add("hidden");
+            downloadButton.classList.add("hidden");
         }
     }
     showLipSyncWarning(message){
@@ -187,6 +189,23 @@ export class VideoMenu{
     async compileVideo(){
         await this.commandsEditor.insertCommandWithTask("compileVideo", {});
         this.invalidate();
+    }
+    async downloadCompiledVideo(){
+        let commands = this.paragraphPresenter.paragraph.commands;
+        let videoId = commands.compileVideo.id;
+        let videoURL = await spaceModule.getVideoURL(videoId);
+        let response = await fetch(videoURL);
+        if (!response.ok) {
+            throw new Error(`Failed to fetch video: ${response.statusText}`);
+        }
+        let blob = await response.blob();
+        let videoName = `video_${this.paragraphPresenter.paragraph.id}.mp4`;
+        let a = document.createElement("a");
+        a.href = URL.createObjectURL(blob);
+        a.download = videoName;
+        a.click();
+        a.remove();
+        URL.revokeObjectURL(a.href);
     }
     async deleteCompiledVideo(){
         await this.commandsEditor.deleteCommand("compileVideo");
