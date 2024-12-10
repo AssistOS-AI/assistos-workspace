@@ -6,20 +6,15 @@ export class DocumentTasksModal {
         this.element = element;
         this.invalidate = invalidate;
         this.documentId = this.element.getAttribute("data-document-id");
-        this.loadTasks = async () => {
-            this.tasks = await documentModule.getDocumentTasks(assistOS.space.id, this.documentId);
-            this.invalidate();
-        };
-        //assistOS.space.observeChange(this.documentId + "/tasks", this.invalidate, this.loadTasks);
         this.invalidate(async () => {
-            this.boundLoadTasks = this.loadTasks.bind(this);
-            await NotificationRouter.subscribeToSpace(assistOS.space.id, "tasksList", this.boundLoadTasks);
+            this.boundOnListUpdate = this.onListUpdate.bind(this);
+            await NotificationRouter.subscribeToSpace(assistOS.space.id, "tasksList", this.boundOnListUpdate);
             this.tasks = await documentModule.getDocumentTasks(assistOS.space.id, this.documentId);
         })
     }
     async onListUpdate(data){
         if(data.action === "add"){
-            let task = await utilModule.getTask(assistOS.space.id, data.id);
+            let task = await utilModule.getTask(data.id);
             this.tasks.push(task);
             this.tasksList.insertAdjacentHTML("beforeend", `<task-item data-id="${task.id}" data-presenter="task-item"></task-item>`);
         } else if(data.action === "remove"){

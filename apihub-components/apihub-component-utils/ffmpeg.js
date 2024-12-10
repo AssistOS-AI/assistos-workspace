@@ -84,7 +84,7 @@ async function convertAudioToStandard(inputAudioPath, task) {
 }
 
 const videoStandard = {
-    codec: 'libx264 -preset ultrafast',      // H.264 codec for video
+    codec: 'libx264',      // H.264 codec for video
     format: 'mp4',         // MP4 format
     bitRate: 1000,         // Video bitrate in kbps
     frameRate: 30,          // Standard frame rate
@@ -155,7 +155,9 @@ async function verifyVideoSettings(videoPath, task){
         videoStream.width !== videoStandard.width ||
         videoStream.height !== videoStandard.height ||
         videoStream.sample_aspect_ratio !== videoStandard.SAR
-
+    if(!audioStream){
+        await addAudioStreamToVideo(videoPath, task);
+    }
     if (needsVideoConversion || needsAudioConversion(audioStream)) {
         await convertVideoToStandard(videoPath, task);
         return true;
@@ -211,6 +213,24 @@ async function adjustAudioVolume(audioPath, volume, task) {
     await fsPromises.rename(tempOutputPath, audioPath);
 }
 
+const { exec } = require("child_process");
+
+async function checkAudioInFiles(videoPaths) {
+    for (const videoPath of videoPaths) {
+        console.log(`Checking file: ${videoPath}`);
+        const command = `${ffmpegPath} -i ${videoPath}`;
+        await new Promise((resolve, reject) => {
+            exec(command, (error, stdout, stderr) => {
+                if (stderr.includes("Audio")) {
+                    console.log(`Audio stream found in: ${videoPath}`);
+                } else {
+                    console.log(`No audio stream in: ${videoPath}`);
+                }
+                resolve();
+            });
+        });
+    }
+}
 async function combineVideos(tempVideoDir, videoPaths, fileListName, outputVideoPath, task) {
     const batchSize = 10;
     let videoBatches = [];
