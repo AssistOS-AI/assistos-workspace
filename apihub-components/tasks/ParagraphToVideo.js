@@ -10,7 +10,6 @@ const constants = require('./constants');
 const STATUS = constants.STATUS;
 const crypto = require("../apihub-component-utils/crypto");
 const {exec} = require("child_process");
-const TaskManager = require("./TaskManager");
 class ParagraphToVideo extends Task {
     constructor(spaceId, userId, configs) {
         super(spaceId, userId);
@@ -25,35 +24,39 @@ class ParagraphToVideo extends Task {
         let paragraph;
         let pathPrefix;
         let documentModule = await this.loadModule("document", this.securityContext);
+        paragraph = await documentModule.getParagraph(this.spaceId, this.documentId, this.paragraphId);
+        paragraph.commands.compileVideo = {
+            taskId: this.id
+        };
+        await documentModule.updateParagraphCommands(this.spaceId, this.documentId, this.paragraphId, paragraph.commands);
         if(!this.documentTaskId){
             this.ffmpegExecutor = this;
-            paragraph = await documentModule.getParagraph(this.spaceId, this.documentId, this.paragraphId);
             const spacePath = space.APIs.getSpacePath(this.spaceId);
             pathPrefix = path.join(spacePath, "temp", `${this.constructor.name}_${this.id}_temp`);
             await fsPromises.mkdir(pathPrefix, {recursive: true});
             this.workingDir = pathPrefix;
-
         } else {
             let TaskManager = require('./TaskManager');
             this.ffmpegExecutor = TaskManager.getTask(this.documentTaskId);
             let document = this.ffmpegExecutor.document;
             let chapter = document.chapters.find(chapter => chapter.id === this.chapterId);
-            paragraph = chapter.paragraphs.find(paragraph => paragraph.id === this.paragraphId);
             let paragraphIndex = chapter.paragraphs.indexOf(paragraph);
             pathPrefix = path.join(this.workingDir, `paragraph_${paragraphIndex}`);
             await fsPromises.mkdir(pathPrefix, {recursive: true});
         }
         const finalVideoPath = path.join(pathPrefix, `final.mp4`);
         if(paragraph.commands.compileVideo){
-            try {
-                await fsPromises.access(finalVideoPath);
-            } catch (e){
-                let url = await Storage.getDownloadURL(Storage.fileTypes.videos, paragraph.commands.compileVideo.id);
-                await fileSys.downloadData(url, finalVideoPath);
-                await ffmpegUtils.verifyMediaFileIntegrity(finalVideoPath, this.ffmpegExecutor);
-                await ffmpegUtils.verifyVideoSettings(finalVideoPath, this.ffmpegExecutor);
+            if(paragraph.commands.compileVideo.id){
+                try {
+                    await fsPromises.access(finalVideoPath);
+                } catch (e){
+                    let url = await Storage.getDownloadURL(Storage.fileTypes.videos, paragraph.commands.compileVideo.id);
+                    await fileSys.downloadData(url, finalVideoPath);
+                    await ffmpegUtils.verifyMediaFileIntegrity(finalVideoPath, this.ffmpegExecutor);
+                    await ffmpegUtils.verifyVideoSettings(finalVideoPath, this.ffmpegExecutor);
+                }
+                return finalVideoPath;
             }
-            return finalVideoPath;
         }
         let commands = paragraph.commands;
         if(commands.video){
@@ -122,6 +125,7 @@ class ParagraphToVideo extends Task {
             for(let process of this.processes){
                 process.kill();
             }
+            throw e;
         }
     }
     async uploadFinalVideo(finalVideoPath, documentModule){

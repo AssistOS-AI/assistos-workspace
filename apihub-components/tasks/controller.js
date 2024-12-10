@@ -25,19 +25,25 @@ async function compileVideoFromDocument(request, response) {
         });
     }
 }
-function compileVideoFromParagraph(request, response) {
+async function compileVideoFromParagraph(request, response) {
     let documentId = request.params.documentId;
     let paragraphId = request.params.paragraphId;
     let spaceId = request.params.spaceId;
     let userId = request.userId;
     let sessionId = request.sessionId;
-    let task = new ParagraphToVideo(spaceId, userId, {documentId, paragraphId});
-    TaskManager.addTask(task);
-    notifyTasksListUpdate(sessionId, spaceId);
-    sendResponse(response, 200, "application/json", {
-        data: task.id
-    });
-    TaskManager.runTask(task.id);
+    try {
+        let task = new ParagraphToVideo(spaceId, userId, {documentId, paragraphId});
+        await TaskManager.addTask(task);
+        notifyTasksListUpdate(sessionId, spaceId);
+        sendResponse(response, 200, "application/json", {
+            data: task.id
+        });
+        TaskManager.runTask(task.id);
+    } catch (e) {
+        utils.sendResponse(response, 500, "application/json", {
+            message: e.message
+        });
+    }
 }
 function notifyTasksListUpdate(sessionId, spaceId) {
     let objectId = SubscriptionManager.getObjectId(spaceId, "tasks");
