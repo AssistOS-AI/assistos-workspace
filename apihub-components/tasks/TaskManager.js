@@ -3,6 +3,7 @@ const enclave = require("opendsu").loadAPI("enclave");
 const fsPromises = require('fs').promises;
 const space = require('../spaces-storage/space');
 const constants = require('./constants');
+const SubscriptionManager = require("../subscribers/SubscriptionManager");
 const STATUS = constants.STATUS;
 const EVENTS = constants.EVENTS;
 

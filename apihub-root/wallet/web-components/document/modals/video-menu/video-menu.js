@@ -168,7 +168,7 @@ export class VideoMenu{
                 duration: duration,
                 start: 0,
                 end: duration,
-                volume: 1
+                volume: 100
             };
             await this.commandsEditor.insertSimpleCommand("video", data);
         });
@@ -178,9 +178,12 @@ export class VideoMenu{
     }
 
     async saveVideoChanges(targetElement){
-        this.paragraphPresenter.paragraph.commands.video.start = this.videoStartTime;
-        this.paragraphPresenter.paragraph.commands.video.end = this.videoEndTime;
-        this.paragraphPresenter.paragraph.commands.video.volume = this.videoVolume;
+        let startInput = this.element.querySelector("#start");
+        let endInput = this.element.querySelector("#end");
+        let volumeInput = this.element.querySelector("#volume");
+        this.paragraphPresenter.paragraph.commands.video.start = parseFloat(startInput.value);
+        this.paragraphPresenter.paragraph.commands.video.end = parseFloat(endInput.value);
+        this.paragraphPresenter.paragraph.commands.video.volume = parseFloat(volumeInput.value);
         await documentModule.updateParagraphCommands(assistOS.space.id, this.paragraphPresenter._document.id, this.paragraphPresenter.paragraph.id, this.paragraphPresenter.paragraph.commands);
         this.paragraphPresenter.checkVideoAndAudioDuration();
         this.videoPresenter.setVideoPreviewDuration();

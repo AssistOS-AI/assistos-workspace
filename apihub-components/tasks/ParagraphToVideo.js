@@ -24,14 +24,10 @@ class ParagraphToVideo extends Task {
         let paragraph;
         let pathPrefix;
         let documentModule = await this.loadModule("document", this.securityContext);
-        paragraph = await documentModule.getParagraph(this.spaceId, this.documentId, this.paragraphId);
-        paragraph.commands.compileVideo = {
-            taskId: this.id
-        };
-        await documentModule.updateParagraphCommands(this.spaceId, this.documentId, this.paragraphId, paragraph.commands);
         if(!this.documentTaskId){
             this.ffmpegExecutor = this;
             const spacePath = space.APIs.getSpacePath(this.spaceId);
+            paragraph = await documentModule.getParagraph(this.spaceId, this.documentId, this.paragraphId);
             pathPrefix = path.join(spacePath, "temp", `${this.constructor.name}_${this.id}_temp`);
             await fsPromises.mkdir(pathPrefix, {recursive: true});
             this.workingDir = pathPrefix;
@@ -40,6 +36,7 @@ class ParagraphToVideo extends Task {
             this.ffmpegExecutor = TaskManager.getTask(this.documentTaskId);
             let document = this.ffmpegExecutor.document;
             let chapter = document.chapters.find(chapter => chapter.id === this.chapterId);
+            paragraph = chapter.paragraphs.find(paragraph => paragraph.id === this.paragraphId);
             let paragraphIndex = chapter.paragraphs.indexOf(paragraph);
             pathPrefix = path.join(this.workingDir, `paragraph_${paragraphIndex}`);
             await fsPromises.mkdir(pathPrefix, {recursive: true});
@@ -111,7 +108,8 @@ class ParagraphToVideo extends Task {
             await ffmpegUtils.createVideoFromImage(finalVideoPath, imagePath, 1, this.ffmpegExecutor);
             await fsPromises.unlink(imagePath);
         } else {
-            throw new Error("Paragraph doesnt have a visual source");
+            return;
+            //throw new Error("Paragraph doesnt have a visual source");
         }
         await this.attachEffectsToParagraphVideo(finalVideoPath, commands.effects, pathPrefix);
 
@@ -142,7 +140,7 @@ class ParagraphToVideo extends Task {
         }
     }
     async attachEffectsToParagraphVideo(videoPath, effects, pathPrefix){
-        if(!effects){
+        if(!effects || effects.length === 0){
             return;
         }
         for(let effect of effects){
