@@ -46,7 +46,7 @@ class Task {
                 return;
             }
             this.setStatus(STATUS.COMPLETED, result);
-            setTimeout(() => {
+            this.deleteTimeout = setTimeout(() => {
                 const TaskManager = require('./TaskManager');
                 TaskManager.removeTask(this.id);
             }, deleteTaskOnCompleteDuration);

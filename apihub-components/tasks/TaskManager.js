@@ -89,6 +89,9 @@ class TaskManager {
             throw new Error('Task not found');
         }
         let spaceId = task.spaceId;
+        if(task.deleteTimeout){
+            clearTimeout(task.deleteTimeout);
+        }
         this.tasks = this.tasks.filter(task => task.id !== taskId);
         let lightDBEnclaveClient = enclave.initialiseLightDBEnclave(spaceId);
         await $$.promisify(lightDBEnclaveClient.deleteRecord)($$.SYSTEM_IDENTIFIER, this.tasksTable, taskId);

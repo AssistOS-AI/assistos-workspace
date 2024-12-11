@@ -141,6 +141,20 @@ function needsAudioConversion(audioStreamInfo) {
         parseFloat(audioStreamInfo.bit_rate)/1000 !== audioStandard.bitRate
     );
 }
+
+async function addAudioStreamToVideo(videoPath, task){
+    const tempOutputPath = videoPath.replace('.mp4', '_temp.mp4');
+    const command = `${ffmpegPath} -i ${videoPath} -f lavfi -i anullsrc=channel_layout=stereo:sample_rate=${audioStandard.sampleRate} \
+    -c:v copy -c:a ${audioStandard.codec} -b:a ${audioStandard.bitRate}k -shortest ${tempOutputPath}`;
+    try {
+        await task.runCommand(command);
+    } catch (e) {
+        throw new Error(`Failed to add audio stream to video: ${e.message}`);
+    }
+    await fsPromises.unlink(videoPath);
+    await fsPromises.rename(tempOutputPath, videoPath);
+}
+
 async function verifyVideoSettings(videoPath, task){
     const command = `${ffprobePath} -v quiet -print_format json -show_format -show_streams "${videoPath}"`;
     let result = await task.runCommand(command);
