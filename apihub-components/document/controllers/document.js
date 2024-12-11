@@ -291,7 +291,8 @@ async function storeDocument(spaceId, extractedPath, request) {
         const chapter = docData.chapters[i];
         let chapterObject = {
             title: chapter.title,
-            position: chapter.position || 0
+            position: chapter.position || 0,
+            backgroundSound: chapter.backgroundSound
         };
 
         if (exportType === 'full' && chapter.backgroundSound) {
