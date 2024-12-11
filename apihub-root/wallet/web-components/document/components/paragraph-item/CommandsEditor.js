@@ -71,6 +71,7 @@ export default class CommandsEditor {
                     await this.handleCommand("lipsync", "changed");
                 }
             }
+            //await this.invalidateCompiledVideos();
             await documentModule.updateParagraphCommands(assistOS.space.id, this.documentId, this.paragraph.id, this.paragraph.commands);
             this.renderViewModeCommands();
             this.videoPresenter.refreshVideoPreview();
@@ -82,6 +83,16 @@ export default class CommandsEditor {
             commands.style.height = commands.scrollHeight + 'px';
         }
         return data.id;
+    }
+    async invalidateCompiledVideos(){
+        if(this.paragraph.commands.compileVideo){
+            delete this.paragraph.commands.compileVideo;
+        }
+        let chapter = this.paragraphPresenter.chapter;
+        if(chapter.commands.compileVideo){
+            delete chapter.commands.compileVideo;
+            await documentModule.updateChapterCommands(assistOS.space.id, this.documentId, chapter.id, chapter.commands);
+        }
     }
     deleteCommandArrayItem(type, itemId){
         let index = this.paragraph.commands[type].findIndex(command => command.id === itemId);
@@ -100,6 +111,7 @@ export default class CommandsEditor {
                 }
                 delete this.paragraph.commands[type];
             }
+            //await this.invalidateCompiledVideos();
             await documentModule.updateParagraphCommands(assistOS.space.id, this.documentId, this.paragraph.id, this.paragraph.commands);
             this.renderViewModeCommands();
             this.videoPresenter.refreshVideoPreview();

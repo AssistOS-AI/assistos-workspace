@@ -41,6 +41,15 @@ export class VideoMenu{
         if(this.paragraphPresenter.paragraph.commands.lipsync){
             lipSyncCheckbox.checked = true;
         }
+        let compileButton = this.element.querySelector(".compile-video");
+        let deleteCompileButton = this.element.querySelector(".delete-compile-video");
+        let downloadButton = this.element.querySelector(".download-compiled-video");
+        if(this.paragraphPresenter.paragraph.commands.compileVideo){
+            compileButton.classList.add("hidden");
+        } else {
+            deleteCompileButton.classList.add("hidden");
+            downloadButton.classList.add("hidden");
+        }
     }
     showLipSyncWarning(message){
         let warning = `
@@ -159,7 +168,7 @@ export class VideoMenu{
                 duration: duration,
                 start: 0,
                 end: duration,
-                volume: 1
+                volume: 100
             };
             await this.commandsEditor.insertSimpleCommand("video", data);
         });
@@ -169,13 +178,41 @@ export class VideoMenu{
     }
 
     async saveVideoChanges(targetElement){
-        this.paragraphPresenter.paragraph.commands.video.start = this.videoStartTime;
-        this.paragraphPresenter.paragraph.commands.video.end = this.videoEndTime;
-        this.paragraphPresenter.paragraph.commands.video.volume = this.videoVolume;
+        let startInput = this.element.querySelector("#start");
+        let endInput = this.element.querySelector("#end");
+        let volumeInput = this.element.querySelector("#volume");
+        this.paragraphPresenter.paragraph.commands.video.start = parseFloat(startInput.value);
+        this.paragraphPresenter.paragraph.commands.video.end = parseFloat(endInput.value);
+        this.paragraphPresenter.paragraph.commands.video.volume = parseFloat(volumeInput.value);
         await documentModule.updateParagraphCommands(assistOS.space.id, this.paragraphPresenter._document.id, this.paragraphPresenter.paragraph.id, this.paragraphPresenter.paragraph.commands);
         this.paragraphPresenter.checkVideoAndAudioDuration();
         this.videoPresenter.setVideoPreviewDuration();
         targetElement.classList.add("hidden");
+    }
+    async compileVideo(){
+        await this.commandsEditor.insertCommandWithTask("compileVideo", {});
+        this.invalidate();
+    }
+    async downloadCompiledVideo(){
+        let commands = this.paragraphPresenter.paragraph.commands;
+        let videoId = commands.compileVideo.id;
+        let videoURL = await spaceModule.getVideoURL(videoId);
+        let response = await fetch(videoURL);
+        if (!response.ok) {
+            throw new Error(`Failed to fetch video: ${response.statusText}`);
+        }
+        let blob = await response.blob();
+        let videoName = `video_${this.paragraphPresenter.paragraph.id}.mp4`;
+        let a = document.createElement("a");
+        a.href = URL.createObjectURL(blob);
+        a.download = videoName;
+        a.click();
+        a.remove();
+        URL.revokeObjectURL(a.href);
+    }
+    async deleteCompiledVideo(){
+        await this.commandsEditor.deleteCommand("compileVideo");
+        this.invalidate();
     }
     closeModal(button){
         assistOS.UI.closeModal(this.element);

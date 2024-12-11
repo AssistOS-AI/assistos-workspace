@@ -55,7 +55,7 @@ paragraph-video-preview .right-margin{
     width: 25px;
 }
 .fullscreen-paragraph-video{
-    z-index: 6;
+    z-index: 11;
     position: fixed;
     top: 0;
     left: 0;

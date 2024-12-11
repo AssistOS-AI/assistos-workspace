@@ -31,6 +31,7 @@ export class ChapterItem {
     }
 
     beforeRender() {
+        //await documentModule.updateChapterCommands(assistOS.space.id, this._document.id, this.chapter.id, this.chapter.commands);
         if (this._document.chapters.length === 1) {
             this.toggleSwapArrows = "hide";
         } else {

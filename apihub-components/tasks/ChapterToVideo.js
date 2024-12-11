@@ -8,6 +8,8 @@ const Storage = require("../apihub-component-utils/storage");
 const constants = require('./constants');
 const STATUS = constants.STATUS;
 const ParagraphToVideo = require('./ParagraphToVideo');
+const SubscriptionManager = require("../subscribers/SubscriptionManager");
+const crypto = require("../apihub-component-utils/crypto");
 class ChapterToVideo extends Task {
     constructor(spaceId, userId, configs) {
         super(spaceId, userId);
@@ -23,40 +25,82 @@ class ChapterToVideo extends Task {
         let chapter = documentTask.document.chapters.find(chapter => chapter.id === this.chapterId);
         let chapterIndex = documentTask.document.chapters.indexOf(chapter);
         let completedFramePaths = [];
-        let pathPrefix = path.join(this.workingDir, `chapter_${this.chapterIndex}`);
+        let pathPrefix = path.join(this.workingDir, `chapter_${chapterIndex}`);
         await fsPromises.mkdir(pathPrefix, {recursive: true});
+
+        let outputVideoPath = path.join(pathPrefix, `video.mp4`);
+        // if(chapter.commands.compileVideo){
+        //     try {
+        //         await fsPromises.access(outputVideoPath);
+        //     } catch (e){
+        //         let url = await Storage.getDownloadURL(Storage.fileTypes.videos, chapter.commands.compileVideo.id);
+        //         await fileSys.downloadData(url, outputVideoPath);
+        //         await ffmpegUtils.verifyMediaFileIntegrity(outputVideoPath, documentTask);
+        //         await ffmpegUtils.verifyVideoSettings(outputVideoPath, documentTask);
+        //     }
+        //     return outputVideoPath;
+        // }
+        let failedTasks = [];
         for(let i = 0; i < chapter.paragraphs.length; i++){
             try{
+                let paragraph = chapter.paragraphs[i];
                 let paragraphTask = new ParagraphToVideo(this.spaceId, this.userId, {
                     documentId: this.documentId,
                     chapterId: this.chapterId,
-                    paragraphId: chapter.paragraphs[i].id,
-                    workingDir: this.workingDir,
+                    paragraphId: paragraph.id,
+                    workingDir: pathPrefix,
                     documentTaskId: this.documentTaskId
                 });
                 await TaskManager.addTask(paragraphTask);
+                let objectId = SubscriptionManager.getObjectId(paragraphTask.spaceId, "tasksList");
+                SubscriptionManager.notifyClients("", objectId, {id: paragraphTask.id, action: "add"});
                 let videoPath = await paragraphTask.run();
                 completedFramePaths.push(videoPath);
             } catch (e) {
-                throw new Error(`Failed to create video for chapter ${chapterIndex}, paragraph ${i}: ${e}`);
+                failedTasks.push(i);
             }
         }
-        completedFramePaths = completedFramePaths.filter(videoPath => typeof videoPath !== "undefined");
-        let outputVideoPath = `${pathPrefix}_video.mp4`;
-        await ffmpegUtils.combineVideos(
-            this.workingDir,
-            completedFramePaths,
-            `chapter_${chapterIndex}_frames.txt`,
-            outputVideoPath,
-            documentTask);
-        if(chapter.backgroundSound){
-            let chapterAudioPath = `${pathPrefix}_audio.mp3`;
-            let chapterAudioURL = await Storage.getDownloadURL(Storage.fileTypes.audios, chapter.backgroundSound.id);
-            await fileSys.downloadData(chapterAudioURL, chapterAudioPath);
-            await ffmpegUtils.addBackgroundSoundToVideo(outputVideoPath, chapterAudioPath, chapter.backgroundSound.volume, chapter.backgroundSound.loop, documentTask);
-            await fsPromises.unlink(chapterAudioPath);
+        if(failedTasks.length > 0){
+            await fsPromises.rm(pathPrefix, {recursive: true, force: true});
+            throw new Error(`Failed to create videos for chapter ${chapterIndex} paragraphs: ${failedTasks.join(", ")}`);
         }
+        completedFramePaths = completedFramePaths.filter(videoPath => typeof videoPath !== "undefined");
+
+        try {
+            await ffmpegUtils.combineVideos(
+                pathPrefix,
+                completedFramePaths,
+                `chapter_${chapterIndex}_frames.txt`,
+                outputVideoPath,
+                documentTask);
+        } catch (e){
+            throw new Error(`Failed to combine videos for chapter ${chapterIndex}: ${e}`);
+        }
+
+        if(chapter.backgroundSound){
+            try {
+                let chapterAudioPath = path.join(pathPrefix, `background_sound.mp3`);
+                let chapterAudioURL = await Storage.getDownloadURL(Storage.fileTypes.audios, chapter.backgroundSound.id);
+                await fileSys.downloadData(chapterAudioURL, chapterAudioPath);
+                await ffmpegUtils.addBackgroundSoundToVideo(outputVideoPath, chapterAudioPath, chapter.backgroundSound.volume, chapter.backgroundSound.loop, documentTask);
+                await fsPromises.unlink(chapterAudioPath);
+            } catch (e) {
+                throw new Error(`Failed to add background sound to chapter ${chapterIndex}: ${e}`);
+            }
+        }
+        //await this.uploadFinalVideo(outputVideoPath);
         return outputVideoPath;
+    }
+    async uploadFinalVideo(videoPath){
+        let readStream = fs.createReadStream(videoPath);
+        let videoId = crypto.generateId();
+        await Storage.putFile(Storage.fileTypes.videos, videoId, readStream);
+        let documentModule = await this.loadModule("document");
+        let commands = await documentModule.getChapterCommands(this.spaceId, this.documentId, this.chapterId);
+        commands.compileVideo = {
+            id: videoId
+        };
+        await documentModule.updateChapterCommands(this.spaceId, this.documentId, this.chapterId, commands);
     }
     serialize() {
         return{
@@ -65,6 +109,7 @@ class ChapterToVideo extends Task {
             spaceId: this.spaceId,
             userId: this.userId,
             name: this.constructor.name,
+            failMessage: this.failMessage,
             configs:{
                 spaceId: this.spaceId,
                 documentId: this.documentId,

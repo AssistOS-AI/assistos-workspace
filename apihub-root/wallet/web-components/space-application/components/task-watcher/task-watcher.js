@@ -7,7 +7,7 @@ export class TaskWatcher {
         this.taskId = this.element.getAttribute('taskId');
         this.boundOnTaskLog = this.onTaskLog.bind(this);
         this.invalidate(async () => {
-            await NotificationRouter.subscribeToSpace(assistOS.space.id, this.taskId, this.boundOnTaskLog);
+            await NotificationRouter.subscribeToSpace(assistOS.space.id, this.taskId + "/logs", this.boundOnTaskLog);
         });
     }
 

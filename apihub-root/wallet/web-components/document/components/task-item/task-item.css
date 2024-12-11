@@ -36,8 +36,8 @@ task-item{
     width: 350px;
     color: black;
     box-shadow: 0px 1px 7.3px 0px #00000040;
-    top: -85px;
-    right: -38px;
+    top: 0;
+    right: -50px;
     z-index: 1;
     display: -webkit-box;
     -webkit-box-orient: vertical;
@@ -55,6 +55,11 @@ task-item{
 }
 .task-agent{
     width: 25%;
+    display: flex;
+    align-items: center;
+}
+.task-action{
+    width: 10%;
     display: flex;
     align-items: center;
 }

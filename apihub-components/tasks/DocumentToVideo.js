@@ -8,6 +8,7 @@ const ffmpegUtils = require("../apihub-component-utils/ffmpeg");
 const constants = require('./constants');
 const STATUS = constants.STATUS;
 const ChapterToVideo = require('./ChapterToVideo');
+const SubscriptionManager = require("../subscribers/SubscriptionManager");
 class DocumentToVideo extends Task {
     constructor(spaceId, userId, configs) {
         super(spaceId, userId);
@@ -23,24 +24,31 @@ class DocumentToVideo extends Task {
         this.document = await documentModule.getDocument(this.spaceId, this.documentId);
         let TaskManager = require('./TaskManager');
         let chapterVideos = [];
-        try {
-            for(let chapter of this.document.chapters){
-                let chapterTask = new ChapterToVideo(this.spaceId, this.userId, {
-                    documentId: this.documentId,
-                    chapterId: chapter.id,
-                    workingDir: tempVideoDir,
-                    documentTaskId: this.id
-                });
-                await TaskManager.addTask(chapterTask);
+        let failedTasks = [];
+        for(let i = 0; i < this.document.chapters.length; i++){
+            let chapter = this.document.chapters[i];
+            let chapterTask = new ChapterToVideo(this.spaceId, this.userId, {
+                documentId: this.documentId,
+                chapterId: chapter.id,
+                workingDir: tempVideoDir,
+                documentTaskId: this.id
+            });
+            await TaskManager.addTask(chapterTask);
+            let objectId = SubscriptionManager.getObjectId(chapterTask.spaceId, "tasksList");
+            SubscriptionManager.notifyClients("", objectId, {id: chapterTask.id, action: "add"});
+            try {
                 let videoPath = await chapterTask.run();
                 chapterVideos.push(videoPath);
+            } catch (e) {
+                failedTasks.push(i);
             }
-        } catch (e) {
-            await fsPromises.rm(tempVideoDir, {recursive: true, force: true});
+        }
+        if(failedTasks.length > 0){
             for(let process of this.processes){
-                process.kill();
+                     process.kill();
             }
-            throw new Error(`Failed to create chapter video: ${e}`);
+            await fsPromises.rm(tempVideoDir, {recursive: true, force: true});
+            throw new Error(`Failed to create videos for chapters: ${failedTasks.join(", ")}`);
         }
         chapterVideos = chapterVideos.filter(videoPath => typeof videoPath !== "undefined");
         try {
@@ -93,6 +101,7 @@ class DocumentToVideo extends Task {
             spaceId: this.spaceId,
             userId: this.userId,
             name: this.constructor.name,
+            failMessage: this.failMessage,
             configs:{
                 spaceId: this.spaceId,
                 documentId: this.documentId,

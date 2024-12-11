@@ -46,7 +46,7 @@ class Task {
                 return;
             }
             this.setStatus(STATUS.COMPLETED, result);
-            setTimeout(() => {
+            this.deleteTimeout = setTimeout(() => {
                 const TaskManager = require('./TaskManager');
                 TaskManager.removeTask(this.id);
             }, deleteTaskOnCompleteDuration);
@@ -54,6 +54,7 @@ class Task {
         } catch (e) {
             this.failMessage = e.message;
             this.setStatus(STATUS.FAILED);
+            throw e;
         }
     }
 
@@ -103,7 +104,7 @@ class Task {
     }
 
     log(logType,message="",data={}){
-        let objectId = SubscriptionManager.getObjectId(this.spaceId, this.id);
+        let objectId = SubscriptionManager.getObjectId(this.spaceId, this.id + "/logs");
         SubscriptionManager.notifyClients("", objectId, {logType: logType, message: message, data: data});
     }
 

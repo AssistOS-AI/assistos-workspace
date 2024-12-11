@@ -155,21 +155,26 @@ function downloadDocumentArchive(request, response) {
     streamFile(filePath, response, "application/zip");
 }
 function streamFile(filePath, response, contentType) {
-    let readStream = fs.createReadStream(filePath);
-    let fileSize = fs.statSync(filePath).size;
-
-    response.setHeader('Content-Length', fileSize);
-    response.setHeader('Content-Type', contentType);
-    readStream.on('error', (error) => {
-        utils.sendResponse(response, 500, "application/json", {
-            message: `Error reading file: ${error.message}`
+    try {
+        let readStream = fs.createReadStream(filePath);
+        let fileSize = fs.statSync(filePath).size;
+        response.setHeader('Content-Length', fileSize);
+        response.setHeader('Content-Type', contentType);
+        readStream.on('error', (error) => {
+            utils.sendResponse(response, 500, "application/json", {
+                message: `Error reading file: ${error.message}`
+            });
         });
-    });
-    readStream.on('end', async () => {
-        await fsPromises.unlink(filePath);
-    });
+        readStream.on('end', async () => {
+            await fsPromises.unlink(filePath);
+        });
 
-    readStream.pipe(response);
+        readStream.pipe(response);
+    } catch (e) {
+        utils.sendResponse(response, 500, "application/json", {
+            message: `Error reading file: ${e.message}`
+        });
+    }
 }
 function downloadDocumentVideo(request, response) {
     let spaceId = request.params.spaceId;
@@ -286,7 +291,8 @@ async function storeDocument(spaceId, extractedPath, request) {
         const chapter = docData.chapters[i];
         let chapterObject = {
             title: chapter.title,
-            position: chapter.position || 0
+            position: chapter.position || 0,
+            backgroundSound: chapter.backgroundSound
         };
 
         if (exportType === 'full' && chapter.backgroundSound) {

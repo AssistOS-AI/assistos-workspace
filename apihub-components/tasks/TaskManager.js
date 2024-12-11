@@ -3,6 +3,7 @@ const enclave = require("opendsu").loadAPI("enclave");
 const fsPromises = require('fs').promises;
 const space = require('../spaces-storage/space');
 const constants = require('./constants');
+const SubscriptionManager = require("../subscribers/SubscriptionManager");
 const STATUS = constants.STATUS;
 const EVENTS = constants.EVENTS;
 
@@ -88,6 +89,9 @@ class TaskManager {
             throw new Error('Task not found');
         }
         let spaceId = task.spaceId;
+        if(task.deleteTimeout){
+            clearTimeout(task.deleteTimeout);
+        }
         this.tasks = this.tasks.filter(task => task.id !== taskId);
         let lightDBEnclaveClient = enclave.initialiseLightDBEnclave(spaceId);
         await $$.promisify(lightDBEnclaveClient.deleteRecord)($$.SYSTEM_IDENTIFIER, this.tasksTable, taskId);

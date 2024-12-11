@@ -7,13 +7,12 @@ dialog{
     overflow: visible;
 }
 .tasks-list-container {
-    overflow-y: scroll;
     cursor: initial;
     min-width: 150px;
     min-height: 35px;
     font-size: 14px;
     align-items: flex-start;
-    max-height: 350px;
+    max-height: 500px;
     flex-direction: column;
     box-shadow: 0px 1px 5.5px 0px #65666754;
     padding: 5px 0;
@@ -38,7 +37,7 @@ dialog{
     line-height: normal;
 }
 .agent-header{
-    width: 25%;
+    width: 24%;
 }
 .name-header{
     width: 30%;
@@ -54,6 +53,8 @@ dialog{
 }
 .tasks-list{
     scrollbar-width: initial;
+    overflow-y: auto;
+    max-height: 400px;
 }
 .tasks-list::-webkit-scrollbar {
     display: block;

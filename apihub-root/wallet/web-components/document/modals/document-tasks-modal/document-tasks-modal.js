@@ -6,13 +6,22 @@ export class DocumentTasksModal {
         this.element = element;
         this.invalidate = invalidate;
         this.documentId = this.element.getAttribute("data-document-id");
-        this.loadTasks = async () => {
-            this.tasks = await documentModule.getDocumentTasks(assistOS.space.id, this.documentId);
-        };
-        assistOS.space.observeChange(this.documentId + "/tasks", this.invalidate, this.loadTasks);
         this.invalidate(async () => {
-            await this.loadTasks();
+            this.boundOnListUpdate = this.onListUpdate.bind(this);
+            await NotificationRouter.subscribeToSpace(assistOS.space.id, "tasksList", this.boundOnListUpdate);
+            this.tasks = await documentModule.getDocumentTasks(assistOS.space.id, this.documentId);
         })
+    }
+    async onListUpdate(data){
+        if(data.action === "add"){
+            let task = await utilModule.getTask(data.id);
+            this.tasks.push(task);
+            this.tasksList.insertAdjacentHTML("beforeend", `<task-item data-id="${task.id}" data-presenter="task-item"></task-item>`);
+        } else if(data.action === "remove"){
+            this.tasks = this.tasks.filter(task => task.id !== data.id);
+            let taskItem = this.element.querySelector(`task-item[data-id="${data.id}"]`);
+            taskItem.remove();
+        }
     }
     beforeRender(){
         this.modalContent = `<div class="tasks-list no-tasks">No tasks created</div>`;
@@ -41,6 +50,7 @@ export class DocumentTasksModal {
 
     afterRender(){
         this.checkButtonsState();
+        this.tasksList = this.element.querySelector(".tasks-list");
     }
     async runAllTasks(button){
         button.classList.add("disabled");
