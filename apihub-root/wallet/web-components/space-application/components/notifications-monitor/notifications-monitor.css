@@ -1,0 +1,162 @@
+#monitor {
+    position: fixed;
+    bottom: 30px;
+    left:72px;
+    bottom:0;
+    height: 1000px;
+    width: 1000px;
+    background: linear-gradient(135deg, #3F88C5 0%, #1E1E1E 100%);
+    border: 1px solid rgba(255, 255, 255, 0.2);
+    border-radius: 16px;
+    overflow: hidden;
+    z-index: 10000;
+    display: flex;
+    flex-direction: column;
+    box-shadow: 0 8px 32px rgba(0, 0, 0, 0.25);
+    color: #ffffff;
+    font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+    animation: slideUp 0.5s ease-out;
+}
+
+#monitorHeader {
+    display: flex;
+    align-items: center;
+    height:7.5%;
+    justify-content: space-between;
+    padding: 12px 16px;
+    background: rgba(0, 0, 0, 0.3);
+    backdrop-filter: blur(5px);
+    border-bottom: 1px solid rgba(255, 255, 255, 0.2);
+    cursor: move;
+}
+
+#monitorTitle {
+    font-size: 20px;
+    font-weight: 600;
+}
+
+#monitorControls button {
+    background: none;
+    border: none;
+    color: #ffffff;
+    font-size: 20px;
+    cursor: pointer;
+    margin-left: 8px;
+    transition: color 0.2s;
+}
+
+#monitorControls button:hover {
+    color: #FF6B6B;
+}
+
+#tabsContainer {
+    display: flex;
+    background: rgba(0, 0, 0, 0.2);
+    overflow-x: auto;
+    position:sticky;
+    white-space: nowrap;
+    height:5%;
+    border-bottom: 1px solid rgba(255, 255, 255, 0.2);
+}
+
+.tab {
+    padding: 10px 16px;
+    cursor: pointer;
+    position: relative;
+    user-select: none;
+    transition: background 0.2s;
+    display: flex;
+    align-items: center;
+    flex-shrink: 0;
+}
+
+.tab.active {
+    background: rgba(255, 255, 255, 0.1);
+}
+
+.tab:hover {
+    background: rgba(255, 255, 255, 0.05);
+}
+
+.closeTab {
+    margin-left: 8px;
+    background: none;
+    border: none;
+    color: #ffffff;
+    font-size: 14px;
+    cursor: pointer;
+}
+
+#taskWatchersContainer {
+    flex-grow: 1;
+    position: relative;
+    overflow: hidden;
+    height:82.5%;
+}
+
+task-watcher {
+    position: relative;
+    width: 100%;
+    height: 100%;
+    display: none;
+    flex-direction: column;
+    border-radius: 0;
+}
+
+task-watcher.active {
+    display: flex;
+}
+
+#monitor.minimized {
+    height: 40px;
+    width: 200px;
+}
+
+#monitor.minimized #tabsContainer,
+#monitor.minimized #taskWatchersContainer {
+    display: none;
+}
+
+#monitor.minimized #monitorHeader {
+    justify-content: space-between;
+}
+
+#monitorResizer {
+    width: 16px;
+    height: 16px;
+    background: transparent;
+    position: absolute;
+    bottom: 0;
+    right: 0;
+    cursor: se-resize;
+}
+
+#monitorResizer::after {
+    content: "";
+    position: absolute;
+    right: 4px;
+    bottom: 4px;
+    width: 8px;
+    height: 8px;
+    border-right: 2px solid #ffffff;
+    border-bottom: 2px solid #ffffff;
+}
+
+@keyframes slideUp {
+    from {
+        transform: translateY(100%);
+        opacity: 0;
+    }
+    to {
+        transform: translateY(0);
+        opacity: 1;
+    }
+}
+
+@media screen and (max-width: 900px) {
+    #monitor {
+        width: 90%;
+        right: 5%;
+        height: 70%;
+    }
+}

@@ -46,6 +46,12 @@
             "presenterClassName": "TaskWatcher"
         },
         {
+            "name": "notifications-monitor",
+            "directory": "space-application",
+            "type": "components",
+            "presenterClassName": "NotificationsMonitor"
+        },
+        {
             "name": "fb-mms-tts-bht-model-page",
             "directory": "space-application",
             "type": "pages",
