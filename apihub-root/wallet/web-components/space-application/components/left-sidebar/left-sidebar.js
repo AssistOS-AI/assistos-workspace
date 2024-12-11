@@ -208,14 +208,8 @@ export class LeftSidebar {
         });
     }
 
-    showNotifications(_target, mode) {
-        if (mode === "off") {
-            let target = this.element.querySelector(".notifications-box");
-            target.style.display = "flex";
-            let controller = new AbortController();
-            document.addEventListener("click", this.hideNotifications.bind(this, controller, _target), {signal: controller.signal});
-            _target.setAttribute("data-local-action", "showNotifications on");
-        }
+    showNotifications(_target) {
+        assistOS.openNotificationMonitor();
     }
 
     hideNotifications(controller, arrow, event) {

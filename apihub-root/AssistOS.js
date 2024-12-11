@@ -14,6 +14,7 @@ class AssistOS {
             return AssistOS.instance;
         }
         this.configuration = configuration;
+        this.notificationMonitor = "closed";
         AssistOS.instance = this;
         return AssistOS.instance;
     }
@@ -158,6 +159,29 @@ class AssistOS {
 
     async changeAgent(agentId) {
         await this.loadAgent(assistOS.space.id, agentId);
+    }
+
+    watchTask(taskId) {
+        if (this.notificationMonitor === "closed") {
+            this.openNotificationMonitor();
+        }
+        document.querySelector('notifications-monitor').webSkelPresenter.addTaskWatcher(taskId);
+    }
+
+    openNotificationMonitor(){
+        if(this.notificationMonitor==="open"){
+            return;
+        }
+        document.querySelector('notifications-monitor').classList.remove('closed')
+        this.notificationMonitor="open";
+    }
+
+    closeNotificationMonitor(){
+        if(this.notificationMonitor==="closed"){
+            return;
+        }
+        document.querySelector('notifications-monitor').classList.add('closed')
+        this.notificationMonitor="closed";
     }
 
     async createSpace(spaceName, apiKey) {

@@ -18,6 +18,10 @@ left-sidebar {
     flex-direction: column;
     align-items: center;
 }
+.closed{
+    display: none;
+}
+
 .bottom-section {
     color: white;
     font-size: 18px;
