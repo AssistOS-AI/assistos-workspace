@@ -2,6 +2,7 @@ const utils = require('../apihub-component-utils/utils.js');
 const secrets = require("../apihub-component-utils/secrets");
 const axios = require('axios');
 const cache = {};
+const Handler = require('./handler.js');
 const {pipeline} = require('stream');
 const {getWebhookSecret} = require("../webhook/controller");
 const configs = require("../../data-volume/config/config.json");
@@ -107,7 +108,7 @@ async function sendRequest(url, method, request, response) {
     return llmResponse.data;
 }
 
-async function getTextResponse(request,response) {
+async function getTextResponse(request, response) {
     try {
         const modelResponse = await sendRequest(`/apis/v1/text/generate`, "POST", request, response);
         utils.sendResponse(response, 200, "application/json", {
@@ -121,18 +122,29 @@ async function getTextResponse(request,response) {
         return {success: false, message: error.message};
     }
 }
-async function getTextResponseAdvanced(request,response) {
-    try {
-        const modelResponse = await sendRequest(`/apis/v1/text/generate/advanced`, "POST", request, response);
-        utils.sendResponse(response, 200, "application/json", {
-            data: modelResponse
+
+async function getTextResponseAdvanced(request, response) {
+    const {spaceId}=request.params;
+    request.spaceId=spaceId;
+    const {
+        initiator,
+        target,
+        text,
+        outputFormat
+    } = request.body;
+
+    if (!initiator || !target || !text || !outputFormat) {
+        return utils.sendResponse(response, 400, "application/json", {
+            message: `Missing required fields:${initiator ? '' : ' initiator,'}${target ? '' : ' target,'}${text ? '' : ' text,'}${outputFormat ? '' : ' outputFormat,'}`
         });
-        return {success: true, data: modelResponse};
+    }
+    try {
+        const llmResponse = await Handler.processTextAdvancedRequest(request,response,sendRequest,initiator, target, text, outputFormat);
+        return utils.sendResponse(response, 200, "application/json", {data:llmResponse});
     } catch (error) {
-        utils.sendResponse(response, error.statusCode || 500, "application/json", {
+        return utils.sendResponse(response, error.statusCode || 500, "application/json", {
             message: error.message
         });
-        return {success: false, message: error.message};
     }
 }
 
@@ -303,12 +315,12 @@ async function getChatStreamingResponse(request, response) {
 
 async function getChatResponse(request, response) {
     try {
-        const modelResponse= await sendRequest(`/apis/v1/chat/generate`, "POST", request, response);
+        const modelResponse = await sendRequest(`/apis/v1/chat/generate`, "POST", request, response);
         return utils.sendResponse(response, 200, "application/json", {
             data: modelResponse
         });
-    }catch(error){
-        return utils.sendResponse(response,error.statusCode || 500, "application/json", {
+    } catch (error) {
+        return utils.sendResponse(response, error.statusCode || 500, "application/json", {
             message: error.message
         })
     }
@@ -489,6 +501,7 @@ async function getDefaultModels(request, response) {
         })
     }
 }
+
 module.exports = {
     getTextResponse,
     getTextResponseAdvanced,
