@@ -246,7 +246,7 @@ async function combineVideos(tempVideoDir, videoPaths, fileListName, outputVideo
 
         // Run FFmpeg command to concatenate the batch
         const command = `${ffmpegPath} -f concat -safe 0 -i ${fileListPath} \
-        -filter_complex "[0:v]setpts=PTS-STARTPTS[v];[0:a]aresample=async=1[a]" \
+        -fflags +genpts -filter_complex "[0:v]setpts=PTS-STARTPTS[v];[0:a]aresample=async=1[a]" \
         -map "[v]" -map "[a]" -c:v ${videoStandard.codec} -crf 18 ${intermediateOutput}`;
         await task.runCommand(command);
 
@@ -265,7 +265,7 @@ async function combineVideos(tempVideoDir, videoPaths, fileListName, outputVideo
 
     // Run FFmpeg command to concatenate all intermediate files into the final output
     const finalCommand = `${ffmpegPath} -f concat -safe 0 -i ${finalFileListPath} \
-    -filter_complex "[0:v]setpts=PTS-STARTPTS[v];[0:a]aresample=async=1[a]" \
+    -fflags +genpts -filter_complex "[0:v]setpts=PTS-STARTPTS[v];[0:a]aresample=async=1[a]" \
     -map "[v]" -map "[a]" -c:v ${videoStandard.codec} -crf 18 ${outputVideoPath}`;
     await task.runCommand(finalCommand);
 
