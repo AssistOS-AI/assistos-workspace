@@ -104,7 +104,7 @@ class Task {
     }
 
     log(logType,message="",data={}){
-        let objectId = SubscriptionManager.getObjectId(this.spaceId, this.id);
+        let objectId = SubscriptionManager.getObjectId(this.spaceId, this.id + "/logs");
         SubscriptionManager.notifyClients("", objectId, {logType: logType, message: message, data: data});
     }
 
