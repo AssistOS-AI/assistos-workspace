@@ -13,7 +13,6 @@ export class TaskWatcher {
 
     async onTaskLog(logData) {
         const {logType, message, data} = logData;
-
         if (data?.finished) {
             if (this.loadingSpinner) {
                 this.loadingSpinner.style.display = 'none';
