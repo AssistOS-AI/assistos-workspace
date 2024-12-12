@@ -16,7 +16,7 @@ class TaskManager {
         this.tasks = [];
         this.tasksTable = "tasks";
         this.queue = [];
-        this.maxRunningTasks = 3;
+        this.maxRunningTasks = 9;
     }
 
     async initialize() {
