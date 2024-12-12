@@ -1,6 +1,5 @@
 const documentModule = require("assistos").loadModule("document", {});
 const utilModule = require("assistos").loadModule("util", {});
-import {NotificationRouter} from "../../../../imports.js";
 export class DocumentTasksModal {
     constructor(element, invalidate) {
         this.element = element;
@@ -8,7 +7,7 @@ export class DocumentTasksModal {
         this.documentId = this.element.getAttribute("data-document-id");
         this.invalidate(async () => {
             this.boundOnListUpdate = this.onListUpdate.bind(this);
-            await NotificationRouter.subscribeToSpace(assistOS.space.id, "tasksList", this.boundOnListUpdate);
+            await assistOS.NotificationRouter.subscribeToSpace(assistOS.space.id, "tasksList", this.boundOnListUpdate);
             this.tasks = await documentModule.getDocumentTasks(assistOS.space.id, this.documentId);
         })
     }

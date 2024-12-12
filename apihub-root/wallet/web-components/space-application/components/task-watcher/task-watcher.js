@@ -1,5 +1,3 @@
-import {NotificationRouter} from '../../../../../wallet/imports.js';
-
 export class TaskWatcher {
     constructor(element, invalidate) {
         this.element = element;
@@ -7,7 +5,7 @@ export class TaskWatcher {
         this.taskId = this.element.getAttribute('taskId');
         this.boundOnTaskLog = this.onTaskLog.bind(this);
         this.invalidate(async () => {
-            await NotificationRouter.subscribeToSpace(assistOS.space.id, this.taskId + "/logs", this.boundOnTaskLog);
+            await assistOS.NotificationRouter.subscribeToSpace(assistOS.space.id, this.taskId + "/logs", this.boundOnTaskLog);
         });
         this.monitorPresenter = this.element.closest('notifications-monitor').webSkelPresenter;
     }

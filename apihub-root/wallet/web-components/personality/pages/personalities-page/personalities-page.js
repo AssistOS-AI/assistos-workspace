@@ -1,6 +1,5 @@
 const utilModule = require("assistos").loadModule("util", {});
 const spaceModule = require("assistos").loadModule("space", {})
-import {NotificationRouter} from "../../../../imports.js";
 export class PersonalitiesPage {
     constructor(element, invalidate) {
         this.modal = "showAddPersonalityModal";
@@ -15,7 +14,7 @@ export class PersonalitiesPage {
         this.invalidate(async() =>{
             this.personalities = await assistOS.space.getPersonalitiesMetadata();
             this.boundsOnListUpdate = this.onListUpdate.bind(this);
-            await NotificationRouter.subscribeToSpace(assistOS.space.id, this.id, this.boundsOnListUpdate);
+            await assistOS.NotificationRouter.subscribeToSpace(assistOS.space.id, this.id, this.boundsOnListUpdate);
         });
     }
     onListUpdate(){

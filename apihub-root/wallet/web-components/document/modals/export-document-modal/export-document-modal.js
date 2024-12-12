@@ -1,5 +1,4 @@
 const documentModule = require('assistos').loadModule('document', {});
-import {NotificationRouter} from '../../../../imports.js';
 export class ExportDocumentModal{
     constructor(element, invalidate) {
         this.element = element;
@@ -53,7 +52,7 @@ export class ExportDocumentModal{
         this.exportType = checkBox.checked ? 'full' : 'partial';
         try {
             this.taskId = await documentModule.exportDocument(assistOS.space.id, this.documentId, this.exportType);
-            await NotificationRouter.subscribeToSpace(assistOS.space.id, this.taskId, this.boundsOnCompleteExport);
+            await assistOS.NotificationRouter.subscribeToSpace(assistOS.space.id, this.taskId, this.boundsOnCompleteExport);
         } catch (e){
             button.classList.remove('loading-icon');
             button.innerHTML = 'Export';

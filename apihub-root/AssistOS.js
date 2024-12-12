@@ -1,4 +1,6 @@
 import WebSkel from "../WebSkel/webSkel.js";
+import NotificationManager from "./wallet/core/NotificationManager.js";
+
 const userModule = require('assistos').loadModule('user', {});
 const spaceModule = require('assistos').loadModule('space', {});
 const utilModule = require('assistos').loadModule('util', {});
@@ -6,7 +8,9 @@ const applicationModule = require('assistos').loadModule('application', {});
 const agentModule = require('assistos').loadModule('personality', {});
 const flowModule = require('assistos').loadModule('flow', {});
 const personalityModule = require('assistos').loadModule('personality', {});
-import {NotificationRouter} from "./wallet/imports.js";
+
+const NotificationRouter = require('assistos').loadModule('notification', {}).NotificationRouter;
+
 
 class AssistOS {
     constructor(configuration) {
@@ -15,6 +19,7 @@ class AssistOS {
         }
         this.configuration = configuration;
         this.notificationMonitor = "closed";
+        this.NotificationRouter = new NotificationManager(new NotificationRouter());
         AssistOS.instance = this;
         return AssistOS.instance;
     }
@@ -130,7 +135,7 @@ class AssistOS {
                 sidebar.remove();
             }
         }
-        await NotificationRouter.closeSSEConnection();
+        await this.NotificationRouter.closeSSEConnection();
         await userModule.logoutUser();
         removeSidebar();
         await this.refresh();
@@ -168,27 +173,28 @@ class AssistOS {
         document.querySelector('notifications-monitor').webSkelPresenter.addTaskWatcher(taskId);
     }
 
-    openNotificationMonitor(){
-        if(this.notificationMonitor==="open"){
+    openNotificationMonitor() {
+        if (this.notificationMonitor === "open") {
             return;
         }
         document.querySelector('notifications-monitor').classList.remove('closed')
-        this.notificationMonitor="open";
+        this.notificationMonitor = "open";
     }
 
-    closeNotificationMonitor(){
-        if(this.notificationMonitor==="closed"){
+    closeNotificationMonitor() {
+        if (this.notificationMonitor === "closed") {
             return;
         }
         document.querySelector('notifications-monitor').classList.add('closed')
-        this.notificationMonitor="closed";
+        this.notificationMonitor = "closed";
     }
 
     async createSpace(spaceName, apiKey) {
         await spaceModule.createSpace(spaceName, apiKey);
         await this.loadPage(false, true);
     }
-    async initPage (applicationName, applicationLocation) {
+
+    async initPage(applicationName, applicationLocation) {
         hidePlaceholders();
         this.insertSidebar();
         if (applicationName) {
@@ -197,6 +203,7 @@ class AssistOS {
             await assistOS.UI.changeToDynamicPage("space-application-page", `${assistOS.space.id}/Space/announcements-page`);
         }
     };
+
     insertSidebar = () => {
         if (!document.querySelector("left-sidebar")) {
             document.querySelector("#page-content").insertAdjacentHTML("beforebegin", `<left-sidebar data-presenter="left-sidebar"></left-sidebar>`);
@@ -204,6 +211,7 @@ class AssistOS {
             document.querySelector("left-sidebar").webSkelPresenter.invalidate();
         }
     }
+
     async loadPage(skipAuth = false, skipSpace = false, spaceId) {
         let {spaceIdURL, applicationName, applicationLocation} = getURLData(window.location.hash);
         spaceId = spaceId ? spaceId : spaceIdURL;
@@ -222,16 +230,16 @@ class AssistOS {
         try {
             await (spaceId ? skipSpace ? assistOS.initUser() : assistOS.initUser(spaceId) : assistOS.initUser());
             try {
-                NotificationRouter.createSSEConnection();
-                NotificationRouter.eventSource.onopen = async () => {
+                this.NotificationRouter.createSSEConnection();
+                this.NotificationRouter.getEventSource().onopen = async () => {
                     //this = assistOS
                     this.spaceEventsHandler = async (event) => {
-                        if(event === "delete"){
+                        if (event === "delete") {
                             alert("Space has been deleted. You will be logged out");
                             await assistOS.logout();
                         }
                     };
-                    await NotificationRouter.subscribeToSpace(assistOS.space.id, "space", this.spaceEventsHandler);
+                    await this.NotificationRouter.subscribeToSpace(assistOS.space.id, "space", this.spaceEventsHandler);
                 }
 
             } catch (error) {
@@ -245,6 +253,7 @@ class AssistOS {
             throw error;
         }
     }
+
     async inviteCollaborators(collaboratorEmails) {
         return await this.loadifyFunction(spaceModule.inviteSpaceCollaborators, assistOS.space.id, collaboratorEmails);
     }
@@ -278,7 +287,7 @@ class AssistOS {
     }
 
     async loadifyFunction(asyncFunc, ...args) {
-        const loaderId =  this.UI.showLoading();
+        const loaderId = this.UI.showLoading();
         try {
             return await asyncFunc(...args);
         } catch (error) {

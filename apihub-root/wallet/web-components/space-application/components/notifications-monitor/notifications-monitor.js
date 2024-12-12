@@ -4,6 +4,7 @@ export class NotificationsMonitor {
         this.invalidate = invalidate;
         this.taskWatchers = {};
         this.currentTab = null;
+        this.tasksToWatch = [];
         this.invalidate();
     }
 
@@ -19,7 +20,10 @@ export class NotificationsMonitor {
 
         this.minimizeBtn.addEventListener('click', () => this.toggleMinimize());
         this.addBtn.addEventListener('click', () => this.promptAddWatcher());
-
+        let tasksToWatch =localStorage.getItem('tasksToWatch') ? JSON.parse(localStorage.getItem('tasksToWatch')) : [];
+        for(let taskId of tasksToWatch){
+            this.addTaskWatcher(taskId);
+        }
     }
 
     toggleMinimize() {
@@ -32,11 +36,19 @@ export class NotificationsMonitor {
             this.addTaskWatcher(taskId);
         }
     }
-
+    addTaskToCache(taskId){
+        this.tasksToWatch.push(taskId);
+        localStorage.setItem('tasksToWatch', JSON.stringify(this.tasksToWatch));
+    }
+    removeTaskFromCache(taskId){
+        this.tasksToWatch = this.tasksToWatch.filter(id => id !== taskId);
+        localStorage.setItem('tasksToWatch', JSON.stringify(this.tasksToWatch));
+    }
     addTaskWatcher(taskId) {
         if (this.taskWatchers[taskId]) {
             return;
         }
+        this.addTaskToCache(taskId);
 
         const tab = document.createElement('div');
         tab.classList.add('tab');
@@ -99,8 +111,9 @@ export class NotificationsMonitor {
 
         this.tabsContainer.removeChild(watcher.tab);
         this.taskWatchersContainer.removeChild(watcher.taskWatcherElement);
-
         delete this.taskWatchers[taskId];
+
+        this.removeTaskFromCache(taskId);
 
         if (this.currentTab === taskId) {
             const remainingTaskIds = Object.keys(this.taskWatchers);

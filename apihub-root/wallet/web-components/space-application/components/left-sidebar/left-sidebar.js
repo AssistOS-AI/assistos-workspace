@@ -1,4 +1,4 @@
-import {changeSelectedPageFromSidebar, NotificationRouter} from "../../../../imports.js";
+import {changeSelectedPageFromSidebar} from "../../../../imports.js";
 const spaceModule = require("assistos").loadModule("space", {});
 const utilModule = require("assistos").loadModule("util", {});
 export class LeftSidebar {
@@ -10,7 +10,7 @@ export class LeftSidebar {
         this.boundShowTaskNotification = this.showTaskNotification.bind(this);
         this.invalidate(async ()=>{
             this.tasks = await utilModule.getTasks(assistOS.space.id);
-            await NotificationRouter.subscribeToSpace(assistOS.space.id, "sidebar-tasks", this.boundShowTaskNotification);
+            await assistOS.NotificationRouter.subscribeToSpace(assistOS.space.id, "sidebar-tasks", this.boundShowTaskNotification);
         });
     }
 

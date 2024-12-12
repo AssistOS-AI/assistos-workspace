@@ -1,8 +1,6 @@
 import {executorTimer} from "../../../../imports.js";
 const galleryModule = require("assistos").loadModule("gallery", {});
 const llmModule = require("assistos").loadModule("llm", {});
-const utilModule = require("assistos").loadModule("util", {});
-import {NotificationRouter} from "../../../../imports.js";
 export class GenerateImagePage {
     constructor(element, invalidate) {
         this.element = element;
@@ -32,7 +30,7 @@ export class GenerateImagePage {
             await this.refreshHistory();
         });
         this.boundOnImageUpdate = this.onImageUpdate.bind(this);
-        NotificationRouter.subscribeToSpace(assistOS.space.id, this.id, this.boundOnImageUpdate);
+        assistOS.NotificationRouter.subscribeToSpace(assistOS.space.id, this.id, this.boundOnImageUpdate);
         this.selectInputs = [];
     }
     async onImageUpdate(type) {

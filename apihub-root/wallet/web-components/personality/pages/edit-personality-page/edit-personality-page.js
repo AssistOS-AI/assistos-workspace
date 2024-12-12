@@ -2,7 +2,6 @@ const constants = require("assistos").constants;
 const llmModule = require("assistos").loadModule("llm", {});
 const spaceModule = require("assistos").loadModule("space", {});
 const personalityModule = require("assistos").loadModule("personality", {});
-import {NotificationRouter} from "../../../../imports.js";
 
 export class EditPersonalityPage {
     constructor(element, invalidate) {
@@ -14,7 +13,7 @@ export class EditPersonalityPage {
         this.invalidate(async () => {
             await this.refreshPersonality();
             this.boundOnPersonalityUpdate = this.onPersonalityUpdate.bind(this);
-            await NotificationRouter.subscribeToSpace(assistOS.space.id, this.personality.id, this.boundOnPersonalityUpdate);
+            await assistOS.NotificationRouter.subscribeToSpace(assistOS.space.id, this.personality.id, this.boundOnPersonalityUpdate);
             /* TODO temporary fix endpoint should be called only if the api Key is set */
             try {
                 this.voices = await llmModule.listVoices(assistOS.space.id);

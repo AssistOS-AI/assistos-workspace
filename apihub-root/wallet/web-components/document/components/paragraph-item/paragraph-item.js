@@ -1,8 +1,8 @@
-import {NotificationRouter} from "../../../../imports.js";
 const documentModule = require("assistos").loadModule("document", {});
 const spaceModule = require("assistos").loadModule("space", {});
 import CommandsEditor from "./CommandsEditor.js";
 import selectionUtils from "../../pages/document-view-page/selectionUtils.js";
+
 export class ParagraphItem {
     constructor(element, invalidate) {
         this.element = element;
@@ -16,6 +16,7 @@ export class ParagraphItem {
         this.commandsEditor = new CommandsEditor(this._document.id, this.paragraph, this);
         this.invalidate(this.subscribeToParagraphEvents.bind(this));
     }
+
     plugins = {
         "image-menu": {
             icon: `<div data-local-action="openPlugin image-menu" class="attachment-circle menu-container image-menu">
@@ -38,21 +39,22 @@ export class ParagraphItem {
                 </div>`
         }
     }
+
     async subscribeToParagraphEvents() {
         this.boundOnParagraphUpdate = this.onParagraphUpdate.bind(this);
-        await NotificationRouter.subscribeToDocument(this._document.id, this.paragraph.id, this.boundOnParagraphUpdate);
+        await assistOS.NotificationRouter.subscribeToDocument(this._document.id, this.paragraph.id, this.boundOnParagraphUpdate);
         this.textClass = "paragraph-text";
         this.boundHandleUserSelection = this.handleUserSelection.bind(this, this.textClass);
-        for(let pluginName of Object.keys(this.plugins)){
+        for (let pluginName of Object.keys(this.plugins)) {
             this.plugins[pluginName].boundHandleSelection = this.handleUserSelection.bind(this, pluginName);
-            NotificationRouter.subscribeToDocument(this._document.id, `${this.paragraph.id}_${pluginName}`, this.plugins[pluginName].boundHandleSelection);
+            assistOS.NotificationRouter.subscribeToDocument(this._document.id, `${this.paragraph.id}_${pluginName}`, this.plugins[pluginName].boundHandleSelection);
         }
-        await NotificationRouter.subscribeToDocument(this._document.id, this.paragraph.id, this.boundHandleUserSelection);
+        await assistOS.NotificationRouter.subscribeToDocument(this._document.id, this.paragraph.id, this.boundHandleUserSelection);
         this.boundTaskStatusHandler = this.taskStatusHandler.bind(this);
         for (let [commandType, commandDetails] of Object.entries(this.paragraph.commands)) {
             for (let [key, value] of Object.entries(commandDetails)) {
                 if (key === "taskId") {
-                    NotificationRouter.subscribeToSpace(assistOS.space.id, value, this.boundTaskStatusHandler);
+                    assistOS.NotificationRouter.subscribeToSpace(assistOS.space.id, value, this.boundTaskStatusHandler);
                 }
             }
         }
@@ -61,7 +63,7 @@ export class ParagraphItem {
     async beforeRender() {
         this.loadedParagraphText = this.paragraph.text || "";
         this.pluginsIcons = "";
-        for(let pluginName of Object.keys(this.plugins)){
+        for (let pluginName of Object.keys(this.plugins)) {
             this.pluginsIcons += this.plugins[pluginName].icon;
         }
     }
@@ -85,39 +87,40 @@ export class ParagraphItem {
 
         await this.updateCommands();
         let selected = this.documentPresenter.selectedParagraphs[this.paragraph.id];
-        if(selected){
-            for(let selection of selected.users){
+        if (selected) {
+            for (let selection of selected.users) {
                 await selectionUtils.setUserIcon(selection.imageId, selection.selectId, this.textClass, this);
             }
-            if(selected.lockOwner){
+            if (selected.lockOwner) {
                 selectionUtils.lockItem(this.textClass, this);
             }
         }
         this.showStatusIcon()
     }
-    async updateCommands(){
+
+    async updateCommands() {
         let updateCommands;
         let commands = this.paragraph.commands;
         let updateVolumeCommands = ["audio", "video"];
-        for(let command of updateVolumeCommands){
-            if(commands[command] && (commands[command].volume <= 1)){
+        for (let command of updateVolumeCommands) {
+            if (commands[command] && (commands[command].volume <= 1)) {
                 commands[command].volume = commands[command].volume * 100;
                 updateCommands = true;
             }
-            if(commands[command] && !commands[command].hasOwnProperty("volume")){
+            if (commands[command] && !commands[command].hasOwnProperty("volume")) {
                 commands[command].volume = 100;
                 updateCommands = true;
             }
         }
-        if(commands.effects){
-            for(let effect of commands.effects){
-                if(effect.volume <= 1){
+        if (commands.effects) {
+            for (let effect of commands.effects) {
+                if (effect.volume <= 1) {
                     effect.volume = effect.volume * 100;
                     updateCommands = true;
                 }
             }
         }
-        if(updateCommands){
+        if (updateCommands) {
             await documentModule.updateParagraphCommands(assistOS.space.id, this._document.id, this.paragraph.id, this.paragraph.commands);
         }
     }
@@ -173,6 +176,7 @@ export class ParagraphItem {
             this.hideParagraphWarning();
         }
     }
+
     async onParagraphUpdate(type) {
         if (type === "text") {
             this.paragraph.text = await documentModule.getParagraphText(assistOS.space.id, this._document.id, this.paragraph.id);
@@ -189,7 +193,7 @@ export class ParagraphItem {
         await this.documentPresenter.stopTimer(true);
         let message = "Are you sure you want to delete this paragraph?";
         let confirmation = await assistOS.UI.showModal("confirm-action-modal", {message}, true);
-        if(!confirmation){
+        if (!confirmation) {
             return;
         }
         let currentParagraphIndex = this.chapter.getParagraphIndex(this.paragraph.id);
@@ -333,7 +337,7 @@ export class ParagraphItem {
 
     async addUITask(taskId) {
         assistOS.space.notifyObservers(this._document.id + "/tasks");
-        await NotificationRouter.subscribeToSpace(assistOS.space.id, taskId, this.boundTaskStatusHandler);
+        await assistOS.NotificationRouter.subscribeToSpace(assistOS.space.id, taskId, this.boundTaskStatusHandler);
         this.documentPresenter.renderNewTasksBadge();
     }
 
@@ -410,14 +414,16 @@ export class ParagraphItem {
             delete window.cutParagraph;
         });
     }
+
     menus = {
         "insert-document-element": `
                 <div class="insert-document-element">
                     <list-item data-local-action="addParagraph" data-name="Insert Paragraph After" data-highlight="light-highlight"></list-item>
                     <list-item data-local-action="addChapter" data-name="Add Chapter" data-highlight="light-highlight"></list-item>
                 </div>`,
-        "paragraph-comment-menu":`<paragraph-comment-menu class="paragraph-comment-menu" data-presenter="paragraph-comment-modal"></paragraph-comment-menu>`,
+        "paragraph-comment-menu": `<paragraph-comment-menu class="paragraph-comment-menu" data-presenter="paragraph-comment-modal"></paragraph-comment-menu>`,
     }
+
     async openPlugin(targetElement, pluginClass) {
         await selectionUtils.selectItem(true, `${this.paragraph.id}_${pluginClass}`, pluginClass, this);
         await assistOS.UI.showModal(pluginClass, {
@@ -426,6 +432,7 @@ export class ParagraphItem {
         }, true);
         await selectionUtils.deselectItem(`${this.paragraph.id}_${pluginClass}`, this);
     }
+
     openMenu(targetElement, menuName) {
         let menuOpen = this.element.querySelector(`.toolbar-menu.${menuName}`);
         if (menuOpen) {
@@ -509,30 +516,30 @@ export class ParagraphItem {
         paragraphHeader.insertAdjacentHTML('beforeend', info);
     }
 
-    async handleUserSelection(itemClass, data){
-        if(typeof data === "string"){
+    async handleUserSelection(itemClass, data) {
+        if (typeof data === "string") {
             return;
         }
-        if(data.selected){
-            if(!this.plugins[itemClass]){
+        if (data.selected) {
+            if (!this.plugins[itemClass]) {
                 await selectionUtils.setUserIcon(data.imageId, data.selectId, itemClass, this);
             }
-            if(data.lockOwner &&  data.lockOwner !== this.selectId){
+            if (data.lockOwner && data.lockOwner !== this.selectId) {
                 return selectionUtils.lockItem(itemClass, this);
             }
         } else {
-            if(!this.plugins[itemClass]){
+            if (!this.plugins[itemClass]) {
                 selectionUtils.removeUserIcon(data.selectId, this);
             }
 
-            if(!data.lockOwner){
+            if (!data.lockOwner) {
                 selectionUtils.unlockItem(itemClass, this);
             }
         }
     }
 
-    async afterUnload(){
-        if(this.selectionInterval){
+    async afterUnload() {
+        if (this.selectionInterval) {
             await selectionUtils.deselectItem(this.paragraph.id, this);
         }
     }

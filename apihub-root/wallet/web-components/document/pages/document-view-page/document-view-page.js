@@ -1,8 +1,8 @@
-import {NotificationRouter} from "../../../../imports.js";
 const documentModule = require("assistos").loadModule("document", {});
 const personalityModule = require("assistos").loadModule("personality", {});
 import {executorTimer, unescapeHtmlEntities} from "../../../../imports.js";
 import selectionUtils from "./selectionUtils.js";
+
 export class DocumentViewPage {
     constructor(element, invalidate) {
         this.element = element;
@@ -14,43 +14,47 @@ export class DocumentViewPage {
         this.invalidate(async () => {
             this._document = await documentModule.getDocument(assistOS.space.id, window.location.hash.split("/")[3]);
             this.boundOnDocumentUpdate = this.onDocumentUpdate.bind(this);
-            await NotificationRouter.subscribeToSpace(assistOS.space.id, this._document.id, this.boundOnDocumentUpdate);
+            assistOS.NotificationRouter.subscribeToSpace(assistOS.space.id, this._document.id, this.boundOnDocumentUpdate);
             this.personalitiesMetadata = await personalityModule.getPersonalitiesMetadata(assistOS.space.id);
             this.boundRefreshPersonalitiesMetadata = this.refreshPersonalitiesMetadata.bind(this);
-            await NotificationRouter.subscribeToSpace(assistOS.space.id, "personalities", this.boundRefreshPersonalitiesMetadata);
+            assistOS.NotificationRouter.subscribeToSpace(assistOS.space.id, "personalities", this.boundRefreshPersonalitiesMetadata);
             this.selectedParagraphs = await documentModule.getSelectedDocumentItems(assistOS.space.id, this._document.id);
             await this.initTitleAbstractSelection();
         });
     }
-    async initTitleAbstractSelection(){
+
+    async initTitleAbstractSelection() {
         this.abstractClass = "document-abstract";
         this.titleClass = "document-title";
         this.abstractId = "abstract";
         this.titleId = "title";
         this.boundSelectAbstractHandler = this.handleUserSelection.bind(this, this.abstractClass);
         this.boundSelectTitleHandler = this.handleUserSelection.bind(this, this.titleClass);
-        await NotificationRouter.subscribeToDocument(this._document.id, this.abstractId, this.boundSelectAbstractHandler);
-        await NotificationRouter.subscribeToDocument(this._document.id, this.titleId, this.boundSelectTitleHandler);
+        await assistOS.NotificationRouter.subscribeToDocument(this._document.id, this.abstractId, this.boundSelectAbstractHandler);
+        await assistOS.NotificationRouter.subscribeToDocument(this._document.id, this.titleId, this.boundSelectTitleHandler);
     }
+
     async refreshPersonalitiesMetadata() {
         this.personalitiesMetadata = await personalityModule.getPersonalitiesMetadata(assistOS.space.id);
     }
+
     async insertNewChapter(chapterId, position) {
         let newChapter = await documentModule.getChapter(assistOS.space.id, this._document.id, chapterId);
         this._document.chapters.splice(position, 0, newChapter);
         let previousChapterIndex = position - 1;
-        if(previousChapterIndex < 0){
+        if (previousChapterIndex < 0) {
             previousChapterIndex = 0;
         }
         let previousChapterId = this._document.chapters[previousChapterIndex].id;
         let previousChapter = this.element.querySelector(`chapter-item[data-chapter-id="${previousChapterId}"]`);
-        if(!previousChapter){
+        if (!previousChapter) {
             let chapterContainer = this.element.querySelector(".chapters-container");
             chapterContainer.insertAdjacentHTML("afterbegin", `<chapter-item data-chapter-number="${position + 1}" data-chapter-id="${newChapter.id}" data-metadata="chapter nr. ${position + 1} with title ${newChapter.title} and id ${newChapter.id}" data-title-metadata="title of the current chapter" data-presenter="chapter-item"></chapter-item>`);
             return;
         }
         previousChapter.insertAdjacentHTML("afterend", `<chapter-item data-chapter-number="${position + 1}" data-chapter-id="${newChapter.id}" data-metadata="chapter nr. ${position + 1} with title ${newChapter.title} and id ${newChapter.id}" data-title-metadata="title of the current chapter" data-presenter="chapter-item"></chapter-item>`);
     }
+
     swapChapters(chapterId, swapChapterId, direction) {
         let chapters = this._document.chapters;
         let currentChapterIndex = this._document.getChapterIndex(chapterId);
@@ -59,12 +63,12 @@ export class DocumentViewPage {
         let chapter1 = this.element.querySelector(`chapter-item[data-chapter-id="${chapterId}"]`);
         let chapter2 = this.element.querySelector(`chapter-item[data-chapter-id="${swapChapterId}"]`);
         if (direction === "up") {
-            if(adjacentChapterIndex === this._document.chapters.length - 1){
+            if (adjacentChapterIndex === this._document.chapters.length - 1) {
                 chapters.push(chapters.shift());
                 let newIndex = this._document.chapters.length;
                 chapter1.setAttribute("data-chapter-number", newIndex);
                 chapter2.insertAdjacentElement('afterend', chapter1);
-            } else{
+            } else {
                 [chapters[currentChapterIndex], chapters[adjacentChapterIndex]] = [chapters[adjacentChapterIndex], chapters[currentChapterIndex]];
                 let newIndex = adjacentChapterIndex + 1;
                 chapter1.setAttribute("data-chapter-number", newIndex);
@@ -72,12 +76,12 @@ export class DocumentViewPage {
             }
         } else {
             // Insert the current chapter after the adjacent one
-            if(adjacentChapterIndex === 0){
+            if (adjacentChapterIndex === 0) {
                 chapters.unshift(chapters.pop());
                 let newIndex = 1;
                 chapter1.setAttribute("data-chapter-number", newIndex);
                 chapter2.insertAdjacentElement('beforebegin', chapter1);
-            } else{
+            } else {
                 [chapters[currentChapterIndex], chapters[adjacentChapterIndex]] = [chapters[adjacentChapterIndex], chapters[currentChapterIndex]];
                 let newIndex = adjacentChapterIndex + 1;
                 chapter1.setAttribute("data-chapter-number", newIndex);
@@ -85,26 +89,28 @@ export class DocumentViewPage {
             }
         }
         let allChapters = this.element.querySelectorAll("chapter-item");
-        for(let chapter of allChapters){
+        for (let chapter of allChapters) {
             chapter.webSkelPresenter.updateChapterNumber();
         }
     }
+
     deleteChapter(chapterId) {
         let chapter = this.element.querySelector(`chapter-item[data-chapter-id="${chapterId}"]`);
         chapter.remove();
         this._document.chapters = this._document.chapters.filter((chapter) => chapter.id !== chapterId);
     }
-    async onDocumentUpdate(data){
-        if(typeof data === "object"){
-            if(data.operationType === "add"){
+
+    async onDocumentUpdate(data) {
+        if (typeof data === "object") {
+            if (data.operationType === "add") {
                 await this.insertNewChapter(data.chapterId, data.position);
                 return;
             }
-            if(data.operationType === "delete"){
+            if (data.operationType === "delete") {
                 this.deleteChapter(data.chapterId);
                 return;
             }
-            if(data.operationType === "swap"){
+            if (data.operationType === "swap") {
                 this.swapChapters(data.chapterId, data.swapChapterId, data.direction);
                 return;
             }
@@ -327,7 +333,7 @@ export class DocumentViewPage {
         if (targetElement.getAttribute("id") === "current-selection") {
             return;
         }
-        if(type === "paragraph"){
+        if (type === "paragraph") {
             let chapterPresenter = targetElement.closest("chapter-item").webSkelPresenter;
             let paragraphItem = targetElement.closest("paragraph-item");
             let paragraphText = paragraphItem.querySelector(".paragraph-text");
@@ -388,6 +394,7 @@ export class DocumentViewPage {
         this.timer = new executorTimer(saveFunction, 10000);
         targetElement.addEventListener("keydown", resetTimerFunction);
     }
+
     executeDownload(targetElement, url) {
         let a = document.createElement('a');
         a.style.display = 'none';
@@ -398,8 +405,9 @@ export class DocumentViewPage {
         document.body.removeChild(a);
         targetElement.remove();
     }
-    showDownloadVideoButton(taskId, status){
-        if(status === "completed"){
+
+    showDownloadVideoButton(taskId, status) {
+        if (status === "completed") {
             let downloadURL = `/documents/video/${assistOS.space.id}/${taskId}`;
             let downloadButton = `<button class="general-button download-video-button right-margin" data-local-action="executeDownload ${downloadURL}">Download Video</button>`
             this.element.querySelector(".menu-section").insertAdjacentHTML("afterbegin", downloadButton);
@@ -410,7 +418,7 @@ export class DocumentViewPage {
         let taskId = await documentModule.documentToVideo(assistOS.space.id, this._document.id);
         assistOS.watchTask(taskId)
         this.boundShowDownloadVideoButton = this.showDownloadVideoButton.bind(this, taskId);
-        await NotificationRouter.subscribeToSpace(assistOS.space.id, taskId, this.boundShowDownloadVideoButton);
+        await assistOS.NotificationRouter.subscribeToSpace(assistOS.space.id, taskId, this.boundShowDownloadVideoButton);
     }
 
     async exportDocument(targetElement) {
@@ -484,7 +492,7 @@ export class DocumentViewPage {
         });
     }
 
-    openDocumentComment(_target){
+    openDocumentComment(_target) {
         const chapterMenu = `<document-comment-menu data-presenter="document-comment-menu"></document-comment-menu>`;
         this.element.querySelector('.document-title-container')?.insertAdjacentHTML('beforeend', chapterMenu);
         document.addEventListener('click', this.boundCloseDocumentComment);
@@ -498,25 +506,26 @@ export class DocumentViewPage {
         this.element.querySelector('document-comment-menu')?.remove();
     }
 
-    async handleUserSelection(itemClass, data){
-        if(typeof data === "string"){
-            return ;
+    async handleUserSelection(itemClass, data) {
+        if (typeof data === "string") {
+            return;
         }
-        if(data.selected){
+        if (data.selected) {
             await selectionUtils.setUserIcon(data.imageId, data.selectId, itemClass, this);
-            if(data.lockOwner && data.lockOwner !== this.selectId){
+            if (data.lockOwner && data.lockOwner !== this.selectId) {
                 return selectionUtils.lockItem(itemClass, this);
             }
         } else {
             selectionUtils.removeUserIcon(data.selectId, this);
-            if(!data.lockOwner){
+            if (!data.lockOwner) {
                 selectionUtils.unlockItem(itemClass, this);
             }
         }
     }
-    async afterUnload(){
-        if(this.selectionInterval){
-            await selectionUtils.deselectItem(this.currentSelectItem ,this);
+
+    async afterUnload() {
+        if (this.selectionInterval) {
+            await selectionUtils.deselectItem(this.currentSelectItem, this);
         }
     }
 }

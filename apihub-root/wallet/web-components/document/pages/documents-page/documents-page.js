@@ -1,5 +1,4 @@
 const documentModule = require("assistos").loadModule("document", {});
-import {NotificationRouter} from "../../../../imports.js";
 export class DocumentsPage {
     constructor(element, invalidate) {
         this.refreshDocuments = async () => {
@@ -9,7 +8,7 @@ export class DocumentsPage {
         this.id = "documents";
         this.invalidate(async () => {
             await this.refreshDocuments();
-            await NotificationRouter.subscribeToSpace(assistOS.space.id, this.id, async (data) => {
+            await assistOS.NotificationRouter.subscribeToSpace(assistOS.space.id, this.id, async (data) => {
                 this.invalidate(this.refreshDocuments);
             })
         });
@@ -108,7 +107,7 @@ export class DocumentsPage {
                 this.boundOnImportFinish = this.onImportFinish.bind(this);
             }
 
-            await NotificationRouter.subscribeToSpace(assistOS.space.id, taskId, this.boundOnImportFinish);
+            await assistOS.NotificationRouter.subscribeToSpace(assistOS.space.id, taskId, this.boundOnImportFinish);
             this.invalidate(this.refreshDocuments);
         }
         let fileInput = document.createElement('input');

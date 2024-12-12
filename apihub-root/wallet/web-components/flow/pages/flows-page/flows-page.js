@@ -1,5 +1,4 @@
 const utilModule = require("assistos").loadModule("util", {});
-import {NotificationRouter} from "../../../../imports.js";
 
 export class FlowsPage {
     constructor(element, invalidate) {
@@ -13,7 +12,7 @@ export class FlowsPage {
         this.invalidate(async()=>{
             this.flows = await assistOS.space.flows;
             this.boundsOnListUpdate = this.onListUpdate.bind(this);
-            await NotificationRouter.subscribeToSpace(assistOS.space.id, this.id, this.boundsOnListUpdate);
+            await assistOS.NotificationRouter.subscribeToSpace(assistOS.space.id, this.id, this.boundsOnListUpdate);
         });
     }
     onListUpdate(){
