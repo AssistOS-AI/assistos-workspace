@@ -100,9 +100,12 @@ class LipSync extends Task {
             thumbnailId: imageId,
             start: 0,
             end: videoDuration,
-            volume: 1
+            volume: 100
         };
         delete paragraphCommands.lipsync.taskId;
+        if(paragraphCommands.compileVideo){
+            delete paragraphCommands.compileVideo;
+        }
         await documentModule.updateParagraphCommands(this.spaceId, this.documentId, this.paragraphId, paragraphCommands);
         await fsPromises.unlink(tempFilePath);
         if (this.resolveTask) {

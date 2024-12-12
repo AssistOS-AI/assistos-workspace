@@ -10,6 +10,7 @@ const STATUS = constants.STATUS;
 const ParagraphToVideo = require('./ParagraphToVideo');
 const SubscriptionManager = require("../subscribers/SubscriptionManager");
 const crypto = require("../apihub-component-utils/crypto");
+const {exec} = require("child_process");
 class ChapterToVideo extends Task {
     constructor(spaceId, userId, configs) {
         super(spaceId, userId);
@@ -17,31 +18,38 @@ class ChapterToVideo extends Task {
         this.chapterId = configs.chapterId;
         this.workingDir = configs.workingDir;
         this.documentTaskId = configs.documentTaskId;
+        this.processes = [];
     }
     async runTask(){
         let TaskManager = require('./TaskManager');
         let documentTask = TaskManager.getTask(this.documentTaskId);
 
         let chapter = documentTask.document.chapters.find(chapter => chapter.id === this.chapterId);
+        this.chapter = chapter;
         let chapterIndex = documentTask.document.chapters.indexOf(chapter);
         let completedFramePaths = [];
         let pathPrefix = path.join(this.workingDir, `chapter_${chapterIndex}`);
         await fsPromises.mkdir(pathPrefix, {recursive: true});
 
         let outputVideoPath = path.join(pathPrefix, `video.mp4`);
-        // if(chapter.commands.compileVideo){
-        //     try {
-        //         await fsPromises.access(outputVideoPath);
-        //     } catch (e){
-        //         let url = await Storage.getDownloadURL(Storage.fileTypes.videos, chapter.commands.compileVideo.id);
-        //         await fileSys.downloadData(url, outputVideoPath);
-        //         await ffmpegUtils.verifyMediaFileIntegrity(outputVideoPath, documentTask);
-        //         await ffmpegUtils.verifyVideoSettings(outputVideoPath, documentTask);
-        //     }
-        //     return outputVideoPath;
-        // }
+        if(chapter.commands.compileVideo){
+            this.logInfo(`Found compiled video for chapter ${chapterIndex}`);
+            try {
+                await fsPromises.access(outputVideoPath);
+            } catch (e){
+                this.logProgress(`Downloading compiled video for chapter ${chapterIndex}`);
+                let url = await Storage.getDownloadURL(Storage.fileTypes.videos, chapter.commands.compileVideo.id);
+                await fileSys.downloadData(url, outputVideoPath);
+                this.logProgress(`Verifying compiled video file integrity for chapter ${chapterIndex}`);
+                await ffmpegUtils.verifyMediaFileIntegrity(outputVideoPath, this);
+                this.logProgress(`Verifying compiled video settings for chapter ${chapterIndex}`);
+                await ffmpegUtils.verifyVideoSettings(outputVideoPath, this);
+            }
+            return outputVideoPath;
+        }
         let failedTasks = [];
         for(let i = 0; i < chapter.paragraphs.length; i++){
+            this.logInfo(`Creating video for paragraph ${i}`);
             try{
                 let paragraph = chapter.paragraphs[i];
                 let paragraphTask = new ParagraphToVideo(this.spaceId, this.userId, {
@@ -49,7 +57,7 @@ class ChapterToVideo extends Task {
                     chapterId: this.chapterId,
                     paragraphId: paragraph.id,
                     workingDir: pathPrefix,
-                    documentTaskId: this.documentTaskId
+                    chapterTaskId: this.id
                 });
                 await TaskManager.addTask(paragraphTask);
                 let objectId = SubscriptionManager.getObjectId(paragraphTask.spaceId, "tasksList");
@@ -62,33 +70,44 @@ class ChapterToVideo extends Task {
         }
         if(failedTasks.length > 0){
             await fsPromises.rm(pathPrefix, {recursive: true, force: true});
+            this.logError(`Failed to create videos for chapter ${chapterIndex} paragraphs: ${failedTasks.join(", ")}`, {finished: true});
             throw new Error(`Failed to create videos for chapter ${chapterIndex} paragraphs: ${failedTasks.join(", ")}`);
         }
         completedFramePaths = completedFramePaths.filter(videoPath => typeof videoPath !== "undefined");
-
+        this.logInfo(`Combining videos for chapter ${chapterIndex}`);
         try {
             await ffmpegUtils.combineVideos(
                 pathPrefix,
                 completedFramePaths,
                 `chapter_${chapterIndex}_frames.txt`,
                 outputVideoPath,
-                documentTask);
+                this);
         } catch (e){
+            this.logError(`Failed to combine videos for chapter ${chapterIndex}: ${e}`, {finished: true});
             throw new Error(`Failed to combine videos for chapter ${chapterIndex}: ${e}`);
         }
 
         if(chapter.backgroundSound){
+            this.logInfo(`Found background sound for chapter ${chapterIndex}`);
             try {
+                this.logProgress(`Downloading background sound for chapter ${chapterIndex}`);
                 let chapterAudioPath = path.join(pathPrefix, `background_sound.mp3`);
                 let chapterAudioURL = await Storage.getDownloadURL(Storage.fileTypes.audios, chapter.backgroundSound.id);
                 await fileSys.downloadData(chapterAudioURL, chapterAudioPath);
-                await ffmpegUtils.addBackgroundSoundToVideo(outputVideoPath, chapterAudioPath, chapter.backgroundSound.volume, chapter.backgroundSound.loop, documentTask);
+                this.logProgress(`Verifying background sound file integrity for chapter ${chapterIndex}`);
+                await ffmpegUtils.verifyMediaFileIntegrity(chapterAudioPath, this);
+                this.logProgress(`Verifying background sound settings for chapter ${chapterIndex}`);
+                await ffmpegUtils.verifyAudioSettings(chapterAudioPath, this);
+                this.logProgress(`Adding background sound to chapter ${chapterIndex}`);
+                await ffmpegUtils.addBackgroundSoundToVideo(outputVideoPath, chapterAudioPath, chapter.backgroundSound.volume, chapter.backgroundSound.loop, this);
                 await fsPromises.unlink(chapterAudioPath);
             } catch (e) {
+                this.logError(`Failed to add background sound to chapter ${chapterIndex}: ${e}`, {finished: true});
                 throw new Error(`Failed to add background sound to chapter ${chapterIndex}: ${e}`);
             }
         }
-        //await this.uploadFinalVideo(outputVideoPath);
+        await this.uploadFinalVideo(outputVideoPath);
+        this.logSuccess(`Video created for chapter ${chapterIndex}`);
         return outputVideoPath;
     }
     async uploadFinalVideo(videoPath){
@@ -120,7 +139,22 @@ class ChapterToVideo extends Task {
         }
     }
     cancelTask(){
-
+        for(let process of this.processes){
+            process.kill();
+        }
+    }
+    runCommand(command) {
+        return new Promise((resolve, reject) => {
+            let childProcess = exec(command, (error, stdout, stderr) => {
+                this.processes = this.processes.filter(p => p !== childProcess);
+                if (error) {
+                    reject(stderr || error.message);
+                    return;
+                }
+                resolve(stdout || stderr);
+            });
+            this.processes.push(childProcess);
+        });
     }
     async getRelevantInfo() {
         if (this.status === STATUS.FAILED) {

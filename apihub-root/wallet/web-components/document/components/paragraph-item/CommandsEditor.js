@@ -71,7 +71,7 @@ export default class CommandsEditor {
                     await this.handleCommand("lipsync", "changed");
                 }
             }
-            //await this.invalidateCompiledVideos();
+            await this.invalidateCompiledVideos();
             await documentModule.updateParagraphCommands(assistOS.space.id, this.documentId, this.paragraph.id, this.paragraph.commands);
             this.renderViewModeCommands();
             this.videoPresenter.refreshVideoPreview();
@@ -111,7 +111,7 @@ export default class CommandsEditor {
                 }
                 delete this.paragraph.commands[type];
             }
-            //await this.invalidateCompiledVideos();
+            await this.invalidateCompiledVideos();
             await documentModule.updateParagraphCommands(assistOS.space.id, this.documentId, this.paragraph.id, this.paragraph.commands);
             this.renderViewModeCommands();
             this.videoPresenter.refreshVideoPreview();
@@ -242,6 +242,7 @@ export default class CommandsEditor {
         }
         eventController.abort();
         this.hideCommandsError();
+        await this.invalidateCompiledVideos();
         for (let [commandName, commandStatus] of Object.entries(commandsDifferences)) {
             if (commandStatus === "changed" || commandStatus === "deleted") {
                 await this.handleCommand(commandName, commandStatus);

@@ -62,6 +62,7 @@ task-item{
     width: 10%;
     display: flex;
     align-items: center;
+    justify-content: center;
 }
 .agent-name{
     overflow: hidden;

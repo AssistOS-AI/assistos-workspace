@@ -10,6 +10,7 @@ const constants = require('./constants');
 const STATUS = constants.STATUS;
 const crypto = require("../apihub-component-utils/crypto");
 const {exec} = require("child_process");
+const TaskManager = require("./TaskManager");
 class ParagraphToVideo extends Task {
     constructor(spaceId, userId, configs) {
         super(spaceId, userId);
@@ -17,14 +18,14 @@ class ParagraphToVideo extends Task {
         this.chapterId = configs.chapterId;
         this.paragraphId = configs.paragraphId;
         this.workingDir = configs.workingDir;
-        this.documentTaskId = configs.documentTaskId;
+        this.chapterTaskId = configs.chapterTaskId;
         this.processes = [];
     }
     async createVideo(){
         let paragraph;
         let pathPrefix;
         let documentModule = await this.loadModule("document", this.securityContext);
-        if(!this.documentTaskId){
+        if(!this.chapterTaskId){
             this.ffmpegExecutor = this;
             const spacePath = space.APIs.getSpacePath(this.spaceId);
             paragraph = await documentModule.getParagraph(this.spaceId, this.documentId, this.paragraphId);
@@ -33,44 +34,56 @@ class ParagraphToVideo extends Task {
             this.workingDir = pathPrefix;
         } else {
             let TaskManager = require('./TaskManager');
-            this.ffmpegExecutor = TaskManager.getTask(this.documentTaskId);
-            let document = this.ffmpegExecutor.document;
-            let chapter = document.chapters.find(chapter => chapter.id === this.chapterId);
-            paragraph = chapter.paragraphs.find(paragraph => paragraph.id === this.paragraphId);
-            let paragraphIndex = chapter.paragraphs.indexOf(paragraph);
+            //use the chapter task to log and execute ffmpeg commands
+            let chapterTask = TaskManager.getTask(this.chapterTaskId);
+            this.ffmpegExecutor = chapterTask;
+            paragraph = chapterTask.chapter.paragraphs.find(paragraph => paragraph.id === this.paragraphId);
+            let paragraphIndex = chapterTask.chapter.paragraphs.indexOf(paragraph);
             pathPrefix = path.join(this.workingDir, `paragraph_${paragraphIndex}`);
             await fsPromises.mkdir(pathPrefix, {recursive: true});
         }
         const finalVideoPath = path.join(pathPrefix, `final.mp4`);
         if(paragraph.commands.compileVideo){
+            this.ffmpegExecutor.logInfo(`Compiled video found for paragraph`);
             if(paragraph.commands.compileVideo.id){
                 try {
                     await fsPromises.access(finalVideoPath);
                 } catch (e){
+                    this.ffmpegExecutor.logProgress(`Downloading compiled video`);
                     let url = await Storage.getDownloadURL(Storage.fileTypes.videos, paragraph.commands.compileVideo.id);
                     await fileSys.downloadData(url, finalVideoPath);
+                    this.ffmpegExecutor.logProgress(`Verifying video integrity`);
                     await ffmpegUtils.verifyMediaFileIntegrity(finalVideoPath, this.ffmpegExecutor);
+                    this.ffmpegExecutor.logProgress(`Verifying video settings`);
                     await ffmpegUtils.verifyVideoSettings(finalVideoPath, this.ffmpegExecutor);
                 }
                 return finalVideoPath;
             }
         }
+        this.ffmpegExecutor.logInfo(`Creating video for paragraph`);
         let commands = paragraph.commands;
         if(commands.video){
+            this.ffmpegExecutor.logProgress(`Video found`);
             const videoPath = path.join(pathPrefix, `video.mp4`);
+            this.ffmpegExecutor.logProgress(`Downloading video`);
             let videoURL = await Storage.getDownloadURL(Storage.fileTypes.videos, commands.video.id);
             await fileSys.downloadData(videoURL, videoPath);
+            this.ffmpegExecutor.logProgress(`Verifying video integrity`);
             await ffmpegUtils.verifyMediaFileIntegrity(videoPath, this.ffmpegExecutor);
+            this.ffmpegExecutor.logProgress(`Verifying video settings`);
             await ffmpegUtils.verifyVideoSettings(videoPath, this.ffmpegExecutor);
+            this.ffmpegExecutor.logProgress(`Adjusting video volume`);
             await ffmpegUtils.adjustVideoVolume(videoPath, commands.video.volume, this.ffmpegExecutor);
             if(commands.audio){
+                this.ffmpegExecutor.logProgress(`Audio found`);
                 if(commands.video.duration < commands.audio.duration){
+                    this.ffmpegExecutor.logError(`Audio duration is longer than video duration`);
                     throw new Error(`Audio duration is longer than video duration`);
                 }
 
                 let audioPath = path.join(pathPrefix, `audio.mp3`);
                 await this.downloadAndPrepareAudio(commands.audio.id, commands.audio.volume, audioPath);
-
+                this.ffmpegExecutor.logProgress(`Combining video and audio`);
                 await ffmpegUtils.combineVideoAndAudio(videoPath, audioPath, finalVideoPath, this.ffmpegExecutor, commands.video.volume, commands.audio.volume);
                 await fsPromises.unlink(videoPath);
                 await fsPromises.unlink(audioPath);
@@ -78,42 +91,61 @@ class ParagraphToVideo extends Task {
                 await fsPromises.rename(videoPath, finalVideoPath);
             }
         } else if(commands.audio){
+            this.ffmpegExecutor.logProgress(`Audio found`);
             if(!commands.image){
+                this.logError(`Paragraph doesnt have an image source`);
                 throw new Error("Paragraph doesnt have a visual source");
             }
             let audioPath = path.join(pathPrefix, `audio.mp3`);
             await this.downloadAndPrepareAudio(commands.audio.id, commands.audio.volume, audioPath);
 
+            this.ffmpegExecutor.logProgress(`Image found`);
+            this.ffmpegExecutor.logProgress(`Downloading image`);
             let imageURL = await Storage.getDownloadURL(Storage.fileTypes.images, commands.image.id);
             let imagePath = path.join(pathPrefix, `image.png`);
             await fileSys.downloadData(imageURL, imagePath);
 
+            this.ffmpegExecutor.logProgress(`Creating video from audio and image`);
             await ffmpegUtils.createVideoFromAudioAndImage(finalVideoPath, audioPath, imagePath, this.ffmpegExecutor);
             await fsPromises.unlink(audioPath);
             await fsPromises.unlink(imagePath);
         }else if(commands.silence){
+            this.ffmpegExecutor.logProgress(`Silence found`);
             if(!commands.image){
+                this.logError(`Paragraph doesnt have an image source`);
                 throw new Error("Paragraph doesnt have a visual source");
             }
-
+            this.ffmpegExecutor.logProgress(`Image found`);
+            this.ffmpegExecutor.logProgress(`Downloading image`);
             let imageURL = await Storage.getDownloadURL(Storage.fileTypes.images, commands.image.id);
             let imagePath = path.join(pathPrefix, `image.png`);
             await fileSys.downloadData(imageURL, imagePath);
+
+            this.ffmpegExecutor.logProgress(`Creating video from silence and image`);
             await ffmpegUtils.createVideoFromImage(finalVideoPath, imagePath, commands.silence.duration, this.ffmpegExecutor);
             await fsPromises.unlink(imagePath);
         } else if(commands.image){
+            this.ffmpegExecutor.logProgress(`Image found`);
+            this.ffmpegExecutor.logProgress(`Downloading image`);
+
             let imagePath = path.join(pathPrefix, `image.png`);
             let imageURL = await Storage.getDownloadURL(Storage.fileTypes.images, commands.image.id);
             await fileSys.downloadData(imageURL, imagePath);
+
+            this.ffmpegExecutor.logProgress(`Creating video from image`);
             await ffmpegUtils.createVideoFromImage(finalVideoPath, imagePath, 1, this.ffmpegExecutor);
             await fsPromises.unlink(imagePath);
         } else {
+            this.ffmpegExecutor.logProgress(`No visual source found, skipping paragraph`);
             return;
             //throw new Error("Paragraph doesnt have a visual source");
         }
+
         await this.attachEffectsToParagraphVideo(finalVideoPath, commands.effects, pathPrefix);
 
+        this.ffmpegExecutor.logProgress(`Uploading final video`);
         await this.uploadFinalVideo(finalVideoPath, documentModule);
+        this.ffmpegExecutor.logSuccess(`Video created for paragraph`);
         return finalVideoPath;
     }
     async runTask() {
@@ -143,15 +175,21 @@ class ParagraphToVideo extends Task {
         if(!effects || effects.length === 0){
             return;
         }
+        this.ffmpegExecutor.logProgress('Beginning to attach effects to video');
         for(let effect of effects){
             let effectPath = path.join(pathPrefix, `effect_${effect.id}.mp3`);
+            this.ffmpegExecutor.logProgress(`Downloading effect ${effects.indexOf(effect)}`);
             let effectURL = await Storage.getDownloadURL(Storage.fileTypes.audios, effect.id);
             await fileSys.downloadData(effectURL, effectPath);
+            this.ffmpegExecutor.logProgress(`Verifying effect ${effects.indexOf(effect)} integrity`);
             await ffmpegUtils.verifyMediaFileIntegrity(effectPath, this.ffmpegExecutor);
+            this.ffmpegExecutor.logProgress(`Verifying effect ${effects.indexOf(effect)} settings`);
             await ffmpegUtils.verifyAudioSettings(effectPath, this.ffmpegExecutor);
+            this.ffmpegExecutor.logProgress(`Trimming effect and adjusting volume ${effects.indexOf(effect)}`);
             await ffmpegUtils.trimAudioAdjustVolume(effectPath, effect.start, effect.end, effect.volume, this.ffmpegExecutor);
             effect.path = effectPath;
         }
+        this.ffmpegExecutor.logProgress(`Adding effects to video`);
         await ffmpegUtils.addEffectsToVideo(effects, videoPath, this.ffmpegExecutor);
         for(let effect of effects){
             await fsPromises.unlink(effect.path);
@@ -160,10 +198,14 @@ class ParagraphToVideo extends Task {
     }
 
     async downloadAndPrepareAudio(audioId, volume, path){
+        this.ffmpegExecutor.logProgress(`Downloading audio file`);
         let audioURL = await Storage.getDownloadURL(Storage.fileTypes.audios, audioId);
         await fileSys.downloadData(audioURL, path);
+        this.ffmpegExecutor.logProgress(`Verifying audio file integrity`);
         await ffmpegUtils.verifyMediaFileIntegrity(path, this.ffmpegExecutor);
+        this.ffmpegExecutor.logProgress(`Verifying audio settings`);
         await ffmpegUtils.verifyAudioSettings(path, this.ffmpegExecutor);
+        this.ffmpegExecutor.logProgress(`Adjusting audio volume`);
         await ffmpegUtils.adjustAudioVolume(path, volume, this.ffmpegExecutor);
     }
 
@@ -199,7 +241,7 @@ class ParagraphToVideo extends Task {
                 chapterId: this.chapterId,
                 paragraphId: this.paragraphId,
                 workingDir: this.workingDir,
-                documentTaskId: this.documentTaskId,
+                chapterTaskId: this.chapterTaskId
             }
         }
     }

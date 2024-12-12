@@ -151,9 +151,10 @@ export class ParagraphItem {
         } else if (type === "commands") {
             this.paragraph.commands = await documentModule.getParagraphCommands(assistOS.space.id, this._document.id, this.paragraph.id);
             this.commandsEditor.renderCommands();
+            let chapterPresenter = this.element.closest("chapter-item").webSkelPresenter;
+            await chapterPresenter.invalidateCompiledVideo();
         }
     }
-
     async deleteParagraph() {
         await this.documentPresenter.stopTimer(true);
         let message = "Are you sure you want to delete this paragraph?";
@@ -176,6 +177,7 @@ export class ParagraphItem {
         let chapterElement = this.element.closest("chapter-item");
         let chapterPresenter = chapterElement.webSkelPresenter;
         chapterPresenter.deleteParagraph(this.paragraph.id);
+        await chapterPresenter.invalidateCompiledVideo();
     }
 
     async moveParagraph(_target, direction) {
@@ -194,6 +196,7 @@ export class ParagraphItem {
         await documentModule.swapParagraphs(assistOS.space.id, this._document.id, this.chapter.id, this.paragraph.id, adjacentParagraphId, direction);
         let chapterPresenter = this.element.closest("chapter-item").webSkelPresenter;
         chapterPresenter.swapParagraphs(this.paragraph.id, adjacentParagraphId, direction);
+        await chapterPresenter.invalidateCompiledVideo();
     }
 
     addParagraph() {
@@ -348,6 +351,8 @@ export class ParagraphItem {
             this.paragraph.commands = await documentModule.getParagraphCommands(assistOS.space.id, this._document.id, this.paragraph.id);
             this.invalidate();
             this.showUnfinishedTasks();
+            let chapterPresenter = this.element.closest("chapter-item").webSkelPresenter;
+            await chapterPresenter.invalidateCompiledVideo();
         }
     }
 
