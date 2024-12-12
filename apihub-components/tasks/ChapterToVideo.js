@@ -70,7 +70,7 @@ class ChapterToVideo extends Task {
         }
         if(failedTasks.length > 0){
             await fsPromises.rm(pathPrefix, {recursive: true, force: true});
-            this.logError(`Failed to create videos for chapter ${chapterIndex} paragraphs: ${failedTasks.join(", ")}`);
+            this.logError(`Failed to create videos for chapter ${chapterIndex} paragraphs: ${failedTasks.join(", ")}`, {finished: true});
             throw new Error(`Failed to create videos for chapter ${chapterIndex} paragraphs: ${failedTasks.join(", ")}`);
         }
         completedFramePaths = completedFramePaths.filter(videoPath => typeof videoPath !== "undefined");
@@ -83,7 +83,7 @@ class ChapterToVideo extends Task {
                 outputVideoPath,
                 this);
         } catch (e){
-            this.logError(`Failed to combine videos for chapter ${chapterIndex}: ${e}`);
+            this.logError(`Failed to combine videos for chapter ${chapterIndex}: ${e}`, {finished: true});
             throw new Error(`Failed to combine videos for chapter ${chapterIndex}: ${e}`);
         }
 
@@ -102,7 +102,7 @@ class ChapterToVideo extends Task {
                 await ffmpegUtils.addBackgroundSoundToVideo(outputVideoPath, chapterAudioPath, chapter.backgroundSound.volume, chapter.backgroundSound.loop, this);
                 await fsPromises.unlink(chapterAudioPath);
             } catch (e) {
-                this.logError(`Failed to add background sound to chapter ${chapterIndex}: ${e}`);
+                this.logError(`Failed to add background sound to chapter ${chapterIndex}: ${e}`, {finished: true});
                 throw new Error(`Failed to add background sound to chapter ${chapterIndex}: ${e}`);
             }
         }

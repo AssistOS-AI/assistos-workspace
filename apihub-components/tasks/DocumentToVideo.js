@@ -9,6 +9,7 @@ const constants = require('./constants');
 const STATUS = constants.STATUS;
 const ChapterToVideo = require('./ChapterToVideo');
 const SubscriptionManager = require("../subscribers/SubscriptionManager");
+const configs = require("../../data-volume/config/config.json");
 class DocumentToVideo extends Task {
     constructor(spaceId, userId, configs) {
         super(spaceId, userId);
@@ -51,7 +52,7 @@ class DocumentToVideo extends Task {
                      process.kill();
             }
             await fsPromises.rm(tempVideoDir, {recursive: true, force: true});
-            this.logError(`Failed to create videos for chapters: ${failedTasks.join(", ")}`);
+            this.logError(`Failed to create videos for chapters: ${failedTasks.join(", ")}`, {finished: true});
             throw new Error(`Failed to create videos for chapters: ${failedTasks.join(", ")}`);
         }
         chapterVideos = chapterVideos.filter(videoPath => typeof videoPath !== "undefined");
@@ -64,7 +65,14 @@ class DocumentToVideo extends Task {
                 `chapter_videos.txt`,
                 videoPath,
                 this);
-            this.logSuccess(`Video created for document ${this.document.title}` ,{finished: true});
+
+            let baseURL;
+            if (configs.ENVIRONMENT_MODE === "production") {
+                baseURL = configs.PRODUCTION_BASE_URL;
+            } else {
+                baseURL = configs.DEVELOPMENT_BASE_URL;
+            }
+            this.logSuccess(`Video created. URL: ${baseURL}/documents/video/${this.spaceId}/${this.id}` ,{finished: true});
             await fsPromises.rm(tempVideoDir, {recursive: true, force: true});
             return `/documents/video/${this.spaceId}/${this.id}`;
         } catch (e) {
@@ -72,7 +80,7 @@ class DocumentToVideo extends Task {
             for(let process of this.processes){
                 process.kill();
             }
-            this.logError(`Failed to combine chapter videos: ${e}`);
+            this.logError(`Failed to combine chapter videos: ${e}`, {finished: true});
             throw new Error(`Failed to combine chapter videos: ${e}`);
         }
     }
