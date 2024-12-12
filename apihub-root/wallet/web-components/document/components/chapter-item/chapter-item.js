@@ -1,5 +1,4 @@
 import {unescapeHtmlEntities} from "../../../../imports.js";
-import {NotificationRouter} from "../../../../imports.js";
 import selectionUtils from "../../pages/document-view-page/selectionUtils.js";
 const documentModule = require("assistos").loadModule("document", {});
 const spaceModule = require("assistos").loadModule("space", {});
@@ -24,8 +23,8 @@ export class ChapterItem {
         this.boundCloseChapterComment = this.closeChapterComment.bind(this);
         this.invalidate(async () => {
             this.boundOnChapterUpdate = this.onChapterUpdate.bind(this);
-            await NotificationRouter.subscribeToDocument(this._document.id, this.chapter.id, this.boundOnChapterUpdate);
-            await NotificationRouter.subscribeToDocument(this._document.id, this.titleId, this.boundHandleUserSelection);
+            await assistOS.NotificationRouter.subscribeToDocument(this._document.id, this.chapter.id, this.boundOnChapterUpdate);
+            await  assistOS.NotificationRouter.subscribeToDocument(this._document.id, this.titleId, this.boundHandleUserSelection);
         });
 
     }

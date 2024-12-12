@@ -1,6 +1,4 @@
-const utilModule = require("assistos").loadModule("util", {});
 const galleryModule = require("assistos").loadModule("gallery", {});
-import {NotificationRouter} from "../../../../imports.js";
 
 export class HistoryImage {
     constructor(element, invalidate) {
@@ -17,7 +15,7 @@ export class HistoryImage {
         this.invalidate(async ()=>{
             if(image.status !== "DONE") {
                 this.boundsOnImageUpdate = this.onImageUpdate.bind(this, image, imageId, galleryId);
-                await NotificationRouter.subscribeToSpace(assistOS.space.id, imageId, this.boundsOnImageUpdate);
+                await assistOS.NotificationRouter.subscribeToSpace(assistOS.space.id, imageId, this.boundsOnImageUpdate);
             }
         });
     }

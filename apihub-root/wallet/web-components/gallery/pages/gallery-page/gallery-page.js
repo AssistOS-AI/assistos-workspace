@@ -1,5 +1,4 @@
 const galleryModule = require("assistos").loadModule("gallery", {});
-import {NotificationRouter} from "../../../../imports.js"
 export class GalleryPage {
     constructor(element, invalidate) {
         this.element = element;
@@ -11,7 +10,7 @@ export class GalleryPage {
         this.invalidate(async () => {
             await this.refreshGallery();
             this.boundsOnGalleryUpdate = this.onGalleryUpdate.bind(this);
-            await NotificationRouter.subscribeToSpace(assistOS.space.id, this.id, this.boundsOnGalleryUpdate);
+            await assistOS.NotificationRouter.subscribeToSpace(assistOS.space.id, this.id, this.boundsOnGalleryUpdate);
         });
     }
     onGalleryUpdate(data){

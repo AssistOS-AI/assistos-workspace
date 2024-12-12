@@ -1,5 +1,4 @@
 const spaceModule = require("assistos").loadModule("space", {});
-import {NotificationRouter} from "../../../../imports.js";
 export class AgentPage {
     constructor(element, invalidate) {
         this.element = element;
@@ -11,7 +10,7 @@ export class AgentPage {
         this.invalidate(async () => {
             this.personalities = await assistOS.space.getPersonalitiesMetadata();
             this.boundOnChatUpdate = this.onChatUpdate.bind(this);
-            await NotificationRouter.subscribeToSpace(assistOS.space.id, `chat_${assistOS.space.id}`, this.boundOnChatUpdate);
+            await assistOS.NotificationRouter.subscribeToSpace(assistOS.space.id, `chat_${assistOS.space.id}`, this.boundOnChatUpdate);
         });
 
         this.private = "selected-chat";
