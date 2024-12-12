@@ -236,6 +236,7 @@ async function combineVideos(tempVideoDir, videoPaths, fileListName, outputVideo
     }
     let intermediateFiles = [];
     for (let i = 0; i < videoBatches.length; i++) {
+        task.logProgress(`---Processing video batch ${i}/${videoBatches.length}`);
         let batch = videoBatches[i];
         const fileListPath = path.join(tempVideoDir, fileListName);
         const fileListContent = batch.map(file => `file '${file}'`).join('\n');
@@ -255,9 +256,11 @@ async function combineVideos(tempVideoDir, videoPaths, fileListName, outputVideo
     }
 
     if (intermediateFiles.length > batchSize) {
+        task.logProgress(`---Batches exceed maximum size ${batchSize}, calling combineVideos recursively`);
         return combineVideos(ffmpegPath, tempVideoDir, intermediateFiles, 'finalFileList.txt', outputVideoPath, task);
     }
 
+    task.logProgress('---Concatenating batches');
     // After processing all batches, concatenate the intermediate files into the final output
     const intermediateFileList = intermediateFiles.map(file => `file '${file}'`).join('\n');
     const finalFileListPath = path.join(tempVideoDir, 'finalFileList.txt');
@@ -270,6 +273,7 @@ async function combineVideos(tempVideoDir, videoPaths, fileListName, outputVideo
     await task.runCommand(finalCommand);
 
     // Clean up the final file list and intermediate files
+    task.logProgress('---Cleaning up');
     await fsPromises.unlink(finalFileListPath);
     for (const intermediateFile of intermediateFiles) {
         await fsPromises.unlink(intermediateFile);

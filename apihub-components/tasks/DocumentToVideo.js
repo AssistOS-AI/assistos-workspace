@@ -1,4 +1,4 @@
-const {exec, spawn} = require("child_process");
+const {exec} = require("child_process");
 const fs = require('fs');
 const Task = require('./Task');
 const path = require('path');
@@ -14,7 +14,6 @@ class DocumentToVideo extends Task {
         super(spaceId, userId);
         this.processes = [];
         this.documentId = configs.documentId;
-        //TODO: gather all errors and return them in the end
     }
     async runTask(){
         const spacePath = space.APIs.getSpacePath(this.spaceId);
@@ -25,8 +24,10 @@ class DocumentToVideo extends Task {
         let TaskManager = require('./TaskManager');
         let chapterVideos = [];
         let failedTasks = [];
+        this.logInfo(`Creating video for document ${this.document.title}`);
         for(let i = 0; i < this.document.chapters.length; i++){
             let chapter = this.document.chapters[i];
+            this.logInfo(`Creating video for chapter ${i}`);
             let chapterTask = new ChapterToVideo(this.spaceId, this.userId, {
                 documentId: this.documentId,
                 chapterId: chapter.id,
@@ -48,10 +49,12 @@ class DocumentToVideo extends Task {
                      process.kill();
             }
             await fsPromises.rm(tempVideoDir, {recursive: true, force: true});
+            this.logError(`Failed to create videos for chapters: ${failedTasks.join(", ")}`);
             throw new Error(`Failed to create videos for chapters: ${failedTasks.join(", ")}`);
         }
         chapterVideos = chapterVideos.filter(videoPath => typeof videoPath !== "undefined");
         try {
+            this.logInfo(`Combining chapter videos`);
             let videoPath = path.join(spacePath, "temp", `${this.id}.mp4`);
             await ffmpegUtils.combineVideos(
                 tempVideoDir,
@@ -59,6 +62,7 @@ class DocumentToVideo extends Task {
                 `chapter_videos.txt`,
                 videoPath,
                 this);
+            this.logSuccess(`Video created for document ${this.document.title}` ,{finished: true});
             await fsPromises.rm(tempVideoDir, {recursive: true, force: true});
             return `/documents/video/${this.spaceId}/${this.id}`;
         } catch (e) {
@@ -66,6 +70,7 @@ class DocumentToVideo extends Task {
             for(let process of this.processes){
                 process.kill();
             }
+            this.logError(`Failed to combine chapter videos: ${e}`);
             throw new Error(`Failed to combine chapter videos: ${e}`);
         }
     }
@@ -76,10 +81,6 @@ class DocumentToVideo extends Task {
         const spacePath = space.APIs.getSpacePath(this.spaceId);
         let tempVideoDir = path.join(spacePath, "videos", `${this.id}_temp`);
         await fsPromises.rm(tempVideoDir, {recursive: true, force: true});
-        setTimeout(() => {
-            const TaskManager = require('./TaskManager');
-            TaskManager.removeTask(this.id);
-        }, 5000);
     }
     runCommand(command) {
         return new Promise((resolve, reject) => {
@@ -108,9 +109,7 @@ class DocumentToVideo extends Task {
             }
         }
     }
-    async createChapterVideo(chapter, tempVideoDir){
 
-    }
     async getRelevantInfo() {
         if (this.status === STATUS.RUNNING) {
             return `Creating video for document ${this.document.title}`;

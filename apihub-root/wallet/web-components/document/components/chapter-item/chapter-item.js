@@ -30,8 +30,8 @@ export class ChapterItem {
 
     }
 
-    beforeRender() {
-        //await documentModule.updateChapterCommands(assistOS.space.id, this._document.id, this.chapter.id, this.chapter.commands);
+    async beforeRender() {
+        await documentModule.updateChapterCommands(assistOS.space.id, this._document.id, this.chapter.id, this.chapter.commands);
         if (this._document.chapters.length === 1) {
             this.toggleSwapArrows = "hide";
         } else {
@@ -96,7 +96,12 @@ export class ChapterItem {
             paragraph2.insertAdjacentElement('afterend', paragraph1);
         }
     }
-
+    async invalidateCompiledVideo(){
+        if(this.chapter.commands.compileVideo){
+            delete this.chapter.commands.compileVideo;
+            await documentModule.updateChapterCommands(assistOS.space.id, this._document.id, this.chapter.id, this.chapter.commands);
+        }
+    }
     async onChapterUpdate(data) {
         if (typeof data === "object") {
             if (data.operationType === "add") {
@@ -124,6 +129,10 @@ export class ChapterItem {
             }
             case "visibility": {
                 //dont do anything
+                return;
+            }
+            case "commands": {
+                this.chapter.commands = await documentModule.getChapterCommands(assistOS.space.id, this._document.id, this.chapter.id);
                 return;
             }
             default: {
@@ -194,6 +203,7 @@ export class ChapterItem {
 
             assistOS.space.currentParagraphId = await documentModule.addParagraph(assistOS.space.id, this._document.id, this.chapter.id, paragraphObj);
             await this.insertNewParagraph(assistOS.space.currentParagraphId, position);
+            await this.invalidateCompiledVideo();
         }
     }
 

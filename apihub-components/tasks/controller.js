@@ -18,7 +18,10 @@ async function compileVideoFromDocument(request, response) {
         sendResponse(response, 200, "application/json", {
             data: task.id
         });
-        TaskManager.runTask(task.id);
+        setTimeout(() => {
+            TaskManager.runTask(task.id);
+        }, 1000);
+        //TaskManager.runTask(task.id);
     }catch (e) {
         utils.sendResponse(response, 500, "application/json", {
             message: e.message

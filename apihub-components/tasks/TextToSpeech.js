@@ -39,8 +39,11 @@ class TextToSpeech extends Task {
             paragraphCommands.audio = {
                 id: this.audioId,
                 duration: audioDuration,
-                volume: 1
+                volume: 100
             };
+            if(paragraphCommands.compileVideo){
+                delete paragraphCommands.compileVideo;
+            }
             await documentModule.updateParagraphCommands(this.spaceId, this.documentId, this.paragraphId, paragraphCommands);
             this.emit(EVENTS.DEPENDENCY_COMPLETED);
         } catch (e) {
