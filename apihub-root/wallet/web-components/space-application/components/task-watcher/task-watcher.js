@@ -9,6 +9,7 @@ export class TaskWatcher {
         this.invalidate(async () => {
             await NotificationRouter.subscribeToSpace(assistOS.space.id, this.taskId + "/logs", this.boundOnTaskLog);
         });
+        this.monitorPresenter = this.element.closest('notifications-monitor').webSkelPresenter;
     }
 
     async onTaskLog(logData) {
@@ -21,6 +22,9 @@ export class TaskWatcher {
 
         if (data?.documentId) {
             await this.openDocument(data.documentId);
+        }
+        if(data?.taskId){
+            this.monitorPresenter.addTaskWatcher(data.taskId);
         }
 
         if (message) {

@@ -14,6 +14,7 @@ class DocumentToVideo extends Task {
         super(spaceId, userId);
         this.processes = [];
         this.documentId = configs.documentId;
+        this.chapterTaskIds = [];
     }
     async runTask(){
         const spacePath = space.APIs.getSpacePath(this.spaceId);
@@ -27,14 +28,15 @@ class DocumentToVideo extends Task {
         this.logInfo(`Creating video for document ${this.document.title}`);
         for(let i = 0; i < this.document.chapters.length; i++){
             let chapter = this.document.chapters[i];
-            this.logInfo(`Creating video for chapter ${i}`);
             let chapterTask = new ChapterToVideo(this.spaceId, this.userId, {
                 documentId: this.documentId,
                 chapterId: chapter.id,
                 workingDir: tempVideoDir,
                 documentTaskId: this.id
             });
+            this.logInfo(`Creating video for chapter ${i}`, {taskId: chapterTask.id});
             await TaskManager.addTask(chapterTask);
+            this.chapterTaskIds.push(chapterTask.id);
             let objectId = SubscriptionManager.getObjectId(chapterTask.spaceId, "tasksList");
             SubscriptionManager.notifyClients("", objectId, {id: chapterTask.id, action: "add"});
             try {
@@ -75,8 +77,13 @@ class DocumentToVideo extends Task {
         }
     }
     async cancelTask(){
+        let TaskManager = require('./TaskManager');
         for(let process of this.processes){
             process.kill();
+        }
+        for(let chapterTaskId of this.chapterTaskIds){
+            let chapterTask = TaskManager.getTask(chapterTaskId);
+            chapterTask.cancel();
         }
         const spacePath = space.APIs.getSpacePath(this.spaceId);
         let tempVideoDir = path.join(spacePath, "videos", `${this.id}_temp`);

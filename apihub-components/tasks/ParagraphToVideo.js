@@ -10,6 +10,7 @@ const constants = require('./constants');
 const STATUS = constants.STATUS;
 const crypto = require("../apihub-component-utils/crypto");
 const {exec} = require("child_process");
+const TaskManager = require("./TaskManager");
 class ParagraphToVideo extends Task {
     constructor(spaceId, userId, configs) {
         super(spaceId, userId);
@@ -17,14 +18,14 @@ class ParagraphToVideo extends Task {
         this.chapterId = configs.chapterId;
         this.paragraphId = configs.paragraphId;
         this.workingDir = configs.workingDir;
-        this.documentTaskId = configs.documentTaskId;
+        this.chapterTaskId = configs.chapterTaskId;
         this.processes = [];
     }
     async createVideo(){
         let paragraph;
         let pathPrefix;
         let documentModule = await this.loadModule("document", this.securityContext);
-        if(!this.documentTaskId){
+        if(!this.chapterTaskId){
             this.ffmpegExecutor = this;
             const spacePath = space.APIs.getSpacePath(this.spaceId);
             paragraph = await documentModule.getParagraph(this.spaceId, this.documentId, this.paragraphId);
@@ -33,11 +34,11 @@ class ParagraphToVideo extends Task {
             this.workingDir = pathPrefix;
         } else {
             let TaskManager = require('./TaskManager');
-            this.ffmpegExecutor = TaskManager.getTask(this.documentTaskId);
-            let document = this.ffmpegExecutor.document;
-            let chapter = document.chapters.find(chapter => chapter.id === this.chapterId);
-            paragraph = chapter.paragraphs.find(paragraph => paragraph.id === this.paragraphId);
-            let paragraphIndex = chapter.paragraphs.indexOf(paragraph);
+            //use the chapter task to log and execute ffmpeg commands
+            let chapterTask = TaskManager.getTask(this.chapterTaskId);
+            this.ffmpegExecutor = chapterTask;
+            paragraph = chapterTask.chapter.paragraphs.find(paragraph => paragraph.id === this.paragraphId);
+            let paragraphIndex = chapterTask.chapter.paragraphs.indexOf(paragraph);
             pathPrefix = path.join(this.workingDir, `paragraph_${paragraphIndex}`);
             await fsPromises.mkdir(pathPrefix, {recursive: true});
         }
@@ -240,7 +241,7 @@ class ParagraphToVideo extends Task {
                 chapterId: this.chapterId,
                 paragraphId: this.paragraphId,
                 workingDir: this.workingDir,
-                documentTaskId: this.documentTaskId,
+                chapterTaskId: this.chapterTaskId
             }
         }
     }
