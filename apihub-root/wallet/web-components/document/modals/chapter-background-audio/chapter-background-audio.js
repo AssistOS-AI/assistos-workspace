@@ -31,6 +31,7 @@ export class ChapterBackgroundAudio {
                 audio.loop = loopInput.checked;
                 this.chapter.backgroundSound.loop = loopInput.checked;
                 await documentModule.updateChapterBackgroundSound(assistOS.space.id, this._document.id, this.chapter.id, this.chapter.backgroundSound);
+                await this.invalidateCompiledVideo();
             });
             let volumeInput = this.element.querySelector('#volume');
             volumeInput.value = this.chapter.backgroundSound.volume;
@@ -66,6 +67,7 @@ export class ChapterBackgroundAudio {
                 };
                 this.chapter.backgroundSound = backgroundSound;
                 await documentModule.updateChapterBackgroundSound(assistOS.space.id, this._document.id, this.chapter.id, backgroundSound);
+                await this.invalidateCompiledVideo();
                 this.invalidate();
             });
             audioPlayer.src = URL.createObjectURL(file);
@@ -88,15 +90,23 @@ export class ChapterBackgroundAudio {
             volume: parseFloat(volumeInput.value),
             duration: this.chapter.backgroundSound.duration
         });
+        await this.invalidateCompiledVideo();
         this.closeModal();
     }
 
     async deleteBackgroundSound() {
         delete this.chapter.backgroundSound;
         await documentModule.updateChapterBackgroundSound(assistOS.space.id, this._document.id, this.chapter.id, null);
+        await this.invalidateCompiledVideo();
         this.invalidate();
     }
     closeModal(){
         assistOS.UI.closeModal(this.element);
+    }
+    async invalidateCompiledVideo(){
+        if(this.chapter.commands.compileVideo){
+            delete this.chapter.commands.compileVideo;
+            await documentModule.updateChapterCommands(assistOS.space.id, this._document.id, this.chapter.id, this.chapter.commands);
+        }
     }
 }

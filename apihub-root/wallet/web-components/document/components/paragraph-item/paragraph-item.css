@@ -235,6 +235,7 @@ textarea.paragraph-commands{
     pointer-events: none;
 }
 .status-icon{
+    pointer-events: none;
     position: absolute;
     left: -35px;
     top: 50%;

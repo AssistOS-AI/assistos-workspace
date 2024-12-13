@@ -202,8 +202,9 @@ async function addBackgroundSoundToVideo(videoPath, backgroundSoundPath, backgro
     let videoDuration = await getVideoDuration(videoPath);
     const tempOutputPath = videoPath.replace('.mp4', '_temp.mp4');
     let loopOption = loop ? "-stream_loop -1" : "";
+    const fadeDuration = 2;
     const command = `${ffmpegPath} ${loopOption} -i ${backgroundSoundPath} -i ${videoPath} \
-    -filter_complex "[0:a]volume=${backgroundSoundVolume/100}[bg]; \
+    -filter_complex "[0:a]afade=t=in:st=0:d=${fadeDuration},afade=t=out:st=${videoDuration-2}:d=${fadeDuration},volume=${backgroundSoundVolume/100}[bg]; \
     [1:a][bg]amix=inputs=2:duration=longest[aout]" \
     -map 1:v -map "[aout]" -c:v copy -t ${videoDuration} ${tempOutputPath}`;
 
@@ -334,14 +335,22 @@ async function addEffectsToVideo(effects, videoPath, task) {
     if(!effects.some(effect => effect.path)){
         throw new Error('Effects must have a path');
     }
-
+    const fadeDuration = 2;
     let command = `${ffmpegPath} -i ${videoPath} `;
     for(let effect of effects){
         command += `-i ${effect.path} `;
     }
     command += `-filter_complex "`;
     for(let i = 0; i < effects.length; i++){
-        command += `[${i+1}]adelay=${effects[i].playAt * 1000}|${effects[i].playAt * 1000}[a${i+1}];`;
+        let effect = effects[i];
+        command += `[${i+1}]adelay=${effect.playAt * 1000}|${effect.playAt * 1000}`;
+        if(effect.fadeIn){
+            command += `,afade=t=in:st=0:d=${fadeDuration}`;
+        }
+        if(effect.fadeOut){
+            command += `,afade=t=out:st=${effect.duration - fadeDuration}:d=${fadeDuration}`;
+        }
+        command += `[a${i + 1}];`;
     }
     for(let i = 0; i < effects.length; i++){
         command += `[a${i+1}]`;

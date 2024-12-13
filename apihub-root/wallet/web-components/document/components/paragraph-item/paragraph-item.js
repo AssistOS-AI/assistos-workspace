@@ -101,24 +101,17 @@ export class ParagraphItem {
     async updateCommands() {
         let updateCommands;
         let commands = this.paragraph.commands;
-        let updateVolumeCommands = ["audio", "video"];
-        for (let command of updateVolumeCommands) {
-            if (commands[command] && (commands[command].volume <= 1)) {
-                commands[command].volume = commands[command].volume * 100;
-                updateCommands = true;
-            }
-            if (commands[command] && !commands[command].hasOwnProperty("volume")) {
-                commands[command].volume = 100;
-                updateCommands = true;
-            }
-        }
         if (commands.effects) {
             for (let effect of commands.effects) {
-                if (effect.volume <= 1) {
-                    effect.volume = effect.volume * 100;
+                if(!effect.fadeIn){
+                    effect.fadeIn = true;
                     updateCommands = true;
                 }
             }
+        }
+        if(commands.compileVideo){
+            delete commands.compileVideo;
+            updateCommands = true;
         }
         if (updateCommands) {
             await documentModule.updateParagraphCommands(assistOS.space.id, this._document.id, this.paragraph.id, this.paragraph.commands);

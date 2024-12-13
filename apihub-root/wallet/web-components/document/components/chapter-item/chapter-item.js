@@ -164,12 +164,10 @@ export class ChapterItem {
         if (this.chapter.visibility === "hide") {
             this.changeChapterVisibility("hide");
         }
-        //for demo documents
-        if (this.chapter.backgroundSound) {
-           if(this.chapter.backgroundSound.volume <= 1){
-                this.chapter.backgroundSound.volume = this.chapter.backgroundSound.volume * 100;
-                await documentModule.updateChapterBackgroundSound(assistOS.space.id, this._document.id, this.chapter.id, this.chapter.backgroundSound);
-           }
+
+        if(this.chapter.commands.compileVideo){
+            delete this.chapter.commands.compileVideo;
+            await documentModule.updateChapterCommands(assistOS.space.id, this._document.id, this.chapter.id, this.chapter.commands);
         }
     }
 
