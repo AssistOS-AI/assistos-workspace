@@ -1,3 +1,5 @@
+const utilModule = require('assistos').loadModule('util', {});
+
 export class NotificationsMonitor {
     constructor(element, invalidate) {
         this.element = element;
@@ -11,7 +13,7 @@ export class NotificationsMonitor {
     async beforeRender() {
     }
 
-    async afterRender(){
+    async afterRender() {
         this.header = this.element.querySelector('#monitorHeader');
         this.minimizeBtn = this.element.querySelector('#minimizeMonitor');
         this.addBtn = this.element.querySelector('#addWatcher');
@@ -20,10 +22,14 @@ export class NotificationsMonitor {
 
         this.minimizeBtn.addEventListener('click', () => this.toggleMinimize());
         this.addBtn.addEventListener('click', () => this.promptAddWatcher());
-        let tasksToWatch =localStorage.getItem('tasksToWatch') ? JSON.parse(localStorage.getItem('tasksToWatch')) : [];
-        for(let taskId of tasksToWatch){
-            this.addTaskWatcher(taskId);
+        let tasksToWatch = localStorage.getItem('tasksToWatch') ? JSON.parse(localStorage.getItem('tasksToWatch')) : [];
+        for (let taskId of tasksToWatch) {
+            await this.addTaskWatcher(taskId);
         }
+    }
+
+    toggleFullscreen() {
+        this.element.classList.toggle('fullscreen');
     }
 
     toggleMinimize() {
@@ -36,18 +42,28 @@ export class NotificationsMonitor {
             this.addTaskWatcher(taskId);
         }
     }
-    addTaskToCache(taskId){
+
+    addTaskToCache(taskId) {
         this.tasksToWatch.push(taskId);
         localStorage.setItem('tasksToWatch', JSON.stringify(this.tasksToWatch));
     }
-    removeTaskFromCache(taskId){
+
+    removeTaskFromCache(taskId) {
         this.tasksToWatch = this.tasksToWatch.filter(id => id !== taskId);
         localStorage.setItem('tasksToWatch', JSON.stringify(this.tasksToWatch));
     }
-    addTaskWatcher(taskId) {
+
+    async addTaskWatcher(taskId) {
         if (this.taskWatchers[taskId]) {
             return;
         }
+        try {
+            await utilModule.getTask(taskId);
+        } catch (error) {
+            console.warn(`Cannot Load Task: ${error.message}`)
+            return;
+        }
+
         this.addTaskToCache(taskId);
 
         const tab = document.createElement('div');
