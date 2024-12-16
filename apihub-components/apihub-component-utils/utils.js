@@ -20,6 +20,9 @@ async function sendFileToClient(response, resource, fileType) {
     try {
         let contentType = "";
         switch (fileType) {
+            case "txt":
+                contentType = "text/plain";
+                break;
             case "js":
                 contentType = "application/javascript";
                 break;

@@ -22,10 +22,27 @@ export class NotificationsMonitor {
 
         this.minimizeBtn.addEventListener('click', () => this.toggleMinimize());
         this.addBtn.addEventListener('click', () => this.promptAddWatcher());
+
+        const llmObserverTab = document.createElement('div');
+        llmObserverTab.classList.add('tab', 'active');
+        llmObserverTab.textContent = 'Prompts Observer';
+        this.tabsContainer.insertBefore(llmObserverTab, this.addBtn);
+        llmObserverTab.addEventListener('click', () => this.activateTab('llmObserver'));
+
+        this.taskWatchers['llmObserver'] = {
+            tab: llmObserverTab,
+            taskWatcherElement: this.taskWatchersContainer.querySelector('llm-observer')
+        };
+        this.currentTab = 'llmObserver';
+
         let tasksToWatch = localStorage.getItem('tasksToWatch') ? JSON.parse(localStorage.getItem('tasksToWatch')) : [];
         for (let taskId of tasksToWatch) {
             await this.addTaskWatcher(taskId);
         }
+    }
+
+    async downloadSpaceTaskLogs(_target) {
+        window.location.href=`/tasks/logs/download/${assistOS.space.id}`
     }
 
     toggleFullscreen() {
@@ -121,7 +138,10 @@ export class NotificationsMonitor {
         }
     }
 
+
     removeTaskWatcher(taskId) {
+        if (taskId === 'llmObserver') return;
+
         const watcher = this.taskWatchers[taskId];
         if (!watcher) return;
 
@@ -134,12 +154,14 @@ export class NotificationsMonitor {
         if (this.currentTab === taskId) {
             const remainingTaskIds = Object.keys(this.taskWatchers);
             if (remainingTaskIds.length > 0) {
-                this.activateTab(remainingTaskIds[remainingTaskIds.length - 1]);
+                this.activateTab(remainingTaskIds[0]);
             } else {
-                this.currentTab = null;
+                this.currentTab = 'llmObserver';
+                this.activateTab('llmObserver');
             }
         }
     }
+
 
 }
 

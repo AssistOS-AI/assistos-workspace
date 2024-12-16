@@ -19,11 +19,7 @@ export class TaskWatcher {
     async afterRender() {
         this.logBox = this.element.querySelector('#logViewerContent');
         this.loadingSpinner = this.element.querySelector('#loadingSpinner');
-        this.taskLogs = await utilModule.getTaskLogs(assistOS.space.id, this.taskId);
         await assistOS.NotificationRouter.subscribeToSpace(assistOS.space.id, this.taskId + "/logs", this.boundOnTaskLog);
-        for (let log of this.taskLogs) {
-            await this.onTaskLog(log);
-        }
         this.renderedLogHistory = true;
     }
 
@@ -84,7 +80,6 @@ export class TaskWatcher {
 
             logEntry.textContent = message;
             this.logBox.insertBefore(logEntry, this.loadingSpinner);
-            this.logBox.scrollTop = this.logBox.scrollHeight;
         }
     }
 
