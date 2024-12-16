@@ -234,3 +234,9 @@ textarea.paragraph-commands{
     background-color: var(--very-light-gray);
     pointer-events: none;
 }
+.status-icon{
+    pointer-events: none;
+    position: absolute;
+    left: -35px;
+    top: 50%;
+}

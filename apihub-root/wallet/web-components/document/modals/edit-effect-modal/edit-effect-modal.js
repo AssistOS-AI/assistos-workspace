@@ -18,15 +18,33 @@ export class EditEffectModal{
         this.effectVolume = this.effect.volume;
         this.effectPlayAt = this.effect.playAt;
         this.effectDuration = this.effect.duration;
+        if(this.effect.fadeIn){
+            this.effectFadeIn = "checked";
+        }
+        if (this.effect.fadeOut) {
+            this.effectFadeOut = "checked";
+        }
     }
     afterRender() {
         let endInput = this.element.querySelector("input[name='end']");
         let playAtInput = this.element.querySelector("input[name='playAt']");
+        let startInput = this.element.querySelector("input[name='start']");
         this.form = this.element.querySelector(".effect-parameters");
         endInput.addEventListener("change", ()=>{
             let end = parseFloat(endInput.value);
             let playAt = parseFloat(playAtInput.value);
-            if(end > this.videoDuration - playAt){
+            let start = parseFloat(startInput.value);
+            if(end - start > this.videoDuration - playAt){
+                this.showInputWarning("Effect duration exceeds video duration. It will be cut off.");
+            } else {
+                this.removeWarning();
+            }
+        });
+        playAtInput.addEventListener("change", ()=>{
+            let end = parseFloat(endInput.value);
+            let playAt = parseFloat(playAtInput.value);
+            let start = parseFloat(startInput.value);
+            if(end - start > this.videoDuration - playAt){
                 this.showInputWarning("Effect duration exceeds video duration. It will be cut off.");
             } else {
                 this.removeWarning();
@@ -65,9 +83,10 @@ export class EditEffectModal{
             return;
         }
         let end = parseFloat(formData.data.end);
+        let start = parseFloat(formData.data.start);
         let playAt = parseFloat(formData.data.playAt);
-        if(end > this.videoDuration - playAt){
-            this.effect.end = parseFloat((this.videoDuration - playAt).toFixed(1));
+        if(end - start > this.videoDuration - playAt){
+            this.effect.end = this.effect.start + parseFloat((this.videoDuration - playAt).toFixed(1));
         } else {
             this.effect.end = end;
         }
@@ -75,6 +94,11 @@ export class EditEffectModal{
         this.effect.start = parseFloat(formData.data.start);
         this.effect.volume = parseFloat(formData.data.volume);
         this.effect.playAt = playAt;
+        let effectFadeIn = this.element.querySelector("input[name='fadeIn']");
+        let effectFadeOut = this.element.querySelector("input[name='fadeOut']");
+        this.effect.fadeIn = effectFadeIn.checked;
+        this.effect.fadeOut = effectFadeOut.checked;
+        await this.audioMenuPresenter.commandsEditor.invalidateCompiledVideos();
         await documentModule.updateParagraphCommands(assistOS.space.id, this.audioMenuPresenter._document.id, this.audioMenuPresenter.paragraphId, this.audioMenuPresenter.commands);
         assistOS.UI.closeModal(this.element, true);
     }

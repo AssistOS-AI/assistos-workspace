@@ -50,11 +50,11 @@ export class ParagraphItem {
             assistOS.NotificationRouter.subscribeToDocument(this._document.id, `${this.paragraph.id}_${pluginName}`, this.plugins[pluginName].boundHandleSelection);
         }
         await assistOS.NotificationRouter.subscribeToDocument(this._document.id, this.paragraph.id, this.boundHandleUserSelection);
-        this.boundChangeTaskStatus = this.changeTaskStatus.bind(this);
+        this.boundTaskStatusHandler = this.taskStatusHandler.bind(this);
         for (let [commandType, commandDetails] of Object.entries(this.paragraph.commands)) {
             for (let [key, value] of Object.entries(commandDetails)) {
                 if (key === "taskId") {
-                    assistOS.NotificationRouter.subscribeToSpace(assistOS.space.id, value, this.boundChangeTaskStatus);
+                    assistOS.NotificationRouter.subscribeToSpace(assistOS.space.id, value, this.boundTaskStatusHandler);
                 }
             }
         }
@@ -95,49 +95,73 @@ export class ParagraphItem {
                 selectionUtils.lockItem(this.textClass, this);
             }
         }
+        this.showStatusIcon()
     }
 
     async updateCommands() {
         let updateCommands;
         let commands = this.paragraph.commands;
-        let updateVolumeCommands = ["audio", "video"];
-        for (let command of updateVolumeCommands) {
-            if (commands[command] && (commands[command].volume <= 1)) {
-                commands[command].volume = commands[command].volume * 100;
-                updateCommands = true;
-            }
-            if (commands[command] && !commands[command].hasOwnProperty("volume")) {
-                commands[command].volume = 100;
-                updateCommands = true;
-            }
-        }
         if (commands.effects) {
             for (let effect of commands.effects) {
-                if (effect.volume <= 1) {
-                    effect.volume = effect.volume * 100;
+                if(!effect.fadeIn){
+                    effect.fadeIn = true;
                     updateCommands = true;
                 }
             }
+        }
+        if(commands.compileVideo){
+            delete commands.compileVideo;
+            updateCommands = true;
         }
         if (updateCommands) {
             await documentModule.updateParagraphCommands(assistOS.space.id, this._document.id, this.paragraph.id, this.paragraph.commands);
         }
     }
-
+    showStatusIcon(){
+        let unfinishedTasks = this.countUnfinishedTasks();
+        let icon =""
+        if (unfinishedTasks > 0) {
+            icon = "info";
+        }
+        let commands = this.paragraph.commands;
+        if (commands.video && commands.audio) {
+            let videoDuration = parseFloat((commands.video.end - commands.video.start).toFixed(1));
+            let audioDuration = parseFloat(commands.audio.duration.toFixed(1));
+            if (audioDuration !== videoDuration) {
+                icon = "warning";
+            }
+        }
+        let statusIcon = this.element.querySelector(".status-icon");
+        if(statusIcon){
+            statusIcon.remove();
+        }
+        if(icon){
+            let iconHTML = `<img loading="lazy" src="./wallet/assets/icons/${icon}.svg" class="status-icon" alt="${icon}">`;
+            this.element.insertAdjacentHTML('beforeend', iconHTML);
+        } else {
+            let statusIcon = this.element.querySelector(".status-icon");
+            if(statusIcon){
+                statusIcon.remove();
+            }
+        }
+    }
     checkVideoAndAudioDuration() {
-        if (this.paragraph.commands.video && this.paragraph.commands.audio) {
-            let videoDuration = this.paragraph.commands.video.end - this.paragraph.commands.video.start;
-            if (this.paragraph.commands.audio.duration > videoDuration) {
-                let diff = parseFloat((this.paragraph.commands.audio.duration - videoDuration).toFixed(1));
+        this.showStatusIcon();
+        let commands = this.paragraph.commands;
+        if (commands.video && commands.audio) {
+            let videoDuration = parseFloat((commands.video.end - commands.video.start).toFixed(1));
+            let audioDuration = parseFloat(commands.audio.duration.toFixed(1));
+            if (audioDuration > videoDuration) {
+                let diff = parseFloat((commands.audio.duration - videoDuration).toFixed(1));
                 this.showParagraphWarning(`Audio is longer than the video by ${diff} seconds`);
-            } else if (this.paragraph.commands.audio.duration < videoDuration) {
-                let diff = parseFloat((videoDuration - this.paragraph.commands.audio.duration).toFixed(1));
+            } else if (audioDuration < videoDuration) {
+                let diff = parseFloat((videoDuration - commands.audio.duration).toFixed(1));
                 this.showParagraphWarning(`Video is longer than the audio by ${diff} seconds`, async (event) => {
-                    this.paragraph.commands.video.end = this.paragraph.commands.video.start + this.paragraph.commands.audio.duration;
-                    await documentModule.updateParagraphCommands(assistOS.space.id, this._document.id, this.paragraph.id, this.paragraph.commands);
+                    commands.video.end = parseFloat(commands.video.start.toFixed(1)) + audioDuration;
+                    await documentModule.updateParagraphCommands(assistOS.space.id, this._document.id, this.paragraph.id, commands);
                     this.checkVideoAndAudioDuration();
                     this.videoPresenter.setVideoPreviewDuration();
-                });
+                }, "by cutting video");
             } else {
                 this.hideParagraphWarning();
             }
@@ -156,8 +180,6 @@ export class ParagraphItem {
         } else if (type === "commands") {
             this.paragraph.commands = await documentModule.getParagraphCommands(assistOS.space.id, this._document.id, this.paragraph.id);
             this.commandsEditor.renderCommands();
-            let chapterPresenter = this.element.closest("chapter-item").webSkelPresenter;
-            await chapterPresenter.invalidateCompiledVideo();
         }
     }
     async deleteParagraph() {
@@ -269,17 +291,21 @@ export class ParagraphItem {
         this.showUnfinishedTasks();
         this.checkVideoAndAudioDuration();
     }
-
-    showUnfinishedTasks() {
-        if (assistOS.space.currentParagraphId !== this.paragraph.id) {
-            return;
-        }
+    countUnfinishedTasks() {
         let unfinishedTasks = 0;
         for (let commandName of Object.keys(this.paragraph.commands)) {
             if (this.paragraph.commands[commandName].taskId) {
                 unfinishedTasks++;
             }
         }
+        return unfinishedTasks;
+    }
+    showUnfinishedTasks() {
+        this.showStatusIcon();
+        if (assistOS.space.currentParagraphId !== this.paragraph.id) {
+            return;
+        }
+        let unfinishedTasks = this.countUnfinishedTasks();
         if (unfinishedTasks > 0) {
             this.showParagraphInfo(`${unfinishedTasks} tasks unfinished`);
         } else {
@@ -304,7 +330,7 @@ export class ParagraphItem {
 
     async addUITask(taskId) {
         assistOS.space.notifyObservers(this._document.id + "/tasks");
-        await assistOS.NotificationRouter.subscribeToSpace(assistOS.space.id, taskId, this.boundChangeTaskStatus);
+        await assistOS.NotificationRouter.subscribeToSpace(assistOS.space.id, taskId, this.boundTaskStatusHandler);
         this.documentPresenter.renderNewTasksBadge();
     }
 
@@ -351,7 +377,7 @@ export class ParagraphItem {
         });
     }
 
-    async changeTaskStatus(taskId, status) {
+    async taskStatusHandler(taskId, status) {
         if (status === "completed") {
             this.paragraph.commands = await documentModule.getParagraphCommands(assistOS.space.id, this._document.id, this.paragraph.id);
             this.invalidate();
@@ -439,14 +465,14 @@ export class ParagraphItem {
         }
     }
 
-    showParagraphWarning(message, fixCb) {
+    showParagraphWarning(message, fixCb, fixMessage) {
         let warningElement = this.element.querySelector(".paragraph-warning");
         if (warningElement) {
             warningElement.remove();
         }
         let fixHTML = "";
         if (fixCb) {
-            fixHTML = `<div class="fix-warning">fix this</div>`;
+            fixHTML = `<div class="fix-warning">fix this ${fixMessage}</div>`;
         }
         let warning = `
                 <div class="paragraph-warning">
