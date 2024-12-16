@@ -95,7 +95,7 @@ export class ParagraphItem {
                 selectionUtils.lockItem(this.textClass, this);
             }
         }
-        this.showStatusIcon()
+        this.showStatusIcon();
     }
 
     async updateCommands() {
@@ -109,10 +109,6 @@ export class ParagraphItem {
                 }
             }
         }
-        if(commands.compileVideo){
-            delete commands.compileVideo;
-            updateCommands = true;
-        }
         if (updateCommands) {
             await documentModule.updateParagraphCommands(assistOS.space.id, this._document.id, this.paragraph.id, this.paragraph.commands);
         }
@@ -125,9 +121,8 @@ export class ParagraphItem {
         }
         let commands = this.paragraph.commands;
         if (commands.video && commands.audio) {
-            let videoDuration = parseFloat((commands.video.end - commands.video.start).toFixed(1));
-            let audioDuration = parseFloat(commands.audio.duration.toFixed(1));
-            if (audioDuration > videoDuration) {
+            let videoDuration = commands.video.end - commands.video.start;
+            if (commands.audio.duration > videoDuration) {
                 icon = "warning";
             }
         }
@@ -149,15 +144,14 @@ export class ParagraphItem {
         this.showStatusIcon();
         let commands = this.paragraph.commands;
         if (commands.video && commands.audio) {
-            let videoDuration = parseFloat((commands.video.end - commands.video.start).toFixed(1));
-            let audioDuration = parseFloat(commands.audio.duration.toFixed(1));
-            if (audioDuration > videoDuration) {
-                let diff = parseFloat((commands.audio.duration - videoDuration).toFixed(1));
+            let videoDuration = commands.video.end - commands.video.start;
+            if (commands.audio.duration > videoDuration) {
+                let diff = commands.audio.duration - videoDuration;
                 this.showParagraphWarning(`Audio is longer than the video by ${diff} seconds`);
-            } else if (audioDuration < videoDuration) {
-                let diff = parseFloat((videoDuration - commands.audio.duration).toFixed(1));
+            } else if (videoDuration - commands.audio.duration >= 0.1 ) {
+                let diff = videoDuration - commands.audio.duration;
                 this.showParagraphWarning(`Video is longer than the audio by ${diff} seconds`, async (event) => {
-                    commands.video.end = parseFloat(commands.video.start.toFixed(1)) + audioDuration;
+                    commands.video.end = commands.video.start + commands.audio.duration;
                     await documentModule.updateParagraphCommands(assistOS.space.id, this._document.id, this.paragraph.id, commands);
                     this.checkVideoAndAudioDuration();
                     this.videoPresenter.setVideoPreviewDuration();
@@ -382,8 +376,6 @@ export class ParagraphItem {
             this.invalidate();
             this.videoPresenter.refreshVideoPreview();
             this.showUnfinishedTasks();
-            let chapterPresenter = this.element.closest("chapter-item").webSkelPresenter;
-            await chapterPresenter.invalidateCompiledVideo();
         }
     }
 

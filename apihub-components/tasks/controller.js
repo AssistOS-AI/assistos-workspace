@@ -266,7 +266,7 @@ async function runAllDocumentTasks(request, response) {
     try {
         let tasks = TaskManager.serializeTasks(spaceId).filter(task => task.configs.documentId === documentId);
         for (let task of tasks) {
-            if (task.status === "created" || task.status === "cancelled" || task.status === "failed") {
+            if (task.status === "created") {
                 if (task.name === "LipSync") {
                     throttler.runTask(task.id);
                 } else {

@@ -103,7 +103,7 @@ export class InsertAttachmentModal {
     loadAudioMetadata(file, audioId) {
         return new Promise(async (resolve, reject) => {
             this.attachmentElement.addEventListener("loadedmetadata", async () => {
-                const duration = parseFloat(this.attachmentElement.duration.toFixed(1));
+                const duration = parseFloat(this.attachmentElement.duration);
                 let data = {
                     id: audioId,
                     duration: duration,
@@ -135,7 +135,7 @@ export class InsertAttachmentModal {
                 videoId = await spaceModule.putVideo(uint8Array);
                 let videoURL = URL.createObjectURL(file);
                 let thumbnailId = await videoUtils.uploadVideoThumbnail(videoURL, this.attachmentElement);
-                const duration = parseFloat(this.attachmentElement.duration.toFixed(1));
+                const duration = parseFloat(this.attachmentElement.duration);
                 const width = this.attachmentElement.videoWidth;
                 const height = this.attachmentElement.videoHeight;
                 let data = {
