@@ -6,6 +6,7 @@ const TextToSpeech = require("./TextToSpeech");
 const LipSync = require("./LipSync");
 const SubscriptionManager = require("../subscribers/SubscriptionManager");
 const ParagraphToVideo = require("./ParagraphToVideo");
+
 async function compileVideoFromDocument(request, response) {
     let documentId = request.params.documentId;
     let spaceId = request.params.spaceId;
@@ -22,12 +23,13 @@ async function compileVideoFromDocument(request, response) {
             TaskManager.runTask(task.id);
         }, 1000);
         //TaskManager.runTask(task.id);
-    }catch (e) {
+    } catch (e) {
         utils.sendResponse(response, 500, "application/json", {
             message: e.message
         });
     }
 }
+
 async function compileVideoFromParagraph(request, response) {
     let documentId = request.params.documentId;
     let paragraphId = request.params.paragraphId;
@@ -48,10 +50,12 @@ async function compileVideoFromParagraph(request, response) {
         });
     }
 }
+
 function notifyTasksListUpdate(sessionId, spaceId) {
     let objectId = SubscriptionManager.getObjectId(spaceId, "tasks");
     SubscriptionManager.notifyClients(sessionId, objectId);
 }
+
 async function textToSpeechParagraph(request, response) {
     try {
         const spaceId = request.params.spaceId;
@@ -154,12 +158,28 @@ function getTasks(request, response) {
         });
     }
 }
+
+async function getTaskLogs(request, response) {
+    let spaceId = request.params.spaceId;
+    let taskId = request.params.taskId;
+    try {
+        let taskLogs = await TaskManager.getTaskLogs(spaceId,taskId);
+        return sendResponse(response, 200, "application/json", {
+            data: taskLogs
+        });
+    } catch (e) {
+        return sendResponse(response, e.statusCode || 500, "application/json", {
+            message: e.message
+        });
+    }
+}
+
 async function getTaskRelevantInfo(request, response) {
     let taskId = request.params.taskId;
     try {
         let task = TaskManager.getTask(taskId);
         let taskInfo;
-        if(typeof task.getRelevantInfo !== "function"){
+        if (typeof task.getRelevantInfo !== "function") {
             taskInfo = task.serialize();
         } else {
             taskInfo = await task.getRelevantInfo();
@@ -173,6 +193,7 @@ async function getTaskRelevantInfo(request, response) {
         });
     }
 }
+
 function runTask(request, response) {
     let taskId = request.params.taskId;
     try {
@@ -215,6 +236,7 @@ function getTask(request, response) {
         });
     }
 }
+
 function runAllDocumentTasks(request, response) {
     let documentId = request.params.documentId;
     let spaceId = request.params.spaceId;
@@ -222,8 +244,8 @@ function runAllDocumentTasks(request, response) {
     try {
         let tasks = TaskManager.serializeTasks(spaceId).filter(task => task.configs.documentId === documentId);
         for (let task of tasks) {
-            if(task.status === "created" || task.status === "cancelled" || task.status === "failed"){
-                if(task.name === "LipSync"){
+            if (task.status === "created" || task.status === "cancelled" || task.status === "failed") {
+                if (task.name === "LipSync") {
                     throttler.runTask(task.id);
                 } else {
                     TaskManager.runTask(task.id);
@@ -239,13 +261,14 @@ function runAllDocumentTasks(request, response) {
         });
     }
 }
+
 function cancelAllDocumentTasks(request, response) {
     let documentId = request.params.documentId;
     let spaceId = request.params.spaceId;
     try {
         let tasks = TaskManager.serializeTasks(spaceId).filter(task => task.configs.documentId === documentId);
         for (let task of tasks) {
-            if(task.status === "running"){
+            if (task.status === "running") {
                 TaskManager.cancelTask(task.id);
             }
         }
@@ -258,6 +281,7 @@ function cancelAllDocumentTasks(request, response) {
         });
     }
 }
+
 module.exports = {
     cancelTask,
     cancelTaskAndRemove,
@@ -272,5 +296,6 @@ module.exports = {
     getTaskRelevantInfo,
     runAllDocumentTasks,
     cancelAllDocumentTasks,
+    getTaskLogs,
     compileVideoFromParagraph
 }

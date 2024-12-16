@@ -3,20 +3,25 @@ const enclave = require("opendsu").loadAPI("enclave");
 const fsPromises = require('fs').promises;
 const space = require('../spaces-storage/space');
 const constants = require('./constants');
-const SubscriptionManager = require("../subscribers/SubscriptionManager");
 const STATUS = constants.STATUS;
 const EVENTS = constants.EVENTS;
 
 class TaskManager {
     constructor() {
-        if(TaskManager.instance){
+        if (TaskManager.instance) {
             return TaskManager.instance;
         }
         TaskManager.instance = this;
         this.tasks = [];
         this.tasksTable = "tasks";
         this.queue = [];
+        this.logQueues = {};
         this.maxRunningTasks = 9;
+    }
+
+    async storeTaskLog(spaceId,taskId, logData) {
+        const taskLogFile = await space.APIs.getTaskLogFilePath(spaceId,taskId);
+        await fsPromises.appendFile(taskLogFile, JSON.stringify(logData)+'\n');
     }
 
     async initialize() {
@@ -27,7 +32,7 @@ class TaskManager {
             let records = await $$.promisify(lightDBEnclaveClient.getAllRecords)($$.SYSTEM_IDENTIFIER, this.tasksTable);
             for (let record of records) {
                 let task = record.data;
-                if(task.status === STATUS.COMPLETED){
+                if (task.status === STATUS.COMPLETED) {
                     await $$.promisify(lightDBEnclaveClient.deleteRecord)($$.SYSTEM_IDENTIFIER, this.tasksTable, task.id);
                     continue;
                 }
@@ -36,7 +41,7 @@ class TaskManager {
                 let taskInstance = new taskClass(task.spaceId, task.userId, task.configs);
                 taskInstance.id = task.id; //set the original id
                 taskInstance.setStatus(task.status) //set the original status
-                if(taskInstance.status === STATUS.FAILED){
+                if (taskInstance.status === STATUS.FAILED) {
                     taskInstance.failMessage = task.failMessage;
                 }
                 if (taskInstance.status === STATUS.RUNNING || taskInstance.status === STATUS.PENDING) {
@@ -49,10 +54,30 @@ class TaskManager {
     }
 
     setUpdateDBHandler(lightDBEnclaveClient, task) {
+        const processLogQueue = async (spaceId,taskId) => {
+            const {queue} = this.logQueues[taskId]
+            this.logQueues[taskId].processing = true
+            while (queue.length) {
+                let logData = queue.shift()
+                await this.storeTaskLog(spaceId,taskId, logData)
+            }
+            this.logQueues[taskId].processing = false
+        }
+
         task.on(EVENTS.UPDATE, async () => {
-            await $$.promisify(lightDBEnclaveClient.updateRecord)($$.SYSTEM_IDENTIFIER, this.tasksTable, task.id, {data: task.serialize()});
-        });
+            await $$.promisify(lightDBEnclaveClient.updateRecord)($$.SYSTEM_IDENTIFIER, this.tasksTable, task.id, {data: task.serialize()})
+        })
+        task.on(EVENTS.LOG, (spaceId,logData) => {
+            if (!this.logQueues[task.id]) {
+                this.logQueues[task.id] = {queue: [], processing: false}
+            }
+            this.logQueues[task.id].queue.push(logData)
+            if (!this.logQueues[task.id].processing) {
+                processLogQueue(spaceId,task.id)
+            }
+        })
     }
+
 
     async addTask(task) {
         if (!(task instanceof Task)) {
@@ -62,6 +87,21 @@ class TaskManager {
         let lightDBEnclaveClient = enclave.initialiseLightDBEnclave(task.spaceId);
         await $$.promisify(lightDBEnclaveClient.insertRecord)($$.SYSTEM_IDENTIFIER, this.tasksTable, task.id, {data: task.serialize()});
         this.setUpdateDBHandler(lightDBEnclaveClient, task);
+    }
+
+    async getTaskLogs(spaceId, taskId) {
+        let lightDBEnclaveClient = enclave.initialiseLightDBEnclave(spaceId);
+        let taskLogs = [];
+        try {
+            let taskRecordLogs = await $$.promisify(lightDBEnclaveClient.getRecord)($$.SYSTEM_IDENTIFIER, this.tasksTable, `${taskId}_logs`)
+            if (taskRecordLogs) {
+                taskLogs = taskRecordLogs.data
+            }
+        } catch (error) {
+            error.statusCode = 404;
+            throw error;
+        }
+        return taskLogs;
     }
 
     cancelTask(taskId) {
@@ -77,7 +117,7 @@ class TaskManager {
         if (!task) {
             throw new Error('Task not found');
         }
-        if(task.status === STATUS.RUNNING){
+        if (task.status === STATUS.RUNNING) {
             task.cancel();
         }
         await this.removeTask(taskId);
@@ -89,7 +129,7 @@ class TaskManager {
             throw new Error('Task not found');
         }
         let spaceId = task.spaceId;
-        if(task.deleteTimeout){
+        if (task.deleteTimeout) {
             clearTimeout(task.deleteTimeout);
         }
         this.tasks = this.tasks.filter(task => task.id !== taskId);

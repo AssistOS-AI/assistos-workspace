@@ -9,6 +9,7 @@ module.exports = {
     },
     EVENTS: {
         UPDATE: "update",
+        LOG: "log",
         DEPENDENCY_COMPLETED: "dependency_completed"
     }
 }

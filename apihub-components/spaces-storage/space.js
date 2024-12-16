@@ -73,6 +73,33 @@ async function updateSpaceAnnouncement(spaceId, announcementId, announcementData
     spaceStatusObject.announcements[announcementIndex].lastUpdated = date.getCurrentUTCDate();
     await updateSpaceStatus(spaceId, spaceStatusObject);
 }
+async function ensureTasksFolderExists(spaceId) {
+    const tasksFolderPath = path.join(getSpacePath(spaceId), 'tasks');
+    try {
+        await file.createDirectory(tasksFolderPath);
+    } catch (error) {
+        if (error.statusCode !== 409) {
+            throw error;
+        }
+    }
+}
+
+async function ensureTaskFolderExists(spaceId, taskId) {
+    await ensureTasksFolderExists(spaceId);
+    const taskFolderPath = path.join(getSpacePath(spaceId), 'tasks', taskId);
+    try {
+        await file.createDirectory(taskFolderPath);
+    } catch (error) {
+        if (error.statusCode !== 409) {
+            throw error;
+        }
+    }
+}
+
+async function getTaskLogFilePath(spaceId, taskId) {
+    await ensureTaskFolderExists(spaceId, taskId);
+    return path.join(getSpacePath(spaceId), 'tasks', taskId, 'log.txt');
+}
 
 async function deleteSpaceAnnouncement(spaceId, announcementId) {
     const spaceStatusObject = await getSpaceStatusObject(spaceId);
@@ -111,11 +138,12 @@ async function copyDefaultFlows(spacePath) {
         await fsPromises.copyFile(filePath, destFilePath);
     }
 }
-async function getDefaultPersonality(spaceId){
-    const spacePath= getSpacePath(spaceId);
+
+async function getDefaultPersonality(spaceId) {
+    const spacePath = getSpacePath(spaceId);
     const personalityPath = path.join(spacePath, 'personalities', 'metadata.json');
     const personalitiesData = JSON.parse(await fsPromises.readFile(personalityPath, 'utf8'));
-    const defaultPersonalityId= personalitiesData.find(personality => personality.name === spaceConstants.defaultPersonality).id;
+    const defaultPersonalityId = personalitiesData.find(personality => personality.name === spaceConstants.defaultPersonality).id;
     const defaultPersonalityPath = path.join(spacePath, 'personalities', `${defaultPersonalityId}.json`);
     try {
         const defaultPersonalityData = await fsPromises.readFile(defaultPersonalityPath, 'utf8');
@@ -126,6 +154,7 @@ async function getDefaultPersonality(spaceId){
         throw error;
     }
 }
+
 async function copyDefaultPersonalities(spacePath, spaceId, defaultSpaceAgentId, spaceModule) {
 
     const defaultPersonalitiesPath = volumeManager.paths.defaultPersonalities;
@@ -529,7 +558,7 @@ async function archivePersonality(spaceId, personalityId) {
             let {fileStream, headers} = await Storage.getFile(Storage.fileTypes.images, personalityData.imageId);
             archive.append(fileStream, {name: `${personalityData.imageId}.png`});
         } catch (e) {
-          delete personalityData.imageId;
+            delete personalityData.imageId;
         }
     }
 
@@ -595,6 +624,7 @@ module.exports = {
         deleteSpaceAnnouncement,
         createSpace,
         getSpaceMap,
+
         getSpaceStatusObject,
         getSpacesPendingInvitationsObject,
         updateSpacePendingInvitations,
@@ -616,6 +646,7 @@ module.exports = {
         streamToJson,
         readFileAsBuffer,
         getDefaultPersonality,
+        getTaskLogFilePath,
         getSpacePersonalitiesObject
     },
     templates: {
