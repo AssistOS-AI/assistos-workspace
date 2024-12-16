@@ -329,7 +329,6 @@ export class ParagraphItem {
     }
 
     async addUITask(taskId) {
-        assistOS.space.notifyObservers(this._document.id + "/tasks");
         await assistOS.NotificationRouter.subscribeToSpace(assistOS.space.id, taskId, this.boundTaskStatusHandler);
         this.documentPresenter.renderNewTasksBadge();
     }
@@ -377,10 +376,11 @@ export class ParagraphItem {
         });
     }
 
-    async taskStatusHandler(taskId, status) {
+    async taskStatusHandler(status) {
         if (status === "completed") {
             this.paragraph.commands = await documentModule.getParagraphCommands(assistOS.space.id, this._document.id, this.paragraph.id);
             this.invalidate();
+            this.videoPresenter.refreshVideoPreview();
             this.showUnfinishedTasks();
             let chapterPresenter = this.element.closest("chapter-item").webSkelPresenter;
             await chapterPresenter.invalidateCompiledVideo();

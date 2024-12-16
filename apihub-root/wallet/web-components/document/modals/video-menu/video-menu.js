@@ -187,6 +187,8 @@ export class VideoMenu{
         await documentModule.updateParagraphCommands(assistOS.space.id, this.paragraphPresenter._document.id, this.paragraphPresenter.paragraph.id, this.paragraphPresenter.paragraph.commands);
         this.paragraphPresenter.checkVideoAndAudioDuration();
         this.videoPresenter.setVideoPreviewDuration();
+        await this.commandsEditor.invalidateCompiledVideos();
+        this.commandsEditor.videoPresenter.refreshVideoPreview();
         targetElement.classList.add("hidden");
     }
     async compileVideo(){
