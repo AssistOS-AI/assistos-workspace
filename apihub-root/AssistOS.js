@@ -3,14 +3,10 @@ import NotificationManager from "./wallet/core/NotificationManager.js";
 
 const userModule = require('assistos').loadModule('user', {});
 const spaceModule = require('assistos').loadModule('space', {});
-const utilModule = require('assistos').loadModule('util', {});
 const applicationModule = require('assistos').loadModule('application', {});
 const agentModule = require('assistos').loadModule('personality', {});
 const flowModule = require('assistos').loadModule('flow', {});
 const personalityModule = require('assistos').loadModule('personality', {});
-
-const NotificationRouter = require('assistos').loadModule('notification', {}).NotificationRouter;
-
 
 class AssistOS {
     constructor(configuration) {
@@ -19,7 +15,7 @@ class AssistOS {
         }
         this.configuration = configuration;
         this.notificationMonitor = "closed";
-        this.NotificationRouter = new NotificationManager(new NotificationRouter());
+        this.NotificationRouter = new NotificationManager();
         AssistOS.instance = this;
         return AssistOS.instance;
     }
