@@ -22,7 +22,7 @@ async function concatenateAudioFiles(tempVideoDir, audioFilesPaths, outputAudioP
 
 async function createSilentAudio(outputPath, duration, task) {
     //duration is in seconds
-    const command = `${ffmpegPath} -f lavfi -t ${duration} -i anullsrc=r=44100:cl=stereo -c:a mp3 -b:a 192k ${outputPath}`;
+    const command = `${ffmpegPath} -f lavfi -t ${duration} -i anullsrc=r=${audioStandard.sampleRate}:cl=stereo -c:a ${audioStandard.codec} -b:a ${audioStandard.bitRate}k ${outputPath}`;
     await task.runCommand(command);
 }
 
@@ -206,7 +206,7 @@ async function addBackgroundSoundToVideo(videoPath, backgroundSoundPath, backgro
     const command = `${ffmpegPath} ${loopOption} -i ${backgroundSoundPath} -i ${videoPath} \
     -filter_complex "[0:a]afade=t=in:st=0:d=${fadeDuration},afade=t=out:st=${videoDuration-2}:d=${fadeDuration},volume=${backgroundSoundVolume/100}[bg]; \
     [1:a][bg]amix=inputs=2:duration=longest[aout]" \
-    -map 1:v -map "[aout]" -c:v copy -t ${videoDuration} ${tempOutputPath}`;
+    -map 1:v -map "[aout]" -c:v copy -c:a ${audioStandard.codec} -t ${videoDuration} ${tempOutputPath}`;
 
     await task.runCommand(command);
     await fsPromises.unlink(videoPath);
@@ -215,7 +215,7 @@ async function addBackgroundSoundToVideo(videoPath, backgroundSoundPath, backgro
 
 async function adjustVideoVolume(videoPath, volume, task) {
     const tempOutputPath = videoPath.replace('.mp4', '_temp.mp4');
-    const command = `${ffmpegPath} -i ${videoPath} -af "volume=${volume/100}" -c:v copy ${tempOutputPath}`;
+    const command = `${ffmpegPath} -i ${videoPath} -af "volume=${volume/100}" -c:v copy -c:a ${audioStandard.codec} ${tempOutputPath}`;
     await task.runCommand(command);
     await fsPromises.unlink(videoPath);
     await fsPromises.rename(tempOutputPath, videoPath);
@@ -223,7 +223,7 @@ async function adjustVideoVolume(videoPath, volume, task) {
 
 async function adjustAudioVolume(audioPath, volume, task) {
     const tempOutputPath = audioPath.replace('.mp3', '_temp.mp3');
-    const command = `${ffmpegPath} -i ${audioPath} -af "volume=${volume/100}" ${tempOutputPath}`;
+    const command = `${ffmpegPath} -i ${audioPath} -af "volume=${volume/100}" -c:a ${audioStandard.codec} ${tempOutputPath}`;
     await task.runCommand(command);
     await fsPromises.unlink(audioPath);
     await fsPromises.rename(tempOutputPath, audioPath);
@@ -249,7 +249,7 @@ async function combineVideos(tempVideoDir, videoPaths, fileListName, outputVideo
         // Run FFmpeg command to concatenate the batch
         const command = `${ffmpegPath} -f concat -safe 0 -i ${fileListPath} \
         -fflags +genpts -filter_complex "[0:v]setpts=PTS-STARTPTS[v];[0:a]aresample=async=1[a]" \
-        -map "[v]" -map "[a]" -c:v ${videoStandard.codec} -crf 18 ${intermediateOutput}`;
+        -map "[v]" -map "[a]" -c:v ${videoStandard.codec} -c:a ${audioStandard.codec} -crf 18 ${intermediateOutput}`;
         await task.runCommand(command);
 
         // Clean up the temporary file list
@@ -270,7 +270,7 @@ async function combineVideos(tempVideoDir, videoPaths, fileListName, outputVideo
     // Run FFmpeg command to concatenate all intermediate files into the final output
     const finalCommand = `${ffmpegPath} -f concat -safe 0 -i ${finalFileListPath} \
     -fflags +genpts -filter_complex "[0:v]setpts=PTS-STARTPTS[v];[0:a]aresample=async=1[a]" \
-    -map "[v]" -map "[a]" -c:v ${videoStandard.codec} -crf 18 ${outputVideoPath}`;
+    -map "[v]" -map "[a]" -c:v ${videoStandard.codec} -c:a ${audioStandard.codec} -crf 18 ${outputVideoPath}`;
     await task.runCommand(finalCommand);
 
     // Clean up the final file list and intermediate files
@@ -324,12 +324,12 @@ async function getAudioDuration(filePath, task){
     }
     return hours * 3600 + minutes * 60 + seconds;
 }
-async function trimAudioAdjustVolume(effectPath, start, end, volume, task) {
-    let tempOutputPath = effectPath.replace('.mp3', '_temp.mp3');
-    const command = `${ffmpegPath} -i ${effectPath} -ss ${start} -to ${end} -af "volume=${volume/100}" ${tempOutputPath}`;
+async function trimFileAdjustVolume(filePath, start, end, volume, task) {
+    let tempOutputPath = filePath.replace(path.extname(filePath), `_temp${path.extname(filePath)}`);
+    const command = `${ffmpegPath} -i ${filePath} -ss ${start} -to ${end} -af "volume=${volume/100}" -c:a ${audioStandard.codec} ${tempOutputPath}`;
     await task.runCommand(command);
-    await fsPromises.unlink(effectPath);
-    await fsPromises.rename(tempOutputPath, effectPath);
+    await fsPromises.unlink(filePath);
+    await fsPromises.rename(tempOutputPath, filePath);
 }
 async function addEffectsToVideo(effects, videoPath, task) {
     if(!effects.some(effect => effect.path)){
@@ -357,7 +357,7 @@ async function addEffectsToVideo(effects, videoPath, task) {
     }
     let tempVideoPath = videoPath.replace('.mp4', '_temp.mp4');
     command += `amix=inputs=${effects.length}:duration=longest[mixed_audio];
-        [0:a][mixed_audio]amix=inputs=2:duration=longest[audio_out]" -map 0:v -map "[audio_out]" -c:v copy ${tempVideoPath}`;
+        [0:a][mixed_audio]amix=inputs=2:duration=longest[audio_out]" -map 0:v -map "[audio_out]" -c:a ${audioStandard.codec} -c:v copy ${tempVideoPath}`;
     await task.runCommand(command);
     await fsPromises.unlink(videoPath);
     await fsPromises.rename(tempVideoPath, videoPath);
@@ -510,7 +510,7 @@ module.exports = {
     createVideoThumbnail,
     createVideoFromAudioAndImage,
     verifyVideoSettings,
-    trimAudioAdjustVolume,
+    trimFileAdjustVolume,
     addEffectsToVideo,
     adjustVideoVolume,
     adjustAudioVolume

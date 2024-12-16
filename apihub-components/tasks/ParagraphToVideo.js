@@ -73,7 +73,7 @@ class ParagraphToVideo extends Task {
             this.ffmpegExecutor.logProgress(`Verifying video settings`);
             await ffmpegUtils.verifyVideoSettings(videoPath, this.ffmpegExecutor);
             this.ffmpegExecutor.logProgress(`Adjusting video volume`);
-            await ffmpegUtils.adjustVideoVolume(videoPath, commands.video.volume, this.ffmpegExecutor);
+            await ffmpegUtils.trimFileAdjustVolume(videoPath, commands.video.start, commands.video.end, commands.video.volume, this.ffmpegExecutor);
             if(commands.audio){
                 this.ffmpegExecutor.logProgress(`Audio found`);
                 if(commands.video.duration < commands.audio.duration){
@@ -186,7 +186,7 @@ class ParagraphToVideo extends Task {
             this.ffmpegExecutor.logProgress(`Verifying effect ${effects.indexOf(effect)} settings`);
             await ffmpegUtils.verifyAudioSettings(effectPath, this.ffmpegExecutor);
             this.ffmpegExecutor.logProgress(`Trimming effect and adjusting volume ${effects.indexOf(effect)}`);
-            await ffmpegUtils.trimAudioAdjustVolume(effectPath, effect.start, effect.end, effect.volume, this.ffmpegExecutor);
+            await ffmpegUtils.trimFileAdjustVolume(effectPath, effect.start, effect.end, effect.volume, this.ffmpegExecutor);
             effect.path = effectPath;
         }
         this.ffmpegExecutor.logProgress(`Adding effects to video`);
