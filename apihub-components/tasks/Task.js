@@ -113,10 +113,10 @@ class Task {
     }
 
     log(logType, message = "", data = {}) {
-        data.time= new Date().toISOString();
+        let time= new Date().toISOString();
         this.logs.push({logType, message, data})
         let objectId = SubscriptionManager.getObjectId(this.spaceId, this.id + "/logs");
-        this.emit(EVENTS.LOG,{logType, message, data});
+        this.emit(EVENTS.LOG,{time,logType, message, data});
         SubscriptionManager.notifyClients("", objectId, {logType: logType, message: message, data: data});
     }
 

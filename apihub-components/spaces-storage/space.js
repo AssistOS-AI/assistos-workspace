@@ -73,6 +73,7 @@ async function updateSpaceAnnouncement(spaceId, announcementId, announcementData
     spaceStatusObject.announcements[announcementIndex].lastUpdated = date.getCurrentUTCDate();
     await updateSpaceStatus(spaceId, spaceStatusObject);
 }
+
 async function ensureTasksFolderExists(spaceId) {
     const tasksFolderPath = path.join(getSpacePath(spaceId), 'tasks');
     try {
@@ -96,9 +97,36 @@ async function ensureTaskFolderExists(spaceId, taskId) {
     }
 }
 
-async function getTaskLogFilePath(spaceId, taskId) {
-    await ensureTaskFolderExists(spaceId, taskId);
-    return path.join(getSpacePath(spaceId), 'tasks', taskId, 'log.txt');
+function getDailyLogFileName() {
+    const getTaskFileName = (year, month, day) => `logs-${year}-${month}-${day}.log`;
+
+    const now = new Date();
+    const year = now.getFullYear();
+    const month = String(now.getMonth() + 1).padStart(2, '0');
+    const day = String(now.getDate()).padStart(2, '0');
+    return getTaskFileName(year, month, day);
+}
+
+async function ensureTaskFileExists(spaceId, fileName) {
+    const taskFilePath = path.join(getSpacePath(spaceId), 'tasks', fileName);
+    try {
+        await fsPromises.access(taskFilePath);
+    } catch (error) {
+        if (error.code === 'ENOENT') {
+            await fsPromises.writeFile(taskFilePath, '');
+        } else {
+            throw error;
+        }
+    }
+    return taskFilePath;
+}
+
+
+async function getTaskLogFilePath(spaceId) {
+    await ensureTasksFolderExists(spaceId);
+    const logFileName = getDailyLogFileName();
+    await ensureTaskFileExists(spaceId, logFileName);
+    return path.join(getSpacePath(spaceId), 'tasks', getDailyLogFileName());
 }
 
 async function deleteSpaceAnnouncement(spaceId, announcementId) {

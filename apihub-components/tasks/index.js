@@ -12,7 +12,8 @@ const {
     runAllDocumentTasks,
     cancelAllDocumentTasks,
     compileVideoFromParagraph,
-    getTaskLogs
+    getTaskLogs,
+    downloadTaskLogs
 } = require("./controller");
 const bodyReader = require('../apihub-component-middlewares/bodyReader.js')
 const authentication = require('../apihub-component-middlewares/authentication.js')
@@ -25,13 +26,13 @@ function Tasks(server){
     server.get("/tasks/space/:spaceId", getTasks);
     server.get("/tasks/:taskId", getTask);
     server.get("/tasks/info/:taskId", getTaskRelevantInfo);
-    server.get("/tasks/logs/:spaceId/:taskId", getTaskLogs);
+    //server.get("/tasks/logs/:spaceId/:taskId", getTaskLogs);
     server.use("/tasks/*", bodyReader);
     server.post("/tasks/:taskId", runTask);
 
     server.delete("/tasks/cancel-all/:spaceId/:documentId", cancelAllDocumentTasks);
     server.post("/tasks/run-all/:spaceId/:documentId", runAllDocumentTasks);
-
+    server.get("/tasks/logs/download/:spaceId", downloadTaskLogs)
     server.get("/tasks/:spaceId/:documentId", getDocumentTasks);
     server.post("/tasks/video/:spaceId/:documentId", compileVideoFromDocument);
     server.post("/tasks/video/:spaceId/:documentId/:paragraphId", compileVideoFromParagraph);

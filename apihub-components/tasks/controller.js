@@ -1,11 +1,12 @@
 const TaskManager = require("./TaskManager");
-const {sendResponse} = require("../apihub-component-utils/utils");
+const {sendResponse, sendFileToClient} = require("../apihub-component-utils/utils");
 const DocumentToVideo = require("./DocumentToVideo");
 const utils = require("../apihub-component-utils/utils");
 const TextToSpeech = require("./TextToSpeech");
 const LipSync = require("./LipSync");
 const SubscriptionManager = require("../subscribers/SubscriptionManager");
 const ParagraphToVideo = require("./ParagraphToVideo");
+const fs = require('fs');
 
 async function compileVideoFromDocument(request, response) {
     let documentId = request.params.documentId;
@@ -163,7 +164,7 @@ async function getTaskLogs(request, response) {
     let spaceId = request.params.spaceId;
     let taskId = request.params.taskId;
     try {
-        let taskLogs = await TaskManager.getTaskLogs(spaceId,taskId);
+        let taskLogs = await TaskManager.getTaskLogs(spaceId, taskId);
         return sendResponse(response, 200, "application/json", {
             data: taskLogs
         });
@@ -223,7 +224,7 @@ function getDocumentTasks(request, response) {
     }
 }
 
-function getTask(request, response) {
+async function getTask(request, response) {
     let taskId = request.params.taskId;
     try {
         let task = TaskManager.getTask(taskId);
@@ -237,7 +238,28 @@ function getTask(request, response) {
     }
 }
 
-function runAllDocumentTasks(request, response) {
+
+async function downloadTaskLogs(request, response) {
+    const spaceId = request.params.spaceId;
+    try {
+        const filePath = await TaskManager.getTaskLogFilePath(spaceId);
+        const logFile = fs.readFileSync(filePath); // returns a Buffer
+        const fileName= filePath.split('/').pop();
+        response.writeHead(200, {
+            'Content-Type': 'text/plain; charset=utf-8',
+            'Content-Disposition': `attachment; filename="${fileName}"`
+        });
+        response.end(logFile);
+    } catch (e) {
+        response.writeHead(e.statusCode || 500, { 'Content-Type': 'application/json' });
+        response.end(JSON.stringify({ message: e.message }));
+    }
+}
+
+
+
+
+async function runAllDocumentTasks(request, response) {
     let documentId = request.params.documentId;
     let spaceId = request.params.spaceId;
     let throttler = require("./ConcurrentThrottler");
@@ -296,6 +318,7 @@ module.exports = {
     getTaskRelevantInfo,
     runAllDocumentTasks,
     cancelAllDocumentTasks,
+    downloadTaskLogs,
     getTaskLogs,
     compileVideoFromParagraph
 }

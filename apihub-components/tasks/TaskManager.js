@@ -17,11 +17,40 @@ class TaskManager {
         this.queue = [];
         this.logQueues = {};
         this.maxRunningTasks = 9;
+        this.locks = new Map();
     }
 
-    async storeTaskLog(spaceId,taskId, logData) {
-        const taskLogFile = await space.APIs.getTaskLogFilePath(spaceId,taskId);
-        await fsPromises.appendFile(taskLogFile, JSON.stringify(logData)+'\n');
+    getTaskLogFilePath(spaceId) {
+        return space.APIs.getTaskLogFilePath(spaceId);
+    }
+
+    async storeTaskLog(spaceId, taskId, logData) {
+        const generateLogMessage = (taskId, logData) => {
+            const {time, logType, message, data = {}} = logData
+            return `${time}:Task ${taskId}---${logType}---${message}${Object.keys(data).length > 0 ? '---' + JSON.stringify(data) : ''}\n`
+        }
+
+        const acquireLock = async (filePath) => {
+            while (this.locks.get(filePath)) {
+                await new Promise(resolve => setTimeout(resolve, 10));
+            }
+            this.locks.set(filePath, true);
+        }
+
+        const releaseLock = (filePath) => {
+            this.locks.set(filePath, false);
+        }
+
+        const taskLogFile = await space.APIs.getTaskLogFilePath(spaceId, taskId);
+
+        await acquireLock(taskLogFile);
+
+        try {
+            const logMessage = generateLogMessage(taskId, logData);
+            await fsPromises.appendFile(taskLogFile, logMessage);
+        } finally {
+            releaseLock(taskLogFile);
+        }
     }
 
     async initialize() {
@@ -54,12 +83,12 @@ class TaskManager {
     }
 
     setUpdateDBHandler(lightDBEnclaveClient, task) {
-        const processLogQueue = async (spaceId,taskId) => {
+        const processLogQueue = async (spaceId, taskId) => {
             const {queue} = this.logQueues[taskId]
             this.logQueues[taskId].processing = true
             while (queue.length) {
                 let logData = queue.shift()
-                await this.storeTaskLog(spaceId,taskId, logData)
+                await this.storeTaskLog(spaceId, taskId, logData)
             }
             this.logQueues[taskId].processing = false
         }
@@ -67,13 +96,14 @@ class TaskManager {
         task.on(EVENTS.UPDATE, async () => {
             await $$.promisify(lightDBEnclaveClient.updateRecord)($$.SYSTEM_IDENTIFIER, this.tasksTable, task.id, {data: task.serialize()})
         })
-        task.on(EVENTS.LOG, (spaceId,logData) => {
+
+        task.on(EVENTS.LOG, (spaceId, logData) => {
             if (!this.logQueues[task.id]) {
                 this.logQueues[task.id] = {queue: [], processing: false}
             }
             this.logQueues[task.id].queue.push(logData)
             if (!this.logQueues[task.id].processing) {
-                processLogQueue(spaceId,task.id)
+                processLogQueue(spaceId, task.id)
             }
         })
     }
