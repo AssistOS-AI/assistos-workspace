@@ -127,7 +127,7 @@ export class ParagraphItem {
         if (commands.video && commands.audio) {
             let videoDuration = parseFloat((commands.video.end - commands.video.start).toFixed(1));
             let audioDuration = parseFloat(commands.audio.duration.toFixed(1));
-            if (audioDuration !== videoDuration) {
+            if (audioDuration > videoDuration) {
                 icon = "warning";
             }
         }
