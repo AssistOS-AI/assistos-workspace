@@ -6,6 +6,7 @@ const Handler = require('./handler.js');
 const {pipeline} = require('stream');
 const {getWebhookSecret} = require("../webhook/controller");
 const configs = require("../../data-volume/config/config.json");
+const SubscriptionManager = require("../subscribers/SubscriptionManager");
 let LLMConfigs;
 
 
@@ -110,6 +111,12 @@ async function sendRequest(url, method, request, response) {
 
 async function getTextResponse(request, response) {
     try {
+        const {prompt} = request.body;
+        const spaceId = request.params.spaceId;
+        let objectId = SubscriptionManager.getObjectId(spaceId, "llms");
+        SubscriptionManager.notifyClients("", objectId, {
+            prompt: prompt,
+        });
         const modelResponse = await sendRequest(`/apis/v1/text/generate`, "POST", request, response);
         utils.sendResponse(response, 200, "application/json", {
             data: modelResponse
@@ -124,8 +131,8 @@ async function getTextResponse(request, response) {
 }
 
 async function getTextResponseAdvanced(request, response) {
-    const {spaceId}=request.params;
-    request.spaceId=spaceId;
+    const {spaceId} = request.params;
+    request.spaceId = spaceId;
     const {
         initiator,
         target,
@@ -139,8 +146,8 @@ async function getTextResponseAdvanced(request, response) {
         });
     }
     try {
-        const llmResponse = await Handler.processTextAdvancedRequest(request,response,sendRequest,initiator, target, text, outputFormat);
-        return utils.sendResponse(response, 200, "application/json", {data:llmResponse});
+        const llmResponse = await Handler.processTextAdvancedRequest(request, response, sendRequest, initiator, target, text, outputFormat);
+        return utils.sendResponse(response, 200, "application/json", {data: llmResponse});
     } catch (error) {
         return utils.sendResponse(response, error.statusCode || 500, "application/json", {
             message: error.message
