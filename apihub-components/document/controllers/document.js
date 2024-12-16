@@ -160,7 +160,7 @@ function streamFile(filePath, response, contentType) {
         let fileSize = fs.statSync(filePath).size;
         response.setHeader('Content-Length', fileSize);
         response.setHeader('Content-Type', contentType);
-        response.setHeader('Content-Disposition', `attachment; filename=${path.basename(filePath)}`);
+        response.setHeader('Content-Disposition', `attachment; filename=${path.basename(filePath)}+${path.extname(filePath)}`);
         readStream.on('error', (error) => {
             utils.sendResponse(response, 500, "application/json", {
                 message: `Error reading file: ${error.message}`
