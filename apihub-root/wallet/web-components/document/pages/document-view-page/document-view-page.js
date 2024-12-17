@@ -136,7 +136,8 @@ export class DocumentViewPage {
         }
     }
 
-    beforeRender() {
+    async beforeRender() {
+        await documentModule.updateDocumentCommands(assistOS.space.id, this._document.id, this._document.commands);
         this.chaptersContainer = "";
         this.docTitle = this._document.title;
         this.abstractText = this._document.abstract || "No abstract has been set or generated for this document";

@@ -109,6 +109,10 @@ export class ParagraphItem {
                 }
             }
         }
+        // if(commands.compileVideo){
+        //     delete commands.compileVideo;
+        //     updateCommands = true;
+        // }
         if (updateCommands) {
             await documentModule.updateParagraphCommands(assistOS.space.id, this._document.id, this.paragraph.id, this.paragraph.commands);
         }

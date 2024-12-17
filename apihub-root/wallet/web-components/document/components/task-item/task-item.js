@@ -20,7 +20,7 @@ export class TaskItem{
         this.tasksModalPresenter.updateTaskInList(this.task.id, status);
         this.invalidate();
     }
-    beforeRender(){
+    async beforeRender(){
         this.name = this.task.name;
         this.status = this.task.status;
         this.paragraphItem = document.querySelector(`paragraph-item[data-paragraph-id="${this.task.configs.paragraphId}"]`);
@@ -34,7 +34,7 @@ export class TaskItem{
         this.paragraphText = this.paragraphPresenter.paragraph.text || "...........";
         if(this.paragraphPresenter.paragraph.commands.speech){
             this.agent = this.paragraphPresenter.paragraph.commands.speech.personality;
-            this.personalityImageSrc = this.paragraphPresenter.speechPersonalityImageSrc;
+            this.personalityImageSrc = await this.paragraphPresenter.getPersonalityImageSrc(this.agent);
         } else {
             this.agent = "none";
             this.personalityImageSrc = "./wallet/assets/images/default-personality.png";
