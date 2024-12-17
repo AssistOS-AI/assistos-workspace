@@ -20,10 +20,11 @@ class TextToSpeech extends Task {
             const utilModule = await this.loadModule('util');
             const constants = require("assistos").constants;
             const paragraph = await documentModule.getParagraph(this.spaceId, this.documentId, this.paragraphId);
+            paragraph.commands["speech"].personality = utilModule.unsanitize(paragraph.commands["speech"].personality);
             await constants.COMMANDS_CONFIG.COMMANDS.find(command => command.NAME === "speech").VALIDATE(this.spaceId, paragraph, this.securityContext);
 
             const paragraphCommands = await documentModule.getParagraphCommands(this.spaceId, this.documentId, this.paragraphId);
-            const personalityData = await personalityModule.getPersonalityByName(this.spaceId, paragraphCommands.speech.personality);
+            const personalityData = await personalityModule.getPersonalityByName(this.spaceId, utilModule.unsanitize(paragraphCommands.speech.personality));
 
             const arrayBuffer = await llmModule.textToSpeech(this.spaceId, {
                 prompt: utilModule.unsanitize(paragraph.text),
