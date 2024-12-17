@@ -7,7 +7,6 @@ notifications-monitor{
     z-index: 12;
 }
 #monitor {
-
     background: linear-gradient(135deg, #3F88C5 0%, #1E1E1E 100%);
     border: 1px solid rgba(255, 255, 255, 0.2);
     border-radius: 16px;
@@ -174,3 +173,233 @@ notifications-monitor.fullscreen {
     border-radius: 0;
 }
 
+#filterLogsOptions {
+    display: none;
+    width:100px;
+    height:50px;
+    position:absolute;
+    gap:10px;
+    flex-direction: column;
+    top: 2px;
+    right: 20%;
+    background: rgba(0, 0, 0, 1);
+    border-radius: 8px;
+    padding: 8px;
+}
+
+#filterLogsOptions.active {
+    display: flex;
+    justify-content: flex-start;
+}
+#loadingSpinner {
+    width: 60px;
+    height: 60px;
+    margin: 30px auto;
+    border: 6px solid rgba(255, 255, 255, 0.2);
+    border-top-color: #e74c3c;
+    border-radius: 50%;
+    animation: spin 1.2s linear infinite;
+}
+
+@keyframes spin {
+    to {
+        transform: rotate(360deg);
+    }
+}
+
+@keyframes fadeIn {
+    from {
+        opacity: 0;
+        transform: scale(0.95);
+    }
+    to {
+        opacity: 1;
+        transform: scale(1);
+    }
+}
+
+@keyframes slideIn {
+    from {
+        opacity: 0;
+        transform: translateX(-50px);
+    }
+    to {
+        opacity: 1;
+        transform: translateX(0);
+    }
+}
+.logEntry {
+    position: relative;
+    padding: 18px 24px;
+    margin-bottom: 18px;
+    border-radius: 12px;
+    font-family: 'Fira Code', monospace;
+    font-size: 16px;
+    line-height: 1.8;
+    word-break: break-word;
+    white-space: pre-wrap;
+    background: rgba(255, 255, 255, 0.05);
+    box-shadow: inset 0 0 10px rgba(0,0,0,0.3);
+    animation: slideIn 0.6s ease-out forwards;
+    display: flex;
+    align-items: center;
+    transition: transform 0.3s ease, background 0.3s ease;
+}
+
+.logEntry:hover {
+    transform: translateY(-4px);
+    background: rgba(255, 255, 255, 0.1);
+}
+
+.logEntry::before {
+    margin-right: 16px;
+    font-size: 22px;
+    flex-shrink: 0;
+    transition: transform 0.3s ease;
+}
+
+.logError::before {
+    content: "🔥";
+    color: #e74c3c;
+    transform: rotate(0deg);
+}
+
+.logWarning::before {
+    content: "⚡";
+    color: #f1c40f;
+    transform: rotate(0deg);
+}
+
+.logInfo::before {
+    content: "💡";
+    color: #3498db;
+    transform: rotate(0deg);
+}
+
+.logSuccess::before {
+    content: "✨";
+    color: #2ecc71;
+    transform: rotate(0deg);
+}
+
+.logProgress::before {
+    content: "🔄";
+    color: #9b59b6;
+    transform: rotate(0deg);
+}
+
+.logDefault::before {
+    content: "📄";
+    color: #95a5a6;
+    transform: rotate(0deg);
+}
+
+.logEntry:last-child {
+    margin-bottom: 0;
+}
+
+.logError {
+    color: #e74c3c;
+    border-left: 6px solid #e74c3c;
+}
+
+.logWarning {
+    color: #f1c40f;
+    border-left: 6px solid #f1c40f;
+}
+
+.logInfo {
+    color: #3498db;
+    border-left: 6px solid #3498db;
+}
+
+.logSuccess {
+    color: #2ecc71;
+    border-left: 6px solid #2ecc71;
+}
+
+.logProgress {
+    color: #9b59b6;
+    border-left: 6px solid #9b59b6;
+}
+
+.logDefault {
+    color: #95a5a6;
+    border-left: 6px solid #95a5a6;
+}
+
+.progressBarContainer {
+    width: 100%;
+    background: rgba(255, 255, 255, 0.2);
+    border-radius: 12px;
+    overflow: hidden;
+    margin-top: 12px;
+}
+
+.progressBar {
+    height: 24px;
+    background: #e67e22;
+    width: 0%;
+    color: #ffffff;
+    text-align: center;
+    line-height: 24px;
+    transition: width 0.5s ease, background-color 0.3s ease;
+    border-radius: 12px 0 0 12px;
+    font-weight: bold;
+}
+
+#logViewer {
+    position: relative;
+    height: 100%;
+    width: 100%;
+    border: none;
+    border-radius: 16px;
+    overflow: hidden;
+    display: flex;
+    flex-direction: column;
+    color: #ffffff;
+    box-shadow: 0 20px 40px rgba(0, 0, 0, 0.5);
+    backdrop-filter: blur(10px);
+}
+#logViewerHeader {
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    padding: 20px 30px;
+    background: rgba(255, 255, 255, 0.1);
+    backdrop-filter: blur(10px);
+    border-bottom: 2px solid rgba(255, 255, 255, 0.2);
+    transition: background 0.3s ease;
+}
+#logViewerHeader:hover {
+    background: rgba(255, 255, 255, 0.15);
+}
+
+#logViewerHeader h2 {
+    margin: 0;
+    font-size: 24px;
+    font-weight: 700;
+    letter-spacing: 1px;
+    text-shadow: 1px 1px 2px rgba(0,0,0,0.5);
+}
+
+#logViewerContent {
+    max-height:100%;
+    padding: 20px 30px;
+    overflow-y: auto;
+    flex-grow: 1;
+    scrollbar-width: thin;
+    scrollbar-color: #e74c3c rgba(255, 255, 255, 0.1);
+    background: linear-gradient(180deg, rgba(0,0,0,0.8), rgba(0,0,0,0.6));
+    position: relative;
+}
+
+#logViewerContent::-webkit-scrollbar {
+    width: 12px;
+}
+
+#logViewerContent::-webkit-scrollbar-thumb {
+    background: #e74c3c;
+    border-radius: 6px;
+    border: 3px solid rgba(255, 255, 255, 0.1);
+}

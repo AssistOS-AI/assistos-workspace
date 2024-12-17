@@ -11,6 +11,8 @@ export class NotificationsMonitor {
     }
 
     async beforeRender() {
+        this.debugChecked = localStorage.getItem('logType') === 'debug' ? "checked" : "";
+        this.observingMode = this.debugChecked ? "debug" : "info";
     }
 
     async afterRender() {
@@ -25,7 +27,7 @@ export class NotificationsMonitor {
 
         const llmObserverTab = document.createElement('div');
         llmObserverTab.classList.add('tab', 'active');
-        llmObserverTab.textContent = 'Prompts Observer';
+        llmObserverTab.textContent = 'Notifications';
         this.tabsContainer.insertBefore(llmObserverTab, this.addBtn);
         llmObserverTab.addEventListener('click', () => this.activateTab('llmObserver'));
 
@@ -36,13 +38,20 @@ export class NotificationsMonitor {
         this.currentTab = 'llmObserver';
 
         let tasksToWatch = localStorage.getItem('tasksToWatch') ? JSON.parse(localStorage.getItem('tasksToWatch')) : [];
+
         for (let taskId of tasksToWatch) {
             await this.addTaskWatcher(taskId);
         }
+        this.debugCheckbox = this.element.querySelector('#debugCheckbox')
+        this.debugCheckbox.addEventListener('change', () => {
+            this.toggleDebugCheckbox();
+        })
+        this.filterLogsOptionsElement = this.element.querySelector('#filterLogsOptions')
+
     }
 
     async downloadSpaceTaskLogs(_target) {
-        window.location.href=`/tasks/logs/download/${assistOS.space.id}`
+        window.location.href = `/tasks/logs/download/${assistOS.space.id}`
     }
 
     toggleFullscreen() {
@@ -52,6 +61,35 @@ export class NotificationsMonitor {
     toggleMinimize() {
         this.element.classList.toggle('minimized');
     }
+
+    showFilterLogsOptions() {
+        const leaveFilterLogsOptions = (event) => {
+            if (!event.target.closest('#filterLogsOptions') && event.target.id !== 'filterLogs') {
+                this.filterLogsOptionsElement.classList.remove('active');
+                document.removeEventListener('click', leaveFilterLogsOptions);
+            }
+        };
+
+        if (!this.filterLogsOptionsElement.classList.contains('active')) {
+            this.filterLogsOptionsElement.classList.add('active');
+            setTimeout(() => {
+                document.addEventListener('click', leaveFilterLogsOptions);
+            }, 0);
+        }
+    }
+
+    async toggleDebugCheckbox() {
+        let llmObserver=this.element.querySelector('llm-observer');
+        const llmObserverPresenter=llmObserver.webSkelPresenter;
+        if (this.debugCheckbox.checked) {
+            localStorage.setItem('logType', 'debug');
+            await llmObserverPresenter.observeDebugLogs();
+        } else {
+            localStorage.setItem('logType', 'info');
+            await llmObserverPresenter.observeInfoLogs();
+        }
+    }
+
 
     promptAddWatcher() {
         const taskId = prompt("Insert Task ID:");
