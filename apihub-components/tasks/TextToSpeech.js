@@ -24,7 +24,7 @@ class TextToSpeech extends Task {
 
             const paragraphCommands = await documentModule.getParagraphCommands(this.spaceId, this.documentId, this.paragraphId);
             const personalityData = await personalityModule.getPersonalityByName(this.spaceId, paragraphCommands.speech.personality);
-
+            console.log("-----------------executing text to speech task-----------------");
             const arrayBuffer = await llmModule.textToSpeech(this.spaceId, {
                 prompt: utilModule.unsanitize(paragraph.text),
                 voice: personalityData.voiceId,
@@ -33,6 +33,7 @@ class TextToSpeech extends Task {
                 modelName: "PlayHT2.0"
             });
             const audioBuffer = Buffer.from(arrayBuffer);
+            console.log("-------------------get audio duration-------------------");
             let audioDuration = await ffmpeg.getAudioDurationFromBuffer(audioBuffer);
             delete paragraphCommands.speech.taskId;
             this.audioId = await spaceModule.putAudio(audioBuffer);
@@ -44,6 +45,7 @@ class TextToSpeech extends Task {
             if(paragraphCommands.compileVideo){
                 delete paragraphCommands.compileVideo;
             }
+            console.log("-------------------FINISH-------------------");
             await documentModule.updateParagraphCommands(this.spaceId, this.documentId, this.paragraphId, paragraphCommands);
             this.emit(EVENTS.DEPENDENCY_COMPLETED);
         } catch (e) {
