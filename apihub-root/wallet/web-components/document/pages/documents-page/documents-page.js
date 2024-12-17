@@ -66,6 +66,11 @@ export class DocumentsPage {
     }
 
     async deleteAction(_target) {
+        let message = "Are you sure you want to delete this document?";
+        let confirmation = await assistOS.UI.showModal("confirm-action-modal", {message}, true);
+        if (!confirmation) {
+            return;
+        }
         await documentModule.deleteDocument(assistOS.space.id, this.getDocumentId(_target));
         this.invalidate(this.refreshDocuments);
     }

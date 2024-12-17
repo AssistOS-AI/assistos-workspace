@@ -103,6 +103,7 @@ export class AudioMenu {
         let volumeInput = this.element.querySelector("#volume");
         this.commands.audio.volume = parseFloat(volumeInput.value);
         await this.commandsEditor.invalidateCompiledVideos();
+        this.commandsEditor.videoPresenter.refreshVideoPreview();
         await documentModule.updateParagraphCommands(assistOS.space.id, this._document.id, this.paragraphId, this.commands);
         button.classList.add("hidden");
     }

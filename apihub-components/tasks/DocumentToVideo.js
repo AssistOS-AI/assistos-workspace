@@ -38,7 +38,7 @@ class DocumentToVideo extends Task {
             this.logInfo(`Creating video for chapter ${i}`, {taskId: chapterTask.id});
             await TaskManager.addTask(chapterTask);
             this.chapterTaskIds.push(chapterTask.id);
-            let objectId = SubscriptionManager.getObjectId(chapterTask.spaceId, "tasksList");
+            let objectId = SubscriptionManager.getObjectId(this.documentId, "tasksList");
             SubscriptionManager.notifyClients("", objectId, {id: chapterTask.id, action: "add"});
             try {
                 let videoPath = await chapterTask.run();

@@ -9,6 +9,7 @@ export class EditEffectModal{
         this.effect = this.audioMenuPresenter.commands.effects.find(effect => effect.id === id);
         this.videoDuration = parseFloat(this.element.getAttribute("data-duration"));
         this.invalidate();
+        this.videoPresenter = this.audioMenuPresenter.commandsEditor.videoPresenter;
     }
     async beforeRender() {
         this.audioSrc = await spaceModule.getAudioURL(this.effect.id);
@@ -100,6 +101,7 @@ export class EditEffectModal{
         this.effect.fadeOut = effectFadeOut.checked;
         await this.audioMenuPresenter.commandsEditor.invalidateCompiledVideos();
         await documentModule.updateParagraphCommands(assistOS.space.id, this.audioMenuPresenter._document.id, this.audioMenuPresenter.paragraphId, this.audioMenuPresenter.commands);
+        this.videoPresenter.refreshVideoPreview();
         assistOS.UI.closeModal(this.element, true);
     }
     closeModal(button){

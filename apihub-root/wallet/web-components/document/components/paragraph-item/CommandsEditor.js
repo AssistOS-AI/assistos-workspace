@@ -312,6 +312,7 @@ export default class CommandsEditor {
         if (this.editMode === modes.NORMAL) {
             this.paragraph.commands[name] = data;
             this.renderViewModeCommands();
+            await this.invalidateCompiledVideos()
             await documentModule.updateParagraphCommands(assistOS.space.id, this.documentId, this.paragraph.id, this.paragraph.commands);
             await this.videoPresenter.setupVideoPreview();
             return true;

@@ -7,7 +7,7 @@ export class DocumentTasksModal {
         this.documentId = this.element.getAttribute("data-document-id");
         this.invalidate(async () => {
             this.boundOnListUpdate = this.onListUpdate.bind(this);
-            await assistOS.NotificationRouter.subscribeToSpace(assistOS.space.id, "tasksList", this.boundOnListUpdate);
+            await assistOS.NotificationRouter.subscribeToDocument(this.documentId, "tasksList", this.boundOnListUpdate);
             this.tasks = await documentModule.getDocumentTasks(assistOS.space.id, this.documentId);
         })
     }

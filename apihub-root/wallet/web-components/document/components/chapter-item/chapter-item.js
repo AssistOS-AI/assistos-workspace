@@ -287,6 +287,11 @@ export class ChapterItem {
     }
 
     async deleteChapter(_target) {
+        let message = "Are you sure you want to delete this chapter?";
+        let confirmation = await assistOS.UI.showModal("confirm-action-modal", {message}, true);
+        if (!confirmation) {
+            return;
+        }
         await documentModule.deleteChapter(assistOS.space.id, this._document.id, this.chapter.id);
         this.documentPresenter.deleteChapter(this.chapter.id);
     }

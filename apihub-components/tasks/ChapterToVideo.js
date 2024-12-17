@@ -60,7 +60,7 @@ class ChapterToVideo extends Task {
                     chapterTaskId: this.id
                 });
                 await TaskManager.addTask(paragraphTask);
-                let objectId = SubscriptionManager.getObjectId(paragraphTask.spaceId, "tasksList");
+                let objectId = SubscriptionManager.getObjectId(this.documentId, "tasksList");
                 SubscriptionManager.notifyClients("", objectId, {id: paragraphTask.id, action: "add"});
                 let videoPath = await paragraphTask.run();
                 completedFramePaths.push(videoPath);

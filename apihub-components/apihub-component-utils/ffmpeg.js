@@ -194,9 +194,8 @@ async function getVideoDuration(videoPath){
     const hours = parseFloat(durationMatch[1]);
     const minutes = parseFloat(durationMatch[2]);
     const seconds = parseFloat(durationMatch[3]);
-    let duration = hours * 3600 + minutes * 60 + seconds;
     // Round to one decimal place
-    return parseFloat(duration.toFixed(1));
+    return hours * 3600 + minutes * 60 + seconds;
 }
 async function addBackgroundSoundToVideo(videoPath, backgroundSoundPath, backgroundSoundVolume, loop, task) {
     let videoDuration = await getVideoDuration(videoPath);
@@ -410,7 +409,7 @@ async function getAudioDurationFromBuffer(audioBuffer) {
         const minutes = parseFloat(lastMatch[2]);
         const seconds = parseFloat(lastMatch[3]);
         latestTime = hours * 3600 + minutes * 60 + seconds;
-        return parseFloat(latestTime.toFixed(1));
+        return latestTime;
     } else {
         throw new Error('Could not determine audio duration');
     }
