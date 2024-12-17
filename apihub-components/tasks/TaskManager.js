@@ -26,8 +26,20 @@ class TaskManager {
 
     async storeTaskLog(spaceId, taskId, logData) {
         const generateLogMessage = (taskId, logData) => {
-            const {time, logType, message, data = {}} = logData
-            return `${time}:Task ${taskId}---${logType}---${message}${Object.keys(data).length > 0 ? '---' + JSON.stringify(data) : ''}\n`
+            const getLogCategory = (logType) => {
+                switch (logType) {
+                    case "ERROR":
+                    case "WARNING":
+                    case "PROGRESS":
+                        return "DEBUG";
+                    default:
+                        return "INFO";
+                }
+            }
+            let {time, logType, message, data = {}, agent = "System"} = logData
+            data.logType = logType;
+            data.message = message;
+            return `---${getLogCategory(logType)}---${time}---${taskId}---${agent}---${JSON.stringify(data)}\n`
         }
 
         const acquireLock = async (filePath) => {

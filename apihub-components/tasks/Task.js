@@ -84,7 +84,7 @@ class Task {
         if (!this.callbacks[event]) {
             return;
         }
-        this.callbacks[event](this.spaceId,data);
+        this.callbacks[event](this.spaceId, data);
     }
 
     removeListener(event) {
@@ -113,10 +113,30 @@ class Task {
     }
 
     log(logType, message = "", data = {}) {
-        let time= new Date().toISOString();
+        const sendLogNotification = (logType, logData) => {
+            const getNotificationId = (logCategory) => {
+                return SubscriptionManager.getObjectId(this.spaceId, "logs",logCategory);
+            }
+            let logCategory = "info";
+            switch (logType) {
+                case "ERROR":
+                case "WARNING":
+                case "PROGRESS":
+                    logCategory = "debug";
+            }
+            let infoNotificationId = getNotificationId("info");
+            if (logCategory === "debug") {
+                const debugNotificationId = getNotificationId("debug");
+                SubscriptionManager.notifyClients("", debugNotificationId, logData);
+            } else if (logCategory === "info") {
+                SubscriptionManager.notifyClients("", infoNotificationId, logData);
+            }
+        }
+        let time = new Date().toISOString();
         this.logs.push({logType, message, data})
+        this.emit(EVENTS.LOG, {time, logType, message, data});
+        sendLogNotification(logType, {time, logType, message, data});
         let objectId = SubscriptionManager.getObjectId(this.spaceId, this.id + "/logs");
-        this.emit(EVENTS.LOG,{time,logType, message, data});
         SubscriptionManager.notifyClients("", objectId, {logType: logType, message: message, data: data});
     }
 
