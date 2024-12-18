@@ -9,8 +9,9 @@ const utilModule = require("assistos").loadModule("util", {});
 const documentModule = require("assistos").loadModule("document", {});
 
 export default class CommandsEditor {
-    constructor(documentId, paragraph, paragraphPresenter) {
+    constructor(documentId, chapterId, paragraph, paragraphPresenter) {
         this.documentId = documentId;
+        this.chapterId = chapterId;
         this.paragraph = paragraph;
         this.paragraphPresenter = paragraphPresenter;
         this.editMode = modes.NORMAL;
@@ -264,7 +265,7 @@ export default class CommandsEditor {
             return;
         }
         if (commandStatus === "new") {
-            const taskId = await constants.COMMANDS_CONFIG.COMMANDS.find(command => command.NAME === commandName).EXECUTE(assistOS.space.id, this.documentId, this.paragraph.id, {});
+            const taskId = await constants.COMMANDS_CONFIG.COMMANDS.find(command => command.NAME === commandName).EXECUTE(assistOS.space.id, this.documentId, this.chapterId, this.paragraph.id, {});
             this.paragraph.commands[commandName].taskId = taskId;
             await this.paragraphPresenter.addUITask(taskId);
         } else if (commandStatus === "changed") {
@@ -277,7 +278,7 @@ export default class CommandsEditor {
                     // task is not running
                 }
             } else {
-                const taskId = await constants.COMMANDS_CONFIG.COMMANDS.find(command => command.NAME === commandName).EXECUTE(assistOS.space.id, this.documentId, this.paragraph.id, {});
+                const taskId = await constants.COMMANDS_CONFIG.COMMANDS.find(command => command.NAME === commandName).EXECUTE(assistOS.space.id, this.documentId, this.chapterId, this.paragraph.id, {});
                 this.paragraph.commands[commandName].taskId = taskId;
                 await this.paragraphPresenter.addUITask(taskId);
             }

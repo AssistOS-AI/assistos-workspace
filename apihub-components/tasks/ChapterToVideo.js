@@ -11,6 +11,8 @@ const ParagraphToVideo = require('./ParagraphToVideo');
 const SubscriptionManager = require("../subscribers/SubscriptionManager");
 const crypto = require("../apihub-component-utils/crypto");
 const {exec} = require("child_process");
+const TaskManager = require("./TaskManager");
+const space = require("../spaces-storage/space");
 class ChapterToVideo extends Task {
     constructor(spaceId, userId, configs) {
         super(spaceId, userId);
@@ -21,31 +23,45 @@ class ChapterToVideo extends Task {
         this.processes = [];
     }
     async runTask(){
-        let TaskManager = require('./TaskManager');
-        let documentTask = TaskManager.getTask(this.documentTaskId);
+        let chapter;
+        let pathPrefix;
+        let chapterIndex = "";
+        if(!this.documentTaskId){
+            let documentModule = await this.loadModule("document");
+            chapter = await documentModule.getChapter(this.spaceId, this.documentId, this.chapterId);
+            const spacePath = space.APIs.getSpacePath(this.spaceId);
+            this.workingDir = path.join(spacePath, "temp", `${this.constructor.name}_${this.id}_temp`);
+            pathPrefix = this.workingDir;
+            await fsPromises.mkdir(this.workingDir, {recursive: true});
+        } else {
+            let TaskManager = require('./TaskManager');
+            let documentTask = TaskManager.getTask(this.documentTaskId);
+            chapter = documentTask.document.chapters.find(chapter => chapter.id === this.chapterId);
+            chapterIndex = document.chapters.indexOf(chapter);
+            pathPrefix = path.join(this.workingDir, `chapter_${chapterIndex}`);
+            await fsPromises.mkdir(pathPrefix, {recursive: true});
+        }
 
-        let chapter = documentTask.document.chapters.find(chapter => chapter.id === this.chapterId);
         this.chapter = chapter;
-        let chapterIndex = documentTask.document.chapters.indexOf(chapter);
         let completedFramePaths = [];
-        let pathPrefix = path.join(this.workingDir, `chapter_${chapterIndex}`);
-        await fsPromises.mkdir(pathPrefix, {recursive: true});
 
         let outputVideoPath = path.join(pathPrefix, `video.mp4`);
         if(chapter.commands.compileVideo){
-            this.logInfo(`Found compiled video for chapter ${chapterIndex}`);
-            try {
-                await fsPromises.access(outputVideoPath);
-            } catch (e){
-                this.logProgress(`Downloading compiled video for chapter ${chapterIndex}`);
-                let url = await Storage.getDownloadURL(Storage.fileTypes.videos, chapter.commands.compileVideo.id);
-                await fileSys.downloadData(url, outputVideoPath);
-                this.logProgress(`Verifying compiled video file integrity for chapter ${chapterIndex}`);
-                await ffmpegUtils.verifyMediaFileIntegrity(outputVideoPath, this);
-                this.logProgress(`Verifying compiled video settings for chapter ${chapterIndex}`);
-                await ffmpegUtils.verifyVideoSettings(outputVideoPath, this);
+            if(chapter.commands.compileVideo.id){
+                this.logInfo(`Found compiled video for chapter ${chapterIndex}`);
+                try {
+                    await fsPromises.access(outputVideoPath);
+                } catch (e){
+                    this.logProgress(`Downloading compiled video for chapter ${chapterIndex}`);
+                    let url = await Storage.getDownloadURL(Storage.fileTypes.videos, chapter.commands.compileVideo.id);
+                    await fileSys.downloadData(url, outputVideoPath);
+                    this.logProgress(`Verifying compiled video file integrity for chapter ${chapterIndex}`);
+                    await ffmpegUtils.verifyMediaFileIntegrity(outputVideoPath, this);
+                    this.logProgress(`Verifying compiled video settings for chapter ${chapterIndex}`);
+                    await ffmpegUtils.verifyVideoSettings(outputVideoPath, this);
+                }
+                return outputVideoPath;
             }
-            return outputVideoPath;
         }
         let failedTasks = [];
         for(let i = 0; i < chapter.paragraphs.length; i++){
@@ -120,6 +136,9 @@ class ChapterToVideo extends Task {
             id: videoId
         };
         await documentModule.updateChapterCommands(this.spaceId, this.documentId, this.chapterId, commands);
+        if(!this.documentTaskId){
+            await fsPromises.rm(this.workingDir, {recursive: true, force: true});
+        }
     }
     serialize() {
         return{
@@ -138,9 +157,12 @@ class ChapterToVideo extends Task {
             }
         }
     }
-    cancelTask(){
+    async cancelTask(){
         for(let process of this.processes){
             process.kill();
+        }
+        if(!this.documentTaskId){
+            await fsPromises.rm(this.workingDir, {recursive: true, force: true});
         }
     }
     runCommand(command) {

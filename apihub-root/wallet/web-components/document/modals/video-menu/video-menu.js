@@ -20,7 +20,8 @@ export class VideoMenu{
         let viewVideoSection = this.element.querySelector(".view-section");
         let deleteVideoButton = this.element.querySelector(".delete-video");
         let lipSyncCheckbox = this.element.querySelector("#lip-sync");
-        if(this.paragraphPresenter.paragraph.commands.video){
+        let commands = this.paragraphPresenter.paragraph.commands;
+        if(commands.video){
             viewVideoSection.classList.remove("hidden");
             deleteVideoButton.classList.remove("hidden");
             await this.initViewVideo();
@@ -33,19 +34,25 @@ export class VideoMenu{
                 await this.commandsEditor.deleteCommand("lipsync");
             }
         });
-        let commands = this.paragraphPresenter.paragraph.commands;
         if(!commands.video && !commands.image){
             let warnMessage = `No visual source added`;
             this.showLipSyncWarning(warnMessage);
         }
-        if(this.paragraphPresenter.paragraph.commands.lipsync){
+        if(commands.lipsync){
             lipSyncCheckbox.checked = true;
         }
         let compileButton = this.element.querySelector(".compile-video");
         let deleteCompileButton = this.element.querySelector(".delete-compile-video");
         let downloadButton = this.element.querySelector(".download-compiled-video");
-        if(this.paragraphPresenter.paragraph.commands.compileVideo){
-            compileButton.classList.add("hidden");
+        if(commands.compileVideo){
+            if(commands.compileVideo.id){
+                compileButton.classList.add("hidden");
+            } else {
+                compileButton.innerHTML = "";
+                compileButton.classList.add("loading-icon");
+                deleteCompileButton.classList.add("hidden");
+                downloadButton.classList.add("hidden");
+            }
         } else {
             deleteCompileButton.classList.add("hidden");
             downloadButton.classList.add("hidden");
@@ -193,7 +200,16 @@ export class VideoMenu{
     }
     async compileVideo(){
         await this.commandsEditor.insertCommandWithTask("compileVideo", {});
+        let taskId = this.paragraphPresenter.paragraph.commands.compileVideo.taskId;
+        this.boundOnCompileVideoUpdate = this.onCompileVideoUpdate.bind(this);
+        await assistOS.NotificationRouter.subscribeToSpace(assistOS.space.id, taskId, this.boundOnCompileVideoUpdate);
         this.invalidate();
+    }
+    async onCompileVideoUpdate(status){
+        if(status === "completed"){
+            this.paragraphPresenter.paragraph.commands = await documentModule.getParagraphCommands(assistOS.space.id, this.paragraphPresenter._document.id, this.paragraphPresenter.paragraph.id);
+            this.invalidate();
+        }
     }
     async downloadCompiledVideo(){
         let commands = this.paragraphPresenter.paragraph.commands;

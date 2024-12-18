@@ -1,12 +1,14 @@
 const TaskManager = require("./TaskManager");
 const {sendResponse, sendFileToClient} = require("../apihub-component-utils/utils");
 const DocumentToVideo = require("./DocumentToVideo");
+const ChapterToVideo = require("./ChapterToVideo");
 const utils = require("../apihub-component-utils/utils");
 const TextToSpeech = require("./TextToSpeech");
 const LipSync = require("./LipSync");
 const SubscriptionManager = require("../subscribers/SubscriptionManager");
 const ParagraphToVideo = require("./ParagraphToVideo");
 const fs = require('fs');
+const throttler = require("./ConcurrentThrottler");
 
 async function compileVideoFromDocument(request, response) {
     let documentId = request.params.documentId;
@@ -24,6 +26,29 @@ async function compileVideoFromDocument(request, response) {
             TaskManager.runTask(task.id);
         }, 1000);
         //TaskManager.runTask(task.id);
+    } catch (e) {
+        utils.sendResponse(response, 500, "application/json", {
+            message: e.message
+        });
+    }
+}
+
+async function compileVideoFromChapter(request, response) {
+    let documentId = request.params.documentId;
+    let chapterId = request.params.chapterId;
+    let spaceId = request.params.spaceId;
+    let userId = request.userId;
+    let sessionId = request.sessionId;
+    try {
+        let task = new ChapterToVideo(spaceId, userId, {documentId, chapterId});
+        await TaskManager.addTask(task);
+        notifyTasksListUpdate(sessionId, spaceId);
+        sendResponse(response, 200, "application/json", {
+            data: task.id
+        });
+        setTimeout(() => {
+            TaskManager.runTask(task.id);
+        }, 1000);
     } catch (e) {
         utils.sendResponse(response, 500, "application/json", {
             message: e.message
@@ -262,7 +287,53 @@ async function downloadTaskLogs(request, response) {
 async function runAllDocumentTasks(request, response) {
     let documentId = request.params.documentId;
     let spaceId = request.params.spaceId;
-    let throttler = require("./ConcurrentThrottler");
+    // try{
+    //     let SecurityContext = require("assistos").ServerSideSecurityContext;
+    //     let securityContext = new SecurityContext(request);
+    //     let documentModule = require("assistos").loadModule("document", securityContext);
+    //     let document = await documentModule.getDocument(spaceId, documentId);
+    //
+    //     let throttler = require("./ConcurrentThrottler");
+    //     let tasks = [];
+    //     for(let chapter of document.chapters){
+    //         for(let paragraph of chapter.paragraphs){
+    //             if(paragraph.commands.speech){
+    //                 let task = new TextToSpeech(spaceId, securityContext.userId, {
+    //                     documentId,
+    //                     paragraphId: paragraph.id
+    //                 });
+    //                 await TaskManager.addTask(task);
+    //                 paragraph.commands.speech.taskId = task.id;
+    //                 await documentModule.updateParagraphCommands(spaceId, documentId, paragraph.id, paragraph.commands);
+    //                 let objectId = SubscriptionManager.getObjectId(spaceId, "tasks");
+    //                 SubscriptionManager.notifyClients("", objectId, {taskId: task.id});
+    //                 tasks.push({taskId:task.id, type:"speech"});
+    //             }
+    //             if(paragraph.commands.lipSync){
+    //                 let task = new LipSync(spaceId, securityContext.userId, {
+    //                     documentId,
+    //                     paragraphId: paragraph.id
+    //                 });
+    //                 await TaskManager.addTask(task);
+    //                 paragraph.commands.lipSync.taskId = task.id;
+    //                 await documentModule.updateParagraphCommands(spaceId, documentId, paragraph.id, paragraph.commands);
+    //                 tasks.push({taskId:task.id, type:"lipsync"});
+    //             }
+    //         }
+    //     }
+    //     sendResponse(response, 200, "application/json", {});
+    //     for(let task of tasks){
+    //         if(task.type === "lipsync"){
+    //             throttler.runTask(task.taskId);
+    //         } else {
+    //             TaskManager.runTask(task.taskId);
+    //         }
+    //     }
+    // }catch (e) {
+    //     return sendResponse(response, 500, "application/json", {
+    //         message: e.message
+    //     });
+    // }
     try {
         let tasks = TaskManager.serializeTasks(spaceId).filter(task => task.configs.documentId === documentId);
         for (let task of tasks) {
@@ -320,5 +391,6 @@ module.exports = {
     cancelAllDocumentTasks,
     downloadTaskLogs,
     getTaskLogs,
-    compileVideoFromParagraph
+    compileVideoFromParagraph,
+    compileVideoFromChapter
 }
