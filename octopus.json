@@ -43,8 +43,8 @@
                 },
                 {
                     "type": "copy",
-                    "src": "./opendsu-sdk/builds/output/iframeBoot.js",
-                    "target": "./apihub-root/wallet/scripts/bundles/iframeBoot.js",
+                    "src": "./opendsu-sdk/builds/output/versionLessBoot.js",
+                    "target": "./apihub-root/wallet/scripts/bundles/versionLessBoot.js",
                     "options": {
                         "overwrite": true
                     }
