@@ -37,7 +37,7 @@ class ChapterToVideo extends Task {
             let TaskManager = require('./TaskManager');
             let documentTask = TaskManager.getTask(this.documentTaskId);
             chapter = documentTask.document.chapters.find(chapter => chapter.id === this.chapterId);
-            chapterIndex = document.chapters.indexOf(chapter);
+            chapterIndex = documentTask.document.chapters.indexOf(chapter);
             pathPrefix = path.join(this.workingDir, `chapter_${chapterIndex}`);
             await fsPromises.mkdir(pathPrefix, {recursive: true});
         }
