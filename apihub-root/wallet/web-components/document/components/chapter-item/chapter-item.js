@@ -41,7 +41,7 @@ export class ChapterItem {
             } else {
                 downloadVideoClass = "hide";
                 deleteVideoClass = "hide";
-                compileVideoClass = "disabled";
+                compileVideoClass = "show";
             }
         } else {
             compileVideoClass = "show";
