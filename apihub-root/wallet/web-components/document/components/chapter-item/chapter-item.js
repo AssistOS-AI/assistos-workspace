@@ -28,14 +28,64 @@ export class ChapterItem {
         });
 
     }
-
+    showChapterOptions(targetElement) {
+        let hideMoveArrows = this._document.chapters.length === 1 ? "hide" : "show";
+        let downloadVideoClass;
+        let compileVideoClass;
+        let deleteVideoClass;
+        if(this.chapter.commands.compileVideo){
+            if(this.chapter.commands.compileVideo.id){
+                downloadVideoClass = "show";
+                deleteVideoClass = "show";
+                compileVideoClass = "hide";
+            } else {
+                downloadVideoClass = "hide";
+                deleteVideoClass = "hide";
+                compileVideoClass = "disabled";
+            }
+        } else {
+            compileVideoClass = "show";
+            downloadVideoClass = "hide";
+            deleteVideoClass = "hide";
+        }
+        let chapterOptions = `<action-box-chapter data-move-arrows="${hideMoveArrows}" data-download-video="${downloadVideoClass}" data-compile-video="${compileVideoClass}" data-delete-video="${deleteVideoClass}"></action-box-chapter>`;
+        targetElement.insertAdjacentHTML("afterbegin", chapterOptions);
+        let controller = new AbortController();
+        this.boundHideChapterOptions = this.hideChapterOptions.bind(this, controller);
+        document.addEventListener('click', this.boundHideChapterOptions, {signal: controller.signal});
+    }
+    hideChapterOptions(controller, event) {
+        controller.abort();
+        let options = this.element.querySelector(`action-box-chapter`);
+        if (options) {
+            options.remove();
+        }
+    }
+    async downloadCompiledVideo() {
+        let videoURL = await spaceModule.getVideoURL(this.chapter.commands.compileVideo.id);
+        const response = await fetch(videoURL);
+        const blob = await response.blob();
+        let chapterIndex = this._document.getChapterIndex(this.chapter.id);
+        const link = document.createElement('a');
+        const blobUrl = URL.createObjectURL(blob);
+        link.href = blobUrl;
+        link.download = `chapter_${chapterIndex + 1}_${this.chapter.title}.mp4`;
+        document.body.appendChild(link);
+        link.click();
+        document.body.removeChild(link);
+        URL.revokeObjectURL(blobUrl);
+    }
+    deleteCompiledVideo(){
+        delete this.chapter.commands.compileVideo;
+        documentModule.updateChapterCommands(assistOS.space.id, this._document.id, this.chapter.id, this.chapter.commands);
+    }
+    async compileChapterVideo(){
+        this.chapter.commands.compileVideo = {};
+        await documentModule.updateChapterCommands(assistOS.space.id, this._document.id, this.chapter.id, this.chapter.commands);
+        await documentModule.compileChapterVideo(assistOS.space.id, this._document.id, this.chapter.id);
+    }
     async beforeRender() {
         await documentModule.updateChapterCommands(assistOS.space.id, this._document.id, this.chapter.id, this.chapter.commands);
-        if (this._document.chapters.length === 1) {
-            this.toggleSwapArrows = "hide";
-        } else {
-            this.toggleSwapArrows = "show";
-        }
         this.titleMetadata = this.element.variables["data-title-metadata"];
         this.chapterContent = "";
 

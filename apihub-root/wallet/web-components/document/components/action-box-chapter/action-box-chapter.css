@@ -7,10 +7,14 @@ action-box-chapter{
     font-size: 14px;
 }
 
-.action-box{
+action-box-chapter .action-box{
     background-color: var(--white);
     padding: 5px 0;
 }
-#hide .optional{
+action-box-chapter .hide{
     display: none;
+}
+action-box-chapter .disabled{
+    pointer-events: none;
+    background-color: var(--very-light-gray);
 }

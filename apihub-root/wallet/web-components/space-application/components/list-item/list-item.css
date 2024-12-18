@@ -7,6 +7,10 @@ list-item:hover > .light-highlight{
 list-item{
     width:100%;
 }
+list-item.disabled .list-item{
+    pointer-events: none;
+    background-color: var(--very-light-gray);
+}
 .list-item {
     cursor: pointer;
     width: calc(100% - 10px);

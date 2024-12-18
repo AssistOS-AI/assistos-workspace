@@ -13,7 +13,7 @@ export class ParagraphItem {
         let chapterId = this.element.getAttribute("data-chapter-id");
         this.chapter = this._document.getChapter(chapterId);
         this.paragraph = this.chapter.getParagraph(paragraphId);
-        this.commandsEditor = new CommandsEditor(this._document.id, this.paragraph, this);
+        this.commandsEditor = new CommandsEditor(this._document.id, chapterId, this.paragraph, this);
         this.invalidate(this.subscribeToParagraphEvents.bind(this));
     }
 

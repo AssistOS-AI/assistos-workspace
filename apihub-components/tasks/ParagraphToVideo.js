@@ -210,9 +210,12 @@ class ParagraphToVideo extends Task {
         await ffmpegUtils.adjustAudioVolume(path, volume, this.ffmpegExecutor);
     }
 
-    cancelTask() {
+    async cancelTask() {
         for(let process of this.processes){
             process.kill();
+        }
+        if(this.ffmpegExecutor === this){
+            await fsPromises.rm(this.workingDir, {recursive: true, force: true});
         }
     }
     runCommand(command) {
