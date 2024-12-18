@@ -1,0 +1,31 @@
+<div class="log-container log-$$logType">
+  <div class="log-header">
+    <div class="log-header-left">
+      <span class="log-type">$$agent Agent: $$logType</span>
+      <time class="log-time">$$time</time>
+    </div>
+    <div class="log-header-right">
+      <button class="copy-button" data-local-action="copyMessage">
+        <svg xmlns="http://www.w3.org/2000/svg" class="icon icon-copy" viewBox="0 0 24 24" fill="currentColor">
+          <path d="M16 1H4a2 2 0 00-2 2v14h2V3h12V1z"></path>
+          <path d="M20 5H8a2 2 0 00-2 2v14a2 2 0 002 2h12a2 2 0 002-2V7a2 2 0 00-2-2zm0 16H8V7h12v14z"></path>
+        </svg>
+      </button>
+    </div>
+  </div>
+  <div class="log-content">
+    <pre>$$logMessage</pre>
+  </div>
+  <div class="log-footer">
+    <div class="log-footer-left">
+      $$data
+    </div>
+    <div class="log-footer-right">
+      <button class="action-button" data-local-action="performAction">
+        <svg xmlns="http://www.w3.org/2000/svg" class="icon icon-action" viewBox="0 0 24 24" fill="currentColor">
+          <path d="M12 2C8.13 2 5 5.13 5 9c0 5.25 7 13 7 13s7-7.75 7-13c0-3.87-3.13-7-7-7zm0 9.5c-1.38 0-2.5-1.12-2.5-2.5S10.62 6.5 12 6.5s2.5 1.12 2.5 2.5S13.38 11.5 12 11.5z"></path>
+        </svg>
+      </button>
+    </div>
+  </div>
+</div>

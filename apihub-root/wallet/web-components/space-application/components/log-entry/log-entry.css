@@ -1,0 +1,207 @@
+
+.log-container {
+    display: flex;
+    flex-direction: column;
+    padding: 20px;
+    margin-bottom: 20px;
+    border-radius: 8px;
+    background: rgba(255, 255, 255, 0.1);
+    box-shadow: 0 4px 6px rgba(0, 0, 0, 0.1);
+    transition: background 0.3s ease, transform 0.3s ease, box-shadow 0.3s ease;
+    animation: fadeIn 0.5s ease-out forwards;
+    color: #ecf0f1;
+    font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+}
+
+.log-container:hover {
+    transform: translateY(-5px);
+    background: rgba(255, 255, 255, 0.15);
+    box-shadow: 0 6px 12px rgba(0, 0, 0, 0.15);
+}
+
+.log-container::before {
+    display: inline-block;
+    margin-right: 12px;
+    font-size: 24px;
+    flex-shrink: 0;
+    vertical-align: middle;
+}
+
+.log-error::before {
+    content: "🔥";
+    color: #e74c3c;
+}
+
+.log-warning::before {
+    content: "⚡";
+    color: #f1c40f;
+}
+
+.log-info::before {
+    content: "💡";
+    color: #3498db;
+}
+
+.log-success::before {
+    content: "✨";
+    color: #2ecc71;
+}
+
+.log-progress::before {
+    content: "🔄";
+    color: #9b59b6;
+}
+
+.log-default::before {
+    content: "📄";
+    color: #95a5a6;
+}
+
+.log-error {
+    border-left: 5px solid #e74c3c;
+}
+
+.log-warning {
+    border-left: 5px solid #f1c40f;
+}
+
+.log-info {
+    border-left: 5px solid #3498db;
+}
+
+.log-success {
+    border-left: 5px solid #2ecc71;
+}
+
+.log-progress {
+    border-left: 5px solid #9b59b6;
+}
+
+.log-default {
+    border-left: 5px solid #95a5a6;
+}
+
+.log-header {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    margin-bottom: 12px;
+}
+
+.log-header-left {
+    display: flex;
+    flex-direction: column;
+    gap: 4px;
+}
+
+.agent-name {
+    font-weight: 600;
+    font-size: 16px;
+}
+
+.log-type {
+    font-size: 14px;
+    text-transform: uppercase;
+    opacity: 0.8;
+}
+
+.log-time {
+    font-size: 12px;
+    color: #bdc3c7;
+}
+
+.copy-button,
+.action-button {
+    background: none;
+    border: none;
+    color: #ffffff;
+    cursor: pointer;
+    padding: 8px;
+    border-radius: 4px;
+    transition: background 0.2s, transform 0.2s;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+}
+
+.copy-button:hover,
+.action-button:hover {
+    background: rgba(255, 255, 255, 0.2);
+    transform: scale(1.05);
+}
+
+.icon {
+    width: 20px;
+    height: 20px;
+}
+
+.log-content {
+    background: rgba(0, 0, 0, 0.2);
+    padding: 12px;
+    border-radius: 6px;
+    font-family: 'Fira Code', monospace;
+    font-size: 14px;
+    color: #ecf0f1;
+    overflow-x: auto;
+    white-space: pre-wrap;
+    word-break: break-word;
+}
+
+.log-footer {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    margin-top: 12px;
+}
+
+.log-footer-left {
+    display: flex;
+    flex-wrap: wrap;
+    gap: 12px;
+    font-size: 13px;
+    color: #95a5a6;
+}
+
+.log-footer-left .key {
+    font-weight: 500;
+    margin-right: 4px;
+}
+
+.log-footer-right {
+    display: flex;
+    align-items: center;
+}
+
+@keyframes fadeIn {
+    from {
+        opacity: 0;
+        transform: translateY(10px);
+    }
+    to {
+        opacity: 1;
+        transform: translateY(0);
+    }
+}
+
+@media (max-width: 600px) {
+    .log-container {
+        padding: 16px;
+    }
+
+    .agent-name {
+        font-size: 14px;
+    }
+
+    .log-type {
+        font-size: 12px;
+    }
+
+    .log-content {
+        font-size: 13px;
+    }
+
+    .log-footer-left {
+        flex-direction: column;
+        gap: 6px;
+    }
+}
