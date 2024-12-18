@@ -165,10 +165,10 @@ export class ChapterItem {
             this.changeChapterVisibility("hide");
         }
 
-        if(this.chapter.commands.compileVideo){
-            delete this.chapter.commands.compileVideo;
-            await documentModule.updateChapterCommands(assistOS.space.id, this._document.id, this.chapter.id, this.chapter.commands);
-        }
+        // if(this.chapter.commands.compileVideo){
+        //     delete this.chapter.commands.compileVideo;
+        //     await documentModule.updateChapterCommands(assistOS.space.id, this._document.id, this.chapter.id, this.chapter.commands);
+        // }
     }
 
     async addParagraphOrChapterOnKeyPress(event) {
@@ -259,25 +259,51 @@ export class ChapterItem {
     async downloadAllAudio() {
         let i = 1;
         let hasAudio = false;
+
         for (let paragraph of this.chapter.paragraphs) {
             if (paragraph.commands.audio) {
                 hasAudio = true;
+
                 let audioName = `audio${i}.mp3`;
-                let audioBuffer = await spaceModule.getAudio(paragraph.audio.id);
-                const blob = new Blob([audioBuffer], {type: 'audio/mp3'});
-                let url = URL.createObjectURL(blob);
-                const link = document.createElement('a');
-                link.href = url;
-                link.download = audioName;
-                document.body.appendChild(link);
-                link.click();
-                document.body.removeChild(link);
-                i++;
+                let audioId = paragraph.commands.audio.id;
+
+                try {
+                    // Fetch the audio file and trigger download
+                    await this.downloadAudioBlob(audioId, audioName);
+                    i++;
+                } catch (error) {
+                    console.error(`Failed to download ${audioName}:`, error);
+                }
             }
         }
+
         if (!hasAudio) {
             alert("No audio to download!");
         }
+    }
+    async downloadAudioBlob(audioId, filename) {
+        // Fetch the file URL using your existing function
+        const fileUrl = await spaceModule.getAudioURL(audioId);
+
+        // Use fetch to download the file as a blob
+        const response = await fetch(fileUrl);
+        if (!response.ok) throw new Error(`HTTP error! Status: ${response.status}`);
+
+        const blob = await response.blob();
+
+        // Create a temporary download link
+        const link = document.createElement('a');
+        const blobUrl = URL.createObjectURL(blob);
+        link.href = blobUrl;
+        link.download = filename;
+
+        // Trigger the download
+        document.body.appendChild(link);
+        link.click();
+
+        // Clean up
+        document.body.removeChild(link);
+        URL.revokeObjectURL(blobUrl);
     }
     async showBackgroundAudio(){
         await assistOS.UI.showModal("chapter-background-audio", {"chapter-id": this.chapter.id});

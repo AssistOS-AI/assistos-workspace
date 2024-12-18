@@ -75,26 +75,6 @@ class ChapterToVideo extends Task {
         }
         completedFramePaths = completedFramePaths.filter(videoPath => typeof videoPath !== "undefined");
         this.logInfo(`Combining videos for chapter ${chapterIndex}`);
-        // for(let videoPath of completedFramePaths){
-        //     const ffprobePath = require("../../ffmpeg/packages/ffprobe-static");
-        //     const command = `${ffprobePath} -v quiet -print_format json -show_format -show_streams "${videoPath}"`;
-        //     let result = await this.runCommand(command);
-        //     const metadata = JSON.parse(result);
-        //     const videoStream = metadata.streams.find(s => s.codec_type === 'video');
-        //     const audioStream = metadata.streams.find(s => s.codec_type === 'audio');
-        //     const mismatchedSettings = [];
-        //
-        //     if (videoStream.codec_name !== "h264") {
-        //         mismatchedSettings.push(`codec_name: expected "h264", got "${videoStream.codec_name}"`);
-        //     }
-        //     if(audioStream.codec_name !== "mp3"){
-        //         mismatchedSettings.push(`codec_name: expected "mp3", got "${audioStream.codec_name}"`);
-        //     }
-        //     if (mismatchedSettings.length > 0) {
-        //         throw new Error(`Video does not meet standards:\n${mismatchedSettings.join("\n")}`);
-        //     }
-        //
-        // }
         try {
             await ffmpegUtils.combineVideos(
                 pathPrefix,

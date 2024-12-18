@@ -144,6 +144,7 @@ class ParagraphToVideo extends Task {
         await this.attachEffectsToParagraphVideo(finalVideoPath, commands.effects, pathPrefix);
 
         this.ffmpegExecutor.logProgress(`Uploading final video`);
+        await ffmpegUtils.verifyVideoSettings(finalVideoPath, this.ffmpegExecutor);
         await this.uploadFinalVideo(finalVideoPath, documentModule);
         this.ffmpegExecutor.logSuccess(`Video created for paragraph`);
         return finalVideoPath;

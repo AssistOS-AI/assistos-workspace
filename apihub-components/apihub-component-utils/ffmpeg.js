@@ -55,9 +55,10 @@ async function hasAudioStream(videoPath, task) {
 async function combineVideoAndAudio(videoPath, audioPath, outputPath, task, videoVolume, audioVolume) {
     let command = '';
     let hasAudio = await hasAudioStream(videoPath, task);
-
-    const videoVolumeFilter = `[0:a]volume=${videoVolume/100}[videoAudio];`;
-    const audioVolumeFilter = `[1:a]volume=${audioVolume/100}[externalAudio];`;
+    videoVolume = volumeToDecibels(videoVolume);
+    audioVolume = volumeToDecibels(audioVolume);
+    const videoVolumeFilter = `[0:a]volume=${videoVolume}dB[videoAudio];`;
+    const audioVolumeFilter = `[1:a]volume=${audioVolume}dB[externalAudio];`;
     if(hasAudio){
         command = `${ffmpegPath} -i ${videoPath} -i ${audioPath} -filter_complex "${videoVolumeFilter}${audioVolumeFilter}[videoAudio][externalAudio]amix=inputs=2:duration=first:dropout_transition=2" -c:v copy -c:a ${audioStandard.codec} ${outputPath}`;
     } else {
@@ -202,8 +203,9 @@ async function addBackgroundSoundToVideo(videoPath, backgroundSoundPath, backgro
     const tempOutputPath = videoPath.replace('.mp4', '_temp.mp4');
     let loopOption = loop ? "-stream_loop -1" : "";
     const fadeDuration = 2;
+    backgroundSoundVolume = volumeToDecibels(backgroundSoundVolume);
     const command = `${ffmpegPath} ${loopOption} -i ${backgroundSoundPath} -i ${videoPath} \
-    -filter_complex "[0:a]afade=t=in:st=0:d=${fadeDuration},afade=t=out:st=${videoDuration-2}:d=${fadeDuration},volume=${backgroundSoundVolume/100}[bg]; \
+    -filter_complex "[0:a]afade=t=in:st=0:d=${fadeDuration},afade=t=out:st=${videoDuration-2}:d=${fadeDuration},volume=${backgroundSoundVolume}dB[bg]; \
     [1:a][bg]amix=inputs=2:duration=longest[aout]" \
     -map 1:v -map "[aout]" -c:v copy -c:a ${audioStandard.codec} -t ${videoDuration} ${tempOutputPath}`;
 
@@ -214,7 +216,8 @@ async function addBackgroundSoundToVideo(videoPath, backgroundSoundPath, backgro
 
 async function adjustVideoVolume(videoPath, volume, task) {
     const tempOutputPath = videoPath.replace('.mp4', '_temp.mp4');
-    const command = `${ffmpegPath} -i ${videoPath} -af "volume=${volume/100}" -c:v copy -c:a ${audioStandard.codec} ${tempOutputPath}`;
+    volume = volumeToDecibels(volume);
+    const command = `${ffmpegPath} -i ${videoPath} -af "volume=${volume}dB" -c:v copy -c:a ${audioStandard.codec} ${tempOutputPath}`;
     await task.runCommand(command);
     await fsPromises.unlink(videoPath);
     await fsPromises.rename(tempOutputPath, videoPath);
@@ -222,15 +225,33 @@ async function adjustVideoVolume(videoPath, volume, task) {
 
 async function adjustAudioVolume(audioPath, volume, task) {
     const tempOutputPath = audioPath.replace('.mp3', '_temp.mp3');
-    const command = `${ffmpegPath} -i ${audioPath} -af "volume=${volume/100}" -c:a ${audioStandard.codec} ${tempOutputPath}`;
+    volume = volumeToDecibels(volume);
+    const command = `${ffmpegPath} -i ${audioPath} -af "volume=${volume}dB" -c:a ${audioStandard.codec} ${tempOutputPath}`;
     await task.runCommand(command);
     await fsPromises.unlink(audioPath);
     await fsPromises.rename(tempOutputPath, audioPath);
 }
 
+function volumeToDecibels(volume) {
+    if (volume < 0 || volume > 100) {
+        throw new Error("Volume must be between 0 and 1");
+    }
+
+    if (volume === 0) {
+        return "-Infinity"; // Silence: 0 volume maps to -Infinity dB
+    }
+
+    const decibels = 20 * Math.log10(volume/100);
+    return decibels.toFixed(2);
+}
 async function combineVideos(tempVideoDir, videoPaths, fileListName, outputVideoPath, task) {
-    const batchSize = 10;
+    if(videoPaths.length === 1){
+        await fsPromises.rename(videoPaths[0], outputVideoPath);
+        return;
+    }
+
     let videoBatches = [];
+    const batchSize = 10;
     for (let i = 0; i < videoPaths.length; i += batchSize) {
         videoBatches.push(videoPaths.slice(i, i + batchSize));
     }
@@ -258,6 +279,11 @@ async function combineVideos(tempVideoDir, videoPaths, fileListName, outputVideo
     if (intermediateFiles.length > batchSize) {
         task.logProgress(`---Batches exceed maximum size ${batchSize}, calling combineVideos recursively`);
         return combineVideos(ffmpegPath, tempVideoDir, intermediateFiles, 'finalFileList.txt', outputVideoPath, task);
+    }
+
+    if(intermediateFiles.length === 1){
+        await fsPromises.rename(intermediateFiles[0], outputVideoPath);
+        return;
     }
 
     task.logProgress('---Concatenating batches');
@@ -325,7 +351,8 @@ async function getAudioDuration(filePath, task){
 }
 async function trimFileAdjustVolume(filePath, start, end, volume, task) {
     let tempOutputPath = filePath.replace(path.extname(filePath), `_temp${path.extname(filePath)}`);
-    const command = `${ffmpegPath} -i ${filePath} -ss ${start} -to ${end} -af "volume=${volume/100}" -c:a ${audioStandard.codec} ${tempOutputPath}`;
+    volume = volumeToDecibels(volume);
+    const command = `${ffmpegPath} -i ${filePath} -ss ${start} -to ${end} -af "volume=${volume}dB" -c:a ${audioStandard.codec} ${tempOutputPath}`;
     await task.runCommand(command);
     await fsPromises.unlink(filePath);
     await fsPromises.rename(tempOutputPath, filePath);
@@ -361,6 +388,7 @@ async function addEffectsToVideo(effects, videoPath, task) {
     await fsPromises.unlink(videoPath);
     await fsPromises.rename(tempVideoPath, videoPath);
 }
+
 function estimateChapterVideoLength(spaceId, chapter) {
     let totalDuration = 0;
     for (let paragraph of chapter.paragraphs) {
@@ -414,7 +442,6 @@ async function getAudioDurationFromBuffer(audioBuffer) {
         throw new Error('Could not determine audio duration');
     }
 }
-
 async function estimateDocumentVideoLength(spaceId, document) {
     let totalDuration = 0;
     for (let chapter of document.chapters) {
