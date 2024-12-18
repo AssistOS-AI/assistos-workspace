@@ -487,10 +487,13 @@ export class DocumentViewPage {
     }
 
     async openGenerateBookModal(_target) {
-        await assistOS.UI.showModal("books-generator-modal", {
+        const taskId=await assistOS.UI.showModal("books-generator-modal", {
             "presenter": "books-generator-modal",
             "documentId": this._document.id
-        });
+        },true);
+        if(taskId){
+            assistOS.watchTask(taskId);
+        }
     }
 
     openDocumentComment(_target) {
