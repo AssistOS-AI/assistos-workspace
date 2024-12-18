@@ -46,6 +46,12 @@
             "presenterClassName": "TaskWatcher"
         },
         {
+            "name": "log-entry",
+            "directory": "space-application",
+            "type": "components",
+            "presenterClassName": "LogEntry"
+        },
+        {
             "name": "llm-observer",
             "directory": "space-application",
             "type": "components",

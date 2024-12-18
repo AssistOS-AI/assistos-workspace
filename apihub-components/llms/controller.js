@@ -116,6 +116,8 @@ async function getTextResponse(request, response) {
         let objectId = SubscriptionManager.getObjectId(spaceId, "logs/info");
         SubscriptionManager.notifyClients("", objectId, {
             message: prompt,
+            logType:"INFO",
+            time: new Date().toISOString()
         });
         const modelResponse = await sendRequest(`/apis/v1/text/generate`, "POST", request, response);
         utils.sendResponse(response, 200, "application/json", {

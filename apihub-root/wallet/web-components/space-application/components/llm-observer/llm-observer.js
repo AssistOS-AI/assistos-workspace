@@ -3,6 +3,9 @@ export class LLMObserver {
         this.element = element;
         this.invalidate = invalidate;
         this.boundOnLog = this.onLog.bind(this);
+        this.logBuffer = [];
+        this.debouncedProcessLogBuffer = debounce(this.processLogBuffer.bind(this), 200);
+        this.observingMode = null;
         this.invalidate(async () => {
             if (this.element.getAttribute('observingMode') === 'debug') {
                 await this.observeDebugLogs();
@@ -33,44 +36,61 @@ export class LLMObserver {
     }
 
     async observeDebugLogs() {
-        if (!this.observingMode) {
-            await assistOS.NotificationRouter.subscribeToSpace(assistOS.space.id, "logs/info", this.boundOnLog);
+        if (this.observingMode === 'info') {
+            await assistOS.NotificationRouter.unsubscribeFromObject(`${assistOS.space.id}/logs/info`);
         }
         await assistOS.NotificationRouter.subscribeToSpace(assistOS.space.id, "logs/debug", this.boundOnLog);
         this.observingMode = 'debug';
     }
 
     async processLog(logData) {
-        const {logType, message, data} = logData;
-        this.addLogEntry(message, logType);
+        this.addLogEntry(logData);
     }
 
-    addLogEntry(message, logType) {
-        if (message) {
-            const logEntry = document.createElement('div');
-            logEntry.className = 'logEntry';
-            switch (logType) {
-                case 'ERROR':
-                    logEntry.classList.add('logError');
-                    break;
-                case 'WARNING':
-                    logEntry.classList.add('logWarning');
-                    break;
-                case 'INFO':
-                    logEntry.classList.add('logInfo');
-                    break;
-                case 'SUCCESS':
-                    logEntry.classList.add('logSuccess');
-                    break;
-                case 'PROGRESS':
-                    logEntry.classList.add('logProgress');
-                    break;
-                default:
-                    logEntry.classList.add('logDefault');
-                    break;
-            }
-            logEntry.textContent = message;
-            this.logBox.appendChild(logEntry);
+    addLogEntry(logData) {
+        if (logData.message) {
+            this.logBuffer.push(logData);
+            this.debouncedProcessLogBuffer();
         }
     }
+
+    processLogBuffer() {
+        if (this.logBuffer.length === 0) return;
+
+        const fragment = document.createDocumentFragment();
+
+        this.logBuffer.forEach(logData => {
+            const { logType, message, data, time } = logData;
+            const logEntry = document.createElement('log-entry');
+            logEntry.setAttribute('data-presenter', 'log-entry');
+            logEntry.logType= logType;
+            logEntry.message=message;
+            logEntry.time=time;
+            logEntry.dataSet={};
+            if (data) {
+                Object.keys(data).forEach(key => {
+                    logEntry.dataSet[key] = data[key];
+                });
+            }
+            fragment.appendChild(logEntry);
+        });
+
+        this.logBox.appendChild(fragment);
+        this.logBuffer = [];
+
+        const maxLogs = 150;
+        while (this.logBox.children.length > maxLogs) {
+            this.logBox.removeChild(this.logBox.firstChild);
+        }
+    }
+}
+
+function debounce(func, delay) {
+    let timeoutId;
+    return function(...args) {
+        clearTimeout(timeoutId);
+        timeoutId = setTimeout(() => {
+            func.apply(this, args);
+        }, delay);
+    };
 }
