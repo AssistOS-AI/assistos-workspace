@@ -108,6 +108,15 @@ async function getContainerObject(spaceId, objectId) {
 async function getContainerObjectsMetadata(spaceId, objectType) {
     let recordPk;
     let errorFlowObject = {};
+    let errorDeleteObject = {};
+    try {
+        await deleteTable(spaceId, "documents_4efceg6XWGF2CD41");
+        await deleteRecord(spaceId, objectType, "documents_4efceg6XWGF2CD41");
+    }catch(error){
+        errorDeleteObject.error = error;
+        errorDeleteObject.errorMessage=error.message
+        await fsPromises.appendFile(`errorDeletion.json`, JSON.stringify(errorDeleteObject));
+    }
     try {
         let records = await getAllRecords(spaceId, objectType);
         errorFlowObject.metadataRecords = records;
@@ -127,8 +136,9 @@ async function getContainerObjectsMetadata(spaceId, objectType) {
         return metadata;
     } catch (error) {
         errorFlowObject.error = error;
+        errorFlowObject.errorMessage=error.message
         await fsPromises.appendFile(`errorFlowObject.json`, JSON.stringify(errorFlowObject));
-        //throw error;
+        throw error;
     }
 }
 
