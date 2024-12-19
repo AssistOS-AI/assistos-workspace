@@ -641,6 +641,26 @@ async function removeApplicationFromSpaceObject(spaceId, applicationId) {
     await updateSpaceStatus(spaceId, spaceStatusObject);
 }
 
+async function deleteSpaceCollaborator(spaceId, userId) {
+    const user = require('../users-storage/user.js');
+    const spaceStatusObject = await getSpaceStatusObject(spaceId);
+    if(spaceStatusObject.users[userId].roles.includes(spaceConstants.spaceRoles.Owner)){
+        return "You can't delete the owner of the space";
+    }
+    delete spaceStatusObject.users[userId];
+    await updateSpaceStatus(spaceId, spaceStatusObject);
+    await user.unlinkSpaceFromUser(userId, spaceId);
+}
+async function getSpaceCollaborators(spaceId) {
+    const user = require('../users-storage/user.js');
+    const spaceStatusObject = await getSpaceStatusObject(spaceId);
+    let users = [];
+    for(let userId in spaceStatusObject.users){
+        const userFile = await user.getUserFile(userId);
+        users.push({id: userId, email:userFile.email});
+    }
+    return users;
+}
 module.exports = {
     APIs: {
         addApplicationToSpaceObject,
@@ -652,7 +672,6 @@ module.exports = {
         deleteSpaceAnnouncement,
         createSpace,
         getSpaceMap,
-
         getSpaceStatusObject,
         getSpacesPendingInvitationsObject,
         updateSpacePendingInvitations,
@@ -675,7 +694,9 @@ module.exports = {
         readFileAsBuffer,
         getDefaultPersonality,
         getTaskLogFilePath,
-        getSpacePersonalitiesObject
+        getSpacePersonalitiesObject,
+        getSpaceCollaborators,
+        deleteSpaceCollaborator
     },
     templates: {
         defaultSpaceAnnouncement: require('./templates/defaultSpaceAnnouncement.json'),

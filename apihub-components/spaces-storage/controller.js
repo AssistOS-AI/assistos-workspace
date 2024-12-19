@@ -473,6 +473,38 @@ async function deleteSpace(request, response){
         utils.sendResponse(response, 500, "text/plain", error.message);
     }
 }
+async function getSpaceCollaborators(request, response) {
+    const spaceId = request.params.spaceId;
+    try {
+        let collaborators = await space.APIs.getSpaceCollaborators(spaceId);
+        utils.sendResponse(response, 200, "application/json", {
+            data: collaborators
+        });
+    } catch (error) {
+        utils.sendResponse(response, 500, "application/json", {
+            message: error.message
+        });
+    }
+}
+async function deleteSpaceCollaborator(request, response) {
+    const spaceId = request.params.spaceId;
+    const collaboratorId = request.params.collaboratorId;
+    if(request.userId === collaboratorId){
+        return utils.sendResponse(response, 200, "application/json", {
+            data: "You can't delete yourself from the space"
+        });
+    }
+    try {
+        let message = await space.APIs.deleteSpaceCollaborator(spaceId, collaboratorId);
+        utils.sendResponse(response, 200, "application/json", {
+            data: message
+        });
+    } catch (error) {
+        utils.sendResponse(response, 500, "application/json", {
+            message: error
+        });
+    }
+}
 async function addCollaboratorsToSpace(request, response) {
     /* TODO Check if the user has access to that space and has the right to add an user */
     const userId = request.userId;
@@ -1111,6 +1143,8 @@ module.exports = {
     addSpaceChatMessage,
     createSpace,
     deleteSpace,
+    getSpaceCollaborators,
+    deleteSpaceCollaborator,
     addCollaboratorsToSpace,
     getAgent,
     editAPIKey,

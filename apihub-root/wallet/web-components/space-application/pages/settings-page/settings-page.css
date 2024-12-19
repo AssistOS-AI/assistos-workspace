@@ -119,3 +119,19 @@ page-body {
     margin: 10px 0;
     display: flex;
 }
+
+
+.collaborator-item{
+    display: flex;
+}
+.collaborator-email{
+    margin-right: 20px;
+}
+.delete-collaborator{
+    display: flex;
+    align-items: center;
+    justify-content: center;
+}
+.trash-icon{
+    cursor: pointer;
+}

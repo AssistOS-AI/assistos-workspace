@@ -214,11 +214,6 @@ export class ChapterItem {
         if (this.chapter.visibility === "hide") {
             this.changeChapterVisibility("hide");
         }
-
-        // if(this.chapter.commands.compileVideo){
-        //     delete this.chapter.commands.compileVideo;
-        //     await documentModule.updateChapterCommands(assistOS.space.id, this._document.id, this.chapter.id, this.chapter.commands);
-        // }
     }
 
     async addParagraphOrChapterOnKeyPress(event) {

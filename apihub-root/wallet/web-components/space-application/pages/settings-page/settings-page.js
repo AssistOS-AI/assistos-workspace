@@ -12,7 +12,7 @@ export class SettingsPage {
         this.invalidate(this.getAPIKeys);
     }
 
-    beforeRender() {
+    async beforeRender() {
         if(this.spaceSettingsTab === "active"){
             let apiKeys = "";
             for(let company of Object.keys(this.apiKeys)){
@@ -45,10 +45,31 @@ export class SettingsPage {
                 </div>
             </div>`;
         } else {
-            this.tabContent = `<div class="collaborators-table">to be done</div>`;
+            let collaborators = await spaceModule.getSpaceCollaborators(assistOS.space.id);
+            let collaboratorsHTML = "";
+            for(let collaborator of collaborators){
+                collaboratorsHTML += `<div class="collaborator-item">
+                                        <div class="collaborator-email"> ${collaborator.email}</div>
+                                        <div class="delete-collaborator">
+                                            <img class="trash-icon" data-local-action="deleteCollaborator ${collaborator.id} ${collaborator.email}" src="./wallet/assets/icons/trash-can.svg" alt="trash">
+                                        </div>
+                                     </div>`;
+            }
+            this.tabContent = `<div class="collaborators-table">${collaboratorsHTML}</div>`;
         }
     }
-
+    async deleteCollaborator(button, userId, email){
+        let message= `Are you sure you want to delete collaborator ${email}?`;
+        let confirmation = await assistOS.UI.showModal("confirm-action-modal", {message: message}, true);
+        if(confirmation){
+            let message = await spaceModule.deleteSpaceCollaborator(assistOS.space.id, userId);
+            if(message){
+                alert(message);
+            } else {
+                this.invalidate();
+            }
+        }
+    }
     afterRender() {
         let deleteButton = this.element.querySelector("#delete-space-button");
         if (assistOS.user.id !== assistOS.space.id) {
