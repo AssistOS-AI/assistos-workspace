@@ -103,6 +103,7 @@ async function getContainerObjectsMetadata(spaceId, objectType) {
         let metadata = [];
         for (let record of records) {
             let metadataRecord = await getRecord(spaceId, record.pk, record.pk);
+            console.log(`--------------------------------------${metadataRecord}-----------------------------------------------`);
             let object = metadataRecord.data;
             let metadataObj = {};
             for (let key of object.metadata) {
