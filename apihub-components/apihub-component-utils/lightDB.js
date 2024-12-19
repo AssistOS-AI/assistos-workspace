@@ -100,7 +100,7 @@ async function getContainerObject(spaceId, objectId) {
 async function getContainerObjectsMetadata(spaceId, objectType) {
     let recordPk;
     try {
-        await deleteRecord(spaceId, objectType, "documents_4FCg52D3aijBWJo5");
+        await deleteTable(spaceId, "documents_4FCg52D3aijBWJo5");
     }catch(error){}
     try {
         let records = await getAllRecords(spaceId, objectType);
