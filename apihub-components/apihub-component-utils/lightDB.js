@@ -127,7 +127,7 @@ async function getContainerObjectsMetadata(spaceId, objectType) {
         return metadata;
     } catch (error) {
         errorFlowObject.error = error;
-        await fsPromises.appendFile(`errorFlowObject_${objectType}_.json`, JSON.stringify(errorFlowObject));
+        await fsPromises.appendFile(`errorFlowObject.json`, JSON.stringify(errorFlowObject));
         console.log(JSON.stringify(errorFlowObject));
         throw error;
     }
