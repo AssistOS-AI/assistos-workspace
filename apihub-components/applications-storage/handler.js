@@ -76,13 +76,26 @@ async function requiresUpdate(spaceId, applicationId) {
     const applicationTasksPath = getApplicationTasksPath(spaceId, applicationId);
 
     const applicationNeedsUpdate = await git.checkForUpdates(applicationPath, applicationMetadata.repository);
-    const flowsNeedsUpdate = applicationMetadata.flowsRepository
-        ? await git.checkForUpdates(applicationFlowsPath, applicationMetadata.flowsRepository)
-        : false;
-    const tasksNeedsUpdate = applicationMetadata.tasksRepository
-        ? await git.checkForUpdates(applicationTasksPath, applicationMetadata.tasksRepository)
-        : false;
 
+    let flowsNeedsUpdate = false;
+    let tasksNeedsUpdate = false;
+
+    try {
+        await fsPromises.access(applicationFlowsPath);
+        flowsNeedsUpdate = applicationMetadata.flowsRepository
+            ? await git.checkForUpdates(applicationFlowsPath, applicationMetadata.flowsRepository)
+            : false;
+    } catch (error) {
+        /* ignore */
+    }
+    try{
+        await fsPromises.access(applicationTasksPath);
+        tasksNeedsUpdate = applicationMetadata.tasksRepository
+            ? await git.checkForUpdates(applicationTasksPath, applicationMetadata.tasksRepository)
+            : false;
+    }catch(error){
+        /* ignore */
+    }
     return applicationNeedsUpdate || flowsNeedsUpdate || tasksNeedsUpdate;
 }
 
