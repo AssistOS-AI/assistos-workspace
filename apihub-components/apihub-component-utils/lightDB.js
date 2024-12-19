@@ -2,33 +2,40 @@ const enclave = require("opendsu").loadAPI("enclave");
 const crypto = require("../apihub-component-utils/crypto.js");
 const SubscriptionManager = require("../subscribers/SubscriptionManager.js");
 let lightDBClients = {};
+
 function loadDatabaseClient(spaceId) {
-    if(!lightDBClients[spaceId]){
+    if (!lightDBClients[spaceId]) {
         lightDBClients[spaceId] = enclave.initialiseLightDBEnclave(spaceId);
     }
     return lightDBClients[spaceId];
 }
+
 async function insertRecord(spaceId, tableId, objectId, objectData) {
     const dbClient = loadDatabaseClient(spaceId);
     return await $$.promisify(dbClient.insertRecord)($$.SYSTEM_IDENTIFIER, tableId, objectId, {data: objectData});
 }
-async function updateRecord(spaceId,tableId,objectId,objectData) {
+
+async function updateRecord(spaceId, tableId, objectId, objectData) {
     const dbClient = loadDatabaseClient(spaceId);
     return await $$.promisify(dbClient.updateRecord)($$.SYSTEM_IDENTIFIER, tableId, objectId, {data: objectData});
 }
-async function deleteRecord(spaceId,tableId,objectId) {
+
+async function deleteRecord(spaceId, tableId, objectId) {
     const dbClient = loadDatabaseClient(spaceId);
     return await $$.promisify(dbClient.deleteRecord)($$.SYSTEM_IDENTIFIER, tableId, objectId);
 }
-async function getRecord(spaceId,tableId,objectId) {
+
+async function getRecord(spaceId, tableId, objectId) {
     const dbClient = loadDatabaseClient(spaceId);
     return await $$.promisify(dbClient.getRecord)($$.SYSTEM_IDENTIFIER, tableId, objectId);
 }
-async function getAllRecords(spaceId,objectId) {
+
+async function getAllRecords(spaceId, objectId) {
     const dbClient = loadDatabaseClient(spaceId);
     return await $$.promisify(dbClient.getAllRecords)($$.SYSTEM_IDENTIFIER, objectId);
 }
-async function deleteTable(spaceId,tableId) {
+
+async function deleteTable(spaceId, tableId) {
     const dbClient = loadDatabaseClient(spaceId);
     return await $$.promisify(dbClient.removeCollection)($$.SYSTEM_IDENTIFIER, tableId);
 }
@@ -99,19 +106,16 @@ async function getContainerObject(spaceId, objectId) {
 
 async function getContainerObjectsMetadata(spaceId, objectType) {
     let recordPk;
-    try {
-        await deleteRecord(spaceId, objectType, "documents_4FCg52D3aijBWJo5");
-    }catch(error){
-        console.log(`---------------- Error:${error.message},-----------------Failed deleting recordRecordPk:"${recordPk}"-----------------`);
-    }
+    let errorFlowObject = {};
     try {
         let records = await getAllRecords(spaceId, objectType);
+        errorFlowObject.metadataRecords = records;
+        errorFlowObject.records = {};
         let metadata = [];
         for (let record of records) {
             recordPk = record.pk;
-
             let metadataRecord = await getRecord(spaceId, record.pk, record.pk);
-
+            errorFlowObject.records[record.pk] = metadataRecord;
             let object = metadataRecord.data;
             let metadataObj = {};
             for (let key of object.metadata) {
@@ -121,7 +125,8 @@ async function getContainerObjectsMetadata(spaceId, objectType) {
         }
         return metadata;
     } catch (error) {
-        console.log(`---------------- Error:${error.message},-----------------RecordPk:"${recordPk}"-----------------`);
+        errorFlowObject.error = error;
+        console.log(JSON.stringify(errorFlowObject));
         throw error;
     }
 }
@@ -134,8 +139,9 @@ async function addContainerObject(spaceId, objectType, objectData) {
         await insertObjectRecords(spaceId, objectId, objectId, objectData);
         return objectId;
     }
+
     try {
-       return  await addContainerObjectToTable(spaceId, objectType, objectData);
+        return await addContainerObjectToTable(spaceId, objectType, objectData);
     } catch (error) {
         throw error;
     }
@@ -147,6 +153,7 @@ async function updateContainerObject(spaceId, objectId, objectData) {
         await deleteRecord(spaceId, objectType, objectId);
         return objectId;
     }
+
     async function addContainerObjectToTable(spaceId, objectType, objectData) {
         let objectId = `${objectType}_${crypto.generateId()}`;
         await insertRecord(spaceId, objectType, objectId, objectId);
@@ -154,6 +161,7 @@ async function updateContainerObject(spaceId, objectId, objectData) {
         await insertObjectRecords(spaceId, objectId, objectId, objectData);
         return objectId;
     }
+
     try {
         await deleteContainerObjectTable(spaceId, objectId);
         let objectType = objectId.split('_')[0];
@@ -218,7 +226,7 @@ async function insertEmbeddedObjectRecords(spaceId, tableId, objectURI, objectDa
             await updateRecord(spaceId, tableId, pk, object);
         }
         await insertObjectRecords(spaceId, tableId, objectData.id, objectData);
-        return {id:objectData.id, position:position};
+        return {id: objectData.id, position: position};
     } else {
         objectURI = segments.join("/");
         return await insertEmbeddedObjectRecords(spaceId, tableId, objectURI, objectData);
@@ -292,7 +300,7 @@ async function addEmbeddedObject(spaceId, objectURI, objectData) {
     try {
         let parts = objectURI.split("/");
         let tableId = parts[0];
-      return await insertEmbeddedObjectRecords(spaceId, tableId, objectURI, objectData);
+        return await insertEmbeddedObjectRecords(spaceId, tableId, objectURI, objectData);
     } catch (error) {
         throw error;
     }
@@ -421,15 +429,15 @@ async function swapEmbeddedObjects(spaceId, objectURI, embeddedIds, direction) {
             throw (`Embedded objects not found in ${objectURI}`);
         }
         if (direction === "up") {
-            if(index2 === array.length - 1){
+            if (index2 === array.length - 1) {
                 array.push(array.shift());
-            } else{
+            } else {
                 [array[index1], array[index2]] = [array[index2], array[index1]];
             }
         } else {
-            if(index2 === 0){
+            if (index2 === 0) {
                 array.unshift(array.pop());
-            } else{
+            } else {
                 [array[index1], array[index2]] = [array[index2], array[index1]];
             }
         }
@@ -440,6 +448,7 @@ async function swapEmbeddedObjects(spaceId, objectURI, embeddedIds, direction) {
     }
 
 }
+
 module.exports = {
     getContainerObject,
     getContainerObjectsMetadata,
