@@ -98,18 +98,11 @@ async function getContainerObject(spaceId, objectId) {
 }
 
 async function getContainerObjectsMetadata(spaceId, objectType) {
-    let recordPk;
-    try {
-        await deleteTable(spaceId, "documents_4FCg52D3aijBWJo5");
-    }catch(error){}
     try {
         let records = await getAllRecords(spaceId, objectType);
         let metadata = [];
         for (let record of records) {
-            recordPk = record.pk;
-
             let metadataRecord = await getRecord(spaceId, record.pk, record.pk);
-
             let object = metadataRecord.data;
             let metadataObj = {};
             for (let key of object.metadata) {
@@ -119,7 +112,6 @@ async function getContainerObjectsMetadata(spaceId, objectType) {
         }
         return metadata;
     } catch (error) {
-        console.log(`---------------- Error:${error.message},-----------------RecordPk:"${recordPk}"-----------------`);
         throw error;
     }
 }
