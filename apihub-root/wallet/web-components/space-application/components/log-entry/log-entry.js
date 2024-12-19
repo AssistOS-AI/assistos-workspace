@@ -6,7 +6,7 @@ export class LogEntry {
         this.logMessage = this.element.message;
         this.data = this.element.dataSet;
         this.time = this.element.time;
-        this.agent = "System"
+        this.agent = this.element.agent||"System"
         this.invalidate();
 
     }
