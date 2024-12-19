@@ -98,14 +98,16 @@ async function getContainerObject(spaceId, objectId) {
 }
 
 async function getContainerObjectsMetadata(spaceId, objectType) {
+    let recordPk;
     try {
         let records = await getAllRecords(spaceId, objectType);
-        console.log(`---------Records---------------------------------${JSON.stringify(records)}-------------------------------------------`);
+        //console.log(`---------Records---------------------------------${JSON.stringify(records)}-------------------------------------------`);
         let metadata = [];
         for (let record of records) {
-            console.log(`-----------Record-------------------------------${JSON.stringify(records)}-------------------------------------`);
+            recordPk = record.pk;
+            //console.log(`-----------Record-------------------------------${JSON.stringify(records)}-------------------------------------`);
             let metadataRecord = await getRecord(spaceId, record.pk, record.pk);
-            console.log(`-------------MetadatRecord-------------------------${metadataRecord}-----------------------------------------------`);
+            //console.log(`-------------MetadatRecord-------------------------${metadataRecord}-----------------------------------------------`);
             let object = metadataRecord.data;
             let metadataObj = {};
             for (let key of object.metadata) {
@@ -115,6 +117,7 @@ async function getContainerObjectsMetadata(spaceId, objectType) {
         }
         return metadata;
     } catch (error) {
+        console.log(`---------------- Error:${error.message},-----------------RecordPk:"${recordPk}"-----------------`);
         throw error;
     }
 }
