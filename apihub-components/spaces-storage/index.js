@@ -19,6 +19,8 @@ const {
     getSpace,
     createSpace,
     addCollaboratorsToSpace,
+    getSpaceCollaborators,
+    deleteSpaceCollaborator,
     getAgent,
     addSpaceChatMessage,
     editAPIKey,
@@ -102,7 +104,10 @@ function SpaceStorage(server) {
     server.put("/spaces/embeddedObject/swap/:spaceId/:objectURI", swapEmbeddedObjects);
 
     /*Collaborators*/
-    server.post("/spaces/:spaceId/collaborators", addCollaboratorsToSpace);
+    server.get("/spaces/collaborators/:spaceId", getSpaceCollaborators);
+    server.post("/spaces/collaborators/:spaceId", addCollaboratorsToSpace);
+    server.delete("/spaces/collaborators/:spaceId/:collaboratorId", deleteSpaceCollaborator);
+
     server.post("/spaces/:spaceId/chat", addSpaceChatMessage);
     server.get("/spaces/:spaceId/chat", getSpaceChat);
 

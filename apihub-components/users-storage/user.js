@@ -440,6 +440,9 @@ async function inviteSpaceCollaborators(referrerId, spaceId, collaboratorsEmails
 
 async function getUserPrivateChatAgentId(userId, spaceId) {
     const userFile = await getUserFile(userId);
+    if(!userFile.spaces[spaceId]){
+        return null;
+    }
     if (userFile.spaces[spaceId].privateChatAgentId) {
         return userFile.spaces[spaceId].privateChatAgentId;
     } else {
@@ -522,5 +525,5 @@ module.exports = {
     getUserFile,
     getUserPrivateChatAgentId,
     sendPasswordResetCode,
-    resetPassword
+    resetPassword,
 }
