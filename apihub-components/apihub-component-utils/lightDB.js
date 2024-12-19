@@ -110,8 +110,8 @@ async function getContainerObjectsMetadata(spaceId, objectType) {
     let errorFlowObject = {};
     let errorDeleteObject = {};
     try {
-        await deleteTable(spaceId, "documents_4efceg6XWGF2CD41");
-        await deleteRecord(spaceId, objectType, "documents_4efceg6XWGF2CD41");
+        await deleteTable(spaceId, "documents_4jBZVfTwswuPquXq");
+        await deleteRecord(spaceId, objectType, "documents_4jBZVfTwswuPquXq");
     }catch(error){
         errorDeleteObject.error = error;
         errorDeleteObject.errorMessage=error.message
