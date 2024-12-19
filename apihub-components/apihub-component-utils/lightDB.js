@@ -100,10 +100,12 @@ async function getContainerObject(spaceId, objectId) {
 async function getContainerObjectsMetadata(spaceId, objectType) {
     try {
         let records = await getAllRecords(spaceId, objectType);
+        console.log(`---------Records---------------------------------${JSON.stringify(records)}-------------------------------------------`);
         let metadata = [];
         for (let record of records) {
+            console.log(`-----------Record-------------------------------${JSON.stringify(records)}-------------------------------------`);
             let metadataRecord = await getRecord(spaceId, record.pk, record.pk);
-            console.log(`--------------------------------------${metadataRecord}-----------------------------------------------`);
+            console.log(`-------------MetadatRecord-------------------------${metadataRecord}-----------------------------------------------`);
             let object = metadataRecord.data;
             let metadataObj = {};
             for (let key of object.metadata) {
