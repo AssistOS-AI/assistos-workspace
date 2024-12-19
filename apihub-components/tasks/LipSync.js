@@ -81,7 +81,7 @@ class LipSync extends Task {
         const tempFilePath = path.join(volumeManager.paths.assets, Storage.fileTypes.videos, tempFileId);
         await fileSys.downloadData(videoURL, tempFilePath);
 
-        const videoDuration = await ffmpeg.getVideoDuration(tempFilePath);
+        const videoDuration = await ffmpeg.getMediaFileDuration(tempFilePath);
         const videoBuffer = await fsPromises.readFile(tempFilePath);
         const videoId = await spaceModule.putVideo(videoBuffer);
         let imageBuffer = await ffmpeg.createVideoThumbnail(tempFilePath);

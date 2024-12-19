@@ -78,6 +78,9 @@ class TaskManager {
                     continue;
                 }
                 // TODO: this assumes that all task classes are in the same folder
+                if(!task.name){
+                    continue;
+                }
                 let taskClass = require(`./${task.name}`);
                 let taskInstance = new taskClass(task.spaceId, task.userId, task.configs);
                 taskInstance.id = task.id; //set the original id

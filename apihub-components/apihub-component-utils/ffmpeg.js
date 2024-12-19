@@ -184,7 +184,7 @@ async function verifyMediaFileIntegrity(filePath, task) {
     const command = `${ffmpegPath} -v error -i ${filePath} -f null -`;
     await task.runCommand(command);
 }
-async function getVideoDuration(videoPath){
+async function getMediaFileDuration(videoPath){
     const { stdout, stderr } = await execFileAsync(ffmpegPath, ['-i', videoPath, '-f', 'null', '-']);
     const durationMatch = stderr.match(/Duration: (\d{2}):(\d{2}):(\d{2}\.\d+)/);
     if (!durationMatch) {
@@ -199,7 +199,7 @@ async function getVideoDuration(videoPath){
     return hours * 3600 + minutes * 60 + seconds;
 }
 async function addBackgroundSoundToVideo(videoPath, backgroundSoundPath, backgroundSoundVolume, loop, task) {
-    let videoDuration = await getVideoDuration(videoPath);
+    let videoDuration = await getMediaFileDuration(videoPath);
     const tempOutputPath = videoPath.replace('.mp4', '_temp.mp4');
     let loopOption = loop ? "-stream_loop -1" : "";
     const fadeDuration = 2;
@@ -334,21 +334,13 @@ async function createVideoFromImageAndAudio(imageBuffer, audioDuration, spaceId)
 }
 //preserve original aspect ratio but pad to fit the standard dimensions
 async function createVideoFromAudioAndImage(outputVideoPath, audioPath, imagePath, task) {
-    let audioDuration = await getAudioDuration(audioPath, task);
+    let audioDuration = await getMediaFileDuration(audioPath);
     const command = `${ffmpegPath} -loop 1 -framerate ${videoStandard.frameRate} -i ${imagePath} -i ${audioPath} \
     -c:v ${videoStandard.codec} -tune stillimage -c:a ${audioStandard.codec} -b:a ${audioStandard.bitRate}k -pix_fmt yuv420p \
     -t ${audioDuration} -vf "fps=${videoStandard.frameRate},format=yuv420p,scale=${videoStandard.width}:${videoStandard.height}:force_original_aspect_ratio=decrease,pad=${videoStandard.width}:${videoStandard.height}:(ow-iw)/2:(oh-ih)/2" ${outputVideoPath}`;
     await task.runCommand(command);
 }
-async function getAudioDuration(filePath, task){
-    const command = `ffmpeg -i ${filePath} 2>&1 | grep "Duration" | awk '{print $2}' | tr -d ,`;
-    let result = await task.runCommand(command);
-    const [hours, minutes, seconds] = result.split(':').map(Number);
-    if (isNaN(hours) || isNaN(minutes) || isNaN(seconds)) {
-        throw new Error(`Could not parse the audio duration: ${result}, filePath: ${filePath}`);
-    }
-    return hours * 3600 + minutes * 60 + seconds;
-}
+
 async function trimFileAdjustVolume(filePath, start, end, volume, task) {
     let tempOutputPath = filePath.replace(path.extname(filePath), `_temp${path.extname(filePath)}`);
     volume = volumeToDecibels(volume);
@@ -532,7 +524,7 @@ module.exports = {
     convertVideoToStandard,
     getAudioDurationFromBuffer,
     getImageDimensions,
-    getVideoDuration,
+    getMediaFileDuration,
     createVideoThumbnail,
     createVideoFromAudioAndImage,
     verifyVideoSettings,

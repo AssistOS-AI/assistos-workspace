@@ -1,0 +1,88 @@
+task-item{
+    height: 45px;
+    padding: 10px;
+    display: flex;
+    align-items: center;
+}
+.task-button{
+    padding: 5px;
+    height: initial;
+    font-size: 14px;
+    line-height: normal;
+}
+.green{
+    color: green;
+}
+.task-name{
+    width: 30%;
+    overflow: hidden;
+    text-overflow: ellipsis;
+    white-space: nowrap;
+}
+.task-status{
+    position: relative;
+    width: 15%;
+}
+.task-link{
+    position: relative;
+}
+.task-link-icon{
+    width: 20px;
+    cursor: pointer;
+}
+.info-pop-up{
+    position: absolute;
+    background-color: white;
+    width: 350px;
+    color: black;
+    box-shadow: 0px 1px 7.3px 0px #00000040;
+    top: 0;
+    right: -50px;
+    z-index: 1;
+    display: -webkit-box;
+    -webkit-box-orient: vertical;
+    overflow: hidden;
+    text-overflow: ellipsis;
+    white-space: normal;
+    line-height: 1.5;
+    padding: 10px;
+}
+.agent-image{
+    width: 30px;
+    height: 30px;
+    border-radius: 50%;
+    margin-right: 10px;
+}
+.task-agent{
+    width: 25%;
+    display: flex;
+    align-items: center;
+}
+.task-action{
+    width: 10%;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+}
+.agent-name{
+    overflow: hidden;
+    text-overflow: ellipsis;
+    white-space: nowrap;
+}
+.task-link{
+    cursor: pointer;
+    width: 20%;
+    overflow: hidden;
+    text-overflow: ellipsis;
+    white-space: nowrap;
+    text-decoration: underline;
+    color: var(--left-sidebar);
+}
+.task-link:hover{
+    color: var(--medium-blue);
+}
+.failed-link{
+    cursor: pointer;
+    text-decoration: underline;
+    color: var(--red);
+}

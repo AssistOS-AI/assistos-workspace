@@ -26,8 +26,8 @@ class ChapterToVideo extends Task {
         let chapter;
         let pathPrefix;
         let chapterIndex = "";
+        let documentModule = await this.loadModule("document");
         if(!this.documentTaskId){
-            let documentModule = await this.loadModule("document");
             chapter = await documentModule.getChapter(this.spaceId, this.documentId, this.chapterId);
             const spacePath = space.APIs.getSpacePath(this.spaceId);
             this.workingDir = path.join(spacePath, "temp", `${this.constructor.name}_${this.id}_temp`);
@@ -37,7 +37,7 @@ class ChapterToVideo extends Task {
             let TaskManager = require('./TaskManager');
             let documentTask = TaskManager.getTask(this.documentTaskId);
             chapter = documentTask.document.chapters.find(chapter => chapter.id === this.chapterId);
-            chapterIndex = document.chapters.indexOf(chapter);
+            chapterIndex = documentTask.document.chapters.indexOf(chapter);
             pathPrefix = path.join(this.workingDir, `chapter_${chapterIndex}`);
             await fsPromises.mkdir(pathPrefix, {recursive: true});
         }
@@ -85,6 +85,8 @@ class ChapterToVideo extends Task {
             }
         }
         if(failedTasks.length > 0){
+            delete this.chapter.commands.compileVideo;
+            await documentModule.updateChapterCommands(this.spaceId, this.documentId, this.chapterId, this.chapter.commands);
             await fsPromises.rm(pathPrefix, {recursive: true, force: true});
             this.logError(`Failed to create videos for chapter ${chapterIndex} paragraphs: ${failedTasks.join(", ")}`, {finished: true});
             throw new Error(`Failed to create videos for chapter ${chapterIndex} paragraphs: ${failedTasks.join(", ")}`);
@@ -99,6 +101,8 @@ class ChapterToVideo extends Task {
                 outputVideoPath,
                 this);
         } catch (e){
+            delete this.chapter.commands.compileVideo;
+            await documentModule.updateChapterCommands(this.spaceId, this.documentId, this.chapterId, this.chapter.commands);
             this.logError(`Failed to combine videos for chapter ${chapterIndex}: ${e}`, {finished: true});
             throw new Error(`Failed to combine videos for chapter ${chapterIndex}: ${e}`);
         }
@@ -118,6 +122,8 @@ class ChapterToVideo extends Task {
                 await ffmpegUtils.addBackgroundSoundToVideo(outputVideoPath, chapterAudioPath, chapter.backgroundSound.volume, chapter.backgroundSound.loop, this);
                 await fsPromises.unlink(chapterAudioPath);
             } catch (e) {
+                delete this.chapter.commands.compileVideo;
+                await documentModule.updateChapterCommands(this.spaceId, this.documentId, this.chapterId, this.chapter.commands);
                 this.logError(`Failed to add background sound to chapter ${chapterIndex}: ${e}`, {finished: true});
                 throw new Error(`Failed to add background sound to chapter ${chapterIndex}: ${e}`);
             }
@@ -164,6 +170,9 @@ class ChapterToVideo extends Task {
         if(!this.documentTaskId){
             await fsPromises.rm(this.workingDir, {recursive: true, force: true});
         }
+        delete this.chapter.commands.compileVideo;
+        let documentModule = await this.loadModule("document");
+        await documentModule.updateChapterCommands(this.spaceId, this.documentId, this.chapterId, this.chapter.commands);
     }
     runCommand(command) {
         return new Promise((resolve, reject) => {
