@@ -1,7 +1,7 @@
 const enclave = require("opendsu").loadAPI("enclave");
 const crypto = require("../apihub-component-utils/crypto.js");
 const SubscriptionManager = require("../subscribers/SubscriptionManager.js");
-const fsPromises = require("fs").promises;
+
 let lightDBClients = {};
 
 function loadDatabaseClient(spaceId) {
@@ -106,29 +106,13 @@ async function getContainerObject(spaceId, objectId) {
 }
 
 async function getContainerObjectsMetadata(spaceId, objectType) {
-    let recordPk;
-    let errorFlowObject = {};
-    let errorDeleteObject = {};
-    try {
-        await deleteRecord(spaceId, objectType, "documents_4fLgGc5WdVDyBHWE");
-        await deleteTable(spaceId, "documents_4fLgGc5WdVDyBHWE");
-        await deleteRecord(spaceId, objectType, "documents_4af1Y4F7QDxNSWb4");
-        await deleteTable(spaceId, "documents_4af1Y4F7QDxNSWb4");
 
-    } catch (error) {
-        errorDeleteObject.error = error;
-        errorDeleteObject.errorMessage = error.message
-        await fsPromises.appendFile(`errorDeletion.json`, JSON.stringify(errorDeleteObject));
-    }
     try {
         let records = await getAllRecords(spaceId, objectType);
-        errorFlowObject.metadataRecords = records;
-        errorFlowObject.records = {};
+
         let metadata = [];
         for (let record of records) {
-            recordPk = record.pk;
             let metadataRecord = await getRecord(spaceId, record.pk, record.pk);
-            errorFlowObject.records[record.pk] = metadataRecord;
             let object = metadataRecord.data;
             let metadataObj = {};
             for (let key of object.metadata) {
