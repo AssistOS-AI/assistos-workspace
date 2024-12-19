@@ -1,6 +1,7 @@
 const enclave = require("opendsu").loadAPI("enclave");
 const crypto = require("../apihub-component-utils/crypto.js");
 const SubscriptionManager = require("../subscribers/SubscriptionManager.js");
+const fsPromises = require("fs").promises;
 let lightDBClients = {};
 
 function loadDatabaseClient(spaceId) {
@@ -126,6 +127,7 @@ async function getContainerObjectsMetadata(spaceId, objectType) {
         return metadata;
     } catch (error) {
         errorFlowObject.error = error;
+        await fsPromises.appendFile(`errorFlowObject_${objectType}_.json`, JSON.stringify(errorFlowObject));
         console.log(JSON.stringify(errorFlowObject));
         throw error;
     }
