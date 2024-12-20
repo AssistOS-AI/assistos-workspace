@@ -29,17 +29,17 @@ export class LLMObserver {
 
     async observeInfoLogs() {
         if (this.observingMode === "debug") {
-            await assistOS.NotificationRouter.unsubscribeFromObject(`${assistOS.space.id}/logs/debug`);
+            await assistOS.NotificationRouter.unsubscribeFromObject(`${assistOS.space.id}/logs/DEBUG`);
         }
-        await assistOS.NotificationRouter.subscribeToSpace(assistOS.space.id, "logs/info", this.boundOnLog);
+        await assistOS.NotificationRouter.subscribeToSpace(assistOS.space.id, "logs/INFO", this.boundOnLog);
         this.observingMode = 'info';
     }
 
     async observeDebugLogs() {
         if (this.observingMode === 'info') {
-            await assistOS.NotificationRouter.unsubscribeFromObject(`${assistOS.space.id}/logs/info`);
+            await assistOS.NotificationRouter.unsubscribeFromObject(`${assistOS.space.id}/logs/DEBUG`);
         }
-        await assistOS.NotificationRouter.subscribeToSpace(assistOS.space.id, "logs/debug", this.boundOnLog);
+        await assistOS.NotificationRouter.subscribeToSpace(assistOS.space.id, "logs/INFO", this.boundOnLog);
         this.observingMode = 'debug';
     }
 
@@ -53,17 +53,23 @@ export class LLMObserver {
             this.debouncedProcessLogBuffer();
         }
     }
+    async openDocument(documentId) {
+        await assistOS.UI.changeToDynamicPage(
+            'space-application-page',
+            `${assistOS.space.id}/Space/document-view-page/${documentId}`
+        );
 
+    }
     processLogBuffer() {
         if (this.logBuffer.length === 0) return;
 
         const fragment = document.createDocumentFragment();
 
         this.logBuffer.forEach(logData => {
-            const { logType, message, data, time } = logData;
+            const { type, message, data, time } = logData;
             const logEntry = document.createElement('log-entry');
             logEntry.setAttribute('data-presenter', 'log-entry');
-            logEntry.logType= logType;
+            logEntry.type= type;
             logEntry.message=message;
             logEntry.time=time;
             logEntry.dataSet={};
@@ -73,6 +79,10 @@ export class LLMObserver {
                 });
             }
             fragment.appendChild(logEntry);
+            if (data?.documentId) {
+                debugger
+                this.openDocument(data.documentId);
+            }
         });
 
         this.logBox.appendChild(fragment);
