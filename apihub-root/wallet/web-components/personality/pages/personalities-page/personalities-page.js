@@ -25,7 +25,12 @@ export class PersonalitiesPage {
         for(let pers of this.personalities){
             let imageSrc;
             if(pers.imageId){
-                imageSrc = await spaceModule.getImageURL(pers.imageId);
+                try {
+                    imageSrc = await spaceModule.getImageURL(pers.imageId);
+                } catch (e) {
+                    imageSrc = "./wallet/assets/images/default-personality.png";
+                }
+
             } else {
                 imageSrc = "./wallet/assets/images/default-personality.png";
             }

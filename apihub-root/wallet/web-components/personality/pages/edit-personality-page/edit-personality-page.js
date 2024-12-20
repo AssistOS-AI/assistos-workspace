@@ -89,7 +89,11 @@ export class EditPersonalityPage {
             this.disabled = "disabled";
         }
         if (this.personality.imageId) {
-            this.photo = await spaceModule.getImageURL(this.personality.imageId);
+            try {
+                this.photo = await spaceModule.getImageURL(this.personality.imageId);
+            } catch (e) {
+                this.photo = "./wallet/assets/images/default-personality.png";
+            }
         } else {
             this.photo = "./wallet/assets/images/default-personality.png";
         }
