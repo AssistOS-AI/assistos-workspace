@@ -101,6 +101,10 @@ export class EditPersonalityPage {
     }
 
     async afterRender() {
+        let image = this.element.querySelector(".personality-photo");
+        image.addEventListener("error", (e) => {
+            e.target.src = "./wallet/assets/images/default-personality.png";
+        });
         const attachSelectHandlers = () => {
             Object.keys(this.availableLlms).forEach(llmType => {
                 this.element.querySelector(`#${llmType}LLM`).addEventListener("change", this.updateLlm.bind(this, llmType));

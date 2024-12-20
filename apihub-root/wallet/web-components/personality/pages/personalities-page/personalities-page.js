@@ -1,4 +1,3 @@
-const utilModule = require("assistos").loadModule("util", {});
 const spaceModule = require("assistos").loadModule("space", {})
 export class PersonalitiesPage {
     constructor(element, invalidate) {
@@ -34,7 +33,7 @@ export class PersonalitiesPage {
             } else {
                 imageSrc = "./wallet/assets/images/default-personality.png";
             }
-            this.personalityBlocks += `<personality-item data-name="${pers.name}" data-id="${pers.id}" data-image="${imageSrc}"></personality-item>`;
+            this.personalityBlocks += `<personality-item data-presenter="personality-item" data-name="${pers.name}" data-id="${pers.id}" data-image="${imageSrc}"></personality-item>`;
         }
     }
     setContext(){

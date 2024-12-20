@@ -39,5 +39,9 @@ export class ChatItem {
     }
 
     afterRender() {
+        let image = this.element.querySelector(".user-profile-image");
+        image.addEventListener("error", (e) => {
+            e.target.src = "./wallet/assets/images/default-personality.png";
+        });
     }
 }

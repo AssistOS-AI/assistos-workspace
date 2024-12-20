@@ -366,6 +366,7 @@
         {
             "name": "personality-item",
             "directory": "personality",
+            "presenterClassName": "PersonalityItem",
             "type": "components"
         },
         {
