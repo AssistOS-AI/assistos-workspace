@@ -495,7 +495,7 @@ async function deleteSpaceCollaborator(request, response) {
         });
     }
     try {
-        let message = await space.APIs.deleteSpaceCollaborator(spaceId, collaboratorId);
+        let message = await space.APIs.deleteSpaceCollaborator(request.userId, spaceId, collaboratorId);
         utils.sendResponse(response, 200, "application/json", {
             data: message
         });
@@ -509,33 +509,21 @@ async function addCollaboratorsToSpace(request, response) {
     /* TODO Check if the user has access to that space and has the right to add an user */
     const userId = request.userId;
     const spaceId = request.params.spaceId;
-    const collaboratorsEmails = request.body.emails;
+    const collaborators = request.body.collaborators;
 
-    if (!collaboratorsEmails) {
+    if (!collaborators) {
         utils.sendResponse(response, 400, "application/json", {
             message: "Bad Request: Collaborator Emails is required",
         });
     }
 
     try {
-        let collaborators = await user.inviteSpaceCollaborators(userId, spaceId, collaboratorsEmails);
+        let existingCollaborators = await space.APIs.inviteSpaceCollaborators(userId, spaceId, collaborators);
         utils.sendResponse(response, 200, "application/json", {
             message: `Collaborators invited successfully`,
-            data: collaborators
+            data: existingCollaborators
         });
     } catch (error) {
-        switch (error.statusCode) {
-            case 404:
-                utils.sendResponse(response, 404, "application/json", {
-                    message: "Not Found: Space not found",
-                });
-                return;
-            case 409:
-                utils.sendResponse(response, 409, "application/json", {
-                    message: "Conflict: Collaborators already exists",
-                });
-                return;
-        }
         utils.sendResponse(response, 500, "application/json", {
             message: `Internal Server Error: ${error}`,
         });

@@ -21,8 +21,9 @@ export class AddSpaceCollaboratorModal {
             <div class="collab-unit">
                 <input type="email" class="form-input" id="email${this.lastEmailCount}" name="email${this.lastEmailCount}" placeholder="Enter email address" required>
                 <select class="select-role" id="role${this.lastEmailCount}" name="role${this.lastEmailCount}" required>
-                    <option value="admin">Admin</option>
                     <option value="member" selected>Member</option>
+                    <option value="admin">Admin</option>
+                    <option value="owner">Owner</option>
                 </select>
             </div>`;
         addCollabBtn.insertAdjacentHTML("beforebegin", newCollabUnit);
@@ -32,20 +33,26 @@ export class AddSpaceCollaboratorModal {
         let formData = await assistOS.UI.extractFormInformation(_target);
         if (formData.isValid) {
             try {
-                let collaboratorEmails = [];
-                Object.keys(formData.data).forEach(key => {
-                    if (key.includes('email')) {
-                        collaboratorEmails.push(formData.data[key]);
+                let collaborators = [];
+                for (const key in formData.data) {
+                    if (key.startsWith("email")) {
+                        const index = key.replace("email", "");
+                        const email = formData.data[key];
+                        const role = formData.data[`role${index}`];
+                        if (role) {
+                            collaborators.push({ email, role });
+                        }
                     }
-                });
-                let collaborators = await assistOS.inviteCollaborators(collaboratorEmails);
-                if(collaborators.length > 0){
-                    await showApplicationError("Collaborators already exist", `${collaborators.join(', ')} already exist in the space`, "");
+                }
+
+                let existingCollaborators = await assistOS.inviteCollaborators(collaborators);
+                if(existingCollaborators.length > 0){
+                    await showApplicationError("Collaborators already exist", `${existingCollaborators.join(', ')} already exist in the space`, "");
                 }
                 assistOS.UI.closeModal(_target);
             } catch (error) {
                 await showApplicationError('Failed Inviting Collaborators', `Encountered an Issue inviting the collaborators`,
-                    error);
+                    assistOS.UI.sanitize(error.message));
             }
         }
     }

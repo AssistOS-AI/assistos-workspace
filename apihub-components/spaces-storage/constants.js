@@ -7,11 +7,9 @@ module.exports = {
         "Anthropic"
     ],
     spaceRoles: {
-        Owner: "owner",
-        Admin: "admin",
-        Collaborator: "collaborator",
-        Auditor: "auditor",
-        Viewer: "viewer"
+        owner: "owner",
+        admin: "admin",
+        member: "member"
     },
     defaultPersonality:"Assistant",
 }

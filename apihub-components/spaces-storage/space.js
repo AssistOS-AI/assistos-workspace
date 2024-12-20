@@ -273,7 +273,7 @@ async function createSpace(spaceName, userId, spaceModule) {
             spaceId: spaceId,
             admin: {
                 [userId]: {
-                    roles: [spaceConstants.spaceRoles.Admin, spaceConstants.spaceRoles.Owner],
+                    roles: [spaceConstants.spaceRoles.admin, spaceConstants.spaceRoles.owner],
                     joinDate: date.getCurrentUnixTime()
                 }
             },
@@ -641,11 +641,25 @@ async function removeApplicationFromSpaceObject(spaceId, applicationId) {
     await updateSpaceStatus(spaceId, spaceStatusObject);
 }
 
-async function deleteSpaceCollaborator(spaceId, userId) {
+async function deleteSpaceCollaborator(referrerId, spaceId, userId) {
     const user = require('../users-storage/user.js');
     const spaceStatusObject = await getSpaceStatusObject(spaceId);
-    if(spaceStatusObject.users[userId].roles.includes(spaceConstants.spaceRoles.Owner)){
-        return "You can't delete the owner of the space";
+
+    let referrerRoles = spaceStatusObject.users[referrerId].roles;
+    if (!referrerRoles.includes(spaceConstants.spaceRoles.owner) && !referrerRoles.includes(spaceConstants.spaceRoles.admin)) {
+        return "You don't have permission to delete a collaborator";
+    }
+    let userRoles = spaceStatusObject.users[userId].roles;
+    if(userRoles.includes(spaceConstants.spaceRoles.owner)){
+        let owners = 0;
+        for(let id in spaceStatusObject.users){
+            if(userRoles.includes(spaceConstants.spaceRoles.owner)){
+                owners++;
+            }
+        }
+        if(owners === 1){
+            return "Can't delete the last owner of the space";
+        }
     }
     delete spaceStatusObject.users[userId];
     await updateSpaceStatus(spaceId, spaceStatusObject);
@@ -660,6 +674,31 @@ async function getSpaceCollaborators(spaceId) {
         users.push({id: userId, email:userFile.email});
     }
     return users;
+}
+async function inviteSpaceCollaborators(referrerId, spaceId, collaborators) {
+    const user = require('../users-storage/user.js');
+    const emailService = require('../email').instance;
+    const userMap = await user.getUserMap();
+    const spaceStatusObject = await getSpaceStatusObject(spaceId);
+    const spaceName = spaceStatusObject.name;
+    const existingUserIds = Object.keys(spaceStatusObject.users)
+    let existingCollaborators = [];
+    for (let collaborator of collaborators) {
+        const userId = userMap[collaborator.email];
+
+        if (userId && existingUserIds.includes(userId)) {
+            existingCollaborators.push(collaborator.email);
+            continue;
+        }
+        if (userId) {
+            await user.addSpaceCollaborator(spaceId, userId, collaborator.role, referrerId);
+            await emailService.sendUserAddedToSpaceEmail(collaborator.email, spaceName);
+        } else {
+            const invitationToken = await user.registerInvite(referrerId, spaceId, collaborator.email);
+            await emailService.sendUserAddedToSpaceEmail(collaborator.email, spaceName, invitationToken);
+        }
+    }
+    return existingCollaborators;
 }
 module.exports = {
     APIs: {
@@ -696,6 +735,7 @@ module.exports = {
         getTaskLogFilePath,
         getSpacePersonalitiesObject,
         getSpaceCollaborators,
+        inviteSpaceCollaborators,
         deleteSpaceCollaborator
     },
     templates: {

@@ -66,8 +66,20 @@ export class ParagraphItem {
         for (let pluginName of Object.keys(this.plugins)) {
             this.pluginsIcons += this.plugins[pluginName].icon;
         }
+        //this.decidePreviewType();
     }
-
+    decidePreviewType() {
+        if(this.paragraph.commands.video || this.paragraph.commands.audio || this.paragraph.commands.silence){
+            this.previewComponent = `<paragraph-video-preview data-presenter="paragraph-video-preview"></paragraph-video-preview>`
+        } else if(this.paragraph.commands.image){
+            this.previewComponent = `<paragraph-image-preview data-presenter="paragraph-image-preview"></paragraph-image-preview>`
+        } else if(this.isHMTLCode(this.paragraph.text)){
+            this.previewComponent = `<paragraph-html-preview data-presenter="paragraph-html-preview"></paragraph-html-preview>`
+        }
+    }
+    isHMTLCode(text){
+        return text.includes("<") && text.includes(">");
+    }
     async afterRender() {
 
         let paragraphText = this.element.querySelector(".paragraph-text");
@@ -109,10 +121,7 @@ export class ParagraphItem {
                 }
             }
         }
-        // if(commands.compileVideo){
-        //     delete commands.compileVideo;
-        //     updateCommands = true;
-        // }
+
         if (updateCommands) {
             await documentModule.updateParagraphCommands(assistOS.space.id, this._document.id, this.paragraph.id, this.paragraph.commands);
         }

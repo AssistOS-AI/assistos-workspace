@@ -114,7 +114,7 @@ async function activateUser(activationToken) {
         for(let token in spacePendingInvitationsObj) {
             const invitation = spacePendingInvitationsObj[token];
             if (invitation.email === user.email) {
-                await addSpaceCollaborator(invitation.spaceId, userDataObject.id, invitation.referrerId, [Space.constants.spaceRoles.Collaborator]);
+                await addSpaceCollaborator(invitation.spaceId, userDataObject.id, invitation.referrerId, [Space.constants.spaceRoles.member]);
                 userInvitedSpaceId = spacePendingInvitationsObj[token].spaceId;
                 spacePendingInvitationsObj[token].markedForDeletion = true;
             }
@@ -156,7 +156,7 @@ async function loginUser(email, password) {
 async function logoutUser(userId) {
 }
 
-async function addSpaceCollaborator(spaceId, userId, referrerId, role) {
+async function addSpaceCollaborator(spaceId, userId, role, referrerId) {
     await linkSpaceToUser(userId, spaceId)
     try {
         await linkUserToSpace(spaceId, userId, referrerId, role)
@@ -201,7 +201,6 @@ async function getUserIdByEmail(email) {
 
 async function linkSpaceToUser(userId, spaceId) {
     const userFile = await getUserFile(userId)
-
     if (userFile.spaces[spaceId]) {
         const error = new Error(`Space ${spaceId} is already linked to user ${userId}.`);
         error.statusCode = 400;
@@ -210,7 +209,6 @@ async function linkSpaceToUser(userId, spaceId) {
     userFile.spaces[spaceId] = {};
     userFile.currentSpaceId = spaceId;
     await updateUserFile(userId, userFile);
-
 }
 
 async function linkUserToSpace(spaceId, userId, referrerId, role) {
@@ -412,31 +410,6 @@ async function registerInvite(referrerId, spaceId, email) {
     return invitationToken;
 }
 
-async function inviteSpaceCollaborators(referrerId, spaceId, collaboratorsEmails) {
-    const emailService = require('../email').instance;
-    const userMap = await getUserMap();
-    const spaceStatusObject = await Space.APIs.getSpaceStatusObject(spaceId);
-    const spaceName = spaceStatusObject.name;
-    const existingUserIds = Object.keys(spaceStatusObject.users)
-    let existingCollaborators = [];
-    for (let email of collaboratorsEmails) {
-        const userId = userMap[email];
-
-        if (userId && existingUserIds.includes(userId)) {
-            existingCollaborators.push(email);
-            continue;
-        }
-        if (userId) {
-            await addSpaceCollaborator(spaceId, userId, referrerId, [Space.constants.spaceRoles.Collaborator]);
-            await emailService.sendUserAddedToSpaceEmail(email, spaceName);
-        } else {
-            const invitationToken = await registerInvite(referrerId, spaceId, email);
-            await emailService.sendUserAddedToSpaceEmail(email, spaceName, invitationToken);
-        }
-    }
-    return existingCollaborators;
-}
-
 
 async function getUserPrivateChatAgentId(userId, spaceId) {
     const userFile = await getUserFile(userId);
@@ -517,7 +490,6 @@ module.exports = {
     unlinkSpaceFromUser,
     getDefaultSpaceId,
     updateUsersCurrentSpace,
-    inviteSpaceCollaborators,
     getSecret,
     userSecretExists,
     addSecret,
@@ -526,4 +498,7 @@ module.exports = {
     getUserPrivateChatAgentId,
     sendPasswordResetCode,
     resetPassword,
+    getUserMap,
+    registerInvite,
+    addSpaceCollaborator
 }

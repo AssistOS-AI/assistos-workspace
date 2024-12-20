@@ -10,7 +10,6 @@ const constants = require('./constants');
 const STATUS = constants.STATUS;
 const crypto = require("../apihub-component-utils/crypto");
 const {exec} = require("child_process");
-const TaskManager = require("./TaskManager");
 class ParagraphToVideo extends Task {
     constructor(spaceId, userId, configs) {
         super(spaceId, userId);
