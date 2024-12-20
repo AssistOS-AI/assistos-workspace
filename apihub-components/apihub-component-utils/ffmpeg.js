@@ -104,7 +104,7 @@ async function convertVideoToStandard(inputVideoPath, task) {
     const tempVideoPath = inputVideoPath.replace(path.extname(inputVideoPath), '_temp.mp4');
     const conversionCommand = `${ffmpegPath} -i ${inputVideoPath} \
     -c:v ${videoStandard.codec} -r ${videoStandard.frameRate} \
-    -s ${videoStandard.width}x${videoStandard.height} -vf "setsar=${videoStandard.SAR}" \
+    -s ${videoStandard.width}x${videoStandard.height} \
     -ar ${audioStandard.sampleRate} -ac ${audioStandard.channels} -c:a ${audioStandard.codec} -b:a ${audioStandard.bitRate}k \
     -f ${videoStandard.format} ${tempVideoPath}`;
     try {
