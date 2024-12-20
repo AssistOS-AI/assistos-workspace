@@ -41,6 +41,10 @@ export class TaskItem{
         }
     }
     afterRender(){
+        let agentImage = this.element.querySelector(".agent-image");
+        agentImage.addEventListener("error", (e)=>{
+            e.target.src = "./wallet/assets/images/default-personality.png";
+        });
         let taskStatus = this.element.querySelector(".task-status");
         if(this.status === "failed"){
             taskStatus.setAttribute("data-local-action", "showTaskFailInfo");
