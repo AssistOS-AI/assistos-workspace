@@ -11,7 +11,7 @@ const {getSpacePath} = require("../spaces-storage/space.js").APIs;
 const LOG_LEVELS = Object.freeze({
     DEBUG: 0,
     INFO: 1,
-    WARN: 2,
+    WARNING: 2,
     ERROR: 3
 })
 
@@ -45,7 +45,7 @@ class Logger {
     }
 
     async __ensureLogFolderExists(spaceId) {
-        const tasksFolderPath = path.join(getSpacePath(spaceId), 'tasks');
+        const tasksFolderPath = path.join(getSpacePath(spaceId), 'logs');
         try {
             await file.createDirectory(tasksFolderPath);
         } catch (error) {
@@ -57,12 +57,12 @@ class Logger {
 
     async __ensureLogFileExists(spaceId, fileName) {
         await this.__ensureLogFolderExists(spaceId);
-        const logFilePath = path.join(getSpacePath(spaceId), 'tasks', fileName);
+        const logFilePath = path.join(getSpacePath(spaceId), 'logs', fileName);
         try {
             await fsPromises.access(logFilePath);
         } catch (error) {
             if (error.code === 'ENOENT') {
-                await fsPromises.writeFile(logFilePath, '');
+                await fsPromises.appendFile(logFilePath, '');
             } else {
                 throw error;
             }
@@ -80,7 +80,8 @@ class Logger {
 
     async __writeLog(spaceId, logData) {
         const generateLogMessage = (logData) => {
-            return `${logData.time} - ${logData.type} - ${logData.id} - ${JSON.stringify(logData.data)}\n`;
+            return `${logData.time} - ${logData.type} - ${logData.id} - ${logData.message} - ${JSON.stringify(logData.data)}\n`; //v1
+            //v2 return `JSON.stringify(logData) + '\n';`
         }
 
         const acquireLock = async (filePath) => {
@@ -94,20 +95,22 @@ class Logger {
         }
 
         const currentDate = getCurrentDate();
+
         const logFilename = this.__getLogFileName(currentDate.year, currentDate.month, currentDate.day);
         await this.__ensureLogFileExists(spaceId, logFilename);
 
-        const taskLogFile = this.__getLogFilePath(spaceId, logFilename);
-        await acquireLock(taskLogFile);
+        const logFilePath = this.__getLogFilePath(spaceId, currentDate.year, currentDate.month, currentDate.day);
+
+        await acquireLock(logFilePath);
 
         try {
             const logMessage = generateLogMessage(logData);
-            await fsPromises.appendFile(taskLogFile, logMessage);
+            await fsPromises.appendFile(logFilePath, logMessage);
             notifyLogSubscribers(spaceId, logData);
         } catch (error) {
             CustomError.throwServerError(`Failed to write log`);
         } finally {
-            releaseLock(taskLogFile);
+            releaseLock(logFilePath);
         }
     }
 
@@ -121,19 +124,20 @@ class Logger {
         this.logQueues[spaceId].processing = false
     }
 
-    createLog(spaceId, logType, logData) {
-        if (!LOG_LEVELS[logType]) {
-            CustomError.throwBadRequestError(`Invalid log type: "${logType}"`);
+    createLog(spaceId, logData) {
+        if (LOG_LEVELS[logData.type] === undefined) {
+            return CustomError.throwBadRequestError(`Invalid log type: "${logData.type}"`);
         }
-        if (LOG_LEVEL < LOG_LEVELS[logType]) {
-            CustomError.throwBadRequestError(`Logging method not allowed. Current log level: ${envLogLevel}`);
+        if (LOG_LEVEL > LOG_LEVELS[logData.type]) {
+            return CustomError.throwBadRequestError(`Logging method not allowed. Current log level: ${envLogLevel}`);
         }
         const logId = crypto.generateId();
 
         const log = {
             id: logId,
-            type: logType,
-            data: logData,
+            type: logData.type,
+            message: logData.message,
+            data: logData.data || {},
             time: new Date().toISOString()
         }
 
@@ -149,8 +153,13 @@ class Logger {
 
     }
 
-    getLogs(spaceId, date = null) {
+    async getLogs(spaceId, query) {
+        const currentDate = getCurrentDate();
+        const fileName = this.__getLogFileName(currentDate.year, currentDate.month, currentDate.day);
+        await this.__ensureLogFileExists(spaceId, fileName);
 
+        const logFilePath = this.__getLogFilePath(spaceId, currentDate.year, currentDate.month, currentDate.day);
+        return {buffer: await fsPromises.readFile(logFilePath, 'utf8'), fileName: fileName};
     }
 
     getLog(spaceId, logId) {

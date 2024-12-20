@@ -6,7 +6,7 @@ const Handler = require('./handler.js');
 const {pipeline} = require('stream');
 const {getWebhookSecret} = require("../webhook/controller");
 const configs = require("../../data-volume/config/config.json");
-const SubscriptionManager = require("../subscribers/SubscriptionManager");
+const Logger = require("../logger/Logger");
 let LLMConfigs;
 
 
@@ -113,12 +113,7 @@ async function getTextResponse(request, response) {
     try {
         const {prompt} = request.body;
         const spaceId = request.params.spaceId;
-        let objectId = SubscriptionManager.getObjectId(spaceId, "logs/info");
-        SubscriptionManager.notifyClients("", objectId, {
-            message: prompt,
-            logType:"INFO",
-            time: new Date().toISOString()
-        });
+        Logger.createLog(spaceId, {message: prompt, type: "INFO"});
         const modelResponse = await sendRequest(`/apis/v1/text/generate`, "POST", request, response);
         utils.sendResponse(response, 200, "application/json", {
             data: modelResponse

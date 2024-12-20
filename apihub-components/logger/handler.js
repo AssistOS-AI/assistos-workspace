@@ -4,7 +4,7 @@ async function getLogs(spaceId, query) {
     return await Logger.getLogs(spaceId, query);
 }
 async function createLog(spaceId, logData) {
-    return await Logger.createLog(spaceId,logType,logData);
+    return await Logger.createLog(spaceId,logData);
 }
 async function getLog(spaceId, logId) {
     return await Logger.getLog(spaceId, logId);

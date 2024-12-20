@@ -7,9 +7,9 @@ const authorization = require("../apihub-component-middlewares/authorization");
 function Logger(server) {
     server.use("/logs/*", bodyReader);
     server.use("/logs/*", authentication);
-    server.use("/logs/*", authorization);
 
     server.post("/logs/:spaceId", Controller.createLog);
+
     server.get("/logs/:spaceId", Controller.getLogs);
     server.get("/logs/:spaceId/:logId", Controller.getLog);
 
