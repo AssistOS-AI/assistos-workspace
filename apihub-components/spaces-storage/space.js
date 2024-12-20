@@ -671,9 +671,13 @@ async function getSpaceCollaborators(spaceId) {
     let users = [];
     for(let userId in spaceStatusObject.users){
         const userFile = await user.getUserFile(userId);
-        users.push({id: userId, email:userFile.email});
+        users.push({id: userId, email:userFile.email, role: getPriorityRole(spaceStatusObject.users[userId].roles)});
     }
     return users;
+}
+function getPriorityRole(roles){
+    let rolePriority = [spaceConstants.spaceRoles.owner, spaceConstants.spaceRoles.admin, spaceConstants.spaceRoles.member];
+    return rolePriority.find(priorityRole => roles.includes(priorityRole));
 }
 async function inviteSpaceCollaborators(referrerId, spaceId, collaborators) {
     const user = require('../users-storage/user.js');

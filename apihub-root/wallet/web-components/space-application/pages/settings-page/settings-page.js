@@ -50,13 +50,25 @@ export class SettingsPage {
             for(let collaborator of collaborators){
                 collaboratorsHTML += `<div class="collaborator-item">
                                         <div class="collaborator-email"> ${collaborator.email}</div>
+                                        <div class="collaborator-role"> ${collaborator.role}</div>
                                         <div class="delete-collaborator">
                                             <img class="trash-icon" data-local-action="deleteCollaborator ${collaborator.id} ${collaborator.email}" src="./wallet/assets/icons/trash-can.svg" alt="trash">
                                         </div>
                                      </div>`;
             }
-            this.tabContent = `<div class="collaborators-table">${collaboratorsHTML}</div>`;
+            this.tabContent = `<div class="collaborators-section">
+                                    <button data-local-action="addCollaborator" class="general-button add-collaborator-button">Add Collaborator</button>
+                                    <span class="collaborators-label-email">Email</span>
+                                    <span class="collaborators-label-role">Role</span>
+                                    <span class="collaborators-label-delete">Delete</span>
+                                    <div class="collaborators-list">
+                                        ${collaboratorsHTML}
+                                    </div>
+                               </div>`;
         }
+    }
+    addCollaborator(){
+        assistOS.UI.showModal("add-space-collaborator-modal");
     }
     async deleteCollaborator(button, userId, email){
         let message= `Are you sure you want to delete collaborator ${email}?`;

@@ -68,11 +68,6 @@ export class AgentPage {
         }
     }
 
-    inviteCollaborators(_target) {
-        assistOS.UI.showModal("add-space-collaborator-modal", {presenter: "add-space-collaborator-modal"});
-    }
-
-
     hideSettings(controller, container, event) {
         container.setAttribute("data-local-action", "showSettings off");
         let target = this.element.querySelector(".settings-list-container");

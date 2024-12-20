@@ -122,7 +122,7 @@ page-body {
 
 
 .collaborator-item{
-    width: 300px;
+    width: 440px;
     display: flex;
     margin: 10px 0;
     border-bottom: 1px solid var(--gray-border);
@@ -131,6 +131,10 @@ page-body {
     margin-right: 20px;
     width: 250px;
 }
+.collaborator-role{
+    margin-right: 20px;
+    width: 100px;
+}
 .delete-collaborator{
     display: flex;
     align-items: center;
@@ -138,4 +142,27 @@ page-body {
 }
 .trash-icon{
     cursor: pointer;
+}
+#delete-space-button{
+    background-color: red;
+}
+.add-collaborator-button{
+    margin-bottom: 20px;
+}
+.collaborators-label-email{
+    display: inline-block;
+    width: 265px;
+    font-size: 18px;
+    font-weight: 600;
+}
+.collaborators-label-role{
+    font-size: 18px;
+    font-weight: 600;
+    display: inline-block;
+    width: 103px;
+}
+.collaborators-label-delete{
+    font-size: 18px;
+    font-weight: 600;
+    display: inline-block;
 }
