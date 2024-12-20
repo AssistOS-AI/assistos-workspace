@@ -12,7 +12,6 @@ const {
     runAllDocumentTasks,
     cancelAllDocumentTasks,
     compileVideoFromParagraph,
-    getTaskLogs,
     downloadTaskLogs,
     compileVideoFromChapter
 } = require("./controller");
@@ -27,7 +26,6 @@ function Tasks(server){
     server.get("/tasks/space/:spaceId", getTasks);
     server.get("/tasks/:taskId", getTask);
     server.get("/tasks/info/:taskId", getTaskRelevantInfo);
-    //server.get("/tasks/logs/:spaceId/:taskId", getTaskLogs);
     server.use("/tasks/*", bodyReader);
     server.post("/tasks/:taskId", runTask);
 

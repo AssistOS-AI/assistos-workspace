@@ -1,4 +1,5 @@
 const Task = require('./Task');
+const Logger=require('../logger/Logger.js')
 const enclave = require("opendsu").loadAPI("enclave");
 const fsPromises = require('fs').promises;
 const space = require('../spaces-storage/space');
@@ -15,55 +16,13 @@ class TaskManager {
         this.tasks = [];
         this.tasksTable = "tasks";
         this.queue = [];
-        this.logQueues = {};
         this.maxRunningTasks = 9;
-        this.locks = new Map();
     }
 
     getTaskLogFilePath(spaceId) {
         return space.APIs.getTaskLogFilePath(spaceId);
     }
 
-    async storeTaskLog(spaceId, taskId, logData) {
-        const generateLogMessage = (taskId, logData) => {
-            const getLogCategory = (logType) => {
-                switch (logType) {
-                    case "ERROR":
-                    case "WARNING":
-                    case "PROGRESS":
-                        return "DEBUG";
-                    default:
-                        return "INFO";
-                }
-            }
-            let {time, logType, message, data = {}, agent = "System"} = logData
-            data.logType = logType;
-            data.message = message;
-            return `---${getLogCategory(logType)}---${time}---${taskId}---${agent}---${JSON.stringify(data)}\n`
-        }
-
-        const acquireLock = async (filePath) => {
-            while (this.locks.get(filePath)) {
-                await new Promise(resolve => setTimeout(resolve, 10));
-            }
-            this.locks.set(filePath, true);
-        }
-
-        const releaseLock = (filePath) => {
-            this.locks.set(filePath, false);
-        }
-
-        const taskLogFile = await space.APIs.getTaskLogFilePath(spaceId, taskId);
-
-        await acquireLock(taskLogFile);
-
-        try {
-            const logMessage = generateLogMessage(taskId, logData);
-            await fsPromises.appendFile(taskLogFile, logMessage);
-        } finally {
-            releaseLock(taskLogFile);
-        }
-    }
 
     async initialize() {
         let spaceMapPath = space.APIs.getSpaceMapPath();
@@ -98,28 +57,12 @@ class TaskManager {
     }
 
     setUpdateDBHandler(lightDBEnclaveClient, task) {
-        const processLogQueue = async (spaceId, taskId) => {
-            const {queue} = this.logQueues[taskId]
-            this.logQueues[taskId].processing = true
-            while (queue.length) {
-                let logData = queue.shift()
-                await this.storeTaskLog(spaceId, taskId, logData)
-            }
-            this.logQueues[taskId].processing = false
-        }
-
         task.on(EVENTS.UPDATE, async () => {
             await $$.promisify(lightDBEnclaveClient.updateRecord)($$.SYSTEM_IDENTIFIER, this.tasksTable, task.id, {data: task.serialize()})
         })
 
         task.on(EVENTS.LOG, (spaceId, logData) => {
-            if (!this.logQueues[task.id]) {
-                this.logQueues[task.id] = {queue: [], processing: false}
-            }
-            this.logQueues[task.id].queue.push(logData)
-            if (!this.logQueues[task.id].processing) {
-                processLogQueue(spaceId, task.id)
-            }
+           Logger.createLog(spaceId, logData);
         })
     }
 
@@ -132,21 +75,6 @@ class TaskManager {
         let lightDBEnclaveClient = enclave.initialiseLightDBEnclave(task.spaceId);
         await $$.promisify(lightDBEnclaveClient.insertRecord)($$.SYSTEM_IDENTIFIER, this.tasksTable, task.id, {data: task.serialize()});
         this.setUpdateDBHandler(lightDBEnclaveClient, task);
-    }
-
-    async getTaskLogs(spaceId, taskId) {
-        let lightDBEnclaveClient = enclave.initialiseLightDBEnclave(spaceId);
-        let taskLogs = [];
-        try {
-            let taskRecordLogs = await $$.promisify(lightDBEnclaveClient.getRecord)($$.SYSTEM_IDENTIFIER, this.tasksTable, `${taskId}_logs`)
-            if (taskRecordLogs) {
-                taskLogs = taskRecordLogs.data
-            }
-        } catch (error) {
-            error.statusCode = 404;
-            throw error;
-        }
-        return taskLogs;
     }
 
     cancelTask(taskId) {

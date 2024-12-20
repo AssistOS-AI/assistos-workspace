@@ -185,20 +185,6 @@ function getTasks(request, response) {
     }
 }
 
-async function getTaskLogs(request, response) {
-    let spaceId = request.params.spaceId;
-    let taskId = request.params.taskId;
-    try {
-        let taskLogs = await TaskManager.getTaskLogs(spaceId, taskId);
-        return sendResponse(response, 200, "application/json", {
-            data: taskLogs
-        });
-    } catch (e) {
-        return sendResponse(response, e.statusCode || 500, "application/json", {
-            message: e.message
-        });
-    }
-}
 
 async function getTaskRelevantInfo(request, response) {
     let taskId = request.params.taskId;
@@ -268,7 +254,7 @@ async function downloadTaskLogs(request, response) {
     const spaceId = request.params.spaceId;
     try {
         const filePath = await TaskManager.getTaskLogFilePath(spaceId);
-        const logFile = fs.readFileSync(filePath); // returns a Buffer
+        const logFile = fs.readFileSync(filePath);
         const fileName= filePath.split('/').pop();
         response.writeHead(200, {
             'Content-Type': 'text/plain; charset=utf-8',
@@ -390,7 +376,6 @@ module.exports = {
     runAllDocumentTasks,
     cancelAllDocumentTasks,
     downloadTaskLogs,
-    getTaskLogs,
     compileVideoFromParagraph,
     compileVideoFromChapter
 }

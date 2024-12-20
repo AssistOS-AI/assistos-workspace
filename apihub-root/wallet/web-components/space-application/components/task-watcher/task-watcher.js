@@ -54,10 +54,10 @@ export class TaskWatcher {
         const fragment = document.createDocumentFragment();
 
         this.logBuffer.forEach(logData => {
-            const { logType, message, data, time } = logData;
+            const { type, message, data, time } = logData;
             const logEntry = document.createElement('log-entry');
             logEntry.setAttribute('data-presenter', 'log-entry');
-            logEntry.logType= logType;
+            logEntry.type= type;
             logEntry.message=message;
             logEntry.time=time;
             logEntry.dataSet={};
@@ -86,9 +86,7 @@ export class TaskWatcher {
                 this.loadingSpinner.style.display = 'none';
             }
         }
-        if (data?.documentId) {
-            await this.openDocument(data.documentId);
-        }
+
         if (data?.taskId) {
             this.monitorPresenter.addTaskWatcher(data.taskId);
         }
@@ -100,13 +98,6 @@ export class TaskWatcher {
             this.logBuffer.push(logData);
             this.debouncedProcessLogBuffer();
         }
-    }
-
-    async openDocument(documentId) {
-        await assistOS.UI.changeToDynamicPage(
-            'space-application-page',
-            `${assistOS.space.id}/Space/document-view-page/${documentId}`
-        );
     }
 
     async closeWatcher() {

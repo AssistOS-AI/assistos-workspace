@@ -3,6 +3,7 @@ const constants = require('./constants');
 const SubscriptionManager = require("../subscribers/SubscriptionManager");
 const STATUS = constants.STATUS;
 const EVENTS = constants.EVENTS;
+const LOG = constants.LOG;
 const deleteTaskOnCompleteDuration = 60000 * 5; //5 minutes
 const cookie = require('../apihub-component-utils/cookie.js');
 const secrets = require("../apihub-component-utils/secrets");
@@ -14,12 +15,7 @@ class Task {
         this.userId = userId;
         this.spaceId = spaceId;
         this.callbacks = {};
-        this.logs = [];
         // possible statuses: pending, running, completed, failed, cancelled
-    }
-
-    async getLogs() {
-        return this.logs;
     }
 
     async loadModule(moduleName) {
@@ -93,51 +89,31 @@ class Task {
 
 
     logError(message = "", data = {}) {
-        this.log("ERROR", message, data);
+        this.__log(LOG.ERROR, message, data);
     }
 
     logInfo(message = "", data = {}) {
-        this.log("INFO", message, data);
+        this.__log(LOG.INFO, message, data);
     }
 
     logWarning(message = "", data = {}) {
-        this.log("WARNING", message, data);
+        this.__log(LOG.WARNING, message, data);
     }
 
     logSuccess(message = "", data = {}) {
-        this.log("SUCCESS", message, data);
+        this.__log(LOG.INFO, message, data);
     }
 
     logProgress(message = "", data = {}) {
-        this.log("PROGRESS", message, data);
+        this.__log(LOG.DEBUG, message, data);
     }
 
-    log(logType, message = "", data = {}) {
-        const sendLogNotification = (logType, logData) => {
-            const getNotificationId = (logCategory) => {
-                return SubscriptionManager.getObjectId(this.spaceId, "logs",logCategory);
-            }
-            let logCategory = "info";
-            switch (logType) {
-                case "ERROR":
-                case "WARNING":
-                case "PROGRESS":
-                    logCategory = "debug";
-            }
-            let infoNotificationId = getNotificationId("info");
-            if (logCategory === "debug") {
-                const debugNotificationId = getNotificationId("debug");
-                SubscriptionManager.notifyClients("", debugNotificationId, logData);
-            } else if (logCategory === "info") {
-                SubscriptionManager.notifyClients("", infoNotificationId, logData);
-            }
-        }
-        let time = new Date().toISOString();
-        this.logs.push({logType, message, data})
-        this.emit(EVENTS.LOG, {time, logType, message, data});
-        sendLogNotification(logType, {time, logType, message, data});
+    __log(type, message = "", data = {}) {
+        this.emit(EVENTS.LOG, {type, message, data});
+
+        /* custom notifications for task-watchers */
         let objectId = SubscriptionManager.getObjectId(this.spaceId, this.id + "/logs");
-        SubscriptionManager.notifyClients("", objectId, {logType: logType, message: message, data: data});
+        SubscriptionManager.notifyClients("", objectId, {type, message, data});
     }
 
     setStatus(status, result) {
