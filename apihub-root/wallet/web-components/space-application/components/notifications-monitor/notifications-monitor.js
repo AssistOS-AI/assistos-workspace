@@ -51,7 +51,7 @@ export class NotificationsMonitor {
     }
 
     async downloadSpaceTaskLogs(_target) {
-        window.location.href = `/tasks/logs/download/${assistOS.space.id}`
+        window.location.href = `/logs/${assistOS.space.id}`;
     }
 
     toggleFullscreen() {
