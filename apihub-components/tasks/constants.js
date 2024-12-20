@@ -11,5 +11,11 @@ module.exports = {
         UPDATE: "update",
         LOG: "log",
         DEPENDENCY_COMPLETED: "dependency_completed"
+    },
+    LOG: {
+        DEBUG: "DEBUG",
+        INFO: "INFO",
+        WARNING: "WARNING",
+        ERROR: "ERROR"
     }
 }

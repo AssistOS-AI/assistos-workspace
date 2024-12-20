@@ -23,6 +23,7 @@
         "subscribers",
         "webhook",
         "tasks",
+        "logger",
         "flows",
         "lightDBEnclave",
         "staticServer"
@@ -68,6 +69,9 @@
         },
         "tasks": {
             "module": "./../../apihub-components/tasks"
+        },
+        "logger": {
+            "module": "./../../apihub-components/logger"
         }
     },
     "responseHeaders": {
