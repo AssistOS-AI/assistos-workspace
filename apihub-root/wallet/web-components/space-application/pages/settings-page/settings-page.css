@@ -122,10 +122,14 @@ page-body {
 
 
 .collaborator-item{
+    width: 300px;
     display: flex;
+    margin: 10px 0;
+    border-bottom: 1px solid var(--gray-border);
 }
 .collaborator-email{
     margin-right: 20px;
+    width: 250px;
 }
 .delete-collaborator{
     display: flex;
