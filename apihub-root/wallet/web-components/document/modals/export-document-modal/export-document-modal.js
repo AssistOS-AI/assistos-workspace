@@ -58,4 +58,34 @@ export class ExportDocumentModal{
             button.innerHTML = 'Export';
         }
     }
+    async exportDOCX() {
+        try {
+            const spaceId = assistOS.space.id;
+            const documentId = this.documentId;
+
+            const response = await fetch(`/documents/export/docx/${spaceId}/${documentId}`, {
+                method: "POST",
+                headers: {
+                    "Content-Type": "application/json",
+                }
+            });
+            if (!response.ok) {
+                throw new Error(`Eroare la descărcare: ${response.statusText}`);
+            }
+            const responseData = await response.arrayBuffer();
+            const blob = new Blob([responseData], {
+                type: "application/vnd.openxmlformats-officedocument.wordprocessingml.document",
+            });
+            const url = window.URL.createObjectURL(blob);
+            const a = document.createElement("a");
+            a.href = url;
+            a.download = "document-exportat.docx";
+            a.click();
+            window.URL.revokeObjectURL(url);
+            console.log("Document descărcat cu succes.");
+        } catch (error) {
+            console.error("Eroare la descărcarea documentului:", error);
+        }
+    }
+
 }

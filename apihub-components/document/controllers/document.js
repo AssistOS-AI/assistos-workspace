@@ -13,6 +13,7 @@ const documentService = require("../services/document");
 const ExportDocument = require("../../tasks/ExportDocument");
 const TaskManager = require("../../tasks/TaskManager");
 const fsPromises = fs.promises;
+const { Document, Packer, Paragraph, TextRun } = require("docx");
 async function getDocument(req, res) {
     const {spaceId, documentId} = req.params;
     if (!spaceId || !documentId) {
@@ -544,6 +545,148 @@ function deleteSelection(itemSelectId, selectId, sessionId, documentId, itemId){
         delete selectedDocumentItems[item];
     }
 }
+function refineTextContent(text) {
+    if (typeof text !== "string") {
+        return [{ text: text, color: "black" }];
+    }
+
+    const instructionPatterns = [
+        /Your task is to write.*?\*\*Paragraph Idea\*\*/gis,
+        /{.*?("text":\s*".*?")?.*?}/gis,
+        /instructions?\s*[:\-]/i,
+        /Book Details.*?paragraphs\s*:\s*\[\s*\]/gis,
+        /Chapter Details.*?paragraphs\s*:\s*\[\s*\]/gis,
+        /Preparing for Generation\.\.\./gis,
+        /Generating\.\.\./gis,
+        /Expanding paragraph\s*[:\-]\s*undefined/gi,
+        /Error\s*[:\-]\s*\w+/gi,
+        /Failed\s*[:\-]\s*\w+/gi,
+        /Processing\s*[:\-]\s*\w+/gi,
+    ];
+
+    const errorWords = new Set(["error", "undefined", "null"]);
+
+    const paragraphs = text.split(/\n{2,}/);
+
+    return paragraphs.map((paragraph) => {
+        const words = paragraph.match(/\b\w+\b/g) || [];
+        const hasErrorWord = words.some((word) => errorWords.has(word.toLowerCase()));
+
+        const isInstruction = instructionPatterns.some((pattern) => pattern.test(paragraph));
+        return {
+            text: paragraph,
+            color: hasErrorWord || isInstruction ? "red" : "black",
+        };
+    });
+}
+
+
+
+async function exportDocumentAsDocx(request, response) {
+    const spaceId = request.params.spaceId;
+    const documentId = request.params.documentId;
+    const SecurityContext = require("assistos").ServerSideSecurityContext;
+    let securityContext = new SecurityContext(request);
+    const documentModule = require("assistos").loadModule("document", securityContext);
+    try {
+        let documentData = await documentModule.getDocument(spaceId, documentId);
+        const paragraphs = [];
+
+        if (documentData.title) {
+            paragraphs.push(
+                new Paragraph({
+                    children: [
+                        new TextRun({
+                            text: `Book title: ${documentData.title}`,
+                            bold: true,
+                            size: 28,
+                        }),
+                    ],
+                    spacing: {
+                        after: 200,
+                    },
+                })
+            );
+        }
+
+        if (documentData.chapters && documentData.chapters.length > 0) {
+            documentData.chapters.forEach((chapter, chapterIndex) => {
+                if (chapter.title) {
+                    paragraphs.push(
+                        new Paragraph({
+                            children: [
+                                new TextRun({
+                                    text: `Chapter ${chapterIndex + 1}: ${chapter.title}`,
+                                    bold: true,
+                                    size: 24,
+                                }),
+                            ],
+                            spacing: {
+                                after: 150,
+                            },
+                        })
+                    );
+                }
+
+                if (chapter.paragraphs && chapter.paragraphs.length > 0) {
+                    chapter.paragraphs.forEach((paragraph) => {
+                        if (paragraph.text) {
+                            const refinedContent = refineTextContent(paragraph.text);
+                            const runs = refinedContent.map((sentence) => {
+                                return new TextRun({
+                                    text: sentence.text,
+                                    color: sentence.color === "red" ? "FF0000" : "000000",
+                                    size: 22,
+                                });
+                            });
+
+                            paragraphs.push(
+                                new Paragraph({
+                                    children: runs,
+                                    spacing: {
+                                        after: 100,
+                                    },
+                                })
+                            );
+                        }
+                    });
+                }
+            });
+        } else {
+            paragraphs.push(
+                new Paragraph({
+                    children: [
+                        new TextRun({
+                            text: "Nu există capitole în acest document.",
+                            italic: true,
+                            size: 22,
+                        }),
+                    ],
+                })
+            );
+        }
+
+        const doc = new Document({
+            sections: [
+                {
+                    children: paragraphs,
+                },
+            ],
+        });
+
+        const buffer = await Packer.toBuffer(doc);
+        response.setHeader("Content-Type", "application/vnd.openxmlformats-officedocument.wordprocessingml.document");
+        response.setHeader("Content-Disposition", `attachment; filename="${documentId}.docx"`);
+        response.end(buffer);
+        console.log("Document trimis către client cu succes.");
+    } catch (error) {
+        console.error("Eroare la generarea documentului:", error);
+        response.writeHead(500, {
+            "Content-Type": "text/plain",
+        });
+        response.end("A apărut o eroare la generarea documentului.");
+    }
+}
 module.exports = {
     getDocument,
     getDocumentsMetadata,
@@ -557,5 +700,6 @@ module.exports = {
     deselectDocumentItem,
     getSelectedDocumentItems,
     downloadDocumentArchive,
-    downloadDocumentVideo
+    downloadDocumentVideo,
+    exportDocumentAsDocx
 }

@@ -41,6 +41,7 @@
     "axios": "^1.7.2",
     "busboy": "^1.6.0",
     "concurrently": "^8.2.2",
+    "docx": "^9.0.3",
     "dotenv": "^16.4.5",
     "encoding": "^0.1.13",
     "esprima": "^4.0.1",

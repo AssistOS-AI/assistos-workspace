@@ -22,6 +22,8 @@ function document(server) {
     server.post("/documents/export/:spaceId/:documentId", documentHandler.exportDocument);
     server.get("/documents/export/:spaceId/:fileName", documentHandler.downloadDocumentArchive);
     server.post("/documents/import/:spaceId", documentHandler.importDocument);
+    server.post("/documents/export/docx/:spaceId/:documentId", documentHandler.exportDocumentAsDocx);
+
 
     //Video
     server.get("/documents/video/:spaceId/:fileName", documentHandler.downloadDocumentVideo);
