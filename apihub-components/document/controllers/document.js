@@ -13,7 +13,8 @@ const documentService = require("../services/document");
 const ExportDocument = require("../../tasks/ExportDocument");
 const TaskManager = require("../../tasks/TaskManager");
 const fsPromises = fs.promises;
-const { Document, Packer, Paragraph, TextRun } = require("docx");
+const {Document, Packer, Paragraph, TextRun} = require("docx");
+
 async function getDocument(req, res) {
     const {spaceId, documentId} = req.params;
     if (!spaceId || !documentId) {
@@ -22,7 +23,7 @@ async function getDocument(req, res) {
         });
     }
     try {
-        const document = await documentService.getDocument(spaceId, documentId,req.query);
+        const document = await documentService.getDocument(spaceId, documentId, req.query);
         utils.sendResponse(res, 200, "application/json", {
             data: document
         });
@@ -33,19 +34,20 @@ async function getDocument(req, res) {
     }
 
 }
-async function getDocumentsMetadata(req,res){
+
+async function getDocumentsMetadata(req, res) {
     const {spaceId} = req.params;
-    if(!spaceId){
+    if (!spaceId) {
         return utils.sendResponse(res, 400, "application/json", {
             message: "Invalid request" + `Missing ${!spaceId ? "spaceId" : ""}`
         });
     }
-    try{
+    try {
         const metadata = await documentService.getDocumentsMetadata(spaceId);
         utils.sendResponse(res, 200, "application/json", {
             data: metadata
         });
-    }catch(error){
+    } catch (error) {
         utils.sendResponse(res, error.statusCode || 500, "application/json", {
             message: `Failed to retrieve document metadata` + error.message
         });
@@ -84,16 +86,16 @@ async function updateDocument(req, res) {
     try {
         const updatedFields = req.query.fields;
         /* TODO remove this jk and make something generic for all notifications */
-        await documentService.updateDocument(spaceId, documentId, documentData,req.query);
+        await documentService.updateDocument(spaceId, documentId, documentData, req.query);
         SubscriptionManager.notifyClients(req.sessionId, SubscriptionManager.getObjectId(spaceId, "documents"));
-       if (updatedFields) {
-           if (Array.isArray(updatedFields)) {
-               updatedFields.forEach(field => {
-                     SubscriptionManager.notifyClients(req.sessionId, SubscriptionManager.getObjectId(spaceId, documentId), field);
-               })
-           }else{
-               SubscriptionManager.notifyClients(req.sessionId, SubscriptionManager.getObjectId(spaceId, documentId), updatedFields);
-           }
+        if (updatedFields) {
+            if (Array.isArray(updatedFields)) {
+                updatedFields.forEach(field => {
+                    SubscriptionManager.notifyClients(req.sessionId, SubscriptionManager.getObjectId(spaceId, documentId), field);
+                })
+            } else {
+                SubscriptionManager.notifyClients(req.sessionId, SubscriptionManager.getObjectId(spaceId, documentId), updatedFields);
+            }
         }
         utils.sendResponse(res, 200, "application/json", {
             message: `Document ${documentId} updated successfully`
@@ -148,6 +150,7 @@ async function exportDocument(request, response) {
         });
     }
 }
+
 function downloadDocumentArchive(request, response) {
     let spaceId = request.params.spaceId;
     let fileName = request.params.fileName;
@@ -155,6 +158,7 @@ function downloadDocumentArchive(request, response) {
     let filePath = path.join(spacePath, "temp", `${fileName}.docai`);
     streamFile(filePath, response, "application/zip");
 }
+
 function streamFile(filePath, response, contentType) {
     try {
         let readStream = fs.createReadStream(filePath);
@@ -178,6 +182,7 @@ function streamFile(filePath, response, contentType) {
         });
     }
 }
+
 function downloadDocumentVideo(request, response) {
     let spaceId = request.params.spaceId;
     let fileName = request.params.fileName;
@@ -302,7 +307,7 @@ async function storeDocument(spaceId, extractedPath, request) {
             const audioPath = path.join(extractedPath, 'audios', `${chapter.backgroundSound.fileName}.mp3`);
             const stream = await fs.createReadStream(audioPath);
             chapterObject.backgroundSound.id = crypto.generateId();
-            await Storage.putFile( Storage.fileTypes.audios, chapterObject.backgroundSound.id, stream);
+            await Storage.putFile(Storage.fileTypes.audios, chapterObject.backgroundSound.id, stream);
             delete chapterObject.backgroundSound.fileName;
         }
 
@@ -348,8 +353,8 @@ async function storeAttachments(extractedPath, spaceModule, paragraph, spaceId) 
         await Storage.putFile(Storage.fileTypes.audios, paragraph.commands.audio.id, readStream);
         delete paragraph.commands.audio.fileName;
     }
-    if(paragraph.commands.effects){
-        for(let effect of paragraph.commands.effects){
+    if (paragraph.commands.effects) {
+        for (let effect of paragraph.commands.effects) {
             const audioPath = path.join(extractedPath, 'audios', `${effect.fileName}.mp3`);
             const readStream = fs.createReadStream(audioPath);
             effect.id = crypto.generateId();
@@ -364,7 +369,7 @@ async function storeAttachments(extractedPath, spaceModule, paragraph, spaceId) 
         await Storage.putFile(Storage.fileTypes.videos, paragraph.commands.video.id, readStream);
         delete paragraph.commands.video.fileName;
 
-        if(paragraph.commands.video.thumbnailId){
+        if (paragraph.commands.video.thumbnailId) {
             const thumbnailPath = path.join(extractedPath, 'images', `${paragraph.commands.video.thumbnailFileName}.png`);
             const readStream = fs.createReadStream(thumbnailPath);
             paragraph.commands.video.thumbnailId = crypto.generateId();
@@ -395,6 +400,7 @@ async function estimateDocumentVideoLength(request, response) {
 }
 
 let selectedDocumentItems = {};
+
 function getSelectedDocumentItems(req, res) {
     try {
         let spaceId = req.params.spaceId;
@@ -402,14 +408,14 @@ function getSelectedDocumentItems(req, res) {
         let otherUsersSelected = {};
         let userId = req.userId;
         for (let [key, value] of Object.entries(selectedDocumentItems)) {
-            if(key.startsWith(`${spaceId}/${documentId}`)){
-                if(value.users.find((selection) => selection.userId === userId)){
+            if (key.startsWith(`${spaceId}/${documentId}`)) {
+                if (value.users.find((selection) => selection.userId === userId)) {
                     continue;
                 }
                 let itemId = key.split("/")[2];
                 otherUsersSelected[itemId] = {
                     lockOwner: value.lockOwner,
-                    users: JSON.parse(JSON.stringify(value.users.map(({ timeoutId, ...user }) => user)))
+                    users: JSON.parse(JSON.stringify(value.users.map(({timeoutId, ...user}) => user)))
                 };
             }
         }
@@ -423,9 +429,11 @@ function getSelectedDocumentItems(req, res) {
         });
     }
 }
-function getItemSelectId(spaceId, documentId, itemId){
+
+function getItemSelectId(spaceId, documentId, itemId) {
     return `${spaceId}/${documentId}/${itemId}`;
 }
+
 function setNewSelection(sessionId, selectId, spaceId, documentId, itemId, userId, userImageId, lockItem) {
     const paragraphSelectId = getItemSelectId(spaceId, documentId, itemId);
     const timeoutId = setTimeout(() => {
@@ -476,6 +484,7 @@ function setNewSelection(sessionId, selectId, spaceId, documentId, itemId, userI
 
     return lockOwner;
 }
+
 function deselectDocumentItem(req, res) {
     try {
         let itemId = req.params.itemId;
@@ -484,14 +493,14 @@ function deselectDocumentItem(req, res) {
         let spaceId = req.params.spaceId;
         let paragraphSelectionId = getItemSelectId(spaceId, documentId, itemId);
         deleteSelection(paragraphSelectionId, selectId, req.sessionId, documentId, itemId);
-        return utils.sendResponse(res, 200, "application/json", {
-        });
+        return utils.sendResponse(res, 200, "application/json", {});
     } catch (e) {
         return utils.sendResponse(res, 500, "application/json", {
             message: e.message
         });
     }
 }
+
 function selectDocumentItem(req, res) {
     try {
         let itemId = req.params.itemId;
@@ -520,19 +529,20 @@ function selectDocumentItem(req, res) {
     }
 
 }
-function deleteSelection(itemSelectId, selectId, sessionId, documentId, itemId){
+
+function deleteSelection(itemSelectId, selectId, sessionId, documentId, itemId) {
     let item = selectedDocumentItems[itemSelectId];
-    if(!item){
+    if (!item) {
         return;
     }
     let userSelection = item.users.find((selection) => selection.selectId === selectId);
-    if(!userSelection){
+    if (!userSelection) {
         return;
     }
     let index = item.users.indexOf(userSelection);
     item.users.splice(index, 1);
     let objectId = SubscriptionManager.getObjectId(documentId, itemId);
-    if(userSelection.selectId === item.lockOwner){
+    if (userSelection.selectId === item.lockOwner) {
         item.lockOwner = undefined;
     }
     let eventData = {
@@ -541,13 +551,14 @@ function deleteSelection(itemSelectId, selectId, sessionId, documentId, itemId){
         lockOwner: item.lockOwner
     }
     SubscriptionManager.notifyClients(sessionId, objectId, eventData);
-    if(item.users.length === 0){
+    if (item.users.length === 0) {
         delete selectedDocumentItems[item];
     }
 }
+
 function refineTextContent(text) {
     if (typeof text !== "string") {
-        return [{ text: text, color: "black" }];
+        return [{text: text, color: "black"}];
     }
 
     const instructionPatterns = [
@@ -579,7 +590,6 @@ function refineTextContent(text) {
         };
     });
 }
-
 
 
 async function exportDocumentAsDocx(request, response) {
@@ -675,18 +685,12 @@ async function exportDocumentAsDocx(request, response) {
         });
 
         const buffer = await Packer.toBuffer(doc);
-        response.setHeader("Content-Type", "application/vnd.openxmlformats-officedocument.wordprocessingml.document");
-        response.setHeader("Content-Disposition", `attachment; filename="${documentId}.docx"`);
-        response.end(buffer);
-        console.log("Document trimis către client cu succes.");
+        return utils.sendResponse(response, 200, "application/octet-stream", buffer);
     } catch (error) {
-        console.error("Eroare la generarea documentului:", error);
-        response.writeHead(500, {
-            "Content-Type": "text/plain",
-        });
-        response.end("A apărut o eroare la generarea documentului.");
+        return utils.sendResponse(response, error.statusCode || 500, "application/json", error.message)
     }
 }
+
 module.exports = {
     getDocument,
     getDocumentsMetadata,
