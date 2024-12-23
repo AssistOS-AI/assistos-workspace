@@ -1,9 +1,6 @@
 <div class="log-container log$$type">
   <div class="log-header">
-    <div class="log-header-left">
-      <span class="log-type">$$type</span>
-      <span class="log-agent">$$agent</span>
-      <time class="log-time">$$time</time>
+    <div class="log-header-left"><span class="log-type">$$type</span><span class="log-agent"> ($$agent)</span><time class="log-time">: $$time</time>
     </div>
     <div class="log-header-right">
       <button class="copy-button" data-local-action="copyMessage">
@@ -15,7 +12,7 @@
     </div>
   </div>
   <div class="log-content">
-    <pre>$$logMessage</pre>
+    <pre class="log-content-message">$$logMessage</pre>
   </div>
   <div class="log-footer">
     <div class="log-footer-left">
