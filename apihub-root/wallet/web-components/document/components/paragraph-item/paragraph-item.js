@@ -23,6 +23,11 @@ export class ParagraphItem {
                     <img class="pointer" loading="lazy" src="./wallet/assets/icons/image.svg" alt="icon">
                 </div>`
         },
+        "diagram-menu": {
+            icon: `<div data-local-action="openPlugin diagram-menu" class="attachment-circle menu-container diagram-menu">
+                    <img class="pointer" loading="lazy" src="./wallet/assets/icons/diagram-logo.svg" alt="icon">
+                </div>`
+        },
         "audio-menu": {
             icon: `<div data-local-action="openPlugin audio-menu" class="attachment-circle menu-container audio-menu">
                     <img class="pointer" loading="lazy" src="./wallet/assets/icons/audio.svg" alt="icon">
@@ -82,13 +87,53 @@ export class ParagraphItem {
     }
     async afterRender() {
 
-        let paragraphText = this.element.querySelector(".paragraph-text");
-        paragraphText.innerHTML = this.paragraph.text
-        paragraphText.style.height = paragraphText.scrollHeight + 'px';
-        if (assistOS.space.currentParagraphId === this.paragraph.id) {
-            paragraphText.click();
-            //this.element.scrollIntoView({behavior: "smooth", block: "center"});
+        let paragraphContainer = this.element.querySelector(".paragraph-container");
+        if (!paragraphContainer) {
+            console.error("Nu s-a găsit .paragraph-container!");
+            return;
         }
+
+        let decodedText = await this.decodeHtmlEntities(this.paragraph.text);
+
+        let parser = new DOMParser();
+        let doc = parser.parseFromString(decodedText, "text/html");
+        let tags = Array.from(doc.body.querySelectorAll("*"));
+
+        if (tags.length > 0) {
+            console.log("Length:", tags.length);
+
+            let htmlString = tags.map(tag => {
+                    let tempElement = document.createElement("div");
+                    tempElement.innerHTML = tag.innerHTML;
+                    let decodedContent = tempElement.textContent || tempElement.innerText || "";
+
+                    return `<${tag.tagName.toLowerCase()}>${decodedContent}</${tag.tagName.toLowerCase()}>`;
+                }).join("\n");
+
+                paragraphContainer.insertAdjacentHTML("afterbegin", `
+                <paragraph-html-preview data-presenter="paragraph-html-preview">
+                </paragraph-html-preview>
+                `);
+
+                setTimeout(() => {
+                    let previewElement = paragraphContainer.querySelector("paragraph-html-preview");
+                    if (previewElement) {
+                        previewElement.innerHTML += htmlString;
+                        console.log(htmlString + 1112)
+                    }
+                }, 500);
+
+
+
+        }
+
+            let paragraphText = this.element.querySelector(".paragraph-text");
+            paragraphText.innerHTML = this.paragraph.text
+            paragraphText.style.height = paragraphText.scrollHeight + 'px';
+            if (assistOS.space.currentParagraphId === this.paragraph.id) {
+                paragraphText.click();
+                //this.element.scrollIntoView({behavior: "smooth", block: "center"});
+            }
 
         let commands = this.element.querySelector(".paragraph-commands");
         this.errorElement = this.element.querySelector(".error-message");
@@ -257,7 +302,28 @@ export class ParagraphItem {
             this.textIsDifferentFromAudio = true;
             await documentModule.updateParagraphText(assistOS.space.id, this._document.id, this.paragraph.id, paragraphText);
         }
+
+        let htmlRegex = /<([a-z]+)([^<]+)*(?:>(.*?)<\/\1>|\/>)/gi;
+        let decodedText = await this.decodeHtmlEntities(this.paragraph.text);
+        // console.log(decodedText);
+
+        // if (htmlRegex.test(decodedText)) {
+        //     // console.log(1);
+        //     this.paragraph.type = "html";
+        //     // console.log("html");
+        //     this.invalidate();
+        // }
+
+
+
     }
+
+    async decodeHtmlEntities(str) {
+        const tempElement = document.createElement('div');
+        tempElement.innerHTML = str;
+        return tempElement.textContent || tempElement.innerText;
+    }
+
 
     switchParagraphToolbar(mode) {
         let toolbar = this.element.querySelector('.paragraph-toolbar');
@@ -418,6 +484,7 @@ export class ParagraphItem {
                 <div class="insert-document-element">
                     <list-item data-local-action="addParagraph" data-name="Insert Paragraph After" data-highlight="light-highlight"></list-item>
                     <list-item data-local-action="addChapter" data-name="Add Chapter" data-highlight="light-highlight"></list-item>
+                    <list-item data-local-action="addParagraphTable" data-name="Add Paragraph Table" data-highlight="light-highlight"></list-item>
                 </div>`,
         "paragraph-comment-menu": `<paragraph-comment-menu class="paragraph-comment-menu" data-presenter="paragraph-comment-modal"></paragraph-comment-menu>`,
     }

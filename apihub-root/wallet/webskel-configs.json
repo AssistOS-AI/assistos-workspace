@@ -190,6 +190,12 @@
             "presenterClassName": "ParagraphItem"
         },
         {
+            "name": "paragraph-table-item",
+            "directory": "document",
+            "type": "components",
+            "presenterClassName": "ParagraphTableItem"
+        },
+        {
             "name": "audio-menu",
             "directory": "document",
             "type": "modals",

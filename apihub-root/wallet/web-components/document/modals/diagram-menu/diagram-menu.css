@@ -1,0 +1,109 @@
+diagram-menu{
+    display: block;
+    width: 1300px;
+    background-color: var(--white);
+    border-radius: 5px;
+    box-shadow: 0px 1px 7.3px 0px #00000040;
+}
+.actions-section{
+    display: flex;
+}
+
+.image-2{
+    margin-left: 10px;
+}
+
+.text{
+    color: red;
+}
+
+.text-mermaid{
+    color:blue;
+}
+
+.edit-diagram{
+    margin-left: 10px;
+}
+
+.generate-code{
+    margin-left: 10px;
+}
+
+.download-code{
+    margin-left: 10px;
+}
+
+.edit-code{
+    margin-left: 10px;
+}
+
+#diagram{
+    margin-left: 10px;
+}
+
+#text-input-container {
+    margin-bottom: 16px;
+}
+
+#text-input-container-2 {
+    margin-bottom: 16px;
+}
+
+#code-input-container {
+    margin-bottom: 16px;
+}
+
+#diagram-text {
+    width: calc(100% - 100px);
+    height: 150px;
+    padding: 8px;
+    font-size: 16px;
+    box-sizing: border-box;
+    border: 1px solid #ccc;
+    border-radius: 4px;
+}
+
+#diagram-text-2 {
+    width: calc(100% - 100px);
+    height: 150px;
+    padding: 8px;
+    font-size: 16px;
+    box-sizing: border-box;
+    border: 1px solid #ccc;
+    border-radius: 4px;
+    resize: none;
+}
+
+
+#code-text{
+    width: calc(100% - 100px);
+    height: 150px;
+    padding: 8px;
+    font-size: 16px;
+    box-sizing: border-box;
+    border: 1px solid #ccc;
+    border-radius: 4px;
+}
+
+
+
+.submit-button {
+    height: 40px;
+    padding: 0 16px;
+    font-size: 16px;
+    margin-left: 5px;
+    border: 1px solid var(--medium-blue);
+    border-radius: 4px;
+    background-color: var(--medium-blue);
+    color: white;
+    cursor: pointer;
+}
+
+.submit-button:hover {
+    background-color: #0056b3;
+}
+
+#language-checkbox-container{
+    margin-bottom: 16px;
+}
+

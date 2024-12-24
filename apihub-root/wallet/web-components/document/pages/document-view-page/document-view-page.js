@@ -270,6 +270,18 @@ export class DocumentViewPage {
         await this.insertNewChapter(assistOS.space.currentChapterId, position);
     }
 
+
+    async addParagraphTable(targetElement, mode) {
+        // console.log(112);
+        let chapterPresenter = targetElement.closest("chapter-item").webSkelPresenter;
+        let mockEvent = {
+            ctrlKey: true,
+            key: "Enter",
+            target: targetElement
+        }
+        chapterPresenter.addParagraphOrChapterOnKeyPress(mockEvent,"table");
+    }
+
     async openDocumentsPage() {
         await assistOS.UI.changeToDynamicPage("space-application-page", `${assistOS.space.id}/Space/documents-page`);
     }
