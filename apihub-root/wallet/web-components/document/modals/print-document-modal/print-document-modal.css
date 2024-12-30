@@ -1,0 +1,183 @@
+/* namespace pt modal */
+.print-modal-wrapper {
+    font-family: 'Arial', sans-serif;
+    background-color: rgba(18, 18, 18, 0.85);
+    color: #ffffff;
+    margin: 0;
+    padding: 0;
+    display: flex;
+    justify-content: center;
+    align-items: center;
+    height: 100vh;
+}
+
+.print-modal-wrapper .print-modal {
+    position: fixed;
+    top: 0;
+    left: 0;
+    width: 100%;
+    height: 100%;
+    background-color: rgba(0, 0, 0, 0.8);
+    display: flex;
+    justify-content: center;
+    align-items: center;
+    z-index: 1000;
+}
+
+/* continut modal */
+.print-modal-wrapper .print-modal-content {
+    background-color: #1c1c1c;
+    color: #ffffff;
+    border-radius: 8px;
+    padding: 20px;
+    width: 80%;
+    max-width: 800px; /* Lățime maximă pe ecrane mari */
+    max-height: 90vh; /* Limitează înălțimea modalului la 90% din înălțimea vizibilă a ecranului */
+    overflow-y: auto; /* Permite scroll pe verticală dacă conținutul depășește înălțimea */
+    box-shadow: 0 5px 15px rgba(0, 0, 0, 0.5);
+    animation: fadeIn 0.3s ease-out;
+}
+
+/* animation fade-in */
+@keyframes fadeIn {
+    from {
+        opacity: 0;
+        transform: scale(0.9);
+    }
+    to {
+        opacity: 1;
+        transform: scale(1);
+    }
+}
+
+/* header modal */
+.print-modal-wrapper .modal-header {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    border-bottom: 1px solid #444;
+    margin-bottom: 15px;
+    padding-bottom: 10px;
+}
+
+.print-modal-wrapper .modal-header div {
+    font-size: 20px;
+    font-weight: bold;
+}
+
+.print-modal-wrapper .close {
+    cursor: pointer;
+    color: #ffffff;
+    font-size: 24px;
+    transition: color 0.3s;
+}
+
+.print-modal-wrapper .close:hover {
+    color: #0A4C8E;
+}
+
+/* formular */
+.print-modal-wrapper form {
+    display: flex;
+    flex-direction: column;
+    gap: 15px;
+}
+
+.print-modal-wrapper label {
+    font-size: 14px;
+    color: #cccccc;
+    margin-bottom: 5px;
+}
+
+.print-modal-wrapper input,
+.print-modal-wrapper select {
+    background-color: #2b2b2b;
+    color: #ffffff;
+    border: 1px solid #444;
+    border-radius: 4px;
+    padding: 10px;
+    font-size: 14px;
+    transition: all 0.3s;
+    width: 100%; /* Asigură-te că toate câmpurile se extind la 100% pe ecranele mici */
+}
+
+.print-modal-wrapper input:focus,
+.print-modal-wrapper select:focus {
+    border-color: #0A4C8E;
+    outline: none;
+}
+
+/* butoane */
+.print-modal-wrapper button {
+    background-color: #0A4C8E;
+    color: #ffffff;
+    border: none;
+    border-radius: 4px;
+    padding: 10px 15px;
+    font-size: 14px;
+    cursor: pointer;
+    transition: background-color 0.3s;
+    width: 100%; /* Face butoanele să ocupe toată lățimea pe mobil */
+}
+
+.print-modal-wrapper button:hover {
+    background-color: #0A4C8E;
+}
+
+.print-modal-wrapper .action-buttons {
+    display: flex;
+    justify-content: space-between;
+    gap: 10px;
+    margin-top: 20px;
+    flex-wrap: wrap; /* Asigură că butoanele se pot pune pe mai multe linii pe ecrane mici */
+}
+
+/* background upload */
+.print-modal-wrapper #backgroundImage {
+    border: none;
+    padding: 0;
+    color: #cccccc;
+}
+
+/* Font Style aliniare pe aceeași linie */
+.print-modal-wrapper .titleFontStyle,
+.print-modal-wrapper .abstractFontStyle,
+.print-modal-wrapper .chapterFontStyle,
+.print-modal-wrapper .paragraphFontStyle {
+    display: flex;
+    gap: 10px;
+    align-items: center;
+}
+
+/* Media Queries pentru responsive */
+@media (max-width: 768px) {
+    .print-modal-wrapper .print-modal-content {
+        width: 90%;
+        padding: 15px;
+    }
+
+    .print-modal-wrapper .modal-header div {
+        font-size: 18px;
+    }
+
+    /* Aliniere pe linie pentru stilurile de font pe mobil */
+    .print-modal-wrapper .titleFontStyle,
+    .print-modal-wrapper .abstractFontStyle,
+    .print-modal-wrapper .chapterFontStyle,
+    .print-modal-wrapper .paragraphFontStyle {
+        flex-direction: column;
+    }
+
+    /* Asigură-te că formularele și butoanele se adaptează corect */
+    .print-modal-wrapper input,
+    .print-modal-wrapper select,
+    .print-modal-wrapper button {
+        width: 100%; /* Ocupă toată lățimea disponibilă */
+    }
+
+    /* Acoperă spațiile de input și butoanele care s-ar putea aranja pe o singură linie pe desktop */
+    .print-modal-wrapper .action-buttons {
+        flex-direction: column;
+        gap: 15px;
+    }
+}
