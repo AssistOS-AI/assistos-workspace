@@ -479,6 +479,12 @@
             "directory": "application",
             "type": "components",
             "presenterClassName": "ApplicationItem"
+        },
+        {
+            "name": "print-document-modal",
+            "directory": "document",
+            "type": "modals",
+            "presenterClassName": "PrintDocumentModal"
         }
     ]
 }

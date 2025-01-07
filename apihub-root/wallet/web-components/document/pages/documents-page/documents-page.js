@@ -14,6 +14,8 @@ export class DocumentsPage {
         });
     }
 
+
+
     beforeRender() {
         this.tableRows = "";
         this.documents.forEach((document) => {

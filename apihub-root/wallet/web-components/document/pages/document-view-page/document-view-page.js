@@ -23,6 +23,10 @@ export class DocumentViewPage {
         });
     }
 
+    async printDocument(){
+        await assistOS.UI.showModal("print-document-modal", {id: this._document.id, title: this._document.title});
+    }
+
     async initTitleAbstractSelection() {
         this.abstractClass = "document-abstract";
         this.titleClass = "document-title";

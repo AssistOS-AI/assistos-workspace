@@ -78,6 +78,42 @@
         ]
       },
       {
+        "name": "dompurify",
+        "actions": [
+          {
+            "type": "execute",
+            "cmd": "npm install dompurify --no-save"
+          },
+          {
+            "type": "copy",
+            "src": "node_modules/dompurify/dist",
+            "target": "apihub-root/wallet/lib/dompurify"
+          },
+          {
+            "type": "execute",
+            "cmd": "npm uninstall dompurify"
+          }
+        ]
+      },
+      {
+        "name": "jspdf",
+        "actions": [
+          {
+            "type": "execute",
+            "cmd": "npm install jspdf --no-save"
+          },
+          {
+            "type": "copy",
+            "src": "node_modules/jspdf/dist",
+            "target": "apihub-root/wallet/lib/jspdf"
+          },
+          {
+            "type": "execute",
+            "cmd": "npm uninstall jspdf"
+          }
+        ]
+      },
+      {
         "name": "mermaid",
         "actions": [
           {
@@ -92,6 +128,24 @@
           {
             "type": "execute",
             "cmd": "npm uninstall mermaid"
+          }
+        ]
+      },
+      {
+        "name": "html2canvas",
+        "actions": [
+          {
+            "type": "execute",
+            "cmd": "npm install html2canvas --no-save"
+          },
+          {
+            "type": "copy",
+            "src": "node_modules/html2canvas/dist",
+            "target": "apihub-root/wallet/lib/html2canvas"
+          },
+          {
+            "type": "execute",
+            "cmd": "npm uninstall html2canvas"
           }
         ]
       }

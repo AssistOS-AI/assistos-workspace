@@ -45,7 +45,6 @@
     "dotenv": "^16.4.5",
     "encoding": "^0.1.13",
     "esprima": "^4.0.1",
-    "jspdf": "^2.5.2",
     "nodemailer": "^6.9.13",
     "octopus": "git+http://github.com/opendsu/octopus.git",
     "openai": "^4.46.1",
